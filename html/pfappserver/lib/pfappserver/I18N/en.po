@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 6.2.9\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-10-04 08:09-0400\n"
+"PO-Revision-Date: 2016-10-04 10:20-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -14,6 +14,14 @@ msgstr ""
 "Content-Type: text/plain; charset=ASCII\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Node.pm
+msgid "%1 nodes imported, %2 skipped"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Model/User.pm
+msgid "%1: Guest Network Access Information"
+msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/reports-header.tt
@@ -606,7 +614,7 @@ msgid "Amount of time before the violation can reoccur. This is useful to allow 
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/User.pm
-msgid "An email was sent to [_1] out of [_2] users."
+msgid "An email was sent to %1 out of %2 users."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Admin.pm
@@ -1141,7 +1149,6 @@ msgstr ""
 # html/pfappserver/root/config/wrix/view.tt
 # html/pfappserver/root/dhcpoption82/view.tt
 # html/pfappserver/root/interface/view.tt
-# html/pfappserver/root/node/tab_Violations_view.tt
 # html/pfappserver/root/node/view.tt
 # html/pfappserver/root/node/violations.tt
 # html/pfappserver/root/roles/read.tt
@@ -1817,6 +1824,10 @@ msgstr ""
 msgid "Delete"
 msgstr ""
 
+# html/pfappserver/root/config/switch/index.tt
+msgid "Delete %1"
+msgstr ""
+
 # html/pfappserver/root/config/adminroles/index.tt
 msgid "Delete Admin Role"
 msgstr ""
@@ -1914,10 +1925,6 @@ msgstr ""
 msgid "Delete WRIX Entry"
 msgstr ""
 
-# html/pfappserver/root/config/switch/index.tt
-msgid "Delete [_1]"
-msgstr ""
-
 # html/pfappserver/root/config/billingtiers/index.tt
 msgid "Delete billing tier"
 msgstr ""
@@ -1959,7 +1966,6 @@ msgstr ""
 # html/pfappserver/root/config/profile/index.tt
 # html/pfappserver/root/config/provisioning/list.tt
 # html/pfappserver/root/config/switch/list.tt
-# html/pfappserver/root/node/tab_Violations_view.tt
 # html/pfappserver/root/node/violations.tt
 # html/pfappserver/root/roles/index.tt
 # html/pfappserver/root/user/violations.tt
@@ -2042,7 +2048,7 @@ msgstr ""
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/dhcpoption82/index.tt
 # html/pfappserver/root/per_page_select.tt
-msgid "Display [_1] entries per page"
+msgid "Display %1 entries per page"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
@@ -2806,7 +2812,7 @@ msgstr ""
 
 # html/pfappserver/root/authentication/source/rule_read.tt
 # html/pfappserver/root/config/profile/tab-content.tt
-msgid "If [_1] of the following conditions are met:"
+msgid "If %1 of the following conditions are met:"
 msgstr ""
 
 # conf/documentation.conf (network.dhcpoption82logger)
@@ -3370,7 +3376,7 @@ msgstr ""
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/dhcpoption82/index.tt
 # html/pfappserver/root/dynamicreport/index.tt
-msgid "Match [_1] of the following conditions:"
+msgid "Match %1 of the following conditions:"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
@@ -3788,7 +3794,6 @@ msgstr ""
 msgid "No violation defined"
 msgstr ""
 
-# html/pfappserver/root/node/tab_Violations_view.tt
 # html/pfappserver/root/node/violations.tt
 # html/pfappserver/root/user/violations.tt
 msgid "No violation found"
@@ -3951,7 +3956,7 @@ msgid "On this page, you need to modify the default admin user password that wil
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Model/User.pm
-msgid "Once authenticated the access will be valid for [_1] [_2]."
+msgid "Once authenticated the access will be valid for %1 %2."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
@@ -4946,6 +4951,10 @@ msgstr ""
 msgid "Read Only"
 msgstr ""
 
+# html/pfappserver/root/config/switch/index.tt
+msgid "Really delete this %1 ?"
+msgstr ""
+
 # html/pfappserver/root/config/fingerbank/combination/index.tt
 msgid "Really delete this Combination?"
 msgstr ""
@@ -5001,10 +5010,6 @@ msgstr ""
 
 # html/pfappserver/root/config/fingerbank/user_agent/index.tt
 msgid "Really delete this User Agent?"
-msgstr ""
-
-# html/pfappserver/root/config/switch/index.tt
-msgid "Really delete this [_1] ?"
 msgstr ""
 
 # html/pfappserver/root/config/adminroles/index.tt
@@ -5128,7 +5133,7 @@ msgid "Registration Window"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Model/User.pm
-msgid "Registration must happen before [_1]."
+msgid "Registration must happen before %1."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
@@ -5147,12 +5152,10 @@ msgstr ""
 msgid "Relative to the beginning of the period"
 msgstr ""
 
-# html/pfappserver/root/node/tab_Violations_view.tt
 # html/pfappserver/root/node/violations.tt
 msgid "Release"
 msgstr ""
 
-# html/pfappserver/root/node/tab_Violations_view.tt
 # html/pfappserver/root/node/violations.tt
 # html/pfappserver/root/user/violations.tt
 msgid "Release Date"
@@ -5360,7 +5363,6 @@ msgstr ""
 msgid "Rules Actions"
 msgstr ""
 
-# html/pfappserver/root/node/tab_Violations_view.tt
 # html/pfappserver/root/node/violations.tt
 msgid "Run Now"
 msgstr ""
@@ -5701,7 +5703,6 @@ msgstr ""
 msgid "Security type"
 msgstr ""
 
-# html/pfappserver/root/node/tab_Violations_view.tt
 # html/pfappserver/root/node/violations.tt
 msgid "Select a violation"
 msgstr ""
@@ -6096,7 +6097,6 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/DynamicReportSearch.pm
 # html/pfappserver/lib/pfappserver/Form/RadiusLogSearch.pm
-# html/pfappserver/root/node/tab_Violations_view.tt
 # html/pfappserver/root/node/violations.tt
 # html/pfappserver/root/user/violations.tt
 msgid "Start Date"
@@ -6839,7 +6839,7 @@ msgid "This step covers some basic configuration parameters required to have a f
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Model/User.pm
-msgid "This username and password will be valid starting [_1]."
+msgid "This username and password will be valid starting %1."
 msgstr ""
 
 # conf/documentation.conf (network.force_listener_update_on_ack)
@@ -6879,7 +6879,6 @@ msgstr ""
 msgid "Tries to identify Rogue DHCP Servers and triggers the 1100010 violation if one is found. This feature is only available if the dhcpdetector is activated."
 msgstr ""
 
-# html/pfappserver/root/node/tab_Violations_view.tt
 # html/pfappserver/root/node/violations.tt
 msgid "Trigger"
 msgstr ""
@@ -7645,7 +7644,7 @@ msgid "You have successfully configured and launched PacketFence."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
-msgid "You must assign an interface to the following types: [_1]"
+msgid "You must assign an interface to the following types: %1"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
@@ -7693,14 +7692,6 @@ msgstr ""
 
 # html/pfappserver/root/admin/login.tt
 msgid "Your username or email address"
-msgstr ""
-
-# html/pfappserver/lib/pfappserver/PacketFence/Controller/Node.pm
-msgid "[_1] nodes imported, [_2] skipped"
-msgstr ""
-
-# html/pfappserver/lib/pfappserver/Model/User.pm
-msgid "[_1]: Guest Network Access Information"
 msgstr ""
 
 # pf::config (SoH Actions)
@@ -9323,10 +9314,6 @@ msgstr "Profile"
 
 # html/pfappserver/lib/pfappserver/Form/Field/ProfileFilter.pm
 msgid "profile.filter.$_"
-msgstr ""
-
-# profile.filter (Portal Profile Filters)
-msgid "profile.filter.advanced"
 msgstr ""
 
 # profile.filter (Portal Profile Filters)

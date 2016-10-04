@@ -135,7 +135,9 @@ sub parse_tt {
         while (defined($line = <TT>)) {
             chomp $line;
             while ($line =~ m/\[\%\s?l\(['"](.+?(?!\\))['"](,.*)?\)\s?(\| (js|none) )?\%\]/g) {
-                add_string($1, $template) unless ($1 =~ m/\${/);
+                my $string = $1;
+                $string =~ s/\[_(\d+)\]/\%$1/g;
+                add_string($string, $template) unless ($string =~ m/\${/);
             }
         }
         close(TT);
@@ -193,6 +195,7 @@ sub parse_mc {
             if ($line =~ m/->(loc|_localize)\(['"]([^\$].+?[^'"\\])["'] *[\),]/) {
                 my $string = $2;
                 $string =~ s/\\'/'/g;
+                $string =~ s/\[_(\d+)\]/\%$1/g;
                 add_string($string, $module);
             }
         }
