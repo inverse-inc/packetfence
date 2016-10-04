@@ -146,16 +146,130 @@ has_field 'expiration' =>
    messages => { required => 'Please specify the end date of the registration window.' },
   );
 
-has_field [qw( anniversary birthday gender lang nickname organization cell_phone
-  work_phone title building_number apartment_number room_number)] =>
+has_field 'anniversary' =>
   (
    type => 'Text',
+   label => 'anniversary',
   );
 
-
-has_field [qw(custom_field_1 custom_field_2 custom_field_3 custom_field_4 custom_field_5 custom_field_6 custom_field_7 custom_field_8 custom_field_9)] =>
+has_field 'birthday' =>
   (
-       type => 'Text',
+   type => 'Text',
+   label => 'birthday',
+  );
+
+has_field 'gender' =>
+  (
+   type => 'Text',
+   label => 'gender',
+  );
+
+has_field 'lang' =>
+  (
+   type => 'Text',
+   label => 'lang',
+  );
+
+has_field 'nickname' =>
+  (
+   type => 'Text',
+   label => 'nickname',
+  );
+
+has_field 'organization' =>
+  (
+   type => 'Text',
+   label => 'organization',
+  );
+
+has_field 'cell_phone' =>
+  (
+   type => 'Text',
+   label => 'cell_phone',
+  );
+
+has_field 'work_phone' =>
+  (
+   type => 'Text',
+   label => 'work_phone',
+  );
+
+has_field 'title' =>
+  (
+   type => 'Text',
+   label => 'title',
+  );
+
+has_field 'building_number' =>
+  (
+   type => 'Text',
+   label => 'building_number',
+  );
+
+has_field 'apartment_number' =>
+  (
+   type => 'Text',
+   label => 'apartment_number',
+  );
+
+has_field 'room_number' =>
+  (
+   type => 'Text',
+   label => 'room_number',
+  );
+
+has_field 'custom_field_1' =>
+  (
+   type => 'Text',
+   label => 'custom_field_1',
+  );
+
+has_field 'custom_field_2' =>
+  (
+   type => 'Text',
+   label => 'custom_field_2',
+  );
+
+has_field 'custom_field_3' =>
+  (
+   type => 'Text',
+   label => 'custom_field_3',
+  );
+
+has_field 'custom_field_4' =>
+  (
+   type => 'Text',
+   label => 'custom_field_4',
+  );
+
+has_field 'custom_field_5' =>
+  (
+   type => 'Text',
+   label => 'custom_field_5',
+  );
+
+has_field 'custom_field_6' =>
+  (
+   type => 'Text',
+   label => 'custom_field_6',
+  );
+
+has_field 'custom_field_7' =>
+  (
+   type => 'Text',
+   label => 'custom_field_7',
+  );
+
+has_field 'custom_field_8' =>
+  (
+   type => 'Text',
+   label => 'custom_field_8',
+  );
+
+has_field 'custom_field_9' =>
+  (
+   type => 'Text',
+   label => 'custom_field_9',
   );
 
 =head2 Blocks
