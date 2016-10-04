@@ -19,9 +19,9 @@ use pf::error qw(is_error is_success);
 use pf::violation;
 use base qw(pfappserver::Base::Model::Node::Tab);
 
-=head2 process_tab
+=head2 process_view
 
-Process Tab
+Process View
 
 =cut
 
@@ -45,6 +45,25 @@ sub process_view {
     my (undef, $result) = $c->model('Config::Violations')->readAll();
     my @violations = grep { $_->{id} ne 'defaults' } @$result; # remove defaults
     return ($STATUS::OK, { items => \@items, violations => \@violations });
+}
+
+=head2 process_tab
+
+Process tab
+
+=cut
+
+sub process_tab {
+    my ($self, $c, $vid, @args) = @_;
+    my ($status, $result) = $c->model('Config::Violations')->hasId($vid);
+    return ($status, $result) if is_error($status);
+
+    ($status, $result) = $c->model('Node')->addViolation($c->stash->{mac}, $vid);
+    return ($status, $result) if is_error($status);
+
+    $c->controller->audit_current_action($c, status => $status, mac => $c->stash->{mac}, violation_id => $vid);
+
+    return $self->process_view($c, @args);
 }
 
 =head1 AUTHOR
