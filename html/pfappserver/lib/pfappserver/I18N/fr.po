@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-10-04 20:03+0000\n"
+"PO-Revision-Date: 2016-10-04 20:39+0000\n"
 "Last-Translator: oeufdure <fdurand@inverse.ca>\n"
 "Language-Team: French (http://www.transifex.com/inverse/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
@@ -570,7 +570,7 @@ msgstr "Apres avoir configuré votre premier domaine vous devez redémarrer radi
 msgid ""
 "After which calls to pfcmd do we have to re-evaluate the state of a node and"
 " re-assign VLAN or change iptables rules"
-msgstr "Après l’appel à pfcmd a-t-on à ré-évaluer l’état d’un nœud et lui ré-assigner un VLAN ou changer les règles iptables"
+msgstr "Après l’appel à pfcmd a-t-on à ré-évaluer l’état d’un appareil et lui ré-assigner un VLAN ou changer les règles iptables"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Pfdetect.pm
 msgid "Alert pipe"
@@ -593,7 +593,7 @@ msgstr "Tous"
 msgid ""
 "All imported nodes will be registered. If a MAC matches an existing node, it"
 " will also be registered."
-msgstr "Tous les nœuds importés seront enregistrés. Si une MAC correspond à un nœud existant, il sera également enregistré."
+msgstr "Tous les appareils importés seront enregistrés. Si une MAC correspond à un appareil existant, il sera également enregistré."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Email.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SponsorEmail.pm
@@ -614,11 +614,11 @@ msgstr "Actions permises"
 
 # html/pfappserver/root/config/adminroles/view.tt
 msgid "Allowed node options"
-msgstr "Options du nœud permises"
+msgstr "Options de l’appareil permises"
 
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
 msgid "Allowed node roles"
-msgstr "Rôles du nœud permis"
+msgstr "Rôles de l’appareil permis"
 
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
 msgid "Allowed user access durations"
@@ -737,7 +737,7 @@ msgstr "Appliquer la violation"
 
 # conf/documentation.conf (provisioning.category)
 msgid "Apply to node that are members of the following category"
-msgstr "Appliquer aux nœuds membres de cette catégorie"
+msgstr "Appliquer aux appareils membres de cette catégorie"
 
 # conf/documentation.conf (scan.duration)
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
@@ -945,7 +945,7 @@ msgstr "Acheter maintenant"
 
 # conf/documentation.conf (node_import.voip)
 msgid "By default is an imported node a Voice over IP device or not?"
-msgstr "Par défaut est ce un nœud importé de VOIX sur IP ou pas ?"
+msgstr "Par défaut est ce un appareil importé de VOIX sur IP ou pas ?"
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
@@ -1063,7 +1063,7 @@ msgstr "Portail Captif"
 
 # conf/documentation.conf (active_active.centralized_deauth)
 msgid "Centralize the deauthentication to the management node of the cluster."
-msgstr "Centralise la de-authentification sur le nœud de management du cluster"
+msgstr "Centralise la de-authentification sur le serveur de management du cluster"
 
 # html/pfappserver/root/admin/challenge.tt
 msgid "Challenge"
@@ -1095,7 +1095,7 @@ msgstr "Cochez cette case pour que la durée d’accès corresponde au temps d�
 msgid ""
 "Check this box to have the certificate revoke when the node using it is "
 "unregistered.<br/>Do not use if multiple devices share the same certificate"
-msgstr "Cocher cette case pour que le certificat soit révoqué lorsqu’un nœud est désenregistré.</br>À ne pas utiliser si plusieurs appareils partagent le même certificat."
+msgstr "Cocher cette case pour que le certificat soit révoqué lorsqu’un appareil est désenregistré.</br>À ne pas utiliser si plusieurs appareils partagent le même certificat."
 
 # pf::firewallsso (Firewall SSO)
 msgid "Checkpoint"
@@ -1468,7 +1468,7 @@ msgstr "Conformité"
 # html/pfappserver/root/node/search.tt
 # html/pfappserver/root/user/nodes.tt
 msgid "Computer Name"
-msgstr "Nom de l’ordinateur"
+msgstr "Nom de l’appareil"
 
 # html/pfappserver/root/soh/read.tt
 msgid "Conditions"
@@ -1881,11 +1881,11 @@ msgstr "VoIP par défaut"
 
 # conf/documentation.conf (node_import.category)
 msgid "Default category to assign to imported nodes."
-msgstr "La catégorie par défaut à affecter aux nœuds importés."
+msgstr "La catégorie par défaut à affecter aux appareils importés."
 
 # conf/documentation.conf (node_import.pid)
 msgid "Default pid value to assign to imported nodes."
-msgstr "Le PID par défaut à affecter aux nœuds importés."
+msgstr "Le PID par défaut à affecter aux appareils importés."
 
 # html/pfappserver/root/config/adminroles/index.tt
 msgid ""
@@ -1922,13 +1922,13 @@ msgstr "Définit le nombre de secondes avant que pfmon essaye de résoudre un co
 msgid ""
 "Defines what attribute of the node to use as the common name during the "
 "certificate generation"
-msgstr "Définit quel attribut du nœud est à utiliser pour le nom d’hôte durant la génération du certificat"
+msgstr "Définit quel attribut de l’appareil est à utiliser pour le nom d’hôte durant la génération du certificat"
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
 msgid ""
 "Defines what attribute of the node to use as the common name during the "
 "certificate generation."
-msgstr "Définit quel attribut du nœud est à utiliser pour le nom d’hôte durant la génération du certificat."
+msgstr "Définit quel attribut de l’appareil est à utiliser pour le nom d’hôte durant la génération du certificat."
 
 # html/pfappserver/root/config/switch/view.tt
 # html/pfappserver/root/violation/view.tt
@@ -3119,7 +3119,7 @@ msgstr "Si activé, PacketFence utilisera les éléments spécifiques DHCP tels 
 msgid ""
 "If enabled, nodes will be required to register on first network access.  "
 "Further registration options are configured in the registration section."
-msgstr "Si activé, les nœuds devront s’enregistrer dès le premier accès au réseau. D’autres options d’enregistrement sont configurées dans la section d’enregistrement."
+msgstr "Si activé, les appareils devront s’enregistrer dès le premier accès au réseau. D’autres options d’enregistrement sont configurées dans la section d’enregistrement."
 
 # conf/documentation.conf (trapping.wireless_ips)
 msgid ""
@@ -3314,7 +3314,7 @@ msgstr "Intervalle de temps pour laquelle PacketFence met à jour les données l
 
 # conf/documentation.conf (maintenance.online_node_count_interval)
 msgid "Interval at which PacketFence updates the online node count"
-msgstr "Intervalle de temps pour laquelle PacketFence met à jour le nombre de nœuds en ligne"
+msgstr "Intervalle de temps pour laquelle PacketFence met à jour le nombre d’appareils en ligne"
 
 # conf/documentation.conf (maintenance.option82_query_interval)
 msgid ""
@@ -4063,7 +4063,7 @@ msgstr "Nouveau réseau"
 
 # pfappserver::PacketFence::Controller::Graph (graph type)
 msgid "New Nodes"
-msgstr "Nouveaux Nœuds"
+msgstr "Nouveaux Appareils"
 
 # html/pfappserver/root/config/pki_provider/view.tt
 msgid "New PKI Provider"
@@ -4379,7 +4379,7 @@ msgstr "Appareils hors ligne"
 
 # html/pfappserver/lib/pfappserver/Form/Config/WMI.pm
 msgid "On Node tab"
-msgstr "Sur l’onglet du nœud"
+msgstr "Sur l’onglet de l’appareil"
 
 # html/pfappserver/root/configurator/fingerbank.tt
 msgid ""
@@ -5630,7 +5630,7 @@ msgstr "Enregistrement"
 
 # pfappserver::PacketFence::Controller::Graph (graph type)
 msgid "Registered Nodes"
-msgstr "Nœuds enregistrés"
+msgstr "Appareils enregistrés"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
 # html/pfappserver/lib/pfappserver/Form/Node.pm
@@ -6165,7 +6165,7 @@ msgstr "Analyser lors de l’enregistrement"
 
 # html/pfappserver/lib/pfappserver/Form/Config/WMI.pm
 msgid "Scan this WMI element while editing a node"
-msgstr "Analyser ces éléments WMI quand on édite le nœud"
+msgstr "Analyser ces éléments WMI quand on édite l’appareil"
 
 # html/pfappserver/root/config/profile/tab-content.tt
 msgid "Scanners"
@@ -7275,7 +7275,7 @@ msgstr "Le nombre maximum de connexions par appareils"
 
 # html/pfappserver/lib/pfappserver/Form/Role.pm
 msgid "The maximum number of nodes a user having this role can register."
-msgstr "Le nombre maximum de nœuds qu’un utilisateur peut enregistrer avec ce rôle."
+msgstr "Le nombre maximum d’appareils qu’un utilisateur peut enregistrer avec ce rôle."
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Message.pm
 msgid ""
@@ -7287,7 +7287,7 @@ msgstr "Le message sera affiché à l’utilisateur. Utiliser avec prudence, car
 msgid ""
 "The node will be automatically registered. If the MAC matches an existing "
 "node, it will also be modified and registered."
-msgstr "Le nœud sera automatiquement enregistré. Si la MAC correspond à un nœud existant, il sera également modifié et enregistré."
+msgstr "L’appareil sera automatiquement enregistré. Si la MAC correspond à un appareil existant, il sera également modifié et enregistré."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Pfdetect.pm
 msgid "The parser to use for the alert pipe"
@@ -7833,7 +7833,7 @@ msgstr "Nombre illimité de login si vide."
 
 # pfappserver::PacketFence::Controller::Graph (graph type)
 msgid "Unregistered Nodes"
-msgstr "Nœuds non enregistrés"
+msgstr "Appareils non enregistrés"
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 msgid "Unregistration"
@@ -8731,7 +8731,7 @@ msgstr "Auto enregistrement"
 
 # pf::action (VIOLATION_ACTIONS)
 msgid "autoreg_action"
-msgstr "Enregistrer le nœud"
+msgstr "Enregistrer l’appareil"
 
 # pfappserver::Model::Node::Tab::MSE (MSE Tab)
 msgid "band"
@@ -8880,7 +8880,7 @@ msgstr "cn"
 # pf::Authentication::Source (common_attributes)
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "computer_name"
-msgstr "Nom de l’ordinateur"
+msgstr "Nom de l’appareil"
 
 # pf::Authentication::Source (common_attributes)
 # pf::radius_audit_log (RADIUS Audit Log)
@@ -9983,7 +9983,7 @@ msgstr "Statut de l’appareil"
 
 # pfappserver::PacketFence::Controller::Graph (ssid fields)
 msgid "nodes"
-msgstr "nœuds"
+msgstr "appareils"
 
 # conf/documentation.conf (scan.engine options)
 # conf/documentation.conf (trapping.detection_engine options)
@@ -11173,3 +11173,15 @@ msgstr "oui"
 # html/pfappserver/root/config/profile/files.tt
 msgid "{percent}% of {total_size}"
 msgstr "{percent}% de {total_size}"
+
+# html/pfappserver/root/node/search.tt
+msgid "unknown"
+msgstr "inconnu"
+
+# html/pfappserver/root/node/search.tt
+msgid "on"
+msgstr "En ligne"
+
+# html/pfappserver/root/node/search.tt
+msgid "off"
+msgstr "Hors ligne"
