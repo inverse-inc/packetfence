@@ -377,6 +377,12 @@ UserView.prototype.readNode = function(e) {
                 modalNode.modal('show');
             });
             modalNode.one('hidden', function (e) {
+                modalUser.one('shown', function (e) {
+                    $('a[data-toggle="tab"][href="#userInfo"]').one('shown', function(e)  {
+                        $('a[data-toggle="tab"][href="#userDevices"]').tab('show');
+                    });
+                    $('a[data-toggle="tab"][href="#userInfo"]').tab('show');
+                });
                 modalUser.modal('show');
             });
             modalUser.modal('hide');
