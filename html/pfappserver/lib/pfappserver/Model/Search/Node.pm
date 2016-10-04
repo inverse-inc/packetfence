@@ -45,7 +45,7 @@ sub setup_query {
     my ($self, $builder, $params) = @_;
     $self->add_joins($builder, $params);
     $self->add_searches($builder, $params);
-    $self->add_date_range($builder, $params, 'detect_date', @{$params}{qw(start end)});
+    $self->add_date_range($builder, 'detect_date', $params, @{$params}{qw(start end)});
     $self->add_limit($builder, $params);
     $self->add_order_by($builder, $params);
 }
