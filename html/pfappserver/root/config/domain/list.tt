@@ -11,9 +11,9 @@
             <td class="item"><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id | html %]</a></td>
             <td>
               [% IF item.join_status == 0 %]
-              <span class="label label-success">Test join success!</span>
+              <span class="label label-success">[% l('Test join success!') %]</span>
               [% ELSE %]
-              <span class="label label-important">Test join fail![% item.join_output %]</span>
+              <span class="label label-important">[% l('Test join fail!') %] [% item.join_output %]</span>
               [% END %]
             </td>
             <td>
@@ -30,7 +30,7 @@
               <form action="[% c.uri_for(c.controller.action_for('set_password'), [ item.id ]) %]" method="POST">
                 <div class="modal-header">
                   <a class="close" data-dismiss="modal">&times;</a>
-                  <h3>Please enter the password for the account : [% item.bind_dn %]</h3>
+                  <h3>[% l('Please enter the password for the account :') %] [% item.bind_dn %]</h3>
                 </div>
 
                 <div class="modal-body">
