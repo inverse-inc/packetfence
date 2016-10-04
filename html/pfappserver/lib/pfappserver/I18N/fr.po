@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-10-04 14:27+0000\n"
+"PO-Revision-Date: 2016-10-04 14:55+0000\n"
 "Last-Translator: oeufdure <fdurand@inverse.ca>\n"
 "Language-Team: French (http://www.transifex.com/inverse/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
@@ -1123,6 +1123,62 @@ msgstr "Classe"
 # html/pfappserver/root/admin/bulk_actions.inc
 msgid "Clear Violation"
 msgstr "Supprimer la violation"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Pf.pm
+msgid "Click to add"
+msgstr "Cliquez pour ajouter"
+
+# html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
+msgid "Click to add a admin roles"
+msgstr "Cliquer pour ajouter des rôles administrateur"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SMS.pm
+msgid "Click to add a carrier"
+msgstr "Cliquer pour ajouter un opérateur"
+
+# html/pfappserver/lib/pfappserver/Form/Interface.pm
+msgid "Click to add a daemon"
+msgstr "Cliquer pour ajouter un daemon"
+
+# html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
+msgid "Click to add a required field"
+msgstr "Cliquer pour ajouter un champ requis"
+
+# html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Iboss.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "Click to add a role"
+msgstr "Cliquer pour ajouter un rôle"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
+msgid "Click to add an OS"
+msgstr "Cliquer pour ajouter un OS"
+
+# html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "Click to add an action"
+msgstr "Cliquer pour ajouter une action"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
+msgid "Click to select a domain"
+msgstr "Cliquer pour sélectionner un domaine"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Pfdetect.pm
+msgid "Click to select a parser"
+msgstr "Cliquer pour sélectionner un parseur"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SAML.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
+msgid "Click to select a source"
+msgstr "Cliquer pour sélectionner une source"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
 msgid "Client Gateway"
@@ -4072,6 +4128,11 @@ msgstr "Noeud non trouvé"
 msgid "No provisioner specified."
 msgstr "Pas d’approvisionneur de spécifié"
 
+# html/pfappserver/lib/pfappserver/Form/Node.pm
+# html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
+msgid "No role"
+msgstr "Pas de rôle"
+
 # html/pfappserver/root/config/adminroles/index.tt
 # html/pfappserver/root/roles/index.tt
 msgid "No role defined"
@@ -4084,6 +4145,10 @@ msgstr "Aucune règle définit"
 # html/pfappserver/root/config/profile/tab-content.tt
 msgid "No scan specified."
 msgstr "Aucun analyseur spécifié"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Pf.pm
+msgid "No selection"
+msgstr "Pas de sélection"
 
 # html/pfappserver/root/config/authentication.tt
 msgid "No source defined"
@@ -4164,7 +4229,9 @@ msgid "Non compliance violation"
 msgstr "Violation non conforme"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Wrix.pm
+# html/pfappserver/lib/pfappserver/Form/Interface.pm
 msgid "None"
 msgstr "Aucun"
 
@@ -6069,6 +6136,16 @@ msgstr "Type de sécurité activé sur le SSID sécurisé"
 msgid "Security type"
 msgstr "Type de sécurité"
 
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "Select a Role"
+msgstr "Sélectionner un rôle"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Pf.pm
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "Select a role"
+msgstr "Sélectionner un rôle"
+
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
 # html/pfappserver/root/node/violations.tt
 msgid "Select a violation"
 msgstr "Sélectionner une violation"
