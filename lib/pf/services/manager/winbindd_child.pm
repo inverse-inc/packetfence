@@ -121,11 +121,12 @@ sub _setupWatchForPidCreate {
     my $pidFile = $self->pidFile;
     my $run_dir = "$var_dir/run";
     my @dirs = ($run_dir);
-    opendir(DIR, $run_dir);
-    while(readdir DIR) {
+    my $fd_dir;
+    opendir($fd_dir, $run_dir);
+    while(readdir $fd_dir) {
         push @dirs, "$run_dir/$_" if defined($_);
     }
-    closedir(DIR);
+    closedir($fd_dir);
     foreach my $dir (@dirs) {
         $inotify->watch ($dir, IN_CREATE, sub {
             my $e = shift;
