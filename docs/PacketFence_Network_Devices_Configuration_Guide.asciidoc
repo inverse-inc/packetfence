@@ -654,6 +654,73 @@ Finally, enable the necessary 802.1X and VOIP settings on each interface:
     lldp med network-policy add 1
     lldp med network-policy add 2
 
+GS950
+^^^^^
+
+PacketFence supports the GS950 switch using :
+
+* MAC Authentication (mac-only)
+* 802.1X (without fallback to MAC authentication)
+
+Global configuration
+++++++++++++++++++++
+
+First, ensure that the VLANs you want to assign are part of the VLAN database via the following page:
+
+Note that they only need to be tagged on the trunk and don't need any specific configuration for the dynamic VLAN assignment here.
+
+# screenshot VLANs
+
+Next, configure the RADIUS server (Security->RADIUS):
+
+# screenshot RADIUS
+
+Next, configure an SNMP community (SNMP->Community Table)
+
+# screenshot SNMP
+
+MAC authentication
+++++++++++++++++++
+
+Go in Security->Port Access Control, select the port you want to enable MAB on, and ensure you set:
+ * Authentication Mode: MAC Based
+ * Port Control: Auto
+ * Supplicant Mode: Single
+ * VLAN Assignment: Enabled
+
+# screenshot port-control MAB
+
+802.1x
+++++++
+
+Go in Security->Port Access Control, select the port you want to enable MAB on, and ensure you set:
+ * Authentication Mode: MAC Based
+ * Port Control: Auto
+ * Supplicant Mode: Single
+ * VLAN Assignment: Enabled
+
+# screenshot port-control 802.1x
+
+PacketFence configuration
++++++++++++++++++++++++++
+
+Ensure you configure at least:
+  * Type: Allied Telesis GS950
+  * RADIUS secret: useStrongerSecret
+  * SNMP Version: v2c
+  * SNMP Community Read: private
+  * SNMP Community Write: private
+
+If you are using MAC authentication on this switch, tyou must adjust the FreeRADIUS configuration so it transforms the EAP requests this switch sends into requests that PacketFence will interpret as MAC authentication. This is necessary because the 'MAC Based' mode of the switch still performs EAP requests.
+
+To adjust it, go in `/usr/local/pf/conf/radiusd/packetfence` and uncomment the following line:
+
+  packetfence-eap-mac-to-mab-policy
+
+And then restart FreeRADIUS:
+
+  # /usr/local/pf/bin/pfcmd service radiusd restart
+
 Amer 
 ~~~~
 
