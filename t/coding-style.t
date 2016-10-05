@@ -35,6 +35,7 @@ plan tests => scalar @files * 1 + 1;
 
 # lookout for TABS
 foreach my $file (@files) {
+    next if $file =~ m#addons/sourcefire/#;
 
     open(my $fh, '<', $file) or die "Can't open $file: $!";
 
