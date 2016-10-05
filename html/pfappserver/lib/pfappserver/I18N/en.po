@@ -10573,3 +10573,23 @@ msgstr ""
 msgid "off"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
+msgid "Configure network interfaces"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
+msgid "Configure MySQL"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
+msgid "Configure various options"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
+msgid "Configure access to the admin interface"
+msgstr ""
+
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
+msgid "Configure Fingerbank"
+msgstr ""

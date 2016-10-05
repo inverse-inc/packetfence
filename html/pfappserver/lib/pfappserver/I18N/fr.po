@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-10-05 14:04+0000\n"
+"PO-Revision-Date: 2016-10-05 15:47+0000\n"
 "Last-Translator: oeufdure <fdurand@inverse.ca>\n"
 "Language-Team: French (http://www.transifex.com/inverse/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
@@ -4358,11 +4358,11 @@ msgstr "OS (DHCP)"
 
 # html/pfappserver/root/config/fingerprints/simple_search.tt
 msgid "OS Class"
-msgstr "Class d'OS"
+msgstr "Classe d’OS"
 
 # html/pfappserver/root/config/fingerprints/simple_search.tt
 msgid "OS Class ID"
-msgstr "ID de la classe d'OS"
+msgstr "ID de la classe d’OS"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/MAC_Vendor.pm
 # html/pfappserver/root/config/macaddress/simple_search.tt
@@ -4492,7 +4492,7 @@ msgstr "Ouvert le Mercredi"
 
 # html/pfappserver/root/config/fingerprints/simple_search.tt
 msgid "Operating System"
-msgstr "Système d'exploitation"
+msgstr "Système d’exploitation"
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 # html/pfappserver/root/admin/reports.tt
@@ -5640,7 +5640,7 @@ msgstr "Enregistrement"
 
 # html/pfappserver/root/node/search.tt
 msgid "Registration Date"
-msgstr "Date d'enregistrement"
+msgstr "Date d’enregistrement"
 
 # html/pfappserver/root/user/create.tt
 # html/pfappserver/root/user/view.tt
@@ -11185,3 +11185,23 @@ msgstr "En ligne"
 # html/pfappserver/root/node/search.tt
 msgid "off"
 msgstr "Hors ligne"
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
+msgid "Configure network interfaces"
+msgstr "Configurer les interfaces réseau"
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
+msgid "Configure MySQL"
+msgstr "Configurer MySQL"
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
+msgid "Configure various options"
+msgstr "Configurer différentes options"
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
+msgid "Configure access to the admin interface"
+msgstr "Configurer l’acces à l'interface d’aministration"
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
+msgid "Configure Fingerbank"
+msgstr "Configurer Fingerbank"
