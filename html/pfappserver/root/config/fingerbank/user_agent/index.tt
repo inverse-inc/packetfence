@@ -15,7 +15,7 @@
         </div>
       </div>
 
-      <h2>[% l('User Agent') %]</h2>
+      <h2>[% l('User Agents') %]</h2>
 
       [% INCLUDE config/fingerbank/header.tt %]
 

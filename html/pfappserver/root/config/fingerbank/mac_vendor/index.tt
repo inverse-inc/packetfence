@@ -15,7 +15,7 @@
         </div>
       </div>
 
-      <h2>[% l('MAC Vendor') %]</h2>
+      <h2>[% l('MAC Vendors') %]</h2>
 
       [% INCLUDE config/fingerbank/header.tt %]
 

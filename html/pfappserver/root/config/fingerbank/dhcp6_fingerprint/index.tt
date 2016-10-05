@@ -15,7 +15,7 @@
         </div>
       </div>
 
-      <h2>[% l('DHCPv6 Fingerprint') %]</h2>
+      <h2>[% l('DHCPv6 Fingerprints') %]</h2>
 
       [% INCLUDE config/fingerbank/header.tt %]
 
