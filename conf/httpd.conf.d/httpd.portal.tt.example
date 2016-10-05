@@ -141,6 +141,11 @@
 # We don't allow the TRACE HTTP method
 TraceEnable off
 
+# Limit mod_perl to 1024MB of RAM
+PerlModule Apache2::Resource
+PerlSetEnv PERL_RLIMIT_AS 1024
+PerlChildInitHandler Apache2::Resource
+
 PerlSwitches -I[% install_dir %]/lib
 PerlSwitches -I[% install_dir %]/html/captive-portal/lib
 # mod_perl handlers are virtually assigned to /perl/
