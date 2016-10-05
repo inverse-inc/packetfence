@@ -89,14 +89,14 @@ sub init_object {
       {
        'columns' =>
        [
-        { 'enabled' => 1, name => 'mac', label => 'MAC Address' },
-        { 'enabled' => 0, name => 'pid', label => 'Owner' },
-        { 'enabled' => 0, name => 'category', label => 'Role' },
-        { 'enabled' => 0, name => 'unregdate', label => 'Unregistration Date' },
-        { 'enabled' => 0, name => 'voip', label => 'Voice Over IP (yes/no)' },
-        { 'enabled' => 0, name => 'notes', label => 'Notes' },
-        { 'enabled' => 0, name => 'bypass_role', label => 'Bypass Role' },
-        { 'enabled' => 0, name => 'bypass_vlan', label => 'Bypass VLAN' },
+        { 'enabled' => 1, name => 'mac', label => $self->_localize('MAC Address') },
+        { 'enabled' => 0, name => 'pid', label => $self->_localize('Owner') },
+        { 'enabled' => 0, name => 'category', label => $self->_localize('Role') },
+        { 'enabled' => 0, name => 'unregdate', label => $self->_localize('Unregistration Date') },
+        { 'enabled' => 0, name => 'voip', label => $self->_localize('Voice Over IP (yes/no)') },
+        { 'enabled' => 0, name => 'notes', label => $self->_localize('Notes') },
+        { 'enabled' => 0, name => 'bypass_role', label => $self->_localize('Bypass Role') },
+        { 'enabled' => 0, name => 'bypass_vlan', label => $self->_localize('Bypass VLAN') },
        ]
       };
 

@@ -149,7 +149,7 @@
                             [% ELSIF name == "last_ip" %]
                             <td style="white-space: nowrap">[% IF node.last_ssid %]<i class="icon-signal"></i> [% END %][% node.last_ip | html %]</td>
                             [% ELSIF name == "online" %]
-                            <td><span class="label label-[% IF node.online == "on" %]success[% ELSIF node.online =="off" %]important[% ELSE %]info[% END %]">[% node.online | html %]</span></td>
+                            <td><span class="label label-[% IF node.online == "on" %]success[% ELSIF node.online =="off" %]important[% ELSE %]info[% END %]">[% l(node.online) | html %]</span></td>
                             [% ELSE %]
                             <td>[% node.$name | html %]</td>
                             [% END %]

@@ -68,15 +68,15 @@ sub init_object {
       {
        'columns' =>
        [
-        { 'enabled' => 1, name => 'c_username', label => 'Username' },
-        { 'enabled' => 1, name => 'c_password', label => 'Password' },
-        { 'enabled' => 0, name => 'c_firstname', label => 'Firstname' },
-        { 'enabled' => 0, name => 'c_lastname', label => 'Lastname' },
-        { 'enabled' => 0, name => 'c_email', label => 'Email' },
-        { 'enabled' => 0, name => 'c_phone', label => 'Phone' },
-        { 'enabled' => 0, name => 'c_company', label => 'Company' },
-        { 'enabled' => 0, name => 'c_address', label => 'Address' },
-        { 'enabled' => 0, name => 'c_note', label => 'Note' },
+        { 'enabled' => 1, name => 'c_username', label => $self->_localize('Username') },
+        { 'enabled' => 1, name => 'c_password', label => $self->_localize('Password') },
+        { 'enabled' => 0, name => 'c_firstname', label => $self->_localize('Firstname') },
+        { 'enabled' => 0, name => 'c_lastname', label => $self->_localize('Lastname') },
+        { 'enabled' => 0, name => 'c_email', label => $self->_localize('Email') },
+        { 'enabled' => 0, name => 'c_phone', label => $self->_localize('Phone') },
+        { 'enabled' => 0, name => 'c_company', label => $self->_localize('Company') },
+        { 'enabled' => 0, name => 'c_address', label => $self->_localize('Address') },
+        { 'enabled' => 0, name => 'c_note', label => $self->_localize('Note') },
        ]
       };
 
