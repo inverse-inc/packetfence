@@ -17,8 +17,9 @@ Version 6.3.0 released on 2016-10-05
 New Features
 ++++++++++++
 
+* Added EAP-FAST support 
 * MySQL is now supported as the Fingerbank database backend
-* Integration with Cisco MSE notifications in PacketFence
+* Integration with Cisco MSE adds maps, location based portals and notifications
 * Added the ability to locate a device based on DHCP Option 82
 * Added support for Meraki wired switches
 * New SQL reporting allows creation of personalized reports
