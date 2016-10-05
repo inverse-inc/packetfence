@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-10-05 15:47+0000\n"
+"PO-Revision-Date: 2016-10-05 16:09+0000\n"
 "Last-Translator: oeufdure <fdurand@inverse.ca>\n"
 "Language-Team: French (http://www.transifex.com/inverse/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
@@ -1332,7 +1332,6 @@ msgstr "Colonnes"
 msgid "Columns Order"
 msgstr "Ordre des colonnes"
 
-# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/fingerbank/combination/index.tt
 # html/pfappserver/root/config/fingerbank/combination/view.tt
 msgid "Combination"
@@ -1342,6 +1341,10 @@ msgstr "Combinaison"
 # html/pfappserver/root/config/fingerbank/combination/list.tt
 msgid "Combination ID"
 msgstr "ID de combinaison"
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "Combinations"
+msgstr "Combinaisons"
 
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
@@ -1682,7 +1685,6 @@ msgid "Custom reports"
 msgstr "Rapport personnalisé"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
-# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/fingerbank/dhcp_fingerprint/index.tt
 # html/pfappserver/root/config/fingerbank/dhcp_fingerprint/view.tt
 msgid "DHCP Fingerprint"
@@ -1691,6 +1693,10 @@ msgstr "Empreinte DHCP"
 # html/pfappserver/root/config/fingerbank/dhcp_fingerprint/list.tt
 msgid "DHCP Fingerprint ID"
 msgstr "ID de l’empreinte DHCP"
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "DHCP Fingerprints"
+msgstr "Empreintes DHCP"
 
 # html/pfappserver/root/admin/auditing.tt
 # html/pfappserver/root/admin/auditing_option82.tt
@@ -1704,7 +1710,6 @@ msgstr "Vlan dans l’Option DHCP 82"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
 # html/pfappserver/lib/pfappserver/Form/Node.pm
-# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/index.tt
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/view.tt
 msgid "DHCP Vendor"
@@ -1713,6 +1718,10 @@ msgstr "Vendeur DHCP"
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/list.tt
 msgid "DHCP Vendor ID"
 msgstr "ID du vendeur DHCP"
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "DHCP Vendors"
+msgstr "Vendeurs DHCP"
 
 # html/pfappserver/root/config/filters/index.tt
 msgid "DHCP filters"
@@ -1756,7 +1765,6 @@ msgstr "DHCPREQUEST"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
 # html/pfappserver/lib/pfappserver/Form/Node.pm
-# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/fingerbank/dhcp6_enterprise/index.tt
 # html/pfappserver/root/config/fingerbank/dhcp6_enterprise/view.tt
 msgid "DHCPv6 Enterprise"
@@ -1770,9 +1778,12 @@ msgstr "ID de l’entreprise DHCPv6"
 msgid "DHCPv6 Enterprise Organization"
 msgstr "Organisation de l’entreprise DHCPv6"
 
+# html/pfappserver/root/admin/configuration.tt
+msgid "DHCPv6 Enterprises"
+msgstr "Entreprises DHCPv6"
+
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
 # html/pfappserver/lib/pfappserver/Form/Node.pm
-# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/index.tt
 # html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/view.tt
 msgid "DHCPv6 Fingerprint"
@@ -1781,6 +1792,10 @@ msgstr "Empreinte DHCPv6"
 # html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/list.tt
 msgid "DHCPv6 Fingerprint ID"
 msgstr "ID de l’empreinte DHCPv6"
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "DHCPv6 Fingerprints"
+msgstr "Empreintes DHCPv6"
 
 # html/pfappserver/lib/pfappserver/Form/Interface.pm
 msgid "DNS"
@@ -2215,7 +2230,6 @@ msgid "Detector"
 msgstr "Détecteur"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
-# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/fingerbank/combination/list.tt
 # html/pfappserver/root/config/fingerbank/device/index.tt
 # html/pfappserver/root/config/fingerbank/device/upstream/index.tt
@@ -2237,6 +2251,7 @@ msgstr "Type d’appareil"
 msgid "Device class"
 msgstr "Classe d’appareil"
 
+# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/user/view.tt
 msgid "Devices"
 msgstr "Appareils"
@@ -3705,7 +3720,6 @@ msgstr "Adresses MAC"
 msgid "MAC OUI"
 msgstr "MAC OUI"
 
-# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/fingerbank/mac_vendor/index.tt
 # html/pfappserver/root/config/fingerbank/mac_vendor/view.tt
 msgid "MAC Vendor"
@@ -3718,6 +3732,10 @@ msgstr "Fabriquant MAC (OUI)"
 # html/pfappserver/root/config/fingerbank/mac_vendor/list.tt
 msgid "MAC Vendor ID"
 msgstr "ID du MAC Vendor"
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "MAC Vendors"
+msgstr "Fabriquants MAC"
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
@@ -6817,7 +6835,7 @@ msgstr "Sujet pour les notifications email des serveurs DHCP non autorisés, les
 
 # html/pfappserver/root/config/fingerbank/header.tt
 msgid "Submit Unknown/Unmatched Fingerprints"
-msgstr "Soumettre des Fingerprints Non reconnu/Inconnu"
+msgstr "Soumettre des Fingerprints Non reconnues/Inconnues"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 msgid "Subtree"
@@ -7945,7 +7963,6 @@ msgstr "Utilisateur"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
 # html/pfappserver/lib/pfappserver/Form/Node.pm
-# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/config/fingerbank/user_agent/index.tt
 msgid "User Agent"
@@ -7955,6 +7972,7 @@ msgstr "User Agent"
 msgid "User Agent ID"
 msgstr "ID du User Agent"
 
+# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/useragents/simple_search.tt
 msgid "User Agents"
 msgstr "User Agents"
@@ -8683,6 +8701,7 @@ msgstr "Et"
 msgid "android"
 msgstr "Android"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "anniversary"
 msgstr "Anniversaire"
@@ -8708,6 +8727,7 @@ msgstr "N’importe lequel"
 msgid "apMacAddress"
 msgstr "Adresse MAC du point d’accès."
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "apartment_number"
 msgstr "Numéro d’appartement"
@@ -8741,6 +8761,7 @@ msgstr "Bande"
 msgid "bcrypt"
 msgstr "bcrypt"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "birthday"
 msgstr "Date de naissance"
@@ -8751,6 +8772,7 @@ msgstr "Date de naissance"
 msgid "blue"
 msgstr "bleu"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "building_number"
 msgstr "Numéro de bâtiment"
@@ -8864,6 +8886,7 @@ msgstr "Statut URI que sur le réseau de production"
 msgid "captive_portal.wispr_redirection"
 msgstr "Utilisation de la redirection WISPr"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "cell_phone"
 msgstr "Cellulaire"
@@ -8912,38 +8935,47 @@ msgstr "Heure actuelle"
 msgid "currentlyTracked"
 msgstr "Actuellement suivit"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "custom_field_1"
 msgstr "Champ personnalisé 1"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "custom_field_2"
 msgstr "Champ personnalisé 2"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "custom_field_3"
 msgstr "Champ personnalisé 3"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "custom_field_4"
 msgstr "Champ personnalisé 4"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "custom_field_5"
 msgstr "Champ personnalisé 5"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "custom_field_6"
 msgstr "Champ personnalisé 6"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "custom_field_7"
 msgstr "Champ personnalisé 7"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "custom_field_8"
 msgstr "Champ personnalisé 8"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "custom_field_9"
 msgstr "Champ personnalisé 9"
@@ -9271,6 +9303,7 @@ msgstr "Nom"
 msgid "from Fingerbank"
 msgstr "depuis Fingerbank"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "gender"
 msgstr "Genre"
@@ -9499,6 +9532,7 @@ msgstr "Est un téléphone"
 msgid "isnot"
 msgstr "N’est pas"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "lang"
 msgstr "langue"
@@ -9948,6 +9982,7 @@ msgstr "Serveur DHCP illégal"
 msgid "network.rogueinterval"
 msgstr "Intervalle d’illégalité"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "nickname"
 msgstr "Surnom"
@@ -10050,6 +10085,7 @@ msgstr "OPSWAT"
 msgid "option82_switch"
 msgstr "Commutateur Option 82"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "organization"
 msgstr "Organisation"
@@ -10375,6 +10411,7 @@ msgstr "Rôle"
 msgid "role_action"
 msgstr "Assigner un rôle"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "room_number"
 msgstr "Numéro de la pièce"
@@ -10911,6 +10948,7 @@ msgstr "Téléphone"
 msgid "testing"
 msgstr "Test"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "title"
 msgstr "Titre"
@@ -11151,6 +11189,7 @@ msgstr "semaines"
 msgid "windows"
 msgstr "Windows"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "work_phone"
 msgstr "Téléphone de bureau"

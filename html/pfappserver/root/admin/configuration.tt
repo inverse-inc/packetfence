@@ -189,14 +189,14 @@ table.sources {
               [%- IF can_access("FINGERBANK_READ") %]
               <li class="nav-header">[% l('Fingerbank') %]</li>
               [% list_entry('Config::Fingerbank::Settings', 'index', 'Settings') | none %]
-              [% list_entry('Config::Fingerbank::Combination', 'index', 'Combination') | none %]
-              [% list_entry('Config::Fingerbank::Device', 'index', 'Device') | none %]
-              [% list_entry('Config::Fingerbank::DHCP_Fingerprint', 'index', 'DHCP Fingerprint') | none %]
-              [% list_entry('Config::Fingerbank::DHCP_Vendor', 'index', 'DHCP Vendor') | none %]
-              [% list_entry('Config::Fingerbank::DHCP6_Fingerprint', 'index', 'DHCPv6 Fingerprint') | none %]
-              [% list_entry('Config::Fingerbank::DHCP6_Enterprise', 'index', 'DHCPv6 Enterprise') | none %]
-              [% list_entry('Config::Fingerbank::MAC_Vendor', 'index', 'MAC Vendor') | none %]
-              [% list_entry('Config::Fingerbank::User_Agent', 'index', 'User Agent') | none %]
+              [% list_entry('Config::Fingerbank::Combination', 'index', 'Combinations') | none %]
+              [% list_entry('Config::Fingerbank::Device', 'index', 'Devices') | none %]
+              [% list_entry('Config::Fingerbank::DHCP_Fingerprint', 'index', 'DHCP Fingerprints') | none %]
+              [% list_entry('Config::Fingerbank::DHCP_Vendor', 'index', 'DHCP Vendors') | none %]
+              [% list_entry('Config::Fingerbank::DHCP6_Fingerprint', 'index', 'DHCPv6 Fingerprints') | none %]
+              [% list_entry('Config::Fingerbank::DHCP6_Enterprise', 'index', 'DHCPv6 Enterprises') | none %]
+              [% list_entry('Config::Fingerbank::MAC_Vendor', 'index', 'MAC Vendors') | none %]
+              [% list_entry('Config::Fingerbank::User_Agent', 'index', 'User Agents') | none %]
               [%- END %]
             </ul>
           </div><!--/.well -->

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 6.2.9\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-10-04 15:52-0400\n"
+"PO-Revision-Date: 2016-10-05 12:06-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -1269,7 +1269,6 @@ msgstr ""
 msgid "Columns Order"
 msgstr ""
 
-# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/fingerbank/combination/index.tt
 # html/pfappserver/root/config/fingerbank/combination/view.tt
 msgid "Combination"
@@ -1278,6 +1277,10 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
 # html/pfappserver/root/config/fingerbank/combination/list.tt
 msgid "Combination ID"
+msgstr ""
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "Combinations"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
@@ -1584,7 +1587,6 @@ msgid "Custom reports"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
-# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/fingerbank/dhcp_fingerprint/index.tt
 # html/pfappserver/root/config/fingerbank/dhcp_fingerprint/view.tt
 msgid "DHCP Fingerprint"
@@ -1592,6 +1594,10 @@ msgstr ""
 
 # html/pfappserver/root/config/fingerbank/dhcp_fingerprint/list.tt
 msgid "DHCP Fingerprint ID"
+msgstr ""
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "DHCP Fingerprints"
 msgstr ""
 
 # html/pfappserver/root/admin/auditing.tt
@@ -1606,7 +1612,6 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
 # html/pfappserver/lib/pfappserver/Form/Node.pm
-# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/index.tt
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/view.tt
 msgid "DHCP Vendor"
@@ -1614,6 +1619,10 @@ msgstr ""
 
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/list.tt
 msgid "DHCP Vendor ID"
+msgstr ""
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "DHCP Vendors"
 msgstr ""
 
 # html/pfappserver/root/config/filters/index.tt
@@ -1658,7 +1667,6 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
 # html/pfappserver/lib/pfappserver/Form/Node.pm
-# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/fingerbank/dhcp6_enterprise/index.tt
 # html/pfappserver/root/config/fingerbank/dhcp6_enterprise/view.tt
 msgid "DHCPv6 Enterprise"
@@ -1672,9 +1680,12 @@ msgstr ""
 msgid "DHCPv6 Enterprise Organization"
 msgstr ""
 
+# html/pfappserver/root/admin/configuration.tt
+msgid "DHCPv6 Enterprises"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
 # html/pfappserver/lib/pfappserver/Form/Node.pm
-# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/index.tt
 # html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/view.tt
 msgid "DHCPv6 Fingerprint"
@@ -1682,6 +1693,10 @@ msgstr ""
 
 # html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/list.tt
 msgid "DHCPv6 Fingerprint ID"
+msgstr ""
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "DHCPv6 Fingerprints"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Interface.pm
@@ -2078,7 +2093,6 @@ msgid "Detector"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
-# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/fingerbank/combination/list.tt
 # html/pfappserver/root/config/fingerbank/device/index.tt
 # html/pfappserver/root/config/fingerbank/device/upstream/index.tt
@@ -2100,6 +2114,7 @@ msgstr ""
 msgid "Device class"
 msgstr ""
 
+# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/user/view.tt
 msgid "Devices"
 msgstr ""
@@ -3409,7 +3424,6 @@ msgstr ""
 msgid "MAC OUI"
 msgstr ""
 
-# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/fingerbank/mac_vendor/index.tt
 # html/pfappserver/root/config/fingerbank/mac_vendor/view.tt
 msgid "MAC Vendor"
@@ -3421,6 +3435,10 @@ msgstr ""
 
 # html/pfappserver/root/config/fingerbank/mac_vendor/list.tt
 msgid "MAC Vendor ID"
+msgstr ""
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "MAC Vendors"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
@@ -7370,7 +7388,6 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
 # html/pfappserver/lib/pfappserver/Form/Node.pm
-# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/config/fingerbank/user_agent/index.tt
 msgid "User Agent"
@@ -7380,6 +7397,7 @@ msgstr ""
 msgid "User Agent ID"
 msgstr ""
 
+# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/useragents/simple_search.tt
 msgid "User Agents"
 msgstr ""
@@ -8078,6 +8096,7 @@ msgstr "And"
 msgid "android"
 msgstr "Android"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "anniversary"
 msgstr "Anniversary"
@@ -8103,6 +8122,7 @@ msgstr "Any"
 msgid "apMacAddress"
 msgstr "AP MAC Address"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "apartment_number"
 msgstr "appartment number"
@@ -8136,6 +8156,7 @@ msgstr "Band"
 msgid "bcrypt"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "birthday"
 msgstr "Birthday"
@@ -8146,6 +8167,7 @@ msgstr "Birthday"
 msgid "blue"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "building_number"
 msgstr "building number"
@@ -8259,6 +8281,7 @@ msgstr "Status URI only on production network"
 msgid "captive_portal.wispr_redirection"
 msgstr "WISPr redirection capabilities"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "cell_phone"
 msgstr "cell phone"
@@ -8307,38 +8330,47 @@ msgstr "Current time"
 msgid "currentlyTracked"
 msgstr "Currently Tracked"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "custom_field_1"
 msgstr "custom field 1"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "custom_field_2"
 msgstr "custom field 2"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "custom_field_3"
 msgstr "custom field 3"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "custom_field_4"
 msgstr "custom field 4"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "custom_field_5"
 msgstr "custom field 5"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "custom_field_6"
 msgstr "custom field 6"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "custom_field_7"
 msgstr "custom field 7"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "custom_field_8"
 msgstr "custom field 8"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "custom_field_9"
 msgstr "custom field 9"
@@ -8658,6 +8690,7 @@ msgstr ""
 msgid "from Fingerbank"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "gender"
 msgstr ""
@@ -8886,6 +8919,7 @@ msgstr "Is a Phone"
 msgid "isnot"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "lang"
 msgstr ""
@@ -9335,6 +9369,7 @@ msgstr "Rogue DHCP detection"
 msgid "network.rogueinterval"
 msgstr "Rogue interval"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "nickname"
 msgstr ""
@@ -9437,6 +9472,7 @@ msgstr "OPSWAT"
 msgid "option82_switch"
 msgstr "Option82 Switch"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "organization"
 msgstr ""
@@ -9762,6 +9798,7 @@ msgstr "Role"
 msgid "role_action"
 msgstr "Set role"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "room_number"
 msgstr "room number"
@@ -10298,6 +10335,7 @@ msgstr ""
 msgid "testing"
 msgstr "Testing"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "title"
 msgstr ""
@@ -10538,6 +10576,7 @@ msgstr ""
 msgid "windows"
 msgstr "Windows"
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "work_phone"
 msgstr "work phone"
