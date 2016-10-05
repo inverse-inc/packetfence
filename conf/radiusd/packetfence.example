@@ -95,6 +95,11 @@ authorize {
 		}
 	}
 	packetfence-eap-mac-policy
+
+	# Uncomment the following MAC to transform EAP requests in MAB requests for switches that use EAP for MAB
+	# CAUTION: This enables it for *all* switches, meaning if you are currently using EAP as a mean of authentication, this will disable it.
+	#packetfence-eap-mac-to-mab-policy
+
 	#
 	#  Look in an SQL database.  The schema of the database
 	#  is meant to mirror the "users" file.
