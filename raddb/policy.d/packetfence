@@ -81,3 +81,23 @@ packetfence-audit-log-reject {
         -sql_reject
     }
 }
+
+packetfence-eap-mac-to-mab-policy {
+    if ( &EAP-Type ) {
+        if (&User-Name && (&User-Name =~ /^${policy.mac-addr-regexp}$/i)) {
+            update {
+                &request:Tmp-String-1 := "%{tolower:%{1}%{2}%{3}%{4}%{5}%{6}}"
+            }
+            if  ( &Tmp-String-1 == "%{tolower:%{User-Name}}" ) {
+                update {
+                    &control:Cleartext-Password := &request:User-Name
+                    &request:Calling-Station-Id := &request:User-Name
+                    &request:NAS-Port-Type := "Ethernet"
+                }
+                updated
+            }
+        }
+    }
+    noop
+}
+
