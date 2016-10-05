@@ -11,22 +11,23 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
-Version 6.3.0 released on xxxx-xx-xx
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Version 6.3.0 released on 2016-10-05
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 New Features
 ++++++++++++
 
-* Support for OpenWrt Chaos Calmer 15.05 with hostapd
 * MySQL is now supported as the Fingerbank database backend
 * Integration with Cisco MSE notifications in PacketFence
 * Added the ability to locate a device based on DHCP Option 82
 * Added support for Meraki wired switches
+* New SQL reporting allows creation of personalized reports
 
 Enhancements
 ++++++++++++
 
 * Added support for Brocade CLI RADIUS authentication
+* Added support for OpenWrt Chaos Calmer 15.05 with hostapd
 * Added configuration conflict handling for active/active clusters
 * Fingerbank configuration is now cached
 * Removed the pf/var directory from the backups to make them smaller
