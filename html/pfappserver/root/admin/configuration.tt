@@ -122,7 +122,7 @@ table.sources {
               [%- IF can_access_any("INTERFACES_READ","SWITCHES_READ","FLOATING_DEVICES_READ","FIREWALL_SSO_READ") %]
               <li class="nav-header">[% l('Network') %]<li>
               [%- IF can_access("INTERFACES_READ") %]
-              [% pf_section_entry( 'interfaces', 'Interfaces') | none %]
+              [% pf_section_entry( 'interfaces', 'Interfaces and Networks') | none %]
               [%- END %]
               [%- IF can_access("SWITCHES_READ") %]
               [% list_entry('Config::Switch', 'index', 'Switches') | none %]
