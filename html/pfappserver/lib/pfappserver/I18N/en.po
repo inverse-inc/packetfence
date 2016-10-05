@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 6.2.9\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-10-05 12:06-0400\n"
+"PO-Revision-Date: 2016-10-05 12:24-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -255,6 +255,10 @@ msgstr ""
 
 # html/pfappserver/root/configurator/fingerbank.tt
 msgid "Activate MySQL"
+msgstr ""
+
+# html/pfappserver/root/configurator/fingerbank.tt
+msgid "Activate MySQL as the Fingerbank backend."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
@@ -2546,6 +2550,10 @@ msgstr ""
 msgid "Fingerbank Onboarding"
 msgstr ""
 
+# html/pfappserver/root/config/fingerbank/settings/onboard.tt
+msgid "Once done, you will be issued an API key that you need to enter in the following field, then complete the process by clicking \"Get Aboard!\""
+msgstr ""
+
 # html/pfappserver/root/config/fingerbank/settings/index.tt
 msgid "Fingerbank Settings"
 msgstr ""
@@ -2617,6 +2625,10 @@ msgstr ""
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/configurator/configuration.tt
 msgid "General"
+msgstr ""
+
+# html/pfappserver/root/configurator/fingerbank.tt
+msgid "Get Aboard!"
 msgstr ""
 
 # html/pfappserver/root/node/tab_MSE_view.tt
@@ -4105,6 +4117,10 @@ msgstr ""
 msgid "Once authenticated the access will be valid for %1 %2."
 msgstr ""
 
+# html/pfappserver/root/configurator/fingerbank.tt
+msgid "Once done, you will be issued an API key that you need to enter in the following field"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 msgid "One-level"
 msgstr ""
@@ -4944,6 +4960,11 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Priv Protocol Write"
+msgstr ""
+
+# html/pfappserver/root/config/fingerbank/settings/onboard.tt
+# html/pfappserver/root/configurator/fingerbank.tt
+msgid "Proceed here:"
 msgstr ""
 
 # conf/documentation.conf (active_active.auth_on_management)
@@ -10627,7 +10648,6 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
 msgid "Configure access to the admin interface"
 msgstr ""
-
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
 msgid "Configure Fingerbank"

@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-10-05 16:09+0000\n"
+"PO-Revision-Date: 2016-10-05 16:34+0000\n"
 "Last-Translator: oeufdure <fdurand@inverse.ca>\n"
 "Language-Team: French (http://www.transifex.com/inverse/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
@@ -280,6 +280,10 @@ msgstr "Actions"
 # html/pfappserver/root/configurator/fingerbank.tt
 msgid "Activate MySQL"
 msgstr "Activer MySQL"
+
+# html/pfappserver/root/configurator/fingerbank.tt
+msgid "Activate MySQL as the Fingerbank backend."
+msgstr "Activer MySQL comme base de donnée pour Fingerbank."
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid "Activate preregistration"
@@ -1146,7 +1150,7 @@ msgstr "Cliquer pour ajouter un opérateur"
 
 # html/pfappserver/lib/pfappserver/Form/Interface.pm
 msgid "Click to add a daemon"
-msgstr "Cliquer pour ajouter un daemon"
+msgstr "Cliquer pour ajouter un démon"
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid "Click to add a required field"
@@ -2717,6 +2721,12 @@ msgstr "Fingerbank"
 msgid "Fingerbank Onboarding"
 msgstr "Enregistrement Fingerbank"
 
+# html/pfappserver/root/config/fingerbank/settings/onboard.tt
+msgid ""
+"Once done, you will be issued an API key that you need to enter in the "
+"following field, then complete the process by clicking \"Get Aboard!\""
+msgstr "Une fois effectué, vous obtiendrez une clé d’API qu’il faudra entrer dans le champ suivant puis compléter en cliquant sur \"Enregistrez vous !\""
+
 # html/pfappserver/root/config/fingerbank/settings/index.tt
 msgid "Fingerbank Settings"
 msgstr "Paramètres Fingerbank"
@@ -2791,6 +2801,10 @@ msgstr "GTC"
 # html/pfappserver/root/configurator/configuration.tt
 msgid "General"
 msgstr "Général"
+
+# html/pfappserver/root/configurator/fingerbank.tt
+msgid "Get Aboard!"
+msgstr "Enregistrez vous !"
 
 # html/pfappserver/root/node/tab_MSE_view.tt
 msgid "Get Current Location"
@@ -4424,6 +4438,12 @@ msgstr "Sur cette page vous devez modifier le mot de passe admin par défaut qui
 msgid "Once authenticated the access will be valid for %1 %2."
 msgstr "Une fois authentifié l’accès sera valide pour %1 %2."
 
+# html/pfappserver/root/configurator/fingerbank.tt
+msgid ""
+"Once done, you will be issued an API key that you need to enter in the "
+"following field"
+msgstr "Une fois effectué, vous obtiendrez une clé d’API qu’il faudra entrer dans le champ suivant"
+
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 msgid "One-level"
 msgstr "Niveau 1"
@@ -5295,6 +5315,11 @@ msgstr "Protocole Priv Trap"
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Priv Protocol Write"
 msgstr "Protocole Ecriture Priv"
+
+# html/pfappserver/root/config/fingerbank/settings/onboard.tt
+# html/pfappserver/root/configurator/fingerbank.tt
+msgid "Proceed here:"
+msgstr "Procéder ici:"
 
 # conf/documentation.conf (active_active.auth_on_management)
 msgid ""
@@ -11239,7 +11264,7 @@ msgstr "Configurer différentes options"
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
 msgid "Configure access to the admin interface"
-msgstr "Configurer l’acces à l'interface d’aministration"
+msgstr "Configurer l’acces à l’interface d’aministration"
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
 msgid "Configure Fingerbank"
