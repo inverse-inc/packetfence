@@ -1386,6 +1386,18 @@ fi
 
 %changelog
 
+* Wed Oct 05 2016 Inverse <info@inverse.ca> - 6.3.0-1
+- New release 6.3.0
+
+* Fri Jul 08 2016 Inverse <info@inverse.ca> - 6.2.1-1
+- New release 6.2.1
+
+* Tue Jul 05 2016 Inverse <info@inverse.ca> - 6.2.0-1
+- New release 6.2.0
+
+* Tue Jun 22 2016 Inverse <info@inverse.ca> - 6.1.1-1
+- New release 6.1.1
+
 * Tue Jun 21 2016 Inverse <info@inverse.ca> - 6.1.0-1
 - New release 6.1.0
 
