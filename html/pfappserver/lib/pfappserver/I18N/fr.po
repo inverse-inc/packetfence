@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-10-05 16:34+0000\n"
+"PO-Revision-Date: 2016-10-05 17:28+0000\n"
 "Last-Translator: oeufdure <fdurand@inverse.ca>\n"
 "Language-Team: French (http://www.transifex.com/inverse/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
@@ -4421,7 +4421,7 @@ msgstr "Sur cette page vous pouvez utiliser Fingerbank qui permet d’identifier
 
 # html/pfappserver/root/configurator/enforcement.tt
 msgid "On this page, you choose your enforcement mechanism(s)."
-msgstr "Sur cette pages vous choisissez le type de fonctionnement."
+msgstr "Sur cette pages vous choisissez le mécanisme de fonctionnement."
 
 # html/pfappserver/root/configurator/networks.tt
 msgid ""
