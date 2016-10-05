@@ -669,47 +669,53 @@ First, ensure that the VLANs you want to assign are part of the VLAN database vi
 
 Note that they only need to be tagged on the trunk and don't need any specific configuration for the dynamic VLAN assignment here.
 
-# screenshot VLANs
+image::docs/images/allied-telesis-gs950/vlan-config.png[scaledwidth="100%",alt="VLAN configuration"]
 
 Next, configure the RADIUS server (Security->RADIUS):
 
-# screenshot RADIUS
+image::docs/images/allied-telesis-gs950/radius-server.png[scaledwidth="100%",alt="RADIUS configuration"]
 
 Next, configure an SNMP community (SNMP->Community Table)
 
-# screenshot SNMP
+image::docs/images/allied-telesis-gs950/snmp-config.png[scaledwidth="100%",alt="SNMP configuration"]
 
 MAC authentication
 ++++++++++++++++++
 
 Go in Security->Port Access Control, select the port you want to enable MAB on, and ensure you set:
- * Authentication Mode: MAC Based
- * Port Control: Auto
- * Supplicant Mode: Single
- * VLAN Assignment: Enabled
 
-# screenshot port-control MAB
+[options="compact"]
+* Authentication Mode: MAC Based
+* Port Control: Auto
+* Supplicant Mode: Single
+* VLAN Assignment: Enabled
+
+image::docs/images/allied-telesis-gs950/port-control-MAB.png[scaledwidth="100%",alt="MAB config"]
 
 802.1x
 ++++++
 
 Go in Security->Port Access Control, select the port you want to enable MAB on, and ensure you set:
- * Authentication Mode: MAC Based
- * Port Control: Auto
- * Supplicant Mode: Single
- * VLAN Assignment: Enabled
 
-# screenshot port-control 802.1x
+[options="compact"]
+* Authentication Mode: MAC Based
+* Port Control: Auto
+* Supplicant Mode: Single
+* VLAN Assignment: Enabled
+
+image::docs/images/allied-telesis-gs950/port-control-802.1x.png[scaledwidth="100%",alt="802.1x configuration"]
 
 PacketFence configuration
 +++++++++++++++++++++++++
 
 Ensure you configure at least:
-  * Type: Allied Telesis GS950
-  * RADIUS secret: useStrongerSecret
-  * SNMP Version: v2c
-  * SNMP Community Read: private
-  * SNMP Community Write: private
+
+[options="compact"]
+* Type: Allied Telesis GS950
+* RADIUS secret: useStrongerSecret
+* SNMP Version: v2c
+* SNMP Community Read: private
+* SNMP Community Write: private
 
 If you are using MAC authentication on this switch, tyou must adjust the FreeRADIUS configuration so it transforms the EAP requests this switch sends into requests that PacketFence will interpret as MAC authentication. This is necessary because the 'MAC Based' mode of the switch still performs EAP requests.
 
