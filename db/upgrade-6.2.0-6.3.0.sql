@@ -1,5 +1,5 @@
 --
--- PacketFence SQL schema upgrade from X.X.X to X.Y.Z
+-- PacketFence SQL schema upgrade from 6.2.0 to 6.3.0
 --
 
 --
@@ -14,8 +14,8 @@ ALTER TABLE node ADD COLUMN `device_score` varchar(255) DEFAULT NULL AFTER `devi
 --
 
 SET @MAJOR_VERSION = 6;
-SET @MINOR_VERSION = 2;
-SET @SUBMINOR_VERSION = 9;
+SET @MINOR_VERSION = 3;
+SET @SUBMINOR_VERSION = 0;
 
 --
 -- The VERSION_INT to ensure proper ordering of the version in queries
