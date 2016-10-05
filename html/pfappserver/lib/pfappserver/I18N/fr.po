@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-10-04 20:39+0000\n"
+"PO-Revision-Date: 2016-10-05 14:04+0000\n"
 "Last-Translator: oeufdure <fdurand@inverse.ca>\n"
 "Language-Team: French (http://www.transifex.com/inverse/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
@@ -759,27 +759,27 @@ msgstr "Êtes-vous sûr de vouloir enregistrer vos changements?"
 
 # conf/documentation.conf (maintenance.auth_log_cleanup_interval)
 msgid "At which interval to run the auth_log cleanup job"
-msgstr "À quel intervalle le nettoyage du journal d’authentification doit s’éffectuer"
+msgstr "Fréquence de nettoyage du journal d’authentification"
 
 # conf/documentation.conf (maintenance.iplog_cleanup_interval)
 msgid "At which interval to run the iplog archive cleanup job"
-msgstr "À quel intervalle le nettoyage de l’archive iplog doit s’effectuer"
+msgstr "Fréquence de nettoyage de l’archive iplog"
 
 # conf/documentation.conf (maintenance.iplog_rotation_interval)
 msgid "At which interval to run the iplog history rotation job"
-msgstr "À quel intervalle le nettoyage de l’historique iplog doit s’effectuer"
+msgstr "Fréquence de nettoyage de l’historique iplog"
 
 # conf/documentation.conf (maintenance.locationlog_cleanup_interval)
 msgid "At which interval to run the locationlog cleanup job"
-msgstr "À quel intervalle le nettoyage du journal de locationlog doit s’effectuer"
+msgstr "Fréquence de nettoyage du journal de locationlog"
 
 # conf/documentation.conf (maintenance.radius_audit_log_cleanup_interval)
 msgid "At which interval to run the radius audit log cleanup job"
-msgstr "À quel intervalle le nettoyage de l’audit de radius doit s’effectuer"
+msgstr "Fréquence de nettoyage de l’audit de radius"
 
 # conf/documentation.conf (maintenance.traplog_cleanup_interval)
 msgid "At which interval to run the traplog cleanup job"
-msgstr "À quel intervalle le nettoyage de traplog doit s’effectuer"
+msgstr "Fréquence de nettoyage de traplog"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SAML.pm
 msgid "Attribute of the username in the SAML response"
@@ -885,7 +885,7 @@ msgstr "Bande passante par système d’exploitation"
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 msgid "Bandwidth per Operating System Class"
-msgstr "Bande passante par classe de Système d’exploitation"
+msgstr "Bande passante par Système d’exploitation"
 
 # pf::firewallsso (Firewall SSO)
 msgid "BarracudaNG"
@@ -1830,7 +1830,7 @@ msgstr "Domaines RADIUS - Mise à jour"
 # html/pfappserver/root/service/cluster_status.tt
 # html/pfappserver/root/service/status.tt
 msgid "Daemon"
-msgstr "Daemon"
+msgstr "Démon"
 
 # html/pfappserver/root/admin/status.tt
 msgid "Dashboard"
@@ -3274,47 +3274,47 @@ msgstr "Sources Interne"
 msgid ""
 "Interval at which PacketFence checks the health state of the cluster and "
 "attempts to resolve any detected conflicts"
-msgstr "Intervalle de temps pour laquelle PacketFence va vérifier l’état du cluster et essayer de résoudre les conflits."
+msgstr "Fréquence de vérification de l’état du cluster et tentative de résolution de conflits."
 
 # conf/documentation.conf (maintenance.acct_maintenance_interval)
 msgid "Interval at which PacketFence runs accounting maintenance"
-msgstr "Intervalle de temps pour laquelle PacketFence exécute la maintenance de la comptabilisation"
+msgstr "Fréquence de la maintenance de la comptabilisation"
 
 # conf/documentation.conf (maintenance.inline_accounting_maintenance_interval)
 msgid "Interval at which PacketFence runs inline accounting maintenance"
-msgstr "Intervalle de temps pour laquelle PacketFence exécute la maintenance de la comptabilisation du mode Inline"
+msgstr "Fréquence de la maintenance de la comptabilisation du mode Inline"
 
 # conf/documentation.conf (maintenance.node_cleanup_interval)
 msgid "Interval at which PacketFence runs node cleanup"
-msgstr "Intervalle de temps pour laquelle PacketFence exécute la maintenance de néttoyage des appareils"
+msgstr "Fréquence de la maintenance de néttoyage des appareils"
 
 # conf/documentation.conf (maintenance.nodes_maintenance_interval)
 msgid "Interval at which PacketFence runs nodes maintenance"
-msgstr "Intervalle de temps pour laquelle PacketFence exécute la maintenance des appareils"
+msgstr "Fréquence de la maintenance des appareils"
 
 # conf/documentation.conf (maintenance.person_cleanup_interval)
 msgid "Interval at which PacketFence runs person cleanup"
-msgstr "Intervalle de temps pour laquelle PacketFence exécute la maintenance de néttoyage des utilisateurs"
+msgstr "Fréquence de la maintenance de néttoyage des utilisateurs"
 
 # conf/documentation.conf (maintenance.provisioning_compliance_poll_interval)
 msgid ""
 "Interval at which PacketFence runs the polling enforcement on the "
 "provisioners."
-msgstr "Intervalle de temps pour laquelle PacketFence exécute la maintenance pour les provisioners."
+msgstr "Fréquence de la maintenance pour les provisioners."
 
 # conf/documentation.conf (maintenance.violation_maintenance_interval)
 msgid "Interval at which PacketFence runs violation maintenance"
-msgstr "Intervalle de temps pour laquelle PacketFence exécute la maintenance des violations"
+msgstr "Fréquence de la maintenance des violations"
 
 # conf/documentation.conf (maintenance.fingerbank_data_update_interval)
 msgid ""
 "Interval at which PacketFence updates the local Fingerbank data from the "
 "cloud API"
-msgstr "Intervalle de temps pour laquelle PacketFence met à jour les données locales de Fingerbank depuis l’API du cloud"
+msgstr "Fréquence de mise à jour les données locales de Fingerbank depuis l’API du cloud"
 
 # conf/documentation.conf (maintenance.online_node_count_interval)
 msgid "Interval at which PacketFence updates the online node count"
-msgstr "Intervalle de temps pour laquelle PacketFence met à jour le nombre d’appareils en ligne"
+msgstr "Fréquence de mise à jour du nombre d’appareils en ligne"
 
 # conf/documentation.conf (maintenance.option82_query_interval)
 msgid ""
@@ -3327,7 +3327,7 @@ msgid ""
 "Interval at which pfbandwidthd should dump collected information into the "
 "database. This should be lower than the interval at which pfmon runs. "
 "Defaults to 41 seconds"
-msgstr "Intervalle de temps pour laquelle pfbandwidthd devra vider les informations collectées dans la base de données. Cela devrait être inférieur à la fréquence à laquelle pfmon fonctionne, par défaut c’est à 41 secondes"
+msgstr "Fréquence pour laquelle pfbandwidthd devra vider les informations collectées dans la base de données. Cela devrait être inférieur à la fréquence à laquelle pfmon fonctionne, par défaut c’est à 41 secondes"
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Admin.pm
 msgid "Invalid challenge."
@@ -9395,7 +9395,7 @@ msgstr "Délai de session de comptabilisation"
 
 # conf/documentation.conf
 msgid "inline.layer3_accounting_sync_interval"
-msgstr "Intervalle de synchronisation de comptabilisation"
+msgstr "Fréquence de synchronisation de comptabilisation"
 
 # conf/documentation.conf
 msgid "inline.ports_redirect"
@@ -9561,7 +9561,7 @@ msgstr "Maintenance"
 
 # conf/documentation.conf
 msgid "maintenance.acct_maintenance_interval"
-msgstr "Intervalle de la maintenance de l’Accounting"
+msgstr "Fréquence de maintenance de l’Accounting"
 
 # conf/documentation.conf
 msgid "maintenance.auth_log_cleanup_batch"
@@ -9569,7 +9569,7 @@ msgstr "Nombre d’entrées à nettoyer des le journal d’authentification."
 
 # conf/documentation.conf
 msgid "maintenance.auth_log_cleanup_interval"
-msgstr "Intervalle de nettoyage du journal d’authentification"
+msgstr "Fréquence de nettoyage du journal d’authentification"
 
 # conf/documentation.conf
 msgid "maintenance.auth_log_cleanup_timeout"
@@ -9581,15 +9581,15 @@ msgstr "Plage horaire du nettoyage du journal d’authentification"
 
 # conf/documentation.conf
 msgid "maintenance.cluster_check_interval"
-msgstr "Intervalle de vérification de l’état du cluster"
+msgstr "Fréquence de vérification de l’état du cluster"
 
 # conf/documentation.conf
 msgid "maintenance.fingerbank_data_update_interval"
-msgstr "Intervalle de mise à jour des donnees de Fingerbank"
+msgstr "Fréquence de mise à jour des donnees de Fingerbank"
 
 # conf/documentation.conf
 msgid "maintenance.inline_accounting_maintenance_interval"
-msgstr "Intervalle de la maintenance de la comptabilisation Inline"
+msgstr "Fréquence de maintenance de la comptabilisation Inline"
 
 # conf/documentation.conf
 msgid "maintenance.iplog_cleanup_batch"
@@ -9597,7 +9597,7 @@ msgstr "Nombre d’entrées à nettoyer dans l’Iplog"
 
 # conf/documentation.conf
 msgid "maintenance.iplog_cleanup_interval"
-msgstr "Intervalle de nettoyage de l’Iplog"
+msgstr "Fréquence de nettoyage de l’Iplog"
 
 # conf/documentation.conf
 msgid "maintenance.iplog_cleanup_timeout"
@@ -9613,7 +9613,7 @@ msgstr "Nombre d’entrées à nettoyer dans l’Iplog"
 
 # conf/documentation.conf
 msgid "maintenance.iplog_rotation_interval"
-msgstr "Intervalle de rotation de l’Iplog"
+msgstr "Fréquence de rotation de l’Iplog"
 
 # conf/documentation.conf
 msgid "maintenance.iplog_rotation_timeout"
@@ -9629,7 +9629,7 @@ msgstr "Nombre d’entrées à nettoyer dans le Locationlog"
 
 # conf/documentation.conf
 msgid "maintenance.locationlog_cleanup_interval"
-msgstr "Intervalle de nettoyage du Locationlog"
+msgstr "Fréquence de nettoyage du Locationlog"
 
 # conf/documentation.conf
 msgid "maintenance.locationlog_cleanup_timeout"
@@ -9641,7 +9641,7 @@ msgstr "Plage horaire de nettoyage du Locationlog"
 
 # conf/documentation.conf
 msgid "maintenance.node_cleanup_interval"
-msgstr "Intervalle de nettoyage des appareils"
+msgstr "Fréquence de nettoyage des appareils"
 
 # conf/documentation.conf
 msgid "maintenance.node_cleanup_window"
@@ -9649,15 +9649,15 @@ msgstr "Plage horaire de nettoyage des appareils"
 
 # conf/documentation.conf
 msgid "maintenance.nodes_maintenance_interval"
-msgstr "Intervalle de la maintenance des appareils"
+msgstr "Fréquence de la maintenance des appareils"
 
 # conf/documentation.conf
 msgid "maintenance.online_node_count_interval"
-msgstr "Intervalle de mise à jour du status des appareils en ligne"
+msgstr "Fréquence de mise à jour du status des appareils en ligne"
 
 # conf/documentation.conf
 msgid "maintenance.option82_query_interval"
-msgstr "Intervalle entre chaque requêtes de l’option 82"
+msgstr "Fréquence de chaque requêtes de l’option 82"
 
 # conf/documentation.conf
 msgid "maintenance.person_cleanup"
@@ -9665,11 +9665,11 @@ msgstr "Nettoyage des usagers"
 
 # conf/documentation.conf
 msgid "maintenance.person_cleanup_interval"
-msgstr "Intervalle de nettoyage des usagers"
+msgstr "Fréquence de nettoyage des usagers"
 
 # conf/documentation.conf
 msgid "maintenance.provisioning_compliance_poll_interval"
-msgstr "Intervalle de vérification de l’approvisionnement"
+msgstr "Fréquence de vérification de l’approvisionnement"
 
 # conf/documentation.conf
 msgid "maintenance.radius_audit_log_cleanup_batch"
@@ -9677,7 +9677,7 @@ msgstr "Nombre d’entrées à nettoyer dans le journal d’audit RADIUS"
 
 # conf/documentation.conf
 msgid "maintenance.radius_audit_log_cleanup_interval"
-msgstr "Intervalle de nettoyage du journal d’audit RADIUS"
+msgstr "Fréquence de nettoyage du journal d’audit RADIUS"
 
 # conf/documentation.conf
 msgid "maintenance.radius_audit_log_cleanup_timeout"
@@ -9689,7 +9689,7 @@ msgstr "Plage horaire de nettoyage du journal d’audit RADIUS"
 
 # conf/documentation.conf
 msgid "maintenance.traplog_cleanup_interval"
-msgstr "Intervalle de nettoyage du Traplog"
+msgstr "Fréquence de nettoyage du Traplog"
 
 # conf/documentation.conf
 msgid "maintenance.traplog_cleanup_window"
@@ -9701,7 +9701,7 @@ msgstr "Nombre d’entrées à nettoyer dans les violations"
 
 # conf/documentation.conf
 msgid "maintenance.violation_maintenance_interval"
-msgstr "Intervalle de la maintenance des violations"
+msgstr "Fréquence de la maintenance des violations"
 
 # conf/documentation.conf
 msgid "maintenance.violation_maintenance_timeout"
