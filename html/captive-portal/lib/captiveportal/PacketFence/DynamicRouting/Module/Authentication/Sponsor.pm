@@ -121,6 +121,7 @@ sub do_sponsor_registration {
 
     $info{'cc'} = $source->{sponsorship_cc};
     $info{'activation_domain'} = $source->{activation_domain} if (defined($source->{activation_domain}));
+    $info{'activation_timeout'} = normalize_time($source->{email_activation_timeout});
     # fetch more info for the activation email
     # this is meant to be overridden in pf::web::custom with customer specific needs
     foreach my $key (qw(firstname lastname telephone company sponsor)) {
