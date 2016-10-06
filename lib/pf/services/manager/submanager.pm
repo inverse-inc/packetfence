@@ -37,12 +37,14 @@ Delegating generateConfig startService postStartCleanup stop watch to sub manage
 
 =cut
 
-around [qw(generateConfig startService postStartCleanup watch stop)] => sub {
-    my ($orig,$self,$quick) = @_;
-    my $count = 0;
-    my $pass = true {$count++; $_->$orig($quick) } $self->managers;
-    return $pass == $count;
-};
+for my $func (qw(generateConfig startService postStartCleanup watch stop)) {
+    around $func => sub {
+        my ($orig,$self,$quick) = @_;
+        my $count = 0;
+        my $pass = true {$count++; $_->$func($quick) } $self->managers;
+        return $pass == $count;
+    };
+}
 
 =head2 removeStalePid
 
