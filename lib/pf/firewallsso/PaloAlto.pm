@@ -67,6 +67,9 @@ XML
             my $webpage = "https://".$firewall_conf."/api/?type=user-id&action=set&key=".$ConfigFirewallSSO{$firewall_conf}->{'password'};
             my $ua = LWP::UserAgent->new;
             $ua->timeout(5);
+            # to work with perl 5.x (Debian 8 Jessie) and self-signed certificate
+            $ua->ssl_opts( verify_hostname => 0 ,SSL_verify_mode => 0x00);
+
             my $response = $ua->post($webpage, Content => [ cmd => $message ]);
             if ($response->is_success) {
                 $logger->info("Node $mac registered and allowed to pass the Firewall");
@@ -101,6 +104,9 @@ XML
             my $webpage = "https://".$firewall_conf."/api/?type=user-id&action=set&key=".$ConfigFirewallSSO{$firewall_conf}->{'password'};
             my $ua = LWP::UserAgent->new;
             $ua->timeout(5);
+            # to work with perl 5.x (Debian 8 Jessie) and self-signed certificate
+            $ua->ssl_opts( verify_hostname => 0 ,SSL_verify_mode => 0x00);
+
             my $response = $ua->post($webpage, Content => [ cmd => $message ]);
             if ($response->is_success) {
                 $logger->debug("Node $mac removed from the firewall");
