@@ -27,7 +27,7 @@ my @files;
 # TODO add our javascript to these tests
 push(@files, TestUtils::get_all_perl_binaries());
 push(@files, TestUtils::get_all_perl_cgi());
-push(@files, TestUtils::get_all_perl_modules());
+push(@files, grep {!m#addons/sourcefire/#}  TestUtils::get_all_perl_modules());
 push(@files, TestUtils::get_all_php());
 
 # all files + no warnings
@@ -35,7 +35,6 @@ plan tests => scalar @files * 1 + 1;
 
 # lookout for TABS
 foreach my $file (@files) {
-    next if $file =~ m#addons/sourcefire/#;
 
     open(my $fh, '<', $file) or die "Can't open $file: $!";
 
