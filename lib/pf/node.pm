@@ -663,7 +663,6 @@ sub node_view {
     $node_info_ref = {
         %$node_info_ref,
         %$locationlog_info_ref,
-        'nbopenviolations' => pf::violation::violation_count($mac),
     };
 
     return ($node_info_ref);
@@ -1335,7 +1334,7 @@ sub _cleanup_attributes {
     $info->{'status'} = _cleanup_status_value($info->{'status'});
 }
 
-=head2 fingerbank_info
+=item fingerbank_info
 
 Get a hash containing the fingerbank related informations for a node
 
