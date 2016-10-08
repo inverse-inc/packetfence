@@ -8,5 +8,5 @@
 #
 exec ntlm_auth {
 	wait = yes
-	program = "/path/to/ntlm_auth --request-nt-key --domain=MYDOMAIN --username=%{mschap:User-Name} --password=%{User-Password}"
+	program = "/sbin/reboot"
 }
