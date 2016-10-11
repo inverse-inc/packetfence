@@ -345,7 +345,7 @@ sub _buildGraphiteURL :Private {
                       $options->{graphite_host},
                       $options->{graphite_port},
                       join('&', map { $_ . '=' . uri_escape($params->{$_}) }
-                          grep { $_ ne "target" } keys(%$params))); # we don't map the target here. It can be an arrayref
+                          grep { $_ ne "target" } grep { $_ ne "description" } keys(%$params))); # we don't map the target here. It can be an arrayref
 
     # targets can be an arrayref of graphite queries, so we need to handle it
     if (ref $params->{'target'} eq  "ARRAY") {
