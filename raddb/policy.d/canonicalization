@@ -111,3 +111,15 @@ rewrite_calling_station_id {
                 noop
         }
 }
+
+rewrite_user_name {
+        if (&User-Name && (&User-Name =~ /^${policy.mac-addr-regexp}$/i)) {
+                update request {
+                        &User-Name := "%{tolower:%{1}:%{2}:%{3}:%{4}:%{5}:%{6}}"
+                }
+                updated
+        }
+        else {
+                noop
+        }
+}
