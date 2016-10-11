@@ -705,11 +705,11 @@ sub cleanup {
         $query->finish;
         $end_time = time;
         $rows_deleted += $rows if $rows > 0;
-        $logger->trace("Deleted '$rows_deleted' entries from iplog_history to iplog_archive (start: '$start_time', end: '$end_time')");
+        $logger->trace("Deleted '$rows_deleted' entries from iplog_archive (start: '$start_time', end: '$end_time')");
         last if $rows == 0 || ( ( $end_time - $start_time ) > $time_limit );
     }
 
-    $logger->info("Deleted '$rows_deleted' entries from iplog_history to iplog_archive (start: '$start_time', end: '$end_time')");
+    $logger->info("Deleted '$rows_deleted' entries from iplog_archive (start: '$start_time', end: '$end_time')");
     return (0);
 }
 
