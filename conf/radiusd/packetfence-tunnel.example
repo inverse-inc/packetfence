@@ -230,6 +230,9 @@ session {
 #  then update the inner-tunnel reply.
 post-auth {
 	#
+	update {
+		&request: += &outer.request:[*]
+	}
 	rest
         if (&reply:PacketFence-Authorization-Status == "deny") {
                 request-timing
@@ -275,6 +278,9 @@ post-auth {
 	#  'edir_account_policy_check = yes' in the ldap module configuration
 	#
 	Post-Auth-Type REJECT {
+		update {
+			&request: += &outer.request:[*]
+		}
 		request-timing
 		# log failed authentications in SQL, too.
 		-sql_reject
