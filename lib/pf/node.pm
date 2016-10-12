@@ -25,6 +25,8 @@ use pf::StatsD::Timer;
 use pf::util::statsd qw(called);
 use pf::error qw(is_success);
 use pf::constants::parking qw($PARKING_VID);
+use CHI::Memoize qw(memoized);
+use pf::CHI::Request qw(pf_memoize);
 
 use constant NODE => 'node';
 
@@ -924,6 +926,7 @@ sub node_modify {
         $mac
     );
     if($sth) {
+        memoized("pf::node::node_view")->cache->remove($new_mac);
         return ( $sth->rows );
     }
     $logger->error("Unable to modify node '" . $mac // 'undef' . "'");
@@ -1335,7 +1338,7 @@ sub _cleanup_attributes {
     $info->{'status'} = _cleanup_status_value($info->{'status'});
 }
 
-=head2 fingerbank_info
+=item fingerbank_info
 
 Get a hash containing the fingerbank related informations for a node
 
@@ -1376,6 +1379,9 @@ sub fingerbank_info {
 
     return $info;
 }
+
+pf_memoize("pf::node::node_view");
+pf_memoize("pf::node::node_exist");
 
 =back
 
