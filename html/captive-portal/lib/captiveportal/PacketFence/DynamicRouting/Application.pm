@@ -420,7 +420,7 @@ sub _render {
     # Expose the preregistration flag in all templates
     $args->{preregistration} = $self->preregistration;
 
-    our $processor = Template::AutoFilter->new($self->_template_toolkit_options($args));
+    my $processor = Template::AutoFilter->new($self->_template_toolkit_options($args));
 
     my $output = '';
     $processor->process($template, $args, \$output) || die("Can't generate template $template: ".$processor->error."Error : ".$@);
