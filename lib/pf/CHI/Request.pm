@@ -14,8 +14,16 @@ pf::CHI::Request
 
 use strict;
 use warnings;
+use CHI::Memoize qw(memoize memoized);
 use base qw(CHI);
 our %CACHE;
+
+use Exporter qw(import);
+
+our @EXPORT_OK = qw(
+    pf_memoize
+);
+
 
 __PACKAGE__->config({
     storage => {
@@ -31,6 +39,11 @@ __PACKAGE__->config({
 
 sub clear_all {
     %CACHE = ();
+}
+
+sub pf_memoize {
+    my ($func, @options) = @_;
+    memoize($func, chi_class => 'pf::CHI::Request', use_defaults => 1, @options);
 }
 
 =head1 AUTHOR
