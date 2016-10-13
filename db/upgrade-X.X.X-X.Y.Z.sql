@@ -67,7 +67,7 @@ AND (acctstoptime IS NULL OR acctstoptime = 0) LIMIT 1;
 
 IF (Previous_Session_Time IS NOT NULL) THEN
     UPDATE radacct SET
-      acctstoptime = p_timestamp,
+      acctstoptime = p_acctstarttime,
       acctterminatecause = 'UNKNOWN'
       WHERE acctuniqueid = p_acctuniqueid
       AND (acctstoptime IS NULL OR acctstoptime = 0);
