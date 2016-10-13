@@ -326,7 +326,6 @@ sub getRegistrationRole {
             return ({role => $role});
         }
         $logger->info("doesn't have a node entry; belongs into registration VLAN");
-        my $vlan = $args->{'switch'}->getVlanByName('registration');
         return ({role => 'registration'});
     }
 
@@ -339,7 +338,6 @@ sub getRegistrationRole {
             return ({role => $role});
         }
         $logger->info("is of status $n_status; belongs into registration VLAN");
-        my $vlan = $args->{'switch'}->getVlanByName('registration');
         return ({role => 'registration'});
     }
     return ({ role => 0});
