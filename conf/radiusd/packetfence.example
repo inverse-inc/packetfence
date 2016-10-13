@@ -251,7 +251,7 @@ preacct {
 accounting {
 	rewrite_user_name
 	rewrite_calling_station_id
-	rewrite_called_station_id
+	set_calling_station_id
 	# Add in PacketFence specific configuration
 	update {
 		&request:FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
@@ -260,7 +260,6 @@ accounting {
 		&control:PacketFence-RPC-User = ${rpc_user}
 		&control:PacketFence-RPC-Pass = ${rpc_pass}
 		&control:PacketFence-RPC-Proto = ${rpc_proto}
-		&request:Calling-Station-Id = "%{User-Name}"
 	}
 	#
 	#  Log traffic to an SQL database.
