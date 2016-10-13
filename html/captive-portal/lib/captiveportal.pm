@@ -214,6 +214,8 @@ after finalize => sub {
                 $c->log->error("Error with a deferred action: $@");
             }
         }
+
+        $c->request->_clear_body;
     }
 };
 
