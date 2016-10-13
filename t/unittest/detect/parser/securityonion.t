@@ -12,7 +12,6 @@ SecurityOnion unit test: validate that the security_onion parser returns good va
 
 use strict;
 use warnings;
-#
 use lib '/usr/local/pf/lib';
 
 use Test::More tests => 7;
@@ -25,8 +24,6 @@ BEGIN {
 }
 
 use_ok('pf::factory::detect::parser');
-
-#my $alert = 'Oct 28 13:37:42 poulichefencer sguil_alert: 13:37:42 pid(3403)  Alert Received: 0 2 misc-attack securityonion1-eth1 {2015-10-28 13:37:42} 3 88707 {ET TOR Known Tor Relay/Router (Not Exit) Node Traffic group 11} SRC.IP.AD.DR DST.IP.AD.DR 17 123 123 1 2522020 2376 7946 7946';
 
 my $alert = 'Oct  7 14:23:40 idsman01 securityonion_ids: 14:23:40 pid(24921)  Alert Received: 0 1 policy-violation idshalls01-eth0-7 {2016-10-07 14:23:39} 21 173773 {ET P2P Vuze BT UDP Connection} 10.6.198.173 24.122.228.33 17 10600 65344 1 2010140 6 92 92';
 
