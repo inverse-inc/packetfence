@@ -1,12 +1,12 @@
 =head1 NAME
 
-example pf test
+Securityonion.t
 
 =cut
 
 =head1 DESCRIPTION
 
-example pf test script
+SecurityOnion unit test: validate that the security_onion parser returns good values that we here test against.
 
 =cut
 
