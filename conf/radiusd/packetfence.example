@@ -283,7 +283,7 @@ accounting {
 	#  Filter attributes from the accounting response.
 	attr_filter.accounting_response
     
-	packetfence
+	rest
 }
 
 
