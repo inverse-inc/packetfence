@@ -40,7 +40,7 @@ function execute_and_check {
 
 dir="/tmp/pf-auto-check-update" && mkdir -p $dir && cd $dir && rm -fr *
 
-script_registry_url="http://localhost:8000/index.txt"
+script_registry_url="http://inverse.ca/downloads/PacketFence/monit-script-registry.txt"
 script_registry_file="checks-script-registry"
 script_dir="/usr/local/pf/var/monitoring-scripts/"
 
