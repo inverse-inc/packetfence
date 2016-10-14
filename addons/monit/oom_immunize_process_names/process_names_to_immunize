@@ -1,10 +1,2 @@
-#Put one unique command line argument for "pgrep -f" to UNIQUELY find. Comments and empty lines are skipped.
-
-#MySQL
-/usr/libexec/mysqld
-
-#Accounting
-/usr/local/pf/var/conf/httpd.conf.d/httpd.aaa
-
-#redis-cache
-/usr/bin/redis-server
+#Put one pid name per line
+mysqld
