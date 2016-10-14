@@ -28,6 +28,7 @@ use pf::factory::condition::profile;
 use pfconfig::cached_scalar;
 use List::Util qw(first);
 use pf::StatsD::Timer;
+use pf::CHI::Request qw(pf_memoize);
 
 =head1 SUBROUTINES
 
@@ -53,6 +54,8 @@ sub instantiate {
     my $instance = $self->_from_profile($profile_name);
     return $instance;
 }
+
+pf_memoize("pf::Portal::ProfileFactory::instantiate");
 
 =head2 _from_profile
 
