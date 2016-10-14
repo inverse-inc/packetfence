@@ -180,7 +180,7 @@ sub iplog_db_prepare {
     );
 
     $iplog_statements->{'iplog_cleanup_sql'} = get_db_handle()->prepare(
-        qq [ DELETE FROM iplog_archive WHERE end_time < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ? ]
+        qq [ DELETE FROM ? WHERE end_time < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ? ]
     );
 
     $iplog_db_prepared = 1;
@@ -690,7 +690,7 @@ sub rotate {
 
 sub cleanup {
     my $timer = pf::StatsD::Timer->new({sample_rate => 0.2});
-    my ( $window_seconds, $batch, $time_limit ) = @_;
+    my ( $window_seconds, $batch, $time_limit, $table ) = @_;
     my $logger = pf::log::get_logger();
 
     $logger->debug("Calling cleanup with window='$window_seconds' seconds, batch='$batch', timelimit='$time_limit'");
@@ -698,18 +698,19 @@ sub cleanup {
     my $start_time = time;
     my $end_time;
     my $rows_deleted = 0;
+    $table ||= 'iplog_archive';
 
     while (1) {
-        my $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_cleanup_sql', $now, $window_seconds, $batch) || return (0);
+        my $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_cleanup_sql', $table, $now, $window_seconds, $batch) || return (0);
         my $rows = $query->rows;
         $query->finish;
         $end_time = time;
         $rows_deleted += $rows if $rows > 0;
-        $logger->trace("Deleted '$rows_deleted' entries from iplog_archive (start: '$start_time', end: '$end_time')");
+        $logger->trace("Deleted '$rows_deleted' entries from $table (start: '$start_time', end: '$end_time')");
         last if $rows == 0 || ( ( $end_time - $start_time ) > $time_limit );
     }
 
-    $logger->info("Deleted '$rows_deleted' entries from iplog_archive (start: '$start_time', end: '$end_time')");
+    $logger->info("Deleted '$rows_deleted' entries from $table (start: '$start_time', end: '$end_time')");
     return (0);
 }
 

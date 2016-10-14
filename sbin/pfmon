@@ -176,7 +176,7 @@ sub registertasks  {
         'iplog rotation',
         'iplog_rotation_interval',
         sub {
-            pf::iplog::rotate( $Config{'maintenance'}{'iplog_rotation_window'}, $Config{maintenance}{iplog_rotation_batch}, $Config{maintenance}{iplog_rotation_timeout} ) if ( $Config{'maintenance'}{'iplog_rotation_window'} );
+            pf::iplog::rotate( $Config{'maintenance'}{'iplog_rotation_window'}, $Config{maintenance}{iplog_rotation_batch}, $Config{maintenance}{iplog_rotation_timeout} ) if ( $Config{'maintenance'}{'iplog_rotation_window'} && isenabled($Config{'maintenance'}{'iplog_rotation'}) );
         }
     );
 
@@ -184,7 +184,8 @@ sub registertasks  {
         'iplog cleanup',
         'iplog_cleanup_interval',
         sub {
-            pf::iplog::cleanup( $Config{'maintenance'}{'iplog_cleanup_window'}, $Config{maintenance}{iplog_cleanup_batch}, $Config{maintenance}{iplog_cleanup_timeout} ) if ( $Config{'maintenance'}{'iplog_cleanup_window'} );
+            my $table = ( isdisabled($Config{'maintenance'}{'iplog_rotation'}) ) ? 'iplog_history' : 'iplog_archive';
+            pf::iplog::cleanup( $Config{'maintenance'}{'iplog_cleanup_window'}, $Config{maintenance}{iplog_cleanup_batch}, $Config{maintenance}{iplog_cleanup_timeout}, $table ) if ( $Config{'maintenance'}{'iplog_cleanup_window'} );
         }
     );
 
