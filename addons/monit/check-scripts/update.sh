@@ -15,7 +15,12 @@ function download_and_check {
   else
     echo "Success downloading $u"
     echo "Decrypting $tmpencrypted to $dst"
-    gpg --batch --yes --output $dst --decrypt $tmpencrypted
+    if ! gpg --batch --yes --output $dst --decrypt $tmpencrypted; then
+      echo "Failed to validate signature of $u"
+      ERROR=1
+      rm $tmpencryped
+      return 1
+    fi
     rm $tmpencrypted
     return 0
   fi
