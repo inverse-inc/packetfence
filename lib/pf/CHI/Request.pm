@@ -32,6 +32,18 @@ __PACKAGE__->config({
             datastore  => \%CACHE,
             serializer => 'Sereal',
         },
+        raw_memory => {
+            driver     => 'RawMemory',
+            datastore  => \%CACHE,
+        },
+    },
+    namespace => {
+        'pf::Portal::ProfileFactory::instantiate' => {
+            storage => 'raw_memory',
+        },
+       'pf::node::node_exist' => {
+           storage => 'raw_memory',
+       },
     },
     memoize_cache_objects => 1,
     defaults              => {'storage' => 'memory'},
@@ -42,8 +54,8 @@ sub clear_all {
 }
 
 sub pf_memoize {
-    my ($func, @options) = @_;
-    memoize($func, chi_class => 'pf::CHI::Request', use_defaults => 1, @options);
+    my ($func) = @_;
+    memoize($func, cache => pf::CHI::Request->new(namespace => $func));
 }
 
 =head1 AUTHOR
