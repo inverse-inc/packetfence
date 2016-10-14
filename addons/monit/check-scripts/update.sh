@@ -42,9 +42,11 @@ dir="/tmp/pf-auto-check-update" && mkdir -p $dir && cd $dir && rm -fr *
 
 script_registry_url="http://localhost:8000/index.txt"
 script_registry_file="checks-script-registry"
-script_dir="scripts"
+script_dir="/usr/local/pf/var/monitoring-scripts/"
 
 mkdir -p $script_dir
+chown root.root $script_dir
+chmod 0700 $script_dir
 
 download_and_check $script_registry_url $script_registry_file
 
