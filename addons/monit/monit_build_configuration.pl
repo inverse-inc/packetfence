@@ -23,6 +23,18 @@ my %CONFIGURATION_TO_TEMPLATE   = (
     'os-winbind'      => '40_OS-winbind',
 );
 
+if ( $#ARGV eq "-1" ) {
+    print "Usage: ./monit_configuration_builder.pl 'email(s)' 'subject' 'configurations'\n\n";
+    print "email(s): List of alerting email address(es) (comma separated if more than one)\n";
+    print "subject: Identifier for email alerts\n";
+    print "configurations: list of configuration to generate (comma separeted if more than one)\n";
+    print "  - packetfence: Everything related to basic PacketFence\n";
+    print "  - portsec: Will add some checks for port-security related services\n";
+    print "  - drbd: Will add some checks for DRBD\n";
+    print "  - active-active: Will add some checks for active-active clustering related services\n";
+    print "  - os-winbind: Will add a check for the operating system winbindd process. Use it when the winbind/samba configuration is made outside PacketFence.\n";
+    die "\n";
+}
 
 my ( $emails, $subject_identifier, $configurations ) = @ARGV;
 die "No alerting email address(es) specified\n" if !defined $emails;
@@ -34,7 +46,7 @@ my @emails = split(/\,/, $emails);
 my @configurations = split(/\,/, $configurations);
 
 foreach my $configuration ( @configurations ) {
-    die "Invalid configuration parameter '$configuration'" if !exists $CONFIGURATION_TO_TEMPLATE{$configuration};
+    die "Invalid configuration parameter '$configuration'\n" if !exists $CONFIGURATION_TO_TEMPLATE{$configuration};
 }
 
 
