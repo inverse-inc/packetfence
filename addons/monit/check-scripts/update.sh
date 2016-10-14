@@ -3,14 +3,20 @@
 ERROR=0
 
 function download_and_check {
-  u=$1
-  dst=$2
-  if [ `wget --server-response $u -O $dst 2>&1 | awk '/^  HTTP/{print $2}'` != "200" ] ; then
+  u="$1.sig"
+  dst="$2"
+  tmpencrypted=`mktemp`
+
+  if [ "`wget --server-response $u -O $tmpencrypted 2>&1 | awk '/^  HTTP/{print $2}'`" != "200" ] ; then
     echo "Failed to download $u"
     ERROR=1
+    rm $tmpencrypted
     return 1
   else
     echo "Success downloading $u"
+    echo "Decrypting $tmpencrypted to $dst"
+    gpg --batch --yes --output $dst --decrypt $tmpencrypted
+    rm $tmpencrypted
     return 0
   fi
 }
@@ -21,6 +27,9 @@ function execute_and_check {
   if ! `$cmd`; then
     echo "$msg"
     ERROR=1
+    return 1
+  else
+    return 0
   fi
 }
 
@@ -34,8 +43,6 @@ mkdir -p $script_dir
 
 download_and_check $script_registry_url $script_registry_file
 
-#echo "" >> $script_registry_file
-
 while read u; do
   tmp=`mktemp`
   echo "Downloading to $u"
@@ -46,6 +53,7 @@ while read u; do
   if [ -z $fname ]; then
     echo "Failed to determine filename for $u"
     ERROR=1
+    continue
   fi
   echo "Placing $u in $fname"
   execute_and_check "mv $tmp $script_dir/$fname" "Cannot place file in script directory"
