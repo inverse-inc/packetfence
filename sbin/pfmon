@@ -179,6 +179,7 @@ sub registertasks  {
             pf::iplog::rotate( $Config{'maintenance'}{'iplog_rotation_window'}, $Config{maintenance}{iplog_rotation_batch}, $Config{maintenance}{iplog_rotation_timeout} ) if ( $Config{'maintenance'}{'iplog_rotation_window'} );
         }
     );
+
     register_task(
         'iplog cleanup',
         'iplog_cleanup_interval',
@@ -186,6 +187,7 @@ sub registertasks  {
             pf::iplog::cleanup( $Config{'maintenance'}{'iplog_cleanup_window'}, $Config{maintenance}{iplog_cleanup_batch}, $Config{maintenance}{iplog_cleanup_timeout} ) if ( $Config{'maintenance'}{'iplog_cleanup_window'} );
         }
     );
+
     register_task(
         'locationlog cleanup',
         'locationlog_cleanup_interval',
@@ -193,6 +195,7 @@ sub registertasks  {
             locationlog_cleanup( $Config{'maintenance'}{'locationlog_cleanup_window'}, $Config{maintenance}{locationlog_cleanup_batch}, $Config{maintenance}{locationlog_cleanup_timeout} ) if ( $Config{'maintenance'}{'locationlog_cleanup_window'} );
         }
     );
+
     register_task(
         'auth_log cleanup',
         'auth_log_cleanup_interval',
@@ -200,6 +203,7 @@ sub registertasks  {
             pf::auth_log::cleanup( $Config{'maintenance'}{'auth_log_cleanup_window'}, $Config{maintenance}{auth_log_cleanup_batch}, $Config{maintenance}{auth_log_cleanup_timeout} ) if ( $Config{'maintenance'}{'auth_log_cleanup_window'} );
         }
     );
+
     register_task(
         'radius audit log cleanup',
         'radius_audit_log_cleanup_interval',
@@ -207,6 +211,7 @@ sub registertasks  {
             radius_audit_log_cleanup( $Config{'maintenance'}{'radius_audit_log_cleanup_window'}, $Config{maintenance}{radius_audit_log_cleanup_batch}, $Config{maintenance}{radius_audit_log_cleanup_timeout}) if ( $Config{'maintenance'}{'radius_audit_log_cleanup_window'} );
         }
     );
+
     register_task(
         'node cleanup',
         'node_cleanup_interval',
@@ -214,6 +219,7 @@ sub registertasks  {
             node_cleanup( $Config{'maintenance'}{'node_cleanup_window'} ) if ( $Config{'maintenance'}{'node_cleanup_window'} );
         }
     );
+
     register_task(
         'person cleanup',
         'person_cleanup_interval',
@@ -221,6 +227,7 @@ sub registertasks  {
             person_cleanup() if ( isenabled($Config{'maintenance'}{'person_cleanup'}) );
         }
     );
+
     register_task(
         'traplog cleanup',
         'traplog_cleanup_interval',
@@ -228,6 +235,7 @@ sub registertasks  {
             traplog_cleanup( $Config{'maintenance'}{'traplog_cleanup_window'} ) if ( $Config{'maintenance'}{'traplog_cleanup_window'} );
         }
     );
+
     register_task(
         'checking registered nodes for expiration',
         'nodes_maintenance_interval',
@@ -235,6 +243,7 @@ sub registertasks  {
             nodes_maintenance();
         }
     );
+
     register_task(
         'checking violations for expiration',
         'violation_maintenance_interval',
@@ -242,6 +251,7 @@ sub registertasks  {
             violation_maintenance( $Config{maintenance}{violation_maintenance_batch}, $Config{maintenance}{violation_maintenance_timeout} );
         }
     );
+
     register_task(
         'checking accounting data for potential bandwidth abuse',
         'inline_accounting_maintenance_interval',
@@ -249,6 +259,7 @@ sub registertasks  {
             inline_accounting_maintenance( $Config{'inline'}{'layer3_accounting_session_timeout'} ) if isenabled($Config{'inline'}{'accounting'});
         }
     );
+
     register_task(
         'provisioner polling enforcement',
         'provisioning_compliance_poll_interval',
@@ -256,6 +267,7 @@ sub registertasks  {
             provisioner_compliance_poll();
         }
     );
+
     register_task(
         'account maintenance',
         'acct_maintenance_interval',
@@ -263,16 +275,19 @@ sub registertasks  {
             acct_maintenance();
         }
     );
+
     register_task(
         'fingerbank data update',
         'fingerbank_data_update_interval',
         \&update_fingerbank_data
     );
+
     register_task(
         'cluster_check',
         'cluster_check_interval',
         \&cluster_check
     );
+
     register_task(
         'option82 task',
         'option82_query_interval',
