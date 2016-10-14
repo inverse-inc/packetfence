@@ -30,6 +30,7 @@ use pfconfig::cached_array;
 use NetAddr::IP;
 use pf::StatsD::Timer;
 use pf::util::statsd qw(called);
+use pf::CHI::Request qw(pf_memoize);
 
 our %SwitchConfig;
 tie %SwitchConfig, 'pfconfig::cached_hash', 'config::Switch';
@@ -174,6 +175,8 @@ sub instantiate {
 
     return $result;
 }
+
+pf_memoize("pf::SwitchFactory::instantiate");
 
 sub config {
     my %temp = %SwitchConfig;
