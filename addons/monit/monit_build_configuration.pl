@@ -25,9 +25,9 @@ my %CONFIGURATION_TO_TEMPLATE   = (
 
 if ( $#ARGV eq "-1" ) {
     print "Usage: ./monit_configuration_builder.pl 'email(s)' 'subject' 'configurations'\n\n";
-    print "email(s): List of alerting email address(es) (comma separated if more than one)\n";
+    print "email(s): List of alerting email address(es) (comma-separated if more than one)\n";
     print "subject: Identifier for email alerts\n";
-    print "configurations: list of configuration to generate (comma separeted if more than one)\n";
+    print "configurations: List of configuration to generate (comma-separated if more than one)\n";
     print "  - packetfence: Everything related to basic PacketFence\n";
     print "  - portsec: Will add some checks for port-security related services\n";
     print "  - drbd: Will add some checks for DRBD\n";
