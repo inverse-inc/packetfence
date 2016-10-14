@@ -67,5 +67,11 @@ while read u; do
   execute_and_check "chmod +x $script_dir/$fname" "Cannot set executable bit on script"
 done <$script_registry_file
 
-
+if [ $ERROR -ne 0 ]; then
+  echo "Something failed in the update process...."
+  exit 1
+else
+  echo "Update completed successfully"
+  exit 0
+fi
 
