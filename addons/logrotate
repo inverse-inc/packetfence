@@ -13,7 +13,7 @@
 
 /usr/local/pf/logs/httpd.*.access /usr/local/pf/logs/httpd.*.error /usr/local/pf/logs/httpd.*.catalyst {
     daily
-    rotate 90
+    rotate 2
     missingok
     compress
     copytruncate
