@@ -69,7 +69,7 @@ Check if the device is in parking and if it should be redirected to the parking 
 
 sub checkForParking :Private {
     my ($self, $c) = @_;
-    if(violation_count_open_vid($c->portalSession->clientMac, $PARKING_VID) && isenabled($Config{parking}{show_parking_portal})) {
+    if (isenabled($Config{parking}{show_parking_portal}) && violation_count_open_vid($c->portalSession->clientMac, $PARKING_VID)) {
         get_logger->warn("Client should not have reached the normal portal as it is in parking. Retriggering parking actions.");
         pf::parking::park($c->portalSession->clientMac, $c->portalSession->clientIp);
         # Redirecting to an invalid URL so it is caught by the parking portal
