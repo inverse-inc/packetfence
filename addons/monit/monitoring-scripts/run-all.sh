@@ -2,8 +2,7 @@
 
 source /usr/local/pf/addons/monit/monitoring-scripts/setup.sh
 
-script_dir="/usr/local/pf/var/monitoring-scripts/"
-full_output=""
+full_output="Report for $uuid\n"
 mailto="jsemaan@inverse.ca"
 
 ERROR=0
