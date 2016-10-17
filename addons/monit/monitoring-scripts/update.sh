@@ -5,13 +5,18 @@ ERROR=0
 function download_and_check {
   u="$1.sig"
   dst="$2"
+  may_not_exist="${3:-"0"}"
   tmpencrypted=`mktemp`
 
   if [ "`wget --server-response $u -O $tmpencrypted 2>&1 | awk '/^  HTTP/{print $2}'`" != "200" ] ; then
     echo "Failed to download $u"
-    ERROR=1
     rm $tmpencrypted
-    return 1
+    if [ $may_not_exist -eq 1 ];then
+      return 0
+    else
+      ERROR=1
+      return 1
+    fi
   else
     echo "Success downloading $u"
     echo "Decrypting $tmpencrypted to $dst"
@@ -44,11 +49,27 @@ script_registry_url="http://inverse.ca/downloads/PacketFence/monit-script-regist
 script_registry_file="checks-script-registry"
 script_dir="/usr/local/pf/var/monitoring-scripts/"
 
+uuid_file="/etc/monit.d/srv-uuid"
+
+if ! [ -f "$uuid_file" ]; then
+  echo "UUID not generated. Proceeding with UUID generation now."
+  uuidgen > $uuid_file
+fi
+
+uuid=$(cat $uuid_file)
+uuid_vars_url="http://inverse.ca/downloads/PacketFence/monitoring-scripts/vars/$uuid.txt"
+uuid_vars_file="/etc/monit.d/vars"
+
+uuid_ignores_url="http://inverse.ca/downloads/PacketFence/monitoring-scripts/ignores/$uuid.txt"
+uuid_ignores_file="/etc/monit.d/ignores"
+
 mkdir -p $script_dir
 chown root.root $script_dir
 chmod 0700 $script_dir
 
 download_and_check $script_registry_url $script_registry_file
+download_and_check $uuid_vars_url $uuid_vars_file 1
+download_and_check $uuid_ignores_url $uuid_ignores_file 1
 
 while read u; do
   tmp=`mktemp`
