@@ -706,7 +706,7 @@ Corosync configuration
      binary="/usr/bin/mysqld_safe" \
      config="/etc/my.cnf" \
      datadir="/var/lib/mysql" \
-     pid="/var/lib/mysql/mariadb.pid" \
+     pid="/var/run/mariadb/mariadb.pid" \
      socket="/var/lib/mysql/mysql.sock" \
      op start timeout=60s \
      op stop timeout=60s \
