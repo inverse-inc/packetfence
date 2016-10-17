@@ -4,6 +4,7 @@ source /usr/local/pf/addons/monit/monitoring-scripts/setup.sh
 
 source /etc/monit.d/vars
 
+
 full_output="Report for $uuid\n"
 mailto="jsemaan@inverse.ca"
 
@@ -33,10 +34,11 @@ for f in $(find $script_dir -type f); do
   _run $f
 done
 
+echo -e $full_output
 if [ $ERROR -ne 0 ]; then
-  echo -e $full_output
   exit 1
 else
+  echo "No error to report"
   exit 0
 fi
 
