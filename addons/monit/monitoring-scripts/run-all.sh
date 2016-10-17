@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source /usr/local/pf/addons/monit/monitoring-scripts/setup.sh
+
 script_dir="/usr/local/pf/var/monitoring-scripts/"
 full_output=""
 mailto="jsemaan@inverse.ca"

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source /usr/local/pf/addons/monit/monitoring-scripts/setup.sh
+
 ERROR=0
 
 function download_and_check {
@@ -44,24 +46,6 @@ function execute_and_check {
 }
 
 dir="/tmp/pf-auto-check-update" && mkdir -p $dir && cd $dir && rm -fr *
-
-script_registry_url="http://inverse.ca/downloads/PacketFence/monit-script-registry.txt"
-script_registry_file="/etc/monit.d/checks-script-registry"
-script_dir="/usr/local/pf/var/monitoring-scripts/"
-
-uuid_file="/etc/monit.d/srv-uuid"
-
-if ! [ -f "$uuid_file" ]; then
-  echo "UUID not generated. Proceeding with UUID generation now."
-  uuidgen > $uuid_file
-fi
-
-uuid=$(cat $uuid_file)
-uuid_vars_url="http://inverse.ca/downloads/PacketFence/monitoring-scripts/vars/$uuid.txt"
-uuid_vars_file="/etc/monit.d/vars"
-
-uuid_ignores_url="http://inverse.ca/downloads/PacketFence/monitoring-scripts/ignores/$uuid.txt"
-uuid_ignores_file="/etc/monit.d/ignores"
 
 mkdir -p $script_dir
 chown root.root $script_dir
