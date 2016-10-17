@@ -2,10 +2,7 @@
 
 source /usr/local/pf/addons/monit/monitoring-scripts/setup.sh
 
-if [ -f "$uuid_vars_file" ]; then
-  echo "UUID specific vars file exists. Sourcing it now."
-  source $uuid_vars_file
-fi
+source /etc/monit.d/vars
 
 full_output="Report for $uuid\n"
 mailto="jsemaan@inverse.ca"
@@ -14,6 +11,11 @@ ERROR=0
 
 function _run {
   cmd="$1"
+
+  if is_ignored $cmd ; then
+    echo "Ignoring $cmd."
+    return 0
+  fi
 
   output=`$cmd`
   if [ $? -eq 0 ]; then

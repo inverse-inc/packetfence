@@ -52,8 +52,17 @@ chown root.root $script_dir
 chmod 0700 $script_dir
 
 download_and_check $script_registry_url $script_registry_file
+download_and_check $global_vars_url $global_ignores_file
+download_and_check $global_ignores_url $global_ignores_file
+
 download_and_check $uuid_vars_url $uuid_vars_file 1
 download_and_check $uuid_ignores_url $uuid_ignores_file 1
+
+touch "$global_vars_file"
+touch "$uuid_vars_file"
+echo "#!/bin/bash" > $combined_vars_file
+cat "$global_vars_file" "$uuid_vars_file" >> $combined_vars_file
+chmod +x $combined_vars_file
 
 while read u; do
   tmp=`mktemp`

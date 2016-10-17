@@ -13,8 +13,26 @@ fi
 
 export uuid=$(cat $uuid_file)
 export uuid_vars_url="http://inverse.ca/downloads/PacketFence/monitoring-scripts/vars/$uuid.txt"
-export uuid_vars_file="/etc/monit.d/vars"
+export uuid_vars_file="/etc/monit.d/uuid-vars"
+
+export global_vars_url="http://inverse.ca/downloads/PacketFence/vars.txt"
+export global_vars_file="/etc/monit.d/global-vars"
 
 export uuid_ignores_url="http://inverse.ca/downloads/PacketFence/monitoring-scripts/ignores/$uuid.txt"
-export uuid_ignores_file="/etc/monit.d/ignores"
+export uuid_ignores_file="/etc/monit.d/uuid-ignores"
+
+export global_ignores_url="http://inverse.ca/downloads/PacketFence/ignores.txt"
+export global_ignores_file="/etc/monit.d/global-ignores"
+
+export combined_vars_file="/etc/monit.d/vars"
+
+function is_ignored {
+  touch "$global_ignores_file"
+  touch "$uuid_ignores_file"
+  cmd="$1"
+  cat "$global_ignores_file" "$uuid_ignores_file" | grep "^$cmd$"
+  return $?
+}
+
+export -f is_ignored
 
