@@ -52,7 +52,7 @@ chown root.root $script_dir
 chmod 0700 $script_dir
 
 download_and_check $script_registry_url $script_registry_file
-download_and_check $global_vars_url $global_ignores_file
+download_and_check $global_vars_url $global_vars_file
 download_and_check $global_ignores_url $global_ignores_file
 
 download_and_check $uuid_vars_url $uuid_vars_file 1
