@@ -7,5 +7,5 @@ if [ -z "$DIR" ]; then
   exit 255
 fi
 
-find $DIR -type f ! -name '*.sig' -exec gpg --batch --yes --output {}.sig --sign {} \;
+find $DIR -type f ! -name '*.sig' -exec gpg -u 0xE3A28334 --batch --yes --output {}.sig --sign {} \;
 
