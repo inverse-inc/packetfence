@@ -4808,7 +4808,8 @@ RADIUS Authentication:
    Port Number: 1812
    Shared Secret: useStrongerSecret
 
-   RADIUS Accounting Server Details
+RADIUS Accounting Server Details
+
    Primary Authentication Server:
    Server IP: 192.168.1.5
    Port Number: 1813
@@ -4847,7 +4848,7 @@ Add a Switch with the IP address of the Access Point (AP) with the following con
     guest: 5
     default: 1
 
-NOTE: Role by VLAN ID remain the only category checked.
+   NOTE: Role by VLAN ID remain the only category checked.
 
    Radius:
     Secret Passphrase: useStrongerSecret
