@@ -4784,16 +4784,16 @@ Mojo Networks
 
 PacketFence supports only SSIDs configured with 802.1x.
 
-Configure the 802.1x Secure SSID:
+Configure the 802.1X Secure SSID:
 +++++++++++++++++++++++++++++++++
 * Login to the https://dashboard.mojonetworks.com
-* Create the 802.1x SSID:
+* Create the 802.1X SSID:
 * Go to *Services -> Mojo Wireless Manager*
 * Then click on *Configuration -> Device Configuration -> SSID Profiles -> Add a new Profile -> WLAN* 
 
 NOTE: (Leave the default configuration for the other settings)
 
-   Profile Name: PF-Secure-802.1x
+   Profile Name: PF-Secure-802.1X
    SSID: PF-Secure
    Security: WPA2; 802.1X
    NAS ID: %m-%s
