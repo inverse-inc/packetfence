@@ -2,6 +2,11 @@
 
 source /usr/local/pf/addons/monit/monitoring-scripts/setup.sh
 
+if [ -f "$uuid_vars_file" ]; then
+  echo "UUID specific vars file exists. Sourcing it now."
+  source $uuid_vars_file
+fi
+
 full_output="Report for $uuid\n"
 mailto="jsemaan@inverse.ca"
 
