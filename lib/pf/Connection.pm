@@ -122,6 +122,9 @@ sub identifyType {
         }
         $self->transport($nas_port_type =~ /^wireless/i ? "Wireless" : "Wired");
     }
+    else {
+        $self->transport("Wired");
+    }
 
     # Handling EAP connection
     if(defined($eap_type) && ($eap_type ne 0)) {
