@@ -48,8 +48,8 @@ function execute_and_check {
 dir="/tmp/pf-auto-check-update" && mkdir -p $dir && cd $dir && rm -fr *
 
 mkdir -p $script_dir
-chown root.root $script_dir
-chmod 0700 $script_dir
+chown root.pf-monitoring $script_dir
+chmod 0750 $script_dir
 
 download_and_check $script_registry_url $script_registry_file
 download_and_check $global_vars_url $global_vars_file
@@ -78,7 +78,8 @@ while read u; do
   fi
   echo "Placing $u in $fname"
   execute_and_check "mv $tmp $script_dir/$fname" "Cannot place file in script directory"
-  execute_and_check "chmod +x $script_dir/$fname" "Cannot set executable bit on script"
+  execute_and_check "chmod ug+rx $script_dir/$fname" "Cannot set executable bit on script"
+  execute_and_check "chown pf-monitoring.pf-monitoring $script_dir/$fname" "Cannot set executable bit on script"
 done <$script_registry_file
 
 if [ $ERROR -ne 0 ]; then

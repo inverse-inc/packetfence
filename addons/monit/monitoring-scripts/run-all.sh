@@ -15,11 +15,21 @@ function _run {
   cmd="$1"
 
   if is_ignored $cmd ; then
-    echo "Ignoring $cmd."
+    echo "Ignoring $cmd because its part of the ignore list."
     return 0
   fi
 
-  cmd_output=`$cmd`
+  RUN_ROOT_SCRIPTS="${RUN_ROOT_SCRIPTS:-"1000"}"
+  if [ "$RUN_ROOT_SCRIPTS" -ne 1 ] && grep -o --quiet '^#as-root$' $cmd ; then
+    echo "Ignoring script $cmd because it has to run as root but it is denied on this setup."
+    return
+  elif grep -o --quiet '^#as-root$' $cmd; then
+    echo "Running $cmd as root"
+    cmd_output=`$cmd`
+  else
+    cmd_output=`su pf-monitoring -c $cmd`
+  fi
+
   if [ $? -eq 0 ]; then
     echo "$cmd succeeded" > /dev/null
   else
