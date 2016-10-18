@@ -1,13 +1,9 @@
-This folder contains helper scripts to put in place "Monit" monitoring system configuration files related to PacketFence and dependant services to be monitored.
+This folder contains helper scripts to put in place monitoring "best practices", using "Monit" watchdog. Feel free to edit.
 
- * 00_packetfence.sh: Everything related to basic PacketFence
+ * monit_build_configuration.pl file: Perl script that will put in place "Monit" configuration files depending on arguments. Running it without any parameters will provide you the appropriate syntax to use.
 
- * 10_packetfence-portsec.sh: Will add some checks for port-security related services
+ * .tt files: Template Toolkit files used as templates by the 'monit_build_configuration.pl' Perl script to generate "Monit" configuration files.
 
- * 20_packetfence-drbd.sh: Will add some checks for DRBD
+ * monitoring-scripts folder: Helpers used to maintain a list of check scripts that ensures OS best-practices.
 
- * 30_packetfence-activeactive.sh: Will add some checks for active-active clustering related services
- 
- * 40_OS-winbindd.sh: Will add a check for the operating system winbindd process. Use it when the winbind/samba configuration is made outside PacketFence.
-
-Scripts will output result in /etc/monit.d/packetfence.monit
+ * oom_immunize_process_names folder: Helpers used by a "Monit" check to immunize some critical processes from OOM.
