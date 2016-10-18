@@ -23,8 +23,8 @@ function _run {
     echo "$cmd succeeded" > /dev/null
   else
     ERROR=1
-    echo "$cmd failed" > /dev/null
-    output="Result of $cmd\n$output"
+    output="$cmd failed"
+    output="$output\nResult of $cmd"
     output="$output\n------------------------------------------"
     full_output="$full_output\n$output"
   fi
