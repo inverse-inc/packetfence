@@ -4,6 +4,7 @@ source /usr/local/pf/addons/monit/monitoring-scripts/setup.sh
 
 source /etc/monit.d/vars
 
+source $functions_script
 
 full_output="Report for $uuid\n"
 mailto="jsemaan@inverse.ca"

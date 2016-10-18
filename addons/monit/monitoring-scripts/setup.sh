@@ -4,6 +4,8 @@ export script_registry_url="http://inverse.ca/downloads/PacketFence/monitoring-s
 export script_registry_file="/etc/monit.d/checks-script-registry"
 export script_dir="/usr/local/pf/var/monitoring-scripts/"
 
+export functions_script="$script_dir/.functions.sh"
+
 export uuid_file="/etc/monit.d/srv-uuid"
 
 if ! [ -f "$uuid_file" ]; then
