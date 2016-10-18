@@ -22,6 +22,8 @@ has 'token_scheme' => (is => 'rw', default => sub {"auth-header:OAuth"});
 
 has '+source' => (isa => 'pf::Authentication::Source::OAuthSource');
 
+has 'landing_template' => ('is' => 'rw', default => sub {'oauth2/landing.html'});
+
 =head2 allowed_urls_auth_module
 
 The allowed URLs in this module
@@ -70,7 +72,7 @@ Display the landing page for the OAuth provider
 
 sub landing {
     my ($self) = @_;
-    $self->render('oauth2/landing.html', {
+    $self->render( $self->landing_template, {
         source => $self->source,
         with_aup => $self->with_aup,
         form => $self->form,

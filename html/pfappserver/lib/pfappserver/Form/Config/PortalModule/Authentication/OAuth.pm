@@ -12,16 +12,31 @@ Form definition to create or update an authentication portal module.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::PortalModule::Authentication';
+with 'pfappserver::Base::Form::Role::Help';
 
 use captiveportal::DynamicRouting::Module::Authentication::OAuth;
 sub for_module {'captiveportal::PacketFence::DynamicRouting::Module::Authentication::OAuth'}
 
 has_field '+signup_template' => ( required => 0 );
 
+has_field 'landing_template' =>
+  (
+   type => 'Text',
+   label => 'Landing template',
+   required => 1,
+   tags => { after_element => \&help,
+             help => 'The template to use for the signup' },
+  );
+
+sub BUILD {
+    my ($self) = @_;
+    $self->field('landing_template')->default($self->for_module->meta->find_attribute_by_name('landing_template')->default->());
+}
+
 # overriding to remove the signup template and custom fields
 sub child_definition {
     my ($self) = @_;
-    return (qw(source_id with_aup aup_template));
+    return (qw(source_id with_aup aup_template landing_template));
 }
 
 ## Definition
