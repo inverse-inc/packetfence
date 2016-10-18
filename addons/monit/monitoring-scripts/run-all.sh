@@ -19,14 +19,14 @@ function _run {
     return 0
   fi
 
-  output=`$cmd`
+  cmd_output=`$cmd`
   if [ $? -eq 0 ]; then
     echo "$cmd succeeded" > /dev/null
   else
     ERROR=1
     output="$cmd failed"
     output="$output\nResult of $cmd"
-    output="$output\n------------------------------------------"
+    output="$output\n$cmd_output\n------------------------------------------"
     full_output="$full_output\n$output"
   fi
 }
