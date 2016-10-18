@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export script_registry_url="http://inverse.ca/downloads/PacketFence/monitoring-scripts/monit-script-registry.txt"
+export script_registry_url="http://inverse.ca/downloads/PacketFence/monitoring-scripts/v1/monit-script-registry.txt"
 export script_registry_file="/etc/monit.d/checks-script-registry"
 export script_dir="/usr/local/pf/var/monitoring-scripts/"
 
@@ -12,16 +12,16 @@ if ! [ -f "$uuid_file" ]; then
 fi
 
 export uuid=$(cat $uuid_file)
-export uuid_vars_url="http://inverse.ca/downloads/PacketFence/monitoring-scripts/vars/$uuid.txt"
+export uuid_vars_url="http://inverse.ca/downloads/PacketFence/monitoring-scripts/v1/vars/$uuid.txt"
 export uuid_vars_file="/etc/monit.d/uuid-vars"
 
-export global_vars_url="http://inverse.ca/downloads/PacketFence/monitoring-scripts/vars.txt"
+export global_vars_url="http://inverse.ca/downloads/PacketFence/monitoring-scripts/v1/vars.txt"
 export global_vars_file="/etc/monit.d/global-vars"
 
-export uuid_ignores_url="http://inverse.ca/downloads/PacketFence/monitoring-scripts/ignores/$uuid.txt"
+export uuid_ignores_url="http://inverse.ca/downloads/PacketFence/monitoring-scripts/v1/ignores/$uuid.txt"
 export uuid_ignores_file="/etc/monit.d/uuid-ignores"
 
-export global_ignores_url="http://inverse.ca/downloads/PacketFence/monitoring-scripts/ignores.txt"
+export global_ignores_url="http://inverse.ca/downloads/PacketFence/monitoring-scripts/v1/ignores.txt"
 export global_ignores_file="/etc/monit.d/global-ignores"
 
 export combined_vars_file="/etc/monit.d/vars"
