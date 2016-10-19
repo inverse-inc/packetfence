@@ -1,9 +1,16 @@
 # OS checks
 
+check filesystem rootfs with path /
+    group OS
+    if space usage > 90% then alert
+    if inode usage > 75% then alert
+
 check program monitoring-update with path /usr/local/pf/addons/monit/monitoring-scripts/update.sh
+    group OS
     every 120 cycles
     if status != 0 then alert
 
 check program monitoring-check with path /usr/local/pf/addons/monit/monitoring-scripts/run-all.sh
+    group OS
     every 20 cycles
     if status != 0 then alert

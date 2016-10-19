@@ -1,3 +1,5 @@
+# Winbind OS managed checks
+
 check process packetfence-winbindd with pidfile /var/run/winbindd.pid
     group PacketFence
     start program = "service winbind start" with timeout 60 seconds

@@ -58,8 +58,8 @@ foreach my $configuration ( @configurations ) {
 }
 
 
+monit_configuration();
 generate_configurations();
-monit_syslog_configuration();
 print "\n\nAll set!\n\n";
 
 
@@ -112,21 +112,24 @@ sub handle_domains {
     return \%domains;
 }
 
-sub monit_syslog_configuration {
+sub monit_configuration {
     my $syslog_engine = ( $OS eq "rhel" ) ? "syslog" : "rsyslog";
 
-    # Generate syslog Monit configuration file
-    my $tt = Template->new(ABSOLUTE => 1);
     my $vars = {
-        MONIT_LOG_FILE  => $MONIT_LOG_FILE,
+        MONIT_LOG_FILE      => $MONIT_LOG_FILE,
+        EMAILS              => \@emails,
+        SUBJECT_IDENTIFIER  => $subject_identifier,
     };
+    my $tt = Template->new(ABSOLUTE => 1);
+
+    # Monit general configuration
+    $tt->process(catfile($MONIT_CONF_TEMPLATES_PATH, "monit_general" . $TEMPLATE_FILE_EXTENSION), $vars, "/etc/monit.d/monit_general.conf") or die $tt->error();
+    print "\n\nApplied Monit configuration. You might want to restart Monit for the change to take place";
+
+    # Syslog configuration
     $tt->process(catfile($MONIT_CONF_TEMPLATES_PATH, "syslog_monit" . $TEMPLATE_FILE_EXTENSION), $vars, "/etc/$syslog_engine.d/monit.conf") or die $tt->error();
-#    $tt->process($PF_PATH . "/addons/monit/" . "syslog_monit" . $TEMPLATE_FILE_EXTENSION, $vars, "/etc/$syslog_engine.d/monit.conf") or die $tt->error();
-
-    # Remove default Monit logging configuration file
-    unlink '/etc/monit.d/logging';
-
-    print "\n\nApplied $syslog_engine configuration. You might want to restart syslog for the change to take place";
+    unlink '/etc/monit.d/logging'; # Remove default Monit logging configuration file
+    print "\n\nApplied $syslog_engine configuration. You might want to restart $syslog_engine for the change to take place";
 }
 
 1;
