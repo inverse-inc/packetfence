@@ -7,7 +7,6 @@ source /etc/monit.d/vars
 source $functions_script
 
 full_output="Report for $uuid\n"
-mailto="jsemaan@inverse.ca"
 
 ERROR=0
 
