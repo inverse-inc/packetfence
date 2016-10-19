@@ -13,7 +13,7 @@ BEGIN {
 
 my $PF_PATH                                 = $pf::file_paths::install_dir;
 my $MONIT_PATH                              = "/etc/monit.d/";
-my $MONIT_CHECKS_CONF_TEMPLATES_PATH        = catfile($PF_PATH,"addons/monit/monit_checks_configuration");
+my $MONIT_CHECKS_CONF_TEMPLATES_PATH        = catfile($PF_PATH,"addons/monit/monit_checks_configurations");
 my $MONIT_CONF_TEMPLATES_PATH               = catfile($PF_PATH,"addons/monit/monit_configurations");
 my $CONF_FILE_EXTENSION                     = ".conf";
 my $TEMPLATE_FILE_EXTENSION                 = ".tt";
