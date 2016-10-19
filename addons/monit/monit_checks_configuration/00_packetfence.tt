@@ -21,6 +21,14 @@ set mail-format {
     A copy of this alert have been sent to the PacketFence support team.
 }
 
+set limits {
+   programOutput:     20 MB,    # check program's output truncate limit
+   sendExpectBuffer:  256 B,    # limit for send/expect protocol test
+   fileContentBuffer: 512 B,    # limit for file content test
+   httpContentBuffer: 1 MB,     # limit for HTTP content test
+   networkTimeout:    5 seconds # timeout for network I/O
+}
+
 
 # OS checks
 
@@ -39,6 +47,13 @@ check program patch with path /usr/local/pf/addons/pf-maint.pl -t
         if status != 0 then exec "/bin/mail -s '[% SUBJECT_IDENTIFIER %] - PacketFence maintenance patch available' [% email %]"
     [% END %]
 
+check program monitoring-update with path /usr/local/pf/addons/monit/monitoring-scripts/update.sh
+    every 120 cycles
+    if status != 0 then alert
+
+check program monitoring-check with path /usr/local/pf/addons/monit/monitoring-scripts/run-all.sh
+    every 20 cycles
+    if status != 0 then alert
 
 # PacketFence services checks
 
