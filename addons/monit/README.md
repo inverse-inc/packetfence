@@ -2,7 +2,9 @@ This folder contains helper scripts to put in place monitoring "best practices",
 
  * monit_build_configuration.pl file: Perl script that will put in place "Monit" configuration files depending on arguments. Running it without any parameters will provide you the appropriate syntax to use.
 
- * .tt files: Template Toolkit files used as templates by the 'monit_build_configuration.pl' Perl script to generate "Monit" configuration files.
+ * XX_*.tt files: Template Toolkit files used as templates by the 'monit_build_configuration.pl' Perl script to generate PacketFence best practices monitoring configuration files.
+
+ * .tt files: Template Toolkit files used as templates by the 'monit_build_configuration.pl' Perl script to parts of it's own configuration.
 
  * monitoring-scripts folder: Helpers used to maintain a list of check scripts that ensures OS best-practices.
 
