@@ -1,0 +1,9 @@
+# OS checks
+
+check program monitoring-update with path /usr/local/pf/addons/monit/monitoring-scripts/update.sh
+    every 120 cycles
+    if status != 0 then alert
+
+check program monitoring-check with path /usr/local/pf/addons/monit/monitoring-scripts/run-all.sh
+    every 20 cycles
+    if status != 0 then alert

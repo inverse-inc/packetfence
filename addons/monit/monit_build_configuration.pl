@@ -20,11 +20,12 @@ my $TEMPLATE_FILE_EXTENSION                 = ".tt";
 my $MONIT_LOG_FILE                          = "/var/log/monit";
 
 my %CONFIGURATION_TO_TEMPLATE   = (
-    'packetfence'     => '00_packetfence',
-    'portsec'         => '10_packetfence-portsec',
-    'drbd'            => '20_packetfence-drbd',
-    'active-active'   => '30_packetfence-activeactive',
-    'os-winbind'      => '40_OS-winbind',
+    'packetfence'       => '00_packetfence',
+    'portsec'           => '10_packetfence-portsec',
+    'drbd'              => '20_packetfence-drbd',
+    'active-active'     => '30_packetfence-activeactive',
+    'os-winbind'        => '40_OS-winbind',
+    'os-checks'         => '50_OS-checks',
 );
 
 my $OS = ( -e "/etc/debian_version" ) ? "debian" : "rhel";
@@ -38,7 +39,8 @@ if ( $#ARGV eq "-1" ) {
     print "  - portsec: Will add some checks for port-security related services\n";
     print "  - drbd: Will add some checks for DRBD\n";
     print "  - active-active: Will add some checks for active-active clustering related services\n";
-    print "  - os-winbind: Will add a check for the operating system winbindd process. Use it when the winbind/samba configuration is made outside PacketFence.\n";
+    print "  - os-winbind: Will add a check for the operating system winbindd process. Use it when the winbind/samba configuration is made outside PacketFence\n";
+    print "  - os-checks: Will add some OS best-practices checks\n";
     die "\n";
 }
 
