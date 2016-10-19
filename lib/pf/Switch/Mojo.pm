@@ -16,13 +16,11 @@ Developed and tested on firmware version 4.2.130 altought the new RADIUS RFC3576
 
 =item Deauthentication with RADIUS Disconnect (RFC3576)
 
-=item Deauthentication with SNMP
-
-=back
-
 =back
 
 =head1 BUGS AND LIMITATIONS
+
+This module supports 802.1X only. The mac authentication is not supported yet and should eventually supported.
 
 =over
 
@@ -30,96 +28,19 @@ Developed and tested on firmware version 4.2.130 altought the new RADIUS RFC3576
 
 =over
 
-=item < 5.x
-
-Issue with Windows 7: 802.1x+WPA2. It's not a PacketFence issue.
-
-=item 6.0.182.0
-
-We had intermittent issues with DHCP. Disabling DHCP Proxy resolved it. Not
-a PacketFence issue.
-
-=item 7.0.116 and 7.0.220
-
-SNMP deassociation is not working in WPA2.  It only works if using an Open
-(unencrypted) SSID.
-
-NOTE: This is no longer relevant since we rely on RADIUS Disconnect by
-default now.
-
-=item 7.2.103.0 (and maybe up but it is currently the latest firmware)
-
-SNMP de-authentication no longer works. It it believed to be caused by the
-new firmware not accepting SNMP requests with 2 bytes request-id. Doing the
-same SNMP set with `snmpset` command issues a 4 bytes request-id and the
-controllers are happy with these. Not a PacketFence issue. I would think it
-relates to the following open caveats CSCtw87226:
-http://www.cisco.com/en/US/docs/wireless/controller/release/notes/crn7_2.html#wp934687
-
-NOTE: This is no longer relevant since we rely on RADIUS Disconnect by
-default now.
-
-=back
-
-=item FlexConnect (H-REAP) limitations before firmware 7.2
-
-Access Points in Hybrid Remote Edge Access Point (H-REAP) mode, now known as
-FlexConnect, don't support RADIUS dynamic VLAN assignments (AAA override).
-
-Customer specific work-arounds are possible. For example: per-SSID
-registration, auto-registration, etc. The goal being that only one VLAN
-is ever 'assigned' and that is the local VLAN set on the AP for the SSID.
-
-Update: L<FlexConnect AAA Override support was introduced in firmware 7.2 series|https://supportforums.cisco.com/message/3605608#3605608>
-
-=item FlexConnect issues with firmware 7.2.103.0
-
-There's an issue with this firmware regarding the AAA Override functionality
-required by PacketFence. The issue is fixed in 7.2.104.16 which is not
-released as the time of this writing.
-
-The workaround mentioned by Cisco is to downgrade to 7.0.230.0 but it
-doesn't support the FlexConnect AAA Override feature...
-
-So you can use 7.2.103.0 with PacketFence but not in FlexConnect mode.
-
-Caveat CSCty44701
-
-=back
-
-=head1 SEE ALSO
-
-=over
-
-=item L<Version 7.2 - Configuring AAA Overrides for FlexConnect|http://www.cisco.com/en/US/docs/wireless/controller/7.2/configuration/guide/cg_flexconnect.html#wp1247954>
-
-=item L<Cisco's RADIUS Packet of Disconnect documentation|http://www.cisco.com/en/US/docs/ios/12_2t/12_2t8/feature/guide/ft_pod1.html>
-
-=back
-
 =cut
 
 use strict;
 use warnings;
 
-use Net::SNMP;
-use Try::Tiny;
-
 use base ('pf::Switch');
 
 use pf::constants;
-use pf::config qw(
-    $MAC
-    $SSID
-);
-use pf::web::util;
 use pf::util;
-use pf::node;
-use pf::util::radius qw(perform_coa perform_disconnect);
-use pf::violation qw(violation_count_reevaluate_access);
+use pf::util::radius qw(perform_disconnect);
 use pf::radius::constants;
-use pf::accounting qw(node_accounting_dynauth_attr);
 use pf::locationlog;
+use Try::Tiny;
 
 sub description { 'Mojo Networks AP' }
 
@@ -132,7 +53,7 @@ sub description { 'Mojo Networks AP' }
 # CAPABILITIES
 # access technology supported
 sub supportsWirelessDot1x { return $TRUE; }
-sub supportsWirelessMacAuth { return $TRUE; }
+sub supportsWirelessMacAuth { return $FALSE; }
 
 =item deauthenticateMacDefault
 
@@ -203,8 +124,6 @@ sub radiusDisconnect {
     my $response;
     try {
         my $locationlog = locationlog_view_open_mac($mac);
-use Data::Dumper;
-$logger->info(Dumper($locationlog));
         my $connection_info = {
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
@@ -214,7 +133,6 @@ $logger->info(Dumper($locationlog));
 
         $logger->debug("network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
 
-        my $node_info = node_view($mac);
         # transforming MAC to the expected format 00-11-22-33-CA-FE
         $mac = uc($mac);
         $mac =~ s/:/-/g;
