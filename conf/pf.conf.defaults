@@ -1203,7 +1203,7 @@ aaa_port=7070
 #
 # Enable or disable iplog rotation (moving iplog_history records to iplog_archive)
 # If disabled, 'iplog_cleanup' will delete from the iplog_history table rather than the iplog_archive
-iplog_rotation=enabled
+iplog_rotation=disabled
 #
 # maintenance.iplog_rotation_window
 #
