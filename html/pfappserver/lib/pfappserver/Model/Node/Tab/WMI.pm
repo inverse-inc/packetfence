@@ -29,6 +29,7 @@ sub process_view {
     my $mac = $c->stash->{mac};
     my ($status, @scans);
     ($status, my $node) = $c->model("Node")->view($mac);
+    my $device_class = $node->{device_class};
     my $scan_model = $c->model("Config::Scan");
     eval {
         my $profile = pf::Portal::ProfileFactory->instantiate($mac);
@@ -57,7 +58,7 @@ sub process_view {
     }
     
  
-    return ($STATUS::OK, {items => \@items});
+    return ($STATUS::OK, {items => \@items, device_class => $device_class});
 }
 
 =head2 process_tab
