@@ -252,7 +252,7 @@ sub run_scan {
     my $epoch   = time;
     my $date    = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime($epoch));
     my $id      = generate_id($epoch, $host_mac);
-    my $type    = lc($scanner->{'type'});
+    my $type    = lc($scanner->{'_type'});
 
     # Check the scan engine
     # If set to "none" we abort the scan
@@ -265,15 +265,17 @@ sub run_scan {
             scanIp     => $host_ip,
             scanMac    => $host_mac,
             type       => $type,
-            %$scanner,
     );
+    while(my ($key, $val) = each(%scan_attributes)) {
+        $scanner->{"_".$key}=$val;
+    }
 
     db_query_execute(SCAN, $scan_statements, 'scan_insert_sql',
             $id, $host_ip, $host_mac, $type, $date, '0000-00-00 00:00:00', $STATUS_NEW, 'NULL'
     ) || return 0;
 
     # Instantiate the new scan object
-    my $scan = instantiate_scan_engine($type, %scan_attributes);
+    my $scan = $scanner;
 
     # Start the scan (it return the scan_id if it failed)
     my $failed_scan = $scan->startScan();
