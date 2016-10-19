@@ -1,25 +1,31 @@
+set daemon 2    # Monitor resources every 2 seconds (1 cycle is 2 seconds)
 set logfile syslog facility log_daemon
 
 set mailserver localhost
-[% FOREACH email IN EMAILS %]
-    set alert [% email %]
-    # next line make sure we get notified every cycle for specific types of alerts (ie.: resource limit (drive space))
-    set alert [% email %] { resource } with reminder on 1 cycle
-[% END %]
-
 set mail-format {
     from: monit@$HOST
     subject: [% SUBJECT_IDENTIFIER %] | Monit Alert -- $EVENT on resource '$SERVICE'
     message:
-    Date:        $DATE
-    Host:        $HOST
-    Event:       $EVENT
-    Resource:    $SERVICE
-    Action:      $ACTION
-    Description: $DESCRIPTION
+Date:        $DATE
+Host:        $HOST
+Event:       $EVENT
+Resource:    $SERVICE
+Action:      $ACTION
 
-    A copy of this alert have been sent to the PacketFence support team.
+Description: $DESCRIPTION
+
+
+A copy of this alert have been sent to the PacketFence support team.
 }
+
+# - Do not alert on 'resource' because there is a separate alert configuration with reminders
+# - Do not alert on 'nonexist' because we alert on 'restart'
+# - Do not alert on 'pid' because we alert on 'restart
+[% FOREACH email IN EMAILS %]
+    set alert [% email %] but not on { resource nonexist pid }
+    set alert [% email %] { resource } with reminder on 450 cycle   # reminder every 15 minutes (450 cycles) if 1 cycle is 2 seconds
+[% END %]
+
 
 set limits {
    programOutput:     20 MB,    # check program's output truncate limit
