@@ -7,10 +7,15 @@ check filesystem rootfs with path /
 
 check program monitoring-update with path /usr/local/pf/addons/monit/monitoring-scripts/update.sh
     group OS
-    every 120 cycles
+    every 1800 cycles
     if status != 0 then alert
 
 check program monitoring-check with path /usr/local/pf/addons/monit/monitoring-scripts/run-all.sh
     group OS
-    every 20 cycles
+    every 300 cycles
+    if status != 0 then alert
+
+check program monitoring-check with path /usr/local/pf/addons/monit/monitoring-scripts/oom_immunize_pid_names_from_list.sh
+    group OS
+    every 450 cycles
     if status != 0 then alert
