@@ -14,7 +14,7 @@ my $PF_PATH                     = $pf::file_paths::install_dir;
 my $MONIT_PATH                  = "/etc/monit.d/";
 my $CONF_FILE_EXTENSION         = ".conf";
 my $TEMPLATE_FILE_EXTENSION     = ".tt";
-my $FREERADIUS_BIN = ( -e "/etc/debian_version" ) ? "freeradius" : "radiusd";
+my $OS = ( -e "/etc/debian_version" ) ? "debian" : "rhel";
 my %CONFIGURATION_TO_TEMPLATE   = (
     'packetfence'     => '00_packetfence',
     'portsec'         => '10_packetfence-portsec',
@@ -73,8 +73,9 @@ sub generate_configurations {
         my $domains = handle_domains();
 
         my $tt = Template->new(ABSOLUTE => 1);
+        my $freeradius_bin = ( $OS eq "rhel" ) ? "radiusd" : "freeradius";
         my $vars = {
-            FREERADIUS_BIN      => $FREERADIUS_BIN,
+            FREERADIUS_BIN      => $freeradius_bin,
             EMAILS              => \@emails,
             SUBJECT_IDENTIFIER  => $subject_identifier,
             PFDHCPLISTENERS     => $pfdhcplisteners,
@@ -105,17 +106,19 @@ sub handle_domains {
 }
 
 sub monit_syslog_configuration {
+    my $syslog_engine = ( $OS eq "rhel" ) ? "syslog" : "rsyslog";
+
     # Generate syslog Monit configuration file
     my $tt = Template->new(ABSOLUTE => 1);
     my $vars = {
         MONIT_LOG_FILE  => $MONIT_LOG_FILE,
     };
-    $tt->process($PF_PATH . "/addons/monit/" . "syslog_monit" . $TEMPLATE_FILE_EXTENSION, $vars, "/etc/rsyslog.d/monit.conf") or die $tt->error();
+    $tt->process($PF_PATH . "/addons/monit/" . "syslog_monit" . $TEMPLATE_FILE_EXTENSION, $vars, "/etc/$syslog_engine.d/monit.conf") or die $tt->error();
 
     # Remove default Monit logging configuration file
     unlink '/etc/monit.d/logging';
 
-    print "\n\nApplied syslog configuration. You might want to restart syslog for the change to take place";
+    print "\n\nApplied $syslog_engine configuration. You might want to restart syslog for the change to take place";
 }
 
 1;
