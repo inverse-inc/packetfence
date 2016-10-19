@@ -28,12 +28,23 @@ has_field 'landing_template' =>
              help => 'The template to use for the signup' },
   );
 
+=head2 BUILD
+
+set the default value for for fields
+
+=cut
+
 sub BUILD {
     my ($self) = @_;
     $self->field('landing_template')->default($self->for_module->meta->find_attribute_by_name('landing_template')->default->());
 }
 
-# overriding to remove the signup template and custom fields
+=head2 child_definition
+
+The fields to display
+
+=cut
+
 sub child_definition {
     my ($self) = @_;
     return (qw(source_id with_aup aup_template landing_template));
