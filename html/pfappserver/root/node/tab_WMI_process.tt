@@ -1,5 +1,5 @@
 [% IF rules.id == "Process_Running" %]
-  [% IF rules.item_exist == "No" %]
+  [% IF rules.item_exist == "No" || rules.item_exist == "Access denied" %]
     <span> Error while getting running process. [% rules.item_exist | html %]</span><br/>
   [% ELSIF rules.item_exist == "Request failed" %]
     <span>[% rules.items_exist | html %]</span><br/>
