@@ -5,6 +5,6 @@
 OOM_FILE="oom_score_adj"
 OOM_SCORE="-1000"
 
-grep -Ev '(#.*$)|(^$)' process_names_to_immunize |while read name; do PIDS_TO_IMMUNIZE=$(pgrep -f $name); for PID_TO_IMMUNIZE in $PIDS_TO_IMMUNIZE; do if [ -e /proc/$PID_TO_IMMUNIZE/oom_adj ]; then echo $OOM_SCORE > /proc/$PID_TO_IMMUNIZE/$OOM_FILE; fi; done; done > /dev/null 2>&1
+grep -Ev '(#.*$)|(^$)' process_names_to_immunize.list |while read name; do PIDS_TO_IMMUNIZE=$(pgrep -f $name); for PID_TO_IMMUNIZE in $PIDS_TO_IMMUNIZE; do if [ -e /proc/$PID_TO_IMMUNIZE/oom_adj ]; then echo $OOM_SCORE > /proc/$PID_TO_IMMUNIZE/$OOM_FILE; fi; done; done > /dev/null 2>&1
 
 exit 0;
