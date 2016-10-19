@@ -22,6 +22,7 @@ my %CONFIGURATION_TO_TEMPLATE   = (
     'active-active'   => '30_packetfence-activeactive',
     'os-winbind'      => '40_OS-winbind',
 );
+my $MONIT_LOG_FILE = "/var/log/monit";
 
 if ( $#ARGV eq "-1" ) {
     print "Usage: ./monit_configuration_builder.pl 'email(s)' 'subject' 'configurations'\n\n";
@@ -51,6 +52,7 @@ foreach my $configuration ( @configurations ) {
 
 
 generate_configurations();
+monit_syslog_configuration();
 
 
 sub generate_configurations {
@@ -101,6 +103,18 @@ sub handle_domains {
         $domains{$domain} = pf::services::manager::winbindd_child->new(name => 'dummy', domain => "$domain")->pidFile;
     }
     return \%domains;
+}
+
+sub monit_syslog_configuration {
+    # Generate syslog Monit configuration file
+    my $tt = Template->new(ABSOLUTE => 1);
+    my $vars = {
+        MONIT_LOG_FILE  => $MONIT_LOG_FILE,
+    };
+    $tt->process($PF_PATH . "/addons/monit/" . "syslog_monit" . $TEMPLATE_FILE_EXTENSION, $vars, "/etc/rsyslog.d/monit.conf") or die $tt->error();
+
+    # Remove default Monit logging configuration file
+    unlink '/etc/monit.d/logging';
 }
 
 1;

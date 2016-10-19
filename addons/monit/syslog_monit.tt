@@ -1,2 +1,2 @@
-if $programname == 'monit' then /var/log/monit
+if $programname == 'monit' then [% MONIT_LOG_FILE %]
 & ~
