@@ -53,6 +53,7 @@ foreach my $configuration ( @configurations ) {
 
 generate_configurations();
 monit_syslog_configuration();
+print "\n\nAll set!\n\n";
 
 
 sub generate_configurations {
@@ -81,8 +82,6 @@ sub generate_configurations {
         };
         $tt->process($template_file, $vars, $destination_file) or die $tt->error();
     }
-
-    print "\n\nAll set!";
 }
 
 
@@ -115,6 +114,8 @@ sub monit_syslog_configuration {
 
     # Remove default Monit logging configuration file
     unlink '/etc/monit.d/logging';
+
+    print "\n\nApplied syslog configuration. You might want to restart syslog for the change to take place";
 }
 
 1;
