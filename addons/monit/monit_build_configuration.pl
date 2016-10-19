@@ -4,17 +4,21 @@ use strict;
 use warnings;
 
 use File::Copy;
+use File::Spec::Functions;
 use Template;
 
 BEGIN {
     use lib "/usr/local/pf/lib";
 }
 
-my $PF_PATH                     = $pf::file_paths::install_dir;
-my $MONIT_PATH                  = "/etc/monit.d/";
-my $CONF_FILE_EXTENSION         = ".conf";
-my $TEMPLATE_FILE_EXTENSION     = ".tt";
-my $OS = ( -e "/etc/debian_version" ) ? "debian" : "rhel";
+my $PF_PATH                                 = $pf::file_paths::install_dir;
+my $MONIT_PATH                              = "/etc/monit.d/";
+my $MONIT_CHECKS_CONF_TEMPLATES_PATH        = catfile($PF_PATH,"addons/monit/monit_checks_configuration");
+my $MONIT_CONF_TEMPLATES_PATH               = catfile($PF_PATH,"addons/monit/monit_configurations");
+my $CONF_FILE_EXTENSION                     = ".conf";
+my $TEMPLATE_FILE_EXTENSION                 = ".tt";
+my $MONIT_LOG_FILE                          = "/var/log/monit";
+
 my %CONFIGURATION_TO_TEMPLATE   = (
     'packetfence'     => '00_packetfence',
     'portsec'         => '10_packetfence-portsec',
@@ -22,7 +26,8 @@ my %CONFIGURATION_TO_TEMPLATE   = (
     'active-active'   => '30_packetfence-activeactive',
     'os-winbind'      => '40_OS-winbind',
 );
-my $MONIT_LOG_FILE = "/var/log/monit";
+
+my $OS = ( -e "/etc/debian_version" ) ? "debian" : "rhel";
 
 if ( $#ARGV eq "-1" ) {
     print "Usage: ./monit_configuration_builder.pl 'email(s)' 'subject' 'configurations'\n\n";
@@ -60,8 +65,8 @@ sub generate_configurations {
     print "\n\nGenerating the following configuration files: \n";
 
     foreach my $configuration ( @configurations ) {
-        my $template_file = $PF_PATH . "/addons/monit/" . $CONFIGURATION_TO_TEMPLATE{$configuration} . $TEMPLATE_FILE_EXTENSION;
-        my $destination_file = $MONIT_PATH . $CONFIGURATION_TO_TEMPLATE{$configuration} . $CONF_FILE_EXTENSION;
+        my $template_file = catfile($MONIT_CHECKS_CONF_TEMPLATES_PATH,$CONFIGURATION_TO_TEMPLATE{$configuration} . $TEMPLATE_FILE_EXTENSION);
+        my $destination_file = catfile($MONIT_PATH,$CONFIGURATION_TO_TEMPLATE{$configuration} . $CONF_FILE_EXTENSION);
         print " - $destination_file\n";
 
         # Backing up existing configuration file (just in case)
@@ -113,7 +118,8 @@ sub monit_syslog_configuration {
     my $vars = {
         MONIT_LOG_FILE  => $MONIT_LOG_FILE,
     };
-    $tt->process($PF_PATH . "/addons/monit/" . "syslog_monit" . $TEMPLATE_FILE_EXTENSION, $vars, "/etc/$syslog_engine.d/monit.conf") or die $tt->error();
+    $tt->process(catfile($MONIT_CONF_TEMPLATES_PATH, "syslog_monit" . $TEMPLATE_FILE_EXTENSION), $vars, "/etc/$syslog_engine.d/monit.conf") or die $tt->error();
+#    $tt->process($PF_PATH . "/addons/monit/" . "syslog_monit" . $TEMPLATE_FILE_EXTENSION, $vars, "/etc/$syslog_engine.d/monit.conf") or die $tt->error();
 
     # Remove default Monit logging configuration file
     unlink '/etc/monit.d/logging';
