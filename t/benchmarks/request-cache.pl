@@ -29,11 +29,11 @@ bench_switch_factory();
 bench_profile_factory();
 
 sub bench_node_view {
-    bench_cache("pf::node::node_view", sub { my $node = pf::node::node_view($mac) });
+    bench_cache("pf::node::_node_view", sub { my $node = pf::node::node_view($mac) });
 }
 
 sub bench_node_exist {
-    bench_cache("pf::node::node_exist", sub { my $node = pf::node::node_exist($mac) });
+    bench_cache("pf::node::_node_exist", sub { my $node = pf::node::node_exist($mac) });
 }
 
 sub bench_switch_factory {
