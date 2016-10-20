@@ -1,12 +1,12 @@
 package pf::Switch::Mojo;
 =head1 NAME
 
-pf::Switch::Cisco::WLC - Object oriented module to parse SNMP traps and manage
-Cisco Wireless Controllers (WLC) and Wireless Service Modules (WiSM)
+pf::Switch::Mojo - Object oriented module to return radius attributes to a Mojo Networks Acces Point.
+Mojo Networks cloud controller
 
 =head1 STATUS
 
-Developed and tested on firmware version 4.2.130 altought the new RADIUS RFC3576 support requires firmware v5 and later.
+Developed and tested on firmware version 8.1.1 and build 8.1.1.84
 
 =over
 
@@ -104,8 +104,6 @@ sub radiusDisconnect {
         );
         return;
     }
-
-    $logger->info("deauthenticating");
 
     # Where should we send the RADIUS CoA-Request?
     # to network device by default
