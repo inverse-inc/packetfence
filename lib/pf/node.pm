@@ -639,6 +639,7 @@ New implementation in 3.2.0.
 sub node_view {
     my $timer = pf::StatsD::Timer->new({level => 6});
     my ($mac) = @_;
+    pf::log::logstacktrace("pf::node::node_view getting '$mac'");
     # Uncomment to log callers
     #my $logger = get_logger();
     #my $caller = ( caller(1) )[3] || basename($0);
@@ -1335,7 +1336,7 @@ sub _cleanup_attributes {
     $info->{'status'} = _cleanup_status_value($info->{'status'});
 }
 
-=head2 fingerbank_info
+=item fingerbank_info
 
 Get a hash containing the fingerbank related informations for a node
 
