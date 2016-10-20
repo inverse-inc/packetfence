@@ -80,6 +80,7 @@ BEGIN {
         node_search
         $STATUS_REGISTERED
         node_last_reg
+        node_remove_from_cache
     );
 }
 
