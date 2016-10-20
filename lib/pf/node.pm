@@ -514,7 +514,7 @@ sub node_add {
     );
 
     if ($statement) {
-        return (1);
+        return ($statement->rows == 1 ? 1 : 0);
     }
     else {
         return (0);
