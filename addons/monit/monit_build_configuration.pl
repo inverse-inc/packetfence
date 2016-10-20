@@ -12,7 +12,6 @@ BEGIN {
 }
 
 my $PF_PATH                                 = $pf::file_paths::install_dir;
-my $MONIT_PATH                              = "/etc/monit.d/";
 my $MONIT_CHECKS_CONF_TEMPLATES_PATH        = catfile($PF_PATH,"addons/monit/monit_checks_configurations");
 my $MONIT_CONF_TEMPLATES_PATH               = catfile($PF_PATH,"addons/monit/monit_configurations");
 my $CONF_FILE_EXTENSION                     = ".conf";
@@ -64,11 +63,13 @@ print "\n\nAll set!\n\n";
 
 
 sub generate_configurations {
+    my $monit_path = ( $OS eq "rhel" ) ? "/etc/monit.d" : "/etc/monit/conf.d";
+
     print "\n\nGenerating the following configuration files: \n";
 
     foreach my $configuration ( @configurations ) {
         my $template_file = catfile($MONIT_CHECKS_CONF_TEMPLATES_PATH,$CONFIGURATION_TO_TEMPLATE{$configuration} . $TEMPLATE_FILE_EXTENSION);
-        my $destination_file = catfile($MONIT_PATH,$CONFIGURATION_TO_TEMPLATE{$configuration} . $CONF_FILE_EXTENSION);
+        my $destination_file = catfile($monit_path,$CONFIGURATION_TO_TEMPLATE{$configuration} . $CONF_FILE_EXTENSION);
         print " - $destination_file\n";
 
         # Backing up existing configuration file (just in case)
