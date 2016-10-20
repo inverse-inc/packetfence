@@ -4,8 +4,10 @@ check process packetfence-pfsetvlan with pidfile /usr/local/pf/var/run/pfsetvlan
        group PacketFence
        start program = "/usr/local/pf/bin/pfcmd service pfsetvlan start" with timeout 60 seconds
        stop program = "/usr/local/pf/bin/pfcmd service pfsetvlan stop"
+       if 3 restarts within 10 cycles then alert
 
 check process packetfence-snmptrapd with pidfile /usr/local/pf/var/run/snmptrapd.pid
        group PacketFence
        start program = "/usr/local/pf/bin/pfcmd service snmptrapd start" with timeout 60 seconds
        stop program = "/usr/local/pf/bin/pfcmd service snmptrapd stop"
+       if 3 restarts within 10 cycles then alert
