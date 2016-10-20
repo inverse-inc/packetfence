@@ -231,13 +231,14 @@ sub db_query_execute {
     my $basename = ($from_module =~ /^.*::(.+)$/) ? $1 : $from_module; # basename equals ::(this) if there's a ::
     my $db_prepare_sub  = PREPARE_PF_PREFIX . $from_module . "::" . $basename . PREPARE_SUB;
     my $db_prepared_var = PREPARE_PF_PREFIX . $from_module . "::" . $basename . PREPARED_VAR;
+    pf::log::logstacktrace("Calling query '${query}' for module $from_module");
 
     # loop variables
     my $attempts = 0;
     my $done = 0;
     my $db_statement;
     do {
-        $logger->trace("attempt #$attempts to run query $query from module $from_module");
+        $logger->trace(sub {"attempt #$attempts to run query $query from module $from_module"});
 
         # are module statements prepared?
         # remove restriction on symbolic reference, I need this magic
