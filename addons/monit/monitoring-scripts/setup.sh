@@ -26,19 +26,24 @@ export uuid_vars_file="$monit_dir/uuid-vars"
 export global_vars_url="http://inverse.ca/downloads/PacketFence/monitoring-scripts/v1/vars.txt"
 export global_vars_file="$monit_dir/global-vars"
 
+export local_vars_file="$monit_dir/local-vars"
+
 export uuid_ignores_url="http://inverse.ca/downloads/PacketFence/monitoring-scripts/v1/ignores/$uuid.txt"
 export uuid_ignores_file="$monit_dir/uuid-ignores"
 
 export global_ignores_url="http://inverse.ca/downloads/PacketFence/monitoring-scripts/v1/ignores.txt"
 export global_ignores_file="$monit_dir/global-ignores"
 
+export local_ignores_file="$monit_dir/local-ignores"
+
 export combined_vars_file="$monit_dir/vars"
 
 function is_ignored {
   touch "$global_ignores_file"
   touch "$uuid_ignores_file"
+  touch "$local_ignores_file"
   cmd="$1"
-  cat "$global_ignores_file" "$uuid_ignores_file" | grep "^$cmd$"
+  cat "$global_ignores_file" "$uuid_ignores_file" "$local_ignores_file" | grep "^$cmd$"
   return $?
 }
 
