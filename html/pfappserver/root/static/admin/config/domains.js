@@ -164,7 +164,7 @@ DomainView.prototype.setPassword = function(domain,callback) {
         'type'  : "POST",
         'data'  : form.serialize(),
         })
-        .success(function(data) {
+        .done(function(data) {
             modal.modal('hide');     
             form.find('input[type="password"]').val('');
             callback();
@@ -196,7 +196,7 @@ $(document).ready(function(){
           'url'   : jbtn.attr('href'),
           'type'  : "GET",
           })
-          .success(function(data) {
+          .done(function(data) {
               $("body,html").animate({scrollTop:0}, 'fast');
               var content = $('<div></div>');
               content.append('<h3>Result of the domain leave</h3>'); 
@@ -231,7 +231,7 @@ $(document).ready(function(){
         'url'   : $('#refresh_domains').attr('href'),
         'type'  : "GET",
         })
-        .success(function(data) {
+        .done(function(data) {
             $("body,html").animate({scrollTop:0}, 'fast');
             $('#modalDomainWait').modal('hide');
             showSuccess($('#section h2'), data.status_msg);
