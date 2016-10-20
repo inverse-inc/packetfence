@@ -109,7 +109,7 @@ sub object :Chained('/') :PathPart('interface') :CaptureArgs(1) {
         $c->stash->{ifname} = $name;
         $c->stash->{vlan} = $vlan;
     }
-    $c->stash->{high_availability} = scalar @pf::config::ha_ints && all { $interface ne $_ } @pf::config::ha_ints ;
+    $c->stash->{high_availability} = scalar @pf::config::ha_ints && all { $interface ne $_->{Tint} } @pf::config::ha_ints ;
 }
 
 =item create

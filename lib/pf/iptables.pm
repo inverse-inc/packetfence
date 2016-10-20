@@ -242,7 +242,7 @@ sub generate_filter_if_src_to_chain {
     }
 
     # high-availability interfaces handling
-    foreach my $interface (@ha_ints) {
+    foreach my $interface (map { $_->{Tint}} @ha_ints) {
         $rules .= "-A INPUT --in-interface $interface --jump $FW_FILTER_INPUT_INT_HA\n";
     }
 
