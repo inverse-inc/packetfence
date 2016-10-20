@@ -57,7 +57,7 @@ sub supportsWirelessMacAuth { return $FALSE; }
 
 =item deauthenticateMacDefault
 
-De-authenticate a MAC address from wireless network (including 802.1x).
+De-authenticate a MAC address from wireless network (including 802.1X).
 
 New implementation using RADIUS Disconnect-Request.
 
