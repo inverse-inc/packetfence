@@ -35,9 +35,6 @@ BEGIN {
         locationlog_history_mac
         locationlog_history_switchport
 
-        locationlog_count_all
-        locationlog_view_all
-        locationlog_view_all_open_mac
         locationlog_view_open
         locationlog_view_open_mac
         locationlog_view_open_switchport
@@ -50,7 +47,6 @@ BEGIN {
         locationlog_insert_start
         locationlog_update_end
         locationlog_update_end_mac
-        locationlog_update_end_mac_switch_port
         locationlog_update_end_switchport_no_VoIP
         locationlog_update_end_switchport_only_VoIP
         locationlog_synchronize
@@ -141,28 +137,6 @@ sub locationlog_db_prepare {
         ORDER BY start_time desc, end_time desc
     ]);
 
-    $locationlog_statements->{'locationlog_count_wired_sql'} = get_db_handle()->prepare(qq[
-        SELECT count(*) AS nb FROM (
-          SELECT mac, DATE_FORMAT(start_time,"%Y/%m/%d") AS start_day
-          FROM locationlog
-          WHERE start_time > ? AND start_time < ? AND connection_type NOT LIKE 'Wireless%' GROUP BY start_day, mac
-        ) AS wired_count
-    ]);
-
-    $locationlog_statements->{'locationlog_count_wireless_sql'} = get_db_handle()->prepare(qq[
-        SELECT count(*) AS nb FROM (
-          SELECT mac, DATE_FORMAT(start_time,"%Y/%m/%d") AS start_day
-          FROM locationlog
-          WHERE start_time > ? AND start_time < ? AND connection_type LIKE 'Wireless%' GROUP BY start_day, mac
-        ) AS wired_count
-    ]);
-
-    $locationlog_statements->{'locationlog_view_all_sql'} = get_db_handle()->prepare(qq[
-        SELECT mac, switch, switch_ip, switch_mac, port, vlan, role, connection_type, connection_sub_type, dot1x_username, ssid, start_time, end_time, stripped_user_name, realm
-        FROM locationlog
-        ORDER BY start_time desc, end_time desc
-    ]);
-
     $locationlog_statements->{'locationlog_view_open_sql'} = get_db_handle()->prepare(qq[
         SELECT mac, switch, switch_ip, switch_mac, port, vlan, role, connection_type, connection_sub_type, dot1x_username, ssid, start_time, end_time, stripped_user_name, realm
         FROM locationlog
@@ -230,11 +204,6 @@ sub locationlog_db_prepare {
     $locationlog_statements->{'locationlog_update_end_switchport_sql'} = get_db_handle()->prepare(qq[
         UPDATE locationlog SET end_time = now()
         WHERE switch = ? AND port = ? AND end_time = 0
-    ]);
-
-    $locationlog_statements->{'locationlog_update_end_mac_switch_port_sql'} = get_db_handle()->prepare(qq[
-        UPDATE locationlog SET end_time = now()
-        WHERE mac = ? AND switch = ? AND port = ? AND end_time = 0
     ]);
 
     $locationlog_statements->{'locationlog_update_end_switchport_no_VoIP_sql'} = get_db_handle()->prepare(qq[
@@ -317,33 +286,6 @@ sub locationlog_history_switchport {
     }
 }
 
-sub locationlog_count_all {
-    my ( $id, %params ) = @_;
-
-    my %where = %{$params{where}};
-    if ($where{start_date} && $where{end_date} && $where{value}) {
-        if ($where{value} eq 'wired') {
-            return db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_count_wired_sql',
-                           $where{start_date}, $where{end_date});
-        }
-        elsif ($where{value} eq 'wireless') {
-            return db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_count_wireless_sql',
-                           $where{start_date}, $where{end_date});
-        }
-    }
-}
-
-sub locationlog_view_all {
-    return db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_view_all_sql');
-}
-
-sub locationlog_view_all_open_mac {
-    my ($mac) = @_;
-    $mac = clean_mac($mac);
-
-    return db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_view_open_mac_sql', $mac);
-}
-
 sub locationlog_view_open {
     return db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_view_open_sql');
 }
@@ -411,29 +353,6 @@ sub locationlog_insert_start {
         db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_insert_start_no_mac_sql',
             $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $role, $conn_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm)
             || return (0);
-    }
-    return (1);
-}
-
-=item locationlog_update_end_mac_switch_port
-
-End an open locationlog based off mac, switch and port
-
-=cut
-
-sub locationlog_update_end_mac_switch_port {
-    my ( $mac, $switch, $port ) = @_;
-    my $logger = get_logger();
-    if (!defined $mac || !defined $switch || !defined $port ) {
-        $logger->error("Invalid parameters provided mac=" . (defined $mac ? $mac : "undefined")
-              . " switch=" . (defined $switch ? $switch : "undefined")
-              . " port=" . (defined $port ? $port : "undefined"));
-        return (0);
-    }
-    $logger->debug("locationlog_update_end_mac_switch_port called with mac=$mac switch=$switch port=$port");
-    if (db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_update_end_mac_switch_port_sql', $mac, $switch, $port)) {
-        node_remove_from_cache($mac);
-        return (0);
     }
     return (1);
 }
