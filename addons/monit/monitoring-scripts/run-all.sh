@@ -2,9 +2,7 @@
 
 source /usr/local/pf/addons/monit/monitoring-scripts/setup.sh
 
-source $monit_dir/vars
-
-source $functions_script
+setup_test_env
 
 full_output="Report for $uuid\n"
 
