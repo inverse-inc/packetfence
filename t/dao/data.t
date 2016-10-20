@@ -51,7 +51,6 @@ BEGIN {
     use_ok('pf::person');
     use_ok('pf::scan');
     use_ok('pf::switchlocation');
-    use_ok('pf::traplog');
     use_ok('pf::trigger');
     use_ok('pf::useragent');
     use_ok('pf::violation');
@@ -74,7 +73,6 @@ my @data_modules = qw(
     pf::person
     pf::scan
     pf::switchlocation
-    pf::traplog
     pf::trigger
     pf::useragent
     pf::violation

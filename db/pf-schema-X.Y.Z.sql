@@ -358,15 +358,6 @@ CREATE TABLE `ifoctetslog` (
   PRIMARY KEY  (`switch`,`port`,`read_time`)
 ) ENGINE=InnoDB;
 
-CREATE TABLE `traplog` (
-  `switch` varchar(30) NOT NULL default '',
-  `ifIndex` smallint(6) NOT NULL default '0',
-  `parseTime` datetime NOT NULL default '0000-00-00 00:00:00',
-  `type` varchar(30) NOT NULL default '',
-  KEY `switch` (`switch`,`ifIndex`),
-  KEY `parseTime` (`parseTime`)
-) ENGINE=InnoDB;
-
 --
 -- Table structure for table `password`
 --

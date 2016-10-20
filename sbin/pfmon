@@ -43,7 +43,6 @@ use pf::auth_log;
 use pf::node;
 use pf::db;
 use pf::services;
-use pf::traplog;
 use pf::util;
 use pf::services::util;
 use pf::violation qw(violation_maintenance);
@@ -233,14 +232,6 @@ sub registertasks  {
             person_cleanup();
         }
     ) if ( isenabled($Config{'maintenance'}{'person_cleanup'}) );
-
-    register_task(
-        'traplog cleanup',
-        'traplog_cleanup_interval',
-        sub {
-            traplog_cleanup( $Config{'maintenance'}{'traplog_cleanup_window'} );
-        }
-    ) if ( $Config{'maintenance'}{'traplog_cleanup_window'} );
 
     register_task(
         'checking registered nodes for expiration',

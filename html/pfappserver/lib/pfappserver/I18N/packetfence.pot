@@ -420,10 +420,6 @@ msgstr ""
 msgid "expire.iplog"
 msgstr ""
 
-#: conf/pf.conf.defaults:534
-msgid "expire.traplog"
-msgstr ""
-
 #: conf/pf.conf.defaults:544
 msgid "expire.locationlog"
 msgstr ""

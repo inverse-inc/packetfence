@@ -1247,16 +1247,6 @@ auth_log_cleanup_batch=100
 # How long an auth_log cleanup job can take before being killed
 auth_log_cleanup_timeout=10s
 #
-# maintenance.traplog_cleanup_window
-#
-# How long to keep a traplog entry before deleting it
-traplog_cleanup_window=1W
-#
-# maintenance.traplog_cleanup_interval
-#
-# At which interval to run the traplog cleanup job
-traplog_cleanup_interval=60s
-#
 # maintenance.radius_audit_log_cleanup_window
 #
 # How long to keep a radius_audit_log entry before deleting it
