@@ -15,7 +15,7 @@ check program monitoring-check with path /usr/local/pf/addons/monit/monitoring-s
     every 300 cycles
     if status != 0 then alert
 
-check program monitoring-check with path /usr/local/pf/addons/monit/monitoring-scripts/oom_immunize_pid_names_from_list.sh
+check program immunizing-against-oom with path /usr/local/pf/addons/monit/monitoring-scripts/oom_immunize_pid_names_from_list.sh
     group OS
     every 450 cycles
     if status != 0 then alert
