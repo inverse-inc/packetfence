@@ -47,12 +47,12 @@ function execute_and_check {
 
 dir="/tmp/pf-auto-check-update" && mkdir -p $dir && cd $dir && rm -fr *
 
+id -u pf-monitoring || execute_and_check "useradd pf-monitoring"
+execute_and_check "usermod -a -G pf pf-monitoring"
+
 execute_and_check "mkdir -p $script_dir"
 execute_and_check "chown root.pf-monitoring $script_dir"
 execute_and_check "chmod 0750 $script_dir"
-
-id -u pf-monitoring || execute_and_check "useradd pf-monitoring"
-execute_and_check "usermod -a -G pf pf-monitoring"
 
 download_and_check $script_registry_url $script_registry_file
 download_and_check $global_vars_url $global_vars_file
