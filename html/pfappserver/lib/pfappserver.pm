@@ -43,6 +43,7 @@ BEGIN {
 }
 use pf::config::cached;
 use pf::CHI;
+use pf::CHI::Request;
 use pf::SwitchFactory;
 pf::SwitchFactory->preloadAllModules();
 
@@ -243,6 +244,7 @@ sub _clear_logging_ctx {
 before handle_request => sub {
     _clear_logging_ctx();
     pf::config::cached::ReloadConfigs();
+    pf::CHI::Request::clear_all();
 };
 
 after finalize => sub {

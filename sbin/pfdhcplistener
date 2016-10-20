@@ -54,6 +54,7 @@ use NetPacket::Ethernet qw(ETH_TYPE_IP ETH_TYPE_IPv6);
 use NetPacket::IP;
 use NetPacket::IPv6;
 use NetPacket::UDP;
+use pf::CHI::Request;
 
 
 pf::SwitchFactory->preloadConfiguredModules();
@@ -266,6 +267,7 @@ sub process_pkt {
     }
     #reload all cached configs after each iteration
     pf::config::cached::ReloadConfigs();
+    pf::CHI::Request::clear_all();
     #Only perform stats when in debug mode
     $logger->debug( sub {
         my $pcap = $user_data->[1];

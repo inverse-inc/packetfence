@@ -19,6 +19,7 @@ use pf::config::cached;
 use pf::StatsD qw($statsd);
 use pf::db;
 use pf::CHI;
+use pf::CHI::Request;
 use pf::SwitchFactory();
 
 use Apache2::Const -compile => 'OK';
@@ -26,6 +27,7 @@ use Apache2::Const -compile => 'OK';
 sub handler {
     my $r = shift;
     pf::config::cached::ReloadConfigs();
+    pf::CHI::Request::clear_all();
     return Apache2::Const::OK;
 }
 

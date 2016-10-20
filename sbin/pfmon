@@ -61,6 +61,7 @@ use fingerbank::DB;
 use pf::cluster;
 use Time::HiRes qw(time);
 use pf::option82 qw(search_switch);
+use pf::CHI::Request;
 
 pf::SwitchFactory->preloadConfiguredModules();
 
@@ -416,6 +417,7 @@ sub _runtask {
     my $time_taken = 0;
     while ($running) {
         pf::config::cached::ReloadConfigs();
+        pf::CHI::Request::clear_all();
         my $interval = $Config{'maintenance'}{$parameter};
         unless ($interval) {
             $logger->trace("task $id is disabled");

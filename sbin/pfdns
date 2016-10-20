@@ -52,6 +52,7 @@ use pf::SwitchFactory;
 use pf::node;
 use Storable 'dclone';
 use pf::access_filter::dns;
+use pf::CHI::Request;
 
 pf::SwitchFactory->preloadConfiguredModules();
 
@@ -212,6 +213,7 @@ END {
 sub response_handler {
     my ($qname, $qclass, $qtype, $peerhost,$query,$conn) = @_;
     pf::config::cached::ReloadConfigs();
+    pf::CHI::Request::clear_all();
     my $ip = new NetAddr::IP::Lite clean_ip($peerhost);
     my $ip_addr = $ip->addr;
     $logger->trace(sub { "Process $0 handling request for IP : $ip_addr" });
