@@ -24,6 +24,7 @@ A copy of this alert have been sent to the PacketFence support team.
 [% FOREACH email IN EMAILS %]
     set alert [% email %] but not on { resource nonexist pid }
     set alert [% email %] { resource } with reminder on 450 cycle   # reminder every 15 minutes (450 cycles) if 1 cycle is 2 seconds
+    set alert [% email %] { exec } with reminder on 1 cycle
 [% END %]
 
 
