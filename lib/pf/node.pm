@@ -394,15 +394,32 @@ sub node_db_prepare {
     return 1;
 }
 
-#
-# return mac if the node exists
-#
-sub node_exist {
+=item _node_exist
+
+The real implemntation of _node_exist
+
+=cut
+
+sub _node_exist {
     my ($mac) = @_;
     my $query = db_query_execute(NODE, $node_statements, 'node_exist_sql', $mac) || return (0);
     my ($val) = $query->fetchrow_array();
     $query->finish();
     return ($val);
+}
+
+pf_memoize("pf::node::_node_exist");
+
+#
+# return mac if the node exists
+#
+sub node_exist {
+    my ($mac) = @_;
+    $mac = clean_mac($mac);
+    if ($mac) {
+        return pf::node::_node_exist($mac);
+    }
+    return (0);
 }
 
 #
@@ -629,17 +646,13 @@ sub _node_view_old {
     return ($ref);
 }
 
+=item _node_view
 
-=item node_view
-
-Returning lots of information about a given MAC address (node).
-
-New implementation in 3.2.0.
+The real implementation of node_view
 
 =cut
 
-sub node_view {
-    my $timer = pf::StatsD::Timer->new({level => 6});
+sub _node_view {
     my ($mac) = @_;
     # Uncomment to log callers
     #my $logger = get_logger();
@@ -669,6 +682,27 @@ sub node_view {
     };
 
     return ($node_info_ref);
+}
+
+pf_memoize("pf::node::_node_view");
+
+
+=item node_view
+
+Returning lots of information about a given MAC address (node).
+
+New implementation in 3.2.0.
+
+=cut
+
+sub node_view {
+    my $timer = pf::StatsD::Timer->new({level => 6});
+    my ($mac) = @_;
+    $mac = clean_mac($mac);
+    if ($mac) {
+        return _node_view($mac);
+    }
+    return undef;
 }
 
 sub node_count_all {
@@ -1380,8 +1414,19 @@ sub fingerbank_info {
     return $info;
 }
 
-pf_memoize("pf::node::node_view");
-pf_memoize("pf::node::node_exist");
+=item node_remove_from_cache
+
+Remove node from the cache
+
+=cut
+
+sub node_remove_from_cache {
+    my ($mac) = @_;
+    $mac = clean_mac($mac);
+    if ($mac) {
+        memoized("pf::node::_node_view")->cache->remove($mac);
+    }
+}
 
 =back
 
