@@ -2,7 +2,7 @@
 
 source /usr/local/pf/addons/monit/monitoring-scripts/setup.sh
 
-source /etc/monit.d/vars
+source $monit_dir/vars
 
 source $functions_script
 
