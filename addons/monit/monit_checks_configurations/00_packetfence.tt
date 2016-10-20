@@ -89,13 +89,13 @@ check process packetfence-pfqueue with pidfile /usr/local/pf/var/run/pfqueue.pid
 
 check process packetfence-radiusd-acct with pidfile /usr/local/pf/var/run/radiusd-acct.pid
     group PacketFence
-    start program = "/usr/sbin/[% FREERADIUS_BIN %] -d /usr/local/pf/raddb -n acct" with timeout 300 seconds
+    start program = "/usr/sbin/[% FREERADIUS_BIN %] -d /usr/local/pf/raddb -n acct" with timeout 60 seconds
     stop program  = "/usr/bin/pkill -F /usr/local/pf/var/run/radiusd-acct.pid"
     if 3 restarts within 10 cycles then alert
 
 check process packetfence-radiusd with pidfile /usr/local/pf/var/run/radiusd.pid
     group PacketFence
-    start program = "/usr/sbin/[% FREERADIUS_BIN %] -d /usr/local/pf/raddb -n auth" with timeout 300 seconds
+    start program = "/usr/sbin/[% FREERADIUS_BIN %] -d /usr/local/pf/raddb -n auth" with timeout 60 seconds
     stop program  = "/usr/bin/pkill -F /usr/local/pf/var/run/radiusd.pid"
     if failed host 127.0.0.1 port 18120 type udp protocol radius secret testing123 then alert
     if 3 restarts within 10 cycles then alert
