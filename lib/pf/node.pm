@@ -514,7 +514,7 @@ sub node_add {
     );
 
     if ($statement) {
-        return (1);
+        return ($statement->rows == 1 ? 1 : 0);
     }
     else {
         return (0);
@@ -1335,7 +1335,7 @@ sub _cleanup_attributes {
     $info->{'status'} = _cleanup_status_value($info->{'status'});
 }
 
-=head2 fingerbank_info
+=item fingerbank_info
 
 Get a hash containing the fingerbank related informations for a node
 
