@@ -82,12 +82,16 @@ sub generate_configurations {
 
         my $tt = Template->new(ABSOLUTE => 1);
         my $freeradius_bin = ( $OS eq "rhel" ) ? "radiusd" : "freeradius";
+        my $mail_bin = ( $OS eq "rhel" ) ? "/bin/mail" : "/usr/bin/mail";
+        my $service_bin = ( $OS eq "rhel" ) ? "/sbin/service" : "/usr/sbin/service";
         my $vars = {
             FREERADIUS_BIN      => $freeradius_bin,
             EMAILS              => \@emails,
             SUBJECT_IDENTIFIER  => $subject_identifier,
             PFDHCPLISTENERS     => $pfdhcplisteners,
             DOMAINS             => $domains,
+            MAIL_BIN            => $mail_bin,
+            SERVICE_BIN         => $service_bin,
         };
         $tt->process($template_file, $vars, $destination_file) or die $tt->error();
     }

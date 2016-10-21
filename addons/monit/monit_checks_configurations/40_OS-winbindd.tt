@@ -2,6 +2,6 @@
 
 check process packetfence-winbindd with pidfile /var/run/winbindd.pid
     group PacketFence
-    start program = "service winbind start" with timeout 60 seconds
-    stop program  = "service winbind stop"
+    start program = "[% SERVICE_BIN %] winbind start" with timeout 60 seconds
+    stop program  = "[% SERVICE_BIN %] winbind stop"
     if 3 restarts within 10 cycles then alert

@@ -8,7 +8,7 @@ check program patch with path /usr/local/pf/addons/pf-maint.pl -t
     every "0 6 * * *"
     [% FOREACH email IN EMAILS %]
         noalert [% email %]
-        if status != 0 then exec "/bin/mail -s '[% SUBJECT_IDENTIFIER %] - PacketFence maintenance patch available' [% email %]"
+        if status != 0 then exec "[% MAIL_BIN %] -s '[% SUBJECT_IDENTIFIER %] - PacketFence maintenance patch available' [% email %]"
     [% END %]
 
 
@@ -16,14 +16,14 @@ check program patch with path /usr/local/pf/addons/pf-maint.pl -t
 
 check process packetfence-config with pidfile /usr/local/pf/var/run/pfconfig.pid
     group PacketFence
-    start program = "/sbin/service packetfence-config start" with timeout 60 seconds
-    stop program  = "/sbin/service packetfence-config stop"
+    start program = "[% SERVICE_BIN %] packetfence-config start" with timeout 60 seconds
+    stop program  = "[% SERVICE_BIN %] packetfence-config stop"
     if 3 restarts within 10 cycles then alert
 
 check process packetfence-redis-cache with pidfile /usr/local/pf/var/run/redis_cache.pid
     group PacketFence
-    start program = "/sbin/service packetfence-redis-cache start" with timeout 60 seconds
-    stop program  = "/sbin/service packetfence-redis-cache stop"
+    start program = "[% SERVICE_BIN %] packetfence-redis-cache start" with timeout 60 seconds
+    stop program  = "[% SERVICE_BIN %] packetfence-redis-cache stop"
     if failed host 127.0.0.1 port 6379 protocol redis then alert
     if 3 restarts within 10 cycles then alert
 
