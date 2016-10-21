@@ -159,6 +159,25 @@ has_field 'VoIPDHCPDetect' =>
              help => 'Detect VoIP with the DHCP Fingerprint'},
   );
 
+has_field 'VoIPAccountingDetect' =>
+  (
+   type => 'Toggle',
+   label => 'VoIPAccountingDetect',
+   default => undef,
+   tags => { after_element => \&help,
+             help => 'Detect VoIP with the radius attributes contain in radius accounting'},
+  );
+
+has_field 'RadiusFingerprint' =>
+  (
+   type => 'Toggle',
+   label => 'RadiusFingerprint',
+   default => undef,
+   tags => { after_element => \&help,
+             help => 'Enable fingerprinting with radius attributes contain in accounting'},
+  );
+
+
 has_field 'uplink_dynamic' =>
   (
    type => 'Checkbox',
@@ -233,7 +252,7 @@ has_block 'radius' =>
   (
    tag => 'div',
    render_list => [
-                   'radiusSecret',
+                   qw(radiusSecret RadiusFingerprint)
                   ],
   );
 has_field 'radiusSecret' =>
@@ -300,7 +319,7 @@ has_field macSearchesSleepInterval  =>
 
 has_block definition =>
   (
-   render_list => [ qw(description type mode group deauthMethod useCoA cliAccess ExternalPortalEnforcement VoIPEnabled VoIPLLDPDetect VoIPCDPDetect VoIPDHCPDetect uplink_dynamic uplink controllerIp disconnectPort coaPort) ],
+   render_list => [ qw(description type mode group deauthMethod useCoA cliAccess ExternalPortalEnforcement VoIPEnabled VoIPLLDPDetect VoIPCDPDetect VoIPDHCPDetect VoIPAccountingDetect uplink_dynamic uplink controllerIp disconnectPort coaPort) ],
   );
 has_field 'SNMPVersion' =>
   (

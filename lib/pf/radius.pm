@@ -457,7 +457,12 @@ sub accounting {
             }
         }
     }
-
+    if (isenabled($switch->{_VoIPAccountingDetect})) {
+        $switch->acctVoipDetect($radius_request);
+    }
+    if (isenabled($switch->{_RadiusFingerprint})) {
+        $switch->acctFingerprint($radius_request);
+    }
     return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Accounting ok") ];
 }
 
