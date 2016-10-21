@@ -40,6 +40,7 @@ use MIME::Lite::TT;
 use Digest::MD5;
 use Time::HiRes qw(stat time);
 use Fcntl qw(:DEFAULT);
+use pf::web qw(i18n i18n_format);
 
 our ( %local_mac );
 
@@ -1103,9 +1104,13 @@ sub strip_username {
 sub send_email {
     my ($smtp_server, $from, $to, $subject, $template, %info) = @_;
     my $logger = get_logger();
-    my %options;
-    $options{INCLUDE_PATH} = "$conf_dir/templates/";
-    $options{ENCODING} = "utf8";
+    my %TmplOptions = (
+        INCLUDE_PATH    => "$conf_dir/templates/",
+        ENCODING        => 'utf8',
+        i18n            => \&i18n,
+        i18n_format     => \&i18n_format,
+    );
+
 
     utf8::decode($subject);
     my $msg = MIME::Lite::TT->new(
@@ -1115,7 +1120,7 @@ sub send_email {
         Subject     =>  encode("MIME-Header", $subject),
         Template    =>  "emails-$template.html",
         'Content-Type' => 'text/html; charset="utf-8"',
-        TmplOptions =>  \%options,
+        TmplOptions =>  \%TmplOptions,
         TmplParams  =>  \%info,
     );
 

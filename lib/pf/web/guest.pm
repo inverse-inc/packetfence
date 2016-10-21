@@ -133,6 +133,8 @@ sub send_template_email {
     my %TmplOptions = (
         INCLUDE_PATH    => "$conf_dir/templates/",
         ENCODING        => 'utf8',
+        i18n            => \&i18n,
+        i18n_format     => \&i18n_format,
     );
     utf8::decode($subject);
     my $msg = MIME::Lite::TT->new(

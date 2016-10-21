@@ -843,7 +843,7 @@ msgstr ""
 msgid "Phone number"
 msgstr ""
 
-msgid "iOnce you click on the activation link the guest will be sent a username and password by email which will allow him to register as a guest in the network once on-site."
+msgid "Once you click on the activation link the guest will be sent a username and password by email which will allow him to register as a guest in the network once on-site."
 msgstr ""
 
 msgid "Until you click on the activation link this guest will have NO Internet access."
@@ -867,33 +867,44 @@ msgstr ""
 msgid "Here are the info."
 msgstr ""
 
-msgid ""
+msgid "Guest access to the network was requested using this email address."
+msgstr ""
+
+msgid "Thank you for your understanding"
+msgstr ""
+
+msgid "Please ignore this request if you have not requested network access."
+msgstr ""
+
+msgid "Once you have activated you will receive a username and password to use once you'll be on-site."
+msgstr ""
+
+msgid "Your guest access to the network was confirmed."
+msgstr ""
+
+msgid "Once on site, select guest access on the captive portal and use the following username and password to authenticate"
+msgstr ""
+
+msgid "Hello"
+msgstr ""
+
+msgid "Thank you for your purchase."
+msgstr ""
+
+msgid "Cost"
+msgstr ""
+
+msgid "Transaction ID"
+msgstr ""
+
+msgid "To extend your network access, please visit"
+msgstr ""
+
+msgid "Your subscribtion was cancelled."
 msgstr ""
 
 msgid ""
 msgstr ""
-
-msgid ""
-msgstr ""
-
-msgid ""
-msgstr ""
-
-msgid ""
-msgstr ""
-
-msgid ""
-msgstr ""
-
-msgid ""
-msgstr ""
-
-msgid ""
-msgstr ""
-
-msgid ""
-msgstr ""
-
 
 # lib/pf/web/release.pm
 msgid "release: reopen browser"

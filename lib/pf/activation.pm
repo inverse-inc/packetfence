@@ -35,6 +35,7 @@ use Time::HiRes qw(time);
 use Try::Tiny;
 use MIME::Lite;
 use Encode qw(encode);
+use pf::web qw(i18n i18n_format);
 
 =head1 CONSTANTS
 
@@ -484,6 +485,8 @@ sub send_email {
     my %TmplOptions = (
         INCLUDE_PATH    => "$conf_dir/templates/",
         ENCODING        => 'utf8',
+        i18n            => \&i18n,
+        i18n_format     => \&i18n_format,
     );
     utf8::decode($info{'subject'});
     my $msg = MIME::Lite::TT->new(
