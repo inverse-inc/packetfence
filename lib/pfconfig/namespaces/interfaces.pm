@@ -122,7 +122,7 @@ sub build {
                 push @{ $self->{_interfaces}->{dhcplistener_ints} }, $int;
             }
             elsif ( $type eq 'high-availability' ) {
-                push @{ $self->{_interfaces}->{ha_ints} }, $int;
+                push @{ $self->{_interfaces}->{ha_ints} }, $int_obj;
             }
             elsif ( $type eq 'portal' ) {
                 $int_obj->tag( "vip", $self->_fetch_virtual_ip( $int, $interface ) );
