@@ -1,6 +1,6 @@
 # Winbind OS managed checks
 
-check process packetfence-winbindd with pidfile /var/run/winbindd.pid
+check process packetfence-winbindd with pidfile [% WINBINDD_PID %]
     group PacketFence
     start program = "[% SERVICE_BIN %] winbind start" with timeout 60 seconds
     stop program  = "[% SERVICE_BIN %] winbind stop"

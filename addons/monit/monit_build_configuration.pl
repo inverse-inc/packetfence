@@ -84,6 +84,7 @@ sub generate_configurations {
         my $freeradius_bin = ( $OS eq "rhel" ) ? "radiusd" : "freeradius";
         my $mail_bin = ( $OS eq "rhel" ) ? "/bin/mail" : "/usr/bin/mail";
         my $service_bin = ( $OS eq "rhel" ) ? "/sbin/service" : "/usr/sbin/service";
+        my $winbindd_pid = ( $OS eq "rhel" ) ? "/var/run/winbindd.pid" : "/var/run/samba/winbindd.pid";
         my $vars = {
             FREERADIUS_BIN      => $freeradius_bin,
             EMAILS              => \@emails,
@@ -92,6 +93,7 @@ sub generate_configurations {
             DOMAINS             => $domains,
             MAIL_BIN            => $mail_bin,
             SERVICE_BIN         => $service_bin,
+            WINBINDD_PID        => $winbindd_pid,
         };
         $tt->process($template_file, $vars, $destination_file) or die $tt->error();
     }
