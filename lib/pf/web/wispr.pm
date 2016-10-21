@@ -110,21 +110,22 @@ sub handler {
         $params->{connection_type} = $locationlog_entry->{'connection_type'};
         $params->{SSID} = $locationlog_entry->{'ssid'};
     }
+    my $matched = pf::authentication::match2($source_id, $params);
+    if ($matched) {
+        my $values = $matched->{values};
+        my $role = $values->{$Actions::SET_ROLE};
+        my $unregdate = $values->{$Actions::SET_UNREG_DATE};
 
-    # obtain node information provided by authentication module. We need to get the role (category here)
-    my $value = pf::authentication::match($source_id, $params, $Actions::SET_ROLE);
+        # This appends the hashes to one another. values returned by authenticator wins on key collision
+        if (defined $role) {
+            $logger->warn("Got role $role for username $pid");
+            %info = (%info, (category => $role));
+        }
 
-    $logger->warn("Got role $value for username $pid");
-
-    # This appends the hashes to one another. values returned by authenticator wins on key collision
-    if (defined $value) {
-        %info = (%info, (category => $value));
-    }
-
-    $value = pf::authentication::match($source_id, $params, $Actions::SET_UNREG_DATE);
-    if (defined $value) {
-        $logger->trace("Got unregdate $value for username $pid");
-        %info = (%info, (unregdate => $value));
+        if (defined $unregdate) {
+            $logger->trace("Got unregdate $unregdate for username $pid");
+            %info = (%info, (unregdate => $unregdate));
+        }
     }
 
     $r->pnotes->{info}=\%info;
