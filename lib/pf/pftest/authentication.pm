@@ -59,14 +59,14 @@ sub _run {
                 print $indent,"Authentication FAILED against ",$source->id," ($message) \n";
             }
             print color 'reset' if $show_color;
-            my $actions;
+            my $matched;
             foreach my $class ( @Rules::CLASSES ) {
-                if( $actions = pf::authentication::match([$source], {username => $user, rule_class => $class})) {
+                if( $matched = pf::authentication::match2([$source], {username => $user, rule_class => $class})) {
                     print color $pf::config::Config{advanced}{pfcmd_success_color} if $show_color;
                     print $indent ,"Matched against ",$source->id," for '$class' rules\n";
-                    if(ref($actions)) {
+                    {
                         local $indent = $indent x 2;
-                        foreach my $action (@$actions) {
+                        foreach my $action (@{$matched->{actions}}) {
                             print $indent ,$action->type," : ",$action->value,"\n";
                         }
                     }
