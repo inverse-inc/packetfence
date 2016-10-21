@@ -800,10 +800,99 @@ msgstr "If you believe that you must be allowed to connect then contact your loc
 msgid "release: enabling network"
 msgstr "Enabling network access"
 
-# html/captive-portal/templates/emails/emails*.html
+# html/captive-portal/templates/emails/emails.html 
 msgid "This is a post only E-mail, please do not reply."
 msgstr ""
 
+msgid "Extend access duration"
+msgstr ""
+
+msgid "Status"
+msgstr ""
+
+msgid "Activate your network access"
+msgstr ""
+
+msgid "To view your current network status, please visit"
+msgstr ""
+
+msgid "Activate the sponsor access for guest "
+msgstr ""
+
+msgid "If you have any questions regarding the registration process please contact your local support staff."
+msgstr ""
+
+msgid "Hi"
+msgstr ""
+
+msgid "Your guest access to the network was authorized."
+msgstr ""
+
+msgid "Once on site, use the following username and password to authenticate"
+msgstr ""
+
+msgid "requested guest access to your network."
+msgstr ""
+
+msgid "Do NOT authorize access if you were not expecting this guest."
+msgstr ""
+
+msgid "Here is the information the guest provided with registration form"
+msgstr ""
+
+msgid "Phone number"
+msgstr ""
+
+msgid "iOnce you click on the activation link the guest will be sent a username and password by email which will allow him to register as a guest in the network once on-site."
+msgstr ""
+
+msgid "Until you click on the activation link this guest will have NO Internet access."
+msgstr ""
+
+msgid "Thank you for your cooperation."
+msgstr ""
+
+msgid "Here are the informations of the infringing device"
+msgstr ""
+
+msgid "You have been detected doing malicious activity on the network."
+msgstr ""
+
+msgid "You can register additional devices if you need with the following information"
+msgstr ""
+
+msgid "Just to let you know that an user account has been created while registering your device. You may now want to use it for different features (devices registration, status page)."
+msgstr ""
+
+msgid "Here are the info."
+msgstr ""
+
+msgid ""
+msgstr ""
+
+msgid ""
+msgstr ""
+
+msgid ""
+msgstr ""
+
+msgid ""
+msgstr ""
+
+msgid ""
+msgstr ""
+
+msgid ""
+msgstr ""
+
+msgid ""
+msgstr ""
+
+msgid ""
+msgstr ""
+
+msgid ""
+msgstr ""
 
 
 # lib/pf/web/release.pm

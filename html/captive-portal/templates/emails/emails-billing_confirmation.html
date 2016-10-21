@@ -17,12 +17,12 @@
                 <tr>
                   <td class="content-block">
                     <h1 class="aligncenter">Billing invoice</h1>
-                    <p>Hello [% firstname %] [% lastname %],</p>
-                    <p>Thank you for your purchase.</br>
+                    <p>[% i18n("Hello") %] [% firstname %] [% lastname %],</p>
+                    <p>[% i18n("Thank you for your purchase.") %]</br>
                     [% tier_name %]: [% tier_description %]</br>
-                    Cost: $[% tier_price %]</br>
-                    Transaction ID: [% transaction_id %]</p>
-                    <p>To extend your network access, please visit <a href="https://[% hostname %].[% domain %][% URL_BILLING %]">[% i18n("Extend access duration") %]</a></p>
+                    [% i18n("Cost") %]: $[% tier_price %]</br>
+                    [% i18n("Transaction ID") %]: [% transaction_id %]</p>
+                    <p>[% i18n("To extend your network access, please visit") %] <a href="https://[% hostname %].[% domain %][% URL_BILLING %]">[% i18n("Extend access duration") %]</a></p>
                     <p>[% i18n("To view your current network status, please visit") %] <a href="https://[% hostname %].[% domain %][% URL_STATUS %]">[% i18n("Status") %]</a></p>
                   </td>
                 </tr>

@@ -17,12 +17,12 @@
                 <tr>
                   <td class="content-block">
                     <h1 class="aligncenter">Network access activation</h1>
-                    <p>Hi [% firstname %] [% lastname %], </p>
-                    <p>Guest access to the network was requested using this email address.</p>
+                    <p>[% i18n("Hi") %] [% firstname %] [% lastname %], </p>
+                    <p>[% i18n("Guest access to the network was requested using this email address.") %]</p>
                     <a href="[% activation_uri %]" class="btn-primary">[% i18n ("Activate your network access") %]</a>
                     <p>Failure to do so within [% activation_timeout / 60 %] minutes will result in a termination of your network access.</p>
-                    <p>Thank you for your understanding</p>
-                    <p>Please ignore this request if you have not requested network access.</p>
+                    <p>[% i18n("Thank you for your understanding") %]</p>
+                    <p>[% i18n("Please ignore this request if you have not requested network access.") %]</p>
                   </td>
                 </tr>
               </table>

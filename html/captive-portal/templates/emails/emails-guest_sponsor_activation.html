@@ -17,21 +17,21 @@
                 <tr>
                   <td class="content-block">
                     <h1 class="align-center">Guest request</h1>
-                    <p>Hi,</p>
-                    <p>[% firstname %] [% lastname %] requested guest access to your network.</p>
-                    <p>Do NOT authorize access if you were not expecting this guest.</p>
-                    <p>Here is the information the guest provided with registration form:</p>          
-                    <p>Firstname: [% firstname %]</br>
-                    Lastname: [% lastname %]</br>
-                    Phone number: [% telephone %]</br>
-                    Email: [% pid %]</p>
+                    <p>[% i18n("Hi") %],</p>
+                    <p>[% firstname %] [% lastname %] [% i18n("requested guest access to your network.") %]</p>
+                    <p>[% i18n("Do NOT authorize access if you were not expecting this guest.") %]</p>
+                    <p>[% i18n("Here is the information the guest provided with registration form") %]:</p>          
+                    <p>[% i18n("Firstname") %]: [% firstname %]</br>
+                    [% i18n("Lastname") %]: [% lastname %]</br>
+                    [% i18n("Phone number") %]: [% telephone %]</br>
+                    [% i18n("Email") %]: [% pid %]</p>
                     <a href="[% activation_uri %]" class="btn-primary">[% i18n ("Activate the sponsor access for guest ") %][% firstname %]</a>
                     [% IF is_preregistration -%]
-                    <p>Once you click on the activation link the guest will be sent a username and password by email which will allow him to register as a guest in the network once on-site.</p>
+                    <p>[% i18n("Once you click on the activation link the guest will be sent a username and password by email which will allow him to register as a guest in the network once on-site.") %]</p>
                     [% ELSE %]
-                    <p>Until you click on the activation link this guest will have NO Internet access.</p>
+                    <p>[% i18n("Until you click on the activation link this guest will have NO Internet access.") %]</p>
                     [%- END %]
-                    <p>Thank you for your cooperation.</p>
+                    <p>[% i18n("Thank you for your cooperation.") %]</p>
                   </td>
                 </tr>
               </table>
