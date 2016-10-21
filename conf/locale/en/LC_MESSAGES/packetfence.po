@@ -800,6 +800,12 @@ msgstr "If you believe that you must be allowed to connect then contact your loc
 msgid "release: enabling network"
 msgstr "Enabling network access"
 
+# html/captive-portal/templates/emails/emails*.html
+msgid "This is a post only E-mail, please do not reply."
+msgstr ""
+
+
+
 # lib/pf/web/release.pm
 msgid "release: reopen browser"
 msgstr "You may have to re-open your browser to get Internet access. If you are plugged into a telephone, you will need to restart your computer to get Internet access."

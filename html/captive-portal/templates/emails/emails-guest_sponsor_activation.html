@@ -25,7 +25,7 @@
                     Lastname: [% lastname %]</br>
                     Phone number: [% telephone %]</br>
                     Email: [% pid %]</p>
-                    <a href="[% activation_uri %]" class="btn-primary">Activate the sponsor access for guest [% firstname %]</a>
+                    <a href="[% activation_uri %]" class="btn-primary">[% i18n ("Activate the sponsor access for guest ") %][% firstname %]</a>
                     [% IF is_preregistration -%]
                     <p>Once you click on the activation link the guest will be sent a username and password by email which will allow him to register as a guest in the network once on-site.</p>
                     [% ELSE %]
@@ -47,7 +47,7 @@
     <tr>
       <td class="aligncenter content-block">
         <p>-----</br></p>
-        <p>This is a post only E-mail, please do not reply.</p>
+        <p>[% i18n("This is a post only E-mail, please do not reply.") %]</p>
       </td>
     </tr>
   </table>

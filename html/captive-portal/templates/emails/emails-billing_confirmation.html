@@ -16,15 +16,14 @@
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td class="content-block">
-                    <h1 class="aligncenter">Confirmation de paiement</h1>
-                    <p>Bonjour, [% firstname %] [% lastname %],</p>
-                    <p>Merci de votre achat.</br>
+                    <h1 class="aligncenter">Billing invoice</h1>
+                    <p>Hello [% firstname %] [% lastname %],</p>
+                    <p>Thank you for your purchase.</br>
                     [% tier_name %]: [% tier_description %]</br>
-                    Prix: $[% tier_price %]</br>
+                    Cost: $[% tier_price %]</br>
                     Transaction ID: [% transaction_id %]</p>
-                    <p>Si vous souhaitez prolonger votre accès sur le réseau, consultez la page suivante <a href="https://[% hostname %].[% domain %][% URL_BILLING %]">Prolonger l'accès</a></p>
-                    <p>Pour des informations sur votre état actuel consultez la page suivante <a href="https://[% hostname %].[% domain %][% URL_STATUS %]">Status</a></p>
-
+                    <p>To extend your network access, please visit <a href="https://[% hostname %].[% domain %][% URL_BILLING %]">[% i18n("Extend access duration") %]</a></p>
+                    <p>[% i18n("To view your current network status, please visit") %] <a href="https://[% hostname %].[% domain %][% URL_STATUS %]">[% i18n("Status") %]</a></p>
                   </td>
                 </tr>
               </table>
@@ -40,7 +39,7 @@
     <tr>
       <td class="aligncenter content-block">
         <p>-----</br></p>
-        <p>Ceci est un message automatique, merci de ne pas répondre.</p>
+        <p>[% i18n("This is a post only E-mail, please do not reply.") %]</p>
       </td>
     </tr>
   </table>

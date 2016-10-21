@@ -16,14 +16,13 @@
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td class="content-block">
-                    <h1 class="aligncenter">Preregistration</h1>
-                    <p>Hi [% firstname %] [% lastname %],</p>
-                    <p>An account has been created for you to access our network.</p>
-                    <p>Once you will be on-site, authenticate using the following credentials to our captive portal:</p>
-                    <p>Username: [% username %]</br>
-                    Password: [% password %]</p>
-                    <p>This username and password will be valid starting [% valid_from %]. [% txt_expiration %] [% txt_duration %]</p>
-                    <p>Please ignore this request if you have not requested network access.</p>
+                    <h1 class="aligncenter">PreRegister confirmation</h1>
+                     <p>Hi,</p>
+                     <p>Your guest access to the network was confirmed.</p>
+                     <p>Once on site, select guest access on the captive portal and use the following username and password to authenticate:</p>
+                     <p>Username: [% pid %]</br>
+                     Password: [% password %]</p>
+                     <p>If you have any questions regarding the registration process please contact your local support staff.</p>
                   </td>
                 </tr>
               </table>
@@ -39,10 +38,10 @@
     <tr>
       <td class="aligncenter content-block">
         <p>-----</br></p>
-        <p>This is a post only E-mail, please do not reply.</p>
+        <p>[% i18n ("This is a post only E-mail, please do not reply.") %]</p>
       </td>
     </tr>
   </table>
 </div>
 </body>
-</html>     
+</html>
