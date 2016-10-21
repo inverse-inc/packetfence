@@ -28,10 +28,10 @@ use File::Slurp qw(read_dir);
 use List::MoreUtils qw(all any);
 use Try::Tiny;
 use pf::file_paths qw(
-    $conf_dir
     $oui_file
     $oui_url
     $var_dir
+    $html_dir
 );
 use NetAddr::IP;
 use File::Temp;
@@ -1105,7 +1105,7 @@ sub send_email {
     my ($smtp_server, $from, $to, $subject, $template, %info) = @_;
     my $logger = get_logger();
     my %TmplOptions = (
-        INCLUDE_PATH    => "$conf_dir/templates/",
+        INCLUDE_PATH    => "$html_dir/captive-portal/templates/emails/",
         ENCODING        => 'utf8',
         i18n            => \&i18n,
         i18n_format     => \&i18n_format,

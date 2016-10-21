@@ -95,7 +95,7 @@ use pf::config qw(
     %Config
     $fqdn
 );
-use pf::file_paths qw($conf_dir);
+use pf::file_paths qw($html_dir);
 use pf::db;
 use pf::util;
 use pf::web::constants;
@@ -483,7 +483,7 @@ sub send_email {
     }
 
     my %TmplOptions = (
-        INCLUDE_PATH    => "$conf_dir/templates/",
+        INCLUDE_PATH    => "$html_dir/captive-portal/templates/emails/",
         ENCODING        => 'utf8',
         i18n            => \&i18n,
         i18n_format     => \&i18n_format,

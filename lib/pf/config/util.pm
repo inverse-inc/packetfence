@@ -45,7 +45,7 @@ use File::Slurp qw(read_dir);
 use List::MoreUtils qw(all any);
 use Try::Tiny;
 use pf::file_paths qw(
-    $conf_dir
+    $html_dir
 );
 use pf::util;
 use pf::log;
@@ -186,7 +186,7 @@ sub send_email {
     };
 
     my %TmplOptions = (
-        INCLUDE_PATH    => "$conf_dir/templates/",
+        INCLUDE_PATH    => "$html_dir/captive-portal/templates/emails/",
         ENCODING        => 'utf8',
         i18n            => \&i18n,
         i18n_format     => \&i18n_format,
