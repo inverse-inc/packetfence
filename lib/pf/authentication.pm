@@ -335,6 +335,69 @@ sub match {
     return undef;
 }
 
+=item match2
+
+This method tries to match a set of params in one or multiple sources.
+
+If nothing matches undef will be returned
+
+If there is a match hash will be returned with the following information
+
+    {
+        source_id => 'MATCH_SOURCE_ID'
+        actions => [action0, action1],
+        values => {
+            type1 => value1,
+            type2 => value2,
+        },
+    }
+
+=cut
+
+sub match2 {
+    my $timer = pf::StatsD::Timer->new();
+    my ($source_id, $params) = @_;
+    my ($actions, @sources);
+    $logger->debug( sub { "Match called with parameters ".join(", ", map { "$_ => $params->{$_}" } keys %$params) });
+
+    # Calling 'match' with empty/invalid rule class. Using default
+    if ( (!defined($params->{'rule_class'})) || (!exists($Rules::CLASSES{$params->{'rule_class'}})) ) {
+        $params->{'rule_class'} = pf::Authentication::Rule->meta->get_attribute('class')->default;
+        $logger->warn("Calling match with empty/invalid rule class. Defaulting to '" . $params->{'rule_class'} . "'");
+    }
+
+    if (ref($source_id) eq 'ARRAY') {
+        @sources = @{$source_id};
+    } else {
+        my $source = getAuthenticationSource($source_id);
+        if (defined $source) {
+            @sources = ($source);
+        }
+    }
+    $logger->info("Using sources ".join(', ', (map {$_->id} @sources))." for matching");
+
+    foreach my $source (@sources) {
+        $actions = $source->match($params);
+        next unless defined $actions;
+        my %values;
+        foreach my $action (@$actions) {
+            my $value = $action->value;
+            my $type  = $action->type;
+            $value = $ACTION_VALUE_FILTERS{$type}->($value) if exists $ACTION_VALUE_FILTERS{$type};
+            $type = $Actions::MAPPED_ACTIONS{$type} if exists $Actions::MAPPED_ACTIONS{$type};
+            $values{$type} = $value;
+        }
+        my %results = (
+            source_id => $source->id,
+            actions => $actions,
+            values => \%values,
+        );
+        return \%results;
+    }
+
+    return undef;
+}
+
 =back
 
 =head1 AUTHOR

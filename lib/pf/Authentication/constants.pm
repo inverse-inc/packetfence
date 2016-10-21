@@ -171,6 +171,14 @@ Readonly::Hash our %ALLOWED_ACTIONS => (
     }
 );
 
+Readonly::Hash our %MAPPED_ACTIONS => (
+    $MARK_AS_SPONSOR  => $MARK_AS_SPONSOR,
+    $SET_ACCESS_LEVEL => $SET_ACCESS_LEVEL,
+    $SET_ROLE         => $SET_ROLE,
+    $SET_UNREG_DATE   => $SET_UNREG_DATE,
+    $SET_ACCESS_DURATION => $SET_UNREG_DATE,
+);
+
 =back
 
 =head1 AUTHOR
