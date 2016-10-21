@@ -1047,9 +1047,9 @@ sub dynamic_register_node : Public {
     };
 
     my $source;
-    my $role = &pf::authentication::match([@sources], $params, $Actions::SET_ROLE, \$source);
+    my $role = pf::authentication::match([@sources], $params, $Actions::SET_ROLE, \$source);
     #Compute autoreg if we use autoreg
-    my $value = &pf::authentication::match([@sources], $params, $Actions::SET_UNREG_DATE);
+    my $value = pf::authentication::match([@sources], $params, $Actions::SET_UNREG_DATE);
     if (defined $value) {
         my %info = (
             'unregdate' => $value,

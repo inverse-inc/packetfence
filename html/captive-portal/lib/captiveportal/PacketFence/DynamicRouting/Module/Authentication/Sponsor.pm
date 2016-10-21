@@ -183,7 +183,7 @@ Validate the provided sponsor is allowed to do sponsoring
 
 sub _validate_sponsor {
     my ($self, $sponsor_email) = @_;
-    my $value = &pf::authentication::match( pf::authentication::getInternalAuthenticationSources(), { email => $sponsor_email, 'rule_class' => $Rules::ADMIN }, $Actions::MARK_AS_SPONSOR );
+    my $value = pf::authentication::match( pf::authentication::getInternalAuthenticationSources(), { email => $sponsor_email, 'rule_class' => $Rules::ADMIN }, $Actions::MARK_AS_SPONSOR );
 
     if (!defined $value) {
         $self->app->flash->{error} = [ $GUEST::ERRORS{$GUEST::ERROR_SPONSOR_NOT_ALLOWED}, $sponsor_email ];

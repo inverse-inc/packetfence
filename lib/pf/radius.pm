@@ -712,7 +712,7 @@ sub switch_access {
 
     my ( $return, $message, $source_id ) = pf::authentication::authenticate( { 'username' =>  $radius_request->{'User-Name'}, 'password' =>  $radius_request->{'User-Password'}, 'rule_class' => $Rules::ADMIN }, @{pf::authentication::getInternalAuthenticationSources()} );
     if ( defined($return) && $return == $TRUE ) {
-        my $value = &pf::authentication::match($source_id, { username => $radius_request->{'User-Name'}, 'rule_class' => $Rules::ADMIN }, $Actions::SET_ACCESS_LEVEL);
+        my $value = pf::authentication::match($source_id, { username => $radius_request->{'User-Name'}, 'rule_class' => $Rules::ADMIN }, $Actions::SET_ACCESS_LEVEL);
         if ($value) {
             my @values = split(',', $value);
             foreach $value (@values) {
