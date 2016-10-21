@@ -28,6 +28,7 @@ my %CONFIGURATION_TO_TEMPLATE   = (
 );
 
 my $OS = ( -e "/etc/debian_version" ) ? "debian" : "rhel";
+my $MONIT_PATH  = ( $OS eq "rhel" ) ? "/etc/monit.d" : "/etc/monit/conf.d";
 
 if ( $#ARGV eq "-1" ) {
     print "Usage: ./monit_configuration_builder.pl 'email(s)' 'subject' 'configurations'\n\n";
@@ -63,13 +64,11 @@ print "\n\nAll set!\n\n";
 
 
 sub generate_configurations {
-    my $monit_path = ( $OS eq "rhel" ) ? "/etc/monit.d" : "/etc/monit/conf.d";
-
     print "\n\nGenerating the following configuration files: \n";
 
     foreach my $configuration ( @configurations ) {
         my $template_file = catfile($MONIT_CHECKS_CONF_TEMPLATES_PATH,$CONFIGURATION_TO_TEMPLATE{$configuration} . $TEMPLATE_FILE_EXTENSION);
-        my $destination_file = catfile($monit_path,$CONFIGURATION_TO_TEMPLATE{$configuration} . $CONF_FILE_EXTENSION);
+        my $destination_file = catfile($MONIT_PATH,$CONFIGURATION_TO_TEMPLATE{$configuration} . $CONF_FILE_EXTENSION);
         print " - $destination_file\n";
 
         # Backing up existing configuration file (just in case)
@@ -130,12 +129,12 @@ sub monit_configuration {
     my $tt = Template->new(ABSOLUTE => 1);
 
     # Monit general configuration
-    $tt->process(catfile($MONIT_CONF_TEMPLATES_PATH, "monit_general" . $TEMPLATE_FILE_EXTENSION), $vars, "/etc/monit.d/monit_general.conf") or die $tt->error();
+    $tt->process(catfile($MONIT_CONF_TEMPLATES_PATH, "monit_general" . $TEMPLATE_FILE_EXTENSION), $vars, catfile($MONIT_PATH, "monit_general" . $CONF_FILE_EXTENSION)) or die $tt->error();
     print "\n\nApplied Monit configuration. You might want to restart Monit for the change to take place";
 
     # Syslog configuration
     $tt->process(catfile($MONIT_CONF_TEMPLATES_PATH, "syslog_monit" . $TEMPLATE_FILE_EXTENSION), $vars, "/etc/$syslog_engine.d/monit.conf") or die $tt->error();
-    unlink '/etc/monit.d/logging'; # Remove default Monit logging configuration file
+    unlink "$MONIT_PATH/logging"; # Remove default Monit logging configuration file
     print "\n\nApplied $syslog_engine configuration. You might want to restart $syslog_engine for the change to take place";
 }
 
