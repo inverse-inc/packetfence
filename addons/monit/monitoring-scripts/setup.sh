@@ -54,7 +54,7 @@ function setup_test_env {
   touch "$uuid_vars_file"
   touch "$local_vars_file"
   echo "#!/bin/bash" > $combined_vars_file
-  cat "$global_vars_file" "$uuid_vars_file" "$local_vars_file" >> $combined_vars_file
+  cat "$global_vars_file" "$uuid_vars_file" "$local_vars_file" | grep -P '^export [a-zA-Z0-9_]+[=]{1}["]?.*["]?$' >> $combined_vars_file
   chmod +x $combined_vars_file
   source $combined_vars_file
   source $functions_script
