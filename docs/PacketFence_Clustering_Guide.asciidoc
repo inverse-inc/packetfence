@@ -783,12 +783,12 @@ db_host=127.0.0.1
 ....
 ----
 
-While you are in that file, add "high-availibility" statement at the end of your management interface:
+While you are in that file, add "high-availability" statement at the end of your management interface:
 
 ----
 [interface eth0]
 ....
-type=management,portal,high-availibility
+type=management,portal,high-availability
 ....
 ----
 
