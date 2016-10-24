@@ -17,13 +17,13 @@
                 <tr>
                   <td class="content-block">
                     <h1 class="aligncenter">Preregistration</h1>
-                    <p>Hi [% firstname %] [% lastname %],</p>
-                    <p>An account has been created for you to access our network.</p>
-                    <p>Once you will be on-site, authenticate using the following credentials to our captive portal:</p>
-                    <p>Username: [% username %]</br>
-                    Password: [% password %]</p>
-                    <p>This username and password will be valid starting [% valid_from %]. [% txt_expiration %] [% txt_duration %]</p>
-                    <p>Please ignore this request if you have not requested network access.</p>
+                    <p>[% i18n("Hi") %] [% firstname %] [% lastname %],</p>
+                    <p>[% i18n("An account has been created for you to access our network.") %]</p>
+                    <p>[% i18n("Once you will be on-site, authenticate using the following credentials to our captive portal") %]:</p>
+                    <p>[% i18n("Username") %]: [% username %]</br>
+                    [% i18n("Password") %]: [% password %]</p>
+                    <p>[% i18n("This username and password will be valid starting") %] [% valid_from %]. [% txt_expiration %] [% txt_duration %]</p>
+                    <p>[% i18n ("Please ignore this request if you have not requested network access.") %]</p>
                   </td>
                 </tr>
               </table>

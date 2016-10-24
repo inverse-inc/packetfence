@@ -903,7 +903,10 @@ msgstr ""
 msgid "Your subscribtion was cancelled."
 msgstr ""
 
-msgid ""
+msgid "This username and password will be valid starting"
+msgstr ""
+
+msgid "Once you will be on-site, authenticate using the following credentials to our captive portal"
 msgstr ""
 
 # lib/pf/web/release.pm
