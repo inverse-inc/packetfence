@@ -50,7 +50,7 @@ use pf::config qw(
     $fqdn
     %CAPTIVE_PORTAL
 );
-use pf::file_paths qw($html_dir);
+use pf::file_paths qw($conf_dir $html_dir);
 use pf::password;
 use pf::util;
 use pf::web qw(i18n ni18n i18n_format render_template);
@@ -133,9 +133,8 @@ sub send_template_email {
     my %TmplOptions = (
         INCLUDE_PATH    => "$html_dir/captive-portal/templates/emails/",
         ENCODING        => 'utf8',
-        i18n            => \&i18n,
-        i18n_format     => \&i18n_format,
     );
+    my %vars = (\$info, i18n => \&i18n, ni18n => \&ni18n, i18n_format => \&i18n_format);
     utf8::decode($subject);
     my $msg = MIME::Lite::TT->new(
         From        =>  $from,
@@ -144,7 +143,7 @@ sub send_template_email {
         Subject     =>  encode("MIME-Header", $subject),
         Template    =>  "emails-$template.html",
         TmplOptions =>  \%TmplOptions,
-        TmplParams  =>  $info,
+        TmplParams  =>  \%vars,
         TmplUpgrade =>  1,
     );
     $msg->attr("Content-Type" => "text/html; charset=UTF-8;");

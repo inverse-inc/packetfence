@@ -32,6 +32,7 @@ use pf::file_paths qw(
     $oui_url
     $var_dir
     $html_dir
+    $conf_dir
 );
 use NetAddr::IP;
 use File::Temp;

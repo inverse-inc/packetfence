@@ -95,7 +95,7 @@ use pf::config qw(
     %Config
     $fqdn
 );
-use pf::file_paths qw($html_dir);
+use pf::file_paths qw($conf_dir $html_dir);
 use pf::db;
 use pf::util;
 use pf::web::constants;

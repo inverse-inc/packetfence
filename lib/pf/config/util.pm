@@ -46,6 +46,7 @@ use List::MoreUtils qw(all any);
 use Try::Tiny;
 use pf::file_paths qw(
     $html_dir
+    $conf_dir
 );
 use pf::util;
 use pf::log;
