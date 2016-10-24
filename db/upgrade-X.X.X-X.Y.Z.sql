@@ -316,3 +316,5 @@ DROP INDEX mac ON violation;
 --
 
 DROP INDEX ip on inline_accounting;
+
+ALTER TABLE iplog_history ADD INDEX end_time (end_time);
