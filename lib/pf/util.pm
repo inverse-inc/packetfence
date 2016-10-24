@@ -32,7 +32,6 @@ use pf::file_paths qw(
     $oui_url
     $var_dir
     $html_dir
-    $conf_dir
 );
 use NetAddr::IP;
 use File::Temp;
@@ -41,7 +40,6 @@ use MIME::Lite::TT;
 use Digest::MD5;
 use Time::HiRes qw(stat time);
 use Fcntl qw(:DEFAULT);
-use pf::web qw(i18n i18n_format);
 
 our ( %local_mac );
 
@@ -1105,11 +1103,12 @@ sub strip_username {
 sub send_email {
     my ($smtp_server, $from, $to, $subject, $template, %info) = @_;
     my $logger = get_logger();
+    require pf::web;
     my %TmplOptions = (
         INCLUDE_PATH    => "$html_dir/captive-portal/templates/emails/",
         ENCODING        => 'utf8',
-        i18n            => \&i18n,
-        i18n_format     => \&i18n_format,
+        i18n            => \&pf::web::i18n,
+        i18n_format     => \&pf::web::i18n_format,
     );
 
 
@@ -1119,8 +1118,8 @@ sub send_email {
         To          =>  $to,
         Cc          =>  $info{'cc'},
         Subject     =>  encode("MIME-Header", $subject),
+        'Content-Type' => 'text/html; charset="UTF-8"',
         Template    =>  "emails-$template.html",
-        'Content-Type' => 'text/html; charset="utf-8"',
         TmplOptions =>  \%TmplOptions,
         TmplParams  =>  \%info,
     );

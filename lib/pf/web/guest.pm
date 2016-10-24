@@ -50,7 +50,7 @@ use pf::config qw(
     $fqdn
     %CAPTIVE_PORTAL
 );
-use pf::file_paths qw($conf_dir $html_dir);
+use pf::file_paths qw($html_dir);
 use pf::password;
 use pf::util;
 use pf::web qw(i18n ni18n i18n_format render_template);
