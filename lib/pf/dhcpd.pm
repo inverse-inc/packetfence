@@ -51,6 +51,7 @@ use pf::db;
 use pf::cluster qw(@cluster_servers);
 use pf::radius::constants;
 use pf::node qw(node_attributes);
+use pf::file_paths qw($install_dir);
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $dhcpd_db_prepared = 0;
@@ -154,6 +155,15 @@ sub freeradius_populate_dhcpd_config {
 
     my $full_path = can_run('ip');
 
+    open (my$fh, "$install_dir/var/routes.bak");
+    while (my $row = <$fh>) {
+        chomp $row;
+        my $cmd = untaint_chain($row);
+        my @out = pf_run($cmd);
+    }
+    close $fh;
+    open ($fh, "+>$install_dir/var/routes.bak");
+
     foreach my $interface ( @listen_ints ) {
         my $cfg = $Config{"interface $interface"};
         next unless $cfg;
@@ -186,6 +196,7 @@ sub freeradius_populate_dhcpd_config {
                             my $pf_ip = $net + 1;
                             my $cmd = "sudo $full_path addr del ".$pf_ip->addr."/32 dev $interface";
                             $cmd = untaint_chain($cmd);
+                            print $fh $cmd."\n";
                             my @out = pf_run($cmd);
                             $cmd = "sudo $full_path addr add ".$pf_ip->addr."/32 dev $interface";
                             @out = pf_run($cmd);
@@ -220,6 +231,7 @@ sub freeradius_populate_dhcpd_config {
             }
         }
     }
+    close $fh;
 }
 
 =item freeradius_update_dhcpd_lease
