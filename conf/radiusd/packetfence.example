@@ -331,12 +331,10 @@ post-auth {
 	if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
 		rest
 		if (&reply:PacketFence-Authorization-Status == "deny") {
-			request-timing
-			-sql_reject
+      packetfence-audit-log-reject
 			reject
 		} else {
-			request-timing
-			-sql
+      packetfence-audit-log-accept
 		}
 	}
 
@@ -353,9 +351,7 @@ post-auth {
 	#
 	Post-Auth-Type REJECT {
 		if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
-			request-timing
-			# log failed authentications in SQL, too.
-			-sql_reject
+      packetfence-audit-log-reject
 		}
 		attr_filter.access_reject
 		attr_filter.packetfence_post_auth

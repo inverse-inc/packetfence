@@ -67,3 +67,17 @@ packetfence-eap-mac-policy {
     }
     noop
 }
+
+packetfence-audit-log-accept {
+    if(&User-Name != "dummy") {
+        request-timing
+        -sql
+    }
+}
+
+packetfence-audit-log-reject {
+    if(&User-Name != "dummy") {
+        request-timing
+        -sql_reject
+    }
+}
