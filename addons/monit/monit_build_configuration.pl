@@ -113,7 +113,7 @@ sub handle_domains {
     use pf::services::manager::winbindd_child;
     my %domains = ();
     foreach my $domain ( keys(%pf::config::ConfigDomain) ) {
-        $domains{$domain} = pf::services::manager::winbindd_child->new(name => 'dummy', domain => "$domain")->pidFile;
+        $domains{$domain} = pf::services::manager::winbindd_child->new(name => "winbindd-$domain.conf", domain => "$domain")->pidFile;
     }
     return \%domains;
 }
