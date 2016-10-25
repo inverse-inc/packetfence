@@ -783,6 +783,15 @@ db_host=127.0.0.1
 ....
 ----
 
+While you are in that file, add "high-availibility" statement at the end of your management interface, to be consistent with what will be found in cluster.conf:
+
+----
+[interface eth0]
+....
+type=management,high-availibility
+....
+----
+
 In `conf/pfconfig.conf` :
 
 ----
