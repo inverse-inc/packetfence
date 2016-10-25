@@ -783,15 +783,6 @@ db_host=127.0.0.1
 ....
 ----
 
-While you are in that file, add "high-availability" statement at the end of your management interface:
-
-----
-[interface eth0]
-....
-type=management,portal,high-availability
-....
-----
-
 In `conf/pfconfig.conf` :
 
 ----
