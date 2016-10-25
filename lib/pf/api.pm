@@ -67,47 +67,50 @@ use pf::util::dhcpv6();
 sub event_add : Public {
     my ($class, %postdata) = @_;
     my $logger = pf::log::get_logger();
-
-    while( my ($type, $id) = each %{$postdata{'events'}}) {
-        $logger->debug("Received event : $type, $id");
-        $logger->info("violation: $id - IP SRC $postdata{'srcip'} - IP DST $postdata{'dstip'}") if (defined($postdata{'srcip'}) && defined($postdata{'dst'}));
-        if (defined ($pf::config::Config{'trapping'}{'range'}) && $pf::config::Config{'trapping'}{'range'} ne '') {
-            foreach my $net_addr (@TRAPPING_RANGE) {
-                if (defined $postdata{'srcip'}) {
-                    my $ip = new NetAddr::IP::Lite pf::util::clean_ip($postdata{'srcip'});
-                    if ($net_addr->contains($ip)) {
-                        my $srcmac = pf::iplog::ip2mac($postdata{'srcip'});
-                        if ($srcmac) {
-                            pf::violation::violation_trigger( { 'mac' => $srcmac, 'tid' => $id, 'type' => $type } );
-                        } else {
-                            $logger->info("violation on IP $ip with trigger ${type}::${id}: violation not added, can't resolve IP to mac !");
-                        }
-                    }
-                }
-                if (defined $postdata{'dstip'}) {
-                    my $ip = new NetAddr::IP::Lite pf::util::clean_ip($postdata{'dstip'});
-                    if ($net_addr->contains($ip)) {
-                        my $srcmac = pf::iplog::ip2mac($postdata{'dstip'});
-                        if ($srcmac) {
-                            pf::violation::violation_trigger( { 'mac' => $srcmac, 'tid' => $id, 'type' => $type } );
-                        } else {
-                            $logger->info("violation on IP $ip with trigger ${type}::${id}: violation not added, can't resolve IP to mac !");
-                        }
+    my $events = $postdata{'events'};
+    my $srcip = pf::util::clean_ip($postdata{'srcip'});
+    my $dstip = pf::util::clean_ip($postdata{'dstip'});
+    if ( !defined $events || keys %$events == 0) {
+        $logger->warn("No events to add for " . (defined $srcip ? "source ip $srcip": "unknown source ip" ) . (defined $dstip ? "destination ip $dstip " : "unknown destination ip") );
+        return;
+    }
+    if ((!defined($srcip) ) && (!defined($dstip))) {
+        $logger->warn("Received event(s) with out a source or destination id");
+        return;
+    }
+    my $srcmac = pf::iplog::ip2mac($srcip) if defined $srcip;
+    # If trapping range is defined then check
+    my $range = $pf::config::Config{'trapping'}{'range'};
+    if (defined ($range) && $range ne '') {
+        my $dstmac = pf::iplog::ip2mac($dstip) if defined $dstip;
+        my ($source_net_ip, $dest_net_ip);
+        $source_net_ip = NetAddr::IP::Lite->new($srcip) if defined $srcmac;
+        $dest_net_ip = NetAddr::IP::Lite->new($dstip) if defined $dstmac;
+        foreach my $net_addr (@TRAPPING_RANGE) {
+            if (defined $srcmac) {
+                if ($net_addr->contains($source_net_ip)) {
+                    while( my ($type, $id) = each %$events) {
+                        pf::violation::violation_trigger( { 'mac' => $srcmac, 'tid' => $id, 'type' => $type } );
                     }
                 }
             }
-        } else {
-            # fetch IP associated to MAC
-            my $srcmac = pf::iplog::ip2mac($postdata{'srcip'});
-            if ($srcmac) {
-
-                # trigger a violation
-                pf::violation::violation_trigger( { 'mac' => $srcmac, 'tid' => $id, 'type' => $type } );
-            } else {
-                $logger->info("violation on IP $postdata{'srcip'} with trigger ${type}::${id}: violation not added, can't resolve IP to mac !");
+            if (defined $dstmac) {
+                if ($net_addr->contains($dest_net_ip)) {
+                    while( my ($type, $id) = each %$events) {
+                        pf::violation::violation_trigger( { 'mac' => $dstmac, 'tid' => $id, 'type' => $type } );
+                    }
+                }
             }
         }
     }
+    else {
+        if (defined $srcmac) {
+            while( my ($type, $id) = each %$events) {
+                pf::violation::violation_trigger( { 'mac' => $srcmac, 'tid' => $id, 'type' => $type } );
+            }
+        }
+    }
+
 }
 
 sub echo : Public {
