@@ -21,6 +21,7 @@ use pf::log;
 
 use constant IPLOG => 'iplog';
 use constant IPLOG_CACHE_EXPIRE => 60;
+use constant IPLOG_DEFAULT_HISTORY_LIMIT => '25';
 
 BEGIN {
     use Exporter ();
@@ -89,7 +90,7 @@ sub iplog_db_prepare {
                 FROM iplog_history
                 WHERE ip = ?
                 ORDER BY start_time DESC) AS b
-             ORDER BY start_time DESC LIMIT 25 ]
+             ORDER BY start_time DESC LIMIT ? ]
     );
 
     # Using WHERE clause and ORDER BY clause in subqueries to fasten resultset
@@ -107,7 +108,7 @@ sub iplog_db_prepare {
                 FROM iplog_history
                 WHERE ip = ? AND start_time < FROM_UNIXTIME(?) AND (end_time > FROM_UNIXTIME(?) OR end_time = 0)
                 ORDER BY start_time DESC) AS b
-             ORDER BY start_time DESC LIMIT 25 ]
+             ORDER BY start_time DESC LIMIT ? ]
     );
 
     # Using WHERE clause and ORDER BY clause in subqueries to fasten resultset
@@ -125,7 +126,7 @@ sub iplog_db_prepare {
                 FROM iplog_history
                 WHERE mac = ?
                 ORDER BY start_time DESC) AS b
-             ORDER BY start_time DESC LIMIT 25 ]
+             ORDER BY start_time DESC LIMIT ? ]
     );
 
     # Using WHERE clause and ORDER BY clause in subqueries to fasten resultset
@@ -143,7 +144,7 @@ sub iplog_db_prepare {
                 FROM iplog_history
                 WHERE mac = ? AND start_time < FROM_UNIXTIME(?) AND (end_time > FROM_UNIXTIME(?) OR end_time = 0)
                 ORDER BY start_time DESC) AS b
-             ORDER BY start_time DESC LIMIT 25 ]
+             ORDER BY start_time DESC LIMIT ? ]
     );
 
     $iplog_statements->{'iplog_exists_sql'} = get_db_handle()->prepare(
@@ -345,6 +346,8 @@ sub get_history {
     my ( $search_by, %params ) = @_;
     my $logger = pf::log::get_logger;
 
+    $params{'limit'} = defined $params{'limit'} ? $params{'limit'} : IPLOG_DEFAULT_HISTORY_LIMIT;
+
     return _history_by_mac($search_by, %params) if ( valid_mac($search_by) );
 
     return _history_by_ip($search_by, %params) if ( valid_ip($search_by) );
@@ -365,20 +368,20 @@ sub _history_by_ip {
     if ( defined($params{'start_time'}) && defined($params{'end_time'}) ) {
         # We are passing the arguments twice to match the prepare statement of the query
         return db_data(IPLOG, $iplog_statements, 'iplog_get_history_by_ip_with_date_sql',
-            $ip, $params{'end_time'}, $params{'start_time'}, $ip, $params{'end_time'}, $params{'start_time'}
+            $ip, $params{'end_time'}, $params{'start_time'}, $ip, $params{'end_time'}, $params{'start_time'}, $params{'limit'}
         );
     }
 
     elsif ( defined($params{'date'}) ) {
         # We are passing the arguments twice to match the prepare statement of the query
         return db_data(IPLOG, $iplog_statements, 'iplog_get_history_by_ip_with_date_sql',
-            $ip, $params{'date'}, $params{'date'}, $ip, $params{'date'}, $params{'date'}
+            $ip, $params{'date'}, $params{'date'}, $ip, $params{'date'}, $params{'date'}, $params{'limit'}
         );
     }
 
     else {
         # We are passing the arguments twice to match the prepare statement of the query
-        return db_data(IPLOG, $iplog_statements, 'iplog_get_history_by_ip_sql', $ip, $ip);
+        return db_data(IPLOG, $iplog_statements, 'iplog_get_history_by_ip_sql', $ip, $ip, $params{'limit'});
     }
 }
 
@@ -397,20 +400,20 @@ sub _history_by_mac {
     if ( defined($params{'start_time'}) && defined($params{'end_time'}) ) {
         # We are passing the arguments twice to match the prepare statement of the query
         return db_data(IPLOG, $iplog_statements, 'iplog_get_history_by_mac_with_date_sql',
-            $mac, $params{'end_time'}, $params{'start_time'}, $mac, $params{'end_time'}, $params{'start_time'}
+            $mac, $params{'end_time'}, $params{'start_time'}, $mac, $params{'end_time'}, $params{'start_time'}, $params{'limit'}
         );
     }
 
     elsif ( defined($params{'date'}) ) {
         # We are passing the arguments twice to match the prepare statement of the query
         return db_data(IPLOG, $iplog_statements, 'iplog_get_history_by_mac_with_date_sql',
-            $mac, $params{'date'}, $params{'date'}, $mac, $params{'date'}, $params{'date'}
+            $mac, $params{'date'}, $params{'date'}, $mac, $params{'date'}, $params{'date'}, $params{'limit'}
         );
     }
 
     else {
         # We are passing the arguments twice to match the prepare statement of the query
-        return db_data(IPLOG, $iplog_statements, 'iplog_get_history_by_mac_sql', $mac, $mac);
+        return db_data(IPLOG, $iplog_statements, 'iplog_get_history_by_mac_sql', $mac, $mac, $params{'limit'});
     }
 }
 
