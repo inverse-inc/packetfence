@@ -3,12 +3,12 @@
 # This rules are predefined in PacketFence and disconnect device that coming from a secure connection to an open one.
 
 [pf_wired_mac_auth]
-filter = node_info.connection_type
+filter = connection_type
 operator = is
 value = WIRED_MAC_AUTH
 
 [pf_wireless_mac_auth]
-filter = node_info.connection_type
+filter = connection_type
 operator = is
 value = Wireless-802.11-NoEAP
 
