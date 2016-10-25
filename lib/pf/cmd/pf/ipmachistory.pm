@@ -1,45 +1,72 @@
 package pf::cmd::pf::ipmachistory;
+
 =head1 NAME
 
-pf::cmd::pf::ipmachistory add documentation
+pf::cmd::pf::ipmachistory
 
 =head1 SYNOPSIS
 
-pfcmd ipmachistory <ip|mac> [start_date=<date>,end_time=<date>]
+Get the IP/MAC mapping history for a specific IP or MAC with optional date range (in MySQL format)
 
-get the MAC/IP mapping for a specified IP or MAC with optional date (in mysql format)
+Syntax: pfcmd ipmachistory <ip|mac> [--start_time=<date> --end_time=<date>] [--limit=<limit>]
 
-examples:
+Where:
+
+ - <ip|mac> either the IP or the MAC address for which we want the IP/MAC mapping history (REQUIRED)
+
+ - [--start_time=<date> --end_time=<date>] start_time and end_time (in MySQL format) for optional date range (OPTIONAL)
+
+ - [--limit=<limit>] limit the number of returned results. If not specified, all results will be returned (OPTIONAL)
+
+Examples:
+
   pfcmd ipmachistory 192.168.1.100
-  pfcmd ipmachistory 192.168.1.100 start_time=2006-10-12 15:00:00,end_time=2006-10-18 12:00:00
+
+  pfcmd ipmachistory de:ad:be:ef:00:42
+
+  pfcmd ipmachistory 192.168.1.100 --start_time="2006-10-12 15:00:00" --end_time="2006-10-18 12:00:00"
+
+  pfcmd ipmachistory 192.168.1.100 --limit=42
 
 =head1 DESCRIPTION
 
-pf::cmd::pf::ipmachistory
+Get the IP/MAC mapping history for a specific IP or MAC with optional date range (in MySQL format)
 
 =cut
 
 use strict;
 use warnings;
-use base qw(pf::cmd::display);
 
 use Date::Parse;
+use Getopt::Long;
+
+use base qw(pf::cmd::display);
 
 sub parseArgs {
-    my ($self) = @_;
-    my ($key,$start_time,$end_time) = $self->args;
-    if($key) {
+    my ( $self ) = @_;
+
+    my ( $key ) = $self->args;
+    my ( $start_time, $end_time, $limit );
+
+    GetOptions (
+        'start_time:s'  => \$start_time,
+        'end_time:s'    => \$end_time,
+        'limit:i'       => \$limit,
+    );
+
+    if ( $key ) {
         require pf::iplog;
         import pf::iplog;
-        my ($function,%params);
+        my ( $function, %params );
         $function = \&pf::iplog::get_archive;
         $params{'start_time'} = str2time( $start_time) if defined $start_time;
         $params{'end_time'} = str2time( $end_time) if defined $end_time;
-        $self->{params} = \%params;
-        $self->{key} = $key;
         $self->{function} = $function;
+        $self->{key} = $key;
+        $self->{params} = \%params;
         return 1;
     }
+
     return 0;
 }
 
