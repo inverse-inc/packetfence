@@ -1103,7 +1103,9 @@ sub strip_username {
 sub send_email {
     my ($smtp_server, $from, $to, $subject, $template, %info) = @_;
     my $logger = get_logger();
+
     require pf::web;
+
     my %TmplOptions = (
         INCLUDE_PATH    => "$html_dir/captive-portal/templates/emails/",
         ENCODING        => 'utf8',

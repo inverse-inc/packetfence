@@ -184,6 +184,8 @@ sub send_email {
         return $FALSE;
     };
 
+    require pf::web;
+
     my %TmplOptions = (
         INCLUDE_PATH    => "$html_dir/captive-portal/templates/emails/",
         ENCODING        => 'utf8',

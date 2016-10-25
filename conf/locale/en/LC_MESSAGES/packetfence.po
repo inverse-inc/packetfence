@@ -909,6 +909,12 @@ msgstr ""
 msgid "Once you will be on-site, authenticate using the following credentials to our captive portal"
 msgstr ""
 
+msgid ""
+msgstr ""
+
+msgid ""
+msgstr ""
+
 # lib/pf/web/release.pm
 msgid "release: reopen browser"
 msgstr "You may have to re-open your browser to get Internet access. If you are plugged into a telephone, you will need to restart your computer to get Internet access."

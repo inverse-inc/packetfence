@@ -35,7 +35,6 @@ use Time::HiRes qw(time);
 use Try::Tiny;
 use MIME::Lite;
 use Encode qw(encode);
-use pf::web qw(i18n i18n_format);
 
 =head1 CONSTANTS
 
@@ -457,6 +456,8 @@ Send an email with the activation code
 sub send_email {
     my ($activation_code, $template, %info) = @_;
     my $logger = get_logger();
+    use Data::Dumper;
+    $logger->info(Dumper(%info));
 
     my $smtpserver = $Config{'alerting'}{'smtpserver'};
     $info{'from'} = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
@@ -481,12 +482,14 @@ sub send_email {
         );
         return $FALSE;
     }
+    
+    require pf::web;
 
     my %TmplOptions = (
         INCLUDE_PATH    => "$html_dir/captive-portal/templates/emails/",
         ENCODING        => 'utf8',
-        i18n            => \&i18n,
-        i18n_format     => \&i18n_format,
+        i18n            => \&pf::web::i18n,
+        i18n_format     => \&pf::web::i18n_format,
     );
     utf8::decode($info{'subject'});
     my $msg = MIME::Lite::TT->new(
