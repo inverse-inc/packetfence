@@ -32,8 +32,12 @@ Lookup informations on a person
 =cut
 
 sub lookup_person {
-    my ($pid,$source_id) = @_;
+    my ($pid, $source_id) = @_;
     my $logger = get_logger();
+    unless (defined $source_id) {
+        $logger->info("undefined source id provided");
+        return "Unknown source";
+    }
     my $source = pf::authentication::getAuthenticationSource($source_id);
     if (!$source) {
        $logger->info("Unable to locate the source $source_id");
