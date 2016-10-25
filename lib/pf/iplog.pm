@@ -29,8 +29,6 @@ BEGIN {
     @EXPORT = qw(
         iplog_db_prepare
         $iplog_db_prepared
-
-        iplog_history
     );
 }
 
@@ -79,7 +77,7 @@ sub iplog_db_prepare {
     # Using WHERE clause and ORDER BY clause in subqueries to fasten resultset
     # Using UNION ALL rather than UNION to avoid the cost of 'SELECT DISTINCT'
     # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
-    $iplog_statements->{'iplog_history_by_ip_sql'} = get_db_handle()->prepare(
+    $iplog_statements->{'iplog_get_history_by_ip_sql'} = get_db_handle()->prepare(
         qq [ SELECT * FROM
                 (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
                 FROM iplog
@@ -97,7 +95,7 @@ sub iplog_db_prepare {
     # Using WHERE clause and ORDER BY clause in subqueries to fasten resultset
     # Using UNION ALL rather than UNION to avoid the cost of 'SELECT DISTINCT'
     # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
-    $iplog_statements->{'iplog_history_by_ip_with_date_sql'} = get_db_handle()->prepare(
+    $iplog_statements->{'iplog_get_history_by_ip_with_date_sql'} = get_db_handle()->prepare(
         qq [ SELECT * FROM
                 (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
                 FROM iplog
@@ -115,7 +113,7 @@ sub iplog_db_prepare {
     # Using WHERE clause and ORDER BY clause in subqueries to fasten resultset
     # Using UNION ALL rather than UNION to avoid the cost of 'SELECT DISTINCT'
     # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
-    $iplog_statements->{'iplog_history_by_mac_sql'} = get_db_handle()->prepare(
+    $iplog_statements->{'iplog_get_history_by_mac_sql'} = get_db_handle()->prepare(
         qq [ SELECT * FROM
                 (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
                 FROM iplog
@@ -133,7 +131,7 @@ sub iplog_db_prepare {
     # Using WHERE clause and ORDER BY clause in subqueries to fasten resultset
     # Using UNION ALL rather than UNION to avoid the cost of 'SELECT DISTINCT'
     # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
-    $iplog_statements->{'iplog_history_by_mac_with_date_sql'} = get_db_handle()->prepare(
+    $iplog_statements->{'iplog_get_history_by_mac_with_date_sql'} = get_db_handle()->prepare(
         qq [ SELECT * FROM
                 (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
                 FROM iplog
@@ -337,15 +335,13 @@ sub _mac2ip_sql {
     return $iplog->{'ip'};
 }
 
-=head2 iplog_history
+=head2 get_history
 
 Get the full iplog for a given IP address or MAC address.
 
-TODO: Rename to 'history' once the "issue" with pfcmd is resolved. Also remove from the export...
-
 =cut
 
-sub iplog_history {
+sub get_history {
     my ( $search_by, %params ) = @_;
     my $logger = pf::log::get_logger;
 
@@ -358,7 +354,7 @@ sub iplog_history {
 
 Get the full iplog for a given IP address.
 
-Not meant to be used outside of this class. Refer to L<pf::iplog::iplog_history>
+Not meant to be used outside of this class. Refer to L<pf::iplog::get_history>
 
 =cut
 
@@ -368,21 +364,21 @@ sub _history_by_ip {
 
     if ( defined($params{'start_time'}) && defined($params{'end_time'}) ) {
         # We are passing the arguments twice to match the prepare statement of the query
-        return db_data(IPLOG, $iplog_statements, 'iplog_history_by_ip_with_date_sql',
+        return db_data(IPLOG, $iplog_statements, 'iplog_get_history_by_ip_with_date_sql',
             $ip, $params{'end_time'}, $params{'start_time'}, $ip, $params{'end_time'}, $params{'start_time'}
         );
     }
 
     elsif ( defined($params{'date'}) ) {
         # We are passing the arguments twice to match the prepare statement of the query
-        return db_data(IPLOG, $iplog_statements, 'iplog_history_by_ip_with_date_sql',
+        return db_data(IPLOG, $iplog_statements, 'iplog_get_history_by_ip_with_date_sql',
             $ip, $params{'date'}, $params{'date'}, $ip, $params{'date'}, $params{'date'}
         );
     }
 
     else {
         # We are passing the arguments twice to match the prepare statement of the query
-        return db_data(IPLOG, $iplog_statements, 'iplog_history_by_ip_sql', $ip, $ip);
+        return db_data(IPLOG, $iplog_statements, 'iplog_get_history_by_ip_sql', $ip, $ip);
     }
 }
 
@@ -390,7 +386,7 @@ sub _history_by_ip {
 
 Get the full iplog for a given MAC address.
 
-Not meant to be used outside of this class. Refer to L<pf::iplog::iplog_history>
+Not meant to be used outside of this class. Refer to L<pf::iplog::get_history>
 
 =cut
 
@@ -400,21 +396,21 @@ sub _history_by_mac {
 
     if ( defined($params{'start_time'}) && defined($params{'end_time'}) ) {
         # We are passing the arguments twice to match the prepare statement of the query
-        return db_data(IPLOG, $iplog_statements, 'iplog_history_by_mac_with_date_sql',
+        return db_data(IPLOG, $iplog_statements, 'iplog_get_history_by_mac_with_date_sql',
             $mac, $params{'end_time'}, $params{'start_time'}, $mac, $params{'end_time'}, $params{'start_time'}
         );
     }
 
     elsif ( defined($params{'date'}) ) {
         # We are passing the arguments twice to match the prepare statement of the query
-        return db_data(IPLOG, $iplog_statements, 'iplog_history_by_mac_with_date_sql',
+        return db_data(IPLOG, $iplog_statements, 'iplog_get_history_by_mac_with_date_sql',
             $mac, $params{'date'}, $params{'date'}, $mac, $params{'date'}, $params{'date'}
         );
     }
 
     else {
         # We are passing the arguments twice to match the prepare statement of the query
-        return db_data(IPLOG, $iplog_statements, 'iplog_history_by_mac_sql', $mac, $mac);
+        return db_data(IPLOG, $iplog_statements, 'iplog_get_history_by_mac_sql', $mac, $mac);
     }
 }
 
