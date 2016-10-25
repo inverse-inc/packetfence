@@ -97,9 +97,12 @@ configuration.
 sub status {
     my ($self) = @_;
     my $logger = get_logger();
+    my @services;
+    foreach my $manager (grep { defined($_) && $_->isManaged } map {  pf::services::get_service_manager($_)  } @pf::services::ALL_SERVICES) {
+        push @services, { name => $manager->name, status => $manager->status(1), };
+    }
 
-    my %services_ref = map { $_->name => $_->status(1) } grep { defined($_) && $_->isManaged }  map {  pf::services::get_service_manager($_)  } @pf::services::ALL_SERVICES;
-    return ($STATUS::OK, { services => \%services_ref}) if ( keys %services_ref );
+    return ($STATUS::OK, { services => @services});
 
     return ($STATUS::INTERNAL_SERVER_ERROR, "Unidentified error see server side logs for details.");
 }
