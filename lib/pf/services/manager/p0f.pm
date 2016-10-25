@@ -47,7 +47,7 @@ has '+launcher' => (
         {
             $p0f_cmdline="sudo %1\$s -d -i any -p -f $p0f_map -s $p0f_sock > /dev/null && pidof $name > $pid_file";    
         }
-        print $p0f_cmdline;
+        return $p0f_cmdline;
     }
 );
 
