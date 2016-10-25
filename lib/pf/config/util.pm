@@ -50,7 +50,6 @@ use pf::file_paths qw(
 use pf::util;
 use pf::log;
 use pf::authentication;
-use pf::web qw(i18n i18n_format);
 
 BEGIN {
   use Exporter ();
@@ -188,8 +187,8 @@ sub send_email {
     my %TmplOptions = (
         INCLUDE_PATH    => "$html_dir/captive-portal/templates/emails/",
         ENCODING        => 'utf8',
-        i18n            => \&i18n,
-        i18n_format     => \&i18n_format,
+        i18n            => \&pf::web::i18n,
+        i18n_format     => \&pf::web::i18n_format,
     );
     utf8::decode($subject);
     my $msg = MIME::Lite::TT->new(
