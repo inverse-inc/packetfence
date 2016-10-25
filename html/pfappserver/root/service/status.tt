@@ -50,6 +50,17 @@
           </span>
         </td>
       </tr>
+      [% FOREACH subservice IN service.managers %]
+      <tr>
+        <td>--&nbsp;[% subservice.name %]</td>
+        <td>
+          <span id="service-[% subservice.name %]"
+          class="label[% IF subservice.status %] label-success[% END %]">
+          [%- IF subservice.status %][% l('Started') %][%- ELSE -%][% l('Stopped') %][% END -%]</span>
+        </td>
+        </td>
+      </tr>
+      [%- END %]
       [%- END %]
     </tbody>
   </table>
