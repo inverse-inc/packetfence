@@ -162,7 +162,7 @@ sub iplog_db_prepare {
         qq [ SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
              FROM iplog_archive
              WHERE ip = ? AND start_time < FROM_UNIXTIME(?) AND (end_time > FROM_UNIXTIME(?) OR end_time = 0)
-            ORDER BY start_time DESC LIMIT ? ]
+             ORDER BY start_time DESC LIMIT ? ]
     );
 
     # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
