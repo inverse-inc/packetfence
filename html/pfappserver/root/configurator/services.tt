@@ -49,12 +49,12 @@
               </tr>
               </thead>
             <tbody>
-              [%- FOREACH service = services_status.keys %]
+              [%- FOREACH service IN services %]
               <tr>
-                <td>[% service %]</td>
+                <td>[% service.name %]</td>
                 <td><span id="service-[% service %]"
-                  class="label[% IF services_status.$service %] label-success[% END %]">
-                  [%- IF services_status.$service %][% l('Started') %][%- ELSE -%][% l('Stopped') %][% END -%]</span></td>
+                  class="label[% IF service.status %] label-success[% END %]">
+                  [%- IF service.status %][% l('Started') %][%- ELSE -%][% l('Stopped') %][% END -%]</span></td>
               </tr>
               [%- END %]
             </tbody>

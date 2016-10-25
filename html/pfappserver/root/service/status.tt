@@ -27,26 +27,25 @@
       </tr>
       </thead>
     <tbody>
-      [%- FOREACH service IN services.keys.sort %]
-      [% started = services.$service  %]
+      [%- FOREACH service IN services %]
       <tr>
-        <td>[% service %]</td>
+        <td>[% service.name %]</td>
         <td>
-          <span id="service-[% service %]"
-          class="label[% IF started %] label-success[% END %]">
-          [%- IF started %][% l('Started') %][%- ELSE -%][% l('Stopped') %][% END -%]</span>
+          <span id="service-[% service.name %]"
+          class="label[% IF service.status %] label-success[% END %]">
+          [%- IF service.status %][% l('Started') %][%- ELSE -%][% l('Stopped') %][% END -%]</span>
         </td>
         <td>
           <span class="pull-right">
             [% IF started -%]
-                [% IF service == "httpd.admin"%]
-                    <a class="btn btn-small btn-danger" data-target="#confirmStop" data-toggle="modal" data-confirm-stop-href="[%c.uri_for(c.controller.action_for('stop'),[service])%]"><i class="icon-fixed-width icon-stop"></i> [% l('Stop') %]</a>
+                [% IF service.name == "httpd.admin"%]
+                    <a class="btn btn-small btn-danger" data-target="#confirmStop" data-toggle="modal" data-confirm-stop-href="[%c.uri_for(c.controller.action_for('stop'),[service.name])%]"><i class="icon-fixed-width icon-stop"></i> [% l('Stop') %]</a>
                 [% ELSE -%]
-                    <a class="btn btn-small btn-danger" data-href-background="[%c.uri_for(c.controller.action_for('stop'),[service])%]"><i class="icon-fixed-width icon-stop"></i> [% l('Stop') %]</a>
+                    <a class="btn btn-small btn-danger" data-href-background="[%c.uri_for(c.controller.action_for('stop'),[service.name])%]"><i class="icon-fixed-width icon-stop"></i> [% l('Stop') %]</a>
                 [% END -%]
-                <a class="btn btn-small" data-href-background="[%c.uri_for(c.controller.action_for('restart'),[service])%]"><i class="icon-fixed-width icon-refresh"></i> [% l('Restart') %]</a>
+                <a class="btn btn-small" data-href-background="[%c.uri_for(c.controller.action_for('restart'),[service.name])%]"><i class="icon-fixed-width icon-refresh"></i> [% l('Restart') %]</a>
             [% ELSE -%]
-            <a class="btn btn-small btn-success" data-href-background="[%c.uri_for(c.controller.action_for('start'),[service])%]"><i class="icon-fixed-width icon-play"></i> [% l('Start') %]</a>
+            <a class="btn btn-small btn-success" data-href-background="[%c.uri_for(c.controller.action_for('start'),[service.name])%]"><i class="icon-fixed-width icon-play"></i> [% l('Start') %]</a>
             [% END -%]
           </span>
         </td>
