@@ -37,7 +37,7 @@
         </td>
         <td>
           <span class="pull-right">
-            [% IF started -%]
+            [% IF service.status -%]
                 [% IF service.name == "httpd.admin"%]
                     <a class="btn btn-small btn-danger" data-target="#confirmStop" data-toggle="modal" data-confirm-stop-href="[%c.uri_for(c.controller.action_for('stop'),[service.name])%]"><i class="icon-fixed-width icon-stop"></i> [% l('Stop') %]</a>
                 [% ELSE -%]
