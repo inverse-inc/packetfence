@@ -1,0 +1,37 @@
+set daemon 2    # Monitor resources every 2 seconds (1 cycle is 2 seconds)
+set logfile syslog facility log_daemon
+
+set mailserver localhost
+set mail-format {
+    from: monit@$HOST
+    subject: [% SUBJECT_IDENTIFIER %] | Monit Alert -- $EVENT on resource '$SERVICE'
+    message:
+Date:        $DATE
+Host:        $HOST
+Event:       $EVENT
+Resource:    $SERVICE
+Action:      $ACTION
+
+Description: $DESCRIPTION
+
+
+A copy of this alert have been sent to the PacketFence support team.
+}
+
+# - Do not alert on 'resource' because there is a separate alert configuration with reminders
+# - Do not alert on 'nonexist' because we alert on 'restart'
+# - Do not alert on 'pid' because we alert on 'restart
+[% FOREACH email IN EMAILS %]
+    set alert [% email %] but not on { resource nonexist pid }
+    set alert [% email %] { resource } with reminder on 450 cycle   # reminder every 15 minutes (450 cycles) if 1 cycle is 2 seconds
+    set alert [% email %] { exec } with reminder on 1 cycle
+[% END %]
+
+
+set limits {
+   programOutput:     20 MB,    # check program's output truncate limit
+   sendExpectBuffer:  256 B,    # limit for send/expect protocol test
+   fileContentBuffer: 512 B,    # limit for file content test
+   httpContentBuffer: 1 MB,     # limit for HTTP content test
+   networkTimeout:    5 seconds # timeout for network I/O
+}

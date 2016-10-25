@@ -638,6 +638,7 @@ do
 if [ ! -e /usr/local/pf/logs/$fic_log ]; then
   touch /usr/local/pf/logs/$fic_log
   chown pf.pf /usr/local/pf/logs/$fic_log
+  chmod g+w /usr/local/pf/logs/$fic_log
 fi
 done
 

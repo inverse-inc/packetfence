@@ -192,7 +192,7 @@ sub service_exists {
             $exe = ( $Config{'services'}{"redis_binary"} || "$install_dir/sbin/$service" );
         }
         if ( !-e $exe ) {
-            add_problem( $FATAL, "$exe for $service does not exist !" );
+            add_problem( $WARN, "$exe for $service does not exist !" );
         }
     }
 }
@@ -316,7 +316,7 @@ Validation to make sure Fingerbank outside lib symlink is present
 
 sub fingerbank {
     if ( !-l '/usr/local/pf/lib/fingerbank' ) {
-        add_problem( $FATAL, "Fingerbank symlink does not exists" );
+        add_problem( $WARN, "Fingerbank symlink does not exists" );
     }
 }
 
@@ -330,7 +330,7 @@ sub ids {
 
     # make sure a monitor device is present if trapping.detection is enabled
     if ( !$monitor_int ) {
-        add_problem( $FATAL,
+        add_problem( $WARN,
             "monitor interface not defined, please disable trapping.detection " .
             "or set an interface type=...,monitor in pf.conf"
         );
@@ -340,22 +340,22 @@ sub ids {
     my $alertpipe = "$install_dir/var/alert";
     if ( !-p $alertpipe ) {
         if ( !POSIX::mkfifo( $alertpipe, oct(666) ) ) {
-            add_problem( $FATAL, "IDS alert pipe ($alertpipe) does not exist and unable to create it" );
+            add_problem( $WARN, "IDS alert pipe ($alertpipe) does not exist and unable to create it" );
         }
     }
 
     # make sure trapping.detection_engine=snort|suricata
     if ( $Config{'trapping'}{'detection_engine'} ne 'snort' && $Config{'trapping'}{'detection_engine'} ne 'suricata' ) {
-        add_problem( $FATAL,
+        add_problem( $WARN,
             "Detection Engine (trapping.detection_engine) needs to be either snort or suricata."
         );
     }
 
     if ( $Config{'trapping'}{'detection_engine'} eq "snort" && !-x $Config{'services'}{'snort_binary'} ) {
-        add_problem( $FATAL, "snort binary is not executable / does not exist!" );
+        add_problem( $WARN, "snort binary is not executable / does not exist!" );
     }
     elsif ( $Config{'trapping'}{'detection_engine'} eq "suricata" && !-x $Config{'services'}{'suricata_binary'} ) {
-        add_problem( $FATAL, "suricata binary is not executable / does not exist!" );
+        add_problem( $WARN, "suricata binary is not executable / does not exist!" );
     }
 
 }
@@ -381,7 +381,7 @@ sub scan_legacy {
         );
     } catch {
         chomp($_);
-        add_problem( $FATAL, "SCAN: Incorrect scan engine declared in pf.conf: $_" );
+        add_problem( $WARN, "SCAN: Incorrect scan engine declared in pf.conf: $_" );
     };
 }
 
@@ -422,7 +422,7 @@ sub authentication {
 sub authentication_rules_classes {
     foreach my $authentication_source_id ( keys %ConfigAuthentication ) {
         if( $authentication_source_id =~ /\./ ) {
-            add_problem( $FATAL, "The id of a source cannot contain a space or a dot '$authentication_source_id'");
+            add_problem( $WARN, "The id of a source cannot contain a space or a dot '$authentication_source_id'");
         }
         next if !$ConfigAuthentication{$authentication_source_id}{'rules'};
 
@@ -515,7 +515,7 @@ sub network {
             );
             my $max_lease_valid = ( !defined($net{'dhcp_max_lease_time'}) || $net{'dhcp_max_lease_time'} =~ /^\d+$/ );
             if (!($netmask_valid && $gw_valid && $domainname_valid && $range_valid && $default_lease_valid && $max_lease_valid)) {
-                add_problem( $FATAL, "networks.conf: Incomplete DHCP information for network $network" );
+                add_problem( $WARN, "networks.conf: Incomplete DHCP information for network $network" );
             }
         }
 
@@ -635,7 +635,7 @@ sub web_admin {
 
     # make sure admin port exists
     if ( !$Config{'ports'}{'admin'} ) {
-        add_problem( $FATAL, "please set the web admin port in pf.conf (ports.admin)" );
+        add_problem( $WARN, "please set the web admin port in pf.conf (ports.admin)" );
     }
 
 }
@@ -679,11 +679,11 @@ sub is_config_documented {
         next if ( $item =~ /^temporary_/i );
 
         if ( !exists $Config{$group} || !exists $Config{$group}{$item} ) {
-            add_problem( $FATAL, "pf.conf value $group\.$item is not defined!" );
+            add_problem( $WARN, "pf.conf value $group\.$item is not defined!" );
         } elsif (defined( $Config{$group}{$item} ) ) {
             if ( $type eq "time" ) {
                 if ( $cached_pf_config->{_file_cfg}{$group}{$item} !~ /\d+$TIME_MODIFIER_RE$/ ) {
-                    add_problem( $FATAL,
+                    add_problem( $WARN,
                         "pf.conf value $group\.$item does not explicity define interval (eg. 7200s, 120m, 2h) " .
                         "- please define it before running packetfence"
                     );
@@ -693,7 +693,7 @@ sub is_config_documented {
                 my @availableOptions = @{$doc->{'options'}};
                 foreach my $currentSelectedOption (@selectedOptions) {
                     if ( grep(/^$currentSelectedOption$/, @availableOptions) == 0 ) {
-                        add_problem( $FATAL,
+                        add_problem( $WARN,
                             "pf.conf values for $group\.$item must be among the following: " .
                             join("|",@availableOptions) .  " but you used $currentSelectedOption. " .
                             "If you are sure of this choice, please update conf/documentation.conf"
@@ -704,11 +704,11 @@ sub is_config_documented {
             elsif ($type eq 'numeric') {
                 if (exists $doc->{minimum}) {
                     my $minimum = $doc->{minimum};
-                    add_problem( $FATAL,"$section is less than the minimum value of $minimum" ) if $Config{$group}{$item} < $minimum;
+                    add_problem( $WARN,"$section is less than the minimum value of $minimum" ) if $Config{$group}{$item} < $minimum;
                 }
             }
         } elsif( $Config{$group}{$item} ne "0"  ) {
-            add_problem( $FATAL, "pf.conf value $group\.$item is not defined!" );
+            add_problem( $WARN, "pf.conf value $group\.$item is not defined!" );
         }
     }
 
@@ -722,7 +722,7 @@ sub is_config_documented {
         foreach my $item  (keys %{$Config{$section}}) {
             next if ( $item =~ /^temporary_/i );
             if ( !defined( $Doc_Config{"$section.$item"} ) ) {
-                add_problem( $FATAL,
+                add_problem( $WARN,
                     "unknown configuration parameter $section.$item ".
                     "if you added the parameter yourself make sure it is present in conf/documentation.conf"
                 );
@@ -757,12 +757,12 @@ sub extensions {
             die($@) if ($@);
 
             if (!defined($extension_ref->{module}->VERSION())) {
-                add_problem($FATAL,
+                add_problem($WARN,
                     "$extension_ref->{name} extension point ($extension_ref->{module}) VERSION is not defined."
                 );
             }
             elsif ($extension_ref->{api} > $extension_ref->{module}->VERSION()) {
-                add_problem( $FATAL,
+                add_problem( $WARN,
                     "$extension_ref->{name} extension point ($extension_ref->{module}) is not at the correct API level. " .
                     "Did you read the UPGRADE document?"
                 );
@@ -770,18 +770,9 @@ sub extensions {
         }
         catch {
             chomp($_);
-            add_problem($FATAL, "Uncaught exception while trying to identify $extension_ref->{name} extension version: $_");
+            add_problem($WARN, "Uncaught exception while trying to identify $extension_ref->{name} extension version: $_");
         };
     }
-
-    # TODO we might want to re-add that to the above if we ever get
-    # catastrophic chains of extension failures that are confusing to users
-
-    # we ignore "version check failed" or "version x required"
-    # as it means that pf::role::custom's version is not good which we already catched above
-    #if ($_ !~ /(?:version check failed)|(?:version .+ required)/) {
-    #        add_problem( $FATAL, "Uncaught exception while trying to identify RADIUS extension version: $_" );
-    #}
 }
 
 =item permissions
@@ -801,21 +792,6 @@ sub permissions {
     if (!($pfcmd_mode & S_ISUID && $pfcmd_mode & S_ISGID)) {
         add_problem( $FATAL, "pfcmd needs setuid and setgid bit set to run properly. Fix with chmod ug+s $bin_dir/pfcmd" );
     }
-
-    # Disabled because it was causing too many false positives
-    # pfcmd (setuid root) changes ownership to root all the time
-    ## owner must be pf otherwise we can't modify configuration
-    ## only a warning because pf can still run, it's the config we can't change (friendlier cluster failover handling)
-    #my @configuration_files = qw(
-    #    floating_network_devices.conf networks.conf pf.conf switches.conf violations.conf
-    #);
-    #foreach my $conf_file (@configuration_files) {
-    #    # if file doesn't exist it is created correctly so no need to complain
-    #    next if (!-f $conf_dir . '/' . $conf_file);
-    #
-    #    add_problem( $WARN, "$conf_file must be owned by user pf. Fix with chown pf $conf_dir/$conf_file" )
-    #        unless (getpwuid((stat($conf_dir . '/' . $conf_file))[4]) eq 'pf');
-    #}
 
     # log owner must be pf otherwise apache or pf daemons won't start
     foreach my $log_file (@log_files) {
@@ -879,14 +855,14 @@ sub violations {
     while(my ($vid, $config) = each %pf::violation_config::Violation_Config ){
         foreach my $attr (@deprecated_attr){
             if(exists $config->{$attr}){
-                add_problem($FATAL, "Violation attribute $attr is deprecated in violation $vid. Please adjust your configuration according to the upgrade guide.");
+                add_problem($WARN, "Violation attribute $attr is deprecated in violation $vid. Please adjust your configuration according to the upgrade guide.");
             }
         }
 
         my @actions = split(/\s*,\s*/, $config->{actions});
         foreach my $action (@deprecated_actions){
             if(List::MoreUtils::any {$_ eq $action} @actions){
-                add_problem($FATAL, "Violation action $action is deprecated in violation $vid. Please adjust your configuration according to the upgrade guide.");
+                add_problem($WARN, "Violation action $action is deprecated in violation $vid. Please adjust your configuration according to the upgrade guide.");
             }
         }
     }
@@ -932,7 +908,7 @@ sub switches {
                 $group_section = $switches_conf{$group};
                 add_problem( $WARN, "switches.conf | Switch $section has group parameter" ) if $is_group;
             } else {
-                add_problem( $FATAL, "switches.conf | Switch $section references a non existent group '$data->{group}'" );
+                add_problem( $WARN, "switches.conf | Switch $section references a non existent group '$data->{group}'" );
             }
         }
         if ( $section eq '127.0.0.1' ) {
@@ -945,7 +921,7 @@ sub switches {
             add_problem( $WARN, "switches.conf | Error around $section Did you define the same switch twice?" );
         }
         if ( (!defined $type) || $type eq '' ) {
-            add_problem( $FATAL, "switches.conf | Switch type for switch ($section) is not defined");
+            add_problem( $WARN, "switches.conf | Switch type for switch ($section) is not defined");
         } else {
             # check type
             $type = "pf::Switch::$type";
@@ -1104,7 +1080,7 @@ sub portal_profiles {
             add_problem( $WARN, "template directory '$install_dir/html/captive-portal/profile-templates/$portal_profile' for profile $portal_profile does not exist using default templates" )
                 if (!-d "$install_dir/html/captive-portal/profile-templates/$portal_profile");
 
-            add_problem ( $FATAL, "missing filter parameter for profile $portal_profile" )
+            add_problem ( $WARN, "missing filter parameter for profile $portal_profile" )
                 if (!defined($data->{'filter'}) );
         }
 
@@ -1116,7 +1092,7 @@ sub portal_profiles {
                 foreach my $filter (@{$data->{filter}}) {
                     my ($rc, $message) = $validator->validate($filter);
                     unless ($rc) {
-                        add_problem( $FATAL, "Filter '$filter' is invalid for profile '$portal_profile': $message ");
+                        add_problem( $WARN, "Filter '$filter' is invalid for profile '$portal_profile': $message ");
                     }
                 }
             }
@@ -1128,7 +1104,7 @@ sub portal_profiles {
             my $type = $source->{'type'};
             $external{$type} = 0 unless (defined $external{$type});
             $external{$type}++;
-            add_problem ( $FATAL, "many authentication sources of type $type are selected for profile $portal_profile" )
+            add_problem ( $WARN, "many authentication sources of type $type are selected for profile $portal_profile" )
               if ($external{$type} > 1);
         }
     }
@@ -1146,18 +1122,18 @@ sub vlan_filter_rules {
     foreach my $rule  ( sort keys  %ConfigVlanFilters ) {
         if ($rule =~ /^[^:]+:(.*)$/) {
             my ($condition, $msg) = parse_condition_string($1);
-            add_problem ( $FATAL, "Cannot parse condition '$1' in $rule for vlan filter rule" . "\n" . $msg)
+            add_problem ( $WARN, "Cannot parse condition '$1' in $rule for vlan filter rule" . "\n" . $msg)
                 if !defined $condition;
-            add_problem ( $FATAL, "Missing scope attribute in $rule vlan filter rule")
+            add_problem ( $WARN, "Missing scope attribute in $rule vlan filter rule")
                 if (!defined($ConfigVlanFilters{$rule}->{'scope'}));
-            add_problem ( $FATAL, "Missing role attribute in $rule vlan filter rule")
+            add_problem ( $WARN, "Missing role attribute in $rule vlan filter rule")
                 if (!defined($ConfigVlanFilters{$rule}->{'role'}));
         } else {
-            add_problem ( $FATAL, "Missing filter attribute in $rule vlan filter rule")
+            add_problem ( $WARN, "Missing filter attribute in $rule vlan filter rule")
                 if (!defined($ConfigVlanFilters{$rule}->{'filter'}));
-            add_problem ( $FATAL, "Missing operator attribute in $rule vlan filter rule")
+            add_problem ( $WARN, "Missing operator attribute in $rule vlan filter rule")
                 if (!defined($ConfigVlanFilters{$rule}->{'operator'}));
-            add_problem ( $FATAL, "Missing value attribute in $rule vlan filter rule")
+            add_problem ( $WARN, "Missing value attribute in $rule vlan filter rule")
                 if (!defined($ConfigVlanFilters{$rule}->{'value'}));
         }
     }
@@ -1173,18 +1149,18 @@ sub apache_filter_rules {
     my %ConfigApacheFilters = %pf::web::filter::ConfigApacheFilters;
     foreach my $rule  ( sort keys  %ConfigApacheFilters ) {
         if ($rule =~ /^\w+:(.*)$/) {
-            add_problem ( $FATAL, "Missing action attribute in $rule apache filter rule")
+            add_problem ( $WARN, "Missing action attribute in $rule apache filter rule")
                 if (!defined($ConfigApacheFilters{$rule}->{'action'}));
-            add_problem ( $FATAL, "Missing redirect_url attribute in $rule apache filter rule")
+            add_problem ( $WARN, "Missing redirect_url attribute in $rule apache filter rule")
                 if (!defined($ConfigApacheFilters{$rule}->{'redirect_url'}));
         } else {
-            add_problem ( $FATAL, "Missing filter attribute in $rule apache filter rule")
+            add_problem ( $WARN, "Missing filter attribute in $rule apache filter rule")
                 if (!defined($ConfigApacheFilters{$rule}->{'filter'}));
-            add_problem ( $FATAL, "Missing method attribute in $rule apache filter rule")
+            add_problem ( $WARN, "Missing method attribute in $rule apache filter rule")
                 if (!defined($ConfigApacheFilters{$rule}->{'method'}));
-            add_problem ( $FATAL, "Missing value attribute in $rule apache filter rule")
+            add_problem ( $WARN, "Missing value attribute in $rule apache filter rule")
                 if (!defined($ConfigApacheFilters{$rule}->{'value'}));
-            add_problem ( $FATAL, "Missing operator attribute in $rule apache filter rule")
+            add_problem ( $WARN, "Missing operator attribute in $rule apache filter rule")
                 if (!defined($ConfigApacheFilters{$rule}->{'operator'}));
         }
     }
@@ -1282,7 +1258,7 @@ sub portal_modules {
         if(defined($module->{modules})){
             foreach my $sub_module (@{$module->{modules}}){
                 unless($cs->hasId($sub_module)){
-                    add_problem($FATAL, "Portal Module $sub_module is used by ".$module->{id}." but is not declared.")
+                    add_problem($WARN, "Portal Module $sub_module is used by ".$module->{id}." but is not declared.")
                 }
             }
         }
@@ -1290,7 +1266,7 @@ sub portal_modules {
             my $factory = captiveportal::DynamicRouting::Factory->new();
             my ($result, $msg) = $factory->check_cyclic($module->{id});
             unless($result) {
-                add_problem($FATAL, $msg);
+                add_problem($WARN, $msg);
             }
         }
     }
