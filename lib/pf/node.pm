@@ -937,6 +937,8 @@ sub node_register {
     $mac = lc($mac);
     my $auto_registered = 0;
 
+    my $status_msg = "";
+
     # hack to support an additional autoreg param to the sub without changing the hash to a reference everywhere
     if (defined($info{'auto_registered'})) {
         $auto_registered = 1;
@@ -976,8 +978,9 @@ sub node_register {
     else {
     # do not check for max_node if it's for auto-register
         if ( is_max_reg_nodes_reached($mac, $pid, $info{'category'}, $info{'category_id'}) ) {
-            $logger->error( "max nodes per pid met or exceeded - registration of $mac to $pid failed" );
-            return (0);
+            $status_msg = "max nodes per pid met or exceeded";
+            $logger->error( "$status_msg - registration of $mac to $pid failed" );
+            return (0, $status_msg);
         }
     }
 
