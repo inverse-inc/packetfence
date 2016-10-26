@@ -26,7 +26,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use_ok('pf::factory::detect::parser');
+use_ok('pf::detect::parser::regex');
 
 my $parser = pf::detect::parser::regex->new({
     rules => [
@@ -46,7 +46,8 @@ my $result = $parser->parse("from: 1.2.3.4, to: 1.2.3.5");
 
 ok($result, "Parsing is good");
 
-is_deeply({
+is_deeply($result,
+    {
         'dstip'  => '1.2.3.5',
         'events' => {
             'type'   => 'id',
@@ -54,7 +55,7 @@ is_deeply({
         },
         'scrip' => '1.2.3.4'
     },
-    $result,"Got expect results"
+    "Got expect results"
 );
 
 $parser = pf::detect::parser::regex->new({
@@ -71,9 +72,9 @@ $parser = pf::detect::parser::regex->new({
     ],
 });
 
-is(0, $parser->parse("from: 1.2.3.4, to: 1.2.3.5"), "Passed but ignored");
+is($parser->parse("from: 1.2.3.4, to: 1.2.3.5"), 0, "Passed but ignored");
 
-is(undef, $parser->parse("from: 1.2.3.4, to: 1.2.3"), "Invalid line");
+is($parser->parse("from: 1.2.3.4, to: 1.2.3"), undef, "Invalid line");
 
 =head1 AUTHOR
 
