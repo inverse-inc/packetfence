@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use Moo;
 use fingerbank::Config;
+use pf::config qw(@ha_ints);
 
 extends 'pf::services::manager';
 
@@ -30,7 +31,23 @@ has '+launcher' => (
         my $p0f_sock = $FingerbankConfig->{tcp_fingerprinting}{p0f_socket_path};
         my $pid_file = $self->pidFile;
         my $name = $self->name;
-        "sudo %1\$s -d -i any -p -f $p0f_map -s $p0f_sock > /dev/null && pidof $name > $pid_file";
+        my $p0f_cmdline;
+        if (@ha_ints)
+        {
+            my @ha_ips;
+            foreach my $ha_int (@ha_ints)
+            {
+                push (@ha_ips, $ha_int->{Tip});
+            }
+            my @tmp_bpf_filter = map { "not ( host $_ and port 7788 )"} @ha_ips;
+            my $p0f_bpf_filter = join(" and ", @tmp_bpf_filter);
+            $p0f_cmdline="sudo %1\$s -d -i any -p -f $p0f_map -s $p0f_sock" . " '$p0f_bpf_filter' " . " > /dev/null && pidof $name > $pid_file";
+        }
+        else
+        {
+            $p0f_cmdline="sudo %1\$s -d -i any -p -f $p0f_map -s $p0f_sock > /dev/null && pidof $name > $pid_file";    
+        }
+        return $p0f_cmdline;
     }
 );
 
