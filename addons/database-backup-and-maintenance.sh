@@ -47,7 +47,7 @@ else
 fi
 
 PF_USED_SPACE=`du -s $PF_DIRECTORY --exclude=logs --exclude=var | awk '{ print $1 }'`
-BACKUPS_AVAILABLE_SPACE=`df $BACKUP_DIRECTORY | awk 'NR == 2 { print $4  }'`
+BACKUPS_AVAILABLE_SPACE=`df --direct $BACKUP_DIRECTORY | awk 'NR == 2 { print $4  }'`
 
 if ((  $BACKUPS_AVAILABLE_SPACE > (( $PF_USED_SPACE / 2 )) )); then 
     # Backup complete PacketFence installation except logs
