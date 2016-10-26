@@ -43,6 +43,9 @@ use pf::Portal::Session;
 use pf::web::externalportal;
 use pf::inline;
 
+# Only call pf::web::util::is_certificate_self_signed once
+my $IS_SELF_SIGNED = pf::web::util::is_certificate_self_signed();
+
 =head1 SUBROUTINES
 
 =over
@@ -105,7 +108,7 @@ sub _handler {
     }
     # Enforce HTTP instead of HTTPS when dealing with captive-portal detection mechanism and having a self-signed SSL certificate
     elsif ( ($url =~ /$captive_portal_detection_mechanism_urls/o || $user_agent =~ /CaptiveNetworkSupport/s)
-      && isenabled($Config{'captive_portal'}{'secure_redirect'}) && pf::web::util::is_certificate_self_signed ) {
+      && isenabled($Config{'captive_portal'}{'secure_redirect'}) && $IS_SELF_SIGNED ) {
         $logger->info("Dealing with a endpoint / browser with captive-portal detection capabilities while having a self-signed SSL certificate. Using HTTP instead of HTTPS");
         return html_redirect($r, { secure => $FALSE });
     }
