@@ -532,7 +532,7 @@ CREATE TABLE radacct (
   groupname varchar(64) NOT NULL default '',
   realm varchar(64) default '',
   nasipaddress varchar(15) NOT NULL default '',
-  nasportid varchar(15) default NULL,
+  nasportid varchar(32) default NULL,
   nasporttype varchar(32) default NULL,
   acctstarttime datetime NULL default NULL,
   acctupdatetime datetime NULL default NULL,
@@ -574,10 +574,12 @@ CREATE TABLE radacct_log (
   acctinputoctets bigint(20) default NULL,
   acctoutputoctets bigint(20) default NULL,
   acctsessiontime int(12) default NULL,
+  acctuniqueid varchar(32) NOT NULL default '',
   KEY acctsessionid (acctsessionid),
   KEY username (username),
   KEY nasipaddress (nasipaddress),
-  KEY timestamp (timestamp)
+  KEY timestamp (timestamp),
+  KEY acctuniqueid (acctuniqueid)
 ) ENGINE=InnoDB;
 
 -- Adding RADIUS Updates Stored Procedure
@@ -590,7 +592,7 @@ CREATE PROCEDURE acct_start (
     IN p_username varchar(64),
     IN p_realm varchar(64),
     IN p_nasipaddress varchar(15),
-    IN p_nasportid varchar(15),
+    IN p_nasportid varchar(32),
     IN p_nasporttype varchar(32),
     IN p_acctstarttime datetime,
     IN p_acctupdatetime datetime,
@@ -621,7 +623,7 @@ AND (acctstoptime IS NULL OR acctstoptime = 0) LIMIT 1;
 
 IF (Previous_Session_Time IS NOT NULL) THEN
     UPDATE radacct SET
-      acctstoptime = p_timestamp,
+      acctstoptime = p_acctstarttime,
       acctterminatecause = 'UNKNOWN'
       WHERE acctuniqueid = p_acctuniqueid
       AND (acctstoptime IS NULL OR acctstoptime = 0);
@@ -653,10 +655,10 @@ VALUES
 
   INSERT INTO radacct_log
    (acctsessionid, username, nasipaddress,
-    timestamp, acctstatustype, acctinputoctets, acctoutputoctets, acctsessiontime)
+    timestamp, acctstatustype, acctinputoctets, acctoutputoctets, acctsessiontime, acctuniqueid)
   VALUES
    (p_acctsessionid, p_username, p_nasipaddress,
-    p_acctstarttime, p_acctstatustype, p_acctinputoctets, p_acctoutputoctets, p_acctsessiontime);
+    p_acctstarttime, p_acctstatustype, p_acctinputoctets, p_acctoutputoctets, p_acctsessiontime, p_acctuniqueid);
 END /
 DELIMITER ;
 
@@ -670,12 +672,12 @@ CREATE PROCEDURE acct_stop (
   IN p_acctsessiontime int(12),
   IN p_acctinputoctets bigint(20),
   IN p_acctoutputoctets bigint(20),
-  IN p_acctuniqueid varchar(64),
+  IN p_acctuniqueid varchar(32),
   IN p_acctsessionid varchar(64),
   IN p_username varchar(64),
   IN p_realm varchar(64),
   IN p_nasipaddress varchar(15),
-  IN p_nasportid varchar(15),
+  IN p_nasportid varchar(32),
   IN p_nasporttype varchar(32),
   IN p_acctauthentic varchar(32),
   IN p_connectinfo_stop varchar(50),
@@ -742,11 +744,11 @@ BEGIN
   # Create new record in the log table
   INSERT INTO radacct_log
    (acctsessionid, username, nasipaddress,
-    timestamp, acctstatustype, acctinputoctets, acctoutputoctets, acctsessiontime)
+    timestamp, acctstatustype, acctinputoctets, acctoutputoctets, acctsessiontime, acctuniqueid)
   VALUES
    (p_acctsessionid, p_username, p_nasipaddress,
     p_timestamp, p_acctstatustype, (p_acctinputoctets - Previous_Input_Octets), (p_acctoutputoctets - Previous_Output_Octets),
-    (p_acctsessiontime - Previous_Session_Time));
+    (p_acctsessiontime - Previous_Session_Time), p_acctuniqueid);
 END /
 DELIMITER ;
 
@@ -760,12 +762,12 @@ CREATE PROCEDURE acct_update(
   IN p_acctsessiontime int(12),
   IN p_acctinputoctets bigint(20),
   IN p_acctoutputoctets bigint(20),
-  IN p_acctuniqueid varchar(64),
+  IN p_acctuniqueid varchar(32),
   IN p_acctsessionid varchar(64),
   IN p_username varchar(64),
   IN p_realm varchar(64),
   IN p_nasipaddress varchar(15),
-  IN p_nasportid varchar(15),
+  IN p_nasportid varchar(32),
   IN p_nasporttype varchar(32),
   IN p_acctauthentic varchar(32),
   IN p_connectinfo_start varchar(50),
@@ -851,11 +853,11 @@ BEGIN
   # Create new record in the log table
   INSERT INTO radacct_log
    (acctsessionid, username, nasipaddress,
-    timestamp, acctstatustype, acctinputoctets, acctoutputoctets, acctsessiontime)
+    timestamp, acctstatustype, acctinputoctets, acctoutputoctets, acctsessiontime, acctuniqueid)
   VALUES
    (p_acctsessionid, p_username, p_nasipaddress,
     p_timestamp, p_acctstatustype, (p_acctinputoctets - Previous_Input_Octets), (p_acctoutputoctets - Previous_Output_Octets),
-    (p_acctsessiontime - Previous_Session_Time));
+    (p_acctsessiontime - Previous_Session_Time), p_acctuniqueid);
 END /
 DELIMITER ;
 

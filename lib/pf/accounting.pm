@@ -134,7 +134,7 @@ sub accounting_db_prepare {
                SUM(radacct_log.acctoutputoctets) AS acctoutput,
                SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotal
         FROM radacct_log
-        LEFT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        LEFT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
         WHERE timestamp >= CURRENT_DATE() AND callingstationid = ?;
     ]);
 
@@ -143,7 +143,7 @@ sub accounting_db_prepare {
                SUM(radacct_log.acctoutputoctets) AS acctoutput,
                SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotal
         FROM radacct_log
-        LEFT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        LEFT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
         WHERE YEARWEEK(timestamp) = YEARWEEK(CURRENT_DATE()) AND callingstationid = ?;
     ]);
 
@@ -152,7 +152,7 @@ sub accounting_db_prepare {
                SUM(radacct_log.acctoutputoctets) AS acctoutput,
                SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotal
         FROM radacct_log
-        LEFT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        LEFT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
         WHERE MONTH(timestamp) = MONTH(CURRENT_DATE()) AND callingstationid = ?;
     ]);
 
@@ -161,35 +161,35 @@ sub accounting_db_prepare {
                SUM(radacct_log.acctoutputoctets) AS acctoutput,
                SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotal
         FROM radacct_log
-        LEFT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        LEFT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
         WHERE YEAR(timestamp) = YEAR(CURRENT_DATE()) AND callingstationid = ?;
     ]);
 
     $accounting_statements->{'acct_sessiontime_daily_sql'} = get_db_handle()->prepare(qq[
         SELECT SUM(FORMAT((radacct_log.acctsessiontime/60),2)) AS accttotaltime
         FROM radacct_log
-        LEFT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        LEFT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
         WHERE timestamp >= CURRENT_DATE() AND callingstationid = ?;
     ]);
 
     $accounting_statements->{'acct_sessiontime_weekly_sql'} = get_db_handle()->prepare(qq[
         SELECT SUM(FORMAT((radacct_log.acctsessiontime/60),2)) AS accttotaltime
         FROM radacct_log
-        LEFT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        LEFT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
         WHERE YEARWEEK(timestamp) = YEARWEEK(CURRENT_DATE()) AND callingstationid = ?;
     ]);
 
     $accounting_statements->{'acct_sessiontime_monthly_sql'} = get_db_handle()->prepare(qq[
         SELECT SUM(FORMAT((radacct_log.acctsessiontime/60),2)) AS accttotaltime
         FROM radacct_log
-        LEFT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        LEFT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
         WHERE MONTH(timestamp) = MONTH(CURRENT_DATE()) AND callingstationid = ?;
     ]);
 
     $accounting_statements->{'acct_sessiontime_yearly_sql'} = get_db_handle()->prepare(qq[
         SELECT SUM(FORMAT((radacct_log.acctsessiontime/60),2)) AS accttotaltime
         FROM radacct_log
-        LEFT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        LEFT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
         WHERE YEAR(timestamp) = YEAR(CURRENT_DATE()) AND callingstationid = ?;
     ]);
 
@@ -197,7 +197,7 @@ sub accounting_db_prepare {
         SELECT radacct.callingstationid,
                 SUM(radacct_log.acctinputoctets) AS acctinput
         FROM radacct_log
-        RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        RIGHT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
         WHERE DAY(timestamp) = DAY(CURRENT_DATE()) AND timestamp >= ?
         GROUP BY radacct.callingstationid
         HAVING acctinput >= ?;
@@ -207,7 +207,7 @@ sub accounting_db_prepare {
         SELECT radacct.callingstationid,
                 SUM(radacct_log.acctinputoctets) AS acctinput
         FROM radacct_log
-        RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        RIGHT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
         WHERE YEARWEEK(timestamp) = YEARWEEK(CURRENT_DATE()) AND timestamp >= ?
         GROUP BY radacct.callingstationid
         HAVING acctinput >= ?;
@@ -217,7 +217,7 @@ sub accounting_db_prepare {
         SELECT radacct.callingstationid,
                 SUM(radacct_log.acctinputoctets) AS acctinput
         FROM radacct_log
-        RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        RIGHT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
         WHERE MONTH(timestamp) = MONTH(CURRENT_DATE()) AND timestamp >= ?
         GROUP BY radacct.callingstationid
         HAVING acctinput >= ?;
@@ -227,7 +227,7 @@ sub accounting_db_prepare {
         SELECT radacct.callingstationid,
                 SUM(radacct_log.acctinputoctets) AS acctinput
         FROM radacct_log
-        RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        RIGHT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
         WHERE YEAR(timestamp) = YEAR(CURRENT_DATE()) AND timestamp >= ?
         GROUP BY radacct.callingstationid
         HAVING acctinput >= ?;
@@ -237,7 +237,7 @@ sub accounting_db_prepare {
         SELECT radacct.callingstationid,
                 SUM(radacct_log.acctoutputoctets) AS acctoutput
         FROM radacct_log
-        RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        RIGHT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
         WHERE DAY(timestamp) = DAY(CURRENT_DATE()) AND timestamp >= ?
         GROUP BY radacct.callingstationid
         HAVING acctoutput >= ?;
@@ -247,7 +247,7 @@ sub accounting_db_prepare {
         SELECT radacct.callingstationid,
                 SUM(radacct_log.acctoutputoctets) AS acctoutput
         FROM radacct_log
-        RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        RIGHT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
         WHERE YEARWEEK(timestamp) = YEARWEEK(CURRENT_DATE()) AND timestamp >= ?
         GROUP BY radacct.callingstationid
         HAVING acctoutput >= ?;
@@ -257,7 +257,7 @@ sub accounting_db_prepare {
         SELECT radacct.callingstationid,
                 SUM(radacct_log.acctoutputoctets) AS acctoutput
         FROM radacct_log
-        RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        RIGHT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
         WHERE MONTH(timestamp) = MONTH(CURRENT_DATE()) AND timestamp >= ?
         GROUP BY radacct.callingstationid
         HAVING acctoutput >= ?;
@@ -267,7 +267,7 @@ sub accounting_db_prepare {
         SELECT radacct.callingstationid,
                 SUM(radacct_log.acctoutputoctets) AS acctoutput
         FROM radacct_log
-        RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        RIGHT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
         WHERE YEAR(timestamp) = YEAR(CURRENT_DATE()) AND timestamp >= ?
         GROUP BY radacct.callingstationid
         HAVING acctoutput >= ?;
@@ -279,7 +279,7 @@ sub accounting_db_prepare {
                SUM(radacct_log.acctoutputoctets) AS acctoutput,
                SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotal
         FROM radacct_log
-        RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        RIGHT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
         WHERE DAY(timestamp) = DAY(CURRENT_DATE()) AND timestamp >= ?
         GROUP BY radacct.callingstationid
         HAVING accttotal >= ?;
@@ -291,7 +291,7 @@ sub accounting_db_prepare {
                SUM(radacct_log.acctoutputoctets) AS acctoutput,
                SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotal
         FROM radacct_log
-        RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        RIGHT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
         WHERE YEARWEEK(timestamp) = YEARWEEK(CURRENT_DATE()) AND timestamp >= ?
         GROUP BY radacct.callingstationid
         HAVING accttotal >= ?;
@@ -303,7 +303,7 @@ sub accounting_db_prepare {
                SUM(radacct_log.acctoutputoctets) AS acctoutput,
                SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotal
         FROM radacct_log
-        RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        RIGHT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
         WHERE MONTH(timestamp) = MONTH(CURRENT_DATE()) AND timestamp >= ?
         GROUP BY radacct.callingstationid
         HAVING accttotal >= ?;
@@ -315,7 +315,7 @@ sub accounting_db_prepare {
                SUM(radacct_log.acctoutputoctets) AS acctoutput,
                SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotal
         FROM radacct_log
-        RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        RIGHT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
         WHERE YEAR(timestamp) = YEAR(CURRENT_DATE()) AND timestamp >= ?
         GROUP BY radacct.callingstationid
         HAVING accttotal >= ?;
@@ -325,7 +325,7 @@ sub accounting_db_prepare {
         SELECT radacct.callingstationid,
                SUM(radacct_log.acctinputoctets) AS acctinput
         FROM radacct_log
-        RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        RIGHT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
         WHERE timestamp >= ? AND timestamp <= NOW() AND radacct.callingstationid = ?
         GROUP BY radacct.callingstationid
         HAVING acctinputoctets >= ?;
@@ -335,7 +335,7 @@ sub accounting_db_prepare {
         SELECT radacct.callingstationid,
                SUM(radacct_log.acctoutputoctets) AS acctoutput
         FROM radacct_log
-        RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        RIGHT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
         WHERE timestamp >= ? AND timestamp <= NOW() AND radacct.callingstationid = ?
         GROUP BY radacct.callingstationid
         HAVING acctoutputoctets >= ?;
@@ -347,7 +347,7 @@ sub accounting_db_prepare {
                SUM(radacct_log.acctoutputoctets) AS acctoutput,
                SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotal
         FROM radacct_log
-        RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        RIGHT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
         WHERE timestamp >= ? AND timestamp <= NOW() AND radacct.callingstationid = ?
         GROUP BY radacct.callingstationid
         HAVING accttotal >= ?;

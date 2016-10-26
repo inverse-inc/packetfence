@@ -298,13 +298,13 @@ sub report_db_prepare {
             ROUND(
                 SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)/(
                     SELECT SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)
-                    FROM radacct_log RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+                    FROM radacct_log RIGHT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
                     INNER JOIN node n ON n.mac = radacct.callingstationid
                     WHERE timestamp BETWEEN ? AND ?
                 )*100,1
             ) AS percent
         FROM radacct_log
-            INNER JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+            INNER JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
             INNER JOIN node n ON n.mac = radacct.callingstationid
         WHERE timestamp BETWEEN ? AND ?
         GROUP BY device_class
@@ -317,12 +317,12 @@ sub report_db_prepare {
             ROUND(
                 SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)/(
                     SELECT SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)
-                    FROM radacct_log RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+                    FROM radacct_log RIGHT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
                     INNER JOIN node n ON n.mac = radacct.callingstationid
                 )*100,1
             ) AS percent
         FROM radacct_log
-            INNER JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+            INNER JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
             INNER JOIN node n ON n.mac = radacct.callingstationid
         GROUP BY device_class
         ORDER BY percent DESC;
@@ -334,13 +334,13 @@ sub report_db_prepare {
             ROUND(
                 SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)/(
                     SELECT SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)
-                    FROM radacct_log RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+                    FROM radacct_log RIGHT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
                     INNER JOIN node n ON n.mac = radacct.callingstationid
                     WHERE timestamp >= DATE_SUB(NOW(),INTERVAL ? SECOND)
                 )*100,1
             ) AS percent
         FROM radacct_log
-            INNER JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+            INNER JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
             INNER JOIN node n ON n.mac = radacct.callingstationid
         WHERE timestamp >= DATE_SUB(NOW(),INTERVAL ? SECOND)
         GROUP BY device_class
@@ -353,7 +353,7 @@ sub report_db_prepare {
             SUM(radacct_log.acctoutputoctets) AS acctoutputoctets,
             SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotaloctets
         FROM radacct_log
-        LEFT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        LEFT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
         WHERE radacct_log.timestamp BETWEEN ? AND ?
         GROUP BY radacct.callingstationid
         HAVING radacct.callingstationid IS NOT NULL
@@ -367,7 +367,7 @@ sub report_db_prepare {
             SUM(radacct_log.acctoutputoctets) AS acctoutputoctets,
             SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotaloctets
         FROM radacct_log
-        LEFT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        LEFT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
         GROUP BY radacct.callingstationid
         HAVING radacct.callingstationid IS NOT NULL
         ORDER BY accttotaloctets DESC
