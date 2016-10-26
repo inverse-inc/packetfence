@@ -357,12 +357,15 @@ sub action_autoregister {
     my ($mac, $vid) = @_;
     my $logger = get_logger();
 
+    my ( $status, $status_msg );
+
     if(pf::node::is_node_registered($mac)){
         $logger->debug("Calling autoreg on already registered node. Doing nothing.");
     }
     else {
         require pf::role::custom;
-        if(!pf::node::node_register($mac, "default")){
+        ( $status, $status_msg ) = pf::node::node_register($mac, "default");
+        if(!$status){
             $logger->error("auto-registration of node $mac failed");
             return;
         }

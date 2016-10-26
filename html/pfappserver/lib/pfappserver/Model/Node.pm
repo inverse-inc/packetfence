@@ -217,13 +217,13 @@ sub create {
     my ($self, $data) = @_;
 
     my $logger = get_logger();
-    my ($status, $result) = ($STATUS::CREATED);
+    my ($status, $result, $status_msg) = ($STATUS::CREATED);
     my $mac = $data->{mac};
     my $pid = $data->{pid} || $default_pid;
 
     # Adding person (using modify in case person already exists)
-    $result = node_register($mac, $pid, %{$data});
-    if ($result) {
+    ( $result, $status_msg ) = pf::node::node_register($mac, $pid, %{$data});
+    if ( $result ) {
         $logger->info("Created node $mac");
     }
     else {
@@ -244,7 +244,7 @@ sub update {
     my ($self, $mac, $node_ref) = @_;
 
     my $logger = get_logger();
-    my ($status, $result) = ($STATUS::OK);
+    my ($status, $result, $status_msg) = ($STATUS::OK);
     my $previous_node_ref;
 
     $previous_node_ref = node_view($mac);
@@ -253,7 +253,7 @@ sub update {
         my $option;
         if ($node_ref->{status} eq $pf::node::STATUS_REGISTERED) {
             $option = "register";
-            $result = node_register($mac, $previous_node_ref->{pid}, %{$node_ref});
+            ( $result, $status_msg ) = pf::node::node_register($mac, $previous_node_ref->{pid}, %{$node_ref});
         }
         elsif ($node_ref->{status} eq $pf::node::STATUS_UNREGISTERED) {
             $option = "deregister";
