@@ -32,20 +32,31 @@ sub init {
 sub build_child {
     my ($self) = @_;
     my %tmp_cfg = %{ $self->{cfg} };
-
     # There for backward compatibility for when suricata or snort is configured directly in PacketFence
     # Should this feature go, the code below can be removed
     # This will start a pfdetect process if the detection engine is enabled in PacketFence
-    if(
-      isenabled($self->{config}->{trapping}->{detection}) &&
-      $self->{config}->{trapping}->{detection_engine} ne "none"
-    ) {
-      $tmp_cfg{pf_detection_engine} = {
-                                        path => "/usr/local/pf/var/alert",
-                                        type => $self->{config}->{trapping}->{detection_engine}
-                                      };
+    my $trapping = $self->{config}{trapping};
+    my $detection_engine = $trapping->{detection_engine};
+    if (isenabled($trapping->{detection}) && $detection_engine ne "none") {
+        $tmp_cfg{pf_detection_engine} = {
+            path => "/usr/local/pf/var/alert",
+            type => $detection_engine
+        };
     }
-
+    foreach my $entry (values %tmp_cfg) {
+        if ($entry->{type} eq 'regex') {
+            my %events;
+            if (exists $entry->{events} && defined $entry->{events}) {
+                %events = map { split(/:/, $_) } (split(/\s*,\s*/, $entry->{events}));
+            }
+            my $regex = eval { qr/$entry->{regex}/ };
+            if ($@) {
+                print STDERR "Invalid regex '$entry->{regex}'\n";
+            }
+            $entry->{regex} = $regex;
+            $entry->{events} = \%events;
+        }
+    }
     return \%tmp_cfg;
 }
 
