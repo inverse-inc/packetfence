@@ -26,7 +26,7 @@ sub parse {
     foreach my $rule (@{$self->rules}) {
         next unless $line =~ $rule->{regex};
         my %data = %+;
-        foreach my $action (@{$rule->{actions}}) { 
+        foreach my $action (@{$rule->{actions} // []}) {
             $self->doAction($rule, \%data, $action);
         }
         return 0 unless $rule->{send_add_event};
