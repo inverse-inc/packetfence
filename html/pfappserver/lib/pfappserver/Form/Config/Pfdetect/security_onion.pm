@@ -1,8 +1,8 @@
-package pfappserver::Form::Config::Pfdetect;
+package pfappserver::Form::Config::Pfdetect::security_onion;
 
 =head1 NAME
 
-pfappserver::Form::Config::Pfdetect - Web form for a pfdetect detector
+pfappserver::Form::Config::Pfdetect::security_onion - Web form for a pfdetect detector
 
 =head1 DESCRIPTION
 
@@ -11,36 +11,7 @@ Form definition to create or update a pfdetect detector.
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Base::Form';
-with 'pfappserver::Base::Form::Role::Help';
-
-use pf::config;
-use pf::util;
-use pf::constants::pfdetect qw(@PFDETECT_PARSERS);
-
-## Definition
-has_field 'id' =>
-  (
-   type => 'Text',
-   label => 'Detector',
-   required => 1,
-   messages => { required => 'Please specify a detector id' },
-   apply => [ pfappserver::Base::Form::id_validator('detector id') ]
-  );
-
-has_field 'path' =>
-  (
-   type => 'Text',
-   label => 'Alert pipe',
-   required => 1,
-   messages => { required => 'Please specify an alert pipe' },
-  );
-
-has_field 'type' =>
-  (
-   type => 'Hidden',
-   required => 1,
-  );
+extends 'pfappserver::Form::Config::Pfdetect';
 
 =over
 
@@ -48,7 +19,7 @@ has_field 'type' =>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

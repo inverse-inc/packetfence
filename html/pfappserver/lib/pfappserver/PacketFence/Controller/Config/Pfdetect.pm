@@ -54,6 +54,7 @@ after [qw(create clone)] => sub {
     }
 };
 
+
 =head2 after view
 
 =cut
@@ -78,8 +79,38 @@ Usage: /config/pfdetect/
 
 sub index :Path :Args(0) {
     my ($self, $c) = @_;
-
+    $c->stash->{types} = [ sort grep {$_} map { /^pf::detect::parser::(.*)/;$1  } @pf::factory::detect::parser::MODULES];
     $c->forward('list');
+}
+
+=head2 before clone view _processCreatePost update
+
+Update the form type
+
+=cut
+
+before [qw(clone view _processCreatePost update)] => sub {
+    my ($self, $c, @args) = @_;
+    my $model = $self->getModel($c);
+    my $itemKey = $model->itemKey;
+    my $item = $c->stash->{$itemKey};
+    my $type = $item->{type};
+    my $form = $c->action->{form};
+    $c->stash->{current_form} = "${form}::${type}";
+};
+
+=head2 create_type
+
+Create sub type
+
+=cut
+
+sub create_type : Path('create') : Args(1) {
+    my ($self, $c, $type) = @_;
+    my $model = $self->getModel($c);
+    my $itemKey = $model->itemKey;
+    $c->stash->{$itemKey}{type} = $type;
+    $c->forward('create');
 }
 
 =head1 COPYRIGHT
