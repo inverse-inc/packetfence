@@ -22,6 +22,30 @@ sub configFile { $pfdetect_config_file };
 
 sub pfconfigNamespace {'config::Pfdetect'}
 
+sub _update_section {
+    my ($self, $section, $assignments) = @_;
+    my $rules = delete $assignments->{rules} // [];
+    $self->SUPER::_update_section($section, $assignments);
+    my $cachedConfig = $self->cachedConfig;
+    for my $sub_section ( grep {/^$section rule/} $cachedConfig->Sections ) {
+        $cachedConfig->DeleteSection($sub_section);
+    }
+    for my $rule (@$rules) {
+        my $name = delete $rule->{name};
+        $self->SUPER::_update_section("$section rule $name", $rule);
+    }
+}
+
+=head2 _Sections
+
+=cut
+
+sub _Sections {
+    my ($self) = @_;
+    return grep { /^\S+$/ }  $self->SUPER::_Sections();
+}
+
+
 __PACKAGE__->meta->make_immutable;
 
 =head1 AUTHOR
