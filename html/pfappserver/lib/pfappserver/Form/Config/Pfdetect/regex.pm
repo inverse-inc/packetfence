@@ -12,6 +12,65 @@ Form definition to create or update a pfdetect detector.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Pfdetect';
+with 'pfappserver::Base::Form::Role::Help';
+
+
+has_field 'regex' =>
+  (
+   type => 'Text',
+   label => 'Regex',
+   required => 1,
+   messages => { required => 'Please specify the regex pattern using named captures' },
+  );
+
+has_field 'send_add_event' =>
+  (
+   type => 'Toggle',
+   label => 'Send Add Event',
+   messages => { required => 'Please specify the if the add_event is sent' },
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+  );
+
+has_field 'events' =>
+  (
+   type => 'Text',
+   label => 'Event List',
+   #This is required if the send_add_event if checked
+   #Add validation to the event list
+   messages => { required => 'Please specify the regex pattern using named captures' },
+  );
+
+=head2 action
+
+The list of action
+
+=cut
+
+has_field 'action' =>
+  (
+    'type' => 'DynamicTable',
+    'sortable' => 1,
+    'do_label' => 0,
+  );
+
+=head2 action
+
+The definition for the list of actions
+
+=cut
+
+has_field 'action.contains' =>
+  (
+    type => 'Text',
+    widget_wrapper => 'DynamicTableRow',
+  );
+
+has_block definition =>
+  (
+   render_list => [ qw(id type path regex events send_add_event) ],
+  );
+
 
 =over
 

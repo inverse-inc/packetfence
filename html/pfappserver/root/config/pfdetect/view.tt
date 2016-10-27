@@ -9,9 +9,12 @@
   </div>
 
   <div class="modal-body">
-        [% form.field('id').render | none UNLESS item.id %]
-        [% form.field('type').render | none %]
-        [% form.field('path').render | none %]
+  [%- IF item.id.defined;
+    CALL form.field('id').type_attr('hidden');
+    CALL form.field('id').do_label(0);
+  END -%]
+    [% INCLUDE "config/pfdetect/type/${item.type}.tt" %]
+
   </div><!--modal-body-->
 
   <div class="modal-footer">

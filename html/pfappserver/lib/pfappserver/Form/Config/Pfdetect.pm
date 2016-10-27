@@ -42,6 +42,11 @@ has_field 'type' =>
    required => 1,
   );
 
+has_block definition =>
+  (
+   render_list => [ qw(id type path) ],
+  );
+
 =over
 
 =back
