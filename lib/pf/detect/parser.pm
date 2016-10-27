@@ -16,6 +16,10 @@ Base class for a pfdetect parser
 use strict;
 use warnings;
 use Moo;
+
+has path => (is => 'rw', required => 1);
+
+has type => (is => 'rw', required => 1);
  
 =head1 AUTHOR
 
