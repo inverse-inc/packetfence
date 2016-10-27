@@ -20,7 +20,7 @@ Assumptions
 
 * You have at least one server with PacketFence 6.3 or later.
 * The PacketFence management IP will be 192.168.1.5.
-* An account has been created on the MSE in order to use rest. (Read only for localization , write to create notifications)
+* An account has been created on the MSE in order to use RESTful API of the MSE. (Read only for localization , write to create notifications)
 * The Cisco MSE IP will be 192.168.1.6.
 
 Portal based on localization
@@ -37,11 +37,11 @@ image::docs/images/httpd_collector.png[scaledwidth="100%",alt="Enable httpd_coll
 Step 2: Create a notification
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This part can be done directly on the MSE web admin GUI but we include a perl script in addons/mse-subscribe.pl that will help you to create one by the rest api.
+This part can be done directly on the MSE web admin GUI but we include a Perl script in addons/mse-subscribe.pl that will help you to create one using the RESTful API of the MSE.
 
-So let say that you have a write username and password on the MSE (mswrite/password) now go in /usr/local/pf/addons then run:
+So let say that you have a username with write permissions on the MSE (mswrite/password) now go in /usr/local/pf/addons then run:
 
- ./mse-subscribe.pl --username=mseuser --password=password --url=http://192.168.1.6:8083 --target-ip=192.168.1.5 --target-port=9292 --url-path=/mse/ --zone=Campus>Building>Level>Zone --notification-name=Zone1
+ ./mse-subscribe.pl --username=msewrite --password=password --url=http://192.168.1.6:8083 --target-ip=192.168.1.5 --target-port=9292 --url-path=/mse/ --zone=Campus>Building>Level>Zone --notification-name=Zone1
 
 This will create the notification and print out the notifications configured on the MSE.
 So now each time a device will enter or leave the specific zone PacketFence will be notified.
@@ -49,7 +49,7 @@ So now each time a device will enter or leave the specific zone PacketFence will
 Step 3: Configure a portal filter
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In `Configuration -> Portal Profiles -> Add profile -> Advanced filter` specify an advance filter like that:
+In `Configuration -> Portal Profiles -> Add profile -> Advanced filter` specify an advanced filter like that:
 
  extended.mse_inout.locationMapHierarchy == "Campus>Building>Level>Zone"
 
@@ -72,6 +72,6 @@ So in our example:
 
 image::docs/images/MSE_Tab.png[scaledwidth="100%",alt="MSE Tab"]
 
-Now go in `Nodes` and click on a mac address and you will see that a new tab appear, then if you click on it you will be able to retreive the map and the localization of the device.
+Now go in `Nodes` and click on a MAC address and you will see that a new tab appears, then if you click on it you will be able to retrieve the map and the localization of the device.
  
 image::docs/images/TAB.png[scaledwidth="100%",alt="Node TAB"]

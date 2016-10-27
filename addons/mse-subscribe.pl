@@ -8,7 +8,7 @@ mse-subscibe.pl
 
 =head1 DESCRIPTION
 
-mse-subscribe.pl is a script that help to create a notification on Cisco MSE
+mse-subscribe.pl is a script that helps creating notifications on Cisco MSE
 
 =head1 SYNOPSIS
 
@@ -16,9 +16,9 @@ mse-subscribe.pl [options]
 
  Options:
    -h --help               This help
-   -u --username           The api username
-   -p --password           The api password
-   -s --url                The URL of the cisco MSE api (http://192.168.0.1:8083)
+   -u --username           The API username
+   -p --password           The API password
+   -s --url                The URL of the cisco MSE API (http://192.168.0.1:8083)
    -t --target-ip          The IP Address where you want to send the notification
    -k --target-port        The target port where you want to send the notification
    -w --url-path           The URL path where to send the notification (/mse/)
