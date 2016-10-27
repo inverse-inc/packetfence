@@ -43,26 +43,38 @@ sub build_child {
             type => $detection_engine
         };
     }
-    foreach my $entry (values %tmp_cfg) {
+    my @parser_ids = grep { /^\S+$/  } keys %tmp_cfg;
+    my %config_data;
+    for my $id (@parser_ids) {
+        my $entry = $tmp_cfg{$id};
+        $config_data{$id} = $entry;
         if ($entry->{type} eq 'regex') {
-            my %events;
-            if (exists $entry->{events} && defined $entry->{events}) {
-                %events = map {split(/:/, $_)} (split(/\s*,\s*/, $entry->{events}));
+            my @rules; 
+            my @rule_ids = grep { /^$id rule/  } keys %tmp_cfg;
+            for my $rule_id (@rule_ids) {
+                my $rule = {%{$tmp_cfg{$rule_id}}};
+                my %events;
+                if (exists $rule->{events} && defined $rule->{events}) {
+                    %events = map {split(/:/, $_)} (split(/\s*,\s*/, $rule->{events}));
+                }
+                my $regex = eval {qr/$rule->{regex}/};
+                if ($@) {
+                    print STDERR "Invalid regex '$rule->{regex}'\n";
+                }
+                $rule->{regex}  = $regex;
+                $rule->{events} = \%events;
+                my $action = $rule->{action} // [];
+                unless (ref($action)) {
+                    $action = [$action];
+                }
+                $rule->{actions} = $action;
+                push @rules, $rule;
             }
-            my $regex = eval {qr/$entry->{regex}/};
-            if ($@) {
-                print STDERR "Invalid regex '$entry->{regex}'\n";
-            }
-            $entry->{regex}  = $regex;
-            $entry->{events} = \%events;
-            my $action = $entry->{action} // [];
-            unless (ref($action)) {
-                $action = [$action];
-            }
-            $entry->{actions} = $action;
+            $entry->{rules} = \@rules;
         }
     }
-    return \%tmp_cfg;
+
+    return \%config_data;
 }
 
 
