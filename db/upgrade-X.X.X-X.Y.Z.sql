@@ -305,3 +305,14 @@ BEGIN
 END /
 DELIMITER ;
 
+--
+-- Remove redundent index for violation
+--
+
+DROP INDEX mac ON violation;
+
+--
+-- Remove redundent index for inline_accounting
+--
+
+DROP INDEX ip on inline_accounting;

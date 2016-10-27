@@ -227,7 +227,6 @@ CREATE TABLE violation (
   status varchar(10) default "open",
   ticket_ref varchar(255) default NULL,
   notes text,
-  KEY mac (mac),
   KEY vid (vid),
   KEY status (status),
   KEY ind1 (mac,status,vid),
@@ -972,8 +971,7 @@ CREATE TABLE inline_accounting (
    firstseen DATETIME NOT NULL,
    lastmodified DATETIME NOT NULL,
    status int unsigned NOT NULL default 0,
-   PRIMARY KEY (ip, firstseen),
-   INDEX (ip)
+   PRIMARY KEY (ip, firstseen)
  ) ENGINE=InnoDB;
 
 --
