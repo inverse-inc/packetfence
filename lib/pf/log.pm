@@ -19,8 +19,10 @@ use Log::Log4perl::Level;
 use pf::file_paths qw($log_conf_dir $log_config_file);
 use pf::log::trapper;
 use File::Basename qw(basename);
+use Carp;
 
 Log::Log4perl->wrapper_register(__PACKAGE__);
+
 sub import {
     my ($self,%args) = @_;
     my ($package, $filename, $line) = caller;
@@ -61,6 +63,20 @@ sub import {
 }
 
 sub get_logger { Log::Log4perl->get_logger(@_); }
+
+sub logstacktrace {
+##################################################
+    my $logger = get_logger();
+    return unless $logger->is_trace;
+
+    local $Carp::CarpLevel = $Carp::CarpLevel + 1;
+
+    my $msg = $logger->warning_render(@_);
+
+    my $message = Carp::longmess($msg);
+    $logger->trace($message);
+
+}
 
 =head1 AUTHOR
 
