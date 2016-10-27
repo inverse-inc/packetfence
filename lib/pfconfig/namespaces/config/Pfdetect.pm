@@ -47,14 +47,19 @@ sub build_child {
         if ($entry->{type} eq 'regex') {
             my %events;
             if (exists $entry->{events} && defined $entry->{events}) {
-                %events = map { split(/:/, $_) } (split(/\s*,\s*/, $entry->{events}));
+                %events = map {split(/:/, $_)} (split(/\s*,\s*/, $entry->{events}));
             }
-            my $regex = eval { qr/$entry->{regex}/ };
+            my $regex = eval {qr/$entry->{regex}/};
             if ($@) {
                 print STDERR "Invalid regex '$entry->{regex}'\n";
             }
-            $entry->{regex} = $regex;
+            $entry->{regex}  = $regex;
             $entry->{events} = \%events;
+            my $action = $entry->{action} // [];
+            unless (ref($action)) {
+                $action = [$action];
+            }
+            $entry->{actions} = $action;
         }
     }
     return \%tmp_cfg;
