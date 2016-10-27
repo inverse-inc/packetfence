@@ -33,6 +33,12 @@ sub _update_section {
     }
     for my $rule (@$rules) {
         my $name = delete $rule->{name};
+        my $actions = delete $rule->{actions} // [];
+        my $i = 0;
+        for my $action (@$actions) {
+            $rule->{"action$i"} = $action;
+            $i++;
+        }
         $self->SUPER::_update_section("$section rule $name", $rule);
     }
 }
