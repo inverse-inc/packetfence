@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use Moo;
 use pf::file_paths qw($pfdetect_config_file);
+use Sort::Naturally qw(nsort);
 extends 'pf::ConfigStore';
 
 sub configFile { $pfdetect_config_file };
@@ -43,6 +44,22 @@ sub _update_section {
 sub _Sections {
     my ($self) = @_;
     return grep { /^\S+$/ }  $self->SUPER::_Sections();
+}
+
+sub cleanupAfterRead {
+    my ($self, $id, $item, $idKey) = @_;
+    my @rules;
+    for my $sub_section ( $self->cachedConfig->Sections ) {
+        next unless  $sub_section =~ /^$id rule (.*)$/;
+        my $id = $1;
+        my $rule = $self->readRaw($sub_section);
+        $rule->{name} = $id;
+        my @action_keys = nsort grep {/^action\d+$/} keys %$rule;
+        my @actions = delete @{$rule}{@action_keys};
+        $rule->{actions} = \@actions;
+        push @rules, $rule;
+    }
+    $item->{rules} = \@rules;
 }
 
 
