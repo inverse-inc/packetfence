@@ -1,10 +1,18 @@
-[% UNLESS action_uri %]
-    [% SET action_uri = c.req.uri %]
-[%END %]
-<form name="modalItem" class="form-horizontal form-condensed" action="[% action_uri %]" method="post">
+[% IF c.action.name == "view"  %]
+[% SET action_uri = c.uri_for(c.controller.action_for('update'), [ item.id ]) %]
+[% ELSE %]
+[% SET action_uri = c.req.uri %]
+
+[%END%]
+<ul class="breadcrumb">
+  <li><a href="[% c.pf_hash_for(c.controller.action_for('index')) %]">[% l('Syslog Parsers') %]</a> <span class="divider"><i class="icon-chevron-right"></i></span></li>
+  <li class="active">[% IF item.id %][% item.id | html %][% ELSE %][% l('new') %][% END %]</li>
+
+</ul>
+<h3><i>[% l('Syslog parser') %]</i> [% item.type | html %]</h3>
+<form name="modalPfdetect" class="form-horizontal form-condensed" action="[% action_uri %]" method="post">
   <div class="modal-header">
     <a class="close" data-dismiss="modal">&times;</a>
-    <h3>[% IF item %]<i>[% l('Syslog parser') %]</i> [% item.id | html %][% ELSE %][% l('New Syslog parser') %][% END %]</h3>
   </div>
 
   <div class="modal-body">
@@ -18,7 +26,9 @@
 
   <div class="modal-footer">
     <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
-    [% IF can_access("PFDETECT_UPDATE") %]<button class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>[% END %]
+    [% IF can_access("PFDETECT_UPDATE") %]
+      <button class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>
+    [% END %]
   </div>
 
 </form>
