@@ -47,7 +47,12 @@ sub getClient {
 }
 
 sub getManagementClient {
-    $CURRENT_CLIENT->new(proto => 'https', host => pf::cluster::management_cluster_ip());
+    if($cluster_enabled) {
+        return $CURRENT_CLIENT->new(proto => 'https', host => pf::cluster::management_cluster_ip());
+    }
+    else {
+        return getClient();
+    }
 }
  
 =head1 AUTHOR
