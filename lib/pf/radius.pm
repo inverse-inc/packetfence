@@ -600,7 +600,7 @@ sub _handleAccessFloatingDevices{
     my $logger = $self->logger;
     if( exists( $ConfigFloatingDevices{$args->{'mac'}} ) ){
         my $floatingDeviceManager = new pf::floatingdevice::custom();
-        $floatingDeviceManager->enableMABFloating($args->{'mac'}, $args->{'switch'}, $args->{'port'});
+        $floatingDeviceManager->enableMABFloating($args->{'mac'}, $args->{'switch'}, $args->{'ifIndex'});
     }
 }
 
