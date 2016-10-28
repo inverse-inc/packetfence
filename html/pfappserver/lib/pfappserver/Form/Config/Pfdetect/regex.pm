@@ -15,9 +15,6 @@ extends 'pfappserver::Form::Config::Pfdetect';
 with 'pfappserver::Base::Form::Role::Help';
 use pf::log;
 
-
-sub build_form_element_class { ['form-vertical'] }
-
 =head2 rules
 
 The list of rule
@@ -41,7 +38,7 @@ has_field 'rules.name' =>
 
 has_field 'rules.regex' =>
   (
-   type => 'Text',
+   type => 'Regex',
    label => 'Regex',
    required => 1,
    messages => { required => 'Please specify the regex pattern using named captures' },
@@ -88,26 +85,6 @@ has_field 'rules.actions.contains' =>
     label => 'Action',
   );
 
-
-=head2 validate
-
-=cut
-
-sub validate {
-    my ($self) = @_;
-    my $value  = $self->value;
-    my $i      = 0;
-    foreach my $rule (@{$value->{rules} // []}) {
-        my $regex = eval {qr/$rule->{regex}/};
-        if ($@) {
-            my $f_rules = $self->field('rules');
-            my $f_rule = $f_rules->field($i);
-            $f_rule->field("regex")->add_error("Invalid regex provided");
-        }
-        $i++;
-    }
-    return 1;
-}
 
 =over
 
