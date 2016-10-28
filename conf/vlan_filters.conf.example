@@ -1,187 +1,31 @@
-# Vlan filter configuration
-# 
-# you can trigger rule on specific scope (RegisteredRole, RegistrationRole, ViolationRole, AutoRegister, InlineRole, NodeInfoForAutoReg, IsPhone)
-# CAUTION: The IsPhone scope is only available on RADIUS based switches
+# VLAN FILTERS configuration
+# ==========================
 #
-# Make a simple rule like this:
-#
-# [category]
-# filter = node_info.category
-# operator = is
-# value = default
-#
-# [1:category]
-# scope = RegisteredRole
-# role = nointernet
-#
-# It means that when PacketFence tries to get the normal VLAN for the node and if the category of the node is
-# the default one, we return the role "nointernet" (which you will have configured in the switch configuration).
-#
-# Advanced rule:
-#
-# [2]
-# filter = node_info.category
-# operator = match
-# value = default
-#
-# [3]
-# filter = ssid
-# operator = is
-# value = OpenWrt-SECURE
-#
-# [4]
-# filter = time
-# operator = is
-# value = wd {Mon Tue Wed Thu Fri} hr {11am-2pm}
-#
-# [2:2&3&4]
-# scope = RegisteredRole
-# role = nointernet
-#
-# It means that when PacketFence tries to get the normal VLAN for the node and if the category of the node is 
-# the default one and the ssid is OpenWrt-SECURE and the time is between 11am and 2pm from Monday to Friday,
-# we return the role "nointernet" (which you will have configured in the switch configuration).
-#
-# This will autoregister any device beginning by a set of known Avaya MAC address OUI and consider it as phone
-#
-# [avaya_phones]
-# filter = node_info.mac
-# operator = regex
-# value = ^(00:04:0d|84:83:71|00:07:3b|00:09:6e|00:0d:18|00:0d:28|00:1b:4f|24:d9:21|2c:f4:c5|34:75:c7|3c:b1:5b|70:38:ee|b4:b0:17).*
-#
-# [autoreg:avaya_phones]
-# scope = IsPhone
-# role = default
+# Scopes
+# ------
+# It is possible to trigger rules / actions within the following specific connection flow scopes
+# - RegistrationRole: Used when an endpoint is in an *UNREGISTERED* state
+# - RegisteredRole: Used when an endpoint is in a *REGISTERED* state
+# - ViolationRole: Used when a violation is open on an endpoint
+# - InlineRole: Used when the endpoint is detected connecting from an inline VLAN
+# - AutoRegister: Used to determine whether or not an endpoint should be autoregistered
+# - NodeInfoForAutoReg: Used to specify endpoint parameters when autoregistering
+# - IsPhone: (only available on RADIUS based switches)
 #
 #
-# This will autoregister devices if the connection is Ethernet-EAP
+# A "VLAN filter" configuration is mainly constituted of two (2) parts; rules(s)/condition(s) and action(s)
+# Some working examples covering useful use cases can be found at the bottom of this file
 #
-# [etherneteap]
-# filter = connection_type
-# operator = is
-# value = Ethernet-EAP
 #
-# [reg:etherneteap]
-# scope = AutoRegister
-# role = default
+# Rule(s)/Condition(s)
+# --------------------
+# Structure example of a rule/condition
+# [NAMEOFRULE]
+# filter = FILTER
+# operator = OPERATOR
+# value = VALUE
 #
-# This will autoregister machine auth on ethernet EAP or EAP-TLS connection and refuse 
-# user auth if there wasn't machine auth before (you must add a role machine and a role 
-# refuse (value: -1) in packetfence's role and switch configuration.
-#
-#[EthernetEAP]
-#filter = connection_type
-#operator = is
-#value = Ethernet-EAP
-#
-#[machineauth]
-#filter = user_name
-#operator = match
-#value = host/
-#
-#[machine]
-#filter = node_info.machine_account
-#operator = defined
-#
-#[EAPTLS]
-#filter = radius_request
-#attribute = EAP-Type
-#operator = is
-#value = EAP-TLS
-#
-#### Machine Auth Autoregister ####
-#
-#[1:EthernetEAP&machineauth]
-#scope = AutoRegister
-#role = machine
-#
-#[2:EthernetEAP&machineauth]
-#scope = NodeInfoForAutoReg
-#role = machine
-#
-#### Refuse User Auth without machine Auth ####
-#
-#[3:EthernetEAP&!machine&!EAPTLS]
-#scope = RegisteredRole
-#role = refuse
-#
-#[4:EthernetEAP&!machine]
-#scope = RegistrationRole
-#role = refuse
-#
-#### EAP TLS Autoregister ####
-#
-#[5:EthernetEAP&EAPTLS]
-#scope = AutoRegister
-#role = machine
-#
-#[6:EthernetEAP&EAPTLS]
-#scope = NodeInfoForAutoReg
-#role = machine
-#
-#### Unregister an auto-registered 802.1x device falling back to MAB ####
-#
-# The conditions below are already defined in vlan_filters.conf.defaults
-# To activate this filter you only need to add this section
-#[pf_deauth_from_wired_secure:pf_wired_mac_auth&pf_node_wired_eap&pf_node_reg&pf_node_auto_reg]
-#scope = RegisteredRole
-#action = modify_node
-#action_param = mac = $mac, status = unreg, autoreg = no
-#role = registration
-#
-# Web API call:
-#
-# [3:3]
-# scope = RegisteredRole
-# action = trigger_violation
-# action_param = mac = $mac, tid = 1100010, type = INTERNAL
-#
-# It means that if the SSID is OpenWrt-SECURE then we send a API call to the function trigger_violation and
-# trigger the violation 1100010
-# action_param is computed by PacketFence so you can set static and dynamic values
-#
-#### Fingerbank example ####
-#
-# There are two ways to detect if the device is an Android phone, either by looking at the hierarchy of device ID or looking at the hierarchy of device names
-# Although using device names is more intuitive, they are subject to (very rare) changes, so using the ID is recommended
-# To find a device ID by the name, the following command can be used : '/usr/local/pf/bin/pfcmd fingerbank find_device_id "Generic Android"'
-# See the Fingerbank section in the PacketFence Administration interface for a list of all devices or https://fingerbank.inverse.ca/devices
-#
-# This would then give us the following condition (note the use of includes) : 
-#[android_by_id]
-#filter = fingerbank_info.device_hierarchy_ids
-#operator = includes
-#value = 202
-#
-# Same example using the name:
-#[android_by_name]
-#filter = fingerbank_info.device_hierarchy_names
-#operator = includes
-#value = Generic Android
-#
-# Next, lets add filtering on the Android operating system version using:
-# (CAUTION: the version is not always available, when not present, this condition will return false)
-#[version_4_plus]
-#filter = fingerbank_info.version
-#operator = greater_equals
-#value = 4
-#
-# We could also want to validate that the device score is high enough through the following condition:
-#[minimum_score]
-#filter = fingerbank_info.score
-#operator = greater_equals
-#value = 30
-#
-# The above will ensure that the score is higher than 30 (included) which is the level at which Fingerbank uses informations that aren't easily spoofable for its decision.
-#
-# We could now create a filter that auto registers Android phones versions 4 and above that have a score of at least 30
-#
-#[autoreg_android:android_by_id&version_4_plus&minimum_score]
-#scope = AutoRegister
-#role = default
-#
-# filter can be:
-#
+# Filter can be:
 #     node_info.autoreg
 #     node_info.status
 #     node_info.bypass_vlan
@@ -267,8 +111,8 @@
 #     owner.unregdate
 #     owner.category
 #     radius_request
-#
-# operator can be:
+# 
+# Operator can be:
 #     is
 #     is_not
 #     match
@@ -278,35 +122,235 @@
 #     regex
 #     date_is_before
 #     date_is_after
+#     time
 #
-# attribute can be:
-#
+# Attribute can be:
 # - for connection_type
-#    Wireless-802.11-EAP
-#    Wireless-802.11-NoEAP
-#    Ethernet-EAP
-#    Ethernet-NoEAP
-#    SNMP-Traps
-#    Inline
-#    WIRED_MAC_AUTH
-#
+#     Wireless-802.11-EAP
+#     Wireless-802.11-NoEAP
+#     Ethernet-EAP
+#     Ethernet-NoEAP
+#     SNMP-Traps
+#     Inline
+#     WIRED_MAC_AUTH
 # - for the radius_request
-#    All the attributes you can have in the RADIUS request (run FreeRADIUS in debug mode to see these attributes)
+#     All the attributes you can have in the RADIUS request (run FreeRADIUS in debug mode to see these attributes)
 #
-# action can be:
+# Note: Time / Date based rule(s)/condition(s) values follows the following logic:
+# http://search.cpan.org/~pryan/Period-1.20/Period.pm
+# For example, if you want to allow access from Monday to Friday, 9am to 11am and from 2pm to 4pm:
+# wd {Mon Tue Wed Thu Fri} hr {9am-11am}, wd {Mon Tue Wed Thu Fri} hr {2pm-4am}
 #
+#
+# Actions
+# -------
+# Structure example of an action
+# [NAMEOFTHEACTION:RULE1&RULE2&RULE3]
+# scope = SCOPE
+# role = ROLE
+# action = ACTION
+# action_param = ACTION PARAMETERS
+#
+# Make sure to note the followings when defining an action:
+# - Actions are triggered on a first hit match, based on the order in the 'vlan_filters.conf' file
+# - Action names must be unique
+# - Action definitions (what's inside []) contains the unique name, ':' delimiter, and some valid rule(s)/condition(s) names appended using boolean operators
+#
+# Scope can be:
+# - see beginning of this file for possible scope. They are usually extensions points of endpoint connection flow
+#
+# Role can be:
+# - any existing configured PacketFence user role (Configuration tab, "Roles" menu item under the "Users" menu section)
+#
+# Action be be:
 #    deregister_node (require param => mac)
 #    register_node (require param => mac pid)
 #    modify_node (require param => mac)
 #    trigger_violation (require param => mac tid type)
 #
-# action_param can be:
-#    The require param and optional attributes like (for action = modify_node):
+# Action parameter can be:
+# - The require param and optional attributes like (for action = modify_node):
 #    action_param = mac = $mac, notes = $radius_request->{'Called-Station-Id'}
 #
 #
-# The value of a time is specific and follow this logic:
-# http://search.cpan.org/~pryan/Period-1.20/Period.pm
-# For example, if you want to allow access from Monday to Friday, 9am to 11am and from 2pm to 4pm:
-# wd {Mon Tue Wed Thu Fri} hr {9am-11am}, wd {Mon Tue Wed Thu Fri} hr {2pm-4am}
-
+# -------------------------
+#
+#
+# EXAMPLES
+# --------
+#
+# - When PacketFence tries to get the normal VLAN for the node and if the category of the node is
+# the default one, we return the role "nointernet" (which you will have configured in the switch configuration).
+# [category]
+# filter = node_info.category
+# operator = is
+# value = default
+#
+# [1:category]
+# scope = RegisteredRole
+# role = nointernet
+#
+#
+# - When PacketFence tries to get the normal VLAN for the node and if the category of the node is 
+# the default one and the ssid is OpenWrt-SECURE and the time is between 11am and 2pm from Monday to Friday,
+# we return the role "nointernet" (which you will have configured in the switch configuration).
+# [2]
+# filter = node_info.category
+# operator = match
+# value = default
+#
+# [3]
+# filter = ssid
+# operator = is
+# value = OpenWrt-SECURE
+#
+# [4]
+# filter = time
+# operator = is
+# value = wd {Mon Tue Wed Thu Fri} hr {11am-2pm}
+#
+# [2:2&3&4]
+# scope = RegisteredRole
+# role = nointernet
+#
+#
+# -  This will autoregister any device beginning by a set of known Avaya MAC address OUI and consider it as phone
+# [avaya_phones]
+# filter = node_info.mac
+# operator = regex
+# value = ^(00:04:0d|84:83:71|00:07:3b|00:09:6e|00:0d:18|00:0d:28|00:1b:4f|24:d9:21|2c:f4:c5|34:75:c7|3c:b1:5b|70:38:ee|b4:b0:17).*
+#
+# [autoreg:avaya_phones]
+# scope = IsPhone
+# role = default
+#
+#
+# - This will autoregister devices if the connection is Ethernet-EAP
+# [etherneteap]
+# filter = connection_type
+# operator = is
+# value = Ethernet-EAP
+#
+# [reg:etherneteap]
+# scope = AutoRegister
+# role = default
+#
+#
+# - This will autoregister machine auth on ethernet EAP or EAP-TLS connection and refuse 
+# user auth if there wasn't machine auth before (you must add a role machine and a role 
+# REJECT (value: -1) in packetfence's role and switch configuration.
+#[EthernetEAP]
+#filter = connection_type
+#operator = is
+#value = Ethernet-EAP
+#
+#[machineauth]
+#filter = user_name
+#operator = match
+#value = host/
+#
+#[machine]
+#filter = node_info.machine_account
+#operator = defined
+#
+#[EAPTLS]
+#filter = radius_request
+#attribute = EAP-Type
+#operator = is
+#value = EAP-TLS
+#
+#
+#### Machine Auth Autoregister ####
+#
+#[1:EthernetEAP&machineauth]
+#scope = AutoRegister
+#role = machine
+#
+#[2:EthernetEAP&machineauth]
+#scope = NodeInfoForAutoReg
+#role = machine
+#
+#
+#### Refuse User Auth without machine Auth ####
+#
+#[3:EthernetEAP&!machine&!EAPTLS]
+#scope = RegisteredRole
+#role = REJECT
+#
+#[4:EthernetEAP&!machine]
+#scope = RegistrationRole
+#role = REJECT
+#
+#
+#### EAP TLS Autoregister ####
+#
+#[5:EthernetEAP&EAPTLS]
+#scope = AutoRegister
+#role = machine
+#
+#[6:EthernetEAP&EAPTLS]
+#scope = NodeInfoForAutoReg
+#role = machine
+#
+#
+#### Unregister an auto-registered 802.1x device falling back to MAB ####
+#
+# The conditions below are already defined in vlan_filters.conf.defaults
+# To activate this filter you only need to add this section
+#[pf_deauth_from_wired_secure:pf_wired_mac_auth&pf_node_wired_eap&pf_node_reg&pf_node_auto_reg]
+#scope = RegisteredRole
+#action = modify_node
+#action_param = mac = $mac, status = unreg, autoreg = no
+#role = registration
+#
+# Web API call:
+#
+# [3:3]
+# scope = RegisteredRole
+# action = trigger_violation
+# action_param = mac = $mac, tid = 1100010, type = INTERNAL
+#
+# It means that if the SSID is OpenWrt-SECURE then we send a API call to the function trigger_violation and
+# trigger the violation 1100010
+# action_param is computed by PacketFence so you can set static and dynamic values
+#
+#
+#### Fingerbank example ####
+#
+# There are two ways to detect if the device is an Android phone, either by looking at the hierarchy of device ID or looking at the hierarchy of device names
+# Although using device names is more intuitive, they are subject to (very rare) changes, so using the ID is recommended
+# To find a device ID by the name, the following command can be used : '/usr/local/pf/bin/pfcmd fingerbank find_device_id "Generic Android"'
+# See the Fingerbank section in the PacketFence Administration interface for a list of all devices or https://fingerbank.inverse.ca/devices
+#
+# This would then give us the following condition (note the use of includes) : 
+#[android_by_id]
+#filter = fingerbank_info.device_hierarchy_ids
+#operator = includes
+#value = 202
+#
+# Same example using the name:
+#[android_by_name]
+#filter = fingerbank_info.device_hierarchy_names
+#operator = includes
+#value = Generic Android
+#
+# Next, lets add filtering on the Android operating system version using:
+# (CAUTION: the version is not always available, when not present, this condition will return false)
+#[version_4_plus]
+#filter = fingerbank_info.version
+#operator = greater_equals
+#value = 4
+#
+# We could also want to validate that the device score is high enough through the following condition:
+#[minimum_score]
+#filter = fingerbank_info.score
+#operator = greater_equals
+#value = 30
+#
+# The above will ensure that the score is higher than 30 (included) which is the level at which Fingerbank uses informations that aren't easily spoofable for its decision.
+#
+# We could now create a filter that auto registers Android phones versions 4 and above that have a score of at least 30
+#
+#[autoreg_android:android_by_id&version_4_plus&minimum_score]
+#scope = AutoRegister
+#role = default
