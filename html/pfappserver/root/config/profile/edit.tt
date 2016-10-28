@@ -91,7 +91,7 @@
         <div class="pull-right">
           <h5>[% l('Available Variables') %]</h5>
           <ul id="variable_list">
-            [% FOREACH var IN ['logo', 'username', 'user_agent', 'dhcp_fingerprint', 'last_switch', 'last_port', 'last_vlan', 'last_connection_type', 'last_ssid'] %]
+            [% FOREACH var IN ['logo', 'username', 'user_agent', 'device_class', 'last_switch', 'last_port', 'last_vlan', 'last_connection_type', 'last_ssid'] %]
             [% variable_entry(var) | none %]
             [% END %]
           </ul>

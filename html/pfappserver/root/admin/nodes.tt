@@ -9,7 +9,8 @@
     <option value="category">[% l('Node Role') %]</option>
     <option value="notes">[% l('Notes') %]</option>
     <option value="online">[% l('Online Status') %]</option>
-    <option value="dhcp_fingerprint">[% l('OS (DHCP)') %]</option>
+    <option value="device_class">[% l('Device class') %]</option>
+    <option value="device_type">[% l('Device type') %]</option>
     <option value="person_name">[% l('Person Name') %]</option>
     <option value="status">[% l('Status') %]</option>
     <option value="switch_id">[% l('Source Switch Identifier') %]</option>
@@ -262,7 +263,7 @@ form {
                   <li>
                     <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseOS">Windows</a>
                       <form>
-                        <input type="hidden" name="searches.0.name" value="dhcp_fingerprint"/>
+                        <input type="hidden" name="searches.0.name" value="device_class"/>
                         <input type="hidden" name="searches.0.op" value="is"/>
                         <input type="hidden" name="searches.0.value" value="Windows"/>
                       </form>
@@ -270,7 +271,7 @@ form {
                   <li>
                     <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseOS">Linux</a>
                       <form>
-                        <input type="hidden" name="searches.0.name" value="dhcp_fingerprint"/>
+                        <input type="hidden" name="searches.0.name" value="device_class"/>
                         <input type="hidden" name="searches.0.op" value="is"/>
                         <input type="hidden" name="searches.0.value" value="Linux"/>
                       </form>
@@ -278,7 +279,7 @@ form {
                   <li>
                     <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseOS">MacOS</a>
                       <form>
-                        <input type="hidden" name="searches.0.name" value="dhcp_fingerprint"/>
+                        <input type="hidden" name="searches.0.name" value="device_class"/>
                         <input type="hidden" name="searches.0.op" value="is"/>
                         <input type="hidden" name="searches.0.value" value="Macintosh"/>
                       </form>

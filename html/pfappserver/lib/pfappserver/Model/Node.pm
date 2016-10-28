@@ -75,7 +75,7 @@ Field names to be displayed. The first one is the default sort field.
 =cut
 
 sub field_names {
-    return [qw(mac detect_date regdate unregdate computername pid last_ip status dhcp_fingerprint category)];
+    return [qw(mac detect_date regdate unregdate computername pid last_ip status device_class category)];
 }
 
 =head2 countAll

@@ -250,11 +250,11 @@ sub add_fake_profile_data {
         last_connection_type  => 'Wireless-802.11-EAP',
         nodes       => [{ status           => 'reg',
                           mac              => '00:11:22:33:44:55',
-                          dhcp_fingerprint => 'Ubuntu',
+                          device_class     => 'Ubuntu',
                           regdate          => '2016-01-02 03:04:05' },
                        { status           => 'reg',
                           mac              => '11:22:33:44:55:66',
-                          dhcp_fingerprint => 'Android',
+                          device_class     => 'Android',
                           regdate          => '2016-02-03 04:05:06' }]
     );
 

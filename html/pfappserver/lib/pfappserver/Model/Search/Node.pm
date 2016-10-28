@@ -102,7 +102,9 @@ sub make_builder {
             L_("IF(unregdate = '0000-00-00 00:00:00', '', unregdate)", 'unregdate'),
             L_("IFNULL(node_category.name, '')", 'category'),
             L_("IFNULL(node_category_bypass_role.name, '')", 'bypass_role'),
-            L_("IFNULL(device_class, ' ')", 'dhcp_fingerprint'),
+            L_("IFNULL(device_class, ' ')", 'device_class'),
+            L_("IFNULL(device_type, ' ')", 'device_type'),
+            L_("IFNULL(device_version, ' ')", 'device_version'),
             L_("IF(r1.acctstarttime IS NULL,'unknown',IF(r1.acctstoptime IS NULL, 'on', 'off'))", 'online'),
             { table => 'iplog', name => 'ip', as => 'last_ip' },
             { table => 'locationlog', name => 'switch', as => 'switch_id' },
@@ -336,10 +338,6 @@ my %COLUMN_MAP = (
     bypass_role => {
         table => 'node_category_bypass_role',
         name  => 'name',
-    },
-    dhcp_fingerprint   => {
-       table => 'node',
-       name  => 'device_class',
     },
     switch_id   => {
        table => 'locationlog',
