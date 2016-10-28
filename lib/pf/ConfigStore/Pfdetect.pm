@@ -54,18 +54,20 @@ sub _Sections {
 
 sub cleanupAfterRead {
     my ($self, $id, $item, $idKey) = @_;
-    my @rules;
-    for my $sub_section ( $self->cachedConfig->Sections ) {
-        next unless  $sub_section =~ /^$id rule (.*)$/;
-        my $id = $1;
-        my $rule = $self->readRaw($sub_section);
-        $rule->{name} = $id;
-        my @action_keys = nsort grep {/^action\d+$/} keys %$rule;
-        my @actions = delete @{$rule}{@action_keys};
-        $rule->{actions} = \@actions;
-        push @rules, $rule;
+    if ($item->{type} eq 'regex' ) {
+        my @rules;
+        for my $sub_section ( $self->cachedConfig->Sections ) {
+            next unless  $sub_section =~ /^$id rule (.*)$/;
+            my $id = $1;
+            my $rule = $self->readRaw($sub_section);
+            $rule->{name} = $id;
+            my @action_keys = nsort grep {/^action\d+$/} keys %$rule;
+            my @actions = delete @{$rule}{@action_keys};
+            $rule->{actions} = \@actions;
+            push @rules, $rule;
+        }
+        $item->{rules} = \@rules;
     }
-    $item->{rules} = \@rules;
 }
 
 
