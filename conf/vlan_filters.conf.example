@@ -18,10 +18,7 @@
 #
 #
 # Rule(s)/Condition(s)
-# ------------------
-# Usually, a rule/condition contains a filter, an operator, in some cases an attributes, and a value
-# Some working examples covering useful use cases can be found at the bottom of this file
-#
+# --------------------
 # Structure example of a rule/condition
 # [NAMEOFRULE]
 # filter = FILTER
@@ -125,6 +122,7 @@
 #     regex
 #     date_is_before
 #     date_is_after
+#     time
 #
 # Attribute can be:
 # - for connection_type
@@ -146,9 +144,6 @@
 #
 # Actions
 # -------
-# Usually, an action contains a scope, a role and optionally, a action with action parameters
-# Some working examples covering useful use cases can be found at the bottom of this file
-#
 # Structure example of an action
 # [NAMEOFTHEACTION:RULE1&RULE2&RULE3]
 # scope = SCOPE
@@ -243,7 +238,7 @@
 #
 # - This will autoregister machine auth on ethernet EAP or EAP-TLS connection and refuse 
 # user auth if there wasn't machine auth before (you must add a role machine and a role 
-# refuse (value: -1) in packetfence's role and switch configuration.
+# REJECT (value: -1) in packetfence's role and switch configuration.
 #[EthernetEAP]
 #filter = connection_type
 #operator = is
@@ -280,11 +275,11 @@
 #
 #[3:EthernetEAP&!machine&!EAPTLS]
 #scope = RegisteredRole
-#role = refuse
+#role = REJECT
 #
 #[4:EthernetEAP&!machine]
 #scope = RegistrationRole
-#role = refuse
+#role = REJECT
 #
 #
 #### EAP TLS Autoregister ####
