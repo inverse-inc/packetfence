@@ -4782,7 +4782,7 @@ NOTE: You need to have the *Per-User Firewall* license in order to benefit this 
 Mojo Networks
 ^^^^^^^^^^^^^
 
-PacketFence supports only SSIDs configured with 802.1x.
+PacketFence supports only SSIDs configured with 802.1X.
 
 Configure the 802.1X Secure SSID:
 +++++++++++++++++++++++++++++++++
