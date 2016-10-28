@@ -1427,6 +1427,70 @@ sub chi_cache_clear : Public {
     return $cache->clear();
 }
 
+=head2 enableMABFloatingInQueue
+
+Call enableMABFloating in the local queue
+
+=cut
+
+sub enableMABFloatingInQueue : Public {
+    my ( $class, %postdata ) = @_;
+    my $logger = pf::log::get_logger;
+
+    my $client = pf::api::queue->new(queue => 'general');
+    $client->notify( '_enableMABFloating', %postdata );
+}
+
+=head2 disableMABConfigInQueue
+
+Call disableMABFloating in the local queue
+
+=cut
+
+sub disableMABFloatingInQueue : Public {
+    my ( $class, %postdata ) = @_;
+    my $logger = pf::log::get_logger;
+
+    my $client = pf::api::queue->new(queue => 'general');
+    $client->notify( '_disableMABFloating', %postdata );
+}
+
+=head2 enableMABFloating
+
+Enable the MAB floating device mode on a switch port
+
+=cut
+
+sub enableMABFloating : Public {
+    my ( $class, %postdata ) = @_;
+    my $logger = pf::log::get_logger;
+
+    my $switch = pf::SwitchFactory->instantiate( $postdata{'switch'} );
+    unless ($switch) {
+        $logger->error("switch $postdata{'switch'} not found for enableMABFloating");
+        return;
+    }
+    $switch->enableMABFloatingDevice($postdata{ifIndex});
+}
+
+=head2 disableMABFloating
+
+Disable the MAB floating device mode on a switch port
+
+=cut
+
+sub disableMABFloating : Public {
+    my ( $class, %postdata ) = @_;
+    my $logger = pf::log::get_logger;
+
+    my $switch = pf::SwitchFactory->instantiate( $postdata{'switch'} );
+    unless ($switch) {
+        $logger->error("switch $postdata{'switch'} not found for disableMABFloating");
+        return;
+    }
+    $switch->disableMABFloatingDevice($postdata{ifIndex});
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
