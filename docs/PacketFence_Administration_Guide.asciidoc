@@ -2920,7 +2920,7 @@ One way of accessing encapsulated traffic at the destination host is through a s
 
 
 Assomptions for the example:
-The switch is at IP 172.16.0.1, the monitored switch port is GigabitEthernet10 and the Security Onion monitoring destination IP is 10.10.10.10 on eth2, eth2 ideally being a dedicated interface.
+The switch is at IP 172.16.0.1, the monitored switch port is GigabitEthernet0/10 and the Security Onion monitoring destination IP is 10.10.10.10 on eth2, eth2 ideally being a dedicated interface.
 
 On Security Onion:
 
