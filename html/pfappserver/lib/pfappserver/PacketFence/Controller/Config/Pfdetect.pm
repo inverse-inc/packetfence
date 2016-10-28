@@ -55,22 +55,6 @@ after [qw(create clone)] => sub {
 };
 
 
-=head2 after view
-
-=cut
-
-after view => sub {
-    my ($self, $c) = @_;
-    if (!$c->stash->{action_uri}) {
-        my $id = $c->stash->{id};
-        if ($id) {
-            $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$c->stash->{id}]);
-        } else {
-            $c->stash->{action_uri} = $c->uri_for($self->action_for('create'));
-        }
-    }
-};
-
 =head2 index
 
 Usage: /config/pfdetect/
