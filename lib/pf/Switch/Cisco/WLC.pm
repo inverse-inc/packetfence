@@ -413,9 +413,10 @@ sub returnRadiusAccessAccept {
     my $role = $self->getRoleByName($args->{'user_role'});
     if ( isenabled($self->{_UrlMap}) && $self->externalPortalEnforcement ) {
         if ( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getUrlByName($args->{'user_role'}) ) ) {
+            $args->{'session_id'} = "sid".$self->setSession($args);
             my $redirect_url = $self->getUrlByName($args->{'user_role'});
-            $args->{'session_id'} = "sid".$self->setSession($args) if ($redirect_url =~ /\$session_id/);
-            $redirect_url =~ s/\$([a-zA-Z_0-9]+)/$args->{$1} \/\/ ''/ge;
+            $redirect_url .= '/' unless $redirect_url =~ m(\/$);
+            $redirect_url .= $args->{'session_id'};
             #override role if a role in role map is define
             if (isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
                 my $role_map = $self->getRoleByName($args->{'user_role'});
