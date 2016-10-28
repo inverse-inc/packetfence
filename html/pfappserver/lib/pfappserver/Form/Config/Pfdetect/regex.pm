@@ -13,9 +13,33 @@ Form definition to create or update a pfdetect detector.
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Pfdetect';
 with 'pfappserver::Base::Form::Role::Help';
+use pf::log;
 
 
-has_field 'regex' =>
+sub build_form_element_class { ['form-vertical'] }
+
+=head2 rules
+
+The list of rule
+
+=cut
+
+has_field 'rules' =>
+  (
+    'type' => 'Repeatable',
+    has_label => 0,
+   Widget => 'Repeatable',
+  );
+
+has_field 'rules.name' =>
+  (
+   type => 'Text',
+   label => 'Name',
+   required => 1,
+   messages => { required => 'Please specify the name of the rule' },
+  );
+
+has_field 'rules.regex' =>
   (
    type => 'Text',
    label => 'Regex',
@@ -23,7 +47,7 @@ has_field 'regex' =>
    messages => { required => 'Please specify the regex pattern using named captures' },
   );
 
-has_field 'send_add_event' =>
+has_field 'rules.send_add_event' =>
   (
    type => 'Toggle',
    label => 'Send Add Event',
@@ -32,7 +56,7 @@ has_field 'send_add_event' =>
    unchecked_value => 'disabled',
   );
 
-has_field 'events' =>
+has_field 'rules.events' =>
   (
    type => 'Text',
    label => 'Event List',
@@ -41,36 +65,49 @@ has_field 'events' =>
    messages => { required => 'Please specify the regex pattern using named captures' },
   );
 
-=head2 action
+=head2 rules.actions
 
 The list of action
 
 =cut
 
-has_field 'action' =>
+has_field 'rules.actions' =>
   (
-    'type' => 'DynamicTable',
-    'sortable' => 1,
-    'do_label' => 0,
+    'type' => 'Repeatable',
   );
 
-=head2 action
+=head2 rules.actions.contains
 
 The definition for the list of actions
 
 =cut
 
-has_field 'action.contains' =>
+has_field 'rules.actions.contains' =>
   (
     type => 'Text',
-    widget_wrapper => 'DynamicTableRow',
+    label => 'Action',
   );
 
-has_block definition =>
-  (
-   render_list => [ qw(id type path regex events send_add_event) ],
-  );
 
+=head2 validate
+
+=cut
+
+sub validate {
+    my ($self) = @_;
+    my $value  = $self->value;
+    my $i      = 0;
+    foreach my $rule (@{$value->{rules} // []}) {
+        my $regex = eval {qr/$rule->{regex}/};
+        if ($@) {
+            my $f_rules = $self->field('rules');
+            my $f_rule = $f_rules->field($i);
+            $f_rule->field("regex")->add_error("Invalid regex provided");
+        }
+        $i++;
+    }
+    return 1;
+}
 
 =over
 
