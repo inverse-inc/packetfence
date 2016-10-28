@@ -197,80 +197,91 @@ sub wiredeauthTechniques {
 
 }
 
+=head2 _commandSSH
+
+Execute a command on an SSH channel with a timeout
+
+HACK Alert: This is necessary (mandatory even) for the Juniper Switches as Net::SSH2 and the Juniper switches don't seem to understand themselves as the return data channel from the Juniper never closes (even after it prints its output) so all commands will last the specified timeout.
+
+=cut
+
+sub _commandSSH{
+    my ($self, $chan, $command, $timeout) = @_;
+    my $logger = $self->logger;
+    $timeout //= 5;
+    eval {
+        local $SIG{ALRM} = sub { die "timeout\n" };
+        alarm $timeout;
+        print $chan "$command\n";
+        $logger->debug("SSH output : $_") while <$chan>;
+        alarm 0;
+    };
+}
+
+=head2 _connectSSH
+
+Connect to the switch using SSH
+
+=cut
+
+sub _connectSSH {
+    my ($self) = @_;
+    
+    my $ssh;
+    eval {
+        $ssh = Net::SSH2->new();
+        $ssh->connect($self->{_ip}, 22 ) or die "Cannot connect $!"  ;
+        $ssh->auth_password($self->{_cliUser},$self->{_cliPwd}) or die "Cannot authenticate" ;
+    };
+
+    if($@) {
+        $self->logger->error("Error connecting through SSH: $@");
+    }
+    return $ssh;
+
+}
+
 =head2 enableMABFloatingDevice
 
-Connects to the switch and configures the specified port to be RADIUS floating device ready
+Enable the MAB floating device mode on a switch port
 
 =cut
 
 sub enableMABFloatingDevice{
     my ($self, $ifIndex) = @_;
     my $logger = $self->logger;
-    require pf::services::util;
 
-    pf::services::util::untie_std_outputs();
-    my $session;
-    eval {
-        require Net::Appliance::Session;
-        $session = Net::Appliance::Session->new(
-            Host      => $self->{_ip},
-            Timeout   => 20,
-            Transport => $self->{_cliTransport},
-            Platform  => "JUNOS",
-        );
+    my $ssh = $self->_connectSSH();
 
-        $session->connect(
-            Name     => $self->{_cliUser},
-            Password => $self->{_cliPwd}
-        );
-    };
-
-    if ($@) {
-        $logger->error("Unable to connect to ".$self->{'_ip'}." using ".$self->{_cliTransport}.". Failed with $@");
-        pf::log::trapper::tie_std_outputs();
-        return;
-    }
+    return unless($ssh);
 
     my $port = $ifIndex;
 
     my $command_mac_limit = "set ethernet-switching-options secure-access-port interface $port mac-limit 16383";
     my $command_disconnect_flap = "delete protocols dot1x authenticator interface $port mac-radius flap-on-disconnect";
 
-    my @output;
-    eval {
-        # fake priviledged mode
-        $session->in_privileged_mode(1);
-        $session->begin_configure();
-
-
-        @output = $session->cmd(String => $command_mac_limit, Timeout => '5');
-        @output = $session->cmd(String => $command_disconnect_flap, Timeout => '5');
-        @output = $session->cmd(String => 'commit comment "configured floating device on '.$port.'"', Timeout => '30');
-
-        $session->in_privileged_mode(0);
-    };
-
     if ($@) {
-        $logger->error("Unable to set mac limit for port $port: $@");
-        eval {
-            $session->close();
-        };
-        pf::log::trapper::tie_std_outputs();
+        $logger->info("Unable to connect to ".$self->{_ip}." using SSH. Failed with $@");
         return;
     }
-    eval {
-        $session->close();
-    };
-    $logger->debug(sub {use Data::Dumper ; Dumper(\@output)});
-    $logger->info("Successfully enable MAB floating device on $ifIndex");
-    pf::services::util::tie_std_outputs();
-    return 1;
 
+    my $chan = $ssh->channel();
+    $chan->shell();
+    $self->_commandSSH($chan, "configure");
+    $self->_commandSSH($chan, $command_mac_limit);
+    $self->_commandSSH($chan, $command_disconnect_flap);
+    $self->_commandSSH($chan, 'commit comment "configured floating device on '.$port.'"', 30);
+
+    $ssh->disconnect();
+
+    $logger->info("Completed configuration of floating device on $port");
+
+    return 1;
 }
 
 =head2 disableMABFloatingDevice
 
-Connects to the switch and removes the RADIUS floating device configuration
+Disable the MAB floating device mode on a switch port
 
 =cut
 
@@ -278,62 +289,26 @@ sub disableMABFloatingDevice{
     my ($self, $ifIndex) = @_;
     my $logger = $self->logger;
 
-    require pf::services::util;
-    pf::services::util::untie_std_outputs();
-    my $session;
-    eval {
-        require Net::Appliance::Session;
-        $session = Net::Appliance::Session->new(
-            Host      => $self->{_ip},
-            Timeout   => 20,
-            Transport => $self->{_cliTransport},
-            Platform  => "JUNOS",
-        );
+    my $ssh = $self->_connectSSH();
 
-        $session->connect(
-            Name     => $self->{_cliUser},
-            Password => $self->{_cliPwd}
-        );
-    };
-
-    if ($@) {
-        $logger->error("Unable to connect to ".$self->{'_ip'}." using ".$self->{_cliTransport}.". Failed with $@");
-        pf::services::util::tie_std_outputs();
-        return;
-    }
+    return unless($ssh);
 
     my $port = $ifIndex;
 
     my $command_mac_limit = "delete ethernet-switching-options secure-access-port interface $port mac-limit";
     my $command_disconnect_flap = "set protocols dot1x authenticator interface $port mac-radius flap-on-disconnect";
-    my @output;
-    eval {
-        # fake priviledged mode
-        $session->in_privileged_mode(1);
-        $session->begin_configure();
 
+    my $chan = $ssh->channel();
+    $chan->shell();
+    $self->_commandSSH($chan, "configure");
+    $self->_commandSSH($chan, $command_mac_limit);
+    $self->_commandSSH($chan, $command_disconnect_flap);
+    $self->_commandSSH($chan, 'commit comment "de-configured floating device on '.$port.'"', 30);
 
-        @output = $session->cmd(String => $command_mac_limit, Timeout => '5');
-        @output = $session->cmd(String => $command_disconnect_flap, Timeout => '5');
-        @output = $session->cmd(String => 'commit comment "deconfigured floating device on '.$port.'"', Timeout => '30');
+    $ssh->disconnect();
+    
+    $logger->info("Completed de-configuration of floating device on $port");
 
-        $session->in_privileged_mode(0);
-    };
-
-    if ($@) {
-        $logger->error("Unable to set mac limit for port $port: $@");
-        eval {
-            $session->close();
-        };
-        pf::services::util::tie_std_outputs();
-        return;
-    }
-    eval {
-        $session->close();
-    };
-    $logger->debug(sub {use Data::Dumper ; Dumper(\@output)});
-    $logger->info("Successfully disabled MAB floating device on $ifIndex");
-    pf::services::util::tie_std_outputs();
     return 1;
 }
 
