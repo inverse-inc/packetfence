@@ -149,6 +149,30 @@ sub bulk_reevaluate_access : Local {
     $c->stash->{status_msg} = $status_msg;
 }
 
+=head2 bulk_users_delete
+
+Deletes users while reassigning their nodes to the default PID
+
+=cut
+
+sub bulk_delete : Local {
+    my ( $self, $c ) = @_;
+    $c->stash->{current_view} = 'JSON';
+    my ( $status, $status_msg );
+    my $request = $c->request;
+    if ($request->method eq 'POST') {
+        my @ids = $request->param('items');
+        ($status, $status_msg) = $self->getModel($c)->bulkDelete(@ids);
+        $self->audit_current_action($c, status => $status, ids => \@ids);
+    }
+    else {
+        $status = HTTP_BAD_REQUEST;
+        $status_msg = "";
+    }
+    $c->response->status($status);
+    $c->stash->{status_msg} = $status_msg;
+}
+
 
 =head1 AUTHOR
 

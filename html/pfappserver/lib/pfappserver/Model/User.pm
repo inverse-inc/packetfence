@@ -32,6 +32,7 @@ use pf::enforcement qw(reevaluate_access);
 use pf::util;
 use pf::config::util;
 use pf::web::guest;
+use pf::constants;
 
 =head2 field_names
 
@@ -305,6 +306,22 @@ sub mail {
     }
 
     return ($status, $status_msg);
+}
+
+=head2 unassignNodes
+
+Unassigns the users nodes so he can be safely deleted
+
+=cut
+
+sub unassignNodes {
+    my ($self, $pid) = @_;
+    foreach my $node (person_nodes($pid)) {
+        unless(node_modify($node->{mac}, pid => $default_pid)) {
+            return ($STATUS::INTERNAL_SERVER_ERROR, "Cannot reset owner of ".$node->{mac});
+        }
+    }
+    return ($STATUS::OK, "The nodes of $pid were successfully assigned to the default PID.");
 }
 
 =head2 delete
@@ -677,6 +694,20 @@ sub bulkCloseViolations {
     return ($STATUS::OK, ["[_1] violation(s) were closed.",$count]);
 }
 
+=head2 bulkDelete
+
+=cut
+
+sub bulkDelete {
+    my ($self, @ids) = @_;
+    my $count = 0;
+    foreach my $pid ( @ids  ) {
+        if(is_success($self->unassignNodes($pid)) && is_success($self->delete($pid))) {
+            $count++;
+        }
+    }
+    return ($STATUS::OK, ["[_1] users were deleted.",$count]);
+}
 =over
 
 =back

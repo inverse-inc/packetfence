@@ -62,6 +62,8 @@ var UserView = function(options) {
     this.proxyFor($('body'), 'submit', 'form[name="advancedUserSearch"]', this.submitSearch);
 
     this.proxyClick($('body'), '#modalUser [href$="/delete"]', this.deleteUser);
+    
+    this.proxyClick($('body'), '#modalUser [href$="/unassignNodes"]', this.unassignUserNodes);
 
     this.proxyClick($('body'), '#modalUser #resetPassword', this.resetPassword);
 
@@ -241,6 +243,28 @@ UserView.prototype.deleteUser = function(e) {
             modal.modal('hide');
             modal.on('hidden', function() {
                 $(window).hashchange();
+            });
+        },
+        errorSibling: modal_body.children().first()
+    });
+};
+
+UserView.prototype.unassignUserNodes = function(e) {
+    e.preventDefault();
+
+    var modal = $('#modalUser');
+    var modal_body = modal.find('.modal-body');
+    var btn = $(e.target);
+    var url = btn.attr('href');
+    this.users.get({
+        url: url,
+        success: function(data) {
+            modal.modal('hide');
+            modal.on('hidden', function() {
+                $(window).hashchange();
+            });
+            $("#section").on('section.loaded', function() {
+              showSuccess($("#section").find('h2').first(), data.status_msg);
             });
         },
         errorSibling: modal_body.children().first()
@@ -445,27 +469,38 @@ UserView.prototype.submitItems = function(e) {
     var status_container = $("#section").find('h2').first();
     var items = $("#items").serialize();
     var users = this.users;
-    if (items.length) {
-        if (section) {
-            $("body,html").animate({scrollTop:0}, 'fast');
-            var loader = section.prev('.loader');
-            loader.show();
-            section.fadeTo('fast', 0.5, function() {
-                users.post({
-                    url: target.attr("data-target"),
-                    data: items,
-                    success: function(data) {
-                        showSuccess($("#section").find('h2').first(), data.status_msg);
-                    },
-                    always: function(data) {
-                        loader.hide();
-                        section.fadeTo('fast', 1.0);
-                    },
-                    errorSibling: status_container
+    var modal = $('#bulkConfirmation');
+    var confirm_link = modal.find('a.btn-primary').first();
+    confirm_link.off('click');
+    confirm_link.click(function() {
+        modal.modal('hide');
+        if (items.length) {
+            if (section) {
+                $("body,html").animate({scrollTop:0}, 'fast');
+                var loader = section.prev('.loader');
+                loader.show();
+                section.fadeTo('fast', 0.5, function() {
+                    users.post({
+                        url: target.attr("data-target"),
+                        data: items,
+                        success: function(data) {
+                            var show_msg = function() {
+                                showSuccess($("#section").find('h2').first(), data.status_msg);
+                                $("#section").off('section.loaded', show_msg);
+                            };
+                            $("#section").on('section.loaded', show_msg);
+                        },
+                        always: function(data) {
+                            loader.hide();
+                            $(window).hashchange();
+                        },
+                        errorSibling: status_container
+                    });
                 });
-            });
+            }
         }
-    }
+    });
+    modal.modal({ show: true });
 };
 
 UserView.prototype.searchPagination = function(e) {
