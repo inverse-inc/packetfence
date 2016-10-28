@@ -2965,7 +2965,7 @@ On the Switch:
 
   monitor session 10 type erspan-source
   description ERSPAN to 10.10.10.10
-  source interface GigabitEthernet10
+  source interface GigabitEthernet0/10
   destination
   erspan-id 10
   ip address 10.10.10.10
