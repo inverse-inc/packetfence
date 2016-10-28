@@ -1,9 +1,9 @@
 [% IF c.action.name == "view"  %]
-[% SET action_url = c.uri_for(c.controller.action_for('update'), [ scope, item.id ]) %]
+[% SET action_uri = c.uri_for(c.controller.action_for('update'), [ scope, item.id ]) %]
 [%ELSE%]
-[% SET action_url = c.req.uri %]
+[% SET action_uri = c.req.uri %]
 [% END %]
-<form name="modalFingerbankDevice" class="form-horizontal form-condensed" action="[% action_url %]" method="post">
+<form name="modalFingerbankDevice" class="form-horizontal form-condensed" action="[% action_uri %]" method="post">
   [%- IF item.id %]<input type="hidden" name="id" value="[% item.id | html %]">[% END %]
   <div class="modal-header">
     <a class="close" data-dismiss="modal">&times;</a>
