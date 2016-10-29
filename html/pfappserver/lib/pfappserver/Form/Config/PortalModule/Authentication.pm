@@ -58,10 +58,22 @@ has_field 'signup_template' =>
              help => 'The template to use for the signup' },
   );
 
+=head2 child_definition
+
+The fields to display
+
+=cut
+
 sub child_definition {
     my ($self) = @_;
     return (qw(source_id pid_field custom_fields with_aup aup_template signup_template), $self->auth_module_definition());
 }
+
+=head2 BUILD
+
+set the default value for for fields
+
+=cut
 
 sub BUILD {
     my ($self) = @_;
