@@ -15,16 +15,19 @@ pf::api::attributes
 use strict;
 use warnings;
 use Scalar::Util( );
+use Sub::Util();
 use List::MoreUtils qw(any);
 
 our %ALLOWED_ATTRIBUTES = (
     Public => 1,
     Fork => 1,
+    AllowedAsAction => 1,
 );
 
 our $REST_PATHS_REGEX = qr/^RestPath\((.*)\)/;
 
 our %TAGS;
+our %ALLOWED_ACTIONS;
 our %REST_PATHS;
 
 sub MODIFY_CODE_ATTRIBUTES {
@@ -70,6 +73,14 @@ sub _updateTags {
     $attrs{code} = $code;
     Scalar::Util::weaken($attrs{code});
     $TAGS{$ref_add} = \%attrs;
+}
+
+sub updateAllowedAsActions {
+    for my $info (values %TAGS) {
+        if (exists $info->{AllowedAsAction}) {
+            $ALLOWED_ACTIONS{Sub::Util::subname($info->{code})} = 1;
+        }
+    }
 }
 
 sub isPublic {
