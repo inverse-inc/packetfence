@@ -25,64 +25,12 @@ has_field 'rules' =>
   (
     'type' => 'Repeatable',
     has_label => 0,
-   Widget => 'Repeatable',
   );
 
-has_field 'rules.name' =>
+has_field 'rules.contains' =>
   (
-   type => 'Text',
-   label => 'Name',
-   required => 1,
-   messages => { required => 'Please specify the name of the rule' },
-  );
-
-has_field 'rules.regex' =>
-  (
-   type => 'Regex',
-   label => 'Regex',
-   required => 1,
-   messages => { required => 'Please specify the regex pattern using named captures' },
-  );
-
-has_field 'rules.send_add_event' =>
-  (
-   type => 'Toggle',
-   label => 'Send Add Event',
-   messages => { required => 'Please specify the if the add_event is sent' },
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
-  );
-
-has_field 'rules.events' =>
-  (
-   type => 'Text',
-   label => 'Event List',
-   #This is required if the send_add_event if checked
-   #Add validation to the event list
-   messages => { required => 'Please specify the regex pattern using named captures' },
-  );
-
-=head2 rules.actions
-
-The list of action
-
-=cut
-
-has_field 'rules.actions' =>
-  (
-    'type' => 'Repeatable',
-  );
-
-=head2 rules.actions.contains
-
-The definition for the list of actions
-
-=cut
-
-has_field 'rules.actions.contains' =>
-  (
-    type => 'Text',
-    label => 'Action',
+   type => 'PfdetectRegexRule',
+    widget_wrapper => 'Modal',
   );
 
 
