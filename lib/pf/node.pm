@@ -664,7 +664,6 @@ sub node_view {
     $node_info_ref = {
         %$node_info_ref,
         %$locationlog_info_ref,
-        'nbopenviolations' => pf::violation::violation_count($mac),
     };
 
     return ($node_info_ref);

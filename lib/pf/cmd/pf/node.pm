@@ -58,7 +58,7 @@ $/xms;
 our $COUNT_RE = qr/^ (?: (all) | ( $RE{net}{MAC} ) | (?: ( category | pid  ) \s* [=] \s* $pid_re )) \s*/xms;
 
 our @FIELDS = qw(
-  mac computername pid category status bypass_vlan nbopenviolations voip
+  mac computername pid category status bypass_vlan voip
   detect_date regdate unregdate last_connection_type last_switch last_port last_vlan last_ssid last_dot1x_username user_agent dhcp_fingerprint last_arp last_dhcp lastskip notes);
 
 =head2 action_view
