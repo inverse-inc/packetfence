@@ -11,24 +11,16 @@
 </ul>
 <h3><i>[% l('Syslog parser') %]</i> [% item.type | html %]</h3>
 <form name="modalPfdetect" class="form-horizontal form-condensed" action="[% action_uri %]" method="post">
-  <div class="modal-header">
-    <a class="close" data-dismiss="modal">&times;</a>
-  </div>
-
-  <div class="modal-body">
   [%- IF item.id.defined;
     CALL form.field('id').type_attr('hidden');
     CALL form.field('id').do_label(0);
   END -%]
     [% INCLUDE "config/pfdetect/type/${item.type}.tt" %]
-
-  </div><!--modal-body-->
-
-  <div class="modal-footer">
-    <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
+    <div class="form-actions">
+    <a href="[% c.pf_hash_for(c.controller.action_for('index')) %]" class="btn" >[% l('Cancel') %]</a>
     [% IF can_access("PFDETECT_UPDATE") %]
       <button class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>
     [% END %]
-  </div>
+    </div>
 
 </form>
