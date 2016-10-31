@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use pf::config qw(%Config);
 use pf::error qw(is_error is_success);
+use pf::constants::scan qw($WMI_NS_ERR);
 use base qw(pfappserver::Base::Model::Node::Tab);
 
 =head2 process_view
@@ -29,6 +30,7 @@ sub process_view {
     my $mac = $c->stash->{mac};
     my ($status, @scans);
     ($status, my $node) = $c->model("Node")->view($mac);
+    my $device_class = $node->{device_class};
     my $scan_model = $c->model("Config::Scan");
     eval {
         my $profile = pf::Portal::ProfileFactory->instantiate($mac);
@@ -57,7 +59,7 @@ sub process_view {
     }
     
  
-    return ($STATUS::OK, {items => \@items});
+    return ($STATUS::OK, {items => \@items, device_class => $device_class});
 }
 
 =head2 process_tab
@@ -103,7 +105,9 @@ sub parseWmi {
     }
     $scan_config->{_scanIp} = $host;
     my $scan_result = $scan->runWmi($scan_config, $rule_config);
-    if ($scan_result =~ /0x80041010/ || !@$scan_result) {
+    if ($scan_result =~ /ACCESS_DENIED/) {
+        $rule_config->{item_exist} = "Access denied";
+    }elsif ($scan_result =~ /$WMI_NS_ERR/ || !@$scan_result) {
         $rule_config->{item_exist} = 'No';
     }elsif ($scan_result =~ /TIMEOUT/ || $scan_result =~ /UNREACHABLE/) {
         $rule_config->{item_exist} = 'Request failed';

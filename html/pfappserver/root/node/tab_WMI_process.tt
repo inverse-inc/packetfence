@@ -1,13 +1,13 @@
 [% IF rules.id == "Process_Running" %]
-  [% IF rules.item_exist == "No" %]
-    <span> Error while getting running process. [% rules.item_exist | html %]</span><br/>
+  [% IF rules.item_exist == "No" || rules.item_exist == "Access denied" %]
+    <span> [% l('Error while getting running process.') %] [% rules.item_exist | html %]</span><br/>
   [% ELSIF rules.item_exist == "Request failed" %]
     <span>[% rules.items_exist | html %]</span><br/>
   [% ELSE %]
     <table class="table table-condensed">
       <thead>
         <tr>
-          <th>Process running</th>
+          <th>[% l('Process running') %]</th>
         </tr>
       </thead>
       <tbody>
@@ -23,10 +23,10 @@
 <table class="table table-condensed">
   <thead>
     <tr>
-      <th>Item scanned</th>
-      <th>Is Present</th>
-      <th>Name</th>
-      <th>Version</th>
+      <th>[% l('Item scanned') %]</th>
+      <th>[% l('Is Present') %]</th>
+      <th>[% l('Name') %]</th>
+      <th>[% l('Version') %]</th>
     </tr>
   </thead>
   <tbody>
