@@ -35,10 +35,14 @@ graphs.charts['[% l(id) | css %]'] = {
         </tr>
       </thead>
       <tbody>
-        [% FOREACH label IN labels -%]
-        <tr id="[% label | css %]"[% IF loop.count > piecut %] class="muted"[% END %]>
-          <td>[% label | html %]</td>
-          <td>[% i = loop.index %][% values.$i | html %]</td>
+        [% FOREACH item IN items -%]
+        <tr id="[% item.label | css %]">
+          [% IF item.link %]
+          <td><a href="[% item.link %]">[% item.label | html %]</a></td>
+          [% ELSE%]
+          <td>[% item.label | html %]</td>
+          [% END %]
+          <td>[% i = loop.index %][% item.value | html %]</td>
         </tr>
         [%- END %]
       </tbody>

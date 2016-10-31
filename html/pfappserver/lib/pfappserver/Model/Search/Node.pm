@@ -111,6 +111,7 @@ sub make_builder {
             { table => 'locationlog', name => 'switch_ip', as => 'switch_ip' },
             { table => 'locationlog', name => 'switch_mac', as => 'switch_mac' },
             { table => 'locationlog', name => 'port', as => 'switch_port' },
+            { table => 'locationlog', name => 'ssid', as => 'last_ssid' },
         )->from('node',
                 {
                     'table' => 'node_category',
@@ -358,6 +359,10 @@ my %COLUMN_MAP = (
     ssid   => {
        table => 'locationlog',
        name  => 'ssid',
+    },
+    connection_type   => {
+       table => 'locationlog',
+       name  => 'connection_type',
     },
     last_ip   => {
        table => 'iplog',

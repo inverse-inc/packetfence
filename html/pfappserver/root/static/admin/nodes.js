@@ -6,6 +6,57 @@ $(function() { // DOM ready
     var view = new UserView({ users: users, parent: $('#section') });
 });
 
+function parseQueryString(queryString) {
+    var params = [], queries, temp, i, l;
+    queryString.replace(/(^\?)/,'');
+    // Split into key/value pairs
+    queries = queryString.split("&");
+    // Convert the array of strings into an object
+    for ( i = 0, l = queries.length; i < l; i++ ) {
+        temp = queries[i].split('=');
+        params.push({name: temp[0], value: temp[1]});
+    }
+    return params;
+};
+
+function updateNodeSearchSection(href, event) {
+    var hash = location.hash;
+    var i;
+    if (hash && hash.indexOf("#/node/advanced_search?") == 0) {
+        //Show the advanced search tab
+        hash  = hash.replace(/(^#.*\?)/,''); 
+        var new_params = parseQueryString(hash);
+        var to_form = $('#advancedSearch');
+        to_form.find('tbody tr.dynamic-row:not(.hidden)').remove();
+        var table = to_form.find('table');
+        var emptyId = '#' + table.attr('id') + 'Empty';
+        $(emptyId).find('[href="#add"]').click();
+        var first_row = to_form.find('tbody tr.dynamic-row:not(.hidden)').first();
+        first_row.nextAll("tr.dynamic-row:not(.hidden)").remove();
+        var rows_to_add = new_params.length / 3 - 1;
+        for(i = 0; i < rows_to_add; i++) {
+            first_row.find('[href="#add"]').click();
+        }
+
+        for(i = 0; i <new_params.length;i++) {
+            var param = new_params[i];
+            var input = to_form.find('[name="' + param.name + '"]:not(:disabled)');
+            input.val(param.value);
+        }
+        $('[href="#advanced"][data=toggle="tab"]').click();
+        var win = $(window);
+        win.unbind('hashchange');
+        win.hashchange(function() {
+            win.unbind('hashchange');
+            win.hashchange(pfOnHashChange(updateNodeSearchSection,'/node/'));
+        });
+        location.hash = '';
+        doUpdateSection(href);
+        return false;
+    }
+    return doUpdateSection(href);
+}
+
 function init() {
     /* Initialize datepickers */
     $('.tab-content .datepicker').datepicker({ autoclose: true });
@@ -51,6 +102,7 @@ function init() {
     $('form[name="simpleNodeSearch"] [name$=".op"]').trigger('saved_search.loaded');
 
     /* Hash change handlder */
-    $(window).hashchange(pfOnHashChange(updateSection,'/node/'));
-    $(window).hashchange();
+    var win = $(window);
+    win.hashchange(pfOnHashChange(updateNodeSearchSection,'/node/'));
+    win.hashchange();
 }

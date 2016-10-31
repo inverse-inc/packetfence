@@ -200,6 +200,7 @@ sub _graphPie :Private {
                    series => $result->{series},
                    values => $result->{values},
                    piecut => $result->{piecut},
+                   items  => $result->{items},
                    graphtype => 'pie',
                    template => 'graph/pie.tt',
                    current_view => 'HTML'
@@ -704,6 +705,8 @@ sub os :Local :AdminRole('REPORTS') {
                                   count => 'count' },
                      }
                     );
+    $self->_add_links($c, 'device_type', 'equal', 'label');
+
 }
 
 =head2 connectiontype
@@ -725,6 +728,7 @@ sub connectiontype :Local :AdminRole('REPORTS') {
                                    'count' => 'connections' },
                      }
                     );
+    $self->_add_links($c, 'connection_type', 'equal', 'connection_type_orig');
 }
 
 =head2 ssid
@@ -746,6 +750,7 @@ sub ssid :Local :AdminRole('REPORTS') {
                                    count => 'nodes' },
                      }
                     );
+    $self->_add_links($c, 'ssid', 'equal', 'label');
 }
 
 =head2 nodebandwidth
@@ -771,7 +776,26 @@ sub nodebandwidth :Local :AdminRole('REPORTS') {
                        options => ['accttotal', 'acctinput', 'acctoutput'],
                        option => $option }
                     );
+    $self->_add_links($c, 'mac', 'equal', 'label');
 }
+
+
+=head2 _add_links
+
+
+=cut
+
+sub _add_links {
+    my ($self, $c, $name, $op, $value_key) = @_;
+    my $items = $c->stash->{items};
+    if ($items) {
+        for my $item (@$items) {
+            $item->{link} = "/admin/nodes#/node/advanced_search?searches.0.name=$name&searches.0.op=$op&searches.0.value=" . $item->{$value_key};
+        }
+    }
+    return ;
+}
+
 
 =head2 osclassbandwidth
 
@@ -794,6 +818,7 @@ sub osclassbandwidth :Local :AdminRole('REPORTS') {
                                    count => $option."octets",
                                    value => $option },
                      });
+    $self->_add_links($c, 'dhcp_fingerprint', 'equal', 'label');
 }
 
 sub _generate_hosts {

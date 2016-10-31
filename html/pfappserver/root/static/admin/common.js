@@ -97,6 +97,10 @@ function activateNavLink() {
 /* Update #section using an ajax request */
 function updateSection(ajax_data) {
     activateNavLink();
+    return doUpdateSection(ajax_data);
+}
+
+function doUpdateSection(ajax_data) {
     var section = $('#section');
     if (section) {
         $("body,html").animate({scrollTop:0}, 'fast');
@@ -136,6 +140,7 @@ function updateSection(ajax_data) {
                 });
         });
     }
+    return true;
 }
 /* Update #section using an ajax request to a form */
 function updateSectionFromForm(form) {
@@ -155,8 +160,7 @@ function pfOnHashChange(updater, default_url) {
         if (default_url !== undefined && (href == '' || href == '/')) {
             href = default_url;
         }
-        updater(href);
-        return true;
+        return updater(href,event);
     };
 }
 
