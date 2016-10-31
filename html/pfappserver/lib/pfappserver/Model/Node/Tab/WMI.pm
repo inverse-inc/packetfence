@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use pf::config qw(%Config);
 use pf::error qw(is_error is_success);
+use pf::constants::scan qw($WMI_NS_ERR);
 use base qw(pfappserver::Base::Model::Node::Tab);
 
 =head2 process_view
@@ -106,7 +107,7 @@ sub parseWmi {
     my $scan_result = $scan->runWmi($scan_config, $rule_config);
     if ($scan_result =~ /ACCESS_DENIED/) {
         $rule_config->{item_exist} = "Access denied";
-    }elsif ($scan_result =~ /0x80041010/ || !@$scan_result) {
+    }elsif ($scan_result =~ /$WMI_NS_ERR/ || !@$scan_result) {
         $rule_config->{item_exist} = 'No';
     }elsif ($scan_result =~ /TIMEOUT/ || $scan_result =~ /UNREACHABLE/) {
         $rule_config->{item_exist} = 'Request failed';
