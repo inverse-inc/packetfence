@@ -483,15 +483,15 @@ sub services :Chained('object') :PathPart('services') :Args(0) {
             $c->stash->{'admin_port'} = $c->model('PfConfigAdapter')->getWebAdminPort();
         }
 
-        my ($status, $services_status) = $c->model('Services')->status();
+        my ($status, $services) = $c->model('Services')->status();
         if ( is_success($status) ) {
             $c->log->info("successfully listed services");
-            $c->stash->{'services_status'} = $services_status->{services};
+            $c->stash($services);
         }
-        if ( is_error($status) ) {
+        else {
             $c->log->error("an error trying to list the services");
             $c->response->status($status);
-            $c->stash->{'error'} = $services_status;
+            $c->stash->{'error'} = $services;
         }
     } elsif ($c->request->method eq 'POST') {
         # Start the services
