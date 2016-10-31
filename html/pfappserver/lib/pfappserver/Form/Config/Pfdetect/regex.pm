@@ -21,17 +21,14 @@ The list of rule
 
 =cut
 
-has_field 'rules' =>
-  (
+has_field 'rules' => (
     'type' => 'Repeatable',
-    has_label => 0,
-  );
+);
 
-has_field 'rules.contains' =>
-  (
-   type => 'PfdetectRegexRule',
-    widget_wrapper => 'Modal',
-  );
+has_field 'rules.contains' => (
+    type => 'PfdetectRegexRule',
+    widget_wrapper => 'Accordion',
+);
 
 
 =over
