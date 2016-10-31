@@ -16,39 +16,46 @@ use HTML::FormHandler::Moose;
 extends 'HTML::FormHandler::Field::Compound';
 use namespace::autoclean;
 
-has_field 'name' =>
-  (
-   type => 'Text',
-   label => 'Name',
-   required => 1,
-   messages => { required => 'Please specify the name of the rule' },
-  );
+=head2 name
 
-has_field 'regex' =>
-  (
-   type => 'Regex',
-   label => 'Regex',
-   required => 1,
-   messages => { required => 'Please specify the regex pattern using named captures' },
-  );
+Name
 
-has_field 'send_add_event' =>
-  (
-   type => 'Toggle',
-   label => 'Send Add Event',
-   messages => { required => 'Please specify the if the add_event is sent' },
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
-  );
+=cut
 
-has_field 'events' =>
-  (
-   type => 'Text',
-   label => 'Event List',
-   #This is required if the send_add_event if checked
-   #Add validation to the event list
-   messages => { required => 'Please specify the regex pattern using named captures' },
-  );
+has_field 'name' => (
+    type     => 'Text',
+    label    => 'Name',
+    required => 1,
+    messages => {required => 'Please specify the name of the rule'},
+);
+
+=head2 regex
+
+Regex
+
+=cut
+
+has_field 'regex' => (
+    type     => 'Regex',
+    label    => 'Regex',
+    required => 1,
+    messages => {required => 'Please specify the regex pattern using named captures'},
+);
+
+=head2 events
+
+Events
+
+=cut
+
+has_field 'events' => (
+    type  => 'Text',
+    label => 'Event List',
+
+    #This is required if the send_add_event if checked
+    #Add validation to the event list
+    messages => {required => 'Please specify the regex pattern using named captures'},
+);
 
 =head2 actions
 
@@ -56,10 +63,9 @@ The list of action
 
 =cut
 
-has_field 'actions' =>
-  (
-    'type' => 'Repeatable',
-  );
+has_field 'actions' => (
+    'type' => 'Repeatable'
+);
 
 =head2 actions.contains
 
@@ -67,12 +73,25 @@ The definition for the list of actions
 
 =cut
 
-has_field 'actions.contains' =>
-  (
-    type => 'Text',
+has_field 'actions.contains' => (
+    type  => 'Text',
     label => 'Action',
-  );
- 
+);
+
+=head2 send_add_event
+
+Send Add Event
+
+=cut
+
+has_field 'send_add_event' => (
+    type            => 'Toggle',
+    label           => 'Send Add Event',
+    messages        => {required => 'Please specify the if the add_event is sent'},
+    checkbox_value  => 'enabled',
+    unchecked_value => 'disabled',
+);
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -101,4 +120,3 @@ USA.
 =cut
 
 1;
-
