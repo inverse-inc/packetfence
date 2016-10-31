@@ -38,6 +38,7 @@ Regex
 has_field 'regex' => (
     type     => 'Regex',
     label    => 'Regex',
+    element_class => ['input-xxlarge'],
     required => 1,
     messages => {required => 'Please specify the regex pattern using named captures'},
 );
