@@ -287,9 +287,9 @@ EOT
     # Eduroam configuration
     if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
         my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
-        my $tlrs1_server_address = $eduroam_authentication_source[0]{'tlrs1_server_address'};   # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
-        my $tlrs2_server_address = $eduroam_authentication_source[0]{'tlrs2_server_address'};   # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
-        my $tlrs_radius_secret = $eduroam_authentication_source[0]{'tlrs_radius_secret'};   # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
+        my $server1_address = $eduroam_authentication_source[0]{'server1_address'};   # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
+        my $server2_address = $eduroam_authentication_source[0]{'server2_address'};   # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
+        my $radius_secret = $eduroam_authentication_source[0]{'radius_secret'};   # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
 
         $tags{'eduroam'} = <<"EOT";
 # Eduroam integration
@@ -299,20 +299,20 @@ realm eduroam {
     nostrip
 }
 home_server_pool eduroam_auth_pool {
-    home_server = eduroam_tlrs1
-    home_server = eduroam_tlrs2
+    home_server = eduroam_server1
+    home_server = eduroam_server2
 }
-home_server eduroam_tlrs1 {
+home_server eduroam_server1 {
     type = auth
-    ipaddr = $tlrs1_server_address
+    ipaddr = $server1_address
     port = 1812
-    secret = '$tlrs_radius_secret'
+    secret = '$radius_secret'
 }
-home_server eduroam_tlrs2 {
+home_server eduroam_server2 {
     type = auth
-    ipaddr = $tlrs2_server_address
+    ipaddr = $server2_address
     port = 1812
-    secret = '$tlrs_radius_secret'
+    secret = '$radius_secret'
 }
 EOT
     } else {

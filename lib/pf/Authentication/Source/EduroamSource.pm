@@ -18,9 +18,9 @@ extends 'pf::Authentication::Source';
 has '+type'                 => (default => 'Eduroam');
 has '+class'                => (isa => 'Str', is => 'ro', default => 'external');
 has '+unique'               => (isa => 'Bool', is => 'ro', default => $TRUE);
-has 'tlrs1_server_address'  => (isa => 'Str', is => 'rw');
-has 'tlrs2_server_address'  => (isa => 'Str', is => 'rw');
-has 'tlrs_radius_secret'    => (isa => 'Str', is => 'rw');
+has 'server1_address'       => (isa => 'Str', is => 'rw');
+has 'server2_address'       => (isa => 'Str', is => 'rw');
+has 'radius_secret'         => (isa => 'Str', is => 'rw');
 has 'auth_listening_port'   => (isa => 'Maybe[Int]', is => 'rw', default => '11812');
 
 

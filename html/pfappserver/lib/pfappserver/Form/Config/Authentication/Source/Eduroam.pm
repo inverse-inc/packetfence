@@ -20,33 +20,33 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Authentication::Source';
 with 'pfappserver::Base::Form::Role::Help';
 
-has_field 'tlrs1_server_address' => (
+has_field 'server1_address' => (
     type        => 'Text',
-    label       => 'TLRS1 server address',
+    label       => 'Server 1 address',
     required    => 1,
     tags        => {
         after_element   => \&help,
-        help            => 'Eduroam TLRS1 server address',
+        help            => 'Eduroam server 1 address',
     },
 );
 
-has_field 'tlrs2_server_address' => (
+has_field 'server2_address' => (
     type        => 'Text',
-    label       => 'TLRS2 server address',
+    label       => 'Server 2 address',
     required    => 1,
     tags        => {
         after_element   => \&help,
-        help            => 'Eduroam TLRS2 server address',
+        help            => 'Eduroam server 2 address',
     },
 );
 
-has_field 'tlrs_radius_secret' => (
+has_field 'radius_secret' => (
     type        => 'Text',
-    label       => 'TLRS RADIUS secret',
+    label       => 'RADIUS secret',
     required    => 1,
     tags        => {
         after_element   => \&help,
-        help            => 'Eduroam TLRS RADIUS secret',
+        help            => 'Eduroam RADIUS secret',
     },
 );
 
