@@ -75,7 +75,7 @@ The definition for the list of actions
 =cut
 
 has_field 'actions.contains' => (
-    type  => 'Text',
+    type  => 'ApiAction',
     label => 'Action',
 );
 
