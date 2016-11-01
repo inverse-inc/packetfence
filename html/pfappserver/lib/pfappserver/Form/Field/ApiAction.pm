@@ -36,6 +36,7 @@ has_field api_method => (
     required => 1,
     widget_wrapper => 'None',
     options_method => \&options_api_method,
+    element_class => ['input-medium'],
 );
 
 has_field api_parameters => (
@@ -44,7 +45,7 @@ has_field api_parameters => (
     required => 1,
     default => ' ',
     widget_wrapper => 'None',
-   element_class => ['input-xxlarge'],
+    element_class => ['input-xxlarge'],
 );
 
 sub inflate {
