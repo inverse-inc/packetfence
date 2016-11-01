@@ -21,30 +21,29 @@ use warnings;
 use List::MoreUtils qw(any);
 use Moo;
 use NetAddr::IP;
+use Template;
 
+use pfconfig::cached_array;
 use pf::authentication;
 use pf::cluster;
+use pf::util;
+
+use pf::file_paths qw(
+    $conf_dir
+    $install_dir
+    $var_dir
+);
+
 use pf::config qw(
     %Config
     $management_network
     %ConfigDomain
     $local_secret
 );
-use pfconfig::cached_array;
-tie my @cli_switches, 'pfconfig::cached_array', 'resource::cli_switches';
-use Template;
-use pf::file_paths qw(
-    $conf_dir
-    $install_dir
-    $var_dir
-);
-use pf::util;
 
-use pfconfig::cached_array;
+tie my @cli_switches, 'pfconfig::cached_array', 'resource::cli_switches';
 
 extends 'pf::services::manager';
-
-tie my @cli_switches, 'pfconfig::cached_array', 'resource::cli_switches';
 
 has options => (is => 'rw');
 
