@@ -4500,13 +4500,13 @@ Once you have configured the Meraki, you will need to configure it in the Packet
 
   [1.1.1.1]
   description=Meraki Cloud controller
-  type=Meraki::AP
+  type=Meraki::MR
   radiusSecret=useStrongerSecret
   mode=production
 
   [00:11:22:33:44:55]
   description=Meraki local access point
-  type=Meraki::AP
+  type=Meraki::MR
   radiusSecret=useStrongerSecret
   mode=production
 
