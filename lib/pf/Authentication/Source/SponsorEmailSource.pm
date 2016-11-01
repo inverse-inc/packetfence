@@ -22,7 +22,6 @@ with 'pf::Authentication::CreateLocalAccountRole';
 
 has '+class' => (default => 'external');
 has '+type' => (default => 'SponsorEmail');
-has '+unique' => (default => 1);
 has 'allow_localdomain' => (isa => 'Str', is => 'rw', default => 'yes');
 has 'activation_domain' => (isa => 'Maybe[Str]', is => 'rw');
 has 'sponsorship_cc' => (isa => 'Maybe[Str]', is => 'rw');

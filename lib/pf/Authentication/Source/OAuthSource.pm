@@ -16,7 +16,6 @@ extends 'pf::Authentication::Source';
 
 has '+class' => (default => 'abstact');
 has '+type' => (default => 'OAuth');
-has '+unique' => (default => 1);
 
 =head2 dynamic_routing_module
 

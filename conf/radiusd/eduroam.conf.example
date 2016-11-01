@@ -4,26 +4,10 @@ pidfile = %%pid_file%%
 $INCLUDE radiusd.conf
 
 listen {
-        ipaddr = %%virt_ip%%
-        port = 0
-        type = auth
-        virtual_server = pf.cluster
-}
-
-listen {
-        ipaddr = %%virt_ip%%
-        port = 0
-        type = acct
-        virtual_server = pf.cluster
-}
-
-%%eduroam%%
-
-listen {
-        ipaddr = %%virt_ip%%
-        port = 1815
-        type = auth
-        virtual_server = pfcli.cluster
+    ipaddr = %%management_ip%%
+    port = %%eduroam_auth_listening_port%%
+    type = auth
+    virtual_server = eduroam
 }
 
 listen {
@@ -61,7 +45,7 @@ log {
 	#  If the server is running in debugging mode, this file is
 	#  NOT used.
 	#
-	file = ${logdir}/radius-load_balancer.log
+	file = ${logdir}/radius-eduroam.log
 
 	#
 	#  If this configuration parameter is set, then log messages for
@@ -127,8 +111,8 @@ log {
 	#
 	#  allowed values: {no, yes}
 	#
-	auth_badpass = yes
-	auth_goodpass = yes
+	auth_badpass = no
+	auth_goodpass = no
 
 	#  Log additional text at the end of the "Login OK" messages.
 	#  for these to work, the "auth" and "auth_goodpass" or "auth_badpass"
@@ -139,8 +123,8 @@ log {
 	#  this expansion can be slow, and can negatively impact server
 	#  performance.
 	#
-	msg_goodpass = "- Proxied to: %{control:PacketFence-Proxied-To}"
-	msg_badpass = "- Proxied to: %{control:PacketFence-Proxied-To}"
+#	msg_goodpass = ""
+#	msg_badpass = ""
 
 	#  The message when the user exceeds the Simultaneous-Use limit.
 	#

@@ -167,6 +167,18 @@ sub getExternalAuthenticationSources {
     return \@sources;
 }
 
+=item getAuthenticationSourcesByType
+
+Return instances of pf::Authentication::Source for a given type
+
+=cut
+
+sub getAuthenticationSourcesByType {
+    my ( $type ) = @_;
+    my @sources = grep { $_->{'type'} eq $type } @authentication_sources;
+    return \@sources;
+}
+
 # =head2 source_for_user
 
 # =cut

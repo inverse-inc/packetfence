@@ -1,0 +1,8 @@
+[% form.field('server1_address').render | none %]
+[% form.field('server2_address').render | none %]
+[% form.field('radius_secret').render | none %]
+[% form.field('auth_listening_port').render | none %]
+
+<div class="alert alert-warning">
+    <strong>[% l('Note: ') %]</strong>[% l('Adding or modifying an \'Eduroam\' type authentication source requires to restart the radiusd service to be effective.') %]
+</div>

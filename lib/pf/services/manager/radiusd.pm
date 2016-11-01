@@ -14,22 +14,26 @@ pf::services::manager::radiusd
 
 use strict;
 use warnings;
+
 use List::MoreUtils qw(any);
+use Moo;
+
+use pf::authentication;
+use pf::cluster;
 use pf::file_paths qw(
     $var_dir
     $conf_dir
     $install_dir
 );
-use pf::util;
-use Moo;
-use pf::cluster;
 use pf::services::manager::radiusd_child;
 use pf::SwitchFactory;
+use pf::util;
 
 use pfconfig::cached_array;
-tie my @cli_switches, 'pfconfig::cached_array', 'resource::cli_switches';
 
 extends 'pf::services::manager::submanager';
+
+tie my @cli_switches, 'pfconfig::cached_array', 'resource::cli_switches';
 
 has radiusdManagers => (is => 'rw', builder => 1, lazy => 1);
 
@@ -54,6 +58,14 @@ sub _build_radiusdManagers {
     $listens->{acct} = {
       launcher => $self->launcher . " -n acct"
     };
+
+    # 'Eduroam' RADIUS instance manager
+    if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
+        $listens->{eduroam} = {
+            launcher => $self->launcher . " -n eduroam"
+        };
+    }
+
     if (@cli_switches > 0) {
         $listens->{cli} = {
           launcher => $self->launcher . " -n cli"

@@ -17,7 +17,6 @@ with 'pf::Authentication::CreateLocalAccountRole';
 
 has '+class' => (default => 'external');
 has '+type' => (default => 'SMS');
-has '+unique' => (default => 1);
 has 'sms_carriers' => (isa => 'ArrayRef', is => 'rw', default => sub {[]});
 
 =head1 METHODS
