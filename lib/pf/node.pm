@@ -25,6 +25,8 @@ use pf::StatsD::Timer;
 use pf::util::statsd qw(called);
 use pf::error qw(is_success);
 use pf::constants::parking qw($PARKING_VID);
+use CHI::Memoize qw(memoized);
+use pf::CHI::Request qw(pf_memoize);
 
 use constant NODE => 'node';
 
@@ -78,6 +80,7 @@ BEGIN {
         node_search
         $STATUS_REGISTERED
         node_last_reg
+        node_remove_from_cache
     );
 }
 
@@ -392,15 +395,32 @@ sub node_db_prepare {
     return 1;
 }
 
-#
-# return mac if the node exists
-#
-sub node_exist {
+=item _node_exist
+
+The real implemntation of _node_exist
+
+=cut
+
+sub _node_exist {
     my ($mac) = @_;
     my $query = db_query_execute(NODE, $node_statements, 'node_exist_sql', $mac) || return (0);
     my ($val) = $query->fetchrow_array();
     $query->finish();
     return ($val);
+}
+
+pf_memoize("pf::node::_node_exist");
+
+#
+# return mac if the node exists
+#
+sub node_exist {
+    my ($mac) = @_;
+    $mac = clean_mac($mac);
+    if ($mac) {
+        return pf::node::_node_exist($mac);
+    }
+    return (0);
 }
 
 #
@@ -627,17 +647,13 @@ sub _node_view_old {
     return ($ref);
 }
 
+=item _node_view
 
-=item node_view
-
-Returning lots of information about a given MAC address (node).
-
-New implementation in 3.2.0.
+The real implementation of node_view
 
 =cut
 
-sub node_view {
-    my $timer = pf::StatsD::Timer->new({level => 6});
+sub _node_view {
     my ($mac) = @_;
     pf::log::logstacktrace("pf::node::node_view getting '$mac'");
     # Uncomment to log callers
@@ -667,6 +683,27 @@ sub node_view {
     };
 
     return ($node_info_ref);
+}
+
+pf_memoize("pf::node::_node_view");
+
+
+=item node_view
+
+Returning lots of information about a given MAC address (node).
+
+New implementation in 3.2.0.
+
+=cut
+
+sub node_view {
+    my $timer = pf::StatsD::Timer->new({level => 6});
+    my ($mac) = @_;
+    $mac = clean_mac($mac);
+    if ($mac) {
+        return _node_view($mac);
+    }
+    return undef;
 }
 
 sub node_count_all {
@@ -924,6 +961,7 @@ sub node_modify {
         $mac
     );
     if($sth) {
+        memoized("pf::node::node_view")->cache->remove($new_mac);
         return ( $sth->rows );
     }
     $logger->error("Unable to modify node '" . $mac // 'undef' . "'");
@@ -1375,6 +1413,20 @@ sub fingerbank_info {
     $info ={ (%$info, %$device_info) };
 
     return $info;
+}
+
+=item node_remove_from_cache
+
+Remove node from the cache
+
+=cut
+
+sub node_remove_from_cache {
+    my ($mac) = @_;
+    $mac = clean_mac($mac);
+    if ($mac) {
+        memoized("pf::node::_node_view")->cache->remove($mac);
+    }
 }
 
 =back

@@ -43,6 +43,7 @@ use pf::SwitchFactory;
 use pf::pfqueue::consumer::redis;
 use pf::api;
 use pf::client;
+use pf::CHI::Request;
 pf::client::setClient("pf::api::can_fork");
 use threads;
 use pf::factory::task;
@@ -254,6 +255,7 @@ sub _run_task {
     while ($running) {
         $consumer = get_consumer($id, $parameters) unless $consumer;
         pf::config::cached::ReloadConfigs();
+        pf::CHI::Request::clear_all();
         eval {
             #reload all cached configs before running the task
             $task->($consumer);

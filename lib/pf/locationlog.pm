@@ -19,6 +19,8 @@ use pf::log;
 use pf::floatingdevice::custom;
 use pf::StatsD::Timer;
 use pf::util::statsd qw(called);
+use pf::CHI::Request;
+use CHI::Memoize qw(memoize memoized);
 
 use constant LOCATIONLOG => 'locationlog';
 
@@ -404,6 +406,7 @@ sub locationlog_insert_start {
         db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_insert_start_with_mac_sql',
             lc($mac), $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $role, $conn_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm)
             || return (0);
+        node_remove_from_cache($mac);
     } else {
         db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_insert_start_no_mac_sql',
             $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $role, $conn_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm)
@@ -429,6 +432,7 @@ sub locationlog_update_end_mac_switch_port {
     }
     $logger->debug("locationlog_update_end_mac_switch_port called with mac=$mac switch=$switch port=$port");
     if (db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_update_end_mac_switch_port_sql', $mac, $switch, $port)) {
+        node_remove_from_cache($mac);
         return (0);
     }
     return (1);
@@ -473,6 +477,7 @@ sub locationlog_update_end_mac {
 
     db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_update_end_mac_sql', $mac)
         || return (0);
+    node_remove_from_cache($mac);
     return (1);
 }
 

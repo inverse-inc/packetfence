@@ -45,6 +45,7 @@ pf::SwitchFactory->preloadConfiguredModules();
 use pf::factory::detect::parser;
 use pf::client;
 use pfconfig::cached_hash;
+use pf::CHI::Request;
 
 # initialization
 # --------------
@@ -172,6 +173,7 @@ sub _run_detector {
 
         #reload all cached configs after each iteration
         pf::config::cached::ReloadConfigs();
+        pf::CHI::Request::clear_all();
     }
 
     $logger->trace("$$ shutting down");
