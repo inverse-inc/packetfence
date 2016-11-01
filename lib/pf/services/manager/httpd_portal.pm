@@ -28,6 +28,7 @@ use pf::util;
 use pf::config::util;
 use pf::constants::config;
 use pf::web::constants();
+use pf::cluster;
 
 extends 'pf::services::manager::httpd';
 
@@ -60,6 +61,7 @@ sub additionalVars {
         vhost_management_network => $self->vhost_management_network,
         dos_system_cmd => $self->dos_system_cmd($captive_portal),
         vhosts => $self->vhosts,
+        logformat => isenabled($cluster_enabled) ? 'loadbalanced_combined' : 'combined',
     );
     $vars{qos} = $vars{max_clients} * 0.7;
     return %vars;

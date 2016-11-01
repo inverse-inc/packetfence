@@ -307,7 +307,7 @@ NameVirtualHost [% vhost %]:443
      ServerName   [% server_name %]
      DocumentRoot [% install_dir %]/html/captive-portal/lib
      ErrorLog [% install_dir %]/logs/[% name %].error
-     CustomLog [% install_dir %]/logs/[% name %].access combined env=!is_collectd
+     CustomLog [% install_dir %]/logs/[% name %].access [% logformat %] env=!is_collectd
      Include [% var_dir %]/conf/captive-portal-common
      AllowEncodedSlashes on
      Alias       /static [% install_dir %]/html/captive-portal/root/static
@@ -379,7 +379,7 @@ NameVirtualHost [% vhost %]:443
      ServerName   [% server_name %]
      DocumentRoot [% install_dir%]/html/captive-portal/lib
      ErrorLog [% install_dir %]/logs/[% name %].error
-     CustomLog [% install_dir %]/logs/[% name %].access combined env=!is_collectd
+     CustomLog [% install_dir %]/logs/[% name %].access [% logformat %] env=!is_collectd
      Include [% var_dir %]/conf/captive-portal-common
      AllowEncodedSlashes on
      Alias       /static [% install_dir %]/html/captive-portal/root/static
@@ -462,7 +462,7 @@ NameVirtualHost [% vhost %]:443
         ServerName   [% server_name %]
         DocumentRoot [% install_dir%]/html/captive-portal/lib
         ErrorLog [% install_dir %]/logs/[% name %].error
-        CustomLog [% install_dir %]/logs/[% name %].access combined env=!is_collectd
+        CustomLog [% install_dir %]/logs/[% name %].access [% logformat %] env=!is_collectd
 
         <Location  /modstatus >
             SetHandler server-status
