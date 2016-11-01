@@ -21,6 +21,7 @@ use Log::Any::Adapter;
 Log::Any::Adapter->set('Log4perl');
 use Net::LDAP;
 use Net::LDAPS;
+use POSIX::AtFork;
 # available encryption
 use constant {
     NONE => "none",
@@ -68,7 +69,7 @@ sub bind {
             $logger->error("Error binding '" . ($msg ? $msg->error() : "Unknown error" ) . "'" );
             return undef;
         }
-        $logger->trace(sub { "Successful bind" });
+        $logger->trace("Successful bind");
         return $ldap;
 }
 
@@ -81,7 +82,10 @@ Checks to see if the the LDAP connection is still alive by doing a bind
 sub expire_if {
     my ($class, $object, $driver, $credentials) = @_;
     my $ldap = $class->bind($object->value, $credentials);
-    return !defined $ldap;
+    return 0 if $ldap;
+    my $logger = get_logger;
+    $logger->warn("LDAP connection expired");
+    return 1;
 }
 
 =head2 compute_connection
@@ -127,6 +131,8 @@ Clear the cache in a thread environment
 sub CLONE {
     $CHI_CACHE->clear;
 }
+
+POSIX::AtFork->add_to_child(\&CLONE);
 
 =head1 AUTHOR
 

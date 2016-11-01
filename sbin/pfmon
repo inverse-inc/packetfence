@@ -389,7 +389,6 @@ run all runtasks
 =cut
 
 sub runtasks {
-    db_disconnect();
     my $mask = POSIX::SigSet->new(POSIX::SIGCHLD());
     sigprocmask(SIG_BLOCK,$mask);
     while(@REGISTERED_TASKS) {

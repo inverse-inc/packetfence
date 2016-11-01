@@ -17,6 +17,8 @@ use warnings;
 
 use Redis::Fast;
 use CHI;
+Log::Any::Adapter->set('Log4perl');
+use POSIX::AtFork;
 
 our $CHI_CACHE = CHI->new(driver => 'RawMemory', datastore => {});
 
@@ -57,6 +59,8 @@ Will clear out the redis cache
 sub CLONE {
     $CHI_CACHE->clear;
 }
+
+POSIX::AtFork->add_to_child(\&CLONE);
 
 =head2 compute_redis
 

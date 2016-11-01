@@ -204,7 +204,6 @@ run all run_tasks
 =cut
 
 sub run_tasks {
-    db_disconnect();
     my $mask = POSIX::SigSet->new(POSIX::SIGCHLD());
     sigprocmask(SIG_BLOCK, $mask);
     while (@REGISTERED_TASKS) {

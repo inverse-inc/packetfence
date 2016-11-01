@@ -1,4 +1,5 @@
 package pf::api::can_fork;
+
 =head1 NAME
 
 pf::api::can_fork local client for pf::api
@@ -46,7 +47,6 @@ sub notify {
     my ($self, $method, @args) = @_;
     my $pid;
     if (pf::api->shouldFork($method)) {
-        pf::db::db_disconnect();
         $pid = fork;
         unless (defined $pid) {
             $logger->error("Error fork $!");
