@@ -235,12 +235,10 @@ post-auth {
 	}
 	rest
         if (&reply:PacketFence-Authorization-Status == "deny") {
-                request-timing
-                -sql_reject
+                packetfence-audit-log-reject
                 reject
         } else {
-                request-timing
-                -sql
+                packetfence-audit-log-accept
         }
 
 	#
@@ -281,9 +279,7 @@ post-auth {
 		update {
 			&request: += &outer.request:[*]
 		}
-		request-timing
-		# log failed authentications in SQL, too.
-		-sql_reject
+    packetfence-audit-log-reject
 		attr_filter.access_reject
 
 		#
