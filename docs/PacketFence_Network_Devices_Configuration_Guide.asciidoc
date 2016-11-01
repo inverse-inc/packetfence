@@ -1388,7 +1388,7 @@ PacketFence switch configuration
 
 * Select the type to 'Cisco Catalyst 2960'
 * Set the 'Registration' role to 'registration' (If left empty then it will use the role name)
-* Set Role by Web Auth URL for registration to 'http://<your_captive_portal_ip>/$session_id'
+* Set Role by Web Auth URL for registration to 'http://<your_captive_portal_ip>/Cisco::Catalyst_2960'
 * The URL can contain dynamic parameters, like the MAC address ($mac), the switch IP ($switch_ip), the username ($user_name).
 * Screenshots of this configuration are available in the Cisco WLC section of this guide.
 
@@ -1634,7 +1634,7 @@ PacketFence switch configuration:
 
 * Select the type to 'Cisco Catalyst 2960'
 * Set the 'Registration' role to 'registration' (If left empty then it will use the role name)
-* Set Role by Web Auth URL for registration to 'http://<your_captive_portal_ip>/$session_id'
+* Set Role by Web Auth URL for registration to 'http://<your_captive_portal_ip>/Cisco::Catalyst_2960'
 * The URL can contain dynamic parameters, like the MAC address ($mac), the switch IP ($switch_ip), the username ($user_name).
 * Screenshots of this configuration are available in the Cisco WLC section of this guide.
 
@@ -3770,9 +3770,9 @@ Portal configuration
 ++++++++++++++++++++
 * Go in *Configuration -> Authentication -> Captive Web Portals* and create a new portal
 * Select Select *Registration Type* = *External Authentication*
-* Go in the section *Captive Web Portal Login Page Settings* set the *Login URL* to http://pf_ip/ and *Password Encryption* to *No Encryption*
+* Go in the section *Captive Web Portal Login Page Settings* set the *Login URL* to http://pf_ip/AeroHIVE::AP and *Password Encryption* to *No Encryption*
 * Use the *User Profiles* to define your web authentication VLAN
-* In PacketFence configuration make sure to unselect every *Roles by* in the tab *Roles* while adding the switch, also please select the switch type *Aerohive AP with web auth*
+* In PacketFence configuration make sure to unselect every *Roles by* in the tab *Roles* while adding the switch, also please select the switch type *AeroHIVE AP*
 
 ////
 
@@ -4500,13 +4500,13 @@ Once you have configured the Meraki, you will need to configure it in the Packet
 
   [1.1.1.1]
   description=Meraki Cloud controller
-  type=Meraki::AP_http
+  type=Meraki::AP
   radiusSecret=useStrongerSecret
   mode=production
 
   [00:11:22:33:44:55]
   description=Meraki local access point
-  type=Meraki::AP_http
+  type=Meraki::AP
   radiusSecret=useStrongerSecret
   mode=production
 
@@ -5053,7 +5053,7 @@ Configure the Hotspot service profile to redirect devices to your PacketFence po
 image::docs/images/ruckus_hotspot_service.png[scaledwidth="100%",alt="Hotsport Service"]
 
  1 - Name of your Hotspot service
- 2 - Login Page: Url of PacketFence portal interface (http://192.168.1.5)
+ 2 - Login Page: Url of PacketFence portal interface (http://192.168.1.5/Ruckus)
  3 - Start Page: redirect to the following URL: http://192.168.1.5
  4 - Authentication Server: Select the PacketFence authentication RADIUS server (default port 1812)
  5 - Accounting Server: Select the PacketFence accounting RADIUS server (default 1813)
@@ -5190,7 +5190,7 @@ External portal SSID
 * Set *Encryption / Authentication* to None / Open
 * Then check the WPR checkbox
 * Then in in the section Web Page Redirect Configuration set *Server* to External Login
-* Set the *Redirect URL* to http://192.168.1.5/Xirrus::AP_http
+* Set the *Redirect URL* to http://192.168.1.5/Xirrus
 * Set the *Redirect Secret* to any passphrase of your choice
 * In the *RADIUS Configuration* section set the RADIUS server to point to your PacketFence server
 
