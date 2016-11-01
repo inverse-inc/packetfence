@@ -535,7 +535,7 @@ Modify a node
 
 =cut
 
-sub modify_node : Public {
+sub modify_node : Public : AllowedAsAction {
     my ($class, %postdata )  = @_;
     my @require = qw(mac);
     my @found = grep {exists $postdata{$_}} @require;
