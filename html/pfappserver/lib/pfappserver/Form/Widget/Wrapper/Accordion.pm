@@ -24,14 +24,12 @@ around wrap_field => sub {
     my $parent_name = $self->parent->name;
     my $name = $self->name;
     my $id = "accordion_" . $self->parent->name . "_" . $name;
+    my $heading = $self->get_tag("accordion_heading");
+    $heading = $self->do_accordion_heading unless $heading;
 
     $output = <<EOS;
 <div class="accordion-group">
-    <div class="accordion-heading">
-        <a class="accordion-toggle" data-toggle="collapse" href="#$id">
-            $parent_name $name
-        </a>
-    </div>
+    $heading
     <div id="$id" class="accordion-body collapse">
         <div class="accordion-inner">$rendered_widget</div>
     </div>
@@ -39,6 +37,29 @@ around wrap_field => sub {
 EOS
     return $output;
 };
+
+sub do_accordion_heading {
+    my ($self) = @_;
+    my $content = $self->get_tag("accordion_heading_content");
+    $content  = $self->do_accordion_heading_content unless $content;
+    return <<EOS;
+    <div class="accordion-heading">
+        $content
+    </div>
+EOS
+}
+
+sub do_accordion_heading_content {
+    my ($self) = @_;
+    my $parent_name = $self->parent->name;
+    my $name = $self->name;
+    my $id = "accordion_" . $self->parent->name . "_" . $name;
+    return <<EOS;
+        <a class="accordion-toggle" data-toggle="collapse" href="#$id">
+            $parent_name $name
+        </a>
+EOS
+}
 
 use namespace::autoclean;
 1;
