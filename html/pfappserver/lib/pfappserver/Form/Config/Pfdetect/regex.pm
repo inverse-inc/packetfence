@@ -23,12 +23,36 @@ The list of rule
 
 has_field 'rules' => (
     'type' => 'Repeatable',
+    do_label => 1,
+    tags => {
+        after_element => \&append_button,
+    },
 );
 
 has_field 'rules.contains' => (
     type => 'PfdetectRegexRule',
     widget_wrapper => 'Accordion',
 );
+
+sub append_button {
+    my ($self) = @_;
+    my $index = $self->index;
+    $self->add_extra(1);
+    my $extra_field = $self->field($index);
+    set_disabled($extra_field);
+    my $content = $self->field($index)->render;
+    return qq{<div><div id="template-rules" class="hidden">$content</div><button class="btn">Add Rule</button></div>};
+}
+
+sub set_disabled {
+    my ($field) = @_;
+    if ($field->can("fields")) {
+        foreach my $subfield ($field->fields) {
+            set_disabled($subfield);
+        }
+    }
+    $field->set_element_attr("disabled" => "disabled");
+}
 
 
 =over
