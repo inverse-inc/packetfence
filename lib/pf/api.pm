@@ -22,7 +22,6 @@ use pf::authentication();
 use pf::Authentication::constants;
 use pf::config();
 use pf::config::util();
-use pf::config::cached;
 use pf::config::trapping_range;
 use pf::ConfigStore::Interface();
 use pf::ConfigStore::Pf();
@@ -659,7 +658,6 @@ sub notify_configfile_changed : Public {
         my ($result) = $apiclient->call( 'download_configfile', %data );
         pf::util::safe_file_update($postdata{conf_file}, $result);
         pf::config::cached::updateCacheControl();
-        pf::config::cached::ReloadConfigs(1);
 
         $logger->info("Successfully downloaded configuration $postdata{conf_file} from $postdata{server}");
     };

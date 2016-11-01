@@ -48,7 +48,6 @@ BEGIN {
 use pf::api::jsonrpcclient;
 use Getopt::Long;
 use pf::api::jsonrpcclient;
-use pf::config::cached;
 use pfconfig::constants;
 use pf::file_paths qw(
     $config_version_file
@@ -151,7 +150,6 @@ if($master_server){
     }
 
     pf::config::cached::updateCacheControl();
-    pf::config::cached::ReloadConfigs(1);
 
 }
 

@@ -15,7 +15,6 @@ use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 
 use pf::constants qw($TRUE);
-use pf::config::cached;
 use File::Slurp;
 use pf::constants::filters qw(%FILTERS_IDENTIFIERS %CONFIGSTORE_MAP %ENGINE_MAP);
 use pfconfig::manager;
@@ -98,7 +97,6 @@ sub update :Chained('object') :PathPart :Args(0) {
     }
     else {
         # Reload the pf::config::cached cache
-        pf::config::cached::ReloadConfigs($TRUE);
         # Reload it in pfconfig and sync in cluster
         my ($success, $msg) = $c->stash->{object}->commitPfconfig();
         unless($success){

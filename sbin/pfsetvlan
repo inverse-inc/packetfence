@@ -2083,7 +2083,6 @@ sub getSwitch {
         lock $switchFactory_locker;
     #    $pf::ConfigStore::SwitchOverlay::switches_overlay_cached_config->ReadConfig();
         $lockLogger->trace("locking - obtained lock on switchFactory_locker");
-        pf::config::cached::ReloadConfigs();
         $switch = pf::SwitchFactory->instantiate($switch_id);
         if($switch) {
             add_to_switch_locker($switch->{_id});

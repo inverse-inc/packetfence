@@ -24,7 +24,6 @@ F<pf.conf.defaults>, F<networks.conf>, F<dhcp_fingerprints.conf>, F<oui.txt>, F<
 use strict;
 use warnings;
 use pf::log;
-use pf::config::cached;
 use pf::constants;
 use Date::Parse;
 use File::Basename qw(basename);
@@ -956,7 +955,6 @@ sub configreload {
     }
     require pf::web::filter;
     pf::config::cached::updateCacheControl();
-    pf::config::cached::ReloadConfigs($force);
 
     # reload pfconfig's config
     require pfconfig::manager;
