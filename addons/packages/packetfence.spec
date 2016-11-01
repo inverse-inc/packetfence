@@ -1208,6 +1208,9 @@ fi
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Root.pm
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Status.pm
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/WirelessProfile.pm
+%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Form/Authentication.pm
+%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Form/Field/AUP.pm
+%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Form/Widget/Field/AUP.pm
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Model/Portal/Session.pm
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/View/HTML.pm
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/View/MobileConfig.pm
