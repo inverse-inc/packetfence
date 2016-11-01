@@ -69,6 +69,9 @@
 /usr/local/pf/conf/radiusd/load_balancer.conf
 /usr/local/pf/conf/radiusd/cli.conf
 /usr/local/pf/conf/radiusd/packetfence-cli
+/usr/local/pf/conf/radiusd/eduroam
+/usr/local/pf/conf/radiusd/eduroam-cluster
+/usr/local/pf/conf/radiusd/eduroam.conf
 /usr/local/pf/conf/snmptrapd.conf
 /usr/local/pf/conf/snort.conf
 /usr/local/pf/conf/snort.conf.pre_snort-2.8

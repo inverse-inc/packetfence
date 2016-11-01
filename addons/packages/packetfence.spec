@@ -1037,6 +1037,12 @@ fi
                         /usr/local/pf/conf/radiusd/cli.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/packetfence-cli
                         /usr/local/pf/conf/radiusd/packetfence-cli.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/eduroam
+                        /usr/local/pf/conf/radiusd/eduroam.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/eduroam-cluster
+                        /usr/local/pf/conf/radiusd/eduroam-cluster.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/eduroam.conf
+                        /usr/local/pf/conf/radiusd/eduroam.conf.example
 %config(noreplace)      /usr/local/pf/conf/realm.conf
                         /usr/local/pf/conf/realm.conf.example
 %config                 /usr/local/pf/conf/realm.conf.defaults
