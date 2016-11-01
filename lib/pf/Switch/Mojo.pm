@@ -55,6 +55,18 @@ sub description { 'Mojo Networks AP' }
 sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $FALSE; }
 
+
+=item getVersion - obtain image version information from switch
+
+=cut
+
+sub getVersion {
+    my ($self) = @_;
+    my $logger = $self->logger;
+    $logger->info("we don't know how to determine the version through SNMP !");
+    return '8.1.1';
+}
+
 =item deauthenticateMacDefault
 
 De-authenticate a MAC address from wireless network (including 802.1X).
