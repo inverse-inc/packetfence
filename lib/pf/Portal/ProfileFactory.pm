@@ -55,8 +55,6 @@ sub instantiate {
     return $instance;
 }
 
-pf_memoize("pf::Portal::ProfileFactory::instantiate");
-
 =head2 _from_profile
 
 Massages the profile values before creating the object

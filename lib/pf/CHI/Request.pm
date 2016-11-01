@@ -38,9 +38,6 @@ __PACKAGE__->config({
         },
     },
     namespace => {
-        'pf::Portal::ProfileFactory::instantiate' => {
-            storage => 'raw_memory',
-        },
        'pf::node::node_exist' => {
            storage => 'raw_memory',
        },
