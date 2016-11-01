@@ -1,14 +1,2 @@
 [% form.block('definition').render | none %]
-<div class="control-group">
-  <label class="control-label" for="action">[% l('Action') %]</label>
-  <div class="controls">
-    [% form.field('action').render | none %]
-    <div id="actionEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('action').index > 1 %]">
-      <p>
-        <i class="icon-group icon-large"></i>
-        <br/>
-        <a href="#add">[% l('Add a action.') %]</a>
-      </p>
-    </div>
-  </div>
-</div>
+[% form.field('rules').render | none %]
