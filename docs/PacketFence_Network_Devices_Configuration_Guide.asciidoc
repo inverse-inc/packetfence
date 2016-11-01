@@ -4779,6 +4779,82 @@ So, since the matching is done using the Firewall Filter ID configuration field,
 
 NOTE: You need to have the *Per-User Firewall* license in order to benefit this feature.
 
+Mojo Networks
+^^^^^^^^^^^^^
+
+PacketFence supports only SSIDs configured with 802.1X.
+
+Configure the 802.1X Secure SSID:
++++++++++++++++++++++++++++++++++
+* Login to the https://dashboard.mojonetworks.com
+* Create the 802.1X SSID:
+* Go to *Services -> Mojo Wireless Manager*
+* Then click on *Configuration -> Device Configuration -> SSID Profiles -> Add a new Profile -> WLAN* 
+
+NOTE: (Leave the default configuration for the other settings)
+
+   Profile Name: PF-Secure-802.1X
+   SSID: PF-Secure
+   Security: WPA2; 802.1X
+   NAS ID: %m-%s
+   Dynamic VLANs: Enable VLAN Pool 1,2,4,5 (All VLANs that you will use)
+   Called-Station-ID: %m-%s
+   COA: Checked
+
+RADIUS Authentication:
+
+   Primary Authentication Server:
+   Server IP: 192.168.1.5
+   Port Number: 1812
+   Shared Secret: useStrongerSecret
+
+RADIUS Accounting Server Details
+
+   Primary Authentication Server:
+   Server IP: 192.168.1.5
+   Port Number: 1813
+   Shared Secret: useStrongerSecret
+
+Click the 'Save' button to save the PF-Secure SSID configuration.
+
+Broadcast the SSID on the Access Point:
++++++++++++++++++++++++++++++++++++++++
+* Go to *Configuration -> Device Template -> System Template* 
+* Then *Radio Settings -> Define settings for model -> Chose your AP model*
+* Finally *Radio 1 - 2x2 b/g/n Configuration -> Add SSID Profile -> Select your SSID profile previously created -> Ok*
+
+Click the 'Save' button to broadcast the PF-Secure SSID.
+
+Configure the Mojo Networks AP in PacketFence:
+++++++++++++++++++++++++++++++++++++++++++++++
+
+Add a Switch with the IP address of the Access Point (AP) with the following configuration:
+
+* Go to *Configuration -> Network -> Switches -> Add switch to group -> Default*
+
+   Definition:
+    IP Address/MAC Address/Range (CIDR): Local IP of the AP
+    Description: Mojo Networks Access Point
+    Type: Mojo Networks AP
+    Mode: Production
+    Switch Group: None
+    Deauthentication Method: RADIUS
+    Use CoA: Checked
+   
+   Roles:
+    Role by VLAN ID: Checked
+    registration: 2
+    isolation: 3
+    guest: 5
+    default: 1
+
+   NOTE: Role by VLAN ID remain the only category checked.
+
+   Radius:
+    Secret Passphrase: useStrongerSecret
+
+Click the 'Save' button to save the AP configuration.
+
 Motorola
 ~~~~~~~~
 
