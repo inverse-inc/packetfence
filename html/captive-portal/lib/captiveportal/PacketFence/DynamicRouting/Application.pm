@@ -397,6 +397,7 @@ Render a template using Template Toolkit.
 
 sub _render {
     my ($self, $template, $args) = @_;
+    $template = $self->profile->getLocalizedTemplate($template);
 
     if(defined($args->{title})){
         $self->title($args->{title});

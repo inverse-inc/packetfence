@@ -17,6 +17,7 @@ portal from the same server.
 use strict;
 use warnings;
 
+use POSIX;
 use List::Util qw(first);
 use List::MoreUtils qw(all none any uniq);
 use pf::constants qw($TRUE $FALSE);
@@ -566,6 +567,28 @@ Get the root module ID for the portal profile
 sub getRootModuleId {
     my ($self) = @_;
     return $self->{_root_module} || $DEFAULT_ROOT_MODULE;
+}
+
+=item getLocalizedTemplate 
+
+Get a template based on the current locale
+
+=cut
+
+sub getLocalizedTemplate {
+    my ($self, $base_template) = @_;
+    my $locale = setlocale(POSIX::LC_MESSAGES);
+    my @parts = split(/\./, $base_template);
+    my $suffix = pop(@parts);
+    my $prefix = join('.', @parts);
+    if(defined($locale) && $locale =~ /([a-zA-Z]+)_?/) {
+        my $short_locale = $1;
+        my $localized_aup = "$prefix.$short_locale.$suffix";
+        if(defined($self->getTemplatePath($localized_aup))) {
+            return $localized_aup;
+        }
+    }
+    return $base_template;
 }
 
 =back
