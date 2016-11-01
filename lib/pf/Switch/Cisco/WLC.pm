@@ -118,6 +118,7 @@ use pf::node;
 use pf::util::radius qw(perform_coa perform_disconnect);
 use pf::violation qw(violation_count_reevaluate_access);
 use pf::radius::constants;
+use pf::locationlog qw(locationlog_get_session);
 
 sub description { 'Cisco Wireless Controller (WLC)' }
 
@@ -132,7 +133,6 @@ sub description { 'Cisco Wireless Controller (WLC)' }
 sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $TRUE; }
 sub supportsRoleBasedEnforcement { return $TRUE; }
-sub supportsUrlBasedEnforcement { return $TRUE; }
 
 # disabling special features supported by generic Cisco's but not on WLCs
 sub supportsSaveConfig { return $FALSE; }
@@ -140,6 +140,7 @@ sub supportsCdp { return $FALSE; }
 sub supportsLldp { return $FALSE; }
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
+sub supportsExternalPortal { return $TRUE; }
 
 =item deauthenticateMacDefault
 
@@ -347,25 +348,6 @@ sub deauthTechniques {
     return $method,$tech{$method};
 }
 
-=item parseUrl
-
-This is called when we receive a http request from the device and return specific attributes:
-
-client mac address
-SSID
-client ip address
-redirect url
-grant url
-status code
-
-=cut
-
-sub parseUrl {
-    my($self, $req) = @_;
-    my $logger = $self->logger;
-    return ($$req->param('client_mac'),$$req->param('wlan'),$$req->param('client_ip'),$$req->param('redirect'),$$req->param('switch_url'),$$req->param('statusCode'));
-}
-
 =item returnAuthorizeWrite
 
 Return radius attributes to allow write access
@@ -429,11 +411,12 @@ sub returnRadiusAccessAccept {
     my @av_pairs = defined($radius_reply_ref->{'Cisco-AVPair'}) ? @{$radius_reply_ref->{'Cisco-AVPair'}} : ();
 
     my $role = $self->getRoleByName($args->{'user_role'});
-    if ( isenabled($self->{_UrlMap}) && $self->supportsUrlBasedEnforcement ) {
+    if ( isenabled($self->{_UrlMap}) && $self->externalPortalEnforcement ) {
         if ( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getUrlByName($args->{'user_role'}) ) ) {
+            $args->{'session_id'} = "sid".$self->setSession($args);
             my $redirect_url = $self->getUrlByName($args->{'user_role'});
-            $args->{'session_id'} = "cep".$self->setSession($args) if ($redirect_url =~ /\$session_id/);
-            $redirect_url =~ s/\$([a-zA-Z_0-9]+)/$args->{$1} \/\/ ''/ge;
+            $redirect_url .= '/' unless $redirect_url =~ m(\/$);
+            $redirect_url .= $args->{'session_id'};
             #override role if a role in role map is define
             if (isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
                 my $role_map = $self->getRoleByName($args->{'user_role'});
@@ -602,6 +585,50 @@ sub parseRequest {
         }
     }
     return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, $session_id);
+}
+
+=item parseExternalPortalRequest
+
+Parse external portal request using URI and it's parameters then return an hash reference with the appropriate parameters
+
+See L<pf::web::externalportal::handle>
+
+=cut
+
+sub parseExternalPortalRequest {
+    my ( $self, $r, $req ) = @_;
+    my $logger = $self->logger;
+
+    # Using a hash to contain external portal parameters
+    my %params = ();
+
+    # Cisco WLC uses external portal session ID handling process
+    my $uri = $r->uri;
+    return unless ($uri =~ /.*sid(.*[^\/])/);
+    my $session_id = $1;
+
+    my $locationlog = pf::locationlog::locationlog_get_session($session_id);
+    my $switch_id = $locationlog->{switch};
+    my $client_mac = $locationlog->{mac};
+    my $client_ip = defined($r->headers_in->{'X-Forwarded-For'}) ? $r->headers_in->{'X-Forwarded-For'} : $r->connection->remote_ip;
+
+    my $redirect_url;
+    if ( defined($req->param('redirect')) ) {
+        $redirect_url = $req->param('redirect');
+    }
+    elsif ( defined($r->headers_in->{'Referer'}) ) {
+        $redirect_url = $r->headers_in->{'Referer'};
+    }
+
+    %params = (
+        session_id      => $session_id,
+        switch_id       => $switch_id,
+        client_mac      => $client_mac,
+        client_ip       => $client_ip,
+        redirect_url    => $redirect_url,
+    );
+
+    return \%params;
 }
 
 

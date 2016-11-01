@@ -1,13 +1,12 @@
-package pf::Switch::Meraki::AP_http;
+package pf::Switch::Meraki::MR;
 
 =head1 NAME
 
-pf::Switch::Meraki::AP_http
+pf::Switch::Meraki::MR
 
 =head1 SYNOPSIS
 
-The pf::Switch::Meraki::AP_http module implements an object oriented interface to
-manage the external captive portal on Meraki access points
+Implement object oriented module to interact with Meraki MR network equipment
 
 =head1 STATUS
 
@@ -59,34 +58,34 @@ sub getVersion {
     return '1';
 }
 
-=head2 parseUrl
 
-This is called when we receive a http request from the device and return specific attributes:
+=item parseExternalPortalRequest
 
-client mac address
-SSID
-client ip address
-redirect url
-grant url
-status code
+Parse external portal request using URI and it's parameters then return an hash reference with the appropriate parameters
+
+See L<pf::web::externalportal::handle>
 
 =cut
 
-sub parseUrl {
-    my($self, $req, $r) = @_;
+sub parseExternalPortalRequest {
+    my ( $self, $r, $req ) = @_;
     my $logger = $self->logger;
-    my $connection = $r->connection;
-    $self->synchronize_locationlog("0", "0", clean_mac($$req->param('client_mac')),
-        0, $WIRELESS_MAC_AUTH, "", clean_mac($$req->param('client_mac')), "Unknown"
+
+    # Using a hash to contain external portal parameters
+    my %params = ();
+
+    %params = (
+        switch_id       => clean_mac($req->param('ap_mac')),
+        client_mac      => clean_mac($req->param('client_mac')),
+        client_ip       => $req->param('client_ip'),
+        ssid            => "Unknown",
+        redirect_url    => $req->param('continue_url'),
+        status_code     => '200',
     );
 
-    return (clean_mac($$req->param('client_mac')),"Unknown",$$req->param('client_ip'),$$req->param('continue_url'),undef,"200");
+    return \%params;
 }
 
-sub parseSwitchIdFromRequest {
-    my($class, $req) = @_;
-    return $$req->param('ap_mac');
-}
 
 =head2 returnRadiusAccessAccept
 
@@ -111,25 +110,27 @@ sub returnRadiusAccessAccept {
     my $filter = pf::access_filter::radius->new;
     my $rule = $filter->test('returnRadiusAccessAccept', $args);
 
-    my $violation = pf::violation::violation_view_top($args->{'mac'});
-    # if user is unregistered or is in violation then we reject him to show him the captive portal
-    if ( $node->{status} eq $pf::node::STATUS_UNREGISTERED || defined($violation) ){
-        $logger->info("[$args->{'mac'}] is unregistered. Refusing access to force the eCWP");
-        my $radius_reply_ref = {
-            'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
-            'Tunnel-Type' => $RADIUS::VLAN,
-            'Tunnel-Private-Group-ID' => -1,
-        };
-        ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
-        return [$status, %$radius_reply_ref];
-
+    if ( $self->externalPortalEnforcement ) {
+        my $violation = pf::violation::violation_view_top($args->{'mac'});
+        # if user is unregistered or is in violation then we reject him to show him the captive portal
+        if ( $node->{status} eq $pf::node::STATUS_UNREGISTERED || defined($violation) ){
+            $logger->info("[$args->{'mac'}] is unregistered. Refusing access to force the eCWP");
+            my $radius_reply_ref = {
+                'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
+                'Tunnel-Type' => $RADIUS::VLAN,
+                'Tunnel-Private-Group-ID' => -1,
+            };
+            ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+            return [$status, %$radius_reply_ref];
+        }
+        else{
+            $logger->info("Returning ACCEPT");
+            ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+            return [$status, %$radius_reply_ref];
+        }
     }
-    else{
-        $logger->info("Returning ACCEPT");
-        ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
-        return [$status, %$radius_reply_ref];
-    }
 
+    return $self->SUPER::returnRadiusAccessAccept($args);
 }
 
 sub getAcceptForm {

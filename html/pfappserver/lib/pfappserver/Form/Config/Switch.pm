@@ -118,6 +118,14 @@ has_field 'cliAccess' =>
    tags => { after_element => \&help,
              help => 'Allow this switch to use PacketFence as a radius server for CLI access'},
   );
+has_field 'ExternalPortalEnforcement' => (
+    type    => 'Toggle',
+    label   => 'External Portal Enforcement',
+    tags    => {
+        after_element   => \&help,
+        help            => 'Enable external portal enforcement when supported by network equipment',
+    },
+);
 has_field 'VoIPEnabled' =>
   (
    type => 'Toggle',
@@ -292,7 +300,7 @@ has_field macSearchesSleepInterval  =>
 
 has_block definition =>
   (
-   render_list => [ qw(description type mode group deauthMethod useCoA cliAccess VoIPEnabled VoIPLLDPDetect VoIPCDPDetect VoIPDHCPDetect uplink_dynamic uplink controllerIp controllerPort) ],
+   render_list => [ qw(description type mode group deauthMethod useCoA cliAccess ExternalPortalEnforcement VoIPEnabled VoIPLLDPDetect VoIPCDPDetect VoIPDHCPDetect uplink_dynamic uplink controllerIp controllerPort) ],
   );
 has_field 'SNMPVersion' =>
   (

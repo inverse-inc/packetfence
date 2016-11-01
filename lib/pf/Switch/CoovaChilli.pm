@@ -41,44 +41,31 @@ sub supportsWebFormRegistration { return $TRUE }
 =over
 
 
-=item parseUrl
+=item parseExternalPortalRequest
 
-Parse the URL when an external captive portal HTTP request is detected.
+Parse external portal request using URI and it's parameters then return an hash reference with the appropriate parameters
 
-Parsed attributes:
-
-- client mac address
-
-- SSID
-
-- client ip address
-
-- redirect url
-
-- grant url
-
-- status code
+See L<pf::web::externalportal::handle>
 
 =cut
 
-sub parseUrl {
-    my ( $self, $req ) = @_;
+sub parseExternalPortalRequest {
+    my ( $self, $r, $req ) = @_;
+    my $logger = $self->logger;
 
-    $self->synchronize_locationlog("0", "0", clean_mac($$req->param('mac')), 0, $WIRELESS_MAC_AUTH, "", clean_mac($$req->param('mac')), $$req->param('ssid'));
+    # Using a hash to contain external portal parameters
+    my %params = ();
 
-    return ( clean_mac($$req->param('mac')), $$req->param('ssid'), $$req->param('ip'), $$req->param('userurl'), undef, $$req->param('res') );
-}
+    %params = (
+        switch_id       => $req->connection->remote_ip,
+        client_mac      => clean_mac($req->param('mac')),
+        client_ip       => $req->param('ip'),
+        ssid            => $req->param('ssid'),
+        redirect_url    => $req->param('userurl'),
+        status_code     => $req->param('res'),
+    );
 
-
-=item parseSwitchIdFromRequest
-
-Parse the switch identifier from the HTTP request
-
-=cut
-
-sub parseSwitchIdFromRequest {
-    my( $self, $req ) = @_;
-    return $$req->connection->remote_ip;
+    return \%params;
 }
 
 

@@ -123,6 +123,7 @@ use pf::util;
 use pf::util::radius qw(perform_coa);
 use pf::web::util;
 use pf::radius::constants;
+use pf::locationlog qw(locationlog_get_session);
 
 sub description { 'Cisco Catalyst 2960' }
 
@@ -136,8 +137,8 @@ sub supportsRadiusVoip { return $TRUE; }
 sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
 
 sub supportsAccessListBasedEnforcement { return $TRUE }
-sub supportsUrlBasedEnforcement { return $TRUE }
 sub supportsRoleBasedEnforcement { return $TRUE; }
+sub supportsExternalPortal { return $TRUE; }
 
 =head1 SUBROUTINES
 
@@ -509,12 +510,13 @@ sub returnRadiusAccessAccept {
     }
 
     my $role = $self->getRoleByName($args->{'user_role'});
-    if ( isenabled($self->{_UrlMap}) && $self->supportsUrlBasedEnforcement ) {
+    if ( isenabled($self->{_UrlMap}) && $self->externalPortalEnforcement ) {
         if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getUrlByName($args->{'user_role'}))){
             my $mac = $args->{'mac'};
+            $args->{'session_id'} = "sid".$self->setSession($args);
             my $redirect_url = $self->getUrlByName($args->{'user_role'});
-            $args->{'session_id'} = "cep".$self->setSession($args) if ($redirect_url =~ /\$session_id/);
-            $redirect_url =~ s/\$([a-zA-Z_0-9]+)/$args->{$1} \/\/ ''/ge;
+            $redirect_url .= '/' unless $redirect_url =~ m(\/$);
+            $redirect_url .= $args->{'session_id'};
             #override role if a role in role map is defined
             if (isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
                 my $role_map = $self->getRoleByName($args->{'user_role'});
@@ -613,6 +615,52 @@ sub enableMABByIfIndex {
         -varbindlist => [ "$OID_cafPortAuthorizeControl.$ifIndex", Net::SNMP::INTEGER, 2 ] );
     return ( defined($result) );
 }
+
+
+=item parseExternalPortalRequest
+
+Parse external portal request using URI and it's parameters then return an hash reference with the appropriate parameters
+
+See L<pf::web::externalportal::handle>
+
+=cut
+
+sub parseExternalPortalRequest {
+    my ( $self, $r, $req ) = @_;
+    my $logger = $self->logger;
+
+    # Using a hash to contain external portal parameters
+    my %params = ();
+
+    # Cisco Catalyst 2960 uses external portal session ID handling process
+    my $uri = $r->uri;
+    return unless ($uri =~ /.*sid(.*[^\/])/);
+    my $session_id = $1;
+
+    my $locationlog = pf::locationlog::locationlog_get_session($session_id);
+    my $switch_id = $locationlog->{switch};
+    my $client_mac = $locationlog->{mac};
+    my $client_ip = defined($r->headers_in->{'X-Forwarded-For'}) ? $r->headers_in->{'X-Forwarded-For'} : $r->connection->remote_ip;
+
+    my $redirect_url;
+    if ( defined($req->param('redirect')) ) {
+        $redirect_url = $req->param('redirect');
+    }
+    elsif ( defined($r->headers_in->{'Referer'}) ) {
+        $redirect_url = $r->headers_in->{'Referer'};
+    }
+
+    %params = (
+        session_id      => $session_id,
+        switch_id       => $switch_id,
+        client_mac      => $client_mac,
+        client_ip       => $client_ip,
+        redirect_url    => $redirect_url,
+    );
+
+    return \%params;
+}
+
 
 =head1 AUTHOR
 

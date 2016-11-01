@@ -6,7 +6,7 @@ pf::Switch::Xirrus
 
 =head1 SYNOPSIS
 
-The pf::Switch::Xirrus module implements an object oriented interface to manage Xirrus Wireless Access Points.
+Implement object oriented module to interact with Xirrus network equipment
 
 =head1 STATUS
 
@@ -14,9 +14,19 @@ Developed and tested against XS4 model ArrayOS version 3.5-724.
 
 According to Xirrus engineers, this modules should work on any XS and XN model.
 
+=head2 External Portal Enforcement
+
+Developed and tested on XR4430 running 6.4.1
+
 =head1 BUGS AND LIMITATIONS
 
 SNMPv3 support is untested.
+
+=head2 External Portal Enforcement - Cannot use the access point behind a NAT gateway
+
+Since the access point is not sending the IP address of the device in the URL parameters,
+the access point and PacketFence cannot be separated by a NAT gateway.
+This module uses the remote IP in the HTTP request to determine the IP of the client.
 
 =cut
 
@@ -24,18 +34,21 @@ use strict;
 use warnings;
 
 use POSIX;
+use Try::Tiny;
 
-use base ('pf::Switch');
-
-use pf::constants;
 use pf::config qw(
     $MAC
     $SSID
+    $WIRELESS_MAC_AUTH
 );
+use pf::constants;
+use pf::node;
 use pf::Switch::constants;
 use pf::util;
 use pf::util::radius qw(perform_disconnect);
-use Try::Tiny;
+
+use base ('pf::Switch');
+
 
 sub description { 'Xirrus WiFi Arrays' }
 
@@ -53,6 +66,9 @@ sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $TRUE; }
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
+sub supportsExternalPortal { return $TRUE; }
+sub supportsWebFormRegistration { return $TRUE; }
+
 
 =item getVersion
 
@@ -300,6 +316,118 @@ sub returnAuthorizeRead {
     ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
     return [$status, %$radius_reply_ref];
 }
+
+=item returnRadiusAccessAccept
+
+Prepares the RADIUS Access-Accept reponse for the network device.
+
+Overriding the default implementation for the external captive portal
+
+=cut
+
+sub returnRadiusAccessAccept {
+    my ($self, $args) = @_;
+    my $logger = $self->logger;
+
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('returnRadiusAccessAccept', $args);
+    my $radius_reply_ref = {};
+    my $status;
+
+    # should this node be kicked out?
+    my $kick = $self->handleRadiusDeny($args);
+    return $kick if (defined($kick));
+
+    my $node = $args->{'node_info'};
+
+    if ( $self->externalPortalEnforcement ) {
+        my $violation = pf::violation::violation_view_top($args->{'mac'});
+        # if user is unregistered or is in violation then we reject him to show him the captive portal
+        if ( $node->{status} eq $pf::node::STATUS_UNREGISTERED || defined($violation) ){
+            $logger->info("is unregistered. Refusing access to force the eCWP");
+            my $radius_reply_ref = {
+                'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
+                'Tunnel-Type' => $RADIUS::VLAN,
+                'Tunnel-Private-Group-ID' => -1,
+            };
+            ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+            return [$status, %$radius_reply_ref];
+        }
+        else{
+            $logger->info("Returning ACCEPT");
+            ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+            return [$status, %$radius_reply_ref];
+        }
+    }
+
+    return $self->SUPER::returnRadiusAccessAccept($args);
+}
+
+
+=item parseExternalPortalRequest
+
+Parse external portal request using URI and it's parameters then return an hash reference with the appropriate parameters
+
+See L<pf::web::externalportal::handle>
+
+=cut
+
+sub parseExternalPortalRequest {
+    my ( $self, $r, $req ) = @_;
+    my $logger = $self->logger;
+
+    # Using a hash to contain external portal parameters
+    my %params = ();
+
+    my $client_ip = defined($r->headers_in->{'X-Forwarded-For'}) ? $r->headers_in->{'X-Forwarded-For'} : $r->connection->remote_ip;
+
+    %params = (
+        switch_id       => $req->param('nasid'),
+        client_mac      => clean_mac($req->param('mac')),
+        client_ip       => $client_ip,
+        ssid            => $req->param('ssid'),
+        redirect_url    => $req->param('userurl'),
+        status_code     => '200',
+    );
+
+    return \%params;
+}
+
+
+sub getAcceptForm {
+    my ( $self, $mac , $destination_url, $cgi_session) = @_;
+    my $logger = $self->logger;
+    $logger->debug("Creating web release form");
+
+    my $uamip = $cgi_session->param("ecwp-original-param-uamip");
+    my $uamport = $cgi_session->param("ecwp-original-param-uamport");
+    my $userurl = $cgi_session->param("ecwp-original-param-userurl");
+    my $challenge = $cgi_session->param("ecwp-original-param-challenge");
+    my $newchal  = pack "H32", $challenge;
+
+    my @ib = unpack("C*", "\0" . $mac . $newchal);
+    my $encstr = join("", map {sprintf('\%3.3o', $_)} @ib);
+    my ($passvar) = split(/ /, `printf '$encstr' | md5sum`);
+
+    $mac =~ s/:/-/g;
+
+    my $html_form = qq[
+        <script>
+        if (document.URL.match(/res=success/)){
+            //http requests are too fast for the ap
+            //we leave him time to understand what is happening
+            setTimeout(function(){window.location = "$destination_url"}, 2000)
+        }
+        else{
+            window.location = "http://$uamip:$uamport/logon?username=$mac&password=$passvar&userurl=$destination_url"
+        }
+        </script>
+    ];
+
+    $logger->debug("Generated the following html form : ".$html_form);
+    return $html_form;
+}
+
 
 =back
 

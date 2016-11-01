@@ -27,6 +27,7 @@ VoIPEnabled = N
 cliAccess = N
 VlanMap = Y
 RoleMap = Y
+ExternalPortalEnforcement = N
 
 mode = testing
 macSearchesMaxNb = 30

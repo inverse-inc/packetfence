@@ -539,23 +539,31 @@ sub extractVLAN {
     return ($radius_request->{'Aruba-User-Vlan'});
 }
 
-=item parseUrl
 
-This is called when we receive a http request from the device and return specific attributes:
+=item parseExternalPortalRequest
 
-client mac address
-SSID
-client ip address
-redirect url
-grant url
-status code
+Parse external portal request using URI and it's parameters then return an hash reference with the appropriate parameters
+
+See L<pf::web::externalportal::handle>
 
 =cut
 
-sub parseUrl {
-    my($self, $req) = @_;
+sub parseExternalPortalRequest {
+    my ( $self, $r, $req ) = @_;
     my $logger = $self->logger;
-    return ($$req->param('mac'),$$req->param('essid'),$$req->param('ip'),$$req->param('url'),undef,undef);
+
+    # Using a hash to contain external portal parameters
+    my %params = ();
+
+    %params = (
+        switch_id       => $req->param('apname'),
+        client_mac      => clean_mac($req->param('mac')),
+        client_ip       => $req->param('ip'),
+        ssid            => $req->param('essid'),
+        redirect_url    => $req->param('url'),
+    );
+
+    return \%params;
 }
 
 

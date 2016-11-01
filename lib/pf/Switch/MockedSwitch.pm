@@ -96,7 +96,6 @@ sub supportsExternalPortal { return $TRUE; }
 sub supportsMABFloatingDevices { return $TRUE; }
 sub supportsWebFormRegistration { return $TRUE }
 sub supportsAccessListBasedEnforcement { return $TRUE }
-sub supportsUrlBasedEnforcement { return $TRUE }
 # VoIP technology supported
 sub supportsRadiusVoip { return $TRUE; }
 # special features supported
@@ -2951,27 +2950,26 @@ sub parseRequest {
     return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id);
 }
 
-=item parseUrl
-
-Extract all the param from the url.
-
-=cut
-
-sub parseUrl {
-    my ($self,$req) = @_;
-    my $logger = $self->logger;
-    $logger->warn("Not implemented");
-    return;
-}
-
 sub getAcceptForm {
     my ( $self, $mac , $destination_url) = @_;
     return "";
 }
 
-sub parseSwitchIdFromRequest {
-    my ( $class, $req) = @_;
-    return "";
+=item parseExternalPortalRequest
+
+Parse external portal request using URI and it's parameters then return an hash reference with the appropriate parameters
+
+See L<pf::web::externalportal::handle>
+
+=cut
+
+sub parseExternalPortalRequest {
+    my ( $self, $r, $req ) = @_;
+
+    # Using a hash to contain external portal parameters
+    my %params = ();
+
+    return \%params;
 }
 
 =item deauth_source_ip

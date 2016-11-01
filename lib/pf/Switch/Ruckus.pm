@@ -170,24 +170,33 @@ sub deauthTechniques {
     return $method,$tech{$method};
 }
 
-=item parseUrl
 
-This is called when we receive a http request from the device and return specific attributes:
+=item parseExternalPortalRequest
 
-client mac address
-SSID
-client ip address
-redirect url
-grant url
-status code
+Parse external portal request using URI and it's parameters then return an hash reference with the appropriate parameters
+
+See L<pf::web::externalportal::handle>
 
 =cut
 
-sub parseUrl {
-    my($self, $req) = @_;
+sub parseExternalPortalRequest {
+    my ( $self, $r, $req ) = @_;
     my $logger = $self->logger;
-    return (clean_mac($$req->param('client_mac')),$$req->param('ssid'),defined($$req->param('uip')) ? $$req->param('uip') : undef,$$req->param('url'),undef,undef);
+
+    # Using a hash to contain external portal parameters
+    my %params = ();
+
+    %params = (
+        switch_id       => $req->param('sip'),
+        client_mac      => clean_mac($req->param('client_mac')),
+        client_ip       => defined($req->param('uip')) ? $req->param('uip') : undef,
+        ssid            => $req->param('ssid'),
+        redirect_url    => $req->param('url'),
+    );
+
+    return \%params;
 }
+
 
 =item getAcceptForm
 

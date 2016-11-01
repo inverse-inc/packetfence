@@ -204,17 +204,6 @@ sub supportsAccessListBasedEnforcement {
     return $FALSE;
 }
 
-=item supportsUrlBasedEnforcement
-
-=cut
-
-sub supportsUrlBasedEnforcement {
-    my ( $self ) = @_;
-    my $logger = $self->logger;
-    $logger->trace("Url based enforcement is not supported on network device type " . ref($self) . ". ");
-    return $FALSE;
-}
-
 
 =item supportsRoamingAccounting
 
@@ -283,58 +272,59 @@ sub supportsMABFloatingDevices {
 sub new {
     my ($class, $argv) = @_;
     my $self = bless {
-        '_error'                    => undef,
-        '_id'                       => undef,
-        '_macSearchesMaxNb'         => undef,
-        '_macSearchesSleepInterval' => undef,
-        '_mode'                     => undef,
-        '_sessionRead'              => undef,
-        '_sessionWrite'             => undef,
-        '_sessionControllerWrite'   => undef,
-        '_SNMPAuthPasswordRead'     => undef,
-        '_SNMPAuthPasswordTrap'     => undef,
-        '_SNMPAuthPasswordWrite'    => undef,
-        '_SNMPAuthProtocolRead'     => undef,
-        '_SNMPAuthProtocolTrap'     => undef,
-        '_SNMPAuthProtocolWrite'    => undef,
-        '_SNMPCommunityRead'        => undef,
-        '_SNMPCommunityTrap'        => undef,
-        '_SNMPCommunityWrite'       => undef,
-        '_SNMPEngineID'             => undef,
-        '_SNMPPrivPasswordRead'     => undef,
-        '_SNMPPrivPasswordTrap'     => undef,
-        '_SNMPPrivPasswordWrite'    => undef,
-        '_SNMPPrivProtocolRead'     => undef,
-        '_SNMPPrivProtocolTrap'     => undef,
-        '_SNMPPrivProtocolWrite'    => undef,
-        '_SNMPUserNameRead'         => undef,
-        '_SNMPUserNameTrap'         => undef,
-        '_SNMPUserNameWrite'        => undef,
-        '_SNMPVersion'              => 1,
-        '_SNMPVersionTrap'          => 1,
-        '_cliEnablePwd'             => undef,
-        '_cliPwd'                   => undef,
-        '_cliUser'                  => undef,
-        '_cliTransport'             => undef,
-        '_wsPwd'                    => undef,
-        '_wsUser'                   => undef,
-        '_wsTransport'              => undef,
-        '_radiusSecret'             => undef,
-        '_controllerIp'             => undef,
-        '_controllerPort'           => undef,
-        '_uplink'                   => undef,
-        '_vlans'                    => undef,
-        '_VoIPEnabled'              => undef,
-        '_roles'                    => undef,
-        '_inlineTrigger'            => undef,
-        '_deauthMethod'             => undef,
-        '_useCoA'                   => 'enabled',
-        '_switchIp'                 => undef,
-        '_ip'                       => undef,
-        '_switchMac'                => undef,
-        '_VlanMap'                  => 'enabled',
-        '_RoleMap'                  => 'enabled',
-        '_UrlMap'                   => 'enabled',
+        '_error'                        => undef,
+        '_id'                           => undef,
+        '_macSearchesMaxNb'             => undef,
+        '_macSearchesSleepInterval'     => undef,
+        '_mode'                         => undef,
+        '_sessionRead'                  => undef,
+        '_sessionWrite'                 => undef,
+        '_sessionControllerWrite'       => undef,
+        '_SNMPAuthPasswordRead'         => undef,
+        '_SNMPAuthPasswordTrap'         => undef,
+        '_SNMPAuthPasswordWrite'        => undef,
+        '_SNMPAuthProtocolRead'         => undef,
+        '_SNMPAuthProtocolTrap'         => undef,
+        '_SNMPAuthProtocolWrite'        => undef,
+        '_SNMPCommunityRead'            => undef,
+        '_SNMPCommunityTrap'            => undef,
+        '_SNMPCommunityWrite'           => undef,
+        '_SNMPEngineID'                 => undef,
+        '_SNMPPrivPasswordRead'         => undef,
+        '_SNMPPrivPasswordTrap'         => undef,
+        '_SNMPPrivPasswordWrite'        => undef,
+        '_SNMPPrivProtocolRead'         => undef,
+        '_SNMPPrivProtocolTrap'         => undef,
+        '_SNMPPrivProtocolWrite'        => undef,
+        '_SNMPUserNameRead'             => undef,
+        '_SNMPUserNameTrap'             => undef,
+        '_SNMPUserNameWrite'            => undef,
+        '_SNMPVersion'                  => 1,
+        '_SNMPVersionTrap'              => 1,
+        '_cliEnablePwd'                 => undef,
+        '_cliPwd'                       => undef,
+        '_cliUser'                      => undef,
+        '_cliTransport'                 => undef,
+        '_wsPwd'                        => undef,
+        '_wsUser'                       => undef,
+        '_wsTransport'                  => undef,
+        '_radiusSecret'                 => undef,
+        '_controllerIp'                 => undef,
+        '_controllerPort'               => undef,
+        '_uplink'                       => undef,
+        '_vlans'                        => undef,
+        '_ExternalPortalEnforcement'    => 'disabled',    
+        '_VoIPEnabled'                  => undef,
+        '_roles'                        => undef,
+        '_inlineTrigger'                => undef,
+        '_deauthMethod'                 => undef,
+        '_useCoA'                       => 'enabled',
+        '_switchIp'                     => undef,
+        '_ip'                           => undef,
+        '_switchMac'                    => undef,
+        '_VlanMap'                      => 'enabled',
+        '_RoleMap'                      => 'enabled',
+        '_UrlMap'                       => 'enabled',
         map { "_".$_ => $argv->{$_} } keys %$argv,
     }, $class;
     return $self;
@@ -3031,19 +3021,6 @@ sub parseRequest {
     return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, undef);
 }
 
-=item parseUrl
-
-Extract all the param from the url.
-
-=cut
-
-sub parseUrl {
-    my ($self,$req) = @_;
-    my $logger = $self->logger();
-    $logger->warn("Not implemented");
-    return;
-}
-
 =item getAcceptForm
 
 Get the accept form that will trigger the device registration on the switch
@@ -3057,16 +3034,17 @@ sub getAcceptForm {
     return;
 }
 
-=item parseSwitchIdFromRequest
+=item parseExternalPortalRequest
 
-Extract the switch id from an http request (for the external portal).
-The object isn't created at that point
+Parse external portal request using URI and it's parameters then return an hash reference with the appropriate parameters
+
+See L<pf::web::externalportal::handle>
 
 =cut
 
-sub parseSwitchIdFromRequest {
-    my ( $class, $req) = @_;
-    my $logger = $class->logger;
+sub parseExternalPortalRequest {
+    my ( $self, $r, $req ) = @_;
+    my $logger = $self->logger;
     $logger->error("This function is not implemented.");
     return;
 }
@@ -3245,6 +3223,23 @@ sub getRelayAgentInfoOptRemoteIdSub {
     my($self) = @_;
     return undef;
 }
+
+=item externalPortalEnforcement
+
+Evaluate wheter or not external portal enforcement is available on requested network equipment
+
+=cut
+
+sub externalPortalEnforcement {
+    my ( $self ) = @_;
+    my $logger = pf::log::get_logger;
+
+    return $TRUE if ( $self->supportsExternalPortal && isenabled($self->{_ExternalPortalEnforcement}) );
+
+    $logger->info("External portal enforcement either not supported '" . $self->supportsExternalPortal . "' or not configured '" . $self->{_ExternalPortalEnforcement} . "' on network equipment '" . $self->{_id} . "'");
+    return $FALSE;
+}
+
 
 =back
 
