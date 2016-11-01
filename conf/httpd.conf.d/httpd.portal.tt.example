@@ -214,7 +214,7 @@ ServerTokens Prod
 ServerSignature Off
 UseCanonicalName Off
 Timeout 5
-KeepAliveTimeout 3
+KeepAlive Off
 
 MaxClients [% max_clients %]
 StartServers 4
