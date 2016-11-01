@@ -98,7 +98,7 @@ ServerTokens Prod
 ServerSignature Off
 UseCanonicalName Off
 Timeout 50
-KeepAliveTimeout 3
+KeepAlive Off
 
 TypesConfig /etc/mime.types
 HostnameLookups Off
