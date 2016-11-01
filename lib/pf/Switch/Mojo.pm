@@ -1,7 +1,7 @@
 package pf::Switch::Mojo;
 =head1 NAME
 
-pf::Switch::Mojo - Object oriented module to return radius attributes to a Mojo Networks Acces Point.
+pf::Switch::Mojo - Object oriented module to return radius attributes to a Mojo Networks Access Point.
 Mojo Networks cloud controller
 
 =head1 STATUS
