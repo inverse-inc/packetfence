@@ -20,6 +20,24 @@ use base qw(pf::access_filter);
 tie our %ConfigDNS_Filters, 'pfconfig::cached_hash', 'config::DNS_Filters';
 tie our %DNSFilterEngineScopes, 'pfconfig::cached_hash', 'FilterEngine::DNS_Scopes';
 
+=head2 test
+
+Test all the rules
+
+=cut
+
+sub test {
+    my ($self, $scope, $args) = @_;
+    my $logger = $self->logger;
+    my $engine = $self->getEngineForScope($scope);
+    if ($engine) {
+        my $answer = $engine->match_first($args);
+        return $answer;
+    }
+    $logger->debug(sub {"No engine found for $scope"});
+    return undef;
+}
+
 =head2 filterRule
 
     Handle the role update
