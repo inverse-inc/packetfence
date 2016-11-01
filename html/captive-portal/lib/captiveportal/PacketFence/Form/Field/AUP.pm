@@ -1,8 +1,8 @@
-package captiveportal::Form::Field::AUP;
+package captiveportal::PacketFence::Form::Field::AUP;
 
 =head1 NAME
 
-captiveportal::Form::Field::AUP
+captiveportal::PacketFence::Form::Field::AUP
 
 =head1 DESCRIPTION
 
@@ -11,7 +11,11 @@ AUP Field
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'captiveportal::PacketFence::Form::Field::AUP';
+extends 'HTML::FormHandler::Field::Checkbox';
+
+use pf::log;
+
+has '+widget' => (default => 'AUP');
 
 =head1 AUTHOR
 
