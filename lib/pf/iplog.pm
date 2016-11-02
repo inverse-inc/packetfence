@@ -57,13 +57,13 @@ sub iplog_db_prepare {
     # We could have used the iplog_list_open_by_ip_sql statement but for performances, we enforce the LIMIT 1
     # We add a 30 seconds grace time for devices that don't actually respect lease times 
     $iplog_statements->{'iplog_view_by_ip_sql'} = get_db_handle()->prepare(
-        qq [ SELECT * FROM iplog WHERE ip = ? AND (end_time = 0 OR ( end_time + INTERVAL 30 SECONDS ) > NOW()) ORDER BY start_time DESC LIMIT 1 ]
+        qq [ SELECT * FROM iplog WHERE ip = ? AND (end_time = 0 OR ( end_time + INTERVAL 30 SECOND ) > NOW()) ORDER BY start_time DESC LIMIT 1 ]
     );
 
     # We could have used the iplog_list_open_by_mac_sql statement but for performances, we enforce the LIMIT 1
     # We add a 30 seconds grace time for devices that don't actually respect lease times 
     $iplog_statements->{'iplog_view_by_mac_sql'} = get_db_handle()->prepare(
-        qq [ SELECT * FROM iplog WHERE mac = ? AND (end_time = 0 OR ( end_time + INTERVAL 30 SECONDS ) > NOW()) ORDER BY start_time DESC LIMIT 1 ]
+        qq [ SELECT * FROM iplog WHERE mac = ? AND (end_time = 0 OR ( end_time + INTERVAL 30 SECOND ) > NOW()) ORDER BY start_time DESC LIMIT 1 ]
     );
 
     $iplog_statements->{'iplog_list_open_sql'} = get_db_handle()->prepare(
