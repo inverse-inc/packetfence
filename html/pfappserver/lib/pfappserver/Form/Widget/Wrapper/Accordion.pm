@@ -23,7 +23,8 @@ around wrap_field => sub {
 #    use Data::Dumper;get_logger->info(Dumper($self));
     my $parent_name = $self->parent->name;
     my $name = $self->name;
-    my $id = "accordion_" . $self->parent->name . "_" . $name;
+    my $id = "accordion_" . $self->id;
+    $id =~ s/\./_/;
     my $heading = $self->get_tag("accordion_heading");
     $heading = $self->do_accordion_heading unless $heading;
 
@@ -51,12 +52,13 @@ EOS
 
 sub do_accordion_heading_content {
     my ($self) = @_;
-    my $parent_name = $self->parent->name;
+    my $label = $self->label;
     my $name = $self->name;
-    my $id = "accordion_" . $self->parent->name . "_" . $name;
+    my $id = "accordion_" . $self->id;
+    $id =~ s/\./_/;
     return <<EOS;
         <a class="accordion-toggle" data-toggle="collapse" href="#$id">
-            $parent_name $name
+            $label - ($name)
         </a>
 EOS
 }
