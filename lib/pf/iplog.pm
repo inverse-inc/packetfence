@@ -181,8 +181,11 @@ sub iplog_db_prepare {
         qq [ DELETE FROM iplog_history WHERE end_time < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ? ]
     );
 
-    $iplog_statements->{'iplog_cleanup_sql'} = get_db_handle()->prepare(
-        qq [ DELETE FROM ? WHERE end_time < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ? ]
+    $iplog_statements->{'iplog_history_cleanup_sql'} = get_db_handle()->prepare(
+        qq [ DELETE FROM iplog_history WHERE end_time < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ? ]
+    );
+    $iplog_statements->{'iplog_archive_cleanup_sql'} = get_db_handle()->prepare(
+        qq [ DELETE FROM iplog_archive WHERE end_time < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ? ]
     );
 
     $iplog_db_prepared = 1;
@@ -703,7 +706,13 @@ sub cleanup {
     $table ||= 'iplog_archive';
 
     while (1) {
-        my $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_cleanup_sql', $table, $now, $window_seconds, $batch) || return (0);
+        my $query;
+        if ( $table eq 'iplog_archive' ) {
+            $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_archive_cleanup_sql', $now, $window_seconds, $batch) || return (0);
+        }
+        elsif ( $table eq 'iplog_history' ) {
+            $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_history_cleanup_sql', $now, $window_seconds, $batch) || return (0);
+        }
         my $rows = $query->rows;
         $query->finish;
         $end_time = time;
