@@ -118,6 +118,11 @@ sub handle {
 
     my $switch = pf::SwitchFactory->instantiate($params{'switch_id'});
 
+    unless ( ref($switch) ) {
+        $logger->error("Unable to instantiate switch object using switch_id '" . $params{'switch_id'} . "'");
+        return $FALSE;
+    }
+
     pf::iplog::open($params{'client_ip'}, $params{'client_mac'}, 3600);
 
     # Updating locationlog unless there is a session ID parameter, which means a locationlog entry was already opened on session creation
