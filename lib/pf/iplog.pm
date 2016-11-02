@@ -705,14 +705,10 @@ sub cleanup {
     my $rows_deleted = 0;
     $table ||= 'iplog_archive';
 
+    my $query_name = $table eq 'iplog_history' ? 'iplog_history_cleanup_sql' : 'iplog_archive_cleanup_sql';
+
     while (1) {
-        my $query;
-        if ( $table eq 'iplog_archive' ) {
-            $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_archive_cleanup_sql', $now, $window_seconds, $batch) || return (0);
-        }
-        elsif ( $table eq 'iplog_history' ) {
-            $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_history_cleanup_sql', $now, $window_seconds, $batch) || return (0);
-        }
+        my $query = db_query_execute(IPLOG, $iplog_statements, $query_name, $now, $window_seconds, $batch) || return (0);
         my $rows = $query->rows;
         $query->finish;
         $end_time = time;
