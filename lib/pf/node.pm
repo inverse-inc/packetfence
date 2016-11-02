@@ -1425,7 +1425,14 @@ sub node_remove_from_cache {
     my ($mac) = @_;
     $mac = clean_mac($mac);
     if ($mac) {
-        memoized("pf::node::_node_view")->cache->remove($mac);
+        my $cache = memoized("pf::node::_node_view")->cache;
+        if ($cache) {
+            $cache->remove($mac);
+        }
+        else {
+            my $logger = get_logger();
+            $logger->error("Cannot get the cache for pf::node::_node_view");
+        }
     }
 }
 
