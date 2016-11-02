@@ -230,9 +230,7 @@ sub response_handler {
     my $filter = pf::access_filter::dns->new;
     foreach my $network (@routed_registration_nets_named) {
         if ($network->contains($ip)) {
-           my @reply = $filter->filter('registration', $args);
-           return @reply if (scalar(@reply) > 1);
-           return  regzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
+            return regzone($qname, $qclass, $qtype, $peerhost, $query, $conn, 'registration', $args);
         }
     }
     foreach my $network (@routed_isolation_nets_named) {
@@ -246,10 +244,7 @@ sub response_handler {
 
     foreach my $network (@routed_inline_nets_named) {
         if ($network->contains($ip)) {
-           # Should be different for inline
-           my @reply = $filter->filter('inline', $args);
-           return @reply if (scalar(@reply) > 1);
-           return  regzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
+            return regzone($qname, $qclass, $qtype, $peerhost, $query, $conn, 'inline', $args);
         }
     }
 
@@ -260,9 +255,7 @@ sub response_handler {
 
             unless($mac){
                 $logger->warn("Can't lookup IP $ip_addr to a MAC address. Returning result as if unreg.");
-                my @reply = $filter->filter('dnsenforcement', $args);
-                return @reply if @reply;
-                return regzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
+                return regzone($qname, $qclass, $qtype, $peerhost, $query, $conn, 'dnsenforcement', $args);
             }
 
             my $node = node_attributes($mac);
@@ -272,9 +265,7 @@ sub response_handler {
             }
             else {
                 $logger->info("Node is unregistered, returning portal domain.");
-                my @reply = $filter->filter('dnsenforcement', $args);
-                return @reply if @reply;
-                return regzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
+                return regzone($qname, $qclass, $qtype, $peerhost, $query, $conn, 'dnsenforcement', $args);
             }
         }
     }
