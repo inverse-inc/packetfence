@@ -334,12 +334,6 @@ sub generate_inline_rules {
     $logger->info("building firewall to accept registered users through inline interface");
     my $passthrough_enabled = isenabled($Config{'trapping'}{'passthrough'});
 
-    # Allow remote conformity scan server to reach unregistered devices in inline mode
-    if ( defined($Config{'scan'}{'host'}) && $Config{'scan'}{'host'} ne "127.0.0.1" ) {
-        $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --source $Config{'scan'}{'host'} --jump ACCEPT\n";
-        $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --destination $Config{'scan'}{'host'} --jump ACCEPT\n";
-    }
-
     if ($passthrough_enabled) {
         $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_UNREG -m set --match-set pfsession_passthrough dst,dst --jump ACCEPT\n";
     }
@@ -590,27 +584,6 @@ These were features of the previous arp | dhcp modes that were not re-implemente
 of the inline mode because of time constraints.
 
 =over
-
-=item generate_filter_forward_scanhost
-
-=cut
-
-sub generate_filter_forward_scanhost {
-    my @self = @_;
-    my $logger = get_logger();
-    my $filter_rules = '';
-
-    # TODO don't forget to also add statements to the PREROUTING nat table as in generate_inline_rules
-    my $scan_server = $Config{'scan'}{'host'};
-    if ( $scan_server !~ /^127\.0\.0\.1$/ && $scan_server !~ /^localhost$/i ) {
-        $filter_rules .= "-A FORWARD --destination $scan_server --jump ACCEPT";
-        $filter_rules .= "-A FORWARD --source $scan_server --jump ACCEPT";
-        $logger->info("adding Nessus FILTER passthrough for $scan_server");
-    }
-
-    return $filter_rules;
-}
-
 
 =item update_node
 
