@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-10-05 17:28+0000\n"
+"PO-Revision-Date: 2016-11-02 18:20+0000\n"
 "Last-Translator: oeufdure <fdurand@inverse.ca>\n"
 "Language-Team: French (http://www.transifex.com/inverse/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
@@ -409,6 +409,7 @@ msgstr "Ajouter un plan de facturation."
 # html/pfappserver/root/config/switch/view.tt
 # html/pfappserver/root/dhcpoption82/index.tt
 # html/pfappserver/root/dynamicreport/index.tt
+# html/pfappserver/root/nodeoption82/index.tt
 msgid "Add a condition."
 msgstr "Ajouter une condition."
 
@@ -491,6 +492,12 @@ msgstr "Ajouter au choix des durées d’accès"
 # html/pfappserver/root/violation/list.tt
 msgid "Add violation"
 msgstr "Ajouter une violation"
+
+# html/pfappserver/root/authentication/source/type/Eduroam.tt
+msgid ""
+"Adding or modifying an \\'Eduroam\\' type authentication source requires to "
+"restart the radiusd service to be effective."
+msgstr "Ajouter ou modifier une source d’authentification de type Eduroam requière un redémarrage du service radius. "
 
 # html/pfappserver/root/config/realm/index.tt
 msgid ""
@@ -588,6 +595,7 @@ msgstr "Alerte"
 # html/pfappserver/lib/pfappserver/Form/AdvancedSearch.pm
 # html/pfappserver/lib/pfappserver/Form/DHCPOption82Search.pm
 # html/pfappserver/lib/pfappserver/Form/DynamicReportSearch.pm
+# html/pfappserver/lib/pfappserver/Form/NodeOption82Search.pm
 # html/pfappserver/lib/pfappserver/Form/RadiusLogSearch.pm
 # html/pfappserver/root/per_page_select.tt
 msgid "All"
@@ -683,6 +691,7 @@ msgstr "Un autre challenge."
 # html/pfappserver/lib/pfappserver/Form/AdvancedSearch.pm
 # html/pfappserver/lib/pfappserver/Form/DHCPOption82Search.pm
 # html/pfappserver/lib/pfappserver/Form/DynamicReportSearch.pm
+# html/pfappserver/lib/pfappserver/Form/NodeOption82Search.pm
 # html/pfappserver/lib/pfappserver/Form/RadiusLogSearch.pm
 msgid "Any"
 msgstr "N’importe quel"
@@ -817,9 +826,17 @@ msgstr "Protocole pour l’Authentification des Trap"
 msgid "Auth Protocol Write"
 msgstr "Protocole pour la communauté en écriture"
 
+# html/pfappserver/root/admin/configuration.tt
+msgid "Authentication Methods"
+msgstr "Méthodes d’authentification"
+
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/HTTP.pm
 msgid "Authentication URL"
 msgstr "URL d’authentification"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Eduroam.pm
+msgid "Authentication listening port"
+msgstr "Port d’écoute de l’authentification"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/HTTP.pm
 msgid "Authorization URL"
@@ -1042,6 +1059,7 @@ msgstr "Mises à jour du cache"
 # html/pfappserver/root/roles/index.tt
 # html/pfappserver/root/service/status.tt
 # html/pfappserver/root/soh/index.tt
+# html/pfappserver/root/user/list.tt
 # html/pfappserver/root/violation/list.tt
 msgid "Cancel"
 msgstr "Annuler"
@@ -1119,6 +1137,7 @@ msgid ""
 "default it's the management interface)"
 msgstr "Choisissez l’interface(s) sur laquelle vous voulez activer le Source NAT (par défaut c’est l’interface de Management)"
 
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
 # html/pfappserver/root/configurator/enforcement.tt
 msgid "Choose your enforcement mechanisms"
 msgstr "Choisissez le mécanisme d’accès"
@@ -1282,6 +1301,7 @@ msgstr "Cloner"
 # html/pfappserver/root/interface/view.tt
 # html/pfappserver/root/node/view.tt
 # html/pfappserver/root/node/violations.tt
+# html/pfappserver/root/nodeoption82/view.tt
 # html/pfappserver/root/roles/read.tt
 # html/pfappserver/root/soh/read.tt
 # html/pfappserver/root/user/list_password.tt
@@ -1336,7 +1356,6 @@ msgstr "Colonnes"
 msgid "Columns Order"
 msgstr "Ordre des colonnes"
 
-# html/pfappserver/root/config/fingerbank/combination/index.tt
 # html/pfappserver/root/config/fingerbank/combination/view.tt
 msgid "Combination"
 msgstr "Combinaison"
@@ -1347,6 +1366,7 @@ msgid "Combination ID"
 msgstr "ID de combinaison"
 
 # html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/config/fingerbank/combination/index.tt
 msgid "Combinations"
 msgstr "Combinaisons"
 
@@ -1489,11 +1509,31 @@ msgstr "Configuration"
 msgid "Configuration Wizard"
 msgstr "Assistant de configuration"
 
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
+msgid "Configure Fingerbank"
+msgstr "Configurer Fingerbank"
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
+msgid "Configure MySQL"
+msgstr "Configurer MySQL"
+
 # html/pfappserver/root/configurator/fingerbank.tt
 msgid ""
 "Configure MySQL as the Fingerbank backend. This will improve the performance"
 " of Fingerbank related components."
 msgstr "Configurer MySQL en tant que base de donnée pour Fingerbank. Ceci fournira de meilleurs performances pour Fingerbank."
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
+msgid "Configure access to the admin interface"
+msgstr "Configurer l’acces à l’interface d’aministration"
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
+msgid "Configure network interfaces"
+msgstr "Configurer les interfaces réseau"
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
+msgid "Configure various options"
+msgstr "Configurer différentes options"
 
 # html/pfappserver/root/configurator/fingerbank.tt
 msgid ""
@@ -1510,6 +1550,7 @@ msgstr "Félicitation !"
 msgid "Connection Sub Type"
 msgstr "Type de sous Connexion"
 
+# html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/node/tab_Location_view.tt
 msgid "Connection Type"
 msgstr "Type de Connexion"
@@ -1689,7 +1730,6 @@ msgid "Custom reports"
 msgstr "Rapport personnalisé"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
-# html/pfappserver/root/config/fingerbank/dhcp_fingerprint/index.tt
 # html/pfappserver/root/config/fingerbank/dhcp_fingerprint/view.tt
 msgid "DHCP Fingerprint"
 msgstr "Empreinte DHCP"
@@ -1699,6 +1739,7 @@ msgid "DHCP Fingerprint ID"
 msgstr "ID de l’empreinte DHCP"
 
 # html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/config/fingerbank/dhcp_fingerprint/index.tt
 msgid "DHCP Fingerprints"
 msgstr "Empreintes DHCP"
 
@@ -1714,7 +1755,6 @@ msgstr "Vlan dans l’Option DHCP 82"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
 # html/pfappserver/lib/pfappserver/Form/Node.pm
-# html/pfappserver/root/config/fingerbank/dhcp_vendor/index.tt
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/view.tt
 msgid "DHCP Vendor"
 msgstr "Vendeur DHCP"
@@ -1724,6 +1764,7 @@ msgid "DHCP Vendor ID"
 msgstr "ID du vendeur DHCP"
 
 # html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/config/fingerbank/dhcp_vendor/index.tt
 msgid "DHCP Vendors"
 msgstr "Vendeurs DHCP"
 
@@ -1769,7 +1810,6 @@ msgstr "DHCPREQUEST"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
 # html/pfappserver/lib/pfappserver/Form/Node.pm
-# html/pfappserver/root/config/fingerbank/dhcp6_enterprise/index.tt
 # html/pfappserver/root/config/fingerbank/dhcp6_enterprise/view.tt
 msgid "DHCPv6 Enterprise"
 msgstr "Entreprise DHCPv6"
@@ -1783,12 +1823,12 @@ msgid "DHCPv6 Enterprise Organization"
 msgstr "Organisation de l’entreprise DHCPv6"
 
 # html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/config/fingerbank/dhcp6_enterprise/index.tt
 msgid "DHCPv6 Enterprises"
 msgstr "Entreprises DHCPv6"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
 # html/pfappserver/lib/pfappserver/Form/Node.pm
-# html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/index.tt
 # html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/view.tt
 msgid "DHCPv6 Fingerprint"
 msgstr "Empreinte DHCPv6"
@@ -1798,6 +1838,7 @@ msgid "DHCPv6 Fingerprint ID"
 msgstr "ID de l’empreinte DHCPv6"
 
 # html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/index.tt
 msgid "DHCPv6 Fingerprints"
 msgstr "Empreintes DHCPv6"
 
@@ -1962,6 +2003,10 @@ msgstr "Retardé pour"
 msgid "Delay before triggering the violation."
 msgstr "Délais avant d’activer la violation"
 
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SponsorEmail.pm
+msgid "Delay given to a sponsor to click the activation link."
+msgstr "Délais donné au parrain pour activer l’accès."
+
 # conf/documentation.conf (vlan.bounce_duration)
 msgid ""
 "Delay to wait between the shut / no-shut on a port. Some OS need a higher "
@@ -1969,6 +2014,7 @@ msgid ""
 "too long for the usual proprietary OS."
 msgstr "Délai d’attente entre le shut / no-shut sur ​​un port. Certains OS ont besoin d’une plus grande valeur que d’autres. Par défaut cela devrait être raisonnable pour presque tous les OS, mais c’est trop long pour les systèmes d’exploitation propriétaire."
 
+# html/pfappserver/root/admin/bulk_actions.inc
 # html/pfappserver/root/config/adminroles/index.tt
 # html/pfappserver/root/config/adminroles/list.tt
 # html/pfappserver/root/config/authentication.tt
@@ -2205,6 +2251,7 @@ msgstr "URL de destination sur laquelle l’appareil va être redirigé. Par dé
 
 # html/pfappserver/root/auditing/radiuslog/search.tt
 # html/pfappserver/root/dhcpoption82/search.tt
+# html/pfappserver/root/nodeoption82/search.tt
 msgid "Details"
 msgstr "Détails"
 
@@ -2235,7 +2282,6 @@ msgstr "Détecteur"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
 # html/pfappserver/root/config/fingerbank/combination/list.tt
-# html/pfappserver/root/config/fingerbank/device/index.tt
 # html/pfappserver/root/config/fingerbank/device/upstream/index.tt
 # html/pfappserver/root/config/fingerbank/device/upstream/view.tt
 # html/pfappserver/root/config/fingerbank/device/view.tt
@@ -2248,14 +2294,24 @@ msgid "Device ID"
 msgstr "ID de l’appareil"
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
+# html/pfappserver/root/admin/nodes.tt
 msgid "Device Type"
 msgstr "Type d’appareil"
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
+# html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/node/search.tt
+# html/pfappserver/root/user/nodes.tt
 msgid "Device class"
 msgstr "Classe d’appareil"
 
+# html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/node/search.tt
+msgid "Device type"
+msgstr "Type d’appareil"
+
 # html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/config/fingerbank/device/index.tt
 # html/pfappserver/root/user/view.tt
 msgid "Devices"
 msgstr "Appareils"
@@ -2279,6 +2335,7 @@ msgstr "Sous traiter le travail d’importation au PID $pid. Un email suivra pou
 
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/dhcpoption82/index.tt
+# html/pfappserver/root/nodeoption82/index.tt
 # html/pfappserver/root/per_page_select.tt
 msgid "Display %1 entries per page"
 msgstr "Afficher %1 entrés par page"
@@ -2300,6 +2357,7 @@ msgstr "Nom de domaine de PacketFence."
 msgid "Domain name of the PacketFence server."
 msgstr "Nom de domain de PacketFence."
 
+# html/pfappserver/root/admin/auditing_radius_log.tt
 # html/pfappserver/root/admin/configuration.tt
 msgid "Domains"
 msgstr "Domaines"
@@ -2382,6 +2440,18 @@ msgstr "Editer l’appareil itinérant"
 msgid "Edit switch"
 msgstr "Editer le commutateur"
 
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Eduroam.pm
+msgid "Eduroam RADIUS secret"
+msgstr "Secret RADIUS Eduroam"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Eduroam.pm
+msgid "Eduroam server 1 address"
+msgstr "Adresse du serveur 1 Eduroam"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Eduroam.pm
+msgid "Eduroam server 2 address"
+msgstr "Adresse du serveur 2 Eduroam"
+
 # html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
@@ -2390,6 +2460,7 @@ msgid "Email"
 msgstr "Courriel"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Email.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SponsorEmail.pm
 msgid "Email Activation Timeout"
 msgstr "Délais d’activation courriel"
 
@@ -2445,6 +2516,10 @@ msgid ""
 "isolation, and management subnets."
 msgstr "Activez toutes les interfaces réseaux physique que vous voulez utiliser pour PacketFence. Si vous utilisez le type d’authentification par VLAN alors spécifiez quel VLAN est dédié à l’enregistrement, l’isolation et à l’interface de management."
 
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Enable external portal enforcement when supported by network equipment"
+msgstr "Activer l’authentification web quand celle ci est supporté par l’équipement"
+
 # conf/documentation.conf (captive_portal.httpd_mod_evasive)
 msgid "Enable mod_evasive for the captive-portal"
 msgstr "Activer mod_evasive pour le portail captif."
@@ -2468,6 +2543,13 @@ msgstr "Activer ou désactiver la génération d’un profil de configuration XM
 # conf/documentation.conf (captive_portal.wispr_redirection)
 msgid "Enable or disable WISPr redirection capabilities on the captive-portal"
 msgstr "Activer ou désactiver la redirection WISPr sur le portail captif"
+
+# conf/documentation.conf (maintenance.iplog_rotation)
+msgid ""
+"Enable or disable iplog rotation (moving iplog_history records to "
+"iplog_archive)If disabled, 'iplog_cleanup' will delete from the "
+"iplog_history table rather than the iplog_archive"
+msgstr "Activer ou désactiver la rotation de l’iplog (déplacer les enregistrements de iplog_history vers iplog_archive). Si désactivé alors la tâche \"iplog_cleanup\" supprimera les entrées de iplog_history au lieu de les archiver dans iplog_archive."
 
 # conf/documentation.conf (captive_portal.network_detection)
 msgid ""
@@ -2547,6 +2629,10 @@ msgstr "Entrez les informations du compte root de MySQL"
 msgid "Enter the trigger ID"
 msgstr "Entrez l’ID de déclenchement"
 
+# html/pfappserver/root/node/tab_WMI_process.tt
+msgid "Error while getting running process."
+msgstr "Erreur en tentant de récupérer les processus actifs."
+
 # html/pfappserver/root/admin/wrapper.tt
 # html/pfappserver/root/config/authentication.tt
 # html/pfappserver/root/config/profile/index.tt
@@ -2569,6 +2655,14 @@ msgstr "Exclusif"
 # html/pfappserver/root/config/authentication.tt
 msgid "Exclusive Sources"
 msgstr "Sources exclusive"
+
+# html/pfappserver/root/user/list.tt
+msgid "Execute"
+msgstr "Exécuter"
+
+# html/pfappserver/root/user/list.tt
+msgid "Executing action on multiple users"
+msgstr "Exécuter l’action sur de multiples utilisateurs"
 
 # html/pfappserver/root/user/print.tt
 msgid "Expiration"
@@ -2597,6 +2691,10 @@ msgstr "Externe"
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "External Command"
 msgstr "Commande externe"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "External Portal Enforcement"
+msgstr "Authentification par redirection Web"
 
 # html/pfappserver/root/config/authentication.tt
 msgid "External Sources"
@@ -2720,12 +2818,6 @@ msgstr "Fingerbank"
 # html/pfappserver/root/config/fingerbank/settings/onboard.tt
 msgid "Fingerbank Onboarding"
 msgstr "Enregistrement Fingerbank"
-
-# html/pfappserver/root/config/fingerbank/settings/onboard.tt
-msgid ""
-"Once done, you will be issued an API key that you need to enter in the "
-"following field, then complete the process by clicking \"Get Aboard!\""
-msgstr "Une fois effectué, vous obtiendrez une clé d’API qu’il faudra entrer dans le champ suivant puis compléter en cliquant sur \"Enregistrez vous !\""
 
 # html/pfappserver/root/config/fingerbank/settings/index.tt
 msgid "Fingerbank Settings"
@@ -3283,13 +3375,13 @@ msgstr "Fonctionnement Inline"
 msgid "Instructions"
 msgstr "Instructions"
 
-# html/pfappserver/root/admin/configuration.tt
-msgid "Interfaces"
-msgstr "Interfaces"
-
 # html/pfappserver/root/interface/index.tt
 msgid "Interfaces & Networks"
 msgstr "Interfaces & Réseaux"
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "Interfaces and Networks"
+msgstr "Interfaces et Réseaux"
 
 # html/pfappserver/root/config/authentication.tt
 msgid "Internal"
@@ -3362,6 +3454,10 @@ msgstr "Fréquence pour laquelle pfbandwidthd devra vider les informations colle
 msgid "Invalid challenge."
 msgstr "Challenge invalide."
 
+# html/pfappserver/root/node/tab_WMI_process.tt
+msgid "Is Present"
+msgstr "Est présent"
+
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
 msgid "Isolation"
 msgstr "Isolation"
@@ -3371,6 +3467,10 @@ msgid ""
 "It looks like Fingerbank is not configured. Please proceed to the Fingerbank"
 " Settings section to follow the onboard procedure"
 msgstr "Fingerbank ne semble pas configuré. S’il vous plaît passez à la section Paramètres de Fingerbank pour suivre la procédure d’enregistrement"
+
+# html/pfappserver/root/node/tab_WMI_process.tt
+msgid "Item scanned"
+msgstr "Item scanné"
 
 # html/pfappserver/root/config/profile/create.tt
 # html/pfappserver/root/config/profile/edit.tt
@@ -3391,6 +3491,10 @@ msgid ""
 "LDAP attribute name that stores the email address against which the filter "
 "will match."
 msgstr "Attribut LDAP qui stocke l’adresse e-mail contre lequel le filtre correspondra."
+
+# html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Authentication/OAuth.pm
+msgid "Landing template"
+msgstr "Page cible"
 
 # html/pfappserver/root/config/profile/captive-portal-settings.tt
 msgid "Languages"
@@ -3483,7 +3587,7 @@ msgstr "Liste des actions disponibles pour l’utilisateur admin. Si aucune n’
 msgid ""
 "List of all the choices offered in the access duration action of an "
 "authentication source."
-msgstr "Liste de tous les choix offerts pour l’action de la 'durée d'accès' d'une source d'authentification."
+msgstr "Liste de tous les choix offerts pour l’action de la 'durée d’accès' d'une source d’authentification."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SMS.pm
 msgid "List of phone carriers available to the user"
@@ -3734,7 +3838,6 @@ msgstr "Adresses MAC"
 msgid "MAC OUI"
 msgstr "MAC OUI"
 
-# html/pfappserver/root/config/fingerbank/mac_vendor/index.tt
 # html/pfappserver/root/config/fingerbank/mac_vendor/view.tt
 msgid "MAC Vendor"
 msgstr "Fabriquant MAC"
@@ -3748,6 +3851,7 @@ msgid "MAC Vendor ID"
 msgstr "ID du MAC Vendor"
 
 # html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/config/fingerbank/mac_vendor/index.tt
 msgid "MAC Vendors"
 msgstr "Fabriquants MAC"
 
@@ -3810,6 +3914,7 @@ msgstr "Ajouter manuellement les appareils dans le système."
 # html/pfappserver/root/config/wrix/search_form.tt
 # html/pfappserver/root/dhcpoption82/index.tt
 # html/pfappserver/root/dynamicreport/index.tt
+# html/pfappserver/root/nodeoption82/index.tt
 msgid "Match %1 of the following conditions:"
 msgstr "Contient %1 de ces conditions suivantes:"
 
@@ -3956,6 +4061,7 @@ msgstr "Hachage NTLM"
 # html/pfappserver/root/config/profile/index.tt
 # html/pfappserver/root/config/scan/list.tt
 # html/pfappserver/root/configurator/database.tt
+# html/pfappserver/root/node/tab_WMI_process.tt
 # html/pfappserver/root/roles/index.tt
 # html/pfappserver/root/soh/index.tt
 # html/pfappserver/root/soh/read.tt
@@ -4335,6 +4441,10 @@ msgstr "Notez que l’ajout / modification d’un réseau nécessite un redémar
 msgid "Note that these actions are optional and can be skipped."
 msgstr "Notez que cette action est optionnelle et peut être outrepassée."
 
+# html/pfappserver/root/authentication/source/type/Eduroam.tt
+msgid "Note: "
+msgstr "Note:"
+
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/User.pm
@@ -4381,12 +4491,6 @@ msgstr "URL pour les requêtes de hash de OPSWAT Metadefender Cloud Scanner"
 # html/pfappserver/root/admin/nodes.tt
 msgid "OS"
 msgstr "OS"
-
-# html/pfappserver/root/admin/nodes.tt
-# html/pfappserver/root/node/search.tt
-# html/pfappserver/root/user/nodes.tt
-msgid "OS (DHCP)"
-msgstr "OS (DHCP)"
 
 # html/pfappserver/root/config/fingerprints/simple_search.tt
 msgid "OS Class"
@@ -4443,6 +4547,12 @@ msgid ""
 "Once done, you will be issued an API key that you need to enter in the "
 "following field"
 msgstr "Une fois effectué, vous obtiendrez une clé d’API qu’il faudra entrer dans le champ suivant"
+
+# html/pfappserver/root/config/fingerbank/settings/onboard.tt
+msgid ""
+"Once done, you will be issued an API key that you need to enter in the "
+"following field, then complete the process by clicking \"Get Aboard!\""
+msgstr "Une fois effectué, vous obtiendrez une clé d’API qu’il faudra entrer dans le champ suivant puis compléter en cliquant sur \"Enregistrez vous !\""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 msgid "One-level"
@@ -4763,6 +4873,11 @@ msgstr "Approvisionnement - Mise à jour"
 # html/pfappserver/root/configurator/configuration.tt
 msgid "PacketFence Configuration"
 msgstr "Configuration PacketFence"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Eduroam.pm
+msgid ""
+"PacketFence Eduroam RADIUS virtual server authentication listening port"
+msgstr "Port d’écoute d’authentification du serveur RADIUS Eduroam "
 
 # html/pfappserver/root/configurator/enforcement.tt
 msgid ""
@@ -5329,6 +5444,10 @@ msgid ""
 "tasks.Changing this requires to restart radiusd."
 msgstr "Traiter les demandes d’authentification RADIUS sur le serveur principal (l’actuel équilibreur de charge). En désactivant ce paramètre, il fera suivre les requêtes aux autres serveurs. Utile si votre équilibreur de charge ne peut pas gérer deux tâches. Un redémarrage de radiusd est nécessaire si vous changez ce paramètre."
 
+# html/pfappserver/root/node/tab_WMI_process.tt
+msgid "Process running"
+msgstr "Processus actif"
+
 # html/pfappserver/root/config/profile/files.tt
 msgid "Processing dropped files..."
 msgstr "Suppression de fichiers..."
@@ -5354,6 +5473,10 @@ msgstr "Nom du profil"
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 msgid "Profile used for the generation of certificate"
 msgstr "Le profil utilisé pour la génération de certificats"
+
+# html/pfappserver/root/admin/auditing_radius_log.tt
+msgid "Profiles"
+msgstr "Profiles"
 
 # html/pfappserver/root/config/useragents/simple_search.tt
 msgid "Property"
@@ -5448,6 +5571,10 @@ msgstr "Total d’Access-Requests/s (RADIUS)"
 # html/pfappserver/root/config/filters/index.tt
 msgid "RADIUS filters"
 msgstr "Filtres RADIUS"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Eduroam.pm
+msgid "RADIUS secret"
+msgstr "Secret RADIUS"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
 msgid "RADIUS server certificate path"
@@ -5615,6 +5742,10 @@ msgstr "Voulez-vous vraiment supprimer cette entrée WRIX ?"
 msgid "Really dismiss changes?"
 msgstr "Annuler les changements ?"
 
+# html/pfappserver/root/user/list.tt
+msgid "Really execute this action on those users ?"
+msgstr "Exécuter cette action sur ces utilisateurs ? "
+
 # html/pfappserver/root/config/profile/files.tt
 msgid "Really revert all files?"
 msgstr "Revenir à la version précédente des fichiers ?"
@@ -5639,6 +5770,7 @@ msgstr "Realm"
 msgid "Realm Options"
 msgstr "Options du Realm"
 
+# html/pfappserver/root/admin/auditing_radius_log.tt
 # html/pfappserver/root/admin/configuration.tt
 msgid "Realms"
 msgstr "Realms"
@@ -5893,6 +6025,7 @@ msgstr "Traduction de rôle par rôle de commutateur"
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
+# html/pfappserver/root/admin/auditing_radius_log.tt
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/config/switch/view.tt
@@ -6121,6 +6254,7 @@ msgstr "Sauvegarder la recherche"
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/dhcpoption82/index.tt
+# html/pfappserver/root/nodeoption82/index.tt
 msgid "Save as..."
 msgstr "Sauvegarder en tant que..."
 
@@ -6235,6 +6369,7 @@ msgstr "Score"
 # html/pfappserver/root/config/wrix/search_form.tt
 # html/pfappserver/root/dhcpoption82/index.tt
 # html/pfappserver/root/dynamicreport/index.tt
+# html/pfappserver/root/nodeoption82/index.tt
 msgid "Search"
 msgstr "Recherche"
 
@@ -6302,6 +6437,14 @@ msgstr "Point-virgule"
 # html/pfappserver/root/admin/wrapper.tt
 msgid "Server"
 msgstr "Serveur"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Eduroam.pm
+msgid "Server 1 address"
+msgstr "Adresse du serveur 1"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Eduroam.pm
+msgid "Server 2 address"
+msgstr "Adresse du serveur 2"
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 msgid "Server Load"
@@ -6700,6 +6843,7 @@ msgstr "Adresse MAC du commutateur source"
 msgid "Source Switch Port"
 msgstr "Port source du commutateur"
 
+# html/pfappserver/root/admin/auditing_radius_log.tt
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/profile/tab-content.tt
 msgid "Sources"
@@ -6769,6 +6913,7 @@ msgstr "Démarrer TLS"
 msgid "Start Time"
 msgstr "Date de début"
 
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
 # html/pfappserver/root/configurator/services.tt
 msgid "Start the services"
 msgstr "Démarrez les services"
@@ -6798,6 +6943,7 @@ msgid "Statement of Health"
 msgstr "Déclaration d’intégrité (SoH)"
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
+# html/pfappserver/root/admin/auditing_radius_log.tt
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/wrapper.tt
 # html/pfappserver/root/configurator/services.tt
@@ -6911,6 +7057,8 @@ msgstr "Méthodes d’authentification EAP supportées"
 msgid "Switch Group"
 msgstr "Groupe de commutateur"
 
+# html/pfappserver/root/admin/auditing_option82.tt
+# html/pfappserver/root/admin/auditing_radius_log.tt
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/config/switch/index.tt
 msgid "Switch Groups"
@@ -7435,6 +7583,7 @@ msgid "The template to use for the AUP"
 msgstr "Le gabarit à utiliser pour la politique d’utilisation"
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Authentication.pm
+# html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Authentication/OAuth.pm
 msgid "The template to use for the signup"
 msgstr "Le gabarit à utiliser pour l’enregistrement"
 
@@ -7849,6 +7998,10 @@ msgstr "Utilisateurs - Mise à jour"
 msgid "UTC Timezone"
 msgstr "Fuseau horaire UTC"
 
+# html/pfappserver/root/user/view.tt
+msgid "Unassign nodes"
+msgstr "Désaffecter les appareils"
+
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
 msgid "Uncheck this box if you are using a hidden SSID"
 msgstr "Décocher cette case si vous utilisez un SSID caché"
@@ -7989,7 +8142,6 @@ msgstr "Utilisateur"
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/root/admin/nodes.tt
-# html/pfappserver/root/config/fingerbank/user_agent/index.tt
 msgid "User Agent"
 msgstr "User Agent"
 
@@ -7998,6 +8150,7 @@ msgid "User Agent ID"
 msgstr "ID du User Agent"
 
 # html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/config/fingerbank/user_agent/index.tt
 # html/pfappserver/root/config/useragents/simple_search.tt
 msgid "User Agents"
 msgstr "User Agents"
@@ -8149,6 +8302,7 @@ msgstr "Vendor"
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 # html/pfappserver/lib/pfappserver/Form/Node.pm
+# html/pfappserver/root/node/tab_WMI_process.tt
 msgid "Version"
 msgstr "Version"
 
@@ -8711,6 +8865,7 @@ msgstr "Préfixe du sujet"
 # html/pfappserver/root/config/wrix/search_form.tt
 # html/pfappserver/root/dhcpoption82/index.tt
 # html/pfappserver/root/dynamicreport/index.tt
+# html/pfappserver/root/nodeoption82/index.tt
 msgid "all"
 msgstr "Tous"
 
@@ -8745,6 +8900,7 @@ msgstr "antivirus"
 # html/pfappserver/root/config/wrix/search_form.tt
 # html/pfappserver/root/dhcpoption82/index.tt
 # html/pfappserver/root/dynamicreport/index.tt
+# html/pfappserver/root/nodeoption82/index.tt
 msgid "any"
 msgstr "N’importe lequel"
 
@@ -9103,6 +9259,7 @@ msgstr "dhcplistener"
 # conf/documentation.conf (captive_portal.wispr_redirection options)
 # conf/documentation.conf (inline.accounting options)
 # conf/documentation.conf (inline.should_reauth_on_vlan_change options)
+# conf/documentation.conf (maintenance.iplog_rotation options)
 # conf/documentation.conf (maintenance.person_cleanup options)
 # conf/documentation.conf (mse_tab.enabled options)
 # conf/documentation.conf (network.dhcpdetector options)
@@ -9225,6 +9382,7 @@ msgstr "Action utilisateur"
 # conf/documentation.conf (captive_portal.wispr_redirection options)
 # conf/documentation.conf (inline.accounting options)
 # conf/documentation.conf (inline.should_reauth_on_vlan_change options)
+# conf/documentation.conf (maintenance.iplog_rotation options)
 # conf/documentation.conf (maintenance.person_cleanup options)
 # conf/documentation.conf (mse_tab.enabled options)
 # conf/documentation.conf (network.dhcpdetector options)
@@ -9293,6 +9451,7 @@ msgstr "se termine"
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
 # html/pfappserver/root/dhcpoption82/index.tt
+# html/pfappserver/root/nodeoption82/index.tt
 msgid "ends with"
 msgstr "se termine par"
 
@@ -9518,6 +9677,7 @@ msgstr "Adresse IP"
 # html/pfappserver/root/config/wrix/search_form.tt
 # html/pfappserver/root/dhcpoption82/index.tt
 # html/pfappserver/root/dynamicreport/index.tt
+# html/pfappserver/root/nodeoption82/index.tt
 # pf::Authentication::constants (Conditions)
 msgid "is"
 msgstr "est"
@@ -9541,6 +9701,7 @@ msgstr "est membre de"
 # html/pfappserver/root/config/wrix/search_form.tt
 # html/pfappserver/root/dhcpoption82/index.tt
 # html/pfappserver/root/dynamicreport/index.tt
+# html/pfappserver/root/nodeoption82/index.tt
 # pf::Authentication::constants (Conditions)
 msgid "is not"
 msgstr "n’est pas"
@@ -9665,6 +9826,10 @@ msgstr "Temps maximum du nettoyage de l’Iplog"
 # conf/documentation.conf
 msgid "maintenance.iplog_cleanup_window"
 msgstr "Plage horaire de nettoyage de l’Iplog"
+
+# conf/documentation.conf
+msgid "maintenance.iplog_rotation"
+msgstr "Rotation iplog"
 
 # conf/documentation.conf
 msgid "maintenance.iplog_rotation_batch"
@@ -9807,6 +9972,7 @@ msgstr "Marquer comme Sponsor"
 # html/pfappserver/root/config/wrix/search_form.tt
 # html/pfappserver/root/dhcpoption82/index.tt
 # html/pfappserver/root/dynamicreport/index.tt
+# html/pfappserver/root/nodeoption82/index.tt
 msgid "matches"
 msgstr "contient"
 
@@ -10916,6 +11082,7 @@ msgstr "débute"
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
 # html/pfappserver/root/dhcpoption82/index.tt
+# html/pfappserver/root/nodeoption82/index.tt
 msgid "starts with"
 msgstr "débute par"
 
@@ -11237,35 +11404,3 @@ msgstr "oui"
 # html/pfappserver/root/config/profile/files.tt
 msgid "{percent}% of {total_size}"
 msgstr "{percent}% de {total_size}"
-
-# html/pfappserver/root/node/search.tt
-msgid "unknown"
-msgstr "inconnu"
-
-# html/pfappserver/root/node/search.tt
-msgid "on"
-msgstr "En ligne"
-
-# html/pfappserver/root/node/search.tt
-msgid "off"
-msgstr "Hors ligne"
-
-# html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
-msgid "Configure network interfaces"
-msgstr "Configurer les interfaces réseau"
-
-# html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
-msgid "Configure MySQL"
-msgstr "Configurer MySQL"
-
-# html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
-msgid "Configure various options"
-msgstr "Configurer différentes options"
-
-# html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
-msgid "Configure access to the admin interface"
-msgstr "Configurer l’acces à l’interface d’aministration"
-
-# html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
-msgid "Configure Fingerbank"
-msgstr "Configurer Fingerbank"

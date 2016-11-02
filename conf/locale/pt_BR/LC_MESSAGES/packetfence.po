@@ -8,6 +8,7 @@
 # Diego de Souza Lopes <djkakaroto@gmail.com>, 2013
 # Diego de Souza Lopes <djkakaroto@gmail.com>, 2011, 2012
 # inverse <info@inverse.ca>, 2013
+# Jeronimo Zucco <jczucco@gmail.com>, 2016
 # Liliane Lewis Xerxenevsky <liliane@cpd.ufrgs.br>, 2015
 # Raphae Brasil <zecarbf15@gmail.com>, 2016
 # Sandro Wambier <sandrowambier@gmail.com>, 2015
@@ -15,8 +16,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-09-27 12:42+0000\n"
-"Last-Translator: inverse <info@inverse.ca>\n"
+"PO-Revision-Date: 2016-10-06 20:06+0000\n"
+"Last-Translator: Jeronimo Zucco <jczucco@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/inverse/packetfence/language/pt_BR/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -46,7 +47,7 @@ msgstr "Uma conta local foi criada para dar acesso ao status do nó. Aqui estão
 msgid ""
 "A random certificate password has been generated for you. Please note it as "
 "it will be necessary to complete the process."
-msgstr ""
+msgstr "Uma senha randômica de certificado foi gerado para você. Por favor note que isso será necessário para completar o processo. "
 
 # html/captive-portal/templates/aup.html
 # html/captive-portal/templates/billing/billing.html
@@ -118,7 +119,7 @@ msgstr "Cancelar"
 # html/captive-portal/templates/pki_provider/packetfence_pki.html
 # html/captive-portal/templates/pki_provider/scep.html
 msgid "Certificate generation for EAP TLS connection"
-msgstr ""
+msgstr "Geração de certificado para conexão EAP TLS"
 
 # html/captive-portal/templates/provisioner/mobileiron.html
 # html/captive-portal/templates/provisioner/sepm.html
@@ -207,7 +208,7 @@ msgstr "Expiração"
 
 # html/captive-portal/templates/status.html
 msgid "Extend your access"
-msgstr ""
+msgstr "Estenda seu acesso"
 
 # html/captive-portal/templates/billing/billing.html
 # html/captive-portal/templates/guest.html
@@ -314,7 +315,7 @@ msgstr "Se o usuário possuir scripting desligado, o usuário não será redirec
 msgid ""
 "In order to complete the registration process, you need to generate your "
 "user certificate."
-msgstr ""
+msgstr "Para completar o seu processo de registro, você precisa gerar seu certificado de usuário"
 
 # html/captive-portal/templates/provisioner/windows.html
 msgid ""
@@ -440,7 +441,7 @@ msgstr "PIN"
 # html/captive-portal/templates/pki_provider/packetfence_pki.html
 # html/captive-portal/templates/pki_provider/scep.html
 msgid "PacketFence Certificate Enrollment System"
-msgstr ""
+msgstr "Sistema de Inscrição de Certificados PacketFence"
 
 # html/captive-portal/templates/activated.html
 # html/captive-portal/templates/billing/billing.html
@@ -476,7 +477,7 @@ msgstr "Senha"
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Billing.pm
 msgid "Pay for your access"
-msgstr ""
+msgstr "Pague pelo seu acesso"
 
 # html/captive-portal/templates/guest.html
 msgid "Phone Provider"
@@ -654,7 +655,7 @@ msgstr "Para completar sua ativação a rede você precisa instalar o cliente IB
 msgid ""
 "To complete your network activation you need to install the OPSWAT "
 "Metadefender Endpoint client."
-msgstr ""
+msgstr "Para completar sua ativação de rede você precisará instalar o cliente OPSWAT Metadefender Endpoint."
 
 # html/captive-portal/templates/provisioner/sepm.html
 msgid ""
@@ -705,11 +706,11 @@ msgstr "Usuário está logado como"
 # html/captive-portal/templates/pki_provider/packetfence_pki.html
 # html/captive-portal/templates/pki_provider/scep.html
 msgid "You can also modify the password below."
-msgstr ""
+msgstr "Você também poderá modificar sua senha abaixo."
 
 # html/captive-portal/templates/status.html
 msgid "You device is registered to <strong>%s</strong>"
-msgstr ""
+msgstr "Seu dispositivo está registrado para <strong>%s</strong>"
 
 # html/captive-portal/templates/status.html
 msgid "You have no registered devices."
@@ -731,7 +732,7 @@ msgstr "Você receberá as credenciais de convidados por e-mail uma vez aprovado
 msgid ""
 "You're not connected to the network, but have a timebank of <strong "
 "id='timeleft'>%s</strong>"
-msgstr ""
+msgstr "Você está conectado à rede, mas possui uma reserva de tempo de <strong id='timeleft'>%s</strong>"
 
 # html/captive-portal/templates/status.html
 msgid "Your Network Access Status"
@@ -864,10 +865,10 @@ msgid "register: to complete"
 msgstr "Para completar o processo de registro, você deve se autenticar usando seu usuário e senha."
 
 msgid "register: not allowed to register"
-msgstr ""
+msgstr "Você não está autorizado à conectar nessa rede."
 
 msgid "register: should be allowed"
-msgstr ""
+msgstr "Se você acha que deve ter autorização para conectar então entre em contato com atendimento de suporte local."
 
 # html/captive-portal/templates/enabler.html
 # html/captive-portal/templates/provisioner/android.html
@@ -892,226 +893,226 @@ msgstr "Seu sistema está sendo varrido - este processo vai demorar aproximadame
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Remediation.pm
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
 msgid "violation: quarantine established"
-msgstr ""
+msgstr "Violação: quarentena estabelecida"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
 msgid "Access granted"
-msgstr ""
+msgstr "Acesso concedido"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
 msgid "Sponsor request accepted"
-msgstr ""
+msgstr "Solicitação patrocinada aceita"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Remediation.pm
 msgid "scan in progress contact support if too long"
-msgstr ""
+msgstr "varredura em andamento contate suporte se demorar muito"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Root.pm
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Application.pm
 msgid "An error occured"
-msgstr ""
+msgstr "Um erro ocorreu"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication.pm
 msgid "%s authentication"
-msgstr ""
+msgstr "%s autenticação"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication.pm
 msgid "Authentication"
-msgstr ""
+msgstr "Autenticação"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Billing.pm
 msgid "Tier confirmation"
-msgstr ""
+msgstr "Confirmação de camada"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/OAuth.pm
 msgid "%s OAuth authentication"
-msgstr ""
+msgstr "%s autenticação OAuth"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/OAuth.pm
 msgid "You must accept the terms and conditions"
-msgstr ""
+msgstr "Você deve aceitar os termos e condições"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/OAuth.pm
 msgid "OAuth2 Error: Failed to get the token"
-msgstr ""
+msgstr "Erro OAuth2: Falha ao pegar o token"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/OAuth.pm
 msgid "OAuth2 Error: Failed to validate the token, please retry"
-msgstr ""
+msgstr "Erro OAuth2: Falha ao validar o token, por favor tente novamente"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/SAML.pm
 msgid "SAML authentication"
-msgstr ""
+msgstr "Autenticação SAML"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Provisioning.pm
 msgid "Provisioning : %s"
-msgstr ""
+msgstr "Provisionamento:  %s"
 
 # html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module.pm
 msgid "Could not execute actions"
-msgstr ""
+msgstr "Não conseguiu executar as ações"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication.pm
 msgid "You do not have permission to register a device with this username"
-msgstr ""
+msgstr "Você não tem permissão para registrar um dispositivo com esse usuário"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Billing.pm
 msgid "Order was canceled"
-msgstr ""
+msgstr "Pedido foi cancelado"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Billing.pm
 msgid "Unable to process payment"
-msgstr ""
+msgstr "Incapaz de processar o pagamento"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Billing.pm
 msgid "Your session has expired cannot access billing try again"
-msgstr ""
+msgstr "Sua sessão foi expirada, não pode acessar o tarifador, tente novamente"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Billing.pm
 msgid "An error occured while preparing the request to the external provider"
-msgstr ""
+msgstr "Um erro ocorreu enquanto preparava a chamada para o provedor externo"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Billing.pm
 msgid "Invalid billing source for profile"
-msgstr ""
+msgstr "Origem de faturamento inválido para o perfil"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Billing.pm
 msgid "No Tier selected"
-msgstr ""
+msgstr "Nenhuma camada selecionada"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Billing.pm
 msgid "Selected Tier is invalid"
-msgstr ""
+msgstr "Camada selecionada inválida"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Login.pm
 msgid "No authentication source found for this username"
-msgstr ""
+msgstr "Fonte de autenticação não encontrada para esse usuário"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/SMS.pm
 msgid "No PIN provided"
-msgstr ""
+msgstr "Nenhum PIn fornecido"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Root.pm
 msgid "Role %s has been assigned to your device with unregistration date : %s"
-msgstr ""
+msgstr "Regra %s foi associada para o seu dispositivo com data de  expiração: %s"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/TLSEnrollment.pm
 msgid "No Password given"
-msgstr ""
+msgstr "Nenhuma senha fornecida"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/TLSEnrollment.pm
 msgid "No e-mail given"
-msgstr ""
+msgstr "Nenhum e-mail fornecido"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Provisioning.pm
 msgid ""
 "According to the provisioner %s, your device is not allowed to access the "
 "network. Please follow the instruction below."
-msgstr ""
+msgstr "De acordo com o provedor %s, seu dispositivo não está autorizado à acessar a rede. Por favor siga as instruções abaixo."
 
 msgid "The following errors prevented the request to be fulfilled : %s"
-msgstr ""
+msgstr "Os seguintes erros evitaram que a solicitação seja preenchida: %s"
 
 msgid "%s is required"
-msgstr ""
+msgstr "%s é obrigatório"
 
 msgid "username"
-msgstr ""
+msgstr "usuário"
 
 msgid "password"
-msgstr ""
+msgstr "senha"
 
 msgid "mobileprovider"
-msgstr ""
+msgstr "Provedor móvel"
 
 msgid "aup"
-msgstr ""
+msgstr "Política de Utilização Aceitável"
 
 msgid "pid"
-msgstr ""
+msgstr "processo"
 
 msgid "firstname"
-msgstr ""
+msgstr "nome"
 
 msgid "lastname"
-msgstr ""
+msgstr "sobrenome"
 
 msgid "email"
 msgstr ""
 
 msgid "telephone"
-msgstr ""
+msgstr "telefone"
 
 msgid "company"
-msgstr ""
+msgstr "empresa"
 
 msgid "address"
-msgstr ""
+msgstr "endereço"
 
 msgid "notes"
-msgstr ""
+msgstr "notas"
 
 msgid "sponsor"
-msgstr ""
+msgstr "patrocinador"
 
 msgid "anniversary"
-msgstr ""
+msgstr "aniversário"
 
 msgid "birthday"
-msgstr ""
+msgstr "data de nascimento"
 
 msgid "gender"
-msgstr ""
+msgstr "sexo"
 
 msgid "lang"
-msgstr ""
+msgstr "língua"
 
 msgid "nickname"
-msgstr ""
+msgstr "apelido"
 
 msgid "cell_phone"
-msgstr ""
+msgstr "telefone celular"
 
 msgid "work_phone"
-msgstr ""
+msgstr "telefone de trabalho"
 
 msgid "title"
-msgstr ""
+msgstr "título"
 
 msgid "building_number"
-msgstr ""
+msgstr "número"
 
 msgid "apartment_number"
-msgstr ""
+msgstr "número do apartamento"
 
 msgid "room_number"
-msgstr ""
+msgstr "número da sala"
 
 msgid "custom_field_1"
 msgstr ""
@@ -1144,4 +1145,4 @@ msgid "portal"
 msgstr ""
 
 msgid "source"
-msgstr ""
+msgstr "fonte"
