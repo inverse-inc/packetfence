@@ -524,7 +524,7 @@ The scanObjects
 
 sub scanObjects {
     my ($self) = @_;
-    return grep { defined $_ } map { pf::factory::scan->new($_) } @{ [split(/\s*,\s*/, $self->getScans)] || [] };
+    return grep { defined $_ } map { pf::factory::scan->new($_) } @{ [split(/\s*,\s*/, $self->getScans // '')] || [] };
 }
 
 =item findScan
