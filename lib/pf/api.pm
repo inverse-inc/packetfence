@@ -55,6 +55,7 @@ use NetAddr::IP;
 use pf::factory::firewallsso;
 
 use pf::radius::rest();
+use pf::radius::constants;
 use pf::scan();
 use pf::person();
 use pf::lookup::person();
@@ -1335,14 +1336,37 @@ sub radius_rest_switch_authorize :Public :RestPath(/radius/rest/switch/authorize
     return $return;
 }
 
+=head2 radius_rest_accounting
+
+RADIUS accounting method that uses REST
+
+=cut
+
+sub radius_rest_accounting :Public :RestPath(/radius/rest/accounting) {
+    my ($class, $radius_request) = @_;
+    my $timer = pf::StatsD::Timer->new();
+    my $logger = pf::log::get_logger();
+
+    my %remapped_radius_request = %{pf::radius::rest::format_request($radius_request)};
+
+    my $return = $class->handle_accounting_metadata(%remapped_radius_request);
+
+    # This will die with the proper code if it is a deny
+    $return = pf::radius::rest::format_response($return);
+
+    return $return;
+}
+
+
 sub handle_accounting_metadata : Public {
     my ($class, %RAD_REQUEST) = @_;
     my $logger = pf::log::get_logger();
     $logger->debug("Entering handling of accounting metadata");
     my $client = pf::client::getClient();
 
+    my $return = [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Accounting OK") ];
     my $mac = pf::util::clean_mac($RAD_REQUEST{'Calling-Station-Id'});
-    if ($RAD_REQUEST{'Acct-Status-Type'} eq 'Start') {
+    if ($RAD_REQUEST{'Acct-Status-Type'} == $ACCOUNTING::START) {
         #
         # Updating location log in on initial ('Start') accounting run.
         #
@@ -1350,7 +1374,7 @@ sub handle_accounting_metadata : Public {
         $client->notify("radius_update_locationlog", %RAD_REQUEST);
     }
 
-    if ($RAD_REQUEST{'Acct-Status-Type'} ne 'Stop'){
+    if ($RAD_REQUEST{'Acct-Status-Type'} == $ACCOUNTING::STOP){
         # Tracking IP address.
         if(pf::util::isenabled($pf::config::Config{advanced}{update_iplog_with_accounting})){
             $logger->info("Updating iplog from accounting request");
@@ -1360,7 +1384,16 @@ sub handle_accounting_metadata : Public {
             pf::log::get_logger->debug("Not handling iplog update because we're not configured to do so on accounting packets.");
         }
     }
-
+    if ($RAD_REQUEST{'Acct-Status-Type'} == $ACCOUNTING::STOP || $RAD_REQUEST{'Acct-Status-Type'} == $ACCOUNTING::INTERIM_UPDATE ) {
+        my $radius = new pf::radius::custom();
+        eval {
+            $return = $radius->accounting(\%RAD_REQUEST);
+        };
+        if ($@) {
+            $logger->error("radius accounting failed with error: $@");
+        }
+    }
+    return $return;
 }
 
 =head2 services_status

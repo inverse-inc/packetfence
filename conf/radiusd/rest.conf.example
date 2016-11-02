@@ -158,8 +158,9 @@ rest {
 	#  5xx    server error  no            fail
 	#  xxx    -             no            invalid
 	accounting {
-		uri = "${..connect_uri}/user/%{User-Name}/sessions/%{Acct-Unique-Session-ID}"
+		uri = "${..connect_uri}/radius/rest/accounting"
 		method = 'post'
+		body = 'json'
 		tls = ${..tls}
 	}
 	post-auth {
