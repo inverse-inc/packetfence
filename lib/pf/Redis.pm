@@ -17,6 +17,7 @@ use warnings;
 
 use Redis::Fast;
 use CHI;
+use Log::Any::Adapter;
 Log::Any::Adapter->set('Log4perl');
 use POSIX::AtFork;
 
