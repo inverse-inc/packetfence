@@ -324,7 +324,7 @@ sub regzone {
     if ($filter_type) {
         my $filter = pf::access_filter::dns->new;
         my @reply = $filter->filter($filter_type, $args);
-        return @reply if @reply;
+        return @reply if @reply > 1;
     }
 
     if ($qtype eq "A") {
