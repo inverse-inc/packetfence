@@ -32,6 +32,7 @@ has_field 'rules' => (
 has_field 'rules.contains' => (
     type => 'PfdetectRegexRule',
     widget_wrapper => 'Accordion',
+    label => 'Rule',
 );
 
 sub append_button {
