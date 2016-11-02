@@ -275,7 +275,9 @@ CREATE TABLE iplog_history (
   mac varchar(17) NOT NULL,
   ip varchar(45) NOT NULL,
   start_time datetime NOT NULL,
-  end_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+  end_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY end_time (end_time),
+  KEY start_time (start_time)
 ) ENGINE=InnoDB;
 
 --
@@ -286,7 +288,9 @@ CREATE TABLE iplog_archive (
   mac varchar(17) NOT NULL,
   ip varchar(45) NOT NULL,
   start_time datetime NOT NULL,
-  end_time datetime NOT NULL
+  end_time datetime NOT NULL,
+  KEY end_time (end_time),
+  KEY start_time (start_time)
 ) ENGINE=InnoDB;
 
 CREATE TABLE `locationlog` (
