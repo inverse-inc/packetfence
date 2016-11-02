@@ -27,6 +27,7 @@ has_field 'email_activation_timeout' =>
    tags => { after_element => \&help,
              help => 'This is the delay given to a guest who registered by email confirmation to log into his email and click the activation link.' },
   );
+
 has_field 'allow_localdomain' =>
   (
    type => 'Toggle',

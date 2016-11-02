@@ -28,6 +28,16 @@ has_field 'allow_localdomain' =>
              help => 'Accept self-registration with email address from the local domain' },
   );
 
+has_field 'email_activation_timeout' =>
+  (
+   type => 'Duration',
+   label => 'Email Activation Timeout',
+   required => 1,
+   default => pfappserver::Form::Field::Duration->duration_inflate(pf::Authentication::Source::SponsorEmailSource->meta->get_attribute('email_activation_timeout')->default),
+   tags => { after_element => \&help,
+             help => 'Delay given to a sponsor to click the activation link.' },
+  );
+
 has_field 'create_local_account' => (
     type => 'Toggle',
     checkbox_value => 'yes',
