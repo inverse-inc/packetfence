@@ -1,0 +1,184 @@
+[akamaihd_net]
+filter = qname
+operator = regex
+value = (.*)akamaihd.net
+
+[applovin_com]
+filter = qname
+operator = regex
+value = (.*)applovin.com
+
+[snapchat_com]
+filter = qname
+operator = regex
+value = (.*)snapchat.com
+
+[doubleclick_net]
+filter = qname
+operator = regex
+value = (.*)doubleclick.net
+
+[fbcdn_net]
+filter = qname
+operator = regex
+value = (.*)fbcdn.net
+
+[configuration_apple_com]
+filter = qname
+operator = match
+value = configuration.apple.com
+
+[gsa_apple_com]
+filter = qname
+operator = match
+value = gsa.apple.com
+
+[ls_apple_com]
+filter = qname
+operator = regex
+value = (.*).ls.apple.com
+
+[dm_htcsense_com]
+filter = qname
+operator = regex
+value = (.*)dm.htcsense.com
+
+[gs_loc_apple_com]
+filter = qname
+operator = regex
+value = (.*)gs-loc.apple.com
+
+[icloud_com]
+filter = qname
+operator = regex
+value = (.*)icloud.com
+
+[accu_weather_com]
+filter = qname
+operator = regex
+value = (.*)accu-weather.com
+
+[service_gc_apple_com]
+filter = qname
+operator = regex
+value = (.*)service.gc.apple.com
+
+[steampowered_com]
+filter = qname
+operator = regex
+value = (.*).steampowered.com
+
+[ssl_apple_com]
+filter = qname
+operator = regex
+value = (.*)ssl.apple.com
+
+[dropbox_com]
+filter = qname
+operator = regex
+value = (.*).dropbox.com
+
+[instagram_com]
+filter = qname
+operator = regex
+value = (.*).instagram.com
+
+[push_apple_com]
+filter = qname
+operator = regex
+value = (.*).push.apple.com
+
+[itunes_apple_com]
+filter = qname
+operator = regex
+value = (.*).itunes.apple.com
+
+[googleadservices_com]
+filter = qname
+operator = regex
+value = (.*).googleadservices.com
+
+[flurry_com]
+filter = qname
+operator = regex
+value = (.*).flurry.com
+
+[crashlytics_com]
+filter = qname
+operator = regex
+value = (.*).crashlytics.com
+
+[office365_com]
+filter = qname
+operator = regex
+value = (.*).office365.com
+
+[facebook]
+filter = qname
+operator = regex
+value = (.*).facebook.com
+
+[ssl_google_analytics_com]
+filter = qname
+operator = is
+value = ssl.google-analytics.com
+
+[mtalk_google_com]
+filter = qname
+operator = is
+value = mtalk.google.com
+
+[mtalk4_google_com]
+filter = qname
+operator = is
+value = mtalk4.google.com
+
+[bose_vtuner_com]
+filter = qname
+operator = regex
+value = (.*).vtuner.com
+
+[pandora_com]
+filter = qname
+operator = regex
+value = (.*).pandora.com
+
+[iheart_com]
+filter = qname
+operator = regex
+value = (.*).iheart.com
+
+[samsungcloudsolution_com]
+filter = qname
+operator = regex
+value = (.*).samsungcloudsolution.com
+
+[playstation_net]
+filter = qname
+operator = regex
+value = (.*).playstation.net
+
+[pinsightmedia_com]
+filter = qname
+operator = regex
+value = (.*).pinsightmedia.com
+
+[cij_com]
+filter = qname
+operator = regex
+value = (.*).c-ij.com
+
+[samsungapps_com]
+filter = qname
+operator = regex
+value = (.*).samsungapps.com
+
+[msh_amazon_com]
+filter = qname
+operator = is
+value = msh.amazon.com
+
+[1:msh_amazon_com|samsungapps_com|cij_com|pinsightmedia_com|playstation_net|iheart_com|pandora_com|samsungcloudsolution_com|bose_vtuner_com|facebook|ssl_google_analytics_com|mtalk_google_com|mtalk4_google_com|office365_com|crashlytics_com|flurry_com|googleadservices_com|itunes_apple_com|push_apple_com|instagram_com|dropbox_com|ssl_apple_com|steampowered_com|service_gc_apple_com|accu_weather_com|dm_htcsense_com|icloud_com|dm_htcsense_com|configuration_apple_com|ls_apple_com|gsa_apple_com|fbcdn_net|snapchat_com|doubleclick_net|applovin_com|akamaihd_net]
+scope = registration
+answer = $qname 30 IN A 127.0.0.1
+rcode = NOERROR
