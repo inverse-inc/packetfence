@@ -22,6 +22,8 @@ use pf::web();
 use pf::web::guest();
 # needs to be called last of the pf::web's to allow dark magic redefinitions
 use pf::web::custom();
+use pf::node();
+use pf::locationlog();
 
 # Log4perl initialization
 # Testing it out but we might need to reconsider if we get adversely affected
