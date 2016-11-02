@@ -961,7 +961,7 @@ sub node_modify {
         $mac
     );
     if($sth) {
-        memoized("pf::node::node_view")->cache->remove($new_mac);
+        node_remove_from_cache($new_mac);
         return ( $sth->rows );
     }
     $logger->error("Unable to modify node '" . $mac // 'undef' . "'");
