@@ -279,7 +279,7 @@ sub auditing_radius_log :Chained('object') :PathPart('auditing/radius_log') :Arg
             {id => $id, members => [$sg->members($id, 'id')]}
          } @{$sg->readAllIds}];
     my $switches_list = pf::ConfigStore::Switch->new->readAll("Id");
-    my @switches_filtered = grep { !defined $_->{group} && $_->{Id} !~ /^group(.*)/ && $_->{Id} ne 'default' } @$switches_list;
+    my @switches_filtered = grep { !defined $_->{group} && $_->{Id} !~ /^group(.*)/ && $_->{Id} !~ m/\// && $_->{Id} ne 'default' } @$switches_list;
     my $switches = [
     map {
         local $_ = $_;
@@ -321,7 +321,7 @@ sub auditing_option82 :Chained('object') :PathPart('auditing/option82') :Args(0)
             {id => $id, members => [$sg->members($id, 'id')]}
          } @{$sg->readAllIds}];
     my $switches_list = pf::ConfigStore::Switch->new->readAll("Id");
-    my @switches_filtered = grep { !defined $_->{group} && $_->{Id} !~ /^group(.*)/ && $_->{Id} ne 'default' } @$switches_list;
+    my @switches_filtered = grep { !defined $_->{group} && $_->{Id} !~ /^group(.*)/ && $_->{Id} !~ m/\// && $_->{Id} ne 'default' } @$switches_list;
     my $switches = [
     map {
         local $_ = $_;
