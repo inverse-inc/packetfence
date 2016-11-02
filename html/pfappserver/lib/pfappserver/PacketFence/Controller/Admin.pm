@@ -269,10 +269,38 @@ sub auditing_radius_log :Chained('object') :PathPart('auditing/radius_log') :Arg
     my ( $self, $c ) = @_;
     my $id = $c->user->id;
     my ($status, $saved_searches) = $c->model("SavedSearch::RadiusLog")->read_all($id);
+    (undef, my $roles) = $c->model('Roles')->list();
+    my $sg = pf::ConfigStore::SwitchGroup->new;
+
+    my $switch_groups = [
+    map {
+        local $_ = $_;
+            my $id = $_;
+            {id => $id, members => [$sg->members($id, 'id')]}
+         } @{$sg->readAllIds}];
+    my $switches_list = pf::ConfigStore::Switch->new->readAll("Id");
+    my @switches_filtered = grep { !defined $_->{group} && $_->{Id} !~ /^group(.*)/ && $_->{Id} !~ m/\// && $_->{Id} ne 'default' } @$switches_list;
+    my $switches = [
+    map {
+        local $_ = $_;
+        my $id = $_->{Id};
+        {id => $id}
+        } @switches_filtered];
+    my $sources = getAllAuthenticationSources();
+    my $profiles = pf::ConfigStore::Profile->new->readAll("Id");
+    my $domains = pf::ConfigStore::Domain->new->readAll("Id");
+    my $realms = pf::ConfigStore::Realm->new->readAll("Id");
     $c->stash({
         template => 'admin/auditing_radius_log.tt',
         saved_searches => $saved_searches,
         saved_search_form => $c->form("SavedSearch"),
+        switch_groups => $switch_groups,
+        switches => $switches,
+        roles => $roles,
+        sources => $sources,
+        profiles => $profiles,
+        domains => $domains,
+        realms => $realms,
     });
 }
 
@@ -284,9 +312,28 @@ sub auditing_option82 :Chained('object') :PathPart('auditing/option82') :Args(0)
     my ( $self, $c ) = @_;
     my $id = $c->user->id;
     my ($status, $saved_searches) = $c->model("SavedSearch::DHCPOption82")->read_all($id);
+    my $sg = pf::ConfigStore::SwitchGroup->new;
+
+    my $switch_groups = [
+    map {
+        local $_ = $_;
+            my $id = $_;
+            {id => $id, members => [$sg->members($id, 'id')]}
+         } @{$sg->readAllIds}];
+    my $switches_list = pf::ConfigStore::Switch->new->readAll("Id");
+    my @switches_filtered = grep { !defined $_->{group} && $_->{Id} !~ /^group(.*)/ && $_->{Id} !~ m/\// && $_->{Id} ne 'default' } @$switches_list;
+    my $switches = [
+    map {
+        local $_ = $_;
+        my $id = $_->{Id};
+        {id => $id}
+        } @switches_filtered];
+
     $c->stash({
         saved_searches => $saved_searches,
         saved_search_form => $c->form("SavedSearch"),
+        switch_groups => $switch_groups,
+        switches => $switches,
     });
 }
 
