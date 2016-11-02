@@ -2238,6 +2238,7 @@ PacketFence supports Extreme Networks switches using:
 * MAC Address Lockdown (Port Security)
 * Netlogin - MAC Authentication
 * Netlogin - 802.1X
+* RADIUS authentication for CLI access
 
 Don't forget to save the configuration!
 
@@ -2318,6 +2319,21 @@ Netlogin (802.1X)
   configure netlogin ports 1-48 no-restart
 
 NOTE: You can mix the MAC Authentication and 802.1X on the same switchport. If the device fails 802.1X authentication, it will roll back to the MAC Authentication.
+
+RADIUS authentication for CLI access
+++++++++++++++++++++++++++++++++++++
+
+Configure radius server ipaddress as primary server and the switch's ipaddress as the client-ip.  Be sure to specify the correct virtual router
+
+  configure radius mgmt-access primary server <SERVER_IP> <SERVER_UDP_PORT> client-ip <CLIENT_IP> vr <VR>
+
+Configure the RADIUS shared-secret
+
+  configure radius mgmt-access primary shared-secret <SHARED_SECRET>
+
+Enable RADIUS for management access
+
+  enable radius mgmt-access
 
 Foundry
 ~~~~~~~
