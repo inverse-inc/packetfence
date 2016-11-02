@@ -160,6 +160,22 @@ Readonly::Hash our %NAS_port_type => (
     36 => "PPPoEoQinQ",
 );
 
+
+package ACCOUNTING;
+
+=item Accounting type
+
+Accounting type taken from freeradius dictionnary
+
+=cut
+
+Readonly::Scalar our $START          => 1;
+Readonly::Scalar our $STOP           => 2;
+Readonly::Scalar our $INTERIM_UPDATE => 3;
+Readonly::Scalar our $ACCOUNTING_ON  => 7;
+Readonly::Scalar our $ACCOUNTING_OFF => 8;
+Readonly::Scalar our $FAILED         => 15;
+
 =back
 
 =head1 AUTHOR
