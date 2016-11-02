@@ -319,28 +319,25 @@ Resolve a DNS entry for a client that should see the captive portal
 =cut
 
 sub regzone {
-    my ($qname, $qclass, $qtype, $peerhost,$query,$conn) = @_;
+    my ($qname, $qclass, $qtype, $peerhost, $query, $conn, $filter_type, $args) = @_;
     my ($rcode, @ans, @auth, @add);
 
     $logger->trace("Requested Domain: ".$qname);
-    if ($qtype eq "A") {
-        if ( ($qname =~ /$OAUTH::ALLOWED_SOURCES_DOMAINS/o && $OAUTH::ALLOWED_SOURCES_DOMAINS ne '') || ($qname =~ /$PASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS/o && $PASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS ne '') ) {
-            my ($ttl, $rdata);
-            my $res   = Net::DNS::Resolver->new;
-            my $query = resolve_with_cache("A", $qname);
-            if ($query) {
-                add_answers_to_ipset($query,$IPSET_SESSION,$HTTP_PORT,$HTTPS_PORT);
-                push @ans, $query->answer;
-                if(@ans) {
-                    $rcode = "NOERROR";
-                } else {
-                    $logger->warn("Unresolved passthrough domain $qname");
-                    $rcode = "NXDOMAIN";
-                }
-            }
+    my $results = regzone_non_filtered($qname, $qclass, $qtype, $peerhost, $query, $conn);
+    if ($results) {
+        my @answer = ($results->{rcode}, $results->{ans}, \@auth, \@add, { aa => 1 });
+        $logger->trace(sub { use Data::Dumper; "Response : ".Dumper(\@answer) });
+        return @answer;
+    }
 
-        }
-        elsif ($qname eq $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}) {
+    if ($filter_type) {
+        my $filter = pf::access_filter::dns->new;
+        my @reply = $filter->filter($filter_type, $args);
+        return @reply if @reply;
+    }
+
+    if ($qtype eq "A") {
+        if ($qname eq $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}) {
             my ($ttl, $rdata) = ($TTL, (defined($loadb_ip->{$conn->{sockhost}})) ? $loadb_ip->{$conn->{sockhost}} : $conn->{sockhost});
             my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
             push @ans, $rr;
