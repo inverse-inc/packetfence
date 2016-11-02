@@ -321,10 +321,10 @@ DROP INDEX ip on inline_accounting;
 -- Alter table iplog_history
 --
 
-ALTER TABLE iplog_history ADD INDEX end_time (end_time) ADD INDEX start_time (end_time);
+ALTER TABLE iplog_history ADD INDEX end_time (end_time) ADD INDEX start_time (start_time);
 
 --
 -- Alter table iplog_archive
 --
 
-ALTER TABLE iplog_archive ADD INDEX end_time (end_time) ADD INDEX start_time (end_time);
+ALTER TABLE iplog_archive ADD INDEX end_time (end_time) ADD INDEX start_time (start_time);
