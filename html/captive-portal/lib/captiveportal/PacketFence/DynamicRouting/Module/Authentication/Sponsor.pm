@@ -21,6 +21,7 @@ use Date::Format qw(time2str);
 use pf::Authentication::constants;
 use pf::activation;
 use pf::web::guest;
+use pf::util qw(normalize_time);
 
 has '+source' => (isa => 'pf::Authentication::Source::SponsorEmailSource');
 
