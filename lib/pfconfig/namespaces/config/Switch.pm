@@ -33,7 +33,8 @@ sub init {
 
     $self->{management_network} = $self->{cache}->get_cache('interfaces::management_network');
     $self->{local_secret} = $self->{cache}->get_cache('resource::local_secret');
-    $self->{added_params}{'-import'} = Config::IniFiles->new(-file => $switches_default_config_file);
+    my $defaults = Config::IniFiles->new(-file => $switches_default_config_file);
+    $self->{added_params}{'-import'} = $defaults;
 }
 
 sub build_child {
