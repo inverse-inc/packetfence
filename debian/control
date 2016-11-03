@@ -29,7 +29,7 @@ Depends: ${misc:Depends}, vlan,
  libapache-ssllookup-perl, libapache2-mod-qos,
  libapache2-mod-evasive,
 # freeradius
- freeradius (>= 3.0.12.31), freeradius-ldap, 
+ freeradius (>= 3.0.13.1), freeradius-ldap, 
  freeradius-mysql, freeradius-utils, freeradius-rest, freeradius-redis,
 # binary
  make,
