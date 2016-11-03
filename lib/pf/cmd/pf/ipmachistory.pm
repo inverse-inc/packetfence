@@ -58,11 +58,11 @@ sub parseArgs {
                 $params{$data[0]} = $data[1];
             }
             else {
-                print "Invalid parameter value '$data[1]' for parameter '$data[0]'";
+                print STDERR "Invalid parameter value '$data[1]' for parameter '$data[0]'\n";
             }
         }
         else {
-            print "Unknown parameter '$data[0]'";
+            print STDERR "Unknown parameter '$data[0]'\n";
         }
     }
 
