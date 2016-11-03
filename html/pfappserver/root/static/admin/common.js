@@ -11,6 +11,11 @@ function updateAction(type, keep_value) {
     changeInputFromTemplate(value, $('#' + action + '_action'), keep_value);
 }
 
+function make_jq_id( myid ) {
+    return "#" + myid.replace( /(:|\.|\[|\]|,|=)/g, "\\$1" );
+}
+
+
 function changeInputFromTemplate(oldInput, template, keep_value) {
     var newInput = template.clone();
     // Replace value field with the one from the templates
