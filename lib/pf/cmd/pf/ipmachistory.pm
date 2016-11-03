@@ -32,7 +32,7 @@ sub parseArgs {
         require pf::iplog;
         import pf::iplog;
         my ($function,%params);
-        $function = \&iplog_history;
+        $function = \&pf::iplog::get_archive;
         $params{'start_time'} = str2time( $start_time) if defined $start_time;
         $params{'end_time'} = str2time( $end_time) if defined $end_time;
         $self->{params} = \%params;

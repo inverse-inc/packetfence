@@ -21,6 +21,8 @@ use pf::log;
 
 use constant IPLOG => 'iplog';
 use constant IPLOG_CACHE_EXPIRE => 60;
+use constant IPLOG_DEFAULT_HISTORY_LIMIT => '25';
+use constant IPLOG_DEFAULT_ARCHIVE_LIMIT => '18446744073709551615'; # Yeah, that seems odd, but that's the MySQL documented way to use LIMIT with "unlimited"
 
 BEGIN {
     use Exporter ();
@@ -29,8 +31,6 @@ BEGIN {
     @EXPORT = qw(
         iplog_db_prepare
         $iplog_db_prepared
-
-        iplog_history
     );
 }
 
@@ -38,6 +38,7 @@ use pf::config qw(
     $management_network
     %Config
 );
+use pf::constants;
 use pf::db;
 use pf::node qw(node_add_simple node_exist);
 use pf::util;
@@ -81,7 +82,7 @@ sub iplog_db_prepare {
     # Using WHERE clause and ORDER BY clause in subqueries to fasten resultset
     # Using UNION ALL rather than UNION to avoid the cost of 'SELECT DISTINCT'
     # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
-    $iplog_statements->{'iplog_history_by_ip_sql'} = get_db_handle()->prepare(
+    $iplog_statements->{'iplog_get_history_by_ip_sql'} = get_db_handle()->prepare(
         qq [ SELECT * FROM
                 (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
                 FROM iplog
@@ -93,13 +94,13 @@ sub iplog_db_prepare {
                 FROM iplog_history
                 WHERE ip = ?
                 ORDER BY start_time DESC) AS b
-             ORDER BY start_time DESC LIMIT 25 ]
+             ORDER BY start_time DESC LIMIT ? ]
     );
 
     # Using WHERE clause and ORDER BY clause in subqueries to fasten resultset
     # Using UNION ALL rather than UNION to avoid the cost of 'SELECT DISTINCT'
     # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
-    $iplog_statements->{'iplog_history_by_ip_with_date_sql'} = get_db_handle()->prepare(
+    $iplog_statements->{'iplog_get_history_by_ip_with_date_sql'} = get_db_handle()->prepare(
         qq [ SELECT * FROM
                 (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
                 FROM iplog
@@ -111,13 +112,13 @@ sub iplog_db_prepare {
                 FROM iplog_history
                 WHERE ip = ? AND start_time < FROM_UNIXTIME(?) AND (end_time > FROM_UNIXTIME(?) OR end_time = 0)
                 ORDER BY start_time DESC) AS b
-             ORDER BY start_time DESC LIMIT 25 ]
+             ORDER BY start_time DESC LIMIT ? ]
     );
 
     # Using WHERE clause and ORDER BY clause in subqueries to fasten resultset
     # Using UNION ALL rather than UNION to avoid the cost of 'SELECT DISTINCT'
     # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
-    $iplog_statements->{'iplog_history_by_mac_sql'} = get_db_handle()->prepare(
+    $iplog_statements->{'iplog_get_history_by_mac_sql'} = get_db_handle()->prepare(
         qq [ SELECT * FROM
                 (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
                 FROM iplog
@@ -129,13 +130,13 @@ sub iplog_db_prepare {
                 FROM iplog_history
                 WHERE mac = ?
                 ORDER BY start_time DESC) AS b
-             ORDER BY start_time DESC LIMIT 25 ]
+             ORDER BY start_time DESC LIMIT ? ]
     );
 
     # Using WHERE clause and ORDER BY clause in subqueries to fasten resultset
     # Using UNION ALL rather than UNION to avoid the cost of 'SELECT DISTINCT'
     # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
-    $iplog_statements->{'iplog_history_by_mac_with_date_sql'} = get_db_handle()->prepare(
+    $iplog_statements->{'iplog_get_history_by_mac_with_date_sql'} = get_db_handle()->prepare(
         qq [ SELECT * FROM
                 (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
                 FROM iplog
@@ -147,7 +148,39 @@ sub iplog_db_prepare {
                 FROM iplog_history
                 WHERE mac = ? AND start_time < FROM_UNIXTIME(?) AND (end_time > FROM_UNIXTIME(?) OR end_time = 0)
                 ORDER BY start_time DESC) AS b
-             ORDER BY start_time DESC LIMIT 25 ]
+             ORDER BY start_time DESC LIMIT ? ]
+    );
+
+    # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
+    $iplog_statements->{'iplog_get_archive_by_ip_sql'} = get_db_handle()->prepare(
+        qq [ SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
+             FROM iplog_archive
+             WHERE ip = ?
+             ORDER BY start_time DESC LIMIT ? ]
+    );
+
+    # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
+    $iplog_statements->{'iplog_get_archive_by_ip_with_date_sql'} = get_db_handle()->prepare(
+        qq [ SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
+             FROM iplog_archive
+             WHERE ip = ? AND start_time < FROM_UNIXTIME(?) AND (end_time > FROM_UNIXTIME(?) OR end_time = 0)
+             ORDER BY start_time DESC LIMIT ? ]
+    );
+
+    # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
+    $iplog_statements->{'iplog_get_archive_by_mac_sql'} = get_db_handle()->prepare(
+        qq [ SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
+             FROM iplog_archive
+             WHERE mac = ?
+             ORDER BY start_time DESC LIMIT ? ]
+    );
+
+    # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
+    $iplog_statements->{'iplog_get_archive_by_mac_with_date_sql'} = get_db_handle()->prepare(
+        qq [ SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
+             FROM iplog_archive
+             WHERE mac = ? AND start_time < FROM_UNIXTIME(?) AND (end_time > FROM_UNIXTIME(?) OR end_time = 0)
+             ORDER BY start_time DESC LIMIT ? ]
     );
 
     $iplog_statements->{'iplog_exists_sql'} = get_db_handle()->prepare(
@@ -342,28 +375,44 @@ sub _mac2ip_sql {
     return $iplog->{'ip'};
 }
 
-=head2 iplog_history
+=head2 get_history
 
-Get the full iplog for a given IP address or MAC address.
-
-TODO: Rename to 'history' once the "issue" with pfcmd is resolved. Also remove from the export...
+Get the full iplog history for a given IP address or MAC address.
 
 =cut
 
-sub iplog_history {
+sub get_history {
     my ( $search_by, %params ) = @_;
     my $logger = pf::log::get_logger;
+
+    $params{'limit'} = defined $params{'limit'} ? $params{'limit'} : IPLOG_DEFAULT_HISTORY_LIMIT;
 
     return _history_by_mac($search_by, %params) if ( valid_mac($search_by) );
 
     return _history_by_ip($search_by, %params) if ( valid_ip($search_by) );
 }
 
+=head2 get_archive
+
+Get the full iplog archive along with the history for a given IP address or MAC address.
+
+=cut
+
+sub get_archive {
+    my ( $search_by, %params ) = @_;
+    my $logger = pf::log::get_logger;
+
+    $params{'with_archive'} = $TRUE;
+    $params{'limit'} = defined $params{'limit'} ? $params{'limit'} : IPLOG_DEFAULT_ARCHIVE_LIMIT;
+
+    return get_history( $search_by, %params );
+}
+
 =head2 _history_by_ip
 
 Get the full iplog for a given IP address.
 
-Not meant to be used outside of this class. Refer to L<pf::iplog::iplog_history>
+Not meant to be used outside of this class. Refer to L<pf::iplog::get_history> or L<pf::iplog::get_archive>
 
 =cut
 
@@ -371,31 +420,61 @@ sub _history_by_ip {
     my ( $ip, %params ) = @_;
     my $logger = pf::log::get_logger;
 
+    my @history = ();
+
     if ( defined($params{'start_time'}) && defined($params{'end_time'}) ) {
         # We are passing the arguments twice to match the prepare statement of the query
-        return db_data(IPLOG, $iplog_statements, 'iplog_history_by_ip_with_date_sql',
-            $ip, $params{'end_time'}, $params{'start_time'}, $ip, $params{'end_time'}, $params{'start_time'}
+        @history = db_data(IPLOG, $iplog_statements, 'iplog_get_history_by_ip_with_date_sql',
+            $ip, $params{'end_time'}, $params{'start_time'}, $ip, $params{'end_time'}, $params{'start_time'}, $params{'limit'}
         );
+        # Handling archive
+        if ( $params{'with_archive'} ) {
+            my $number_of_results = @history;
+            my $limit = $params{'limit'} - $number_of_results;
+            push ( @history,
+                db_data(IPLOG, $iplog_statements, 'iplog_get_archive_by_ip_with_date_sql',
+                $ip, $params{'end_time'}, $params{'start_time'}, $limit)
+            ) if $limit > 0;
+        }
     }
 
     elsif ( defined($params{'date'}) ) {
         # We are passing the arguments twice to match the prepare statement of the query
-        return db_data(IPLOG, $iplog_statements, 'iplog_history_by_ip_with_date_sql',
-            $ip, $params{'date'}, $params{'date'}, $ip, $params{'date'}, $params{'date'}
+        @history = db_data(IPLOG, $iplog_statements, 'iplog_get_history_by_ip_with_date_sql',
+            $ip, $params{'date'}, $params{'date'}, $ip, $params{'date'}, $params{'date'}, $params{'limit'}
         );
+        # Handling archive
+        if ( $params{'with_archive'} ) {
+            my $number_of_results = @history;
+            my $limit = $params{'limit'} - $number_of_results;
+            push ( @history,
+                db_data(IPLOG, $iplog_statements, 'iplog_get_archive_by_ip_with_date_sql',
+                $ip, $params{'date'}, $params{'date'}, $limit)
+            ) if $limit > 0;
+        }
     }
 
     else {
         # We are passing the arguments twice to match the prepare statement of the query
-        return db_data(IPLOG, $iplog_statements, 'iplog_history_by_ip_sql', $ip, $ip);
+        @history = db_data(IPLOG, $iplog_statements, 'iplog_get_history_by_ip_sql', $ip, $ip, $params{'limit'});
+        # Handling archive
+        if ( $params{'with_archive'} ) {
+            my $number_of_results = @history;
+            my $limit = $params{'limit'} - $number_of_results;
+            push ( @history,
+                db_data(IPLOG, $iplog_statements, 'iplog_get_archive_by_ip_sql', $ip, $limit)
+            ) if $limit > 0;
+        }
     }
+
+    return @history;
 }
 
 =head2 _history_by_mac
 
 Get the full iplog for a given MAC address.
 
-Not meant to be used outside of this class. Refer to L<pf::iplog::iplog_history>
+Not meant to be used outside of this class. Refer to L<pf::iplog::get_history> or L<pf::iplog::get_archive>
 
 =cut
 
@@ -403,24 +482,54 @@ sub _history_by_mac {
     my ( $mac, %params ) = @_;
     my $logger = pf::log::get_logger;
 
+    my @history = ();
+
     if ( defined($params{'start_time'}) && defined($params{'end_time'}) ) {
         # We are passing the arguments twice to match the prepare statement of the query
-        return db_data(IPLOG, $iplog_statements, 'iplog_history_by_mac_with_date_sql',
-            $mac, $params{'end_time'}, $params{'start_time'}, $mac, $params{'end_time'}, $params{'start_time'}
+        @history = db_data(IPLOG, $iplog_statements, 'iplog_get_history_by_mac_with_date_sql',
+            $mac, $params{'end_time'}, $params{'start_time'}, $mac, $params{'end_time'}, $params{'start_time'}, $params{'limit'}
         );
+        # Handling archive
+        if ( $params{'with_archive'} ) {
+            my $number_of_results = @history;
+            my $limit = $params{'limit'} - $number_of_results;
+            push ( @history,
+                db_data(IPLOG, $iplog_statements, 'iplog_get_archive_by_mac_with_date_sql',
+                $mac, $params{'end_time'}, $params{'start_time'}, $limit)
+            ) if $limit > 0;
+        }
     }
 
     elsif ( defined($params{'date'}) ) {
         # We are passing the arguments twice to match the prepare statement of the query
-        return db_data(IPLOG, $iplog_statements, 'iplog_history_by_mac_with_date_sql',
-            $mac, $params{'date'}, $params{'date'}, $mac, $params{'date'}, $params{'date'}
+        @history = db_data(IPLOG, $iplog_statements, 'iplog_get_history_by_mac_with_date_sql',
+            $mac, $params{'date'}, $params{'date'}, $mac, $params{'date'}, $params{'date'}, $params{'limit'}
         );
+        # Handling archive
+        if ( $params{'with_archive'} ) {
+            my $number_of_results = @history;
+            my $limit = $params{'limit'} - $number_of_results;
+            push ( @history,
+                db_data(IPLOG, $iplog_statements, 'iplog_get_archive_by_mac_with_date_sql',
+                $mac, $params{'date'}, $params{'date'}, $limit)
+            ) if $limit > 0;
+        }
     }
 
     else {
         # We are passing the arguments twice to match the prepare statement of the query
-        return db_data(IPLOG, $iplog_statements, 'iplog_history_by_mac_sql', $mac, $mac);
+        @history = db_data(IPLOG, $iplog_statements, 'iplog_get_history_by_mac_sql', $mac, $mac, $params{'limit'});
+        # Handling archive
+        if ( $params{'with_archive'} ) {
+            my $number_of_results = @history;
+            my $limit = $params{'limit'} - $number_of_results;
+            push ( @history,
+                db_data(IPLOG, $iplog_statements, 'iplog_get_archive_by_mac_sql', $mac, $limit)
+            ) if $limit > 0;
+        }
     }
+
+    return @history;
 }
 
 =head2 view
