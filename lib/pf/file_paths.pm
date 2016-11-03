@@ -49,17 +49,18 @@ our (
     #profiles.conf variables
     $profiles_config_file, $profiles_default_config_file,
     #Other configuraton files variables
-    $switches_config_file, $violations_config_file, $authentication_config_file,
-    $chi_config_file, $ui_config_file, $floating_devices_file, $log_config_file,
-    $chi_defaults_config_file,
+    $switches_config_file, $switches_default_config_file,
+    $violations_config_file, $violations_default_config_file,
+    $authentication_config_file,
+    $chi_config_file, $chi_defaults_config_file,
+    $ui_config_file, $floating_devices_file, $log_config_file,
     @stored_config_files, @log_files,
     $provisioning_config_file,
     $admin_roles_config_file,
     $wrix_config_file,
     $firewall_sso_config_file,
     $pfdetect_config_file,
-    $pfqueue_config_file,
-    $pfqueue_default_config_file,
+    $pfqueue_config_file, $pfqueue_default_config_file,
     $allowed_device_oui_file, $allowed_device_types_file,
     $apache_filters_config_file,
     $cache_control_file,
@@ -68,8 +69,7 @@ our (
     $vlan_filters_config_file, $vlan_filters_config_default_file,
     $pfcmd_binary,
     $report_config_file,
-    $realm_config_file,
-    $realm_default_config_file,
+    $realm_config_file, $realm_default_config_file,
     $cluster_config_file,
     $server_cert, $server_key, $server_pem,
     $radius_server_key, $radius_server_cert, $radius_ca_cert,
@@ -84,13 +84,10 @@ our (
     $dhcp_filters_config_file,
     $dns_filters_config_file, $dns_filters_default_config_file,
     $admin_audit_log,
-    $portal_modules_config_file,
-    $portal_modules_default_config_file,
+    $portal_modules_config_file, $portal_modules_default_config_file,
     $captiveportal_templates_path,
     $captiveportal_profile_templates_path,
     $captiveportal_default_profile_templates_path,
-    $switches_default_config_file,
-    $violations_default_config_file,
 );
 
 BEGIN {
@@ -113,9 +110,11 @@ BEGIN {
         $pf_omapi_key_file
         $local_secret_file
         $profiles_config_file $profiles_default_config_file
-        $switches_config_file $violations_config_file $authentication_config_file
-        $chi_config_file $ui_config_file $floating_devices_file $log_config_file
-        $chi_defaults_config_file
+        $switches_config_file $switches_default_config_file
+        $violations_config_file $violations_default_config_file
+        $authentication_config_file
+        $chi_config_file $chi_defaults_config_file
+        $ui_config_file $floating_devices_file $log_config_file
         @stored_config_files @log_files
         $provisioning_config_file
         $admin_roles_config_file
@@ -123,8 +122,7 @@ BEGIN {
         @stored_config_files
         $firewall_sso_config_file
         $pfdetect_config_file
-        $pfqueue_config_file
-        $pfqueue_default_config_file
+        $pfqueue_config_file $pfqueue_default_config_file
         $allowed_device_oui_file $allowed_device_types_file
         $apache_filters_config_file
         $cache_control_file
@@ -133,8 +131,7 @@ BEGIN {
         $vlan_filters_config_file $vlan_filters_config_default_file
         $pfcmd_binary
         $report_config_file
-        $realm_config_file
-        $realm_default_config_file
+        $realm_config_file $realm_default_config_file
         $cluster_config_file
         $server_cert $server_key $server_pem
         $radius_server_cert $radius_server_key $radius_ca_cert
@@ -149,13 +146,10 @@ BEGIN {
         $dhcp_filters_config_file
         $dns_filters_config_file $dns_filters_default_config_file
         $admin_audit_log
-        $portal_modules_config_file
-        $portal_modules_default_config_file
+        $portal_modules_config_file $portal_modules_default_config_file
         $captiveportal_templates_path
         $captiveportal_profile_templates_path
         $captiveportal_default_profile_templates_path
-        $switches_default_config_file
-        $violations_default_config_file
     );
 }
 
