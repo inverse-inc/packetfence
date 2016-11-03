@@ -27,20 +27,7 @@ with 'pf::ConfigStore::Hierarchy';
 
 sub configFile { $switches_config_file }
 
-=head2 _buildCachedConfig
-
-Build the pf::config::cached object
-
-=cut
-
-sub _buildCachedConfig {
-    my ($self) = @_;
-    return pf::config::cached->new(
-        -file       => $self->configFile,
-        -allowempty => 1,
-        -import     => pf::config::cached->new(-allowempty => 1, -file => $switches_default_config_file)
-    );
-}
+sub importConfigFile { $switches_default_config_file }
 
 sub pfconfigNamespace {'config::Switch'}
 
