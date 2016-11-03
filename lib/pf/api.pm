@@ -1438,7 +1438,7 @@ sub enableMABFloatingInQueue : Public {
     my $logger = pf::log::get_logger;
 
     my $client = pf::api::queue->new(queue => 'general');
-    $client->notify( '_enableMABFloating', %postdata );
+    $client->notify( 'enableMABFloating', %postdata );
 }
 
 =head2 disableMABConfigInQueue
@@ -1452,7 +1452,7 @@ sub disableMABFloatingInQueue : Public {
     my $logger = pf::log::get_logger;
 
     my $client = pf::api::queue->new(queue => 'general');
-    $client->notify( '_disableMABFloating', %postdata );
+    $client->notify( 'disableMABFloating', %postdata );
 }
 
 =head2 enableMABFloating
