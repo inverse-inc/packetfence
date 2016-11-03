@@ -230,16 +230,13 @@ session {
 #  then update the inner-tunnel reply.
 post-auth {
 	#
-	update {
-		&request: += &outer.request:[*]
-	}
 	rest
-        if (&reply:PacketFence-Authorization-Status == "deny") {
-                packetfence-audit-log-reject
-                reject
-        } else {
-                packetfence-audit-log-accept
-        }
+	if (&reply:PacketFence-Authorization-Status == "deny") {
+		packetfence-audit-log-reject
+		reject
+	} else {
+		packetfence-audit-log-accept
+	}
 
 	#
 	#  Un-comment the following if you have set
@@ -279,7 +276,7 @@ post-auth {
 		update {
 			&request: += &outer.request:[*]
 		}
-    packetfence-audit-log-reject
+		packetfence-audit-log-reject
 		attr_filter.access_reject
 
 		#
