@@ -23,8 +23,7 @@ around wrap_field => sub {
 #    use Data::Dumper;get_logger->info(Dumper($self));
     my $parent_name = $self->parent->name;
     my $name = $self->name;
-    my $id = "accordion_" . $self->id;
-    $id =~ s/\./_/;
+    my $id = $self->accordion_id;
     my $heading = $self->get_tag("accordion_heading");
     $heading = $self->do_accordion_heading unless $heading;
 
@@ -38,6 +37,18 @@ around wrap_field => sub {
 EOS
     return $output;
 };
+
+sub accordion_id {
+    my ($self) = @_;
+    return "accordion." . $self->id;
+}
+
+sub accordion_jq_target {
+    my ($self) = @_;
+    my $target = $self->accordion_id;
+    $target =~ s/(:|\.|\[|\]|,|=)/\\$1/g;
+    return $target;
+}
 
 sub do_accordion_heading {
     my ($self) = @_;
@@ -53,13 +64,9 @@ EOS
 sub do_accordion_heading_content {
     my ($self) = @_;
     my $label = $self->label;
-    my $name = $self->name;
-    my $id = "accordion_" . $self->id;
-    $id =~ s/\./_/;
+    my $target = $self->accordion_jq_target;
     return <<EOS;
-        <a class="accordion-toggle" data-toggle="collapse" href="#$id">
-            $label - ($name)
-        </a>
+        <a class="accordion-toggle" data-toggle="collapse" href="#$target">$label</a>
 EOS
 }
 
