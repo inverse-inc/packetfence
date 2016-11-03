@@ -23,6 +23,7 @@ The list of rule
 
 has_field 'rules' => (
     'type' => 'Repeatable',
+    do_wrapper => 1,
     do_label => 1,
     tags => {
         after_element => \&append_button,
@@ -32,8 +33,19 @@ has_field 'rules' => (
 has_field 'rules.contains' => (
     type => 'PfdetectRegexRule',
     widget_wrapper => 'Accordion',
-    label => 'Rule',
+    build_label_method => \&build_rule_label,
 );
+
+=head2 build_rule_label
+
+=cut
+
+sub build_rule_label {
+    my ($field) = @_;
+    my $name = $field->field("name")->value // "New";
+    return "Rule - $name";
+}
+
 
 sub append_button {
     my ($self) = @_;
@@ -41,8 +53,16 @@ sub append_button {
     $self->add_extra(1);
     my $extra_field = $self->field($index);
     set_disabled($extra_field);
-    my $content = $self->field($index)->render;
-    return qq{<div><div id="template-rules" class="hidden">$content</div><button class="btn">Add Rule</button></div>};
+    $extra_field->name(999);
+    my $content = $extra_field->render;
+    my $id = 'accordion.template.' . $self->id;
+    $id =~ s/\./_/g;
+    return <<"EOS"
+    <div id="$id">
+        <div id="template-rules" class="hidden">$content</div>
+        <a data-toggle="dynamic-accordion" data-target="#$id" data-template-parent="#template-rules" class="btn">Add Rule</a>
+    </div>
+EOS
 }
 
 sub set_disabled {
@@ -54,6 +74,11 @@ sub set_disabled {
     }
     $field->set_element_attr("disabled" => "disabled");
 }
+
+has_block definition =>
+  (
+   render_list => [ qw(id type path rules) ],
+  );
 
 
 =over
