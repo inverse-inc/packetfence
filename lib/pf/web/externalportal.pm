@@ -130,7 +130,7 @@ sub handle {
 
     my $portalSession = $self->_setup_session($req, $params{'client_mac'}, $params{'client_ip'}, $params{'redirect_url'}, $params{'grant_url'});
 
-    return ( $portalSession->session->id(), $params{'redirect_url'} );
+    return ( $portalSession->session->id(), $portalSession->getDestinationUrl );
 }
 
 
