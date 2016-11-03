@@ -332,10 +332,10 @@ post-auth {
 	if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
 		rest
 		if (&reply:PacketFence-Authorization-Status == "deny") {
-      packetfence-audit-log-reject
+			packetfence-audit-log-reject
 			reject
 		} else {
-      packetfence-audit-log-accept
+			packetfence-audit-log-accept
 		}
 	}
 
@@ -352,7 +352,7 @@ post-auth {
 	#
 	Post-Auth-Type REJECT {
 		if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
-      packetfence-audit-log-reject
+			packetfence-audit-log-reject
 		}
 		attr_filter.access_reject
 		attr_filter.packetfence_post_auth

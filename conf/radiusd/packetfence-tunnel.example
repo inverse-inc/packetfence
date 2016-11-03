@@ -273,9 +273,6 @@ post-auth {
 	#  'edir_account_policy_check = yes' in the ldap module configuration
 	#
 	Post-Auth-Type REJECT {
-		update {
-			&request: += &outer.request:[*]
-		}
 		packetfence-audit-log-reject
 		attr_filter.access_reject
 
