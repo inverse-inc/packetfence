@@ -260,11 +260,6 @@ sub enableMABFloatingDevice{
     my $command_mac_limit = "set ethernet-switching-options secure-access-port interface $port mac-limit 16383";
     my $command_disconnect_flap = "delete protocols dot1x authenticator interface $port mac-radius flap-on-disconnect";
 
-    if ($@) {
-        $logger->info("Unable to connect to ".$self->{_ip}." using SSH. Failed with $@");
-        return;
-    }
-
     my $chan = $ssh->channel();
     $chan->shell();
     $self->_commandSSH($chan, "configure");
