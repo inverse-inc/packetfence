@@ -8,15 +8,15 @@ pf::cmd::pf::ipmachistory
 
 Get the IP/MAC mapping history for a specific IP or MAC with optional date range (in MySQL format)
 
-Syntax: pfcmd ipmachistory <ip|mac> [--start_time=<date> --end_time=<date>] [--limit=<limit>]
+Syntax: pfcmd ipmachistory <ip|mac> [start_time=<date> end_time=<date>] [limit=<limit>]
 
 Where:
 
  - <ip|mac> either the IP or the MAC address for which we want the IP/MAC mapping history (REQUIRED)
 
- - [--start_time=<date> --end_time=<date>] start_time and end_time (in MySQL format) for optional date range (OPTIONAL)
+ - [start_time=<date> end_time=<date>] start_time and end_time (in MySQL format) for optional date range (OPTIONAL)
 
- - [--limit=<limit>] limit the number of returned results. If not specified, all results will be returned (OPTIONAL)
+ - [limit=<limit>] limit the number of returned results. If not specified, all results will be returned (OPTIONAL)
 
 Examples:
 
@@ -24,9 +24,9 @@ Examples:
 
   pfcmd ipmachistory de:ad:be:ef:00:42
 
-  pfcmd ipmachistory 192.168.1.100 --start_time="2006-10-12 15:00:00" --end_time="2006-10-18 12:00:00"
+  pfcmd ipmachistory 192.168.1.100 start_time="2006-10-12 15:00:00" end_time="2006-10-18 12:00:00"
 
-  pfcmd ipmachistory 192.168.1.100 --limit=42
+  pfcmd ipmachistory 192.168.1.100 limit=42
 
 =head1 DESCRIPTION
 
@@ -38,29 +38,40 @@ use strict;
 use warnings;
 
 use Date::Parse;
-use Getopt::Long;
 
 use base qw(pf::cmd::display);
 
 sub parseArgs {
     my ( $self ) = @_;
 
-    my ( $key ) = $self->args;
-    my ( $start_time, $end_time, $limit );
+    my ( $key, @params ) = $self->args;
 
-    GetOptions (
-        'start_time:s'  => \$start_time,
-        'end_time:s'    => \$end_time,
-        'limit:i'       => \$limit,
+    my %params = (
+        'start_time'    => undef,
+        'end_time'      => undef,
+        'limit'         => undef,
     );
+    foreach my $param ( @params ) {
+        my @data = split('=', $param);
+        if ( exists($params{$data[0]}) ) {
+            if ( length($data[1]) >= 1 ) {
+                $params{$data[0]} = $data[1];
+            }
+            else {
+                print "Invalid parameter value '$data[1]' for parameter '$data[0]'";
+            }
+        }
+        else {
+            print "Unknown parameter '$data[0]'";
+        }
+    }
 
     if ( $key ) {
         require pf::iplog;
         import pf::iplog;
-        my ( $function, %params );
-        $function = \&pf::iplog::get_archive;
-        $params{'start_time'} = str2time( $start_time) if defined $start_time;
-        $params{'end_time'} = str2time( $end_time) if defined $end_time;
+        my $function = \&pf::iplog::get_archive;
+        $params{'start_time'} = str2time( $params{'start_time'}) if defined $params{'start_time'};
+        $params{'end_time'} = str2time( $params{'end_time'}) if defined $params{'end_time'};
         $self->{function} = $function;
         $self->{key} = $key;
         $self->{params} = \%params;
