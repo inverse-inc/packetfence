@@ -1,13 +1,6 @@
-[default]
-description=Default Profile
-logo=/common/packetfence-white.png
-redirecturl=http://www.packetfence.org/
-always_use_redirecturl=disabled
-locale=en_US
-nbregpages=0
-filter_match_style=any
-block_interval=10m
-sms_pin_retry_limit=0
-sms_request_limit=0
-login_attempt_limit=0
-root_module=default_policy
+#
+# Copyright (C) 2005-2016 Inverse inc.
+#
+# See the enclosed file COPYING for license information (GPL).
+# If you did not receive this file, see
+# http://www.fsf.org/licensing/licenses/gpl.html

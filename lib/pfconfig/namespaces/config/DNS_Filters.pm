@@ -18,7 +18,7 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use pf::file_paths qw($dns_filters_config_file);
+use pf::file_paths qw($dns_filters_config_file $dns_filters_default_config_file);
 
 use base 'pfconfig::namespaces::config';
 
@@ -26,6 +26,8 @@ sub init {
     my ($self) = @_;
     $self->{file} = $dns_filters_config_file;
     $self->{child_resources} = [ 'FilterEngine::DNS_Scopes'];
+    my $defaults = Config::IniFiles->new( -file => $dns_filters_default_config_file);
+    $self->{added_params}->{'-import'} = $defaults;
 }
 
 sub build_child {

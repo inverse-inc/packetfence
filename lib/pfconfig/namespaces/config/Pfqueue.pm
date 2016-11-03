@@ -18,7 +18,10 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use pf::file_paths qw($pfqueue_config_file);
+use pf::file_paths qw(
+    $pfqueue_config_file
+    $pfqueue_default_config_file
+);
 use pf::util;
 use pf::constants::pfqueue qw(
     $PFQUEUE_WORKERS_DEFAULT
@@ -32,6 +35,8 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file} = $pfqueue_config_file;
+    my $defaults = Config::IniFiles->new(-file => $pfqueue_default_config_file);
+    $self->{added_params}{'-import'} = $defaults;
 }
 
 sub build_child {

@@ -15,7 +15,7 @@ pf::ConfigStore::Switch;
 use Moo;
 use namespace::autoclean;
 use pf::log;
-use pf::file_paths qw($switches_config_file);
+use pf::file_paths qw($switches_config_file $switches_default_config_file);
 use pf::util;
 use HTTP::Status qw(:constants is_error is_success);
 use List::MoreUtils qw(part any);
@@ -26,6 +26,8 @@ extends qw(pf::ConfigStore Exporter);
 with 'pf::ConfigStore::Hierarchy';
 
 sub configFile { $switches_config_file }
+
+sub importConfigFile { $switches_default_config_file }
 
 sub pfconfigNamespace {'config::Switch'}
 

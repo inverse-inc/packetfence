@@ -14,13 +14,18 @@ pf::ConfigStore::Violations
 
 use Moo;
 use namespace::autoclean;
-use pf::file_paths qw($violations_config_file);
+use pf::file_paths qw(
+    $violations_config_file
+    $violations_default_config_file
+);
 
 use pf::violation_config;
 
 extends 'pf::ConfigStore';
 
 sub configFile { $violations_config_file }
+
+sub importConfigFile { $violations_default_config_file };
 
 sub pfconfigNamespace { 'config::Violations' }
 
