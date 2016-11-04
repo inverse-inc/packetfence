@@ -942,6 +942,7 @@ fi
                         /usr/local/pf/conf/dhcp_filters.conf.example
 %config(noreplace)      /usr/local/pf/conf/dns_filters.conf
                         /usr/local/pf/conf/dns_filters.conf.example
+%config                 /usr/local/pf/conf/dns_filters.conf.defaults
 %config                 /usr/local/pf/conf/documentation.conf
 %config(noreplace)      /usr/local/pf/conf/firewall_sso.conf
                         /usr/local/pf/conf/firewall_sso.conf.example
@@ -1056,6 +1057,7 @@ fi
                         /usr/local/pf/conf/pfdetect.conf.example
 %config(noreplace)      /usr/local/pf/conf/pfqueue.conf
                         /usr/local/pf/conf/pfqueue.conf.example
+%config                 /usr/local/pf/conf/pfqueue.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/suricata_categories.txt
                         /usr/local/pf/conf/suricata_categories.txt.example
 %config(noreplace)      /usr/local/pf/conf/scan.conf
@@ -1069,6 +1071,7 @@ fi
                         /usr/local/pf/conf/snort/reference.config.example
 %dir                    /usr/local/pf/conf/ssl
 %config(noreplace)      /usr/local/pf/conf/switches.conf
+%config                 /usr/local/pf/conf/switches.conf.defaults
                         /usr/local/pf/conf/switches.conf.example
 %config(noreplace)      /usr/local/pf/conf/vlan_filters.conf
                         /usr/local/pf/conf/vlan_filters.conf.example
@@ -1128,6 +1131,7 @@ fi
 %config(noreplace)      /usr/local/pf/conf/monitoring/types.db
                         /usr/local/pf/conf/monitoring/types.db.example
 %config(noreplace)      /usr/local/pf/conf/profiles.conf
+%config                 /usr/local/pf/conf/profiles.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/snmptrapd.conf
 %config(noreplace)      /usr/local/pf/conf/snort.conf
 %config(noreplace)      /usr/local/pf/conf/snort.conf.pre_snort-2.8
@@ -1140,6 +1144,7 @@ fi
 %config                 /usr/local/pf/conf/ui.conf.es_ES
 %config(noreplace)      /usr/local/pf/conf/ui-global.conf
 %config(noreplace)      /usr/local/pf/conf/violations.conf
+%config                 /usr/local/pf/conf/violations.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/wmi.conf
                         /usr/local/pf/conf/wmi.conf.example
 %config(noreplace)      /usr/local/pf/conf/report.conf
