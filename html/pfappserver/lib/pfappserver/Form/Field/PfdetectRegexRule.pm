@@ -65,11 +65,7 @@ The list of action
 =cut
 
 has_field 'actions' => (
-    'type' => 'Repeatable',
-    do_wrapper => 1,
-    tags => {
-        after_wrapper => \&append_add_button,
-    },
+    'type' => 'DynamicList',
 );
 
 =head2 actions.contains
