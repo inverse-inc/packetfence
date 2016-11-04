@@ -51,8 +51,8 @@ is($violations[1], "1100008");
 # Will be able to match multiple violations on the different triggers
 @violations = $pf::violation::VIOLATION_FILTER_ENGINE->match_all({last_detect_id => 2, device_id => 3});
 is(@violations, 2);
-is($violations[0], "1100007");
-is($violations[1], "1100008");
+is($violations[0], "1100008");
+is($violations[1], "1100007");
 
 # Will be able to match a mac trigger that uses a regex
 @violations = $pf::violation::VIOLATION_FILTER_ENGINE->match_all({mac => "12:34:56:78:90:12"});
