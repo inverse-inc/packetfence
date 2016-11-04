@@ -337,7 +337,7 @@ ALTER TABLE `locationlog` modify `port` VARCHAR(20);
 
 --
 -- Make the port field bigger as some switch modules record the full interface name (ex: ge-0/0/20.0)
--- locationlog was done in 6.3, but locationlog_history was forgotten, this fixes it
+-- locationlog was done in 6.3, but locationlog_archive was forgotten, this fixes it
 --
 
-ALTER TABLE `locationlog_history` modify `port` VARCHAR(20);
+ALTER TABLE `locationlog_archive` modify `port` VARCHAR(20);
