@@ -899,15 +899,15 @@ sub node_modify {
 
     # category handling
     # if category was updated, resolve it correctly
-    my $new_role_id;
+    my $new_role_id = $old_role_id;
     if (defined($data{'category'}) || defined($data{'category_id'})) {
-       $existing->{'category_id'} = _node_category_handling(%data);
-       if (defined($existing->{'category_id'}) && $existing->{'category_id'} == 0) {
-           $logger->error("Unable to modify node because specified category doesn't exist");
-       }
+        $existing->{'category_id'} = _node_category_handling(%data);
+        if (defined($existing->{'category_id'}) && $existing->{'category_id'} == 0) {
+            $logger->error("Unable to modify node because specified category doesn't exist");
+        }
         if ( defined($data{'category'}) && $data{'category'} ne '' ) {
             $new_role_id = nodecategory_lookup($data{'category'});
-        } else {
+        } elsif (defined($data{'category_id'})) {
             $new_role_id = $data{'category_id'};
         }
 
