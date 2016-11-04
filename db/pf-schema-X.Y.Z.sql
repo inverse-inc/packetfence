@@ -296,7 +296,7 @@ CREATE TABLE iplog_archive (
 CREATE TABLE `locationlog` (
   `mac` varchar(17) default NULL,
   `switch` varchar(17) NOT NULL default '',
-  `port` varchar(8) NOT NULL default '',
+  `port` varchar(20) NOT NULL default '',
   `vlan` varchar(50) default NULL,
   `role` varchar(255) default NULL,
   `connection_type` varchar(50) NOT NULL default '',
@@ -318,7 +318,7 @@ CREATE TABLE `locationlog` (
 CREATE TABLE `locationlog_archive` (
   `mac` varchar(17) default NULL,
   `switch` varchar(17) NOT NULL default '',
-  `port` varchar(8) NOT NULL default '',
+  `port` varchar(20) NOT NULL default '',
   `vlan` varchar(50) default NULL,
   `role` varchar(255) default NULL,
   `connection_type` varchar(50) NOT NULL default '',

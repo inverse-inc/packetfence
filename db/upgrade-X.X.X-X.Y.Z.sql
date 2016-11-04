@@ -330,6 +330,12 @@ ALTER TABLE iplog_history ADD INDEX end_time (end_time), ADD INDEX start_time (s
 ALTER TABLE iplog_archive ADD INDEX end_time (end_time), ADD INDEX start_time (start_time);
 
 --
+-- This was done in the previous upgrade script but not in the schema
+--
+
+ALTER TABLE `locationlog` modify `port` VARCHAR(20);
+
+--
 -- Make the port field bigger as some switch modules record the full interface name (ex: ge-0/0/20.0)
 -- locationlog was done in 6.3, but locationlog_history was forgotten, this fixes it
 --
