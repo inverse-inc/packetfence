@@ -75,7 +75,7 @@ sub do_accordion_heading_content {
     my $label = $self->label;
     my $target = $self->accordion_jq_target;
     return <<EOS;
-        <a class="accordion-toggle" data-toggle="collapse" href="#$target">$label</a>
+        <a data-toggle="collapse" href="#$target">$label</a>
 EOS
 }
 
