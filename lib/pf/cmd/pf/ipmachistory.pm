@@ -6,9 +6,9 @@ pf::cmd::pf::ipmachistory
 
 =head1 SYNOPSIS
 
-Get the IP/MAC mapping history for a specific IP or MAC with optional date range (in MySQL format)
+pfcmd ipmachistory <ip|mac> [start_time=<date> end_time=<date>] [limit=<limit>]
 
-Syntax: pfcmd ipmachistory <ip|mac> [start_time=<date> end_time=<date>] [limit=<limit>]
+Get the IP/MAC mapping history for a specific IP or MAC with optional date range (in MySQL format)
 
 Where:
 
