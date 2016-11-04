@@ -1,0 +1,146 @@
+package pfappserver::Form::Field::DynamicList;
+
+=head1 NAME
+
+pfappserver::Form::Field::DynamicList add documentation
+
+=cut
+
+=head1 DESCRIPTION
+
+pfappserver::Form::Field::DynamicList
+
+=cut
+
+use strict;
+use warnings;
+use Moose;
+extends 'HTML::FormHandler::Field::Repeatable';
+use pf::log;
+
+
+has '+do_wrapper' => ( default => 1 );
+has '+widget_tags' => ( default => \&build_widget_tags );
+
+sub set_disabled {
+    my ($field) = @_;
+    if ($field->can("fields")) {
+        foreach my $subfield ($field->fields) {
+            set_disabled($subfield);
+        }
+    }
+    $field->set_element_attr("disabled" => "disabled");
+}
+
+sub build_widget_tags {
+    return {
+        after_wrapper => \&append_add_button
+    };
+}
+
+sub build_init_contains {
+    {
+        do_wrapper  => 1,
+        widget_tags =>
+        {
+            input_append => \&append_delete_button
+        }
+    }
+}
+
+sub build_update_subfields {
+    return {
+        by_flag => {
+            contains => {
+                do_wrapper => 1,
+                widget_tags => { 
+                    input_append => \&append_delete_button 
+                }
+            }
+        }
+    };
+}
+
+sub append_add_button {
+    my ($self) = @_;
+    my $index = $self->index;
+    $self->add_extra(1);
+    my $extra_field = $self->field($index);
+    set_disabled($extra_field);
+    $extra_field->name(999);
+    my $id = $self->id;
+    my $button_text = "Add " . $extra_field->label;
+    my $content = $extra_field->render;
+    my $template_id = $self->template_id;
+    $template_id =~ s/\./_/g;
+    my $target = $self->target_id;
+    my $control_group_id = "${template_id}_control_group";
+    return <<"EOS"
+    <div class="control-group" id="$control_group_id" >
+        <div id="$template_id" class="hidden">$content</div>
+        <div>
+            <div class="controls">
+                <a data-toggle="dynamic-accordion" data-target="#${target}" data-template-parent="#$template_id" data-base-id="$id" class="btn">$button_text</a>
+            </div>
+        </div>
+    </div>
+EOS
+}
+
+sub append_delete_button {
+    my ($field) = @_;
+    my $target = escape_jquery_id($field->id);
+    my $base_id = $field->parent->id;
+    return qq{
+        <a class="btn-icon" data-toggle="dynamic-list-delete" data-base-id="$base_id" data-target="#$target"><i class="icon-minus-sign"></i></a>};
+}
+
+
+sub template_id {
+    my ($self) = @_;
+    my $template_id = 'dynamic-list-template.' . $self->id;
+    $template_id =~ s/\./_/g;
+    return $template_id;
+}
+
+sub target_id {
+    my ($self) = @_;
+    return escape_jquery_id($self->id);
+}
+
+sub escape_jquery_id {
+    my ($id) = @_;
+    $id =~ s/(:|\.|\[|\]|,|=)/\\$1/g;
+    return $id;
+}
+
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
+
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2016 Inverse inc.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
+
+1;
+
