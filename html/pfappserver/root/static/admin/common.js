@@ -13,6 +13,7 @@ function update_attributes(elements, name, query, regex, replace_str) {
         element.attr(name, new_attr);
     });
 }
+
 function update_dynamic_accordion_ids(elements, base_id, count) {
     var regex_str = base_id + "\." + "[0-9]+";
     var regex = new RegExp(regex_str);
@@ -398,12 +399,13 @@ $(function () { // DOM ready
     });
     $('body').on('click', '[data-toggle="dynamic-accordion"]', function(event) {
         var link = $(this);
-        var data_target = $(link.attr("data-target"));
-        var data_template_parent = $(link.attr("data-template-parent"));
-        var copy = data_template_parent.children().clone();
+        var target = $(link.attr("data-target"));
+        var template_parent = $(link.attr("data-template-parent"));
+        var base_id = link.attr("data-base-id");
+        var copy = template_parent.children().clone();
         copy.find(':input').removeAttr('disabled');
-        update_dynamic_accordion_ids(copy, "rules", data_target.children().length);
-        data_target.append(copy);
+        update_dynamic_accordion_ids(copy, base_id, target.children().length);
+        target.append(copy);
         return false;
     });
     $('body').on('click', '[data-toggle="dynamic-accordion-delete"]', function(event) {
