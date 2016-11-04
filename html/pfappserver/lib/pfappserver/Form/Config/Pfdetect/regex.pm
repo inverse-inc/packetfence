@@ -26,7 +26,7 @@ has_field 'rules' => (
     do_wrapper => 1,
     do_label => 1,
     tags => {
-        after_element => \&append_button,
+        after_wrapper => \&append_button,
     },
 );
 
@@ -34,7 +34,19 @@ has_field 'rules.contains' => (
     type => 'PfdetectRegexRule',
     widget_wrapper => 'Accordion',
     build_label_method => \&build_rule_label,
+    tags => {
+        accordion_heading_content => \&accordion_heading_content,
+    }
 );
+
+sub accordion_heading_content {
+    my ($field) = @_;
+    my $content = $field->do_accordion_heading_content;
+    my $group_target = $field->escape_jquery_id($field->accordion_group_id);
+    $content .= qq{
+        <a class="btn-icon" data-toggle="dynamic-accordion-delete" data-target="#$group_target"><i class="icon-minus-sign"></i></a>};
+    return $content;
+}
 
 =head2 build_rule_label
 
@@ -54,13 +66,19 @@ sub append_button {
     my $extra_field = $self->field($index);
     set_disabled($extra_field);
     $extra_field->name(999);
+    my $id = $self->id;
     my $content = $extra_field->render;
-    my $id = 'accordion.template.' . $self->id;
-    $id =~ s/\./_/g;
+    my $template_id = 'accordion.template.' . $self->id;
+    $template_id =~ s/\./_/g;
+    my $control_group_id = "${template_id}_control_group";
     return <<"EOS"
-    <div id="$id">
-        <div id="template-rules" class="hidden">$content</div>
-        <a data-toggle="dynamic-accordion" data-target="#$id" data-template-parent="#template-rules" class="btn">Add Rule</a>
+    <div class="control-group" id="$control_group_id" >
+        <div id="$template_id" class="hidden">$content</div>
+        <div>
+            <div class="controls">
+                <a data-toggle="dynamic-accordion" data-target="#${id} .controls:first" data-template-parent="#$template_id" class="btn">Add Rule</a>
+            </div>
+        </div>
     </div>
 EOS
 }

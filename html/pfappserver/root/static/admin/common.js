@@ -5,6 +5,26 @@
  * - config/users.js
  */
 
+function update_attributes(elements, name, query, regex, replace_str) {
+    elements.find(query).each(function(){
+        var element = $(this);
+        var new_attr = element.attr(name);
+        new_attr = new_attr.replace(regex, replace_str);
+        element.attr(name, new_attr);
+    });
+}
+function update_dynamic_accordion_ids(elements, base_id, count) {
+    var regex_str = base_id + "\." + "[0-9]+";
+    var regex = new RegExp(regex_str);
+    var replace_str = base_id + "." + count.toString();
+    update_attributes(elements, "id", '[id*="' + base_id + '."]', regex, replace_str);
+    update_attributes(elements, "name", '[name^="' + base_id + '."]', regex, replace_str);
+    update_attributes(elements, "for", '[for^="' + base_id + '."]', regex, replace_str);
+    var href_regex = new RegExp(base_id + "\\\\\\.[0-9]+");
+    var href_query = '[href*="' + base_id + '\\\\."]';
+    update_attributes(elements, "href", href_query, href_regex, base_id + "\\." + count.toString());
+}
+
 function updateAction(type, keep_value) {
     var action = type.val();
     var value = type.next();
@@ -375,6 +395,26 @@ $(function () { // DOM ready
         $('.sidebar-nav .nav-list .active').removeClass('active');
         item.addClass('active');
         return true;
+    });
+    $('body').on('click', '[data-toggle="dynamic-accordion"]', function(event) {
+        var link = $(this);
+        var data_target = $(link.attr("data-target"));
+        var data_template_parent = $(link.attr("data-template-parent"));
+        var copy = data_template_parent.children().clone();
+        copy.find(':input').removeAttr('disabled');
+        update_dynamic_accordion_ids(copy, "rules", data_target.children().length);
+        data_target.append(copy);
+        return false;
+    });
+    $('body').on('click', '[data-toggle="dynamic-accordion-delete"]', function(event) {
+        var link = $(this);
+        var data_target = $(link.attr("data-target"));
+        var siblings = data_target.siblings();
+        data_target.remove();
+        siblings.each(function(i,e) {
+            update_dynamic_accordion_ids($(e), "rules", i);
+        })
+        return false;
     });
 
     /* Range datepickers

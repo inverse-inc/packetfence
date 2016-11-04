@@ -26,9 +26,9 @@ around wrap_field => sub {
     my $id = $self->accordion_id;
     my $heading = $self->get_tag("accordion_heading");
     $heading = $self->do_accordion_heading unless $heading;
-
+    my $accordion_group_id  = $self->accordion_group_id;
     $output = <<EOS;
-<div class="accordion-group">
+<div class="accordion-group" id="$accordion_group_id">
     $heading
     <div id="$id" class="accordion-body collapse">
         <div class="accordion-inner">$rendered_widget</div>
@@ -43,11 +43,20 @@ sub accordion_id {
     return "accordion." . $self->id;
 }
 
+sub accordion_group_id {
+    my ($self) = @_;
+    return "accordion.group." . $self->id;
+}
+
 sub accordion_jq_target {
     my ($self) = @_;
-    my $target = $self->accordion_id;
-    $target =~ s/(:|\.|\[|\]|,|=)/\\$1/g;
-    return $target;
+    return $self->escape_jquery_id($self->accordion_id);
+}
+
+sub escape_jquery_id {
+    my ($self, $id) = @_;
+    $id =~ s/(:|\.|\[|\]|,|=)/\\$1/g;
+    return $id;
 }
 
 sub do_accordion_heading {
