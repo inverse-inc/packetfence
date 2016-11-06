@@ -112,6 +112,11 @@ MaxRequestsPerChild  1000
 
 Listen  0.0.0.0:5252
 
+#disable htaccess starting at web root
+<Directory />
+    AllowOverride None
+</Directory>
+
 Include [% install_dir %]/conf/httpd.conf.d/log.conf
 
 DocumentRoot [% install_dir %]/html/parking

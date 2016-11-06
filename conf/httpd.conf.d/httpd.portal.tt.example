@@ -293,6 +293,11 @@ SSLHonorCipherOrder on
 
 ErrorLog [% install_dir %]/logs/[% name %].error
 
+#disable htaccess starting at web root
+<Directory />
+    AllowOverride None
+</Directory>
+
 [% FOREACH vhost IN vhosts %]
 
 Listen [% vhost %]:80

@@ -156,6 +156,11 @@ TraceEnable Off
 NameVirtualHost *:[% port %]
 [% END %]
 
+#disable htaccess starting at web root
+<Directory />
+    AllowOverride None
+</Directory>
+
 Listen 127.0.0.1:[% port %]
 
 <VirtualHost *:[% port %] >
