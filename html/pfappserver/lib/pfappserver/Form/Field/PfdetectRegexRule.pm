@@ -12,6 +12,7 @@ pfappserver::Form::Field::PfdetectRegexRule - The detect::parser::regex rule
 
 =cut
 
+use pfappserver::Form::Field::DynamicList;
 use HTML::FormHandler::Moose;
 extends 'HTML::FormHandler::Field::Compound';
 use namespace::autoclean;
@@ -43,21 +44,6 @@ has_field 'regex' => (
     messages => {required => 'Please specify the regex pattern using named captures'},
 );
 
-=head2 events
-
-Events
-
-=cut
-
-has_field 'events' => (
-    type  => 'Text',
-    label => 'Event List',
-
-    #This is required if the send_add_event if checked
-    #Add validation to the event list
-    messages => {required => 'Please specify the regex pattern using named captures'},
-);
-
 =head2 actions
 
 The list of action
@@ -75,12 +61,9 @@ The definition for the list of actions
 =cut
 
 has_field 'actions.contains' => (
-    do_wrapper => 1,
     type  => 'ApiAction',
     label => 'Action',
-    tags => {
-        input_append => \&append_delete_button,
-    },
+    pfappserver::Form::Field::DynamicList::child_options(),
 );
 
 =head2 send_add_event

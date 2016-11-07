@@ -2,7 +2,7 @@ package pfappserver::Form::Field::DynamicList;
 
 =head1 NAME
 
-pfappserver::Form::Field::DynamicList add documentation
+pfappserver::Form::Field::DynamicList - Provides a dynamic list field
 
 =cut
 
@@ -21,6 +21,7 @@ use pf::log;
 
 has '+do_wrapper' => ( default => 1 );
 has '+widget_tags' => ( default => \&build_widget_tags );
+has '+init_contains' => ( default => \&build_init_contains );
 
 sub set_disabled {
     my ($field) = @_;
@@ -38,27 +39,20 @@ sub build_widget_tags {
     };
 }
 
-sub build_init_contains {
-    {
+sub child_options {
+    return (
         do_wrapper  => 1,
-        widget_tags =>
+        tags =>
         {
             input_append => \&append_delete_button
         }
-    }
+    );
 }
 
-sub build_update_subfields {
-    return {
-        by_flag => {
-            contains => {
-                do_wrapper => 1,
-                widget_tags => { 
-                    input_append => \&append_delete_button 
-                }
-            }
-        }
-    };
+sub build_init_contains {
+    {
+        child_options()
+    }
 }
 
 sub append_add_button {
