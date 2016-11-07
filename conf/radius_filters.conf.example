@@ -20,7 +20,7 @@
 # returnRadiusAccessAccept is when you return the answer for a device access
 # returnAuthorizeRead is when you return the answer for the switch read login access
 # returnAuthorizeWrite is when you return the answer for the switch write login access
-# returnAuthorizeVoip  is when you retrun the answer for a VoIP
+# returnAuthorizeVoip  is when you return the answer for a VoIP
 #
 # Make a simple rule like this:
 #
