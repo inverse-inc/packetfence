@@ -20,6 +20,7 @@ use warnings;
 use pfconfig::namespaces::config;
 use pf::file_paths qw($pfdetect_config_file);
 use pf::util;
+use Sort::Naturally qw(nsort);
 
 use base 'pfconfig::namespaces::config';
 
@@ -52,7 +53,8 @@ sub build_child {
             my @rules; 
             my @rule_ids = grep { /^$id rule/  } keys %tmp_cfg;
             for my $rule_id (@rule_ids) {
-                my $rule = {%{$tmp_cfg{$rule_id}}};
+                $rule_id =~ /^$id rule (.*)/;
+                my $rule = {%{$tmp_cfg{$rule_id}}, name => $1};
                 my %events;
                 if (exists $rule->{events} && defined $rule->{events}) {
                     %events = map {split(/:/, $_)} (split(/\s*,\s*/, $rule->{events}));
@@ -63,11 +65,8 @@ sub build_child {
                 }
                 $rule->{regex}  = $regex;
                 $rule->{events} = \%events;
-                my $action = $rule->{action} // [];
-                unless (ref($action)) {
-                    $action = [$action];
-                }
-                $rule->{actions} = $action;
+                my @action_keys = nsort grep { /^action\d+$/ } keys %$rule;
+                $rule->{actions} = [delete @$rule{@action_keys}];
                 push @rules, $rule;
             }
             $entry->{rules} = \@rules;
