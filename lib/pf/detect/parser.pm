@@ -17,6 +17,8 @@ use strict;
 use warnings;
 use Moo;
 
+has id => (is => 'rw', required => 1);
+
 has path => (is => 'rw', required => 1);
 
 has type => (is => 'rw', required => 1);
