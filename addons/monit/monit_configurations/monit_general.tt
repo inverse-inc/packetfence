@@ -21,10 +21,12 @@ A copy of this alert have been sent to the PacketFence support team.
 # - Do not alert on 'resource' because there is a separate alert configuration with reminders
 # - Do not alert on 'nonexist' because we alert on 'restart'
 # - Do not alert on 'pid' because we alert on 'restart
+# - Do not alert on 'content' because there is a separate alert configuration with reminders
 [% FOREACH email IN EMAILS %]
-    set alert [% email %] but not on { resource nonexist pid }
+    set alert [% email %] but not on { resource nonexist pid content }
     set alert [% email %] { resource } with reminder on 450 cycle   # reminder every 15 minutes (450 cycles) if 1 cycle is 2 seconds
     set alert [% email %] { exec } with reminder on 1 cycle
+    set alert [% email %] { content } with reminder on 450 cycle   # reminder every 15 minutes (450 cycles) if 1 cycle is 2 seconds
 [% END %]
 
 
