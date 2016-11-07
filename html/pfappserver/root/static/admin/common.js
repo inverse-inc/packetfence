@@ -5,28 +5,51 @@
  * - config/users.js
  */
 
-function update_attributes(elements, name, query, regex, replace_str) {
-    elements.find(query).each(function(){
-        var element = $(this);
-        var new_attr = element.attr(name);
+function update_attribute(element, name, regex, replace_str) {
+    var new_attr = element.attr(name);
+    if (new_attr != null) {
         new_attr = new_attr.replace(regex, replace_str);
         element.attr(name, new_attr);
+    }
+}
+
+function update_attributes(element, name, query, regex, replace_str) {
+    update_attribute(element, name, regex, replace_str);
+    element.find(query).each(function(){
+        update_attribute($(this), name, regex, replace_str);
     });
 }
 
-function update_dynamic_accordion_ids(elements, base_id, count) {
-    var regex_str = base_id + "\." + "[0-9]+";
+
+function escapeRegExp(string){
+    return string.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
+}
+
+function dynamic_list_update_all_attributes(elements, base_id, count) {
+
+    /*
+     * Update id
+     */
+
+    var regex_str = base_id + "\\." + "[0-9]+";
     var regex = new RegExp(regex_str);
     var replace_str = base_id + "." + count.toString();
     update_attributes(elements, "id", '[id*="' + base_id + '."]', regex, replace_str);
+    update_attributes(elements, "data-base-id", '[data-base-id*="' + base_id + '."]', regex, replace_str);
+    update_attributes(elements, "data-template-parent", '[data-template-parent*="' + base_id + '."]', regex, replace_str);
     update_attributes(elements, "name", '[name^="' + base_id + '."]', regex, replace_str);
     update_attributes(elements, "for", '[for^="' + base_id + '."]', regex, replace_str);
-    var href_regex = new RegExp(base_id + "\\\\\\.[0-9]+");
-    var href_replace = base_id + "\\." + count.toString();
-    var href_query = '[href*="' + base_id + '\\\\."]';
-    update_attributes(elements, "href", href_query, href_regex, base_id + "\\." + count.toString());
-    var data_target_query = '[data-target*="' + base_id + '\\\\."]';
-    update_attributes(elements, "data-target", data_target_query, href_regex, href_replace);
+
+    /*
+     * Update href and targets there are escaped
+     */
+    var jquery_escaped_id = escapeJqueryId(base_id + ".");
+    var href_regex = new RegExp(escapeRegExp(jquery_escaped_id) + "[0-9]+");
+    var href_replace = jquery_escaped_id + count.toString();
+    $.each(["href", "data-target", "data-template-parent"], function(i, id) {
+        var query = '[' + id + '*="' + escapeJqueryId(jquery_escaped_id) + '"]';
+        update_attributes(elements, id, query, href_regex, href_replace);
+    });
 }
 
 function updateAction(type, keep_value) {
@@ -35,8 +58,8 @@ function updateAction(type, keep_value) {
     changeInputFromTemplate(value, $('#' + action + '_action'), keep_value);
 }
 
-function make_jq_id( myid ) {
-    return "#" + myid.replace( /(:|\.|\[|\]|,|=)/g, "\\$1" );
+function escapeJqueryId( myid ) {
+    return myid.replace( /(:|\.|\[|\]|,|=|\\)/g, "\\$1" );
 }
 
 
@@ -400,24 +423,25 @@ $(function () { // DOM ready
         item.addClass('active');
         return true;
     });
-    $('body').on('click', '[data-toggle="dynamic-accordion"]', function(event) {
+    $('body').on('click', '[data-toggle="dynamic-list"]', function(event) {
         var link = $(this);
         var target = $(link.attr("data-target"));
         var template_parent = $(link.attr("data-template-parent"));
         var base_id = link.attr("data-base-id");
         var copy = template_parent.clone();
         copy.find(':input').removeAttr('disabled');
-        update_dynamic_accordion_ids(copy, base_id, target.children().length);
+        dynamic_list_update_all_attributes(copy, base_id, target.children().length);
         target.append(copy.children());
         return false;
     });
-    $('body').on('click', '[data-toggle="dynamic-accordion-delete"]', function(event) {
+    $('body').on('click', '[data-toggle="dynamic-list-delete"]', function(event) {
         var link = $(this);
         var data_target = $(link.attr("data-target"));
+        var base_id = link.attr("data-base-id");
         var siblings = data_target.siblings();
         data_target.remove();
         siblings.each(function(i,e) {
-            update_dynamic_accordion_ids($(e), "rules", i);
+            dynamic_list_update_all_attributes($(e), base_id, i);
         })
         return false;
     });
@@ -429,7 +453,7 @@ $(function () { // DOM ready
         var siblings = data_target.siblings();
         data_target.remove();
         siblings.each(function(i,e) {
-            update_dynamic_accordion_ids($(e), base_id, i);
+            dynamic_list_update_all_attributes($(e), base_id, i);
         })
         return false;
     });
