@@ -334,29 +334,13 @@ sub regzone {
             push @ans, $rr;
             $rcode = "NOERROR";
         } else {
-            #Check if the answer already exist
-            my ($ttl, $rdata);
-            my $query = $CHI_CACHE->get("regzone-$qname");
-            if ($query) {
-                foreach my $rr ($query->answer) {
-                    next unless $rr->type eq "A";
-                    $rdata= $rr->address;
-                    push @ans, new Net::DNS::RR("$qname $TTL $qclass $qtype $rdata");
-                }
-                if(@ans) {
-                    $rcode = "NOERROR";
-                } else {
-                    $rcode = "NXDOMAIN";
-                }
-            } else {
-                my ($ttl, $rdata) = ($TTL, $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}.".");
-                my $rr = new Net::DNS::RR("$qname $ttl IN CNAME $rdata");
-                my $rdata2 = (defined($loadb_ip->{$conn->{sockhost}})) ? $loadb_ip->{$conn->{sockhost}} : $conn->{sockhost};
-                my $rr2 = new Net::DNS::RR("$rdata $ttl $qclass $qtype $rdata2");
-                push @ans, $rr;
-                push @ans, $rr2;
-                $rcode = "NOERROR";
-            }
+            my ($ttl, $rdata) = ($TTL, $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}.".");
+            my $rr = new Net::DNS::RR("$qname $ttl IN CNAME $rdata");
+            my $rdata2 = (defined($loadb_ip->{$conn->{sockhost}})) ? $loadb_ip->{$conn->{sockhost}} : $conn->{sockhost};
+            my $rr2 = new Net::DNS::RR("$rdata $ttl $qclass $qtype $rdata2");
+            push @ans, $rr;
+            push @ans, $rr2;
+            $rcode = "NOERROR";
         }
     } elsif ($qtype eq "NS") {
         my $rr = new Net::DNS::RR(
