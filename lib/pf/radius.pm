@@ -479,7 +479,10 @@ sub _authorizeVoip {
     my %RAD_REPLY = $args->{'switch'}->getVoipVsa();
     $args->{'switch'}->disconnectRead();
     $args->{'switch'}->disconnectWrite();
-    return [$RADIUS::RLM_MODULE_OK, %RAD_REPLY];
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('returnAuthorizeVoip', $args);
+    my ($reply, $status) = $filter->handleAnswerInRule($rule,$args,\%RAD_REPLY);
+    return [$status, %$reply];
 }
 
 =item * _translateNasPortToIfIndex - convert the number in NAS-Port into an ifIndex only when relevant
