@@ -43,8 +43,9 @@ sub accordion_heading_content {
     my ($field) = @_;
     my $content = $field->do_accordion_heading_content;
     my $group_target = $field->escape_jquery_id($field->accordion_group_id);
+    my $base_id = $field->parent->id;
     $content .= qq{
-        <a class="btn-icon" data-toggle="dynamic-accordion-delete" data-target="#$group_target"><i class="icon-minus-sign"></i></a>};
+        <a class="btn-icon" data-toggle="dynamic-list-delete" data-base-id="$base_id" data-target="#$group_target"><i class="icon-minus-sign"></i></a>};
     return $content;
 }
 
@@ -76,7 +77,7 @@ sub append_button {
         <div id="$template_id" class="hidden">$content</div>
         <div>
             <div class="controls">
-                <a data-toggle="dynamic-accordion" data-target="#${id} .controls:first" data-template-parent="#$template_id" data-base-id="$id" class="btn">Add Rule</a>
+                <a data-toggle="dynamic-list" data-target="#${id} .controls:first" data-template-parent="#$template_id" data-base-id="$id" class="btn">Add Rule</a>
             </div>
         </div>
     </div>

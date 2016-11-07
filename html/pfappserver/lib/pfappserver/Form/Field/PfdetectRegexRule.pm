@@ -121,7 +121,7 @@ sub append_add_button {
         <div id="$template_id" class="hidden">$content</div>
         <div>
             <div class="controls">
-                <a data-toggle="dynamic-accordion" data-target="#${target}" data-template-parent="#$template_id" data-base-id="$id" class="btn">$button_text</a>
+                <a data-toggle="dynamic-list" data-target="#${target}" data-template-parent="#$template_id" data-base-id="$id" class="btn">$button_text</a>
             </div>
         </div>
     </div>

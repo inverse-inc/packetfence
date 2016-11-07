@@ -72,7 +72,7 @@ sub append_add_button {
     my $button_text = "Add " . $extra_field->label;
     my $content = $extra_field->render;
     my $template_id = $self->template_id;
-    $template_id =~ s/\./_/g;
+    my $template_target = $self->template_target;
     my $target = $self->target_id;
     my $control_group_id = "${template_id}_control_group";
     return <<"EOS"
@@ -80,7 +80,7 @@ sub append_add_button {
         <div id="$template_id" class="hidden">$content</div>
         <div>
             <div class="controls">
-                <a data-toggle="dynamic-accordion" data-target="#${target}" data-template-parent="#$template_id" data-base-id="$id" class="btn">$button_text</a>
+                <a data-toggle="dynamic-list" data-target="#${target}" data-template-parent="#$template_target" data-base-id="$id" class="btn">$button_text</a>
             </div>
         </div>
     </div>
@@ -99,8 +99,12 @@ sub append_delete_button {
 sub template_id {
     my ($self) = @_;
     my $template_id = 'dynamic-list-template.' . $self->id;
-    $template_id =~ s/\./_/g;
     return $template_id;
+}
+
+sub template_target {
+    my ($self) = @_;
+    return escape_jquery_id($self->template_id);
 }
 
 sub target_id {
