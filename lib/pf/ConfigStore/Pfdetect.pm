@@ -62,8 +62,7 @@ sub cleanupAfterRead {
             my $rule = $self->readRaw($sub_section);
             $rule->{name} = $id;
             my @action_keys = nsort grep {/^action\d+$/} keys %$rule;
-            my @actions = delete @{$rule}{@action_keys};
-            $rule->{actions} = \@actions;
+            $rule->{actions} = [delete @$rule{@action_keys}];
             push @rules, $rule;
         }
         $item->{rules} = \@rules;
