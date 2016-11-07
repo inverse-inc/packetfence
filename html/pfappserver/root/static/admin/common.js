@@ -22,8 +22,11 @@ function update_dynamic_accordion_ids(elements, base_id, count) {
     update_attributes(elements, "name", '[name^="' + base_id + '."]', regex, replace_str);
     update_attributes(elements, "for", '[for^="' + base_id + '."]', regex, replace_str);
     var href_regex = new RegExp(base_id + "\\\\\\.[0-9]+");
+    var href_replace = base_id + "\\." + count.toString();
     var href_query = '[href*="' + base_id + '\\\\."]';
     update_attributes(elements, "href", href_query, href_regex, base_id + "\\." + count.toString());
+    var data_target_query = '[data-target*="' + base_id + '\\\\."]';
+    update_attributes(elements, "data-target", data_target_query, href_regex, href_replace);
 }
 
 function updateAction(type, keep_value) {
@@ -402,10 +405,10 @@ $(function () { // DOM ready
         var target = $(link.attr("data-target"));
         var template_parent = $(link.attr("data-template-parent"));
         var base_id = link.attr("data-base-id");
-        var copy = template_parent.children().clone();
+        var copy = template_parent.clone();
         copy.find(':input').removeAttr('disabled');
         update_dynamic_accordion_ids(copy, base_id, target.children().length);
-        target.append(copy);
+        target.append(copy.children());
         return false;
     });
     $('body').on('click', '[data-toggle="dynamic-accordion-delete"]', function(event) {
@@ -415,6 +418,18 @@ $(function () { // DOM ready
         data_target.remove();
         siblings.each(function(i,e) {
             update_dynamic_accordion_ids($(e), "rules", i);
+        })
+        return false;
+    });
+
+    $('body').on('click', '[data-toggle="dynamic-list-delete"]', function(event) {
+        var link = $(this);
+        var data_target = $(link.attr("data-target"));
+        var base_id = link.attr("data-base-id");
+        var siblings = data_target.siblings();
+        data_target.remove();
+        siblings.each(function(i,e) {
+            update_dynamic_accordion_ids($(e), base_id, i);
         })
         return false;
     });
