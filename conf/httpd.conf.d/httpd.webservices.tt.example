@@ -180,6 +180,11 @@ NameVirtualHost [% vhost %]:[% port %]
 
 Listen [% vhost %]:[% port %]
 
+#disable htaccess starting at web root
+<Directory />
+    AllowOverride None
+</Directory>
+
 <VirtualHost [% vhost %]:[% port %] >
     ServerName [% server_name %]
     DocumentRoot [% install_dir %]/html/pfappserver/lib

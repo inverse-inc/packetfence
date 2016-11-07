@@ -200,6 +200,11 @@ ProxyHTMLLinks  head        profile
 ProxyHTMLLinks  base        href
 ProxyHTMLLinks  script      src for
 
+#disable htaccess starting at web root
+<Directory />
+    AllowOverride None
+</Directory>
+
 [% FOREACH vhost IN vhosts %]
   Listen [% vhost %]:[% ports.admin %]
   Listen [% vhost %]:[% ports.pf_status %]
