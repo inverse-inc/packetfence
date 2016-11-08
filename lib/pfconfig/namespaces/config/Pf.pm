@@ -126,7 +126,7 @@ sub build_child {
         if(defined($value->{type}) && $value->{type} eq "merged_list"){
             my ($category, $attribute) = split /\./, $key;
             my $additionnal = $Config{$category}{$attribute} || '';
-            $Config{$category}{$attribute} = [ split( /\s*,\s*/, $Default_Config{$category}{$attribute}), split( /\s*,\s*/, $additionnal ) ];
+            $Config{$category}{$attribute} = [ split( /\s*,\s*/, $Default_Config{$category}{$attribute} // ''), split( /\s*,\s*/, $additionnal ) ];
             $Config{$category}{$attribute} = [ uniq @{$Config{$category}{$attribute}} ];
         }
     }
