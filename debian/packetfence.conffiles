@@ -70,7 +70,6 @@
 /usr/local/pf/conf/radiusd/load_balancer.conf
 /usr/local/pf/conf/radiusd/cli.conf
 /usr/local/pf/conf/radiusd/packetfence-cli
-<<<<<<< 8e9ad53ea6263d641c8ea534f4a6a7cde228107a
 /usr/local/pf/conf/radiusd/eduroam
 /usr/local/pf/conf/radiusd/eduroam-cluster
 /usr/local/pf/conf/radiusd/eduroam.conf
