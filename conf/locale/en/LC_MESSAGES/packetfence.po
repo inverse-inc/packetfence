@@ -909,10 +909,40 @@ msgstr ""
 msgid "Once you will be on-site, authenticate using the following credentials to our captive portal"
 msgstr ""
 
-msgid ""
+msgid "PreRegistration"
 msgstr ""
 
-msgid ""
+msgid "Network access activation"
+msgstr ""
+
+msgid "Failure to do so within %s minutes will result in a termination of your network access."
+msgstr ""
+
+msgid "Billing invoice"
+msgstr ""
+
+msgid "The network access of device %s has been revoked."
+msgstr ""
+
+msgid "Billing cancellation"
+msgstr ""
+
+msgid "PreRegister confirmation"
+msgstr ""
+
+msgid "User Account"
+msgstr ""
+
+msgid "New devices"
+msgstr ""
+
+msgid "Guest request"
+msgstr ""
+
+msgid "Access Authorized"
+msgstr ""
+
+msgid "User account"
 msgstr ""
 
 # lib/pf/web/release.pm
