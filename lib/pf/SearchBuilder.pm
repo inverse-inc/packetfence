@@ -297,7 +297,7 @@ sub _in {
     if( @rhs ) {
         #if rhs side value is undefined
         my $formatted_lhs = $self->format_column($lhs);
-        push @clauses,$formatted_lhs, $op,'(',join(", ",$self->_format_values(@rhs)),')';
+        push @clauses,$formatted_lhs, $op,'(' . join(", ",$self->_format_values(@rhs)) . ')';
 
     } else {
         die "invalid amount operands provided";
