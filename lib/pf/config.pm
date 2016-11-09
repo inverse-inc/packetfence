@@ -287,8 +287,6 @@ tie %ConfigSwitchesList, 'pfconfig::cached_hash', 'resource::switches_list';
 
 tie %ConfigReport, 'pfconfig::cached_hash', 'config::Report';
 
-use pf::util::apache qw(url_parser);
-
 $thread = 0;
 
 my $logger = get_logger();
