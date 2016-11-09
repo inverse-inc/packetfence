@@ -424,7 +424,7 @@ sub add_joins {
         my $online_date = $params->{online_date};
         my $start = $online_date->{start};
         my $end = $online_date->{end};
-        $builder->where(\"UPPER(REPLACE(node.mac,':',''))", 'IN', \"select DISTINCT callingstationid from radacct where acctstarttime >= '$start 00:00:00' and acctstoptime <= '$end 23:59:59'");
+        $builder->where(\"node.mac", 'IN', \"select DISTINCT callingstationid from radacct where acctstarttime >= '$start 00:00:00' and acctstoptime <= '$end 23:59:59'");
     }
 }
 
