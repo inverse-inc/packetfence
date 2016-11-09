@@ -1,4 +1,4 @@
-ipackage pfappserver::Form::Config::PortalModule::Authentication::Password;
+package pfappserver::Form::Config::PortalModule::Authentication::Password;
 
 =head1 NAME
 
