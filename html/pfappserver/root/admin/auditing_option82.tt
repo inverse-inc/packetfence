@@ -25,6 +25,11 @@
         'admin/reports'
         ] 
 -%]
+<style type="text/css">
+form {
+    margin-bottom: 0px;
+}
+</style>
     [% INCLUDE admin/saved_search.inc savedSearchController="SavedSearch::DHCPOption82" method="POST" %] 
     <div class="container-fluid">
       <div class="row-fluid">
