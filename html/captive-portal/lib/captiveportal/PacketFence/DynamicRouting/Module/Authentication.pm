@@ -175,6 +175,10 @@ sub _build_required_fields {
         @fields = grep { $_ ne "username" } @fields;
         @fields = grep { $_ ne "password" } @fields;
     }
+    # Remove username for Authentication::Password
+    if ( ref($self) eq 'captiveportal::DynamicRouting::Module::Authentication::Password' ) {
+        @fields = grep { $_ ne "username" } @fields;
+    }
 
     return [@fields];
 }
