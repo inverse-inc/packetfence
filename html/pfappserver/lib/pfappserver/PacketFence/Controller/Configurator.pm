@@ -502,7 +502,7 @@ sub services :Chained('object') :PathPart('services') :Args(0) {
             $c->detach(Service => 'pf_start');
         } else {
             my ($HTTP_CODE, $services) = $c->model('Services')->status;
-            if( all { $_ ne '0' } values %{ $services->{services} } ) {
+            if( all { $_->{status} ne '0' } @{ $services->{services} } ) {
                 $c->model('Configurator')->update_currently_at();
             }
             $c->controller('Service')->_process_model_results_as_json($c, $HTTP_CODE, $services);

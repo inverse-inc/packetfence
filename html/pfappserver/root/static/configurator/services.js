@@ -59,18 +59,17 @@ function escape_service(service){
 function servicesUpdate(data) {
 
     var startFailed = false;
-
-    for ( var service in data.services ) {
+    $.each(data.services, function(i, service) {
         // identify services that didn't start and set failure flag
-        if (data.services[service] != "0") { 
-            $('#service-' + escape_service(service)).fadeOut('fast', function(event) {
+        if (service.status != "0") {
+            $('#service-' + escape_service(service.name)).fadeOut('fast', function(event) {
                 $(this).text('Started').removeClass('label-error label-warning').addClass('label-success');
             }).fadeIn();
         }
         else{
             startFailed = true;
         }
-    }
+    });
 
     if (!startFailed) {
         // added a delay for dramatic effect
