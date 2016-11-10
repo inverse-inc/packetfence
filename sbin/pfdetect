@@ -138,7 +138,7 @@ sub _run_detector {
     my $alert_pipe = $detector->{path};
     my $alert_pipe_fh;
 
-    if ( !open( $alert_pipe_fh, '<', "$alert_pipe" ) ) {
+    if ( !open( $alert_pipe_fh, '+<', "$alert_pipe" ) ) {
         $logger->error("unable to open alert pipe ($alert_pipe): $!");
         _exit(1);
     } else {
