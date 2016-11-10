@@ -35,8 +35,6 @@ use pf::Switch::constants;
 # access technology supported
 sub supportsWiredMacAuth { return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
-# VoIP technology supported
-sub supportsRadiusVoip { return $TRUE; }
 # override 2950's FALSE
 sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
 

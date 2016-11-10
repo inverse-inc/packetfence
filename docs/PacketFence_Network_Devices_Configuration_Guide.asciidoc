@@ -3687,7 +3687,7 @@ First on the uplink add this configuration:
 
   dot1x port-control force-authorized
   vlan participation include 1,2,3,4,5,100
-  vlan tagging 2.3.4.5.100
+  vlan tagging 2,3,4,5,100
 
 Global config settings:
 
