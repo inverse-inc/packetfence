@@ -1307,7 +1307,13 @@ sub radius_rest_authorize :Public :RestPath(/radius/rest/authorize) {
 
     my %remapped_radius_request = %{pf::radius::rest::format_request($radius_request)};
 
-    my $return = $class->radius_authorize(%remapped_radius_request);
+    my $return;
+
+    if ($remapped_radius_request{'Calling-Station-Id'}) {
+        $return = $class->radius_authorize(%remapped_radius_request);
+    } else {
+        $return = $class->radius_switch_access(%remapped_radius_request);
+    }
 
     # This will die with the proper code if it is a deny
     $return = pf::radius::rest::format_response($return);
