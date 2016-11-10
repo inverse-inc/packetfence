@@ -15,7 +15,7 @@
               <tr>
                 <td>[% l(field) %]</td>
                 [% IF field == "is_phone" || field == "auto_reg" %]
-                <td> [% IF item.$field == "Y" %] yes [% ELSE %] no [% END %] </td>
+                <td> [% IF item.$field == "1" %] yes [% ELSE %] no [% END %] </td>
                 [% ELSE %]
                 <td>[% item.$field%]</td>
                 [% END %]
