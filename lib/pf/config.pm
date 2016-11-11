@@ -79,18 +79,6 @@ use pfconfig::cached_array;
 use pfconfig::cached_scalar;
 use pfconfig::cached_hash;
 use pf::util;
-use Module::Pluggable (
-  search_path => 'pf::ConfigStore',
-  'sub_name'  => 'configStores',
-  require     => 1,
-  except      => [qw(
-      pf::ConfigStore::Group
-      pf::ConfigStore::Hierarchy
-      pf::ConfigStore::Interface
-      pf::ConfigStore::SwitchGroup
-      pf::ConfigStore::Role::ValidGenericID
-  )]
-);
 
 # Categorized by feature, pay attention when modifying
 our (
@@ -947,12 +935,6 @@ Reload the config
 
 sub configreload {
     my ($force) = @_;
-    pf::CHI->new(namespace => 'configfiles')->clear() if $force;
-    foreach my $cs (pf::config->configStores()) {
-        my $temp = $cs->new;
-        #Force the loading of cached config
-        $temp->cachedConfig;
-    }
     require pf::web::filter;
 
     # reload pfconfig's config
