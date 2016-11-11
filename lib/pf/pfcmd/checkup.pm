@@ -44,7 +44,6 @@ use pf::config qw(
     $SELFREG_MODE_SPONSOR
     is_inline_enforcement_enabled
 );
-use pf::config::cached;
 use pf::violation_config;
 use pf::util;
 use pf::config::util;

@@ -45,7 +45,6 @@ BEGIN {
 }
 
 use pf::config;
-use pf::config::cached;
 use pf::db;
 use pf::util qw(valid_mac);
 

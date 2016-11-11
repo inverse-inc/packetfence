@@ -51,7 +51,6 @@ BEGIN {
 
 use pf::config qw($ACCOUNTING_POLICY_BANDWIDTH);
 use pf::constants::trigger qw($TRIGGER_TYPE_ACCOUNTING);
-use pf::config::cached;
 use pf::db;
 use pf::violation;
 use pf::config::violation;

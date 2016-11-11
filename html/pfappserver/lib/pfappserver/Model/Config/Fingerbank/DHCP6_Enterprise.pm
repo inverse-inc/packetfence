@@ -15,7 +15,6 @@ pfappserver::Model::Config::Fingerbank::DHCP6_Enterprise
 use fingerbank::Model::DHCP6_Enterprise();
 use Moose;
 use namespace::autoclean;
-use pf::config::cached;
 use HTTP::Status qw(:constants :is);
 
 extends 'pfappserver::Base::Model::Fingerbank';
