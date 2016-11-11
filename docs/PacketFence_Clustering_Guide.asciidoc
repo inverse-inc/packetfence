@@ -898,7 +898,7 @@ Once this configuration is done, restart PacketFence to have it applied:
   
  # systemctl restart packetfence  
 
-If no error is found in the previous configuration, the previuous restart of packetfence  should have started two additionnal services : haproxy and keepalived
+If no error is found in the previous configuration, the previous restart of packetfence should have started two additionnal services : haproxy and keepalived
 
 You should now have service on the IP addresses defined in the 'CLUSTER' sections
 
