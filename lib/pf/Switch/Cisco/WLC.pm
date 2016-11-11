@@ -547,7 +547,7 @@ sub radiusDisconnect {
     } catch {
         chomp;
         $logger->warn("Unable to perform RADIUS CoA-Request on (".$self->{'_id'}."): $_");
-        $logger->error("Wrong RADIUS secret or unreachable network device (".$self->{'_id'}.")...") if ($_ =~ /^Timeout/);
+        $logger->error("Wrong RADIUS secret or unreachable network device (".$self->{'_id'}.")... On some Cisco Wireless Controllers you might have to set controllerPort=1700 as some versions ignore the CoA requests on port 3799") if ($_ =~ /^Timeout/);
     };
     return if (!defined($response));
 
