@@ -26,6 +26,10 @@ BEGIN {
     $test_dir ||= catdir($pf::file_paths::install_dir,'t');
     $pf::file_paths::pf_config_file = catfile($test_dir,'data/pf.conf.tmp');
 }
+
+if (!-e $pf::file_paths::pf_config_file ) {
+    open(my $fh, ">", $pf::file_paths::pf_config_file);
+}
 use Test::More tests => 6;
 
 use Test::NoWarnings;
