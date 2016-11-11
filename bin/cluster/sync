@@ -149,7 +149,6 @@ if($master_server){
         }
     }
 
-    pf::config::cached::updateCacheControl();
 
 }
 

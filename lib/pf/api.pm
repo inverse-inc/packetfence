@@ -657,7 +657,6 @@ sub notify_configfile_changed : Public {
         my %data = ( conf_file => $postdata{conf_file} );
         my ($result) = $apiclient->call( 'download_configfile', %data );
         pf::util::safe_file_update($postdata{conf_file}, $result);
-        pf::config::cached::updateCacheControl();
 
         $logger->info("Successfully downloaded configuration $postdata{conf_file} from $postdata{server}");
     };

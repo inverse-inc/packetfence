@@ -954,7 +954,6 @@ sub configreload {
         $temp->cachedConfig;
     }
     require pf::web::filter;
-    pf::config::cached::updateCacheControl();
 
     # reload pfconfig's config
     require pfconfig::manager;
