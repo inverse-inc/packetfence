@@ -81,8 +81,6 @@ sub do_email_registration {
     $info{'company'} = $self->request_fields->{company};
     $info{'subject'} = $self->app->i18n_format("%s: Email activation required", $Config{'general'}{'domain'});
     utf8::decode($info{'subject'});
-    use Data::Dumper;
-    $logger->info(Dumper($pf::web::guest::TEMPLATE_EMAIL_GUEST_ACTIVATION));
 
     # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
     my ( $auth_return, $err, $activation_code ) =

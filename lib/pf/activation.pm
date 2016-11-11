@@ -456,8 +456,6 @@ Send an email with the activation code
 sub send_email {
     my ($activation_code, $template, %info) = @_;
     my $logger = get_logger();
-    use Data::Dumper;
-    $logger->info(Dumper(%info));
 
     my $smtpserver = $Config{'alerting'}{'smtpserver'};
     $info{'from'} = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
@@ -514,6 +512,8 @@ sub send_email {
       $logger->error("Can't send email to ".$info{'contact_info'}.": $!");
     };
 
+    use Data::Dumper;
+    $logger->info(Dumper($msg));
     return $result;
 }
 
