@@ -87,7 +87,10 @@ sub _buildCachedConfig {
 
 sub reloadConfig {
     my ($config) = @_;
-    $config->{imported}->ReadConfig;
+    my $imported = $config->{imported};
+    if ($imported && ref($imported) ) {
+        $imported->ReadConfig;
+    }
 }
 
 =head2 rollback
