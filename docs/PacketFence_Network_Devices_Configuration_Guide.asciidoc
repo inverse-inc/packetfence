@@ -3677,6 +3677,7 @@ EdgeSwitch
 PacketFence supports the EdgeSwitch with the following techniques:
 
 * 802.1X with MAC Authentication fallback
+* 802.1x with MAC Authentication fallback with VoIP
 
 802.1X with MAC Authentication fallback
 +++++++++++++++++++++++++++++++++++++++
@@ -3737,6 +3738,81 @@ On each interface (not uplink)
   dot1x unauthenticated-vlan 4
   vlan participation include 1,2,3,4,5,100
   exit
+
+
+802.1X with MAC Authentication fallback with VoIP
++++++++++++++++++++++++++++++++++++++++++++++++++
+
+We assume that the switch ip is 192.168.1.254
+
+First on the uplink add this configuration:
+
+  dot1x port-control force-authorized
+  vlan participation include 1,2,3,4,5,100
+  vlan tagging 2,3,4,5,100
+
+Global config settings:
+
+  vlan database
+  vlan 1
+  vlan 2
+  vlan 3
+  vlan 4
+  vlan 5
+  vlan 100
+  exit
+
+  configure
+  dot1x system-auth-control
+  aaa authentication dot1x default radius
+  authorization network radius
+  dot1x dynamic-vlan enable
+  voice vlan 100
+  radius accounting mode
+  radius server host auth "192.168.1.5" name "PacketFence"
+  radius server key auth "192.168.1.5"
+
+  Enter secret (64 characters max):useStrongerSecret
+
+  radius server primary "192.168.1.5"
+  no radius server msgauth "192.168.1.5"
+  radius server attribute 4 192.168.1.254
+
+  radius server attribute 32 "EdgeSwitch"
+  radius server host acct "192.168.1.5" name PacketFence-ACCT
+  radius server key acct "192.168.1.5"
+
+  Enter secret (64 characters max):useStrongerSecret
+
+  snmp-server community public ro
+  snmp-server community private rw
+  exit
+
+On each interface (not uplink)
+
+  dot1x port-control mac-based
+  dot1x re-authentication
+  dot1x timeout reauth-period 1800
+  dot1x timeout supp-timeout 10
+  dot1x timeout guest-vlan-period 3
+  dot1x timeout server-timeout 1800
+  dot1x mac-auth-bypass
+  dot1x unauthenticated-vlan 4
+  vlan participation include 1,2,3,4,5,100
+  voice vlan 100
+  auto-voip protocol-based
+  lldp transmit
+  lldp receive
+  lldp transmit-tlv port-desc
+  lldp transmit-tlv sys-name
+  lldp transmit-tlv sys-desc
+  lldp transmit-tlv sys-cap
+  lldp transmit-mgmt
+  lldp notification
+  lldp med
+  lldp med confignotification
+  exit
+
 
 Wireless Controllers and Access Point Configuration
 ---------------------------------------------------

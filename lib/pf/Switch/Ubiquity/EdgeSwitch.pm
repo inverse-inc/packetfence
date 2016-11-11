@@ -35,8 +35,22 @@ use pf::Switch::constants;
 # access technology supported
 sub supportsWiredMacAuth { return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
+# VoIP technology supported
+sub supportsRadiusVoip { return $TRUE; }
 # override 2950's FALSE
 sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
+sub supportsLldp { return $TRUE; }
+
+=item isVoIPEnabled
+
+Supports VoIP if enabled.
+
+=cut
+
+sub isVoIPEnabled {
+    my ($self) = @_;
+    return ( $self->{_VoIPEnabled} == 1 );
+}
 
 =head2 wiredeauthTechniques
 
@@ -81,6 +95,143 @@ sub dot1xPortReauthenticate {
     my ($self, $ifIndex, $mac) = @_;
 
     return $self->_dot1xPortReauthenticate($ifIndex);
+}
+
+=item returnAuthorizeWrite
+
+Return radius attributes to allow write access (supposed to work)
+
+=cut
+
+sub returnAuthorizeWrite {
+    my ($self, $args) = @_;
+    my $logger = $self->logger;
+    my $radius_reply_ref;
+    my $status;
+    $radius_reply_ref->{'Cisco-AVPair'} = 'shell:priv-lvl=15';
+    $radius_reply_ref->{'Reply-Message'} = "Switch enable access granted by PacketFence";
+    $logger->info("User $args->{'user_name'} logged in $args->{'switch'}{'_id'} with write access");
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('returnAuthorizeWrite', $args);
+    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    return [$status, %$radius_reply_ref];
+
+}
+
+=item returnAuthorizeRead
+
+Return radius attributes to allow read access (supposed to work)
+
+=cut
+
+sub returnAuthorizeRead {
+    my ($self, $args) = @_;
+    my $logger = $self->logger;
+    my $radius_reply_ref;
+    my $status;
+    $radius_reply_ref->{'Cisco-AVPair'} = 'shell:priv-lvl=3';
+    $radius_reply_ref->{'Reply-Message'} = "Switch read access granted by PacketFence";
+    $logger->info("User $args->{'user_name'} logged in $args->{'switch'}{'_id'} with read access");
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('returnAuthorizeRead', $args);
+    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    return [$status, %$radius_reply_ref];
+}
+
+
+=head2 getPhonesLLDPAtIfIndex
+
+Return list of MACs found through LLDP on a given ifIndex.
+
+If this proves to be generic enough, it could be promoted to L<pf::Switch>.
+In that case, create a generic ifIndexToLldpLocalPort also.
+
+=cut
+
+sub getPhonesLLDPAtIfIndex {
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
+    my @phones;
+    if ( !$self->isVoIPEnabled() ) {
+        $logger->debug( "VoIP not enabled on switch "
+                . $self->{_ip}
+                . ". getPhonesLLDPAtIfIndex will return empty list." );
+        return @phones;
+    }
+    my $oid_lldpRemPortId  = '1.0.8802.1.1.2.1.4.1.1.7';
+    my $oid_lldpRemSysCapEnabled = '1.0.8802.1.1.2.1.4.1.1.12';
+
+    if ( !$self->connectRead() ) {
+        return @phones;
+    }
+    $logger->trace(
+        "SNMP get_next_request for lldpRemSysCapEnabled: $oid_lldpRemSysCapEnabled");
+    my $result = $self->{_sessionRead}
+        ->get_table( -baseoid => $oid_lldpRemSysCapEnabled );
+    foreach my $oid ( keys %{$result} ) {
+        if ( $oid =~ /^$oid_lldpRemSysCapEnabled\.([0-9]+)\.([0-9]+)\.([0-9]+)$/ ) {
+            if ( $ifIndex eq $2 ) {
+                my $cache_lldpRemTimeMark     = $1;
+                my $cache_lldpRemLocalPortNum = $2;
+                my $cache_lldpRemIndex        = $3;
+                if ( $self->getBitAtPosition($result->{$oid}, $SNMP::LLDP::TELEPHONE) ) {
+                    $logger->trace(
+                        "SNMP get_request for lldpRemPortId: $oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"
+                    );
+                    my $MACresult = $self->{_sessionRead}->get_request(
+                        -varbindlist => [
+                            "$oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"
+                        ]
+                    );
+                    if ($MACresult
+                        && ($MACresult->{
+                                "$oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"
+                            }
+                            =~ /^([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})/i
+                        )
+                        )
+                    {
+                        push @phones, lc("$1:$2:$3:$4:$5:$6");
+                    }
+                }
+            }
+        }
+    }
+    return @phones;
+}
+
+=item getBitAtPosition - returns the bit at the position specified
+
+The input must be the untranslated raw result of an snmp get_table
+
+=cut
+
+# TODO move out to a util package
+
+
+sub getBitAtPosition {
+   my ($self, $bitStream, $position) = @_;
+   #Expect the hex stream
+   if ($bitStream =~ /^0x/) {
+       $bitStream =~ s/^0x//i;
+       my $bin = join('',map { unpack("B4",pack("H",$_)) } (split //, $bitStream));
+       return substr($bin, $position, 1);
+   } else {
+       my $bin = substr(unpack('B*', $bitStream), -8);
+       return substr($bin, $position, 1);
+   }
+}
+
+=item getVoipVSA
+
+Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
+
+=cut
+
+sub getVoipVsa {
+    my ($self) = @_;
+    return (
+    );
 }
 
 =head1 AUTHOR
