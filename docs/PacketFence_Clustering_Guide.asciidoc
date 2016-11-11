@@ -895,8 +895,11 @@ type=internal
 mask=255.255.255.0
 
 ----
-Once this configuration is done, restart PacketFence to have it applied. 
-If done properly this should start two additionnal services : haproxy and keepalived
+Once this configuration is done, restart PacketFence to have it applied:
+  
+ # systemctl restart packetfence  
+
+If no error is found in the previous configuration, the previuous restart of packetfence  should have started two additionnal services : haproxy and keepalived
 
 You should now have service on the IP addresses defined in the 'CLUSTER' sections
 
