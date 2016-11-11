@@ -104,7 +104,10 @@ Save the cached config
 sub rewriteConfig {
     my ($self) = @_;
     my $config = $self->cachedConfig;
-    return $config->RewriteConfig();
+    $config->removeDefaultValues();
+    my $result = $config->RewriteConfig();
+    $config->ReadConfig();
+    return $result;
 }
 
 =head2 readAllIds
