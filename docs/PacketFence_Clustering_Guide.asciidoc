@@ -541,7 +541,6 @@ resource mysql {
  net {
   allow-two-primaries no;
   after-sb-0pri discard-zero-changes;
-  after-sb-1pri discard-secondary;
   after-sb-2pri disconnect;
   rr-conflict disconnect;
  }
