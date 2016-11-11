@@ -96,7 +96,6 @@ sub update :Chained('object') :PathPart :Args(0) {
         $c->response->status(HTTP_BAD_REQUEST);
     }
     else {
-        # Reload the pf::config::cached cache
         # Reload it in pfconfig and sync in cluster
         my ($success, $msg) = $c->stash->{object}->commitPfconfig();
         unless($success){
