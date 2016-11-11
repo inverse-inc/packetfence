@@ -189,9 +189,8 @@ sub send_email {
     my %TmplOptions = (
         INCLUDE_PATH    => "$html_dir/captive-portal/templates/emails/",
         ENCODING        => 'utf8',
-        i18n            => \&pf::web::i18n,
-        i18n_format     => \&pf::web::i18n_format,
     );
+    my %vars = ($data, i18n => \&pf::web::i18n, i18n_format => \&pf::web::i18n_format);
     utf8::decode($subject);
     my $msg = MIME::Lite::TT->new(
         From        =>  $data->{'from'},

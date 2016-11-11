@@ -486,9 +486,10 @@ sub send_email {
     my %TmplOptions = (
         INCLUDE_PATH    => "$html_dir/captive-portal/templates/emails/",
         ENCODING        => 'utf8',
-        i18n            => \&pf::web::i18n,
-        i18n_format     => \&pf::web::i18n_format,
     );
+
+    my %vars = (%info, i18n => \&pf::web::i18n, i18n_format => \&pf::web::i18n_format);
+
     utf8::decode($info{'subject'});
     my $msg = MIME::Lite::TT->new(
         From        =>  $info{'from'},
@@ -497,7 +498,7 @@ sub send_email {
         Subject     =>  encode("MIME-Header", $info{'subject'}),
         Template    =>  "emails-$template.html",
         TmplOptions =>  \%TmplOptions,
-        TmplParams  =>  \%info,
+        TmplParams  =>  \%vars,
         TmplUpgrade =>  1,
     );
     $msg->attr("Content-Type" => "text/html; charset=UTF-8;");
@@ -512,8 +513,6 @@ sub send_email {
       $logger->error("Can't send email to ".$info{'contact_info'}.": $!");
     };
 
-    use Data::Dumper;
-    $logger->info(Dumper($msg));
     return $result;
 }
 

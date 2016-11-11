@@ -134,7 +134,7 @@ sub send_template_email {
         INCLUDE_PATH    => "$html_dir/captive-portal/templates/emails/",
         ENCODING        => 'utf8',
     );
-    my %vars = (\$info, i18n => \&i18n, ni18n => \&ni18n, i18n_format => \&i18n_format);
+    my %vars = ($info, i18n => \&i18n, ni18n => \&ni18n, i18n_format => \&i18n_format);
     utf8::decode($subject);
     my $msg = MIME::Lite::TT->new(
         From        =>  $from,
