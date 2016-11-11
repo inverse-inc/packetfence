@@ -27,16 +27,10 @@ sub pfconfigNamespace {'config::Realm'}
 
 sub _buildCachedConfig {
     my ($self) = @_;
-    return pf::config::cached->new(
+    return pf::IniFiles->new(
         -file         => $realm_config_file,
         -allowempty   => 1,
-        -import       => pf::config::cached->new(-file => $realm_default_config_file),
-        -onpostreload => [
-            'reload_realm_config' => sub {
-                my ($config) = @_;
-                $config->{imported}->ReadConfig;
-              }
-        ],
+        -import       => pf::IniFiles->new(-file => $realm_default_config_file),
     );
 }
 

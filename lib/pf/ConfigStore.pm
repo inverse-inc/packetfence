@@ -10,13 +10,13 @@ pf::ConfigStore
 
 pf::ConfigStore
 
-Is the Base class for accessing pf::config::cached
+Is the Base class for accessing pf::IniFiles
 
 =cut
 
 use Moo;
 use namespace::autoclean;
-use pf::config::cached;
+use pf::IniFiles;
 use pf::log;
 use List::MoreUtils qw(uniq);
 use pfconfig::manager;
@@ -34,7 +34,7 @@ has cachedConfig =>
   (
    is => 'ro',
    lazy => 1,
-   isa => sub {pf::config::cached->isa($_[0])},
+   isa => sub {pf::IniFiles->isa($_[0])},
    builder => '_buildCachedConfig'
 );
 
@@ -67,7 +67,7 @@ sub validParam { 1; }
 
 =head2 _buildCachedConfig
 
-Build the pf::config::cached object
+Build the pf::IniFiles object
 
 =cut
 
@@ -77,20 +77,10 @@ sub _buildCachedConfig {
     my $default_section = $self->default_section;
     push @args, -default => $default_section if defined $default_section;
     my $importConfigFile = $self->importConfigFile;
-    if (defined $importConfigFile) {
-        push @args,
-          -import       => pf::config::cached->new(-file => $importConfigFile, -allowempty => 1),
-          -onpostreload => ['reload_config'              => \&reloadConfig];
+    if (defined $importConfigFile ) {
+        push @args, -import => pf::IniFiles->new(-file => $importConfigFile, -allowempty => 1 );
     }
-    return pf::config::cached->new(@args);
-}
-
-sub reloadConfig {
-    my ($config) = @_;
-    my $imported = $config->{imported};
-    if ($imported && ref($imported) ) {
-        $imported->ReadConfig;
-    }
+    return pf::IniFiles->new(@args);
 }
 
 =head2 rollback

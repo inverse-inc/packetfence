@@ -27,16 +27,10 @@ sub pfconfigNamespace {'config::PortalModules'}
 
 sub _buildCachedConfig {
     my ($self) = @_;
-    return pf::config::cached->new(
+    return pf::IniFiles->new(
         -file         => $portal_modules_config_file,
         -allowempty   => 1,
-        -import       => pf::config::cached->new(-file => $portal_modules_default_config_file),
-        -onpostreload => [
-            'reload_portal_modules_config' => sub {
-                my ($config) = @_;
-                $config->{imported}->ReadConfig;
-              }
-        ],
+        -import       => pf::IniFiles->new(-file => $portal_modules_default_config_file),
     );
 }
 
