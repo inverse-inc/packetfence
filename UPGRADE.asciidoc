@@ -66,6 +66,33 @@ Once the additionnal steps are completed, restart packetfence-config and packetf
 Upgrading from a version prior to X.Y.Z
 ---------------------------------------
 
+Changes to web authentication configuration
+
+Rework of the external captive portal capabilities involves some significant changes in the switch modules configuration.
+Some switch modules have been moved to other ones and some others have been removed. Please adjust the configuration (type) accordingly within switches.conf.
+ * AeroHIVE::AP_http -> AeroHIVE::AP
+ * Meraki::AP_http -> Meraki::MR
+ * Meraki::AP_http_V2 -> Meraki::MR_v2
+ * Xirrus:AP_http -> Xirrus
+
+To instruct a switch module to perform external captive portal enforcement, a new switch configuration parameter have been added. Make sure to adjust the following parameter to your needs in switches.conf
+
+```
+ExternalPortalEnforcement = Y
+```
+
+External captive portal URLs have also changed. Change them accordingly depending on the type of equipment you use:
+ * AeroHIVE: http://portal_IP/AeroHIVE::AP
+ * Aruba: http://portal_IP/Aruba
+ * Cisco Catalyst 2960: http://portal_IP/Cisco::Catalyst_2960
+ * Cisco WLC: http://portal_IP/Cisco::WLC
+ * CoovaChilli: http://portal_IP/CoovaChilli
+ * Meraki: http://portal_IP/Meraki::MR
+ * Ruckus: http://portal_IP/Ruckus
+* Xirrus: http://portal_IP/Xirrus
+
+Where portal_ip is the IP Address (or DNS name) of your captive portal as it was configured before
+
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
 
 Upgrading from a version prior to 6.3.0
