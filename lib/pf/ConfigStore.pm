@@ -77,10 +77,17 @@ sub _buildCachedConfig {
     my $default_section = $self->default_section;
     push @args, -default => $default_section if defined $default_section;
     my $importConfigFile = $self->importConfigFile;
-    if (defined $importConfigFile ) {
-        push @args, -import => pf::config::cached->new(-file => $importConfigFile, -allowempty => 1 );
+    if (defined $importConfigFile) {
+        push @args,
+          -import       => pf::config::cached->new(-file => $importConfigFile, -allowempty => 1),
+          -onpostreload => ['reload_config'              => \&reloadConfig];
     }
     return pf::config::cached->new(@args);
+}
+
+sub reloadConfig {
+    my ($config) = @_;
+    $config->{imported}->ReadConfig;
 }
 
 =head2 rollback
