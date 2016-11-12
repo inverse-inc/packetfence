@@ -80,4 +80,11 @@ packetfence-audit-log-reject {
         request-timing
         -sql_reject
     }
+
+convert_to_int {
+   if (&DHCP-Client-Hardware-Address && (&DHCP-Client-Hardware-Address =~ /^${policy.mac-addr-regexp}$/i)) {
+       update {
+           &request:Tmp-Integer-1 := "0x%{tolower:%{6}}"
+       }
+   }
 }

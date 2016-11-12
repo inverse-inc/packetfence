@@ -375,6 +375,11 @@ radiusd=enabled
 #
 # Order in which to start this service 
 radiusd_order=12
+#
+# services.radius-dhcpd
+#
+# Should radiusd be managed by PacketFence?
+radiusd-dhcpd=disabled
 # 
 # services.radiusd_binary
 # 
@@ -702,6 +707,21 @@ openssl_binary=/usr/bin/openssl
 # 
 # location of the arp binary. only necessary to change if you are not running the rpmed version.
 arp_binary=/sbin/arp
+#
+# services.routes
+#
+# Should routes be managed by PacketFence?
+routes=enabled
+#
+# services.routes_order
+#
+# Order in which to start this service
+routes_order=20
+#
+# services.routes_binary
+#
+# location of the routes binary. only necessary to change if you are not running the rpmed version.
+routes_binary=/sbin/ip
 
 [vlan]
 #
@@ -1326,6 +1346,12 @@ cluster_check_interval=1m
 #
 # Interval at which PacketFence will query compatible switches for DHCP Option 82 switch MAC address
 option82_query_interval=23h
+#
+# maintenance.ping_dhcpd_interval
+#
+# Interval at which PacketFence will query dhcpd servers to know if there are alive
+#
+ping_dhcpd_interval=20s
 
 [active_active]
 #

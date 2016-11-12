@@ -283,3 +283,54 @@ rest rest-cli {
 		idle_timeout = 60
 	}
 }
+
+rest rest-dhcp {
+        tls {
+                #  ca_file      = ${certdir}/cacert.pem
+                #  ca_path      = ${certdir}
+
+                #  certificate_file        = /path/to/radius.crt
+                #  private_key_file     = /path/to/radius.key
+                #  private_key_password = "supersecret"
+                #  random_file          = /dev/urandom
+
+                #  Server certificate verification requirements.  Can be:
+                #    "no"  (don't even bother trying)
+                #    "yes" (verify the cert was issued by one of the
+                #          trusted CAs)
+                #
+                #  The default is "yes"
+                #  check_cert = yes
+
+                #  Server certificate CN verification requirements.  Can be:
+                #    "no"  (don't even bother trying)
+                #    "yes" (verify the CN in the certificate matches the host
+                #          in the URI)
+                #
+                #  The default is "yes"
+                #       check_cert_cn = yes
+        }
+        connect_uri = "%%rpc_proto%%://%%rpc_host%%:%%rpc_port%%/"
+        authorize {
+        }
+        authenticate {
+        }
+        accounting {
+        }
+        post-auth {
+                uri = "${..connect_uri}/radius/rest/dhcp"
+                method = 'post'
+                body = 'json'
+                tls = ${..tls}
+        }
+        pool {
+                start = ${thread[pool].start_servers}
+                min = ${thread[pool].min_spare_servers}
+                max = ${thread[pool].max_servers}
+                spare = ${thread[pool].max_spare_servers}
+                uses = 0
+                retry_delay = 30
+                lifetime = 0
+                idle_timeout = 60
+        }
+}

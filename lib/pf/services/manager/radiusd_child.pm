@@ -28,6 +28,7 @@ use pf::authentication;
 use pf::cluster;
 use pf::util;
 
+use IPC::Cmd qw[can_run];
 use pf::file_paths qw(
     $conf_dir
     $install_dir
@@ -39,9 +40,16 @@ use pf::config qw(
     $management_network
     %ConfigDomain
     $local_secret
+    @listen_ints
+    %ConfigNetworks
+    @dhcplistener_ints
 );
 
 tie my @cli_switches, 'pfconfig::cached_array', 'resource::cli_switches';
+
+use NetAddr::IP;
+use pf::cluster;
+use pf::dhcpd qw (freeradius_populate_dhcpd_config);
 
 extends 'pf::services::manager';
 
@@ -86,6 +94,7 @@ sub _generateConfig {
     $self->generate_radiusd_cluster();
     $self->generate_radiusd_cliconf();
     $self->generate_radiusd_eduroamconf();
+    $self->generate_radiusd_dhcpd();
 }
 
 
@@ -469,6 +478,373 @@ EOT
     # Ensure raddb/clients.conf.inc exists. radiusd won't start otherwise.
     $tags{'template'} = "$conf_dir/radiusd/clients.conf.inc";
     parse_template( \%tags, "$conf_dir/radiusd/clients.conf.inc", "$install_dir/raddb/clients.conf.inc" );
+}
+
+sub generate_radiusd_dhcpd {
+    my %tags;
+    my %direct_subnets;
+    my $routed_networks = '';
+
+    freeradius_populate_dhcpd_config();
+    $tags{'template'}    = "$conf_dir/radiusd/dhcpd.conf";
+    $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+    $tags{'pid_file'} = "$var_dir/run/radiusd-dhcpd.pid";
+    $tags{'socket_file'} = "$var_dir/run/radiusd-dhcpd.sock";
+
+    foreach my $interface ( @listen_ints ) {
+        my $vlan = get_vlan_from_int($interface);
+        my $cfg = $Config{"interface $interface"};
+        next unless $cfg;
+        my $current_network = NetAddr::IP->new( $cfg->{'ip'}, $cfg->{'mask'} );
+            $tags{'listen'} .= <<"EOT";
+
+listen {
+	type = dhcp
+	ipaddr = 0.0.0.0
+	src_ipaddr = $cfg->{'ip'}
+	port = 67
+	interface = $interface
+	broadcast = yes
+	virtual_server = dhcp\.$interface
+}
+
+EOT
+
+        $tags{'config'} .= <<"EOT";
+
+server dhcp\.$interface {
+dhcp DHCP-Discover {
+	convert_to_int
+	update control {
+		Cache-Status-Only = 'yes'
+	}
+	cache_index
+	if (notfound) {
+		update {
+			&request:Tmp-Integer-2 := "%{%{sql: SELECT idx FROM dhcpd WHERE ip = \'$cfg->{'ip'}\' AND interface = \'$interface\'}:-0}"
+			&request:Tmp-Integer-3 := "%{sql: SELECT count(*) FROM dhcpd WHERE interface = \'$interface\'}"
+		}
+	}
+	cache_index
+	if ( ( &request:Tmp-Integer-3 == 0 ) || ("%{expr: %{Tmp-Integer-1} %% %{Tmp-Integer-3}}" == "%{Tmp-Integer-2}") || (&request:DHCP-Gateway-IP-Address != 0.0.0.0) ) {
+		update reply {
+			DHCP-Message-Type = DHCP-Offer
+		}
+
+EOT
+
+    foreach my $network ( keys %ConfigNetworks ) {
+        # shorter, more convenient local accessor
+        my %net = %{$ConfigNetworks{$network}};
+        if ( $net{'dhcpd'} eq 'enabled' ) {
+            my $ip = NetAddr::IP::Lite->new(clean_ip($net{'gateway'}));
+            my $current_network2 = NetAddr::IP->new( $net{'gateway'}, $net{'netmask'} );
+            if (defined($net{'next_hop'})) {
+                $ip = NetAddr::IP::Lite->new(clean_ip($net{'next_hop'}));
+             }
+
+             if ($current_network->contains($ip)) {
+                 my $network = $current_network2->network();
+                 my $prefix = $current_network2->network()->nprefix();
+                 my $mask = $current_network2->masklen();
+                 $prefix =~ s/\.$//;
+                 if (defined($net{'next_hop'})) {
+                     $routed_networks .= "|| (&request:DHCP-Client-IP-Address < $prefix/$mask)";
+                     $tags{'config'} .= <<"EOT";
+		if ( ( (&request:DHCP-Gateway-IP-Address != 0.0.0.0) && (&request:DHCP-Gateway-IP-Address < $prefix/$mask) ) || (&request:DHCP-Client-IP-Address < $prefix/$mask) ) {
+EOT
+                 } else {
+                     $tags{'config'} .= <<"EOT";
+		if ( (&request:DHCP-Gateway-IP-Address == 0.0.0.0)  || (&request:DHCP-Client-IP-Address < $prefix/$mask) ) {
+
+EOT
+                 }
+                 $tags{'config'} .= <<"EOT";
+
+
+			update {
+				&reply:DHCP-Domain-Name-Server = $net{'dns'}
+				&reply:DHCP-Subnet-Mask = $net{'netmask'}
+				&reply:DHCP-Router-Address = $net{'gateway'}
+				&reply:DHCP-IP-Address-Lease-Time = "%{%{sql: SELECT lease_time FROM radippool WHERE callingstationid = '%{request:DHCP-Client-Hardware-Address}'}:-$net{'dhcp_default_lease_time'}}"
+				&reply:DHCP-DHCP-Server-Identifier = $cfg->{'ip'}
+				&reply:DHCP-Domain-Name = $net{'domain-name'}
+				&control:Pool-Name := "$network"
+				&request:DHCP-Domain-Name-Server = $net{'dns'}
+				&request:DHCP-Subnet-Mask = $net{'netmask'}
+				&request:DHCP-Router-Address = $net{'gateway'}
+				&request:DHCP-IP-Address-Lease-Time = "%{%{sql: SELECT lease_time FROM radippool WHERE callingstationid = '%{request:DHCP-Client-Hardware-Address}'}:-$net{'dhcp_default_lease_time'}}"
+				&request:DHCP-DHCP-Server-Identifier = $cfg->{'ip'}
+				&request:DHCP-Domain-Name = $net{'domain-name'}
+				&request:DHCP-Site-specific-0 = $net{'type'}
+				&request:DHCP-Site-specific-1 = $interface
+				&request:DHCP-Site-specific-2 = $vlan
+			}
+		}
+EOT
+            }
+        }
+    }
+
+ $tags{'config'} .= <<"EOT";
+	dhcp_sqlippool
+	rest-dhcp
+	ok
+	}
+	else {
+		update reply {
+			&DHCP-Message-Type = DHCP-Do-Not-Respond
+		}
+		reject
+	}
+}
+
+dhcp DHCP-Request {
+	convert_to_int
+	update control {
+		Cache-Status-Only = 'yes'
+	}
+	cache_index
+	if (notfound) {
+		update {
+			&request:Tmp-Integer-2 := "%{%{sql: SELECT idx FROM dhcpd WHERE ip = \'$cfg->{'ip'}\' AND interface = \'$interface\'}:-0}"
+			&request:Tmp-Integer-3 := "%{sql: SELECT count(*) FROM dhcpd WHERE interface = \'$interface\'}"
+		}
+	}
+	cache_index
+	if ( ( &request:Tmp-Integer-3 == 0 ) || ("%{expr: %{Tmp-Integer-1} %% %{Tmp-Integer-3}}" == "%{Tmp-Integer-2}") || ( (&request:DHCP-Gateway-IP-Address != 0.0.0.0) $routed_networks ) ) {
+		update reply {
+			&DHCP-Message-Type = DHCP-Ack
+		}
+
+EOT
+
+    foreach my $network ( keys %ConfigNetworks ) {
+        # shorter, more convenient local accessor
+        my %net = %{$ConfigNetworks{$network}};
+        if ( $net{'dhcpd'} eq 'enabled' ) {
+            my $ip = NetAddr::IP::Lite->new(clean_ip($net{'gateway'}));
+            my $current_network2 = NetAddr::IP->new( $net{'gateway'}, $net{'netmask'} );
+            if (defined($net{'next_hop'})) {
+                $ip = NetAddr::IP::Lite->new(clean_ip($net{'next_hop'}));
+             }
+
+             if ($current_network->contains($ip)) {
+                 my $network = $current_network2->network();
+                 my $prefix = $current_network2->network()->nprefix();
+                 my $mask = $current_network2->masklen();
+                 $prefix =~ s/\.$//;
+                 if (defined($net{'next_hop'})) {
+                     $tags{'config'} .= <<"EOT";
+
+	if (  ( (&request:DHCP-Gateway-IP-Address != 0.0.0.0) && (&request:DHCP-Gateway-IP-Address < $prefix/$mask) ) || (&request:DHCP-Client-IP-Address < $prefix/$mask) ) {
+EOT
+                 } else {
+                     $tags{'config'} .= <<"EOT";
+	if (  (&request:DHCP-Gateway-IP-Address == 0.0.0.0)  || (&request:DHCP-Client-IP-Address < $prefix/$mask) ) {
+
+EOT
+                 }
+                $tags{'config'} .= <<"EOT";
+
+		update {
+			&reply:DHCP-Domain-Name-Server = $net{'dns'}
+			&reply:DHCP-Subnet-Mask = $net{'netmask'}
+			&reply:DHCP-Router-Address = $net{'gateway'}
+			&reply:DHCP-IP-Address-Lease-Time = "%{%{sql: SELECT lease_time FROM radippool WHERE callingstationid = '%{request:DHCP-Client-Hardware-Address}'}:-$net{'dhcp_default_lease_time'}}"
+			&reply:DHCP-DHCP-Server-Identifier = $cfg->{'ip'}
+			&reply:DHCP-Domain-Name = $net{'domain-name'}
+			&control:Pool-Name := "$network"
+			&request:DHCP-Domain-Name-Server = $net{'dns'}
+			&request:DHCP-Subnet-Mask = $net{'netmask'}
+			&request:DHCP-Router-Address = $net{'gateway'}
+			&request:DHCP-IP-Address-Lease-Time = "%{%{sql: SELECT lease_time FROM radippool WHERE callingstationid = '%{request:DHCP-Client-Hardware-Address}'}:-$net{'dhcp_default_lease_time'}}"
+			&request:DHCP-DHCP-Server-Identifier = $cfg->{'ip'}
+			&request:DHCP-Domain-Name = $net{'domain-name'}
+			&request:DHCP-Site-specific-0 = $net{'type'}
+			&request:DHCP-Site-specific-1 = $interface
+			&request:DHCP-Site-specific-2 = $vlan
+		}
+	}
+
+EOT
+            }
+        }
+    }
+
+ $tags{'config'} .= <<"EOT";
+	dhcp_sqlippool
+	rest-dhcp
+	ok
+	}
+	else {
+		update reply {
+			&DHCP-Message-Type = DHCP-Do-Not-Respond
+		}
+		reject
+	}
+}
+
+
+dhcp DHCP-Decline {
+	update reply {
+		&DHCP-Message-Type = DHCP-Do-Not-Respond
+	}
+	reject
+}
+
+dhcp DHCP-Inform {
+	update reply {
+		&DHCP-Message-Type = DHCP-Do-Not-Respond
+	}
+	reject
+}
+
+#
+#  For Windows 7 boxes
+#
+dhcp DHCP-Inform {
+	update reply {
+		Packet-Dst-Port = 67
+		DHCP-Message-Type = DHCP-ACK
+		DHCP-DHCP-Server-Identifier = "%{Packet-Dst-IP-Address}"
+		DHCP-Site-specific-28 = 0x0a00
+	}
+	ok
+}
+
+dhcp DHCP-Release {
+
+        update reply {
+                &DHCP-Message-Type = DHCP-Do-Not-Respond
+                &Tmp-Integer-3  = "%{sql: UPDATE radippool SET nasipaddress = '', pool_key = 0, callingstationid = '', username = '', expiry_time = NOW(), lease_time = NULL  WHERE framedipaddress = '%{DHCP-Client-IP-Address}' and callingstationid = '%{DHCP-Client-Hardware-Address}'}"
+
+        }
+        reject
+}
+
+dhcp DHCP-Lease-Query {
+	update {
+		&request:Tmp-Cast-Ethernet := "%{%{sql: SELECT interface FROM dhcpd WHERE ip = 'password'}:-0}"
+	}
+
+
+	if (&DHCP-Client-Hardware-Address == &request:Tmp-Cast-Ethernet) {
+		update reply {
+			&DHCP-Message-Type = DHCP-Lease-Active
+			&DHCP-Client-IP-Address = "%{Packet-Src-IP-Address}"
+		}
+	}
+	else {
+		update reply {
+			&DHCP-Message-Type = DHCP-Do-Not-Respond
+		}
+		reject
+	}
+
+}
+
+}
+
+EOT
+        }
+
+# Listener interface to replace pfdhcplistener for ipv4
+
+    foreach my $interface ( @dhcplistener_ints ) {
+        my $cfg = $Config{"interface $interface"};
+        next unless $cfg;
+            $tags{'listen'} .= <<"EOT";
+
+listen {
+	type = dhcp
+	ipaddr = 0.0.0.0
+	src_ipaddr = $cfg->{'ip'}
+	port = 67
+	interface = $interface
+	broadcast = yes
+	virtual_server = dhcp\.$interface
+}
+
+EOT
+
+        $tags{'config'} .= <<"EOT";
+
+server dhcp\.$interface {
+dhcp DHCP-Discover {
+	update reply {
+		&DHCP-Message-Type = DHCP-Do-Not-Respond
+	}
+	reject
+}
+
+dhcp DHCP-Request {
+	update reply {
+		&DHCP-Message-Type = DHCP-Do-Not-Respond
+	}
+	rest-dhcp
+}
+
+
+dhcp DHCP-Decline {
+	update reply {
+		&DHCP-Message-Type = DHCP-Do-Not-Respond
+	}
+	reject
+}
+
+dhcp DHCP-Inform {
+	update reply {
+		&DHCP-Message-Type = DHCP-Do-Not-Respond
+	}
+	reject
+}
+
+dhcp DHCP-Release {
+	update reply {
+		&DHCP-Message-Type = DHCP-Do-Not-Respond
+	}
+	reject
+}
+
+dhcp DHCP-Ack {
+	update reply {
+		&DHCP-Message-Type = DHCP-Do-Not-Respond
+	}
+	rest-dhcp
+	reject
+}
+
+dhcp DHCP-Lease-Query {
+
+	update reply {
+		&DHCP-Message-Type = DHCP-Do-Not-Respond
+	}
+	rest-dhcp
+	reject
+}
+
+}
+EOT
+}
+
+
+    parse_template( \%tags, "$conf_dir/radiusd/packetfence-dhcp", "$install_dir/raddb/sites-enabled/packetfence-dhcp" );
+    parse_template( \%tags, $tags{template}, "$install_dir/raddb/dhcpd.conf" );
+    return 1;
+}
+
+
+sub preStartSetup {
+    my ($self,$quick) = @_;
+    $self->SUPER::preStartSetup($quick);
+    return 1;
+}
+
+sub stop {
+    my ($self,$quick) = @_;
+    my $result = $self->SUPER::stop($quick);
+    return $result;
 }
 
 =head1 AUTHOR

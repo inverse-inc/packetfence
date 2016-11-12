@@ -2336,11 +2336,6 @@ Then you need to specify in `pf.conf` that you are interested in that VLAN's DHC
 
 Repeat the above for all your production VLANs then restart PacketFence.
 
-Host production DHCP on PacketFence
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-It's an option. Just modify `conf/dhcpd.conf` so that it will host your production DHCP properly and make sure that a `pfdhcplistener` runs on the same interface where production DHCP runs. However, please note that this is *NOT* recommended. See http://www.packetfence.org/bugs/view.php?id=1050[this ticket] to see why.
-
 Proxy Interception
 ~~~~~~~~~~~~~~~~~~
 

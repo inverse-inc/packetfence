@@ -20,7 +20,7 @@
 #	The module returns "noop" if it did nothing.
 #	The module returns "fail" on error.
 #
-cache {
+#cache {
 	#  The backend datastore used to store the cache entries.
 	#  Current datastores are
 	#    rlm_cache_rbtree    - An in memory, non persistent rbtree based datastore.
@@ -55,13 +55,13 @@ cache {
 
 	#  The key used to index the cache.  It is dynamically expanded
 	#  at run time.
-	key = "%{User-Name}"
+#	key = "%{User-Name}"
 
 	#  The TTL of cache entries, in seconds.  Entries older than this
 	#  will be expired.
 	#
 	#  This value should be between 10 and 86400.
-	ttl = 10
+#	ttl = 10
 
 	#  You can flush the cache via
 	#
@@ -77,7 +77,7 @@ cache {
 	#				     has been retrieved.
 	#
 	#  Note: Not supported by the rlm_cache_memcached module.
-	add_stats = no
+#	add_stats = no
 
 	#
 	#  The list of attributes to cache for a particular key.
@@ -94,17 +94,17 @@ cache {
 	#  are available in cache entries. Attempting to store attributes
 	#  in other lists will raise an error during config validation.
 	#
-	update {
+#	update {
 		# <list>:<attribute> <op> <value>
 
 		# Cache all instances of Reply-Message in the reply list
-		&reply:Reply-Message += &reply:Reply-Message
+#		&reply:Reply-Message += &reply:Reply-Message
 
 		# Add our own to show when the cache was last updated
-		&reply:Reply-Message += "Cache last updated at %t"
+#		&reply:Reply-Message += "Cache last updated at %t"
 
-		&reply:Class := "%{randstr:ssssssssssssssssssssssssssssssss}"
-	}
+#		&reply:Class := "%{randstr:ssssssssssssssssssssssssssssssss}"
+#	}
 
 	#  This module supports a number of runtime configuration parameters
 	#  represented by attributes in the &control: list.
@@ -138,4 +138,22 @@ cache {
 	#  All runtime configuration attributes will be removed from the
 	#  &control: list after the cache module is called.
 
+#}
+
+cache cache_index {
+
+	driver = "rlm_cache_rbtree"
+	key = "%{DHCP-Opcode}"
+	ttl = 10
+	add_stats = no
+	update {
+		&request:Tmp-Integer-2 += &request:Tmp-Integer-2
+		&request:Tmp-Integer-3 += &request:Tmp-Integer-3
+		&reply:Reply-Message += &reply:Reply-Message
+
+		# Add our own to show when the cache was last updated
+		&reply:Reply-Message += "Cache last updated at %t"
+
+		&reply:Class := "%{randstr:ssssssssssssssssssssssssssssssss}"
+	}
 }

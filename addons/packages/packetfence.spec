@@ -318,6 +318,8 @@ Requires: %{real_name}-pfcmd-suid = %{version}
 Requires: haproxy >= 1.5, keepalived >= 1.2
 Requires: fingerbank >= 3.0.0
 Requires: perl(File::Tempdir)
+#For Freeradius-dhcpd
+Requires: perl(Net::DHCP::Packet)
 
 %description -n %{real_name}
 
@@ -1047,6 +1049,8 @@ fi
 %config(noreplace)      /usr/local/pf/conf/realm.conf
                         /usr/local/pf/conf/realm.conf.example
 %config                 /usr/local/pf/conf/realm.conf.defaults
+%config(noreplace)      /usr/local/pf/conf/radiusd/dhcpd.conf
+                        /usr/local/pf/conf/radiusd/dhcpd.conf.example
 %config(noreplace)      /usr/local/pf/conf/radius_filters.conf
                         /usr/local/pf/conf/radius_filters.conf.example
 %config(noreplace)      /usr/local/pf/conf/billing_tiers.conf

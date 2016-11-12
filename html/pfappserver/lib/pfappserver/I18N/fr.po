@@ -7259,6 +7259,22 @@ msgid ""
 "entered without any space or separator (ex: 001122)."
 msgstr "L’OUI correspond au 6 premiers éléments d’une adresse MAC. Elle doivent êtres définies sans espaces ou caractères de séparation (ex: 001122)."
 
+# conf/documentation.conf (omapi.key_base64)
+msgid "The OMAPI base64 key for signing messages"
+msgstr "La clé de base64 OMAPI pour signer des messages"
+
+# conf/documentation.conf (omapi.host)
+msgid "The OMAPI host"
+msgstr "L'hôte OMAPI"
+
+# conf/documentation.conf (omapi.key_name)
+msgid "The OMAPI key name for signing messages"
+msgstr "Le nom de la clé OMAPI pour les messages de signature"
+
+# conf/documentation.conf (omapi.port)
+msgid "The OMAPI port number"
+msgstr "Le numéro du port OMAPI"
+
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
 msgid "The Private Key for signing in pem format"
 msgstr "La clé privé permettant permettant de signer les certificats au format PEM"

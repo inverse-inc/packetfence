@@ -1,0 +1,64 @@
+server dhcp.lo {
+dhcp DHCP-Discover {
+	update reply {
+	       &DHCP-Message-Type = DHCP-Do-Not-Respond
+	}
+	reject
+}
+
+dhcp DHCP-Request {
+	update reply {
+	       &DHCP-Message-Type = DHCP-Do-Not-Respond
+	}
+	reject
+}
+
+
+dhcp DHCP-Decline {
+	update reply {
+	       &DHCP-Message-Type = DHCP-Do-Not-Respond
+	}
+	reject
+}
+
+dhcp DHCP-Inform {
+	update reply {
+	       &DHCP-Message-Type = DHCP-Do-Not-Respond
+	}
+	reject
+}
+
+dhcp DHCP-Inform {
+	update reply {
+	       &DHCP-Message-Type = DHCP-Do-Not-Respond
+	}
+	reject
+}
+
+dhcp DHCP-Release {
+	update reply {
+	       &DHCP-Message-Type = DHCP-Do-Not-Respond
+	}
+	reject
+}
+
+
+dhcp DHCP-Lease-Query {
+
+	if (&DHCP-Client-Hardware-Address) {
+		update reply {
+                    &DHCP-Message-Type = DHCP-Lease-Active
+                    &DHCP-Client-IP-Address = "%{Packet-Src-IP-Address}"
+                }
+	}
+        else {
+                update reply {
+                        &DHCP-Message-Type = DHCP-Do-Not-Respond
+                }
+                reject
+        }
+}
+
+}
+
+%%config%%

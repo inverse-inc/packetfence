@@ -1529,6 +1529,34 @@ sub disableMABFloating : Public {
     $switch->disableMABFloatingDevice($postdata{ifIndex});
 }
 
+=head2 radius_rest_dhcp
+
+Process a DHCPv4 request from radius dhcp server
+
+=cut
+
+sub radius_rest_dhcp :Public :RestPath(/radius/rest/dhcp) {
+    my ($class, $radius_request) = @_;
+    my $timer = pf::StatsD::Timer->new();
+
+    my %remapped_radius_request = %{pf::radius::rest::format_request($radius_request)};
+    my ($dhcp, $args) = pf::util::dhcp::format_from_radius_dhcp(\%remapped_radius_request);
+    my $client = pf::api::queue->new(queue => 'pfdhcplistener');
+    $client->notify( 'process_dhcp_packet', $dhcp, $args );
+    return;
+}
+
+=head2 process_dhcp_packet
+
+Process dhcp object packet in pfqueue
+
+=cut
+
+sub process_dhcp_packet {
+    my ($class, $dhcp, $args) = @_;
+    pf::dhcp::processor->new(%{$args})->process_packet_dhcp($dhcp);
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
