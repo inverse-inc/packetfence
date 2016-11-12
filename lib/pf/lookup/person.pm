@@ -24,6 +24,9 @@ use pf::person;
 use pf::util;
 use pf::authentication;
 use pf::pfqueue::producer::redis;
+use pf::CHI;
+
+my $CHI_CACHE = pf::CHI->new( namespace => 'person_lookup' );
 
 =head2 lookup_person
 
@@ -47,7 +50,7 @@ sub lookup_person {
     unless (person_exist($pid)) {
         return "Person $pid is not a registered user!\n";
     }
-    my ($person, $msg) = $source->search_attributes($pid);
+    my $person = $CHI_CACHE->compute("$source_id.$pid", sub {  $source->search_attributes($pid) });
     if (!$person) {
        $logger->info("Cannot search attributes for user '$pid'");
        return "Cannot search attributes for user '$pid'!\n";

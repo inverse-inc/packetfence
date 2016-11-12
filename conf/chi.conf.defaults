@@ -78,3 +78,10 @@ reconnect=60
 #
 # Amount of time from the current time to expire an entry
 expires_in=1d
+
+[storage person_lookup]
+#
+# storage person_lookup.expires_in
+#
+# Amount of time from the current time to expire an entry
+expires_in=10m
