@@ -60,6 +60,7 @@ sub lookup_person {
             $CHI_CACHE->set("$source_id.$pid", $person);
             $logger->info("Successfully did a person lookup for $pid");
             person_modify($pid, %$person);
+            return undef;
         }
     }
     $logger->info("Already did a person lookup for $pid");
