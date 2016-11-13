@@ -51,7 +51,7 @@ sub lookup_person {
         return undef;
     }
     my $person = $CHI_CACHE->get("$source_id.$pid");
-    unless($reply){
+    unless($person){
         $person = $source->search_attributes($pid);
         if (!$person) {
            $logger->debug("Cannot search attributes for user '$pid'");
