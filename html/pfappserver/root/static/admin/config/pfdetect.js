@@ -32,6 +32,8 @@ var PfdetectView = function(options) {
     var id = items.id;
     var formName = items.formName;
     options.parent.off('click', id + ' [href$="/clone"]');
+    var showTestRegex = $.proxy(this.showTestRegex, this);
+    options.parent.on('show', '#test-regex', showTestRegex);
 
 };
 
@@ -42,16 +44,6 @@ PfdetectView.prototype = (function(){
 })();
 
 PfdetectView.prototype.constructor = PfdetectView;
-
-PfdetectView.prototype.toggleTaggedVlan = function(e) {
-    var checkbox = $(this);
-    var taggedVlan = checkbox.closest('form').find('input[name="taggedVlan"]').first();
-
-    if (checkbox.is(':checked'))
-        taggedVlan.removeAttr('disabled');
-    else
-        taggedVlan.attr('disabled', 1);
-};
 
 PfdetectView.prototype.updateItem = function(e) {
     e.preventDefault();
@@ -77,6 +69,10 @@ PfdetectView.prototype.updateItem = function(e) {
             errorSibling: section.find('h2').first()
         });
     }
+};
+
+PfdetectView.prototype.showTestRegex = function(e) {
+    $('textarea[name="loglines"]').removeAttr('disabled')
 };
 
 
