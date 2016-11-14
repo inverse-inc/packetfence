@@ -495,7 +495,7 @@ Trigger a violation
 
 =cut
 
-sub trigger_violation : Public {
+sub trigger_violation : Public : AllowedAsAction {
     my ($class, %postdata )  = @_;
     my @require = qw(mac tid type);
     my @found = grep {exists $postdata{$_}} @require;
