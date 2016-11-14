@@ -84,4 +84,4 @@ expires_in=1d
 # storage person_lookup.expires_in
 #
 # Amount of time from the current time to expire an entry
-expires_in=1h
+expires_in=24h

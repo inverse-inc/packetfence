@@ -44,26 +44,28 @@ sub lookup_person {
     my $source = pf::authentication::getAuthenticationSource($source_id);
     if (!$source) {
        $logger->info("Unable to locate the source $source_id");
-       return undef;
+       return;
     }
 
     unless (person_exist($pid)) {
-        return undef;
+        $logger->info("Person $pid is not a registered user!");
+        return;
     }
     my $person = $CHI_CACHE->get("$source_id.$pid");
     unless($person){
         $person = $source->search_attributes($pid);
         if (!$person) {
            $logger->debug("Cannot search attributes for user '$pid'");
-           return undef;
+           return;
         } else {
             $CHI_CACHE->set("$source_id.$pid", $person);
             $logger->info("Successfully did a person lookup for $pid");
             person_modify($pid, %$person);
-            return undef;
+            return;
         }
     }
     $logger->info("Already did a person lookup for $pid");
+    return;
 }
 
 =head2 async_lookup_person
