@@ -292,8 +292,8 @@ Requires: python-django, python-django-tagging, pyparsing
 Requires: MySQL-python
 Requires: python-carbon, python-whisper
 Requires: graphite-web >= 0.9.12-25
-%{?el7:Requires: samba-winbind-clients, samba-winbind, collectd >= 5.5, collectd-mysql, collectd-apache, collectd-drbd, collectd-dns, collectd-iptables, collectd-openldap, collectd-redis}
-%{?el6:Requires: collectd >= 5.0, collectd-mysql, libcollectdclient, collectd-apache}
+%{?el7:Requires: samba-winbind-clients, samba-winbind, collectd >= 5.6, collectd-mysql, collectd-apache, collectd-drbd, collectd-dns, collectd-iptables, collectd-openldap, collectd-redis}
+%{?el6:Requires: collectd >= 5.6, collectd-apache, collectd-drbd, collectd-dns, collectd-iptables, collectd-openldap, collectd-redis}
 %{?el6:Requires: node}
 %{?el7:Requires: nodejs}
 

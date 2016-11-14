@@ -59,6 +59,8 @@ LoadPlugin memory
 LoadPlugin mysql
 LoadPlugin unixsock
 LoadPlugin write_graphite
+LoadPlugin redis
+LoadPlugin disk
 
 ##############################################################################
 # Plugin configuration                                                       #
@@ -111,3 +113,26 @@ LoadPlugin write_graphite
     EscapeCharacter "_"
   </Node>
 </Plugin>
+
+
+<Plugin redis>
+  <Node "cache">
+    Host "localhost"
+    Port "6379"
+    Timeout 2000
+  </Node>
+</Plugin>
+
+<Plugin redis>
+  <Node "queue">
+    Host "localhost"
+    Port "6380"
+    Timeout 2000
+  </Node>
+</Plugin>
+
+<Plugin "disk">
+  Disk "/^sd/"
+  IgnoreSelected false
+</Plugin>
+

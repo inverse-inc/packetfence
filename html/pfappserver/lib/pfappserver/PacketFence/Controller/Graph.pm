@@ -387,6 +387,21 @@ sub dashboard :Local :AdminRole('REPORTS') {
                 'columns' => 2
                },
                {
+                'description' => $c->loc('CPU Wait'),
+                'target' => 'aliasByNode(*.*.cpu-wait,0)',
+                'columns' => 2
+               },
+               {
+                'description' => $c->loc('Disk IO'),
+                'target' => 'aliasByNode(*.*.disk_io_time.io_time,0)',
+                'columns' => 2
+               },
+               {
+                'description' => $c->loc('Network traffic'),
+                'target' => 'aliasByNode(*.*.if_packets.*,0)',
+                'columns' => 2
+               },
+               {
                 'description' => $c->loc('Available Memory'),
                 'target' => 'groupByNode(*.memory.memory-{free,cached,buffered}, 0, "sumSeries") ',
                 'columns' => 2
