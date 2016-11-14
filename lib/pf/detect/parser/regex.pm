@@ -15,7 +15,10 @@ pf::detect::parser::regex
 use strict;
 use warnings;
 use pf::log;
+use pf::api;
 use pf::api::queue;
+use pf::api::local;
+use pf::util qw(isenabled);
 use Moo;
 extends qw(pf::detect::parser);
 
@@ -23,20 +26,35 @@ has rules => (is => 'rw', default => sub { [] });
 
 sub parse {
     my ($self, $line) = @_;
+    my $actions = $self->makeActions($line);
+    return undef if @$actions == 0;
+    $self->sendActions($actions);
+    return 0;
+}
+
+sub makeActions {
+    my ($self, $line) = @_;
+    my @actions;
     foreach my $rule (@{$self->rules}) {
         next unless $line =~ $rule->{regex};
         my %data = %+;
         foreach my $action (@{$rule->{actions} // []}) {
-            $self->doAction($rule, \%data, $action);
+            push @actions, $self->prepAction($rule, \%data, $action);
         }
-        return 0 unless $rule->{send_add_event};
-        $data{events} = { %{$rule->{events}}};
-        return \%data;
+        last if isenabled($rule->{last_if_match});
     }
-    return undef;
+    return \@actions;
 }
 
-sub doAction {
+sub sendActions {
+    my ($self, $actions) = @_;
+    my $client = $self->getApiClient();
+    foreach my $action (@$actions) {
+        $client->notify($action->[0], @{$action->[1]});
+    }
+}
+
+sub prepAction {
     my ($self, $rule, $data, $action_spec) = @_;
     my $logger = get_logger;
     unless ($action_spec =~ /^\s*([^:]+)\s*:\s*(.*)\s*$/) {
@@ -45,9 +63,9 @@ sub doAction {
     }
     my $action = $1;
     my $action_params = $2;
+    $logger->info(sub {my $id = $self->id; "Parser id $id : Matched rule '$rule->{name}' : preparing action spec '$action_spec'" });
     my $params = $self->evalParams($action_params, $data);
-    my $apiclient = $self->getApiClient;
-    $apiclient->notify($action, @$params);
+    return [$action, $params];
 }
 
 sub getApiClient {
