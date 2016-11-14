@@ -46,41 +46,35 @@ sub build {
     while (my ($violation, $violation_config) = each %Violations_Config) {
         my @conditions;
         my $violation_condition;
-        if(isenabled($violation_config->{enabled}) && defined($violation_config->{trigger})){
-            foreach my $trigger (split(/\s*,\s*/, $violation_config->{trigger})){
-                my $condition;
-                eval {
-                    $condition = pf::factory::condition::violation->instantiate($trigger);
-                };
-                if($@) {
-                    get_logger->error("Invalid trigger $trigger. Error was : $@");
-                    unless($self->{invalid_triggers}->{$violation}){
-                        $self->{invalid_trigger}->{$violation} = [];
-                    }
-                    push @{$self->{invalid_triggers}->{$violation}}, $trigger;
+        next unless (isenabled($violation_config->{enabled}) && defined($violation_config->{trigger}));
+        foreach my $trigger (split(/\s*,\s*/, $violation_config->{trigger})) {
+            my $condition;
+            eval {$condition = pf::factory::condition::violation->instantiate($trigger);};
+            if ($@) {
+                get_logger->error("Invalid trigger $trigger. Error was : $@");
+                unless ($self->{invalid_triggers}->{$violation}) {
+                    $self->{invalid_trigger}->{$violation} = [];
                 }
-                else {
-                    push @conditions, $condition;
-                }
-
-                while($trigger =~ /(accounting::.*?)([,)&]{1}|$)/gi){
-                    push @{$self->{accounting_triggers}}, {trigger => (split('::',$1))[1], violation => $violation}
-                }
-                if($trigger =~ /accounting::BandwidthExpired/i){
-                    push @{$self->{bandwidth_expired_violations}}, $violation;
-                }
+                push @{$self->{invalid_triggers}->{$violation}}, $trigger;
             }
-            $violation_condition = pf::condition::any->new({conditions => \@conditions});
+            else {
+                push @conditions, $condition;
+            }
+
+            while ($trigger =~ /(accounting::.*?)([,)&]{1}|$)/gi) {
+                push @{$self->{accounting_triggers}}, {
+                    trigger   => (split('::', $1))[1],
+                    violation => $violation
+                  };
+            }
+            if ($trigger =~ /accounting::BandwidthExpired/i) {
+                push @{$self->{bandwidth_expired_violations}}, $violation;
+            }
         }
-        else {
-            $violation_condition = pf::condition::false->new;
-        } 
-        push @filters,pf::filter->new({answer => $violation, condition => $violation_condition});
+        $violation_condition = pf::condition::any->new({conditions => \@conditions});
+        push @filters, pf::filter->new({answer => $violation, condition => $violation_condition});
     }
-
-
     my $engine = pf::filter_engine->new({ filters => \@filters });
-
     return $engine;
 }
 
