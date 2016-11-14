@@ -541,7 +541,6 @@ resource mysql {
  net {
   allow-two-primaries no;
   after-sb-0pri discard-zero-changes;
-  after-sb-1pri discard-secondary;
   after-sb-2pri disconnect;
   rr-conflict disconnect;
  }
@@ -802,7 +801,7 @@ host=127.0.0.1
 
 Make sure you restart MySQL:
 
-# systemctl restart mariadb
+ # systemctl restart mariadb
 
 Next, you need to remove the empty users from your MySQL database
 
@@ -895,8 +894,11 @@ type=internal
 mask=255.255.255.0
 
 ----
-Once this configuration is done, restart PacketFence to have it applied. 
-If done properly this should start two additionnal services : haproxy and keepalived
+Once this configuration is done, restart PacketFence to have it applied:
+  
+ # systemctl restart packetfence  
+
+If no error is found in the previous configuration, the previous restart of packetfence should have started two additionnal services : haproxy and keepalived
 
 You should now have service on the IP addresses defined in the 'CLUSTER' sections
 
