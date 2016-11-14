@@ -351,3 +351,10 @@ ALTER TABLE `locationlog` modify `port` VARCHAR(20);
 --
 
 ALTER TABLE `locationlog_archive` modify `port` VARCHAR(20);
+
+--
+-- Change end_time from timestamp to datetime in iplog_history
+--
+
+ALTER TABLE iplog_history MODIFY end_time datetime NOT NULL;
+
