@@ -90,21 +90,25 @@ if [ -f /var/run/$SQL_ENGINE/$SQL_ENGINE.pid ]; then
     MYSQL_USED_SPACE=`du -s /var/lib/mysql | awk '{ print $1 }'`
     if (( $BACKUPS_AVAILABLE_SPACE > (( $MYSQL_USED_SPACE /2 )) )); then 
         if [ $PERCONA_XTRABACKUP_INSTALLED -eq 1 ]; then
-            find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-innobackup-*.xbstream.gz" -mtime +$NB_DAYS_TO_KEEP_DB -print0 | xargs -0r rm -f
+            find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-innobackup-*.xbstream.gz" -mtime +$NB_DAYS_TO_KEEP_DB -delete
             echo "----- Backup started on `date +%F_%Hh%M` -----" >> /usr/local/pf/logs/innobackup.log
-            innobackupex --user=$DB_USER --password=$DB_PWD  --no-timestamp --stream=xbstream --compress /tmp/ 2>> /usr/local/pf/logs/innobackup.log | gzip - > $BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-innobackup-`date +%F_%Hh%M`.xbstream.gz
+            innobackupex --user=$DB_USER --password=$DB_PWD  --no-timestamp --stream=xbstream  /tmp/ 2>> /usr/local/pf/logs/innobackup.log | gzip - > $BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-innobackup-`date +%F_%Hh%M`.xbstream.gz
             tail -1 /usr/local/pf/logs/innobackup.log | grep 'completed OK!'
             BACKUPRC=$?
             if (( $BACKUPRC > 0 )); then 
                 echo "innobackupex was not successful." >&2
+            else
+                touch /usr/local/pf/var/run/last_backup
             fi
         else
-            find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-*.sql.gz" -mtime +$NB_DAYS_TO_KEEP_DB -print0 | xargs -0r rm -f
+            find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-*.sql.gz" -mtime +$NB_DAYS_TO_KEEP_DB -delete
             current_filename=$BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-`date +%F_%Hh%M`.sql.gz
             mysqldump --opt -h $DB_HOST -u $DB_USER -p$DB_PWD $DB_NAME --ignore-table=$DB_NAME.locationlog_archive --ignore-table=$DB_NAME.iplog_archive | gzip > ${current_filename}
             BACKUPRC=$?
             if (( $BACKUPRC > 0 )); then 
                 echo "mysqldump returned  error code: $?" >&2
+            else 
+                touch /usr/local/pf/var/run/last_backup
             fi
         fi
     else 
