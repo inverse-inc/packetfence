@@ -49,11 +49,16 @@ Show the 'view' template when creating or cloning pfdetect.
 
 after [qw(create clone)] => sub {
     my ($self, $c) = @_;
-    if (!(is_success($c->response->status) && $c->request->method eq 'POST' )) {
-        $c->stash->{template} = 'config/pfdetect/view.tt';
+    if (is_success($c->response->status) && $c->request->method eq 'POST') {
+        my $model = $self->getModel($c);
+        $c->response->location(
+            $c->pf_hash_for(
+                $c->controller('Config::Pfdetect')->action_for('view'),
+                [$c->stash->{$model->idKey}]
+            )
+        );
     }
 };
-
 
 =head2 index
 
