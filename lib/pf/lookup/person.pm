@@ -24,6 +24,9 @@ use pf::person;
 use pf::util;
 use pf::authentication;
 use pf::pfqueue::producer::redis;
+use pf::CHI;
+
+my $CHI_CACHE = pf::CHI->new( namespace => 'person_lookup' );
 
 =head2 lookup_person
 
@@ -36,26 +39,33 @@ sub lookup_person {
     my $logger = get_logger();
     unless (defined $source_id) {
         $logger->info("undefined source id provided");
-        return "Unknown source";
+        return;
     }
     my $source = pf::authentication::getAuthenticationSource($source_id);
     if (!$source) {
        $logger->info("Unable to locate the source $source_id");
-       return "Unable to locate the source $source_id!\n";
+       return;
     }
 
     unless (person_exist($pid)) {
-        return "Person $pid is not a registered user!\n";
+        $logger->info("Person $pid is not a registered user!");
+        return;
     }
-    my ($person, $msg) = $source->search_attributes($pid);
-    if (!$person) {
-       $logger->info("Cannot search attributes for user '$pid'");
-       return "Cannot search attributes for user '$pid'!\n";
+    my $person = $CHI_CACHE->get("$source_id.$pid");
+    unless($person){
+        $person = $source->search_attributes($pid);
+        if (!$person) {
+           $logger->debug("Cannot search attributes for user '$pid'");
+           return;
+        } else {
+            $CHI_CACHE->set("$source_id.$pid", $person);
+            $logger->info("Successfully did a person lookup for $pid");
+            person_modify($pid, %$person);
+            return;
+        }
     }
-
-    $logger->info("Successfully did a person lookup for $pid");
-
-    person_modify($pid, %$person);
+    $logger->info("Already did a person lookup for $pid");
+    return;
 }
 
 =head2 async_lookup_person

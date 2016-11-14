@@ -14,6 +14,7 @@ Namespaces:
   configfiles
   httpd.admin
   httpd.portal
+  person_lookup
   pfdns
   switch.overlay
   switch
