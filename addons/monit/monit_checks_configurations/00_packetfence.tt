@@ -97,7 +97,7 @@ check process packetfence-radiusd with pidfile /usr/local/pf/var/run/radiusd.pid
     group PacketFence
     start program = "/usr/sbin/[% FREERADIUS_BIN %] -d /usr/local/pf/raddb -n auth" with timeout 60 seconds
     stop program  = "/usr/bin/pkill -F /usr/local/pf/var/run/radiusd.pid"
-    if failed host 127.0.0.1 port 18120 type udp protocol radius secret testing123 then alert
+    if failed host 127.0.0.1 port 18120 type udp protocol radius secret testing123 for 5 cycles then alert
     if 3 restarts within 10 cycles then alert
 
 check process packetfence-redis_queue with pidfile /usr/local/pf/var/run/redis_queue.pid
