@@ -16,15 +16,15 @@
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td class="content-block">
-                    <h1 class="align-center">Violation detected !</h1>
-                    <p>[% i18n("Hi") %],</p>
+                    <h1 class="align-center">[% i18n("Violation detected !") %]</h1>
+                    <p>[% i18n("Hello") %],</p>
                     <p>[% i18n("You have been detected doing malicious activity on the network.") %]</p>
-                    <p>Violation [% description %] was detected on your device.</p>
+                    <p>[% i18n_format("Violation %s was detected on your device."), description %]</p>
                     <p>[% i18n("Here are the informations of the infringing device") %]</p>
                     <ul>
-                      <li>MAC address : [% mac %]</li>
-                      <li>OS : [% os %]</li>
-                      <li>Hostname : [% hostname %]</li>
+                      <li>[% i18n("MAC address") %] : [% mac %]</li>
+                      <li>[% i18n("OS") %] : [% os %]</li>
+                      <li>[% i18n("Hostname") %] : [% hostname %]</li>
                     </ul>
 
                     [% additionnal_message %]
