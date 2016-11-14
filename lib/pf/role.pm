@@ -443,18 +443,12 @@ sub getRegisteredRole {
             };
             $role = &pf::authentication::match([@sources], $params, $Actions::SET_ROLE, \$source);
             my $unregdate = &pf::authentication::match([@sources], $params, $Actions::SET_UNREG_DATE);
-            # create a person entry for pid if it doesn't exist
-            if ( !pf::person::person_exist($args->{'user_name'}) ) {
-                $logger->info("creating person $args->{'user_name'} because it doesn't exist");
-                pf::person::person_add($args->{'user_name'});
-            } else {
-                $logger->debug("person $args->{'user_name'} already exists");
-            }
-            pf::lookup::person::async_lookup_person($args->{'user_name'}, $source);
             pf::person::person_modify($args->{'user_name'},
                 'source'  => $source,
                 'portal'  => $profile->getName,
             );
+            # Don't do a person lookup if autoreg (already did it);
+            pf::lookup::person::async_lookup_person($args->{'user_name'}, $source) if !($args->{'autoreg'});
             $portal = $profile->getName;
             my %info = (
                 'autoreg' => 'no',
