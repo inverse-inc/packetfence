@@ -8,8 +8,6 @@ pfappserver::Form::Field::PfdetectRegexRule - The detect::parser::regex rule
 
 =head1 DESCRIPTION
 
-
-
 =cut
 
 use pfappserver::Form::Field::DynamicList;
@@ -66,76 +64,19 @@ has_field 'actions.contains' => (
     pfappserver::Form::Field::DynamicList::child_options(),
 );
 
-=head2 send_add_event
+=head2 last_if_match
 
-Send Add Event
+last if match
 
 =cut
 
-has_field 'send_add_event' => (
+has_field 'last_if_match' => (
     type            => 'Toggle',
-    label           => 'Send Add Event',
+    label           => 'Last If match',
     messages        => {required => 'Please specify the if the add_event is sent'},
     checkbox_value  => 'enabled',
     unchecked_value => 'disabled',
 );
-
-=head2 append_add_button
-
-
-=cut
-
-sub append_add_button {
-    my ($self) = @_;
-    my $index = $self->index;
-    $self->add_extra(1);
-    my $extra_field = $self->field($index);
-    set_disabled($extra_field);
-    $extra_field->name(999);
-    my $id = $self->id;
-    my $button_text = "Add " . $extra_field->label;
-    my $content = $extra_field->render;
-    my $template_id = 'dynamic-list-template.' . $self->id;
-    $template_id =~ s/\./_/g;
-    my $target = escape_jquery_id($id);
-    my $control_group_id = "${template_id}_control_group";
-    return <<"EOS"
-    <div class="control-group" id="$control_group_id" >
-        <div id="$template_id" class="hidden">$content</div>
-        <div>
-            <div class="controls">
-                <a data-toggle="dynamic-list" data-target="#${target}" data-template-parent="#$template_id" data-base-id="$id" class="btn">$button_text</a>
-            </div>
-        </div>
-    </div>
-EOS
-}
-
-sub escape_jquery_id {
-    my ($id) = @_;
-    $id =~ s/(:|\.|\[|\]|,|=)/\\$1/g;
-    return $id;
-}
-
-sub append_delete_button {
-    my ($field) = @_;
-    my $target = escape_jquery_id($field->id);
-    my $base_id = $field->parent->id;
-    return qq{
-        <a class="btn-icon" data-toggle="dynamic-list-delete" data-base-id="$base_id" data-target="#$target"><i class="icon-minus-sign"></i></a>};
-}
-
-
-sub set_disabled {
-    my ($field) = @_;
-    if ($field->can("fields")) {
-        foreach my $subfield ($field->fields) {
-            set_disabled($subfield);
-        }
-    }
-    $field->set_element_attr("disabled" => "disabled");
-}
-
 
 =head1 AUTHOR
 
