@@ -276,6 +276,7 @@ CREATE TABLE iplog_history (
   ip varchar(45) NOT NULL,
   start_time datetime NOT NULL,
   end_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY iplog_history_mac_end_time (mac,end_time),
   KEY end_time (end_time),
   KEY start_time (start_time)
 ) ENGINE=InnoDB;
@@ -1203,5 +1204,6 @@ CREATE TABLE auth_log (
   `completed_at` datetime,
   `source` varchar(255) NOT NULL,
   PRIMARY KEY (id),
-  KEY pid (pid)
+  KEY pid (pid),
+  KEY  attempted_at (attempted_at)
 ) ENGINE=InnoDB;

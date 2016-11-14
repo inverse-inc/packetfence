@@ -329,6 +329,16 @@ ALTER TABLE iplog_history ADD INDEX end_time (end_time), ADD INDEX start_time (s
 
 ALTER TABLE iplog_archive ADD INDEX end_time (end_time), ADD INDEX start_time (start_time);
 
+-- 
+-- Add index to iplog_history
+-- 
+ALTER TABLE iplog_history ADD INDEX iplog_history_mac_end_time (mac,end_time); 
+
+--
+-- Add index to auth_log
+--
+ALTER TABLE auth_log add key attempted_at (attempted_at);
+
 --
 -- This was done in the previous upgrade script but not in the schema
 --
