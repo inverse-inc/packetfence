@@ -55,7 +55,9 @@ var ItemView = function(options) {
 
     // Display the switch in a modal
     var read = $.proxy(this.readItem, this);
-    options.parent.on('click', id + ' .item [href$="/read"], ' + id + ' [href$="/clone"], .createItem', read);
+    options.parent.on('click', id + ' .item [href$="/read"]', read);
+    options.parent.on('click', id + ' [href$="/clone"]', read);
+    options.parent.on('click', '.createItem', read);
 
     // Save the modifications from the modal
     var update = $.proxy(this.updateItem, this);
