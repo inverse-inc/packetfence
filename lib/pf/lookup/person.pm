@@ -39,7 +39,7 @@ sub lookup_person {
     my $logger = get_logger();
     unless (defined $source_id) {
         $logger->info("undefined source id provided");
-        return undef;
+        return;
     }
     my $source = pf::authentication::getAuthenticationSource($source_id);
     if (!$source) {
