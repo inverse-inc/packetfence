@@ -103,7 +103,7 @@ authorize {
 	#  The ldap module reads passwords from the LDAP database.
 	#-ldap
 	#
-	# Or if you want to cache the password (ex: edir) uncomment the following
+	# Or if you want to cache the password (ex: Novell eDirectory using Universal Password) uncomment the following
 	#update control {
 	#    Cache-Status-Only = 'yes'
 	#}
