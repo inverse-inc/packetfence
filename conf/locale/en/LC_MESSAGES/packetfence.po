@@ -957,10 +957,6 @@ msgstr ""
 msgid "Once on site, use the following username and password to authenticate"
 msgstr ""
 
-# html/captive-portal/templates/emails/emails-guest_sponsor_preregistration.html
-msgid "User account"
-msgstr ""
-
 # html/captive-portal/templates/emails/emails-violation-triggered.html
 msgid "You have been detected doing malicious activity on the network."
 msgstr ""
@@ -975,9 +971,6 @@ msgid "OS"
 msgstr ""
 
 msgid "Hostname"
-msgstr ""
-
-msgid "MAC address"
 msgstr ""
 
 msgid "Here are the informations of the infringing device"
