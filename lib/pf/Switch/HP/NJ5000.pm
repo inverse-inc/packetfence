@@ -70,18 +70,6 @@ sub wiredeauthTechniques {
     }
 }
 
-=head2 dot1xPortReauthenticate
-
-Points to pf::Switch implementation bypassing Catalyst_2950's overridden behavior.
-
-=cut
-
-sub dot1xPortReauthenticate {
-    my ($self, $ifIndex, $mac) = @_;
-
-    return $self->_dot1xPortReauthenticate($ifIndex);
-}
-
 =item returnAuthorizeWrite
 
 Return radius attributes to allow write access
