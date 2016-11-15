@@ -64,7 +64,7 @@ Prepare the payment from mirapay
 sub prepare_payment {
     my ($self, $session, $tier, $params, $uri) = @_;
     my $hash = {
-        mirapay_url => $self->mirapay_url,
+        mirapay_url => $self->make_mirapay_url($params, $tier),
     };
     return $hash;
 }
@@ -127,11 +127,11 @@ sub verify_mkey {
     return $test_key eq $mkey ;
 }
 
-=head2 mirapay_url
+=head2 make_mirapay_url
 
 =cut
 
-sub mirapay_url {
+sub make_mirapay_url {
     my ($self, $parameters, $tier) = @_;
     my $url          = $self->base_url;
     my $merchant_id  = $self->merchant_id;
