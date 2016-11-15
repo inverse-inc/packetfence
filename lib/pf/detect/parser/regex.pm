@@ -22,7 +22,7 @@ use pf::util qw(isenabled);
 use Moo;
 extends qw(pf::detect::parser);
 
-has rules => (is => 'rw', default => sub { [] });
+has rules => (is => 'rw', default => sub {[]});
 
 sub parse {
     my ($self, $line) = @_;
@@ -36,14 +36,21 @@ sub makeActions {
     my ($self, $line) = @_;
     my @actions;
     foreach my $rule (@{$self->rules}) {
-        next unless $line =~ $rule->{regex};
-        my %data = %+;
+        my $data = $self->parseLineFromRule($rule, $line);
+        next unless defined $data;
         foreach my $action (@{$rule->{actions} // []}) {
-            push @actions, $self->prepAction($rule, \%data, $action);
+            push @actions, $self->prepAction($rule, $data, $action);
         }
         last if isenabled($rule->{last_if_match});
     }
     return \@actions;
+}
+
+sub parseLineFromRule {
+    my ($self, $rule, $line) = @_;
+    return undef unless $line =~ $rule->{regex};
+    my %data = %+;
+    return \%data;
 }
 
 sub sendActions {
@@ -61,9 +68,13 @@ sub prepAction {
         $logger->error("Invalid action spec provided");
         return;
     }
-    my $action = $1;
+    my $action        = $1;
     my $action_params = $2;
-    $logger->info(sub {my $id = $self->id; "Parser id $id : Matched rule '$rule->{name}' : preparing action spec '$action_spec'" });
+    $logger->info(
+        sub {
+            my $id = $self->id;
+            "Parser id $id : Matched rule '$rule->{name}' : preparing action spec '$action_spec'";
+        });
     my $params = $self->evalParams($action_params, $data);
     return [$action, $params];
 }
@@ -84,7 +95,32 @@ sub evalParams {
     }
     return \@return;
 }
- 
+
+sub dryRun {
+    my ($self, @lines) = @_;
+    my @runs;
+    for my $line (@lines) {
+        my @actions;
+        my @rules;
+        my %run = (
+            line => $line,
+            actions => \@actions,
+            rules => \@rules,
+        );
+        foreach my $rule (@{$self->rules}) {
+            my $data = $self->parseLineFromRule($rule, $line);
+            next unless defined $data;
+            foreach my $action (@{$rule->{actions} // []}) {
+                push @actions, $self->prepAction($rule, $data, $action);
+            }
+            push @rules, $rule;
+            last if isenabled($rule->{last_if_match});
+        }
+        push @runs, \%run;
+    }
+    return \@runs;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
