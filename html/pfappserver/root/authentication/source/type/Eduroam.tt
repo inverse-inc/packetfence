@@ -4,5 +4,5 @@
 [% form.field('auth_listening_port').render | none %]
 
 <div class="alert alert-warning">
-    <strong>[% l('Note: ') %]</strong>[% l('Adding or modifying an \'Eduroam\' type authentication source requires to restart the radiusd service to be effective.') %]
+    <strong>[% l('Note: ') %]</strong>[% l('Adding or modifying (not applicable for \'Rules\') an \'Eduroam\' type authentication source requires to restart both the radiusd and iptables services to be effective.') %]
 </div>
