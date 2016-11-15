@@ -121,14 +121,13 @@ namespace=ROOT\cimv2
 on_tab=1
 ```
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 6.4.0).
-
-
 Changes to default cronjob
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Upon PacketFence installation, a default cronjob will be in /etc/cron.d/. You should make sure you do not invoke the /usr/local/pf/addons/database-backup-and-maintenance.sh
 script from any other cronjob.
+
+Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 6.4.0).
 
 
 Upgrading from a version prior to 6.3.0
