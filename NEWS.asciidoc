@@ -11,19 +11,73 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
-Version X.Y.Z released on xxxx-xx-xx
+Version 6.4.0 released on xxxx-xx-xx
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 New Features
 ++++++++++++
 
+* Added Mojo Networks WiFi equipment support (PR#1765)
+* Made Web admin reports more interactive (PR#1731)
+* Added new Eduroam authentication source type (PR#1642)
+* Allow to create different portal templates based on the browser locale (PR#1638)
+
 
 Enhancements
 ++++++++++++
 
+* Improved IP log performance (PR#1832 / PR#1828 / PR#1790)
+* Added fault tolerance on RADIUS monitoring scripts (PR#1831)
+* Improved the database and maintenance backup script (PR#1830)
+* Added password caching support for Novell eDirectory (PR#1829)
+* Improved caching of LDAP person data (PR#1826)
+* Improved clustering documentation (PR#1825)
+* Added RADIUS command line interface support on port 1812 (PR#1817)
+* Removed useless htaccess file search for each HTTP request (PR#1806)
+* Turned off HTTP Keep``Alive to avoid connections holding onto Apache processes (PR#1801)
+* Added Cisco MSE documentation (PR#1799)
+* Ability to query 'iplog_archive' table for detailed IP/MAC history (PR#1793)
+* Now also display the status for sub services from the Web interface (#1040 /PR#1792)
+* Requests made with username 'dummy' will not be recorded in the RADIUS audit log anymore (PR#1789)
+* More lightweight p0f processing (PR#1788)
+* Remove useless logging in pfdns.log (PR#1782)
+* Added an activation timeout on sponsor source (PR#1777)
+* Improved captive portal logging (PR#1769)
+* Allow the OAuth landing page template to be customizable (PR#1767)
+* Use RESTful call for RADIUS accounting instead of Perl (#1760)
+* Optimized getting node information from the database (PR#1753)
+* New action generateconfig for pfcmd service command (PR#1744)
+* Added memory limitation for httpd.portal processes (PR#1738)
+* Added predefined search in RADUIS audit log and DHCP Option 82 log (PR#1716)
+* Improved display of fingerprinting informations in the nodes search (PR#1709)
+* Allow captiveportal::Form::Authentication to be customize (PR#1666)
+* Default config overlay for switches.conf, profiles.conf, pfqueue.conf and violations.conf (PR#1647)
 
 Bug Fixes
 +++++++++
+
+* Fixed floating devices in active/active clusters (PR#1800)
+* Fixed and improved syntax of `pfcmd ipmachistory` (#1794)
+* Fixed wrong bandwidth calculation on RADIUS accounting (#1733)
+* Fixed empty Calling-Station-Id in RADIUS accounting (PR#1756)
+* Make sure connection caches are cleared after forking (#1748 / #1749 / PR#1751)
+* Added a workaround for DHCP clients that do not respect short lease times (#1673)
+* Added namespace parameter in WMI rule (PR#1633)
+* Fixed non-working switch ranges with external portal (#1574 / PR#1613)
+* Joining a domain will sometimes return a 500 even though it succeeded (#1821/#1818)
+* Cisco WLC ignores our CoA requests but accepts our Disconnect Requests (#1819)
+* pfdetect: pipe is closing when no content (#1814)
+* Condition `is a Phone` in RADIUS audit log is not working properly (#1813)
+* Condition Auto``Registration in RADIUS audit log is not working properly (#1812)
+* Configurator: Status on the services doesn't work (#1811)
+* Invalid SQL for iplog_cleanup_sql (#1802)
+* Added request cache support (#1775)
+* Added stack trace logging (#1774)
+* Removed redundant SQL indexes (#1773)
+* Removed unused code in pf::locationlog (#1772)
+* Fixed missing fields in RADIUS audit log (#1395)
+* Fixed RADIUS audit log hours selection (#1364)
+
 
 Version 6.3.0 released on 2016-10-05
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
