@@ -76,8 +76,6 @@ To upgrade the database schema, run the following command:
 
   mysql -u root -p pf -v < /usr/local/pf/db/upgrade-6.3.0-6.4.0.sql
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 6.4.0).
-
 
 Changes to web authentication configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -109,7 +107,6 @@ External captive portal URLs have also changed. Change them accordingly dependin
 
 Where portal_ip is the IP Address (or DNS name) of your captive portal as it was configured before
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
 
 Changes to WMI
 ^^^^^^^^^^^^^^
@@ -123,6 +120,9 @@ action=[sccm]
 namespace=ROOT\cimv2
 on_tab=1
 ```
+
+Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 6.4.0).
+
 
 Changes to default cronjob
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
