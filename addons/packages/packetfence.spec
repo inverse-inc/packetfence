@@ -1407,6 +1407,9 @@ fi
 
 %changelog
 
+* Wed Nov 16 2016 Inverse <info@inverse.ca> - 6.4.0-1
+- New release 6.4.0
+
 * Wed Oct 05 2016 Inverse <info@inverse.ca> - 6.3.0-1
 - New release 6.3.0
 
