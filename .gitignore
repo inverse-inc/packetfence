@@ -61,6 +61,9 @@ conf/radiusd/auth.conf
 conf/radiusd/cli.conf
 conf/radiusd/clients.conf.inc
 conf/radiusd/eap.conf
+conf/radiusd/eduroam
+conf/radiusd/eduroam-cluster
+conf/radiusd/eduroam.conf
 conf/radiusd/load_balancer.conf
 conf/radiusd/packetfence
 conf/radiusd/packetfence-cli
