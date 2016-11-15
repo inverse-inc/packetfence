@@ -133,7 +133,7 @@ my $pidfile = "${var_dir}/run/pfmon.pid";
 
 our $HAS_LOCK = 0;
 open(my $fh,">>$pidfile");
-#flock($fh, LOCK_EX | LOCK_NB) or die "cannot lock $pidfile another pfmon is running\n";
+flock($fh, LOCK_EX | LOCK_NB) or die "cannot lock $pidfile another pfmon is running\n";
 $HAS_LOCK = 1;
 
 our $running = 1;
