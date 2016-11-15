@@ -38,7 +38,6 @@ sub supportsWiredMacAuth { return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
 # VoIP technology supported
 sub supportsRadiusVoip { return $TRUE; }
-# override 2950's FALSE
 sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
 sub supportsLldp { return $TRUE; }
 
@@ -90,7 +89,6 @@ sub wiredeauthTechniques {
 
 =head2 dot1xPortReauthenticate
 
-Points to pf::Switch implementation bypassing Catalyst_2950's overridden behavior.
 
 =cut
 
@@ -351,5 +349,5 @@ USA.
 1;
 
 # vim: set shiftwidth=4:
-# # vim: set expandtab:
-# # vim: set backspace=indent,eol,start:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:
