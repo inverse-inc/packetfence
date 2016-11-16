@@ -32,8 +32,14 @@ var PfdetectView = function(options) {
     var id = items.id;
     var formName = items.formName;
     options.parent.off('click', id + ' [href$="/clone"]');
+
     var showTestRegex = $.proxy(this.showTestRegex, this);
     options.parent.on('show', '#test-regex', showTestRegex);
+
+    var toggleResults = $.proxy(this.toggleResults, this);
+    options.parent.on('shown', '#test-regex-results .collapse', toggleResults);
+    options.parent.on('hidden', '#test-regex-results .collapse', toggleResults);
+
     var testRegex = $.proxy(this.testRegex, this);
     options.parent.on('click', '#test-regex-btn', testRegex);
 };
@@ -69,6 +75,14 @@ PfdetectView.prototype.updateItem = function(e) {
             },
             errorSibling: section.find('h2').first()
         });
+    }
+};
+
+PfdetectView.prototype.toggleResults = function(e) {
+    var div = $(e.currentTarget);
+    var icon = $('a[data-target="#'+ div.attr("id") + '"] i');
+    if (icon.length) {
+        icon.toggleClass("icon-minus-sign", 1);
     }
 };
 
