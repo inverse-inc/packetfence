@@ -8,7 +8,8 @@
 # Ettore Atalan <atalanttore@googlemail.com>, 2014-2015
 # Felix Eckhofer <felix@tribut.de>, 2016
 # Felix Eckhofer <felix@tribut.de>, 2016
-# Hendrik Fritsch <hendrik.fritsch@web.de>, 2016
+# Hendrik <hendrik.fritsch@web.de>, 2016
+# Hendrik <hendrik.fritsch@web.de>, 2016
 # inverse <info@inverse.ca>, 2013,2016
 # Tino Matysiak <tmatysiak@meetyoo.de>, 2011
 # Tombi, 2016
@@ -16,8 +17,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-09-27 12:42+0000\n"
-"Last-Translator: inverse <info@inverse.ca>\n"
+"PO-Revision-Date: 2016-11-03 13:41+0000\n"
+"Last-Translator: Hendrik <hendrik.fritsch@web.de>\n"
 "Language-Team: German (http://www.transifex.com/inverse/packetfence/language/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1037,112 +1038,112 @@ msgid ""
 msgstr "Laut der Anbieterkonfiguration %s kann dieses Gerät nicht auf das Netzwerk zugreifen. Bitte den unten stehenden Anweisungen folgen."
 
 msgid "The following errors prevented the request to be fulfilled : %s"
-msgstr ""
+msgstr "Die folgenden Fehler verhinderten, dass die Anfrage erfüllt werden konnte: %s"
 
 msgid "%s is required"
-msgstr ""
+msgstr "%s wird benötigt"
 
 msgid "username"
-msgstr ""
+msgstr "Benutzername"
 
 msgid "password"
-msgstr ""
+msgstr "Passwort"
 
 msgid "mobileprovider"
-msgstr ""
+msgstr "Mobilanbieter"
 
 msgid "aup"
-msgstr ""
+msgstr "Nutzungsrichtlinie"
 
 msgid "pid"
-msgstr ""
+msgstr "Pid"
 
 msgid "firstname"
-msgstr ""
+msgstr "Vorname"
 
 msgid "lastname"
-msgstr ""
+msgstr "Nachname"
 
 msgid "email"
-msgstr ""
+msgstr "Email"
 
 msgid "telephone"
-msgstr ""
+msgstr "Telefon"
 
 msgid "company"
-msgstr ""
+msgstr "Firma"
 
 msgid "address"
-msgstr ""
+msgstr "Adresse"
 
 msgid "notes"
-msgstr ""
+msgstr "Notizen"
 
 msgid "sponsor"
-msgstr ""
+msgstr "Sponsor"
 
 msgid "anniversary"
-msgstr ""
+msgstr "Jahrestag"
 
 msgid "birthday"
-msgstr ""
+msgstr "Geburtstag"
 
 msgid "gender"
-msgstr ""
+msgstr "Geschlecht"
 
 msgid "lang"
-msgstr ""
+msgstr "Sprache"
 
 msgid "nickname"
-msgstr ""
+msgstr "Nickname"
 
 msgid "cell_phone"
-msgstr ""
+msgstr "Mobiltelefon"
 
 msgid "work_phone"
-msgstr ""
+msgstr "Geschäftsnummer"
 
 msgid "title"
-msgstr ""
+msgstr "Titel"
 
 msgid "building_number"
-msgstr ""
+msgstr "Gebäudenummer"
 
 msgid "apartment_number"
-msgstr ""
+msgstr "Wohnungsnummer"
 
 msgid "room_number"
-msgstr ""
+msgstr "Raumnummer"
 
 msgid "custom_field_1"
-msgstr ""
+msgstr "Benutzerdefiniertes Feld 1"
 
 msgid "custom_field_2"
-msgstr ""
+msgstr "Benutzerdefiniertes Feld 2"
 
 msgid "custom_field_3"
-msgstr ""
+msgstr "Benutzerdefiniertes Feld 3"
 
 msgid "custom_field_4"
-msgstr ""
+msgstr "Benutzerdefiniertes Feld 4"
 
 msgid "custom_field_5"
-msgstr ""
+msgstr "Benutzerdefiniertes Feld 5"
 
 msgid "custom_field_6"
-msgstr ""
+msgstr "Benutzerdefiniertes Feld 6"
 
 msgid "custom_field_7"
-msgstr ""
+msgstr "Benutzerdefiniertes Feld 7"
 
 msgid "custom_field_8"
-msgstr ""
+msgstr "Benutzerdefiniertes Feld 8"
 
 msgid "custom_field_9"
-msgstr ""
+msgstr "Benutzerdefiniertes Feld 9"
 
 msgid "portal"
-msgstr ""
+msgstr "Portal"
 
 msgid "source"
-msgstr ""
+msgstr "Quelle"
