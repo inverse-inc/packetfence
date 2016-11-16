@@ -135,7 +135,7 @@ sub iptables_generate {
         $tags{'eduroam_radius_virtualserver'} .= "-A input-management-if --protocol udp --match udp --dport $eduroam_listening_port --jump ACCEPT\n";
     }
     else {
-        $tags{'eduroam_radius_virtualserver'} = "# eduroam integration is not configured";
+        $tags{'eduroam_radius_virtualserver'} = "# eduroam integration is not configured\n";
     }
 
     if (is_inline_enforcement_enabled()) {
