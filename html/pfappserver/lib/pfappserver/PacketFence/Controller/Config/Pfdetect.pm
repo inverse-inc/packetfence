@@ -102,6 +102,35 @@ sub create_type : Path('create') : Args(1) {
     $c->forward('create');
 }
 
+=head2 test_regex_parser
+
+=cut
+
+sub test_regex_parser : Local {
+    my ($self, $c) = @_;
+    my ($status, $status_msg);
+    my $form = $c->form("Config::Pfdetect::regex");
+    $form->field('loglines')->is_active(1);
+    $form->process(params => $c->request->params);
+    if ($form->has_errors) {
+        $c->stash->{current_view} = 'JSON';
+        $status                   = HTTP_BAD_REQUEST;
+        $status_msg               = $form->field_errors;
+        $c->response->status($status);
+        $c->stash({
+            current_view => 'JSON',
+            status_msg   => $status_msg
+        });
+        return;
+    }
+    my $data     = $form->value;
+    my $loglines = delete $data->{loglines};
+    my $parser   = pf::detect::parser::regex->new($data);
+    my @lines = split(/\r\n/, $loglines);
+    $c->stash->{dryrun_info} = $parser->dryRun(@lines);
+
+}
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2017 Inverse inc.

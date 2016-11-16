@@ -34,7 +34,8 @@ var PfdetectView = function(options) {
     options.parent.off('click', id + ' [href$="/clone"]');
     var showTestRegex = $.proxy(this.showTestRegex, this);
     options.parent.on('show', '#test-regex', showTestRegex);
-
+    var testRegex = $.proxy(this.testRegex, this);
+    options.parent.on('click', '#test-regex-btn', testRegex);
 };
 
 PfdetectView.prototype = (function(){
@@ -69,6 +70,34 @@ PfdetectView.prototype.updateItem = function(e) {
             errorSibling: section.find('h2').first()
         });
     }
+};
+
+PfdetectView.prototype.testRegex = function(e) {
+    e.preventDefault();
+
+    var that = this;
+    var btn = $(e.target);
+    var form = $(btn.closest('form').first());
+    var valid = isFormValid(form);
+    if (valid) {
+        var action = btn.attr("data-test-action");
+        var section = $('#section');
+        btn.button('loading');
+        this.items.post({
+            url: action,
+            data: form.serialize(),
+            always: function() {
+                // Restore hidden/template rows
+                btn.button('reset');
+            },
+            success: function(data) {
+                showSuccess(section.find('h2').first(), "Passed");
+                $('#test-regex-results').html(data);
+            },
+            errorSibling: section.find('h2').first()
+        });
+    }
+    return false;
 };
 
 PfdetectView.prototype.showTestRegex = function(e) {
