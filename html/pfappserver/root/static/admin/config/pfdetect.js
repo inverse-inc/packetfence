@@ -42,6 +42,9 @@ var PfdetectView = function(options) {
 
     var testRegex = $.proxy(this.testRegex, this);
     options.parent.on('click', '#test-regex-btn', testRegex);
+
+    var handleChangeApiMethod = this.handleChangeApiMethod;
+    options.parent.on('change', 'form[name="modalPfdetect"] [name$=".api_method"]', handleChangeApiMethod);
 };
 
 PfdetectView.prototype = (function(){
@@ -116,6 +119,20 @@ PfdetectView.prototype.testRegex = function(e) {
 
 PfdetectView.prototype.showTestRegex = function(e) {
     $('textarea[name="loglines"]').removeAttr('disabled')
+};
+
+PfdetectView.prototype.handleChangeApiMethod = function(e) {
+    var search_input = $(e.currentTarget);
+    var api_parameters_input = search_input.next();
+    var search_type = search_input.val();
+    var api_parameters_id = '#' + search_type + "_api_parameters";
+    var api_parameters_template = $(api_parameters_id);
+    if (api_parameters_template.length == 0 ) {
+        api_parameters_template = $('#default_api_parameters');
+    }
+    if (api_parameters_template.length) {
+        changeInputFromTemplate(api_parameters_input, api_parameters_template);
+    }
 };
 
 
