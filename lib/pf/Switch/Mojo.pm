@@ -52,6 +52,7 @@ sub description { 'Mojo Networks AP' }
 
 # CAPABILITIES
 # access technology supported
+sub supportsExternalPortal { return $TRUE; }
 sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $FALSE; }
 
@@ -218,6 +219,36 @@ sub extractSsid {
     );
     return;
 }
+
+
+=item parseExternalPortalRequest
+
+Parse external portal request using URI and it's parameters then return an hash reference with the appropriate parameters
+
+See L<pf::web::externalportal::handle>
+
+=cut
+
+sub parseExternalPortalRequest {
+    my ( $self, $r, $req ) = @_;
+    my $logger = $self->logger;
+
+    my $client_ip = defined($r->headers_in->{'X-Forwarded-For'}) ? $r->headers_in->{'X-Forwarded-For'} : $r->connection->remote_ip;
+
+    # Using a hash to contain external portal parameters
+    my %params = ();
+
+    %params = (
+        switch_id       => $req->param('uamip'),
+        client_mac      => clean_mac($req->param('client_mac')),
+        client_ip       => $client_ip,
+        ssid            => $req->param('ap_ssid'),
+        redirect_url    => $req->param('userurl'),
+    );
+
+    return \%params;
+}
+
 
 =back
 
