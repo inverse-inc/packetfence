@@ -127,6 +127,17 @@ sub iptables_generate {
     # per interface-type pointers to pre-defined chains
     $tags{'filter_if_src_to_chain'} .= $self->generate_filter_if_src_to_chain();
 
+    # eduroam RADIUS virtual-server
+    if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
+        my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
+        my $eduroam_listening_port = $eduroam_authentication_source[0]{'auth_listening_port'};    # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
+        $tags{'eduroam_radius_virtualserver'} = "-A input-management-if --protocol tcp --match tcp --dport $eduroam_listening_port --jump ACCEPT\n";
+        $tags{'eduroam_radius_virtualserver'} .= "-A input-management-if --protocol udp --match udp --dport $eduroam_listening_port --jump ACCEPT\n";
+    }
+    else {
+        $tags{'eduroam_radius_virtualserver'} = "# eduroam integration is not configured";
+    }
+
     if (is_inline_enforcement_enabled()) {
         # Note: I'm giving references to this guy here so he can directly mess with the tables
         $self->generate_inline_rules(
