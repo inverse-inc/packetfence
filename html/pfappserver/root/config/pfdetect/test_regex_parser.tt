@@ -36,12 +36,14 @@ $VAR1 = [
         <a data-toggle="collapse" data-target="#dry_run_info_results_[% loop.index %]"> <i class="icon-plus-sign"></i> [% l('Click to see actions for') %] </a> - <b>[% run.line %]</b> 
     </div>
     <div id=dry_run_info_results_[% loop.index %] class="collapse">
-    [% IF run.actions.size %]
-    [% FOREACH action IN run.actions %]
-      <div>
-      - [% action.0 %]('[% action.1.join("', '") %]')
-      </div>
-    [% END %]
+    [% IF run.matches.size %]
+      [% FOREACH match IN run.matches %]
+        [% FOREACH action IN match.actions %]
+        <div>
+        - [% match.rule.name %] - [% action.0 %]('[% action.1.join("', '") %]')
+        </div>
+        [% END %]
+      [% END %]
     [% ELSE %]
       - [% l('No Rules Matched') %]
     [% END %]

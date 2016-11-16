@@ -19,6 +19,7 @@ use pf::api;
 use pf::api::queue;
 use pf::api::local;
 use pf::util qw(isenabled);
+use Clone qw(clone);
 use Moo;
 extends qw(pf::detect::parser);
 
@@ -102,16 +103,26 @@ sub dryRun {
     for my $line (@lines) {
         my @actions;
         my @rules;
+        my @matches;
         my %run = (
             line => $line,
             actions => \@actions,
             rules => \@rules,
+            matches => \@matches,
         );
-        foreach my $rule (@{$self->rules}) {
+        foreach my $r (@{$self->rules}) {
+            my $rule = clone($r);
             my $data = $self->parseLineFromRule($rule, $line);
             next unless defined $data;
+            my %match = (
+                rule => $rule,
+                actions => [],
+            );
+            push @matches, \%match;
             foreach my $action (@{$rule->{actions} // []}) {
-                push @actions, $self->prepAction($rule, $data, $action);
+                my $a = $self->prepAction($rule, $data, $action);
+                push @actions, $a;
+                push @{$match{actions}}, $a;
             }
             push @rules, $rule;
             last if isenabled($rule->{last_if_match});
