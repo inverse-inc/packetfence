@@ -52,6 +52,7 @@ Enhancements
 * Improved display of fingerprinting informations in the nodes search (PR#1709)
 * Allow captiveportal::Form::Authentication to be customize (PR#1666)
 * Default config overlay for switches.conf, profiles.conf, pfqueue.conf and violations.conf (PR#1647)
+* Optimized queries for finding open violations (PR#1718) 
 
 Bug Fixes
 +++++++++
