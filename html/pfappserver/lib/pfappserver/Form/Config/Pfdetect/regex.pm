@@ -39,6 +39,11 @@ has_field 'rules.contains' => (
     }
 );
 
+has_field 'loglines' => (
+    'type' => 'TextArea',
+    'is_inactive' => 1,
+);
+
 sub accordion_heading_content {
     my ($field) = @_;
     my $content = $field->do_accordion_heading_content;
