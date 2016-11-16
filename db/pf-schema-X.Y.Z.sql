@@ -560,11 +560,11 @@ CREATE TABLE radacct (
   KEY framedipaddress (framedipaddress),
   KEY acctsessionid (acctsessionid),
   KEY acctsessiontime (acctsessiontime),
-  KEY acctstarttime (acctstarttime),
   KEY acctinterval (acctinterval),
   KEY acctstoptime (acctstoptime),
   KEY nasipaddress (nasipaddress),
-  KEY callingstationid (callingstationid)
+  KEY callingstationid (callingstationid),
+  KEY acctstart_acctstop (acctstarttime,acctstoptime)
 ) ENGINE = INNODB;
 
 -- Adding RADIUS update log table
