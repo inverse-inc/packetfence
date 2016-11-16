@@ -3,12 +3,12 @@
     <div class="control-group">
         <button type="button" class="btn " data-toggle="collapse" data-target="#test-regex"> Test Parser </button>
         <div id="test-regex" class="collapse">
-            <textarea name="loglines" disabled="disabled"></textarea>
+            <textarea class="input-xxlarge" name="loglines" disabled="disabled" rows="3"></textarea>
             <div>
-                <button data-loading-text="Testing..." data-test-action=[% c.uri_for(c.controller.action_for('test_regex_parser'))%] id="test-regex-btn" type="button" class="btn " data-toggle="collapse">Do Test</button>
+                <button data-loading-text="[% l('Testing...') %]" data-test-action=[% c.uri_for(c.controller.action_for('test_regex_parser'))%] id="test-regex-btn" type="button" class="btn " data-toggle="collapse">[% l('Do Test') %]</button>
             </div>
-        </div>
-        <div id="test-regex-results">
+            <div id="test-regex-results">
+            </div>
         </div>
     </div>
 </div>

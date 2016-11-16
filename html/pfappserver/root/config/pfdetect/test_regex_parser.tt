@@ -29,17 +29,18 @@ $VAR1 = [
         ];
 -->
 
+<h4>[% l('Results') %]</h4>
 [% FOREACH run IN dryrun_info %]
-
-<div>
-[% run.line %] - <a data-toggle="collapse" data-target="#dry_run_info_results_[% loop.index %]" > [% l('Click to see actions for log entry') %] <i class="icon-plus"></i></a>
-</div>
-<div id=dry_run_info_results_[% loop.index %] class="collapse">
-[% FOREACH action IN run.actions %]
-<div>
-- [% action.0 %]('[% action.1.join("', '") %]')
-</div>
-[% END %]
-</div>
-
+  <div>
+    <div>
+        <a data-toggle="collapse" data-target="#dry_run_info_results_[% loop.index %]"> <i class="icon-plus-sign"></i> [% l('Click to see actions for') %] </a> - <b>[% run.line %]</b> 
+    </div>
+    <div id=dry_run_info_results_[% loop.index %] class="collapse">
+    [% FOREACH action IN run.actions %]
+      <div>
+      - [% action.0 %]('[% action.1.join("', '") %]')
+      </div>
+    [% END %]
+    </div>
+  </div>
 [% END %]
