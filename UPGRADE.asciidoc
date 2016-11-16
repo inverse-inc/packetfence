@@ -63,6 +63,11 @@ Once the additionnal steps are completed, restart packetfence-config and packetf
   service packetfence-config restart
   service packetfence restart
 
+Upgrading from a version prior to X.Y.Z
+---------------------------------------
+
+Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
+
 Upgrading from a version prior to 6.4.0
 ---------------------------------------
 
