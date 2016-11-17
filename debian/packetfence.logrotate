@@ -8,6 +8,12 @@
     compress
     create 640 pf pf
     copytruncate
+
+    # Output logrotate return code for monitoring
+    sharedscripts
+    postrotate
+        echo $? >> /usr/local/pf/var/logrotate.status
+    endscript
 }
 
 
@@ -19,4 +25,10 @@
     compress
     create 640 pf pf
     copytruncate
+
+    # Output logrotate return code for monitoring
+    sharedscripts
+    postrotate
+        echo $? >> /usr/local/pf/var/logrotate.status
+    endscript
 }
