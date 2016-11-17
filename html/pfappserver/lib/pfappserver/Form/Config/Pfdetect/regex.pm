@@ -22,12 +22,9 @@ The list of rule
 =cut
 
 has_field 'rules' => (
-    'type' => 'Repeatable',
+    'type' => 'DynamicList',
     do_wrapper => 1,
     do_label => 1,
-    tags => {
-        after_wrapper => \&append_button,
-    },
 );
 
 has_field 'rules.contains' => (
@@ -64,40 +61,6 @@ sub build_rule_label {
     return "Rule - $name";
 }
 
-
-sub append_button {
-    my ($self) = @_;
-    my $index = $self->index;
-    $self->add_extra(1);
-    my $extra_field = $self->field($index);
-    set_disabled($extra_field);
-    $extra_field->name(999);
-    my $id = $self->id;
-    my $content = $extra_field->render;
-    my $template_id = 'accordion.template.' . $self->id;
-    $template_id =~ s/\./_/g;
-    my $control_group_id = "${template_id}_control_group";
-    return <<"EOS"
-    <div class="control-group" id="$control_group_id" >
-        <div id="$template_id" class="hidden">$content</div>
-        <div>
-            <div class="controls">
-                <a data-toggle="dynamic-list" data-target="#${id} .controls:first" data-template-parent="#$template_id" data-base-id="$id" class="btn">Add Rule</a>
-            </div>
-        </div>
-    </div>
-EOS
-}
-
-sub set_disabled {
-    my ($field) = @_;
-    if ($field->can("fields")) {
-        foreach my $subfield ($field->fields) {
-            set_disabled($subfield);
-        }
-    }
-    $field->set_element_attr("disabled" => "disabled");
-}
 
 has_block definition =>
   (
