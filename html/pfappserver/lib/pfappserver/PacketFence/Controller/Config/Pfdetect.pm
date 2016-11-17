@@ -124,7 +124,7 @@ sub test_regex_parser : Local {
         return;
     }
     my $data     = $form->value;
-    my $loglines = delete $data->{loglines};
+    my $loglines = delete $data->{loglines} // '';
     my $parser   = pf::detect::parser::regex->new($data);
     my @lines = split(/\r\n/, $loglines);
     $c->stash->{dryrun_info} = $parser->dryRun(@lines);
