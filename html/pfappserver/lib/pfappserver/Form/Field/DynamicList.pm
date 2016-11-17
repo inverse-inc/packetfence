@@ -25,12 +25,13 @@ has '+init_contains' => ( default => \&build_init_contains );
 
 sub set_disabled {
     my ($field) = @_;
+    get_logger->trace(sub { "Setting " . $field->id . " to disabled" });
     if ($field->can("fields")) {
         foreach my $subfield ($field->fields) {
             set_disabled($subfield);
         }
     }
-    $field->set_element_attr("disabled" => "disabled");
+    $field->disabled(1);
 }
 
 sub build_widget_tags {
