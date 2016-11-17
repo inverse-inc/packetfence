@@ -72,7 +72,7 @@ sub _run {
                     }
                 } else {
                     print color $pf::config::Config{advanced}{pfcmd_error_color} if $show_color;
-                    print $indent,"Did not match against ",$source->id,"\n";
+                    print $indent,"Did not match against ",$source->id," for '$class' rules\n";
                 }
             }
             print color 'reset' if $show_color;
