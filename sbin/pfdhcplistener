@@ -29,6 +29,8 @@ BEGIN {
     use pf::log(service => 'pfdhcplistener');
 }
 
+use Try::Tiny;
+use pf::util::dhcp;
 use pf::constants;
 use pf::constants::config qw( $NET_TYPE_INLINE_L2 $NET_TYPE_INLINE_L3 );
 use pf::clustermgmt;
@@ -244,6 +246,19 @@ sub process_pkt {
 
             # we send all IPv4 DHCPv4 codepath
             if ( $l2->{type} eq ETH_TYPE_IP ) {
+                my ($dhcp);
+
+                # we need success flag here because we can't next inside try catch
+                my $success;
+                try {
+                    $dhcp = decode_dhcp($l4->{'data'});
+                    $success = 1;
+                } catch {
+                    $logger->warn("Unable to parse DHCP packet: $_");
+                };
+                return if (!$success);
+                $args{dhcp} = $dhcp;
+
                 if ($is_inline_vlan) {
                     my $ip = new NetAddr::IP::Lite clean_ip($l3->{'src_ip'});
                     if ($net_addr->contains($ip)) {
