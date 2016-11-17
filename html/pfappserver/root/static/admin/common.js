@@ -429,7 +429,14 @@ $(function () { // DOM ready
         var template_parent = $(link.attr("data-template-parent"));
         var base_id = link.attr("data-base-id");
         var copy = template_parent.clone();
-        copy.find(':input').removeAttr('disabled');
+        copy.removeAttr('id');
+        copy.find(':input').each(function(i,e) {
+            var input = $(e);
+            var template_parent = input.closest('[id^="dynamic-list-template"]');
+            if (template_parent.length == 0) {
+                input.removeAttr('disabled');
+            }
+        });
         dynamic_list_update_all_attributes(copy, base_id, target.children().length);
         target.append(copy.children());
         return false;
