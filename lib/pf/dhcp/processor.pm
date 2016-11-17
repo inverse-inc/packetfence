@@ -149,17 +149,7 @@ sub process_packet {
     my $timer = pf::StatsD::Timer->new();
     my ( $self ) = @_;
 
-    my ($dhcp);
-
-    # we need success flag here because we can't next inside try catch
-    my $success;
-    try {
-        $dhcp = decode_dhcp($self->{'udp_payload'});
-        $success = 1;
-    } catch {
-        $logger->warn("Unable to parse DHCP packet: $_");
-    };
-    return if (!$success);
+    my $dhcp = $self->{dhcp};
 
     # adding to dhcp hashref some frame information we care about
     $dhcp->{'src_mac'} = $self->{'src_mac'};
