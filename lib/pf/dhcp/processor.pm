@@ -151,31 +151,6 @@ sub process_packet {
 
     my $dhcp = $self->{dhcp};
 
-    # adding to dhcp hashref some frame information we care about
-    $dhcp->{'src_mac'} = $self->{'src_mac'};
-    $dhcp->{'dest_mac'} = $self->{'dest_mac'};
-    $dhcp->{'src_ip'} = $self->{'src_ip'};
-    $dhcp->{'dest_ip'} = $self->{'dest_ip'};
-
-    if (!valid_mac($dhcp->{'src_mac'})) {
-        $logger->debug("Source MAC is invalid. skipping");
-        return;
-    }
-
-    # grab DHCP information
-    if ( !defined($dhcp->{'chaddr'}) ) {
-        $logger->debug("chaddr is undefined in DHCP packet");
-        return;
-    }
-
-    $dhcp->{'chaddr'} = clean_mac( substr( $dhcp->{'chaddr'}, 0, 12 ) );
-    if ( $dhcp->{'chaddr'} ne "00:00:00:00:00:00" && !valid_mac($dhcp->{'chaddr'}) ) {
-        $logger->debug(
-            "invalid CHADDR value ($dhcp->{'chaddr'}) in DHCP packet from $dhcp->{src_mac} ($dhcp->{src_ip})"
-        );
-        return;
-    }
-
     if ( !node_exist($dhcp->{'chaddr'}) ) {
         $logger->info("Unseen before node added: $dhcp->{'chaddr'}");
         node_add_simple($dhcp->{'chaddr'});
