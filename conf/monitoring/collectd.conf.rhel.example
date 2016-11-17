@@ -61,6 +61,11 @@ LoadPlugin unixsock
 LoadPlugin write_graphite
 LoadPlugin redis
 LoadPlugin disk
+LoadPlugin drbd
+LoadPlugin conntrack
+LoadPlugin processes
+LoadPlugin tcpconns
+LoadPlugin swap
 
 ##############################################################################
 # Plugin configuration                                                       #
@@ -114,7 +119,6 @@ LoadPlugin disk
   </Node>
 </Plugin>
 
-
 <Plugin redis>
   <Node "cache">
     Host "localhost"
@@ -133,6 +137,13 @@ LoadPlugin disk
 
 <Plugin "disk">
   Disk "/^sd/"
+  Disk "/^drbd/"
   IgnoreSelected false
+</Plugin>
+
+<Plugin "tcpconns">
+  ListeningPorts false
+  LocalPort "80"
+  LocalPort "443"
 </Plugin>
 
