@@ -75,7 +75,7 @@ The creates the portal preview ip addresss
 sub portal_preview_ip {
     my ($self) = @_;
     my  @ints = uniq (@internal_nets, @portal_ints);
-    return $ints[0]->{Tip};
+    return $ints[0]->{Tvip} ? $ints[0]->{Tvip} : $ints[0]->{Tip};
 }
 
 =head2 _build_launcher
