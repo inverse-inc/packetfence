@@ -36,6 +36,17 @@ sub allowed_urls_auth_module {
     ];
 }
 
+=head2 before done
+
+We record the completed sponsorship in the auth_log
+
+=cut
+
+before 'done' => sub {
+    my ($self) = @_;
+    pf::auth_log::record_completed_guest($self->source->id, $self->current_mac, $pf::auth_log::COMPLETED);
+};
+
 =head2 execute_child
 
 Execute the module
