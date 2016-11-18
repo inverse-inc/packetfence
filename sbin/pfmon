@@ -87,7 +87,7 @@ POSIX::sigaction(
 POSIX::sigaction(
     &POSIX::SIGHUP,
     POSIX::SigAction->new(
-        'normal_sighandler' , POSIX::SigSet->new(), &POSIX::SA_NODEFER
+        'reload_config' , POSIX::SigSet->new(), &POSIX::SA_NODEFER
     )
 ) or die("pfmon could not set SIGHUP handler: $!");
 
@@ -137,6 +137,7 @@ flock($fh, LOCK_EX | LOCK_NB) or die "cannot lock $pidfile another pfmon is runn
 $HAS_LOCK = 1;
 
 our $running = 1;
+our $process = 0;
 
 # standard signals and daemonize
 daemonize($PROGRAM_NAME) if ($daemonize);
@@ -144,6 +145,7 @@ our $PARENT_PID = $$;
 
 
 sub start {
+    reload_config();
     registertasks();
     runtasks();
     waitforit();
@@ -381,6 +383,24 @@ sub normal_sighandler {
     $running = 0;
 }
 
+=head2 reload_config
+
+=cut
+
+sub reload_config {
+    if ( pf::cluster::is_management ) {
+        $process = $TRUE;
+    }
+    elsif ( !$pf::cluster::cluster_enabled ) {
+        $process = $TRUE;
+    }
+    else {
+        $process = $FALSE;
+    }
+
+    $logger->debug("Reload configuration with status $process");
+}
+
 =head2 runtasks
 
 run all runtasks
@@ -390,7 +410,7 @@ run all runtasks
 sub runtasks {
     my $mask = POSIX::SigSet->new(POSIX::SIGCHLD());
     sigprocmask(SIG_BLOCK,$mask);
-    while(@REGISTERED_TASKS) {
+    while(@REGISTERED_TASKS && $process) {
         my $task = shift @REGISTERED_TASKS;
         runtask($task);
     }
@@ -429,7 +449,7 @@ sub _runtask {
     my ($id,$parameter,$task) = @_;
     $0 = "pfmon - $id";
     my $time_taken = 0;
-    while ($running) {
+    while ($running && $process) {
         pf::CHI::Request::clear_all();
         pf::log::reset_log_context();
         my $interval = $Config{'maintenance'}{$parameter};
@@ -463,6 +483,7 @@ sub _runtask {
             $logger->error("Parent is no longer running shutting down");
             $running = 0;
         }
+        reload_config();
     }
     $logger->trace("$$ shutting down");
     exit;
@@ -498,8 +519,10 @@ waits for signals
 
 sub waitforit {
     while($running) {
+        alarm(1) if !$process;
         pause;
-        $logger->info("Awake from pause");
+        $logger->debug("Awake from pause");
+        reload_config();
         runtasks();
     }
 }
