@@ -388,22 +388,27 @@ sub dashboard :Local :AdminRole('REPORTS') {
                },
                {
                 'description' => $c->loc('CPU Wait'),
-                'target' => 'aliasByNode(*.*.cpu-wait,0)',
+                'target' => 'aliasByNode(*.*.cpu-wait,0,1)',
                 'columns' => 2
                },
                {
                 'description' => $c->loc('Disk IO'),
-                'target' => 'aliasByNode(*.*.disk_io_time.io_time,0)',
-                'columns' => 2
-               },
-               {
-                'description' => $c->loc('Network traffic'),
-                'target' => 'aliasByNode(*.*.if_packets.*,0)',
+                'target' => 'aliasByNode(*.*.disk_io_time.io_time,0,1)',
                 'columns' => 2
                },
                {
                 'description' => $c->loc('Available Memory'),
                 'target' => 'groupByNode(*.memory.memory-{free,cached,buffered}, 0, "sumSeries") ',
+                'columns' => 2
+               },
+               {
+                'description' => $c->loc('Conntrack percent used'),
+                'target' => 'aliasByNode(*.conntrack.percent-used,0)',
+                'columns' => 2
+               },
+               {
+                'description' => $c->loc('Logs Tracking'),
+                'target' => 'aliasByNode(*.tail-*.counter*,1,2)',
                 'columns' => 2
                },
                {

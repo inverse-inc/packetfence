@@ -66,6 +66,7 @@ LoadPlugin conntrack
 LoadPlugin processes
 LoadPlugin tcpconns
 LoadPlugin swap
+LoadPlugin tail
 
 ##############################################################################
 # Plugin configuration                                                       #
@@ -143,4 +144,115 @@ LoadPlugin swap
   ListeningPorts false
   LocalPort "80"
   LocalPort "443"
+</Plugin>
+
+<Plugin "tail">
+  <File "/usr/local/pf/logs/packetfence.log">
+    Instance "PacketFence"
+    <Match>
+      Regex ".*Use of uninitialized value.*"
+      DSType "CounterInc"
+      Type "counter"
+      Instance "Uninitialized value"
+    </Match>
+    <Match>
+      Regex ".*database query failed.*"
+      DSType "CounterInc"
+      Type "counter"
+      Instance "Query Failed"
+    </Match>
+    <Match>
+      Regex ".*ERROR.*"
+      DSType "CounterInc"
+      Type "counter"
+      Instance "Error"
+    </Match>
+  </File>
+  <File "/usr/local/pf/logs/pfqueue.log">
+    Instance "pfqueue"
+    <Match>
+      Regex ".*Use of uninitialized value.*"
+      DSType "CounterInc"
+      Type "counter"
+      Instance "Uninitialized value"
+    </Match>
+    <Match>
+      Regex ".*Invalid task id.*"
+      DSType "CounterInc"
+      Type "counter"
+      Instance "InvalidTaskID"
+    </Match>
+    <Match>
+      Regex ".*database query failed.*"
+      DSType "CounterInc"
+      Type "counter"
+      Instance "Query Failed"
+    </Match>
+    <Match>
+      Regex ".*ERROR.*"
+      DSType "CounterInc"
+      Type "counter"
+      Instance "Error"
+    </Match>
+  </File>
+  <File "/usr/local/pf/logs/pfmon.log">
+    Instance "pfmon"
+    <Match>
+      Regex ".*Use of uninitialized value.*"
+      DSType "CounterInc"
+      Type "counter"
+      Instance "Uninitialized value"
+    </Match>
+    <Match>
+      Regex ".*database query failed.*"
+      DSType "CounterInc"
+      Type "counter"
+      Instance "Query Failed"
+    </Match>
+    <Match>
+      Regex ".*ERROR.*"
+      DSType "CounterInc"
+      Type "counter"
+      Instance "Error"
+    </Match>
+  </File>
+  <File "/usr/local/pf/logs/pfdhcplistener.log">
+    Instance "pfdhcplistener"
+    <Match>
+      Regex ".*Use of uninitialized value.*"
+      DSType "CounterInc"
+      Type "counter"
+      Instance "Uninitialized value"
+    </Match>
+    <Match>
+      Regex ".*database query failed.*"
+      DSType "CounterInc"
+      Type "counter"
+      Instance "Query Failed"
+    </Match>
+    <Match>
+      Regex ".*ERROR.*"
+      DSType "CounterInc"
+      Type "counter"
+      Instance "Error"
+    </Match>
+  </File>
+  <File "/usr/local/pf/logs/radius.log">
+    Instance "radius-auth"
+    <Match>
+      Regex ".*Error:.*"
+      DSType "CounterInc"
+      Type "counter"
+      Instance "Error"
+    </Match>
+  </File>
+  <File "/usr/local/pf/logs/radius-load_balancer.log">
+    Instance "radius-load_balancer"
+    <Match>
+      Regex ".*Error:.*"
+      DSType "CounterInc"
+      Type "counter"
+      Instance "Error"
+    </Match>
+  </File>
 </Plugin>
