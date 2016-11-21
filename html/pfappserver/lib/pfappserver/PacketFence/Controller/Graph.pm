@@ -382,36 +382,6 @@ sub dashboard :Local :AdminRole('REPORTS') {
                 'columns' => 2,
                },
                {
-                'description' => $c->loc('Server Load'),
-                'target' => 'aliasByNode(*.load.load.midterm,0)',
-                'columns' => 2
-               },
-               {
-                'description' => $c->loc('CPU Wait'),
-                'target' => 'aliasByNode(*.*.cpu-wait,0,1)',
-                'columns' => 2
-               },
-               {
-                'description' => $c->loc('Disk IO'),
-                'target' => 'aliasByNode(*.*.disk_io_time.io_time,0,1)',
-                'columns' => 2
-               },
-               {
-                'description' => $c->loc('Available Memory'),
-                'target' => 'groupByNode(*.memory.memory-{free,cached,buffered}, 0, "sumSeries") ',
-                'columns' => 2
-               },
-               {
-                'description' => $c->loc('Conntrack percent used'),
-                'target' => 'aliasByNode(*.conntrack.percent-used,0)',
-                'columns' => 2
-               },
-               {
-                'description' => $c->loc('Logs Tracking'),
-                'target' => 'aliasByNode(*.tail-*.counter*,1,2)',
-                'columns' => 2
-               },
-               {
                 'description' => $c->loc('RADIUS Total Access-Requests/s'),
                 'vtitle' => 'requests',
                 'target' =>'alias(sum(*.radsniff-exchanged.radius_count-access_request.received),"Access-Requests")',
@@ -497,6 +467,126 @@ sub dashboard :Local :AdminRole('REPORTS') {
                 'target' => 'aliasByNode(*.radsniff-exchanged.radius_latency-accounting_request.smoothed,0)',
                 'columns' => 1
                },
+              ];
+
+    foreach my $graph (@$graphs) {
+        $graph->{url} = $self->_buildGraphiteURL($c, $start, $width, $graph);
+    }
+    $c->stash->{graphs} = $graphs;
+    $c->stash->{current_view} = 'HTML';
+}
+
+=head2 systemstate
+
+=cut
+
+sub systemstate :Local :AdminRole('REPORTS') {
+    my ($self, $c, $start, $end) = @_;
+    my $graphs = [];
+    my $width = $c->request->param('width');
+    $start //= '';
+
+    $self->_saveRange($c, $DASHBOARD, $start, $end);
+
+    $graphs = [
+               {
+                'description' => $c->loc('Server Load'),
+                'target' => 'aliasByNode(*.load.load.midterm,0)',
+                'columns' => 2
+               },
+               {
+                'description' => $c->loc('CPU Wait'),
+                'target' => 'aliasByNode(*.*.cpu-wait,0,1)',
+                'columns' => 2
+               },
+               {
+                'description' => $c->loc('Disk IO'),
+                'target' => 'aliasByNode(*.*.disk_io_time.io_time,0,1)',
+                'columns' => 2
+               },
+               {
+                'description' => $c->loc('Available Memory'),
+                'target' => 'groupByNode(*.memory.memory-{free,cached,buffered}, 0, "sumSeries") ',
+                'columns' => 2
+               },
+               {
+                'description' => $c->loc('Available Memory'),
+                'target' => 'groupByNode(*.swap.swap-free, 0) ',
+                'columns' => 2
+               },
+               {
+                'description' => $c->loc('Conntrack percent used'),
+                'target' => 'aliasByNode(*.conntrack.percent-used,0)',
+                'columns' => 2
+               },
+               {
+                'description' => $c->loc('DRBD Stats'),
+                'target' => 'aliasByNode(*.*.drbd_resource-{unacknowledged,pending,oos},0,2)',
+                'columns' => 2
+               },
+               {
+                'description' => $c->loc('DRBD Network'),
+                'target' => 'aliasByNode(*.*.drbd_resource-{network_recv,network_send},0,2)',
+                'columns' => 2
+               },
+               {
+                'description' => $c->loc('DRBD Disk read/write'),
+                'target' => 'aliasByNode(*.*.drbd_resource-{disk_read,disk_write},0,2)',
+                'columns' => 2
+               },
+              ];
+
+    foreach my $graph (@$graphs) {
+        $graph->{url} = $self->_buildGraphiteURL($c, $start, $width, $graph);
+    }
+    $c->stash->{graphs} = $graphs;
+    $c->stash->{current_view} = 'HTML';
+}
+
+
+=head2 logstate
+
+=cut
+
+sub logstate :Local :AdminRole('REPORTS') {
+    my ($self, $c, $start, $end) = @_;
+    my $graphs = [];
+    my $width = $c->request->param('width');
+    $start //= '';
+
+    $self->_saveRange($c, $DASHBOARD, $start, $end);
+
+    $graphs = [
+               {
+                'description' => $c->loc('Logs Tracking packetfence.log'),
+                'target' => 'aliasByNode(*.tail-PacketFence.counter*,1,2)',
+                'columns' => 2
+               },
+               {
+                'description' => $c->loc('Logs Tracking pfqueue.log'),
+                'target' => 'aliasByNode(*.tail-pfqueue.counter*,1,2)',
+                'columns' => 2
+               },
+               {
+                'description' => $c->loc('Logs Tracking pfmon.log'),
+                'target' => 'aliasByNode(*.tail-pfmon.counter*,1,2)',
+                'columns' => 2
+               },
+               {
+                'description' => $c->loc('Logs Tracking pfdhcplistener.log'),
+                'target' => 'aliasByNode(*.tail-pfqueue.counter*,1,2)',
+                'columns' => 2
+               },
+               {
+                'description' => $c->loc('Logs Tracking radius-load_balancer.log'),
+                'target' => 'aliasByNode(*.tail-radius-load_balancer.counter*,1,2)',
+                'columns' => 2
+               },
+               {
+                'description' => $c->loc('Logs Tracking radius.log'),
+                'target' => 'aliasByNode(*.tail-radius-auth.counter*,1,2)',
+                'columns' => 2
+               }
               ];
 
     foreach my $graph (@$graphs) {

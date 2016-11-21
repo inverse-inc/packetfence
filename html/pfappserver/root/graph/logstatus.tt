@@ -1,0 +1,34 @@
+<div id="logstatus" class="row-fluid">
+
+  <div class="navbar">
+    <div class="navbar-inner">
+      <div class=" container">
+        <div class="nav-collapse collapse navbar-responsive-collapse">
+
+          <form class="navbar-search pull-left input-daterange datepicker" action="">
+            <input type="text" class="search-query input-small" name="start" value="[% c.session.dashboard.start | html %]" data-date-format="yyyy-mm-dd" />
+            <i class="icon-arrow-right"></i>
+            <input type="text" class="search-query input-small" name="end" value="[% c.session.dashboard.end | html %]" data-date-format="yyyy-mm-dd" date-datestart="[% c.session.dashboard_start | html %]" />
+          </form>
+        </div>
+
+        <ul class="nav pull-right">
+          <li><a href="#graph/logstatus/-1h">[% l('Past Hour') %]</a></li>
+          <li><a href="#graph/logstatus/-3h">[% l('Past 3 Hours') %]</a></li>
+          <li><a href="#graph/logstatus/-12h">[% l('Past 12 Hours') %]</a></li>
+          <li><a href="#graph/logstatus/-1d">[% l('Past Day') %]</a></li>
+          <li><a href="#graph/logstatus/-1w">[% l('Past Week') %]</a></li>
+          <li><a href="#graph/logstatus/-2w">[% l('Past 2 Weeks') %]</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  [% FOREACH graph IN graphs %]
+  <span style="float: left;">
+    <h4>[% graph.description %]</h4>
+    <img src="[% graph.url %]" style="height: [% graph.height %]px; width: [% graph.width %]px;">
+  </span>
+  [%- END %]
+  
+</div>

@@ -24,6 +24,12 @@
               [%- IF can_access("REPORTS") %]
               <li><a href="#graph/dashboard">[% l('Dashboard') %]</a></li>
               [%- END %]
+              [%- IF can_access("REPORTS") %]
+              <li><a href="#graph/systemstate">[% l('System state') %]</a></li>
+              [%- END %]
+              [%- IF can_access("REPORTS") %]
+              <li><a href="#graph/logstate">[% l('Logs state') %]</a></li>
+              [%- END %]
               [%- IF can_access("SERVICES") %]
               <li><a href="#service">[% l('Services') %]</a></li>
               [%- END %]
