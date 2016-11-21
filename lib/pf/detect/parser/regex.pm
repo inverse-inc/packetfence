@@ -18,7 +18,7 @@ use pf::log;
 use pf::api;
 use pf::api::queue;
 use pf::api::local;
-use pf::util qw(isenabled);
+use pf::util qw(isenabled clean_mac);
 use Clone qw(clone);
 use Moo;
 extends qw(pf::detect::parser);
@@ -114,6 +114,9 @@ sub dryRun {
             my $rule = clone($r);
             my $data = $self->parseLineFromRule($rule, $line);
             next unless defined $data;
+            if (exists $data->{mac}) {
+                $data->{mac} = clean_mac($data->{mac});
+            }
             my %match = (
                 rule => $rule,
                 actions => [],
