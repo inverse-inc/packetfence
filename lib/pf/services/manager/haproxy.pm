@@ -50,13 +50,14 @@ sub executable {
 
 sub _number_cpus {
     my ($self) = @_;
-    open my $la, '<', '/proc/cpuinfo';
+    open my $cpuinfo, '<', '/proc/cpuinfo';
     my $cpu_cores = 0;
-    foreach my $line (<$la>)  {
+    foreach my $line (<$cpuinfo>)  {
         if ($line =~ /^cpu\scores\s+:\s+(\d+)/) {
             $cpu_cores = $cpu_cores + $1;
         }
     }
+    close $cpuinfo;
     return $cpu_cores;
 }
 
