@@ -969,6 +969,11 @@ httpd_mod_evasive_system_command="sudo ipset add portal_deny %s timeout %t ; rm 
 
 [advanced]
 #
+# advanced.language
+#
+# Langauge choice for the communication with administrators
+language=en_US
+#
 # advanced.reevaluate_access_reasons
 #
 # After which calls to pfcmd do we have to re-evaluate the state of a node and re-assign VLAN or change iptables rules
