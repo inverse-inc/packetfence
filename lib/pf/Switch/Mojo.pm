@@ -35,12 +35,14 @@ use warnings;
 
 use base ('pf::Switch');
 
+use Digest::MD5 qw(md5);
+use Try::Tiny;
+
 use pf::constants;
 use pf::util;
 use pf::util::radius qw(perform_disconnect);
 use pf::radius::constants;
 use pf::locationlog;
-use Try::Tiny;
 
 sub description { 'Mojo Networks AP' }
 
@@ -274,10 +276,10 @@ sub getAcceptForm {
     # 4. Encode plain text password by XOR with key and convert it to Hexadecimal string.
     my $ascii_challenge = pack("H*", $challenge);
     my $key = md5($ascii_challenge . $self->{_radiusSecret});
-    while ( strlen($key) < strlen($mac) ) {
+    while ( length($key) < length($mac) ) {
         $key .= $key;
     }
-    my $encoded_password = unpack("H*", substr($mac ^ $key, 0, strlen($mac)));
+    my $encoded_password = unpack("H*", substr($mac ^ $key, 0, length($mac)));
 
     my $html_form = qq[
         <script>
