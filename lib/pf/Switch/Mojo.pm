@@ -283,7 +283,7 @@ sub getAcceptForm {
 
     my $html_form = qq[
         <script>
-        window.location = "$login_url?res=success&username=$mac&password=$encoded_password";
+        window.location = "$login_url?res=success&username=$mac&password=$encoded_password&redirect=$destination_url";
         </script>
     ];
 
