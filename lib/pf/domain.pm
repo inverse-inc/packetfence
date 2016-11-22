@@ -80,6 +80,17 @@ sub test_auth {
     return ($status, $output);
 }
 
+=head2 escape_bind_user_string
+
+Escapes the bind user string for any simple quote
+
+=cut
+
+sub escape_bind_user_string {
+    my ($s) = @_;
+    $s =~ s/'/'\\''/g;
+    return $s;
+}
 
 =head2 join_domain
 
@@ -95,7 +106,7 @@ sub join_domain {
     regenerate_configuration();
 
     my $info = $ConfigDomain{$domain};
-    my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path net ads join -s /etc/samba/$domain.conf -U '$info->{bind_dn}%$info->{bind_pass}'");
+    my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path net ads join -s /etc/samba/$domain.conf -U '".escape_bind_user_string($info->{bind_dn}.'%'.$info->{bind_pass})."'");
     $logger->info("domain join : ".$output);
 
     restart_winbinds();
@@ -136,7 +147,7 @@ sub unjoin_domain {
 
     my $info = $ConfigDomain{$domain};
     if($info){
-        my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path net ads leave -s /etc/samba/$domain.conf -U '$info->{bind_dn}%$info->{bind_pass}'");
+        my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path net ads leave -s /etc/samba/$domain.conf -U '".escape_bind_user_string($info->{bind_dn}.'%'.$info->{bind_pass})."'");
         $logger->info("domain leave : ".$output);
         $logger->info("netns deletion : ".run("/usr/bin/sudo /sbin/ip netns delete $domain"));
         return $output;
