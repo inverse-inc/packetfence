@@ -1,0 +1,15 @@
+[Unit]
+Description=The PacketFence FreeRADIUS multi-protocol authentication server
+Documentation=man:radiusd(8) man:radiusd.conf(5) http://wiki.freeradius.org/ http://networkradius.com/doc/
+Requires=packetfence-config.service packetfence-httpd-aaa.service packetfence-iptables.service
+After=packetfence-config.service packetfence-httpd-aaa.service packetfence-iptables.service
+
+[Service]
+ExecStartPre=/usr/local/pf/bin/pfcmd service radiusd generateconfig
+ExecStartPre=/usr/sbin/radiusd -d /usr/local/pf/raddb -n auth -Cxm -lstdout
+ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb -n auth -fm
+Restart=on-failure
+Slice=packetfence.slice
+
+[Install]
+WantedBy=packetfence.target

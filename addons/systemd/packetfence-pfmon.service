@@ -1,0 +1,14 @@
+[Unit]
+Description=The PacketFence pfmon Service
+After=packetfence-config.service
+Requires=packetfence-config.service
+
+[Service]
+PIDFile=/usr/local/pf/var/run/pfmon.pid
+ExecStart=/usr/local/pf/sbin/pfmon 
+User=pf
+Restart=on-failure
+Slice=packetfence.slice
+
+[Install]
+WantedBy=packetfence.target

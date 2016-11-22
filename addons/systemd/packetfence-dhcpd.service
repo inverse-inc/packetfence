@@ -1,0 +1,15 @@
+[Unit]
+Description=The PacketFence DHCPv4 Server Daemon
+Documentation=man:dhcpd(8) man:dhcpd.conf(5)
+Requires=packetfence-config.service packetfence-iptables.service
+After=packetfence-config.service packetfence-iptables.service
+
+[Service]
+Type=notify
+ExecStartPre=/usr/local/pf/bin/pfcmd service dhcpd generateconfig
+ExecStart=/usr/sbin/dhcpd -f -cf /usr/local/pf/var/conf/dhcpd.conf -lf /usr/local/pf/var/dhcpd/dhcpd.leases  -user pf -group pf --no-pid
+Restart=on-failure
+Slice=packetfence.slice
+
+[Install]
+WantedBy=packetfence.target

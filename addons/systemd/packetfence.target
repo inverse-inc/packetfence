@@ -1,0 +1,6 @@
+[Unit]
+Description=PacketFence target
+Requires=multi-user.target
+Conflicts=rescue.service rescue.target
+After=multi-user.target rescue.service rescue.target
+AllowIsolate=yes
