@@ -77,6 +77,8 @@ Verify the payment from mirapay
 
 sub verify {
     my ($self, $session, $parameters, $uri) = @_;
+    my $logger = get_logger();
+    $logger->trace( sub {"Verifing $uri for source ". $self->id});
     my $action_code = $parameters->{'ActionCode'};
     if($MIRAPAY_ACTION_CODE_APPROVED ne $action_code) {
         die "Transaction declined";
@@ -129,6 +131,8 @@ sub verify_mkey {
 
 =head2 make_mirapay_url
 
+Make Mirapay URL
+
 =cut
 
 sub make_mirapay_url {
@@ -139,7 +143,7 @@ sub make_mirapay_url {
     my @params       = (
         MerchantID  => $merchant_id,
         RedirectURL => $redirect_url,
-        EchoData    => $tier->{item},
+        EchoData    => $tier->{name},
         Amount      => $tier->{price} * 100
     );
     my $mkey = $self->calc_mkey(@params);
