@@ -205,11 +205,11 @@ Creates the form that should be given to the client device to trigger a reauthen
 =cut
 
 sub getAcceptForm {
-    my ( $self, $mac , $destination_url, $cgi_session) = @_;
+    my ( $self, $mac, $destination_url, $portalSession ) = @_;
     my $logger = $self->logger;
     $logger->debug("Creating web release form");
 
-    my $client_ip = $cgi_session->param("ecwp-original-param-uip");
+    my $client_ip = $portalSession->param("ecwp-original-param-uip");
     my $controller_ip = $self->{_ip};
 
     my $html_form = qq[

@@ -134,11 +134,11 @@ sub returnRadiusAccessAccept {
 }
 
 sub getAcceptForm {
-    my ( $self, $mac , $destination_url, $cgi_session) = @_;
+    my ( $self, $mac, $destination_url, $portalSession ) = @_;
     my $logger = $self->logger;
     $logger->debug("Creating web release form");
 
-    my $login_url = $cgi_session->param("ecwp-original-param-login_url");
+    my $login_url = $portalSession->param("ecwp-original-param-login_url");
     my $html_form = qq[
         <form name="weblogin_form" method="POST" action="$login_url">
             <input type="hidden" name="Submit2" value="Submit">

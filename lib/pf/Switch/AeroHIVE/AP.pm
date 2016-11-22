@@ -134,7 +134,7 @@ sub parseExternalPortalRequest {
 
 
 sub getAcceptForm {
-    my ( $self, $mac , $destination_url) = @_;
+    my ( $self, $mac, $destination_url, $portalSession ) = @_;
     my $logger = $self->logger;
     $logger->debug("Creating web release form");
 

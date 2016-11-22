@@ -2951,7 +2951,7 @@ sub parseRequest {
 }
 
 sub getAcceptForm {
-    my ( $self, $mac , $destination_url) = @_;
+    my ( $self, $mac, $destination_url, $portalSession ) = @_;
     return "";
 }
 

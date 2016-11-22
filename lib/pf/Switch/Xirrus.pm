@@ -395,14 +395,14 @@ sub parseExternalPortalRequest {
 
 
 sub getAcceptForm {
-    my ( $self, $mac , $destination_url, $cgi_session) = @_;
+    my ( $self, $mac, $destination_url, $portalSession ) = @_;
     my $logger = $self->logger;
     $logger->debug("Creating web release form");
 
-    my $uamip = $cgi_session->param("ecwp-original-param-uamip");
-    my $uamport = $cgi_session->param("ecwp-original-param-uamport");
-    my $userurl = $cgi_session->param("ecwp-original-param-userurl");
-    my $challenge = $cgi_session->param("ecwp-original-param-challenge");
+    my $uamip = $portalSession->param("ecwp-original-param-uamip");
+    my $uamport = $portalSession->param("ecwp-original-param-uamport");
+    my $userurl = $portalSession->param("ecwp-original-param-userurl");
+    my $challenge = $portalSession->param("ecwp-original-param-challenge");
     my $newchal  = pack "H32", $challenge;
 
     my @ib = unpack("C*", "\0" . $mac . $newchal);

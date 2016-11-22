@@ -3028,7 +3028,7 @@ Get the accept form that will trigger the device registration on the switch
 =cut
 
 sub getAcceptForm {
-    my ( $self, $mac , $destination_url) = @_;
+    my ( $self, $mac, $destination_url, $portalSession ) = @_;
     my $logger = $self->logger();
     $logger->error("This function is not implemented.");
     return;

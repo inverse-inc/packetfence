@@ -76,7 +76,7 @@ Generates the HTML form embedded to web release captive-portal process to trigge
 =cut
 
 sub getAcceptForm {
-    my ( $self, $mac, $destination_url ) = @_;
+    my ( $self, $mac, $destination_url, $portalSession ) = @_;
     my $logger = $self->logger;
 
     $logger->debug("Generating web release HTML form");
