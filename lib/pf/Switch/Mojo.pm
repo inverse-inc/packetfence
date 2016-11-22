@@ -53,6 +53,7 @@ sub description { 'Mojo Networks AP' }
 # CAPABILITIES
 # access technology supported
 sub supportsExternalPortal { return $TRUE; }
+sub supportsWebFormRegistration { return $TRUE; }
 sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $FALSE; }
 
@@ -247,6 +248,45 @@ sub parseExternalPortalRequest {
     );
 
     return \%params;
+}
+
+
+=item getAcceptForm
+
+Generates the HTML form embedded to web release captive-portal process to trigger a reauthentication.
+
+=cut
+
+sub getAcceptForm {
+    my ( $self, $mac, $destination_url, $portalSession ) = @_;
+    my $logger = $self->logger;
+
+    $logger->debug("Generating web release HTML form");
+
+    my $login_url = $portalSession->param("ecwp-original-param-login_url");
+    my $challenge = $portalSession->param("ecwp-original-param-challenge");
+
+    # Encode password using provided challenge and configured RADIUS shared secret
+    # As described in Mojo documentation (they suggest a RADIUS shared secret and a portal shared secret, but for PacketFence implementation, we will use the same both)
+    # 1. Convert the challenge parameter sent by the AP from hexadecimal to byte value.
+    # 2. Generate key by using MD5SUM of portalsecret (portal shared secret configured in SSID) and the converted challenge
+    # 3. If key length is smaller than password length, repeat it until it can hide the whole password.
+    # 4. Encode plain text password by XOR with key and convert it to Hexadecimal string.
+    my $ascii_challenge = pack("H*", $challenge);
+    my $key = md5($ascii_challenge . $self->{_radiusSecret});
+    while ( strlen($key) < strlen($mac) ) {
+        $key .= $key;
+    }
+    my $encoded_password = unpack("H*", substr($mac ^ $key, 0, strlen($mac)));
+
+    my $html_form = qq[
+        <script>
+        window.location = "$login_url?res=success&username=$mac&password&$encoded_password";
+        </script>
+    ];
+
+    $logger->debug("Generated the following web release HTML form: " . $html_form);
+    return $html_form;
 }
 
 
