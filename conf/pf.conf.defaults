@@ -971,7 +971,7 @@ httpd_mod_evasive_system_command="sudo ipset add portal_deny %s timeout %t ; rm 
 #
 # advanced.language
 #
-# Langauge choice for the communication with administrators
+# Language choice for the communication with administrators
 language=en_US
 #
 # advanced.reevaluate_access_reasons
