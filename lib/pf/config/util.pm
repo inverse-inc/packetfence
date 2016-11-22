@@ -190,7 +190,7 @@ sub send_email {
         INCLUDE_PATH    => "$html_dir/captive-portal/templates/emails/",
         ENCODING        => 'utf8',
     );
-    my %vars = ($data, i18n => \&pf::web::i18n, i18n_format => \&pf::web::i18n_format);
+    my %vars = (%$data, i18n => \&pf::web::i18n, i18n_format => \&pf::web::i18n_format);
     utf8::decode($subject);
     my $msg = MIME::Lite::TT->new(
         From        =>  $data->{'from'},
@@ -199,7 +199,7 @@ sub send_email {
         Subject     =>  $subject,
         Template    =>  "emails-$template.html",
         TmplOptions =>  \%TmplOptions,
-        TmplParams  =>  $data,
+        TmplParams  =>  \%vars,
         TmplUpgrade =>  1,
     );
     $msg->attr("Content-Type" => "text/html; charset=UTF-8;");
