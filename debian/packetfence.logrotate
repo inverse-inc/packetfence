@@ -12,7 +12,7 @@
     # Output logrotate return code for monitoring
     sharedscripts
     postrotate
-        echo $? >> /usr/local/pf/var/logrotate.status
+        echo $? > /usr/local/pf/var/logrotate.status
     endscript
 }
 
