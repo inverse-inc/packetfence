@@ -60,7 +60,7 @@ sub action {
         my $attributes = {
             'Acct-Status-Type'   => $method,
             'User-Name'          => $username,
-            'Class'              => $node_info->{'category'},
+            'Filter-Id'          => $node_info->{'category'},
             'Called-Station-Id'  => '00:11:22:33:44:55',
             'Framed-IP-Address'  => $ip,
             'Calling-Station-Id' => $mac,
@@ -88,7 +88,7 @@ sub action {
             'Acct-Session-Id'    => "acct_pf-$mac",
             'Acct-Status-Type'   => 'Stop',
             'User-Name'          => $username,
-            'Class'              => $node_info->{'category'},
+            'Filter-Id'          => $node_info->{'category'},
             'Called-Station-Id'  => '00:11:22:33:44:55',
             'Framed-IP-Address'  => $ip,
             'Calling-Station-Id' => $mac,
