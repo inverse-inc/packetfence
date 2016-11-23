@@ -57,7 +57,7 @@ sub action {
             if($ConfigFirewallSSO{$firewall_conf}->{'transport'} eq $SYSLOG_TRANSPORT) {
                 return $self->send_sso_start_syslog($firewall_conf, $ip, $mac, $username, $timeout);
             }
-            # Leaving anything else except syslog to HTTP for backward compatibility
+            # Leaving everything except syslog to HTTP for backward compatibility
             else {
                 return $self->send_sso_start_http($firewall_conf, $ip, $mac, $username, $timeout);
             }
@@ -76,7 +76,7 @@ sub action {
             if($ConfigFirewallSSO{$firewall_conf}->{'transport'} eq $SYSLOG_TRANSPORT) {
                 return $self->send_sso_stop_syslog($firewall_conf, $ip, $mac, $username, $timeout);
             }
-            # Leaving anything else except syslog to HTTP for backward compatibility
+            # Leaving everything except syslog to HTTP for backward compatibility
             else {
                 return $self->send_sso_stop_http($firewall_conf, $ip, $mac, $username, $timeout);
             }
