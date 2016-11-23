@@ -82,6 +82,7 @@ BEGIN {
         empty_dir
         is_in_list
         validate_date
+        clean_locale 
     );
 }
 
@@ -1254,6 +1255,16 @@ sub validate_date {
         return $FALSE;
     }
     return $TRUE;
+
+=item
+
+=cut
+
+sub clean_locale {
+    my ($locale) = @_;
+    if( $locale =~ /^([A-Za-z_]+)\./ ) {
+        $locale = $1;
+    }
 }
 
 =back

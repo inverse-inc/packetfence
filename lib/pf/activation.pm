@@ -35,6 +35,7 @@ use Time::HiRes qw(time);
 use Try::Tiny;
 use MIME::Lite;
 use Encode qw(encode);
+use pf::util;
 
 =head1 CONSTANTS
 
@@ -454,9 +455,15 @@ Send an email with the activation code
 =cut
 
 sub send_email {
-    my ($activation_code, $template, %info) = @_;
+    my ($type, $activation_code, $template, %info) = @_;
     my $logger = get_logger();
 
+    use POSIX;
+    my $user_locale = clean_locale(setlocale(POSIX::LC_MESSAGES));
+    if ($type eq $SPONSOR_ACTIVATION) {
+        $logger->info('We are doing sponsor activation', $user_locale);
+        setlocale(POSIX::LC_MESSAGES, $Config{'advanced'}{'language'});
+    }
     my $smtpserver = $Config{'alerting'}{'smtpserver'};
     $info{'from'} = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
     $info{'currentdate'} = POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
@@ -513,6 +520,7 @@ sub send_email {
       $logger->error("Can't send email to ".$info{'contact_info'}.": $!");
     };
 
+    setlocale(POSIX::LC_MESSAGES, $user_locale);
     return $result;
 }
 
@@ -531,7 +539,7 @@ sub create_and_send_activation_code {
 
     my $activation_code = create(\%args);
     if (defined($activation_code)) {
-      unless (send_email($activation_code, $template, %info)) {
+      unless (send_email($type, $activation_code, $template, %info)) {
         ($success, $err) = ($FALSE, $GUEST::ERROR_CONFIRMATION_EMAIL);
       }
     }

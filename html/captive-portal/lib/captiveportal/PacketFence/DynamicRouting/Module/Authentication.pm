@@ -311,10 +311,7 @@ Update the person using the fields that have been collected
 sub update_person_from_fields {
     my ($self, %options) = @_;
     $options{additionnal_fields} //= {};
-    my $lang = $self->app->session->{locale};
-    if( $lang =~ /^([A-Za-z_]+)\./ ) {
-        $lang = $1;
-    }
+    my $lang = clean_locale($self->app->session->{locale});
     
     # we assume we use 'username' field as the PID when using 'reuseDot1x' feature
     if ( isenabled($self->app->profile->reuseDot1xCredentials) ) {
