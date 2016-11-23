@@ -25,6 +25,8 @@ sub description { 'PaloAlto Firewall' }
 use pf::node qw(node_view);
 use LWP::UserAgent;
 use HTTP::Request::Common;
+use Net::Syslog;
+use pf::constants::firewallsso qw($SYSLOG_TRANSPORT);
 
 #Export environement variables for LWP
 $ENV{'PERL_LWP_SSL_VERIFY_HOSTNAME'} = 0;
@@ -52,28 +54,12 @@ sub action {
             $node_info->{'status'} eq $pf::node::STATUS_REGISTERED &&
             (grep $_ eq $node_info->{'category'}, @categories)
         ){
-            $timeout = ( $timeout / 60 );   # Palo Alto XML API expects a timeout in minutes
-            my $message = <<"XML";
-                <uid-message>
-                    <version>1.0</version>
-                    <type>update</type>
-                    <payload>
-                        <login>
-                            <entry name=\"$username\" ip=\"$ip\" timeout=\"$timeout\"/>
-                        </login>
-                    </payload>
-               </uid-message>
-XML
-            my $webpage = "https://".$firewall_conf."/api/?type=user-id&action=set&key=".$ConfigFirewallSSO{$firewall_conf}->{'password'};
-            my $ua = LWP::UserAgent->new;
-            $ua->timeout(5);
-            my $response = $ua->post($webpage, Content => [ cmd => $message ]);
-            if ($response->is_success) {
-                $logger->info("Node $mac registered and allowed to pass the Firewall");
-                return 1;
-            } else {
-                $logger->error("XML send error :".$response->status_line);
-                return 0;
+            if($ConfigFirewallSSO{$firewall_conf}->{'transport'} eq $SYSLOG_TRANSPORT) {
+                return $self->send_sso_start_syslog($firewall_conf, $ip, $mac, $username, $timeout);
+            }
+            # Leaving anything else except syslog to HTTP for backward compatibility
+            else {
+                return $self->send_sso_start_http($firewall_conf, $ip, $mac, $username, $timeout);
             }
         }
     } elsif ($method eq 'Stop') {
@@ -87,27 +73,12 @@ XML
             $node_info->{'status'} eq $pf::node::STATUS_REGISTERED &&
             (grep $_ eq $node_info->{'category'}, @categories)
         ){
-            my $message = <<"XML";
-                <uid-message>
-                    <version>1.0</version>
-                    <type>update</type>
-                    <payload>
-                        <logout>
-                            <entry name=\"$username\" ip=\"$ip\"/>
-                        </logout>
-                    </payload>
-               </uid-message>
-XML
-            my $webpage = "https://".$firewall_conf."/api/?type=user-id&action=set&key=".$ConfigFirewallSSO{$firewall_conf}->{'password'};
-            my $ua = LWP::UserAgent->new;
-            $ua->timeout(5);
-            my $response = $ua->post($webpage, Content => [ cmd => $message ]);
-            if ($response->is_success) {
-                $logger->debug("Node $mac removed from the firewall");
-                return 1;
-            } else {
-                $logger->error("XML send error :".$response->status_line);
-                return 0;
+            if($ConfigFirewallSSO{$firewall_conf}->{'transport'} eq $SYSLOG_TRANSPORT) {
+                return $self->send_sso_stop_syslog($firewall_conf, $ip, $mac, $username, $timeout);
+            }
+            # Leaving anything else except syslog to HTTP for backward compatibility
+            else {
+                return $self->send_sso_stop_http($firewall_conf, $ip, $mac, $username, $timeout);
             }
         }
     }
@@ -123,6 +94,96 @@ Return the current logger for the switch
 sub logger {
     my ($proto) = @_;
     return get_logger( ref($proto) || $proto );
+}
+
+=head2 send_sso_start_syslog
+
+Send an SSO start using sylog
+
+=cut
+
+sub send_sso_start_syslog {
+    my ($self, $firewall_conf, $ip, $mac, $username, $timeout) = @_;
+    my $syslog = Net::Syslog->new(SyslogHost => $firewall_conf);
+    $syslog->send("Group <ssl-rsa> User <$username> IP <$ip> IPv4 Address <$ip> IPv6 address <::> assigned to session");
+}
+
+=head2 send_sso_stop_syslog
+
+Does nothing as there doesn't seem to be a way to send an SSO stop using syslog for the Palo Alto
+
+=cut
+
+sub send_sso_stop_syslog {
+    my ($self, $firewall_conf, $ip, $mac, $username, $timeout) = @_;
+    $self->logger->info("SSO Stop is not supported for syslog transport, you should use the HTTP transport if you require it.");
+}
+
+=head2 send_sso_start_http
+
+Send an SSO start using an HTTP API call
+
+=cut
+
+sub send_sso_start_http {
+    my ($self, $firewall_conf, $ip, $mac, $username, $timeout) = @_;
+    my $logger = $self->logger;
+    $timeout = ( $timeout / 60 );   # Palo Alto XML API expects a timeout in minutes
+    my $message = <<"XML";
+        <uid-message>
+            <version>1.0</version>
+            <type>update</type>
+            <payload>
+                <login>
+                    <entry name=\"$username\" ip=\"$ip\" timeout=\"$timeout\"/>
+                </login>
+            </payload>
+       </uid-message>
+XML
+    my $webpage = "https://".$firewall_conf."/api/?type=user-id&action=set&key=".$ConfigFirewallSSO{$firewall_conf}->{'password'};
+    my $ua = LWP::UserAgent->new;
+    $ua->timeout(5);
+    my $response = $ua->post($webpage, Content => [ cmd => $message ]);
+    if ($response->is_success) {
+        $logger->info("Node $mac registered and allowed to pass the Firewall");
+        return 1;
+    } else {
+        $logger->error("XML send error :".$response->status_line);
+        return 0;
+    }
+}
+
+=head2 send_sso_stop_http
+
+Send an SSO stop using an HTTP API call
+
+=cut
+
+sub send_sso_stop_http {
+    my ($self, $firewall_conf, $ip, $mac, $username, $timeout) = @_;
+    my $logger = $self->logger;
+    my $message = <<"XML";
+        <uid-message>
+            <version>1.0</version>
+            <type>update</type>
+            <payload>
+                <logout>
+                    <entry name=\"$username\" ip=\"$ip\"/>
+                </logout>
+            </payload>
+       </uid-message>
+XML
+    my $webpage = "https://".$firewall_conf."/api/?type=user-id&action=set&key=".$ConfigFirewallSSO{$firewall_conf}->{'password'};
+    my $ua = LWP::UserAgent->new;
+    $ua->timeout(5);
+    my $response = $ua->post($webpage, Content => [ cmd => $message ]);
+    if ($response->is_success) {
+        $logger->debug("Node $mac removed from the firewall");
+        return 1;
+    } else {
+        $logger->error("XML send error :".$response->status_line);
+        return 0;
+    }
 }
 
 =head1 AUTHOR
