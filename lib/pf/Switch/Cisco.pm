@@ -1646,6 +1646,27 @@ Extract fingerprint information from radius accounting attributes.
 
 sub acctFingerprint {
     my ( $self, $radius_request) = @_;
+    my $logger = $self->logger;
+    my %fingerbank_query_args;
+    $fingerbank_query_args{'mac'} = $radius_request->{'Calling-Station-Id'};
+
+    my $cisco_avpair = $radius_request->{'Cisco-AVPair'};
+
+    foreach my $attributes (@$cisco_avpair) {
+        my @values = split ('=', $attributes);
+        if ($values[0] eq 'dhcp-option') {
+            my ($type, $lenght, $value) = unpack("nnA*", $values[1]);
+            if ($type eq '55') {
+                $fingerbank_query_args{'dhcp_fingerprint'} = join(',', unpack("C*", $value));
+            } elsif ($type eq '60') {
+                $fingerbank_query_args{'dhcp_vendor'} = $value;
+            } elsif ($type eq '12') {
+                $fingerbank_query_args{'computer_name'} = $value;
+            }
+        }
+    }
+    $self->{api_client}->notify('fingerbank_process', \%fingerbank_query_args );
+
     return;
 }
 
