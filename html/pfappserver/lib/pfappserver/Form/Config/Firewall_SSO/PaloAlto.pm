@@ -17,6 +17,7 @@ with 'pfappserver::Base::Form::Role::Help';
 use pf::config;
 use pf::util;
 use File::Find qw(find);
+use pf::constants::firewallsso qw($SYSLOG_TRANSPORT $HTTP_TRANSPORT);
 
 ## Definition
 has 'roles' => (is => 'ro', default => sub {[]});
@@ -28,19 +29,27 @@ has_field 'id' =>
    required => 1,
    messages => { required => 'Please specify the hostname or IP of the Firewall' },
   );
+
+has_field 'transport' =>
+  (
+   type => 'Select',
+   options => [{ label => 'Syslog', value => $SYSLOG_TRANSPORT }, { label => 'HTTP' , value => $HTTP_TRANSPORT }],
+   default => $HTTP_TRANSPORT,
+  );
+
 has_field 'password' =>
   (
    type => 'Password',
    label => 'Secret or Key',
-   required => 1,
-   messages => { required => 'You must specify the password or the key' },
+   tags => { after_element => \&help,
+             help => 'If using the HTTP transport, specify the password for the Palo Alto API' },
   );
 has_field 'port' =>
   (
    type => 'PosInteger',
    label => 'Port of the service',
    tags => { after_element => \&help,
-             help => 'If you use an alternative port, please specify' },
+             help => 'If you use an alternative port, please specify. This parameter is ignored when the Syslog transport is selected.' },
     default => 443,
   );
 has_field 'type' =>
@@ -68,7 +77,7 @@ has_field 'uid' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type password port categories networks cache_updates cache_timeout) ],
+   render_list => [ qw(id type transport port password categories networks cache_updates cache_timeout) ],
   );
 
 
