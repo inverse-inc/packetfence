@@ -38,7 +38,7 @@ sub parse {
     my $logger = get_logger();
     my $id = $self->id;
     foreach my $match (@$matches) {
-        $logger->trace( sub {"Sending matched actions for $match->{rule}->{name}"} );
+        $logger->trace( sub {"Parser id $id : Sending matched actions for $match->{rule}->{name}"} );
         $self->sendActions($match->{actions});
     }
     return 0;
