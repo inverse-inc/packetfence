@@ -2,7 +2,7 @@ package pf::constants::firewallsso;
 
 =head1 NAME
 
-pf::constants::cluster - constants for firewallsso objects
+pf::constants::firewallsso - constants for firewallsso objects
 
 =cut
 
