@@ -28,7 +28,7 @@ BEGIN {
 
 use_ok('pf::detect::parser::regex');
 
-my $parser = pf::detect::parser::regex->new({
+my $config = {
     type => 'regex',
     id => 'regex',
     path => '/usr/local/pf/var/log-regex.log',
@@ -37,41 +37,55 @@ my $parser = pf::detect::parser::regex->new({
             regex => qr/from: (?<scrip>\d{1,3}(\.\d{1,3}){3}), to: (?<dstip>\d{1,3}(\.\d{1,3}){3}), mac: (?<mac>[a-fA-F0-9]{12})/,
             name => 'from to',
             last_if_match => 0,
-            events => {
-                detect => 'detect_id',
-                type => 'id',
-            },
             actions => ['modify_node: $scrip, $dstip, $mac', 'violation_log: bob, bob'],
         },
         {
             regex => qr/from: (?<scrip>\d{1,3}(\.\d{1,3}){3}), to: (?<dstip>\d{1,3}(\.\d{1,3}){3})/,
             name => 'from to',
             last_if_match => 1,
-            events => {
-                detect => 'detect_id',
-                type => 'id',
-            },
             actions => ['modify_node: $scrip, $dstip', 'violation_log: bob, bob'],
         },
     ],
-});
+};
+
+my $parser = pf::detect::parser::regex->new($config);
+
+is($parser->parse("from: 1.2.3.4, to: 1.2.3"), undef, "Invalid line");
+
+my $matches = $parser->matchLine("from: 1.2.3.4, to: 1.2.3.5");
+
+is_deeply(
+    $matches,
+    [
+        {
+            rule => $config->{rules}[1],
+            actions => [['modify_node', ['1.2.3.4', '1.2.3.5']], ['violation_log', ['bob', 'bob']]],
+        }
+    ],
+    "Match one rule"
+);
+
+$matches = $parser->matchLine("from: 1.2.3.4, to: 1.2.3.5, mac: aabbccddeeff");
+
+is_deeply(
+    $matches,
+    [
+        {
+            rule => $config->{rules}[0],
+            actions => [['modify_node', ['1.2.3.4', '1.2.3.5', 'aa:bb:cc:dd:ee:ff']], ['violation_log', ['bob', 'bob']]],
+        },
+        {
+            rule => $config->{rules}[1],
+            actions => [['modify_node', ['1.2.3.4', '1.2.3.5']], ['violation_log', ['bob', 'bob']]],
+        }
+    ],
+    "Match two rules"
+);
 
 my $result = $parser->parse("from: 1.2.3.4, to: 1.2.3.5");
 
 is($result, "0", "Parsing is good");
 
-my $actions = $parser->makeActions("from: 1.2.3.4, to: 1.2.3.5");
-
-is_deeply($actions, [['modify_node', ['1.2.3.4', '1.2.3.5']], ['violation_log', ['bob', 'bob']]], "Make actions");
-
-is($parser->parse("from: 1.2.3.4, to: 1.2.3"), undef, "Invalid line");
-
-$actions = $parser->makeActions("from: 1.2.3.4, to: 1.2.3.5, mac: aabbccddeeff");
-
-is_deeply($actions, [
-        ['modify_node', ['1.2.3.4', '1.2.3.5', 'aabbccddeeff']], ['violation_log', ['bob', 'bob']],
-        ['modify_node', ['1.2.3.4', '1.2.3.5']], ['violation_log', ['bob', 'bob']],
-    ], "Make actions");
 
 =head1 AUTHOR
 

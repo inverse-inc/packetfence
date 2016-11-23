@@ -25,27 +25,30 @@ extends qw(pf::detect::parser);
 
 has rules => (is => 'rw', default => sub {[]});
 
+=head2 parse
+
+Parse and send the actions defined
+
+=cut
+
 sub parse {
     my ($self, $line) = @_;
-    my $actions = $self->makeActions($line);
-    return undef if @$actions == 0;
-    $self->sendActions($actions);
+    my $matches = $self->matchLine($line);
+    return undef if @$matches == 0;
+    my $logger = get_logger();
+    my $id = $self->id;
+    foreach my $match (@$matches) {
+        $logger->trace( sub {"Sending matched actions for $match->{rule}->{name}"} );
+        $self->sendActions($match->{actions});
+    }
     return 0;
 }
 
-sub makeActions {
-    my ($self, $line) = @_;
-    my @actions;
-    foreach my $rule (@{$self->rules}) {
-        my $data = $self->parseLineFromRule($rule, $line);
-        next unless defined $data;
-        foreach my $action (@{$rule->{actions} // []}) {
-            push @actions, $self->prepAction($rule, $data, $action);
-        }
-        last if isenabled($rule->{last_if_match});
-    }
-    return \@actions;
-}
+=head2 parseLineFromRule
+
+parse the Line using the rule
+
+=cut
 
 sub parseLineFromRule {
     my ($self, $rule, $line) = @_;
@@ -54,6 +57,12 @@ sub parseLineFromRule {
     return \%data;
 }
 
+=head2 sendActions
+
+send actions using an api client
+
+=cut
+
 sub sendActions {
     my ($self, $actions) = @_;
     my $client = $self->getApiClient();
@@ -61,6 +70,12 @@ sub sendActions {
         $client->notify($action->[0], @{$action->[1]});
     }
 }
+
+=head2 prepAction
+
+prepare an action from an action spec
+
+=cut
 
 sub prepAction {
     my ($self, $rule, $data, $action_spec) = @_;
@@ -80,10 +95,22 @@ sub prepAction {
     return [$action, $params];
 }
 
+=head2 getApiClient
+
+get the api client
+
+=cut
+
 sub getApiClient {
     my ($self) = @_;
     return pf::api::jsonrpcclient->new();
 }
+
+=head2 evalParams
+
+eval parameters
+
+=cut
 
 sub evalParams {
     my ($self, $action_params, $args) = @_;
@@ -97,39 +124,64 @@ sub evalParams {
     return \@return;
 }
 
+
+=head2 matchLine
+
+match line
+
+=cut
+
+sub matchLine {
+    my ($self, $line) = @_;
+    my @actions;
+    my @rules;
+    my @matches;
+    my $logger = get_logger();
+    my $id = $self->id;
+    $logger->trace( sub { "Pfdetect Regex $id Attempting to match line : $line" });
+    foreach my $r (@{$self->rules}) {
+        my $rule_name = $r->{name};
+        $logger->trace( sub { "Pfdetect Regex $id checking rule $rule_name" });
+        my $rule = clone($r);
+        my $data = $self->parseLineFromRule($rule, $line);
+        next unless defined $data;
+        $logger->trace( sub { "Pfdetect Regex $id rule $rule_name matched" });
+        if (exists $data->{mac}) {
+            $data->{mac} = clean_mac($data->{mac});
+        }
+        my %match = (
+            rule => $rule,
+            actions => [],
+        );
+        push @matches, \%match;
+        foreach my $action (@{$rule->{actions} // []}) {
+            $logger->trace( sub { "Pfdetect Regex $id rule $rule_name applying action $action" });
+            my $a = $self->prepAction($rule, $data, $action);
+            push @{$match{actions}}, $a;
+        }
+        push @rules, $rule;
+        if (isenabled($rule->{last_if_match})) {
+            $logger->trace(sub {"Pfdetect Regex $id rule $rule_name last match"});
+            last;
+        }
+    }
+    return \@matches;
+}
+
+=head2 dryRun
+
+Return dry run
+
+=cut
+
 sub dryRun {
     my ($self, @lines) = @_;
     my @runs;
     for my $line (@lines) {
-        my @actions;
-        my @rules;
-        my @matches;
         my %run = (
             line => $line,
-            actions => \@actions,
-            rules => \@rules,
-            matches => \@matches,
+            matches => $self->matchLine($line),
         );
-        foreach my $r (@{$self->rules}) {
-            my $rule = clone($r);
-            my $data = $self->parseLineFromRule($rule, $line);
-            next unless defined $data;
-            if (exists $data->{mac}) {
-                $data->{mac} = clean_mac($data->{mac});
-            }
-            my %match = (
-                rule => $rule,
-                actions => [],
-            );
-            push @matches, \%match;
-            foreach my $action (@{$rule->{actions} // []}) {
-                my $a = $self->prepAction($rule, $data, $action);
-                push @actions, $a;
-                push @{$match{actions}}, $a;
-            }
-            push @rules, $rule;
-            last if isenabled($rule->{last_if_match});
-        }
         push @runs, \%run;
     }
     return \@runs;
