@@ -25,6 +25,7 @@ use pf::constants::role qw($MAC_DETECTION_ROLE);
 use pf::Switch::constants;
 use pf::util;
 use pf::util::radius qw(perform_coa);
+use pf::node qw(node_attributes);
 
 # CAPABILITIES
 # special features
@@ -1634,9 +1635,37 @@ Extract the cdp/lldp capabilitie from the radius accounting attribute.
 
 sub acctVoipDetect {
     my ( $self, $radius_request) = @_;
+    my $logger = $self->logger;
+    my %info;
+    my $mac = $radius_request->{'Calling-Station-Id'};
+    $info{'mac'} = $mac;
+    $info{'reason'} = 'node_modify';
+
+    my $cisco_avpair = $radius_request->{'Cisco-AVPair'};
+
+    foreach my $attributes (@$cisco_avpair) {
+        my @values = split ('=', $attributes);
+        if ($values[0] eq 'cdp-tlv') {
+            my ($type, $value) = unpack("nn/a*", $values[1]);
+            if ($type eq '4') {
+                if ( unpack("N", $value) & 0x080) {
+                    $info{'voip'} = 'yes';
+                }
+            }
+        } elsif ($values[0] eq 'lldp-tlv') {
+            my ($type, $value) = unpack("nn/a*", $values[1]);
+            if ($type eq '7') {
+                if ( unpack("N", $value) & 0x020) {
+                    $info{'voip'} = 'yes';
+                }
+            }
+        }
+    }
+    my $node_attributes = node_attributes($mac);
+    $self->{api_client}->notify('modify_node', %info ) if $info{'voip'};
+    $self->{api_client}->notify('reevaluate_access', %info ) if ( ($info{'voip'} eq 'yes') && (!defined($node_attributes) || $node_attributes->{'voip'} eq 'no') );
     return;
 }
-
 
 =item acctFingerprint
 
@@ -1648,24 +1677,28 @@ sub acctFingerprint {
     my ( $self, $radius_request) = @_;
     my $logger = $self->logger;
     my %fingerbank_query_args;
-    $fingerbank_query_args{'mac'} = $radius_request->{'Calling-Station-Id'};
+    my $mac = $radius_request->{'Calling-Station-Id'};
+    $fingerbank_query_args{'mac'} = $mac;
 
     my $cisco_avpair = $radius_request->{'Cisco-AVPair'};
-
+    my $process = 0;
     foreach my $attributes (@$cisco_avpair) {
         my @values = split ('=', $attributes);
         if ($values[0] eq 'dhcp-option') {
-            my ($type, $lenght, $value) = unpack("nnA*", $values[1]);
+            $process = 1;
+            my ($type, $value) = unpack("nn/a*", $values[1]);
             if ($type eq '55') {
                 $fingerbank_query_args{'dhcp_fingerprint'} = join(',', unpack("C*", $value));
             } elsif ($type eq '60') {
                 $fingerbank_query_args{'dhcp_vendor'} = $value;
             } elsif ($type eq '12') {
                 $fingerbank_query_args{'computer_name'} = $value;
+                $fingerbank_query_args{'computername'} = $value;
             }
         }
     }
-    $self->{api_client}->notify('fingerbank_process', \%fingerbank_query_args );
+    $self->{api_client}->notify('modify_node', %fingerbank_query_args ) if $process;
+    $self->{api_client}->notify('fingerbank_process', \%fingerbank_query_args ) if $process;
 
     return;
 }

@@ -490,6 +490,13 @@ sub update_locationlog_accounting {
         return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "Switch is not managed by PacketFence" ) ];
     }
 
+    if (isenabled($switch->{_VoIPAccountingDetect})) {
+        $switch->acctVoipDetect($radius_request);
+    }
+    if (isenabled($switch->{_RadiusFingerprint})) {
+        $switch->acctFingerprint($radius_request);
+    }
+
     if ($switch->supportsRoamingAccounting()) {
         my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
         my $locationlog_mac = locationlog_last_entry_mac($mac);
