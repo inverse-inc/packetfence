@@ -28,6 +28,7 @@ use File::Slurp qw(read_dir);
 use List::MoreUtils qw(all any);
 use Try::Tiny;
 use pf::file_paths qw(
+    $conf_dir
     $oui_file
     $oui_url
     $var_dir
@@ -1109,7 +1110,6 @@ sub send_email {
     my $user_info = pf::person::person_view($to);
     setlocale(POSIX::LC_MESSAGES, $user_info->{lang});
     
-    use pf::file_paths qw($conf_dir);
     use Locale::gettext qw(bindtextdomain textdomain bind_textdomain_codeset);
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     bind_textdomain_codeset( "packetfence", "utf-8" );
