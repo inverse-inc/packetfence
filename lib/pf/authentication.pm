@@ -303,8 +303,11 @@ sub match {
     $logger->info("Using sources ".join(', ', (map {$_->id} @sources))." for matching");
 
     foreach my $source (@sources) {
-        $actions = $source->match($params);
-        next unless defined $actions;
+        $actions = $source->match($params, $action);
+        unless (defined $actions) {
+            $logger->trace(sub {"Skipped " . $source->id });
+            next;
+        }
         if (defined $action) {
             my $allowed_actions = $Actions::ALLOWED_ACTIONS{$action};
 
@@ -326,10 +329,10 @@ sub match {
         }
         #Store the source id
         $$source_id_ref = $source->id if defined $source_id_ref && ref $source_id_ref eq 'SCALAR';
-        last;
+        return $actions;
     }
 
-    return $actions;
+    return undef;
 }
 
 =back
