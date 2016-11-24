@@ -227,21 +227,3 @@ Listen 127.0.0.1:[% port %]
     </Location>
 </VirtualHost>
 
-Listen 127.0.0.1:9091
-
-<VirtualHost 127.0.0.1:9091 >
-  ScriptAlias / [% install_dir %]/lib/pf/web/saml/
-  DocumentRoot [% install_dir %]/lib/pf/web/saml/
-</VirtualHost>
-
-LoadModule cgi_module modules/mod_cgi.so
-LoadModule alias_module modules/mod_alias.so
-
-<Directory [% install_dir%]/lib/pf/web/saml>
-  [% IF apache_version == "2.4" %]
-  Require all granted
-  [% ELSE %]
-  Allow from all
-  [% END %]
-</Directory>
-
