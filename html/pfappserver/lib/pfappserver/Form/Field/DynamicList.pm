@@ -24,6 +24,11 @@ has '+widget_tags' => ( default => \&build_widget_tags );
 has '+init_contains' => ( default => \&build_init_contains );
 has 'sortable' => ( is =>'rw', default => 0 );
 
+sub BUILD {
+    my ($self, @args) = @_;
+    $self->add_wrapper_class(qw(dynamic-list-sortable)) if $self->sortable;
+}
+
 sub set_disabled {
     my ($field) = @_;
     get_logger->trace(sub { "Setting " . $field->id . " to disabled" });
