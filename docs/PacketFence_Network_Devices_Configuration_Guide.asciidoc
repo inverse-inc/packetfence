@@ -2797,6 +2797,19 @@ On each interface:
 
 where `xx` stands for the interface index
 
+CLI authentication
+++++++++++++++++++
+
+You can use PacketFence for RADIUS CLI authentication on the 2500 Series.
+
+Global config settings
+
+  radius-server host 192.168.1.5 key useStrongerSecret
+  aaa authentication ssh login radius local
+  aaa authentication telnet login radius local
+
+Next, make sure you configure the switch in PacketFence accordingly as well as the proper administrative access. Refer to the Administration Guide for more details.
+
 2600 Series and 3400cl Series
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -2826,16 +2839,20 @@ In order to enable RADIUS mac authentication on the ports, you first need to joi
 
 Next, define the RADIUS server host:
 
-   radius-server host 192.168.1.5 key use_stong_secret
+   radius-server host 192.168.1.5 key useStrongerSecret
 
-Since HP now supports server-group, let's create a group for the MAC authentication.  Another one can be used for management access:
+Next, we create a server-group that points to the PacketFence server,
 
    aaa server-group radius "packetfence" host 192.168.1.5
-   aaa server-group radius "management" host 10.0.0.15
 
-Configure the AAA authentication for MAC authentication to use the proper server-group:
+Configure the AAA authentication for MAC authentication to use the right server-group:
 
    aaa authentication mac-based chap-radius server-group "packetfence"
+
+Optionally, you can configure the SSH and telnet authentication to point to PacketFence (make sure you also follow instructions in the Administration Guide to activate the CLI access):
+
+  aaa authentication ssh login radius server-group packetfence local
+  aaa authentication telnet login radius server-group packetfence local
 
 Finally, enable MAC authentication on all necessary ports:
 
