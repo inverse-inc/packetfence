@@ -22,6 +22,7 @@ use pf::log;
 has '+do_wrapper' => ( default => 1 );
 has '+widget_tags' => ( default => \&build_widget_tags );
 has '+init_contains' => ( default => \&build_init_contains );
+has 'sortable' => ( is =>'rw', default => 0 );
 
 sub set_disabled {
     my ($field) = @_;
