@@ -24,6 +24,7 @@ The list of rule
 has_field 'rules' => (
     'type' => 'DynamicList',
     do_wrapper => 1,
+    sortable => 1,
     do_label => 1,
 );
 
@@ -64,7 +65,7 @@ sub build_rule_label {
 
 has_block definition =>
   (
-   render_list => [ qw(id type path rules) ],
+   render_list => [ qw(id type enabled path rules) ],
   );
 
 
