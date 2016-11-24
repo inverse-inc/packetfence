@@ -28,6 +28,19 @@ has_field 'id' =>
    apply => [ pfappserver::Base::Form::id_validator('detector id') ]
   );
 
+=head2 enabled
+
+enabled
+
+=cut
+
+has_field 'enabled' => (
+    type            => 'Toggle',
+    label           => 'Enabled',
+    checkbox_value  => 'enabled',
+    unchecked_value => 'disabled',
+);
+
 has_field 'path' =>
   (
    type => 'Text',
@@ -44,7 +57,7 @@ has_field 'type' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type path) ],
+   render_list => [ qw(id type enabled path) ],
   );
 
 =over
