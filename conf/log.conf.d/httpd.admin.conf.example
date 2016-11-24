@@ -18,7 +18,7 @@ log4perl.additivity.fingerbank = 0
 #log4perl.category.pf.SNMP = WARN
 
 ### Logging for httpd.admin
-log4perl.appender.HTTPD_ADMIN                              = Log::Log4perl::Appender::File
+log4perl.appender.HTTPD_ADMIN                              = pf::log::FileAppender
 log4perl.appender.HTTPD_ADMIN.filename                     = /usr/local/pf/logs/httpd.admin.log
 log4perl.appender.HTTPD_ADMIN.syswrite                     = 1
 log4perl.appender.HTTPD_ADMIN.mode                         = append
@@ -30,7 +30,7 @@ log4perl.appender.HTTPD_ADMIN.group                        = pf
 log4perl.appender.HTTPD_ADMIN.binmode                      = utf8
 
 ### General Catalyst (pfappserver) log facility configuration ###
-log4perl.appender.CATALYST                                 = Log::Log4perl::Appender::File
+log4perl.appender.CATALYST                                 = pf::log::FileAppender
 log4perl.appender.CATALYST.filename                        = /usr/local/pf/logs/httpd.admin.catalyst
 log4perl.appender.CATALYST.mode                            = append
 log4perl.appender.CATALYST.layout                          = PatternLayout
@@ -41,7 +41,7 @@ log4perl.appender.CATALYST.group                           = pf
 log4perl.appender.CATALYST.binmode                         = utf8
 
 ### General Fingerbank log facility configuration ###
-log4perl.appender.FINGERBANK                               = Log::Log4perl::Appender::File
+log4perl.appender.FINGERBANK                               = pf::log::FileAppender
 log4perl.appender.FINGERBANK.filename                      = /usr/local/fingerbank/logs/fingerbank.log
 log4perl.appender.FINGERBANK.mode                          = append
 log4perl.appender.FINGERBANK.layout                        = PatternLayout

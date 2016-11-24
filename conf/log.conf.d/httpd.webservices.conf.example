@@ -18,7 +18,7 @@ log4perl.category.pf.dhcp = INFO, DHCP_PROCESSING
 log4perl.additivity.pf.dhcp = 0
 
 ### Logging for httpd.webservices
-log4perl.appender.HTTPD_WEBSERVICES                              = Log::Log4perl::Appender::File
+log4perl.appender.HTTPD_WEBSERVICES                              = pf::log::FileAppender
 # Replace /usr/local/pf/logs/packetfence.log by /usr/local/pf/logs/httpd.webservices.log to allow
 # httpd.webservices to log in its own log file.
 log4perl.appender.HTTPD_WEBSERVICES.filename                     = /usr/local/pf/logs/packetfence.log
@@ -32,7 +32,7 @@ log4perl.appender.HTTPD_WEBSERVICES.group                        = pf
 log4perl.appender.HTTPD_WEBSERVICES.binmode                      = utf8
 
 ### General Fingerbank log facility configuration ###
-log4perl.appender.FINGERBANK                               = Log::Log4perl::Appender::File
+log4perl.appender.FINGERBANK                               = pf::log::FileAppender
 log4perl.appender.FINGERBANK.filename                      = /usr/local/fingerbank/logs/fingerbank.log
 log4perl.appender.FINGERBANK.mode                          = append
 log4perl.appender.FINGERBANK.layout                        = PatternLayout
@@ -43,7 +43,7 @@ log4perl.appender.FINGERBANK.group                         = fingerbank
 log4perl.appender.FINGERBANK.binmode                       = utf8
 
 ### DHCP processing log facility configuration ###
-log4perl.appender.DHCP_PROCESSING                               = Log::Log4perl::Appender::File
+log4perl.appender.DHCP_PROCESSING                               = pf::log::FileAppender
 log4perl.appender.DHCP_PROCESSING.filename                      = /usr/local/pf/logs/pfdhcplistener.log
 log4perl.appender.DHCP_PROCESSING.mode                          = append
 log4perl.appender.DHCP_PROCESSING.layout                        = PatternLayout

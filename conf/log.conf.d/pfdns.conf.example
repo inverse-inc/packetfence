@@ -6,7 +6,7 @@ log4perl.rootLogger = INFO, PFDNS
 #log4perl.category.pf.SNMP = WARN
 
 ### Logging for pfdns
-log4perl.appender.PFDNS                              = Log::Log4perl::Appender::File
+log4perl.appender.PFDNS                              = pf::log::FileAppender
 log4perl.appender.PFDNS.filename                     = /usr/local/pf/logs/pfdns.log
 log4perl.appender.PFDNS.syswrite                     = 1
 log4perl.appender.PFDNS.mode                         = append

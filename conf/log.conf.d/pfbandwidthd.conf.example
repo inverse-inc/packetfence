@@ -6,7 +6,7 @@ log4perl.rootLogger = INFO, PFBANDWIDTHD
 #log4perl.category.pf.SNMP = WARN
 
 ### Logging for pfbandwidthd
-log4perl.appender.PFBANDWIDTHD                              = Log::Log4perl::Appender::File
+log4perl.appender.PFBANDWIDTHD                              = pf::log::FileAppender
 log4perl.appender.PFBANDWIDTHD.filename                     = /usr/local/pf/logs/pfbandwidthd.log
 log4perl.appender.PFBANDWIDTHD.syswrite                     = 1
 log4perl.appender.PFBANDWIDTHD.mode                         = append

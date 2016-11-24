@@ -6,7 +6,7 @@ log4perl.rootLogger = INFO, HTTPD_PROXY
 #log4perl.category.pf.SNMP = WARN
 
 ### Logging for httpd.proxy
-log4perl.appender.HTTPD_PROXY                              = Log::Log4perl::Appender::File
+log4perl.appender.HTTPD_PROXY                              = pf::log::FileAppender
 log4perl.appender.HTTPD_PROXY.filename                     = /usr/local/pf/logs/httpd.proxy.log
 log4perl.appender.HTTPD_PROXY.syswrite                     = 1
 log4perl.appender.HTTPD_PROXY.mode                         = append

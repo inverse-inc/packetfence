@@ -6,7 +6,7 @@ log4perl.rootLogger = INFO, HTTPD_AAA
 #log4perl.category.pf.SNMP = WARN
 
 ### Logging for httpd.aaa
-log4perl.appender.HTTPD_AAA                              = Log::Log4perl::Appender::File
+log4perl.appender.HTTPD_AAA                              = pf::log::FileAppender
 # Replace /usr/local/pf/logs/packetfence.log by /usr/local/pf/logs/httpd.aaa.log to allow
 # httpd.aaa to log in its own log file.
 log4perl.appender.HTTPD_AAA.filename                     = /usr/local/pf/logs/packetfence.log

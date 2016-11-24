@@ -18,7 +18,7 @@ log4perl.category.pf.dhcp = INFO, DHCP_PROCESSING
 log4perl.additivity.pf.dhcp = 0
 
 ### Logging for pfqueue
-log4perl.appender.PFQUEUE                              = Log::Log4perl::Appender::File
+log4perl.appender.PFQUEUE                              = pf::log::FileAppender
 log4perl.appender.PFQUEUE.filename                     = /usr/local/pf/logs/pfqueue.log
 log4perl.appender.PFQUEUE.syswrite                     = 1
 log4perl.appender.PFQUEUE.mode                         = append
@@ -30,7 +30,7 @@ log4perl.appender.PFQUEUE.group                        = pf
 log4perl.appender.PFQUEUE.binmode                      = utf8
 
 ### General Fingerbank log facility configuration ###
-log4perl.appender.FINGERBANK                           = Log::Log4perl::Appender::File
+log4perl.appender.FINGERBANK                           = pf::log::FileAppender
 log4perl.appender.FINGERBANK.filename                  = /usr/local/fingerbank/logs/fingerbank.log
 log4perl.appender.FINGERBANK.mode                      = append
 log4perl.appender.FINGERBANK.layout                    = PatternLayout
@@ -41,7 +41,7 @@ log4perl.appender.FINGERBANK.group                     = fingerbank
 log4perl.appender.FINGERBANK.binmode                   = utf8
 #
 ### DHCP processing log facility configuration ###
-log4perl.appender.DHCP_PROCESSING                               = Log::Log4perl::Appender::File
+log4perl.appender.DHCP_PROCESSING                               = pf::log::FileAppender
 log4perl.appender.DHCP_PROCESSING.filename                      = /usr/local/pf/logs/pfdhcplistener.log
 log4perl.appender.DHCP_PROCESSING.mode                          = append
 log4perl.appender.DHCP_PROCESSING.layout                        = PatternLayout
