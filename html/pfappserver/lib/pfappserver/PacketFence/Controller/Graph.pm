@@ -511,7 +511,7 @@ sub systemstate :Local :AdminRole('REPORTS') {
                },
                {
                 'description' => $c->loc('Available Memory'),
-                'target' => 'groupByNode(*.swap.swap-free, 0) ',
+                'target' => 'aliasByNode(*.swap.swap-free, 0) ',
                 'columns' => 2
                },
                {
