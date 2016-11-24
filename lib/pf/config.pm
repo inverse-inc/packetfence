@@ -24,7 +24,6 @@ F<pf.conf.defaults>, F<networks.conf>, F<dhcp_fingerprints.conf>, F<oui.txt>, F<
 use strict;
 use warnings;
 use pf::log;
-use pf::config::cached;
 use pf::constants;
 use Date::Parse;
 use File::Basename qw(basename);
@@ -80,18 +79,6 @@ use pfconfig::cached_array;
 use pfconfig::cached_scalar;
 use pfconfig::cached_hash;
 use pf::util;
-use Module::Pluggable (
-  search_path => 'pf::ConfigStore',
-  'sub_name'  => 'configStores',
-  require     => 1,
-  except      => [qw(
-      pf::ConfigStore::Group
-      pf::ConfigStore::Hierarchy
-      pf::ConfigStore::Interface
-      pf::ConfigStore::SwitchGroup
-      pf::ConfigStore::Role::ValidGenericID
-  )]
-);
 
 # Categorized by feature, pay attention when modifying
 our (
@@ -948,15 +935,7 @@ Reload the config
 
 sub configreload {
     my ($force) = @_;
-    pf::CHI->new(namespace => 'configfiles')->clear() if $force;
-    foreach my $cs (pf::config->configStores()) {
-        my $temp = $cs->new;
-        #Force the loading of cached config
-        $temp->cachedConfig;
-    }
     require pf::web::filter;
-    pf::config::cached::updateCacheControl();
-    pf::config::cached::ReloadConfigs($force);
 
     # reload pfconfig's config
     require pfconfig::manager;

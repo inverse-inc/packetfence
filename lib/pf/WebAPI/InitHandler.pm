@@ -15,7 +15,6 @@ use strict;
 use warnings;
 
 use Apache2::RequestRec ();
-use pf::config::cached;
 use pf::StatsD qw($statsd);
 use pf::db;
 use pf::CHI;
@@ -26,7 +25,6 @@ use Apache2::Const -compile => 'OK';
 
 sub handler {
     my $r = shift;
-    pf::config::cached::ReloadConfigs();
     pf::CHI::Request::clear_all();
     return Apache2::Const::OK;
 }

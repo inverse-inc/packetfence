@@ -15,7 +15,6 @@ pfappserver::Model::Config::Fingerbank::User_Agent
 use fingerbank::Model::User_Agent();
 use Moose;
 use namespace::autoclean;
-use pf::config::cached;
 use HTTP::Status qw(:constants :is);
 
 extends 'pfappserver::Base::Model::Fingerbank';

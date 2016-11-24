@@ -14,7 +14,6 @@ pfappserver::Base::Model::Fingerbank
 
 use Moose;
 use namespace::autoclean;
-use pf::config::cached;
 use pf::log;
 use pf::util qw(calc_page_count);
 use HTTP::Status qw(:constants :is);

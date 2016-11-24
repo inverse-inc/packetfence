@@ -15,7 +15,6 @@ pfappserver::Model::Config::Fingerbank::Combination
 use fingerbank::Model::Combination();
 use Moose;
 use namespace::autoclean;
-use pf::config::cached;
 use HTTP::Status qw(:constants :is);
 use Readonly;
 

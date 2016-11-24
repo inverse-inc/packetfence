@@ -15,7 +15,6 @@ pfappserver::Model::Config::Firewall_SSO
 use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 use namespace::autoclean;
-use pf::config::cached;
 use pf::config;
 use pf::ConfigStore::Firewall_SSO;
 

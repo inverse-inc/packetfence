@@ -15,7 +15,6 @@ pfappserver::Model::Config::Violations
 use Moose;
 use namespace::autoclean;
 
-use pf::config::cached;
 use pf::config qw(%CAPTIVE_PORTAL %Profiles_Config);
 use pf::violation_config;
 use HTTP::Status qw(:constants is_error is_success);

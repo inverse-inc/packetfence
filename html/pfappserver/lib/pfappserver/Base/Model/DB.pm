@@ -15,7 +15,6 @@ Is the Base class for Rose DB catalyst models
 
 use Moose;
 use namespace::autoclean;
-use pf::config::cached;
 use pf::log;
 use Module::Load;
 use HTTP::Status qw(:constants :is);

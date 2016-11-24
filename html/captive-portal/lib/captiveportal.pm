@@ -40,7 +40,6 @@ BEGIN {
 }
 
 use captiveportal::Role::Request;
-use pf::config::cached;
 use pf::CHI;
 use pf::CHI::Request;
 use CHI::Driver::SubNamespace;
@@ -118,7 +117,6 @@ __PACKAGE__->config(
 
 before handle_request => sub {
     Log::Log4perl::MDC->put('mac', 'unknown');
-    pf::config::cached::ReloadConfigs();
     pf::CHI::Request::clear_all();
 };
 

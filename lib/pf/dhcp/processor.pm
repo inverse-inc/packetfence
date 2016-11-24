@@ -30,7 +30,6 @@ use pf::config qw(
     %connection_type_to_str
     $INLINE
 );
-use pf::config::cached;
 use pf::db;
 use pf::firewallsso;
 use pf::inline::custom $INLINE_API_LEVEL;

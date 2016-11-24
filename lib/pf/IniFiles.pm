@@ -236,6 +236,32 @@ sub ClearSection {
     }
 }
 
+=head2 removeDefaultValues
+
+Will removed all the default values in current config
+
+=cut
+
+sub removeDefaultValues {
+    my ($self) = @_;
+    if (exists $self->{imported} && defined $self->{imported}) {
+        my $imported = $self->{imported};
+        foreach my $section ( $self->Sections ) {
+            next if ( !$imported->SectionExists($section) );
+            foreach my $parameter ( $self->Parameters($section) ) {
+                next if ( !$imported->exists($section, $parameter) );
+                my $self_val = $self->val($section, $parameter);
+                my $default_val = $imported->val($section, $parameter);
+                if ( !defined ($self_val) || $self_val eq $default_val  ) {
+                    $self->delval($section, $parameter);
+                }
+            }
+            if ($self->Parameters($section) == 0) {
+                $self->DeleteSection($section);
+            }
+        }
+    }
+}
 
 =head1 AUTHOR
 

@@ -14,7 +14,6 @@ pfappserver::Model::Config::Switch;
 
 use Moose;
 use namespace::autoclean;
-use pf::config::cached;
 use pf::util qw(calc_page_count);
 use pf::config qw(
     $ALWAYS

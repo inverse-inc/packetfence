@@ -30,8 +30,6 @@ our %auth_lookup;
 
 extends 'pf::ConfigStore';
 
-readAuthenticationConfigFile();
-setModuleSources();
 
 =head1 METHODS
 
@@ -49,18 +47,6 @@ before rewriteConfig => sub {
     my ($self) = @_;
     $self->cachedConfig->ReorderByGroup();
 };
-
-sub readAuthenticationConfigFile {
-    unless ($cached_authentication_config) {
-        $cached_authentication_config = pf::config::cached->new (
-            -file => $authentication_config_file,
-            -oncachereload => [
-              on_cache_authentication_reload => sub {setModuleSources()}
-        ] );
-    } else {
-        $cached_authentication_config->ReadConfig();
-    }
-}
 
 sub setModuleSources {
     @auth_sources = @pf::authentication::authentication_sources;
@@ -111,6 +97,8 @@ Write the configuration file to disk
 sub writeAuthenticationConfigFile {
     my ($self) = @_;
     my $logger = get_logger();
+    # we refresh the auth sources references of this modules
+    setModuleSources();
     my $cached_authentication_config = $self->cachedConfig;
     # Remove deleted sections
     my %new_sources = map { $_->id => undef } @auth_sources;
@@ -183,8 +171,6 @@ sub writeAuthenticationConfigFile {
     # we signal pfconfig that we changed
     $self->commitPfconfig;
 
-    # we refresh the auth sources references of this modules
-    setModuleSources();
 }
 
 __PACKAGE__->meta->make_immutable;

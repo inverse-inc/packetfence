@@ -27,7 +27,7 @@ our $VERSION = 1.00;
 
 use pf::config;
 use pf::file_paths qw($ui_config_file);
-use pf::config::cached;
+use pf::IniFiles;
 
 my $singleton;
 
@@ -88,7 +88,7 @@ sub _ui_conf {
 
     unless (defined $_ui_conf_tie) {
         my %conf;
-        tie %conf, 'pf::config::cached', ( -file => $ui_config_file );
+        tie %conf, 'pf::IniFiles', ( -file => $ui_config_file );
         my @errors = @Config::IniFiles::errors;
         if ( scalar(@errors) || !%conf ) {
             $logger->logdie("Error reading ui.conf: " . join( "\n", @errors ) . "\n" );

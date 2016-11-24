@@ -27,6 +27,7 @@ use pf::ConfigStore::Authentication;
 
 sub update {
     my ($self, $sources) = @_;
+    pf::ConfigStore::Authentication::setModuleSources();
 
     my $logger = get_logger();
 

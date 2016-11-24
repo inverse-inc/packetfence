@@ -19,7 +19,7 @@ use pf::config qw(
     %Config
     %Doc_Config
 );
-use pf::config::cached;
+use pf::IniFiles;
 use pf::file_paths qw($pf_config_file $pf_default_file);
 
 extends 'pf::ConfigStore';
@@ -38,17 +38,10 @@ sub pfconfigNamespace {'config::Pf'}
 
 sub _buildCachedConfig {
     my ($self) = @_;
-    return pf::config::cached->new(
+    return pf::IniFiles->new(
         -file         => $pf_config_file,
         -allowempty   => 1,
-        -import       => pf::config::cached->new(-file => $pf_default_file),
-        -onpostreload => [
-            'reload_pf_config' => sub {
-                my ($config) = @_;
-                $config->{imported}->ReadConfig;
-              }
-        ],
-
+        -import       => pf::IniFiles->new(-file => $pf_default_file),
     );
 }
 
