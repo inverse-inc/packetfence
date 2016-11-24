@@ -84,9 +84,15 @@ table .category-header {
     font-weight: bold;
     width: 20px;
 }
+
 span.sort-handle {
     display: inline-block;
 }
+
+span.sort-handle:hover {
+    background-image: url('/static/app/grab.png');
+}
+
 td.sort-handle {
     text-align: center;
     vertical-align: middle;

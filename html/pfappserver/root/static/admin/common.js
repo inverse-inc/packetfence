@@ -46,7 +46,7 @@ function dynamic_list_update_all_attributes(elements, base_id, count) {
     var jquery_escaped_id = escapeJqueryId(base_id + ".");
     var href_regex = new RegExp(escapeRegExp(jquery_escaped_id) + "[0-9]+");
     var href_replace = jquery_escaped_id + count.toString();
-    $.each(["href", "data-target", "data-template-parent"], function(i, id) {
+    $.each(["href", "data-target", "data-template-parent", "data-sortable-item"], function(i, id) {
         var query = '[' + id + '*="' + escapeJqueryId(jquery_escaped_id) + '"]';
         update_attributes(elements, id, query, href_regex, href_replace);
     });
@@ -601,6 +601,47 @@ $(function () { // DOM ready
                 var rows = dst.siblings(':not(.hidden)').andSelf();
                 updateDynamicRows(rows);
                 dst.closest('table, ul').trigger('admin.ordered');
+            }
+        });
+    });
+
+    /* Activate sortable tables and lists (rows/items can be re-ordered) */
+    $('body').on('mousemove',
+                 '.dynamic-list-sortable .sort-handle:not(.ui-draggable)',
+                 function() {
+        var row = $(this);
+        var id = row.attr('data-sortable-scope');
+        var item = $(row.attr('data-sortable-item'));
+        row.draggable({
+            scope: id,
+            handle: '.sort-handle',
+            appendTo: 'body',
+            cursor: 'move',
+            helper: function(event) {
+                var target = $(event.target);
+                return '<div class="drag-row">' + target.attr('data-sortable-text') + '</div>';
+            }
+        });
+        item.siblings().droppable({
+            scope: id,
+            accept: function(obj) {
+                var text1 = $(obj.context).text();
+                return $(obj.context).text() != $(this).find('.sort-handle:first').text();
+            },
+            hoverClass: 'drop-row',
+            drop: function(event, ui) {
+                var draggable = ui.draggable;
+                var base_id = draggable.attr("data-base-id");
+                var item = $(draggable.attr('data-sortable-item'));
+                var wrapper = $(draggable.attr('data-sortable-parent'));
+                var src = item.detach();
+                var dst = $(this);
+                src.insertBefore(dst);
+                wrapper.children().each(function(i,e) {
+                    var element = $(e);
+                    dynamic_list_update_all_attributes(element, base_id, i);
+                    element.find('.sort-handle:first').html((i + 1) + "");
+                })
             }
         });
     });
