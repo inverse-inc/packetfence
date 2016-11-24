@@ -74,9 +74,17 @@ sub do_accordion_heading_content {
     my ($self) = @_;
     my $label = $self->label;
     my $target = $self->accordion_jq_target;
-    return <<EOS;
-        <a data-toggle="collapse" href="#$target">$label</a>
-EOS
+    my $content = qq{<a data-toggle="collapse" href="#$target">$label</a>};
+    my $parent = $self->parent;
+    if ($parent && $parent->can("sortable") && $parent->sortable) {
+        my $target_id = $parent->target_id;
+        my $base_id = $parent->id;
+        my $scope = "sortable-" . $base_id;
+        my $name = $self->name + 1;
+        my $item_target = $self->escape_jquery_id($self->accordion_group_id);
+        $content = qq{<span data-sortable-text="$label" data-base-id="$base_id" data-sortable-item="#$item_target" data-sortable-scope="$scope" data-sortable-parent="$target_id" class="sort-handle">$name</span>} .  $content ;
+    }
+    return $content;
 }
 
 use namespace::autoclean;
