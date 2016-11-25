@@ -1,3 +1,10 @@
+<div class="controls">
+    <span class="pull-right"><a data-toggle="collapse" href="#pfdetect-help">[% l('Help') %]</a></span>
+    <div id="pfdetect-help" class="collapse">
+
+    </div>
+</div>
+
 [% form.block('definition').render | none %]
 <div class="controls">
     <div class="control-group">
