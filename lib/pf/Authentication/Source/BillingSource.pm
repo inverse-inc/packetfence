@@ -157,6 +157,21 @@ sub handle_hook {
     return ;
 }
 
+=head2 has_post_verify
+
+=cut
+
+sub has_post_verify { 0 }
+
+=head2 verify_error
+
+=cut
+
+sub post_verify {
+    my ($self, $session, $parameters, $uri) = @_;
+    return {};
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
