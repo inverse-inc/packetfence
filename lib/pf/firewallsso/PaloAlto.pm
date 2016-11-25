@@ -105,7 +105,7 @@ Send an SSO start using sylog
 sub send_sso_start_syslog {
     my ($self, $firewall_conf, $ip, $mac, $username, $timeout) = @_;
     my $syslog = Net::Syslog->new(SyslogHost => $firewall_conf);
-    $syslog->send("Group <ssl-rsa> User <$username> IP <$ip> IPv4 Address <$ip> IPv6 address <::> assigned to session");
+    $syslog->send("Group <packetfence> User <$username> Address <$ip> assigned to session");
 }
 
 =head2 send_sso_stop_syslog
