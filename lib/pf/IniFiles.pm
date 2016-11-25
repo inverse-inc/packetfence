@@ -22,7 +22,8 @@ use base qw(Config::IniFiles);
 use Time::HiRes qw(stat time);
 
 *errors = \@Config::IniFiles::errors;
-use List::MoreUtils qw(all first_index);
+use List::MoreUtils qw(all first_index uniq);
+use Scalar::Util qw(tainted reftype);
 
 =head2 DeleteSection ( $sect_name, $include_groupmembers )
 
@@ -259,6 +260,70 @@ sub removeDefaultValues {
             if ($self->Parameters($section) == 0) {
                 $self->DeleteSection($section);
             }
+        }
+    }
+}
+
+sub untaint_value {
+    my $val = shift;
+    if (defined $val && $val =~ /\A(.*)\z/ms) {
+        return $1;
+    }
+}
+
+sub untaint {
+    my $val = $_[0];
+    if (tainted($val)) {
+        $val = untaint_value($val);
+    } elsif (my $type = reftype($val)) {
+        if ($type eq 'ARRAY') {
+            foreach my $element (@$val) {
+                $element = untaint($element);
+            }
+        } elsif ($type eq 'HASH') {
+            foreach my $element (values %$val) {
+                $element = untaint($element);
+            }
+        }
+    }
+    return $val;
+}
+
+=head2 toHash
+
+Copy configuration to a hash
+
+=cut
+
+sub toHash {
+    my ($self, $hash) = @_;
+    %$hash = ();
+    my @default_parms;
+    if (exists $self->{default} ) {
+        @default_parms = $self->Parameters($self->{default});
+    }
+    foreach my $section ($self->Sections()) {
+        my %data;
+        foreach my $param ( map { untaint_value($_) } uniq $self->Parameters($section), @default_parms) {
+            my $val = $self->val($section, $param);
+            $data{$param} = untaint($val);
+        }
+        $hash->{$section} = \%data;
+    }
+}
+
+=head2 cleanupWhitespace
+
+Clean up whitespace is a utility function for cleaning up whitespaces for hashes
+
+=cut
+
+sub cleanupWhitespace {
+    my ($self, $hash) = @_;
+    foreach my $data (values %$hash) {
+        foreach my $key (keys %$data) {
+            next unless defined $data->{$key};
+            $data->{$key} =~ s/\s+$//;
         }
     }
 }
