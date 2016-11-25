@@ -484,6 +484,7 @@ cp -r addons/soh/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/upgrade/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/watchdog/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/AD/* $RPM_BUILD_ROOT/usr/local/pf/addons/AD/
+cp -r addons/monit/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.pl $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.sh $RPM_BUILD_ROOT/usr/local/pf/addons/
 %{__install} -D addons/logrotate $RPM_BUILD_ROOT/etc/logrotate.d/packetfence
@@ -900,6 +901,8 @@ fi
                         /usr/local/pf/addons/high-availability/*
 %dir                    /usr/local/pf/addons/integration-testing/
                         /usr/local/pf/addons/integration-testing/*
+%dir                    /usr/local/pf/addons/monit
+                        /usr/local/pf/addons/monit/*
 %dir                    /usr/local/pf/addons/packages
                         /usr/local/pf/addons/packages/*
 %dir                    /usr/local/pf/addons/pfconfig
