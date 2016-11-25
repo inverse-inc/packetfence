@@ -574,7 +574,7 @@ sub logstate :Local :AdminRole('REPORTS') {
                },
                {
                 'description' => $c->loc('Logs Tracking pfdhcplistener.log'),
-                'target' => 'aliasByNode(*.tail-pfqueue.counter*,1,2)',
+                'target' => 'aliasByNode(*.tail-pfdhcplistener.counter*,1,2)',
                 'columns' => 2
                },
                {
