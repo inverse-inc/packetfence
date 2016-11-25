@@ -90,7 +90,7 @@ function showAlert(type, sibling, msg, permanent, time) {
         time = 5000;
     }
     var alert = $(type).first().clone();
-    alert.find('span').first().html(msg);
+    alert.find('span').first().text(msg);
     sibling.before(alert);
     if (permanent)
         alert.fadeIn('fast');
