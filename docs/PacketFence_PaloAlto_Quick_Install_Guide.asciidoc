@@ -81,7 +81,7 @@ image::docs/images/doc-paloalto-cfg_SSO_pf.png[scaledwidth="100%",alt="Add a Pal
 Step 5: Verification
 ~~~~~~~~~~~~~~~~~~~
 
-Now we will check that PacketFence is sending information when a user register on the portal. If the process worked, you will see the entry in the PaloAlto database.
+Now we will check that PacketFence is sending information when a user registers on the portal. If the process worked, you will see the entry in the PaloAlto database.
 
 Use SSH on the PaloAlto firewall and run this command:
 
@@ -129,7 +129,7 @@ Go to *Configuration -> Firewall SSO -> Add Firewall -> PaloAlto*.
 Step 5: Verification
 ~~~~~~~~~~~~~~~~~~~
 
-Now we will check that PacketFence is sending information when a user register on the portal. If the process worked, you will see the entry in the PaloAlto database.
+Now we will check that PacketFence is sending information when a user registers on the portal. If the process worked, you will see the entry in the PaloAlto database.
 
 Use SSH on the PaloAlto firewall and run this command:
 
