@@ -21,7 +21,7 @@ Installation using XMLAPI
 -------------------------
 
 Step 1: Create a SSO role
-~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
 You will first need to create an SSO role on the web interface on the PaloAlto firewall.
 
 Go to *Device -> Admin Roles -> Add*.
