@@ -78,6 +78,20 @@ has_field 'last_if_match' => (
     unchecked_value => 'disabled',
 );
 
+=head2 ip_to_mac
+
+If enabled then do ip to mac translation
+
+=cut
+
+has_field 'ip_to_mac' => (
+    type            => 'Toggle',
+    label           => 'Do IP to MAC translation',
+    default         => 'enabled',
+    checkbox_value  => 'enabled',
+    unchecked_value => 'disabled',
+);
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
