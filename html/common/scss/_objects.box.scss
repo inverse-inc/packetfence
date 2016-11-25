@@ -6,7 +6,7 @@ $pf-box-hero-width--palm: $inuit-base-line-height * 4;
 $pf-box-width--small: $inuit-base-line-height * 2;
 
 .#{$inuit-box-namespace}box--large-height {
-  max-height: $inuit-base-line-height * 18;
+  max-height: $inuit-base-line-height * 12;
   overflow: auto;
 
   @include media-query(palm) {

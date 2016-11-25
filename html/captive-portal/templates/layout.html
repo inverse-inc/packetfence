@@ -27,76 +27,73 @@
   </head>
   <body>
 
-<!--
-    <header class="layout">
-      <div class="layout__item">
-        <h1>PacketFence</h1>
-      </div>
-    </header>
--->
-
     <!--
       title: [% i18n(title) %]
       module: [% current_module.pretty_class_name %]
       description: [% current_module.description %]
       -->
 
-    <div class="layout layout--center u-pb u-palm-p">
-      <div class="layout__item u-1/2 u-2/3-lap u-1/1-palm">
-        <div class="layout layout--right">
-          [%- IF show_restart %]
-          <a href="/logout" alt="Restart"
-             title="[% i18n("Restart from the beginning") %]"
-             class="btn btn--icon u-palm-p0">
-            <div class="btn--hint"><span>[% i18n("Restart registration process") %]</span></div>
-            [% svgIcon(id='ic_replay_black_24px', size='tiny') %]
-          </a>
-          [%- END %]
-        </div>
-        <div class="layout--center">
-          [%- IF logo %]
-          <div class="box box--small">
-            <img src="[% logo %]" style="max-width: 100%"/>
+    <div class="layout layout--center">
+      <div class="layout__item [ u-1/2 u-2/3-lap u-1/1-palm ]">
+
+        <!-- main container -->
+        <div class="frame--raised-disabled frame--bordered-disabled [ u-m u-palm-m0 ] u-palm-p">
+          <div class="layout--right">
+            [%- IF show_restart %]
+            <a href="/logout" alt="Restart"
+               title="[% i18n("Restart from the beginning") %]"
+               class="btn btn--icon u-palm-p0">
+              <div class="btn--hint"><span>[% i18n("Restart registration process") %]</span></div>
+              [% svgIcon(id='ic_replay_black_24px', size='tiny') %]
+            </a>
+            [%- END %]
           </div>
-          <div class="box box--hero box--small u-m u-mb-- u-m--palm">
-            [% moduleIcon(module=current_module.pretty_class_name) %]
+          <div class="text-center">
+            [%- IF logo %]
+            <div class="box box--small">
+              <img src="[% logo %]" style="max-width: 100%"/><br/>
+            </div>
+            <div class="box box--hero box--small [ u-m u-mb-- u-m--palm ]">
+              [% moduleIcon(module=current_module.pretty_class_name) %]
+            </div>
+            [% ELSE %]
+            <div class="box box--hero [ u-m u-mb-- ]">
+              [% moduleIcon(module=current_module.pretty_class_name) %]
+            </div>
+            [% END %]
+            <div id="dots"></div>
+            [% IF title.defined %]<h4>[% i18n(title) %]</h4>[% END %]
           </div>
-          [% ELSE %]
-          <div class="box box--hero u-m u-mb--">
-            [% moduleIcon(module=current_module.pretty_class_name) %]
-            <!-- <div class="slice"><div class="bar"></div><div class="fill"></div></div> -->
-          </div>
-          [% END %]
-          <div id="dots">
-          </div>
-          [% IF title.defined %]<h4>[% i18n(title) %]</h4>[% END %]
           [% FOREACH level IN flash.keys %]
           <div class="media media--[% level %] u-p u-mb">
             <div class="media__img">[% flashIcon(level=level) %]</div>
             <p class="media__body">[% i18n(flash.$level) %]</p>
           </div>
           [% END %]
-        </div>
-        [% content | none %]
+          [% content | none %]
+
+          <div class="divider u-m"></div>
+          <footer>
+            [% UNLESS preregistration %]
+            <div class="layout layout--tiny layout--center">
+              <div class="layout__item u-1/3">
+                <div class="u-m--">
+                  <p class="layout--right">[% i18n("help: provide info") %]</p>
+                </div>
+              </div
+                ><div class="layout__item u-1/3">
+                <div class="u-m--">
+                  <p class="u-mb--">IP <b>[% client_ip %]</b></p>
+                  <p>MAC <b>[% client_mac %]</b></p>
+                </div>
+            </div
+              ></div>
+            [% END %]
+          </footer>
+
+        </div><!-- end of main container -->
+
       </div>
     </div>
-
-    <footer>
-      [% UNLESS preregistration %]
-      <div class="layout layout--tiny layout--center"
-        ><div class="layout__item u-1/4 u-1/3-lap u-1/2-palm">
-          <div class="u-m--">
-            <p class="layout--right">[% i18n("help: provide info") %]</p>
-          </div>
-        </div
-        ><div class="layout__item u-1/4 u-1/3-lap u-1/2-palm">
-          <div class="u-m--">
-            <p class="u-mb--">IP <b>[% client_ip %]</b></p>
-            <p>MAC <b>[% client_mac %]</b></p>
-          </div>
-        </div
-      ></div>
-      [% END %]
-    </footer>
   </body>
 </html>

@@ -1,30 +1,61 @@
 /// _settings.colors.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
 
-$inuit-base-text-color:                  #F1F1F1;
-$inuit-base-background-color:            #92c668;    // light green
-
-$inuit-btn-background:                   #247BA0;
+/**
+ * Some predefined color variables
+ */
 
 $pf-color-tint:                          #FDFDFD;    // light color, almost white
 $pf-color-gray:                          #343434;    // dark gray
 $pf-color-light-gray:                    #96A0AA;    // light blue gray
-
 $pf-color-error:                         #C97064;    // red
 $pf-color-notice:                        #93BAB6;    // light blue
 
+/**
+ * Color assignation to elements attributes
+ */
+
+// Text color
+$inuit-base-text-color:                  #F1F1F1;
+//$inuit-base-text-color:                  #434343; // when using a white frame
+
+// Background color
+$inuit-base-background-color:            #92c668;    // light green
+//$inuit-base-background-color:            #FEFEFE;
+
+// Button background color
+$inuit-btn-background:                   #247BA0;
+//$inuit-btn-background:                   #0174B5;
+
+// Button light background color
+$pf-btn-background-light:                #9ac4d6;    // light blue
+
+// Navigation (dots and background color of round icons)
 $pf-base-accent-color:                   #5E913A;    // dark green
 
-$pf-footer-background-color:             #333333;
-$pf-footer-text-color:                   #CCCCCC;
+// Footer background
+$pf-footer-background-color:             transparent;
+//$pf-footer-background-color:             #333333;
 
+// Footer text color
+$pf-footer-text-color:                   $inuit-base-text-color;
+//$pf-footer-text-color:                   #848484; // when using a white frame
+
+// Tinted box
 $pf-box-tint-background:                 $pf-color-tint;
 $pf-box-tint-color:                      $pf-color-gray;
 
+// Frame background color
+$pf-frame-background:                    #FEFEFE;
+
+// Tinted list
 $pf-list-tint-background:                $pf-color-tint;
 $pf-list-tint-color:                     $pf-color-gray;
-$pf-list-tint-hue-1-background:          #D0DFC1;
+
+// Light list
+$pf-list-background-light:               #D0DFC1;
 $pf-list-icon-color:                     $pf-color-light-gray;
 
+// Input label
 $pf-input-caption:                       $pf-color-light-gray;
 
 /**
@@ -33,4 +64,4 @@ $pf-input-caption:                       $pf-color-light-gray;
 
 //$inuit-base-background-color:            #44535A;    // dark blue gray
 //$pf-base-accent-color:                   #4D616A;    // blue gray
-//$pf-list-tint-hue-1-background:          #7B9CAA;    // light blue gray
+//$pf-list-background-light:               #7B9CAA;    // light blue gray

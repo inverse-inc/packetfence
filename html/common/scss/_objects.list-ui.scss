@@ -11,6 +11,7 @@
   background-color: $pf-list-tint-background;
   border-radius: $pf-border-radius;
   box-shadow: $pf-btn-box-shadow;
+  overflow: hidden;
 
   .#{$inuit-btn-namespace}btn {
     background-color: transparent;
@@ -33,9 +34,12 @@
   }
 }
 
+    .#{$inuit-list-ui-namespace}list-ui--btns .#{$inuit-list-ui-namespace}list-ui__item:last-child {
+        border-bottom-width: 0;
+    }
 
 .#{$inuit-list-ui-namespace}list-ui--light {
-  background-color: $pf-list-tint-hue-1-background;
+  background-color: $pf-list-background-light;
   border-radius: $pf-border-radius;
   box-shadow: $pf-btn-box-shadow;
   color: $pf-list-tint-color;

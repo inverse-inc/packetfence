@@ -1,0 +1,20 @@
+/// _components.frame.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
+
+.#{$inuit-layout-namespace}frame--raised,
+%#{$inuit-layout-namespace}frame--raised {
+  background-color: $pf-frame-background;
+  -webkit-box-shadow: 3px 3px 18px 0px rgba(0,0,0,0.5);
+  -moz-box-shadow: 3px 3px 18px 0px rgba(0,0,0,0.5);
+  box-shadow: 3px 3px 18px 0px rgba(0,0,0,0.5);
+}
+
+.#{$inuit-layout-namespace}frame--bordered,
+%#{$inuit-layout-namespace}frame--bordered {
+  background-color: $pf-frame-background;
+  border-radius: $pf-border-radius;
+  border: 1px solid lighten($inuit-base-text-color, 50%);
+  @include media-query(palm) {
+    border: 0;
+    border-radius: 0;
+  }
+}

@@ -108,5 +108,7 @@ $(function() {
         $dot.removeClass('dot--active');
       }
     }
+
+    $('html, body').animate({ scrollTop: '0px' });
   }
 });

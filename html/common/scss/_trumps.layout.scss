@@ -4,8 +4,3 @@
 %#{$inuit-layout-namespace}layout__item {
   max-width: 50em;
 }
-
-footer .#{$inuit-layout-namespace}layout,
-footer %#{$inuit-layout-namespace}layout {  
-  background-color: $pf-footer-background-color;
-}

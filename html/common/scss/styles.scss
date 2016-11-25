@@ -20,6 +20,7 @@ $inuit-base-font-size:                   15px;
 @import "node_modules/inuit-mixins/tools.mixins";
 @import "node_modules/inuit-responsive-tools/tools.responsive";
 @import "node_modules/inuit-tools-widths/tools.widths";
+@import "tools.functions";
 @import "tools.aliases";
 
 // GENERIC:
@@ -32,8 +33,8 @@ $inuit-base-font-size:                   15px;
 @import "node_modules/inuit-page/base.page";
 @import "node_modules/inuit-headings/base.headings";
 @import "node_modules/inuit-paragraphs/base.paragraphs";
-@import "base.body";
-@import "base.header";
+//@import "base.body";
+//@import "base.header";
 @import "base.footer";
 @import "base.input";
 @import "base.paragraphs";
@@ -55,7 +56,6 @@ $inuit-enable-layout--center:            true;
 $inuit-enable-layout--auto:              true;
 $inuit-enable-layout--tiny:              true;
 @import "node_modules/inuit-layout/objects.layout";
-@import "objects.layout";
 @import "node_modules/inuit-list-bare/objects.list-bare";
 $inuit-enable-list-block--tiny:          true;
 @import "node_modules/inuit-list-block/objects.list-block";
@@ -74,7 +74,9 @@ $inuit-enable-table--compact:             true;
 
 // COMPONTENTS:
 @import "components.card";
+@import "components.divider";
 @import "components.dot";
+@import "components.frame";
 @import "components.iconic";
 @import "components.input";
 
@@ -87,7 +89,9 @@ $inuit-enable-margins--none:              true;
 $inuit-enable-paddings:                   true;
 $inuit-enable-paddings--tiny:             true;
 @import "node_modules/inuit-spacing/trumps.spacing";
+$inuit-enable-responsive-margins:         true;
 $inuit-enable-responsive-margins--small:  true;
+$inuit-enable-responsive-margins--none:   true;
 $inuit-enable-responsive-paddings:        true;
 $inuit-enable-responsive-paddings--tiny:  true;
 $inuit-enable-responsive-paddings--none:  true;
