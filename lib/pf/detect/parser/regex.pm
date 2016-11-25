@@ -21,6 +21,7 @@ use pf::api::local;
 use pf::util qw(isenabled clean_mac);
 use Clone qw(clone);
 use Moo;
+use pf::iplog;
 extends qw(pf::detect::parser);
 
 has rules => (is => 'rw', default => sub {[]});
@@ -54,6 +55,15 @@ sub parseLineFromRule {
     my ($self, $rule, $line) = @_;
     return undef unless $line =~ $rule->{regex};
     my %data = %+;
+    if (exists $data{mac}) {
+        $data{mac} = clean_mac($data{mac});
+    }
+    if (isenabled($rule->{ip_to_mac}) && exists $data{ip} && !exists $data{mac}) {
+        my $mac = pf::iplog::ip2mac($data{ip});
+        if ($mac) {
+            $data{mac} = $mac;
+        }
+    }
     return \%data;
 }
 
@@ -146,9 +156,6 @@ sub matchLine {
         my $data = $self->parseLineFromRule($rule, $line);
         next unless defined $data;
         $logger->trace( sub { "Pfdetect Regex $id rule $rule_name matched" });
-        if (exists $data->{mac}) {
-            $data->{mac} = clean_mac($data->{mac});
-        }
         my %match = (
             rule => $rule,
             actions => [],
