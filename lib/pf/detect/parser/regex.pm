@@ -58,10 +58,18 @@ sub parseLineFromRule {
     if (exists $data{mac}) {
         $data{mac} = clean_mac($data{mac});
     }
-    if (isenabled($rule->{ip_to_mac}) && exists $data{ip} && !exists $data{mac}) {
-        my $mac = pf::iplog::ip2mac($data{ip});
-        if ($mac) {
-            $data{mac} = $mac;
+    if (isenabled($rule->{ip_mac_translation}) ) {
+        if (exists $data{ip} && !exists $data{mac}) {
+            my $mac = pf::iplog::ip2mac($data{ip});
+            if ($mac) {
+                $data{mac} = $mac;
+            }
+        }
+        elsif (exists $data{mac} && !exists $data{ip}) {
+            my $ip = pf::iplog::mac2ip($data{mac});
+            if ($ip) {
+                $data{ip} = $ip;
+            }
         }
     }
     return \%data;

@@ -78,15 +78,15 @@ has_field 'last_if_match' => (
     unchecked_value => 'disabled',
 );
 
-=head2 ip_to_mac
+=head2 ip_mac_translation
 
-If enabled then do ip to mac translation
+If enabled then do ip to mac and mac to ip translation
 
 =cut
 
-has_field 'ip_to_mac' => (
+has_field 'ip_mac_translation' => (
     type            => 'Toggle',
-    label           => 'Do IP to MAC translation',
+    label           => 'Do IP to MAC and MAC to IP translation',
     default         => 'enabled',
     checkbox_value  => 'enabled',
     unchecked_value => 'disabled',
