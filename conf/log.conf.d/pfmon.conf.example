@@ -6,7 +6,7 @@ log4perl.rootLogger = INFO, PFMON
 #log4perl.category.pf.SNMP = WARN
 
 ### Logging for pfmon
-log4perl.appender.PFMON                              = Log::Log4perl::Appender::File
+log4perl.appender.PFMON                              = pf::log::FileAppender
 log4perl.appender.PFMON.filename                     = /usr/local/pf/logs/pfmon.log
 log4perl.appender.PFMON.syswrite                     = 1
 log4perl.appender.PFMON.mode                         = append

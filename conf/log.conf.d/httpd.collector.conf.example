@@ -6,7 +6,7 @@ log4perl.rootLogger = INFO, HTTPD_COLLECTOR
 #log4perl.category.pf.SNMP = WARN
 
 ### Logging for httpd.collector
-log4perl.appender.HTTPD_COLLECTOR                              = Log::Log4perl::Appender::File
+log4perl.appender.HTTPD_COLLECTOR                              = pf::log::FileAppender
 log4perl.appender.HTTPD_COLLECTOR.filename                     = /usr/local/pf/logs/httpd.collector.log
 log4perl.appender.HTTPD_COLLECTOR.syswrite                     = 1
 log4perl.appender.HTTPD_COLLECTOR.mode                         = append

@@ -6,7 +6,7 @@ log4perl.rootLogger = INFO, PFDHCPLISTENER
 #log4perl.category.pf.SNMP = WARN
 
 ### Logging for pfdhcplistener
-log4perl.appender.PFDHCPLISTENER                              = Log::Log4perl::Appender::File
+log4perl.appender.PFDHCPLISTENER                              = pf::log::FileAppender
 log4perl.appender.PFDHCPLISTENER.filename                     = /usr/local/pf/logs/pfdhcplistener.log
 log4perl.appender.PFDHCPLISTENER.syswrite                     = 1
 log4perl.appender.PFDHCPLISTENER.mode                         = append

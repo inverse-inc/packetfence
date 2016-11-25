@@ -19,7 +19,7 @@ log4perl.additivity.fingerbank = 0
 #log4perl.category.pf.SNMP = WARN
 
 ### Logging for httpd.portal
-log4perl.appender.HTTPD_PORTAL                              = Log::Log4perl::Appender::File
+log4perl.appender.HTTPD_PORTAL                              = pf::log::FileAppender
 # Replace /usr/local/pf/logs/packetfence.log by /usr/local/pf/logs/httpd.portal.log to allow
 # httpd.portal to log in its own log file.
 log4perl.appender.HTTPD_PORTAL.filename                     = /usr/local/pf/logs/packetfence.log
@@ -34,7 +34,7 @@ log4perl.appender.HTTPD_PORTAL.binmode                      = utf8
 
 
 ### General Catalyst (pfappserver) log facility configuration ###
-log4perl.appender.CATALYST                                 = Log::Log4perl::Appender::File
+log4perl.appender.CATALYST                                 = pf::log::FileAppender
 log4perl.appender.CATALYST.filename                        = /usr/local/pf/logs/httpd.portal.catalyst
 log4perl.appender.CATALYST.mode                            = append
 log4perl.appender.CATALYST.layout                          = PatternLayout
@@ -45,7 +45,7 @@ log4perl.appender.CATALYST.group                           = pf
 log4perl.appender.CATALYST.binmode                         = utf8
 
 ### General Fingerbank log facility configuration ###
-log4perl.appender.FINGERBANK                               = Log::Log4perl::Appender::File
+log4perl.appender.FINGERBANK                               = pf::log::FileAppender
 log4perl.appender.FINGERBANK.filename                      = /usr/local/fingerbank/logs/fingerbank.log
 log4perl.appender.FINGERBANK.mode                          = append
 log4perl.appender.FINGERBANK.layout                        = PatternLayout

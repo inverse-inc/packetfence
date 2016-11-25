@@ -6,7 +6,7 @@ log4perl.rootLogger = INFO, PFDETECT
 #log4perl.category.pf.SNMP = WARN
 
 ### Logging for pfdetect
-log4perl.appender.PFDETECT                              = Log::Log4perl::Appender::File
+log4perl.appender.PFDETECT                              = pf::log::FileAppender
 log4perl.appender.PFDETECT.filename                     = /usr/local/pf/logs/pfdetect.log
 log4perl.appender.PFDETECT.syswrite                     = 1
 log4perl.appender.PFDETECT.mode                         = append
