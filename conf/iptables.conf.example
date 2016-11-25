@@ -57,7 +57,7 @@
 -A input-management-if --protocol tcp --match tcp --dport 8834 --jump ACCEPT
 # PacketFence-PKI
 # -A input-management-if --protocol tcp --match tcp --dport 9393 --jump ACCEPT
-# -A input-management-if --protocol tcp --match tcp --dport 9191 --jump ACCEPT
+# -A input-management-if --protocol tcp --match tcp --dport 9292 --jump ACCEPT
 
 # VRRP
 -A input-management-if -d 224.0.0.0/8 -j ACCEPT
