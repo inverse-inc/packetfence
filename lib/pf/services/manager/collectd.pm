@@ -26,6 +26,9 @@ use pf::config qw(
     $OS
     $management_network
 );
+
+use pf::cluster;
+
 use Moo;
 use Sys::Hostname;
 
@@ -58,7 +61,10 @@ sub generateCollectd {
     $tags{'graphite_host'} = "$Config{'monitoring'}{'graphite_host'}";
     $tags{'graphite_port'} = "$Config{'monitoring'}{'graphite_port'}";
     $tags{'hostname'}      = hostname;
-    $tags{'db_host'}       = "$Config{'database'}{'host'}";
+    $tags{'db_host'}
+        = $cluster_enabled
+        ? $management_network->tag('ip')
+        : $Config{'database'}{'host'};
     $tags{'db_username'}   = "$Config{'database'}{'user'}";
     $tags{'db_password'}   = "$Config{'database'}{'pass'}";
     $tags{'db_database'}   = "$Config{'database'}{'db'}";
