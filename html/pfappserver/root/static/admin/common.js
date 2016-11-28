@@ -441,19 +441,9 @@ $(function () { // DOM ready
         target.append(copy.children());
         return false;
     });
-    $('body').on('click', '[data-toggle="dynamic-list-delete"]', function(event) {
-        var link = $(this);
-        var data_target = $(link.attr("data-target"));
-        var base_id = link.attr("data-base-id");
-        var siblings = data_target.siblings();
-        data_target.remove();
-        siblings.each(function(i,e) {
-            dynamic_list_update_all_attributes($(e), base_id, i);
-        })
-        return false;
-    });
 
     $('body').on('click', '[data-toggle="dynamic-list-delete"]', function(event) {
+        event.preventDefault();
         var link = $(this);
         var data_target = $(link.attr("data-target"));
         var base_id = link.attr("data-base-id");
