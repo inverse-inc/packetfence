@@ -510,7 +510,7 @@ sub systemstate :Local :AdminRole('REPORTS') {
                 'columns' => 2
                },
                {
-                'description' => $c->loc('Available Memory'),
+                'description' => $c->loc('Available Swap'),
                 'target' => 'aliasByNode(*.swap.swap-free, 0) ',
                 'columns' => 2
                },
