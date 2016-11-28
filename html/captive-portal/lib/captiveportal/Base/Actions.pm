@@ -27,7 +27,7 @@ our %AUTHENTICATION_ACTIONS = (
     set_access_duration => sub { $_[0]->new_node_info->{unregdate} = pf::config::access_duration($_[1]) },
     unregdate_from_source => sub { $_[0]->new_node_info->{unregdate} = pf::authentication::match($_[0]->source->id, $_[0]->auth_source_params, $Actions::SET_UNREG_DATE); },
     role_from_source => sub { $_[0]->new_node_info->{category} = pf::authentication::match($_[0]->source->id, $_[0]->auth_source_params, $Actions::SET_ROLE); },
-    nothing => sub {},
+    no_action => sub {},
 );
 
 =head1 AUTHOR

@@ -70,7 +70,7 @@ sub available_actions {
         'set_role',
         'set_unregdate',
         'set_access_duration',
-        'nothing',
+        'no_action',
     ];
 }
 
