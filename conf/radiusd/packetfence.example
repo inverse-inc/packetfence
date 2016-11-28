@@ -97,6 +97,7 @@ authorize {
 	packetfence-eap-mac-policy
 
 	# Uncomment the following MAC to transform EAP requests in MAB requests for switches that use EAP for MAB
+	# This will only transform the request when the User-Name looks like a MAC Address (12 hexadecimal characters with or without delimiters)
 	# CAUTION: This enables it for *all* switches, meaning if you are currently using EAP as a mean of authentication, this will disable it.
 	#packetfence-eap-mac-to-mab-policy
 
