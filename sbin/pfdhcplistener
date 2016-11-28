@@ -309,10 +309,13 @@ sub process_pkt {
                         $args{inline_sub_connection_type} = $NET_TYPE_INLINE_L3;
                    }
                 }
-                if(!$rate_limit_cache->get($rate_limit_key)) {
+                my $rate_limiting = $Config{network}->{dhcp_rate_limiting};
+                if($rate_limiting == 0 || !$rate_limit_cache->get($rate_limit_key)) {
                     my $apiclient = pf::api::queue->new(queue => 'pfdhcplistener');
                     $apiclient->notify('process_dhcp', %args, udp_payload_b64 => $udp_payload_b64);
-                    $rate_limit_cache->set($rate_limit_key, 1, "5 second");
+                    if($rate_limiting != 0) {
+                        $rate_limit_cache->set($rate_limit_key, 1, $rate_limiting);
+                    }
                 }
                 else {
                     $logger->info("Ignoring packet due to rate-limiting");
