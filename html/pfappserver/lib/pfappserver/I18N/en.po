@@ -9527,6 +9527,10 @@ msgid "network.dhcpdetector"
 msgstr "DHCP detector"
 
 # conf/documentation.conf
+msgid "network.dhcp_rate_limiting"
+msgstr "DHCP detector rate limiting"
+
+# conf/documentation.conf
 msgid "network.dhcpoption82logger"
 msgstr "DHCP option82"
 
