@@ -95,10 +95,23 @@ sub match_in_subclass {
 }
 
 sub verify_url {
-    my ($self) = @_;
+    my ($self, $iframe) = @_;
     my $base_path = $self->_build_base_path;
-    return "$base_path/verify";
+    $iframe //= $self->iframe;
+    my $url = "$base_path/verify";
+    if ($iframe) {
+        $url .= '?iframe=1';
+    }
+    return $url;
 }
+
+=head2 iframe
+
+Is in an iframe
+
+=cut
+
+sub iframe { 0 }
 
 sub cancel_url {
     my ($self) = @_;
@@ -155,21 +168,6 @@ Handle hook from billing provider
 sub handle_hook {
     my ($self) = @_;
     return ;
-}
-
-=head2 has_post_verify
-
-=cut
-
-sub has_post_verify { 0 }
-
-=head2 verify_error
-
-=cut
-
-sub post_verify {
-    my ($self, $session, $parameters, $uri) = @_;
-    return {};
 }
 
 =head1 AUTHOR

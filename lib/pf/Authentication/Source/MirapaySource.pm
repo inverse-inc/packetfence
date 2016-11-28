@@ -151,6 +151,8 @@ sub make_mirapay_url {
     return "$url?$query";
 }
 
+sub iframe { 1 }
+
 
 =head1 AUTHOR
 
