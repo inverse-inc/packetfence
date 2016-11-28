@@ -163,7 +163,6 @@ sub writeAuthenticationConfigFile {
     };
     $logger->error("Failed with : $@") if $@;
     unless($result) {
-        $cached_authentication_config->Rollback();
         $logger->error("Error writing authentication configuration");
         die "Error writing authentication configuration\n";
     }

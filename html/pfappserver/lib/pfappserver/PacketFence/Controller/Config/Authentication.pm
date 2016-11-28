@@ -116,7 +116,6 @@ sub _commitChanges {
             current_view => 'JSON',
             status_msg => $message,
         );
-        $model->rollback();
     }
     $logger->info($message);
     $c->response->status($status);
