@@ -30,7 +30,7 @@ has '+launcher' => (
         if($cluster_enabled){
           my $cluster_management_ip = pf::cluster::management_cluster_ip();
           my $management_ip = pf::cluster::current_server()->{management_ip};
-          "sudo %1\$s -d $install_dir/raddb/ -D $install_dir/raddb/ -q -P $install_dir/var/run/radsniff.pid -W10 -O $install_dir/var/run/collectd-unixsock -f '(host $management_ip and udp port 1812 or 1813)' -i $management_network->{Tint}";
+          "sudo %1\$s -d $install_dir/raddb/ -D $install_dir/raddb/ -q -P $install_dir/var/run/radsniff.pid -W10 -O $install_dir/var/run/collectd-unixsock -f '(host $management_ip and udp port 1812 or 1813)' -i $management_network->{Tint} -i lo";
         }
         else {
           "sudo %1\$s -d $install_dir/raddb/ -D $install_dir/raddb/ -q -P $install_dir/var/run/radsniff.pid -W10 -O $install_dir/var/run/collectd-unixsock -i $management_network->{Tint}";
