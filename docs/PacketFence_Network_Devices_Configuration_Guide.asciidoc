@@ -549,7 +549,7 @@ AT8000GS
 
 PacketFence supports the AT8000GS switch using :
 
-* MAC Authentication (mac-only)
+* MAC Authentication
 * 802.1X
 * 802.1X + VOIP
 
@@ -659,7 +659,7 @@ GS950
 
 PacketFence supports the GS950 switch using :
 
-* MAC Authentication (mac-only)
+* MAC Authentication
 * 802.1X (without fallback to MAC authentication)
 
 Global configuration
@@ -667,9 +667,9 @@ Global configuration
 
 First, ensure that the VLANs you want to assign are part of the VLAN database via the following page:
 
-Note that they only need to be tagged on the trunk and don't need any specific configuration for the dynamic VLAN assignment here.
-
 image::docs/images/allied-telesis-gs950/vlan-config.png[scaledwidth="100%",alt="VLAN configuration"]
+
+Note that they only need to be tagged on the trunk and don't need any specific configuration for the dynamic VLAN assignment here.
 
 Next, configure the RADIUS server (Security->RADIUS):
 
@@ -717,7 +717,7 @@ Ensure you configure at least:
 * SNMP Community Read: private
 * SNMP Community Write: private
 
-If you are using MAC authentication on this switch, tyou must adjust the FreeRADIUS configuration so it transforms the EAP requests this switch sends into requests that PacketFence will interpret as MAC authentication. This is necessary because the 'MAC Based' mode of the switch still performs EAP requests.
+If you are using MAC authentication on this switch, you must adjust the FreeRADIUS configuration so it transforms the EAP requests this switch sends into requests that PacketFence will interpret as MAC authentication. This is necessary because the 'MAC Based' mode of the switch still performs EAP requests.
 
 To adjust it, go in `/usr/local/pf/conf/radiusd/packetfence` and uncomment the following line:
 
