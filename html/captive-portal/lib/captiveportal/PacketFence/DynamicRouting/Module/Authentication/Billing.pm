@@ -45,7 +45,7 @@ has '+route_map' => (default => sub {
     return \%map;
 });
 
-=head2 around index,cancel,verify,confirm
+=head2 around index, cancel, verify, confirm
 
 Check that we have access to billing sources before continuing
 
@@ -108,26 +108,82 @@ Verify a billing transaction
 
 sub verify {
     my ($self) = @_;
-
-    get_logger->info("Validating payment for user : ".$self->username);
-
+    my $logger = get_logger();
+    $logger->info("Validating payment for user : ".$self->username);
     my $request = $self->app->request;
+    my $iframe = $request->param("iframe");
     my $billing = $self->source();
+    if ($iframe) {
+        return $self->verify_iframe;
+    }
     my $data;
-    $self->session->{email} = $self->username;
-    $self->session->{billed_mac} = $self->current_mac;
-    eval {
-        $data = $billing->verify($self->session, $request->parameters, $request->uri);
-    };
-    if ($@) {
-        get_logger->error($@);
+
+    my $previous_error = $self->session->{verify_error};
+
+    if ($previous_error) {
         $self->app->flash->{error} = "Unable to process payment";
         $self->redirect_root();
         return 0;
     }
-    else {
-        $self->process_transaction();
+
+    $data = $self->session->{verify_data};
+
+    unless ($data) {
+        eval {
+            $data = $billing->verify($self->session, $request->parameters, $request->uri);
+        }
+    };
+
+    if ($@) {
+        $logger->error($@);
+        $self->app->flash->{error} = "Unable to process payment";
+        $self->redirect_root();
+        return 0;
     }
+
+
+    $self->session->{email} = $self->username;
+    $self->session->{billed_mac} = $self->current_mac;
+
+    $self->process_transaction();
+}
+
+
+=head2 verify_iframe
+
+Handle verify in an iframe
+
+=cut
+
+sub verify_iframe {
+    my ($self) = @_;
+    my $logger = get_logger();
+    my $request = $self->app->request;
+    my $billing = $self->source();
+    my $data;
+    eval {
+        $data = $billing->verify($self->session, $request->parameters, $request->uri);
+    };
+    if ($@) {
+        $logger->error($@);
+        $self->session->{verify_error} = $@;
+    } else {
+        $self->session->{verify_data} = $data;
+    }
+    my $url = $billing->verify_url(0);
+    my $redirect = qq{<html><body><script type="text/javascript">top.location.href="$url";</script></body></html>};
+    $self->app->template_output($redirect);
+    return ;
+}
+
+
+=head2 display_error
+
+=cut
+
+sub display_error {
+    my ($self) = @_;
+    return 0;
 }
 
 =head2 process_transaction
@@ -158,7 +214,7 @@ sub process_transaction {
     $info->{'unregdate'} =
       POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $access_duration));
 
-    unless($self->app->preregistration){
+    unless ($self->app->preregistration) {
         if (isenabled($tier->{'use_time_balance'})) {
             $info->{'time_balance'} =
               normalize_time($tier->{'access_duration'});
