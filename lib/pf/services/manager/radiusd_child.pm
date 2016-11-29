@@ -121,7 +121,7 @@ sub generate_radiusd_sitesconf {
     if(isenabled($Config{advanced}{ntlm_redis_cache})) {
         $tags{'redis_ntlm_cache_fetch'} = <<EOT
 update {
-    &control:NT-Password := "%{redis_ntlm:GET NTHASH:%{tolower:%{%{Stripped-User-Name}:-%{%{User-Name}:-None}}}}"
+    &control:NT-Password := "%{redis_ntlm:GET NTHASH:%{tolower:%{%{PacketFence-Domain}:-''}}:%{tolower:%{%{Stripped-User-Name}:-%{%{User-Name}:-None}}}}"
 }
 EOT
     }
