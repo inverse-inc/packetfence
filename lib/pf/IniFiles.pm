@@ -342,6 +342,25 @@ sub cleanupWhitespace {
     }
 }
 
+=head2 TIEHASH
+
+Creating a tied C<pf::IniFiles> object
+
+=cut
+
+sub TIEHASH {
+    my ($proto, @args) = @_;
+    my $object;
+    if (ref($proto) && @args == 0 ) {
+        $object = $proto;
+    } else {
+        $object = $proto->new(@args);
+    }
+    die "cannot create a tied pf::IniFiles"
+        unless $object;
+    return $object;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
