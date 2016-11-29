@@ -37,10 +37,10 @@ sub availableTemplates {
     my @dirs = map { uniq(@{pf::Portal::ProfileFactory->_from_profile($_)->{_template_paths}}) } keys(%Profiles_Config);
     my @templates;
     foreach my $dir (@dirs) {
-        opendir(DIR, $dir . '/violations');
-        push @templates, grep { /^[^\.]+\.html$/ } readdir(DIR);
+        next unless opendir(my $dh, $dir . '/violations');
+        push @templates, grep { /^[^\.]+\.html$/ } readdir($dh);
         s/\.html// for @templates;
-        closedir(DIR);
+        closedir($dh);
     }
     @templates = sort(uniq(@templates));
     return \@templates;
