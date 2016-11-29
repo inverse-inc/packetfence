@@ -64,15 +64,8 @@ else
     echo "ERROR: There is not enough space in $BACKUP_DIRECTORY to safely backup files. Skipping the backup." >&2
 fi 
 
-# check if MySQL or MariaDB is installed
-if mysql -V | grep -q "MariaDB"; then
-    SQL_ENGINE='mariadb'
-else
-    SQL_ENGINE="mysqld"
-fi
-
-# is MySQL running? meaning we are the live packetfence
-if [ -f /var/run/$SQL_ENGINE/$SQL_ENGINE.pid ]; then
+# Is the database run on the current server?
+if [ -f /var/run/mysqld/mysqld.pid ] || [ -f /var/run/mariadb/mariadb.pid ]; then
 
     /usr/local/pf/addons/database-cleaner.pl --table=radacct --date-field=acctstarttime --older-than="1 WEEK" --additionnal-condition="acctstoptime IS NOT NULL"
     
