@@ -118,6 +118,17 @@ sub generate_radiusd_sitesconf {
         $tags{'multi_domain'} = '# packetfence-multi-domain not activated because no domains configured';
     }
 
+    if(isenabled($Config{advanced}{ntlm_redis_cache})) {
+        $tags{'redis_ntlm_cache_fetch'} = <<EOT
+update {
+    &control:NT-Password := "%{redis_ntlm:GET NTHASH:%{tolower:%{%{Stripped-User-Name}:-%{%{User-Name}:-None}}}}"
+}
+EOT
+    }
+    else {
+        $tags{'redis_ntlm_cache_fetch'} = "# redis-ntlm-cache disabled in configuration"
+    }
+
     $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence-tunnel";
     parse_template( \%tags, "$conf_dir/radiusd/packetfence-tunnel", "$install_dir/raddb/sites-enabled/packetfence-tunnel" );
 

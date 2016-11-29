@@ -57,6 +57,8 @@ authorize {
 	suffix
 	ntdomain
 
+	%%redis_ntlm_cache_fetch%%
+
 	%%multi_domain%%
 	#
 	#  The "suffix" module takes care of stripping the domain
@@ -168,21 +170,29 @@ authenticate {
 
 	#
 	#  MSCHAP authentication
-        Auth-Type MS-CHAP {
-                packetfence     # increment the StatsD counter
-                if(PacketFence-Domain) {
-                        if ( "%{User-Name}" =~ /^host\/.*/) {
-                                chrooted_mschap_machine
-                        }
-                        else {
-                                chrooted_mschap
-                        }
-
-                }
-                else {
-                        mschap
-                }
-        }
+				Auth-Type MS-CHAP {
+					packetfence     # increment the StatsD counter
+					# If there is already an NT-Password populated in the control, we'll try it
+					# In the event it fails, it will fallback to an ntlm_auth call below
+					if(NT-Password) {
+						mschap_local {
+							reject = 2
+						}
+					}
+					if (!NT-Password || reject) {
+							if(PacketFence-Domain) {
+								if ( "%{User-Name}" =~ /^host\/.*/) {
+									chrooted_mschap_machine
+								}
+								else {
+									chrooted_mschap
+								}
+							}
+							else {
+											mschap
+							}
+					}
+				}
 
 	# Uncomment it if you want to use ldap for authentication
 	#

@@ -1016,6 +1016,14 @@ hashing_cost=8
 # Disable Active-Directory domain configuration from within PacketFence
 disable_pf_domain_auth=disabled
 #
+# advanced.ntlm_redis_cache
+#
+# Enables a Redis driven cache for NTLM authentication. 
+# In order for this to work, you need to setup proper NT hash syncronization between your PacketFence server and your AD.
+# Refer to the Administration guide for more details.
+# Applying this requires a restart of radiusd.
+ntlm_redis_cache=disabled
+#
 # advanced.ldap_attributes
 #
 # List of LDAP attributes that can be used in the sources configuration
