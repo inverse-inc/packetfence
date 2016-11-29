@@ -83,6 +83,18 @@ sub _buildCachedConfig {
     return pf::IniFiles->new(@args);
 }
 
+=head2 rollback
+
+Rollback changes that were made
+
+=cut
+
+sub rollback {
+    my ($self) = @_;
+    my $config = $self->cachedConfig;
+    return $config->Rollback();
+}
+
 =head2 rewriteConfig
 
 Save the cached config
@@ -435,6 +447,7 @@ sub commit {
     }
     else {
         $error //= "Unable to commit changes to file please run pfcmd fixpermissions and try again";
+        $self->rollback();
     }
 
     return ($result, $error);

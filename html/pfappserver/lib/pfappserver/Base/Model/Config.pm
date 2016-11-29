@@ -64,6 +64,23 @@ has itemsKey => ( is => 'ro', default => 'items');
 
 has configFile => ( is => 'ro');
 
+
+=head1 METHODS
+
+=head2 rollback
+
+Rollback changes that were made
+
+=cut
+
+sub rollback {
+    my ($self) = @_;
+    my ($status, $status_msg);
+    my $config = $self->configStore;
+    $config->Rollback();
+    return (HTTP_OK,"Config rollbacked");
+}
+
 =head2 readAllIds
 
 Get all the sections names
