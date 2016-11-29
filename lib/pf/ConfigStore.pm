@@ -23,6 +23,7 @@ use pfconfig::manager;
 use pf::api::jsonrpcclient;
 use pf::cluster;
 use pf::constants;
+use pf::CHI;
 
 =head1 FIELDS
 
@@ -34,6 +35,7 @@ has cachedConfig =>
   (
    is => 'ro',
    lazy => 1,
+   clearer => 1,
    isa => sub {pf::IniFiles->isa($_[0])},
    builder => '_buildCachedConfig'
 );
@@ -73,14 +75,34 @@ Build the pf::IniFiles object
 
 sub _buildCachedConfig {
     my ($self) = @_;
-    my @args = (-file => $self->configFile, -allowempty => 1);
+    my $chi             = $self->cache;
+    my $file_path       = $self->configFile;
+    my @args            = (-file => $file_path, -allowempty => 1);
     my $default_section = $self->default_section;
     push @args, -default => $default_section if defined $default_section;
     my $importConfigFile = $self->importConfigFile;
-    if (defined $importConfigFile ) {
-        push @args, -import => pf::IniFiles->new(-file => $importConfigFile, -allowempty => 1 );
+    if (defined $importConfigFile) {
+        push @args, -import => pf::IniFiles->new(-file => $importConfigFile, -allowempty => 1);
     }
-    return pf::IniFiles->new(@args);
+    return $chi->compute(
+        $file_path,
+        {
+            expire_if => sub { $self->expire_if(@_) }
+        },
+        sub {
+            my $config = pf::IniFiles->new(@args);
+            $config->SetLastModTimestamp;
+            return $config;
+        });
+}
+
+sub cache { pf::CHI->new(namespace => 'configfiles'); }
+
+sub expire_if  {
+    my ($self, $cached_obj) = @_;
+    my $config = $cached_obj->value;
+    return 1 unless $config;
+    return $config->HasChanged();
 }
 
 =head2 rollback
@@ -91,8 +113,12 @@ Rollback changes that were made
 
 sub rollback {
     my ($self) = @_;
-    my $config = $self->cachedConfig;
-    return $config->Rollback();
+    my $file_path = $self->configFile;
+    my $cache = $self->cache;
+    if ($cache->l1_cache) {
+        $cache->l1_cache->remove($file_path);
+    }
+    $self->clear_cachedConfig;
 }
 
 =head2 rewriteConfig
