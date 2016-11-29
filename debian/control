@@ -83,6 +83,7 @@ Depends: ${misc:Depends}, vlan,
  libsoap-lite-perl (>= 1.0), libnet-frame-perl, libthread-pool-perl,
  libwww-curl-perl, libposix-2008-perl, libdata-messagepack-stream-perl, libdata-messagepack-perl,
  libnet-nessus-xmlrpc-perl (>= 0.4), libnet-nessus-rest-perl (>= 0.2), libfile-slurp-perl,
+ libalgorithm-combinatorics-perl,
 # required for ipset
  libnetaddr-ip-perl, libfile-which-perl,
 # FIXME track what requires the conveyor stuff and identify it. If we can, get rid of it.

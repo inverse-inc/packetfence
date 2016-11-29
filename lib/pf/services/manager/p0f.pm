@@ -16,7 +16,10 @@ use strict;
 use warnings;
 use Moo;
 use fingerbank::Config;
-use pf::config qw(@ha_ints);
+use pf::config qw(@ha_ints @internal_nets $management_network);
+use List::MoreUtils qw(uniq);
+use Algorithm::Combinatorics qw(combinations_with_repetition);
+use pf::cluster;
 
 extends 'pf::services::manager';
 
@@ -34,18 +37,12 @@ has '+launcher' => (
         my $p0f_cmdline;
         if (@ha_ints)
         {
-            my @ha_ips;
-            foreach my $ha_int (@ha_ints)
-            {
-                push (@ha_ips, $ha_int->{Tip});
-            }
-            my @tmp_bpf_filter = map { "not ( host $_ and port 7788 )"} @ha_ips;
-            my $p0f_bpf_filter = join(" and ", @tmp_bpf_filter);
+            my $p0f_bpf_filter = bpf_filter();
             $p0f_cmdline="sudo %1\$s -d -i any -p -f $p0f_map -s $p0f_sock" . " '$p0f_bpf_filter' " . " > /dev/null && pidof $name > $pid_file";
         }
         else
         {
-            $p0f_cmdline="sudo %1\$s -d -i any -p -f $p0f_map -s $p0f_sock > /dev/null && pidof $name > $pid_file";    
+            $p0f_cmdline="sudo %1\$s -d -i any -p -f $p0f_map -s $p0f_sock" . " 'not ( (net 127) or (host 0:0:0:0:0:0:0:1) )' ". " > /dev/null && pidof $name > $pid_file";
         }
         return $p0f_cmdline;
     }
@@ -57,6 +54,26 @@ sub preStartSetup {
     local ($!, $?);
     system("pkill p0f");
     return $result;
+}
+
+sub bpf_filter {
+    my  @ints = uniq (@internal_nets, $management_network);
+    my $filter = 'not ( ( ';
+    foreach my $int (@ints) {
+        my $interface = $int->{Tint};
+        my $ip = pf::cluster::members_ips($interface);
+        my @array = uniq (map { $ip->{$_} } keys %$ip);
+        push(@array, pf::cluster::cluster_ip($interface));
+        my $iter = combinations_with_repetition(\@array,2);
+        while (my $combination = $iter->next) {
+            my @tmp_bpf_filter = map { "host $_"} @$combination;
+            my $p0f_bpf_filter = join(" and ", @tmp_bpf_filter);
+            $filter .= $p0f_bpf_filter;
+            $filter .= ') or ( ';
+        }
+    }
+    $filter .= 'net 127) or (host 0:0:0:0:0:0:0:1) )';
+    return $filter;
 }
 
 =head1 AUTHOR
