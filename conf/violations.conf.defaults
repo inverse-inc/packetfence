@@ -240,7 +240,7 @@ delay_by=2m
 [1300003]
 priority=1
 desc=Parking violation
-max_enable=3
+max_enable=0
 grace=10m
 actions=log,reevaluate_access
 enabled=Y
