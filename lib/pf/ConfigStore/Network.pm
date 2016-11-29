@@ -23,8 +23,6 @@ extends 'pf::ConfigStore';
 
 =head1 METHODS
 
-=head2 _buildCachedConfig
-
 =cut
 
 sub configFile { $network_config_file }

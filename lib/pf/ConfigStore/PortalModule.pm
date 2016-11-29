@@ -23,16 +23,9 @@ extends 'pf::ConfigStore';
 
 sub configFile { $portal_modules_config_file};
 
-sub pfconfigNamespace {'config::PortalModules'}
+sub importConfigFile { $portal_modules_default_config_file }
 
-sub _buildCachedConfig {
-    my ($self) = @_;
-    return pf::IniFiles->new(
-        -file         => $portal_modules_config_file,
-        -allowempty   => 1,
-        -import       => pf::IniFiles->new(-file => $portal_modules_default_config_file),
-    );
-}
+sub pfconfigNamespace {'config::PortalModules'}
 
 =head2 cleanupAfterRead
 

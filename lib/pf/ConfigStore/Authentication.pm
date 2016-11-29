@@ -24,7 +24,6 @@ use List::Util qw(first);
 use List::MoreUtils qw(none any);
 
 
-our $cached_authentication_config;
 our @auth_sources;
 our %auth_lookup;
 
@@ -33,11 +32,7 @@ extends 'pf::ConfigStore';
 
 =head1 METHODS
 
-=head2 _buildCachedConfig
-
 =cut
-
-sub _buildCachedConfig { $cached_authentication_config };
 
 sub configFile { $authentication_config_file }
 

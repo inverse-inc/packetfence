@@ -25,6 +25,16 @@ use Time::HiRes qw(stat time);
 use List::MoreUtils qw(all first_index uniq);
 use Scalar::Util qw(tainted reftype);
 
+=head2 new
+
+=cut
+
+sub new {
+    my ($proto, @args) = @_;
+    my $class = ref($proto) || $proto;
+    return $class->SUPER::new(@args);
+}
+
 =head2 DeleteSection ( $sect_name, $include_groupmembers )
 
 Completely removes the entire section from the configuration optionally groupmembers.

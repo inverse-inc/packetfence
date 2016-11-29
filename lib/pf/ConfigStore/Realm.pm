@@ -21,18 +21,11 @@ use pf::file_paths qw(
 );
 extends 'pf::ConfigStore';
 
-sub configFile { $realm_config_file };
+sub configFile { $realm_config_file }
+
+sub importConfigFile { $realm_default_config_file }
 
 sub pfconfigNamespace {'config::Realm'}
-
-sub _buildCachedConfig {
-    my ($self) = @_;
-    return pf::IniFiles->new(
-        -file         => $realm_config_file,
-        -allowempty   => 1,
-        -import       => pf::IniFiles->new(-file => $realm_default_config_file),
-    );
-}
 
 =head2 cleanupAfterRead
 

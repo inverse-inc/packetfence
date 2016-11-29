@@ -26,32 +26,25 @@ extends 'pf::ConfigStore';
 
 =head2 Methods
 
-=over
-
-=item _buildCachedConfig
-
 =cut
 
 sub configFile {$pf_config_file};
 
+sub importConfigFile { $pf_default_file }
+
 sub pfconfigNamespace {'config::Pf'}
 
-sub _buildCachedConfig {
-    my ($self) = @_;
-    return pf::IniFiles->new(
-        -file         => $pf_config_file,
-        -allowempty   => 1,
-        -import       => pf::IniFiles->new(-file => $pf_default_file),
-    );
-}
-
-=item remove
+=head2 remove
 
 Delete an existing item
 
 =cut
 
 sub remove { return; }
+
+=head2 cleanupAfterRead
+
+=cut
 
 sub cleanupAfterRead {
     my ( $self,$section, $data ) = @_;
@@ -123,8 +116,6 @@ sub cleanupBeforeCommit {
 
 __PACKAGE__->meta->make_immutable;
 
-=back
-
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2016 Inverse inc.
@@ -149,4 +140,3 @@ USA.
 =cut
 
 1;
-
