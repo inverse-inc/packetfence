@@ -13,6 +13,9 @@ use pf::log;
 use File::Slurp;
 use pf::file_paths qw($domains_ntlm_cache_users_dir);
 use File::Spec::Functions;
+use pf::domain;
+use pf::util;
+use File::Temp;
 
 sub fetch_valid_users {
     my ($domain) = @_;
@@ -68,11 +71,53 @@ sub generate_valid_users_file {
         File::Slurp::write_file($file, join("\n", @$users));
         my $msg = "Successfully created valid users file ($file) with ".scalar(@$users)." entries.";
         $logger->info($msg);
-        return ($TRUE, $msg);
+        return ($file, $msg);
     }
     else {
-        return ($users, $msg);
+        return ($FALSE, $msg);
     }
+}
+
+sub fetch_all_valid_hashes {
+    my ($domain) = @_;
+    my $logger = get_logger;
+    my ($valid_users_file, $err) = generate_valid_users_file($domain);
+    unless($valid_users_file) {
+        my $msg = "Cannot generate valid users file ($err)";
+        $logger->error($msg);
+        return ($FALSE, $msg);
+    }
+    my $config = $ConfigDomain{$domain};
+    my $source = getAuthenticationSource($config->{ntlm_cache_source});
+    return ($FALSE, "Invalid LDAP source $config->{ntlm_cache_source}") unless(defined($source));
+    
+    my ($connection, $LDAPServer, $LDAPServerPort ) = $source->_connect();
+
+    if (!defined($connection)) {
+        return ($FALSE, "Error communicating with the LDAP server");
+    }
+
+    # We need to fetch the sAMAccountName of the DN in the AD source
+    my $result = $connection->search(
+        base => $source->{binddn}, 
+        filter => '(sAMAccountName=*)', 
+        attrs => ['sAMAccountName'],
+    );
+
+    return ($FALSE, "Cannot find sAMAccountName of user ".$source->{binddn}) unless($result->count > 0);
+
+    my $tmpfile = File::Temp->new()->filename;
+    my $ntds_file = $tmpfile.".ntds";
+
+    my $sAMAccountName = $result->entry(0)->get_value('sAMAccountName');
+
+    eval {
+        $result = pf_run("/usr/local/pf/addons/secretsdump.py '".pf::domain::escape_bind_user_string($sAMAccountName)."':'".pf::domain::escape_bind_user_string($source->{password})."'@".$source->{host}." -just-dc-ntlm -output $tmpfile -usersfile $valid_users_file", accepted_exit_status => [ 0 ]);
+    };
+    if (!defined($result) || $@) {
+        return ($FALSE, "Can't generate hash list via secretsdump.py. Check logs for details.");
+    }
+    return ($TRUE);
 }
 
 1;
