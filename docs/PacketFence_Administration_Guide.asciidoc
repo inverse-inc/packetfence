@@ -4039,7 +4039,7 @@ Make sure to disable the newly installed repository not to interfere with future
 
   # sed -i -e 's/^enabled\ \=.*/enabled = 0/g' /etc/yum.repos.d/percona-release.repo
 
-Next, install Percona XtraBackup by manually specifying the newly Percona repository:
+Next, install Percona XtraBackup by manually specifying the Percona repository:
 
   # yum install percona-xtrabackup-20 --enablerepo=percona-release-`uname -m`
 
