@@ -1,4 +1,4 @@
-<div id="logstatus" class="row-fluid">
+<div id="logstate" class="row-fluid">
 
   <div class="navbar">
     <div class="navbar-inner">
@@ -13,12 +13,12 @@
         </div>
 
         <ul class="nav pull-right">
-          <li><a href="#graph/logstatus/-1h">[% l('Past Hour') %]</a></li>
-          <li><a href="#graph/logstatus/-3h">[% l('Past 3 Hours') %]</a></li>
-          <li><a href="#graph/logstatus/-12h">[% l('Past 12 Hours') %]</a></li>
-          <li><a href="#graph/logstatus/-1d">[% l('Past Day') %]</a></li>
-          <li><a href="#graph/logstatus/-1w">[% l('Past Week') %]</a></li>
-          <li><a href="#graph/logstatus/-2w">[% l('Past 2 Weeks') %]</a></li>
+          <li><a href="#graph/logstate/-1h">[% l('Past Hour') %]</a></li>
+          <li><a href="#graph/logstate/-3h">[% l('Past 3 Hours') %]</a></li>
+          <li><a href="#graph/logstate/-12h">[% l('Past 12 Hours') %]</a></li>
+          <li><a href="#graph/logstate/-1d">[% l('Past Day') %]</a></li>
+          <li><a href="#graph/logstate/-1w">[% l('Past Week') %]</a></li>
+          <li><a href="#graph/logstate/-2w">[% l('Past 2 Weeks') %]</a></li>
         </ul>
       </div>
     </div>
