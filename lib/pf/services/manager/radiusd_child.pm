@@ -119,9 +119,17 @@ sub generate_radiusd_sitesconf {
     }
 
     if(isenabled($Config{advanced}{ntlm_redis_cache})) {
+        my $username_prefix = "NTHASH:%{tolower:%{%{PacketFence-Domain}:-''}}";
         $tags{'redis_ntlm_cache_fetch'} = <<EOT
-update {
-    &control:NT-Password := "%{redis_ntlm:GET NTHASH:%{tolower:%{%{PacketFence-Domain}:-''}}:%{tolower:%{%{Stripped-User-Name}:-%{%{User-Name}:-None}}}}"
+if(User-Name =~ /^host\\//) {
+    update {
+        &control:NT-Password := "%{redis_ntlm:GET $username_prefix:%{tolower:%{%{mschap:User-Name}:-None}}}"
+    }
+}
+else {
+    update {
+        &control:NT-Password := "%{redis_ntlm:GET $username_prefix:%{tolower:%{%{Stripped-User-Name}:-%{%{User-Name}:-None}}}}"
+    }
 }
 EOT
     }
