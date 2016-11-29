@@ -192,6 +192,10 @@ Sets the current typestamp of the file
 sub SetLastModTimestamp {
     my ($self) = @_;
     $self->{_last_timestamp} = $self->GetCurrentModTimestamp();
+    if (exists $self->{imported}) {
+        my $imported = $self->{imported};
+        $imported = $imported->SetLastModTimestamp() if defined $imported;
+    }
 }
 
 
