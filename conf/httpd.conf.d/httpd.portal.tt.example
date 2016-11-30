@@ -342,7 +342,7 @@ NameVirtualHost [% vhost %]:443
         SetHandler modperl
         PerlResponseHandler pf::web::billinghook
      </Location>
-     [% IF captiveportal.status_only_on_production %]
+     [% IF captive_portal.status_only_on_production && vhost_management_network != vhost %]
      <Location /status >
         [% IF apache_version == "2.4" %]
         Require all granted
@@ -351,6 +351,7 @@ NameVirtualHost [% vhost %]:443
         [% END %]
         SetHandler modperl
         PerlResponseHandler captiveportal
+     </Location>
      [% END %]
      [% IF allowed_from_all_options %]
          <Location ~ [% allowed_from_all_urls %] >
@@ -414,7 +415,7 @@ NameVirtualHost [% vhost %]:443
         SetHandler modperl
         PerlResponseHandler pf::web::billinghook
      </Location>
-     [% IF status_only_on_production %]
+     [% IF captive_portal.status_only_on_production && vhost_management_network != vhost %]
      <Location /status >
         [% IF apache_version == "2.4" %]
         Require all granted
@@ -423,6 +424,7 @@ NameVirtualHost [% vhost %]:443
         [% END %]
         SetHandler modperl
         PerlResponseHandler captiveportal
+     </Location>
      [% END %]
      [% IF allowed_from_all_options %]
          <Location ~ [% allowed_from_all_urls %] >
