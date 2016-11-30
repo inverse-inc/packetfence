@@ -114,7 +114,7 @@ sub fetch_all_valid_hashes {
     my $sAMAccountName = $result->entry(0)->get_value('sAMAccountName');
 
     eval {
-        my $command = "/usr/local/pf/addons/secretsdump.py '".pf::domain::escape_bind_user_string($sAMAccountName)."':'".pf::domain::escape_bind_user_string($source->{password})."'@".$source->{host}." -just-dc-ntlm -output $tmpfile -usersfile $valid_users_file";
+        my $command = "/usr/local/pf/addons/AD/secretsdump.py '".pf::domain::escape_bind_user_string($sAMAccountName)."':'".pf::domain::escape_bind_user_string($source->{password})."'@".$source->{host}." -just-dc-ntlm -output $tmpfile -usersfile $valid_users_file";
         $logger->debug("Executing sync command: $command");
         $result = pf_run($command, accepted_exit_status => [ 0 ]);
     };
@@ -154,6 +154,7 @@ sub populate_ntlm_redis_cache {
         $logger->info("Inserting '$key' => '$nthash'");
         $redis->set($key, $nthash, 'EX', $config->{ntlm_cache_expiry});
     }
+    return ($TRUE);
 }
 
 1;
