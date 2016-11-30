@@ -157,6 +157,18 @@ sub create {
 
 =head2 secureInstallation
 
+Intented to integrate the "/usr/bin/mysql_secure_installation" steps
+
+1. Set a password for the database “root” user (different from the Linux root user!), which is blank by default;
+
+2. Delete “anonymous” users, i.e. users with the empty string as user name;
+
+3. Ensure the root user can not log in remotely;
+
+4. Remove the database named “test”;
+
+5. Flush the privileges tables, i.e. ensure that the changes to user access applied in the previous steps are committed immediately.
+
 =cut
 
 sub secureInstallation {
@@ -165,8 +177,8 @@ sub secureInstallation {
 
     my ($status, $status_msg);
 
-    # Changing root password
-    my $sql_query = "UPDATE user SET Password=PASSWORD(?) WHERE User=?";
+    # 1. Set a password for the database “root” user (different from the Linux root user!), which is blank by default;
+    my $sql_query = "UPDATE mysql.user SET Password=PASSWORD(?) WHERE User=?";
     $dbHandler->do($sql_query, undef, $root_password, $root_user);
     if ( $DBI::errstr ) {
         $status_msg = ["Error changing root user [_1] password",$root_user ];
@@ -174,8 +186,16 @@ sub secureInstallation {
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
-    # Remove root remote connection
-    $sql_query = "DELETE FROM user WHERE User=? AND Host='%'";
+    # 2. Delete “anonymous” users, i.e. users with the empty string as user name;
+    $dbHandler->do("DELETE FROM mysql.user WHERE User=''");
+    if ( $DBI::errstr ) {
+        $status_msg = ["Error deleting MySQL anonymous users" ];
+        $logger->warn($DBI::errstr);
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+
+    # 3. Ensure the root user can not log in remotely;
+    $sql_query = "DELETE FROM mysql.user WHERE User=? AND Host NOT IN ('localhost', '127.0.0.1', '::1')";
     $dbHandler->do($sql_query, undef, $root_user);
     if ( $DBI::errstr ) {
         $status_msg = ["Error setting correct permissions to root user [_1]",$root_user ];
@@ -183,7 +203,21 @@ sub secureInstallation {
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
-    # Apply the new privileges
+    # 4. Remove the database named “test”;
+    $dbHandler->do("DROP DATABASE IF EXISTS test");
+    if ( $DBI::errstr ) {
+        $status_msg = ["Error dropping the 'test' database" ];
+        $logger->warn($DBI::errstr);
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+    $dbHandler->do("DELETE FROM mysql.db WHERE Db='test' OR Db='test_%'");
+    if ( $DBI::errstr ) {
+        $status_msg = ["Error removing the 'test' database privileges" ];
+        $logger->warn($DBI::errstr);
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+
+    # 5. Flush the privileges tables, i.e. ensure that the changes to user access applied in the previous steps are committed immediately.
     $dbHandler->do("FLUSH PRIVILEGES");
     if ( $DBI::errstr ) {
         $status_msg = ["Error applying new privileges to root user [_1]",$root_user ];
