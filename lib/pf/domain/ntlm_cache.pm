@@ -114,11 +114,18 @@ sub fetch_all_valid_hashes {
     my $sAMAccountName = $result->entry(0)->get_value('sAMAccountName');
 
     eval {
-        $result = pf_run("/usr/local/pf/addons/secretsdump.py '".pf::domain::escape_bind_user_string($sAMAccountName)."':'".pf::domain::escape_bind_user_string($source->{password})."'@".$source->{host}." -just-dc-ntlm -output $tmpfile -usersfile $valid_users_file", accepted_exit_status => [ 0 ]);
+        my $command = "/usr/local/pf/addons/secretsdump.py '".pf::domain::escape_bind_user_string($sAMAccountName)."':'".pf::domain::escape_bind_user_string($source->{password})."'@".$source->{host}." -just-dc-ntlm -output $tmpfile -usersfile $valid_users_file";
+        $logger->debug("Executing sync command: $command");
+        $result = pf_run($command, accepted_exit_status => [ 0 ]);
     };
     if (!defined($result) || $@) {
         return ($FALSE, "Can't generate hash list via secretsdump.py. Check logs for details.");
     }
+    elsif($result =~ /Something wen't wrong/) {
+        return ($FALSE, "Cannot synchronize users hashes. Command output: $result");
+    }
+
+    $logger->info("Generated NTDS file $ntds_file");
     return ($ntds_file);
 }
 
