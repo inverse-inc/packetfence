@@ -50,7 +50,7 @@ around startDependsOnServices => sub {
 sub additionalVars {
     my ($self) = @_;
     my $captive_portal = Clone::clone($Config{'captive_portal'});
-    foreach my $param (qw(httpd_mod_qos httpd_mod_evasive status_only_on_production httpd_mod_evasive)){
+    foreach my $param (qw(httpd_mod_qos httpd_mod_evasive status_only_on_production httpd_mod_evasive secure_redirect)){
         $captive_portal->{$param} = isenabled($captive_portal->{$param});
     }
     my %vars = (

@@ -319,6 +319,12 @@ NameVirtualHost [% vhost %]:443
      Alias       /common [% install_dir %]/html/common
      PerlModule  captiveportal
      PerlTransHandler pf::web::dispatcher::custom
+     [% IF captive_portal.secure_redirect %]
+     RewriteEngine On
+     RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+     RewriteCond %{HTTPS} !=on
+     RewriteRule ^/?(.*) https://%{SERVER_NAME}/$1 [R,L]
+     [% END %]
      <Location / >
         [% IF apache_version == "2.4" %]
         Require all granted
