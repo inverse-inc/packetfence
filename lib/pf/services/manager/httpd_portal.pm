@@ -48,7 +48,7 @@ around startDependsOnServices => sub {
 
 sub additionalVars {
     my ($self) = @_;
-    my $captive_portal = Clone::clone($Config{'captiveportal'});
+    my $captive_portal = Clone::clone($Config{'captive_portal'});
     foreach my $param (qw(httpd_mod_qos httpd_mod_evasive status_only_on_production httpd_mod_evasive)){
         $captive_portal->{$param} = isenabled($captive_portal->{$param});
     }
@@ -148,7 +148,7 @@ Get the load balancers IP address
 
 sub loadbalancersIp {
     my ($self, $captive_portal) = @_;
-    return join(" ", keys %{$captive_portal->{'loadbalancers_ip'}});
+    return join(" ", split(/\n/, $captive_portal->{'loadbalancers_ip'}));
 }
 
 =head1 AUTHOR
