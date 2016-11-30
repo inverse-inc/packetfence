@@ -701,12 +701,7 @@ Corosync configuration
 
   # pcs -f clust_cfg constraint order promote MySQLClone then start DRBD_fs
 
-  # pcs -f clust_cfg resource create MariaDB ocf:heartbeat:mysql \
-     binary="/usr/bin/mysqld_safe" \
-     config="/etc/my.cnf" \
-     datadir="/var/lib/mysql" \
-     pid="/var/run/mariadb/mariadb.pid" \
-     socket="/var/lib/mysql/mysql.sock" \
+  # pcs -f clust_cfg resource create MariaDB systemd:mariadb \
      op start timeout=60s \
      op stop timeout=60s \
      op monitor interval=20s timeout=30s
@@ -744,7 +739,7 @@ Full list of resources:
      Masters: [ pf2 ]
      Stopped: [ pf1 ]
  DRBD_fs	(ocf::heartbeat:Filesystem):	Started pf2_server_name
- MariaDB	(ocf::heartbeat:mysql):	Started pf2_server_name
+ MariaDB	(systemd:mariadb):	Started pf2_server_name
 
 PCSD Status:
   pf1: Online
