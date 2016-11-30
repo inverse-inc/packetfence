@@ -93,7 +93,6 @@ sub writeAuthenticationConfigFile {
     my ($self) = @_;
     my $logger = get_logger();
     # we refresh the auth sources references of this modules
-    setModuleSources();
     my $cached_authentication_config = $self->cachedConfig;
     # Remove deleted sections
     my %new_sources = map { $_->id => undef } @auth_sources;
@@ -165,6 +164,7 @@ sub writeAuthenticationConfigFile {
 
     # we signal pfconfig that we changed
     $self->commitPfconfig;
+    setModuleSources();
 
 }
 
