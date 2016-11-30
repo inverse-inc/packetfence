@@ -138,6 +138,7 @@ sub read :Chained('object') :PathPart('read') :Args(0) :AdminRole('USERS_SOURCES
 
 sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('USERS_SOURCES_UPDATE') {
     my ($self, $c) = @_;
+    my $logger = $c->log;
 
     my ($form_type, $form, $status, $message);
 
@@ -168,7 +169,9 @@ sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('USERS_SOU
         $c->stash->{current_view} = 'JSON';
     }
     else {
-        my $source = getAuthenticationSource($form->value->{id});
+        my $id = $form->value->{id};
+        $logger->debug( sub { "Updating $id the source" });
+        my $source = getAuthenticationSource($id);
         my %obj;
         my @attrs = map { $_->name } $source->meta->get_all_attributes();
         @obj{@attrs} = @{$source}{@attrs};
