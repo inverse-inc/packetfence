@@ -10,12 +10,14 @@ use Net::LDAP::Control::Paged;
 use Net::LDAP::Constant qw( LDAP_CONTROL_PAGED );
 use Data::Dumper;
 use pf::log;
-use File::Slurp;
+use File::Slurp qw(write_file read_file);
 use pf::file_paths qw($domains_ntlm_cache_users_dir);
 use File::Spec::Functions;
 use pf::domain;
 use pf::util;
 use File::Temp;
+use pf::Redis;
+use pf::constants::domain qw($NTLM_REDIS_CACHE_HOST $NTLM_REDIS_CACHE_PORT);
 
 sub fetch_valid_users {
     my ($domain) = @_;
@@ -68,7 +70,7 @@ sub generate_valid_users_file {
     my ($users, $msg) = fetch_valid_users($domain);
     if($users) {
         my $file = catfile($domains_ntlm_cache_users_dir, "$domain.valid-users.txt");
-        File::Slurp::write_file($file, join("\n", @$users));
+        write_file($file, join("\n", @$users));
         my $msg = "Successfully created valid users file ($file) with ".scalar(@$users)." entries.";
         $logger->info($msg);
         return ($file, $msg);
@@ -117,7 +119,34 @@ sub fetch_all_valid_hashes {
     if (!defined($result) || $@) {
         return ($FALSE, "Can't generate hash list via secretsdump.py. Check logs for details.");
     }
-    return ($TRUE);
+    return ($ntds_file);
+}
+
+sub populate_ntlm_redis_cache {
+    my ($domain) = @_;
+    my $logger = get_logger;
+    my $config = $ConfigDomain{$domain};
+
+    my ($ntds_file, $err) = fetch_all_valid_hashes($domain);
+
+    unless($ntds_file) {
+        $logger->error($err);
+        return ($FALSE, $err);
+    }
+
+    my $content = read_file($ntds_file);
+    my $redis = pf::Redis->new(server => "$NTLM_REDIS_CACHE_HOST:$NTLM_REDIS_CACHE_PORT", reconnect => 5);
+
+    foreach my $line (split(/\n/, $content)) {
+        my $data = [ split(':', $line) ];
+        my $user = $data->[0];
+        my $nthash = $data->[3];
+        $user = [split(/\\/, $user)]->[-1];
+        $user = lc($user);
+        my $key = "NTHASH:$domain:$user";
+        $logger->info("Inserting '$key' => '$nthash'");
+        $redis->set($key, $nthash, 'EX', $config->{ntlm_cache_expiry});
+    }
 }
 
 1;
