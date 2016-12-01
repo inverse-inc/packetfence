@@ -21,6 +21,7 @@
         <h6>DHCP</h6>
       </div>
     </div>
+    [% form.field('dhcpd').render | none %]
     [% form.field('dhcp_start').render | none %]
     [% form.field('dhcp_end').render | none %]
     [% form.field('dhcp_default_lease_time').render | none %]
