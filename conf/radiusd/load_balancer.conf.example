@@ -127,8 +127,8 @@ log {
 	#
 	#  allowed values: {no, yes}
 	#
-	auth_badpass = yes
-	auth_goodpass = yes
+	auth_badpass = no
+	auth_goodpass = no
 
 	#  Log additional text at the end of the "Login OK" messages.
 	#  for these to work, the "auth" and "auth_goodpass" or "auth_badpass"
