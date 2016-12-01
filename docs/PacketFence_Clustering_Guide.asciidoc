@@ -564,11 +564,19 @@ where:
 
 [options="compact"]
 * `ha_interface_ip_address_1` and `ha_interface_ip_address_2` by the IP addresses of the management interface on both servers.
+* `pf1` and `pf2` are the hostname of your servers.
 * `storage_device` is the device to use for the MySQL partition (ie. `/dev/sda2`)
 
-Then initialize the partition:
+Then initialize the partition on both servers:
 
   [root@pf1 ~]# drbdadm create-md mysql
+  Writing meta data...
+  initializing activity log
+  NOT initialized bitmap
+  New drbd meta data block successfully created.
+  success
+
+  [root@pf2 ~]# drbdadm create-md mysql
   Writing meta data...
   initializing activity log
   NOT initialized bitmap
