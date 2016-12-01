@@ -384,7 +384,9 @@ mschap chrooted_mschap_machine {
 
 
         require_strong = yes
-        ntlm_auth = "/usr/bin/sudo /usr/sbin/chroot /chroots/%{PacketFence-Domain} /usr/bin/ntlm_auth --request-nt-key --username=%{mschap:User-Name:-None} --challenge=%{mschap:Challenge:-00} --nt-response=%{mschap:NT-Response:-00}"
+        ntlm_auth = "/usr/bin/sudo /usr/sbin/chroot /chroots/%{PacketFence-Domain} /usr/local/pf/bin/ntlm_auth_wrapper -- \
+             --request-nt-key --username=%{mschap:User-Name:-None} --challenge=%{mschap:Challenge:-00} --nt-response=%{mschap:NT-Response:-00}"	
+
 
         allow_retry = no
 
