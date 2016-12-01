@@ -420,12 +420,12 @@ Pacemaker and Corosync installation and configuration
 
 Install pcs (pacemaker/corosync) configuration system
 
-  # yum install -y pcs
+  # yum install pcs
 
 First you need to disable firewalld and replace it by iptables
 
   # systemctl disable firewalld
-  # yum install -y iptables-services
+  # yum install iptables-services
   # systemctl enable iptables.service
   # iptables -F
   # iptables -X
