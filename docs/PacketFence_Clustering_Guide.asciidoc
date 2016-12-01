@@ -387,7 +387,7 @@ After installation, you need to create the extra partition for DRBD. Using fdisk
 
 
 Clustering prerequisites
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 Make sure that you systems are correctly configured and up-to-date
 
