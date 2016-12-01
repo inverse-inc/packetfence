@@ -78,6 +78,14 @@ has_field 'nat_enabled' => (
     label => 'Enable NATting',
 );
 
+has_field 'dhcpd' =>
+  (
+   type => 'Toggle',
+   checkbox_value => "enabled",
+   unchecked_value => "disabled",
+   default => "enabled",
+   label => 'DHCP server',
+   );
 
 =head2 update_fields
 
