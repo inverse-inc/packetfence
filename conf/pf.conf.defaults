@@ -1358,6 +1358,11 @@ cluster_check_interval=1m
 #
 # Interval at which PacketFence will query compatible switches for DHCP Option 82 switch MAC address
 option82_query_interval=23h
+#
+# maintenance.populate_ntlm_redis_cache_interval
+#
+# Interval at which PacketFence populates the NTLM cache
+populate_ntlm_redis_cache_interval=0s
 
 [active_active]
 #
