@@ -142,6 +142,9 @@ sub populate_ntlm_redis_cache {
     }
 
     my $content = read_file($ntds_file);
+    # file isn't needed anymore
+    unlink($ntds_file);
+
     my $redis = pf::Redis->new(server => "$NTLM_REDIS_CACHE_HOST:$NTLM_REDIS_CACHE_PORT", reconnect => 5);
 
     foreach my $line (split(/\n/, $content)) {
