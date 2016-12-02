@@ -34,7 +34,7 @@ __PACKAGE__->config(
         create          => { AdminRole => 'DOMAIN_CREATE' },
         clone           => { AdminRole => 'DOMAIN_CREATE' },
         update          => { AdminRole => 'DOMAIN_UPDATE' },
-        refresh_domains => { AdminRole => 'DOMAIN_UPDATE' },
+        update_rejoin   => { AdminRole => 'DOMAIN_UPDATE' },
         rejoin          => { AdminRole => 'DOMAIN_UPDATE' },
         remove          => { AdminRole => 'DOMAIN_DELETE' },
     },
@@ -122,19 +122,6 @@ sub index :Path :Args(0) {
     $c->forward('list');
 }
 
-=head2 refresh_domains
-
-Usage: /config/domain/refresh_domains
-
-=cut
-
-sub refresh_domains :Local {
-    my ($self, $c) = @_;
-    pf::domain::regenerate_configuration();
-    $c->stash->{status_msg} = "Refreshed the domains";
-    $c->stash->{current_view} = 'JSON';
-}
-
 =head2 rejoin
 
 Usage: /config/domain/rejoin/:domainId
@@ -187,6 +174,19 @@ sub reset_password :Private {
         current_view => 'JSON',
     );
     $c->response->status($status);
+}
+
+=head2 update_rejoin
+
+Usage: /config/domain/update_rejoin/:domainId
+
+=cut
+
+
+sub update_rejoin :Local :Args(1) {
+    my ($self, $c, $domain) = @_;
+    $c->forward('update');
+    $c->forward('rejoin');
 }
 
 =head1 COPYRIGHT

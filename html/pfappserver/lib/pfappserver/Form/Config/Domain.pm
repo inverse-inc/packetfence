@@ -52,17 +52,16 @@ has_field 'bind_pass' =>
   (
    type => 'Password',
    label => 'Password',
-   required => 1,
-   messages => { required => 'Please specify the password to bind to the Active Directory' },
+   tags => { after_element => \&help,
+             help => 'The password of a Domain Admin to use to join the server to the domain. Will not be stored permanently and is only used while joining the domain.' },
   );
 
 has_field 'bind_dn' =>
   (
    type => 'Text',
    label => 'Username',
-   required => 1,
-   messages => { required => 'Please specify the user to bind to the Active Directory server' },
-
+   tags => { after_element => \&help,
+             help => 'The username of a Domain Admin to use to join the server to the domain' },
   );
 
 has_field 'dns_server' =>

@@ -23,7 +23,10 @@
 
   <div class="modal-footer">
     <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
+    [% IF item.id %]
     [% IF can_access("DOMAIN_UPDATE") %]<button class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>[% END %]
+    [% END %]
+    [% IF can_access("DOMAIN_UPDATE") %]<a href="[% IF item.id %][% c.uri_for(c.controller.action_for('update_rejoin'), [item.id]) %][% ELSE ; action_uri ; END %]" class="btn btn-primary" id="saveAndJoinDomain" data-loading-text="[% l('Processing') %]">[% l('Save and join') %]</a>[% END %]
   </div>
 
 </form>

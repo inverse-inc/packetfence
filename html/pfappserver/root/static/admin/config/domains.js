@@ -28,6 +28,9 @@ var DomainView = function(options) {
 
     var delete_item = $.proxy(this.deleteItem, this);
     options.parent.on('click', id + ' [href$="/delete"]', delete_item);
+
+    var save_and_join = $.proxy(this.updateAndJoinDomain, this);
+    options.parent.on('click', '#saveAndJoinDomain', save_and_join);
 };
 
 DomainView.prototype = (function(){
@@ -45,11 +48,12 @@ DomainView.prototype.showWait = function(title) {
   $('#domainProgressBar').css('width', '1%');
 };
 
-DomainView.prototype.updateItem = function(e) {
+DomainView.prototype.updateAndJoinDomain = function(e) {
   e.preventDefault();
 
   var that = this;
-  var form = $(e.target);
+  var target = $(e.target);
+  var form = target.closest('form');
   var table = $(this.items.id);
   var btn = form.find('.btn');
   var modal = form.closest('.modal');
@@ -61,7 +65,7 @@ DomainView.prototype.updateItem = function(e) {
       modal.modal('hide');
       that.showWait("The server is currently joining the domain");
       this.items.post({
-          url: form.attr('action'),
+          url: target.attr('href'),
           data: form.serialize(),
           always: function() {
               // Restore hidden/template rows
