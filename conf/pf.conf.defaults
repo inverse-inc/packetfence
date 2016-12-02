@@ -563,6 +563,15 @@ redis_queue=enabled
 #
 # Order in which to start this service 
 redis_queue_order=06
+# services.redis_ntlm_cache
+#
+# Should redis be managed by PacketFence?
+redis_ntlm_cache=disabled
+#
+# services.redis_ntlm_cache_order
+#
+# Order in which to start this service 
+redis_ntlm_cache_order=06
 # 
 # services.redis_binary
 # 
