@@ -59,7 +59,7 @@ after [qw(create clone)] => sub {
     }
 };
 
-after [qw(create update)] => sub {
+after [qw(create)] => sub {
     my ($self, $c) = @_;
     if( $c->request->method eq 'POST' && !$c->stash->{form}->has_errors ) {
         pf::domain::regenerate_configuration();
