@@ -11,6 +11,7 @@ pf::Authentication::Source::ADSource
 use pf::Authentication::constants;
 use pf::constants::authentication::messages;
 use pf::Authentication::Source::LDAPSource;
+use pf::constants;
 
 use Moose;
 extends 'pf::Authentication::Source::LDAPSource';
@@ -36,6 +37,36 @@ sub available_attributes {
     ];
   
   return [@$super_attributes, @$ad_attributes];
+}
+
+=head2 servicePrincipalNameToSamAccountName
+
+Get the sAMAccountName of an object given its servicePrincipalName
+Used primarily for machine auth
+
+=cut
+
+sub servicePrincipalNameToSamAccountName {
+    my ($self, $spn) = @_;
+
+    my ($connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
+
+    if (!defined($connection)) {
+        return ($FALSE, "Error communicating with the LDAP server");
+    }
+
+    # We need to fetch the sAMAccountName of the DN in the AD source
+    my $result = $connection->search(
+        base => $self->{basedn}, 
+        filter => '(servicePrincipalName=*)', 
+        attrs => ['sAMAccountName'],
+    );
+
+    return ($FALSE, "Cannot find sAMAccountName of object ".$spn) unless($result->count > 0);
+
+    my $sAMAccountName = $result->entry(0)->get_value('sAMAccountName');
+
+    return $sAMAccountName;
 }
 
 =head1 AUTHOR

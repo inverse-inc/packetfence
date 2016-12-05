@@ -206,6 +206,11 @@ sub cache_user {
     my $config = $ConfigDomain{$domain};
     my $source = getAuthenticationSource($config->{ntlm_cache_source});
     return ($FALSE, "Invalid LDAP source $config->{ntlm_cache_source}") unless(defined($source));
+    
+    if($username =~ /^host\//) {
+        ($username, my $msg) = $source->servicePrincipalNameToSamAccountName($username);
+        return ($FALSE, $msg) unless($username);
+    }
 
     my ($ntds_file, $msg) = secretsdump($domain, $source, "-just-dc-user $username");
     return ($FALSE, $msg) unless($ntds_file);
@@ -214,9 +219,10 @@ sub cache_user {
     if($info->{username} && $info->{nthash}) {
         insert_user_in_redis_cache($domain, $info->{username}, $info->{nthash});
         get_logger->info("Cached user $username for domain $domain");
+        return $TRUE;
     }
     else {
-        get_logger->error("Unable to cache user $username for domain $domain");
+        return ($FALSE, "Couldn't extract informations out of the dump output");
     }
 }
 
