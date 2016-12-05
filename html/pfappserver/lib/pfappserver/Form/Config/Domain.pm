@@ -154,7 +154,29 @@ has_field 'ntlm_cache_expiry' =>
    label => 'Expiration',
    default => 3600,
    tags => { after_element => \&help,
-             help => 'The amount of seconds an entry should be cached. This should be adjusted to twice the value of maintenance.populate_ntlm_redis_cache_interval' },
+             help => 'The amount of seconds an entry should be cached. This should be adjusted to twice the value of maintenance.populate_ntlm_redis_cache_interval if using the batch mode.' },
+  );
+
+has_field 'ntlm_cache_batch' =>
+  (
+   type => 'Toggle',
+   checkbox_value => "enabled",
+   unchecked_value => "disabled",
+   label => 'NTLM cache background job',
+   default => "disabled",
+   tags => { after_element => \&help,
+             help => 'When this is enabled, all users matching the LDAP filter will be inserted in the cache via a background job (maintenance.populate_ntlm_redis_cache_interval controls the interval).' },
+  );
+
+has_field 'ntlm_cache_on_connection' =>
+  (
+   type => 'Toggle',
+   checkbox_value => "enabled",
+   unchecked_value => "disabled",
+   label => 'NTLM cache on connection',
+   default => "disabled",
+   tags => { after_element => \&help,
+             help => 'When this is enabled, an async job will cache the NTLM credentials of the user every time he connects.' },
   );
 
 has_block definition =>
@@ -164,7 +186,7 @@ has_block definition =>
 
 has_block ntlm_cache =>
   (
-   render_list => [ qw(ntlm_cache ntlm_cache_source ntlm_cache_filter ntlm_cache_expiry) ],
+   render_list => [ qw(ntlm_cache ntlm_cache_source ntlm_cache_filter ntlm_cache_expiry ntlm_cache_batch ntlm_cache_on_connection) ],
   );
 
 =head2 options_ntlm_cache_sources

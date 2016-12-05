@@ -794,7 +794,7 @@ Handle NTLM caching if necessary
 sub handleNtlmCaching {
     my ($self, $radius_request) = @_;
     my $domain = $radius_request->{"PacketFence-Domain"};
-    if($domain && isenabled($ConfigDomain{$domain}{ntlm_cache})) {
+    if($domain && isenabled($ConfigDomain{$domain}{ntlm_cache}) && isenabled($ConfigDomain{$domain}{ntlm_cache_on_connection})) {
         my $client = pf::api::queue->new(queue => "general");
         $client->notify("cache_user_ntlm", $domain, $radius_request->{"Stripped-User-Name"});
     }
