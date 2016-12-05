@@ -129,6 +129,12 @@ sub fetch_all_valid_hashes {
     return ($ntds_file);
 }
 
+=head2 get_sync_samaccountname
+
+Get the sAMAccountName for use in the sync based on the auth source
+
+=cut
+
 sub get_sync_samaccountname {
     my ($domain, $source) = @_;
     my $logger = get_logger;
