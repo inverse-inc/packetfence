@@ -2,23 +2,24 @@
     [% SET action_uri = c.req.uri %]
 [%END %]
 <form name="modalDomain" class="form-horizontal form-condensed" action="[% action_uri %]" method="post">
-  [%- IF item.id %]<input type="hidden" name="id" value="[% item.id | html %]">[% END %]
   <div class="modal-header">
     <a class="close" data-dismiss="modal">&times;</a>
     <h3>[% IF item %]<i>[% l('Domain') %]</i> [% item.id | html %][% ELSE %][% l('New Domain') %][% END %]</h3>
   </div>
 
   <div class="modal-body">
-        [% form.field('id').render | none UNLESS item.id %]
-        [% form.field('workgroup').render | none %]
-        [% form.field('dns_name').render | none %]
-        [% form.field('server_name').render | none %]
-        [% form.field('ad_server').render | none %]
-        [% form.field('dns_server').render | none %]
-        [% form.field('bind_dn').render | none %]
-        [% form.field('bind_pass').render | none %]
-        [% form.field('ou').render | none %]
-        [% form.field('registration').render | none %]
+    <ul class="nav nav-tabs">
+      <li class="active" ><a href="#settings" data-toggle="tab">Settings</a></li>
+      <li><a href="#ntlm-cache" data-toggle="tab">NTLM cache</a></li>
+    </ul>
+
+    <div class="tab-content">
+      <div id="settings" class="tab-pane fade in active">
+        [%- IF item.id %]<input type="hidden" name="id" value="[% item.id | html %]">[% ELSE ; form.field('id').render | none ; END %]
+        [% form.block('definition').render | none %]
+      </div>
+      <div id="ntlm-cache" class="tab-pane fade">[% form.block('ntlm_cache').render | none %]</div>
+    </div>
   </div><!--modal-body-->
 
   <div class="modal-footer">
