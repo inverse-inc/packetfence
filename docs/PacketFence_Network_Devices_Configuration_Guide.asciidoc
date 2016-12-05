@@ -3988,6 +3988,34 @@ In order to use the WIPS feature in PacketFence, please follow those simple step
 First, configure PacketFence to be a trap receiver.  Under *Configuration > SNMP > Trap Receivers*, add an entry for the PF management IP.  By default, all traps will be enabled.  If you want to disable some, you will need
 to connect via CLI, and run the *snmp-server trap disable <trapname>* command.
 
+WebAuth
++++++++
+
+To configure the Aruba in webauth there will be few steps. 
+
+First of all you will need to configure a RADIUS server.
+
+image::docs/images/aruba-webauth-radius.png[scaledwidth="100%",alt="RADIUS server"]
+
+  Host: Management adress of PacketFence
+  Auth Port: 1812
+  Acct Port: 1813
+  Key: RADIUS secret
+
+Then define the `RFC 3576` server, which will allow you to do CoA.
+
+image::docs/images/aruba-webauth-radius-coa.png[scaledwidth="100%",alt="RADIUS CoA server"]
+
+Next you will need to create the policy that will redirect user to the PacketFence captive-portal while not authenticated.
+
+Now create the policy for the guest acess, for instance internet only.
+
+You can add as many policies as you want, manage the way you attribute them from PacketFence.
+
+
+
+
+
 Aruba Controller 200
 ^^^^^^^^^^^^^^^^^^^^
 
