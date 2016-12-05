@@ -123,6 +123,7 @@ sub fetch_all_valid_hashes {
     }
 
     my ($ntds_file, $msg) = secretsdump($domain, $source, "-usersfile $valid_users_file");
+    return ($FALSE, $msg) unless($ntds_file);
 
     $logger->info("Generated NTDS file $ntds_file");
     return ($ntds_file);
@@ -185,6 +186,32 @@ sub secretsdump {
     }
 
     return $ntds_file;
+}
+
+=head2 cache_user
+
+Populate the NTLM cache for a single user
+
+=cut
+
+sub cache_user {
+    my ($domain, $username) = @_;
+    my $logger = get_logger;
+    my $config = $ConfigDomain{$domain};
+    my $source = getAuthenticationSource($config->{ntlm_cache_source});
+    return ($FALSE, "Invalid LDAP source $config->{ntlm_cache_source}") unless(defined($source));
+
+    my ($ntds_file, $msg) = secretsdump($domain, $source, "-just-dc-user $username");
+    return ($FALSE, $msg) unless($ntds_file);
+
+    my $info = extract_info_from_dump_line(read_ntds_file($ntds_file));
+    if($info->{username} && $info->{nthash}) {
+        insert_user_in_redis_cache($domain, $info->{username}, $info->{nthash});
+        get_logger->info("Cached user $username for domain $domain");
+    }
+    else {
+        get_logger->error("Unable to cache user $username for domain $domain");
+    }
 }
 
 =head2 populate_ntlm_redis_cache
