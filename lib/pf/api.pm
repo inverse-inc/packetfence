@@ -63,6 +63,7 @@ use pf::password();
 use pf::web::guest();
 use pf::dhcp::processor();
 use pf::util::dhcpv6();
+use pf::domain::ntlm_cache();
 
 sub event_add : Public {
     my ($class, %postdata) = @_;
@@ -1529,6 +1530,34 @@ sub disableMABFloating : Public {
         return;
     }
     $switch->disableMABFloatingDevice($postdata{ifIndex});
+}
+
+=head2 queue_job
+
+Submit a job to the queue
+
+=cut
+
+sub queue_job : Public {
+    my ($class, $queue, $job_name, @args) = @_;
+    my $client = pf::api::queue->new(queue => $queue);
+    $client->notify($job_name, @args );
+}
+
+=head2 populate_ntlm_cache
+
+Called in order to populate the NTLM authentication cache
+
+=cut
+
+sub populate_ntlm_cache : Public {
+    my ($class, $domain) = @_;
+    
+    my ($result, $msg) = pf::domain::ntlm_cache::populate_ntlm_redis_cache($domain);
+    unless($result) {
+        pf::log::get_logger->error("Couldn't update NTLM cache for domain $domain: $msg");
+        pf::config::util::pfmailer(( subject => "Failed to build NTLM cache for domain $domain", message => "Failure to build the NTLM cache due to '$msg'. Please check server side logs for more details." ));
+    }
 }
 
 =head1 AUTHOR

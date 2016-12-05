@@ -652,9 +652,17 @@ sub populate_ntlm_redis_cache {
         get_logger->trace("Checking if $domain has NTLM cache enabled");
         if(isenabled($ConfigDomain{$domain}{ntlm_cache})) {
             get_logger->info("Synchronizing NTLM cache for domain $domain");
-            my ($result, $msg) = pf::domain::ntlm_cache::populate_ntlm_redis_cache($domain);
-            unless($result) {
-                get_logger->error("Couldn't update NTLM cache for domain $domain: $msg");
+            my @args = ('queue_job', 'general', 'populate_ntlm_cache', $domain);
+            # Call method on this server
+            pf::client::getClient()->notify(@args);
+
+            # Call method on peer servers if in cluster
+            if($cluster_enabled) {
+                get_logger->info("Calling populate_ntlm_cache on each cluster member.");
+                my $failed = pf::cluster::api_call_each_server($FALSE, @args);
+                if(@$failed > 0) {
+                    get_logger->error("Couldn't contact ".join(',', @$failed)." to dispatch job for domain $domain.");
+                }
             }
         }
     }
