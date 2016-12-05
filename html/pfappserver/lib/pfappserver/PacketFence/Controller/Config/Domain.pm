@@ -65,7 +65,7 @@ after [qw(create)] => sub {
         pf::domain::regenerate_configuration();
         my $output = pf::domain::join_domain($c->req->param('id'));
         $c->stash->{items}->{join_output} = $output;
-        $c->forward('reset_password',[$c->req->param('id')]);
+        $c->forward('reset_credentials',[$c->req->param('id')]);
     }
 };
 
@@ -132,23 +132,24 @@ Usage: /config/domain/rejoin/:domainId
 sub rejoin :Local :Args(1) {
     my ($self, $c, $domain) = @_;
     my $info = pf::domain::rejoin_domain($domain);
-    $c->forward('reset_password',[ $domain ]);
+    $c->forward('reset_credentials',[ $domain ]);
     $c->stash->{status_msg} = "Rejoined the domain";
     $c->stash->{items} = $info;
     $c->stash->{current_view} = 'JSON';
 }
 
-=head2 set_password
+=head2 set_credentials
 
-Usage: /config/domain/set_password/:domainId
+Usage: /config/domain/set_credentials/:domainId
 
 =cut
 
-sub set_password :Local :Args(1) {
+sub set_credentials :Local :Args(1) {
     my ($self, $c, $domain) = @_;
+    my $username = $c->request->param('username');
     my $password = $c->request->param('password');
     my $model = $self->getModel($c);
-    my ($status,$result) = $model->update($domain, { bind_pass => $password } );
+    my ($status,$result) = $model->update($domain, { bind_dn => $username, bind_pass => $password } );
     ($status,$result) = $model->commit();
     $c->stash(
         status_msg   => $result,
@@ -158,16 +159,16 @@ sub set_password :Local :Args(1) {
 
 }
 
-=head2 reset_password
+=head2 reset_credentials
 
 Resets the password of the specified domain
 
 =cut
 
-sub reset_password :Private {
+sub reset_credentials :Private {
     my ($self, $c, $domain) = @_;
     my $model = $self->getModel($c);
-    my ($status,$result) = $model->update($domain, { bind_pass => '' } );
+    my ($status,$result) = $model->update($domain, { bind_dn => '', bind_pass => '' } );
     ($status,$result) = $model->commit();
     $c->stash(
         status_msg   => $result,

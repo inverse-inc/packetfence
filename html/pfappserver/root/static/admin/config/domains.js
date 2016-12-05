@@ -170,13 +170,15 @@ DomainView.prototype.setPassword = function(domain,callback) {
         })
         .done(function(data) {
             modal.modal('hide');     
-            form.find('input[type="password"]').val('');
+            form.find('input[name="username"]').val('');
+            form.find('input[name="password"]').val('');
             callback();
         })
         .fail(function(jqXHR) {
             $("body,html").animate({scrollTop:0}, 'fast');
             var status_msg = getStatusMsg(jqXHR);
-            form.find('input[type="password"]').val('');
+            form.find('input[name="username"]').val('');
+            form.find('input[name="password"]').val('');
             showError($('#section h2'), status_msg);
         });
     return false;

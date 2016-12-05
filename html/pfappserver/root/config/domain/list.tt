@@ -27,14 +27,26 @@
 
 
             <div class="modal modal-large fade hide" id="modalDomainSetPassword-[% item.id %]">
-              <form action="[% c.uri_for(c.controller.action_for('set_password'), [ item.id ]) %]" method="POST">
+              <form action="[% c.uri_for(c.controller.action_for('set_credentials'), [ item.id ]) %]" method="POST" class="form-horizontal form-condensed">
                 <div class="modal-header">
                   <a class="close" data-dismiss="modal">&times;</a>
-                  <h3>[% l('Please enter the password for the account :') %] [% item.bind_dn %]</h3>
+                  <h3>[% l('Please enter administrative credentials to connect to the domain') %]</h3>
                 </div>
 
                 <div class="modal-body">
-                    <input type="password" name="password" value="">
+                    <div class="control-group">
+                      <label class="control-label" for="bind_dn">Username</label>
+                      <div class="controls">
+                        <input type="text" name="username" value="">
+                      </div>
+                    </div>
+                    <br>
+                    <div class="control-group">
+                      <label class="control-label" for="bind_dn">Password</label>
+                      <div class="controls">
+                        <input type="password" name="password" value="">
+                      </div>
+                    </div>
                 </div><!--modal-body-->
 
                 <div class="modal-footer">
