@@ -111,15 +111,27 @@ Fetch the NT hashes of all the valid users of a domain
 sub fetch_all_valid_hashes {
     my ($domain) = @_;
     my $logger = get_logger;
+    my $config = $ConfigDomain{$domain};
+    my $source = getAuthenticationSource($config->{ntlm_cache_source});
+    return ($FALSE, "Invalid LDAP source $config->{ntlm_cache_source}") unless(defined($source));
+
     my ($valid_users_file, $err) = generate_valid_users_file($domain);
     unless($valid_users_file) {
         my $msg = "Cannot generate valid users file ($err)";
         $logger->error($msg);
         return ($FALSE, $msg);
     }
+
+    my ($ntds_file, $msg) = secretsdump($domain, $source, "-usersfile $valid_users_file");
+
+    $logger->info("Generated NTDS file $ntds_file");
+    return ($ntds_file);
+}
+
+sub get_sync_samaccountname {
+    my ($domain, $source) = @_;
+    my $logger = get_logger;
     my $config = $ConfigDomain{$domain};
-    my $source = getAuthenticationSource($config->{ntlm_cache_source});
-    return ($FALSE, "Invalid LDAP source $config->{ntlm_cache_source}") unless(defined($source));
     
     my ($connection, $LDAPServer, $LDAPServerPort ) = $source->_connect();
 
@@ -136,13 +148,32 @@ sub fetch_all_valid_hashes {
 
     return ($FALSE, "Cannot find sAMAccountName of user ".$source->{binddn}) unless($result->count > 0);
 
-    my $tmpfile = File::Temp->new()->filename;
-    my $ntds_file = $tmpfile.".ntds";
-
     my $sAMAccountName = $result->entry(0)->get_value('sAMAccountName');
 
+    return $sAMAccountName;
+}
+
+=head2 secretsdump
+
+Call the secretsdump binary and return the NTDS filename
+
+=cut
+
+sub secretsdump {
+    my ($domain, $source, $opts) = @_;
+    $opts //= "";
+    my $logger = get_logger;
+    my $config = $ConfigDomain{$domain};
+
+    my $tmpfile = File::Temp->new()->filename;
+    my $ntds_file = $tmpfile.".ntds";
+    
+    my ($sAMAccountName, $msg) = get_sync_samaccountname($domain, $source);
+    return ($FALSE, $msg) unless($sAMAccountName);
+
+    my $result;
     eval {
-        my $command = "/usr/local/pf/addons/AD/secretsdump.py '".pf::domain::escape_bind_user_string($sAMAccountName)."':'".pf::domain::escape_bind_user_string($source->{password})."'@".$source->{host}." -just-dc-ntlm -output $tmpfile -usersfile $valid_users_file";
+        my $command = "/usr/local/pf/addons/AD/secretsdump.py '".pf::domain::escape_bind_user_string($sAMAccountName)."':'".pf::domain::escape_bind_user_string($source->{password})."'@".$source->{host}." -just-dc-ntlm -output $tmpfile $opts";
         $logger->debug("Executing sync command: $command");
         $result = pf_run($command, accepted_exit_status => [ 0 ]);
     };
@@ -153,8 +184,7 @@ sub fetch_all_valid_hashes {
         return ($FALSE, "Cannot synchronize users hashes. Command output: $result");
     }
 
-    $logger->info("Generated NTDS file $ntds_file");
-    return ($ntds_file);
+    return $ntds_file;
 }
 
 =head2 populate_ntlm_redis_cache
@@ -229,7 +259,7 @@ sub insert_user_in_redis_cache {
     my $redis = pf::Redis->new(server => "$NTLM_REDIS_CACHE_HOST:$NTLM_REDIS_CACHE_PORT", reconnect => 5);
 
     my $key = "NTHASH:$domain:$user";
-    $logger->debug("Inserting '$key' => '$nthash'");
+    $logger->info("Inserting '$key' => '$nthash'");
     $redis->set($key, $nthash, 'EX', $config->{ntlm_cache_expiry});
 }
 
