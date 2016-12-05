@@ -1,5 +1,15 @@
 package pf::domain::ntlm_cache;
 
+=head1 NAME
+
+pf::domain::ntlm_cache
+
+=head1 DESCRIPTION
+
+Controls the caching of the NT hashes for domains
+
+=cut
+
 use strict;
 use warnings;
 
@@ -18,6 +28,12 @@ use pf::util;
 use File::Temp;
 use pf::Redis;
 use pf::constants::domain qw($NTLM_REDIS_CACHE_HOST $NTLM_REDIS_CACHE_PORT);
+
+=head2 fetch_valid_users
+
+Fetch the valid users (the ones that should be cached) for a domain
+
+=cut
 
 sub fetch_valid_users {
     my ($domain) = @_;
@@ -64,6 +80,12 @@ sub fetch_valid_users {
     return \@users;
 }
 
+=head2 generate_valid_users_file
+
+Generate the list of valid users (for use by secretsdump.py) for a specific domain
+
+=cut
+
 sub generate_valid_users_file {
     my ($domain) = @_;
     my $logger = get_logger;
@@ -79,6 +101,12 @@ sub generate_valid_users_file {
         return ($FALSE, $msg);
     }
 }
+
+=head2 fetch_all_valid_hashes
+
+Fetch the NT hashes of all the valid users of a domain
+
+=cut
 
 sub fetch_all_valid_hashes {
     my ($domain) = @_;
@@ -129,6 +157,12 @@ sub fetch_all_valid_hashes {
     return ($ntds_file);
 }
 
+=head2 populate_ntlm_redis_cache
+
+Populate the redis NTLM cache for a domain
+
+=cut
+
 sub populate_ntlm_redis_cache {
     my ($domain) = @_;
     my $logger = get_logger;
@@ -160,4 +194,33 @@ sub populate_ntlm_redis_cache {
     return ($TRUE);
 }
 
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
+
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2016 Inverse inc.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
+
 1;
+
