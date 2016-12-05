@@ -271,7 +271,7 @@ sub ipset_node_update : Public {
     return(pf::ipset::update_node($oldip, $srcip, $srcmac));
 }
 
-sub firewallsso : Public {
+sub firewallsso : Public : Fork {
     my ($class, %postdata) = @_;
     my @require = qw(method mac ip timeout);
     my @found = grep {exists $postdata{$_}} @require;
