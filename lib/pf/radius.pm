@@ -58,6 +58,7 @@ use pf::StatsD::Timer;
 use Hash::Merge qw (merge);
 use pf::accounting;
 use pf::cluster;
+use pf::api::queue;
 
 our $VERSION = 1.03;
 
@@ -794,8 +795,8 @@ sub handleNtlmCaching {
     my ($self, $radius_request) = @_;
     my $domain = $radius_request->{"PacketFence-Domain"};
     if($domain && isenabled($ConfigDomain{$domain}{ntlm_cache})) {
-        my ($result, $msg) = pf::domain::ntlm_cache::cache_user($domain, $radius_request->{"Stripped-User-Name"});
-        get_logger->error("Couldn't cache user: '$msg'") unless($result);
+        my $client = pf::api::queue->new(queue => "general");
+        $client->notify("cache_user_ntlm", $domain, $radius_request->{"Stripped-User-Name"});
     }
 }
 

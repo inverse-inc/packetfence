@@ -1546,7 +1546,7 @@ sub queue_job : Public {
 
 =head2 populate_ntlm_cache
 
-Called in order to populate the NTLM authentication cache
+Called in order to populate the NTLM authentication cache for all valid domain users
 
 =cut
 
@@ -1558,6 +1558,21 @@ sub populate_ntlm_cache : Public {
         pf::log::get_logger->error("Couldn't update NTLM cache for domain $domain: $msg");
         pf::config::util::pfmailer(( subject => "Failed to build NTLM cache for domain $domain", message => "Failure to build the NTLM cache due to '$msg'. Please check server side logs for more details." ));
     }
+}
+
+=head2 cache_user_ntlm
+
+Called in order to populate the NTLM authentication cache with a single user
+
+=cut
+
+sub cache_user_ntlm {
+    my ($class, $domain, $username) = @_;
+
+    my ($result, $msg) = pf::domain::ntlm_cache::cache_user($domain, $username);
+    get_logger->error("Couldn't cache user: '$msg'") unless($result);
+
+    return $result;
 }
 
 =head1 AUTHOR
