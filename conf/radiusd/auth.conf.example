@@ -10,7 +10,12 @@ listen {
     virtual_server = packetfence
 }
 
-%%listen%%
+listen {
+    ipaddr = %%management_ip%%
+    port = 0
+    type = auth
+    virtual_server = packetfence
+}
 
 listen {
     type = control
