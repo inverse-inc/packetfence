@@ -75,6 +75,7 @@ conf/radiusd/rest.conf
 conf/radiusd/sql.conf
 conf/redis_cache.conf
 conf/redis_queue.conf
+conf/redis_ntlm_cache.conf
 conf/realm.conf
 conf/domain.conf
 conf/radius_filters.conf
