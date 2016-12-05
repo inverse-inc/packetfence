@@ -175,23 +175,62 @@ sub populate_ntlm_redis_cache {
         return ($FALSE, $err);
     }
 
+    my $content = read_ntds_file($ntds_file);
+
+    foreach my $line (split(/\n/, $content)) {
+        my $info = extract_info_from_dump_line($line);
+        insert_user_in_redis_cache($domain, $info->{username}, $info->{nthash});
+    }
+    return ($TRUE);
+}
+
+=head2 read_ntds_file
+
+Returns the content of an NTDS file and deletes it at the same time
+
+=cut
+
+sub read_ntds_file {
+    my ($ntds_file) = @_;
     my $content = read_file($ntds_file);
     # file isn't needed anymore
     unlink($ntds_file);
+    return $content;
+}
 
+=head2 extract_info_from_dump_line
+
+Extract the username and NT hash from a dump line
+
+=cut
+
+sub extract_info_from_dump_line {
+    my ($line) = @_;
+    my $data = [ split(':', $line) ];
+    my $user = $data->[0];
+    my $nthash = $data->[3];
+    $user = [split(/\\/, $user)]->[-1];
+    $user = lc($user);
+    return {username => $user, nthash => $nthash};
+}
+
+=head2 insert_user_in_redis_cache
+
+Insert a user/NT hash combination inside redis for a given domain
+
+=cut
+
+sub insert_user_in_redis_cache {
+    my ($domain, $user, $nthash) = @_;
+    my $logger = get_logger;
+    my $config = $ConfigDomain{$domain};
+
+    # pf::Redis has a cache for the connection
     my $redis = pf::Redis->new(server => "$NTLM_REDIS_CACHE_HOST:$NTLM_REDIS_CACHE_PORT", reconnect => 5);
 
-    foreach my $line (split(/\n/, $content)) {
-        my $data = [ split(':', $line) ];
-        my $user = $data->[0];
-        my $nthash = $data->[3];
-        $user = [split(/\\/, $user)]->[-1];
-        $user = lc($user);
-        my $key = "NTHASH:$domain:$user";
-        $logger->info("Inserting '$key' => '$nthash'");
-        $redis->set($key, $nthash, 'EX', $config->{ntlm_cache_expiry});
-    }
-    return ($TRUE);
+    my $key = "NTHASH:$domain:$user";
+    $logger->debug("Inserting '$key' => '$nthash'");
+    $redis->set($key, $nthash, 'EX', $config->{ntlm_cache_expiry});
 }
 
 =head1 AUTHOR

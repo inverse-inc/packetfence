@@ -654,7 +654,7 @@ sub populate_ntlm_redis_cache {
             get_logger->info("Synchronizing NTLM cache for domain $domain");
             my @args = ('queue_job', 'general', 'populate_ntlm_cache', $domain);
             # Call method on this server
-            pf::client::getClient()->notify(@args);
+            pf::client::getClient()->call(@args);
 
             # Call method on peer servers if in cluster
             if($cluster_enabled) {
