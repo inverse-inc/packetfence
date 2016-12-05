@@ -1077,6 +1077,7 @@ The following features are not supported when using active/active clustering.
 
 * Switches using SNMP based enforcement (port-security, link up/down, ...)
 * SNMP roaming with the Aerohive controller. (4.7+ includes support for accounting roaming)
+* Inline enforcement
 
 Appendix
 --------
