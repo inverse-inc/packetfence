@@ -192,6 +192,7 @@ $(document).ready(function(){
     event.preventDefault()
     var domain_name = $(event.target).parent().parent().children().children().html()
     domainView.setPassword(domain_name, function(){
+      var view = domainView;
       var jbtn = $(that);
       var initial_content = jbtn.html();
       jbtn.attr('disabled', 'disabled');
@@ -211,6 +212,7 @@ $(document).ready(function(){
               content.append($('<pre>'+data.items['join_output']+'</pre>')); 
               $('#modalDomainWait').modal('hide');
               domainView.showResultModal(content); 
+              view.list();
               jbtn.html(initial_content);
               jbtn.removeAttr('disabled');
           })
