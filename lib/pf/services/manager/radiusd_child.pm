@@ -39,6 +39,7 @@ use pf::config qw(
     $management_network
     %ConfigDomain
     $local_secret
+    @radius_ints
 );
 
 tie my @cli_switches, 'pfconfig::cached_array', 'resource::cli_switches';
