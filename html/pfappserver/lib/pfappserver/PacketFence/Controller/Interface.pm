@@ -234,8 +234,12 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('INTERFACES_RE
     my $types = $c->model('Enforcement')->getAvailableTypes($mechanism, $interface, $interfaces);
 
     if ( $interface_ref->{$interface}->{'type'} =~ 'portal' ) {
-        $interface_ref->{$interface}->{'additional_listening_daemons'} = [ "portal" ];
+        push @{$interface_ref->{$interface}->{'additional_listening_daemons'}}, "portal";
         $interface_ref->{$interface}->{'type'} =~ s/,portal//;
+    }
+    if ( $interface_ref->{$interface}->{'type'} =~ 'radius' ) {
+        push @{$interface_ref->{$interface}->{'additional_listening_daemons'}}, "radius";
+        $interface_ref->{$interface}->{'type'} =~ s/,radius//;
     }
 
     # Build form

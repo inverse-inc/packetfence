@@ -119,7 +119,7 @@ sub options_additional_listening_daemons {
     my $self = shift;
 
     return map { { value => $_, label => $_ } }
-        qw(portal);
+        qw(portal radius);
 }
 
 =head2 validate

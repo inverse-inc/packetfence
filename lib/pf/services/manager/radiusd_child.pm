@@ -445,9 +445,37 @@ EOT
         # raddb/load_balancer.conf
         %tags = ();
         $tags{'template'} = "$conf_dir/radiusd/load_balancer.conf";
-        $tags{'virt_ip'} = pf::cluster::management_cluster_ip();
         $tags{'pid_file'} = "$var_dir/run/radiusd-load_balancer.pid";
         $tags{'socket_file'} = "$var_dir/run/radiusd-load_balancer.sock";
+
+        foreach my $interface ( @radius_ints ) {
+
+            my $cluster_ip = pf::cluster::cluster_ip($interface->{Tint});
+            $tags{'listen'} .= <<"EOT";
+listen {
+        ipaddr = $cluster_ip
+        port = 0
+        type = auth
+        virtual_server = pf.cluster
+}
+
+
+listen {
+        ipaddr = $cluster_ip
+        port = 0
+        type = acct
+        virtual_server = pf.cluster
+}
+
+listen {
+        ipaddr = $cluster_ip
+        port = 1815
+        type = auth
+        virtual_server = pfcli.cluster
+}
+
+EOT
+        }
 
         # Eduroam integration
         if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {

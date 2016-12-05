@@ -50,6 +50,7 @@ use pf::config qw(
     $IPTABLES_MARK_REG
     is_inline_enforcement_enabled
     is_type_inline
+    @radius_ints
 );
 use pf::class qw(class_view_all class_trappable);
 use pf::file_paths qw($generated_conf_dir $conf_dir);
@@ -65,6 +66,7 @@ use pf::ConfigStore::Domain;
 # to be considered as running
 Readonly our $FW_FILTER_INPUT_MGMT      => 'input-management-if';
 Readonly our $FW_FILTER_INPUT_PORTAL    => 'input-portal-if';
+Readonly our $FW_FILTER_INPUT_RADIUS    => 'input-radius-if';
 
 Readonly my $FW_TABLE_FILTER => 'filter';
 Readonly my $FW_TABLE_MANGLE => 'mangle';
@@ -244,6 +246,12 @@ sub generate_filter_if_src_to_chain {
         $rules .= "-A INPUT --in-interface $dev -d 224.0.0.0/8 -j ACCEPT\n";
         $rules .= "-A INPUT --in-interface $dev -p vrrp -j ACCEPT\n";
         $rules .= "-A INPUT --in-interface $dev --jump $FW_FILTER_INPUT_PORTAL\n";
+    }
+
+    # 'radius' interfaces handling
+    foreach my $radius_interface ( @radius_ints ) {
+        my $dev = $radius_interface->tag("int");
+        $rules .= "-A INPUT --in-interface $dev --jump $FW_FILTER_INPUT_RADIUS\n";
     }
 
     # management interface handling
