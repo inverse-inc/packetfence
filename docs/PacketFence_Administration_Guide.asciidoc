@@ -21,7 +21,7 @@ About this Guide
 
 This guide will walk you through the installation and the day to day administration of the PacketFence solution.
 
-The latest version of this guide is available at http://www.packetfence.org/documentation/
+The latest version of this guide is available at https://packetfence.org/documentation/
 
 Other sources of information
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -100,7 +100,7 @@ Guest Access::
 Devices registration::
   A registered user can access a special Web page to register a device of his own. This registration process will require login from the user and then will register devices with pre-approved MAC OUI into a configurable category.
 
-PacketFence is developed by a community of developers located mainly in North America. More information can be found at http://www.packetfence.org.
+PacketFence is developed by a community of developers located mainly in North America. More information can be found at https://packetfence.org.
 
 Network Integration
 ~~~~~~~~~~~~~~~~~~~
@@ -768,7 +768,7 @@ Here is a switch configuration example in order to enable SNMP v3 in both direct
 Command-Line Interface: Telnet and SSH
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-WARNING: Privilege detection is disabled in the current PacketFence version due to some issues (see http://www.packetfence.org/bugs/view.php?id=1370[#1370]). So make sure that the `cliUser` and `cliPwd` you provide always get you into a privileged mode (except for Trapeze hardware).
+WARNING: Privilege detection is disabled in the current PacketFence version due to some issues (see https://packetfence.org/bugs/view.php?id=1370[#1370]). So make sure that the `cliUser` and `cliPwd` you provide always get you into a privileged mode (except for Trapeze hardware).
 
 PackeFence needs sometimes to establish an interactive command-line session with a switch. This can be done using Telnet. You can also use SSH. In order to do so, edit the switch configuration file (`/usr/local/pf/conf/switches.conf`) and set the following parameters:
 
@@ -2339,7 +2339,7 @@ Repeat the above for all your production VLANs then restart PacketFence.
 Host production DHCP on PacketFence
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-It's an option. Just modify `conf/dhcpd.conf` so that it will host your production DHCP properly and make sure that a `pfdhcplistener` runs on the same interface where production DHCP runs. However, please note that this is *NOT* recommended. See http://www.packetfence.org/bugs/view.php?id=1050[this ticket] to see why.
+It's an option. Just modify `conf/dhcpd.conf` so that it will host your production DHCP properly and make sure that a `pfdhcplistener` runs on the same interface where production DHCP runs. However, please note that this is *NOT* recommended. See https://packetfence.org/bugs/view.php?id=1050[this ticket] to see why.
 
 Proxy Interception
 ~~~~~~~~~~~~~~~~~~

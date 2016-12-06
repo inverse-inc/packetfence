@@ -146,7 +146,7 @@ wget http://inverse.ca/downloads/sdn.patch
 patch -p1 < sdn.patch
 ----
 
-In case of any conflicts please post the output of the patch command on the PacketFence http://www.packetfence.org/support/community.html[development mailing list].
+In case of any conflicts please post the output of the patch command on the PacketFence https://packetfence.org/support/community.html[development mailing list].
 
 Once you are done, restart PacketFence using `service packetfence restart`
 

@@ -24,7 +24,7 @@ them with PacketFence in VLAN enforcement. Switches, wireless controllers and
 wireless access points are all considered network devices in PacketFence's 
 terms.
 
-The latest version of this guide is available at http://www.packetfence.org/documentation/ 
+The latest version of this guide is available at https://packetfence.org/documentation/
 
 Other sources of information
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -60,7 +60,7 @@ List of supported Network Devices
 
 PacketFence supports a whole lot of different wireless and wired network equipments from various vendors running 
 different versions. Since we want to provide the most accurate information and avoid duplication of that same 
-information, please refer to our website http://www.packetfence.org/about/supported_switches_and_aps.html
+information, please refer to our website https://packetfence.org/about/supported_switches_and_aps.html
 
 You'll find on this page the enforcement modes supported by each and every single piece of equipment we tested and 
 worked with. 

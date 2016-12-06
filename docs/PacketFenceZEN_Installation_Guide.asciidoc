@@ -23,14 +23,13 @@ This guide will walk you through the installation and configuration of the Packe
 
 The instructions are based on version {release_version} of PacketFence.
 
-The latest version of this guide is available online at http://www.packetfence.org/documentation/guides.html
+The latest version of this guide is available online at https://packetfence.org/documentation/
 
 
 Other sources of information
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-We suggest that you also have a look in the PacketFence Administration Guide, and in the PacketFence Network Devices Configuration Guide.  Both are available online at 
-http://www.packetfence.org/documentation/guides.html
+We suggest that you also have a look in the PacketFence Administration Guide, and in the PacketFence Network Devices Configuration Guide.  Both are available online at https://packetfence.org/documentation/
 
 
 Getting Started
@@ -248,7 +247,7 @@ The main configuration files are :
 Network Devices
 ~~~~~~~~~~~~~~~
 
-Please refer to the http://www.packetfence.org/documentation/[Network Devices Configuration Guide] in order to properly configure your devices.
+Please refer to the https://packetfence.org/documentation/[Network Devices Configuration Guide] in order to properly configure your devices.
 
 
 FreeRADIUS

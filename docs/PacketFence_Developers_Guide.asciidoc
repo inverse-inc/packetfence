@@ -22,7 +22,7 @@ About this Guide
 This guide will help you modifying PacketFence to your particular needs. It
 also contains information on how to add support for new switches.
 
-The latest version of this guide is available at http://www.packetfence.org/documentation/.
+The latest version of this guide is available at https://packetfence.org/documentation/.
 
 Other sources of information
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -660,7 +660,7 @@ Not so bleeding edge
 ^^^^^^^^^^^^^^^^^^^^
 
 Using the development `yum` repository and upgrade packetfence often is a good way to proceed.
-Check our http://www.packetfence.org/download/snapshots.html[snapshots download page] for
+Check our https://packetfence.org/download/snapshots.html[snapshots download page] for
 instructions.
 
 Make sure you read the `UPGRADE` document after every upgrades to avoid any surprises.
@@ -698,7 +698,7 @@ https://lists.sourceforge.net/lists/listinfo/packetfence-devel. Let us know your
 working on and how you want to solve your problems. The more you collaborate the greater the chances that
 your work will be incorporated in a timely fashion.
 
-* Use the issue tracker: http://www.packetfence.org/bugs/
+* Use the issue tracker: https://packetfence.org/bugs/
 
 Good chances that the bug you want to fix or the feature you want to implement is already filed and
 that information in the ticket will help you.
