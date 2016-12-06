@@ -49,14 +49,13 @@ sub is_in_cache {
     unless (ref ($pair) eq 'HASH' && exists $pair->{ip} && defined $pair->{ip} && exists $pair->{port} && defined $pair->{ip} ) {
         return undef;
     }
-    my $port = _format_port($pair->{port});
-    return $self->cache->is_valid("$pair->{ip}:$port");
+    return $self->cache->is_valid(_format_pair($pair));
 }
 
 sub _add_pairs_to_ipset {
     my ($self, $pairs) = @_;
     my $setname = $self->setname;
-    my $data = join("\n", (map { "add $setname $_->{ip}," . _format_port($_->{port}) } @$pairs), "");
+    my $data = join("\n", (map { "add $setname " . _format_pair($_) } @$pairs), "");
     my $pid = open(my $ipset, "| LANG=C sudo ipset -! restore 2>&1");
     unless (defined $pid) {
         $logger->error("Cannot start ipset ");
@@ -78,7 +77,7 @@ sub _add_pairs_to_cache {
 sub _format_pair {
     my ($pair) = @_;
     my $port = _format_port($pair->{port});
-    return "$pair->{ip}:$port";
+    return "$pair->{ip},$port";
 }
 
 sub _format_port {
