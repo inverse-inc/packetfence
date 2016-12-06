@@ -135,9 +135,12 @@ sub iptables_generate {
         my $eduroam_listening_port = $eduroam_authentication_source[0]{'auth_listening_port'};    # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
         $tags{'eduroam_radius_virtualserver'} = "-A input-management-if --protocol tcp --match tcp --dport $eduroam_listening_port --jump ACCEPT\n";
         $tags{'eduroam_radius_virtualserver'} .= "-A input-management-if --protocol udp --match udp --dport $eduroam_listening_port --jump ACCEPT\n";
+        $tags{'eduroam_radius_listening'} = "-A input-radius-if --protocol tcp --match tcp --dport $eduroam_listening_port --jump ACCEPT\n";
+        $tags{'eduroam_radius_listening'} .= "-A input-radius-if --protocol udp --match udp --dport $eduroam_listening_port --jump ACCEPT\n";
     }
     else {
         $tags{'eduroam_radius_virtualserver'} = "# eduroam integration is not configured\n";
+        $tags{'eduroam_radius_listening'} = "# eduroam integration is not configured\n";
     }
 
     if (is_inline_enforcement_enabled()) {
