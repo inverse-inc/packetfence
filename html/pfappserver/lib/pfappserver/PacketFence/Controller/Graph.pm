@@ -500,7 +500,7 @@ sub systemstate :Local :AdminRole('REPORTS') {
                 'columns' => 2
                },
                {
-                'description' => $c->loc('Disk IO'),
+                'description' => $c->loc('Disk IO Time'),
                 'target' => 'aliasByNode(*.*.disk_io_time.io_time,0,1)',
                 'columns' => 2
                },
