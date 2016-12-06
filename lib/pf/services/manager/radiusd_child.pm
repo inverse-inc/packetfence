@@ -199,7 +199,34 @@ sub generate_radiusd_authconf {
     my ($self) = @_;
     my %tags;
     $tags{'template'}    = "$conf_dir/radiusd/auth.conf";
-    $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+    if ($cluster_enabled) {
+        my $ip = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+
+$tags{'listen'} .= <<"EOT";
+listen {
+        ipaddr = $ip
+        port = 0
+        type = auth
+        virtual_server = packetfence
+}
+
+EOT
+    } else {
+        foreach my $interface ( @radius_ints ) {
+            my $ip = defined($interface->tag('vip')) ? $interface->tag('vip') : $interface->tag('ip');
+
+$tags{'listen'} .= <<"EOT";
+listen {
+        ipaddr = $ip
+        port = 0
+        type = auth
+        virtual_server = packetfence
+}
+
+EOT
+        }
+    }
+
     $tags{'pid_file'} = "$var_dir/run/radiusd.pid";
     $tags{'socket_file'} = "$var_dir/run/radiusd.sock";
     parse_template( \%tags, $tags{template}, "$install_dir/raddb/auth.conf" );
@@ -209,7 +236,33 @@ sub generate_radiusd_acctconf {
     my ($self) = @_;
     my %tags;
     $tags{'template'}    = "$conf_dir/radiusd/acct.conf";
-    $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+    if ($cluster_enabled) {
+        my $ip = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+
+$tags{'listen'} .= <<"EOT";
+listen {
+        ipaddr = $ip
+        port = 0
+        type = acct
+        virtual_server = packetfence
+}
+
+EOT
+    } else {
+        foreach my $interface ( @radius_ints ) {
+            my $ip = defined($interface->tag('vip')) ? $interface->tag('vip') : $interface->tag('ip');
+$tags{'listen'} .= <<"EOT";
+listen {
+        ipaddr = $ip
+        port = 0
+        type = acct
+        virtual_server = packetfence
+}
+
+EOT
+        }
+    }
+
     $tags{'pid_file'} = "$var_dir/run/radiusd-acct.pid";
     $tags{'socket_file'} = "$var_dir/run/radiusd-acct.sock";
     parse_template( \%tags, $tags{template}, "$install_dir/raddb/acct.conf" );
@@ -222,8 +275,31 @@ sub generate_radiusd_eduroamconf {
         my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
         my %tags;
         $tags{'template'}    = "$conf_dir/radiusd/eduroam.conf";
-        $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
-        $tags{'eduroam_auth_listening_port'} = $eduroam_authentication_source[0]{'auth_listening_port'};    # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
+        if ($cluster_enabled) {
+            my $ip = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+            $tags{'listen'} .= << "EOT";
+listen {
+    ipaddr = $ip
+    port =  $eduroam_authentication_source[0]{'auth_listening_port'};
+    type = auth
+    virtual_server = eduroam
+}
+
+EOT
+        } else {
+            foreach my $interface ( @radius_ints ) {
+                my $ip = defined($interface->tag('vip')) ? $interface->tag('vip') : $interface->tag('ip');
+                $tags{'listen'} .= <<"EOT";
+listen {
+    ipaddr = $ip
+    port =  $eduroam_authentication_source[0]{'auth_listening_port'};
+    type = auth
+    virtual_server = eduroam
+}
+
+EOT
+            }
+        }
         $tags{'pid_file'} = "$var_dir/run/radiusd-eduroam.pid";
         $tags{'socket_file'} = "$var_dir/run/radiusd-eduroam.sock";
         parse_template( \%tags, $tags{template}, "$install_dir/raddb/eduroam.conf" );
@@ -237,7 +313,32 @@ sub generate_radiusd_cliconf {
     my %tags;
     if (@cli_switches > 0) {
         $tags{'template'}    = "$conf_dir/radiusd/cli.conf";
-        $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+        if ($cluster_enabled) {
+            my $ip = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+
+$tags{'listen'} .= <<"EOT";
+listen {
+        ipaddr = $ip
+        port = 1815
+        type = auth
+        virtual_server = packetfence-cli
+}
+
+EOT
+        } else {
+            foreach my $interface ( @radius_ints ) {
+                my $ip = defined($interface->tag('vip')) ? $interface->tag('vip') : $interface->tag('ip');
+                $tags{'listen'} .= <<"EOT";
+listen {
+        ipaddr = $ip
+        port = 1815
+        type = auth
+        virtual_server = packetfence-cli
+}
+
+EOT
+            }
+        }
         $tags{'pid_file'} = "$var_dir/run/radiusd-cli.pid";
         $tags{'socket_file'} = "$var_dir/run/radiusd-cli.sock";
         parse_template( \%tags, $tags{template}, "$install_dir/raddb/cli.conf" );

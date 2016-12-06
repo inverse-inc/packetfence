@@ -3,12 +3,7 @@ pidfile = %%pid_file%%
 
 $INCLUDE radiusd.conf
 
-listen {
-    ipaddr = %%management_ip%%
-    port = 0
-    type = acct
-    virtual_server = packetfence
-}
+%%listen%%
 
 listen {
     type = control
