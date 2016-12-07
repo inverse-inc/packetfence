@@ -14,7 +14,6 @@ pfconfig::namespaces::interfaces::radius_ints
 
 use strict;
 use warnings;
-use List::MoreUtils qw(uniq);
 
 use base 'pfconfig::namespaces::interfaces';
 
