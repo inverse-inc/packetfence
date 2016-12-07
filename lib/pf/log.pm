@@ -78,6 +78,20 @@ sub logstacktrace {
 
 }
 
+=head2 reset_log_context
+
+Reset the logging context
+
+=cut
+
+sub reset_log_context {
+    my ($self) = @_;
+    for my $ctx (qw(ip mac)) {
+        Log::Log4perl::MDC->put($ctx, 'unknown');
+    }
+    return;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
