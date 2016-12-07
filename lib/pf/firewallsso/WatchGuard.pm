@@ -55,6 +55,7 @@ sub action {
             nas_ip   => $firewall_conf,
             nas_port => $config->{'port'},
             secret   => $config->{'password'},
+            LocalAddr => $self->sso_source_ip(),
         };
 
         my $attributes = {
@@ -82,6 +83,7 @@ sub action {
             nas_ip   => $firewall_conf,
             nas_port => $config->{'port'},
             secret   => $config->{'password'},
+            LocalAddr => $self->sso_source_ip(),
         };
 
         my $attributes = {
