@@ -2,13 +2,15 @@ package pf::ipset_cache;
 
 =head1 NAME
 
-pf::ipset_cache -
+pf::ipset_cache - Ipset Cache
 
 =cut
 
 =head1 DESCRIPTION
 
 pf::ipset_cache
+
+Maintain a CHI cache between a ipset hash:ip,port set
 
 =cut
 
@@ -27,10 +29,22 @@ has cache => (is => 'ro', builder => 1, lazy => 1);
 
 has setname => (is => 'ro', required => 1);
 
+=head2 _build_cache
+
+Build a memory CHI cache
+
+=cut
+
 sub _build_cache {
     my ($self) = @_;
     return CHI->new(driver => 'RawMemory', datastore => {}, namespace => $self->setname);
 }
+
+=head2 add_pairs
+
+Add ip port pairs
+
+=cut
 
 sub add_pairs {
     my ($self, $ip_port_pairs) = @_;
@@ -44,6 +58,12 @@ sub add_pairs {
     return scalar @pairs;
 }
 
+=head2 is_in_cache
+
+Check to see if a ip port pair is in the cache
+
+=cut
+
 sub is_in_cache {
     my ($self, $pair) = @_;
     unless (ref ($pair) eq 'HASH' && exists $pair->{ip} && defined $pair->{ip} && exists $pair->{port} && defined $pair->{ip} ) {
@@ -52,11 +72,19 @@ sub is_in_cache {
     return $self->cache->is_valid(_format_pair($pair));
 }
 
+
+=head2 _add_pairs_to_ipset
+
+Add the ip port pairs to the ipset session
+
+=cut
+
 sub _add_pairs_to_ipset {
     my ($self, $pairs) = @_;
     my $setname = $self->setname;
+    my $binary = $self->ipset_binary;
     my $data = join("\n", (map { "add $setname " . _format_pair($_) } @$pairs), "");
-    my $pid = open(my $ipset, "| LANG=C sudo ipset -! restore 2>&1");
+    my $pid = open(my $ipset, "| LANG=C sudo $binary -! restore 2>&1");
     unless (defined $pid) {
         $logger->error("Cannot start ipset ");
         return undef;
@@ -68,17 +96,35 @@ sub _add_pairs_to_ipset {
     return 1;
 }
 
+=head2 _add_pairs_to_cache
+
+Add the ip port pairs to the cache
+
+=cut
+
 sub _add_pairs_to_cache {
     my ($self, $pairs) = @_;
     my %data = map { _format_pair($_) => 1 } @$pairs;
     $self->cache->set_multi(\%data);
 }
 
+=head2 _format_pair
+
+Format pair to the ip,port
+
+=cut
+
 sub _format_pair {
     my ($pair) = @_;
     my $port = _format_port($pair->{port});
     return "$pair->{ip},$port";
 }
+
+=head2 _format_port
+
+Format port
+
+=cut
 
 sub _format_port {
     my ($port) = @_;
@@ -87,6 +133,12 @@ sub _format_port {
     }
     return $port;
 }
+
+=head2 populate_cache
+
+Populate cache from the ipset setname
+
+=cut
 
 sub populate_cache {
     my ($self) = @_;
