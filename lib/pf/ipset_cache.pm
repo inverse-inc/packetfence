@@ -150,9 +150,11 @@ sub populate_cache {
     }
     my @pairs;
     while (my $line = shift @lines) {
-        if ($line =~ /(\d+(?:\.\d+){3}),((?:tcp|udp):(?:\d+))/) {
-            push @pairs, { ip => $1, port => $2}
+        unless ($line =~ /(\d+(?:\.\d+){3}),((?:tcp|udp):(?:\d+))/) {
+            $logger->error("Could not match line : '$line'");
+            next;
         }
+        push @pairs, { ip => $1, port => $2}
     }
     $self->_add_pairs_to_cache(\@pairs);
 }
