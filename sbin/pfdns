@@ -366,11 +366,12 @@ sub regzone {
                     my $query = $CHI_CACHE->compute("srv-".$answer->target, sub { $resolver->search($answer->target, 'A') });
                     if ($query) {
                         get_logger->info("Resolved $qname as an Active Directory domain name. Adding passthroughs into ipset.");
-                        add_answers_to_ip_port_pairs( $query, \@ip_port_pairs,
-                            $answer->port, 'udp:88', 'udp:123', 'udp:135', '135',
-                            'udp:137', 'udp:138', '139', 'udp:389', 'udp:445', '445',
-                            'udp:464', '464', 'tcp:1025', '49155', '49156', '49172'
-                        );
+                        push @ip_port_pairs,
+                          format_query_to_ip_port(
+                            $query,    $answer->port, 'udp:88',   'udp:123', 'udp:135', '135',
+                            'udp:137', 'udp:138',     '139',      'udp:389', 'udp:445', '445',
+                            'udp:464', '464',         'tcp:1025', '49155',   '49156',   '49172'
+                          );
                     }
                 }
                 $rcode = "NOERROR";
@@ -388,17 +389,18 @@ sub regzone {
     return @answer;
 }
 
-sub add_answers_to_ip_port_pairs {
-    my ($query, $pairs, @ports) = @_;
+sub format_query_to_ip_port {
+    my ($query, @ports) = @_;
+    my @pairs;
     foreach my $rr ($query->answer) {
         next unless $rr->type eq "A";
         my $ip = $rr->address;
         foreach my $port (@ports) {
-            push @$pairs, {ip => $ip, port => $port};
+            push @pairs, {ip => $ip, port => $port};
         }
     }
+    return @pairs;
 }
-
 
 =head2 regzone_non_filtered
 
@@ -421,7 +423,7 @@ sub regzone_non_filtered {
     my $query_non_filtered = resolve_with_cache("A", $qname);
     my @ip_port_pairs;
     if ($query_non_filtered) {
-        add_answers_to_ip_port_pairs($query_non_filtered, \@ip_port_pairs, $HTTP_PORT, $HTTPS_PORT);
+        push @ip_port_pairs, format_query_to_ip_port($query, $HTTP_PORT, $HTTPS_PORT);
         push @ans, $query_non_filtered->answer;
         if (@ans) {
             $results{rcode} = "NOERROR";
