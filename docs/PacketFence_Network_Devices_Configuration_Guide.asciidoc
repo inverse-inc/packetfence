@@ -4013,6 +4013,7 @@ Now create the policy for the guest acess, for instance internet only.
 You can add as many policies as you want, manage the way you attribute them from PacketFence.
 
 
+The next step will be to configure the Webauth in PacketFence, add the switch with the model choice `Aruba Network`, 
 
 
 
