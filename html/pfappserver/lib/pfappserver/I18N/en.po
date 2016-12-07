@@ -10770,3 +10770,14 @@ msgstr ""
 msgid "{percent}% of {total_size}"
 msgstr ""
 
+# conf/documentation.conf
+msgid "services.redis_ntlm_cache"
+msgstr "redis_ntlm_cache"
+
+# conf/documentation.conf
+msgid "services.redis_ntlm_cache_order"
+msgstr "redis_ntlm_cache service ordering"
+
+# conf/documentation.conf
+msgid "maintenance.populate_ntlm_redis_cache_interval"
+msgstr "NTLM cache job interval"
