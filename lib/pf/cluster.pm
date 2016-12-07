@@ -577,18 +577,17 @@ Returns the list of ConfigStore to synchronize between cluster members
 
 =cut
 
+our %ignored_stores = (
+    'pf::ConfigStore::Wrix'                 => 1,
+    'pf::ConfigStore::Group'                => 1,
+    'pf::ConfigStore::Interface'            => 1,
+    'pf::ConfigStore::Hierarchy'            => 1,
+    'pf::ConfigStore::Role::ValidGenericID' => 1,
+);
+
 sub stores_to_sync {
     my @tmp_stores = __PACKAGE__->_all_stores();
-
-    my @ignored = qw(pf::ConfigStore::Group pf::ConfigStore::Wrix pf::ConfigStore::Interface pf::ConfigStore::Role::ValidGenericID pf::ConfigStore::Hierarchy);
-
-    my @stores;
-
-    foreach my $store (@tmp_stores){
-        next if ($store ~~ @ignored);
-        push @stores, $store;
-    }
-
+    my @stores = grep {!exists $ignored_stores{$_} || !$ignored_stores{$_}} @tmp_stores;
     return \@stores;
 }
 
