@@ -3866,20 +3866,20 @@ Performance optimization
 NTLM authentication caching
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This section assumes that you already have an Active Directory domain configuration both in 'Configuration->Domains' and 'Configuration->Sources'. If you don't, you need to first configure those. Refer to the appropriate sections of this guide for details on how to configure those two components.
+NOTE: This section assumes that you already have an Active Directory domain configuration both in 'Configuration->Domains' and 'Configuration->Sources'. If you don't, you need to first configure those. Refer to the appropriate sections of this guide for details on how to configure those two components.
 
 CAUTION: The cache requires minimally Windows Server 2008. Older versions will not work.
 
 When using NTLM authentication against an Active Directory for 802.1x EAP-PEAP connections, this can become a bottleneck when handling dozens of authentications per seconds.
 
-To overcome this limitation, it is possible to use a Redis driven cache inside PacketFence to reduce the amount of authentications requiring NTLM authentication. Should a user be in the cache, PacketFence will attempt to compare the 802.1x credentials with this one. In the even that the validation fails, a call to ntlm_auth is made. In the event of a cache miss, an ntlm_auth call is made as well. This ensures that even if a user changes his password, his new password is immediately valid for 802.1x EAP-PEAP connections even if the cache contains the outdated entry.
+To overcome this limitation, it is possible to use a Redis driven cache inside PacketFence to reduce the amount of authentications requiring an external NTLM authentication call. Should a user be in the cache, PacketFence will attempt to compare the 802.1x credentials with those. In the even that the validation fails, a call to ntlm_auth is made. In the event of a cache miss, an ntlm_auth call is made as well. This ensures that even if a user changes his password, his new password is immediately valid for 802.1x EAP-PEAP connections even if the cache contains the outdated entry.
 
 NOTE: The NTLM cache doesn't cache clear text passwords, it caches the NT hash of the user password.
 
 Addtionnal packages
 +++++++++++++++++++
 
-In order to use this cache, you will need to install additionnal packets available from the packetfence-extra repository. These packets will allow PacketFence to query your Active Directory for the NT hash of the users.
+In order to use this cache, you will need to install additionnal packages available from the packetfence-extra repository. These packages will allow PacketFence to query your Active Directory for the NT hash of the users.
 
 ```
 yum install python2-impacket --enablerepo=packetfence-extra
@@ -3898,7 +3898,9 @@ Next, go in the 'NTLM cache' tab and:
  * Adjust the 'Expiration'
  * Enable 'NTLM cache background job' and/or 'NTLM cache on connection'. In the case of this example, both will be enabled.
 
-## screenshots NTLM cache
+image::docs/images/domain-ntlm-cache-1.png[scaledwidth="100%",alt="Domain NTLM cache"]
+
+image::docs/images/domain-ntlm-cache-2.png[scaledwidth="100%",alt="Domain NTLM cache"]
 
 Once done, click 'Save' to commit your changes.
 
