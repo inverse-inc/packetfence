@@ -431,6 +431,7 @@ sub _runtask {
     my $time_taken = 0;
     while ($running) {
         pf::CHI::Request::clear_all();
+        pf::log::reset_log_context();
         my $interval = $Config{'maintenance'}{$parameter};
         unless ($interval) {
             $logger->trace("task $id is disabled");

@@ -116,8 +116,8 @@ __PACKAGE__->config(
 );
 
 before handle_request => sub {
-    Log::Log4perl::MDC->put('mac', 'unknown');
     pf::CHI::Request::clear_all();
+    pf::log::reset_log_context();
 };
 
 sub loadCustomStatic {
