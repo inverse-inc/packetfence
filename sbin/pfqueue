@@ -255,6 +255,7 @@ sub _run_task {
         $consumer = get_consumer($id, $parameters) unless $consumer;
         pf::config::cached::ReloadConfigs();
         pf::CHI::Request::clear_all();
+        pf::log::reset_log_context();
         eval {
             #reload all cached configs before running the task
             $task->($consumer);

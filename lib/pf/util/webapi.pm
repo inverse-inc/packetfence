@@ -26,7 +26,6 @@ our %MAC_KEYS = (
 
 sub add_mac_to_log_context {
     my ($args) = @_;
-    Log::Log4perl::MDC->put('mac', 'unknown');
     return unless defined $args;
     my $params;
     if (@$args == 1) {

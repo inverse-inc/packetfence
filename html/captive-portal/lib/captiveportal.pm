@@ -117,7 +117,7 @@ __PACKAGE__->config(
 );
 
 before handle_request => sub {
-    Log::Log4perl::MDC->put('mac', 'unknown');
+    pf::log::reset_log_context();
     pf::config::cached::ReloadConfigs();
     pf::CHI::Request::clear_all();
 };
