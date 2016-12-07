@@ -3866,6 +3866,8 @@ Performance optimization
 NTLM authentication caching
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+This section assumes that you already have an Active Directory domain configuration both in 'Configuration->Domains' and 'Configuration->Sources'. If you don't, you need to first configure those. Refer to the appropriate sections of this guide for details on how to configure those two components.
+
 CAUTION: The cache requires minimally Windows Server 2008. Older versions will not work.
 
 When using NTLM authentication against an Active Directory for 802.1x EAP-PEAP connections, this can become a bottleneck when handling dozens of authentications per seconds.
@@ -3874,13 +3876,46 @@ To overcome this limitation, it is possible to use a Redis driven cache inside P
 
 NOTE: The NTLM cache doesn't cache clear text passwords, it caches the NT hash of the user password.
 
-In order to configure this, you will need to install additionnal packets available from the packetfence-extra repository. These packets will allow PacketFence to query your Active Directory for the NT hash of the users.
+Addtionnal packages
++++++++++++++++++++
+
+In order to use this cache, you will need to install additionnal packets available from the packetfence-extra repository. These packets will allow PacketFence to query your Active Directory for the NT hash of the users.
 
 ```
 yum install python2-impacket --enablerepo=packetfence-extra
 ```
 
-Once that is done, you need to configure PacketFence to start caching the credentials
+PacketFence configuration
++++++++++++++++++++++++++
+
+Once that is done, you need to configure PacketFence to start caching the credentials. In order to do so, go in 'Configuration->Domains' and select the domain you want to cache the credentials for. 
+
+Next, go in the 'NTLM cache' tab and:
+
+ * Enable 'NTLM cache'
+ * Select the Active Directory authentication source that is tied to this domain.
+ * Adjust the 'LDAP filter' if necessary. Note that this is only used for the batch job.
+ * Adjust the 'Expiration'
+ * Enable 'NTLM cache background job' and/or 'NTLM cache on connection'. In the case of this example, both will be enabled.
+
+## screenshots NTLM cache
+
+Once done, click 'Save' to commit your changes.
+
+After that, you will need to enable the `redis_ntlm_cache` service which is used by PacketFence to store the cached credentials. In order to do so, go in 'Configuration->Services' and enable 'redis_ntlm_cache' and save the changes.
+
+Next, start the service via pfcmd:
+
+  /usr/local/pf/bin/pfcmd service redis_ntlm_cache start
+
+If you chose to enable 'NTLM cache background job' in one of your domains, you will need to enable the pfmon job that will periodically cache the credentials. This can be configured in 'Configuration->Maintenance->NTLM cache job interval'. It is advised to set this to half the expiration of the credentials you have set in the domain configuration. This will ensure you have an optimal cache hit. Once done, restart the `pfmon` service.
+
+Active Directory configuration
+++++++++++++++++++++++++++++++
+
+In order for PacketFence to be able to fetch the NTLM credentials from your Active Directory, it will need a user who has replication rights. The user to which you have to grant the rights, is the one that is configured in the authentication source that you associated in the 'NTLM cache' section of your domain.
+
+Please refer to the following Microsoft KB entry to configure the replication rights: https://support.microsoft.com/en-us/kb/303972
 
 SNMP Traps Limit
 ~~~~~~~~~~~~~~~~
