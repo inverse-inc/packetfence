@@ -127,7 +127,13 @@ our %DISPATCH = (
     'sleep'              => \&server_sleep,
 );
 
+# Used to set the current prefered encoding
+my $encoding;
+
 while($RUNNING) {
+    # reset the encoding
+    $encoding = undef;
+
     my $socket;
     my $line;
     eval {
@@ -142,8 +148,9 @@ while($RUNNING) {
             if($line eq "exit") {exit}
 
             my $query = decode_json($line);
-            #use Data::Dumper;
-            #print Dumper($query);
+            use Data::Dumper;
+            print Dumper($query);
+            $encoding = $query->{encoding};
 
             # we support hash namespaced queries
             # where
@@ -348,7 +355,25 @@ sub get_array_size {
 
 sub encode_output {
     my ($data) = @_;
-    return sereal_encode_with_object($ENCODER, $data);
+    $encoding //= "sereal";
+    if($encoding eq "sereal") {
+        return sereal_encode_with_object($ENCODER, $data);
+    }
+    elsif($encoding eq "json") {
+        my $json = JSON->new;
+        $json->convert_blessed(1);
+        my $result;
+        eval {
+            $result = $json->encode($data);
+        };
+        if($@) {
+            return $json->encode({error => "Cannot transform object into JSON data: $@"});
+        }
+        return $result;
+    }
+    my $msg = "Unknown encoding '$encoding'";
+    $logger->error($msg);
+    return $msg;
 }
 
 sub send_output {
