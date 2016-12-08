@@ -22,6 +22,8 @@ BEGIN {
     @EXPORT = qw(decode_avpair);
 }
 
+use pf::log;
+use pf::constants;
 use bytes;
 
 
@@ -60,13 +62,20 @@ our %OPTIONS_FILTER = (
         '7'  => {
             desc => 'system-capabilities',
             type => \&_SHORT,
+            extra => \&_lldp_capabilities,
         },
         '8'  => {
             desc => 'management-address',
             type => \&_IPADDR,
         },
     },
-    #'http-tlv'          => \&_parse_http,
+    'http-tlv' => {
+        '1'  => {
+            desc => 'user-agent',
+            type => \&_NSTRING,
+            extra => \&_user_agent,
+        },
+    },
     'cdp-tlv' => {
         '1'  => {
             desc => 'device-name',
@@ -83,6 +92,7 @@ our %OPTIONS_FILTER = (
         '4'  => {
             desc => 'cdp-capabilities-type',
             type => \&_SHORT,
+            extra => \&_cdp_capabilities,
         },
         '5'  => {
             desc => 'version-type',
@@ -99,7 +109,7 @@ our %OPTIONS_FILTER = (
         '8'  => {
             desc => 'protocol-hello-type',
             type => \&_NSTRING,
-        }
+        },
         '9'  => {
             desc => 'vtp-mgmt-domain-type',
             type => \&_NSTRING,
@@ -201,6 +211,7 @@ our %OPTIONS_FILTER = (
         '12' => {
                 desc => 'host-name',
                 type => \&_NSTRING,
+                extra => \&_computer_name,
         },
         '13' => {
                 desc => 'boot-size',
@@ -371,8 +382,9 @@ our %OPTIONS_FILTER = (
                 type => \&_IPADDR,
         },
         '55' => {
-                desc => 'parameter-request-list',
-                type => \&_INT8,
+                desc  => 'parameter-request-list',
+                type  => \&_INT8,
+                extra => \&_dhcp_fingerprint,
         },
         '56' => {
                 desc => 'message',
@@ -393,6 +405,7 @@ our %OPTIONS_FILTER = (
         '60' => {
                 desc => 'class-identifier',
                 type => \&_NSTRING,
+                extra => \&_dhcp_vendor,
         },
         '61' => {
                 desc => 'client-identifier',
@@ -633,6 +646,33 @@ our %OPTIONS_FILTER = (
     },
 );
 
+
+our %CDP_CAPABILITIES_MAP = (
+    'Router'                  => 0x001,
+    'Trans-Bridge'            => 0x002,
+    'Source-Route-Bridge'     => 0x004,
+    'Switch'                  => 0x008,
+    'Host'                    => 0x010,
+    'IGMP'                    => 0x020,
+    'Repeater'                => 0x040,
+    'VoIP-Phone'              => 0x080,
+    'Remotely-Managed-Device' => 0x100,
+    'Supports-STP-Dispute'    => 0x200,
+    'Two-port Mac Relay'      => 0x400,
+);
+
+our %LLDP_CAPABILITIES_MAP = (
+    'other'                   => 0x001,
+    'repeater'                => 0x002,
+    'bridge'                  => 0x004,
+    'wlanAccessPoint'         => 0x008,
+    'router'                  => 0x010,
+    'telephone'               => 0x020,
+    'docsisCableDevice'       => 0x040,
+    'stationOnly'             => 0x080,
+);
+
+
 =head2 decode_avpair
 
 Decoded the Cisco-AVPair options into an array of hashes
@@ -640,25 +680,107 @@ Decoded the Cisco-AVPair options into an array of hashes
 =cut
 
 sub decode_avpair {
-    my ($cisco_avpair) = @_;
-    my @options;
+    my ($radius_request) = @_;
+    my $logger = get_logger;
+    my $cisco_avpair = $radius_request->{'Cisco-AVPair'};
+    my $option = {};
+    $option->{mac} = $radius_request->{'Calling-Station-Id'};
     foreach my $attribute (@$cisco_avpair) {
-        my ($type, $value) = split ('=', $attribute);
-        my %option;
+        my ($type, $binvalue) = split ('=', $attribute);
         
         if( exists $OPTIONS_FILTER{$type} ) {
-            my ($option_type, $option_data) = $OPTIONS_FILTER{$type}->($value);
-            #Copy all the data into the option hash
-            %option = %$option_data;
-            $option{option_type} = $option_type;
+            $option->{$type} = $TRUE;
+            my ($option_name, $value) = unpack("nn/a*", $binvalue);
+            if( exists $OPTIONS_FILTER{$type}{$option_name} ) {
+                my $option_data = $OPTIONS_FILTER{$type}{$option_name}{type}->($value);
+                $option->{$OPTIONS_FILTER{$type}{$option_name}{desc}} = $option_data;
+                if( exists $OPTIONS_FILTER{$type}{$option_name}{extra} ) {
+                    my $option_sub_data = $OPTIONS_FILTER{$type}{$option_name}{extra}->($option_data);
+                    if (ref($option_sub_data) eq 'ARRAY') {
+                        $option = { %$option, @{$option_sub_data}};
+                    } elsif (ref($option_sub_data) eq 'HASH') {
+                        $option = { %$option, %{$option_sub_data}};
+                    }
+                }
+            } else {
+                #No filter then you get it raw
+                $option->{$option_name} = $value;
+            }
         } else {
             #No filter then you get it raw
-            $option{option_raw_data} = $data;
-            $option{option_type} = $type;
+            $option->{$type} = $binvalue;
         }
-        push @options, \%option;
     }
-    return \@options;
+    return $option;
+}
+
+sub _INT8 {
+    my ($value) = @_;
+    return join(',',unpack("C*", $value));
+}
+
+sub _SHORT {
+    my ($value) = @_;
+    return $value;
+}
+
+sub _NSTRING {
+    my ($value) = @_;
+    return $value;
+}
+
+sub _IPADDR {
+    my ($value) = @_;
+    return join('.',unpack 'C4',$value);
+}
+
+sub _dhcp_fingerprint {
+    my ($value) = @_;
+    return {'dhcp_fingerprint' => $value};
+}
+
+sub _dhcp_vendor {
+    my ($value) = @_;
+    return {'dhcp_vendor' => $value};
+}
+
+sub _computer_name {
+    my ($value) = @_;
+    return {'computer_name' => $value};
+}
+
+sub _user_agent {
+    my ($value) = @_;
+    return {'user_agent' => $value};
+}
+
+sub _lldp_capabilities {
+    my ($value) = @_;
+    my %options;
+    my %option;
+    foreach my $key (keys %LLDP_CAPABILITIES_MAP) {
+        if (unpack("N", $value) & $LLDP_CAPABILITIES_MAP{$key}) {
+           $option{$key} = $TRUE;
+        }
+    }
+    $options{'LLDP_CAPABILITIES'} = \%option;
+    $options{'isPhone'} = 'yes' if(exists $option{'telephone'});
+    return \%options;
+}
+
+sub _cdp_capabilities {
+    my ($value) = @_;
+    my $logger = get_logger();
+    my %options;
+    my %option;
+    foreach my $key (keys %CDP_CAPABILITIES_MAP) {
+        if (unpack("N", $value) & $CDP_CAPABILITIES_MAP{$key}) {
+           $option{$key} = $TRUE;
+        }
+    }
+    $options{'CDP_CAPABILITIES'} = \%option;
+    $options{'isPhone'} = 'yes' if(exists $option{'VoIP-Phone'});
+    return \%options;
 }
 
 

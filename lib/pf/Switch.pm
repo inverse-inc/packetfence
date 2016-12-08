@@ -3278,25 +3278,13 @@ sub externalPortalEnforcement {
     return $FALSE;
 }
 
-=item acctVoipDetect
+=item acctProfiling
 
-Extract the cdp/lldp capabilitie from the radius accounting attribute.
-
-=cut
-
-sub acctVoipDetect {
-    my ( $class, $radius_request) = @_;
-    return;
-}
-
-
-=item acctFingerprint
-
-Extract fingerprint information from radius accounting attributes.
+Device profiling by accounting attributes.
 
 =cut
 
-sub acctFingerprint {
+sub acctProfiling {
     my ( $class, $radius_request) = @_;
     return;
 }

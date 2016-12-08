@@ -457,11 +457,8 @@ sub accounting {
             }
         }
     }
-    if (isenabled($switch->{_VoIPAccountingDetect})) {
-        $switch->acctVoipDetect($radius_request);
-    }
-    if (isenabled($switch->{_RadiusFingerprint})) {
-        $switch->acctFingerprint($radius_request);
+    if (isenabled($switch->{_VoIPAccountingDetect}) || isenabled($switch->{_RadiusFingerprint})) {
+        $switch->acctProfiling($radius_request);
     }
     return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Accounting ok") ];
 }
@@ -490,11 +487,8 @@ sub update_locationlog_accounting {
         return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "Switch is not managed by PacketFence" ) ];
     }
 
-    if (isenabled($switch->{_VoIPAccountingDetect})) {
-        $switch->acctVoipDetect($radius_request);
-    }
-    if (isenabled($switch->{_RadiusFingerprint})) {
-        $switch->acctFingerprint($radius_request);
+    if (isenabled($switch->{_VoIPAccountingDetect}) || isenabled($switch->{_RadiusFingerprint})) {
+        $switch->acctProfiling($radius_request);
     }
 
     if ($switch->supportsRoamingAccounting()) {

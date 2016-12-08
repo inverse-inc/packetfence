@@ -26,6 +26,8 @@ use pf::Switch::constants;
 use pf::util;
 use pf::util::radius qw(perform_coa);
 use pf::node qw(node_attributes);
+use pf::util::cisco_device_sensor;
+use Hash::Merge qw (merge);
 
 # CAPABILITIES
 # special features
@@ -1627,6 +1629,23 @@ sub returnAuthorizeRead {
     return [$status, %$radius_reply_ref];
 }
 
+=item acctProfiling
+
+Extract information from radius attributes
+
+=cut
+
+sub acctProfiling {
+    my ( $self, $radius_request) = @_;
+    my $decoded = decode_avpair($radius_request);
+    if (isenabled($self->{_VoIPAccountingDetect})) {
+        $self->acctVoipDetect($decoded);
+    }
+    if (isenabled($self->{_RadiusFingerprint})) {
+        $self->acctFingerprint($decoded);
+    }
+}
+
 =item acctVoipDetect
 
 Extract the cdp/lldp capabilitie from the radius accounting attribute.
@@ -1634,36 +1653,21 @@ Extract the cdp/lldp capabilitie from the radius accounting attribute.
 =cut
 
 sub acctVoipDetect {
-    my ( $self, $radius_request) = @_;
+    my ( $self, $decoded) = @_;
     my $logger = $self->logger;
-    my %info;
-    my $mac = $radius_request->{'Calling-Station-Id'};
-    $info{'mac'} = $mac;
-    $info{'reason'} = 'node_modify';
+    $decoded->{'reason'} = 'node_modify';
 
-    my $cisco_avpair = $radius_request->{'Cisco-AVPair'};
-
-    foreach my $attributes (@$cisco_avpair) {
-        my @values = split ('=', $attributes);
-        if ($values[0] eq 'cdp-tlv') {
-            my ($type, $value) = unpack("nn/a*", $values[1]);
-            if ($type eq '4') {
-                if ( unpack("N", $value) & 0x080) {
-                    $info{'voip'} = 'yes';
-                }
-            }
-        } elsif ($values[0] eq 'lldp-tlv') {
-            my ($type, $value) = unpack("nn/a*", $values[1]);
-            if ($type eq '7') {
-                if ( unpack("N", $value) & 0x020) {
-                    $info{'voip'} = 'yes';
-                }
-            }
+    if ($decoded->{'isPhone'}) {
+        my $node_attributes = node_attributes($decoded->{mac});
+        if ( $node_attributes->{'voip'} eq 'no') {
+            require pf::role;
+            my $role_obj = new pf::role::custom();
+            my %autoreg_node_defaults = $role_obj->getNodeInfoForAutoReg($decoded);
+            $node_attributes = merge($node_attributes, \%autoreg_node_defaults);
+            $self->{api_client}->notify('modify_node', %{$node_attributes} );
+            $self->{api_client}->notify('reevaluate_access', %{$decoded} ) if ( $node_attributes->{'voip'} eq 'no');
         }
     }
-    my $node_attributes = node_attributes($mac);
-    $self->{api_client}->notify('modify_node', %info ) if $info{'voip'};
-    $self->{api_client}->notify('reevaluate_access', %info ) if ( ($info{'voip'} eq 'yes') && (!defined($node_attributes) || $node_attributes->{'voip'} eq 'no') );
     return;
 }
 
@@ -1674,32 +1678,11 @@ Extract fingerprint information from radius accounting attributes.
 =cut
 
 sub acctFingerprint {
-    my ( $self, $radius_request) = @_;
-    my $logger = $self->logger;
-    my %fingerbank_query_args;
-    my $mac = $radius_request->{'Calling-Station-Id'};
-    $fingerbank_query_args{'mac'} = $mac;
-
-    my $cisco_avpair = $radius_request->{'Cisco-AVPair'};
-    my $process = 0;
-    foreach my $attributes (@$cisco_avpair) {
-        my @values = split ('=', $attributes);
-        if ($values[0] eq 'dhcp-option') {
-            $process = 1;
-            my ($type, $value) = unpack("nn/a*", $values[1]);
-            if ($type eq '55') {
-                $fingerbank_query_args{'dhcp_fingerprint'} = join(',', unpack("C*", $value));
-            } elsif ($type eq '60') {
-                $fingerbank_query_args{'dhcp_vendor'} = $value;
-            } elsif ($type eq '12') {
-                $fingerbank_query_args{'computer_name'} = $value;
-                $fingerbank_query_args{'computername'} = $value;
-            }
-        }
+    my ( $self, $decoded) = @_;
+    if ($decoded->{dhcp_tlv} || $decoded->{http_tlv}) {
+        $self->{api_client}->notify('modify_node', %{$decoded} );
+        $self->{api_client}->notify('fingerbank_process', \%{$decoded} );
     }
-    $self->{api_client}->notify('modify_node', %fingerbank_query_args ) if $process;
-    $self->{api_client}->notify('fingerbank_process', \%fingerbank_query_args ) if $process;
-
     return;
 }
 
