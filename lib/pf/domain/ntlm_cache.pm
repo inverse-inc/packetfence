@@ -208,7 +208,7 @@ sub cache_user {
     return ($FALSE, "Invalid LDAP source $config->{ntlm_cache_source}") unless(defined($source));
     
     if($username =~ /^host\//) {
-        ($username, my $msg) = $source->servicePrincipalNameToSamAccountName($username);
+        ($username, my $msg) = $source->findAtttributeFrom("servicePrincipalName", $username, "sAMAccountName");
         return ($FALSE, $msg) unless($username);
     }
 

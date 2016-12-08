@@ -39,15 +39,15 @@ sub available_attributes {
   return [@$super_attributes, @$ad_attributes];
 }
 
-=head2 servicePrincipalNameToSamAccountName
+=head2 findAtttributeFrom
 
-Get the sAMAccountName of an object given its servicePrincipalName
-Used primarily for machine auth
+Get an attribute of an object given another of its attribute
+If more than one entry has the same attribute/value in the search, this will fail and return $FALSE
 
 =cut
 
-sub servicePrincipalNameToSamAccountName {
-    my ($self, $spn) = @_;
+sub findAtttributeFrom {
+    my ($self, $from_attribute, $from_value, $to_attribute) = @_;
 
     my ($connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
 
@@ -55,18 +55,18 @@ sub servicePrincipalNameToSamAccountName {
         return ($FALSE, "Error communicating with the LDAP server");
     }
 
-    # We need to fetch the sAMAccountName of the DN in the AD source
     my $result = $connection->search(
         base => $self->{basedn}, 
-        filter => '(servicePrincipalName=*)', 
-        attrs => ['sAMAccountName'],
+        filter => "($from_attribute=$from_value)", 
+        attrs => [$to_attribute],
     );
 
-    return ($FALSE, "Cannot find sAMAccountName of object ".$spn) unless($result->count > 0);
+    return ($FALSE, "Cannot find $to_attribute of object ".$from_value) unless($result->count > 0);
+    return ($FALSE, "Too many entries matching $from_attribute=$from_value") if($result->count > 1);
 
-    my $sAMAccountName = $result->entry(0)->get_value('sAMAccountName');
+    my $to_value = $result->entry(0)->get_value($to_attribute);
 
-    return $sAMAccountName;
+    return $to_value;
 }
 
 =head1 AUTHOR
