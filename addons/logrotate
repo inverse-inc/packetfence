@@ -5,16 +5,31 @@
     rotate 90
     missingok
     compress
-    create 640 pf pf
     copytruncate
-}
 
+    # Output logrotate return code for monitoring
+    sharedscripts
+    postrotate
+        echo $? > /usr/local/pf/var/logrotate.status
+    endscript
+
+    # This following line is required for RHEL / CentOS 7 but will be ignored on RHEL / CentOS 6
+    su root pf
+}
 
 /usr/local/pf/logs/httpd.*.access /usr/local/pf/logs/httpd.*.error /usr/local/pf/logs/httpd.*.catalyst {
     daily
-    rotate 90
+    rotate 7
     missingok
     compress
-    create 640 pf pf
     copytruncate
+
+    # Output logrotate return code for monitoring
+    sharedscripts
+    postrotate
+        echo $? >> /usr/local/pf/var/logrotate.status
+    endscript
+
+    # This following line is required for RHEL / CentOS 7 but will be ignored on RHEL / CentOS 6
+    su root pf
 }
