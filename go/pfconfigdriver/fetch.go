@@ -3,7 +3,9 @@ package pfconfigdriver
 import (
 	"bytes"
 	"encoding/binary"
+	"encoding/json"
 	"fmt"
+	"io"
 	"net"
 )
 
@@ -31,6 +33,24 @@ func fetchSocket(payload string) []byte {
 	return response
 }
 
-func fetchDecodeSocket() {
-
+func fetchDecodeSocket(o PfconfigObject) {
+	jsonResponse := fetchSocket(fmt.Sprintf(`{"method":"%s", "key":"%s","encoding":"json"}`+"\n", o.PfconfigMethod(), o.PfconfigNamespace()))
+	decoder := json.NewDecoder(bytes.NewReader(jsonResponse))
+	receiver := &PfconfigResponse{}
+	for {
+		if err := decoder.Decode(&receiver); err == io.EOF {
+			break
+		} else if err != nil {
+			panic(err)
+		}
+	}
+	elementBytes, _ := receiver.Element.MarshalJSON()
+	decoder = json.NewDecoder(bytes.NewReader(elementBytes))
+	for {
+		if err := decoder.Decode(&o); err == io.EOF {
+			break
+		} else if err != nil {
+			panic(err)
+		}
+	}
 }
