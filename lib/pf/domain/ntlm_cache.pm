@@ -211,6 +211,10 @@ sub cache_user {
         ($username, my $msg) = $source->findAtttributeFrom("servicePrincipalName", $username, "sAMAccountName");
         return ($FALSE, $msg) unless($username);
     }
+    elsif (lc($source->{'usernameattribute'}) ne lc('sAMAccountName')) {
+        ($username, my $msg) = $source->findAtttributeFrom($source->{'usernameattribute'}, $username, "sAMAccountName");
+        return ($FALSE, $msg) unless($username);
+    }
 
     my ($ntds_file, $msg) = secretsdump($domain, $source, "-just-dc-user $username");
     return ($FALSE, $msg) unless($ntds_file);
