@@ -253,6 +253,7 @@ sub returnRadiusAccessAccept {
                 'Tunnel-Medium-Type' => $RADIUS::IP,
                 'Tunnel-Type' => $RADIUS::GRE,
                 'Tunnel-Private-Group-ID' => $role,
+#                'Filter-Id' => $role,
             };
         }
 

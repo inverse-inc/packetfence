@@ -285,7 +285,7 @@ sub radiusDisconnect {
     };
     return if (!defined($response));
 
-    return $TRUE if ($response->{'Code'} eq 'CoA-ACK');
+    return $TRUE if ( ($response->{'Code'} eq 'Disconnect-ACK') || ($response->{'Code'} eq 'CoA-ACK') );
 
     $logger->warn(
         "[$self->{'_ip'}] Unable to perform RADIUS Disconnect-Request."
