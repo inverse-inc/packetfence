@@ -488,7 +488,7 @@ cp -r addons/AD/* $RPM_BUILD_ROOT/usr/local/pf/addons/AD/
 cp -r addons/monit/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.pl $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.sh $RPM_BUILD_ROOT/usr/local/pf/addons/
-%{__install} -D addons/logrotate $RPM_BUILD_ROOT/etc/logrotate.d/packetfence
+%{__install} -D packetfence.logrotate $RPM_BUILD_ROOT/etc/logrotate.d/packetfence
 cp -r sbin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r conf $RPM_BUILD_ROOT/usr/local/pf/
 cp -r raddb $RPM_BUILD_ROOT/usr/local/pf/
