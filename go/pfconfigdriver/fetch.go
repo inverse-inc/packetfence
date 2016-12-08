@@ -35,17 +35,15 @@ func fetchSocket(payload string) []byte {
 
 func fetchDecodeSocket(o PfconfigObject) {
 	jsonResponse := fetchSocket(fmt.Sprintf(`{"method":"%s", "key":"%s","encoding":"json"}`+"\n", o.PfconfigMethod(), o.PfconfigNamespace()))
-	decoder := json.NewDecoder(bytes.NewReader(jsonResponse))
 	receiver := &PfconfigResponse{}
-	for {
-		if err := decoder.Decode(&receiver); err == io.EOF {
-			break
-		} else if err != nil {
-			panic(err)
-		}
-	}
-	elementBytes, _ := receiver.Element.MarshalJSON()
-	decoder = json.NewDecoder(bytes.NewReader(elementBytes))
+	decodeJsonObject(jsonResponse, receiver)
+
+	b, _ := receiver.Element.MarshalJSON()
+	decodeJsonObject(b, &o)
+}
+
+func decodeJsonObject(b []byte, o interface{}) {
+	decoder := json.NewDecoder(bytes.NewReader(b))
 	for {
 		if err := decoder.Decode(&o); err == io.EOF {
 			break
