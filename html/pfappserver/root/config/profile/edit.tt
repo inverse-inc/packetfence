@@ -86,7 +86,7 @@
       <label class="checkbox">
         <input id="file-editor-show-lines" type="checkbox" /> [% l('Show line numbers') %]
       </label>
-      <form id="file_editor_form"  method="POST" action="[% c.uri_for(c.controller('Config::Profile').action_for('save'),[id], paths ) %]" >
+      <form id="file_editor_form" accept-charset="utf-8" method="POST" action="[% c.uri_for(c.controller('Config::Profile').action_for('save'),[id], paths ) %]" >
         <textarea rows="1" cols="1" name="file_content" style="display:none" id="file_content">[%file_content | html%]</textarea>
         <div class="pull-right">
           <h5>[% l('Available Variables') %]</h5>
