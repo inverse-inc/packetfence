@@ -3116,8 +3116,12 @@ sub deauth_source_ip {
     my ($self,$dst_ip) = @_;
     my $chi = pf::CHI->new(namespace => 'route_int');
     my $int = $chi->compute($dst_ip, sub {
-                                         my $interface_src = (split(" ", `LANG=C sudo ip route get $dst_ip`))[2];
-                                         return $interface_src;
+                                         my @interface_src = split(" ", `LANG=C sudo ip route get $dst_ip`);
+                                         if ($interface_src[1] eq 'via') {
+                                             return $interface_src[4];
+                                         } else {
+                                             return $interface_scr[2];
+                                         }
                                       }
                            );
     if($cluster_enabled){
