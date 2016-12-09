@@ -1540,11 +1540,12 @@ sub _radiusBounceMac {
     $mac =~ s/:/-/g;
 
     my $response;
+    my $send_disconnect_to = $self->{'_controllerIp'} || $self->{'_ip'};
     try {
         my $connection_info = {
-            nas_ip => $self->{'_controllerIp'} || $self->{'_ip'},
+            nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
-            LocalAddr => $self->deauth_source_ip(),
+            LocalAddr => $self->deauth_source_ip($send_disconnect_to),
         };
 
         $response = perform_coa( $connection_info,
