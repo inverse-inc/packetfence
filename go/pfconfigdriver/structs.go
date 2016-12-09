@@ -11,12 +11,10 @@ type PfconfigResponse struct {
 	Element *json.RawMessage
 }
 
-//PfconfigMetadata string `ns:"config::Pf;general" method:"hash_element" json:"-"`
-
 type PfConfGeneral struct {
-	PfconfigMethod bool   `method:"hash_element"`
-	PfconfigNS     bool   `ns:"config::Pf"`
-	PfconfigHashNS bool   `ns:"general"`
+	PfconfigMethod string `val:"hash_element"`
+	PfconfigNS     string `val:"config::Pf"`
+	PfconfigHashNS string `val:"general"`
 	Domain         string `json:"domain"`
 	DNS_Servers    string `json:"dnsservers"`
 	Timezone       string `json:"timezone"`

@@ -35,25 +35,21 @@ func fetchSocket(payload string) []byte {
 	return response
 }
 
-func fetchDecodeSocket(o PfconfigObject) {
+func metadataFromField(o PfconfigObject, field string) string {
 	or := reflect.TypeOf(o).Elem()
-	var method, ns string
-	if field, ok := or.FieldByName("PfconfigNS"); ok {
-		ns = field.Tag.Get("ns")
+	if field, ok := or.FieldByName(field); ok {
+		return field.Tag.Get("val")
 	} else {
-		panic("Missing PfConfigNS for " + or.String())
+		panic(fmt.Sprintf("Missing %s for %s", field, or.String()))
 	}
-	if field, ok := or.FieldByName("PfconfigMethod"); ok {
-		method = field.Tag.Get("method")
-		if method == "hash_element" {
-			if field, ok = or.FieldByName("PfconfigHashNS"); ok {
-				ns = ns + ";" + field.Tag.Get("ns")
-			} else {
-				panic("Missing PfconfigHashNS for object that declares method hash_element. Object type: " + or.String())
-			}
-		}
-	} else {
-		panic("Missing PfconfigMethod for " + or.String())
+}
+
+func fetchDecodeSocket(o PfconfigObject) {
+	var method, ns string
+	ns = metadataFromField(o, "PfconfigNS")
+	method = metadataFromField(o, "PfconfigMethod")
+	if method == "hash_element" {
+		ns = ns + ";" + metadataFromField(o, "PfconfigHashNS")
 	}
 
 	fmt.Printf("Method: %s, NS: %s \n", method, ns)
