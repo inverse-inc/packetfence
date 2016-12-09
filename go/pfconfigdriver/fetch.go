@@ -35,15 +35,21 @@ func FetchSocket(payload string) []byte {
 	return response
 }
 
-func metadataFromField(o PfconfigObject, fieldName string) string {
-	ov := reflect.ValueOf(o).Elem()
+func metadataFromField(param PfconfigObject, fieldName string) string {
+	var ov reflect.Value
+	switch val := param.(type) {
+	case reflect.Value:
+		ov = val
+	default:
+		ov = reflect.ValueOf(param).Elem()
+	}
 	userVal := reflect.Value(ov.FieldByName(fieldName)).Interface()
 
 	if userVal != "" {
 		return userVal.(string)
 	}
 
-	ot := reflect.TypeOf(o).Elem()
+	ot := ov.Type()
 	if field, ok := ot.FieldByName(fieldName); ok {
 		val := field.Tag.Get("val")
 		if val != "-" {
@@ -73,8 +79,14 @@ func createQuery(o PfconfigObject) Query {
 	return query
 }
 
-func FetchDecodeSocket(o PfconfigObject) {
-	query := createQuery(o)
+func FetchDecodeSocket(o PfconfigObject, reflectInfo reflect.Value) {
+	var queryParam interface{}
+	if reflectInfo.IsValid() {
+		queryParam = reflectInfo
+	} else {
+		queryParam = o
+	}
+	query := createQuery(queryParam)
 	jsonResponse := FetchSocket(query.payload)
 	if query.method == "keys" {
 		if cs, ok := o.(*ConfigSections); ok {
@@ -88,6 +100,10 @@ func FetchDecodeSocket(o PfconfigObject) {
 		b, _ := receiver.Element.MarshalJSON()
 		decodeJsonObject(b, &o)
 	}
+
+}
+
+func FetchDecodeSocketReflect(o reflect.Value) {
 
 }
 

@@ -2,6 +2,7 @@ package pfconfigdriver
 
 import (
 	"encoding/json"
+	"reflect"
 )
 
 type PfconfigObject interface {
@@ -9,6 +10,10 @@ type PfconfigObject interface {
 
 type PfconfigElementResponse struct {
 	Element *json.RawMessage
+}
+
+type TypedConfig struct {
+	Type string `json:"type"`
 }
 
 type PfConfGeneral struct {
@@ -22,29 +27,12 @@ type PfConfGeneral struct {
 	DHCP_Servers   string `json:"dhcpservers"`
 }
 
-type FirewallSSO struct {
-	PfconfigMethod string   `val:"hash_element"`
-	PfconfigNS     string   `val:"config::Firewall_SSO"`
-	PfconfigHashNS string   `val:"-"`
-	Type           string   `json:"type"`
-	Networks       []string `json:"networks"`
-	CacheUpdates   string   `json:"cache_updates"`
-}
-
-type RoleBasedFirewallSSO struct {
-	Roles []string `json:"categories"`
-}
-
-type Iboss struct {
-	FirewallSSO
-	RoleBasedFirewallSSO
-	NacName  string `json:"nac_name"`
-	Password string `json:"password"`
-	Port     string `json:"port"`
-}
-
 type ConfigSections struct {
 	PfconfigMethod string `val:"keys"`
 	PfconfigNS     string `val:"-"`
 	Keys           []string
+}
+
+func (cs *ConfigSections) reflect() reflect.Value {
+	return reflect.ValueOf(cs).Elem()
 }
