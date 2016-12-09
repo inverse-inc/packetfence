@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"reflect"
 )
 
 func fetchSocket(payload string) []byte {
@@ -34,7 +35,9 @@ func fetchSocket(payload string) []byte {
 }
 
 func fetchDecodeSocket(o PfconfigObject) {
-	jsonResponse := fetchSocket(fmt.Sprintf(`{"method":"%s", "key":"%s","encoding":"json"}`+"\n", o.PfconfigMethod(), o.PfconfigNamespace()))
+	or := reflect.TypeOf(o).Elem()
+	metadata := or.Field(0)
+	jsonResponse := fetchSocket(fmt.Sprintf(`{"method":"%s", "key":"%s","encoding":"json"}`+"\n", metadata.Tag.Get("method"), metadata.Tag.Get("ns")))
 	receiver := &PfconfigResponse{}
 	decodeJsonObject(jsonResponse, receiver)
 
