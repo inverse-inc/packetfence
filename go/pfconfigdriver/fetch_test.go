@@ -30,4 +30,21 @@ func TestFetchDecodeSocket(t *testing.T) {
 		t.Error("IBoss wasn't fetched and parsed correctly")
 		spew.Dump(iboss)
 	}
+
+	var sections ConfigSections
+	sections.PfconfigNS = "config::Pf"
+	FetchDecodeSocket(&sections)
+
+	generalFound := false
+	for i := range sections.Keys {
+		if sections.Keys[i] == "general" {
+			generalFound = true
+		}
+	}
+
+	if !generalFound {
+		t.Error("pf.conf sections couldn't be fetched correctly")
+		spew.Dump(sections)
+	}
+
 }

@@ -56,20 +56,39 @@ func metadataFromField(o PfconfigObject, fieldName string) string {
 	}
 }
 
+type Query struct {
+	method  string
+	ns      string
+	payload string
+}
+
+func createQuery(o PfconfigObject) Query {
+	query := Query{}
+	query.ns = metadataFromField(o, "PfconfigNS")
+	query.method = metadataFromField(o, "PfconfigMethod")
+	if query.method == "hash_element" {
+		query.ns = query.ns + ";" + metadataFromField(o, "PfconfigHashNS")
+	}
+	query.payload = fmt.Sprintf(`{"method":"%s", "key":"%s","encoding":"json"}`+"\n", query.method, query.ns)
+	return query
+}
+
 func FetchDecodeSocket(o PfconfigObject) {
-	var method, ns string
-	ns = metadataFromField(o, "PfconfigNS")
-	method = metadataFromField(o, "PfconfigMethod")
-	if method == "hash_element" {
-		ns = ns + ";" + metadataFromField(o, "PfconfigHashNS")
+	query := createQuery(o)
+	jsonResponse := FetchSocket(query.payload)
+	if query.method == "keys" {
+		if cs, ok := o.(*ConfigSections); ok {
+			decodeJsonObject(jsonResponse, &cs.Keys)
+		} else {
+			panic("Wrong object type for keys. Required ConfigSections")
+		}
+	} else {
+		receiver := &PfconfigElementResponse{}
+		decodeJsonObject(jsonResponse, receiver)
+		b, _ := receiver.Element.MarshalJSON()
+		decodeJsonObject(b, &o)
 	}
 
-	jsonResponse := FetchSocket(fmt.Sprintf(`{"method":"%s", "key":"%s","encoding":"json"}`+"\n", method, ns))
-	receiver := &PfconfigResponse{}
-	decodeJsonObject(jsonResponse, receiver)
-
-	b, _ := receiver.Element.MarshalJSON()
-	decodeJsonObject(b, &o)
 }
 
 func decodeJsonObject(b []byte, o interface{}) {

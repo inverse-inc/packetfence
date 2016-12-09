@@ -7,7 +7,7 @@ import (
 type PfconfigObject interface {
 }
 
-type PfconfigResponse struct {
+type PfconfigElementResponse struct {
 	Element *json.RawMessage
 }
 
@@ -41,4 +41,10 @@ type Iboss struct {
 	NacName  string `json:"nac_name"`
 	Password string `json:"password"`
 	Port     string `json:"port"`
+}
+
+type ConfigSections struct {
+	PfconfigMethod string `val:"keys"`
+	PfconfigNS     string `val:"-"`
+	Keys           []string
 }
