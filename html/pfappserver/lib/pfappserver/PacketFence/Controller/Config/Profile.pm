@@ -206,7 +206,7 @@ sub getFileContent {
     foreach my $dir ($self->mergedPaths($c)) {
         my $file = catfile($dir,$file_path);
         next unless -f $file;
-        return read_file($file);
+        return read_file($file, binmode => ':utf8');
     }
     return;
 }
@@ -224,7 +224,7 @@ sub edit_new :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UP
     my $file_path = $self->_makeFilePath($c, $full_file_name);
     my $file_content = '';
     if (-e $file_path) {
-        $file_content = read_file($file_path);
+        $file_content = read_file($file_path, binmode => ':utf8');
     }
     elsif($full_file_name =~ /\.html$/) {
         $file_content = <<'HTML';
@@ -305,7 +305,7 @@ sub save :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE
     my (undef, $file_parent_dir, undef) = fileparse($path);
     pf_make_dir($file_parent_dir);
     $c->stash->{current_view} = 'JSON';
-    write_file($path, $file_content);
+    write_file($path, {binmode => ':utf8'}, $file_content);
     # Sync file in cluster if necessary
     $self->_sync_file($c, $path);
 }
