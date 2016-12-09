@@ -300,7 +300,7 @@ has_field macSearchesSleepInterval  =>
 
 has_block definition =>
   (
-   render_list => [ qw(description type mode group deauthMethod useCoA cliAccess ExternalPortalEnforcement VoIPEnabled VoIPLLDPDetect VoIPCDPDetect VoIPDHCPDetect uplink_dynamic uplink controllerIp controllerPort) ],
+   render_list => [ qw(description type mode group deauthMethod useCoA cliAccess ExternalPortalEnforcement VoIPEnabled VoIPLLDPDetect VoIPCDPDetect VoIPDHCPDetect uplink_dynamic uplink controllerIp controllerPort coaPort) ],
   );
 has_field 'SNMPVersion' =>
   (
@@ -485,7 +485,17 @@ has_field controllerIp =>
 has_field controllerPort =>
   (
     type => 'PosInteger',
-    label => 'Controller Port',
+    label => 'Disconnect Port',
+    tags => {
+        after_element => \&help_list,
+        help => 'For Disconnect request, if we have to send to another port'
+    },
+  );
+
+has_field coaPort =>
+  (
+    type => 'PosInteger',
+    label => 'CoA Port',
     tags => {
         after_element => \&help_list,
         help => 'For CoA request, if we have to send to another port'

@@ -477,6 +477,7 @@ sub radiusDisconnect {
     }
     # On which port we have to send the CoA-Request ?
     my $nas_port = $self->{'_controllerPort'} || '3799';
+    my $coa_port = $self->{'_coaPort'} || '1700';
     # allowing client code to override where we connect with NAS-IP-Address
     $send_disconnect_to = $add_attributes_ref->{'NAS-IP-Address'}
         if (defined($add_attributes_ref->{'NAS-IP-Address'}));
@@ -487,7 +488,7 @@ sub radiusDisconnect {
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
             LocalAddr => $self->deauth_source_ip(),
-            nas_port => $nas_port,
+            nas_port => $coa_port,
         };
 
         $logger->debug("network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");

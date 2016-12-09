@@ -311,6 +311,7 @@ sub new {
         '_radiusSecret'                 => undef,
         '_controllerIp'                 => undef,
         '_controllerPort'               => undef,
+        '_coaPort'                      => undef,
         '_uplink'                       => undef,
         '_vlans'                        => undef,
         '_ExternalPortalEnforcement'    => 'disabled',    
