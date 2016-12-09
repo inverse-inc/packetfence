@@ -120,11 +120,9 @@ sub manageStaticRoute {
             # shorter, more convenient local accessor
             my %net = %{$ConfigNetworks{$network}};
 
-
             if ( defined($net{'next_hop'}) && ($net{'next_hop'} =~ /^(?:\d{1,3}\.){3}\d{1,3}$/) ) {
-                my $add_del = $add_Route ? 'add' : 'del';
                 my $full_path = can_run('ip')
-                    or $logger->error("route is not installed! Can't add static routes to routed VLANs.");
+                    or $logger->error("ip route is not installed! Can't add static routes to routed VLANs.");
 
                 my $cmd = "sudo $full_path route add $network" . "/". $net{'netmask'} . " via " . $net{'next_hop'};
                 my $cmd_remove = "sudo $full_path route del $network" . "/". $net{'netmask'} . " via " . $net{'next_hop'};
