@@ -6,7 +6,7 @@ import (
 )
 
 func TestFetchSocket(t *testing.T) {
-	result := fetchSocket(`{"method":"element", "key":"resource::fqdn","encoding":"json"}` + "\n")
+	result := FetchSocket(`{"method":"element", "key":"resource::fqdn","encoding":"json"}` + "\n")
 	expected := `{"element":"pf-julien.inverse.ca"}`
 	if string(result) != expected {
 		t.Errorf("Response payload isn't correct '%s' instead of '%s'", result, expected)
@@ -15,7 +15,7 @@ func TestFetchSocket(t *testing.T) {
 
 func TestFetchDecodeSocket(t *testing.T) {
 	general := PfConfGeneral{}
-	fetchDecodeSocket(&general)
+	FetchDecodeSocket(&general)
 
 	if general.Domain != "inverse.ca" {
 		t.Error("PfConfGeneral wasn't fetched and parsed correctly")
@@ -24,7 +24,7 @@ func TestFetchDecodeSocket(t *testing.T) {
 
 	iboss := Iboss{}
 	iboss.PfconfigHashNS = "test"
-	fetchDecodeSocket(&iboss)
+	FetchDecodeSocket(&iboss)
 
 	if iboss.Port != "8015" || iboss.Type != "Iboss" {
 		t.Error("IBoss wasn't fetched and parsed correctly")

@@ -11,7 +11,7 @@ import (
 	//"github.com/davecgh/go-spew/spew"
 )
 
-func fetchSocket(payload string) []byte {
+func FetchSocket(payload string) []byte {
 	c, err := net.Dial("unix", "/usr/local/pf/var/run/pfconfig.sock")
 
 	if err != nil {
@@ -51,7 +51,7 @@ func metadataFromField(o PfconfigObject, fieldName string) string {
 	}
 }
 
-func fetchDecodeSocket(o PfconfigObject) {
+func FetchDecodeSocket(o PfconfigObject) {
 	var method, ns string
 	ns = metadataFromField(o, "PfconfigNS")
 	method = metadataFromField(o, "PfconfigMethod")
@@ -59,8 +59,7 @@ func fetchDecodeSocket(o PfconfigObject) {
 		ns = ns + ";" + metadataFromField(o, "PfconfigHashNS")
 	}
 
-	fmt.Printf("Method: %s, NS: %s \n", method, ns)
-	jsonResponse := fetchSocket(fmt.Sprintf(`{"method":"%s", "key":"%s","encoding":"json"}`+"\n", method, ns))
+	jsonResponse := FetchSocket(fmt.Sprintf(`{"method":"%s", "key":"%s","encoding":"json"}`+"\n", method, ns))
 	receiver := &PfconfigResponse{}
 	decodeJsonObject(jsonResponse, receiver)
 
