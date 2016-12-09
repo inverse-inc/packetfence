@@ -23,6 +23,7 @@ use pf::config qw(
     @listen_ints
     @dhcplistener_ints
     $management_network
+    @portal_ints
 );
 use pf::file_paths qw(
     $generated_conf_dir
@@ -63,7 +64,7 @@ sub generateConfig {
     } else {
          $tags{'os_path'} = '/usr/share/haproxy/';
     }
-    my @ints = uniq(@listen_ints,@dhcplistener_ints);
+    my @ints = uniq(@listen_ints,@dhcplistener_intsi,map { $_->{'Tint'} } @portal_ints);
     foreach my $interface ( @ints ) {
         my $cfg = $Config{"interface $interface"};
         next unless $cfg;
@@ -113,7 +114,7 @@ $backend_ip_config
 
 EOT
         }
-        if ($cfg->{'type'} eq 'internal') {
+        if ($cfg->{'type'} =~ /internal/ | $cfg->{'type'} =~ /portal/) {
             my $cluster_ip = pf::cluster::cluster_ip($interface);
             my @backend_ip = values %{pf::cluster::members_ips($interface)};
             my $backend_ip_config = '';
