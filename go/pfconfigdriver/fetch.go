@@ -8,6 +8,7 @@ import (
 	"io"
 	"net"
 	"reflect"
+	//"github.com/davecgh/go-spew/spew"
 )
 
 func fetchSocket(payload string) []byte {
@@ -36,8 +37,27 @@ func fetchSocket(payload string) []byte {
 
 func fetchDecodeSocket(o PfconfigObject) {
 	or := reflect.TypeOf(o).Elem()
-	metadata := or.Field(0)
-	jsonResponse := fetchSocket(fmt.Sprintf(`{"method":"%s", "key":"%s","encoding":"json"}`+"\n", metadata.Tag.Get("method"), metadata.Tag.Get("ns")))
+	var method, ns string
+	if field, ok := or.FieldByName("PfconfigNS"); ok {
+		ns = field.Tag.Get("ns")
+	} else {
+		panic("Missing PfConfigNS for " + or.String())
+	}
+	if field, ok := or.FieldByName("PfconfigMethod"); ok {
+		method = field.Tag.Get("method")
+		if method == "hash_element" {
+			if field, ok = or.FieldByName("PfconfigHashNS"); ok {
+				ns = ns + ";" + field.Tag.Get("ns")
+			} else {
+				panic("Missing PfconfigHashNS for object that declares method hash_element. Object type: " + or.String())
+			}
+		}
+	} else {
+		panic("Missing PfconfigMethod for " + or.String())
+	}
+
+	fmt.Printf("Method: %s, NS: %s \n", method, ns)
+	jsonResponse := fetchSocket(fmt.Sprintf(`{"method":"%s", "key":"%s","encoding":"json"}`+"\n", method, ns))
 	receiver := &PfconfigResponse{}
 	decodeJsonObject(jsonResponse, receiver)
 
