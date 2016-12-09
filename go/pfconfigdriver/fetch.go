@@ -45,9 +45,14 @@ func metadataFromField(o PfconfigObject, fieldName string) string {
 
 	ot := reflect.TypeOf(o).Elem()
 	if field, ok := ot.FieldByName(fieldName); ok {
-		return field.Tag.Get("val")
+		val := field.Tag.Get("val")
+		if val != "-" {
+			return val
+		} else {
+			panic(fmt.Sprintf("No default value defined for %s on %s. User specified value is required.", fieldName, ot.String()))
+		}
 	} else {
-		panic(fmt.Sprintf("Missing %s for %s", field, ot.String()))
+		panic(fmt.Sprintf("Missing %s for %s", fieldName, ot.String()))
 	}
 }
 
