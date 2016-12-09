@@ -35,12 +35,19 @@ func fetchSocket(payload string) []byte {
 	return response
 }
 
-func metadataFromField(o PfconfigObject, field string) string {
-	or := reflect.TypeOf(o).Elem()
-	if field, ok := or.FieldByName(field); ok {
+func metadataFromField(o PfconfigObject, fieldName string) string {
+	ov := reflect.ValueOf(o).Elem()
+	userVal := reflect.Value(ov.FieldByName(fieldName)).Interface()
+
+	if userVal != "" {
+		return userVal.(string)
+	}
+
+	ot := reflect.TypeOf(o).Elem()
+	if field, ok := ot.FieldByName(fieldName); ok {
 		return field.Tag.Get("val")
 	} else {
-		panic(fmt.Sprintf("Missing %s for %s", field, or.String()))
+		panic(fmt.Sprintf("Missing %s for %s", field, ot.String()))
 	}
 }
 

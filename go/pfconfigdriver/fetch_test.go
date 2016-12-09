@@ -22,4 +22,12 @@ func TestFetchDecodeSocket(t *testing.T) {
 		spew.Dump(general)
 	}
 
+	iboss := FirewallSSO{}
+	iboss.PfconfigHashNS = "test"
+	fetchDecodeSocket(&iboss)
+
+	if iboss.Port != "8015" {
+		t.Error("IBoss wasn't fetched and parsed correctly")
+		spew.Dump(iboss)
+	}
 }
