@@ -3120,7 +3120,7 @@ sub deauth_source_ip {
                                          if ($interface_src[1] eq 'via') {
                                              return $interface_src[4];
                                          } else {
-                                             return $interface_scr[2];
+                                             return $interface_src[2];
                                          }
                                       }
                            );
