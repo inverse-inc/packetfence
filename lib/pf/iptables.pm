@@ -254,6 +254,8 @@ sub generate_filter_if_src_to_chain {
     # 'radius' interfaces handling
     foreach my $radius_interface ( @radius_ints ) {
         my $dev = $radius_interface->tag("int");
+        $rules .= "-A INPUT --in-interface $dev -d 224.0.0.0/8 -j ACCEPT\n";
+        $rules .= "-A INPUT --in-interface $dev -p vrrp -j ACCEPT\n";
         $rules .= "-A INPUT --in-interface $dev --jump $FW_FILTER_INPUT_RADIUS\n";
     }
 
