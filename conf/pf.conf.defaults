@@ -1139,27 +1139,27 @@ aaa_port=7070
 # maintenance.iplog_rotation
 #
 # Enable or disable iplog rotation (moving iplog_history records to iplog_archive)
-# If disabled, 'iplog_cleanup' will delete from the iplog_history table rather than the iplog_archive
+# If disabled, 'iplog_cleanup' will delete from the iplog_history table rather than the iplog_archive using the iplog rotation window, interval, batch and timeout parameters.
 iplog_rotation=disabled
 #
 # maintenance.iplog_rotation_window
 #
-# How long to keep iplog_history entry before rotating it to iplog_archive
+# How long to keep iplog history entry before rotating it to iplog archive (or deleting it if rotation is disabled).
 iplog_rotation_window=1W
 #
 # maintenance.iplog_rotation_interval
 #
-# At which interval to run the iplog_history rotation job
+# At which interval to run the iplog history rotation job (or deletion job if rotation is disabled).
 iplog_rotation_interval=60s
 #
 # maintenance.iplog_rotation_batch
 #
-# How many iplog_history entries to rotate in one job
+# How many iplog history entries to rotate (or to delete if rotation is disabled) in one job.
 iplog_rotation_batch=100
 #
 # maintenance.iplog_rotation_timeout
 #
-# How long a iplog_history rotation job can take before being killed
+# How long a iplog history rotation job (or deletion job if rotation is disabled) can take before being killed.
 iplog_rotation_timeout=10s
 #
 # maintenance.iplog_cleanup_window
