@@ -190,7 +190,7 @@ sub registertasks  {
             my $batch = ( isdisabled($Config{'maintenance'}{'iplog_rotation'}) ) ? $Config{maintenance}{iplog_rotation_batch} : $Config{maintenance}{iplog_cleanup_batch};
             my $timeout = ( isdisabled($Config{'maintenance'}{'iplog_rotation'}) ) ? $Config{maintenance}{iplog_rotation_timeout} : $Config{maintenance}{iplog_cleanup_timeout};
             my $table = ( isdisabled($Config{'maintenance'}{'iplog_rotation'}) ) ? 'iplog_history' : 'iplog_archive';
-            pf::iplog::cleanup( $Config{'maintenance'}{'iplog_cleanup_window'}, $Config{maintenance}{iplog_cleanup_batch}, $Config{maintenance}{iplog_cleanup_timeout}, $table );
+            pf::iplog::cleanup( $window, $batch, $timeout, $table ) if ( $Config{'maintenance'}{'iplog_cleanup_window'} );
         }
     ) if ( $Config{'maintenance'}{'iplog_cleanup_window'} );
 
