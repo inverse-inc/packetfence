@@ -58,7 +58,7 @@ use fingerbank::Config;
 use fingerbank::Redis;
 use fingerbank::DB;
 use pf::cluster;
-use Time::HiRes qw(time);
+use Time::HiRes qw(time sleep);
 use pf::option82 qw(search_switch);
 use pf::CHI::Request;
 
@@ -441,7 +441,7 @@ sub _runtask {
             pause;
             next;
         }
-        my $final_interval = $time_taken > 0 ? $interval - int($time_taken+1) : $interval;
+        my $final_interval = $interval - $time_taken;
         $logger->trace("$id is sleeping for $final_interval ($interval from configuration - $time_taken)");
         # Only wait if the interval is positive
         if($final_interval > 0) {
@@ -451,14 +451,14 @@ sub _runtask {
         }
         
         $logger->trace("$id is running");
-        my $start = Time::HiRes::gettimeofday;
+        my $start = time();
         eval {
             $task->();
         };
         if ($@) {
             $logger->error("Error running task $id: $@");
         }
-        $time_taken = Time::HiRes::gettimeofday - $start;
+        $time_taken = time() - $start;
         #Stop running if parent is no longer alive
         unless(is_parent_alive()) {
             $logger->error("Parent is no longer running shutting down");
