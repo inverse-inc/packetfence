@@ -43,7 +43,7 @@ func NewFactory() Factory {
 func (f *Factory) Instantiate(id string) FirewallSSOInt {
 	firewall := FirewallSSO{}
 	firewall.PfconfigHashNS = id
-	pfconfigdriver.FetchDecodeSocket(&firewall, reflect.Value{})
+	pfconfigdriver.FetchDecodeSocketStruct(&firewall)
 	or := reflect.New(f.typeRegistry[firewall.Type])
 	or.Elem().FieldByName("PfconfigHashNS").SetString(id)
 	firewall2 := or.Interface()
