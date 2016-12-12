@@ -32,20 +32,30 @@ if (@ARGV) {
     push @$tables, @$infos;
 }
 
+my $output_path = "/usr/local/pf/lib/pf/dal";
+
 my $tt = Template->new({
     OUTPUT_PATH  => '/usr/local/pf/lib/pf/dal/',
     INCLUDE_PATH => '/usr/local/pf/addons/dev-helpers/templates',
 });
 
 my $now = DateTime->now;
-my $template = "pf-dal.pm.tt";
+my $base_template = "pf-dal.pm.tt";
+my $overload_template = "pf-dal-overload.pm.tt";
 
-print Dumper($tables);
+#print Dumper($tables);
 for my $table (@$tables) {
     my $name = $table->{TABLE_NAME};
     my $class = "pf::dal::_${name}";
     my %vars = (%$table, class => $class, now => $now);
-    $tt->process($template, \%vars, "_${name}.pm") or die $tt->error();
+    print "Generating $vars{class}\n";
+    $tt->process($base_template, \%vars, "_${name}.pm") or die $tt->error();
+    if (!-f "$output_path/${name}.pm" ) {
+        $vars{parent_class} = $class;
+        $vars{class} = "pf::dal::${name}";
+        print "Generating $vars{class}\n";
+        $tt->process($overload_template, \%vars, "${name}.pm") or die $tt->error();
+    }
 }
 
 
