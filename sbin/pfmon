@@ -377,6 +377,7 @@ sub runtask {
             $old_child_sigaction,
         ) or die("pfmon could not set SIGCHLD handler: $!");
         $IS_CHILD = 1;
+        Log::Log4perl::MDC->put('tid', $$);
         _runtask(@$task);
     } else {
     }
