@@ -764,7 +764,7 @@ sub filterVlan {
     my $timer = pf::StatsD::Timer->new({ sample_rate => 1});
     my ($self, $scope, $args) = @_;
     my $filter = pf::access_filter::vlan->new;
-    $args->{'owner'}= person_view($args->{'node_info'}->{'pid'});
+    $args->{'owner'}= person_view_simple($args->{'node_info'}->{'pid'});
     my $role = $filter->filter($scope, $args);
     return $role;
 }
