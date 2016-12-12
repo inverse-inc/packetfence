@@ -3,7 +3,6 @@ package pfconfigdriver
 import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/inverse-inc/packetfence/go/firewallsso/lib"
-	"reflect"
 	"testing"
 )
 
@@ -17,7 +16,7 @@ func TestFetchSocket(t *testing.T) {
 
 func TestFetchDecodeSocket(t *testing.T) {
 	general := PfConfGeneral{}
-	FetchDecodeSocket(&general, reflect.Value{})
+	FetchDecodeSocketStruct(&general)
 
 	if general.Domain != "inverse.ca" {
 		t.Error("PfConfGeneral wasn't fetched and parsed correctly")
@@ -26,12 +25,12 @@ func TestFetchDecodeSocket(t *testing.T) {
 
 	firewall := libfirewallsso.FirewallSSO{}
 	firewall.PfconfigHashNS = "test"
-	FetchDecodeSocket(&firewall, reflect.Value{})
+	FetchDecodeSocketStruct(&firewall)
 	spew.Dump(firewall)
 
 	iboss := libfirewallsso.Iboss{}
 	iboss.PfconfigHashNS = "test"
-	FetchDecodeSocket(&iboss, reflect.Value{})
+	FetchDecodeSocketStruct(&iboss)
 
 	if iboss.Port != "8015" || iboss.Type != "Iboss" {
 		t.Error("IBoss wasn't fetched and parsed correctly")
@@ -40,7 +39,7 @@ func TestFetchDecodeSocket(t *testing.T) {
 
 	var sections ConfigSections
 	sections.PfconfigNS = "config::Pf"
-	FetchDecodeSocket(&sections, reflect.Value{})
+	FetchDecodeSocketStruct(&sections)
 
 	generalFound := false
 	for i := range sections.Keys {

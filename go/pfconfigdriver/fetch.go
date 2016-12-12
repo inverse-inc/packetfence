@@ -79,6 +79,14 @@ func createQuery(o PfconfigObject) Query {
 	return query
 }
 
+func FetchDecodeSocketStruct(o PfconfigObject) {
+	FetchDecodeSocket(o, reflect.Value{})
+}
+
+func FetchDecodeSocketInterface(o PfconfigObject, reflectInfo reflect.Value) {
+	FetchDecodeSocket(o, reflectInfo)
+}
+
 func FetchDecodeSocket(o PfconfigObject, reflectInfo reflect.Value) {
 	var queryParam interface{}
 	if reflectInfo.IsValid() {
