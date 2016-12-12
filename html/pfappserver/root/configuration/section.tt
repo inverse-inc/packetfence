@@ -1,4 +1,11 @@
  <h3>[% l(section) %]</h3>
+
+[% IF section == "maintenance" %]
+<div class="alert alert-warning">
+    <strong>[% l('Note: ') %]</strong>[% l('Modifying any of theses values requires to restart \'pfmon\' service to be effective.') %]
+</div>
+[% END %]
+
   <form name="section" class="form-horizontal" action="[% c.uri_for(c.action,section) %]" method="POST">
 
 [% FOREACH field IN form.fields %]
