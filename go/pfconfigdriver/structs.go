@@ -2,7 +2,6 @@ package pfconfigdriver
 
 import (
 	"encoding/json"
-	"reflect"
 )
 
 // Interface for a pfconfig object. Not doing much now but it is there for future-proofing
