@@ -25,25 +25,25 @@ func TestStart(t *testing.T) {
 	factory := NewFactory()
 	iboss := factory.Instantiate("test").(*Iboss)
 
-	result := iboss.Start(map[string]string{"ip": "1.2.3.4", "role": "default", "mac": "00:11:22:33:44:55", "username": "lzammit"}, 0)
+	result := ExecuteStart(iboss, map[string]string{"ip": "1.2.3.4", "role": "default", "mac": "00:11:22:33:44:55", "username": "lzammit"}, 0)
 	if !result {
 		t.Error("Iboss SSO didn't succeed with valid parameters")
 	}
 
-	result = iboss.Start(map[string]string{"ip": "1.2.3.4", "role": "no-sso-on-that", "mac": "00:11:22:33:44:55", "username": "lzammit"}, 0)
+	result = ExecuteStart(iboss, map[string]string{"ip": "1.2.3.4", "role": "no-sso-on-that", "mac": "00:11:22:33:44:55", "username": "lzammit"}, 0)
 	if result {
 		t.Error("Iboss SSO succeeded with invalid parameters")
 	}
 
 	paloalto := factory.Instantiate("paloalto.com")
 
-	result = paloalto.Start(map[string]string{"ip": "1.2.3.4", "role": "gaming", "mac": "00:11:22:33:44:55", "username": "lzammit"}, 0)
+	result = ExecuteStart(paloalto, map[string]string{"ip": "1.2.3.4", "role": "gaming", "mac": "00:11:22:33:44:55", "username": "lzammit"}, 0)
 
 	if !result {
 		t.Error("PaloAlto SSO failed with valid parameters")
 	}
 
-	result = paloalto.Start(map[string]string{"ip": "1.2.3.4", "role": "no-sso-on-that", "mac": "00:11:22:33:44:55", "username": "lzammit"}, 0)
+	result = ExecuteStart(paloalto, map[string]string{"ip": "1.2.3.4", "role": "no-sso-on-that", "mac": "00:11:22:33:44:55", "username": "lzammit"}, 0)
 
 	if result {
 		t.Error("PaloAlto SSO succeeded with invalid parameters")

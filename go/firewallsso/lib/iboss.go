@@ -13,13 +13,11 @@ type Iboss struct {
 }
 
 func (fw *Iboss) Start(info map[string]string, timeout int) bool {
-	if fw.RoleBasedFirewallSSO.MatchesRole(info["role"]) {
+	if fw.RoleBasedFirewallSSO.MatchesRole(info) {
 		fmt.Printf("HTTP SSO BIMMMM %s->%s \n", info["ip"], info["username"])
 		return true
-	} else {
-		fmt.Printf("Not sending SSO for user %s on device %s since it doesn't match the role \n", info["username"], info["role"])
-		return false
 	}
+	return false
 }
 
 func (fw *Iboss) Stop(info map[string]string) bool {
