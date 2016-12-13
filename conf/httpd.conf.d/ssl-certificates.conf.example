@@ -2,3 +2,4 @@
 # This file is manipulated on PacketFence's startup before being given to Apache
 SSLCertificateFile %%install_dir%%/conf/ssl/server.crt
 SSLCertificateKeyFile %%install_dir%%/conf/ssl/server.key
+#SSLCertificateChainFile %%install_dir%%/conf/ssl/intermediates.crt
