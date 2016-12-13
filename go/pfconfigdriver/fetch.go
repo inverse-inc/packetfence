@@ -11,6 +11,15 @@ import (
 	//"github.com/davecgh/go-spew/spew"
 )
 
+// Struct that encapsulates the necessary informations to do a query to pfconfig
+type Query struct {
+	method  string
+	ns      string
+	payload string
+}
+
+// Fetch data from the pfconfig socket for a string payload
+// Returns the bytes received from the socket
 func FetchSocket(payload string) []byte {
 	c, err := net.Dial("unix", "/usr/local/pf/var/run/pfconfig.sock")
 
@@ -35,6 +44,9 @@ func FetchSocket(payload string) []byte {
 	return response
 }
 
+// Lookup the pfconfig metadata for a specific field
+// If there is a non-zero value in the field, it will be taken
+// Otherwise it will take the value in the val tag of the field
 func metadataFromField(param PfconfigObject, fieldName string) string {
 	var ov reflect.Value
 	switch val := param.(type) {
@@ -62,12 +74,21 @@ func metadataFromField(param PfconfigObject, fieldName string) string {
 	}
 }
 
-type Query struct {
-	method  string
-	ns      string
-	payload string
+// Decode an array of bytes representing a json string into interface
+// Panics if there is an error decoding the JSON data
+func decodeJsonObject(b []byte, o interface{}) {
+	decoder := json.NewDecoder(bytes.NewReader(b))
+	for {
+		if err := decoder.Decode(&o); err == io.EOF {
+			break
+		} else if err != nil {
+			panic(err)
+		}
+	}
 }
 
+// Create a pfconfig query given a PfconfigObject
+// Will extract the query information from the object and will create the payload accordingly
 func createQuery(o PfconfigObject) Query {
 	query := Query{}
 	query.ns = metadataFromField(o, "PfconfigNS")
@@ -79,14 +100,22 @@ func createQuery(o PfconfigObject) Query {
 	return query
 }
 
+// Fetch and decode a namespace from pfconfig given a pfconfig compatible struct
+// This cannot accept an interface and requires the struct to have been declared to its final type (so not created by the reflection)
 func FetchDecodeSocketStruct(o PfconfigObject) {
 	FetchDecodeSocket(o, reflect.Value{})
 }
 
+// Fetch and decode a namespace from pfconfig given a pfconfig compatible struct
+// The proper reflect.Value must be passed to extract the pfconfig metadata from
 func FetchDecodeSocketInterface(o PfconfigObject, reflectInfo reflect.Value) {
 	FetchDecodeSocket(o, reflectInfo)
 }
 
+// Fetch and decode a namespace from pfconfig given a pfconfig compatible struct
+// If reflectInfo is a valid reflect.Value, it will be used to extract the pfconfig metadata from it
+// This will fetch the json representation from pfconfig and decode it into o
+// o must be a pointer to the struct as this should be used by reference
 func FetchDecodeSocket(o PfconfigObject, reflectInfo reflect.Value) {
 	var queryParam interface{}
 	if reflectInfo.IsValid() {
@@ -109,19 +138,4 @@ func FetchDecodeSocket(o PfconfigObject, reflectInfo reflect.Value) {
 		decodeJsonObject(b, &o)
 	}
 
-}
-
-func FetchDecodeSocketReflect(o reflect.Value) {
-
-}
-
-func decodeJsonObject(b []byte, o interface{}) {
-	decoder := json.NewDecoder(bytes.NewReader(b))
-	for {
-		if err := decoder.Decode(&o); err == io.EOF {
-			break
-		} else if err != nil {
-			panic(err)
-		}
-	}
 }
