@@ -15,7 +15,6 @@ pfcmd <command> [options]
   cache                       | manage the cache subsystem
   checkup                     | perform a sanity checkup and report any problems
   class                       | view violation classes
-  configfiles                 | push or pull configfiles into/from database
   configreload                | reload the configution
   fingerbank                  | Fingerbank related commands
   floatingnetworkdeviceconfig | query/modify floating network devices configuration parameters
