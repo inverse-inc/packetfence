@@ -19,6 +19,11 @@ use pf::log;
 use SQL::Abstract::More;
 use pf::dal::iterator;
 
+use Class::XSAccessor {
+    accessors => [qw(__from_table __old_data)],
+    false => [qw(has_primary_key)],
+};
+
 =head2 new
 
 Create a new pf::dal object
@@ -113,13 +118,19 @@ Find the pf::dal object by it's primaries keys
 
 sub find {
     my ($proto, @ids) = @_;
-    my $dbh = $self->get_dbh;
+    return undef unless $proto->has_primary_key;
     my $sql = $proto->_find_one_sql;
-    my $sth = $dbh->prepare_cached($sql);
-    my $results = $sth->execute(@ids);
+    my $sth = $proto->db_execute($sql, @ids);
+    unless ($sth) {
+        return undef;
+    }
     my $row = $sth->fetchrow_hashref;
+    unless ($row) {
+        return undef;
+    }
+    my $dal = $proto->new_from_table($row);
     $sth->finish;
-    return $proto->new($row);
+    return $dal;
 }
 
 =head2 search
@@ -151,8 +162,60 @@ Save the pf::dal object in the database
 
 sub save {
     my ($self) = @_;
-    my $fields = $self->_fields_to_save;
-    my $sql = $self->_update_
+    return undef unless $self->has_primary_key;
+    return $self->__from_table ? $self->update : $self->insert;
+}
+
+=head2 update
+
+Update the pf::dal object
+
+=cut
+
+sub update {
+    my ($self) = @_;
+    return undef unless $self->has_primary_key && $self->__from_table;
+    my $sql = $self->_update_sql;
+    my $update_data = $self->_update_data;
+    my $update_fields = $self->_update_fields;
+    my $sth = $self->db_execute($sql, @{$update_data}{@$update_fields});
+    if ($sth) {
+        return $sth->rows;
+    }
+    return undef;
+}
+
+=head2 insert
+
+Insert a pf::dal object into the database
+
+=cut
+
+sub insert {
+    my ($self) = @_;
+    my $sql = $self->_insert_sql;
+    my $insert_data = $self->_insert_data;
+    my $insert_fields = $self->_insert_fields;
+    my $sth = $self->db_execute($sql, @{$insert_data}{@$insert_fields});
+    if ($sth) {
+        return $sth->rows;
+    }
+    return undef;
+}
+
+=head2 fields
+
+Returns the list of fields for the pf::dal object
+
+=cut
+
+sub fields { [] }
+
+=item logger
+
+Return the current logger for the current pf::dal object
+
+=cut
 
 sub logger {
     my ($proto) = @_;
