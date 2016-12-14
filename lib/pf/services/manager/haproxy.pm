@@ -64,7 +64,7 @@ sub generateConfig {
     } else {
          $tags{'os_path'} = '/usr/share/haproxy/';
     }
-    my @ints = uniq(@listen_ints,@dhcplistener_intsi,map { $_->{'Tint'} } @portal_ints);
+    my @ints = uniq(@listen_ints,@dhcplistener_ints,map { $_->{'Tint'} } @portal_ints);
     foreach my $interface ( @ints ) {
         my $cfg = $Config{"interface $interface"};
         next unless $cfg;
