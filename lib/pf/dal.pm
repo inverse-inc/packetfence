@@ -15,6 +15,7 @@ pf::dal
 use strict;
 use warnings;
 use pf::db;
+use pf::log;
 use SQL::Abstract::More;
 
 sub new {
@@ -66,6 +67,9 @@ sub save {
     my $fields = $self->_fields_to_save;
     my $sql = $self->_update_
 
+sub logger {
+    my ($proto) = @_;
+    return get_logger( ref($proto) || $proto );
 }
  
 =head1 AUTHOR
