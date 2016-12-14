@@ -14,9 +14,15 @@ import (
 
 // Struct that encapsulates the necessary informations to do a query to pfconfig
 type Query struct {
-	method  string
-	ns      string
-	payload string
+	encoding string
+	method   string
+	ns       string
+	payload  string
+}
+
+func (q *Query) GetPayload() string {
+	q.payload = fmt.Sprintf(`{"method":"%s", "key":"%s","encoding":"%s"}`+"\n", q.method, q.ns, q.encoding)
+	return q.payload
 }
 
 // Fetch data from the pfconfig socket for a string payload
@@ -97,7 +103,7 @@ func createQuery(ctx context.Context, o PfconfigObject) Query {
 	if query.method == "hash_element" {
 		query.ns = query.ns + ";" + metadataFromField(ctx, o, "PfconfigHashNS")
 	}
-	query.payload = fmt.Sprintf(`{"method":"%s", "key":"%s","encoding":"json"}`+"\n", query.method, query.ns)
+	query.encoding = "json"
 	return query
 }
 
@@ -125,7 +131,7 @@ func FetchDecodeSocket(ctx context.Context, o PfconfigObject, reflectInfo reflec
 		queryParam = o
 	}
 	query := createQuery(ctx, queryParam)
-	jsonResponse := FetchSocket(ctx, query.payload)
+	jsonResponse := FetchSocket(ctx, query.GetPayload())
 	if query.method == "keys" {
 		if cs, ok := o.(*ConfigSections); ok {
 			decodeJsonObject(ctx, jsonResponse, &cs.Keys)
