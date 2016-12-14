@@ -2,13 +2,17 @@ package pf::dal;
 
 =head1 NAME
 
-pf::dal -
+pf::dal - PacketFence Data Access Layer
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal
+pf::dal provides a thin data abstraction layer for the database tables.
+
+This module work in conjunction with the addons/dev-helpers/bin/generator-data-access-layer.pl script
+
+Which generates all the companion modules for table in the database.
 
 =cut
 
