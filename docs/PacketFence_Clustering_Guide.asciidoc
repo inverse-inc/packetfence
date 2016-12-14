@@ -455,7 +455,7 @@ Enable corosync and pacemaker
 Create a new cluster:
 
   # pcs cluster auth pf1_server_name pf2_server_name -u hacluster -p passwd
-  # pcs cluster setup --name mysql_cluster pf1_server_name pf2_server_name -u hacluster -p passwd
+  # pcs cluster setup --name mysql_cluster pf1_server_name pf2_server_name --token 15000 --join 1000 --consensus 6000 -u hacluster -p passwd
   # pcs cluster start --all
 
 
