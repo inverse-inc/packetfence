@@ -13,6 +13,8 @@ import (
 	//"github.com/davecgh/go-spew/spew"
 )
 
+var pfconfigSocket string = "/usr/local/pf/var/run/pfconfig.sock"
+
 // Struct that encapsulates the necessary informations to do a query to pfconfig
 type Query struct {
 	encoding string
@@ -29,7 +31,7 @@ func (q *Query) GetPayload() string {
 // Fetch data from the pfconfig socket for a string payload
 // Returns the bytes received from the socket
 func FetchSocket(ctx context.Context, payload string) []byte {
-	c, err := net.Dial("unix", "/usr/local/pf/var/run/pfconfig.sock")
+	c, err := net.Dial("unix", pfconfigSocket)
 
 	if err != nil {
 		panic(err)
