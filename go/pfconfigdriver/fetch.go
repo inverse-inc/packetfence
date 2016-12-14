@@ -81,6 +81,15 @@ func metadataFromField(ctx context.Context, param PfconfigObject, fieldName stri
 	}
 }
 
+func decodeObject(ctx context.Context, encoding string, b []byte, o interface{}) {
+	switch encoding {
+	case "json":
+		decodeJsonObject(ctx, b, o)
+	default:
+		panic(fmt.Sprintf("Unknown encoding %s", encoding))
+	}
+}
+
 // Decode an array of bytes representing a json string into interface
 // Panics if there is an error decoding the JSON data
 func decodeJsonObject(ctx context.Context, b []byte, o interface{}) {
@@ -134,15 +143,15 @@ func FetchDecodeSocket(ctx context.Context, o PfconfigObject, reflectInfo reflec
 	jsonResponse := FetchSocket(ctx, query.GetPayload())
 	if query.method == "keys" {
 		if cs, ok := o.(*ConfigSections); ok {
-			decodeJsonObject(ctx, jsonResponse, &cs.Keys)
+			decodeObject(ctx, query.encoding, jsonResponse, &cs.Keys)
 		} else {
 			panic("Wrong object type for keys. Required ConfigSections")
 		}
 	} else {
 		receiver := &PfconfigElementResponse{}
-		decodeJsonObject(ctx, jsonResponse, receiver)
+		decodeObject(ctx, query.encoding, jsonResponse, receiver)
 		b, _ := receiver.Element.MarshalJSON()
-		decodeJsonObject(ctx, b, &o)
+		decodeObject(ctx, query.encoding, b, &o)
 	}
 
 }
