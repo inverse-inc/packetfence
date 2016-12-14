@@ -1,4 +1,4 @@
-package [% class %]
+package [% class %];
 
 =head1 NAME
 
