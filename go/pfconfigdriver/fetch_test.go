@@ -29,7 +29,6 @@ func TestFetchDecodeSocket(t *testing.T) {
 	firewall := libfirewallsso.FirewallSSO{}
 	firewall.PfconfigHashNS = "test"
 	FetchDecodeSocketStruct(ctx, &firewall)
-	spew.Dump(firewall)
 
 	iboss := libfirewallsso.Iboss{}
 	iboss.PfconfigHashNS = "test"
@@ -56,4 +55,52 @@ func TestFetchDecodeSocket(t *testing.T) {
 		spew.Dump(sections)
 	}
 
+}
+
+func BenchmarkFetchSocketSerealSimple(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		FetchSocket(ctx, `{"method":"element", "key":"resource::fqdn"}`+"\n")
+	}
+}
+
+func BenchmarkFetchSocketJsonSimple(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		FetchSocket(ctx, `{"method":"element", "key":"resource::fqdn", "encoding":"json"}`+"\n")
+	}
+}
+
+func BenchmarkFetchSocketSerealComplexWithToJson(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		FetchSocket(ctx, `{"method":"element", "key":"interfaces"}`+"\n")
+	}
+}
+
+func BenchmarkFetchSocketJsonComplexWithToJson(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		FetchSocket(ctx, `{"method":"element", "key":"interfaces", "encoding":"json"}`+"\n")
+	}
+}
+
+func BenchmarkFetchSocketSerealComplex(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		FetchSocket(ctx, `{"method":"element", "key":"config::Pf"}`+"\n")
+	}
+}
+
+func BenchmarkFetchSocketJsonComplex(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		FetchSocket(ctx, `{"method":"element", "key":"config::Pf", "encoding":"json"}`+"\n")
+	}
+}
+
+func BenchmarkFetchSocketSerealSubNamespace(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		FetchSocket(ctx, `{"method":"hash_element", "key":"config::Pf;general"}`+"\n")
+	}
+}
+
+func BenchmarkFetchSocketJsonSubNamespace(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		FetchSocket(ctx, `{"method":"hash_element", "key":"config::Pf;general", "encoding":"json"}`+"\n")
+	}
 }
