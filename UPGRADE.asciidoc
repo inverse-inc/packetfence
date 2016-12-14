@@ -200,10 +200,10 @@ Replace `myPassword` by the password displayed (`pass`) when running the first c
 
 Next, head to 'Configuration->Fingerbank Settings' in the web administration interface and configure the following parameters:
 
- * MySQL host : set this to the value of `host` above.
- * MySQL port : set this to the value of `port` above.
- * MySQL username : set this to the value of `user` above.
- * MySQL password : set this to the value of `pass` above.
+ * MySQL host : set this to the value of `host` you got from running the command above.
+ * MySQL port : set this to the value of `port` you got from running the command above.
+ * MySQL username : set this to the value of `user` you got from running the command above.
+ * MySQL password : set this to the value of `pass` you got from running the command above.
  * MySQL database : set this to `pf_fingerbank`.
  
 After saving those new parameters, at the top of the same page, click 'Initialize MySQL database' to start the import process. Once that is completed, you will receive an e-mail to the one configured for alerting and PacketFence will start using the MySQL backend for the Fingerbank database.
