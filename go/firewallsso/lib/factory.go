@@ -26,10 +26,10 @@ func NewFactory(ctx context.Context) Factory {
 func (f *Factory) Instantiate(ctx context.Context, id string) FirewallSSOInt {
 	firewall := FirewallSSO{}
 	firewall.PfconfigHashNS = id
-	pfconfigdriver.FetchDecodeSocketStruct(&firewall)
+	pfconfigdriver.FetchDecodeSocketStruct(ctx, &firewall)
 	or := reflect.New(f.typeRegistry[firewall.Type])
 	or.Elem().FieldByName("PfconfigHashNS").SetString(id)
 	firewall2 := or.Interface()
-	pfconfigdriver.FetchDecodeSocket(&firewall2, or.Elem())
+	pfconfigdriver.FetchDecodeSocket(ctx, &firewall2, or.Elem())
 	return firewall2.(FirewallSSOInt)
 }

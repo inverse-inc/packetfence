@@ -2,6 +2,7 @@ package pfconfigdriver
 
 import (
 	"bytes"
+	"context"
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
@@ -20,7 +21,7 @@ type Query struct {
 
 // Fetch data from the pfconfig socket for a string payload
 // Returns the bytes received from the socket
-func FetchSocket(payload string) []byte {
+func FetchSocket(ctx context.Context, payload string) []byte {
 	c, err := net.Dial("unix", "/usr/local/pf/var/run/pfconfig.sock")
 
 	if err != nil {
@@ -47,7 +48,7 @@ func FetchSocket(payload string) []byte {
 // Lookup the pfconfig metadata for a specific field
 // If there is a non-zero value in the field, it will be taken
 // Otherwise it will take the value in the val tag of the field
-func metadataFromField(param PfconfigObject, fieldName string) string {
+func metadataFromField(ctx context.Context, param PfconfigObject, fieldName string) string {
 	var ov reflect.Value
 	switch val := param.(type) {
 	case reflect.Value:
@@ -76,7 +77,7 @@ func metadataFromField(param PfconfigObject, fieldName string) string {
 
 // Decode an array of bytes representing a json string into interface
 // Panics if there is an error decoding the JSON data
-func decodeJsonObject(b []byte, o interface{}) {
+func decodeJsonObject(ctx context.Context, b []byte, o interface{}) {
 	decoder := json.NewDecoder(bytes.NewReader(b))
 	for {
 		if err := decoder.Decode(&o); err == io.EOF {
@@ -89,12 +90,12 @@ func decodeJsonObject(b []byte, o interface{}) {
 
 // Create a pfconfig query given a PfconfigObject
 // Will extract the query information from the object and will create the payload accordingly
-func createQuery(o PfconfigObject) Query {
+func createQuery(ctx context.Context, o PfconfigObject) Query {
 	query := Query{}
-	query.ns = metadataFromField(o, "PfconfigNS")
-	query.method = metadataFromField(o, "PfconfigMethod")
+	query.ns = metadataFromField(ctx, o, "PfconfigNS")
+	query.method = metadataFromField(ctx, o, "PfconfigMethod")
 	if query.method == "hash_element" {
-		query.ns = query.ns + ";" + metadataFromField(o, "PfconfigHashNS")
+		query.ns = query.ns + ";" + metadataFromField(ctx, o, "PfconfigHashNS")
 	}
 	query.payload = fmt.Sprintf(`{"method":"%s", "key":"%s","encoding":"json"}`+"\n", query.method, query.ns)
 	return query
@@ -102,40 +103,40 @@ func createQuery(o PfconfigObject) Query {
 
 // Fetch and decode a namespace from pfconfig given a pfconfig compatible struct
 // This cannot accept an interface and requires the struct to have been declared to its final type (so not created by the reflection)
-func FetchDecodeSocketStruct(o PfconfigObject) {
-	FetchDecodeSocket(o, reflect.Value{})
+func FetchDecodeSocketStruct(ctx context.Context, o PfconfigObject) {
+	FetchDecodeSocket(ctx, o, reflect.Value{})
 }
 
 // Fetch and decode a namespace from pfconfig given a pfconfig compatible struct
 // The proper reflect.Value must be passed to extract the pfconfig metadata from
-func FetchDecodeSocketInterface(o PfconfigObject, reflectInfo reflect.Value) {
-	FetchDecodeSocket(o, reflectInfo)
+func FetchDecodeSocketInterface(ctx context.Context, o PfconfigObject, reflectInfo reflect.Value) {
+	FetchDecodeSocket(ctx, o, reflectInfo)
 }
 
 // Fetch and decode a namespace from pfconfig given a pfconfig compatible struct
 // If reflectInfo is a valid reflect.Value, it will be used to extract the pfconfig metadata from it
 // This will fetch the json representation from pfconfig and decode it into o
 // o must be a pointer to the struct as this should be used by reference
-func FetchDecodeSocket(o PfconfigObject, reflectInfo reflect.Value) {
+func FetchDecodeSocket(ctx context.Context, o PfconfigObject, reflectInfo reflect.Value) {
 	var queryParam interface{}
 	if reflectInfo.IsValid() {
 		queryParam = reflectInfo
 	} else {
 		queryParam = o
 	}
-	query := createQuery(queryParam)
-	jsonResponse := FetchSocket(query.payload)
+	query := createQuery(ctx, queryParam)
+	jsonResponse := FetchSocket(ctx, query.payload)
 	if query.method == "keys" {
 		if cs, ok := o.(*ConfigSections); ok {
-			decodeJsonObject(jsonResponse, &cs.Keys)
+			decodeJsonObject(ctx, jsonResponse, &cs.Keys)
 		} else {
 			panic("Wrong object type for keys. Required ConfigSections")
 		}
 	} else {
 		receiver := &PfconfigElementResponse{}
-		decodeJsonObject(jsonResponse, receiver)
+		decodeJsonObject(ctx, jsonResponse, receiver)
 		b, _ := receiver.Element.MarshalJSON()
-		decodeJsonObject(b, &o)
+		decodeJsonObject(ctx, b, &o)
 	}
 
 }
