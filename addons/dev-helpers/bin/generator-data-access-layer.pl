@@ -49,6 +49,10 @@ for my $table (@$tables) {
     my $class = "pf::dal::_${name}";
     my %vars = (%$table, class => $class, now => $now);
     print "Generating $vars{class}\n";
+    unless (@{$table->{primary_keys}}) {
+        print "There is no primary key for $class\n";
+        next;
+    }
     $tt->process($base_template, \%vars, "_${name}.pm") or die $tt->error();
     if (!-f "$output_path/${name}.pm" ) {
         $vars{parent_class} = $class;
@@ -93,6 +97,15 @@ sub get_table_info {
                 push @keys, $key;
             }
             $row->{'foreign_key_info'} = \@keys;
+        }
+        if (0) {
+            my @indexes;
+            my $sth =
+              $dbh->statistics_info($row->{TABLE_CAT}, $row->{TABLE_SCHEM}, $row->{TABLE_NAME}, undef, undef);
+            while (my $index = $sth->fetchrow_hashref()) {
+                push @indexes, $index;
+            }
+            $row->{'indexes'} = \@indexes;
         }
     }
     return \@tables;
