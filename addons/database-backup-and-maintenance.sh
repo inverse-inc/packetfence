@@ -79,7 +79,7 @@ if [ -f /var/run/mysqld/mysqld.pid ] || [ -f /var/run/mariadb/mariadb.pid ]; the
         PERCONA_XTRABACKUP_INSTALLED=1
     fi
 
-    BACKUPS_AVAILABLE_SPACE=`df --output=avail $BACKUP_DIRECTORY | awk 'NR == 2 { print $4  }'`
+    BACKUPS_AVAILABLE_SPACE=`df --output=avail $BACKUP_DIRECTORY | awk 'NR == 2 { print $1  }'`
     MYSQL_USED_SPACE=`du -s /var/lib/mysql | awk '{ print $1 }'`
     if (( $BACKUPS_AVAILABLE_SPACE > (( $MYSQL_USED_SPACE /2 )) )); then 
         if [ $PERCONA_XTRABACKUP_INSTALLED -eq 1 ]; then
