@@ -1,13 +1,16 @@
 package libfirewallsso
 
 import (
+	"context"
 	"github.com/davecgh/go-spew/spew"
 	"testing"
 )
 
+var ctx = context.Background()
+
 func TestInstantiate(t *testing.T) {
-	factory := NewFactory()
-	firewall := factory.Instantiate("test")
+	factory := NewFactory(ctx)
+	firewall := factory.Instantiate(ctx, "test")
 
 	iboss := firewall.(*Iboss)
 
@@ -22,28 +25,28 @@ func TestInstantiate(t *testing.T) {
 }
 
 func TestStart(t *testing.T) {
-	factory := NewFactory()
-	iboss := factory.Instantiate("test").(*Iboss)
+	factory := NewFactory(ctx)
+	iboss := factory.Instantiate(ctx, "test").(*Iboss)
 
-	result := ExecuteStart(iboss, map[string]string{"ip": "1.2.3.4", "role": "default", "mac": "00:11:22:33:44:55", "username": "lzammit"}, 0)
+	result := ExecuteStart(ctx, iboss, map[string]string{"ip": "1.2.3.4", "role": "default", "mac": "00:11:22:33:44:55", "username": "lzammit"}, 0)
 	if !result {
 		t.Error("Iboss SSO didn't succeed with valid parameters")
 	}
 
-	result = ExecuteStart(iboss, map[string]string{"ip": "1.2.3.4", "role": "no-sso-on-that", "mac": "00:11:22:33:44:55", "username": "lzammit"}, 0)
+	result = ExecuteStart(ctx, iboss, map[string]string{"ip": "1.2.3.4", "role": "no-sso-on-that", "mac": "00:11:22:33:44:55", "username": "lzammit"}, 0)
 	if result {
 		t.Error("Iboss SSO succeeded with invalid parameters")
 	}
 
-	paloalto := factory.Instantiate("paloalto.com")
+	paloalto := factory.Instantiate(ctx, "paloalto.com")
 
-	result = ExecuteStart(paloalto, map[string]string{"ip": "1.2.3.4", "role": "gaming", "mac": "00:11:22:33:44:55", "username": "lzammit"}, 0)
+	result = ExecuteStart(ctx, paloalto, map[string]string{"ip": "1.2.3.4", "role": "gaming", "mac": "00:11:22:33:44:55", "username": "lzammit"}, 0)
 
 	if !result {
 		t.Error("PaloAlto SSO failed with valid parameters")
 	}
 
-	result = ExecuteStart(paloalto, map[string]string{"ip": "1.2.3.4", "role": "no-sso-on-that", "mac": "00:11:22:33:44:55", "username": "lzammit"}, 0)
+	result = ExecuteStart(ctx, paloalto, map[string]string{"ip": "1.2.3.4", "role": "no-sso-on-that", "mac": "00:11:22:33:44:55", "username": "lzammit"}, 0)
 
 	if result {
 		t.Error("PaloAlto SSO succeeded with invalid parameters")

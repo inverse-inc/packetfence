@@ -1,6 +1,8 @@
 package libfirewallsso
 
-import ()
+import (
+	"context"
+)
 
 type Iboss struct {
 	FirewallSSO
@@ -9,10 +11,10 @@ type Iboss struct {
 	Port     string `json:"port"`
 }
 
-func (fw *Iboss) Start(info map[string]string, timeout int) bool {
+func (fw *Iboss) Start(ctx context.Context, info map[string]string, timeout int) bool {
 	return true
 }
 
-func (fw *Iboss) Stop(info map[string]string) bool {
+func (fw *Iboss) Stop(ctx context.Context, info map[string]string) bool {
 	return false
 }

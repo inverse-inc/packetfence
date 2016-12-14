@@ -1,6 +1,7 @@
 package libfirewallsso
 
 import (
+	"context"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"reflect"
 )
@@ -11,7 +12,7 @@ type Factory struct {
 }
 
 // Create a new FirewallSSO factory containing all the valid types
-func NewFactory() Factory {
+func NewFactory(ctx context.Context) Factory {
 	f := Factory{}
 	f.typeRegistry = make(map[string]reflect.Type)
 	f.typeRegistry["Iboss"] = reflect.TypeOf(&Iboss{}).Elem()
@@ -22,7 +23,7 @@ func NewFactory() Factory {
 // Instantiate a new FirewallSSO given its configuration ID in PacketFence
 // TODO: This currently calls FetchDecodeSocketStruct twice which generates 2 calls to pfconfig
 //			 This should be reworked so that only 1 call is done and the same payload is used to determine the type and to create the struct
-func (f *Factory) Instantiate(id string) FirewallSSOInt {
+func (f *Factory) Instantiate(ctx context.Context, id string) FirewallSSOInt {
 	firewall := FirewallSSO{}
 	firewall.PfconfigHashNS = id
 	pfconfigdriver.FetchDecodeSocketStruct(&firewall)
