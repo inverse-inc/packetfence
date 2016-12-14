@@ -55,6 +55,7 @@ if ((  $BACKUPS_AVAILABLE_SPACE > (( $PF_USED_SPACE / 2 )) )); then
     if [ ! -f $BACKUP_DIRECTORY$BACKUP_PF_FILENAME ]; then
         tar -czf $current_tgz $PF_DIRECTORY --exclude=$PF_DIRECTORY'logs/*' --exclude=$PF_DIRECTORY'var/*' --exclude=$PF_DIRECTORY'.git/*'
         echo -e $BACKUP_PF_FILENAME "have been created in  $BACKUP_DIRECTORY \n"
+        echo "OK" > /usr/local/pf/var/backup_files.status
         find $BACKUP_DIRECTORY -name "packetfence-files-dump-*.tgz" -mtime +$NB_DAYS_TO_KEEP_FILES -print0 | xargs -0r rm -f
         echo -e "$BACKUP_PF_FILENAME older than $NB_DAYS_TO_KEEP_FILES days have been removed. \n"
     else
@@ -62,6 +63,7 @@ if ((  $BACKUPS_AVAILABLE_SPACE > (( $PF_USED_SPACE / 2 )) )); then
     fi
 else 
     echo "ERROR: There is not enough space in $BACKUP_DIRECTORY to safely backup files. Skipping the backup." >&2
+    echo "ERROR: There is not enough space in $BACKUP_DIRECTORY to safely backup files. Skipping the backup." > /usr/local/pf/var/backup_files.status
 fi 
 
 # Is the database run on the current server?
@@ -90,8 +92,10 @@ if [ -f /var/run/mysqld/mysqld.pid ] || [ -f /var/run/mariadb/mariadb.pid ]; the
             BACKUPRC=$?
             if (( $BACKUPRC > 0 )); then 
                 echo "innobackupex was not successful." >&2
+                echo "innobackupex was not successful." > /usr/local/pf/var/backup_db.status
             else
                 touch /usr/local/pf/var/run/last_backup
+                echo "OK" > /usr/local/pf/var/backup_db.status
             fi
         else
             find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-*.sql.gz" -mtime +$NB_DAYS_TO_KEEP_DB -delete
@@ -100,12 +104,15 @@ if [ -f /var/run/mysqld/mysqld.pid ] || [ -f /var/run/mariadb/mariadb.pid ]; the
             BACKUPRC=$?
             if (( $BACKUPRC > 0 )); then 
                 echo "mysqldump returned  error code: $?" >&2
+                echo "mysqldump returned  error code: $?" > /usr/local/pf/var/backup_db.status
             else 
                 touch /usr/local/pf/var/run/last_backup
+                echo "OK" > /usr/local/pf/var/backup_db.status
             fi
         fi
     else 
         echo "There is not enough space in $BACKUP_DIRECTORY to safely backup the database. Skipping backup." >&2
+        echo "There is not enough space in $BACKUP_DIRECTORY to safely backup the database. Skipping backup." > /usr/local/pf/var/backup_db.status
     fi
 fi
 
