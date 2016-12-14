@@ -23,6 +23,8 @@ type Query struct {
 	payload  string
 }
 
+// Get the payload to send to pfconfig based on the Query attributes
+// Also sets the payload attribute at the same time
 func (q *Query) GetPayload() string {
 	q.payload = fmt.Sprintf(`{"method":"%s", "key":"%s","encoding":"%s"}`+"\n", q.method, q.ns, q.encoding)
 	return q.payload
