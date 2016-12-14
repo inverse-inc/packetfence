@@ -3,10 +3,11 @@ package libfirewallsso
 import (
 	"context"
 	"github.com/davecgh/go-spew/spew"
+	"github.com/inverse-inc/packetfence/go/logging"
 	"testing"
 )
 
-var ctx = context.Background()
+var ctx = logging.NewContext(context.Background())
 
 func TestInstantiate(t *testing.T) {
 	factory := NewFactory(ctx)
