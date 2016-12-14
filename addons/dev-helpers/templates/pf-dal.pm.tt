@@ -1,82 +1,92 @@
-package [% class %];
-
-=head1 NAME
-
-[% class %] -
-
-=cut
-
-=head1 DESCRIPTION
-
-[% class %] -
-
-=cut
-
-use strict;
-use warnings;
+[% WRAPPER "class-wrapper.tt" -%]
 use base qw(pf::dal);
 
-our @FIELD_NAMES = qw(
+our @FIELD_NAMES;
+our @PRIMARY_KEYS;
+our %DEFAULTS;
+our %FIELDS_META;
+
+BEGIN {
+    @FIELD_NAMES = qw(
 [% FOREACH col IN cols -%]
-    [% col.COLUMN_NAME %]
+        [% col.COLUMN_NAME %]
 [% END -%]
-);
+    );
 
+    %DEFAULTS = (
 [% FOREACH col IN cols -%]
-=head2 [% col.COLUMN_NAME %]
+[%- NEXT IF col.mysql_is_auto_increment -%]
+        [% col.COLUMN_NAME %] => [% col.pf_default_value %],
+[% END -%]
+    );
 
-=cut
+    %FIELDS_META = (
+[% FOREACH col IN cols -%]
+        [% col.COLUMN_NAME %] => {
+            type => '[% col.TYPE_NAME %]',
+            is_auto_increment => [% col.mysql_is_auto_increment %],
+            is_primary_key => [% IF col.mysql_is_pri_key %]1[% ELSE %]0[% END %],
+        },
+[% END -%]
+    );
 
-sub [% col.COLUMN_NAME %] {
-    my ($self, $val) = @_;
+    @PRIMARY_KEYS = qw(
+[% FOREACH col IN primary_keys -%]
+        [% col.COLUMN_NAME %]
+[% END -%]
+    );
 }
 
-[% END -%]
-
+use Class::XSAccessor {
+    accessors => \@FIELD_NAMES,
 [% IF primary_keys.size > 0 %]
-our @PRIMARY_KEYS = qw(
-[% FOREACH col IN primary_keys -%]
-    [% col.COLUMN_NAME %]
-[% END -%]
-);
+    true => [qw(has_primary_key)],
+[% END %]
+};
 
+sub _defaults {
+    return {%DEFAULTS};
+}
+
+sub field_names {
+    return [@FIELD_NAMES];
+}
+
+sub primary_keys {
+    return [@PRIMARY_KEYS];
+}
+
+sub table { "[% TABLE_NAME %]" }
+
+[% IF primary_keys.size > 0 -%]
 our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
     "SELECT * FROM [% TABLE_NAME %] WHERE $where;";
 };
 
 sub _find_one_sql {
-    my ($proto) = @_;
     return $FIND_SQL;
 }
+[% END -%]
 
-[% END %]
- 
-=head1 AUTHOR
+our $UPDATE_SQL = do {
+    my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
+    my $set = join(", ", map { "$_ = ?" } @FIELD_NAMES);
+    "UPDATE [% TABLE_NAME %] SET $set WHERE $where;";
+};
 
-Inverse inc. <info@inverse.ca>
+sub _update_sql {
+    return $UPDATE_SQL;
+}
 
-=head1 COPYRIGHT
+sub _update_data {
+    my ($self) = @_;
+    my %data;
+    @data{@FIELD_NAMES} = @{$self}{@FIELD_NAMES};
+    return \%data;
+}
 
-Copyright (C) 2005-[% now.year %] Inverse inc.
-
-=head1 LICENSE
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
-USA.
-
-=cut
-
-1;
+sub _update_fields {
+    return [@FIELD_NAMES, @PRIMARY_KEYS];
+}
+[%- END -%]

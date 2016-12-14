@@ -71,44 +71,107 @@ sub get_table_info {
     my $tablesth = $dbh->table_info(undef, undef, $table);
 
     my @tables;
-    while (my $row = $tablesth->fetchrow_hashref()) {
-        push @tables, $row;
+    while (my $table = $tablesth->fetchrow_hashref()) {
+        push @tables, $table;
         {
             my @cols;
-            my $sth = $dbh->column_info($row->{TABLE_CAT}, $row->{TABLE_SCHEM}, $row->{TABLE_NAME}, undef);
+            my $sth = $dbh->column_info($table->{TABLE_CAT}, $table->{TABLE_SCHEM}, $table->{TABLE_NAME}, undef);
             while (my $col = $sth->fetchrow_hashref()) {
+                add_additional_metadata_to_column($table, $col);
                 push @cols, $col;
             }
-            $row->{cols} = \@cols;
+            $table->{cols} = \@cols;
         }
         {
             my @keys;
-            my $sth = $dbh->primary_key_info($row->{TABLE_CAT}, $row->{TABLE_SCHEM}, $row->{TABLE_NAME});
+            my $sth = $dbh->primary_key_info($table->{TABLE_CAT}, $table->{TABLE_SCHEM}, $table->{TABLE_NAME});
             while (my $key = $sth->fetchrow_hashref()) {
                 push @keys, $key;
             }
-            $row->{'primary_keys'} = \@keys;
+            $table->{'primary_keys'} = \@keys;
         }
         {
             my @keys;
             my $sth =
-              $dbh->foreign_key_info($row->{TABLE_CAT}, $row->{TABLE_SCHEM}, $row->{TABLE_NAME}, undef, undef, undef);
+              $dbh->foreign_key_info($table->{TABLE_CAT}, $table->{TABLE_SCHEM}, $table->{TABLE_NAME}, undef, undef, undef);
             while (my $key = $sth->fetchrow_hashref()) {
                 push @keys, $key;
             }
-            $row->{'foreign_key_info'} = \@keys;
+            $table->{'foreign_key_info'} = \@keys;
         }
         if (0) {
             my @indexes;
             my $sth =
-              $dbh->statistics_info($row->{TABLE_CAT}, $row->{TABLE_SCHEM}, $row->{TABLE_NAME}, undef, undef);
+              $dbh->statistics_info($table->{TABLE_CAT}, $table->{TABLE_SCHEM}, $table->{TABLE_NAME}, undef, undef);
             while (my $index = $sth->fetchrow_hashref()) {
                 push @indexes, $index;
             }
-            $row->{'indexes'} = \@indexes;
+            $table->{'indexes'} = \@indexes;
         }
     }
     return \@tables;
+}
+
+sub add_additional_metadata_to_column {
+    my ($table, $col) = @_;
+    $col->{pf_default_value} = make_default_value($table, $col);
+}
+
+our %DEFAULT_VALUE_MAKERS = (
+    CHAR    => \&make_string_default_value,
+    TEXT    => \&make_string_default_value,
+    VARCHAR => \&make_string_default_value,
+    INT     => \&make_int_default_value,
+    BIGINT  => \&make_int_default_value,
+    TINYINT => \&make_int_default_value,
+);
+
+=begin
+
+          'TYPE_NAME' => 'BIGINT',
+          'TYPE_NAME' => 'CHAR',
+          'TYPE_NAME' => 'DATETIME',
+          'TYPE_NAME' => 'ENUM',
+          'TYPE_NAME' => 'INT',
+          'TYPE_NAME' => 'LONGBLOB',
+          'TYPE_NAME' => 'SMALLINT',
+          'TYPE_NAME' => 'TEXT',
+          'TYPE_NAME' => 'TIMESTAMP',
+          'TYPE_NAME' => 'TINYINT',
+          'TYPE_NAME' => 'VARCHAR',
+
+=cut
+
+
+sub make_default_value {
+    my ($table, $col) = @_;
+    my $type = $col->{TYPE_NAME};
+    if (exists $DEFAULT_VALUE_MAKERS{$type} ) {
+        return $DEFAULT_VALUE_MAKERS{$type}->($table, $col);
+    }
+    return make_string_default_value($table, $col);
+}
+
+sub make_int_default_value {
+    my ($table, $col) = @_;
+    if (defined $col->{COLUMN_DEF}) {
+        return $col->{COLUMN_DEF};
+    }
+    unless ($col->{NULLABLE}) {
+        return "0";
+    }
+    return "undef";
+}
+
+sub make_string_default_value {
+    my ($table, $col) = @_;
+    if (defined $col->{COLUMN_DEF}) {
+        return "'$col->{COLUMN_DEF}'";
+    }
+    unless ($col->{NULLABLE}) {
+        return "''";
+    }
+    return "undef";
 }
 
 
