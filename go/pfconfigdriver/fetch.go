@@ -6,6 +6,7 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
+	"github.com/Sereal/Sereal/Go/sereal"
 	"io"
 	"net"
 	"reflect"
@@ -85,6 +86,8 @@ func decodeObject(ctx context.Context, encoding string, b []byte, o interface{})
 	switch encoding {
 	case "json":
 		decodeJsonObject(ctx, b, o)
+	case "sereal":
+		decodeSerealObject(ctx, b, o)
 	default:
 		panic(fmt.Sprintf("Unknown encoding %s", encoding))
 	}
@@ -100,6 +103,20 @@ func decodeJsonObject(ctx context.Context, b []byte, o interface{}) {
 		} else if err != nil {
 			panic(err)
 		}
+	}
+}
+
+// NOTE: This currently doesn't work so don't use it for now.
+//       We will need to address this at some point in order to support Sereal payloads from pfconfig
+//       For now use the JSON encoding
+// Decode an array of bytes Sereal encoded into an interface
+// Panics if there is an error decoding the Sereal payload
+func decodeSerealObject(ctx context.Context, b []byte, o interface{}) {
+	decoder := sereal.NewDecoder()
+	decoder.PerlCompat = false
+	err := decoder.Unmarshal(b, o)
+	if err != nil {
+		panic(err)
 	}
 }
 
