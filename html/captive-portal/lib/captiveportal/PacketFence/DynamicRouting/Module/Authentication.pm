@@ -175,6 +175,10 @@ sub _build_required_fields {
         @fields = grep { $_ ne "username" } @fields;
         @fields = grep { $_ ne "password" } @fields;
     }
+    # Remove username for Authentication::Password
+    if ( ref($self) eq 'captiveportal::DynamicRouting::Module::Authentication::Password' ) {
+        @fields = grep { $_ ne "username" } @fields;
+    }
 
     return [@fields];
 }
@@ -311,6 +315,9 @@ sub update_person_from_fields {
     # we assume we use 'username' field as the PID when using 'reuseDot1x' feature
     if ( isenabled($self->app->profile->reuseDot1xCredentials) ) {
         $options{pid} //= "username";
+    }
+    elsif (ref($self) eq 'captiveportal::DynamicRouting::Module::Authentication::Password') {
+        $options{pid} //= $self->username;
     } else {
         $options{pid} //= $self->request_fields->{$self->pid_field};
     }

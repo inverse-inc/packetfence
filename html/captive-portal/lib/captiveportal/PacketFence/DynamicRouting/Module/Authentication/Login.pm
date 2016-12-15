@@ -117,8 +117,8 @@ Authenticate the POSTed username and password
 =cut
 
 sub authenticate {
-    my ($self) = @_;
-    my $username = $self->request_fields->{$self->pid_field};
+    my ($self, $user) = @_;
+    my $username = $user || $self->request_fields->{$self->pid_field};
     my $password = $self->request_fields->{password};
 
     my ($stripped_username, $realm) = strip_username($username);
