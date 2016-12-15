@@ -26,6 +26,7 @@ BEGIN {
             type => '[% col.TYPE_NAME %]',
             is_auto_increment => [% col.mysql_is_auto_increment %],
             is_primary_key => [% IF col.mysql_is_pri_key %]1[% ELSE %]0[% END %],
+            is_nullable => [% col.NULLABLE %],
         },
 [% END -%]
     );
