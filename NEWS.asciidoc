@@ -16,7 +16,7 @@ Version X.Y.Z released on xxxx-xx-xx
 
 New Features
 ++++++++++++
-
+ * Added an authentication source that prompts for the password of a predefined user (Authentication::Password)
 
 Enhancements
 ++++++++++++
