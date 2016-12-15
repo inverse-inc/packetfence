@@ -122,7 +122,6 @@ Find the pf::dal object by it's primaries keys
 
 sub find {
     my ($proto, @ids) = @_;
-    return undef unless $proto->has_primary_key;
     my $sql = $proto->_find_one_sql;
     my $sth = $proto->db_execute($sql, @ids);
     unless ($sth) {
@@ -179,10 +178,16 @@ Update the pf::dal object
 sub update {
     my ($self) = @_;
     return undef unless $self->has_primary_key && $self->__from_table;
-    my $sql = $self->_update_sql;
+    my $where         = $self->primary_keys_where_clause;
     my $update_data = $self->_update_data;
-    my $update_fields = $self->_update_fields;
-    my $sth = $self->db_execute($sql, @{$update_data}{@$update_fields});
+    my $sqla          = SQL::Abstract::More->new;
+    my ($stmt, @bind) = $sqla->update(
+        -table => $self->table,
+        -set   => $update_data,
+        -where => $where,
+    );
+    my $sth = $self->db_execute($stmt, @bind);
+
     if ($sth) {
         return $sth->rows;
     }
@@ -226,6 +231,30 @@ sub logger {
     return get_logger( ref($proto) || $proto );
 }
  
+=head2 primary_keys_where_clause
+
+Create the primary key where clause
+
+=cut
+
+sub primary_keys_where_clause {
+    my ($self) = @_;
+    my %where;
+    my $keys = $self->primary_keys;
+    for my $key (@$keys) {
+        $where{$key} = $self->$key;
+    }
+    return \%where;
+}
+
+=head2 primary_keys
+
+Primary keys
+
+=cut
+
+sub primary_keys { [] }
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
