@@ -238,7 +238,9 @@ session {
 #  the ONLY safe way is to set "use_tunneled_reply = yes", and
 #  then update the inner-tunnel reply.
 post-auth {
-	#
+	update {
+		&request:User-Password := "******"
+	}
 	rest
 	if (&reply:PacketFence-Authorization-Status == "deny") {
 		packetfence-audit-log-reject
@@ -282,6 +284,9 @@ post-auth {
 	#  'edir_account_policy_check = yes' in the ldap module configuration
 	#
 	Post-Auth-Type REJECT {
+		update {
+			&request:User-Password := "******"
+		}
 		packetfence-audit-log-reject
 		attr_filter.access_reject
 
