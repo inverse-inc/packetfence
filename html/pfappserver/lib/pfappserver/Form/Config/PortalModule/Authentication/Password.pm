@@ -28,6 +28,11 @@ has_field 'username' =>
              help => 'Defines the username used for all authentications' },
   );
 
+=head2 auth_module_definition
+
+Overriding to remove the username
+
+=cut
 
 sub auth_module_definition {
     my ($self) = @_;
