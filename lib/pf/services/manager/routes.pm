@@ -88,8 +88,8 @@ sub isAlive {
             $route_exist = $network;
         }
     }
-
-    my $routes_applied = defined(pf_run("route | grep ".$route_exist));
+    my $routes_applied = 0;
+    $routes_applied = defined(pf_run("route | grep ".$route_exist)) if (defined($route_exist));
     return (defined($pid) && $routes_applied);
 }
 
