@@ -55,6 +55,7 @@ use NetPacket::Ethernet qw(ETH_TYPE_IP ETH_TYPE_IPv6);
 use NetPacket::IP;
 use NetPacket::IPv6;
 use NetPacket::UDP;
+use pf::constants::config qw($NET_TYPE_INLINE_L2 $NET_TYPE_INLINE_L3);
 
 
 pf::SwitchFactory->preloadConfiguredModules();
