@@ -25,11 +25,9 @@ has_field 'username' =>
    label => 'Username',
    required => 1,
    tags => { after_element => \&help,
-             help => 'The define username to authenticate' },
+             help => 'Defines the username used for all authentications' },
   );
 
-
-# overriding to remove the signup template
 
 sub auth_module_definition {
     my ($self) = @_;

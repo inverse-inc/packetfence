@@ -6,7 +6,7 @@ captiveportal::DynamicRouting::Module::Authentication::Password
 
 =head1 DESCRIPTION
 
-Login registration
+Login Controller with a predefined username for captiveportal
 
 =cut
 
