@@ -268,6 +268,13 @@ sub process_pkt {
                     });
                     return;
                 }
+                
+                # grab DHCP information
+                if ($dhcp_mac) {
+                    $logger->debug("chaddr is undefined in DHCP packet");
+                    return;
+                }
+
 
                 # adding to dhcp hashref some frame information we care about
                 $dhcp->{'src_mac'} = $args{'src_mac'};
@@ -275,12 +282,6 @@ sub process_pkt {
                 $dhcp->{'src_ip'} = $args{'src_ip'};
                 $dhcp->{'dest_ip'} = $args{'dest_ip'};
                 $dhcp->{'chaddr'} = $dhcp_mac;
-
-                # grab DHCP information
-                if ( !defined($dhcp_mac) ) {
-                    $logger->debug("chaddr is undefined in DHCP packet");
-                    return;
-                }
 
                 if (!valid_mac($dhcp->{'src_mac'})) {
                     $logger->debug("Source MAC is invalid. skipping");
