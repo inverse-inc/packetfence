@@ -70,24 +70,7 @@ sub _find_one_sql {
 }
 [% END -%]
 
-our $UPDATE_SQL = do {
-    my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
-    my $set = join(", ", map { "$_ = ?" } @FIELD_NAMES);
-    "UPDATE [% TABLE_NAME %] SET $set WHERE $where;";
-};
-
-sub _update_sql {
-    return $UPDATE_SQL;
-}
-
-sub _update_data {
-    my ($self) = @_;
-    my %data;
-    @data{@FIELD_NAMES} = @{$self}{@FIELD_NAMES};
-    return \%data;
-}
-
-sub _update_fields {
-    return [@FIELD_NAMES, @PRIMARY_KEYS];
+sub _updateable_fields {
+    return [@FIELD_NAMES];
 }
 [%- END -%]
