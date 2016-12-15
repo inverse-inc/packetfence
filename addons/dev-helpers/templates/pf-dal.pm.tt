@@ -16,6 +16,7 @@ BEGIN {
     %DEFAULTS = (
 [% FOREACH col IN cols -%]
 [%- NEXT IF col.mysql_is_auto_increment -%]
+[%- NEXT IF col.pf_default_value == "'CURRENT_TIMESTAMP'" -%]
         [% col.COLUMN_NAME %] => [% col.pf_default_value %],
 [% END -%]
     );
@@ -27,6 +28,13 @@ BEGIN {
             is_auto_increment => [% col.mysql_is_auto_increment %],
             is_primary_key => [% IF col.mysql_is_pri_key %]1[% ELSE %]0[% END %],
             is_nullable => [% col.NULLABLE %],
+[% IF col.TYPE_NAME == "ENUM" -%]
+            enums_values => {
+[% FOREACH val IN col.mysql_values -%]
+                '[% val %]' => 1,
+[% END -%]
+            },
+[% END -%]
         },
 [% END -%]
     );
@@ -72,5 +80,9 @@ sub _find_one_sql {
 
 sub _updateable_fields {
     return [@FIELD_NAMES];
+}
+
+sub get_meta {
+    return \%FIELDS_META;
 }
 [%- END -%]
