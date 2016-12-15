@@ -22,6 +22,7 @@ use pf::config qw(
     %ConfigNetworks
 );
 use IPC::Cmd qw[can_run run];
+use pf::constants qw($TRUE $FALSE);
 
 extends 'pf::services::manager';
 
@@ -89,7 +90,7 @@ sub isAlive {
         }
     }
     my $routes_applied = 0;
-    $routes_applied = defined(pf_run("route | grep ".$route_exist)) if (defined($route_exist));
+    $routes_applied = defined(pf_run("route | grep ".$route_exist)) if ($route_exist);
     return (defined($pid) && $routes_applied);
 }
 
@@ -133,6 +134,22 @@ sub manageStaticRoute {
         }
         close $fh;
     }
+}
+
+sub isManaged {
+    my ($self) = @_;
+
+    my $route_exist = '';
+
+    foreach my $network ( keys %ConfigNetworks ) {
+        # shorter, more convenient local accessor
+        my %net = %{$ConfigNetworks{$network}};
+
+        if ( defined($net{'next_hop'}) && ($net{'next_hop'} =~ /^(?:\d{1,3}\.){3}\d{1,3}$/) ) {
+            return $TRUE;
+        }
+    }
+    return $FALSE;
 }
 
 =head1 AUTHOR
