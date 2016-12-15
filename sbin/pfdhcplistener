@@ -275,22 +275,22 @@ sub process_pkt {
                     return;
                 }
 
-                $dhcp->{'chaddr'} = clean_mac( substr( $dhcp->{'chaddr'}, 0, 12 ) );
+                my $dhcp_mac = clean_mac( substr( $dhcp->{'chaddr'}, 0, 12 ) );
+                $dhcp->{'chaddr'} = $dhcp_mac;
 
                 if (!valid_mac($dhcp->{'src_mac'})) {
                     $logger->debug("Source MAC is invalid. skipping");
                     return;
                 }
 
-                if ( $dhcp->{'chaddr'} ne "00:00:00:00:00:00" && !valid_mac($dhcp->{'chaddr'}) ) {
+                if ( $dhcp_mac ne "00:00:00:00:00:00" && !valid_mac($dhcp_mac) ) {
                     $logger->debug( sub {
-                        "invalid CHADDR value ($dhcp->{'chaddr'}) in DHCP packet from $dhcp->{src_mac} ($dhcp->{src_ip})"
+                        "invalid CHADDR value ($dhcp_mac) in DHCP packet from $dhcp->{src_mac} ($dhcp->{src_ip})"
                     });
                     return;
                 }
 
 
-                my $dhcp_mac = $dhcp->{'chaddr'};
                 # If its a DHCPREQUEST, we take the IP address from the option
                 my $dhcp_ip = ( $dhcp->{'op'} == 1 && $dhcp->{'options'}{'53'} == 3 ) ? $dhcp->{'options'}{'50'} : $dhcp->{yiaddr};
                 my $rate_limit_key;
