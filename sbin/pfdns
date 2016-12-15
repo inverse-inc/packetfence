@@ -403,7 +403,7 @@ sub regzone_non_filtered {
     my $res = Net::DNS::Resolver->new;
     my $query_non_filtered = resolve_with_cache("A", $qname);
     if ($query_non_filtered) {
-        add_answers_to_ipset($query, $IPSET_SESSION, $HTTP_PORT, $HTTPS_PORT);
+        add_answers_to_ipset($query_non_filtered, $IPSET_SESSION, $HTTP_PORT, $HTTPS_PORT);
         push @ans, $query_non_filtered->answer;
         if (@ans) {
             $results{rcode} = "NOERROR";
