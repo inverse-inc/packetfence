@@ -177,9 +177,13 @@ Update the pf::dal object
 
 sub update {
     my ($self) = @_;
-    return undef unless $self->has_primary_key && $self->__from_table;
+    return 0 unless $self->__from_table;
     my $where         = $self->primary_keys_where_clause;
     my $update_data = $self->_update_data;
+    return 0 unless defined $update_data;
+    if (keys %$update_data == 0 ) {
+       return 1;
+    }
     my $sqla          = SQL::Abstract::More->new;
     my ($stmt, @bind) = $sqla->update(
         -table => $self->table,
@@ -191,7 +195,85 @@ sub update {
     if ($sth) {
         return $sth->rows;
     }
-    return undef;
+    return 0;
+}
+
+=head2 _update_data
+
+Return the data that needs to be updated
+
+=cut
+
+sub _update_data {
+    my ($self) = @_;
+    my $updateable_fields = $self->_updateable_fields;
+    my $old_data = $self->__old_data;
+    my %data;
+    foreach my $field (@$updateable_fields) {
+        my $new_value = $self->{$field};
+        my $old_value = $old_data->{$field};
+        next if (!defined $new_value && !$old_value);
+        next if (defined $new_value && defined $old_value && $new_value eq $old_value);
+        unless ($self->validate_field($field, $new_value)) {
+            return undef;
+        }
+        $data{$field} = $new_value;
+    }
+    return \%data;
+}
+
+=head2 validate_field
+
+Validate a field value
+
+=cut
+
+sub validate_field {
+    my ($self, $field, $value) = @_;
+    my $logger = $self->logger;
+    my $is_nullable = $self->is_nullable($field);
+    if (!$is_nullable) {
+        if (!defined $value) {
+            my $table = $self->table;
+            $logger->error("Trying to save a NULL value in a non nullable field ${table}.${field}");
+            return 0;
+        }
+    }
+    if ($self->is_enum($field) && defined $value) {
+        my $meta;
+        return exists $meta->{$field} && exists $meta->{$field}{enums_values}{$value};
+    }
+    return 1;
+}
+
+=head2 is_enum
+
+Checks to see if a field is enum
+
+=cut
+
+sub is_enum {
+    my ($self, $field, $value) = @_;
+    my $meta = $self->get_meta;
+    if (exists $meta->{$field}) {
+        return $meta->{$field}{type} eq 'ENUM';
+    }
+    return 0;
+}
+
+=head2 is_nullable
+
+Checks to see if a field is nullable
+
+=cut
+
+sub is_nullable {
+    my ($self, $field) = @_;
+    my $meta = $self->get_meta;
+    if (exists $meta->{$field}) {
+        return $meta->{$field}{is_nullable};
+    }
+    return 0;
 }
 
 =head2 insert
@@ -239,10 +321,11 @@ Create the primary key where clause
 
 sub primary_keys_where_clause {
     my ($self) = @_;
+    my $old_data = $self->__old_data;
     my %where;
     my $keys = $self->primary_keys;
     for my $key (@$keys) {
-        $where{$key} = $self->$key;
+        $where{$key} = $old_data->{$key};
     }
     return \%where;
 }
