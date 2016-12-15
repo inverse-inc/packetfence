@@ -1194,11 +1194,10 @@ The UDP payload must be base 64 encoded.
 
 sub process_dhcp : Public {
     my ($class, %postdata) = @_;
-    my @require = qw(src_mac src_ip dest_mac dest_ip is_inline_vlan interface interface_ip interface_vlan net_type udp_payload_b64);
+    my @require = qw(src_mac src_ip dest_mac dest_ip is_inline_vlan interface interface_ip interface_vlan net_type);
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,\@found);
 
-    $postdata{udp_payload} = MIME::Base64::decode($postdata{udp_payload_b64});
     pf::dhcp::processor->new(%postdata)->process_packet();
 
     return $pf::config::TRUE;

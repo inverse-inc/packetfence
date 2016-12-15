@@ -229,7 +229,6 @@ sub process_pkt {
 
             my $l3 = $l2->{type} eq ETH_TYPE_IP ? NetPacket::IP->decode($l2->{'data'}) : NetPacket::IPv6->decode($l2->{'data'});
             my $l4 = NetPacket::UDP->decode($l3->{'data'});
-            my $udp_payload_b64 = MIME::Base64::encode($l4->{data});
             my %args = (
                 src_mac => clean_mac($l2->{'src_mac'}),
                 dest_mac => clean_mac($l2->{'dest_mac'}),
@@ -313,7 +312,7 @@ sub process_pkt {
                 #  - there is no cache entry (packet wasn't seen in the last $rate_limiting seconds)
                 if(!defined($rate_limit_key) || $rate_limiting == 0 || !$rate_limit_cache->get($rate_limit_key)) {
                     my $apiclient = pf::api::queue->new(queue => 'pfdhcplistener');
-                    $apiclient->notify('process_dhcp', %args, udp_payload_b64 => $udp_payload_b64);
+                    $apiclient->notify('process_dhcp', %args);
                     if(defined($rate_limit_key) && $rate_limiting != 0) {
                         $rate_limit_cache->set($rate_limit_key, 1, $rate_limiting);
                     }
@@ -324,7 +323,7 @@ sub process_pkt {
             }
             else {
                 my $apiclient = pf::api::queue->new;
-                $apiclient->notify('process_dhcpv6', $udp_payload_b64);
+                $apiclient->notify('process_dhcpv6', MIME::Base64::encode($l4->{data}));
             }
         };
 
