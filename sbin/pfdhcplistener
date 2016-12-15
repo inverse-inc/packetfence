@@ -262,31 +262,29 @@ sub process_pkt {
                 return if (!$success);
                 $args{dhcp} = $dhcp;
                 
+                my $dhcp_mac = clean_mac( substr( $dhcp->{'chaddr'}, 0, 12 ) );
+                if ( $dhcp_mac ne "00:00:00:00:00:00" && !valid_mac($dhcp_mac) ) {
+                    $logger->debug( sub {
+                        "invalid CHADDR value ($dhcp_mac) in DHCP packet from $dhcp->{src_mac} ($dhcp->{src_ip})"
+                    });
+                    return;
+                }
+
                 # adding to dhcp hashref some frame information we care about
                 $dhcp->{'src_mac'} = $args{'src_mac'};
                 $dhcp->{'dest_mac'} = $args{'dest_mac'};
                 $dhcp->{'src_ip'} = $args{'src_ip'};
                 $dhcp->{'dest_ip'} = $args{'dest_ip'};
-
+                $dhcp->{'chaddr'} = $dhcp_mac;
 
                 # grab DHCP information
-                if ( !defined($dhcp->{'chaddr'}) ) {
+                if ( !defined($dhcp_mac) ) {
                     $logger->debug("chaddr is undefined in DHCP packet");
                     return;
                 }
 
-                my $dhcp_mac = clean_mac( substr( $dhcp->{'chaddr'}, 0, 12 ) );
-                $dhcp->{'chaddr'} = $dhcp_mac;
-
                 if (!valid_mac($dhcp->{'src_mac'})) {
                     $logger->debug("Source MAC is invalid. skipping");
-                    return;
-                }
-
-                if ( $dhcp_mac ne "00:00:00:00:00:00" && !valid_mac($dhcp_mac) ) {
-                    $logger->debug( sub {
-                        "invalid CHADDR value ($dhcp_mac) in DHCP packet from $dhcp->{src_mac} ($dhcp->{src_ip})"
-                    });
                     return;
                 }
 
@@ -321,7 +319,7 @@ sub process_pkt {
                     }
                 }
                 else {
-                    $logger->info("Ignoring packet due to rate-limiting");
+                    $logger->debug("[$dhcp_mac] Ignoring packet due to rate-limiting ($rate_limit_key)");
                 }
             }
             else {
