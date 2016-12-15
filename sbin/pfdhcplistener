@@ -291,11 +291,14 @@ sub process_pkt {
 
 
                 my $dhcp_mac = $dhcp->{'chaddr'};
-                # If its a DHCPREQUEST, we take the IP address from the options
-                my $dhcp_ip = ( $dhcp->{'options'}{'53'} == 3 ) ? $dhcp->{'options'}{'50'} : $dhcp->{yiaddr};
-                # Key is with BOOT type, DHCP type, IP and MAC
-                my $rate_limit_key = $dhcp->{'op'} . "-" . $dhcp->{'options'}{'53'} . "-$dhcp_ip-" . $dhcp_mac;
-                $logger->trace("Rate limit key : $rate_limit_key");
+                # If its a DHCPREQUEST, we take the IP address from the option
+                my $dhcp_ip = ( $dhcp->{'op'} == 1 && $dhcp->{'options'}{'53'} == 3 ) ? $dhcp->{'options'}{'50'} : $dhcp->{yiaddr};
+                my $rate_limit_key;
+                if(defined($dhcp_ip)) {
+                    # Key is with BOOT type, DHCP type, IP and MAC
+                    $rate_limit_key = $dhcp->{'op'} . "-" . $dhcp->{'options'}{'53'} . "-$dhcp_ip-" . $dhcp_mac;
+                    $logger->trace("Rate limit key : $rate_limit_key");
+                }
 
                 if ($is_inline_vlan) {
                     my $ip = new NetAddr::IP::Lite clean_ip($l3->{'src_ip'});
@@ -306,10 +309,14 @@ sub process_pkt {
                    }
                 }
                 my $rate_limiting = $Config{network}->{dhcp_rate_limiting};
-                if($rate_limiting == 0 || !$rate_limit_cache->get($rate_limit_key)) {
+                # We send the packet to be processed if:
+                #  - there is no rate limit key (packet doesn't contain info to be rate-limited)
+                #  - there is no rate limiting configured
+                #  - there is no cache entry (packet wasn't seen in the last $rate_limiting seconds)
+                if(!defined($rate_limit_key) || $rate_limiting == 0 || !$rate_limit_cache->get($rate_limit_key)) {
                     my $apiclient = pf::api::queue->new(queue => 'pfdhcplistener');
                     $apiclient->notify('process_dhcp', %args, udp_payload_b64 => $udp_payload_b64);
-                    if($rate_limiting != 0) {
+                    if(defined($rate_limit_key) && $rate_limiting != 0) {
                         $rate_limit_cache->set($rate_limit_key, 1, $rate_limiting);
                     }
                 }
