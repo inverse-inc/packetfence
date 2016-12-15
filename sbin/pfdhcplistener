@@ -269,8 +269,8 @@ sub process_pkt {
                     return;
                 }
                 
-                # grab DHCP information
-                if ($dhcp_mac) {
+                # don't process a packet for which we don't have a MAC address
+                unless($dhcp_mac) {
                     $logger->debug("chaddr is undefined in DHCP packet");
                     return;
                 }
