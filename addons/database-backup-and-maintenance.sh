@@ -54,10 +54,16 @@ if ((  $BACKUPS_AVAILABLE_SPACE > (( $PF_USED_SPACE / 2 )) )); then
     current_tgz=$BACKUP_DIRECTORY/$BACKUP_PF_FILENAME-`date +%F_%Hh%M`.tgz
     if [ ! -f $BACKUP_DIRECTORY$BACKUP_PF_FILENAME ]; then
         tar -czf $current_tgz $PF_DIRECTORY --exclude=$PF_DIRECTORY'logs/*' --exclude=$PF_DIRECTORY'var/*' --exclude=$PF_DIRECTORY'.git/*'
-        echo -e $BACKUP_PF_FILENAME "have been created in  $BACKUP_DIRECTORY \n"
-        echo "OK" > /usr/local/pf/var/backup_files.status
-        find $BACKUP_DIRECTORY -name "packetfence-files-dump-*.tgz" -mtime +$NB_DAYS_TO_KEEP_FILES -print0 | xargs -0r rm -f
-        echo -e "$BACKUP_PF_FILENAME older than $NB_DAYS_TO_KEEP_FILES days have been removed. \n"
+        BACKUPRC=$?
+        if (( $BACKUPRC > 0 )); then
+            echo "ERROR: PacketFence files backup was not successful" >&2
+            echo "ERROR: PacketFence files backup was not successful" > /usr/local/pf/var/backup_files.status
+        else
+            echo -e $BACKUP_PF_FILENAME "have been created in  $BACKUP_DIRECTORY \n"
+            echo "OK" > /usr/local/pf/var/backup_files.status
+            find $BACKUP_DIRECTORY -name "packetfence-files-dump-*.tgz" -mtime +$NB_DAYS_TO_KEEP_FILES -print0 | xargs -0r rm -f
+            echo -e "$BACKUP_PF_FILENAME older than $NB_DAYS_TO_KEEP_FILES days have been removed. \n"
+        fi
     else
         echo -e $BACKUP_DIRECTORY$BACKUP_PF_FILENAME ", file already created. \n"
     fi
