@@ -20,7 +20,6 @@ with 'pf::services::manager::roles::is_managed_vlan_inline_enforcement';
 
 has '+name' => (default => sub { 'pfdns' } );
 
-has '+launcher' => (default => sub { '%1$s -d &' } );
 
 =head1 AUTHOR
 

@@ -90,12 +90,6 @@ sub executable {
     return $service;
 }
 
-sub _build_launcher {
-    my ($self) = @_;
-    my $config_file = $self->configFilePath;
-    return "%1\$s -f $config_file -D$OS";
-}
-
 sub _build_configFilePath {
     my ($self) = @_;
     return "$var_dir/conf/httpd.conf.d/" . $self->name;

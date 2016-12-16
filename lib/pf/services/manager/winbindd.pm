@@ -52,7 +52,6 @@ sub _build_winbinddManagers {
         pf::services::manager::winbindd_child->new ({
             executable => $self->executable,
             name => "winbindd-$_.conf",
-            launcher => "sudo chroot $CHROOT_PATH $binary -D -s $CONFIGFILE -l $LOGDIRECTORY",
             forceManaged => $self->isManaged,
             orderIndex => $self->orderIndex,
             domain => $_,
@@ -61,28 +60,6 @@ sub _build_winbinddManagers {
     return \@managers;
 }
 
-sub postStartCleanup {
-    my ($self,$quick) = @_;
-    my $result = 0;
-    my $inotify = $self->inotify;
-    my @pidFiles = map { $_->pidFile } $self->managers;
-    my $logger = get_logger();
-    if ( @pidFiles && any { ! -e $_ } @pidFiles ) {
-        my $timedout;
-        eval {
-            local $SIG{ALRM} = sub { die "alarm clock restart" };
-            alarm 60;
-            eval {
-                 1 while $inotify->poll;
-            };
-            alarm 0;
-            $timedout = 1 if $@ && $@ =~ /^alarm clock restart/;
-        };
-        alarm 0;
-        $logger->warn($self->name . " timed out trying to start" ) if $timedout;
-    }
-    return all { -e $_ } @pidFiles;
-}
 
 
 sub managers {

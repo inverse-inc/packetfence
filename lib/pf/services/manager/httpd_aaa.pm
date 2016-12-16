@@ -19,7 +19,7 @@ use pf::config qw(%Config);
 
 extends 'pf::services::manager::httpd_webservices';
 
-has '+name' => (default => sub { 'httpd.aaa' } );
+has '+name' => ( default => sub {'httpd.aaa'} );
 
 sub port {
     return $Config{ports}{aaa};

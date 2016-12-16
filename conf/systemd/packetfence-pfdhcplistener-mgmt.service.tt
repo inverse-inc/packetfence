@@ -1,0 +1,13 @@
+[Unit]
+Description=The PacketFence DHCP Listener Service
+Requires=packetfence-config.service packetfence-pfqueue.service
+After=packetfence-config.service packetfence-pfqueue.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/pf/sbin/pfdhcplistener -i ens192
+Restart=on-failure
+Slice=packetfence.slice
+
+[Install]
+WantedBy=packetfence.target

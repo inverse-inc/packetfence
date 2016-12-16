@@ -26,14 +26,6 @@ The name of service of this manager
 
 has '+name' => ( default => sub { 'pfqueue' } );
 
-=head2 launcher
-
-The sprintf string to launch service
-
-=cut
-
-has '+launcher' => (default => sub { '%1$s -d' } );
-
 =head2 startDependsOnServices
 
 Add redis_queue to the list of dependecies

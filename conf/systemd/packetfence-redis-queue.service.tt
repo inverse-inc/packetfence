@@ -1,0 +1,16 @@
+# [% header_warning %]
+[Unit]
+Description=The PacketFence Redis Queue Service
+After=packetfence-config.service
+Requires=packetfence-config.service
+
+[Service]
+ExecStartPre=/usr/local/pf/bin/pfcmd service redis_queue generateconfig
+ExecStart=/usr/bin/redis-server /usr/local/pf/conf/redis_queue.conf --daemonize no
+ExecStop=/usr/bin/kill $MAINPID
+Restart=on-failure
+User=pf
+Slice=packetfence.slice
+
+[Install]
+WantedBy=packetfence.target

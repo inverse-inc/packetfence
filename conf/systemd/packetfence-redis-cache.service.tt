@@ -1,0 +1,13 @@
+# [% header_warning %]
+[Unit]
+Description=PacketFence Redis Cache Service
+After=network.target mysql.service
+
+[Service]
+Type=forking
+ExecStart=/usr/bin/redis-server /usr/local/pf/conf/redis_cache.conf
+ExecStop=/usr/bin/redis-cli shutdown
+
+
+[Install]
+WantedBy=multi-user.target

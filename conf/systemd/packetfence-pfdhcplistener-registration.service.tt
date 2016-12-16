@@ -1,0 +1,13 @@
+[Unit]
+Description=The PacketFence DHCP Listener Service for the Registration Interface
+Requires=packetfence-config.service packetfence-pfqueue.service
+After=packetfence-config.service packetfence-pfqueue.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/pf/sbin/pfdhcplistener -i ens224.125
+Restart=on-failure
+Slice=packetfence.slice
+
+[Install]
+WantedBy=packetfence.target

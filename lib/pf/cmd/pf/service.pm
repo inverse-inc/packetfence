@@ -5,7 +5,7 @@ pf::cmd::pf::service add documentation
 
 =head1 SYNOPSIS
 
-pfcmd service <service> [start|stop|restart|status|watch|generateconfig] [--ignore-checkup]
+pfcmd service <service> [start|stop|restart|status|watch|generateconfig|generateunitfile] [--ignore-checkup]
 
   stop/stop/restart specified service
   status returns PID of specified PF daemon or 0 if not running
@@ -86,6 +86,7 @@ our %ACTION_MAP = (
     watch   => \&watchService,
     restart => \&restartService,
     generateconfig => \&generateConfig,
+    generateunitfile => \&generateUnitFile,
 );
 
 our $ignore_checkup = $FALSE;
@@ -189,6 +190,18 @@ sub generateConfig {
     return $EXIT_SUCCESS;
 }
 
+sub generateUnitFile { 
+    my ($service, @services) = @_;
+    use sort qw(stable);
+    my @managers = sort _byIndexOrder pf::services::getManagers(\@services, JUST_MANAGED);
+    print $SERVICE_HEADER;
+    for my $manager (@managers) {
+        _doGenerateUnitFile($manager);
+    }
+    system("systemctl daemon-reload");
+    return $EXIT_SUCCESS;
+}
+
 sub checkup {
     require pf::services;
     require pf::pfcmd::checkup;
@@ -252,6 +265,21 @@ sub _doGenerateConfig {
     }
     print $manager->name,"|${color}${command}${RESET_COLOR}\n";
 }
+
+sub _doGenerateUnitFile {
+    my ($manager) = @_;
+    my $command;
+    my $color = '';
+    if($manager->generateUnitFile()) {
+        $command = 'Unit file generated';
+        $color =  $SUCCESS_COLOR;
+    } else {
+        $command = 'Unit file not generated';
+        $color =  $ERROR_COLOR;
+    }
+    print $manager->name,"|${color}${command}${RESET_COLOR}\n";
+}
+
 
 sub getIptablesTechnique {
     require pf::inline::custom;

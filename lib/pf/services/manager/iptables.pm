@@ -25,7 +25,7 @@ has '+name' => (default => sub { 'iptables' } );
 
 has '+shouldCheckup' => ( default => sub { 1 }  );
 
-has '+launcher' => ( default => sub {"iptables"} );
+#has '+launcher' => ( default => sub {"iptables"} );
 
 has '+startDependsOnServices' => (is => 'ro', default => sub { [] } );
 
@@ -47,9 +47,6 @@ sub startService {
     }
     $technique ||= getIptablesTechnique();
     $technique->iptables_generate();
-    open(my $fh, '>>'.$self->pidFile);
-    print $fh "-1";
-    close($fh);
     return 1;
 }
 
@@ -77,7 +74,6 @@ sub stop {
     my ($self) = @_;
     my $count = $self->runningServices;
     getIptablesTechnique->iptables_restore( $install_dir . '/var/iptables.bak');
-    unlink $self->pidFile;
     return 1;
 }
 
@@ -96,6 +92,17 @@ sub isAlive {
     return (defined($pid) && $rules_applied);
 }
 
+=head2 pid
+
+Override the default method to check pid since there really is no such thing for iptables (it's not a process).
+
+=cut
+
+sub pid {
+    my $self   = shift;
+    my $result = `systemctl is-active packetfence-iptables`;
+    $? == 0 ? return -1 : return 0;
+}
 
 =head1 AUTHOR
 
