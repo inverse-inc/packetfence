@@ -19,16 +19,74 @@ use base qw(pf::dal);
 
 our @FIELD_NAMES;
 our @PRIMARY_KEYS;
+our %DEFAULTS;
+our %FIELDS_META;
 
 BEGIN {
     @FIELD_NAMES = qw(
         browser
-            mobile
-            os
-            device_name
-            mac
-            device
-        );
+        mobile
+        os
+        device_name
+        mac
+        device
+    );
+
+    %DEFAULTS = (
+        browser => undef,
+        mobile => 'no',
+        os => undef,
+        device_name => undef,
+        mac => '',
+        device => 'no',
+    );
+
+    %FIELDS_META = (
+        browser => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        mobile => {
+            type => 'ENUM',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+            enums_values => {
+                'no' => 1,
+                'yes' => 1,
+            },
+        },
+        os => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        device_name => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        mac => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 1,
+            is_nullable => 0,
+        },
+        device => {
+            type => 'ENUM',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+            enums_values => {
+                'no' => 1,
+                'yes' => 1,
+            },
+        },
+    );
 
     @PRIMARY_KEYS = qw(
         mac
@@ -42,8 +100,16 @@ use Class::XSAccessor {
 
 };
 
+sub _defaults {
+    return {%DEFAULTS};
+}
+
 sub field_names {
     return [@FIELD_NAMES];
+}
+
+sub primary_keys {
+    return [@PRIMARY_KEYS];
 }
 
 sub table { "node_useragent" }
@@ -57,25 +123,12 @@ sub _find_one_sql {
     return $FIND_SQL;
 }
 
-our $UPDATE_SQL = do {
-    my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
-    my $set = join(", ", map { "$_ = ?" } @FIELD_NAMES);
-    "UPDATE node_useragent SET $set WHERE $where;";
-};
-
-sub _update_sql {
-    return $UPDATE_SQL;
+sub _updateable_fields {
+    return [@FIELD_NAMES];
 }
 
-sub _update_data {
-    my ($self) = @_;
-    my %data;
-    @data{@FIELD_NAMES} = @{$self}{@FIELD_NAMES};
-    return \%data;
-}
-
-sub _update_fields {
-    return [@FIELD_NAMES, @PRIMARY_KEYS];
+sub get_meta {
+    return \%FIELDS_META;
 }
  
 =head1 AUTHOR

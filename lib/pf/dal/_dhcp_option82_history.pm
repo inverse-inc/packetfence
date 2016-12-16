@@ -19,20 +19,96 @@ use base qw(pf::dal);
 
 our @FIELD_NAMES;
 our @PRIMARY_KEYS;
+our %DEFAULTS;
+our %FIELDS_META;
 
 BEGIN {
     @FIELD_NAMES = qw(
         switch_id
-            created_at
-            mac
-            module
-            dhcp_option82_history_id
-            circuit_id_string
-            vlan
-            port
-            option82_switch
-            host
-        );
+        created_at
+        mac
+        module
+        dhcp_option82_history_id
+        circuit_id_string
+        vlan
+        port
+        option82_switch
+        host
+    );
+
+    %DEFAULTS = (
+        switch_id => undef,
+        mac => '',
+        module => undef,
+        circuit_id_string => undef,
+        vlan => undef,
+        port => '',
+        option82_switch => undef,
+        host => undef,
+    );
+
+    %FIELDS_META = (
+        switch_id => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        created_at => {
+            type => 'TIMESTAMP',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        mac => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        module => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        dhcp_option82_history_id => {
+            type => 'INT',
+            is_auto_increment => 1,
+            is_primary_key => 1,
+            is_nullable => 0,
+        },
+        circuit_id_string => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        vlan => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        port => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        option82_switch => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        host => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+    );
 
     @PRIMARY_KEYS = qw(
         dhcp_option82_history_id
@@ -46,8 +122,16 @@ use Class::XSAccessor {
 
 };
 
+sub _defaults {
+    return {%DEFAULTS};
+}
+
 sub field_names {
     return [@FIELD_NAMES];
+}
+
+sub primary_keys {
+    return [@PRIMARY_KEYS];
 }
 
 sub table { "dhcp_option82_history" }
@@ -61,25 +145,12 @@ sub _find_one_sql {
     return $FIND_SQL;
 }
 
-our $UPDATE_SQL = do {
-    my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
-    my $set = join(", ", map { "$_ = ?" } @FIELD_NAMES);
-    "UPDATE dhcp_option82_history SET $set WHERE $where;";
-};
-
-sub _update_sql {
-    return $UPDATE_SQL;
+sub _updateable_fields {
+    return [@FIELD_NAMES];
 }
 
-sub _update_data {
-    my ($self) = @_;
-    my %data;
-    @data{@FIELD_NAMES} = @{$self}{@FIELD_NAMES};
-    return \%data;
-}
-
-sub _update_fields {
-    return [@FIELD_NAMES, @PRIMARY_KEYS];
+sub get_meta {
+    return \%FIELDS_META;
 }
  
 =head1 AUTHOR

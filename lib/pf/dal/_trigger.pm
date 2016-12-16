@@ -19,15 +19,58 @@ use base qw(pf::dal);
 
 our @FIELD_NAMES;
 our @PRIMARY_KEYS;
+our %DEFAULTS;
+our %FIELDS_META;
 
 BEGIN {
     @FIELD_NAMES = qw(
         vid
-            tid_start
-            whitelisted_categories
-            type
-            tid_end
-        );
+        tid_start
+        whitelisted_categories
+        type
+        tid_end
+    );
+
+    %DEFAULTS = (
+        vid => '0',
+        tid_start => '',
+        whitelisted_categories => '',
+        type => '',
+        tid_end => '',
+    );
+
+    %FIELDS_META = (
+        vid => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 1,
+            is_nullable => 0,
+        },
+        tid_start => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 1,
+            is_nullable => 0,
+        },
+        whitelisted_categories => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        type => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 1,
+            is_nullable => 0,
+        },
+        tid_end => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 1,
+            is_nullable => 0,
+        },
+    );
 
     @PRIMARY_KEYS = qw(
         vid
@@ -44,8 +87,16 @@ use Class::XSAccessor {
 
 };
 
+sub _defaults {
+    return {%DEFAULTS};
+}
+
 sub field_names {
     return [@FIELD_NAMES];
+}
+
+sub primary_keys {
+    return [@PRIMARY_KEYS];
 }
 
 sub table { "trigger" }
@@ -59,25 +110,12 @@ sub _find_one_sql {
     return $FIND_SQL;
 }
 
-our $UPDATE_SQL = do {
-    my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
-    my $set = join(", ", map { "$_ = ?" } @FIELD_NAMES);
-    "UPDATE trigger SET $set WHERE $where;";
-};
-
-sub _update_sql {
-    return $UPDATE_SQL;
+sub _updateable_fields {
+    return [@FIELD_NAMES];
 }
 
-sub _update_data {
-    my ($self) = @_;
-    my %data;
-    @data{@FIELD_NAMES} = @{$self}{@FIELD_NAMES};
-    return \%data;
-}
-
-sub _update_fields {
-    return [@FIELD_NAMES, @PRIMARY_KEYS];
+sub get_meta {
+    return \%FIELDS_META;
 }
  
 =head1 AUTHOR

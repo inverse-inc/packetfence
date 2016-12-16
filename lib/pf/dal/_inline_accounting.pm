@@ -19,16 +19,66 @@ use base qw(pf::dal);
 
 our @FIELD_NAMES;
 our @PRIMARY_KEYS;
+our %DEFAULTS;
+our %FIELDS_META;
 
 BEGIN {
     @FIELD_NAMES = qw(
         status
-            ip
-            lastmodified
-            outbytes
-            firstseen
-            inbytes
-        );
+        ip
+        lastmodified
+        outbytes
+        firstseen
+        inbytes
+    );
+
+    %DEFAULTS = (
+        status => '0',
+        ip => '',
+        lastmodified => '',
+        outbytes => '0',
+        firstseen => '',
+        inbytes => '0',
+    );
+
+    %FIELDS_META = (
+        status => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        ip => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 1,
+            is_nullable => 0,
+        },
+        lastmodified => {
+            type => 'DATETIME',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        outbytes => {
+            type => 'BIGINT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        firstseen => {
+            type => 'DATETIME',
+            is_auto_increment => 0,
+            is_primary_key => 1,
+            is_nullable => 0,
+        },
+        inbytes => {
+            type => 'BIGINT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+    );
 
     @PRIMARY_KEYS = qw(
         ip
@@ -43,8 +93,16 @@ use Class::XSAccessor {
 
 };
 
+sub _defaults {
+    return {%DEFAULTS};
+}
+
 sub field_names {
     return [@FIELD_NAMES];
+}
+
+sub primary_keys {
+    return [@PRIMARY_KEYS];
 }
 
 sub table { "inline_accounting" }
@@ -58,25 +116,12 @@ sub _find_one_sql {
     return $FIND_SQL;
 }
 
-our $UPDATE_SQL = do {
-    my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
-    my $set = join(", ", map { "$_ = ?" } @FIELD_NAMES);
-    "UPDATE inline_accounting SET $set WHERE $where;";
-};
-
-sub _update_sql {
-    return $UPDATE_SQL;
+sub _updateable_fields {
+    return [@FIELD_NAMES];
 }
 
-sub _update_data {
-    my ($self) = @_;
-    my %data;
-    @data{@FIELD_NAMES} = @{$self}{@FIELD_NAMES};
-    return \%data;
-}
-
-sub _update_fields {
-    return [@FIELD_NAMES, @PRIMARY_KEYS];
+sub get_meta {
+    return \%FIELDS_META;
 }
  
 =head1 AUTHOR

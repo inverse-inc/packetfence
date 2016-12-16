@@ -19,48 +19,320 @@ use base qw(pf::dal);
 
 our @FIELD_NAMES;
 our @PRIMARY_KEYS;
+our %DEFAULTS;
+our %FIELDS_META;
 
 BEGIN {
     @FIELD_NAMES = qw(
         profile
-            radius_request
-            nas_identifier
-            node_status
-            uuid
-            id
-            nas_port
-            mac
-            eap_type
-            is_phone
-            auto_reg
-            nas_port_id
-            auth_type
-            event_type
-            reason
-            user_name
-            nas_ip_address
-            switch_mac
-            role
-            ssid
-            radius_source_ip_address
-            request_time
-            ifindex
-            source
-            ip
-            nas_port_type
-            switch_id
-            created_at
-            radius_reply
-            realm
-            calling_station_id
-            called_station_id
-            stripped_user_name
-            auth_status
-            computer_name
-            pf_domain
-            connection_type
-            switch_ip_address
-        );
+        radius_request
+        nas_identifier
+        node_status
+        uuid
+        id
+        nas_port
+        mac
+        eap_type
+        is_phone
+        auto_reg
+        nas_port_id
+        auth_type
+        event_type
+        reason
+        user_name
+        nas_ip_address
+        switch_mac
+        role
+        ssid
+        radius_source_ip_address
+        request_time
+        ifindex
+        source
+        ip
+        nas_port_type
+        switch_id
+        created_at
+        radius_reply
+        realm
+        calling_station_id
+        called_station_id
+        stripped_user_name
+        auth_status
+        computer_name
+        pf_domain
+        connection_type
+        switch_ip_address
+    );
+
+    %DEFAULTS = (
+        profile => undef,
+        radius_request => undef,
+        nas_identifier => undef,
+        node_status => undef,
+        uuid => undef,
+        nas_port => undef,
+        mac => '',
+        eap_type => undef,
+        is_phone => undef,
+        auto_reg => undef,
+        nas_port_id => undef,
+        auth_type => undef,
+        event_type => undef,
+        reason => undef,
+        user_name => undef,
+        nas_ip_address => undef,
+        switch_mac => undef,
+        role => undef,
+        ssid => undef,
+        radius_source_ip_address => undef,
+        request_time => undef,
+        ifindex => undef,
+        source => undef,
+        ip => undef,
+        nas_port_type => undef,
+        switch_id => undef,
+        radius_reply => undef,
+        realm => undef,
+        calling_station_id => undef,
+        called_station_id => undef,
+        stripped_user_name => undef,
+        auth_status => undef,
+        computer_name => undef,
+        pf_domain => undef,
+        connection_type => undef,
+        switch_ip_address => undef,
+    );
+
+    %FIELDS_META = (
+        profile => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        radius_request => {
+            type => 'TEXT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        nas_identifier => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        node_status => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        uuid => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        id => {
+            type => 'INT',
+            is_auto_increment => 1,
+            is_primary_key => 1,
+            is_nullable => 0,
+        },
+        nas_port => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        mac => {
+            type => 'CHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        eap_type => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        is_phone => {
+            type => 'CHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        auto_reg => {
+            type => 'CHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        nas_port_id => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        auth_type => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        event_type => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        reason => {
+            type => 'TEXT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        user_name => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        nas_ip_address => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        switch_mac => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        role => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        ssid => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        radius_source_ip_address => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        request_time => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        ifindex => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        source => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        ip => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        nas_port_type => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        switch_id => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        created_at => {
+            type => 'TIMESTAMP',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        radius_reply => {
+            type => 'TEXT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        realm => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        calling_station_id => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        called_station_id => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        stripped_user_name => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        auth_status => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        computer_name => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        pf_domain => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        connection_type => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        switch_ip_address => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+    );
 
     @PRIMARY_KEYS = qw(
         id
@@ -74,8 +346,16 @@ use Class::XSAccessor {
 
 };
 
+sub _defaults {
+    return {%DEFAULTS};
+}
+
 sub field_names {
     return [@FIELD_NAMES];
+}
+
+sub primary_keys {
+    return [@PRIMARY_KEYS];
 }
 
 sub table { "radius_audit_log" }
@@ -89,25 +369,12 @@ sub _find_one_sql {
     return $FIND_SQL;
 }
 
-our $UPDATE_SQL = do {
-    my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
-    my $set = join(", ", map { "$_ = ?" } @FIELD_NAMES);
-    "UPDATE radius_audit_log SET $set WHERE $where;";
-};
-
-sub _update_sql {
-    return $UPDATE_SQL;
+sub _updateable_fields {
+    return [@FIELD_NAMES];
 }
 
-sub _update_data {
-    my ($self) = @_;
-    my %data;
-    @data{@FIELD_NAMES} = @{$self}{@FIELD_NAMES};
-    return \%data;
-}
-
-sub _update_fields {
-    return [@FIELD_NAMES, @PRIMARY_KEYS];
+sub get_meta {
+    return \%FIELDS_META;
 }
  
 =head1 AUTHOR

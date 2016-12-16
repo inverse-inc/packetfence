@@ -19,27 +19,154 @@ use base qw(pf::dal);
 
 our @FIELD_NAMES;
 our @PRIMARY_KEYS;
+our %DEFAULTS;
+our %FIELDS_META;
 
 BEGIN {
     @FIELD_NAMES = qw(
         priority
-            vid
-            window
-            grace_period
-            max_enables
-            enabled
-            vclose
-            max_enable_url
-            template
-            auto_enable
-            delay_by
-            description
-            vlan
-            external_command
-            redirect_url
-            button_text
-            target_category
-        );
+        vid
+        window
+        grace_period
+        max_enables
+        enabled
+        vclose
+        max_enable_url
+        template
+        auto_enable
+        delay_by
+        description
+        vlan
+        external_command
+        redirect_url
+        button_text
+        target_category
+    );
+
+    %DEFAULTS = (
+        priority => '',
+        vid => '',
+        window => '0',
+        grace_period => '',
+        max_enables => '0',
+        enabled => 'N',
+        vclose => undef,
+        max_enable_url => undef,
+        template => undef,
+        auto_enable => 'Y',
+        delay_by => '0',
+        description => 'none',
+        vlan => undef,
+        external_command => undef,
+        redirect_url => undef,
+        button_text => undef,
+        target_category => undef,
+    );
+
+    %FIELDS_META = (
+        priority => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        vid => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 1,
+            is_nullable => 0,
+        },
+        window => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        grace_period => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        max_enables => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        enabled => {
+            type => 'CHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        vclose => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        max_enable_url => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        template => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        auto_enable => {
+            type => 'CHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        delay_by => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        description => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        vlan => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        external_command => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        redirect_url => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        button_text => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        target_category => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+    );
 
     @PRIMARY_KEYS = qw(
         vid
@@ -53,8 +180,16 @@ use Class::XSAccessor {
 
 };
 
+sub _defaults {
+    return {%DEFAULTS};
+}
+
 sub field_names {
     return [@FIELD_NAMES];
+}
+
+sub primary_keys {
+    return [@PRIMARY_KEYS];
 }
 
 sub table { "class" }
@@ -68,25 +203,12 @@ sub _find_one_sql {
     return $FIND_SQL;
 }
 
-our $UPDATE_SQL = do {
-    my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
-    my $set = join(", ", map { "$_ = ?" } @FIELD_NAMES);
-    "UPDATE class SET $set WHERE $where;";
-};
-
-sub _update_sql {
-    return $UPDATE_SQL;
+sub _updateable_fields {
+    return [@FIELD_NAMES];
 }
 
-sub _update_data {
-    my ($self) = @_;
-    my %data;
-    @data{@FIELD_NAMES} = @{$self}{@FIELD_NAMES};
-    return \%data;
-}
-
-sub _update_fields {
-    return [@FIELD_NAMES, @PRIMARY_KEYS];
+sub get_meta {
+    return \%FIELDS_META;
 }
  
 =head1 AUTHOR

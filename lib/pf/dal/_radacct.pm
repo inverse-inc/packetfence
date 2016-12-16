@@ -19,35 +19,217 @@ use base qw(pf::dal);
 
 our @FIELD_NAMES;
 our @PRIMARY_KEYS;
+our %DEFAULTS;
+our %FIELDS_META;
 
 BEGIN {
     @FIELD_NAMES = qw(
         acctoutputoctets
-            framedprotocol
-            acctsessiontime
-            calledstationid
-            acctinputoctets
-            acctstoptime
-            nasipaddress
-            acctsessionid
-            framedipaddress
-            groupname
-            acctuniqueid
-            realm
-            servicetype
-            nasportid
-            callingstationid
-            radacctid
-            connectinfo_start
-            nasporttype
-            acctupdatetime
-            acctauthentic
-            acctstarttime
-            username
-            acctinterval
-            acctterminatecause
-            connectinfo_stop
-        );
+        framedprotocol
+        acctsessiontime
+        calledstationid
+        acctinputoctets
+        acctstoptime
+        nasipaddress
+        acctsessionid
+        framedipaddress
+        groupname
+        acctuniqueid
+        realm
+        servicetype
+        nasportid
+        callingstationid
+        radacctid
+        connectinfo_start
+        nasporttype
+        acctupdatetime
+        acctauthentic
+        acctstarttime
+        username
+        acctinterval
+        acctterminatecause
+        connectinfo_stop
+    );
+
+    %DEFAULTS = (
+        acctoutputoctets => undef,
+        framedprotocol => undef,
+        acctsessiontime => undef,
+        calledstationid => '',
+        acctinputoctets => undef,
+        acctstoptime => undef,
+        nasipaddress => '',
+        acctsessionid => '',
+        framedipaddress => '',
+        groupname => '',
+        acctuniqueid => '',
+        realm => '',
+        servicetype => undef,
+        nasportid => undef,
+        callingstationid => '',
+        connectinfo_start => undef,
+        nasporttype => undef,
+        acctupdatetime => undef,
+        acctauthentic => undef,
+        acctstarttime => undef,
+        username => '',
+        acctinterval => undef,
+        acctterminatecause => '',
+        connectinfo_stop => undef,
+    );
+
+    %FIELDS_META = (
+        acctoutputoctets => {
+            type => 'BIGINT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        framedprotocol => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        acctsessiontime => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        calledstationid => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        acctinputoctets => {
+            type => 'BIGINT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        acctstoptime => {
+            type => 'DATETIME',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        nasipaddress => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        acctsessionid => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        framedipaddress => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        groupname => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        acctuniqueid => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        realm => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        servicetype => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        nasportid => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        callingstationid => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        radacctid => {
+            type => 'BIGINT',
+            is_auto_increment => 1,
+            is_primary_key => 1,
+            is_nullable => 0,
+        },
+        connectinfo_start => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        nasporttype => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        acctupdatetime => {
+            type => 'DATETIME',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        acctauthentic => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        acctstarttime => {
+            type => 'DATETIME',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        username => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        acctinterval => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        acctterminatecause => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        connectinfo_stop => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+    );
 
     @PRIMARY_KEYS = qw(
         radacctid
@@ -61,8 +243,16 @@ use Class::XSAccessor {
 
 };
 
+sub _defaults {
+    return {%DEFAULTS};
+}
+
 sub field_names {
     return [@FIELD_NAMES];
+}
+
+sub primary_keys {
+    return [@PRIMARY_KEYS];
 }
 
 sub table { "radacct" }
@@ -76,25 +266,12 @@ sub _find_one_sql {
     return $FIND_SQL;
 }
 
-our $UPDATE_SQL = do {
-    my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
-    my $set = join(", ", map { "$_ = ?" } @FIELD_NAMES);
-    "UPDATE radacct SET $set WHERE $where;";
-};
-
-sub _update_sql {
-    return $UPDATE_SQL;
+sub _updateable_fields {
+    return [@FIELD_NAMES];
 }
 
-sub _update_data {
-    my ($self) = @_;
-    my %data;
-    @data{@FIELD_NAMES} = @{$self}{@FIELD_NAMES};
-    return \%data;
-}
-
-sub _update_fields {
-    return [@FIELD_NAMES, @PRIMARY_KEYS];
+sub get_meta {
+    return \%FIELDS_META;
 }
  
 =head1 AUTHOR

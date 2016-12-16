@@ -19,16 +19,66 @@ use base qw(pf::dal);
 
 our @FIELD_NAMES;
 our @PRIMARY_KEYS;
+our %DEFAULTS;
+our %FIELDS_META;
 
 BEGIN {
     @FIELD_NAMES = qw(
         mac
-            ifOutOctets
-            port
-            ifInOctets
-            switch
-            read_time
-        );
+        ifOutOctets
+        port
+        ifInOctets
+        switch
+        read_time
+    );
+
+    %DEFAULTS = (
+        mac => undef,
+        ifOutOctets => '0',
+        port => '',
+        ifInOctets => '0',
+        switch => '',
+        read_time => '0000-00-00 00:00:00',
+    );
+
+    %FIELDS_META = (
+        mac => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        ifOutOctets => {
+            type => 'BIGINT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        port => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 1,
+            is_nullable => 0,
+        },
+        ifInOctets => {
+            type => 'BIGINT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        switch => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 1,
+            is_nullable => 0,
+        },
+        read_time => {
+            type => 'DATETIME',
+            is_auto_increment => 0,
+            is_primary_key => 1,
+            is_nullable => 0,
+        },
+    );
 
     @PRIMARY_KEYS = qw(
         switch
@@ -44,8 +94,16 @@ use Class::XSAccessor {
 
 };
 
+sub _defaults {
+    return {%DEFAULTS};
+}
+
 sub field_names {
     return [@FIELD_NAMES];
+}
+
+sub primary_keys {
+    return [@PRIMARY_KEYS];
 }
 
 sub table { "ifoctetslog" }
@@ -59,25 +117,12 @@ sub _find_one_sql {
     return $FIND_SQL;
 }
 
-our $UPDATE_SQL = do {
-    my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
-    my $set = join(", ", map { "$_ = ?" } @FIELD_NAMES);
-    "UPDATE ifoctetslog SET $set WHERE $where;";
-};
-
-sub _update_sql {
-    return $UPDATE_SQL;
+sub _updateable_fields {
+    return [@FIELD_NAMES];
 }
 
-sub _update_data {
-    my ($self) = @_;
-    my %data;
-    @data{@FIELD_NAMES} = @{$self}{@FIELD_NAMES};
-    return \%data;
-}
-
-sub _update_fields {
-    return [@FIELD_NAMES, @PRIMARY_KEYS];
+sub get_meta {
+    return \%FIELDS_META;
 }
  
 =head1 AUTHOR
