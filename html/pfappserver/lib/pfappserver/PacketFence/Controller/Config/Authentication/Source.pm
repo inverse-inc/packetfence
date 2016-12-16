@@ -105,7 +105,7 @@ sub read :Chained('object') :PathPart('read') :Args(0) :AdminRole('USERS_SOURCES
     my ($form_type, $form);
 
     if ($c->stash->{source}->{id} && !$c->stash->{action_uri}) {
-        $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$c->{stash}->{source}->{id}]);
+        $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$c->stash->{source}->{id}]);
     }
 
     # Load the appropriate source module
@@ -301,7 +301,7 @@ sub rule_read :Chained('rule_object') :PathPart('read') :Args(0) :AdminRole('USE
 
     if ($c->stash->{rule} && !$c->stash->{action_uri}) {
         $c->stash->{action_uri} = $c->uri_for($self->action_for('rule_update'),
-                                              [$c->{stash}->{source}->{id}, $c->{stash}->{rule}->{id}]);
+                                              [$c->stash->{source}->{id}, $c->stash->{rule}->{id}]);
     }
 
     $form = pfappserver::Form::Config::Authentication::Rule->new(ctx => $c,
