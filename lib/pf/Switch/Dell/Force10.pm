@@ -47,9 +47,11 @@ Fetch the ifindex on the switch by NAS-Port-Id radius attribute
 sub getIfIndexByNasPortId {
     my ($self, $ifDesc_param) = @_;
     my $logger = $self->logger;
-    if ( !$self->connectRead() ) {
+
+    if ( !$self->connectRead() || !defined($ifDesc_param)) {
         return 0;
     }
+
     my @ifDesc_val = split('/',$ifDesc_param);
     my $OID_ifDesc = '1.3.6.1.2.1.17.1.4.1.2.'.$ifDesc_param;
     my $result = $self->cachedSNMPRequest([-varbindlist => [ $OID_ifDesc ]]);

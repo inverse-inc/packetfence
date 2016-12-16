@@ -111,6 +111,11 @@ sub authorize {
 
 
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id) = $switch->parseRequest($radius_request);
+
+    if (!$mac) {
+        return [$RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Mac is empty")];
+    }
+
     Log::Log4perl::MDC->put( 'mac', $mac );
     my $connection = pf::Connection->new;
     $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch);
@@ -195,9 +200,13 @@ sub authorize {
     my $result = $role_obj->filterVlan('IsPhone',$args);
     # determine if we need to perform automatic registration
     # either the switch detects that this is a phone or we take the result from the vlan filters
-    my $isPhone = $switch->isPhoneAtIfIndex($mac, $port) || defined($result);
-
-    $args->{'isPhone'} = $isPhone;
+    if (defined($result)) {
+        $args->{'isPhone'} = $result;
+    } elsif ($port) {
+       $args->{'isPhone'} =$switch->isPhoneAtIfIndex($mac, $port);
+    } else {
+        $args->{'isPhone'} = $FALSE;
+    }
 
     #define the current connection value to instantiate the correct portal
     my $options = {};
@@ -228,7 +237,7 @@ sub authorize {
     }
 
     # if it's an IP Phone, let _authorizeVoip decide (extension point)
-    if ($isPhone) {
+    if ($args->{'isPhone'}) {
         $RAD_REPLY_REF = $self->_authorizeVoip($args);
         $args->{'user_role'} = $VOICE_ROLE;
         goto CLEANUP;
@@ -260,7 +269,7 @@ sub authorize {
     #closes old locationlog entries and create a new one if required
     #TODO: Better deal with INLINE RADIUS
     $switch->synchronize_locationlog($port, $vlan, $mac,
-        $isPhone ? $VOIP : $NO_VOIP, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $args->{'user_role'}
+        $args->{'isPhone'} ? $VOIP : $NO_VOIP, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $args->{'user_role'}
     ) if ( (!$role->{wasInline}) && ($vlan ne "-1") );
 
     # does the switch support Dynamic VLAN Assignment, bypass if using Inline
