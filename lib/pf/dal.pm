@@ -196,6 +196,71 @@ sub update {
     return 0;
 }
 
+=head2 copy
+
+Copy the content of a field
+
+=cut
+
+sub copy {
+    my ($self) = @_;
+    my %data = %$self;
+    delete @data{qw(__from_table __old_data)};
+    return $self->new(\%data);
+}
+
+=head2 insert
+
+Insert the pf::dal object
+
+=cut
+
+sub insert {
+    my ($self) = @_;
+    if ($self->__from_table) {
+        my $table = $self->table;
+        $self->logger->error("Trying to insert duplicate row into $table");
+        return 0;
+    }
+    my $insert_data = $self->_insert_data;
+    return 0 unless defined $insert_data;
+    if (keys %$insert_data == 0 ) {
+       return 0;
+    }
+    my $sqla          = SQL::Abstract::More->new;
+    my ($stmt, @bind) = $sqla->insert(
+        -into => $self->table,
+        -values   => $insert_data,
+    );
+    my $sth = $self->db_execute($stmt, @bind);
+
+    if ($sth) {
+        return $sth->rows;
+    }
+    return 0;
+}
+
+=head2 _insert_data
+
+Create the hash for inserting into a table
+
+=cut
+
+sub _insert_data {
+    my ($self) = @_;
+    my %data;
+    my $updateable_fields = $self->_insertable_fields;
+    my %data;
+    foreach my $field (@$updateable_fields) {
+        my $new_value = $self->{$field};
+        unless ($self->validate_field($field, $new_value)) {
+            return undef;
+        }
+        $data{$field} = $new_value;
+    }
+    return \%data;
+}
+
 =head2 _update_data
 
 Return the data that needs to be updated
@@ -241,8 +306,16 @@ sub validate_field {
         my $meta;
         return exists $meta->{$field} && exists $meta->{$field}{enums_values}{$value};
     }
-    return 1;
+    return $self->_validate_field($field, $value);
 }
+
+=head2 _validate_field
+
+A hook into validate field
+
+=cut
+
+sub _validate_field { 1 }
 
 =head2 is_enum
 
@@ -272,24 +345,6 @@ sub is_nullable {
         return $meta->{$field}{is_nullable};
     }
     return 0;
-}
-
-=head2 insert
-
-Insert a pf::dal object into the database
-
-=cut
-
-sub insert {
-    my ($self) = @_;
-    my $sql = $self->_insert_sql;
-    my $insert_data = $self->_insert_data;
-    my $insert_fields = $self->_insert_fields;
-    my $sth = $self->db_execute($sql, @{$insert_data}{@$insert_fields});
-    if ($sth) {
-        return $sth->rows;
-    }
-    return undef;
 }
 
 =head2 fields
