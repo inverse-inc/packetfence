@@ -57,10 +57,8 @@ sub get_client {
         scope => $source->{'scope'},
         redirect_uri => $source->{'redirect_url'},
         token_scheme => $self->token_scheme, 
+        $source->additional_client_attributes,
     );
-    if($source->{state}) {
-        $info{state} = $source->{state};
-    }
     return Net::OAuth2::Profile::WebServer->new(%info);
 }
 

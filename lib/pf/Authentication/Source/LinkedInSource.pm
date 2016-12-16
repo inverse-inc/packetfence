@@ -26,7 +26,6 @@ has 'access_token_param' => (isa => 'Str', is => 'rw', default => 'code');
 has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://api.linkedin.com/v1/people/~/email-address');
 has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/callback');
 has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => 'www.linkedin.com,api.linkedin.com,static.licdn.com');
-has 'state' => (isa => 'Str', is => 'rw', default => 'someRandomString');
 
 =head2 dynamic_routing_module
 
@@ -45,6 +44,17 @@ Lookup the person information from the authentication hash received during the O
 sub lookup_from_provider_info {
     my ( $self, $pid, $info ) = @_;
     person_modify( $pid, email => $info->{email} );
+}
+
+=head2 additional_client_attributes
+
+Supply a state variable for the client
+
+=cut
+
+sub additional_client_attributes {
+    my ($self) = @_;
+    return (state => $self->id);
 }
 
 =head1 AUTHOR

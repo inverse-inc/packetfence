@@ -84,6 +84,14 @@ sub lookup_from_provider_info {
     $logger->warn("Provider information lookup is not implemented on this OAuth source.");
 }
 
+=head2 additional_client_attributes
+
+Provide a hook for additional attributes to be passed to the auth source
+
+=cut
+
+sub additional_client_attributes { }
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
