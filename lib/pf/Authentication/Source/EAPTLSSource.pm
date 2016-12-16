@@ -41,6 +41,7 @@ sub available_attributes {
       TLS-Client-Cert-Common-Name
       TLS-Client-Cert-Filename
       TLS-Client-Cert-Subject-Alt-Name-Email
+      username
     );
     return [@$super_attributes, @own_attributes];
 }
@@ -62,15 +63,18 @@ sub available_actions {
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
     my $match = $rule->match;
-    #Return early if it was already matched
-    return 1 if $match eq $Rules::ANY && @$matching_conditions > 0;
     my $radius_params = $params->{radius_request};
     # If match any we just want the first
-    my @conditions = $rule->match eq $Rules::ANY ?
-        first { $self->match_condition($_, $radius_params) } @$own_conditions :
-        grep { $self->match_condition($_, $radius_params) } @$own_conditions;
+    my @conditions;
+    if ($rule->match eq $Rules::ANY) {
+        my $c = first { $self->match_condition($_, $radius_params) } @$own_conditions;
+        push @conditions, $c if $c;
+    }
+    else {
+        @conditions = grep { $self->match_condition($_, $radius_params) } @$own_conditions;
+    }
     push @$matching_conditions, @conditions;
-    return @conditions == 0 ? undef : 1;
+    return $params->{'username'};
 }
 
 =head1 AUTHOR
