@@ -25,7 +25,6 @@ use pf::dal::iterator;
 
 use Class::XSAccessor {
     accessors => [qw(__from_table __old_data)],
-    false => [qw(has_primary_key)],
 };
 
 =head2 new
@@ -165,7 +164,6 @@ Save the pf::dal object in the database
 
 sub save {
     my ($self) = @_;
-    return undef unless $self->has_primary_key;
     return $self->__from_table ? $self->update : $self->insert;
 }
 

@@ -72,9 +72,6 @@ BEGIN {
 
 use Class::XSAccessor {
     accessors => \@FIELD_NAMES,
-
-    true => [qw(has_primary_key)],
-
 };
 
 sub _defaults {

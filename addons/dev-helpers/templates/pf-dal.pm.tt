@@ -48,9 +48,6 @@ BEGIN {
 
 use Class::XSAccessor {
     accessors => \@FIELD_NAMES,
-[% IF primary_keys.size > 0 %]
-    true => [qw(has_primary_key)],
-[% END %]
 };
 
 sub _defaults {
