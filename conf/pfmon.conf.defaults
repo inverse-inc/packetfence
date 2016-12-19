@@ -7,6 +7,11 @@
 # The type of task to perform
 type=option82_query
 #
+# enabled
+#
+# If the task option82_query is enabled
+enabled=enabled
+#
 # interval
 #
 # At which interval to run the option82 query pfmon task
@@ -18,6 +23,11 @@ interval=23h
 #
 # The type of task to perform
 type=acct_maintenance
+#
+# enabled
+#
+# If the task acct_maintenance is enabled
+enabled=enabled
 #
 # interval
 #
@@ -31,6 +41,11 @@ interval=60s
 # The type of task to perform
 type=inline_accounting_maintenance
 #
+# enabled
+#
+# If the task inline_accounting_maintenance is enabled
+enabled=enabled
+#
 # interval
 #
 # At which interval to run the inline accounting maintenance pfmon task
@@ -42,6 +57,11 @@ interval=60s
 #
 # The type of task to perform
 type=auth_log_cleanup
+#
+# enabled
+#
+# If the task auth_log_cleanup is enabled
+enabled=enabled
 #
 # interval
 #
@@ -70,6 +90,11 @@ window=1W
 # The type of task to perform
 type=radius_audit_log_cleanup
 #
+# enabled
+#
+# If the task radius_audit_log_cleanup is enabled
+enabled=enabled
+#
 # interval
 #
 # At which interval to run the radius audit log cleanup pfmon task
@@ -96,6 +121,11 @@ timeout=10s
 #
 # The type of task to perform
 type=iplog_rotation
+#
+# enabled
+#
+# If the task iplog_rotation is enabled
+enabled=enabled
 #
 # interval
 #
@@ -124,6 +154,11 @@ window=1W
 # The type of task to perform
 type=locationlog_cleanup
 #
+# enabled
+#
+# If the task locationlog_cleanup is enabled
+enabled=enabled
+#
 # interval
 #
 # At which interval to run the locationlog cleanup pfmon task
@@ -151,6 +186,11 @@ timeout=10s
 # The type of task to perform
 type=traplog_cleanup
 #
+# enabled
+#
+# If the task traplog_cleanup is enabled
+enabled=enabled
+#
 # interval
 #
 # At which interval to run the traplog cleanup pfmon task
@@ -168,6 +208,11 @@ window=1W
 # The type of task to perform
 type=cluster_check
 #
+# enabled
+#
+# If the task cluster_check is enabled
+enabled=enabled
+#
 # interval
 #
 # At which interval to run the cluster check pfmon task
@@ -179,6 +224,11 @@ interval=1m
 #
 # The type of task to perform
 type=violation_maintenance
+#
+# enabled
+#
+# If the task violation_maintenance is enabled
+enabled=enabled
 #
 # interval
 #
@@ -201,6 +251,11 @@ batch=1000
 #
 # The type of task to perform
 type=iplog_cleanup
+#
+# enabled
+#
+# If the task iplog_cleanup is enabled
+enabled=enabled
 #
 # interval
 #
@@ -229,6 +284,11 @@ timeout=10s
 # The type of task to perform
 type=fingerbank_data_update
 #
+# enabled
+#
+# If the task fingerbank_data_update is enabled
+enabled=enabled
+#
 # interval
 #
 # At which interval to run the fingerbank data update pfmon task
@@ -240,6 +300,11 @@ interval=1D
 #
 # The type of task to perform
 type=nodes_maintenance
+#
+# enabled
+#
+# If the task nodes_maintenance is enabled
+enabled=enabled
 #
 # interval
 #
@@ -253,6 +318,11 @@ interval=60s
 # The type of task to perform
 type=provisioning_compliance_poll
 #
+# enabled
+#
+# If the task provisioning_compliance_poll is enabled
+enabled=enabled
+#
 # interval
 #
 # At which interval to run the provisioning compliance poll pfmon task
@@ -265,6 +335,11 @@ interval=300s
 # The type of task to perform
 type=person_cleanup
 #
+# enabled
+#
+# If the task person_cleanup is enabled
+enabled=enabled
+#
 # interval
 #
 # At which interval to run the person cleanup pfmon task
@@ -276,6 +351,11 @@ interval=60s
 #
 # The type of task to perform
 type=node_cleanup
+#
+# enabled
+#
+# If the task node_cleanup is enabled
+enabled=enabled
 #
 # interval
 #

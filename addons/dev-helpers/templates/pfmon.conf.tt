@@ -8,6 +8,11 @@
 # The type of task to perform
 type=[% c.class %]
 #
+# enabled
+#
+# If the task [% c.name %] is enabled
+enabled=enabled
+#
 # interval
 #
 # At which interval to run the [% c.name.replace('_',' ')%] pfmon task
