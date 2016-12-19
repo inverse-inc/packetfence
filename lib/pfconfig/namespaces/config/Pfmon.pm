@@ -19,8 +19,9 @@ use warnings;
 
 use pfconfig::namespaces::config;
 use pf::file_paths qw($pfmon_config_file $pfmon_default_config_file);
-use pf::util;
+use pf::util qw(normalize_time);
 use pf::IniFiles;
+use Clone qw(clone);
 
 use base 'pfconfig::namespaces::config';
 
@@ -31,11 +32,22 @@ sub init {
     $self->{added_params}{'-import'} = $defaults;
 }
 
+our %TIME_ATTR = (
+    interval => 1,
+    window => 1,
+    timeout => 1,
+);
+
 sub build_child {
     my ($self) = @_;
-    my %tmp_cfg = %{ $self->{cfg} };
+    my $tmp_cfg = clone($self->{cfg});
+    foreach my $task_data (values %$tmp_cfg) {
+        foreach my $key (keys %$task_data) {
+            $task_data->{$key} = normalize_time($task_data->{$key}) if exists $TIME_ATTR{$key};
+        }
+    }
 
-    return \%tmp_cfg;
+    return $tmp_cfg;
 }
 
 
