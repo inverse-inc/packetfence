@@ -1166,11 +1166,6 @@ person_cleanup_interval=60s
 # nodes maintenance interval
 nodes_maintenance_interval=60s
 #
-# maintenance.online_node_count_interval
-#
-# Interval at which PacketFence updates the online node count
-online_node_count_interval=15m
-#
 # maintenance.violation_maintenance_interval
 #
 # violation maintenance interval
