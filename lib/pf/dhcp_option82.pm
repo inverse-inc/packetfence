@@ -226,7 +226,7 @@ sub dhcp_option82_cleanup {
         $end_time = time;
         $rows_deleted+=$rows if $rows > 0;
         $logger->trace( sub { "deleted $rows_deleted entries from dhcp_option82 during dhcp_option82 cleanup ($start_time $end_time) " });
-        last if $rows == 0 || (( $end_time - $start_time) > $time_limit );
+        last if $rows <= 0 || (( $end_time - $start_time) > $time_limit );
     }
     $logger->trace( "deleted $rows_deleted entries from dhcp_option82 during dhcp_option82 cleanup ($start_time $end_time) " );
     return (0);
