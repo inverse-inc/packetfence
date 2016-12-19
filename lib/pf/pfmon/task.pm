@@ -17,7 +17,7 @@ use warnings;
 
 use Moose;
 
-has type => (is => 'ro', isa => 'String', required => 1);
+has type => (is => 'ro', isa => 'Str', required => 1);
 
 has interval => (is => 'ro', isa => 'Int', required => 1);
 
