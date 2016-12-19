@@ -267,10 +267,6 @@ sub preStartSetup {
     my $leases_file = "$var_dir/dhcpd/dhcpd.leases";
     mkdir "$var_dir/dhcpd" unless -d "$var_dir/dhcpd";
     touch ($leases_file) unless -f $leases_file;
-<<<<<<< 3cfb2409bdede9b53b1c12666033a74e18646cf6
-=======
-    manageStaticRoute(1);
->>>>>>> Added back iscdhcp for dhcp v6
     return 1;
 }
 
