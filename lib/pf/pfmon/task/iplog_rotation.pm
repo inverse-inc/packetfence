@@ -15,7 +15,6 @@ pf::pfmon::task::iplog_rotation
 use strict;
 use warnings;
 use pf::iplog;
-use pf::config qw(%Config);
 use Moose;
 extends qw(pf::pfmon::task);
 
