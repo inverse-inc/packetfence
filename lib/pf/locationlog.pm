@@ -604,7 +604,7 @@ sub locationlog_cleanup {
         $end_time = time;
         $rows_deleted+=$rows if $rows > 0;
         $logger->trace( sub { "deleted $rows_deleted entries from locationlog during locationlog cleanup ($start_time $end_time) " });
-        last if $rows == 0 || (( $end_time - $start_time) > $time_limit );
+        last if $rows <= 0 || (( $end_time - $start_time) > $time_limit );
     }
     $logger->trace( "deleted $rows_deleted entries from locationlog during locationlog cleanup ($start_time $end_time) " );
     return (0);
