@@ -927,7 +927,7 @@ sub violation_maintenance {
         $query->finish;
         $end_time = time;
         $logger->trace( sub { "processed $rows_processed violations during violation maintenance ($start_time $end_time) " });
-        last if $rows == 0 || ((time - $start_time) > $timelimit);
+        last if $rows <= 0 || ((time - $start_time) > $timelimit);
     }
     $logger->info(  "processed $rows_processed violations during violation maintenance ($start_time $end_time) " );
     return (1);
