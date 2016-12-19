@@ -19,12 +19,20 @@ use pf::config qw(%Config);
 use Moose;
 extends qw(pf::pfmon::task);
 
+has 'batch' => ( is => 'rw', default => 100 );
+has 'timeout' => ( is => 'rw', default => 10 );
+has 'window' => ( is => 'rw', default => 604800 );
+
+=head2 run
+
+run the iplog rotation task
+
+=cut
+
 sub run {
     my ($self) = @_;
-    pf::iplog::rotate(
-        $Config{'maintenance'}{'iplog_rotation_window'},
-        $Config{maintenance}{iplog_rotation_batch},
-        $Config{maintenance}{iplog_rotation_timeout}) if ($Config{'maintenance'}{'iplog_rotation_window'});
+    my $window = $self->window;
+    pf::iplog::rotate($window, $self->batch, $self->timeout) if $self->window;
 }
 
 =head1 AUTHOR
