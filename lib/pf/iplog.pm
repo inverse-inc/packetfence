@@ -785,17 +785,21 @@ sub rotate {
             $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_rotate_insert_sql', $now, $window_seconds, $batch) || return (0);
             $rows_inserted = $query->rows;
             $query->finish;
-            $logger->debug("Inserted '$rows_inserted' entries from iplog_history to iplog_archive while rotating");
-            $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_rotate_delete_sql', $now, $window_seconds, $batch) || return (0);
-            $rows_deleted = $query->rows;
-            $query->finish;
-            $logger->debug("Deleted '$rows_deleted' entries from iplog_history while rotating");
+            if ($rows_inserted > 0 ) {
+                $logger->debug("Inserted '$rows_inserted' entries from iplog_history to iplog_archive while rotating");
+                $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_rotate_delete_sql', $now, $window_seconds, $batch) || return (0);
+                $rows_deleted = $query->rows;
+                $query->finish;
+                $logger->debug("Deleted '$rows_deleted' entries from iplog_history while rotating");
+            } else {
+                $rows_deleted = 0;
+            }
         } );
         $end_time = time;
         $logger->info("Inserted '$rows_inserted' entries and deleted '$rows_deleted' entries while rotating iplog_history") if $rows_inserted != $rows_deleted;
         $rows_rotated += $rows_inserted if $rows_inserted > 0;
         $logger->trace("Rotated '$rows_rotated' entries from iplog_history to iplog_archive (start: '$start_time', end: '$end_time')");
-        last if $rows_inserted == 0 || ( ( $end_time - $start_time ) > $time_limit );
+        last if $rows_inserted <= 0 || ( ( $end_time - $start_time ) > $time_limit );
     }
 
     $logger->info("Rotated '$rows_rotated' entries from iplog_history to iplog_archive (start: '$start_time', end: '$end_time')");
@@ -823,7 +827,7 @@ sub cleanup {
         $end_time = time;
         $rows_deleted += $rows if $rows > 0;
         $logger->trace("Deleted '$rows_deleted' entries from $table (start: '$start_time', end: '$end_time')");
-        last if $rows == 0 || ( ( $end_time - $start_time ) > $time_limit );
+        last if $rows <= 0 || ( ( $end_time - $start_time ) > $time_limit );
     }
 
     $logger->info("Deleted '$rows_deleted' entries from $table (start: '$start_time', end: '$end_time')");
