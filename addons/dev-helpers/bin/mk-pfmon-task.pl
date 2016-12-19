@@ -18,50 +18,77 @@ use lib qw(/usr/local/pf/lib);
 use Template;
 use pf::config qw(%Config %Default_Config %Doc_Config);
 use Data::Dumper;
+use pf::file_paths qw($install_dir);
 use pf::util qw(normalize_time);
 
-our $output = "/usr/local/pf/lib/pf/pfmon/task/";
 my $tt = Template->new(
-    OUTPUT_PATH => $output,
-    INCLUDE_PATH => '/usr/local/pf/addons/dev-helpers/templates/',
+    OUTPUT_PATH => $install_dir,
+    INCLUDE_PATH => "$install_dir/addons/dev-helpers/templates/",
 );
 
 my @keys = keys %{$Config{maintenance}};
 
 my @tasks = map { /^(.*)_interval$/;$1} grep { /^(.*)_interval$/ } @keys;
 
+my @config_info;
+
 foreach my $task (@tasks) {
     my @attributes;
     my $class = $task;
     my %vars  = (
         class => $class,
+        name => $class,
         attributes => \@attributes
     );
     for my $attrib_name (grep { /^${task}_/ } @keys) {
-        next if $attrib_name =~ /_interval$/;
-        my $name = $attrib_name;
-        my $default = $Default_Config{maintenance}{$attrib_name};
+        my $value = $Default_Config{maintenance}{$attrib_name};
+        if ($attrib_name =~ /_interval$/) {
+            $vars{interval} = $value;
+            next;
+        }
+        my $default = $value;
         my $type = $Doc_Config{"maintenance.$attrib_name"}{type};
         if ($type eq 'time') {
             $default = normalize_time($default);
         } elsif ($type ne 'numeric') {
             $default = "\"$default\"";
         }
+        my $name = $attrib_name;
         $name =~ s/^${task}_//;
         if ($name eq 'window') {
             $vars{HAS_WINDOW} = 1;
         }
-        push @attributes, {name => $name, default => $default};
+        push @attributes, {name => $name, default => $default, value => $value, comment => mk_comment($class, $name)};
     }
 
-    if (-e "$output/${class}.pm") {
+    my $out_path = "lib/pf/pfmon/task/${class}.pm";
+
+    push @config_info,\%vars;
+    if (-e "$install_dir/$out_path") {
         print "Module already exists skipping pf::pfmon::task::${class}\n";
+        next;
     }
-    $tt->process("pf-pfmon-task.pm.tt",\%vars, "${class}.pm") or die $tt->error;
+    $tt->process("pf-pfmon-task.pm.tt",\%vars, "$out_path") or die $tt->error;
 
     #print Dumper(\%vars);
     
 }
+$tt->process("pfmon.conf.tt",{ 'configs' => \@config_info}, "conf/pfmon.conf.defaults") or die $tt->error;
+
+
+sub mk_comment {
+    my ($class, $name) = @_;
+    my $comment = "TODO: comment for $class.$name";
+    if ($name eq 'timeout') {
+        $comment = "How long a $class job can run"
+    } elsif ($name eq 'batch') {
+        $comment = "How many $class entries to clean up in one run";
+    } elsif ($name eq 'window') {
+        $comment = "How long to keep a $class entry before deleting it"
+    }
+    return $comment;
+}
+
 
 =head1 AUTHOR
 

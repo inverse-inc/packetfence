@@ -1,0 +1,22 @@
+#The default for maintenance tasks
+[% FOREACH c IN configs -%]
+
+[[% c.name %]]
+#
+# type
+#
+# The type of task to perform
+type=[% c.class %]
+#
+# interval
+#
+# At which interval to run the [% c.name.replace('_',' ')%] pfmon task
+interval=[% c.interval %]
+[% FOREACH a IN c.attributes -%]
+#
+# [% a.name %]
+# 
+# [% a.comment %]
+[% a.name %]=[% a.value %]
+[% END -%]
+[% END -%]
