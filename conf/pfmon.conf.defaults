@@ -1,0 +1,288 @@
+#The default for maintenance tasks
+
+[option82_query]
+#
+# type
+#
+# The type of task to perform
+type=option82_query
+#
+# interval
+#
+# At which interval to run the option82 query pfmon task
+interval=23h
+
+[acct_maintenance]
+#
+# type
+#
+# The type of task to perform
+type=acct_maintenance
+#
+# interval
+#
+# At which interval to run the acct maintenance pfmon task
+interval=60s
+
+[inline_accounting_maintenance]
+#
+# type
+#
+# The type of task to perform
+type=inline_accounting_maintenance
+#
+# interval
+#
+# At which interval to run the inline accounting maintenance pfmon task
+interval=60s
+
+[auth_log_cleanup]
+#
+# type
+#
+# The type of task to perform
+type=auth_log_cleanup
+#
+# interval
+#
+# At which interval to run the auth log cleanup pfmon task
+interval=60s
+#
+# timeout
+# 
+# How long a auth_log_cleanup job can run
+timeout=10s
+#
+# batch
+# 
+# How many auth_log_cleanup entries to clean up in one run
+batch=100
+#
+# window
+# 
+# How long to keep a auth_log_cleanup entry before deleting it
+window=1W
+
+[radius_audit_log_cleanup]
+#
+# type
+#
+# The type of task to perform
+type=radius_audit_log_cleanup
+#
+# interval
+#
+# At which interval to run the radius audit log cleanup pfmon task
+interval=60s
+#
+# batch
+# 
+# How many radius_audit_log_cleanup entries to clean up in one run
+batch=100
+#
+# window
+# 
+# How long to keep a radius_audit_log_cleanup entry before deleting it
+window=1D
+#
+# timeout
+# 
+# How long a radius_audit_log_cleanup job can run
+timeout=10s
+
+[iplog_rotation]
+#
+# type
+#
+# The type of task to perform
+type=iplog_rotation
+#
+# interval
+#
+# At which interval to run the iplog rotation pfmon task
+interval=60s
+#
+# batch
+# 
+# How many iplog_rotation entries to clean up in one run
+batch=100
+#
+# timeout
+# 
+# How long a iplog_rotation job can run
+timeout=10s
+#
+# window
+# 
+# How long to keep a iplog_rotation entry before deleting it
+window=1W
+
+[locationlog_cleanup]
+#
+# type
+#
+# The type of task to perform
+type=locationlog_cleanup
+#
+# interval
+#
+# At which interval to run the locationlog cleanup pfmon task
+interval=60s
+#
+# window
+# 
+# How long to keep a locationlog_cleanup entry before deleting it
+window=1W
+#
+# batch
+# 
+# How many locationlog_cleanup entries to clean up in one run
+batch=100
+#
+# timeout
+# 
+# How long a locationlog_cleanup job can run
+timeout=10s
+
+[traplog_cleanup]
+#
+# type
+#
+# The type of task to perform
+type=traplog_cleanup
+#
+# interval
+#
+# At which interval to run the traplog cleanup pfmon task
+interval=60s
+#
+# window
+# 
+# How long to keep a traplog_cleanup entry before deleting it
+window=1W
+
+[cluster_check]
+#
+# type
+#
+# The type of task to perform
+type=cluster_check
+#
+# interval
+#
+# At which interval to run the cluster check pfmon task
+interval=1m
+
+[violation_maintenance]
+#
+# type
+#
+# The type of task to perform
+type=violation_maintenance
+#
+# interval
+#
+# At which interval to run the violation maintenance pfmon task
+interval=60s
+#
+# timeout
+# 
+# How long a violation_maintenance job can run
+timeout=10s
+#
+# batch
+# 
+# How many violation_maintenance entries to clean up in one run
+batch=1000
+
+[iplog_cleanup]
+#
+# type
+#
+# The type of task to perform
+type=iplog_cleanup
+#
+# interval
+#
+# At which interval to run the iplog cleanup pfmon task
+interval=60s
+#
+# batch
+# 
+# How many iplog_cleanup entries to clean up in one run
+batch=100
+#
+# window
+# 
+# How long to keep a iplog_cleanup entry before deleting it
+window=1M
+#
+# timeout
+# 
+# How long a iplog_cleanup job can run
+timeout=10s
+
+[fingerbank_data_update]
+#
+# type
+#
+# The type of task to perform
+type=fingerbank_data_update
+#
+# interval
+#
+# At which interval to run the fingerbank data update pfmon task
+interval=1D
+
+[nodes_maintenance]
+#
+# type
+#
+# The type of task to perform
+type=nodes_maintenance
+#
+# interval
+#
+# At which interval to run the nodes maintenance pfmon task
+interval=60s
+
+[provisioning_compliance_poll]
+#
+# type
+#
+# The type of task to perform
+type=provisioning_compliance_poll
+#
+# interval
+#
+# At which interval to run the provisioning compliance poll pfmon task
+interval=300s
+
+[person_cleanup]
+#
+# type
+#
+# The type of task to perform
+type=person_cleanup
+#
+# interval
+#
+# At which interval to run the person cleanup pfmon task
+interval=60s
+
+[node_cleanup]
+#
+# type
+#
+# The type of task to perform
+type=node_cleanup
+#
+# interval
+#
+# At which interval to run the node cleanup pfmon task
+interval=60s
+#
+# window
+# 
+# How long to keep a node_cleanup entry before deleting it
+window=0D
