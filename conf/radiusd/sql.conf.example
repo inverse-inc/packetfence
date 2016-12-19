@@ -291,7 +291,7 @@ sql pfguest {
           JOIN activation using (pid) \
           WHERE pid = '%{SQL-User-Name}' \
             AND (SELECT type from activation WHERE pid='%{SQL-User-Name}' ORDER BY code_id DESC LIMIT 1) = \"guest\" \
-            AND now() <= password.unregdate \
+            AND ( now() <= password.unregdate OR password.unregdate = '0000-00-00 00:00:00' ) \
             LIMIT 1 "
 
         postauth_query = ""
@@ -328,7 +328,7 @@ sql pfsponsor {
           JOIN activation using (pid) \
           WHERE pid = '%{SQL-User-Name}' \
             AND (SELECT type from activation WHERE pid='%{SQL-User-Name}' ORDER BY code_id DESC LIMIT 1) = \"sponsor\" \
-            AND now() <= password.unregdate \
+            AND ( now() <= password.unregdate OR password.unregdate = '0000-00-00 00:00:00' ) \
             LIMIT 1 "
 
         postauth_query = ""
@@ -366,7 +366,7 @@ sql pfsms {
           JOIN activation using (pid) \
           WHERE pid = '%{SQL-User-Name}' \
             AND (SELECT type from activation WHERE pid='%{SQL-User-Name}' ORDER BY code_id DESC LIMIT 1) = \"sms\" \
-            AND now() <= password.unregdate \
+            AND ( now() <= password.unregdate OR password.unregdate = '0000-00-00 00:00:00' ) \
             LIMIT 1 "
 
 
