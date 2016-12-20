@@ -591,6 +591,17 @@ sub getLocalizedTemplate {
     return $base_template;
 }
 
+=item canAccessRegistrationWhenRegistered
+
+Should the user be able to access the registration part of the portal even if he is registered
+
+=cut
+
+sub canAccessRegistrationWhenRegistered {
+    my ($self) = @_;
+    return isenabled($self->{_access_registration_when_registered});
+}
+
 =back
 
 =head1 AUTHOR

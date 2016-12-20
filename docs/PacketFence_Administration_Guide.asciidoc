@@ -1831,6 +1831,11 @@ Where :
 
 Now everytime a user unsubscribes from a plan, PacketFence will be notified and will unregister that device from your network.
 
+Extending access before it ends
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+PacketFence allows users to extend their access before it has ended. In order to do so, you need to enable 'Allow access to registration portal when registered' accessible via the 'Captive Portal' tab of the 'Portal Profiles'. Once this is activated, the users can reach https://YOUR_PORTAL_IP/status and select 'Extend your access' in order to be able to access the billing section after they have registered.
+
 Devices Registration
 ~~~~~~~~~~~~~~~~~~~~
 

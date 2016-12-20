@@ -161,8 +161,8 @@ $(document).ready(function() {
         </div>
       </button>
 
-      [%- IF billing %]
-      <a href="[% URL_STATUS_BILLING %]" class="btn btn--full btn--light u-mt">
+      [%- IF billing && access_registration_when_registered %]
+      <a href="/status/billing" class="btn btn--full btn--light u-mt">
         <div class="flag">
           <div class="flag__img">[% svgIcon(id='ic_credit_card_black_24px',size='small') %]</div>
           <p class="flag__body">[% i18n("Extend your access") %]</p>

@@ -48,7 +48,7 @@ The captival portal block
 
 has_block 'captive_portal' =>
   (
-    render_list => [qw(logo redirecturl always_use_redirecturl nbregpages block_interval sms_pin_retry_limit sms_request_limit login_attempt_limit)],
+    render_list => [qw(logo redirecturl always_use_redirecturl nbregpages block_interval sms_pin_retry_limit sms_request_limit login_attempt_limit access_registration_when_registered)],
   );
 
 =head1 Fields
@@ -402,6 +402,22 @@ has_field 'scans.contains' =>
     type => 'Select',
     options_method => \&options_scan,
     widget_wrapper => 'DynamicTableRow',
+  );
+
+=head2 preregistration
+
+Controls whether or not this portal profile is used for preregistration
+
+=cut
+
+has_field 'access_registration_when_registered' =>
+  (
+   type => 'Toggle',
+   label => 'Allow access to registration portal when registered',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   tags => { after_element => \&help,
+             help => 'This allows already registered users to be able to re-register their device by first accessing the status page and then accessing the portal. This is useful to allow users to extend their access even though they are already registered.' },
   );
 
 

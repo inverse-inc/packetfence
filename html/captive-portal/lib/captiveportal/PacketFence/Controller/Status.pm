@@ -49,6 +49,7 @@ sub index : Path : Args(0) {
         title => "State - Network Access",
         template => 'status.html',
         billing  => $c->profile->hasBilling(),
+        access_registration_when_registered => $c->profile->canAccessRegistrationWhenRegistered(),
     );
 }
 
