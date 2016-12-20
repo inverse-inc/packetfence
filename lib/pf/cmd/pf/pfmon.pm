@@ -22,6 +22,12 @@ use pf::constants;
 use pf::factory::pfmon::task;
 use base qw(pf::cmd);
 
+=head2 parseArgs
+
+parse args of pfmon task
+
+=cut
+
 sub parseArgs {
     my ($self) = @_;
     my ($task_id, @args) = $self->args;
@@ -36,6 +42,12 @@ sub parseArgs {
     $self->{task_id}  = $task_id;
     return 1;
 }
+
+=head2 _run
+
+Run the pfmon task
+
+=cut
 
 sub _run {
     my ($self) = @_;
@@ -59,7 +71,7 @@ sub _parse_attributes {
         if($attribute =~ /^([a-zA-Z0-9_-]+)=(.*)$/ ) {
             $params{$1} = $2;
         } else {
-            print STDERR "$attribute is badily formatted\n";
+            print STDERR "$attribute is incorrectly formatted\n";
             return 0;
         }
     }
