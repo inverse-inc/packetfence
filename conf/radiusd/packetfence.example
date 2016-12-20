@@ -331,6 +331,9 @@ post-auth {
 	# send it to packetfence
 	if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
 		rest
+                update {
+                       &request:User-Password := "******"
+                }
 		if (&reply:PacketFence-Authorization-Status == "deny") {
 			packetfence-audit-log-reject
 			reject
@@ -351,6 +354,9 @@ post-auth {
 	#  The "session-state" attributes are not available here.
 	#
 	Post-Auth-Type REJECT {
+		update {
+                        &request:User-Password := "******"
+                }
 		if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
 			packetfence-audit-log-reject
 		}
