@@ -148,3 +148,13 @@ function getQueryParams() {
   }
   return vars;
 }
+
+/**
+  getPortalUrl
+
+  Get a URL for the portal while taking in consideration the portal preview
+*/
+
+function getPortalUrl(url) {
+  return "/portal_preview"+url;
+}
