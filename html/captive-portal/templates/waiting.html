@@ -6,10 +6,10 @@ var txt_web_notification = "[% i18n("Network access has been granted") %]"
 $(document).ready(function() {
     setInterval(function(){
       $.ajax({
-        url : '/sponsor/check',
+        url : getPortalUrl('/sponsor/check'),
         method : 'POST',
       }).done(function(){
-        window.location = "/signup";
+        window.location = getPortalUrl("/signup");
       });
     }, 5000)
 });
