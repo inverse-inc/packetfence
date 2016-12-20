@@ -424,7 +424,12 @@ sub person_cleanup {
         }
         my $password = pf::password::view($pid);
         if(defined($password)){
-            my $expiration = DateTime::Format::MySQL->parse_datetime($password->{expiration});
+            my $expiration = $password->{expiration};
+            if ($expiration eq '0000-00-00 00:00:00' ) {
+                get_logger->debug("Not deleting $pid because the password is set not to expire");
+                next;
+            }
+            $expiration = DateTime::Format::MySQL->parse_datetime($expiration);
             my $cmp = DateTime->compare($now, $expiration);
             if($cmp < 0){
                 get_logger->debug("Not deleting $pid because the local account is still valid.");
