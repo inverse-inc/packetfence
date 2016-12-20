@@ -236,13 +236,13 @@ QS_SrvMaxConnPerIP [% captive_portal.httpd_mod_qos_maximum_connections_per_devic
     [% END %]
     <IfDefine debian>
       <IfModule !mod_evasive[% mod_evasive_version %].c>
-        LoadModule evasive[% mod_evasive_version %]_module /usr/lib/apache2/modules/mod_evasive[% mod_evasive_version %].so
+        LoadModule evasive20_module /usr/lib/apache2/modules/mod_evasive[% mod_evasive_version %].so
       </IfModule>
     </IfDefine>
 
     <IfDefine rhel>
       <IfModule !mod_evasive[% mod_evasive_version %].c>
-        LoadModule evasive[% mod_evasive_version %]_module modules/mod_evasive[% mod_evasive_version %].so
+        LoadModule evasive20_module modules/mod_evasive[% mod_evasive_version %].so
       </IfModule>
     </IfDefine>
 
@@ -259,7 +259,7 @@ QS_SrvMaxConnPerIP [% captive_portal.httpd_mod_qos_maximum_connections_per_devic
 
     [%- END %]
 
-    DOSSystemCommand = [% dos_system_cmd %]
+    DOSSystemCommand [% dos_system_cmd %]
     DOSLogDir [% install_dir %]/logs/
 
     [% FOREACH ip in captive_portal.httpd_mod_evasive_white_list -%]
