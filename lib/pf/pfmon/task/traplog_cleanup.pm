@@ -15,6 +15,7 @@ pf::pfmon::task::traplog_cleanup
 use strict;
 use warnings;
 use Moose;
+use pf::traplog;
 extends qw(pf::pfmon::task);
 
 has 'window' => ( is => 'rw', default => 604800 );

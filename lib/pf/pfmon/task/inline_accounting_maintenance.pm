@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use pf::inline::accounting;
 use pf::config qw(%Config);
+use pf::util qw(isenabled);
 use Moose;
 extends qw(pf::pfmon::task);
 

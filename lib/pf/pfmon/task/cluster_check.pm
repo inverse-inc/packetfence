@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use pf::config qw(%Config);
 use pf::cluster;
+use pf::log;
 use Moose;
 extends qw(pf::pfmon::task);
 

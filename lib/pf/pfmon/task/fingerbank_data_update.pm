@@ -20,6 +20,7 @@ use fingerbank::DB;
 use pf::fingerbank;
 use pf::constants qw($TRUE $FALSE);
 use pf::cluster;
+use pf::log;
 use Moose;
 extends qw(pf::pfmon::task);
 
