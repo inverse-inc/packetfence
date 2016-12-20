@@ -1241,6 +1241,7 @@ On each interface:
   authentication periodic 
   authentication timer restart 10800 
   authentication timer reauthenticate 10800 
+  authentication violation replace
   mab 
   no snmp trap link-status 
   dot1x pae authenticator 
@@ -1259,6 +1260,7 @@ On each interface:
   authentication periodic 
   authentication timer restart 10800 
   authentication timer reauthenticate 7200 
+  authentication violation replace
   mab 
   no snmp trap link-status 
   dot1x pae authenticator 
@@ -1280,13 +1282,14 @@ On each interface:
   authentication periodic 
   authentication timer restart 10800 
   authentication timer reauthenticate 7200 
+  authentication violation replace
   mab 
   no snmp trap link-status 
 
 [NOTE]
 .802.1X on various models of 2960
 ============================================================================
-There's a lot of different versions of the Catalyst 2960 serie. Some of them
+There's a lot of different versions of the Catalyst 2960. Some of them
 may not accept the command stated in this guide for 802.1X.
 
 We have found a couple of commands that are working great or MAB:
@@ -1378,6 +1381,7 @@ Then on each controlled interface
    authentication priority mab
    authentication port-control auto
    authentication periodic
+   authentication violation replace
    mab
    spanning-tree portfast
 
@@ -1562,6 +1566,7 @@ On each interface:
   authentication periodic
   authentication timer restart 10800
   authentication timer reauthenticate 10800
+  authentication violation replace
   mab
   no snmp trap link-status
   dot1x pae authenticator
