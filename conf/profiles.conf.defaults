@@ -26,3 +26,4 @@ scans=
 reuse_dot1x_credentials=0
 sources=
 provisioners=
+access_registration_when_registered=disabled
