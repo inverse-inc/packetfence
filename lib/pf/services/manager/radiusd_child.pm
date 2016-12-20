@@ -658,8 +658,9 @@ EOT
 
              if ($current_network->contains($ip)) {
                  my $network = $current_network2->network();
-                 my $cidr = $network->cidr();
-                 $cidr =~ s/\.0//g;
+                 my $prefix = $current_network2->network()->nprefix();
+                 my $mask = $current_network2->masklen();
+                 $prefix =~ s/\.$//;
                  if (defined($net{'next_hop'})) {
                      $tags{'config'} .= <<"EOT";
 
