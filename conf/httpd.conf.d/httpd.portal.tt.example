@@ -229,15 +229,20 @@ QS_SrvMaxConnPerIP [% captive_portal.httpd_mod_qos_maximum_connections_per_devic
 
 [% IF captive_portal.httpd_mod_evasive %]
 
+    [% IF apache_version == "2.4" %]
+        [% SET mod_evasive_version = "24"%]
+    [% ELSE %]
+        [% SET mod_evasive_version = "20"%]
+    [% END %]
     <IfDefine debian>
-      <IfModule !mod_evasive20.c>
-        LoadModule evasive20_module /usr/lib/apache2/modules/mod_evasive20.so
+      <IfModule !mod_evasive[% mod_evasive_version %].c>
+        LoadModule evasive[% mod_evasive_version %]_module /usr/lib/apache2/modules/mod_evasive[% mod_evasive_version %].so
       </IfModule>
     </IfDefine>
 
     <IfDefine rhel>
-      <IfModule !mod_evasive20.c>
-        LoadModule evasive20_module modules/mod_evasive20.so
+      <IfModule !mod_evasive[% mod_evasive_version %].c>
+        LoadModule evasive[% mod_evasive_version %]_module modules/mod_evasive[% mod_evasive_version %].so
       </IfModule>
     </IfDefine>
 
