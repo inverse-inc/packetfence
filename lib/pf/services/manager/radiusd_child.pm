@@ -50,7 +50,6 @@ tie my @cli_switches, 'pfconfig::cached_array', 'resource::cli_switches';
 use NetAddr::IP;
 use pf::cluster;
 use pfconfig::cached_array;
-tie my @cli_switches, 'pfconfig::cached_array', 'resource::cli_switches';
 use pf::dhcpd qw (freeradius_populate_dhcpd_config);
 
 extends 'pf::services::manager';
@@ -566,10 +565,11 @@ EOT
 
              if ($current_network->contains($ip)) {
                  my $network = $current_network2->network();
-                 my $cidr = $network->cidr();
-                 $cidr =~ s/\.0//g;
+                 my $prefix = $current_network2->network()->nprefix();
+                 my $mask = $current_network2->masklen();
+                 $prefix =~ s/\.$//;
                  if (defined($net{'next_hop'})) {
-                     $routed_networks .= "|| (&request:DHCP-Client-IP-Address < $cidr)";
+                     $routed_networks .= "|| (&request:DHCP-Client-IP-Address < $prefix/$mask)";
                      $tags{'config'} .= <<"EOT";
 
         if ( (&request:DHCP-Gateway-IP-Address != 0.0.0.0) && (&request:DHCP-Gateway-IP-Address < $prefix/$mask) )
