@@ -140,5 +140,10 @@ function showWebNotification(message, icon){
 */
 
 function getPortalUrl(url) {
-  return "/portal_preview"+url;
+  if(/\/portal_preview\//.test(window.location.href)) {
+    return "/portal_preview"+url;
+  }
+  else {
+    return url;
+  }
 }
