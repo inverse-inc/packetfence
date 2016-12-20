@@ -30,9 +30,10 @@ __PACKAGE__->config(
         # Configure access rights
         view   => { AdminRole => 'PFMON_READ' },
         list   => { AdminRole => 'PFMON_READ' },
+        update => { AdminRole => 'PFMON_UPDATE' },
+        # The following are noops it will fail
         create => { AdminRole => 'PFMON_READ' },
         clone  => { AdminRole => 'PFMON_READ' },
-        update => { AdminRole => 'PFMON_UPDATE' },
         remove => { AdminRole => 'PFMON_READ' },
     },
     action_args => {
@@ -57,6 +58,8 @@ sub index :Path :Args(0) {
 
 before [qw(create clone remove)] => sub {
     my ($self, $c) = @_;
+    my $name = $c->action->name;
+    $c->log->error("cannot perform the follow action on a pfmon task $name");
     $c->detach();
 };
 
