@@ -34,15 +34,17 @@ BEGIN {
 
 use pf::file_paths qw($var_dir);
 use pf::accounting qw(acct_maintenance);
-use pf::config qw(%Config %ConfigDomain);
+use pf::config qw(%Config);
+use pf::config::pfmon qw(%ConfigPfmon);
+use pf::factory::pfmon::task;
 use pf::constants qw($FALSE $TRUE);
 use pf::inline::accounting;
-use pf::ip4log;
 use pf::locationlog;
 use pf::auth_log;
 use pf::node;
 use pf::db;
 use pf::services;
+use pf::traplog;
 use pf::util;
 use pf::services::util;
 use pf::violation qw(violation_maintenance);
@@ -60,8 +62,6 @@ use pf::cluster;
 use Time::HiRes qw(time sleep);
 use pf::option82 qw(search_switch);
 use pf::CHI::Request;
-use pf::domain::ntlm_cache;
-use List::MoreUtils qw(any);
 
 pf::SwitchFactory->preloadConfiguredModules();
 
@@ -175,138 +175,11 @@ exit(0);
 =cut
 
 sub registertasks  {
-    register_task(
-        'iplog rotation',
-        'iplog_rotation_interval',
-        sub {
-            pf::ip4log::rotate( $Config{'maintenance'}{'iplog_rotation_window'}, $Config{maintenance}{iplog_rotation_batch}, $Config{maintenance}{iplog_rotation_timeout} );
-        }
-    ) if ( $Config{'maintenance'}{'iplog_rotation_window'} && isenabled($Config{'maintenance'}{'iplog_rotation'}) );
-
-    register_task(
-        'iplog cleanup',
-        ( isdisabled($Config{'maintenance'}{'iplog_rotation'}) ) ? 'iplog_rotation_interval' : 'iplog_cleanup_interval',
-        sub {
-            my $window = ( isdisabled($Config{'maintenance'}{'iplog_rotation'}) ) ? $Config{'maintenance'}{'iplog_rotation_window'} : $Config{'maintenance'}{'iplog_cleanup_window'};
-            my $batch = ( isdisabled($Config{'maintenance'}{'iplog_rotation'}) ) ? $Config{maintenance}{iplog_rotation_batch} : $Config{maintenance}{iplog_cleanup_batch};
-            my $timeout = ( isdisabled($Config{'maintenance'}{'iplog_rotation'}) ) ? $Config{maintenance}{iplog_rotation_timeout} : $Config{maintenance}{iplog_cleanup_timeout};
-            my $table = ( isdisabled($Config{'maintenance'}{'iplog_rotation'}) ) ? 'iplog_history' : 'iplog_archive';
-            pf::ip4log::cleanup( $window, $batch, $timeout, $table );
-        }
-    ) if ( $Config{'maintenance'}{'iplog_cleanup_window'} );
-
-    register_task(
-        'locationlog cleanup',
-        'locationlog_cleanup_interval',
-        sub {
-            locationlog_cleanup( $Config{'maintenance'}{'locationlog_cleanup_window'}, $Config{maintenance}{locationlog_cleanup_batch}, $Config{maintenance}{locationlog_cleanup_timeout} );
-        }
-    ) if ( $Config{'maintenance'}{'locationlog_cleanup_window'} );
-
-    register_task(
-        'auth_log cleanup',
-        'auth_log_cleanup_interval',
-        sub {
-            pf::auth_log::cleanup( $Config{'maintenance'}{'auth_log_cleanup_window'}, $Config{maintenance}{auth_log_cleanup_batch}, $Config{maintenance}{auth_log_cleanup_timeout} );
-        }
-    ) if ( $Config{'maintenance'}{'auth_log_cleanup_window'} );
-
-    register_task(
-        'radius audit log cleanup',
-        'radius_audit_log_cleanup_interval',
-        sub {
-            radius_audit_log_cleanup( $Config{'maintenance'}{'radius_audit_log_cleanup_window'}, $Config{maintenance}{radius_audit_log_cleanup_batch}, $Config{maintenance}{radius_audit_log_cleanup_timeout});
-        }
-    ) if ( $Config{'maintenance'}{'radius_audit_log_cleanup_window'} );
-
-    register_task(
-        'node cleanup',
-        'node_cleanup_interval',
-        sub {
-            node_cleanup( $Config{'maintenance'}{'node_cleanup_window'}, $Config{'maintenance'}{'node_unreg_window'} );
-        }
-    ) if ( $Config{'maintenance'}{'node_cleanup_window'} || $Config{'maintenance'}{'node_unreg_window'} );
-
-    register_task(
-        'person cleanup',
-        'person_cleanup_interval',
-        sub {
-            person_cleanup();
-        }
-    ) if ( isenabled($Config{'maintenance'}{'person_cleanup'}) );
-
-    register_task(
-        'checking registered nodes for expiration',
-        'nodes_maintenance_interval',
-        sub {
-            nodes_maintenance();
-        }
-    );
-
-    register_task(
-        'checking violations for expiration',
-        'violation_maintenance_interval',
-        sub {
-            violation_maintenance( $Config{maintenance}{violation_maintenance_batch}, $Config{maintenance}{violation_maintenance_timeout} );
-        }
-    );
-
-    register_task(
-        'checking accounting data for potential bandwidth abuse',
-        'inline_accounting_maintenance_interval',
-        sub {
-            inline_accounting_maintenance( $Config{'inline'}{'layer3_accounting_session_timeout'} );
-        }
-    ) if isenabled($Config{'inline'}{'accounting'});
-
-    register_task(
-        'provisioner polling enforcement',
-        'provisioning_compliance_poll_interval',
-        sub {
-            provisioner_compliance_poll();
-        }
-    );
-
-    register_task(
-        'account maintenance',
-        'acct_maintenance_interval',
-        sub {
-            acct_maintenance();
-        }
-    );
-
-    register_task(
-        'fingerbank data update',
-        'fingerbank_data_update_interval',
-        \&update_fingerbank_data
-    );
-
-    register_task(
-        'cluster_check',
-        'cluster_check_interval',
-        \&cluster_check
-    );
-
-    register_task(
-        'option82 task',
-        'option82_query_interval',
-        sub {
-            search_switch();
-        }
-    ) if isenabled($Config{'network'}{'dhcpoption82logger'});
-    
-    register_task(
-        'populate ntlm redis cache',
-        'populate_ntlm_redis_cache_interval',
-        \&populate_ntlm_redis_cache
-    );
-
-    register_task(
-        'cleanup_chi_database_cache',
-        'cleanup_chi_database_cache_interval',
-        \&cleanup_chi_database_cache,
-    );
-
+    for my $task_id (keys %ConfigPfmon) {
+        my $task = pf::factory::pfmon::task->new($task_id);
+        next unless isenabled($task->enabled);
+        register_task($task_id);
+    }
 }
 
 =head2 cleanup
@@ -346,40 +219,6 @@ sends a signal to all active children
 sub signal_children {
     my ($signal) = @_;
     kill ( $signal, keys %CHILDREN);
-}
-
-=head2 purge_cache
-
-purge expired items from a cache
-
-=cut
-
-sub purge_cache {
-    my ($namespace) = @_;
-    my $cache = pf::CHI->new( namespace => $namespace );
-    for my $key ($cache->get_keys) {
-        if($cache->exists_and_is_expired($key)) {
-            #Add an eval in case of the value deleted before
-            eval {
-                $cache->remove($key);
-            };
-        }
-    }
-}
-
-=head2 provisioner_compliance_poll
-
-Polls each provisioner to enforce compliance
-
-=cut
-
-sub provisioner_compliance_poll {
-    foreach my $id (@{pf::ConfigStore::Provisioning->new->readAllIds}) {
-        my $provisioner = pf::factory::provisioner->new($id);
-        if($provisioner->supportsPolling){
-            $provisioner->pollAndEnforce($Config{maintenance}{provisioning_compliance_poll_interval});
-        }
-    }
 }
 
 =head2 normal_sighandler
@@ -444,7 +283,7 @@ sub runtask {
         ) or die("pfmon could not set SIGCHLD handler: $!");
         $IS_CHILD = 1;
         Log::Log4perl::MDC->put('tid', $$);
-        _runtask(@$task);
+        _runtask($task);
     } else {
     }
 }
@@ -456,29 +295,31 @@ the task to is ran in a loop until it is finished
 =cut
 
 sub _runtask {
-    my ($id,$parameter,$task) = @_;
-    $0 = "pfmon - $id";
+    my ($task_id) = @_;
+    $0 = "pfmon - $task_id";
     my $time_taken = 0;
     while ($running && $process) {
         pf::CHI::Request::clear_all();
         pf::log::reset_log_context();
-        my $interval = $Config{'maintenance'}{$parameter};
+        my $task = pf::factory::pfmon::task->new($task_id);
+        my $interval = $task->interval;
         unless ($interval) {
-            $logger->trace("task $id is disabled");
+            $logger->trace("task $task_id is disabled");
             $time_taken = 0;
             alarm 60;
             pause;
             next;
         }
         my $final_interval = $interval - $time_taken;
-        $logger->trace("$id is sleeping for $final_interval ($interval from configuration - $time_taken)");
+        $logger->trace("$task_id is sleeping for $final_interval ($interval from configuration - $time_taken)");
         # Only wait if the interval is positive
         if($final_interval > 0) {
             alarm $final_interval;
             pause;
             last unless $running;
         }
-        $logger->trace("$id is running");
+        
+        $logger->trace("$task_id is running");
         my $start = time();
         if (db_check_readonly()) {
             $logger->trace(sub { "The database is in readonly mode skipping task $id" });
@@ -487,10 +328,10 @@ sub _runtask {
         }
 
         eval {
-            $task->();
+            $task->run();
         };
         if ($@) {
-            $logger->error("Error running task $id: $@");
+            $logger->error("Error running task $task_id: $@");
         }
         $time_taken = time() - $start;
         #Stop running if parent is no longer alive
@@ -521,8 +362,8 @@ registers the task to run
 =cut
 
 sub register_task {
-    my ($taskId, $parameter,$function) = @_;
-    push @REGISTERED_TASKS, [ $taskId , $parameter, $function ];
+    my ($taskId) = @_;
+    push @REGISTERED_TASKS, $taskId;
 
 }
 
@@ -564,7 +405,7 @@ sub child_sighandler {
         my $child = waitpid(-1, WNOHANG);
         last unless $child > 0;
         my $task = delete $CHILDREN{$child};
-        register_task(@$task);
+        register_task($task);
     }
 }
 
@@ -576,140 +417,6 @@ the handler to cancel any currently running database queries
 
 sub usr1_sighandler {
    db_cancel_current_query();
-}
-
-=head2 update_fingerbank_data
-
-Update all the Fingerbank data from the API
-
-=cut
-
-sub update_fingerbank_data {
-
-    if(fingerbank::Config::is_api_key_configured){
-        my $apiclient = pf::client::getClient();
-        foreach my $action (keys(%pf::fingerbank::ACTION_MAP)){
-            if(defined($pf::fingerbank::ACTION_MAP_CONDITION{$action})){
-                unless($pf::fingerbank::ACTION_MAP_CONDITION{$action}->()){
-                    get_logger->debug("Not executing $action because its condition returned false");
-                    next;
-                }
-            }
-            get_logger->debug("Calling Fingerbank action $action");
-            my ($status, $status_msg) = pf::cluster::notify_each_server('fingerbank_update_component', action => $action, email_admin => $FALSE, fork_to_queue => $TRUE);
-            if(fingerbank::Util::is_success($status)){
-                get_logger->info("Successfully executed action $action");
-            }
-            else {
-                get_logger->error("Couldn't execute action $action : ".$status_msg);
-            }
-        }
-    }
-    else {
-        get_logger->debug("Can't update fingerbank data since there is no API key configured");
-    }
-
-}
-
-=head2 cluster_check
-
-Check the health state of the cluster and manage any configuration conflict between members
-
-=cut
-
-sub cluster_check {
-    my $cache = pf::CHI->new(namespace => 'clustering');
-    my $now = time;
-    my $last_conflict_at = $cache->get('last_config_healthy_timestamp');
-    my $last_config_checked = $cache->get('last_config_checked_timestamp');
-
-    my $conflict_resolution_threshold = $Config{active_active}{conflict_resolution_threshold};
-
-    get_logger->info("Using $conflict_resolution_threshold resolution threshold");
-    
-    my $interval = $Config{'maintenance'}{'cluster_check_interval'};
-    my ($servers_map, $version_map) = pf::cluster::get_all_config_version();
-
-    # Making sure we have all available data for the decision and that there are multiple versions detected
-    if(defined($last_conflict_at) && defined($last_config_checked) && keys(%$version_map) > 1) { 
-        my $last_conflict_interval = $now - $last_conflict_at;
-        my $last_config_checked_interval = $now - $last_config_checked;
-        
-        # If we haven't checked the state in the last 2 intervals, we'll ignore any conflicts and get the latest state
-        if($last_config_checked_interval > 2*$interval) {
-            get_logger->info("Cluster config state hasen't been checked for too long (last was : $last_config_checked_interval). Will consider config healthy for this iteration");
-            $cache->set('last_config_healthy_timestamp', $now);
-        }
-        elsif($last_conflict_at > $conflict_resolution_threshold) {
-            get_logger->info("Configuration is unhealthy since $conflict_resolution_threshold seconds. Will attempt to resolve the conflict");
-            pf::cluster::handle_config_conflict();
-        }
-    }
-    else {
-        get_logger->info("All cluster members are running the same configuration version");
-        $cache->set('last_config_healthy_timestamp', $now);
-    }
-    $cache->set('last_config_checked_timestamp', $now);
-}
-
-=head2 populate_ntlm_redis_cache
-
-Populate the redis NTLM cache
-
-=cut
-
-sub populate_ntlm_redis_cache {
-    get_logger->debug("Calling populate_ntlm_redis_cache");
-    foreach my $domain (keys(%ConfigDomain)) {
-        get_logger->trace("Checking if $domain has NTLM cache enabled");
-        if(isenabled($ConfigDomain{$domain}{ntlm_cache}) && isenabled($ConfigDomain{$domain}{ntlm_cache_batch})) {
-            get_logger->info("Synchronizing NTLM cache for domain $domain");
-            my @args = ('queue_job', 'general', 'populate_ntlm_cache', $domain);
-            # Call method on this server
-            pf::client::getClient()->call(@args);
-
-            # Call method on peer servers if in cluster
-            if($cluster_enabled) {
-                get_logger->info("Calling populate_ntlm_cache on each cluster member.");
-                my $failed = pf::cluster::api_call_each_server($FALSE, @args);
-                if(@$failed > 0) {
-                    get_logger->error("Couldn't contact ".join(',', @$failed)." to dispatch job for domain $domain.");
-                }
-            }
-        }
-    }
-}
-
-=head2 cleanup_chi_database_cache
-
-Cleanup the expired keys in the chi_cache table of the database
-
-=cut
-
-sub cleanup_chi_database_cache {
-    $logger->info("Expiring database CHI cache");
-
-    my $batch = $Config{maintenance}{cleanup_chi_database_cache_batch};
-    my $time_limit = $Config{maintenance}{cleanup_chi_database_cache_timeout};
-
-    my $start_time = time;
-    my $end_time;
-    my $rows_deleted = 0;
-
-    my $sth = get_db_handle()->prepare_cached("DELETE from chi_cache where ? > expires_at LIMIT ?");
-    while (1) {
-        my $rows = $sth->execute(time, $batch);
-        unless($rows) {
-            $logger->error("Issue executing statement: ".get_db_handle()->errstr);
-        }
-        $rows_deleted += $rows if $rows > 0;
-        $logger->debug("Deleted '$rows_deleted' entries from the CHI database cache");
-        $end_time = time;
-        last if $rows <= 0 || ( ( $end_time - $start_time ) > $time_limit );
-    }
-
-    $logger->info("Done expiring database CHI cache");
-
 }
 
 =head1 AUTHOR
