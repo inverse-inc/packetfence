@@ -238,10 +238,10 @@ session {
 #  the ONLY safe way is to set "use_tunneled_reply = yes", and
 #  then update the inner-tunnel reply.
 post-auth {
-	update {
-		&request:User-Password := "******"
-	}
 	rest
+	update {
+                &request:User-Password := "******"
+        }
 	if (&reply:PacketFence-Authorization-Status == "deny") {
 		packetfence-audit-log-reject
 		reject
