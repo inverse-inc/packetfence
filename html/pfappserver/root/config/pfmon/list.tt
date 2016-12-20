@@ -1,0 +1,16 @@
+      <table id="items" class="table items[% ' hidden' UNLESS items.size %]" data-list-uri="[% c.uri_for(c.controller.action_for('list')) %]">
+        <thead>
+          <tr>
+            <th>[% l('Pfmon Task Name') %]</th>
+            <th>[% l('Description') %]</th>
+          </tr>
+        </thead>
+        <tbody>
+          [% FOREACH item IN items %]
+          <tr>
+            <td class="item"><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id | html %]</a></td>
+            <td>[% item.description | html%]</td>
+          </tr>
+          [% END -%]
+        </tbody>
+      </table>

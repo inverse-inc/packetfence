@@ -1,0 +1,7 @@
+      <div class="modal modal-large fade hide" id="modalItem">
+      </div>
+
+      <h2>[% l('Pfmon Tasks') %]</h2>
+
+      [% INCLUDE config/pfmon/list.tt %]
+
