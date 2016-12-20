@@ -504,19 +504,19 @@ sub generate_radiusd_dhcpd {
     my %tags;
     my %direct_subnets;
     my $routed_networks = '';
+    if (isenabled($pf::config::Config{'services'}{'radiusd-dhcpd'})) {
+        freeradius_populate_dhcpd_config();
+        $tags{'template'}    = "$conf_dir/radiusd/dhcpd.conf";
+        $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+        $tags{'pid_file'} = "$var_dir/run/radiusd-dhcpd.pid";
+        $tags{'socket_file'} = "$var_dir/run/radiusd-dhcpd.sock";
 
-    freeradius_populate_dhcpd_config();
-    $tags{'template'}    = "$conf_dir/radiusd/dhcpd.conf";
-    $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
-    $tags{'pid_file'} = "$var_dir/run/radiusd-dhcpd.pid";
-    $tags{'socket_file'} = "$var_dir/run/radiusd-dhcpd.sock";
-
-    foreach my $interface ( @listen_ints ) {
-        my $vlan = get_vlan_from_int($interface) || '0';
-        my $cfg = $Config{"interface $interface"};
-        next unless $cfg;
-        my $current_network = NetAddr::IP->new( $cfg->{'ip'}, $cfg->{'mask'} );
-            $tags{'listen'} .= <<"EOT";
+        foreach my $interface ( @listen_ints ) {
+            my $vlan = get_vlan_from_int($interface) || '0';
+            my $cfg = $Config{"interface $interface"};
+            next unless $cfg;
+            my $current_network = NetAddr::IP->new( $cfg->{'ip'}, $cfg->{'mask'} );
+                $tags{'listen'} .= <<"EOT";
 
 listen {
 	type = dhcp
@@ -530,7 +530,7 @@ listen {
 
 EOT
 
-        $tags{'config'} .= <<"EOT";
+            $tags{'config'} .= <<"EOT";
 
 server dhcp\.$interface {
 dhcp DHCP-Discover {
@@ -553,34 +553,34 @@ dhcp DHCP-Discover {
 
 EOT
 
-    foreach my $network ( keys %ConfigNetworks ) {
-        # shorter, more convenient local accessor
-        my %net = %{$ConfigNetworks{$network}};
-        if ( $net{'dhcpd'} eq 'enabled' ) {
-            my $ip = NetAddr::IP::Lite->new(clean_ip($net{'gateway'}));
-            my $current_network2 = NetAddr::IP->new( $net{'gateway'}, $net{'netmask'} );
-            if (defined($net{'next_hop'})) {
-                $ip = NetAddr::IP::Lite->new(clean_ip($net{'next_hop'}));
-             }
+            foreach my $network ( keys %ConfigNetworks ) {
+                # shorter, more convenient local accessor
+                my %net = %{$ConfigNetworks{$network}};
+                if ( $net{'dhcpd'} eq 'enabled' ) {
+                    my $ip = NetAddr::IP::Lite->new(clean_ip($net{'gateway'}));
+                    my $current_network2 = NetAddr::IP->new( $net{'gateway'}, $net{'netmask'} );
+                    if (defined($net{'next_hop'})) {
+                        $ip = NetAddr::IP::Lite->new(clean_ip($net{'next_hop'}));
+                     }
 
-             if ($current_network->contains($ip)) {
-                 my $network = $current_network2->network();
-                 my $prefix = $current_network2->network()->nprefix();
-                 my $mask = $current_network2->masklen();
-                 $prefix =~ s/\.$//;
-                 if (defined($net{'next_hop'})) {
-                     $routed_networks .= "|| (&request:DHCP-Client-IP-Address < $prefix/$mask)";
-                     $tags{'config'} .= <<"EOT";
+                     if ($current_network->contains($ip)) {
+                         my $network = $current_network2->network();
+                         my $prefix = $current_network2->network()->nprefix();
+                         my $mask = $current_network2->masklen();
+                         $prefix =~ s/\.$//;
+                         if (defined($net{'next_hop'})) {
+                             $routed_networks .= "|| (&request:DHCP-Client-IP-Address < $prefix/$mask)";
+                             $tags{'config'} .= <<"EOT";
 
         if ( (&request:DHCP-Gateway-IP-Address != 0.0.0.0) && (&request:DHCP-Gateway-IP-Address < $prefix/$mask) )
 EOT
-                 } else {
-                     $tags{'config'} .= <<"EOT";
+                         } else {
+                             $tags{'config'} .= <<"EOT";
         if ( (&request:DHCP-Gateway-IP-Address == 0.0.0.0) || (&request:DHCP-Gateway-IP-Address < $prefix/$mask) )
 
 EOT
-                 }
-                 $tags{'config'} .= <<"EOT";
+                         }
+                         $tags{'config'} .= <<"EOT";
 
 			update {
 				&reply:DHCP-Domain-Name-Server = $net{'dns'}
@@ -601,19 +601,19 @@ EOT
 				&request:DHCP-Site-specific-2 = $vlan
                         }
 EOT
-                if (isenabled($net{'split_network'})) {
-                    $tags{'config'} .= <<"EOT";
+                        if (isenabled($net{'split_network'})) {
+                            $tags{'config'} .= <<"EOT";
 			rest-dhcprole
 EOT
-                }
-                 $tags{'config'} .= <<"EOT";
+                        }
+                        $tags{'config'} .= <<"EOT";
 		}
 EOT
+                    }
             }
         }
-    }
 
- $tags{'config'} .= <<"EOT";
+        $tags{'config'} .= <<"EOT";
 	dhcp_sqlippool
         rest-dhcp
 	ok
@@ -646,33 +646,33 @@ dhcp DHCP-Request {
 
 EOT
 
-    foreach my $network ( keys %ConfigNetworks ) {
-        # shorter, more convenient local accessor
-        my %net = %{$ConfigNetworks{$network}};
-        if ( $net{'dhcpd'} eq 'enabled' ) {
-            my $ip = NetAddr::IP::Lite->new(clean_ip($net{'gateway'}));
-            my $current_network2 = NetAddr::IP->new( $net{'gateway'}, $net{'netmask'} );
-            if (defined($net{'next_hop'})) {
-                $ip = NetAddr::IP::Lite->new(clean_ip($net{'next_hop'}));
-             }
+        foreach my $network ( keys %ConfigNetworks ) {
+            # shorter, more convenient local accessor
+            my %net = %{$ConfigNetworks{$network}};
+            if ( $net{'dhcpd'} eq 'enabled' ) {
+                my $ip = NetAddr::IP::Lite->new(clean_ip($net{'gateway'}));
+                my $current_network2 = NetAddr::IP->new( $net{'gateway'}, $net{'netmask'} );
+                if (defined($net{'next_hop'})) {
+                    $ip = NetAddr::IP::Lite->new(clean_ip($net{'next_hop'}));
+                }
 
-             if ($current_network->contains($ip)) {
-                 my $network = $current_network2->network();
-                 my $prefix = $current_network2->network()->nprefix();
-                 my $mask = $current_network2->masklen();
-                 $prefix =~ s/\.$//;
-                 if (defined($net{'next_hop'})) {
-                     $tags{'config'} .= <<"EOT";
+                if ($current_network->contains($ip)) {
+                    my $network = $current_network2->network();
+                    my $prefix = $current_network2->network()->nprefix();
+                    my $mask = $current_network2->masklen();
+                    $prefix =~ s/\.$//;
+                    if (defined($net{'next_hop'})) {
+                        $tags{'config'} .= <<"EOT";
 
         if ( (&request:DHCP-Gateway-IP-Address != 0.0.0.0) && (&request:DHCP-Gateway-IP-Address < $prefix/$mask) )
 EOT
-                 } else {
-                     $tags{'config'} .= <<"EOT";
+                    } else {
+                         $tags{'config'} .= <<"EOT";
         if ( (&request:DHCP-Gateway-IP-Address == 0.0.0.0) || (&request:DHCP-Gateway-IP-Address < $prefix/$mask) )
 
 EOT
-                 }
-                $tags{'config'} .= <<"EOT";
+                    }
+                    $tags{'config'} .= <<"EOT";
 
 		update {
 			&reply:DHCP-Domain-Name-Server = $net{'dns'}
@@ -693,19 +693,19 @@ EOT
 			&request:DHCP-Site-specific-2 = $vlan
                 }
 EOT
-                if (isenabled($net{'split_network'})) {
-                     $tags{'config'} .= <<"EOT";
+                    if (isenabled($net{'split_network'})) {
+                         $tags{'config'} .= <<"EOT";
 			rest-dhcprole
 EOT
-                }
-                 $tags{'config'} .= <<"EOT";
+                    }
+                    $tags{'config'} .= <<"EOT";
 		}
 EOT
+                }
             }
         }
-    }
 
- $tags{'config'} .= <<"EOT";
+        $tags{'config'} .= <<"EOT";
 	dhcp_sqlippool
 	rest-dhcp
 	ok
@@ -784,10 +784,10 @@ EOT
 
 # Listener interface to replace pfdhcplistener for ipv4
 
-    foreach my $interface ( @dhcplistener_ints ) {
-        my $cfg = $Config{"interface $interface"};
-        next unless $cfg;
-            $tags{'listen'} .= <<"EOT";
+        foreach my $interface ( @dhcplistener_ints ) {
+            my $cfg = $Config{"interface $interface"};
+            next unless $cfg;
+                $tags{'listen'} .= <<"EOT";
 
 listen {
 	type = dhcp
@@ -801,7 +801,7 @@ listen {
 
 EOT
 
-        $tags{'config'} .= <<"EOT";
+            $tags{'config'} .= <<"EOT";
 
 server dhcp\.$interface {
 dhcp DHCP-Discover {
@@ -859,12 +859,16 @@ dhcp DHCP-Lease-Query {
 
 }
 EOT
-}
+        }
 
+        parse_template( \%tags, "$conf_dir/radiusd/packetfence-dhcp", "$install_dir/raddb/sites-enabled/packetfence-dhcp" );
+        parse_template( \%tags, $tags{template}, "$install_dir/raddb/dhcpd.conf" );
+        return 1;
+    } else {
+        my $file = $install_dir."/raddb/dhcpd.conf";
+        unlink($file);
+    }
 
-    parse_template( \%tags, "$conf_dir/radiusd/packetfence-dhcp", "$install_dir/raddb/sites-enabled/packetfence-dhcp" );
-    parse_template( \%tags, $tags{template}, "$install_dir/raddb/dhcpd.conf" );
-    return 1;
 }
 
 
