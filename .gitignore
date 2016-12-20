@@ -55,7 +55,6 @@ conf/log.conf
 conf/chi.conf
 conf/dhcp_filters.conf
 conf/local_secret
-conf/maintenance.conf
 conf/monitoring/*
 !conf/monitoring/*.example
 conf/nessus/remotescan.nessus
