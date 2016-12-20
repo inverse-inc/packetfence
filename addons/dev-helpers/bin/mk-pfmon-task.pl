@@ -32,6 +32,12 @@ my @tasks = map { /^(.*)_interval$/;$1} grep { /^(.*)_interval$/ } @keys;
 
 my @config_info;
 
+my %field_types = (
+    window => 'Duration',
+    timeout => 'Duration',
+    batch => 'PosInteger'
+);
+
 foreach my $task (@tasks) {
     my @attributes;
     my $class = $task;
@@ -58,20 +64,34 @@ foreach my $task (@tasks) {
         if ($name eq 'window') {
             $vars{HAS_WINDOW} = 1;
         }
-        push @attributes, {name => $name, default => $default, value => $value, comment => mk_comment($class, $name)};
+        push @attributes, {name => $name, default => $default, value => $value, comment => mk_comment($class, $name), field_type => mk_field_type($class, $name) };
     }
 
     my $out_path = "lib/pf/pfmon/task/${class}.pm";
 
     push @config_info,\%vars;
+
     if (-e "$install_dir/$out_path") {
-        print "Module already exists skipping pf::pfmon::task::${class}\n";
-        next;
+        print "Module already exists skipping $out_path\n";
+    } else {
+        $tt->process("pf-pfmon-task.pm.tt",\%vars, $out_path) or die $tt->error;
     }
-    $tt->process("pf-pfmon-task.pm.tt",\%vars, "$out_path") or die $tt->error;
+
+    $out_path = "html/pfappserver/lib/pfappserver/Form/Config/Pfmon/${class}.pm";
+    if (-e "$install_dir/$out_path") {
+        print "Module already exists skipping $out_path\n";
+    } else {
+        $tt->process("form-config-pfmon.pm.tt",\%vars, $out_path) or die $tt->error;
+    }
 
     #print Dumper(\%vars);
     
+}
+
+sub mk_field_type {
+    my ($class, $name) = @_;
+    return $field_types{$name} if exists $field_types{$name};
+    return 'Text';
 }
 $tt->process("pfmon.conf.tt",{ 'configs' => \@config_info}, "conf/pfmon.conf.defaults") or die $tt->error;
 
