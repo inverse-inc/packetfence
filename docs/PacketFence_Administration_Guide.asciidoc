@@ -4151,4 +4151,47 @@ The node view option shows all information contained in the node database table 
   mac|pid|detect_date|regdate|unregdate|lastskip|status|user_agent|computername|notes|last_arp|last_dhcp|switch|port|vlan|dhcp_fingerprint
   52:54:00:12:35:02|1|2008-10-23 17:32:16||||unreg||||2008-10-23 21:12:21|||||
 
+[appendix]
+Restoring a Percona XtraBackup dump
+-----------------------------------
+
+If you enabled Percona XtraBackup for your nightly backup, you can use the following instructions to restore it. In this example we will be restoring `/root/backup/packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream.gz`
+
+First, create a restore directory, move the backup to it and gunzip the backup:
+
+  # mkdir /root/backup/restore
+  # cd /root/backup/restore
+  # cp ../packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream.gz .
+  # gunzip packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream.gz
+
+Then extract the xbstream data:
+
+  # xbstream -x < packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream
+
+Once done, you should have a lot of files that were extracted in the restore dir. Now, lets place the xbstream back in the backup directory
+
+  # mv packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream ../
+
+Next, install qpress (available from the percona repository) and process any qp file that were extracted:
+
+  # yum install qpress --enablerepo=percona-release-`uname -m`
+  # for i in $(find -name "*.qp"); do qpress -vd $i $(dirname ${i}) && rm -f $i; done
+
+Next, apply the innodb log:
+
+  # innobackupex --apply-log ./
+
+We will now stop MySQL, move the existing data directory and replace it by the data that was extracted:
+
+NOTE: On Debian the service will be called `mysql` and on CentOS 7 `mariadb`. Make sure you adjust the commands above to your environment.
+
+  # service mysqld stop
+  # mv /var/lib/mysql /var/lib/mysql.bak
+  # mkdir /var/lib/mysql
+  # mv * /var/lib/mysql
+  # chown -R mysql: /var/lib/mysql
+  # service mysqld start
+
+Should the service fail to start, make sure you look into the MySQL error logs.
+
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:
