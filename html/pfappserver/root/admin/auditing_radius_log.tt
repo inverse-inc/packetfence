@@ -198,7 +198,7 @@ form {
                     <li>
                       <a href="#" data-toggle="pf-search-form"  data-target="#search" data-form-target="#search" data-parent="#collapseDomain">[% domain.Id %]</a>
                         <form>
-                          <input type="hidden" name="searches.0.name" value="domain"/>
+                          <input type="hidden" name="searches.0.name" value="pf_domain"/>
                           <input type="hidden" name="searches.0.op" value="is"/>
                           <input type="hidden" name="searches.0.value" value="[% domain.Id %]"/>
                         </form>
