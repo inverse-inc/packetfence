@@ -411,18 +411,6 @@ sub scan_openvas {
     }
 }
 
-=item omapi
-
-Validation related to the OMAPI configuration
-
-=cut
-
-sub omapi {
-    if ( (pf::config::is_omapi_lookup_enabled) && ($Config{'omapi'}{'host'} eq "localhost") && (!pf::config::is_omapi_configured) ) {
-        add_problem( $WARN, "OMAPI lookup is locally enabled but missing required configuration parameters 'key_name' and/or 'key_base64'" );
-    }
-}
-
 sub authentication {
     authentication_unique_sources();
     authentication_rules_classes();
