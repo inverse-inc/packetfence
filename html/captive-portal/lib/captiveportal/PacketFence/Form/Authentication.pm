@@ -27,6 +27,7 @@ has 'source' => (is => 'rw');
 
 my %skip = (
     email => 1,
+    telephone => 1,
     map { $_ => 1 } @pf::person::NON_PROMPTABLE_FIELDS,
 );
 foreach my $field (@pf::person::FIELDS){
@@ -34,11 +35,15 @@ foreach my $field (@pf::person::FIELDS){
     has_field "fields[$field]" => (type => 'Text', label => ucfirst($field));
 }
 
+has '+is_html5' => (default => 1);
+
 has_field 'fields[username]' => (type => 'Text', label => 'Username', element_attr => { autocorrect => "off", autocapitalize => "off" });
 
 has_field 'fields[password]' => (type => 'Password', label => 'Password');
 
 has_field 'fields[email]' => (type => "Email", label => "Email");
+
+has_field 'fields[telephone]' => (type => "Text", label => "Telephone", html5_type_attr => "tel");
 
 has_field 'fields[sponsor]' => (type => "Email", label => "Sponsor Email");
 
