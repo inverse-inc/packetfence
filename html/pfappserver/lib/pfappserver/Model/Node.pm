@@ -338,10 +338,16 @@ sub importCSV {
 
         if($has_pid) {
             $pid = $row->[$index{'pid'}] || undef;
-            if ( $pid && ($pid !~ /$pf::person::PID_RE/ || !person_exist($pid))) {
-                $logger->debug("Ignored unknown PID ($pid)");
-                $skipped++;
-                next;
+            if ( $pid ) {
+                if($pid !~ /$pf::person::PID_RE/) {
+                    $logger->debug("Ignored invalid PID ($pid)");
+                    $skipped++;
+                    next;
+                }
+                if(!person_exist($pid)) {
+                    $logger->info("Adding non-existant person $pid");
+                    person_add($pid);
+                }
             }
         }
 
