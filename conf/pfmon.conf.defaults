@@ -7,6 +7,11 @@
 # The type of task to perform
 type=option82_query
 #
+# description
+#
+# The description of task to perform
+description=option82 query
+#
 # enabled
 #
 # If the task option82_query is enabled
@@ -23,6 +28,11 @@ interval=23h
 #
 # The type of task to perform
 type=acct_maintenance
+#
+# description
+#
+# The description of task to perform
+description=acct maintenance
 #
 # enabled
 #
@@ -41,6 +51,11 @@ interval=60s
 # The type of task to perform
 type=inline_accounting_maintenance
 #
+# description
+#
+# The description of task to perform
+description=inline accounting maintenance
+#
 # enabled
 #
 # If the task inline_accounting_maintenance is enabled
@@ -57,6 +72,11 @@ interval=60s
 #
 # The type of task to perform
 type=auth_log_cleanup
+#
+# description
+#
+# The description of task to perform
+description=auth log cleanup
 #
 # enabled
 #
@@ -90,6 +110,11 @@ window=1W
 # The type of task to perform
 type=radius_audit_log_cleanup
 #
+# description
+#
+# The description of task to perform
+description=radius audit log cleanup
+#
 # enabled
 #
 # If the task radius_audit_log_cleanup is enabled
@@ -121,6 +146,11 @@ timeout=10s
 #
 # The type of task to perform
 type=iplog_rotation
+#
+# description
+#
+# The description of task to perform
+description=iplog rotation
 #
 # enabled
 #
@@ -154,6 +184,11 @@ window=1W
 # The type of task to perform
 type=locationlog_cleanup
 #
+# description
+#
+# The description of task to perform
+description=locationlog cleanup
+#
 # enabled
 #
 # If the task locationlog_cleanup is enabled
@@ -186,6 +221,11 @@ timeout=10s
 # The type of task to perform
 type=traplog_cleanup
 #
+# description
+#
+# The description of task to perform
+description=traplog cleanup
+#
 # enabled
 #
 # If the task traplog_cleanup is enabled
@@ -208,6 +248,11 @@ window=1W
 # The type of task to perform
 type=cluster_check
 #
+# description
+#
+# The description of task to perform
+description=cluster check
+#
 # enabled
 #
 # If the task cluster_check is enabled
@@ -224,6 +269,11 @@ interval=1m
 #
 # The type of task to perform
 type=violation_maintenance
+#
+# description
+#
+# The description of task to perform
+description=violation maintenance
 #
 # enabled
 #
@@ -251,6 +301,11 @@ batch=1000
 #
 # The type of task to perform
 type=iplog_cleanup
+#
+# description
+#
+# The description of task to perform
+description=iplog cleanup
 #
 # enabled
 #
@@ -284,6 +339,11 @@ timeout=10s
 # The type of task to perform
 type=fingerbank_data_update
 #
+# description
+#
+# The description of task to perform
+description=fingerbank data update
+#
 # enabled
 #
 # If the task fingerbank_data_update is enabled
@@ -300,6 +360,11 @@ interval=1D
 #
 # The type of task to perform
 type=nodes_maintenance
+#
+# description
+#
+# The description of task to perform
+description=nodes maintenance
 #
 # enabled
 #
@@ -318,6 +383,11 @@ interval=60s
 # The type of task to perform
 type=provisioning_compliance_poll
 #
+# description
+#
+# The description of task to perform
+description=provisioning compliance poll
+#
 # enabled
 #
 # If the task provisioning_compliance_poll is enabled
@@ -335,6 +405,11 @@ interval=300s
 # The type of task to perform
 type=person_cleanup
 #
+# description
+#
+# The description of task to perform
+description=person cleanup
+#
 # enabled
 #
 # If the task person_cleanup is enabled
@@ -351,6 +426,11 @@ interval=60s
 #
 # The type of task to perform
 type=node_cleanup
+#
+# description
+#
+# The description of task to perform
+description=node cleanup
 #
 # enabled
 #
