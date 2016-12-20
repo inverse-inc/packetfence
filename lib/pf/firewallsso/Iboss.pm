@@ -72,6 +72,7 @@ sub action {
             else {
                 $logger->warn("Username $username with node $mac failed to register and not authorized in the Iboss");
             }
+        }
     }
     elsif ($method eq 'Stop') {
         my $node_info = node_view($mac);
@@ -105,7 +106,6 @@ sub action {
          }
     }
     return 0;
-    }
 }
 =head1 AUTHOR
 
