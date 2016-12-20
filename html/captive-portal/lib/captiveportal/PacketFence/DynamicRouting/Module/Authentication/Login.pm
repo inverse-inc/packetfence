@@ -24,6 +24,7 @@ use pf::person;
 use pf::Authentication::constants;
 use pf::web::guest;
 use pf::node qw(node_view);
+use pf::lookup::person;
 
 has '+pid_field' => (default => sub { "username" });
 
@@ -153,7 +154,8 @@ sub authenticate {
             return;
         }
     }
-    
+
+    pf::lookup::person::async_lookup_person($username,$self->source->id);
     $self->update_person_from_fields();
     $self->username($username);
     $self->done();
