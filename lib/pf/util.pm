@@ -81,6 +81,7 @@ BEGIN {
         pf_make_dir
         empty_dir
         is_in_list
+        validate_date
     );
 }
 
@@ -91,6 +92,7 @@ use pf::constants::config;
 use pf::constants::user;
 #use pf::config;
 use pf::log;
+use Time::Piece;
 
 =head1 SUBROUTINES
 
@@ -1229,6 +1231,24 @@ sub is_in_list {
     return $FALSE;
 }
 
+=item validate_date
+
+Validates a date to ensure it doesn't exceed 2038-01-18
+
+=cut
+
+sub validate_date {
+    my ($date) = @_;
+    my $t = Time::Piece->strptime($date, "%Y-%m-%d");
+    if(
+        $t->year > 2038
+        || $t->year == 2038 && $t->mon > 1
+        || $t->year == 2038 && $t->mon == 1 && $t->mday > 18
+    ) {
+        return $FALSE;
+    }
+    return $TRUE;
+}
 
 =back
 
