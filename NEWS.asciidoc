@@ -20,6 +20,7 @@ New Features
 
 Enhancements
 ++++++++++++
+ * Ability to customize the OU in which the machine account will be created (#1927)
 
 
 Bug Fixes
