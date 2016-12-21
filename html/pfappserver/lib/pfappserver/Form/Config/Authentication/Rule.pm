@@ -16,6 +16,7 @@ extends 'pfappserver::Base::Form::Authentication::Action';
 
 use pf::config qw(%connection_group %connection_type);
 use pf::Authentication::constants;
+use pf::util;
 
 # Form select options
 has 'attrs' => ( is => 'ro' );
@@ -337,6 +338,16 @@ sub validate {
         @actions = grep { $_->{type} eq $Actions::SET_UNREG_DATE } @{$self->value->{actions}};
         if (scalar @actions > 0) {
             $self->field('actions')->add_error("You can't define an access duration and an unregistration date at the same time.");
+        }
+    }
+    
+    @actions = grep { $_->{type} eq $Actions::SET_UNREG_DATE } @{$self->value->{actions}};
+    foreach my $action (@actions) {
+        use pf::log;
+        use Data::Dumper;
+        get_logger->info(Dumper($action));
+        if(!validate_date($action->{value})) {
+            $self->field('actions')->add_error("Unregistration date must not exceed 2038-01-18");
         }
     }
 
