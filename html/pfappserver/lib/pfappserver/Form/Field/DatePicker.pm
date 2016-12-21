@@ -20,6 +20,12 @@ use pf::util;
 has 'start' => ( is => 'rw', default => undef );
 has 'end' => ( is => 'rw', default => undef );
 
+=head2 validate
+
+Validate all dates cannot exceed 2038-01-38
+
+=cut
+
 sub validate {
     my ($self) = @_;
     if (!validate_date($self->value)) {
