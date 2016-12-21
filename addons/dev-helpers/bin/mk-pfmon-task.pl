@@ -38,7 +38,7 @@ my %field_types = (
     batch => 'PosInteger'
 );
 
-foreach my $task (@tasks) {
+foreach my $task (sort @tasks) {
     my @attributes;
     my $class = $task;
     my %vars  = (
@@ -46,7 +46,7 @@ foreach my $task (@tasks) {
         name => $class,
         attributes => \@attributes
     );
-    for my $attrib_name (grep { /^${task}_/ } @keys) {
+    for my $attrib_name (sort grep { /^${task}_/ } @keys) {
         my $value = $Default_Config{maintenance}{$attrib_name};
         if ($attrib_name =~ /_interval$/) {
             $vars{interval} = $value;
