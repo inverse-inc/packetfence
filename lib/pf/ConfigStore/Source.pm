@@ -61,7 +61,7 @@ sub _update_subfield_in_data {
     my $fields = delete $data->{$from} // [];
     my $i = 0;
     for my $field (@$fields) {
-        $data->{"${$to}$i"} = $field;
+        $data->{"${to}$i"} = $field;
         $i++;
     }
 }
