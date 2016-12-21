@@ -17,6 +17,7 @@
         [% form.field('dns_server').render | none %]
         [% form.field('bind_dn').render | none %]
         [% form.field('bind_pass').render | none %]
+        [% form.field('ou').render | none %]
         [% form.field('registration').render | none %]
   </div><!--modal-body-->
 
