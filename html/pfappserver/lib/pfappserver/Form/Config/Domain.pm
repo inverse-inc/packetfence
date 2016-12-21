@@ -97,6 +97,18 @@ has_field 'dns_name' =>
              help => 'The DNS name (FQDN) of the domain.' },
   );
 
+has_field 'ou' => (
+    type        => 'Text',
+    label       => 'OU',
+    default     => 'Computers',
+    required    => 1,
+    message     => { required => 'Please specify a OU in which the machine account will be created' },
+    tags        => {
+        after_element   => \&help,
+        help            => 'Precreate the computer account in a specific OU. The OU string read from top to bottom without RDNs and delimited by a \'/\'. E.g. "Computers/Servers/Unix"',
+    },
+);
+
 has_field 'registration' =>
   (
    type => 'Checkbox',
