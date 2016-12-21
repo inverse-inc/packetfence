@@ -177,7 +177,7 @@ exit(0);
 sub registertasks  {
     for my $task_id (keys %ConfigPfmon) {
         my $task = pf::factory::pfmon::task->new($task_id);
-        next unless isenabled($task->enabled);
+        next unless $task->is_enabled;
         register_task($task_id);
     }
 }
