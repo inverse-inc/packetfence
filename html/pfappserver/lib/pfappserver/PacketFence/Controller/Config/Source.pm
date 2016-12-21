@@ -55,6 +55,25 @@ sub index :Path :Args(0) {
     $c->forward('list');
 }
 
+before [qw(clone view _processCreatePost update)] => sub {
+    my ($self, $c, @args) = @_;
+    my $model = $self->getModel($c);
+    my $itemKey = $model->itemKey;
+    my $item = $c->stash->{$itemKey};
+    my $type = $item->{type};
+    my $form = $c->action->{form};
+    $c->stash->{current_form} = "${form}::${type}";
+};
+
+sub create_type : Path('create') : Args(1) {
+    my ($self, $c, $type) = @_;
+    my $model = $self->getModel($c);
+    my $itemKey = $model->itemKey;
+    $c->stash->{$itemKey}{type} = $type;
+    $c->forward('create');
+}
+
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2015 Inverse inc.
