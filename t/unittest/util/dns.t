@@ -37,7 +37,7 @@ is($match, $FALSE, "undef domain will not match passthroughs");
 
 ($match, $ports) = pf::util::dns::matches_passthrough("zammitcorp.com");
 is($match, $TRUE, "valid passthrough domain will match passthroughs");
-cmp_deeply(['80', '443', '22'], $ports, "ports for previous test are OK");
+cmp_deeply(['tcp:80', 'tcp:443', 'tcp:22'], $ports, "ports for previous test are OK");
 
 ($match, $ports) = pf::util::dns::matches_passthrough("zammitcorp.io");
 is($match, $FALSE, "invalid passthrough domain will not match passthroughs");
@@ -45,7 +45,7 @@ cmp_deeply([], $ports, "ports for previous test are OK");
 
 ($match, $ports) = pf::util::dns::matches_passthrough("dinde.ca");
 is($match, $TRUE, "valid passthrough domain that has a port will match passthroughs");
-cmp_deeply(['2828'], $ports, "ports for previous test are OK");
+cmp_deeply(['tcp:2828'], $ports, "ports for previous test are OK");
 
 ($match, $ports) = pf::util::dns::matches_passthrough("dinde.io");
 is($match, $FALSE, "invalid passthrough domain that has a port will not match passthroughs");
@@ -53,7 +53,7 @@ cmp_deeply([], $ports, "ports for previous test are OK");
 
 ($match, $ports) = pf::util::dns::matches_passthrough("some.sub.domain.tld");
 is($match, $TRUE, "valid passthrough sub-domain will match TLD passthroughs");
-cmp_deeply(['80', '443'], $ports, "ports for previous test are OK");
+cmp_deeply(['tcp:80', 'tcp:443'], $ports, "ports for previous test are OK");
 
 ($match, $ports) = pf::util::dns::matches_passthrough("some.sub.domain.tld.com");
 is($match, $FALSE, "invalid passthrough sub-domain will not match TLD passthroughs");
@@ -61,7 +61,7 @@ cmp_deeply([], $ports, "ports for previous test are OK");
 
 ($match, $ports) = pf::util::dns::matches_passthrough("l.zamm.it");
 is($match, $TRUE, "valid passthrough sub-domain will match passthroughs");
-cmp_deeply(['80', '443'], $ports, "ports for previous test are OK");
+cmp_deeply(['tcp:80', 'tcp:443'], $ports, "ports for previous test are OK");
 
 ($match, $ports) = pf::util::dns::matches_passthrough("l.zamm.io");
 is($match, $FALSE, "invalid passthrough sub-domain will not match passthroughs");
@@ -69,7 +69,7 @@ cmp_deeply([], $ports, "ports for previous test are OK");
 
 ($match, $ports) = pf::util::dns::matches_passthrough("ho.yes.hello");
 is($match, $TRUE, "valid passthrough sub-domain that has a port will match passthroughs");
-cmp_deeply(['1234'], $ports, "ports for previous test are OK");
+cmp_deeply(['udp:1234', 'tcp:1234'], $ports, "ports for previous test are OK");
 
 ($match, $ports) = pf::util::dns::matches_passthrough("ho.yes.io");
 is($match, $FALSE, "invalid passthrough sub-domain that has a port will not match passthroughs");
@@ -85,7 +85,7 @@ cmp_deeply([], $ports, "ports for previous test are OK");
 
 ($match, $ports) = pf::util::dns::matches_passthrough("www.github.com");
 is($match, $TRUE, "valid wildcard passthrough domain that multiple ports will match wildcard passthroughs");
-cmp_deeply(['1234', '80', '443'], $ports, "ports for previous test are OK");
+cmp_deeply(['tcp:1234', 'tcp:80', 'tcp:443'], $ports, "ports for previous test are OK");
 
 =head1 AUTHOR
 

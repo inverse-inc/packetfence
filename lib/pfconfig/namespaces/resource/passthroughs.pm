@@ -60,11 +60,20 @@ sub build {
 sub _new_passthrough {
     my ($self, $passthrough) = @_;
 
-    if($passthrough =~ /(.*):([0-9]+)/) {
-        return ($1, [$2]);
+    if($passthrough =~ /(.*?):(udp:|tcp:)?([0-9]+)/) {
+        my $domain = $1;
+        # NOTE: proto contains the ':' at the end
+        my $proto = $2;
+        my $port = $3;
+        if($proto) {
+            return ($domain, [$proto.$port]);
+        }
+        else {
+            return ($domain, ["udp:$port", "tcp:$port"]);
+        }
     }
     else {
-        return ($passthrough, [80, 443]);
+        return ($passthrough, ['tcp:80', 'tcp:443']);
     }
 }
 
