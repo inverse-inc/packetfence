@@ -3,21 +3,21 @@
 [%ELSE%]
 [% SET action_url = c.req.uri %]
 [% END %]
-<form name="modalItem" class="form-horizontal form-condensed" action="[% action_url %]" method="post">
-  [%- IF item.id %]<input type="hidden" name="id" value="[% item.id | html %]">[% END %]
-  <div class="modal-header">
-    <a class="close" data-dismiss="modal">&times;</a>
-    <h3>[% IF item %]<i>[% item.id %]</i> [% item.id | html %][% ELSE %][% l('New Source Entry') %][% END %]</h3>
-  </div>
+<ul class="breadcrumb">
+  <li><a href="[% c.pf_hash_for(c.controller.action_for('index')) %]">[% l('User Sources') %]</a> <span class="divider"><i class="icon-chevron-right"></i></span></li>
+  <li class="active">[% item.id | html %]</li>
+</ul>
 
-  <div class="modal-body">
+<h3>[% item.id | html %] <small>[% item.type | html %]</small></h3>
+
+<form name="modalItem" class="form-horizontal" action="[% action_url %]" method="post">
+  [%- IF item.id %]<input type="hidden" name="id" value="[% item.id | html %]">[% END %]
+
         [% form.field('id').render UNLESS item && item.id.defined %]
         [% form.block('definition').render | none %]
-  </div><!--modal-body-->
 
-  <div class="modal-footer">
-    <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
-    [% IF can_access("USERS_SOURCES_UPDATE") %]<button class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>[% END %]
-  </div>
-
+    <div class="form-actions">
+        <a href="[% c.pf_hash_for(c.controller.action_for('index')) %]" class="btn" >[% l('Cancel') %]</a>
+        [% IF can_access("USERS_SOURCES_UPDATE") %]<button class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>[% END %]
+    </div>
 </form>
