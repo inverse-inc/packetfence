@@ -1,0 +1,111 @@
+package pf::ConfigStore::Source;
+
+=head1 NAME
+
+pf::ConfigStore::Source
+
+=cut
+
+=head1 DESCRIPTION
+
+pf::ConfigStore::Source
+
+=cut
+
+use HTTP::Status qw(:constants is_error is_success);
+use Moo;
+use namespace::autoclean;
+use pf::file_paths qw($authentication_config_file);
+use Sort::Naturally qw(nsort);
+extends 'pf::ConfigStore';
+
+use pf::file_paths qw($authentication_config_file);
+
+sub configFile {$authentication_config_file};
+
+sub pfconfigNamespace { 'config::Source' }
+
+=head2 _Sections
+
+=cut
+
+sub _Sections {
+    my ($self) = @_;
+    return grep { /^\S+$/ }  $self->SUPER::_Sections();
+}
+
+=head2 _update_section
+
+Update section
+
+=cut
+
+sub _update_section {
+    my ($self, $section, $assignments) = @_;
+    my $rules = delete $assignments->{rules} // [];
+    $self->SUPER::_update_section($section, $assignments);
+    my $cachedConfig = $self->cachedConfig;
+    for my $sub_section ( grep {/^$section rule/} $cachedConfig->Sections ) {
+        $cachedConfig->DeleteSection($sub_section);
+    }
+    for my $rule (@$rules) {
+        my $name = delete $rule->{name};
+        $self->_update_subfield_in_data($rule, "actions", "action");
+        $self->_update_subfield_in_data($rule, "conditions", "condition");
+        $self->SUPER::_update_section("$section rule $name", $rule);
+    }
+}
+
+sub _update_subfield_in_section {
+    my ($self, $data, $from, $to) = @_;
+    my $fields = delete $data->{$from} // [];
+    my $i = 0;
+    for my $field (@$fields) {
+        $data->{"${$to}$i"} = $field;
+        $i++;
+    }
+}
+
+sub cleanupAfterRead {
+    my ($self, $id, $item, $idKey) = @_;
+    my @rules;
+    for my $sub_section ( $self->cachedConfig->Sections ) {
+        next unless  $sub_section =~ /^$id rule (.*)$/;
+        my $id = $1;
+        my $rule = $self->readRaw($sub_section);
+        $rule->{id} = $id;
+        my @action_keys = nsort grep {/^action\d+$/} keys %$rule;
+        $rule->{actions} = [delete @$rule{@action_keys}];
+        my @conditions_keys = nsort grep {/^condition\d+$/} keys %$rule;
+        $rule->{conditions} = [delete @$rule{@conditions_keys}];
+        push @rules, $rule;
+    }
+    $item->{rules} = \@rules;
+}
+
+__PACKAGE__->meta->make_immutable;
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2015 Inverse inc.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
+
+1;

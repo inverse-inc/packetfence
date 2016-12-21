@@ -1,0 +1,28 @@
+      <div class="modal modal-large fade hide" id="modalItem">
+      </div>
+
+      <div class="modal fade hide" id="deleteItem">
+        <div class="modal-header">
+          <a class="close" data-dismiss="modal">&times;</a>
+          <h3><i>[% l('Delete Source entry') %]</i> <span></span></h3>
+        </div>
+        <div class="modal-body">
+          <p>[% l('Really delete this source entry?') %]</p>
+        </div>
+        <div class="modal-footer">
+          <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
+          <a href="#" class="btn btn-primary btn-danger"><i class="icon-trash"></i> [% l('Delete') %]</a>
+        </div>
+      </div>
+
+      <h2>[% l('Source Entries') %]</h2>
+
+      <p>[% l('Source of how to add configuration file in httpd.admin.') %]</p>
+
+      [% INCLUDE config/source/list.tt %]
+
+      [%- IF can_access("USERS_SOURCES_CREATE") %]
+      <div class="form-actions">
+        <a class="btn createItem" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add source entry') %]</a>
+      </div>
+      [%- END %]
