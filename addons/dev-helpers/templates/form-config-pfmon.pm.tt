@@ -19,18 +19,42 @@ has_field '[% attrib.name %]' => (
 [% END -%]
 
 [% FOREACH attrib IN attributes -%]
+=head2 default_[% attrib.name %]
+
+default value of [% attrib.name %]
+
+=cut
+
 sub default_[% attrib.name %] {
     return $ConfigPfmonDefault{[%class%]}{[% attrib.name %]};
 };
 [% END -%]
 
+=head2 default_interval
+
+default value of interval
+
+=cut
+
 sub default_interval {
     return $ConfigPfmonDefault{[%class%]}{interval};
 }
 
+=head2 default_enabled
+
+default value of enabled
+
+=cut
+
 sub default_enabled {
     return $ConfigPfmonDefault{[%class%]}{enabled};
 }
+
+=head2 default_type
+
+default value of type
+
+=cut
 
 sub default_type {
     return "[%class%]";
