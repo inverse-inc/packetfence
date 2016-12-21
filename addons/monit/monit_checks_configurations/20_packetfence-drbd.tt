@@ -10,6 +10,9 @@ check file syslog with path /var/log/messages
 check file drbd with path /proc/drbd
     group DRBD
     if match "Inconsistent" then alert  
+    if match "Unknown" then alert
+    if match "StandAlone" then alert
+    if match "WFConnection" then alert
 
 check filesystem drbdfs with path /dev/drbd0
     group DRBD
