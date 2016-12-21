@@ -15,8 +15,11 @@ use warnings;
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
+use pfappserver::Form::Field::DynamicList;
 
 use pf::log;
+
+has source_type => (is => 'ro', default => 'pf::Authentication::Source');
 
 ## Definition
 has_field 'id' =>
@@ -39,23 +42,37 @@ has_field 'rules' =>
    do_wrapper => 1,
    sortable => 1,
   );
-has_field 'rules.id' =>
+has_field 'rules.contains' =>
   (
-   type => 'Text',
-   label => 'Name',
-   required => 1,
-   messages => { required => 'Please specify an identifier for the rule.' },
-   apply => [ { check => qr/^\S+$/, message => 'The name must not contain spaces.' } ],
-  );
-has_field 'rules.description' =>
-  (
-   type => 'Text',
+   type => 'SourceRule',
+   widget_wrapper => 'Accordion',
+   build_label_method => \&build_rule_label,
+   pfappserver::Form::Field::DynamicList::child_options(),
+   tags => {
+        accordion_heading_content => \&accordion_heading_content,
+    }
   );
 
 has_block  definition =>
   (
     render_list => [qw(description rules)],
   );
+
+sub build_rule_label {
+    my ($field) = @_;
+    my $id = $field->field("id")->value // "New";
+    return "Rule - $id";
+}
+
+sub accordion_heading_content {
+    my ($field) = @_;
+    my $content = $field->do_accordion_heading_content;
+    my $group_target = $field->escape_jquery_id($field->accordion_group_id);
+    my $base_id = $field->parent->id;
+    $content .= qq{
+        <a class="btn-icon" data-toggle="dynamic-list-delete" data-base-id="$base_id" data-target="#$group_target"><i class="icon-minus-sign"></i></a>};
+    return $content;
+}
 
 =head1 COPYRIGHT
 
