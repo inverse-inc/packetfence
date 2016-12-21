@@ -41,11 +41,16 @@ sub build {
     );
     foreach my $passthrough (@all_passthroughs) {
         my ($domain, $ports) = $self->_new_passthrough($passthrough);
+        my $ns = "normal";
         if($domain =~ /\*\.(.*)/) {
-            $passthroughs{wildcard}{$1} = $ports;
+            $ns = "wildcard";
+            $domain = $1;
+        }
+        if(defined($passthroughs{$ns}{$domain})) {
+            push @{$passthroughs{$ns}{$domain}}, @$ports;
         }
         else {
-            $passthroughs{normal}{$domain} = $ports;
+            $passthroughs{$ns}{$domain} = $ports;
         }
     }
 

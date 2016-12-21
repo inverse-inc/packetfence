@@ -19,11 +19,6 @@ sub matches_passthrough {
         return ($TRUE, $passthroughs{normal}{$domain});
     }
 
-    # Check if it matches exactly a wildcard domain
-    if(exists($passthroughs{wildcard}{$domain})) {
-        return ($TRUE, $passthroughs{wildcard}{$domain});
-    }
-
     # check if its a sub-domain of a wildcard domain
     my @parts = split(/\./, $domain);
     my $last_element = scalar(@parts)-1;
