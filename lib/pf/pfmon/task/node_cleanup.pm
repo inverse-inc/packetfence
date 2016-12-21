@@ -29,7 +29,7 @@ run the node cleanup task
 sub run {
     my ($self) = @_;
     my $window = $self->window;
-    function($window) if $self->window;
+    node_cleanup($window) if $self->window;
 }
 
 =head1 AUTHOR
