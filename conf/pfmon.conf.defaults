@@ -1,27 +1,5 @@
 #The default for maintenance tasks
 
-[option82_query]
-#
-# type
-#
-# The type of task to perform
-type=option82_query
-#
-# description
-#
-# The description of task to perform
-description=option82 query
-#
-# enabled
-#
-# If the task option82_query is enabled
-enabled=enabled
-#
-# interval
-#
-# At which interval to run the option82 query pfmon task
-interval=23h
-
 [acct_maintenance]
 #
 # type
@@ -42,28 +20,6 @@ enabled=enabled
 # interval
 #
 # At which interval to run the acct maintenance pfmon task
-interval=60s
-
-[inline_accounting_maintenance]
-#
-# type
-#
-# The type of task to perform
-type=inline_accounting_maintenance
-#
-# description
-#
-# The description of task to perform
-description=inline accounting maintenance
-#
-# enabled
-#
-# If the task inline_accounting_maintenance is enabled
-enabled=enabled
-#
-# interval
-#
-# At which interval to run the inline accounting maintenance pfmon task
 interval=60s
 
 [auth_log_cleanup]
@@ -88,57 +44,123 @@ enabled=enabled
 # At which interval to run the auth log cleanup pfmon task
 interval=60s
 #
-# timeout
-# 
-# How long a auth_log_cleanup job can run
-timeout=10s
-#
 # batch
-# 
+#
 # How many auth_log_cleanup entries to clean up in one run
 batch=100
 #
+# timeout
+#
+# How long a auth_log_cleanup job can run
+timeout=10s
+#
 # window
-# 
+#
 # How long to keep a auth_log_cleanup entry before deleting it
 window=1W
 
-[radius_audit_log_cleanup]
+[cluster_check]
 #
 # type
 #
 # The type of task to perform
-type=radius_audit_log_cleanup
+type=cluster_check
 #
 # description
 #
 # The description of task to perform
-description=radius audit log cleanup
+description=cluster check
 #
 # enabled
 #
-# If the task radius_audit_log_cleanup is enabled
+# If the task cluster_check is enabled
 enabled=enabled
 #
 # interval
 #
-# At which interval to run the radius audit log cleanup pfmon task
+# At which interval to run the cluster check pfmon task
+interval=1m
+
+[fingerbank_data_update]
+#
+# type
+#
+# The type of task to perform
+type=fingerbank_data_update
+#
+# description
+#
+# The description of task to perform
+description=fingerbank data update
+#
+# enabled
+#
+# If the task fingerbank_data_update is enabled
+enabled=enabled
+#
+# interval
+#
+# At which interval to run the fingerbank data update pfmon task
+interval=1D
+
+[inline_accounting_maintenance]
+#
+# type
+#
+# The type of task to perform
+type=inline_accounting_maintenance
+#
+# description
+#
+# The description of task to perform
+description=inline accounting maintenance
+#
+# enabled
+#
+# If the task inline_accounting_maintenance is enabled
+enabled=enabled
+#
+# interval
+#
+# At which interval to run the inline accounting maintenance pfmon task
+interval=60s
+
+[iplog_cleanup]
+#
+# type
+#
+# The type of task to perform
+type=iplog_cleanup
+#
+# description
+#
+# The description of task to perform
+description=iplog cleanup
+#
+# enabled
+#
+# If the task iplog_cleanup is enabled
+enabled=enabled
+#
+# interval
+#
+# At which interval to run the iplog cleanup pfmon task
 interval=60s
 #
 # batch
-# 
-# How many radius_audit_log_cleanup entries to clean up in one run
+#
+# How many iplog_cleanup entries to clean up in one run
 batch=100
 #
-# window
-# 
-# How long to keep a radius_audit_log_cleanup entry before deleting it
-window=1D
-#
 # timeout
-# 
-# How long a radius_audit_log_cleanup job can run
+#
+# How long a iplog_cleanup job can run
 timeout=10s
+#
+# window
+#
+# How long to keep a iplog_cleanup entry before deleting it
+window=1M
 
 [iplog_rotation]
 #
@@ -163,17 +185,17 @@ enabled=enabled
 interval=60s
 #
 # batch
-# 
+#
 # How many iplog_rotation entries to clean up in one run
 batch=100
 #
 # timeout
-# 
+#
 # How long a iplog_rotation job can run
 timeout=10s
 #
 # window
-# 
+#
 # How long to keep a iplog_rotation entry before deleting it
 window=1W
 
@@ -199,226 +221,20 @@ enabled=enabled
 # At which interval to run the locationlog cleanup pfmon task
 interval=60s
 #
-# window
-# 
-# How long to keep a locationlog_cleanup entry before deleting it
-window=1W
-#
 # batch
-# 
+#
 # How many locationlog_cleanup entries to clean up in one run
 batch=100
 #
 # timeout
-# 
+#
 # How long a locationlog_cleanup job can run
 timeout=10s
-
-[traplog_cleanup]
-#
-# type
-#
-# The type of task to perform
-type=traplog_cleanup
-#
-# description
-#
-# The description of task to perform
-description=traplog cleanup
-#
-# enabled
-#
-# If the task traplog_cleanup is enabled
-enabled=enabled
-#
-# interval
-#
-# At which interval to run the traplog cleanup pfmon task
-interval=60s
 #
 # window
-# 
-# How long to keep a traplog_cleanup entry before deleting it
+#
+# How long to keep a locationlog_cleanup entry before deleting it
 window=1W
-
-[cluster_check]
-#
-# type
-#
-# The type of task to perform
-type=cluster_check
-#
-# description
-#
-# The description of task to perform
-description=cluster check
-#
-# enabled
-#
-# If the task cluster_check is enabled
-enabled=enabled
-#
-# interval
-#
-# At which interval to run the cluster check pfmon task
-interval=1m
-
-[violation_maintenance]
-#
-# type
-#
-# The type of task to perform
-type=violation_maintenance
-#
-# description
-#
-# The description of task to perform
-description=violation maintenance
-#
-# enabled
-#
-# If the task violation_maintenance is enabled
-enabled=enabled
-#
-# interval
-#
-# At which interval to run the violation maintenance pfmon task
-interval=60s
-#
-# timeout
-# 
-# How long a violation_maintenance job can run
-timeout=10s
-#
-# batch
-# 
-# How many violation_maintenance entries to clean up in one run
-batch=1000
-
-[iplog_cleanup]
-#
-# type
-#
-# The type of task to perform
-type=iplog_cleanup
-#
-# description
-#
-# The description of task to perform
-description=iplog cleanup
-#
-# enabled
-#
-# If the task iplog_cleanup is enabled
-enabled=enabled
-#
-# interval
-#
-# At which interval to run the iplog cleanup pfmon task
-interval=60s
-#
-# batch
-# 
-# How many iplog_cleanup entries to clean up in one run
-batch=100
-#
-# window
-# 
-# How long to keep a iplog_cleanup entry before deleting it
-window=1M
-#
-# timeout
-# 
-# How long a iplog_cleanup job can run
-timeout=10s
-
-[fingerbank_data_update]
-#
-# type
-#
-# The type of task to perform
-type=fingerbank_data_update
-#
-# description
-#
-# The description of task to perform
-description=fingerbank data update
-#
-# enabled
-#
-# If the task fingerbank_data_update is enabled
-enabled=enabled
-#
-# interval
-#
-# At which interval to run the fingerbank data update pfmon task
-interval=1D
-
-[nodes_maintenance]
-#
-# type
-#
-# The type of task to perform
-type=nodes_maintenance
-#
-# description
-#
-# The description of task to perform
-description=nodes maintenance
-#
-# enabled
-#
-# If the task nodes_maintenance is enabled
-enabled=enabled
-#
-# interval
-#
-# At which interval to run the nodes maintenance pfmon task
-interval=60s
-
-[provisioning_compliance_poll]
-#
-# type
-#
-# The type of task to perform
-type=provisioning_compliance_poll
-#
-# description
-#
-# The description of task to perform
-description=provisioning compliance poll
-#
-# enabled
-#
-# If the task provisioning_compliance_poll is enabled
-enabled=enabled
-#
-# interval
-#
-# At which interval to run the provisioning compliance poll pfmon task
-interval=300s
-
-[person_cleanup]
-#
-# type
-#
-# The type of task to perform
-type=person_cleanup
-#
-# description
-#
-# The description of task to perform
-description=person cleanup
-#
-# enabled
-#
-# If the task person_cleanup is enabled
-enabled=enabled
-#
-# interval
-#
-# At which interval to run the person cleanup pfmon task
-interval=60s
 
 [node_cleanup]
 #
@@ -443,6 +259,212 @@ enabled=enabled
 interval=60s
 #
 # window
-# 
+#
 # How long to keep a node_cleanup entry before deleting it
 window=0D
+
+[nodes_maintenance]
+#
+# type
+#
+# The type of task to perform
+type=nodes_maintenance
+#
+# description
+#
+# The description of task to perform
+description=nodes maintenance
+#
+# enabled
+#
+# If the task nodes_maintenance is enabled
+enabled=enabled
+#
+# interval
+#
+# At which interval to run the nodes maintenance pfmon task
+interval=60s
+
+[online_node_count]
+#
+# type
+#
+# The type of task to perform
+type=online_node_count
+#
+# description
+#
+# The description of task to perform
+description=online node count
+#
+# enabled
+#
+# If the task online_node_count is enabled
+enabled=enabled
+#
+# interval
+#
+# At which interval to run the online node count pfmon task
+interval=
+
+[option82_query]
+#
+# type
+#
+# The type of task to perform
+type=option82_query
+#
+# description
+#
+# The description of task to perform
+description=option82 query
+#
+# enabled
+#
+# If the task option82_query is enabled
+enabled=enabled
+#
+# interval
+#
+# At which interval to run the option82 query pfmon task
+interval=23h
+
+[person_cleanup]
+#
+# type
+#
+# The type of task to perform
+type=person_cleanup
+#
+# description
+#
+# The description of task to perform
+description=person cleanup
+#
+# enabled
+#
+# If the task person_cleanup is enabled
+enabled=enabled
+#
+# interval
+#
+# At which interval to run the person cleanup pfmon task
+interval=60s
+
+[provisioning_compliance_poll]
+#
+# type
+#
+# The type of task to perform
+type=provisioning_compliance_poll
+#
+# description
+#
+# The description of task to perform
+description=provisioning compliance poll
+#
+# enabled
+#
+# If the task provisioning_compliance_poll is enabled
+enabled=enabled
+#
+# interval
+#
+# At which interval to run the provisioning compliance poll pfmon task
+interval=300s
+
+[radius_audit_log_cleanup]
+#
+# type
+#
+# The type of task to perform
+type=radius_audit_log_cleanup
+#
+# description
+#
+# The description of task to perform
+description=radius audit log cleanup
+#
+# enabled
+#
+# If the task radius_audit_log_cleanup is enabled
+enabled=enabled
+#
+# interval
+#
+# At which interval to run the radius audit log cleanup pfmon task
+interval=60s
+#
+# batch
+#
+# How many radius_audit_log_cleanup entries to clean up in one run
+batch=100
+#
+# timeout
+#
+# How long a radius_audit_log_cleanup job can run
+timeout=10s
+#
+# window
+#
+# How long to keep a radius_audit_log_cleanup entry before deleting it
+window=1D
+
+[traplog_cleanup]
+#
+# type
+#
+# The type of task to perform
+type=traplog_cleanup
+#
+# description
+#
+# The description of task to perform
+description=traplog cleanup
+#
+# enabled
+#
+# If the task traplog_cleanup is enabled
+enabled=enabled
+#
+# interval
+#
+# At which interval to run the traplog cleanup pfmon task
+interval=60s
+#
+# window
+#
+# How long to keep a traplog_cleanup entry before deleting it
+window=1W
+
+[violation_maintenance]
+#
+# type
+#
+# The type of task to perform
+type=violation_maintenance
+#
+# description
+#
+# The description of task to perform
+description=violation maintenance
+#
+# enabled
+#
+# If the task violation_maintenance is enabled
+enabled=enabled
+#
+# interval
+#
+# At which interval to run the violation maintenance pfmon task
+interval=60s
+#
+# batch
+#
+# How many violation_maintenance entries to clean up in one run
+batch=1000
+#
+# timeout
+#
+# How long a violation_maintenance job can run
+timeout=10s
