@@ -15,7 +15,6 @@ use pfappserver::Form::Field::DynamicList;
 use HTML::FormHandler::Moose;
 extends 'HTML::FormHandler::Field::Compound';
 
-use pf::config qw(%connection_group %connection_type);
 use pf::Authentication::constants;
 
 
@@ -30,6 +29,7 @@ has_field 'id' => (
     messages => {required => 'Please specify an identifier for the rule.'},
     apply    => [{check => qr/^\S+$/, message => 'The name must not contain spaces.'}],
 );
+
 has_field 'class' => (
     type            => 'Select',
     label           => 'Class',
@@ -37,11 +37,13 @@ has_field 'class' => (
     options_method  => \&options_rule_classes,
     default         => 'auth',
 );
+
 has_field 'description' => (
     type     => 'Text',
     label    => 'Description',
     required => 0,
 );
+
 has_field 'match' => (
     type            => 'Select',
     localize_labels => 1,
@@ -53,6 +55,7 @@ has_field 'match' => (
 has_field 'conditions' => (
     type     => 'DynamicList',
     do_label => 1,
+    sortable => 1,
 );
 
 has_field 'conditions.contains' => (
