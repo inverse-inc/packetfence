@@ -49,14 +49,14 @@ sub _update_section {
         $cachedConfig->DeleteSection($sub_section);
     }
     for my $rule (@$rules) {
-        my $name = delete $rule->{name};
+        my $name = delete $rule->{id};
         $self->_update_subfield_in_data($rule, "actions", "action");
         $self->_update_subfield_in_data($rule, "conditions", "condition");
         $self->SUPER::_update_section("$section rule $name", $rule);
     }
 }
 
-sub _update_subfield_in_section {
+sub _update_subfield_in_data {
     my ($self, $data, $from, $to) = @_;
     my $fields = delete $data->{$from} // [];
     my $i = 0;
