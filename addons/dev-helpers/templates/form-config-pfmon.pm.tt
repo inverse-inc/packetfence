@@ -10,13 +10,31 @@ pfappserver::Form::Config::Pfmon::[% class %] - Web form for [% class %] pfmon t
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Pfmon';
+use pf::config::pfmon qw(%ConfigPfmonDefault);
 
 [% FOREACH attrib IN attributes -%]
 has_field '[% attrib.name %]' => ( 
     type => '[% attrib.field_type %]', 
-    default => [% attrib.default %] 
 );
 [% END -%]
+
+[% FOREACH attrib IN attributes -%]
+sub default_[% attrib.name %] {
+    return $ConfigPfmonDefault{[%class%]}{[% attrib.name %]};
+};
+[% END -%]
+
+sub default_interval {
+    return $ConfigPfmonDefault{[%class%]}{interval};
+}
+
+sub default_enabled {
+    return $ConfigPfmonDefault{[%class%]}{enabled};
+}
+
+sub default_type {
+    return "[%class%]";
+}
 
 has_block  definition =>
   (
