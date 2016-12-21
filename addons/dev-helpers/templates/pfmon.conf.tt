@@ -16,7 +16,7 @@ description=[% c.class.replace('_', ' ') %]
 # enabled
 #
 # If the task [% c.name %] is enabled
-enabled=enabled
+enabled=[% c.enabled %]
 #
 # interval
 #

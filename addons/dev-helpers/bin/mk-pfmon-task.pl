@@ -44,7 +44,8 @@ foreach my $task (sort @tasks) {
     my %vars  = (
         class => $class,
         name => $class,
-        attributes => \@attributes
+        attributes => \@attributes,
+        enabled  => 'enabled',
     );
     for my $attrib_name (sort grep { /^${task}_/ } @keys) {
         my $value = $Default_Config{maintenance}{$attrib_name};
@@ -63,6 +64,7 @@ foreach my $task (sort @tasks) {
         $name =~ s/^${task}_//;
         if ($name eq 'window') {
             $vars{HAS_WINDOW} = 1;
+            $vars{enabled} = 'disabled' if $default == 0;
         }
         push @attributes, {name => $name, default => $default, value => $value, comment => mk_comment($class, $name), field_type => mk_field_type($class, $name) };
     }

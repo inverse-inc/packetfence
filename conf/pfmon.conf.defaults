@@ -251,7 +251,7 @@ description=node cleanup
 # enabled
 #
 # If the task node_cleanup is enabled
-enabled=enabled
+enabled=disabled
 #
 # interval
 #
