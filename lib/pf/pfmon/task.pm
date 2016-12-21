@@ -15,6 +15,7 @@ pf::pfmon::task
 use strict;
 use warnings;
 
+use pf::util qw(isenabled);
 use Moose;
 
 has type => (is => 'ro', isa => 'Str', required => 1);
@@ -36,6 +37,19 @@ sub run {
     my $class = ref ($proto) || $proto;
     die "${class}::run was not overridden";
 }
+
+
+=head2 is_enabled
+
+checks if enabled is "true"
+
+=cut
+
+sub is_enabled {
+    my ($self) = @_;
+    return isenabled($self->enabled);
+}
+
 
 =head1 AUTHOR
 
