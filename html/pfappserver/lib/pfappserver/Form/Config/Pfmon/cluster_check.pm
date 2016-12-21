@@ -14,13 +14,31 @@ use pf::config::pfmon qw(%ConfigPfmonDefault);
 
 
 
+=head2 default_interval
+
+default value of interval
+
+=cut
+
 sub default_interval {
     return $ConfigPfmonDefault{cluster_check}{interval};
 }
 
+=head2 default_enabled
+
+default value of enabled
+
+=cut
+
 sub default_enabled {
     return $ConfigPfmonDefault{cluster_check}{enabled};
 }
+
+=head2 default_type
+
+default value of type
+
+=cut
 
 sub default_type {
     return "cluster_check";

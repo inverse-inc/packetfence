@@ -14,13 +14,31 @@ use pf::config::pfmon qw(%ConfigPfmonDefault);
 
 
 
+=head2 default_interval
+
+default value of interval
+
+=cut
+
 sub default_interval {
     return $ConfigPfmonDefault{person_cleanup}{interval};
 }
 
+=head2 default_enabled
+
+default value of enabled
+
+=cut
+
 sub default_enabled {
     return $ConfigPfmonDefault{person_cleanup}{enabled};
 }
+
+=head2 default_type
+
+default value of type
+
+=cut
 
 sub default_type {
     return "person_cleanup";

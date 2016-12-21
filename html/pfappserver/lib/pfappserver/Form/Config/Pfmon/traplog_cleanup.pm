@@ -16,17 +16,41 @@ has_field 'window' => (
     type => 'Duration', 
 );
 
+=head2 default_window
+
+default value of window
+
+=cut
+
 sub default_window {
     return $ConfigPfmonDefault{traplog_cleanup}{window};
 };
+
+=head2 default_interval
+
+default value of interval
+
+=cut
 
 sub default_interval {
     return $ConfigPfmonDefault{traplog_cleanup}{interval};
 }
 
+=head2 default_enabled
+
+default value of enabled
+
+=cut
+
 sub default_enabled {
     return $ConfigPfmonDefault{traplog_cleanup}{enabled};
 }
+
+=head2 default_type
+
+default value of type
+
+=cut
 
 sub default_type {
     return "traplog_cleanup";

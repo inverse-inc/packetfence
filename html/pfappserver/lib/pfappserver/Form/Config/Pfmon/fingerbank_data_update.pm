@@ -14,13 +14,31 @@ use pf::config::pfmon qw(%ConfigPfmonDefault);
 
 
 
+=head2 default_interval
+
+default value of interval
+
+=cut
+
 sub default_interval {
     return $ConfigPfmonDefault{fingerbank_data_update}{interval};
 }
 
+=head2 default_enabled
+
+default value of enabled
+
+=cut
+
 sub default_enabled {
     return $ConfigPfmonDefault{fingerbank_data_update}{enabled};
 }
+
+=head2 default_type
+
+default value of type
+
+=cut
 
 sub default_type {
     return "fingerbank_data_update";

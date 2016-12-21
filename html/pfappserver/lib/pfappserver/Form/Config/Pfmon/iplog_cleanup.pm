@@ -22,23 +22,59 @@ has_field 'window' => (
     type => 'Duration', 
 );
 
+=head2 default_batch
+
+default value of batch
+
+=cut
+
 sub default_batch {
     return $ConfigPfmonDefault{iplog_cleanup}{batch};
 };
+=head2 default_timeout
+
+default value of timeout
+
+=cut
+
 sub default_timeout {
     return $ConfigPfmonDefault{iplog_cleanup}{timeout};
 };
+=head2 default_window
+
+default value of window
+
+=cut
+
 sub default_window {
     return $ConfigPfmonDefault{iplog_cleanup}{window};
 };
+
+=head2 default_interval
+
+default value of interval
+
+=cut
 
 sub default_interval {
     return $ConfigPfmonDefault{iplog_cleanup}{interval};
 }
 
+=head2 default_enabled
+
+default value of enabled
+
+=cut
+
 sub default_enabled {
     return $ConfigPfmonDefault{iplog_cleanup}{enabled};
 }
+
+=head2 default_type
+
+default value of type
+
+=cut
 
 sub default_type {
     return "iplog_cleanup";

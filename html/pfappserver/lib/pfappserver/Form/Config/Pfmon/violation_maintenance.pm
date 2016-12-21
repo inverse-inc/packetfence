@@ -19,20 +19,50 @@ has_field 'timeout' => (
     type => 'Duration', 
 );
 
+=head2 default_batch
+
+default value of batch
+
+=cut
+
 sub default_batch {
     return $ConfigPfmonDefault{violation_maintenance}{batch};
 };
+=head2 default_timeout
+
+default value of timeout
+
+=cut
+
 sub default_timeout {
     return $ConfigPfmonDefault{violation_maintenance}{timeout};
 };
+
+=head2 default_interval
+
+default value of interval
+
+=cut
 
 sub default_interval {
     return $ConfigPfmonDefault{violation_maintenance}{interval};
 }
 
+=head2 default_enabled
+
+default value of enabled
+
+=cut
+
 sub default_enabled {
     return $ConfigPfmonDefault{violation_maintenance}{enabled};
 }
+
+=head2 default_type
+
+default value of type
+
+=cut
 
 sub default_type {
     return "violation_maintenance";
