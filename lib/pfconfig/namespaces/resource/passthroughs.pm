@@ -17,11 +17,36 @@ use warnings;
 
 use base 'pfconfig::namespaces::resource';
 
+=head2 init
+
+Initialize the object
+
+=cut
+
 sub init {
     my ($self) = @_;
     $self->{config}         = $self->{cache}->get_cache('config::Pf');
     $self->{authentication_sources} = $self->{cache}->get_cache('resource::authentication_sources');
 }
+
+=head2 build
+
+Build the passthroughs hash
+
+    {
+        # All the non-wildcard passthroughs
+        normal => {
+            "example.com" => ["tcp:80", ...],
+            ...
+        },
+        wildcard => {
+            "wild.example.com" => ["tcp:80", ...],
+            ...
+        }
+
+    }
+
+=cut
 
 sub build {
     my ($self) = @_;
@@ -56,6 +81,18 @@ sub build {
 
     return \%passthroughs;
 }
+
+=head2 _new_passthrough
+
+Extract the domain and port from a passthrough configuration
+
+Expects the following:
+- example.com
+- example.com:25
+- example.com:tcp:25
+- example.com:udp:25
+
+=cut
 
 sub _new_passthrough {
     my ($self, $passthrough) = @_;
