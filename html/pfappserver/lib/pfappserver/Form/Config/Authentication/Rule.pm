@@ -343,9 +343,6 @@ sub validate {
     
     @actions = grep { $_->{type} eq $Actions::SET_UNREG_DATE } @{$self->value->{actions}};
     foreach my $action (@actions) {
-        use pf::log;
-        use Data::Dumper;
-        get_logger->info(Dumper($action));
         if(!validate_date($action->{value})) {
             $self->field('actions')->add_error("Unregistration date must not exceed 2038-01-18");
         }
