@@ -285,28 +285,6 @@ enabled=enabled
 # At which interval to run the nodes maintenance pfmon task
 interval=60s
 
-[online_node_count]
-#
-# type
-#
-# The type of task to perform
-type=online_node_count
-#
-# description
-#
-# The description of task to perform
-description=online node count
-#
-# enabled
-#
-# If the task online_node_count is enabled
-enabled=enabled
-#
-# interval
-#
-# At which interval to run the online node count pfmon task
-interval=
-
 [option82_query]
 #
 # type
