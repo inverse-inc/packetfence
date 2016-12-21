@@ -105,8 +105,9 @@ Meant to be called from the TT templates.
 sub i18n_format {
     my ($msgid, @args) = @_;
 
-    my $result = sprintf(gettext($msgid), @args);
+    my $result = gettext($msgid);
     utf8::decode($result);
+    $result = sprintf($result, @args);
     return $result;
 }
 
