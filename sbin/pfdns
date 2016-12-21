@@ -43,7 +43,6 @@ use pf::config qw(
 );
 use pf::util;
 use pf::services::util;
-use pf::pfdns::constants;
 use pf::CHI;
 use pf::ConfigStore::Interface;
 use pf::cluster;
@@ -52,6 +51,7 @@ use pf::node;
 use Storable 'dclone';
 use pf::access_filter::dns;
 use pf::CHI::Request;
+use pf::util::dns;
 
 pf::SwitchFactory->preloadConfiguredModules();
 
@@ -388,12 +388,9 @@ Non filtered registration zone answered
 
 sub regzone_non_filtered {
     my ($qname, $qclass, $qtype, $peerhost, $query, $conn) = @_;
+    my ($matches_passthrough, $ports) = pf::util::dns::matches_passthrough($qname);
     #Exit early if it does not match
-    return
-      unless $qtype eq 'A'
-      && ( ($qname =~ /$OAUTH::ALLOWED_SOURCES_DOMAINS/o && $OAUTH::ALLOWED_SOURCES_DOMAINS ne '')
-        || ($qname =~ /$PASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS/o && $PASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS ne '')
-      );
+    return unless($qtype eq 'A' && $matches_passthrough);
     my @ans;
     my %results = (
         ans   => \@ans,
@@ -403,7 +400,7 @@ sub regzone_non_filtered {
     my $res = Net::DNS::Resolver->new;
     my $query_non_filtered = resolve_with_cache("A", $qname);
     if ($query_non_filtered) {
-        add_answers_to_ipset($query_non_filtered, $IPSET_SESSION, $HTTP_PORT, $HTTPS_PORT);
+        add_answers_to_ipset($query_non_filtered, $IPSET_SESSION, @$ports);
         push @ans, $query_non_filtered->answer;
         if (@ans) {
             $results{rcode} = "NOERROR";
