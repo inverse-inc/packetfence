@@ -12,16 +12,16 @@ sub matches_passthrough {
     my ($domain) = @_;
 
     # undef domains are not passthroughs
-    return $FALSE unless(defined($domain));
+    return ($FALSE, []) unless(defined($domain));
 
     # Check for non-wildcard passthroughs
     if(exists($passthroughs{normal}{$domain})) {
-        return $TRUE;
+        return ($TRUE, $passthroughs{normal}{$domain});
     }
 
     # Check if it matches exactly a wildcard domain
     if(exists($passthroughs{wildcard}{$domain})) {
-        return $TRUE;
+        return ($TRUE, $passthroughs{wildcard}{$domain});
     }
 
     # check if its a sub-domain of a wildcard domain
@@ -31,12 +31,12 @@ sub matches_passthrough {
         my @sub_parts = @parts[$i..$last_element];
         my $domain = join('.', @sub_parts);
         if(exists($passthroughs{wildcard}{$domain})) {
-            return $TRUE;
+            return ($TRUE, $passthroughs{wildcard}{$domain});
         }
     }
 
     # Fallback to not a passthrough
-    return $FALSE;
+    return ($FALSE, []);
 }
 
 1;
