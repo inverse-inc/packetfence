@@ -10,23 +10,43 @@ pfappserver::Form::Config::Pfmon::iplog_cleanup - Web form for iplog_cleanup pfm
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Pfmon';
+use pf::config::pfmon qw(%ConfigPfmonDefault);
 
 has_field 'batch' => ( 
     type => 'PosInteger', 
-    default => 100 
-);
-has_field 'window' => ( 
-    type => 'Duration', 
-    default => 2592000 
 );
 has_field 'timeout' => ( 
     type => 'Duration', 
-    default => 10 
 );
+has_field 'window' => ( 
+    type => 'Duration', 
+);
+
+sub default_batch {
+    return $ConfigPfmonDefault{iplog_cleanup}{batch};
+};
+sub default_timeout {
+    return $ConfigPfmonDefault{iplog_cleanup}{timeout};
+};
+sub default_window {
+    return $ConfigPfmonDefault{iplog_cleanup}{window};
+};
+
+sub default_interval {
+    return $ConfigPfmonDefault{iplog_cleanup}{interval};
+}
+
+sub default_enabled {
+    return $ConfigPfmonDefault{iplog_cleanup}{enabled};
+}
+
+sub default_type {
+    return "iplog_cleanup";
+}
 
 has_block  definition =>
   (
-    render_list => [qw(type enabled interval batch window timeout)],
+    render_list => [qw(type enabled interval batch timeout window)],
   );
 
 

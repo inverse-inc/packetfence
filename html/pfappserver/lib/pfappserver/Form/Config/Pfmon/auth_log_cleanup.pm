@@ -10,23 +10,43 @@ pfappserver::Form::Config::Pfmon::auth_log_cleanup - Web form for auth_log_clean
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Pfmon';
+use pf::config::pfmon qw(%ConfigPfmonDefault);
 
-has_field 'timeout' => ( 
-    type => 'Duration', 
-    default => 10 
-);
 has_field 'batch' => ( 
     type => 'PosInteger', 
-    default => 100 
+);
+has_field 'timeout' => ( 
+    type => 'Duration', 
 );
 has_field 'window' => ( 
     type => 'Duration', 
-    default => 604800 
 );
+
+sub default_batch {
+    return $ConfigPfmonDefault{auth_log_cleanup}{batch};
+};
+sub default_timeout {
+    return $ConfigPfmonDefault{auth_log_cleanup}{timeout};
+};
+sub default_window {
+    return $ConfigPfmonDefault{auth_log_cleanup}{window};
+};
+
+sub default_interval {
+    return $ConfigPfmonDefault{auth_log_cleanup}{interval};
+}
+
+sub default_enabled {
+    return $ConfigPfmonDefault{auth_log_cleanup}{enabled};
+}
+
+sub default_type {
+    return "auth_log_cleanup";
+}
 
 has_block  definition =>
   (
-    render_list => [qw(type enabled interval timeout batch window)],
+    render_list => [qw(type enabled interval batch timeout window)],
   );
 
 

@@ -10,19 +10,37 @@ pfappserver::Form::Config::Pfmon::violation_maintenance - Web form for violation
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Pfmon';
+use pf::config::pfmon qw(%ConfigPfmonDefault);
 
-has_field 'timeout' => ( 
-    type => 'Duration', 
-    default => 10 
-);
 has_field 'batch' => ( 
     type => 'PosInteger', 
-    default => 1000 
 );
+has_field 'timeout' => ( 
+    type => 'Duration', 
+);
+
+sub default_batch {
+    return $ConfigPfmonDefault{violation_maintenance}{batch};
+};
+sub default_timeout {
+    return $ConfigPfmonDefault{violation_maintenance}{timeout};
+};
+
+sub default_interval {
+    return $ConfigPfmonDefault{violation_maintenance}{interval};
+}
+
+sub default_enabled {
+    return $ConfigPfmonDefault{violation_maintenance}{enabled};
+}
+
+sub default_type {
+    return "violation_maintenance";
+}
 
 has_block  definition =>
   (
-    render_list => [qw(type enabled interval timeout batch)],
+    render_list => [qw(type enabled interval batch timeout)],
   );
 
 

@@ -10,23 +10,43 @@ pfappserver::Form::Config::Pfmon::locationlog_cleanup - Web form for locationlog
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Pfmon';
+use pf::config::pfmon qw(%ConfigPfmonDefault);
 
-has_field 'window' => ( 
-    type => 'Duration', 
-    default => 604800 
-);
 has_field 'batch' => ( 
     type => 'PosInteger', 
-    default => 100 
 );
 has_field 'timeout' => ( 
     type => 'Duration', 
-    default => 10 
 );
+has_field 'window' => ( 
+    type => 'Duration', 
+);
+
+sub default_batch {
+    return $ConfigPfmonDefault{locationlog_cleanup}{batch};
+};
+sub default_timeout {
+    return $ConfigPfmonDefault{locationlog_cleanup}{timeout};
+};
+sub default_window {
+    return $ConfigPfmonDefault{locationlog_cleanup}{window};
+};
+
+sub default_interval {
+    return $ConfigPfmonDefault{locationlog_cleanup}{interval};
+}
+
+sub default_enabled {
+    return $ConfigPfmonDefault{locationlog_cleanup}{enabled};
+}
+
+sub default_type {
+    return "locationlog_cleanup";
+}
 
 has_block  definition =>
   (
-    render_list => [qw(type enabled interval window batch timeout)],
+    render_list => [qw(type enabled interval batch timeout window)],
   );
 
 

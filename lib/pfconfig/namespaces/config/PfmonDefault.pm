@@ -1,36 +1,45 @@
-package pfappserver::Form::Config::Pfmon::option82_query;
+package pfconfig::namespaces::config::PfmonDefault;
 
 =head1 NAME
 
-pfappserver::Form::Config::Pfmon::option82_query - Web form for option82_query pfmon task
-
-=head1 DESCRIPTION
+pfconfig::namespaces::config::PfmonDefault
 
 =cut
 
-use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::Config::Pfmon';
-use pf::config::pfmon qw(%ConfigPfmonDefault);
+=head1 DESCRIPTION
 
+pfconfig::namespaces::config::PfmonDefault
 
+This module creates the configuration hash associated to pfmon.conf.defaults
 
-sub default_interval {
-    return $ConfigPfmonDefault{option82_query}{interval};
+=cut
+
+use strict;
+use warnings;
+
+use pfconfig::namespaces::config;
+use pf::file_paths qw($pfmon_default_config_file);
+use Clone qw(clone);
+
+use base 'pfconfig::namespaces::config';
+
+sub init {
+    my ($self) = @_;
+    $self->{file} = $pfmon_default_config_file;
 }
 
-sub default_enabled {
-    return $ConfigPfmonDefault{option82_query}{enabled};
+
+sub build_child {
+    my ($self) = @_;
+    my $tmp_cfg = clone($self->{cfg});
+
+    return $tmp_cfg;
 }
 
-sub default_type {
-    return "option82_query";
-}
 
-has_block  definition =>
-  (
-    render_list => [qw(type enabled interval)],
-  );
+=head1 AUTHOR
 
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
@@ -55,6 +64,9 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
-
 1;
+
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:
+

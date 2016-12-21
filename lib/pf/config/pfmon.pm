@@ -8,7 +8,7 @@ pf::config::pfmon
 
 =head1 DESCRIPTION
 
-Configuration from conf/pfmon.conf
+Configuration from conf/pfmon.conf and conf/pfmon.conf.defaults
 
 =cut
 
@@ -18,12 +18,14 @@ use pfconfig::cached_hash;
 
 BEGIN {
     use Exporter ();
-    our ( @ISA, @EXPORT );
+    our ( @ISA, @EXPORT_OK );
     @ISA = qw(Exporter);
-    @EXPORT = qw(%ConfigPfmon);
+    @EXPORT_OK = qw(%ConfigPfmon %ConfigPfmonDefault);
 }
 
 tie our %ConfigPfmon, 'pfconfig::cached_hash', 'config::Pfmon';
+
+tie our %ConfigPfmonDefault, 'pfconfig::cached_hash', 'config::PfmonDefault';
 
 =head1 AUTHOR
 

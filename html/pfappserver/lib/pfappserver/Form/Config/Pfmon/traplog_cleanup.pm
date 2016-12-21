@@ -10,11 +10,27 @@ pfappserver::Form::Config::Pfmon::traplog_cleanup - Web form for traplog_cleanup
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Pfmon';
+use pf::config::pfmon qw(%ConfigPfmonDefault);
 
 has_field 'window' => ( 
     type => 'Duration', 
-    default => 604800 
 );
+
+sub default_window {
+    return $ConfigPfmonDefault{traplog_cleanup}{window};
+};
+
+sub default_interval {
+    return $ConfigPfmonDefault{traplog_cleanup}{interval};
+}
+
+sub default_enabled {
+    return $ConfigPfmonDefault{traplog_cleanup}{enabled};
+}
+
+sub default_type {
+    return "traplog_cleanup";
+}
 
 has_block  definition =>
   (

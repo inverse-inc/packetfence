@@ -10,11 +10,27 @@ pfappserver::Form::Config::Pfmon::node_cleanup - Web form for node_cleanup pfmon
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Pfmon';
+use pf::config::pfmon qw(%ConfigPfmonDefault);
 
 has_field 'window' => ( 
     type => 'Duration', 
-    default => 0 
 );
+
+sub default_window {
+    return $ConfigPfmonDefault{node_cleanup}{window};
+};
+
+sub default_interval {
+    return $ConfigPfmonDefault{node_cleanup}{interval};
+}
+
+sub default_enabled {
+    return $ConfigPfmonDefault{node_cleanup}{enabled};
+}
+
+sub default_type {
+    return "node_cleanup";
+}
 
 has_block  definition =>
   (

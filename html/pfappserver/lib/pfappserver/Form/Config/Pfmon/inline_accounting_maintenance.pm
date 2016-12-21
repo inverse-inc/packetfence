@@ -10,7 +10,21 @@ pfappserver::Form::Config::Pfmon::inline_accounting_maintenance - Web form for i
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Pfmon';
+use pf::config::pfmon qw(%ConfigPfmonDefault);
 
+
+
+sub default_interval {
+    return $ConfigPfmonDefault{inline_accounting_maintenance}{interval};
+}
+
+sub default_enabled {
+    return $ConfigPfmonDefault{inline_accounting_maintenance}{enabled};
+}
+
+sub default_type {
+    return "inline_accounting_maintenance";
+}
 
 has_block  definition =>
   (

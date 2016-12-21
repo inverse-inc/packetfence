@@ -10,7 +10,21 @@ pfappserver::Form::Config::Pfmon::nodes_maintenance - Web form for nodes_mainten
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Pfmon';
+use pf::config::pfmon qw(%ConfigPfmonDefault);
 
+
+
+sub default_interval {
+    return $ConfigPfmonDefault{nodes_maintenance}{interval};
+}
+
+sub default_enabled {
+    return $ConfigPfmonDefault{nodes_maintenance}{enabled};
+}
+
+sub default_type {
+    return "nodes_maintenance";
+}
 
 has_block  definition =>
   (

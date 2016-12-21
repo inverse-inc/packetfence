@@ -10,7 +10,21 @@ pfappserver::Form::Config::Pfmon::acct_maintenance - Web form for acct_maintenan
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Pfmon';
+use pf::config::pfmon qw(%ConfigPfmonDefault);
 
+
+
+sub default_interval {
+    return $ConfigPfmonDefault{acct_maintenance}{interval};
+}
+
+sub default_enabled {
+    return $ConfigPfmonDefault{acct_maintenance}{enabled};
+}
+
+sub default_type {
+    return "acct_maintenance";
+}
 
 has_block  definition =>
   (

@@ -10,7 +10,21 @@ pfappserver::Form::Config::Pfmon::person_cleanup - Web form for person_cleanup p
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Pfmon';
+use pf::config::pfmon qw(%ConfigPfmonDefault);
 
+
+
+sub default_interval {
+    return $ConfigPfmonDefault{person_cleanup}{interval};
+}
+
+sub default_enabled {
+    return $ConfigPfmonDefault{person_cleanup}{enabled};
+}
+
+sub default_type {
+    return "person_cleanup";
+}
 
 has_block  definition =>
   (

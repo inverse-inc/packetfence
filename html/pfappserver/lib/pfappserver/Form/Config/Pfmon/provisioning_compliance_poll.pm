@@ -10,7 +10,21 @@ pfappserver::Form::Config::Pfmon::provisioning_compliance_poll - Web form for pr
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Pfmon';
+use pf::config::pfmon qw(%ConfigPfmonDefault);
 
+
+
+sub default_interval {
+    return $ConfigPfmonDefault{provisioning_compliance_poll}{interval};
+}
+
+sub default_enabled {
+    return $ConfigPfmonDefault{provisioning_compliance_poll}{enabled};
+}
+
+sub default_type {
+    return "provisioning_compliance_poll";
+}
 
 has_block  definition =>
   (
