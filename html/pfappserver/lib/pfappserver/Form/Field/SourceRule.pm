@@ -68,6 +68,18 @@ has_field 'conditions.contains' => (
     pfappserver::Form::Field::DynamicList::child_options(),
 );
 
+has_field 'actions' => (
+    type     => 'DynamicList',
+    do_label => 1,
+    required => 1,
+);
+
+has_field 'actions.contains' => (
+    type  => 'SourceRuleAction',
+    label => 'Action',
+    pfappserver::Form::Field::DynamicList::child_options(),
+);
+
 
 =head2 condition_control
 
