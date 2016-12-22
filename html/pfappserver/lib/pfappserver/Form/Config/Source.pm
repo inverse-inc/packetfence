@@ -41,6 +41,10 @@ has_field 'rules' =>
    do_label => 1,
    do_wrapper => 1,
    sortable => 1,
+   num_when_empty => 0,
+    tags => {
+        "dynamic-list-append_controls" => \&rules_add_control,
+    }
   );
 has_field 'rules.contains' =>
   (
@@ -64,6 +68,30 @@ sub build_rule_label {
     return "Rule - $id";
 }
 
+=head2 rules_add_control
+
+Override the default add button
+
+=cut
+
+sub rules_add_control {
+    my ($field) = @_;
+    my $attrs  = $field->add_button_attr;
+    my $form =  $field->form;
+    my $text = $form->_localize("No Rule Defined");
+    my $button_text = $form->_localize("Add Rule");
+    return qq{
+<div class="controls unwell unwell-horizontal">
+  <div class="input">
+    <p><i class="icon-filter icon-large"></i>$text<br/>
+      <a $attrs class="btn" >$button_text</a>
+    </p>
+  </div>
+</div>
+};
+}
+
+
 sub accordion_heading_content {
     my ($field) = @_;
     my $content = $field->do_accordion_heading_content;
@@ -73,9 +101,11 @@ sub accordion_heading_content {
     my $target_wrapper = '#'. $field->escape_jquery_id($base_id);
     my $template_control_group_target = $parent->template_control_group_target;
     my $add_button_attr = $parent->add_button_attr;
+    my $delete_button_attrs = qq{data-toggle="dynamic-list-delete" data-template-control-group="${template_control_group_target}" data-target-wrapper="$target_wrapper" data-base-id="$base_id" data-target="#$group_target"};
     $content .= qq{
+        <a class="btn-icon" $delete_button_attrs><i class="icon-minus-sign"></i></a>
         <a class="btn-icon" $add_button_attr><i class="icon-plus-sign"></i></a>
-        <a class="btn-icon" data-toggle="dynamic-list-delete" data-template-control-group="${template_control_group_target}" data-target-wrapper="$target_wrapper" data-base-id="$base_id" data-target="#$group_target"><i class="icon-minus-sign"></i></a>};
+    };
     return $content;
 }
 
