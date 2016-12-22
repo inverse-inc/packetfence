@@ -104,6 +104,8 @@ form {
                     </div>
                     <br/>
                   <input type="text" name="filter" placeholder="[% l('Search...') %]">
+                  <input type="hidden" name="by">
+                  <input type="hidden" name="direction">
                     <div class="btn-group pull-right">
                       <button class="btn btn-primary"><i class="icon-search icon-white"></i> [% l('Search') %]</button>
                       <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="icon-chevron-up"></span></a>
