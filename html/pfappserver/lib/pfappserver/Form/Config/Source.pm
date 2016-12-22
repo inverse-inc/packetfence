@@ -14,7 +14,8 @@ use strict;
 use warnings;
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
-with 'pfappserver::Base::Form::Role::Help';
+with 'pfappserver::Base::Form::Role::Help','pfappserver::Base::Form::Role::AllowedOptions';
+
 use pfappserver::Form::Field::DynamicList;
 
 use pf::log;
