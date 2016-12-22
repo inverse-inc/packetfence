@@ -1,0 +1,32 @@
+Usage:
+    pfcmd <command> [options]
+
+     Commands
+      cache                       | manage the cache subsystem
+      checkup                     | perform a sanity checkup and report any problems
+      class                       | view violation classes
+      configfiles                 | push or pull configfiles into/from database
+      configreload                | reload the configution
+      fingerbank                  | Fingerbank related commands
+      floatingnetworkdeviceconfig | query/modify floating network devices configuration parameters
+      help                        | show help for pfcmd commands
+      ifoctetshistorymac          | accounting history
+      ifoctetshistoryswitch       | accounting history
+      ifoctetshistoryuser         | accounting history
+      import                      | bulk import of information into the database
+      ipmachistory                | IP/MAC history
+      locationhistorymac          | Switch/Port history
+      locationhistoryswitch       | Switch/Port history
+      networkconfig               | query/modify network configuration parameters
+      node                        | manipulate node entries
+      pfconfig                    | interact with pfconfig
+      portalprofileconfig         | query/modify portal profile configuration parameters
+      reload                      | rebuild fingerprint or violations tables without restart
+      service                     | start/stop/restart and get PF daemon status
+      schedule                    | Nessus scan scheduling
+      switchconfig                | query/modify switches.conf configuration parameters
+      version                     | output version information
+      violationconfig             | query/modify violations.conf configuration parameters
+
+    Please view "pfcmd help <command>" for details on each option
+
