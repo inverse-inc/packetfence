@@ -69,8 +69,9 @@ sub accordion_heading_content {
     my $content = $field->do_accordion_heading_content;
     my $group_target = $field->escape_jquery_id($field->accordion_group_id);
     my $base_id = $field->parent->id;
+    my $target_wrapper = '#'. $field->escape_jquery_id($base_id);
     $content .= qq{
-        <a class="btn-icon" data-toggle="dynamic-list-delete" data-base-id="$base_id" data-target="#$group_target"><i class="icon-minus-sign"></i></a>};
+        <a class="btn-icon" data-toggle="dynamic-list-delete" data-target-wrapper="$target_wrapper" data-base-id="$base_id" data-target="#$group_target"><i class="icon-minus-sign"></i></a>};
     return $content;
 }
 
