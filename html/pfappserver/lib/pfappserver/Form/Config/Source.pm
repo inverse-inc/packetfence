@@ -67,11 +67,15 @@ sub build_rule_label {
 sub accordion_heading_content {
     my ($field) = @_;
     my $content = $field->do_accordion_heading_content;
+    my $parent = $field->parent;
     my $group_target = $field->escape_jquery_id($field->accordion_group_id);
-    my $base_id = $field->parent->id;
+    my $base_id = $parent->id;
     my $target_wrapper = '#'. $field->escape_jquery_id($base_id);
+    my $template_control_group_target = $parent->template_control_group_target;
+    my $add_button_attr = $parent->add_button_attr;
     $content .= qq{
-        <a class="btn-icon" data-toggle="dynamic-list-delete" data-target-wrapper="$target_wrapper" data-base-id="$base_id" data-target="#$group_target"><i class="icon-minus-sign"></i></a>};
+        <a class="btn-icon" $add_button_attr><i class="icon-plus-sign"></i></a>
+        <a class="btn-icon" data-toggle="dynamic-list-delete" data-template-control-group="${template_control_group_target}" data-target-wrapper="$target_wrapper" data-base-id="$base_id" data-target="#$group_target"><i class="icon-minus-sign"></i></a>};
     return $content;
 }
 
