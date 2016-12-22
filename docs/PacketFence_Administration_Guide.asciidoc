@@ -4119,7 +4119,7 @@ pfcmd
 When executed without any arguments `pfcmd` returns a basic help message with all main options:
 
 ----
-sys::[/usr/local/pf/bin/pfcmd help]
+include::pfcmd.help[]
 ----
 
 The node view option shows all information contained in the node database table for a specified MAC address
