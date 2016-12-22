@@ -56,6 +56,7 @@ has_field 'conditions' => (
     type     => 'DynamicList',
     do_label => 1,
     sortable => 1,
+    num_when_empty => 0,
 );
 
 has_field 'conditions.contains' => (
@@ -75,8 +76,10 @@ sub options_rule_classes {
 
     my $classname = $self->form->source_type;
     eval "require $classname";
-    $self->form->ctx->log->error($@) if $@;
-
+    if ($@) {
+        $self->form->ctx->log->error($@);
+        return [];
+    }
     my @options;
     foreach (@{$classname->available_rule_classes}) {
         push(@options, {value => $_, label => $_});
