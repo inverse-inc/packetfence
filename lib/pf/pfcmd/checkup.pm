@@ -1191,7 +1191,7 @@ sub db_check_version {
         }
     };
     if($@) {
-        add_problem($FATAL, "Cannot connect to database to check schema version");
+        add_problem($FATAL, "Cannot connect to database to check schema version: $@");
     }
 }
 
