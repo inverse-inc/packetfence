@@ -5,7 +5,7 @@
     ELSE;
       new_direction = 'asc';
     END %]
-      <th[% " class=\"$class\"" IF class %]><a href="[% c.pf_hash_for(c.action,'filter', filter, 'by', column, 'direction', new_direction) %]">[% title %][% IF by == column %] <i class="icon-chevron-[% IF new_direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</a></th>
+      <th[% " class=\"$class\"" IF class %]><a data-sort-by="[% column %]" data-sort-direction="[% new_direction %]" href="[% c.pf_hash_for(c.action,'filter', filter, 'by', column, 'direction', new_direction) %]">[% title %][% IF by == column %] <i class="icon-chevron-[% IF new_direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</a></th>
 [% END -%]
             <h2>[% l('Results') %]</h2>
             [% INCLUDE admin/bulk_actions.inc id='user_bulk_actions' bulk_type='user'%]

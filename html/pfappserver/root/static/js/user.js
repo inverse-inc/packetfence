@@ -108,7 +108,25 @@ var UserView = function(options) {
         });
         /* Disable checked columns from import tab since they are required */
         $('form[name="users"] .columns :checked').attr('disabled', 'disabled');
+
+        $('[data-sort-by]').click(function(){
+          e.preventDefault();
+          $('#simpleUserSearch').find('[name="by"]').val($(this).attr('data-sort-by'));
+          $('#simpleUserSearch').find('[name="direction"]').val($(this).attr('data-sort-direction'));
+
+          $('#advancedUserSearch').find('[name="by"]').val($(this).attr('data-sort-by'));
+          $('#advancedUserSearch').find('[name="direction"]').val($(this).attr('data-sort-direction'));
+
+          if($('#simple').hasClass('active')) {
+            $('#simpleUserSearch').submit();
+          }
+          else {
+            $('#advancedUserSearch').submit();
+          }
+          return false;
+        });
     });
+
 };
 
 UserView.prototype.proxyFor = function(obj, action, target, method) {
