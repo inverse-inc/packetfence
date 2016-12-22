@@ -3752,45 +3752,15 @@ These sensors work by capturing the packets at the lowest level possible on your
 
 Microsoft DHCP sensor
 ^^^^^^^^^^^^^^^^^^^^^
+DHCP-Forwarder is an optimized version of precedent udp-reflector, which installs easily and only copy DHCPREQUESTS and DHCPACK packets to the destination. 
 
-You will first need to download and install 'WinPcap' available from http://www.winpcap.org/install/
+https://inverse.ca/downloads/PacketFence/windows-dhcp-forwarder/DHCP%20Forwarder%20Installer.exe[Download the installer here.]
 
-You will also need to download and install 'Microsoft Visual C++ 2010 Redistributable' available from http://www.microsoft.com/download/details.aspx?id=5555
+It will install WinPCAP, nssm, launch a configurator to ask for interface, IP and port, save the configuration, install and launch DHCP-Forwarder service.
 
-NOTE: You absolutely need to install the 32-bit version of 'Microsoft Visual C++ 2010 Redistributable' even if you are using a 64-bit operating system.
+When you will be asked for a host IP and port, specify PacketFence management IP and 767 as the UDP port.
 
-Then get the remote sensor from Inverse's download website http://inverse.ca/downloads/PacketFence/udp-reflector/udp_reflector.exe
-
-Create the directory `C:\udp-reflector` and move the downloaded file inside.
-
-Now we will create a service so the reflector starts on boot.
-
-First download and unzip nssm from https://nssm.cc/download
-
-Next create a batch file `udpreflector.bat` in `C:\udp-reflector` that contain:
-`C:\udp-reflector\udp_reflector.exe -s pcap0:67 -d 192.168.1.5:767 -b 25000`
-
-Where `pcap0` is the interface where your DHCP is listening (use `C:\udp-reflector\udp_reflector.exe -l` to list interfaces)
-
-Then run `nssm install udpreflector`
-
-In Application:
-[options="compact"]
-* In 'Path' set it to `C:\udp-reflector\udpreflector.bat`
-* In 'Startup directory' set it to `C:\udp-reflector\`
-* In 'Arguments' set it to nothing
-
-In Details:
-[options="compact"]
-* In 'Startup type' select Automatic
-
-In Log on:
-[options="compact"]
-* In 'Log on as' select Local System account
-
-Then press 'Install service'
-
-The DHCP traffic should now be reflected on your PacketFence server.
+The project page can be found https://github.com/inverse-inc/packetfence-dhcp-forwarder[here].
 
 Linux based sensor
 ^^^^^^^^^^^^^^^^^^
