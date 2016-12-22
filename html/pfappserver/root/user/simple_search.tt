@@ -10,9 +10,9 @@
             <h2>[% l('Results') %]</h2>
             [% INCLUDE admin/bulk_actions.inc id='user_bulk_actions'%]
 
-      [% pagination(c.action, page_num, page_count,{direction => direction, by => by }, '#simpleUserSearch') | none %]
+      [% pagination(c.action, page_num, page_count,{}, '#simpleUserSearch') | none %]
       [% INCLUDE user/list.tt %]
-      [% pagination(c.action, page_num, page_count,{direction => direction, by => by }, '#simpleUserSearch') | none %]
+      [% pagination(c.action, page_num, page_count,{}, '#simpleUserSearch') | none %]
       <div id="noResult" class="unwell[% ' hidden' IF items.size > 0 %]">
         <i class="icon-search icon-large"></i><p>[% l('No user found') %]</p>
       </div>
