@@ -83,6 +83,12 @@ sub cleanupAfterRead {
     $item->{rules} = \@rules;
 }
 
+before rewriteConfig => sub {
+    my ($self) = @_;
+    my $config = $self->cachedConfig;
+    $config->ReorderByGroup();
+};
+
 __PACKAGE__->meta->make_immutable;
 
 =head1 COPYRIGHT
