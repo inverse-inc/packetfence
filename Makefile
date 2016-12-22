@@ -29,6 +29,9 @@ html: $(patsubst %.asciidoc,%.html,$(notdir $(wildcard docs/PacketFence_*.asciid
 		-n \
 		$<
 
+pfcmd.help:
+	/usr/local/pf/bin/pfcmd help > docs/pfcmd.help
+
 .PHONY: configurations
 
 configurations:
