@@ -57,6 +57,9 @@ has_field 'conditions' => (
     do_label => 1,
     sortable => 1,
     num_when_empty => 0,
+    tags => {
+        "dynamic-list-append_controls" => \&condition_control
+    }
 );
 
 has_field 'conditions.contains' => (
@@ -64,6 +67,24 @@ has_field 'conditions.contains' => (
     label => 'Condition',
     pfappserver::Form::Field::DynamicList::child_options(),
 );
+
+
+=head2 condition_control
+
+Override the default add button
+
+=cut
+
+sub condition_control {
+    my ($field) = @_;
+    my $attrs  = $field->add_button_attr;
+    my $form =  $field->form;
+    my $text = $form->_localize("Without condition, this rule will act as a catch-all.");
+    my $button_text = $form->_localize("Add a condition.");
+    return qq{<div class="unwell unwell-horizontal">
+          <p><i class="icon-filter icon-large"></i>$text<br/>
+          <a $attrs class="btn" >$button_text</a></p></div>};
+}
 
 =head2 options_rule_classes
 
