@@ -3755,7 +3755,7 @@ It will install WinPCAP, nssm, launch a configurator to ask for interface, IP an
 
 When you will be asked for a host IP and port, specify PacketFence management IP and 767 as the UDP port.
 
-The projet page is https://github.com/inverse-inc/packetfence-dhcp-forwarder[here].
+The project page can be found https://github.com/inverse-inc/packetfence-dhcp-forwarder[here].
 
 Linux based sensor
 ^^^^^^^^^^^^^^^^^^
