@@ -146,8 +146,8 @@ sub apply_patch {
     my ( $data, $base, $head ) = @_;
     my $file = make_patch_filename( $base, $head );
     chdir $PF_DIR or die "cannot change directory $PF_DIR\n";
-    my $patch_result = $PATCH_BIN -b -p1 < $file;
-    write_file( catfile( $PATCHES_DIR, "${base}-${head}.result" ), $patch_result );
+    my @patch_result = `$PATCH_BIN -b -p1 < $file`;
+    write_file( catfile( $PATCHES_DIR, "${base}-${head}.result" ), @patch_result );
     write_file( $COMMIT_ID_FILE, $head );
 }
 
