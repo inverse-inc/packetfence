@@ -25,6 +25,7 @@ Enhancements
 
 Bug Fixes
 +++++++++
+ * Fixed iplog rotation retention configuration not always using the right param (#1896)
 
 
 Version 6.4.0 released on 2016-11-16
