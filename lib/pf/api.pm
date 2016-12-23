@@ -1068,7 +1068,7 @@ sub dynamic_register_node : Public :AllowedAsAction(mac, $mac, username, $userna
             %info = (%info, (category => $role));
         }
         if (defined $time_balance) {
-            %info = (%info, (time_balance => pf::util::normalize_time($time_balance));
+            %info = (%info, (time_balance => pf::util::normalize_time($time_balance)));
         }
         if (defined $bandwidth_balance) {
             %info = (%info, (bandwidth_balance => pf::util::unpretty_bandwidth($bandwidth_balance)));
