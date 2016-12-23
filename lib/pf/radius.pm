@@ -35,6 +35,7 @@ use pf::config qw(
     %Config
     %ConfigDomain
     $ACCOUNTING_POLICY_TIME
+    $ACCOUNTING_POLICY_BANDWIDTH
     $WIRED
     $WIRED_MAC_AUTH
     $WIRED_802_1X
@@ -42,6 +43,7 @@ use pf::config qw(
     $WIRELESS_MAC_AUTH
     $WIRELESS_802_1X
 );
+use pf::client;
 use pf::locationlog;
 use pf::node;
 use pf::Switch;
@@ -378,6 +380,7 @@ sub accounting {
             my $input_octets = int ($radius_request->{'Acct-Input-Octets'} // 0);
             if ($session_time > 0 || $input_octets > 0 || $output_octets > 0) {
                 my $node_attributes = node_attributes($mac);
+                my $apiclient = pf::client::getClient;
                 if (defined $node_attributes->{'time_balance'} && $session_time > 0) {
                     my $time_balance = $node_attributes->{'time_balance'} - $session_time;
                     $time_balance = 0 if ($time_balance < 0);
@@ -390,7 +393,7 @@ sub accounting {
                     }
                     if ($time_balance == 0) {
                         # Trigger violation
-                        violation_trigger( { 'mac' => $mac, 'tid' => $ACCOUNTING_POLICY_TIME, 'type' => $TRIGGER_TYPE_ACCOUNTING } );
+                        $apiclient->notify('trigger_violation', { 'mac' => $mac, 'tid' => $ACCOUNTING_POLICY_TIME, 'type' => $TRIGGER_TYPE_ACCOUNTING } );
                     }
                 }
                 if (defined $node_attributes->{'bandwidth_balance'} && (  $input_octets > 0 || $output_octets > 0)) {
@@ -405,8 +408,7 @@ sub accounting {
                     }
                     if ($bandwidth_balance == 0) {
                         # Trigger violation
-                        #TODO CREATE A BANDWIDTH VIOLATION
-                        #violation_trigger( { 'mac' => $mac, 'tid' => $ACCOUNTING_POLICY_TIME, 'type' => $TRIGGER_TYPE_ACCOUNTING } );
+                        $apiclient->notify('trigger_violation', { 'mac' => $mac, 'tid' => $ACCOUNTING_POLICY_BANDWIDTH, 'type' => $TRIGGER_TYPE_ACCOUNTING } );
                     }
                 }
 
