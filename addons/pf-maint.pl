@@ -81,7 +81,11 @@ pod2usage(1) if $help;
 
 die "$PATCH_BIN does not exists or is not executable please install or make it executable" unless patch_bin_exists();
 
-print STDERR "$GIT_BIN does not exist, it is advised to install git to improve the patching process\n" unless(git_bin_exists());
+unless(git_bin_exists()) {
+    print STDERR "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+    print STDERR "$GIT_BIN does not exist, it is advised to install git to improve the patching process\n";
+    print STDERR "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+}
 
 our $PATCHES_DIR = catdir( $PF_DIR, '.patches' );
 mkdir $PATCHES_DIR or die "cannot create $PATCHES_DIR" unless -d $PATCHES_DIR;
