@@ -740,9 +740,21 @@ Returns the bandwidth in bytes depending of the incombing unit
 
 =cut
 
-sub unpretty_bandwidth {
-    my ($bw,$unit) = @_;
 
+sub unpretty_bandwidth {
+    my (@bw) = @_;
+
+    my ($bw,$unit);
+
+    if (!defined($bw[1])) {
+        if ($bw[0] =~ /(\d+)(\w+)/) {
+            $bw = $1;
+            $unit = $2;
+        }
+    } else {
+        $bw = $bw[0];
+        $unit = $bw[1];
+    }
     # Check what units we have, and multiple by 1024 exponent something
     if ($unit eq 'PB') {
         return $bw * 1024**5;
