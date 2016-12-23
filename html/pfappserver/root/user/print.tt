@@ -37,6 +37,10 @@ dd.aup {
         display:block;
         page-break-before:always;
 }
+.spacer {
+        display:block;
+        height:0.5in;
+}
 @page {
         margin-left: 1.5in;
         margin-right: 1.5in;
@@ -75,7 +79,7 @@ dd.aup {
             <dt class="aup">[% l('Acceptable Use Policy') %]</dt>
             <dd class="aup">[% aup | none %]</dd>
           </dl>
-          [% UNLESS loop.last %]<div class="page-break"></div>[% END %]
+          [% UNLESS loop.last %]<div class="page-break"></div><div class="spacer"></div>[% END %]
           [% END -%]
         </div><!--/span-->
       </div><!--/row-->
