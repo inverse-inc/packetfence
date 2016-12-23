@@ -156,7 +156,6 @@
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Authentication/Source.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Firewall_SSO.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/FloatingDevice.pm
-/usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/MacAddress.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Networks.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Pf.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Profile/Default.pm
