@@ -64,7 +64,7 @@ body {
         <div class="alert alert-warn">
           <button class="close" data-dismiss="alert">&times;</button>
           <h4>[% l('Warning!') %]</h4>
-          <p>[% l('Each account will be printed on a single page with the acceptable user policy.') %]</p>
+          <p>[% l('Unless specified otherwise, each account will be printed on a single page with the acceptable user policy.') %]</p>
           <p><a class="btn btn-warning" onClick="window.print()">[% l('Print') %]</a></p>
         </div>
         </div>
