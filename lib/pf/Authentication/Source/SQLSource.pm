@@ -138,6 +138,21 @@ sub match {
             push(@actions, $action);
         }
 
+        my $time_balance = $result->{'time_balance'};
+        if (defined $time_balance) {
+            $action =  pf::Authentication::Action->new({type => $Actions::SET_TIME_BALANCE,
+                                                        value => $time_balance});
+            push(@actions, $action);
+        }
+
+        my $bandwidth_balance = $result->{'bandwidth_balance'};
+        if (defined $bandwidth_balance) {
+            $action =  pf::Authentication::Action->new({type => $Actions::SET_BANDWIDTH_BALANCE,
+                                                        value => $bandwidth_balance});
+            push(@actions, $action);
+        }
+
+
         return \@actions;
     }
 

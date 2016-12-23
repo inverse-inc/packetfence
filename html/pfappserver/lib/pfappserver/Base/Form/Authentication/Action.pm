@@ -84,7 +84,19 @@ our %ACTION_FIELD_OPTIONS = (
         type     => 'DatePicker',
         do_label => 0,
         wrapper  => 0,
-    }
+    },
+    $Actions::SET_TIME_BALANCE => {
+        type           => 'Select',
+        do_label       => 0,
+        wrapper        => 0,
+        options_method => \&options_durations,
+        default_method => sub { $Config{'guests_admin_registration'}{'default_access_duration'} }
+    },
+    $Actions::SET_BANDWIDTH_BALANCE => {
+        type           => 'Text',
+        do_label       => 0,
+        wrapper        => 0,
+    },
 );
 
 =head2 field_list

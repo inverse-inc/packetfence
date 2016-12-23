@@ -1052,6 +1052,8 @@ sub dynamic_register_node : Public :AllowedAsAction(mac, $mac, username, $userna
     my $values = $matched->{values};
     my $role = $values->{$Actions::SET_ROLE};
     my $unregdate = $values->{$Actions::SET_UNREG_DATE};
+    my $time_balance =  $values->{$Actions::SET_TIME_BALANCE};
+    my $bandwidth_balance =  $values->{$Actions::SET_BANDWIDTH_BALANCE};
     if (defined $unregdate) {
         my %info = (
             'unregdate' => $unregdate,
@@ -1064,6 +1066,12 @@ sub dynamic_register_node : Public :AllowedAsAction(mac, $mac, username, $userna
         );
         if (defined $role) {
             %info = (%info, (category => $role));
+        }
+        if (defined $time_balance) {
+            %info = (%info, (time_balance => pf::util::normalize_time($time_balance));
+        }
+        if (defined $bandwidth_balance) {
+            %info = (%info, (bandwidth_balance => pf::util::unpretty_bandwidth($bandwidth_balance)));
         }
         pf::node::node_register($postdata{'mac'}, $postdata{'username'}, %info);
         pf::enforcement::reevaluate_access( $postdata{'mac'}, 'manage_register' );

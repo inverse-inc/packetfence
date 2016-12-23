@@ -40,7 +40,7 @@ has 'with_aup' => ('is' => 'rw', default => sub {1});
 
 has 'aup_template' => (is => 'rw', default => sub {'aup_text.html'});
 
-has '+actions' => (default => sub {{"role_from_source" => [], "unregdate_from_source" => []}});
+has '+actions' => (default => sub {{"role_from_source" => [], "unregdate_from_source" => [], "time_balance_from_source" => [], "bandwidth_balance_from_source" => []}});
 
 has 'signup_template' => ('is' => 'rw', default => sub {'signin.html'});
 
@@ -60,6 +60,8 @@ sub available_actions {
         @{$self->SUPER::available_actions()},
         'unregdate_from_source',
         'role_from_source',
+        'time_balance_from_source',
+        'bandwidth_balance_from_source',
     ];
 }
 
@@ -135,8 +137,7 @@ sub execute_actions {
 
     $self->SUPER::execute_actions();
 
-    unless(defined($self->new_node_info->{category}) && defined($self->new_node_info->{unregdate})){
-        get_logger->warn("Cannot find unregdate (".$self->new_node_info->{unregdate}.") or role(".$self->new_node_info->{unregdate}.") for user.");
+    unless(defined($self->new_node_info->{category}) && ( defined($self->new_node_info->{time_balance}) || defined($self->new_node_info->{bandwidth_balance}) || defined($self->new_node_info->{unregdate}))){
         $self->app->flash->{error} = "You do not have permission to register a device with this username";
 
         # Make sure the current source is not remembered since it failed...

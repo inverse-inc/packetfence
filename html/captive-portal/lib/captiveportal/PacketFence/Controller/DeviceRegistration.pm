@@ -157,6 +157,17 @@ sub registerNode : Private {
                 $logger->debug("Got unregdate $unregdate for username $pid");
                 $info{unregdate} = $unregdate;
             }
+            my $time_balance = &pf::authentication::match( $source_id, $params, $Actions::SET_TIME_BALANCE);
+            if ( defined $time_balance ) {
+                $logger->debug("Got time balance $time_balance for username $pid");
+                $info{time_balance} = pf::util::normalize_time($time_balance);
+            }
+            my $bandwidth_balance = &pf::authentication::match( $source_id, $params, $Actions::SET_BANDWIDTH_BALANCE);
+
+            if ( defined $bandwidth_balance ) {
+                $logger->debug("Got bandwidth balance $bandwidth_balance for username $pid");
+                $info{bandwidth_balance} = pf::util::unpretty_bandwidth($bandwidth_balance);
+            }
             $info{'category'} = $role if ( defined $role );
             $info{'auto_registered'} = 1;
             $info{'mac'} = $mac;

@@ -261,7 +261,7 @@ sub apply_new_node_info {
     ( $status, $status_msg ) = pf::node::node_register($self->current_mac, $self->username, %{$self->new_node_info()});
     if ($status) {
         if($self->new_node_info->{category} && $self->new_node_info->{unregdate}) {
-            $self->app->flash->{notice} = [ "Role %s has been assigned to your device with unregistration date : %s", $self->new_node_info->{category}, $self->new_node_info->{unregdate} ];
+            $self->app->flash->{notice} = [ "Role ".$self->new_node_info->{category}." has been assigned to your device with ". ( defined($self->new_node_info->{unregdate}) ? " unregistration date : ".$self->new_node_info->{unregdate} : "")."".( defined($self->new_node_info->{time_balance}) ? " time balance : ".$self->new_node_info->{time_balance} : "")."".( defined($self->new_node_info->{bandwidth_balance}) ? " bandwidth balance : ".$self->new_node_info->{bandwidth_balance} : "") ];
         }
         return $TRUE;
     }
