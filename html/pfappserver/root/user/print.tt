@@ -1,85 +1,116 @@
 <style type="text/css">
 h3, .aup {
-        display: none;
+  display: none;
 }
 </style>
 
 <style type="text/css" media="print">
 .row-fluid .offset2:first-child {
-        margin-left: 0;
+  margin-left: 0;
 }
 .row-fluid .span8 {
-        width: auto;
+  width: auto;
 }
 hr {
   border: 0;
   border-bottom: 1px dashed #000;
 }
-h1, #navbar, .alert {
-        display: none;
+h1, #navbar, .alert, .print-menu {
+  display: none;
 }
 h3, .aup {
-        display: block;
+  display: block;
 }
 dd.aup {
-        font-size: 9pt;
-        line-height: 9pt;
+  font-size: 9pt;
+  line-height: 9pt;
 }
 .dl-horizontal dt {
-        float: none;
-        text-align: left;
-        width: auto;
+  float: none;
+  text-align: left;
+  width: auto;
 }
 .dl-horizontal dd {
-        margin-left: 0;
+  margin-left: 0;
 }
 .page-break {
-        display:block;
-        page-break-before:always;
+  display:block;
+  page-break-before:always;
+}
+.ignore {
+  display:none !important;
+  page-break-before:auto !important;
 }
 .spacer {
-        display:block;
-        height:0.5in;
+  display:block;
+  height:0.5in;
 }
 @page {
-        margin-left: 1.5in;
-        margin-right: 1.5in;
+  margin:0;
+}
+body {
+  margin-left: 1.5in;
+  margin-right: 1.5in;
 }
 </style>
-    <div class="container-fluid">
-      <div class="row-fluid">
-        <div class="span8 offset2">
-          <h1>[% l('Access Code') %]</h1>
-          <div class="alert alert-warn">
-            <button class="close" data-dismiss="alert">&times;</button>
-            <h4>[% l('Warning!') %]</h4>
-            <p>[% l('Each account will be printed on a single page with the acceptable user policy.') %]</p>
-            <p><a class="btn btn-warning" onClick="window.print()">[% l('Print') %]</a></p>
-          </div>
-          [% FOREACH user IN users %]
-          <h3>[% l('Access Code') %]</h3>
-          <hr/>
-          <dl class="dl-horizontal">
-            <dt>[% l('Username') %]</dt>
-            <dd>[% user.pid | html %]</dd>
-            <dt>[% l('Password') %]</dt>
-            <dd>[% user.password | html %]</dd>
-            [% IF user.email -%]
-            <dt>[% l('Email address') %]</dt>
-            <dd>[% user.email | html %]</dd>
-            [% END -%]
-            [% IF user.txt_valid_from -%]
-            <dt>[% l('Activation') %]</dt>
-            <dd>[% user.txt_valid_from | html %]</dd>
-            [% END -%]
-            [% IF user.txt_duration -%]
-            <dt>[% l('Expiration') %]</dt>
-            <dd>[% user.txt_duration | html %]</dd>
-            [% END -%]
-            <dd class="aup">[% aup | none %]</dd>
-          </dl>
-          [% UNLESS loop.last %]<div class="page-break"></div><div class="spacer"></div>[% END %]
-          [% END -%]
-        </div><!--/span-->
-      </div><!--/row-->
-    </div><!--/.fluid-container-->
+<div class="container-fluid">
+  <div class="row-fluid">
+    <div class="span8 offset2">
+      <div class="print-menu">
+        <h1>[% l('Access Code') %]</h1>
+        <div>
+          <label>Print with AUP: <input autocomplete="off" type="checkbox" name="with-aup" value="yes" checked="checked"></label>
+        </div>
+        <div class="alert alert-warn">
+          <button class="close" data-dismiss="alert">&times;</button>
+          <h4>[% l('Warning!') %]</h4>
+          <p>[% l('Each account will be printed on a single page with the acceptable user policy.') %]</p>
+          <p><a class="btn btn-warning" onClick="window.print()">[% l('Print') %]</a></p>
+        </div>
+        </div>
+      [% FOREACH user IN users %]
+      <h3>[% l('Access Code') %]</h3>
+      <hr/>
+      <dl class="dl-horizontal">
+        <dt>[% l('Username') %]</dt>
+        <dd>[% user.pid | html %]</dd>
+        <dt>[% l('Password') %]</dt>
+        <dd>[% user.password | html %]</dd>
+        [% IF user.email -%]
+        <dt>[% l('Email address') %]</dt>
+        <dd>[% user.email | html %]</dd>
+        [% END -%]
+        [% IF user.txt_valid_from -%]
+        <dt>[% l('Activation') %]</dt>
+        <dd>[% user.txt_valid_from | html %]</dd>
+        [% END -%]
+        [% IF user.txt_duration -%]
+        <dt>[% l('Expiration') %]</dt>
+        <dd>[% user.txt_duration | html %]</dd>
+        [% END -%]
+        <dd class="aup">[% aup | none %]</dd>
+      </dl>
+      [% UNLESS loop.last %]<div data-index="[% loop.count - 1 %]" class="page-break"><div class="spacer"></div></div>[% END %]
+      [% END -%]
+    </div><!--/span-->
+  </div><!--/row-->
+</div><!--/.fluid-container-->
+
+<script type="text/javascript" src="/static/app/jquery.js"></script>
+<script>
+  $('[name="with-aup"]').change(function(){
+    if($(this).prop('checked')) {
+      $('.page-break').removeClass('ignore');
+      $('dd.aup').removeClass('ignore');
+    }
+    else {
+      $('.page-break').each(function(){
+        if(parseInt($(this).data('index')) % 4 != 3) {
+          $(this).addClass('ignore');
+          $('dd.aup').addClass('ignore');
+        }
+      });
+    }
+  });
+
+</script>
