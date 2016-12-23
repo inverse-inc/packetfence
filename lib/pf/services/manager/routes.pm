@@ -38,9 +38,7 @@ has 'runningServices' => (is => 'rw', default => sub { 0 } );
 
 
 =head2 start
-
 start routes
-
 =cut
 
 sub startService {
@@ -54,9 +52,7 @@ sub startService {
 
 
 =head2 stop
-
 stop routes
-
 =cut
 
 sub stop {
@@ -68,20 +64,15 @@ sub stop {
 }
 
 =head2 isAlive
-
 Check if routes is alive.
 Since it's never really stopped than we check if the fake PID exists
-
 =cut
 
 sub isAlive {
     my ($self,$pid) = @_;
-    my $logger = get_logger();
     my $result;
     $pid = $self->pid;
     my $route_exist = '';
-    my $routes_applied = 0;
-    my $layer3 = 0;
 
     foreach my $network ( keys %ConfigNetworks ) {
         # shorter, more convenient local accessor
@@ -89,9 +80,7 @@ sub isAlive {
 
 
         if ( defined($net{'next_hop'}) && ($net{'next_hop'} =~ /^(?:\d{1,3}\.){3}\d{1,3}$/) ) {
-            $layer3 ++;
             $route_exist = $network;
-            $routes_applied = defined(pf_run("route | grep ".$route_exist));
         }
     }
     my $routes_applied = $FALSE;
@@ -100,9 +89,7 @@ sub isAlive {
 }
 
 =head2 manageStaticRoute
-
 Add or remove static routes on the system
-
 =cut
 
 sub manageStaticRoute {
@@ -158,31 +145,24 @@ sub isManaged {
 }
 
 =head1 AUTHOR
-
 Inverse inc. <info@inverse.ca>
-
-
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
-
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
-
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
-
 =cut
 
 1;
