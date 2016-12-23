@@ -29,6 +29,8 @@ BEGIN {
     use pf::log(service => 'pfdhcplistener');
 }
 
+use Try::Tiny;
+use pf::util::dhcp;
 use pf::constants;
 use pf::constants::config qw( $NET_TYPE_INLINE_L2 $NET_TYPE_INLINE_L3 );
 use pf::clustermgmt;
@@ -103,6 +105,9 @@ my $interface_vlan;
 my $pcap;
 my $net_type;
 my $process;
+
+my $rate_limit_hash = {};
+my $rate_limit_cache = CHI->new( driver => 'Memory', datastore => $rate_limit_hash );
 
 sub reload_config {
     if ( $net_type eq "internal" ) { 
@@ -223,7 +228,6 @@ sub process_pkt {
 
             my $l3 = $l2->{type} eq ETH_TYPE_IP ? NetPacket::IP->decode($l2->{'data'}) : NetPacket::IPv6->decode($l2->{'data'});
             my $l4 = NetPacket::UDP->decode($l3->{'data'});
-            my $udp_payload_b64 = MIME::Base64::encode($l4->{data});
             my %args = (
                 src_mac => clean_mac($l2->{'src_mac'}),
                 dest_mac => clean_mac($l2->{'dest_mac'}),
@@ -243,6 +247,56 @@ sub process_pkt {
 
             # we send all IPv4 DHCPv4 codepath
             if ( $l2->{type} eq ETH_TYPE_IP ) {
+                my ($dhcp);
+
+                # we need success flag here because we can't next inside try catch
+                my $success;
+                try {
+                    $dhcp = decode_dhcp($l4->{'data'});
+                    $success = 1;
+                } catch {
+                    $logger->warn("Unable to parse DHCP packet: $_");
+                };
+                return if (!$success);
+                $args{dhcp} = $dhcp;
+                
+                my $dhcp_mac = clean_mac( substr( $dhcp->{'chaddr'}, 0, 12 ) );
+                if ( $dhcp_mac ne "00:00:00:00:00:00" && !valid_mac($dhcp_mac) ) {
+                    $logger->debug( sub {
+                        "invalid CHADDR value ($dhcp_mac) in DHCP packet from $dhcp->{src_mac} ($dhcp->{src_ip})"
+                    });
+                    return;
+                }
+                
+                # don't process a packet for which we don't have a MAC address
+                unless($dhcp_mac) {
+                    $logger->debug("chaddr is undefined in DHCP packet");
+                    return;
+                }
+
+
+                # adding to dhcp hashref some frame information we care about
+                $dhcp->{'src_mac'} = $args{'src_mac'};
+                $dhcp->{'dest_mac'} = $args{'dest_mac'};
+                $dhcp->{'src_ip'} = $args{'src_ip'};
+                $dhcp->{'dest_ip'} = $args{'dest_ip'};
+                $dhcp->{'chaddr'} = $dhcp_mac;
+
+                if (!valid_mac($dhcp->{'src_mac'})) {
+                    $logger->debug("Source MAC is invalid. skipping");
+                    return;
+                }
+
+
+                # If its a DHCPREQUEST, we take the IP address from the option
+                my $dhcp_ip = ( $dhcp->{'op'} == 1 && $dhcp->{'options'}{'53'} == 3 ) ? $dhcp->{'options'}{'50'} : $dhcp->{yiaddr};
+                my $rate_limit_key;
+                if(defined($dhcp_ip)) {
+                    # Key is with BOOT type, DHCP type, IP and MAC
+                    $rate_limit_key = $dhcp->{'op'} . "-" . $dhcp->{'options'}{'53'} . "-$dhcp_ip-" . $dhcp_mac;
+                    $logger->trace("Rate limit key : $rate_limit_key");
+                }
+
                 if ($is_inline_vlan) {
                     my $ip = new NetAddr::IP::Lite clean_ip($l3->{'src_ip'});
                     if ($net_addr->contains($ip)) {
@@ -251,12 +305,25 @@ sub process_pkt {
                         $args{inline_sub_connection_type} = $NET_TYPE_INLINE_L3;
                    }
                 }
-                my $apiclient = pf::api::queue->new(queue => 'pfdhcplistener');
-                $apiclient->notify('process_dhcp', %args, udp_payload_b64 => $udp_payload_b64);
+                my $rate_limiting = $Config{network}->{dhcp_rate_limiting};
+                # We send the packet to be processed if:
+                #  - there is no rate limit key (packet doesn't contain info to be rate-limited)
+                #  - there is no rate limiting configured
+                #  - there is no cache entry (packet wasn't seen in the last $rate_limiting seconds)
+                if(!defined($rate_limit_key) || $rate_limiting == 0 || !$rate_limit_cache->get($rate_limit_key)) {
+                    my $apiclient = pf::api::queue->new(queue => 'pfdhcplistener');
+                    $apiclient->notify('process_dhcp', %args);
+                    if(defined($rate_limit_key) && $rate_limiting != 0) {
+                        $rate_limit_cache->set($rate_limit_key, 1, $rate_limiting);
+                    }
+                }
+                else {
+                    $logger->debug("[$dhcp_mac] Ignoring packet due to rate-limiting ($rate_limit_key)");
+                }
             }
             else {
                 my $apiclient = pf::api::queue->new;
-                $apiclient->notify('process_dhcpv6', $udp_payload_b64);
+                $apiclient->notify('process_dhcpv6', MIME::Base64::encode($l4->{data}));
             }
         };
 
