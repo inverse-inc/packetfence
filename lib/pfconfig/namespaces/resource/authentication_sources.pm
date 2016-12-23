@@ -19,6 +19,7 @@ use base 'pfconfig::namespaces::resource';
 
 sub init {
     my ($self) = @_;
+    $self->{child_resources} = ['resource::passthroughs'];
     $self->{_authentication_config} = $self->{cache}->get_cache('config::Authentication');
 }
 

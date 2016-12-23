@@ -2258,22 +2258,45 @@ Once you have your information, you need to configure the OAuth2 provider. This 
 Moreover, don't forget to add WindowsLive as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
 
 
-Passthrough
-~~~~~~~~~~~
+Passthroughs
+~~~~~~~~~~~~
 
-In order to use the passthrough feature in PacketFence, you need to enable it from the GUI in
-*Configuration -> Trapping* and check *Passthrough*.
+Passthroughs are used to allow access to certain resources that are outside of the registration VLAN for the users that are in it. 
+A good example would be when you want to allow access to a password reset server even for clients that are currently on the captive portal.
 
 There are two solutions for passthroughs - one using DNS resolution and iptables and the other one using Apache's mod_proxy module.
-When enabled, PacketFence will use `pfdns` if you defined *Passthroughs*, or Apache mod-proxy if you defined *Proxy Passthroughs* to allow trapped devices to reach external websites.
+Note that non-HTTP (including HTTPS) protocols cannot use the mod_proxy approach.
+You can use one of them or both but for if a domain is configured in both, DNS passthroughs have a higher priority.
 
-* *DNS passthrough:*
-Add a new FQDN (should be a wildcard domain like *.google.com) in the Passthroughs section. When PacketFence receives a DNS request for this domain, it will answer the real IP address and punch a hole in the firewall (using iptables) to allow access. With this method, PacketFence must be the default gateway of your device.
+In order to use the passthroughs feature in PacketFence, you need to enable it from the GUI in *Configuration->Trapping*, enable *Passthrough* and then save.
 
-* *mod_proxy passthrough:*
-Add a new FQDN (should be a wildcard domain like *.google.com) in the Proxy Passthroughs section. For this FQDN, PacketFence will answer the IP address of the captive portal and when a device hits the captive portal, PacketFence will detect that this FQDN has a passthrough configuration and will forward the traffic to mod_proxy.
+DNS passthroughs
+^^^^^^^^^^^^^^^^
 
-These two methods can be used together but DNS-based passthroughs have higher priority.
+If you just enabled the passthroughs, you should restart the iptables services after configuring the parameter (`/usr/local/pf/bin/pfcmd service iptables restart`).
+
+Once done, add `net.ipv4.ip_forward=1` in `/etc/sysctl.conf` and reload it using `sysctl -p`. This enables packet routing in the kernel.
+
+Then add passthroughs in *Configuration->Trapping->Passthroughs*. They can be of the following format:
+
+ * *example.com*: opens ports 80 and 443 in TCP for example.com
+ * *example.com:1812*: opens the port 1812 in TCP and UDP for example.com
+ * *example.com:tcp:1812*: opens the port 1812 in TCP for example.com
+ * *example.com:udp:1812*: opens the port 1812 in UDP for example.com
+
+In addition to the options above, you can prefix the domain with `*.` (*.example.com) to whitelist all the subdomains of example.com (ex: `www.example.com`, `my.example.com`).
+
+Should you combine multiple times the same domain with different ports (`example.com,example.com:udp:1812,example.com:udp:1813`) in the passthroughs, it will open all ports specified in all entries. In the previous example that would open ports 80, 443 in TCP as well as 1812 and 1813 in UDP.
+
+Now when pfdns receives a request for one of these domains, it will reply with the real DNS records for the FQDN instead of a response that points to the captive portal. 
+At the same time, it will add the entry to a special ipset which will allow access to the real IP address attached the FQDN via iptables based routing.
+
+mod_proxy passthroughs
+^^^^^^^^^^^^^^^^^^^^^^
+
+The proxy passthroughs can be configured in *Configuration->Trapping->Proxy Passthroughs*.
+Add a new FQDN (can also be a wildcard domain like *.google.com). Port specific passthroughs cannot be used as these only apply to port 80 in TCP.
+Then for this FQDN, pfdns will still answer with the IP address of the captive portal and when a device hits the captive portal, PacketFence will detect that this FQDN has a passthrough configured in PacketFence and will forward the traffic to mod_proxy.
 
 Production DHCP access
 ~~~~~~~~~~~~~~~~~~~~~~
