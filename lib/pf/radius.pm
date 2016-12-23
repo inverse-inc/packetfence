@@ -421,6 +421,25 @@ sub accounting {
                         $apiclient->notify('trigger_violation', %violation_data );
                     }
                 }
+                if (defined $node_attributes->{'bandwidth_balance'} && (  $input_octets > 0 || $output_octets > 0)) {
+                    my $total_octets = $output_octets + $input_octets;
+                    my $bandwidth_balance = $node_attributes->{'bandwidth_balance'} - $total_octets;
+                    $bandwidth_balance = 0 if ($bandwidth_balance < 0);
+                    if ($isStop && node_modify($mac, ('bandwidth_balance' => $bandwidth_balance))) {
+                        $logger->info("Session stopped: data was $total_octets octets ($bandwidth_balance octets left)");
+                    }
+                    elsif ($isUpdate) {
+                        $logger->info("Session status: data is $total_octets octets ($bandwidth_balance octets left)");
+                    }
+                    if ($bandwidth_balance == 0) {
+                        # Trigger violation
+                        #TODO CREATE A BANDWIDTH VIOLATION
+                        #violation_trigger( { 'mac' => $mac, 'tid' => $ACCOUNTING_POLICY_TIME, 'type' => $TRIGGER_TYPE_ACCOUNTING } );
+                    }
+                }
+
+
+
             }
         }
     }
