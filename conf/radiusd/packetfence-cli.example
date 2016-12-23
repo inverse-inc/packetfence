@@ -307,6 +307,7 @@ post-auth {
 		&control:PacketFence-RPC-User = ${rpc_user}
 		&control:PacketFence-RPC-Pass = ${rpc_pass}
 		&control:PacketFence-RPC-Proto = ${rpc_proto}
+		&request:User-Password := "******"
 	}
 	#
 	#  For EAP-TTLS and PEAP, add the cached attributes to the reply.
@@ -337,6 +338,9 @@ post-auth {
 	#  The "session-state" attributes are not available here.
 	#
 	Post-Auth-Type REJECT {
+		update {
+			&request:User-Password := "******"
+		}
 		if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
 			packetfence-audit-log-reject
 		}
