@@ -173,7 +173,7 @@ sub apply_patch {
     my $file = make_patch_filename( $base, $head );
     chdir $PF_DIR or die "cannot change directory $PF_DIR\n";
     if(git_bin_exists()) {
-        system "$GIT_BIN apply --verbose ".join(' ', map{"--exclude=$_"} @excludes)." < $file";
+        system "$GIT_BIN apply --reject --verbose ".join(' ', map{"--exclude=$_"} @excludes)." < $file";
     }
     else {
         system "$PATCH_BIN -b -p1 < $file";
