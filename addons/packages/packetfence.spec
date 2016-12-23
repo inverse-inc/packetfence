@@ -1167,6 +1167,7 @@ fi
 %doc                    /usr/local/pf/docs/includes/*.asciidoc
 %dir                    /usr/local/pf/docs/MIB
 %doc                    /usr/local/pf/docs/MIB/Inverse-PacketFence-Notification.mib
+%doc                    /usr/local/pf/docs/pfcmd.help
 %dir                    /usr/local/pf/html
 %dir                    /usr/local/pf/html/captive-portal
                         /usr/local/pf/html/captive-portal/Changes
