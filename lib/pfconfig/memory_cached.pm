@@ -52,7 +52,7 @@ This is overriden for the support of the mutli-namespace
 
 sub is_valid {
     my ($self)         = @_;
-    foreach my $namespace (@{$self->{namespaces}}) {
+    foreach my $namespace (@{$self->{_namespaces}}) {
         $self->{_namespace} = $namespace;
         $self->{"_control_file_path"} = pfconfig::util::control_file_path($namespace);
         return 0 unless($self->SUPER::is_valid());
