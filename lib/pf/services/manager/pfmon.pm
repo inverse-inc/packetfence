@@ -22,11 +22,6 @@ has '+name' => ( default => sub { 'pfmon' } );
 
 has '+launcher' => (default => sub { '%1$s -d' } );
 
-sub isManaged {
-    my ($self) = @_;
-    return $self->SUPER::isManaged() && (!$pf::cluster::cluster_enabled || pf::cluster::is_management());
-}
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
