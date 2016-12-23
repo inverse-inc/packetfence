@@ -2,6 +2,13 @@
 h3, .aup {
   display: none;
 }
+
+.print-with-aup {
+  float:right;
+  position:relative;
+  right:20px;
+  top:5px;
+}
 </style>
 
 <style type="text/css" media="print">
@@ -57,10 +64,12 @@ body {
   <div class="row-fluid">
     <div class="span8 offset2">
       <div class="print-menu">
-        <h1>[% l('Access Code') %]</h1>
-        <div>
-          <label>Print with AUP: <input autocomplete="off" type="checkbox" name="with-aup" value="yes" checked="checked"></label>
-        </div>
+        <h1>
+          <span>[% l('Access Code') %]</span>
+          <span class="print-with-aup" style="display:inline-block;">
+            <label>Print with AUP: <input autocomplete="off" type="checkbox" name="with-aup" value="yes" checked="checked"></label>
+          </span>
+        </h1>
         <div class="alert alert-warn">
           <button class="close" data-dismiss="alert">&times;</button>
           <h4>[% l('Warning!') %]</h4>
