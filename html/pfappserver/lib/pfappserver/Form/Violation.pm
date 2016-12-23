@@ -106,7 +106,7 @@ has_field 'whitelisted_roles' =>
    type => 'Select',
    multiple => 1,
    label => 'Whitelisted Roles',
-   options_method => \&options_roles,
+   options_method => \&options_whitelisted_roles,
    element_class => ['chzn-select', 'input-xxlarge'],
    element_attr => {'data-placeholder' => 'Click to add a role'},
    tags => { after_element => \&help,
@@ -275,6 +275,31 @@ sub options_vclose {
     my @violations = map { $_->{id} => $_->{desc} || $_->{id} } @{$self->form->violations} if ($self->form->violations);
 
     return ('' => '', @violations);
+}
+
+=head2 options_whitelisted_roles
+
+The options for whitelisted roles
+
+=cut
+
+sub options_whitelisted_roles {
+    my ($self) = @_;
+    # NOTE: options_roles is a method on form but that receives the field as the first argument
+    my %roles = options_roles($self);
+    # Roles that aren't technically roles (non-db), except for registration which matches unregistered devices
+    my %skip_roles = (
+        isolation => 1,
+        macDetection => 1,
+        voice => 1,
+        inline => 1,
+    );
+    my %whitelisted_roles;
+    foreach my $role (keys(%roles)) {
+        next if(exists($skip_roles{$role}));
+        $whitelisted_roles{$role} = $role;
+    }
+    return %whitelisted_roles;
 }
 
 =head2 options_roles
