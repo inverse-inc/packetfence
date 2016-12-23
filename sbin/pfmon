@@ -176,66 +176,66 @@ sub registertasks  {
         'iplog rotation',
         'iplog_rotation_interval',
         sub {
-            pf::iplog::rotate( $Config{'maintenance'}{'iplog_rotation_window'}, $Config{maintenance}{iplog_rotation_batch}, $Config{maintenance}{iplog_rotation_timeout} ) if ( $Config{'maintenance'}{'iplog_rotation_window'} && isenabled($Config{'maintenance'}{'iplog_rotation'}) );
+            pf::iplog::rotate( $Config{'maintenance'}{'iplog_rotation_window'}, $Config{maintenance}{iplog_rotation_batch}, $Config{maintenance}{iplog_rotation_timeout} );
         }
-    );
+    ) if ( $Config{'maintenance'}{'iplog_rotation_window'} && isenabled($Config{'maintenance'}{'iplog_rotation'}) );
 
     register_task(
         'iplog cleanup',
         'iplog_cleanup_interval',
         sub {
             my $table = ( isdisabled($Config{'maintenance'}{'iplog_rotation'}) ) ? 'iplog_history' : 'iplog_archive';
-            pf::iplog::cleanup( $Config{'maintenance'}{'iplog_cleanup_window'}, $Config{maintenance}{iplog_cleanup_batch}, $Config{maintenance}{iplog_cleanup_timeout}, $table ) if ( $Config{'maintenance'}{'iplog_cleanup_window'} );
+            pf::iplog::cleanup( $Config{'maintenance'}{'iplog_cleanup_window'}, $Config{maintenance}{iplog_cleanup_batch}, $Config{maintenance}{iplog_cleanup_timeout}, $table );
         }
-    );
+    ) if ( $Config{'maintenance'}{'iplog_cleanup_window'} );
 
     register_task(
         'locationlog cleanup',
         'locationlog_cleanup_interval',
         sub {
-            locationlog_cleanup( $Config{'maintenance'}{'locationlog_cleanup_window'}, $Config{maintenance}{locationlog_cleanup_batch}, $Config{maintenance}{locationlog_cleanup_timeout} ) if ( $Config{'maintenance'}{'locationlog_cleanup_window'} );
+            locationlog_cleanup( $Config{'maintenance'}{'locationlog_cleanup_window'}, $Config{maintenance}{locationlog_cleanup_batch}, $Config{maintenance}{locationlog_cleanup_timeout} );
         }
-    );
+    ) if ( $Config{'maintenance'}{'locationlog_cleanup_window'} );
 
     register_task(
         'auth_log cleanup',
         'auth_log_cleanup_interval',
         sub {
-            pf::auth_log::cleanup( $Config{'maintenance'}{'auth_log_cleanup_window'}, $Config{maintenance}{auth_log_cleanup_batch}, $Config{maintenance}{auth_log_cleanup_timeout} ) if ( $Config{'maintenance'}{'auth_log_cleanup_window'} );
+            pf::auth_log::cleanup( $Config{'maintenance'}{'auth_log_cleanup_window'}, $Config{maintenance}{auth_log_cleanup_batch}, $Config{maintenance}{auth_log_cleanup_timeout} );
         }
-    );
+    ) if ( $Config{'maintenance'}{'auth_log_cleanup_window'} );
 
     register_task(
         'radius audit log cleanup',
         'radius_audit_log_cleanup_interval',
         sub {
-            radius_audit_log_cleanup( $Config{'maintenance'}{'radius_audit_log_cleanup_window'}, $Config{maintenance}{radius_audit_log_cleanup_batch}, $Config{maintenance}{radius_audit_log_cleanup_timeout}) if ( $Config{'maintenance'}{'radius_audit_log_cleanup_window'} );
+            radius_audit_log_cleanup( $Config{'maintenance'}{'radius_audit_log_cleanup_window'}, $Config{maintenance}{radius_audit_log_cleanup_batch}, $Config{maintenance}{radius_audit_log_cleanup_timeout});
         }
-    );
+    ) if ( $Config{'maintenance'}{'radius_audit_log_cleanup_window'} );
 
     register_task(
         'node cleanup',
         'node_cleanup_interval',
         sub {
-            node_cleanup( $Config{'maintenance'}{'node_cleanup_window'} ) if ( $Config{'maintenance'}{'node_cleanup_window'} );
+            node_cleanup( $Config{'maintenance'}{'node_cleanup_window'} );
         }
-    );
+    ) if ( $Config{'maintenance'}{'node_cleanup_window'} );
 
     register_task(
         'person cleanup',
         'person_cleanup_interval',
         sub {
-            person_cleanup() if ( isenabled($Config{'maintenance'}{'person_cleanup'}) );
+            person_cleanup();
         }
-    );
+    ) if ( isenabled($Config{'maintenance'}{'person_cleanup'}) );
 
     register_task(
         'traplog cleanup',
         'traplog_cleanup_interval',
         sub {
-            traplog_cleanup( $Config{'maintenance'}{'traplog_cleanup_window'} ) if ( $Config{'maintenance'}{'traplog_cleanup_window'} );
+            traplog_cleanup( $Config{'maintenance'}{'traplog_cleanup_window'} );
         }
-    );
+    ) if ( $Config{'maintenance'}{'traplog_cleanup_window'} );
 
     register_task(
         'checking registered nodes for expiration',
@@ -257,9 +257,9 @@ sub registertasks  {
         'checking accounting data for potential bandwidth abuse',
         'inline_accounting_maintenance_interval',
         sub {
-            inline_accounting_maintenance( $Config{'inline'}{'layer3_accounting_session_timeout'} ) if isenabled($Config{'inline'}{'accounting'});
+            inline_accounting_maintenance( $Config{'inline'}{'layer3_accounting_session_timeout'} );
         }
-    );
+    ) if isenabled($Config{'inline'}{'accounting'});
 
     register_task(
         'provisioner polling enforcement',
@@ -293,9 +293,9 @@ sub registertasks  {
         'option82 task',
         'option82_query_interval',
         sub {
-            search_switch() if isenabled($Config{'network'}{'dhcpoption82logger'});
+            search_switch();
         }
-    );
+    ) if isenabled($Config{'network'}{'dhcpoption82logger'});
 }
 
 =head2 cleanup
