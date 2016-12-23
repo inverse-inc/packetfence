@@ -56,7 +56,7 @@ our @excludes = (
     ".gitattributes",
     ".gitconfig",
     ".gitignore",
-    "addons/logrotate"
+    "addons/logrotate",
     "packetfence.logrotate",
     # Directories
     ".github/*",
