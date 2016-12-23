@@ -63,7 +63,8 @@ dhcpoption82logger=disabled
 #
 # Which dhcp message types are being listened by the pfdhcplistener.
 # Do not change unless you know what you are doing
-dhcp_filter_by_message_types=DHCPOFFER,DHCPREQUEST,DHCPDECLINE,DHCPACK,DHCPRELEASE
+#Possibilities are: DHCPOFFER,DHCPREQUEST,DHCPDECLINE,DHCPACK,DHCPRELEASE
+dhcp_filter_by_message_types=DHCPREQUEST,DHCPACK
 #
 # network.force_listener_update_on_ack
 #
