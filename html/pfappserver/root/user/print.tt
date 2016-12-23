@@ -76,7 +76,6 @@ dd.aup {
             <dt>[% l('Expiration') %]</dt>
             <dd>[% user.txt_duration | html %]</dd>
             [% END -%]
-            <dt class="aup">[% l('Acceptable Use Policy') %]</dt>
             <dd class="aup">[% aup | none %]</dd>
           </dl>
           [% UNLESS loop.last %]<div class="page-break"></div><div class="spacer"></div>[% END %]
