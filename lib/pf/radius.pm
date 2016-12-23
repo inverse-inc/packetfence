@@ -393,7 +393,12 @@ sub accounting {
                     }
                     if ($time_balance == 0) {
                         # Trigger violation
-                        $apiclient->notify('trigger_violation', { 'mac' => $mac, 'tid' => $ACCOUNTING_POLICY_TIME, 'type' => $TRIGGER_TYPE_ACCOUNTING } );
+                        my %violation_data = (
+                            'mac'   => $mac,
+                            'tid'   => $ACCOUNTING_POLICY_TIME,
+                            'type'  => $TRIGGER_TYPE_ACCOUNTING ,
+                        );
+                        $apiclient->notify('trigger_violation', %violation_data );
                     }
                 }
                 if (defined $node_attributes->{'bandwidth_balance'} && (  $input_octets > 0 || $output_octets > 0)) {
@@ -408,12 +413,14 @@ sub accounting {
                     }
                     if ($bandwidth_balance == 0) {
                         # Trigger violation
-                        $apiclient->notify('trigger_violation', { 'mac' => $mac, 'tid' => $ACCOUNTING_POLICY_BANDWIDTH, 'type' => $TRIGGER_TYPE_ACCOUNTING } );
+                        my %violation_data = (
+                            'mac'   => $mac,
+                            'tid'   => $ACCOUNTING_POLICY_BANDWIDTH,
+                            'type'  => $TRIGGER_TYPE_ACCOUNTING ,
+                        );
+                        $apiclient->notify('trigger_violation', %violation_data );
                     }
                 }
-
-
-
             }
         }
     }
