@@ -1217,7 +1217,7 @@ CREATE TABLE radippool (
   KEY radippool_nasip_poolkey_ipaddress (nasipaddress, pool_key, framedipaddress),
   KEY radippool_callingstationid_expiry (callingstationid, expiry_time),
   KEY radippool_framedipaddress_expiry (framedipaddress, expiry_time)
-) ENGINE=MEMORY;
+) ENGINE=InnoDB;
 
 --
 -- Creating dhcpd table
