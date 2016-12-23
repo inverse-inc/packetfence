@@ -52,10 +52,13 @@ our $test;
 # Files that should be excluded from patching
 # Will only work when using git to patch a server
 our @excludes = (
+    # Files
     ".gitattributes",
     ".gitconfig",
     ".gitignore",
+    "addons/logrotate"
     "packetfence.logrotate",
+    # Directories
     ".github/*",
     ".tx/*",
     "debian/*",
