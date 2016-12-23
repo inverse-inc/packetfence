@@ -1049,6 +1049,8 @@ fi
                         /usr/local/pf/conf/radiusd/cli.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/packetfence-cli
                         /usr/local/pf/conf/radiusd/packetfence-cli.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/packetfence-dhcp
+                        /usr/local/pf/conf/radiusd/packetfence-dhcp.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/eduroam
                         /usr/local/pf/conf/radiusd/eduroam.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/eduroam-cluster
