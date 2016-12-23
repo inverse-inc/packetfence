@@ -34,13 +34,32 @@ Constructor
 =cut
 
 sub init {
-    my ( $self, $namespace ) = @_;
+    my ( $self, @namespaces ) = @_;
 
-    $self->{"_namespace"} = $namespace;
-    $self->{"_control_file_path"} = pfconfig::util::control_file_path($namespace);
+    $self->{"_namespaces"} = \@namespaces;
 
     return $self;
 }
+
+=head2 is_valid
+
+Method that is used to determine if the object has been refreshed in pfconfig
+Uses the control files in var/control and the memorized_at hash to know if a namespace has expired
+
+This is overriden for the support of the mutli-namespace
+
+=cut
+
+sub is_valid {
+    my ($self)         = @_;
+    foreach my $namespace (@{$self->{namespaces}}) {
+        $self->{_namespace} = $namespace;
+        $self->{"_control_file_path"} = pfconfig::util::control_file_path($namespace);
+        return 0 unless($self->SUPER::is_valid());
+    }
+    return 1;
+}
+
 
 =head1 AUTHOR
 
