@@ -7760,6 +7760,14 @@ msgstr "Users Sources - Update"
 msgid "USERS_UPDATE"
 msgstr "Users - Update"
 
+# pf::admin_roles (Actions)
+msgid "USERS_SET_TIME_BALANCE"
+msgstr "Users - Set Time Balance"
+
+# pf::admin_roles (Actions)
+msgid "USERS_SET_BANDWIDTH_BALANCE"
+msgstr "Users - Set Bandwidth Balance"
+
 # html/pfappserver/root/config/wrix/search_form.tt
 msgid "UTC Timezone"
 msgstr ""
