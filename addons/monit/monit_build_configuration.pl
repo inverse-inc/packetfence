@@ -11,11 +11,13 @@ BEGIN {
     use lib "/usr/local/pf/lib";
 }
 
+
 my $PF_PATH                                 = $pf::file_paths::install_dir;
 my $MONIT_CHECKS_CONF_TEMPLATES_PATH        = catfile($PF_PATH,"addons/monit/monit_checks_configurations");
 my $MONIT_CONF_TEMPLATES_PATH               = catfile($PF_PATH,"addons/monit/monit_configurations");
 my $CONF_FILE_EXTENSION                     = ".conf";
 my $TEMPLATE_FILE_EXTENSION                 = ".tt";
+my $BACKUP_FILE_EXTENSION                   = ".bak";
 my $MONIT_LOG_FILE                          = "/var/log/monit";
 
 my %CONFIGURATION_TO_TEMPLATE   = (
@@ -29,6 +31,7 @@ my %CONFIGURATION_TO_TEMPLATE   = (
 
 my $OS = ( -e "/etc/debian_version" ) ? "debian" : "rhel";
 my $MONIT_PATH  = ( $OS eq "rhel" ) ? "/etc/monit.d" : "/etc/monit/conf.d";
+
 
 if ( $#ARGV eq "-1" ) {
     print "Usage: ./monit_configuration_builder.pl 'email(s)' 'subject' 'configurations'\n\n";
@@ -58,13 +61,71 @@ foreach my $configuration ( @configurations ) {
 }
 
 
-monit_configuration();
-generate_configurations();
+print "\nHere it goes!\n";
+generate_monit_configurations();
+generate_specific_configurations();
 print "\n\nAll set!\n\n";
 
 
-sub generate_configurations {
-    print "\n\nGenerating the following configuration files: \n";
+=item generate_monit_configurations
+
+Generate Monit specific configuration files based of templates (Monit general configuration, syslog modifications for Monit)
+
+Will also take care of backing up existing file (.bak) before overwritting
+
+=cut
+
+sub generate_monit_configurations {
+    my $syslog_engine = ( $OS eq "rhel" ) ? "syslog" : "rsyslog";
+
+    my $vars = {
+        MONIT_LOG_FILE      => $MONIT_LOG_FILE,
+        EMAILS              => \@emails,
+        SUBJECT_IDENTIFIER  => $subject_identifier,
+    };
+    my $tt = Template->new(ABSOLUTE => 1);
+    my $template_file;
+    my $destination_file;
+
+    # Monit general configuration
+    $template_file = catfile($MONIT_CONF_TEMPLATES_PATH, "monit_general" . $TEMPLATE_FILE_EXTENSION);
+    $destination_file = catfile($MONIT_PATH, "monit_general" . $CONF_FILE_EXTENSION);
+    print "Generating '$destination_file'\n";
+    if ( -e $destination_file ) {
+        my $backup_file = $destination_file . $BACKUP_FILE_EXTENSION;
+        move($destination_file, $backup_file);
+        print "Generating '$backup_file' (BACKED UP FILE)\n";
+    }
+    $tt->process($template_file, $vars, $destination_file) or die $tt->error();
+    print "\n/!\\ -> Applied Monit configuration. You might want to restart Monit for the change to take place\n\n";
+
+    # Syslog configuration
+    $template_file = catfile($MONIT_CONF_TEMPLATES_PATH, "syslog_monit" . $TEMPLATE_FILE_EXTENSION);
+    $destination_file = "/etc/$syslog_engine.d/monit.conf";
+    print "Generating '$destination_file'\n";
+    if ( -e $destination_file ) {
+        my $backup_file = catfile($MONIT_PATH, "syslog_monit" . $CONF_FILE_EXTENSION . $BACKUP_FILE_EXTENSION);
+        move($destination_file, $backup_file);
+        print "Generating '$backup_file' (BACKED UP FILE)\n";
+    }
+    $tt->process($template_file, $vars, $destination_file) or die $tt->error();
+    unlink "$MONIT_PATH/logging"; # Remove default Monit logging configuration file
+    print "\n/!\\ -> Applied $syslog_engine configuration. You might want to restart $syslog_engine for the change to take place\n\n";
+}
+
+
+=item generate_specific_configurations
+
+Generate specific configuration files based of templates for specified checks
+
+Will output XX_name.conf files under the Monit configuration directory
+
+Will also take care of backing up existing file (XX_name.conf.bak) before overwriting
+
+=cut
+
+sub generate_specific_configurations {
+    print "Generating the following configuration files:\n";
 
     foreach my $configuration ( @configurations ) {
         my $template_file = catfile($MONIT_CHECKS_CONF_TEMPLATES_PATH,$CONFIGURATION_TO_TEMPLATE{$configuration} . $TEMPLATE_FILE_EXTENSION);
@@ -72,7 +133,10 @@ sub generate_configurations {
         print " - $destination_file\n";
 
         # Backing up existing configuration file (just in case)
-        move($destination_file, $destination_file . ".bak") if -e $destination_file;
+        if ( -e $destination_file ) {
+            move($destination_file, $destination_file . $BACKUP_FILE_EXTENSION);
+            print " - $destination_file" . "$BACKUP_FILE_EXTENSION (BACKED UP FILE)\n";
+        }
 
         # Handling pfdhcplisteners
         my $pfdhcplisteners = handle_pfdhcplisteners();
@@ -99,6 +163,12 @@ sub generate_configurations {
 }
 
 
+=item handle_pfdhcplisteners
+
+Generate the dhcplistener network interfaces array to be used in configuration templates
+
+=cut
+
 sub handle_pfdhcplisteners {
     use pf::services::manager::pfdhcplistener;
     my $self = pf::services::manager::pfdhcplistener->new(name => 'dummy');
@@ -107,6 +177,13 @@ sub handle_pfdhcplisteners {
     push @pfdhcplisteners, $_->{name} foreach ( @managers );
     return \@pfdhcplisteners;
 }
+
+
+=item handle_domains
+
+Generate the managed by PacketFence domain list array to be used in configuration templates
+
+=cut
 
 sub handle_domains {
     use pf::config;
@@ -118,24 +195,5 @@ sub handle_domains {
     return \%domains;
 }
 
-sub monit_configuration {
-    my $syslog_engine = ( $OS eq "rhel" ) ? "syslog" : "rsyslog";
-
-    my $vars = {
-        MONIT_LOG_FILE      => $MONIT_LOG_FILE,
-        EMAILS              => \@emails,
-        SUBJECT_IDENTIFIER  => $subject_identifier,
-    };
-    my $tt = Template->new(ABSOLUTE => 1);
-
-    # Monit general configuration
-    $tt->process(catfile($MONIT_CONF_TEMPLATES_PATH, "monit_general" . $TEMPLATE_FILE_EXTENSION), $vars, catfile($MONIT_PATH, "monit_general" . $CONF_FILE_EXTENSION)) or die $tt->error();
-    print "\n\nApplied Monit configuration. You might want to restart Monit for the change to take place";
-
-    # Syslog configuration
-    $tt->process(catfile($MONIT_CONF_TEMPLATES_PATH, "syslog_monit" . $TEMPLATE_FILE_EXTENSION), $vars, "/etc/$syslog_engine.d/monit.conf") or die $tt->error();
-    unlink "$MONIT_PATH/logging"; # Remove default Monit logging configuration file
-    print "\n\nApplied $syslog_engine configuration. You might want to restart $syslog_engine for the change to take place";
-}
 
 1;
