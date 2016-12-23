@@ -10,7 +10,13 @@
           <option value="[% access_duration %]"> [% access_duration %] </option>
        [% END %]
      </select>
+     <select name="set_time_balance_action_match" id="set_time_balance_action_match" data-required="required">
+       [% FOREACH access_duration IN access_durations %]
+          <option value="[% access_duration %]"> [% access_duration %] </option>
+       [% END %]
+     </select>
      <input data-required="1" id="set_unregdate_action_match" name="set_unregdate_action_match" value="" class="input-date input-small" data-date-format="yyyy-mm-dd" placeholder="yyyy-mm-dd" type="text">
+     <input data-required="1" id="set_bandwidth_balance_action_match" name="set_bandwidth_balance_action_match" value="" class="text input-small" type="text">
   </div>
 
 <ul class="breadcrumb">

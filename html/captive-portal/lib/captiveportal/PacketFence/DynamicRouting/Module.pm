@@ -71,6 +71,8 @@ sub available_actions {
         'set_unregdate',
         'set_access_duration',
         'no_action',
+        'set_time_balance',
+        'set_bandwidth_balance',
     ];
 }
 
