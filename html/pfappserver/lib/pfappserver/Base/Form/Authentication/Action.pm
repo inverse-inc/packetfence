@@ -24,6 +24,7 @@ use pf::Authentication::constants;
 use pf::Authentication::Action;
 use pf::admin_roles;
 use pf::log;
+use pf::constants::config qw($TIME_MODIFIER_RE);
 
 has 'source_type' => ( is => 'ro' );
 
@@ -89,7 +90,7 @@ our %ACTION_FIELD_OPTIONS = (
         type           => 'Select',
         do_label       => 0,
         wrapper        => 0,
-        options_method => \&options_durations,
+        options_method => \&options_durations_absolute,
         default_method => sub { $Config{'guests_admin_registration'}{'default_access_duration'} }
     },
     $Actions::SET_BANDWIDTH_BALANCE => {
@@ -207,6 +208,37 @@ sub options_durations {
     } else {
         my $default_choices = $Config{'guests_admin_registration'}{'access_duration_choices'};
         my @choices = uniq admin_allowed_options_all([$self->form->ctx->user->roles],'allowed_access_durations'), split (/\s*,\s*/, $default_choices);
+        $durations = pf::web::util::get_translated_time_hash(
+            \@choices,
+            $self->form->ctx->languages()->[0]
+        );
+    }
+    my @options = map { $durations->{$_}[0] => $durations->{$_}[1] } sort { $a <=> $b } keys %$durations;
+
+    return \@options;
+}
+
+=head2 options_durations_absolute
+
+Populate the absolute access duration select field with the available values defined
+in the pf.conf configuration file.
+
+=cut
+
+sub options_durations_absolute {
+    my $self = shift;
+    my @options_values = $self->form->_get_allowed_options('allowed_access_durations');
+    @options_values = grep { $_ =~ /^(\d+)($TIME_MODIFIER_RE)$/} @options_values;
+    my $durations;
+    if(@options_values) {
+        $durations = pf::web::util::get_translated_time_hash(
+            \@options_values,
+            $self->form->ctx->languages()->[0]
+        );
+    } else {
+        my $default_choices = $Config{'guests_admin_registration'}{'access_duration_choices'};
+        my @choices = uniq admin_allowed_options_all([$self->form->ctx->user->roles],'allowed_access_durations'), split (/\s*,\s*/, $default_choices);
+        @choices = grep { $_ =~ /^(\d+)($TIME_MODIFIER_RE)$/} @choices;
         $durations = pf::web::util::get_translated_time_hash(
             \@choices,
             $self->form->ctx->languages()->[0]
