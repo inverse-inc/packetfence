@@ -743,7 +743,7 @@ Returns the bandwidth in bytes depending of the incombing unit
 
 sub unpretty_bandwidth {
     my (@bw) = @_;
-    return undef if (!@bw);
+    return undef if (!defined($bw[0]));
     my ($bw,$unit);
 
     if (!defined($bw[1])) {
