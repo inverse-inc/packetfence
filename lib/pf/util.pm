@@ -743,7 +743,7 @@ Returns the bandwidth in bytes depending of the incombing unit
 
 sub unpretty_bandwidth {
     my (@bw) = @_;
-
+    return undef if (!@bw);
     my ($bw,$unit);
 
     if (!defined($bw[1])) {
@@ -1029,6 +1029,7 @@ Months and years are approximate. Do not use for anything serious about time.
 
 sub normalize_time {
     my ($date) = @_;
+    return undef if (!defined($date));
     if ( $date =~ /^\d+$/ ) {
         return ($date);
 
