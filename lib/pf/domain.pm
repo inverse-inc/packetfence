@@ -250,9 +250,11 @@ Uses the samba configuration
 =cut
 
 sub has_os_configuration {
-    my $samba_conf = read_file($SAMBA_CONF_PATH);
-    if ( $samba_conf =~ /(\t){0,1}workgroup = (WORKGROUP|MYGROUP).*/ ) {
-        return $FALSE;
+    if ( -e $SAMBA_CONF_PATH ) {
+        my $samba_conf = read_file($SAMBA_CONF_PATH);
+        if ( $samba_conf =~ /(\t){0,1}workgroup = (WORKGROUP|MYGROUP).*/ ) {
+            return $FALSE;
+        }
     }
     return $TRUE;
 }
