@@ -22,7 +22,7 @@ BEGIN {
 }
 
 use Test::Deep;
-use Test::More tests => 15;
+use Test::More tests => 29;
 #This test will running last
 use Test::NoWarnings;
 use Socket;
