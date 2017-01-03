@@ -2,13 +2,13 @@ package pf::services::manager::routes;
 
 =head1 NAME
 
-pf::services::manager::routes add documentation
+pf::services::manager::routes
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::services::manager::routes
+Service manager for managing the routes
 
 =cut
 
