@@ -22,7 +22,7 @@ Enhancements
 ++++++++++++
  * Added a RADIUS filter scope for VoIP devices (PR #1807)
  * Ability to customize the OU in which the machine account will be created (#1927)
-
+ * Added new routes service to manage static routes (PR #1891)
 
 Bug Fixes
 +++++++++
