@@ -1,6 +1,6 @@
 =head1 NAME
 
-Test for Infoblox syslog DHCP parser
+Test for dhcp syslog parser
 
 =cut
 
@@ -33,7 +33,7 @@ my $infos = {
     "Sep  1 03:27:22 172.22.0.3 dhcpd[20512]: balancing pool 21960d0 172.31.3.0/24  total 17  free 0  backup 1  lts 1  max-own (+/-)0" => {},
 };
  
-my $parser = pf::factory::detect::parser->new('infoblox_dhcp');
+my $parser = pf::factory::detect::parser->new('dhcp');
 while(my ($line, $expected) = each(%$infos)) {
     my $result = $parser->_parse($line);
     foreach my $key (keys(%$result)) {

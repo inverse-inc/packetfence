@@ -1,14 +1,14 @@
-package pf::detect::parser::infoblox_dhcp;
+package pf::detect::parser::dhcp;
 
 =head1 NAME
 
-pf::detect::parser::infoblox_dhcp
+pf::detect::parser::dhcp
 
 =cut
 
 =head1 DESCRIPTION
 
-pfdetect parser class for Infoblox syslog
+pfdetect parser class for DHCP syslog (supports at least infoblox and ISC DHCP)
 
 =cut
 
