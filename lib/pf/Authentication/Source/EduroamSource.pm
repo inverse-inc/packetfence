@@ -16,7 +16,7 @@ use Moose;
 extends 'pf::Authentication::Source';
 
 has '+type'                 => (default => 'Eduroam');
-has '+class'                => (isa => 'Str', is => 'ro', default => 'external');
+has '+class'                => (isa => 'Str', is => 'ro', default => 'exclusive');
 has '+unique'               => (isa => 'Bool', is => 'ro', default => $TRUE);
 has 'server1_address'       => (isa => 'Str', is => 'rw');
 has 'server2_address'       => (isa => 'Str', is => 'rw');
@@ -33,6 +33,7 @@ Eduroam source only allow 'authentication' rules
 sub available_rule_classes {
     return [ grep { $_ ne $Rules::ADMIN } @Rules::CLASSES ];
 }
+
 
 =head2 available_actions
 
