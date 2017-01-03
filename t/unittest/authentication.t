@@ -14,7 +14,7 @@ autentication
 use strict;
 use warnings;
 
-use Test::More tests => 21;                      # last test to print
+use Test::More tests => 23;                      # last test to print
 
 use Test::NoWarnings;
 use diagnostics;
@@ -186,6 +186,18 @@ is_deeply(
 );
 
 is($source_id_ref, "tls_any", "Source id ref is found");
+
+$source_id_ref = undef;
+
+is(
+    pf::authentication::match("tls_any", { SSID => 'notls',
+        radius_request => {'TLS-Client-Cert-Serial' => 'notls' }, rule_class => 'authentication'
+    }, undef, \$source_id_ref),
+    undef,
+    "match tls_any source rule any conditions"
+);
+
+is($source_id_ref, undef, "Source id ref shouldn't be found");
 
 
 =head1 AUTHOR
