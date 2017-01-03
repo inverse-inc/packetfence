@@ -20,6 +20,7 @@ New Features
 
 Enhancements
 ++++++++++++
+ * Added a RADIUS filter scope for VoIP devices (PR #1807)
  * Ability to customize the OU in which the machine account will be created (#1927)
 
 
