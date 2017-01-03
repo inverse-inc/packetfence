@@ -47,6 +47,44 @@ sub available_actions {
 }
 
 
+=head2 available_attributes
+
+Allow to make a condition on the user's username.
+
+=cut
+
+sub available_attributes {
+  my $self = shift;
+
+  my $super_attributes = $self->SUPER::available_attributes;
+  my $own_attributes = [{ value => "username", type => $Conditions::SUBSTRING }];
+
+  return [@$super_attributes, @$own_attributes];
+}
+
+
+=head2 match_in_subclass
+
+Should always "match" and allow specific conditions
+
+=cut
+
+sub match_in_subclass {
+    my ( $self, $params, $rule, $own_conditions, $matching_conditions ) = @_;
+    my $username = $params->{'username'};
+
+    foreach my $condition ( @{ $own_conditions } ) {
+        if ( $condition->{'attribute'} eq "username" ) {
+            if ( $condition->matches("username", $username) ) {
+                push(@{ $matching_conditions }, $condition);
+            }
+        }
+    }
+
+    return $username;
+}
+
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
