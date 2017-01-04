@@ -405,6 +405,7 @@ Takes FreeRADIUS' RAD_REQUEST hash and process it to return
 
 sub _parseRequest {
     my ($self, $radius_request) = @_;
+    my $logger = get_logger();
     my $ap_mac = $self->extractApMacFromRadiusRequest($radius_request);
     # freeradius 2 provides the client IP in NAS-IP-Address not Client-IP-Address (non-standard freeradius1 attribute)
     my $networkdevice_ip = $radius_request->{'NAS-IP-Address'} || $radius_request->{'Client-IP-Address'};
@@ -415,7 +416,13 @@ sub _parseRequest {
     }
     my $realm;
     if (defined($radius_request->{'Realm'})) {
-        $realm = $radius_request->{'Realm'};
+        # Handling possible FreeRADIUS multiple realms
+        if ( ref($radius_request->{'Realm'}) eq 'ARRAY' ) {
+            $realm = $radius_request->{'Realm'}->[0];
+            $logger->info("RADIUS request contains more than one realm. Keeping the first one '$realm'");
+        } else {
+            $realm = $radius_request->{'Realm'};
+        }
     }
     return ($ap_mac, $networkdevice_ip, $source_ip, $stripped_user_name, $realm);
 }
