@@ -114,7 +114,7 @@ $backend_ip_config
 
 EOT
         }
-        if ($cfg->{'type'} =~ /internal/ | $cfg->{'type'} =~ /portal/) {
+        if ($cfg->{'type'} =~ /internal/ || $cfg->{'type'} =~ /portal/) {
             my $cluster_ip = pf::cluster::cluster_ip($interface);
             my @backend_ip = values %{pf::cluster::members_ips($interface)};
             my $backend_ip_config = '';
