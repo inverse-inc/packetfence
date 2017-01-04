@@ -155,7 +155,7 @@ sub authenticate {
         get_logger->info("Reusing 802.1x credentials with username '$username' and realm '$realm'");
 
         # Fetch appropriate source to use with 'reuseDot1xCredentials' feature
-        my $source = pf::config::util::get_realm_source($username, $realm);
+        my $source = pf::config::util::get_realm_authentication_source($username, $realm);
         
         # No source found for specified realm
         unless ( defined($source) ) {

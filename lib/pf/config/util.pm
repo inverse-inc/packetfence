@@ -66,7 +66,7 @@ BEGIN {
     get_translatable_time trappable_mac
     portal_hosts
     filter_authentication_sources
-    get_realm_source
+    get_realm_authentication_source
     get_captive_portal_uri
   );
 }
@@ -397,14 +397,14 @@ sub portal_hosts {
     return @hosts;
 }
 
-=head2 get_realm_source
+=head2 get_realm_authentication_source
 
 Get a source for a specific username and realm
 Will look it up in the realm configuration
 
 =cut
 
-sub get_realm_source {
+sub get_realm_authentication_source {
     my ($username, $realm) = @_;
 
     $realm = "null" unless(defined($realm));
@@ -437,7 +437,7 @@ Filter a given list of authentication sources based on a username / realm
 sub filter_authentication_sources {
     my ($sources, $username, $realm) = @_;
 
-    my $realm_source = get_realm_source($username, $realm);
+    my $realm_source = get_realm_authentication_source($username, $realm);
 
     if( $realm_source && any { $_ eq $realm_source} @$sources ){
         get_logger->info("Realm source ".$realm_source->{id}." is part of the available sources. Using it as the only auth source.");
