@@ -64,8 +64,6 @@ sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
     my $match = $rule->match;
     my $radius_params = $params->{radius_request};
-    #Return early if it was already matched
-    return 1 if $match eq $Rules::ANY && @$matching_conditions > 0;
     # If match any we just want the first
     my @conditions;
     if ($rule->match eq $Rules::ANY) {
@@ -76,7 +74,7 @@ sub match_in_subclass {
         @conditions = grep { $self->match_condition($_, $radius_params) } @$own_conditions;
     }
     push @$matching_conditions, @conditions;
-    return @conditions == 0 ? undef : 1;
+    return $params->{'username'};
 }
 
 =head1 AUTHOR
