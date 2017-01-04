@@ -1041,3 +1041,5 @@ msgstr ""
 msgid "source"
 msgstr ""
 
+msgid "Your network should be enabled within a minute or two. If it is not reboot your computer."
+msgstr ""
