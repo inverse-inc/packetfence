@@ -1035,7 +1035,7 @@ sub dynamic_register_node : Public {
     my $profile = pf::Portal::ProfileFactory->instantiate($postdata{'mac'});
     my $node_info = pf::node::node_view($postdata{'mac'});
     # We try this although the realm is not mandatory in case it proves to be useful in the future
-    my @sources = $profile->getUserSources($postdata{'username'}, $postdata{'realm'});
+    my @sources = $profile->getFilteredAuthenticationSources($postdata{'username'}, $postdata{'realm'});
     my $stripped_user = '';
 
     my $params = {
