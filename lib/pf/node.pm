@@ -867,13 +867,6 @@ sub node_modify {
         return (0);
     }
 
-    # hack to support an additional autoreg param to the sub without changing the hash to a reference everywhere
-    my $auto_registered = 0;
-    if (defined($data{'auto_registered'})) {
-        $auto_registered = 1;
-        delete($data{'auto_registered'});
-    }
-
     if ( !node_exist($mac) ) {
         if ( node_add_simple($mac) ) {
             $logger->info(
@@ -919,9 +912,7 @@ sub node_modify {
     pf::ipset::iptables_update_set($mac, $old_role_id, $new_role_id) if (defined($node_info->{'last_connection_type'}) && $node_info->{'last_connection_type'} eq $connection_type_to_str{$INLINE});
 
     # Autoregistration handling
-    if (!defined($data{'autoreg'}) && (!defined($existing->{autoreg}) || $existing->{autoreg} ne 'yes' )) {
-        $existing->{autoreg} = 'no';
-    }
+    if (defined($data{'autoreg'})) {  $existing->{autoreg} = $data{'autoreg'}; }
 
     _cleanup_attributes($existing);
 
@@ -1061,6 +1052,7 @@ sub node_deregister {
     $info{'regdate'}   = 0;
     $info{'unregdate'} = 0;
     $info{'lastskip'}  = 0;
+    $info{'autoreg'}   = 'no';
 
     my $profile = pf::Portal::ProfileFactory->instantiate($mac);
     if(my $provisioner = $profile->findProvisioner($mac)){

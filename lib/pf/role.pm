@@ -126,12 +126,6 @@ sub fetchRoleForNode {
     # there were no violation, now onto registration handling
     $answer = $self->getRegistrationRole($args);
     if (defined($answer->{role}) && $answer->{role} ne "0") {
-        if ( $args->{'connection_type'} && ($args->{'connection_type'} & $WIRELESS_MAC_AUTH) == $WIRELESS_MAC_AUTH ) {
-            if (isenabled($node_info->{'autoreg'})) {
-                $logger->info("Connection type is WIRELESS_MAC_AUTH and the device was coming from a secure SSID with auto registration");
-                node_modify($args->{'mac'}, ('autoreg' => 'no'));
-            }
-        }
         return $answer;
     }
 
@@ -451,7 +445,6 @@ sub getRegisteredRole {
             pf::lookup::person::async_lookup_person($args->{'user_name'}, $source) if !($args->{'autoreg'});
             $portal = $profile->getName;
             my %info = (
-                'autoreg' => 'no',
                 'pid' => $args->{'user_name'},
             );
             if (defined $unregdate) {
