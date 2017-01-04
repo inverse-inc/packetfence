@@ -11,6 +11,17 @@ SET @MINOR_VERSION = 4;
 SET @SUBMINOR_VERSION = 9;
 
 --
+-- Set passwords with NULL value to the new default value
+--
+UPDATE password set valid_from="0000-00-00 00:00:00" WHERE valid_from IS NULL;
+
+--
+-- Make valid_from default to 0000-00-00 00:00:00
+--
+
+ALTER TABLE password MODIFY valid_from DATETIME NOT NULL DEFAULT "0000-00-00 00:00:00";
+
+--
 -- The VERSION_INT to ensure proper ordering of the version in queries
 --
 

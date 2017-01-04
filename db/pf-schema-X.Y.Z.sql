@@ -380,7 +380,7 @@ CREATE TABLE `configfile` (
 CREATE TABLE `password` (
   `pid` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `valid_from` datetime default NULL,
+  `valid_from` datetime NOT NULL DEFAULT "0000-00-00 00:00:00",
   `expiration` datetime NOT NULL,
   `access_duration` varchar(255) default NULL,
   `access_level` varchar(255) DEFAULT 'NONE',
