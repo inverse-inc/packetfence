@@ -124,7 +124,7 @@ sub authenticate {
 
     my ($stripped_username, $realm) = strip_username($username);
 
-    my @sources = get_user_sources($self->sources, $stripped_username, $realm);
+    my @sources = filter_authentication_sources($self->sources, $stripped_username, $realm);
     get_logger->info("Authenticating user using sources : ", join(',', (map {$_->id} @sources)));
 
     unless(@sources){

@@ -561,7 +561,7 @@ Return a list of authentication sources for the given portal profile filtered fo
 
 sub getFilteredAuthenticationSources {
     my ($self, $username, $realm) = @_;
-    return get_user_sources([ $self->getInternalSources, $self->getExclusiveSources ], $username, $realm);
+    return filter_authentication_sources([ $self->getInternalSources, $self->getExclusiveSources ], $username, $realm);
 }
 
 =item getRootModuleId

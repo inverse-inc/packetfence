@@ -65,7 +65,7 @@ BEGIN {
     connection_type_to_str str_to_connection_type
     get_translatable_time trappable_mac
     portal_hosts
-    get_user_sources
+    filter_authentication_sources
     get_realm_source
     get_captive_portal_uri
   );
@@ -428,13 +428,13 @@ sub get_realm_source {
 
 }
 
-=head2 get_user_sources
+=head2 filter_authentication_sources
 
-Get internal and exclusive sources for a username and realm
+Filter a given list of authentication sources based on a username / realm
 
 =cut
 
-sub get_user_sources {
+sub filter_authentication_sources {
     my ($sources, $username, $realm) = @_;
 
     my $realm_source = get_realm_source($username, $realm);
