@@ -151,7 +151,7 @@ sub process_packet {
     my ( $self ) = @_;
 
     my $dhcp = $self->{dhcp};
-   $dhcp->{'radius'} =$FALSE;
+    $dhcp->{'radius'} = $FALSE;
     $self->process_packet_dhcp($dhcp);
 }
 
@@ -176,7 +176,7 @@ sub process_packet_dhcp {
         return;
     }
 
-    $dhcp->{'chaddr'} = clean_mac( substr( $dhcp->{'chaddr'}, 0, 12 ) ) if !($self->{'radius'});
+    $dhcp->{'chaddr'} = clean_mac( substr( $dhcp->{'chaddr'}, 0, 12 ) ) if !($dhcp->{'radius'});
     if ( $dhcp->{'chaddr'} ne "00:00:00:00:00:00" && !valid_mac($dhcp->{'chaddr'}) ) {
         $logger->debug( sub {
             "invalid CHADDR value ($dhcp->{'chaddr'}) in DHCP packet from $dhcp->{src_mac} ($dhcp->{src_ip})"
@@ -321,8 +321,8 @@ sub parse_dhcp_request {
 
     # We check if we are running without dhcpd
     # This means we don't see ACK so we need to act on requests
-    if( (defined($client_ip) && defined($client_mac)) && ( (!$self->pf_is_dhcp($client_ip) || $self->{'radius'}) && !isenabled($Config{network}{force_listener_update_on_ack})) ){
-        $self->handle_new_ip($client_mac, $client_ip, $lease_length, $self->{'radius'});
+    if( (defined($client_ip) && defined($client_mac)) && ( (!$self->pf_is_dhcp($client_ip) || $dhcp->{'radius'}) && !isenabled($Config{network}{force_listener_update_on_ack})) ){
+        $self->handle_new_ip($client_mac, $client_ip, $lease_length, $dhcp->{'radius'});
     }
 
     # As per RFC2131 in a DHCPREQUEST if ciaddr is set and we broadcast, we are in re-binding state
@@ -388,7 +388,7 @@ sub parse_dhcp_ack {
     # If yes, we are interested with the ACK
     # Packet also has to be valid
     if( (defined($client_ip) && defined($client_mac)) && ($self->pf_is_dhcp($client_ip) || isenabled($Config{network}{force_listener_update_on_ack})) ){
-        $self->handle_new_ip($client_mac, $client_ip, $lease_length, $self->{'radius'});
+        $self->handle_new_ip($client_mac, $client_ip, $lease_length, $dhcp->{'radius'});
     }
     else {
         $logger->debug("Not acting on DHCPACK");

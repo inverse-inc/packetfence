@@ -38,7 +38,9 @@ has 'runningServices' => (is => 'rw', default => sub { 0 } );
 
 
 =head2 start
+
 start routes
+
 =cut
 
 sub startService {
@@ -52,7 +54,9 @@ sub startService {
 
 
 =head2 stop
+
 stop routes
+
 =cut
 
 sub stop {
@@ -64,8 +68,10 @@ sub stop {
 }
 
 =head2 isAlive
+
 Check if routes is alive.
 Since it's never really stopped than we check if the fake PID exists
+
 =cut
 
 sub isAlive {
@@ -89,7 +95,9 @@ sub isAlive {
 }
 
 =head2 manageStaticRoute
+
 Add or remove static routes on the system
+
 =cut
 
 sub manageStaticRoute {
@@ -145,24 +153,30 @@ sub isManaged {
 }
 
 =head1 AUTHOR
+
 Inverse inc. <info@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
+
 =cut
 
 1;
