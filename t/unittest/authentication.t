@@ -121,7 +121,7 @@ $source_id_ref = undef;
 is(pf::authentication::match("htpasswd1", { username => 'set_unreg_date_test', rule_class => 'authentication' }, 'set_unreg_date'),'2022-02-02', "Set unreg date test");
 
 is_deeply(
-    pf::authentication::match("tls_all", { SSID => 'tls',
+    pf::authentication::match("tls_all", { username => 'bobbe', SSID => 'tls',
         radius_request => {'TLS-Client-Cert-Serial' => 'tls' }, rule_class => 'authentication'
     }, undef, \$source_id_ref),
     [
@@ -144,7 +144,7 @@ is($source_id_ref, "tls_all", "Source id ref is found");
 $source_id_ref = undef;
 
 is_deeply(
-    pf::authentication::match("tls_any", { SSID => 'tls',
+    pf::authentication::match("tls_any", { username => 'bobbe', SSID => 'tls',
         radius_request => {'TLS-Client-Cert-Serial' => 'notls' }, rule_class => 'authentication'
     }, undef, \$source_id_ref),
     [
@@ -167,7 +167,7 @@ is($source_id_ref, "tls_any", "Source id ref is found");
 $source_id_ref = undef;
 
 is_deeply(
-    pf::authentication::match("tls_any", { SSID => 'notls',
+    pf::authentication::match("tls_any", { username => 'bobbe', SSID => 'notls',
         radius_request => {'TLS-Client-Cert-Serial' => 'tls' }, rule_class => 'authentication'
     }, undef, \$source_id_ref),
     [
@@ -190,7 +190,7 @@ is($source_id_ref, "tls_any", "Source id ref is found");
 $source_id_ref = undef;
 
 is(
-    pf::authentication::match("tls_any", { SSID => 'notls',
+    pf::authentication::match("tls_any", { username => 'bobbe', SSID => 'notls',
         radius_request => {'TLS-Client-Cert-Serial' => 'notls' }, rule_class => 'authentication'
     }, undef, \$source_id_ref),
     undef,
