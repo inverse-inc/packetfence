@@ -118,6 +118,7 @@ use pf::constants qw(
 use pf::enforcement;
 use pf::db;
 use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID $PRE_SCAN_VID);
+use pf::constants::role qw($REGISTRATION_ROLE);
 use pf::util;
 use pf::config::util;
 use pf::client;
@@ -888,7 +889,7 @@ sub _is_node_category_whitelisted {
     my $node_role = $node_info->{category};
     # matching registration role for unregistered devices
     if($node_info->{status} eq $pf::node::STATUS_UNREGISTERED) {
-        $node_role = "registration";
+        $node_role = $REGISTRATION_ROLE;
     }
 
     # trying to match node's category on whitelisted categories

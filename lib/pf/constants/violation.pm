@@ -16,10 +16,19 @@ use strict;
 use warnings;
 use base qw(Exporter);
 use Readonly;
+use pf::constants;
+use pf::constants::role qw($ISOLATION_ROLE $MAC_DETECTION_ROLE $VOICE_ROLE $INLINE_ROLE);
 
-our @EXPORT_OK = qw($MAX_VID);
+our @EXPORT_OK = qw($MAX_VID %NON_WHITELISTABLE_ROLES);
 
 Readonly our $MAX_VID => 2000000000;
+
+Readonly our %NON_WHITELISTABLE_ROLES => (
+    $ISOLATION_ROLE     => $TRUE,
+    $MAC_DETECTION_ROLE => $TRUE,
+    $VOICE_ROLE         => $TRUE,
+    $INLINE_ROLE        => $TRUE,
+);
 
 =head1 AUTHOR
 
