@@ -3124,11 +3124,21 @@ sub deauth_source_ip {
                                          }
                                       }
                            );
-    if($cluster_enabled){
-        return isenabled($Config{active_active}{centralized_deauth}) ? pf::cluster::cluster_ip($int) : pf::cluster::current_server->{"interface $int"}->{ip};
-    }
-    else {
-        return $Config{ 'interface ' . $int }{'vip'} || $Config{ 'interface ' . $int }{'ip'}
+    if (defined($Config{ 'interface ' . $int })) {
+        if($cluster_enabled){
+            return isenabled($Config{active_active}{centralized_deauth}) ? pf::cluster::cluster_ip($int) : pf::cluster::current_server->{"interface $int"}->{ip};
+        }
+        else {
+            return $Config{ 'interface ' . $int }{'vip'} || $Config{ 'interface ' . $int }{'ip'}
+        }
+    } else {
+        $logger->warn("Interface $int has not been found in the configuration, using the management interface");
+        if($cluster_enabled){
+            return isenabled($Config{active_active}{centralized_deauth}) ? pf::cluster::management_cluster_ip() : pf::cluster::current_server->{management_ip};
+        }
+        else {
+            return $management_network->tag('vip') || $management_network->tag('ip');
+        }
     }
 }
 
