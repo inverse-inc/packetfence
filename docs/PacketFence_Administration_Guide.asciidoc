@@ -4174,7 +4174,18 @@ Once done, you should have a lot of files that were extracted in the restore dir
 
 Next, install qpress (available from the percona repository) and process any qp file that were extracted:
 
+CentOS:
+
   # yum install qpress --enablerepo=percona-release-`uname -m`
+
+Debian:
+
+  # apt-key adv --keyserver keys.gnupg.net --recv-keys 1C4CBDCDCD2EFD2A
+  # echo 'deb http://repo.percona.com/apt VERSION main' >> /etc/apt/sources.list
+  # echo 'deb-src http://repo.percona.com/apt VERSION main' >> /etc/apt/sources.list
+  # apt-get update
+  # apt-get install qpress
+
   # for i in $(find -name "*.qp"); do qpress -vd $i $(dirname ${i}) && rm -f $i; done
 
 Next, apply the innodb log:
