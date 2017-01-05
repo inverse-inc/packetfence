@@ -53,12 +53,14 @@ for the PacketFence RPM repository.
 [packetfence]
 name=PacketFence Repository
 baseurl=http://inverse.ca/downloads/PacketFence/RHEL$releasever/$basearch
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-CENTOS
 gpgcheck=1
 enabled=0
 
 [packetfence-devel]
 name=PacketFence Devel Repository
 baseurl=http://inverse.ca/downloads/PacketFence/RHEL$releasever/devel/$basearch
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-CENTOS
 gpgcheck=1
 enabled=0
 
