@@ -14,6 +14,7 @@ sub TO_JSON {
     my $o = {
        ip => $self->addr(), 
        mask => $self->mask(),
+       cidr => $self->cidr(),
     };
     return $o;
 }

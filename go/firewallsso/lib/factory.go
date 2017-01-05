@@ -36,7 +36,9 @@ func (f *Factory) Instantiate(ctx context.Context, id string) (FirewallSSOInt, e
 		or.Elem().FieldByName("PfconfigHashNS").SetString(id)
 		firewall2 := or.Interface()
 		pfconfigdriver.FetchDecodeSocket(ctx, &firewall2, or.Elem())
-		return firewall2.(FirewallSSOInt), nil
+		fwint := firewall2.(FirewallSSOInt)
+		fwint.init(ctx)
+		return fwint, nil
 	} else {
 		return nil, errors.New("Cannot find the type of the object")
 	}
