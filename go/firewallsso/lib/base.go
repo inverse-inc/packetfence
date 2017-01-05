@@ -3,6 +3,7 @@ package libfirewallsso
 import (
 	"context"
 	"fmt"
+	log "github.com/inconshreveable/log15"
 	"github.com/inverse-inc/packetfence/go/logging"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"net"
@@ -11,6 +12,7 @@ import (
 // Basic interface that all FirewallSSO must implement
 type FirewallSSOInt interface {
 	init(ctx context.Context) error
+	logger(ctx context.Context) log.Logger
 	Start(ctx context.Context, info map[string]string, timeout int) bool
 	Stop(ctx context.Context, info map[string]string) bool
 	GetFirewallSSO(ctx context.Context) *FirewallSSO
@@ -69,7 +71,7 @@ func (fw *FirewallSSO) IsRoleBased(ctx context.Context) bool {
 
 // Start method that will be called on every SSO called via ExecuteStart
 func (fw *FirewallSSO) Start(ctx context.Context, info map[string]string, timeout int) bool {
-	logging.Logger(ctx).Debug("Sending SSO start")
+	fw.logger(ctx).Debug("Sending SSO start")
 	return true
 }
 
@@ -78,17 +80,17 @@ func (fw *FirewallSSO) Start(ctx context.Context, info map[string]string, timeou
 // Otherwise, if the IP is part of one of the networks, this succeeds, otherwise it fails
 func (fw *FirewallSSO) MatchesNetwork(ctx context.Context, info map[string]string) bool {
 	if len(fw.Networks) == 0 {
-		logging.Logger(ctx).Debug(fmt.Sprintf("Firewall %s has no networks defined. Allowing all networks", fw.PfconfigHashNS))
+		fw.logger(ctx).Debug(fmt.Sprintf("Firewall %s has no networks defined. Allowing all networks", fw.PfconfigHashNS))
 		return true
 	}
 	ip := net.ParseIP(info["ip"])
 	for _, net := range fw.Networks {
 		if net.IpNet.Contains(ip) {
-			logging.Logger(ctx).Debug(fmt.Sprintf("%s matches network %s for firewall %s", ip, net.Cidr, fw.PfconfigHashNS))
+			fw.logger(ctx).Debug(fmt.Sprintf("%s matches network %s for firewall %s", ip, net.Cidr, fw.PfconfigHashNS))
 			return true
 		}
 	}
-	logging.Logger(ctx).Debug(fmt.Sprintf("%s doesn't match any configured network in firewall %s", ip, fw.PfconfigHashNS))
+	fw.logger(ctx).Debug(fmt.Sprintf("%s doesn't match any configured network in firewall %s", ip, fw.PfconfigHashNS))
 	return false
 }
 
@@ -108,16 +110,20 @@ func (rbf *RoleBasedFirewallSSO) MatchesRole(ctx context.Context, info map[strin
 	return false
 }
 
+func (fw *FirewallSSO) logger(ctx context.Context) log.Logger {
+	return logging.Logger(ctx, "firewall-id", fw.PfconfigHashNS)
+}
+
 // Execute an SSO request on the specified firewall
 // Makes sure to call FirewallSSO.Start and to validate the network and role if necessary
 func ExecuteStart(ctx context.Context, fw FirewallSSOInt, info map[string]string, timeout int) bool {
 	if fw.IsRoleBased(ctx) && !fw.MatchesRole(ctx, info) {
-		logging.Logger(ctx).Info(fmt.Sprintf("Not sending SSO for user device %s since it doesn't match the role", info["role"]))
+		fw.logger(ctx).Info(fmt.Sprintf("Not sending SSO for user device %s since it doesn't match the role", info["role"]))
 		return false
 	}
 
 	if !fw.MatchesNetwork(ctx, info) {
-		logging.Logger(ctx).Info(fmt.Sprintf("Not sending SSO for IP %s since it doesn't match any configured network", info["ip"]))
+		fw.logger(ctx).Info(fmt.Sprintf("Not sending SSO for IP %s since it doesn't match any configured network", info["ip"]))
 		return false
 	}
 

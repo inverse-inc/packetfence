@@ -21,8 +21,9 @@ func initSrvlog() log.Logger {
 }
 
 // Get the current logger for the request (includes the request UUID)
-func Logger(ctx context.Context) log.Logger {
-	return srvlog.New(requestUuidKey, ctx.Value(requestUuidKey).(string), processPidKey, ctx.Value(processPidKey).(string))
+func Logger(ctx context.Context, args ...interface{}) log.Logger {
+	args = append(args, requestUuidKey, ctx.Value(requestUuidKey).(string), processPidKey, ctx.Value(processPidKey).(string))
+	return srvlog.New(args...)
 }
 
 // Grab a context that includes a UUID of the request for logging purposes
