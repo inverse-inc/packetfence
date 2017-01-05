@@ -117,6 +117,7 @@ func (fw *FirewallSSO) logger(ctx context.Context) log.Logger {
 // Execute an SSO request on the specified firewall
 // Makes sure to call FirewallSSO.Start and to validate the network and role if necessary
 func ExecuteStart(ctx context.Context, fw FirewallSSOInt, info map[string]string, timeout int) bool {
+	ctx = logging.AddToLogContext(ctx, "ip", info["ip"], "mac", info["mac"])
 	if fw.IsRoleBased(ctx) && !fw.MatchesRole(ctx, info) {
 		fw.logger(ctx).Info(fmt.Sprintf("Not sending SSO for user device %s since it doesn't match the role", info["role"]))
 		return false

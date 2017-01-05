@@ -10,6 +10,7 @@ import (
 
 const requestUuidKey = "request-uuid"
 const processPidKey = "pid"
+const additionnalLogElementsKey = "additionnal-log"
 
 var srvlog = initSrvlog()
 
@@ -22,7 +23,14 @@ func initSrvlog() log.Logger {
 
 // Get the current logger for the request (includes the request UUID)
 func Logger(ctx context.Context, args ...interface{}) log.Logger {
-	args = append(args, requestUuidKey, ctx.Value(requestUuidKey).(string), processPidKey, ctx.Value(processPidKey).(string))
+	loggerArgs := []interface{}{processPidKey, ctx.Value(processPidKey).(string), requestUuidKey, ctx.Value(requestUuidKey).(string)}
+	args = append(loggerArgs, args...)
+
+	additionnalLogElements := ctx.Value(additionnalLogElementsKey).(map[interface{}]interface{})
+	for k, v := range additionnalLogElements {
+		args = append(args, k, v)
+	}
+
 	return srvlog.New(args...)
 }
 
@@ -32,5 +40,20 @@ func NewContext(ctx context.Context) context.Context {
 	uStr := u.String()
 	ctx = context.WithValue(ctx, requestUuidKey, uStr)
 	ctx = context.WithValue(ctx, processPidKey, strconv.Itoa(os.Getpid()))
+	ctx = context.WithValue(ctx, additionnalLogElementsKey, make(map[interface{}]interface{}))
+	return ctx
+}
+
+func AddToLogContext(ctx context.Context, args ...interface{}) context.Context {
+	var key interface{}
+	additionnalLogElements := ctx.Value(additionnalLogElementsKey).(map[interface{}]interface{})
+	for i, o := range args {
+		if i%2 == 1 {
+			additionnalLogElements[key] = o
+		} else {
+			key = o
+		}
+	}
+	context.WithValue(ctx, additionnalLogElementsKey, additionnalLogElements)
 	return ctx
 }
