@@ -363,6 +363,9 @@ sub encode_output {
         my $json = JSON->new;
         $json->convert_blessed(1);
         my $result;
+        if(!defined($data)) {
+            return $json->encode({error => "No valid element was found for query"});
+        }
         eval {
             $result = $json->encode($data);
         };
