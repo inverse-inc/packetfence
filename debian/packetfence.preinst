@@ -43,8 +43,12 @@ case "$1" in
     install)
         stop_service_if_exists packetfence
         if [ -z "$(getent passwd pf)" ]; then
+            if ! /usr/bin/id -g pf &>/dev/null; then
                 useradd -U -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf
-                echo "create pf user"
+            else
+                useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf -g pf
+            fi
+            echo "create pf user"
         else
                 echo "pf user already exist"
         fi

@@ -585,8 +585,13 @@ rm -rf $RPM_BUILD_ROOT
 %pre -n %{real_name}
 
 if ! /usr/bin/id pf &>/dev/null; then
+    if ! /usr/bin/id -g pf &>/dev/null; then
         /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
                 echo Unexpected error adding user "pf" && exit
+    else
+        /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf -g pf || \
+                echo Unexpected error adding user "pf" && exit
+    fi
 fi
 /usr/sbin/usermod -aG wbpriv,fingerbank,apache,carbon pf
 
@@ -608,22 +613,37 @@ fi
 %pre -n %{real_name}-remote-snort-sensor
 
 if ! /usr/bin/id pf &>/dev/null; then
+    if ! /usr/bin/id -g pf &>/dev/null; then
         /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
                 echo Unexpected error adding user "pf" && exit
+    else
+        /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf -g pf || \
+                echo Unexpected error adding user "pf" && exit
+    fi
 fi
 
 %pre -n %{real_name}-remote-arp-sensor
 
 if ! /usr/bin/id pf &>/dev/null; then
+    if ! /usr/bin/id -g pf &>/dev/null; then
         /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
                 echo Unexpected error adding user "pf" && exit
+    else
+        /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf -g pf || \
+                echo Unexpected error adding user "pf" && exit
+    fi
 fi
 
 %pre -n %{real_name}-config
 
 if ! /usr/bin/id pf &>/dev/null; then
+    if ! /usr/bin/id -g pf &>/dev/null; then
         /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
                 echo Unexpected error adding user "pf" && exit
+    else
+        /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf -g pf || \
+                echo Unexpected error adding user "pf" && exit
+    fi
 fi
 
 
