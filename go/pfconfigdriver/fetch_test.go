@@ -14,6 +14,12 @@ func TestFetchSocket(t *testing.T) {
 	if string(result) != expected {
 		t.Errorf("Response payload isn't correct '%s' instead of '%s'", result, expected)
 	}
+
+	result = FetchSocket(ctx, `{"method":"element", "key":"vidange","encoding":"json"}`+"\n")
+	expected = `{"error":"No valid element was found for query"}`
+	if string(result) != expected {
+		t.Errorf("Response payload isn't correct '%s' instead of '%s'", result, expected)
+	}
 }
 
 func TestFetchDecodeSocket(t *testing.T) {
@@ -39,6 +45,30 @@ func TestFetchDecodeSocket(t *testing.T) {
 	if !generalFound {
 		t.Error("pf.conf sections couldn't be fetched correctly")
 		spew.Dump(sections)
+	}
+
+	invalid := struct {
+		PfconfigMethod string `val:"hash_element"`
+		PfconfigNS     string `val:"vidange"`
+		PfconfigHashNS string `val:"vidange"`
+	}{}
+
+	err := FetchDecodeSocketStruct(ctx, &invalid)
+
+	if err == nil {
+		t.Error("Invalid struct should have created an error in pfconfig driver but it didn't")
+	}
+
+	invalid2 := struct {
+		PfconfigMethod string `val:"vidange"`
+		PfconfigNS     string `val:"vidange"`
+		PfconfigHashNS string `val:"vidange"`
+	}{}
+
+	err = FetchDecodeSocketStruct(ctx, &invalid2)
+
+	if err == nil {
+		t.Error("Invalid struct should have created an error in pfconfig driver but it didn't")
 	}
 
 }
