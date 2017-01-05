@@ -23,8 +23,13 @@ type FirewallSSO struct {
 	PfconfigHashNS string `val:"-"`
 	RoleBasedFirewallSSO
 	pfconfigdriver.TypedConfig
-	Networks     []string `json:"networks"`
-	CacheUpdates string   `json:"cache_updates"`
+	Networks     []FirewallSSONetwork `json:"networks"`
+	CacheUpdates string               `json:"cache_updates"`
+}
+
+type FirewallSSONetwork struct {
+	Ip   string `json:"ip"`
+	mask string `json:"mask"`
 }
 
 // Get the base firewall SSO object
