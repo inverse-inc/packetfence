@@ -15,9 +15,6 @@ Setups the configuration for the testing environment
 use strict;
 use warnings;
 
-
-our $PFCONFIG_TEST_PID_FILE;
-
 BEGIN {
     use test_paths;
     use pfconfig::manager;
@@ -28,8 +25,7 @@ BEGIN {
     use File::Path qw(remove_tree);
     remove_tree('/tmp/chi');
 
-    $PFCONFIG_TEST_PID_FILE = "/usr/local/pf/var/run/pfconfig-test.pid";
-    `perl -I/usr/local/pf/t -Mtest_paths /usr/local/pf/sbin/pfconfig -n pfconfig-test -s $pfconfig::constants::SOCKET_PATH -p $PFCONFIG_TEST_PID_FILE -c $pfconfig::constants::CONFIG_FILE_PATH -d`;
+    `/usr/local/pf/t/pfconfig-test`;
 
     my $manager = pfconfig::manager->new;
     $manager->expire_all;
@@ -58,7 +54,7 @@ BEGIN {
 }
 
 END {
-    my $pid = read_file($PFCONFIG_TEST_PID_FILE);
+    my $pid = read_file($test_paths::PFCONFIG_TEST_PID_FILE);
     `kill $pid`
 }
 =head1 AUTHOR

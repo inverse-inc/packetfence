@@ -17,7 +17,7 @@ use warnings;
 
 use lib "/usr/local/pf/lib";
 
-our $PFCONFIG_TEST_PID_FILE;
+our $PFCONFIG_TEST_PID_FILE = "/usr/local/pf/var/run/pfconfig-test.pid";
 our $test_dir;
 
 BEGIN {

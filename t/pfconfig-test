@@ -1,0 +1,8 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use lib '/usr/local/pf/t';
+use test_paths;
+
+`perl -I/usr/local/pf/t -Mtest_paths /usr/local/pf/sbin/pfconfig -n pfconfig-test -s $pfconfig::constants::SOCKET_PATH -p $test_paths::PFCONFIG_TEST_PID_FILE -c $pfconfig::constants::CONFIG_FILE_PATH -d`;
