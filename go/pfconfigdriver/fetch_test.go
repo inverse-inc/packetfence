@@ -10,7 +10,7 @@ var ctx = context.Background()
 
 func TestFetchSocket(t *testing.T) {
 	result := FetchSocket(ctx, `{"method":"element", "key":"resource::fqdn","encoding":"json"}`+"\n")
-	expected := `{"element":"pf-julien.inverse.ca"}`
+	expected := `{"element":"pf.pfdemo.org"}`
 	if string(result) != expected {
 		t.Errorf("Response payload isn't correct '%s' instead of '%s'", result, expected)
 	}
@@ -20,7 +20,7 @@ func TestFetchDecodeSocket(t *testing.T) {
 	general := PfConfGeneral{}
 	FetchDecodeSocketStruct(ctx, &general)
 
-	if general.Domain != "inverse.ca" {
+	if general.Domain != "pfdemo.org" {
 		t.Error("PfConfGeneral wasn't fetched and parsed correctly")
 		spew.Dump(general)
 	}

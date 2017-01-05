@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/binary"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"github.com/Sereal/Sereal/Go/sereal"
 	"io"
@@ -13,7 +14,25 @@ import (
 	//"github.com/davecgh/go-spew/spew"
 )
 
-var pfconfigSocket string = "/usr/local/pf/var/run/pfconfig.sock"
+const pfconfigSocketPath string = "/usr/local/pf/var/run/pfconfig.sock"
+
+const pfconfigTestSocketPath string = "/usr/local/pf/var/run/pfconfig-test.sock"
+
+var pfconfigSocketPathCache string
+
+// Get the pfconfig socket path depending on whether or not we're in testing
+// Since the environment is not bound to change at runtime, the socket path is computed once and cached in pfconfigSocketPathCache
+// If the socket should be re-computed, empty out pfconfigSocketPathCache and run this function
+func getPfconfigSocketPath() string {
+	if pfconfigSocketPathCache != "" {
+		// Do nothing, cache is populated, will be returned below
+	} else if flag.Lookup("test.v") == nil {
+		pfconfigSocketPathCache = pfconfigSocketPath
+	} else {
+		pfconfigSocketPathCache = pfconfigTestSocketPath
+	}
+	return pfconfigSocketPathCache
+}
 
 // Struct that encapsulates the necessary informations to do a query to pfconfig
 type Query struct {
@@ -33,7 +52,7 @@ func (q *Query) GetPayload() string {
 // Fetch data from the pfconfig socket for a string payload
 // Returns the bytes received from the socket
 func FetchSocket(ctx context.Context, payload string) []byte {
-	c, err := net.Dial("unix", pfconfigSocket)
+	c, err := net.Dial("unix", getPfconfigSocketPath())
 
 	if err != nil {
 		panic(err)
