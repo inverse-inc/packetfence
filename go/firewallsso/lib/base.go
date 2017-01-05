@@ -110,6 +110,7 @@ func (rbf *RoleBasedFirewallSSO) MatchesRole(ctx context.Context, info map[strin
 	return false
 }
 
+// Get the logger for a firewall
 func (fw *FirewallSSO) logger(ctx context.Context) log.Logger {
 	return logging.Logger(ctx, "firewall-id", fw.PfconfigHashNS)
 }
