@@ -65,7 +65,7 @@ enabled=0
 [packetfence-extra]
 name=PacketFence Extra Repository
 baseurl=http://inverse.ca/downloads/PacketFence/RHEL$releasever/extra/\$basearch
-gpgcheck=1
+gpgcheck=0
 enabled=0
 
 EOF
