@@ -17,7 +17,6 @@ use warnings;
 
 BEGIN {
     use test_paths;
-    use pfconfig::manager;
     use pfconfig::constants;
     use File::Spec::Functions qw(catfile);
     use File::Slurp qw(read_file);
@@ -26,9 +25,6 @@ BEGIN {
     remove_tree('/tmp/chi');
 
     `/usr/local/pf/t/pfconfig-test`;
-
-    my $manager = pfconfig::manager->new;
-    $manager->expire_all;
 
     use pf::db;
     # Setup database connection infos based on ENV variables if they are defined
