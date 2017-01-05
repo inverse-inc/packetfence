@@ -29,7 +29,7 @@ use Date::Parse;
 use File::Basename qw(basename);
 use File::Spec;
 use Net::Interface;
-use Net::Netmask;
+use pfconfig::objects::Net::Netmask;
 use POSIX;
 use Readonly;
 use threads;
