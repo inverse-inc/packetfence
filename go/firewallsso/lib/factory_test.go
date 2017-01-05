@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/inverse-inc/packetfence/go/logging"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"testing"
 )
 
@@ -52,4 +53,21 @@ func TestStart(t *testing.T) {
 	if result {
 		t.Error("PaloAlto SSO succeeded with invalid parameters")
 	}
+}
+
+func TestFirewallSSOFetchDecodeSocket(t *testing.T) {
+
+	firewall := FirewallSSO{}
+	firewall.PfconfigHashNS = "test"
+	pfconfigdriver.FetchDecodeSocketStruct(ctx, &firewall)
+
+	iboss := Iboss{}
+	iboss.PfconfigHashNS = "test"
+	pfconfigdriver.FetchDecodeSocketStruct(ctx, &iboss)
+
+	if iboss.Port != "8015" || iboss.Type != "Iboss" {
+		t.Error("IBoss wasn't fetched and parsed correctly")
+		spew.Dump(iboss)
+	}
+
 }
