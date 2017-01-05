@@ -829,37 +829,6 @@ if [ $1 -eq 0 ] ; then
 %endif
 fi
 
-%postun -n %{real_name}
-if [ $1 -eq 0 ]; then
-        if /usr/bin/id pf &>/dev/null; then
-               /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
-#               /usr/sbin/groupdel pf || %logmsg "Group \"pf\" could not be deleted."
-#        else
-#               /sbin/service pf condrestart &>/dev/null || :
-        fi
-fi
-
-%postun -n %{real_name}-remote-snort-sensor
-if [ $1 -eq 0 ]; then
-        if /usr/bin/id pf &>/dev/null; then
-                /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
-        fi
-fi
-
-%postun -n %{real_name}-remote-arp-sensor
-if [ $1 -eq 0 ]; then
-        if /usr/bin/id pf &>/dev/null; then
-                /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
-        fi
-fi
-
-%postun -n %{real_name}-config
-if [ $1 -eq 0 ]; then
-        if /usr/bin/id pf &>/dev/null; then
-                /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
-        fi
-fi
-
 # TODO we should simplify this file manifest to the maximum keeping treating 
 # only special attributes explicitly 
 # "To make this situation a bit easier, if the %files list contains a path 
