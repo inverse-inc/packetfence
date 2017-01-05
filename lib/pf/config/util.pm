@@ -442,7 +442,7 @@ sub filter_authentication_sources {
 
     my $realm_authentication_source = get_realm_authentication_source($username, $realm);
 
-    return @$sources unless ( defined($realm_authentication_source->{id}) && $realm_authentication_source->{id} ne "" );
+    return @$sources unless ( defined($realm_authentication_source) && defined($realm_authentication_source->{id}) && $realm_authentication_source->{id} ne "" );
 
     get_logger->info("Found authentication source '" . $realm_authentication_source->{id} . "' for realm '$realm'");
     
