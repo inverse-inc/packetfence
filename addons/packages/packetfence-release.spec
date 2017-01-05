@@ -12,7 +12,7 @@
 #  - define rev based on package revision (must be > 0 for proprer upgrade from snapshots)
 # ex:
 # cd /usr/src/redhat/
-# rpmbuild -ba --define 'version 3.3.0' --define 'dist .el5' --define 'rev 1' SPECS/packetfence.spec
+# rpmbuild -ba --define 'ver 3.3.0' --define 'dist .el5' --define 'rev 1' SPECS/packetfence.spec
 #
 #
 # BUILDING FOR A SNAPSHOT (PRE-RELEASE)
@@ -24,7 +24,7 @@
 #  - define rev to 0.<date> this way one can upgrade from snapshot to release
 # ex:
 # cd /usr/src/redhat/
-# rpmbuild -ba --define 'version 3.3.0' --define 'snapshot 1' --define 'dist .el5' --define 'rev 0.20100506' SPECS/packetfence.spec
+# rpmbuild -ba --define 'ver 3.3.0' --define 'snapshot 1' --define 'dist .el5' --define 'rev 0.20100506' SPECS/packetfence.spec
 #
 Summary: PacketFence release file and RPM repository configuration
 %global real_name packetfence-release
