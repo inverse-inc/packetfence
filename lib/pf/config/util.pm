@@ -420,7 +420,7 @@ sub get_realm_authentication_source {
     }
     elsif ( exists $ConfigRealm{default} && $realm ne "null" ) {
         if ( my $source = $ConfigRealm{default}{source} ) {
-            get_logger->info("Found authentication source '$source' for realm '$realm' through the default configuration");
+            get_logger->info("Found authentication source '$source' for realm '$realm' through the default realm");
             $realm_authentication_source = pf::authentication::getAuthenticationSource($source);
         }
     }
