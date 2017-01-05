@@ -476,7 +476,7 @@ sub radiusDisconnect {
         $send_disconnect_to = $self->{'_controllerIp'};
     }
     # On which port we have to send the CoA-Request ?
-    my $nas_port = $self->{'_controllerPort'} || '3799';
+    my $nas_port = $self->{'_disconnectPort'} || '3799';
     my $coa_port = $self->{'_coaPort'} || '1700';
     # allowing client code to override where we connect with NAS-IP-Address
     $send_disconnect_to = $add_attributes_ref->{'NAS-IP-Address'}
@@ -548,7 +548,7 @@ sub radiusDisconnect {
     } catch {
         chomp;
         $logger->warn("Unable to perform RADIUS CoA-Request on (".$self->{'_id'}."): $_");
-        $logger->error("Wrong RADIUS secret or unreachable network device (".$self->{'_id'}.")... On some Cisco Wireless Controllers you might have to set controllerPort=1700 as some versions ignore the CoA requests on port 3799") if ($_ =~ /^Timeout/);
+        $logger->error("Wrong RADIUS secret or unreachable network device (".$self->{'_id'}.")... On some Cisco Wireless Controllers you might have to set disconnectPort=1700 as some versions ignore the CoA requests on port 3799") if ($_ =~ /^Timeout/);
     };
     return if (!defined($response));
 

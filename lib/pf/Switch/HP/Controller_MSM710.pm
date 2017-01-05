@@ -189,10 +189,10 @@ sub _deauthenticateMacWithSSH {
     my $logger = $self->logger;
     my $session;
     my @addition_ops;
-    if (defined $self->{_controllerPort} && $self->{_cliTransport} eq 'SSH' ) {
+    if (defined $self->{_disconnectPort} && $self->{_cliTransport} eq 'SSH' ) {
         @addition_ops = (
             connect_options => {
-                ops => [ '-p' => $self->{_controllerPort}  ]
+                ops => [ '-p' => $self->{_disconnectPort}  ]
             }
         );
     }
