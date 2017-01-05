@@ -12,7 +12,7 @@ var ctx = logging.NewContext(context.Background())
 
 func TestInstantiate(t *testing.T) {
 	factory := NewFactory(ctx)
-	firewall := factory.Instantiate(ctx, "test")
+	firewall := factory.Instantiate(ctx, "testfw")
 
 	iboss := firewall.(*Iboss)
 
@@ -28,7 +28,7 @@ func TestInstantiate(t *testing.T) {
 
 func TestStart(t *testing.T) {
 	factory := NewFactory(ctx)
-	iboss := factory.Instantiate(ctx, "test").(*Iboss)
+	iboss := factory.Instantiate(ctx, "testfw").(*Iboss)
 
 	result := ExecuteStart(ctx, iboss, map[string]string{"ip": "1.2.3.4", "role": "default", "mac": "00:11:22:33:44:55", "username": "lzammit"}, 0)
 	if !result {
@@ -58,11 +58,11 @@ func TestStart(t *testing.T) {
 func TestFirewallSSOFetchDecodeSocket(t *testing.T) {
 
 	firewall := FirewallSSO{}
-	firewall.PfconfigHashNS = "test"
+	firewall.PfconfigHashNS = "testfw"
 	pfconfigdriver.FetchDecodeSocketStruct(ctx, &firewall)
 
 	iboss := Iboss{}
-	iboss.PfconfigHashNS = "test"
+	iboss.PfconfigHashNS = "testfw"
 	pfconfigdriver.FetchDecodeSocketStruct(ctx, &iboss)
 
 	if iboss.Port != "8015" || iboss.Type != "Iboss" {
