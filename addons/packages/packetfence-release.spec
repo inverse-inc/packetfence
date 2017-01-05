@@ -53,21 +53,21 @@ for the PacketFence RPM repository.
 ## PacketFence RPM Repository for RHEL/Centos
 [packetfence]
 name=PacketFence Repository
-baseurl=http://inverse.ca/downloads/PacketFence/RHEL$releasever/$basearch
+baseurl=http://inverse.ca/downloads/PacketFence/RHEL\$releasever/\$basearch
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-CENTOS
 gpgcheck=1
 enabled=0
 
 [packetfence-devel]
 name=PacketFence Devel Repository
-baseurl=http://inverse.ca/downloads/PacketFence/RHEL$releasever/devel/$basearch
+baseurl=http://inverse.ca/downloads/PacketFence/RHEL\$releasever/devel/\$basearch
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-CENTOS
 gpgcheck=1
 enabled=0
 
 [packetfence-extra]
 name=PacketFence Extra Repository
-baseurl=http://inverse.ca/downloads/PacketFence/RHEL$releasever/extra/\$basearch
+baseurl=http://inverse.ca/downloads/PacketFence/RHEL\$releasever/extra/\$basearch
 gpgcheck=0
 enabled=0
 
@@ -111,6 +111,7 @@ EOF
 %install
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/etc/yum.repos.d/
+mkdir -p %{buildroot}/etc/pki/rpm-gpg/
 cp /etc/yum.repos.d/packetfence.repo $RPM_BUILD_ROOT/etc/yum.repos.d/packetfence.repo
 cp /etc/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-CENTOS $RPM_BUILD_ROOT%{_sysconfdir}/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-CENTOS
 %clean
@@ -123,11 +124,13 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
-* Thu Jan 05 2017 Inverse inc. <support@inverse.ca>
+* Thu Jan 05 2017 Inverse inc. <support@inverse.ca> - 1.2-6
 - Merged changes from the build system for dynamic versioning
 - Added GPG key
 - Activated gpgcheck
+
 * Thu May 01 2014 Inverse inc. <support@inverse.ca>
 - fixed variable issue
+
 * Fri Apr 25 2014 Inverse inc. <support@inverse.ca>
 - Release file created.
