@@ -35,6 +35,7 @@ License: GPL
 Group: System Environment/Base
 URL: http://www.packetfence.org
 BuildRoot: %{_tmppath}/%{real_name}-%{version}-%{rev}-root
+BuildArch: noarch
 # disables the creation of the debug package for our setuid C wrapper
 %define debug_package %{nil}
 
