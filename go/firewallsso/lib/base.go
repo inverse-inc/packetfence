@@ -30,6 +30,7 @@ type FirewallSSO struct {
 	CacheUpdates string                `json:"cache_updates"`
 }
 
+// Builds all networks, meant to be called after the data is loaded into the struct attributes
 func (fw *FirewallSSO) init(ctx context.Context) error {
 	for _, net := range fw.Networks {
 		err := net.init(ctx)
@@ -40,12 +41,14 @@ func (fw *FirewallSSO) init(ctx context.Context) error {
 	return nil
 }
 
+// Structure representing a network part of a firewall
 type FirewallSSONetwork struct {
 	Cidr  string
 	Ip    net.IP
 	IpNet *net.IPNet
 }
 
+// Builds Ip and IpNet based on the Cidr in the struct
 func (fwn *FirewallSSONetwork) init(ctx context.Context) error {
 	var err error
 	fwn.Ip, fwn.IpNet, err = net.ParseCIDR(fwn.Cidr)
@@ -70,6 +73,9 @@ func (fw *FirewallSSO) Start(ctx context.Context, info map[string]string, timeou
 	return true
 }
 
+// Check if info["ip"] is part of the configured networks if any
+// If there isn't any network, all networks are allowed
+// Otherwise, if the IP is part of one of the networks, this succeeds, otherwise it fails
 func (fw *FirewallSSO) MatchesNetwork(ctx context.Context, info map[string]string) bool {
 	if len(fw.Networks) == 0 {
 		logging.Logger(ctx).Debug(fmt.Sprintf("Firewall %s has no networks defined. Allowing all networks", fw.PfconfigHashNS))
@@ -103,7 +109,7 @@ func (rbf *RoleBasedFirewallSSO) MatchesRole(ctx context.Context, info map[strin
 }
 
 // Execute an SSO request on the specified firewall
-// Makes sure to call FirewallSSO.Start and to validate the role if necessary
+// Makes sure to call FirewallSSO.Start and to validate the network and role if necessary
 func ExecuteStart(ctx context.Context, fw FirewallSSOInt, info map[string]string, timeout int) bool {
 	if fw.IsRoleBased(ctx) && !fw.MatchesRole(ctx, info) {
 		logging.Logger(ctx).Info(fmt.Sprintf("Not sending SSO for user device %s since it doesn't match the role", info["role"]))
