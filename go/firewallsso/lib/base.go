@@ -80,17 +80,17 @@ func (fw *FirewallSSO) Start(ctx context.Context, info map[string]string, timeou
 // Otherwise, if the IP is part of one of the networks, this succeeds, otherwise it fails
 func (fw *FirewallSSO) MatchesNetwork(ctx context.Context, info map[string]string) bool {
 	if len(fw.Networks) == 0 {
-		fw.logger(ctx).Debug(fmt.Sprintf("Firewall %s has no networks defined. Allowing all networks", fw.PfconfigHashNS))
+		fw.logger(ctx).Debug("No network defined. Allowing all networks")
 		return true
 	}
 	ip := net.ParseIP(info["ip"])
 	for _, net := range fw.Networks {
 		if net.IpNet.Contains(ip) {
-			fw.logger(ctx).Debug(fmt.Sprintf("%s matches network %s for firewall %s", ip, net.Cidr, fw.PfconfigHashNS))
+			fw.logger(ctx).Debug(fmt.Sprintf("%s matches network %s", ip, net.Cidr))
 			return true
 		}
 	}
-	fw.logger(ctx).Debug(fmt.Sprintf("%s doesn't match any configured network in firewall %s", ip, fw.PfconfigHashNS))
+	fw.logger(ctx).Debug(fmt.Sprintf("%s doesn't match any configured network", ip))
 	return false
 }
 
