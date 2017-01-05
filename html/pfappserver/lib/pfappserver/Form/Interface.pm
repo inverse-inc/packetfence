@@ -150,6 +150,15 @@ sub validate {
             splice @{$self->value->{additional_listening_daemons}}, $index, 1;
         }
     }
+    # Remove double radius type if exist
+    @types = qw(radius);
+    if ( defined $self->value->{type} && any { $_ eq $self->value->{type} } @types ) {
+        my %daemons = map { $_ => 1 } @{$self->value->{additional_listening_daemons}};
+        if ( exists($daemons{'radius'}) ) {
+            my $index = firstidx { $_ eq 'radius' } @{$self->value->{additional_listening_daemons}};
+            splice @{$self->value->{additional_listening_daemons}}, $index, 1;
+        }
+    }
 }
 
 =head1 COPYRIGHT

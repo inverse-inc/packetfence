@@ -260,7 +260,6 @@ sub get {
         }
         $result->{"$interface"}->{'type'} = $self->getType($interface_ref);
     }
-
     return $result;
 }
 
@@ -394,7 +393,6 @@ sub getType {
         $name = $interface_ref->{name};
         $name .= '.' . $interface_ref->{vlan} if ($interface_ref->{vlan});
         ($status, $interface) = $models->{interface}->read($name);
-
         # if the interface is not defined in pf.conf
         if ( is_error($status) ) {
             $type = 'none';
@@ -402,9 +400,9 @@ sub getType {
         # rely on pf.conf's info
         else {
             $type = $interface->{type};
-            $type = ($type =~ /management|managed/i) ? 'management' : 'other';
-            $type .= ($interface->{type} =~ /portal/i) ? ',portal' : '';
-            $type .= ($interface->{type} =~ /radius/i) ? ',radius' : '';
+            if ($type !~ /radius/i && $type !~ /portal/i) {
+                $type = ($type =~ /management|managed/i) ? 'management' : 'other';
+            }
         }
     }
 
@@ -446,7 +444,7 @@ sub setType {
                                     $self->_prepare_interface_for_pfconf($interface, $interface_ref, $type));
 
         # Update networks.conf
-        if ( $type =~ /management|portal|radius/ ) {
+        if ( $type =~ /management|portal|^radius$/ ) {
             # management interfaces must not appear in networks.conf
             $models->{network}->remove($interface_ref->{network}) if ($interface_ref->{network});
         }
@@ -633,6 +631,9 @@ sub _prepare_interface_for_pfconf {
     if ($type =~ /^vlan/i) {
         $int_config_ref->{'type'} = 'internal';
         $int_config_ref->{'enforcement'} = 'vlan';
+        if ($type =~ /radius/i) {
+            $int_config_ref->{'type'} .= ",radius";
+        }
     }
     elsif ($type eq "dns-enforcement") {
         $int_config_ref->{'type'} = 'internal';
@@ -645,6 +646,14 @@ sub _prepare_interface_for_pfconf {
     elsif ($type =~ /^inlinel\d/i) {
         $int_config_ref->{'type'} = 'internal';
         $int_config_ref->{'enforcement'} = $type;
+    }
+    elsif ($type =~ /^radius$/i) {
+        $int_config_ref->{'type'} = 'radius';
+        $int_config_ref->{'enforcement'} = undef;
+    }
+    elsif ($type =~ /^portal$/i) {
+        $int_config_ref->{'type'} = 'portal';
+        $int_config_ref->{'enforcement'} = undef;
     }
     else {
         if($int_model->{'high_availability'}) {

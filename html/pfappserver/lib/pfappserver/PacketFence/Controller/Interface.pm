@@ -233,13 +233,17 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('INTERFACES_RE
     my $interfaces = $c->model('Interface')->get('all');
     my $types = $c->model('Enforcement')->getAvailableTypes($mechanism, $interface, $interfaces);
 
-    if ( $interface_ref->{$interface}->{'type'} =~ 'portal' ) {
-        push @{$interface_ref->{$interface}->{'additional_listening_daemons'}}, "portal";
-        $interface_ref->{$interface}->{'type'} =~ s/,portal//;
+    if ( $interface_ref->{$interface}->{'type'} =~ 'portal') {
+        if ($interface_ref->{$interface}->{'type'} !~ /^portal/i ) {
+            push @{$interface_ref->{$interface}->{'additional_listening_daemons'}}, "portal";
+            $interface_ref->{$interface}->{'type'} =~ s/,portal//;
+        }
     }
-    if ( $interface_ref->{$interface}->{'type'} =~ 'radius' ) {
-        push @{$interface_ref->{$interface}->{'additional_listening_daemons'}}, "radius";
-        $interface_ref->{$interface}->{'type'} =~ s/,radius//;
+    if ( $interface_ref->{$interface}->{'type'} =~ 'radius') {
+        if ($interface_ref->{$interface}->{'type'} !~ /^radius/i ) {
+            push @{$interface_ref->{$interface}->{'additional_listening_daemons'}}, "radius";
+            $interface_ref->{$interface}->{'type'} =~ s/,radius//;
+        }
     }
 
     # Build form
