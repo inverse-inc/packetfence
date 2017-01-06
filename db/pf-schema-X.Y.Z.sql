@@ -367,12 +367,6 @@ CREATE TABLE `traplog` (
   KEY `parseTime` (`parseTime`)
 ) ENGINE=InnoDB;
 
-CREATE TABLE `configfile` (
-  `filename` varchar(255) NOT NULL,
-  `filecontent` text NOT NULL,
-  `lastmodified` datetime NOT NULL
-) ENGINE=InnoDB default CHARSET=latin1;
-
 --
 -- Table structure for table `password`
 --

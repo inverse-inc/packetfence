@@ -41,7 +41,6 @@ BEGIN {
     use_ok('pf::action');
     use_ok('pf::billing');
     use_ok('pf::class');
-    use_ok('pf::configfile');
     use_ok('pf::email_activation');
     use_ok('pf::freeradius');
     use_ok('pf::ifoctetslog');
@@ -65,7 +64,6 @@ my @data_modules = qw(
     pf::action
     pf::billing
     pf::class
-    pf::configfile
     pf::email_activation
     pf::freeradius
     pf::ifoctetslog

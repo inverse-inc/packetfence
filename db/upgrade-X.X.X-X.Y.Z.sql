@@ -6,6 +6,8 @@
 -- Setting the major/minor/sub-minor version of the DB
 --
 
+DROP TABLE configfile;
+
 SET @MAJOR_VERSION = 6;
 SET @MINOR_VERSION = 4;
 SET @SUBMINOR_VERSION = 9;
