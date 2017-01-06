@@ -74,11 +74,13 @@ sub handle {
     my $req = Apache2::Request->new($r);
     my $uri = $r->uri;
 
-    my $table = $req->param;
+    my $params = $req->param;
+    my $headers_in = $r->headers_in();
 
     my $args = {
         uri => $uri,
-        request => { %$table },
+        params => { %$params },
+        headers => { %$headers_in },
     };
 
     my $filter = pf::access_filter::switch->new;
