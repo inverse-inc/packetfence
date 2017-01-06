@@ -74,6 +74,8 @@ sub handle {
     my $req = Apache2::Request->new($r);
     my $uri = $r->uri;
 
+    my $table = $req->param;
+
     my $args = {
         uri => $uri,
         request => { %$table },
