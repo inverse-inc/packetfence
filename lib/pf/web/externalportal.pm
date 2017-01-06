@@ -69,6 +69,8 @@ sub handle {
     my ( $self, $r ) = @_;
     my $logger = get_logger;
 
+    my $switch_type;
+
     my $req = Apache2::Request->new($r);
     my $uri = $r->uri;
 

@@ -27,8 +27,8 @@ sub filterRule {
     my ($self, $rule, $args) = @_;
     if(defined $rule) {
         if (defined($rule->{'switch'}) && $rule->{'switch'} ne '') {
-            my $portal = $rule->{'switch'};
-            return $portal;
+            my $switch = $rule->{'switch'};
+            return $switch;
         }
     }
     return undef;
