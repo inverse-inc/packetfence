@@ -14,8 +14,8 @@ use strict;
 use warnings;
 
 use base qw(pf::access_filter);
-tie our %ConfigSwitchFilters, 'pfconfig::cached_hash', 'config::PortalFilters';
-tie our %PortalFilterEngineScopes, 'pfconfig::cached_hash', 'FilterEngine::PortalScopes';
+tie our %ConfigSwitchFilters, 'pfconfig::cached_hash', 'config::SwitchFilters';
+tie our %SwitchFilterEngineScopes, 'pfconfig::cached_hash', 'FilterEngine::SwitchScopes';
 
 =head2 filterRule
 
