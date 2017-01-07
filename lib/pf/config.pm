@@ -797,15 +797,15 @@ sub get_network_type {
     if (!defined($type)) {
         # not defined
         return;
-    } elsif ($type =~ /^$NET_TYPE_VLAN_REG$/i) {
+    } elsif ($type =~ /^$NET_TYPE_VLAN_REG/i) {
         # vlan-registration
         return $NET_TYPE_VLAN_REG;
 
-    } elsif ($type =~ /^$NET_TYPE_VLAN_ISOL$/i) {
+    } elsif ($type =~ /^$NET_TYPE_VLAN_ISOL/i) {
         # vlan-isolation
         return $NET_TYPE_VLAN_ISOL;
 
-    } elsif ( $type =~ /^$NET_TYPE_DNS_ENFORCEMENT$/i ) {
+    } elsif ( $type =~ /^$NET_TYPE_DNS_ENFORCEMENT/i ) {
 
         # dns-enforcement
         return $NET_TYPE_DNS_ENFORCEMENT;
