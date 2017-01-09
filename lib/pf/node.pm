@@ -314,8 +314,11 @@ sub node_db_prepare {
     $node_statements->{'node_expire_lastarp_sql'} = get_db_handle()->prepare(
         qq [ select mac from node where unix_timestamp(last_arp) < (unix_timestamp(now()) - ?) and last_arp!=0 ]);
 
-    $node_statements->{'node_expire_lastdhcp_sql'} = get_db_handle()->prepare(
-        qq [ select mac from node where unix_timestamp(last_dhcp) < (unix_timestamp(now()) - ?) and last_dhcp !=0 and status="$STATUS_UNREGISTERED" ]);
+    $node_statements->{'node_expire_lastseen_sql'} = get_db_handle()->prepare(
+        qq [ select mac from node where unix_timestamp(last_seen) < (unix_timestamp(now()) - ?) and last_seen!="0000-00-00 00:00:00" and status="$STATUS_UNREGISTERED" ]);
+
+    $node_statements->{'node_inactive_lastseen_sql'} = get_db_handle()->prepare(
+        qq [ select mac from node where unix_timestamp(last_seen) < (unix_timestamp(now()) - ?) and last_seen!="0000-00-00 00:00:00" and status="$STATUS_REGISTERED" ]);
 
     $node_statements->{'node_is_unregistered_sql'} = get_db_handle()->prepare(
         qq[
@@ -1145,9 +1148,9 @@ sub node_expire_lastarp {
     return db_data(NODE, $node_statements, 'node_expire_lastarp_sql', $time);
 }
 
-sub node_expire_lastdhcp {
+sub node_expire_lastseen {
     my ($time) = @_;
-    return db_data(NODE, $node_statements, 'node_expire_lastdhcp_sql', $time);
+    return db_data(NODE, $node_statements, 'node_expire_lastseen_sql', $time);
 }
 
 sub node_cleanup {
@@ -1161,7 +1164,7 @@ sub node_cleanup {
         return;
     }
 
-    foreach my $rowVlan ( node_expire_lastdhcp($time) ) {
+    foreach my $rowVlan ( node_expire_lastseen($time) ) {
         my $mac = $rowVlan->{'mac'};
         require pf::locationlog;
         if (pf::locationlog::locationlog_update_end_mac($mac)) {
