@@ -223,9 +223,9 @@ sub registertasks  {
         'node cleanup',
         'node_cleanup_interval',
         sub {
-            node_cleanup( $Config{'maintenance'}{'node_cleanup_window'} );
+            node_cleanup( $Config{'maintenance'}{'node_cleanup_window'}, $Config{'maintenance'}{'node_unreg_window'} );
         }
-    ) if ( $Config{'maintenance'}{'node_cleanup_window'} );
+    ) if ( $Config{'maintenance'}{'node_cleanup_window'} || $Config{'maintenance'}{'node_unreg_window'} );
 
     register_task(
         'person cleanup',

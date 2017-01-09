@@ -1153,25 +1153,43 @@ sub node_expire_lastseen {
     return db_data(NODE, $node_statements, 'node_expire_lastseen_sql', $time);
 }
 
+sub node_inactive_lastseen {
+    my ($time) = @_;
+    return db_data(NODE, $node_statements, 'node_inactive_lastseen_sql', $time);
+}
+
 sub node_cleanup {
     my $timer = pf::StatsD::Timer->new;
-    my ($time) = @_;
+    my ($delete_time, $unreg_time) = @_;
     my $logger = get_logger();
-    $logger->debug("calling node_cleanup with time=$time");
+    $logger->debug("calling node_cleanup with delete_time=$delete_time unreg_time=$unreg_time");
     
-    if($time eq "0") {
-        $logger->debug("Not deleting because the window is 0");
-        return;
-    }
-
-    foreach my $rowVlan ( node_expire_lastseen($time) ) {
-        my $mac = $rowVlan->{'mac'};
-        require pf::locationlog;
-        if (pf::locationlog::locationlog_update_end_mac($mac)) {
-            $logger->info("mac $mac not seen for $time seconds, deleting");
-           node_delete($mac);
+    if($delete_time ne "0") {
+        foreach my $row ( node_expire_lastseen($delete_time) ) {
+            my $mac = $row->{'mac'};
+            require pf::locationlog;
+            if (pf::locationlog::locationlog_update_end_mac($mac)) {
+                $logger->info("mac $mac not seen for $delete_time seconds, deleting");
+               node_delete($mac);
+            }
         }
     }
+    else {
+        $logger->debug("Not deleting because the window is 0");
+    }
+
+    if($unreg_time ne "0") {
+        foreach my $row ( node_inactive_lastseen($unreg_time) ) {
+            my $mac = $row->{'mac'};
+            $logger->info("mac $mac not seen for $unreg_time seconds, unregistering");
+            node_deregister($mac);
+            # not reevaluating access since the node is be inactive
+        }
+    }
+    else {
+        $logger->debug("Not unregistering because the window is 0");
+    }
+
     return (0);
 }
 
