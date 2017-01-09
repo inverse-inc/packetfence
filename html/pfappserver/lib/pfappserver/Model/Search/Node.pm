@@ -100,6 +100,7 @@ sub make_builder {
             L_("IF(detect_date = '0000-00-00 00:00:00', '', detect_date)", 'detect_date'),
             L_("IF(regdate = '0000-00-00 00:00:00', '', regdate)", 'regdate'),
             L_("IF(unregdate = '0000-00-00 00:00:00', '', unregdate)", 'unregdate'),
+            L_("IF(last_seen = '0000-00-00 00:00:00', '', last_seen)", 'last_seen'),
             L_("IFNULL(node_category.name, '')", 'category'),
             L_("IFNULL(node_category_bypass_role.name, '')", 'bypass_role'),
             L_("IFNULL(device_class, ' ')", 'device_class'),

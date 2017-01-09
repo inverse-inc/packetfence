@@ -32,6 +32,7 @@
             [% form.field('category_id').render | none %]
             [% form.field('regdate').render | none %]
             [% form.field('unregdate').render | none %]
+            [% form.field('last_seen').render | none %]
             <div class="control-group">
               <label class="control-label">[% l('Access Time Balance') %]</label>
               <div class="controls">[% form.field('time_balance').render_element | none %] [% l('seconds') %]</div>

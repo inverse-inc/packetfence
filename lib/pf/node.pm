@@ -159,7 +159,7 @@ sub node_db_prepare {
             IF(ISNULL(nr.name), '', nr.name) as bypass_role,
             detect_date, regdate, unregdate, lastskip, time_balance, bandwidth_balance,
             user_agent, computername, dhcp_fingerprint, dhcp_vendor, dhcp6_fingerprint, dhcp6_enterprise, device_type, device_class, device_version, device_score,
-            last_arp, last_dhcp,
+            last_arp, last_dhcp, last_seen,
             node.notes, autoreg, sessionid, machine_account
         FROM node
             LEFT JOIN node_category as nr on node.bypass_role_id = nr.category_id
@@ -175,7 +175,7 @@ sub node_db_prepare {
             IF(ISNULL(nr.name), '', nr.name) as bypass_role ,
             detect_date, regdate, unregdate, lastskip,
             user_agent, computername, device_class AS dhcp_fingerprint,
-            last_arp, last_dhcp,
+            last_arp, last_dhcp, last_seen,
             node.notes, autoreg, sessionid, machine_account
         FROM node
             LEFT JOIN node_category as nr on node.bypass_role_id = nr.category_id
@@ -216,7 +216,7 @@ sub node_db_prepare {
             IF(ISNULL(nr.name), '', nr.name) as bypass_role ,
             node.detect_date, node.regdate, node.unregdate, node.lastskip, node.time_balance, node.bandwidth_balance,
             node.user_agent, node.computername, node.dhcp_fingerprint, node.dhcp_vendor, node.dhcp6_fingerprint, node.dhcp6_enterprise, node.device_type, node.device_class, node.device_version, node.device_score,
-            node.last_arp, node.last_dhcp,
+            node.last_arp, node.last_dhcp, node.last_seen,
             node.notes, node.autoreg, node.sessionid, node.machine_account,
             UNIX_TIMESTAMP(node.regdate) AS regdate_timestamp,
             UNIX_TIMESTAMP(node.unregdate) AS unregdate_timestamp
@@ -282,7 +282,7 @@ sub node_db_prepare {
             IF(node.unregdate = '0000-00-00 00:00:00', '', node.unregdate) as unregdate,
             IF(node.lastskip = '0000-00-00 00:00:00', '', node.lastskip) as lastskip,
             node.user_agent, node.computername, device_class AS dhcp_fingerprint,
-            node.last_arp, node.last_dhcp,
+            node.last_arp, node.last_dhcp, node.last_seen,
             locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan,
             IF(ISNULL(locationlog.connection_type), '', locationlog.connection_type) as last_connection_type,
             locationlog.dot1x_username as last_dot1x_username, locationlog.ssid as last_ssid,
