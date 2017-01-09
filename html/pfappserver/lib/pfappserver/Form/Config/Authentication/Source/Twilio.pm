@@ -23,7 +23,6 @@ with 'pfappserver::Base::Form::Role::Help';
 has_field 'api_url' => (
     type        => 'Text',
     label       => 'API URL',
-    required    => 1,
     tags        => {
         after_element   => \&help,
         help            => 'POST URL of the Twilio API',
@@ -57,6 +56,7 @@ has_field 'auth_token' => (
 has_field 'twilio_phone_number' => (
     type            => 'Text',
     label           => 'Phone Number (From)',
+    required        => 1,
     tags            => {
         after_element   => \&help,
         help            => 'Twilio provided phone number which will be used as a From',
