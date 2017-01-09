@@ -19,7 +19,7 @@ has '+type'                     => (default => 'Twilio');
 has '+class'                    => (isa => 'Str', is => 'ro', default => 'external');
 has '+dynamic_routing_module'   => (is => 'rw', default => 'Authentication::SMS');
 has 'can_send_sms'              => (isa => 'Bool', is => 'ro', default => $TRUE);
-has 'api_url'                   => (isa=> 'Maybe[Str]', is => 'rw', default => 'https://api.twilio.com/2010-04-01/Accounts/$account_sid/Messages.json');
+has 'api_url'                   => (isa => 'Maybe[Str]', is => 'rw', default => 'https://api.twilio.com/2010-04-01/Accounts/$account_sid/Messages.json');
 has 'account_sid'               => (isa => 'Str', is => 'rw');
 has 'auth_token'                => (isa => 'Str', is => 'rw');
 has 'twilio_phone_number'       => (isa => 'Str', is => 'rw', default => '+15555551234');
