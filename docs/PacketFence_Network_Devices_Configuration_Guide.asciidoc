@@ -3991,8 +3991,6 @@ to connect via CLI, and run the *snmp-server trap disable <trapname>* command.
 WebAuth
 +++++++
 
-To configure the Aruba in webauth there will be few steps. 
-
 First of all you will need to configure a guest VLAN.
 
 image::docs/images/aruba-config-guest-vlan.png[scaledwidth="100%",alt="Guest VLAN"]
@@ -4017,7 +4015,7 @@ image::docs/images/aruba-config-coa.png[scaledwidth="100%",alt="RADIUS CoA serve
   aaa rfc-3576-server "192.168.1.5"
   key useStrongerSecret
 
-Next you will need to create the policy that will redirect user to the PacketFence captive-portal while not authenticated. Go to `Security > Authentication > L3 Authenticaion > Captive Portal Authentication Profile`.
+Next you will need to create the policy that will redirect user to the PacketFence captive portal while not authenticated. Go to `Security > Authentication > L3 Authenticaion > Captive Portal Authentication Profile`.
 
 image::docs/images/aruba-l3-auth1.png[scaledwidth="100%",alt="Layer 3 profile"]
 image::docs/images/aruba-l3-auth2.png[scaledwidth="100%",alt="Layer 3 profile 2"]
@@ -4029,9 +4027,7 @@ image::docs/images/aruba-l3-auth2.png[scaledwidth="100%",alt="Layer 3 profile 2"
   login-page https://192.168.1.5/Aruba
   switchip-in-redirection-url
 
-Now create the policy for the guest access, for instance internet only.
-
-You can add as many policies as you want, manage the way you attribute them from PacketFence.
+Now create the policy for the guest access, for instance Internet only.
 
 Add the authentication for the Captive Portal Profile via `Security > Authentication > L3 Authentication > Captive Portal Authentication Profile > Server Group`:
 
@@ -4114,9 +4110,9 @@ image::docs/images/aruba-ap-config11.png[scaledwidth="100%",alt="Config AP 11"]
 
 image::docs/images/aruba-secondary-controller.png[scaledwidth="100%",alt="Secondary controller configuration"]
 
-The next step will be to configure the Webauth in PacketFence, add the switch with the model choice `Aruba Network`, 
+The next step will be to configure the Aruba WiFi controller for WebAuth in PacketFence, add the switch with the model choice `Aruba Network`, 
 
-Tick the case `External Portal Enforcement`, in the Roles section, chosse `Role by Switch Role`, as the registration role, enter your default role: `packetfence-portal` and choose the policy matching roles, for instance guest: `internet-only`.
+Tick the case `External Portal Enforcement`, in the Roles section, choose `Role by Switch Role`, as the registration role, enter your default role: `packetfence-portal` and choose the policy matching roles, for instance guest: `internet-only`.
 
 
 Aruba Controller 200
