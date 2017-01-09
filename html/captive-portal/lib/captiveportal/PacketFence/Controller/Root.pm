@@ -66,6 +66,8 @@ sub auto : Private {
 
 =head2 updateNodeLastSeen
 
+Update node.last_seen
+
 =cut
 
 sub updateNodeLastSeen :Private {
