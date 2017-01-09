@@ -124,11 +124,12 @@ Get vhosts
 
 sub vhosts {
     my ($self) = @_;
-    return [
-        map {
-            defined $_->{'Tvip'} && $_->{'Tvip'} ne '' ? $_->{'Tvip'} : $_->{'Tip'}
-        } uniq @internal_nets, @portal_ints
-    ];
+    return
+        [
+            uniq map {
+                defined $_->{'Tvip'} && $_->{'Tvip'} ne '' ? $_->{'Tvip'} : $_->{'Tip'}
+            } @internal_nets, @portal_ints
+        ];
 }
 
 =head2 routedNets
