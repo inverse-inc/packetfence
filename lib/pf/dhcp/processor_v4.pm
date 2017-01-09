@@ -685,7 +685,8 @@ sub update_iplog {
         return;
     }
 
-    ### record last-seen
+    # update last_seen of MAC address as some activity from it has been seen
+    node_update_last_seen($srcmac);
 
     # we have to check directly in the DB since the OMAPI already contains the current lease info
     my $oldip  = pf::ip4log::_mac2ip_sql($srcmac);

@@ -747,7 +747,8 @@ sub parseTrap {
                     $trapConnectionType = $trapHashRef->{'trapConnectionType'};
                 }
 
-                ### record last-seen
+                # update last_seen of MAC address as some activity from it has been seen
+                node_update_last_seen($trapMac);
 
                 return "$switch_id|$switch_port|$trapType|$trapVlan|$trapOperation|$trapMac|$trapSSID|$trapClientUserName|$trapIfIndex|$trapConnectionType";
             } else {

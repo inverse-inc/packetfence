@@ -59,9 +59,19 @@ sub auto : Private {
     $c->forward('setupDynamicRouting');
     $c->forward('checkReadonly');
     $c->forward('checkForParking');
-    ### record last-seen
+    $c->forward('updateNodeLastSeen');
 
     return 1;
+}
+
+=head2 updateNodeLastSeen
+
+=cut
+
+sub updateNodeLastSeen :Private {
+    my ($self, $c) = @_;
+    # update last_seen of MAC address as some activity from it has been seen
+    node_update_last_seen($c->portalSession->clientMac);
 }
 
 =head2 checkForParking

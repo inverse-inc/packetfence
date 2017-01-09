@@ -1437,8 +1437,11 @@ Update the last_seen attribute of a node to now
 
 sub node_update_last_seen {
     my ($mac) = @_;
-    db_query_execute(NODE, $node_statements, 'node_update_last_seen_sql', $mac);
-    node_remove_from_cache($mac);
+    $mac = clean_mac($mac);
+    if($mac) {
+        db_query_execute(NODE, $node_statements, 'node_update_last_seen_sql', $mac);
+        node_remove_from_cache($mac);
+    }
 }
 
 =back
