@@ -161,6 +161,8 @@ sub authorize {
         radius_request => $radius_request,
     };
 
+    ### record last-seen
+
     $logger->trace( sub { "received a radius authorization request with parameters: ".
         "nas port type => $args->{nas_port_type}, switch_ip => ($switch_ip), EAP-Type => $args->{eap_type}, ".
         "mac => [$mac], port => $port, username => \"$user_name\"" });
@@ -340,6 +342,8 @@ sub accounting {
     }
 
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id) = $switch->parseRequest($radius_request);
+
+    ## record last-seen
 
     my $isStart   = $radius_request->{'Acct-Status-Type'}  == $ACCOUNTING::START;
     my $isStop   = $radius_request->{'Acct-Status-Type'}  == $ACCOUNTING::STOP;

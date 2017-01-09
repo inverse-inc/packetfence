@@ -55,7 +55,6 @@ sub processFingerbank {
     pf::node::node_modify($fingerbank_args->{'mac'}, %{$fingerbank_args});
 }
 
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

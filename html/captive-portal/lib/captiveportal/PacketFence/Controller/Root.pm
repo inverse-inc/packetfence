@@ -59,6 +59,7 @@ sub auto : Private {
     $c->forward('setupDynamicRouting');
     $c->forward('checkReadonly');
     $c->forward('checkForParking');
+    ### record last-seen
 
     return 1;
 }
