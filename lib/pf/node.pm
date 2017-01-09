@@ -317,7 +317,7 @@ sub node_db_prepare {
     $node_statements->{'node_expire_lastseen_sql'} = get_db_handle()->prepare(
         qq [ select mac from node where unix_timestamp(last_seen) < (unix_timestamp(now()) - ?) and last_seen!="0000-00-00 00:00:00" and status="$STATUS_UNREGISTERED" ]);
 
-    $node_statements->{'node_inactive_lastseen_sql'} = get_db_handle()->prepare(
+    $node_statements->{'node_unreg_lastseen_sql'} = get_db_handle()->prepare(
         qq [ select mac from node where unix_timestamp(last_seen) < (unix_timestamp(now()) - ?) and last_seen!="0000-00-00 00:00:00" and status="$STATUS_REGISTERED" ]);
 
     $node_statements->{'node_is_unregistered_sql'} = get_db_handle()->prepare(
@@ -1148,15 +1148,33 @@ sub node_expire_lastarp {
     return db_data(NODE, $node_statements, 'node_expire_lastarp_sql', $time);
 }
 
+=item node_expire_lastseen
+
+Get the nodes that should be deleted based on the last_seen column 
+
+=cut
+
 sub node_expire_lastseen {
     my ($time) = @_;
     return db_data(NODE, $node_statements, 'node_expire_lastseen_sql', $time);
 }
 
-sub node_inactive_lastseen {
+=item node_unreg_lastseen
+
+Get the nodes that should be unregistered based on the last_seen column 
+
+=cut
+
+sub node_unreg_lastseen {
     my ($time) = @_;
-    return db_data(NODE, $node_statements, 'node_inactive_lastseen_sql', $time);
+    return db_data(NODE, $node_statements, 'node_unreg_lastseen_sql', $time);
 }
+
+=item node_cleanup
+
+Cleanup nodes that should be deleted or unregistered based on the maintenance parameters
+
+=cut
 
 sub node_cleanup {
     my $timer = pf::StatsD::Timer->new;
@@ -1179,7 +1197,7 @@ sub node_cleanup {
     }
 
     if($unreg_time ne "0") {
-        foreach my $row ( node_inactive_lastseen($unreg_time) ) {
+        foreach my $row ( node_unreg_lastseen($unreg_time) ) {
             my $mac = $row->{'mac'};
             $logger->info("mac $mac not seen for $unreg_time seconds, unregistering");
             node_deregister($mac);
