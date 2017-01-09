@@ -747,9 +747,6 @@ sub parseTrap {
                     $trapConnectionType = $trapHashRef->{'trapConnectionType'};
                 }
 
-                # update last_seen of MAC address as some activity from it has been seen
-                node_update_last_seen($trapMac);
-
                 return "$switch_id|$switch_port|$trapType|$trapVlan|$trapOperation|$trapMac|$trapSSID|$trapClientUserName|$trapIfIndex|$trapConnectionType";
             } else {
                 $logger->debug("ignoring unknown trap: $trapLine");
@@ -949,6 +946,10 @@ sub handleTrap {
     my $role_obj = new pf::role::custom();
 
     # }}}2
+
+    # update last_seen of MAC address as some activity from it has been seen
+    node_update_last_seen($trapMac);
+
 
     # test if act on this trap {{{2
     my $switch = getSwitch($switch_id);
