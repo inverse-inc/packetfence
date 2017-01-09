@@ -1131,7 +1131,8 @@ radius_audit_log_cleanup_timeout=10s
 #
 # maintenance.node_cleanup_window
 #
-# How long can an unregistered node be inactive on the network before being deleted
+# How long can an unregistered node be inactive on the network before being deleted.
+# This shouldn't be used if you are using port-security
 node_cleanup_window=0D
 #
 # maintenance.node_unreg_window
