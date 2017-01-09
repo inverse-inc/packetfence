@@ -79,6 +79,7 @@ BEGIN {
         $STATUS_REGISTERED
         node_last_reg
         node_defaults
+        node_update_last_seen
     );
 }
 
@@ -130,9 +131,9 @@ sub node_db_prepare {
             detect_date, regdate, unregdate, lastskip,
             user_agent, computername, dhcp_fingerprint,
             last_arp, last_dhcp,
-            notes, autoreg, sessionid
+            notes, autoreg, sessionid, last_seen
         ) VALUES (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW()
         )
     ]
     );
@@ -386,6 +387,11 @@ sub node_db_prepare {
 
     $node_statements->{'node_update_bandwidth_sql'} = get_db_handle()->prepare(qq[
         UPDATE node SET bandwidth_balance = COALESCE(bandwidth_balance, 0) + ?
+        WHERE mac = ?
+    ]);
+
+    $node_statements->{'node_update_last_seen_sql'} = get_db_handle()->prepare(qq[
+        UPDATE node SET last_seen = NOW()
         WHERE mac = ?
     ]);
 
@@ -1421,6 +1427,18 @@ sub node_defaults {
     my $node_info = pf::dal::node->_defaults;
     $node_info->{mac} = $mac;
     return $node_info;
+}
+
+=item node_update_last_seen 
+
+Update the last_seen attribute of a node to now
+
+=cut
+
+sub node_update_last_seen {
+    my ($mac) = @_;
+    db_query_execute(NODE, $node_statements, 'node_update_last_seen_sql', $mac);
+    node_remove_from_cache($mac);
 }
 
 =back

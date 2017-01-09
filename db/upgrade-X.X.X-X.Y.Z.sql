@@ -149,3 +149,9 @@ CREATE TABLE `chi_cache` (
   KEY chi_cache_expires_at (expires_at)
 );
 
+--
+-- Add last_seen column to node table
+--
+
+ALTER TABLE node ADD last_seen DATETIME NOT NULL DEFAULT "0000-00-00 00:00:00";
+
