@@ -17,7 +17,7 @@ with 'pf::Authentication::CreateLocalAccountRole';
 
 has '+class'        => (default => 'external');
 has '+type'         => (default => 'SMS');
-has 'can_send_sms'  => (isa => 'Bool', is => 'ro', default => $FALSE);
+has 'can_send_sms'  => (isa => 'Bool', is => 'rw', default => $FALSE);
 has 'sms_carriers'  => (isa => 'ArrayRef', is => 'rw', default => sub {[]});
 
 =head1 METHODS
@@ -108,7 +108,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 
