@@ -132,7 +132,12 @@ sub validate_info {
     }
 
     $self->update_person_from_fields();
-    pf::activation::sms_activation_create_send( $self->current_mac, $pid, $telephone, $self->app->profile->getName, $mobileprovider, $self->source );
+    my ( $status, $message ) = pf::activation::sms_activation_create_send( $self->current_mac, $pid, $telephone, $self->app->profile->getName, $mobileprovider, $self->source );
+    unless ( $status ) {
+        $self->app->flash->{error} = $message;
+        $self->prompt_fields();
+        return;
+    };
 
     pf::auth_log::record_guest_attempt($self->source->id, $self->current_mac, $pid);
 

@@ -608,12 +608,14 @@ sub sms_activation_create_send {
     if (defined($activation_code)) {
         if ( $authentication_source->can_send_sms ) {
             unless ($authentication_source->sendSMS($activation_code)) {
-                ($success, $err) = ($FALSE, $GUEST::ERROR_CONFIRMATION_SMS);
+                ($success, $err) = ($FALSE, $GUEST::ERRORS{$GUEST::ERROR_CONFIRMATION_SMS});
+                invalidate_codes($args{'mac'}, $args{'pid'}, $args{'pending'});
             }
         }
         else {
             unless (send_sms($activation_code)) {
-                ($success, $err) = ($FALSE, $GUEST::ERROR_CONFIRMATION_SMS);
+                ($success, $err) = ($FALSE, $GUEST::ERRORS{$GUEST::ERROR_CONFIRMATION_SMS});
+                invalidate_codes($args{'mac'}, $args{'pid'}, $args{'pending'});
             }
         }
     }
