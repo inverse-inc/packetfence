@@ -4031,12 +4031,6 @@ Now create the policy for the guest access, for instance Internet only.
 
 Add the authentication for the Captive Portal Profile via `Security > Authentication > L3 Authentication > Captive Portal Authentication Profile > Server Group`:
 
-image::docs/images/aruba-config-policy1.png[scaledwidth="100%",alt="Policy 1"]
-image::docs/images/aruba-config-policy2.png[scaledwidth="100%",alt="Policy 2"]
-image::docs/images/aruba-config-policy3.png[scaledwidth="100%",alt="Policy 3"]
-image::docs/images/aruba-config-policy4.png[scaledwidth="100%",alt="Policy 4"]
-image::docs/images/aruba-config-policy5.png[scaledwidth="100%",alt="Policy 5"]
-
   aaa authentication captive-portal "packetfence-externalportal"
   server-group "packetfence"
 
@@ -4063,6 +4057,12 @@ First add a destination, `Advanced Services > Stateful Firewall > Destinations`:
   host 192.168.1.5
 
 Create an ACL for the redirection, `Security > Firewall Policies`:
+
+image::docs/images/aruba-config-policy1.png[scaledwidth="100%",alt="Policy 1"]
+image::docs/images/aruba-config-policy2.png[scaledwidth="100%",alt="Policy 2"]
+image::docs/images/aruba-config-policy3.png[scaledwidth="100%",alt="Policy 3"]
+image::docs/images/aruba-config-policy4.png[scaledwidth="100%",alt="Policy 4"]
+image::docs/images/aruba-config-policy5.png[scaledwidth="100%",alt="Policy 5"]
 
   Source NAT on VLAN
   ip access-list session "packetfence-externalportal"
