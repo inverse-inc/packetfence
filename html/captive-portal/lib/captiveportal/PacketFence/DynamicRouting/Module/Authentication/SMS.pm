@@ -91,7 +91,7 @@ Prompt fields with source specific SMS carriers
 sub prompt_fields {
     my ($self) = @_;
 
-    unless ( $self->source->type eq "Twilio" ) {
+    if ( $self->source->meta->get_attribute('sms_carriers') ) {
         my @carriers = map { { label => $_->{name}, value => $_->{id} } } @{sms_carrier_view_all($self->source)};
         $self->SUPER::prompt_fields({
             sms_carriers => \@carriers, 
