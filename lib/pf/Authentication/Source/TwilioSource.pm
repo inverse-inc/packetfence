@@ -10,9 +10,12 @@ pf::Authentication::Source::TwilioSource
 
 use pf::Authentication::constants;
 use pf::constants qw($TRUE $FALSE);
+use pf::error qw(is_success);
 use pf::log;
 
 use Moose;
+use WWW::Twilio::API;
+
 extends 'pf::Authentication::Source';
 
 has '+type'                     => (default => 'Twilio');
@@ -82,6 +85,42 @@ sub mandatoryFields {
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
     return $params->{'username'};
+}
+
+
+=head2 sendSMS
+
+Interact with Twilio API to send an SMS
+
+=cut
+
+sub sendSMS {
+    my ( $self, $activation_code ) = @_;
+    my $logger = pf::log::get_logger;
+
+    my ($hash_version, $pin) = pf::activation::_unpack_activation_code($activation_code);
+    my $activation = pf::activation::view_by_code($activation_code);
+    my $phone_number = $activation->{'contact_info'};
+
+    my $twilio = WWW::Twilio::API->new(
+        AccountSid  => $self->account_sid,
+        AuthToken   => $self->auth_token,
+    );
+
+    my $response = $twilio->POST(
+        'Messages',
+        From    => $self->twilio_phone_number,
+        To      => $phone_number,
+        Body    => "PIN: $pin",
+    );
+
+    unless ( is_success($response->{'code'}) ) {
+        $logger->error("Can't send SMS to '$phone_number': " . $response->{'message'});
+        return $FALSE;
+    }
+
+    $logger->info("SMS sent to '$phone_number' (Network Activation)");
+    return $TRUE;
 }
 
 

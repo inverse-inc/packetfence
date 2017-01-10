@@ -587,10 +587,8 @@ Create and send PIN code
 
 =cut
 
-#The attribute %info is only meant to be used for debugging purposes.
-
 sub sms_activation_create_send {
-    my ($mac, $pid, $phone_number, $portal, $provider_id, %info) = @_;
+    my ($mac, $pid, $phone_number, $portal, $provider_id, $authentication_source) = @_;
     my $logger = get_logger();
 
     # Strip non-digits
@@ -608,9 +606,16 @@ sub sms_activation_create_send {
 
     my $activation_code = create(\%args);
     if (defined($activation_code)) {
-      unless (send_sms($activation_code, %info)) {
-        ($success, $err) = ($FALSE, $GUEST::ERROR_CONFIRMATION_SMS);
-      }
+        if ( $authentication_source->can_send_sms ) {
+            unless ($authentication_source->sendSMS($activation_code)) {
+                ($success, $err) = ($FALSE, $GUEST::ERROR_CONFIRMATION_SMS);
+            }
+        }
+        else {
+            unless (send_sms($activation_code)) {
+                ($success, $err) = ($FALSE, $GUEST::ERROR_CONFIRMATION_SMS);
+            }
+        }
     }
 
     return ($success, $err, $activation_code);

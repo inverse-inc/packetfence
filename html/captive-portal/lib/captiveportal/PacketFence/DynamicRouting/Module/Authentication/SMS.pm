@@ -91,10 +91,14 @@ Prompt fields with source specific SMS carriers
 sub prompt_fields {
     my ($self) = @_;
 
-    my @carriers = map { { label => $_->{name}, value => $_->{id} } } @{sms_carrier_view_all($self->source)};
-    $self->SUPER::prompt_fields({
-        sms_carriers => \@carriers, 
-    });
+    unless ( $self->source->type eq "Twilio" ) {
+        my @carriers = map { { label => $_->{name}, value => $_->{id} } } @{sms_carrier_view_all($self->source)};
+        $self->SUPER::prompt_fields({
+            sms_carriers => \@carriers, 
+        });
+    } else {
+        $self->SUPER::prompt_fields();
+    }
 }
 
 =head2 prompt_pin
@@ -128,7 +132,7 @@ sub validate_info {
     }
 
     $self->update_person_from_fields();
-    pf::activation::sms_activation_create_send( $self->current_mac, $pid, $telephone, $self->app->profile->getName, $mobileprovider );
+    pf::activation::sms_activation_create_send( $self->current_mac, $pid, $telephone, $self->app->profile->getName, $mobileprovider, $self->source );
 
     pf::auth_log::record_guest_attempt($self->source->id, $self->current_mac, $pid);
 
