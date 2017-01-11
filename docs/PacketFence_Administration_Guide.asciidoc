@@ -1231,34 +1231,20 @@ NOTE: For this feature to work, the users' passwords must be stored in cleartext
 Option 5: EAP Local user Authentication
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The goal here is to use the local user you created in the admin GUI for EAP authentication.
-The logic is exactly the same than in option 4, the difference is that we use another SSID and we only use local accounts.
+The goal here is to use the local user to authenticate 802.1X device.
 
-Edit `/usr/local/pf/raddb/sites-available/packetfence-tunnel`
-
-In this example we activate this feature on a specific SSID name (Secure-local-Wireless), disabled by default NTLM Auth and test local account.
-If it failled then we reactivate NTLM Auth.
+Edit `/usr/local/pf/conf/radiusd/packetfence-tunnel`
 
 ----
-####Activate local user eap authentication based on a specific SSID ####
-## Set Called-Station-SSID with the current SSID
-#        set.called_station_ssid
-#        if (Called-Station-SSID == 'Secure-local-Wireless') {
-## Disable ntlm_auth
-#            update control {
-#                MS-CHAP-Use-NTLM-Auth := No
-#            }
-## Check password table for local user
-#            pflocal
-#            if (fail || notfound) {
-#                update control {
-#                    MS-CHAP-Use-NTLM-Auth := Yes
-#                }
-#            }
-#        }
+# Uncomment the following line to enable local PEAP authentication
+packetfence-local-auth
 ----
 
-CAUTION: You will need to deasactivate password hashing in the database for local authentication to work. In the administration interface, go in 'Configuration -> Advanced' and set 'Database passwords hashing method' to `plaintext`
+Restart the radiusd service in order to apply the change.
+
+/usr/local/pf/bin/pfcmd service radiusd restart
+
+CAUTION: You will need to deasactivate password hashing in the database for local authentication to work. In the administration interface, go in 'Configuration -> Advanced' and set 'Database passwords hashing method' to `plaintext` or `ntlm`. Don't use `bcrypt`.
 
 Tests
 ^^^^^
