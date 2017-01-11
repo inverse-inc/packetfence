@@ -370,10 +370,14 @@ sub regzone {
                     }
                     my $query = $CHI_CACHE->compute("srv-$target", sub { $resolver->search($target, 'A') });
                     if ($query) {
+                        my $port = $answer->port;
+                        if ($qname =~ /\._udp\./) {
+                            $port = "udp:$port";
+                        }
                         get_logger->info("Resolved $qname as an Active Directory domain name. Adding passthroughs into ipset.");
                         push @ip_port_pairs,
                           format_query_to_ip_port(
-                            $query,    $answer->port, 'udp:88',   'udp:123', 'udp:135', '135',
+                            $query, $port, 'udp:88',   'udp:123', 'udp:135', '135',
                             'udp:137', 'udp:138',     '139',      'udp:389', 'udp:445', '445',
                             'udp:464', '464',         'tcp:1025', '49155',   '49156',   '49172'
                           );
