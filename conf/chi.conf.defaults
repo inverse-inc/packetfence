@@ -33,6 +33,13 @@ expires_in=6h
 # Amount of time from the current time to expire an entry
 expires_in=24h
 
+[storage accounting]
+#
+# storage accounting.expires_in
+#
+# Amount of time from the current time to expire an entry
+expires_in=7d
+
 [storage pfdns]
 #
 # storage pfdns.expires_in
