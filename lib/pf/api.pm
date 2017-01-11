@@ -1054,10 +1054,10 @@ sub dynamic_register_node : Public {
     }
     my $values = $matched->{values};
     my $role = $values->{$Actions::SET_ROLE};
-    my $value = $values->{$Actions::SET_UNREG_DATE};
-    if (defined $value) {
+    my $unregdate = $values->{$Actions::SET_UNREG_DATE};
+    if (defined $unregdate) {
         my %info = (
-            'unregdate' => $value,
+            'unregdate' => $unregdate,
             'category' => $role,
             'autoreg' => 'no',
             'pid' => $postdata{'username'},
