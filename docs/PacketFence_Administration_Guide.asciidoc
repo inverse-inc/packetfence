@@ -1244,7 +1244,7 @@ Restart the radiusd service in order to apply the change.
 
 /usr/local/pf/bin/pfcmd service radiusd restart
 
-CAUTION: You will need to desactivate password hashing in the database for local authentication to work. In the administration interface, go in 'Configuration -> Advanced' and set 'Database passwords hashing method' to `plaintext` or `ntlm`. Don't use `bcrypt`.
+CAUTION: You will need to disable password hashing in the database for local authentication to work. In the administration interface, go in 'Configuration -> Advanced' and set 'Database passwords hashing method' to `plaintext` or `ntlm`. Don't use `bcrypt`.
 
 Tests
 ^^^^^
