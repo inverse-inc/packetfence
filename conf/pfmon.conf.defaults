@@ -177,7 +177,7 @@ description=iplog rotation
 # enabled
 #
 # If the task iplog_rotation is enabled
-enabled=enabled
+enabled=disabled
 #
 # interval
 #
@@ -322,7 +322,7 @@ description=person cleanup
 # enabled
 #
 # If the task person_cleanup is enabled
-enabled=enabled
+enabled=disabled
 #
 # interval
 #
