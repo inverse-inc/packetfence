@@ -118,7 +118,7 @@ Depends: ${misc:Depends}, vlan,
 # cluster
  haproxy (>= 1.5), keepalived (>= 1.2), arping,
 # monitoring
- collectd, collectd-core,collectd-utils, libcollectdclient0 | libcollectdclient1, python-django (>=1.7),
+ collectd (>=5.5), collectd-core,collectd-utils, libcollectdclient0 | libcollectdclient1, python-django (>=1.7),
  python-django-tagging, python-pyparsing, python-mysqldb, graphite-carbon, python-whisper,
  nodejs, libapache2-mod-wsgi,
  graphite-web,
