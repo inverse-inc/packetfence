@@ -18,7 +18,7 @@ has 'local_account_logins' => (isa => 'Str', is => 'rw', default => $LOCAL_ACCOU
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 

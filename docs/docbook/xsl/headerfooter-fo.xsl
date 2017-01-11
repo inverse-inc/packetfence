@@ -12,7 +12,7 @@
      Authors: 
        - Inverse inc. <info@inverse.ca>
 
-     Copyright (C) 2005-2015 Inverse inc.
+     Copyright (C) 2005-2017 Inverse inc.
      License: GFDL 1.2 or later. http://www.gnu.org/licenses/fdl.html
 
      ******************************************************************** -->
