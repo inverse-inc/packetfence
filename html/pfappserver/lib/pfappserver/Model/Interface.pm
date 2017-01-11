@@ -89,7 +89,12 @@ sub delete {
 
     # Retrieve interface definition
     my @results = $self->_listInterfaces($interface);
-    my $interface_ref = pop @results;
+    my $interface_ref;
+    foreach my $int (@results) {
+        if ($int->{name} eq $interface) {
+            $interface_ref = $int;
+        }
+    }
 
     # Check if requested interface exists
     if (!defined $interface_ref) {
@@ -98,7 +103,7 @@ sub delete {
     }
 
     # Check if requested interface is virtual
-    if ( !$self->_interfaceVirtual($interface) ) {
+    if ( !$self->_interfaceVirtual($interface) && !$self->_interfaceAlias($interface)) {
         $status_msg = ["Interface [_1] is not a virtual interface and cannot be deleted",$interface];
         return ($STATUS::PRECONDITION_FAILED, $status_msg);
     }
@@ -109,13 +114,28 @@ sub delete {
         return ($STATUS::FORBIDDEN, $status_msg);
     }
 
-    # Delete requested virtual interface
-    my $cmd = "sudo vconfig rem $interface";
-    eval { $status = pf_run($cmd) };
-    if ( $@ || !$status ) {
-        $status_msg = ["Error in deletion of interface VLAN [_1]",$interface];
-        $logger->error("Error in deletion of interface VLAN $interface");
-        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    my ($physical_device, $vlan_id, $alias_id);
+    ($physical_device, $vlan_id) = $self->_interfaceVirtual($interface);
+    ($physical_device, $alias_id) = $self->_interfaceAlias($interface);
+    if (defined($vlan_id)) {
+        # Delete requested virtual interface
+        my $cmd = "sudo vconfig rem $interface";
+        eval { $status = pf_run($cmd) };
+        if ( $@ || !$status ) {
+            $status_msg = ["Error in deletion of interface VLAN [_1]",$interface];
+            $logger->error("Error in deletion of interface VLAN $interface");
+            return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+        }
+    }
+    if (defined($alias_id)) {
+        # Delete requested alias interface
+        my $cmd = sprintf "sudo ip addr del %s dev %s", $interface_ref->{address}, $interface_ref->{name};
+        eval { $status = pf_run($cmd) };
+        if ( $@ || !$status ) {
+            $status_msg = ["Error in deletion of interface VLAN [_1]",$interface];
+            $logger->error("Error in deletion of interface VLAN $interface");
+            return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+        }
     }
 
     # Delete corresponding interface entry from pf.conf
@@ -213,6 +233,7 @@ Returns an hashref with:
     # and optionnally:
         vlan       => vlan tag
         dns        => network dns
+        alias      => alias number
     }
 
 Where $interface is physical interface if there's no VLAN interface (eth0)
@@ -239,9 +260,15 @@ sub get {
         $config = {} unless is_success($status);
         $result->{"$interface"} = $interface_ref;
         $result->{"$interface"}->{'high_availability'} = defined $config->{type} &&  $config->{type} =~ /high-availability/ ? $TRUE : $FALSE;
-        if ((my ($physical_device, $vlan_id) = $self->_interfaceVirtual($interface))) {
+        my ($physical_device, $vlan_id, $alias_id);
+        ($physical_device, $vlan_id) = $self->_interfaceVirtual($interface);
+        ($physical_device, $alias_id) = $self->_interfaceAlias($interface);
+        if (defined($vlan_id)) {
           $result->{"$interface"}->{'name'} = $physical_device;
           $result->{"$interface"}->{'vlan'} = $vlan_id;
+        }
+        if (defined($alias_id)) {
+          $result->{"$interface"}->{'alias'} = $alias_id;
         }
         $result->{"$interface"}->{'vip'} = $config->{vip};
         if (($result->{"$interface"}->{'network'} = $networks_model->getNetworkAddress($interface_ref->{ipaddress}, $interface_ref->{netmask}))) {
@@ -292,7 +319,12 @@ sub update {
     }
 
     my @result = $self->_listInterfaces($interface);
-    my $interface_before = pop @result;
+    my $interface_before;
+    foreach my $int (@result) {
+        if ($int->{name} eq $interface) {
+            $interface_before = $int;
+        }
+    }
 
     # Check if the network has changed
     my $network = $models->{network}->getNetworkAddress($interface_before->{ipaddress}, $interface_before->{netmask});
@@ -530,10 +562,12 @@ sub _interfaceCurrentlyInUse {
 
     my @result = $self->_listInterfaces($interface);
 
-    if ( scalar @result > 0
-         && $result[0]->{ipaddress}
-         && $result[0]->{ipaddress} =~ $host ) {
-        return 1;
+    foreach my $int (@result) {
+        if ($int->{name} eq $interface) {
+            if ( $result[0]->{ipaddress} && $result[0]->{ipaddress} eq $host ) {
+                return 1;
+            }
+        }
     }
 
     return 0;
@@ -554,6 +588,21 @@ sub _interfaceVirtual {
     return ( $physical_device, $vlan_id );
 }
 
+=head2 _interfaceAlias
+
+=cut
+
+sub _interfaceAlias {
+    my ( $self, $interface ) = @_;
+
+    my ( $physical_device, $alias_id ) = split( /:/, $interface );
+    if ( !defined($alias_id) ) {
+        return;
+    }
+
+    return ( $physical_device, 1 );
+}
+
 =head2 _listInterfaces
 
 Return a list of all curently installed network interfaces.
@@ -562,6 +611,7 @@ Return a list of all curently installed network interfaces.
 
 sub _listInterfaces {
     my ($self, $ifname) = @_;
+    my $logger = get_logger();
 
     my @interfaces_list = ();
 
@@ -594,18 +644,35 @@ sub _listInterfaces {
               };
             eval { $addr = pf_run(sprintf $cmd->{addr}, $name) };
             if ($addr) {
+                my @addrs = split("\n",$addr);
                 if ($addr =~ m/\binet (([^\/]+)\/\d+)/) {
                     $interface->{address} = $1,
                     ($ipaddress, $netmask) = ($2, Net::Netmask->new($1)->mask());
                     $interface->{ipaddress} = $ipaddress;
                     $interface->{netmask} = $netmask;
                 }
+                foreach $addr (@addrs) {
+                    if ($addr =~ m/\binet (([^\/]+)\/\d+).*[secondary|global]\s+(.*\:\d+)\\/) {
+                        my $interface2 =
+                           {
+                            ifindex => $ifindex,
+                            name => $3,
+                            master => $name,
+                            is_running => ($state ne 'DOWN'),
+                            hwaddr => $hwaddr
+                         };
+                        $interface2->{address} = $1,
+                        my ($ipaddress, $netmask) = ($2, Net::Netmask->new($1)->mask());
+                        $interface2->{ipaddress} = $ipaddress;
+                        $interface2->{netmask} = $netmask;
+                        push(@interfaces_list, $interface2) unless exists $ConfigDomain{$interface->{name}};
+                    }
+                }
             }
             # we add it to the interfaces if it's not a virtual interface for the domains
             push(@interfaces_list, $interface) unless exists $ConfigDomain{$interface->{name}};
         }
     }
-
     return @interfaces_list;
 }
 
