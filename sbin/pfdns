@@ -363,7 +363,12 @@ sub regzone {
                 next if !defined($reply);
                 my @answers = $reply->answer;
                 foreach my $answer (@answers) {
-                    my $query = $CHI_CACHE->compute("srv-".$answer->target, sub { $resolver->search($answer->target, 'A') });
+                    my $target = $answer->{target};
+                    if (!defined $target) {
+                        $logger->warn("Invalid target for answer");
+                        next;
+                    }
+                    my $query = $CHI_CACHE->compute("srv-$target", sub { $resolver->search($target, 'A') });
                     if ($query) {
                         get_logger->info("Resolved $qname as an Active Directory domain name. Adding passthroughs into ipset.");
                         push @ip_port_pairs,
