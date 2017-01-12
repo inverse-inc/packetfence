@@ -124,13 +124,13 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
-* Thu Jan 05 2017 Inverse inc. <support@inverse.ca> - 1.2-6
+* Thu Jan 05 2017 Inverse inc. <info@inverse.ca> - 1.2-6
 - Merged changes from the build system for dynamic versioning
 - Added GPG key
 - Activated gpgcheck
 
-* Thu May 01 2014 Inverse inc. <support@inverse.ca>
+* Thu May 01 2014 Inverse inc. <info@inverse.ca>
 - fixed variable issue
 
-* Fri Apr 25 2014 Inverse inc. <support@inverse.ca>
+* Fri Apr 25 2014 Inverse inc. <info@inverse.ca>
 - Release file created.
