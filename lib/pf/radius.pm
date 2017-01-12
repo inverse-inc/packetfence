@@ -56,6 +56,7 @@ use pf::util::statsd qw(called);
 use pf::StatsD::Timer;
 use Hash::Merge qw (merge);
 use pf::accounting;
+use pf::cluster;
 
 our $VERSION = 1.03;
 
@@ -312,8 +313,11 @@ sub accounting {
     my $isStop   = $radius_request->{'Acct-Status-Type'} eq 'Stop';
     my $isUpdate = $radius_request->{'Acct-Status-Type'} eq 'Interim-Update';
 
-    if($isStart || $isUpdate){
-        pf::accounting->cache->set($mac, $radius_request);
+    # Only populate the accounting cache when not in a cluster since the storage isn't distributed yet.
+    if (!$cluster_enabled) {
+        if($isStart || $isUpdate){
+            pf::accounting->cache->set($mac, $radius_request);
+        }
     }
 
     if ($isStop || $isUpdate) {
