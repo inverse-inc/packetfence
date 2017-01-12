@@ -3995,7 +3995,7 @@ First of all you will need to configure a guest VLAN.
 
 image::docs/images/aruba-config-guest-vlan.png[scaledwidth="100%",alt="Guest VLAN"]
 
-Now you will need to configure a RADIUS server.
+Next, you will need to configure a RADIUS server.
 
 image::docs/images/aruba-radius-server.png[scaledwidth="100%",alt="RADIUS server"]
 
@@ -4003,7 +4003,7 @@ image::docs/images/aruba-radius-server.png[scaledwidth="100%",alt="RADIUS server
   host 192.168.1.5
   key useStrongerSecret
 
-Add your RADIUS server to a AAA group, under `Security > Authentication > Servers > Server Group`:
+Add your RADIUS server to a AAA group, under `Security -> Authentication -> Servers -> Server Group`:
 
   aaa server-group "packetfence"
   auth-server "packetfence" position 1
@@ -4015,7 +4015,7 @@ image::docs/images/aruba-config-coa.png[scaledwidth="100%",alt="RADIUS CoA serve
   aaa rfc-3576-server "192.168.1.5"
   key useStrongerSecret
 
-Next you will need to create the policy that will redirect user to the PacketFence captive portal while not authenticated. Go to `Security > Authentication > L3 Authenticaion > Captive Portal Authentication Profile`.
+Next, you will need to create the policy that will redirect users to the PacketFence captive portal when they are not authenticated. Go to `Security -> Authentication -> L3 Authenticaion -> Captive Portal Authentication Profile`.
 
 image::docs/images/aruba-l3-auth1.png[scaledwidth="100%",alt="Layer 3 profile"]
 image::docs/images/aruba-l3-auth2.png[scaledwidth="100%",alt="Layer 3 profile 2"]
@@ -4027,14 +4027,14 @@ image::docs/images/aruba-l3-auth2.png[scaledwidth="100%",alt="Layer 3 profile 2"
   login-page https://192.168.1.5/Aruba
   switchip-in-redirection-url
 
-Now create the policy for the guest access, for instance Internet only.
+Now create the policy for the guest access, for example Internet only.
 
-Add the authentication for the Captive Portal Profile via `Security > Authentication > L3 Authentication > Captive Portal Authentication Profile > Server Group`:
+Add the authentication for the Captive Portal Profile via `Security -> Authentication -> L3 Authentication -> Captive Portal Authentication Profile -> Server Group`:
 
   aaa authentication captive-portal "packetfence-externalportal"
   server-group "packetfence"
 
-Adjust the configuration of the AAA profile through `Security > Authentication > Profiles > AAA Profiles`:
+Adjust the configuration of the AAA profile through `Security -> Authentication -> Profiles -> AAA Profiles`:
 
 image::docs/images/aruba-config-aaa-profile1.png[scaledwidth="100%",alt="AAA profile 1"]
 image::docs/images/aruba-config-aaa-profile2.png[scaledwidth="100%",alt="AAA profile 2"]
@@ -4051,12 +4051,12 @@ image::docs/images/aruba-config-aaa-profile6.png[scaledwidth="100%",alt="AAA pro
 
 Define a policy to permit the traffic.
 
-First add a destination, `Advanced Services > Stateful Firewall > Destinations`:
+First add a destination, `Advanced Services -> Stateful Firewall -> Destinations`:
 
   netdestination packetfence-portal
   host 192.168.1.5
 
-Create an ACL for the redirection, `Security > Firewall Policies`:
+Create an ACL for the redirection, `Security -> Firewall Policies`:
 
 image::docs/images/aruba-config-policy1.png[scaledwidth="100%",alt="Policy 1"]
 image::docs/images/aruba-config-policy2.png[scaledwidth="100%",alt="Policy 2"]
@@ -4064,17 +4064,19 @@ image::docs/images/aruba-config-policy3.png[scaledwidth="100%",alt="Policy 3"]
 image::docs/images/aruba-config-policy4.png[scaledwidth="100%",alt="Policy 4"]
 image::docs/images/aruba-config-policy5.png[scaledwidth="100%",alt="Policy 5"]
 
-  Source NAT on VLAN
+Source NAT on VLAN
+
   ip access-list session "packetfence-externalportal"
   alias "user" alias "packetfence-portal" "svc-http" permit queue low
   alias "user" alias "packetfence-portal" "svc-https" permit queue low
 
-  Source NAT per Application
+Source NAT per Application
+
   ip access-list session "packetfence-externalportal"
   alias "user" alias "packetfence-portal" "svc-http" src-nat queue low
   alias "user" alias "packetfence-portal" "svc-https" src-nat queue low
 
-Now add the newly created policy to the Captive Portal Profile, `Security > User Roles`:
+Now add the newly created policy to the Captive Portal Profile, `Security -> User Roles`:
 
 image::docs/images/aruba-config-user-role.png[scaledwidth="100%",alt="User Role"]
 image::docs/images/aruba-interface-redirection.png[scaledwidth="100%",alt="Interface de redirection"]
@@ -4112,7 +4114,7 @@ image::docs/images/aruba-secondary-controller.png[scaledwidth="100%",alt="Second
 
 The next step will be to configure the Aruba WiFi controller for WebAuth in PacketFence, add the switch with the model choice `Aruba Network`, 
 
-Tick the case `External Portal Enforcement`, in the Roles section, choose `Role by Switch Role`, as the registration role, enter your default role: `packetfence-portal` and choose the policy matching roles, for instance guest: `internet-only`.
+Check the box `External Portal Enforcement`, in the Roles section, choose `Role by Switch Role`, as the registration role, enter your default role: `packetfence-portal` and choose the policy matching roles, for instance guest: `internet-only`.
 
 
 Aruba Controller 200
