@@ -472,8 +472,10 @@ Returns the RADIUS Dynamic Authorization attributes (User-name, Acct-Session-Id)
 
 sub node_accounting_dynauth_attr {
     my ($mac) = @_;
-    if(my $entry = pf::accounting->cache->get($mac)){
-        return {username => $entry->{'User-Name'}, acctsessionid => $entry->{'Acct-Session-Id'}};
+    if(!$cluster_enabled){
+        if(my $entry = pf::accounting->cache->get($mac)){
+            return {username => $entry->{'User-Name'}, acctsessionid => $entry->{'Acct-Session-Id'}};
+        }
     }
     my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_dynauth_attr_sql', $mac) || return (0);
     my $ref = $query->fetchrow_hashref();
