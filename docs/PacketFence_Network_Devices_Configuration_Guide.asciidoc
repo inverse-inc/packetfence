@@ -4114,6 +4114,9 @@ image::docs/images/aruba-secondary-controller.png[scaledwidth="100%",alt="Second
 
 The next step will be to configure the Aruba WiFi controller for WebAuth in PacketFence, add the switch with the model choice `Aruba Network`, 
 
+image::docs/images/aruba-wlc1.png[scaledwidth="100%",alt="Add Aruba wireless controller"]
+image::docs/images/aruba-wlc-roles.png[scaledwidth="100%",alt="Aruba wireless controller roles configuration"]
+
 Check the box `External Portal Enforcement`, in the Roles section, choose `Role by Switch Role`, as the registration role, enter your default role: `packetfence-portal` and choose the policy matching roles, for instance guest: `internet-only`.
 
 
