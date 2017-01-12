@@ -60,6 +60,7 @@ use pf::db;
 use pf::violation;
 use pf::util;
 use pf::CHI;
+use pf::cluster qw($cluster_enabled);
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $accounting_db_prepared = 0;
@@ -452,8 +453,10 @@ Returns the current sessionid for a given mac address
 
 sub node_accounting_current_sessionid {
     my ($mac) = @_;
-    if(my $entry = pf::accounting->cache->get($mac)){
-        return $entry->{'Acct-Session-Id'};
+    if(!$cluster_enabled){
+        if(my $entry = pf::accounting->cache->get($mac)){
+            return $entry->{'Acct-Session-Id'};
+        }
     }
     my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_current_sessionid_sql', $mac) || return (0);
     my ($val) = $query->fetchrow_array();
