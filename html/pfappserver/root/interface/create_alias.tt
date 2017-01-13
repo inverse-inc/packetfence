@@ -1,0 +1,20 @@
+<form name="modalCreateAlias" class="form-horizontal" action="[% c.uri_for(c.controller('Interface').action_for('create_alias'), [interface]) %]">
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">&times;</a>
+    <h3><i>[% l('New ALIAS for') %]</i> <span>[% interface | html %]</span></h3>
+  </div>
+  <div class="modal-body">
+    [% form.field('name').render_element | none %]
+    [% form.field('ipaddress').render | none %]
+    [% form.field('netmask').render | none %]
+    [% form.field('type').render | none %]
+    [% form.field('high_availability').render | none UNLESS high_availability %]
+    [% form.field('vip').render | none %]
+    [% form.field('dhcpd_enabled').render | none %]
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
+    <button type="submit" class="btn btn-primary" data-loading-text="[% l('Creating') %]">[% l('Create') %]</button>
+  </div>
+</form>
+
