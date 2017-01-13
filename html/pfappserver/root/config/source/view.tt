@@ -14,7 +14,9 @@
   [%- IF item.id %]<input type="hidden" name="id" value="[% item.id | html %]">[% END %]
 
         [% form.field('id').render UNLESS item && item.id.defined %]
-        [% form.block('definition').render | none %]
+        [% form.block('standard').render | none %]
+        [% INCLUDE "config/source/type/${item.type}.tt" %]
+        [% form.block('rules').render | none %]
 
     <div class="form-actions">
         <a href="[% c.pf_hash_for(c.controller.action_for('index')) %]" class="btn" >[% l('Cancel') %]</a>

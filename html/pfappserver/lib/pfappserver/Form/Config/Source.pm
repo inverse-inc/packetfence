@@ -30,6 +30,11 @@ has_field 'id' =>
    required => 1,
    messages => { required => 'Please specify the name of the source entry' },
   );
+
+has_field 'type' => (
+   type => 'Hidden',
+);
+
 has_field 'description' =>
   (
    type => 'Text',
@@ -58,15 +63,55 @@ has_field 'rules.contains' =>
     }
   );
 
-has_block  definition =>
+has_block standard =>
   (
-    render_list => [qw(description rules)],
+    render_list => [qw(type description)],
   );
+
+has_block definition =>
+  (
+    type => 'Dynamic',
+    build_render_list_method => \&build_render_list_definition,
+  );
+
+has_block rules =>
+  (
+    type => 'Dynamic',
+    build_render_list_method => \&build_render_list_rules,
+  );
+
+=head2 build_render_list_definition
+
+The definition block's render list builder
+
+=cut
+
+sub build_render_list_definition {
+    my ($block) = @_;
+    return $block->form->render_list_definition;
+}
+
+=head2 render_list_definition
+
+Allow the sub forms to defined their own render list for the definition block
+
+=cut
+
+sub render_list_definition { [] }
 
 sub build_rule_label {
     my ($field) = @_;
     my $id = $field->field("id")->value // "New";
     return "Rule - $id";
+}
+
+sub build_render_list_rules {
+    my ($block) = @_;
+    if ($block->form->source_type->has_authentication_rules) {
+        return ['rules']
+    }
+
+    return [];
 }
 
 =head2 rules_add_control
