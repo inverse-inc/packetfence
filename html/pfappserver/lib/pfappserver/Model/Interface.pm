@@ -52,7 +52,6 @@ sub create {
     ($status, $status_msg) = $self->exists($physical_interface);
     if ( is_error($status) ) {
         $status_msg = ["Physical interface [_1] does not exists so can't create VLAN interface on it",$physical_interface];
-        $logger->warn($status_msg);
         return ($STATUS::PRECONDITION_FAILED, $status_msg);
     }
 
@@ -71,6 +70,53 @@ sub create {
 
     return ($STATUS::CREATED, ["Interface VLAN [_1] successfully created",$interface]);
 }
+
+=head2 create_alias
+
+=cut
+
+sub create_alias {
+    my ( $self, $interface ) = @_;
+    my $logger = get_logger();
+    my ($status, $status_msg);
+
+    # This method does not handle the 'all' interface neither the 'lo' one
+    return ($STATUS::FORBIDDEN, "This method does not handle interface $interface")
+        if ( ($interface eq 'all') || ($interface eq 'lo') );
+
+    # Check if physical interface exists
+    ($status, $status_msg) = $self->exists($interface);
+    if ( is_error($status) ) {
+        $status_msg = ["Physical interface [_1] does not exists so can't create ALIAS interface on it",$interface];
+        return ($STATUS::PRECONDITION_FAILED, $status_msg);
+    }
+
+    my @results = $self->_listInterfaces($interface);
+    my $alias_number = 0;
+    foreach my $int (@results) {
+        if ($int->{name} =~ /.*\:(\d+)/) {
+            if ($1 >= $alias_number) {
+                $alias_number = $1 + 1;
+            }
+        }
+    }
+
+    my $cmd = sprintf "sudo ip addr add %s dev %s label %s", '255.255.255.254/32', $interface, $interface.":".$alias_number;
+
+    eval { $status = pf_run($cmd) };
+    if ( $@ ) {
+        $status_msg = ["Error in creating interface VLAN [_1]",$interface];
+        $logger->error($status_msg);
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+
+    # Might want to move this one in the controller... create doesn't invoke up...
+    # Enable the newly created virtual interface
+    $self->up($interface);
+
+    return ($STATUS::CREATED, ["Interface VLAN [_1] successfully created",$interface]);
+}
+
 
 =head2 delete
 
@@ -116,7 +162,7 @@ sub delete {
 
     my ($physical_device, $vlan_id, $alias_id);
     ($physical_device, $vlan_id) = $self->_interfaceVirtual($interface);
-    ($physical_device, $alias_id) = $self->_interfaceAlias($interface);
+    $alias_id = $self->_interfaceAlias($interface);
     if (defined($vlan_id)) {
         # Delete requested virtual interface
         my $cmd = "sudo vconfig rem $interface";
@@ -129,11 +175,12 @@ sub delete {
     }
     if (defined($alias_id)) {
         # Delete requested alias interface
-        my $cmd = sprintf "sudo ip addr del %s dev %s", $interface_ref->{address}, $interface_ref->{name};
+        my $cmd = sprintf "sudo ip addr del %s dev %s", $interface_ref->{address}, $interface_ref->{master};
         eval { $status = pf_run($cmd) };
-        if ( $@ || !$status ) {
-            $status_msg = ["Error in deletion of interface VLAN [_1]",$interface];
-            $logger->error("Error in deletion of interface VLAN $interface");
+        if ( $@ ) {
+            $logger->error($@);
+            $status_msg = ["Error in deletion of interface ALIAS [_1]",$interface];
+            $logger->error("Error in deletion of interface ALIAS $interface");
             return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
         }
     }
@@ -148,7 +195,7 @@ sub delete {
         $models->{network}->commit();
     }
 
-    return ($STATUS::OK, ["Interface VLAN [_1] successfully deleted",$interface]);
+    return ($STATUS::OK, ["Interface [_1] successfully deleted",$interface]);
 }
 
 =head2 down
@@ -262,7 +309,7 @@ sub get {
         $result->{"$interface"}->{'high_availability'} = defined $config->{type} &&  $config->{type} =~ /high-availability/ ? $TRUE : $FALSE;
         my ($physical_device, $vlan_id, $alias_id);
         ($physical_device, $vlan_id) = $self->_interfaceVirtual($interface);
-        ($physical_device, $alias_id) = $self->_interfaceAlias($interface);
+        $alias_id = $self->_interfaceAlias($interface);
         if (defined($vlan_id)) {
           $result->{"$interface"}->{'name'} = $physical_device;
           $result->{"$interface"}->{'vlan'} = $vlan_id;
@@ -287,7 +334,6 @@ sub get {
         }
         $result->{"$interface"}->{'type'} = $self->getType($interface_ref);
     }
-
     return $result;
 }
 
@@ -325,7 +371,6 @@ sub update {
             $interface_before = $int;
         }
     }
-
     # Check if the network has changed
     my $network = $models->{network}->getNetworkAddress($interface_before->{ipaddress}, $interface_before->{netmask});
     my $new_network = $models->{network}->getNetworkAddress($ipaddress, $netmask);
@@ -362,8 +407,12 @@ sub update {
             $netmask = $block->bits();
 
             $logger->debug("IP address has changed ($interface $ipaddress/$netmask)");
-
-            $cmd = sprintf "sudo ip addr add %s/%i broadcast %s dev %s", $ipaddress, $netmask, $broadcast, $interface;
+            my $secondary = '';
+            if ($interface  =~ /(.*)\:\d+/) {
+                $secondary = "label $interface";
+                $interface = $1;
+            }
+            $cmd = sprintf "sudo ip addr add %s/%i broadcast %s dev %s %s", $ipaddress, $netmask, $broadcast, $interface, $secondary;
             eval { $status = pf_run($cmd) };
             if ( $@ || $status ) {
                 $status_msg = ["Can't delete previous IP address of interface [_1] ([_2])",$interface,$ipaddress];
@@ -389,6 +438,8 @@ sub update {
 
     return ($STATUS::OK, ["Interface [_1] successfully edited",$interface]);
 }
+
+
 
 =head2 isActive
 
@@ -595,12 +646,12 @@ sub _interfaceVirtual {
 sub _interfaceAlias {
     my ( $self, $interface ) = @_;
 
-    my ( $physical_device, $alias_id ) = split( /:/, $interface );
+    my ( $physical_device, $alias_id ) = split( /\:/, $interface );
     if ( !defined($alias_id) ) {
         return;
     }
 
-    return ( $physical_device, 1 );
+    return 1;
 }
 
 =head2 _listInterfaces
@@ -673,6 +724,7 @@ sub _listInterfaces {
             push(@interfaces_list, $interface) unless exists $ConfigDomain{$interface->{name}};
         }
     }
+
     return @interfaces_list;
 }
 

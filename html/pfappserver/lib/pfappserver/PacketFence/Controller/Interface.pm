@@ -363,6 +363,25 @@ around create_action => sub {
     return $action;
 };
 
+=item create_alias
+
+Create an alias interface
+
+Usage: /interface/<logical_name>/create_alias
+
+=cut
+
+sub create_alias :Chained('object') :PathPart('create_alias') :Args(0) :AdminRole('INTERFACES_CREATE') {
+    my ( $self, $c ) = @_;
+
+    my $interface = $c->stash->{interface};
+    ($status, $result) = $c->model('Interface')->create_alias($interface);
+    $self->audit_current_action($c, status => $status, interface => $interface);
+    $c->response->status($status);
+    $c->stash->{status_msg} = $result;
+    $c->stash->{current_view} = 'JSON';
+}
+
 =back
 
 =head1 COPYRIGHT
