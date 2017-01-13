@@ -105,7 +105,7 @@ sub create_alias {
 
     eval { $status = pf_run($cmd) };
     if ( $@ ) {
-        $status_msg = ["Error in creating interface VLAN [_1]",$interface];
+        $status_msg = ["Error in creating interface [_1]",$interface];
         $logger->error($status_msg);
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
@@ -114,7 +114,7 @@ sub create_alias {
     # Enable the newly created virtual interface
     $self->up($interface);
 
-    return ($STATUS::CREATED, ["Interface VLAN [_1] successfully created",$interface]);
+    return ($STATUS::CREATED, ["Interface [_1] successfully created",$interface]);
 }
 
 
@@ -407,6 +407,7 @@ sub update {
             $netmask = $block->bits();
 
             $logger->debug("IP address has changed ($interface $ipaddress/$netmask)");
+            my $interface_back = $interface;
             my $secondary = '';
             if ($interface  =~ /(.*)\:\d+/) {
                 $secondary = "label $interface";
@@ -424,6 +425,7 @@ sub update {
                 # Restore gateway
                 $models->{'system'}->setDefaultRoute($ipaddress);
             }
+            $interface = $interface_back;
             my $interfaces = $self->get('all');
             $models->{'system'}->write_network_persistent($interfaces,$gateway);
         }

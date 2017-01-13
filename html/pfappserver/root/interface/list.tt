@@ -11,6 +11,7 @@
               <th class="hidden-phone">[% l('Netmask') %]</th>
               <th class="hidden-phone">[% l('Type') %]</th>
               <th></th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -37,10 +38,18 @@
               <td>
                 [% IF interfaces.$i.vlan -%]
                 [% IF can_access("INTERFACES_DELETE") %]<a class="btn btn-mini btn-danger" interface="[% i | html %]" href="[% c.uri_for(c.controller('Interface').action_for('delete'), [i]) %]">[% l('Delete') %]</a>[% END %]
+                [% ELSIF interfaces.$i.alias -%]
+                [% IF can_access("INTERFACES_DELETE") %]<a class="btn btn-mini btn-danger" interface="[% i | html %]" href="[% c.uri_for(c.controller('Interface').action_for('delete'), [i]) %]">[% l('Delete') %]</a>[% END %]
                 [% ELSE -%]
                 [% IF can_access("INTERFACES_CREATE") %]<a class="btn btn-mini" data-toggle="modal" interface="[% i | html %]" href="[% c.uri_for(c.controller('Interface').action_for('create'), [i]) %]">[% l('Add VLAN') %]</a>[% END %]
                 [% END -%]
               </td>
+              <td>
+                [% IF interfaces.$i.vlan -%]
+                [% ELSIF interfaces.$i.alias -%]
+                [% ELSE -%]
+                [% IF can_access("INTERFACES_CREATE") %]<a class="btn btn-mini" data-toggle="modal" interface="[% i | html %]" href="[% c.uri_for(c.controller('Interface').action_for('create_alias'), [i]) %]">[% l('Add ALIAS') %]</a>[% END %]
+                [% END -%]
             </tr>
             [%- IF show_network && interfaces.$i.network %]
             <tr class="network">
@@ -53,7 +62,7 @@
                     [%- END %]
                   [%- END %]
               </td>
-              <td class="hidden-phone" colspan="2"></td>
+              <td class="hidden-phone" colspan="3"></td>
             </tr>
             [%- END %]
             [% END -%]
