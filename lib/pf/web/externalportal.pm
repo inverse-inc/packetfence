@@ -77,10 +77,11 @@ sub handle {
     my $params = $req->param;
     my $headers_in = $r->headers_in();
 
+
     my $args = {
         uri => $uri,
-        params => { %$params },
-        headers => { %$headers_in },
+        (defined $params ? (params => { %$params }) : ()),
+        (defined $headers_in ? (headers => { %$headers_in }) : ()),
     };
 
     my $filter = pf::access_filter::switch->new;
