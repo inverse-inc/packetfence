@@ -374,12 +374,38 @@ Usage: /interface/<logical_name>/create_alias
 sub create_alias :Chained('object') :PathPart('create_alias') :Args(0) :AdminRole('INTERFACES_CREATE') {
     my ( $self, $c ) = @_;
 
-    my $interface = $c->stash->{interface};
-    ($status, $result) = $c->model('Interface')->create_alias($interface);
-    $self->audit_current_action($c, status => $status, interface => $interface);
-    $c->response->status($status);
-    $c->stash->{status_msg} = $result;
-    $c->stash->{current_view} = 'JSON';
+    my $mechanism = 'alias';
+    my $types = $c->model('Enforcement')->getAvailableTypes($mechanism);
+
+    my ($status, $result, $form, $alias);
+
+    if ($c->request->method eq 'POST') {
+        $form = pfappserver::Form::Interface::Create->new(ctx => $c, types => $types);
+        $form->process(params => $c->req->params);
+        if ($form->has_errors) {
+            $status = HTTP_BAD_REQUEST;
+            $result = $form->field_errors; # translated by the form
+        }
+        else {
+            my $data = $form->value;
+            my $interface = $c->stash->{interface};
+            ($status, $result,$alias) = $c->model('Interface')->create_alias($interface,$data);
+            $self->audit_current_action($c, status => $status, interface => "$interface:$alias");
+
+        }
+        $c->response->status($status);
+        $c->stash->{status_msg} = $result;
+        $c->stash->{current_view} = 'JSON';
+    }
+    else {
+        $form = pfappserver::Form::Interface::Create->new(ctx => $c,
+                                                          types => $types,
+                                                          init_object => { name => $c->stash->{interface} });
+        $form->process();
+        $c->stash->{form} = $form;
+
+        $c->stash->{template} = 'interface/create.tt';
+    }
 }
 
 =back

@@ -76,9 +76,9 @@ sub create {
 =cut
 
 sub create_alias {
-    my ( $self, $interface ) = @_;
+    my ( $self, $interface, $interface_ref ) = @_;
     my $logger = get_logger();
-    my ($status, $status_msg);
+    my ($ipaddress, $netmask, $status, $status_msg);
 
     # This method does not handle the 'all' interface neither the 'lo' one
     return ($STATUS::FORBIDDEN, "This method does not handle interface $interface")
@@ -91,6 +91,10 @@ sub create_alias {
         return ($STATUS::PRECONDITION_FAILED, $status_msg);
     }
 
+    $interface_ref->{netmask} = '255.255.255.0' unless ($interface_ref->{netmask});
+    $ipaddress = $interface_ref->{ipaddress};
+    $netmask = $interface_ref->{netmask};
+
     my @results = $self->_listInterfaces($interface);
     my $alias_number = 0;
     foreach my $int (@results) {
@@ -101,7 +105,7 @@ sub create_alias {
         }
     }
 
-    my $cmd = sprintf "sudo ip addr add %s dev %s label %s", '255.255.255.254/32', $interface, $interface.":".$alias_number;
+    my $cmd = sprintf "sudo ip addr add %s dev %s label %s", "$ipaddress:$netmask", $interface, $interface.":".$alias_number;
 
     eval { $status = pf_run($cmd) };
     if ( $@ ) {
@@ -114,7 +118,7 @@ sub create_alias {
     # Enable the newly created virtual interface
     $self->up($interface);
 
-    return ($STATUS::CREATED, ["Interface [_1] successfully created",$interface]);
+    return ($STATUS::CREATED, ["Interface [_1] successfully created",$interface],$alias_number);
 }
 
 
