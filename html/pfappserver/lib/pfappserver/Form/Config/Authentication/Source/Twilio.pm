@@ -20,19 +20,6 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Authentication::Source';
 with 'pfappserver::Base::Form::Role::Help';
 
-has_field 'api_url' => (
-    type        => 'Text',
-    label       => 'API URL',
-    tags        => {
-        after_element   => \&help,
-        help            => 'POST URL of the Twilio API',
-    },
-    element_attr    => {
-        placeholder     => pf::Authentication::Source::TwilioSource->meta->get_attribute('api_url')->default,
-    },
-    default         => pf::Authentication::Source::TwilioSource->meta->get_attribute('api_url')->default,
-);
-
 has_field 'account_sid' => (
     type        => 'Text',
     label       => 'Account SID',
