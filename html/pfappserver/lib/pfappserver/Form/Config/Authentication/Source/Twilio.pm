@@ -46,7 +46,7 @@ has_field 'twilio_phone_number' => (
     required        => 1,
     tags            => {
         after_element   => \&help,
-        help            => 'Twilio provided phone number which will be used as a From',
+        help            => 'Twilio provided phone number which will show as the sender',
     },
     element_attr    => {
         placeholder     => pf::Authentication::Source::TwilioSource->meta->get_attribute('twilio_phone_number')->default,
