@@ -105,7 +105,7 @@ sub create_alias {
         }
     }
 
-    my $cmd = sprintf "sudo ip addr add %s dev %s label %s", "$ipaddress:$netmask", $interface, $interface.":".$alias_number;
+    my $cmd = sprintf "sudo ip addr add %s dev %s label %s", "$ipaddress/$netmask", $interface, $interface.":".$alias_number;
 
     eval { $status = pf_run($cmd) };
     if ( $@ ) {

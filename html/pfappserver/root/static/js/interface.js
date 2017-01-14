@@ -54,7 +54,7 @@ var InterfaceView = function(options) {
     options.parent.on('click', '#interfaces [href$="/read"], #interfaces [href$="/create"], #interfaces [href$="/create_alias"], #interfaces [href$="/view"]', read);
 
     var update = $.proxy(this.updateInterface, this);
-    options.parent.on('submit', 'form[name="modalEditInterface"], form[name="modalCreateVlan"]', update);
+    options.parent.on('submit', 'form[name="modalEditInterface"], form[name="modalCreateVlan"], form[name="modalCreateAlias"]', update);
 
     var delete_i = $.proxy(this.deleteInterface, this);
     options.parent.on('click', '#interfaces [href$="/delete"]', delete_i);

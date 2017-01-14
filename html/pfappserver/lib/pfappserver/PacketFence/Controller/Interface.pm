@@ -380,7 +380,7 @@ sub create_alias :Chained('object') :PathPart('create_alias') :Args(0) :AdminRol
     my ($status, $result, $form, $alias);
 
     if ($c->request->method eq 'POST') {
-        $form = pfappserver::Form::Interface::Create->new(ctx => $c, types => $types);
+        $form = pfappserver::Form::Interface->new(ctx => $c, types => $types);
         $form->process(params => $c->req->params);
         if ($form->has_errors) {
             $status = HTTP_BAD_REQUEST;
@@ -398,7 +398,7 @@ sub create_alias :Chained('object') :PathPart('create_alias') :Args(0) :AdminRol
         $c->stash->{current_view} = 'JSON';
     }
     else {
-        $form = pfappserver::Form::Interface::Create->new(ctx => $c,
+        $form = pfappserver::Form::Interface->new(ctx => $c,
                                                           types => $types,
                                                           init_object => { name => $c->stash->{interface} });
         $form->process();
