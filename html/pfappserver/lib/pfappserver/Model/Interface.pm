@@ -78,6 +78,8 @@ sub create {
 sub create_alias {
     my ( $self, $interface, $interface_ref ) = @_;
     my $logger = get_logger();
+    my $models = $self->{models};
+
     my ($ipaddress, $netmask, $status, $status_msg);
 
     # This method does not handle the 'all' interface neither the 'lo' one
@@ -117,6 +119,10 @@ sub create_alias {
     # Might want to move this one in the controller... create doesn't invoke up...
     # Enable the newly created virtual interface
     $self->up($interface);
+
+    my $gateway = $models->{'system'}->getDefaultGateway();
+    my $interfaces = $self->get('all');
+    $models->{'system'}->write_network_persistent($interfaces,$gateway);
 
     return ($STATUS::CREATED, ["Interface [_1] successfully created",$interface],$alias_number);
 }
