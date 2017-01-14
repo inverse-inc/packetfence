@@ -177,6 +177,15 @@ SSLMutex posixsem
 ServerLimit 512
 
 Header always set X-DNS-Prefetch-Control off
+<IfModule mod_headers.c>
+  # Security headers
+  Header always append X-Frame-Options SAMEORIGIN
+  Header set X-Content-Type-Options nosniff
+  Header set X-XSS-Protection "1; mode=block"
+  Header always set X-Frame-Options DENY
+  Header always set Strict-Transport-Security "max-age=15768000"
+</IfModule>
+
 
 <Proxy *>
   [% IF apache_version == "2.4" %]
