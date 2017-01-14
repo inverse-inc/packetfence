@@ -227,6 +227,7 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('INTERFACES_RE
 
     # Retrieve available enforcement types
     my $mechanism = 'all';
+    $mechanism = 'alias' if ($interface =~ /.*\:\d+/);
     if ($c->session->{'enforcements'}) {
         $mechanism = [ keys %{$c->session->{'enforcements'}} ];
     }

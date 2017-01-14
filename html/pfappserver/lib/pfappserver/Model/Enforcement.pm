@@ -27,7 +27,7 @@ my %types   = (
 #    option      => [ 'high-availability', 'dhcp-listener', 'monitor' ],
     webauth     => ['management', 'portal'],
     other       => ['dns-enforcement'],
-    alias       => ['dns-enforcement','management', 'portal', 'radius'],
+    alias       => ['dns-enforcement','portal', 'radius'],
 );
 
 =head1 METHODS
