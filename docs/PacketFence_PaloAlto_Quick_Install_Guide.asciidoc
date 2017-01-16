@@ -96,7 +96,7 @@ IP              Vsys   From    User                             IdleTimeout(s) M
 Installation using syslog
 -------------------------
 
-NOTE: This installation mode is not suggested unless you use the SSO for informationnal purposes (no enforcement). PacketFence will use easily spoofable UDP packets to communicate with the Palo Alto firewall. If you require encryption and origin validation of the SSO messages, please use the XML API.
+NOTE: This installation mode is not suggested unless you use the SSO for informational purposes (no enforcement). PacketFence will use easily spoofable UDP packets to communicate with the Palo Alto firewall. If you require encryption and origin validation of the SSO messages, please use the XML API.
 
 Step 1: Create a filter
 ~~~~~~~~~~~~~~~~~~~~~~~
