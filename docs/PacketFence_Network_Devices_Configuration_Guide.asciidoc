@@ -3993,7 +3993,7 @@ WebAuth
 
 First of all you will need to configure a guest VLAN.
 
-image::docs/images/aruba-config-guest-vlan.png[scaledwidth="100%",alt="Guest VLAN"]
+image::docs/images/aruba-create-guest-vlan.png[scaledwidth="100%",alt="Guest VLAN"]
 
 Next, you will need to configure a RADIUS server.
 
