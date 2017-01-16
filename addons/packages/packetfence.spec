@@ -1189,29 +1189,8 @@ fi
                         /usr/local/pf/html/captive-portal/content/packetfence-windows-agent.exe
 %dir                    /usr/local/pf/html/captive-portal/content/images
                         /usr/local/pf/html/captive-portal/content/images/*
-                        /usr/local/pf/html/common/scss/_base.body.scss
-                        /usr/local/pf/html/common/scss/_base.footer.scss
-                        /usr/local/pf/html/common/scss/_base.header.scss
-                        /usr/local/pf/html/common/scss/_base.input.scss
-                        /usr/local/pf/html/common/scss/_base.paragraphs.scss
-                        /usr/local/pf/html/common/scss/_components.card.scss
-                        /usr/local/pf/html/common/scss/_components.dot.scss
-                        /usr/local/pf/html/common/scss/_components.iconic.scss
-                        /usr/local/pf/html/common/scss/_components.input.scss
-                        /usr/local/pf/html/common/scss/_objects.box.scss
-                        /usr/local/pf/html/common/scss/_objects.buttons.scss
-                        /usr/local/pf/html/common/scss/_objects.layout.scss
-                        /usr/local/pf/html/common/scss/_objects.list-ui.scss
-                        /usr/local/pf/html/common/scss/_objects.media.scss
-                        /usr/local/pf/html/common/scss/_objects.tables.scss
-                        /usr/local/pf/html/common/scss/_settings.colors.scss
-                        /usr/local/pf/html/common/scss/_settings.packetfence.scss
-                        /usr/local/pf/html/common/scss/_tools.aliases.scss
-                        /usr/local/pf/html/common/scss/_trumps.dev.scss
-                        /usr/local/pf/html/common/scss/_trumps.flag.scss
-                        /usr/local/pf/html/common/scss/_trumps.layout.scss
-                        /usr/local/pf/html/common/scss/_trumps.media.scss
-                        /usr/local/pf/html/common/scss/styles.scss
+%dir			/usr/local/pf/html/common/scss/
+                        /usr/local/pf/html/common/scss/*.scss
 %dir                    /usr/local/pf/html/captive-portal/lib
 
                         /usr/local/pf/html/captive-portal/lib/*
@@ -1409,7 +1388,6 @@ fi
 %exclude                /usr/local/pf/addons/pfconfig/pfconfig.init
 
 %changelog
-
 * Wed Nov 16 2016 Inverse <info@inverse.ca> - 6.4.0-1
 - New release 6.4.0
 
