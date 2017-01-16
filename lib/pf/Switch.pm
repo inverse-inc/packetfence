@@ -310,7 +310,8 @@ sub new {
         '_wsTransport'                  => undef,
         '_radiusSecret'                 => undef,
         '_controllerIp'                 => undef,
-        '_controllerPort'               => undef,
+        '_disconnectPort'               => undef,
+        '_coaPort'                      => undef,
         '_uplink'                       => undef,
         '_vlans'                        => undef,
         '_ExternalPortalEnforcement'    => 'disabled',    
@@ -541,7 +542,7 @@ Establishes an SNMP write connection to the controller of the network device as 
 
 sub connectWriteToController {
     my $self   = shift;
-    return $self->connectWriteTo($self->{_controllerIp}, '_sessionControllerWrite',$self->{_controllerPort});
+    return $self->connectWriteTo($self->{_controllerIp}, '_sessionControllerWrite',$self->{_disconnectPort});
 }
 
 =item disconnectWriteTo
@@ -2753,8 +2754,8 @@ sub radiusDisconnect {
             LocalAddr => $self->deauth_source_ip(),
         };
 
-        if (defined($self->{'_controllerPort'}) && $self->{'_controllerPort'} ne '') {
-            $connection_info->{'nas_port'} = $self->{'_controllerPort'};
+        if (defined($self->{'_disconnectPort'}) && $self->{'_disconnectPort'} ne '') {
+            $connection_info->{'nas_port'} = $self->{'_disconnectPort'};
         }
 
         # transforming MAC to the expected format 00-11-22-33-CA-FE
