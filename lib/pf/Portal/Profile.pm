@@ -553,9 +553,15 @@ sub findScan {
     return first { $_->match($os,$node_attributes) } @scanners;
 }
 
-sub getUserSources {
+=item getFilteredAuthenticationSources
+
+Return a list of authentication sources for the given portal profile filtered for a given username / realm
+
+=cut
+
+sub getFilteredAuthenticationSources {
     my ($self, $username, $realm) = @_;
-    return get_user_sources([ $self->getInternalSources, $self->getExclusiveSources ], $username, $realm);
+    return filter_authentication_sources([ $self->getInternalSources, $self->getExclusiveSources ], $username, $realm);
 }
 
 =item getRootModuleId

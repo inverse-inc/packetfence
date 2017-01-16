@@ -424,7 +424,7 @@ sub getRegisteredRole {
             $logger->info("Role has already been computed and we don't want to recompute it. Getting role from node_info" );
             $role = $args->{'node_info'}->{'category'};
         } else {
-            my @sources = $profile->getUserSources($args->{'stripped_user_name'}, $args->{'realm'});
+            my @sources = $profile->getFilteredAuthenticationSources($args->{'stripped_user_name'}, $args->{'realm'});
             my $stripped_user = '';
             $stripped_user = $args->{'stripped_user_name'} if(defined($args->{'stripped_user_name'}));
             my $params = {
@@ -554,7 +554,7 @@ sub getNodeInfoForAutoReg {
     # under 802.1X EAP, we trust the username provided since it authenticated
     if (defined($args->{'connection_type'}) && (($args->{'connection_type'} & $EAP) == $EAP) && defined($args->{'user_name'})) {
         $logger->debug("EAP connection with a username \"$args->{'user_name'}\". Trying to match rules from authentication sources.");
-        my @sources = $profile->getUserSources($args->{'stripped_user_name'}, $args->{'realm'});
+        my @sources = $profile->getFilteredAuthenticationSources($args->{'stripped_user_name'}, $args->{'realm'});
         my $stripped_user = '';
         $stripped_user = $args->{'stripped_user_name'} if(defined($args->{'stripped_user_name'}));
         my $params = {

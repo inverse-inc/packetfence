@@ -168,7 +168,7 @@ sub getSources : Private {
         }
     }
 
-    my $realm_source = get_realm_source($stripped_username, $realm);
+    my $realm_source = get_realm_authentication_source($stripped_username, $realm);
     if( $realm_source && any { $_ eq $realm_source} @sources ){
         $c->log->info("Realm source is part of the portal profile sources. Using it as the only auth source.");
         return ($realm_source);

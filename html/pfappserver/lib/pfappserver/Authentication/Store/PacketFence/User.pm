@@ -46,7 +46,7 @@ sub check_password {
 
   my $internal_sources = pf::authentication::getInternalAuthenticationSources();
   my ($stripped_username,$realm) = strip_username($self->_user);
-  my $realm_source = get_realm_source($stripped_username, $realm);
+  my $realm_source = get_realm_authentication_source($stripped_username, $realm);
   if($realm_source && any {$_->id eq $realm_source->id} @{$internal_sources}){
     get_logger->info("Found realm source ".$realm_source->id." for user $stripped_username in realm $realm. Using it as the only source.");
     $internal_sources = [$realm_source];

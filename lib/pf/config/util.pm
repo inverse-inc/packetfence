@@ -65,8 +65,8 @@ BEGIN {
     connection_type_to_str str_to_connection_type
     get_translatable_time trappable_mac
     portal_hosts
-    get_user_sources
-    get_realm_source
+    filter_authentication_sources
+    get_realm_authentication_source
     get_captive_portal_uri
   );
 }
@@ -397,60 +397,64 @@ sub portal_hosts {
     return @hosts;
 }
 
-=head2 get_realm_source
+=head2 get_realm_authentication_source
 
 Get a source for a specific username and realm
 Will look it up in the realm configuration
 
 =cut
 
-sub get_realm_source {
-    my ($username, $realm) = @_;
+sub get_realm_authentication_source {
+    my ( $username, $realm ) = @_;
 
-    $realm = "null" unless(defined($realm));
+    $realm = "null" unless ( defined($realm) );
     $realm = lc $realm;
 
-    my $realm_source;
-    if(exists $ConfigRealm{$realm}){
-        if(my $source = $ConfigRealm{$realm}{source}){
-            get_logger->info("Found auth source $source for realm $realm.");
-            $realm_source = pf::authentication::getAuthenticationSource($source);
+    my $realm_authentication_source;
+
+    if ( exists $ConfigRealm{$realm} ) {
+        if ( my $source = $ConfigRealm{$realm}{source} ) {
+            get_logger->info("Found authentication source '$source' for realm '$realm'");
+            $realm_authentication_source = pf::authentication::getAuthenticationSource($source);
         }
     }
-    elsif(exists $ConfigRealm{default} && $realm ne "null"){
-        if(my $source = $ConfigRealm{default}{source}){
-            get_logger->info("Found auth source $source for realm $realm through the default configuration.");
-            $realm_source = pf::authentication::getAuthenticationSource($source);
+    elsif ( exists $ConfigRealm{default} && $realm ne "null" ) {
+        if ( my $source = $ConfigRealm{default}{source} ) {
+            get_logger->info("Found authentication source '$source' for realm '$realm' through the default realm");
+            $realm_authentication_source = pf::authentication::getAuthenticationSource($source);
         }
     }
 
-    return $realm_source;
+    return $realm_authentication_source;
 
 }
 
-=head2 get_user_sources
+=head2 filter_authentication_sources
 
-Get internal and exclusive sources for a username and realm
+Filter a given list of authentication sources based on a username / realm
 
 =cut
 
-sub get_user_sources {
-    my ($sources, $username, $realm) = @_;
+sub filter_authentication_sources {
+    my ( $sources, $username, $realm ) = @_;
 
-    my $realm_source = get_realm_source($username, $realm);
+    return @$sources unless ( defined($username) || defined($realm) );
 
-    if( $realm_source && any { $_ eq $realm_source} @$sources ){
-        get_logger->info("Realm source ".$realm_source->{id}." is part of the available sources. Using it as the only auth source.");
-        return ($realm_source);
+    my $realm_authentication_source = get_realm_authentication_source($username, $realm);
+
+    return @$sources unless ( defined($realm_authentication_source) && defined($realm_authentication_source->{id}) && $realm_authentication_source->{id} ne "" );
+
+    get_logger->info("Found authentication source '" . $realm_authentication_source->{id} . "' for realm '$realm'");
+    
+    if ( any { $_ eq $realm_authentication_source} @$sources ) {
+        get_logger->info("Realm '$realm' authentication source '" . $realm_authentication_source->{id} . "' is part of the available portal profile authentication sources. Using it as the only authentication source.");
+        return ($realm_authentication_source);
     }
     else {
-        if (defined($realm)) {
-            get_logger->info("Realm source ".( (defined($realm_source->{id}) && $realm_source->{id} ne "") ? "$realm_source->{id}" : "undef" ) ." is configured in the realm $realm but is not in the portal profile. Ignoring it and using the portal profile sources.");
-        }
-        return @$sources;
+        get_logger->info("Realm '$realm' authentication source '" . $realm_authentication_source->{id} . "' is not configured in the portal profile. Ignoring it and using the portal profile authentication sources");
     }
 
-
+    return @$sources;
 }
 
 =head2 get_captive_portal_uri

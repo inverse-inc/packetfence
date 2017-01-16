@@ -124,7 +124,7 @@ sub authenticate {
 
     my ($stripped_username, $realm) = strip_username($username);
 
-    my @sources = get_user_sources($self->sources, $stripped_username, $realm);
+    my @sources = filter_authentication_sources($self->sources, $stripped_username, $realm);
     get_logger->info("Authenticating user using sources : ", join(',', (map {$_->id} @sources)));
 
     unless(@sources){
@@ -155,7 +155,7 @@ sub authenticate {
         get_logger->info("Reusing 802.1x credentials with username '$username' and realm '$realm'");
 
         # Fetch appropriate source to use with 'reuseDot1xCredentials' feature
-        my $source = pf::config::util::get_realm_source($username, $realm);
+        my $source = pf::config::util::get_realm_authentication_source($username, $realm);
         
         # No source found for specified realm
         unless ( defined($source) ) {
