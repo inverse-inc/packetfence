@@ -72,6 +72,8 @@ sub generateConfig {
     $tags{'http'} = '';
     $tags{'mysql_backend'} = '';
     $tags{'var_dir'} = $var_dir;
+    $tags{'cpu'} = '';
+    $tags{'bind-process'} = '';
     my $bind_process = '';
     if ($self->_number_cpus > 1) {
         $tags{'cpu'} .= <<"EOT";
