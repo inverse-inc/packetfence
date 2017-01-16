@@ -4036,7 +4036,7 @@ Add the authentication for the Captive Portal Profile via `Security -> Authentic
 
 Adjust the configuration of the AAA profile through `Security -> Authentication -> Profiles -> AAA Profiles`:
 
-image::docs/images/aruba-config-aaa-profile1.png[scaledwidth="100%",alt="AAA profile 1"]
+image::docs/images/aruba-config-aaa-profile1.png[scaledwidth="30%",alt="AAA profile 1"]
 image::docs/images/aruba-config-aaa-profile2.png[scaledwidth="100%",alt="AAA profile 2"]
 image::docs/images/aruba-config-aaa-profile3.png[scaledwidth="100%",alt="AAA profile 3"]
 image::docs/images/aruba-config-aaa-profile4.png[scaledwidth="100%",alt="AAA profile 4"]
@@ -4098,7 +4098,7 @@ Finaly create the SSID and associate the profile to it, `Virtual AP profile`:
 
 General AP settings and master-slave controller case.
 
-image::docs/images/aruba-ap-config1.png[scaledwidth="100%",alt="Config AP 1"]
+image::docs/images/aruba-ap-config1.png[scaledwidth="30%",alt="Config AP 1"]
 image::docs/images/aruba-ap-config2.png[scaledwidth="100%",alt="Config AP 2"]
 image::docs/images/aruba-ap-config3.png[scaledwidth="100%",alt="Config AP 3"]
 image::docs/images/aruba-ap-config4.png[scaledwidth="100%",alt="Config AP 4"]
@@ -4114,8 +4114,8 @@ image::docs/images/aruba-secondary-controller.png[scaledwidth="100%",alt="Second
 
 The next step will be to configure the Aruba WiFi controller for WebAuth in PacketFence, add the switch with the model choice `Aruba Network`, 
 
-image::docs/images/aruba-wlc1.png[scaledwidth="100%",alt="Add Aruba wireless controller"]
-image::docs/images/aruba-wlc-roles.png[scaledwidth="100%",alt="Aruba wireless controller roles configuration"]
+image::docs/images/aruba-wlc1.png[scaledwidth="80%",alt="Add Aruba wireless controller"]
+image::docs/images/aruba-wlc-roles.png[scaledwidth="80%",alt="Aruba wireless controller roles configuration"]
 
 Check the box `External Portal Enforcement`, in the Roles section, choose `Role by Switch Role`, as the registration role, enter your default role: `packetfence-portal` and choose the policy matching roles, for instance guest: `internet-only`.
 
