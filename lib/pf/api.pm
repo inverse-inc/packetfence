@@ -271,7 +271,7 @@ sub ipset_node_update : Public {
     my ( $class, $oldip, $srcip, $srcmac ) = @_;
     my $logger = pf::log::get_logger();
 
-    return(pf::ipset::update_node($oldip, $srcip, $srcmac));
+    return(pf::ipset->update_node($oldip, $srcip, $srcmac));
 }
 
 sub firewallsso : Public {
