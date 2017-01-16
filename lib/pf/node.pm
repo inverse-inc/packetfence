@@ -980,7 +980,7 @@ sub node_register {
         if ( is_max_reg_nodes_reached($mac, $pid, $info{'category'}, $info{'category_id'}) ) {
             $status_msg = "max nodes per pid met or exceeded";
             $logger->error( "$status_msg - registration of $mac to $pid failed" );
-            return (0, $status_msg);
+            return ($FALSE, $status_msg);
         }
     }
 
