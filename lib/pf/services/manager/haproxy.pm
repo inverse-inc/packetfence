@@ -49,6 +49,19 @@ sub executable {
     return $service;
 }
 
+sub _number_cpus {
+    my ($self) = @_;
+    open my $cpuinfo, '<', '/proc/cpuinfo';
+    my $cpu_cores = 0;
+    foreach my $line (<$cpuinfo>)  {
+        if ($line =~ /^cpu\scores\s+:\s+(\d+)/) {
+            $cpu_cores = $cpu_cores + $1;
+        }
+    }
+    close $cpuinfo;
+    return $cpu_cores;
+}
+
 sub generateConfig {
     my ($self,$quick) = @_;
     my $logger = get_logger();
@@ -59,6 +72,17 @@ sub generateConfig {
     $tags{'http'} = '';
     $tags{'mysql_backend'} = '';
     $tags{'var_dir'} = $var_dir;
+    my $bind_process = '';
+    if ($self->_number_cpus > 1) {
+        $tags{'cpu'} .= <<"EOT";
+        nbproc 2
+        cpu-map 1 1
+        cpu-map 2 2
+EOT
+        $tags{'bind-process'} = 'bind-process 1';
+        $bind_process = 'bind-process 2';
+    }
+
     if ($OS eq 'debian') {
         $tags{'os_path'} = '/etc/haproxy/errors/';
     } else {
@@ -100,11 +124,13 @@ frontend portal-http-mgmt
         bind $cluster_ip:80
         reqadd X-Forwarded-Proto:\\ http
         default_backend portal-mgmt-backend
+        $bind_process
 
 frontend portal-https-mgmt
         bind $cluster_ip:443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
         reqadd X-Forwarded-Proto:\\ https
         default_backend portal-mgmt-backend
+        $bind_process
 
 backend portal-mgmt-backend
         balance source
@@ -130,11 +156,13 @@ frontend portal-http-$cluster_ip
         bind $cluster_ip:80
         reqadd X-Forwarded-Proto:\\ http
         default_backend $cluster_ip-backend
+        $bind_process
 
 frontend portal-https-$cluster_ip
         bind $cluster_ip:443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
         reqadd X-Forwarded-Proto:\\ https
         default_backend $cluster_ip-backend
+        $bind_process
 
 backend $cluster_ip-backend
         balance source

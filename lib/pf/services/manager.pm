@@ -299,8 +299,8 @@ returns the pid or list of pids for the servie(s)
 sub status {
     my ($self,$quick) = @_;
     $self->removeStalePid($quick);
-    my $pid = $self->pid;
-    return $pid ? $pid : "0";
+    my $pids = $self->pid;
+    return @$pids ? join ' ', @$pids : "0";
 }
 
 =head2 pid
@@ -323,8 +323,8 @@ Stop the service waitinf for it to shutdown
 
 sub stop {
     my ($self,$quick) = @_;
-    my $pid = $self->pid;
-    if ($pid) {
+    my @pids = $self->pid;
+    if (@pids) {
         $self->preStopSetup($quick);
         $self->stopService($quick);
         $self->postStopCleanup($quick);
@@ -353,9 +353,11 @@ sub stopService {
     my ($self) = @_;
     my $name = $self->name;
     my $logger = get_logger();
-    my $pid = $self->lastPid;
-    $logger->info("Sending TERM signal to $name with pid $pid");
-    my $count = kill 'TERM',$pid;
+    my $pids = $self->lastPid;
+    foreach my $pid (@$pids) {
+        $logger->info("Sending TERM signal to $name with pid $pid");
+        my $count = kill 'TERM',untaint_chain($pid);
+    }
 }
 
 =head2 postStopCleanup
@@ -366,7 +368,7 @@ sub postStopCleanup {
     my ($self,$quick) = @_;
     my $logger = get_logger();
     my $name = $self->name;
-    my $pid = $self->lastPid;
+    my $pids = $self->lastPid;
     my $inotify = $self->inotify;
     my $pidFile = $self->pidFile;
     my $timedout;
@@ -393,8 +395,10 @@ sub postStopCleanup {
     };
     alarm 0;
     $logger->info("Timed out waiting for process $name to stop") if $timedout;
-    if ($self->isAlive($pid)) {
-        kill 'KILL',$pid;
+    foreach my $pid (@$pids) {
+        if ($self->isAlive($pid)) {
+            kill 'KILL',untaint_chain($pid);
+        }
     }
     $self->removeStalePid;
 }
@@ -501,13 +505,8 @@ sub pidFromFile {
         eval {chomp( $pid = read_file($pid_file) );};
     }
     $pid = 0 unless $pid;
-    if($pid) {
-        $logger->info("pidof -x $name returned $pid");
-        if($pid =~ /^\s*(\d*)\s*$/) {
-            $pid = $1;
-        }
-    }
-    return $pid;
+    my @pids = split("\n",$pid);
+    return \@pids;
 }
 
 =head2 removeStalePid
@@ -520,18 +519,22 @@ sub removeStalePid {
     my ($self,$quick) = @_;
     return if $quick;
     my $logger = get_logger();
-    my $pid = $self->pidFromFile;
+    my $pids = $self->pidFromFile;
     my $pidFile = $self->pidFile;
+    my $result;
     $pidFile = untaint_chain($pidFile);
-    if($pid && $pid =~ /^(.*)$/) {
-        $pid = $1;
-        $logger->info("verifying process $pid");
-        my $result = $self->isAlive;
-        unless ($result) {
-            $logger->info("removing stale pid file $pidFile");
-            unlink $pidFile if -e $pidFile;
+    foreach my $pid (@$pids) {
+        if($pid && $pid =~ /^(.*)$/) {
+            $pid = $1;
+            $logger->info("verifying process $pid");
+            $result = $self->isAlive($pid);
         }
     }
+    unless ($result) {
+        $logger->info("removing stale pid file $pidFile");
+        unlink $pidFile if -e $pidFile;
+    }
+
 }
 
 =head2 isAlive
