@@ -84,9 +84,9 @@ wsPwd =
 # RADIUS shared secret with switch
 radiusSecret=
 
-VoIPCDPDetect=N
-VoIPDHCPDetect=N
+VoIPCDPDetect=Y
+VoIPDHCPDetect=Y
 AccessListMap=N
 UrlMap=N
 useCoA=Y
-VoIPLLDPDetect=N
+VoIPLLDPDetect=Y
