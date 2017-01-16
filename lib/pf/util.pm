@@ -1266,7 +1266,9 @@ sub validate_date {
     }
     return $TRUE;
 
-=item
+=item clean_locale
+
+Clean the format of the locale stored
 
 =cut
 
