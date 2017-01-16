@@ -19,8 +19,9 @@ with 'pfappserver::Base::Form::Role::Help','pfappserver::Base::Form::Role::Allow
 use pfappserver::Form::Field::DynamicList;
 
 use pf::log;
+use pf::authentication;
 
-has source_type => (is => 'ro', builder => '_build_source_type');
+has source_type => (is => 'ro', builder => '_build_source_type', lazy => 1);
 
 ## Definition
 has_field 'id' =>
@@ -40,6 +41,7 @@ has_field 'description' =>
    type => 'Text',
    label => 'Description',
    required => 1,
+   default => '',
   );
 has_field 'rules' =>
   (
@@ -99,10 +101,7 @@ Build the render list from the fields defined in the class
 
 sub render_list_definition {
     my ($self) = @_;
-    my $source_type = $self->source_type;
     my $meta = $self->meta;
-    my $meta_source = $source_type->meta;
-    my %source_types = map{ $_ => 1 } $meta_source->get_attribute_list;
     my @fields = map { $_->{name}} @{$meta->field_list};
     return \@fields;
 }
@@ -115,7 +114,7 @@ sub build_rule_label {
 
 sub build_render_list_rules {
     my ($block) = @_;
-    if ($block->form->source_type->has_authentication_rules) {
+    if ($block->form->source_class->has_authentication_rules) {
         return ['rules']
     }
 
@@ -173,9 +172,35 @@ Build the source type
 sub _build_source_type {
     my ($self) = @_;
     my $source = ref($self) || $self;
-    my $source =~ s/^pfappserver::Form::Config::Source:://;
-    $source = "pf::Authentication::Source::${source}Source";
+    $source =~ s/^\Qpfappserver::Form::Config::Source::\E//;
     return $source;
+}
+
+=head2 source_class
+
+Build the source type
+
+=cut
+
+sub source_class {
+    my ($self) = @_;
+    my $type = $self->source_type;
+    my $class = "pf::Authentication::Source::${type}Source";
+    return $class;
+}
+
+
+=head2 get_source
+
+Get the source
+
+=cut
+
+sub get_source {
+    my ($self) = @_;
+    my $args = $self->value;
+    my $source_type = $self->source_type;
+    return newAuthenticationSource($source_type, 'source', {%$args, id => 'source', rules => []});
 }
 
 
