@@ -198,9 +198,25 @@ Get the source
 
 sub get_source {
     my ($self) = @_;
-    my $args = $self->value;
+    my $args = $self->getSourceArgs;
     my $source_type = $self->source_type;
-    return newAuthenticationSource($source_type, 'source', {%$args, id => 'source', rules => []});
+    return newAuthenticationSource($source_type, 'source', {rules =>[], %$args, id => 'source'});
+}
+
+
+=head2 getSourceArgs
+
+get the source args
+
+=cut
+
+sub getSourceArgs {
+    my ($self) = @_;
+    my $args = $self->init_object;
+    if (!defined ($args) || keys %$args == 0 ) {
+        $args = $self->value;
+    }
+    return $args;
 }
 
 
