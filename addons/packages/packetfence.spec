@@ -212,6 +212,7 @@ Requires: perl(URI::Escape::XS)
 Requires: perl(Apache::Htpasswd)
 Requires: perl(Authen::Radius) >= 0.24
 Requires: perl(Authen::Krb5::Simple)
+Requires: perl(WWW::Twilio::API)
 # Required for importation feature
 Requires: perl(Text::CSV)
 Requires: perl(Text::CSV_XS)
