@@ -26,6 +26,7 @@ use pf::node qw(node_view);
 use LWP::UserAgent;
 use HTTP::Request::Common;
 use Net::Syslog;
+use pf::constants qw($TRUE $FALSE);
 use pf::constants::firewallsso qw($SYSLOG_TRANSPORT);
 
 #Export environement variables for LWP
@@ -82,7 +83,7 @@ sub action {
             }
         }
     }
-    return 0;
+    return $FALSE;
 }
 
 =head2 logger
@@ -146,10 +147,10 @@ XML
     my $response = $ua->post($webpage, Content => [ cmd => $message ]);
     if ($response->is_success) {
         $logger->info("Node $mac registered and allowed to pass the Firewall");
-        return 1;
+        return $TRUE;
     } else {
         $logger->error("XML send error :".$response->status_line);
-        return 0;
+        return $FALSE;
     }
 }
 
@@ -179,10 +180,10 @@ XML
     my $response = $ua->post($webpage, Content => [ cmd => $message ]);
     if ($response->is_success) {
         $logger->debug("Node $mac removed from the firewall");
-        return 1;
+        return $TRUE;
     } else {
         $logger->error("XML send error :".$response->status_line);
-        return 0;
+        return $FALSE;
     }
 }
 
