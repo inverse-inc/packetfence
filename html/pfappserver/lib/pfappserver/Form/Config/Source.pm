@@ -20,7 +20,7 @@ use pfappserver::Form::Field::DynamicList;
 
 use pf::log;
 
-has source_type => (is => 'ro', default => 'pf::Authentication::Source');
+has source_type => (is => 'ro', builder => '_build_source_type');
 
 ## Definition
 has_field 'id' =>
@@ -154,6 +154,22 @@ sub accordion_heading_content {
     };
     return $content;
 }
+
+
+=head2 _build_source_type
+
+Build the source type
+
+=cut
+
+sub _build_source_type {
+    my ($self) = @_;
+    my $source = ref($self) || $self;
+    my $source =~ s/^pfappserver::Form::Config::Source:://;
+    $source = "pf::Authentication::Source::${source}Source";
+    return $source;
+}
+
 
 =head1 COPYRIGHT
 
