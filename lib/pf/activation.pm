@@ -630,9 +630,10 @@ Send SMS with activation code
 =cut
 
 sub send_sms {
-    my ($activation_code, %info) = @_;
+    my ($activation_code) = @_;
     my $logger = get_logger();
 
+    my %info;
     my $smtpserver = $Config{'alerting'}{'smtpserver'};
     $info{'from'} = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
     $info{'currentdate'} = POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
