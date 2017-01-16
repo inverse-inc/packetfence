@@ -80,7 +80,6 @@ use pf::Switch 2.00;
 use pf::Switch::constants;
 use pf::SwitchFactory;
 
-use pf::traplog;
 use pf::util;
 use pf::config::util;
 use pf::services::util;
@@ -502,11 +501,6 @@ sub signalHandlerTrapListQueued {
                                 "added trap $trapType at $switch_id ifindex $switch_port to queued threadList"
                             );
 
-                            traplog_insert( $switch_id, $switch_port,
-                                $trapType );
-                            $lockLogger->trace(
-                                "locking - sending signal for threadList_queued in signalHanderTrapListQueued"
-                            );
                             cond_signal(@threadList_queued);
                         }
                     }

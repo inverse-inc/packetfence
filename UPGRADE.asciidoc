@@ -68,6 +68,12 @@ Upgrading from a version prior to X.Y.Z
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
 
+Database schema updates
+^^^^^^^^^^^^^^^^^^^^^^^
+The traplog table is now deprecated.
+If wish to reclaim the space in the database.
+The table should be manually removed.
+
 Upgrading from a version prior to 6.4.0
 ---------------------------------------
 

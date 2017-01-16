@@ -733,10 +733,6 @@ msgstr ""
 msgid "At which interval to run the radius audit log cleanup job"
 msgstr ""
 
-# conf/documentation.conf (maintenance.traplog_cleanup_interval)
-msgid "At which interval to run the traplog cleanup job"
-msgstr ""
-
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SAML.pm
 msgid "Attribute of the username in the SAML response"
 msgstr ""
@@ -2869,10 +2865,6 @@ msgstr ""
 
 # conf/documentation.conf (maintenance.radius_audit_log_cleanup_window)
 msgid "How long to keep a radius audit log entry before deleting it"
-msgstr ""
-
-# conf/documentation.conf (maintenance.traplog_cleanup_window)
-msgid "How long to keep a traplog entry before deleting it"
 msgstr ""
 
 # conf/documentation.conf (maintenance.auth_log_cleanup_window)
@@ -9287,14 +9279,6 @@ msgstr "RADIUS Audit Log Cleanup Timeout"
 # conf/documentation.conf
 msgid "maintenance.radius_audit_log_cleanup_window"
 msgstr "RADIUS Audit Log Cleanup Window"
-
-# conf/documentation.conf
-msgid "maintenance.traplog_cleanup_interval"
-msgstr "Traplog Cleanup Interval"
-
-# conf/documentation.conf
-msgid "maintenance.traplog_cleanup_window"
-msgstr "Traplog Cleanup Window"
 
 # conf/documentation.conf
 msgid "maintenance.violation_maintenance_batch"

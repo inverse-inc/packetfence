@@ -790,10 +790,6 @@ msgstr "Fréquence de nettoyage du journal de locationlog"
 msgid "At which interval to run the radius audit log cleanup job"
 msgstr "Fréquence de nettoyage de l’audit de radius"
 
-# conf/documentation.conf (maintenance.traplog_cleanup_interval)
-msgid "At which interval to run the traplog cleanup job"
-msgstr "Fréquence de nettoyage de traplog"
-
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SAML.pm
 msgid "Attribute of the username in the SAML response"
 msgstr "Attribut du nom d’utilisateur dans la réponse SAML"
@@ -3062,10 +3058,6 @@ msgstr "Combien de temps garder un appareil avant de la supprimer"
 # conf/documentation.conf (maintenance.radius_audit_log_cleanup_window)
 msgid "How long to keep a radius audit log entry before deleting it"
 msgstr "Combien de temps garder une entrée de radius audit log avant de la supprimer"
-
-# conf/documentation.conf (maintenance.traplog_cleanup_window)
-msgid "How long to keep a traplog entry before deleting it"
-msgstr "Combien de temps garder une entrée de traplog avant de la supprimer"
 
 # conf/documentation.conf (maintenance.auth_log_cleanup_window)
 msgid "How long to keep an auth_log entry before deleting it"
@@ -9910,14 +9902,6 @@ msgstr "Temps maximum du nettoyage du journal d’audit RADIUS"
 # conf/documentation.conf
 msgid "maintenance.radius_audit_log_cleanup_window"
 msgstr "Plage horaire de nettoyage du journal d’audit RADIUS"
-
-# conf/documentation.conf
-msgid "maintenance.traplog_cleanup_interval"
-msgstr "Fréquence de nettoyage du Traplog"
-
-# conf/documentation.conf
-msgid "maintenance.traplog_cleanup_window"
-msgstr "Plage horaire de nettoyage du Traplog"
 
 # conf/documentation.conf
 msgid "maintenance.violation_maintenance_batch"
