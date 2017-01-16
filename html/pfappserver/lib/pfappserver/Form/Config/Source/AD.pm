@@ -13,19 +13,6 @@ Form definition to create or update a Active Directory user source.
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Source::LDAP';
 
-has_block  definition => (
-    render_list => [qw(
-        description
-        connection_timeout
-        basedn
-        scope
-        usernameattribute
-        email_attribute
-        binddn
-        cache_match
-    )]
-);
-
 
 =head1 COPYRIGHT
 
