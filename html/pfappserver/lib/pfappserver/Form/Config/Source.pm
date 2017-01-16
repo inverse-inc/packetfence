@@ -93,11 +93,19 @@ sub build_render_list_definition {
 
 =head2 render_list_definition
 
-Allow the sub forms to defined their own render list for the definition block
+Build the render list from the fields defined in the class
 
 =cut
 
-sub render_list_definition { [] }
+sub render_list_definition {
+    my ($self) = @_;
+    my $source_type = $self->source_type;
+    my $meta = $self->meta;
+    my $meta_source = $source_type->meta;
+    my %source_types = map{ $_ => 1 } $meta_source->get_attribute_list;
+    my @fields = map { $_->{name}} @{$meta->field_list};
+    return \@fields;
+}
 
 sub build_rule_label {
     my ($field) = @_;
