@@ -128,6 +128,8 @@ Depends: ${misc:Depends}, vlan,
  libgraph-perl,
 # SAML
  liblasso-perl,
+# PaloAlto syslog SSO
+ libnet-syslogd-perl,
 # for packaging
  dpkg-distribution,
 # Distribution specific

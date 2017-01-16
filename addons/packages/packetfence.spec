@@ -275,6 +275,7 @@ Requires: perl(Time::Period)
 Requires: perl(Time::Piece)
 Requires: perl(Number::Range)
 Requires: perl(Algorithm::Combinatorics)
+Requires: perl(Net::Syslog)
 Requires: iproute >= 3.0.0, krb5-workstation
 %{?el6:Requires: samba <= 3.9.9}
 %{?el7:Requires: samba >= 4}
