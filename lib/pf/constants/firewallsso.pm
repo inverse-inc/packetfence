@@ -20,7 +20,7 @@ use Readonly;
 our @EXPORT_OK = qw($SYSLOG_TRANSPORT $HTTP_TRANSPORT);
 
 Readonly::Scalar our $SYSLOG_TRANSPORT => "syslog";
-Readonly::Scalar our $HTTP_TRANSPORT => "accounting";
+Readonly::Scalar our $HTTP_TRANSPORT => "http";
 
 =head1 AUTHOR
 
