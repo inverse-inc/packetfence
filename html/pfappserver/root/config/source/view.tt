@@ -10,7 +10,7 @@
 
 <h3>[% item.id | html %] <small>[% item.type | html %]</small></h3>
 
-<form name="modalItem" class="form-horizontal" action="[% action_url %]" method="post">
+<form name="modalSource" class="form-horizontal" action="[% action_url %]" method="post">
   [%- IF item.id %]<input type="hidden" name="id" value="[% item.id | html %]">[% END %]
 
         [% form.field('id').render UNLESS item && item.id.defined %]
