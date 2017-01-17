@@ -53,7 +53,7 @@ sub fetch_valid_users {
     my $page = Net::LDAP::Control::Paged->new(size => 1000) or die $!;
     my @users;
     my $cookie;
-    while(1) {
+    while($TRUE) {
         my $msg = $connection->search(
             base => $ldap_source->{basedn}, 
             filter => $filter, 
@@ -312,7 +312,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 
