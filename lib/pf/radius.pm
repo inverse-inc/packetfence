@@ -32,6 +32,7 @@ use pf::config qw(
     $VOIP
     $NO_VOIP
     %Config
+    %ConfigDomain
     $ACCOUNTING_POLICY_TIME
     $WIRED
     $WIRED_MAC_AUTH
@@ -57,6 +58,7 @@ use pf::StatsD::Timer;
 use Hash::Merge qw (merge);
 use pf::accounting;
 use pf::cluster;
+use pf::api::queue;
 
 our $VERSION = 1.03;
 
@@ -96,6 +98,8 @@ sub authorize {
     my $logger = $self->logger;
     my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $self->_parseRequest($radius_request);
     my $RAD_REPLY_REF;
+
+    $self->handleNtlmCaching($radius_request);
 
     $logger->debug("instantiating switch");
     my $switch = pf::SwitchFactory->instantiate({ switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $switch_ip});
@@ -778,6 +782,21 @@ sub _update_audit_stash {
     foreach my $key (keys %$lookup) {
         next unless exists $args->{$key} && defined $args->{$key};
         $stash->{$lookup->{$key}} = $args->{$key};
+    }
+}
+
+=head2 handleNtlmCaching
+
+Handle NTLM caching if necessary
+
+=cut
+
+sub handleNtlmCaching {
+    my ($self, $radius_request) = @_;
+    my $domain = $radius_request->{"PacketFence-Domain"};
+    if($domain && isenabled($ConfigDomain{$domain}{ntlm_cache}) && isenabled($ConfigDomain{$domain}{ntlm_cache_on_connection})) {
+        my $client = pf::api::queue->new(queue => "general");
+        $client->notify("cache_user_ntlm", $domain, $radius_request->{"Stripped-User-Name"});
     }
 }
 

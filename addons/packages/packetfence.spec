@@ -461,6 +461,7 @@ done
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/cache
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/redis_cache
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/redis_queue
+%{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/redis_ntlm_cache
 %if 0%{?el7}
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/ssl_mutex
 %endif
@@ -956,6 +957,8 @@ fi
                         /usr/local/pf/conf/redis_cache.conf.example
 %config(noreplace)      /usr/local/pf/conf/redis_queue.conf
                         /usr/local/pf/conf/redis_queue.conf.example
+%config(noreplace)      /usr/local/pf/conf/redis_ntlm_cache.conf
+                        /usr/local/pf/conf/redis_ntlm_cache.conf.example
 %config(noreplace)      /usr/local/pf/conf/floating_network_device.conf
 %config(noreplace)      /usr/local/pf/conf/guest-managers.conf
                         /usr/local/pf/conf/git_commit_id
@@ -1331,6 +1334,7 @@ fi
 %dir                    /usr/local/pf/var/control
 %dir                    /usr/local/pf/var/redis_cache
 %dir                    /usr/local/pf/var/redis_queue
+%dir                    /usr/local/pf/var/redis_ntlm_cache
 %if 0%{?el7}
 %dir                    /usr/local/pf/var/ssl_mutex
 %endif

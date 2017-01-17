@@ -34,7 +34,7 @@ BEGIN {
 
 use pf::file_paths qw($var_dir);
 use pf::accounting qw(acct_maintenance);
-use pf::config qw(%Config);
+use pf::config qw(%Config %ConfigDomain);
 use pf::constants qw($FALSE $TRUE);
 use pf::inline::accounting;
 use pf::iplog;
@@ -60,6 +60,7 @@ use pf::cluster;
 use Time::HiRes qw(time sleep);
 use pf::option82 qw(search_switch);
 use pf::CHI::Request;
+use pf::domain::ntlm_cache;
 
 pf::SwitchFactory->preloadConfiguredModules();
 
@@ -292,6 +293,13 @@ sub registertasks  {
             search_switch();
         }
     ) if isenabled($Config{'network'}{'dhcpoption82logger'});
+    
+    register_task(
+        'populate ntlm redis cache',
+        'populate_ntlm_redis_cache_interval',
+        \&populate_ntlm_redis_cache
+    );
+
 }
 
 =head2 cleanup
@@ -630,6 +638,34 @@ sub cluster_check {
         $cache->set('last_config_healthy_timestamp', $now);
     }
     $cache->set('last_config_checked_timestamp', $now);
+}
+
+=head2 populate_ntlm_redis_cache
+
+Populate the redis NTLM cache
+
+=cut
+
+sub populate_ntlm_redis_cache {
+    get_logger->debug("Calling populate_ntlm_redis_cache");
+    foreach my $domain (keys(%ConfigDomain)) {
+        get_logger->trace("Checking if $domain has NTLM cache enabled");
+        if(isenabled($ConfigDomain{$domain}{ntlm_cache}) && isenabled($ConfigDomain{$domain}{ntlm_cache_batch})) {
+            get_logger->info("Synchronizing NTLM cache for domain $domain");
+            my @args = ('queue_job', 'general', 'populate_ntlm_cache', $domain);
+            # Call method on this server
+            pf::client::getClient()->call(@args);
+
+            # Call method on peer servers if in cluster
+            if($cluster_enabled) {
+                get_logger->info("Calling populate_ntlm_cache on each cluster member.");
+                my $failed = pf::cluster::api_call_each_server($FALSE, @args);
+                if(@$failed > 0) {
+                    get_logger->error("Couldn't contact ".join(',', @$failed)." to dispatch job for domain $domain.");
+                }
+            }
+        }
+    }
 }
 
 =head1 AUTHOR

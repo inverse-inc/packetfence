@@ -35,7 +35,6 @@
         [%- IF can_access("DOMAIN_CREATE") %]
           <a class="btn createItem" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add Domain') %]</a>
         [%- END %]
-          <a class="btn btn-default" id="refresh_domains" href="[% c.uri_for(c.controller.action_for('refresh_domains')) %]">[% l('Refresh domain configuration') %]</a>
           
         </div>
 

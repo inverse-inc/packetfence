@@ -14,8 +14,10 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
 
+use pf::log;
 use pf::config;
 use pf::util;
+use pf::authentication;
 
 ## Definition
 has_field 'id' =>
@@ -52,17 +54,16 @@ has_field 'bind_pass' =>
   (
    type => 'Password',
    label => 'Password',
-   required => 1,
-   messages => { required => 'Please specify the password to bind to the Active Directory' },
+   tags => { after_element => \&help,
+             help => 'The password of a Domain Admin to use to join the server to the domain. Will not be stored permanently and is only used while joining the domain.' },
   );
 
 has_field 'bind_dn' =>
   (
    type => 'Text',
    label => 'Username',
-   required => 1,
-   messages => { required => 'Please specify the user to bind to the Active Directory server' },
-
+   tags => { after_element => \&help,
+             help => 'The username of a Domain Admin to use to join the server to the domain' },
   );
 
 has_field 'dns_server' =>
@@ -116,6 +117,113 @@ has_field 'registration' =>
    tags => { after_element => \&help,
              help => 'If this option is enabled, the device will be able to reach the Active Directory from the registration VLAN.' },
   );
+
+has_field 'ntlm_cache' =>
+  (
+   type => 'Toggle',
+   checkbox_value => "enabled",
+   unchecked_value => "disabled",
+   label => 'NTLM cache',
+   tags => { after_element => \&help,
+             help => 'Should the NTLM cache be enabled for this domain?' },
+  );
+
+has_field 'ntlm_cache_source' =>
+  (
+   type => 'Select',
+   label => 'Source',
+   tags => { after_element => \&help,
+             help => 'The source to use to connect to your Active Directory server for NTLM caching.' },
+   element_attr => {'data-placeholder' => 'Click to select a source'},
+   multiple => 0,
+   element_class => ['chzn-deselect'],
+  );
+
+has_field 'ntlm_cache_filter' =>
+  (
+   type => 'TextArea',
+   label => 'LDAP filter',
+   tags => { after_element => \&help,
+             help => 'An LDAP query to filter out the users that should be cached.' },
+   default => "(&(samAccountName=*)(!(|(lockoutTime=>0)(userAccountControl:1.2.840.113556.1.4.803:=2))))",
+  );
+
+has_field 'ntlm_cache_expiry' =>
+  (
+   type => 'PosInteger',
+   label => 'Expiration',
+   default => 3600,
+   tags => { after_element => \&help,
+             help => 'The amount of seconds an entry should be cached. This should be adjusted to twice the value of maintenance.populate_ntlm_redis_cache_interval if using the batch mode.' },
+  );
+
+has_field 'ntlm_cache_batch' =>
+  (
+   type => 'Toggle',
+   checkbox_value => "enabled",
+   unchecked_value => "disabled",
+   label => 'NTLM cache background job',
+   default => "disabled",
+   tags => { after_element => \&help,
+             help => 'When this is enabled, all users matching the LDAP filter will be inserted in the cache via a background job (maintenance.populate_ntlm_redis_cache_interval controls the interval).' },
+  );
+
+has_field 'ntlm_cache_on_connection' =>
+  (
+   type => 'Toggle',
+   checkbox_value => "enabled",
+   unchecked_value => "disabled",
+   label => 'NTLM cache on connection',
+   default => "disabled",
+   tags => { after_element => \&help,
+             help => 'When this is enabled, an async job will cache the NTLM credentials of the user every time he connects.' },
+  );
+
+has_block definition =>
+  (
+   render_list => [ qw(workgroup dns_name server_name ad_server dns_server bind_dn bind_pass ou registration) ],
+  );
+
+has_block ntlm_cache =>
+  (
+   render_list => [ qw(ntlm_cache ntlm_cache_source ntlm_cache_filter ntlm_cache_expiry ntlm_cache_batch ntlm_cache_on_connection) ],
+  );
+
+=head2 options_ntlm_cache_sources
+
+The AD sources that can be selected for NTLM auth cache
+
+=cut
+
+sub options_ntlm_cache_source {
+    my ($self) = @_;
+
+    my @sources = map {$_->{id} => $_->{id}} @{pf::authentication::getAuthenticationSourcesByType("AD")};
+    unshift @sources, ("" => "");
+    return @sources;
+}
+
+=head2 validate
+
+Validate NTLM cache fields if ntlm_cache is enabled
+
+=cut
+
+sub validate {
+    my ($self) = @_;
+    if(isenabled($self->field('ntlm_cache')->value())) {
+        get_logger->info("Validating NTLM cache fields because it is enabled.");
+        unless($self->field('ntlm_cache_source')->value) {
+            $self->field("ntlm_cache_source")->add_error("A valid source must be selected when NTLM cache is enabled."); 
+        }
+        unless($self->field('ntlm_cache_filter')->value) {
+            $self->field("ntlm_cache_filter")->add_error("An LDAP filter must be specified for caching when NTLM cache is enabled."); 
+        }
+        unless($self->field('ntlm_cache_expiry')->value) {
+            $self->field("ntlm_cache_expiry")->add_error("An expiration must be specified for caching when NTLM cache is enabled."); 
+        }
+    }
+}
 
 =over
 

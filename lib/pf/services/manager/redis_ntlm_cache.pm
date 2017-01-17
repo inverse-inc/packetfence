@@ -1,36 +1,35 @@
-package pf::constants::domain;
+package pf::services::manager::redis_ntlm_cache;
 
 =head1 NAME
 
-pf::constants::domain - constants for domain object
+pf::services::manager::redis_ntlm_cache - Service manager for the redis NTLM cache
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::constants::domain
+pf::services::manager::redis_ntlm_cache
 
 =cut
 
 use strict;
 use warnings;
-use base qw(Exporter);
-use Readonly;
+use Moo;
 
-our @EXPORT_OK = qw(
-    $SAMBA_CONF_PATH 
-    $NTLM_REDIS_CACHE_HOST
-    $NTLM_REDIS_CACHE_PORT
-);
+extends 'pf::services::manager::redis';
 
-Readonly::Scalar our $SAMBA_CONF_PATH => "/etc/samba/smb.conf";
+=head2 name
 
-Readonly::Scalar our $NTLM_REDIS_CACHE_HOST => "localhost";
-Readonly::Scalar our $NTLM_REDIS_CACHE_PORT => 6383;
- 
+The name of the redis service
+
+=cut
+
+has '+name' => (default => sub { 'redis_ntlm_cache' } );
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
+
 
 =head1 COPYRIGHT
 
@@ -38,7 +37,7 @@ Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and::or
+This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
@@ -56,4 +55,3 @@ USA.
 =cut
 
 1;
-

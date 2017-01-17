@@ -28,6 +28,9 @@ var DomainView = function(options) {
 
     var delete_item = $.proxy(this.deleteItem, this);
     options.parent.on('click', id + ' [href$="/delete"]', delete_item);
+
+    var save_and_join = $.proxy(this.updateAndJoinDomain, this);
+    options.parent.on('click', '#saveAndJoinDomain', save_and_join);
 };
 
 DomainView.prototype = (function(){
@@ -45,11 +48,12 @@ DomainView.prototype.showWait = function(title) {
   $('#domainProgressBar').css('width', '1%');
 };
 
-DomainView.prototype.updateItem = function(e) {
+DomainView.prototype.updateAndJoinDomain = function(e) {
   e.preventDefault();
 
   var that = this;
-  var form = $(e.target);
+  var target = $(e.target);
+  var form = target.closest('form');
   var table = $(this.items.id);
   var btn = form.find('.btn');
   var modal = form.closest('.modal');
@@ -61,7 +65,7 @@ DomainView.prototype.updateItem = function(e) {
       modal.modal('hide');
       that.showWait("The server is currently joining the domain");
       this.items.post({
-          url: form.attr('action'),
+          url: target.attr('href'),
           data: form.serialize(),
           always: function() {
               // Restore hidden/template rows
@@ -166,13 +170,15 @@ DomainView.prototype.setPassword = function(domain,callback) {
         })
         .done(function(data) {
             modal.modal('hide');     
-            form.find('input[type="password"]').val('');
+            form.find('input[name="username"]').val('');
+            form.find('input[name="password"]').val('');
             callback();
         })
         .fail(function(jqXHR) {
             $("body,html").animate({scrollTop:0}, 'fast');
             var status_msg = getStatusMsg(jqXHR);
-            form.find('input[type="password"]').val('');
+            form.find('input[name="username"]').val('');
+            form.find('input[name="password"]').val('');
             showError($('#section h2'), status_msg);
         });
     return false;
@@ -186,6 +192,7 @@ $(document).ready(function(){
     event.preventDefault()
     var domain_name = $(event.target).parent().parent().children().children().html()
     domainView.setPassword(domain_name, function(){
+      var view = domainView;
       var jbtn = $(that);
       var initial_content = jbtn.html();
       jbtn.attr('disabled', 'disabled');
@@ -205,6 +212,7 @@ $(document).ready(function(){
               content.append($('<pre>'+data.items['join_output']+'</pre>')); 
               $('#modalDomainWait').modal('hide');
               domainView.showResultModal(content); 
+              view.list();
               jbtn.html(initial_content);
               jbtn.removeAttr('disabled');
           })

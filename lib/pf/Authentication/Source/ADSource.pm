@@ -11,6 +11,7 @@ pf::Authentication::Source::ADSource
 use pf::Authentication::constants;
 use pf::constants::authentication::messages;
 use pf::Authentication::Source::LDAPSource;
+use pf::constants;
 
 use Moose;
 extends 'pf::Authentication::Source::LDAPSource';
@@ -36,6 +37,36 @@ sub available_attributes {
     ];
   
   return [@$super_attributes, @$ad_attributes];
+}
+
+=head2 findAtttributeFrom
+
+Get an attribute of an object given another of its attribute
+If more than one entry has the same attribute/value in the search, this will fail and return $FALSE
+
+=cut
+
+sub findAtttributeFrom {
+    my ($self, $from_attribute, $from_value, $to_attribute) = @_;
+
+    my ($connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
+
+    if (!defined($connection)) {
+        return ($FALSE, "Error communicating with the LDAP server");
+    }
+
+    my $result = $connection->search(
+        base => $self->{basedn}, 
+        filter => "($from_attribute=$from_value)", 
+        attrs => [$to_attribute],
+    );
+
+    return ($FALSE, "Cannot find $to_attribute of object ".$from_value) unless($result->count > 0);
+    return ($FALSE, "Too many entries matching $from_attribute=$from_value") if($result->count > 1);
+
+    my $to_value = $result->entry(0)->get_value($to_attribute);
+
+    return $to_value;
 }
 
 =head1 AUTHOR

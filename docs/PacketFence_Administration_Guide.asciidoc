@@ -3863,6 +3863,68 @@ PacketFence can generate a lot of log entries in huge production environments. T
 Performance optimization
 ------------------------
 
+NTLM authentication caching
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+NOTE: This section assumes that you already have an Active Directory domain configuration both in 'Configuration->Domains' and 'Configuration->Sources'. If you don't, you need to first configure those. Refer to the appropriate sections of this guide for details on how to configure those two components.
+
+CAUTION: The cache requires minimally Windows Server 2008. Older versions will not work.
+
+When using NTLM authentication against an Active Directory for 802.1x EAP-PEAP connections, this can become a bottleneck when handling dozens of authentications per seconds.
+
+To overcome this limitation, it is possible to use a Redis driven cache inside PacketFence to reduce the amount of authentications requiring an external NTLM authentication call. Should a user be in the cache, PacketFence will attempt to compare the 802.1x credentials with those. In the even that the validation fails, a call to ntlm_auth is made. In the event of a cache miss, an ntlm_auth call is made as well. This ensures that even if a user changes his password, his new password is immediately valid for 802.1x EAP-PEAP connections even if the cache contains the outdated entry.
+
+NOTE: The NTLM cache doesn't cache clear text passwords, it caches the NT hash of the user password.
+
+Addtionnal packages
++++++++++++++++++++
+
+In order to use this cache, you will need to install additionnal packages available from the packetfence-extra repository. These packages will allow PacketFence to query your Active Directory for the NT hash of the users.
+
+CentOS:
+```
+yum install python2-impacket --enablerepo=packetfence-extra
+```
+
+Debian:
+```
+apt-get install python-impacket
+```
+
+PacketFence configuration
++++++++++++++++++++++++++
+
+Once that is done, you need to configure PacketFence to start caching the credentials. In order to do so, go in 'Configuration->Domains' and select the domain you want to cache the credentials for. 
+
+Next, go in the 'NTLM cache' tab and:
+
+ * Enable 'NTLM cache'
+ * Select the Active Directory authentication source that is tied to this domain.
+ * Adjust the 'LDAP filter' if necessary. Note that this is only used for the batch job.
+ * Adjust the 'Expiration'
+ * Enable 'NTLM cache background job' and/or 'NTLM cache on connection'. In the case of this example, both will be enabled.
+
+image::docs/images/domain-ntlm-cache-1.png[scaledwidth="100%",alt="Domain NTLM cache"]
+
+image::docs/images/domain-ntlm-cache-2.png[scaledwidth="100%",alt="Domain NTLM cache"]
+
+Once done, click 'Save' to commit your changes.
+
+After that, you will need to enable the `redis_ntlm_cache` service which is used by PacketFence to store the cached credentials. In order to do so, go in 'Configuration->Services' and enable 'redis_ntlm_cache' and save the changes.
+
+Next, start the service via pfcmd:
+
+  /usr/local/pf/bin/pfcmd service redis_ntlm_cache start
+
+If you chose to enable 'NTLM cache background job' in one of your domains, you will need to enable the pfmon job that will periodically cache the credentials. This can be configured in 'Configuration->Maintenance->NTLM cache job interval'. It is advised to set this to half the expiration of the credentials you have set in the domain configuration. This will ensure you have an optimal cache hit. Once done, restart the `pfmon` service.
+
+Active Directory configuration
+++++++++++++++++++++++++++++++
+
+In order for PacketFence to be able to fetch the NTLM credentials from your Active Directory, it will need a user who has replication rights. The user to which you have to grant the rights, is the one that is configured in the authentication source that you associated in the 'NTLM cache' section of your domain.
+
+Please refer to the following Microsoft KB entry to configure the replication rights: https://support.microsoft.com/en-us/kb/303972
+
 SNMP Traps Limit
 ~~~~~~~~~~~~~~~~
 

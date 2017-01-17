@@ -86,6 +86,7 @@ install: build
 	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/var
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/dhcpd
 	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/redis_queue
+	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/redis_ntlm_cache
 	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/run
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/rrd
 	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/session

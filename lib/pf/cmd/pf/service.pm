@@ -38,6 +38,7 @@ Services managed by PacketFence:
   radsniff         | radsniff daemon
   redis_queue      | Redis for pfqueue
   routes           | manage static routes
+  redis_ntlm_cache | Redis for the NTLM cache
   snmptrapd        | SNMP trap receiver daemon
   snort            | Sourcefire Snort IDS
   statsd           | statsd service
