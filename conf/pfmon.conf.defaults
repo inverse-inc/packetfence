@@ -388,33 +388,6 @@ timeout=10s
 # How long to keep a radius_audit_log_cleanup entry before deleting it
 window=1D
 
-[traplog_cleanup]
-#
-# type
-#
-# The type of task to perform
-type=traplog_cleanup
-#
-# description
-#
-# The description of task to perform
-description=traplog cleanup
-#
-# enabled
-#
-# If the task traplog_cleanup is enabled
-enabled=enabled
-#
-# interval
-#
-# At which interval to run the traplog cleanup pfmon task
-interval=60s
-#
-# window
-#
-# How long to keep a traplog_cleanup entry before deleting it
-window=1W
-
 [violation_maintenance]
 #
 # type
