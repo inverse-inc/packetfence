@@ -18,7 +18,6 @@ use pf::authentication;
 use pf::config qw(%ConfigDomain);
 use Net::LDAP::Control::Paged;
 use Net::LDAP::Constant qw( LDAP_CONTROL_PAGED );
-use Data::Dumper;
 use pf::log;
 use File::Slurp qw(write_file read_file);
 use pf::file_paths qw($domains_ntlm_cache_users_dir);
