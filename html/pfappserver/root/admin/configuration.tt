@@ -94,7 +94,7 @@ table.sources {
               [% pf_section_entry( 'registration', 'Registration') | none %]
               [% pf_section_entry( 'alerting', 'Alerting') | none %]
               [%- IF can_access("PFMON_READ") %]
-              [% list_entry('Config::Pfmon', 'index', 'Pfmon Tasks') | none %]
+              [% list_entry('Config::Pfmon', 'index', 'Maintenance Tasks') | none %]
               [%- END %]
               [% pf_section_entry( 'services', 'Services') | none %]
               [% pf_section_entry( 'vlan', 'SNMP') | none %]

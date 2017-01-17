@@ -1,7 +1,7 @@
       <div class="modal modal-large fade hide" id="modalItem">
       </div>
 
-      <h2>[% l('Pfmon Tasks') %]</h2>
+      <h2>[% l('Maintenance Tasks') %]</h2>
 
       [% INCLUDE config/pfmon/list.tt %]
 
