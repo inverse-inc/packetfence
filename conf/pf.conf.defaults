@@ -741,22 +741,6 @@ routes_order=20
 # location of the routes binary. only necessary to change if you are not running the rpmed version.
 routes_binary=/sbin/ip
 
-#
-# services.routes
-#
-# Should routes be managed by PacketFence?
-routes=enabled
-#
-# services.routes_order
-#
-# Order in which to start this service
-routes_order=20
-#
-# services.routes_binary
-#
-# location of the routes binary. only necessary to change if you are not running the rpmed version.
-routes_binary=/sbin/ip
-
 [vlan]
 #
 # vlan.closelocationlogonstop

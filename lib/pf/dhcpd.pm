@@ -154,14 +154,16 @@ sub freeradius_populate_dhcpd_config {
     return unless db_ping;
 
     my $full_path = can_run('ip');
-
-    open (my$fh, "$install_dir/var/routes.bak");
-    while (my $row = <$fh>) {
-        chomp $row;
-        my $cmd = untaint_chain($row);
-        my @out = pf_run($cmd);
+    my $fh;
+    if (-f "$install_dir/var/routes.bak") {
+        open ($fh, "$install_dir/var/routes.bak");
+        while (my $row = <$fh>) {
+            chomp $row;
+            my $cmd = untaint_chain($row);
+            my @out = pf_run($cmd);
+        }
+       close $fh;
     }
-    close $fh;
     open ($fh, "+>$install_dir/var/routes.bak");
 
     foreach my $interface ( @listen_ints ) {
