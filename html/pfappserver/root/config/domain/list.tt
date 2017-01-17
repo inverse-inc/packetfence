@@ -35,14 +35,14 @@
 
                 <div class="modal-body">
                     <div class="control-group">
-                      <label class="control-label" for="bind_dn">Username</label>
+                      <label class="control-label" for="bind_dn">[% l('Username') %]</label>
                       <div class="controls">
                         <input type="text" name="username" value="">
                       </div>
                     </div>
                     <br>
                     <div class="control-group">
-                      <label class="control-label" for="bind_dn">Password</label>
+                      <label class="control-label" for="bind_dn">[% l('Password') %]</label>
                       <div class="controls">
                         <input type="password" name="password" value="">
                       </div>

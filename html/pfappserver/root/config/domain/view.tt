@@ -9,8 +9,8 @@
 
   <div class="modal-body">
     <ul class="nav nav-tabs">
-      <li class="active" ><a href="#settings" data-toggle="tab">Settings</a></li>
-      <li><a href="#ntlm-cache" data-toggle="tab">NTLM cache</a></li>
+      <li class="active" ><a href="#settings" data-toggle="tab">[% l('Settings') %]</a></li>
+      <li><a href="#ntlm-cache" data-toggle="tab">[% l('NTLM cache') %]</a></li>
     </ul>
 
     <div class="tab-content">
