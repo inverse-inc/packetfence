@@ -3881,8 +3881,14 @@ Addtionnal packages
 
 In order to use this cache, you will need to install additionnal packages available from the packetfence-extra repository. These packages will allow PacketFence to query your Active Directory for the NT hash of the users.
 
+CentOS:
 ```
 yum install python2-impacket --enablerepo=packetfence-extra
+```
+
+Debian:
+```
+apt-get install python-impacket
 ```
 
 PacketFence configuration
