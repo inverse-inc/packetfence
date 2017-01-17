@@ -329,6 +329,28 @@ enabled=disabled
 # At which interval to run the person cleanup pfmon task
 interval=60s
 
+[populate_ntlm_redis_cache]
+#
+# type
+#
+# The type of task to perform
+type=populate_ntlm_redis_cache
+#
+# description
+#
+# The description of task to perform
+description=populate ntlm redis cache
+#
+# enabled
+#
+# If the task populate_ntlm_redis_cache is enabled
+enabled=disabled
+#
+# interval
+#
+# At which interval to run the populate ntlm redis cache pfmon task
+interval=0s
+
 [provisioning_compliance_poll]
 #
 # type
