@@ -15,7 +15,7 @@ use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 
 use pfappserver::Form::Config::Switch;
-use pf::config::cached;
+use pf::authentication;
 
 BEGIN {
     extends 'pfappserver::Base::Controller';
@@ -51,9 +51,36 @@ Usage: /config/source
 
 sub index :Path :Args(0) {
     my ($self, $c) = @_;
+    my $internal_types = availableAuthenticationSourceTypes('internal');
+    my $external_types = availableAuthenticationSourceTypes('external');
+    my $exclusive_types = availableAuthenticationSourceTypes('exclusive');
+    my $billing_types = availableAuthenticationSourceTypes('billing');
+    $c->stash({
+        internal_types  => $internal_types,
+        external_types  => $external_types,
+        exclusive_types => $exclusive_types,
+        billing_types   => $billing_types,
+
+    });
 
     $c->forward('list');
 }
+
+after list => sub {
+    my ($self, $c) = @_;
+    my $items = $c->stash->{items};
+    my %source_by_class;
+    foreach my $item (@$items) {
+        my $type = $item->{type};
+        next if $type eq 'SQL';
+        my $class = pf::authentication::getAuthenticationClassByType($type);
+        $item->{class} = $class;
+        push @{$source_by_class{$class}}, $item;
+    }
+    $c->stash({
+        source_by_class => \%source_by_class,
+    });
+};
 
 before [qw(clone view _processCreatePost update)] => sub {
     my ($self, $c, @args) = @_;

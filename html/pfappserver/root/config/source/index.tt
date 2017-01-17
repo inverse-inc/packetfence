@@ -1,28 +1,70 @@
-      <div class="modal modal-large fade hide" id="modalItem">
+    <div class="modal fade hide" id="deleteItem">
+      <div class="modal-header">
+        <a class="close" data-dismiss="modal">&times;</a>
+        <h3><i>[% l('Delete Source') %]</i> <span></span></h3>
       </div>
-
-      <div class="modal fade hide" id="deleteItem">
-        <div class="modal-header">
-          <a class="close" data-dismiss="modal">&times;</a>
-          <h3><i>[% l('Delete Source entry') %]</i> <span></span></h3>
-        </div>
-        <div class="modal-body">
-          <p>[% l('Really delete this source entry?') %]</p>
-        </div>
-        <div class="modal-footer">
-          <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
-          <a href="#" class="btn btn-primary btn-danger"><i class="icon-trash"></i> [% l('Delete') %]</a>
-        </div>
+      <div class="modal-body">
+        <p>[% l('Really delete this users source?') %]</p>
       </div>
+      <div class="modal-footer">
+        <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
+        <a href="#" class="btn btn-primary btn-danger"><i class="icon-trash"></i> [% l('Delete') %]</a>
+      </div>
+    </div><!-- deleteItem -->
 
-      <h2>[% l('Source Entries') %]</h2>
+<h2>[% l('Users Sources')  %]</h2>
+[% IF error %]<div class="alert alert-error">
+  <button class="close" data-dismiss="alert">&times;</button>
+  <strong>[% l('Error!') %]</strong> <span>[% error %]</span>
+</div>[% END %]
+<p>[% l('Define the authentication sources to let users access the captive portal or the admin Web interface.') %]</p>
+<p>[% l('Each portal profile must be associated with one or multiple authentication sources while 802.1X connections use the ordered internal sources to determine which role to use. External sources are never used with 802.1X connections.') %]</p>
 
-      <p>[% l('Source of how to add configuration file in httpd.admin.') %]</p>
+[% IF message %]<div class="alert alert-success">
+  <button class="close" data-dismiss="alert">&times;</button>
+  <strong>[% l('Success!') %]</strong> [% message %]
+</div>[% END -%]
 
       [% INCLUDE config/source/list.tt %]
 
-      [%- IF can_access("USERS_SOURCES_CREATE") %]
-      <div class="form-actions">
-        <a class="btn createItem" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add source entry') %]</a>
-      </div>
-      [%- END %]
+[%- IF can_access("USERS_SOURCES_CREATE") %]
+<div class="form-actions">
+  <div class="btn-group">
+    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">[% l('Add source') %] <span class="caret"></span></a>
+    <ul id="createSource" class="dropdown-menu">
+      <li class="dropdown-submenu">
+        <a tabindex="-1">[% l('Internal') %]</a>
+        <ul class="dropdown-menu" id="internal_types">
+          [% FOREACH type IN internal_types.sort -%]
+            <li><a href="[% c.pf_hash_for(c.controller.action_for('create_type'), type) %]">[% l(type) %]</a></li>
+          [% END -%]
+        </ul>
+      </li>
+      <li class="dropdown-submenu">
+        <a tabindex="-1">[% l('External') %]</a>
+        <ul class="dropdown-menu" id="external_types">
+          [% FOREACH type IN external_types.sort -%]
+            <li><a href="[% c.pf_hash_for(c.controller.action_for('create_type'), type) %]">[% l(type) %]</a></li>
+          [% END -%]
+        </ul>
+      </li>
+      <li class="dropdown-submenu">
+        <a tabindex="-1">[% l('Exclusive') %]</a>
+        <ul class="dropdown-menu" id="exclusive_types">
+          [% FOREACH type IN exclusive_types.sort -%]
+            <li><a href="[% c.pf_hash_for(c.controller.action_for('create_type'), type) %]">[% l(type) %]</a></li>
+          [% END -%]
+        </ul>
+      </li>
+      <li class="dropdown-submenu">
+        <a tabindex="-1">[% l('Billing') %]</a>
+        <ul class="dropdown-menu" id="billing_types">
+          [% FOREACH type IN billing_types.sort -%]
+            <li><a href="[% c.pf_hash_for(c.controller.action_for('create_type'), type) %]">[% l(type) %]</a></li>
+          [% END -%]
+        </ul>
+      </li>
+    </ul>
+  </div>
+</div>
+[%- END %]
