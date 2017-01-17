@@ -1265,6 +1265,7 @@ sub validate_date {
         return $FALSE;
     }
     return $TRUE;
+}
 
 =item clean_locale
 
