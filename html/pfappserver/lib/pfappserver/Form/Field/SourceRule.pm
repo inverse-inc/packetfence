@@ -36,6 +36,7 @@ has_field 'class' => (
     localize_labels => 1,
     options_method  => \&options_rule_classes,
     default         => 'auth',
+    element_attr => { 'data-toggle' => 'pf-rule-class'}
 );
 
 has_field 'description' => (
@@ -72,6 +73,7 @@ has_field 'actions' => (
     type     => 'DynamicList',
     do_label => 1,
     required => 1,
+    num_when_empty => 1,
 );
 
 has_field 'actions.contains' => (
@@ -107,14 +109,9 @@ Populate the 'class' field of a rule based on the available rule classes for a s
 sub options_rule_classes {
     my $self = shift;
 
-    my $classname = $self->form->source_type;
-    eval "require $classname";
-    if ($@) {
-        $self->form->ctx->log->error($@);
-        return [];
-    }
+    my $source = $self->form->get_source;
     my @options;
-    foreach (@{$classname->available_rule_classes}) {
+    foreach (@{$source->available_rule_classes}) {
         push(@options, {value => $_, label => $_});
     }
 

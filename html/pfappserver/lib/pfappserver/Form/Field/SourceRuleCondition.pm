@@ -57,7 +57,7 @@ sub options_attributes {
 
     my $form = $self->form;
     my @attributes = map {{label => $_->{value}, value => $_->{value}, attributes => {'data-type' => $_->{type}}}}
-      @{$form->source_type->available_attributes // []};
+      @{$form->get_source->available_attributes // []};
 
     return @attributes;
 }
@@ -90,12 +90,10 @@ Populate the 'class' field of a rule based on the available rule classes for a s
 sub options_rule_classes {
     my $self = shift;
 
-    my $classname = $self->form->source_type;
-    eval "require $classname";
-    $self->form->ctx->log->error($@) if $@;
+    my $source = $self->form->get_source;
 
     my @options;
-    foreach (@{$classname->available_rule_classes}) {
+    foreach (@{$source->available_rule_classes}) {
         push(@options, {value => $_, label => $_});
     }
 

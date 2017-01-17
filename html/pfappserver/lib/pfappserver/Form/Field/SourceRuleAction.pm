@@ -48,15 +48,10 @@ sub options_type {
     my ($classname, $actions_ref, @actions);
     my $form = $self->form;
 
-    $classname = $form->source_type;
-    eval "require $classname";
-    if ($@) {
-        $self->form->ctx->log->error($@);
-        return [];
-    }
+    my $source = $form->get_source;
     my @allowed_actions = $form->_get_allowed_options('allowed_actions');
     unless (@allowed_actions) {
-        @allowed_actions = @{$classname->available_actions()};
+        @allowed_actions = @{$source->available_actions()};
     }
     @actions = map { 
       { value => $_, 
