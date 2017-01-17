@@ -47,10 +47,17 @@ foreach my $task (sort @tasks) {
         attributes => \@attributes,
         enabled  => 'enabled',
     );
+    if (exists $Default_Config{maintenance}{$task} ) {
+       $vars{enabled} = $Default_Config{maintenance}{$task};
+    }
     for my $attrib_name (sort grep { /^${task}_/ } @keys) {
         my $value = $Default_Config{maintenance}{$attrib_name};
         if ($attrib_name =~ /_interval$/) {
             $vars{interval} = $value;
+            my $interval = normalize_time($value);
+            if ($interval == 0 ) {
+               $vars{enabled} = 'disabled';
+            }
             next;
         }
         my $default = $value;
