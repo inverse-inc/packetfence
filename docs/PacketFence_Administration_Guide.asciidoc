@@ -3310,6 +3310,11 @@ This rule will do the following:
   true and explorer is true then we execute the action.
   The logic can be more complex and can be something like that [1:!google|(explorer&memory)] that mean if not google or (explorer and memory)
 
+WMI tab:
+++++++++
+
+From PacketFence 6.4 it is possible to have the result of a WMI scan in the node section. To have this, go into the rule configuration and check the box 'On Node tab'. Now configure your WMI scanner as you would usually do and you will be able to have the results in the tab 'WMI Rules' under Node.
+
 Violations definition
 +++++++++++++++++++++
 
