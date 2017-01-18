@@ -20,6 +20,7 @@ use warnings;
 use pf::client;
 use pf::config qw(
     %ConfigFirewallSSO
+    $management_network
 );
 use pf::constants qw(
     $TRUE
