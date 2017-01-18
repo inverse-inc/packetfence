@@ -18,7 +18,7 @@ use pf::node;
 use Moose;
 extends qw(pf::pfmon::task);
 
-has 'window' => ( is => 'rw', default => 0 );
+has 'window' => ( is => 'rw', isa => 'PfInterval', coerce => 1 );
 
 =head2 run
 

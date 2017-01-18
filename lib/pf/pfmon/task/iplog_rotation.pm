@@ -18,9 +18,9 @@ use pf::iplog;
 use Moose;
 extends qw(pf::pfmon::task);
 
-has 'batch' => ( is => 'rw', default => 100 );
-has 'timeout' => ( is => 'rw', default => 10 );
-has 'window' => ( is => 'rw', default => 604800 );
+has 'batch' => ( is => 'rw' );
+has 'timeout' => ( is => 'rw', isa => 'PfInterval', coerce => 1 );
+has 'window' => ( is => 'rw', isa => 'PfInterval', coerce => 1 );
 
 =head2 run
 

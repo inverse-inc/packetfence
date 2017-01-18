@@ -18,9 +18,9 @@ use Moose;
 use pf::auth_log;
 extends qw(pf::pfmon::task);
 
-has 'timeout' => ( is => 'rw', default => 10 );
-has 'batch' => ( is => 'rw', default => 100 );
-has 'window' => ( is => 'rw', default => 604800 );
+has 'batch' => ( is => 'rw');
+has 'timeout' => ( is => 'rw', isa => 'PfInterval', coerce => 1 );
+has 'window' => ( is => 'rw', isa => 'PfInterval', coerce => 1 );
 
 =head2 run
 

@@ -18,8 +18,8 @@ use Moose;
 use pf::violation;
 extends qw(pf::pfmon::task);
 
-has 'timeout' => ( is => 'rw', default => 10 );
-has 'batch' => ( is => 'rw', default => 1000 );
+has 'batch' => ( is => 'rw');
+has 'timeout' => ( is => 'rw', isa => 'PfInterval', coerce => 1 );
 
 =head2 run
 

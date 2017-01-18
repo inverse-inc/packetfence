@@ -18,9 +18,9 @@ use Moose;
 use pf::radius_audit_log;
 extends qw(pf::pfmon::task);
 
-has 'batch' => ( is => 'rw', default => 100 );
-has 'window' => ( is => 'rw', default => 86400 );
-has 'timeout' => ( is => 'rw', default => 10 );
+has 'batch' => ( is => 'rw');
+has 'window' => ( is => 'rw', isa => 'PfInterval', coerce => 1 );
+has 'timeout' => ( is => 'rw', isa => 'PfInterval', coerce => 1 );
 
 =head2 run
 
@@ -31,7 +31,7 @@ run the radius audit log cleanup task
 sub run {
     my ($self) = @_;
     my $window = $self->window;
-    radius_audit_log_cleanup($window, $self->batch, $self->timeout) if $self->window;
+    radius_audit_log_cleanup($window, $self->batch, $self->timeout) if $window;
 }
 
 =head1 AUTHOR
