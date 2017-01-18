@@ -230,13 +230,15 @@ sub authorize {
     
     $args->{'autoreg'} = 0;
     # should we auto-register? let's ask the VLAN object
+    my ( $status, $status_msg );
     if ($role_obj->shouldAutoRegister($args)) {
         $args->{'autoreg'} = 1;
         # automatic registration
         my %autoreg_node_defaults = $role_obj->getNodeInfoForAutoReg($args);
         $args->{'node_info'} = merge($args->{'node_info'}, \%autoreg_node_defaults);
         $logger->debug("[$mac] auto-registering node");
-        if (!node_register($mac, $autoreg_node_defaults{'pid'}, %autoreg_node_defaults)) {
+        ( $status, $status_msg ) = pf::node::node_register($mac, $autoreg_node_defaults{'pid'}, %autoreg_node_defaults);
+        if (!$status) {
             $logger->error("auto-registration of node failed");
         }
     }

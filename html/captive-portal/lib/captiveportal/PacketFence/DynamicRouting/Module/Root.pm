@@ -249,7 +249,9 @@ sub apply_new_node_info {
         $self->new_node_info->{unregdate} = $self->node_info->{unregdate};
     }
 
-    if(node_register($self->current_mac, $self->username, %{$self->new_node_info()})){
+    my ( $status, $status_msg );
+    ( $status, $status_msg ) = pf::node::node_register($self->current_mac, $self->username, %{$self->new_node_info()});
+    if ($status) {
         $self->app->flash->{notice} = [ "Role %s has been assigned to your device with unregistration date : %s", $self->new_node_info->{category}, $self->new_node_info->{unregdate} ];
         return $TRUE;
     }

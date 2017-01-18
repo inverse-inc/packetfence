@@ -619,7 +619,8 @@ sub bulkRegister {
     foreach my $node (map {person_nodes($_)} @ids  ) {
         if($node->{status} eq $pf::node::STATUS_UNREGISTERED) {
             my $mac = $node->{mac};
-            if(node_register($mac, $node->{pid}, %{$node})) {
+            ( $status, $status_msg ) = pf::node::node_register($mac, $node->{pid}, %{$node});
+            if( $status ) {
                 reevaluate_access($mac, "node_modify");
                 $count++;
             }

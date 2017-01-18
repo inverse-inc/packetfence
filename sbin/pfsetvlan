@@ -1836,7 +1836,9 @@ sub node_update_PF {
         my %autoreg_node_defaults = $role_obj->getNodeInfoForAutoReg({ switch => $switch, ifIndex => $switch_port,
             mac => $mac, vlan => $vlan, violation_autoreg => 0, isPhone => $isPhone, connection_type => $WIRED_SNMP_TRAPS});
         $logger->debug("auto-registering node $mac");
-        if (!node_register($mac, $autoreg_node_defaults{'pid'}, %autoreg_node_defaults)) {
+        my ( $status, $status_msg );
+        ( $status, $status_msg ) = pf::node::node_register($mac, $autoreg_node_defaults{'pid'}, %autoreg_node_defaults);
+        if (!$status) {
             $logger->error("auto-registration of node $mac failed");
             return 0;
         }
