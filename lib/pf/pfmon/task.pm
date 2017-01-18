@@ -16,6 +16,7 @@ use strict;
 use warnings;
 
 use pf::util qw(isenabled);
+use pf::Moose::Types;
 use Moose;
 
 has type => (is => 'ro', isa => 'Str', required => 1);
@@ -24,7 +25,7 @@ has id => (is => 'ro', isa => 'Str', required => 1);
 
 has enabled => (is => 'ro', isa => 'Str', required => 1);
 
-has interval => (is => 'ro', isa => 'Int', required => 1);
+has interval => (is => 'ro', isa => 'PfInterval', required => 1, coerce => 1);
 
 =head2 run
 
