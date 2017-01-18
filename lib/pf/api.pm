@@ -953,7 +953,7 @@ sub trigger_scan : Public : Fork {
     if (pf::util::is_prod_interface($postdata{'net_type'})) {
         my $profile = pf::Portal::ProfileFactory->instantiate($postdata{'mac'});
         my $scanner = $profile->findScan($postdata{'mac'});
-        if (defined($scanner) && pf::util::isenabled($scanner->{'post_registration'})) {
+        if (defined($scanner) && pf::util::isenabled($scanner->{'_post_registration'})) {
             pf::violation::violation_add( $postdata{'mac'}, $pf::constants::scan::POST_SCAN_VID );
         }
         my $top_violation = pf::violation::violation_view_top($postdata{'mac'});
@@ -967,7 +967,7 @@ sub trigger_scan : Public : Fork {
         my $profile = pf::Portal::ProfileFactory->instantiate($postdata{'mac'});
         my $scanner = $profile->findScan($postdata{'mac'});
         # pre_registration
-        if (defined($scanner) && pf::util::isenabled($scanner->{'pre_registration'})) {
+        if (defined($scanner) && pf::util::isenabled($scanner->{'_pre_registration'})) {
             pf::violation::violation_add( $postdata{'mac'}, $pf::constants::scan::PRE_SCAN_VID );
         }
         my $top_violation = pf::violation::violation_view_top($postdata{'mac'});
