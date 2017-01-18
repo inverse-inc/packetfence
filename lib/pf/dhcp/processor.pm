@@ -54,6 +54,8 @@ use DateTime::Format::MySQL;
 use pf::parking;
 use pf::cluster;
 use pf::dhcp_option82 qw(dhcp_option82_insert_or_update);
+use pf::violation;
+use pf::constants::parking qw($PARKING_VID);
 
 our $logger = get_logger;
 my $ROGUE_DHCP_TRIGGER = '1100010';
@@ -328,6 +330,10 @@ sub parse_dhcp_request {
         !isenabled($Config{network}{force_listener_update_on_ack}) ){
         $self->handle_new_ip($client_mac, $client_ip, $lease_length);
     }
+    # We call the parking on all DHCPREQUEST since the actions have to be done on all servers and all servers receive the DHCPREQUEST
+    else {
+        $self->check_for_parking($client_mac, $client_ip);
+    }
 
     # As per RFC2131 in a DHCPREQUEST if ciaddr is set and we broadcast, we are in re-binding state
     # in which case we are not interested in detecting rogue DHCP
@@ -467,6 +473,10 @@ sub check_for_parking {
     if($node->{status} eq $STATUS_REGISTERED){
         get_logger->debug("Not checking parking for $client_mac since the node is registered");
         return;
+    }
+
+    if(violation_count_open_vid($client_mac, $PARKING_VID)) {
+        pf::parking::trigger_parking($client_mac, $client_ip);
     }
 
     my @locationlogs = locationlog_history_mac($client_mac);
