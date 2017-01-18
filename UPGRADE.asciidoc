@@ -66,6 +66,11 @@ Once the additionnal steps are completed, restart packetfence-config and packetf
 Upgrading from a version prior to X.Y.Z
 ---------------------------------------
 
+Custom code warning
+^^^^^^^^^^^^^^^^^^^
+
+The method signature of pf::node::node_register has been modified. Make sure you adjust any custom code / external scripts to handle the new returned values
+
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
 
 Database schema updates
