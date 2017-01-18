@@ -28,6 +28,7 @@ use pf::constants qw(
 use pf::log;
 use List::MoreUtils qw(any);
 use NetAddr::IP;
+use pf::cluster;
 
 =head1 SUBROUTINES
 
@@ -89,6 +90,24 @@ sub do_sso {
 
     $client->notify('firewallsso', %data );
 
+}
+
+=item sso_source_ip
+
+Computes which IP should be used as source IP address for the SSO
+
+Takes into account the active/active clustering 
+
+=cut
+
+sub sso_source_ip {
+    my ($self) = @_;
+    if($cluster_enabled){
+        pf::cluster::management_cluster_ip();
+    }
+    else {
+        return $management_network->tag('vip') || $management_network->tag('ip');
+    }
 }
 
 
