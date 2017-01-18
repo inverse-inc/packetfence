@@ -9863,6 +9863,10 @@ msgstr "Use Redis"
 msgid "query.use_tcp_fingerprinting"
 msgstr "Use TCP fingerprinting"
 
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "tcp_fingerprinting.p0f_map_path"
+msgstr "p0f map path"
+
 # conf/documentation.conf
 msgid "radius_authentication_methods"
 msgstr "RADIUS Authentication Methods"
