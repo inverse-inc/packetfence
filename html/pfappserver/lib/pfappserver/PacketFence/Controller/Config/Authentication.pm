@@ -26,6 +26,19 @@ BEGIN { extends 'pfappserver::Base::Controller'; }
 
 =head1 SUBROUTINES
 
+=head2 auto
+
+reload the sources
+
+=cut
+
+sub auto : Private {
+    my ($self) = @_;
+    pf::ConfigStore::Authentication::setModuleSources();
+    return 1;
+}
+
+
 =head2 index
 
 Show list of authentication sources. Allow user to order the list.

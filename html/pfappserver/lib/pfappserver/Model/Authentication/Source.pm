@@ -27,7 +27,6 @@ use pf::ConfigStore::Authentication;
 
 sub update {
     my ($self, $source_id, $source_obj, $def_ref) = @_;
-    pf::ConfigStore::Authentication::setModuleSources();
 
     my $logger = get_logger();
 
@@ -88,7 +87,6 @@ sub update {
 
 sub delete {
     my ($self, $source_obj) = @_;
-    pf::ConfigStore::Authentication::setModuleSources();
 
     my $count = pf::ConfigStore::Authentication::deleteSource($source_obj->id);
     if ($count > 0) {
@@ -114,7 +112,6 @@ sub delete {
 
 sub updateRule {
     my ($self, $source_id, $rule_id, $def_ref) = @_;
-    pf::ConfigStore::Authentication::setModuleSources();
 
     my $source = pf::ConfigStore::Authentication::getSource($source_id);
     if ($source) {

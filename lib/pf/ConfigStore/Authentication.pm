@@ -164,7 +164,6 @@ sub writeAuthenticationConfigFile {
 
     # we signal pfconfig that we changed
     $self->commitPfconfig;
-    setModuleSources();
 
 }
 

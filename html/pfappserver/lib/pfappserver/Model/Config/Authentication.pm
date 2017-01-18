@@ -41,7 +41,6 @@ We especially don't want to allow the modification of the local SQL database.
 
 sub readAll {
     my ($self) = @_;
-    pf::ConfigStore::Authentication::setModuleSources();
     my $sql_type = pf::Authentication::Source::SQLSource->meta->get_attribute('type')->default;
     my @sources = grep { $_->{type} ne $sql_type } @pf::ConfigStore::Authentication::auth_sources;
 
@@ -54,7 +53,6 @@ sub readAll {
 
 sub update {
     my ($self, $id, $source_obj) = @_;
-    pf::ConfigStore::Authentication::setModuleSources();
     my %not_params = (
         rules => undef,
         unique => undef,
