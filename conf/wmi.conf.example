@@ -1,5 +1,6 @@
 # Detect installed software and trigger a violation
 [Software_Installed]
+namespace=ROOT\cimv2
 request=select * from Win32_Product
 action= <<EOT
 [Google]
@@ -14,6 +15,7 @@ EOT
 
 # Detect the current user logged in and register the device
 [logged_user]
+namespace=ROOT\cimv2
 request=select UserName from Win32_ComputerSystem
 action= <<EOT
 [UserName]
@@ -28,6 +30,7 @@ EOT
 
 # Detect the running process and if it exist then bybass the scan
 [Process_Running]
+namespace=ROOT\cimv2
 request=select Name from Win32_Process
 action= <<EOT
 [explorer]
