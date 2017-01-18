@@ -33,3 +33,4 @@
     # This following line is required for RHEL / CentOS 7 but will be ignored on RHEL / CentOS 6
     su root pf
 }
+
