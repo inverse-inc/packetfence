@@ -8,6 +8,7 @@ h3, .aup {
   position:relative;
   right:20px;
   top:5px;
+  display:inline-block;
 }
 </style>
 
@@ -69,7 +70,7 @@ body {
       <div class="print-menu">
         <h1>
           <span>[% l('Access Code') %]</span>
-          <span class="print-with-aup" style="display:inline-block;">
+          <span class="print-with-aup">
             <label>Print with AUP: <input autocomplete="off" type="checkbox" name="with-aup" value="yes" checked="checked"></label>
           </span>
         </h1>
