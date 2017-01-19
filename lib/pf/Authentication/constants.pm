@@ -99,6 +99,7 @@ Readonly::Scalar our $SUBSTRING => 'substring';
 Readonly::Scalar our $NUMBER => 'number';
 Readonly::Scalar our $DATE => 'date';
 Readonly::Scalar our $TIME => 'time';
+Readonly::Scalar our $TIME_PERIOD => 'time_period';
 Readonly::Scalar our $CONNECTION => 'connection';
 Readonly::Scalar our $LDAP_ATTRIBUTE => 'ldapattribute';
 
@@ -113,7 +114,8 @@ Readonly::Hash our %OPERATORS =>
    $SUBSTRING => [$STARTS, $EQUALS, $CONTAINS, $ENDS, $MATCHES],
    $NUMBER => [$LOWER, $LOWER_OR_EQUALS, $EQUALS, $HIGHER, $HIGHER_OR_EQUALS],
    $DATE => [$IS_BEFORE, $IS, $IS_AFTER],
-   $TIME => [$IS_BEFORE, $IS_AFTER, $IN_TIME_PERIOD],
+   $TIME => [$IS_BEFORE, $IS_AFTER],
+   $TIME_PERIOD => [$IN_TIME_PERIOD],
    $CONNECTION => [$IS, $IS_NOT],
    $LDAP_ATTRIBUTE => [$STARTS, $EQUALS, $NOT_EQUALS, $CONTAINS, $ENDS, $MATCHES, $IS_MEMBER],
   );

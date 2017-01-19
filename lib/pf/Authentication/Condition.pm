@@ -103,7 +103,7 @@ sub matches {
             }
         }
         elsif ($operator eq $Conditions::IN_TIME_PERIOD) {
-            my $r = inPeriod(time(), $value);
+            my $r = inPeriod($v, $value);
             if ( $r == 1 ) {
                 return 1;
             }

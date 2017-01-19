@@ -92,6 +92,7 @@ sub common_attributes {
   return [
           { value => 'SSID', type => $Conditions::SUBSTRING },
           { value => 'current_time', type => $Conditions::TIME },
+          { value => 'current_time_period', type => $Conditions::TIME_PERIOD },
           { value => 'connection_type', type => $Conditions::CONNECTION },
           { value => 'computer_name', type => $Conditions::SUBSTRING },
           { value => "mac", type => $Conditions::SUBSTRING },
@@ -168,13 +169,15 @@ sub match {
     }
 
     # Add current date & time to the list of parameters
-    my ($sec,$min,$hour,$mday,$mon,$year) = localtime(time);
+    my $time = time;
+    my ($sec,$min,$hour,$mday,$mon,$year) = localtime($time);
     my $current_date = sprintf("%d-%02d-%02d", $year+1900, $mon+1, $mday);
     my $current_time = sprintf("%02d:%02d", $hour, $min);
     # Make a copy of the keys to allow caching of the parameters
     $params = {%$params};
     $params->{current_date} = $current_date;
     $params->{current_time} = $current_time;
+    $params->{current_time_period} = $time;
     my $rule_class = $params->{'rule_class'} // '';
 
     my @matching_rules = ();
