@@ -28,7 +28,7 @@ around wrap_field => sub {
     $heading = $self->do_accordion_heading unless $heading;
     my $accordion_group_id  = $self->accordion_group_id;
     $output = <<EOS;
-<div class="accordion-group" id="$accordion_group_id">
+<div class="accordion-group control-group" id="$accordion_group_id">
     $heading
     <div id="$id" class="accordion-body collapse">
         <div class="accordion-inner">$rendered_widget</div>
@@ -84,6 +84,24 @@ sub do_accordion_heading_content {
         my $item_target = $self->escape_jquery_id($self->accordion_group_id);
         $content = qq{<span data-sortable-text="$label" data-base-id="$base_id" data-sortable-item="#$item_target" data-sortable-scope="$scope" data-sortable-parent="$target_id" class="sort-handle">$name</span>} .  $content ;
     }
+    my $buttons = $self->append_add_delete_buttons;
+    $content .= $buttons;
+    return $content;
+}
+
+sub append_add_delete_buttons {
+    my ($self) = @_;
+    my $parent = $self->parent;
+    my $group_target = $self->escape_jquery_id($self->accordion_group_id);
+    my $base_id = $parent->id;
+    my $target_wrapper = '#'. $self->escape_jquery_id($base_id);
+    my $template_control_group_target = $parent->template_control_group_target;
+    my $add_button_attr = $parent->add_button_attr;
+    my $delete_button_attrs = qq{data-toggle="dynamic-list-delete" data-template-control-group="${template_control_group_target}" data-target-wrapper="$target_wrapper" data-base-id="$base_id" data-target="#$group_target"};
+    my $content = qq{
+        <a class="btn-icon" $delete_button_attrs><i class="icon-minus-sign"></i></a>
+        <a class="btn-icon" $add_button_attr><i class="icon-plus-sign"></i></a>
+    };
     return $content;
 }
 
@@ -97,7 +115,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 
