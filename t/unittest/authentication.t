@@ -14,7 +14,7 @@ autentication
 use strict;
 use warnings;
 
-use Test::More tests => 23;                      # last test to print
+use Test::More tests => 26;                      # last test to print
 
 use Test::NoWarnings;
 use diagnostics;
@@ -199,6 +199,35 @@ is(
 
 is($source_id_ref, undef, "Source id ref shouldn't be found");
 
+is_deeply(
+    pf::authentication::match("htpasswd1", { username => 'match_action', rule_class => 'administration' }, undef, \$source_id_ref),
+    [
+        pf::Authentication::Action->new({
+            'value' => 'Violation Manager',
+            'type'  => 'set_access_level',
+            'class' => 'administration',
+        })
+    ],
+    "match first rule htpasswd1 by username with no action"
+);
+
+is(
+    pf::authentication::match(
+        "htpasswd1", {username => 'match_action', rule_class => 'administration'},
+        'set_access_level', \$source_id_ref
+    ),
+    'Violation Manager',
+    "match first rule htpasswd1 by username with action"
+);
+
+is(
+    pf::authentication::match(
+        "htpasswd1", {username => 'match_action', rule_class => 'administration'},
+        'mark_as_sponsor', \$source_id_ref
+    ),
+    1,
+    "match second rule htpasswd1 by username with action"
+);
 
 =head1 AUTHOR
 

@@ -17,6 +17,7 @@ use Moose;
 use pf::util;
 use pf::Authentication::constants;
 use pf::Authentication::Action;
+use List::Util qw(none);
 
 has 'id' => (isa => 'Str', is => 'rw', required => 1);
 
@@ -156,11 +157,15 @@ Returns the actions of the first matched rule.
 =cut
 
 sub match {
-    my ($self, $params) = @_;
+    my ($self, $params, $action) = @_;
 
     my $common_attributes = $self->common_attributes();
     my $available_attributes = $self->available_attributes();
     my $logger = get_logger();
+    my %allowed_actions;
+    if (defined $action && exists $Actions::ALLOWED_ACTIONS{$action}) {
+        %allowed_actions = %{$Actions::ALLOWED_ACTIONS{$action}};
+    }
 
     # Add current date & time to the list of parameters
     my ($sec,$min,$hour,$mday,$mon,$year) = localtime(time);
@@ -170,12 +175,16 @@ sub match {
     $params = {%$params};
     $params->{current_date} = $current_date;
     $params->{current_time} = $current_time;
+    my $rule_class = $params->{'rule_class'} // '';
 
     my @matching_rules = ();
     $self->preMatchProcessing;
 
     foreach my $rule ( @{$self->{'rules'}} ) {
-        next if ( (defined($params->{'rule_class'})) && ($params->{'rule_class'} ne $rule->{'class'}) );
+        if ( ($rule_class ne $rule->{'class'}) || (defined $action && none { $allowed_actions{$_->type} } @{$rule->{actions}}) ) {
+            $logger->trace("Skipping rule " . ($rule->id ) . " for source " . $self->id);
+            next;
+        }
         my @matching_conditions = ();
         my @own_conditions = ();
 
