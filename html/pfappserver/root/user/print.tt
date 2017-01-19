@@ -71,7 +71,7 @@ body {
         <h1>
           <span>[% l('Access Code') %]</span>
           <span class="print-with-aup">
-            <label>Print with AUP: <input autocomplete="off" type="checkbox" name="with-aup" value="yes" checked="checked"></label>
+            <label>[% l('Print with AUP') %]: <input autocomplete="off" type="checkbox" name="with-aup" value="yes" checked="checked"></label>
           </span>
         </h1>
         <div class="alert alert-warn">
