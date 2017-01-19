@@ -175,10 +175,10 @@ sub match {
     my $current_time = sprintf("%02d:%02d", $hour, $min);
     # Make a copy of the keys to allow caching of the parameters
     $params = {%$params};
-    $params->{current_date} = $current_date;
-    $params->{current_time} = $current_time;
-    $params->{current_time_period} = $time;
     my $rule_class = $params->{'rule_class'} // '';
+    $params->{current_date} //= $current_date;
+    $params->{current_time} //= $current_time;
+    $params->{current_time_period} //= $time;
 
     my @matching_rules = ();
     $self->preMatchProcessing;
