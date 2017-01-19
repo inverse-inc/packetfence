@@ -3,4 +3,4 @@
 #[snort]
 #path=/usr/local/pf/var/alert
 #type=snort
-#enabled=enabled
+#status=enabled

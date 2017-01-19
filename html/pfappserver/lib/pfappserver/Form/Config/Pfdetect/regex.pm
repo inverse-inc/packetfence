@@ -64,7 +64,7 @@ sub build_rule_label {
 
 has_block definition =>
   (
-   render_list => [ qw(id type enabled path rules) ],
+   render_list => [ qw(id type status path rules) ],
   );
 
 
