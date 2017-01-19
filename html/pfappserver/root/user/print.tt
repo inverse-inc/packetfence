@@ -59,6 +59,9 @@ body {
   margin-left: 1.5in;
   margin-right: 1.5in;
 }
+.title-underline {
+  border-bottom:3px dotted black;
+}
 </style>
 <div class="container-fluid">
   <div class="row-fluid">
@@ -79,7 +82,7 @@ body {
         </div>
       [% FOREACH user IN users %]
       <h3>[% l('Access Code') %]</h3>
-      <hr/>
+      <div class="title-underline"></div>
       <dl class="dl-horizontal">
         <dt>[% l('Username') %]</dt>
         <dd>[% user.pid | html %]</dd>
