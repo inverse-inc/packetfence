@@ -1106,7 +1106,6 @@ sub send_email {
     my ($smtp_server, $from, $to, $subject, $template, %info) = @_;
     my $logger = get_logger();
 
-    use POSIX;
     my $user_info = pf::person::person_view($to);
     setlocale(POSIX::LC_MESSAGES, $user_info->{lang});
     
@@ -1278,6 +1277,7 @@ sub clean_locale {
     if( $locale =~ /^([A-Za-z_]+)\./ ) {
         $locale = $1;
     }
+    return $locale;
 }
 
 =back

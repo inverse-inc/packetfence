@@ -458,10 +458,9 @@ sub send_email {
     my ($type, $activation_code, $template, %info) = @_;
     my $logger = get_logger();
 
-    use POSIX;
     my $user_locale = clean_locale(setlocale(POSIX::LC_MESSAGES));
     if ($type eq $SPONSOR_ACTIVATION) {
-        $logger->info('We are doing sponsor activation', $user_locale);
+        $logger->debug('We are doing sponsor activation', $user_locale);
         setlocale(POSIX::LC_MESSAGES, $Config{'advanced'}{'language'});
     }
     my $smtpserver = $Config{'alerting'}{'smtpserver'};
