@@ -31,6 +31,7 @@ function dynamic_list_update_all_attributes(elements, base_id, count) {
      * Update id
      */
 
+    elements.find('.sort-handle').first().text(count +1);
     var regex_str = base_id + "\\." + "[0-9]+";
     var regex = new RegExp(regex_str);
     var replace_str = base_id + "." + count.toString();
@@ -46,7 +47,7 @@ function dynamic_list_update_all_attributes(elements, base_id, count) {
     var jquery_escaped_id = escapeJqueryId(base_id + ".");
     var href_regex = new RegExp(escapeRegExp(jquery_escaped_id) + "[0-9]+");
     var href_replace = jquery_escaped_id + count.toString();
-    $.each(["href", "data-target", "data-template-parent", "data-sortable-item"], function(i, id) {
+    $.each(["data-template-control-group", "href", "data-target-wrapper", "data-target", "data-template-parent", "data-sortable-item"], function(i, id) {
         var query = '[' + id + '*="' + escapeJqueryId(jquery_escaped_id) + '"]';
         update_attributes(elements, id, query, href_regex, href_replace);
     });
@@ -423,10 +424,14 @@ $(function () { // DOM ready
         item.addClass('active');
         return true;
     });
+
     $('body').on('click', '[data-toggle="dynamic-list"]', function(event) {
+        event.preventDefault();
         var link = $(this);
         var target = $(link.attr("data-target"));
+        var target_wrapper = $(link.attr("data-target-wrapper"));
         var template_parent = $(link.attr("data-template-parent"));
+        var template_control_group = $(link.attr("data-template-control-group"));
         var base_id = link.attr("data-base-id");
         var copy = template_parent.clone();
         copy.removeAttr('id');
@@ -435,23 +440,36 @@ $(function () { // DOM ready
             var template_parent = input.closest('[id^="dynamic-list-template"]');
             if (template_parent.length == 0) {
                 input.removeAttr('disabled');
+                input.removeClass('disabled');
             }
         });
-        dynamic_list_update_all_attributes(copy, base_id, target.children().length);
+        var index = target.children().length;
+        dynamic_list_update_all_attributes(copy, base_id, index);
         target.append(copy.children());
+        target.children().last().trigger('dynamic-list.add');
+        target_wrapper.removeClass('hidden');
+        template_control_group.addClass('hidden');
         return false;
     });
+
 
     $('body').on('click', '[data-toggle="dynamic-list-delete"]', function(event) {
         event.preventDefault();
         var link = $(this);
+        var target_wrapper = $(link.attr("data-target-wrapper"));
         var data_target = $(link.attr("data-target"));
         var base_id = link.attr("data-base-id");
         var siblings = data_target.siblings();
+        var template_control_group = $(link.attr("data-template-control-group"));
         data_target.remove();
-        siblings.each(function(i,e) {
-            dynamic_list_update_all_attributes($(e), base_id, i);
-        })
+        if (siblings.length == 0) {
+            target_wrapper.addClass('hidden');
+            template_control_group.removeClass('hidden');
+        } else {
+            siblings.each(function(i,e) {
+                dynamic_list_update_all_attributes($(e), base_id, i);
+            })
+        }
         return false;
     });
 
@@ -600,10 +618,10 @@ $(function () { // DOM ready
                  '.dynamic-list-sortable .sort-handle:not(.ui-draggable)',
                  function() {
         var row = $(this);
-        var id = row.attr('data-sortable-scope');
+        var scope = row.attr('data-sortable-scope');
         var item = $(row.attr('data-sortable-item'));
         row.draggable({
-            scope: id,
+            scope: scope,
             handle: '.sort-handle',
             appendTo: 'body',
             cursor: 'move',
@@ -613,24 +631,35 @@ $(function () { // DOM ready
             }
         });
         item.siblings().droppable({
-            scope: id,
+            scope: scope,
             accept: function(obj) {
                 var text1 = $(obj.context).text();
                 return $(obj.context).text() != $(this).find('.sort-handle:first').text();
             },
-            hoverClass: 'drop-row',
+            hoverClass: 'drop-dynamic-row',
             drop: function(event, ui) {
-                var draggable = ui.draggable;
-                var base_id = draggable.attr("data-base-id");
-                var item = $(draggable.attr('data-sortable-item'));
-                var wrapper = $(draggable.attr('data-sortable-parent'));
-                var src = item.detach();
                 var dst = $(this);
-                src.insertBefore(dst);
+                var dst_index = parseInt(dst.find('.sort-handle:first').text(), 10);
+                var draggable = ui.draggable;
+                var wrapper = $(draggable.attr('data-sortable-parent'));
+                var item = $(draggable.attr('data-sortable-item'));
+                var last_index = wrapper.children().length;
+                var base_id = draggable.attr("data-base-id");
+                var src = item.detach();
+                var src_index = parseInt(src.find('.sort-handle:first').text(), 10);
+                console.log(src_index, dst_index, last_index);
+                if (dst_index == last_index) {
+                    wrapper.append(src);
+                }
+                else if(src_index < dst_index) {
+                    src.insertAfter(dst);
+                }
+                else {
+                    src.insertBefore(dst);
+                }
                 wrapper.children().each(function(i,e) {
                     var element = $(e);
                     dynamic_list_update_all_attributes(element, base_id, i);
-                    element.find('.sort-handle:first').html((i + 1) + "");
                 })
             }
         });
