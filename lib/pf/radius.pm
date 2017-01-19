@@ -62,6 +62,7 @@ use pf::cluster;
 use pf::api::queue;
 use pf::access_filter::radius;
 use pf::registration;
+use pf::access_filter::switch;
 
 our $VERSION = 1.03;
 
@@ -299,6 +300,10 @@ sub authorize {
         # When the _setVlan of a switch who can't do RADIUS VLAN assignment uses the lock we will need to re-evaluate
         $switch->_setVlan( $port, $vlan, undef, {} );
     }
+
+    my $filter = pf::access_filter::switch->new;
+    my %switch_params = $filter->filter('radius_authorize', $args);
+
     $RAD_REPLY_REF = $switch->returnRadiusAccessAccept($args);
 
 CLEANUP:
