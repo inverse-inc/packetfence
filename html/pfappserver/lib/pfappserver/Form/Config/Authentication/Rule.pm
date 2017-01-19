@@ -145,6 +145,22 @@ has_field "${Conditions::TIME}_value" =>
    wrapper => 0,
    element_class => ['span5'],
   );
+has_field "${Conditions::TIME_PERIOD}_operator" =>
+  (
+   type => 'Select',
+   do_label => 0,
+   wrapper => 0,
+   localize_labels => 1,
+   options_method => \&operators,
+   element_class => ['span3'],
+  );
+has_field "${Conditions::TIME_PERIOD}_value" =>
+  (
+   type => 'Text',
+   do_label => 0,
+   wrapper => 0,
+   element_class => ['span5'],
+  );
 has_field "${Conditions::CONNECTION}_operator" =>
   (
    type => 'Select',
@@ -309,7 +325,7 @@ Return the appropriate operators for the condition type select field.
 sub operators {
     my $self = shift;
 
-    my ($type) = $self->name =~ m/^([^_]+)_operator$/;
+    my ($type) = $self->name =~ m/^(.+)_operator$/;
     my @operators = map { $_ => $self->_localize($_) } @{$Conditions::OPERATORS{$type}};
 
     return @operators;
