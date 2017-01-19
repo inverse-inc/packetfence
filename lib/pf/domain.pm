@@ -252,7 +252,7 @@ Uses the samba configuration
 sub has_os_configuration {
     if ( -e $SAMBA_CONF_PATH ) {
         my $samba_conf = read_file($SAMBA_CONF_PATH);
-        if ( $samba_conf =~ /(\t){0,1}workgroup = (WORKGROUP|MYGROUP).*/ ) {
+        if ( $samba_conf =~ /(\t){0,1}workgroup = (WORKGROUP|MYGROUP|SAMBA).*/ ) {
             return $FALSE;
         }
     }
