@@ -302,7 +302,13 @@ sub authorize {
     }
 
     my $filter = pf::access_filter::switch->new;
-    my %switch_params = $filter->filter('radius_authorize', $args);
+    my $switch_params = $filter->filter('radius_authorize', $args);
+
+    if (defined($switch_params)) {
+        foreach my $key (keys %{$switch_params}) {
+            $switch->{$key} = $switch_params->{$key};
+        }
+    }
 
     $RAD_REPLY_REF = $switch->returnRadiusAccessAccept($args);
 
