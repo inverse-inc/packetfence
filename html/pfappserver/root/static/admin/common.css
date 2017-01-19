@@ -85,6 +85,10 @@ table .category-header {
     width: 20px;
 }
 
+.dynamic-list-sortable > .controls {
+    clear: both;
+}
+
 span.sort-handle {
     display: inline-block;
 }
