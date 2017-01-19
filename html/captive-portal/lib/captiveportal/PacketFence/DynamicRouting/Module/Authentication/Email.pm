@@ -82,31 +82,37 @@ sub do_email_registration {
     $info{'subject'} = $self->app->i18n_format("%s: Email activation required", $Config{'general'}{'domain'});
     utf8::decode($info{'subject'});
 
-    # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
-    my ( $auth_return, $err, $activation_code ) =
-      pf::activation::create_and_send_activation_code(
-        $self->current_mac,
-        $pid, $email,
-        $pf::web::guest::TEMPLATE_EMAIL_GUEST_ACTIVATION,
-        $pf::activation::GUEST_ACTIVATION,
-        $self->app->profile->getName,
-        %info,
-      );
-
-    $self->session->{activation_code} = $activation_code;
-
-    pf::auth_log::record_guest_attempt($source->id, $self->current_mac, $pid);
-
     $self->session->{fields} = $self->request_fields;
     $self->app->session->{email} = $email;
     $self->username($pid);
 
-    # We compute the data and release the user
-    # He will come back afterwards.
-    $self->execute_actions();
-    $self->new_node_info->{status} = "reg";
-    $self->app->root_module->apply_new_node_info();
-    $self->app->root_module->release();
+    pf::auth_log::record_guest_attempt($source->id, $self->current_mac, $pid);
+    if($self->app->preregistration) {
+        # Mark the registration as completed as the email doesn't have to be validated
+        pf::auth_log::record_completed_guest($source->id, $self->current_mac, $pf::auth_log::COMPLETED);
+        $self->done();
+    }
+    else {
+        # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
+        my ( $auth_return, $err, $activation_code ) =
+          pf::activation::create_and_send_activation_code(
+            $self->current_mac,
+            $pid, $email,
+            $pf::web::guest::TEMPLATE_EMAIL_GUEST_ACTIVATION,
+            $pf::activation::GUEST_ACTIVATION,
+            $self->app->profile->getName,
+            %info,
+          );
+
+        $self->session->{activation_code} = $activation_code;
+
+        # We compute the data and release the user
+        # He will come back afterwards.
+        $self->execute_actions();
+        $self->new_node_info->{status} = "reg";
+        $self->app->root_module->apply_new_node_info();
+        $self->app->root_module->release();
+    }
 }
 
 =head2 execute_actions
@@ -118,16 +124,19 @@ Override the actions since there is an activation timeout for the unregdate.
 after 'execute_actions' => sub {
     my ($self) = @_;
 
-    # we record the unregdate to reuse it after
-    pf::activation::set_unregdate($self->session->{activation_code}, $self->new_node_info->{unregdate});
+    # Don't make the user leave the portal in preregistration
+    if(!$self->app->preregistration) {
+        # we record the unregdate to reuse it after
+        pf::activation::set_unregdate($self->session->{activation_code}, $self->new_node_info->{unregdate});
 
-    get_logger->debug("Source ".$self->source->id." has an activation timeout of ".$self->source->{email_activation_timeout});
-    # Use the activation timeout to set the unregistration date
-    my $timeout = normalize_time( $self->source->{email_activation_timeout} );
-    my $unregdate = POSIX::strftime( "%Y-%m-%d %H:%M:%S",localtime( time + $timeout ) );
-    get_logger->debug( "Registration for guest ".$self->app->session->{username}." is valid until $unregdate (delay of $timeout s)" );
+        get_logger->debug("Source ".$self->source->id." has an activation timeout of ".$self->source->{email_activation_timeout});
+        # Use the activation timeout to set the unregistration date
+        my $timeout = normalize_time( $self->source->{email_activation_timeout} );
+        my $unregdate = POSIX::strftime( "%Y-%m-%d %H:%M:%S",localtime( time + $timeout ) );
+        get_logger->debug( "Registration for guest ".$self->app->session->{username}." is valid until $unregdate (delay of $timeout s)" );
 
-    $self->new_node_info->{unregdate} = $unregdate;
+        $self->new_node_info->{unregdate} = $unregdate;
+    }
     return $TRUE;
 };
 
