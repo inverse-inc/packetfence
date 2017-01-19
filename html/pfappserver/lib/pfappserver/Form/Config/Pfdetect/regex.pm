@@ -13,6 +13,7 @@ Form definition to create or update a pfdetect detector.
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Pfdetect';
 with 'pfappserver::Base::Form::Role::Help';
+use pfappserver::Form::Field::DynamicList;
 use pf::log;
 
 =head2 rules
@@ -32,9 +33,7 @@ has_field 'rules.contains' => (
     type => 'PfdetectRegexRule',
     widget_wrapper => 'Accordion',
     build_label_method => \&build_rule_label,
-    tags => {
-        accordion_heading_content => \&accordion_heading_content,
-    }
+    pfappserver::Form::Field::DynamicList::child_options(),
 );
 
 has_field 'loglines' => (
