@@ -15,10 +15,11 @@
 </div>
 
 [% form.block('definition').render | none %]
+<hr/>
 <div class="controls">
     <div class="control-group">
         <div id="test-regex" >
-            <textarea class="input-xxlarge" name="loglines" rows="3"></textarea>
+            <textarea class="input-xxlarge" name="loglines" rows="3" placeholder="[% l('Test log entries...') %]"></textarea>
             <div>
                 <button data-loading-text="[% l('Testing...') %]" data-test-action=[% c.uri_for(c.controller.action_for('test_regex_parser'))%] id="test-regex-btn" type="button" class="btn " data-toggle="collapse">[% l('Run Test') %]</button>
             </div>
