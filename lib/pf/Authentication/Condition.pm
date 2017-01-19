@@ -12,6 +12,7 @@ use Moose;
 use pf::log;
 
 use pf::Authentication::constants;
+use Time::Period;
 
 has 'attribute' => (isa => 'Str', is => 'rw', required => 1);
 has 'operator' => (isa => 'Str', is => 'rw', required => 1);
@@ -99,6 +100,15 @@ sub matches {
         elsif ($operator eq $Conditions::IS_AFTER) {
             if ($time_v > $time) {
                 return 1;
+            }
+        }
+        elsif ($operator eq $Conditions::IN_TIME_PERIOD) {
+            my $r = inPeriod(time(), $value);
+            if ( $r == 1 ) {
+                return 1;
+            }
+            if ($r == -1) {
+                $logger->error("Invalid time period spec $value");
             }
         }
         else {
