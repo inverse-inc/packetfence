@@ -59,6 +59,7 @@ use Hash::Merge qw (merge);
 use pf::accounting;
 use pf::cluster;
 use pf::api::queue;
+use pf::access_filter::radius;
 
 our $VERSION = 1.03;
 
