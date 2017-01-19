@@ -193,7 +193,7 @@ sub match {
                 # A condition on a common attribute
                 my $r = $self->match_condition($condition, $params);
 
-                if ($r == 1) {
+                if ($r) {
                     $logger->debug("Matched condition ".join(" ", ($condition->attribute, $condition->operator, $condition->value)));
                     push(@matching_conditions, $condition);
                 }
