@@ -8709,6 +8709,10 @@ msgstr "Create at"
 msgid "current_time"
 msgstr "Current time"
 
+# pf::Authentication::Source (common_attributes)
+msgid "current_time_period"
+msgstr "Current time period"
+
 # pfappserver::Model::Node::Tab::MSE (MSE Tab)
 msgid "currentlyTracked"
 msgstr "Currently Tracked"
@@ -9232,6 +9236,10 @@ msgstr "IBM"
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "ifindex"
 msgstr "IfIndex"
+
+# pf::Authentication::constants (Conditions)
+msgid "in_time_period"
+msgstr "in time period"
 
 # conf/documentation.conf (interface.enforcement options)
 # pf::config (Network types)
