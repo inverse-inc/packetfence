@@ -38,61 +38,65 @@ sub matches {
 
     if (defined $v) {
 
+        my $value = $self->value;
+        my $operator = $self->operator;
+        my $attribute = $self->attribute;
+
         my ($time, $time_v);
 
-        if ($self->{'attribute'} eq 'current_time') {
-            my ($hour, $min) = $self->{'value'} =~ m/(\d+):(\d+)/;
+        if ($attribute eq 'current_time') {
+            my ($hour, $min) = $value =~ m/(\d+):(\d+)/;
             my ($vhour, $vmin) = $v =~ m/(\d+):(\d+)/;
             $time = int(sprintf("%d%02d", $hour, $min));
             $time_v = int(sprintf("%d%02d", $vhour, $vmin));
         }
-        elsif ($self->{'attribute'} eq 'current_date') {
-            my ($year, $mon, $day) = $self->{'value'} =~ m/(\d{4})-(\d{,2})-(\d{,2})/;
-            my ($vyear, $vmon, $vday) = $self->{'value'} =~ m/(\d{4})-(\d{,2})-(\d{,2})/;
+        elsif ($attribute eq 'current_date') {
+            my ($year, $mon, $day) = $value =~ m/(\d{4})-(\d{,2})-(\d{,2})/;
+            my ($vyear, $vmon, $vday) = $v =~ m/(\d{4})-(\d{,2})-(\d{,2})/;
             $time = int(sprintf("%d%02d%02d", $year, $mon, $day));
             $time_v = int(sprintf("%d%02d%02d", $vyear, $vmon, $vday));
         }
 
         my $logger = get_logger();
-        $logger->trace(sprintf("Matching condition '%s %s %s' for value '$v'", $self->{'attribute'}, $self->{'operator'}, $self->{'value'}, $v));
+        $logger->trace(sprintf("Matching condition '%s %s %s' for value '$v'", $attribute, $operator, $value, $v));
 
-        if ($self->{'operator'} eq $Conditions::EQUALS ||
-            $self->{'operator'} eq $Conditions::IS) {
-            if ($self->{'value'} eq $v) {
+        if ($operator eq $Conditions::EQUALS ||
+            $operator eq $Conditions::IS) {
+            if ($value eq $v) {
                 return 1;
             }
         }
-        elsif ($self->{'operator'} eq $Conditions::IS_NOT) {
-            if ($self->{'value'} ne $v) {
+        elsif ($operator eq $Conditions::IS_NOT) {
+            if ($value ne $v) {
                 return 1;
             }
         }
-        elsif ($self->{'operator'} eq $Conditions::CONTAINS) {
-            if (index($v, $self->{'value'}) >= 0) {
+        elsif ($operator eq $Conditions::CONTAINS) {
+            if (index($v, $value) >= 0) {
                 return 1;
             }
         }
-        elsif ($self->{'operator'} eq $Conditions::STARTS) {
-            if (index($v, $self->{'value'}) == 0) {
+        elsif ($operator eq $Conditions::STARTS) {
+            if (index($v, $value) == 0) {
                 return 1;
             }
         }
-        elsif ($self->{'operator'} eq $Conditions::ENDS) {
-            if (($v =~ m/\Q${$self}{value}\E$/)) {
+        elsif ($operator eq $Conditions::ENDS) {
+            if (($v =~ m/\Q$value\E$/)) {
                 return 1;
             }
         }
-        elsif ($self->{'operator'} eq $Conditions::MATCHES) {
-            if (($v =~ m/${$self}{value}/)) {
+        elsif ($operator eq $Conditions::MATCHES) {
+            if (($v =~ m/$value/)) {
                 return 1;
             }
         }
-        elsif ($self->{'operator'} eq $Conditions::IS_BEFORE) {
+        elsif ($operator eq $Conditions::IS_BEFORE) {
             if ($time_v < $time) {
                 return 1;
             }
         }
-        elsif ($self->{'operator'} eq $Conditions::IS_AFTER) {
+        elsif ($operator eq $Conditions::IS_AFTER) {
             if ($time_v > $time) {
                 return 1;
             }
