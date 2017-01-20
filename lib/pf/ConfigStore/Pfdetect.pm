@@ -23,6 +23,13 @@ sub configFile { $pfdetect_config_file };
 
 sub pfconfigNamespace {'config::Pfdetect'}
 
+
+=head2 _update_section
+
+Override _update_section to normalize actions in rule for the regex parser
+
+=cut
+
 sub _update_section {
     my ($self, $section, $assignments) = @_;
     my $rules = delete $assignments->{rules} // [];
@@ -45,12 +52,20 @@ sub _update_section {
 
 =head2 _Sections
 
+Just get the top level sections
+
 =cut
 
 sub _Sections {
     my ($self) = @_;
     return grep { /^\S+$/ }  $self->SUPER::_Sections();
 }
+
+=head2 cleanupAfterRead
+
+Expand the rules for a regex parser
+
+=cut
 
 sub cleanupAfterRead {
     my ($self, $id, $item, $idKey) = @_;
