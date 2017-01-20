@@ -15,9 +15,7 @@ pf::detect::parser::regex
 use strict;
 use warnings;
 use pf::log;
-use pf::api;
 use pf::api::queue;
-use pf::api::local;
 use pf::util qw(isenabled clean_mac);
 use Clone qw(clone);
 use Moo;
@@ -121,7 +119,7 @@ get the api client
 
 sub getApiClient {
     my ($self) = @_;
-    return pf::api::jsonrpcclient->new();
+    return pf::api::queue->new(queue => 'pfdetect');
 }
 
 =head2 evalParams
