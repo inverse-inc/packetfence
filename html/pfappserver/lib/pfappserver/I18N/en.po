@@ -8383,6 +8383,10 @@ msgid "advanced"
 msgstr "Advanced"
 
 # conf/documentation.conf
+msgid "advanced.ntlm_redis_cache"
+msgstr "NTLM Redis cache"
+
+# conf/documentation.conf
 msgid "advanced.disable_pf_domain_auth"
 msgstr "Disable Pf Domain Auth"
 
