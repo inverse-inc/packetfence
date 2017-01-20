@@ -128,6 +128,7 @@ function showError(sibling, msg, permanent, time) {
             var control = input.closest('.control-group');
             control.addClass('error');
             showTab(control, input);
+            showCollapse(input);
             showAlert('.alert-error', sibling, error, permanent, time);
         });
     }
@@ -196,6 +197,10 @@ function isInvalidNumber(input, min, max) {
     return isInvalid;
 }
 
+function showCollapse(input) {
+    input.closest('.collapse').collapse('show');
+}
+
 function isFormValid(form) {
     var valid = true;
     form.find('input[data-required]:not(:disabled), input[type="number"]:not(:disabled)').each(function() {
@@ -204,7 +209,7 @@ function isFormValid(form) {
         input.trigger('blur');
         valid = !control.hasClass('error');
         if (!valid) {
-            control.closest('.accordion-body').collapse('show');
+            showCollapse(input);
         }
 
         return valid;
