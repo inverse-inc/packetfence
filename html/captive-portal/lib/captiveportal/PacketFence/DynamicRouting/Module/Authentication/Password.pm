@@ -12,6 +12,8 @@ Login Controller with a predefined username for captiveportal
 
 use Moose;
 extends 'captiveportal::DynamicRouting::Module::Authentication::Login';
+with 'captiveportal::Role::FieldValidation';
+with 'captiveportal::Role::MultiSource';
 
 has '+username' => (is => 'rw');
 

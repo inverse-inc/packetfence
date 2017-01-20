@@ -56,11 +56,11 @@ sub options_sources {
     foreach my $source (@{pf::authentication::getAllAuthenticationSources()}){
         # We are dealing with a multi source module, meaning we are looking for the isa in the sources attribute
         my ($isa);
-        if($options{multiple} && $self->for_module->meta->get_attribute('sources')->{isa} =~ /^ArrayRef\[(.*)\]/){
+        if($options{multiple} && $self->for_module->meta->find_attribute_by_name('sources')->{isa} =~ /^ArrayRef\[(.*)\]/){
             $isa = $1;
         }
         else {
-            $isa = $self->for_module->meta->get_attribute('source')->{isa};
+            $isa = $self->for_module->meta->find_attribute_by_name('source')->{isa};
         }
         get_logger->debug("Building options with isa : $isa");
         foreach my $splitted_isa (split(/\s*\|\s*/, $isa)){
