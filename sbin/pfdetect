@@ -98,8 +98,7 @@ my $running = 1;
 
 sub start_detectors {
     foreach my $id (keys %ConfigDetect) {
-        my $status = exists $ConfigDetect{$id}{status} ? $ConfigDetect{$id}{status} : "enabled";
-        next unless isenabled($status);
+        next unless isenabled($ConfigDetect{$id}{status});
         run_detector($id);
     }
 }
