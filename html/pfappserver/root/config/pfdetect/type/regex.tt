@@ -1,6 +1,7 @@
 <div class="hidden" id="regex_parser_templates">
   <input id="default_api_parameters" name="default_api_parameters" type="text" class="input-xxlarge" >
   <input id="trigger_violation_api_parameters" name="trigger_violation_api_parameters" type="text" class="input-xxlarge" value="mac, $mac, type, TYPE, tid, TYPE_ID" >
+  <input id="modify_node_api_parameters" name="trigger_violation_api_parameters" type="text" class="input-xxlarge" value="mac, $mac" >
 </div>
 
 <div class="controls">
