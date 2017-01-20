@@ -68,7 +68,7 @@ sub supportsWirelessMacAuth { return $TRUE; }
 sub inlineCapabilities { return ($MAC,$SSID); }
 sub supportsExternalPortal { return $TRUE; }
 sub supportsWebFormRegistration { return $TRUE; }
-
+sub supportsRoleBasedEnforcement { return $TRUE; }
 
 =item getVersion
 
@@ -426,6 +426,18 @@ sub getAcceptForm {
 
     $logger->debug("Generated the following html form : ".$html_form);
     return $html_form;
+}
+
+=item returnRoleAttribute
+
+Xirrus uses the standard Filter-Id parameter.
+
+=cut
+
+sub returnRoleAttribute {
+    my ($self) = @_;
+
+    return 'Filter-Id';
 }
 
 
