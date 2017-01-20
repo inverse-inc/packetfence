@@ -48,6 +48,13 @@ has_field api_parameters => (
     element_class => ['input-xxlarge'],
 );
 
+
+=head2 inflate
+
+inflate the api method spec string to a hash
+
+=cut
+
 sub inflate {
     my ($self, $value) = @_;
     if ($value =~ /^\s*(?<api_method>[a-zA-Z0-9_]+)\s*:\s*(?<api_parameters>.*)$/) {
@@ -57,10 +64,22 @@ sub inflate {
     return {};
 }
 
+=head2 deflate
+
+deflate the api method spec hash to a string
+
+=cut
+
 sub deflate {
     my ($self, $value) = @_;
     return "$value->{api_method}: $value->{api_parameters}";
 }
+
+=head2 options_api_method
+
+Provide a list of api methods
+
+=cut
 
 sub options_api_method {
     my ($self) = @_;

@@ -1,6 +1,11 @@
+<div class="hidden" id="regex_parser_templates">
+  <input id="default_api_parameters" name="default_api_parameters" type="text" class="input-xxlarge" >
+  <input id="trigger_violation_api_parameters" name="trigger_violation_api_parameters" type="text" class="input-xxlarge" value="mac, $mac, type, TYPE, tid, TYPE_ID" >
+</div>
+
 <div class="controls">
-    <span class="pull-right"><a data-toggle="collapse" href="#pfdetect-help">[% l('Help') %]</a></span>
-    <div id="pfdetect-help" class="collapse">
+    <span class="pull-right"><a data-toggle="collapse" href="#pfdetect-regex-help">[% l('Help') %]</a></span>
+    <div id="pfdetect-regex-help" class="collapse">
 
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus scelerisque metus in nunc convallis mollis. Pellentesque dapibus lorem ac metus porttitor vitae gravida neque malesuada. Nam arcu augue, gravida quis pretium sed, faucibus vitae orci. Sed blandit bibendum accumsan. Proin varius pharetra consequat. Proin fermentum feugiat augue. Fusce ut risus magna, et fringilla nibh. Praesent in euismod sem. Donec semper nunc id elit tempus ac sollicitudin nunc malesuada. Duis hendrerit sagittis eros, euismod faucibus purus fermentum vel. Integer nec turpis quis libero commodo adipiscing at sed risus. Aenean ut tellus id lorem rhoncus rutrum. Cras ut elementum ante. Cras tincidunt metus sed turpis varius in congue dolor accumsan. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Aenean malesuada, quam sit amet dictum adipiscing, mi lorem varius magna, eu posuere elit orci vel arcu. Nulla dictum tempus sem, eu consectetur ipsum vehicula quis. Pellentesque magna nulla, tincidunt consequat bibendum dapibus, consequat sit amet justo. Aenean et tellus non dolor rhoncus accumsan non a magna.</p>
 

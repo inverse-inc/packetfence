@@ -12,11 +12,6 @@
 </ul>
 <h3><i>[% l('Syslog parser') %]</i> [% item.type | html %]</h3>
 
-<div class="hidden" id="regex_parser_templates">
-  <input id="default_api_parameters" name="default_api_parameters" type="text" class="input-xxlarge" >
-  <input id="trigger_violation_api_parameters" name="trigger_violation_api_parameters" type="text" class="input-xxlarge" value="mac, $mac, type, TYPE, tid, TYPE_ID" >
-</div>
-
 <form name="modalPfdetect" class="form-horizontal form-condensed" action="[% action_uri %]" method="post">
   [%- IF item.id.defined;
     CALL form.field('id').type_attr('hidden');

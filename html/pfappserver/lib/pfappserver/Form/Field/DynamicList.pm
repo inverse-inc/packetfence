@@ -42,6 +42,12 @@ before 'wrapper_attr' => sub {
     }
 };
 
+=head2 set_disabled
+
+set a field and all it's sub fields to disabled
+
+=cut
+
 sub set_disabled {
     my ($field) = @_;
     get_logger->trace(sub { "Setting " . $field->id . " to disabled" });
@@ -53,11 +59,23 @@ sub set_disabled {
     $field->disabled(1);
 }
 
+=head2 build_widget_tags
+
+Provide the default tags for the widget
+
+=cut
+
 sub build_widget_tags {
     return {
         after_wrapper => \&append_add_button
     };
 }
+
+=head2 child_options
+
+A helper function to populate child options for contains
+
+=cut
 
 sub child_options {
     return (
@@ -70,11 +88,24 @@ sub child_options {
     );
 }
 
+=head2 build_init_contains
+
+Initialize the contains sub field
+
+=cut
+
 sub build_init_contains {
     {
         child_options()
     }
 }
+
+
+=head2 prepend_sort_handle
+
+Create a sort handle for a sortable DynamicList
+
+=cut
 
 sub prepend_sort_handle {
     my ($field) = @_;
@@ -89,6 +120,12 @@ sub prepend_sort_handle {
     my $content = qq{<span data-sortable-text="$label" data-base-id="$base_id" data-sortable-item="#$target" data-sortable-scope="$scope" data-sortable-parent="$target_id" class="sort-handle">$name</span>};
     return $content;
 }
+
+=head2 append_add_button
+
+Append the add button for the DynamicList
+
+=cut
 
 sub append_add_button {
     my ($self) = @_;
@@ -118,16 +155,34 @@ sub append_add_button {
 EOS
 }
 
+=head2 template_control_group_id
+
+Returns the id of the template control group
+
+=cut
+
 sub template_control_group_id {
     my ($self) = @_;
     my $template_id = $self->template_id;
     return "${template_id}_control_group";
 }
 
+=head2 template_control_group_target
+
+Returns the target for the template control group
+
+=cut
+
 sub template_control_group_target {
     my ($self) = @_;
     return '#' . escape_jquery_id($self->template_control_group_id);
 }
+
+=head2 do_append_controls
+
+Returns the additional controls or the tag dynamic-list-append_controls
+
+=cut
 
 sub do_append_controls {
     my ($self, $button_text) = @_;
@@ -136,6 +191,12 @@ sub do_append_controls {
     my $attrs = $self->add_button_attr;
     return qq{<a$attrs class="btn">$button_text</a>};
 }
+
+=head2 delete_button_attr
+
+Returns the attributes of delete button
+
+=cut
 
 sub delete_button_attr {
     my ($self, $field) = @_;
@@ -148,6 +209,12 @@ sub delete_button_attr {
     return $attr;
 }
 
+=head2 add_button_attr
+
+Returns the attributes of add button
+
+=cut
+
 sub add_button_attr {
     my ($self) = @_;
     my $id = $self->id;
@@ -159,10 +226,22 @@ sub add_button_attr {
     return qq{ data-toggle="dynamic-list" data-template-control-group="${template_control_group_target}" data-target="${target}" data-target-wrapper="${target_wrapper}" data-template-parent="#$template_target" data-base-id="$id" };
 }
 
+=head2 target_wrapper
+
+Returns the target of the wrapper
+
+=cut
+
 sub target_wrapper {
     my ($self) = @_;
     return '#' . escape_jquery_id($self->id);
 }
+
+=head2 append_delete_button
+
+Returns the delete button to be appended
+
+=cut
 
 sub append_delete_button {
     my ($field) = @_;
@@ -178,16 +257,35 @@ sub append_delete_button {
 }
 
 
+
+=head2 template_id
+
+Returns the template id
+
+=cut
+
 sub template_id {
     my ($self) = @_;
     my $template_id = 'dynamic-list-template.' . $self->id;
     return $template_id;
 }
 
+=head2 template_target
+
+Returns the template target
+
+=cut
+
 sub template_target {
     my ($self) = @_;
     return escape_jquery_id($self->template_id);
 }
+
+=head2 target_id
+
+return the target id for the element that contains the repeatable elements
+
+=cut
 
 sub target_id {
     my ($self) = @_;
@@ -197,6 +295,12 @@ sub target_id {
     }
     return $target_id;
 }
+
+=head2 escape_jquery_id
+
+escape a jquery id
+
+=cut
 
 sub escape_jquery_id {
     my ($id) = @_;
