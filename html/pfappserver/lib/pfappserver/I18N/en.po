@@ -8213,6 +8213,10 @@ msgid "advanced.update_iplog_with_accounting"
 msgstr "Update the iplog using the accounting"
 
 # conf/documentation.conf
+msgid "advanced.language"
+msgstr "Language of communication"
+
+# conf/documentation.conf
 msgid "alerting"
 msgstr "Alerting"
 

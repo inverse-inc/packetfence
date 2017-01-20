@@ -16,12 +16,13 @@
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td class="content-block">
-                    <h1 class="aligncenter">Compte utilisateur</h1>
-                    <p>Bonjour,</p>
-                    <p>Un compte utilisateur a été créé pendant le processus d'enregistrement. Celui-ci vous permet l'enregistrement de nouveaux appareils ou d'accéder à la page de status.</p>
-                    <p>Voici les informations de connexion.</p>
-                    <p>Nom d'utilisateur: [% pid %]</br> Mot de passe: [% password %]</p>
-                    <p>Si vous avez des questions concernant le proccessus d'enregistrement, merci de contacter votre support local.</p>
+                    <h1 class="aligncenter">[% i18n("PreRegister confirmation") %]</h1>
+                     <p>[% i18n("Hello") %],</p>
+                     <p>[% i18n("Your guest access to the network was confirmed.") %]</p>
+                     <p>[% i18n("Once on site, select guest access on the captive portal and use the following username and password to authenticate") %]:</p>
+                     <p>[% i18n("Username") %]: [% pid %]</br>
+                     [% i18n("Password") %]: [% password %]</p>
+                     <p>[% i18n("If you have any questions regarding the registration process please contact your local support staff.") %]</p>
                   </td>
                 </tr>
               </table>
@@ -37,7 +38,7 @@
     <tr>
       <td class="aligncenter content-block">
         <p>-----</br></p>
-        <p>Ceci est un message automatique, merci de ne pas répondre.</p>
+        <p>[% i18n ("This is a post only E-mail, please do not reply.") %]</p>
       </td>
     </tr>
   </table>

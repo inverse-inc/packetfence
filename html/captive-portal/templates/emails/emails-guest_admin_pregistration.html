@@ -1,0 +1,48 @@
+<html>
+<head>
+  <style type="text/css">
+    [% INCLUDE emails.css %]
+  </style>
+</head>
+<body>
+<table class="body-wrap">
+  <tr>
+    <td></td>
+    <td class="container" width="600">
+      <div class="content">
+        <table class="main" width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td class="content-wrap">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td class="content-block">
+                    <h1 class="aligncenter">[% i18n("PreRegistration") %]</h1>
+                    <p>[% i18n("Hello") %] [% firstname %] [% lastname %],</p>
+                    <p>[% i18n("An account has been created for you to access our network.") %]</p>
+                    <p>[% i18n("Once you will be on-site, authenticate using the following credentials to our captive portal") %]:</p>
+                    <p>[% i18n("Username") %]: [% username %]</br>
+                    [% i18n("Password") %]: [% password %]</p>
+                    <p>[% i18n("This username and password will be valid starting") %] [% valid_from %]. [% txt_expiration %] [% txt_duration %]</p>
+                    <p>[% i18n ("Please ignore this request if you have not requested network access.") %]</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </td>
+  </tr>
+</table>
+<div class="footer">
+  <table width="100%">
+    <tr>
+      <td class="aligncenter content-block">
+        <p>-----</br></p>
+        <p>[% i18n ("This is a post only E-mail, please do not reply.") %]</p>
+      </td>
+    </tr>
+  </table>
+</div>
+</body>
+</html>     

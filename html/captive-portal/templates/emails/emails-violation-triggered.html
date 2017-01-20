@@ -16,10 +16,19 @@
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td class="content-block">
-                    <h1 class="aligncenter">Accès autorisé</h1>
-                    <p>Bonjour,</p>
-                    <p>Votre accès au réseau a été autorisé.</p>
-                    <p>Si vous avez des questions concernant le processsus d'enregistrement, veuillez contacter le support local.</p>
+                    <h1 class="align-center">[% i18n("Violation detected !") %]</h1>
+                    <p>[% i18n("Hello") %],</p>
+                    <p>[% i18n("You have been detected doing malicious activity on the network.") %]</p>
+                    <p>[% i18n_format("Violation %s was detected on your device.", description) %]</p>
+                    <p>[% i18n("Here are the informations of the infringing device") %]</p>
+                    <ul>
+                      <li>[% i18n("MAC Address") %] : [% mac %]</li>
+                      <li>[% i18n("OS") %] : [% os %]</li>
+                      <li>[% i18n("Hostname") %] : [% hostname %]</li>
+                    </ul>
+
+                    [% additionnal_message %]
+
                   </td>
                 </tr>
               </table>
@@ -35,7 +44,7 @@
     <tr>
       <td class="aligncenter content-block">
         <p>-----</br></p>
-        <p>Ceci est un message automatique, merci de ne pas répondre.</p>
+        <p>[% i18n("This is a post only E-mail, please do not reply.") %]</p>
       </td>
     </tr>
   </table>

@@ -35,6 +35,7 @@ use Time::HiRes qw(time);
 use Try::Tiny;
 use MIME::Lite;
 use Encode qw(encode);
+use pf::util;
 
 =head1 CONSTANTS
 
@@ -94,7 +95,7 @@ use pf::config qw(
     %Config
     $fqdn
 );
-use pf::file_paths qw($conf_dir);
+use pf::file_paths qw($conf_dir $html_dir);
 use pf::db;
 use pf::util;
 use pf::web::constants;
@@ -454,9 +455,14 @@ Send an email with the activation code
 =cut
 
 sub send_email {
-    my ($activation_code, $template, %info) = @_;
+    my ($type, $activation_code, $template, %info) = @_;
     my $logger = get_logger();
 
+    my $user_locale = clean_locale(setlocale(POSIX::LC_MESSAGES));
+    if ($type eq $SPONSOR_ACTIVATION) {
+        $logger->debug('We are doing sponsor activation', $user_locale);
+        setlocale(POSIX::LC_MESSAGES, $Config{'advanced'}{'language'});
+    }
     my $smtpserver = $Config{'alerting'}{'smtpserver'};
     $info{'from'} = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
     $info{'currentdate'} = POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
@@ -480,11 +486,16 @@ sub send_email {
         );
         return $FALSE;
     }
+    
+    require pf::web;
 
     my %TmplOptions = (
-        INCLUDE_PATH    => "$conf_dir/templates/",
+        INCLUDE_PATH    => "$html_dir/captive-portal/templates/emails/",
         ENCODING        => 'utf8',
     );
+
+    my %vars = (%info, i18n => \&pf::web::i18n, i18n_format => \&pf::web::i18n_format);
+
     utf8::decode($info{'subject'});
     my $msg = MIME::Lite::TT->new(
         From        =>  $info{'from'},
@@ -493,7 +504,7 @@ sub send_email {
         Subject     =>  encode("MIME-Header", $info{'subject'}),
         Template    =>  "emails-$template.html",
         TmplOptions =>  \%TmplOptions,
-        TmplParams  =>  \%info,
+        TmplParams  =>  \%vars,
         TmplUpgrade =>  1,
     );
     $msg->attr("Content-Type" => "text/html; charset=UTF-8;");
@@ -508,6 +519,7 @@ sub send_email {
       $logger->error("Can't send email to ".$info{'contact_info'}.": $!");
     };
 
+    setlocale(POSIX::LC_MESSAGES, $user_locale);
     return $result;
 }
 
@@ -526,7 +538,7 @@ sub create_and_send_activation_code {
 
     my $activation_code = create(\%args);
     if (defined($activation_code)) {
-      unless (send_email($activation_code, $template, %info)) {
+      unless (send_email($type, $activation_code, $template, %info)) {
         ($success, $err) = ($FALSE, $GUEST::ERROR_CONFIRMATION_EMAIL);
       }
     }

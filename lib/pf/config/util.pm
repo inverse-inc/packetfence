@@ -45,7 +45,7 @@ use File::Slurp qw(read_dir);
 use List::MoreUtils qw(all any);
 use Try::Tiny;
 use pf::file_paths qw(
-    $conf_dir
+    $html_dir
 );
 use pf::util;
 use pf::log;
@@ -184,10 +184,13 @@ sub send_email {
         return $FALSE;
     };
 
+    require pf::web;
+
     my %TmplOptions = (
-        INCLUDE_PATH    => "$conf_dir/templates/",
+        INCLUDE_PATH    => "$html_dir/captive-portal/templates/emails/",
         ENCODING        => 'utf8',
     );
+    my %vars = (%$data, i18n => \&pf::web::i18n, i18n_format => \&pf::web::i18n_format);
     utf8::decode($subject);
     my $msg = MIME::Lite::TT->new(
         From        =>  $data->{'from'},
@@ -196,7 +199,7 @@ sub send_email {
         Subject     =>  $subject,
         Template    =>  "emails-$template.html",
         TmplOptions =>  \%TmplOptions,
-        TmplParams  =>  $data,
+        TmplParams  =>  \%vars,
         TmplUpgrade =>  1,
     );
     $msg->attr("Content-Type" => "text/html; charset=UTF-8;");

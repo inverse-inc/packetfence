@@ -16,12 +16,12 @@
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td class="content-block">
-                    <h1 class="aligncenter">User Account</h1>
-                     <p>Hi,</p>
-                     <p>Just to let you know that an user account has been created while registering your device. You may now want to use it for different features (devices registration, status page).</p>
-                     <p>Here are the info.</p>
-                     <p>Username: [% pid %]</br> Password: [% password %]</p>
-                     <p>If you have any questions regarding the registration process please contact your local support staff.</p>
+                    <h1 class="aligncenter">[% i18n("User Account") %]</h1>
+                     <p>[% i18n("Hello") %],</p>
+                     <p>[% i18n("Just to let you know that an user account has been created while registering your device. You may now want to use it for different features (devices registration, status page).") %]</p>
+                     <p>[% i18n("Here are the info.") %]</p>
+                     <p>[% i18n("Username") %]: [% pid %]</br> [% i18n("Password") %]: [% password %]</p>
+                     <p>[% i18n("If you have any questions regarding the registration process please contact your local support staff.") %]</p>
                   </td>
                 </tr>
               </table>
@@ -37,7 +37,7 @@
     <tr>
       <td class="aligncenter content-block">
         <p>-----</br></p>
-        <p>This is a post only E-mail, please do not reply.</p>
+        <p>[% i18n("This is a post only E-mail, please do not reply.") %]</p>
       </td>
     </tr>
   </table>

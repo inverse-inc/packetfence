@@ -32,6 +32,7 @@ use pf::file_paths qw(
     $oui_file
     $oui_url
     $var_dir
+    $html_dir
 );
 use NetAddr::IP;
 use File::Temp;
@@ -82,6 +83,7 @@ BEGIN {
         empty_dir
         is_in_list
         validate_date
+        clean_locale 
     );
 }
 
@@ -1103,9 +1105,23 @@ sub strip_username {
 sub send_email {
     my ($smtp_server, $from, $to, $subject, $template, %info) = @_;
     my $logger = get_logger();
-    my %options;
-    $options{INCLUDE_PATH} = "$conf_dir/templates/";
-    $options{ENCODING} = "utf8";
+
+    my $user_info = pf::person::person_view($to);
+    setlocale(POSIX::LC_MESSAGES, $user_info->{lang});
+    
+    use Locale::gettext qw(bindtextdomain textdomain bind_textdomain_codeset);
+    bindtextdomain( "packetfence", "$conf_dir/locale" );
+    bind_textdomain_codeset( "packetfence", "utf-8" );
+    textdomain("packetfence");
+
+    require pf::web;
+
+    my %TmplOptions = (
+        INCLUDE_PATH    => "$html_dir/captive-portal/templates/emails/",
+        ENCODING        => 'utf8',
+    );
+
+    my %vars = (%info, i18n => \&pf::web::i18n, i18n_format => \&pf::web::i18n_format);
 
     utf8::decode($subject);
     my $msg = MIME::Lite::TT->new(
@@ -1113,10 +1129,10 @@ sub send_email {
         To          =>  $to,
         Cc          =>  $info{'cc'},
         Subject     =>  encode("MIME-Header", $subject),
+        'Content-Type' => 'text/html; charset="UTF-8"',
         Template    =>  "emails-$template.html",
-        'Content-Type' => 'text/html; charset="utf-8"',
-        TmplOptions =>  \%options,
-        TmplParams  =>  \%info,
+        TmplOptions =>  \%TmplOptions,
+        TmplParams  =>  \%vars,
     );
 
     my $result = 0;
@@ -1248,6 +1264,20 @@ sub validate_date {
         return $FALSE;
     }
     return $TRUE;
+}
+
+=item clean_locale
+
+Clean the format of the locale stored
+
+=cut
+
+sub clean_locale {
+    my ($locale) = @_;
+    if( $locale =~ /^([A-Za-z_]+)\./ ) {
+        $locale = $1;
+    }
+    return $locale;
 }
 
 =back
