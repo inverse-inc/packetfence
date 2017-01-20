@@ -8,8 +8,8 @@
 # Ettore Atalan <atalanttore@googlemail.com>, 2014-2015
 # Felix Eckhofer <felix@tribut.de>, 2016
 # Felix Eckhofer <felix@tribut.de>, 2016
-# Hendrik <hendrik.fritsch@web.de>, 2016
-# Hendrik <hendrik.fritsch@web.de>, 2016
+# Hendrik, 2016
+# Hendrik, 2016
 # inverse <info@inverse.ca>, 2013,2016
 # Tino Matysiak <tmatysiak@meetyoo.de>, 2011
 # Tombi, 2016
@@ -17,8 +17,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-11-03 13:41+0000\n"
-"Last-Translator: Hendrik <hendrik.fritsch@web.de>\n"
+"PO-Revision-Date: 2017-01-20 15:17+0000\n"
+"Last-Translator: inverse <info@inverse.ca>\n"
 "Language-Team: German (http://www.transifex.com/inverse/packetfence/language/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -68,7 +68,7 @@ msgstr "Zugang zum Gastnetzwerk bestätigt"
 # html/captive-portal/templates/activated.html
 # html/captive-portal/templates/guest/sponsor_accepted.html
 msgid "Access to the guest network granted"
-msgstr "Zugriff auf das Gast-Netzwerk gewährt"
+msgstr "Zugriff auf das Gastnetzwerk gewährt"
 
 # html/captive-portal/templates/activated.html
 msgid "Access to the guest network has been granted until %s."
@@ -1147,3 +1147,8 @@ msgstr "Portal"
 
 msgid "source"
 msgstr "Quelle"
+
+msgid ""
+"Your network should be enabled within a minute or two. If it is not reboot "
+"your computer."
+msgstr ""
