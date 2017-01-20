@@ -1148,8 +1148,6 @@ fi
                         /usr/local/pf/conf/snort.conf.pre_snort-2.8.example
 %config(noreplace)      /usr/local/pf/conf/suricata.yaml
                         /usr/local/pf/conf/suricata.yaml.example
-%dir                    /usr/local/pf/conf/templates
-%config(noreplace)      /usr/local/pf/conf/templates/*
 %config                 /usr/local/pf/conf/ui.conf
 %config                 /usr/local/pf/conf/ui.conf.es_ES
 %config(noreplace)      /usr/local/pf/conf/ui-global.conf
