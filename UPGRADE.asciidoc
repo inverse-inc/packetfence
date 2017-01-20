@@ -131,7 +131,7 @@ pfdetect.conf
 New parameters have been introduced in conf/pfdetect.conf
 Run the following script to add these parameters to pfdetect.conf
 
-   /usr/local/pf/addons/add_status_to_pfdetect_conf.pl
+   /usr/local/pf/addons/upgrade/to-6.5-pfdetect-conf.pl
 
 Upgrading from a version prior to 6.4.0
 ---------------------------------------
