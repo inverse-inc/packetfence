@@ -74,9 +74,9 @@ PfdetectView.prototype.updateItem = function(e) {
                 btn.button('reset');
             },
             success: function(data) {
-                showSuccess(section.find('h2').first(), data.status_msg);
+                showSuccess(form.find('h2').first(), data.status_msg);
             },
-            errorSibling: section.find('h2').first()
+            errorSibling: form.find('h2').first()
         });
     }
 };

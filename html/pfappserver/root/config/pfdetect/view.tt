@@ -4,7 +4,6 @@
 [% SET action_uri = c.req.uri %]
 
 [%END%]
-<h2></h2>
 <ul class="breadcrumb">
   <li><a href="[% c.pf_hash_for(c.controller.action_for('index')) %]">[% l('Syslog Parsers') %]</a> <span class="divider"><i class="icon-chevron-right"></i></span></li>
   <li class="active">[% IF item.id %][% item.id | html %][% ELSE %][% l('new') %][% END %]</li>
@@ -13,6 +12,7 @@
 <h3><i>[% l('Syslog parser') %]</i> [% item.type | html %]</h3>
 
 <form name="modalPfdetect" class="form-horizontal form-condensed" action="[% action_uri %]" method="post">
+  <h2></h2>
   [%- IF item.id.defined;
     CALL form.field('id').type_attr('hidden');
     CALL form.field('id').do_label(0);
