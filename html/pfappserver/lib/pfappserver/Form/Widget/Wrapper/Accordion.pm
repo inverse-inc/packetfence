@@ -20,17 +20,22 @@ use pf::log;
 around wrap_field => sub {
     my ($orig, $self, $result, $rendered_widget ) = @_;
     my $output = '';
-#    use Data::Dumper;get_logger->info(Dumper($self));
-    my $parent_name = $self->parent->name;
+    my $parent = $self->parent;
+    my $parent_name = $parent->name;
     my $name = $self->name;
     my $id = $self->accordion_id;
+    my $in  = '';
+    my $num_when_empty = $parent->num_when_empty;
+    if ($name == 999 || ($name >= ($parent->num_fields - $parent->num_when_empty ) ) ) {
+        $in = 'in';
+    }
     my $heading = $self->get_tag("accordion_heading");
     $heading = $self->do_accordion_heading unless $heading;
     my $accordion_group_id  = $self->accordion_group_id;
     $output = <<EOS;
 <div class="accordion-group control-group" id="$accordion_group_id">
     $heading
-    <div id="$id" class="accordion-body collapse">
+    <div id="$id" class="accordion-body $in collapse">
         <div class="accordion-inner">$rendered_widget</div>
     </div>
 </div>
