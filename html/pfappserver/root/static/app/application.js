@@ -203,6 +203,9 @@ function isFormValid(form) {
         var control = input.closest('.control-group');
         input.trigger('blur');
         valid = !control.hasClass('error');
+        if (!valid) {
+            control.closest('.accordion-body').collapse('show');
+        }
 
         return valid;
     });
