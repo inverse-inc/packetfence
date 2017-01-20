@@ -297,6 +297,7 @@ Requires: python-carbon, python-whisper
 Requires: graphite-web >= 0.9.12-25
 %{?el7:Requires: samba-winbind-clients, samba-winbind}
 Requires: collectd >= 5.6, collectd-apache, collectd-openldap, collectd-redis, collectd-mysql, collectd-disk
+Obsoletes: collectd-drbd
 %{?el6:Requires: node}
 %{?el7:Requires: nodejs}
 
