@@ -65,6 +65,7 @@ PfdetectView.prototype.updateItem = function(e) {
     var btn = form.find('.btn-primary');
     var valid = isFormValid(form);
     if (valid) {
+        var alert_element = form.find('h2').first();
         btn.button('loading');
         this.items.post({
             url: form.attr('action'),
@@ -73,10 +74,14 @@ PfdetectView.prototype.updateItem = function(e) {
                 // Restore hidden/template rows
                 btn.button('reset');
             },
-            success: function(data) {
-                showSuccess(form.find('h2').first(), data.status_msg);
+            success: function(data, textStatus, jqXHR) {
+                var redirect = jqXHR.getResponseHeader('Location');
+                showSuccess(alert_element, data.status_msg);
+                if (redirect) {
+                    location.hash = redirect;
+                }
             },
-            errorSibling: form.find('h2').first()
+            errorSibling: alert_element
         });
     }
 };
