@@ -38,26 +38,56 @@ EOS
     return $output;
 };
 
+=head2 accordion_id
+
+Returns the accordion id
+
+=cut
+
 sub accordion_id {
     my ($self) = @_;
     return "accordion." . $self->id;
 }
+
+=head2 accordion_group_id
+
+Returns the accordion group id
+
+=cut
 
 sub accordion_group_id {
     my ($self) = @_;
     return "accordion.group." . $self->id;
 }
 
+=head2 accordion_jq_target
+
+Returns the accordion target
+
+=cut
+
 sub accordion_jq_target {
     my ($self) = @_;
     return $self->escape_jquery_id($self->accordion_id);
 }
+
+=head2 escape_jquery_id
+
+Escapes a jquery id
+
+=cut
 
 sub escape_jquery_id {
     my ($self, $id) = @_;
     $id =~ s/(:|\.|\[|\]|,|=)/\\$1/g;
     return $id;
 }
+
+=head2 do_accordion_heading
+
+Returns the accordion heading or the tag accordion_heading_content
+
+=cut
 
 sub do_accordion_heading {
     my ($self) = @_;
@@ -69,6 +99,12 @@ sub do_accordion_heading {
     </div>
 EOS
 }
+
+=head2 do_accordion_heading_content
+
+Returns the accordion heading content
+
+=cut
 
 sub do_accordion_heading_content {
     my ($self) = @_;
@@ -88,6 +124,12 @@ sub do_accordion_heading_content {
     $content .= $buttons;
     return $content;
 }
+
+=head2 append_add_delete_buttons
+
+Returns the add delete buttons
+
+=cut
 
 sub append_add_delete_buttons {
     my ($self) = @_;
