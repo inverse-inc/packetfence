@@ -1570,7 +1570,7 @@ sub cache_user_ntlm {
     my ($class, $domain, $username) = @_;
 
     my ($result, $msg) = pf::domain::ntlm_cache::cache_user($domain, $username);
-    get_logger->error("Couldn't cache user: '$msg'") unless($result);
+    pf::log::get_logger->error("Couldn't cache user: '$msg'") unless($result);
 
     return $result;
 }
