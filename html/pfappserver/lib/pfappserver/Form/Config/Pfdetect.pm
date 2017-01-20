@@ -39,6 +39,7 @@ has_field 'status' => (
     label           => 'Enabled',
     checkbox_value  => 'enabled',
     unchecked_value => 'disabled',
+    default => 'enabled',
 );
 
 has_field 'path' =>
