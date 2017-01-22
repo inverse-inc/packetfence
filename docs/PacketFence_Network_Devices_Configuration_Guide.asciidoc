@@ -5081,7 +5081,7 @@ So, since the matching is done using the Firewall Filter ID configuration field,
 NOTE: You need to have the *Per-User Firewall* license in order to benefit this feature.
 
 Mojo Networks
-^^^^^^^^^^^^^
+~~~~~~~~~~~~~
 
 PacketFence supports only SSIDs configured with 802.1X.
 
