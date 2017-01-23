@@ -25,7 +25,7 @@ Build the required fields based on the PID field, the custom fields and the mand
 
 sub _build_required_fields {
     my ($self) = @_;
-    my @fields = ("password", grep {$_ ne 'username' && $_ ne 'password' } @{$self->SUPER::_build_required_fields()});
+    my @fields = ((grep {$_ ne 'username' && $_ ne 'password' } @{$self->SUPER::_build_required_fields()}), "password");
 
     return \@fields;
 }
