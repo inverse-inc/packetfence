@@ -23,7 +23,6 @@ New Features
  * Ubiquiti EdgeSwitch support (PR#1816)
  * New syslog receiver to update the iplog from Infoblox and ISC DHCP syslog lines (PR#1868)
  * Can now specify specific ports for passthroughs (#1078/PR#1926)
- * New routes service to manage statics routes (PR#1891)
 
 Enhancements
 ++++++++++++
