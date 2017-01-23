@@ -76,7 +76,6 @@
 /usr/local/pf/conf/snmptrapd.conf
 /usr/local/pf/conf/snort.conf
 /usr/local/pf/conf/snort.conf.pre_snort-2.8
-/usr/local/pf/conf/templates/emails-guest_email_activation.txt.tt
 /usr/local/pf/conf/templates/emails-guest_email_preregistration_confirmed.txt.tt
 /usr/local/pf/conf/templates/emails-guest_email_preregistration.txt.tt
 /usr/local/pf/conf/templates/emails-guest_registered.txt.tt
