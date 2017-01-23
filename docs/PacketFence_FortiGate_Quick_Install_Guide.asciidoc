@@ -50,7 +50,7 @@ Go to *System -> Network -> Interfaces*.
 
 Select the interface that will communicate with PacketFence and check 'Listen for RADIUS Accounting Messages' then confirm.
 
-image::docs/images/doc-fortigate-SSO_accouting.png[scaledwidth="100%",alt="Configure the accouting listening in the FortiGate"]
+image::docs/images/doc-fortigate-SSO_accounting.png[scaledwidth="100%",alt="Configure the accounting listening in the FortiGate"]
 
 Step 4: SSO Configuration in PacketFence
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
