@@ -161,6 +161,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('USERS_SOU
         ($status, $message) = $c->model('Authentication::Source')->update($c->stash->{source_id},
                                                                           $c->stash->{source},
                                                                           $form->value);
+        pf::ConfigStore::Authentication::setModuleSources();
     }
 
     if (is_error($status)) {
