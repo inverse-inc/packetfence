@@ -40,7 +40,7 @@ sub supportsRadiusVoip { return $TRUE; }
 sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
 sub supportsLldp { return $TRUE; }
 
-=item isVoIPEnabled
+=head2 isVoIPEnabled
 
 Supports VoIP if enabled.
 
@@ -95,7 +95,7 @@ sub dot1xPortReauthenticate {
     return $self->_dot1xPortReauthenticate($ifIndex);
 }
 
-=item returnAuthorizeWrite
+=head2 returnAuthorizeWrite
 
 Return radius attributes to allow write access (supposed to work)
 
@@ -116,7 +116,7 @@ sub returnAuthorizeWrite {
 
 }
 
-=item returnAuthorizeRead
+=head2 returnAuthorizeRead
 
 Return radius attributes to allow read access (supposed to work)
 
@@ -198,7 +198,7 @@ sub getPhonesLLDPAtIfIndex {
     return @phones;
 }
 
-=item getBitAtPosition - returns the bit at the position specified
+=head2 getBitAtPosition - returns the bit at the position specified
 
 The input must be the untranslated raw result of an snmp get_table
 
@@ -220,7 +220,7 @@ sub getBitAtPosition {
    }
 }
 
-=item getVoipVSA
+=head2 getVoipVSA
 
 Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
 

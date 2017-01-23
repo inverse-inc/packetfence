@@ -1,4 +1,5 @@
 package pf::Switch::Mojo;
+
 =head1 NAME
 
 pf::Switch::Mojo - Object oriented module to return radius attributes to a Mojo Networks Access Point.
@@ -18,6 +19,8 @@ Developed and tested on firmware version 8.1.1 and build 8.1.1.84
 
 =back
 
+=back
+
 =head1 BUGS AND LIMITATIONS
 
 This module supports 802.1X only. The mac authentication is not supported yet and should eventually supported.
@@ -26,7 +29,7 @@ This module supports 802.1X only. The mac authentication is not supported yet an
 
 =item Version specific issues
 
-=over
+=back
 
 =cut
 

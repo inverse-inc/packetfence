@@ -3207,13 +3207,19 @@ sub setSession {
     return $session_id;
 }
 
+=item shouldUseCoA
+
+Check if switch should use CoA
+
+=cut
+
 sub shouldUseCoA {
     my ($self, $args) = @_;
     # Roles are configured and the user should have one
     return (defined($args->{role}) && isenabled($self->{_RoleMap}) && isenabled($self->{_useCoA}));
 }
 
-=head2
+=item getRelayAgentInfoOptRemoteIdSub
 
 Return the RelayAgentInfoOptRemoteIdSub to match with switch mac in dhcp option 82.
 In this case this is not supported on this switch and we return undef

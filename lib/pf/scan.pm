@@ -345,7 +345,7 @@ sub toString {
     return $self->{'_id'};
 }
 
-=head2 matchCategory
+=item matchCategory
 
 Check if the category matches the configuration of the scanner
 
@@ -361,7 +361,7 @@ sub matchCategory {
     return @$category == 0 || any { $_ eq $node_cat } @$category;
 }
 
-=head2 matchOS
+=item matchOS
 
 Check if the OS matches the configuration of the scanner
 
@@ -388,7 +388,7 @@ sub matchOS {
     return $FALSE;
 }
 
-=head2 match
+=item match
 
 Check if the device matches the configuration of the scanner
 

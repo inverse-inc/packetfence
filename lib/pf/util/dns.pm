@@ -56,8 +56,6 @@ sub matches_passthrough {
     return ($FALSE, []);
 }
 
-=back
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

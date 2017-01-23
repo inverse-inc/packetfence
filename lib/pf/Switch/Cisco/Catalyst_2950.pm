@@ -1198,7 +1198,7 @@ sub getIfIndexByNasPortId {
     }
 }
 
-=head2 getRelayAgentInfoOptRemoteIdSub
+=item getRelayAgentInfoOptRemoteIdSub
 
 Return the RelayAgentInfoOptRemoteIdSub to match with switch mac in dhcp option 82
 
@@ -1219,6 +1219,7 @@ sub getRelayAgentInfoOptRemoteIdSub {
     my $mac = clean_mac($cdsRelayAgentInfoOptRemoteIdSub);
     return $mac if ($mac);
 }
+
 =back
 
 =head1 AUTHOR

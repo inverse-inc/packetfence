@@ -617,7 +617,7 @@ sub enableMABByIfIndex {
 }
 
 
-=item parseExternalPortalRequest
+=head2 parseExternalPortalRequest
 
 Parse external portal request using URI and it's parameters then return an hash reference with the appropriate parameters
 

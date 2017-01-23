@@ -788,7 +788,7 @@ sub _update_audit_stash {
     }
 }
 
-=head2 handleNtlmCaching
+=item handleNtlmCaching
 
 Handle NTLM caching if necessary
 

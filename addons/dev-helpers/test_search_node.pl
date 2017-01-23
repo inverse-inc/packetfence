@@ -19,7 +19,7 @@ use pf::SearchBuilder::Node;
 use pfappserver::Base::Model::Search;
 use pfappserver::Model::Search::Node;
 
-=begin
+=head2 input from catalyst
 
 | searches.0.name                     | switch_ip                            |
 | searches.0.op                       | equal                                |

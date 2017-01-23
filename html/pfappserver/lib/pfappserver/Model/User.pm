@@ -709,9 +709,6 @@ sub bulkDelete {
     }
     return ($STATUS::OK, ["[_1] users were deleted.",$count]);
 }
-=over
-
-=back
 
 =head1 COPYRIGHT
 

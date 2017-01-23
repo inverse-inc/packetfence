@@ -67,7 +67,7 @@ generate_specific_configurations();
 print "\n\nAll set!\n\n";
 
 
-=item generate_monit_configurations
+=head2 generate_monit_configurations
 
 Generate Monit specific configuration files based of templates (Monit general configuration, syslog modifications for Monit)
 
@@ -114,7 +114,7 @@ sub generate_monit_configurations {
 }
 
 
-=item generate_specific_configurations
+=head2 generate_specific_configurations
 
 Generate specific configuration files based of templates for specified checks
 
@@ -163,7 +163,7 @@ sub generate_specific_configurations {
 }
 
 
-=item handle_pfdhcplisteners
+=head2 handle_pfdhcplisteners
 
 Generate the dhcplistener network interfaces array to be used in configuration templates
 
@@ -179,7 +179,7 @@ sub handle_pfdhcplisteners {
 }
 
 
-=item handle_domains
+=head2 handle_domains
 
 Generate the managed by PacketFence domain list array to be used in configuration templates
 
