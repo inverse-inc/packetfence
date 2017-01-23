@@ -559,32 +559,32 @@ sub logstate :Local :AdminRole('REPORTS') {
     $graphs = [
                {
                 'description' => $c->loc('Logs Tracking packetfence.log'),
-                'target' => 'aliasByNode(*.tail-PacketFence.counter*,1,2)',
+                'target' => '*.tail-PacketFence.counter*',
                 'columns' => 2
                },
                {
                 'description' => $c->loc('Logs Tracking pfqueue.log'),
-                'target' => 'aliasByNode(*.tail-pfqueue.counter*,1,2)',
+                'target' => '*.tail-pfqueue.counter*',
                 'columns' => 2
                },
                {
                 'description' => $c->loc('Logs Tracking pfmon.log'),
-                'target' => 'aliasByNode(*.tail-pfmon.counter*,1,2)',
+                'target' => '*.tail-pfmon.counter*',
                 'columns' => 2
                },
                {
                 'description' => $c->loc('Logs Tracking pfdhcplistener.log'),
-                'target' => 'aliasByNode(*.tail-pfdhcplistener.counter*,1,2)',
+                'target' => '*.tail-pfdhcplistener.counter*',
                 'columns' => 2
                },
                {
                 'description' => $c->loc('Logs Tracking radius-load_balancer.log'),
-                'target' => 'aliasByNode(*.tail-radius-load_balancer.counter*,1,2)',
+                'target' => '*.tail-radius-load_balancer.counter*',
                 'columns' => 2
                },
                {
                 'description' => $c->loc('Logs Tracking radius.log'),
-                'target' => 'aliasByNode(*.tail-radius-auth.counter*,1,2)',
+                'target' => '*.tail-radius-auth.counter*',
                 'columns' => 2
                }
               ];
