@@ -53,17 +53,20 @@ sub options_sources {
     my ($self, %options) = @_;
     require pf::authentication;
     my @sources;
+    my $for_module_meta = $self->for_module->meta;
+    # We are dealing with a multi source module, meaning we are looking for the isa in the sources attribute
+    my ($isa);
+    my $sources_attr = $for_module_meta->find_attribute_by_name('sources');
+    if($options{multiple} && defined $sources_attr->{isa} &&  $sources_attr->{isa} =~ /^ArrayRef\[(.*)\]/){
+        $isa = $1;
+    }
+    else {
+        $isa = $for_module_meta->find_attribute_by_name('source')->{isa};
+    }
+    my @splitted_isas = split(/\s*\|\s*/, $isa);
+    get_logger->debug("Building options with isa : $isa");
     foreach my $source (@{pf::authentication::getAllAuthenticationSources()}){
-        # We are dealing with a multi source module, meaning we are looking for the isa in the sources attribute
-        my ($isa);
-        if($options{multiple} && $self->for_module->meta->find_attribute_by_name('sources')->{isa} =~ /^ArrayRef\[(.*)\]/){
-            $isa = $1;
-        }
-        else {
-            $isa = $self->for_module->meta->find_attribute_by_name('source')->{isa};
-        }
-        get_logger->debug("Building options with isa : $isa");
-        foreach my $splitted_isa (split(/\s*\|\s*/, $isa)){
+        foreach my $splitted_isa (@splitted_isas) {
             if($source->isa($splitted_isa)){
                 push @sources, $source->id;
                 last;
