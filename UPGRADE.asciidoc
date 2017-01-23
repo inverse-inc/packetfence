@@ -32,8 +32,8 @@ To do so, run the following commands:
   service packetfence stop
   service packetfence-config stop
 
-For RedHat-based systems
-^^^^^^^^^^^^^^^^^^^^^^^^
+For Red Hat-based systems
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Run the following command to update PacketFence:
 
@@ -63,21 +63,53 @@ Once the additionnal steps are completed, restart packetfence-config and packetf
   service packetfence-config restart
   service packetfence restart
 
-Upgrading from a version prior to X.Y.Z
+Upgrading from a version prior to 6.5.0
 ---------------------------------------
+
+Database schema updates
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Changes have been made to the database schema. You will need to update it accordingly.
+An SQL upgrade script has been provided to upgrade the database from the 6.4 schema to 6.5.
+
+To upgrade the database schema, run the following command: 
+
+  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-6.4.0-6.5.0.sql
+
 
 Custom code warning
 ^^^^^^^^^^^^^^^^^^^
 
-The method signature of pf::node::node_register has been modified. Make sure you adjust any custom code / external scripts to handle the new returned values
+The method signature of pf::node::node_register has been modified. Make sure you adjust any custom code / external scripts to handle the new returned values.
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
+Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 6.5.0).
+
+Switches Configuration
+^^^^^^^^^^^^^^^^^^^^^^
+You must rename "controllerPort" to "disconnectPort" in your switches.conf configuration file. You can automate this using:
+
+  cd /usr/local/pf
+  find . -name "switches.conf" -exec sed -i "s/controllerPort/disconnectPort/g" '{}' \;
+
+Eduroam
+^^^^^^^
+Eduroam authentication source is now an "exclusive" authentication source rather than an "external" one. That being said, make sure to adjust portal profile accordingly (an "exclusive" authentication source can be the only one configured in a portal profile).
+
+Improved Logging
+^^^^^^^^^^^^^^^^
+In order to be sure all your logging facilities use the new logging backend which ensures the processes will not die in case of a logging failure, you must execute the following command:
+
+  cd /usr/local/pf
+  find conf/log.conf.d/ -type f -exec sed -i.bak "s/Log::Log4perl::Appender::File/pf::log::FileAppender/g" {} \; ; find conf/log.conf.d/ -name '*.bak' -delete
+
+Violations
+^^^^^^^^^^
+When whitelisting roles in a violation, the registration role will now match unregistered devices where before it would never match. Make sure to go through violations that may include this role to make sure it is relevant.
 
 Database schema updates
 ^^^^^^^^^^^^^^^^^^^^^^^
-The traplog table is now deprecated.
-If wish to reclaim the space in the database.
-The table should be manually removed.
+The "configfile" and "traplog" database tables are now deprecated. If you wish to reclaim the disk space used by those two database tables, they should be manually removed.
+
 
 Upgrading from a version prior to 6.4.0
 ---------------------------------------
