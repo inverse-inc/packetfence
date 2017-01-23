@@ -82,8 +82,6 @@ Custom code warning
 
 The method signature of pf::node::node_register has been modified. Make sure you adjust any custom code / external scripts to handle the new returned values.
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 6.5.0).
-
 Switches Configuration
 ^^^^^^^^^^^^^^^^^^^^^^
 You must rename "controllerPort" to "disconnectPort" in your switches.conf configuration file. You can automate this using:
@@ -102,6 +100,15 @@ In order to be sure all your logging facilities use the new logging backend whic
   cd /usr/local/pf
   find conf/log.conf.d/ -type f -exec sed -i.bak "s/Log::Log4perl::Appender::File/pf::log::FileAppender/g" {} \; ; find conf/log.conf.d/ -name '*.bak' -delete
 
+Email templates
+^^^^^^^^^^^^^^^
+
+The email templates have been moved from /usr/local/pf/conf/emails/ to /usr/local/pf/html/captive-portal/templates/emails/ as they are now configurable by portal profile. Also you can configure the language in which PacketFence should send emails to the administrator in the Advanced section of the configuration.
+
+Make sure you run the following command after upgrading:
+
+  /usr/local/pf/bin/pfcmd cache configfiles clear
+
 Violations
 ^^^^^^^^^^
 When whitelisting roles in a violation, the registration role will now match unregistered devices where before it would never match. Make sure to go through violations that may include this role to make sure it is relevant.
@@ -110,6 +117,7 @@ Database schema updates
 ^^^^^^^^^^^^^^^^^^^^^^^
 The "configfile" and "traplog" database tables are now deprecated. If you wish to reclaim the disk space used by those two database tables, they should be manually removed.
 
+Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 6.5.0).
 
 Upgrading from a version prior to 6.4.0
 ---------------------------------------
