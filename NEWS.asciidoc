@@ -20,7 +20,7 @@ New Features
  * New Redis driven cache for NTLM (Active Directory) 802.1X authentications (PR#1885)
  * New Firewall SSO for WatchGuard (PR#1851)
  * Syslog based SSO support for Palo Alto firewalls (PR#1859)
- * Ubiquity EdgeSwitch support (PR#1816)
+ * Ubiquiti EdgeSwitch support (PR#1816)
  * New syslog receiver to update the iplog from Infoblox and ISC DHCP syslog lines (PR#1868)
  * Can now specify specific ports for passthroughs (#1078/PR#1926)
  * New routes service to manage statics routes (PR#1891)
