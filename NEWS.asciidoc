@@ -50,7 +50,6 @@ Enhancements
  * Rate limited the DHCP listener processes to prevent specific devices from performing a denial of service on the DHCP listening processes (#1722/PR#1845)
  * Improved performance of radacct database table cleanup (PR#1839)
  * Email templates can now be specified on a per-portal basis (#1322/PR#1823)
- * RADIUS filter support for VoIP (PR#1807)
  * Added CLI login support for HP Procurve switches (#1710)
 
 Bug Fixes
