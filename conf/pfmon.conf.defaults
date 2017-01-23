@@ -12,10 +12,10 @@ type=acct_maintenance
 # The description of task to perform
 description=acct maintenance
 #
-# enabled
+# status
 #
 # If the task acct_maintenance is enabled
-enabled=enabled
+status=enabled
 #
 # interval
 #
@@ -34,10 +34,10 @@ type=auth_log_cleanup
 # The description of task to perform
 description=auth log cleanup
 #
-# enabled
+# status
 #
 # If the task auth_log_cleanup is enabled
-enabled=enabled
+status=enabled
 #
 # interval
 #
@@ -71,10 +71,10 @@ type=cluster_check
 # The description of task to perform
 description=cluster check
 #
-# enabled
+# status
 #
 # If the task cluster_check is enabled
-enabled=enabled
+status=enabled
 #
 # interval
 #
@@ -93,10 +93,10 @@ type=fingerbank_data_update
 # The description of task to perform
 description=fingerbank data update
 #
-# enabled
+# status
 #
 # If the task fingerbank_data_update is enabled
-enabled=enabled
+status=enabled
 #
 # interval
 #
@@ -115,10 +115,10 @@ type=inline_accounting_maintenance
 # The description of task to perform
 description=inline accounting maintenance
 #
-# enabled
+# status
 #
 # If the task inline_accounting_maintenance is enabled
-enabled=enabled
+status=enabled
 #
 # interval
 #
@@ -137,10 +137,10 @@ type=iplog_cleanup
 # The description of task to perform
 description=iplog cleanup
 #
-# enabled
+# status
 #
 # If the task iplog_cleanup is enabled
-enabled=enabled
+status=enabled
 #
 # interval
 #
@@ -174,10 +174,10 @@ type=iplog_rotation
 # The description of task to perform
 description=iplog rotation
 #
-# enabled
+# status
 #
 # If the task iplog_rotation is enabled
-enabled=disabled
+status=disabled
 #
 # interval
 #
@@ -211,10 +211,10 @@ type=locationlog_cleanup
 # The description of task to perform
 description=locationlog cleanup
 #
-# enabled
+# status
 #
 # If the task locationlog_cleanup is enabled
-enabled=enabled
+status=enabled
 #
 # interval
 #
@@ -248,10 +248,10 @@ type=node_cleanup
 # The description of task to perform
 description=node cleanup
 #
-# enabled
+# status
 #
 # If the task node_cleanup is enabled
-enabled=disabled
+status=disabled
 #
 # interval
 #
@@ -275,10 +275,10 @@ type=nodes_maintenance
 # The description of task to perform
 description=nodes maintenance
 #
-# enabled
+# status
 #
 # If the task nodes_maintenance is enabled
-enabled=enabled
+status=enabled
 #
 # interval
 #
@@ -297,10 +297,10 @@ type=option82_query
 # The description of task to perform
 description=option82 query
 #
-# enabled
+# status
 #
 # If the task option82_query is enabled
-enabled=enabled
+status=enabled
 #
 # interval
 #
@@ -319,10 +319,10 @@ type=person_cleanup
 # The description of task to perform
 description=person cleanup
 #
-# enabled
+# status
 #
 # If the task person_cleanup is enabled
-enabled=disabled
+status=disabled
 #
 # interval
 #
@@ -341,10 +341,10 @@ type=populate_ntlm_redis_cache
 # The description of task to perform
 description=populate ntlm redis cache
 #
-# enabled
+# status
 #
 # If the task populate_ntlm_redis_cache is enabled
-enabled=disabled
+status=disabled
 #
 # interval
 #
@@ -363,10 +363,10 @@ type=provisioning_compliance_poll
 # The description of task to perform
 description=provisioning compliance poll
 #
-# enabled
+# status
 #
 # If the task provisioning_compliance_poll is enabled
-enabled=enabled
+status=enabled
 #
 # interval
 #
@@ -385,10 +385,10 @@ type=radius_audit_log_cleanup
 # The description of task to perform
 description=radius audit log cleanup
 #
-# enabled
+# status
 #
 # If the task radius_audit_log_cleanup is enabled
-enabled=enabled
+status=enabled
 #
 # interval
 #
@@ -422,10 +422,10 @@ type=violation_maintenance
 # The description of task to perform
 description=violation maintenance
 #
-# enabled
+# status
 #
 # If the task violation_maintenance is enabled
-enabled=enabled
+status=enabled
 #
 # interval
 #

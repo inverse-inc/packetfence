@@ -13,10 +13,10 @@ type=[% c.class %]
 # The description of task to perform
 description=[% c.class.replace('_', ' ') %]
 #
-# enabled
+# status
 #
 # If the task [% c.name %] is enabled
-enabled=[% c.enabled %]
+status=[% c.enabled %]
 #
 # interval
 #

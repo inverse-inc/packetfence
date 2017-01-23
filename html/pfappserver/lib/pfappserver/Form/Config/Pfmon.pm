@@ -31,7 +31,7 @@ has_field 'type' =>
    type => 'Hidden',
    required => 1,
   );
-has_field 'enabled' =>
+has_field 'status' =>
   (
    type => 'Toggle',
    checkbox_value => 'yes',

@@ -23,7 +23,7 @@ has type => (is => 'ro', isa => 'Str', required => 1);
 
 has id => (is => 'ro', isa => 'Str', required => 1);
 
-has enabled => (is => 'ro', isa => 'Str', required => 1);
+has status => (is => 'ro', isa => 'Str', required => 1);
 
 has interval => (is => 'ro', isa => 'PfInterval', required => 1, coerce => 1);
 
@@ -48,7 +48,7 @@ checks if enabled is "true"
 
 sub is_enabled {
     my ($self) = @_;
-    return isenabled($self->enabled);
+    return isenabled($self->status);
 }
 
 
