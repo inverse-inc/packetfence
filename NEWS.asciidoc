@@ -11,22 +11,63 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
-Version X.Y.Z released on xxxx-xx-xx
+Version 6.5.0 released on 2016-01-xx
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 New Features
 ++++++++++++
- * Added an authentication source that prompts for the password of a predefined user (Authentication::Password)
+ * Twilio support as authentication source (PR#1951)
+ * New Redis driven cache for NTLM (Active Directory) 802.1X authentications (PR#1885)
+ * New Firewall SSO for WatchGuard (PR#1851)
+ * Syslog based SSO support for Palo Alto firewalls (PR#1859)
+ * Ubiquity EdgeSwitch support (PR#1816)
+ * New syslog receiver to update the iplog from Infoblox and ISC DHCP syslog lines (PR#1868)
+ * Can now specify specific ports for passthroughs (#1078/PR#1926)
+ * New routes service to manage statics routes (PR#1891)
 
 Enhancements
 ++++++++++++
- * Added a RADIUS filter scope for VoIP devices (PR #1807)
+ * Added a RADIUS filter scope for VoIP devices (PR#1807)
  * Ability to customize the OU in which the machine account will be created (#1927)
- * Added new routes service to manage static routes (PR #1891)
+ * Added new routes service to manage static routes (PR#1891)
+ * Added an authentication source that prompts for the password of a predefined user (PR#1810)
+ * Added Aruba webauth documentation (PR#1949)
+ * Eduroam authentication sources can now match rule (PR#1940)
+ * Maintenance patching can now use git in order to ignore files that shouldn't be patched via the maintenance script (#807/PR#1931)
+ * Can now print multiple guest passes per page without the AUP in the administration interface (#1409/PR#1930)
+ * Allow to whitelist unregistered devices from violations (#1278/PR#1929)
+ * Changed password.valid_from default value to "0000-00-00 00:00:00" so its value is valid across the whole application (#1920/PR#1922)
+ * Added Percona xtrabackup restore procedure documentation (#1646/PR#1919)
+ * Added a way to track if files backups and database backup succeeded (PR#1904)
+ * pfmon will not register and start a process for disabled task (PR#1899)
+ * Added a way to define two different ports for disconnect and CoA (PR#1894)
+ * Configurator database step now takes care of 'mysql_secure_installation' (PR#1878)
+ * Improved clustering guide for MariaDB and systemd (PR#1875)
+ * Added a portal module action to skip other actions (PR#1869)
+ * Reduced p0f CPU usage (PR#1867)
+ * Updated collectd in order to have new graphs (PR#1863)
+ * Do not "match" a rule if "requested" action if not configured in it (#1858/PR#1861)
+ * Improved monit checks accuracy (PR#1849)
+ * Rate limited the DHCP listener processes to prevent specific devices from performing a denial of service on the DHCP listening processes (#1722/PR#1845)
+ * Improved performance of radacct database table cleanup (PR#1839)
+ * Email templates can now be specified on a per-portal basis (#1322/PR#1823)
+ * RADIUS filter support for VoIP (PR#1807)
+ * Added CLI login support for HP Procurve switches (#1710)
 
 Bug Fixes
 +++++++++
  * Fixed iplog rotation retention configuration not always using the right param (#1896)
+ * Reworked and "simplified" the logic of filtering authentication source for a realm (PR#1943)
+ * Ability to customize the OU in which the machine account will be created (#1927/PR#1928)
+ * Now limiting dates to 2038-01-18 in admin interface (#1126/PR#1923)
+ * Remove unused configfile database table (PR#1902)
+ * Enable haproxy on portal interface (PR#1893)
+ * Prevent logging failure from making a process die (#1734/PR#1862)
+ * pfmon should run on every server in active-active (#1852/PR#1853)
+ * Removed the use of pf::cache::cached (#695/PR#1820)
+ * Removed error when we receive a RADIUS request to test the RADIUS status (PR#1803)
+ * Refactored pf::node::node_register to add return code and status code/message (#1797/PR#1798)
+ * Removed unused traplog database table (#367/PR#1785)
 
 
 Version 6.4.0 released on 2016-11-16
