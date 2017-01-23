@@ -1,14 +1,14 @@
-package pf::dhcp::processor;
+package pf::dhcp::processor_v6;
 
 =head1 NAME
 
-pf::dhcp::processor
+pf::dhcp::processor_v6
 
 =cut
 
 =head1 DESCRIPTION
 
-Base class for processing DHCP packets
+Processes DHCPv6 packets
 
 =cut
 
@@ -16,6 +16,9 @@ use strict;
 use warnings;
 
 use Moose;
+
+extends 'pf::dhcp::processor';
+
 
 
 =head1 AUTHOR

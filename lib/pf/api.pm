@@ -60,7 +60,8 @@ use pf::lookup::person();
 use pf::enforcement();
 use pf::password();
 use pf::web::guest();
-use pf::dhcp::processor();
+use pf::dhcp::processor_v4();
+use pf::dhcp::processor_v6();
 use pf::util::dhcpv6();
 use pf::domain::ntlm_cache();
 
@@ -1174,7 +1175,7 @@ sub reevaluate_access : Public :AllowedAsAction(mac, $mac, reason, $reason) {
 
 =head2 process_dhcp
 
-Processes a DHCPv4 request through the pf::dhcp::processor module
+Processes a DHCPv4 request through the pf::dhcp::processor_v4 module
 The UDP payload must be base 64 encoded.
 
 =cut
@@ -1185,7 +1186,8 @@ sub process_dhcp : Public {
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,\@found);
 
-    pf::dhcp::processor->new(%postdata)->process_packet();
+    my $dhcpv4Processor = pf::dhcp::processor_v4->new(%postdata);
+    $dhcpv4Processor->process_packet();
 
     return $pf::config::TRUE;
 }

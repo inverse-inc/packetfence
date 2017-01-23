@@ -26,7 +26,8 @@ Will replay a pcap to simulate pfdhcplistener traffic
 use strict;
 use warnings;
 use lib qw(/usr/local/pf/lib);
-use pf::dhcp::processor();
+use pf::dhcp::processor_v4();
+use pf::dhcp::processor_v6();
 use pf::util::dhcpv6();
 use pf::client;
 pf::client::setClient("pf::api::can_fork");
@@ -108,7 +109,7 @@ sub process_pkt {
         );
         # we send all IPv4 DHCPv4 codepath
         if($l2->{type} eq ETH_TYPE_IP) {
-            pf::dhcp::processor->new(%args)->process_packet();
+            pf::dhcp::processor_v4->new(%args)->process_packet();
         } else {
             #ignore for now
             process_dhcpv6("pf::api", $l4->{data});
