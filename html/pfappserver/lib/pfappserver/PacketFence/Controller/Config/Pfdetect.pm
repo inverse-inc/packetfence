@@ -15,6 +15,9 @@ use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 use pf::detect::parser::regex;
 use pf::factory::detect::parser;
+use pf::api;
+
+pf::api::attributes::updateAllowedAsActions();
 
 
 BEGIN {
@@ -89,6 +92,25 @@ before [qw(clone view _processCreatePost update)] => sub {
     my $form = $c->action->{form};
     $c->stash->{current_form} = "${form}::${type}";
 };
+
+
+=head2 before - clone view update
+
+
+
+=cut
+
+before [qw(clone view update)] => sub {
+    my ($self, $c) = @_;
+    my @regex_allowed_actions;
+    foreach my $method (sort keys %pf::api::attributes::ALLOWED_ACTIONS) {
+        my $short_method_name = $method;
+        $short_method_name =~ s/^pf::api:://;
+        push @regex_allowed_actions, { method => $short_method_name, spec => $pf::api::attributes::ALLOWED_ACTIONS{$method} };
+    }
+    $c->stash->{'regex_allowed_actions'} = \@regex_allowed_actions;
+};
+
 
 =head2 create_type
 
