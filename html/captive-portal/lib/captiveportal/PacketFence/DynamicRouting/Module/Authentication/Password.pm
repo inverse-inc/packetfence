@@ -17,14 +17,17 @@ with 'captiveportal::Role::MultiSource';
 
 has '+username' => (is => 'rw');
 
-=head2 required_fields_child
+=head2 _build_required_fields
 
-password is required for login
+Build the required fields based on the PID field, the custom fields and the mandatory fields of the source
 
 =cut
 
-sub required_fields_child {
-    return ["password"];
+sub _build_required_fields {
+    my ($self) = @_;
+    my @fields = ("password", grep {$_ ne 'username' && $_ ne 'password' } @{$self->SUPER::_build_required_fields()});
+
+    return \@fields;
 }
 
 =head2 execute_child
