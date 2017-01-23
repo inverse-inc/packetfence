@@ -425,7 +425,7 @@ sub revert_file :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES
     $c->stash->{current_view} = 'JSON';
     my $file_path = $self->_makeFilePath($c, @pathparts);
     unlink($file_path);
-    $self->_sync_revert_file($file_path);
+    $self->_sync_revert_file($c, $file_path);
 }
 
 =head2 files
@@ -534,7 +534,7 @@ sub revert_all :Chained('object') :PathPart :Args(0) :AdminRole('PORTAL_PROFILES
     $c->stash->{current_view} = 'JSON';
     my $dir = $self->_makeFilePath($c);
     my $list = empty_dir($dir);
-    $self->_sync_revert_all($dir);
+    $self->_sync_revert_all($c, $dir);
 
     my $status_msg = "Reverted " . scalar @$list  . " files";
     $c->stash->{status_msg} = $status_msg;
