@@ -345,7 +345,7 @@ To display the content of a certificate use the following command:
  # openssl x509 -in path/MyCA-0 -text
  # openssl x509 -in path/MyCA-1 -text
 
-In the output search for `X509v3 extensions:`. When using the scep enroll command you will need the "CEP Enryption" certificate as an argument for -e and the "Enrollment agent" certificate as an argument for -c. -d is use for the debug output. -l is the local file where your certificate will be save.
+In the output search for `X509v3 extensions:`. When using the scep enroll command you will need the "CEP Encryption" certificate as an argument for -e and the "Enrollment agent" certificate as an argument for -c. -d is use for the debug output. -l is the local file where your certificate will be save.
  
  # sscep enroll -c path/MyCA-0 -e path/MyCA-1 -k path/local.key -r path/local.csr -l path/MyCert.crt -S sha1 -u http://<ServerDNSName>/CertSrv/mscep/ -d 
 
