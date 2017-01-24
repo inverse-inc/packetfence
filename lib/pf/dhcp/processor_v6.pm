@@ -16,7 +16,6 @@ use strict;
 use warnings;
 
 use Moose;
-
 extends 'pf::dhcp::processor';
 
 
