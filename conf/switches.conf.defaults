@@ -26,7 +26,7 @@ inlineRole = inline
 VoIPEnabled = N
 cliAccess = N
 VlanMap = Y
-RoleMap = Y
+RoleMap = N
 ExternalPortalEnforcement = N
 
 mode = testing
