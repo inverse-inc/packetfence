@@ -36,7 +36,7 @@ _Developer's Guide_ (pdf)::
 `CREDITS`::
   This is, at least, a partial file of PacketFence contributors.
 `NEWS.asciidoc`::
-  Covers noteworthy features, improvements and bugfixes by release. 
+  Covers noteworthy features, improvements and bug fixes by release.
 `UPGRADE.asciidoc`::
   Covers compatibility related changes, manual instructions and general notes 
   about upgrading. 
@@ -333,7 +333,7 @@ Inline enforcement because of it's nature has several limitations that one must 
 
 [options="compact"]
 * Everyone behind an inline interface is on the same Layer 2 LAN
-* Every packet of authorized users goes through the PacketFence server increasing the servers' load considerably: Plan ahead for capacity
+* Every packet of authorized users goes through the PacketFence server increasing the server's load considerably: Plan ahead for capacity
 * Every packet of authorized users goes through the PacketFence server: it is a single point of failure for Internet access
 * Ipset can store up to 65536 entries, so it is not possible to have a inline network class upper than B
 
@@ -370,7 +370,7 @@ Wireless 802.1X works like wired 802.1X and MAC authentication is the same as wi
 
 On wireless networks, the usual PacketFence setup dictate that you configure two SSIDs: an open one and a secure one. The open one is used to help users configure the secure one properly and requires authentication over the captive portal (which runs in HTTPS).
 
-The following diagram demonstrates the flow between a mobile enpoint, a WiFi access point, a WiFi controller and PacketFence:
+The following diagram demonstrates the flow between a mobile endpoint, a WiFi access point, a WiFi controller and PacketFence:
 
 image::docs/images/radius_workflow.png[scaledwidth="100%",alt="WiFi RADIUS workflow"]
 
@@ -387,7 +387,7 @@ image::docs/images/radius_workflow.png[scaledwidth="100%",alt="WiFi RADIUS workf
 Web Auth mode
 ^^^^^^^^^^^^^
 
-Web authentication is a method on the switch that forwards http traffic of the device to the captive portal.
+Web authentication is a method on the switch that forwards HTTP traffic of the device to the captive portal.
 With this mode, your device will never change of VLAN ID but only the ACL associated to your device will change.
 Refer to the Network Devices Configuration Guide to see a sample web auth configuration on a Cisco WLC.
 
@@ -442,7 +442,7 @@ In previous versions of PacketFence, it was not possible to have RADIUS enabled 
 Device configuration
 ~~~~~~~~~~~~~~~~~~~~
 
-You need to configure inline enforcement mode in PacketFence and configure your switch(es) / access point(s) to use the VLAN assignement techniques (802.1X or MAC-authentication). You also need to take care of a specific parameter in the switch configuration window, "Trigger to enable inline mode". This parameter is working like a trigger and you have the possibility to define different sort of triggers:
+You need to configure inline enforcement mode in PacketFence and configure your switch(es) / access point(s) to use the VLAN assignment techniques (802.1X or MAC-authentication). You also need to take care of a specific parameter in the switch configuration window, "Trigger to enable inline mode". This parameter is working like a trigger and you have the possibility to define different sort of triggers:
 
   ALWAYS::
   PORT::
@@ -469,8 +469,8 @@ Once PacketFence is started, the administration interface is available at: https
 The next key steps are important to understand how PacketFence works. In order to get the solution working, you must first understand and configure the following aspects of the solution in this specific order:
 
 1. *roles* - a role in PacketFence will be eventually be mapped to a VLAN, an ACL or an external role. You must define the roles to use in your organization for network access
-2. *authentication* - once roles are defined, you must create an appropraite authentication source in PacketFence. That will allow PacketFence to compute the right role to be used for an endpoint, or the user using it
-3. *network devices* - once your roles and authentication sources are defined, you must add switches, WiFi controllers or APs to be mananaged by PacketFence. When doing so, you will configure how roles are being mapped to VLAN, ACLs or external roles
+2. *authentication* - once roles are defined, you must create an appropriate authentication source in PacketFence. That will allow PacketFence to compute the right role to be used for an endpoint, or the user using it
+3. *network devices* - once your roles and authentication sources are defined, you must add switches, WiFi controllers or APs to be managed by PacketFence. When doing so, you will configure how roles are being mapped to VLAN, ACLs or external roles
 4. *portal profiles* - at this point, you are almost ready to test. You will need to set which authentication sources are to be used on the default captive portal, or create an other one to suit your needs
 5. test!
 
@@ -547,7 +547,7 @@ Then, we add a rule by clicking on the *Add rule* button and provide the followi
 
 Test the connection and save everything. Using the newly defined source, any username that actually matches in the source (using the sAMAccountName) will have the employee role and an unregistration date set to January 1st, 2020.
 
-Now, since we want to authenticate guests from PacketFence's internal SQL database, accounts must be provisionned manually. You can do so from the *Users -> Create* section. When creating guests, specify "guest" for the *Set role* action, and set an access duration for 1 day.
+Now, since we want to authenticate guests from PacketFence's internal SQL database, accounts must be provisioned manually. You can do so from the *Users -> Create* section. When creating guests, specify "guest" for the *Set role* action, and set an access duration for 1 day.
 
 If you would like to differentiate user authentication and machine authentication using Active Directory, one way to do it is by creating a second authentication sources, for machines:
 
@@ -643,9 +643,9 @@ Where :
 * *Service Provider entity ID* is the identifier of the Service Provider (PacketFence). Make sure this matches your Identity Provider configuration.
 * *Path to Service Provider key* is the path to the key that will be used by PacketFence to sign its messages to the Identity Provider. A default one is provided under the path : `/usr/local/pf/conf/ssl/server.key`
 * *Path to Service Provider cert* is the path to the certificate associated to the key above. A self-signed one is provided under the path : `/usr/local/pf/conf/ssl/server.key`
-* *Path to Identity Provider metadata* is the path to the metadata file you transfered above (should be in `/usr/local/pf/conf/idp-metadata.xml`)
-* *Path to Identity Provider cert* is the path to the certificate of the identity provider you transfered on the server above (should be in `/usr/local/pf/conf/ssl/idp.crt`).
-* *Path to Identity Provider CA cert* is the path to the CA certificate of the identity provider you transfered on the server above (should be in `/usr/local/pf/conf/ssl/ca-idp.crt`). If the certificate above is self-signed, put the same path as above in this field.
+* *Path to Identity Provider metadata* is the path to the metadata file you transferred above (should be in `/usr/local/pf/conf/idp-metadata.xml`)
+* *Path to Identity Provider cert* is the path to the certificate of the identity provider you transferred on the server above (should be in `/usr/local/pf/conf/ssl/idp.crt`).
+* *Path to Identity Provider CA cert* is the path to the CA certificate of the identity provider you transferred on the server above (should be in `/usr/local/pf/conf/ssl/ca-idp.crt`). If the certificate above is self-signed, put the same path as above in this field.
 * *Attribute of the username in the SAML response* is the attribute that contains the username in the SAML assertion returned by your Identity Provider. The default should fit at least SimpleSAMLphp.
 * *Authorization source* is the source that will be used to match the username against the rules defined in it. This allows to set the role and access duration of the user. The 'Authentication' section of this document contains explanations on how to configure an LDAP source which can then be used here.
 
@@ -666,7 +666,7 @@ NOTE: PacketFence does not support logoff on the SAML Identity Provider. You can
 Passthroughs
 ^^^^^^^^^^^^
 
-In order for your users to be able to access the Identity Provider login page, you will need to activate passthroughs and add the Indentity Provider domain to the allowed passthroughs.
+In order for your users to be able to access the Identity Provider login page, you will need to activate passthroughs and add the Identity Provider domain to the allowed passthroughs.
 
 To do so, go in 'Configuration -> Trapping', then check 'Passthrough' and add the Identity Provider domain name to the 'Passhtroughs' list.
 
@@ -770,7 +770,7 @@ Command-Line Interface: Telnet and SSH
 
 WARNING: Privilege detection is disabled in the current PacketFence version due to some issues (see https://packetfence.org/bugs/view.php?id=1370[#1370]). So make sure that the `cliUser` and `cliPwd` you provide always get you into a privileged mode (except for Trapeze hardware).
 
-PackeFence needs sometimes to establish an interactive command-line session with a switch. This can be done using Telnet. You can also use SSH. In order to do so, edit the switch configuration file (`/usr/local/pf/conf/switches.conf`) and set the following parameters:
+PacketFence needs sometimes to establish an interactive command-line session with a switch. This can be done using Telnet. You can also use SSH. In order to do so, edit the switch configuration file (`/usr/local/pf/conf/switches.conf`) and set the following parameters:
 
   cliTransport = SSH (or Telnet)
   cliUser = admin
@@ -782,7 +782,7 @@ It can also be done through the Web Administration Interface under *Configuratio
 Web Services Interface
 ^^^^^^^^^^^^^^^^^^^^^^
 
-PackeFence sometimes needs to establish a dialog with the Web Services capabilities of a switch. In order to do so, edit the switch config file (`/usr/local/pf/conf/switches.conf`) and set the following parameters:
+PacketFence sometimes needs to establish a dialog with the Web Services capabilities of a switch. In order to do so, edit the switch config file (`/usr/local/pf/conf/switches.conf`) and set the following parameters:
 
   wsTransport = http (or https)
   wsUser = admin
@@ -871,14 +871,14 @@ These files have been written using the Perl language and are completely dynamic
 
 The other files in this directory are managed by PacketFence using templates, so it is easy to modify these files based on your configuration. SSL is enabled by default to secure access.
 
-Upon PacketFence installation, self-signed certificates will be created in `/usr/local/pf/conf/ssl` (`server.key` and `server.crt`). Those certificates can be replaced anytime by your 3rd-party or existing wildcard certificate without problems. Please note that the CN (Common Name) needs to be the same as the one defined in the PacketFence configuration file (`pf.conf`).
+Upon PacketFence installation, self-signed certificates will be created in `/usr/local/pf/conf/ssl` (`server.key` and `server.crt`). Those certificates can be replaced anytime by your 3rd-party or existing wild card certificate without problems. Please note that the CN (Common Name) needs to be the same as the one defined in the PacketFence configuration file (`pf.conf`).
 
-Reuse 802.1x credentials
+Reuse 802.1X credentials
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-Under certain circumstances, for example to show an AUP after a successful 802.1x connection, it might be interesting to have the ability to use an "SSO emulation" in the sense that the user does not need to re-enter his credentials on the portal after having entered them during the 802.1x EAP process. The 'Reuse 802.1x credentials' portal profile option will address this purpose. The same username as the one used during the 802.1x connection will be used against the different portal profile authentication sources to recompute the role from the portal.
+Under certain circumstances, for example to show an AUP after a successful 802.1X connection, it might be interesting to have the ability to use an "SSO emulation" in the sense that the user does not need to re-enter his credentials on the portal after having entered them during the 802.1X EAP process. The 'Reuse 802.1X credentials' portal profile option will address this purpose. The same username as the one used during the 802.1X connection will be used against the different portal profile authentication sources to recompute the role from the portal.
 
-As a security precaution, this option will only reuse 802.1x credentials if there is an authentication source matching the provided realm. This means, if users use 802.1x credentials with a domain part (username@domain, domain\username), the domain part needs to be configured as a realm under the RADIUS section and an authentication source needs to be configured for that realm. If users do not use 802.1x credentials with a domain part, only the NULL realm will be match IF an authentication source is configured for it.
+As a security precaution, this option will only reuse 802.1X credentials if there is an authentication source matching the provided realm. This means, if users use 802.1X credentials with a domain part (username@domain, domain\username), the domain part needs to be configured as a realm under the RADIUS section and an authentication source needs to be configured for that realm. If users do not use 802.1X credentials with a domain part, only the NULL realm will be match IF an authentication source is configured for it.
 
 FreeRADIUS Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -901,7 +901,7 @@ Next, go in the Administration interface under *Configuration -> Domains*.
 
 NOTE: If you can't access this section and you have previously configured your server to bind to a domain externally to PacketFence, make sure you run `/usr/local/pf/addons/AD/migrate.pl`
 
-Click *Add Domain* and fill in the informations about your domain.
+Click *Add Domain* and fill in the information about your domain.
 
 image::docs/images/domain-add.png[scaledwidth="100%",alt="Adding a new domain"]
 
@@ -924,7 +924,7 @@ Troubleshooting
 
 * You can test the authentication process using the following command `chroot /chroots/<mydomain> ntlm_auth --username=administrator`
 
-NOTE: Under certain conditions, the test join may show as unsuccessful in the Administration interface but the authentication process will still work properly. Try the test above before doing any additionnal troubleshooting
+NOTE: Under certain conditions, the test join may show as unsuccessful in the Administration interface but the authentication process will still work properly. Try the test above before doing any additional troubleshooting
 
 Default domain configuration
 ++++++++++++++++++++++++++++
@@ -978,7 +978,7 @@ apt-get install samba winbind krb5-user
 
 NOTE: If you have Windows 7 PCs in your network, you need to use Samba version 3.5.0 (or greater).
  
-When done with the Samba install, modify your `/etc/hosts` in order to add the FQDN of your Active Directory servers. Then, you need to modify `/etc/krb5.conf`. Here is an example for the `DOMAIN.NET` domain for Centos/RHEL:
+When done with the Samba install, modify your `/etc/hosts` in order to add the FQDN of your Active Directory servers. Then, you need to modify `/etc/krb5.conf`. Here is an example for the `DOMAIN.NET` domain for CentOS/RHEL:
 
 ----
 [logging]
@@ -1034,7 +1034,7 @@ For Debian and Ubuntu:
   }
 ----
 
-Next, edit `/etc/samba/smb.conf`. Again, here is an example for our `DOMAIN.NET` for Centos/RHEL:
+Next, edit `/etc/samba/smb.conf`. Again, here is an example for our `DOMAIN.NET` for CentOS/RHEL:
 
 ----
   [global]
@@ -1101,7 +1101,7 @@ Note that for Debian and Ubuntu you will probably have this error:
   # kinit succeeded but ads_sasl_spnego_krb5_bind failed: Invalid credentials
   # Join to domain is not valid: Invalid credentials
 
-For Centos/RHEL:
+For CentOS/RHEL:
 
   # usermod -a -G wbpriv pf
 
@@ -1136,7 +1136,7 @@ Option 3: EAP authentication against OpenLDAP
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To authenticate 802.1X connection against OpenLDAP you need to define the LDAP connection in `/usr/local/pf/raddb/modules/ldap` and
-be sure that the userpassword is define as a NTHASH or as cleartext.
+be sure that the user password is define as a NTHASH or as clear text.
 
 ----
 	ldap openldap {
@@ -1226,7 +1226,7 @@ For example, if you would want to deactivate this feature for accounts created v
     }
 
 
-NOTE: For this feature to work, the users' passwords must be stored in cleartext in the database. This is configurable via `advanced.hash_passwords`.
+NOTE: For this feature to work, the users' passwords must be stored in clear text in the database. This is configurable via `advanced.hash_passwords`.
 
 Option 5: EAP Local user Authentication
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1287,7 +1287,7 @@ Examples
 This section will contain the following examples: 
 
 * Prompting for fields without authentication.
-* Prompting additionnal fields during the authentication.
+* Prompting additional fields during the authentication.
 * Chained authentication.
 * Mixing login and Secure SSID on-boarding on the portal.
 * Displaying a message to the user after the registration.
@@ -1299,35 +1299,35 @@ First, create a custom root module for our examples in order to not affect the d
 
 Next, head to 'Configuration -> Portal Profiles', select the portal profile you use (most probably `default`) and then under 'Root Portal Module', assign `My first root module` then save your profile. If you were to access the captive portal now, an error would display since the Root module we configured doesn't contain anything.
 
-You could add some of the preconfigured modules to the new Root module you created and that would make the error disapear.
+You could add some of the pre-configured modules to the new Root module you created and that would make the error disappear.
 
 Prompting for fields without authentication
 +++++++++++++++++++++++++++++++++++++++++++
 
 In order to prompt fields without authentication, you can use the Null source with the Null Portal Module.
 
-PacketFence already comes with a Null source preconfigured. If you haven't modified it or deleted it, you can use it for this example. Otherwise, go in 'Configuration -> Sources' and create a new Null source with a catchall rule that assigns a role and access duration.
+PacketFence already comes with a Null source pre-configured. If you haven't modified it or deleted it, you can use it for this example. Otherwise, go in 'Configuration -> Sources' and create a new Null source with a catchall rule that assigns a role and access duration.
 
 Then go in 'Configuration -> Portal Modules' and click 'Add Portal Module' and select 'Authentication -> Null'. Set the 'Identifier' to `prompt_fields` and configure the module with the 'Mandatory fields' you want and uncheck 'Require AUP' so that the user doesn't have to accept the AUP before submitting these fields.
 
 image::docs/images/portal-modules/prompt_fields.png[scaledwidth="100%",alt="Prompt fields module"]
 
-Next, add the `prompt_fields` module in `my_first_root_module` (removing any previous modules) and save it. Now when visiting the portal, it should prompt you for the fields you define in the module. Then, submitting these informations will assign you the role and access duration that you defined in the `null` source.
+Next, add the `prompt_fields` module in `my_first_root_module` (removing any previous modules) and save it. Now when visiting the portal, it should prompt you for the fields you define in the module. Then, submitting these information will assign you the role and access duration that you defined in the `null` source.
 
-Prompting additionnal fields during the authentication
+Prompting additional fields during the authentication
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-If you want to prompt additionnal fields during the authentication process for a module, you can define a Module based on that source that will specify the additionnal mandatory fields for this source.
+If you want to prompt additional fields during the authentication process for a module, you can define a Module based on that source that will specify the additional mandatory fields for this source.
 
-You can also add additionnal mandatory fields to the default policies that are already configured.
+You can also add additional mandatory fields to the default policies that are already configured.
 
-This example will make the `default_guest_policy` require the user to enter a firstname, lastname and address so that guests have to enter these three informations before registering.
+This example will make the `default_guest_policy` require the user to enter a first name, last name and address so that guests have to enter these three information before registering.
 
 Go in 'Configuration -> Portal Modules' and click the `default_guest_policy`. Add `firstname`, `lastname` and `address` to the 'Mandatory fields' and save.
 
 Next, add the `default_guest_policy` to `my_first_root_module` (removing any previous modules). Now when visiting the portal, selecting any of the guest sources will require you to enter both the mandatory fields of the source (ex: phone + mobile provider)  and the mandatory fields you defined in the `default_guest_policy`.
 
-NOTE: Not all sources support additionnal mandatory fields (ex: OAuth sources like Google, Facebook, ...). 
+NOTE: Not all sources support additional mandatory fields (ex: OAuth sources like Google, Facebook, ...). 
 
 Chained authentication
 ++++++++++++++++++++++
@@ -1363,7 +1363,7 @@ Create a provisioner of the type `Deny` and add it with your other provisioners 
 
 Also in the portal profile add your LDAP source to the available sources so its the only one available.
 
-Next, create a 'Provisioning' portal module by going in 'Configuration -> Portal Modules'. Set the 'Identifier' to `secure_boarding` and the description to `Board Secure SSID`. Also uncheck 'Skipable' so the user is forced to board the SSID should it choose this option.
+Next, create a 'Provisioning' portal module by going in 'Configuration -> Portal Modules'. Set the 'Identifier' to `secure_boarding` and the description to `Board Secure SSID`. Also uncheck 'Skippable' so the user is forced to board the SSID should it choose this option.
 
 Then, still in the Portal Modules, create a 'Choice' module. Set the 'Identifier' to `login_or_boarding` and description to 'Login or Boarding'. Add `secure_boarding` and `default_login_policy` to the 'Modules' field and save.
 
@@ -1394,7 +1394,7 @@ Calling an external website
 
 Using the 'URL' module, you can redirect the user to a local or external URL (as long as it is in the passthroughs). Then you can make it so the portal accepts a callback in order for the flow to continue.
 
-In this example, the portal will redirect to an externaly hosted PHP script that will give a random token to the user and then callback the portal to complete the registration process.
+In this example, the portal will redirect to an externally hosted PHP script that will give a random token to the user and then callback the portal to complete the registration process.
 
 The example script is located in `addons/example_external_auth/token.php` and a README is available in that directory to set it up.
 
@@ -1465,7 +1465,7 @@ For the accounting radius process:
   # radiusd -X -d /usr/local/pf/raddb -n acct
 
 Additionally there is a `raddebug` tool that can extract debug logs from a
-running FreeRADIUS daemon. PacketFence's FreeRADIUS is preconfigured with such support.
+running FreeRADIUS daemon. PacketFence's FreeRADIUS is pre-configured with such support.
 
 In order to have an output from `raddebug`, you need to either:
 
@@ -1527,7 +1527,7 @@ NOTE: Again, refer to the Network Configuration Guide to see if VoIP is supporte
 What if CDP/LLDP feature is missing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-It is possible that your phone doesn't support CDP or LLDP.  If it's the case, you are probably looking at the "DHCP way" of provisionning your phone with a voice VLAN.  Some models will ask for a specific DHCP option so that the DHCP server can give the phone a voice VLAN id.  The phone will then reboot, and tag its ethernet frame using the provided VLAN tag.
+It is possible that your phone doesn't support CDP or LLDP.  If it's the case, you are probably looking at the "DHCP way" of provisioning your phone with a voice VLAN.  Some models will ask for a specific DHCP option so that the DHCP server can give the phone a voice VLAN id.  The phone will then reboot, and tag its ethernet frame using the provided VLAN tag.
 
 In order to make this scenario work with PacketFence, you need to ensure that you tweak the registration and your production DHCP server to provide the DHCP option.  You also need to make sure there is a voice VLAN properly configured on the port, and that you auto-register your IP Phones (On the first connect, the phone will be assigned on the registration VLAN).
 
@@ -1576,7 +1576,7 @@ Upon registration, instead of showing the default release page, the user will be
 Billing Engine
 ~~~~~~~~~~~~~~
 
-PacketFence integrates the ability to use a payment gateway to bill users to gain access to the network. When configured, the user who wants to access the network / Internet is prompted by a page asking for it's personnal information as well as it's credit card information.
+PacketFence integrates the ability to use a payment gateway to bill users to gain access to the network. When configured, the user who wants to access the network / Internet is prompted by a page asking for it's personal information as well as it's credit card information.
 
 PacketFence currently supports four payment gateways: Authorize.net, Mirapay, Paypal and Stripe.
 
@@ -1695,7 +1695,7 @@ Authorize.net
 
 First go on https://account.authorize.net to signup for a merchant account or http://developer.authorize.net/ for a sandbox account.
 
-After you created your account you will be shown your 'API login ID' and 'Transaction key'. Note both of these informations for usage in the PacketFence configuration.
+After you created your account you will be shown your 'API login ID' and 'Transaction key'. Note both of these information for usage in the PacketFence configuration.
 
 Then login into your new account.
 
@@ -1815,7 +1815,7 @@ Where :
 * *URL* is the URL to the PacketFence server. This should be http://YOUR_PORTAL_HOSTNAME/hook/billing/stripe
 * *Mode* is whether this webhook is for testing mode or live mode 
 
-Now everytime a user unsubscribes from a plan, PacketFence will be notified and will unregister that device from your network.
+Now every time a user unsubscribes from a plan, PacketFence will be notified and will unregister that device from your network.
 
 Extending access before it ends
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2051,10 +2051,10 @@ Submit unknown data
 
 Saying that we don't know everything is not false modesty. In that sense, the "Submit Unknown/Unmatched Fingerprints" option is made available (after onboarding) so that unknown fingerprinting data going in and out on your network can easily be submitted to the upstream Fingerbank project for further analysis and integration the in the global database.
 
-Upstream interogation
+Upstream interrogation
 ^^^^^^^^^^^^^^^^^^^^^
 
-By default, PacketFence is configured to interogate the upstream Fingerbank project (if onboarding has been completed) to fullfill a query with unmatched local results. Unmatched local results can result of an older version of the Fingerbank database or a requirement for a more complex algorithm due to the data set. That behavior is completely transparent and can be modified using the "Settings" menu item under the "Fingerbank"section of the PacketFence "Configuration" tab.
+By default, PacketFence is configured to interrogate the upstream Fingerbank project (if onboarding has been completed) to fulfill a query with unmatched local results. Unmatched local results can result of an older version of the Fingerbank database or a requirement for a more complex algorithm due to the data set. That behavior is completely transparent and can be modified using the "Settings" menu item under the "Fingerbank"section of the PacketFence "Configuration" tab.
 
 Local entries
 ^^^^^^^^^^^^^
@@ -2069,11 +2069,11 @@ Fingerbank settings can easily be modified from the "Settings" menu item under t
 Floating Network Devices
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Starting with version 1.9, PacketFence now supports floating network devices. A Floating network device is a device for which PacketFence has a different behaviour compared to a regular device. This functionality was originally added to support mobile Access Points.
+Starting with version 1.9, PacketFence now supports floating network devices. A Floating network device is a device for which PacketFence has a different behavior compared to a regular device. This functionality was originally added to support mobile Access Points.
 
 CAUTION: Right now PacketFence only supports floating network devices on Cisco and Nortel switches configured with port-security.
 
-For a regular device, PacketFence put it in the VLAN corresponding to its status (Registration, Quarantine or Regular Vlan) and authorizes it on the port (port-security).
+For a regular device, PacketFence put it in the VLAN corresponding to its status (Registration, Quarantine or Regular VLAN) and authorizes it on the port (port-security).
 
 A floating network device is a device that PacketFence does not manage as a regular device.
 
@@ -2120,7 +2120,7 @@ MAC Address::
 IP Address:: 
   IP address of the floating device (not required, for information only)
 trunkPort::
-  Yes/no. Should the port be configured as a muti-vlan port?
+  Yes/no. Should the port be configured as a multi-vlan port?
 pvid:: 
   VLAN in which PacketFence should put the port
 taggedVlan::
@@ -2150,7 +2150,7 @@ Google
 In order to use Google as a OAuth2 provider, you need to get an API key to access their services.  Sign up here : http://code.google.com/apis/console.  Make sure you use this URI for the "Redirect URI"
 field : https://YOUR_PORTAL_HOSTNAME/oauth2/callback.  Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
 
-You can keep the default configuration, modify the App ID & App Secret (Given by Google on the developper plateform) and Portal URL (https://YOUR_PORTAL_HOSTNAME/oauth2/callback).
+You can keep the default configuration, modify the App ID & App Secret (Given by Google on the developer platform) and Portal URL (https://YOUR_PORTAL_HOSTNAME/oauth2/callback).
 
 Also, add the following Authorized domains : *.google.com, *.google.ca, *.google.fr, *.gstatic.com,googleapis.com,accounts.youtube.com (Make sure that you have the google domain from your country like Canada => *.google.ca, France => *.google.fr, etc...)
 
@@ -2165,7 +2165,7 @@ https://YOUR_PORTAL_HOSTNAME/oauth2/callback
 
 Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
 
-You can keep the default configuration, modify the App ID & App Secret (Given by FaceBook on the developper plateform) and Portal URL (https://YOUR_PORTAL_HOSTNAME/oauth2/callback).
+You can keep the default configuration, modify the App ID & App Secret (Given by Facebook on the developer platform) and Portal URL (https://YOUR_PORTAL_HOSTNAME/oauth2/callback).
 
 Also, add the following Authorized domains : *.facebook.com, *.fbcdn.net, *.akamaihd.net (May change)
 
@@ -2175,9 +2175,9 @@ Moreover, don't forget to add Facebook as a registration mode from your portal p
 
 CAUTION: By allowing OAuth through Facebook, you will give Facebook access to the users while they are sitting in the registration VLAN.
 
-GitHub
+Github
 ^^^^^^
-To use GitHub, you also need an API code and a secret key.  To get one, you need to create an App here: https://github.com/settings/applications.  When you create your App, make sure you specify the following as the Callback URL
+To use Github, you also need an API code and a secret key.  To get one, you need to create an App here: https://github.com/settings/applications.  When you create your App, make sure you specify the following as the Callback URL
 https://YOUR_PORTAL_HOSTNAME/oauth2/callback
 
 Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
@@ -2270,7 +2270,7 @@ Then add passthroughs in *Configuration->Trapping->Passthroughs*. They can be of
  * *example.com:tcp:1812*: opens the port 1812 in TCP for example.com
  * *example.com:udp:1812*: opens the port 1812 in UDP for example.com
 
-In addition to the options above, you can prefix the domain with `*.` (*.example.com) to whitelist all the subdomains of example.com (ex: `www.example.com`, `my.example.com`).
+In addition to the options above, you can prefix the domain with `*.` (*.example.com) to white list all the subdomains of example.com (ex: `www.example.com`, `my.example.com`).
 
 Should you combine multiple times the same domain with different ports (`example.com,example.com:udp:1812,example.com:udp:1813`) in the passthroughs, it will open all ports specified in all entries. In the previous example that would open ports 80, 443 in TCP as well as 1812 and 1813 in UDP.
 
@@ -2369,7 +2369,7 @@ Routed Networks
 
 If your isolation and registration networks are not locally-reachable (at layer 2) on the network, but routed to the PacketFence server, you'll have to let the PacketFence server know this. PacketFence can even provide DHCP and DNS in these routed networks and provides an easy to use configuration interface.
 
-image::docs/images/diagram-routed-net.png[scaledwidth="100%",alt="Routed network exemple diagram"]
+image::docs/images/diagram-routed-net.png[scaledwidth="100%",alt="Routed network example diagram"]
 
 For dhcpd, make sure that the clients DHCP requests are correctly forwarded (IP Helpers in the remote routers) to the PacketFence server. Then make sure you followed the instructions in the <<_dhcp_and_dns_server_configuration_networks_conf,DHCP and DNS Server Configuration (networks.conf)>> for your locally accessible network.
 
@@ -2702,7 +2702,7 @@ Parked devices
 
 In the event that you are managing a large registration network with devices that stay there (ex: Students that can't register in your environment), these devices consume precious resources and generate useless load on the captive portal and registration DHCP server.
 
-Using the parking feature, you can make these devices have a longer lease and hit an extremelly lightweight captive portal so that the amount of resources they consume is minimal. In that captive portal, they will see a message explaining that they haven't registered their device for a certain amount of time, and will let them leave the *parked* state by pressing a link. 
+Using the parking feature, you can make these devices have a longer lease and hit an extremely lightweight captive portal so that the amount of resources they consume is minimal. In that captive portal, they will see a message explaining that they haven't registered their device for a certain amount of time, and will let them leave the *parked* state by pressing a link. 
 
 The *parked* vs *unparked* state is controlled through violation `1300003` which gets triggered according to the `parking.threshold` setting ('Configuration->Parking').
 
@@ -2739,7 +2739,7 @@ The following attributes are available to define your report (the ones that have
 * * `columns` : The columns to select from the table(s) (ex: `node.mac`).
 * * `date_field` : The field to use for date filtering. Will also be used as default sorting field unless `order_fields` is set in the report.
 * `joins` : The tables to join to the base table and how to join them. See example below and http://search.cpan.org/~dami/SQL-Abstract-More-1.28/lib/SQL/Abstract/More.pm#Join_specifications[the following documentation].
-* `group_field` : The field to group the entries by. No grouping is done if this field is omited or empty.
+* `group_field` : The field to group the entries by. No grouping is done if this field is omitted or empty.
 * `order_fields` : Comma delimited fields for the ordering of the report. The field should be prefixed of `-` if the sort should be made in descending order for the field (ex: `-node.regdate,locationlog.start_time,+iplog.start_time`).
 * `base_conditions` : Comma delimited conditions that should be applied to the report. This can be used to filter the report without using the search in the administration interface to provide the proper unsearched view. Conditions should match the following format : `field:operator:value` (ex: `auth_log.source:=:sms,auth_log.status:!=:completed`).
 * `base_conditions_operator` : Whether the base conditions should be matched using an all or any logic. Accepted values are `all` and `any`.
@@ -2749,7 +2749,7 @@ The following attributes are available to define your report (the ones that have
 ** `Display Name` is the user friendly name of the field for display. 
 ** `field` is the SQL name of the field to search
 
-NOTE: You should always prefix the fields with the table name and a dot (ex: `node.mac`, `locationlog.role`, ...) so that they are not ambigious. Although your query may work with a single table, it will not if you decide to add joins that contain column name(s) that are the same as the base table.
+NOTE: You should always prefix the fields with the table name and a dot (ex: `node.mac`, `locationlog.role`, ...) so that they are not ambiguous. Although your query may work with a single table, it will not if you decide to add joins that contain column name(s) that are the same as the base table.
 
 Examples:
 +++++++++
@@ -2960,7 +2960,7 @@ Modify rsyslog configuration to allow incoming UDP packets by uncommenting the f
   $ModLoad imudp
   $UDPServerRun 514
 
-Configure `/etc/rsyslog.d/securityonion_ids.conf` so it contains the following which will redirect Security Onion sguild log entries and stop furter processing of current matched message:
+Configure `/etc/rsyslog.d/securityonion_ids.conf` so it contains the following which will redirect Security Onion sguild log entries and stop further processing of current matched message:
 
   if $programname == 'securityonion_ids' then /usr/local/pf/var/securityonion_ids
   & ~
@@ -2995,10 +2995,10 @@ ERSPAN
 
 ERSPAN permits to mirror a local port traffic (low bandwidth) to a remote IP, E.G: your Security Onion already deployed box. ERSPAN encapsulates port traffic into ERSPAN then GRE and send that traffic to one/multiple destination(s). ERSPAN is a Cisco technology which is available only on some platforms, including: Catalyst 6500, 7600, Nexus, and ASR 1000.
 
-One way of accessing encapsulated traffic at the destination host is through a software called RCDCAP, which is a daemon that creates a virtual interface if not existing, on which both GRE and ERSPAN headers are decapsultated prior to the traffic being injected to the previous interface. Security Onion can then feed on that interface like it would on any other, and if the RCDCAP daemon dies, continue to listen to that interface even though decapsulated traffic won't be available anymore.
+One way of accessing encapsulated traffic at the destination host is through a software called RCDCAP, which is a daemon that creates a virtual interface if not existing, on which both GRE and ERSPAN headers are decapsulated prior to the traffic being injected to the previous interface. Security Onion can then feed on that interface like it would on any other, and if the RCDCAP daemon dies, continue to listen to that interface even though decapsulated traffic won't be available anymore.
 
 
-Assomptions for the example:
+Assumptions for the example:
 The switch is at IP 172.16.0.1, the monitored switch port is GigabitEthernet0/10 and the Security Onion monitoring destination IP is 10.10.10.10 on eth2, eth2 ideally being a dedicated interface.
 
 On Security Onion:
@@ -3076,7 +3076,7 @@ Where :
 * `Actions` is the list of actions to be executed when this violation is raised.
 ** `Unregister node` will unregister the node.
 ** `Send email to owner` will email the violation details to the owner of the device. Will only work if the person has it's email field populated. 
-** `Send email to admin` will email the violation details to the address specified in `[alerting].emailaddr`, using `[alerting].smtpserver`. Multiple `emailaddr` can be sperated by comma.
+** `Send email to admin` will email the violation details to the address specified in `[alerting].emailaddr`, using `[alerting].smtpserver`. Multiple `emailaddr` can be separated by comma.
 ** `Reevaluate access` will place the device in the destination VLAN configured in the violation. It opens a violation and leaves it open. If it is not there, the violation is opened and then automatically closed.
 ** `Log message` will log the violation in the log file defined in `[alerting].log`.
 ** `External command` will execute a command on the operating system when this violation is raised.
@@ -3114,8 +3114,8 @@ image::docs/images/violation-remediation.png[scaledwidth="100%",alt="Violation r
 
 Where :
 [options="compact"]
-* `Auto Enable` is whether or not the user can release the violation himself after acknoledging the message on the captive portal.
-* `Max Enables` is the amount of time a user can use the `Auto Enable` functionnality. After this amount of times, he will not be able to release the violation and it will have to be manually release by an administrator using the PacketFence administration interface.
+* `Auto Enable` is whether or not the user can release the violation himself after acknowledging the message on the captive portal.
+* `Max Enables` is the amount of time a user can use the `Auto Enable` functionality. After this amount of times, he will not be able to release the violation and it will have to be manually release by an administrator using the PacketFence administration interface.
 * `Grace` is Amount of time before the violation can reoccur. This is useful to allow hosts time (in the example 2 minutes) to download tools to fix their issue, or shutoff their peer-to-peer application.
 * `Dynamic Window` will only works for accounting violations. The violation will be opened according to the time you set in the accounting violation (ie. You have an accounting violation for 10GB/month. If you bust the bandwidth after 3 days, the violation will open and the release date will be set for the last day of the current month). 
 * `Window` is the amount of time before a violation will be closed automatically. Instead of allowing people to reactivate the network, you may want to open a violation for a defined amount of time instead.
@@ -3216,7 +3216,7 @@ WMI Rules Definition
 ++++++++++++++++++++
 
 If you have configured a WMI scan engine then you need to define WMI Rules.
-WMI is a sort of database on each windows devices, to retreive information on the device you need to know the sql request.
+WMI is a sort of database on each windows devices, to retrieve information on the device you need to know the sql request.
 In order to help you to find and make a rule you can use a third party tool like WMI Explorer.
 
 Go in configuration -> WMI Rules Definition:
@@ -3244,7 +3244,7 @@ Let's take the Software_Installed rule:
 
 This rule will do the following:
 
-  retreive all the installed software on the device and test if the attribute Caption contain Google.
+  retrieve all the installed software on the device and test if the attribute Caption contain Google.
   if it matched then we will trigger a violation (with the trigger internal::888888) for the mac address of the device.
 
 
@@ -3265,7 +3265,7 @@ The second one, logged_user:
 
 This rule will do the following:
 
-  retreive the current logged user on the device and register the device based on the user account.
+  retrieve the current logged user on the device and register the device based on the user account.
 
 The last one, Process_Running:
 
@@ -3283,7 +3283,7 @@ The last one, Process_Running:
 
 This rule will do the following:
 
-  retreive all the running process on the device and if one match explorer.exe then we bypass the scan.
+  retrieve all the running process on the device and if one match explorer.exe then we bypass the scan.
 
 * Rules syntax
 
@@ -3363,7 +3363,7 @@ If you are using the Nessus scanning engine:
 RADIUS Accounting
 ~~~~~~~~~~~~~~~~~
 
-RADIUS Accounting is usually used by ISPs to bill clients.  In PacketFence, we are able to use this information to determine if the node is still connected, how much time it has been connected, and how much bandwitdh the user consumed.
+RADIUS Accounting is usually used by ISPs to bill clients.  In PacketFence, we are able to use this information to determine if the node is still connected, how much time it has been connected, and how much bandwidth the user consumed.
 
 Violations
 ^^^^^^^^^^
@@ -3397,7 +3397,7 @@ Example triggers
 Grace period
 ++++++++++++
 
-When using such violation feature, setting the grace period is really important.  You don't want to put it too low (ie. A user re-enable his network, and get caught after 1 bytes is tranmitted!) or too high.  We recommend that you set the grace period to one interval window.
+When using such violation feature, setting the grace period is really important.  You don't want to put it too low (ie. A user re-enable his network, and get caught after 1 bytes is transmitted!) or too high.  We recommend that you set the grace period to one interval window.
 
 Oinkmaster
 ~~~~~~~~~~
@@ -3456,7 +3456,7 @@ Guest pre-registration
 
 Pre-registration is disabled by default. Once enabled, PacketFence's firewall and Apache ACLs allow access to the `/signup` page on the portal even from a remote location. All that should be required from the administrators is to open up their perimeter firewall to allow access to PacketFence's management interface IP on port 443 and make sure a domain name to reach said IP is configured (and that the SSL cert matches it). Then you can promote the pre-registration link from your extranet web site: https://<hostname>/signup.
 
-CAUTION: Pre-registration increases the attack surface of the PacketFence system since a subset of it's functionnality is exposed on the Internet. Make sure you understand the risks, apply the critical operating system updates and apply PacketFence's security fixes.
+CAUTION: Pre-registration increases the attack surface of the PacketFence system since a subset of it's functionality is exposed on the Internet. Make sure you understand the risks, apply the critical operating system updates and apply PacketFence's security fixes.
 
 NOTE: A 'portal' interface type is required to use this feature. A 'portal' interface type can be added to any network interface using the web admin GUI.
 
@@ -3527,7 +3527,7 @@ Finally, it is advised that you read the whole guest self-registration section s
 
 CAUTION: A valid MTA configured in PacketFence is needed to correctly relay emails related to the guest module. If _localhost_ is used as smtpserver, make sure that a MTA is installed and configured on the server.
 
-ActiveDirectory Integration
+Active Directory Integration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Deleted Account
@@ -3875,16 +3875,16 @@ NOTE: This section assumes that you already have an Active Directory domain conf
 
 CAUTION: The cache requires minimally Windows Server 2008. Older versions will not work.
 
-When using NTLM authentication against an Active Directory for 802.1x EAP-PEAP connections, this can become a bottleneck when handling dozens of authentications per seconds.
+When using NTLM authentication against an Active Directory for 802.1X EAP-PEAP connections, this can become a bottleneck when handling dozens of authentications per seconds.
 
-To overcome this limitation, it is possible to use a Redis driven cache inside PacketFence to reduce the amount of authentications requiring an external NTLM authentication call. Should a user be in the cache, PacketFence will attempt to compare the 802.1x credentials with those. In the even that the validation fails, a call to ntlm_auth is made. In the event of a cache miss, an ntlm_auth call is made as well. This ensures that even if a user changes his password, his new password is immediately valid for 802.1x EAP-PEAP connections even if the cache contains the outdated entry.
+To overcome this limitation, it is possible to use a Redis driven cache inside PacketFence to reduce the amount of authentications requiring an external NTLM authentication call. Should a user be in the cache, PacketFence will attempt to compare the 802.1X credentials with those. In the even that the validation fails, a call to ntlm_auth is made. In the event of a cache miss, an ntlm_auth call is made as well. This ensures that even if a user changes his password, his new password is immediately valid for 802.1X EAP-PEAP connections even if the cache contains the outdated entry.
 
 NOTE: The NTLM cache doesn't cache clear text passwords, it caches the NT hash of the user password.
 
-Addtionnal packages
+Additional packages
 +++++++++++++++++++
 
-In order to use this cache, you will need to install additionnal packages available from the packetfence-extra repository. These packages will allow PacketFence to query your Active Directory for the NT hash of the users.
+In order to use this cache, you will need to install additional packages available from the packetfence-extra repository. These packages will allow PacketFence to query your Active Directory for the NT hash of the users.
 
 CentOS:
 ```
@@ -4057,7 +4057,7 @@ Keeping tables small
 
 Over time, some of the tables will grow large and this will drag down performance (this is especially true on a wireless setup).
 
-One such table is the `locationlog` table. We recommend that closed entries in this table be moved to the archive table `locationlog_archive` after some time. A closed record is one where the `end_time` field is set to a date (strickly speaking it is when `end_time` is not null and not equals to 0).
+One such table is the `locationlog` table. We recommend that closed entries in this table be moved to the archive table `locationlog_archive` after some time. A closed record is one where the `end_time` field is set to a date (strictly speaking it is when `end_time` is not null and not equals to 0).
 
 We provide a script called `database-backup-and-maintenance.sh` located in `addons/` that performs this cleanup in addition to optimize tables on Sunday and daily backups.
 
@@ -4149,9 +4149,9 @@ This filter will return an error code (501) if the user agent is Dalvik and the 
 Dashboard Optimizations (statistics collection)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The collection and aggregation of statistics in the whisper database can be I/O intensive per moment. This means that it can be beneficial to seperate them on another disk even if it is a virtual disk that will share the same underlying physical disk.
+The collection and aggregation of statistics in the whisper database can be I/O intensive per moment. This means that it can be beneficial to separate them on another disk even if it is a virtual disk that will share the same underlying physical disk.
 
-First, add a disk in your virtual machine or baremetal server and reboot (this example will use /dev/sdb as the new device.
+First, add a disk in your virtual machine or bare metal server and reboot (this example will use /dev/sdb as the new device.
 
 Make sure packetfence is stopped:
 
