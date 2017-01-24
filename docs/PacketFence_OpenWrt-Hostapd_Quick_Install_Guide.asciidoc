@@ -19,7 +19,7 @@ Assumptions
 -----------
 * You have a configured PacketFence environment with working test equipment
 * The management IP of PacketFence will be 192.168.1.10 and has s3cr3t as its RADIUS shared secret
-* You have an acces point with OpenWrt BarrierBreaker 14.07 installed
+* You have an access point with OpenWrt BarrierBreaker 14.07 installed
 
 
 Quick installation
@@ -124,9 +124,9 @@ Step 5: PacketFence configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Log in to the PacketFence administration web page and go under *Configuration -> Switches -> Add switch*.
 
-Defenition:
+Definition:
 [options="compact"]
-* *IP Address/MAC Address/Range (CIDR)*: IP of your acces point
+* *IP Address/MAC Address/Range (CIDR)*: IP of your access point
 * *Type*: Hostapd
 * *Mode*: production
 * *Deauthentication Method*: RADIUS
