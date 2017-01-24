@@ -152,7 +152,7 @@ Step 3: Customize the template
 
 You can now customize the template the violation is using in the 'Portal Profile' section. Simply select your portal profile and then go in the 'Files' tab.
 
-You can then modify the template violations/generic.html so it displays additionnal information.
+You can then modify the template violations/generic.html so it displays additional information.
 
-You can also customize this violation in the 'Violations' section of the administration interface. Refer to the PacketFence Administration Guide for additionnal information about this.
+You can also customize this violation in the 'Violations' section of the administration interface. Refer to the PacketFence Administration Guide for additional information about this.
 
