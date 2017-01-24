@@ -128,7 +128,7 @@ Step 2: Networks
 ++++++++++++++++
 This step will ask you to statically configure your network interfaces (note that DHCP interfaces configuration is not supported yet).
 
-Depending on the choice(s) made on step 1, you'll have to configure the required types of interface. The web interface will list all currently installed network interfaces on the system. An IP and a netmask will be visible if the network interface is configured (either by DHCP or already manually configured). You can edit those ones, create/delete VLANs on physical interfaces and enable/disable an interface. Note that theses changes are effective on the moment you make them. Persistance will be written only for ENABLED interfaces.
+Depending on the choice(s) made on step 1, you'll have to configure the required types of interface. The web interface will list all currently installed network interfaces on the system. An IP and a netmask will be visible if the network interface is configured (either by DHCP or already manually configured). You can edit those ones, create/delete VLANs on physical interfaces and enable/disable an interface. Note that theses changes are effective on the moment you make them. Persistence will be written only for ENABLED interfaces.
 
 In all time, you'll need to set a Management interface.
 
@@ -167,7 +167,7 @@ According to our example, we'll associate the correct type the each interfaces.
     eth0 VLAN 2: Registration
     eth0 VLAN 3: Isolation
 
-Make sure that those three (3) interfaces are in an Enabled state for the persistance to occur.
+Make sure that those three (3) interfaces are in an Enabled state for the persistence to occur.
 
 We also need to set the Default Gateway which will generally be the gateway of the management network.
 
@@ -183,7 +183,7 @@ Then you will need to create the root password for MySQL database. Click on the 
 
 Next section will create the database and load the correct schema on it. Simply leave the default database name and click Create databases and tables.
 
-The last section of this step is the PacketFence user account on the MySQL server. Simply leave the default pf username here and choose of a password. This one will automatically be set in the PacketFence configuration where you'll be able to retrive it in any case. Once the password entered twice, click Create user.
+The last section of this step is the PacketFence user account on the MySQL server. Simply leave the default pf username here and choose of a password. This one will automatically be set in the PacketFence configuration where you'll be able to retrieve it in any case. Once the password entered twice, click Create user.
 
 If you got a 'Success!' message for this all three sections, click Continue.
 
@@ -191,9 +191,9 @@ Step 4: PacketFence Configuration
 +++++++++++++++++++++++++++++++++
 This step will configure the general options of your PacketFence installation. Theses are needed configurations that will most of the time fits customer specifications.
 
-Almost all of the required information here are self-explanatory. The only one that could be confusing is the DHCP Servers section. In this one, enter a comma-delimited list of all the DHCP Server on the customer network so when PacketFence will see DHCP trafic originating from these IPs, no rogue-dhcp alerts will be triggered. PacketFence will use the domain and the hostname to generate the url to redirect devices on the captive portal. If you have a http certificate use the same hostname and domain name to validate the SSL connection on the captive portal.
+Almost all of the required information here are self-explanatory. The only one that could be confusing is the DHCP Servers section. In this one, enter a comma-delimited list of all the DHCP Server on the customer network so when PacketFence will see DHCP traffic originating from these IPs, no rogue-dhcp alerts will be triggered. PacketFence will use the domain and the hostname to generate the url to redirect devices on the captive portal. If you have a http certificate use the same hostname and domain name to validate the SSL connection on the captive portal.
 
-In the last section, Local Database Passwords, you will have to chose the password encryption for local accounts (guest automatically generated and manualy created account) 
+In the last section, Local Database Passwords, you will have to chose the password encryption for local accounts (guest automatically generated and manually created account) 
 
 Click Continue once all the fields are completed.
 
@@ -256,7 +256,7 @@ Network Devices
 
 Please refer to the https://packetfence.org/documentation/[Network Devices Configuration Guide] in order to properly configure your devices.
 
-Now that you have a fully functionnal PacketFence installation, we will provide a example of Cisco Catalyst 2960 integrated with PacketFence using mac-authentication.
+Now that you have a fully functional PacketFence installation, we will provide a example of Cisco Catalyst 2960 integrated with PacketFence using mac-authentication.
 
 To do so, login to the PacketFence web administration interface if it is not already done. Click on the Configuration tab and select the Switches under Network section.
 
