@@ -18,7 +18,7 @@ Assumptions
 * You have at least one server with PacketFence 5.4 or later.
 * The server already has a properly configured switch or access point with 802.1X support.
 * The PacketFence RADIUS server is working in your environment.
-* You have a Microsoft Windows 2008 R2 Entreprise server installed.
+* You have a Microsoft Windows 2008 R2 Enterprise server installed.
 * The PacketFence management IP will be 192.168.1.5.
 * The RADIUS shared secret is "useStrongerSecret".
 * In this guide you will see a lot of use of <ServerDNSName>, most of the MSPKI services requires in their configuration to use the FQDN of the server and not his IP.
@@ -29,7 +29,7 @@ Installation
 Step 1: Install Active Directory Certificate Service (ADCS)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-NOTE: This section will cover the configuration for Active Directory Certificate Services (ADCS) on Microsoft Windows 2008 R2 Entreprise. The installation of ADCS is not covered by this guide, refer to the Microsoft documentation about it for more information (http://social.technet.microsoft.com/wiki/contents/articles/9063.network-device-enrollment-service-ndes-in-active-directory-certificate-services-ad-cs.aspx).
+NOTE: This section will cover the configuration for Active Directory Certificate Services (ADCS) on Microsoft Windows 2008 R2 Enterprise. The installation of ADCS is not covered by this guide, refer to the Microsoft documentation about it for more information (http://social.technet.microsoft.com/wiki/contents/articles/9063.network-device-enrollment-service-ndes-in-active-directory-certificate-services-ad-cs.aspx).
 
 For the integration with PacketFence, the following subroles need to be installed in ADCS:
 
@@ -53,7 +53,7 @@ Challenge Password
 
 Microsoft SCEP (MSCEP) includes by default a challenge password, which is unique and dynamically generated for each device which wants to enroll. In a BYOD deployment, this can be a barrier as a user cannot register a device by himself without the intervention of an administrator. Since we use NDES with PacketFence, our security to obtain a certificate would be the credentials necessary to access the enrollment system.
 
-To disable the challenge password you need to modifiy the following key in the Windows registry. 
+To disable the challenge password you need to modify the following key in the Windows registry. 
 
 Click `Start` and enter `regedit`.
 
@@ -64,7 +64,7 @@ Change the value of `EnforcePassword` to `0` (default is `1`).
 Extend URL length for the request
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Best practices recommand to extend the URL length to avoid issue with longer request. 
+Best practices recommends to extend the URL length to avoid issue with longer request. 
 
 To do so, enter the following command in the CLI on the NDES server:
 
@@ -126,7 +126,7 @@ After the installation of OCSP we need to create a Revocation Configuration.
 
 To create the Revocation Configuration navigate to `Server Manager->Roles->Active Directory Certificate Services` and expand `OnlineResponder: <ServerDNSName>`. Right click Revocation Configuration, select `Add Revocation Configuration`, click `Next`, choose a name for your configuration and click `Next`. 
 
-Choose `Select a certificate for an existing entreprise CA`, click `Next`. Click `Browse` and find your entreprise CA in the list, select it, click `OK` and then `Next`. Choose `Automatically select a signing certificate`, make sure `Auto-Enroll for an OCSP signing certificate` is selected, then choose the default template of OCSP which is `OCSPResponseSigning` in the dropdown list next to `Certificate Template:`. You need to add providers only if you wish to use a CRL in addition to OCSP.
+Choose `Select a certificate for an existing enterprise CA`, click `Next`. Click `Browse` and find your enterprise CA in the list, select it, click `OK` and then `Next`. Choose `Automatically select a signing certificate`, make sure `Auto-Enroll for an OCSP signing certificate` is selected, then choose the default template of OCSP which is `OCSPResponseSigning` in the dropdown list next to `Certificate Template:`. You need to add providers only if you wish to use a CRL in addition to OCSP.
 
 Once created, right click the revocation configuration and select `Edit properties`, go to the `Signing` tab, then select `Enable NONCE extension support` then click `OK`.
 
@@ -134,7 +134,7 @@ Make sure that your OCSP server appears in the CA settings. Right click your CA,
 
 If you do not have it, add it via the button `Add...`. In this menu type the `http://` then insert `<ServerDNSName>` and type `/OCSP`, validate by clicking `OK`. Also verify that `Include in the online certificate status protocol(OCSP) extension` is selected.
 
-By default OCSP has a two days delay to refresh it's CRL information. Which means if you revoke a certificate on MSPKI, it will take two days before PacketFence detects the certificate is revoked. If this delay is too long for your needs, you can change it on the NDES server. To do so, navigate to `Server Manager->Roles->Active Directory Certificate Service` and right click `Entreprise PKI`, in the menu select `Options...`. The delay can be changed by modifying the value of `Set CRL status to Expiring when expiring in:` to your convenience.
+By default OCSP has a two days delay to refresh it's CRL information. Which means if you revoke a certificate on MSPKI, it will take two days before PacketFence detects the certificate is revoked. If this delay is too long for your needs, you can change it on the NDES server. To do so, navigate to `Server Manager->Roles->Active Directory Certificate Service` and right click `Enterprise PKI`, in the menu select `Options...`. The delay can be changed by modifying the value of `Set CRL status to Expiring when expiring in:` to your convenience.
 
 
 RADIUS Certificate generation
@@ -171,7 +171,7 @@ This will give you the certificate (public key) for PacketFence.
 
 Now download the CA file by reaching the following URL in your browser: `http://<ServerDNSName>/CertSrv/`.
 
-Click `Download a CA certificate, certificate chain or CRL`, select your CA certificate in the list, select `Base 64` as the encoding method and finaly click `Download CA certificate`.
+Click `Download a CA certificate, certificate chain or CRL`, select your CA certificate in the list, select `Base 64` as the encoding method and finally click `Download CA certificate`.
 
 Copy those files to PacketFence.
 
@@ -345,7 +345,7 @@ To display the content of a certificate use the following command:
  # openssl x509 -in path/MyCA-0 -text
  # openssl x509 -in path/MyCA-1 -text
 
-In the output search for `X509v3 extensions:`. When using the scep enroll command you will need the "CEP Enryption" certificate as an arugment for -e and the "Enrollment agent" certificate as an argument for -c. -d is use for the debug output. -l is the local file where your certificate will be save.
+In the output search for `X509v3 extensions:`. When using the scep enroll command you will need the "CEP Enryption" certificate as an argument for -e and the "Enrollment agent" certificate as an argument for -c. -d is use for the debug output. -l is the local file where your certificate will be save.
  
  # sscep enroll -c path/MyCA-0 -e path/MyCA-1 -k path/local.key -r path/local.csr -l path/MyCert.crt -S sha1 -u http://<ServerDNSName>/CertSrv/mscep/ -d 
 
