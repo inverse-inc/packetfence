@@ -97,7 +97,7 @@ Step 2: Networks
 ++++++++++++++++
 This step will ask you to statically configure your network interfaces (note that DHCP interfaces configuration is not supported yet).
 
-Depending on the choice(s) made on step 1, you'll have to configure the required types of interface. The web interface will list all currently installed network interfaces on the system. An IP and a netmask will be visible if the network interface is configured (either by DHCP or already manually configured). You can edit those ones, create/delete VLANs on physical interfaces and enable/disable an interface. Note that theses changes are effective on the moment you make them. Persistance will be written only for ENABLED interfaces.
+Depending on the choice(s) made on step 1, you'll have to configure the required types of interface. The web interface will list all currently installed network interfaces on the system. An IP and a netmask will be visible if the network interface is configured (either by DHCP or already manually configured). You can edit those ones, create/delete VLANs on physical interfaces and enable/disable an interface. Note that theses changes are effective on the moment you make them. Persistence will be written only for ENABLED interfaces.
 
 In all time, you'll need to set a Management interface.
 
@@ -139,7 +139,7 @@ According to our customer scenario, you will associate the correct type the each
     eth0 VLAN 2: Registration
     eth0 VLAN 3: Isolation
 
-Make sure that those three (3) interfaces are in an Enabled state for the persistance to occur.
+Make sure that those three (3) interfaces are in an Enabled state for the persistence to occur.
 
 We also need to set the Default Gateway which will generally be the gateway of the management network.
 
@@ -152,9 +152,9 @@ This step will configure the MySQL server needed by PacketFence. Database and sc
 Since Debian based MySQL installations are not "secured", you will need to go through it.
 That step is fairly simple to accomplish and is a one time deal.
 
-In the root account credentials section, enter root as Username and click 'Test'. You'll be prompted for a new root password. Choose a password for the MySQL root user and click 'Save'. You can now enter your newly setted password in the root account credentials section and click 'Test'.
+In the root account credentials section, enter root as Username and click 'Test'. You'll be prompted for a new root password. Choose a password for the MySQL root user and click 'Save'. You can now enter your newly created password in the root account credentials section and click 'Test'.
 
-Next section of this step is the PacketFence user account on the MySQL server. Simply leave the default pf username here and choose of a password. This one will automatically be set in the PacketFence configuration where you'll be able to retrive it in any case. Once the password entered twice, click 'Create user'.
+Next section of this step is the PacketFence user account on the MySQL server. Simply leave the default pf username here and choose of a password. This one will automatically be set in the PacketFence configuration where you'll be able to retrieve it in any case. Once the password entered twice, click 'Create user'.
 
 Third section will create the database and load the correct schema on it. Simply leave the default and click 'Create tables and indexes'.
 
@@ -164,7 +164,7 @@ Step 4: PacketFence Configuration
 +++++++++++++++++++++++++++++++++
 This step will configure the general options of your PacketFence installation. Theses are needed configurations that will most of the time fits customer specifications.
 
-Almost all of the required information here are self-explanatory. The only one that could be confusing is the DHCP Servers section. In this one, enter a comma-delimited list of all the DHCP Server on the customer network so when PacketFence will see DHCP trafic originating from these IPs, no rogue-dhcp alerts will be triggered.
+Almost all of the required information here are self-explanatory. The only one that could be confusing is the DHCP Servers section. In this one, enter a comma-delimited list of all the DHCP Server on the customer network so when PacketFence will see DHCP traffic originating from these IPs, no rogue-dhcp alerts will be triggered.
 
 Click 'Continue' once all the fields are completed.
 
@@ -184,7 +184,7 @@ Services status will help you monitor if everything goes as expected. If not, yo
 
 Configuring Aerohive access point in PacketFence
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Now that you have a fully functionnal PacketFence installation, you'll need to add the Aerohive AP to the PacketFence switches database for correct integration.
+Now that you have a fully functional PacketFence installation, you'll need to add the Aerohive AP to the PacketFence switches database for correct integration.
 
 To do so, login to the PacketFence web administration interface if it is not already done. Click on the 'Configuration' tab and select the Switches section.
 
@@ -204,7 +204,7 @@ Click 'Add switch'
 
 The newly added access point should show up in the list.
 
-PacketFence configuration is done. You may now reboot the demonstation PC (leave the USB key in). Once rebooted, the web browser should open in the PacketFence web administation interface.
+PacketFence configuration is done. You may now reboot the demonstration PC (leave the USB key in). Once rebooted, the web browser should open in the PacketFence web administration interface.
 
 <<<
 
@@ -215,7 +215,7 @@ Step 2: Networks
 ++++++++++++++++
 This step will ask you to statically configure your network interfaces (note that DHCP interfaces configuration is not supported yet).
 
-Depending on the choice(s) made on step 1, you'll have to configure the required types of interface. The web interface will list all currently installed network interfaces on the system. An IP and a netmask will be visible if the network interface is configured (either by DHCP or already manually configured). You can edit those ones, create/delete VLANs on physical interfaces and enable/disable an interface. Note that theses changes are effective on the moment you make them. Persistance will be written only for ENABLED interfaces.
+Depending on the choice(s) made on step 1, you'll have to configure the required types of interface. The web interface will list all currently installed network interfaces on the system. An IP and a netmask will be visible if the network interface is configured (either by DHCP or already manually configured). You can edit those ones, create/delete VLANs on physical interfaces and enable/disable an interface. Note that theses changes are effective on the moment you make them. Persistence will be written only for ENABLED interfaces.
 
 In all time, you'll need to set a Management interface.
 
@@ -225,13 +225,13 @@ Required interface types for WebAuth enforcement:
 
 Note that you can only set ONE (1) management interface. This one will work for both in the case you choose both modes.
 
-As an example we will use the Management interface as our portal interface. You will need to 'portal' in the setting 'Additionnal listening daemon(s)'.
+As an example we will use the Management interface as our portal interface. You will need to 'portal' in the setting 'Additional listening daemon(s)'.
 
 According to our customer scenario, you will associate the correct type the each interfaces.
 
     eth0: Management
 
-Make sure that this interface is in an Enabled state for the persistance to occur.
+Make sure that this interface is in an Enabled state for the persistence to occur.
 
 We also need to set the Default Gateway which will generally be the gateway of the management network.
 
@@ -244,9 +244,9 @@ This step will configure the MySQL server needed by PacketFence. Database and sc
 Since Debian based MySQL installations are not "secured", you will need to go through it.
 That step is fairly simple to accomplish and is a one time deal.
 
-In the root account credentials section, enter root as Username and click 'Test'. You'll be prompted for a new root password. Choose a password for the MySQL root user and click 'Save'. You can now enter your newly setted password in the root account credentials section and click 'Test'.
+In the root account credentials section, enter root as Username and click 'Test'. You'll be prompted for a new root password. Choose a password for the MySQL root user and click 'Save'. You can now enter your newly created password in the root account credentials section and click 'Test'.
 
-Next section of this step is the PacketFence user account on the MySQL server. Simply leave the default pf username here and choose of a password. This one will automatically be set in the PacketFence configuration where you'll be able to retrive it in any case. Once the password entered twice, click 'Create user'.
+Next section of this step is the PacketFence user account on the MySQL server. Simply leave the default pf username here and choose of a password. This one will automatically be set in the PacketFence configuration where you'll be able to retrieve it in any case. Once the password entered twice, click 'Create user'.
 
 Third section will create the database and load the correct schema on it. Simply leave the default and click 'Create tables and indexes'.
 
@@ -256,7 +256,7 @@ Step 4: PacketFence Configuration
 +++++++++++++++++++++++++++++++++
 This step will configure the general options of your PacketFence installation. Theses are needed configurations that will most of the time fits customer specifications.
 
-Almost all of the required information here are self-explanatory. The only one that could be confusing is the DHCP Servers section. In this one, enter a comma-delimited list of all the DHCP Server on the customer network so when PacketFence will see DHCP trafic originating from these IPs, no rogue-dhcp alerts will be triggered.
+Almost all of the required information here are self-explanatory. The only one that could be confusing is the DHCP Servers section. In this one, enter a comma-delimited list of all the DHCP Server on the customer network so when PacketFence will see DHCP traffic originating from these IPs, no rogue-dhcp alerts will be triggered.
 
 Click 'Continue' once all the fields are completed.
 
@@ -276,7 +276,7 @@ Services status will help you monitor if everything goes as expected. If not, yo
 
 Configuring Aerohive access point in PacketFence
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Now that you have a fully functionnal PacketFence installation, you'll need to add the Aerohive AP to the PacketFence switches database for correct integration.
+Now that you have a fully functional PacketFence installation, you'll need to add the Aerohive AP to the PacketFence switches database for correct integration.
 
 To do so, login to the PacketFence web administration interface if it is not already done. Click on the 'Configuration' tab and select the Switches section.
 
@@ -294,9 +294,9 @@ Under the tab RADIUS, please set your RADIUS secret.
 
 Click 'Add switch'
 
-The newly added acces point should show up in the list.
+The newly added access point should show up in the list.
 
-PacketFence configuration is done. You may now reboot the demonstation PC (leave the USB key in). Once rebooted, the web browser should open in the PacketFence web administation interface.
+PacketFence configuration is done. You may now reboot the demonstration PC (leave the USB key in). Once rebooted, the web browser should open in the PacketFence web administration interface.
 
 Step 3: Configure Aerohive
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -348,7 +348,7 @@ Click OK to save the SSID.
 
 Configure User Profile
 ^^^^^^^^^^^^^^^^^^^^^^
-You will now need to create user profile matching your VLAN assignements, the "Default VLAN" have been created before to match the desired VLAN number.
+You will now need to create user profile matching your VLAN assignments, the "Default VLAN" have been created before to match the desired VLAN number.
 
 Create user profile as follow:
 
@@ -409,7 +409,7 @@ Click OK to save the SSID.
 
 Configure User Profile
 ^^^^^^^^^^^^^^^^^^^^^^
-You will now need to create user profile matching your VLAN assignements, the "Default VLAN" have been created before to match the desired VLAN number.
+You will now need to create user profile matching your VLAN assignments, the "Default VLAN" have been created before to match the desired VLAN number.
 
 Create user profile as follow:
 
