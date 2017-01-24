@@ -1173,14 +1173,14 @@ sub reevaluate_access : Public :AllowedAsAction(mac, $mac, reason, $reason) {
     pf::enforcement::reevaluate_access( $postdata{'mac'}, $postdata{'reason'} );
 }
 
-=head2 process_dhcp
+=head2 process_dhcpv4
 
 Processes a DHCPv4 request through the pf::dhcp::processor_v4 module
 The UDP payload must be base 64 encoded.
 
 =cut
 
-sub process_dhcp : Public {
+sub process_dhcpv4 : Public {
     my ($class, %postdata) = @_;
     my @require = qw(src_mac src_ip dest_mac dest_ip is_inline_vlan interface interface_ip interface_vlan net_type);
     my @found = grep {exists $postdata{$_}} @require;
