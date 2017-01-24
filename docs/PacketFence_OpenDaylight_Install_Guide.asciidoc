@@ -134,7 +134,7 @@ Step 5: Patching PacketFence
 
 The SDN modules are not included with the current version of PacketFence.
 
-In order to obtain the functionnalities you will need to apply a patch on your current PacketFence installation.
+In order to obtain the functionalities you will need to apply a patch on your current PacketFence installation.
 
 WARNING: This could break a working PacketFence installation. Install this on a non-production PacketFence server.
 
