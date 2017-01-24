@@ -153,7 +153,7 @@ Step 2: Networks
 ++++++++++++++++
 This step will ask you to statically configure your network interfaces (note that DHCP interfaces configuration is not supported).
 
-The web interface will list all currently installed network interfaces on the system. An IP and a netmask will be visible if the network interface is configured (either by DHCP or already manually configured). You can edit those ones, create/delete VLANs on physical interfaces and enable/disable an interface. Note that theses changes are effective on the moment you make them. Persistance will be written only for ENABLED interfaces. Which means that if you change your management ip address, to pursue the configurator, you will need to go on this new ip address you setup. 
+The web interface will list all currently installed network interfaces on the system. An IP and a netmask will be visible if the network interface is configured (either by DHCP or already manually configured). You can edit those ones, create/delete VLANs on physical interfaces and enable/disable an interface. Note that theses changes are effective on the moment you make them. Persistence will be written only for ENABLED interfaces. Which means that if you change your management ip address, to pursue the configurator, you will need to go on this new ip address you setup. 
 
 In all time, you'll need to set a Management interface.
 
@@ -182,7 +182,7 @@ Here's a sample configuration for both of them:
     
 This configuration take into account that you have an available machine in the management network to access the admin interface of PacketFence.
 
-Make sure that those 2 interfaces are in an Enabled state for the persistance to occur.
+Make sure that those 2 interfaces are in an Enabled state for the persistence to occur.
 
 We also need to set the Default Gateway which will generally be the gateway of the management network.
 
@@ -200,7 +200,7 @@ Then you will need to create the root password for MySQL database. Click on the 
 
 Next section will create the database and load the correct schema on it. Simply leave the default database name and click Create databases and tables.
 
-The last section of this step is the PacketFence user account on the MySQL server. Simply leave the default pf username here and choose of a password. This one will automatically be set in the PacketFence configuration where you’ll be able to retrive it in any case. Once the password entered twice, click Create user.
+The last section of this step is the PacketFence user account on the MySQL server. Simply leave the default pf username here and choose of a password. This one will automatically be set in the PacketFence configuration where you’ll be able to retrieve it in any case. Once the password entered twice, click Create user.
 
 If you got a Success! message for this all three sections, click Continue.
 
@@ -208,11 +208,11 @@ Step 4: PacketFence Configuration
 +++++++++++++++++++++++++++++++++
 This step will configure the general options of your PacketFence installation. Theses are needed configurations that will most of the time fits customer specifications.
 
-Almost all of the required information here are self-explanatory. The only one that could be confusing is the DHCP Servers section. In this one, enter a comma-delimited list of all the DHCP Server on the customer network so when PacketFence will see DHCP trafic originating from these IPs, no rogue-DHCP alerts will be triggered.  
+Almost all of the required information here are self-explanatory. The only one that could be confusing is the DHCP Servers section. In this one, enter a comma-delimited list of all the DHCP Server on the customer network so when PacketFence will see DHCP traffic originating from these IPs, no rogue-DHCP alerts will be triggered.  
 
-PacketFence will use the domain and the hostname to generate the URL to redirect devices on the captive portal. If you have a HTTP certificate use the same hostname and domain n ame to validate the SSL connection on the captive portal.
+PacketFence will use the domain and the hostname to generate the URL to redirect devices on the captive portal. If you have a HTTP certificate use the same hostname and domain name to validate the SSL connection on the captive portal.
 
-In the last section, Local Database Passwords, you will have to chose the password encryption for local accounts (guest automatically generated and manualy created account).
+In the last section, Local Database Passwords, you will have to chose the password encryption for local accounts (guest automatically generated and manually created account).
 
 Click Continue once all the fields are completed.
 
@@ -246,7 +246,7 @@ Network Devices
 
 In an inline configuration, the required configurations for network devices (desktops, tablets, printers, etc.) will be to make sure they can all communicate with PacketFence. In other words for a switch you will need to configure every ports on which devices will be connected using the access mode with all of them in the same inline network. Access point will be connected as device to be in the inline subnetwork. 
 
-Exemple with a Cisco switch:
+Example with a Cisco switch:
 
 You should be in mode '#conf-t' if not execute 'configuration terminal' in your CLI.
 ----
@@ -436,7 +436,7 @@ From the computer:
 * try to connect to a HTTP site (Not HTTPS, eg. http://www.google.com)
 * make sure that whatever site you want to connect to, you have only access to the registration page.
 
-Register the computer using the following informations:
+Register the computer using the following information:
 
 * user: demouser
 * password: demouser
