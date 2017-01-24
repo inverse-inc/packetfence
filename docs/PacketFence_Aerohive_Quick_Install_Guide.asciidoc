@@ -430,7 +430,7 @@ In `Control Panel\Network and Internet\Manage Wireless Networks`, click on 'Add'
 Click 'Manually create a network profile'
 
    Network name: DemoSecure
-   Security type WPA2-Entreprise
+   Security type WPA2-Enterprise
    Encryption AES
 
 Next, change connection settings. On Security tab, click 'Settings', uncheck Validate server certificate.
