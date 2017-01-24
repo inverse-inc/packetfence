@@ -2,19 +2,23 @@ package pf::iplog;
 
 =head1 NAME
 
-pf::iplog - Module to manage IP address <-> MAC address bindings
+pf::iplog
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::iplog contains the functions necessary to read and manage the DHCP
+Class to manage IP address <-> MAC address bindings
+
+Base class that contains the functions necessary to read and manage the DHCP
 information gathered by PacketFence on the network.
 
 =cut
 
 use strict;
 use warnings;
+
+use Moose;
 
 use Date::Parse;
 use pf::log;
