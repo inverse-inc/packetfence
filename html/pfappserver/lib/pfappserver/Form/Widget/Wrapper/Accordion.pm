@@ -22,11 +22,13 @@ around wrap_field => sub {
     my $output = '';
     my $parent = $self->parent;
     my $parent_name = $parent->name;
+    my $value = $parent->value;
+    my $length = $value ? scalar @$value : 0;
     my $name = $self->name;
     my $id = $self->accordion_id;
     my $in  = '';
     my $num_when_empty = $parent->num_when_empty;
-    if ($name == 999 || ($name >= ($parent->num_fields - $parent->num_when_empty ) ) ) {
+    if ( ( $name == 999 || ($name >= $length ) )) {
         $in = 'in';
     }
     my $heading = $self->get_tag("accordion_heading");
