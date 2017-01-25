@@ -14,7 +14,7 @@ This guide has been created to give a quick start to install active/active clust
 Assumptions
 -----------
 * You have at least two (2) installed and configured PacketFence (v5+) servers
-* Servers are running RHEL / Centos 6 or 7
+* Servers are running RHEL / CentOS 6 or 7
 * Servers have identical copies for network interfaces
 * Servers network interfaces are on the same layer 2 network
 * Servers hostnames must be resolvable via DNS resolution
@@ -206,7 +206,7 @@ Stop and backup previous MySQL data
 
   # service mysqld stop
   # mkdir /var/lib/mysql.bak
-  # mv /var/lib/mysql/* /var/lib/mysql.bak/ #Optionnal
+  # mv /var/lib/mysql/* /var/lib/mysql.bak/ #Optional
 
 Mount the partition with:
 
@@ -214,7 +214,7 @@ Mount the partition with:
 
 Restore previous MariaDB data
 
-  # mv /var/lib/mysql.bak/* /var/lib/mysql/ #Optionnal
+  # mv /var/lib/mysql.bak/* /var/lib/mysql/ #Optional
 
 Start MySQL
 
@@ -400,7 +400,7 @@ Make sure that you systems are correctly configured and up-to-date
 
 Set hostname on each server:
   
-NOTE: An active NetworkManager will overwrite your DNS configuration if not explicitely instructed to not do so before executing the following commands. (https://bugzilla.redhat.com/show_bug.cgi?id=1344303[Bug Report]) (https://packetfence.org/doc/PacketFence_Administration_Guide.html#_os_installation[Corrective Measures])
+NOTE: An active NetworkManager will overwrite your DNS configuration if not explicitly instructed to not do so before executing the following commands. (https://bugzilla.redhat.com/show_bug.cgi?id=1344303[Bug Report]) (https://packetfence.org/doc/PacketFence_Administration_Guide.html#_os_installation[Corrective Measures])
  
   # hostnamectl set-hostname pf1_server_name
   # hostnamectl set-hostname pf2_server_name
@@ -637,7 +637,7 @@ Stop and backup previous MariaDB data
 
   # systemctl stop mariadb
   # mkdir /var/lib/mysql.bak
-  # mv /var/lib/mysql/* /var/lib/mysql.bak/ #Optionnal
+  # mv /var/lib/mysql/* /var/lib/mysql.bak/ #Optional
 
 Mount the partition with:
 
@@ -645,7 +645,7 @@ Mount the partition with:
 
 Restore previous MariaDB data
 
-  # mv /var/lib/mysql.bak/* /var/lib/mysql/ #Optionnal
+  # mv /var/lib/mysql.bak/* /var/lib/mysql/ #Optional
 
 Start MariaDB
 
@@ -785,12 +785,12 @@ db_host=127.0.0.1
 ....
 ----
 
-While you are in that file, add "high-availibility" statement at the end of your management interface, to be consistent with what will be found in cluster.conf:
+While you are in that file, add "high-availability" statement at the end of your management interface, to be consistent with what will be found in cluster.conf:
 
 ----
 [interface eth0]
 ....
-type=management,high-availibility
+type=management,high-availability
 ....
 ----
 
@@ -901,7 +901,7 @@ Once this configuration is done, restart PacketFence to have it applied:
   
  # systemctl restart packetfence  
 
-If no error is found in the previous configuration, the previous restart of packetfence should have started two additionnal services : haproxy and keepalived
+If no error is found in the previous configuration, the previous restart of packetfence should have started two additional services : haproxy and keepalived
 
 You should now have service on the IP addresses defined in the 'CLUSTER' sections
 
@@ -929,7 +929,7 @@ Where :
 * 'packet' is the webservices username on the master node
 * 'fence' is the webservices password on the master node
 
-Reload the configuation and start the webservices on the new server
+Reload the configuration and start the webservices on the new server
 
   # service packetfence-config restart
   # /usr/local/pf/bin/pfcmd configreload
@@ -976,9 +976,9 @@ Now restart PacketFence on all the servers so that the removed node is not part 
 Resynchronizing the configuration manually
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you did a manual change in a configuration file, an additionnal step is now needed.
+If you did a manual change in a configuration file, an additional step is now needed.
 
-In order to be sure the configuration is properly synched on all nodes, you will need to enter this command on the previously selected master node.
+In order to be sure the configuration is properly synced on all nodes, you will need to enter this command on the previously selected master node.
 
 ----
 # /usr/local/pf/bin/cluster/sync --as-master
@@ -991,7 +991,7 @@ In the event that you do modifications to non-synchronized files like switch mod
 
 On one of the nodes, create /usr/local/pf/conf/cluster-files.txt
 
-Add the additionnal files one per line in this file. We advise you add this file to the synchronization too.
+Add the additional files one per line in this file. We advise you add this file to the synchronization too.
 
 Example : 
 

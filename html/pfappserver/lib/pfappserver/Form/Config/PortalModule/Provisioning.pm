@@ -21,7 +21,7 @@ sub for_module {'captiveportal::PacketFence::DynamicRouting::Module::Provisionin
 has_field 'skipable' =>
   (
    type => 'Toggle',
-   label => 'Skipable',
+   label => 'Skippable',
    unchecked_value => 'disabled',
    checkbox_value => 'enabled',
    tags => { after_element => \&help,

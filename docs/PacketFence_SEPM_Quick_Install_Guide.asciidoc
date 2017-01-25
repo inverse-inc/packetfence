@@ -11,7 +11,7 @@ About this Guide
 ----------------
 This guide has been created in order to help sales engineers, product managers, or network specialists demonstrate the PacketFence capabilities on-site with an existing or potential customer.  It can also provide guidelines to setup a proof of concept for a potential PacketFence deployment using the Symantec Endpoint Protection Manager to provide information about device compliance before and during network access.
 
-For brievity and better lisibility, the Symantec Endpoint Protection Manager will be refered as 'SEPM' in the rest of this document.
+For brevity and better visibility, the Symantec Endpoint Protection Manager will be referred as 'SEPM' in the rest of this document.
 
 Assumptions
 -----------

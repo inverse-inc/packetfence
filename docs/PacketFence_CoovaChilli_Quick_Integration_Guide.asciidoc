@@ -69,18 +69,18 @@ Step 2: Networks
 ++++++++++++++++
 This step will ask you to statically configure your network interfaces (note that DHCP interfaces configuration is not supported yet).
 
-Depending on the choice(s) made on step 1, you'll have to configure the required types of interface. The web interface will list all currently installed network interfaces on the system. An IP and a netmask will be visible if the network interface is configured (either by DHCP or already manually configured). You can edit those ones, create/delete VLANs on physical interfaces and enable/disable an interface. Note that theses changes are effective on the moment you make them. Persistance will be written only for 'enabled' interfaces.
+Depending on the choice(s) made on step 1, you'll have to configure the required types of interface. The web interface will list all currently installed network interfaces on the system. An IP and a netmask will be visible if the network interface is configured (either by DHCP or already manually configured). You can edit those ones, create/delete VLANs on physical interfaces and enable/disable an interface. Note that theses changes are effective on the moment you make them. Persistence will be written only for 'enabled' interfaces.
 
 In all time, you'll need to set a 'Management' interface.
 
 Note that you can only set ONE (1) management interface but a same management interface can serve multiple purposes.
 
-For the purpose of this guide, we will use only one interface which we will configure as the "management" one and on which we will add a 'portal' additionnal daemon.
+For the purpose of this guide, we will use only one interface which we will configure as the "management" one and on which we will add a 'portal' additional daemon.
 
 To do so, simply click the network interface name you want to assign and in the edit modal window, make the following changes then click "Save":
 
  * Type: Management
- * Additionnal listening daemon(s): portal
+ * Additional listening daemon(s): portal
 
 You might want to make sure the "Default Gateway" is properly set. This is generally the gateway of the management network.
 
@@ -90,9 +90,9 @@ This step will configure the MySQL server needed by PacketFence. Database and sc
 
 That step is fairly simple to accomplish and is a one time deal.
 
-In the root account credentials section, enter root as Username and click 'Test'. You'll be prompted for a new root password. Choose a password for the MySQL root user and click 'Save'. You can now enter your newly setted password in the root account credentials section and click 'Test'.
+In the root account credentials section, enter root as Username and click 'Test'. You'll be prompted for a new root password. Choose a password for the MySQL root user and click 'Save'. You can now enter your newly created password in the root account credentials section and click 'Test'.
 
-Next section of this step is the PacketFence user account on the MySQL server. Simply leave the default pf username here and choose of a password. This one will automatically be set in the PacketFence configuration where you'll be able to retrive it in any case. Once the password entered twice, click 'Create user'.
+Next section of this step is the PacketFence user account on the MySQL server. Simply leave the default pf username here and choose of a password. This one will automatically be set in the PacketFence configuration where you'll be able to retrieve it in any case. Once the password entered twice, click 'Create user'.
 
 Third section will create the database and load the correct schema on it. Simply leave the default and click 'Create tables and indexes'.
 
@@ -100,7 +100,7 @@ Step 4: PacketFence Configuration
 +++++++++++++++++++++++++++++++++
 This step will configure the general options of your PacketFence installation.
 
-Almost all of the required information here are self-explanatory. The only one that could be confusing is the DHCP Servers section. In this one, enter a comma-delimited list of all the DHCP Server on the customer network so when PacketFence will see DHCP trafic originating
+Almost all of the required information here are self-explanatory. The only one that could be confusing is the DHCP Servers section. In this one, enter a comma-delimited list of all the DHCP Server on the customer network so when PacketFence will see DHCP traffic originating
  from these IPs, no rogue-dhcp alerts will be triggered. It can safely be ignored for the purpose of this guide.
 
 Step 5: Administration
@@ -119,7 +119,7 @@ Services status will help you monitor if everything goes as expected. If not, yo
 
 Step 2: Access Point and CoovaChilli Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Now that we have a functionnal PacketFence installation, we will go ahead and start by configuring the access point and CoovaChilli running on it. We will then use some of the configuration parameters to finish PacketFence integration in step 3.
+Now that we have a functional PacketFence installation, we will go ahead and start by configuring the access point and CoovaChilli running on it. We will then use some of the configuration parameters to finish PacketFence integration in step 3.
 
 This guide assume that CoovaChilli is installed on the access point. If it's not, we suggest you search relevant information on the Internet to install CoovaChilli as there are too many network equipment vendors that support CoovaChilli to accurately document this step here.
 

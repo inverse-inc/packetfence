@@ -35,7 +35,7 @@ Developers Guide::
   Covers captive portal customization, VLAN management customization and 
   instructions for supporting new hardware. 
 `NEWS`::
-  Covers noteworthy features, improvements and bugfixes by release. 
+  Covers noteworthy features, improvements and bug fixes by release. 
 `UPGRADE`::
   Covers compatibility related changes, manual instructions and general notes 
   about upgrading. 
@@ -58,7 +58,7 @@ enforcement.
 List of supported Network Devices
 ---------------------------------
 
-PacketFence supports a whole lot of different wireless and wired network equipments from various vendors running 
+PacketFence supports a whole lot of different wireless and wired network equipment from various vendors running 
 different versions. Since we want to provide the most accurate information and avoid duplication of that same 
 information, please refer to our website https://packetfence.org/about/supported_switches_and_aps.html
 
@@ -516,9 +516,9 @@ First, make sure you followed the steps above in 'Global configuration'
 You will need to create an edge template and apply it on the ports you want to do authentication on.
 
     unp edge-template pf_dot1x
-    unp edge-template pf_dot1x 802.1x-authentication enable
+    unp edge-template pf_dot1x 802.1X-authentication enable
     unp edge-template pf_dot1x mac-authentication enable
-    unp edge-template pf_dot1x 802.1x-authentication failure-policy mac-authentication
+    unp edge-template pf_dot1x 802.1X-authentication failure-policy mac-authentication
     unp port 1/1/2 port-type edge
     unp port 1/1/2 edge-template pf_dot1x
 
@@ -1359,7 +1359,7 @@ In this example, the ACL that triggers the redirection to the portal for registr
 
 Configure the global configuration of the switch using the section __MAC Authentication bypass only__ of the 2960 in this document.
 
-Then add this additionnal configuration on the global level
+Then add this additional configuration on the global level
 
   ip device tracking
   ip http server
@@ -1456,7 +1456,7 @@ For IOS 12.2:
   ip access-list extended Auth-Default-ACL
    permit udp any range bootps 65347 any range bootpc 65348
    permit udp any any range bootps 65347
-   permit ip any host ip_of_the_captiv_portal
+   permit ip any host ip_of_the_captive_portal
    permit udp any any eq domain
    deny   ip any any
 
@@ -1476,7 +1476,7 @@ For IOS 15.0:
 
   conf t
   ip access-list extend  Auth-Default-ACL
-  21 permit ip any host ip_of_the_captiv_portal
+  21 permit ip any host ip_of_the_captive_portal
 
 For IOS 15.2:
 
@@ -1490,7 +1490,7 @@ For IOS 15.2:
 
   conf t
   ip access-list extend  Auth-Default-ACL
-  51 permit ip any host ip_of_the_captiv_portal
+  51 permit ip any host ip_of_the_captive_portal
 
 
 Stacked 29xx, Stacked 35xx, Stacked 3750, 4500 Series, 6500 Series
@@ -2079,7 +2079,7 @@ Dell
 Force 10
 ^^^^^^^^
 
-PacketFence supports this switch using RADIUS, MAC-Authentication and 802.1Xx.
+PacketFence supports this switch using RADIUS, MAC-Authentication and 802.1X.
 
 Global config settings
 
@@ -2179,7 +2179,7 @@ Matrix N3
 linkUp/linkDown traps are enabled by default so we disable them and enable MAC locking 
 only. Also, by default this switch doesn't do an electrical low-level linkDown when setting the 
 port to admin down. So we need to activate a global option called `forcelinkdown` to enable 
-this behaviour. Without this option, clients don't understand that they lost their connection and 
+this behavior. Without this option, clients don't understand that they lost their connection and 
 they never do a new DHCP on VLAN change. 
 
 Global config settings 
@@ -2442,7 +2442,7 @@ PacketFence supports this controller with the following technologies:
 * Wireless 802.1X
 * Wireless MAC Authentication
 
-Controlleur configuration
+Controller configuration
 +++++++++++++++++++++++++
 
 Setup NTP server:
@@ -2450,7 +2450,7 @@ Setup NTP server:
 	<AC>system-view
 	[AC] ntp-service unicast-server 208.69.56.110
 
-Setup the radius serveur (@IP of PacketFence) authentication + accounting:
+Setup the radius server (@IP of PacketFence) authentication + accounting:
 
 [NOTE]
 ===============================
@@ -2483,7 +2483,7 @@ In this configuration I will use the ip address of the VIP of PacketFence: 192.1
 Create an Secure dot1x SSID
 +++++++++++++++++++++++++++
 
-Activate the dotx globaly:
+Activate the dotx globally:
 
 	<AC>system-view
 	[AC] dot1x enable
@@ -2554,7 +2554,7 @@ Configure VAPs and deliver configurations to the APs:
 Create your Open ssid
 +++++++++++++++++++++
 
-Activate the mac-auth globaly:
+Activate the mac-auth globally:
 
 	<AC>system-view
 	[AC] mac-authen
@@ -3075,7 +3075,7 @@ Port configuration
 ++++++++++++++++++
 
 ----
-RS G8052(config)# configure termninal
+RS G8052(config)# configure terminal
 RS G8052(config)# interface port 1
 RS G8052(config-if)# dot1x mode auto
 RS G8052(config-if)# dot1x quiet-time 2
@@ -3459,7 +3459,7 @@ Don't forget to save the configuration!
 GS108Tv2 / GS110T / GS110TP
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-PacketFence supports certain lower-end Netgear switches in Link Up/Link Down traps. These "web-managed" switches have no command-line interface and only a subset of the port security and 802.1X functionnality needed to interoperate with PacketFence in these more advanced modes. There is no way to send a trap upon port security violation, and there is only pure 802.1X, no MAC Address Bypass.
+PacketFence supports certain lower-end Netgear switches in Link Up/Link Down traps. These "web-managed" switches have no command-line interface and only a subset of the port security and 802.1X functionality needed to interoperate with PacketFence in these more advanced modes. There is no way to send a trap upon port security violation, and there is only pure 802.1X, no MAC Address Bypass.
 
 [float]
 Switch Configuration
@@ -3924,7 +3924,7 @@ Caching and Roaming
 ++++++++++++++++++++
 
 AeroHIVE have a session replication feature to ease the EAP session roaming between two access points. However, this may cause problems when you bounce the wireless card of a client, it will not do a new RADIUS request. Two settings can be tweaked to reduce the caching impact, it is the roaming cache update interval and roaming cache ageout. They are located in *Configuration -> SSIDs -> [SSID Name] -> Optional Settings -> Advanced*.
-The other way to support Roaming is to enable snmp trap in the AeroHIVE configuration to PacketFence server. PacketFence will recognise the ahConnectionChangeEvent and will change the location of the node in his base.
+The other way to support Roaming is to enable snmp trap in the AeroHIVE configuration to PacketFence server. PacketFence will recognize the ahConnectionChangeEvent and will change the location of the node in his base.
 
 [float]
 External captive portal
@@ -4162,7 +4162,7 @@ image::docs/images/aruba-config-coa.png[scaledwidth="100%",alt="RADIUS CoA serve
   aaa rfc-3576-server "192.168.1.5"
   key useStrongerSecret
 
-Next, you will need to create the policy that will redirect users to the PacketFence captive portal when they are not authenticated. Go to `Security -> Authentication -> L3 Authenticaion -> Captive Portal Authentication Profile`.
+Next, you will need to create the policy that will redirect users to the PacketFence captive portal when they are not authenticated. Go to `Security -> Authentication -> L3 Authentication -> Captive Portal Authentication Profile`.
 
 image::docs/images/aruba-l3-auth1.png[scaledwidth="100%",alt="Layer 3 profile"]
 image::docs/images/aruba-l3-auth2.png[scaledwidth="100%",alt="Layer 3 profile 2"]
@@ -4858,7 +4858,7 @@ The Meraki switch offer configuration for VLAN enforcement only.
 
 You will need to access the Meraki dashboard to configure your switch. When you reach it you will need first to create a policy. You can create a "MAC authentication bypass" or a "802.1X" policy. Depending if you want to authenticate user via dot1x or MAB. You cannot combine both neither use a fallback mode on the same port, each port with a policy applied will be exclusive to MAB or dot1x.
 
-To access the policy creation go to 'Switch->Access policies' in the Meraki dashboard menu. From there create a new policy, use the exemple below to create your policy.
+To access the policy creation go to 'Switch->Access policies' in the Meraki dashboard menu. From there create a new policy, use the example below to create your policy.
 
 image::docs/images/Meraki-switch-policies.png[scaledwidth="100%",alt="Access policies"]
 
@@ -5069,7 +5069,7 @@ Under *Configuration -> Wireless -> ESS*, select the SSID you want to add to you
 Roles (Per-User Firewall)
 +++++++++++++++++++++++++
 
-Since PacketFence 3.3.0, we now support roles (per-user firwall rules) for the Meru hardware.  To add firewall rules, go in *Configuration -> QoS System Settings -> QoS and Firewall Rules*.  When you add a rule, you have to pay attention to two things:
+Since PacketFence 3.3.0, we now support roles (per-user firewall rules) for the Meru hardware.  To add firewall rules, go in *Configuration -> QoS System Settings -> QoS and Firewall Rules*.  When you add a rule, you have to pay attention to two things:
 
 * The rule is applied to the controller physical interface right away, so make sure you are not too wide on your ACL to lock you out!
 * The rules are grouped using the Firewall Filter ID (We will use this ID for the roles)
@@ -5251,7 +5251,7 @@ Roles (Per-User Firewall)
 
 Since PacketFence 3.3.0, we now support roles for the Motorola hardware using WiNGS 5.x.  To add roles, go in *Configuration -> Security -> Wireless Client Roles*.  First create a global policy that
 will contain your roles.  Next, create your Roles by clicking on the *Add* button on the bottom right.  It is important to configure the Group Configuration line properly by setting the string
-name that we will use in the RADIUS packet.  For exemple, for a Guests Role, you can put *Group Configuration Exact Guests*, and for a Staff Roles, you can put *Group Configuration Exact Staff*. 
+name that we will use in the RADIUS packet.  For example, for a Guests Role, you can put *Group Configuration Exact Guests*, and for a Staff Roles, you can put *Group Configuration Exact Staff*. 
 In the roles configuration in switches.conf, you would have something like :
 
    roles=CategoryGuests=Guests;CategoryStaff=Staff
@@ -5361,7 +5361,7 @@ Under *Configuration -> AAA Servers*, click on the *Create New* button.  Enter t
 * Enter a server name
 * Select either RADIUS or RADIUS accounting as the type
 * Use PAP as the Auth Method
-* Enter the IP addres, and shared secret.
+* Enter the IP address, and shared secret.
 * Hit OK
 
 Repeat the steps for the RADIUS and RADIUS accounting types.  We need 1 definition for each otherwise RADIUS dynamic authorization won't work.

@@ -58,7 +58,7 @@ image::docs/images/mobile-iron-boarding.png[scaledwidth="100%",alt="Boarding inf
 
 Step 4: Configure PacketFence
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-In PacketFence, MDM are refered to as provisioners. 
+In PacketFence, MDM are referred to as provisioners. 
 This will walk you through adding MobileIron as a provisioner.
 
 Create the provisioner
@@ -89,7 +89,7 @@ Replace `accountName` by your real account/instance name at MobileIron.
 
 Add the provisioner to the portal profile
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-In order for the provisionner to be used by your captive portal you need to add it in its configuration.
+In order for the provisioner to be used by your captive portal you need to add it in its configuration.
 Go in 'Portal Profiles', then select the portal you want to modify and add 'mobileiron' as a provisioner.
 
 image::docs/images/mobile-iron-portal.png[scaledwidth="100%",alt="MobileIron portal"]

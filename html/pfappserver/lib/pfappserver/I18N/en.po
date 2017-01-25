@@ -6537,7 +6537,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Message.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Provisioning.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/URL.pm
-msgid "Skipable"
+msgid "Skippable"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
