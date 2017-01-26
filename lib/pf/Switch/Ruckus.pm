@@ -146,7 +146,7 @@ sub deauthenticateMacDefault {
 
     $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
     return $self->radiusDisconnect(
-        $mac, { 'Acct-Session-Id' => $dynauth->{'acctsessionid'}, 'User-Name' => $dynauth->{'username'} },
+        $mac, { 'User-Name' => $dynauth->{'username'} },
     );
 }
 
