@@ -8,18 +8,26 @@
 
 
 .#{$inuit-list-ui-namespace}list-ui--btns {
-  background-color: $pf-list-tint-background;
   border-radius: $pf-border-radius;
+  border: none;
   box-shadow: $pf-btn-box-shadow;
   overflow: hidden;
 
-  .#{$inuit-btn-namespace}btn {
-    background-color: transparent;
-    border: none;
-    box-shadow: none;
-    color: $pf-list-tint-color;
+  .#{$inuit-list-ui-namespace}list-ui__item {
+    border-color: darken($inuit-base-background-color, 10%);
+    padding: 0;
+  }
 
-    &:hover {
+  .#{$inuit-btn-namespace}btn {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+
+    > * {
+      transition: transform 0.15s ease-in;
+    }
+
+    &:hover > * {
       transform: translateX(4px);
     }
   }

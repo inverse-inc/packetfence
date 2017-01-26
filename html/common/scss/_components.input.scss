@@ -33,13 +33,17 @@
     border-radius: $pf-border-radius;
     color: $pf-color-gray;
     padding: halve($spacing-unit);
-    transition: background-color 0.15s linear;
+    transition: border-color 0.15s linear;
     width: 100%;
+
+    &:hover {
+      border-color: darken($pf-list-icon-color, 20%);
+    }
 
     &:focus {
       outline: none;
-      background-color: lighten($pf-input-caption, 30%);
-      border-color: darken($pf-list-icon-color, 20%);
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+      border-color: $inuit-btn-background;
     }
   }
   

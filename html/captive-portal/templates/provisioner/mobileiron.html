@@ -6,25 +6,25 @@
 <div class="layout layout--center">
   <div class="layout__item u-2/3 u-1/1-palm">
 
-    <p class="u-mb--">[% i18n("If you are using an Android phone or tablet") %]</p>
+    <p class="u-mb-- caption">[% i18n("If you are using an Android phone or tablet") %]</p>
     <a href="[% provisioner.android_download_uri %]" class="btn btn--full" target="_blank">
-      <div class="flag">
+      <div class="flag flag--light">
         <div class="flag__img">[% svgIcon(id='ic_android_black_24px',size='small') %]</div>
         <p class="flag__body">[% i18n("Install Agent") %]</p>
       </div>
     </a>
 
-    <p class="u-mt u-mb--">[% i18n("If you are using an Apple phone or tablet") %]</p>
+    <p class="u-mt u-mb-- caption">[% i18n("If you are using an Apple phone or tablet") %]</p>
     <a href="[% provisioner.ios_download_uri %]" class="btn btn--full" target="_blank">
-      <div class="flag">
+      <div class="flag flag--light">
         <div class="flag__img">[% svgIcon(id='apple-icon',size='small') %]</div>
         <p class="flag__body">[% i18n("Install Agent") %]</p>
       </div>
     </a>
 
-    <p class="u-mt u-mb--">[% i18n("If you are using a Windows phone") %]</p>
+    <p class="u-mt u-mb-- caption">[% i18n("If you are using a Windows phone") %]</p>
     <a href="[% provisioner.windows_phone_download_uri %]" class="btn btn--full" target="_blank">
-      <div class="flag">
+      <div class="flag flag--light">
         <div class="flag__img">[% svgIcon(id='microsoft-windows-icon',size='small') %]</div>
         <p class="flag__body">[% i18n("Install Agent") %]</p>
       </div>

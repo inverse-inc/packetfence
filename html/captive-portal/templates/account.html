@@ -1,20 +1,42 @@
-<h2>[% i18n_format("Created account %s", account.pid) %]</h2>
+<div class="layout--center">
+  <h2>[% i18n_format("Created account %s", account.pid) %]</h2>
+</div>
 
-<h4>Details : </h4>
-<ul>
-  <li>[% i18n("Username") %] : [% account.pid %]</li>
-  <li>[% i18n("Password") %] : [% account.password %]</li>
-  <li>[% i18n("Email") %] : [% account.email %]</li>
-  [% FOREACH action IN account.actions %]
-    <li>[% i18n(action.type) %] : [% action.value %]</li>
-  [% END %]
-  [% IF account.local_user.login_remaining.defined %]
-    [% IF account.local_user.login_remaining != 1 %]
-    <li>Allowed amount of logins : [% account.local_user.login_remaining %]</li>
-    [% ELSE %]
-    <li>This account can only be used once.</li>
-    [% END %]
-  [% END %]
-</ul>
-
-<p>[% i18n("An e-mail with the login informations will follow in the next minutes") %]</p>
+<div class="layout layout--center">
+  <div class="layout__item u-2/3 u-1/1-palm">
+    <ul class="list-ui list-ui--tiny">
+      <li class="list-ui__item">
+        <div class="caption">[% i18n("Username") %]</div>
+        <div>[% account.pid %]</div>
+      </li>
+      <li class="list-ui__item">
+        <div class="caption">[% i18n("Password") %]</div>
+        <div>[% account.password %]</div>
+      </li>
+      <li class="list-ui__item">
+        <div class="caption">[% i18n("Email") %]</div>
+        <div>[% account.email %]</div>
+      </li>
+      [% FOREACH action IN account.actions %]
+      <li class="list-ui__item">
+        <div class="caption">[% i18n(action.type) %]</div>
+        <div>[% action.value %]</div>
+      </li>
+      [% END %]
+      [% IF account.local_user.login_remaining.defined %]
+      [% IF account.local_user.login_remaining != 1 %]
+      <li class="list-ui__item">
+        <div class="caption">>Allowed amount of logins</div>
+        <div>[% account.local_user.login_remaining %]</div>
+      </li>
+      [% ELSE %]
+      <li>[% i18n("This account can only be used once.") %]</li>
+      [% END %]
+      [% END %]
+    </ul>
+    <div class="media media--notice u-p u-mt">
+      <div class="media__img">[% flashIcon(level='notice') %]</div>
+      <p class="media__body">[% i18n("An e-mail with the login informations will follow in the next minutes") %]</p>
+    </div>
+  </div>
+</div>

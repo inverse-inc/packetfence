@@ -1,19 +1,20 @@
 <div class="layout--center">
   <p>[% i18n("In order to complete your connection to the secure SSID, you will need to run the agent available below.") %]</p>
 
-  <div class="layout__item u-2/3 u-1/1-palm">
-    <a href="/content/packetfence-windows-agent.exe" class="btn btn--full" target="_blank">
-      <div class="flag">
-        <div class="flag__img">[% svgIcon(id='microsoft-windows-icon',size='small') %]</div>
-        <p class="flag__body">[% i18n("Install Agent") %]</p>
-      </div>
-    </a>
-    <a href="/captive-portal?next=next" class="btn btn--full btn--light u-mt">
-      <div class="flag">
-        <div class="flag__img">[% svgIcon(id='ic_forward_black_24px',size='small') %]</div>
-        <p class="flag__body">[% i18n("Continue") %]</p>
-      </div>
-    </a>
+  <div class="layout">
+    <div class="layout__item u-2/3 u-1/1-palm">
+      <a href="/content/packetfence-windows-agent.exe" class="btn btn--full" target="_blank">
+        <div class="flag flag--light">
+          <div class="flag__img">[% svgIcon(id='microsoft-windows-icon',size='small') %]</div>
+          <p class="flag__body">[% i18n("Install Agent") %]</p>
+        </div>
+      </a>
+      <a href="/captive-portal?next=next" class="btn btn--full btn--light u-mt">
+        <div class="flag">
+          <div class="flag__img">[% svgIcon(id='ic_forward_black_24px',size='small') %]</div>
+          <p class="flag__body">[% i18n("Continue") %]</p>
+        </div>
+      </a>
+    </div>
   </div>
 </div>
-

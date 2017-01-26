@@ -3,3 +3,7 @@
 .divider {
   border-top: 1px solid lighten($inuit-base-text-color, 50%);
 }
+
+footer .divider {
+  border-color: lighten($pf-footer-text-color, 50%);
+}

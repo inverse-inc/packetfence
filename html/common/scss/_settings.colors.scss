@@ -4,7 +4,7 @@
  * Some predefined color variables
  */
 
-$pf-color-tint:                          #FDFDFD;    // light color, almost white
+$pf-color-tint:                          #C9E8B0;    // light green
 $pf-color-gray:                          #343434;    // dark gray
 $pf-color-light-gray:                    #96A0AA;    // light blue gray
 $pf-color-error:                         #C97064;    // red
@@ -15,19 +15,16 @@ $pf-color-notice:                        #93BAB6;    // light blue
  */
 
 // Text color
-$inuit-base-text-color:                  #F1F1F1;
-//$inuit-base-text-color:                  #434343; // when using a white frame
+$inuit-base-text-color:                  #123622;    // very dark green
 
 // Background color
-$inuit-base-background-color:            #92c668;    // light green
-//$inuit-base-background-color:            #FEFEFE;
+$inuit-base-background-color:            #FEFEFE;    // almost white
 
 // Button background color
 $inuit-btn-background:                   #247BA0;
-//$inuit-btn-background:                   #0174B5;
 
 // Button light background color
-$pf-btn-background-light:                #9ac4d6;    // light blue
+$pf-btn-background-light:                #f7f7f7;    // light gray
 
 // Navigation (dots and background color of round icons)
 $pf-base-accent-color:                   #5E913A;    // dark green
@@ -37,8 +34,7 @@ $pf-footer-background-color:             transparent;
 //$pf-footer-background-color:             #333333;
 
 // Footer text color
-$pf-footer-text-color:                   $inuit-base-text-color;
-//$pf-footer-text-color:                   #848484; // when using a white frame
+$pf-footer-text-color:                   $pf-color-light-gray;
 
 // Tinted box
 $pf-box-tint-background:                 $pf-color-tint;
@@ -48,11 +44,11 @@ $pf-box-tint-color:                      $pf-color-gray;
 $pf-frame-background:                    #FEFEFE;
 
 // Tinted list
-$pf-list-tint-background:                $pf-color-tint;
+$pf-list-tint-background:                lighten($pf-color-light-gray, 50%);
 $pf-list-tint-color:                     $pf-color-gray;
 
 // Light list
-$pf-list-background-light:               #D0DFC1;
+$pf-list-background-light:               #EFF3F7;    // almost white
 $pf-list-icon-color:                     $pf-color-light-gray;
 
 // Input label
@@ -62,6 +58,6 @@ $pf-input-caption:                       $pf-color-light-gray;
  * Alternative blue-gray palette. Packaged as styles-dark.css in the repo.
  */
 
-//$inuit-base-background-color:            #44535A;    // dark blue gray
-//$pf-base-accent-color:                   #4D616A;    // blue gray
-//$pf-list-background-light:               #7B9CAA;    // light blue gray
+$pf-color-tint:                          #7B9CAA;    // light blue gray
+$pf-base-accent-color:                   #4D616A;    // blue gray
+$pf-box-tint-background:                 $pf-color-tint;
