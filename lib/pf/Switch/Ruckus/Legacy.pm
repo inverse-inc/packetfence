@@ -1,8 +1,8 @@
-package pf::Switch::Ruckus::Ruckus_Legacy;
+package pf::Switch::Ruckus::Legacy;
 
 =head1 NAME
 
-pf::Switch::Ruckus::Ruckus_Legacy
+pf::Switch::Ruckus::Legacy
 
 =head1 SYNOPSIS
 
