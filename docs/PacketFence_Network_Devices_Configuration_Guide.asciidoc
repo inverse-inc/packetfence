@@ -3677,7 +3677,7 @@ EdgeSwitch
 PacketFence supports the EdgeSwitch with the following techniques:
 
 * 802.1X with MAC Authentication fallback
-* 802.1x with MAC Authentication fallback with VoIP
+* 802.1X with MAC Authentication fallback with VoIP
 
 802.1X with MAC Authentication fallback
 +++++++++++++++++++++++++++++++++++++++
