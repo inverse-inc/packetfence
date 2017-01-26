@@ -4,7 +4,7 @@
  * Some predefined color variables
  */
 
-$pf-color-tint:                          #C9E8B0;    // light green
+$pf-color-tint:                          #F1F1F1;    // light gray
 $pf-color-gray:                          #343434;    // dark gray
 $pf-color-light-gray:                    #96A0AA;    // light blue gray
 $pf-color-error:                         #C97064;    // red
@@ -27,7 +27,7 @@ $inuit-btn-background:                   #247BA0;
 $pf-btn-background-light:                #f7f7f7;    // light gray
 
 // Navigation (dots and background color of round icons)
-$pf-base-accent-color:                   #5E913A;    // dark green
+$pf-base-accent-color:                   $inuit-btn-background;
 
 // Footer background
 $pf-footer-background-color:             transparent;
