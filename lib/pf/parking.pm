@@ -48,8 +48,12 @@ sub park {
     my ($mac,$ip) = @_;
     get_logger->debug("Setting client in parking");
     if(isenabled($Config{parking}{place_in_dhcp_parking_group})){
-        my $omapi = pf::OMAPI->get_client();
-        $omapi->create_host($mac, {group => $PARKING_DHCP_GROUP_NAME});
+        if (isenabled($pf::config::Config{'services'}{'radiusd-dhcpd'})) {
+            freeradius_update_dhcpd_lease($mac, $Config{'parking'}{'lease_length'});
+        } else {
+            my $omapi = pf::OMAPI->get_client();
+            $omapi->create_host($mac, {group => $PARKING_DHCP_GROUP_NAME});
+        }
     }
     if(isenabled($Config{parking}{show_parking_portal})){
         my $cmd = "sudo ipset add $PARKING_IPSET_NAME $ip 2>&1";
@@ -86,12 +90,16 @@ Remove the parking actions that were taken against an IP + MAC
 sub remove_parking_actions {
     my ($mac, $ip) = @_;
     get_logger->info("Removing parking actions for $mac - $ip");
-    eval {
-        my $omapi = pf::OMAPI->get_client();
-        $omapi->delete_host($mac);
-    };
-    if($@) {
-        get_logger->warn("Failed to remove client from parking using OMAPI ($@).");
+    if (isenabled($pf::config::Config{'services'}{'radiusd-dhcpd'})) {
+        freeradius_delete_dhcpd_lease($mac);
+    } else {
+        eval {
+            my $omapi = pf::OMAPI->get_client();
+            $omapi->delete_host($mac);
+        };
+        if($@) {
+            get_logger->warn("Failed to remove client from parking using OMAPI ($@).");
+        }
     }
 
     pf_run("sudo ipset del $PARKING_IPSET_NAME $ip -exist 2>&1");

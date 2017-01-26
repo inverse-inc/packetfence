@@ -19,7 +19,7 @@ BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
-    @EXPORT = qw(decompose_dhcp decode_dhcp dhcp_message_type_to_string dhcp_summary make_pcap_filter);
+    @EXPORT = qw(decompose_dhcp decode_dhcp dhcp_message_type_to_string dhcp_summary make_pcap_filter format_from_radius_dhcp);
 }
 
 use NetPacket::Ethernet;
@@ -29,6 +29,7 @@ use Readonly;
 
 use pf::util qw(int2ip clean_mac);
 use pf::option82 qw(get_switch_from_option82);
+use pf::constants;
 
 our @ascii_options = (
     4, # Time Server (RFC2132)
@@ -58,6 +59,45 @@ Readonly my %MESSAGE_TYPE => (
 );
 
 Readonly my %MESSAGE_TYPE_TO_STRING => reverse %MESSAGE_TYPE;
+
+Readonly my %dhcp_attributes => (
+    'DHCP-Server-IP-Address'       => 'dest_ip',
+    'DHCP-Client-IP-Address'       => 'ciaddr',
+    'DHCP-Hardware-Type'           => 'htype',
+    'DHCP-Boot-Filename'           => 'file',
+    'DHCP-Client-IP-Address'       => 'src_ip',
+    'DHCP-Server-Host-Name'        => 'sname',
+    'DHCP-Hop-Count'               => 'hops',
+    'DHCP-Hardware-Address-Length' => 'hlen',
+    'DHCP-Client-Hardware-Address' => 'chaddr',
+    'DHCP-Server-IP-Address'       => 'siaddr',
+    'DHCP-Number-of-Seconds'       => 'secs',
+    'DHCP-Gateway-IP-Address'      => 'giaddr',
+    'DHCP-Your-IP-Address'         => 'yiaddr',
+    'DHCP-Flags'                   => 'dflags',
+    'DHCP-Transaction-Id'          => 'xid',
+    'DHCP-Opcode'                  => 'op',
+);
+
+Readonly my %dhcp_options => (
+    'DHCP-Client-FQDN' => '81',
+    'DHCP-Vendor-Class-Identifier' => '60',
+    'DHCP-Message-Type'            => '53',
+    'DHCP-Client-Identifier'       => '61',
+    'DHCP-Hostname'                => '12',
+    'DHCP-Parameter-Request-List'  => '55',
+    'DHCP-IP-Address-Lease-Time'   => '51',
+    'DHCP-Client-IP-Address'       => '50',
+    'DHCP-DHCP-Server-Identifier'  => '54',
+    'DHCP-Site-specific-0'         => '224',
+    'DHCP-Site-specific-1'         => '225',
+    'DHCP-Site-specific-2'         => '226',
+);
+
+Readonly my %dhcp_options_82 => (
+    'DHCP-Relay-Remote-Id'  => '2',
+    'DHCP-Relay-Circuit-Id' => '1',
+);
 
 =head1 SUBROUTINES
 
@@ -346,6 +386,68 @@ sub make_pcap_filter {
     }
     my $type_filter = join(" or ",map { sprintf("(udp[250:1] = 0x%x)",$MESSAGE_TYPE{$_}) } @types);
     return "((port 67 or port 68 or port 767) and ( $type_filter )) or (port 546 or port 547)";
+}
+
+
+=item format_from_radius_dhcp
+
+format radius dhcp attributes to dhcp object
+
+=cut
+
+
+sub format_from_radius_dhcp {
+    my ($radius_request) = @_;
+    my $dhcp = {};
+    my $args = {};
+    my $options;
+    my $sub_options;
+    foreach my $keys (keys %{$radius_request}) {
+        if (defined($dhcp_options{$keys})) {
+            if ($radius_request->{$keys} =~ /^0x(.*)/) {
+                my $value = $1;
+                if ($keys ne "DHCP-Client-Identifier") {
+                     $value  =~ s/([a-fA-F0-9][a-fA-F0-9])/pack("C",hex($1))/eg;
+                    $options->{$dhcp_options{$keys}} = $value;
+                } else {
+                    my @value = map {hex($_)} $value =~ /(..)/sg;
+                    $options->{$dhcp_options{$keys}} = \@value;
+                }
+            } else {
+                if ( ref($radius_request->{$keys}) eq 'ARRAY') {
+                    $options->{$dhcp_options{$keys}} = join ( ',', @{$radius_request->{$keys}});
+                } else {
+                    $options->{$dhcp_options{$keys}} = $radius_request->{$keys};
+                }
+            }
+        } elsif (defined($dhcp_options_82{$keys})) {
+            if ($radius_request->{$keys} =~ /^0x(.*)/) {
+                my @value = map {hex($_)} $1 =~ /(..)/sg;
+                $sub_options->{$dhcp_options_82{$keys}} = \@value;
+            }
+        } else {
+            if (defined($dhcp_attributes{$keys})) {
+                $dhcp->{$dhcp_attributes{$keys}} = $radius_request->{$keys};
+            }
+        }
+    }
+    $dhcp->{'src_mac'} = $dhcp->{'chaddr'};
+    $dhcp->{'ciaddr'} = $options->{'50'};
+    $dhcp->{'options'} = $options;
+    $args->{'radius'} = $TRUE;
+    $args->{'net_type'} = $options->{'224'};
+    $args->{'interface'} = $options->{'225'};
+    $args->{'interface_vlan'} = $options->{'226'};
+    $args->{'interface_ip'} = $options->{'54'};
+    my %new_option = (
+        '_subopts' => $sub_options,
+    );
+
+    # stripping option82 arrayref and pushing an hashref instead with raw = options 82 array ref
+    $dhcp->{'options'}{'82'} = \%new_option;
+    _decode_dhcp_option82_suboption1(\%new_option, $sub_options->{'1'}) if defined($sub_options->{'1'});
+    _decode_dhcp_option82_suboption2(\%new_option, $sub_options->{'2'}) if defined($sub_options->{'2'});
+    return ($dhcp,$args);
 }
 
 =back

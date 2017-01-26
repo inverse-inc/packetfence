@@ -17,7 +17,7 @@ sqlippool dhcp_sqlippool {
 
 	ippool_table = "radippool"
 
-	lease_duration = 7200
+	lease_duration = "%{DHCP-IP-Address-Lease-Time}"
 
 	# Client's MAC address is mapped to Calling-Station-Id in policy.conf
 	pool_key = "%{Calling-Station-Id}"

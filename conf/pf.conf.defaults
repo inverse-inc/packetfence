@@ -384,6 +384,11 @@ radiusd=enabled
 #
 # Order in which to start this service 
 radiusd_order=12
+#
+# services.radius-dhcpd
+#
+# Should radiusd be managed by PacketFence?
+radiusd-dhcpd=disabled
 # 
 # services.radiusd_binary
 # 
@@ -720,7 +725,6 @@ openssl_binary=/usr/bin/openssl
 # 
 # location of the arp binary. only necessary to change if you are not running the rpmed version.
 arp_binary=/sbin/arp
-
 #
 # services.routes
 #
@@ -1368,6 +1372,11 @@ option82_query_interval=23h
 #
 # Interval at which PacketFence populates the NTLM cache
 populate_ntlm_redis_cache_interval=0s
+# maintenance.ping_dhcpd_interval
+#
+# Interval at which PacketFence will query dhcpd servers to know if there are alive
+#
+ping_dhcpd_interval=20s
 
 [active_active]
 #

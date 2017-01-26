@@ -156,7 +156,6 @@ sub isManaged {
 
 Inverse inc. <info@inverse.ca>
 
-
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2017 Inverse inc.

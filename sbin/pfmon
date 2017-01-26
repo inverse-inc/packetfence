@@ -61,6 +61,7 @@ use Time::HiRes qw(time sleep);
 use pf::option82 qw(search_switch);
 use pf::CHI::Request;
 use pf::domain::ntlm_cache;
+use pf::dhcpd;
 
 pf::SwitchFactory->preloadConfiguredModules();
 
@@ -300,6 +301,13 @@ sub registertasks  {
         \&populate_ntlm_redis_cache
     );
 
+    register_task (
+        'ping_dhcpd',
+        'ping_dhcpd_interval',
+        sub {
+            ping_dhcpd() if isenabled($pf::config::Config{'services'}{'radiusd-dhcpd'});
+        }
+    );
 }
 
 =head2 cleanup

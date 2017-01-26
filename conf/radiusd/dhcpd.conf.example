@@ -1,0 +1,151 @@
+pidfile = %%pid_file%%
+
+#override security in radiusd.conf
+
+security {
+        user = root
+        group = root
+        allow_core_dumps = no
+        max_attributes = 200
+        reject_delay = 1
+        status_server = yes
+        allow_vulnerable_openssl = yes
+}
+
+$INCLUDE radiusd.conf
+
+%%listen%%
+
+listen {
+        type = dhcp
+        ipaddr = 0.0.0.0
+        src_ipaddr = 127.0.0.1
+        port = 67
+        interface = lo
+        broadcast = yes
+        virtual_server = dhcp.lo
+}
+
+listen {
+    type = control
+    socket = %%socket_file%%
+    mode = rw
+}
+log {
+	#
+	#  Destination for log messages.  This can be one of:
+	#
+	#	files - log to "file", as defined below.
+	#	syslog - to syslog (see also the "syslog_facility", below.
+	#	stdout - standard output
+	#	stderr - standard error.
+	#
+	#  The command-line option "-X" over-rides this option, and forces
+	#  logging to go to stdout.
+	#
+	destination = files
+
+	#
+	#  Highlight important messages sent to stderr and stdout.
+	#
+	#  Option will be ignored (disabled) if output if TERM is not
+	#  an xterm or output is not to a TTY.
+	#
+	colourise = yes
+
+	#
+	#  The logging messages for the server are appended to the
+	#  tail of this file if destination == "files"
+	#
+	#  If the server is running in debugging mode, this file is
+	#  NOT used.
+	#
+	file = ${logdir}/radius-dhcpd.log
+
+	#
+	#  If this configuration parameter is set, then log messages for
+	#  a *request* go to this file, rather than to radius.log.
+	#
+	#  i.e. This is a log file per request, once the server has accepted
+	#  the request as being from a valid client.  Messages that are
+	#  not associated with a request still go to radius.log.
+	#
+	#  Not all log messages in the server core have been updated to use
+	#  this new internal API.  As a result, some messages will still
+	#  go to radius.log.  Please submit patches to fix this behavior.
+	#
+	#  The file name is expanded dynamically.  You should ONLY user
+	#  server-side attributes for the filename (e.g. things you control).
+	#  Using this feature MAY also slow down the server substantially,
+	#  especially if you do thinks like SQL calls as part of the
+	#  expansion of the filename.
+	#
+	#  The name of the log file should use attributes that don't change
+	#  over the lifetime of a request, such as User-Name,
+	#  Virtual-Server or Packet-Src-IP-Address.  Otherwise, the log
+	#  messages will be distributed over multiple files.
+	#
+	#  Logging can be enabled for an individual request by a special
+	#  dynamic expansion macro:  %{debug: 1}, where the debug level
+	#  for this request is set to '1' (or 2, 3, etc.).  e.g.
+	#
+	#	...
+	#	update control {
+	#	       Tmp-String-0 = "%{debug:1}"
+	#	}
+	#	...
+	#
+	#  The attribute that the value is assigned to is unimportant,
+	#  and should be a "throw-away" attribute with no side effects.
+	#
+	#requests = ${logdir}/radiusd-%{%{Virtual-Server}:-DEFAULT}-%Y%m%d.log
+
+	#
+	#  Which syslog facility to use, if ${destination} == "syslog"
+	#
+	#  The exact values permitted here are OS-dependent.  You probably
+	#  don't want to change this.
+	#
+	syslog_facility = daemon
+
+	#  Log the full User-Name attribute, as it was found in the request.
+	#
+	# allowed values: {no, yes}
+	#
+	stripped_names = no
+
+	#  Log authentication requests to the log file.
+	#
+	#  allowed values: {no, yes}
+	#
+	#auth = yes
+
+	#  Log passwords with the authentication requests.
+	#  auth_badpass  - logs password if it's rejected
+	#  auth_goodpass - logs password if it's correct
+	#
+	#  allowed values: {no, yes}
+	#
+	#auth_badpass = no
+	#auth_goodpass = no
+	log_exists = yes
+	log_success = yes
+	log_clear = yes
+	log_failed = yes
+	log_nopool = yes
+	#  Log additional text at the end of the "Login OK" messages.
+	#  for these to work, the "auth" and "auth_goodpass" or "auth_badpass"
+	#  configurations above have to be set to "yes".
+	#
+	#  The strings below are dynamically expanded, which means that
+	#  you can put anything you want in them.  However, note that
+	#  this expansion can be slow, and can negatively impact server
+	#  performance.
+	#
+#	msg_goodpass = ""
+#	msg_badpass = ""
+
+	#  The message when the user exceeds the Simultaneous-Use limit.
+	#
+	msg_denied = "You are already logged in - access denied"
+}

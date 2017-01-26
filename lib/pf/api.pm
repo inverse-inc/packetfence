@@ -64,6 +64,7 @@ use pf::web::guest();
 use pf::dhcp::processor();
 use pf::util::dhcpv6();
 use pf::domain::ntlm_cache();
+use pf::dhcpd();
 
 sub event_add : Public {
     my ($class, %postdata) = @_;
@@ -1573,6 +1574,56 @@ sub cache_user_ntlm {
     pf::log::get_logger->error("Couldn't cache user: '$msg'") unless($result);
 
     return $result;
+}
+
+=head2 radius_rest_dhcp
+
+Process a DHCPv4 request from radius dhcp server
+
+=cut
+
+sub radius_rest_dhcp :Public :RestPath(/radius/rest/dhcp) {
+    my ($class, $radius_request) = @_;
+    my $timer = pf::StatsD::Timer->new();
+
+    my %remapped_radius_request = %{pf::radius::rest::format_request($radius_request)};
+    my ($dhcp, $args) = pf::util::dhcp::format_from_radius_dhcp(\%remapped_radius_request);
+    my $client = pf::api::queue->new(queue => 'pfdhcplistener');
+    $client->notify( 'process_dhcp_packet', $dhcp, $args );
+    return;
+}
+
+=head2 process_dhcp_packet
+
+Process dhcp object packet in pfqueue
+
+=cut
+
+sub process_dhcp_packet {
+    my ($class, $dhcp, $args) = @_;
+    pf::dhcp::processor->new(%{$args})->process_packet_dhcp($dhcp);
+}
+
+=head2 radius_rest_dhcprole
+
+Return dhcp reply attributes based on the device role
+
+=cut
+
+sub radius_rest_dhcprole :Public :RestPath(/radius/rest/dhcprole) {
+    my ($class, $radius_request) = @_;
+    my $timer = pf::StatsD::Timer->new();
+    my $logger = pf::log::get_logger();
+
+    my %remapped_radius_request = %{pf::radius::rest::format_request($radius_request)};
+    my ($dhcp,$args) = pf::util::dhcp::format_from_radius_dhcp(\%remapped_radius_request);
+
+    my $return = pf::dhcpd::dhcprole($dhcp);
+
+    # This will die with the proper code if it is a deny
+    $return = pf::radius::rest::format_response($return);
+
+    return $return;
 }
 
 =head1 AUTHOR
