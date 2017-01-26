@@ -53,6 +53,8 @@ Add a localizable sring to the list.
 sub add_string {
     my ($string, $source) = @_;
 
+    $string =~ s/\\'/'/g; # unescape single-quotes
+    $string =~ s/(?<!\\)\\/\\\\/g; # escape backslashes
     $string =~ s/(?<!\\)\"/\\\"/g; # escape double-quotes
     unless ($strings{$string}) {
         $strings{$string} = [];
@@ -201,7 +203,6 @@ sub parse_mc {
             if ($line =~ m/->(loc|_localize)\(['"]([^\$].+?[^'"\\])["'] *[\),]/ ||
                 $line =~ m/(description)\s+=>\s+'(.+?[^\\])[']/) {
                 my $string = $2;
-                $string =~ s/\\'/'/g;
                 $string =~ s/\[_(\d+)\]/\%$1/g;
                 add_string($string, $module);
             }
@@ -235,12 +236,10 @@ sub parse_forms {
             if ($line =~ m/(?:label|required|help|'data-placeholder')\s+=>\s+"(.+?[^\\])["]/ ||
                 $line =~ m/(?:label|required|help|'data-placeholder')\s+=>\s+'(.+?[^\\])[']/) {
                 my $string = $1;
-                $string =~ s/\\'/'/g;
                 add_string($string, $form);
             }
             if ($line =~ m/->(loc|_localize)\(['"]([^\$].+?[^'"\\])["'] *[\),]/) {
                 my $string = $2;
-                $string =~ s/\\'/'/g;
                 $string =~ s/\[_(\d+)\]/\%$1/g;
                 add_string($string, $form);
             }
