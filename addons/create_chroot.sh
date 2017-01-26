@@ -8,7 +8,7 @@ if [ -z "$NS" ] || [ -z "$BASE" ]; then
 fi
 
 ETC_DIRS=$(find /etc -maxdepth 1 -type d|tail -n+2|sed 's|/||')
-DIRS=(proc var etc lib lib64 usr sbin bin var/cache/samba sys var/lib/samba dev tmp run/samba var/log/samba $ETC_DIRS)
+DIRS=(proc var etc lib lib64 usr sbin bin var/cache/samba sys var/lib/samba var/run/samba/winbindd dev tmp run/samba var/log/samba $ETC_DIRS)
 
 for dir in "${DIRS[@]}"; do
   [ -d $BASE/$NS/$dir ]                || mkdir -p $BASE/$NS/$dir
