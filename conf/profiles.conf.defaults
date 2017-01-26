@@ -7,7 +7,7 @@
 
 [default]
 description=Default Profile
-logo=/common/packetfence-white.png
+logo=/common/packetfence-cp.png
 redirecturl=http://www.packetfence.org/
 always_use_redirecturl=disabled
 locale=en_US
