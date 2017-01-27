@@ -24,6 +24,7 @@ use pf::config;
 use pf::factory::condition::profile;
 use pf::validation::profile_filters;
 use pf::log;
+use pf::util qw(parse_api_action_spec);
 
 has '+inflate_default_method'=> ( default => sub { \&inflate } );
 has '+deflate_value_method'=> ( default => sub { \&deflate } );
@@ -57,11 +58,8 @@ inflate the api method spec string to a hash
 
 sub inflate {
     my ($self, $value) = @_;
-    if ($value =~ /^\s*(?<api_method>[a-zA-Z0-9_]+)\s*:\s*(?<api_parameters>.*)$/) {
-        my %temp = %+;
-        return {%temp};
-    }
-    return {};
+    my $hash = parse_api_action_spec($value) // {};
+    return $hash;
 }
 
 =head2 deflate
