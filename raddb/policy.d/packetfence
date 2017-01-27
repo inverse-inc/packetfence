@@ -92,6 +92,11 @@ packetfence-mschap-authenticate {
       }
     }
     else {
-            mschap
+      if ( "%{User-Name}" =~ /^host\/.*/) {
+        mschap_machine
+      }
+      else {
+        mschap
+      }
     }
 }
