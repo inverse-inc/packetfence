@@ -14,6 +14,8 @@ use pfappserver::Form::Field::DynamicList;
 use HTML::FormHandler::Moose;
 extends 'HTML::FormHandler::Field::Compound';
 use namespace::autoclean;
+use PPIx::Regexp;
+use pf::util qw(isenabled);
 
 =head2 name
 
@@ -91,6 +93,29 @@ has_field 'ip_mac_translation' => (
     checkbox_value  => 'enabled',
     unchecked_value => 'disabled',
 );
+
+=head2 validate
+
+=cut
+
+sub validate {
+    my ($self) = @_;
+    my $rule = $self->value;
+    my $regex = '/' . $rule->{regex} . '/';
+    my $re = PPIx::Regexp->new($regex);
+    my %captures = map { $_ => 1 } $re->capture_names();
+    my $ip_mac_translation = isenabled($rule->{ip_mac_translation});
+    foreach my $action_field ($self->field('actions')->fields()) {
+        my $api_parameters_field = $action_field->field('api_parameters');
+        my $api_parameters = $api_parameters_field->value;
+        for my $replace (map {s/^\$//;$_} grep {/^\$/} split(/\s*,\s*/, $api_parameters)) {
+            next if exists $captures{$replace};
+            next if $ip_mac_translation && (($replace eq 'mac' && exists $captures{ip}) || ($replace eq 'ip' && exists $captures{mac}  ));
+            $api_parameters_field->add_error("$replace is not a named capture");
+        }
+    }
+    return;
+}
 
 =head1 AUTHOR
 
