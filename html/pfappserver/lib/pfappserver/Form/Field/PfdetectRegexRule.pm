@@ -13,6 +13,7 @@ pfappserver::Form::Field::PfdetectRegexRule - The detect::parser::regex rule
 use pfappserver::Form::Field::DynamicList;
 use HTML::FormHandler::Moose;
 extends 'HTML::FormHandler::Field::Compound';
+with 'pfappserver::Base::Form::Role::Help';
 use namespace::autoclean;
 use PPIx::Regexp;
 use pf::util qw(isenabled);
@@ -41,7 +42,7 @@ has_field 'regex' => (
     label    => 'Regex',
     element_class => ['input-xxlarge'],
     required => 1,
-    messages => {required => 'Please specify the regex pattern using named captures'},
+    messages => {required => 'Please specify the regex for the rule'},
 );
 
 =head2 actions
@@ -75,9 +76,9 @@ last if match
 has_field 'last_if_match' => (
     type            => 'Toggle',
     label           => 'Last If match',
-    messages        => {required => 'Please specify the if the add_event is sent'},
     checkbox_value  => 'enabled',
     unchecked_value => 'disabled',
+    tags => { after_element => \&help, help => 'Stop processing rules if this rule matches'},
 );
 
 =head2 ip_mac_translation
@@ -88,13 +89,16 @@ If enabled then do ip to mac and mac to ip translation
 
 has_field 'ip_mac_translation' => (
     type            => 'Toggle',
-    label           => 'Do IP to MAC and MAC to IP translation',
+    label           => 'IP <=> MAC',
     default         => 'enabled',
     checkbox_value  => 'enabled',
     unchecked_value => 'disabled',
+    tags => { after_element => \&help, help => 'Perform automatic translation of IPs to MACs and the other way around'},
 );
 
 =head2 validate
+
+Validate the rule is valid
 
 =cut
 
