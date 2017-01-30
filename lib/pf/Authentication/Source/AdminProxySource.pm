@@ -17,6 +17,7 @@ use Moose;
 use List::MoreUtils qw(any);
 
 use pf::config;
+use pf::constants qw($FALSE $TRUE);
 use pf::Authentication::constants;
 use pf::Authentication::Condition;
 extends 'pf::Authentication::Source';

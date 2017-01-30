@@ -403,6 +403,9 @@ sub extract_modules {
            sp_cert_path => undef,
            sp_entity_id => undef,
            sp_key_path => undef,
+           group_header => undef,
+           user_header => undef,
+           proxy_addresses => undef,
           });
         $attributes = $source->available_attributes();
 
