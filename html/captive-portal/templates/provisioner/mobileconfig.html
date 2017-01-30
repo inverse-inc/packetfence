@@ -4,25 +4,27 @@
   <p class="media__body" id="addMessage"></p>
 </div>
   
-<div class="layout layout--center">
+<div class="layout--center">
   <p>[% i18n("Your XML configuration have been generated and is now ready to download.  Follow the link below in order to get access to the secure SSID.") %]</p>
 
-  <div class="layout__item u-2/3 u-1/1-palm">
-    <a href="/wireless-profile.mobileconfig" class="btn btn--full">
-      <div class="flag">
-        <div class="flag__img">[% svgIcon(id='ic_phonelink_setup_black_24px',size='small') %]</div>
-        <p class="flag__body">[% i18n("Install wireless profile") %]</p>
-      </div>
-    </a>
+  <div class="layout">
+    <div class="layout__item u-2/3 u-1/1-palm">
+      <a href="/wireless-profile.mobileconfig" class="btn btn--full">
+        <div class="flag flag--light">
+          <div class="flag__img">[% svgIcon(id='ic_phonelink_setup_black_24px',size='small') %]</div>
+          <p class="flag__body">[% i18n("Install wireless profile") %]</p>
+        </div>
+      </a>
 
-    [% IF skipable %]
-    <a href="/captive-portal?next=next" class="btn btn--full btn--light u-mt">
-      <div class="flag">
-        <div class="flag__img">[% svgIcon(id='ic_forward_black_24px',size='small') %]</div>
-        <p class="flag__body">[% i18n("Continue") %]</p>
-      </div>
-    </a>
-    [% END %]
+      [% IF skipable %]
+      <a href="/captive-portal?next=next" class="btn btn--full btn--light u-mt">
+        <div class="flag">
+          <div class="flag__img">[% svgIcon(id='ic_forward_black_24px',size='small') %]</div>
+          <p class="flag__body">[% i18n("Continue") %]</p>
+        </div>
+      </a>
+      [% END %]
+    </div>
   </div>
 </div>
 

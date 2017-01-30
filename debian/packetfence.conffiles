@@ -99,6 +99,7 @@
 /usr/local/pf/html/common/scss/_base.body.scss
 /usr/local/pf/html/common/scss/_base.footer.scss
 /usr/local/pf/html/common/scss/_base.header.scss
+/usr/local/pf/html/common/scss/_base.headings.scss
 /usr/local/pf/html/common/scss/_base.input.scss
 /usr/local/pf/html/common/scss/_base.paragraphs.scss
 /usr/local/pf/html/common/scss/_components.card.scss

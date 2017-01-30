@@ -1,18 +1,18 @@
 <div class="layout--center">
-  <h4>[% i18n("Transaction summary") %]</h4>
+  <h2>[% i18n("Transaction summary") %]</h2>
 </div>
 <div class="layout layout--center">
   <div class="layout__item u-2/3 u-1/1-palm">
-    <ul class="list-ui list-ui--tiny list-ui--light">
-      <li>
+    <ul class="list-ui">
+      <li class="list-ui__item">
         <div>[% i18n("Tier") %]</div>
-        <div class="caption">[% tier.name %]</div>
+        <div class="caption">Pouet pouet 25 Mb/s[% tier.name %]</div>
       </li>
-      <li>
+      <li class="list-ui__item">
         <div>[% i18n("Price") %]</div>
         <div class="caption">[% tier.price %]</div>
       </li>
-      <li>
+      <li class="list-ui__item">
         <div>[% i18n("Description") %]</div>
         <div class="caption">[% tier.description %]</div>
       </li>

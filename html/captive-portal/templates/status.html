@@ -83,7 +83,7 @@ $(document).ready(function() {
 
 [%# Welcome text %]
 <div class="layout--center">
-  <h4>[% i18n("Your Network Access Status") %]</h4>
+  <h2>[% i18n("Your Network Access Status") %]</h2>
 </div>
 
 [% IF txt_auth_error.defined %]
@@ -154,15 +154,15 @@ $(document).ready(function() {
       </div>
 
       [%# submit %]
-      <button type="submit" name="submit" class="btn btn--full u-mt">
+      <button type="submit" name="submit" class="btn btn--full btn--accent u-mt">
         <div class="flag">
           <div class="flag__img">[% svgIcon(id='ic_done_black_24px',size='small') %]</div>
           <p class="flag__body layout--left">[% i18n("Login") %]</p>
         </div>
       </button>
 
-      [%- IF billing && access_registration_when_registered %]
-      <a href="/status/billing" class="btn btn--full btn--light u-mt">
+      [%- IF billing %]
+      <a href="[% URL_STATUS_BILLING %]" class="btn btn--full btn--light u-mt">
         <div class="flag">
           <div class="flag__img">[% svgIcon(id='ic_credit_card_black_24px',size='small') %]</div>
           <p class="flag__body">[% i18n("Extend your access") %]</p>
@@ -174,7 +174,7 @@ $(document).ready(function() {
   </div>
 </form>
 [% ELSIF nodes.size > 0 %]
-  <table class="table table--rows table--compact table--accent">
+  <table class="table table--rows table--compact">
     <caption>[% i18n("Your registered devices") %]</caption>
     <thead>
       <tr>

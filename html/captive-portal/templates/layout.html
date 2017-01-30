@@ -33,11 +33,11 @@
       description: [% current_module.description %]
       -->
 
-    <div class="layout layout--center">
+    <div class="layout layout--center frame--earlyMorning">
       <div class="layout__item [ u-1/2 u-2/3-lap u-1/1-palm ]">
 
         <!-- main container -->
-        <div class="frame--raised-disabled frame--bordered-disabled [ u-m u-palm-m0 ] u-palm-p">
+        <div class="frame [ u-m u-palm-m0 ] u-p">
           <div class="layout--right">
             [%- IF show_restart %]
             <a href="/logout" alt="Restart"
@@ -62,7 +62,7 @@
             </div>
             [% END %]
             <div id="dots"></div>
-            [% IF title.defined %]<h4>[% i18n(title) %]</h4>[% END %]
+            [% IF title.defined %]<h2>[% i18n(title) %]</h2>[% END %]
           </div>
           [% FOREACH level IN flash.keys %]
           <div class="media media--[% level %] u-p u-mb">
@@ -72,24 +72,24 @@
           [% END %]
           [% content | none %]
 
-          <div class="divider u-m"></div>
+          [% UNLESS preregistration %]
           <footer>
-            [% UNLESS preregistration %]
+            <div class="divider u-m"></div>
             <div class="layout layout--tiny layout--center">
-              <div class="layout__item u-1/3">
+              <div class="layout__item [ u-1/3 u-1/2-palm ]">
                 <div class="u-m--">
                   <p class="layout--right">[% i18n("help: provide info") %]</p>
                 </div>
               </div
-                ><div class="layout__item u-1/3">
+                ><div class="layout__item [ u-1/3 u-1/2-palm ]">
                 <div class="u-m--">
                   <p class="u-mb--">IP <b>[% client_ip %]</b></p>
                   <p>MAC <b>[% client_mac %]</b></p>
                 </div>
             </div
               ></div>
-            [% END %]
           </footer>
+          [% END %]
 
         </div><!-- end of main container -->
 
