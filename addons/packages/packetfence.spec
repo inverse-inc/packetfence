@@ -1393,6 +1393,9 @@ fi
 %exclude                /usr/local/pf/addons/pfconfig/pfconfig.init
 
 %changelog
+* Mon Jan 30 2017 Inverse <info@inverse.ca> - 6.5.0-1
+- New release 6.5.0
+
 * Wed Nov 16 2016 Inverse <info@inverse.ca> - 6.4.0-1
 - New release 6.4.0
 
