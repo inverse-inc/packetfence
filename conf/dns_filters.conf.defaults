@@ -182,3 +182,13 @@ value = msh.amazon.com
 scope = registration
 answer = $qname 30 IN A 127.0.0.1
 rcode = NOERROR
+
+[2:msh_amazon_com|samsungapps_com|cij_com|pinsightmedia_com|playstation_net|iheart_com|pandora_com|samsungcloudsolution_com|bose_vtuner_com|facebook|ssl_google_analytics_com|mtalk_google_com|mtalk4_google_com|office365_com|crashlytics_com|flurry_com|googleadservices_com|itunes_apple_com|push_apple_com|instagram_com|dropbox_com|ssl_apple_com|steampowered_com|service_gc_apple_com|accu_weather_com|dm_htcsense_com|icloud_com|dm_htcsense_com|configuration_apple_com|ls_apple_com|gsa_apple_com|fbcdn_net|snapchat_com|doubleclick_net|applovin_com|akamaihd_net]
+scope = inline
+answer = $qname 30 IN A 127.0.0.1
+rcode = NOERROR
+
+[3:msh_amazon_com|samsungapps_com|cij_com|pinsightmedia_com|playstation_net|iheart_com|pandora_com|samsungcloudsolution_com|bose_vtuner_com|facebook|ssl_google_analytics_com|mtalk_google_com|mtalk4_google_com|office365_com|crashlytics_com|flurry_com|googleadservices_com|itunes_apple_com|push_apple_com|instagram_com|dropbox_com|ssl_apple_com|steampowered_com|service_gc_apple_com|accu_weather_com|dm_htcsense_com|icloud_com|dm_htcsense_com|configuration_apple_com|ls_apple_com|gsa_apple_com|fbcdn_net|snapchat_com|doubleclick_net|applovin_com|akamaihd_net]
+scope = dnsenforcement
+answer = $qname 30 IN A 127.0.0.1
+rcode = NOERROR
