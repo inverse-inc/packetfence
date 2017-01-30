@@ -1,5 +1,5 @@
 --
--- PacketFence SQL schema upgrade from X.X.X to X.Y.Z
+-- PacketFence SQL schema upgrade from 6.4.0 to 6.5.0
 --
 
 --
@@ -9,8 +9,8 @@
 DROP TABLE configfile;
 
 SET @MAJOR_VERSION = 6;
-SET @MINOR_VERSION = 4;
-SET @SUBMINOR_VERSION = 9;
+SET @MINOR_VERSION = 5;
+SET @SUBMINOR_VERSION = 0;
 
 --
 -- Set passwords with NULL value to the new default value

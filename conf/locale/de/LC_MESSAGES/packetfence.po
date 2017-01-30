@@ -5,7 +5,7 @@
 # Translators:
 # Christian Mack <christian.mack@uni-konstanz.de>, 2014,2016
 # Dennis B. <charlesdarw@gmx.de>, 2013
-# Ettore Atalan <atalanttore@googlemail.com>, 2014-2015
+# Ettore Atalan <atalanttore@googlemail.com>, 2014-2015,2017
 # Felix Eckhofer <felix@tribut.de>, 2016
 # Felix Eckhofer <felix@tribut.de>, 2016
 # Hendrik, 2016
@@ -17,8 +17,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-01-30 14:13+0000\n"
-"Last-Translator: inverse <info@inverse.ca>\n"
+"PO-Revision-Date: 2017-01-30 18:29+0000\n"
+"Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language-Team: German (http://www.transifex.com/inverse/packetfence/language/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -899,14 +899,14 @@ msgid "This is a post only E-mail, please do not reply."
 msgstr ""
 
 msgid "Hello"
-msgstr ""
+msgstr "Hallo"
 
 # html/captive-portal/templates/emails/emails-billing_confirmation.html
 msgid "Extend access duration"
 msgstr ""
 
 msgid "Status"
-msgstr ""
+msgstr "Status"
 
 msgid "Billing invoice"
 msgstr ""
@@ -915,10 +915,10 @@ msgid "Thank you for your purchase."
 msgstr ""
 
 msgid "Cost"
-msgstr ""
+msgstr "Kosten"
 
 msgid "Transaction ID"
-msgstr ""
+msgstr "Transaktionskennung"
 
 msgid "To extend your network access, please visit"
 msgstr ""
@@ -929,7 +929,7 @@ msgstr ""
 # html/captive-portal/templates/emails/emails-
 # billing_stripe_customer.subscription.deleted.html
 msgid "Billing cancellation"
-msgstr ""
+msgstr "Rechnungsstornierung"
 
 msgid "Your subscribtion was cancelled."
 msgstr ""
@@ -957,7 +957,7 @@ msgstr ""
 
 # html/captive-portal/templates/emails/emails-guest_email_activation.html
 msgid "Network access activation"
-msgstr ""
+msgstr "Netzwerkzugangsaktivierung"
 
 msgid "Guest access to the network was requested using this email address."
 msgstr ""
@@ -1000,7 +1000,7 @@ msgstr ""
 # html/captive-portal/templates/emails/emails-
 # guest_local_account_creation.html
 msgid "User Account"
-msgstr ""
+msgstr "Benutzerkonto"
 
 msgid ""
 "Just to let you know that an user account has been created while registering"
@@ -1013,7 +1013,7 @@ msgstr ""
 
 # html/captive-portal/templates/emails/emails-guest_registered.html
 msgid "New devices"
-msgstr ""
+msgstr "Neue Geräte"
 
 msgid ""
 "You can register additional devices if you need with the following "
@@ -1031,7 +1031,7 @@ msgid "Here is the information the guest provided with registration form"
 msgstr ""
 
 msgid "Phone number"
-msgstr ""
+msgstr "Telefonnummer"
 
 msgid ""
 "Once you click on the activation link the guest will be sent a username and "
@@ -1040,7 +1040,7 @@ msgid ""
 msgstr ""
 
 msgid "Guest request"
-msgstr ""
+msgstr "Gastanfrage"
 
 msgid ""
 "Until you click on the activation link this guest will have NO Internet "
@@ -1048,7 +1048,7 @@ msgid ""
 msgstr ""
 
 msgid "Thank you for your cooperation."
-msgstr ""
+msgstr "Danke für Ihre Kooperation."
 
 msgid "Activate the sponsor access for guest "
 msgstr ""
@@ -1058,7 +1058,7 @@ msgid "Your guest access to the network was authorized."
 msgstr ""
 
 msgid "Access Authorized"
-msgstr ""
+msgstr "Zugriff autorisiert"
 
 msgid "Once on site, use the following username and password to authenticate"
 msgstr ""
@@ -1068,16 +1068,16 @@ msgid "You have been detected doing malicious activity on the network."
 msgstr ""
 
 msgid "Violation detected !"
-msgstr ""
+msgstr "Verletzung entdeckt !"
 
 msgid "Violation %s was detected on your device."
 msgstr ""
 
 msgid "OS"
-msgstr ""
+msgstr "BS"
 
 msgid "Hostname"
-msgstr ""
+msgstr "Hostname"
 
 msgid "Here are the informations of the infringing device"
 msgstr ""
