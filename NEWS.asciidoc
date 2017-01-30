@@ -66,6 +66,7 @@ Bug Fixes
  * Removed error when we receive a RADIUS request to test the RADIUS status (PR#1803)
  * Refactored pf::node::node_register to add return code and status code/message (#1797/PR#1798)
  * Removed unused traplog database table (#367/PR#1785)
+ * RADIUS disconnect doesn't work on the Ruckus switch module (#1971/PR#1988)
 
 
 Version 6.4.0 released on 2016-11-16
