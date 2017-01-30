@@ -5,7 +5,8 @@ use lib '/usr/local/pf/lib';
 use pf::IniFiles;
 
 my $defaults = pf::IniFiles->new(-file => "/usr/local/pf/conf/pf.conf.defaults");
-my $cluster = pf::IniFiles->new(-file => "/usr/local/pf/conf/pf.conf", -import => $defaults);
+my $global = pf::IniFiles->new(-file => "/usr/local/pf/conf/pf.conf", -import => $defaults);
+my $cluster = pf::IniFiles->new(-file => "/usr/local/pf/conf/pf.conf.cluster", -import => $global);
 my $node = pf::IniFiles->new(-file => "/usr/local/pf/conf/pf.conf.node", -import => $cluster);
 
 $node->setval("general", "hostname", time);
