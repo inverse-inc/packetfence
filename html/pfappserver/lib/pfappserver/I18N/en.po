@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 6.4.9\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-01-26 00:41-0400\n"
+"PO-Revision-Date: 2017-01-30 09:11-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -467,6 +467,10 @@ msgstr ""
 
 # html/pfappserver/root/authentication/source/type/Eduroam.tt
 msgid "Adding or modifying (not applicable for 'Rules') an 'Eduroam' type authentication source requires to restart both the radiusd and iptables services to be effective."
+msgstr ""
+
+# html/pfappserver/root/authentication/source/type/Eduroam.tt
+msgid "Adding or modifying (not applicable for 'Rules\\"
 msgstr ""
 
 # html/pfappserver/root/config/realm/index.tt

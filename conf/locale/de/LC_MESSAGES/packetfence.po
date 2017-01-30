@@ -17,7 +17,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-01-20 15:17+0000\n"
+"PO-Revision-Date: 2017-01-30 14:13+0000\n"
 "Last-Translator: inverse <info@inverse.ca>\n"
 "Language-Team: German (http://www.transifex.com/inverse/packetfence/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -878,6 +878,209 @@ msgstr "Wenn Sie der Meinung sind, dass Ihnen die Verbindung erlaubt werden soll
 # html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module.pm
 msgid "release: enabling network"
 msgstr "Zugriff auf das Netzwerk wird aktiviert"
+
+# html/captive-portal/templates/emails/emails-billing_confirmation.html
+# html/captive-portal/templates/emails/emails-
+# billing_stripe_customer.subscription.deleted.html
+# html/captive-portal/templates/emails/emails-guest_admin_pregistration.html
+# html/captive-portal/templates/emails/emails-guest_email_activation.html
+# html/captive-portal/templates/emails/emails-
+# guest_email_preregistration_confirmed.html
+# html/captive-portal/templates/emails/emails-guest_email_preregistration.html
+# html/captive-portal/templates/emails/emails-
+# guest_local_account_creation.html
+# html/captive-portal/templates/emails/emails-guest_registered.html
+# html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
+# html/captive-portal/templates/emails/emails-guest_sponsor_confirmed.html
+# html/captive-portal/templates/emails/emails-
+# guest_sponsor_preregistration.html
+# html/captive-portal/templates/emails/emails-violation-triggered.html
+msgid "This is a post only E-mail, please do not reply."
+msgstr ""
+
+msgid "Hello"
+msgstr ""
+
+# html/captive-portal/templates/emails/emails-billing_confirmation.html
+msgid "Extend access duration"
+msgstr ""
+
+msgid "Status"
+msgstr ""
+
+msgid "Billing invoice"
+msgstr ""
+
+msgid "Thank you for your purchase."
+msgstr ""
+
+msgid "Cost"
+msgstr ""
+
+msgid "Transaction ID"
+msgstr ""
+
+msgid "To extend your network access, please visit"
+msgstr ""
+
+msgid "To view your current network status, please visit"
+msgstr ""
+
+# html/captive-portal/templates/emails/emails-
+# billing_stripe_customer.subscription.deleted.html
+msgid "Billing cancellation"
+msgstr ""
+
+msgid "Your subscribtion was cancelled."
+msgstr ""
+
+msgid "The network access of device %s has been revoked."
+msgstr ""
+
+# html/captive-portal/templates/emails/emails-guest_admin_pregistration.html
+msgid "PreRegistration"
+msgstr ""
+
+msgid "An account has been created for you to access our network."
+msgstr ""
+
+msgid ""
+"Once you will be on-site, authenticate using the following credentials to "
+"our captive portal"
+msgstr ""
+
+msgid "This username and password will be valid starting"
+msgstr ""
+
+msgid "Please ignore this request if you have not requested network access."
+msgstr ""
+
+# html/captive-portal/templates/emails/emails-guest_email_activation.html
+msgid "Network access activation"
+msgstr ""
+
+msgid "Guest access to the network was requested using this email address."
+msgstr ""
+
+msgid "Activate your network access"
+msgstr ""
+
+msgid ""
+"Failure to do so within %s minutes will result in a termination of your "
+"network access."
+msgstr ""
+
+msgid "Thank you for your understanding"
+msgstr ""
+
+# html/captive-portal/templates/emails/emails-
+# guest_email_preregistration_confirmed.html
+msgid "Your guest access to the network was confirmed."
+msgstr ""
+
+msgid ""
+"Once on site, select guest access on the captive portal and use the "
+"following username and password to authenticate"
+msgstr ""
+
+msgid "PreRegister confirmation"
+msgstr ""
+
+msgid ""
+"If you have any questions regarding the registration process please contact "
+"your local support staff."
+msgstr ""
+
+# html/captive-portal/templates/emails/emails-guest_email_preregistration.html
+msgid ""
+"Once you have activated you will receive a username and password to use once"
+" you'll be on-site."
+msgstr ""
+
+# html/captive-portal/templates/emails/emails-
+# guest_local_account_creation.html
+msgid "User Account"
+msgstr ""
+
+msgid ""
+"Just to let you know that an user account has been created while registering"
+" your device. You may now want to use it for different features (devices "
+"registration, status page)."
+msgstr ""
+
+msgid "Here are the info."
+msgstr ""
+
+# html/captive-portal/templates/emails/emails-guest_registered.html
+msgid "New devices"
+msgstr ""
+
+msgid ""
+"You can register additional devices if you need with the following "
+"information"
+msgstr ""
+
+# html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
+msgid "requested guest access to your network."
+msgstr ""
+
+msgid "Do NOT authorize access if you were not expecting this guest."
+msgstr ""
+
+msgid "Here is the information the guest provided with registration form"
+msgstr ""
+
+msgid "Phone number"
+msgstr ""
+
+msgid ""
+"Once you click on the activation link the guest will be sent a username and "
+"password by email which will allow him to register as a guest in the network"
+" once on-site."
+msgstr ""
+
+msgid "Guest request"
+msgstr ""
+
+msgid ""
+"Until you click on the activation link this guest will have NO Internet "
+"access."
+msgstr ""
+
+msgid "Thank you for your cooperation."
+msgstr ""
+
+msgid "Activate the sponsor access for guest "
+msgstr ""
+
+# html/captive-portal/templates/emails/emails-guest_sponsor_confirmed.html
+msgid "Your guest access to the network was authorized."
+msgstr ""
+
+msgid "Access Authorized"
+msgstr ""
+
+msgid "Once on site, use the following username and password to authenticate"
+msgstr ""
+
+# html/captive-portal/templates/emails/emails-violation-triggered.html
+msgid "You have been detected doing malicious activity on the network."
+msgstr ""
+
+msgid "Violation detected !"
+msgstr ""
+
+msgid "Violation %s was detected on your device."
+msgstr ""
+
+msgid "OS"
+msgstr ""
+
+msgid "Hostname"
+msgstr ""
+
+msgid "Here are the informations of the infringing device"
+msgstr ""
 
 # lib/pf/web/release.pm
 msgid "release: reopen browser"

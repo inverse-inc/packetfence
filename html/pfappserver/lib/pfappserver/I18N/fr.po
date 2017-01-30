@@ -15,8 +15,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-01-20 16:54+0000\n"
-"Last-Translator: oeufdure <fdurand@inverse.ca>\n"
+"PO-Revision-Date: 2017-01-30 14:13+0000\n"
+"Last-Translator: inverse <info@inverse.ca>\n"
 "Language-Team: French (http://www.transifex.com/inverse/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -243,7 +243,6 @@ msgid ""
 msgstr "Les sessions de comptabilisation créés par pfbandwidthd qui n’ont pas été mise à jour depuis plus que cette valeur en secondes seront considérées comme inactives. Devrait être plus élevé que l’intervalle que pfmon utilise par défaut 300 (5 minutes)."
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule.pm
-# html/pfappserver/lib/pfappserver/Form/Field/PfdetectRegexRule.pm
 # html/pfappserver/lib/pfappserver/Form/SoH.pm
 # html/pfappserver/root/admin/bulk_actions.inc
 # html/pfappserver/root/soh/index.tt
@@ -499,6 +498,10 @@ msgid ""
 "authentication source requires to restart both the radiusd and iptables "
 "services to be effective."
 msgstr "Ajouter ou modifier une source du type Eduroam requiert un redémarrage des  services radius et iptables. (pas applicables pour les règles)"
+
+# html/pfappserver/root/authentication/source/type/Eduroam.tt
+msgid "Adding or modifying (not applicable for 'Rules\\"
+msgstr ""
 
 # html/pfappserver/root/config/realm/index.tt
 msgid ""
@@ -1070,7 +1073,6 @@ msgstr "Mises à jour du cache"
 # html/pfappserver/root/config/firewall_sso/index.tt
 # html/pfappserver/root/config/floatingdevice/index.tt
 # html/pfappserver/root/config/pfdetect/index.tt
-# html/pfappserver/root/config/pfdetect/view.tt
 # html/pfappserver/root/config/pki_provider/index.tt
 # html/pfappserver/root/config/profile/files.tt
 # html/pfappserver/root/config/profile/index.tt
@@ -1224,13 +1226,13 @@ msgstr "Cliquer pour ajouter un OS"
 msgid "Click to add an action"
 msgstr "Cliquer pour ajouter une action"
 
-# html/pfappserver/root/config/pfdetect/test_regex_parser.tt
-msgid "Click to see actions for"
-msgstr "Cliquer pour voir les actions"
-
 # html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
 msgid "Click to select a domain"
 msgstr "Cliquer pour sélectionner un domaine"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Pfdetect.pm
+msgid "Click to select a parser"
+msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SAML.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
@@ -1316,6 +1318,7 @@ msgstr "Cloner"
 # html/pfappserver/root/config/firewall_sso/view.tt
 # html/pfappserver/root/config/floatingdevice/view.tt
 # html/pfappserver/root/config/networks/view.tt
+# html/pfappserver/root/config/pfdetect/view.tt
 # html/pfappserver/root/config/pki_provider/view.tt
 # html/pfappserver/root/config/provisioning/view.tt
 # html/pfappserver/root/config/realm/view.tt
@@ -2400,10 +2403,6 @@ msgstr "Sous traiter le travail d’importation au PID $pid. Un email suivra pou
 msgid "Display %1 entries per page"
 msgstr "Afficher %1 entrés par page"
 
-# html/pfappserver/lib/pfappserver/Form/Field/PfdetectRegexRule.pm
-msgid "Do IP to MAC and MAC to IP translation"
-msgstr "Faire la traduction IP vers MAC et MAc vers IP"
-
 # html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/WMI.pm
 # html/pfappserver/root/config/domain/index.tt
@@ -2624,7 +2623,6 @@ msgid ""
 "informations stay the same."
 msgstr "Activez cette option pour éviter les requêtes de mises à jour au coupe-feu. <br/> Par défaut, PacketFence va envoyer une requête de SSO pour chaque requête DHCP. En activant ce paramètre cela va créer une période pour laquelle les mises à jour ne sont pas envoyées si les informations restent inchangées."
 
-# html/pfappserver/lib/pfappserver/Form/Config/Pfdetect.pm
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Enabled"
 msgstr "Activer"
@@ -2946,8 +2944,10 @@ msgstr "Forcer la redirection"
 
 # conf/documentation.conf (captive_portal.secure_redirect)
 msgid ""
-"Force the captive portal to use HTTPS when redirecting captured clients."
-msgstr "Forcer l’utilisation du portail captif en HTTPS."
+"Force the captive portal to use HTTPS for all portal clients.Note that "
+"clients will be forced to use HTTPS on all URLs.This requires a restart of "
+"the httpd.portal process to be fully effective."
+msgstr ""
 
 # pf::firewallsso (Firewall SSO)
 msgid "FortiGate"
@@ -3015,10 +3015,6 @@ msgid ""
 "create new templates from the <em>Portal Profiles</em> configuration "
 "section."
 msgstr "Gabarit HTML sur lequel l’appareil va être redirigé pour cette violation. Vous pouvez créer de nouveaux gabarits depuis le menu <i>Profil de portail</i>. "
-
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "Help"
-msgstr "Aide"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/HTTP.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Kerberos.pm
@@ -3584,6 +3580,10 @@ msgstr "Filtre LDAP"
 msgid "Landing template"
 msgstr "Page cible"
 
+# conf/documentation.conf (advanced.language)
+msgid "Language choice for the communication with administrators"
+msgstr ""
+
 # html/pfappserver/root/config/profile/captive-portal-settings.tt
 msgid "Languages"
 msgstr "Langues"
@@ -3607,10 +3607,6 @@ msgstr "Dernières 30 minutes"
 # html/pfappserver/root/auditing/radiuslog/index.tt
 msgid "Last 6 hours"
 msgstr "6 dernières heures"
-
-# html/pfappserver/lib/pfappserver/Form/Field/PfdetectRegexRule.pm
-msgid "Last If match"
-msgstr "DErnier si correspond"
 
 # html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
@@ -4189,7 +4185,6 @@ msgstr "Hachage NTLM"
 # html/pfappserver/lib/pfappserver/Form/Config/BillingTiers.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 # html/pfappserver/lib/pfappserver/Form/Config/WMI.pm
-# html/pfappserver/lib/pfappserver/Form/Field/PfdetectRegexRule.pm
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/lib/pfappserver/Form/Role.pm
 # html/pfappserver/lib/pfappserver/Form/SavedSearch.pm
@@ -4373,6 +4368,10 @@ msgstr "Nouveau moteur d’analyse"
 msgid "New Source"
 msgstr "Nouvelle source"
 
+# html/pfappserver/root/config/pfdetect/view.tt
+msgid "New Syslog parser"
+msgstr ""
+
 # html/pfappserver/root/config/fingerbank/user_agent/view.tt
 msgid "New User Agent"
 msgstr "Nouveau User Agent"
@@ -4416,10 +4415,6 @@ msgstr "Pas d’historique des IP"
 # html/pfappserver/root/config/pki_provider/list.tt
 msgid "No PKI Provider defined"
 msgstr "Aucun fournisseur de certificats définit"
-
-# html/pfappserver/root/config/pfdetect/test_regex_parser.tt
-msgid "No Rules Matched"
-msgstr "Aucunes rêgles ne correspond"
 
 # html/pfappserver/root/pfqueue/index.tt
 msgid "No Task Counters."
@@ -5371,10 +5366,6 @@ msgstr "Veuillez spécifier le nom d’hôte ou l’IP pour le coupe-feu"
 msgid "Please specify the hostname or IP of the scan engine"
 msgstr "Veuillez spécifier le nom d’hôte ou l’IP du moteur d’analyse"
 
-# html/pfappserver/lib/pfappserver/Form/Field/PfdetectRegexRule.pm
-msgid "Please specify the if the add_event is sent"
-msgstr "Veuillez spécifier si l’add_event est envoyé"
-
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
 msgid "Please specify the maximum DHCP lease time."
 msgstr "Veuillez spécifier le temps maximum pour le bail DHCP."
@@ -5389,10 +5380,6 @@ msgstr "Veuillez spécifier le nom du fournisseur de certificats"
 msgid "Please specify the name of the admin role."
 msgstr "Veuillez spécifier le nom du rôle admin."
 
-# html/pfappserver/lib/pfappserver/Form/Field/PfdetectRegexRule.pm
-msgid "Please specify the name of the rule"
-msgstr "Veuillez spécifier le nom de la règle."
-
 # html/pfappserver/lib/pfappserver/Form/Config/WMI.pm
 msgid "Please specify the namespace you want to use \"ROOT\\cimv2\""
 msgstr "Veuillez spécifier l’espace de noms que vous voulez utiliser \"ROOT\\\\cimv2\""
@@ -5404,10 +5391,6 @@ msgstr "Veuillez spécifier le masque réseau."
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
 msgid "Please specify the network."
 msgstr "Veuillez spécifier le réseau."
-
-# html/pfappserver/lib/pfappserver/Form/Field/PfdetectRegexRule.pm
-msgid "Please specify the regex pattern using named captures"
-msgstr "Veuillez spécifier la regex pour la capture des variables."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
 msgid "Please specify the router IP address."
@@ -5974,10 +5957,6 @@ msgstr "URL de redirection"
 msgid "Reevaluate access"
 msgstr "Réévaluer l’accès"
 
-# html/pfappserver/lib/pfappserver/Form/Field/PfdetectRegexRule.pm
-msgid "Regex"
-msgstr "Regex"
-
 # html/pfappserver/root/admin/bulk_actions.inc
 msgid "Register"
 msgstr "Enregistrement"
@@ -6098,7 +6077,6 @@ msgstr "Tout redémarrer"
 msgid "Restricted Access"
 msgstr "Accès restreint"
 
-# html/pfappserver/root/config/pfdetect/test_regex_parser.tt
 # html/pfappserver/root/node/search.tt
 # html/pfappserver/root/user/advanced_search.tt
 # html/pfappserver/root/user/simple_search.tt
@@ -6234,10 +6212,6 @@ msgstr "Actions"
 # html/pfappserver/root/node/violations.tt
 msgid "Run Now"
 msgstr "Lancer maintenant"
-
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "Run Test"
-msgstr "Lancer le test"
 
 # html/pfappserver/root/node/tab_WMI_view.tt
 msgid "Run scan"
@@ -7001,7 +6975,7 @@ msgstr "Taille"
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Provisioning.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/URL.pm
 msgid "Skippable"
-msgstr "Désactivable"
+msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Sleep interval"
@@ -7135,7 +7109,6 @@ msgstr "Déclaration d’intégrité (SoH)"
 # html/pfappserver/root/admin/auditing_radius_log.tt
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/wrapper.tt
-# html/pfappserver/root/config/pfdetect/list.tt
 # html/pfappserver/root/configurator/services.tt
 # html/pfappserver/root/node/search.tt
 # html/pfappserver/root/service/status.tt
@@ -7306,7 +7279,6 @@ msgstr "Syslog"
 
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/pfdetect/index.tt
-# html/pfappserver/root/config/pfdetect/view.tt
 msgid "Syslog Parsers"
 msgstr "Parsers Syslog"
 
@@ -7407,14 +7379,6 @@ msgstr "Test de jonction échoué !"
 # html/pfappserver/root/config/domain/list.tt
 msgid "Test join succeed!"
 msgstr "Test de jonction réussi !"
-
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "Test log entries..."
-msgstr "tester une entrée de log"
-
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "Testing..."
-msgstr "Test en cours"
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Text displayed on the violation form to hosts."
@@ -7693,6 +7657,10 @@ msgid ""
 "The node will be automatically registered. If the MAC matches an existing "
 "node, it will also be modified and registered."
 msgstr "L’appareil sera automatiquement enregistré. Si la MAC correspond à un appareil existant, il sera également modifié et enregistré."
+
+# html/pfappserver/lib/pfappserver/Form/Config/Pfdetect.pm
+msgid "The parser to use for the alert pipe"
+msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid ""
@@ -8100,6 +8068,7 @@ msgstr "Token d'authentification Twilio"
 msgid "Twilio provided phone number which will show as the sender"
 msgstr "Numéro de téléphone appelant qui sera utiliser pour envoyer un SMS"
 
+# html/pfappserver/lib/pfappserver/Form/Config/Pfdetect.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 # html/pfappserver/lib/pfappserver/Form/Interface.pm
 # html/pfappserver/root/config/authentication.tt
@@ -9055,6 +9024,10 @@ msgid "advanced.hashing_cost"
 msgstr "Coût du hachage."
 
 # conf/documentation.conf
+msgid "advanced.language"
+msgstr ""
+
+# conf/documentation.conf
 msgid "advanced.ldap_attributes"
 msgstr "Attributs LDAP"
 
@@ -9064,7 +9037,7 @@ msgstr "Fermer le locationlog lors d’un arrêt de la comptabilisation"
 
 # conf/documentation.conf
 msgid "advanced.ntlm_redis_cache"
-msgstr "Cache redis NTLM"
+msgstr ""
 
 # conf/documentation.conf
 msgid "advanced.pfcmd_error_color"
@@ -9464,6 +9437,10 @@ msgstr "Utilisateur"
 msgid "days"
 msgstr "jours"
 
+# conf/documentation.conf (advanced.language options)
+msgid "de_DE"
+msgstr ""
+
 # html/pfappserver/root/config/profile/index.tt
 msgid "default"
 msgstr "défaut"
@@ -9625,6 +9602,10 @@ msgstr "Action admin"
 msgid "email_user_action"
 msgstr "Action utilisateur"
 
+# conf/documentation.conf (advanced.language options)
+msgid "en_US"
+msgstr ""
+
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (mysql.state options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (proxy.use_proxy options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (proxy.verify_ssl options)
@@ -9735,6 +9716,10 @@ msgstr "Forcer l’approvisionnement"
 msgid "equals"
 msgstr "égal"
 
+# conf/documentation.conf (advanced.language options)
+msgid "es_ES"
+msgstr ""
+
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "event_type"
 msgstr "Type d’évenement"
@@ -9754,6 +9739,10 @@ msgstr "Date de la première localisation"
 # html/pfappserver/root/admin/users.tt
 msgid "firstname"
 msgstr "Nom"
+
+# conf/documentation.conf (advanced.language options)
+msgid "fr_FR"
+msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Widget/Field/FingerbankSelect.pm
 msgid "from Fingerbank"
@@ -9815,6 +9804,10 @@ msgstr "Choix des durées d’accès"
 # conf/documentation.conf
 msgid "guests_admin_registration.default_access_duration"
 msgstr "Durée d’accès par défaut"
+
+# conf/documentation.conf (advanced.language options)
+msgid "he_IL"
+msgstr ""
 
 # conf/documentation.conf (interface.type options)
 msgid "high-availability"
@@ -9987,6 +9980,10 @@ msgstr "Est un téléphone"
 # html/pfappserver/lib/pfappserver/Form/SoH.pm
 msgid "isnot"
 msgstr "N’est pas"
+
+# conf/documentation.conf (advanced.language options)
+msgid "it_IT"
+msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
@@ -10438,14 +10435,14 @@ msgstr "Serveur DHCP illégal"
 msgid "network.rogueinterval"
 msgstr "Intervalle d’illégalité"
 
-# html/pfappserver/root/config/pfdetect/view.tt
-msgid "new"
-msgstr "Nouveau"
-
 # html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "nickname"
 msgstr "Surnom"
+
+# conf/documentation.conf (advanced.language options)
+msgid "nl_NL"
+msgstr ""
 
 # conf/documentation.conf (node_import.voip options)
 # html/pfappserver/root/admin/nodes.tt
@@ -10480,6 +10477,7 @@ msgstr "Statut de l’appareil"
 msgid "nodes"
 msgstr "appareils"
 
+# conf/documentation.conf (advanced.language options)
 # conf/documentation.conf (trapping.detection_engine options)
 msgid "none"
 msgstr "(Aucun)"
@@ -10586,6 +10584,10 @@ msgstr "pfcmd_vlan"
 # pf::Authentication::Source::TwilioSource (available_attributes)
 msgid "phonenumber"
 msgstr "Numéro de téléphone"
+
+# conf/documentation.conf (advanced.language options)
+msgid "pl_PL"
+msgstr ""
 
 # conf/documentation.conf (advanced.hash_passwords options)
 msgid "plaintext"
@@ -10746,6 +10748,10 @@ msgstr "Utilise un proxy"
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "proxy.verify_ssl"
 msgstr "Vérifier le SSL"
+
+# conf/documentation.conf (advanced.language options)
+msgid "pt_BR"
+msgstr ""
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "query"

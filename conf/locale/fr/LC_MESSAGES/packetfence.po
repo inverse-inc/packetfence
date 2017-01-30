@@ -6,7 +6,7 @@
 # Antoine Amacher <aamacher@inverse.ca>, 2015-2016
 # Derek Wuelfrath <dwuelfrath@inverse.ca>, 2012
 # Dominique Couot <dcouot@hotmail.com>, 2012
-# oeufdure <fdurand@inverse.ca>, 2014-2016
+# oeufdure <fdurand@inverse.ca>, 2014-2017
 # inverse <info@inverse.ca>, 2013-2014,2016
 # inverse <info@inverse.ca>, 2012-2013
 # Louis Munro <git@louismunro.com>, 2016
@@ -17,8 +17,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-01-20 15:17+0000\n"
-"Last-Translator: inverse <info@inverse.ca>\n"
+"PO-Revision-Date: 2017-01-30 14:58+0000\n"
+"Last-Translator: oeufdure <fdurand@inverse.ca>\n"
 "Language-Team: French (http://www.transifex.com/inverse/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -879,6 +879,209 @@ msgstr "Si vous pensez que vous devez être autorisé à vous connecter, veuille
 msgid "release: enabling network"
 msgstr "Activation de l'accès au réseau"
 
+# html/captive-portal/templates/emails/emails-billing_confirmation.html
+# html/captive-portal/templates/emails/emails-
+# billing_stripe_customer.subscription.deleted.html
+# html/captive-portal/templates/emails/emails-guest_admin_pregistration.html
+# html/captive-portal/templates/emails/emails-guest_email_activation.html
+# html/captive-portal/templates/emails/emails-
+# guest_email_preregistration_confirmed.html
+# html/captive-portal/templates/emails/emails-guest_email_preregistration.html
+# html/captive-portal/templates/emails/emails-
+# guest_local_account_creation.html
+# html/captive-portal/templates/emails/emails-guest_registered.html
+# html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
+# html/captive-portal/templates/emails/emails-guest_sponsor_confirmed.html
+# html/captive-portal/templates/emails/emails-
+# guest_sponsor_preregistration.html
+# html/captive-portal/templates/emails/emails-violation-triggered.html
+msgid "This is a post only E-mail, please do not reply."
+msgstr "Ce n'est qu'un email informatif, ne pas répondre s'il vous plait."
+
+msgid "Hello"
+msgstr "Bonjour"
+
+# html/captive-portal/templates/emails/emails-billing_confirmation.html
+msgid "Extend access duration"
+msgstr "Étendre la durée d'acces "
+
+msgid "Status"
+msgstr "Statut"
+
+msgid "Billing invoice"
+msgstr "Facture"
+
+msgid "Thank you for your purchase."
+msgstr "Merci pour votre achat."
+
+msgid "Cost"
+msgstr "Coût"
+
+msgid "Transaction ID"
+msgstr "Identifiant de la transaction"
+
+msgid "To extend your network access, please visit"
+msgstr "Pour étendre la durée d’accès, visitez "
+
+msgid "To view your current network status, please visit"
+msgstr "Pour voir votre statut, visitez "
+
+# html/captive-portal/templates/emails/emails-
+# billing_stripe_customer.subscription.deleted.html
+msgid "Billing cancellation"
+msgstr "Annulation de facturation"
+
+msgid "Your subscribtion was cancelled."
+msgstr "Votre abonnement a été annulé."
+
+msgid "The network access of device %s has been revoked."
+msgstr "L’accès au réseau pour cet appareil %s a été révoqué."
+
+# html/captive-portal/templates/emails/emails-guest_admin_pregistration.html
+msgid "PreRegistration"
+msgstr "Pré-enregistrement"
+
+msgid "An account has been created for you to access our network."
+msgstr "Un compte a été crée pour vous donner accès au réseau."
+
+msgid ""
+"Once you will be on-site, authenticate using the following credentials to "
+"our captive portal"
+msgstr "Une fois sur site, authentifier vous sur le portail captif en utilisant les identifiants suivants."
+
+msgid "This username and password will be valid starting"
+msgstr "Ces identifiants seront valides a partie de "
+
+msgid "Please ignore this request if you have not requested network access."
+msgstr "Ignorer cette requête si vous n’avez pas demandé un accès au réseau "
+
+# html/captive-portal/templates/emails/emails-guest_email_activation.html
+msgid "Network access activation"
+msgstr "Activation de l’accès au réseau"
+
+msgid "Guest access to the network was requested using this email address."
+msgstr "Un accès invité a été demandé a partir de ce courriel."
+
+msgid "Activate your network access"
+msgstr "Activer l’accès au réseau"
+
+msgid ""
+"Failure to do so within %s minutes will result in a termination of your "
+"network access."
+msgstr "Votre accès au réseau sera terminé si vous le ne faites pas d’ici %s minutes."
+
+msgid "Thank you for your understanding"
+msgstr "Merci de votre compréhension."
+
+# html/captive-portal/templates/emails/emails-
+# guest_email_preregistration_confirmed.html
+msgid "Your guest access to the network was confirmed."
+msgstr "Votre accès invité a été confirmé."
+
+msgid ""
+"Once on site, select guest access on the captive portal and use the "
+"following username and password to authenticate"
+msgstr "Sur site, sélectionner sur le portail captif accès invité et utilisez les identifiants suivants pour vous authentifier."
+
+msgid "PreRegister confirmation"
+msgstr "Confirmation de pré-enregistrement"
+
+msgid ""
+"If you have any questions regarding the registration process please contact "
+"your local support staff."
+msgstr "Si vous avez la moindre question concernant le processus d’enregistrement veuillez contacter le support."
+
+# html/captive-portal/templates/emails/emails-guest_email_preregistration.html
+msgid ""
+"Once you have activated you will receive a username and password to use once"
+" you'll be on-site."
+msgstr "Une fois activé vous recevrez les identifiants a utiliser une fois sur site. "
+
+# html/captive-portal/templates/emails/emails-
+# guest_local_account_creation.html
+msgid "User Account"
+msgstr "Compte utilisateur"
+
+msgid ""
+"Just to let you know that an user account has been created while registering"
+" your device. You may now want to use it for different features (devices "
+"registration, status page)."
+msgstr "Pour information le compte crée lors de l’enregistrement de votre appareil peut aussi servir pour différentes fonctionnalités (page de statut, enregistrement d’appareil tierce)"
+
+msgid "Here are the info."
+msgstr "Voici les informations."
+
+# html/captive-portal/templates/emails/emails-guest_registered.html
+msgid "New devices"
+msgstr "Nouveaux appareils"
+
+msgid ""
+"You can register additional devices if you need with the following "
+"information"
+msgstr "Vous pouvez enregistrer des appareils additionnel avec les informations suivantes."
+
+# html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
+msgid "requested guest access to your network."
+msgstr "a demandé un accès invité a votre réseau."
+
+msgid "Do NOT authorize access if you were not expecting this guest."
+msgstr "Ne pas autoriser l’accès si vous ne connaissez pas cette personne.  "
+
+msgid "Here is the information the guest provided with registration form"
+msgstr "Voici les informations fournies par l’invité"
+
+msgid "Phone number"
+msgstr "Numéro de téléphone"
+
+msgid ""
+"Once you click on the activation link the guest will be sent a username and "
+"password by email which will allow him to register as a guest in the network"
+" once on-site."
+msgstr "Un fois que vous cliquez sur le lien, des identifiants seront envoyés à l’invité par courriel et lui permettrons de s’enregistrer en tant qu’invité une fois sur site. "
+
+msgid "Guest request"
+msgstr "Requête d’accès invité "
+
+msgid ""
+"Until you click on the activation link this guest will have NO Internet "
+"access."
+msgstr "Tant que vous n’avez pas cliqué sur le lien l’invité n’aura pas d’accès."
+
+msgid "Thank you for your cooperation."
+msgstr "Merci de votre coopération"
+
+msgid "Activate the sponsor access for guest "
+msgstr "Activer l’accès sponsor pour l’invité"
+
+# html/captive-portal/templates/emails/emails-guest_sponsor_confirmed.html
+msgid "Your guest access to the network was authorized."
+msgstr "Votre accès invité sur le réseau a été autorisé"
+
+msgid "Access Authorized"
+msgstr "Accès autorisé"
+
+msgid "Once on site, use the following username and password to authenticate"
+msgstr "Une fois sur site, utilisez ces identifiants pour vous authentifier."
+
+# html/captive-portal/templates/emails/emails-violation-triggered.html
+msgid "You have been detected doing malicious activity on the network."
+msgstr "Nous vous avons détecte faisant des activités malveillante sur le réseau."
+
+msgid "Violation detected !"
+msgstr "Violation détecté !"
+
+msgid "Violation %s was detected on your device."
+msgstr "La violation %s a été détecté sur votre appareil."
+
+msgid "OS"
+msgstr "OS"
+
+msgid "Hostname"
+msgstr "Nom de la machine"
+
+msgid "Here are the informations of the infringing device"
+msgstr "Voici les informations de l’appareil enfreignant les règles."
+
 # lib/pf/web/release.pm
 msgid "release: reopen browser"
 msgstr "Vous devrez probablement fermer votre navigateur afin que votre accès Internet fonctionne. Si vous êtes branché dans un téléphone, vous devrez redémarrer votre ordinateur afin que votre accès Internet fonctionne."
@@ -1151,4 +1354,4 @@ msgstr "Source"
 msgid ""
 "Your network should be enabled within a minute or two. If it is not reboot "
 "your computer."
-msgstr ""
+msgstr "Votre réseau devrait être activé dans une minute ou deux. Dans le cas contraire, redémarrez votre ordinateur."
