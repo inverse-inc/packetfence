@@ -15,8 +15,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-01-30 14:13+0000\n"
-"Last-Translator: inverse <info@inverse.ca>\n"
+"PO-Revision-Date: 2017-01-30 15:18+0000\n"
+"Last-Translator: oeufdure <fdurand@inverse.ca>\n"
 "Language-Team: French (http://www.transifex.com/inverse/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1232,7 +1232,7 @@ msgstr "Cliquer pour sélectionner un domaine"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Pfdetect.pm
 msgid "Click to select a parser"
-msgstr ""
+msgstr "Cliquez pour sélectionner un parseur"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SAML.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
@@ -2947,7 +2947,7 @@ msgid ""
 "Force the captive portal to use HTTPS for all portal clients.Note that "
 "clients will be forced to use HTTPS on all URLs.This requires a restart of "
 "the httpd.portal process to be fully effective."
-msgstr ""
+msgstr "Forcer le portail a utiliser HTTPS pour tous les clients du portail. Notez  que chaque client sera forcé d’utiliser HTTPS pour toutes les URLs. Nécessite le redémarrage du processus httpd.portal pour que ce soit effectif."
 
 # pf::firewallsso (Firewall SSO)
 msgid "FortiGate"
@@ -3582,7 +3582,7 @@ msgstr "Page cible"
 
 # conf/documentation.conf (advanced.language)
 msgid "Language choice for the communication with administrators"
-msgstr ""
+msgstr "Choix du langage pour la communication avec l’administrateur."
 
 # html/pfappserver/root/config/profile/captive-portal-settings.tt
 msgid "Languages"
@@ -4370,7 +4370,7 @@ msgstr "Nouvelle source"
 
 # html/pfappserver/root/config/pfdetect/view.tt
 msgid "New Syslog parser"
-msgstr ""
+msgstr "Nouveau parseur Syslog"
 
 # html/pfappserver/root/config/fingerbank/user_agent/view.tt
 msgid "New User Agent"
@@ -6975,7 +6975,7 @@ msgstr "Taille"
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Provisioning.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/URL.pm
 msgid "Skippable"
-msgstr ""
+msgstr "Ignorable"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Sleep interval"
@@ -7660,7 +7660,7 @@ msgstr "L’appareil sera automatiquement enregistré. Si la MAC correspond à u
 
 # html/pfappserver/lib/pfappserver/Form/Config/Pfdetect.pm
 msgid "The parser to use for the alert pipe"
-msgstr ""
+msgstr "Le parseur à utiliser pour traiter la pipe."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid ""
@@ -9025,7 +9025,7 @@ msgstr "Coût du hachage."
 
 # conf/documentation.conf
 msgid "advanced.language"
-msgstr ""
+msgstr "Langage de communication"
 
 # conf/documentation.conf
 msgid "advanced.ldap_attributes"
@@ -9037,7 +9037,7 @@ msgstr "Fermer le locationlog lors d’un arrêt de la comptabilisation"
 
 # conf/documentation.conf
 msgid "advanced.ntlm_redis_cache"
-msgstr ""
+msgstr "Cache Redis NTLM"
 
 # conf/documentation.conf
 msgid "advanced.pfcmd_error_color"
@@ -9439,7 +9439,7 @@ msgstr "jours"
 
 # conf/documentation.conf (advanced.language options)
 msgid "de_DE"
-msgstr ""
+msgstr "de_DE"
 
 # html/pfappserver/root/config/profile/index.tt
 msgid "default"
@@ -9604,7 +9604,7 @@ msgstr "Action utilisateur"
 
 # conf/documentation.conf (advanced.language options)
 msgid "en_US"
-msgstr ""
+msgstr "en_US"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (mysql.state options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (proxy.use_proxy options)
@@ -9718,7 +9718,7 @@ msgstr "égal"
 
 # conf/documentation.conf (advanced.language options)
 msgid "es_ES"
-msgstr ""
+msgstr "es_ES"
 
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "event_type"
@@ -9742,7 +9742,7 @@ msgstr "Nom"
 
 # conf/documentation.conf (advanced.language options)
 msgid "fr_FR"
-msgstr ""
+msgstr "fr_FR"
 
 # html/pfappserver/lib/pfappserver/Form/Widget/Field/FingerbankSelect.pm
 msgid "from Fingerbank"
@@ -9807,7 +9807,7 @@ msgstr "Durée d’accès par défaut"
 
 # conf/documentation.conf (advanced.language options)
 msgid "he_IL"
-msgstr ""
+msgstr "he_IL"
 
 # conf/documentation.conf (interface.type options)
 msgid "high-availability"
@@ -9983,7 +9983,7 @@ msgstr "N’est pas"
 
 # conf/documentation.conf (advanced.language options)
 msgid "it_IT"
-msgstr ""
+msgstr "it_IT"
 
 # html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
@@ -10442,7 +10442,7 @@ msgstr "Surnom"
 
 # conf/documentation.conf (advanced.language options)
 msgid "nl_NL"
-msgstr ""
+msgstr "nl_NL"
 
 # conf/documentation.conf (node_import.voip options)
 # html/pfappserver/root/admin/nodes.tt
@@ -10587,7 +10587,7 @@ msgstr "Numéro de téléphone"
 
 # conf/documentation.conf (advanced.language options)
 msgid "pl_PL"
-msgstr ""
+msgstr "pl_PL"
 
 # conf/documentation.conf (advanced.hash_passwords options)
 msgid "plaintext"
@@ -10751,7 +10751,7 @@ msgstr "Vérifier le SSL"
 
 # conf/documentation.conf (advanced.language options)
 msgid "pt_BR"
-msgstr ""
+msgstr "pt_BR"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "query"
