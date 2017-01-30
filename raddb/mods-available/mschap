@@ -393,19 +393,12 @@ mschap chrooted_mschap_machine {
 }
 
 mschap mschap_machine {
-
         use_mppe = yes
-
         require_encryption = yes
-
-
         require_strong = yes
         ntlm_auth = "/usr/local/pf/bin/ntlm_auth_wrapper -- \
              --request-nt-key --username=%{mschap:User-Name:-None} --challenge=%{mschap:Challenge:-00} --nt-response=%{mschap:NT-Response:-00}"	
-
-
         allow_retry = no
-
 }
 
 
