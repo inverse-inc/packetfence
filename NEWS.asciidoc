@@ -52,6 +52,7 @@ Enhancements
  * Email templates can now be specified on a per-portal basis (#1322/PR#1823)
  * Added CLI login support for HP Procurve switches (#1710)
  * Added support for Ruckus SmartZone using web auth enforcement
+ * Revamped default colours of the captive portal to a more neutral/grayish theme
 
 Bug Fixes
 +++++++++
