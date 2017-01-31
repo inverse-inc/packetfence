@@ -57,6 +57,17 @@ sub available_actions {
     return [$Actions::SET_ACCESS_LEVEL];
 }
 
+=head2 available_rule_classes
+
+This source has only admin rules
+
+=cut
+
+sub available_rule_classes {
+    return [$Rules::ADMIN];
+}
+
+
 =head2 authenticate
 
 Authenticate using the address and headers
