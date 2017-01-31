@@ -377,7 +377,7 @@ sub nodes :Chained('object') :PathPart('nodes') :Args(0) :AdminRole('NODES_READ'
 
 =cut
 
-sub users :Chained('object') :PathPart('users') :Args(0) :AdminRole('USERS_READ') {
+sub users :Chained('object') :PathPart('users') :Args(0) :AdminRoleAny('USERS_READ') :AdminRoleAny('USERS_READ_OWN') {
     my ( $self, $c ) = @_;
     my $id = $c->user->id;
     my ($status, $saved_searches) = $c->model("SavedSearch::User")->read_all($id);
