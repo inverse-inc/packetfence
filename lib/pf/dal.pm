@@ -393,6 +393,27 @@ Primary keys
 
 sub primary_keys { [] }
 
+=head2 remove
+
+Remove row from the database
+
+=cut
+
+sub remove {
+    my ($self) = @_;
+    return 0 unless $self->__from_table;
+    my $sqla = SQL::Abstract::More->new;
+    my ($sql, @bind) = $sqla->delete(
+        -from => $self->table,
+        -where => $self->primary_keys_where_clause,
+    );
+    my $sth = $self->db_execute($stmt, @bind);
+    if ($sth) {
+        return $sth->rows;
+    }
+    return 0;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
