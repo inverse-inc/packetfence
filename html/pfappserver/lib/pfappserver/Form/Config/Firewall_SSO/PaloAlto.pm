@@ -75,9 +75,16 @@ has_field 'uid' =>
    options_method => \&uid_type,
   );
 
+has_field 'vsys' =>
+  (
+   type => 'PosInteger',
+   label => 'Vsys ',
+   default => 1,
+  );
+
 has_block definition =>
   (
-   render_list => [ qw(id type transport port password categories networks cache_updates cache_timeout) ],
+   render_list => [ qw(id type vsys transport port password categories networks cache_updates cache_timeout) ],
   );
 
 

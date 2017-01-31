@@ -141,7 +141,7 @@ sub send_sso_start_http {
             </payload>
        </uid-message>
 XML
-    my $webpage = "https://".$firewall_conf."/api/?type=user-id&action=set&key=".$ConfigFirewallSSO{$firewall_conf}->{'password'};
+    my $webpage = "https://".$firewall_conf."/api/?type=user-id&action=set&vsys=vsys".$ConfigFirewallSSO{$firewall_conf}->{'vsys'}."&key=".$ConfigFirewallSSO{$firewall_conf}->{'password'};
     my $ua = LWP::UserAgent->new;
     $ua->timeout(5);
     my $response = $ua->post($webpage, Content => [ cmd => $message ]);
@@ -174,7 +174,7 @@ sub send_sso_stop_http {
             </payload>
        </uid-message>
 XML
-    my $webpage = "https://".$firewall_conf."/api/?type=user-id&action=set&key=".$ConfigFirewallSSO{$firewall_conf}->{'password'};
+    my $webpage = "https://".$firewall_conf."/api/?type=user-id&action=set&vsys=vsys".$ConfigFirewallSSO{$firewall_conf}->{'vsys'}."&key=".$ConfigFirewallSSO{$firewall_conf}->{'password'};
     my $ua = LWP::UserAgent->new;
     $ua->timeout(5);
     my $response = $ua->post($webpage, Content => [ cmd => $message ]);
