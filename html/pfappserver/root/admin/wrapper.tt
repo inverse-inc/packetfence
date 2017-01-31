@@ -74,7 +74,7 @@
                 <a href="[% c.uri_for(c.controller('Admin').action_for('nodes')) %]">[% l('Nodes') %]</a>
               </li>
               [%- END %]
-              [%- IF can_access("USERS_READ") %]
+              [%- IF can_access_any("USERS_READ", "USERS_READ_OWN") %]
               <li[% ' class="active"' IF c.action.name == 'users' %]>
                 <a href="[% c.uri_for(c.controller('Admin').action_for('users')) %]">[% l('Users') %]</a>
               </li>
