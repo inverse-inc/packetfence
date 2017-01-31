@@ -35,6 +35,8 @@ use SOAP::Lite;
 use Constants;
 
 #Do not do this at home
+use IO::Socket::SSL;
+IO::Socket::SSL::set_defaults(SSL_verify_mode => "SSL_VERIFY_NONE");
 $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME}=0;
 
                    ### Configuration Variables ###
