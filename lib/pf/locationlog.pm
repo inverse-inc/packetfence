@@ -341,9 +341,6 @@ sub locationlog_insert_start {
     if (!(defined($vlan)) && defined($locationlog_mac->{'vlan'})) {
         $vlan = $locationlog_mac->{'vlan'};
     }
-    if (!(defined($role)) && defined($locationlog_mac->{'role'})) {
-        $role = $locationlog_mac->{'role'};
-    }
     if ( defined($mac) ) {
         db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_insert_start_with_mac_sql',
             lc($mac), $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $role, $conn_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm)
@@ -546,11 +543,15 @@ sub _is_locationlog_accurate {
     my $conn_typeChanged = ($locationlog_mac->{connection_type} ne connection_type_to_str($connection_type));
     my $userChanged = ($locationlog_mac->{'dot1x_username'} ne $user_name);
     my $ssidChanged = ($locationlog_mac->{'ssid'} ne $ssid);
+    
     my $roleChanged = '0';
-    if (defined($role)) {
-        my $old_role = $locationlog_mac->{'role'};
-        $roleChanged = ( defined ($old_role) && $old_role ne $role);
-    }
+    my $old_role = $locationlog_mac->{'role'};
+    $roleChanged = ( 
+        (!defined($old_role) && defined($role))
+        || (defined($old_role) && !defined($role))
+        || (defined($old_role) && defined($role) && $old_role ne $role)
+    );
+
     # ifIndex on wireless is not important
     my $ifIndexChanged = 0;
     if (($connection_type & $WIRED) == $WIRED) {
