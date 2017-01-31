@@ -47,8 +47,8 @@ sub auto :Private {
         return 1;
     }
 
-    # If user is not logged in then send him to the login page
-    unless ($c->user_in_realm('admin')) {
+    # If user is not logged into the admin for proxy realm then send him to the login page
+    unless ($c->user_in_realm('admin') || $c->user_in_realm('proxy') || $c->authenticate({}, 'proxy')) {
         $c->stash->{'template'} = 'admin/login.tt';
         unless ($action eq 'index') {
             $c->stash->{status_msg} = $c->loc("Your session has expired.");
