@@ -248,7 +248,6 @@ Create the hash for inserting into a table
 
 sub _insert_data {
     my ($self) = @_;
-    my %data;
     my $updateable_fields = $self->_insertable_fields;
     my %data;
     foreach my $field (@$updateable_fields) {
@@ -304,7 +303,10 @@ sub validate_field {
     }
     if ($self->is_enum($field) && defined $value) {
         my $meta;
-        return exists $meta->{$field} && exists $meta->{$field}{enums_values}{$value};
+        unless (exists $meta->{$field} && exists $meta->{$field}{enums_values}{$value};) {
+            $logger->error("Trying to save a invalid value in a non nullable field ${table}.${field}");
+            return 0;
+        }
     }
     return $self->_validate_field($field, $value);
 }
