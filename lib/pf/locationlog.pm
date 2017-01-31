@@ -549,7 +549,7 @@ sub _is_locationlog_accurate {
     $roleChanged = ( 
         (!defined($old_role) && defined($role))
         || (defined($old_role) && !defined($role))
-        || (defined($old_role) && defined($role) || $old_role ne $role)
+        || (defined($old_role) && defined($role) && $old_role ne $role)
     );
 
     # ifIndex on wireless is not important
