@@ -49,7 +49,7 @@ sub generateConfig {
 
             #append install_dir if the path doesn't start with /
             $rule = " - $rule" if ( $rule !~ /^\// );
-            push @rules, " - $rule";
+            push @rules, "$rule";
         }
     }
     $tags{'suricata_rules'} = join( "\n", @rules );
