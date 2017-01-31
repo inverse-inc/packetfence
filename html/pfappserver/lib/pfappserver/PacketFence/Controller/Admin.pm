@@ -207,7 +207,7 @@ sub index :Path :Args(0) {
     my $action;
     if (admin_can_do_any(\@roles,qw(SERVICES REPORTS))) {
         $action = 'status';
-    } elsif( admin_can_do_any(\@roles,qw(USERS_READ))) {
+    } elsif( admin_can_do_any(\@roles,qw(USERS_READ USERS_READ_OWN))) {
         $action = 'users';
     } elsif( admin_can_do_any(\@roles,qw(NODES_READ))) {
         $action = 'nodes';
