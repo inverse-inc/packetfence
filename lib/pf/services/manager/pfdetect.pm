@@ -20,7 +20,7 @@ extends 'pf::services::manager';
 
 has '+name' => (default => sub { 'pfdetect' });
 
-has '+launcher' => (default => sub {"%1\$s -d &"});
+sub _cmdLine { my $self = shift; $self->executable; }
 
 sub isManaged { keys(%ConfigDetect) > 0 }
 

@@ -19,7 +19,7 @@ extends 'pf::services::manager';
 
 has '+name' => ( default => sub { 'pfbandwidthd' } );
 
-has '+launcher' => (default => sub { '%1$s -d' } );
+sub _cmdLine { my $self = shift; $self->executable ; }
 
 =head1 AUTHOR
 

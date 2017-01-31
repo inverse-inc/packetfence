@@ -36,6 +36,11 @@ has '+optional' => ( default => sub {1} );
 has startDependsOnServices => ( is => 'ro', default => sub { [qw(carbon-cache carbon-relay)] } );
 
 
+sub _cmdLine {
+    my $self = shift;
+    $self->executable . " -f -C $install_dir/var/conf/collectd.conf";
+}
+
 sub generateConfig {
     generateCollectd();
     generateTypes();

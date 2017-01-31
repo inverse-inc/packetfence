@@ -19,6 +19,9 @@ use pf::config qw(
     @internal_nets
     @portal_ints
 );
+use pf::file_paths qw(
+    $install_dir
+);
 
 extends 'pf::services::manager::httpd';
 
@@ -29,6 +32,7 @@ has '+shouldCheckup' => ( default => sub { 0 }  );
 use pf::config qw(
     %Config
     $management_network
+    $OS
 );
 use pf::cluster;
 

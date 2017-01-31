@@ -44,22 +44,34 @@ sub _build_radiusdManagers {
     my ($self) = @_;
 
     my $listens = {};
-    if($cluster_enabled){
+    if ($cluster_enabled) {
         my $cluster_ip = pf::cluster::management_cluster_ip();
+        $listens->{load_balancer} = {};
+    }
+    $listens->{auth} = {};
+    $listens->{acct} = {};
+
+    # 'Eduroam' RADIUS instance manager
+    if ( @{ pf::authentication::getAuthenticationSourcesByType('Eduroam') } ) {
+        $listens->{eduroam} = {};
+    }
+
+    if ( @cli_switches > 0 ) {
+        $listens->{cli} = {};
     }
 
     my @managers = map {
-        my $id = $_;
+        my $id       = $_;
         my $launcher = $self->launcher;
-        my $name = $id eq "auth" ? $self->name : untaint_chain($self->name . "-" . $id);
+        my $name     = untaint_chain( $self->name . "-" . $id );
 
-        pf::services::manager::radiusd_child->new ({
-            executable => $self->executable,
-            name => $name,
-            forceManaged => $self->isManaged,
-            options => $listens->{$id},
-            orderIndex => $self->orderIndex,
-        })
+        pf::services::manager::radiusd_child->new(
+            {   name         => $name,
+                forceManaged => $self->isManaged,
+                options      => $id,
+                orderIndex   => $self->orderIndex,
+            }
+            )
     } keys %$listens;
 
     return \@managers;

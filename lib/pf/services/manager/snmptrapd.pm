@@ -43,7 +43,11 @@ if (ref($management_network)) {
     $management_ip .= ':162';
 }
 
-has '+launcher' => (default => sub { "%1\$s -n -c $generated_conf_dir/snmptrapd.conf -C -A -Lf $install_dir/logs/snmptrapd.log -p $install_dir/var/run/snmptrapd.pid -On $management_ip" } );
+sub _cmdLine {
+    my $self = shift;
+    $self->executable
+        . " -n -c $generated_conf_dir/snmptrapd.conf -C -A -Lf $install_dir/logs/snmptrapd.log -p $install_dir/var/run/snmptrapd.pid -On $management_ip";
+}
 
 =head2 generateConfig
 

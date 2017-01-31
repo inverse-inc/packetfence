@@ -19,13 +19,18 @@ use Moo;
 use pf::config qw(
     $management_network
     %Config
+    $OS
 );
 use pf::cluster;
 use List::MoreUtils qw(uniq);
+use pf::file_paths qw(
+    $install_dir
+);
 
 extends 'pf::services::manager::httpd';
 
 has '+name' => (default => sub { 'httpd.collector' } );
+
 
 sub vhosts {
     my ($self) = @_;

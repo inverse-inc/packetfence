@@ -23,6 +23,12 @@ extends 'pf::services::manager';
 has '+name' => ( default => sub {'carbon-relay'} );
 has '+optional' => ( default => sub {1} );
 
+sub _cmdLine {
+    my $self = shift;
+    $self->executable
+        . " --config=$install_dir/var/conf/carbon.conf  --logdir=$install_dir/logs --nodaemon start";
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

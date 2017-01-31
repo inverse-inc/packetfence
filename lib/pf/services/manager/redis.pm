@@ -26,7 +26,6 @@ use pf::util;
 
 extends 'pf::services::manager';
 
-#has '+launcher' => ( builder => 1, lazy => 1,);
 
 has '+startDependsOnServices' => (is => 'ro', default => sub { [] } );
 
@@ -34,11 +33,11 @@ has 'redis_config_template' => (is => 'rw', builder => 1, lazy => 1);
 
 has 'redis_config_file' => (is => 'rw', builder => 1, lazy => 1);
 
-#sub _build_launcher {
-#    my ($self) = @_;
-#    my $config = $self->redis_config_file;
-#    return "sudo -u pf %1\$s $config"
-#}
+sub _cmdLine {
+    my ($self) = @_;
+    my $config = $self->redis_config_file;
+    return $self->executable . " $config"; 
+}
 
 sub generateConfig {
     my ($self) = @_;

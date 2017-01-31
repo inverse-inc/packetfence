@@ -33,7 +33,6 @@ An example of a new service foo
 use strict;
 
 use Moo;
-#with qw(pf::services::manager::systemd );
 use pf::constants;
 use pf::file_paths qw($var_dir $install_dir);
 use pf::log;
@@ -108,6 +107,14 @@ sub _build_orderIndex {
     return $index;
 }
 
+=head2 executable
+
+executable of service
+
+=cut
+
+has executable => (is => 'rw', builder => 1, lazy => 1 );
+
 =head2 isvirtual
 
 If the service is a virtual service
@@ -132,13 +139,13 @@ If set then the service will not cause an error if it fails to start
 
 has optional => ( is => 'rw', default => sub { 0 } );
 
-=head2 systemdFilePath  
+=head2 unitFilePath  
 
 The path to the systemd unit file for this service.
 
 =cut
 
-has systemdFilePath => (is => 'rw', builder => '_build_systemdFilePath', lazy => 1);
+has unitFilePath => (is => 'rw', builder => '_build_unitFilePath', lazy => 1);
 
 =head2 systemdTemplateFilePath
 
@@ -147,6 +154,9 @@ The path to the template used to generate the systemd unit file for this service
 =cut
 
 has systemdTemplateFilePath => (is => 'rw', builder => '_build_systemdTemplateFilePath', lazy => 1);
+
+
+has systemdVars => (is => 'rw', builder => '_build_SystemdVars', lazy => 1);
 
 =head1 Methods
 
@@ -221,6 +231,17 @@ sub _build_launcher {
     return "sudo systemctl start packetfence-" . $name;
 }
 
+=head2 _build_executable
+the builder the executable attribute
+=cut
+
+sub _build_executable {
+    my ($self) = @_;
+    require pf::config;
+    my $name = $self->name;
+    my $service = ( $pf::config::Config{'services'}{"${name}_binary"} || "$install_dir/sbin/$name" );
+    return $service;
+}
 
 =head2 restart
 
@@ -333,13 +354,13 @@ sub postStopCleanup {
     return $TRUE;
 }
 
-=head2 _build_systemdFilePath 
+=head2 _build_unitFilePath 
 
 Return the fully qualified path to the systemd unit file output by generateUnitFile.
 
 =cut 
 
-sub _build_systemdFilePath {
+sub _build_unitFilePath {
     my $self = shift;
     return $install_dir . "/var/conf/systemd/packetfence-" . $self->name . ".service";
 }
@@ -355,19 +376,23 @@ sub _build_systemdTemplateFilePath {
     return $install_dir . "/conf/systemd/packetfence-" . $self->name . ".service.tt";
 }
 
-=head2 createSystemdVars 
+=head2 _buildSystemdVars 
 
 Return a hashref with the variables requied to populate the systemd Unit File template in generateUnitFile. 
 Stub, implement in subclasses as required.
 
 =cut
 
-sub createSystemdVars {
-    my $self = shift;
+sub _build_SystemdVars {
+    my $self    = shift;
+    my $cmdLine
+        = defined $self->_cmdLineArgs
+        ? $self->_cmdLine . " " . $self->_cmdLineArgs
+        : $self->_cmdLine;
     return {
-        header_warning => "This file is generated dynamically based on the PacketFence configuration. 
-        # Look under $self->systemdTemplateFilePath
-        # for the template used to generate it."
+        header_warning => "#This file is generated dynamically based on the PacketFence configuration. 
+# Look under " . $self->systemdTemplateFilePath . " for the template used to generate it.",
+        cmdLine => $cmdLine,
     };
 }
 
@@ -379,9 +404,9 @@ Generates the systemd unit file for the service.
 
 sub generateUnitFile {
     my $self = shift;
-    my $vars = $self->createSystemdVars();
+    my $vars = $self->systemdVars();
     my $tt   = Template->new( ABSOLUTE => 1 );
-    $tt->process( $self->systemdTemplateFilePath, $vars, $self->systemdFilePath ) or die $tt->error();
+    $tt->process( $self->systemdTemplateFilePath, $vars, $self->unitFilePath ) or die $tt->error();
 }
 
 =head2 generateConfig
@@ -400,7 +425,7 @@ launch the service using the launcher and arguments passed
 
 sub launchService {
     my ($self) = @_;
-    my $cmdLine = $self->_cmdLine;
+    my $cmdLine = $self->launcher;
     if ($cmdLine =~ /^(.+)$/) {
         $cmdLine = $1;
         my $logger = get_logger();
@@ -422,7 +447,7 @@ Build the command string from the launcher and the cmdLineArgs
 
 sub _cmdLine {
     my ($self) = @_;
-    return $self->launcher;
+    return $self->executable;
 }
 
 

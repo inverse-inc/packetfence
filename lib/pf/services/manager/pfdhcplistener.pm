@@ -21,46 +21,39 @@ use pf::config qw(
 );
 use pf::file_paths qw(
     $var_dir
+    $install_dir
 );
 use pf::util;
 use List::MoreUtils qw(any all uniq);
-use Linux::Inotify2;
 use pf::log;
 
 extends 'pf::services::manager::submanager';
 
-has pfdhcplistenerManagers => (is => 'rw', builder => 1, lazy => 1);
+has pfdhcplistenerManagers => ( is => 'rw', builder => 1, lazy => 1);
 
 has '+name' => (default => sub { 'pfdhcplistener'} );
+
+has 'int' => (is => 'ro');
+
+sub _cmdLine {
+    my $self = shift;
+    "$install_dir/sbin/pfdhcplistener -i " . $self->int;
+}
 
 sub _build_pfdhcplistenerManagers {
     my ($self) = @_;
     my @managers = map {
-        pf::services::manager->new ({
-            name => "pfdhcplistener_$_",
-            forceManaged => $self->isManaged,
-            orderIndex => $self->orderIndex,
-        })
+        pf::services::manager::pfdhcplistener->new(
+            {   name                    => "pfdhcplistener_$_",
+                forceManaged            => $self->isManaged,
+                orderIndex              => $self->orderIndex,
+                systemdTemplateFilePath => $self->systemdTemplateFilePath,
+                unitFilePath            => $install_dir . "/var/conf/systemd/packetfence-" . "pfdhcplistener_$_" . ".service",
+                int                     => $_,
+            }
+            )
     } uniq @listen_ints, @dhcplistener_ints;
     return \@managers;
-}
-
-=head2 _setupWatchForPidCreate
-
-Setting up inotify to watch for the creation of pidFiles for each pfdhcplistener instance
-
-=cut
-
-sub _setupWatchForPidCreate {
-    my ($self) = @_;
-    my $inotify = $self->inotify;
-    my %pidFiles = map { $_->pidFile => undef } $self->managers;
-    my $run_dir = "$var_dir/run";
-    $inotify->watch ($run_dir, IN_CREATE, sub {
-        my $e = shift;
-        delete @pidFiles{ grep { -e $_ } keys %pidFiles };
-        $e->w->cancel unless keys %pidFiles;
-    });
 }
 
 sub managers {
@@ -72,6 +65,20 @@ sub isManaged {
     my ($self) = @_;
     return (isenabled($Config{'network'}{'dhcpdetector'}) && isenabled($Config{'services'}{$self->name}));
 }
+
+=head2 start, stop, status
+
+We alias these methods to the ones in the services::manager class.
+This avoids infinite recursion when calling status since pf::services::manager::submanager::status calls managers().
+
+=cut
+
+*status = \&pf::services::manager::status;
+*stop   = \&pf::services::manager::stop;
+*start  = \&pf::services::manager::start;
+*startService  = \&pf::services::manager::startService;
+*postStartCleanup  = \&pf::services::manager::postStartCleanup;
+*postStopCleanup  = \&pf::services::manager::postStopCleanup;
 
 =head1 AUTHOR
 

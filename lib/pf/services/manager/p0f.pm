@@ -20,40 +20,33 @@ use pf::config qw(@ha_ints @internal_nets $management_network);
 use List::MoreUtils qw(uniq);
 use Algorithm::Combinatorics qw(combinations_with_repetition);
 use pf::cluster;
+use pf::log;
 
 extends 'pf::services::manager';
 
 has '+name' => ( default => sub {'p0f'} );
 has '+optional' => ( default => sub {1} );
 
-has '+launcher' => (
-    default => sub {
-        my ($self) = @_;
-        my $FingerbankConfig = fingerbank::Config::get_config;
-        my $p0f_map = $FingerbankConfig->{tcp_fingerprinting}{p0f_map_path};
-        my $p0f_sock = $FingerbankConfig->{tcp_fingerprinting}{p0f_socket_path};
-        my $pid_file = $self->pidFile;
-        my $name = $self->name;
-        my $p0f_cmdline;
-        if ($cluster_enabled)
-        {
-            my $p0f_bpf_filter = bpf_filter();
-            $p0f_cmdline="sudo %1\$s -d -i any -p -f $p0f_map -s $p0f_sock" . " '$p0f_bpf_filter' " . " > /dev/null && pidof $name > $pid_file";
+sub _cmdLine {
+    my ($self)           = @_;
+    my $FingerbankConfig = fingerbank::Config::get_config;
+    my $p0f_map          = $FingerbankConfig->{tcp_fingerprinting}{p0f_map_path};
+    my $p0f_sock         = $FingerbankConfig->{tcp_fingerprinting}{p0f_socket_path};
+    my $name             = $self->name;
+    my $p0f_cmdline;
+    if (@ha_ints) {
+        my @ha_ips;
+        foreach my $ha_int (@ha_ints) {
+            push( @ha_ips, $ha_int->{Tip} );
         }
-        else
-        {
-            $p0f_cmdline="sudo %1\$s -d -i any -p -f $p0f_map -s $p0f_sock" . " 'not ( (net 127) or (host 0:0:0:0:0:0:0:1) )' ". " > /dev/null && pidof $name > $pid_file";
-        }
-        return $p0f_cmdline;
+        my @tmp_bpf_filter = map {"not ( host $_ and port 7788 )"} @ha_ips;
+        my $p0f_bpf_filter = join( " and ", @tmp_bpf_filter );
+        $p0f_cmdline = $self->executable . " -i any -p -f $p0f_map -s $p0f_sock  $p0f_bpf_filter ";
     }
-);
-
-sub preStartSetup {
-    my ($self, $quickStart) = @_;
-    my $result = $self->SUPER::preStartSetup($quickStart);
-    local ($!, $?);
-    system("pkill p0f");
-    return $result;
+    else {
+        $p0f_cmdline = $self->executable . " -i any -p -f $p0f_map -s $p0f_sock ";
+    }
+    return $p0f_cmdline;
 }
 
 sub bpf_filter {

@@ -38,7 +38,10 @@ extends 'pf::services::manager';
 
 has '+name' => (default => sub { 'keepalived' } );
 
-has '+launcher' => (default => sub { "sudo %1\$s -f $generated_conf_dir/keepalived.conf --pid $var_dir/run/keepalived.pid" } );
+sub _cmdLine {
+    my $self = shift;
+    $self->executable . "-n -f $generated_conf_dir/keepalived.conf";
+}
 
 sub executable {
     my ($self) = @_;

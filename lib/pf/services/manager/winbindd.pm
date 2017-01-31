@@ -39,6 +39,7 @@ has _pidFiles => (is => 'rw', default => sub { {} } );
 
 has '+name' => (default => sub { 'winbindd'} );
 
+
 sub _build_winbinddManagers {
     my ($self) = @_;
 

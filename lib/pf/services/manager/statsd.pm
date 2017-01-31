@@ -27,6 +27,12 @@ extends 'pf::services::manager';
 has '+name' => ( default => sub {'statsd'} );
 has '+optional' => ( default => sub {'1'} );
 
+sub _cmdLine {
+    my $self = shift;
+    $self->executable . " $install_dir/lib/Etsy/statsd/bin/statsd $install_dir/var/conf/statsd_config.js ";
+}
+
+
 sub generateConfig {
     my %tags;
     $tags{'template'}      = "$conf_dir/monitoring/statsd_config.js";

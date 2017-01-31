@@ -48,6 +48,23 @@ extends 'pf::services::manager';
 
 has options => (is => 'rw');
 
+sub _build_executable {
+    my ($self) = @_;
+    require pf::config;
+    return $pf::config::Config{'services'}{"radiusd_binary"};
+}
+
+
+sub _cmdLine { 
+    my $self = shift;
+    $self->executable . " -d $install_dir/raddb";
+}
+
+sub _cmdLineArgs {
+    my $self = shift;
+    return " -n " . $self->options . " -fm ";
+}
+
 our $CONFIG_GENERATED = 0;
 
 =head2 generateConfig
