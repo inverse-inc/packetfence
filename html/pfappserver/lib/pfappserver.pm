@@ -307,7 +307,7 @@ Checks to see if the user is allowed in admin
 
 sub user_allowed_in_admin {
     my ($c) = @_;
-    return $c->user_in_realm('admin') || $c->user_in_realm('proxy');
+    return $c->user_in_realm('admin') || $c->user_in_realm('proxy') || $c->authenticate({}, 'proxy');
 }
 
 # Logging
