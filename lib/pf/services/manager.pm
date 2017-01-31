@@ -98,6 +98,11 @@ Lower values start first and are stopped last.
 
 has orderIndex => ( is => 'ro', builder => 1, lazy => 1 );
 
+
+has pidFile => ( is => 'ro', lazy => 1, builder => '_buildpidFile' );
+
+sub _buildpidFile { my $self = shift; return $install_dir . "/var/run/" . $self->name . ".pid"; }
+
 sub _build_orderIndex {
     my ($self) = @_;
     require pf::config;
@@ -393,6 +398,7 @@ sub _build_SystemdVars {
         header_warning => "#This file is generated dynamically based on the PacketFence configuration. 
 # Look under " . $self->systemdTemplateFilePath . " for the template used to generate it.",
         cmdLine => $cmdLine,
+        pidFile => $self->pidFile,
     };
 }
 

@@ -41,7 +41,7 @@ has '+name' => (default => sub { 'haproxy' } );
 
 sub _cmdLine {
     my $self = shift;
-    $self->executable . " -f $generated_conf_dir/haproxy.conf ";
+    $self->executable . " -f $generated_conf_dir/haproxy.conf -p $install_dir/var/run/haproxy.pid";
 }
 
 has '+shouldCheckup' => ( default => sub { 0 }  );

@@ -40,7 +40,7 @@ has '+name' => (default => sub { 'keepalived' } );
 
 sub _cmdLine {
     my $self = shift;
-    $self->executable . "-n -f $generated_conf_dir/keepalived.conf";
+    $self->executable . " -f $generated_conf_dir/keepalived.conf --pid=" . $self->pidFile;
 }
 
 sub executable {
@@ -48,6 +48,7 @@ sub executable {
     my $service = ( $Config{'services'}{"keepalived_binary"} || "$install_dir/sbin/keepalived" );
     return $service;
 }
+
 
 sub generateConfig {
     my ($self,$quick) = @_;
