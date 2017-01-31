@@ -1,0 +1,12 @@
+[% header_warning %]
+[Unit]
+Description=The PacketFence HAProxy Load Balancer
+After=syslog.target network.target packetfence.target
+Wants=packetfence.target
+
+[Service]
+ExecStart=[% cmdLine %]
+ExecReload=/bin/kill -USR2 $MAINPID
+
+[Install]
+WantedBy=packetfence-cluster.target

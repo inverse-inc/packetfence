@@ -1,11 +1,11 @@
-# [% header_warning %]
+[% header_warning %]
 [Unit]
 Description=The PacketFence pfmon Service
 After=packetfence-config.service
-Requires=packetfence-config.service
+Wants=packetfence-config.service
 
 [Service]
-ExecStart=/usr/local/pf/sbin/pfmon 
+ExecStart=[% cmdLine %]
 User=pf
 Restart=on-failure
 Slice=packetfence.slice

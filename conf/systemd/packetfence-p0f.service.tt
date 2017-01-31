@@ -1,12 +1,14 @@
 [% header_warning %]
 [Unit]
-Description=The PacketFence radsniff Service
-After=packetfence-collectd.service 
-Requires=packetfence-collectd.service
+Description=The PacketFence p0f Service
+After=packetfence-config.target  
+Wants=packetfence-config.service 
 
 [Service]
 Type=simple
 ExecStart=[% cmdLine %]
+StandardOutput=null
+StandardError=null
 Restart=on-failure
 Slice=packetfence.slice
 

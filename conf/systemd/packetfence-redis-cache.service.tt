@@ -1,4 +1,4 @@
-# [% header_warning %]
+[% header_warning %]
 [Unit]
 Description=PacketFence Redis Cache Service
 After=network.target mysql.service

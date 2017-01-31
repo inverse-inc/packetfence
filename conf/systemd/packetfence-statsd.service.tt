@@ -1,13 +1,13 @@
-# [% header_warning %]
+[% header_warning %]
 [Unit]
 Description=The PacketFence Statsd service
 After=packetfence-carbon-relay.service packetfence-iptables.service
-Requires=packetfence-carbon-relay.service packetfence-iptables.service
+Wants=packetfence-carbon-relay.service packetfence-iptables.service
 
 [Service]
 Type=simple
 ExecStartPre=/usr/local/pf/bin/pfcmd service statsd generateconfig
-ExecStart=/usr/bin/node /usr/local/pf/lib/Etsy/statsd/bin/statsd /usr/local/pf/var/conf/statsd_config.js
+ExecStart=[% cmdLine %]
 Restart=on-failure
 Slice=packetfence.slice
 

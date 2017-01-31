@@ -1,13 +1,13 @@
-# [% header_warning %]
+[% header_warning %]
 [Unit]
 Description=The PacketFence Graphite Carbon Cache
-Requires=packetfence-config.service packetfence-iptables.service
+Wants=packetfence-config.service packetfence-iptables.service
 After=packetfence-config.service packetfence-iptables.service
 
 [Service]
-Type=forking
+Type=simple
 ExecStartPre=/usr/local/pf/bin/pfcmd service carbon-cache generateconfig
-ExecStart=/usr/bin/carbon-cache --config=/usr/local/pf/var/conf/carbon.conf  --logdir=/usr/local/pf/logs start
+ExecStart=[% cmdLine %]
 ExecReload=/bin/kill -USR1 $MAINPID
 Restart=on-failure
 Slice=packetfence.slice

@@ -1,8 +1,8 @@
-# [% header_warning %]
+[% header_warning %]
 [Unit]
 Description=The PacketFence Redis Queue Service
 After=packetfence-config.service
-Requires=packetfence-config.service
+Wants=packetfence-config.service
 
 [Service]
 ExecStartPre=/usr/local/pf/bin/pfcmd service redis_queue generateconfig

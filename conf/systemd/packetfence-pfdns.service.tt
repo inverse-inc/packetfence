@@ -1,11 +1,11 @@
-# [% header_warning %]
+[% header_warning %]
 [Unit]
 Description=The PacketFence DNS Service
 After=packetfence-config.service
-Requires=packetfence-config.service
+Wants=packetfence-config.service
 
 [Service]
-ExecStart=/usr/local/pf/sbin/pfdns 
+ExecStart=[% cmdLine %]
 Restart=on-failure
 Slice=packetfence.slice
 

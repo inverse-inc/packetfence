@@ -1,16 +1,16 @@
-# [% header_warning %]
+[% header_warning %]
 [Unit]
 Description=The PacketFence Captive Portal Apache HTTP Server 
 Documentation=man:httpd(8)
 Documentation=man:apachectl(8)
-Requires=packetfence-config.service packetfence-iptables.service
+Wants=packetfence-config.service packetfence-iptables.service
 After=packetfence-config.service packetfence-iptables.service
 
 [Service]
 Type=simple
 ExecStartPre=/usr/local/pf/bin/pfcmd service httpd.portal generateconfig
-ExecStart=/usr/sbin/httpd  -f /usr/local/pf/var/conf/httpd.conf.d/httpd.portal -DFOREGROUND -Drhel 
-ExecReload=/usr/sbin/httpd  -k graceful
+ExecStart=[% cmdLine %]
+ExecReload=/bin/kill -USR1 ${MAINPID}
 ExecStop=/bin/kill -WINCH ${MAINPID}
 # We want systemd to give httpd some time to finish gracefully, but still want
 # it to kill httpd after TimeoutStopSec if something went wrong during the

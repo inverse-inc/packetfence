@@ -1,12 +1,12 @@
-# [% header_warning %]
+[% header_warning %]
 [Unit]
 Description=The PacketFence pfqueue Service
-Requires=packetfence-config.service packetfence-redis-queue.service
-After=packetfence-config.service packetfence-redis-queue.service
+Wants=packetfence-config.service packetfence-redis_queue.service
+After=packetfence-config.service packetfence-redis_queue.service
 
 [Service]
 ExecStartPre=/usr/local/pf/bin/pfcmd service pfqueue generateconfig
-ExecStart=/usr/local/pf/sbin/pfqueue 
+ExecStart=[% cmdLine %]
 User=pf
 Restart=on-failure
 Slice=packetfence.slice

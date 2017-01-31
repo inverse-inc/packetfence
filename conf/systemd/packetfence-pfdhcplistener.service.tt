@@ -1,11 +1,12 @@
+[% header_warning %]
 [Unit]
 Description=The PacketFence DHCP Listener Service
-Requires=packetfence-config.service packetfence-pfqueue.service
+Wants=packetfence-config.service packetfence-pfqueue.service
 After=packetfence-config.service packetfence-pfqueue.service
 
 [Service]
 Type=simple
-ExecStart=/usr/local/pf/sbin/pfdhcplistener -i ens192
+ExecStart=[% cmdLine %]
 Restart=on-failure
 Slice=packetfence.slice
 

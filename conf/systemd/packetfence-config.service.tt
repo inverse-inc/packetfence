@@ -1,14 +1,13 @@
-# [% header_warning %]
+[% header_warning %]
 [Unit]
 Description=PacketFence Config Service
 After=network.target packetfence-redis-cache.target
-Requires=packetfence-redis-cache.service
+Wants=packetfence-redis-cache.service
 
 [Service]
-Type=forking
-ExecStart=/usr/local/pf/sbin/pfconfig -d
-ExecStop=/bin/systemctl kill packetfence-config.service
+Type=simple
+ExecStart=/usr/local/pf/sbin/pfconfig 
 User=pf
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=packetfence.target

@@ -1,4 +1,4 @@
-# [% header_warning %]
+[% header_warning %]
 [Unit]
 Description=The PacketFence MariaDB instance
 After=syslog.target

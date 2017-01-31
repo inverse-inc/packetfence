@@ -1,13 +1,13 @@
-# [% header_warning %]
+[% header_warning %]
 [Unit]
 Description=The PacketFence FreeRADIUS multi-protocol accounting server
 Documentation=man:radiusd(8) man:radiusd.conf(5) http://wiki.freeradius.org/ http://networkradius.com/doc/
 After=packetfence-config.service packetfence-httpd.aaa.service packetfence-iptables.service
-Requires=packetfence-config.service packetfence-httpd.aaa.service packetfence-iptables.service
+Wants=packetfence-config.service packetfence-httpd.aaa.service packetfence-iptables.service
 
 [Service]
 ExecStartPre=/usr/local/pf/bin/pfcmd service radiusd generateconfig
-ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb -n acct -fm
+ExecStart=[% cmdLine %]
 Restart=on-failure
 Slice=packetfence.slice
 

@@ -1,0 +1,16 @@
+[% header_warning %]
+[Unit]
+Description=The PacketFence LVS and VRRP High Availability Monitor
+After=syslog.target network.target packetfence.target
+Wants=packetfence.target
+
+[Service]
+Type=forking
+KillMode=process
+PIDFile=[% pidFile %]
+ExecStartPre=/usr/local/pf/bin/pfcmd service keepalived generateconfig
+ExecStart=[% cmdLine %]
+ExecReload=/bin/kill -HUP $MAINPID
+
+[Install]
+WantedBy=packetfence-cluster.target

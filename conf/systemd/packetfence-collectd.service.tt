@@ -1,13 +1,13 @@
-# [% header_warning %]
+[% header_warning %]
 [Unit]
 Description=The PacketFence Collectd statistics daemon
 Documentation=man:collectd(1) man:collectd.conf(5)
-Requires=packetfence-carbon-relay.service packetfence-config.service packetfence-iptables.service
+Wants=packetfence-carbon-relay.service packetfence-config.service packetfence-iptables.service
 After=packetfence-carbon-relay.service packetfence-config.service packetfence-iptables.service
 
 [Service]
 ExecStartPre=/usr/local/pf/bin/pfcmd service collectd generateconfig
-ExecStart=/usr/sbin/collectd -C /usr/local/pf/var/conf/collectd.conf -f
+ExecStart=[% cmdLine %]
 Restart=on-failure
 Slice=packetfence.slice
 
