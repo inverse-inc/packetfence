@@ -298,6 +298,18 @@ sub pf_localize {
     return $c->localize(@args);
 }
 
+
+=head2 user_allowed_in_admin
+
+Checks to see if the user is allowed in admin
+
+=cut
+
+sub user_allowed_in_admin {
+    my ($c) = @_;
+    return $c->user_in_realm('admin') || $c->user_in_realm('proxy');
+}
+
 # Logging
 __PACKAGE__->log(Log::Log4perl::Catalyst->new(INSTALL_DIR . '/conf/log.conf.d/httpd.admin.conf',watch_delay => 5 * 60));
 
