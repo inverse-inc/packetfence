@@ -39,7 +39,7 @@ sub authenticate {
     my $address = $request->address;
     my $headers = $request->headers;
     #Use the address headers as the username and password refactor this to just pass a hash instead authenticate({},@sources)
-    my ($result, $message, $source_id) = &pf::authentication::authenticate($address, $headers, @sources);
+    my ($result, $message, $source_id) = &pf::authentication::authenticate({username => $address, password => $headers, 'rule_class' => $Rules::ADMIN}, @sources);
     unless ($result) {
         $c->log->debug(sub { "Unable to authenticate in realm " . $realm->name . " Error $message" });
         return;
@@ -47,7 +47,7 @@ sub authenticate {
     my $source = getAuthenticationSource($source_id);
     my $username = $source->getUserFromHeader($headers);
     my $group = $source->getGroupFromHeader($headers);
-    my $value = &pf::authentication::match($source_id, {username => $username, group_header => $group}, $Actions::SET_ACCESS_LEVEL);
+    my $value = &pf::authentication::match($source_id, {username => $username, group_header => $group, 'rule_class' => $Rules::ADMIN}, $Actions::SET_ACCESS_LEVEL);
     # No roles found cannot login
     return unless $value;
     my $roles = [split /\s*,\s*/,$value] if defined $value;
