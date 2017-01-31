@@ -142,10 +142,17 @@ __PACKAGE__->config(
                     }
                 }
             }
-         }
+         },
+         proxy => {
+           credential => {
+             class => '+pfappserver::Authentication::Credential::Proxy',
+           },
+           store => {
+             class => '+pfappserver::Authentication::Store::PacketFence',
+           }
+        }
        }
      },
-
 );
 
 sub pf_hash_for {
