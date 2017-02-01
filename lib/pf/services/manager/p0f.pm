@@ -35,7 +35,7 @@ has '+launcher' => (
         my $pid_file = $self->pidFile;
         my $name = $self->name;
         my $p0f_cmdline;
-        if (@ha_ints)
+        if ($cluster_enabled)
         {
             my $p0f_bpf_filter = bpf_filter();
             $p0f_cmdline="sudo %1\$s -d -i any -p -f $p0f_map -s $p0f_sock" . " '$p0f_bpf_filter' " . " > /dev/null && pidof $name > $pid_file";
