@@ -1,16 +1,16 @@
-package pf::iplog_v4;
+package pf::ip6log;
 
 =head1 NAME
 
-pf::iplog_v4
+pf::ip6log
 
 =cut
 
 =head1 DESCRIPTION
 
-Class to manage IPv4 address <-> MAC address bindings
+Class to manage IPv6 address <-> MAC address bindings
 
-Contains the functions necessary to read and manage the DHCPv4
+Contains the functions necessary to read and manage the DHCPv6
 information gathered by PacketFence on the network.
 
 =cut
