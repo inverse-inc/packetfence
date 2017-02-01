@@ -389,7 +389,7 @@ sub advanced_search :Local :Args() :AdminRoleAny(USERS_READ) :AdminRoleAny(USERS
     }
     else {
         my $query = $form->value;
-        ($status, $result) = $model->search($query);
+        ($status, $result) = $model->search($c, $query);
         if (is_success($status)) {
             $c->stash(form => $form);
             $c->stash($result);

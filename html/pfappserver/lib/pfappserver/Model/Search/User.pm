@@ -47,7 +47,7 @@ sub make_builder {
 }
 
 sub search {
-    my ($self,$params) = @_;
+    my ($self, $c, $params) = @_;
     my $logger = get_logger();
     my $builder = $self->make_builder;
     $self->setup_query($builder,$params);
