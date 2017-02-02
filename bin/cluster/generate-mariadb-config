@@ -16,9 +16,6 @@ if($cluster_enabled) {
     my $tt = Template->new(ABSOLUTE => 1);
 
     my %vars = (
-        server_ip => pf::cluster::current_server()->{management_ip},
-        servers_ip => [(map { $_->{management_ip} } @cluster_servers)],
-
         # TODO: migrate those to pf.conf.defaults
         key_buffer_size => 100,
         innodb_buffer_pool_size => 500,
@@ -28,13 +25,24 @@ if($cluster_enabled) {
         max_connections => 500,
         table_cache => 300,
 
-        # Replication related
-        server_id => (pf::cluster::cluster_index() + 1),
-
-        # TODO: have real configurable user
-        replication_user => "zammit",
-        replication_password => "isnotadog",
     );
+
+    if($cluster_enabled) {
+        %vars = (
+            %vars,
+
+            cluster_enabled => $cluster_enabled,
+
+            server_ip => pf::cluster::current_server()->{management_ip},
+            servers_ip => [(map { $_->{management_ip} } @cluster_servers)],
+
+            # TODO: have real configurable user
+            replication_user => "zammit",
+            replication_password => "isnotadog",
+
+            server_id => (pf::cluster::cluster_index() + 1),
+        );
+    }
 
     $tt->process("$conf_dir/mariadb.conf.tt", \%vars, "$install_dir/var/conf/mariadb.conf") or die $tt->error();
 }
