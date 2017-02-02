@@ -37,6 +37,7 @@ thread_concurrency = [% thread_concurrency %]
 # 
 #skip-networking
 
+[% IF cluster_enabled %]
 # Replication Master Server (default)
 # binary logging is required for replication
 log-bin=mysql-bin
@@ -46,6 +47,7 @@ binlog-format=row
 # defaults to 1 if master-host is not set
 # but will not function as a master if omitted
 server-id = [% server_id %]
+[% END %]
 
 # Replication Slave (comment out master section to use this)
 #
@@ -129,6 +131,7 @@ innodb_file_per_table
 
 max_connections=[% max_connections %]
 
+[% IF cluster_enabled %]
 #
 # * Galera-related settings
 #
@@ -154,4 +157,4 @@ bind-address=[% server_ip %]
 # Optional setting
 wsrep_slave_threads=1
 innodb_flush_log_at_trx_commit=0
-
+[% END %]
