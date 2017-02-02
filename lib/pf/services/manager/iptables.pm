@@ -97,7 +97,7 @@ Wrapper around systemctl. systemctl should in turn call the actual _stop.
 
 sub stop {
     my ($self) = @_;
-    system('systemctl stop packetfence-iptables');
+    system('sudo systemctl stop packetfence-iptables');
     return 1;
 }
 
@@ -140,7 +140,7 @@ Override the default method to check pid since there really is no such thing for
 
 sub pid {
     my $self   = shift;
-    my $result = `systemctl show -p ActiveState packetfence-iptables`;
+    my $result = `sudo systemctl show -p ActiveState packetfence-iptables`;
     chomp $result;
     my $state = ( split( '=', $result ) )[1];
     if ( grep { $state eq $_ } qw( active activating deactivating ) ) {

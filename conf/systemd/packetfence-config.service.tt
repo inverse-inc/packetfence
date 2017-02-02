@@ -1,4 +1,3 @@
-[% header_warning %]
 [Unit]
 Description=PacketFence Config Service
 After=network.target packetfence-redis-cache.target
@@ -6,8 +5,11 @@ Wants=packetfence-redis-cache.service
 
 [Service]
 Type=simple
+PIDFile=/usr/local/pf/var/run/pfconfig.pid
 ExecStart=/usr/local/pf/sbin/pfconfig 
 User=pf
+Slice=packetfence-base.slice
+Restart=on-failure
 
 [Install]
-WantedBy=packetfence.target
+WantedBy=packetfence-base.target

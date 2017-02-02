@@ -33,12 +33,12 @@ our $CONFIG_GENERATED = 0;
 sub _cmdLine {
     my $self = shift;
     return
-          "chroot " . pf::domain::chroot_path( $self->domain ) . " "
-        . $self->executable
+        $self->executable
         . " -D -s /etc/samba/" . $self->domain . ".conf"
         . " -l /var/log/samba" . $self->domain;
 }
-
+   
+          "chroot " . pf::domain::chroot_path( $self->domain ) . " "
 sub generateConfig {
     my ($self, $quick) = @_;
 

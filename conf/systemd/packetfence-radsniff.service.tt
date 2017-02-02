@@ -1,11 +1,14 @@
 [% header_warning %]
 [Unit]
-Description=The PacketFence radsniff Service
+Description=PacketFence radsniff Service
 After=packetfence-collectd.service 
 Requires=packetfence-collectd.service
+Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
+After=packetfence-base.target packetfence-config.service packetfence-iptables.service
 
 [Service]
-Type=simple
+Type=forking
+PIDFile=[% pidFile %]
 ExecStart=[% cmdLine %]
 Restart=on-failure
 Slice=packetfence.slice

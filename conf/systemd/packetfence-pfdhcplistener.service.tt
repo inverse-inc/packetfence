@@ -1,11 +1,14 @@
 [% header_warning %]
 [Unit]
-Description=The PacketFence DHCP Listener Service
-Wants=packetfence-config.service packetfence-pfqueue.service
-After=packetfence-config.service packetfence-pfqueue.service
+Description=PacketFence DHCP Listener Service
+Wants=packetfence-pfqueue.service
+After=packetfence-pfqueue.service
+Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
+After=packetfence-base.target packetfence-config.service packetfence-iptables.service
 
 [Service]
 Type=simple
+PIDFile=[% pidFile %]
 ExecStart=[% cmdLine %]
 Restart=on-failure
 Slice=packetfence.slice

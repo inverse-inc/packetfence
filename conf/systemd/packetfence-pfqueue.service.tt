@@ -1,10 +1,13 @@
 [% header_warning %]
 [Unit]
-Description=The PacketFence pfqueue Service
-Wants=packetfence-config.service packetfence-redis_queue.service
-After=packetfence-config.service packetfence-redis_queue.service
+Description=PacketFence pfqueue Service
+Wants=packetfence-redis_queue.service
+After=packetfence-redis_queue.service
+Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
+After=packetfence-base.target packetfence-config.service packetfence-iptables.service
 
 [Service]
+PIDFile=[% pidFile %]
 ExecStartPre=/usr/local/pf/bin/pfcmd service pfqueue generateconfig
 ExecStart=[% cmdLine %]
 User=pf

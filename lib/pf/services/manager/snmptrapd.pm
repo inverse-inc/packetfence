@@ -46,7 +46,7 @@ if (ref($management_network)) {
 sub _cmdLine {
     my $self = shift;
     $self->executable
-        . " -n -c $generated_conf_dir/snmptrapd.conf -C -A -Lf $install_dir/logs/snmptrapd.log -p $install_dir/var/run/snmptrapd.pid -On $management_ip";
+        . " -f -n -c $generated_conf_dir/snmptrapd.conf -C -A -Lf $install_dir/logs/snmptrapd.log -p $install_dir/var/run/snmptrapd.pid -On $management_ip";
 }
 
 =head2 generateConfig

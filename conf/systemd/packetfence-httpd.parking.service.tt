@@ -1,10 +1,10 @@
 [% header_warning %]
 [Unit]
-Description=The PacketFence Parking  Apache HTTP Server 
+Description=PacketFence Parking  Apache HTTP Server 
 Documentation=man:httpd(8)
 Documentation=man:apachectl(8)
-Wants=packetfence-config.service packetfence-iptables.service
-After=packetfence-config.service packetfence-iptables.service
+Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
+After=packetfence-base.target packetfence-config.service packetfence-iptables.service
 
 [Service]
 Type=simple

@@ -1,13 +1,14 @@
 [% header_warning %]
 [Unit]
-Description=The PacketFence Webservices Apache HTTP Server 
+Description=PacketFence Webservices Apache HTTP Server 
 Documentation=man:httpd(8)
 Documentation=man:apachectl(8)
-Wants=packetfence-config.service packetfence-iptables.service
-After=packetfence-config.service packetfence-iptables.service
+Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
+After=packetfence-base.target packetfence-config.service packetfence-iptables.service
 
 [Service]
 Type=simple
+PIDFile=[% pidFile %]
 ExecStartPre=/usr/local/pf/bin/pfcmd service httpd.webservices generateconfig
 ExecStart=[% cmdLine %]
 ExecReload=/bin/kill -USR1 ${MAINPID}

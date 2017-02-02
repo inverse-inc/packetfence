@@ -1,13 +1,15 @@
-[% header_warning %]
 [Unit]
 Description=PacketFence Redis Cache Service
-After=network.target mysql.service
+After=network.target packetfence-mariadb.service
+Wants=packetfence-mariadb.service
 
 [Service]
-Type=forking
-ExecStart=/usr/bin/redis-server /usr/local/pf/conf/redis_cache.conf
-ExecStop=/usr/bin/redis-cli shutdown
+PIDFile=/usr/local/pf/var/run/redis_cache.pid
+ExecStart=/usr/bin/redis-server /usr/local/pf/conf/redis_cache.conf --daemonize no
+ExecStop=/usr/bin/kill $MAINPID
+Slice=packetfence-base.slice
+Restart=on-failure
 
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=packetfence-base.target

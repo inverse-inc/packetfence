@@ -1,6 +1,6 @@
 [% header_warning %]
 [Unit]
-Description=PacketFence AAA Apache HTTP Server 
+Description=PacketFence Proxy  Apache HTTP Server 
 Documentation=man:httpd(8)
 Documentation=man:apachectl(8)
 Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
@@ -9,7 +9,7 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
 [Service]
 Type=simple
 PIDFile=[% pidFile %]
-ExecStartPre=/usr/local/pf/bin/pfcmd service httpd.aaa generateconfig
+ExecStartPre=/usr/local/pf/bin/pfcmd service httpd.proxy generateconfig
 ExecStart=[% cmdLine %]
 ExecReload=/bin/kill -USR1 ${MAINPID}
 ExecStop=/bin/kill -WINCH ${MAINPID}

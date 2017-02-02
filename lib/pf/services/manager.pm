@@ -34,7 +34,7 @@ use strict;
 
 use Moo;
 use pf::constants;
-use pf::file_paths qw($var_dir $install_dir);
+use pf::file_paths qw($var_dir $install_dir $systemd_unit_dir);
 use pf::log;
 use pf::util;
 
@@ -101,7 +101,7 @@ has orderIndex => ( is => 'ro', builder => 1, lazy => 1 );
 
 has pidFile => ( is => 'ro', lazy => 1, builder => '_buildpidFile' );
 
-sub _buildpidFile { my $self = shift; return $install_dir . "/var/run/" . $self->name . ".pid"; }
+sub _buildpidFile { my $self = shift; return $var_dir . "/run/" . $self->name . ".pid"; }
 
 sub _build_orderIndex {
     my ($self) = @_;
@@ -282,10 +282,10 @@ sub pid {
     my ($self) = @_;
     my $logger = get_logger();
     my $name = $self->{name};
-    my $pid = `systemctl show -p MainPID packetfence-$name`;
+    my $pid = `sudo systemctl show -p MainPID packetfence-$name`;
     chomp $pid;
     $pid = (split(/=/, $pid))[1];
-    $logger->debug("systemctl packetfence-$name returned $pid");
+    $logger->debug("sudo systemctl packetfence-$name returned $pid");
     return $pid;
 }
 
@@ -367,7 +367,7 @@ Return the fully qualified path to the systemd unit file output by generateUnitF
 
 sub _build_unitFilePath {
     my $self = shift;
-    return $install_dir . "/var/conf/systemd/packetfence-" . $self->name . ".service";
+    return $systemd_unit_dir . "/packetfence-" . $self->name . ".service";
 }
 
 =head2 _build_systemdTemplateFilePath 

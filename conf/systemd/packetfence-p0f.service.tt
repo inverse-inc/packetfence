@@ -1,11 +1,12 @@
 [% header_warning %]
 [Unit]
-Description=The PacketFence p0f Service
-After=packetfence-config.target  
-Wants=packetfence-config.service 
+Description=PacketFence p0f Service
+Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
+After=packetfence-base.target packetfence-config.service packetfence-iptables.service
 
 [Service]
 Type=simple
+PIDFile=[% pidFile %]
 ExecStart=[% cmdLine %]
 StandardOutput=null
 StandardError=null

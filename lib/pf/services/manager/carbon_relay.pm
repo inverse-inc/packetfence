@@ -26,6 +26,7 @@ has '+optional' => ( default => sub {1} );
 sub _cmdLine {
     my $self = shift;
     $self->executable
+        . "--pidfile=" . $self->pidFile
         . " --config=$install_dir/var/conf/carbon.conf  --logdir=$install_dir/logs --nodaemon start";
 }
 

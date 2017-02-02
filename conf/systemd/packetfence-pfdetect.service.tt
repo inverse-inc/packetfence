@@ -1,16 +1,13 @@
 [% header_warning %]
 [Unit]
-Description=PacketFence Redis Queue Service
+Description=PacketFence pfdetect Service
 Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
 After=packetfence-base.target packetfence-config.service packetfence-iptables.service
 
 [Service]
 PIDFile=[% pidFile %]
-ExecStartPre=/usr/local/pf/bin/pfcmd service redis_queue generateconfig
 ExecStart=[% cmdLine %]
-ExecStop=/usr/bin/kill $MAINPID
 Restart=on-failure
-User=pf
 Slice=packetfence.slice
 
 [Install]

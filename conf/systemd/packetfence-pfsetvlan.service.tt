@@ -1,15 +1,15 @@
-[% header_warning %]
 [Unit]
-Description=PacketFence pfmon Service
+Description=PacketFence pfsetvlan service
+After=packetfence-base.target
+After=packetfence-snmptrapd.service
+Wants=packetfence-snmptrapd.service
 Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
-After=packetfence-base.target packetfence-config.service packetfence-iptables.service
 
 [Service]
 PIDFile=[% pidFile %]
 ExecStart=[% cmdLine %]
-User=pf
-Restart=on-failure
 Slice=packetfence.slice
+Restart=on-failure
 
 [Install]
 WantedBy=packetfence.target

@@ -38,7 +38,7 @@ has startDependsOnServices => ( is => 'ro', default => sub { [qw(carbon-cache ca
 
 sub _cmdLine {
     my $self = shift;
-    $self->executable . " -f -C $install_dir/var/conf/collectd.conf";
+    $self->executable . " -P " . $self->pidFile . " -f -C $install_dir/var/conf/collectd.conf";
 }
 
 sub generateConfig {

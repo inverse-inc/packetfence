@@ -1,12 +1,12 @@
 [% header_warning %]
 [Unit]
-Description=The PacketFence Graphite Carbon Relay
-Wants=packetfence-carbon-cache.service
-Wants=packetfence-config.service packetfence-iptables.service
-After=packetfence-config.service packetfence-iptables.service
+Description=PacketFence Graphite Carbon Relay
+Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service packetfence-carbon-cache.service
+After=packetfence-base.target packetfence-config.service packetfence-iptables.service packetfence-carbon-cache.service
 
 [Service]
 Type=simple
+PIDFile=[% pidFile %]
 ExecStartPre=/usr/local/pf/bin/pfcmd service carbon-relay generateconfig
 ExecStart=[% cmdLine %]
 ExecReload=/bin/kill -USR1 $MAINPID

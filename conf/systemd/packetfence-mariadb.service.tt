@@ -1,6 +1,5 @@
-[% header_warning %]
 [Unit]
-Description=The PacketFence MariaDB instance
+Description=PacketFence MariaDB instance
 After=syslog.target
 After=network.target
 
@@ -8,7 +7,7 @@ After=network.target
 Type=simple
 User=mysql
 Group=mysql
-Slice=packetfence.slice
+Slice=packetfence-base.slice
 
 ExecStartPre=/usr/libexec/mariadb-prepare-db-dir %n
 # Note: we set --basedir to prevent probes that might trigger SELinux alarms,
@@ -24,4 +23,4 @@ TimeoutSec=300
 PrivateTmp=true
 
 [Install]
-WantedBy=packetfence.target
+WantedBy=packetfence-base.target

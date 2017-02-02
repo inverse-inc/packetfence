@@ -1,11 +1,14 @@
 [% header_warning %]
 [Unit]
-Description=The PacketFence Collectd statistics daemon
+Description=PacketFence Collectd statistics daemon
 Documentation=man:collectd(1) man:collectd.conf(5)
-Wants=packetfence-carbon-relay.service packetfence-config.service packetfence-iptables.service
-After=packetfence-carbon-relay.service packetfence-config.service packetfence-iptables.service
+Wants=packetfence-carbon-relay.service 
+After=packetfence-carbon-relay.service 
+Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
+After=packetfence-base.target packetfence-config.service packetfence-iptables.service
 
 [Service]
+PIDFile=[% pidFile %]
 ExecStartPre=/usr/local/pf/bin/pfcmd service collectd generateconfig
 ExecStart=[% cmdLine %]
 Restart=on-failure

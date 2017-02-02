@@ -1,8 +1,8 @@
 [% header_warning %]
 [Unit]
-Description=The PacketFence LVS and VRRP High Availability Monitor
-After=syslog.target network.target packetfence.target
-Wants=packetfence.target
+Description=PacketFence LVS and VRRP High Availability Monitor
+After=packetfence.target
+Wants=packetfence.target packetfence-iptables.service
 
 [Service]
 Type=forking
@@ -11,6 +11,7 @@ PIDFile=[% pidFile %]
 ExecStartPre=/usr/local/pf/bin/pfcmd service keepalived generateconfig
 ExecStart=[% cmdLine %]
 ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
 
 [Install]
 WantedBy=packetfence-cluster.target
