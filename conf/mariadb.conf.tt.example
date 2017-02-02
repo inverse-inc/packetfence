@@ -156,5 +156,4 @@ bind-address=[% server_ip %]
 #
 # Optional setting
 wsrep_slave_threads=1
-innodb_flush_log_at_trx_commit=0
 [% END %]
