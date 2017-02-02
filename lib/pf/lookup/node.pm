@@ -24,7 +24,7 @@ use pf::accounting qw(
     node_accounting_daily_time node_accounting_weekly_time node_accounting_monthly_time node_accounting_yearly_time
 );
 use pf::config;
-use pf::iplog;
+use pf::ip4log;
 use pf::locationlog;
 use pf::node;
 use pf::useragent qw(node_useragent_view);
@@ -41,7 +41,7 @@ sub lookup_node {
         $return .= "MAC Address    : $mac\n";
 
         # fetch IP and DHCP information
-        my $node_iplog_info = pf::iplog::view($mac);
+        my $node_iplog_info = pf::ip4log::view($mac);
         if (defined($node_iplog_info->{'ip'})) {
 
             $return .= "IP Address     : ".$node_iplog_info->{'ip'}." (active)\n";
@@ -52,7 +52,7 @@ sub lookup_node {
             $return .= "\n";
             
         } else {
-            my @node_iplog_history_info = pf::iplog::get_history($mac);
+            my @node_iplog_history_info = pf::ip4log::get_history($mac);
             if (ref($node_iplog_history_info[0]) eq 'HASH' && defined($node_iplog_history_info[0]->{'ip'})) {
                 my $latest_iplog = $node_iplog_history_info[0];
                 $return .= "IP Address     : ".$latest_iplog->{'ip'}." (inactive)\n";

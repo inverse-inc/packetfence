@@ -19,7 +19,7 @@ BEGIN {
 use pf::config();
 use pf::node();
 use pf::locationlog();
-use pf::iplog();
+use pf::ip4log();
 use pf::violation();
 use pf::util();
 use pf::radius::custom();

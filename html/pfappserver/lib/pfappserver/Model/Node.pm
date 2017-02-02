@@ -28,7 +28,7 @@ use pf::config qw($EAP);
 use pf::error qw(is_error is_success);
 use pf::node;
 use pf::nodecategory;
-use pf::iplog;
+use pf::ip4log;
 use pf::locationlog;
 use pf::log;
 use pf::node;
@@ -161,18 +161,18 @@ sub view {
         }
 
         # Fetch IP information
-        $node->{iplog} = pf::iplog::view($mac);
+        $node->{iplog} = pf::ip4log::view($mac);
 
         # Fetch the IP activity of the past 14 days
 #        my $start_time = time() - 14 * 24 * 60 * 60;
 #        my $end_time = time();
-#        my @iplog_history = pf::iplog::get_history($mac,
+#        my @iplog_history = pf::ip4log::get_history($mac,
 #                                              (start_time => $start_time, end_time => $end_time));
 #        $node->{iplog}->{history} = \@iplog_history;
 #        _graphIplogHistory($node, $start_time, $end_time);
 
         # Fetch IP address history
-        my @iplog_history = pf::iplog::get_history($mac);
+        my @iplog_history = pf::ip4log::get_history($mac);
         map { $_->{end_time} = '' if ($_->{end_time} eq '0000-00-00 00:00:00') } @iplog_history;
         $node->{iplog}->{history} = \@iplog_history;
 

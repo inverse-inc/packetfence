@@ -44,7 +44,7 @@ BEGIN {
     use_ok('pf::email_activation');
     use_ok('pf::freeradius');
     use_ok('pf::ifoctetslog');
-    use_ok('pf::iplog');
+    use_ok('pf::ip4log');
     use_ok('pf::locationlog');
     use_ok('pf::node');
     use_ok('pf::nodecategory');
@@ -66,7 +66,7 @@ my @data_modules = qw(
     pf::email_activation
     pf::freeradius
     pf::ifoctetslog
-    pf::iplog
+    pf::ip4log
     pf::locationlog
     pf::node
     pf::nodecategory

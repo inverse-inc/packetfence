@@ -36,7 +36,7 @@ use pf::config qw(
 use pf::db;
 use pf::firewallsso;
 use pf::inline::custom $INLINE_API_LEVEL;
-use pf::iplog;
+use pf::ip4log;
 use pf::lookup::node;
 use pf::node;
 use pf::util;
@@ -576,7 +576,7 @@ sub rogue_dhcp_handling {
     my $previous_offers = $self->add_rogue_dhcp($dhcp_srv_ip, $rogue_offer, $Config{'network'}{'rogueinterval'});
 
     # if I have a MAC use it, otherwise look it up
-    $dhcp_srv_mac = pf::iplog::ip2mac($dhcp_srv_ip) if (!defined($dhcp_srv_mac));
+    $dhcp_srv_mac = pf::ip4log::ip2mac($dhcp_srv_ip) if (!defined($dhcp_srv_mac));
     if ($dhcp_srv_mac) {
         my %data = (
            'mac' => $dhcp_srv_mac,
@@ -686,8 +686,8 @@ sub update_iplog {
     }
 
     # we have to check directly in the DB since the OMAPI already contains the current lease info
-    my $oldip  = pf::iplog::_mac2ip_sql($srcmac);
-    my $oldmac = pf::iplog::_ip2mac_sql($srcip);
+    my $oldip  = pf::ip4log::_mac2ip_sql($srcmac);
+    my $oldmac = pf::ip4log::_ip2mac_sql($srcip);
     if ( $oldip && $oldip ne $srcip ) {
         my $view_mac = node_view($srcmac);
         my $firewallsso = pf::firewallsso->new;

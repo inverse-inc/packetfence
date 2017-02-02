@@ -25,7 +25,7 @@ use UNIVERSAL::require;
 use pf::config qw(
     $WIRELESS_MAC_AUTH
 );
-use pf::iplog;
+use pf::ip4log;
 use pf::log;
 use pf::locationlog qw(locationlog_view_open_mac locationlog_get_session);
 use pf::Portal::Session;
@@ -123,7 +123,7 @@ sub handle {
         return $FALSE;
     }
 
-    pf::iplog::open($params{'client_ip'}, $params{'client_mac'}, 3600);
+    pf::ip4log::open($params{'client_ip'}, $params{'client_mac'}, 3600);
 
     # Updating locationlog unless there is a session ID parameter, which means a locationlog entry was already opened on session creation
     $switch->synchronize_locationlog("0", "0", $params{'client_mac'}, 0, $WIRELESS_MAC_AUTH, undef, $params{'client_mac'}, $params{'ssid'}) unless ( defined($params{'session_id'}) );

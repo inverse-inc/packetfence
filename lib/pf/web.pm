@@ -55,7 +55,7 @@ use pf::config qw(
     %Config
 );
 use pf::enforcement qw(reevaluate_access);
-use pf::iplog;
+use pf::ip4log;
 use pf::node qw(node_attributes node_modify node_register node_view is_max_reg_nodes_reached);
 use pf::person qw(person_nodes);
 use pf::useragent;

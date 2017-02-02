@@ -21,7 +21,7 @@ use pf::util qw(clean_mac);
 use WWW::Curl::Easy;
 use XML::Simple;
 use pf::log;
-use pf::iplog;
+use pf::ip4log;
 use pf::ConfigStore::Provisioning;
 use DateTime::Format::RFC3339;
 use pf::violation;

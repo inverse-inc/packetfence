@@ -56,7 +56,7 @@ use pf::client;
 use pf::cluster;
 use pf::firewallsso;
 use pf::constants::dhcp qw($DEFAULT_LEASE_LENGTH);
-use pf::iplog;
+use pf::ip4log;
 use pf::Portal::ProfileFactory;
 
 use Readonly;
@@ -91,7 +91,7 @@ sub reevaluate_access {
 
     if(isenabled($Config{advanced}{sso_on_access_reevaluation})){
         my $node = node_attributes($mac);
-        my $ip = pf::iplog::mac2ip($mac);
+        my $ip = pf::ip4log::mac2ip($mac);
         if($ip){
             my $firewallsso = pf::firewallsso->new;
             if($node->{status} eq $STATUS_REGISTERED){

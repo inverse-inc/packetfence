@@ -22,7 +22,7 @@ use CGI qw(:standard);
 use pf::parking;
 
 my $ip = $ENV{REMOTE_ADDR};
-my $mac = pf::iplog::ip2mac($ip);
+my $mac = pf::ip4log::ip2mac($ip);
 
 if(pf::parking::unpark($mac, $ip)){
     print redirect("/back-on-network.html");

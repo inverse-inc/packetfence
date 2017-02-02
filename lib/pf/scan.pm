@@ -33,7 +33,7 @@ use pf::constants;
 use pf::constants::scan qw($SEVERITY_HOLE $SEVERITY_WARNING $SEVERITY_INFO $STATUS_CLOSED $STATUS_NEW $STATUS_STARTED);
 use pf::config;
 use pf::db;
-use pf::iplog;
+use pf::ip4log;
 use pf::scan::nessus;
 use pf::scan::openvas;
 use pf::scan::wmi;
@@ -236,7 +236,7 @@ sub run_scan {
     $host_ip = clean_ip($host_ip);  # untainting ip
 
     # Resolve mac address
-    my $host_mac = $mac || pf::iplog::ip2mac($host_ip);
+    my $host_mac = $mac || pf::ip4log::ip2mac($host_ip);
     if ( !$host_mac ) {
         $logger->warn("Unable to find MAC address for the scanned host $host_ip. Scan aborted.");
         return;

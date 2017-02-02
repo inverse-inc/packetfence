@@ -32,7 +32,7 @@ use pf::action;
 use pf::class;
 use pf::config qw(%ConfigDetect);
 use pf::db;
-use pf::iplog;
+use pf::ip4log;
 use pf::node;
 use pf::person;
 use pf::util;

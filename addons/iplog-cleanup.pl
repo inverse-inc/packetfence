@@ -23,7 +23,7 @@ use strict;
 use warnings;
 use lib qw(/usr/local/pf/lib);
 use pf::config qw(%Config);
-use pf::iplog;
+use pf::ip4log;
 
 use Getopt::Long;
 use Pod::Usage;
@@ -41,7 +41,7 @@ pod2usage(1) if $options{help};
 
 pod2usage(-msg  => "Expire must be greater than 0", -exitval => 2, -verbose => 0) unless $options{expire};
 
-pf::iplog::cleanup(@options{qw(expire batch timeout)});
+pf::ip4log::cleanup(@options{qw(expire batch timeout)});
 
 =head1 AUTHOR
 

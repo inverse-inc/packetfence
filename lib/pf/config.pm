@@ -900,7 +900,7 @@ sub is_network_type_inline {
 
 =item is_omapi_lookup_enabled
 
-Check whether pf::iplog::ip2mac or pf::iplog::mac2ip are configured to use OMAPI based on configuration parameters.
+Check whether pf::ip4log::ip2mac or pf::ip4log::mac2ip are configured to use OMAPI based on configuration parameters.
 
 =cut
 

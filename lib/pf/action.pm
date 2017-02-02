@@ -178,7 +178,7 @@ sub action_api {
     my @params = split(' ', $class_info->{'external_command'});
     my $return;
     my $node_info = node_view($mac);
-    my $ip = pf::iplog::mac2ip($mac) || 0;
+    my $ip = pf::ip4log::mac2ip($mac) || 0;
     $node_info = {%$node_info, 'last_ip' => $ip};
     # Replace parameters in the cli by the real one (for example: $last_ip will be changed to the value of $node_info->{last_ip})
     foreach my $param (@params) {
@@ -327,8 +327,8 @@ sub action_email_user {
 sub action_log {
     my ($mac, $vid) = @_;
     my $logger = get_logger();
-    require pf::iplog;
-    my $ip = pf::iplog::mac2ip($mac) || 0;
+    require pf::ip4log;
+    my $ip = pf::ip4log::mac2ip($mac) || 0;
 
     my $class_info  = class_view($vid);
     my $description = $class_info->{'description'};

@@ -25,7 +25,7 @@ use pf::config::util();
 use pf::config::trapping_range;
 use pf::ConfigStore::Interface();
 use pf::ConfigStore::Pf();
-use pf::iplog();
+use pf::ip4log();
 use pf::fingerbank;
 use pf::Portal::ProfileFactory();
 use pf::radius::custom();
@@ -81,11 +81,11 @@ sub event_add : Public {
         $logger->warn("Received event(s) with out a source or destination id");
         return;
     }
-    my $srcmac = pf::iplog::ip2mac($srcip) if defined $srcip;
+    my $srcmac = pf::ip4log::ip2mac($srcip) if defined $srcip;
     # If trapping range is defined then check
     my $range = $pf::config::Config{'trapping'}{'range'};
     if (defined ($range) && $range ne '') {
-        my $dstmac = pf::iplog::ip2mac($dstip) if defined $dstip;
+        my $dstmac = pf::ip4log::ip2mac($dstip) if defined $dstip;
         my ($source_net_ip, $dest_net_ip);
         $source_net_ip = NetAddr::IP::Lite->new($srcip) if defined $srcmac;
         $dest_net_ip = NetAddr::IP::Lite->new($dstip) if defined $dstmac;
@@ -211,22 +211,22 @@ sub update_iplog : Public :AllowedAsAction(mac, $mac, ip, $ip) {
 
     my $logger = pf::log::get_logger();
 
-    $postdata{'oldip'}  = pf::iplog::mac2ip($postdata{'mac'}) if (!defined($postdata{'oldip'}));
-    $postdata{'oldmac'} = pf::iplog::ip2mac($postdata{'ip'}) if (!defined($postdata{'oldmac'}));
+    $postdata{'oldip'}  = pf::ip4log::mac2ip($postdata{'mac'}) if (!defined($postdata{'oldip'}));
+    $postdata{'oldmac'} = pf::ip4log::ip2mac($postdata{'ip'}) if (!defined($postdata{'oldmac'}));
 
     if ( $postdata{'oldmac'} && $postdata{'oldmac'} ne $postdata{'mac'} ) {
         $logger->info(
             "oldmac ($postdata{'oldmac'}) and newmac ($postdata{'mac'}) are different for $postdata{'ip'} - closing iplog entry"
         );
-        pf::iplog::close($postdata{'ip'});
+        pf::ip4log::close($postdata{'ip'});
     } elsif ($postdata{'oldip'} && $postdata{'oldip'} ne $postdata{'ip'}) {
         $logger->info(
             "oldip ($postdata{'oldip'}) and newip ($postdata{'ip'}) are different for $postdata{'mac'} - closing iplog entry"
         );
-        pf::iplog::close($postdata{'oldip'});
+        pf::ip4log::close($postdata{'oldip'});
     }
 
-    return (pf::iplog::open($postdata{'ip'}, $postdata{'mac'}, $postdata{'lease_length'}));
+    return (pf::ip4log::open($postdata{'ip'}, $postdata{'mac'}, $postdata{'lease_length'}));
 }
 
 sub unreg_node_for_pid : Public:AllowedAsAction(pid, $pid) {
@@ -257,14 +257,14 @@ sub open_iplog : Public {
     my ( $class, $mac, $ip, $lease_length ) = @_;
     my $logger = pf::log::get_logger();
 
-    return (pf::iplog::open($ip, $mac, $lease_length));
+    return (pf::ip4log::open($ip, $mac, $lease_length));
 }
 
 sub close_iplog : Public {
     my ( $class, $ip ) = @_;
     my $logger = pf::log::get_logger();
 
-    return (pf::iplog::close($ip));
+    return (pf::ip4log::close($ip));
 }
 
 sub ipset_node_update : Public {
@@ -584,7 +584,7 @@ sub register_node_ip : Public :AllowedAsAction(ip, $ip, pid, $pid) {
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
 
-    my $mac = pf::iplog::ip2mac($postdata{'ip'});
+    my $mac = pf::ip4log::ip2mac($postdata{'ip'});
     die "Cannot find host with IP address $postdata{'ip'}" unless $mac;
 
     return pf::node::node_register($mac, $postdata{'pid'}, %postdata);
@@ -602,7 +602,7 @@ sub deregister_node_ip : Public:AllowedAsAction(ip, $ip) {
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
 
-    my $mac = pf::iplog::ip2mac($postdata{'ip'});
+    my $mac = pf::ip4log::ip2mac($postdata{'ip'});
     die "Cannot find host with IP address $postdata{'ip'}" unless $mac;
 
     return pf::node::node_deregister($mac, %postdata);

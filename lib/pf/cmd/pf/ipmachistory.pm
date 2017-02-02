@@ -67,9 +67,9 @@ sub parseArgs {
     }
 
     if ( $key ) {
-        require pf::iplog;
-        import pf::iplog;
-        my $function = \&pf::iplog::get_archive;
+        require pf::ip4log;
+        import pf::ip4log;
+        my $function = \&pf::ip4log::get_archive;
         $params{'start_time'} = str2time( $params{'start_time'}) if defined $params{'start_time'};
         $params{'end_time'} = str2time( $params{'end_time'}) if defined $params{'end_time'};
         $self->{function} = $function;

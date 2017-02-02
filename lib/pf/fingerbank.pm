@@ -104,7 +104,7 @@ sub process {
                 }
                 # ip is a special case as it's not in the node_info
                 unless(defined($query_args->{ip})){
-                    my $ip = pf::iplog::mac2ip($query_args->{mac});
+                    my $ip = pf::ip4log::mac2ip($query_args->{mac});
                     $query_args->{ip} = $ip unless $ip eq 0;
                 }
             }

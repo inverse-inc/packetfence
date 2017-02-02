@@ -54,7 +54,7 @@ our %POST_OPEN_ACTIONS = (
         my ($info) = @_;
         require pf::parking;
         my $mac = $info->{mac};
-        pf::parking::park($mac, pf::iplog::mac2ip($mac));
+        pf::parking::park($mac, pf::ip4log::mac2ip($mac));
     },
 );
 our %POST_CLOSE_ACTIONS = (
@@ -62,7 +62,7 @@ our %POST_CLOSE_ACTIONS = (
         my ($info) = @_;
         require pf::parking;
         my $mac = $info->{mac};
-        pf::parking::remove_parking_actions($mac, pf::iplog::mac2ip($mac));
+        pf::parking::remove_parking_actions($mac, pf::ip4log::mac2ip($mac));
     },
 );
 

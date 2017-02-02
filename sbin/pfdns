@@ -251,7 +251,7 @@ sub response_handler {
     foreach my $network (@routed_dns_enforcement_nets_named) {
         if ($network->contains($ip)) {
             $logger->trace("Performing DNS enforcement on $ip");
-            my $mac = pf::iplog::ip2mac($ip_addr);
+            my $mac = pf::ip4log::ip2mac($ip_addr);
 
             unless($mac){
                 $logger->warn("Can't lookup IP $ip_addr to a MAC address. Returning result as if unreg.");

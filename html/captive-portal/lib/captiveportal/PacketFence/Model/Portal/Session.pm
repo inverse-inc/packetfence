@@ -1,7 +1,7 @@
 package captiveportal::PacketFence::Model::Portal::Session;
 use Moose;
 
-use pf::iplog;
+use pf::ip4log;
 use pf::config qw(
     $management_network
     %CAPTIVE_PORTAL
@@ -221,12 +221,12 @@ sub _build_clientMac {
                 my $fake_mac = '00:00:' . join(':', map { sprintf("%02x", $_) } split /\./, $ip->addr());
                 my $gateway = $network_config->{'gateway'};
                 locationlog_synchronize($gateway, $gateway, undef, $NO_PORT, $NO_VLAN, $fake_mac, $NO_VOIP, $INLINE);
-                pf::iplog::open($ip->addr(), $fake_mac);
+                pf::ip4log::open($ip->addr(), $fake_mac);
                 $mac = $fake_mac;
                 last;
             }
         }
-        $mac = pf::iplog::ip2mac( $clientIp ) unless defined $mac;
+        $mac = pf::ip4log::ip2mac( $clientIp ) unless defined $mac;
     }
     Log::Log4perl::MDC->put('mac', $mac) if defined $mac;
     return $mac;
