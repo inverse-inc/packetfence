@@ -1,0 +1,43 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use lib '/usr/local/pf/lib';
+
+use Template;
+use pf::file_paths qw(
+    $conf_dir
+    $install_dir
+);
+use pf::cluster;
+
+if($cluster_enabled) {
+    my $tt = Template->new(ABSOLUTE => 1);
+
+    my %vars = (
+        server_ip => pf::cluster::current_server()->{management_ip},
+        servers_ip => [(map { $_->{management_ip} } @cluster_servers)],
+
+        # TODO: migrate those to pf.conf.defaults
+        key_buffer_size => 100,
+        innodb_buffer_pool_size => 500,
+        innodb_additional_mem_pool_size => 20,
+        query_cache_size => 0,
+        thread_concurrency => 8,
+        max_connections => 500,
+        table_cache => 300,
+
+        # Replication related
+        server_id => (pf::cluster::cluster_index() + 1),
+
+        # TODO: have real configurable user
+        replication_user => "zammit",
+        replication_password => "isnotadog",
+    );
+
+    $tt->process("$conf_dir/mariadb.conf.tt", \%vars, "$install_dir/var/conf/mariadb.conf") or die $tt->error();
+}
+else {
+    print STDERR "Cluster isn't enabled. Cannot generate configuration...\n";
+}
