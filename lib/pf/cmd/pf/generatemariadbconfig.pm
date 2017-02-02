@@ -57,9 +57,10 @@ sub _run {
             servers_ip => [(map { $_->{management_ip} } @cluster_servers)],
 
             # TODO: have real configurable user
-            replication_user => "zammit",
-            replication_password => "isnotadog",
+            replication_user => $Config{active_active}{galera_replication_username},
+            replication_password => $Config{active_active}{galera_replication_password},
 
+            hostname => $host_id,
             server_id => (pf::cluster::cluster_index() + 1),
         );
     }
