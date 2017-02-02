@@ -27,6 +27,9 @@ use pf::file_paths qw(
 );
 use pf::cluster;
 use pf::constants::exit_code qw($EXIT_SUCCESS);
+use pf::config qw(
+    %Config
+);
 
 sub _run {
     my ($self) = @_;
