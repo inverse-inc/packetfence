@@ -63,6 +63,7 @@ case "$1" in
           for file in \
             /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Pay.pm \
             /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Fingerprints.pm \
+            /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/MacAddress.pm \
             /usr/local/pf/html/captive-portal/lib/captiveportal/PacketFence/Controller/Access.pm \
             /usr/local/pf/html/captive-portal/lib/captiveportal/PacketFence/Controller/Aup.pm \
             /usr/local/pf/html/captive-portal/lib/captiveportal/PacketFence/Controller/Enabler.pm \
