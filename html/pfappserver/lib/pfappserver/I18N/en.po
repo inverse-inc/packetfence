@@ -8336,6 +8336,14 @@ msgstr "Shared KEY"
 msgid "active_active.virtual_router_id"
 msgstr "Virtual Router ID"
 
+# conf/documentation.conf
+msgid "active_active.galera_replication_username"
+msgstr "Galera replication username"
+
+# conf/documentation.conf
+msgid "active_active.galera_replication_password"
+msgstr "Galera replication password"
+
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 # pfappserver::Form::Field::Duration (Operators)
 msgid "add"
