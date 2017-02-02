@@ -34,13 +34,13 @@ sub _run {
 
     my %vars = (
         # TODO: migrate those to pf.conf.defaults
-        key_buffer_size => 100,
-        innodb_buffer_pool_size => 500,
-        innodb_additional_mem_pool_size => 20,
-        query_cache_size => 0,
-        thread_concurrency => 8,
-        max_connections => 500,
-        table_cache => 300,
+        key_buffer_size => $Config{database}{key_buffer_size},
+        innodb_buffer_pool_size => $Config{database}{innodb_buffer_pool_size},
+        innodb_additional_mem_pool_size => $Config{database}{innodb_additional_mem_pool_size},
+        query_cache_size => $Config{database}{query_cache_size},
+        thread_concurrency => $Config{database}{thread_concurrency},
+        max_connections => $Config{database}{max_connections},
+        table_cache => $Config{database}{table_cache},
 
     );
 
