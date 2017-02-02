@@ -42,6 +42,7 @@ BEGIN {extends 'pfappserver::Base::Controller'; }
 
 our %ALLOWED_SECTIONS = (
     general => undef,
+    database => undef,
     network => undef,
     trapping => undef,
     parking => undef,

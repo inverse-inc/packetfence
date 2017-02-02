@@ -85,7 +85,8 @@ table.sources {
               <li class="nav-header">[% l('Main') %]</li>
               [%- END %]
               [%- IF can_access("CONFIGURATION_MAIN_READ") %]
-              [% pf_section_entry('general', 'General') | none %]
+              [% pf_section_entry( 'general', 'General') | none %]
+              [% pf_section_entry( 'database', 'Database') | none %]
               [% pf_section_entry( 'network', 'Network') | none %]
               [% pf_section_entry( 'trapping', 'Trapping') | none %]
               [% pf_section_entry( 'parking', 'Parking') | none %]
