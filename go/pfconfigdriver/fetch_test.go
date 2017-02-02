@@ -31,7 +31,7 @@ func TestFetchDecodeSocket(t *testing.T) {
 		spew.Dump(general)
 	}
 
-	var sections ConfigSections
+	var sections PfconfigKeys
 	sections.PfconfigNS = "config::Pf"
 	FetchDecodeSocketStruct(ctx, &sections)
 

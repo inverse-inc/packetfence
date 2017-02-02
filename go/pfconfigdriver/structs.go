@@ -34,7 +34,7 @@ type PfConfGeneral struct {
 
 // Used when fetching the sections from a pfconfig HASH namespace
 // This will store the keys (section names) in the Keys attribute
-type ConfigSections struct {
+type PfconfigKeys struct {
 	PfconfigMethod string `val:"keys"`
 	PfconfigNS     string `val:"-"`
 	Keys           []string

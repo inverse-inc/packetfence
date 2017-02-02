@@ -203,10 +203,10 @@ func FetchDecodeSocket(ctx context.Context, o PfconfigObject, reflectInfo reflec
 	query := createQuery(ctx, queryParam)
 	jsonResponse := FetchSocket(ctx, query.GetPayload())
 	if query.method == "keys" {
-		if cs, ok := o.(*ConfigSections); ok {
+		if cs, ok := o.(*PfconfigKeys); ok {
 			decodeInterface(ctx, query.encoding, jsonResponse, &cs.Keys)
 		} else {
-			panic("Wrong struct type for keys. Required ConfigSections")
+			panic("Wrong struct type for keys. Required PfconfigKeys")
 		}
 	} else {
 		receiver := &PfconfigElementResponse{}
