@@ -8771,6 +8771,34 @@ msgstr "Port"
 msgid "database.user"
 msgstr "User"
 
+# conf/documentation.conf
+msgid "database.key_buffer_size"
+msgstr "Key buffer size"
+
+# conf/documentation.conf
+msgid "database.innodb_buffer_pool_size"
+msgstr "InnoDB buffer pool size"
+
+# conf/documentation.conf
+msgid "database.innodb_additional_mem_pool_size"
+msgstr "InnoDB additionnal mem pool size"
+
+# conf/documentation.conf
+msgid "database.query_cache_size"
+msgstr "Query cache size"
+
+# conf/documentation.conf
+msgid "database.thread_concurrency"
+msgstr "Thread concurrency"
+
+# conf/documentation.conf
+msgid "database.max_connections"
+msgstr "Max connections"
+
+# conf/documentation.conf
+msgid "database.table_cache"
+msgstr "Table cache"
+
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "days"
 msgstr ""
