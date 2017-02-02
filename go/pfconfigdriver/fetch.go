@@ -59,16 +59,24 @@ func FetchSocket(ctx context.Context, payload string) []byte {
 		panic(err)
 	}
 
+	// Send our query in the socket
 	fmt.Fprintf(c, payload)
 	if err != nil {
 		panic(err)
 	}
+
 	var buf bytes.Buffer
 	buf.ReadFrom(c)
+
+	// First 4 bytes are a little-endian representing the length of the payload
 	var length uint32
 	binary.Read(&buf, binary.LittleEndian, &length)
+
+	// Read the response given the length provided by pfconfig
 	response := make([]byte, length)
 	buf.Read(response)
+
+	// Validate the response has the length that was declared by pfconfig
 	if uint32(len(response)) != length {
 		panic(fmt.Sprintf("Got invalid length response from pfconfig %d expected, received %d", length, len(response)))
 	}
@@ -81,20 +89,26 @@ func FetchSocket(ctx context.Context, payload string) []byte {
 // Otherwise it will take the value in the val tag of the field
 func metadataFromField(ctx context.Context, param PfconfigObject, fieldName string) string {
 	var ov reflect.Value
+
+	// PfconfigObject can be an actual struct or a reflect.Value
+	// If its not a reflect.Value, we get the reflect.Value for that struct
 	switch val := param.(type) {
 	case reflect.Value:
 		ov = val
 	default:
 		ov = reflect.ValueOf(param).Elem()
 	}
-	userVal := reflect.Value(ov.FieldByName(fieldName)).Interface()
 
+	// We check if the field was set to a value as this will overide the value in the tag
+	userVal := reflect.Value(ov.FieldByName(fieldName)).Interface()
 	if userVal != "" {
 		return userVal.(string)
 	}
 
 	ot := ov.Type()
 	if field, ok := ot.FieldByName(fieldName); ok {
+		// The val tag defines the «default» value the metadata field should have
+		// If the val tag has a value of "-", then a user value was expected and this will panic
 		val := field.Tag.Get("val")
 		if val != "-" {
 			return val
@@ -106,12 +120,14 @@ func metadataFromField(ctx context.Context, param PfconfigObject, fieldName stri
 	}
 }
 
-func decodeObject(ctx context.Context, encoding string, b []byte, o interface{}) {
+// Decode the struct from bytes given an encoding
+// Note that sereal doesn't properly work right now, so usage of JSON is advised
+func decodeInterface(ctx context.Context, encoding string, b []byte, o interface{}) {
 	switch encoding {
 	case "json":
-		decodeJsonObject(ctx, b, o)
+		decodeJsonInterface(ctx, b, o)
 	case "sereal":
-		decodeSerealObject(ctx, b, o)
+		decodeSerealInterface(ctx, b, o)
 	default:
 		panic(fmt.Sprintf("Unknown encoding %s", encoding))
 	}
@@ -119,7 +135,7 @@ func decodeObject(ctx context.Context, encoding string, b []byte, o interface{})
 
 // Decode an array of bytes representing a json string into interface
 // Panics if there is an error decoding the JSON data
-func decodeJsonObject(ctx context.Context, b []byte, o interface{}) {
+func decodeJsonInterface(ctx context.Context, b []byte, o interface{}) {
 	decoder := json.NewDecoder(bytes.NewReader(b))
 	for {
 		if err := decoder.Decode(&o); err == io.EOF {
@@ -135,7 +151,7 @@ func decodeJsonObject(ctx context.Context, b []byte, o interface{}) {
 //       For now use the JSON encoding
 // Decode an array of bytes Sereal encoded into an interface
 // Panics if there is an error decoding the Sereal payload
-func decodeSerealObject(ctx context.Context, b []byte, o interface{}) {
+func decodeSerealInterface(ctx context.Context, b []byte, o interface{}) {
 	decoder := sereal.NewDecoder()
 	decoder.PerlCompat = false
 	err := decoder.Unmarshal(b, o)
@@ -145,7 +161,11 @@ func decodeSerealObject(ctx context.Context, b []byte, o interface{}) {
 }
 
 // Create a pfconfig query given a PfconfigObject
-// Will extract the query information from the object and will create the payload accordingly
+// Will extract the query information from the struct and will create the payload accordingly
+// The struct should declare the following fields to be compatible
+//		PfconfigNS - the pfconfig namespace to use (ex: resource::fqdn)
+//		PfconfigMethod - the method to use while calling pfconfig (hash_element is a special case, see below)
+//		PfconfigHashNS - the hash element key when using the hash_element method, this attribute has no effect when using any other method
 func createQuery(ctx context.Context, o PfconfigObject) Query {
 	query := Query{}
 	query.ns = metadataFromField(ctx, o, "PfconfigNS")
@@ -184,16 +204,16 @@ func FetchDecodeSocket(ctx context.Context, o PfconfigObject, reflectInfo reflec
 	jsonResponse := FetchSocket(ctx, query.GetPayload())
 	if query.method == "keys" {
 		if cs, ok := o.(*ConfigSections); ok {
-			decodeObject(ctx, query.encoding, jsonResponse, &cs.Keys)
+			decodeInterface(ctx, query.encoding, jsonResponse, &cs.Keys)
 		} else {
-			panic("Wrong object type for keys. Required ConfigSections")
+			panic("Wrong struct type for keys. Required ConfigSections")
 		}
 	} else {
 		receiver := &PfconfigElementResponse{}
-		decodeObject(ctx, query.encoding, jsonResponse, receiver)
+		decodeInterface(ctx, query.encoding, jsonResponse, receiver)
 		if receiver.Element != nil {
 			b, _ := receiver.Element.MarshalJSON()
-			decodeObject(ctx, query.encoding, b, &o)
+			decodeInterface(ctx, query.encoding, b, &o)
 		} else {
 			return errors.New(fmt.Sprintf("Element in response was invalid. Response was: %s", jsonResponse))
 		}
