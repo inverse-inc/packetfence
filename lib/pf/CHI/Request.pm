@@ -38,7 +38,7 @@ __PACKAGE__->config({
         },
     },
     namespace => {
-       'pf::node::node_exist' => {
+       'pf::node::_node_exist' => {
            storage => 'raw_memory',
        },
     },
