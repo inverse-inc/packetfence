@@ -35,7 +35,8 @@ __PACKAGE__->config(
         bulk_deregister      => { AdminRole => 'NODES_UPDATE' },
         bulk_apply_role      => { AdminRole => 'NODES_UPDATE' },
         bulk_apply_violation => { AdminRole => 'NODES_UPDATE' },
-        bulk_reevaluate_access => { AdminRole => 'NODES_UPDATE' },
+        bulk_restart_switchport => { AdminRole => 'NODES_UPDATE' },
+        bulk_reevaluate_access  => { AdminRole => 'NODES_UPDATE' },
     },
     action_args => {
         '*' => { model => 'Node' },

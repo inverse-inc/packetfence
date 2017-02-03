@@ -845,6 +845,20 @@ sub bulkApplyBypassRole {
     return ($STATUS::OK, ["Bypass Role was changed for [_1] node(s)", $count]);
 }
 
+=head2 bulkRestartSwitchport
+
+=cut
+
+sub bulkRestartSwitchport {
+    my ($self, @macs) = @_;
+    my $count = 0;
+    foreach my $mac (@macs) {
+        my ($status, undef) = $self->restartSwitchport($mac);
+        $count ++ if(is_success($status));
+    }
+    return ($STATUS::OK, ["Switchport was restarted for [_1] node(s)", $count]);
+}
+
 =head2 bulkReevaluateAccess
 
 =cut

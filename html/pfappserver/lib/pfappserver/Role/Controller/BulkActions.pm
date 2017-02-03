@@ -127,6 +127,28 @@ sub bulk_apply_violation : Local : Args(1) {
     $c->stash->{status_msg} = $status_msg;
 }
 
+=head2 bulk_restart_switchport
+
+=cut
+
+sub bulk_restart_switchport : Local {
+    my ( $self, $c ) = @_;
+    $c->stash->{current_view} = 'JSON';
+    my ( $status, $status_msg );
+    my $request = $c->request;
+    if ($request->method eq 'POST') {
+        my @ids = $request->param('items');
+        ($status, $status_msg) = $self->getModel($c)->bulkRestartSwitchport(@ids);
+        $self->audit_current_action($c, status => $status, ids => \@ids);
+    }
+    else {
+        $status = HTTP_BAD_REQUEST;
+        $status_msg = "";
+    }
+    $c->response->status($status);
+    $c->stash->{status_msg} = $status_msg;
+}
+
 =head2 bulk_reevaluate_access
 
 =cut
