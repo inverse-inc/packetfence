@@ -3851,6 +3851,10 @@ Once enabled, restart the pfdhcplistener and pfmon services.
 pfmon will query via SNMP all the switches to create a map (MAC <-> switch)
 pfdhcplistener will parse the DHCP Option 82 and will use the map to resolve the MAC to the switch and will update the locationlog of the device.
 
+Trigger a violation when discovering a node
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+PacketFence is able to trigger a violation when a node is discovered on your network. It will send the trigger internal::node_discovered which is already part of violation 1300004. You can enable this violation with the default values and it will send a short report for every new device discovered by PacketFence. You can also execute any typical violation actions on during this process.
 
 Operating System Best Practices
 -------------------------------
