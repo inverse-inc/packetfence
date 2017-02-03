@@ -91,6 +91,7 @@
         { name => 'switch_ip', label => l('Switch IP Address') },
         { name => 'switch_mac', label => l('Switch MAC Address') },
         { name => 'switch_port', label => l('Switch Port') },
+        { name => 'switch_port_desc', label => l('Switch Port Description') },
         { name => 'switch_description', label => l('Switch description') },
         { name => 'last_ssid', label => l('SSID') },
         { name => 'bypass_vlan', label => l('Bypass VLAN') },
