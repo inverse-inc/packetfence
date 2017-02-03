@@ -79,6 +79,8 @@ has_field 'vsys' =>
   (
    type => 'PosInteger',
    label => 'Vsys ',
+    tags => { after_element => \&help,
+             help => 'Please define the Virtual System number.' },
    default => 1,
   );
 
