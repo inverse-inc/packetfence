@@ -533,6 +533,9 @@ sub node_add {
         $data{autoreg},          $data{sessionid}
     );
 
+    my $apiclient = pf::client::getClient;
+    $apiclient->notify("trigger_violation", mac => $mac, type => "internal", tid => "node_discovered");
+
     if ($statement) {
         return ($statement->rows == 1 ? 1 : 0);
     }

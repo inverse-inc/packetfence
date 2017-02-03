@@ -63,6 +63,7 @@ Readonly::Scalar our $TRIGGER_MAP => {
     "new_dhcp_info" => "DHCP packet received",
     "hostname_change" => "Hostname changed",
     "parking_detected" => "Parking detected",
+    "node_discovered" => "Node discovered",
   },
   $TRIGGER_TYPE_PROVISIONER => {
     $TRIGGER_ID_PROVISIONER => "Check status",
