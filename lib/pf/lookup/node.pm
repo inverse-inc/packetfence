@@ -113,11 +113,12 @@ sub lookup_node {
             # assignments using ternary operator: if exist assign otherwise unknown
             my $port = defined($last_locationlog_entry[0]->{'port'}) ? 
                 $last_locationlog_entry[0]->{'port'} : "UNKNOWN";
+            my $ifDesc = $last_locationlog_entry[0]->{'ifDesc'};
             my $vlan = defined($last_locationlog_entry[0]->{'vlan'}) ? 
                 $last_locationlog_entry[0]->{'vlan'} : "UNKNOWN";
             my $switch = defined($last_locationlog_entry[0]->{'switch'}) ? 
                 $last_locationlog_entry[0]->{'switch'} : "UNKNOWN";
-            $return .= "Location       : port $port (vlan $vlan) on switch $switch\n";
+            $return .= "Location       : port $port".(defined($ifDesc) ? "($ifDesc)" : '' )." (vlan $vlan) on switch $switch\n";
 
             my $con_type = defined($last_locationlog_entry[0]->{'connection_type'}) ?
                 $last_locationlog_entry[0]->{'connection_type'} : "UNKNOWN";
