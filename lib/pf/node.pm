@@ -26,7 +26,6 @@ use pf::util::statsd qw(called);
 use pf::error qw(is_success);
 use pf::constants::parking qw($PARKING_VID);
 use CHI::Memoize qw(memoized);
-use pf::CHI::Request qw(pf_memoize);
 
 use constant NODE => 'node';
 
@@ -80,7 +79,6 @@ BEGIN {
         node_search
         $STATUS_REGISTERED
         node_last_reg
-        node_remove_from_cache
     );
 }
 
@@ -409,8 +407,6 @@ sub _node_exist {
     return ($val);
 }
 
-pf_memoize("pf::node::_node_exist");
-
 #
 # return mac if the node exists
 #
@@ -687,9 +683,6 @@ sub _node_view {
     return ($node_info_ref);
 }
 
-pf_memoize("pf::node::_node_view");
-
-
 =item node_view
 
 Returning lots of information about a given MAC address (node).
@@ -954,7 +947,6 @@ sub node_modify {
         $mac
     );
     if($sth) {
-        node_remove_from_cache($new_mac);
         return ( $sth->rows );
     }
     $logger->error("Unable to modify node '" . $mac // 'undef' . "'");
@@ -1411,30 +1403,6 @@ sub fingerbank_info {
 
     return $info;
 }
-
-=item node_remove_from_cache
-
-Remove node from the cache
-
-=cut
-
-sub node_remove_from_cache {
-    my ($mac) = @_;
-    $mac = clean_mac($mac);
-    if ($mac) {
-        for my $method ("pf::node::_node_view", "pf::node::_node_exist") {
-            my $cache = memoized($method)->cache;
-            if ($cache) {
-                $cache->remove_multi([ ["memoize::$method","L",$mac], ["memoize::$method","S",$mac] ]);
-            }
-            else {
-                my $logger = get_logger();
-                $logger->error("Cannot get the cache for $method");
-            }
-        }
-    }
-}
-
 
 =back
 

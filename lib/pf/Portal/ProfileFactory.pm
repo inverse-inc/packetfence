@@ -28,7 +28,6 @@ use pf::factory::condition::profile;
 use pfconfig::cached_scalar;
 use List::Util qw(first);
 use pf::StatsD::Timer;
-use pf::CHI::Request qw(pf_memoize);
 
 =head1 SUBROUTINES
 
