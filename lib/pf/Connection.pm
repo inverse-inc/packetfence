@@ -81,6 +81,22 @@ sub _stringToAttributes {
     ( lc($type) =~ /^8021x/ ) ? $self->is8021X($TRUE) : $self->is8021X($FALSE);
 }
 
+sub backwardCompatibleToAttributes {
+    my ($self, $type) = @_;
+
+    # We set the transport type
+    ( lc($type) =~ /^wireless-802\.11/ ) ? $self->transport("Wireless") : $self->transport("Wired");
+
+    # We check if SNMP
+    ( (lc($type) =~ /^snmp/) ) ? $self->isSNMP($TRUE) : $self->isSNMP($FALSE);
+
+    # We check if mac authentication
+    ( lc($type) eq "wired_mac_auth" || lc($type) eq "Ethernet-NoEAP" ) ? $self->isMacAuth($TRUE) : $self->isMacAuth($FALSE);
+
+    # We check if EAP
+    ( lc($type) =~ /eap$/ && !lc($type) =~ /noeap$/ ) ? $self->isEAP($TRUE) : $self->isEAP($FALSE);
+}
+
 =head2 attributesToBackwardCompatible
 
 Only for backward compatibility while we introduce the new connection types.
