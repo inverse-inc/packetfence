@@ -462,7 +462,6 @@ sub node_delete {
 
     db_query_execute(NODE, $node_statements, 'node_delete_sql', $mac) || return (0);
     $logger->info("node $mac deleted");
-    node_remove_from_cache($mac);
     return (1);
 }
 
@@ -531,7 +530,6 @@ sub node_add {
     );
 
     if ($statement) {
-        node_remove_from_cache($mac);
         return ($statement->rows == 1 ? 1 : 0);
     }
     else {
