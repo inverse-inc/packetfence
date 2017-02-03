@@ -90,17 +90,32 @@ Go from a backward compatible string (L<%pf::config::connection_type>) to attrib
 sub backwardCompatibleToAttributes {
     my ($self, $type) = @_;
 
+    return if( lc($type) =~ /inline/ || !$type );
+
     # We set the transport type
     ( lc($type) =~ /^wireless-802\.11/ ) ? $self->transport("Wireless") : $self->transport("Wired");
 
-    # We check if SNMP
-    ( (lc($type) =~ /^snmp/) ) ? $self->isSNMP($TRUE) : $self->isSNMP($FALSE);
+    # We check if SNMP. If so, we return immediately while setting the flag
+    if ( (lc($type) =~ /^snmp/) ) { 
+        $self->isSNMP($TRUE);
+        return
+    }
+    else {
+        $self->isSNMP($FALSE);
+    }
 
     # We check if mac authentication
     ( lc($type) eq "wired_mac_auth" || lc($type) eq "Ethernet-NoEAP" ) ? $self->isMacAuth($TRUE) : $self->isMacAuth($FALSE);
 
     # We check if EAP
-    ( lc($type) =~ /eap$/ && !lc($type) =~ /noeap$/ ) ? $self->isEAP($TRUE) : $self->isEAP($FALSE);
+    if ( lc($type) =~ /eap$/ && lc($type) !~ /noeap$/ ) {
+        $self->isEAP($TRUE);
+        $self->is8021X($TRUE); 
+        $self->isMacAuth($FALSE);
+    }
+    else {
+        $self->isEAP($FALSE) ; $self->is8021X($FALSE) ; $self->isMacAuth($TRUE);
+    }
 }
 
 =head2 attributesToBackwardCompatible
