@@ -11,8 +11,10 @@ global
 	maxconn 4000
         tune.ssl.default-dh-param 2048
         ssl-default-bind-ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:ECDHE-RSA-DES-CBC3-SHA:ECDHE-ECDSA-DES-CBC3-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA
+        lua-load %%conf_dir%%/passthrough.lua
 
-listen stats %%active_active_ip%%:1025
+listen stats
+  bind  %%active_active_ip%%:1025
   mode http
   timeout connect 10s
   timeout client 1m
@@ -39,7 +41,8 @@ defaults
         errorfile 503 %%os_path%%503.http
         errorfile 504 %%os_path%%504.http
 
-frontend  main localhost:3306
+frontend  main
+    bind localhost:3306
     mode tcp
     option tcplog
     default_backend             mysql
@@ -51,6 +54,14 @@ backend mysql
     external-check command /usr/local/pf/var/run/db-check
     external-check path "/usr/bin:/bin"
 %%mysql_backend%%
+
+backend proxy
+    option httpclose
+    option http_proxy
+    http-request lua.choose_backend
+    http-request set-header Host %[var(req.host)]
+    # Need to have a proxy listening on localhost port 8888
+    http-request set-uri http://127.0.0.1:8888/%[path]?%[query]
 
 
 %%http%%

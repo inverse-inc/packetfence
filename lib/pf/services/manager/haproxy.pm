@@ -75,6 +75,7 @@ sub generateConfig {
     $tags{'http'} = '';
     $tags{'mysql_backend'} = '';
     $tags{'var_dir'} = $var_dir;
+    $tags{'conf_dir'} = $conf_dir;
     $tags{'cpu'} = '';
     $tags{'bind-process'} = '';
     my $bind_process = '';
@@ -160,6 +161,8 @@ EOT
 frontend portal-http-$cluster_ip
         bind $cluster_ip:80
         reqadd X-Forwarded-Proto:\\ http
+        http-request lua.select
+        use_backend %[var(req.action)]
         default_backend $cluster_ip-backend
         $bind_process
 
