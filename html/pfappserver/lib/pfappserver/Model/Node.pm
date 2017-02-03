@@ -457,6 +457,8 @@ sub reevaluate {
 
 =head2 restartSwitchport
 
+Restart the switchport for a MAC address.
+
 =cut
 
 sub restartSwitchport {
@@ -846,6 +848,8 @@ sub bulkApplyBypassRole {
 }
 
 =head2 bulkRestartSwitchport
+
+Restart the switchport for a list of MAC addresses
 
 =cut
 

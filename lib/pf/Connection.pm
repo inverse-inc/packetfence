@@ -81,6 +81,12 @@ sub _stringToAttributes {
     ( lc($type) =~ /^8021x/ ) ? $self->is8021X($TRUE) : $self->is8021X($FALSE);
 }
 
+=head2 backwardCompatibleToAttributes
+
+Go from a backward compatible string (L<%pf::config::connection_type>) to attributes for this class
+
+=cut
+
 sub backwardCompatibleToAttributes {
     my ($self, $type) = @_;
 

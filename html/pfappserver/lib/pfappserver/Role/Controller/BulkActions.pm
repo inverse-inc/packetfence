@@ -129,6 +129,8 @@ sub bulk_apply_violation : Local : Args(1) {
 
 =head2 bulk_restart_switchport
 
+Restart the switchport for a list of MAC addresses
+
 =cut
 
 sub bulk_restart_switchport : Local {
