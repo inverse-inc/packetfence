@@ -368,6 +368,22 @@ sub reevaluate_access :Chained('object') :PathPart('reevaluate_access') :Args(0)
     $c->stash->{current_view} = 'JSON';
 }
 
+=head2 restart_switchport
+
+Restart the switchport for a device
+
+=cut
+
+sub restart_switchport :Chained('object') :PathPart('restart_switchport') :Args(0) :AdminRole('NODES_UPDATE') {
+    my ( $self, $c ) = @_;
+
+    my ($status, $message) = $c->model('Node')->restartSwitchport($c->stash->{mac});
+    $self->audit_current_action($c, status => $status, mac => $c->stash->{mac});
+    $c->response->status($status);
+    $c->stash->{status_msg} = $message; # TODO: localize error message
+    $c->stash->{current_view} = 'JSON';
+}
+
 =head2 violations
 
 =cut

@@ -155,6 +155,7 @@
 
         <div class="modal-footer">
           [% IF can_access("NODES_UPDATE") && !form.readonly %]<a href="[% c.uri_for(c.controller('Node').action_for('reevaluate_access'), [ node.mac ]) %]" id="reevaluateNode" class="btn btn-warning pull-left"> [% l('Reevaluate access') %]</a>[% END %]
+          [% IF can_access("NODES_UPDATE") && !form.readonly %]<a href="[% c.uri_for(c.controller('Node').action_for('restart_switchport'), [ node.mac ]) %]" id="restartSwitchport" class="btn btn-danger pull-left"> [% l('Restart Switchport') %]</a>[% END %]
           <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
           [% IF can_access("NODES_UPDATE") && !form.readonly %]<button type="submit" class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>[% END %]
         </div><!--modal-footer-->

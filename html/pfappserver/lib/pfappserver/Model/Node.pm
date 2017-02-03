@@ -38,6 +38,8 @@ use pf::useragent qw(node_useragent_view);
 use pf::util;
 use pf::config::util;
 use pf::violation;
+use pf::SwitchFactory;
+use pf::Connection;
 
 =head1 METHODS
 
@@ -448,6 +450,39 @@ sub reevaluate {
     unless(reevaluate_access($mac, "admin_modify")){
         $status = $STATUS::INTERNAL_SERVER_ERROR;
         $status_msg = "The access couldn't be reevaluated.";
+    }
+
+    return ($status, $status_msg);
+}
+
+=head2 restartSwitchport
+
+=cut
+
+sub restartSwitchport {
+    my ($self, $mac) = @_;
+    my $logger = get_logger();
+    my ($status, $status_msg) = ($STATUS::OK);
+
+    my $locationlog = locationlog_view_open_mac($mac);
+    unless($locationlog) {
+        return ($STATUS::INTERNAL_SERVER_ERROR, "Unable to find node location.");
+    }
+
+    my $connection = pf::Connection->new;
+    $connection->backwardCompatibleToAttributes($locationlog->{connection_type});
+    unless($connection->transport eq "Wired") {
+        return ($STATUS::INTERNAL_SERVER_ERROR, "Trying to restart the port of a non-wired connection");
+    }
+
+    my $switch = pf::SwitchFactory->instantiate($locationlog->{switch});
+    unless($switch) {
+        return ($STATUS::INTERNAL_SERVER_ERROR, "Unable to instantiate switch ".$locationlog->{switch});
+    }
+
+    unless($switch->bouncePort($locationlog->{port})) {
+        $status = $STATUS::INTERNAL_SERVER_ERROR;
+        $status_msg = "Couldn't restart port.";
     }
 
     return ($status, $status_msg);
