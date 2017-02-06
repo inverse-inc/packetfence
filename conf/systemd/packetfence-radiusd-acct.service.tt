@@ -5,7 +5,7 @@ Documentation=man:radiusd(8) man:radiusd.conf(5) http://wiki.freeradius.org/ htt
 After=packetfence-httpd.aaa.service 
 Wants=packetfence-httpd.aaa.service
 Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
-After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+After=packetfence-base.target packetfence-config.service packetfence-iptables.service 
 
 [Service]
 PIDFile=[% pidFile %]

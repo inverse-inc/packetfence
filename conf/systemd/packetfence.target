@@ -2,5 +2,5 @@
 Description=PacketFence target
 Wants=packetfence-base.target
 Conflicts=rescue.service rescue.target
-After=multi-user.target rescue.service rescue.target packetfence-base
+After=multi-user.target rescue.service rescue.target packetfence-base.target
 AllowIsolate=yes

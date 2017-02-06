@@ -1,3 +1,4 @@
+[% header_warning %]
 [Unit]
 Description=PacketFence Samba Winbind Daemon
 After=packetfence-base.target 
@@ -8,9 +9,8 @@ Environment=KRB5CCNAME=FILE:/run/samba/krb5cc_samba
 RootDirectory=[% chroot_dir %]
 Type=notify
 NotifyAccess=all
-PIDFile=/run/winbindd.pid
-EnvironmentFile=-/etc/sysconfig/samba
-ExecStart=/usr/sbin/winbindd "$WINBINDOPTIONS"
+PIDFile=[% pidFile %]
+ExecStart=[% cmdLine %]
 ExecReload=/usr/bin/kill -HUP $MAINPID
 Slice=packetfence.slice
 

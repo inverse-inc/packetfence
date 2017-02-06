@@ -5,6 +5,7 @@ Documentation=man:httpd(8)
 Documentation=man:apachectl(8)
 Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
 After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+Before=packetfence-radiusd-auth.service packetfence-radiusd-acct.service packetfence-radiusd-cli.service
 
 [Service]
 Type=simple

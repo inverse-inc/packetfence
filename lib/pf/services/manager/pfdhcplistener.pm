@@ -22,6 +22,7 @@ use pf::config qw(
 use pf::file_paths qw(
     $var_dir
     $install_dir
+    $systemd_unit_dir
 );
 use pf::util;
 use List::MoreUtils qw(any all uniq);
@@ -48,7 +49,7 @@ sub _build_pfdhcplistenerManagers {
                 forceManaged            => $self->isManaged,
                 orderIndex              => $self->orderIndex,
                 systemdTemplateFilePath => $self->systemdTemplateFilePath,
-                unitFilePath            => $install_dir . "/var/conf/systemd/packetfence-" . "pfdhcplistener_$_" . ".service",
+                unitFilePath            => $systemd_unit_dir . "/packetfence-" . "pfdhcplistener_$_" . ".service",
                 int                     => $_,
             }
             )

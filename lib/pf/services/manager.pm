@@ -188,12 +188,12 @@ sub start {
 
 =head2 preStartSetup
 
-Stub method to be implemented in services if needed.
+Stub. Implement as needed in subclasses.
 
 =cut
 
 sub preStartSetup {
-    my ($self,$quick) = @_;
+    my ( $self, $quick ) = @_;
     return 1;
 }
 

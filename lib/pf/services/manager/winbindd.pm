@@ -27,6 +27,7 @@ use Errno qw(EINTR EAGAIN);
 use pf::log;
 use pf::file_paths qw(
     $var_dir
+    $systemd_unit_dir
 );
 use pf::domain;
 use pf::services::manager::winbindd_child;

@@ -198,7 +198,7 @@ sub generateUnitFile {
     for my $manager (@managers) {
         _doGenerateUnitFile($manager);
     }
-    system("systemctl daemon-reload");
+    system("sudo systemctl daemon-reload");
     return $EXIT_SUCCESS;
 }
 

@@ -3,8 +3,8 @@
 Description=PacketFence Graphite Apache HTTP Server 
 Documentation=man:httpd(8)
 Documentation=man:apachectl(8)
-Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
-After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service packetfence-carbon-cache.service
+After=packetfence-base.target packetfence-config.service packetfence-iptables.service packetfence-carbon-cache.service
 
 [Service]
 Type=simple

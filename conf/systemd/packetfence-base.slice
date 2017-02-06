@@ -1,0 +1,4 @@
+[Unit]
+Description=The PacketFence base resource control slice
+Before=slices.target
+

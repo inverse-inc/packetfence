@@ -19,7 +19,7 @@ The first manager will create the namespaces for all winbindd processes through 
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths qw($domains_chroot_dir $var_dir);
+use pf::file_paths qw($domains_chroot_dir $var_dir $install_dir);
 use pf::config qw(%ConfigDomain $DISTRIB $DIST_VERSION);
 use pf::util;
 use pfconfig::manager;
@@ -34,11 +34,43 @@ sub _cmdLine {
     my $self = shift;
     return
         $self->executable
-        . " -D -s /etc/samba/" . $self->domain . ".conf"
+        . " --foreground -s /etc/samba/" . $self->domain . ".conf"
         . " -l /var/log/samba" . $self->domain;
 }
    
-          "chroot " . pf::domain::chroot_path( $self->domain ) . " "
+=head2 _buildSystemdVars 
+
+Return a hashref with the variables requied to populate the systemd Unit File template in generateUnitFile. 
+Stub, implement in subclasses as required.
+
+=cut
+
+sub _build_SystemdVars {
+    my $self    = shift;
+    my $cmdLine
+        = defined $self->_cmdLineArgs
+        ? $self->_cmdLine . " " . $self->_cmdLineArgs
+        : $self->_cmdLine;
+    return {
+        header_warning => "#This file is generated dynamically based on the PacketFence configuration. 
+# Look under " . $self->systemdTemplateFilePath . " for the template used to generate it.",
+        cmdLine => $cmdLine,
+        pidFile => $self->pidFile,
+        chroot_dir => pf::domain::chroot_path( $self->domain ),
+    };
+}
+
+=head2 _build_systemdTemplateFilePath 
+
+Return the fully qualified path to the template file used as input to generateUnitFile.
+
+=cut
+
+sub _build_systemdTemplateFilePath {
+    my $self = shift;
+    return $install_dir . "/conf/systemd/packetfence-winbindd.service.tt";
+}
+
 sub generateConfig {
     my ($self, $quick) = @_;
 
@@ -109,13 +141,8 @@ return the pid file of the service
 
 sub pidFile {
     my ($self) = @_;
-    my $name = $self->name;
     my $domain = $self->domain;
-    if (( ( ($DISTRIB eq 'centos') || ($DISTRIB eq 'redhat') ) && ($DIST_VERSION gt 7)) || ( ($DISTRIB eq 'debian') && ($DIST_VERSION gt 8) ) ) {
-        return "$var_dir/run/$domain/winbindd.pid";
-    } else {
-        return "$var_dir/run/$domain/$name.pid";
-    }
+    return "/chroots/$domain/var/run/$domain/winbindd.pid";
 }
 
 =head2 _setupWatchForPidCreate
