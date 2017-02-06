@@ -133,13 +133,13 @@ sub build_namespaces(){
     }
 }
 
-=head2 pidFile
+=head2 _buildpidFile
 
 return the pid file of the service
 
 =cut
 
-sub pidFile {
+sub _buildpidFile {
     my ($self) = @_;
     my $domain = $self->domain;
     return "/chroots/$domain/var/run/$domain/winbindd.pid";

@@ -469,18 +469,6 @@ sub _cmdLineArgs {
 }
 
 
-=head2 pidFile
-
-return the pid file of the service
-
-=cut
-
-sub pidFile {
-    my ($self) = @_;
-    my $name = $self->name;
-    return "$var_dir/run/$name.pid";
-}
-
 
 =head2 isAlive
 
