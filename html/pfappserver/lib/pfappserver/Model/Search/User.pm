@@ -1,7 +1,8 @@
 package pfappserver::Model::Search::User;
+
 =head1 NAME
 
-pfappserver::Model::Search::User add documentation
+pfappserver::Model::Search::User The model that handles searching nodes
 
 =cut
 
@@ -14,162 +15,236 @@ User
 use strict;
 use warnings;
 use Moose;
-use pfappserver::Base::Model::Search;
 use pf::log;
-use pf::SearchBuilder;
 use pf::person qw(person_custom_search);
 use HTTP::Status qw(is_success :constants);
 use pf::util qw(calc_page_count);
+use SQL::Abstract::More;
+use pf::admin_roles;
+use POSIX qw(ceil);
 
-extends 'pfappserver::Base::Model::Search';
+{
 
-sub make_builder {
-    new pf::SearchBuilder;
-    my $builder = new pf::SearchBuilder;
-    return $builder
-    ->select(@pf::person::FIELDS,
-            (map { { table => 'password', name => $_  } } qw(valid_from expiration access_duration category password)),
-            L_("count(node.mac)", "nodes"),
-            L_("concat(firstname,' ', lastname)", "person_name"),
-    )->from('person',
-            {
-                'table'  => 'node',
-                'join' => 'LEFT',
-                'using' => 'pid',
-            },
-            {
-                'table'  => 'password',
-                'join' => 'LEFT',
-                'using' => 'pid',
-            },
-    )
-    ->group_by('pid');
+my @DEFAULT_COLUMNS = (
+    ( map {"person.$_|$_"} @pf::person::FIELDS ),
+    ( map { "password.$_|$_" } qw(valid_from expiration access_duration category password) ),
+    'count(node.mac)|nodes',
+);
+
+=head2 default_search
+
+Return the default search
+
+=cut
+
+sub default_search {
+    return {
+    -columns => [@DEFAULT_COLUMNS],
+    -from => [-join => qw[ person =>{password.pid=person.pid} password =>{node.pid=person.pid} node  ] ],
+    -group_by => 'person.pid',
+    };
 }
+
+}
+
+=head2 search
+
+search
+
+=cut
 
 sub search {
     my ($self, $c, $params) = @_;
-    my $logger = get_logger();
-    my $builder = $self->make_builder;
-    $self->setup_query($builder,$params);
-    my $results = $self->do_query($builder,$params);
-    return(HTTP_OK,$results);
+    $params->{page_num} ||= 1;
+    $params->{per_page} ||= 25;
+    my $search_info = $self->default_search;
+    my $sqla = SQL::Abstract::More->new;
+    $self->_update_from($c, $params, $search_info);
+    $self->_build_where($c, $params, $search_info);
+    $self->_build_limit($c, $params, $search_info);
+    $self->_build_order_by($c, $params, $search_info);
+    get_logger->info(Dumper($search_info));
+    my ($sql, @bind) = $sqla->select(%$search_info);
+    my @items = person_custom_search($sql, @bind);
+    $search_info->{-columns} = ['count(*)|count'];
+    delete @{$search_info}{'-limit', '-offset',  '-order_by'};
+    ($sql, @bind) = $sqla->select(%$search_info);
+    my @count = person_custom_search($sql, @bind);
+    my %results;
+    my $count = 0;
+
+    if ($count[0]) {
+        $count = $count[0]->{count};
+    }
+    my $per_page = $params->{per_page};
+    $results{items}      = \@items;
+    $results{count}      = $count;
+    $results{page_count} = ceil($count / $per_page);
+    $results{per_page}   = $per_page;
+    $results{page_num}   = $params->{page_num};
+    return (HTTP_OK, \%results);
 }
 
+{
+
+my %JOIN_MAP = (
+    ip_address => [ qw[=>{mac=mac} iplog] ]
+);
+
+=head2 _update_from
+
+Update the from in the search info
+
+=cut
+
+sub _update_from {
+    my ($self, $c, $params, $search_info) = @_;
+    my $searches = $params->{searches} || [];
+    my $from = $search_info->{-from};
+    for my $search (@$searches) {
+        my $name = $search->{name};
+        if (exists $JOIN_MAP{$name}) {
+            push @$from, @{$JOIN_MAP{$name}};
+        }
+    }
+}
+
+}
+
+=head2 _build_where
+
+build the where clause of the query
+
+=cut
+
+sub _build_where {
+    my ($self, $c, $params, $search_info) = @_;
+    my %where;
+    my $filter = $params->{filter};
+    if (defined $filter) {
+        push @{$where{'-or'}}, map { {"person.$_" => {'LIKE' => "\%$filter\%"}}} qw(pid firstname lastname email) ;
+    }
+    my $searches = $params->{searches} || [];
+    my $all_or_any = $params->{all_or_any} // "any";
+    my @clauses = map { $self->_build_clause($_) } @$searches;
+    if( @clauses) {
+        my $relational_op = $all_or_any eq "any" ? "-or" : "-and";
+        push @{$where{$relational_op}}, @clauses;
+    }
+    my $user = $c->user;
+    if (pf::admin_roles::admin_can([$user->roles], 'USERS_READ_SPONSORED')) {
+        $where{'person.sponsor'} = $user->id;
+    }
+    $search_info->{-where} = \%where;
+}
+
+=head2 _build_limit
+
+Build limit and offset of the query
+
+=cut
+
+sub _build_limit {
+    my ($self, $c, $params, $search_info) = @_;
+    my $page_num = $params->{page_num} || 1;
+    my $limit  = $params->{per_page} || 25;
+    my $offset = (( $page_num - 1 ) * $limit);
+    $search_info->{-limit} = $limit;
+    $search_info->{-offset} = $offset;
+}
+
+
+=head2 _build_order_by
+
+Build the order by clause of the query
+
+=cut
+
+sub _build_order_by {
+    my ($self, $c, $params, $search_info) = @_;
+    my ($by, $direction) = @$params{qw(by direction)};
+    $by //= 'person.pid';
+    if(!defined $direction || ($direction ne 'ASC' && $direction ne 'DESC')) {
+        $direction = 'ASC';
+    } else {
+        $direction = uc($direction);
+    }
+    $search_info->{-order_by} = ["$by $direction"];
+}
+
+our %OP_MAP = (
+    equal       => '=',
+    not_equal   => '<>',
+    not_like    => 'NOT LIKE',
+    like        => 'LIKE',
+    ends_with   => 'LIKE',
+    starts_with => 'LIKE',
+    in          => 'IN',
+    not_in      => 'NOT IN',
+);
+
+=head2 _build_clause
+
+Build clause from the query
+
+=cut
+
+sub _build_clause {
+    my ($self, $query) = @_;
+    my $op = $query->{op};
+    my $value = $query->{value};
+    my $name = $query->{name};
+    return unless defined $op && defined $name;
+    return unless defined $value;
+    $name = $self->fixup_name($name);
+    $value //= '';
+    die "$op is not a supported search operation"
+        unless exists $OP_MAP{$op};
+    my $sql_op = $OP_MAP{$op};
+    if($sql_op eq 'LIKE' || $sql_op eq 'NOT LIKE') {
+        #escaping the % and _ charcaters
+        my $escaped = $value =~ s/([%_])/\\$1/g;
+        if($op eq 'like' || $op eq 'not_like') {
+            $value = "\%$value\%";
+        } elsif ($op eq 'starts_with') {
+            $value = "$value\%";
+        } elsif ($op eq 'ends_with') {
+            $value = "\%$value";
+        }
+        if ($escaped) {
+            return { $name => { like => \[q{? ESCAPE '\'}, $value] } };
+        }
+    }
+    return {$name => {$sql_op => $value}};
+}
+
+{
+
 my %COLUMN_MAP = (
-    username => 'pid',
-    mac => {
-        table => 'node',
-        name  => 'mac',
-    },
+    username => 'person.pid',
+    mac => 'node.mac',
     name => \"concat(firstname,' ', lastname)",
-    ip_address => {
-       table => 'iplog',
-       name  => 'ip',
-    },
+    ip_address => 'iplog.ip',
     nodes => \"count(node.mac)",
 );
 
-my %JOIN_MAP = (
-    ip_address => [
-        {
-            'table'  => 'iplog',
-            'join' => 'LEFT',
-            'on' =>
-            [
-                [
-                    {
-                        'table' => 'iplog',
-                        'name'  => 'mac',
-                    },
-                    '=',
-                    {
-                        'table' => 'node',
-                        'name'  => 'mac',
-                    }
-                ]
-            ],
-        },
-    ]
-);
+=head2 fixup_name
 
-sub map_column {
-    my ($self,$column) = @_;
-    exists $COLUMN_MAP{$column} ? $COLUMN_MAP{$column}  : $column;
-}
+Fixup the name of column
 
-sub process_query {
-    my ($self,$query) = @_;
-    my $new_query = $self->SUPER::process_query($query);
-    return unless defined $new_query;
-    $new_query->[0] = $self->map_column($new_query->[0]);
-    return $new_query;
-}
+=cut
 
-sub add_joins {
-    my ($self,$builder,$params) = @_;
-    foreach my $name (map { $_->{name} } @{$params->{searches}}) {
-        $builder->from(@{$JOIN_MAP{$name}})
-            if( exists $JOIN_MAP{$name});
+sub fixup_name {
+    my ($self, $name) = @_;
+    if (exists $COLUMN_MAP{$name}) {
+        return $COLUMN_MAP{$name};
     }
+    return $name;
 }
 
-
-sub setup_query {
-    my ($self,$builder,$params) = @_;
-    $self->add_joins($builder,$params);
-    $self->add_searches($builder,$params);
-    $self->add_limit($builder,$params);
-    $self->add_order_by($builder,$params);
-}
-
-sub do_query {
-    my ($self,$builder,$params) = @_;
-    my $logger = get_logger();
-    my %results = %$params;
-    my $sql = $builder->sql;
-    my ($per_page, $page_num) = @{$params}{qw(per_page page_num)};
-    $per_page ||= 25;
-    $page_num ||= 1;
-    my $itemsKey = $self->itemsKey;
-    $results{$itemsKey} = [person_custom_search($sql)];
-    my $sql_count = $builder->sql_count;
-    my ($count) = person_custom_search($sql_count);
-    $count = $count->{count};
-    $results{count} = $count;
-    $results{page_count} = calc_page_count($count, $per_page);
-    $results{per_page} = $per_page;
-    $results{page_num} = $page_num;
-    return \%results;
-}
-
-sub add_searches {
-    my ($self,$builder,$params) = @_;
-    my @searches = map {$self->process_query($_)} @{$params->{searches}};
-    my $all_or_any = $params->{all_or_any};
-    if ($all_or_any eq 'any' ) {
-        $all_or_any = 'or';
-    } else {
-        $all_or_any = 'and';
-    }
-    if(@searches) {
-        $builder->where('(');
-        $builder->where($all_or_any)->where(@$_) for @searches;
-        $builder->where(')');
-    }
-
-}
-
-sub add_order_by {
-    my ($self, $builder, $params) = @_;
-    my ($by, $direction) = @$params{qw(by direction)};
-    if ($by && $direction) {
-        $by = $COLUMN_MAP{$by} if (exists $COLUMN_MAP{$by});
-        $builder->order_by($by, $direction);
-    }
 }
 
 __PACKAGE__->meta->make_immutable;
-
 
 =head1 COPYRIGHT
 
@@ -195,4 +270,3 @@ USA.
 =cut
 
 1;
-
