@@ -63,7 +63,6 @@ sub search {
     $self->_build_where($c, $params, $search_info);
     $self->_build_limit($c, $params, $search_info);
     $self->_build_order_by($c, $params, $search_info);
-    get_logger->info(Dumper($search_info));
     my ($sql, @bind) = $sqla->select(%$search_info);
     my @items = person_custom_search($sql, @bind);
     $search_info->{-columns} = ['count(*)|count'];
@@ -132,7 +131,8 @@ sub _build_where {
         push @{$where{$relational_op}}, @clauses;
     }
     my $user = $c->user;
-    if (pf::admin_roles::admin_can([$user->roles], 'USERS_READ_SPONSORED')) {
+    my $roles = [$user->roles];
+    if (!pf::admin_roles::admin_can($roles, 'USERS_READ') && pf::admin_roles::admin_can($roles, 'USERS_READ_SPONSORED')) {
         $where{'person.sponsor'} = $user->id;
     }
     $search_info->{-where} = \%where;
