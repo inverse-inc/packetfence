@@ -65,10 +65,10 @@ sub search {
     $self->_build_order_by($c, $params, $search_info);
     my ($sql, @bind) = $sqla->select(%$search_info);
     my @items = person_custom_search($sql, @bind);
-    $search_info->{-columns} = ['count(*)|count'];
+    $search_info->{-columns} = ['person.pid|pid'];
     delete @{$search_info}{'-limit', '-offset',  '-order_by'};
     ($sql, @bind) = $sqla->select(%$search_info);
-    my @count = person_custom_search($sql, @bind);
+    my @count = person_custom_search("SELECT COUNT(*) AS count FROM ( $sql ) as X", @bind);
     my %results;
     my $count = 0;
 
