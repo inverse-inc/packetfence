@@ -40,6 +40,7 @@ __PACKAGE__->config(
     action_args => {
         '*' => { model => 'User'},
         advanced_search => { model => 'Search::User', form => 'AdvancedSearch' },
+        simple_search => { model => 'Search::User', form => 'AdvancedSearch' },
     },
 );
 
@@ -61,28 +62,9 @@ sub index :Path :Args(0) :AdminRoleAny(USERS_READ) :AdminRoleAny(USERS_READ_SPON
 
 sub simple_search :Local :Args() :AdminRoleAny(USERS_READ): AdminRoleAny(USERS_READ_SPONSORED) {
     my ( $self, $c ) = @_;
-    $c->stash($c->request->params);
-    $self->_list_items( $c, 'User' );
-    if($c->request->param('export')) { 
-        $c->stash->{current_view} = "CSV";
-    }
+    $c->forward('advanced_search');
 }
 
-=head2 after _list_items
-
-The method _list_items comes from pfappserver::Base::Controller and is called from Base::Action::SimpleSearch.
-
-=cut
-
-after _list_items => sub {
-    my ( $self, $c ) = @_;
-    my ( $status, $roles, $violations );
-    ( $status, $roles ) = $c->model('Roles')->list();
-    $c->stash( roles => $roles );
-    ( $status, $violations ) = $c->model('Config::Violations')->readAll();
-    $c->stash( violations => $violations );
-
-};
 
 =head2 object
 
