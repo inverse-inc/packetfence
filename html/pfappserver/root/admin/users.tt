@@ -47,13 +47,13 @@ form {
               <div class="sidebar-nav well">
                 <ul class="nav nav-list">
                   <li class="nav-header">[% l('Users') %]</li>
-                  [%- IF can_access_any('USERS_READ', 'USERS_READ_OWN') -%]
+                  [%- IF can_access_any('USERS_READ', 'USERS_READ_SPONSORED') -%]
                   <li class="active"><a href="#">[% l('Search') %]</a></li>
                   [%- END -%]
                   [%- IF can_access_any('USERS_CREATE','USERS_CREATE_MULTIPLE') -%]
                   <li><a href="#user/create">[% l('Create') %]</a></li>
                   [%- END -%]
-                  [%- IF can_access_any('USERS_READ', 'USERS_READ_OWN') -%]
+                  [%- IF can_access_any('USERS_READ', 'USERS_READ_SPONSORED') -%]
                   <li class="nav-header">[% l('Saved Searches') %]</li>
                   [% FOR ss IN saved_searches %]
                   [% form = ss.form %]
