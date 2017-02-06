@@ -49,7 +49,7 @@ __PACKAGE__->config(
 
 =cut
 
-sub index :Path :Args(0) :AdminRoleAny(USERS_READ) :AdminRoleAny(USERS_READ_OWN) {
+sub index :Path :Args(0) :AdminRoleAny(USERS_READ) :AdminRoleAny(USERS_READ_SPONSORED) {
     my ( $self, $c ) = @_;
 
     $c->go('simple_search');
@@ -59,7 +59,7 @@ sub index :Path :Args(0) :AdminRoleAny(USERS_READ) :AdminRoleAny(USERS_READ_OWN)
 
 =cut
 
-sub simple_search :Local :Args() :AdminRoleAny(USERS_READ): AdminRoleAny(USERS_READ_OWN) {
+sub simple_search :Local :Args() :AdminRoleAny(USERS_READ): AdminRoleAny(USERS_READ_SPONSORED) {
     my ( $self, $c ) = @_;
     $c->stash($c->request->params);
     $self->_list_items( $c, 'User' );
@@ -112,7 +112,7 @@ sub object :Chained('/') :PathPart('user') :CaptureArgs(1) {
 
 =cut
 
-sub view :Chained('object') :PathPart('read') :Args(0) :AdminRoleAny(USERS_READ) :AdminRoleAny(USERS_READ_OWN) {
+sub view :Chained('object') :PathPart('read') :Args(0) :AdminRoleAny(USERS_READ) :AdminRoleAny(USERS_READ_SPONSORED) {
     my ($self, $c) = @_;
 
     my ($form);
@@ -375,7 +375,7 @@ Perform advanced search for user
 
 =cut
 
-sub advanced_search :Local :Args() :AdminRoleAny(USERS_READ) :AdminRoleAny(USERS_READ_OWN) {
+sub advanced_search :Local :Args() :AdminRoleAny(USERS_READ) :AdminRoleAny(USERS_READ_SPONSORED) {
     my ($self, $c, @args) = @_;
     my ($status, $status_msg, $result);
     my %search_results;
