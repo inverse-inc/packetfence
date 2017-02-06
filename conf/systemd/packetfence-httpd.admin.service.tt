@@ -9,6 +9,7 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
 [Service]
 Type=simple
 PIDFile=[% pidFile %]
+Environment=[% environment %]
 ExecStartPre=/usr/local/pf/bin/pfcmd service httpd.admin generateconfig
 ExecStart=[% cmdLine %]
 ExecReload=/bin/kill -USR1 ${MAINPID}

@@ -36,6 +36,28 @@ use pf::config qw(
 );
 use pf::cluster;
 
+=head2 _buildSystemdVars 
+
+Return a hashref with the variables requied to populate the systemd Unit File template in generateUnitFile. 
+We add the X_PORTAL=default variable to prevent warnings on CentOS/RHEL.
+
+=cut
+
+sub _build_SystemdVars {
+    my $self    = shift;
+    my $cmdLine
+        = defined $self->_cmdLineArgs
+        ? $self->_cmdLine . " " . $self->_cmdLineArgs
+        : $self->_cmdLine;
+    return {
+        header_warning => "#This file is generated dynamically based on the PacketFence configuration. 
+# Look under " . $self->systemdTemplateFilePath . " for the template used to generate it.",
+        cmdLine => $cmdLine,
+        pidFile => $self->pidFile,
+        environment => "X_PORTAL=default",
+    };
+}
+
 =head2 vhosts
 
 The list of IP addresses on which the process should listen
@@ -82,21 +104,6 @@ sub portal_preview_ip {
     return $ints[0]->{Tvip} ? $ints[0]->{Tvip} : $ints[0]->{Tip};
 }
 
-=head2 _build_launcher
-
-Pass the environmental variable X_PORTAL to avoid warnings in centos7
-
-=cut
-
-#sub _build_launcher {
-#    my ($self) = @_;
-#    my $launcher = $self->SUPER::_build_launcher;
-#    if ($self->apache_version >= 2.4)  {
-#        return "X_PORTAL=default $launcher";
-#    }
-#    return $launcher;
-#}
-#
 
 =head1 AUTHOR
 
