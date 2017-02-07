@@ -85,6 +85,7 @@ BEGIN {
         validate_date
         clean_locale 
         parse_api_action_spec
+        pf_chown
     );
 }
 

@@ -5,9 +5,9 @@
 # This script always manages the localy running server
 HOST="localhost"
 
-USER="[% replication_user %]"
-PSWD="[% replication_password %]"
-PORT="[% db_config.port %]"
+USER='[% replication_user %]'
+PSWD='[% replication_password %]'
+PORT='[% db_config.port %]'
 
 primary_change()
 {

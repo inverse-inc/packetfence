@@ -48,6 +48,8 @@ frontend  main localhost:3306
 backend mysql
     mode tcp
     option tcplog
+    external-check command /usr/local/pf/var/run/db-check
+    external-check path "/usr/bin:/bin"
 %%mysql_backend%%
 
 

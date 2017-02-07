@@ -30,6 +30,7 @@ use pf::constants::exit_code qw($EXIT_SUCCESS);
 use pf::config qw(
     %Config
 );
+use pf::util;
 
 sub _run {
     my ($self) = @_;
@@ -68,7 +69,17 @@ sub _run {
     }
 
     $tt->process("$conf_dir/mariadb/mariadb.conf.tt", \%vars, "$install_dir/var/conf/mariadb.conf") or die $tt->error();
-    $tt->process("$conf_dir/mariadb/db-update.tt", \%vars, "$install_dir/var/run/db-update") or die $tt->error();
+    
+    my $db_update_path = "$install_dir/var/run/db-update";
+    $tt->process("$conf_dir/mariadb/db-update.tt", \%vars, $db_update_path) or die $tt->error();
+    chmod 0744, $db_update_path;
+    pf_chown($db_update_path);
+
+    my $db_check_path = "$install_dir/var/run/db-check";
+    $tt->process("$conf_dir/mariadb/db-check.tt", \%vars, $db_check_path) or die $tt->error();
+    chmod 0744, $db_check_path;
+    pf_chown($db_check_path);
+
     return $EXIT_SUCCESS; 
 }
 
