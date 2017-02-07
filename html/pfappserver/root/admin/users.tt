@@ -104,8 +104,6 @@ form {
                     </div>
                     <br/>
                   <input type="text" name="filter" placeholder="[% l('Search...') %]">
-                  <input type="hidden" name="by">
-                  <input type="hidden" name="direction">
                     <div class="btn-group pull-right">
                       <button class="btn btn-primary"><i class="icon-search icon-white"></i> [% l('Search') %]</button>
                       <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="icon-chevron-up"></span></a>
@@ -118,8 +116,6 @@ form {
               </div><!--#simple-->
               <div class="tab-pane well" id="advanced">
                 <form id="advancedUserSearch" method="POST" name="advancedUserSearch" class="form-inline" action="[% c.uri_for(c.controller('User').action_for('advanced_search')) %]">
-                    <input type="hidden" name="by">
-                    <input type="hidden" name="direction">
                   <table class="table-dynamic">
                     <thead>
                       <tr>
