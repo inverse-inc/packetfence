@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# Edit parameters below to specify the address and login to server.
+
+# This script always manages the localy running server
+HOST="localhost"
+
+USER="[% replication_user %]"
+PSWD="[% replication_password %]"
+PORT="[% db_config.port %]"
+
+primary_change()
+{
+    if [ "$PRIMARY" == "0" ]; then
+        echo 'SET GLOBAL wsrep_on=0; SET GLOBAL read_only="ON";'
+    else
+        echo 'SET GLOBAL wsrep_on=1; SET GLOBAL read_only="OFF";'
+    fi
+}
+
+while [ $# -gt 0 ]
+do
+   case $1 in
+      --status)
+         STATUS=$2
+         shift
+         ;;
+      --uuid)
+         CLUSTER_UUID=$2
+         shift
+         ;;
+      --primary)
+         [ "$2" = "yes" ] && PRIMARY="1" || PRIMARY="0"
+         shift
+         ;;
+      --index)
+         INDEX=$2
+         shift
+         ;;
+      --members)
+         MEMBERS=$2
+         shift
+         ;;
+    esac
+    shift
+done
+
+if [[ ! -z $PRIMARY  ]]; then
+    primary_change | mysql --connect-timeout=2  -u$USER -p$PSWD -h$HOST  2> >(logger -p local1.err )
+fi
+exit 0
+

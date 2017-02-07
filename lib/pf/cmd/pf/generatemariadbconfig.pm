@@ -62,10 +62,13 @@ sub _run {
 
             hostname => $host_id,
             server_id => (pf::cluster::cluster_index() + 1),
+
+            db_config => $Config{database},
         );
     }
 
     $tt->process("$conf_dir/mariadb.conf.tt", \%vars, "$install_dir/var/conf/mariadb.conf") or die $tt->error();
+    $tt->process("$conf_dir/mariadb/db-update.tt", \%vars, "$install_dir/var/run/db-update") or die $tt->error();
     return $EXIT_SUCCESS; 
 }
 

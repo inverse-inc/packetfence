@@ -142,6 +142,7 @@ conf/templates/emails-guest_sponsor_confirmed.txt.tt
 conf/templates/emails-guest_sponsor_preregistration.txt.tt
 conf/dns_filters.conf
 conf/mariadb.conf.tt
+conf/mariadb/db-update.tt
 html/pfappserver/pfappserver.conf
 html/captive-portal/captiveportal.conf
 nytprof/

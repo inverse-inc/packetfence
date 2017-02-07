@@ -148,7 +148,7 @@ wsrep_node_address="[% server_ip %]"
 wsrep_on=ON 
 wsrep_sst_method = xtrabackup
 wsrep_sst_auth = "[% replication_user %]:[% replication_password %]"
-wsrep_notify_cmd=/usr/bin/wsrep-notify.sh
+wsrep_notify_cmd=/usr/local/pf/var/run/db-update
 #
 # Allow server to accept connections on all interfaces.
 #
