@@ -18,6 +18,7 @@ use pf::config qw(%Default_Config %Doc_Config);
 use pf::log;
 use pf::IniFiles;
 use pf::file_paths qw($pf_default_file);
+use pf::authentication;
 
 has 'section' => ( is => 'ro' );
 
@@ -178,6 +179,13 @@ sub field_list {
                 $field->{type} = 'ObfuscatedText';
                 last;
             };
+            $type eq 'sms_sources' && do {
+                $field->{type} = 'Select';
+                $field->{element_class} = ['chzn-deselect'];
+                $field->{element_attr} = {'data-placeholder' => 'No selection'};
+                my @options = ({value => '', label => 'None' }, map { { value => $_, label => $_ } } get_sms_source_ids());
+                $field->{options} = \@options;
+            }
         }
         if ($field->{type} eq 'Text') {
             if (exists $doc_section->{minimum_length}) {
@@ -209,6 +217,10 @@ sub field_list {
         push(@$list, $name => $field);
     }
     return $list;
+}
+
+sub get_sms_source_ids {
+    return map { $_->id } grep { $_->isa("pf::Authentication::Source::SMSSource") || $_->isa("pf::Authentication::Source::TwilioSource") } @{getAllAuthenticationSources()};
 }
 
 #sub validate {
