@@ -33,7 +33,6 @@ case "$1" in
     ;;
 
     remove)
-        #remove user and group pf
         if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
             if [ -x /etc/init.d/packetfence ]; then
                 invoke-rc.d packetfence stop
@@ -42,18 +41,6 @@ case "$1" in
         if [ ${DIST} = "jessie" ] ; then
             systemctl stop packetfence
         fi
-        set +e
-        userdel pf
-        if [ $? -ne 0 ]; then
-            echo "Unable to remove pf user"
-        fi
-        if [ -e /etc/lsb-release ]; then
-            groupdel pf
-            if [ $? -ne 0 ]; then
-                echo "Unable to remove pf group"
-            fi
-        fi
-        set -e
         if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
             # removing init scripts
             if [ -e /etc/lsb-release ]; then

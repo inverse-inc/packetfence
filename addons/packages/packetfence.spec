@@ -590,8 +590,13 @@ rm -rf $RPM_BUILD_ROOT
 %pre -n %{real_name}
 
 if ! /usr/bin/id pf &>/dev/null; then
+    if ! /usr/bin/id -g pf &>/dev/null; then
         /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
                 echo Unexpected error adding user "pf" && exit
+    else
+        /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf -g pf || \
+                echo Unexpected error adding user "pf" && exit
+    fi
 fi
 /usr/sbin/usermod -aG wbpriv,fingerbank,apache,carbon pf
 
@@ -613,22 +618,37 @@ fi
 %pre -n %{real_name}-remote-snort-sensor
 
 if ! /usr/bin/id pf &>/dev/null; then
+    if ! /usr/bin/id -g pf &>/dev/null; then
         /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
                 echo Unexpected error adding user "pf" && exit
+    else
+        /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf -g pf || \
+                echo Unexpected error adding user "pf" && exit
+    fi
 fi
 
 %pre -n %{real_name}-remote-arp-sensor
 
 if ! /usr/bin/id pf &>/dev/null; then
+    if ! /usr/bin/id -g pf &>/dev/null; then
         /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
                 echo Unexpected error adding user "pf" && exit
+    else
+        /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf -g pf || \
+                echo Unexpected error adding user "pf" && exit
+    fi
 fi
 
 %pre -n %{real_name}-config
 
 if ! /usr/bin/id pf &>/dev/null; then
+    if ! /usr/bin/id -g pf &>/dev/null; then
         /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
                 echo Unexpected error adding user "pf" && exit
+    else
+        /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf -g pf || \
+                echo Unexpected error adding user "pf" && exit
+    fi
 fi
 
 
@@ -832,37 +852,6 @@ if [ $1 -eq 0 ] ; then
 /bin/systemctl stop packetfence-config
 /bin/systemctl disable packetfence-config
 %endif
-fi
-
-%postun -n %{real_name}
-if [ $1 -eq 0 ]; then
-        if /usr/bin/id pf &>/dev/null; then
-               /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
-#               /usr/sbin/groupdel pf || %logmsg "Group \"pf\" could not be deleted."
-#        else
-#               /sbin/service pf condrestart &>/dev/null || :
-        fi
-fi
-
-%postun -n %{real_name}-remote-snort-sensor
-if [ $1 -eq 0 ]; then
-        if /usr/bin/id pf &>/dev/null; then
-                /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
-        fi
-fi
-
-%postun -n %{real_name}-remote-arp-sensor
-if [ $1 -eq 0 ]; then
-        if /usr/bin/id pf &>/dev/null; then
-                /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
-        fi
-fi
-
-%postun -n %{real_name}-config
-if [ $1 -eq 0 ]; then
-        if /usr/bin/id pf &>/dev/null; then
-                /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
-        fi
 fi
 
 # TODO we should simplify this file manifest to the maximum keeping treating 

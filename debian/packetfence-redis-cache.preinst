@@ -27,8 +27,12 @@ case "$1" in
         if grep -E "^pf:" /etc/passwd > /dev/null ; then
                 echo "pf user already exist"
         else
+            if ! /usr/bin/id -g pf &>/dev/null; then
                 useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf
-                echo "create pf user"
+            else
+                useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf -g pf
+            fi
+            echo "create pf user"
         fi
         exit 0
     ;;
