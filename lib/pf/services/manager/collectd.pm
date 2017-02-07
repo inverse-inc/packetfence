@@ -33,8 +33,6 @@ extends 'pf::services::manager';
 
 has '+name'     => ( default => sub {'collectd'} );
 has '+optional' => ( default => sub {1} );
-has startDependsOnServices => ( is => 'ro', default => sub { [qw(carbon-cache carbon-relay)] } );
-
 
 sub _cmdLine {
     my $self = shift;

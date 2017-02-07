@@ -47,7 +47,6 @@ sub _build_pfdhcplistenerManagers {
         pf::services::manager::pfdhcplistener->new(
             {   name                    => "pfdhcplistener_$_",
                 forceManaged            => $self->isManaged,
-                orderIndex              => $self->orderIndex,
                 systemdTemplateFilePath => $self->systemdTemplateFilePath,
                 unitFilePath            => $systemd_unit_dir . "/packetfence-" . "pfdhcplistener_$_" . ".service",
                 int                     => $_,

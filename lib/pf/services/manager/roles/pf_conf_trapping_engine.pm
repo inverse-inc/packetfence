@@ -29,19 +29,6 @@ around isManaged => sub {
     return $monitor_int && isenabled($Config{'trapping'}{'detection'}) && $Config{'trapping'}{'detection_engine'} eq $self->name && $self->$orig(@_) ? 1 : 0;
 };
 
-=head2 startDependsOnServices
-
-services that the trapping engine depends on
-
-=cut
-
-around startDependsOnServices => sub {
-    my ($orig, $self) = (shift, shift);
-    my $startDependsOnServices = $self->$orig(@_);
-    push @$startDependsOnServices,'pfdetect';
-    return $startDependsOnServices;
-};
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

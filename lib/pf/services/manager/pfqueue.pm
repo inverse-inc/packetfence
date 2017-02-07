@@ -26,19 +26,6 @@ The name of service of this manager
 
 has '+name' => ( default => sub { 'pfqueue' } );
 
-=head2 startDependsOnServices
-
-Add redis_queue to the list of dependecies
-
-=cut
-
-around startDependsOnServices => sub {
-    my ($orig, $self) = (shift, shift);
-    my $startDependsOnServices = $self->$orig(@_);
-    push @$startDependsOnServices,'redis_queue';
-    return $startDependsOnServices;
-};
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

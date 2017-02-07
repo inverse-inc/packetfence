@@ -18,8 +18,6 @@ extends 'pf::services::manager';
 
 has '+name' => (default => sub { 'pfsetvlan' } );
 
-has startDependsOnServices => (is => 'ro', default => sub { [qw(snmptrapd)] } );
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

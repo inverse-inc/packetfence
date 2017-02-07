@@ -25,14 +25,15 @@ use strict;
 use warnings;
 
 use pf::config;
-use pf::constants::services qw(JUST_MANAGED INCLUDE_START_DEPENDS_ON INCLUDE_STOP_DEPENDS_ON);
+use pf::constants::services qw(JUST_MANAGED);
 use List::MoreUtils qw(any);
 use Module::Pluggable
-  'search_path' => [qw(pf::services::manager)],
-  'sub_name'    => 'managers',
-  'require'     => 1,
-  'except'      => qr/^pf::services::manager::roles|^pf::services::manager::(systemd|httpd|submanager|winbindd_child|radiusd_child|redis)$/,
-  ;
+    'search_path' => [qw(pf::services::manager)],
+    'sub_name'    => 'managers',
+    'require'     => 1,
+    'except' =>
+    qr/^pf::services::manager::roles|^pf::services::manager::(systemd|httpd|submanager|winbindd_child|radiusd_child|redis)$/,
+    ;
 
 
 
@@ -107,20 +108,12 @@ sub getManagers {
     $services = (any { $_ eq 'pf'} @$services) ? [@pf::services::ALL_SERVICES] : $services;
     $flags = 0 unless defined $flags;
     my %seen;
-    my $includeStartDependsOn = $flags & INCLUDE_START_DEPENDS_ON;
-    my $includeStopDependsOn = $flags & INCLUDE_STOP_DEPENDS_ON;
     my $justManaged      = $flags & JUST_MANAGED;
     my @temp = grep { defined $_ } map { pf::services::get_service_manager($_) } @$services;
     my @serviceManagers;
     foreach my $m (@temp) {
         next if $seen{$m->name} || ( $justManaged && !$m->isManaged );
         my @managers;
-        #Get dependencies
-        if ( $includeStartDependsOn ) {
-            @managers = grep { defined $_ } map { pf::services::get_service_manager($_) } @{$m->startDependsOnServices};
-        } elsif ( $includeStopDependsOn ) {
-            @managers = grep { defined $_ } map { pf::services::get_service_manager($_) } @{$m->stopDependsOnServices};
-        }
         if($m->isa("pf::services::manager::submanager")) {
             push @managers,$m->managers;
         } else {

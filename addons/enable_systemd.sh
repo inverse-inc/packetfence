@@ -5,7 +5,7 @@ mkdir /etc/systemd/system/packetfence-base.target.wants
 mkdir /etc/systemd/system/packetfence.target.wants
 mkdir /etc/systemd/system/packetfence-cluster.target.wants
 
-for f in /usr/local/pf/conf/systemd/packetfence-*.target /usr/local/pf/conf/systemd/*.slice ; do 
+for f in /usr/local/pf/conf/systemd/packetfence*.target /usr/local/pf/conf/systemd/*.slice ; do 
     cp $f /etc/systemd/system/
 done
 

@@ -69,7 +69,6 @@ sub _build_radiusdManagers {
             {   name         => $name,
                 forceManaged => $self->isManaged,
                 options      => $id,
-                orderIndex   => $self->orderIndex,
             }
             )
     } keys %$listens;

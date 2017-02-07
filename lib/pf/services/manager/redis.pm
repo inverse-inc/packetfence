@@ -26,9 +26,6 @@ use pf::util;
 
 extends 'pf::services::manager';
 
-
-has '+startDependsOnServices' => (is => 'ro', default => sub { [] } );
-
 has 'redis_config_template' => (is => 'rw', builder => 1, lazy => 1);
 
 has 'redis_config_file' => (is => 'rw', builder => 1, lazy => 1);

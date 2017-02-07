@@ -55,7 +55,6 @@ sub _build_winbinddManagers {
             executable => $self->executable,
             name => "winbindd-$_.conf",
             forceManaged => $self->isManaged,
-            orderIndex => $self->orderIndex,
             domain => $_,
         })
     } uniq keys %ConfigDomain;
