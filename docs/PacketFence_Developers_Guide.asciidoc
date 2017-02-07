@@ -768,7 +768,7 @@ Submit your new translation to the PacketFence project by contacting us at packe
 Admin GUI
 ~~~~~~~~~
 
-The Admin GUI can be customize via Controllers and templates.
+The Admin GUI can be customized via Controllers and templates.
 
 Templates
 ^^^^^^^^^
