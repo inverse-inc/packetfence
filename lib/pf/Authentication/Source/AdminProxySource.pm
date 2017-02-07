@@ -1,4 +1,5 @@
 package pf::Authentication::Source::AdminProxySource;
+
 =head1 NAME
 
 pf::Authentication::Source::AdminProxySource - Class for AdminProxy
@@ -121,7 +122,6 @@ sub match_in_subclass {
     }
     return $group_header;
 }
-
 
 =head1 AUTHOR
 
