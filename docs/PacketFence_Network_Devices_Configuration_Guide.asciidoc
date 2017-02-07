@@ -2116,7 +2116,78 @@ On each interface:
 
   To be contributed... 
 
-Edge­corE 
+N1500 Series Switch
+^^^^^^^^^^^^^^^^^^^
+
+PacketFence supports this switch using RADIUS, MAC-Authentication, 802.1x and VoIP
+
+802.1X with MAC Authentication fallback and VoIP
+++++++++++++++++++++++++++++++++++++++++++++++++
+
+We assume that the switch ip is 192.168.1.254
+
+First on the uplink add this configuration:
+
+  dot1x port-control force-authorized
+  switchport mode trunk
+  switchport trunk allowed vlan 1-5,100
+
+
+Global config settings
+
+  configure
+  vlan 2,3,4,5,100
+  vlan 2
+  name "Registration"
+  vlan 3
+  name "Isolation"
+  vlan 4
+  name "Mac detection"
+  vlan 5
+  name "Guest"
+  vlan 100
+  name "VoIP"
+
+  authentication enable
+  dot1x system-auth-control
+  aaa authentication dot1x default radius
+  aaa authorization network default radius
+  dot1x dynamic-vlan enable
+  voice vlan
+  aaa server radius dynamic-author
+  client 192.168.1.5 server-key "useStrongerSecret"
+  exit
+  radius-server host auth 192.168.1.5
+  name "PacketFence"
+  usage 802.1x
+  key "useStrongerSecret"
+  exit
+  aaa server radius dynamic-author
+  client 192.168.1.5 server-key "useStrongerSecret"
+  exit
+
+  snmp-server community "private" rw
+  snmp-server community "public" ro
+
+On each interface (not uplink)
+
+  switchport voice detect auto
+  switchport mode general
+  switchport access vlan 10
+  dot1x port-control mac-based
+  dot1x reauthentication
+  dot1x mac-auth-bypass
+  authentication order mab
+  authentication priority mab
+  lldp transmit-tlv sys-desc sys-cap
+  lldp transmit-mgmt
+  lldp notification
+  lldp med confignotification
+  voice vlan 100
+  exit
+
+
+Edge core
 ~~~~~~~~~
 
 PacketFence supports Edge-corE switches without VoIP using linkUp/linkDown traps.
