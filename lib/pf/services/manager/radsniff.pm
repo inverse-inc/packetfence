@@ -44,6 +44,12 @@ has '+launcher' => (
 
 has startDependsOnServices => ( is => 'ro', default => sub { [qw(collectd)] } );
 
+=head2 make_filter
+
+Generate the filter based on the radius interfaces.
+
+=cut
+
 sub make_filter {
     my  @ints = uniq(@radius_ints);
     my $filter = '( ( ';

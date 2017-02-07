@@ -8,7 +8,7 @@ pfconfig::namespaces::interfaces::radius_ints
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::interfaces::radius_ints
+Return all the interfaces where radius must run
 
 =cut
 

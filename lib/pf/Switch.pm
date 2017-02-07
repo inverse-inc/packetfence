@@ -3117,7 +3117,7 @@ sub deauth_source_ip {
     my $logger = $self->logger();
     my $chi = pf::CHI->new(namespace => 'route_int');
     my $int = $chi->compute($dst_ip, sub {
-                                         my @interface_src = split(" ", `LANG=C sudo ip route get $dst_ip`);
+                                         my @interface_src = split(" ", pf_run("sudo ip route get $dst_ip"));
                                          if ($interface_src[1] eq 'via') {
                                              return $interface_src[4];
                                          } else {

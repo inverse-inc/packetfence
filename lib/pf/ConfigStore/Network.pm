@@ -142,6 +142,7 @@ sub cleanupBeforeCommit {
     my $config = $self->cachedConfig;
     unless ( $config->SectionExists($id) ) {
         # Set default values when creating a new network
+        $network->{type} =~ s/\s+//;
         my @types = split(',',$network->{type});
         $network->{named} = 'enabled' unless ($network->{named});
         $network->{dhcpd} = 'enabled' unless ($network->{dhcpd});
