@@ -39,6 +39,8 @@ Readonly::Hash our %ALLOW_STATUS => (
     $STATUS_UNREGISTERED => 1,
     $STATUS_PENDING      => 1,
 );
+# Delay in millisecond to wait for triggering internal::node_discovered after discovering a node 
+Readonly::Scalar our $NODE_DISCOVERED_TRIGGER_DELAY => 10000;
 
 BEGIN {
     use Exporter ();
@@ -528,6 +530,9 @@ sub node_add {
         $data{dhcp_fingerprint}, $data{last_arp},    $data{last_dhcp},   $data{notes},
         $data{autoreg},          $data{sessionid}
     );
+
+    my $apiclient = pf::api::queue->new(queue => 'general');
+    $apiclient->notify_delayed($NODE_DISCOVERED_TRIGGER_DELAY, "trigger_violation", mac => $mac, type => "internal", tid => "node_discovered");
 
     if ($statement) {
         return ($statement->rows == 1 ? 1 : 0);

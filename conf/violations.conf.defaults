@@ -248,6 +248,14 @@ auto_enable=Y
 vlan=registration
 trigger=Internal::parking_detected
 
+[1300004]
+priority=1
+trigger=internal::node_discovered
+actions=email_admin
+desc=Node discovered
+template=bandwidth_expiration
+auto_enable=N
+enabled=N
 
 #
 # 1400000 - 1499999 Reserved for local violations
