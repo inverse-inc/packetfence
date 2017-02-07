@@ -56,6 +56,10 @@ sub authenticate {
     }
     my $source = getAuthenticationSource($source_id);
     my $username = $source->getUserFromHeader($headers);
+    unless (defined $username) {
+        $c->log->error("Cannot extract the user name from the headers for source $source_id");
+        return;
+    }
     my $group = $source->getGroupFromHeader($headers);
     my $value = &pf::authentication::match($source_id, {username => $username, group_header => $group, 'rule_class' => $Rules::ADMIN}, $Actions::SET_ACCESS_LEVEL);
     # No roles found cannot login
