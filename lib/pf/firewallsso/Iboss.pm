@@ -84,7 +84,6 @@ sub action {
         if (
             defined($node_info) &&
             (ref($node_info) eq 'HASH') &&
-            $node_info->{'status'} eq $pf::node::STATUS_REGISTERED &&
             (grep $_ eq $node_info->{'category'}, @categories)
         ){
             # Create a request

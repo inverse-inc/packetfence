@@ -67,7 +67,6 @@ sub action {
 
         my @categories = @{$self->{categories}};
         if (defined($node_info) && (ref($node_info) eq 'HASH') &&
-            $node_info->{'status'} eq $pf::node::STATUS_UNREGISTERED &&
             (grep $_ eq $node_info->{'category'}, @categories)
            ){
             my $ssh;
