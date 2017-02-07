@@ -23,11 +23,21 @@ use List::Util qw(first);
 has realm => (is => 'rw');
 has _config => (is => 'rw');
 
+=head2 BUILDARGS
+
+=cut
+
 sub BUILDARGS {
     my ($class, $config, $app, $realm) = @_;
 
     return { _config => $config, realm => $realm};
 }
+
+=head2 authenticate
+
+authenticate using an admin proxy
+
+=cut
 
 sub authenticate {
     my ($self, $c, $realm, $authinfo) = @_;
