@@ -438,7 +438,7 @@ Returns the list of sources to be displayed
 =cut
 
 sub options_sources {
-    return map { { value => $_->id, label => $_->id, attributes => { 'data-source-class' => $_->class  } } } @{getAllAuthenticationSources()};
+    return map { { value => $_->id, label => $_->id, attributes => { 'data-source-class' => $_->class  } } } grep { !$_->isa("pf::Authentication::Source::AdminProxySource") } @{getAllAuthenticationSources()};
 }
 
 =head2 options_billing_tiers

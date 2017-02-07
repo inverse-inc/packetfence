@@ -65,7 +65,7 @@ sub options_sources {
     }
     my @splitted_isas = split(/\s*\|\s*/, $isa);
     get_logger->debug("Building options with isa : $isa");
-    foreach my $source (@{pf::authentication::getAllAuthenticationSources()}){
+    foreach my $source ( grep { !$_->isa("pf::Authentication::Source::AdminProxySource") } @{pf::authentication::getAllAuthenticationSources()} ){
         foreach my $splitted_isa (@splitted_isas) {
             if($source->isa($splitted_isa)){
                 push @sources, $source->id;
