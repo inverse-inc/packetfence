@@ -707,8 +707,10 @@ rm -rf /usr/local/pf/var/cache/
 /bin/systemctl enable packetfence-config
 /bin/systemctl enable packetfence-iptables
 /bin/systemctl isolate packetfence-base
-/bin/systemctl start packetfence-httpd.admin
 /usr/local/pf/bin/pfcmd configreload
+/usr/local/pf/bin/pfcmd service httpd.admin generateunitfile
+/bin/systemctl enable packetfence-httpd.admin
+/bin/systemctl start packetfence-httpd.admin
 
 echo Installation complete
 echo "  * Please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."
