@@ -71,7 +71,7 @@ sub action {
         if (
             defined($node_info) &&
             (ref($node_info) eq 'HASH') &&
-            $node_info->{'status'} eq $pf::node::STATUS_REGISTERED &&
+            $node_info->{'status'} eq $pf::node::STATUS_UNREGISTERED &&
             (grep $_ eq $node_info->{'category'}, @categories)
         ){
             if($ConfigFirewallSSO{$firewall_conf}->{'transport'} eq $SYSLOG_TRANSPORT) {
