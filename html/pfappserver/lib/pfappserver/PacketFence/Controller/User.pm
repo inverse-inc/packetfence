@@ -39,8 +39,8 @@ __PACKAGE__->config(
     },
     action_args => {
         '*' => { model => 'User'},
-        advanced_search => { model => 'Search::User', form => 'AdvancedSearch' },
-        simple_search => { model => 'Search::User', form => 'AdvancedSearch' },
+        advanced_search => { model => 'Search::User', form => 'UserSearch' },
+        simple_search => { model => 'Search::User', form => 'UserSearch' },
     },
 );
 
