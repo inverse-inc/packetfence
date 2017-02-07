@@ -1070,6 +1070,8 @@ timing_stats_level=5
 # Do not change unless you know what you are doing
 pfdhcplistener_packet_size=576
 
+source_to_send_sms_when_creating_users=
+
 [omapi]
 #
 # omapi.ip2mac_lookup
