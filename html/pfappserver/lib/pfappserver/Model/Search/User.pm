@@ -57,6 +57,8 @@ sub search {
     my ($self, $c, $params) = @_;
     $params->{page_num} ||= 1;
     $params->{per_page} ||= 25;
+    $params->{by} //= 'person.pid';
+    $params->{direction} //= 'asc';
     my $search_info = $self->default_search;
     my $sqla = SQL::Abstract::More->new;
     $self->_update_from($c, $params, $search_info);
@@ -81,6 +83,8 @@ sub search {
     $results{page_count} = ceil($count / $per_page);
     $results{per_page}   = $per_page;
     $results{page_num}   = $params->{page_num};
+    $results{by}   = $params->{by};
+    $results{direction}   = $params->{direction};
     return (HTTP_OK, \%results);
 }
 
@@ -164,10 +168,10 @@ sub _build_order_by {
     my ($self, $c, $params, $search_info) = @_;
     my ($by, $direction) = @$params{qw(by direction)};
     $by //= 'person.pid';
-    if(!defined $direction || ($direction ne 'ASC' && $direction ne 'DESC')) {
+    $direction //= 'ASC';
+    $direction = uc($direction);
+    if ($direction ne 'ASC' && $direction ne 'DESC') {
         $direction = 'ASC';
-    } else {
-        $direction = uc($direction);
     }
     $search_info->{-order_by} = ["$by $direction"];
 }
