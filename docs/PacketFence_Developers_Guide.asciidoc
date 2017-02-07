@@ -32,7 +32,7 @@ Network Devices Configuration Guide::
 Administration Guide::
   Covers PacketFence installation, configuration and administration.
 `NEWS`::
-  Covers noteworthy features, improvements and bugfixes by release.
+  Covers noteworthy features, improvements and bug fixes by release.
 `UPGRADE`::
   Covers compatibility related changes, manual instructions and general notes
   about upgrading.
@@ -47,7 +47,7 @@ Documentation
 The in-depth or more technical documentation is always as close to the code
 as possible. Always look at the `POD` doc
 footnote:[Perl's Plain Old Documentation: http://perldoc.perl.org/perlpod.html].
-To do so, the prefered way is using the `perldoc` command as follows:
+To do so, the preferred way is using the `perldoc` command as follows:
 
   perldoc lib/pfconfig/cached.pm
 
@@ -74,7 +74,7 @@ slowly disappear.
 
 * Document each subroutine in POD format (`perldoc perlpod`)
 
-* Use constants instead of hardcoded strings or numbers (use `constant` or `Readonly` modules)
+* Use constants instead of hard coded strings or numbers (use `constant` or `Readonly` modules)
 
 * in object-oriented modules we use CamelCase footnote:[http://en.wikipedia.org/wiki/CamelCase]
   notation (ex: `$radiusRequest->getVoIpAttributes();`)
@@ -181,7 +181,7 @@ The remediation page shown to the user during isolation are specified through
 the URL parameter of the given violation in `/usr/local/pf/conf/violations.conf`.
 In its default configuration, PacketFence uses Template Toolkit to render text provided
 in the directory `/usr/local/pf/html/captive-portal/templates/violations` and obeys
-to everything mentionned in the <<_presentation,Presentation>> section.
+to everything mentioned in the <<_presentation,Presentation>> section.
 
 
 // TODO: should move in admin guide under advanced topics
@@ -269,7 +269,7 @@ sub getRegisteredRole {
     #$ifIndex is the ifIndex of the computer connected to
     #$mac is the mac connected
     #$node_info is the node info hashref (result of pf::node's node_view on $mac)
-    #$conn_type is set to the connnection type expressed as the constant in pf::config
+    #$conn_type is set to the connection type expressed as the constant in pf::config
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
     my ($self, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
@@ -414,7 +414,7 @@ MAC Authentication re-evaluation
 
 MAC Authentication re-evaluation is necessary in order to provoke a VLAN change in the PacketFence
 system. This happens for instance when a node is isolated based on an IDS event or when the user
-succesfully authenticates through the captive portal. The default implementation in
+successfully authenticates through the captive portal. The default implementation in
 `pf::Switch` will bounce the port if there is no Voice over IP (VoIP) devices connected to the
 port. Otherwise it will do nothing and send an email. If your device has specific needs (for example it
 doesn't support RADIUS Dynamic VLAN Assignments) override:
@@ -452,7 +452,7 @@ Force 802.1X re-authentication
 ++++++++++++++++++++++++++++++
 
 802.1X re-authentication is necessary in order to provoke a VLAN change in the PacketFence system.
-This happens for instance when a node is isolated based on an IDS event or when the user succesfully
+This happens for instance when a node is isolated based on an IDS event or when the user successfully
 authenticates through the captive portal. The default implementation in `pf::Switch` uses SNMP and the
 standard `IEEE8021-PAE-MIB` and is generally well supported. If the default implementation to
 force 802.1X re-authentication doesn't work override:
@@ -659,7 +659,7 @@ repository.
 Not so bleeding edge
 ^^^^^^^^^^^^^^^^^^^^
 
-Using the development `yum` repository and upgrade packetfence often is a good way to proceed.
+Using the development `yum` repository and upgrade PacketFence often is a good way to proceed.
 Check our https://packetfence.org/download/snapshots.html[snapshots download page] for
 instructions.
 
@@ -706,7 +706,7 @@ that information in the ticket will help you.
 * Please provide small, focused and manageable patches or pull-requests
 
 If you plan on doing a lot of code, use `git` and track our current stable branch called `stable`. Develop the
-feature in small chunks and stay in touch with us. This way it'll be merged quickly in our codebase. Ideally
+feature in small chunks and stay in touch with us. This way it'll be merged quickly in our code base. Ideally
 there would be no big code dumps after finishing a feature.
 
 Creating patches
@@ -764,6 +764,27 @@ If you want to add support for a new language, please follow these steps:
   /usr/bin/msgfmt packetfence.po
 
 Submit your new translation to the PacketFence project by contacting us at packetfence-devel@lists.sourceforge.net.
+
+Admin GUI
+~~~~~~~~~
+
+The Admin GUI can be customize via Controllers and templates.
+
+Templates
+^^^^^^^^^
+
+You can add customize templates to the `/usr/local/pf/html/pfappserver/root-custom/` folder to override current templates.
+
+However when doing this you must keep track of any changes to those templates across versions.
+
+Controllers
+^^^^^^^^^^^
+
+You change the behavior of the controllers by modifying the controllers in the path.
+
+`/usr/local/pf/html/pfappserver/lib/pfappserver/Controller/`
+
+However when doing this you must keep track of any changes to those Controllers across versions.
 
 //TODO: process the rest. I found quickest way to be:
 // paste from docbook then use vim(:1,9s#<\_.\{-1,}>##g) and reformat by hand
