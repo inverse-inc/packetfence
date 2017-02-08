@@ -792,7 +792,9 @@ fi
 %attr(0311, root, root) /etc/systemd/system/packetfence-base.target
 %attr(0311, root, root) /etc/systemd/system/packetfence-cluster.target
 %attr(0311, root, root) /etc/systemd/system/packetfence*.slice
-%attr(0311, root, root) /usr/lib/systemd/system/packetfence-*.service
+%attr(0311, root, root) /usr/lib/systemd/system/packetfence-mariadb.service
+%attr(0311, root, root) /usr/lib/systemd/system/packetfence-redis-cache.service
+%attr(0311, root, root) /usr/lib/systemd/system/packetfence-iptables.service
 %dir %attr(0750, root,root) /etc/systemd/system/packetfence*target.wants
 %dir %attr(0750,root,root) %{_sysconfdir}/sudoers.d
 %config %attr(0440,root,root) %{_sysconfdir}/sudoers.d/packetfence
