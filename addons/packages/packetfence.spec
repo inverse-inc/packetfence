@@ -718,6 +718,15 @@ rm -rf /usr/local/pf/var/cache/
 /bin/systemctl enable packetfence-httpd.admin
 /bin/systemctl start packetfence-httpd.admin
 
+
+# if this is an upgrade, generate the unitfiles now
+if [ "$1" = "2"   ]; then
+    cd /usr/local/pf/conf/systemd
+    for $s in *.service.tt; do 
+        /usr/local/pf/bin/pfcmd service $s generateunitfile
+    done 
+fi
+
 echo Installation complete
 echo "  * Please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."
 echo "  * Please stop your iptables service if you don't have access to configurator."
