@@ -1146,6 +1146,11 @@ sub node_cleanup {
     my ($time) = @_;
     my $logger = get_logger();
     $logger->debug("calling node_cleanup with time=$time");
+    
+    if($time eq "0") {
+        $logger->debug("Not deleting because the window is 0");
+        return;
+    }
 
     foreach my $rowVlan ( node_expire_lastdhcp($time) ) {
         my $mac = $rowVlan->{'mac'};
