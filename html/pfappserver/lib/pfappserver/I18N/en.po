@@ -7225,7 +7225,7 @@ msgid "The source to use to connect to your Active Directory server for NTLM cac
 msgstr ""
 
 # conf/documentation.conf (advanced.source_to_send_sms_when_creating_users)
-msgid "The source to use to send SMS when creating a user"
+msgid "The source to use to send an SMS when creating a user"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/BillingTiers.pm
