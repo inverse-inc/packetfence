@@ -563,6 +563,14 @@ rm -rf $RPM_BUILD_ROOT
 
 %pre -n %{real_name}
 
+# clean up the old systemd files if it's an upgrade
+if [ "$1" = "2"   ]; then
+    /usr/bin/systemctl disable mariadb
+    /usr/bin/systemctl disable packetfence-redis-cache
+    /usr/bin/systemctl disable packetfence-config
+    /usr/bin/systemctl disable packetfence.service
+fi
+
 if ! /usr/bin/id pf &>/dev/null; then
     if ! /usr/bin/id -g pf &>/dev/null; then
         /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \

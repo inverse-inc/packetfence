@@ -189,7 +189,7 @@ sub generateConfig {
 sub generateUnitFile { 
     my ($service, @services) = @_;
     use sort qw(stable);
-    my @managers = pf::services::getManagers(\@services, JUST_MANAGED);
+    my @managers = pf::services::getManagers(\@services);
     print $SERVICE_HEADER;
     for my $manager (@managers) {
         _doGenerateUnitFile($manager);
