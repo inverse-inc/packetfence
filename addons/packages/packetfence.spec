@@ -789,6 +789,8 @@ fi
 
 %defattr(-, pf, pf)
 %attr(0311, root, root) /etc/systemd/system/packetfence.target
+%attr(0311, root, root) /etc/systemd/system/packetfence-base.target
+%attr(0311, root, root) /etc/systemd/system/packetfence-cluster.target
 %attr(0311, root, root) /etc/systemd/system/packetfence*.slice
 %attr(0311, root, root) /usr/lib/systemd/system/packetfence-*.service
 %dir %attr(0750, root,root) /etc/systemd/system/packetfence*target.wants
@@ -986,6 +988,8 @@ fi
 %config(noreplace)      /usr/local/pf/conf/snort/reference.config
                         /usr/local/pf/conf/snort/reference.config.example
 %dir                    /usr/local/pf/conf/ssl
+%dir                    /usr/local/pf/conf/systemd
+%config                 /usr/local/pf/conf/systemd/*
 %config(noreplace)      /usr/local/pf/conf/switches.conf
 %config                 /usr/local/pf/conf/switches.conf.defaults
                         /usr/local/pf/conf/switches.conf.example
