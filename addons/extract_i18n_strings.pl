@@ -453,7 +453,7 @@ sub extract_modules {
 
     const('pfappserver::Form::Field::Duration', 'Operators', ['add', 'subtract']);
 
-    const('html/pfappserver/root/user/list_password.tt', 'options', ['mail_loading']);
+    const('html/pfappserver/root/user/list_password.tt', 'options', ['mail_loading', 'sms_loading']);
 }
 
 =head2 print_po
