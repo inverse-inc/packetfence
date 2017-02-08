@@ -90,7 +90,14 @@ eval {
 
    my $date = POSIX::strftime("%m/%d-%H:%M:%S",localtime(time));
 
-   my $result = $soap->event_add($date, $src_ip, "detect", $sid);
+   my %event = (
+       events => {
+           detect => $sid,
+       },
+       srcip => $src_ip,
+       date  => $date,
+   );
+   my $result = $soap->event_add(%event);
 
    if ($result->fault) {
       sferror($prog, "cmd_output", "violation could not be added: " . $result->faultcode . " - " . $result->faultstring . " - " . $result->faultdetail);
