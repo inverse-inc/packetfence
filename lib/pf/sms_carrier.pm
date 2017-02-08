@@ -23,7 +23,7 @@ BEGIN {
     use Exporter ();
     our (@ISA, @EXPORT);
     @ISA    = qw(Exporter);
-    @EXPORT = qw(sms_carrier_view_all);
+    @EXPORT = qw(sms_carrier_view_all sms_carrier_custom_search);
 }
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
@@ -83,6 +83,14 @@ sub sms_carrier_view_all {
 
     return $val;
 }
+
+sub sms_carrier_custom_search {
+    my ($sql, @bind) = @_;
+    my $logger = get_logger();
+    $sms_carrier_statements->{'sms_carrier_custom_search_sql'} = $sql;
+    return db_data(SMS_CARRIER, $sms_carrier_statements, 'sms_carrier_custom_search_sql', @bind);
+}
+
 
 =head1 AUTHOR
 
