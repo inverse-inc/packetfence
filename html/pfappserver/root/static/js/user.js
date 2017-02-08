@@ -69,6 +69,8 @@ var UserView = function(options) {
 
     this.proxyClick($('body'), '#modalUser #mailPassword', this.mailPassword);
 
+    this.proxyClick($('body'), '#modalUser #smsPassword', this.smsPassword);
+
     this.proxyFor($('body'), 'show', 'a[data-toggle="tab"][href="#userViolations"]', this.updateTab);
 
     this.proxyFor($('body'), 'show', 'a[data-toggle="tab"][href="#userDevices"]', this.updateTab);
@@ -341,6 +343,33 @@ UserView.prototype.mailPassword = function(e) {
     btn.button('loading');
     this.users.get({
         url: url,
+        always: function() {
+            btn.button('reset');
+            resetAlert(modal_body);
+        },
+        success: function(data) {
+            showSuccess(control, data.status_msg);
+        },
+        errorSibling: control
+    });
+};
+
+UserView.prototype.smsPassword = function(e) {
+    e.preventDefault();
+
+    var btn = $(e.target);
+    var url = btn.attr('href'); // pid is in the URL
+    var modal_body = btn.closest('.modal').find('.modal-body');
+    var control = $('#userPassword .control-group').first();
+    var data = {};
+    var sms_carrier = $('#userPassword [name="sms_carrier"]');
+    if (sms_carrier.length) {
+        data["sms_carrier"] = sms_carrier.val();
+    }
+    btn.button('loading');
+    this.users.post({
+        url: url,
+        data: data,
         always: function() {
             btn.button('reset');
             resetAlert(modal_body);
