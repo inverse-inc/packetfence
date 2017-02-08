@@ -87,13 +87,13 @@ sub match_in_subclass {
 }
 
 
-=head2 sendSMS
+=head2 sendActivationSMS
 
 Interact with Twilio API to send an SMS
 
 =cut
 
-sub sendSMS {
+sub sendActivationSMS {
     my ( $self, $activation_code ) = @_;
     my $logger = pf::log::get_logger;
 
