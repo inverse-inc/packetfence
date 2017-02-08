@@ -7224,6 +7224,10 @@ msgstr ""
 msgid "The source to use to connect to your Active Directory server for NTLM caching."
 msgstr ""
 
+# conf/documentation.conf (advanced.source_to_send_sms_when_creating_users)
+msgid "The source to use to send SMS when creating a user"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/BillingTiers.pm
 msgid "The target role of the devices that use this tier."
 msgstr ""
@@ -8404,6 +8408,10 @@ msgstr "Record accounting in SQL tables"
 # conf/documentation.conf
 msgid "advanced.reevaluate_access_reasons"
 msgstr "Reevaluate access reasons"
+
+# conf/documentation.conf
+msgid "advanced.source_to_send_sms_when_creating_users"
+msgstr "SMS Source for sending user create messages"
 
 # conf/documentation.conf
 msgid "advanced.sso_on_access_reevaluation"
