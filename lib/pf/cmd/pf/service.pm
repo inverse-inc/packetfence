@@ -178,7 +178,7 @@ sub startService {
 sub generateConfig {
     my ($service, @services) = @_;
     use sort qw(stable);
-    my @managers = sort _byIndexOrder pf::services::getManagers(\@services, JUST_MANAGED);
+    my @managers = pf::services::getManagers(\@services, JUST_MANAGED);
     print $SERVICE_HEADER;
     for my $manager (@managers) {
         _doGenerateConfig($manager);
@@ -189,7 +189,7 @@ sub generateConfig {
 sub generateUnitFile { 
     my ($service, @services) = @_;
     use sort qw(stable);
-    my @managers = sort _byIndexOrder pf::services::getManagers(\@services, JUST_MANAGED);
+    my @managers = pf::services::getManagers(\@services, JUST_MANAGED);
     print $SERVICE_HEADER;
     for my $manager (@managers) {
         _doGenerateUnitFile($manager);
@@ -285,7 +285,7 @@ sub getIptablesTechnique {
 
 sub stopService {
     my ($service,@services) = @_;
-    my @managers = reverse sort _byIndexOrder pf::services::getManagers(\@services);
+    my @managers = pf::services::getManagers(\@services);
 
     print $SERVICE_HEADER;
     foreach my $manager (@managers) {
