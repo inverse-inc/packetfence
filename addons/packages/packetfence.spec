@@ -788,8 +788,8 @@ fi
 %files -n %{real_name}
 
 %defattr(-, pf, pf)
-%attr(0311, root, root) /usr/lib/systemd/system/packetfence.target
-%attr(0311, root, root) /usr/lib/systemd/system/packetfence*.slice
+%attr(0311, root, root) /etc/systemd/system/packetfence.target
+%attr(0311, root, root) /etc/systemd/system/packetfence*.slice
 %attr(0311, root, root) /usr/lib/systemd/system/packetfence-*.service
 %dir %attr(0750, root,root) /etc/systemd/system/packetfence*target.wants
 %dir %attr(0750,root,root) %{_sysconfdir}/sudoers.d
