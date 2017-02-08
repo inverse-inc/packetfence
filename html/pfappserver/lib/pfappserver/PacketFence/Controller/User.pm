@@ -17,6 +17,7 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 use namespace::autoclean;
 use POSIX;
+use SQL::Abstract::More;
 
 use pfappserver::Form::User;
 use pfappserver::Form::User::Create;
@@ -24,6 +25,8 @@ use pfappserver::Form::User::Create::Single;
 use pfappserver::Form::User::Create::Multiple;
 use pfappserver::Form::User::Create::Import;
 use pf::admin_roles;
+use pf::sms_carrier qw(sms_carrier_custom_search);
+use pf::authentication qw(getAuthenticationSource);
 use pf::config qw(%Config);
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
@@ -293,6 +296,15 @@ sub create :Local :AdminRoleAny('USERS_CREATE') :AdminRoleAny('USERS_CREATE_MULI
                     my $sms_source = getAuthenticationSource($sms_source_id);
                     if ($sms_source) {
                         $c->stash->{sms_source} = $sms_source;
+                        if ($sms_source->can("sms_carriers")) {
+                            my $sqla = SQL::Abstract::More->new;
+                            my ($sql, @bind) = $sqla->select(
+                                -columns => [qw(id name)],
+                                -from    => 'sms_carrier',
+                                -where    => { id => $sms_source->sms_carriers },
+                            );
+                            $c->stash->{sms_carriers} = [sms_carrier_custom_search($sql, @bind)];
+                        }
                         push @options, 'sms';
                     }
                 }
