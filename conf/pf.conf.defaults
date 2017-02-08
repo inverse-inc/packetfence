@@ -1069,7 +1069,10 @@ timing_stats_level=5
 # Set the max size of DHCP packets
 # Do not change unless you know what you are doing
 pfdhcplistener_packet_size=576
-
+#
+# advanced.source_to_send_sms_when_creating_users
+#
+# The source to use to send an SMS when creating a user
 source_to_send_sms_when_creating_users=
 
 [omapi]
