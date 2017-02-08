@@ -429,7 +429,7 @@ sub createSingle {
                              'firstname' => $data->{firstname},
                              'lastname' => $data->{lastname},
                              'email' => $data->{email},
-                             'telephone' => $data->{phone},
+                             'telephone' => $data->{telephone},
                              'company' => $data->{company},
                              'address' => $data->{address},
                              'notes' => $data->{notes},
