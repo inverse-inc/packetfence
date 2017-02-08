@@ -527,8 +527,6 @@ cp -r README.md $RPM_BUILD_ROOT/usr/local/pf/
 cp -r README.network-devices $RPM_BUILD_ROOT/usr/local/pf/
 cp -r UPGRADE.asciidoc $RPM_BUILD_ROOT/usr/local/pf/
 cp -r UPGRADE.old $RPM_BUILD_ROOT/usr/local/pf/
-%{__install} -D -m0311 addons/systemd/packetfence-config.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-config.service
-%{__install} -D -m0311 addons/systemd/packetfence-redis-cache.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-redis-cache.service
 # logfiles
 for LOG in %logfiles; do
     touch $RPM_BUILD_ROOT%logdir/$LOG
