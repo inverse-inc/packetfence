@@ -308,6 +308,56 @@ sub mail {
     return ($status, $status_msg);
 }
 
+=head2 sms
+
+=cut
+
+sub sms {
+    my ($self, $c, $pids) = @_;
+    my $logger = get_logger();
+    my ($status, $status_msg) = ($STATUS::OK);
+    my @users;
+
+    # we get the created users from the session so we have a copy of the cleartext password
+    my %users_passwords_by_pid = map { $_->{'pid'}, $_ } @{ $c->session->{'users_passwords'} };
+    # Fetch user information
+    ($status, $status_msg) = $self->read($c, $pids);
+    if (is_success($status)) {
+        return ($STATUS::OK, $status_msg);
+        foreach my $user (@$status_msg) {
+            # we overwrite the password found in the database with the one in the session for the same user
+            my $pid = $user->{'pid'};
+            if ( exists $users_passwords_by_pid{$pid} ) {
+                $user->{'password'} = $users_passwords_by_pid{$pid}->{'password'};
+            }
+
+            eval {
+                if (length $user->{email} > 0) {
+                    $user->{username} = $user->{pid};
+                    pf::web::guest::send_template_email($pf::web::guest::TEMPLATE_EMAIL_GUEST_ADMIN_PREREGISTRATION,
+                                                        $c->loc("[_1]: Guest Network Access Information", $Config{'general'}{'domain'}),
+                                                        $user);
+                    push(@users, $user);
+                    $logger->info("Sent credentials to ".$user->{email}." (".$user->{pid}.")");
+                }
+            };
+            if ($@) {
+                $logger->error($@);
+            }
+        }
+    }
+
+    if (@users) {
+        $status_msg = \@users;
+    }
+    else {
+        $status = $STATUS::INTERNAL_SERVER_ERROR;
+        $status_msg = 'Unexpected error. See server-side logs for details.';
+    }
+
+    return ($status, $status_msg);
+}
+
 =head2 unassignNodes
 
 Unassigns the users nodes so he can be safely deleted
