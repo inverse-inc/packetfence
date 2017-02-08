@@ -497,6 +497,12 @@ sub locationlog_cleanup {
     my ($expire_seconds, $batch, $time_limit) = @_;
     my $logger = get_logger();
     $logger->debug("calling locationlog_cleanup with time=$expire_seconds batch=$batch timelimit=$time_limit");
+
+    if($expire_seconds eq "0") {
+        $logger->debug("Not deleting because the window is 0");
+        return;
+    }
+
     my $now = db_now();
     my $start_time = time;
     my $end_time;

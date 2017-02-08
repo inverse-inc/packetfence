@@ -810,8 +810,13 @@ sub cleanup {
     my $timer = pf::StatsD::Timer->new({sample_rate => 0.2});
     my ( $window_seconds, $batch, $time_limit, $table ) = @_;
     my $logger = pf::log::get_logger();
-
     $logger->debug("Calling cleanup with window='$window_seconds' seconds, batch='$batch', timelimit='$time_limit'");
+
+    if($window_seconds eq "0") {
+        $logger->debug("Not deleting because the window is 0");
+        return;
+    }
+
     my $now = db_now();
     my $start_time = time;
     my $end_time;
