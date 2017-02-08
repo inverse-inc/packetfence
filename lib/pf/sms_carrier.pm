@@ -23,7 +23,7 @@ BEGIN {
     use Exporter ();
     our (@ISA, @EXPORT);
     @ISA    = qw(Exporter);
-    @EXPORT = qw(sms_carrier_view_all sms_carrier_custom_search);
+    @EXPORT = qw(sms_carrier_view_all sms_carrier_view sms_carrier_custom_search);
 }
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
@@ -53,6 +53,12 @@ sub sms_carrier_db_prepare {
         WHERE id IN (?)
     ];
 
+    $sms_carrier_statements->{'sms_carrier_view_one_sql'} = get_db_handle()->prepare(qq[
+        SELECT id, name, email_pattern as carrier_email_pattern
+        FROM sms_carrier
+        WHERE id = ?
+    ]);
+
     $sms_carrier_db_prepared = 1;
 }
 
@@ -69,6 +75,7 @@ sub sms_carrier_view_all {
     if ($source) {
         my $list = join(',', @{$source->{'sms_carriers'}});
         sms_carrier_db_prepare() unless ($sms_carrier_db_prepared);
+        local $sms_carrier_statements->{'sms_carrier_view_sql'} = $sms_carrier_statements->{'sms_carrier_view_sql'};
         $sms_carrier_statements->{'sms_carrier_view_sql'} =~ s/\?/$list/;
         $query = db_query_execute(SMS_CARRIER, $sms_carrier_statements,
                                   'sms_carrier_view_sql');
@@ -82,6 +89,20 @@ sub sms_carrier_view_all {
     $query->finish();
 
     return $val;
+}
+
+=head2 sms_carrier_view
+
+=cut
+
+sub sms_carrier_view {
+    my $id = shift;
+    my $query = db_query_execute(SMS_CARRIER, $sms_carrier_statements, 'sms_carrier_view_one_sql', $id)
+        || return (0);
+    my $ref = $query->fetchrow_hashref();
+    # just get one row and finish
+    $query->finish();
+    return ($ref);
 }
 
 sub sms_carrier_custom_search {
