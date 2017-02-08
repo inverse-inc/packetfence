@@ -86,6 +86,7 @@ BEGIN {
         clean_locale 
         parse_api_action_spec
         pf_chown
+        user_chown
     );
 }
 
@@ -921,6 +922,17 @@ sub pf_chown {
     my ($file) = @_;
     my ($login,$pass,$uid,$gid) = getpwnam('pf')
         or die "pf not in passwd file";
+    chown $uid, $gid, $file;
+}
+
+=item user_chown
+
+=cut
+
+sub user_chown {
+    my ($user, $file) = @_;
+    my ($login,$pass,$uid,$gid) = getpwnam($user)
+        or die "$user not in passwd file";
     chown $uid, $gid, $file;
 }
 

@@ -73,7 +73,7 @@ sub _run {
     my $db_update_path = "$install_dir/var/run/db-update";
     $tt->process("$conf_dir/mariadb/db-update.tt", \%vars, $db_update_path) or die $tt->error();
     chmod 0744, $db_update_path;
-    pf_chown($db_update_path);
+    user_chown("mysql", $db_update_path);
 
     my $db_check_path = "$install_dir/var/run/db-check";
     $tt->process("$conf_dir/mariadb/db-check.tt", \%vars, $db_check_path) or die $tt->error();
