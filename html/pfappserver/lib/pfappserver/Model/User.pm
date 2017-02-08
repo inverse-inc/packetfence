@@ -33,6 +33,8 @@ use pf::util;
 use pf::config::util;
 use pf::web::guest;
 use pf::constants;
+use pf::authentication;
+use pf::sms_carrier;
 
 =head2 field_names
 
@@ -320,42 +322,62 @@ sub sms {
 
     # we get the created users from the session so we have a copy of the cleartext password
     my %users_passwords_by_pid = map { $_->{'pid'}, $_ } @{ $c->session->{'users_passwords'} };
+    my $sms_source = getAuthenticationSource($Config{advanced}{source_to_send_sms_when_creating_users});
+    unless ($sms_source) {
+        return ($STATUS::INTERNAL_SERVER_ERROR, 'Send SMS is disabled or misconfigured');
+    }
+    my $sms_carrier_id = $c->request->param('sms_carrier');
+    my $sms_carrier = sms_carrier_view($sms_carrier_id) if defined $sms_carrier_id;
     # Fetch user information
     ($status, $status_msg) = $self->read($c, $pids);
-    if (is_success($status)) {
-        return ($STATUS::OK, $status_msg);
-        foreach my $user (@$status_msg) {
-            # we overwrite the password found in the database with the one in the session for the same user
-            my $pid = $user->{'pid'};
-            if ( exists $users_passwords_by_pid{$pid} ) {
-                $user->{'password'} = $users_passwords_by_pid{$pid}->{'password'};
-            }
+    if (!is_success($status)) {
+        return ($status, $status_msg);
+    }
+    my $temp = $status_msg;
+    $status_msg = \@users;
+    foreach my $user (@$temp) {
+        my $telephone = $user->{telephone};
+        my $pid = $user->{'pid'};
+        unless (defined $telephone && length $telephone > 0) {
+            $logger->warn("Trying to send an sms to $pid he has no phone");
+            next;
+        }
+        # we overwrite the password found in the database with the one in the session for the same user
+        if ( exists $users_passwords_by_pid{$pid} ) {
+            $user->{'password'} = $users_passwords_by_pid{$pid}->{'password'};
+        }
 
-            eval {
-                if (length $user->{email} > 0) {
-                    $user->{username} = $user->{pid};
-                    pf::web::guest::send_template_email($pf::web::guest::TEMPLATE_EMAIL_GUEST_ADMIN_PREREGISTRATION,
-                                                        $c->loc("[_1]: Guest Network Access Information", $Config{'general'}{'domain'}),
-                                                        $user);
-                    push(@users, $user);
-                    $logger->info("Sent credentials to ".$user->{email}." (".$user->{pid}.")");
-                }
-            };
-            if ($@) {
-                $logger->error($@);
-            }
+        eval {
+            $user->{username} = $pid;
+            $sms_source->sendSMS({ to => $telephone, message => $self->sms_message($user), activation => $sms_carrier});
+            push(@users, $user);
+            $logger->info("Sent credentials to $telephone ($pid)");
+        };
+        if ($@) {
+            $status = $STATUS::INTERNAL_SERVER_ERROR;
+            $status_msg = 'Unexpected error. See server-side logs for details.';
+            $logger->error($@);
         }
     }
 
     if (@users) {
         $status_msg = \@users;
-    }
-    else {
-        $status = $STATUS::INTERNAL_SERVER_ERROR;
-        $status_msg = 'Unexpected error. See server-side logs for details.';
+        $status = $STATUS::OK;
     }
 
     return ($status, $status_msg);
+}
+
+=head2 sms_message
+
+Create the sms_message
+
+=cut
+
+sub sms_message {
+    my ($self, $user) = @_;
+    my $message = "Credentials to our captive portal\nUsername: $user->{pid}\nPassword: $user->{'password'}\n";
+    return $message;
 }
 
 =head2 unassignNodes
