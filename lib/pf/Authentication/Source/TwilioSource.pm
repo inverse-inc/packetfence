@@ -89,18 +89,31 @@ sub match_in_subclass {
 
 =head2 sendActivationSMS
 
-Interact with Twilio API to send an SMS
+Send the Activation SMS
 
 =cut
 
 sub sendActivationSMS {
     my ( $self, $activation_code ) = @_;
-    my $logger = pf::log::get_logger;
 
     my ($hash_version, $pin) = pf::activation::_unpack_activation_code($activation_code);
     my $activation = pf::activation::view_by_code($activation_code);
     my $phone_number = $activation->{'contact_info'};
 
+    return $self->sendSMS({to=> $phone_number, message => "PIN: $pin", activation => $activation});
+}
+
+=head2 sendSMS
+
+Interact with Twilio API to send an SMS
+
+=cut
+
+sub sendSMS {
+    my ($self, $info) = @_;
+    my $to = $info->{to};
+    my $message = $info->{message};
+    my $logger = pf::log::get_logger;
     my $twilio = WWW::Twilio::API->new(
         AccountSid  => $self->account_sid,
         AuthToken   => $self->auth_token,
@@ -109,16 +122,16 @@ sub sendActivationSMS {
     my $response = $twilio->POST(
         'Messages',
         From    => $self->twilio_phone_number,
-        To      => $phone_number,
-        Body    => "PIN: $pin",
+        To      => $to,
+        Body    => $message,
     );
 
     unless ( is_success($response->{'code'}) ) {
-        $logger->error("Can't send SMS to '$phone_number': " . $response->{'message'});
+        $logger->error("Can't send SMS to '$to': " . $response->{'message'});
         return $FALSE;
     }
 
-    $logger->info("SMS sent to '$phone_number' (Network Activation)");
+    $logger->info("SMS sent to '$to' (Network Activation)");
     return $TRUE;
 }
 
