@@ -105,6 +105,10 @@ sub sms_carrier_view {
     return ($ref);
 }
 
+=head2 sms_carrier_custom_search
+
+=cut
+
 sub sms_carrier_custom_search {
     my ($sql, @bind) = @_;
     my $logger = get_logger();
