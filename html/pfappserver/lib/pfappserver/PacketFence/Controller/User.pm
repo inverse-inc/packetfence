@@ -24,6 +24,7 @@ use pfappserver::Form::User::Create::Single;
 use pfappserver::Form::User::Create::Multiple;
 use pfappserver::Form::User::Create::Import;
 use pf::admin_roles;
+use pf::config qw(%Config);
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 with 'pfappserver::Role::Controller::BulkActions';
@@ -287,6 +288,14 @@ sub create :Local :AdminRoleAny('USERS_CREATE') :AdminRoleAny('USERS_CREATE_MULI
                 %data = (%{$form->value}, %{$form_single->value});
                 ($status, $message) = $self->getModel($c)->createSingle(\%data, $c->user);
                 @options = ('mail');
+                my $sms_source_id = $Config{advanced}{source_to_send_sms_when_creating_users};
+                if ($sms_source_id && $data{telephone}) {
+                    my $sms_source = getAuthenticationSource($sms_source_id);
+                    if ($sms_source) {
+                        $c->stash->{sms_source} = $sms_source;
+                        push @options, 'sms';
+                    }
+                }
                 $c->session->{'users_passwords'} = $message;
             }
         }
@@ -456,6 +465,35 @@ sub mail :Local :AdminRole('USERS_UPDATE') {
 
     $c->response->status($status);
     $c->stash->{current_view} = 'JSON';
+}
+
+=head2 sms
+
+Send users credentials by sms
+
+/user/sms
+
+=cut
+
+sub sms :Local :AdminRole('USERS_UPDATE') {
+    my ($self, $c) = @_;
+
+    $c->stash->{current_view} = 'JSON';
+    my ($status, $result);
+    my @pids = split(/,/, $c->request->params->{pids});
+
+    ($status, $result) = $self->getModel($c)->sms($c, \@pids);
+    $self->audit_current_action($c, status => $status, pids => \@pids);
+
+    if (is_success($status)) {
+        $c->stash->{status_msg} = $c->loc('An sms was sent to [_1] out of [_2] users.',
+                                          scalar @pids, scalar @$result);
+    }
+    else {
+        $c->stash->{status_msg} = $result;
+    }
+
+    $c->response->status($status);
 }
 
 =head1 COPYRIGHT
