@@ -34,19 +34,6 @@ extends 'pf::services::manager::httpd';
 
 has '+name' => (default => sub { 'httpd.portal' } );
 
-=head2 startDependsOnServices
-
-services that the httpd.portal depends on
-
-=cut
-
-around startDependsOnServices => sub {
-    my ($orig, $self) = (shift, shift);
-    my $startDependsOnServices = $self->$orig(@_);
-    push @$startDependsOnServices,'redis_queue';
-    return $startDependsOnServices;
-};
-
 sub additionalVars {
     my ($self) = @_;
     my $captive_portal = Clone::clone($Config{'captive_portal'});

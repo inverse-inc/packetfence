@@ -23,7 +23,7 @@ use File::Spec::Functions;
 our (
     #Directories
     $install_dir, $bin_dir, $conf_dir, $lib_dir, $html_dir, $users_cert_dir, $log_dir, $generated_conf_dir, $var_dir,
-    $tt_compile_cache_dir, $pfconfig_cache_dir, $domains_chroot_dir, $domains_ntlm_cache_users_dir,
+    $tt_compile_cache_dir, $pfconfig_cache_dir, $domains_chroot_dir, $domains_ntlm_cache_users_dir, $systemd_unit_dir, 
 
     #Config files
     #pf.conf.default
@@ -98,7 +98,7 @@ BEGIN {
     # Categorized by feature, pay attention when modifying
     @EXPORT_OK = qw(
         $install_dir $bin_dir $conf_dir $lib_dir $html_dir $users_cert_dir $log_dir $generated_conf_dir $var_dir
-        $tt_compile_cache_dir $pfconfig_cache_dir $domains_chroot_dir $domains_ntlm_cache_users_dir
+        $tt_compile_cache_dir $pfconfig_cache_dir $domains_chroot_dir $domains_ntlm_cache_users_dir $systemd_unit_dir
         $pf_default_file
         $pf_config_file
         $network_config_file
@@ -169,8 +169,9 @@ $tt_compile_cache_dir = catdir( $var_dir,"tt_compile_cache");
 $pfconfig_cache_dir = catdir( $var_dir,"cache/pfconfig");
 $domains_chroot_dir = catdir( "/chroots");
 $domains_ntlm_cache_users_dir = catdir( $var_dir, "cache/ntlm_cache_users");
+$systemd_unit_dir   = "/usr/lib/systemd/system"; 
 
-$pfcmd_binary   = catfile($bin_dir, "pfcmd");
+$pfcmd_binary = catfile( $bin_dir, "pfcmd" );
 
 $oui_file           = catfile($conf_dir, "oui.txt");
 $suricata_categories_file = catfile($conf_dir, "suricata_categories.txt");

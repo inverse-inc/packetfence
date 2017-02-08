@@ -1,0 +1,17 @@
+[% header_warning %]
+[Unit]
+Description=PacketFence p0f Service
+Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
+After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+
+[Service]
+Type=simple
+PIDFile=[% pidFile %]
+ExecStart=[% cmdLine %]
+StandardOutput=null
+StandardError=null
+Restart=on-failure
+Slice=packetfence.slice
+
+[Install]
+WantedBy=packetfence.target

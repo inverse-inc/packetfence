@@ -1,0 +1,16 @@
+[% header_warning %]
+[Unit]
+Description=PacketFence Statsd service
+After=packetfence-carbon-relay.service packetfence-iptables.service packetfence-base.target
+Wants=packetfence-carbon-relay.service packetfence-iptables.service packetfence-base.target
+
+[Service]
+Type=simple
+PIDfile=[% pidFile %]
+ExecStartPre=/usr/local/pf/bin/pfcmd service statsd generateconfig
+ExecStart=[% cmdLine %]
+Restart=on-failure
+Slice=packetfence.slice
+
+[Install]
+WantedBy=packetfence.target

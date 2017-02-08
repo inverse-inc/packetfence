@@ -1,0 +1,15 @@
+[% header_warning %]
+[Unit]
+Description=PacketFence HAProxy Load Balancer
+After=packetfence.target packetfence-iptables.service
+Before=packetfence-httpd.portal.service packetfence-httpd.admin.service 
+Wants=packetfence.target packetfence-iptables.service
+
+[Service]
+PIDFile=[% pidFile %]
+ExecStart=[% cmdLine %]
+ExecReload=/bin/kill -USR2 $MAINPID
+Restart=on-failure
+
+[Install]
+WantedBy=packetfence-cluster.target

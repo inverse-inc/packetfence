@@ -36,13 +36,11 @@ use pf::config::util;
 
 has '+name' => ( default => sub { 'snort' } );
 
-has '+launcher' => (
-    default => sub {
-        "%1\$s -u pf -m 0137 -c $generated_conf_dir/snort.conf -i $monitor_int " .
-        "-N -D -l $install_dir/var --pid-path $install_dir/var/run"
-    },
-    lazy => 1
-);
+sub _cmdLine {
+    my $self = shift;
+    $self->executable
+        . " -m 0137 -c $generated_conf_dir/snort.conf -i $monitor_int " . "-N -l $install_dir/var ";
+}
 
 sub generateConfig {
     my $logger = get_logger();

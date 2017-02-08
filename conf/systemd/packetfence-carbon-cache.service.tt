@@ -1,0 +1,17 @@
+[% header_warning %]
+[Unit]
+Description=PacketFence Graphite Carbon Cache
+Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
+After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+
+[Service]
+Type=simple
+PIDfile=[% pidFile %]
+ExecStartPre=/usr/local/pf/bin/pfcmd service carbon-cache generateconfig
+ExecStart=[% cmdLine %]
+ExecReload=/bin/kill -USR1 $MAINPID
+Restart=on-failure
+Slice=packetfence.slice
+
+[Install]
+WantedBy=packetfence.target

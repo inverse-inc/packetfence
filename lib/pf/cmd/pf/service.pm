@@ -5,7 +5,7 @@ pf::cmd::pf::service add documentation
 
 =head1 SYNOPSIS
 
-pfcmd service <service> [start|stop|restart|status|watch|generateconfig] [--ignore-checkup]
+pfcmd service <service> [start|stop|restart|status|watch|generateconfig|generateunitfile] [--ignore-checkup]
 
   stop/stop/restart specified service
   status returns PID of specified PF daemon or 0 if not running
@@ -74,7 +74,7 @@ use pf::constants;
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE $EXIT_SERVICES_NOT_STARTED $EXIT_FATAL);
 use pf::services;
 use List::MoreUtils qw(part any true all);
-use pf::constants::services qw(JUST_MANAGED INCLUDE_START_DEPENDS_ON INCLUDE_STOP_DEPENDS_ON);
+use pf::constants::services qw(JUST_MANAGED);
 use pf::cluster;
 
 my $logger = get_logger();
@@ -86,13 +86,10 @@ our %ACTION_MAP = (
     watch   => \&watchService,
     restart => \&restartService,
     generateconfig => \&generateConfig,
+    generateunitfile => \&generateUnitFile,
 );
 
 our $ignore_checkup = $FALSE;
-
-sub _byIndexOrder {
-    $a->orderIndex <=> $b->orderIndex;
-}
 
 sub parseArgs {
     my ($self) = @_;
@@ -144,7 +141,7 @@ sub postPfStartService {
 sub startService {
     my ($service,@services) = @_;
     use sort qw(stable);
-    my @managers = sort _byIndexOrder pf::services::getManagers(\@services,INCLUDE_START_DEPENDS_ON | JUST_MANAGED);
+    my @managers = pf::services::getManagers(\@services,JUST_MANAGED);
 
     if ( !@managers ) {
         print "Service '$service' is not managed by PacketFence. Therefore, no action will be performed\n";
@@ -186,6 +183,18 @@ sub generateConfig {
     for my $manager (@managers) {
         _doGenerateConfig($manager);
     }
+    return $EXIT_SUCCESS;
+}
+
+sub generateUnitFile { 
+    my ($service, @services) = @_;
+    use sort qw(stable);
+    my @managers = sort _byIndexOrder pf::services::getManagers(\@services, JUST_MANAGED);
+    print $SERVICE_HEADER;
+    for my $manager (@managers) {
+        _doGenerateUnitFile($manager);
+    }
+    system("sudo systemctl daemon-reload");
     return $EXIT_SUCCESS;
 }
 
@@ -253,6 +262,21 @@ sub _doGenerateConfig {
     print $manager->name,"|${color}${command}${RESET_COLOR}\n";
 }
 
+sub _doGenerateUnitFile {
+    my ($manager) = @_;
+    my $command;
+    my $color = '';
+    if($manager->generateUnitFile()) {
+        $command = 'Unit file generated';
+        $color =  $SUCCESS_COLOR;
+    } else {
+        $command = 'Unit file not generated';
+        $color =  $ERROR_COLOR;
+    }
+    print $manager->name,"|${color}${command}${RESET_COLOR}\n";
+}
+
+
 sub getIptablesTechnique {
     require pf::inline::custom;
     my $iptables = pf::inline::custom->new();
@@ -261,7 +285,7 @@ sub getIptablesTechnique {
 
 sub stopService {
     my ($service,@services) = @_;
-    my @managers = reverse sort _byIndexOrder pf::services::getManagers(\@services, INCLUDE_STOP_DEPENDS_ON);
+    my @managers = reverse sort _byIndexOrder pf::services::getManagers(\@services);
 
     print $SERVICE_HEADER;
     foreach my $manager (@managers) {
@@ -303,35 +327,6 @@ sub restartService {
     stopService(@_);
     local $SERVICE_HEADER = '';
     return startService(@_);
-}
-
-sub watchService {
-    my ($service,@services) = @_;
-    my @stoppedServiceManagers =
-        grep { $_->status eq '0'  }
-        pf::services::getManagers(\@services, JUST_MANAGED | INCLUDE_START_DEPENDS_ON);
-    if(@stoppedServiceManagers) {
-        my @stoppedServices = map { $_->name } @stoppedServiceManagers;
-        $logger->info("watch found incorrectly stopped services: " . join(", ", @stoppedServices));
-        print "The following processes are not running:\n" . " - "
-            . join( "\n - ", @stoppedServices ) . "\n";
-        if ( isenabled( $Config{'servicewatch'}{'email'} ) ) {
-            my %message;
-            $message{'subject'} = "PF WATCHER ALERT";
-            $message{'message'}
-                = "The following processes are not running:\n" . " - "
-                . join( "\n - ", @stoppedServices ) . "\n";
-            pfmailer(%message);
-        }
-        if ( isenabled( $Config{'servicewatch'}{'restart'} ) ) {
-            print $SERVICE_HEADER;
-            foreach my $manager (@stoppedServiceManagers) {
-                $manager->watch;
-                print join('|',$manager->name,"watch"),"\n";
-            }
-        }
-    }
-    return $EXIT_SUCCESS;
 }
 
 sub statusOfService {

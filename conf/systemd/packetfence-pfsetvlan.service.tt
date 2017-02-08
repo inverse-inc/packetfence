@@ -1,0 +1,15 @@
+[Unit]
+Description=PacketFence pfsetvlan service
+After=packetfence-base.target
+After=packetfence-snmptrapd.service
+Wants=packetfence-snmptrapd.service
+Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
+
+[Service]
+PIDFile=[% pidFile %]
+ExecStart=[% cmdLine %]
+Slice=packetfence.slice
+Restart=on-failure
+
+[Install]
+WantedBy=packetfence.target

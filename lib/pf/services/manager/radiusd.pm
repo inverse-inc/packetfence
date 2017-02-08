@@ -39,52 +39,38 @@ has radiusdManagers => (is => 'rw', builder => 1, lazy => 1);
 
 has '+name' => ( default => sub { 'radiusd' } );
 
-# NOTE: Under some unknown circumstances, FreeRADIUS acct will not start unless the process is started in /usr/local/pf and uses directory raddb/ (*not* absolute)
-has '+launcher' => ( default => sub { "cd $install_dir && sudo %1\$s -d raddb/"} );
 
 sub _build_radiusdManagers {
     my ($self) = @_;
 
     my $listens = {};
-    if($cluster_enabled){
+    if ($cluster_enabled) {
         my $cluster_ip = pf::cluster::management_cluster_ip();
-        $listens->{load_balancer} = {
-          launcher => $self->launcher . " -n load_balancer"
-        };
+        $listens->{load_balancer} = {};
     }
-    $listens->{auth} = {
-      launcher => $self->launcher . " -n auth"
-    };
-    $listens->{acct} = {
-      launcher => $self->launcher . " -n acct"
-    };
+    $listens->{auth} = {};
+    $listens->{acct} = {};
 
     # 'Eduroam' RADIUS instance manager
-    if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
-        $listens->{eduroam} = {
-            launcher => $self->launcher . " -n eduroam"
-        };
+    if ( @{ pf::authentication::getAuthenticationSourcesByType('Eduroam') } ) {
+        $listens->{eduroam} = {};
     }
 
-    if (@cli_switches > 0) {
-        $listens->{cli} = {
-          launcher => $self->launcher . " -n cli"
-        };
+    if ( @cli_switches > 0 ) {
+        $listens->{cli} = {};
     }
 
     my @managers = map {
-        my $id = $_;
+        my $id       = $_;
         my $launcher = $self->launcher;
-        my $name = $id eq "auth" ? $self->name : untaint_chain($self->name . "-" . $id);
+        my $name     = untaint_chain( $self->name . "-" . $id );
 
-        pf::services::manager::radiusd_child->new ({
-            executable => $self->executable,
-            name => $name,
-            launcher => $listens->{$id}->{launcher},
-            forceManaged => $self->isManaged,
-            options => $listens->{$id},
-            orderIndex => $self->orderIndex,
-        })
+        pf::services::manager::radiusd_child->new(
+            {   name         => $name,
+                forceManaged => $self->isManaged,
+                options      => $id,
+            }
+            )
     } keys %$listens;
 
     return \@managers;

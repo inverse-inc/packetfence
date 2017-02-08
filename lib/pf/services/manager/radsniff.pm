@@ -42,8 +42,6 @@ has '+launcher' => (
     }
 );
 
-has startDependsOnServices => ( is => 'ro', default => sub { [qw(collectd)] } );
-
 =head2 make_filter
 
 Generate the filter based on the radius interfaces.
@@ -62,6 +60,18 @@ sub make_filter {
     $filter .= ') and ( ';
     $filter .= ' udp port 1812 or 1813) ) ';
     return $filter;
+}
+
+sub _cmdLine {
+    my $self = shift;
+    if ($cluster_enabled) {
+        my $cluster_management_ip = pf::cluster::management_cluster_ip();
+        my $management_ip         = pf::cluster::current_server()->{management_ip};
+        $self->executable . " -d $install_dir/raddb/ -D $install_dir/raddb/ -q -P $install_dir/var/run/radsniff.pid -W10 -O $install_dir/var/run/collectd-unixsock -f '(host $management_ip and udp port 1812 or 1813)' -i $management_network->{Tint}";
+    }
+    else {
+        $self->executable . " -d $install_dir/raddb/ -D $install_dir/raddb/ -q -P $install_dir/var/run/radsniff.pid -W10 -O $install_dir/var/run/collectd-unixsock -i $management_network->{Tint}";
+    }
 }
 
 1;

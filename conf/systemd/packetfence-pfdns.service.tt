@@ -1,0 +1,15 @@
+[% header_warning %]
+[Unit]
+Description=PacketFence DNS Service
+Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
+After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+Before=packetfence-pfdns.service
+
+[Service]
+PIDFile=[% pidFile %]
+ExecStart=[% cmdLine %]
+Restart=on-failure
+Slice=packetfence.slice
+
+[Install]
+WantedBy=packetfence.target

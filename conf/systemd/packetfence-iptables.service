@@ -1,0 +1,15 @@
+[% header_warning %]
+[Unit]
+Description=PacketFence Iptables configuration
+Wants=packetfence-config.service
+After=packetfence-config.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::iptables' -e 'pf::services::manager::iptables->new()->_start()'
+ExecStop=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::iptables' -e 'pf::services::manager::iptables->new()->_stop()'
+Slice=packetfence-base.slice
+
+[Install]
+WantedBy=packetfence-base.target

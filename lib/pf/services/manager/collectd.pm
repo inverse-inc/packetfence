@@ -33,13 +33,11 @@ extends 'pf::services::manager';
 
 has '+name'     => ( default => sub {'collectd'} );
 has '+optional' => ( default => sub {1} );
-has startDependsOnServices => ( is => 'ro', default => sub { [qw(carbon-cache carbon-relay)] } );
 
-has '+launcher' => (
-    default => sub {
-        "sudo %1\$s -P $install_dir/var/run/collectd.pid -C $install_dir/var/conf/collectd.conf";
-    }
-);
+sub _cmdLine {
+    my $self = shift;
+    $self->executable . " -P " . $self->pidFile . " -f -C $install_dir/var/conf/collectd.conf";
+}
 
 sub generateConfig {
     generateCollectd();

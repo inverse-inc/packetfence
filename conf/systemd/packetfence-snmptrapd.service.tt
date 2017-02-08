@@ -1,0 +1,15 @@
+[Unit]
+Description=PacketFence Simple Network Management Protocol (SNMP) Trap Daemon.
+After=packetfence-base.target
+Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
+
+[Service]
+Type=notify
+PIDFile=[% pidFile %]
+ExecStart=[% cmdLine %]
+ExecReload=/bin/kill -HUP $MAINPID
+Slice=packetfence.slice
+Restart=on-failure
+
+[Install]
+WantedBy=packetfence.target

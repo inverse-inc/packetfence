@@ -40,11 +40,14 @@ use Template;
 
 extends 'pf::services::manager';
 
-has '+launcher' => ( builder => 1, lazy => 1 );
-
 has configFilePath => (is => 'rw', builder => 1, lazy => 1);
 
 has configTemplateFilePath => (is => 'rw', builder => 1, lazy => 1);
+
+sub _cmdLine {
+    my $self = shift;
+    $self->executable . " -f $install_dir/var/conf/httpd.conf.d/" . $self->name . " -DFOREGROUND  -D$OS";
+}
 
 sub createVars {
     my ($self) = @_;
@@ -88,12 +91,6 @@ sub executable {
     my ($self) = @_;
     my $service = ( $Config{'services'}{"httpd_binary"} || "$install_dir/sbin/httpd" );
     return $service;
-}
-
-sub _build_launcher {
-    my ($self) = @_;
-    my $config_file = $self->configFilePath;
-    return "%1\$s -f $config_file -D$OS";
 }
 
 sub _build_configFilePath {

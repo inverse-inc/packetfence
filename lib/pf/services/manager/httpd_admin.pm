@@ -19,6 +19,9 @@ use pf::config qw(
     @internal_nets
     @portal_ints
 );
+use pf::file_paths qw(
+    $install_dir
+);
 
 extends 'pf::services::manager::httpd';
 
@@ -29,8 +32,31 @@ has '+shouldCheckup' => ( default => sub { 0 }  );
 use pf::config qw(
     %Config
     $management_network
+    $OS
 );
 use pf::cluster;
+
+=head2 _buildSystemdVars 
+
+Return a hashref with the variables requied to populate the systemd Unit File template in generateUnitFile. 
+We add the X_PORTAL=default variable to prevent warnings on CentOS/RHEL.
+
+=cut
+
+sub _build_SystemdVars {
+    my $self    = shift;
+    my $cmdLine
+        = defined $self->_cmdLineArgs
+        ? $self->_cmdLine . " " . $self->_cmdLineArgs
+        : $self->_cmdLine;
+    return {
+        header_warning => "#This file is generated dynamically based on the PacketFence configuration. 
+# Look under " . $self->systemdTemplateFilePath . " for the template used to generate it.",
+        cmdLine => $cmdLine,
+        pidFile => $self->pidFile,
+        environment => "X_PORTAL=default",
+    };
+}
 
 =head2 vhosts
 
@@ -76,21 +102,6 @@ sub portal_preview_ip {
     my ($self) = @_;
     my  @ints = uniq (@internal_nets, @portal_ints);
     return $ints[0]->{Tvip} ? $ints[0]->{Tvip} : $ints[0]->{Tip};
-}
-
-=head2 _build_launcher
-
-Pass the environmental variable X_PORTAL to avoid warnings in centos7
-
-=cut
-
-sub _build_launcher {
-    my ($self) = @_;
-    my $launcher = $self->SUPER::_build_launcher;
-    if ($self->apache_version >= 2.4)  {
-        return "X_PORTAL=default $launcher";
-    }
-    return $launcher;
 }
 
 

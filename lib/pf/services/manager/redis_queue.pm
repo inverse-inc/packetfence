@@ -15,6 +15,10 @@ pf::services::manager::redis_queue
 use strict;
 use warnings;
 use Moo;
+use pf::file_paths qw(
+    $install_dir
+    $generated_conf_dir
+);
 
 extends 'pf::services::manager::redis';
 
@@ -25,6 +29,11 @@ The name of the redis service
 =cut
 
 has '+name' => (default => sub { 'redis_queue' } );
+
+sub _cmdLine {
+    my $self = shift;
+    $self->executable . " $generated_conf_dir/" . $self->name . ".conf" . " --daemonize no";
+}
 
 =head1 AUTHOR
 

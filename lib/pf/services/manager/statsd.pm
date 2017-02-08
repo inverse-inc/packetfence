@@ -27,8 +27,11 @@ extends 'pf::services::manager';
 has '+name' => ( default => sub {'statsd'} );
 has '+optional' => ( default => sub {'1'} );
 
-has '+launcher' =>
-    ( default => sub {"%1\$s $install_dir/lib/Etsy/statsd/bin/statsd $install_dir/var/conf/statsd_config.js >>$install_dir/logs/statsd.log 2>&1 \& "} );
+sub _cmdLine {
+    my $self = shift;
+    $self->executable . " $install_dir/lib/Etsy/statsd/bin/statsd $install_dir/var/conf/statsd_config.js ";
+}
+
 
 sub generateConfig {
     my %tags;
@@ -37,7 +40,5 @@ sub generateConfig {
 
     parse_template( \%tags, "$tags{'template'}", "$install_dir/var/conf/statsd_config.js", '//' );
 }
-
-has startDependsOnServices => (is => 'ro', default => sub { [qw(carbon_relay)] } );
 
 1;

@@ -39,7 +39,10 @@ extends 'pf::services::manager';
 
 has '+name' => (default => sub { 'haproxy' } );
 
-has '+launcher' => (default => sub { "sudo %1\$s -f $generated_conf_dir/haproxy.conf -D -p $var_dir/run/haproxy.pid" } );
+sub _cmdLine {
+    my $self = shift;
+    $self->executable . " -f $generated_conf_dir/haproxy.conf -p $install_dir/var/run/haproxy.pid";
+}
 
 has '+shouldCheckup' => ( default => sub { 0 }  );
 

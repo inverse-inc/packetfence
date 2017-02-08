@@ -13,12 +13,10 @@ Constants for the services
 
 use base qw(Exporter);
 
-our @EXPORT_OK = qw(JUST_MANAGED INCLUDE_START_DEPENDS_ON INCLUDE_STOP_DEPENDS_ON);
+our @EXPORT_OK = qw(JUST_MANAGED);
 
 use constant {
     JUST_MANAGED                => 0b0000001,
-    INCLUDE_START_DEPENDS_ON    => 0b0000010,
-    INCLUDE_STOP_DEPENDS_ON     => 0b0000100,
 };
 
 =head1 AUTHOR

@@ -32,12 +32,12 @@ extends 'pf::services::manager';
 has '+name'     => ( default => sub { 'carbon-cache' } );
 has '+optional' => ( default => sub { 1 } );
 
-has '+launcher' => (
-    default => sub {
-"sudo %1\$s --config=$install_dir/var/conf/carbon.conf --pidfile=$install_dir/var/run/carbon-cache.pid --logdir=$install_dir/logs start";
-    }
-);
-
+sub _cmdLine {
+    my $self = shift;
+    $self->executable 
+        . "--pidfile=" . $self->pidFile
+        . " --config=$install_dir/var/conf/carbon.conf  --logdir=$install_dir/logs --nodaemon start";
+}
 
 sub generateConfig {
     generate_storage_config();

@@ -32,8 +32,6 @@ has '+shouldCheckup' => ( default => sub { 1 }  );
 
 has '+launcher' => ( default => sub {"routes"} );
 
-has '+startDependsOnServices' => (is => 'ro', default => sub { [] } );
-
 has 'runningServices' => (is => 'rw', default => sub { 0 } );
 
 

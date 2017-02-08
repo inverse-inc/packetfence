@@ -28,12 +28,10 @@ with 'pf::services::manager::roles::pf_conf_trapping_engine';
 
 has '+name' => ( default => sub { 'suricata' } );
 
-has '+launcher' => (
-    default => sub {
-        "%1\$s -D -c $install_dir/var/conf/suricata.yaml -i $monitor_int " .
-        "-l $install_dir/var --pidfile $install_dir/var/run/suricata.pid"
-    },
-);
+sub _cmdLine {
+    my $self = shift;
+    $self->executable . " -c $install_dir/var/conf/suricata.yaml -i $monitor_int " . "-l $install_dir/var ";
+}
 
 sub generateConfig {
     require pf::violation_config;

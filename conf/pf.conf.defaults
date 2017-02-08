@@ -333,7 +333,7 @@ haproxy_order=01
 # services.haproxy_binary
 #
 # Location of the haproxy binary. Only necessary to change if you are not running the RPMed version.
-haproxy_binary=/usr/sbin/haproxy
+haproxy_binary=/usr/sbin/haproxy-systemd-wrapper
 #
 # services.pfdns
 #

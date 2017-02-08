@@ -31,13 +31,13 @@ sub managers {
     return ();
 }
 
-=head2 generateConfig startService postStartCleanup stop watch
+=head2 generateConfig startService postStartCleanup stop 
 
-Delegating generateConfig startService postStartCleanup stop watch to sub managers
+Delegating generateConfig startService postStartCleanup stop to sub managers
 
 =cut
 
-for my $func (qw(generateConfig startService postStartCleanup watch stop)) {
+for my $func (qw(generateConfig startService postStartCleanup stop)) {
     around $func => sub {
         my ($orig,$self,$quick) = @_;
         my $count = 0;

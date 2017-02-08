@@ -15,15 +15,19 @@ pf::services::manager::httpd_aaa
 use strict;
 use warnings;
 use Moo;
-use pf::config qw(%Config);
+use pf::config qw(%Config $OS);
+use pf::file_paths qw(
+    $install_dir
+);
 
 extends 'pf::services::manager::httpd_webservices';
 
-has '+name' => (default => sub { 'httpd.aaa' } );
+has '+name' => ( default => sub {'httpd.aaa'} );
 
 sub port {
     return $Config{ports}{aaa};
 }
+
 
 =head1 AUTHOR
 
