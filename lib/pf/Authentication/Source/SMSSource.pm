@@ -10,6 +10,10 @@ pf::Authentication::Source::SMSSource
 
 use pf::constants qw($TRUE $FALSE);
 use pf::Authentication::constants;
+use pf::sms_carrier;
+use pf::config qw(%Config $fqdn);
+use pf::log;
+use pf::constants qw($TRUE $FALSE);
 
 use Moose;
 extends 'pf::Authentication::Source';
@@ -17,7 +21,6 @@ with 'pf::Authentication::CreateLocalAccountRole';
 
 has '+class'        => (default => 'external');
 has '+type'         => (default => 'SMS');
-has 'can_send_sms'  => (isa => 'Bool', is => 'rw', default => $FALSE);
 has 'sms_carriers'  => (isa => 'ArrayRef', is => 'rw', default => sub {[]});
 
 =head1 METHODS
@@ -100,6 +103,57 @@ List of mandatory fields for this source
 
 sub mandatoryFields {
     return qw(telephone mobileprovider);
+}
+
+=head2 sendActivationSMS
+
+Send the Activation SMS
+
+=cut
+
+sub sendActivationSMS {
+    my ( $self, $activation_code ) = @_;
+
+    my ($hash_version, $pin) = pf::activation::_unpack_activation_code($activation_code);
+    my $activation = pf::activation::view_by_code($activation_code);
+    my $phone_number = $activation->{'contact_info'};
+
+    return $self->sendSMS({to=> $phone_number, message => "PIN: $pin", activation => $activation});
+}
+
+=head2 sendSMS
+
+Interact with Twilio API to send an SMS
+
+=cut
+
+sub sendSMS {
+    my ($self, $info) = @_;
+    my $email = sprintf($info->{activation}{'carrier_email_pattern'}, $info->{'to'});
+    my $smtpserver = $Config{'alerting'}{'smtpserver'};
+    my $from = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
+    my $logger = get_logger();
+    my $msg = MIME::Lite->new(
+        From        =>  $from,
+        To          =>  $email,
+        Subject     =>  "Network Activation",
+        Data        =>  $info->{message},
+    );
+    my $result = $FALSE;
+    eval {
+      $msg->send('smtp', $smtpserver, Timeout => 20);
+      $result = $msg->last_send_successful();
+      $logger->info("Email sent to $email (Network Activation)");
+    };
+    if ($@) {
+      my $msg = "Can't send email to $email: $@";
+      $msg =~ s/\n//g;
+      $logger->error($msg);
+    }
+    else {
+       $result = $result ? $TRUE : $FALSE;
+    }
+    return $result;
 }
 
 =head1 AUTHOR
