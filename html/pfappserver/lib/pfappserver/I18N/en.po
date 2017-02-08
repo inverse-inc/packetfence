@@ -10618,6 +10618,15 @@ msgstr "Unregistration date"
 msgid "shut"
 msgstr ""
 
+# html/pfappserver/root/user/view.tt
+msgid "sms_btn"
+msgstr "Send SMS"
+
+# html/pfappserver/root/user/list_password.tt (options)
+# html/pfappserver/root/user/view.tt
+msgid "sms_loading"
+msgstr "Sending..."
+
 # pf::Authentication::Source::ADSource (available_attributes)
 # pf::Authentication::Source::LDAPSource (available_attributes)
 msgid "sn"
