@@ -82,7 +82,9 @@ var UserView = function(options) {
 
     this.proxyClick($('body'), '.users .pagination a', this.searchPagination);
 
-    this.proxyClick($('body'), '#modalPasswords a[href$="mail"]', this.mailPasswordFromForm);
+    this.proxyClick($('body'), '#modalPasswords a[href$="mail"]', this.sendPasswordFromForm);
+
+    this.proxyClick($('body'), '#modalPasswords a[href$="sms"]', this.sendPasswordFromForm);
 
     this.proxyClick($('body'), '#modalPasswords a[href$="print"]', this.printPasswordFromForm);
 
@@ -351,7 +353,7 @@ UserView.prototype.mailPassword = function(e) {
 };
 
 /* See root/user/list_password.tt */
-UserView.prototype.mailPasswordFromForm = function(e) {
+UserView.prototype.sendPasswordFromForm = function(e) {
     e.preventDefault();
 
     var btn = $(e.target);
