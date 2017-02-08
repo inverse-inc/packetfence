@@ -72,6 +72,15 @@
 -A input-portal-if --protocol tcp --match tcp --dport 80  --jump ACCEPT
 -A input-portal-if --protocol tcp --match tcp --dport 443 --jump ACCEPT
 
+:input-radius-if - [0:0]
+-A input-radius-if --protocol tcp --match tcp --dport 1812 --jump ACCEPT
+-A input-radius-if --protocol udp --match udp --dport 1812 --jump ACCEPT
+-A input-radius-if --protocol tcp --match tcp --dport 1813 --jump ACCEPT
+-A input-radius-if --protocol udp --match udp --dport 1813 --jump ACCEPT
+-A input-radius-if --protocol tcp --match tcp --dport 1815 --jump ACCEPT
+-A input-radius-if --protocol udp --match udp --dport 1815 --jump ACCEPT
+%%eduroam_radius_listening%%
+
 :input-internal-vlan-if - [0:0]
 -A input-internal-vlan-if -m set --match-set portal_deny src --jump REJECT
 # DNS

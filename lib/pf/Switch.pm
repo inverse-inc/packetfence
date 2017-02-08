@@ -2751,7 +2751,7 @@ sub radiusDisconnect {
         my $connection_info = {
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
-            LocalAddr => $self->deauth_source_ip(),
+            LocalAddr => $self->deauth_source_ip($send_disconnect_to),
         };
 
         if (defined($self->{'_disconnectPort'}) && $self->{'_disconnectPort'} ne '') {
@@ -3113,12 +3113,33 @@ Takes into account the active/active clustering and centralized deauth
 =cut
 
 sub deauth_source_ip {
-    my ($self) = @_;
-    if($cluster_enabled){
-        return isenabled($Config{active_active}{centralized_deauth}) ? pf::cluster::management_cluster_ip() : pf::cluster::current_server->{management_ip};
-    }
-    else {
-        return $management_network->tag('vip') || $management_network->tag('ip');
+    my ($self,$dst_ip) = @_;
+    my $logger = $self->logger();
+    my $chi = pf::CHI->new(namespace => 'route_int');
+    my $int = $chi->compute($dst_ip, sub {
+                                         my @interface_src = split(" ", pf_run("sudo ip route get $dst_ip"));
+                                         if ($interface_src[1] eq 'via') {
+                                             return $interface_src[4];
+                                         } else {
+                                             return $interface_src[2];
+                                         }
+                                      }
+                           );
+    if (defined($Config{ 'interface ' . $int })) {
+        if($cluster_enabled){
+            return isenabled($Config{active_active}{centralized_deauth}) ? pf::cluster::cluster_ip($int) : pf::cluster::current_server->{"interface $int"}->{ip};
+        }
+        else {
+            return $Config{ 'interface ' . $int }{'vip'} || $Config{ 'interface ' . $int }{'ip'}
+        }
+    } else {
+        $logger->warn("Interface $int has not been found in the configuration, using the management interface");
+        if($cluster_enabled){
+            return isenabled($Config{active_active}{centralized_deauth}) ? pf::cluster::management_cluster_ip() : pf::cluster::current_server->{management_ip};
+        }
+        else {
+            return $management_network->tag('vip') || $management_network->tag('ip');
+        }
     }
 }
 

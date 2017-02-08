@@ -50,6 +50,7 @@ use pf::config qw(
     $IPTABLES_MARK_REG
     is_inline_enforcement_enabled
     is_type_inline
+    @radius_ints
 );
 use pf::class qw(class_view_all class_trappable);
 use pf::file_paths qw($generated_conf_dir $conf_dir);
@@ -65,6 +66,7 @@ use pf::ConfigStore::Domain;
 # to be considered as running
 Readonly our $FW_FILTER_INPUT_MGMT      => 'input-management-if';
 Readonly our $FW_FILTER_INPUT_PORTAL    => 'input-portal-if';
+Readonly our $FW_FILTER_INPUT_RADIUS    => 'input-radius-if';
 
 Readonly my $FW_TABLE_FILTER => 'filter';
 Readonly my $FW_TABLE_MANGLE => 'mangle';
@@ -133,9 +135,12 @@ sub iptables_generate {
         my $eduroam_listening_port = $eduroam_authentication_source[0]{'auth_listening_port'};    # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
         $tags{'eduroam_radius_virtualserver'} = "-A input-management-if --protocol tcp --match tcp --dport $eduroam_listening_port --jump ACCEPT\n";
         $tags{'eduroam_radius_virtualserver'} .= "-A input-management-if --protocol udp --match udp --dport $eduroam_listening_port --jump ACCEPT\n";
+        $tags{'eduroam_radius_listening'} = "-A input-radius-if --protocol tcp --match tcp --dport $eduroam_listening_port --jump ACCEPT\n";
+        $tags{'eduroam_radius_listening'} .= "-A input-radius-if --protocol udp --match udp --dport $eduroam_listening_port --jump ACCEPT\n";
     }
     else {
         $tags{'eduroam_radius_virtualserver'} = "# eduroam integration is not configured\n";
+        $tags{'eduroam_radius_listening'} = "# eduroam integration is not configured\n";
     }
 
     if (is_inline_enforcement_enabled()) {
@@ -244,6 +249,14 @@ sub generate_filter_if_src_to_chain {
         $rules .= "-A INPUT --in-interface $dev -d 224.0.0.0/8 -j ACCEPT\n";
         $rules .= "-A INPUT --in-interface $dev -p vrrp -j ACCEPT\n";
         $rules .= "-A INPUT --in-interface $dev --jump $FW_FILTER_INPUT_PORTAL\n";
+    }
+
+    # 'radius' interfaces handling
+    foreach my $radius_interface ( @radius_ints ) {
+        my $dev = $radius_interface->tag("int");
+        $rules .= "-A INPUT --in-interface $dev -d 224.0.0.0/8 -j ACCEPT\n";
+        $rules .= "-A INPUT --in-interface $dev -p vrrp -j ACCEPT\n";
+        $rules .= "-A INPUT --in-interface $dev --jump $FW_FILTER_INPUT_RADIUS\n";
     }
 
     # management interface handling

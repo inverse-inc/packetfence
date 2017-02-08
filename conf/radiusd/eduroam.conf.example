@@ -3,12 +3,7 @@ pidfile = %%pid_file%%
 
 $INCLUDE radiusd.conf
 
-listen {
-    ipaddr = %%management_ip%%
-    port = %%eduroam_auth_listening_port%%
-    type = auth
-    virtual_server = eduroam
-}
+%%listen%%
 
 listen {
     type = control

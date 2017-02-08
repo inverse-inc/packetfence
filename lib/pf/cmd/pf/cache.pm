@@ -16,6 +16,7 @@ Namespaces:
   httpd.portal
   person_lookup
   pfdns
+  route_int
   switch.overlay
   switch
 

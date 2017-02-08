@@ -22,6 +22,7 @@ use pf::config qw(
     @portal_ints
     @listen_ints
     @dhcplistener_ints
+    @radius_ints
 );
 use pf::file_paths qw(
     $generated_conf_dir
@@ -59,7 +60,7 @@ sub generateConfig {
 
     $tags{'vrrp'} = '';
     $tags{'mysql_backend'} = '';
-    my @ints = uniq(@listen_ints,@dhcplistener_ints, map { $_->{'Tint'} } @portal_ints);
+    my @ints = uniq(@listen_ints,@dhcplistener_ints, (map { $_->{'Tint'} } @portal_ints, @radius_ints));
     foreach my $interface ( @ints ) {
         my $cfg = $Config{"interface $interface"};
         next unless $cfg;

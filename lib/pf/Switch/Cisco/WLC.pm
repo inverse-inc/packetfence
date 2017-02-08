@@ -487,7 +487,7 @@ sub radiusDisconnect {
         my $connection_info = {
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
-            LocalAddr => $self->deauth_source_ip(),
+            LocalAddr => $self->deauth_source_ip($send_disconnect_to),
             nas_port => $coa_port,
         };
 
@@ -540,7 +540,7 @@ sub radiusDisconnect {
             $connection_info = {
                 nas_ip => $send_disconnect_to,
                 secret => $self->{'_radiusSecret'},
-                LocalAddr => $self->deauth_source_ip(),
+                LocalAddr => $self->deauth_source_ip($send_disconnect_to),
                 nas_port => $nas_port,
             };
             $response = perform_disconnect($connection_info, $attributes_ref);
