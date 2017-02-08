@@ -439,9 +439,9 @@ done
 %{__install} -D -m0311 conf/systemd/packetfence.target $RPM_BUILD_ROOT/etc/systemd/system/packetfence.target
 %{__install} -D -m0311 conf/systemd/packetfence-base.target $RPM_BUILD_ROOT/etc/systemd/system/packetfence-base.target
 %{__install} -D -m0311 conf/systemd/packetfence-cluster.target $RPM_BUILD_ROOT/etc/systemd/system/packetfence-cluster.target
-%{__install} -d $RPM_BUILD_ROOT/etc/systemd/systemd/packetfence-base.target.wants
-%{__install} -d $RPM_BUILD_ROOT/etc/systemd/systemd/packetfence.target.wants
-%{__install} -d $RPM_BUILD_ROOT/etc/systemd/systemd/packetfence-cluster.target.wants
+%{__install} -d $RPM_BUILD_ROOT/etc/systemd/system/packetfence-base.target.wants
+%{__install} -d $RPM_BUILD_ROOT/etc/systemd/system/packetfence.target.wants
+%{__install} -d $RPM_BUILD_ROOT/etc/systemd/system/packetfence-cluster.target.wants
 # systemd slices
 %{__install} -D -m0311 conf/systemd/packetfence.slice $RPM_BUILD_ROOT/etc/systemd/system/packetfence.slice
 %{__install} -D -m0311 conf/systemd/packetfence-base.slice $RPM_BUILD_ROOT/etc/systemd/system/packetfence-base.slice
