@@ -18,6 +18,7 @@ use warnings;
 use base qw(pf::dal);
 
 our @FIELD_NAMES;
+our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
@@ -76,6 +77,33 @@ BEGIN {
         acctinterval => undef,
         acctterminatecause => '',
         connectinfo_stop => undef,
+    );
+
+    @INSERTABLE_FIELDS = qw(
+        acctoutputoctets
+        framedprotocol
+        acctsessiontime
+        calledstationid
+        acctinputoctets
+        acctstoptime
+        nasipaddress
+        acctsessionid
+        framedipaddress
+        groupname
+        acctuniqueid
+        realm
+        servicetype
+        nasportid
+        callingstationid
+        connectinfo_start
+        nasporttype
+        acctupdatetime
+        acctauthentic
+        acctstarttime
+        username
+        acctinterval
+        acctterminatecause
+        connectinfo_stop
     );
 
     %FIELDS_META = (
@@ -267,6 +295,10 @@ sub _updateable_fields {
     return [@FIELD_NAMES];
 }
 
+sub _inserteable_fields {
+    return [@INSERTABLE_FIELDS];
+}
+
 sub get_meta {
     return \%FIELDS_META;
 }
@@ -277,7 +309,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 

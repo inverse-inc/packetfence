@@ -18,6 +18,7 @@ use warnings;
 use base qw(pf::dal);
 
 our @FIELD_NAMES;
+our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
@@ -37,7 +38,7 @@ BEGIN {
     );
 
     %DEFAULTS = (
-        valid_from => undef,
+        valid_from => '0000-00-00 00:00:00',
         password => '',
         pid => '',
         expiration => '',
@@ -49,12 +50,25 @@ BEGIN {
         sponsor => '0',
     );
 
+    @INSERTABLE_FIELDS = qw(
+        valid_from
+        password
+        pid
+        expiration
+        category
+        access_duration
+        login_remaining
+        access_level
+        unregdate
+        sponsor
+    );
+
     %FIELDS_META = (
         valid_from => {
             type => 'DATETIME',
             is_auto_increment => 0,
             is_primary_key => 0,
-            is_nullable => 1,
+            is_nullable => 0,
         },
         password => {
             type => 'VARCHAR',
@@ -148,6 +162,10 @@ sub _updateable_fields {
     return [@FIELD_NAMES];
 }
 
+sub _inserteable_fields {
+    return [@INSERTABLE_FIELDS];
+}
+
 sub get_meta {
     return \%FIELDS_META;
 }
@@ -158,7 +176,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 

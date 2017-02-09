@@ -18,6 +18,7 @@ use warnings;
 use base qw(pf::dal);
 
 our @FIELD_NAMES;
+our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
@@ -101,6 +102,46 @@ BEGIN {
         SSID_Open_Auth => undef,
         Location_Country_Name => undef,
         WEP_Key => undef,
+    );
+
+    @INSERTABLE_FIELDS = qw(
+        Location_Zip_Postal_Code
+        SSID_1X
+        Open_Sunday
+        Client_Support
+        Coverage_Area
+        Location_Identifier
+        Open_Tuesday
+        Open_Monday
+        English_Location_City
+        id
+        Security_Protocol_1X
+        WEP_Key_Entry_Method
+        Location_Type
+        Location_Phone_Number
+        Restricted_Access
+        Open_Thursday
+        Latitude
+        Open_Friday
+        Service_Provider_Brand
+        Provider_Identifier
+        Location_URL
+        Sub_Location_Type
+        Longitude
+        MAC_Address
+        Location_Address2
+        SSID_1X_Broadcasted
+        English_Location_Name
+        Location_State_Province_Name
+        UTC_Timezone
+        Location_Address1
+        SSID_Broadcasted
+        Open_Saturday
+        Open_Wednesday
+        WEP_Key_Size
+        SSID_Open_Auth
+        Location_Country_Name
+        WEP_Key
     );
 
     %FIELDS_META = (
@@ -364,6 +405,10 @@ sub _updateable_fields {
     return [@FIELD_NAMES];
 }
 
+sub _inserteable_fields {
+    return [@INSERTABLE_FIELDS];
+}
+
 sub get_meta {
     return \%FIELDS_META;
 }
@@ -374,7 +419,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 

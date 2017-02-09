@@ -18,6 +18,7 @@ use warnings;
 use base qw(pf::dal);
 
 our @FIELD_NAMES;
+our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
@@ -101,6 +102,45 @@ BEGIN {
         pf_domain => undef,
         connection_type => undef,
         switch_ip_address => undef,
+    );
+
+    @INSERTABLE_FIELDS = qw(
+        profile
+        radius_request
+        nas_identifier
+        node_status
+        uuid
+        nas_port
+        mac
+        eap_type
+        is_phone
+        auto_reg
+        nas_port_id
+        auth_type
+        event_type
+        reason
+        user_name
+        nas_ip_address
+        switch_mac
+        role
+        ssid
+        radius_source_ip_address
+        request_time
+        ifindex
+        source
+        ip
+        nas_port_type
+        switch_id
+        radius_reply
+        realm
+        calling_station_id
+        called_station_id
+        stripped_user_name
+        auth_status
+        computer_name
+        pf_domain
+        connection_type
+        switch_ip_address
     );
 
     %FIELDS_META = (
@@ -370,6 +410,10 @@ sub _updateable_fields {
     return [@FIELD_NAMES];
 }
 
+sub _inserteable_fields {
+    return [@INSERTABLE_FIELDS];
+}
+
 sub get_meta {
     return \%FIELDS_META;
 }
@@ -380,7 +424,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 

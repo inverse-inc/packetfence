@@ -18,17 +18,16 @@ use warnings;
 use base qw(pf::dal);
 
 our @FIELD_NAMES;
+our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
 
 BEGIN {
     @FIELD_NAMES = qw(
-        external_transaction
         status
         ip
         item
-        external_reference_id
         person
         price
         update_date
@@ -39,11 +38,9 @@ BEGIN {
     );
 
     %DEFAULTS = (
-        external_transaction => undef,
         status => '',
         ip => '',
         item => '',
-        external_reference_id => undef,
         person => '',
         price => '',
         update_date => '0000-00-00 00:00:00',
@@ -53,13 +50,20 @@ BEGIN {
         mac => '',
     );
 
+    @INSERTABLE_FIELDS = qw(
+        status
+        ip
+        item
+        person
+        price
+        update_date
+        start_date
+        type
+        id
+        mac
+    );
+
     %FIELDS_META = (
-        external_transaction => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
         status => {
             type => 'VARCHAR',
             is_auto_increment => 0,
@@ -77,12 +81,6 @@ BEGIN {
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 0,
-        },
-        external_reference_id => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
         },
         person => {
             type => 'VARCHAR',
@@ -164,6 +162,10 @@ sub _updateable_fields {
     return [@FIELD_NAMES];
 }
 
+sub _inserteable_fields {
+    return [@INSERTABLE_FIELDS];
+}
+
 sub get_meta {
     return \%FIELDS_META;
 }
@@ -174,7 +176,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 

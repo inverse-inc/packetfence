@@ -18,6 +18,7 @@ use warnings;
 use base qw(pf::dal);
 
 our @FIELD_NAMES;
+our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
@@ -37,6 +38,14 @@ BEGIN {
         whitelisted_categories => '',
         type => '',
         tid_end => '',
+    );
+
+    @INSERTABLE_FIELDS = qw(
+        vid
+        tid_start
+        whitelisted_categories
+        type
+        tid_end
     );
 
     %FIELDS_META = (
@@ -111,6 +120,10 @@ sub _updateable_fields {
     return [@FIELD_NAMES];
 }
 
+sub _inserteable_fields {
+    return [@INSERTABLE_FIELDS];
+}
+
 sub get_meta {
     return \%FIELDS_META;
 }
@@ -121,7 +134,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 

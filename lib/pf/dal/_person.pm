@@ -18,6 +18,7 @@ use warnings;
 use base qw(pf::dal);
 
 our @FIELD_NAMES;
+our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
@@ -89,6 +90,40 @@ BEGIN {
         custom_field_8 => undef,
         custom_field_1 => undef,
         sponsor => undef,
+    );
+
+    @INSERTABLE_FIELDS = qw(
+        source
+        firstname
+        lastname
+        room_number
+        email
+        custom_field_5
+        pid
+        custom_field_7
+        apartment_number
+        anniversary
+        address
+        portal
+        birthday
+        company
+        work_phone
+        gender
+        custom_field_9
+        custom_field_3
+        building_number
+        telephone
+        custom_field_2
+        nickname
+        lang
+        cell_phone
+        custom_field_6
+        notes
+        custom_field_4
+        title
+        custom_field_8
+        custom_field_1
+        sponsor
     );
 
     %FIELDS_META = (
@@ -316,6 +351,10 @@ sub _updateable_fields {
     return [@FIELD_NAMES];
 }
 
+sub _inserteable_fields {
+    return [@INSERTABLE_FIELDS];
+}
+
 sub get_meta {
     return \%FIELDS_META;
 }
@@ -326,7 +365,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 

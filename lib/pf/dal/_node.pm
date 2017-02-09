@@ -18,6 +18,7 @@ use warnings;
 use base qw(pf::dal);
 
 our @FIELD_NAMES;
+our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
@@ -65,7 +66,7 @@ BEGIN {
         regdate => '0000-00-00 00:00:00',
         category_id => undef,
         device_type => undef,
-        pid => 'admin',
+        pid => 'default',
         machine_account => undef,
         dhcp6_enterprise => undef,
         dhcp6_fingerprint => undef,
@@ -85,6 +86,38 @@ BEGIN {
         sessionid => undef,
         dhcp_vendor => undef,
         unregdate => '0000-00-00 00:00:00',
+    );
+
+    @INSERTABLE_FIELDS = qw(
+        autoreg
+        device_version
+        status
+        bypass_vlan
+        device_class
+        bandwidth_balance
+        regdate
+        category_id
+        device_type
+        pid
+        machine_account
+        dhcp6_enterprise
+        dhcp6_fingerprint
+        mac
+        device_score
+        last_arp
+        lastskip
+        last_dhcp
+        user_agent
+        dhcp_fingerprint
+        computername
+        detect_date
+        voip
+        bypass_role_id
+        notes
+        time_balance
+        sessionid
+        dhcp_vendor
+        unregdate
     );
 
     %FIELDS_META = (
@@ -308,6 +341,10 @@ sub _updateable_fields {
     return [@FIELD_NAMES];
 }
 
+sub _inserteable_fields {
+    return [@INSERTABLE_FIELDS];
+}
+
 sub get_meta {
     return \%FIELDS_META;
 }
@@ -318,7 +355,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 
