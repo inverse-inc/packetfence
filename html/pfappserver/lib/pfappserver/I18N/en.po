@@ -7535,6 +7535,11 @@ msgid "USERS_READ"
 msgstr "Users - Read"
 
 # pf::admin_roles (Actions groups)
+# pf::admin_roles (Actions)
+msgid "USERS_READ_SPONSORED"
+msgstr "Users - Read Sponsored"
+
+# pf::admin_roles (Actions groups)
 msgid "USERS_ROLES"
 msgstr "Users Roles"
 
