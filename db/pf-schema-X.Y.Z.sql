@@ -272,6 +272,7 @@ DELIMITER ;
 --
 
 CREATE TABLE iplog_history (
+  iplog_history_id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
   mac varchar(17) NOT NULL,
   ip varchar(45) NOT NULL,
   start_time datetime NOT NULL,
@@ -286,6 +287,7 @@ CREATE TABLE iplog_history (
 --
 
 CREATE TABLE iplog_archive (
+  iplog_archive_id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
   mac varchar(17) NOT NULL,
   ip varchar(45) NOT NULL,
   start_time datetime NOT NULL,
@@ -295,6 +297,7 @@ CREATE TABLE iplog_archive (
 ) ENGINE=InnoDB;
 
 CREATE TABLE `locationlog` (
+  `locationlog_id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `mac` varchar(17) default NULL,
   `switch` varchar(17) NOT NULL default '',
   `port` varchar(20) NOT NULL default '',
@@ -317,6 +320,7 @@ CREATE TABLE `locationlog` (
 ) ENGINE=InnoDB;
 
 CREATE TABLE `locationlog_archive` (
+  `locationlog_archive_id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `mac` varchar(17) default NULL,
   `switch` varchar(17) NOT NULL default '',
   `port` varchar(20) NOT NULL default '',
