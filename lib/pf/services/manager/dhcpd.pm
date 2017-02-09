@@ -43,7 +43,7 @@ has '+name' => (default => sub { 'dhcpd' } );
 sub _cmdLine {
     my $self = shift;
     $self->executable 
-        . "-pf " . $self->pidFile
+        . " -pf " . $self->pidFile
         . " -f -lf $var_dir/dhcpd/dhcpd.leases -cf $generated_conf_dir/dhcpd.conf ";
 }
 
