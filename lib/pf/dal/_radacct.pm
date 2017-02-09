@@ -15,6 +15,10 @@ pf::dal::_radacct -
 use strict;
 use warnings;
 
+###
+### pf::dal::_radacct is auto generated any change to this file will be lost
+### Make and changes to this file in pf::dal::radacct
+###
 use base qw(pf::dal);
 
 our @FIELD_NAMES;
@@ -268,36 +272,84 @@ use Class::XSAccessor {
     accessors => \@FIELD_NAMES,
 };
 
+=head2 _defaults
+
+The default values of radacct
+
+=cut
+
 sub _defaults {
     return {%DEFAULTS};
 }
+
+=head2 field_names
+
+Field names of radacct
+
+=cut
 
 sub field_names {
     return [@FIELD_NAMES];
 }
 
+=head2 primary_keys
+
+The primary keys of radacct
+
+=cut
+
 sub primary_keys {
     return [@PRIMARY_KEYS];
 }
+
+=head2
+
+The table name
+
+=cut
 
 sub table { "radacct" }
 
 our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
-    "SELECT * FROM radacct WHERE $where;";
+    "SELECT * FROM `radacct` WHERE $where;";
 };
+
+=head2 _find_one_sql
+
+The precalculated sql to find a single row radacct
+
+=cut
 
 sub _find_one_sql {
     return $FIND_SQL;
 }
 
+=head2 _updateable_fields
+
+The updateable fields for radacct
+
+=cut
+
 sub _updateable_fields {
     return [@FIELD_NAMES];
 }
 
+=head2 _inserteable_fields
+
+The inserteable fields for radacct
+
+=cut
+
 sub _inserteable_fields {
     return [@INSERTABLE_FIELDS];
 }
+
+=head2 get_meta
+
+Get the meta data for radacct
+
+=cut
 
 sub get_meta {
     return \%FIELDS_META;

@@ -15,6 +15,10 @@ pf::dal::_ifoctetslog -
 use strict;
 use warnings;
 
+###
+### pf::dal::_ifoctetslog is auto generated any change to this file will be lost
+### Make and changes to this file in pf::dal::ifoctetslog
+###
 use base qw(pf::dal);
 
 our @FIELD_NAMES;
@@ -101,36 +105,84 @@ use Class::XSAccessor {
     accessors => \@FIELD_NAMES,
 };
 
+=head2 _defaults
+
+The default values of ifoctetslog
+
+=cut
+
 sub _defaults {
     return {%DEFAULTS};
 }
+
+=head2 field_names
+
+Field names of ifoctetslog
+
+=cut
 
 sub field_names {
     return [@FIELD_NAMES];
 }
 
+=head2 primary_keys
+
+The primary keys of ifoctetslog
+
+=cut
+
 sub primary_keys {
     return [@PRIMARY_KEYS];
 }
+
+=head2
+
+The table name
+
+=cut
 
 sub table { "ifoctetslog" }
 
 our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
-    "SELECT * FROM ifoctetslog WHERE $where;";
+    "SELECT * FROM `ifoctetslog` WHERE $where;";
 };
+
+=head2 _find_one_sql
+
+The precalculated sql to find a single row ifoctetslog
+
+=cut
 
 sub _find_one_sql {
     return $FIND_SQL;
 }
 
+=head2 _updateable_fields
+
+The updateable fields for ifoctetslog
+
+=cut
+
 sub _updateable_fields {
     return [@FIELD_NAMES];
 }
 
+=head2 _inserteable_fields
+
+The inserteable fields for ifoctetslog
+
+=cut
+
 sub _inserteable_fields {
     return [@INSERTABLE_FIELDS];
 }
+
+=head2 get_meta
+
+Get the meta data for ifoctetslog
+
+=cut
 
 sub get_meta {
     return \%FIELDS_META;

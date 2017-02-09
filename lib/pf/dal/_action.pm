@@ -15,6 +15,10 @@ pf::dal::_action -
 use strict;
 use warnings;
 
+###
+### pf::dal::_action is auto generated any change to this file will be lost
+### Make and changes to this file in pf::dal::action
+###
 use base qw(pf::dal);
 
 our @FIELD_NAMES;
@@ -64,36 +68,84 @@ use Class::XSAccessor {
     accessors => \@FIELD_NAMES,
 };
 
+=head2 _defaults
+
+The default values of action
+
+=cut
+
 sub _defaults {
     return {%DEFAULTS};
 }
+
+=head2 field_names
+
+Field names of action
+
+=cut
 
 sub field_names {
     return [@FIELD_NAMES];
 }
 
+=head2 primary_keys
+
+The primary keys of action
+
+=cut
+
 sub primary_keys {
     return [@PRIMARY_KEYS];
 }
+
+=head2
+
+The table name
+
+=cut
 
 sub table { "action" }
 
 our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
-    "SELECT * FROM action WHERE $where;";
+    "SELECT * FROM `action` WHERE $where;";
 };
+
+=head2 _find_one_sql
+
+The precalculated sql to find a single row action
+
+=cut
 
 sub _find_one_sql {
     return $FIND_SQL;
 }
 
+=head2 _updateable_fields
+
+The updateable fields for action
+
+=cut
+
 sub _updateable_fields {
     return [@FIELD_NAMES];
 }
 
+=head2 _inserteable_fields
+
+The inserteable fields for action
+
+=cut
+
 sub _inserteable_fields {
     return [@INSERTABLE_FIELDS];
 }
+
+=head2 get_meta
+
+Get the meta data for action
+
+=cut
 
 sub get_meta {
     return \%FIELDS_META;

@@ -15,6 +15,10 @@ pf::dal::_savedsearch -
 use strict;
 use warnings;
 
+###
+### pf::dal::_savedsearch is auto generated any change to this file will be lost
+### Make and changes to this file in pf::dal::savedsearch
+###
 use base qw(pf::dal);
 
 our @FIELD_NAMES;
@@ -97,36 +101,84 @@ use Class::XSAccessor {
     accessors => \@FIELD_NAMES,
 };
 
+=head2 _defaults
+
+The default values of savedsearch
+
+=cut
+
 sub _defaults {
     return {%DEFAULTS};
 }
+
+=head2 field_names
+
+Field names of savedsearch
+
+=cut
 
 sub field_names {
     return [@FIELD_NAMES];
 }
 
+=head2 primary_keys
+
+The primary keys of savedsearch
+
+=cut
+
 sub primary_keys {
     return [@PRIMARY_KEYS];
 }
+
+=head2
+
+The table name
+
+=cut
 
 sub table { "savedsearch" }
 
 our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
-    "SELECT * FROM savedsearch WHERE $where;";
+    "SELECT * FROM `savedsearch` WHERE $where;";
 };
+
+=head2 _find_one_sql
+
+The precalculated sql to find a single row savedsearch
+
+=cut
 
 sub _find_one_sql {
     return $FIND_SQL;
 }
 
+=head2 _updateable_fields
+
+The updateable fields for savedsearch
+
+=cut
+
 sub _updateable_fields {
     return [@FIELD_NAMES];
 }
 
+=head2 _inserteable_fields
+
+The inserteable fields for savedsearch
+
+=cut
+
 sub _inserteable_fields {
     return [@INSERTABLE_FIELDS];
 }
+
+=head2 get_meta
+
+Get the meta data for savedsearch
+
+=cut
 
 sub get_meta {
     return \%FIELDS_META;
