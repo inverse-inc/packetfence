@@ -144,7 +144,7 @@ Search for pf::dal using SQL::Abstract::More syntax
 sub search {
     my ($proto, $where, $extra) = @_;
     my $class = ref($proto) || $proto;
-    my $sqla = SQL::Abstract::More->new;
+    my $sqla = $self->get_sql_abstract
     my($stmt, @bind) = $sqla->select(
         -columns => $proto->field_names,
         -from    => $proto->table,
@@ -182,7 +182,7 @@ sub update {
     if (keys %$update_data == 0 ) {
        return 1;
     }
-    my $sqla          = SQL::Abstract::More->new;
+    my $sqla          = $self->get_sql_abstract
     my ($stmt, @bind) = $sqla->update(
         -table => $self->table,
         -set   => $update_data,
@@ -227,7 +227,7 @@ sub insert {
     if (keys %$insert_data == 0 ) {
        return 0;
     }
-    my $sqla          = SQL::Abstract::More->new;
+    my $sqla          = $self->get_sql_abstract
     my ($stmt, @bind) = $sqla->insert(
         -into => $self->table,
         -values   => $insert_data,
@@ -402,7 +402,7 @@ Remove row from the database
 sub remove {
     my ($self) = @_;
     return 0 unless $self->__from_table;
-    my $sqla = SQL::Abstract::More->new;
+    my $sqla = $self->get_sql_abstract
     my ($sql, @bind) = $sqla->delete(
         -from => $self->table,
         -where => $self->primary_keys_where_clause,
@@ -412,6 +412,16 @@ sub remove {
         return $sth->rows;
     }
     return 0;
+}
+
+=head2 get_sql_abstract
+
+get the sql abstract object
+
+=cut
+
+sub get_sql_abstract {
+    return SQL::Abstract::More->new(quote_char => '`');
 }
 
 =head1 AUTHOR
