@@ -3766,6 +3766,8 @@ These sensors work by capturing the packets at the lowest level possible on your
 
 Microsoft DHCP sensor
 ^^^^^^^^^^^^^^^^^^^^^
+CAUTION: Only 64 bits versions of Windows are officially supported.
+
 DHCP-Forwarder is an optimized version of precedent udp-reflector, which installs easily and only copy DHCPREQUESTS and DHCPACK packets to the destination. 
 
 https://inverse.ca/downloads/PacketFence/windows-dhcp-forwarder/DHCP%20Forwarder%20Installer.exe[Download the installer here.]
