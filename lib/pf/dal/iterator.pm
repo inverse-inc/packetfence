@@ -18,12 +18,24 @@ use Class::XSAccessor {
     accessors => [qw(sth class)],
 };
 
+=head2 new
+
+Create a new iterator
+
+=cut
+
 sub new {
     my ($proto, $args) = @_;
     my $class = ref($proto) || $proto;
     my $self = {%$args};
     return bless $self, $class;
 }
+
+=head2 next_item
+
+Get the next item from the iterator
+
+=cut
 
 sub next_item {
     my ($self) = @_;
@@ -33,6 +45,12 @@ sub next_item {
     my $class = $self->class;
     return $class->new_from_table($row);
 }
+
+=head2 DESTROY
+
+Cleanup after iterator goes out of scope
+
+=cut
 
 sub DESTROY {
     my ($self) = @_;
