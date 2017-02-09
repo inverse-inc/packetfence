@@ -240,7 +240,7 @@ sub is_valid {
         return 0;
     }
 
-    my $memory_timestamp = $self->{memorized_at} || time;
+    my $memory_timestamp = $self->{memorized_at} // 0;
 
 #$logger->trace("Control file has timestamp $file_timestamp and memory has timestamp $memory_timestamp for key $what");
 # if the timestamp of the file is after the one we have in memory
