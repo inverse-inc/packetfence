@@ -555,6 +555,7 @@ CREATE TABLE radacct (
 -- Adding RADIUS update log table
 
 CREATE TABLE radacct_log (
+  radacct_log_id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
   acctsessionid varchar(64) NOT NULL default '',
   username varchar(64) NOT NULL default '',
   nasipaddress varchar(15) NOT NULL default '',
