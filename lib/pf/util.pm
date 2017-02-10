@@ -41,6 +41,7 @@ use MIME::Lite::TT;
 use Digest::MD5;
 use Time::HiRes qw(stat time);
 use Fcntl qw(:DEFAULT);
+use Net::Ping;
 
 our ( %local_mac );
 
@@ -87,6 +88,7 @@ BEGIN {
         parse_api_action_spec
         pf_chown
         user_chown
+        ping
     );
 }
 
@@ -1307,6 +1309,12 @@ sub parse_api_action_spec {
     }
     #return a copy of the named captures hash
     return {%+};
+}
+
+sub ping {
+    my ($host) = @_;
+    my $p = Net::Ping->new();
+    return $p->ping($host);
 }
 
 =back
