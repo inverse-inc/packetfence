@@ -63,6 +63,12 @@ for my $table (@$tables) {
 }
 
 
+=head2 get_table_info
+
+Get the Table Info
+
+=cut
+
 sub get_table_info {
     my ($table) = @_;
     my $dbh = db_connect();
@@ -112,6 +118,12 @@ sub get_table_info {
     return \@tables;
 }
 
+=head2 add_additional_metadata_to_column
+
+Add Additional Metadata To Column
+
+=cut
+
 sub add_additional_metadata_to_column {
     my ($table, $col) = @_;
     $col->{pf_default_value} = make_default_value($table, $col);
@@ -143,6 +155,12 @@ our %DEFAULT_VALUE_MAKERS = (
 =cut
 
 
+=head2 make_default_value
+
+Make Default Value for a column
+
+=cut
+
 sub make_default_value {
     my ($table, $col) = @_;
     my $type = $col->{TYPE_NAME};
@@ -151,6 +169,12 @@ sub make_default_value {
     }
     return make_string_default_value($table, $col);
 }
+
+=head2 make_int_default_value
+
+Make Integer Default Value
+
+=cut
 
 sub make_int_default_value {
     my ($table, $col) = @_;
@@ -162,6 +186,12 @@ sub make_int_default_value {
     }
     return "undef";
 }
+
+=head2 make_string_default_value
+
+Make String Default Value
+
+=cut
 
 sub make_string_default_value {
     my ($table, $col) = @_;
