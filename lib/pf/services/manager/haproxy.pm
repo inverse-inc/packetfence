@@ -34,6 +34,7 @@ use pf::file_paths qw(
 use pf::log;
 use pf::util;
 use pf::cluster;
+use Template;
 
 extends 'pf::services::manager';
 
@@ -75,7 +76,7 @@ sub generateConfig {
     $tags{'http'} = '';
     $tags{'mysql_backend'} = '';
     $tags{'var_dir'} = $var_dir;
-    $tags{'conf_dir'} = $conf_dir;
+    $tags{'conf_dir'} = $var_dir.'/conf';
     $tags{'cpu'} = '';
     $tags{'bind-process'} = '';
     my $bind_process = '';
@@ -95,13 +96,15 @@ EOT
          $tags{'os_path'} = '/usr/share/haproxy/';
     }
     my @ints = uniq(@listen_ints,@dhcplistener_ints,map { $_->{'Tint'} } @portal_ints);
+    my @portal_ip;
     foreach my $interface ( @ints ) {
         my $cfg = $Config{"interface $interface"};
         next unless $cfg;
         my $i = 0;
         if ($interface eq $management_network->tag('int')) {
-            $tags{'active_active_ip'} = pf::cluster::management_cluster_ip();
+            $tags{'active_active_ip'} = pf::cluster::management_cluster_ip() || $cfg->{'ip'};
             my @mysql_backend = map { $_->{management_ip} } pf::cluster::mysql_servers();
+            push @mysql_backend, '127.0.0.1' if !@mysql_backend;
             foreach my $mysql_back (@mysql_backend) {
                 # the second server (the one without the VIP) will be the prefered MySQL server
                 if ($i == 0) {
@@ -115,8 +118,9 @@ EOT
                 }
             $i++;
             }
-            my $cluster_ip = pf::cluster::cluster_ip($interface);
-            my @backend_ip = values %{pf::cluster::members_ips($interface)};
+            my $cluster_ip = pf::cluster::cluster_ip($interface) || $cfg->{'ip'};
+            my @backend_ip = values %{pf::cluster::members_ips($interface)}
+            push @backend_ip, '127.0.0.1' if !@backend_ip;
             my $backend_ip_config = '';
             foreach my $back_ip ( @backend_ip ) {
 
@@ -147,8 +151,10 @@ $backend_ip_config
 EOT
         }
         if ($cfg->{'type'} =~ /internal/ || $cfg->{'type'} =~ /portal/) {
-            my $cluster_ip = pf::cluster::cluster_ip($interface);
+            my $cluster_ip = pf::cluster::cluster_ip($interface) || $cfg->{'ip'};
+            push @portal_ip, $cluster_ip;
             my @backend_ip = values %{pf::cluster::members_ips($interface)};
+            push @backend_ip, '127.0.0.1' if !@backend_ip;
             my $backend_ip_config = '';
             foreach my $back_ip ( @backend_ip ) {
 
@@ -169,6 +175,7 @@ frontend portal-http-$cluster_ip
 frontend portal-https-$cluster_ip
         bind $cluster_ip:443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
         reqadd X-Forwarded-Proto:\\ https
+        use_backend %[var(req.action)]
         default_backend $cluster_ip-backend
         $bind_process
 
@@ -184,6 +191,17 @@ EOT
     }
 
     parse_template( \%tags, "$conf_dir/haproxy.conf", "$generated_conf_dir/haproxy.conf" );
+
+    push @portal_ip, $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'};
+
+    my $vars = {
+        portal_host => sub { return @portal_ip},
+    };
+
+    my $config_file = "passthrough.lua";
+    my $tt = Template->new(ABSOLUTE => 1);
+    $tt->process("$conf_dir/$config_file.tt", $vars, "$generated_conf_dir/$config_file") or die $tt->error();
+
     return 1;
 }
 
