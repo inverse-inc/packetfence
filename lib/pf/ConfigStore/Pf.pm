@@ -34,23 +34,9 @@ extends 'pf::ConfigStore';
 
 sub configFile {$pf_config_file};
 
+sub importConfigFile { $pf_default_file }
+
 sub pfconfigNamespace {'config::Pf'}
-
-sub _buildCachedConfig {
-    my ($self) = @_;
-    return pf::config::cached->new(
-        -file         => $pf_config_file,
-        -allowempty   => 1,
-        -import       => pf::config::cached->new(-file => $pf_default_file),
-        -onpostreload => [
-            'reload_pf_config' => sub {
-                my ($config) = @_;
-                $config->{imported}->ReadConfig;
-              }
-        ],
-
-    );
-}
 
 =item remove
 

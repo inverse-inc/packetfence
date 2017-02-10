@@ -23,22 +23,9 @@ extends 'pf::ConfigStore';
 
 sub configFile { $realm_config_file };
 
-sub pfconfigNamespace {'config::Realm'}
+sub importConfigFile { $realm_default_config_file }
 
-sub _buildCachedConfig {
-    my ($self) = @_;
-    return pf::config::cached->new(
-        -file         => $realm_config_file,
-        -allowempty   => 1,
-        -import       => pf::config::cached->new(-file => $realm_default_config_file),
-        -onpostreload => [
-            'reload_realm_config' => sub {
-                my ($config) = @_;
-                $config->{imported}->ReadConfig;
-              }
-        ],
-    );
-}
+sub pfconfigNamespace {'config::Realm'}
 
 =head2 cleanupAfterRead
 
