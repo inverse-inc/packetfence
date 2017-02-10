@@ -237,6 +237,30 @@ sub status {
     return $pid ? $pid : "0";
 }
 
+
+sub print_status {
+    my ($self) = @_;
+    my $name = $self->name ;
+    my @output = `systemctl --all --no-pager`;
+    my $header = shift @output;
+    my $service_regex = qr/ 
+	packetfence- 
+	$name 
+	\.service 
+        /ox;
+
+    my $rc;
+    for (@output) {
+        if ( /$service_regex/ ) { 
+	    print;
+	    my ($unit, $load, $active, $sub, $desc) = split;
+	    $rc = $active eq "active" ? 1 : 0; 
+	}
+    }
+    return $rc;
+}
+
+
 =head2 pid
 
 Returns the pid of the service

@@ -332,24 +332,10 @@ sub restartService {
 sub statusOfService {
     my ($service,@services) = @_;
     my @managers = pf::services::getManagers(\@services);
-    my $notStarted = 0;
-    foreach my $manager (@managers) {
-        my $color = '';
-        my $isManaged = $manager->isManaged;
-        my $status = $manager->status;
-        if($status eq '0' ) {
-            if ($isManaged && !$manager->optional) {
-                $color =  $ERROR_COLOR;
-                $notStarted++;
-            } else {
-                $color =  $WARNING_COLOR;
-            }
-        } else {
-            $color =  $SUCCESS_COLOR;
-        }
-        print $manager->name,"|${color}$isManaged|$status${RESET_COLOR}\n";
-    }
-    return ( $notStarted ? $EXIT_SERVICES_NOT_STARTED : $EXIT_SUCCESS)
+    print "  UNIT                                                                                             LOAD      ACTIVE   SUB       DESCRIPTION\n"; 
+    for my $manager (@managers) { 
+	$manager->print_status;
+    } 
 }
 
 =head1 AUTHOR

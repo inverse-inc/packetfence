@@ -52,15 +52,15 @@ sub _build_launcher {
     return "sudo systemctl isolate packetfence.target";
 }
 
-sub status {
+sub print_status {
     my ($self) = @_;
     my @output = `systemctl --all --no-pager`;
     my $header = shift @output;
-    print $header;
     for (@output) {
         print if /packetfence.+\.service/;
     }
 }
+
 
 sub pid {
     my ($self) = @_;
