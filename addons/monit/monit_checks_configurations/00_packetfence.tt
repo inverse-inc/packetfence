@@ -32,6 +32,7 @@ check process packetfence-dhcpd with pidfile /usr/local/pf/var/run/dhcpd.pid
     start program = "/usr/local/pf/bin/pfcmd service dhcpd start" with timeout 60 seconds
     stop program  = "/usr/local/pf/bin/pfcmd service dhcpd stop"
     if 3 restarts within 10 cycles then alert
+    if cpu usage > 90% for 10 cycles then restart
 
 check process packetfence-httpd.aaa with pidfile /usr/local/pf/var/run/httpd.aaa.pid
     group PacketFence
