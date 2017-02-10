@@ -11,12 +11,14 @@ PORT='[% db_config.port %]'
 
 primary_change()
 {
-    if [ "$PRIMARY" == "0" ]; then
+    if [ "$PRIMARY" == "0" ] || [ "$PEER_COUNT" == "0" ]; then
         echo 'SET GLOBAL wsrep_on=0; SET GLOBAL read_only="ON";'
     else
         echo 'SET GLOBAL wsrep_on=1; SET GLOBAL read_only="OFF";'
     fi
 }
+
+echo "Calling db-update with '$@'" | logger
 
 while [ $# -gt 0 ]
 do
@@ -39,6 +41,7 @@ do
          ;;
       --members)
          MEMBERS=$2
+         PEER_COUNT=$(grep -o "," <<< "$MEMBERS" | wc -l)
          shift
          ;;
     esac
