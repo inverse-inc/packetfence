@@ -1,8 +1,0 @@
-#!/bin/bash
-
-su mysql -s/bin/bash -c "mysqld_safe --defaults-file=/usr/local/pf/var/conf/mariadb.conf $@"
-
-function finish {
-    pkill mysqld
-}
-trap finish EXIT

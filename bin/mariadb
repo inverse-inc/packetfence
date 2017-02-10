@@ -1,0 +1,87 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use lib '/usr/local/pf/lib';
+
+use pf::services::util;
+use POSIX qw(:signal_h pause _exit setuid setgid);
+use pf::log;
+
+our $PROGRAM_NAME = $0 = "pf-mariadb";
+
+my $logger = get_logger( $PROGRAM_NAME );
+
+our $RUNNING = 1;
+
+setuid(27);
+setgid(27);
+
+our $MYSQLD_PID;
+our $IS_CHILD;
+
+# init signal handlers
+POSIX::sigaction(
+    &POSIX::SIGHUP,
+    POSIX::SigAction->new(
+        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
+) or $logger->logdie("pf-mariadb: could not set SIGHUP handler: $!");
+
+POSIX::sigaction(
+    &POSIX::SIGTERM,
+    POSIX::SigAction->new(
+        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
+) or $logger->logdie("pf-mariadb: could not set SIGTERM handler: $!");
+
+POSIX::sigaction(
+    &POSIX::SIGINT,
+    POSIX::SigAction->new(
+        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
+) or $logger->logdie("pf-mariadb: could not set SIGINT handler: $!");
+
+sub launch_mysql {
+    my $pid = fork();
+
+    if($pid) {
+        $SIG{CHLD} = "IGNORE";
+        $MYSQLD_PID = $pid;
+    } elsif ($pid == 0) {
+        $SIG{CHLD} = "DEFAULT";
+        $IS_CHILD = 1;
+        $0 = "pfmariadb - mysqld spawner";
+        my $args = join(' ', @ARGV);
+        `mysqld_safe --defaults-file=/usr/local/pf/var/conf/mariadb.conf $args`;
+        $RUNNING = 0;
+    }
+}
+
+launch_mysql();
+while($RUNNING){
+    sleep 1;
+    if(!kill(0, $MYSQLD_PID)) {
+        print "MariaDB is not alive \n";
+        launch_mysql();
+    }
+}
+
+
+END {
+    deletepid();
+}
+
+exit(0);
+
+sub normal_sighandler {
+    $RUNNING = 0;
+    if(!$IS_CHILD) {
+        kill(SIGKILL, $MYSQLD_PID);
+        `pkill mysqld`;
+        deletepid();
+        $logger->debug( "pfdns: caught SIG" . $_[0] . " - terminating" );
+    }
+}
+
