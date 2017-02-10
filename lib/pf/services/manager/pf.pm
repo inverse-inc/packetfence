@@ -54,10 +54,11 @@ sub _build_launcher {
 
 sub status {
     my ($self) = @_;
-    my @output = `systemctl --no-pager --no-legend`;
-    print "UNIT\t\tLOAD\t\tACTIVE\tSUB\tDESCRIPTION\n";
+    my @output = `systemctl --all --no-pager`;
+    my $header = shift @output;
+    print $header;
     for (@output) {
-        print if /^packetfence/;
+        print if /packetfence.+\.service/;
     }
 }
 

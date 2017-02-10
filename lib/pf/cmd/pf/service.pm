@@ -332,7 +332,6 @@ sub restartService {
 sub statusOfService {
     my ($service,@services) = @_;
     my @managers = pf::services::getManagers(\@services);
-    print "service|shouldBeStarted|pid\n";
     my $notStarted = 0;
     foreach my $manager (@managers) {
         my $color = '';

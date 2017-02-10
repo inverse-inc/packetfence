@@ -92,7 +92,7 @@ Requires: mod_perl, mod_qos, mod_evasive, mod_proxy_html
 requires: libapreq2
 Requires: dhcp
 Requires: redis
-Requires: freeradius >= 3.0.13, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils, freeradius-redis, freeradius-rest, freeradius-radsniff >= 3.0.13
+Requires: freeradius >= 3.0.13-19, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils, freeradius-redis, freeradius-rest, freeradius-radsniff >= 3.0.13-19
 Requires: make
 Requires: net-tools
 Requires: sscep
@@ -722,7 +722,7 @@ rm -rf /usr/local/pf/var/cache/
 # if this is an upgrade, generate the unitfiles now
 if [ "$1" = "2"   ]; then
     cd /usr/local/pf/conf/systemd
-    for $s in *.service.tt; do 
+    for s in *.service.tt; do 
         /usr/local/pf/bin/pfcmd service $s generateunitfile
     done 
 fi
