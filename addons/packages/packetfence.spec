@@ -450,6 +450,7 @@ done
 %{__install} -D -m0311 conf/systemd/packetfence-redis-cache.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-redis-cache.service
 %{__install} -D -m0311 conf/systemd/packetfence-config.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-config.service
 %{__install} -D -m0311 conf/systemd/packetfence-iptables.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-iptables.service
+%{__install} -D -m0311 conf/systemd/packetfence-routes.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-routes.service
 
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons/AD
@@ -626,8 +627,8 @@ fi
 
 
 %post -n %{real_name}
-echo "Setting packetfence-base as the default systemd target"
-/bin/systemctl set-default packetfence-base.target
+echo "Setting packetfence as the default systemd target"
+/bin/systemctl set-default packetfence.target
 
 #Check if log files exist and create them with the correct owner
 for fic_log in packetfence.log redis_cache.log
@@ -712,20 +713,19 @@ rm -rf /usr/local/pf/var/cache/
 /bin/systemctl enable packetfence-redis-cache
 /bin/systemctl enable packetfence-config
 /bin/systemctl enable packetfence-iptables
+/bin/systemctl enable packetfence-routes
 /bin/systemctl isolate packetfence-base
 /usr/local/pf/bin/pfcmd configreload
-/usr/local/pf/bin/pfcmd service httpd.admin generateunitfile
+
+cd /usr/local/pf/conf/systemd
+for s in *.service.tt; do 
+    /usr/local/pf/bin/pfcmd service $s generateunitfile
+done 
+
 /bin/systemctl enable packetfence-httpd.admin
 /bin/systemctl start packetfence-httpd.admin
 
 
-# if this is an upgrade, generate the unitfiles now
-if [ "$1" = "2"   ]; then
-    cd /usr/local/pf/conf/systemd
-    for s in *.service.tt; do 
-        /usr/local/pf/bin/pfcmd service $s generateunitfile
-    done 
-fi
 
 echo Installation complete
 echo "  * Please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."

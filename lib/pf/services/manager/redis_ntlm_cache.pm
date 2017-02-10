@@ -15,6 +15,9 @@ pf::services::manager::redis_ntlm_cache
 use strict;
 use warnings;
 use Moo;
+use pf::file_paths qw(
+    $generated_conf_dir
+);
 
 extends 'pf::services::manager::redis';
 
@@ -25,6 +28,11 @@ The name of the redis service
 =cut
 
 has '+name' => (default => sub { 'redis_ntlm_cache' } );
+
+sub _cmdLine {
+    my $self = shift;
+    $self->executable . " $generated_conf_dir/" . $self->name . ".conf" . " --daemonize no";
+}
 
 =head1 AUTHOR
 
