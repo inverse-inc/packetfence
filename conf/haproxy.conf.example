@@ -58,6 +58,7 @@ backend mysql
 backend proxy
     option httpclose
     option http_proxy
+    option forwardfor
     http-request lua.choose_backend
     http-request set-header Host %[var(req.host)]
     # Need to have a proxy listening on localhost port 8888
