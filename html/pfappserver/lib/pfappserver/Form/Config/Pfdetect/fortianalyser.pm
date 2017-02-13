@@ -1,33 +1,21 @@
-package pf::detect::parser;
+package pfappserver::Form::Config::Pfdetect::fortianalyser;
+
 =head1 NAME
 
-pf::detect::parser
-
-=cut
+pfappserver::Form::Config::Pfdetect::fortianalyser - Web form for a pfdetect detector
 
 =head1 DESCRIPTION
 
-pf::detect::parser
-
-Base class for a pfdetect parser
+Form definition to create or update a pfdetect detector.
 
 =cut
 
-use strict;
-use warnings;
-use Moo;
+use HTML::FormHandler::Moose;
+extends 'pfappserver::Form::Config::Pfdetect';
 
-has id => (is => 'rw', required => 1);
+=over
 
-has path => (is => 'rw', required => 1);
-
-has type => (is => 'rw', required => 1);
- 
-has status => (is => 'rw', default =>  sub { "enabled" });
-
-=head1 AUTHOR
-
-Inverse inc. <info@inverse.ca>
+=back
 
 =head1 COPYRIGHT
 
@@ -35,7 +23,7 @@ Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and::or
+This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
@@ -52,5 +40,5 @@ USA.
 
 =cut
 
+__PACKAGE__->meta->make_immutable;
 1;
-

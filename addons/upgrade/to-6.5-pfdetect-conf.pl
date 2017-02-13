@@ -1,29 +1,36 @@
-package pf::detect::parser;
+#!/usr/bin/perl
+
 =head1 NAME
 
-pf::detect::parser
+add_status_to_pfdetect_conf - 
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::detect::parser
-
-Base class for a pfdetect parser
+Add status to pfdetect.conf for section that do not have them
 
 =cut
 
 use strict;
 use warnings;
-use Moo;
+use lib qw(/usr/local/pf/lib);
+use pf::IniFiles;
+use pf::file_paths qw($pfdetect_config_file);
 
-has id => (is => 'rw', required => 1);
+exit 0 unless -e $pfdetect_config_file;
+my $ini = pf::IniFiles->new(-file => $pfdetect_config_file);
 
-has path => (is => 'rw', required => 1);
+for my $section ($ini->Sections()) {
+    print "Checking $section\n";
+    if ($ini->exists($section, 'status') || $section =~ / / ) {
+        print "$section is good skipping\n";
+        next;
+    }
+    $ini->newval($section, 'status', 'enabled');
+}
 
-has type => (is => 'rw', required => 1);
- 
-has status => (is => 'rw', default =>  sub { "enabled" });
+$ini->RewriteConfig();
 
 =head1 AUTHOR
 
@@ -35,7 +42,7 @@ Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and::or
+This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
@@ -51,6 +58,4 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
-
-1;
 

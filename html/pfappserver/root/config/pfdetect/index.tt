@@ -1,4 +1,4 @@
-      <div class="modal fade hide" id="modalItem">
+      <div class="modal modal-large fade hide" id="modalItem">
       </div>
 
       <div class="modal fade hide" id="deleteItem">
@@ -23,7 +23,14 @@
       [% INCLUDE config/pfdetect/list.tt %]
 
       [%- IF can_access("PFDETECT_CREATE") %]
-      <div class="form-actions">
-        <a class="btn createItem" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add Syslog parser') %]</a>
-      </div>
+        <div class="form-actions">
+          <div class="btn-group">
+            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">[% l('Add Syslog parser') %] <span class="caret"></span></a>
+            <ul id="createSource" class="dropdown-menu">
+              [% FOREACH type IN types -%]
+                <li><a href="[% c.pf_hash_for(c.controller.action_for('create_type'), type) %]">[% l(type) %]</a></li>
+              [% END -%]
+            </ul>
+          </div>
+        </div>
       [%- END %]

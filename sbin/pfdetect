@@ -98,6 +98,7 @@ my $running = 1;
 
 sub start_detectors {
     foreach my $id (keys %ConfigDetect) {
+        next unless isenabled($ConfigDetect{$id}{status});
         run_detector($id);
     }
 }
@@ -110,17 +111,17 @@ creates a new child to run a task
 
 sub run_detector {
     my ($id) = @_;
-    my $detector = $ConfigDetect{$id};
-    $detector->{id} = $id;
     my $pid = fork();
-    if($pid) {
-        $CHILDREN{$pid} = $detector->{id};
+    if ($pid) {
+        $CHILDREN{$pid} = $id;
         $SIG{CHLD} = "IGNORE";
-    } elsif ($pid == 0) {
+    }
+    elsif ($pid == 0) {
         $SIG{CHLD} = "DEFAULT";
         $IS_CHILD = 1;
-        _run_detector($detector);
-    } else {
+        _run_detector($id);
+    }
+    else {
     }
 }
 
@@ -131,10 +132,12 @@ the task to is ran in a loop until it is finished
 =cut
 
 sub _run_detector {
-    my ($detector) = @_;
-    $0 = "pfdetect - ".$detector->{id};
+    my ($id) = @_;
+    my $parser = pf::factory::detect::parser->new($id);
 
-    my $alert_pipe = $detector->{path};
+    $0 = "pfdetect - $id";
+
+    my $alert_pipe = $parser->path;
     my $alert_pipe_fh;
 
     if ( !open( $alert_pipe_fh, '+<', "$alert_pipe" ) ) {
@@ -143,10 +146,6 @@ sub _run_detector {
     } else {
         $logger->info("listening on $alert_pipe");
     }
-
-    my $parser_type = $detector->{type};
-
-    my $parser = pf::factory::detect::parser->new($parser_type);
 
     my $client = pf::api::queue->new(queue => 'pfdetect');
 

@@ -201,7 +201,7 @@ sub radius_switch_access : Public {
     return $return;
 }
 
-sub update_iplog : Public {
+sub update_iplog : Public :AllowedAsAction(mac, $mac, ip, $ip) {
     my ($class, %postdata) = @_;
     my @require = qw(mac ip);
     my @found = grep {exists $postdata{$_}} @require;
@@ -227,7 +227,7 @@ sub update_iplog : Public {
     return (pf::iplog::open($postdata{'ip'}, $postdata{'mac'}, $postdata{'lease_length'}));
 }
 
-sub unreg_node_for_pid : Public {
+sub unreg_node_for_pid : Public:AllowedAsAction(pid, $pid) {
     my ($class, %postdata) = @_;
     my $logger = pf::log::get_logger();
     my @require = qw(pid);
@@ -495,7 +495,7 @@ Trigger a violation
 
 =cut
 
-sub trigger_violation : Public {
+sub trigger_violation : Public :AllowedAsAction(mac, $mac, tid, TYPEID, type, TYPE) {
     my ($class, %postdata )  = @_;
     my @require = qw(mac tid type);
     my @found = grep {exists $postdata{$_}} @require;
@@ -510,7 +510,7 @@ Release all violations for a node
 
 =cut
 
-sub release_all_violations : Public {
+sub release_all_violations : Public:AllowedAsAction($mac){
     my ($class, $mac) = @_;
     my $logger = pf::log::get_logger;
     $mac = pf::util::clean_mac($mac);
@@ -535,7 +535,7 @@ Modify a node
 
 =cut
 
-sub modify_node : Public {
+sub modify_node : Public :AllowedAsAction(mac, $mac) {
     my ($class, %postdata )  = @_;
     my @require = qw(mac);
     my @found = grep {exists $postdata{$_}} @require;
@@ -558,7 +558,7 @@ Register a node
 
 =cut
 
-sub register_node : Public {
+sub register_node : Public :AllowedAsAction(mac, $mac, pid, $pid) {
     my ($class, %postdata )  = @_;
     my @require = qw(mac pid);
     my @found = grep {exists $postdata{$_}} @require;
@@ -588,7 +588,7 @@ Register a node by IP address
 
 =cut
 
-sub register_node_ip : Public {
+sub register_node_ip : Public :AllowedAsAction(ip, $ip, pid, $pid) {
     my ($class, %postdata )  = @_;
     my @require = qw(ip pid);
     my @found = grep {exists $postdata{$_}} @require;
@@ -606,7 +606,7 @@ Deregister a node by IP address
 
 =cut
 
-sub deregister_node_ip : Public {
+sub deregister_node_ip : Public:AllowedAsAction(ip, $ip) {
     my ($class, %postdata )  = @_;
     my @require = qw(ip);
     my @found = grep {exists $postdata{$_}} @require;
@@ -813,7 +813,7 @@ Add a new person
 
 =cut
 
-sub add_person : Public {
+sub add_person : Public :AllowedAsAction(pid, $pid) {
     my ($class, %params) = @_;
     my @require = qw(pid);
     my @found = grep {exists $params{$_}} @require;
@@ -900,7 +900,7 @@ Modify an existing person
 
 =cut
 
-sub modify_person : Public {
+sub modify_person : Public :AllowedAsAction(pid, $pid) {
     my ($class, %params) = @_;
     my @require = qw(pid);
     my @found = grep {exists $params{$_}} @require;
@@ -938,7 +938,7 @@ Check if we have to launch a scan for the device
 
 =cut
 
-sub trigger_scan : Public : Fork {
+sub trigger_scan :Public :Fork :AllowedAsAction($ip, mac, $mac, net_type, TYPE) {
     my ($class, %postdata )  = @_;
     my @require = qw(ip mac net_type);
     my @found = grep {exists $postdata{$_}} @require;
@@ -998,7 +998,7 @@ Close a violation
 
 =cut
 
-sub close_violation : Public {
+sub close_violation :Public :AllowedAsAction(mac, $mac, vid , VID) {
     my ($class, %postdata )  = @_;
     my @require = qw(mac vid);
     my @found = grep {exists $postdata{$_}} @require;
@@ -1026,7 +1026,7 @@ Per example fetch the current user connected on a device through a WMI scan and 
 
 =cut
 
-sub dynamic_register_node : Public {
+sub dynamic_register_node : Public :AllowedAsAction(mac, $mac, username, $username) {
     my ($class, %postdata )  = @_;
     my @require = qw(mac username);
     my @found = grep {exists $postdata{$_}} @require;
@@ -1172,7 +1172,7 @@ Reevaluate the access of the mac address.
 
 =cut
 
-sub reevaluate_access : Public {
+sub reevaluate_access : Public :AllowedAsAction(mac, $mac, reason, $reason) {
     my ($class, %postdata )  = @_;
     my @require = qw(mac reason);
     my @found = grep {exists $postdata{$_}} @require;
