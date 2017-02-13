@@ -1,7 +1,9 @@
 [% WRAPPER "class-wrapper.tt" -%]
+[% SET class_name = "pf::dal implementation for the table $TABLE_NAME" %]
+[% SET class_description = "pf::dal implementation for the table $TABLE_NAME" %]
 ###
 ### [% class %] is auto generated any change to this file will be lost
-### Make and changes to this file in [% class.replace('::_', '::') %]
+### Instead change in the [% class.replace('::_', '::') %] module
 ###
 use base qw(pf::dal);
 

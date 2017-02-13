@@ -2,13 +2,15 @@ package [% class %];
 
 =head1 NAME
 
-[% class %] -
+[% class %] - [% class_name %]
 
 =cut
 
 =head1 DESCRIPTION
 
-[% class %] -
+[% class %]
+
+[% class_description %]
 
 =cut
 
