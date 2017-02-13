@@ -132,13 +132,13 @@ sub _updateable_fields {
     return [@FIELD_NAMES];
 }
 
-=head2 _inserteable_fields
+=head2 _insertable_fields
 
-The inserteable fields for pf_version
+The insertable fields for pf_version
 
 =cut
 
-sub _inserteable_fields {
+sub _insertable_fields {
     return [@INSERTABLE_FIELDS];
 }
 
