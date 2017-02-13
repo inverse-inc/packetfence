@@ -9,47 +9,55 @@
 Is a flexible and powerful tool for defining actions based of log file entries in PacketFence.
 </p>
 
+<h5> Configuring a Regex Syslog Parser</h5>
 <ul>
-    <li><h5> Configuring a Regex Syslog Parser</h5></li>
-    <ll>
-        <ul>
-            <li>Enabled - You can enable/disable the parser from running</li>
-            <li>Alert Pipe - A previously created alert pipe (FIFO)</li>
-            <li>
-                Rules - The list of rules that defines how to match log file entries and what action(s) to take when matching.
-            </li>
-        </ul>
+    <li>Enabled - You can enable/disable the parser from running</li>
+    <li>Alert Pipe - A previously created alert pipe (FIFO)</li>
+    <li>
+        Rules - The list of rules that defines how to match log file entries and what action(s) to take when matching.
     </li>
 </ul>
 
-Regex Syslog Parser Rule
+<h5> Regex Syslog Parser Rule </h5>
 
-* Name - The name of the rule
+    <ul>
 
-* Regex - The perl regex to match against a log entry
+        <li>Name - The name of the rule</li>
 
-* Actions - A list of actions to take when the regex matches
+        <li>Regex - The perl regex to match against a log entry.<br/> The regex may have <a href="http://perldoc.perl.org/perlre.html#(%3f'NAME'pattern)">named captures</a> which can be used for parameter replacement start a '$'</li>
 
-* IP <=> MAC - Perform automatic translation of IPs to MACs and the other way around
+        <li>Actions - A list of actions to take when the regex matches</li>
 
-* Last if matches - Stop processing the other rules if this rule matched
+        <li>IP <=> MAC - Perform automatic translation of IPs to MACs and the other way around</li>
 
-Defining Actions
+        <li>Last if matches - Stop processing the other rules if this rule matched</li>
 
-An action have two parts the method the second is the parameter list
-
-* method - The name of the action you want to take.
-* parameter list - The list of parameters you want to provide to the method.
+    </ul>
 
 
-Example
+<h5> Defining Actions</h5>
 
-Regex -  mac\s*:\s*(?<mac>[a-zA-Z0-9]{2}(:[a-zA-Z0-9]{2}){5}), notes\s*:\s*(?<notes>.*)
+<p>
+    An action have two parts
+</p>
 
-The method is the name of the action you want to take.
+<ul>
+ <li>method - The name of the action you want to take.</il>
+ <li>parameter list - The list of parameters you want to provide to the method.
+  Each parameter is seperated by a comma. The parameters that are to be replaced by a named capture
+  </li>
+</ul>
 
-The parameter list can take parts of the log line entry
 
+<h5>Example Action</h5>
+
+<ul>
+    <li>
+    Regex -  mac\s*:\s*(?&lt;mac&gt;[a-zA-Z0-9]{2}(:[a-zA-Z0-9]{2}){5}), notes\s*:\s*(?&lt;notes&gt;.*)
+    </li>
+
+    <li>Action - modify_node :  mac, $mac, notes, $notes</li>
+</ul>
 
     </div>
 </div>
