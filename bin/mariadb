@@ -120,7 +120,7 @@ sub fork_launch_mysql {
         $SIG{CHLD} = "DEFAULT";
         $IS_CHILD = 1;
         $0 = "pf-mariadb - mysqld spawner";
-        launch_mysql($started_because, @args);
+        launch_mysql(@args);
         $RUNNING = 0;
     }
 }
@@ -218,7 +218,7 @@ sub attempt_start {
                     if(pf::cluster::cluster_index() == 0) {
                         $logger->info("Tried connecting to peers too many times. Will establish a new cluster");
                         `sed -i.bak "s/safe_to_bootstrap: 0/safe_to_bootstrap: 1/g" /var/lib/mysql/grastate.dat`;
-                        launch_mysql("wsrep-recover", "--wsrep-recover");
+                        launch_mysql("--wsrep-recover");
                         fork_launch_mysql("create-new-cluster", "--wsrep-new-cluster");
                     }
                     else {
