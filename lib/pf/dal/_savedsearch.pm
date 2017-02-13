@@ -2,13 +2,15 @@ package pf::dal::_savedsearch;
 
 =head1 NAME
 
-pf::dal::_savedsearch -
+pf::dal::_savedsearch - pf::dal implementation for the table savedsearch
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_savedsearch -
+pf::dal::_savedsearch
+
+pf::dal implementation for the table savedsearch
 
 =cut
 
@@ -17,7 +19,7 @@ use warnings;
 
 ###
 ### pf::dal::_savedsearch is auto generated any change to this file will be lost
-### Make and changes to this file in pf::dal::savedsearch
+### Instead change in the pf::dal::savedsearch module
 ###
 use base qw(pf::dal);
 

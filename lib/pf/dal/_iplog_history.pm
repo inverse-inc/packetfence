@@ -2,13 +2,15 @@ package pf::dal::_iplog_history;
 
 =head1 NAME
 
-pf::dal::_iplog_history -
+pf::dal::_iplog_history - pf::dal implementation for the table iplog_history
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_iplog_history -
+pf::dal::_iplog_history
+
+pf::dal implementation for the table iplog_history
 
 =cut
 
@@ -17,7 +19,7 @@ use warnings;
 
 ###
 ### pf::dal::_iplog_history is auto generated any change to this file will be lost
-### Make and changes to this file in pf::dal::iplog_history
+### Instead change in the pf::dal::iplog_history module
 ###
 use base qw(pf::dal);
 
@@ -31,9 +33,9 @@ BEGIN {
     @FIELD_NAMES = qw(
         ip
         end_time
+        id
         mac
         start_time
-        iplog_history_id
     );
 
     %DEFAULTS = (
@@ -63,6 +65,12 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
+        id => {
+            type => 'INT',
+            is_auto_increment => 1,
+            is_primary_key => 1,
+            is_nullable => 0,
+        },
         mac => {
             type => 'VARCHAR',
             is_auto_increment => 0,
@@ -75,16 +83,10 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
-        iplog_history_id => {
-            type => 'INT',
-            is_auto_increment => 1,
-            is_primary_key => 1,
-            is_nullable => 0,
-        },
     );
 
     @PRIMARY_KEYS = qw(
-        iplog_history_id
+        id
     );
 }
 

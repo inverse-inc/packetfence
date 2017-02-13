@@ -2,13 +2,15 @@ package pf::dal::_inline_accounting;
 
 =head1 NAME
 
-pf::dal::_inline_accounting -
+pf::dal::_inline_accounting - pf::dal implementation for the table inline_accounting
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_inline_accounting -
+pf::dal::_inline_accounting
+
+pf::dal implementation for the table inline_accounting
 
 =cut
 
@@ -17,7 +19,7 @@ use warnings;
 
 ###
 ### pf::dal::_inline_accounting is auto generated any change to this file will be lost
-### Make and changes to this file in pf::dal::inline_accounting
+### Instead change in the pf::dal::inline_accounting module
 ###
 use base qw(pf::dal);
 

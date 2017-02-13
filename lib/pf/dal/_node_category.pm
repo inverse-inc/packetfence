@@ -2,13 +2,15 @@ package pf::dal::_node_category;
 
 =head1 NAME
 
-pf::dal::_node_category -
+pf::dal::_node_category - pf::dal implementation for the table node_category
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_node_category -
+pf::dal::_node_category
+
+pf::dal implementation for the table node_category
 
 =cut
 
@@ -17,7 +19,7 @@ use warnings;
 
 ###
 ### pf::dal::_node_category is auto generated any change to this file will be lost
-### Make and changes to this file in pf::dal::node_category
+### Instead change in the pf::dal::node_category module
 ###
 use base qw(pf::dal);
 

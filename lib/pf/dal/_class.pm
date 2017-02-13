@@ -2,13 +2,15 @@ package pf::dal::_class;
 
 =head1 NAME
 
-pf::dal::_class -
+pf::dal::_class - pf::dal implementation for the table class
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_class -
+pf::dal::_class
+
+pf::dal implementation for the table class
 
 =cut
 
@@ -17,7 +19,7 @@ use warnings;
 
 ###
 ### pf::dal::_class is auto generated any change to this file will be lost
-### Make and changes to this file in pf::dal::class
+### Instead change in the pf::dal::class module
 ###
 use base qw(pf::dal);
 

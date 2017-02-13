@@ -2,13 +2,15 @@ package pf::dal::_pf_version;
 
 =head1 NAME
 
-pf::dal::_pf_version -
+pf::dal::_pf_version - pf::dal implementation for the table pf_version
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_pf_version -
+pf::dal::_pf_version
+
+pf::dal implementation for the table pf_version
 
 =cut
 
@@ -17,7 +19,7 @@ use warnings;
 
 ###
 ### pf::dal::_pf_version is auto generated any change to this file will be lost
-### Make and changes to this file in pf::dal::pf_version
+### Instead change in the pf::dal::pf_version module
 ###
 use base qw(pf::dal);
 

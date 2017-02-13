@@ -2,13 +2,15 @@ package pf::dal::_trigger;
 
 =head1 NAME
 
-pf::dal::_trigger -
+pf::dal::_trigger - pf::dal implementation for the table trigger
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_trigger -
+pf::dal::_trigger
+
+pf::dal implementation for the table trigger
 
 =cut
 
@@ -17,7 +19,7 @@ use warnings;
 
 ###
 ### pf::dal::_trigger is auto generated any change to this file will be lost
-### Make and changes to this file in pf::dal::trigger
+### Instead change in the pf::dal::trigger module
 ###
 use base qw(pf::dal);
 

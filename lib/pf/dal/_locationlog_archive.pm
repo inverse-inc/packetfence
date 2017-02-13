@@ -2,13 +2,15 @@ package pf::dal::_locationlog_archive;
 
 =head1 NAME
 
-pf::dal::_locationlog_archive -
+pf::dal::_locationlog_archive - pf::dal implementation for the table locationlog_archive
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_locationlog_archive -
+pf::dal::_locationlog_archive
+
+pf::dal implementation for the table locationlog_archive
 
 =cut
 
@@ -17,7 +19,7 @@ use warnings;
 
 ###
 ### pf::dal::_locationlog_archive is auto generated any change to this file will be lost
-### Make and changes to this file in pf::dal::locationlog_archive
+### Instead change in the pf::dal::locationlog_archive module
 ###
 use base qw(pf::dal);
 
@@ -33,9 +35,9 @@ BEGIN {
         end_time
         realm
         switch_ip
+        id
         connection_sub_type
         mac
-        locationlog_archive_id
         stripped_user_name
         start_time
         vlan
@@ -111,6 +113,12 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        id => {
+            type => 'INT',
+            is_auto_increment => 1,
+            is_primary_key => 1,
+            is_nullable => 0,
+        },
         connection_sub_type => {
             type => 'VARCHAR',
             is_auto_increment => 0,
@@ -122,12 +130,6 @@ BEGIN {
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
-        },
-        locationlog_archive_id => {
-            type => 'INT',
-            is_auto_increment => 1,
-            is_primary_key => 1,
-            is_nullable => 0,
         },
         stripped_user_name => {
             type => 'VARCHAR',
@@ -192,7 +194,7 @@ BEGIN {
     );
 
     @PRIMARY_KEYS = qw(
-        locationlog_archive_id
+        id
     );
 }
 

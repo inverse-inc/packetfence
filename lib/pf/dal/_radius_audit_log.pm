@@ -2,13 +2,15 @@ package pf::dal::_radius_audit_log;
 
 =head1 NAME
 
-pf::dal::_radius_audit_log -
+pf::dal::_radius_audit_log - pf::dal implementation for the table radius_audit_log
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_radius_audit_log -
+pf::dal::_radius_audit_log
+
+pf::dal implementation for the table radius_audit_log
 
 =cut
 
@@ -17,7 +19,7 @@ use warnings;
 
 ###
 ### pf::dal::_radius_audit_log is auto generated any change to this file will be lost
-### Make and changes to this file in pf::dal::radius_audit_log
+### Instead change in the pf::dal::radius_audit_log module
 ###
 use base qw(pf::dal);
 

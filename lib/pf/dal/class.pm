@@ -2,7 +2,7 @@ package pf::dal::class;
 
 =head1 NAME
 
-pf::dal::class -
+pf::dal::class - pf::dal module to override for the table class
 
 =cut
 
@@ -10,10 +10,13 @@ pf::dal::class -
 
 pf::dal::class
 
+pf::dal implementation for the table class
+
 =cut
 
 use strict;
 use warnings;
+
 use base qw(pf::dal::_class);
  
 =head1 AUTHOR
@@ -22,7 +25,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 

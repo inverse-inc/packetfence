@@ -2,13 +2,15 @@ package pf::dal::_activation;
 
 =head1 NAME
 
-pf::dal::_activation -
+pf::dal::_activation - pf::dal implementation for the table activation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_activation -
+pf::dal::_activation
+
+pf::dal implementation for the table activation
 
 =cut
 
@@ -17,7 +19,7 @@ use warnings;
 
 ###
 ### pf::dal::_activation is auto generated any change to this file will be lost
-### Make and changes to this file in pf::dal::activation
+### Instead change in the pf::dal::activation module
 ###
 use base qw(pf::dal);
 

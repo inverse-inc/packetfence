@@ -2,13 +2,15 @@ package pf::dal::_iplog_archive;
 
 =head1 NAME
 
-pf::dal::_iplog_archive -
+pf::dal::_iplog_archive - pf::dal implementation for the table iplog_archive
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_iplog_archive -
+pf::dal::_iplog_archive
+
+pf::dal implementation for the table iplog_archive
 
 =cut
 
@@ -17,7 +19,7 @@ use warnings;
 
 ###
 ### pf::dal::_iplog_archive is auto generated any change to this file will be lost
-### Make and changes to this file in pf::dal::iplog_archive
+### Instead change in the pf::dal::iplog_archive module
 ###
 use base qw(pf::dal);
 
@@ -30,8 +32,8 @@ our %FIELDS_META;
 BEGIN {
     @FIELD_NAMES = qw(
         ip
-        iplog_archive_id
         end_time
+        id
         mac
         start_time
     );
@@ -57,16 +59,16 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
-        iplog_archive_id => {
-            type => 'INT',
-            is_auto_increment => 1,
-            is_primary_key => 1,
-            is_nullable => 0,
-        },
         end_time => {
             type => 'DATETIME',
             is_auto_increment => 0,
             is_primary_key => 0,
+            is_nullable => 0,
+        },
+        id => {
+            type => 'INT',
+            is_auto_increment => 1,
+            is_primary_key => 1,
             is_nullable => 0,
         },
         mac => {
@@ -84,7 +86,7 @@ BEGIN {
     );
 
     @PRIMARY_KEYS = qw(
-        iplog_archive_id
+        id
     );
 }
 

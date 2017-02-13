@@ -2,13 +2,15 @@ package pf::dal::_action;
 
 =head1 NAME
 
-pf::dal::_action -
+pf::dal::_action - pf::dal implementation for the table action
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_action -
+pf::dal::_action
+
+pf::dal implementation for the table action
 
 =cut
 
@@ -17,7 +19,7 @@ use warnings;
 
 ###
 ### pf::dal::_action is auto generated any change to this file will be lost
-### Make and changes to this file in pf::dal::action
+### Instead change in the pf::dal::action module
 ###
 use base qw(pf::dal);
 

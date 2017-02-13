@@ -2,13 +2,15 @@ package pf::dal::_billing;
 
 =head1 NAME
 
-pf::dal::_billing -
+pf::dal::_billing - pf::dal implementation for the table billing
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_billing -
+pf::dal::_billing
+
+pf::dal implementation for the table billing
 
 =cut
 
@@ -17,7 +19,7 @@ use warnings;
 
 ###
 ### pf::dal::_billing is auto generated any change to this file will be lost
-### Make and changes to this file in pf::dal::billing
+### Instead change in the pf::dal::billing module
 ###
 use base qw(pf::dal);
 

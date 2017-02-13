@@ -2,13 +2,15 @@ package pf::dal::_wrix;
 
 =head1 NAME
 
-pf::dal::_wrix -
+pf::dal::_wrix - pf::dal implementation for the table wrix
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_wrix -
+pf::dal::_wrix
+
+pf::dal implementation for the table wrix
 
 =cut
 
@@ -17,7 +19,7 @@ use warnings;
 
 ###
 ### pf::dal::_wrix is auto generated any change to this file will be lost
-### Make and changes to this file in pf::dal::wrix
+### Instead change in the pf::dal::wrix module
 ###
 use base qw(pf::dal);
 

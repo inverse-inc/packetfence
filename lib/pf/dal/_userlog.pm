@@ -2,13 +2,15 @@ package pf::dal::_userlog;
 
 =head1 NAME
 
-pf::dal::_userlog -
+pf::dal::_userlog - pf::dal implementation for the table userlog
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_userlog -
+pf::dal::_userlog
+
+pf::dal implementation for the table userlog
 
 =cut
 
@@ -17,7 +19,7 @@ use warnings;
 
 ###
 ### pf::dal::_userlog is auto generated any change to this file will be lost
-### Make and changes to this file in pf::dal::userlog
+### Instead change in the pf::dal::userlog module
 ###
 use base qw(pf::dal);
 

@@ -2,13 +2,15 @@ package pf::dal::_radius_nas;
 
 =head1 NAME
 
-pf::dal::_radius_nas -
+pf::dal::_radius_nas - pf::dal implementation for the table radius_nas
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_radius_nas -
+pf::dal::_radius_nas
+
+pf::dal implementation for the table radius_nas
 
 =cut
 
@@ -17,7 +19,7 @@ use warnings;
 
 ###
 ### pf::dal::_radius_nas is auto generated any change to this file will be lost
-### Make and changes to this file in pf::dal::radius_nas
+### Instead change in the pf::dal::radius_nas module
 ###
 use base qw(pf::dal);
 

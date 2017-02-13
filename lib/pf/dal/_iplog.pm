@@ -2,13 +2,15 @@ package pf::dal::_iplog;
 
 =head1 NAME
 
-pf::dal::_iplog -
+pf::dal::_iplog - pf::dal implementation for the table iplog
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_iplog -
+pf::dal::_iplog
+
+pf::dal implementation for the table iplog
 
 =cut
 
@@ -17,7 +19,7 @@ use warnings;
 
 ###
 ### pf::dal::_iplog is auto generated any change to this file will be lost
-### Make and changes to this file in pf::dal::iplog
+### Instead change in the pf::dal::iplog module
 ###
 use base qw(pf::dal);
 

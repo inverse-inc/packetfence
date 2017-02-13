@@ -2,13 +2,15 @@ package pf::dal::_dhcp_option82;
 
 =head1 NAME
 
-pf::dal::_dhcp_option82 -
+pf::dal::_dhcp_option82 - pf::dal implementation for the table dhcp_option82
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_dhcp_option82 -
+pf::dal::_dhcp_option82
+
+pf::dal implementation for the table dhcp_option82
 
 =cut
 
@@ -17,7 +19,7 @@ use warnings;
 
 ###
 ### pf::dal::_dhcp_option82 is auto generated any change to this file will be lost
-### Make and changes to this file in pf::dal::dhcp_option82
+### Instead change in the pf::dal::dhcp_option82 module
 ###
 use base qw(pf::dal);
 

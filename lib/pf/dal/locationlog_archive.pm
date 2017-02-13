@@ -2,7 +2,7 @@ package pf::dal::locationlog_archive;
 
 =head1 NAME
 
-pf::dal::locationlog_archive -
+pf::dal::locationlog_archive - pf::dal module to override for the table locationlog_archive
 
 =cut
 
@@ -10,10 +10,13 @@ pf::dal::locationlog_archive -
 
 pf::dal::locationlog_archive
 
+pf::dal implementation for the table locationlog_archive
+
 =cut
 
 use strict;
 use warnings;
+
 use base qw(pf::dal::_locationlog_archive);
  
 =head1 AUTHOR

@@ -2,7 +2,7 @@ package pf::dal::locationlog;
 
 =head1 NAME
 
-pf::dal::locationlog -
+pf::dal::locationlog - pf::dal module to override for the table locationlog
 
 =cut
 
@@ -10,10 +10,13 @@ pf::dal::locationlog -
 
 pf::dal::locationlog
 
+pf::dal implementation for the table locationlog
+
 =cut
 
 use strict;
 use warnings;
+
 use base qw(pf::dal::_locationlog);
  
 =head1 AUTHOR

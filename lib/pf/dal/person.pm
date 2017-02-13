@@ -2,7 +2,7 @@ package pf::dal::person;
 
 =head1 NAME
 
-pf::dal::person -
+pf::dal::person - pf::dal module to override for the table person
 
 =cut
 
@@ -10,10 +10,13 @@ pf::dal::person -
 
 pf::dal::person
 
+pf::dal implementation for the table person
+
 =cut
 
 use strict;
 use warnings;
+
 use base qw(pf::dal::_person);
  
 =head1 AUTHOR
@@ -22,7 +25,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 

@@ -2,13 +2,15 @@ package pf::dal::_password;
 
 =head1 NAME
 
-pf::dal::_password -
+pf::dal::_password - pf::dal implementation for the table password
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_password -
+pf::dal::_password
+
+pf::dal implementation for the table password
 
 =cut
 
@@ -17,7 +19,7 @@ use warnings;
 
 ###
 ### pf::dal::_password is auto generated any change to this file will be lost
-### Make and changes to this file in pf::dal::password
+### Instead change in the pf::dal::password module
 ###
 use base qw(pf::dal);
 

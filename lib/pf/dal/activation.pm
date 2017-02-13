@@ -2,7 +2,7 @@ package pf::dal::activation;
 
 =head1 NAME
 
-pf::dal::activation -
+pf::dal::activation - pf::dal module to override for the table activation
 
 =cut
 
@@ -10,10 +10,13 @@ pf::dal::activation -
 
 pf::dal::activation
 
+pf::dal implementation for the table activation
+
 =cut
 
 use strict;
 use warnings;
+
 use base qw(pf::dal::_activation);
  
 =head1 AUTHOR
@@ -22,7 +25,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 

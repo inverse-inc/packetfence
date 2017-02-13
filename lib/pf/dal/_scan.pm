@@ -2,13 +2,15 @@ package pf::dal::_scan;
 
 =head1 NAME
 
-pf::dal::_scan -
+pf::dal::_scan - pf::dal implementation for the table scan
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_scan -
+pf::dal::_scan
+
+pf::dal implementation for the table scan
 
 =cut
 
@@ -17,7 +19,7 @@ use warnings;
 
 ###
 ### pf::dal::_scan is auto generated any change to this file will be lost
-### Make and changes to this file in pf::dal::scan
+### Instead change in the pf::dal::scan module
 ###
 use base qw(pf::dal);
 

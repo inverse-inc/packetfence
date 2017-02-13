@@ -2,13 +2,15 @@ package pf::dal::_radacct;
 
 =head1 NAME
 
-pf::dal::_radacct -
+pf::dal::_radacct - pf::dal implementation for the table radacct
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_radacct -
+pf::dal::_radacct
+
+pf::dal implementation for the table radacct
 
 =cut
 
@@ -17,7 +19,7 @@ use warnings;
 
 ###
 ### pf::dal::_radacct is auto generated any change to this file will be lost
-### Make and changes to this file in pf::dal::radacct
+### Instead change in the pf::dal::radacct module
 ###
 use base qw(pf::dal);
 

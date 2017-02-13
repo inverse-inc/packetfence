@@ -2,13 +2,15 @@ package pf::dal::_radacct_log;
 
 =head1 NAME
 
-pf::dal::_radacct_log -
+pf::dal::_radacct_log - pf::dal implementation for the table radacct_log
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_radacct_log -
+pf::dal::_radacct_log
+
+pf::dal implementation for the table radacct_log
 
 =cut
 
@@ -17,7 +19,7 @@ use warnings;
 
 ###
 ### pf::dal::_radacct_log is auto generated any change to this file will be lost
-### Make and changes to this file in pf::dal::radacct_log
+### Instead change in the pf::dal::radacct_log module
 ###
 use base qw(pf::dal);
 
@@ -37,8 +39,8 @@ BEGIN {
         acctstatustype
         timestamp
         acctuniqueid
+        id
         username
-        radacct_log_id
     );
 
     %DEFAULTS = (
@@ -114,22 +116,22 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
+        id => {
+            type => 'INT',
+            is_auto_increment => 1,
+            is_primary_key => 1,
+            is_nullable => 0,
+        },
         username => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 0,
         },
-        radacct_log_id => {
-            type => 'INT',
-            is_auto_increment => 1,
-            is_primary_key => 1,
-            is_nullable => 0,
-        },
     );
 
     @PRIMARY_KEYS = qw(
-        radacct_log_id
+        id
     );
 }
 

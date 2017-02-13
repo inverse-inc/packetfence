@@ -2,7 +2,7 @@ package pf::dal::iplog_history;
 
 =head1 NAME
 
-pf::dal::iplog_history -
+pf::dal::iplog_history - pf::dal module to override for the table iplog_history
 
 =cut
 
@@ -10,10 +10,13 @@ pf::dal::iplog_history -
 
 pf::dal::iplog_history
 
+pf::dal implementation for the table iplog_history
+
 =cut
 
 use strict;
 use warnings;
+
 use base qw(pf::dal::_iplog_history);
  
 =head1 AUTHOR

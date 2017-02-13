@@ -2,13 +2,15 @@ package pf::dal::_sms_carrier;
 
 =head1 NAME
 
-pf::dal::_sms_carrier -
+pf::dal::_sms_carrier - pf::dal implementation for the table sms_carrier
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_sms_carrier -
+pf::dal::_sms_carrier
+
+pf::dal implementation for the table sms_carrier
 
 =cut
 
@@ -17,7 +19,7 @@ use warnings;
 
 ###
 ### pf::dal::_sms_carrier is auto generated any change to this file will be lost
-### Make and changes to this file in pf::dal::sms_carrier
+### Instead change in the pf::dal::sms_carrier module
 ###
 use base qw(pf::dal);
 

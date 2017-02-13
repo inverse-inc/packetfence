@@ -2,13 +2,15 @@ package pf::dal::_node;
 
 =head1 NAME
 
-pf::dal::_node -
+pf::dal::_node - pf::dal implementation for the table node
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_node -
+pf::dal::_node
+
+pf::dal implementation for the table node
 
 =cut
 
@@ -17,7 +19,7 @@ use warnings;
 
 ###
 ### pf::dal::_node is auto generated any change to this file will be lost
-### Make and changes to this file in pf::dal::node
+### Instead change in the pf::dal::node module
 ###
 use base qw(pf::dal);
 

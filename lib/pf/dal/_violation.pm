@@ -2,13 +2,15 @@ package pf::dal::_violation;
 
 =head1 NAME
 
-pf::dal::_violation -
+pf::dal::_violation - pf::dal implementation for the table violation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_violation -
+pf::dal::_violation
+
+pf::dal implementation for the table violation
 
 =cut
 
@@ -17,7 +19,7 @@ use warnings;
 
 ###
 ### pf::dal::_violation is auto generated any change to this file will be lost
-### Make and changes to this file in pf::dal::violation
+### Instead change in the pf::dal::violation module
 ###
 use base qw(pf::dal);
 

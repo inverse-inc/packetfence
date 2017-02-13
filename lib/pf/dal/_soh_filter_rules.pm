@@ -2,13 +2,15 @@ package pf::dal::_soh_filter_rules;
 
 =head1 NAME
 
-pf::dal::_soh_filter_rules -
+pf::dal::_soh_filter_rules - pf::dal implementation for the table soh_filter_rules
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_soh_filter_rules -
+pf::dal::_soh_filter_rules
+
+pf::dal implementation for the table soh_filter_rules
 
 =cut
 
@@ -17,7 +19,7 @@ use warnings;
 
 ###
 ### pf::dal::_soh_filter_rules is auto generated any change to this file will be lost
-### Make and changes to this file in pf::dal::soh_filter_rules
+### Instead change in the pf::dal::soh_filter_rules module
 ###
 use base qw(pf::dal);
 

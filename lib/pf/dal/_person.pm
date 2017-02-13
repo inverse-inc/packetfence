@@ -2,13 +2,15 @@ package pf::dal::_person;
 
 =head1 NAME
 
-pf::dal::_person -
+pf::dal::_person - pf::dal implementation for the table person
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_person -
+pf::dal::_person
+
+pf::dal implementation for the table person
 
 =cut
 
@@ -17,7 +19,7 @@ use warnings;
 
 ###
 ### pf::dal::_person is auto generated any change to this file will be lost
-### Make and changes to this file in pf::dal::person
+### Instead change in the pf::dal::person module
 ###
 use base qw(pf::dal);
 

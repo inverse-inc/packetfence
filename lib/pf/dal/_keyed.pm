@@ -2,13 +2,15 @@ package pf::dal::_keyed;
 
 =head1 NAME
 
-pf::dal::_keyed -
+pf::dal::_keyed - pf::dal implementation for the table keyed
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_keyed -
+pf::dal::_keyed
+
+pf::dal implementation for the table keyed
 
 =cut
 
@@ -17,7 +19,7 @@ use warnings;
 
 ###
 ### pf::dal::_keyed is auto generated any change to this file will be lost
-### Make and changes to this file in pf::dal::keyed
+### Instead change in the pf::dal::keyed module
 ###
 use base qw(pf::dal);
 

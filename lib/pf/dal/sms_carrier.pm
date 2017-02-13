@@ -2,7 +2,7 @@ package pf::dal::sms_carrier;
 
 =head1 NAME
 
-pf::dal::sms_carrier -
+pf::dal::sms_carrier - pf::dal module to override for the table sms_carrier
 
 =cut
 
@@ -10,10 +10,13 @@ pf::dal::sms_carrier -
 
 pf::dal::sms_carrier
 
+pf::dal implementation for the table sms_carrier
+
 =cut
 
 use strict;
 use warnings;
+
 use base qw(pf::dal::_sms_carrier);
  
 =head1 AUTHOR
@@ -22,7 +25,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 

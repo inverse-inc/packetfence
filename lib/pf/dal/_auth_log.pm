@@ -2,13 +2,15 @@ package pf::dal::_auth_log;
 
 =head1 NAME
 
-pf::dal::_auth_log -
+pf::dal::_auth_log - pf::dal implementation for the table auth_log
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_auth_log -
+pf::dal::_auth_log
+
+pf::dal implementation for the table auth_log
 
 =cut
 
@@ -17,7 +19,7 @@ use warnings;
 
 ###
 ### pf::dal::_auth_log is auto generated any change to this file will be lost
-### Make and changes to this file in pf::dal::auth_log
+### Instead change in the pf::dal::auth_log module
 ###
 use base qw(pf::dal);
 

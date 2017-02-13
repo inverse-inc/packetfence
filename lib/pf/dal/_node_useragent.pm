@@ -2,13 +2,15 @@ package pf::dal::_node_useragent;
 
 =head1 NAME
 
-pf::dal::_node_useragent -
+pf::dal::_node_useragent - pf::dal implementation for the table node_useragent
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_node_useragent -
+pf::dal::_node_useragent
+
+pf::dal implementation for the table node_useragent
 
 =cut
 
@@ -17,7 +19,7 @@ use warnings;
 
 ###
 ### pf::dal::_node_useragent is auto generated any change to this file will be lost
-### Make and changes to this file in pf::dal::node_useragent
+### Instead change in the pf::dal::node_useragent module
 ###
 use base qw(pf::dal);
 

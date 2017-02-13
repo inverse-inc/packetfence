@@ -2,7 +2,7 @@ package pf::dal::dhcp_option82;
 
 =head1 NAME
 
-pf::dal::dhcp_option82 -
+pf::dal::dhcp_option82 - pf::dal module to override for the table dhcp_option82
 
 =cut
 
@@ -10,10 +10,13 @@ pf::dal::dhcp_option82 -
 
 pf::dal::dhcp_option82
 
+pf::dal implementation for the table dhcp_option82
+
 =cut
 
 use strict;
 use warnings;
+
 use base qw(pf::dal::_dhcp_option82);
  
 =head1 AUTHOR
@@ -22,7 +25,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 

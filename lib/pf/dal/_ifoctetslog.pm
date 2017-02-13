@@ -2,13 +2,15 @@ package pf::dal::_ifoctetslog;
 
 =head1 NAME
 
-pf::dal::_ifoctetslog -
+pf::dal::_ifoctetslog - pf::dal implementation for the table ifoctetslog
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_ifoctetslog -
+pf::dal::_ifoctetslog
+
+pf::dal implementation for the table ifoctetslog
 
 =cut
 
@@ -17,7 +19,7 @@ use warnings;
 
 ###
 ### pf::dal::_ifoctetslog is auto generated any change to this file will be lost
-### Make and changes to this file in pf::dal::ifoctetslog
+### Instead change in the pf::dal::ifoctetslog module
 ###
 use base qw(pf::dal);
 
