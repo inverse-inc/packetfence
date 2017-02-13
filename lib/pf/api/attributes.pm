@@ -15,45 +15,38 @@ pf::api::attributes
 use strict;
 use warnings;
 use Scalar::Util( );
-use Sub::Util();
 use List::MoreUtils qw(any);
 
 our %ALLOWED_ATTRIBUTES = (
     Public => 1,
     Fork => 1,
-    AllowedAsAction => 1,
-    ActionParams => 1,
-    RestPath => 1,
 );
 
-our $ATTRIBUTE_WITH_PARAMS = qr/([a-zA-Z0-9_]+)\((.*)\)/;
-
+our $REST_PATHS_REGEX = qr/^RestPath\((.*)\)/;
 
 our %TAGS;
-our %ALLOWED_ACTIONS;
 our %REST_PATHS;
 
 sub MODIFY_CODE_ATTRIBUTES {
     my ($class, $code, @attrs) = @_;
-    my (@bad, %extra);
+    my (@bad, @good, $rest_path);
     foreach my $attr (@attrs) {
         if (exists $ALLOWED_ATTRIBUTES{$attr} ) {
-            $extra{$attr} = 1;
+            push @good, $attr;
         }
-        elsif ( $attr =~ $ATTRIBUTE_WITH_PARAMS ) {
-            if (exists $ALLOWED_ATTRIBUTES{$1} ) {
-               $extra{$1} = $2;
-            }
-            else {
-                push @bad, $attr;
-            }
+        elsif ( $attr =~ $REST_PATHS_REGEX ){
+            $rest_path = $1;
+            push @good, $attr;
         }
         else {
             push @bad, $attr;
         }
     }
     unless(@bad){
-        _updateTags($code, \%extra);
+        _updateTags($code, @good);
+        if($rest_path) {
+            _updateRestPath($code, $rest_path);
+        }
     }
     return @bad;
 }
@@ -67,26 +60,16 @@ sub restPath {
 sub _updateRestPath {
     my ($code, $rest_path) = @_;
     $REST_PATHS{$rest_path} = $code;
-    Scalar::Util::weaken($REST_PATHS{$rest_path});
 }
 
 sub _updateTags {
-    my ($code, $attrs) = @_;
+    my ($code, @attrs) = @_;
+    my %attrs;
     my $ref_add = Scalar::Util::refaddr($code);
-    $attrs->{code} = $code;
-    Scalar::Util::weaken($attrs->{code});
-    if (exists $attrs->{RestPath}) {
-       _updateRestPath($code, $attrs->{RestPath});
-    }
-    $TAGS{$ref_add} = $attrs;
-}
-
-sub updateAllowedAsActions {
-    for my $info (values %TAGS) {
-        if (exists $info->{AllowedAsAction}) {
-            $ALLOWED_ACTIONS{Sub::Util::subname($info->{code})} = $info->{AllowedAsAction};
-        }
-    }
+    @attrs{@attrs} = ();
+    $attrs{code} = $code;
+    Scalar::Util::weaken($attrs{code});
+    $TAGS{$ref_add} = \%attrs;
 }
 
 sub isPublic {
@@ -112,10 +95,9 @@ sub CLONE {
     # fix-up all object ids in the new thread
     my @tags = grep {defined} values %TAGS;
     %TAGS = ();
-    %REST_PATHS = ();
     foreach my $tag_data (@tags) {
         my $code = delete $tag_data->{code};
-        _updateTags($code, $tag_data);
+        _updateTags($code, keys %$tag_data);
     }
     return;
 }

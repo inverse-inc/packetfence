@@ -19,7 +19,6 @@
         'admin/config/domains',
         'admin/config/authentication',
         'admin/config/portal_profile',
-        'admin/config/pfdetect',
         'admin/config/provisioners',
         'admin/config/violations',
         'admin/config/soh',

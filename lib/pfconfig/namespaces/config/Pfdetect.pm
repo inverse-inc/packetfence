@@ -20,7 +20,6 @@ use warnings;
 use pfconfig::namespaces::config;
 use pf::file_paths qw($pfdetect_config_file);
 use pf::util;
-use Sort::Naturally qw(nsort);
 
 use base 'pfconfig::namespaces::config';
 
@@ -33,43 +32,21 @@ sub init {
 sub build_child {
     my ($self) = @_;
     my %tmp_cfg = %{ $self->{cfg} };
+
     # There for backward compatibility for when suricata or snort is configured directly in PacketFence
     # Should this feature go, the code below can be removed
     # This will start a pfdetect process if the detection engine is enabled in PacketFence
-    my $trapping = $self->{config}{trapping};
-    my $detection_engine = $trapping->{detection_engine};
-    if (isenabled($trapping->{detection}) && $detection_engine ne "none") {
-        $tmp_cfg{pf_detection_engine} = {
-            path => "/usr/local/pf/var/alert",
-            type => $detection_engine
-        };
-    }
-    my @parser_ids = grep { /^\S+$/  } keys %tmp_cfg;
-    my %config_data;
-    for my $id (@parser_ids) {
-        my $entry = $tmp_cfg{$id};
-        $config_data{$id} = $entry;
-        if ($entry->{type} eq 'regex') {
-            my @rules; 
-            my @rule_ids = grep { /^$id rule/  } keys %tmp_cfg;
-            for my $rule_id (@rule_ids) {
-                $rule_id =~ /^$id rule (.*)/;
-                my $rule = {%{$tmp_cfg{$rule_id}}, name => $1};
-                my $regex = eval {qr/$rule->{regex}/};
-                if ($@) {
-                    print STDERR "Invalid regex '$rule->{regex}'\n";
-                    next;
-                }
-                $rule->{regex}  = $regex;
-                my @action_keys = nsort grep { /^action\d+$/ } keys %$rule;
-                $rule->{actions} = [delete @$rule{@action_keys}];
-                push @rules, $rule;
-            }
-            $entry->{rules} = \@rules;
-        }
+    if(
+      isenabled($self->{config}->{trapping}->{detection}) &&
+      $self->{config}->{trapping}->{detection_engine} ne "none"
+    ) {
+      $tmp_cfg{pf_detection_engine} = {
+                                        path => "/usr/local/pf/var/alert",
+                                        type => $self->{config}->{trapping}->{detection_engine}
+                                      };
     }
 
-    return \%config_data;
+    return \%tmp_cfg;
 }
 
 

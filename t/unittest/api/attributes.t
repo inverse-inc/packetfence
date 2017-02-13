@@ -10,7 +10,6 @@ api
 
 =cut
 
-{
 package api::test;
 use lib qw(/usr/local/pf/lib);
 use base qw(pf::api::attributes);
@@ -21,15 +20,12 @@ sub isAForkFunction2 :Public :Fork {}
 sub isaRest : Public :RestPath(/path) {}
 sub isAPrivateFunction {}
 sub anotherFunction {}
-}
 
-{
 package api::test2;
 use base qw(api::test);
 sub anotherFunction : Public {}
 sub isAPublicFunction2 {}
 sub isAForkFunction2 {}
-}
 
 use threads;
 use strict;

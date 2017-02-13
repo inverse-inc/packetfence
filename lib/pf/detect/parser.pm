@@ -16,15 +16,7 @@ Base class for a pfdetect parser
 use strict;
 use warnings;
 use Moo;
-
-has id => (is => 'rw', required => 1);
-
-has path => (is => 'rw', required => 1);
-
-has type => (is => 'rw', required => 1);
  
-has status => (is => 'rw', default =>  sub { "enabled" });
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

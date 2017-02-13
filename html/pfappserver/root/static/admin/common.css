@@ -84,19 +84,9 @@ table .category-header {
     font-weight: bold;
     width: 20px;
 }
-
-.dynamic-list-sortable > .controls {
-    clear: both;
-}
-
 span.sort-handle {
     display: inline-block;
 }
-
-span.sort-handle:hover {
-    background-image: url('/static/app/grab.png');
-}
-
 td.sort-handle {
     text-align: center;
     vertical-align: middle;
@@ -123,17 +113,10 @@ tr:hover .sort-handle {
     filter: alpha(opacity=70);
     z-index: 1200;
 }
-
 li.drop-row,
 .drop-row td {
     border-top: 1px solid #333;
 }
-
-.drop-dynamic-row,
-.drop-dynamic-row td {
-    border-top: 1px solid #333;
-}
-
 /* fineuploader */
 .qq-upload-button {
     width: auto;

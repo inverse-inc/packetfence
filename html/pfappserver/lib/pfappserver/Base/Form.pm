@@ -138,7 +138,7 @@ sub field_errors {
     my %errors = ();
     if ($self->has_errors) {
         foreach my $field ($self->error_fields) {
-            $errors{$field->id} = join(' ', @{$field->errors});
+            $errors{$field->name} = join(' ', @{$field->errors});
         }
     }
 

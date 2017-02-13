@@ -13,11 +13,6 @@ Controller for Pfdetect configuration.
 use HTTP::Status qw(:constants is_error is_success);
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
-use pf::detect::parser::regex;
-use pf::factory::detect::parser;
-use pf::api;
-
-pf::api::attributes::updateAllowedAsActions();
 
 
 BEGIN {
@@ -54,14 +49,24 @@ Show the 'view' template when creating or cloning pfdetect.
 
 after [qw(create clone)] => sub {
     my ($self, $c) = @_;
-    if (is_success($c->response->status) && $c->request->method eq 'POST') {
-        my $model = $self->getModel($c);
-        $c->response->location(
-            $c->pf_hash_for(
-                $c->controller('Config::Pfdetect')->action_for('view'),
-                [$c->stash->{$model->idKey}]
-            )
-        );
+    if (!(is_success($c->response->status) && $c->request->method eq 'POST' )) {
+        $c->stash->{template} = 'config/pfdetect/view.tt';
+    }
+};
+
+=head2 after view
+
+=cut
+
+after view => sub {
+    my ($self, $c) = @_;
+    if (!$c->stash->{action_uri}) {
+        my $id = $c->stash->{id};
+        if ($id) {
+            $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$c->stash->{id}]);
+        } else {
+            $c->stash->{action_uri} = $c->uri_for($self->action_for('create'));
+        }
     }
 };
 
@@ -73,86 +78,8 @@ Usage: /config/pfdetect/
 
 sub index :Path :Args(0) {
     my ($self, $c) = @_;
-    $c->stash->{types} = [ sort grep {$_} map { /^pf::detect::parser::(.*)/;$1  } @pf::factory::detect::parser::MODULES];
+
     $c->forward('list');
-}
-
-=head2 before clone view _processCreatePost update
-
-Update the form type
-
-=cut
-
-before [qw(clone view _processCreatePost update)] => sub {
-    my ($self, $c, @args) = @_;
-    my $model = $self->getModel($c);
-    my $itemKey = $model->itemKey;
-    my $item = $c->stash->{$itemKey};
-    my $type = $item->{type};
-    my $form = $c->action->{form};
-    $c->stash->{current_form} = "${form}::${type}";
-};
-
-
-=head2 before - clone view update
-
-
-
-=cut
-
-before [qw(clone view update)] => sub {
-    my ($self, $c) = @_;
-    my @regex_allowed_actions;
-    foreach my $method (sort keys %pf::api::attributes::ALLOWED_ACTIONS) {
-        my $short_method_name = $method;
-        $short_method_name =~ s/^pf::api:://;
-        push @regex_allowed_actions, { method => $short_method_name, spec => $pf::api::attributes::ALLOWED_ACTIONS{$method} };
-    }
-    $c->stash->{'regex_allowed_actions'} = \@regex_allowed_actions;
-};
-
-
-=head2 create_type
-
-Create sub type
-
-=cut
-
-sub create_type : Path('create') : Args(1) {
-    my ($self, $c, $type) = @_;
-    my $model = $self->getModel($c);
-    my $itemKey = $model->itemKey;
-    $c->stash->{$itemKey}{type} = $type;
-    $c->forward('create');
-}
-
-=head2 test_regex_parser
-
-=cut
-
-sub test_regex_parser : Local {
-    my ($self, $c) = @_;
-    my ($status, $status_msg);
-    my $form = $c->form("Config::Pfdetect::regex");
-    $form->field('loglines')->is_active(1);
-    $form->process(params => $c->request->params);
-    if ($form->has_errors) {
-        $c->stash->{current_view} = 'JSON';
-        $status                   = HTTP_BAD_REQUEST;
-        $status_msg               = $form->field_errors;
-        $c->response->status($status);
-        $c->stash({
-            current_view => 'JSON',
-            status_msg   => $status_msg
-        });
-        return;
-    }
-    my $data     = $form->value;
-    my $loglines = delete $data->{loglines} // '';
-    my $parser   = pf::detect::parser::regex->new($data);
-    my @lines = split(/\r\n/, $loglines);
-    $c->stash->{dryrun_info} = $parser->dryRun(@lines);
-
 }
 
 =head1 COPYRIGHT

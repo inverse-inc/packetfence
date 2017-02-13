@@ -19,7 +19,6 @@ use warnings;
 use Module::Pluggable search_path => 'pf::detect::parser', sub_name => 'modules' , require => 1;
 use List::MoreUtils qw(any);
 use pf::detect::parser;
-use pf::config qw(%ConfigDetect);
 
 our @MODULES = __PACKAGE__->modules;
 
@@ -27,23 +26,15 @@ sub factory_for { 'pf::detect::parser' }
 
 sub new {
     my ($class,$name) = @_;
-    my $object;
-    my $data = $ConfigDetect{$name};
-    if ($data) {
-        $data->{id} = $name;
-        my $subclass = $class->getModuleName($name,$data);
-        $object = $subclass->new($data);
-    }
-    return $object;
+    my $subclass = $class->getModuleName($name);
+    return $subclass->new;
 }
 
 sub getModuleName {
     my ($class,$name,$data) = @_;
     my $mainClass = $class->factory_for;
-    my $type = $data->{type};
-    my $subclass = "${mainClass}::${type}";
-    die "type is not defined for $name" unless defined $type;
-    die "$type is not a valid type" unless any { $_ eq $subclass  } @MODULES;
+    my $subclass = "${mainClass}::${name}";
+    die "$name is not a valid type" unless any { $_ eq $subclass  } @MODULES;
     $subclass;
 }
 

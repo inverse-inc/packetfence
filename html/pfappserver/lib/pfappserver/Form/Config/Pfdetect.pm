@@ -28,20 +28,6 @@ has_field 'id' =>
    apply => [ pfappserver::Base::Form::id_validator('detector id') ]
   );
 
-=head2 status
-
-status
-
-=cut
-
-has_field 'status' => (
-    type            => 'Toggle',
-    label           => 'Enabled',
-    checkbox_value  => 'enabled',
-    unchecked_value => 'disabled',
-    default => 'enabled',
-);
-
 has_field 'path' =>
   (
    type => 'Text',
@@ -52,14 +38,25 @@ has_field 'path' =>
 
 has_field 'type' =>
   (
-   type => 'Hidden',
-   required => 1,
+   type => 'Select',
+   multiple => 0,
+   label => 'Type',
+   options_method => \&options_parsers,
+   element_class => ['chzn-deselect'],
+   element_attr => {'data-placeholder' => 'Click to select a parser'},
+   tags => { after_element => \&help,
+             help => 'The parser to use for the alert pipe' },
   );
 
-has_block definition =>
-  (
-   render_list => [ qw(id type status path) ],
-  );
+=head2 options_parsers
+
+=cut
+
+sub options_parsers {
+    my $self = shift;
+    my @parsers = map { $_ => $_ } pf::constants::pfdetect->modules;
+    return @parsers;
+}
 
 =over
 

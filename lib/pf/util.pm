@@ -84,7 +84,6 @@ BEGIN {
         is_in_list
         validate_date
         clean_locale 
-        parse_api_action_spec
     );
 }
 
@@ -1279,21 +1278,6 @@ sub clean_locale {
         $locale = $1;
     }
     return $locale;
-}
-
-=item parse_api_action_spec
-
-Parse an api action spec
-
-=cut
-
-sub parse_api_action_spec {
-    my ($spec) = @_;
-    unless ($spec =~ /^\s*(?<api_method>[a-zA-Z0-9_]+)\s*:\s*(?<api_parameters>.*)$/) {
-        return undef;
-    }
-    #return a copy of the named captures hash
-    return {%+};
 }
 
 =back
