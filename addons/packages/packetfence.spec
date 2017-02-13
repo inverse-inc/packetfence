@@ -717,10 +717,6 @@ rm -rf /usr/local/pf/var/cache/
 /bin/systemctl isolate packetfence-base
 /usr/local/pf/bin/pfcmd configreload
 
-cd /usr/local/pf/conf/systemd
-for s in *.service.tt; do 
-    /usr/local/pf/bin/pfcmd service $s generateunitfile
-done 
 
 /bin/systemctl enable packetfence-httpd.admin
 /bin/systemctl start packetfence-httpd.admin
