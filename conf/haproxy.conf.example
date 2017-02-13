@@ -62,7 +62,10 @@ backend proxy
     http-request lua.choose_backend
     http-request set-header Host %[var(req.host)]
     # Need to have a proxy listening on localhost port 8888
-    http-request set-uri http://127.0.0.1:8888/%[path]?%[query]
+    acl paramsquery query -m found
+    #http-request set-var(req.query) -m bool %[query]
+    http-request set-uri http://127.0.0.1:8888%[path]?%[query] if paramsquery
+    http-request set-uri http://127.0.0.1:8888%[path] unless paramsquery
 
 
 %%http%%
