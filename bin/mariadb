@@ -135,6 +135,8 @@ sub get_failed_count {
 sub attempt_start {
     if(-f "/var/lib/mysql/gvwstate.dat") {
         # handle crash recovery
+        $logger->info("There is a grwstate. Will try to start.");
+        fork_launch_mysql("grwstate-available");
     }
     else {
         if(ping_quorum()) {
