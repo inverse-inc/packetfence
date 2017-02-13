@@ -248,9 +248,9 @@ Create the hash for inserting into a table
 
 sub _insert_data {
     my ($self) = @_;
-    my $updateable_fields = $self->_insertable_fields;
+    my $fields = $self->_insertable_fields;
     my %data;
-    foreach my $field (@$updateable_fields) {
+    foreach my $field (@$fields) {
         my $new_value = $self->{$field};
         unless ($self->validate_field($field, $new_value)) {
             return undef;
@@ -407,6 +407,29 @@ sub remove {
     my ($sql, @bind) = $sqla->delete(
         -from => $self->table,
         -where => $self->primary_keys_where_clause,
+    );
+    my $sth = $self->db_execute($sql, @bind);
+    if ($sth) {
+        return $sth->rows;
+    }
+    return 0;
+}
+
+=head2 remove_by_id
+
+Remove row from the database
+
+=cut
+
+sub remove_by_id {
+    my ($self, $ids) = @_;
+    my %where;
+    my $keys = $self->primary_keys;
+    @where{@$keys} = @{$ids}{@$keys};
+    my $sqla = $self->get_sql_abstract;
+    my ($sql, @bind) = $sqla->delete(
+        -from => $self->table,
+        -where => \%where,
     );
     my $sth = $self->db_execute($sql, @bind);
     if ($sth) {
