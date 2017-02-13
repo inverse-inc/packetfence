@@ -274,7 +274,7 @@ sub _update_data {
     foreach my $field (@$updateable_fields) {
         my $new_value = $self->{$field};
         my $old_value = $old_data->{$field};
-        next if (!defined $new_value && !$old_value);
+        next if (!defined $new_value && !defined $old_value);
         next if (defined $new_value && defined $old_value && $new_value eq $old_value);
         unless ($self->validate_field($field, $new_value)) {
             return undef;
@@ -302,7 +302,7 @@ sub validate_field {
         }
     }
     if ($self->is_enum($field) && defined $value) {
-        my $meta;
+        my $meta = $self->get_meta;
         unless (exists $meta->{$field} && exists $meta->{$field}{enums_values}{$value}) {
             my $table = $self->table;
             $logger->error("Trying to save a invalid value in a non nullable field ${table}.${field}");
