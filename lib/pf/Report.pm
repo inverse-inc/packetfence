@@ -105,15 +105,25 @@ sub generate_sql_query {
         );
     }
 
+
+    # NOTE: when counting, we shouldn't group but instead count distinct so it is ignored in that case even when specified
     my %group_by;
-    if($self->group_field) {
+    if($self->group_field && !$infos{count_only}) {
         %group_by = (
             -group_by => [$self->group_field],
         );
     }
 
+    my $columns;
+    if($infos{count_only}) {
+        $columns = $self->group_field ? 'count(distinct('.$self->group_field.')) as count' : 'count(*) as count';
+    }
+    else {
+        $columns = $self->columns;
+    }
+
     my ($sql, @params) = $sqla->select(
-        -columns => $infos{count_only} ? 'count(*) as count' : $self->columns, 
+        -columns => $columns,
         -from => [
             -join => ($self->base_table, split(" ", join(" ", @{$self->joins}))),
         ],
