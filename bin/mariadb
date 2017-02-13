@@ -27,6 +27,17 @@ setgid(27);
 our $MYSQLD_PID;
 our $IS_CHILD;
 
+# How many times should we attempt to connect to a galera cluster when an alive quorum is there
+# After this, the management node will declare a new cluster if its not in maintenance mode
+# TODO: move this to configuration
+our $PEERS_ALIVE_CONNECT_ATTEMPT = 1;
+
+# Time to wait between starts after a failure
+our $WAIT_TIME_FAIL = 10;
+
+# Time to wait between attempts to discover alive servers
+our $WAIT_TIME_ALIVE = 10;
+
 our $failed_counts = {};
 
 # init signal handlers
@@ -135,8 +146,8 @@ sub get_failed_count {
 sub attempt_start {
     if(-f "/var/lib/mysql/gvwstate.dat") {
         # handle crash recovery
-        $logger->info("There is a grwstate. Will try to start.");
-        fork_launch_mysql("grwstate-available");
+        $logger->info("There is a gvwstate. Will try to start.");
+        fork_launch_mysql("gvwstate-available");
     }
     else {
         if(ping_quorum()) {
@@ -146,9 +157,9 @@ sub attempt_start {
             }
             else {
                 $logger->info("There is an alive quorum but no db quorum");
-                if(get_failed_count("peers-alive-no-db") < 1) {
+                if(get_failed_count("peers-alive-no-db") < $PEERS_ALIVE_CONNECT_ATTEMPT) {
                     $logger->info("Trying to connect to peers to establish an eventual quorum");
-                    sleep 10;
+                    sleep $WAIT_TIME_FAIL;
                     fork_launch_mysql("peers-alive-no-db");
                 }
                 else {
@@ -168,15 +179,21 @@ sub attempt_start {
         }
         else {
             $logger->info("There isn't a ping quorum yet, will wait until the majority of the servers are alive.");
-            sleep 10;
+            sleep $WAIT_TIME_ALIVE;
             attempt_start();
         }
     }
 }
 
+if(pf::cluster::is_in_maintenance) {
+    my $msg = "Not starting because this node is in maintenance mode";
+    print STDERR "$msg\n";
+    $logger->error($msg);
+    exit;
+}
+
 attempt_start();
 while($RUNNING){
-    sleep 1;
     if(!kill(0, $MYSQLD_PID)) {
         print "Failed starting with mode: $STARTED_BECAUSE \n";
         $failed_counts->{$STARTED_BECAUSE} //= 0;
@@ -189,6 +206,7 @@ while($RUNNING){
         $logger->info("Successful test to the DB. Flushing failure counts.");
         $failed_counts = {};
     }
+    sleep 1;
 }
 
 

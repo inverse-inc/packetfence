@@ -27,6 +27,7 @@ use Socket;
 use pf::file_paths qw(
     $cluster_config_file
     $config_version_file
+    $maintenance_file
 );
 use pf::util;
 use pf::constants;
@@ -600,6 +601,36 @@ Synchronize the configuration to other cluster members using this server as the 
 sub sync_config_as_master {
     pf::cluster::sync_storages(pf::cluster::stores_to_sync());
     pf::cluster::sync_files(\@FILES_TO_SYNC);
+}
+
+=head2 is_in_maintenance
+
+Whether or not this member of the cluster is in maintenance
+
+=cut
+
+sub is_in_maintenance {
+    return (-f $maintenance_file);
+}
+
+=head2 activate_maintenance
+
+Activate the maintenance mode for this node
+
+=cut
+
+sub activate_maintenance {
+    touch_file($maintenance_file);
+}
+
+=head2 deactivate_maintenance
+
+Dectivate the maintenance mode for this node
+
+=cut
+
+sub deactivate_maintenance {
+    unlink($maintenance_file);
 }
 
 =head1 AUTHOR
