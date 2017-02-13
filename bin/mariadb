@@ -33,9 +33,11 @@ our $IS_CHILD;
 our $PEERS_ALIVE_CONNECT_ATTEMPT = 1;
 
 # Time to wait between starts after a failure
+# TODO: move this to configuration
 our $WAIT_TIME_FAIL = 10;
 
 # Time to wait between attempts to discover alive servers
+# TODO: move this to configuration
 our $WAIT_TIME_ALIVE = 10;
 
 our $failed_counts = {};
@@ -64,6 +66,12 @@ POSIX::sigaction(
 
 my $STARTED_BECAUSE;
 
+=head2 record_started_because
+
+Increment a counter for a starting strategy
+
+=cut
+
 sub record_started_because {
     my ($started_because) = @_;
     if(!$started_because) {
@@ -74,11 +82,15 @@ sub record_started_because {
 
 }
 
-sub launch_mysql {
-    my ($started_because, @args) = @_;
-    
-    record_started_because($started_because);
+=head2 launch_mysql
 
+Launch MySQL/MariaDB with a specific set of arguments
+
+=cut
+
+sub launch_mysql {
+    my (@args) = @_;
+    
     my $args = join(' ', @ARGV, @args);
     # Must not lookup in /sbin for mysqld, but in /usr/sbin
     $ENV{PATH} = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin:/root/bin";
@@ -86,6 +98,13 @@ sub launch_mysql {
     print "Starting MySQL with command: $cmd \n";
     `$cmd`;
 }
+
+=head2 fork_launch_mysql
+
+Fork and start MySQL/MariaDB
+Also record the startup method for future usage
+
+=cut
 
 sub fork_launch_mysql {
     my ($started_because, @args) = @_;
@@ -105,6 +124,12 @@ sub fork_launch_mysql {
     }
 }
 
+=head2 ping_quorum
+
+Whether or not there is a ping quorum (i.e. servers are booted and online)
+
+=cut
+
 sub ping_quorum {
     my $alive = 0;
     foreach my $server (@cluster_servers) {
@@ -114,6 +139,12 @@ sub ping_quorum {
     }
     return ($alive > (scalar(@cluster_servers) / 2));
 }
+
+=head2 test_db
+
+Test the connection to the database for a specific host using the replication credentials
+
+=cut
 
 sub test_db {
     my ($host) = @_;
@@ -129,6 +160,12 @@ sub test_db {
     }
 }
 
+=head2 db_quorum
+
+Whether or not there is a database quorum (N/2+1 accept connections)
+
+=cut
+
 sub db_quorum {
     my $alive = 0;
 
@@ -139,9 +176,23 @@ sub db_quorum {
     return ($alive > (scalar(@cluster_servers) / 2));
 }
 
+=head2 get_failed_count
+
+Get the count of fails for a specific startup method
+
+=cut
+
 sub get_failed_count {
     return $failed_counts->{$_[0]} // 0;
 }
+
+=head2 attempt_start
+
+Attempt a startup of MySQL based on the current state of things
+
+Refer to the clustering guide for details on how this works.
+
+=cut
 
 sub attempt_start {
     if(-f "/var/lib/mysql/gvwstate.dat") {
