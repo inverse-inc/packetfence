@@ -13,10 +13,10 @@ Is a flexible and powerful tool for defining actions based of log file entries i
     <li><h5> Configuring a Regex Syslog Parser</h5></li>
     <ll>
         <ul>
-            <li>Enabled - You can disabled the parser from running</li>
+            <li>Enabled - You can enable/disable the parser from running</li>
             <li>Alert Pipe - A previously created alert pipe (FIFO)</li>
             <li>
-                Rules - The list of rules thar defines how to match log file entris and what action(s) to take when matching.
+                Rules - The list of rules that defines how to match log file entries and what action(s) to take when matching.
             </li>
         </ul>
     </li>
@@ -36,7 +36,7 @@ Regex Syslog Parser Rule
 
 Defining Actions
 
-An action has two parts the method the second is the parameter list
+An action have two parts the method the second is the parameter list
 
 * method - The name of the action you want to take.
 * parameter list - The list of parameters you want to provide to the method.
