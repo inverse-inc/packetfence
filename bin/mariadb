@@ -21,8 +21,9 @@ my $logger = get_logger( $PROGRAM_NAME );
 
 our $RUNNING = 1;
 
-setuid(27);
-setgid(27);
+my (undef, undef,$uid,$gid) = getpwnam('mysql');
+setuid($uid);
+setgid($gid);
 
 our $MYSQLD_PID;
 our $IS_CHILD;
