@@ -144,7 +144,7 @@ Search for pf::dal using SQL::Abstract::More syntax
 sub search {
     my ($proto, $where, $extra) = @_;
     my $class = ref($proto) || $proto;
-    my $sqla = $self->get_sql_abstract
+    my $sqla = $proto->get_sql_abstract;
     my($stmt, @bind) = $sqla->select(
         -columns => $proto->field_names,
         -from    => $proto->table,
@@ -182,7 +182,7 @@ sub update {
     if (keys %$update_data == 0 ) {
        return 1;
     }
-    my $sqla          = $self->get_sql_abstract
+    my $sqla          = $self->get_sql_abstract;
     my ($stmt, @bind) = $sqla->update(
         -table => $self->table,
         -set   => $update_data,
@@ -227,7 +227,7 @@ sub insert {
     if (keys %$insert_data == 0 ) {
        return 0;
     }
-    my $sqla          = $self->get_sql_abstract
+    my $sqla          = $self->get_sql_abstract;
     my ($stmt, @bind) = $sqla->insert(
         -into => $self->table,
         -values   => $insert_data,
@@ -303,7 +303,8 @@ sub validate_field {
     }
     if ($self->is_enum($field) && defined $value) {
         my $meta;
-        unless (exists $meta->{$field} && exists $meta->{$field}{enums_values}{$value};) {
+        unless (exists $meta->{$field} && exists $meta->{$field}{enums_values}{$value}) {
+            my $table = $self->table;
             $logger->error("Trying to save a invalid value in a non nullable field ${table}.${field}");
             return 0;
         }
@@ -402,12 +403,12 @@ Remove row from the database
 sub remove {
     my ($self) = @_;
     return 0 unless $self->__from_table;
-    my $sqla = $self->get_sql_abstract
+    my $sqla = $self->get_sql_abstract;
     my ($sql, @bind) = $sqla->delete(
         -from => $self->table,
         -where => $self->primary_keys_where_clause,
     );
-    my $sth = $self->db_execute($stmt, @bind);
+    my $sth = $self->db_execute($sql, @bind);
     if ($sth) {
         return $sth->rows;
     }
