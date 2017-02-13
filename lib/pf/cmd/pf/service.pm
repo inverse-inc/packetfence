@@ -334,7 +334,7 @@ sub statusOfService {
     my @managers = pf::services::getManagers(\@services);
     print "  UNIT                                                                                             LOAD      ACTIVE   SUB       DESCRIPTION\n"; 
     for my $manager (@managers) { 
-	$manager->print_status;
+    $manager->print_status;
     } 
 }
 
