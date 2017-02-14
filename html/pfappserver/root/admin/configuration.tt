@@ -85,7 +85,7 @@ table.sources {
               [%- IF can_access_any("CONFIGURATION_MAIN_READ","CONNECTION_PROFILES_READ","PORTAL_MODULE_READ","ADMIN_ROLES_READ", "FILTERS_READ") -%]
               <li class="nav-header">[% l('Policies') %]</li>
               [% pf_section_entry( 'define_policy', 'Getting Started') | none %]
-              [% pf_section_entry( 'roles', 'Roles') | none %]
+              [% list_entry( 'Config::Roles', 'index', 'Roles') | none %]
               [% list_entry( 'Config::Authentication', 'index', 'Sources') | none %]
               [% list_entry( 'Config::Switch', 'index', 'Switches') | none %]
               [% list_entry( 'Config::Domain', 'index', 'Domains') | none %]

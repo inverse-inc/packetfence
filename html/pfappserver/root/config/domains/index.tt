@@ -1,0 +1,15 @@
+
+<h4 class="alert alert-warning">[% l('This is an advanced section. Proceed with caution when editing.') %]</h4>
+
+<div class="tab-content">
+  <ul class="nav nav-tabs">
+    <li [% IF tab == 'domains' %]class="active"[% END %]>
+      <a href="#config/domains/domain">[% l('Domains') %]</a>
+    </li>
+    <li [% IF tab == 'realm' %]class="active"[% END %]>
+      <a href="#config/domains/realm">[% l('REALMS') %]</a>
+    </li>
+  </ul>
+
+  </div>
+
