@@ -1,4 +1,4 @@
-package libfirewallsso
+package firewallsso
 
 import (
 	"context"

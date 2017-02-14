@@ -1,4 +1,4 @@
-package libfirewallsso
+package firewallsso
 
 import (
 	"github.com/davecgh/go-spew/spew"
