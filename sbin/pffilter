@@ -42,14 +42,23 @@ use pf::filter_engine::profile;
 use pf::factory::condition::profile;
 use pfconfig::cached_scalar;
 use pf::access_filter::radius;
+use pf::access_filter::dhcp;
+use pf::access_filter::dns;
+use pf::access_filter::vlan;
 
 our %DISPATCH = (
     filter_profile => \&filter_profile,
     filter_radius => \&filter_radius,
+    filter_dns => \&filter_dns,
+    filter_dhcp => \&filter_dhcp,
+    filter_vlan => \&filter_vlan,
 );
 
 tie our $PROFILE_FILTER_ENGINE , 'pfconfig::cached_scalar' => 'FilterEngine::Profile';
 my $RADIUS_FILTER = pf::access_filter::radius->new;
+my $DHCP_FILTER = pf::access_filter::dhcp->new;
+my $DNS_FILTER = pf::access_filter::dns->new;
+my $VLAN_FILTER = pf::access_filter::vlan->new;
 
 pf::SwitchFactory->preloadConfiguredModules();
 
@@ -409,6 +418,39 @@ filter_radius
 sub filter_radius {
     my ($self, $params) = @_;
     return $RADIUS_FILTER->filter(@$params);
+}
+
+=head2 filter_dhcp
+
+filter_dhcp
+
+=cut
+
+sub filter_dhcp {
+    my ($self, $params) = @_;
+    return $DHCP_FILTER->filter(@$params);
+}
+
+=head2 filter_dns
+
+filter_dns
+
+=cut
+
+sub filter_dns {
+    my ($self, $params) = @_;
+    return $DNS_FILTER->filter(@$params);
+}
+
+=head2 filter_vlan
+
+filter_vlan
+
+=cut
+
+sub filter_vlan {
+    my ($self, $params) = @_;
+    return $VLAN_FILTER->filter(@$params);
 }
 
 =head1 AUTHOR
