@@ -8,7 +8,7 @@ dispatcher.pm
 use strict;
 use warnings;
 
-use Apache2::Const -compile => qw(OK DECLINED HTTP_MOVED_TEMPORARILY);
+use Apache2::Const -compile => qw(OK DECLINED HTTP_MOVED_TEMPORARILY HTTP_NOT_IMPLEMENTED);
 use Apache2::Request;
 use Apache2::RequestIO ();
 use Apache2::RequestRec ();
@@ -203,7 +203,9 @@ sub _handler {
 
             return Apache2::Const::HTTP_MOVED_TEMPORARILY;
         }
+        return  Apache2::Const::HTTP_NOT_IMPLEMENTED;
     }
+    return Apache2::Const::HTTP_NOT_IMPLEMENTED;
 }
 
 =back
