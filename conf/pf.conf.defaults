@@ -390,6 +390,16 @@ pfdns=enabled
 # Order in which to start this service 
 pfdns_order=17
 #
+# services.pffilter
+#
+# Should pffilter be managed by PacketFence?
+pffilter=enabled
+#
+# services.pffilter_order
+#
+# Order in which to start this service
+pffilter_order=17
+#
 # services.snort
 #
 # Should snort be managed by PacketFence?
