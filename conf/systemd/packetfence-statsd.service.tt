@@ -6,7 +6,7 @@ Wants=packetfence-carbon-relay.service packetfence-iptables.service packetfence-
 
 [Service]
 Type=simple
-PIDfile=[% pidFile %]
+PIDFile=[% pidFile %]
 ExecStartPre=/usr/local/pf/bin/pfcmd service statsd generateconfig
 ExecStart=[% cmdLine %]
 Restart=on-failure

@@ -489,8 +489,23 @@ return true is the service is currently managed by packetfence
 
 sub isManaged {
     my ($self) = @_;
-    my $name  = $self->name;
-    my $state = `sudo systemctl show -p UnitFileState packetfence-$name`;
+    require pf::config;
+    my $name = $self->name;
+    $name =~ s/\./_/g;
+    return $self->forceManaged
+      || isenabled( $pf::config::Config{'services'}{$name} );
+}
+
+=head2 isEnabled
+
+Return true if systemd consider the service as enabled
+
+=cut 
+
+sub isEnabled {
+    my ($self) = @_;
+    my $name   = $self->name;
+    my $state  = `sudo systemctl show -p UnitFileState packetfence-$name`;
     chomp $state;
     $state = ( split( /=/, $state ) )[1];
     if ( defined $state and $state eq "enabled" ) {
@@ -500,7 +515,6 @@ sub isManaged {
         return $FALSE;
     }
 }
-
 
 =head1 AUTHOR
 
