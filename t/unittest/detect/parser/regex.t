@@ -18,6 +18,7 @@ use lib '/usr/local/pf/lib';
 use Test::More tests => 6;
 #This test will running last
 use Test::NoWarnings;
+use Test::MockObject::Extends;
 
 BEGIN {
     #include test libs
@@ -48,7 +49,7 @@ my $config = {
     ],
 };
 
-my $parser = pf::detect::parser::regex->new($config);
+my $parser = Test::MockObject::Extends->new(pf::detect::parser::regex->new($config));
 
 is($parser->parse("from: 1.2.3.4, to: 1.2.3"), undef, "Invalid line");
 
@@ -81,6 +82,8 @@ is_deeply(
     ],
     "Match two rules"
 );
+
+$parser->mock("sendActions", sub {});
 
 my $result = $parser->parse("from: 1.2.3.4, to: 1.2.3.5");
 
