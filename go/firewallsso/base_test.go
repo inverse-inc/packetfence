@@ -2,12 +2,11 @@ package firewallsso
 
 import (
 	"context"
-	"github.com/inverse-inc/packetfence/go/logging"
 	"github.com/inverse-inc/packetfence/go/util"
 	"testing"
 )
 
-var ctx = logging.NewContext(context.Background())
+var ctx = log.LoggerNewContext(context.Background())
 
 func TestStart(t *testing.T) {
 	factory := NewFactory(ctx)
