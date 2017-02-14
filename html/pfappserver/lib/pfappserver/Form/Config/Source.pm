@@ -214,6 +214,9 @@ sub getSourceArgs {
     my ($self) = @_;
     my $args = $self->init_object;
     if (!defined ($args) || keys %$args == 0 ) {
+        $args = $self->params;
+    }
+    if (!defined ($args) || keys %$args == 0 ) {
         $args = $self->value;
     }
     return $args;
