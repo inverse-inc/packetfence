@@ -50,6 +50,7 @@ func TestStart(t *testing.T) {
 		if result {
 			t.Error("PaloAlto SSO succeeded with invalid parameters")
 		}
+
 	}
 }
 
@@ -70,6 +71,9 @@ func TestMatchesNetwork(t *testing.T) {
 		if !fw.MatchesNetwork(ctx, map[string]string{"ip": "192.168.0.28"}) {
 			t.Error("Firewall doesn't match network when it should")
 		}
+		if fw.MatchesNetwork(ctx, map[string]string{"ip": "192.168.0.28.vidange"}) {
+			t.Error("Firewall matches network with an invalid IP")
+		}
 	}
 
 	// Test firewall that has no network assigned to it
@@ -85,6 +89,9 @@ func TestMatchesNetwork(t *testing.T) {
 		}
 		if !fw.MatchesNetwork(ctx, map[string]string{"ip": "192.168.0.28"}) {
 			t.Error("Firewall doesn't match network when it should")
+		}
+		if !fw.MatchesNetwork(ctx, map[string]string{"ip": "192.168.0.28.vidange"}) {
+			t.Error("Invalid IP address should pass MatchesNetwork if the FW doesn't define any network")
 		}
 	}
 }

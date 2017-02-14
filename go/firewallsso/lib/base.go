@@ -77,6 +77,12 @@ func (fw *FirewallSSO) MatchesNetwork(ctx context.Context, info map[string]strin
 		return true
 	}
 	ip := net.ParseIP(info["ip"])
+
+	if ip == nil {
+		fw.logger(ctx).Error(fmt.Sprintf("%s isn't a valid IP address. Cannot validate the network it belongs to.", ip))
+		return false
+	}
+
 	for _, net := range fw.Networks {
 		if net.IpNet.Contains(ip) {
 			fw.logger(ctx).Debug(fmt.Sprintf("%s matches network %s", ip, net.Cidr))
