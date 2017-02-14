@@ -1,0 +1,33 @@
+[% UNLESS action_uri %]
+    [% SET action_uri = c.req.uri %]
+[%END %]
+<form name="modalDomain" class="form-horizontal form-condensed" action="[% action_uri %]" method="post">
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">&times;</a>
+    <h3>[% IF item %]<i>[% l('Domain') %]</i> [% item.id | html %][% ELSE %][% l('New Domain') %][% END %]</h3>
+  </div>
+
+  <div class="modal-body">
+    <ul class="nav nav-tabs">
+      <li class="active" ><a href="#settings" data-toggle="tab">[% l('Settings') %]</a></li>
+      <li><a href="#ntlm-cache" data-toggle="tab">[% l('NTLM cache') %]</a></li>
+    </ul>
+
+    <div class="tab-content">
+      <div id="settings" class="tab-pane fade in active">
+        [%- IF item.id %]<input type="hidden" name="id" value="[% item.id | html %]">[% ELSE ; form.field('id').render | none ; END %]
+        [% form.block('definition').render | none %]
+      </div>
+      <div id="ntlm-cache" class="tab-pane fade">[% form.block('ntlm_cache').render | none %]</div>
+    </div>
+  </div><!--modal-body-->
+
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
+    [% IF item.id %]
+    [% IF can_access("DOMAIN_UPDATE") %]<button class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>[% END %]
+    [% END %]
+    [% IF can_access("DOMAIN_UPDATE") %]<a href="[% IF item.id %][% c.uri_for(c.controller.action_for('update_rejoin'), [item.id]) %][% ELSE ; action_uri ; END %]" class="btn btn-primary" id="saveAndJoinDomain" data-loading-text="[% l('Processing') %]">[% l('Save and join') %]</a>[% END %]
+  </div>
+
+</form>

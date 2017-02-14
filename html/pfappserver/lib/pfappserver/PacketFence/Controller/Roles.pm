@@ -40,6 +40,17 @@ sub index :Path :Args(0) :AdminRole('USERS_ROLES_READ') {
     }
 }
 
+=head2 view
+
+=cut
+
+sub view :Path :Args(0) :AdminRole('USERS_ROLES_READ') {
+    my ($self, $c, $name) = @_;
+
+    $c->stash->{tab} = $name;
+    $self->object($c, $name);
+}
+
 =head2 create
 
 =cut

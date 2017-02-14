@@ -1,0 +1,13 @@
+<h4 class="alert alert-warning">[% l('This is an advanced section. Proceed with caution when editing.') %]</h4>
+
+<div class="tab-content">
+  <ul class="nav nav-tabs">
+    <li [% IF tab == 'vlan-filters' %]class="active"[% END %]>
+      <a href="#config/filters/vlan-filters">[% l('VLAN filters') %]</a>
+    </li>
+    <li [% IF tab == 'radius-filters' %]class="active"[% END %]>
+      <a href="#config/filters/radius-filters">[% l('RADIUS filters') %]</a>
+    </li>
+  </ul>
+</div>
+ 

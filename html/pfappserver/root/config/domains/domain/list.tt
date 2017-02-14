@@ -1,0 +1,67 @@
+      <table id="domains" class="table items" data-list-uri="[% c.uri_for(c.controller.action_for('list')) %]">
+        <thead>
+          <tr>
+            <th>[% l('Domain') %]</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          [% FOREACH item IN items %]
+          <tr>
+            <td class="item"><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id | html %]</a></td>
+            <td>
+              [% IF item.join_status == 0 %]
+              <span class="label label-success">[% l('Test join succeed!') %]</span>
+              [% ELSE %]
+              <span class="label label-important">[% l('Test join failed!') %] [% item.join_output %]</span>
+              [% END %]
+            </td>
+            <td>
+              [%- IF can_access("DOMAIN_CREATE") %]
+              <a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('clone'), [ item.id]) %]">[% l('Clone') %]</a>
+              [%- END %]
+              [%- IF can_access("DOMAIN_UPDATE") %]
+              <a class="rejoin_domain btn btn-mini btn-warning" href="[% c.uri_for(c.controller.action_for('rejoin'), [ item.id ]) %]">[% l('Rejoin') %]</a>
+              [%- END %]
+
+
+
+            <div class="modal modal-large fade hide" id="modalDomainSetPassword-[% item.id %]">
+              <form action="[% c.uri_for(c.controller.action_for('set_credentials'), [ item.id ]) %]" method="POST" class="form-horizontal form-condensed">
+                <div class="modal-header">
+                  <a class="close" data-dismiss="modal">&times;</a>
+                  <h3>[% l('Please enter administrative credentials to connect to the domain') %]</h3>
+                </div>
+
+                <div class="modal-body">
+                    <div class="control-group">
+                      <label class="control-label" for="bind_dn">[% l('Username') %]</label>
+                      <div class="controls">
+                        <input type="text" name="username" value="">
+                      </div>
+                    </div>
+                    <br>
+                    <div class="control-group">
+                      <label class="control-label" for="bind_dn">[% l('Password') %]</label>
+                      <div class="controls">
+                        <input type="password" name="password" value="">
+                      </div>
+                    </div>
+                </div><!--modal-body-->
+
+                <div class="modal-footer">
+                  <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
+                  <input class="btn btn-primary" type="submit" value="Set password">
+                </div>
+              </form>
+            </div>
+
+
+              [%- IF can_access("DOMAIN_DELETE") %]
+              <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller.action_for('remove'), [ item.id ]) %]">[% l('Delete') %]</a>
+              [%- END %]
+            </td>
+          </tr>
+          [% END -%]
+        </tbody>
+      </table>
