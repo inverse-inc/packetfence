@@ -246,7 +246,7 @@ sub roles :Local {
 sub define_policy :Local {
     my ($self, $c) = @_;
 
-    $c->go('config/define_policy.tt');
+    $c->stash->{template} = "config/define_policy.tt";
 }
 
 =head1 COPYRIGHT
