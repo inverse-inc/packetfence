@@ -69,6 +69,7 @@ our %ALLOWED_SECTIONS = (
     metadefender => undef,
     mse_tab => undef,
     radius_authentication_methods => undef,
+    define_policy => undef,
 );
 
 
@@ -231,6 +232,22 @@ sub soh :Local {
 =head2 roles
 
 =cut
+
+sub roles :Local {
+    my ($self, $c) = @_;
+
+    $c->go('Controller::Roles', 'index');
+}
+
+=head2 define_policy
+
+=cut
+
+sub define_policy :Local {
+    my ($self, $c) = @_;
+
+    $c->go('config/define_policy.tt');
+}
 
 =head1 COPYRIGHT
 
