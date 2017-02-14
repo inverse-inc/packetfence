@@ -166,14 +166,21 @@ EOT
             $tags{'http'} .= <<"EOT";
 frontend portal-http-$cluster_ip
         bind $cluster_ip:80
-        reqadd X-Forwarded-Proto:\\ http
+        stick-table type ip size 1m expire 10s store gpc0,http_req_rate(10s)
+        tcp-request connection track-sc1 src
+        tcp-request connection reject if { src_get_gpc0 gt 0 }
         http-request lua.select
+        reqadd X-Forwarded-Proto:\\ http
         use_backend %[var(req.action)]
         default_backend $cluster_ip-backend
         $bind_process
 
 frontend portal-https-$cluster_ip
         bind $cluster_ip:443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
+        stick-table type ip size 1m expire 10s store gpc0,http_req_rate(10s)
+        tcp-request connection track-sc1 src
+        tcp-request connection reject if { src_get_gpc0 gt 0 }
+        http-request lua.select
         reqadd X-Forwarded-Proto:\\ https
         use_backend %[var(req.action)]
         default_backend $cluster_ip-backend
@@ -183,6 +190,11 @@ backend $cluster_ip-backend
         balance source
         option httpclose
         option forwardfor
+        acl abuse  src_http_req_rate(portal-http-$cluster_ip) ge 30
+        acl flag_abuser src_inc_gpc0(portal-http-$cluster_ip) --
+        acl abuse  src_http_req_rate(portal-https-$cluster_ip) ge 30
+        acl flag_abuser src_inc_gpc0(portal-https-$cluster_ip) --
+        tcp-request content reject if abuse flag_abuser
 $backend_ip_config
 
 EOT
