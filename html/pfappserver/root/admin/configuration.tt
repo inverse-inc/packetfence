@@ -83,6 +83,14 @@ table.sources {
           <div class="well sidebar-nav">
             <ul class="nav nav-list">
               [%- IF can_access_any("CONFIGURATION_MAIN_READ","CONNECTION_PROFILES_READ","PORTAL_MODULE_READ","ADMIN_ROLES_READ", "FILTERS_READ") -%]
+              <li class="nav-header">[% l('Policies') %]</li>
+              [% pf_section_entry( 'define_policy', 'Getting Started') | none %]
+              [% pf_section_entry( 'roles', 'Roles') | none %]
+              [% pf_section_entry( 'Config::Authentication', 'index', 'Sources') | none %]
+              [% pf_section_entry( 'Config::Switch', 'index', 'Switches') | none %]
+              [% pf_section_entry( 'Config::Domain', 'index', 'Domains') | none %]
+              [% pf_section_entry( 'Config::Profile', 'index', 'Portal Profiles') | none %]
+              [% pf_section_entry( 'Config::Filters', 'index', 'Filter Engine') | none %]
               <li class="nav-header">[% l('Main') %]</li>
               [%- END %]
               [%- IF can_access("CONFIGURATION_MAIN_READ") %]
