@@ -11,7 +11,6 @@ import (
 	"github.com/inverse-inc/packetfence/go/firewallsso"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/julienschmidt/httprouter"
-	"io"
 	"net/http"
 	"runtime/debug"
 	"strconv"
@@ -22,12 +21,6 @@ func init() {
 		ServerType: "http",
 		Action:     setup,
 	})
-}
-
-func (h PfssoHandler) handlePing(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	ctx := r.Context()
-	defer statsd.NewStatsDTiming(ctx).Send("PfssoHandler.handlePing")
-	io.WriteString(w, "pong")
 }
 
 func (h PfssoHandler) handleStart(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
@@ -50,6 +43,13 @@ func (h PfssoHandler) handleStart(w http.ResponseWriter, r *http.Request, p http
 	}
 
 	w.WriteHeader(http.StatusAccepted)
+}
+
+func (h PfssoHandler) handleStop(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	ctx := r.Context()
+	defer statsd.NewStatsDTiming(ctx).Send("PfssoHandler.handleStart")
+
+	w.WriteHeader(http.StatusNotImplemented)
 }
 
 func setup(c *caddy.Controller) error {
@@ -75,9 +75,8 @@ func setup(c *caddy.Controller) error {
 	}
 
 	router := httprouter.New()
-	router.GET("/ping", pfsso.handlePing)
 	router.POST("/pfsso/start", pfsso.handleStart)
-	//router.POST("/pfsso/stop", pfsso.handleStop)
+	router.POST("/pfsso/stop", pfsso.handleStop)
 
 	httpserver.GetConfig(c).AddMiddleware(func(next httpserver.Handler) httpserver.Handler {
 		pfsso.Next = next
