@@ -49,7 +49,7 @@ func (h PfssoHandler) handleStart(w http.ResponseWriter, r *http.Request, p http
 		}()
 	}
 
-	io.WriteString(w, "handled")
+	w.WriteHeader(http.StatusAccepted)
 }
 
 func setup(c *caddy.Controller) error {
