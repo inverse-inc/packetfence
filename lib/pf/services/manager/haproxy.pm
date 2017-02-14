@@ -190,13 +190,14 @@ backend $cluster_ip-backend
         balance source
         option httpclose
         option forwardfor
-        acl abuse  src_http_req_rate(portal-http-$cluster_ip) ge 30
+        acl status_501 status 501
+        acl abuse  src_http_req_rate(portal-http-$cluster_ip) ge 20
         acl flag_abuser src_inc_gpc0(portal-http-$cluster_ip) --
-        acl abuse  src_http_req_rate(portal-https-$cluster_ip) ge 30
+        acl abuse  src_http_req_rate(portal-https-$cluster_ip) ge 20
         acl flag_abuser src_inc_gpc0(portal-https-$cluster_ip) --
-        tcp-request content reject if abuse flag_abuser
+        http-response deny if abuse status_501 flag_abuser
+        #tcp-request content reject if abuse status_501 flag_abuser
 $backend_ip_config
-
 EOT
 
         }
