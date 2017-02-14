@@ -86,11 +86,11 @@ table.sources {
               <li class="nav-header">[% l('Policies') %]</li>
               [% pf_section_entry( 'define_policy', 'Getting Started') | none %]
               [% pf_section_entry( 'roles', 'Roles') | none %]
-              [% pf_section_entry( 'Config::Authentication', 'index', 'Sources') | none %]
-              [% pf_section_entry( 'Config::Switch', 'index', 'Switches') | none %]
-              [% pf_section_entry( 'Config::Domain', 'index', 'Domains') | none %]
-              [% pf_section_entry( 'Config::Profile', 'index', 'Portal Profiles') | none %]
-              [% pf_section_entry( 'Config::Filters', 'index', 'Filter Engine') | none %]
+              [% list_entry( 'Config::Authentication', 'index', 'Sources') | none %]
+              [% list_entry( 'Config::Switch', 'index', 'Switches') | none %]
+              [% list_entry( 'Config::Domain', 'index', 'Domains') | none %]
+              [% list_entry( 'Config::Profile', 'index', 'Portal Profiles') | none %]
+              [% list_entry( 'Config::Filters', 'index', 'Filter Engine') | none %]
               <li class="nav-header">[% l('Main') %]</li>
               [%- END %]
               [%- IF can_access("CONFIGURATION_MAIN_READ") %]
