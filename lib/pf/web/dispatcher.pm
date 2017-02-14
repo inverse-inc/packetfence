@@ -154,7 +154,6 @@ sub _handler {
     # - We want to keep it so we can redirect the user to the originally requested URL once the registration completed
     # - We want to be able to detect a potential captive-portal detection mechanism to disable HTTPS since it may cause issues
     my $destination_url = "";
-    my $url = $r->construct_url;
 
     # Keeping destination URL unless it is the captive-portal itself or some sort of captive-portal detection URLs
     my $captive_portal_detection_mechanism_urls = pf::web::util::build_captive_portal_detection_mechanisms_regex;
