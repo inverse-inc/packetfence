@@ -1,18 +1,18 @@
-### pffilter-engine logger ###
-log4perl.rootLogger = INFO, PFFILITER_ENGINE
+### pffilter logger ###
+log4perl.rootLogger = INFO, PFFILITER
 
 ### Categories ###
 # Below, you can specify different categories (based on package names) for different logging levels
 #log4perl.category.pf.SNMP = WARN
 
-### Logging for pffilter-engine
-log4perl.appender.PFFILITER_ENGINE                              = pf::log::FileAppender
-log4perl.appender.PFFILITER_ENGINE.filename                     = /usr/local/pf/logs/pffilter-engine.log
-log4perl.appender.PFFILITER_ENGINE.syswrite                     = 1
-log4perl.appender.PFFILITER_ENGINE.mode                         = append
-log4perl.appender.PFFILITER_ENGINE.layout                       = PatternLayout
-log4perl.appender.PFFILITER_ENGINE.layout.ConversionPattern     = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: %m (%M)%n
-log4perl.appender.PFFILITER_ENGINE.umask                        = 0002
-log4perl.appender.PFFILITER_ENGINE.user                         = pf
-log4perl.appender.PFFILITER_ENGINE.group                        = pf
-log4perl.appender.PFFILITER_ENGINE.binmode                      = utf8
+### Logging for pffilter
+log4perl.appender.PFFILITER                              = pf::log::FileAppender
+log4perl.appender.PFFILITER.filename                     = /usr/local/pf/logs/pffilter.log
+log4perl.appender.PFFILITER.syswrite                     = 1
+log4perl.appender.PFFILITER.mode                         = append
+log4perl.appender.PFFILITER.layout                       = PatternLayout
+log4perl.appender.PFFILITER.layout.ConversionPattern     = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: %m (%M)%n
+log4perl.appender.PFFILITER.umask                        = 0002
+log4perl.appender.PFFILITER.user                         = pf
+log4perl.appender.PFFILITER.group                        = pf
+log4perl.appender.PFFILITER.binmode                      = utf8
