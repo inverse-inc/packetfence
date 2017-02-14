@@ -16,7 +16,6 @@ type FirewallSSOInt interface {
 	Start(ctx context.Context, info map[string]string, timeout int) bool
 	Stop(ctx context.Context, info map[string]string) bool
 	GetFirewallSSO(ctx context.Context) *FirewallSSO
-	IsRoleBased(ctx context.Context) bool
 	MatchesRole(ctx context.Context, info map[string]string) bool
 	MatchesNetwork(ctx context.Context, info map[string]string) bool
 }
@@ -61,12 +60,6 @@ func (fwn *FirewallSSONetwork) init(ctx context.Context) error {
 // This is used so that all structs including FirewallSSO have access to FirewallSSO via the FirewallSSOInt interface
 func (fw *FirewallSSO) GetFirewallSSO(ctx context.Context) *FirewallSSO {
 	return fw
-}
-
-// Whether or not this firewall is role based.
-// Meant to be overriden if necessary by structs including FirewallSSO
-func (fw *FirewallSSO) IsRoleBased(ctx context.Context) bool {
-	return true
 }
 
 // Start method that will be called on every SSO called via ExecuteStart
@@ -119,7 +112,7 @@ func (fw *FirewallSSO) logger(ctx context.Context) log.Logger {
 // Makes sure to call FirewallSSO.Start and to validate the network and role if necessary
 func ExecuteStart(ctx context.Context, fw FirewallSSOInt, info map[string]string, timeout int) bool {
 	ctx = logging.AddToLogContext(ctx, "ip", info["ip"], "mac", info["mac"])
-	if fw.IsRoleBased(ctx) && !fw.MatchesRole(ctx, info) {
+	if !fw.MatchesRole(ctx, info) {
 		fw.logger(ctx).Info(fmt.Sprintf("Not sending SSO for user device %s since it doesn't match the role", info["role"]))
 		return false
 	}
