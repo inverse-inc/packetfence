@@ -1,0 +1,11 @@
+
+localhost:6886 {
+  logger {
+    requesthistory 100
+    level INFO
+  }
+  statsd {
+    proto udp
+    prefix processor
+  }
+}
