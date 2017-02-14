@@ -35,7 +35,7 @@ func getPfconfigSocketPath() string {
 	return pfconfigSocketPathCache
 }
 
-// Struct that encapsulates the necessary informations to do a query to pfconfig
+// Struct that encapsulates the necessary information to do a query to pfconfig
 type Query struct {
 	encoding string
 	method   string
