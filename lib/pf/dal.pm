@@ -235,7 +235,14 @@ sub insert {
     my $sth = $self->db_execute($stmt, @bind);
 
     if ($sth) {
-        return $sth->rows;
+        my $rows = $sth->rows;
+        if ($rows) {
+            my %data = %$self;
+            delete @data{qw(__from_table __old_data)};
+            $self->__from_table(1);
+            $self->__old_data(\%data);
+        }
+        return $rows;
     }
     return 0;
 }
