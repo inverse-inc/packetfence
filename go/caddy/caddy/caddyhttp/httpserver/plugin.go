@@ -469,6 +469,7 @@ var directives = []string{
 	"awslambda", // github.com/coopernurse/caddy-awslambda
 	"logger",
 	"statsd",
+	"pfsso",
 }
 
 const (
