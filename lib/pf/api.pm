@@ -292,7 +292,7 @@ sub firewallsso : Public {
                 my $cache = pf::CHI->new( namespace => 'firewall_sso' );
                 my $cache_timeout = $pf::config::ConfigFirewallSSO{$firewall_id}{cache_timeout} || $postdata{timeout} / 2;
                 my $cache_key = "$firewall_id - $postdata{ip}";
-                return $cache->compute($cache_key, { expires_in => $cache_timeout },
+                $cache->compute($cache_key, { expires_in => $cache_timeout },
                     sub {
                         $logger->debug("Doing cached firewall SSO for '$cache_key' with expiration of $cache_timeout");
                         $firewall->action($firewall_id,'Start',$postdata{'mac'},$postdata{'ip'},$postdata{'timeout'});
