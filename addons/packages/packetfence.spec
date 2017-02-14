@@ -715,10 +715,13 @@ rm -rf /usr/local/pf/var/cache/
 /bin/systemctl enable packetfence-iptables
 /bin/systemctl enable packetfence-routes
 /bin/systemctl isolate packetfence-base
+/bin/systemctl enable packetfence-httpd.admin
+/usr/bin/redis-server /usr/local/pf/conf/redis_cache.conf --daemonize yes
+/usr/bin/pkill pfconfig
+/usr/local/pf/sbin/pfconfig -d
 /usr/local/pf/bin/pfcmd configreload
 
 
-/bin/systemctl enable packetfence-httpd.admin
 /bin/systemctl start packetfence-httpd.admin
 
 
