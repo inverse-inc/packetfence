@@ -6,9 +6,9 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"errors"
-	"flag"
 	"fmt"
 	"github.com/Sereal/Sereal/Go/sereal"
+	"github.com/fingerbank/processor/sharedutils"
 	"io"
 	"net"
 	"reflect"
@@ -27,9 +27,10 @@ var pfconfigSocketPathCache string
 func getPfconfigSocketPath() string {
 	if pfconfigSocketPathCache != "" {
 		// Do nothing, cache is populated, will be returned below
-	} else if flag.Lookup("test.v") == nil {
+	} else if sharedutils.EnvOrDefault("PFCONFIG_TESTING", "") == "" {
 		pfconfigSocketPathCache = pfconfigSocketPath
 	} else {
+		fmt.Println("Test flag is on. Using pfconfig test socket path.")
 		pfconfigSocketPathCache = pfconfigTestSocketPath
 	}
 	return pfconfigSocketPathCache
