@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 12;
+use Test::More tests => 19;
 
 use pf::db;
 use pf::dal::node;
@@ -49,7 +49,9 @@ $node = pf::dal::node->new({ mac => $test_mac, pid => "default"});
 
 ok(!$node->__from_table, "New node not the database");
 
-ok($node, "New node not the database");
+ok($node, "New node not in the database");
+
+is($node->voip, "no", "node->voip is default 'no'");
 
 ok($node->save, "Saving $test_mac into the database");
 
@@ -64,6 +66,8 @@ my $new_session = "$$-new";
 
 $node->sessionid($new_session);
 
+is_deeply($node->_update_data, {sessionid => $new_session}, "Only saving values that changed");
+
 ok($node->save, "Saving changes into the database");
 
 $node = pf::dal::node->find($test_mac);
@@ -71,6 +75,24 @@ $node = pf::dal::node->find($test_mac);
 ok($node, "Reloading node from database");
 
 is($node->sessionid, $new_session, "Changes were saved into database");
+
+$node->voip("bob");
+
+ok(!$node->save, "Cannot save invalid enum value into the database");
+
+$node->voip("yes");
+
+ok($node->save, "Save valid data into the database");
+
+$node = pf::dal::node->find($test_mac);
+
+ok($node, "Reloading node from database");
+
+is($node->voip, "yes", "Changes were saved into database");
+
+$node->status(undef);
+
+ok(!$node->save, "Cannot save a null value into the database");
 
 ok($node->remove, "Remove node in database");
 
