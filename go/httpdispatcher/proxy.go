@@ -28,9 +28,9 @@ type passthrough struct {
 	mutex                   sync.Mutex
 	WisprURL                *url.URL
 	PortalURL               *url.URL
+	URIException            *regexp.Regexp
+	SecureRedirect          bool
 	//	Cache                   *cache.Cache
-	URIException   *regexp.Regexp
-	SecureRedirect bool
 }
 
 var passThrough *passthrough
