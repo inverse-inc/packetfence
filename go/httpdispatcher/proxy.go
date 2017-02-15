@@ -11,11 +11,8 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/fingerbank/processor/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"github.com/patrickmn/go-cache"
-	"gopkg.in/redis.v5"
 )
 
 type Proxy struct {
@@ -27,18 +24,18 @@ type Proxy struct {
 type passthrough struct {
 	proxypassthrough        []*regexp.Regexp
 	detectionmechanisms     []*regexp.Regexp
-	DetectionMecanismBypass string
+	DetectionMecanismBypass bool
 	mutex                   sync.Mutex
 	WisprURL                *url.URL
 	PortalURL               *url.URL
-	Cache                   *cache.Cache
-	URIException            *regexp.Regexp
-	SecureRedirect          bool
+	//	Cache                   *cache.Cache
+	URIException   *regexp.Regexp
+	SecureRedirect bool
 }
 
 var passThrough *passthrough
 
-// newProxy creates a new instance of proxy.
+// NewProxy creates a new instance of proxy.
 // It sets request logger using rLogPath as output file or os.Stdout by default.
 // If whitePath of blackPath is not empty they are parsed to set endpoint lists.
 func NewProxy(ctx context.Context) *Proxy {
@@ -46,7 +43,6 @@ func NewProxy(ctx context.Context) *Proxy {
 
 	passThrough = newProxyPassthrough(ctx)
 	passThrough.readConfig(ctx)
-	spew.Dump(passThrough)
 	return &p
 }
 
@@ -99,22 +95,22 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if passThrough.checkParking(ctx, r.Header.Get("X-Forwarded-For")) {
-		log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "PARKING", r.URL))
-		rp := httputil.NewSingleHostReverseProxy(&url.URL{
-			Scheme: "http",
-			Host:   "127.0.0.1:5252",
-		})
-		t := time.Now()
+	// if passThrough.checkParking(ctx, r.Header.Get("X-Forwarded-For")) {
+	// 	log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "PARKING", r.URL))
+	// 	rp := httputil.NewSingleHostReverseProxy(&url.URL{
+	// 		Scheme: "http",
+	// 		Host:   "127.0.0.1:5252",
+	// 	})
+	// 	t := time.Now()
+	//
+	// 	//Transfer current context in a shallow copy of the request
+	// 	r = r.WithContext(ctx)
+	// 	rp.ServeHTTP(w, r)
+	// 	log.LoggerWContext(ctx).Info(fmt.Sprintln(host, time.Since(t)))
+	// 	return
+	// }
 
-		//Transfer current context in a shallow copy of the request
-		r = r.WithContext(ctx)
-		rp.ServeHTTP(w, r)
-		log.LoggerWContext(ctx).Info(fmt.Sprintln(host, time.Since(t)))
-		return
-	}
-
-	if !(passThrough.checkProxyPassthrough(ctx, host) || ((passThrough.checkDetectionMechanisms(ctx, fqdn.String()) || passThrough.URIException.MatchString(r.RequestURI)) && passThrough.DetectionMecanismBypass == "enabled")) {
+	if !(passThrough.checkProxyPassthrough(ctx, host) || ((passThrough.checkDetectionMechanisms(ctx, fqdn.String()) || passThrough.URIException.MatchString(r.RequestURI)) && passThrough.DetectionMecanismBypass)) {
 		if r.Method != "GET" {
 			log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "FORBIDDEN"))
 			w.WriteHeader(http.StatusNotImplemented)
@@ -175,7 +171,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	log.LoggerWContext(ctx).Info(fmt.Sprintln(host, time.Since(t)))
 }
 
-// run add localhost to blacklist and launch proxy
+// Configure add default target in teh deny list
 func (p *Proxy) Configure(ctx context.Context, port string) {
 	p.addToEndpointList(ctx, "localhost")
 	p.addToEndpointList(ctx, "127.0.0.1")
@@ -199,8 +195,15 @@ func (p *passthrough) readConfig(ctx context.Context) {
 		p.addDetectionMechanismsToList(ctx, v)
 	}
 
-	p.Cache = cache.New(3*time.Second, 1*time.Second)
+	//p.Cache = cache.New(3*time.Second, 1*time.Second)
+
 	p.DetectionMecanismBypass = portal.DetectionMecanismBypass
+	if portal.DetectionMecanismBypass == "enabled" {
+		p.DetectionMecanismBypass = true
+	}
+	if portal.DetectionMecanismBypass == "disabled" {
+		p.DetectionMecanismBypass = false
+	}
 	rgx, _ := regexp.Compile("CaptiveNetworkSupport")
 	p.URIException = rgx
 	if portal.SecureRedirect == "enabled" {
@@ -280,30 +283,30 @@ func (p *passthrough) checkDetectionMechanisms(ctx context.Context, e string) bo
 	return false
 }
 
-func (p *passthrough) checkParking(ctx context.Context, e string) bool {
-	val, found := p.Cache.Get(e)
-	if found == false {
-		client := redis.NewClient(&redis.Options{
-			Addr:     "localhost:6379",
-			Password: "", // no password set
-			DB:       0,  // use default DB
-		})
-		val, error := client.Get(e).Result()
-		if error != nil {
-			p.Cache.Set(e, false, cache.DefaultExpiration)
-			//panic(err)
-			return false
-		}
-		if val == "1" {
-			p.Cache.Set(e, true, cache.DefaultExpiration)
-			return true
-		} else {
-			p.Cache.Set(e, false, cache.DefaultExpiration)
-			return false
-		}
-	} else if val == true {
-		return true
-	} else {
-		return false
-	}
-}
+// func (p *passthrough) checkParking(ctx context.Context, e string) bool {
+// 	val, found := p.Cache.Get(e)
+// 	if found == false {
+// 		client := redis.NewClient(&redis.Options{
+// 			Addr:     "localhost:6379",
+// 			Password: "", // no password set
+// 			DB:       0,  // use default DB
+// 		})
+// 		val, error := client.Get(e).Result()
+// 		if error != nil {
+// 			p.Cache.Set(e, false, cache.DefaultExpiration)
+// 			//panic(err)
+// 			return false
+// 		}
+// 		if val == "1" {
+// 			p.Cache.Set(e, true, cache.DefaultExpiration)
+// 			return true
+// 		} else {
+// 			p.Cache.Set(e, false, cache.DefaultExpiration)
+// 			return false
+// 		}
+// 	} else if val == true {
+// 		return true
+// 	} else {
+// 		return false
+// 	}
+// }
