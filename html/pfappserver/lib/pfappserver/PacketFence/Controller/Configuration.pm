@@ -236,7 +236,8 @@ sub soh :Local {
 sub roles :Local {
     my ($self, $c) = @_;
 
-    $c->go('Controller::Roles', 'index');
+    #$c->go('Controller::Roles', 'index');
+    $c->stash->{template} = "config/roles/index.tt";
 }
 
 =head2 define_policy

@@ -39,4 +39,3 @@
         <a id="createRole" class="btn" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add role') %]</a>
       </div>
       [%- END %]
-
