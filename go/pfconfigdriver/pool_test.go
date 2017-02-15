@@ -1,7 +1,6 @@
 package pfconfigdriver
 
 import (
-	"github.com/davecgh/go-spew/spew"
 	"github.com/fingerbank/processor/sharedutils"
 	"os"
 	"os/exec"
@@ -12,14 +11,18 @@ import (
 func TestLoadResource(t *testing.T) {
 	rp := NewResourcePool(ctx)
 	gen := PfConfGeneral{}
-	rp.LoadResource(ctx, &gen, true)
+	loaded := rp.LoadResource(ctx, &gen, true)
+
+	if !loaded {
+		t.Error("Resource wasn't loaded when calling a first time load")
+	}
 
 	expected := "pfdemo.org"
 	if gen.Domain != expected {
-		t.Error("Resource domain wasn't loaded correctly through resource pool. Got %s instead of %s", gen.Domain, expected)
+		t.Errorf("Resource domain wasn't loaded correctly through resource pool. Got %s instead of %s", gen.Domain, expected)
 	}
 
-	res, ok := rp.loadedResources["pfconfigdriver.PfConfGeneral"]
+	_, ok := rp.loadedResources["pfconfigdriver.PfConfGeneral"]
 	if !ok {
 		t.Error("The loaded resource wasn't stored in the pool")
 		return
@@ -32,11 +35,16 @@ func TestLoadResource(t *testing.T) {
 	// Expire data in pfconfig
 	FetchSocket(ctx, `{"method":"expire", "encoding":"json", "namespace":"config::Pf"}`+"\n")
 
-	os.Chtimes(res.controlFile(), time.Now(), time.Now())
+	loaded = rp.LoadResource(ctx, &gen, false)
 
-	rp.LoadResource(ctx, &gen, true)
-	spew.Dump(gen)
+	if !loaded {
+		t.Error("Resource wasn't loaded when control file expired")
+	}
 
+	expected = "zammitcorp.com"
+	if gen.Domain != expected {
+		t.Errorf("Resource domain wasn't loaded correctly through resource pool. Got %s instead of %s", gen.Domain, expected)
+	}
 	// Restore the prestine version of pf.conf
 	err = os.Rename("/usr/local/pf/t/data/pf.conf.bak", "/usr/local/pf/t/data/pf.conf")
 	sharedutils.CheckError(err)
