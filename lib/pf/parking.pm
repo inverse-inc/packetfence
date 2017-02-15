@@ -22,7 +22,6 @@ use pf::constants::parking qw($PARKING_VID $PARKING_DHCP_GROUP_NAME $PARKING_IPS
 use pf::constants;
 use pf::config qw(%Config);
 use pf::util;
-use pf::Redis;
 
 =head2 trigger_parking
 
@@ -53,8 +52,10 @@ sub park {
         $omapi->create_host($mac, {group => $PARKING_DHCP_GROUP_NAME});
     }
     if(isenabled($Config{parking}{show_parking_portal})){
-        my $redis = pf::Redis->new(server => '127.0.0.1:6379');
-        $redis->set($ip,$TRUE);
+        my $cmd = "sudo ipset add $PARKING_IPSET_NAME $ip 2>&1";
+        get_logger->debug("Adding device to parking ipset using $cmd");
+        my $_EXIT_CODE_EXISTS = "1";
+        my @lines = pf_run($cmd, accepted_exit_status => [$_EXIT_CODE_EXISTS]);
     }
 }
 
@@ -92,8 +93,7 @@ sub remove_parking_actions {
     if($@) {
         get_logger->warn("Failed to remove client from parking using OMAPI ($@).");
     }
-    my $redis = pf::Redis->new(server => '127.0.0.1:6379');
-    $redis->del($ip);
+    pf_run("sudo ipset del $PARKING_IPSET_NAME $ip -exist 2>&1");
 }
 
 =head1 AUTHOR
