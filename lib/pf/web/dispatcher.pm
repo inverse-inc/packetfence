@@ -91,6 +91,19 @@ sub _handler {
     my $result = $filter->test($r);
     return $result if $result;
 
+    # Captive-portal static resources
+    # We don't want to continue in dispatcher in this case and we simply serve it
+    # - Images
+    # - Javascript scripts
+    # - ...
+    # See L<pf::web::constants::CAPTIVE_PORTAL_STATIC_RESOURCES>
+    if ( $uri =~ /$WEB::CAPTIVE_PORTAL_STATIC_RESOURCES/o ) {
+        $logger->debug("URI '$uri' (URL: $url) is a captive-portal static resource");
+        $r->set_handlers( PerlResponseHandler => ['pf::web::static'] );
+        return Apache2::Const::DECLINED;
+    }
+
+
     # Captive-portal resource | WISPr
     if ( $uri =~ /$WEB::URL_WISPR/o ) {
         $logger->debug("URI '$uri' (URL: $url) is a WISPr request");
