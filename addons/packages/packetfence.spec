@@ -841,7 +841,45 @@ fi
 %attr(0755, root, root) /etc/systemd/system/packetfence-base.target
 %attr(0755, root, root) /etc/systemd/system/packetfence-cluster.target
 %attr(0755, root, root) /etc/systemd/system/packetfence*.slice
-%attr(0755, root, root) /usr/lib/systemd/system/packetfence-*.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-carbon-cache.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-carbon-relay.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-collectd.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-config.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-dhcpd.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-haproxy.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-httpd.aaa.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-httpd.admin.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-httpd.collector.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-httpd.graphite.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-httpd.parking.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-httpd.portal.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-httpd.proxy.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-httpd.webservices.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-iptables.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-keepalived.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-mariadb.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-p0f.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-pfbandwidthd.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-pfdetect.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-pfdhcplistener.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-pfdns.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-pfmon.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-pfqueue.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-pfsetvlan.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-radiusd-acct.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-radiusd-auth.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-radiusd-cli.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-radiusd-eduroam.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-radiusd-load_balancer.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-radsniff.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-redis-cache.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-redis_ntlm_cache.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-redis_queue.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-routes.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-snmptrapd.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-statsd.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-winbindd.service
+
 %dir %attr(0750, root,root) /etc/systemd/system/packetfence*target.wants
 %dir %attr(0750,root,root) %{_sysconfdir}/sudoers.d
 %config %attr(0440,root,root) %{_sysconfdir}/sudoers.d/packetfence
