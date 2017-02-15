@@ -125,18 +125,6 @@ type PfConfCaptivePortal struct {
 	PfconfigHashNS                         string   `val:"captive_portal"`
 	DetectionMecanismBypass                string   `json:"detection_mecanism_bypass"`
 	DetectionMecanismUrls                  []string `json:"detection_mecanism_urls"`
-	HttpdModEvasive                        string   `json:"httpd_mod_evasive"`
-	HttpdModEvasiveWhiteList               string   `json:"httpd_mod_evasive_white_list"`
-	HttpdModEvasiveSystemCommand           string   `json:"httpd_mod_evasive_system_command"`
-	HttpdModEvasiveHashTableSize           string   `json:"httpd_mod_evasive_hash_table_size"`
-	HttpdModEvasiveSiteCount               string   `json:"httpd_mod_evasive_site_count"`
-	HttpdModEvasiveEmailNotify             string   `json:"httpd_mod_evasive_email_notify"`
-	HttpdModEvasiveBlockingPeriod          string   `json:"httpd_mod_evasive_blocking_period"`
-	HttpdModEvasivePageInterval            string   `json:"httpd_mod_evasive_page_interval"`
-	HttpdModEvasiveSiteInterval            string   `json:"httpd_mod_evasive_site_interval"`
-	HttpdModQos                            string   `json:"httpd_mod_qos"`
-	HttpdModQosMaximumConnectionsPerDevice string   `json:"httpd_mod_qos_maximum_connections_per_device"`
-	HttpdModEvasivePageCount               string   `json:"httpd_mod_evasive_page_count"`
 	NetworkDetection                       string   `json:"network_detection"`
 	NetworkDetectionIP                     string   `json:"network_detection_ip"`
 	ImagePath                              string   `json:"image_path"`
