@@ -1,0 +1,16 @@
+[Unit]
+Description=PacketFence p0f Service
+Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
+After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+
+[Service]
+Type=simple
+PIDFile=/usr/local/pf/var/run/p0f.pid
+ExecStart=/usr/local/bin/p0f -i any -p -f /usr/local/fingerbank/conf/fingerbank-p0f.fp -s /var/run/p0f.sock 
+StandardOutput=null
+StandardError=null
+Restart=on-failure
+Slice=packetfence.slice
+
+[Install]
+WantedBy=packetfence.target

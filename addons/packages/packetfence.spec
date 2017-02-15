@@ -436,21 +436,17 @@ done
 %install
 %{__rm} -rf $RPM_BUILD_ROOT
 # systemd targets
-%{__install} -D -m0311 conf/systemd/packetfence.target $RPM_BUILD_ROOT/etc/systemd/system/packetfence.target
-%{__install} -D -m0311 conf/systemd/packetfence-base.target $RPM_BUILD_ROOT/etc/systemd/system/packetfence-base.target
-%{__install} -D -m0311 conf/systemd/packetfence-cluster.target $RPM_BUILD_ROOT/etc/systemd/system/packetfence-cluster.target
+%{__install} -D -m0755 conf/systemd/packetfence.target $RPM_BUILD_ROOT/etc/systemd/system/packetfence.target
+%{__install} -D -m0755 conf/systemd/packetfence-base.target $RPM_BUILD_ROOT/etc/systemd/system/packetfence-base.target
+%{__install} -D -m0755 conf/systemd/packetfence-cluster.target $RPM_BUILD_ROOT/etc/systemd/system/packetfence-cluster.target
 %{__install} -d $RPM_BUILD_ROOT/etc/systemd/system/packetfence-base.target.wants
 %{__install} -d $RPM_BUILD_ROOT/etc/systemd/system/packetfence.target.wants
 %{__install} -d $RPM_BUILD_ROOT/etc/systemd/system/packetfence-cluster.target.wants
 # systemd slices
-%{__install} -D -m0311 conf/systemd/packetfence.slice $RPM_BUILD_ROOT/etc/systemd/system/packetfence.slice
-%{__install} -D -m0311 conf/systemd/packetfence-base.slice $RPM_BUILD_ROOT/etc/systemd/system/packetfence-base.slice
+%{__install} -D -m0755 conf/systemd/packetfence.slice $RPM_BUILD_ROOT/etc/systemd/system/packetfence.slice
+%{__install} -D -m0755 conf/systemd/packetfence-base.slice $RPM_BUILD_ROOT/etc/systemd/system/packetfence-base.slice
 # systemd services
-%{__install} -D -m0311 conf/systemd/packetfence-mariadb.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-mariadb.service
-%{__install} -D -m0311 conf/systemd/packetfence-redis-cache.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-redis-cache.service
-%{__install} -D -m0311 conf/systemd/packetfence-config.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-config.service
-%{__install} -D -m0311 conf/systemd/packetfence-iptables.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-iptables.service
-%{__install} -D -m0311 conf/systemd/packetfence-routes.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-routes.service
+%{__install} -D -m0755 conf/systemd/packetfence-*.service $RPM_BUILD_ROOT/usr/lib/systemd/system/
 
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons/AD
@@ -804,14 +800,11 @@ fi
 %files -n %{real_name}
 
 %defattr(-, pf, pf)
-%attr(0311, root, root) /etc/systemd/system/packetfence.target
-%attr(0311, root, root) /etc/systemd/system/packetfence-base.target
-%attr(0311, root, root) /etc/systemd/system/packetfence-cluster.target
-%attr(0311, root, root) /etc/systemd/system/packetfence*.slice
-%attr(0311, root, root) /usr/lib/systemd/system/packetfence-mariadb.service
-%attr(0311, root, root) /usr/lib/systemd/system/packetfence-redis-cache.service
-%attr(0311, root, root) /usr/lib/systemd/system/packetfence-iptables.service
-%attr(0311, root, root) /usr/lib/systemd/system/packetfence-routes.service
+%attr(0755, root, root) /etc/systemd/system/packetfence.target
+%attr(0755, root, root) /etc/systemd/system/packetfence-base.target
+%attr(0755, root, root) /etc/systemd/system/packetfence-cluster.target
+%attr(0755, root, root) /etc/systemd/system/packetfence*.slice
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-*.service
 %dir %attr(0750, root,root) /etc/systemd/system/packetfence*target.wants
 %dir %attr(0750,root,root) %{_sysconfdir}/sudoers.d
 %config %attr(0440,root,root) %{_sysconfdir}/sudoers.d/packetfence

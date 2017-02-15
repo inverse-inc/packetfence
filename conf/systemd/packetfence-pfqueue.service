@@ -1,0 +1,17 @@
+[Unit]
+Description=PacketFence pfqueue Service
+Wants=packetfence-redis_queue.service
+After=packetfence-redis_queue.service
+Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
+After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+
+[Service]
+PIDFile=/usr/local/pf/var/run/pfqueue.pid
+ExecStartPre=/usr/local/pf/bin/pfcmd service pfqueue generateconfig
+ExecStart=/usr/local/pf/sbin/pfqueue
+User=pf
+Restart=on-failure
+Slice=packetfence.slice
+
+[Install]
+WantedBy=packetfence.target

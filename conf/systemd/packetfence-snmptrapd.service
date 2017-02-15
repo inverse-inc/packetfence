@@ -1,0 +1,15 @@
+[Unit]
+Description=PacketFence Simple Network Management Protocol (SNMP) Trap Daemon.
+After=packetfence-base.target
+Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
+
+[Service]
+Type=notify
+PIDFile=/usr/local/pf/var/run/snmptrapd.pid
+ExecStart=/usr/sbin/snmptrapd -f -n -c /usr/local/pf/var/conf/snmptrapd.conf -C -A -Lf /usr/local/pf/logs/snmptrapd.log -p /usr/local/pf/var/run/snmptrapd.pid -On 172.20.20.98:162
+ExecReload=/bin/kill -HUP $MAINPID
+Slice=packetfence.slice
+Restart=on-failure
+
+[Install]
+WantedBy=packetfence.target
