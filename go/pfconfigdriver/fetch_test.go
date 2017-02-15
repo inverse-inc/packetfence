@@ -3,10 +3,11 @@ package pfconfigdriver
 import (
 	"context"
 	"github.com/davecgh/go-spew/spew"
+	"github.com/fingerbank/processor/log"
 	"testing"
 )
 
-var ctx = context.Background()
+var ctx = log.LoggerNewContext(context.Background())
 
 func TestFetchSocket(t *testing.T) {
 	result := FetchSocket(ctx, `{"method":"element", "key":"resource::fqdn","encoding":"json"}`+"\n")
