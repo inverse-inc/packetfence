@@ -1,12 +1,12 @@
 .PHONY: processor-sha
 
-pfcaddy-sha:
-	make NAME="pfcaddy" _pfcaddy
+pfhttpd-sha:
+	make NAME="pfhttpd" _pfhttpd
 
-pfcaddy:
-	make NAME="pfcaddy" _pfcaddy
+pfhttpd:
+	make NAME="pfhttpd" _pfhttpd
 
-_pfcaddy:
+_pfhttpd:
 	cd caddy/caddy/caddy && \
 	go build && \
 	cd - && \

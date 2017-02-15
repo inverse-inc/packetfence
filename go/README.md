@@ -33,13 +33,13 @@ A local version of caddy is in caddy/caddy. This is a vendored version of caddy 
 In order to build the caddy HTTP service:
 
 ```
-# make pfcaddy
-# mv pfcaddy /usr/local/pf/bin/
+# make pfhttpd
+# mv pfhttpd /usr/local/pf/bin/
 ```
 
 ## Creating a service
 
-Once you've built pfcaddy, you can use a Caddyfile to load your middleware and bind it on a specific port:
+Once you've built pfhttpd, you can use a Caddyfile to load your middleware and bind it on a specific port:
 
 ```
 localhost:1234 {
@@ -61,10 +61,10 @@ Note how you can control the logger configuration from the Caddyfile. If your mi
 
 If your middleware uses statsd, you don't have to configure statsd in your Caddyfile which will result in the packets just not being sent (a dummy statsd client will be created).
 
-You can start pfcaddy with your Caddyfile using the following command:
+You can start pfhttpd with your Caddyfile using the following command:
 
 ```
-# /usr/local/pf/bin/pfcaddy -conf /usr/local/pf/conf/caddy-services/pfsso.conf
+# /usr/local/pf/bin/pfhttpd -conf /usr/local/pf/conf/caddy-services/pfsso.conf
 ```
 
 Once you have ascertained that the service is working correctly, you need to create an instance of pf::services::manager for it. You will also need to create a unitfile for it in conf/systemd like the following:
@@ -112,6 +112,6 @@ Then you can proceed to execute all or some of the Golang unit tests:
 
  * Integrate with pfconfig namespace expiration (for now any config change requires a restart)
  * Integrate a vendoring solution
- * I (Julien) don't like the name pfcaddy even though I came up with it. Suggestions on the name are welcome.
+ * I (Julien) don't like the name pfhttpd even though I came up with it. Suggestions on the name are welcome.
  * A lot more things I'm sure...
 
