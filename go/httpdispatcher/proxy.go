@@ -1,6 +1,7 @@
-package main
+package httpdispatcher
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -11,13 +12,13 @@ import (
 	"text/template"
 	"time"
 
-	"bitbucket.org/oeufdure/pfconfigdriver"
 	"github.com/davecgh/go-spew/spew"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/patrickmn/go-cache"
 	"gopkg.in/redis.v5"
 )
 
-type proxy struct {
+type Proxy struct {
 	requestLogger     *log.Logger
 	endpointWhiteList []*regexp.Regexp
 	endpointBlackList []*regexp.Regexp
@@ -41,8 +42,8 @@ var passThrough *passthrough
 // newProxy creates a new instance of proxy.
 // It sets request logger using rLogPath as output file or os.Stdout by default.
 // If whitePath of blackPath is not empty they are parsed to set endpoint lists.
-func newProxy(rLogPath string) *proxy {
-	var p proxy
+func NewProxy(rLogPath string) *Proxy {
+	var p Proxy
 	var l *log.Logger
 
 	if rLogPath != "" {
@@ -66,7 +67,7 @@ func newProxy(rLogPath string) *proxy {
 // addToEndpointList compiles regex and adds it to an endpointList
 // if regex is valid
 // use t to choose list type: true for whitelist false for blacklist
-func (p *proxy) addToEndpointList(r string) error {
+func (p *Proxy) addToEndpointList(r string) error {
 	rgx, err := regexp.Compile(r)
 	if err == nil {
 		p.mutex.Lock()
@@ -78,7 +79,7 @@ func (p *proxy) addToEndpointList(r string) error {
 
 // checkEndpointList looks if r is in whitelist or blackllist
 // returns true if endpoint is allowed
-func (p *proxy) checkEndpointList(e string) bool {
+func (p *Proxy) checkEndpointList(e string) bool {
 	if p.endpointBlackList == nil && p.endpointWhiteList == nil {
 		return true
 	}
@@ -94,7 +95,7 @@ func (p *proxy) checkEndpointList(e string) bool {
 
 // ServeHTTP satisfy HandlerFunc interface and
 // log, authorize and forward requests
-func (p *proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	host := r.Host
 	var fqdn url.URL
 	fqdn.Scheme = r.Header.Get("X-Forwarded-Proto")
@@ -181,18 +182,19 @@ func (p *proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // run add localhost to blacklist and launch proxy
-func (p *proxy) run(port string) {
+func (p *Proxy) Configure(port string) {
 	p.addToEndpointList("localhost")
 	p.addToEndpointList("127.0.0.1")
-	log.Fatal(http.ListenAndServe(":"+port, p))
 }
 
 func (p *passthrough) readConfig() {
-	var trapping pfconfigdriver.PfconfigTrapping
-	var portal pfconfigdriver.PfconfigCaptivePortal
-	var general pfconfigdriver.PfconfigGeneral
+	var trapping pfconfigdriver.PfConfTrapping
+	var portal pfconfigdriver.PfConfCaptivePortal
+	var general pfconfigdriver.PfConfGeneral
 	var scheme string
 
+	//TODO: changeme
+	ctx := context.Background()
 	pfconfigdriver.FetchDecodeSocketStruct(ctx, &trapping)
 	pfconfigdriver.FetchDecodeSocketStruct(ctx, &portal)
 	pfconfigdriver.FetchDecodeSocketStruct(ctx, &general)

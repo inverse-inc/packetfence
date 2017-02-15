@@ -98,3 +98,51 @@ type configStruct struct {
 }
 
 var Config configStruct
+
+type PfConfTrapping struct {
+	PfconfigMethod        string   `val:"hash_element"`
+	PfconfigNS            string   `val:"config::Pf"`
+	PfconfigHashNS        string   `val:"trapping"`
+	WirelessIpsThreshold  string   `json:"wireless_ips_threshold"`
+	InterceptionProxy     string   `json:"interception_proxy"`
+	Detection             string   `json:"detection"`
+	DetectionEngine       string   `json:"detection_engine"`
+	WirelessIps           string   `json:"wireless_ips"`
+	Range                 string   `json:"range"`
+	InterceptionProxyPort string   `json:"interception_proxy_port"`
+	Registration          string   `json:"registration"`
+	Whitelist             string   `json:"whitelist"`
+	ProxyPassthroughs     []string `json:"proxy_passthroughs"`
+	Passthroughs          []string `json:"passthroughs"`
+	Redirtimer            string   `json:"redirtimer"`
+	WaitForRedirect       string   `json:"wait_for_redirect"`
+	Passthrough           string   `json:"passthrough"`
+}
+
+type PfConfCaptivePortal struct {
+	PfconfigMethod                         string   `val:"hash_element"`
+	PfconfigNS                             string   `val:"config::Pf"`
+	PfconfigHashNS                         string   `val:"captive_portal"`
+	DetectionMecanismBypass                string   `json:"detection_mecanism_bypass"`
+	DetectionMecanismUrls                  []string `json:"detection_mecanism_urls"`
+	HttpdModEvasive                        string   `json:"httpd_mod_evasive"`
+	HttpdModEvasiveWhiteList               string   `json:"httpd_mod_evasive_white_list"`
+	HttpdModEvasiveSystemCommand           string   `json:"httpd_mod_evasive_system_command"`
+	HttpdModEvasiveHashTableSize           string   `json:"httpd_mod_evasive_hash_table_size"`
+	HttpdModEvasiveSiteCount               string   `json:"httpd_mod_evasive_site_count"`
+	HttpdModEvasiveEmailNotify             string   `json:"httpd_mod_evasive_email_notify"`
+	HttpdModEvasiveBlockingPeriod          string   `json:"httpd_mod_evasive_blocking_period"`
+	HttpdModEvasivePageInterval            string   `json:"httpd_mod_evasive_page_interval"`
+	HttpdModEvasiveSiteInterval            string   `json:"httpd_mod_evasive_site_interval"`
+	HttpdModQos                            string   `json:"httpd_mod_qos"`
+	HttpdModQosMaximumConnectionsPerDevice string   `json:"httpd_mod_qos_maximum_connections_per_device"`
+	HttpdModEvasivePageCount               string   `json:"httpd_mod_evasive_page_count"`
+	NetworkDetection                       string   `json:"network_detection"`
+	NetworkDetectionIP                     string   `json:"network_detection_ip"`
+	ImagePath                              string   `json:"image_path"`
+	LoadbalancersIP                        string   `json:"loadbalancers_ip"`
+	RequestTimeout                         string   `json:"request_timeout"`
+	SecureRedirect                         string   `json:"secure_redirect"`
+	StatusOnlyOnProduction                 string   `json:"status_only_on_production"`
+	WisprRedirection                       string   `json:"wispr_redirection"`
+}
