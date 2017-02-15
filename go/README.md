@@ -67,7 +67,26 @@ You can start pfcaddy with your Caddyfile using the following command:
 # /usr/local/pf/bin/pfcaddy -conf /usr/local/pf/conf/caddy-services/pfsso.conf
 ```
 
-You should now create a systemd service for it calling the method above. This part is still to be written as @louismunro will have to show us how to do it.
+Once you have ascertained that the service is working correctly, you need to create an instance of pf::services::manager for it. You will also need to create a unitfile for it in conf/systemd like the following:
+
+```
+[Unit]
+Description=PacketFence Example Service
+Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
+After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+Before=packetfence-pfdhcplistener.service
+
+[Service]
+PIDFile=/usr/local/pf/var/run/pfexample.pid
+ExecStart=/usr/local/pf/bin/pfcaddy -conf /usr/local/pf/conf/caddy-services/pfexample.conf
+Restart=on-failure
+Slice=packetfence.slice
+
+[Install]
+WantedBy=packetfence.target
+```
+
+Make sure that the packaging is also updated to copy those files in the /usr/lib/systemd/system directory.
 
 ## Running the tests
 
