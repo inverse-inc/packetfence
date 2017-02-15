@@ -311,7 +311,13 @@ sub handle_dispath {
     my ($query, $method, $socket) = @_;
     my $answer;
     eval {
-        $answer = $method->($query->{params});
+        my $params = $query->{params};
+        if (ref($params) eq 'ARRAY') {
+            $answer = $method->(@$params);
+        }
+        else {
+            $answer = $method->($params);
+        }
     };
     if ($@) {
         $logger->error($@);
@@ -416,8 +422,8 @@ filter_radius
 =cut
 
 sub filter_radius {
-    my ($self, $params) = @_;
-    return $RADIUS_FILTER->filter(@$params);
+    my ($self, @params) = @_;
+    return $RADIUS_FILTER->filter(@params);
 }
 
 =head2 filter_dhcp
@@ -427,8 +433,8 @@ filter_dhcp
 =cut
 
 sub filter_dhcp {
-    my ($self, $params) = @_;
-    return $DHCP_FILTER->filter(@$params);
+    my ($self, @params) = @_;
+    return $DHCP_FILTER->filter(@params);
 }
 
 =head2 filter_dns
@@ -438,8 +444,8 @@ filter_dns
 =cut
 
 sub filter_dns {
-    my ($self, $params) = @_;
-    return $DNS_FILTER->filter(@$params);
+    my ($self, @params) = @_;
+    return $DNS_FILTER->filter(@params);
 }
 
 =head2 filter_vlan
@@ -449,8 +455,8 @@ filter_vlan
 =cut
 
 sub filter_vlan {
-    my ($self, $params) = @_;
-    return $VLAN_FILTER->filter(@$params);
+    my ($self, @params) = @_;
+    return $VLAN_FILTER->filter(@params);
 }
 
 =head1 AUTHOR
