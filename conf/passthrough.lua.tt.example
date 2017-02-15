@@ -1,12 +1,3 @@
--- Update host on the fly
-
--- core.register_action("choose_backend", { 'http-req'}, function(txn)
---    if txn.sf:req_fhdr("Host") == 'www.packetfence.org' then
---        txn.set_var(txn,"req.host","www.cisco.com") -- Update host on the fly
---    end
--- end)
-
-
 -- Select backend based on Host header
 
 local string = require("string");
