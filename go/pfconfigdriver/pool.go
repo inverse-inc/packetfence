@@ -56,9 +56,12 @@ func (rp *ResourcePool) LoadResource(ctx context.Context, resource PfconfigObjec
 	structType := reflect.TypeOf(resource).Elem()
 	structTypeStr := structType.String()
 
+	alreadyLoaded := false
+
 	// If this PfconfigObject was already loaded and hasn't changed since the load, then we can safely return and leave the current config untouched
-	if !firstLoad {
-		if res, ok := rp.loadedResources[structTypeStr]; ok {
+	if res, ok := rp.loadedResources[structTypeStr]; ok {
+		alreadyLoaded = true
+		if !firstLoad {
 			if res.IsValid(ctx) {
 				return
 			}
@@ -67,11 +70,15 @@ func (rp *ResourcePool) LoadResource(ctx context.Context, resource PfconfigObjec
 
 	namespace := metadataFromField(ctx, resource, "PfconfigNS")
 
-	rp.loadedResources[structTypeStr] = Resource{
-		pfconfigObject: &resource,
-		namespace:      namespace,
-		structType:     structType,
-		loadedAt:       time.Now(),
+	// We don't want to put a newer version of the resource in the map since another older struct relies on it
+	// The new one (current) can safely rely on the data in it even though it is older
+	if !alreadyLoaded {
+		rp.loadedResources[structTypeStr] = Resource{
+			pfconfigObject: &resource,
+			namespace:      namespace,
+			structType:     structType,
+			loadedAt:       time.Now(),
+		}
 	}
 
 	FetchDecodeSocketStruct(ctx, resource)
