@@ -1,6 +1,7 @@
 package caddyhttpdispatcher
 
 import (
+	"context"
 	"fmt"
 	"github.com/fingerbank/processor/log"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
@@ -23,7 +24,7 @@ func setup(c *caddy.Controller) error {
 	httpserver.GetConfig(c).AddMiddleware(func(next httpserver.Handler) httpserver.Handler {
 		h.Next = next
 		//TODO: change this to use the caddy logger
-		h.proxy = httpdispatcher.NewProxy("")
+		h.proxy = httpdispatcher.NewProxy(context.Background())
 		return h
 	})
 

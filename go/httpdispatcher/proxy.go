@@ -42,24 +42,16 @@ var passThrough *passthrough
 // newProxy creates a new instance of proxy.
 // It sets request logger using rLogPath as output file or os.Stdout by default.
 // If whitePath of blackPath is not empty they are parsed to set endpoint lists.
-func NewProxy(rLogPath string) *Proxy {
+func NewProxy(ctx context.Context) *Proxy {
 	var p Proxy
-	var l *log.Logger
 
-	if rLogPath != "" {
-		f, err := os.OpenFile(rLogPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-		if err != nil {
-			log.Fatalln(err)
-		}
-		defer f.Close()
-		l = log.New(f, "REQUEST: ", log.Ldate|log.Ltime)
-	} else {
-		l = log.New(os.Stdout, "REQUEST: ", log.Ldate|log.Ltime)
-	}
+	//TODO: replace with the context based logger
+	var l *log.Logger
+	l = log.New(os.Stdout, "REQUEST: ", log.Ldate|log.Ltime)
 	p.requestLogger = l
 
-	passThrough = newProxyPassthrough()
-	passThrough.readConfig()
+	passThrough = newProxyPassthrough(ctx)
+	passThrough.readConfig(ctx)
 	spew.Dump(passThrough)
 	return &p
 }
@@ -67,7 +59,7 @@ func NewProxy(rLogPath string) *Proxy {
 // addToEndpointList compiles regex and adds it to an endpointList
 // if regex is valid
 // use t to choose list type: true for whitelist false for blacklist
-func (p *Proxy) addToEndpointList(r string) error {
+func (p *Proxy) addToEndpointList(ctx context.Context, r string) error {
 	rgx, err := regexp.Compile(r)
 	if err == nil {
 		p.mutex.Lock()
@@ -79,7 +71,7 @@ func (p *Proxy) addToEndpointList(r string) error {
 
 // checkEndpointList looks if r is in whitelist or blackllist
 // returns true if endpoint is allowed
-func (p *Proxy) checkEndpointList(e string) bool {
+func (p *Proxy) checkEndpointList(ctx context.Context, e string) bool {
 	if p.endpointBlackList == nil && p.endpointWhiteList == nil {
 		return true
 	}
@@ -96,6 +88,8 @@ func (p *Proxy) checkEndpointList(e string) bool {
 // ServeHTTP satisfy HandlerFunc interface and
 // log, authorize and forward requests
 func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
 	host := r.Host
 	var fqdn url.URL
 	fqdn.Scheme = r.Header.Get("X-Forwarded-Proto")
@@ -111,26 +105,29 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if passThrough.checkParking(r.Header.Get("X-Forwarded-For")) {
+	if passThrough.checkParking(ctx, r.Header.Get("X-Forwarded-For")) {
 		//p.requestLogger.Println(host, "PARKING", r.URL)
 		rp := httputil.NewSingleHostReverseProxy(&url.URL{
 			Scheme: "http",
 			Host:   "127.0.0.1:5252",
 		})
 		t := time.Now()
+
+		//Transfer current context in a shallow copy of the request
+		r = r.WithContext(ctx)
 		rp.ServeHTTP(w, r)
 		p.requestLogger.Println(host, time.Since(t))
 		return
 	}
 
-	if !(passThrough.checkProxyPassthrough(host) || ((passThrough.checkDetectionMechanisms(fqdn.String()) || passThrough.URIException.MatchString(r.RequestURI)) && passThrough.DetectionMecanismBypass == "enabled")) {
+	if !(passThrough.checkProxyPassthrough(ctx, host) || ((passThrough.checkDetectionMechanisms(ctx, fqdn.String()) || passThrough.URIException.MatchString(r.RequestURI)) && passThrough.DetectionMecanismBypass == "enabled")) {
 		if r.Method != "GET" {
 			//p.requestLogger.Println(host, "FORBIDDEN")
 			w.WriteHeader(http.StatusNotImplemented)
 			return
 		}
 
-		if (passThrough.checkDetectionMechanisms(fqdn.String()) || passThrough.URIException.MatchString(r.RequestURI)) && passThrough.SecureRedirect {
+		if (passThrough.checkDetectionMechanisms(ctx, fqdn.String()) || passThrough.URIException.MatchString(r.RequestURI)) && passThrough.SecureRedirect {
 			passThrough.PortalURL.Scheme = "http"
 		}
 		//p.requestLogger.Println(host, "Redirect to the portal")
@@ -139,26 +136,26 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusFound)
 		t := template.New("foo")
 		t, _ = t.Parse(`
-			<html>
-			  <head><title>302 Moved Temporarily</title></head>
-			  <body>
-				  <h1>Moved</h1>
-					  <p>The document has moved <a href=\"{{.PortalURL.String}}\">here</a>.</p>
-						<!--<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-						  <WISPAccessGatewayParam xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"http://www.wballiance.net/wispr/wispr_2_0.xsd\">
-							  <Redirect>
-								  <MessageType>100</MessageType>
-									<ResponseCode>0</ResponseCode>
-									<AccessProcedure>1.0</AccessProcedure>
-									<VersionLow>1.0</VersionLow>
-									<VersionHigh>2.0</VersionHigh>
-									<AccessLocation>CDATA[[isocc=,cc=,ac=,network=PacketFence,]]</AccessLocation>
-									<LocationName>CDATA[[PacketFence]]</LocationName>
-									<LoginURL>{{.WisprUrl.String}}</LoginURL>
-							  </Redirect>
-							</WISPAccessGatewayParam>-->
-					</body>
-				</html>`)
+<html>
+<head><title>302 Moved Temporarily</title></head>
+<body>
+	<h1>Moved</h1>
+		<p>The document has moved <a href=\"{{.PortalURL.String}}\">here</a>.</p>
+		<!--<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+			<WISPAccessGatewayParam xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"http://www.wballiance.net/wispr/wispr_2_0.xsd\">
+				<Redirect>
+					<MessageType>100</MessageType>
+					<ResponseCode>0</ResponseCode>
+					<AccessProcedure>1.0</AccessProcedure>
+					<VersionLow>1.0</VersionLow>
+					<VersionHigh>2.0</VersionHigh>
+					<AccessLocation>CDATA[[isocc=,cc=,ac=,network=PacketFence,]]</AccessLocation>
+					<LocationName>CDATA[[PacketFence]]</LocationName>
+					<LoginURL>{{.WisprUrl.String}}</LoginURL>
+				</Redirect>
+			</WISPAccessGatewayParam>-->
+	</body>
+</html>`)
 		t.Execute(w, passThrough)
 
 		//spew.Dump(r)
@@ -166,7 +163,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		//p.requestLogger.Println(host, "REDIRECT")
 		return
 	}
-	if !p.checkEndpointList(host) {
+	if !p.checkEndpointList(ctx, host) {
 		p.requestLogger.Println(host, "FORBIDDEN")
 		w.WriteHeader(http.StatusForbidden)
 		return
@@ -177,34 +174,35 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Host:   host,
 	})
 	t := time.Now()
+
+	// Pass the context in the request
+	r = r.WithContext(ctx)
 	rp.ServeHTTP(w, r)
 	p.requestLogger.Println(host, time.Since(t))
 }
 
 // run add localhost to blacklist and launch proxy
-func (p *Proxy) Configure(port string) {
-	p.addToEndpointList("localhost")
-	p.addToEndpointList("127.0.0.1")
+func (p *Proxy) Configure(ctx context.Context, port string) {
+	p.addToEndpointList(ctx, "localhost")
+	p.addToEndpointList(ctx, "127.0.0.1")
 }
 
-func (p *passthrough) readConfig() {
+func (p *passthrough) readConfig(ctx context.Context) {
 	var trapping pfconfigdriver.PfConfTrapping
 	var portal pfconfigdriver.PfConfCaptivePortal
 	var general pfconfigdriver.PfConfGeneral
 	var scheme string
 
-	//TODO: changeme
-	ctx := context.Background()
 	pfconfigdriver.FetchDecodeSocketStruct(ctx, &trapping)
 	pfconfigdriver.FetchDecodeSocketStruct(ctx, &portal)
 	pfconfigdriver.FetchDecodeSocketStruct(ctx, &general)
 
 	for _, v := range trapping.ProxyPassthroughs {
-		p.addFqdnToList(v)
+		p.addFqdnToList(ctx, v)
 	}
 
 	for _, v := range portal.DetectionMecanismUrls {
-		p.addDetectionMechanismsToList(v)
+		p.addDetectionMechanismsToList(ctx, v)
 	}
 
 	p.Cache = cache.New(3*time.Second, 1*time.Second)
@@ -237,12 +235,12 @@ func (p *passthrough) readConfig() {
 
 }
 
-func newProxyPassthrough() *passthrough {
+func newProxyPassthrough(ctx context.Context) *passthrough {
 	var p passthrough
 	return &p
 }
 
-func (p *passthrough) addFqdnToList(r string) error {
+func (p *passthrough) addFqdnToList(ctx context.Context, r string) error {
 	rgx, err := regexp.Compile(r)
 	if err == nil {
 		p.mutex.Lock()
@@ -252,7 +250,7 @@ func (p *passthrough) addFqdnToList(r string) error {
 	return err
 }
 
-func (p *passthrough) addDetectionMechanismsToList(r string) error {
+func (p *passthrough) addDetectionMechanismsToList(ctx context.Context, r string) error {
 	rgx, err := regexp.Compile(r)
 	if err == nil {
 		p.mutex.Lock()
@@ -262,7 +260,7 @@ func (p *passthrough) addDetectionMechanismsToList(r string) error {
 	return err
 }
 
-func (p *passthrough) checkProxyPassthrough(e string) bool {
+func (p *passthrough) checkProxyPassthrough(ctx context.Context, e string) bool {
 	if p.proxypassthrough == nil {
 		return false
 	}
@@ -275,7 +273,7 @@ func (p *passthrough) checkProxyPassthrough(e string) bool {
 	return false
 }
 
-func (p *passthrough) checkDetectionMechanisms(e string) bool {
+func (p *passthrough) checkDetectionMechanisms(ctx context.Context, e string) bool {
 	if p.detectionmechanisms == nil {
 		return false
 	}
@@ -288,7 +286,7 @@ func (p *passthrough) checkDetectionMechanisms(e string) bool {
 	return false
 }
 
-func (p *passthrough) checkParking(e string) bool {
+func (p *passthrough) checkParking(ctx context.Context, e string) bool {
 	val, found := p.Cache.Get(e)
 	if found == false {
 		client := redis.NewClient(&redis.Options{
