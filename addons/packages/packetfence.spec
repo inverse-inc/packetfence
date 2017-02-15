@@ -446,7 +446,44 @@ done
 %{__install} -D -m0755 conf/systemd/packetfence.slice $RPM_BUILD_ROOT/etc/systemd/system/packetfence.slice
 %{__install} -D -m0755 conf/systemd/packetfence-base.slice $RPM_BUILD_ROOT/etc/systemd/system/packetfence-base.slice
 # systemd services
-%{__install} -D -m0755 conf/systemd/packetfence-*.service $RPM_BUILD_ROOT/usr/lib/systemd/system/
+%{__install} -D -m0755 conf/systemd/packetfence-carbon-cache.service /usr/lib/systemd/system/packetfence-carbon-cache.service
+%{__install} -D -m0755 conf/systemd/packetfence-carbon-relay.service /usr/lib/systemd/system/packetfence-carbon-relay.service
+%{__install} -D -m0755 conf/systemd/packetfence-collectd.service /usr/lib/systemd/system/packetfence-collectd.service
+%{__install} -D -m0755 conf/systemd/packetfence-config.service /usr/lib/systemd/system/packetfence-config.service
+%{__install} -D -m0755 conf/systemd/packetfence-dhcpd.service /usr/lib/systemd/system/packetfence-dhcpd.service
+%{__install} -D -m0755 conf/systemd/packetfence-haproxy.service /usr/lib/systemd/system/packetfence-haproxy.service
+%{__install} -D -m0755 conf/systemd/packetfence-httpd.aaa.service /usr/lib/systemd/system/packetfence-httpd.aaa.service
+%{__install} -D -m0755 conf/systemd/packetfence-httpd.admin.service /usr/lib/systemd/system/packetfence-httpd.admin.service
+%{__install} -D -m0755 conf/systemd/packetfence-httpd.collector.service /usr/lib/systemd/system/packetfence-httpd.collector.service
+%{__install} -D -m0755 conf/systemd/packetfence-httpd.graphite.service /usr/lib/systemd/system/packetfence-httpd.graphite.service
+%{__install} -D -m0755 conf/systemd/packetfence-httpd.parking.service /usr/lib/systemd/system/packetfence-httpd.parking.service
+%{__install} -D -m0755 conf/systemd/packetfence-httpd.portal.service /usr/lib/systemd/system/packetfence-httpd.portal.service
+%{__install} -D -m0755 conf/systemd/packetfence-httpd.proxy.service /usr/lib/systemd/system/packetfence-httpd.proxy.service
+%{__install} -D -m0755 conf/systemd/packetfence-httpd.webservices.service /usr/lib/systemd/system/packetfence-httpd.webservices.service
+%{__install} -D -m0755 conf/systemd/packetfence-iptables.service /usr/lib/systemd/system/packetfence-iptables.service
+%{__install} -D -m0755 conf/systemd/packetfence-keepalived.service /usr/lib/systemd/system/packetfence-keepalived.service
+%{__install} -D -m0755 conf/systemd/packetfence-mariadb.service /usr/lib/systemd/system/packetfence-mariadb.service
+%{__install} -D -m0755 conf/systemd/packetfence-p0f.service /usr/lib/systemd/system/packetfence-p0f.service
+%{__install} -D -m0755 conf/systemd/packetfence-pfbandwidthd.service /usr/lib/systemd/system/packetfence-pfbandwidthd.service
+%{__install} -D -m0755 conf/systemd/packetfence-pfdetect.service /usr/lib/systemd/system/packetfence-pfdetect.service
+%{__install} -D -m0755 conf/systemd/packetfence-pfdhcplistener.service /usr/lib/systemd/system/packetfence-pfdhcplistener.service
+%{__install} -D -m0755 conf/systemd/packetfence-pfdns.service /usr/lib/systemd/system/packetfence-pfdns.service
+%{__install} -D -m0755 conf/systemd/packetfence-pfmon.service /usr/lib/systemd/system/packetfence-pfmon.service
+%{__install} -D -m0755 conf/systemd/packetfence-pfqueue.service /usr/lib/systemd/system/packetfence-pfqueue.service
+%{__install} -D -m0755 conf/systemd/packetfence-pfsetvlan.service /usr/lib/systemd/system/packetfence-pfsetvlan.service
+%{__install} -D -m0755 conf/systemd/packetfence-radiusd-acct.service /usr/lib/systemd/system/packetfence-radiusd-acct.service
+%{__install} -D -m0755 conf/systemd/packetfence-radiusd-auth.service /usr/lib/systemd/system/packetfence-radiusd-auth.service
+%{__install} -D -m0755 conf/systemd/packetfence-radiusd-cli.service /usr/lib/systemd/system/packetfence-radiusd-cli.service
+%{__install} -D -m0755 conf/systemd/packetfence-radiusd-eduroam.service /usr/lib/systemd/system/packetfence-radiusd-eduroam.service
+%{__install} -D -m0755 conf/systemd/packetfence-radiusd-load_balancer.service /usr/lib/systemd/system/packetfence-radiusd-load_balancer.service
+%{__install} -D -m0755 conf/systemd/packetfence-radsniff.service /usr/lib/systemd/system/packetfence-radsniff.service
+%{__install} -D -m0755 conf/systemd/packetfence-redis-cache.service /usr/lib/systemd/system/packetfence-redis-cache.service
+%{__install} -D -m0755 conf/systemd/packetfence-redis_ntlm_cache.service /usr/lib/systemd/system/packetfence-redis_ntlm_cache.service
+%{__install} -D -m0755 conf/systemd/packetfence-redis_queue.service /usr/lib/systemd/system/packetfence-redis_queue.service
+%{__install} -D -m0755 conf/systemd/packetfence-routes.service /usr/lib/systemd/system/packetfence-routes.service
+%{__install} -D -m0755 conf/systemd/packetfence-snmptrapd.service /usr/lib/systemd/system/packetfence-snmptrapd.service
+%{__install} -D -m0755 conf/systemd/packetfence-statsd.service /usr/lib/systemd/system/packetfence-statsd.service
+%{__install} -D -m0755 conf/systemd/packetfence-winbindd.service /usr/lib/systemd/system/packetfence-winbindd.service
 
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons/AD
