@@ -2,24 +2,23 @@ package httpdispatcher
 
 import (
 	"context"
-	"log"
+	"fmt"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"os"
 	"regexp"
 	"sync"
 	"text/template"
 	"time"
 
 	"github.com/davecgh/go-spew/spew"
+	"github.com/fingerbank/processor/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/patrickmn/go-cache"
 	"gopkg.in/redis.v5"
 )
 
 type Proxy struct {
-	requestLogger     *log.Logger
 	endpointWhiteList []*regexp.Regexp
 	endpointBlackList []*regexp.Regexp
 	mutex             sync.Mutex
@@ -44,11 +43,6 @@ var passThrough *passthrough
 // If whitePath of blackPath is not empty they are parsed to set endpoint lists.
 func NewProxy(ctx context.Context) *Proxy {
 	var p Proxy
-
-	//TODO: replace with the context based logger
-	var l *log.Logger
-	l = log.New(os.Stdout, "REQUEST: ", log.Ldate|log.Ltime)
-	p.requestLogger = l
 
 	passThrough = newProxyPassthrough(ctx)
 	passThrough.readConfig(ctx)
@@ -106,7 +100,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if passThrough.checkParking(ctx, r.Header.Get("X-Forwarded-For")) {
-		//p.requestLogger.Println(host, "PARKING", r.URL)
+		log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "PARKING", r.URL))
 		rp := httputil.NewSingleHostReverseProxy(&url.URL{
 			Scheme: "http",
 			Host:   "127.0.0.1:5252",
@@ -116,13 +110,13 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		//Transfer current context in a shallow copy of the request
 		r = r.WithContext(ctx)
 		rp.ServeHTTP(w, r)
-		p.requestLogger.Println(host, time.Since(t))
+		log.LoggerWContext(ctx).Info(fmt.Sprintln(host, time.Since(t)))
 		return
 	}
 
 	if !(passThrough.checkProxyPassthrough(ctx, host) || ((passThrough.checkDetectionMechanisms(ctx, fqdn.String()) || passThrough.URIException.MatchString(r.RequestURI)) && passThrough.DetectionMecanismBypass == "enabled")) {
 		if r.Method != "GET" {
-			//p.requestLogger.Println(host, "FORBIDDEN")
+			log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "FORBIDDEN"))
 			w.WriteHeader(http.StatusNotImplemented)
 			return
 		}
@@ -130,7 +124,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if (passThrough.checkDetectionMechanisms(ctx, fqdn.String()) || passThrough.URIException.MatchString(r.RequestURI)) && passThrough.SecureRedirect {
 			passThrough.PortalURL.Scheme = "http"
 		}
-		//p.requestLogger.Println(host, "Redirect to the portal")
+		log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "Redirect to the portal"))
 		passThrough.PortalURL.RawQuery = "destination_url=" + r.Header.Get("X-Forwarded-Proto") + "://" + host + r.RequestURI
 		w.Header().Set("Location", passThrough.PortalURL.String())
 		w.WriteHeader(http.StatusFound)
@@ -160,15 +154,15 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		//spew.Dump(r)
 		//spew.Dump(r.Header.Get("X-Forwarded-Proto"))
-		//p.requestLogger.Println(host, "REDIRECT")
+		log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "REDIRECT"))
 		return
 	}
 	if !p.checkEndpointList(ctx, host) {
-		p.requestLogger.Println(host, "FORBIDDEN")
+		log.LoggerWContext(ctx).Info(fmt.Sprintln(host, "FORBIDDEN"))
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
-	//p.requestLogger.Println(host, "REVERSE")
+	log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "REVERSE"))
 	rp := httputil.NewSingleHostReverseProxy(&url.URL{
 		Scheme: "http",
 		Host:   host,
@@ -178,7 +172,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Pass the context in the request
 	r = r.WithContext(ctx)
 	rp.ServeHTTP(w, r)
-	p.requestLogger.Println(host, time.Since(t))
+	log.LoggerWContext(ctx).Info(fmt.Sprintln(host, time.Since(t)))
 }
 
 // run add localhost to blacklist and launch proxy
