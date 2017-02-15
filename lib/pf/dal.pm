@@ -196,19 +196,6 @@ sub update {
     return 0;
 }
 
-=head2 copy
-
-Copy the content of a field
-
-=cut
-
-sub copy {
-    my ($self) = @_;
-    my %data = %$self;
-    delete @data{qw(__from_table __old_data)};
-    return $self->new(\%data);
-}
-
 =head2 insert
 
 Insert the pf::dal object
