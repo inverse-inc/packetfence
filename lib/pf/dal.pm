@@ -417,6 +417,10 @@ sub remove {
     );
     my $sth = $self->db_execute($sql, @bind);
     if ($sth) {
+        my $rows = $sth->rows;
+        if ($rows) {
+            $self->__from_table(0);
+        }
         return $sth->rows;
     }
     return 0;
