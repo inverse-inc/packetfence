@@ -168,8 +168,11 @@ frontend portal-http-$cluster_ip
         bind $cluster_ip:80
         stick-table type ip size 1m expire 10s store gpc0,http_req_rate(10s)
         tcp-request connection track-sc1 src
-        tcp-request connection reject if { src_get_gpc0 gt 0 }
         http-request lua.select
+        acl action var(req.action) -m found
+        acl unflag_abuser src_clr_gpc0 --
+        http-request allow if action unflag_abuser
+        http-request deny if { src_get_gpc0 gt 0 }
         reqadd X-Forwarded-Proto:\\ http
         use_backend %[var(req.action)]
         default_backend $cluster_ip-backend
@@ -179,8 +182,12 @@ frontend portal-https-$cluster_ip
         bind $cluster_ip:443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
         stick-table type ip size 1m expire 10s store gpc0,http_req_rate(10s)
         tcp-request connection track-sc1 src
-        tcp-request connection reject if { src_get_gpc0 gt 0 }
+        #tcp-request connection reject if { src_get_gpc0 gt 0 }
         http-request lua.select
+        acl action var(req.action) -m found
+        acl unflag_abuser src_clr_gpc0 --
+        http-request allow if action unflag_abuser
+        http-request deny if { src_get_gpc0 gt 0 }
         reqadd X-Forwarded-Proto:\\ https
         use_backend %[var(req.action)]
         default_backend $cluster_ip-backend
@@ -195,8 +202,7 @@ backend $cluster_ip-backend
         acl flag_abuser src_inc_gpc0(portal-http-$cluster_ip) --
         acl abuse  src_http_req_rate(portal-https-$cluster_ip) ge 20
         acl flag_abuser src_inc_gpc0(portal-https-$cluster_ip) --
-        http-response deny if abuse status_501 flag_abuser
-        #tcp-request content reject if abuse status_501 flag_abuser
+        http-response deny if abuse status_501 flag_abuse
 $backend_ip_config
 EOT
 
