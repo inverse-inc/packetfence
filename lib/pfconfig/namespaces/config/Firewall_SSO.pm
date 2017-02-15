@@ -18,7 +18,7 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use NetAddr::IP;
+use pfconfig::objects::NetAddr::IP;
 use pf::file_paths qw($firewall_sso_config_file);
 
 use base 'pfconfig::namespaces::config';
@@ -34,7 +34,7 @@ sub build_child {
 
     foreach my $key ( keys %tmp_cfg ) {
         $self->cleanup_after_read( $key, $tmp_cfg{$key} );
-        my @networks = map { NetAddr::IP->new($_) } @{$tmp_cfg{$key}{networks}};
+        my @networks = map { pfconfig::objects::NetAddr::IP->new($_) } @{$tmp_cfg{$key}{networks}};
         $tmp_cfg{$key}{networks} = \@networks;
     }
 
