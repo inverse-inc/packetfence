@@ -24,7 +24,7 @@
     </ul>
     <h2><!-- first sibling of alerts --></h2>
     <div class="tab-content">
-      <a class="btn btn-info pull-right" href="/portal_preview/?PORTAL=[% id %]" target="_blank">[% l('Preview') %]</a>
+      <a class="btn btn-info pull-right" href="/portal_preview/captive-portal?PORTAL=[% id %]" target="_blank">[% l('Preview') %]</a>
       <ul class="nav nav-tabs">
         <li [% IF tab == 'settings' %]class="active" [% END %]>
           <a href="#settings" data-toggle="tab">[% l('Settings') %]</a>
