@@ -11,6 +11,8 @@ import (
 func TestLoadResource(t *testing.T) {
 	rp := NewResourcePool(ctx)
 	gen := PfConfGeneral{}
+
+	// Test loading a resource and validating the result
 	loaded := rp.LoadResource(ctx, &gen, true)
 
 	if !loaded {
@@ -28,6 +30,15 @@ func TestLoadResource(t *testing.T) {
 		return
 	}
 
+	// Test loading a resource with the firstLoad flag which should reload from pfconfig even though there is another resource that uses the same struct
+	gen = PfConfGeneral{}
+	loaded = rp.LoadResource(ctx, &gen, true)
+
+	if !loaded {
+		t.Error("Resource wasn't loaded when calling a first time load")
+	}
+
+	// Test changing data in pfconfig and reloading the resource
 	cmd := exec.Command("sed", "-i.bak", "s/domain=pfdemo.org/domain=zammitcorp.com/g", "/usr/local/pf/t/data/pf.conf")
 	err := cmd.Run()
 	sharedutils.CheckError(err)
@@ -35,6 +46,7 @@ func TestLoadResource(t *testing.T) {
 	// Expire data in pfconfig
 	FetchSocket(ctx, `{"method":"expire", "encoding":"json", "namespace":"config::Pf"}`+"\n")
 
+	// Load the resource while accepting the reusal of the data already populated in the resource
 	loaded = rp.LoadResource(ctx, &gen, false)
 
 	if !loaded {
