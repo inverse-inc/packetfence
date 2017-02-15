@@ -844,7 +844,6 @@ fi
 %attr(0755, root, root) /usr/lib/systemd/system/packetfence-carbon-cache.service
 %attr(0755, root, root) /usr/lib/systemd/system/packetfence-carbon-relay.service
 %attr(0755, root, root) /usr/lib/systemd/system/packetfence-collectd.service
-%attr(0755, root, root) /usr/lib/systemd/system/packetfence-config.service
 %attr(0755, root, root) /usr/lib/systemd/system/packetfence-dhcpd.service
 %attr(0755, root, root) /usr/lib/systemd/system/packetfence-haproxy.service
 %attr(0755, root, root) /usr/lib/systemd/system/packetfence-httpd.aaa.service
