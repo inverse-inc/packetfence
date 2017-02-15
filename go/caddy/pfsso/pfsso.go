@@ -47,7 +47,7 @@ func (h PfssoHandler) handleStart(w http.ResponseWriter, r *http.Request, p http
 
 func (h PfssoHandler) handleStop(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	ctx := r.Context()
-	defer statsd.NewStatsDTiming(ctx).Send("PfssoHandler.handleStart")
+	defer statsd.NewStatsDTiming(ctx).Send("PfssoHandler.handleStop")
 
 	w.WriteHeader(http.StatusNotImplemented)
 }

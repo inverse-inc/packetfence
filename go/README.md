@@ -112,6 +112,5 @@ Then you can proceed to execute all or some of the Golang unit tests:
 
  * Integrate with pfconfig namespace expiration (for now any config change requires a restart)
  * Integrate a vendoring solution
- * I (Julien) don't like the name pfhttpd even though I came up with it. Suggestions on the name are welcome.
  * A lot more things I'm sure...
 
