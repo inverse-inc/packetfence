@@ -20,7 +20,7 @@ use strict;
 use warnings;
 use pf::db;
 use pf::log;
-use SQL::Abstract::More;
+use pf::SQL::Abstract;
 use pf::dal::iterator;
 
 use Class::XSAccessor {
@@ -93,7 +93,7 @@ sub db_execute {
             $logger->error("Cannot connect to database retrying connection");
             next;
         }
-        $logger->trace(sub{"preparing statement query $sql"});
+        $logger->trace(sub{"preparing statement query $sql with params (" . join(", ", map { defined $_ ? $_ : "(undef)"} @params) . ")"});
         my $sth = $dbh->prepare_cached($sql);
         unless ($sth && $sth->execute(@params)) {
             my $err = $dbh->err;
@@ -191,7 +191,11 @@ sub update {
     my $sth = $self->db_execute($stmt, @bind);
 
     if ($sth) {
-        return $sth->rows;
+        my $rows = $sth->rows;
+        if ($rows) {
+            $self->_save_old_data();
+        }
+        return $rows;
     }
     return 0;
 }
@@ -224,14 +228,68 @@ sub insert {
     if ($sth) {
         my $rows = $sth->rows;
         if ($rows) {
-            my %data = %$self;
-            delete @data{qw(__from_table __old_data)};
-            $self->__from_table(1);
-            $self->__old_data(\%data);
+            $self->_save_old_data();
         }
         return $rows;
     }
     return 0;
+}
+
+=head2 _save_old_data
+
+_save_old_data
+
+=cut
+
+sub _save_old_data {
+    my ($self) = @_;
+    my %data = %$self;
+    delete @data{qw(__from_table __old_data)};
+    $self->__from_table(1);
+    $self->__old_data(\%data);
+    return ;
+}
+
+=head2 upsert
+
+Perform an upsert of the pf::dal object
+
+=cut
+
+sub upsert {
+    my ($self) = @_;
+    my $insert_data = $self->_insert_data;
+    return 0 unless defined $insert_data;
+    if (keys %$insert_data == 0 ) {
+       return 0;
+    }
+    my $on_conflict = $self->_on_conflict_data;
+    my $sqla          = $self->get_sql_abstract;
+    my ($stmt, @bind) = $sqla->upsert(
+        -into => $self->table,
+        -values   => $insert_data,
+        -on_conflict => $on_conflict,
+    );
+    my $sth = $self->db_execute($stmt, @bind);
+    if ($sth) {
+        my $rows = $sth->rows;
+        if ($rows) {
+            $self->_save_old_data();
+        }
+        return $rows;
+    }
+    return 0;
+}
+
+=head2 _on_conflict_data
+
+Create a hash to create the hash for the on conflict data
+
+=cut
+
+sub _on_conflict_data {
+    my ($self) = @_;
+    return $self->_insert_data;
 }
 
 =head2 _insert_data
@@ -443,7 +501,7 @@ get the sql abstract object
 =cut
 
 sub get_sql_abstract {
-    return SQL::Abstract::More->new(quote_char => '`');
+    return pf::SQL::Abstract->new(quote_char => '`');
 }
 
 =head1 AUTHOR
