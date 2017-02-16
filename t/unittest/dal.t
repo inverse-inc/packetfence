@@ -1,12 +1,12 @@
 =head1 NAME
 
-orm
+dal
 
 =cut
 
 =head1 DESCRIPTION
 
-unit test for orm
+unit test for pf::dal
 
 =cut
 
@@ -22,8 +22,9 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 19;
+use Test::More tests => 24;
 
+use pf::error qw(is_success is_error);
 use pf::db;
 use pf::dal::node;
 
@@ -41,9 +42,9 @@ my $test_mac = "ff:ff:ff:ff:ff:fe";
 
 pf::dal::node->remove_by_id({mac => $test_mac});
 
-my $node = pf::dal::node->find($test_mac);
+my ($status, $node) = pf::dal::node->find($test_mac);
 
-is ($node, undef, "Node does not exists");
+is ($status , $STATUS::NOT_FOUND, "Node does not exists");
 
 $node = pf::dal::node->new({ mac => $test_mac, pid => "default"});
 
@@ -100,6 +101,22 @@ $node = pf::dal::node->find($test_mac);
 
 is ($node, undef, "Node does not exists");
 
+$node = pf::dal::node->new({ mac => $test_mac });
+
+ok($node->save, "Saving node after being deleted");
+
+pf::dal::node->remove_by_id({mac => $test_mac});
+
+$node->voip("yes");
+
+ok($node->save, "Saving node after being deleted from under us");
+
+$node = pf::dal::node->find($test_mac);
+
+ok($node, "Saving after being deleted");
+
+is($node->voip, "yes", "Voip was saved");
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -128,4 +145,3 @@ USA.
 =cut
 
 1;
-
