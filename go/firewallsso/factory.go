@@ -35,7 +35,7 @@ func (f *Factory) Instantiate(ctx context.Context, id string, firstLoad bool) (F
 		or := reflect.New(oType)
 		or.Elem().FieldByName("PfconfigHashNS").SetString(id)
 		firewall2 := or.Interface().(pfconfigdriver.PfconfigObject)
-		_, err = pfconfigdriver.GlobalPfconfigResourcePool.LoadResource(ctx, &firewall2, or.Elem(), firstLoad)
+		_, err = pfconfigdriver.GlobalPfconfigResourcePool.LoadResource(ctx, &firewall2, firstLoad)
 		if err != nil {
 			return nil, err
 		}
