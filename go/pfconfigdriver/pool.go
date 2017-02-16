@@ -66,7 +66,9 @@ func (rp *ResourcePool) ResourceIsValid(ctx context.Context, o PfconfigObject) b
 
 func (rp *ResourcePool) FindResource(ctx context.Context, o PfconfigObject) (Resource, bool) {
 	structTypeStr := rp.getStructType(ctx, o).String()
-	log.LoggerWContext(ctx).Debug(fmt.Sprintf("Finding resource of type %s", structTypeStr))
+	ctx = log.AddToLogContext(ctx, "PfconfigObject", structTypeStr)
+
+	log.LoggerWContext(ctx).Debug("Finding resource")
 	res, ok := rp.loadedResources[structTypeStr]
 	return res, ok
 }
@@ -92,7 +94,9 @@ func (rp *ResourcePool) LoadResource(ctx context.Context, o PfconfigObject, firs
 
 	structTypeStr := structType.String()
 
-	log.LoggerWContext(ctx).Debug(fmt.Sprintf("Loading resource of type %s", structTypeStr))
+	ctx = log.AddToLogContext(ctx, "PfconfigObject", structTypeStr)
+
+	log.LoggerWContext(ctx).Debug("Started resource loading")
 
 	alreadyLoaded := false
 
@@ -119,6 +123,7 @@ func (rp *ResourcePool) LoadResource(ctx context.Context, o PfconfigObject, firs
 		}
 	}
 
+	log.LoggerWContext(ctx).Info("Loading resource from pfconfig")
 	err := FetchDecodeSocket(ctx, o)
 	return true, err
 }

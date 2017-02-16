@@ -54,7 +54,7 @@ func (h PfssoHandler) handleStop(w http.ResponseWriter, r *http.Request, p httpr
 }
 
 func setup(c *caddy.Controller) error {
-	ctx := context.Background()
+	ctx := log.LoggerNewContext(context.Background())
 
 	pfsso := PfssoHandler{
 		firewalls: make(map[string]firewallsso.FirewallSSOInt),
