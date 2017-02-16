@@ -107,11 +107,11 @@ sub db_execute {
             $logger->warn("database query failed with: $errstr (errno: $err), will try again");
             next;
         }
-        return $sth;
+        return $STATUS::OK, $sth;
     } continue {
         $attempts--;
     }
-    return undef;
+    return $STATUS::INTERNAL_SERVER_ERROR, undef;
 }
 
 =head2 find
@@ -123,10 +123,8 @@ Find the pf::dal object by it's primaries keys
 sub find {
     my ($proto, @ids) = @_;
     my $sql = $proto->_find_one_sql;
-    my $sth = $proto->db_execute($sql, @ids);
-    unless ($sth) {
-        return $STATUS::BAD_REQUEST, undef;
-    }
+    my ($status, $sth) = $proto->db_execute($sql, @ids);
+    return $status, undef if is_error($status);
     my $row = $sth->fetchrow_hashref;
     unless ($row) {
         return $STATUS::NOT_FOUND, undef;
@@ -152,8 +150,8 @@ sub search {
         -where   => $where // {},
         %{$extra // {}},
     );
-    my $sth = $proto->db_execute($stmt, @bind);
-    return $STATUS::BAD_REQUEST, undef unless defined $sth;
+    my ($status, $sth) = $proto->db_execute($stmt, @bind);
+    return $status, undef if is_error($status);
     return $STATUS::OK, pf::dal::iterator->new({sth => $sth, class => $class});
 }
 
@@ -189,17 +187,15 @@ sub update {
         -set   => $update_data,
         -where => $where,
     );
-    my $sth = $self->db_execute($stmt, @bind);
+    ($status, my $sth) = $self->db_execute($stmt, @bind);
+    return $status if is_error($status);
 
-    if ($sth) {
-        my $rows = $sth->rows;
-        if ($rows) {
-            $self->_save_old_data();
-            return $STATUS::OK;
-        }
-        return $STATUS::NOT_FOUND;
+    my $rows = $sth->rows;
+    if ($rows) {
+        $self->_save_old_data();
+        return $STATUS::OK;
     }
-    return $STATUS::BAD_REQUEST;
+    return $STATUS::NOT_FOUND;
 }
 
 =head2 insert
@@ -225,14 +221,13 @@ sub insert {
         -into => $self->table,
         -values   => $insert_data,
     );
-    my $sth = $self->db_execute($stmt, @bind);
+    my ($status, $sth) = $self->db_execute($stmt, @bind);
+    return $status if is_error($status);
 
-    if ($sth) {
-        my $rows = $sth->rows;
-        if ($rows) {
-            $self->_save_old_data();
-            return $STATUS::CREATED;
-        }
+    my $rows = $sth->rows;
+    if ($rows) {
+        $self->_save_old_data();
+        return $STATUS::CREATED;
     }
     return $STATUS::BAD_REQUEST;
 }
@@ -273,13 +268,12 @@ sub upsert {
         -values   => $insert_data,
         -on_conflict => $on_conflict,
     );
-    my $sth = $self->db_execute($stmt, @bind);
-    if ($sth) {
-        my $rows = $sth->rows;
-        if ($rows) {
-            $self->_save_old_data();
-            return $STATUS::OK;
-        }
+    ($status, my $sth) = $self->db_execute($stmt, @bind);
+    return $status if is_error($status);
+    my $rows = $sth->rows;
+    if ($rows) {
+        $self->_save_old_data();
+        return $STATUS::OK;
     }
     return $STATUS::BAD_REQUEST;
 }
@@ -462,16 +456,14 @@ sub remove {
         -from => $self->table,
         -where => $self->primary_keys_where_clause,
     );
-    my $sth = $self->db_execute($sql, @bind);
-    if ($sth) {
-        my $rows = $sth->rows;
-        if ($rows) {
-            $self->__from_table(0);
-            return $STATUS::OK;
-        }
-        return $STATUS::NOT_FOUND;
+    my ($status, $sth) = $self->db_execute($sql, @bind);
+    return $status if is_error($status);
+    my $rows = $sth->rows;
+    if ($rows) {
+        $self->__from_table(0);
+        return $STATUS::OK;
     }
-    return $STATUS::BAD_REQUEST;
+    return $STATUS::NOT_FOUND;
 }
 
 =head2 remove_by_id
@@ -490,14 +482,12 @@ sub remove_by_id {
         -from => $self->table,
         -where => \%where,
     );
-    my $sth = $self->db_execute($sql, @bind);
-    if ($sth) {
-        if ($sth->rows) {
-            return $STATUS::OK;
-        }
-        return $STATUS::NOT_FOUND;
+    my ($status, $sth) = $self->db_execute($sql, @bind);
+    return $status if is_error($status);
+    if ($sth->rows) {
+        return $STATUS::OK;
     }
-    return $STATUS::BAD_REQUEST;
+    return $STATUS::NOT_FOUND;
 }
 
 =head2 get_sql_abstract
