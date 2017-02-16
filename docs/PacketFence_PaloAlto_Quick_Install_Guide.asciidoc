@@ -140,3 +140,5 @@ IP              Vsys   From    User                             IdleTimeout(s) M
 --------------- ------ ------- -------------------------------- -------------- -------------
 192.168.100.10  vsys1  syslog  domain\user1                     Never          Never     
 ----
+
+NOTE: If the process is not working and you get the following error `Usage: Socket::inet_ntoa(ip_address_sv)`, check that the hostname of your PacketFence server can be resolved correctly on the server itself. If its not, make sure you adjust your hosts file or your DNS server.
