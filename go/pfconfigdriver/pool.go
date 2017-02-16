@@ -103,6 +103,9 @@ func (rp *ResourcePool) LoadResource(ctx context.Context, o PfconfigObject, refl
 		if !firstLoad {
 			if res.IsValid(ctx) {
 				return false, nil
+			} else {
+				// If its invalid, its not already loaded
+				alreadyLoaded = false
 			}
 		}
 	}
