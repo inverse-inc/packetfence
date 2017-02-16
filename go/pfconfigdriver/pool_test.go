@@ -100,3 +100,35 @@ func TestResourceIsValid(t *testing.T) {
 		t.Error("Resource is valid although the control file was just touched")
 	}
 }
+
+func TestResourcePoolResourceIsValid(t *testing.T) {
+	rp := NewResourcePool(ctx)
+
+	gen := PfConfGeneral{}
+
+	if rp.ResourceIsValid(ctx, &gen) {
+		t.Error("Resource is valid although it was never loaded")
+	}
+
+	rp.LoadResourceStruct(ctx, &gen, true)
+
+	if !rp.ResourceIsValid(ctx, &gen) {
+		t.Error("Resource is invalid but should be valid")
+	}
+}
+
+func TestResourcePoolFindResource(t *testing.T) {
+	rp := NewResourcePool(ctx)
+
+	gen := PfConfGeneral{}
+
+	if _, ok := rp.FindResource(ctx, &gen); ok {
+		t.Error("Resource was found in the pool although it was never loaded")
+	}
+
+	rp.LoadResourceStruct(ctx, &gen, true)
+
+	if _, ok := rp.FindResource(ctx, &gen); !ok {
+		t.Error("Resource wasn't found in the pool although it was loaded")
+	}
+}

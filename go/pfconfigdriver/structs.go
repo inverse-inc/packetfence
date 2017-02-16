@@ -34,8 +34,17 @@ type PfConfGeneral struct {
 
 // Used when fetching the sections from a pfconfig HASH namespace
 // This will store the keys (section names) in the Keys attribute
+// **DO NOT** use this directly through the resource pool as the pool is type based which means that all your structs pointing to different namespaces will point to the namespace that was used first
 type PfconfigKeys struct {
 	PfconfigMethod string `val:"keys"`
 	PfconfigNS     string `val:"-"`
 	Keys           []string
+}
+
+func (pk *PfconfigKeys) GetKeys() *[]string {
+	return &pk.Keys
+}
+
+type PfconfigKeysInt interface {
+	GetKeys() *[]string
 }
