@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 24;
+use Test::More tests => 23;
 
 use pf::error qw(is_success is_error);
 use pf::db;
@@ -54,7 +54,7 @@ ok($node, "New node not in the database");
 
 is($node->voip, "no", "node->voip is default 'no'");
 
-ok($node->save, "Saving $test_mac into the database");
+ok(is_success($node->save), "Saving $test_mac into the database");
 
 ok($node->__from_table, "New node is in the database");
 
@@ -67,9 +67,10 @@ my $new_session = "$$-new";
 
 $node->sessionid($new_session);
 
-is_deeply($node->_update_data, {sessionid => $new_session}, "Only saving values that changed");
+($status, my $node_data) = $node->_update_data;
+is_deeply($node_data, {sessionid => $new_session}, "Only saving values that changed");
 
-ok($node->save, "Saving changes into the database");
+ok(is_success($node->save), "Saving changes into the database");
 
 $node = pf::dal::node->find($test_mac);
 
@@ -79,11 +80,11 @@ is($node->sessionid, $new_session, "Changes were saved into database");
 
 $node->voip("bob");
 
-ok(!$node->save, "Cannot save invalid enum value into the database");
+ok(is_error($node->save), "Cannot save invalid enum value into the database");
 
 $node->voip("yes");
 
-ok($node->save, "Save valid data into the database");
+ok(is_success($node->save), "Save valid data into the database");
 
 $node = pf::dal::node->find($test_mac);
 
@@ -93,9 +94,9 @@ is($node->voip, "yes", "Changes were saved into database");
 
 $node->status(undef);
 
-ok(!$node->save, "Cannot save a null value into the database");
+ok(is_error($node->save), "Cannot save a null value into the database");
 
-ok($node->remove, "Remove node in database");
+ok(is_success($node->remove), "Remove node in database");
 
 $node = pf::dal::node->find($test_mac);
 
@@ -103,19 +104,21 @@ is ($node, undef, "Node does not exists");
 
 $node = pf::dal::node->new({ mac => $test_mac });
 
-ok($node->save, "Saving node after being deleted");
+ok(is_success($node->save), "Saving node after being deleted");
 
 pf::dal::node->remove_by_id({mac => $test_mac});
 
 $node->voip("yes");
 
-ok($node->save, "Saving node after being deleted from under us");
+ok(is_success($node->save), "Saving node after being deleted from under us");
 
 $node = pf::dal::node->find($test_mac);
 
 ok($node, "Saving after being deleted");
 
 is($node->voip, "yes", "Voip was saved");
+
+pf::dal::node->remove_by_id({mac => $test_mac});
 
 =head1 AUTHOR
 
