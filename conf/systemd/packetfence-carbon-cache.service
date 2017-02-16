@@ -6,7 +6,7 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
 [Service]
 Type=simple
 User=pf
-PIDfile=/usr/local/pf/var/run/carbon-cache.pid
+PIDFile=/usr/local/pf/var/run/carbon-cache.pid
 ExecStartPre=/usr/local/pf/bin/pfcmd service carbon-cache generateconfig
 ExecStart=/usr/bin/carbon-cache --pidfile=/usr/local/pf/var/run/carbon-cache.pid --config=/usr/local/pf/var/conf/carbon.conf  --logdir=/usr/local/pf/logs --nodaemon start
 ExecReload=/bin/kill -USR1 $MAINPID
