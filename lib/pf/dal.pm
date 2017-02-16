@@ -20,6 +20,7 @@ use strict;
 use warnings;
 use pf::db;
 use pf::log;
+use pf::error qw(is_error);
 use pf::SQL::Abstract;
 use pf::dal::iterator;
 
@@ -124,15 +125,15 @@ sub find {
     my $sql = $proto->_find_one_sql;
     my $sth = $proto->db_execute($sql, @ids);
     unless ($sth) {
-        return undef;
+        return $STATUS::BAD_REQUEST, undef;
     }
     my $row = $sth->fetchrow_hashref;
     unless ($row) {
-        return undef;
+        return $STATUS::NOT_FOUND, undef;
     }
     my $dal = $proto->new_from_table($row);
     $sth->finish;
-    return $dal;
+    return $STATUS::OK, $dal;
 }
 
 =head2 search
@@ -152,8 +153,8 @@ sub search {
         %{$extra // {}},
     );
     my $sth = $proto->db_execute($stmt, @bind);
-    return undef unless defined $sth;
-    return pf::dal::iterator->new({sth => $sth, class => $class});
+    return $STATUS::BAD_REQUEST, undef unless defined $sth;
+    return $STATUS::OK, pf::dal::iterator->new({sth => $sth, class => $class});
 }
 
 =head2 save
@@ -164,7 +165,7 @@ Save the pf::dal object in the database
 
 sub save {
     my ($self) = @_;
-    return $self->__from_table ? $self->update : $self->insert;
+    return $self->upsert;
 }
 
 =head2 update
@@ -175,12 +176,12 @@ Update the pf::dal object
 
 sub update {
     my ($self) = @_;
-    return 0 unless $self->__from_table;
+    return $STATUS::PRECONDITION_FAILED unless $self->__from_table;
     my $where         = $self->primary_keys_where_clause;
-    my $update_data = $self->_update_data;
-    return 0 unless defined $update_data;
+    my ($status, $update_data) = $self->_update_data;
+    return $status if is_error($status);
     if (keys %$update_data == 0 ) {
-       return 1;
+       return $STATUS::OK;
     }
     my $sqla          = $self->get_sql_abstract;
     my ($stmt, @bind) = $sqla->update(
@@ -194,10 +195,11 @@ sub update {
         my $rows = $sth->rows;
         if ($rows) {
             $self->_save_old_data();
+            return $STATUS::OK;
         }
-        return $rows;
+        return $STATUS::NOT_FOUND;
     }
-    return 0;
+    return $STATUS::BAD_REQUEST;
 }
 
 =head2 insert
@@ -211,12 +213,12 @@ sub insert {
     if ($self->__from_table) {
         my $table = $self->table;
         $self->logger->error("Trying to insert duplicate row into $table");
-        return 0;
+        return $STATUS::FORBIDDEN;
     }
     my $insert_data = $self->_insert_data;
-    return 0 unless defined $insert_data;
+    return $STATUS::BAD_REQUEST unless defined $insert_data;
     if (keys %$insert_data == 0 ) {
-       return 0;
+       return $STATUS::BAD_REQUEST;
     }
     my $sqla          = $self->get_sql_abstract;
     my ($stmt, @bind) = $sqla->insert(
@@ -229,10 +231,10 @@ sub insert {
         my $rows = $sth->rows;
         if ($rows) {
             $self->_save_old_data();
+            return $STATUS::CREATED;
         }
-        return $rows;
     }
-    return 0;
+    return $STATUS::BAD_REQUEST;
 }
 
 =head2 _save_old_data
@@ -258,12 +260,13 @@ Perform an upsert of the pf::dal object
 
 sub upsert {
     my ($self) = @_;
-    my $insert_data = $self->_insert_data;
-    return 0 unless defined $insert_data;
+    my ($status, $insert_data) = $self->_insert_data;
+    return $status if is_error($status);
     if (keys %$insert_data == 0 ) {
-       return 0;
+        return $STATUS::BAD_REQUEST;
     }
-    my $on_conflict = $self->_on_conflict_data;
+    ($status, my $on_conflict) = $self->_on_conflict_data;
+    return $status if is_error($status);
     my $sqla          = $self->get_sql_abstract;
     my ($stmt, @bind) = $sqla->upsert(
         -into => $self->table,
@@ -275,10 +278,10 @@ sub upsert {
         my $rows = $sth->rows;
         if ($rows) {
             $self->_save_old_data();
+            return $STATUS::OK;
         }
-        return $rows;
     }
-    return 0;
+    return $STATUS::BAD_REQUEST;
 }
 
 =head2 _on_conflict_data
@@ -304,12 +307,12 @@ sub _insert_data {
     my %data;
     foreach my $field (@$fields) {
         my $new_value = $self->{$field};
-        unless ($self->validate_field($field, $new_value)) {
-            return undef;
+        if (is_error($self->validate_field($field, $new_value))) {
+            return $STATUS::PRECONDITION_FAILED, undef;
         }
         $data{$field} = $new_value;
     }
-    return \%data;
+    return $STATUS::OK, \%data;
 }
 
 =head2 _update_data
@@ -328,12 +331,12 @@ sub _update_data {
         my $old_value = $old_data->{$field};
         next if (!defined $new_value && !defined $old_value);
         next if (defined $new_value && defined $old_value && $new_value eq $old_value);
-        unless ($self->validate_field($field, $new_value)) {
-            return undef;
+        if (is_error($self->validate_field($field, $new_value))) {
+            return $STATUS::PRECONDITION_FAILED, undef;
         }
         $data{$field} = $new_value;
     }
-    return \%data;
+    return $STATUS::OK, \%data;
 }
 
 =head2 validate_field
@@ -345,12 +348,11 @@ Validate a field value
 sub validate_field {
     my ($self, $field, $value) = @_;
     my $logger = $self->logger;
-    my $is_nullable = $self->is_nullable($field);
-    if (!$is_nullable) {
+    if (!$self->is_nullable($field)) {
         if (!defined $value) {
             my $table = $self->table;
             $logger->error("Trying to save a NULL value in a non nullable field ${table}.${field}");
-            return 0;
+            return $STATUS::PRECONDITION_FAILED;
         }
     }
     if ($self->is_enum($field) && defined $value) {
@@ -358,7 +360,7 @@ sub validate_field {
         unless (exists $meta->{$field} && exists $meta->{$field}{enums_values}{$value}) {
             my $table = $self->table;
             $logger->error("Trying to save a invalid value in a non nullable field ${table}.${field}");
-            return 0;
+            return $STATUS::PRECONDITION_FAILED;
         }
     }
     return $self->_validate_field($field, $value);
@@ -370,7 +372,7 @@ A hook into validate field
 
 =cut
 
-sub _validate_field { 1 }
+sub _validate_field { $STATUS::OK }
 
 =head2 is_enum
 
@@ -454,7 +456,7 @@ Remove row from the database
 
 sub remove {
     my ($self) = @_;
-    return 0 unless $self->__from_table;
+    return $STATUS::PRECONDITION_FAILED unless $self->__from_table;
     my $sqla = $self->get_sql_abstract;
     my ($sql, @bind) = $sqla->delete(
         -from => $self->table,
@@ -465,10 +467,11 @@ sub remove {
         my $rows = $sth->rows;
         if ($rows) {
             $self->__from_table(0);
+            return $STATUS::OK;
         }
-        return $sth->rows;
+        return $STATUS::NOT_FOUND;
     }
-    return 0;
+    return $STATUS::BAD_REQUEST;
 }
 
 =head2 remove_by_id
@@ -489,9 +492,12 @@ sub remove_by_id {
     );
     my $sth = $self->db_execute($sql, @bind);
     if ($sth) {
-        return $sth->rows;
+        if ($sth->rows) {
+            return $STATUS::OK;
+        }
+        return $STATUS::NOT_FOUND;
     }
-    return 0;
+    return $STATUS::BAD_REQUEST;
 }
 
 =head2 get_sql_abstract
