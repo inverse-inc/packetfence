@@ -92,7 +92,7 @@ func readConfig(ctx context.Context, pfsso *PfssoHandler, firstLoad bool) error 
 
 		log.LoggerWContext(ctx).Info(fmt.Sprintf("Adding firewall %s", firewallId))
 
-		firewall, err := fssoFactory.Instantiate(ctx, firewallId)
+		firewall, err := fssoFactory.Instantiate(ctx, firewallId, firstLoad)
 		if err != nil {
 			log.LoggerWContext(ctx).Error(fmt.Sprintf("Cannot instantiate firewall %s because of an error (%s). Ignoring it.", firewallId, err))
 		} else {
