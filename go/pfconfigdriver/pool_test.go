@@ -38,6 +38,19 @@ func TestLoadResource(t *testing.T) {
 		t.Error("Resource wasn't loaded when calling a first time load")
 	}
 
+	// Test loading a resource without the firstLoad flag which shouldn't read from pfconfig
+	gen = PfConfGeneral{}
+	loaded = rp.LoadResource(ctx, &gen, true)
+
+	if !loaded {
+		t.Error("Resource wasn't loaded when calling a first time load")
+	}
+
+	expected = "pfdemo.org"
+	if gen.Domain != expected {
+		t.Errorf("Resource domain wasn't loaded correctly through resource pool. Got %s instead of %s", gen.Domain, expected)
+	}
+
 	// Test changing data in pfconfig and reloading the resource
 	cmd := exec.Command("sed", "-i.bak", "s/domain=pfdemo.org/domain=zammitcorp.com/g", "/usr/local/pf/t/data/pf.conf")
 	err := cmd.Run()
