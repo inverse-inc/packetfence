@@ -12,7 +12,7 @@ var ctx = log.LoggerNewContext(context.Background())
 
 func TestStart(t *testing.T) {
 	factory := NewFactory(ctx)
-	o, err := factory.Instantiate(ctx, "testfw")
+	o, err := factory.Instantiate(ctx, "testfw", true)
 	util.CheckTestError(t, err)
 	iboss := o.(*Iboss)
 
@@ -35,7 +35,7 @@ func TestStart(t *testing.T) {
 		}
 	}
 
-	paloalto, err := factory.Instantiate(ctx, "paloalto.com")
+	paloalto, err := factory.Instantiate(ctx, "paloalto.com", true)
 	util.CheckTestError(t, err)
 
 	if err == nil {
@@ -59,7 +59,7 @@ func TestMatchesNetwork(t *testing.T) {
 	factory := NewFactory(ctx)
 
 	// Test firewall that has 1 or more network assigned to it
-	fw, err := factory.Instantiate(ctx, "testfw")
+	fw, err := factory.Instantiate(ctx, "testfw", true)
 	util.CheckTestError(t, err)
 
 	if err == nil {
@@ -78,7 +78,7 @@ func TestMatchesNetwork(t *testing.T) {
 	}
 
 	// Test firewall that has no network assigned to it
-	fw, err = factory.Instantiate(ctx, "testfw2")
+	fw, err = factory.Instantiate(ctx, "testfw2", true)
 	util.CheckTestError(t, err)
 
 	if err == nil {
@@ -101,7 +101,7 @@ func TestMatchesRole(t *testing.T) {
 	factory := NewFactory(ctx)
 
 	// Test firewall that has 1 or more role assigned to it
-	fw, err := factory.Instantiate(ctx, "testfw2")
+	fw, err := factory.Instantiate(ctx, "testfw2", true)
 	util.CheckTestError(t, err)
 
 	if err == nil {
@@ -115,7 +115,7 @@ func TestMatchesRole(t *testing.T) {
 	}
 
 	// Test firewall that has no role assigned to it. That shouldn't make it apply
-	fw, err = factory.Instantiate(ctx, "testfw")
+	fw, err = factory.Instantiate(ctx, "testfw", true)
 	util.CheckTestError(t, err)
 
 	if err != nil {
