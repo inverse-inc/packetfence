@@ -53,8 +53,14 @@ func NewResourcePool(ctx context.Context) *ResourcePool {
 // Loads a resource and loads it from the process loaded resources unless the resource has changed in pfconfig
 // A previously loaded PfconfigObject can be send to this method. If its previously loaded, it will not be touched if the namespace hasn't changed in pfconfig. If its previously loaded and has changed in pfconfig, the new data will be put in the existing PfconfigObject. Should field be unset or have disapeared in pfconfig, it will be properly set back to the zero value of the field. See https://play.golang.org/p/_dYY4Qe5_- for an example.
 // Returns whether the resource has been loaded/reloaded from pfconfig or not
-func (rp *ResourcePool) LoadResource(ctx context.Context, resource PfconfigObject, firstLoad bool) bool {
-	structType := reflect.TypeOf(resource).Elem()
+func (rp *ResourcePool) LoadResource(ctx context.Context, resource PfconfigObject, reflectInfo reflect.Value, firstLoad bool) bool {
+	var structType reflect.Type
+	if reflectInfo.IsValid() {
+		structType = reflectInfo.Type()
+	} else {
+		structType = reflect.TypeOf(resource).Elem()
+	}
+
 	structTypeStr := structType.String()
 
 	alreadyLoaded := false
@@ -84,4 +90,8 @@ func (rp *ResourcePool) LoadResource(ctx context.Context, resource PfconfigObjec
 
 	FetchDecodeSocketStruct(ctx, resource)
 	return true
+}
+
+func (rp *ResourcePool) LoadResourceStruct(ctx context.Context, resource PfconfigObject, firstLoad bool) bool {
+	return rp.LoadResource(ctx, resource, reflect.Value{}, firstLoad)
 }

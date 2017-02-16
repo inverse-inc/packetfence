@@ -8,12 +8,12 @@ import (
 	"time"
 )
 
-func TestLoadResource(t *testing.T) {
+func TestLoadResourceStruct(t *testing.T) {
 	rp := NewResourcePool(ctx)
 	gen := PfConfGeneral{}
 
 	// Test loading a resource and validating the result
-	loaded := rp.LoadResource(ctx, &gen, true)
+	loaded := rp.LoadResourceStruct(ctx, &gen, true)
 
 	if !loaded {
 		t.Error("Resource wasn't loaded when calling a first time load")
@@ -32,7 +32,7 @@ func TestLoadResource(t *testing.T) {
 
 	// Test loading a resource with the firstLoad flag which should reload from pfconfig even though there is another resource that uses the same struct
 	gen = PfConfGeneral{}
-	loaded = rp.LoadResource(ctx, &gen, true)
+	loaded = rp.LoadResourceStruct(ctx, &gen, true)
 
 	if !loaded {
 		t.Error("Resource wasn't loaded when calling a first time load")
@@ -40,7 +40,7 @@ func TestLoadResource(t *testing.T) {
 
 	// Test loading a resource without the firstLoad flag which shouldn't read from pfconfig
 	gen = PfConfGeneral{}
-	loaded = rp.LoadResource(ctx, &gen, true)
+	loaded = rp.LoadResourceStruct(ctx, &gen, true)
 
 	if !loaded {
 		t.Error("Resource wasn't loaded when calling a first time load")
@@ -60,7 +60,7 @@ func TestLoadResource(t *testing.T) {
 	FetchSocket(ctx, `{"method":"expire", "encoding":"json", "namespace":"config::Pf"}`+"\n")
 
 	// Load the resource while accepting the reusal of the data already populated in the resource
-	loaded = rp.LoadResource(ctx, &gen, false)
+	loaded = rp.LoadResourceStruct(ctx, &gen, false)
 
 	if !loaded {
 		t.Error("Resource wasn't loaded when control file expired")
@@ -83,7 +83,7 @@ func TestResourceIsValid(t *testing.T) {
 	rp := NewResourcePool(ctx)
 
 	gen := PfConfGeneral{}
-	rp.LoadResource(ctx, &gen, false)
+	rp.LoadResourceStruct(ctx, &gen, false)
 
 	res := rp.loadedResources["pfconfigdriver.PfConfGeneral"]
 	if !res.IsValid(ctx) {
