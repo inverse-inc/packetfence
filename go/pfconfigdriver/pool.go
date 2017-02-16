@@ -65,39 +65,30 @@ func (rp *ResourcePool) ResourceIsValid(ctx context.Context, o PfconfigObject) b
 }
 
 func (rp *ResourcePool) FindResource(ctx context.Context, o PfconfigObject) (Resource, bool) {
-	structTypeStr := rp.getStructType(ctx, o, reflect.Value{}).String()
+	structTypeStr := rp.getStructType(ctx, o).String()
 	log.LoggerWContext(ctx).Debug(fmt.Sprintf("Finding resource of type %s", structTypeStr))
 	res, ok := rp.loadedResources[structTypeStr]
 	return res, ok
 }
 
-func (rp *ResourcePool) getStructType(ctx context.Context, o PfconfigObject, reflectInfo reflect.Value) reflect.Type {
-	if reflectInfo.IsValid() {
-		return reflectInfo.Type()
-	} else {
-		rv := reflect.ValueOf(o)
-		for rv.Kind() == reflect.Ptr || rv.Kind() == reflect.Interface {
-			fmt.Println(rv.Kind(), rv.Type())
-			rv = rv.Elem()
-		}
-		return rv.Type()
+func (rp *ResourcePool) getStructType(ctx context.Context, o PfconfigObject) reflect.Type {
+	rv := reflect.ValueOf(o)
+	for rv.Kind() == reflect.Ptr || rv.Kind() == reflect.Interface {
+		rv = rv.Elem()
 	}
+	return rv.Type()
 }
 
-func (rp *ResourcePool) getNamespace(ctx context.Context, o PfconfigObject, reflectInfo reflect.Value) string {
-	if reflectInfo.IsValid() {
-		return metadataFromField(ctx, reflectInfo, "PfconfigNS")
-	} else {
-		return metadataFromField(ctx, o, "PfconfigNS")
-	}
+func (rp *ResourcePool) getNamespace(ctx context.Context, o PfconfigObject) string {
+	return metadataFromField(ctx, o, "PfconfigNS")
 }
 
 // Loads a resource and loads it from the process loaded resources unless the resource has changed in pfconfig
 // A previously loaded PfconfigObject can be send to this method. If its previously loaded, it will not be touched if the namespace hasn't changed in pfconfig. If its previously loaded and has changed in pfconfig, the new data will be put in the existing PfconfigObject. Should field be unset or have disapeared in pfconfig, it will be properly set back to the zero value of the field. See https://play.golang.org/p/_dYY4Qe5_- for an example.
 // Returns whether the resource has been loaded/reloaded from pfconfig or not
-func (rp *ResourcePool) LoadResource(ctx context.Context, o PfconfigObject, reflectInfo reflect.Value, firstLoad bool) (bool, error) {
-	structType := rp.getStructType(ctx, o, reflectInfo)
-	namespace := rp.getNamespace(ctx, o, reflectInfo)
+func (rp *ResourcePool) LoadResource(ctx context.Context, o PfconfigObject, firstLoad bool) (bool, error) {
+	structType := rp.getStructType(ctx, o)
+	namespace := rp.getNamespace(ctx, o)
 
 	structTypeStr := structType.String()
 
@@ -128,10 +119,10 @@ func (rp *ResourcePool) LoadResource(ctx context.Context, o PfconfigObject, refl
 		}
 	}
 
-	err := FetchDecodeSocket(ctx, o, reflectInfo)
+	err := FetchDecodeSocket(ctx, o)
 	return true, err
 }
 
 func (rp *ResourcePool) LoadResourceStruct(ctx context.Context, o PfconfigObject, firstLoad bool) (bool, error) {
-	return rp.LoadResource(ctx, o, reflect.Value{}, firstLoad)
+	return rp.LoadResource(ctx, o, firstLoad)
 }
