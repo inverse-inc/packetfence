@@ -24,10 +24,10 @@ func NewFactory(ctx context.Context) Factory {
 // Instantiate a new FirewallSSO given its configuration ID in PacketFence
 // TODO: This currently calls FetchDecodeSocketStruct twice which generates 2 calls to pfconfig
 //       This should be reworked so that only 1 call is done and the same payload is used to determine the type and to create the struct
-func (f *Factory) Instantiate(ctx context.Context, id string) (FirewallSSOInt, error) {
+func (f *Factory) Instantiate(ctx context.Context, id string, firstLoad bool) (FirewallSSOInt, error) {
 	firewall := FirewallSSO{}
 	firewall.PfconfigHashNS = id
-	err := pfconfigdriver.FetchDecodeSocketStruct(ctx, &firewall)
+	_, err := pfconfigdriver.GlobalPfconfigResourcePool.LoadResourceStruct(ctx, &firewall, firstLoad)
 	if err != nil {
 		return nil, err
 	}
@@ -35,7 +35,11 @@ func (f *Factory) Instantiate(ctx context.Context, id string) (FirewallSSOInt, e
 		or := reflect.New(oType)
 		or.Elem().FieldByName("PfconfigHashNS").SetString(id)
 		firewall2 := or.Interface()
-		pfconfigdriver.FetchDecodeSocket(ctx, &firewall2, or.Elem())
+		_, err = pfconfigdriver.GlobalPfconfigResourcePool.LoadResource(ctx, &firewall2, or.Elem(), firstLoad)
+		if err != nil {
+			return nil, err
+		}
+
 		fwint := firewall2.(FirewallSSOInt)
 		fwint.init(ctx)
 		return fwint, nil

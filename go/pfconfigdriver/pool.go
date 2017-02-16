@@ -10,6 +10,12 @@ import (
 	"time"
 )
 
+var GlobalPfconfigResourcePool *ResourcePool
+
+func init() {
+	GlobalPfconfigResourcePool = NewResourcePool(context.Background())
+}
+
 type Resource struct {
 	pfconfigObject PfconfigObject
 	namespace      string
@@ -53,12 +59,16 @@ func NewResourcePool(ctx context.Context) *ResourcePool {
 // Loads a resource and loads it from the process loaded resources unless the resource has changed in pfconfig
 // A previously loaded PfconfigObject can be send to this method. If its previously loaded, it will not be touched if the namespace hasn't changed in pfconfig. If its previously loaded and has changed in pfconfig, the new data will be put in the existing PfconfigObject. Should field be unset or have disapeared in pfconfig, it will be properly set back to the zero value of the field. See https://play.golang.org/p/_dYY4Qe5_- for an example.
 // Returns whether the resource has been loaded/reloaded from pfconfig or not
-func (rp *ResourcePool) LoadResource(ctx context.Context, resource PfconfigObject, reflectInfo reflect.Value, firstLoad bool) bool {
+func (rp *ResourcePool) LoadResource(ctx context.Context, resource PfconfigObject, reflectInfo reflect.Value, firstLoad bool) (bool, error) {
 	var structType reflect.Type
+	var namespace string
+
 	if reflectInfo.IsValid() {
 		structType = reflectInfo.Type()
+		namespace = metadataFromField(ctx, reflectInfo, "PfconfigNS")
 	} else {
 		structType = reflect.TypeOf(resource).Elem()
+		namespace = metadataFromField(ctx, resource, "PfconfigNS")
 	}
 
 	structTypeStr := structType.String()
@@ -70,12 +80,10 @@ func (rp *ResourcePool) LoadResource(ctx context.Context, resource PfconfigObjec
 		alreadyLoaded = true
 		if !firstLoad {
 			if res.IsValid(ctx) {
-				return false
+				return false, nil
 			}
 		}
 	}
-
-	namespace := metadataFromField(ctx, resource, "PfconfigNS")
 
 	// We don't want to put a newer version of the resource in the map since another older struct relies on it
 	// The new one (current) can safely rely on the data in it even though it is older
@@ -88,10 +96,10 @@ func (rp *ResourcePool) LoadResource(ctx context.Context, resource PfconfigObjec
 		}
 	}
 
-	FetchDecodeSocketStruct(ctx, resource)
-	return true
+	err := FetchDecodeSocket(ctx, resource, reflectInfo)
+	return true, err
 }
 
-func (rp *ResourcePool) LoadResourceStruct(ctx context.Context, resource PfconfigObject, firstLoad bool) bool {
+func (rp *ResourcePool) LoadResourceStruct(ctx context.Context, resource PfconfigObject, firstLoad bool) (bool, error) {
 	return rp.LoadResource(ctx, resource, reflect.Value{}, firstLoad)
 }
