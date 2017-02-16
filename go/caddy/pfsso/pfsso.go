@@ -78,27 +78,43 @@ func readConfig(ctx context.Context, pfsso *PfssoHandler, firstLoad bool) error 
 	pfconfigdriver.GlobalPfconfigResourcePool.LoadResourceStruct(ctx, &pfsso.firewallIds, firstLoad)
 
 	fssoFactory := firewallsso.NewFactory(ctx)
-	for i := range pfsso.firewallIds.Keys {
-		firewallId := pfsso.firewallIds.Keys[i]
 
-		firewall := pfsso.firewalls[firewallId]
+	if !firstLoad {
+		for _, firewallId := range pfsso.firewallIds.Keys {
+			firewall, ok := pfsso.firewalls[firewallId]
 
-		spew.Dump(firewall)
+			if !ok {
+				return readConfig(ctx, pfsso, true)
+			}
 
-		res, ok := pfconfigdriver.GlobalPfconfigResourcePool.FindResource(ctx, &firewall)
-		if ok && res.IsValid(ctx) {
-			continue
+			res, ok := pfconfigdriver.GlobalPfconfigResourcePool.FindResource(ctx, &firewall)
+			spew.Dump(res)
+			if ok && res.IsValid(ctx) {
+				log.LoggerWContext(ctx).Info(fmt.Sprintf("Firewall %s is still valid", firewallId))
+			} else {
+				log.LoggerWContext(ctx).Info(fmt.Sprintf("Firewall %s is not valid", firewallId))
+				return readConfig(ctx, pfsso, true)
+			}
 		}
+	} else {
+		firewalls := make(map[string]firewallsso.FirewallSSOInt)
 
-		log.LoggerWContext(ctx).Info(fmt.Sprintf("Adding firewall %s", firewallId))
+		for _, firewallId := range pfsso.firewallIds.Keys {
+			log.LoggerWContext(ctx).Info(fmt.Sprintf("Adding firewall %s", firewallId))
 
-		firewall, err := fssoFactory.Instantiate(ctx, firewallId, firstLoad)
-		if err != nil {
-			log.LoggerWContext(ctx).Error(fmt.Sprintf("Cannot instantiate firewall %s because of an error (%s). Ignoring it.", firewallId, err))
-		} else {
-			pfsso.firewalls[firewall.GetFirewallSSO(ctx).PfconfigHashNS] = firewall
+			firewall, err := fssoFactory.Instantiate(ctx, firewallId, false)
+			if err != nil {
+				log.LoggerWContext(ctx).Error(fmt.Sprintf("Cannot instantiate firewall %s because of an error (%s). Ignoring it.", firewallId, err))
+			} else {
+				firewalls[firewall.GetFirewallSSO(ctx).PfconfigHashNS] = firewall
+			}
 		}
+		pfsso.firewalls = firewalls
+
 	}
+
+	spew.Dump(pfconfigdriver.GlobalPfconfigResourcePool)
+
 	return nil
 }
 

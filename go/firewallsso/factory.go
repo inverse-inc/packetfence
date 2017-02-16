@@ -27,14 +27,14 @@ func NewFactory(ctx context.Context) Factory {
 func (f *Factory) Instantiate(ctx context.Context, id string, firstLoad bool) (FirewallSSOInt, error) {
 	firewall := FirewallSSO{}
 	firewall.PfconfigHashNS = id
-	_, err := pfconfigdriver.GlobalPfconfigResourcePool.LoadResourceStruct(ctx, &firewall, firstLoad)
+	err := pfconfigdriver.FetchDecodeSocketStruct(ctx, &firewall)
 	if err != nil {
 		return nil, err
 	}
 	if oType, ok := f.typeRegistry[firewall.Type]; ok {
 		or := reflect.New(oType)
 		or.Elem().FieldByName("PfconfigHashNS").SetString(id)
-		firewall2 := or.Interface()
+		firewall2 := or.Interface().(pfconfigdriver.PfconfigObject)
 		_, err = pfconfigdriver.GlobalPfconfigResourcePool.LoadResource(ctx, &firewall2, or.Elem(), firstLoad)
 		if err != nil {
 			return nil, err
