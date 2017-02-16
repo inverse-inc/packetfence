@@ -9,7 +9,7 @@ import (
 
 func TestInstantiate(t *testing.T) {
 	factory := NewFactory(ctx)
-	firewall, err := factory.Instantiate(ctx, "testfw", true)
+	firewall, err := factory.Instantiate(ctx, "testfw")
 	util.CheckTestError(t, err)
 
 	if err == nil {
@@ -45,12 +45,12 @@ func TestFirewallSSOFetchDecodeSocket(t *testing.T) {
 
 func TestBadData(t *testing.T) {
 	factory := NewFactory(ctx)
-	_, err := factory.Instantiate(ctx, "invalid_type", true)
+	_, err := factory.Instantiate(ctx, "invalid_type")
 	if err == nil {
 		t.Error("Didn't get an error while instantiating a firewall with an invalid type")
 	}
 
-	_, err = factory.Instantiate(ctx, "invalid_id", true)
+	_, err = factory.Instantiate(ctx, "invalid_id")
 
 	if err == nil {
 		t.Error("Didn't get an error while instantiating a firewall that doesn't exist")
