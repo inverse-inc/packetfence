@@ -97,7 +97,13 @@ func metadataFromField(ctx context.Context, param PfconfigObject, fieldName stri
 	case reflect.Value:
 		ov = val
 	default:
-		ov = reflect.ValueOf(param).Elem()
+		rv := reflect.ValueOf(param)
+		for rv.Kind() == reflect.Ptr || rv.Kind() == reflect.Interface {
+			fmt.Println(rv.Kind(), rv.Type())
+			rv = rv.Elem()
+		}
+		fmt.Println(rv.Kind(), rv.Type())
+		ov = rv
 	}
 
 	// We check if the field was set to a value as this will overide the value in the tag
@@ -195,13 +201,10 @@ func FetchDecodeSocketInterface(ctx context.Context, o PfconfigObject, reflectIn
 // This will fetch the json representation from pfconfig and decode it into o
 // o must be a pointer to the struct as this should be used by reference
 func FetchDecodeSocket(ctx context.Context, o PfconfigObject, reflectInfo reflect.Value) error {
-	var queryParam interface{}
-	if reflectInfo.IsValid() {
-		queryParam = reflectInfo
-	} else {
-		queryParam = o
-	}
-	query := createQuery(ctx, queryParam)
+	//TODO: completely remove this
+	reflectInfo = reflect.Value{}
+
+	query := createQuery(ctx, o)
 	jsonResponse := FetchSocket(ctx, query.GetPayload())
 	if query.method == "keys" {
 		if cs, ok := o.(PfconfigKeysInt); ok {

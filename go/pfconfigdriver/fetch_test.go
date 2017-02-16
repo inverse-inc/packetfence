@@ -72,6 +72,16 @@ func TestFetchDecodeSocket(t *testing.T) {
 		t.Error("Invalid struct should have created an error in pfconfig driver but it didn't")
 	}
 
+	var i PfconfigObject
+
+	i = PfConfGeneral{}
+
+	err = FetchDecodeSocketStruct(ctx, &i)
+
+	if err != nil {
+		t.Error("Failed to fetch from pfconfig with type being in an interface")
+	}
+
 }
 
 // fetches resource::fqdn requesting Sereal encoding for the reply
