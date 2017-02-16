@@ -36,7 +36,7 @@ func (r *Resource) IsValid(ctx context.Context) bool {
 	} else {
 		controlTime := stat.ModTime()
 		if r.loadedAt.Before(controlTime) {
-			log.LoggerWContext(ctx).Debug("Resource is not valid anymore. Will reload it.")
+			log.LoggerWContext(ctx).Debug("Resource is not valid anymore.")
 			return false
 		} else {
 			return true
