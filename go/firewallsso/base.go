@@ -9,13 +9,6 @@ import (
 	"net"
 )
 
-// Used when fetching the sections from a pfconfig HASH namespace
-// This will store the keys (section names) in the Keys attribute
-type FirewallIds struct {
-	pfconfigdriver.PfconfigKeys
-	PfconfigNS string `val:"config::Firewall_SSO"`
-}
-
 // Basic interface that all FirewallSSO must implement
 type FirewallSSOInt interface {
 	init(ctx context.Context) error

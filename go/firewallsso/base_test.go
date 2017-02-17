@@ -3,7 +3,6 @@ package firewallsso
 import (
 	"context"
 	"github.com/fingerbank/processor/log"
-	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/util"
 	"testing"
 )
@@ -126,14 +125,5 @@ func TestMatchesRole(t *testing.T) {
 		if fw.MatchesRole(ctx, map[string]string{"role": "default"}) {
 			t.Error("Firewall matches role when it shouldn't")
 		}
-	}
-}
-
-func TestFirewallIds(t *testing.T) {
-	firewallIds := FirewallIds{}
-	pfconfigdriver.FetchDecodeSocket(ctx, &firewallIds)
-
-	if len(firewallIds.Keys) != 4 {
-		t.Errorf("There isn't the right number of firewall IDs fetched from pfconfig (%d instead of 4)", len(firewallIds.Keys))
 	}
 }
