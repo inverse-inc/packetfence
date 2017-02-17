@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 27;
+use Test::More tests => 29;
 
 use pf::error qw(is_success is_error);
 use pf::db;
@@ -120,9 +120,9 @@ is($node->voip, "yes", "Voip was saved");
 
 pf::dal::node->remove_by_id({mac => $test_mac});
 
-$node = pf::dal::node->new({ mac => $test_mac });
+$node = pf::dal::node->new({ mac => $test_mac, computername => "zams-computer" });
 
-my $node2 = pf::dal::node->new({ mac => $test_mac, voip => "yes" });
+my $node2 = pf::dal::node->new({ mac => $test_mac, computername => "zams-computer", voip => "yes" });
 
 ok(is_success($node->save), "Save node with voip = no");
 
@@ -130,7 +130,7 @@ $node = pf::dal::node->find($test_mac);
 
 is($node->voip, "no", "voip = no was saved");
 
-$node2 = pf::dal::node->new({ mac => $test_mac, voip => "yes" });
+is($node->computername, "zams-computer", "computername was saved");
 
 ok(is_success($node2->save), "Save node with voip = yes");
 
@@ -138,6 +138,7 @@ $node2 = pf::dal::node->find($test_mac);
 
 is($node2->voip, "yes", "The last saved node won");
 
+is($node2->computername, "zams-computer", "The last saved node won");
 
 pf::dal::node->remove_by_id({mac => $test_mac});
 
