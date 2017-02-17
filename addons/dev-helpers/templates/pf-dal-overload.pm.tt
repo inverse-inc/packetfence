@@ -1,0 +1,5 @@
+[% WRAPPER "class-wrapper.tt" -%]
+[% SET class_name = "pf::dal module to override for the table $TABLE_NAME" -%]
+[% SET class_description = "pf::dal implementation for the table $TABLE_NAME" -%]
+use base qw([% parent_class %]);
+[%- END -%]
