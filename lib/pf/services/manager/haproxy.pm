@@ -242,11 +242,6 @@ sub stop {
     return $result;
 }
 
-sub isManaged {
-    my ($self) = @_;
-    return $cluster_enabled;
-}
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
