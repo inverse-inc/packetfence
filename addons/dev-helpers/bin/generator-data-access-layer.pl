@@ -86,6 +86,7 @@ sub get_table_info {
                 add_additional_metadata_to_column($table, $col);
                 push @cols, $col;
             }
+            @cols = sort { $a->{ORDINAL_POSITION} <=> $b->{ORDINAL_POSITION} } @cols;
             $table->{cols} = \@cols;
         }
         {
@@ -94,6 +95,7 @@ sub get_table_info {
             while (my $key = $sth->fetchrow_hashref()) {
                 push @keys, $key;
             }
+            @keys = sort { $a->{KEY_SEQ} <=> $b->{KEY_SEQ} } @keys;
             $table->{'primary_keys'} = \@keys;
         }
         {
