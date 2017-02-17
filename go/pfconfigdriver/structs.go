@@ -40,11 +40,3 @@ type PfconfigKeys struct {
 	PfconfigNS     string `val:"-"`
 	Keys           []string
 }
-
-func (pk *PfconfigKeys) GetKeys() *[]string {
-	return &pk.Keys
-}
-
-type PfconfigKeysInt interface {
-	GetKeys() *[]string
-}
