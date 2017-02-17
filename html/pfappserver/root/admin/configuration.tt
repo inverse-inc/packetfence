@@ -83,8 +83,7 @@ table.sources {
           <div class="well sidebar-nav">
             <ul class="nav nav-list">
               [%- IF can_access_any("CONFIGURATION_MAIN_READ","CONNECTION_PROFILES_READ","PORTAL_MODULE_READ","ADMIN_ROLES_READ", "FILTERS_READ") -%]
-              <li class="nav-header">[% l('Policies') %]</li>
-              [% pf_section_entry( 'define_policy', 'Getting Started') | none %]
+              <li class="nav-header">[% pf_section_entry( 'define_policy', 'Policies and Access Control') | none %]</li>
               [%- IF can_access("USERS_ROLES_READ") %]
               [% pf_section_entry( 'roles', 'Devices') | none %]
               [%- END %]
@@ -106,9 +105,8 @@ table.sources {
               [%- IF can_access("PORTAL_MODULE_READ") %]
               [% list_entry('Config::PortalModule', 'index', 'Portal Modules') | none %]
               [%- END %]
-              <li class="nav-header">[% l('System Configuration') %]</li>
               [%- IF can_access("CONFIGURATION_MAIN_READ") %]
-              [% pf_section_entry('general', 'General') | none %]
+              <li class="nav-header">[% pf_section_entry('general', 'System Configuration') | none %]</li>
               [% pf_section_entry( 'alerting', 'Alerting') | none %]
               [%- IF can_access("PFMON_READ") %]
               [% list_entry('Config::Pfmon', 'index', 'Maintenance Tasks') | none %]
@@ -124,7 +122,7 @@ table.sources {
               [%- IF can_access("ADMIN_ROLES_READ") %]
               [% list_entry('Config::AdminRoles', 'index', 'Admin Access') | none %]
               [%- END %]
-              <li class="nav-header">[% l('Advanced Portal Configuration') %]</li>
+              <li class="nav-header">[% pf_section_entry('captive_portal', 'Advanced Portal Configuration') | none %]</li>
               [%- IF can_access("FILTERS_READ") %]
               [% list_entry('Config::Filters', 'index', 'Filter engines') | none %]
               [%- END %]
@@ -138,7 +136,6 @@ table.sources {
               [%- IF can_access("PKI_PROVIDER_READ") %]
               [% list_entry('Config::PKI_Provider', 'index', 'PKI Providers') | none %]
               [%- END %]
-              [% pf_section_entry( 'captive_portal', 'Captive portal') | none %]
               [% pf_section_entry( 'registration', 'Registration') | none %]
               <li class="nav-header">[% l('Compliance') %]</li>
               [%- IF can_access("VIOLATIONS_READ") %]
@@ -168,11 +165,10 @@ table.sources {
               [% list_entry('Config::Fingerbank::MAC_Vendor', 'index', 'MAC Vendors') | none %]
               [% list_entry('Config::Fingerbank::User_Agent', 'index', 'User Agents') | none %]-->
               [%- END %]
-              <li class="nav-header">[% l('Advanced') %]</li>
+              <li class="nav-header">[% pf_section_entry('network', 'Advanced') | none %]</li>
               [% IF can_access("MSE_READ") %]
               [% pf_section_entry( 'mse_tab', 'Node MSE Tab') | none %]
               [%- END %]
-              [% pf_section_entry( 'network', 'Network') | none %]
               <!--[% pf_section_entry( 'trapping', 'Trapping') | none %]
               [%- IF can_access("INTERFACES_READ") %]
               [% pf_section_entry( 'interfaces', 'Interfaces and Networks') | none %]
@@ -183,21 +179,14 @@ table.sources {
               [%- IF can_access("FLOATING_DEVICES_READ") %]
               [% list_entry('Config::FloatingDevice', 'index', 'Floating Device') | none %]
               [%- END %]
-              <li class="nav-header">[% l('Main') %]</li>
-              [%- END %]
-              [%- IF can_access("CONFIGURATION_MAIN_READ") %]
               [%- END %]
               [%- IF can_access_any("INTERFACES_READ","SWITCHES_READ","FLOATING_DEVICES_READ","FIREWALL_SSO_READ") %]
-              <li class="nav-header">[% l('Network') %]<li>
               [%- END %]
               [%- IF can_access_any("USERS_ROLES_READ","USERS_SOURCES_READ", "PROVISIONING_READ", "PKI_PROVIDER_READ", "BILLING_TIER_READ") %]
-              <li class="nav-header">[% l('Users') %]</li>
               [%- END %]
               [%- IF can_access_any("REALM_READ", "DOMAIN_READ") %]
-              <li class="nav-header">[% l('RADIUS') %]</li>
               [%- END %]
               [%- IF can_access_any("VIOLATIONS_READ","SOH_READ","SCAN_READ","WMI_READ") %]
-              <li class="nav-header">[% l('Compliance') %]</li>
               [%- END %]
           </div><!--/.well -->
         </div><!--/span-->
