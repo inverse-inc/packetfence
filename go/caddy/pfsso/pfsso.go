@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/fingerbank/processor/log"
 	"github.com/fingerbank/processor/statsd"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
