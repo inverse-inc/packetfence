@@ -127,7 +127,3 @@ func (rp *ResourcePool) LoadResource(ctx context.Context, o PfconfigObject, firs
 	err := FetchDecodeSocket(ctx, o)
 	return true, err
 }
-
-func (rp *ResourcePool) LoadResourceStruct(ctx context.Context, o PfconfigObject, firstLoad bool) (bool, error) {
-	return rp.LoadResource(ctx, o, firstLoad)
-}

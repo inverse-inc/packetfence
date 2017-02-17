@@ -8,12 +8,12 @@ import (
 	"time"
 )
 
-func TestLoadResourceStruct(t *testing.T) {
+func TestLoadResource(t *testing.T) {
 	rp := NewResourcePool(ctx)
 	gen := PfConfGeneral{}
 
 	// Test loading a resource and validating the result
-	loaded, err := rp.LoadResourceStruct(ctx, &gen, true)
+	loaded, err := rp.LoadResource(ctx, &gen, true)
 	sharedutils.CheckTestError(t, err)
 
 	if !loaded {
@@ -33,7 +33,7 @@ func TestLoadResourceStruct(t *testing.T) {
 
 	// Test loading a resource with the firstLoad flag which should reload from pfconfig even though there is another resource that uses the same struct
 	gen = PfConfGeneral{}
-	loaded, err = rp.LoadResourceStruct(ctx, &gen, true)
+	loaded, err = rp.LoadResource(ctx, &gen, true)
 	sharedutils.CheckTestError(t, err)
 
 	if !loaded {
@@ -42,7 +42,7 @@ func TestLoadResourceStruct(t *testing.T) {
 
 	// Test loading a resource without the firstLoad flag which shouldn't read from pfconfig
 	gen = PfConfGeneral{}
-	loaded, err = rp.LoadResourceStruct(ctx, &gen, true)
+	loaded, err = rp.LoadResource(ctx, &gen, true)
 	sharedutils.CheckTestError(t, err)
 
 	if !loaded {
@@ -63,7 +63,7 @@ func TestLoadResourceStruct(t *testing.T) {
 	FetchSocket(ctx, `{"method":"expire", "encoding":"json", "namespace":"config::Pf"}`+"\n")
 
 	// Load the resource while accepting the reusal of the data already populated in the resource
-	loaded, err = rp.LoadResourceStruct(ctx, &gen, false)
+	loaded, err = rp.LoadResource(ctx, &gen, false)
 	sharedutils.CheckTestError(t, err)
 
 	if !loaded {
@@ -87,7 +87,7 @@ func TestResourceIsValid(t *testing.T) {
 	rp := NewResourcePool(ctx)
 
 	gen := PfConfGeneral{}
-	rp.LoadResourceStruct(ctx, &gen, false)
+	rp.LoadResource(ctx, &gen, false)
 
 	res := rp.loadedResources["pfconfigdriver.PfConfGeneral"]
 	if !res.IsValid(ctx) {
@@ -110,7 +110,7 @@ func TestResourcePoolResourceIsValid(t *testing.T) {
 		t.Error("Resource is valid although it was never loaded")
 	}
 
-	rp.LoadResourceStruct(ctx, &gen, true)
+	rp.LoadResource(ctx, &gen, true)
 
 	if !rp.ResourceIsValid(ctx, &gen) {
 		t.Error("Resource is invalid but should be valid")
@@ -126,7 +126,7 @@ func TestResourcePoolFindResource(t *testing.T) {
 		t.Error("Resource was found in the pool although it was never loaded")
 	}
 
-	rp.LoadResourceStruct(ctx, &gen, true)
+	rp.LoadResource(ctx, &gen, true)
 
 	if _, ok := rp.FindResource(ctx, &gen); !ok {
 		t.Error("Resource wasn't found in the pool although it was loaded")

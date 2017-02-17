@@ -75,7 +75,7 @@ func setup(c *caddy.Controller) error {
 }
 
 func readConfig(ctx context.Context, pfsso *PfssoHandler, firstLoad bool) error {
-	pfconfigdriver.GlobalPfconfigResourcePool.LoadResourceStruct(ctx, &pfsso.firewallIds, firstLoad)
+	pfconfigdriver.GlobalPfconfigResourcePool.LoadResource(ctx, &pfsso.firewallIds, firstLoad)
 
 	fssoFactory := firewallsso.NewFactory(ctx)
 
