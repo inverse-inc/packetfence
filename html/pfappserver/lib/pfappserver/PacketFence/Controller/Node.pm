@@ -306,9 +306,10 @@ sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('NODES_UPD
     $c->stash->{current_view} = 'JSON';
 
     if ( $c->request->params->{'multihost'} eq "yes" ) {
-        $c->log->info("Doing multihost update calling from update node with MAC '" . $c->stash->{mac} . "'");
+        $c->log->info("Doing multihost 'update' called with MAC '" . $c->stash->{mac} . "'");
         my @mac = pf::node::check_multihost($c->stash->{mac});
         foreach my $mac ( @mac ) {
+            $c->log->info("Multihost 'update' for MAC '$mac'");
             $c->stash->{mac} = $mac;
             ( $status, $result ) = $self->_update($c);
             if ( is_error($status) ) {
