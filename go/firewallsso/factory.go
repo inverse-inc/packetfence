@@ -25,7 +25,7 @@ func NewFactory(ctx context.Context) Factory {
 func (f *Factory) Instantiate(ctx context.Context, id string, firstLoad bool) (FirewallSSOInt, error) {
 	firewall := FirewallSSO{}
 	firewall.PfconfigHashNS = id
-	err := pfconfigdriver.GlobalPfconfigResourcePool.LoadResource(ctx, &firewall)
+	_, err := pfconfigdriver.GlobalPfconfigResourcePool.LoadResource(ctx, &firewall, firstLoad)
 	if err != nil {
 		return nil, err
 	}
