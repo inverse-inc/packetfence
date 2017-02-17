@@ -39,3 +39,10 @@ type PfconfigKeys struct {
 	PfconfigNS     string `val:"-"`
 	Keys           []string
 }
+
+type ListenInts struct {
+	PfconfigMethod string `val:"element"`
+	PfconfigNS     string `val:"interfaces::listen_ints"`
+	PfconfigArray  string `val:"yes"`
+	Element        []string
+}

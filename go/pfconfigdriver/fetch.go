@@ -101,7 +101,13 @@ func metadataFromField(ctx context.Context, param PfconfigObject, fieldName stri
 	}
 
 	// We check if the field was set to a value as this will overide the value in the tag
-	userVal := reflect.Value(ov.FieldByName(fieldName)).Interface()
+	// At the same time, we check if the field exists and early exit with the empty string if it doesn't
+	field := reflect.Value(ov.FieldByName(fieldName))
+	if !field.IsValid() {
+		return ""
+	}
+
+	userVal := field.Interface()
 	if userVal != "" {
 		return userVal.(string)
 	}
@@ -209,6 +215,8 @@ func FetchDecodeSocket(ctx context.Context, o PfconfigObject, reflectInfo reflec
 		} else {
 			panic("Wrong struct type for keys. Required PfconfigKeys")
 		}
+	} else if metadataFromField(ctx, o, "PfconfigArray") == "yes" {
+		decodeInterface(ctx, query.encoding, jsonResponse, &o)
 	} else {
 		receiver := &PfconfigElementResponse{}
 		decodeInterface(ctx, query.encoding, jsonResponse, receiver)
