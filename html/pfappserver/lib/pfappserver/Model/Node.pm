@@ -541,7 +541,10 @@ sub violations {
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
-    return ($STATUS::OK, \@violations);
+    # Check for multihost
+    my @multihost = pf::node::check_multihost($mac);
+
+    return ($STATUS::OK, { 'violations' => \@violations, 'multihost' => \@multihost });
 }
 
 =head2 addViolation

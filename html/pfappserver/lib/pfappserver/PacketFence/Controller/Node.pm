@@ -425,7 +425,8 @@ sub violations :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
     my ($self, $c) = @_;
     my ($status, $result) = $c->model('Node')->violations($c->stash->{mac});
     if (is_success($status)) {
-        $c->stash->{items} = $result;
+        $c->stash->{items} = $result->{'violations'};
+        $c->stash->{multihost} = $result->{'multihost'};
         (undef, $result) = $c->model('Config::Violations')->readAll();
         my @violations = grep { $_->{id} ne 'defaults' } @$result; # remove defaults
         $c->stash->{violations} = \@violations;
@@ -442,12 +443,13 @@ sub violations :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
 =cut
 
 sub triggerViolation :Chained('object') :PathPart('trigger') :Args(1) :AdminRole('NODES_UPDATE') {
-    my ($self, $c, $id) = @_;
-    my ($status, $result) = $c->model('Config::Violations')->hasId($id);
-    if (is_success($status)) {
-        ($status, $result) = $c->model('Node')->addViolation($c->stash->{mac}, $id);
-        $self->audit_current_action($c, status => $status, mac => $c->stash->{mac}, violation_id => $id);
+    my ( $self, $c, $id ) = @_;
+
+    my ( $status, $result ) = $c->model('Config::Violations')->hasId($id);
+    if ( is_success($status) ) {
+        ( $status, $result ) = $self->_triggerViolation($c, $id);
     }
+
     $c->response->status($status);
     $c->stash->{status_msg} = $result;
     if (is_success($status)) {
@@ -456,6 +458,52 @@ sub triggerViolation :Chained('object') :PathPart('trigger') :Args(1) :AdminRole
     else {
         $c->stash->{current_view} = 'JSON';
     }
+}
+
+=head2 triggerViolation_multihost
+
+=cut
+
+sub triggerViolation_multihost :Chained('object') :PathPart('trigger_multihost') :Args(1) :AdminRole('NODES_UPDATE') {
+    my ( $self, $c, $id ) = @_;
+
+    my ( $status, $result ) = $c->model('Config::Violations')->hasId($id);
+    if ( is_success($status) ) {
+        $c->log->info("Doing multihost 'triggerViolation' called with MAC '" . $c->stash->{mac} . "'");
+        my @mac = pf::node::check_multihost($c->stash->{mac});
+        foreach my $mac ( @mac ) {
+            $c->log->info("Multihost 'triggerViolation' for MAC '$mac' with violation ID '$id'");
+            $c->stash->{mac} = $mac;
+            ( $status, $result ) = $self->_triggerViolation($c, $id);
+            if ( is_error($status) ) {
+                $c->stash->{current_view} = 'JSON';
+                return;
+            }
+        }
+    }
+
+    $c->response->status($status);
+    $c->stash->{status_msg} = $result;
+    if (is_success($status)) {
+        $c->forward('violations');
+    }
+    else {
+        $c->stash->{current_view} = 'JSON';
+    }        
+}
+
+=head2 _triggerViolation
+
+=cut
+
+sub _triggerViolation {
+    my ( $self, $c, $id ) = @_;
+
+    my ( $status, $result );
+    ( $status, $result ) = $c->model('Node')->addViolation($c->stash->{mac}, $id);
+    $self->audit_current_action($c, status => $status, mac => $c->stash->{mac}, violation_id => $id);
+
+    return ( $status, $result );
 }
 
 =head2 closeViolation
