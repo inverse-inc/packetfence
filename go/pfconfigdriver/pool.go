@@ -26,7 +26,7 @@ func (r *Resource) controlFile() string {
 }
 
 func (r *Resource) IsValid(ctx context.Context) bool {
-	ctx = log.AddToLogContext(ctx, "PfconfigObject", r.query.GetPayload())
+	ctx = log.AddToLogContext(ctx, "PfconfigObject", r.query.GetIdentifier())
 	stat, err := os.Stat(r.controlFile())
 
 	if err != nil {
@@ -65,11 +65,10 @@ func (rp *ResourcePool) ResourceIsValid(ctx context.Context, o PfconfigObject) b
 
 func (rp *ResourcePool) FindResource(ctx context.Context, o PfconfigObject) (Resource, bool) {
 	query := createQuery(ctx, o)
-	ctx = log.AddToLogContext(ctx, "PfconfigObject", query.GetPayload())
-	log.LoggerWContext(ctx).Info(query.GetPayload())
+	ctx = log.AddToLogContext(ctx, "PfconfigObject", query.GetIdentifier())
 
 	log.LoggerWContext(ctx).Debug("Finding resource")
-	res, ok := rp.loadedResources[query.GetPayload()]
+	res, ok := rp.loadedResources[query.GetIdentifier()]
 	return res, ok
 }
 
@@ -84,7 +83,7 @@ func (rp *ResourcePool) LoadResource(ctx context.Context, o PfconfigObject, firs
 	query := createQuery(ctx, o)
 	namespace := rp.getNamespace(ctx, o)
 
-	ctx = log.AddToLogContext(ctx, "PfconfigObject", query.GetPayload())
+	ctx = log.AddToLogContext(ctx, "PfconfigObject", query.GetIdentifier())
 
 	log.LoggerWContext(ctx).Debug("Started resource loading")
 
@@ -106,7 +105,7 @@ func (rp *ResourcePool) LoadResource(ctx context.Context, o PfconfigObject, firs
 	// We don't want to put a newer version of the resource in the map since another older struct relies on it
 	// The new one (current) can safely rely on the data in it even though it is older
 	if !alreadyLoaded {
-		rp.loadedResources[query.GetPayload()] = Resource{
+		rp.loadedResources[query.GetIdentifier()] = Resource{
 			namespace: namespace,
 			query:     query,
 			loadedAt:  time.Now(),

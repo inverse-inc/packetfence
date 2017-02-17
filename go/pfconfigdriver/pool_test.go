@@ -26,7 +26,7 @@ func TestLoadResource(t *testing.T) {
 	}
 
 	query := createQuery(ctx, &gen)
-	_, ok := rp.loadedResources[query.GetPayload()]
+	_, ok := rp.loadedResources[query.GetIdentifier()]
 	if !ok {
 		t.Error("The loaded resource wasn't stored in the pool")
 		return
@@ -91,7 +91,7 @@ func TestResourceIsValid(t *testing.T) {
 	rp.LoadResource(ctx, &gen, false)
 
 	query := createQuery(ctx, &gen)
-	res := rp.loadedResources[query.GetPayload()]
+	res := rp.loadedResources[query.GetIdentifier()]
 	if !res.IsValid(ctx) {
 		t.Error("Resource isn't valid although it was just loaded")
 	}

@@ -51,6 +51,11 @@ func (q *Query) GetPayload() string {
 	return q.payload
 }
 
+// Get a string identifier of the query
+func (q *Query) GetIdentifier() string {
+	return fmt.Sprintf("%s|%s", q.method, q.ns)
+}
+
 // Fetch data from the pfconfig socket for a string payload
 // Returns the bytes received from the socket
 func FetchSocket(ctx context.Context, payload string) []byte {
