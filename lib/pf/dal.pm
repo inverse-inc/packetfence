@@ -500,6 +500,18 @@ sub get_sql_abstract {
     return pf::SQL::Abstract->new(quote_char => '`');
 }
 
+=head2 create
+
+Wrap new and insert
+
+=cut
+
+sub create {
+    my ($self, @args) = @_;
+    my $obj = $self->new(@args);
+    return $obj->insert;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -528,4 +540,3 @@ USA.
 =cut
 
 1;
-
