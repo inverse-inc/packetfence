@@ -31,35 +31,41 @@ our %FIELDS_META;
 
 BEGIN {
     @FIELD_NAMES = qw(
-        status
-        ip
-        lastmodified
         outbytes
-        firstseen
         inbytes
+        ip
+        firstseen
+        lastmodified
+        status
     );
 
     %DEFAULTS = (
-        status => '0',
-        ip => '',
-        lastmodified => '',
         outbytes => '0',
-        firstseen => '',
         inbytes => '0',
+        ip => '',
+        firstseen => '',
+        lastmodified => '',
+        status => '0',
     );
 
     @INSERTABLE_FIELDS = qw(
-        status
-        ip
-        lastmodified
         outbytes
-        firstseen
         inbytes
+        ip
+        firstseen
+        lastmodified
+        status
     );
 
     %FIELDS_META = (
-        status => {
-            type => 'INT',
+        outbytes => {
+            type => 'BIGINT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        inbytes => {
+            type => 'BIGINT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 0,
@@ -70,26 +76,20 @@ BEGIN {
             is_primary_key => 1,
             is_nullable => 0,
         },
-        lastmodified => {
-            type => 'DATETIME',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
-        outbytes => {
-            type => 'BIGINT',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
         firstseen => {
             type => 'DATETIME',
             is_auto_increment => 0,
             is_primary_key => 1,
             is_nullable => 0,
         },
-        inbytes => {
-            type => 'BIGINT',
+        lastmodified => {
+            type => 'DATETIME',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        status => {
+            type => 'INT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 0,

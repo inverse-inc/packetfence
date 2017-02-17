@@ -31,52 +31,82 @@ our %FIELDS_META;
 
 BEGIN {
     @FIELD_NAMES = qw(
-        status
-        ip
-        item
-        person
-        price
-        update_date
-        start_date
-        type
         id
+        ip
         mac
+        type
+        start_date
+        update_date
+        status
+        item
+        price
+        person
     );
 
     %DEFAULTS = (
-        status => '',
-        ip => '',
-        item => '',
-        person => '',
-        price => '',
-        update_date => '0000-00-00 00:00:00',
-        start_date => '',
-        type => '',
         id => '',
+        ip => '',
         mac => '',
+        type => '',
+        start_date => '',
+        update_date => '0000-00-00 00:00:00',
+        status => '',
+        item => '',
+        price => '',
+        person => '',
     );
 
     @INSERTABLE_FIELDS = qw(
-        status
-        ip
-        item
-        person
-        price
-        update_date
-        start_date
-        type
         id
+        ip
         mac
+        type
+        start_date
+        update_date
+        status
+        item
+        price
+        person
     );
 
     %FIELDS_META = (
-        status => {
+        id => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 1,
+            is_nullable => 0,
+        },
+        ip => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 0,
         },
-        ip => {
+        mac => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        type => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        start_date => {
+            type => 'DATETIME',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        update_date => {
+            type => 'TIMESTAMP',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        status => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -88,43 +118,13 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
-        person => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
         price => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 0,
         },
-        update_date => {
-            type => 'TIMESTAMP',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
-        start_date => {
-            type => 'DATETIME',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
-        type => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
-        id => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 1,
-            is_nullable => 0,
-        },
-        mac => {
+        person => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,

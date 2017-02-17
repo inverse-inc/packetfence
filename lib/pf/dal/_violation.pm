@@ -31,43 +31,37 @@ our %FIELDS_META;
 
 BEGIN {
     @FIELD_NAMES = qw(
-        vid
         id
         mac
+        vid
+        start_date
         release_date
         status
         ticket_ref
-        start_date
         notes
     );
 
     %DEFAULTS = (
-        vid => '',
         mac => '',
+        vid => '',
+        start_date => '',
         release_date => '0000-00-00 00:00:00',
         status => 'open',
         ticket_ref => undef,
-        start_date => '',
         notes => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
-        vid
         mac
+        vid
+        start_date
         release_date
         status
         ticket_ref
-        start_date
         notes
     );
 
     %FIELDS_META = (
-        vid => {
-            type => 'INT',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
         id => {
             type => 'INT',
             is_auto_increment => 1,
@@ -76,6 +70,18 @@ BEGIN {
         },
         mac => {
             type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        vid => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        start_date => {
+            type => 'DATETIME',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 0,
@@ -97,12 +103,6 @@ BEGIN {
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
-        },
-        start_date => {
-            type => 'DATETIME',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
         },
         notes => {
             type => 'TEXT',

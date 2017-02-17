@@ -31,113 +31,113 @@ our %FIELDS_META;
 
 BEGIN {
     @FIELD_NAMES = qw(
-        source
+        pid
         firstname
         lastname
-        room_number
         email
-        custom_field_5
-        pid
-        custom_field_7
-        apartment_number
-        anniversary
-        address
-        portal
-        birthday
-        company
-        work_phone
-        gender
-        custom_field_9
-        custom_field_3
-        building_number
         telephone
-        custom_field_2
-        nickname
-        lang
-        cell_phone
-        custom_field_6
+        company
+        address
         notes
-        custom_field_4
-        title
-        custom_field_8
-        custom_field_1
         sponsor
+        anniversary
+        birthday
+        gender
+        lang
+        nickname
+        cell_phone
+        work_phone
+        title
+        building_number
+        apartment_number
+        room_number
+        custom_field_1
+        custom_field_2
+        custom_field_3
+        custom_field_4
+        custom_field_5
+        custom_field_6
+        custom_field_7
+        custom_field_8
+        custom_field_9
+        portal
+        source
     );
 
     %DEFAULTS = (
-        source => undef,
+        pid => '',
         firstname => undef,
         lastname => undef,
-        room_number => undef,
         email => undef,
-        custom_field_5 => undef,
-        pid => '',
-        custom_field_7 => undef,
-        apartment_number => undef,
-        anniversary => undef,
-        address => undef,
-        portal => undef,
-        birthday => undef,
-        company => undef,
-        work_phone => undef,
-        gender => undef,
-        custom_field_9 => undef,
-        custom_field_3 => undef,
-        building_number => undef,
         telephone => undef,
-        custom_field_2 => undef,
-        nickname => undef,
-        lang => undef,
-        cell_phone => undef,
-        custom_field_6 => undef,
+        company => undef,
+        address => undef,
         notes => undef,
-        custom_field_4 => undef,
-        title => undef,
-        custom_field_8 => undef,
-        custom_field_1 => undef,
         sponsor => undef,
+        anniversary => undef,
+        birthday => undef,
+        gender => undef,
+        lang => undef,
+        nickname => undef,
+        cell_phone => undef,
+        work_phone => undef,
+        title => undef,
+        building_number => undef,
+        apartment_number => undef,
+        room_number => undef,
+        custom_field_1 => undef,
+        custom_field_2 => undef,
+        custom_field_3 => undef,
+        custom_field_4 => undef,
+        custom_field_5 => undef,
+        custom_field_6 => undef,
+        custom_field_7 => undef,
+        custom_field_8 => undef,
+        custom_field_9 => undef,
+        portal => undef,
+        source => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
-        source
+        pid
         firstname
         lastname
-        room_number
         email
-        custom_field_5
-        pid
-        custom_field_7
-        apartment_number
-        anniversary
-        address
-        portal
-        birthday
-        company
-        work_phone
-        gender
-        custom_field_9
-        custom_field_3
-        building_number
         telephone
-        custom_field_2
-        nickname
-        lang
-        cell_phone
-        custom_field_6
+        company
+        address
         notes
-        custom_field_4
-        title
-        custom_field_8
-        custom_field_1
         sponsor
+        anniversary
+        birthday
+        gender
+        lang
+        nickname
+        cell_phone
+        work_phone
+        title
+        building_number
+        apartment_number
+        room_number
+        custom_field_1
+        custom_field_2
+        custom_field_3
+        custom_field_4
+        custom_field_5
+        custom_field_6
+        custom_field_7
+        custom_field_8
+        custom_field_9
+        portal
+        source
     );
 
     %FIELDS_META = (
-        source => {
+        pid => {
             type => 'VARCHAR',
             is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
+            is_primary_key => 1,
+            is_nullable => 0,
         },
         firstname => {
             type => 'VARCHAR',
@@ -151,97 +151,7 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
-        room_number => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
         email => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        custom_field_5 => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        pid => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 1,
-            is_nullable => 0,
-        },
-        custom_field_7 => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        apartment_number => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        anniversary => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        address => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        portal => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        birthday => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        company => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        work_phone => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        gender => {
-            type => 'CHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        custom_field_9 => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        custom_field_3 => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        building_number => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -253,31 +163,13 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
-        custom_field_2 => {
+        company => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
-        nickname => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        lang => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        cell_phone => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        custom_field_6 => {
+        address => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -289,7 +181,49 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
-        custom_field_4 => {
+        sponsor => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        anniversary => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        birthday => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        gender => {
+            type => 'CHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        lang => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        nickname => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        cell_phone => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        work_phone => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -301,7 +235,19 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
-        custom_field_8 => {
+        building_number => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        apartment_number => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        room_number => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -313,7 +259,61 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
-        sponsor => {
+        custom_field_2 => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        custom_field_3 => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        custom_field_4 => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        custom_field_5 => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        custom_field_6 => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        custom_field_7 => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        custom_field_8 => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        custom_field_9 => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        portal => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        source => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,

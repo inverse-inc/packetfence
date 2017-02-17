@@ -31,144 +31,110 @@ our %FIELDS_META;
 
 BEGIN {
     @FIELD_NAMES = qw(
-        autoreg
-        device_version
-        status
-        bypass_vlan
-        device_class
-        bandwidth_balance
-        regdate
-        category_id
-        device_type
-        pid
-        machine_account
-        dhcp6_enterprise
-        dhcp6_fingerprint
         mac
-        device_score
-        last_arp
-        lastskip
-        last_dhcp
-        user_agent
-        dhcp_fingerprint
-        computername
+        pid
+        category_id
         detect_date
-        voip
-        bypass_role_id
-        notes
-        time_balance
-        sessionid
-        dhcp_vendor
+        regdate
         unregdate
+        lastskip
+        time_balance
+        bandwidth_balance
+        status
+        user_agent
+        computername
+        notes
+        last_arp
+        last_dhcp
+        dhcp_fingerprint
+        dhcp6_fingerprint
+        dhcp_vendor
+        dhcp6_enterprise
+        device_type
+        device_class
+        device_version
+        device_score
+        bypass_vlan
+        voip
+        autoreg
+        sessionid
+        machine_account
+        bypass_role_id
     );
 
     %DEFAULTS = (
-        autoreg => 'no',
-        device_version => undef,
-        status => 'unreg',
-        bypass_vlan => undef,
-        device_class => undef,
-        bandwidth_balance => undef,
-        regdate => '0000-00-00 00:00:00',
-        category_id => undef,
-        device_type => undef,
-        pid => 'default',
-        machine_account => undef,
-        dhcp6_enterprise => undef,
-        dhcp6_fingerprint => undef,
         mac => '',
-        device_score => undef,
-        last_arp => '0000-00-00 00:00:00',
-        lastskip => '0000-00-00 00:00:00',
-        last_dhcp => '0000-00-00 00:00:00',
-        user_agent => undef,
-        dhcp_fingerprint => undef,
-        computername => undef,
+        pid => 'default',
+        category_id => undef,
         detect_date => '0000-00-00 00:00:00',
-        voip => 'no',
-        bypass_role_id => undef,
-        notes => undef,
-        time_balance => undef,
-        sessionid => undef,
-        dhcp_vendor => undef,
+        regdate => '0000-00-00 00:00:00',
         unregdate => '0000-00-00 00:00:00',
+        lastskip => '0000-00-00 00:00:00',
+        time_balance => undef,
+        bandwidth_balance => undef,
+        status => 'unreg',
+        user_agent => undef,
+        computername => undef,
+        notes => undef,
+        last_arp => '0000-00-00 00:00:00',
+        last_dhcp => '0000-00-00 00:00:00',
+        dhcp_fingerprint => undef,
+        dhcp6_fingerprint => undef,
+        dhcp_vendor => undef,
+        dhcp6_enterprise => undef,
+        device_type => undef,
+        device_class => undef,
+        device_version => undef,
+        device_score => undef,
+        bypass_vlan => undef,
+        voip => 'no',
+        autoreg => 'no',
+        sessionid => undef,
+        machine_account => undef,
+        bypass_role_id => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
-        autoreg
-        device_version
-        status
-        bypass_vlan
-        device_class
-        bandwidth_balance
-        regdate
-        category_id
-        device_type
-        pid
-        machine_account
-        dhcp6_enterprise
-        dhcp6_fingerprint
         mac
-        device_score
-        last_arp
-        lastskip
-        last_dhcp
-        user_agent
-        dhcp_fingerprint
-        computername
+        pid
+        category_id
         detect_date
-        voip
-        bypass_role_id
-        notes
-        time_balance
-        sessionid
-        dhcp_vendor
+        regdate
         unregdate
+        lastskip
+        time_balance
+        bandwidth_balance
+        status
+        user_agent
+        computername
+        notes
+        last_arp
+        last_dhcp
+        dhcp_fingerprint
+        dhcp6_fingerprint
+        dhcp_vendor
+        dhcp6_enterprise
+        device_type
+        device_class
+        device_version
+        device_score
+        bypass_vlan
+        voip
+        autoreg
+        sessionid
+        machine_account
+        bypass_role_id
     );
 
     %FIELDS_META = (
-        autoreg => {
-            type => 'ENUM',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-            enums_values => {
-                'no' => 1,
-                'yes' => 1,
-            },
-        },
-        device_version => {
+        mac => {
             type => 'VARCHAR',
             is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        status => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
+            is_primary_key => 1,
             is_nullable => 0,
         },
-        bypass_vlan => {
+        pid => {
             type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        device_class => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        bandwidth_balance => {
-            type => 'INT',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        regdate => {
-            type => 'DATETIME',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 0,
@@ -179,49 +145,19 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
-        device_type => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        pid => {
-            type => 'VARCHAR',
+        detect_date => {
+            type => 'DATETIME',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 0,
         },
-        machine_account => {
-            type => 'VARCHAR',
+        regdate => {
+            type => 'DATETIME',
             is_auto_increment => 0,
             is_primary_key => 0,
-            is_nullable => 1,
-        },
-        dhcp6_enterprise => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        dhcp6_fingerprint => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        mac => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 1,
             is_nullable => 0,
         },
-        device_score => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        last_arp => {
+        unregdate => {
             type => 'DATETIME',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -233,19 +169,25 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
-        last_dhcp => {
-            type => 'DATETIME',
+        time_balance => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        bandwidth_balance => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        status => {
+            type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 0,
         },
         user_agent => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        dhcp_fingerprint => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -257,41 +199,31 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
-        detect_date => {
-            type => 'DATETIME',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
-        voip => {
-            type => 'ENUM',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-            enums_values => {
-                'no' => 1,
-                'yes' => 1,
-            },
-        },
-        bypass_role_id => {
-            type => 'INT',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
         notes => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
-        time_balance => {
-            type => 'INT',
+        last_arp => {
+            type => 'DATETIME',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        last_dhcp => {
+            type => 'DATETIME',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        dhcp_fingerprint => {
+            type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
-        sessionid => {
+        dhcp6_fingerprint => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -303,11 +235,79 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
-        unregdate => {
-            type => 'DATETIME',
+        dhcp6_enterprise => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        device_type => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        device_class => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        device_version => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        device_score => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        bypass_vlan => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        voip => {
+            type => 'ENUM',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 0,
+            enums_values => {
+                'no' => 1,
+                'yes' => 1,
+            },
+        },
+        autoreg => {
+            type => 'ENUM',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+            enums_values => {
+                'no' => 1,
+                'yes' => 1,
+            },
+        },
+        sessionid => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        machine_account => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        bypass_role_id => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
         },
     );
 

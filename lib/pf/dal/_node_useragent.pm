@@ -31,40 +31,52 @@ our %FIELDS_META;
 
 BEGIN {
     @FIELD_NAMES = qw(
-        browser
-        mobile
-        os
-        device_name
         mac
+        os
+        browser
         device
+        device_name
+        mobile
     );
 
     %DEFAULTS = (
-        browser => undef,
-        mobile => 'no',
-        os => undef,
-        device_name => undef,
         mac => '',
+        os => undef,
+        browser => undef,
         device => 'no',
+        device_name => undef,
+        mobile => 'no',
     );
 
     @INSERTABLE_FIELDS = qw(
-        browser
-        mobile
-        os
-        device_name
         mac
+        os
+        browser
         device
+        device_name
+        mobile
     );
 
     %FIELDS_META = (
+        mac => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 1,
+            is_nullable => 0,
+        },
+        os => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
         browser => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
-        mobile => {
+        device => {
             type => 'ENUM',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -74,25 +86,13 @@ BEGIN {
                 'yes' => 1,
             },
         },
-        os => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
         device_name => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
-        mac => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 1,
-            is_nullable => 0,
-        },
-        device => {
+        mobile => {
             type => 'ENUM',
             is_auto_increment => 0,
             is_primary_key => 0,

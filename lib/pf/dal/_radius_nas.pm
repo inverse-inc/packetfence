@@ -31,77 +31,71 @@ our %FIELDS_META;
 
 BEGIN {
     @FIELD_NAMES = qw(
-        end_ip
-        community
-        server
         id
-        description
-        ports
-        type
-        range_length
-        shortname
-        config_timestamp
         nasname
+        shortname
+        type
+        ports
         secret
+        server
+        community
+        description
+        config_timestamp
         start_ip
+        end_ip
+        range_length
     );
 
     %DEFAULTS = (
-        end_ip => '0',
-        community => undef,
-        server => undef,
-        description => 'RADIUS Client',
-        ports => undef,
-        type => 'other',
-        range_length => '0',
-        shortname => undef,
-        config_timestamp => undef,
         nasname => '',
+        shortname => undef,
+        type => 'other',
+        ports => undef,
         secret => 'secret',
+        server => undef,
+        community => undef,
+        description => 'RADIUS Client',
+        config_timestamp => undef,
         start_ip => '0',
+        end_ip => '0',
+        range_length => '0',
     );
 
     @INSERTABLE_FIELDS = qw(
-        end_ip
-        community
-        server
-        description
-        ports
-        type
-        range_length
-        shortname
-        config_timestamp
         nasname
+        shortname
+        type
+        ports
         secret
+        server
+        community
+        description
+        config_timestamp
         start_ip
+        end_ip
+        range_length
     );
 
     %FIELDS_META = (
-        end_ip => {
-            type => 'INT',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        community => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        server => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
         id => {
             type => 'INT',
             is_auto_increment => 1,
             is_primary_key => 0,
             is_nullable => 0,
         },
-        description => {
+        nasname => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 1,
+            is_nullable => 0,
+        },
+        shortname => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        type => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -113,19 +107,25 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
-        type => {
+        secret => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        server => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
-        range_length => {
-            type => 'INT',
+        community => {
+            type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
-        shortname => {
+        description => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -137,19 +137,19 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
-        nasname => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 1,
-            is_nullable => 0,
-        },
-        secret => {
-            type => 'VARCHAR',
+        start_ip => {
+            type => 'INT',
             is_auto_increment => 0,
             is_primary_key => 0,
-            is_nullable => 0,
+            is_nullable => 1,
         },
-        start_ip => {
+        end_ip => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        range_length => {
             type => 'INT',
             is_auto_increment => 0,
             is_primary_key => 0,

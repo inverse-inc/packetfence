@@ -31,68 +31,62 @@ our %FIELDS_META;
 
 BEGIN {
     @FIELD_NAMES = qw(
-        acctoutputoctets
-        acctsessiontime
-        acctinputoctets
-        nasipaddress
+        id
         acctsessionid
+        username
+        nasipaddress
         acctstatustype
         timestamp
+        acctinputoctets
+        acctoutputoctets
+        acctsessiontime
         acctuniqueid
-        id
-        username
     );
 
     %DEFAULTS = (
-        acctoutputoctets => undef,
-        acctsessiontime => undef,
-        acctinputoctets => undef,
-        nasipaddress => '',
         acctsessionid => '',
+        username => '',
+        nasipaddress => '',
         acctstatustype => '',
         timestamp => undef,
+        acctinputoctets => undef,
+        acctoutputoctets => undef,
+        acctsessiontime => undef,
         acctuniqueid => '',
-        username => '',
     );
 
     @INSERTABLE_FIELDS = qw(
-        acctoutputoctets
-        acctsessiontime
-        acctinputoctets
-        nasipaddress
         acctsessionid
+        username
+        nasipaddress
         acctstatustype
         timestamp
+        acctinputoctets
+        acctoutputoctets
+        acctsessiontime
         acctuniqueid
-        username
     );
 
     %FIELDS_META = (
-        acctoutputoctets => {
-            type => 'BIGINT',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        acctsessiontime => {
+        id => {
             type => 'INT',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
+            is_auto_increment => 1,
+            is_primary_key => 1,
+            is_nullable => 0,
         },
-        acctinputoctets => {
-            type => 'BIGINT',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        nasipaddress => {
+        acctsessionid => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 0,
         },
-        acctsessionid => {
+        username => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        nasipaddress => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -110,19 +104,25 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
-        acctuniqueid => {
-            type => 'VARCHAR',
+        acctinputoctets => {
+            type => 'BIGINT',
             is_auto_increment => 0,
             is_primary_key => 0,
-            is_nullable => 0,
+            is_nullable => 1,
         },
-        id => {
+        acctoutputoctets => {
+            type => 'BIGINT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        acctsessiontime => {
             type => 'INT',
-            is_auto_increment => 1,
-            is_primary_key => 1,
-            is_nullable => 0,
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
         },
-        username => {
+        acctuniqueid => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,

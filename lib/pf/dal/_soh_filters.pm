@@ -31,31 +31,25 @@ our %FIELDS_META;
 
 BEGIN {
     @FIELD_NAMES = qw(
-        vid
         filter_id
         name
         action
+        vid
     );
 
     %DEFAULTS = (
-        vid => undef,
         name => '',
         action => undef,
+        vid => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
-        vid
         name
         action
+        vid
     );
 
     %FIELDS_META = (
-        vid => {
-            type => 'INT',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
         filter_id => {
             type => 'INT',
             is_auto_increment => 1,
@@ -70,6 +64,12 @@ BEGIN {
         },
         action => {
             type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        vid => {
+            type => 'INT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,

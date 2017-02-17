@@ -31,143 +31,95 @@ our %FIELDS_META;
 
 BEGIN {
     @FIELD_NAMES = qw(
-        acctoutputoctets
-        framedprotocol
-        acctsessiontime
-        calledstationid
-        acctinputoctets
-        acctstoptime
-        nasipaddress
-        acctsessionid
-        framedipaddress
-        groupname
-        acctuniqueid
-        realm
-        servicetype
-        nasportid
-        callingstationid
         radacctid
-        connectinfo_start
-        nasporttype
-        acctupdatetime
-        acctauthentic
-        acctstarttime
+        acctsessionid
+        acctuniqueid
         username
+        groupname
+        realm
+        nasipaddress
+        nasportid
+        nasporttype
+        acctstarttime
+        acctupdatetime
+        acctstoptime
         acctinterval
-        acctterminatecause
+        acctsessiontime
+        acctauthentic
+        connectinfo_start
         connectinfo_stop
+        acctinputoctets
+        acctoutputoctets
+        calledstationid
+        callingstationid
+        acctterminatecause
+        servicetype
+        framedprotocol
+        framedipaddress
     );
 
     %DEFAULTS = (
-        acctoutputoctets => undef,
-        framedprotocol => undef,
-        acctsessiontime => undef,
-        calledstationid => '',
-        acctinputoctets => undef,
-        acctstoptime => undef,
-        nasipaddress => '',
         acctsessionid => '',
-        framedipaddress => '',
-        groupname => '',
         acctuniqueid => '',
-        realm => '',
-        servicetype => undef,
-        nasportid => undef,
-        callingstationid => '',
-        connectinfo_start => undef,
-        nasporttype => undef,
-        acctupdatetime => undef,
-        acctauthentic => undef,
-        acctstarttime => undef,
         username => '',
+        groupname => '',
+        realm => '',
+        nasipaddress => '',
+        nasportid => undef,
+        nasporttype => undef,
+        acctstarttime => undef,
+        acctupdatetime => undef,
+        acctstoptime => undef,
         acctinterval => undef,
-        acctterminatecause => '',
+        acctsessiontime => undef,
+        acctauthentic => undef,
+        connectinfo_start => undef,
         connectinfo_stop => undef,
+        acctinputoctets => undef,
+        acctoutputoctets => undef,
+        calledstationid => '',
+        callingstationid => '',
+        acctterminatecause => '',
+        servicetype => undef,
+        framedprotocol => undef,
+        framedipaddress => '',
     );
 
     @INSERTABLE_FIELDS = qw(
-        acctoutputoctets
-        framedprotocol
-        acctsessiontime
-        calledstationid
-        acctinputoctets
-        acctstoptime
-        nasipaddress
         acctsessionid
-        framedipaddress
-        groupname
         acctuniqueid
-        realm
-        servicetype
-        nasportid
-        callingstationid
-        connectinfo_start
-        nasporttype
-        acctupdatetime
-        acctauthentic
-        acctstarttime
         username
+        groupname
+        realm
+        nasipaddress
+        nasportid
+        nasporttype
+        acctstarttime
+        acctupdatetime
+        acctstoptime
         acctinterval
-        acctterminatecause
+        acctsessiontime
+        acctauthentic
+        connectinfo_start
         connectinfo_stop
+        acctinputoctets
+        acctoutputoctets
+        calledstationid
+        callingstationid
+        acctterminatecause
+        servicetype
+        framedprotocol
+        framedipaddress
     );
 
     %FIELDS_META = (
-        acctoutputoctets => {
+        radacctid => {
             type => 'BIGINT',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        framedprotocol => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        acctsessiontime => {
-            type => 'INT',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        calledstationid => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
-        acctinputoctets => {
-            type => 'BIGINT',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        acctstoptime => {
-            type => 'DATETIME',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        nasipaddress => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
+            is_auto_increment => 1,
+            is_primary_key => 1,
             is_nullable => 0,
         },
         acctsessionid => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
-        framedipaddress => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
-        groupname => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -179,37 +131,31 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
+        username => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        groupname => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
         realm => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
-        servicetype => {
+        nasipaddress => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
-            is_nullable => 1,
+            is_nullable => 0,
         },
         nasportid => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        callingstationid => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
-        radacctid => {
-            type => 'BIGINT',
-            is_auto_increment => 1,
-            is_primary_key => 1,
-            is_nullable => 0,
-        },
-        connectinfo_start => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -221,8 +167,32 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        acctstarttime => {
+            type => 'DATETIME',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
         acctupdatetime => {
             type => 'DATETIME',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        acctstoptime => {
+            type => 'DATETIME',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        acctinterval => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        acctsessiontime => {
+            type => 'INT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
@@ -233,23 +203,41 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
-        acctstarttime => {
-            type => 'DATETIME',
+        connectinfo_start => {
+            type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
-        username => {
+        connectinfo_stop => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        acctinputoctets => {
+            type => 'BIGINT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        acctoutputoctets => {
+            type => 'BIGINT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        calledstationid => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 0,
         },
-        acctinterval => {
-            type => 'INT',
+        callingstationid => {
+            type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
-            is_nullable => 1,
+            is_nullable => 0,
         },
         acctterminatecause => {
             type => 'VARCHAR',
@@ -257,11 +245,23 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
-        connectinfo_stop => {
+        servicetype => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
+        },
+        framedprotocol => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        framedipaddress => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
         },
     );
 

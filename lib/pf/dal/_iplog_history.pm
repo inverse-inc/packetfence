@@ -31,40 +31,28 @@ our %FIELDS_META;
 
 BEGIN {
     @FIELD_NAMES = qw(
-        ip
-        end_time
         id
         mac
+        ip
         start_time
+        end_time
     );
 
     %DEFAULTS = (
-        ip => '',
-        end_time => '',
         mac => '',
+        ip => '',
         start_time => '',
+        end_time => '',
     );
 
     @INSERTABLE_FIELDS = qw(
-        ip
-        end_time
         mac
+        ip
         start_time
+        end_time
     );
 
     %FIELDS_META = (
-        ip => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
-        end_time => {
-            type => 'DATETIME',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
         id => {
             type => 'INT',
             is_auto_increment => 1,
@@ -77,7 +65,19 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
+        ip => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
         start_time => {
+            type => 'DATETIME',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        end_time => {
             type => 'DATETIME',
             is_auto_increment => 0,
             is_primary_key => 0,

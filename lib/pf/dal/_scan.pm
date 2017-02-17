@@ -31,49 +31,49 @@ our %FIELDS_META;
 
 BEGIN {
     @FIELD_NAMES = qw(
-        report_id
         id
+        ip
         mac
         type
-        status
-        ip
         start_date
         update_date
+        status
+        report_id
     );
 
     %DEFAULTS = (
-        report_id => '',
         id => '',
+        ip => '',
         mac => '',
         type => '',
-        status => '',
-        ip => '',
         start_date => '',
         update_date => '0000-00-00 00:00:00',
+        status => '',
+        report_id => '',
     );
 
     @INSERTABLE_FIELDS = qw(
-        report_id
         id
+        ip
         mac
         type
-        status
-        ip
         start_date
         update_date
+        status
+        report_id
     );
 
     %FIELDS_META = (
-        report_id => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
         id => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 1,
+            is_nullable => 0,
+        },
+        ip => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
             is_nullable => 0,
         },
         mac => {
@@ -88,18 +88,6 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
-        status => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
-        ip => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
         start_date => {
             type => 'DATETIME',
             is_auto_increment => 0,
@@ -108,6 +96,18 @@ BEGIN {
         },
         update_date => {
             type => 'TIMESTAMP',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        status => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        report_id => {
+            type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 0,

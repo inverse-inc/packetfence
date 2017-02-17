@@ -33,9 +33,9 @@ BEGIN {
     @FIELD_NAMES = qw(
         id
         name
-        modified
         email_pattern
         created
+        modified
     );
 
     %DEFAULTS = (
@@ -65,12 +65,6 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
-        modified => {
-            type => 'TIMESTAMP',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
         email_pattern => {
             type => 'VARCHAR',
             is_auto_increment => 0,
@@ -79,6 +73,12 @@ BEGIN {
         },
         created => {
             type => 'DATETIME',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        modified => {
+            type => 'TIMESTAMP',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 0,

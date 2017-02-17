@@ -31,41 +31,47 @@ our %FIELDS_META;
 
 BEGIN {
     @FIELD_NAMES = qw(
-        pid
         id
-        name
-        in_dashboard
+        pid
         namespace
+        name
         query
+        in_dashboard
     );
 
     %DEFAULTS = (
         pid => '',
-        name => '',
-        in_dashboard => undef,
         namespace => '',
+        name => '',
         query => undef,
+        in_dashboard => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
         pid
-        name
-        in_dashboard
         namespace
+        name
         query
+        in_dashboard
     );
 
     %FIELDS_META = (
+        id => {
+            type => 'INT',
+            is_auto_increment => 1,
+            is_primary_key => 1,
+            is_nullable => 0,
+        },
         pid => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 0,
         },
-        id => {
-            type => 'INT',
-            is_auto_increment => 1,
-            is_primary_key => 1,
+        namespace => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
             is_nullable => 0,
         },
         name => {
@@ -74,20 +80,14 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
-        in_dashboard => {
-            type => 'TINYINT',
+        query => {
+            type => 'TEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
-        namespace => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
-        query => {
-            type => 'TEXT',
+        in_dashboard => {
+            type => 'TINYINT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,

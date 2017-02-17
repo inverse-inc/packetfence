@@ -31,49 +31,49 @@ our %FIELDS_META;
 
 BEGIN {
     @FIELD_NAMES = qw(
-        valid_from
-        password
         pid
+        password
+        valid_from
         expiration
-        category
         access_duration
-        login_remaining
         access_level
-        unregdate
+        category
         sponsor
+        unregdate
+        login_remaining
     );
 
     %DEFAULTS = (
-        valid_from => '0000-00-00 00:00:00',
-        password => '',
         pid => '',
+        password => '',
+        valid_from => '0000-00-00 00:00:00',
         expiration => '',
-        category => undef,
         access_duration => undef,
-        login_remaining => undef,
         access_level => 'NONE',
-        unregdate => '0000-00-00 00:00:00',
+        category => undef,
         sponsor => '0',
+        unregdate => '0000-00-00 00:00:00',
+        login_remaining => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
-        valid_from
-        password
         pid
+        password
+        valid_from
         expiration
-        category
         access_duration
-        login_remaining
         access_level
-        unregdate
+        category
         sponsor
+        unregdate
+        login_remaining
     );
 
     %FIELDS_META = (
-        valid_from => {
-            type => 'DATETIME',
+        pid => {
+            type => 'VARCHAR',
             is_auto_increment => 0,
-            is_primary_key => 0,
+            is_primary_key => 1,
             is_nullable => 0,
         },
         password => {
@@ -82,10 +82,10 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
-        pid => {
-            type => 'VARCHAR',
+        valid_from => {
+            type => 'DATETIME',
             is_auto_increment => 0,
-            is_primary_key => 1,
+            is_primary_key => 0,
             is_nullable => 0,
         },
         expiration => {
@@ -94,20 +94,8 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
-        category => {
-            type => 'INT',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
         access_duration => {
             type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        login_remaining => {
-            type => 'INT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
@@ -118,17 +106,29 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
-        unregdate => {
-            type => 'DATETIME',
+        category => {
+            type => 'INT',
             is_auto_increment => 0,
             is_primary_key => 0,
-            is_nullable => 0,
+            is_nullable => 1,
         },
         sponsor => {
             type => 'TINYINT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 0,
+        },
+        unregdate => {
+            type => 'DATETIME',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        login_remaining => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
         },
     );
 

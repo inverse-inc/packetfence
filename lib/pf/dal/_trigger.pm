@@ -33,25 +33,25 @@ BEGIN {
     @FIELD_NAMES = qw(
         vid
         tid_start
-        whitelisted_categories
-        type
         tid_end
+        type
+        whitelisted_categories
     );
 
     %DEFAULTS = (
         vid => '0',
         tid_start => '',
-        whitelisted_categories => '',
-        type => '',
         tid_end => '',
+        type => '',
+        whitelisted_categories => '',
     );
 
     @INSERTABLE_FIELDS = qw(
         vid
         tid_start
-        whitelisted_categories
-        type
         tid_end
+        type
+        whitelisted_categories
     );
 
     %FIELDS_META = (
@@ -67,10 +67,10 @@ BEGIN {
             is_primary_key => 1,
             is_nullable => 0,
         },
-        whitelisted_categories => {
+        tid_end => {
             type => 'VARCHAR',
             is_auto_increment => 0,
-            is_primary_key => 0,
+            is_primary_key => 1,
             is_nullable => 0,
         },
         type => {
@@ -79,18 +79,18 @@ BEGIN {
             is_primary_key => 1,
             is_nullable => 0,
         },
-        tid_end => {
+        whitelisted_categories => {
             type => 'VARCHAR',
             is_auto_increment => 0,
-            is_primary_key => 1,
+            is_primary_key => 0,
             is_nullable => 0,
         },
     );
 
     @PRIMARY_KEYS = qw(
         vid
-        tid_end
         tid_start
+        tid_end
         type
     );
 }

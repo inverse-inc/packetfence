@@ -31,8 +31,8 @@ our %FIELDS_META;
 
 BEGIN {
     @FIELD_NAMES = qw(
-        filter_id
         rule_id
+        filter_id
         class
         op
         status
@@ -53,16 +53,16 @@ BEGIN {
     );
 
     %FIELDS_META = (
-        filter_id => {
-            type => 'INT',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
         rule_id => {
             type => 'INT',
             is_auto_increment => 1,
             is_primary_key => 1,
+            is_nullable => 0,
+        },
+        filter_id => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
             is_nullable => 0,
         },
         class => {

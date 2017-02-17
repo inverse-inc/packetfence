@@ -31,58 +31,40 @@ our %FIELDS_META;
 
 BEGIN {
     @FIELD_NAMES = qw(
-        mac
-        ifOutOctets
-        port
-        ifInOctets
         switch
+        port
         read_time
+        mac
+        ifInOctets
+        ifOutOctets
     );
 
     %DEFAULTS = (
-        mac => undef,
-        ifOutOctets => '0',
-        port => '',
-        ifInOctets => '0',
         switch => '',
+        port => '',
         read_time => '0000-00-00 00:00:00',
+        mac => undef,
+        ifInOctets => '0',
+        ifOutOctets => '0',
     );
 
     @INSERTABLE_FIELDS = qw(
-        mac
-        ifOutOctets
-        port
-        ifInOctets
         switch
+        port
         read_time
+        mac
+        ifInOctets
+        ifOutOctets
     );
 
     %FIELDS_META = (
-        mac => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        ifOutOctets => {
-            type => 'BIGINT',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
-        port => {
+        switch => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 1,
             is_nullable => 0,
         },
-        ifInOctets => {
-            type => 'BIGINT',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
-        switch => {
+        port => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 1,
@@ -92,6 +74,24 @@ BEGIN {
             type => 'DATETIME',
             is_auto_increment => 0,
             is_primary_key => 1,
+            is_nullable => 0,
+        },
+        mac => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        ifInOctets => {
+            type => 'BIGINT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        ifOutOctets => {
+            type => 'BIGINT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
             is_nullable => 0,
         },
     );

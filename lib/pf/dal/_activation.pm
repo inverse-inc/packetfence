@@ -31,95 +31,53 @@ our %FIELDS_META;
 
 BEGIN {
     @FIELD_NAMES = qw(
-        contact_info
-        activation_code
-        status
-        carrier_id
-        pid
         code_id
+        pid
+        mac
+        contact_info
+        carrier_id
+        activation_code
         expiration
+        unregdate
+        status
         type
         portal
-        mac
-        unregdate
     );
 
     %DEFAULTS = (
-        contact_info => '',
-        activation_code => '',
-        status => undef,
-        carrier_id => undef,
         pid => undef,
+        mac => undef,
+        contact_info => '',
+        carrier_id => undef,
+        activation_code => '',
         expiration => '',
+        unregdate => undef,
+        status => undef,
         type => '',
         portal => undef,
-        mac => undef,
-        unregdate => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
-        contact_info
-        activation_code
-        status
-        carrier_id
         pid
+        mac
+        contact_info
+        carrier_id
+        activation_code
         expiration
+        unregdate
+        status
         type
         portal
-        mac
-        unregdate
     );
 
     %FIELDS_META = (
-        contact_info => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
-        activation_code => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
-        status => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        carrier_id => {
-            type => 'INT',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        pid => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
         code_id => {
             type => 'INT',
             is_auto_increment => 1,
             is_primary_key => 1,
             is_nullable => 0,
         },
-        expiration => {
-            type => 'DATETIME',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
-        type => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
-        portal => {
+        pid => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -131,8 +89,50 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        contact_info => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        carrier_id => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        activation_code => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        expiration => {
+            type => 'DATETIME',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
         unregdate => {
             type => 'DATETIME',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        status => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        type => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        portal => {
+            type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,

@@ -31,286 +31,130 @@ our %FIELDS_META;
 
 BEGIN {
     @FIELD_NAMES = qw(
-        profile
-        radius_request
-        nas_identifier
-        node_status
-        uuid
         id
-        nas_port
-        mac
-        eap_type
-        is_phone
-        auto_reg
-        nas_port_id
-        auth_type
-        event_type
-        reason
-        user_name
-        nas_ip_address
-        switch_mac
-        role
-        ssid
-        radius_source_ip_address
-        request_time
-        ifindex
-        source
-        ip
-        nas_port_type
-        switch_id
         created_at
-        radius_reply
-        realm
-        calling_station_id
-        called_station_id
-        stripped_user_name
-        auth_status
+        mac
+        ip
         computer_name
-        pf_domain
-        connection_type
+        user_name
+        stripped_user_name
+        realm
+        event_type
+        switch_id
+        switch_mac
         switch_ip_address
+        radius_source_ip_address
+        called_station_id
+        calling_station_id
+        nas_port_type
+        ssid
+        nas_port_id
+        ifindex
+        nas_port
+        connection_type
+        nas_ip_address
+        nas_identifier
+        auth_status
+        reason
+        auth_type
+        eap_type
+        role
+        node_status
+        profile
+        source
+        auto_reg
+        is_phone
+        pf_domain
+        uuid
+        radius_request
+        radius_reply
+        request_time
     );
 
     %DEFAULTS = (
-        profile => undef,
-        radius_request => undef,
-        nas_identifier => undef,
-        node_status => undef,
-        uuid => undef,
-        nas_port => undef,
         mac => '',
-        eap_type => undef,
-        is_phone => undef,
-        auto_reg => undef,
-        nas_port_id => undef,
-        auth_type => undef,
-        event_type => undef,
-        reason => undef,
-        user_name => undef,
-        nas_ip_address => undef,
-        switch_mac => undef,
-        role => undef,
-        ssid => undef,
-        radius_source_ip_address => undef,
-        request_time => undef,
-        ifindex => undef,
-        source => undef,
         ip => undef,
-        nas_port_type => undef,
-        switch_id => undef,
-        radius_reply => undef,
-        realm => undef,
-        calling_station_id => undef,
-        called_station_id => undef,
-        stripped_user_name => undef,
-        auth_status => undef,
         computer_name => undef,
-        pf_domain => undef,
-        connection_type => undef,
+        user_name => undef,
+        stripped_user_name => undef,
+        realm => undef,
+        event_type => undef,
+        switch_id => undef,
+        switch_mac => undef,
         switch_ip_address => undef,
+        radius_source_ip_address => undef,
+        called_station_id => undef,
+        calling_station_id => undef,
+        nas_port_type => undef,
+        ssid => undef,
+        nas_port_id => undef,
+        ifindex => undef,
+        nas_port => undef,
+        connection_type => undef,
+        nas_ip_address => undef,
+        nas_identifier => undef,
+        auth_status => undef,
+        reason => undef,
+        auth_type => undef,
+        eap_type => undef,
+        role => undef,
+        node_status => undef,
+        profile => undef,
+        source => undef,
+        auto_reg => undef,
+        is_phone => undef,
+        pf_domain => undef,
+        uuid => undef,
+        radius_request => undef,
+        radius_reply => undef,
+        request_time => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
-        profile
-        radius_request
-        nas_identifier
-        node_status
-        uuid
-        nas_port
         mac
-        eap_type
-        is_phone
-        auto_reg
-        nas_port_id
-        auth_type
-        event_type
-        reason
-        user_name
-        nas_ip_address
-        switch_mac
-        role
-        ssid
-        radius_source_ip_address
-        request_time
-        ifindex
-        source
         ip
-        nas_port_type
-        switch_id
-        radius_reply
-        realm
-        calling_station_id
-        called_station_id
-        stripped_user_name
-        auth_status
         computer_name
-        pf_domain
-        connection_type
+        user_name
+        stripped_user_name
+        realm
+        event_type
+        switch_id
+        switch_mac
         switch_ip_address
+        radius_source_ip_address
+        called_station_id
+        calling_station_id
+        nas_port_type
+        ssid
+        nas_port_id
+        ifindex
+        nas_port
+        connection_type
+        nas_ip_address
+        nas_identifier
+        auth_status
+        reason
+        auth_type
+        eap_type
+        role
+        node_status
+        profile
+        source
+        auto_reg
+        is_phone
+        pf_domain
+        uuid
+        radius_request
+        radius_reply
+        request_time
     );
 
     %FIELDS_META = (
-        profile => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        radius_request => {
-            type => 'TEXT',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        nas_identifier => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        node_status => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        uuid => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
         id => {
             type => 'INT',
             is_auto_increment => 1,
             is_primary_key => 1,
             is_nullable => 0,
-        },
-        nas_port => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        mac => {
-            type => 'CHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
-        eap_type => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        is_phone => {
-            type => 'CHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        auto_reg => {
-            type => 'CHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        nas_port_id => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        auth_type => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        event_type => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        reason => {
-            type => 'TEXT',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        user_name => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        nas_ip_address => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        switch_mac => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        role => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        ssid => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        radius_source_ip_address => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        request_time => {
-            type => 'INT',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        ifindex => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        source => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        ip => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        nas_port_type => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        switch_id => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
         },
         created_at => {
             type => 'TIMESTAMP',
@@ -318,37 +162,13 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
-        radius_reply => {
-            type => 'TEXT',
+        mac => {
+            type => 'CHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
-            is_nullable => 1,
+            is_nullable => 0,
         },
-        realm => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        calling_station_id => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        called_station_id => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        stripped_user_name => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        auth_status => {
+        ip => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -360,7 +180,91 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
-        pf_domain => {
+        user_name => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        stripped_user_name => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        realm => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        event_type => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        switch_id => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        switch_mac => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        switch_ip_address => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        radius_source_ip_address => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        called_station_id => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        calling_station_id => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        nas_port_type => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        ssid => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        nas_port_id => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        ifindex => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        nas_port => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -372,8 +276,104 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
-        switch_ip_address => {
+        nas_ip_address => {
             type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        nas_identifier => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        auth_status => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        reason => {
+            type => 'TEXT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        auth_type => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        eap_type => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        role => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        node_status => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        profile => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        source => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        auto_reg => {
+            type => 'CHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        is_phone => {
+            type => 'CHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        pf_domain => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        uuid => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        radius_request => {
+            type => 'TEXT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        radius_reply => {
+            type => 'TEXT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        request_time => {
+            type => 'INT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,

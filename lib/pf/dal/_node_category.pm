@@ -32,20 +32,20 @@ our %FIELDS_META;
 BEGIN {
     @FIELD_NAMES = qw(
         category_id
-        max_nodes_per_pid
         name
+        max_nodes_per_pid
         notes
     );
 
     %DEFAULTS = (
-        max_nodes_per_pid => '0',
         name => '',
+        max_nodes_per_pid => '0',
         notes => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
-        max_nodes_per_pid
         name
+        max_nodes_per_pid
         notes
     );
 
@@ -56,17 +56,17 @@ BEGIN {
             is_primary_key => 1,
             is_nullable => 0,
         },
-        max_nodes_per_pid => {
-            type => 'INT',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
         name => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 0,
+        },
+        max_nodes_per_pid => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
         },
         notes => {
             type => 'VARCHAR',

@@ -31,32 +31,32 @@ our %FIELDS_META;
 
 BEGIN {
     @FIELD_NAMES = qw(
-        end_time
-        pid
         mac
+        pid
         start_time
+        end_time
     );
 
     %DEFAULTS = (
-        end_time => undef,
-        pid => undef,
         mac => '',
+        pid => undef,
         start_time => '0000-00-00 00:00:00',
+        end_time => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
-        end_time
-        pid
         mac
+        pid
         start_time
+        end_time
     );
 
     %FIELDS_META = (
-        end_time => {
-            type => 'DATETIME',
+        mac => {
+            type => 'VARCHAR',
             is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
+            is_primary_key => 1,
+            is_nullable => 0,
         },
         pid => {
             type => 'VARCHAR',
@@ -64,17 +64,17 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
-        mac => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 1,
-            is_nullable => 0,
-        },
         start_time => {
             type => 'DATETIME',
             is_auto_increment => 0,
             is_primary_key => 1,
             is_nullable => 0,
+        },
+        end_time => {
+            type => 'DATETIME',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
         },
     );
 

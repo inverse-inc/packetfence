@@ -31,86 +31,80 @@ our %FIELDS_META;
 
 BEGIN {
     @FIELD_NAMES = qw(
-        priority
         vid
-        window
-        grace_period
-        max_enables
-        enabled
-        vclose
-        max_enable_url
-        template
-        auto_enable
-        delay_by
         description
-        vlan
-        external_command
+        auto_enable
+        max_enables
+        grace_period
+        window
+        vclose
+        priority
+        template
+        max_enable_url
         redirect_url
         button_text
+        enabled
+        vlan
         target_category
+        delay_by
+        external_command
     );
 
     %DEFAULTS = (
-        priority => '',
         vid => '',
-        window => '0',
-        grace_period => '',
-        max_enables => '0',
-        enabled => 'N',
-        vclose => undef,
-        max_enable_url => undef,
-        template => undef,
-        auto_enable => 'Y',
-        delay_by => '0',
         description => 'none',
-        vlan => undef,
-        external_command => undef,
+        auto_enable => 'Y',
+        max_enables => '0',
+        grace_period => '',
+        window => '0',
+        vclose => undef,
+        priority => '',
+        template => undef,
+        max_enable_url => undef,
         redirect_url => undef,
         button_text => undef,
+        enabled => 'N',
+        vlan => undef,
         target_category => undef,
+        delay_by => '0',
+        external_command => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
-        priority
         vid
-        window
-        grace_period
-        max_enables
-        enabled
-        vclose
-        max_enable_url
-        template
-        auto_enable
-        delay_by
         description
-        vlan
-        external_command
+        auto_enable
+        max_enables
+        grace_period
+        window
+        vclose
+        priority
+        template
+        max_enable_url
         redirect_url
         button_text
+        enabled
+        vlan
         target_category
+        delay_by
+        external_command
     );
 
     %FIELDS_META = (
-        priority => {
-            type => 'INT',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
         vid => {
             type => 'INT',
             is_auto_increment => 0,
             is_primary_key => 1,
             is_nullable => 0,
         },
-        window => {
+        description => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 0,
         },
-        grace_period => {
-            type => 'INT',
+        auto_enable => {
+            type => 'CHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 0,
@@ -121,8 +115,14 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
-        enabled => {
-            type => 'CHAR',
+        grace_period => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        window => {
+            type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 0,
@@ -133,11 +133,11 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
-        max_enable_url => {
-            type => 'VARCHAR',
+        priority => {
+            type => 'INT',
             is_auto_increment => 0,
             is_primary_key => 0,
-            is_nullable => 1,
+            is_nullable => 0,
         },
         template => {
             type => 'VARCHAR',
@@ -145,31 +145,7 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
-        auto_enable => {
-            type => 'CHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
-        delay_by => {
-            type => 'INT',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
-        description => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
-        vlan => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        external_command => {
+        max_enable_url => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -187,7 +163,31 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        enabled => {
+            type => 'CHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        vlan => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
         target_category => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        delay_by => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        external_command => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,

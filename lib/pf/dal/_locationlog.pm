@@ -31,137 +31,71 @@ our %FIELDS_META;
 
 BEGIN {
     @FIELD_NAMES = qw(
-        session_id
-        end_time
-        realm
-        switch_ip
         id
-        connection_sub_type
         mac
-        stripped_user_name
-        start_time
-        vlan
-        port
-        dot1x_username
-        switch_mac
         switch
-        connection_type
-        ssid
+        port
+        vlan
         role
+        connection_type
+        connection_sub_type
+        dot1x_username
+        ssid
+        start_time
+        end_time
+        switch_ip
+        switch_mac
+        stripped_user_name
+        realm
+        session_id
     );
 
     %DEFAULTS = (
-        session_id => undef,
-        end_time => '0000-00-00 00:00:00',
-        realm => undef,
-        switch_ip => undef,
-        connection_sub_type => undef,
         mac => undef,
-        stripped_user_name => undef,
-        start_time => '0000-00-00 00:00:00',
-        vlan => undef,
-        port => '',
-        dot1x_username => '',
-        switch_mac => undef,
         switch => '',
-        connection_type => '',
-        ssid => '',
+        port => '',
+        vlan => undef,
         role => undef,
+        connection_type => '',
+        connection_sub_type => undef,
+        dot1x_username => '',
+        ssid => '',
+        start_time => '0000-00-00 00:00:00',
+        end_time => '0000-00-00 00:00:00',
+        switch_ip => undef,
+        switch_mac => undef,
+        stripped_user_name => undef,
+        realm => undef,
+        session_id => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
-        session_id
-        end_time
-        realm
-        switch_ip
-        connection_sub_type
         mac
-        stripped_user_name
-        start_time
-        vlan
-        port
-        dot1x_username
-        switch_mac
         switch
-        connection_type
-        ssid
+        port
+        vlan
         role
+        connection_type
+        connection_sub_type
+        dot1x_username
+        ssid
+        start_time
+        end_time
+        switch_ip
+        switch_mac
+        stripped_user_name
+        realm
+        session_id
     );
 
     %FIELDS_META = (
-        session_id => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        end_time => {
-            type => 'DATETIME',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
-        realm => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        switch_ip => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
         id => {
             type => 'INT',
             is_auto_increment => 1,
             is_primary_key => 1,
             is_nullable => 0,
         },
-        connection_sub_type => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
         mac => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        stripped_user_name => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        start_time => {
-            type => 'DATETIME',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
-        vlan => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        port => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
-        dot1x_username => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
-        switch_mac => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -173,7 +107,37 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
+        port => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        vlan => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        role => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
         connection_type => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        connection_sub_type => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        dot1x_username => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -185,7 +149,43 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
-        role => {
+        start_time => {
+            type => 'DATETIME',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        end_time => {
+            type => 'DATETIME',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        switch_ip => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        switch_mac => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        stripped_user_name => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        realm => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        session_id => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,

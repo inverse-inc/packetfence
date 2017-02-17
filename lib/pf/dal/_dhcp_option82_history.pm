@@ -31,51 +31,45 @@ our %FIELDS_META;
 
 BEGIN {
     @FIELD_NAMES = qw(
-        switch_id
-        created_at
-        mac
-        module
         dhcp_option82_history_id
-        circuit_id_string
-        vlan
-        port
+        mac
+        created_at
         option82_switch
+        switch_id
+        port
+        vlan
+        circuit_id_string
+        module
         host
     );
 
     %DEFAULTS = (
-        switch_id => undef,
         mac => '',
-        module => undef,
-        circuit_id_string => undef,
-        vlan => undef,
-        port => '',
         option82_switch => undef,
+        switch_id => undef,
+        port => '',
+        vlan => undef,
+        circuit_id_string => undef,
+        module => undef,
         host => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
-        switch_id
         mac
-        module
-        circuit_id_string
-        vlan
-        port
         option82_switch
+        switch_id
+        port
+        vlan
+        circuit_id_string
+        module
         host
     );
 
     %FIELDS_META = (
-        switch_id => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        created_at => {
-            type => 'TIMESTAMP',
-            is_auto_increment => 0,
-            is_primary_key => 0,
+        dhcp_option82_history_id => {
+            type => 'INT',
+            is_auto_increment => 1,
+            is_primary_key => 1,
             is_nullable => 0,
         },
         mac => {
@@ -84,25 +78,19 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
-        module => {
-            type => 'VARCHAR',
+        created_at => {
+            type => 'TIMESTAMP',
             is_auto_increment => 0,
             is_primary_key => 0,
-            is_nullable => 1,
-        },
-        dhcp_option82_history_id => {
-            type => 'INT',
-            is_auto_increment => 1,
-            is_primary_key => 1,
             is_nullable => 0,
         },
-        circuit_id_string => {
+        option82_switch => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
-        vlan => {
+        switch_id => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -114,7 +102,19 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
-        option82_switch => {
+        vlan => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        circuit_id_string => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        module => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,

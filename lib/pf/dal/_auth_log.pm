@@ -31,50 +31,50 @@ our %FIELDS_META;
 
 BEGIN {
     @FIELD_NAMES = qw(
-        source
-        attempted_at
-        status
-        pid
-        process_name
         id
-        completed_at
+        process_name
         mac
+        pid
+        status
+        attempted_at
+        completed_at
+        source
     );
 
     %DEFAULTS = (
-        source => '',
-        attempted_at => '',
-        status => 'incomplete',
-        pid => 'default',
         process_name => '',
-        completed_at => undef,
         mac => '',
+        pid => 'default',
+        status => 'incomplete',
+        attempted_at => '',
+        completed_at => undef,
+        source => '',
     );
 
     @INSERTABLE_FIELDS = qw(
-        source
-        attempted_at
-        status
-        pid
         process_name
-        completed_at
         mac
+        pid
+        status
+        attempted_at
+        completed_at
+        source
     );
 
     %FIELDS_META = (
-        source => {
+        id => {
+            type => 'INT',
+            is_auto_increment => 1,
+            is_primary_key => 1,
+            is_nullable => 0,
+        },
+        process_name => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 0,
         },
-        attempted_at => {
-            type => 'DATETIME',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
-        status => {
+        mac => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -86,16 +86,16 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
-        process_name => {
+        status => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 0,
         },
-        id => {
-            type => 'INT',
-            is_auto_increment => 1,
-            is_primary_key => 1,
+        attempted_at => {
+            type => 'DATETIME',
+            is_auto_increment => 0,
+            is_primary_key => 0,
             is_nullable => 0,
         },
         completed_at => {
@@ -104,7 +104,7 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
-        mac => {
+        source => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
