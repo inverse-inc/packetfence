@@ -35,6 +35,23 @@ my %params_for_upsert = (
   -on_conflict  => {type => HASHREF, optional => 1},
 );
 
+=head2 upsert
+
+Creates an mysql INSERT with an optional ON DUPLICATE KEY UPDATE parameters.
+It will create the ON DUPLICATE KEY UPDATE parameters if the hashref -on_conflict is passed as a parameter
+The -on_conflict option uses the same format of the update -set parameter
+
+   my ($sql, @bind) = $sql->upsert(-into => t, -values => {id => 1, f => "bob"}, -on_conflict => { f=> "bob" } );
+   
+   print "sql : '$sql', params(", join(", ", @bind),")\n";
+
+Outputs:
+
+  sql : 'INSERT INTO t (id, f) VALUES (?, ?) ON DUPLICATE KEY UPDATE f = ?', params (1, bob, bob)
+
+
+=cut
+
 sub upsert {
   my $self = shift;
 
@@ -49,14 +66,14 @@ sub upsert {
   else {
     @old_args = @_;
   }
-  # get results from parent method
+  # Create a regular insert
   my ($sql, @bind) = $self->insert(@old_args);
 
-  if ($on_conflict) {
+  if ($on_conflict && keys %$on_conflict > 0) {
     my (@set);
     puke "Unsupported data type specified to \$sql->upsert"
       unless ref $on_conflict eq 'HASH';
-
+    #Copied from SQL::Abstract update
     for my $k (sort keys %$on_conflict) {
       my $v = $on_conflict->{$k};
       my $r = ref $v;
