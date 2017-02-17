@@ -175,12 +175,6 @@ func createQuery(ctx context.Context, o PfconfigObject) Query {
 }
 
 // Fetch and decode a namespace from pfconfig given a pfconfig compatible struct
-// This cannot accept an interface and requires the struct to have been declared to its final type (so not created by the reflection)
-func FetchDecodeSocketStruct(ctx context.Context, o PfconfigObject) error {
-	return FetchDecodeSocket(ctx, o)
-}
-
-// Fetch and decode a namespace from pfconfig given a pfconfig compatible struct
 // This will fetch the json representation from pfconfig and decode it into o
 // o must be a pointer to the struct as this should be used by reference
 func FetchDecodeSocket(ctx context.Context, o PfconfigObject) error {

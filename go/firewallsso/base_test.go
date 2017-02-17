@@ -131,7 +131,7 @@ func TestMatchesRole(t *testing.T) {
 
 func TestFirewallIds(t *testing.T) {
 	firewallIds := FirewallIds{}
-	pfconfigdriver.FetchDecodeSocketStruct(ctx, &firewallIds)
+	pfconfigdriver.FetchDecodeSocket(ctx, &firewallIds)
 
 	if len(firewallIds.Keys) != 4 {
 		t.Errorf("There isn't the right number of firewall IDs fetched from pfconfig (%d instead of 4)", len(firewallIds.Keys))

@@ -25,7 +25,7 @@ func TestFetchSocket(t *testing.T) {
 
 func TestFetchDecodeSocket(t *testing.T) {
 	general := PfConfGeneral{}
-	FetchDecodeSocketStruct(ctx, &general)
+	FetchDecodeSocket(ctx, &general)
 
 	if general.Domain != "pfdemo.org" {
 		t.Error("PfConfGeneral wasn't fetched and parsed correctly")
@@ -34,7 +34,7 @@ func TestFetchDecodeSocket(t *testing.T) {
 
 	var sections PfconfigKeys
 	sections.PfconfigNS = "config::Pf"
-	FetchDecodeSocketStruct(ctx, &sections)
+	FetchDecodeSocket(ctx, &sections)
 
 	generalFound := false
 	for i := range sections.Keys {
@@ -54,7 +54,7 @@ func TestFetchDecodeSocket(t *testing.T) {
 		PfconfigHashNS string `val:"vidange"`
 	}{}
 
-	err := FetchDecodeSocketStruct(ctx, &invalid)
+	err := FetchDecodeSocket(ctx, &invalid)
 
 	if err == nil {
 		t.Error("Invalid struct should have created an error in pfconfig driver but it didn't")
@@ -66,7 +66,7 @@ func TestFetchDecodeSocket(t *testing.T) {
 		PfconfigHashNS string `val:"vidange"`
 	}{}
 
-	err = FetchDecodeSocketStruct(ctx, &invalid2)
+	err = FetchDecodeSocket(ctx, &invalid2)
 
 	if err == nil {
 		t.Error("Invalid struct should have created an error in pfconfig driver but it didn't")
@@ -76,7 +76,7 @@ func TestFetchDecodeSocket(t *testing.T) {
 
 	i = PfConfGeneral{}
 
-	err = FetchDecodeSocketStruct(ctx, &i)
+	err = FetchDecodeSocket(ctx, &i)
 
 	if err != nil {
 		t.Error("Failed to fetch from pfconfig with type being in an interface")
