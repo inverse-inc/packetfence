@@ -75,7 +75,7 @@ func setup(c *caddy.Controller) error {
 }
 
 func readConfig(ctx context.Context, pfsso *PfssoHandler, firstLoad bool) error {
-	pfconfigdriver.GlobalPfconfigResourcePool.LoadResource(ctx, &pfsso.firewallIds, firstLoad)
+	pfconfigdriver.GlobalPfconfigResourcePool.LoadResourceStruct(ctx, &pfsso.firewallIds, firstLoad)
 
 	fssoFactory := firewallsso.NewFactory(ctx)
 
@@ -88,7 +88,6 @@ func readConfig(ctx context.Context, pfsso *PfssoHandler, firstLoad bool) error 
 			}
 
 			res, ok := pfconfigdriver.GlobalPfconfigResourcePool.FindResource(ctx, &firewall)
-			spew.Dump(res)
 			if ok && res.IsValid(ctx) {
 				log.LoggerWContext(ctx).Info(fmt.Sprintf("Firewall %s is still valid", firewallId))
 			} else {
@@ -112,8 +111,6 @@ func readConfig(ctx context.Context, pfsso *PfssoHandler, firstLoad bool) error 
 		pfsso.firewalls = firewalls
 
 	}
-
-	spew.Dump(pfconfigdriver.GlobalPfconfigResourcePool)
 
 	return nil
 }
