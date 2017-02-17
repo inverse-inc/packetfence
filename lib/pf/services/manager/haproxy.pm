@@ -168,6 +168,9 @@ frontend portal-http-$cluster_ip
         bind $cluster_ip:80
         stick-table type ip size 1m expire 10s store gpc0,http_req_rate(10s)
         tcp-request connection track-sc1 src
+        http-request lua.change_host
+        acl host_exist var(req.host) -m found
+        http-request set-header Host %[var(req.host)] if host_exist
         http-request lua.select
         acl action var(req.action) -m found
         acl unflag_abuser src_clr_gpc0 --
@@ -182,7 +185,9 @@ frontend portal-https-$cluster_ip
         bind $cluster_ip:443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
         stick-table type ip size 1m expire 10s store gpc0,http_req_rate(10s)
         tcp-request connection track-sc1 src
-        #tcp-request connection reject if { src_get_gpc0 gt 0 }
+        http-request lua.change_host
+        acl host_exist var(req.host) -m found
+        http-request set-header Host %[var(req.host)] if host_exist
         http-request lua.select
         acl action var(req.action) -m found
         acl unflag_abuser src_clr_gpc0 --
@@ -215,6 +220,7 @@ EOT
 
     my $vars = {
         portal_host => sub { return @portal_ip},
+        fqdn => $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'},
     };
 
     my $config_file = "passthrough.lua";
