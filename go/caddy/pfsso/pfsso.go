@@ -84,14 +84,13 @@ func readConfig(ctx context.Context, pfsso *PfssoHandler, firstLoad bool) error 
 			firewall, ok := pfsso.firewalls[firewallId]
 
 			if !ok {
+				log.LoggerWContext(ctx).Info("A firewall was added. Will read the firewalls again.")
 				return readConfig(ctx, pfsso, true)
 			}
 
 			res, ok := pfconfigdriver.GlobalPfconfigResourcePool.FindResource(ctx, &firewall)
-			if ok && res.IsValid(ctx) {
-				log.LoggerWContext(ctx).Info(fmt.Sprintf("Firewall %s is still valid", firewallId))
-			} else {
-				log.LoggerWContext(ctx).Info(fmt.Sprintf("Firewall %s is not valid", firewallId))
+			if !ok || !res.IsValid(ctx) {
+				log.LoggerWContext(ctx).Info(fmt.Sprintf("Firewall %s has been detected as expired in pfconfig. Reloading.", firewallId))
 				return readConfig(ctx, pfsso, true)
 			}
 		}
