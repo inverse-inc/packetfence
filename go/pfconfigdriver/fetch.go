@@ -179,6 +179,7 @@ func createQuery(ctx context.Context, o PfconfigObject) Query {
 // o must be a pointer to the struct as this should be used by reference
 func FetchDecodeSocket(ctx context.Context, o PfconfigObject) error {
 	query := createQuery(ctx, o)
+
 	jsonResponse := FetchSocket(ctx, query.GetPayload())
 	if query.method == "keys" {
 		if cs, ok := o.(PfconfigKeysInt); ok {

@@ -25,7 +25,7 @@ func TestLoadResource(t *testing.T) {
 		t.Errorf("Resource domain wasn't loaded correctly through resource pool. Got %s instead of %s", gen.Domain, expected)
 	}
 
-	_, ok := rp.loadedResources["pfconfigdriver.PfConfGeneral"]
+	_, ok := rp.loadedResources[createQuery(ctx, &gen).payload]
 	if !ok {
 		t.Error("The loaded resource wasn't stored in the pool")
 		return
@@ -89,7 +89,7 @@ func TestResourceIsValid(t *testing.T) {
 	gen := PfConfGeneral{}
 	rp.LoadResource(ctx, &gen, false)
 
-	res := rp.loadedResources["pfconfigdriver.PfConfGeneral"]
+	res := rp.loadedResources[createQuery(ctx, &gen).payload]
 	if !res.IsValid(ctx) {
 		t.Error("Resource isn't valid although it was just loaded")
 	}

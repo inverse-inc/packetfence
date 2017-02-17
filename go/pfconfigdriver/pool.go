@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/fingerbank/processor/log"
 	"os"
-	"reflect"
 	"time"
 )
 
@@ -17,9 +16,9 @@ func init() {
 }
 
 type Resource struct {
-	namespace  string
-	structType reflect.Type
-	loadedAt   time.Time
+	namespace string
+	query     Query
+	loadedAt  time.Time
 }
 
 func (r *Resource) controlFile() string {
@@ -27,7 +26,7 @@ func (r *Resource) controlFile() string {
 }
 
 func (r *Resource) IsValid(ctx context.Context) bool {
-	ctx = log.AddToLogContext(ctx, "PfconfigObject", r.structType.String())
+	ctx = log.AddToLogContext(ctx, "PfconfigObject", r.query.payload)
 	stat, err := os.Stat(r.controlFile())
 
 	if err != nil {
@@ -65,20 +64,12 @@ func (rp *ResourcePool) ResourceIsValid(ctx context.Context, o PfconfigObject) b
 }
 
 func (rp *ResourcePool) FindResource(ctx context.Context, o PfconfigObject) (Resource, bool) {
-	structTypeStr := rp.getStructType(ctx, o).String()
-	ctx = log.AddToLogContext(ctx, "PfconfigObject", structTypeStr)
+	query := createQuery(ctx, o)
+	ctx = log.AddToLogContext(ctx, "PfconfigObject", query.payload)
 
 	log.LoggerWContext(ctx).Debug("Finding resource")
-	res, ok := rp.loadedResources[structTypeStr]
+	res, ok := rp.loadedResources[query.payload]
 	return res, ok
-}
-
-func (rp *ResourcePool) getStructType(ctx context.Context, o PfconfigObject) reflect.Type {
-	rv := reflect.ValueOf(o)
-	for rv.Kind() == reflect.Ptr || rv.Kind() == reflect.Interface {
-		rv = rv.Elem()
-	}
-	return rv.Type()
 }
 
 func (rp *ResourcePool) getNamespace(ctx context.Context, o PfconfigObject) string {
@@ -89,12 +80,10 @@ func (rp *ResourcePool) getNamespace(ctx context.Context, o PfconfigObject) stri
 // A previously loaded PfconfigObject can be send to this method. If its previously loaded, it will not be touched if the namespace hasn't changed in pfconfig. If its previously loaded and has changed in pfconfig, the new data will be put in the existing PfconfigObject. Should field be unset or have disapeared in pfconfig, it will be properly set back to the zero value of the field. See https://play.golang.org/p/_dYY4Qe5_- for an example.
 // Returns whether the resource has been loaded/reloaded from pfconfig or not
 func (rp *ResourcePool) LoadResource(ctx context.Context, o PfconfigObject, firstLoad bool) (bool, error) {
-	structType := rp.getStructType(ctx, o)
+	query := createQuery(ctx, o)
 	namespace := rp.getNamespace(ctx, o)
 
-	structTypeStr := structType.String()
-
-	ctx = log.AddToLogContext(ctx, "PfconfigObject", structTypeStr)
+	ctx = log.AddToLogContext(ctx, "PfconfigObject", query.payload)
 
 	log.LoggerWContext(ctx).Debug("Started resource loading")
 
@@ -116,10 +105,10 @@ func (rp *ResourcePool) LoadResource(ctx context.Context, o PfconfigObject, firs
 	// We don't want to put a newer version of the resource in the map since another older struct relies on it
 	// The new one (current) can safely rely on the data in it even though it is older
 	if !alreadyLoaded {
-		rp.loadedResources[structTypeStr] = Resource{
-			namespace:  namespace,
-			structType: structType,
-			loadedAt:   time.Now(),
+		rp.loadedResources[query.payload] = Resource{
+			namespace: namespace,
+			query:     query,
+			loadedAt:  time.Now(),
 		}
 	}
 
