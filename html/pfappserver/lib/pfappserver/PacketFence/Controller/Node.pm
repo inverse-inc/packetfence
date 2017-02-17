@@ -301,12 +301,46 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('NODES_READ') 
 
 sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('NODES_UPDATE') {
     my ( $self, $c ) = @_;
-    my ($status, $message);
+    my ( $status, $message, $result );
+
     $c->stash->{current_view} = 'JSON';
-    my ($form, $nodeStatus);
+
+    if ( $c->request->params->{'multihost'} eq "yes" ) {
+        $c->log->info("Doing multihost update calling from update node with MAC '" . $c->stash->{mac} . "'");
+        my @mac = pf::node::check_multihost($c->stash->{mac});
+        foreach my $mac ( @mac ) {
+            $c->stash->{mac} = $mac;
+            ( $status, $result ) = $self->_update($c);
+            if ( is_error($status) ) {
+                $c->response->status($status);
+                $c->stash->{status_msg} = $result;
+                return;
+            }
+        }
+    } else {
+        ( $status, $result ) = $self->_update($c);
+    }
+
+    $c->response->status($status);
+
+    if (is_error($status)) {
+        $c->stash->{status_msg} = $result; # TODO: localize error message
+    }
+}
+
+=head2 _update
+
+=cut
+
+sub _update {
+    my ( $self, $c ) = @_;
+    my ( $status, $message );
+
+    my ( $form, $nodeStatus );
     my $model = $c->model('Node');
-    ($status, my $result) = $model->view($c->stash->{mac});
-    if (is_success($status)) {
+
+    ( $status, my $result ) = $model->view($c->stash->{mac});
+    if ( is_success($status) ) {
         if( $self->_is_role_allowed($c, $result->{category}) ) {
             $nodeStatus = $model->availableStatus();
             $form = $c->form("Node",
@@ -317,12 +351,12 @@ sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('NODES_UPD
             $form->process(
                 params => {mac => $c->stash->{mac}, %{$c->request->params}},
             );
-            if ($form->has_errors) {
+            if ( $form->has_errors ) {
                 $status = HTTP_BAD_REQUEST;
                 $message = $form->field_errors;
             }
             else {
-                ($status, $result) = $c->model('Node')->update($c->stash->{mac}, $form->value);
+                ( $status, $result ) = $c->model('Node')->update($c->stash->{mac}, $form->value);
                 $self->audit_current_action($c, status => $status, mac => $c->stash->{mac});
             }
         }
@@ -331,10 +365,8 @@ sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('NODES_UPD
             $result = "Do not have permission to modify node";
         }
     }
-    $c->response->status($status);
-    if (is_error($status)) {
-        $c->stash->{status_msg} = $result; # TODO: localize error message
-    }
+
+    return ( $status, $result );
 }
 
 =head2 delete
