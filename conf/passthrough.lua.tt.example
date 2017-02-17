@@ -3,11 +3,10 @@
 local string = require("string");
 
 core.register_action("select", { "http-req" }, function(txn)
-    local backend = nil
 
     if ( not ([% FOREACH host IN portal_host %] string.match(txn.sf:req_fhdr("Host"), '[% host %]') or[% END %] false ) ) then
         txn:set_var("req.action","proxy")
-    elseif ([% FOREACH host IN portal_host %] string.match(txn.sf:req_fhdr("Host"), '[% host %]') or[% END %] false ) then
+    else
         if (txn.sf:path() == '/') then
             txn:set_var("req.action","proxy")
         elseif ( string.match(txn.sf:path(), '/common') or string.match(txn.sf:path(), '/content') or string.match(txn.sf:path(), '/favicon.ico') ) then
