@@ -104,7 +104,7 @@ EOT
         if ($interface eq $management_network->tag('int')) {
             $tags{'active_active_ip'} = pf::cluster::management_cluster_ip() || $cfg->{'ip'};
             my @mysql_backend = map { $_->{management_ip} } pf::cluster::mysql_servers();
-            push @mysql_backend, '127.0.0.1' if !@mysql_backend;
+            push @mysql_backend, $cfg->{'ip'} if !@mysql_backend;
             foreach my $mysql_back (@mysql_backend) {
                 # the second server (the one without the VIP) will be the prefered MySQL server
                 if ($i == 0) {

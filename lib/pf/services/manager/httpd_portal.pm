@@ -99,7 +99,8 @@ sub vhosts {
             uniq map {
                 defined $_->{'Tvip'} && $_->{'Tvip'} ne '' ? $_->{'Tvip'} : $_->{'Tip'}
             } @internal_nets, @portal_ints
-        ];
+        ] if $cluster_enabled;
+    return ["127.0.0.1"];
 }
 
 =head2 routedNets
