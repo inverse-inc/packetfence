@@ -3269,6 +3269,19 @@ sub externalPortalEnforcement {
 }
 
 
+=item TO_JSON
+
+TO_JSON
+
+=cut
+
+sub TO_JSON {
+    my ($self) = @_;
+    my %data = %$self;
+    delete @data{qw(_sessionRead _sessionWrite)};
+    return \%data;
+}
+
 =back
 
 =head1 AUTHOR
