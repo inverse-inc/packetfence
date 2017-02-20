@@ -47,7 +47,12 @@ func (fw *WatchGuard) startRadiusPacket(ctx context.Context, info map[string]str
 func (fw *WatchGuard) Stop(ctx context.Context, info map[string]string) bool {
 	p := fw.stopRadiusPacket(ctx, info)
 	client := radius.Client{}
-	_, err := client.Exchange(p, fw.PfconfigHashNS+":"+fw.Port)
+
+	var err error
+	client.LocalAddr, err = net.ResolveUDPAddr("udp", fw.getSourceIp(ctx).String()+":0")
+	sharedutils.CheckError(err)
+
+	_, err = client.Exchange(p, fw.PfconfigHashNS+":"+fw.Port)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Couldn't SSO to the WatchGuard, got the following error: %s", err))
 		return false
