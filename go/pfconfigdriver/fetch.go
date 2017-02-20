@@ -8,10 +8,13 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Sereal/Sereal/Go/sereal"
+	"github.com/fingerbank/processor/log"
 	"github.com/fingerbank/processor/sharedutils"
 	"io"
 	"net"
+	"os"
 	"reflect"
+	"time"
 	//"github.com/davecgh/go-spew/spew"
 )
 
@@ -177,6 +180,39 @@ func createQuery(ctx context.Context, o PfconfigObject) Query {
 	return query
 }
 
+func IsValid(ctx context.Context, o PfconfigObject) bool {
+	ns := metadataFromField(ctx, o, "PfconfigNS")
+	controlFile := "/usr/local/pf/var/control/" + ns + "-control"
+
+	stat, err := os.Stat(controlFile)
+
+	if err != nil {
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("Cannot stat %s. Will consider resource as invalid"))
+		return false
+	} else {
+		controlTime := stat.ModTime()
+		if o.GetLoadedAt().Before(controlTime) {
+			log.LoggerWContext(ctx).Debug("Resource is not valid anymore.")
+			return false
+		} else {
+			return true
+		}
+	}
+}
+
+func FetchDecodeSocketCache(ctx context.Context, o PfconfigObject) (bool, error) {
+	query := createQuery(ctx, o)
+	ctx = log.AddToLogContext(ctx, "PfconfigObject", query.GetIdentifier())
+
+	// If the resource is still valid and is already loaded
+	if IsValid(ctx, o) && o.GetLoadedAt().Year() > 0 {
+		return false, nil
+	}
+
+	err := FetchDecodeSocket(ctx, o)
+	return true, err
+}
+
 // Fetch and decode a namespace from pfconfig given a pfconfig compatible struct
 // This will fetch the json representation from pfconfig and decode it into o
 // o must be a pointer to the struct as this should be used by reference
@@ -200,6 +236,8 @@ func FetchDecodeSocket(ctx context.Context, o PfconfigObject) error {
 			return errors.New(fmt.Sprintf("Element in response was invalid. Response was: %s", jsonResponse))
 		}
 	}
+
+	o.SetLoadedAt(time.Now())
 
 	return nil
 }
