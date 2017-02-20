@@ -267,7 +267,7 @@ sub _runtask {
     my ($task_id) = @_;
     $0 = "pffilter - $task_id";
     my $time_taken = 0;
-    local $^F = 2;
+    #local $^F = 2;
     while ($running) {
         my $line;
         eval {
@@ -279,8 +279,15 @@ sub _runtask {
             }
             if ($paddr) {
                 chomp($line = <$socket>);
-                my $query = decode_json($line);
-                handle_query($query, $socket);
+                my $query = eval {
+                    decode_json($line)
+                };
+                if ($query) {
+                    handle_query($query, $socket);
+                }
+                else {
+                    send_error(undef,-32700, "cannot parse request", $@ ,$socket);
+                }
             }
         };
         if ($@) {
@@ -289,6 +296,26 @@ sub _runtask {
     }
     $logger->trace("$$ shutting down");
     exit;
+}
+
+=head2 send_error
+
+send_error
+
+=cut
+
+sub send_error {
+    my ($query, $code, $message, $data, $socket) = @_;
+    my %responses = (
+        error => {
+            code => $code,
+            message => $message,
+            data => $data,
+        }
+    );
+    my $bytes = encode_json(\%responses) . "\n";
+    print $socket $bytes;
+    return;
 }
 
 =head2 handle_query
@@ -303,7 +330,7 @@ sub handle_query {
     if (defined $method && exists $DISPATCH{$method}) {
         return handle_dispath($query, $DISPATCH{$method}, $socket);
     }
-    return ;
+    return send_error($query, -32601, "Method not found ", undef, $socket);
 }
 
 
@@ -321,6 +348,7 @@ sub handle_dispath {
     };
     if ($@) {
         $logger->error($@);
+        return send_error($query, -32603, "Internal Error", $@, $socket);
     }
     return send_answer($query, $answer, $socket);
 }
@@ -422,7 +450,7 @@ filter_radius
 =cut
 
 sub filter_radius {
-    my ($self, @params) = @_;
+    my (@params) = @_;
     return $RADIUS_FILTER->filter(@params);
 }
 
@@ -433,7 +461,7 @@ filter_dhcp
 =cut
 
 sub filter_dhcp {
-    my ($self, @params) = @_;
+    my (@params) = @_;
     return $DHCP_FILTER->filter(@params);
 }
 
@@ -444,7 +472,7 @@ filter_dns
 =cut
 
 sub filter_dns {
-    my ($self, @params) = @_;
+    my (@params) = @_;
     return $DNS_FILTER->filter(@params);
 }
 
@@ -455,7 +483,7 @@ filter_vlan
 =cut
 
 sub filter_vlan {
-    my ($self, @params) = @_;
+    my (@params) = @_;
     return $VLAN_FILTER->filter(@params);
 }
 
