@@ -4,10 +4,25 @@ import (
 	"context"
 	"encoding/json"
 	"net"
+	"time"
 )
 
 // Interface for a pfconfig object. Not doing much now but it is there for future-proofing
 type PfconfigObject interface {
+	GetLoadedAt() time.Time
+	SetLoadedAt(time.Time)
+}
+
+type StructConfig struct {
+	PfconfigLoadedAt time.Time
+}
+
+func (ps *StructConfig) SetLoadedAt(t time.Time) {
+	ps.PfconfigLoadedAt = t
+}
+
+func (ps *StructConfig) GetLoadedAt() time.Time {
+	return ps.PfconfigLoadedAt
 }
 
 // pfconfig replies with the «struct» nested in an element key of a hash
@@ -24,6 +39,7 @@ type TypedConfig struct {
 
 // Represents the pf.conf general section
 type PfConfGeneral struct {
+	StructConfig
 	PfconfigMethod string `val:"hash_element"`
 	PfconfigNS     string `val:"config::Pf"`
 	PfconfigHashNS string `val:"general"`
@@ -35,6 +51,7 @@ type PfConfGeneral struct {
 }
 
 type ManagementNetwork struct {
+	StructConfig
 	PfconfigMethod string `val:"element"`
 	PfconfigNS     string `val:"interfaces::management_network"`
 	Ip             string `json:"ip"`
@@ -52,6 +69,7 @@ func (mn *ManagementNetwork) GetNetIP(ctx context.Context) (net.IP, *net.IPNet, 
 // This will store the keys (section names) in the Keys attribute
 // **DO NOT** use this directly through the resource pool as the pool is type based which means that all your structs pointing to different namespaces will point to the namespace that was used first
 type PfconfigKeys struct {
+	StructConfig
 	PfconfigMethod string `val:"keys"`
 	PfconfigNS     string `val:"-"`
 	Keys           []string

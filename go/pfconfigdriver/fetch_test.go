@@ -49,6 +49,7 @@ func TestFetchDecodeSocket(t *testing.T) {
 	}
 
 	invalid := struct {
+		StructConfig
 		PfconfigMethod string `val:"hash_element"`
 		PfconfigNS     string `val:"vidange"`
 		PfconfigHashNS string `val:"vidange"`
@@ -61,6 +62,7 @@ func TestFetchDecodeSocket(t *testing.T) {
 	}
 
 	invalid2 := struct {
+		StructConfig
 		PfconfigMethod string `val:"vidange"`
 		PfconfigNS     string `val:"vidange"`
 		PfconfigHashNS string `val:"vidange"`
@@ -74,9 +76,9 @@ func TestFetchDecodeSocket(t *testing.T) {
 
 	var i PfconfigObject
 
-	i = PfConfGeneral{}
+	i = &PfConfGeneral{}
 
-	err = FetchDecodeSocket(ctx, &i)
+	err = FetchDecodeSocket(ctx, i)
 
 	if err != nil {
 		t.Error("Failed to fetch from pfconfig with type being in an interface")

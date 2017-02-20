@@ -25,6 +25,7 @@ type FirewallSSOInt interface {
 
 // Basic struct for all firewalls
 type FirewallSSO struct {
+	StructConfig
 	PfconfigMethod string `val:"hash_element"`
 	PfconfigNS     string `val:"config::Firewall_SSO"`
 	PfconfigHashNS string `val:"-"`
