@@ -55,6 +55,22 @@ func (h PfssoHandler) handleStop(w http.ResponseWriter, r *http.Request, p httpr
 func setup(c *caddy.Controller) error {
 	ctx := log.LoggerNewContext(context.Background())
 
+	pfsso, err := buildPfssoHandler(ctx)
+
+	if err != nil {
+		return err
+	}
+
+	httpserver.GetConfig(c).AddMiddleware(func(next httpserver.Handler) httpserver.Handler {
+		pfsso.Next = next
+		return pfsso
+	})
+
+	return nil
+}
+
+func buildPfssoHandler(ctx context.Context) (PfssoHandler, error) {
+
 	pfsso := PfssoHandler{
 		firewalls: make(map[string]firewallsso.FirewallSSOInt),
 	}
@@ -64,13 +80,9 @@ func setup(c *caddy.Controller) error {
 	router.POST("/pfsso/start", pfsso.handleStart)
 	router.POST("/pfsso/stop", pfsso.handleStop)
 
-	httpserver.GetConfig(c).AddMiddleware(func(next httpserver.Handler) httpserver.Handler {
-		pfsso.Next = next
-		pfsso.router = router
-		return pfsso
-	})
+	pfsso.router = router
 
-	return nil
+	return pfsso, nil
 }
 
 func readConfig(ctx context.Context, pfsso *PfssoHandler, firstLoad bool) error {
