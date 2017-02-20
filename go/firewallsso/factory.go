@@ -18,6 +18,7 @@ func NewFactory(ctx context.Context) Factory {
 	f.typeRegistry = make(map[string]reflect.Type)
 	f.typeRegistry["Iboss"] = reflect.TypeOf(&Iboss{}).Elem()
 	f.typeRegistry["PaloAlto"] = reflect.TypeOf(&PaloAlto{}).Elem()
+	f.typeRegistry["FortiGate"] = reflect.TypeOf(&FortiGate{}).Elem()
 	return f
 }
 
