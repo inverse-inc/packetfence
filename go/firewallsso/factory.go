@@ -3,6 +3,7 @@ package firewallsso
 import (
 	"context"
 	"errors"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"reflect"
 )
@@ -22,10 +23,10 @@ func NewFactory(ctx context.Context) Factory {
 }
 
 // Instantiate a new FirewallSSO given its configuration ID in PacketFence
-func (f *Factory) Instantiate(ctx context.Context, id string, firstLoad bool) (FirewallSSOInt, error) {
+func (f *Factory) Instantiate(ctx context.Context, id string) (FirewallSSOInt, error) {
 	firewall := FirewallSSO{}
 	firewall.PfconfigHashNS = id
-	_, err := pfconfigdriver.GlobalPfconfigResourcePool.LoadResource(ctx, &firewall, firstLoad)
+	_, err := pfconfigdriver.GlobalPfconfigResourcePool.LoadResource(ctx, &firewall, true)
 	if err != nil {
 		return nil, err
 	}
@@ -33,13 +34,14 @@ func (f *Factory) Instantiate(ctx context.Context, id string, firstLoad bool) (F
 		or := reflect.New(oType)
 		or.Elem().FieldByName("PfconfigHashNS").SetString(id)
 		firewall2 := or.Interface().(pfconfigdriver.PfconfigObject)
-		_, err = pfconfigdriver.GlobalPfconfigResourcePool.LoadResource(ctx, &firewall2, firstLoad)
+		_, err = pfconfigdriver.GlobalPfconfigResourcePool.LoadResource(ctx, &firewall2, true)
 		if err != nil {
 			return nil, err
 		}
 
 		fwint := firewall2.(FirewallSSOInt)
 		fwint.init(ctx)
+		spew.Dump(fwint)
 		return fwint, nil
 	} else {
 		return nil, errors.New("Cannot find the type of the object")

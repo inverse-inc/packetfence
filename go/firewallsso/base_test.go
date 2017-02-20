@@ -9,9 +9,15 @@ import (
 
 var ctx = log.LoggerNewContext(context.Background())
 
+var sampleInfo = map[string]string{
+	"username": "lzammit",
+	"ip":       "1.2.3.4",
+	"mac":      "00:11:22:33:44:55",
+}
+
 func TestStart(t *testing.T) {
 	factory := NewFactory(ctx)
-	o, err := factory.Instantiate(ctx, "testfw", true)
+	o, err := factory.Instantiate(ctx, "testfw")
 	util.CheckTestError(t, err)
 	iboss := o.(*Iboss)
 
@@ -34,7 +40,7 @@ func TestStart(t *testing.T) {
 		}
 	}
 
-	paloalto, err := factory.Instantiate(ctx, "paloalto.com", true)
+	paloalto, err := factory.Instantiate(ctx, "paloalto.com")
 	util.CheckTestError(t, err)
 
 	if err == nil {
@@ -58,7 +64,7 @@ func TestMatchesNetwork(t *testing.T) {
 	factory := NewFactory(ctx)
 
 	// Test firewall that has 1 or more network assigned to it
-	fw, err := factory.Instantiate(ctx, "testfw", true)
+	fw, err := factory.Instantiate(ctx, "testfw")
 	util.CheckTestError(t, err)
 
 	if err == nil {
@@ -77,7 +83,7 @@ func TestMatchesNetwork(t *testing.T) {
 	}
 
 	// Test firewall that has no network assigned to it
-	fw, err = factory.Instantiate(ctx, "testfw2", true)
+	fw, err = factory.Instantiate(ctx, "testfw2")
 	util.CheckTestError(t, err)
 
 	if err == nil {
@@ -100,7 +106,7 @@ func TestMatchesRole(t *testing.T) {
 	factory := NewFactory(ctx)
 
 	// Test firewall that has 1 or more role assigned to it
-	fw, err := factory.Instantiate(ctx, "testfw2", true)
+	fw, err := factory.Instantiate(ctx, "testfw2")
 	util.CheckTestError(t, err)
 
 	if err == nil {
@@ -114,7 +120,7 @@ func TestMatchesRole(t *testing.T) {
 	}
 
 	// Test firewall that has no role assigned to it. That shouldn't make it apply
-	fw, err = factory.Instantiate(ctx, "testfw", true)
+	fw, err = factory.Instantiate(ctx, "testfw")
 	util.CheckTestError(t, err)
 
 	if err != nil {

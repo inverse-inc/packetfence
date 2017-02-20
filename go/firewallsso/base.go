@@ -4,9 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/fingerbank/processor/log"
+	"github.com/fingerbank/processor/sharedutils"
 	log15 "github.com/inconshreveable/log15"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"net"
+	"strconv"
 )
 
 // Basic interface that all FirewallSSO must implement
@@ -62,6 +64,17 @@ func (fw *FirewallSSO) GetFirewallSSO(ctx context.Context) *FirewallSSO {
 	return fw
 }
 
+func (fw *FirewallSSO) InfoToTemplateCtx(ctx context.Context, info map[string]string, timeout int) map[string]string {
+	templateCtx := make(map[string]string)
+	for k, v := range info {
+		templateCtx[sharedutils.UcFirst(k)] = v
+	}
+
+	templateCtx["Timeout"] = strconv.Itoa(timeout)
+
+	return templateCtx
+}
+
 // Start method that will be called on every SSO called via ExecuteStart
 func (fw *FirewallSSO) Start(ctx context.Context, info map[string]string, timeout int) bool {
 	fw.logger(ctx).Debug("Sending SSO start")
@@ -101,6 +114,7 @@ type RoleBasedFirewallSSO struct {
 // Is the role in info["role"] part of the roles that are configured for the SSO
 func (rbf *RoleBasedFirewallSSO) MatchesRole(ctx context.Context, info map[string]string) bool {
 	userRole := info["role"]
+	log.LoggerWContext(ctx).Debug(fmt.Sprintf("Checking if role %s matches %s", userRole, rbf.Roles))
 	for _, role := range rbf.Roles {
 		if userRole == role {
 			return true
