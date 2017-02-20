@@ -96,7 +96,14 @@
                     [% IF item.role.length %]<span class="badge badge-info">role [% item.role | html %]</span>[% END %]
                   [% END %]
                 </span>
-                  [%- IF node.last_port.length && !node.last_ssid %] <span class="badge badge-info">port [% node.last_port | html %]</span>[% END %]
+                  [%- IF node.last_port.length && !node.last_ssid %]
+                    <span class="badge badge-info">
+                      port [% node.last_port | html %]
+                      [% IF node.last_ifDesc.length %]
+                        ([% node.last_ifDesc | html %])
+                      [% END %]
+                    </span>
+                  [% END %]
                   [%- IF node.last_role.length %] <span class="badge badge-info">role [% node.last_role | html %]</span>[% END %]
                   <span class="label">On [% node.last_start_time | html %]</span></div>
             </div>
