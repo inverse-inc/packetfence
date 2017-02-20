@@ -1,7 +1,7 @@
 [Unit]
 Description=PacketFence Redis Cache Service
-After=network.target packetfence-mariadb.service
-Wants=packetfence-mariadb.service
+After=network.target
+Before=packetfence-config.service
 
 [Service]
 PIDFile=/usr/local/pf/var/run/redis_cache.pid
