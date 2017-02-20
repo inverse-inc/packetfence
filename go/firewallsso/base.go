@@ -15,6 +15,7 @@ import (
 type FirewallSSOInt interface {
 	init(ctx context.Context) error
 	logger(ctx context.Context) log15.Logger
+	getSourceIp(ctx context.Context) net.IP
 	Start(ctx context.Context, info map[string]string, timeout int) bool
 	Stop(ctx context.Context, info map[string]string) bool
 	GetFirewallSSO(ctx context.Context) *FirewallSSO
@@ -85,6 +86,18 @@ func (fw *FirewallSSO) Start(ctx context.Context, info map[string]string, timeou
 func (fw *FirewallSSO) Stop(ctx context.Context, info map[string]string) bool {
 	fw.logger(ctx).Debug("Sending SSO stop")
 	return true
+}
+
+func (fw *FirewallSSO) getSourceIp(ctx context.Context) net.IP {
+	managementNetwork := pfconfigdriver.ManagementNetwork{}
+	//TODO: rework it so that it is a global variable
+	pfconfigdriver.GlobalPfconfigResourcePool.LoadResource(ctx, &managementNetwork, true)
+
+	if managementNetwork.Vip != "" {
+		return net.ParseIP(managementNetwork.Vip)
+	} else {
+		return net.ParseIP(managementNetwork.Ip)
+	}
 }
 
 // Check if info["ip"] is part of the configured networks if any

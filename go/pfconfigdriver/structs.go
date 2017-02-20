@@ -1,7 +1,9 @@
 package pfconfigdriver
 
 import (
+	"context"
 	"encoding/json"
+	"net"
 )
 
 // Interface for a pfconfig object. Not doing much now but it is there for future-proofing
@@ -30,6 +32,20 @@ type PfConfGeneral struct {
 	Timezone       string `json:"timezone"`
 	Hostname       string `json:"hostname"`
 	DHCP_Servers   string `json:"dhcpservers"`
+}
+
+type ManagementNetwork struct {
+	PfconfigMethod string `val:"element"`
+	PfconfigNS     string `val:"interfaces::management_network"`
+	Ip             string `json:"ip"`
+	Vip            string `json:"vip"`
+	Mask           string `json:"mask"`
+	Int            string `json:"int"`
+}
+
+func (mn *ManagementNetwork) GetNetIP(ctx context.Context) (net.IP, *net.IPNet, error) {
+	ip, ipnet, err := net.ParseCIDR(mn.Ip + "/" + mn.Mask)
+	return ip, ipnet, err
 }
 
 // Used when fetching the sections from a pfconfig HASH namespace

@@ -133,3 +133,16 @@ func TestMatchesRole(t *testing.T) {
 		}
 	}
 }
+
+func TestGetSourceIp(t *testing.T) {
+	factory := NewFactory(ctx)
+
+	// Test firewall that has 1 or more role assigned to it
+	fw, err := factory.Instantiate(ctx, "testfw2")
+	util.CheckTestError(t, err)
+
+	expected := "10.0.0.13"
+	if fw.getSourceIp(ctx).String() != expected {
+		t.Errorf("Wrong source IP for firewall. Got %s instead of %s", fw.getSourceIp(ctx).String(), expected)
+	}
+}
