@@ -59,7 +59,17 @@ func (fw *PaloAlto) startHttpPayload(ctx context.Context, info map[string]string
 	return b.String()
 }
 
-func (fw *PaloAlto) stopHttpPayload(ctx context.Context, info map[string]string, timeout int) string {
+func (fw *PaloAlto) Stop(ctx context.Context, info map[string]string) bool {
+	if fw.Transport == "syslog" {
+		//return fw.stopSyslog(ctx, info, timeout)
+	} else {
+		log.LoggerWContext(ctx).Info("Sending SSO to PaloAlto using HTTP")
+		return fw.stopHttp(ctx, info)
+	}
+	return false
+}
+
+func (fw *PaloAlto) stopHttpPayload(ctx context.Context, info map[string]string) string {
 	t := template.New("PaloAlto.stopHttp")
 	t.Parse(`
 <uid-message>
@@ -73,10 +83,19 @@ func (fw *PaloAlto) stopHttpPayload(ctx context.Context, info map[string]string,
 </uid-message>
 `)
 	b := new(bytes.Buffer)
-	t.Execute(b, fw.InfoToTemplateCtx(ctx, info, timeout))
+	t.Execute(b, fw.InfoToTemplateCtx(ctx, info, -1))
 	return b.String()
 }
 
-func (fw *PaloAlto) Stop(ctx context.Context, info map[string]string) bool {
-	return false
+func (fw *PaloAlto) stopHttp(ctx context.Context, info map[string]string) bool {
+	//TODO: change back to https when done testing
+	//TODO: Ignore cert checks
+	_, err := http.PostForm("http://"+fw.PfconfigHashNS+":"+fw.Port+"/api/?type=user-id&action=set&key="+fw.Password,
+		url.Values{"cmd": {fw.stopHttpPayload(ctx, info)}})
+
+	if err != nil {
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error contacting PaloAlto: %s", err))
+	}
+
+	return err != nil
 }

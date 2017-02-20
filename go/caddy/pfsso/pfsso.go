@@ -34,15 +34,15 @@ func (h PfssoHandler) handleStart(w http.ResponseWriter, r *http.Request, p http
 
 	var info map[string]string
 	json.NewDecoder(r.Body).Decode(&info)
+	timeout, err := strconv.ParseInt(info["timeout"], 10, 32)
+	if err != nil {
+		log.LoggerWContext(ctx).Warn(fmt.Sprintf("Can't parse timeout '%s' into an int (%s). Will not specify timeout for request.", info["timeout"], err))
+	}
 
 	for _, firewall := range firewalls {
 		// Creating a local shallow copy to send to the go-routine
 		firewall := firewall
 		go func() {
-			timeout, err := strconv.ParseInt(info["timeout"], 10, 32)
-			if err != nil {
-				log.LoggerWContext(ctx).Warn(fmt.Sprintf("Can't parse timeout '%s' into an int (%s). Will not specify timeout for request.", info["timeout"], err))
-			}
 			firewallsso.ExecuteStart(ctx, firewall, info, int(timeout))
 		}()
 	}
@@ -54,7 +54,22 @@ func (h PfssoHandler) handleStop(w http.ResponseWriter, r *http.Request, p httpr
 	ctx := r.Context()
 	defer statsd.NewStatsDTiming(ctx).Send("PfssoHandler.handleStop")
 
-	w.WriteHeader(http.StatusNotImplemented)
+	var info map[string]string
+	json.NewDecoder(r.Body).Decode(&info)
+	timeout, err := strconv.ParseInt(info["timeout"], 10, 32)
+	if err != nil {
+		log.LoggerWContext(ctx).Warn(fmt.Sprintf("Can't parse timeout '%s' into an int (%s). Will not specify timeout for request.", info["timeout"], err))
+	}
+
+	for _, firewall := range firewalls {
+		// Creating a local shallow copy to send to the go-routine
+		firewall := firewall
+		go func() {
+			firewallsso.ExecuteStop(ctx, firewall, info, int(timeout))
+		}()
+	}
+
+	w.WriteHeader(http.StatusAccepted)
 }
 
 func setup(c *caddy.Controller) error {
