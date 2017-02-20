@@ -121,7 +121,7 @@ func readConfig(ctx context.Context, firstLoad bool) error {
 				return readConfig(ctx, true)
 			}
 
-			if pfconfigdriver.IsValid(ctx, &firewall) {
+			if !pfconfigdriver.IsValid(ctx, firewall) {
 				log.LoggerWContext(ctx).Info(fmt.Sprintf("Firewall %s has been detected as expired in pfconfig. Reloading.", firewallId))
 				return readConfig(ctx, true)
 			}

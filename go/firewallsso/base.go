@@ -9,6 +9,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"net"
 	"strconv"
+	"time"
 )
 
 // Basic interface that all FirewallSSO must implement
@@ -21,6 +22,8 @@ type FirewallSSOInt interface {
 	GetFirewallSSO(ctx context.Context) *FirewallSSO
 	MatchesRole(ctx context.Context, info map[string]string) bool
 	MatchesNetwork(ctx context.Context, info map[string]string) bool
+	GetLoadedAt() time.Time
+	SetLoadedAt(time.Time)
 }
 
 // Basic struct for all firewalls

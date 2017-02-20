@@ -192,7 +192,7 @@ func IsValid(ctx context.Context, o PfconfigObject) bool {
 	} else {
 		controlTime := stat.ModTime()
 		if o.GetLoadedAt().Before(controlTime) {
-			log.LoggerWContext(ctx).Debug("Resource is not valid anymore.")
+			log.LoggerWContext(ctx).Debug(fmt.Sprintf("Resource is not valid anymore. Was loaded at %s", o.GetLoadedAt()))
 			return false
 		} else {
 			return true
@@ -205,7 +205,7 @@ func FetchDecodeSocketCache(ctx context.Context, o PfconfigObject) (bool, error)
 	ctx = log.AddToLogContext(ctx, "PfconfigObject", query.GetIdentifier())
 
 	// If the resource is still valid and is already loaded
-	if IsValid(ctx, o) && o.GetLoadedAt().Year() > 0 {
+	if IsValid(ctx, o) {
 		return false, nil
 	}
 
