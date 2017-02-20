@@ -885,6 +885,7 @@ fi
 %dir                    /usr/local/pf/addons/watchdog
 %attr(0755, pf, pf)     /usr/local/pf/addons/watchdog/*.sh
 %dir                    /usr/local/pf/bin
+%attr(0755, pf, pf)     /usr/local/pf/bin/mariadb
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd.pl
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd_vlan
 %attr(0755, pf, pf)     /usr/local/pf/bin/pftest
@@ -965,6 +966,9 @@ fi
 %dir                    /usr/local/pf/conf/log.conf.d
 %config(noreplace)      /usr/local/pf/conf/log.conf.d/*.conf
                         /usr/local/pf/conf/log.conf.d/*.example
+%dir                    /usr/local/pf/conf/mariadb
+%config                 /usr/local/pf/conf/mariadb/*.tt
+                        /usr/local/pf/conf/mariadb/*.tt.example
 %dir                    /usr/local/pf/conf/nessus
 %config(noreplace)      /usr/local/pf/conf/nessus/remotescan.nessus
                         /usr/local/pf/conf/nessus/remotescan.nessus.example
