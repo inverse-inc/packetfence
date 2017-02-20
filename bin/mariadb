@@ -90,7 +90,7 @@ sub launch_mysql {
     $ENV{PATH} = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin:/root/bin";
     my $cmd = "mysqld_safe --defaults-file=/usr/local/pf/var/conf/mariadb.conf $args";
     print "Starting MySQL with command: $cmd \n";
-    exec($cmd);
+    `$cmd`;
 }
 
 =head2 fork_launch_mysql
