@@ -3278,7 +3278,7 @@ TO_JSON
 sub TO_JSON {
     my ($self) = @_;
     my %data = %$self;
-    delete @data{qw(_sessionRead _sessionWrite)};
+    delete @data{qw(_sessionRead _sessionWrite _sessionControllerWrite)};
     return \%data;
 }
 
