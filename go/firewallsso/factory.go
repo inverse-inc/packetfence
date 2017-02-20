@@ -3,7 +3,6 @@ package firewallsso
 import (
 	"context"
 	"errors"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"reflect"
 )
@@ -41,7 +40,6 @@ func (f *Factory) Instantiate(ctx context.Context, id string) (FirewallSSOInt, e
 
 		fwint := firewall2.(FirewallSSOInt)
 		fwint.init(ctx)
-		spew.Dump(fwint)
 		return fwint, nil
 	} else {
 		return nil, errors.New("Cannot find the type of the object")
