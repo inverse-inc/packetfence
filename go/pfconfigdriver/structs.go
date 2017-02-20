@@ -74,3 +74,14 @@ type PfconfigKeys struct {
 	PfconfigNS     string `val:"-"`
 	Keys           []string
 }
+
+type configStruct struct {
+	Interfaces struct {
+		ManagementNetwork ManagementNetwork
+	}
+	PfConf struct {
+		General PfConfGeneral
+	}
+}
+
+var Config configStruct

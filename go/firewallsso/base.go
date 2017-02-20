@@ -93,9 +93,8 @@ func (fw *FirewallSSO) Stop(ctx context.Context, info map[string]string) bool {
 }
 
 func (fw *FirewallSSO) getSourceIp(ctx context.Context) net.IP {
-	managementNetwork := pfconfigdriver.ManagementNetwork{}
-	//TODO: rework it so that it is a global variable
-	pfconfigdriver.FetchDecodeSocketCache(ctx, &managementNetwork)
+	managementNetwork := &pfconfigdriver.Config.Interfaces.ManagementNetwork
+	pfconfigdriver.FetchDecodeSocketCache(ctx, managementNetwork)
 
 	if managementNetwork.Vip != "" {
 		return net.ParseIP(managementNetwork.Vip)
