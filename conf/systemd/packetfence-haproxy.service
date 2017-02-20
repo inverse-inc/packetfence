@@ -6,6 +6,7 @@ Wants=packetfence.target packetfence-iptables.service
 
 [Service]
 PIDFile=/usr/local/pf/var/run/haproxy.pid
+ExecStartPre=/usr/local/pf/bin/pfcmd service haproxy generateconfig
 ExecStart=/usr/sbin/haproxy-systemd-wrapper -f /usr/local/pf/var/conf/haproxy.conf -p /usr/local/pf/var/run/haproxy.pid
 ExecReload=/bin/kill -USR2 $MAINPID
 Restart=on-failure
