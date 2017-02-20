@@ -16,7 +16,12 @@ import (
 	"strconv"
 )
 
+var firewallIds pfconfigdriver.PfconfigKeys
+var firewalls map[string]firewallsso.FirewallSSOInt
+
 func init() {
+	firewallIds.PfconfigNS = "config::Firewall_SSO"
+
 	caddy.RegisterPlugin("pfsso", caddy.Plugin{
 		ServerType: "http",
 		Action:     setup,
@@ -30,7 +35,7 @@ func (h PfssoHandler) handleStart(w http.ResponseWriter, r *http.Request, p http
 	var info map[string]string
 	json.NewDecoder(r.Body).Decode(&info)
 
-	for _, firewall := range h.firewalls {
+	for _, firewall := range firewalls {
 		// Creating a local shallow copy to send to the go-routine
 		firewall := firewall
 		go func() {
@@ -71,10 +76,8 @@ func setup(c *caddy.Controller) error {
 
 func buildPfssoHandler(ctx context.Context) (PfssoHandler, error) {
 
-	pfsso := PfssoHandler{
-		firewalls: make(map[string]firewallsso.FirewallSSOInt),
-	}
-	readConfig(ctx, &pfsso, true)
+	pfsso := PfssoHandler{}
+	readConfig(ctx, true)
 
 	router := httprouter.New()
 	router.POST("/pfsso/start", pfsso.handleStart)
@@ -85,41 +88,40 @@ func buildPfssoHandler(ctx context.Context) (PfssoHandler, error) {
 	return pfsso, nil
 }
 
-func readConfig(ctx context.Context, pfsso *PfssoHandler, firstLoad bool) error {
-	pfsso.firewallIds.PfconfigNS = "config::Firewall_SSO"
-	pfconfigdriver.GlobalPfconfigResourcePool.LoadResource(ctx, &pfsso.firewallIds, firstLoad)
+func readConfig(ctx context.Context, firstLoad bool) error {
+	pfconfigdriver.GlobalPfconfigResourcePool.LoadResource(ctx, &firewallIds, firstLoad)
 
 	fssoFactory := firewallsso.NewFactory(ctx)
 
 	if !firstLoad {
-		for _, firewallId := range pfsso.firewallIds.Keys {
-			firewall, ok := pfsso.firewalls[firewallId]
+		for _, firewallId := range firewallIds.Keys {
+			firewall, ok := firewalls[firewallId]
 
 			if !ok {
 				log.LoggerWContext(ctx).Info("A firewall was added. Will read the firewalls again.")
-				return readConfig(ctx, pfsso, true)
+				return readConfig(ctx, true)
 			}
 
 			res, ok := pfconfigdriver.GlobalPfconfigResourcePool.FindResource(ctx, &firewall)
 			if !ok || !res.IsValid(ctx) {
 				log.LoggerWContext(ctx).Info(fmt.Sprintf("Firewall %s has been detected as expired in pfconfig. Reloading.", firewallId))
-				return readConfig(ctx, pfsso, true)
+				return readConfig(ctx, true)
 			}
 		}
 	} else {
-		firewalls := make(map[string]firewallsso.FirewallSSOInt)
+		newFirewalls := make(map[string]firewallsso.FirewallSSOInt)
 
-		for _, firewallId := range pfsso.firewallIds.Keys {
+		for _, firewallId := range firewallIds.Keys {
 			log.LoggerWContext(ctx).Info(fmt.Sprintf("Adding firewall %s", firewallId))
 
-			firewall, err := fssoFactory.Instantiate(ctx, firewallId, false)
+			firewall, err := fssoFactory.Instantiate(ctx, firewallId)
 			if err != nil {
 				log.LoggerWContext(ctx).Error(fmt.Sprintf("Cannot instantiate firewall %s because of an error (%s). Ignoring it.", firewallId, err))
 			} else {
-				firewalls[firewall.GetFirewallSSO(ctx).PfconfigHashNS] = firewall
+				newFirewalls[firewall.GetFirewallSSO(ctx).PfconfigHashNS] = firewall
 			}
 		}
-		pfsso.firewalls = firewalls
+		firewalls = newFirewalls
 
 	}
 
@@ -127,15 +129,13 @@ func readConfig(ctx context.Context, pfsso *PfssoHandler, firstLoad bool) error 
 }
 
 type PfssoHandler struct {
-	Next        httpserver.Handler
-	router      *httprouter.Router
-	firewallIds pfconfigdriver.PfconfigKeys
-	firewalls   map[string]firewallsso.FirewallSSOInt
+	Next   httpserver.Handler
+	router *httprouter.Router
 }
 
 func (h PfssoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 	ctx := r.Context()
-	readConfig(ctx, &h, false)
+	readConfig(ctx, false)
 
 	defer func() {
 		if r := recover(); r != nil {
