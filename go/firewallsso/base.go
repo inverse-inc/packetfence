@@ -25,7 +25,7 @@ type FirewallSSOInt interface {
 
 // Basic struct for all firewalls
 type FirewallSSO struct {
-	StructConfig
+	pfconfigdriver.StructConfig
 	PfconfigMethod string `val:"hash_element"`
 	PfconfigNS     string `val:"config::Firewall_SSO"`
 	PfconfigHashNS string `val:"-"`
@@ -92,7 +92,7 @@ func (fw *FirewallSSO) Stop(ctx context.Context, info map[string]string) bool {
 func (fw *FirewallSSO) getSourceIp(ctx context.Context) net.IP {
 	managementNetwork := pfconfigdriver.ManagementNetwork{}
 	//TODO: rework it so that it is a global variable
-	pfconfigdriver.GlobalPfconfigResourcePool.LoadResource(ctx, &managementNetwork, true)
+	pfconfigdriver.FetchDecodeSocketCache(ctx, &managementNetwork)
 
 	if managementNetwork.Vip != "" {
 		return net.ParseIP(managementNetwork.Vip)
