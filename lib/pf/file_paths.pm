@@ -88,6 +88,7 @@ our (
     $captiveportal_templates_path,
     $captiveportal_profile_templates_path,
     $captiveportal_default_profile_templates_path,
+    $maintenance_file,
 );
 
 BEGIN {
@@ -150,6 +151,7 @@ BEGIN {
         $captiveportal_templates_path
         $captiveportal_profile_templates_path
         $captiveportal_default_profile_templates_path
+        $maintenance_file
     );
 }
 
@@ -278,6 +280,7 @@ $cache_control_file = catfile($var_dir, "cache_control");
 
 $config_version_file = catfile($var_dir, "config_version");
 
+$maintenance_file = catfile($var_dir,"maintenance-mode");
 
 =head1 AUTHOR
 

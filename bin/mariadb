@@ -1,0 +1,273 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use lib '/usr/local/pf/lib';
+
+use pf::services::util;
+use POSIX qw(:signal_h pause _exit setuid setgid);
+use pf::log;
+use pf::cluster;
+use pf::config qw(
+    %Config
+);
+use pf::util;
+use DBI;
+
+our $PROGRAM_NAME = $0 = "pf-mariadb";
+
+my $logger = get_logger( $PROGRAM_NAME );
+
+our $RUNNING = 1;
+
+my (undef, undef,$uid,$gid) = getpwnam('mysql');
+setuid($uid);
+setgid($gid);
+
+our $MYSQLD_PID;
+our $IS_CHILD;
+
+# How many times should we attempt to connect to a galera cluster when an alive quorum is there
+# After this, the management node will declare a new cluster if its not in maintenance mode
+# TODO: move this to configuration
+our $PEERS_ALIVE_CONNECT_ATTEMPT = 1;
+
+# Time to wait between starts after a failure
+# TODO: move this to configuration
+our $WAIT_TIME_FAIL = 10;
+
+# Time to wait between attempts to discover alive servers
+# TODO: move this to configuration
+our $WAIT_TIME_ALIVE = 10;
+
+our $failed_counts = {};
+
+# init signal handlers
+POSIX::sigaction(
+    &POSIX::SIGTERM,
+    POSIX::SigAction->new(
+        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
+) or $logger->logdie("pf-mariadb: could not set SIGTERM handler: $!");
+
+POSIX::sigaction(
+    &POSIX::SIGINT,
+    POSIX::SigAction->new(
+        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
+) or $logger->logdie("pf-mariadb: could not set SIGINT handler: $!");
+
+my $STARTED_BECAUSE;
+
+=head2 record_started_because
+
+Increment a counter for a starting strategy
+
+=cut
+
+sub record_started_because {
+    my ($started_because) = @_;
+    if(!$started_because) {
+        die "Missing starting reason";
+    }
+
+    $STARTED_BECAUSE = $started_because;
+
+}
+
+=head2 launch_mysql
+
+Launch MySQL/MariaDB with a specific set of arguments
+
+=cut
+
+sub launch_mysql {
+    my (@args) = @_;
+    
+    my $args = join(' ', @ARGV, @args);
+    # Must not lookup in /sbin for mysqld, but in /usr/sbin
+    $ENV{PATH} = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin:/root/bin";
+    my $cmd = "mysqld_safe --defaults-file=/usr/local/pf/var/conf/mariadb.conf $args";
+    print "Starting MySQL with command: $cmd \n";
+    `$cmd`;
+}
+
+=head2 fork_launch_mysql
+
+Fork and start MySQL/MariaDB
+Also record the startup method for future usage
+
+=cut
+
+sub fork_launch_mysql {
+    my ($started_because, @args) = @_;
+    my $pid = fork();
+
+    record_started_because($started_because);
+
+    if($pid) {
+        $SIG{CHLD} = "IGNORE";
+        $MYSQLD_PID = $pid;
+    } elsif ($pid == 0) {
+        $SIG{CHLD} = "DEFAULT";
+        $IS_CHILD = 1;
+        $0 = "pf-mariadb - mysqld spawner";
+        launch_mysql(@args);
+        $RUNNING = 0;
+    }
+}
+
+=head2 ping_quorum
+
+Whether or not there is a ping quorum (i.e. servers are booted and online)
+
+=cut
+
+sub ping_quorum {
+    my $alive = 0;
+    foreach my $server (@cluster_servers) {
+        if(ping($server->{management_ip})) {
+            $alive ++;
+        }
+    }
+    return ($alive > (scalar(@cluster_servers) / 2));
+}
+
+=head2 test_db
+
+Test the connection to the database for a specific host using the replication credentials
+
+=cut
+
+sub test_db {
+    my ($host) = @_;
+    my $mydbh = DBI->connect( "dbi:mysql:dbname=mysql;host=$host;port=3306",
+        $Config{active_active}{galera_replication_username}, $Config{active_active}{galera_replication_password}, { RaiseError => 0, PrintError => 0, mysql_auto_reconnect => 1 } );
+
+    # make sure we have a database handle
+    if ($mydbh) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+}
+
+=head2 db_quorum
+
+Whether or not there is a database quorum (N/2+1 accept connections)
+
+=cut
+
+sub db_quorum {
+    my $alive = 0;
+
+    foreach my $server (@cluster_servers) {
+        my $host = $server->{management_ip};
+        $alive ++ if(test_db($host));
+    }
+    return ($alive > (scalar(@cluster_servers) / 2));
+}
+
+=head2 get_failed_count
+
+Get the count of fails for a specific startup method
+
+=cut
+
+sub get_failed_count {
+    return $failed_counts->{$_[0]} // 0;
+}
+
+=head2 attempt_start
+
+Attempt a startup of MySQL based on the current state of things
+
+Refer to the clustering guide for details on how this works.
+
+=cut
+
+sub attempt_start {
+    if(-f "/var/lib/mysql/gvwstate.dat") {
+        # handle crash recovery
+        $logger->info("There is a gvwstate. Will try to start.");
+        fork_launch_mysql("gvwstate-available");
+    }
+    else {
+        if(ping_quorum()) {
+            if(db_quorum()) {
+                $logger->info("There is an alive and DB quorum. Will attempt to connect to the cluster");
+                fork_launch_mysql("peers-alive-and-available");
+            }
+            else {
+                $logger->info("There is an alive quorum but no db quorum");
+                if(get_failed_count("peers-alive-no-db") < $PEERS_ALIVE_CONNECT_ATTEMPT) {
+                    $logger->info("Trying to connect to peers to establish an eventual quorum");
+                    sleep $WAIT_TIME_FAIL;
+                    fork_launch_mysql("peers-alive-no-db");
+                }
+                else {
+                    if(pf::cluster::cluster_index() == 0) {
+                        $logger->info("Tried connecting to peers too many times. Will establish a new cluster");
+                        `sed -i.bak "s/safe_to_bootstrap: 0/safe_to_bootstrap: 1/g" /var/lib/mysql/grastate.dat`;
+                        launch_mysql("--wsrep-recover");
+                        fork_launch_mysql("create-new-cluster", "--wsrep-new-cluster");
+                    }
+                    else {
+                        $logger->info("Tried connecting to peers too many times. Will flush state and connect to a potentially newly formed cluster");
+                        `rm -f /var/lib/mysql/grastate.dat`;
+                        fork_launch_mysql("join-new-cluster");
+                    }
+                }
+            }
+        }
+        else {
+            $logger->info("There isn't a ping quorum yet, will wait until the majority of the servers are alive.");
+            sleep $WAIT_TIME_ALIVE;
+            attempt_start();
+        }
+    }
+}
+
+if(pf::cluster::is_in_maintenance) {
+    my $msg = "Not starting because this node is in maintenance mode";
+    print STDERR "$msg\n";
+    $logger->error($msg);
+    exit;
+}
+
+attempt_start();
+while($RUNNING){
+    if(!kill(0, $MYSQLD_PID)) {
+        print "Failed starting with mode: $STARTED_BECAUSE \n";
+        $failed_counts->{$STARTED_BECAUSE} //= 0;
+        $failed_counts->{$STARTED_BECAUSE} ++;
+
+        print "MariaDB is not alive \n";
+        attempt_start();
+    }
+    elsif(test_db(pf::cluster::current_server()->{management_ip})) {
+        $logger->info("Successful test to the DB. Flushing failure counts.");
+        $failed_counts = {};
+    }
+    sleep 1;
+}
+
+
+END {
+    deletepid();
+}
+
+exit(0);
+
+sub normal_sighandler {
+    $RUNNING = 0;
+    if(!$IS_CHILD) {
+        kill(SIGKILL, $MYSQLD_PID);
+        `pkill mysqld`;
+        deletepid();
+        $logger->debug( "pfmariadb caught SIG" . $_[0] . " - terminating" );
+    }
+}
+
