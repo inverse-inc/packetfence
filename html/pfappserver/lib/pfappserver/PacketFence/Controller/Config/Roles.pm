@@ -25,14 +25,8 @@ BEGIN {
 __PACKAGE__->config(
     action => {
         # Reconfigure the object action from pfappserver::Base::Controller::Crud
-        object => { Chained => '/', PathPart => 'config/adminroles', CaptureArgs => 1 },
+        object => { Chained => '/', PathPart => 'config/roles', CaptureArgs => 1 },
         # Configure access rights
-        view   => { AdminRole => 'ROLES_READ' },
-        list   => { AdminRole => 'ROLES_READ' },
-        create => { AdminRole => 'ROLES_CREATE' },
-        clone  => { AdminRole => 'ROLES_CREATE' },
-        update => { AdminRole => 'ROLES_UPDATE' },
-        remove => { AdminRole => 'ROLES_DELETE' },
     },
     action_args => {
         # Setting the global model and form for all actions
@@ -52,7 +46,20 @@ sub index :Path :Args(0) {
     my ($self, $c) = @_;
 
     #$c->forward('list');
+    #$c->forward("view", [$name]);
     $c->go('Controller::Roles', 'index');
+}
+
+=head2 view
+
+=cut
+
+sub view :Path :Args(1) {
+    my ($self, $c, $name) = @_;
+    
+    $c->stash->{tab} = $name;
+    $self->object($c, $name);
+    $c->stash->{template} = "config/roles/index.tt";
 }
 
 =head1 COPYRIGHT

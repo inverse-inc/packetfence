@@ -236,7 +236,6 @@ sub soh :Local {
 sub roles :Local {
     my ($self, $c) = @_;
 
-    #$c->go('Controller::Roles', 'index');
     $c->stash->{template} = "config/roles/index.tt";
 }
 
@@ -249,6 +248,37 @@ sub define_policy :Local {
 
     $c->stash->{template} = "config/define_policy.tt";
 }
+
+=head2 system_config
+
+=cut
+
+sub system_config :Local {
+    my ($self, $c) = @_;
+
+    $c->stash->{template} = "config/system_config.tt";
+}
+
+=head2 portal_config
+
+=cut
+
+sub portal_config :Local {
+    my ($self, $c) = @_;
+
+    $c->stash->{template} = "config/portal_config.tt";
+}
+
+=head2 compliance
+
+=cut
+
+sub compliance :Local {
+    my ($self, $c) = @_;
+
+    $c->stash->{template} = "config/compliance.tt";
+}
+
 
 =head1 COPYRIGHT
 

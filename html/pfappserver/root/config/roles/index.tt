@@ -1,10 +1,12 @@
+<h4 class="alert alert-warning">[% l('This section is for Role Based Access Control (RBAC). Manage Roles and for how long devices will be register.') %]</h4>
+
 <div class="tab-content">
   <ul class="nav nav-tabs">
     <li [% IF tab == 'roles' %]class="active"[% END %]>
-      <a href="#configuration/roles">[% l('Roles') %]</a>
+      <a href="#configuration/roles" data-href="[% c.uri_for(c.controller('Roles').action_for('tab_view') tab) %]" data-toggle="tab">[% l('Roles') %]</a>
     </li>
     <li [% IF tab == 'access duration' %]class="active"[% END %]>
-      <a href="#configuration/guests_admin_registration">[% l('Access Duration') %]</a>
+      <a href="#configuration/guests_admin_registration" data-href="[% c.uri_for(c.controller('Interface').action_for('tab_view') tab) %]" data-toggle="tab">[% l('Access Duration') %]</a>
     </li>
   </ul>
 </div>

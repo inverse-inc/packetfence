@@ -106,7 +106,8 @@ table.sources {
               [% list_entry('Config::PortalModule', 'index', 'Portal Modules') | none %]
               [%- END %]
               [%- IF can_access("CONFIGURATION_MAIN_READ") %]
-              <li class="nav-header">[% pf_section_entry('general', 'System Configuration') | none %]</li>
+              <li class="nav-header">[% pf_section_entry('system_config', 'System Configuration') | none %]</li>
+              [% pf_section_entry( 'general', 'General configuration') | none %]
               [% pf_section_entry( 'alerting', 'Alerting') | none %]
               [% pf_section_entry( 'advanced', 'Advanced') | none %]
               [% pf_section_entry( 'maintenance', 'Maintenance') | none %]
@@ -119,7 +120,8 @@ table.sources {
               [%- IF can_access("ADMIN_ROLES_READ") %]
               [% list_entry('Config::AdminRoles', 'index', 'Admin Access') | none %]
               [%- END %]
-              <li class="nav-header">[% pf_section_entry('captive_portal', 'Advanced Portal Configuration') | none %]</li>
+              <li class="nav-header">[% pf_section_entry('portal_config', 'Advanced Portal Configuration') | none %]</li>
+              [% pf_section_entry('captive_portal', 'Captive Portal') | none %]
               [%- IF can_access("FILTERS_READ") %]
               [% list_entry('Config::Filters', 'index', 'Filter engines') | none %]
               [%- END %]
@@ -134,7 +136,7 @@ table.sources {
               [% list_entry('Config::PKI_Provider', 'index', 'PKI Providers') | none %]
               [%- END %]
               [% pf_section_entry( 'registration', 'Registration') | none %]
-              <li class="nav-header">[% l('Compliance') %]</li>
+              <li class="nav-header">[% pf_section_entry('compliance', 'Compliance') | none %]</li>
               [%- IF can_access("VIOLATIONS_READ") %]
               [% list_entry('Violation', 'index', 'Violations') | none %]
               [%- END %]
