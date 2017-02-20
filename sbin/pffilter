@@ -278,7 +278,9 @@ sub _runtask {
                 die("Can't accept connection: $!\n");
             }
             if ($paddr) {
-                chomp($line = <$socket>);
+                my $line = <$socket>;
+                next unless defined $line;
+                chomp($line);
                 my $query = eval {
                     decode_json($line)
                 };
