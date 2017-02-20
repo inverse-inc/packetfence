@@ -37,7 +37,7 @@ func TestFortiGateStopRadiusPacket(t *testing.T) {
 		t.Errorf("Incorrect Acct-Status-Type in SSO packet.")
 	}
 
-	if p.Value("Framed-IP-Address").(string) != sampleInfo["ip"] {
+	if p.Value("Framed-IP-Address").(net.IP).String() != sampleInfo["ip"] {
 		t.Errorf("Incorrect Framed-IP-Address in SSO packet.")
 	}
 

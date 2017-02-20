@@ -43,7 +43,9 @@ func (h PfssoHandler) handleStart(w http.ResponseWriter, r *http.Request, p http
 		// Creating a local shallow copy to send to the go-routine
 		firewall := firewall
 		go func() {
-			firewallsso.ExecuteStart(ctx, firewall, info, int(timeout))
+			if !firewallsso.ExecuteStart(ctx, firewall, info, int(timeout)) {
+				log.LoggerWContext(ctx).Error("Failed to send SSO start to " + firewall.PfconfigHashNS)
+			}
 		}()
 	}
 
@@ -65,7 +67,9 @@ func (h PfssoHandler) handleStop(w http.ResponseWriter, r *http.Request, p httpr
 		// Creating a local shallow copy to send to the go-routine
 		firewall := firewall
 		go func() {
-			firewallsso.ExecuteStop(ctx, firewall, info, int(timeout))
+			if !firewallsso.ExecuteStop(ctx, firewall, info, int(timeout)) {
+				log.LoggerWContext(ctx).Error("Failed to send SSO stop to " + firewall.PfconfigHashNS)
+			}
 		}()
 	}
 
