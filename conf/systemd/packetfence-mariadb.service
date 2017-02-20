@@ -12,7 +12,6 @@ User=mysql
 Group=mysql
 Slice=packetfence-base.slice
 
-ExecStartPre=/usr/libexec/mariadb-prepare-db-dir %n
 ExecStartPre=/usr/local/pf/bin/pfcmd generatemariadbconfig
 # Note: we set --basedir to prevent probes that might trigger SELinux alarms,
 # per bug #547485
