@@ -2,6 +2,8 @@
 Description=PacketFence MariaDB instance
 After=syslog.target
 After=network.target
+After=packetfence-config.service
+Requires=packetfence-config.service
 Conflicts=mysql.service mariadb.service
 
 [Service]
@@ -11,10 +13,10 @@ Group=mysql
 Slice=packetfence-base.slice
 
 ExecStartPre=/usr/libexec/mariadb-prepare-db-dir %n
+ExecStartPre=/usr/local/pf/bin/pfcmd generatemariadbconfig
 # Note: we set --basedir to prevent probes that might trigger SELinux alarms,
 # per bug #547485
-ExecStart=/usr/bin/mysqld_safe --basedir=/usr
-ExecStartPost=/usr/libexec/mariadb-wait-ready $MAINPID
+ExecStart=/usr/local/pf/bin/mariadb
 Restart=on-failure
 
 # Give a reasonable amount of time for the server to start up/shut down
