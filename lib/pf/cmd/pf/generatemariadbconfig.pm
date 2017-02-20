@@ -37,7 +37,6 @@ sub _run {
     my $tt = Template->new(ABSOLUTE => 1);
 
     my %vars = (
-        # TODO: migrate those to pf.conf.defaults
         key_buffer_size => $Config{database}{key_buffer_size},
         innodb_buffer_pool_size => $Config{database}{innodb_buffer_pool_size},
         innodb_additional_mem_pool_size => $Config{database}{innodb_additional_mem_pool_size},
@@ -45,6 +44,8 @@ sub _run {
         thread_concurrency => $Config{database}{thread_concurrency},
         max_connections => $Config{database}{max_connections},
         table_cache => $Config{database}{table_cache},
+        max_allowed_packet => $Config{database}{max_allowed_packet},
+        thread_cache_size => $Config{database}{thread_cache_size},
 
     );
 
