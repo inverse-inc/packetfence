@@ -2,6 +2,7 @@ package pfconfigdriver
 
 import (
 	"context"
+	"github.com/fingerbank/processor/log"
 	"reflect"
 )
 
@@ -37,6 +38,7 @@ func (p *Pool) refreshRefreshables(ctx context.Context) {
 }
 
 func (p *Pool) Refresh(ctx context.Context) {
+	log.LoggerWContext(ctx).Debug("Refreshing pfconfig pool")
 	p.refreshStructs(ctx)
 	p.refreshRefreshables(ctx)
 }

@@ -467,8 +467,13 @@ var directives = []string{
 	"hugo",      // github.com/hacdias/caddy-hugo
 	"mailout",   // github.com/SchumacherFM/mailout
 	"awslambda", // github.com/coopernurse/caddy-awslambda
+
+	// PacketFence plugins
 	"logger",
 	"statsd",
+	"pfconfigpool",
+
+	// PacketFence service implementations
 	"pfsso",
 }
 

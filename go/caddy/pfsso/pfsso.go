@@ -116,7 +116,6 @@ type PfssoHandler struct {
 
 func (h PfssoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 	ctx := r.Context()
-	pfconfigdriver.PfconfigPool.Refresh(ctx)
 
 	defer func() {
 		if r := recover(); r != nil {
