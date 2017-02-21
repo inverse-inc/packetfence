@@ -113,6 +113,7 @@ table.sources {
               [% pf_section_entry( 'advanced', 'Advanced') | none %]
               [% pf_section_entry( 'maintenance', 'Maintenance') | none %]
               [% pf_section_entry( 'services', 'Services') | none %]-->
+              [% pf_section_entry( 'database', 'Database') | none %]
               [% pf_section_entry( 'inline', 'Inline') | none %]
               [% pf_section_entry( 'cluster', 'Cluster') | none %]
               [%- END %]
