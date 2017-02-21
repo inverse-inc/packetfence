@@ -3,7 +3,6 @@ package pfconfigdriver
 import (
 	"context"
 	"encoding/json"
-	"github.com/fingerbank/processor/log"
 	"net"
 	"time"
 )
@@ -86,7 +85,3 @@ type configStruct struct {
 }
 
 var Config configStruct
-
-func init() {
-	PfconfigPool.AddStruct(log.LoggerDummyContext(), &Config)
-}

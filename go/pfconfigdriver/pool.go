@@ -47,12 +47,17 @@ func (p *Pool) refreshStruct(ctx context.Context, s interface{}) {
 		v = v.Elem()
 	}
 
-	for i := 0; i < v.NumField(); i++ {
-		field := v.Field(i).Addr()
-		if o, ok := field.Interface().(PfconfigObject); ok {
-			FetchDecodeSocketCache(ctx, o)
-		} else {
-			p.refreshStruct(ctx, field.Interface())
+	// Check if s itself is a PfconfigObject, otherwise, we cycle though its fields and process them
+	if o, ok := v.Addr().Interface().(PfconfigObject); ok {
+		FetchDecodeSocketCache(ctx, o)
+	} else {
+		for i := 0; i < v.NumField(); i++ {
+			field := v.Field(i).Addr()
+			if o, ok := field.Interface().(PfconfigObject); ok {
+				FetchDecodeSocketCache(ctx, o)
+			} else {
+				p.refreshStruct(ctx, field.Interface())
+			}
 		}
 	}
 }

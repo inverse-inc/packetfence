@@ -80,6 +80,10 @@ func setup(c *caddy.Controller) error {
 		return err
 	}
 
+	// Declare all pfconfig resources that will be necessary
+	pfconfigdriver.PfconfigPool.AddRefreshable(ctx, &firewallsso.Firewalls)
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.Interfaces.ManagementNetwork)
+
 	httpserver.GetConfig(c).AddMiddleware(func(next httpserver.Handler) httpserver.Handler {
 		pfsso.Next = next
 		return pfsso
