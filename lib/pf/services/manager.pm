@@ -159,6 +159,9 @@ Stub. Implement as needed in subclasses.
 
 sub preStartSetup {
     my ( $self, $quick ) = @_;
+    unless ( $self->isEnabled ) {
+        $self->sysdEnable();
+    }
     return 1;
 }
 

@@ -23,6 +23,7 @@ use pf::IniFiles;
 use pf::file_paths qw($pf_config_file $pf_default_file);
 
 extends 'pf::ConfigStore';
+has serviceUpdated => ( is => "rw" );
 
 =head2 Methods
 
@@ -112,6 +113,17 @@ sub cleanupBeforeCommit {
             }
         }
     }
+    $self->serviceUpdated(1) if $section eq "services" ;
+}
+
+sub commit {
+    my $self = shift;
+    my ( $result, $error ) = $self->SUPER::commit();
+    if ( $result and $self->serviceUpdated ) {
+        my $rc =
+          system("sudo /usr/local/pf/bin/pfcmd service pf updatesystemd");
+    }
+    return ( $result, $error );
 }
 
 __PACKAGE__->meta->make_immutable;
