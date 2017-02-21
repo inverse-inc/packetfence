@@ -70,24 +70,7 @@ var InterfaceView = function(options) {
 
     var delete_n = $.proxy(this.deleteNetwork, this);
     options.parent.on('click', 'form[name="modalEditInterface"] [href$="/delete"]', delete_n);
-
-    var loadTab = $.proxy(this.loadTab, this);
-    options.parent.on('click', 'a[data-toggle="tab"][href="configuration/roles"]', this.loadtab);
-    //options.parent.on('click', 'a[data-toggle="tab"][href="#additionalTabView"]', this.loadtab);
-
 };
-
-InterfaceView.prototype.loadTab = function(e) {
-    var btn = $(e.target);
-    console.log('tt');
-    var name = btn.attr("href");
-    var target = $(name);
-    var url = btn.attr("data-href");
-    target.load(url, function() {
-        target.find('.switch').bootstrapSwitch();
-    });
-    return true;
-}
 
 InterfaceView.prototype.readInterface = function(e) {
     e.preventDefault();
