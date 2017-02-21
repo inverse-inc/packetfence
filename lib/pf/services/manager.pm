@@ -481,6 +481,7 @@ sub isAlive {
 }
 
 
+
 =head2 isManaged
 
 return true is the service is currently managed by packetfence
@@ -522,13 +523,12 @@ Enable the service in systemd.
 
 =cut
 
-sub sysdEnable { 
+sub sysdEnable {
     my $self = shift;
-    my $rc = 1;
-    $rc = system("sudo systemctl enable packetfence-" . $self->name);
+    my $rc   = 1;
+    $rc = system( "sudo systemctl enable packetfence-" . $self->name );
     return $rc == 0;
-} 
-
+}
 
 =head2 sysdDisable
 
@@ -536,12 +536,12 @@ Disable the service in systemd.
 
 =cut
 
-sub sysdDisable { 
+sub sysdDisable {
     my $self = shift;
-    my $rc = 1;
-    $rc = system("sudo systemctl disable packetfence-" . $self->name);
+    my $rc   = 1;
+    $rc = system( "sudo systemctl disable packetfence-" . $self->name );
     return $rc == 0;
-} 
+}
 
 =head1 AUTHOR
 

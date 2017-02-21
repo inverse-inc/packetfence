@@ -487,7 +487,7 @@ done
 
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons/AD
-%{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/conf
+%{__install} -d -m2770 $RPM_BUILD_ROOT/usr/local/pf/conf
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/radiusd
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/ssl
 %{__install} -d -m2775 $RPM_BUILD_ROOT%logdir
@@ -894,7 +894,6 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/pfupdate
 %attr(0755, pf, pf)     /usr/local/pf/bin/mysql_fingerbank_import.sh
 %doc                    /usr/local/pf/ChangeLog
-%dir %attr(0750, pf, pf)  /usr/local/pf/conf
                         /usr/local/pf/conf/*.example
 %config(noreplace)      /usr/local/pf/conf/adminroles.conf
 %config(noreplace)      /usr/local/pf/conf/allowed_device_oui.txt
@@ -1335,7 +1334,7 @@ fi
 %defattr(-, pf, pf)
 %attr(0311, root, root) /usr/lib/systemd/system/packetfence-config.service
 %dir                    /usr/local/pf
-%dir                    /usr/local/pf/conf
+%dir %attr(0770, pf pf) /usr/local/pf/conf
 %config(noreplace)      /usr/local/pf/conf/pfconfig.conf
 %dir                    /usr/local/pf/lib
 %dir                    /usr/local/pf/lib/pfconfig
