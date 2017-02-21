@@ -239,6 +239,37 @@ sub roles :Local {
     $c->stash->{template} = "config/roles/index.tt";
 }
 
+=head2 domains
+
+=cut
+
+sub domains :Local {
+    my ($self, $c) = @_;
+
+    $c->stash->{template} = "config/domains/index.tt";
+}
+
+=head2 main
+
+=cut
+
+sub main :Local {
+    my ($self, $c) = @_;
+
+    $c->stash->{template} = "config/main/index.tt";
+}
+
+=head2 cluster
+
+=cut
+
+sub cluster :Local {
+    my ($self, $c) = @_;
+
+    $c->stash->{template} = "config/cluster/index.tt";
+}
+
+
 =head2 define_policy
 
 =cut
