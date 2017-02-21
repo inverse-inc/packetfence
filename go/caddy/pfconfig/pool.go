@@ -1,10 +1,13 @@
 package caddypfconfig
 
 import (
+	"context"
+	"github.com/fingerbank/processor/log"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"net/http"
+	"time"
 )
 
 func init() {
@@ -19,6 +22,14 @@ func setup(c *caddy.Controller) error {
 		return Pool{Next: next}
 	})
 
+	ctx := log.LoggerNewContext(context.Background())
+	go func() {
+		for {
+			pfconfigdriver.PfconfigPool.Refresh(ctx)
+			time.Sleep(1 * time.Second)
+		}
+	}()
+
 	return nil
 }
 
@@ -27,8 +38,6 @@ type Pool struct {
 }
 
 func (h Pool) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
-	pfconfigdriver.PfconfigPool.Refresh(r.Context())
-
 	pfconfigdriver.PfconfigPool.ReadLock(r.Context())
 	defer pfconfigdriver.PfconfigPool.ReadUnlock(r.Context())
 

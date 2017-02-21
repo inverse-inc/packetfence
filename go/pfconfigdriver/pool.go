@@ -21,7 +21,7 @@ type Refreshable interface {
 func NewPool() Pool {
 	p := Pool{}
 	p.lock = &sync.RWMutex{}
-	p.RefreshLockTimeout = time.Duration(10 * time.Second)
+	p.RefreshLockTimeout = time.Duration(1 * time.Second)
 	return p
 }
 
@@ -43,11 +43,17 @@ func (p *Pool) ReadUnlock(ctx context.Context) {
 }
 
 func (p *Pool) AddRefreshable(ctx context.Context, r Refreshable) {
+	p.lock.Lock()
+	defer p.lock.Unlock()
+
 	p.refreshables = append(p.refreshables, r)
 	r.Refresh(ctx)
 }
 
 func (p *Pool) AddStruct(ctx context.Context, s interface{}) {
+	p.lock.Lock()
+	defer p.lock.Unlock()
+
 	p.structs = append(p.structs, s)
 	p.refreshStruct(ctx, s)
 }
@@ -59,7 +65,7 @@ func (p *Pool) refreshRefreshables(ctx context.Context) {
 }
 
 // Attempts to obtain a RW lock with the timeout set in RefreshLockTimeout
-func (p *Pool) acquireWriteLock(ctx context.Context) {
+func (p *Pool) acquireWriteLock(ctx context.Context) bool {
 	timeoutChan := make(chan int, 1)
 	go func() {
 		time.Sleep(p.RefreshLockTimeout)
@@ -74,10 +80,11 @@ func (p *Pool) acquireWriteLock(ctx context.Context) {
 
 	select {
 	case <-lockChan:
-		log.LoggerWContext(ctx).Debug("Acquired lock for pfconfig pool refresh")
-		return
+		log.LoggerWContext(ctx).Debug("Acquired lock for pfconfig pool")
+		return true
 	case <-timeoutChan:
-		log.LoggerWContext(ctx).Error("Couldn't acquire lock for pfconfig pool refresh")
+		log.LoggerWContext(ctx).Error("Couldn't acquire lock for pfconfig pool")
+		return false
 	}
 
 }
@@ -85,11 +92,14 @@ func (p *Pool) acquireWriteLock(ctx context.Context) {
 func (p *Pool) Refresh(ctx context.Context) {
 	log.LoggerWContext(ctx).Debug("Refreshing pfconfig pool")
 
-	p.acquireWriteLock(ctx)
+	if !p.acquireWriteLock(ctx) {
+		return
+	}
 	defer p.lock.Unlock()
 
 	p.refreshStructs(ctx)
 	p.refreshRefreshables(ctx)
+	log.LoggerWContext(ctx).Debug("Finished refresh of pfconfig pool")
 }
 
 func (p *Pool) refreshStruct(ctx context.Context, s interface{}) {
