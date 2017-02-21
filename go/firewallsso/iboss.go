@@ -24,6 +24,10 @@ func (fw *Iboss) Start(ctx context.Context, info map[string]string, timeout int)
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error contacting Iboss: %s", err))
 	}
 
+	if resp != nil && resp.Body != nil {
+		resp.Body.Close()
+	}
+
 	return err == nil
 }
 
@@ -33,6 +37,10 @@ func (fw *Iboss) Stop(ctx context.Context, info map[string]string) bool {
 
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error contacting Iboss: %s", err))
+	}
+
+	if resp != nil && resp.Body != nil {
+		resp.Body.Close()
 	}
 
 	return err == nil

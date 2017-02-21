@@ -37,6 +37,10 @@ func (fw *PaloAlto) startHttp(ctx context.Context, info map[string]string, timeo
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error contacting PaloAlto: %s", err))
 	}
 
+	if resp != nil && resp.Body != nil {
+		resp.Body.Close()
+	}
+
 	return err == nil
 }
 
@@ -92,12 +96,15 @@ func (fw *PaloAlto) stopHttpPayload(ctx context.Context, info map[string]string)
 func (fw *PaloAlto) stopHttp(ctx context.Context, info map[string]string) bool {
 	//TODO: change back to https when done testing
 	//TODO: Ignore cert checks
-	_, err := http.PostForm("http://"+fw.PfconfigHashNS+":"+fw.Port+"/api/?type=user-id&action=set&key="+fw.Password,
+	resp, err := http.PostForm("http://"+fw.PfconfigHashNS+":"+fw.Port+"/api/?type=user-id&action=set&key="+fw.Password,
 		url.Values{"cmd": {fw.stopHttpPayload(ctx, info)}})
 
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error contacting PaloAlto: %s", err))
 	}
 
+	if resp != nil && resp.Body != nil {
+		resp.Body.Close()
+	}
 	return err == nil
 }
