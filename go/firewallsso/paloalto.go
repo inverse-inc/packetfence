@@ -37,7 +37,7 @@ func (fw *PaloAlto) startHttp(ctx context.Context, info map[string]string, timeo
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error contacting PaloAlto: %s", err))
 	}
 
-	return err != nil
+	return err == nil
 }
 
 func (fw *PaloAlto) startHttpPayload(ctx context.Context, info map[string]string, timeout int) string {
@@ -99,5 +99,5 @@ func (fw *PaloAlto) stopHttp(ctx context.Context, info map[string]string) bool {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error contacting PaloAlto: %s", err))
 	}
 
-	return err != nil
+	return err == nil
 }

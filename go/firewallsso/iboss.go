@@ -24,7 +24,7 @@ func (fw *Iboss) Start(ctx context.Context, info map[string]string, timeout int)
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error contacting Iboss: %s", err))
 	}
 
-	return err != nil
+	return err == nil
 }
 
 func (fw *Iboss) Stop(ctx context.Context, info map[string]string) bool {
@@ -35,7 +35,7 @@ func (fw *Iboss) Stop(ctx context.Context, info map[string]string) bool {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error contacting Iboss: %s", err))
 	}
 
-	return err != nil
+	return err == nil
 }
 
 func (fw *Iboss) getRequest(ctx context.Context, action string, info map[string]string) *http.Request {

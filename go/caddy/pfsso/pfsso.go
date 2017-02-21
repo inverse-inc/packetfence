@@ -40,6 +40,8 @@ func (h PfssoHandler) handleStart(w http.ResponseWriter, r *http.Request, p http
 		go func() {
 			if !firewallsso.ExecuteStart(ctx, firewall, info, int(timeout)) {
 				log.LoggerWContext(ctx).Error("Failed to send SSO start to " + firewall.GetFirewallSSO(ctx).PfconfigHashNS)
+			} else {
+				log.LoggerWContext(ctx).Debug("Sent SSO start to " + firewall.GetFirewallSSO(ctx).PfconfigHashNS)
 			}
 		}()
 	}
@@ -64,6 +66,8 @@ func (h PfssoHandler) handleStop(w http.ResponseWriter, r *http.Request, p httpr
 		go func() {
 			if !firewallsso.ExecuteStop(ctx, firewall, info, int(timeout)) {
 				log.LoggerWContext(ctx).Error("Failed to send SSO stop to " + firewall.GetFirewallSSO(ctx).PfconfigHashNS)
+			} else {
+				log.LoggerWContext(ctx).Debug("Sent SSO start to " + firewall.GetFirewallSSO(ctx).PfconfigHashNS)
 			}
 		}()
 	}
