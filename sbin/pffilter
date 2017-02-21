@@ -65,14 +65,13 @@ pf::SwitchFactory->preloadConfiguredModules();
 # initialization
 # --------------
 # assign process name (see #1464)
-our $PROGRAM_NAME = $0 = "pffilter";
 our @REGISTERED_TASKS;
 our $IS_CHILD = 0;
 our %CHILDREN;
 our @TASKS_RUN;
 our $ALARM_RECV = 0;
 
-my $logger = get_logger($PROGRAM_NAME);
+my $logger = get_logger('pffilter');
 $SIG{INT}  = \&normal_sighandler;
 $SIG{HUP}  = \&normal_sighandler;
 $SIG{TERM} = \&normal_sighandler;
@@ -83,17 +82,19 @@ $SIG{PIPE} = 'IGNORE';
 
 my %args = (
     's' => $pffilter_socket_path,
+    'n' => "pffilter",
 );
 
-getopts('dhs:v', \%args);
+getopts('dhvs:n:', \%args);
 
 pod2usage(-verbose => 1) if ($args{h});
 
 my $daemonize   = $args{d};
 my $verbose     = $args{v};
 my $socket_path = $args{s};
+our $PROGRAM_NAME = $0 = $args{n};
 
-my $pidfile = "${var_dir}/run/pffilter.pid";
+my $pidfile = "${var_dir}/run/$PROGRAM_NAME.pid";
 
 our $HAS_LOCK = 0;
 open(my $fh, ">>$pidfile");
@@ -266,18 +267,13 @@ the task to is ran in a loop until it is finished
 
 sub _runtask {
     my ($task_id) = @_;
-    $0 = "pffilter - $task_id";
+    $0 = "$0 - $task_id";
     my $time_taken = 0;
     #local $^F = 2;
     while (is_running()) {
         my $line;
-        alarm 30;#To wake up to check if the parent has died
         eval {
             my $paddr = accept(my $socket, $listener);
-            alarm 0; #Disable the alarm
-            if ($ALARM_RECV) {
-                $ALARM_RECV = 0;
-            }
             #Check if a signal was caught
             unless (defined $paddr || $! == EINTR) {
                 die("Can't accept connection: $!\n");
