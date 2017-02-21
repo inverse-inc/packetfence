@@ -169,21 +169,6 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) :AdminRole('USERS_ROL
     $c->stash->{current_view} = 'JSON';
 }
 
-=tab_view
-
-Tab View
-
-=cut
-
-sub tab_view :Chained('object') :PathPart :Args(1) :AdminRole('USERS_ROLES_READ') {
-    my ($self, $c) = @_;
-    my $model = $c->model("Controller::Roles");
-    my ($status, $results) = $model->process_view($c);
-    $c->response->status($status);
-    $c->stash->{template} = "roles/index.tt";
-    $c->stash($results);
-}
-
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2017 Inverse inc.

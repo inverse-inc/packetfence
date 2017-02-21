@@ -45,6 +45,17 @@ function init() {
         return true;
     });
 
+    $('#section').on('show', '[href="#roleTabView"]', function(e) {
+        var btn = $(e.target);
+        var name = btn.attr("href");
+        var target = $(name);
+        var url = btn.attr("data-href");
+        target.load(url, function() {
+            target.find('.switch').bootstrapSwitch();
+        });
+        return true;
+    });
+
     var href =  $('.sidebar-nav .nav-list a').first().attr('href');
     if(href) {
         href = href.replace(/^.*#/,"/");
@@ -57,5 +68,4 @@ function init() {
 
     activateNavLink();
 }
-
 
