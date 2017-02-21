@@ -2,7 +2,7 @@
 
   <ul class="nav nav-tabs">
     <li [% IF tab == 'scan engines' %]class="active"[% END %]>
-      <a href="#newTabView" data-href="[% c.uri_for(c.controller('Scan').action_for('index')) %]" data-toggle="tab">[% l('Scan') %]</a>
+      <a href="#newTabView" data-href="[% c.uri_for(c.controller('Scan').action_for('index')) %]" data-toggle="tab">[% l('Scan Engines') %]</a>
     </li>
     <li [% IF tab == 'wmi rules' %]class="active"[% END %]>
       <a href="#newTabView" data-href="[% c.uri_for(c.controller('Configuration').action_for('section'), 'wmi_rules') %]" data-toggle="tab">[% l('WMI Rules') %]</a>

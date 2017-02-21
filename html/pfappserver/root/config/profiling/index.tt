@@ -2,31 +2,31 @@
 
   <ul class="nav nav-tabs">
     <li [% IF tab == 'general settings' %]class="active"[% END %]>
-      <a href="#newTabView" data-href="[% c.uri_for(c.controller('Scan').action_for('index')) %]" data-toggle="tab">[% l('General Settings') %]</a>
+      <a href="#newTabView" data-href="[% c.uri_for(c.controller('Settings').action_for('index')) %]" data-toggle="tab">[% l('General Settings') %]</a>
     </li>
     <li [% IF tab == 'combination' %]class="active"[% END %]>
-      <a href="#newTabView" data-href="[% c.uri_for(c.controller('Configuration').action_for('section'), 'wmi_rules') %]" data-toggle="tab">[% l('Combination') %]</a>
+      <a href="#newTabView" data-href="[% c.uri_for(c.controller('Combination').action_for('index')) %]" data-toggle="tab">[% l('Combination') %]</a>
     </li>
     <li [% IF tab == 'devices' %]class="active"[% END %]>
-      <a href="#newTabView" data-href="[% c.uri_for(c.controller('Configuration').action_for('section'), 'metadefender') %]" data-toggle="tab">[% l('Devices') %]</a>
+      <a href="#newTabView" data-href="[% c.uri_for(c.controller('Device').action_for('index')) %]" data-toggle="tab">[% l('Devices') %]</a>
     </li>
     <li [% IF tab == 'dhcp fingerprints' %]class="active"[% END %]>
-      <a href="#newTabView" data-href="[% c.uri_for(c.controller('Configuration').action_for('section'), 'metadefender') %]" data-toggle="tab">[% l('DHCP Fingerprints') %]</a>
+      <a href="#newTabView" data-href="[% c.uri_for(c.controller('DHCP_Fingerprints').action_for('index')) %]" data-toggle="tab">[% l('DHCP Fingerprints') %]</a>
     </li>
     <li [% IF tab == 'dhcp vendors' %]class="active"[% END %]>
-      <a href="#newTabView" data-href="[% c.uri_for(c.controller('Configuration').action_for('section'), 'metadefender') %]" data-toggle="tab">[% l('DHCP Vendors') %]</a>
+      <a href="#newTabView" data-href="[% c.uri_for(c.controller('DHCP_Entreprise').action_for('index')) %]" data-toggle="tab">[% l('DHCP Vendors') %]</a>
     </li>
     <li [% IF tab == 'dhcpv6 fingerprints' %]class="active"[% END %]>
-      <a href="#newTabView" data-href="[% c.uri_for(c.controller('Configuration').action_for('section'), 'metadefender') %]" data-toggle="tab">[% l('DHCPv6 Fingerprints') %]</a>
+      <a href="#newTabView" data-href="[% c.uri_for(c.controller('DHCPV6_Fingerprints').action_for('index')) %]" data-toggle="tab">[% l('DHCPv6 Fingerprints') %]</a>
     </li>
     <li [% IF tab == 'dhcpv6 vendors' %]class="active"[% END %]>
-      <a href="#newTabView" data-href="[% c.uri_for(c.controller('Configuration').action_for('section'), 'metadefender') %]" data-toggle="tab">[% l('DHCPv6 Vendors') %]</a>
+      <a href="#newTabView" data-href="[% c.uri_for(c.controller('DHCPv6_Entrprise').action_for('index')) %]" data-toggle="tab">[% l('DHCPv6 Vendors') %]</a>
     </li>
     <li [% IF tab == 'mac vendors' %]class="active"[% END %]>
-      <a href="#newTabView" data-href="[% c.uri_for(c.controller('Configuration').action_for('section'), 'metadefender') %]" data-toggle="tab">[% l('MAC Vendors') %]</a>
+      <a href="#newTabView" data-href="[% c.uri_for(c.controller('MAC_Vendor').action_for('index')) %]" data-toggle="tab">[% l('MAC Vendors') %]</a>
     </li>
     <li [% IF tab == 'user agents' %]class="active"[% END %]>
-      <a href="#newTabView" data-href="[% c.uri_for(c.controller('Configuration').action_for('section'), 'metadefender') %]" data-toggle="tab">[% l('User Agents') %]</a>
+      <a href="#newTabView" data-href="[% c.uri_for(c.controller('User_Agent').action_for('index')) %]" data-toggle="tab">[% l('User Agents') %]</a>
     </li>
   </ul>
 <div class="tab-content">
