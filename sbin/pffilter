@@ -84,7 +84,7 @@ my %args = (
     's' => $pffilter_socket_path,
 );
 
-getopts('dhcr', \%args);
+getopts('dhs:v', \%args);
 
 pod2usage(-verbose => 1) if ($args{h});
 
