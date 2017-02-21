@@ -189,6 +189,7 @@ endif
 	dh_strip
 	dh_compress
 	# PERMISSIONS
+	chmod 0750 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf
 	# Executables
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/*.pl
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/*.sh

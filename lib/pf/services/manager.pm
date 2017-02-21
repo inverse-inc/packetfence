@@ -516,6 +516,33 @@ sub isEnabled {
     }
 }
 
+=head2 sysdEnable 
+
+Enable the service in systemd.
+
+=cut
+
+sub sysdEnable { 
+    my $self = shift;
+    my $rc = 1;
+    $rc = system("sudo systemctl enable packetfence-" . $self->name);
+    return $rc == 0;
+} 
+
+
+=head2 sysdDisable
+
+Disable the service in systemd.
+
+=cut
+
+sub sysdDisable { 
+    my $self = shift;
+    my $rc = 1;
+    $rc = system("sudo systemctl disable packetfence-" . $self->name);
+    return $rc == 0;
+} 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

@@ -5,7 +5,7 @@ pf::cmd::pf::service add documentation
 
 =head1 SYNOPSIS
 
-pfcmd service <service> [start|stop|restart|status|watch|generateconfig|generateunitfile] [--ignore-checkup]
+pfcmd service <service> [start|stop|restart|status|watch|generateconfig|systemdenable|systemddisable] [--ignore-checkup]
 
   stop/stop/restart specified service
   status returns PID of specified PF daemon or 0 if not running
@@ -86,7 +86,8 @@ our %ACTION_MAP = (
     watch   => \&watchService,
     restart => \&restartService,
     generateconfig => \&generateConfig,
-    generateunitfile => \&generateUnitFile,
+    systemdenable    => \&systemdEnable,
+    systemddisable    => \&systemdDisable,
 );
 
 our $ignore_checkup = $FALSE;
@@ -196,7 +197,29 @@ sub generateUnitFile {
     }
     system("sudo systemctl daemon-reload");
     return $EXIT_SUCCESS;
-}
+}	
+
+sub systemdEnable { 
+    my ($service, @services) = @_;
+    my @managers = pf::services::getManagers(\@services);
+    print $SERVICE_HEADER;
+    for my $manager (@managers) {
+        _doSystemdEnable($manager);
+    }
+    system("sudo systemctl daemon-reload");
+    return $EXIT_SUCCESS;
+}	
+
+sub systemdDisable { 
+    my ($service, @services) = @_;
+    my @managers = pf::services::getManagers(\@services);
+    print $SERVICE_HEADER;
+    for my $manager (@managers) {
+        _doSystemdDisable($manager);
+    }
+    system("sudo systemctl daemon-reload");
+    return $EXIT_SUCCESS;
+}	
 
 sub checkup {
     require pf::services;
@@ -277,6 +300,46 @@ sub _doGenerateUnitFile {
 }
 
 
+sub _doSystemdEnable {
+    my ($manager) = @_;
+    my $command;
+    my $color = '';
+    if ( $manager->isManaged ) { 
+	    if($manager->sysdEnable()) {
+		$command = 'Service enabled';
+		$color =  $SUCCESS_COLOR;
+	    } else {
+		$command = 'Service not enabled';
+		$color =  $ERROR_COLOR;
+	    }
+    } else { 
+        $command = 'Service is not managed by PacketFence';
+        $color =  $ERROR_COLOR;
+    }
+
+    print $manager->name,"|${color}${command}${RESET_COLOR}\n";
+}
+
+
+sub _doSystemdDisable {
+    my ($manager) = @_;
+    my $command;
+    my $color = '';
+    if ($manager->isEnabled ) { 
+	    if($manager->sysdDisable()) {
+		$command = 'Service disabled';
+		$color =  $SUCCESS_COLOR;
+	    } else {
+		$command = 'Service not disabled';
+		$color =  $ERROR_COLOR;
+	    }
+    } else { 
+        $command = "Service is not enabled";
+        $color =  $ERROR_COLOR;
+    } 
+
+    print $manager->name,"|${color}${command}${RESET_COLOR}\n";
+}
 sub getIptablesTechnique {
     require pf::inline::custom;
     my $iptables = pf::inline::custom->new();
