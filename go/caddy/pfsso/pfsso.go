@@ -9,6 +9,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
 	"github.com/inverse-inc/packetfence/go/firewallsso"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"runtime/debug"
@@ -107,7 +108,7 @@ type PfssoHandler struct {
 
 func (h PfssoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 	ctx := r.Context()
-	firewallsso.Firewalls.Refresh(ctx)
+	pfconfigdriver.PfconfigPool.Refresh(ctx)
 
 	defer func() {
 		if r := recover(); r != nil {
