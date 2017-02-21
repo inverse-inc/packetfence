@@ -24,4 +24,9 @@ func TestIbossGetRequest(t *testing.T) {
 	if logout.URL.String() != expected {
 		t.Errorf("Iboss login generated URL is not correct. %s instead of %s", login.URL, expected)
 	}
+
+	expected = "application/x-www-form-urlencoded"
+	if logout.Header.Get("Content-Type") != expected {
+		t.Errorf("Wrong content type for iboss request. %s instead of %s", logout.Header.Get("Content-Type"), expected)
+	}
 }

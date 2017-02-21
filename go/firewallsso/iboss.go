@@ -54,7 +54,7 @@ func (fw *Iboss) getRequest(ctx context.Context, action string, info map[string]
 			info["role"],
 		), bytes.NewBufferString("query=libwww-perl&mode=dist"),
 	)
-	req.Header.Add("Context-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	sharedutils.CheckError(err)
 
 	return req
