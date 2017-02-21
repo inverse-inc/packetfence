@@ -161,14 +161,15 @@ sub extractSsid {
     my $logger = $self->logger;
 
     if (defined($radius_request->{'Colubris-AVPair'})) {
+        my $pairs = listify($radius_request->{'Colubris-AVPair'});
         # With HP Procurve AP Ccontroller, we receive an array of settings in Colubris-AVPair:
         # Colubris-AVPair = ssid=Inv_Controller
         # Colubris-AVPair = group=Default Group
         # Colubris-AVPair = phytype=IEEE802dot11g
-        foreach (@{$radius_request->{'Colubris-AVPair'}}) {
+        foreach (@$pairs) {
             if (/^ssid=(.*)$/) { return $1; }
         }
-        $logger->info("Unable to extract SSID of Colubris-AVPair: ".@{$radius_request->{'Colubris-AVPair'}});
+        $logger->info("Unable to extract SSID of Colubris-AVPair: ". join(", ", @$pairs));
     }
 
     $logger->warn(
