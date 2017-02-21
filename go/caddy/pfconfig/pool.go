@@ -29,8 +29,8 @@ type Pool struct {
 func (h Pool) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 	pfconfigdriver.PfconfigPool.Refresh(r.Context())
 
-	// Lock in read mode here
-	// defer lock removal
+	pfconfigdriver.PfconfigPool.ReadLock(r.Context())
+	defer pfconfigdriver.PfconfigPool.ReadUnlock(r.Context())
 
 	return h.Next.ServeHTTP(w, r)
 }

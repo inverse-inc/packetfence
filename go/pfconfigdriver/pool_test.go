@@ -15,7 +15,7 @@ func (rs *refreshableStruct) Refresh(ctx context.Context) {
 }
 
 func TestPoolRefreshables(t *testing.T) {
-	p := &Pool{}
+	p := NewPool()
 	rs := &refreshableStruct{}
 	p.AddRefreshable(ctx, rs)
 
@@ -37,7 +37,7 @@ func TestPoolRefreshables(t *testing.T) {
 }
 
 func TestPoolStructs(t *testing.T) {
-	p := &Pool{}
+	p := NewPool()
 	config := &configStruct{}
 	p.AddStruct(ctx, config)
 
