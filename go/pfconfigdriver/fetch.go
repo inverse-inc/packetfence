@@ -94,7 +94,7 @@ func FetchSocket(ctx context.Context, payload string) []byte {
 // Lookup the pfconfig metadata for a specific field
 // If there is a non-zero value in the field, it will be taken
 // Otherwise it will take the value in the val tag of the field
-func metadataFromField(ctx context.Context, param PfconfigObject, fieldName string) string {
+func metadataFromField(ctx context.Context, param interface{}, fieldName string) string {
 	var ov reflect.Value
 
 	ov = reflect.ValueOf(param)
@@ -102,8 +102,14 @@ func metadataFromField(ctx context.Context, param PfconfigObject, fieldName stri
 		ov = ov.Elem()
 	}
 
+	field := ov.FieldByName(fieldName)
+
+	if !field.IsValid() {
+		return ""
+	}
+
 	// We check if the field was set to a value as this will overide the value in the tag
-	userVal := reflect.Value(ov.FieldByName(fieldName)).Interface()
+	userVal := reflect.Value(field).Interface()
 	if userVal != "" {
 		return userVal.(string)
 	}
