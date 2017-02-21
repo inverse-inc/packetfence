@@ -1,17 +1,17 @@
 package filter_client
 
 import (
+	"os"
 	"os/exec"
 	"syscall"
 	"testing"
 	"time"
-    "os"
 )
 
 const SOCK_PATH = "/usr/local/pf/var/run/pffilter-test.sock"
 
 func TestNotStarted(t *testing.T) {
-	client := Client{SocketPath: "/usr/local/pf/var/run/pffilter-test-garbage.sock"}
+	client := NewClientWithPath("/usr/local/pf/var/run/pffilter-test-garbage.sock")
 	_, err := client.FilterProfile(map[string]interface{}{})
 
 	if err == nil {
@@ -22,7 +22,7 @@ func TestNotStarted(t *testing.T) {
 func TestFilters(t *testing.T) {
 	t.Run("FilterProfile", func(t *testing.T) {
 
-		client := Client{SocketPath: SOCK_PATH}
+		client := NewClientWithPath(SOCK_PATH)
 
 		info, err := client.FilterProfile(map[string]interface{}{})
 
@@ -40,7 +40,7 @@ func TestFilters(t *testing.T) {
 
 	t.Run("FilterProfileNodeRole", func(t *testing.T) {
 
-		client := Client{SocketPath: SOCK_PATH}
+		client := NewClientWithPath(SOCK_PATH)
 
 		info, err := client.FilterProfile(map[string]interface{}{
 			"category": "bob",
@@ -60,7 +60,7 @@ func TestFilters(t *testing.T) {
 
 	t.Run("FilterVlan", func(t *testing.T) {
 
-		client := Client{SocketPath: SOCK_PATH}
+		client := NewClientWithPath(SOCK_PATH)
 
 		info, err := client.FilterVlan("RegistrationRole", map[string]interface{}{
 			"ssid": "OPEN",
@@ -83,9 +83,9 @@ func TestFilters(t *testing.T) {
 }
 
 func BenchmarkProfileFilterSimple(b *testing.B) {
-    client := Client{SocketPath: SOCK_PATH}
+	client := NewClientWithPath(SOCK_PATH)
 	for i := 0; i < b.N; i++ {
-		client.FilterProfile(map[string]interface{}{"category" : "default",})
+		client.FilterProfile(map[string]interface{}{"category": "default"})
 	}
 }
 
@@ -93,13 +93,13 @@ func TestMain(m *testing.M) {
 	cmd := exec.Command("perl", "-I", "/usr/local/pf/t", "-Msetup_test_config", "/usr/local/pf/sbin/pffilter", "-s", SOCK_PATH, "-n", "pffilter-test")
 	err := cmd.Start()
 	if err != nil {
-        os.Exit(1)
-        return
+		os.Exit(1)
+		return
 	}
 	defer func() {
 		cmd.Process.Signal(syscall.SIGINT)
-        cmd.Process.Wait()
+		cmd.Process.Wait()
 	}()
 	time.Sleep(60000 * time.Millisecond)
-    os.Exit(m.Run())
+	os.Exit(m.Run())
 }
