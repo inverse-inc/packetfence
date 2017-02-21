@@ -16,6 +16,7 @@ type Factory struct {
 func NewFactory(ctx context.Context) Factory {
 	f := Factory{}
 	f.typeRegistry = make(map[string]reflect.Type)
+	f.typeRegistry["BarracudaNG"] = reflect.TypeOf(&BarracudaNG{}).Elem()
 	f.typeRegistry["Iboss"] = reflect.TypeOf(&Iboss{}).Elem()
 	f.typeRegistry["PaloAlto"] = reflect.TypeOf(&PaloAlto{}).Elem()
 	f.typeRegistry["FortiGate"] = reflect.TypeOf(&FortiGate{}).Elem()
