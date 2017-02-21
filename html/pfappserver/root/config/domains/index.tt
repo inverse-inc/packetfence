@@ -2,10 +2,10 @@
 
   <ul class="nav nav-tabs">
     <li [% IF tab == 'domains' %]class="active"[% END %]>
-      <a href="#newTabView" data-href="[% c.uri_for(c.controller('Domain').action_for('index') tab) %]" data-toggle="tab">[% l('Microsoft Active Directory Domains') %]</a>
+      <a href="#newTabView" data-href="[% c.uri_for(c.controller('Domain').action_for('index')) %]" data-toggle="tab">[% l('Microsoft Active Directory Domains') %]</a>
     </li>
     <li [% IF tab == 'realms' %]class="active"[% END %]>
-      <a href="#newTabView" data-href="[% c.uri_for(c.controller('Realms').action_for('index') tab) %]" data-toggle="tab">[% l('REALMS') %]</a>
+      <a href="#newTabView" data-href="[% c.uri_for(c.controller('Realm').action_for('index')) %]" data-toggle="tab">[% l('REALMS') %]</a>
     </li>
   </ul>
 <div class="tab-content">

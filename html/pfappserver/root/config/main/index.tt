@@ -2,19 +2,19 @@
 
   <ul class="nav nav-tabs">
     <li [% IF tab == 'general' %]class="active"[% END %]>
-      <a href="#newTabView" data-href="[% c.uri_for(c.controller('Configuration').action_for('section') tab) %]" data-toggle="tab">[% l('General Configuration') %]</a>
+      <a href="#newTabView" data-href="[% c.uri_for(c.controller('Configuration').action_for('section'), 'general') %]" data-toggle="tab">[% l('General Configuration') %]</a>
     </li>
     <li [% IF tab == 'alerting' %]class="active"[% END %]>
-      <a href="#newTabView" data-href="[% c.uri_for(c.controller('Configuration').action_for('section') tab) %]" data-toggle="tab">[% l('Alerting') %]</a>
+      <a href="#newTabView" data-href="[% c.uri_for(c.controller('Configuration').action_for('section'), 'alerting') %]" data-toggle="tab">[% l('Alerting') %]</a>
     </li>
     <li [% IF tab == 'advanced' %]class="active"[% END %]>
-      <a href="#newTabView" data-href="[% c.uri_for(c.controller('Configuration').action_for('section') tab) %]" data-toggle="tab">[% l('Advanced') %]</a>
+      <a href="#newTabView" data-href="[% c.uri_for(c.controller('Configuration').action_for('section'), 'advanced') %]" data-toggle="tab">[% l('Advanced') %]</a>
     </li>
     <li [% IF tab == 'Maintenance' %]class="active"[% END %]>
-      <a href="#newTabView" data-href="[% c.uri_for(c.controller('Configuration').action_for('section') tab) %]" data-toggle="tab">[% l('Maintenance') %]</a>
+      <a href="#newTabView" data-href="[% c.uri_for(c.controller('Configuration').action_for('section'), 'maintenance') %]" data-toggle="tab">[% l('Maintenance') %]</a>
     </li>
     <li [% IF tab == 'Services' %]class="active"[% END %]>
-      <a href="#newTabView" data-href="[% c.uri_for(c.controller('Configuration').action_for('section') tab) %]" data-toggle="tab">[% l('Services') %]</a>
+      <a href="#newTabView" data-href="[% c.uri_for(c.controller('Configuration').action_for('section'), 'services') %]" data-toggle="tab">[% l('Services') %]</a>
     </li>
   </ul>
 <div class="tab-content">
