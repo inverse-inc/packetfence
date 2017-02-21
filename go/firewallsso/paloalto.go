@@ -19,6 +19,7 @@ type PaloAlto struct {
 
 func (fw *PaloAlto) Start(ctx context.Context, info map[string]string, timeout int) bool {
 	if fw.Transport == "syslog" {
+		//TODO: implement this
 		//return fw.startSyslog(ctx, info, timeout)
 	} else {
 		log.LoggerWContext(ctx).Info("Sending SSO to PaloAlto using HTTP")
@@ -61,6 +62,7 @@ func (fw *PaloAlto) startHttpPayload(ctx context.Context, info map[string]string
 
 func (fw *PaloAlto) Stop(ctx context.Context, info map[string]string) bool {
 	if fw.Transport == "syslog" {
+		//TODO: implement this...
 		//return fw.stopSyslog(ctx, info, timeout)
 	} else {
 		log.LoggerWContext(ctx).Info("Sending SSO to PaloAlto using HTTP")
