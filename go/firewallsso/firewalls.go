@@ -9,6 +9,10 @@ import (
 
 var Firewalls FirewallsContainer
 
+func init() {
+	pfconfigdriver.PfconfigPool.AddRefreshable(log.LoggerDummyContext(), &Firewalls)
+}
+
 type FirewallsContainer struct {
 	ids     pfconfigdriver.PfconfigKeys
 	Structs map[string]FirewallSSOInt
