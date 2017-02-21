@@ -269,6 +269,25 @@ sub cluster :Local {
     $c->stash->{template} = "config/cluster/index.tt";
 }
 
+=head2 scans
+
+=cut
+
+sub scans :Local {
+    my ($self, $c) = @_;
+
+    $c->stash->{template} = "config/scans/index.tt";
+}
+
+=head2 profiling
+
+=cut
+
+sub profiling :Local {
+    my ($self, $c) = @_;
+
+    $c->stash->{template} = "config/profiling/index.tt";
+}
 
 =head2 define_policy
 
