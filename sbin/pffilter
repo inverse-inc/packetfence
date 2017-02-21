@@ -77,6 +77,7 @@ $SIG{INT}  = \&normal_sighandler;
 $SIG{HUP}  = \&normal_sighandler;
 $SIG{TERM} = \&normal_sighandler;
 $SIG{CHLD} = \&child_sighandler;
+$SIG{ALRM} = \&alarm_sighandler;
 
 $SIG{PIPE} = 'IGNORE';
 
@@ -268,11 +269,15 @@ sub _runtask {
     $0 = "pffilter - $task_id";
     my $time_taken = 0;
     #local $^F = 2;
-    while ($running) {
+    while (is_running()) {
         my $line;
+        alarm 30;#To wake up to check if the parent has died
         eval {
             my $paddr = accept(my $socket, $listener);
-
+            alarm 0; #Disable the alarm
+            if ($ALARM_RECV) {
+                $ALARM_RECV = 0;
+            }
             #Check if a signal was caught
             unless (defined $paddr || $! == EINTR) {
                 die("Can't accept connection: $!\n");
@@ -355,6 +360,16 @@ sub handle_dispath {
     return send_answer($query, $answer, $socket);
 }
 
+=head2 is_running
+
+is_running
+
+=cut
+
+sub is_running {
+    return $running && is_parent_alive();
+}
+
 =head2 send_answer
 
 send_answer
@@ -378,9 +393,7 @@ Checks to see if parent is alive
 =cut
 
 sub is_parent_alive {
-    kill(
-        0, $PARENT_PID
-      );
+    kill(0, $PARENT_PID);
 }
 
 =head2 register_task
