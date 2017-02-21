@@ -30,7 +30,7 @@ type Pool struct {
 	structs      []interface{}
 	lock         *sync.RWMutex
 	// The time to wait for the lock for the refresh in ms
-	// Defaults to 10 seconds
+	// Defaults to 1 seconds
 	RefreshLockTimeout time.Duration
 }
 
