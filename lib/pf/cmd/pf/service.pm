@@ -266,25 +266,28 @@ sub _doUpdateSystemd {
     my ($manager) = @_;
     my $command;
     my $color = '';
-    if ( $manager->isManaged ) { 
-	    if($manager->sysdEnable()) {
-		$command = 'Service enabled';
-		$color =  $SUCCESS_COLOR;
-	    } else {
-		$command = 'Service not enabled';
-		$color =  $ERROR_COLOR;
-	    }
-    } else { 
-	    if($manager->sysdDisable()) {
-		$command = 'Service disabled';
-		$color =  $SUCCESS_COLOR;
-	    } else {
-		$command = 'Service not disabled';
-		$color =  $ERROR_COLOR;
-	    }
+    if ( $manager->isManaged ) {
+        if ( $manager->sysdEnable() ) {
+            $command = 'Service enabled';
+            $color   = $SUCCESS_COLOR;
+        }
+        else {
+            $command = 'Service not enabled';
+            $color   = $ERROR_COLOR;
+        }
+    }
+    else {
+        if ( $manager->sysdDisable() ) {
+            $command = 'Service disabled';
+            $color   = $SUCCESS_COLOR;
+        }
+        else {
+            $command = 'Service not disabled';
+            $color   = $ERROR_COLOR;
+        }
     }
 
-    print $manager->name,"|${color}${command}${RESET_COLOR}\n";
+    print $manager->name, "|${color}${command}${RESET_COLOR}\n";
 }
 
 sub getIptablesTechnique {
