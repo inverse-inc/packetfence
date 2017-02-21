@@ -30,7 +30,7 @@ func (fw *PaloAlto) Start(ctx context.Context, info map[string]string, timeout i
 
 func (fw *PaloAlto) startHttp(ctx context.Context, info map[string]string, timeout int) bool {
 	//TODO: change back to https when done testing
-	_, err := http.PostForm("http://"+fw.PfconfigHashNS+":"+fw.Port+"/api/?type=user-id&action=set&key="+fw.Password,
+	resp, err := http.PostForm("http://"+fw.PfconfigHashNS+":"+fw.Port+"/api/?type=user-id&action=set&key="+fw.Password,
 		url.Values{"cmd": {fw.startHttpPayload(ctx, info, timeout)}})
 
 	if err != nil {
