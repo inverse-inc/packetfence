@@ -152,14 +152,13 @@ table.sources {
               [%- IF can_access("FINGERBANK_READ") %]
               [% pf_section_entry( 'profiling', 'Fingerbank') | none %]
               [%- END %]
-              <li class="nav-header">[% pf_section_entry('network', 'Advanced') | none %]</li>
+              <li class="nav-header">[% pf_section_entry('advanced_conf', 'Advanced Configuration') | none %]</li>
               [% IF can_access("MSE_READ") %]
               [% pf_section_entry( 'mse_tab', 'Node MSE Tab') | none %]
               [%- END %]
-              <!--[% pf_section_entry( 'trapping', 'Trapping') | none %]
               [%- IF can_access("INTERFACES_READ") %]
-              [% pf_section_entry( 'interfaces', 'Interfaces and Networks') | none %]
-              [%- END %]-->
+              [% pf_section_entry( 'networks', 'Networks') | none %]
+              [%- END %]
               [% pf_section_entry( 'monitoring', 'Monitoring') | none %]
               [% pf_section_entry( 'omapi', 'OMAPI') | none %]
               [% pf_section_entry( 'vlan', 'SNMP') | none %]
@@ -169,10 +168,6 @@ table.sources {
               [%- IF can_access_any("INTERFACES_READ","SWITCHES_READ","FLOATING_DEVICES_READ","FIREWALL_SSO_READ") %]
               [%- END %]
               [%- IF can_access_any("USERS_ROLES_READ","USERS_SOURCES_READ", "PROVISIONING_READ", "PKI_PROVIDER_READ", "BILLING_TIER_READ") %]
-              [%- END %]
-              [%- IF can_access_any("REALM_READ", "DOMAIN_READ") %]
-              [%- END %]
-              [%- IF can_access_any("VIOLATIONS_READ","SOH_READ","SCAN_READ","WMI_READ") %]
               [%- END %]
           </div><!--/.well -->
         </div><!--/span-->

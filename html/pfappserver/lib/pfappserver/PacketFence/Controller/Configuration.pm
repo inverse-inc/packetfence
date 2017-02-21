@@ -289,6 +289,26 @@ sub profiling :Local {
     $c->stash->{template} = "config/profiling/index.tt";
 }
 
+=head2 networks
+
+=cut
+
+sub networks :Local {
+    my ($self, $c) = @_;
+
+    $c->stash->{template} = "config/networks/index.tt";
+}
+
+=head2 advanced_conf
+
+=cut
+
+sub advanced_conf :Local {
+    my ($self, $c) = @_;
+
+    $c->stash->{template} = "conf/advanced_conf.tt";
+}
+
 =head2 define_policy
 
 =cut
