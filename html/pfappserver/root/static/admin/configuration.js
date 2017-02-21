@@ -45,7 +45,7 @@ function init() {
         return true;
     });
 
-    $('#section').on('show', '[href="#roleTabView"]', function(e) {
+    $('#section').on('show', '[href="#newTabView"]', function(e) {
         var btn = $(e.target);
         var name = btn.attr("href");
         var target = $(name);
