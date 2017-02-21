@@ -2,10 +2,14 @@ package pfconfigdriver
 
 import (
 	"context"
-	"fmt"
-	"github.com/davecgh/go-spew/spew"
 	"reflect"
 )
+
+var PfconfigPool Pool
+
+func init() {
+	PfconfigPool = Pool{}
+}
 
 type Refreshable interface {
 	Refresh(ctx context.Context)
@@ -18,10 +22,12 @@ type Pool struct {
 
 func (p *Pool) AddRefreshable(ctx context.Context, r Refreshable) {
 	p.refreshables = append(p.refreshables, r)
+	r.Refresh(ctx)
 }
 
 func (p *Pool) AddStruct(ctx context.Context, s interface{}) {
 	p.structs = append(p.structs, s)
+	p.refreshStruct(ctx, s)
 }
 
 func (p *Pool) refreshRefreshables(ctx context.Context) {
@@ -43,7 +49,6 @@ func (p *Pool) refreshStruct(ctx context.Context, s interface{}) {
 
 	for i := 0; i < v.NumField(); i++ {
 		field := v.Field(i).Addr()
-		spew.Dump(field)
 		if o, ok := field.Interface().(PfconfigObject); ok {
 			FetchDecodeSocketCache(ctx, o)
 		} else {
