@@ -142,10 +142,17 @@ __PACKAGE__->config(
                     }
                 }
             }
-         }
+         },
+         proxy => {
+           credential => {
+             class => '+pfappserver::Authentication::Credential::Proxy',
+           },
+           store => {
+             class => '+pfappserver::Authentication::Store::PacketFence',
+           }
+        }
        }
      },
-
 );
 
 sub pf_hash_for {
@@ -289,6 +296,18 @@ sub pf_localize {
         @args = ($text,$msg);
     }
     return $c->localize(@args);
+}
+
+
+=head2 user_allowed_in_admin
+
+Checks to see if the user is allowed in admin
+
+=cut
+
+sub user_allowed_in_admin {
+    my ($c) = @_;
+    return $c->user_in_realm('admin') || $c->user_in_realm('proxy') || $c->authenticate({}, 'proxy');
 }
 
 # Logging
