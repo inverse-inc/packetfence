@@ -375,9 +375,10 @@ sub create :Local :AdminRoleAny('USERS_CREATE') :AdminRoleAny('USERS_CREATE_MULI
         $c->stash->{form_import} = $form_import;
     }
 }
+
 =head2 _add_sms_source
 
-Add create SMS source if it is configured
+Add SMS source information if advanced.source_to_send_sms_when_creating_users is configured
 
 =cut
 
