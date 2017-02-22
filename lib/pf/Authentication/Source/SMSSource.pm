@@ -123,7 +123,7 @@ sub sendActivationSMS {
 
 =head2 sendSMS
 
-Interact with Twilio API to send an SMS
+Sends an SMS via email
 
 =cut
 
