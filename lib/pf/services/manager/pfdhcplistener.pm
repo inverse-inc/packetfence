@@ -21,8 +21,6 @@ extends 'pf::services::manager';
 
 has '+name' => (default => sub { 'pfdhcplistener'} );
 
-has '+launcher' => (default => sub { '%1$s -d' } );
-
 sub isManaged {
     my ($self) = @_;
     return isenabled($Config{'network'}{'dhcpdetector'}) && $self->SUPER::isManaged();
