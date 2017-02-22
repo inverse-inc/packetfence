@@ -615,6 +615,7 @@ if ! /usr/bin/id pf &>/dev/null; then
     fi
 fi
 /usr/sbin/usermod -aG wbpriv,fingerbank,apache,carbon pf
+/usr/sbin/usermod -aG pf mysql 
 
 if [ ! `id -u` = "0" ];
 then

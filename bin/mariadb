@@ -251,7 +251,7 @@ while($RUNNING){
         print "MariaDB is not alive \n";
         attempt_start();
     }
-    elsif(test_db(pf::cluster::current_server()->{management_ip})) {
+    elsif($cluster_enabled and test_db(pf::cluster::current_server()->{management_ip})) {
         $logger->info("Successful test to the DB. Flushing failure counts.");
         $failed_counts = {};
     }
