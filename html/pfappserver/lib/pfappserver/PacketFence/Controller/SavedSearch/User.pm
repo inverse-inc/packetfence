@@ -26,11 +26,11 @@ __PACKAGE__->config(
     action => {
         # Reconfigure the object dispatcher from pfappserver::Base::Controller::Crud
         object => { Chained => '/', PathPart => 'savedsearch/user', CaptureArgs => 1 },
-        view   => { AdminRole => 'USERS_READ' },
-        list   => { AdminRole => 'USERS_READ' },
-        create => { AdminRole => 'USERS_READ' },
-        update => { AdminRole => 'USERS_READ' },
-        remove => { AdminRole => 'USERS_READ' },
+        view   => { AdminRoleAny => [qw(USERS_READ USERS_READ_SPONSORED)] },
+        list   => { AdminRoleAny => [qw(USERS_READ USERS_READ_SPONSORED)] },
+        create => { AdminRoleAny => [qw(USERS_READ USERS_READ_SPONSORED)] },
+        update => { AdminRoleAny => [qw(USERS_READ USERS_READ_SPONSORED)] },
+        remove => { AdminRoleAny => [qw(USERS_READ USERS_READ_SPONSORED)] },
     },
     action_args => {
         '*' => { model => 'SavedSearch::User', form => 'SavedSearch'}

@@ -78,7 +78,9 @@ var UserView = function(options) {
     this.proxyFor($('body'), 'switch-change', '#modalUser .switch', this.toggleViolation);
 
     /* Update the advanced search form to the next page or resort the query */
-    this.proxyClick($('body'), '[href*="#user/advanced_search"]', this.advancedSearchUpdater);
+    this.proxyClick($('body'), '[href*="/user/advanced_search"]', this.changeOrderAdvanced);
+
+    this.proxyClick($('body'), '[href*="/user/simple_search"]', this.changeOrderSimple);
 
     this.proxyClick($('body'), '.users .pagination a', this.searchPagination);
 
@@ -109,22 +111,6 @@ var UserView = function(options) {
         /* Disable checked columns from import tab since they are required */
         $('form[name="users"] .columns :checked').attr('disabled', 'disabled');
 
-        $('[data-sort-by]').click(function(){
-          e.preventDefault();
-          $('#simpleUserSearch').find('[name="by"]').val($(this).attr('data-sort-by'));
-          $('#simpleUserSearch').find('[name="direction"]').val($(this).attr('data-sort-direction'));
-
-          $('#advancedUserSearch').find('[name="by"]').val($(this).attr('data-sort-by'));
-          $('#advancedUserSearch').find('[name="direction"]').val($(this).attr('data-sort-direction'));
-
-          if($('#simple').hasClass('active')) {
-            $('#simpleUserSearch').submit();
-          }
-          else {
-            $('#advancedUserSearch').submit();
-          }
-          return false;
-        });
     });
 
 };
@@ -520,6 +506,44 @@ UserView.prototype.submitItems = function(e) {
     });
     modal.modal({ show: true });
 };
+
+
+UserView.prototype.changeOrderAdvanced = function(e) {
+    this.changeOrder(e, "#advancedUserSearch");
+}
+
+UserView.prototype.changeOrderSimple = function(e) {
+    this.changeOrder(e, "#simpleUserSearch");
+}
+
+UserView.prototype.changeOrder = function(e, form_id) {
+    var that = this;
+    e.preventDefault();
+    var link = $(e.currentTarget);
+    var href = link.attr("href");
+    var section = $('#section');
+    var status_container = $("#section").find('h2').first();
+    var loader = section.prev('.loader');
+    var form = $(form_id);
+    loader.show();
+    section.fadeTo('fast', 0.5);
+    section.fadeTo('fast', 0.5, function() {
+        that.users.post({
+            url: href,
+            data: form.serialize(),
+            always: function() {
+                loader.hide();
+                section.fadeTo('fast', 1.0);
+            },
+            success: function(data) {
+                section.html(data);
+                section.trigger('section.loaded');
+            },
+            errorSibling: status_container
+        });
+    });
+    return false;
+}
 
 UserView.prototype.searchPagination = function(e) {
     var that = this;

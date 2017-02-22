@@ -5,13 +5,13 @@
     ELSE;
       new_direction = 'asc';
     END %]
-      <th[% " class=\"$class\"" IF class %]><a  data-sort-by="[% column %]" data-sort-direction="[% new_direction %]" href="[% c.pf_hash_for(c.action, 'by', column, 'direction', new_direction, 'per_page',per_page) %]">[% title %][% IF by == column %] <i class="icon-chevron-[% IF new_direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</a></th>
+      <th[% " class=\"$class\"" IF class %]><a  data-sort-by="[% column %]" data-sort-direction="[% new_direction %]" href="[% c.uri_for(c.action, {'by' => column, 'direction' => new_direction } ) %]">[% title %][% IF by == column %] <i class="icon-chevron-[% IF new_direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</a></th>
 [% END -%]
             <h2>[% l('Results') %]</h2>
             [% INCLUDE admin/bulk_actions.inc id='user_bulk_actions' bulk_type='user' %]
-      [% pagination(c.action, page_num, page_count,{}, '#advancedUserSearch') | none %]
+      [% pagination(c.action, page_num, page_count, {direction => direction, by => by}, '#advancedUserSearch') | none %]
       [% INCLUDE user/list.tt %]
-      [% pagination(c.action, page_num, page_count,{}, '#advancedUserSearch') | none %]
+      [% pagination(c.action, page_num, page_count, {direction => direction, by => by}, '#advancedUserSearch') | none %]
       <div id="noResult" class="unwell[% ' hidden' IF items.size > 0 %]">
         <i class="icon-search icon-large"></i><p>[% l('No user found') %]</p>
       </div>
