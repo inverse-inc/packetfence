@@ -102,6 +102,20 @@ __PACKAGE__->config(
        expose_stash    => [ qw(status status_msg error interfaces networks switches config services success items) ], # defaults to everything
     },
 
+    'View::HTML' => {
+        INCLUDE_PATH => [
+            __PACKAGE__->path_to('root-custom'),
+            __PACKAGE__->path_to('root'),
+        ]
+    },
+
+    'View::Admin' => {
+        INCLUDE_PATH => [
+            __PACKAGE__->path_to('root-custom'),
+            __PACKAGE__->path_to('root'),
+        ]
+    },
+
     'Plugin::Authentication' => {
        default_realm => 'admin',
        realms => {
