@@ -8,6 +8,7 @@ import (
 	"github.com/fingerbank/processor/sharedutils"
 	log15 "github.com/inconshreveable/log15"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"layeh.com/radius"
 	"net"
 	"net/http"
 	"strconv"
@@ -127,6 +128,10 @@ func (fw *FirewallSSO) getHttpClient(ctx context.Context) *http.Client {
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 	return &http.Client{Transport: transport}
+}
+
+func (fw *FirewallSSO) getRadiusClient(ctx context.Context) *radius.Client {
+	return &radius.Client{}
 }
 
 // Check if info["ip"] is part of the configured networks if any

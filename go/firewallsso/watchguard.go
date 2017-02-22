@@ -17,7 +17,7 @@ type WatchGuard struct {
 
 func (fw *WatchGuard) Start(ctx context.Context, info map[string]string, timeout int) bool {
 	p := fw.startRadiusPacket(ctx, info, timeout)
-	client := radius.Client{}
+	client := fw.getRadiusClient(ctx)
 
 	var err error
 	client.LocalAddr, err = net.ResolveUDPAddr("udp", fw.getSourceIp(ctx).String()+":0")
@@ -46,7 +46,7 @@ func (fw *WatchGuard) startRadiusPacket(ctx context.Context, info map[string]str
 
 func (fw *WatchGuard) Stop(ctx context.Context, info map[string]string) bool {
 	p := fw.stopRadiusPacket(ctx, info)
-	client := radius.Client{}
+	client := fw.getRadiusClient(ctx)
 
 	var err error
 	client.LocalAddr, err = net.ResolveUDPAddr("udp", fw.getSourceIp(ctx).String()+":0")

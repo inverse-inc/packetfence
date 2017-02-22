@@ -16,7 +16,7 @@ type FortiGate struct {
 
 func (fw *FortiGate) Start(ctx context.Context, info map[string]string, timeout int) bool {
 	p := fw.startRadiusPacket(ctx, info, timeout)
-	client := radius.Client{}
+	client := fw.getRadiusClient(ctx)
 	_, err := client.Exchange(p, fw.PfconfigHashNS+":"+fw.Port)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Couldn't SSO to the fortigate, got the following error: %s", err))
@@ -40,7 +40,7 @@ func (fw *FortiGate) startRadiusPacket(ctx context.Context, info map[string]stri
 
 func (fw *FortiGate) Stop(ctx context.Context, info map[string]string) bool {
 	p := fw.stopRadiusPacket(ctx, info)
-	client := radius.Client{}
+	client := fw.getRadiusClient(ctx)
 	_, err := client.Exchange(p, fw.PfconfigHashNS+":"+fw.Port)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Couldn't SSO to the fortigate, got the following error: %s", err))
