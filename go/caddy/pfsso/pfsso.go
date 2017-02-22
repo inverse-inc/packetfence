@@ -86,6 +86,8 @@ func (h PfssoHandler) handleUpdate(w http.ResponseWriter, r *http.Request, p htt
 		}
 
 		if shouldStart {
+			//Creating a shallow copy here so the anonymous function has the right reference
+			firewall := firewall
 			h.spawnSso(ctx, firewall, func() bool {
 				return firewallsso.ExecuteStart(ctx, firewall, info, timeout)
 			})
@@ -103,6 +105,8 @@ func (h PfssoHandler) handleStart(w http.ResponseWriter, r *http.Request, p http
 	info, timeout := h.parseBody(ctx, r.Body)
 
 	for _, firewall := range firewallsso.Firewalls.Structs {
+		//Creating a shallow copy here so the anonymous function has the right reference
+		firewall := firewall
 		h.spawnSso(ctx, firewall, func() bool {
 			return firewallsso.ExecuteStart(ctx, firewall, info, timeout)
 		})
@@ -118,6 +122,8 @@ func (h PfssoHandler) handleStop(w http.ResponseWriter, r *http.Request, p httpr
 	info, _ := h.parseBody(ctx, r.Body)
 
 	for _, firewall := range firewallsso.Firewalls.Structs {
+		//Creating a shallow copy here so the anonymous function has the right reference
+		firewall := firewall
 		h.spawnSso(ctx, firewall, func() bool {
 			return firewallsso.ExecuteStop(ctx, firewall, info)
 		})
