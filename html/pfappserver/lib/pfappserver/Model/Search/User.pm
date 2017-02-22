@@ -23,12 +23,33 @@ use SQL::Abstract::More;
 use pf::admin_roles;
 use POSIX qw(ceil);
 
-{
+my %COLUMN_MAP = (
+    username => 'person.pid',
+    mac => 'node.mac',
+    name => \"concat(firstname,' ', lastname)",
+    ip_address => 'iplog.ip',
+    nodes => \"count(node.mac)",
+);
 
-my @DEFAULT_COLUMNS = (
+our @DEFAULT_COLUMNS = (
     ( map {"person.$_|$_"} @pf::person::FIELDS ),
     ( map { "password.$_|$_" } qw(valid_from expiration access_duration category password) ),
     'count(node.mac)|nodes',
+);
+
+our %JOIN_MAP = (
+    ip_address => [ qw[=>{mac=mac} iplog] ]
+);
+
+our %OP_MAP = (
+    equal       => '=',
+    not_equal   => '<>',
+    not_like    => 'NOT LIKE',
+    like        => 'LIKE',
+    ends_with   => 'LIKE',
+    starts_with => 'LIKE',
+    in          => 'IN',
+    not_in      => 'NOT IN',
 );
 
 =head2 default_search
@@ -43,8 +64,6 @@ sub default_search {
     -from => [-join => qw[ person =>{password.pid=person.pid} password =>{node.pid=person.pid} node  ] ],
     -group_by => 'person.pid',
     };
-}
-
 }
 
 =head2 search
@@ -88,12 +107,6 @@ sub search {
     return (HTTP_OK, \%results);
 }
 
-{
-
-my %JOIN_MAP = (
-    ip_address => [ qw[=>{mac=mac} iplog] ]
-);
-
 =head2 _update_from
 
 Update the from in the search info
@@ -110,8 +123,6 @@ sub _update_from {
             push @$from, @{$JOIN_MAP{$name}};
         }
     }
-}
-
 }
 
 =head2 _build_where
@@ -157,7 +168,6 @@ sub _build_limit {
     $search_info->{-offset} = $offset;
 }
 
-
 =head2 _build_order_by
 
 Build the order by clause of the query
@@ -175,17 +185,6 @@ sub _build_order_by {
     }
     $search_info->{-order_by} = ["$by $direction"];
 }
-
-our %OP_MAP = (
-    equal       => '=',
-    not_equal   => '<>',
-    not_like    => 'NOT LIKE',
-    like        => 'LIKE',
-    ends_with   => 'LIKE',
-    starts_with => 'LIKE',
-    in          => 'IN',
-    not_in      => 'NOT IN',
-);
 
 =head2 _build_clause
 
@@ -222,16 +221,6 @@ sub _build_clause {
     return {$name => {$sql_op => $value}};
 }
 
-{
-
-my %COLUMN_MAP = (
-    username => 'person.pid',
-    mac => 'node.mac',
-    name => \"concat(firstname,' ', lastname)",
-    ip_address => 'iplog.ip',
-    nodes => \"count(node.mac)",
-);
-
 =head2 fixup_name
 
 Fixup the name of column
@@ -244,8 +233,6 @@ sub fixup_name {
         return $COLUMN_MAP{$name};
     }
     return $name;
-}
-
 }
 
 __PACKAGE__->meta->make_immutable;
