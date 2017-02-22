@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-pffilter - ARP listener and maintenance threads
+pffilter - A service for exposing packetfence filter
 
 =head1 SYNOPSIS
 
@@ -12,6 +12,7 @@ pffilter [options]
    -d                 Daemonize
    -h                 Help
    -s SOCK_PATH       The path to the unix socket path - default $PFDIR/var/pffilter.sock
+   -n NAME            The name of the process - default pffilter
 
 =cut
 
@@ -64,7 +65,6 @@ pf::SwitchFactory->preloadConfiguredModules();
 
 # initialization
 # --------------
-# assign process name (see #1464)
 our @REGISTERED_TASKS;
 our $IS_CHILD = 0;
 our %CHILDREN;
