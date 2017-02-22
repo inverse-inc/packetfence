@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/fingerbank/processor/log"
+	"log/syslog"
 	"net/url"
 	"text/template"
 )
@@ -18,13 +19,48 @@ type PaloAlto struct {
 
 func (fw *PaloAlto) Start(ctx context.Context, info map[string]string, timeout int) bool {
 	if fw.Transport == "syslog" {
-		//TODO: implement this
-		//return fw.startSyslog(ctx, info, timeout)
+		return fw.startSyslog(ctx, info, timeout)
 	} else {
 		log.LoggerWContext(ctx).Info("Sending SSO to PaloAlto using HTTP")
 		return fw.startHttp(ctx, info, timeout)
 	}
 	return false
+}
+
+func (fw *PaloAlto) getSyslog(ctx context.Context) (*syslog.Writer, error) {
+	writer, err := syslog.Dial("udp", fw.PfconfigHashNS+":514", syslog.LOG_ERR|syslog.LOG_LOCAL5, "pfsso")
+
+	if err != nil {
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error connecting to PaloAlto: %s", err))
+		return nil, err
+	}
+
+	return writer, err
+}
+
+func (fw *PaloAlto) sendSyslog(ctx context.Context, line string) error {
+	writer, err := fw.getSyslog(ctx)
+
+	if err != nil {
+		return err
+	}
+
+	err = writer.Err(line)
+
+	if err != nil {
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error sending message to PaloAlto: %s", err))
+		return err
+	}
+
+	return nil
+}
+
+func (fw *PaloAlto) startSyslog(ctx context.Context, info map[string]string, timeout int) bool {
+	if fw.sendSyslog(ctx, fmt.Sprintf("Group <packetfence> User <%s> Address <%s> assigned to session", info["username"], info["ip"])) == nil {
+		return true
+	} else {
+		return false
+	}
 }
 
 func (fw *PaloAlto) startHttp(ctx context.Context, info map[string]string, timeout int) bool {
@@ -64,8 +100,8 @@ func (fw *PaloAlto) startHttpPayload(ctx context.Context, info map[string]string
 
 func (fw *PaloAlto) Stop(ctx context.Context, info map[string]string) bool {
 	if fw.Transport == "syslog" {
-		//TODO: implement this...
-		//return fw.stopSyslog(ctx, info, timeout)
+		log.LoggerWContext(ctx).Info("SSO Stop isn't supported on PaloAlto when using the syslog transport. You should use the HTTP transport if you require it.")
+		return false
 	} else {
 		log.LoggerWContext(ctx).Info("Sending SSO to PaloAlto using HTTP")
 		return fw.stopHttp(ctx, info)
