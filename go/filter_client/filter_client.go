@@ -7,7 +7,7 @@ import (
 	"net"
 )
 
-const default_socket_path string = "/usr/local/pf/var/run/pffilter.sock"
+const defaultSocketPath string = "/usr/local/pf/var/run/pffilter.sock"
 
 // Represents the json message to send to the pffilter service
 type Request struct {
@@ -35,7 +35,7 @@ type Client struct {
 
 // The Client constructor
 func NewClient() Client {
-	return NewClientWithPath(default_socket_path)
+	return NewClientWithPath(defaultSocketPath)
 }
 
 // The Client constructor with a path
