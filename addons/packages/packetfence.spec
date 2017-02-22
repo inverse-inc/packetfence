@@ -1332,7 +1332,7 @@ fi
 
 %files -n %{real_name}-config
 %defattr(-, pf, pf)
-%attr(0311, root, root) /usr/lib/systemd/system/packetfence-config.service
+%attr(0644, root, root) /usr/lib/systemd/system/packetfence-config.service
 %dir                    /usr/local/pf
 %dir %attr(0770, pf pf) /usr/local/pf/conf
 %config(noreplace)      /usr/local/pf/conf/pfconfig.conf
