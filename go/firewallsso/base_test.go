@@ -96,14 +96,14 @@ func TestStop(t *testing.T) {
 	mockfw.init(ctx)
 
 	// invalid role, invalid IP, so shouldn't do it
-	result := ExecuteStop(ctx, mockfw, map[string]string{"ip": "1.2.3.4", "role": "no-sso-on-that", "mac": "00:11:22:33:44:55", "username": "lzammit"}, 0)
+	result := ExecuteStop(ctx, mockfw, map[string]string{"ip": "1.2.3.4", "role": "no-sso-on-that", "mac": "00:11:22:33:44:55", "username": "lzammit"})
 
 	if result {
 		t.Error("SSO succeeded with invalid parameters")
 	}
 
 	// invalid role, valid IP, so should do it because role doesn't matter in stop
-	result = ExecuteStop(ctx, mockfw, map[string]string{"ip": "172.20.0.1", "role": "no-sso-on-that", "mac": "00:11:22:33:44:55", "username": "lzammit"}, 0)
+	result = ExecuteStop(ctx, mockfw, map[string]string{"ip": "172.20.0.1", "role": "no-sso-on-that", "mac": "00:11:22:33:44:55", "username": "lzammit"})
 
 	if !result {
 		t.Error("SSO failed with invalid parameters")
@@ -198,4 +198,59 @@ func TestGetSourceIp(t *testing.T) {
 	if fw.getSourceIp(ctx).String() != expected {
 		t.Errorf("Wrong source IP for firewall. Got %s instead of %s", fw.getSourceIp(ctx).String(), expected)
 	}
+}
+
+func TestShouldCacheUpdates(t *testing.T) {
+	factory := NewFactory(ctx)
+
+	//Test with a firewall that has it enabled
+	fw, err := factory.Instantiate(ctx, "testfw")
+	util.CheckTestError(t, err)
+
+	if !fw.ShouldCacheUpdates(ctx) {
+		t.Error("ShouldCacheUpdates reports false although its enabled")
+	}
+
+	fw, err = factory.Instantiate(ctx, "testfw2")
+	util.CheckTestError(t, err)
+
+	if fw.ShouldCacheUpdates(ctx) {
+		t.Error("ShouldCacheUpdates reports true when value is undefined. Should actually report false.")
+	}
+
+	fw, err = factory.Instantiate(ctx, "paloalto.com")
+	util.CheckTestError(t, err)
+
+	if fw.ShouldCacheUpdates(ctx) {
+		t.Error("ShouldCacheUpdates reports true when value is 0. Should actually report false.")
+	}
+}
+
+func TestGetCacheTimeout(t *testing.T) {
+	factory := NewFactory(ctx)
+
+	fw, err := factory.Instantiate(ctx, "testfw")
+	util.CheckTestError(t, err)
+
+	expected := 0
+	if fw.GetCacheTimeout(ctx) != expected {
+		t.Errorf("Cache timeout is invalid. Expected %d and got %d", expected, fw.GetCacheTimeout(ctx))
+	}
+
+	fw, err = factory.Instantiate(ctx, "testfw2")
+	util.CheckTestError(t, err)
+
+	expected = 0
+	if fw.GetCacheTimeout(ctx) != expected {
+		t.Errorf("Cache timeout is invalid. Expected %d and got %d", expected, fw.GetCacheTimeout(ctx))
+	}
+
+	fw, err = factory.Instantiate(ctx, "paloalto.com")
+	util.CheckTestError(t, err)
+
+	expected = 3600
+	if fw.GetCacheTimeout(ctx) != expected {
+		t.Errorf("Cache timeout is invalid. Expected %d and got %d", expected, fw.GetCacheTimeout(ctx))
+	}
+
 }

@@ -22,6 +22,8 @@ type FirewallSSOInt interface {
 	GetFirewallSSO(ctx context.Context) *FirewallSSO
 	MatchesRole(ctx context.Context, info map[string]string) bool
 	MatchesNetwork(ctx context.Context, info map[string]string) bool
+	ShouldCacheUpdates(ctx context.Context) bool
+	GetCacheTimeout(ctx context.Context) int
 	GetLoadedAt() time.Time
 	SetLoadedAt(time.Time)
 }
@@ -36,7 +38,7 @@ type FirewallSSO struct {
 	pfconfigdriver.TypedConfig
 	Networks     []*FirewallSSONetwork `json:"networks"`
 	CacheUpdates string                `json:"cache_updates"`
-	CacheTimeout string                `json:"cache_updates"`
+	CacheTimeout string                `json:"cache_timeout"`
 }
 
 // Builds all networks, meant to be called after the data is loaded into the struct attributes
@@ -68,6 +70,20 @@ func (fwn *FirewallSSONetwork) init(ctx context.Context) error {
 // This is used so that all structs including FirewallSSO have access to FirewallSSO via the FirewallSSOInt interface
 func (fw *FirewallSSO) GetFirewallSSO(ctx context.Context) *FirewallSSO {
 	return fw
+}
+
+func (fw *FirewallSSO) ShouldCacheUpdates(ctx context.Context) bool {
+	return fw.CacheUpdates == "enabled"
+}
+
+func (fw *FirewallSSO) GetCacheTimeout(ctx context.Context) int {
+	timeout, err := strconv.ParseInt(fw.CacheTimeout, 10, 32)
+	if err != nil {
+		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Can't parse timeout '%s' into an int (%s).", fw.CacheTimeout, err))
+		return 0
+	} else {
+		return int(timeout)
+	}
 }
 
 func (fw *FirewallSSO) InfoToTemplateCtx(ctx context.Context, info map[string]string, timeout int) map[string]string {

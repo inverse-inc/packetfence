@@ -11,10 +11,12 @@ import (
 	"github.com/inverse-inc/packetfence/go/firewallsso"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/julienschmidt/httprouter"
+	"github.com/patrickmn/go-cache"
 	"io"
 	"net/http"
 	"runtime/debug"
 	"strconv"
+	"time"
 )
 
 func init() {
@@ -49,6 +51,43 @@ func (h PfssoHandler) handleUpdate(w http.ResponseWriter, r *http.Request, p htt
 	ctx := r.Context()
 	defer statsd.NewStatsDTiming(ctx).Send("PfssoHandler.handleUpdate")
 
+	info, timeout := h.parseBody(ctx, r.Body)
+
+	var shouldStart bool
+	for _, firewall := range firewallsso.Firewalls.Structs {
+		cacheKey := firewall.GetFirewallSSO(ctx).PfconfigHashNS + ":" + info["ip"]
+		if firewall.ShouldCacheUpdates(ctx) {
+			if _, found := h.updateCache.Get(cacheKey); !found {
+
+				var cacheTimeout int
+				if firewall.GetFirewallSSO(ctx).GetCacheTimeout(ctx) != 0 {
+					cacheTimeout = firewall.GetFirewallSSO(ctx).GetCacheTimeout(ctx)
+				} else if timeout != 0 {
+					cacheTimeout = timeout / 2
+				} else {
+					log.LoggerWContext(ctx).Error("Impossible to cache updates. There is no cache timeout in the firewall and no timeout defined in the request.")
+				}
+
+				if cacheTimeout != 0 {
+					log.LoggerWContext(ctx).Debug(fmt.Sprintf("Caching SSO for %d seconds", cacheTimeout))
+					h.updateCache.Set(cacheKey, 1, time.Duration(cacheTimeout)*time.Second)
+				}
+
+				shouldStart = true
+			}
+		} else {
+			shouldStart = true
+		}
+
+		if shouldStart {
+			h.spawnSso(ctx, firewall, func() bool {
+				return firewallsso.ExecuteStart(ctx, firewall, info, timeout)
+			})
+		} else {
+			log.LoggerWContext(ctx).Debug("Determined that SSO start was not necessary for this update")
+		}
+
+	}
 }
 
 func (h PfssoHandler) handleStart(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
@@ -58,8 +97,6 @@ func (h PfssoHandler) handleStart(w http.ResponseWriter, r *http.Request, p http
 	info, timeout := h.parseBody(ctx, r.Body)
 
 	for _, firewall := range firewallsso.Firewalls.Structs {
-		// Creating a local shallow copy to send to the go-routine
-		firewall := firewall
 		h.spawnSso(ctx, firewall, func() bool {
 			return firewallsso.ExecuteStart(ctx, firewall, info, timeout)
 		})
@@ -75,8 +112,6 @@ func (h PfssoHandler) handleStop(w http.ResponseWriter, r *http.Request, p httpr
 	info, _ := h.parseBody(ctx, r.Body)
 
 	for _, firewall := range firewallsso.Firewalls.Structs {
-		// Creating a local shallow copy to send to the go-routine
-		firewall := firewall
 		h.spawnSso(ctx, firewall, func() bool {
 			return firewallsso.ExecuteStop(ctx, firewall, info)
 		})
@@ -110,7 +145,10 @@ func buildPfssoHandler(ctx context.Context) (PfssoHandler, error) {
 
 	pfsso := PfssoHandler{}
 
+	pfsso.updateCache = cache.New(1*time.Hour, 30*time.Second)
+
 	router := httprouter.New()
+	router.POST("/pfsso/update", pfsso.handleUpdate)
 	router.POST("/pfsso/start", pfsso.handleStart)
 	router.POST("/pfsso/stop", pfsso.handleStop)
 
@@ -120,8 +158,9 @@ func buildPfssoHandler(ctx context.Context) (PfssoHandler, error) {
 }
 
 type PfssoHandler struct {
-	Next   httpserver.Handler
-	router *httprouter.Router
+	Next        httpserver.Handler
+	router      *httprouter.Router
+	updateCache *cache.Cache
 }
 
 func (h PfssoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
