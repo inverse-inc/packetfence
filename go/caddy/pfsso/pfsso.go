@@ -11,6 +11,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/firewallsso"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/julienschmidt/httprouter"
+	"io"
 	"net/http"
 	"runtime/debug"
 	"strconv"
@@ -23,27 +24,45 @@ func init() {
 	})
 }
 
-func (h PfssoHandler) handleStart(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	ctx := r.Context()
-	defer statsd.NewStatsDTiming(ctx).Send("PfssoHandler.handleStart")
-
+func (h PfssoHandler) parseBody(ctx context.Context, body io.Reader) (map[string]string, int) {
 	var info map[string]string
-	json.NewDecoder(r.Body).Decode(&info)
+	json.NewDecoder(body).Decode(&info)
 	timeout, err := strconv.ParseInt(info["timeout"], 10, 32)
 	if err != nil {
 		log.LoggerWContext(ctx).Warn(fmt.Sprintf("Can't parse timeout '%s' into an int (%s). Will not specify timeout for request.", info["timeout"], err))
 	}
 
+	return info, int(timeout)
+}
+
+func (h PfssoHandler) spawnSso(ctx context.Context, firewall firewallsso.FirewallSSOInt, f func() bool) {
+	go func() {
+		if !f() {
+			log.LoggerWContext(ctx).Error("Failed to send SSO to " + firewall.GetFirewallSSO(ctx).PfconfigHashNS)
+		} else {
+			log.LoggerWContext(ctx).Debug("Sent SSO to " + firewall.GetFirewallSSO(ctx).PfconfigHashNS)
+		}
+	}()
+}
+
+func (h PfssoHandler) handleUpdate(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	ctx := r.Context()
+	defer statsd.NewStatsDTiming(ctx).Send("PfssoHandler.handleUpdate")
+
+}
+
+func (h PfssoHandler) handleStart(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	ctx := r.Context()
+	defer statsd.NewStatsDTiming(ctx).Send("PfssoHandler.handleStart")
+
+	info, timeout := h.parseBody(ctx, r.Body)
+
 	for _, firewall := range firewallsso.Firewalls.Structs {
 		// Creating a local shallow copy to send to the go-routine
 		firewall := firewall
-		go func() {
-			if !firewallsso.ExecuteStart(ctx, firewall, info, int(timeout)) {
-				log.LoggerWContext(ctx).Error("Failed to send SSO start to " + firewall.GetFirewallSSO(ctx).PfconfigHashNS)
-			} else {
-				log.LoggerWContext(ctx).Debug("Sent SSO start to " + firewall.GetFirewallSSO(ctx).PfconfigHashNS)
-			}
-		}()
+		h.spawnSso(ctx, firewall, func() bool {
+			return firewallsso.ExecuteStart(ctx, firewall, info, timeout)
+		})
 	}
 
 	w.WriteHeader(http.StatusAccepted)
@@ -53,23 +72,14 @@ func (h PfssoHandler) handleStop(w http.ResponseWriter, r *http.Request, p httpr
 	ctx := r.Context()
 	defer statsd.NewStatsDTiming(ctx).Send("PfssoHandler.handleStop")
 
-	var info map[string]string
-	json.NewDecoder(r.Body).Decode(&info)
-	timeout, err := strconv.ParseInt(info["timeout"], 10, 32)
-	if err != nil {
-		log.LoggerWContext(ctx).Warn(fmt.Sprintf("Can't parse timeout '%s' into an int (%s). Will not specify timeout for request.", info["timeout"], err))
-	}
+	info, _ := h.parseBody(ctx, r.Body)
 
 	for _, firewall := range firewallsso.Firewalls.Structs {
 		// Creating a local shallow copy to send to the go-routine
 		firewall := firewall
-		go func() {
-			if !firewallsso.ExecuteStop(ctx, firewall, info, int(timeout)) {
-				log.LoggerWContext(ctx).Error("Failed to send SSO stop to " + firewall.GetFirewallSSO(ctx).PfconfigHashNS)
-			} else {
-				log.LoggerWContext(ctx).Debug("Sent SSO start to " + firewall.GetFirewallSSO(ctx).PfconfigHashNS)
-			}
-		}()
+		h.spawnSso(ctx, firewall, func() bool {
+			return firewallsso.ExecuteStop(ctx, firewall, info)
+		})
 	}
 
 	w.WriteHeader(http.StatusAccepted)

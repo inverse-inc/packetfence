@@ -36,6 +36,7 @@ type FirewallSSO struct {
 	pfconfigdriver.TypedConfig
 	Networks     []*FirewallSSONetwork `json:"networks"`
 	CacheUpdates string                `json:"cache_updates"`
+	CacheTimeout string                `json:"cache_updates"`
 }
 
 // Builds all networks, meant to be called after the data is loaded into the struct attributes
@@ -171,7 +172,7 @@ func ExecuteStart(ctx context.Context, fw FirewallSSOInt, info map[string]string
 
 // Execute an SSO Stop request on the specified firewall
 // Makes sure to call FirewallSSO.Start and to validate the network if necessary
-func ExecuteStop(ctx context.Context, fw FirewallSSOInt, info map[string]string, timeout int) bool {
+func ExecuteStop(ctx context.Context, fw FirewallSSOInt, info map[string]string) bool {
 	ctx = log.AddToLogContext(ctx, "ip", info["ip"], "mac", info["mac"])
 
 	if !fw.MatchesNetwork(ctx, info) {
