@@ -15,12 +15,19 @@ type FirewallsContainer struct {
 }
 
 func (f *FirewallsContainer) Refresh(ctx context.Context) {
+	reload := false
+
 	f.ids.PfconfigNS = "config::Firewall_SSO"
+
+	// If ids changed, we want to reload
+	if !pfconfigdriver.IsValid(ctx, &f.ids) {
+		reload = true
+	}
+
 	pfconfigdriver.FetchDecodeSocketCache(ctx, &f.ids)
 
 	fssoFactory := NewFactory(ctx)
 
-	reload := false
 	if f.Structs != nil {
 		for _, firewallId := range f.ids.Keys {
 			firewall, ok := f.Structs[firewallId]
@@ -28,6 +35,7 @@ func (f *FirewallsContainer) Refresh(ctx context.Context) {
 			if !ok {
 				log.LoggerWContext(ctx).Info("A firewall was added. Will read the firewalls again.")
 				reload = true
+				break
 			}
 
 			if !pfconfigdriver.IsValid(ctx, firewall) {
