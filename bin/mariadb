@@ -21,10 +21,6 @@ my $logger = get_logger( $PROGRAM_NAME );
 
 our $RUNNING = 1;
 
-my (undef, undef,$uid,$gid) = getpwnam('mysql');
-setuid($uid);
-setgid($gid);
-
 our $MYSQLD_PID;
 our $IS_CHILD;
 
@@ -110,6 +106,10 @@ sub fork_launch_mysql {
         $SIG{CHLD} = "IGNORE";
         $MYSQLD_PID = $pid;
     } elsif ($pid == 0) {
+        my (undef, undef,$uid,$gid) = getpwnam('mysql');
+        setuid($uid);
+        setgid($gid);
+
         $SIG{CHLD} = "DEFAULT";
         $IS_CHILD = 1;
         $0 = "pf-mariadb - mysqld spawner";
@@ -189,7 +189,11 @@ Refer to the clustering guide for details on how this works.
 =cut
 
 sub attempt_start {
-    if(-f "/var/lib/mysql/gvwstate.dat") {
+    # Just start it without anything special if we're in standalone mode
+    if(!$cluster_enabled) {
+        fork_launch_mysql("standalone");
+    }
+    elsif(-f "/var/lib/mysql/gvwstate.dat") {
         # handle crash recovery
         $logger->info("There is a gvwstate. Will try to start.");
         fork_launch_mysql("gvwstate-available");
