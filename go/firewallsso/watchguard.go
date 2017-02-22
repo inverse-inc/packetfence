@@ -15,7 +15,7 @@ type WatchGuard struct {
 	Port     string `json:"port"`
 }
 
-func (fw *WatchGuard) Start(ctx context.Context, info map[string]string, timeout int) bool {
+func (fw *WatchGuard) Start(ctx context.Context, info map[string]string, timeout int) (bool, error) {
 	p := fw.startRadiusPacket(ctx, info, timeout)
 	client := fw.getRadiusClient(ctx)
 
@@ -26,9 +26,9 @@ func (fw *WatchGuard) Start(ctx context.Context, info map[string]string, timeout
 	_, err = client.Exchange(p, fw.PfconfigHashNS+":"+fw.Port)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Couldn't SSO to the WatchGuard, got the following error: %s", err))
-		return false
+		return false, err
 	} else {
-		return true
+		return true, nil
 	}
 }
 
@@ -44,7 +44,7 @@ func (fw *WatchGuard) startRadiusPacket(ctx context.Context, info map[string]str
 	return r
 }
 
-func (fw *WatchGuard) Stop(ctx context.Context, info map[string]string) bool {
+func (fw *WatchGuard) Stop(ctx context.Context, info map[string]string) (bool, error) {
 	p := fw.stopRadiusPacket(ctx, info)
 	client := fw.getRadiusClient(ctx)
 
@@ -55,9 +55,9 @@ func (fw *WatchGuard) Stop(ctx context.Context, info map[string]string) bool {
 	_, err = client.Exchange(p, fw.PfconfigHashNS+":"+fw.Port)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Couldn't SSO to the WatchGuard, got the following error: %s", err))
-		return false
+		return false, err
 	} else {
-		return true
+		return true, nil
 	}
 }
 

@@ -14,15 +14,15 @@ type FortiGate struct {
 	Port     string `json:"port"`
 }
 
-func (fw *FortiGate) Start(ctx context.Context, info map[string]string, timeout int) bool {
+func (fw *FortiGate) Start(ctx context.Context, info map[string]string, timeout int) (bool, error) {
 	p := fw.startRadiusPacket(ctx, info, timeout)
 	client := fw.getRadiusClient(ctx)
 	_, err := client.Exchange(p, fw.PfconfigHashNS+":"+fw.Port)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Couldn't SSO to the fortigate, got the following error: %s", err))
-		return false
+		return false, err
 	} else {
-		return true
+		return true, nil
 	}
 }
 
@@ -38,15 +38,15 @@ func (fw *FortiGate) startRadiusPacket(ctx context.Context, info map[string]stri
 	return r
 }
 
-func (fw *FortiGate) Stop(ctx context.Context, info map[string]string) bool {
+func (fw *FortiGate) Stop(ctx context.Context, info map[string]string) (bool, error) {
 	p := fw.stopRadiusPacket(ctx, info)
 	client := fw.getRadiusClient(ctx)
 	_, err := client.Exchange(p, fw.PfconfigHashNS+":"+fw.Port)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Couldn't SSO to the fortigate, got the following error: %s", err))
-		return false
+		return false, err
 	} else {
-		return true
+		return true, nil
 	}
 }
 

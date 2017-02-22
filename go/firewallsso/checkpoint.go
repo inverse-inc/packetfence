@@ -14,15 +14,15 @@ type Checkpoint struct {
 	Port     string `json:"port"`
 }
 
-func (fw *Checkpoint) Start(ctx context.Context, info map[string]string, timeout int) bool {
+func (fw *Checkpoint) Start(ctx context.Context, info map[string]string, timeout int) (bool, error) {
 	p := fw.startRadiusPacket(ctx, info, timeout)
 	client := fw.getRadiusClient(ctx)
 	_, err := client.Exchange(p, fw.PfconfigHashNS+":"+fw.Port)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Couldn't SSO to the Checkpoint, got the following error: %s", err))
-		return false
+		return false, err
 	} else {
-		return true
+		return true, nil
 	}
 }
 
@@ -39,7 +39,7 @@ func (fw *Checkpoint) startRadiusPacket(ctx context.Context, info map[string]str
 	return r
 }
 
-func (fw *Checkpoint) Stop(ctx context.Context, info map[string]string) bool {
+func (fw *Checkpoint) Stop(ctx context.Context, info map[string]string) (bool, error) {
 	log.LoggerWContext(ctx).Warn("SSO Stop is not available for this firewall")
-	return true
+	return false, nil
 }

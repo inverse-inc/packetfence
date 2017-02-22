@@ -32,30 +32,30 @@ func (fw *BarracudaNG) getSshSession(ctx context.Context) (*ssh.Session, error) 
 	return session, err
 }
 
-func (fw *BarracudaNG) Start(ctx context.Context, info map[string]string, timeout int) bool {
+func (fw *BarracudaNG) Start(ctx context.Context, info map[string]string, timeout int) (bool, error) {
 	session, err := fw.getSshSession(ctx)
 
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Cannot connect to BarracudaNG: %s", err))
-		return false
+		return false, err
 	}
 
 	cmd := "phibstest 127.0.0.1 l peer=" + info["ip"] + " origin=PacketFence service=PacketFence user=" + info["username"]
 	session.Run(cmd)
 
-	return true
+	return true, nil
 }
 
-func (fw *BarracudaNG) Stop(ctx context.Context, info map[string]string) bool {
+func (fw *BarracudaNG) Stop(ctx context.Context, info map[string]string) (bool, error) {
 	session, err := fw.getSshSession(ctx)
 
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Cannot connect to BarracudaNG: %s", err))
-		return false
+		return false, err
 	}
 
 	cmd := "phibstest 127.0.0.1 o peer=" + info["ip"] + " origin=PacketFence service=PacketFence user=" + info["username"]
 	session.Run(cmd)
 
-	return true
+	return true, nil
 }

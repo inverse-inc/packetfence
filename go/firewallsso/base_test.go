@@ -35,19 +35,19 @@ func TestStart(t *testing.T) {
 	}
 	mockfw.init(ctx)
 
-	result := ExecuteStart(ctx, mockfw, map[string]string{"ip": "172.20.0.1", "role": "default", "mac": "00:11:22:33:44:55", "username": "lzammit"}, 0)
+	result, _ := ExecuteStart(ctx, mockfw, map[string]string{"ip": "172.20.0.1", "role": "default", "mac": "00:11:22:33:44:55", "username": "lzammit"}, 0)
 	if !result {
 		t.Error("SSO didn't succeed with valid parameters")
 	}
 
 	// invalid role, invalid IP
-	result = ExecuteStart(ctx, mockfw, map[string]string{"ip": "1.2.3.4", "role": "no-sso-on-that", "mac": "00:11:22:33:44:55", "username": "lzammit"}, 0)
+	result, _ = ExecuteStart(ctx, mockfw, map[string]string{"ip": "1.2.3.4", "role": "no-sso-on-that", "mac": "00:11:22:33:44:55", "username": "lzammit"}, 0)
 	if result {
 		t.Error("SSO succeeded with invalid parameters")
 	}
 
 	// valid role, invalid IP
-	result = ExecuteStart(ctx, mockfw, map[string]string{"ip": "1.2.3.4", "role": "default", "mac": "00:11:22:33:44:55", "username": "lzammit"}, 0)
+	result, _ = ExecuteStart(ctx, mockfw, map[string]string{"ip": "1.2.3.4", "role": "default", "mac": "00:11:22:33:44:55", "username": "lzammit"}, 0)
 	if result {
 		t.Error("SSO succeeded with invalid parameters")
 	}
@@ -62,14 +62,14 @@ func TestStart(t *testing.T) {
 	}
 	mockfw.init(ctx)
 
-	result = ExecuteStart(ctx, mockfw, map[string]string{"ip": "172.20.0.1", "role": "gaming", "mac": "00:11:22:33:44:55", "username": "lzammit"}, 0)
+	result, _ = ExecuteStart(ctx, mockfw, map[string]string{"ip": "172.20.0.1", "role": "gaming", "mac": "00:11:22:33:44:55", "username": "lzammit"}, 0)
 
 	if !result {
 		t.Error("SSO failed with valid parameters")
 	}
 
 	// invalid role, IP doesn't matter
-	result = ExecuteStart(ctx, mockfw, map[string]string{"ip": "1.2.3.4", "role": "no-sso-on-that", "mac": "00:11:22:33:44:55", "username": "lzammit"}, 0)
+	result, _ = ExecuteStart(ctx, mockfw, map[string]string{"ip": "1.2.3.4", "role": "no-sso-on-that", "mac": "00:11:22:33:44:55", "username": "lzammit"}, 0)
 
 	if result {
 		t.Error("SSO succeeded with invalid parameters")
@@ -96,14 +96,14 @@ func TestStop(t *testing.T) {
 	mockfw.init(ctx)
 
 	// invalid role, invalid IP, so shouldn't do it
-	result := ExecuteStop(ctx, mockfw, map[string]string{"ip": "1.2.3.4", "role": "no-sso-on-that", "mac": "00:11:22:33:44:55", "username": "lzammit"})
+	result, _ := ExecuteStop(ctx, mockfw, map[string]string{"ip": "1.2.3.4", "role": "no-sso-on-that", "mac": "00:11:22:33:44:55", "username": "lzammit"})
 
 	if result {
 		t.Error("SSO succeeded with invalid parameters")
 	}
 
 	// invalid role, valid IP, so should do it because role doesn't matter in stop
-	result = ExecuteStop(ctx, mockfw, map[string]string{"ip": "172.20.0.1", "role": "no-sso-on-that", "mac": "00:11:22:33:44:55", "username": "lzammit"})
+	result, _ = ExecuteStop(ctx, mockfw, map[string]string{"ip": "172.20.0.1", "role": "no-sso-on-that", "mac": "00:11:22:33:44:55", "username": "lzammit"})
 
 	if !result {
 		t.Error("SSO failed with invalid parameters")
