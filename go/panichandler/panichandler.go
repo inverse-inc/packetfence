@@ -9,10 +9,12 @@ import (
 	"runtime/debug"
 )
 
+const httpErrorMsg = "An internal error has occured, please check server side logs for details."
+
 func Http(ctx context.Context, w http.ResponseWriter) {
 	if r := recover(); r != nil {
 		outputPanic(ctx, r)
-		http.Error(w, "An internal error has occured, please check server side logs for details.", http.StatusInternalServerError)
+		http.Error(w, httpErrorMsg, http.StatusInternalServerError)
 	}
 }
 
