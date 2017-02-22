@@ -39,6 +39,7 @@ has_field 'port' =>
   (
    type => 'PosInteger',
    label => 'Port of the service',
+   default => 1813,
    tags => { after_element => \&help,
              help => 'If you use an alternative port, please specify' },
   );

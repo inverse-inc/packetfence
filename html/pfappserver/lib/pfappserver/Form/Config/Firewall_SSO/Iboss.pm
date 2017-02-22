@@ -30,11 +30,12 @@ has_field 'id' =>
   );
 has_field 'password' =>
   (
-   type => 'Password',
+   type => 'Text',
    label => 'Secret or Key',
    required => 1,
    default => 'XS832CF2A',
-   messages => { required => 'Change the default key if you have it' },
+   tags => { after_element => \&help,
+             help => 'Change the default key if necessary' },
   );
 has_field 'port' =>
   (
