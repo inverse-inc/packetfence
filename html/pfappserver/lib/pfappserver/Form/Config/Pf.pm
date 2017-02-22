@@ -219,8 +219,15 @@ sub field_list {
     return $list;
 }
 
+
+=head2 get_sms_source_ids
+
+get_sms_source_ids
+
+=cut
+
 sub get_sms_source_ids {
-    return map { $_->id } grep { $_->isa("pf::Authentication::Source::SMSSource") || $_->isa("pf::Authentication::Source::TwilioSource") } @{getAllAuthenticationSources()};
+    return map { $_->id } grep { $_->can("sendSMS") } @{getAllAuthenticationSources()};
 }
 
 #sub validate {
