@@ -68,13 +68,6 @@ has_field 'categories' =>
              help => 'Nodes with the selected roles will be affected' },
   );
 
-has_field 'uid' =>
-  (
-   type => 'Select',
-   label => 'UID type',
-   options_method => \&uid_type,
-  );
-
 has_block definition =>
   (
    render_list => [ qw(id type transport port password categories networks cache_updates cache_timeout) ],
@@ -84,16 +77,6 @@ has_block definition =>
 =head2 Methods
 
 =cut
-
-=head2 uid_type
-
-What UID we have to send to the Firewall , uid or 802.1x username
-
-=cut
-
-sub uid_type {
-    return ( { label => "PID", value => "pid" } , { label => "802.1x Username", value => "802.1x" } );
-}
 
 =head2 options_categories
 
