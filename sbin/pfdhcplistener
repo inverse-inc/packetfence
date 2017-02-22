@@ -20,7 +20,8 @@ use File::Basename qw(basename);
 use Getopt::Std;
 use Net::Pcap 0.16;
 use Pod::Usage;
-use POSIX qw(:signal_h);
+use POSIX qw(:signal_h pause :sys_wait_h SIG_BLOCK SIG_UNBLOCK);
+use Fcntl qw(:flock);
 
 BEGIN {
     # log4perl init
@@ -42,14 +43,14 @@ use pf::config qw(
     %ConfigNetworks
     @inline_enforcement_nets
 );
+use pf::file_paths qw($var_dir);
 use pf::util;
 use pf::config::util;
 use pf::services::util;
 use pf::util::dhcp;
 use pf::StatsD;
-use List::MoreUtils qw(any);
+use List::MoreUtils qw(any uniq);
 use NetAddr::IP;
-use pf::SwitchFactory;
 use MIME::Base64();
 use NetPacket::Ethernet qw(ETH_TYPE_IP ETH_TYPE_IPv6);
 use NetPacket::IP;
@@ -57,46 +58,35 @@ use NetPacket::IPv6;
 use NetPacket::UDP;
 use pf::CHI::Request;
 
-
-pf::SwitchFactory->preloadConfiguredModules();
-
 # initialization
 # --------------
 # assign process name (see #1464)
-our $PROGRAM_NAME = "pfdhcplistener";
+our @REGISTERED_TASKS;
+our $IS_CHILD = 0;
+our $PARENT_PID;
+our %CHILDREN;
+our @TASKS_RUN;
+our $ALARM_RECV = 0;
+our $running = 1;
+
+$SIG{HUP}  = \&reload_config;
+$SIG{INT}  = \&normal_sighandler;
+$SIG{TERM} = \&normal_sighandler;
+$SIG{CHLD} = \&child_sighandler;
+$SIG{ALRM} = \&alarm_sighandler;
+
+$SIG{PIPE} = 'IGNORE';
+
+my %args;
+getopts( 'dh', \%args );
+
+my $daemonize = $args{d};
+
+pod2usage( -verbose => 1 ) if ( $args{h} );
+our $PROGRAM_NAME = $0 = "pfdhcplistener";
 
 my $logger = get_logger( $PROGRAM_NAME );
 
-# init signal handlers
-POSIX::sigaction(
-    &POSIX::SIGHUP,
-    POSIX::SigAction->new(
-        'reload_config', POSIX::SigSet->new(), &POSIX::SA_NODEFER
-    )
-) or $logger->logdie("pfdhcplistener: could not set SIGHUP handler: $!");
-
-POSIX::sigaction(
-    &POSIX::SIGTERM,
-    POSIX::SigAction->new(
-        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
-    )
-) or $logger->logdie("pfdhcplistener: could not set SIGTERM handler: $!");
-
-POSIX::sigaction(
-    &POSIX::SIGINT,
-    POSIX::SigAction->new(
-        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
-    )
-) or $logger->logdie("pfdhcplistener: could not set SIGINT handler: $!");
-
-
-my %args;
-getopts( 'dhi:', \%args );
-
-my $daemonize = $args{d};
-my $interface = $args{i};
-
-pod2usage( -verbose => 1 ) if ( $args{h} || !$args{i} );
 
 my $is_inline_vlan;
 my $inline_sub_connection_type;
@@ -105,6 +95,7 @@ my $interface_vlan;
 my $pcap;
 my $net_type;
 my $process;
+my $interface;
 
 my $rate_limit_hash = {};
 my $rate_limit_cache = CHI->new( driver => 'Memory', datastore => $rate_limit_hash );
@@ -126,38 +117,33 @@ sub reload_config {
     $logger->info("Reload configuration on $interface with status $process");
 }
 
-$PROGRAM_NAME = $0 = "${PROGRAM_NAME}_${interface}";
+my $pidfile = "${var_dir}/run/$PROGRAM_NAME.pid";
+
+our $HAS_LOCK = 0;
+open(my $fh, ">>$pidfile");
+flock($fh, LOCK_EX | LOCK_NB) or die "cannot lock $pidfile another pfdhcplistener is running\n";
+$HAS_LOCK = 1;
+
 
 # standard signals and daemonize
 daemonize($PROGRAM_NAME) if ($daemonize);
 
-my $net_addr = NetAddr::IP->new($Config{"interface $interface"}{'ip'},$Config{"interface $interface"}{'mask'});
+$PARENT_PID = $$;
+
+my $net_addr;
 
 # start dhcp monitor
 if ( isenabled( $Config{'network'}{'dhcpdetector'} ) ) {
-    if (any { $_ eq $interface } @listen_ints, @dhcplistener_ints ) {
-        $net_type = $Config{"interface $interface"}{'type'};
-        $interface_ip = $Config{"interface $interface"}{'ip'};
-        $interface_vlan = get_vlan_from_int($interface) || $NO_VLAN;
-
-        if (grep( { $_->tag("int") eq $interface} @inline_enforcement_nets) != 0 ) {
-            $logger->warn("DHCP detector on an inline interface");
-            $is_inline_vlan = $TRUE;
-        }
-        $logger->info("DHCP detector on $interface enabled");
-        reload_config();
-        dhcp_detector();
-    }
-    $logger->warn(
-        "pfdhcplistener for $interface finished - this is bad. " .
-        "Are you sure the interface you are trying to run the listener on is configured in packetfence to do so?"
-    );
+    start();
+    cleanup();
 }
 
 END {
-    if ( defined($interface) ) {
-        deletepid($PROGRAM_NAME);
-        $logger->info("stopping pfdhcplistener for interface $interface");
+    if (!$args{h} && $HAS_LOCK) {
+        unless ($IS_CHILD) {
+            deletepid();
+            $logger->info("stopping pfdhcplistener");
+        }
     }
 }
 
@@ -169,7 +155,44 @@ exit(0);
 
 =cut
 
+=head2 setup_global
+
+setup_global
+
+=cut
+
+sub setup_global {
+    my ($int) = @_;
+    $interface = $int;
+    $net_type = $Config{"interface $interface"}{'type'};
+    $interface_ip = $Config{"interface $interface"}{'ip'};
+    $interface_vlan = get_vlan_from_int($interface) || $NO_VLAN;
+    $net_addr = NetAddr::IP->new($Config{"interface $interface"}{'ip'},$Config{"interface $interface"}{'mask'});
+
+    if (grep( { $_->tag("int") eq $interface} @inline_enforcement_nets) != 0 ) {
+        $logger->warn("DHCP detector on an inline interface");
+        $is_inline_vlan = $TRUE;
+    }
+    $logger->info("DHCP detector on $interface enabled");
+    return ;
+}
+
+
 sub dhcp_detector {
+    my ($interface) = @_;
+    my $result = Net::Pcap::loop( $pcap, -1, \&process_pkt, [ $interface , $pcap ] );
+    $logger->logdie(Net::Pcap::pcap_geterr($pcap)) if ($result == -1);
+}
+
+
+=head2 _pcap
+
+setup_pcap
+
+=cut
+
+sub setup_pcap {
+    my ($interface) = @_;
     my $filter = make_pcap_filter(@{$Config{network}{dhcp_filter_by_message_types}});
     my $filter_t;
     my $net;
@@ -180,7 +203,7 @@ sub dhcp_detector {
     # updating process name so we know what interface we are listening on
     # WARNING: the format is expected by watchdog in pf::services. Don't change lightly.
     $PROGRAM_NAME = basename($PROGRAM_NAME) . ": listening on $interface";
-    $pcap = Net::Pcap::pcap_open_live( $interface, $Config{advanced}{pfdhcplistener_packet_size}, 1, 0, \$err );
+    $pcap = Net::Pcap::pcap_open_live( $interface, $Config{advanced}{pfdhcplistener_packet_size}, 1, 10 * 1000, \$err );
 
     if (!defined($pcap)) {
         $logger->logdie("Unable to initiate packet capture. Is $interface an actual network interface?");
@@ -192,9 +215,9 @@ sub dhcp_detector {
     }
 
     Net::Pcap::setfilter( $pcap, $filter_t );
-    my $result = Net::Pcap::loop( $pcap, -1, \&process_pkt, [ $interface , $pcap ] );
-    $logger->logdie(Net::Pcap::pcap_geterr($pcap)) if ($result == -1);
+    return $pcap;
 }
+
 
 sub process_pkt {
     my ( $user_data, $hdr, $pkt ) = @_;
@@ -343,9 +366,213 @@ sub process_pkt {
 }
 
 sub normal_sighandler {
-    Net::Pcap::pcap_breakloop($pcap);
+    $running = 0;
+    if ($pcap) {
+        Net::Pcap::pcap_breakloop($pcap);
+    }
     $logger->trace( "pfdhcplistener: caught SIG" . $_[0] . " - terminating" );
 }
+
+=head2 runtasks
+
+run all runtasks
+
+=cut
+
+sub runtasks {
+    my $mask = POSIX::SigSet->new(POSIX::SIGCHLD());
+    sigprocmask(SIG_BLOCK, $mask);
+    while (@REGISTERED_TASKS) {
+        my $task = shift @REGISTERED_TASKS;
+        runtask($task);
+    }
+    sigprocmask(SIG_UNBLOCK, $mask);
+}
+
+=head2 runtask
+
+creates a new child to run a task
+
+=cut
+
+sub runtask {
+    my ($task) = @_;
+    my $pid = fork();
+    if ($pid) {
+        $CHILDREN{$pid} = $task;
+    }
+    elsif ($pid == 0) {
+        $SIG{CHLD} = 'DEFAULT';
+        $IS_CHILD = 1;
+        Log::Log4perl::MDC->put('tid', $$);
+        setup_global($task);
+        reload_config();
+        _runtask($interface);
+    }
+    else {
+    }
+}
+
+=head2 _runtask
+
+the task to is ran in a loop until it is finished
+
+=cut
+
+sub _runtask {
+    my ($interface) = @_;
+    $0 = "$0 - $interface";
+    setup_pcap($interface);
+    while (is_running()) {
+        my $result = Net::Pcap::dispatch( $pcap, -1, \&process_pkt, [ $interface , $pcap ] );
+        $logger->logdie(Net::Pcap::pcap_geterr($pcap)) if ($result == -1);
+    }
+    exit;
+}
+
+=head2 is_running
+
+is_running
+
+=cut
+
+sub is_running {
+    return $running && is_parent_alive();
+}
+
+=head2 is_parent_alive
+
+Checks to see if parent is alive
+
+=cut
+
+sub is_parent_alive {
+    kill(0, $PARENT_PID);
+}
+
+=head2 register_task
+
+registers the task to run
+
+=cut
+
+sub register_task {
+    my ($taskId) = @_;
+    push @REGISTERED_TASKS, $taskId;
+
+}
+
+=head2 waitforit
+
+waits for signals
+
+=cut
+
+sub waitforit {
+    while ($running) {
+        pause;
+        runtasks();
+    }
+}
+
+=head2 alarm_sighandler
+
+the alarm signal handler
+
+=cut
+
+sub alarm_sighandler {
+    $ALARM_RECV = 1;
+}
+
+=head2 child_sighandler
+
+reaps the children
+
+=cut
+
+sub child_sighandler {
+    local ($!, $?);
+    while (1) {
+        my $child = waitpid(-1, WNOHANG);
+        last unless $child > 0;
+        my $task = delete $CHILDREN{$child};
+        register_task($task);
+    }
+}
+
+=head2 registertasks
+
+    Register all tasks
+
+=cut
+
+sub registertasks {
+    for my $task (get_tasks()) {
+        register_task($task);
+    }
+}
+
+=head2 get_tasks
+
+get_tasks
+
+=cut
+
+sub get_tasks {
+    return uniq ( @listen_ints, @dhcplistener_ints);
+}
+
+=head2 start
+
+start
+
+=cut
+
+sub start {
+    registertasks();
+    runtasks();
+    waitforit();
+}
+
+=head2 cleanup
+
+cleans after children
+
+=cut
+
+sub cleanup {
+    kill_and_wait_for_children('INT',  30);
+    signal_children('KILL');
+}
+
+=head2 kill_and_wait_for_children
+
+signal children and waits for them to exit process
+
+=cut
+
+sub kill_and_wait_for_children {
+    my ($signal, $waittime) = @_;
+    signal_children($signal);
+    $ALARM_RECV = 0;
+    alarm $waittime;
+    while (((keys %CHILDREN) != 0) && !$ALARM_RECV) {
+        pause;
+    }
+}
+
+=head2 signal_children
+
+sends a signal to all active children
+
+=cut
+
+sub signal_children {
+    my ($signal) = @_;
+    kill($signal, keys %CHILDREN);
+}
+
 
 =back
 
