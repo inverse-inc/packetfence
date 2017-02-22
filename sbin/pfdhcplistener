@@ -178,14 +178,8 @@ sub setup_global {
 }
 
 
-sub dhcp_detector {
-    my ($interface) = @_;
-    my $result = Net::Pcap::loop( $pcap, -1, \&process_pkt, [ $interface , $pcap ] );
-    $logger->logdie(Net::Pcap::pcap_geterr($pcap)) if ($result == -1);
-}
 
-
-=head2 _pcap
+=head2 setup_pcap
 
 setup_pcap
 
