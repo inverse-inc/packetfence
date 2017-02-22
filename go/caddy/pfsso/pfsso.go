@@ -9,12 +9,12 @@ import (
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
 	"github.com/inverse-inc/packetfence/go/firewallsso"
+	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/julienschmidt/httprouter"
 	"github.com/patrickmn/go-cache"
 	"io"
 	"net/http"
-	"runtime/debug"
 	"strconv"
 	"time"
 )
@@ -39,6 +39,7 @@ func (h PfssoHandler) parseBody(ctx context.Context, body io.Reader) (map[string
 
 func (h PfssoHandler) spawnSso(ctx context.Context, firewall firewallsso.FirewallSSOInt, f func() bool) {
 	go func() {
+		defer panichandler.Standard(ctx)
 		if !f() {
 			log.LoggerWContext(ctx).Error("Failed to send SSO to " + firewall.GetFirewallSSO(ctx).PfconfigHashNS)
 		} else {
@@ -171,21 +172,15 @@ type PfssoHandler struct {
 func (h PfssoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 	ctx := r.Context()
 
-	defer func() {
-		if r := recover(); r != nil {
-			msg := fmt.Sprintf("Recovered panic: %s.", r)
-			log.LoggerWContext(ctx).Error(msg)
-			fmt.Println(msg)
-			debug.PrintStack()
-			http.Error(w, "An internal error has occured, please check server side logs for details.", http.StatusInternalServerError)
-		}
-	}()
+	defer panichandler.Http(ctx, w)
 
 	if handle, params, _ := h.router.Lookup(r.Method, r.URL.Path); handle != nil {
 		handle(w, r, params)
+
 		// TODO change me and wrap actions into something that handles server errors
 		return 0, nil
 	} else {
 		return h.Next.ServeHTTP(w, r)
 	}
+
 }
