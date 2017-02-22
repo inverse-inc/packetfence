@@ -8,8 +8,6 @@ Conflicts=mysql.service mariadb.service
 
 [Service]
 Type=simple
-User=mysql
-Group=mysql
 Slice=packetfence-base.slice
 
 ExecStartPre=/usr/local/pf/bin/pfcmd generatemariadbconfig
