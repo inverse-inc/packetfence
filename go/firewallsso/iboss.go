@@ -18,7 +18,7 @@ type Iboss struct {
 
 func (fw *Iboss) Start(ctx context.Context, info map[string]string, timeout int) bool {
 	req := fw.getRequest(ctx, "login", info)
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := fw.getHttpClient(ctx).Do(req)
 
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error contacting Iboss: %s", err))
@@ -33,7 +33,7 @@ func (fw *Iboss) Start(ctx context.Context, info map[string]string, timeout int)
 
 func (fw *Iboss) Stop(ctx context.Context, info map[string]string) bool {
 	req := fw.getRequest(ctx, "logout", info)
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := fw.getHttpClient(ctx).Do(req)
 
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error contacting Iboss: %s", err))

@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/fingerbank/processor/log"
-	"net/http"
 	"net/url"
 	"text/template"
 )
@@ -29,8 +28,7 @@ func (fw *PaloAlto) Start(ctx context.Context, info map[string]string, timeout i
 }
 
 func (fw *PaloAlto) startHttp(ctx context.Context, info map[string]string, timeout int) bool {
-	//TODO: change back to https when done testing
-	resp, err := http.PostForm("http://"+fw.PfconfigHashNS+":"+fw.Port+"/api/?type=user-id&action=set&key="+fw.Password,
+	resp, err := fw.getHttpClient(ctx).PostForm("https://"+fw.PfconfigHashNS+":"+fw.Port+"/api/?type=user-id&action=set&key="+fw.Password,
 		url.Values{"cmd": {fw.startHttpPayload(ctx, info, timeout)}})
 
 	if err != nil {
@@ -96,7 +94,7 @@ func (fw *PaloAlto) stopHttpPayload(ctx context.Context, info map[string]string)
 func (fw *PaloAlto) stopHttp(ctx context.Context, info map[string]string) bool {
 	//TODO: change back to https when done testing
 	//TODO: Ignore cert checks
-	resp, err := http.PostForm("http://"+fw.PfconfigHashNS+":"+fw.Port+"/api/?type=user-id&action=set&key="+fw.Password,
+	resp, err := fw.getHttpClient(ctx).PostForm("https://"+fw.PfconfigHashNS+":"+fw.Port+"/api/?type=user-id&action=set&key="+fw.Password,
 		url.Values{"cmd": {fw.stopHttpPayload(ctx, info)}})
 
 	if err != nil {

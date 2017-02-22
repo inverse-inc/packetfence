@@ -2,12 +2,14 @@ package firewallsso
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"github.com/fingerbank/processor/log"
 	"github.com/fingerbank/processor/sharedutils"
 	log15 "github.com/inconshreveable/log15"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"net"
+	"net/http"
 	"strconv"
 	"time"
 )
@@ -117,6 +119,14 @@ func (fw *FirewallSSO) getSourceIp(ctx context.Context) net.IP {
 	} else {
 		return net.ParseIP(managementNetwork.Ip)
 	}
+}
+
+func (fw *FirewallSSO) getHttpClient(ctx context.Context) *http.Client {
+	// We don't check the TLS certificate if applicable
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	return &http.Client{Transport: transport}
 }
 
 // Check if info["ip"] is part of the configured networks if any
