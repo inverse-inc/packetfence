@@ -19,8 +19,6 @@ use IO::Socket::UNIX;
 use JSON::MaybeXS;
 use pf::log;
 
-our $JSON = JSON::MaybeXS->new;
-
 =head2 new
 
 Constructor for pf::pffilter::client
@@ -104,14 +102,12 @@ sub send_request {
         params => $params
     );
     my $bytes = encode_json(\%request);
-#    my $bytes = $JSON->encode(\%request);
     print $socket $bytes . "\n";
     $bytes = <$socket>;
     if (!defined $bytes) {
         die "Error ";
     }
     if ($bytes) {
-#        my $response = $JSON->decode($bytes);
         my $response = decode_json($bytes);
         if ($response->{error}) {
             die $response->{error}->{message}
