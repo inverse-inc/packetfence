@@ -56,6 +56,11 @@ func (h PfssoHandler) handleUpdate(w http.ResponseWriter, r *http.Request, p htt
 	var shouldStart bool
 	for _, firewall := range firewallsso.Firewalls.Structs {
 		cacheKey := firewall.GetFirewallSSO(ctx).PfconfigHashNS + ":" + info["ip"]
+		// Check whether or not this firewall has cache updates
+		// Then check if an entry in the cache exists
+		//  If it does exist, we don't send a Start
+		//  Otherwise, we add an entry in the cache
+		// Note that this has a race condition between the cache.Get and the cache.Set but it is acceptable since worst case will be that 2 SSO will be sent if both requests came in at that same nanosecond
 		if firewall.ShouldCacheUpdates(ctx) {
 			if _, found := h.updateCache.Get(cacheKey); !found {
 
