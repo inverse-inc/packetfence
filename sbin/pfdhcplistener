@@ -403,8 +403,6 @@ sub runtask {
         reload_config();
         _runtask($interface);
     }
-    else {
-    }
 }
 
 =head2 _runtask
