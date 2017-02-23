@@ -39,7 +39,8 @@ __PACKAGE__->config(
     },
     action_args => {
         '*' => { model => 'User'},
-        advanced_search => { model => 'Search::User', form => 'AdvancedSearch' },
+        advanced_search => { model => 'Search::User', form => 'UserSearch' },
+        simple_search => { model => 'Search::User', form => 'UserSearch' },
     },
 );
 
@@ -49,7 +50,7 @@ __PACKAGE__->config(
 
 =cut
 
-sub index :Path :Args(0) :AdminRole('USERS_READ') {
+sub index :Path :Args(0) :AdminRoleAny(USERS_READ) :AdminRoleAny(USERS_READ_SPONSORED) {
     my ( $self, $c ) = @_;
 
     $c->go('simple_search');
@@ -59,30 +60,11 @@ sub index :Path :Args(0) :AdminRole('USERS_READ') {
 
 =cut
 
-sub simple_search :Local :Args() :AdminRole('USERS_READ') {
+sub simple_search :Local :Args() :AdminRoleAny(USERS_READ): AdminRoleAny(USERS_READ_SPONSORED) {
     my ( $self, $c ) = @_;
-    $c->stash($c->request->params);
-    $self->_list_items( $c, 'User' );
-    if($c->request->param('export')) { 
-        $c->stash->{current_view} = "CSV";
-    }
+    $c->forward('advanced_search');
 }
 
-=head2 after _list_items
-
-The method _list_items comes from pfappserver::Base::Controller and is called from Base::Action::SimpleSearch.
-
-=cut
-
-after _list_items => sub {
-    my ( $self, $c ) = @_;
-    my ( $status, $roles, $violations );
-    ( $status, $roles ) = $c->model('Roles')->list();
-    $c->stash( roles => $roles );
-    ( $status, $violations ) = $c->model('Config::Violations')->readAll();
-    $c->stash( violations => $violations );
-
-};
 
 =head2 object
 
@@ -112,7 +94,7 @@ sub object :Chained('/') :PathPart('user') :CaptureArgs(1) {
 
 =cut
 
-sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('USERS_READ') {
+sub view :Chained('object') :PathPart('read') :Args(0) :AdminRoleAny(USERS_READ) :AdminRoleAny(USERS_READ_SPONSORED) {
     my ($self, $c) = @_;
 
     my ($form);
@@ -375,7 +357,7 @@ Perform advanced search for user
 
 =cut
 
-sub advanced_search :Local :Args() :AdminRole('USERS_READ') {
+sub advanced_search :Local :Args() :AdminRoleAny(USERS_READ) :AdminRoleAny(USERS_READ_SPONSORED) {
     my ($self, $c, @args) = @_;
     my ($status, $status_msg, $result);
     my %search_results;
@@ -389,7 +371,7 @@ sub advanced_search :Local :Args() :AdminRole('USERS_READ') {
     }
     else {
         my $query = $form->value;
-        ($status, $result) = $model->search($query);
+        ($status, $result) = $model->search($c, $query);
         if (is_success($status)) {
             $c->stash(form => $form);
             $c->stash($result);

@@ -88,6 +88,8 @@ our (
     $captiveportal_templates_path,
     $captiveportal_profile_templates_path,
     $captiveportal_default_profile_templates_path,
+    $maintenance_file,
+    $pffilter_socket_path
 );
 
 BEGIN {
@@ -150,6 +152,8 @@ BEGIN {
         $captiveportal_templates_path
         $captiveportal_profile_templates_path
         $captiveportal_default_profile_templates_path
+        $maintenance_file
+        $pffilter_socket_path
     );
 }
 
@@ -273,11 +277,13 @@ $captiveportal_default_profile_templates_path = catdir ($captiveportal_profile_t
     $dns_filters_config_file,
 );
 
+$pffilter_socket_path = catfile($var_dir, "run/pffilter.sock");
 
 $cache_control_file = catfile($var_dir, "cache_control");
 
 $config_version_file = catfile($var_dir, "config_version");
 
+$maintenance_file = catfile($var_dir,"maintenance-mode");
 
 =head1 AUTHOR
 

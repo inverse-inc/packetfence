@@ -436,25 +436,58 @@ done
 %install
 %{__rm} -rf $RPM_BUILD_ROOT
 # systemd targets
-%{__install} -D -m0311 conf/systemd/packetfence.target $RPM_BUILD_ROOT/etc/systemd/system/packetfence.target
-%{__install} -D -m0311 conf/systemd/packetfence-base.target $RPM_BUILD_ROOT/etc/systemd/system/packetfence-base.target
-%{__install} -D -m0311 conf/systemd/packetfence-cluster.target $RPM_BUILD_ROOT/etc/systemd/system/packetfence-cluster.target
+%{__install} -D -m0644 conf/systemd/packetfence.target $RPM_BUILD_ROOT/etc/systemd/system/packetfence.target
+%{__install} -D -m0644 conf/systemd/packetfence-base.target $RPM_BUILD_ROOT/etc/systemd/system/packetfence-base.target
+%{__install} -D -m0644 conf/systemd/packetfence-cluster.target $RPM_BUILD_ROOT/etc/systemd/system/packetfence-cluster.target
 %{__install} -d $RPM_BUILD_ROOT/etc/systemd/system/packetfence-base.target.wants
 %{__install} -d $RPM_BUILD_ROOT/etc/systemd/system/packetfence.target.wants
 %{__install} -d $RPM_BUILD_ROOT/etc/systemd/system/packetfence-cluster.target.wants
 # systemd slices
-%{__install} -D -m0311 conf/systemd/packetfence.slice $RPM_BUILD_ROOT/etc/systemd/system/packetfence.slice
-%{__install} -D -m0311 conf/systemd/packetfence-base.slice $RPM_BUILD_ROOT/etc/systemd/system/packetfence-base.slice
+%{__install} -D -m0644 conf/systemd/packetfence.slice $RPM_BUILD_ROOT/etc/systemd/system/packetfence.slice
+%{__install} -D -m0644 conf/systemd/packetfence-base.slice $RPM_BUILD_ROOT/etc/systemd/system/packetfence-base.slice
 # systemd services
-%{__install} -D -m0311 conf/systemd/packetfence-mariadb.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-mariadb.service
-%{__install} -D -m0311 conf/systemd/packetfence-redis-cache.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-redis-cache.service
-%{__install} -D -m0311 conf/systemd/packetfence-config.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-config.service
-%{__install} -D -m0311 conf/systemd/packetfence-iptables.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-iptables.service
-%{__install} -D -m0311 conf/systemd/packetfence-routes.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-routes.service
+%{__install} -D -m0644 conf/systemd/packetfence-carbon-cache.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-carbon-cache.service
+%{__install} -D -m0644 conf/systemd/packetfence-carbon-relay.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-carbon-relay.service
+%{__install} -D -m0644 conf/systemd/packetfence-collectd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-collectd.service
+%{__install} -D -m0644 conf/systemd/packetfence-config.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-config.service
+%{__install} -D -m0644 conf/systemd/packetfence-dhcpd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-dhcpd.service
+%{__install} -D -m0644 conf/systemd/packetfence-haproxy.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-haproxy.service
+%{__install} -D -m0644 conf/systemd/packetfence-httpd.aaa.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.aaa.service
+%{__install} -D -m0644 conf/systemd/packetfence-httpd.admin.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.admin.service
+%{__install} -D -m0644 conf/systemd/packetfence-httpd.collector.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.collector.service
+%{__install} -D -m0644 conf/systemd/packetfence-httpd.graphite.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.graphite.service
+%{__install} -D -m0644 conf/systemd/packetfence-httpd.parking.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.parking.service
+%{__install} -D -m0644 conf/systemd/packetfence-httpd.portal.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.portal.service
+%{__install} -D -m0644 conf/systemd/packetfence-httpd.proxy.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.proxy.service
+%{__install} -D -m0644 conf/systemd/packetfence-httpd.webservices.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.webservices.service
+%{__install} -D -m0644 conf/systemd/packetfence-iptables.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-iptables.service
+%{__install} -D -m0644 conf/systemd/packetfence-keepalived.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-keepalived.service
+%{__install} -D -m0644 conf/systemd/packetfence-mariadb.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-mariadb.service
+%{__install} -D -m0644 conf/systemd/packetfence-p0f.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-p0f.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfbandwidthd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfbandwidthd.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfdetect.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfdetect.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfdhcplistener.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfdhcplistener.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfdns.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfdns.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfmon.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfmon.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfqueue.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfqueue.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfsetvlan.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfsetvlan.service
+%{__install} -D -m0644 conf/systemd/packetfence-radiusd-acct.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-radiusd-acct.service
+%{__install} -D -m0644 conf/systemd/packetfence-radiusd-auth.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-radiusd-auth.service
+%{__install} -D -m0644 conf/systemd/packetfence-radiusd-cli.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-radiusd-cli.service
+%{__install} -D -m0644 conf/systemd/packetfence-radiusd-eduroam.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-radiusd-eduroam.service
+%{__install} -D -m0644 conf/systemd/packetfence-radiusd-load_balancer.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-radiusd-load_balancer.service
+%{__install} -D -m0644 conf/systemd/packetfence-radsniff.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-radsniff.service
+%{__install} -D -m0644 conf/systemd/packetfence-redis-cache.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-redis-cache.service
+%{__install} -D -m0644 conf/systemd/packetfence-redis_ntlm_cache.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-redis_ntlm_cache.service
+%{__install} -D -m0644 conf/systemd/packetfence-redis_queue.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-redis_queue.service
+%{__install} -D -m0644 conf/systemd/packetfence-routes.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-routes.service
+%{__install} -D -m0644 conf/systemd/packetfence-snmptrapd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-snmptrapd.service
+%{__install} -D -m0644 conf/systemd/packetfence-statsd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-statsd.service
+%{__install} -D -m0644 conf/systemd/packetfence-winbindd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-winbindd.service
 
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons/AD
-%{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/conf
+%{__install} -d -m2770 $RPM_BUILD_ROOT/usr/local/pf/conf
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/radiusd
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/ssl
 %{__install} -d -m2775 $RPM_BUILD_ROOT%logdir
@@ -573,7 +606,7 @@ if [ "$1" = "2"   ]; then
 fi
 
 if ! /usr/bin/id pf &>/dev/null; then
-    if ! /usr/bin/id -g pf &>/dev/null; then
+    if ! /bin/getent group  pf &>/dev/null; then
         /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
                 echo Unexpected error adding user "pf" && exit
     else
@@ -582,6 +615,7 @@ if ! /usr/bin/id pf &>/dev/null; then
     fi
 fi
 /usr/sbin/usermod -aG wbpriv,fingerbank,apache,carbon pf
+/usr/sbin/usermod -aG pf mysql 
 
 if [ ! `id -u` = "0" ];
 then
@@ -592,7 +626,7 @@ fi
 %pre -n %{real_name}-remote-snort-sensor
 
 if ! /usr/bin/id pf &>/dev/null; then
-    if ! /usr/bin/id -g pf &>/dev/null; then
+    if ! /bin/getent group  pf &>/dev/null; then
         /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
                 echo Unexpected error adding user "pf" && exit
     else
@@ -604,7 +638,7 @@ fi
 %pre -n %{real_name}-remote-arp-sensor
 
 if ! /usr/bin/id pf &>/dev/null; then
-    if ! /usr/bin/id -g pf &>/dev/null; then
+    if ! /bin/getent group  pf &>/dev/null; then
         /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
                 echo Unexpected error adding user "pf" && exit
     else
@@ -616,7 +650,7 @@ fi
 %pre -n %{real_name}-config
 
 if ! /usr/bin/id pf &>/dev/null; then
-    if ! /usr/bin/id -g pf &>/dev/null; then
+    if ! /bin/getent group  pf &>/dev/null; then
         /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
                 echo Unexpected error adding user "pf" && exit
     else
@@ -804,14 +838,14 @@ fi
 %files -n %{real_name}
 
 %defattr(-, pf, pf)
-%attr(0311, root, root) /etc/systemd/system/packetfence.target
-%attr(0311, root, root) /etc/systemd/system/packetfence-base.target
-%attr(0311, root, root) /etc/systemd/system/packetfence-cluster.target
-%attr(0311, root, root) /etc/systemd/system/packetfence*.slice
-%attr(0311, root, root) /usr/lib/systemd/system/packetfence-mariadb.service
-%attr(0311, root, root) /usr/lib/systemd/system/packetfence-redis-cache.service
-%attr(0311, root, root) /usr/lib/systemd/system/packetfence-iptables.service
-%attr(0311, root, root) /usr/lib/systemd/system/packetfence-routes.service
+%attr(0644, root, root) /etc/systemd/system/packetfence.target
+%attr(0644, root, root) /etc/systemd/system/packetfence-base.target
+%attr(0644, root, root) /etc/systemd/system/packetfence-cluster.target
+%attr(0644, root, root) /etc/systemd/system/packetfence*.slice
+
+%exclude                /usr/lib/systemd/system/packetfence-config.service
+%attr(0644, root, root) /usr/lib/systemd/system/packetfence-*.service
+
 %dir %attr(0750, root,root) /etc/systemd/system/packetfence*target.wants
 %dir %attr(0750,root,root) %{_sysconfdir}/sudoers.d
 %config %attr(0440,root,root) %{_sysconfdir}/sudoers.d/packetfence
@@ -852,6 +886,7 @@ fi
 %dir                    /usr/local/pf/addons/watchdog
 %attr(0755, pf, pf)     /usr/local/pf/addons/watchdog/*.sh
 %dir                    /usr/local/pf/bin
+%attr(0755, pf, pf)     /usr/local/pf/bin/mariadb
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd.pl
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd_vlan
 %attr(0755, pf, pf)     /usr/local/pf/bin/pftest
@@ -860,7 +895,6 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/pfupdate
 %attr(0755, pf, pf)     /usr/local/pf/bin/mysql_fingerbank_import.sh
 %doc                    /usr/local/pf/ChangeLog
-%dir                    /usr/local/pf/conf
                         /usr/local/pf/conf/*.example
 %config(noreplace)      /usr/local/pf/conf/adminroles.conf
 %config(noreplace)      /usr/local/pf/conf/allowed_device_oui.txt
@@ -932,6 +966,9 @@ fi
 %dir                    /usr/local/pf/conf/log.conf.d
 %config(noreplace)      /usr/local/pf/conf/log.conf.d/*.conf
                         /usr/local/pf/conf/log.conf.d/*.example
+%dir                    /usr/local/pf/conf/mariadb
+%config                 /usr/local/pf/conf/mariadb/*.tt
+                        /usr/local/pf/conf/mariadb/*.tt.example
 %dir                    /usr/local/pf/conf/nessus
 %config(noreplace)      /usr/local/pf/conf/nessus/remotescan.nessus
                         /usr/local/pf/conf/nessus/remotescan.nessus.example
@@ -1223,6 +1260,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfmon
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfqueue
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfsetvlan
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pffilter
 %doc                    /usr/local/pf/UPGRADE.asciidoc
 %doc                    /usr/local/pf/UPGRADE.old
 %dir                    /usr/local/pf/var
@@ -1296,9 +1334,9 @@ fi
 
 %files -n %{real_name}-config
 %defattr(-, pf, pf)
-%attr(0311, root, root) /usr/lib/systemd/system/packetfence-config.service
+%attr(0644, root, root) /usr/lib/systemd/system/packetfence-config.service
 %dir                    /usr/local/pf
-%dir                    /usr/local/pf/conf
+%dir %attr(0770, pf pf) /usr/local/pf/conf
 %config(noreplace)      /usr/local/pf/conf/pfconfig.conf
 %dir                    /usr/local/pf/lib
 %dir                    /usr/local/pf/lib/pfconfig

@@ -1,0 +1,533 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+pffilter - A service for exposing packetfence filter
+
+=head1 SYNOPSIS
+
+pffilter [options]
+
+ Options:
+   -d                 Daemonize
+   -h                 Help
+   -s SOCK_PATH       The path to the unix socket path - default $PFDIR/var/pffilter.sock
+   -n NAME            The name of the process - default pffilter
+
+=cut
+
+use warnings;
+use strict;
+use Getopt::Std;
+use File::Basename qw(basename);
+use POSIX qw(:signal_h pause :sys_wait_h SIG_BLOCK SIG_UNBLOCK);
+use Pod::Usage;
+use Fcntl qw(:flock);
+
+#pf::log must always be initilized first
+BEGIN {
+    # log4perl init
+    use constant INSTALL_DIR => '/usr/local/pf';
+    use lib INSTALL_DIR . "/lib";
+    use pf::log(service => 'pffilter');
+}
+
+use Errno qw(EINTR EAGAIN);
+use IO::Socket::UNIX qw( SOCK_STREAM SOMAXCONN );
+use JSON::MaybeXS;
+use pf::SwitchFactory;
+use pf::file_paths qw($var_dir $pffilter_socket_path);
+use pf::config qw(%Config);
+use pf::services::util;
+use pf::filter_engine::profile;
+use pf::factory::condition::profile;
+use pfconfig::cached_scalar;
+use pf::access_filter::radius;
+use pf::access_filter::dhcp;
+use pf::access_filter::dns;
+use pf::access_filter::vlan;
+
+our %DISPATCH = (
+    filter_profile => \&filter_profile,
+    filter_radius => \&filter_radius,
+    filter_dns => \&filter_dns,
+    filter_dhcp => \&filter_dhcp,
+    filter_vlan => \&filter_vlan,
+);
+
+tie our $PROFILE_FILTER_ENGINE , 'pfconfig::cached_scalar' => 'FilterEngine::Profile';
+my $RADIUS_FILTER = pf::access_filter::radius->new;
+my $DHCP_FILTER = pf::access_filter::dhcp->new;
+my $DNS_FILTER = pf::access_filter::dns->new;
+my $VLAN_FILTER = pf::access_filter::vlan->new;
+
+pf::SwitchFactory->preloadConfiguredModules();
+
+# initialization
+# --------------
+our @REGISTERED_TASKS;
+our $IS_CHILD = 0;
+our %CHILDREN;
+our @TASKS_RUN;
+our $ALARM_RECV = 0;
+
+my $logger = get_logger('pffilter');
+$SIG{INT}  = \&normal_sighandler;
+$SIG{HUP}  = \&normal_sighandler;
+$SIG{TERM} = \&normal_sighandler;
+$SIG{CHLD} = \&child_sighandler;
+$SIG{ALRM} = \&alarm_sighandler;
+
+$SIG{PIPE} = 'IGNORE';
+
+my %args = (
+    's' => $pffilter_socket_path,
+    'n' => "pffilter",
+);
+
+getopts('dhvs:n:', \%args);
+
+pod2usage(-verbose => 1) if ($args{h});
+
+my $daemonize   = $args{d};
+my $verbose     = $args{v};
+my $socket_path = $args{s};
+our $PROGRAM_NAME = $0 = $args{n};
+
+my $pidfile = "${var_dir}/run/$PROGRAM_NAME.pid";
+
+our $HAS_LOCK = 0;
+open(my $fh, ">>$pidfile");
+flock($fh, LOCK_EX | LOCK_NB) or die "cannot lock $pidfile another pffilter is running\n";
+$HAS_LOCK = 1;
+
+our $running = 1;
+
+unlink($socket_path);
+
+#Ensure that the file permissions of the socket is correct 0770
+umask(0007);
+
+my $listener = IO::Socket::UNIX->new(
+    Type   => SOCK_STREAM,
+    Local  => $socket_path,
+    Listen => SOMAXCONN,
+) or die("Can't create server socket: $!\n");
+
+umask(0);
+
+# standard signals and daemonize
+daemonize($PROGRAM_NAME) if ($daemonize);
+our $PARENT_PID = $$;
+
+start();
+cleanup();
+
+END {
+    if (!$args{h} && $HAS_LOCK) {
+        unless ($IS_CHILD) {
+            deletepid();
+            $logger->info("stopping pffilter");
+        }
+    }
+}
+
+exit(0);
+
+=head1 SUBROUTINES
+
+=head2 start
+
+start
+
+=cut
+
+sub start {
+    registertasks();
+    runtasks();
+    waitforit();
+}
+
+=head2 registertasks
+
+    Register all tasks
+
+=cut
+
+sub registertasks {
+    for my $task (get_tasks()) {
+        register_task($task);
+    }
+}
+
+=head2 get_tasks
+
+get_tasks
+
+=cut
+
+sub get_tasks {
+    my ($self) = @_;
+    my $task = $Config{advanced}{pffilter_processes} // 1;
+    return (1 .. $task);
+}
+
+=head2 cleanup
+
+cleans after children
+
+=cut
+
+sub cleanup {
+    kill_and_wait_for_children('INT',  30);
+    kill_and_wait_for_children('USR1', 10);
+    signal_children('KILL');
+}
+
+=head2 kill_and_wait_for_children
+
+signal children and waits for them to exit process
+
+=cut
+
+sub kill_and_wait_for_children {
+    my ($signal, $waittime) = @_;
+    signal_children($signal);
+    $ALARM_RECV = 0;
+    alarm $waittime;
+    while (((keys %CHILDREN) != 0) && !$ALARM_RECV) {
+        pause;
+    }
+}
+
+=head2 signal_children
+
+sends a signal to all active children
+
+=cut
+
+sub signal_children {
+    my ($signal) = @_;
+    kill($signal, keys %CHILDREN);
+}
+
+=head2 normal_sighandler
+
+the signal handler to shutdown the service
+
+=cut
+
+sub normal_sighandler {
+    $running = 0;
+}
+
+=head2 runtasks
+
+run all runtasks
+
+=cut
+
+sub runtasks {
+    my $mask = POSIX::SigSet->new(POSIX::SIGCHLD());
+    sigprocmask(SIG_BLOCK, $mask);
+    while (@REGISTERED_TASKS) {
+        my $task = shift @REGISTERED_TASKS;
+        runtask($task);
+    }
+    sigprocmask(SIG_UNBLOCK, $mask);
+}
+
+=head2 runtask
+
+creates a new child to run a task
+
+=cut
+
+sub runtask {
+    my ($task) = @_;
+    my $pid = fork();
+    if ($pid) {
+        $CHILDREN{$pid} = $task;
+    }
+    elsif ($pid == 0) {
+        $SIG{CHLD} = 'DEFAULT';
+        $IS_CHILD = 1;
+        Log::Log4perl::MDC->put('tid', $$);
+        _runtask($task);
+    }
+    else {
+    }
+}
+
+=head2 _runtask
+
+the task to is ran in a loop until it is finished
+
+=cut
+
+sub _runtask {
+    my ($task_id) = @_;
+    $0 = "$0 - $task_id";
+    my $time_taken = 0;
+    #local $^F = 2;
+    while (is_running()) {
+        my $line;
+        eval {
+            my $paddr = accept(my $socket, $listener);
+            #Check if a signal was caught
+            unless (defined $paddr || $! == EINTR) {
+                die("Can't accept connection: $!\n");
+            }
+            if ($paddr) {
+                my $line = <$socket>;
+                next unless defined $line;
+                chomp($line);
+                my $query = eval {
+                    decode_json($line)
+                };
+                if ($query) {
+                    handle_query($query, $socket);
+                }
+                else {
+                    send_error(undef,-32700, "cannot parse request", $@ ,$socket);
+                }
+            }
+        };
+        if ($@) {
+            print STDERR "$line : $@";
+        }
+    }
+    $logger->trace("$$ shutting down");
+    exit;
+}
+
+=head2 send_error
+
+send_error
+
+=cut
+
+sub send_error {
+    my ($query, $code, $message, $data, $socket) = @_;
+    my %responses = (
+        error => {
+            code => $code,
+            message => $message,
+            data => $data,
+        }
+    );
+    my $bytes = encode_json(\%responses) . "\n";
+    print $socket $bytes;
+    return;
+}
+
+=head2 handle_query
+
+handle_query
+
+=cut
+
+sub handle_query {
+    my ($query, $socket) = @_;
+    my $method = $query->{method};
+    if (defined $method && exists $DISPATCH{$method}) {
+        return handle_dispath($query, $DISPATCH{$method}, $socket);
+    }
+    return send_error($query, -32601, "Method not found ", undef, $socket);
+}
+
+
+sub handle_dispath {
+    my ($query, $method, $socket) = @_;
+    my $answer;
+    eval {
+        my $params = $query->{params};
+        if (ref($params) eq 'ARRAY') {
+            $answer = $method->(@$params);
+        }
+        else {
+            $answer = $method->($params);
+        }
+    };
+    if ($@) {
+        $logger->error($@);
+        return send_error($query, -32603, "Internal Error", $@, $socket);
+    }
+    return send_answer($query, $answer, $socket);
+}
+
+=head2 is_running
+
+is_running
+
+=cut
+
+sub is_running {
+    return $running && is_parent_alive();
+}
+
+=head2 send_answer
+
+send_answer
+
+=cut
+
+sub send_answer {
+    my ($query, $answer, $socket) = @_;
+    my %responses = (
+        result => $answer
+    );
+    my $data = encode_json(\%responses) . "\n";
+    print $socket $data; 
+}
+
+
+=head2 is_parent_alive
+
+Checks to see if parent is alive
+
+=cut
+
+sub is_parent_alive {
+    kill(0, $PARENT_PID);
+}
+
+=head2 register_task
+
+registers the task to run
+
+=cut
+
+sub register_task {
+    my ($taskId) = @_;
+    push @REGISTERED_TASKS, $taskId;
+
+}
+
+=head2 waitforit
+
+waits for signals
+
+=cut
+
+sub waitforit {
+    while ($running) {
+        pause;
+        runtasks();
+    }
+}
+
+=head2 alarm_sighandler
+
+the alarm signal handler
+
+=cut
+
+sub alarm_sighandler {
+    $ALARM_RECV = 1;
+}
+
+=head2 child_sighandler
+
+reaps the children
+
+=cut
+
+sub child_sighandler {
+    local ($!, $?);
+    while (1) {
+        my $child = waitpid(-1, WNOHANG);
+        last unless $child > 0;
+        my $task = delete $CHILDREN{$child};
+        register_task($task);
+    }
+}
+
+=head2 filter_profile
+
+filter_profile
+
+=cut
+
+sub filter_profile {
+    my ($node_info) = @_;
+    return $PROFILE_FILTER_ENGINE->match_first($node_info);
+}
+
+=head2 filter_radius
+
+filter_radius
+
+=cut
+
+sub filter_radius {
+    my (@params) = @_;
+    return $RADIUS_FILTER->filter(@params);
+}
+
+=head2 filter_dhcp
+
+filter_dhcp
+
+=cut
+
+sub filter_dhcp {
+    my (@params) = @_;
+    return $DHCP_FILTER->filter(@params);
+}
+
+=head2 filter_dns
+
+filter_dns
+
+=cut
+
+sub filter_dns {
+    my (@params) = @_;
+    return $DNS_FILTER->filter(@params);
+}
+
+=head2 filter_vlan
+
+filter_vlan
+
+=cut
+
+sub filter_vlan {
+    my (@params) = @_;
+    return $VLAN_FILTER->filter(@params);
+}
+
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
+
+Minor parts of this file may have been contributed. See CREDITS.
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2017 Inverse inc.
+
+Copyright (C) 2005 Kevin Amorin
+
+Copyright (C) 2005 David LaPorte
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
+

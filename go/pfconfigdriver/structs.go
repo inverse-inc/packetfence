@@ -79,8 +79,16 @@ type PfconfigKeys struct {
 	Keys           []string
 }
 
+type ListenInts struct {
+	PfconfigMethod string `val:"element"`
+	PfconfigNS     string `val:"interfaces::listen_ints"`
+	PfconfigArray  string `val:"yes"`
+	Element        []string
+}
+
 type configStruct struct {
 	Interfaces struct {
+		ListenInts        ListenInts
 		ManagementNetwork ManagementNetwork
 	}
 	PfConf struct {

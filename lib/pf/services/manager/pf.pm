@@ -18,6 +18,7 @@ use strict;
 use warnings;
 use Moo;
 use pf::constants qw($TRUE);
+use pf::log;
 extends 'pf::services::manager';
 
 has '+name' => ( default => sub {'pf'} );

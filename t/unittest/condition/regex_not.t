@@ -18,11 +18,12 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 7;                      # last test to print
+use Test::More tests => 8;                      # last test to print
 
 use Test::NoWarnings;
 
 use_ok("pf::condition::regex");
+use_ok("pf::condition::regex_not");
 
 my $filter = new_ok ( "pf::condition::regex_not", [value => '^test'],"Test regex based filter");
 

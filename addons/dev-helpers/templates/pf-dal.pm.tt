@@ -1,0 +1,152 @@
+[% WRAPPER "class-wrapper.tt" -%]
+[% SET class_name = "pf::dal implementation for the table $TABLE_NAME" -%]
+[% SET class_description = "pf::dal implementation for the table $TABLE_NAME" -%]
+###
+### [% class %] is auto generated any change to this file will be lost
+### Instead change in the [% class.replace('::_', '::') %] module
+###
+use base qw(pf::dal);
+
+our @FIELD_NAMES;
+our @INSERTABLE_FIELDS;
+our @PRIMARY_KEYS;
+our %DEFAULTS;
+our %FIELDS_META;
+
+BEGIN {
+    @FIELD_NAMES = qw(
+[% FOREACH col IN cols -%]
+        [% col.COLUMN_NAME %]
+[% END -%]
+    );
+
+    %DEFAULTS = (
+[% FOREACH col IN cols -%]
+[%- NEXT IF col.mysql_is_auto_increment -%]
+[%- NEXT IF col.pf_default_value == "'CURRENT_TIMESTAMP'" -%]
+        [% col.COLUMN_NAME %] => [% col.pf_default_value %],
+[% END -%]
+    );
+
+    @INSERTABLE_FIELDS = qw(
+[% FOREACH col IN cols -%]
+[%- NEXT IF col.mysql_is_auto_increment -%]
+[%- NEXT IF col.pf_default_value == "'CURRENT_TIMESTAMP'" -%]
+        [% col.COLUMN_NAME %]
+[% END -%]
+    );
+
+    %FIELDS_META = (
+[% FOREACH col IN cols -%]
+        [% col.COLUMN_NAME %] => {
+            type => '[% col.TYPE_NAME %]',
+            is_auto_increment => [% col.mysql_is_auto_increment %],
+            is_primary_key => [% IF col.mysql_is_pri_key %]1[% ELSE %]0[% END %],
+            is_nullable => [% col.NULLABLE %],
+[% IF col.TYPE_NAME == "ENUM" -%]
+            enums_values => {
+[% FOREACH val IN col.mysql_values -%]
+                '[% val %]' => 1,
+[% END -%]
+            },
+[% END -%]
+        },
+[% END -%]
+    );
+
+    @PRIMARY_KEYS = qw(
+[% FOREACH col IN primary_keys -%]
+        [% col.COLUMN_NAME %]
+[% END -%]
+    );
+}
+
+use Class::XSAccessor {
+    accessors => \@FIELD_NAMES,
+};
+
+=head2 _defaults
+
+The default values of [% TABLE_NAME %]
+
+=cut
+
+sub _defaults {
+    return {%DEFAULTS};
+}
+
+=head2 field_names
+
+Field names of [% TABLE_NAME %]
+
+=cut
+
+sub field_names {
+    return [@FIELD_NAMES];
+}
+
+=head2 primary_keys
+
+The primary keys of [% TABLE_NAME %]
+
+=cut
+
+sub primary_keys {
+    return [@PRIMARY_KEYS];
+}
+
+=head2
+
+The table name
+
+=cut
+
+sub table { "[% TABLE_NAME %]" }
+
+[% IF primary_keys.size > 0 -%]
+our $FIND_SQL = do {
+    my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
+    "SELECT * FROM `[% TABLE_NAME %]` WHERE $where;";
+};
+
+=head2 _find_one_sql
+
+The precalculated sql to find a single row [% TABLE_NAME %]
+
+=cut
+
+sub _find_one_sql {
+    return $FIND_SQL;
+}
+[% END -%]
+
+=head2 _updateable_fields
+
+The updateable fields for [% TABLE_NAME %]
+
+=cut
+
+sub _updateable_fields {
+    return [@FIELD_NAMES];
+}
+
+=head2 _insertable_fields
+
+The insertable fields for [% TABLE_NAME %]
+
+=cut
+
+sub _insertable_fields {
+    return [@INSERTABLE_FIELDS];
+}
+
+=head2 get_meta
+
+Get the meta data for [% TABLE_NAME %]
+
+=cut
+
+sub get_meta {
+    return \%FIELDS_META;
+}
+[%- END -%]

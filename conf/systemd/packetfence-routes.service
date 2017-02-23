@@ -1,4 +1,3 @@
-[% header_warning %]
 [Unit]
 Description=PacketFence static routes configuration
 Wants=packetfence-config.service

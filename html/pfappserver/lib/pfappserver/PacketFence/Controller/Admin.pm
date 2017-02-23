@@ -47,8 +47,8 @@ sub auto :Private {
         return 1;
     }
 
-    # If user is not logged in then send him to the login page
-    unless ($c->user_in_realm('admin')) {
+    # If user is not logged into the admin for proxy realm then send him to the login page
+    unless ($c->user_allowed_in_admin()) {
         $c->stash->{'template'} = 'admin/login.tt';
         unless ($action eq 'index') {
             $c->stash->{status_msg} = $c->loc("Your session has expired.");
@@ -207,7 +207,7 @@ sub index :Path :Args(0) {
     my $action;
     if (admin_can_do_any(\@roles,qw(SERVICES REPORTS))) {
         $action = 'status';
-    } elsif( admin_can_do_any(\@roles,qw(USERS_READ))) {
+    } elsif( admin_can_do_any(\@roles,qw(USERS_READ USERS_READ_SPONSORED))) {
         $action = 'users';
     } elsif( admin_can_do_any(\@roles,qw(NODES_READ))) {
         $action = 'nodes';
@@ -377,7 +377,7 @@ sub nodes :Chained('object') :PathPart('nodes') :Args(0) :AdminRole('NODES_READ'
 
 =cut
 
-sub users :Chained('object') :PathPart('users') :Args(0) :AdminRole('USERS_READ') {
+sub users :Chained('object') :PathPart('users') :Args(0) :AdminRoleAny('USERS_READ') :AdminRoleAny('USERS_READ_SPONSORED') {
     my ( $self, $c ) = @_;
     my $id = $c->user->id;
     my ($status, $saved_searches) = $c->model("SavedSearch::User")->read_all($id);

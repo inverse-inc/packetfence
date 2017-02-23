@@ -1,0 +1,16 @@
+[Unit]
+Description=PacketFence radsniff Service
+After=packetfence-collectd.service 
+Requires=packetfence-collectd.service
+Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
+After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+
+[Service]
+Type=forking
+PIDFile=/usr/local/pf/var/run/radsniff.pid
+ExecStart=/usr/bin/radsniff -d /usr/local/pf/raddb/ -D /usr/local/pf/raddb/ -q -P /usr/local/pf/var/run/radsniff.pid -W10 -O /usr/local/pf/var/run/collectd-unixsock -i ens192
+Restart=on-failure
+Slice=packetfence.slice
+
+[Install]
+WantedBy=packetfence.target

@@ -28,6 +28,7 @@ use Test::More tests => 11;
 use Test::NoWarnings;
 use Test::Exception;
 use NetAddr::IP;
+use pfconfig::objects::NetAddr::IP;
 use List::MoreUtils qw(any);
 
 use_ok('pf::firewallsso');

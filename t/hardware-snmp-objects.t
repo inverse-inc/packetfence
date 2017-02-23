@@ -56,7 +56,7 @@ my @whitelist = (
     'radiusDisconnect', 'supportsRoleBasedEnforcement', 'getRoleByName', 'returnRadiusAccessAccept',
     'synchronize_locationlog', 'extractVLAN',
     'supportsMABFloatingDevices', 'disableMABFloatingDevice', 'enableMABFloatingDevice', 'disableMABByIfIndex', 'enableMABByIfIndex',
-    'identifyConnectionType', 'logger', 'returnRoleAttributes', 'cachedSNMPRequest', 'getRelayAgentInfoOptRemoteIdSub'
+    'identifyConnectionType', 'logger', 'returnRoleAttributes', 'cachedSNMPRequest', 'getRelayAgentInfoOptRemoteIdSub', 'TO_JSON'
 );
 
 my @missing_subs;

@@ -307,11 +307,11 @@ sub person_count_all {
 }
 
 sub person_custom_search {
-    my ($sql) = @_;
+    my ($sql, @args) = @_;
     my $logger = get_logger();
 
     $person_statements->{'person_custom_search'} = $sql;
-    return db_data(PERSON, $person_statements, 'person_custom_search');
+    return db_data(PERSON, $person_statements, 'person_custom_search', @args);
 }
 
 sub person_view_all {

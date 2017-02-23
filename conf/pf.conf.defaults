@@ -278,30 +278,75 @@ httpd_portal_modstatus=1444
 
 [database]
 #
-# database.pass
+# database.host
 #
-# Password for the mysql database used by PacketFence.
-pass=packet
+# Server the MySQL server is running on.
+host=localhost
+#
+# database.port
+#
+# Port the MySQL server is running on.
+port=3306
 #
 # database.db
 #
-# Name of the mysql database used by PacketFence.
+# Name of the MySQL database used by PacketFence.
 db=pf
 #
 # database.user
 #
-# Username of the account with access to the mysql database used by PacketFence.
+# Username of the account with access to the MySQL database used by PacketFence. Changing this parameter after the initial configuration will *not* change it in the database it self, only in the configuration.
 user=pf
 #
-# database.port
+# database.pass
 #
-# Port the mysql server is running on.
-port=3306
+# Password for the mysql database used by PacketFence. Changing this parameter after the initial configuration will *not* change it in the database it self, only in the configuration.
+pass=packet
 #
-# database.host
+# database.key_buffer_size
 #
-# Server the mysql server is running on.
-host=localhost
+# The key_buffer_size MySQL configuration attribute (in MB). Only change if you know what you are doing. Will only affect a locally running MySQL server.
+key_buffer_size=100
+#
+# database.innodb_buffer_pool_size
+#
+# The innodb_buffer_pool_size MySQL configuration attribute (in MB). Only change if you know what you are doing. Will only affect a locally running MySQL server.
+innodb_buffer_pool_size=500
+#
+# database.innodb_additional_mem_pool_size
+#
+# The innodb_additional_mem_pool_size MySQL configuration attribute (in MB). Only change if you know what you are doing. Will only affect a locally running MySQL server.
+innodb_additional_mem_pool_size=20
+#
+# database.query_cache_size
+#
+# The query_cache_size MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.
+query_cache_size=0
+#
+# database.thread_concurrency
+#
+# The thread_concurrency MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.
+thread_concurrency=8
+#
+# database.max_connections
+#
+# The max_connections MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.
+max_connections=500
+#
+# database.table_cache
+#
+# The table_cache MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.
+table_cache=300
+#
+# database.thread_cache_size
+#
+# The thread_cache_size MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.
+thread_cache_size=25
+#
+# database.max_allowed_packet
+#
+# The max_allowed_packet MySQL configuration attribute (in MB). Only change if you know what you are doing. Will only affect a locally running MySQL server.
+max_allowed_packet=16
 
 [services]
 #
@@ -309,11 +354,6 @@ host=localhost
 #
 # Should DHCPd be managed by PacketFence?
 dhcpd=enabled
-#
-# services.dhcpd_order
-#
-# Order in which to start this service 
-dhcpd_order=21
 #
 # services.dhcpd_binary
 #
@@ -325,11 +365,6 @@ dhcpd_binary=/usr/sbin/dhcpd
 # Should haproxy be started?
 haproxy=enabled
 #
-# services.haproxy_order
-#
-# Order in which to start this service 
-haproxy_order=01
-#
 # services.haproxy_binary
 #
 # Location of the haproxy binary. Only necessary to change if you are not running the RPMed version.
@@ -340,20 +375,15 @@ haproxy_binary=/usr/sbin/haproxy-systemd-wrapper
 # Should pfdns be managed by PacketFence?
 pfdns=enabled
 #
-# services.pfdns_order
+# services.pffilter
 #
-# Order in which to start this service 
-pfdns_order=17
+# Should pffilter be managed by PacketFence?
+pffilter=enabled
 #
 # services.snort
 #
 # Should snort be managed by PacketFence?
 snort=enabled
-#
-# services.snort_order
-#
-# Order in which to start this service 
-snort_order=80
 #
 # services.snort_binary
 #
@@ -365,11 +395,6 @@ snort_binary=/usr/sbin/snort
 # Should suricata be managed by PacketFence?
 suricata=enabled
 #
-# services.suricata_order
-#
-# Order in which to start this service 
-suricata_order=80
-#
 # services.suricata_binary
 # 
 # Location of the suricata binary.
@@ -379,11 +404,6 @@ suricata_binary=/usr/bin/suricata
 #
 # Should radiusd be managed by PacketFence?
 radiusd=enabled
-#
-# services.radiusd_order
-#
-# Order in which to start this service 
-radiusd_order=12
 # 
 # services.radiusd_binary
 # 
@@ -394,11 +414,6 @@ radiusd_binary=/usr/sbin/radiusd
 #
 # Should iptables be managed by PacketFence?
 iptables=enabled
-#
-# services.iptables_order
-#
-# Order in which to start this service 
-iptables_order=05
 # 
 # services.iptables_binary
 # 
@@ -410,90 +425,45 @@ iptables_binary=/sbin/iptables
 # Should pfbandwidthd be managed by PacketFence?
 pfbandwidthd=disabled
 #
-# services.pfbandwitdth_order
-#
-# Order in which to start this service 
-pfbandwidthd_order=89
-#
 # services.httpd_admin
 #
 # Should httpd.admin be started?
 httpd_admin=enabled
-#
-# services.httpd_admin_order
-#
-# Order in which to start this service 
-httpd_admin_order=00
 #
 # services.httpd_portal
 #
 # Should httpd.portal be started?
 httpd_portal=enabled
 #
-# services.httpd_portal_order
-#
-# Order in which to start this service 
-httpd_portal_order=20
-#
 # services.httpd_parking
 #
 # Should httpd.parking be started?
 httpd_parking=enabled
-#
-# services.httpd_portal_order
-#
-# Order in which to start this service 
-httpd_parking_order=20
 #
 # services.httpd_webservices
 #
 # Should httpd.webservices be started?
 httpd_webservices=enabled
 #
-# services.httpd_webservices_order
-#
-# Order in which to start this service 
-httpd_webservices_order=22
-#
 # services.httpd_collector
 #
 # Should httpd.collector be started?
 httpd_collector=disabled
-#
-# services.httpd_collector_order
-#
-# Order in which to start this service
-httpd_collector_order=23
 #
 # services.httpd_aaa
 #
 # Should httpd.aaa be started?
 httpd_aaa=enabled
 #
-# services.httpd_aaa_order
-#
-# Order in which to start this service 
-httpd_aaa_order=10
-#
 # services.httpd_proxy
 #
 # Should httpd.proxy be started?
 httpd_proxy=enabled
 #
-# services.httpd_proxy_order
-#
-# Order in which to start this service 
-httpd_proxy_order=19
-#
 # services.httpd_graphite
 #
 # Should httpd.graphite be started?
 httpd_graphite=enabled
-#
-# services.httpd_graphite_order
-#
-# Order in which to start this service 
-httpd_graphite_order=99
 #
 # services.httpd_binary
 #
@@ -505,20 +475,10 @@ httpd_binary=/usr/sbin/httpd
 # Should pfsetvlan be managed by PacketFence?
 pfsetvlan=disabled
 #
-# services.pfsetvlan_order
-#
-# Order in which to start this service 
-pfsetvlan_order=14
-#
 # services.snmptrapd
 #
 # Should snmptrapd be managed by PacketFence?
 snmptrapd=disabled
-#
-# services.snmptrapd_order
-#
-# Order in which to start this service 
-snmptrapd_order=13
 #
 # services.snmptrapd_binary
 #
@@ -530,48 +490,23 @@ snmptrapd_binary=/usr/sbin/snmptrapd
 # Should pfqueue be managed by PacketFence?
 pfqueue=enabled
 #
-# services.pfqueue_order
-#
-# Order in which to start this service 
-pfqueue_order=16
-#
 # services.pfmon
 #
 # Should pfmon be managed by PacketFence?
 pfmon=enabled
 #
-# services.pfmon_order
-#
-# Order in which to start this service 
-pfmon_order=51
-#
 # services.redis_cache
 #
 # Should redis be managed by PacketFence?
 redis_cache=enabled
-#
-# services.redis_cache_order
-#
-# Order in which to start this service 
-redis_cache_order=00
 # services.redis_queue
 #
 # Should redis be managed by PacketFence?
 redis_queue=enabled
-#
-# services.redis_queue_order
-#
-# Order in which to start this service 
-redis_queue_order=06
 # services.redis_ntlm_cache
 #
 # Should redis be managed by PacketFence?
 redis_ntlm_cache=disabled
-#
-# services.redis_ntlm_cache_order
-#
-# Order in which to start this service 
-redis_ntlm_cache_order=06
 # 
 # services.redis_binary
 # 
@@ -583,20 +518,10 @@ redis_binary=/usr/bin/redis-server
 # Should pfdhcplistener be started?
 pfdhcplistener=enabled
 #
-# services.pfdhcplistener_order
-#
-# Order in which to start this service 
-pfdhcplistener_order=18
-#
 # services.keepalived
 #
 # Should keepalived be started?
 keepalived=enabled
-#
-# services.keepalived_order
-#
-# Order in which to start this service 
-keepalived_order=100
 #
 # services.keepalived_binary
 #
@@ -606,11 +531,6 @@ keepalived_binary=/usr/sbin/keepalived
 #
 # Should winbindd be started?
 winbindd=enabled
-#
-# services.winbindd_order
-#
-# Order in which to start this service 
-winbindd_order=11
 # 
 # services.winbindd_binary
 # 
@@ -620,11 +540,6 @@ winbindd_binary=/usr/sbin/winbindd
 #
 # Should carbon-cache be started?
 carbon-cache=enabled
-#
-# services.carbon-cache_order
-#
-# Order in which to start this service 
-carbon-cache_order=90
 # 
 # services.carbon-cache_binary
 # 
@@ -635,11 +550,6 @@ carbon-cache_binary=/usr/bin/carbon-cache
 #
 # Should carbon-relay be started?
 carbon-relay=enabled
-#
-# services.carbon-relay_order
-#
-# Order in which to start this service 
-carbon-relay_order=91
 # 
 # services.carbon-relay_binary
 # 
@@ -650,31 +560,16 @@ carbon-relay_binary=/usr/bin/carbon-relay
 #
 # Should collectd be started?
 collectd=enabled
-#
-# services.collectd_order
-#
-# Order in which to start this service 
-collectd_order=92
 # 
 # services.collectd_binary
 # 
 # Location of the collectd binary. Only necessary to change if you are not running the pre-packaged version.
 collectd_binary=/usr/sbin/collectd
 #
-# services.pfdetect_order
-#
-# Order in which to start this service 
-pfdetect_order=79
-#
 # services.statsd
 #
 # Should statsd be started?
 statsd=enabled
-#
-# services.statsd_order
-#
-# Order in which to start this service 
-statsd_order=93
 # 
 # services.statsd_binary
 # 
@@ -685,11 +580,6 @@ statsd_binary=/usr/bin/node
 #
 # Should radsniff be started?
 radsniff=enabled
-#
-# services.radsniff_order
-#
-# Order in which to start this service 
-radsniff_order=94
 # 
 # services.radsniff_binary
 # 
@@ -700,11 +590,6 @@ radsniff_binary=/usr/bin/radsniff
 #
 # Should p0f be started?
 p0f=enabled
-#
-# services.p0f_order
-#
-# Order in which to start this service 
-p0f_order=81
 # 
 # services.p0f_binary
 # 
@@ -726,11 +611,6 @@ arp_binary=/sbin/arp
 #
 # Should routes be managed by PacketFence?
 routes=enabled
-#
-# services.routes_order
-#
-# Order in which to start this service
-routes_order=20
 #
 # services.routes_binary
 #
@@ -1047,6 +927,11 @@ ldap_attributes=uid,cn,department,displayName,distinguishedName,givenName,member
 #
 # Amount of pfdns processes to start
 pfdns_processes=4
+#
+# advanced.pffilter_processes
+#
+# Amount of pffilter processes to start
+pffilter_processes=4
 #
 # advanced.update_iplog_with_accounting
 #
@@ -1404,6 +1289,16 @@ auth_on_management=enabled
 # Defines the amount of seconds after which pfmon attempts to resolve a configuration version conflict between cluster members.
 # For example, if this is set to 5 minutes, then a resolution will be attempted when the members will be detected running a different version for more than 5 minutes.
 conflict_resolution_threshold=5m
+#
+# active_active.galera_replication_username
+#
+# Defines the replication username to be used for the MariaDB Galera cluster replication
+galera_replication_username=
+#
+# active_active.galera_replication_password
+#
+# Defines the replication password to be used for the MariaDB Galera cluster replication
+galera_replication_password=
 
 [monitoring]
 #

@@ -102,6 +102,20 @@ __PACKAGE__->config(
        expose_stash    => [ qw(status status_msg error interfaces networks switches config services success items) ], # defaults to everything
     },
 
+    'View::HTML' => {
+        INCLUDE_PATH => [
+            __PACKAGE__->path_to('root-custom'),
+            __PACKAGE__->path_to('root'),
+        ]
+    },
+
+    'View::Admin' => {
+        INCLUDE_PATH => [
+            __PACKAGE__->path_to('root-custom'),
+            __PACKAGE__->path_to('root'),
+        ]
+    },
+
     'Plugin::Authentication' => {
        default_realm => 'admin',
        realms => {
@@ -128,10 +142,17 @@ __PACKAGE__->config(
                     }
                 }
             }
-         }
+         },
+         proxy => {
+           credential => {
+             class => '+pfappserver::Authentication::Credential::Proxy',
+           },
+           store => {
+             class => '+pfappserver::Authentication::Store::PacketFence',
+           }
+        }
        }
      },
-
 );
 
 sub pf_hash_for {
@@ -275,6 +296,18 @@ sub pf_localize {
         @args = ($text,$msg);
     }
     return $c->localize(@args);
+}
+
+
+=head2 user_allowed_in_admin
+
+Checks to see if the user is allowed in admin
+
+=cut
+
+sub user_allowed_in_admin {
+    my ($c) = @_;
+    return $c->user_in_realm('admin') || $c->user_in_realm('proxy') || $c->authenticate({}, 'proxy');
 }
 
 # Logging

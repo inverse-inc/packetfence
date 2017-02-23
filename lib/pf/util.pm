@@ -41,6 +41,7 @@ use MIME::Lite::TT;
 use Digest::MD5;
 use Time::HiRes qw(stat time);
 use Fcntl qw(:DEFAULT);
+use Net::Ping;
 
 our ( %local_mac );
 
@@ -85,6 +86,9 @@ BEGIN {
         validate_date
         clean_locale 
         parse_api_action_spec
+        pf_chown
+        user_chown
+        ping
     );
 }
 
@@ -923,6 +927,17 @@ sub pf_chown {
     chown $uid, $gid, $file;
 }
 
+=item user_chown
+
+=cut
+
+sub user_chown {
+    my ($user, $file) = @_;
+    my ($login,$pass,$uid,$gid) = getpwnam($user)
+        or die "$user not in passwd file";
+    chown $uid, $gid, $file;
+}
+
 =item untaint_chain
 
 =cut
@@ -1294,6 +1309,12 @@ sub parse_api_action_spec {
     }
     #return a copy of the named captures hash
     return {%+};
+}
+
+sub ping {
+    my ($host) = @_;
+    my $p = Net::Ping->new();
+    return $p->ping($host);
 }
 
 =back

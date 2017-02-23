@@ -272,6 +272,7 @@ DELIMITER ;
 --
 
 CREATE TABLE iplog_history (
+  id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
   mac varchar(17) NOT NULL,
   ip varchar(45) NOT NULL,
   start_time datetime NOT NULL,
@@ -286,6 +287,7 @@ CREATE TABLE iplog_history (
 --
 
 CREATE TABLE iplog_archive (
+  id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
   mac varchar(17) NOT NULL,
   ip varchar(45) NOT NULL,
   start_time datetime NOT NULL,
@@ -295,6 +297,7 @@ CREATE TABLE iplog_archive (
 ) ENGINE=InnoDB;
 
 CREATE TABLE `locationlog` (
+  `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `mac` varchar(17) default NULL,
   `switch` varchar(17) NOT NULL default '',
   `port` varchar(20) NOT NULL default '',
@@ -317,6 +320,7 @@ CREATE TABLE `locationlog` (
 ) ENGINE=InnoDB;
 
 CREATE TABLE `locationlog_archive` (
+  `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `mac` varchar(17) default NULL,
   `switch` varchar(17) NOT NULL default '',
   `port` varchar(20) NOT NULL default '',
@@ -555,6 +559,7 @@ CREATE TABLE radacct (
 -- Adding RADIUS update log table
 
 CREATE TABLE radacct_log (
+  id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
   acctsessionid varchar(64) NOT NULL default '',
   username varchar(64) NOT NULL default '',
   nasipaddress varchar(15) NOT NULL default '',

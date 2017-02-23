@@ -1,0 +1,14 @@
+[Unit]
+Description=PacketFence pffilter Service
+Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service packetfence-redis_queue.service
+After=packetfence-base.target packetfence-config.service packetfence-iptables.service packetfence-redis_queue.service
+
+[Service]
+PIDFile=/usr/local/pf/var/run/pffilter.pid
+ExecStart=/usr/local/pf/sbin/pffilter
+User=pf
+Restart=on-failure
+Slice=packetfence.slice
+
+[Install]
+WantedBy=packetfence.target

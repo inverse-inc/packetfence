@@ -159,6 +159,9 @@ Stub. Implement as needed in subclasses.
 
 sub preStartSetup {
     my ( $self, $quick ) = @_;
+    unless ( $self->isEnabled ) {
+        $self->sysdEnable();
+    }
     return 1;
 }
 
@@ -481,6 +484,7 @@ sub isAlive {
 }
 
 
+
 =head2 isManaged
 
 return true is the service is currently managed by packetfence
@@ -489,8 +493,23 @@ return true is the service is currently managed by packetfence
 
 sub isManaged {
     my ($self) = @_;
-    my $name  = $self->name;
-    my $state = `sudo systemctl show -p UnitFileState packetfence-$name`;
+    require pf::config;
+    my $name = $self->name;
+    $name =~ s/\./_/g;
+    return $self->forceManaged
+      || isenabled( $pf::config::Config{'services'}{$name} );
+}
+
+=head2 isEnabled
+
+Return true if systemd consider the service as enabled
+
+=cut 
+
+sub isEnabled {
+    my ($self) = @_;
+    my $name   = $self->name;
+    my $state  = `sudo systemctl show -p UnitFileState packetfence-$name`;
     chomp $state;
     $state = ( split( /=/, $state ) )[1];
     if ( defined $state and $state eq "enabled" ) {
@@ -501,6 +520,31 @@ sub isManaged {
     }
 }
 
+=head2 sysdEnable 
+
+Enable the service in systemd.
+
+=cut
+
+sub sysdEnable {
+    my $self = shift;
+    my $rc   = 1;
+    $rc = system( "sudo systemctl enable packetfence-" . $self->name );
+    return $rc == 0;
+}
+
+=head2 sysdDisable
+
+Disable the service in systemd.
+
+=cut
+
+sub sysdDisable {
+    my $self = shift;
+    my $rc   = 1;
+    $rc = system( "sudo systemctl disable packetfence-" . $self->name );
+    return $rc == 0;
+}
 
 =head1 AUTHOR
 

@@ -498,6 +498,7 @@ sub services :Chained('object') :PathPart('services') :Args(0) {
         if (!$c->session->{started}) {
             $c->session->{started} = 1;
             # restart pfconfig
+            system("sudo /usr/local/pf/bin/pfcmd service pf updatesystemd");
             $c->model("Config::System")->restart_pfconfig();
             $c->detach(Service => 'pf_start');
         } else {

@@ -151,6 +151,24 @@ func TestFetchDecodeSocketCache(t *testing.T) {
 
 }
 
+func TestArrayElements(t *testing.T) {
+	var li ListenInts
+
+	FetchDecodeSocketStruct(ctx, &li)
+
+	expected := 2
+	if len(li.Element) != expected {
+		t.Errorf("Wrong number of interfaces detected (%s instead of %s)", len(li.Element), expected)
+	}
+
+	expectedInts := []string{"eth1.1", "eth1.2"}
+	for i, intName := range expectedInts {
+		if li.Element[i] != intName {
+			t.Errorf("Wrong value at position %d. Got %s instead of %s", i, li.Element[i], intName)
+		}
+	}
+}
+
 // fetches resource::fqdn requesting Sereal encoding for the reply
 func BenchmarkFetchSocketSerealSimple(b *testing.B) {
 	for i := 0; i < b.N; i++ {

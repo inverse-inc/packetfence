@@ -5,7 +5,7 @@ pf::cmd::pf::service add documentation
 
 =head1 SYNOPSIS
 
-pfcmd service <service> [start|stop|restart|status|watch|generateconfig|generateunitfile] [--ignore-checkup]
+pfcmd service <service> [start|stop|restart|status|watch|generateconfig|updatesystemd] [--ignore-checkup]
 
   stop/stop/restart specified service
   status returns PID of specified PF daemon or 0 if not running
@@ -86,7 +86,7 @@ our %ACTION_MAP = (
     watch   => \&watchService,
     restart => \&restartService,
     generateconfig => \&generateConfig,
-    generateunitfile => \&generateUnitFile,
+    updatesystemd    => \&updateSystemd,
 );
 
 our $ignore_checkup = $FALSE;
@@ -186,17 +186,17 @@ sub generateConfig {
     return $EXIT_SUCCESS;
 }
 
-sub generateUnitFile { 
-    my ($service, @services) = @_;
-    use sort qw(stable);
-    my @managers = pf::services::getManagers(\@services);
+sub updateSystemd {
+    my ( $service, @services ) = @_;
+    my @managers = pf::services::getManagers( \@services );
     print $SERVICE_HEADER;
     for my $manager (@managers) {
-        _doGenerateUnitFile($manager);
+        _doUpdateSystemd($manager);
     }
     system("sudo systemctl daemon-reload");
     return $EXIT_SUCCESS;
 }
+
 
 sub checkup {
     require pf::services;
@@ -262,20 +262,33 @@ sub _doGenerateConfig {
     print $manager->name,"|${color}${command}${RESET_COLOR}\n";
 }
 
-sub _doGenerateUnitFile {
+sub _doUpdateSystemd {
     my ($manager) = @_;
     my $command;
     my $color = '';
-    if($manager->generateUnitFile()) {
-        $command = 'Unit file generated';
-        $color =  $SUCCESS_COLOR;
-    } else {
-        $command = 'Unit file not generated';
-        $color =  $ERROR_COLOR;
+    if ( $manager->isManaged ) {
+        if ( $manager->sysdEnable() ) {
+            $command = 'Service enabled';
+            $color   = $SUCCESS_COLOR;
+        }
+        else {
+            $command = 'Service not enabled';
+            $color   = $ERROR_COLOR;
+        }
     }
-    print $manager->name,"|${color}${command}${RESET_COLOR}\n";
-}
+    else {
+        if ( $manager->sysdDisable() ) {
+            $command = 'Service disabled';
+            $color   = $SUCCESS_COLOR;
+        }
+        else {
+            $command = 'Service not disabled';
+            $color   = $ERROR_COLOR;
+        }
+    }
 
+    print $manager->name, "|${color}${command}${RESET_COLOR}\n";
+}
 
 sub getIptablesTechnique {
     require pf::inline::custom;
@@ -332,10 +345,25 @@ sub restartService {
 sub statusOfService {
     my ($service,@services) = @_;
     my @managers = pf::services::getManagers(\@services);
-    print "  UNIT                                                                                             LOAD      ACTIVE   SUB       DESCRIPTION\n"; 
-    for my $manager (@managers) { 
-    $manager->print_status;
-    } 
+    print "service|shouldBeStarted|pid\n";
+    my $notStarted = 0;
+    foreach my $manager (@managers) {
+        my $color = '';
+        my $isManaged = $manager->isManaged;
+        my $status = $manager->status;
+        if($status eq '0' ) {
+            if ($isManaged && !$manager->optional) {
+                $color =  $ERROR_COLOR;
+                $notStarted++;
+            } else {
+                $color =  $WARNING_COLOR;
+            }
+        } else {
+            $color =  $SUCCESS_COLOR;
+        }
+        print $manager->name,"|${color}$isManaged|$status${RESET_COLOR}\n";
+    }
+    return ( $notStarted ? $EXIT_SERVICES_NOT_STARTED : $EXIT_SUCCESS)
 }
 
 =head1 AUTHOR

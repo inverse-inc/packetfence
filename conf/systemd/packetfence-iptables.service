@@ -1,4 +1,3 @@
-[% header_warning %]
 [Unit]
 Description=PacketFence Iptables configuration
 Wants=packetfence-config.service

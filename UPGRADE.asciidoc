@@ -133,6 +133,11 @@ Run the following script to add these parameters to pfdetect.conf
 
    /usr/local/pf/addons/upgrade/to-6.5-pfdetect-conf.pl
 
+Default RoleMap for the switches
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you were using the default 'RoleMap = Y' in the conf/switches.conf it's disabled by default now. You will need to put 'RoleMap = Y' under your switches or switch group configuration.
+
 Upgrading from a version prior to 6.4.0
 ---------------------------------------
 

@@ -89,7 +89,7 @@ has custom_subject => ( is => 'rw' );
 
 sub module_description { 'SCEP PKI' }
 
-=head2 get_cert
+=head2 get_bundle
 
 Get the certificate from the SCEP PKI service
 sscep enroll -c AD2008-0 -e AD2008-1 -k local.key -r local.csr -l cert.crt -S sha1 -u 'http://10.0.0.16/certsrv/mscep/' -d

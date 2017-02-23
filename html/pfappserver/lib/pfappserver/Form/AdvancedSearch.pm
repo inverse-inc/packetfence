@@ -130,6 +130,12 @@ has_field 'searches.value' =>
    do_label => 0,
   );
 
+has_field 'filter' =>
+ (
+   type => 'Text',
+   do_label => 0,
+ );
+
 =back
 
 =head1 COPYRIGHT
