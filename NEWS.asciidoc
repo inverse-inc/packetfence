@@ -11,6 +11,17 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
+Version 6.5.1 released on XXXX-XX-XX
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bug Fixes
++++++++++
+ * Fix incorrect node cleanup job handling.
+ * Fix multiple firewall SSO not working when cached updates were enabled.
+ * Removed usage of pf_memoize which could create a race condition when adding a node.
+ * Fix incorrect locationlog informations because of a null role.
+ * Fixed syntax error in generated Suricata rules
+
 Version 6.5.0 released on 2016-01-30
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
