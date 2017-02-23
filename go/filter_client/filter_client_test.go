@@ -1,6 +1,7 @@
 package filter_client
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"syscall"
@@ -90,16 +91,16 @@ func BenchmarkProfileFilterSimple(b *testing.B) {
 }
 
 func TestMain(m *testing.M) {
-	cmd := exec.Command("perl", "-I", "/usr/local/pf/t", "-Msetup_test_config", "/usr/local/pf/sbin/pffilter", "-s", SOCK_PATH, "-n", "pffilter-test")
+	cmd := exec.Command("perl", "-I", "/usr/local/pf/t", "-Mtest_paths", "/usr/local/pf/sbin/pffilter", "-s", SOCK_PATH, "-n", "pffilter-test")
 	err := cmd.Start()
 	if err != nil {
 		os.Exit(1)
 		return
 	}
-	defer func() {
-		cmd.Process.Signal(syscall.SIGINT)
-		cmd.Process.Wait()
-	}()
-	time.Sleep(60000 * time.Millisecond)
-	os.Exit(m.Run())
+	time.Sleep(20000 * time.Millisecond)
+	result := m.Run()
+
+	cmd.Process.Signal(syscall.SIGTERM)
+	cmd.Process.Wait()
+	os.Exit(result)
 }
