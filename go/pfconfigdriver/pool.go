@@ -66,16 +66,24 @@ func (p *Pool) refreshRefreshables(ctx context.Context) {
 
 // Attempts to obtain a RW lock with the timeout set in RefreshLockTimeout
 func (p *Pool) acquireWriteLock(ctx context.Context) bool {
-	timeoutChan := make(chan int, 1)
+	// timeoutChan has a capacity of 2 because it signals the timeout to the locking goroutine and the lock-waiting goroutine
+	timeoutChan := make(chan int, 2)
 	go func() {
 		time.Sleep(p.RefreshLockTimeout)
+		timeoutChan <- 1
 		timeoutChan <- 1
 	}()
 
 	lockChan := make(chan int, 1)
 	go func() {
 		p.lock.Lock()
-		lockChan <- 1
+		select {
+		// We acquired the lock after a timeout so we release it, its useless and the main goroutine has moved on
+		case <-timeoutChan:
+			p.lock.Unlock()
+		default:
+			lockChan <- 1
+		}
 	}()
 
 	select {
