@@ -130,9 +130,7 @@ start();
 
 while($running){
     sleep 1;
-    $logger->info("Checking stuff");
     foreach my $pid (keys %CHILDREN){
-        $logger->info("Checking $pid");
         unless(kill(0,$pid)){
             $logger->error("Child $pid ($CHILDREN{$pid}) is dead. Respawning it.");
             run_winbindd($CHILDREN{$pid});
