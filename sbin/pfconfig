@@ -49,6 +49,10 @@ use bytes;
 use pf::util::networking qw(send_data_with_length);
 our $RUNNING = 1;
 
+## All pfconfig objects implementing TO_JSON must be imported here
+use pfconfig::objects::NetAddr::IP;
+use pfconfig::objects::Net::Netmask;
+
 my %args = (
     s => $pfconfig::constants::SOCKET_PATH,
     #Name of the process
