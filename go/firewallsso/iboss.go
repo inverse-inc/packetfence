@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/fingerbank/processor/log"
-	"github.com/fingerbank/processor/sharedutils"
 	"net/http"
 )
 
@@ -65,7 +64,7 @@ func (fw *Iboss) Stop(ctx context.Context, info map[string]string) (bool, error)
 // Build an HTTP request to send to the Iboss firewall
 // This builds the request for start+stop and is controlled by the action parameter
 // This will return an error if the request cannot be built
-func (fw *Iboss) getRequest(ctx context.Context, action string, info map[string]string) *http.Request {
+func (fw *Iboss) getRequest(ctx context.Context, action string, info map[string]string) (*http.Request, error) {
 	req, err := http.NewRequest(
 		"GET",
 		fmt.Sprintf(
