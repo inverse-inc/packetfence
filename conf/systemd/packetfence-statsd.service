@@ -4,6 +4,7 @@ After=packetfence-carbon-relay.service packetfence-iptables.service packetfence-
 Wants=packetfence-carbon-relay.service packetfence-iptables.service packetfence-base.target
 
 [Service]
+StandardOutput=syslog
 StartLimitBurst=3
 StartLimitInterval=60
 Type=simple

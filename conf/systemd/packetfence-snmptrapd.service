@@ -4,6 +4,7 @@ After=packetfence-base.target
 Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
 
 [Service]
+StandardOutput=syslog
 StartLimitBurst=3
 StartLimitInterval=60
 Type=notify

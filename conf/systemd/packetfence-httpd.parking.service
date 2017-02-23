@@ -6,6 +6,7 @@ Wants=packetfence-base.target packetfence-config.service packetfence-iptables.se
 After=packetfence-base.target packetfence-config.service packetfence-iptables.service packetfence-haproxy.service
 
 [Service]
+StandardOutput=syslog
 StartLimitBurst=3
 StartLimitInterval=60
 Type=simple
