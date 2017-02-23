@@ -59,6 +59,9 @@ func (q *Query) GetIdentifier() string {
 	return fmt.Sprintf("%s|%s", q.method, q.ns)
 }
 
+// Connect to the pfconfig socket
+// If it fails to connect, it will try it every second up to the time defined in SocketTimeout
+// After SocketTimeout is reached, this will panic
 func connectSocket(ctx context.Context) net.Conn {
 
 	timeoutChan := time.After(SocketTimeout)
@@ -206,6 +209,9 @@ func createQuery(ctx context.Context, o PfconfigObject) Query {
 	return query
 }
 
+// Checks wheter the LoadedAt field of the PfconfigObject (set by FetchDecodeSocket) is before or after the timestamp of the namespace control file.
+// If the LoadedAt field was set before the namespace control file, then the resource isn't valid anymore
+// If the namespace control file doesn't exist, the resource is considered invalid
 func IsValid(ctx context.Context, o PfconfigObject) bool {
 	ns := metadataFromField(ctx, o, "PfconfigNS")
 	controlFile := "/usr/local/pf/var/control/" + ns + "-control"
@@ -226,6 +232,7 @@ func IsValid(ctx context.Context, o PfconfigObject) bool {
 	}
 }
 
+// Fetch and decode from the socket but only if the PfconfigObject is not valid anymore
 func FetchDecodeSocketCache(ctx context.Context, o PfconfigObject) (bool, error) {
 	query := createQuery(ctx, o)
 	ctx = log.AddToLogContext(ctx, "PfconfigObject", query.GetIdentifier())

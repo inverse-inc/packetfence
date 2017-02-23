@@ -14,6 +14,8 @@ type FortiGate struct {
 	Port     string `json:"port"`
 }
 
+// Send an SSO start to the Fortigate firewall
+// Returns an error unless there is a valid reply from the firewall
 func (fw *FortiGate) Start(ctx context.Context, info map[string]string, timeout int) (bool, error) {
 	p := fw.startRadiusPacket(ctx, info, timeout)
 	client := fw.getRadiusClient(ctx)
@@ -26,6 +28,7 @@ func (fw *FortiGate) Start(ctx context.Context, info map[string]string, timeout 
 	}
 }
 
+// Build the RADIUS packet for an SSO start
 func (fw *FortiGate) startRadiusPacket(ctx context.Context, info map[string]string, timeout int) *radius.Packet {
 	r := radius.New(radius.CodeAccountingRequest, []byte(fw.Password))
 	r.Set("Acct-Status-Type", uint32(1))
@@ -38,6 +41,8 @@ func (fw *FortiGate) startRadiusPacket(ctx context.Context, info map[string]stri
 	return r
 }
 
+// Send an SSO stop to the Fortigate firewall
+// Returns an error unless there is a valid reply from the firewall
 func (fw *FortiGate) Stop(ctx context.Context, info map[string]string) (bool, error) {
 	p := fw.stopRadiusPacket(ctx, info)
 	client := fw.getRadiusClient(ctx)
@@ -50,6 +55,7 @@ func (fw *FortiGate) Stop(ctx context.Context, info map[string]string) (bool, er
 	}
 }
 
+// Build the RADIUS packet for an SSO stop
 func (fw *FortiGate) stopRadiusPacket(ctx context.Context, info map[string]string) *radius.Packet {
 	r := radius.New(radius.CodeAccountingRequest, []byte(fw.Password))
 	r.Set("Acct-Session-Id", "acct_pf-"+info["mac"])

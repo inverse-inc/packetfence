@@ -14,6 +14,8 @@ type Checkpoint struct {
 	Port     string `json:"port"`
 }
 
+// Send an SSO start to the Checkpoint firewall
+// Returns an error unless there is a valid reply from the firewall
 func (fw *Checkpoint) Start(ctx context.Context, info map[string]string, timeout int) (bool, error) {
 	p := fw.startRadiusPacket(ctx, info, timeout)
 	client := fw.getRadiusClient(ctx)
@@ -26,6 +28,7 @@ func (fw *Checkpoint) Start(ctx context.Context, info map[string]string, timeout
 	}
 }
 
+// Build the RADIUS packet for an SSO start
 func (fw *Checkpoint) startRadiusPacket(ctx context.Context, info map[string]string, timeout int) *radius.Packet {
 	r := radius.New(radius.CodeAccountingRequest, []byte(fw.Password))
 	r.Set("Acct-Status-Type", uint32(1))
@@ -39,6 +42,7 @@ func (fw *Checkpoint) startRadiusPacket(ctx context.Context, info map[string]str
 	return r
 }
 
+// SSO stop handler which does nothing other than printing a warning since the SSO stop is unimplemented for this firewall
 func (fw *Checkpoint) Stop(ctx context.Context, info map[string]string) (bool, error) {
 	log.LoggerWContext(ctx).Warn("SSO Stop is not available for this firewall")
 	return false, nil

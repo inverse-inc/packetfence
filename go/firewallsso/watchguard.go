@@ -15,6 +15,8 @@ type WatchGuard struct {
 	Port     string `json:"port"`
 }
 
+// Send an SSO start to the WatchGuard firewall
+// Returns an error unless there is a valid reply from the firewall
 func (fw *WatchGuard) Start(ctx context.Context, info map[string]string, timeout int) (bool, error) {
 	p := fw.startRadiusPacket(ctx, info, timeout)
 	client := fw.getRadiusClient(ctx)
@@ -32,6 +34,7 @@ func (fw *WatchGuard) Start(ctx context.Context, info map[string]string, timeout
 	}
 }
 
+// Build the RADIUS packet for an SSO start
 func (fw *WatchGuard) startRadiusPacket(ctx context.Context, info map[string]string, timeout int) *radius.Packet {
 	r := radius.New(radius.CodeAccountingRequest, []byte(fw.Password))
 	r.Set("Acct-Status-Type", uint32(1))
@@ -44,6 +47,8 @@ func (fw *WatchGuard) startRadiusPacket(ctx context.Context, info map[string]str
 	return r
 }
 
+// Send an SSO stop to the WatchGuard firewall
+// Returns an error unless there is a valid reply from the firewall
 func (fw *WatchGuard) Stop(ctx context.Context, info map[string]string) (bool, error) {
 	p := fw.stopRadiusPacket(ctx, info)
 	client := fw.getRadiusClient(ctx)
@@ -61,6 +66,7 @@ func (fw *WatchGuard) Stop(ctx context.Context, info map[string]string) (bool, e
 	}
 }
 
+// Build the RADIUS packet for an SSO stop
 func (fw *WatchGuard) stopRadiusPacket(ctx context.Context, info map[string]string) *radius.Packet {
 	r := radius.New(radius.CodeAccountingRequest, []byte(fw.Password))
 	r.Set("Acct-Session-Id", "acct_pf-"+info["mac"])

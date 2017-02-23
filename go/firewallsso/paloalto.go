@@ -17,8 +17,11 @@ type PaloAlto struct {
 	Port      string `json:"port"`
 }
 
+// Send an SSO start to the PaloAlto using either syslog or HTTP depending on the Transport value of the struct
+// This will return any value from startSyslog or startHttp depending on the type of the transport
 func (fw *PaloAlto) Start(ctx context.Context, info map[string]string, timeout int) (bool, error) {
 	if fw.Transport == "syslog" {
+		log.LoggerWContext(ctx).Info("Sending SSO to PaloAlto using syslog")
 		return fw.startSyslog(ctx, info, timeout)
 	} else {
 		log.LoggerWContext(ctx).Info("Sending SSO to PaloAlto using HTTP")
@@ -26,6 +29,9 @@ func (fw *PaloAlto) Start(ctx context.Context, info map[string]string, timeout i
 	}
 }
 
+// Get a syslog writter connection to the PaloAlto
+// This will always connect to port 514 and ignore the Port parameter
+// Returns an error if it can't connect but given its UDP, this should never fail
 func (fw *PaloAlto) getSyslog(ctx context.Context) (*syslog.Writer, error) {
 	writer, err := syslog.Dial("udp", fw.PfconfigHashNS+":514", syslog.LOG_ERR|syslog.LOG_LOCAL5, "pfsso")
 
@@ -37,6 +43,8 @@ func (fw *PaloAlto) getSyslog(ctx context.Context) (*syslog.Writer, error) {
 	return writer, err
 }
 
+// Send a syslog line to the PaloAlto
+// Will return an error if it fails to send the message
 func (fw *PaloAlto) sendSyslog(ctx context.Context, line string) error {
 	writer, err := fw.getSyslog(ctx)
 
@@ -54,6 +62,8 @@ func (fw *PaloAlto) sendSyslog(ctx context.Context, line string) error {
 	return nil
 }
 
+// Send a start to the PaloAlto using the syslog transport
+// Will return an error if it fails to send the message
 func (fw *PaloAlto) startSyslog(ctx context.Context, info map[string]string, timeout int) (bool, error) {
 	if err := fw.sendSyslog(ctx, fmt.Sprintf("Group <packetfence> User <%s> Address <%s> assigned to session", info["username"], info["ip"])); err != nil {
 		return false, err
@@ -62,6 +72,8 @@ func (fw *PaloAlto) startSyslog(ctx context.Context, info map[string]string, tim
 	}
 }
 
+// Send a start to the PaloAlto using the HTTP transport
+// Will return an error if it fails to get a valid reply from it
 func (fw *PaloAlto) startHttp(ctx context.Context, info map[string]string, timeout int) (bool, error) {
 	resp, err := fw.getHttpClient(ctx).PostForm("https://"+fw.PfconfigHashNS+":"+fw.Port+"/api/?type=user-id&action=set&key="+fw.Password,
 		url.Values{"cmd": {fw.startHttpPayload(ctx, info, timeout)}})
@@ -78,6 +90,7 @@ func (fw *PaloAlto) startHttp(ctx context.Context, info map[string]string, timeo
 	return err == nil, err
 }
 
+// Get the SSO start payload for the firewall
 func (fw *PaloAlto) startHttpPayload(ctx context.Context, info map[string]string, timeout int) string {
 	// PaloAlto XML API expects the timeout in minutes
 	timeout = timeout / 60
@@ -98,9 +111,11 @@ func (fw *PaloAlto) startHttpPayload(ctx context.Context, info map[string]string
 	return b.String()
 }
 
+// Send an SSO stop to the firewall if the transport mode is HTTP. Otherwise, this outputs a warning
+// Will return the values from stopHttp for HTTP and no error if its syslog
 func (fw *PaloAlto) Stop(ctx context.Context, info map[string]string) (bool, error) {
 	if fw.Transport == "syslog" {
-		log.LoggerWContext(ctx).Info("SSO Stop isn't supported on PaloAlto when using the syslog transport. You should use the HTTP transport if you require it.")
+		log.LoggerWContext(ctx).Warn("SSO Stop isn't supported on PaloAlto when using the syslog transport. You should use the HTTP transport if you require it.")
 		return false, nil
 	} else {
 		log.LoggerWContext(ctx).Info("Sending SSO to PaloAlto using HTTP")
@@ -108,6 +123,7 @@ func (fw *PaloAlto) Stop(ctx context.Context, info map[string]string) (bool, err
 	}
 }
 
+// Get the SSO stop payload for the firewall
 func (fw *PaloAlto) stopHttpPayload(ctx context.Context, info map[string]string) string {
 	t := template.New("PaloAlto.stopHttp")
 	t.Parse(`
@@ -126,6 +142,8 @@ func (fw *PaloAlto) stopHttpPayload(ctx context.Context, info map[string]string)
 	return b.String()
 }
 
+// Send an SSO stop using HTTP to the PaloAlto firewall
+// Returns an error if it fails to get a valid reply from the firewall
 func (fw *PaloAlto) stopHttp(ctx context.Context, info map[string]string) (bool, error) {
 	resp, err := fw.getHttpClient(ctx).PostForm("https://"+fw.PfconfigHashNS+":"+fw.Port+"/api/?type=user-id&action=set&key="+fw.Password,
 		url.Values{"cmd": {fw.stopHttpPayload(ctx, info)}})

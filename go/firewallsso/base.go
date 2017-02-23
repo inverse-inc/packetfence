@@ -75,10 +75,13 @@ func (fw *FirewallSSO) GetFirewallSSO(ctx context.Context) *FirewallSSO {
 	return fw
 }
 
+// Check whether or not the cached updates are enabled for this firewall
 func (fw *FirewallSSO) ShouldCacheUpdates(ctx context.Context) bool {
 	return fw.CacheUpdates == "enabled"
 }
 
+// Get the cache_timeout configured in the firewall as an int
+// Will return 0 if its not there or not a valid int
 func (fw *FirewallSSO) GetCacheTimeout(ctx context.Context) int {
 	timeout, err := strconv.ParseInt(fw.CacheTimeout, 10, 32)
 	if err != nil {
@@ -89,6 +92,7 @@ func (fw *FirewallSSO) GetCacheTimeout(ctx context.Context) int {
 	}
 }
 
+// Transform the SSO info into a template map context (uppercased all the info keys)
 func (fw *FirewallSSO) InfoToTemplateCtx(ctx context.Context, info map[string]string, timeout int) map[string]string {
 	templateCtx := make(map[string]string)
 	for k, v := range info {
@@ -112,6 +116,8 @@ func (fw *FirewallSSO) Stop(ctx context.Context, info map[string]string) (bool, 
 	return true, nil
 }
 
+// Get the source IP address for the SSO packets
+// Will return either the management VIP if there is one of the IP of the management network
 func (fw *FirewallSSO) getSourceIp(ctx context.Context) net.IP {
 	managementNetwork := pfconfigdriver.Config.Interfaces.ManagementNetwork
 
@@ -122,6 +128,7 @@ func (fw *FirewallSSO) getSourceIp(ctx context.Context) net.IP {
 	}
 }
 
+// Get the default SSO HTTP client that doesn't check for valid certificates
 func (fw *FirewallSSO) getHttpClient(ctx context.Context) *http.Client {
 	// We don't check the TLS certificate if applicable
 	transport := &http.Transport{
@@ -130,6 +137,7 @@ func (fw *FirewallSSO) getHttpClient(ctx context.Context) *http.Client {
 	return &http.Client{Transport: transport}
 }
 
+// Get the default RADIUS client
 func (fw *FirewallSSO) getRadiusClient(ctx context.Context) *radius.Client {
 	return &radius.Client{}
 }

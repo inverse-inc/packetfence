@@ -13,14 +13,18 @@ type PfconfigObject interface {
 	SetLoadedAt(time.Time)
 }
 
+// A basic StructConfig that contains the loaded at time which ensures FetchDecodeSocketCache will refresh the struct when needed
+// FetchDecodeSocket can be used by structs that don't include this one, but the pool uses FetchDecodeSocketCache so this struct should always be included in the pfconfig based structs
 type StructConfig struct {
 	PfconfigLoadedAt time.Time
 }
 
+// Set the loaded at of the struct
 func (ps *StructConfig) SetLoadedAt(t time.Time) {
 	ps.PfconfigLoadedAt = t
 }
 
+// Get the loaded at time of the struct
 func (ps *StructConfig) GetLoadedAt() time.Time {
 	return ps.PfconfigLoadedAt
 }

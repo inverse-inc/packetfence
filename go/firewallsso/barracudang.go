@@ -14,6 +14,7 @@ type BarracudaNG struct {
 	Port     string `json:"port"`
 }
 
+// Get an SSH session to the firewall
 func (fw *BarracudaNG) getSshSession(ctx context.Context) (*ssh.Session, error) {
 	sshConfig := &ssh.ClientConfig{
 		User: fw.Username,
@@ -32,6 +33,8 @@ func (fw *BarracudaNG) getSshSession(ctx context.Context) (*ssh.Session, error) 
 	return session, err
 }
 
+// Send an SSO start to the BarracudaNG Firewall
+// Will return an error if it can't connect
 func (fw *BarracudaNG) Start(ctx context.Context, info map[string]string, timeout int) (bool, error) {
 	session, err := fw.getSshSession(ctx)
 
@@ -46,6 +49,8 @@ func (fw *BarracudaNG) Start(ctx context.Context, info map[string]string, timeou
 	return true, nil
 }
 
+// Send an SSO stop to the BarracudaNG Firewall
+// Will return an error if it can't connect
 func (fw *BarracudaNG) Stop(ctx context.Context, info map[string]string) (bool, error) {
 	session, err := fw.getSshSession(ctx)
 

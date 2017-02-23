@@ -7,13 +7,20 @@ import (
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
+// Global variable that can be used in a pfconfigdriver.Pool
 var Firewalls FirewallsContainer
 
+// A struct which contains all the firewall IDs along with their instantiated FirewallSSOInt struct
+// It implements pfconfigdriver.Refreshable so that this can be part of a pfconfigdriver.Pool
+// TODO: This should be reworked into a generalized method of loading these type of PacketFence resources (like provisioners, PKI providers, ...)
 type FirewallsContainer struct {
 	ids     pfconfigdriver.PfconfigKeys
 	Structs map[string]FirewallSSOInt
 }
 
+// Refresh the FirewallsContainer struct
+// Will first check if the IDs have changed in pfconfig and reload if they did
+// Then it will check if all the IDs in pfconfig are loaded and valid and reload otherwise
 func (f *FirewallsContainer) Refresh(ctx context.Context) {
 	reload := false
 
