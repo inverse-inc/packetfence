@@ -125,12 +125,6 @@ func metadataFromField(ctx context.Context, param interface{}, fieldName string)
 		ov = ov.Elem()
 	}
 
-	field := ov.FieldByName(fieldName)
-
-	if !field.IsValid() {
-		return ""
-	}
-
 	// We check if the field was set to a value as this will overide the value in the tag
 	// At the same time, we check if the field exists and early exit with the empty string if it doesn't
 	field := reflect.Value(ov.FieldByName(fieldName))
