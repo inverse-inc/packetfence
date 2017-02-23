@@ -80,6 +80,7 @@ type PfconfigKeys struct {
 }
 
 type ListenInts struct {
+	StructConfig
 	PfconfigMethod string `val:"element"`
 	PfconfigNS     string `val:"interfaces::listen_ints"`
 	PfconfigArray  string `val:"yes"`

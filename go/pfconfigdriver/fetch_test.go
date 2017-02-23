@@ -154,7 +154,7 @@ func TestFetchDecodeSocketCache(t *testing.T) {
 func TestArrayElements(t *testing.T) {
 	var li ListenInts
 
-	FetchDecodeSocketStruct(ctx, &li)
+	FetchDecodeSocket(ctx, &li)
 
 	expected := 2
 	if len(li.Element) != expected {
