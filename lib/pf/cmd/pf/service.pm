@@ -5,11 +5,10 @@ pf::cmd::pf::service add documentation
 
 =head1 SYNOPSIS
 
-pfcmd service <service> [start|stop|restart|status|watch|generateconfig|updatesystemd] [--ignore-checkup]
+pfcmd service <service> [start|stop|restart|status|generateconfig|updatesystemd] [--ignore-checkup]
 
   stop/stop/restart specified service
-  status returns PID of specified PF daemon or 0 if not running
-  watch acts as a service watcher which can send email/restart the services
+  status returns PID of specified PF daemon or 0 if not running.
 
   --ignore-checkup will start the requested services even if the checkup fails
 
@@ -22,35 +21,32 @@ Services managed by PacketFence:
   haproxy          | haproxy daemon
   httpd.aaa        | Apache AAA webservice
   httpd.admin      | Apache Web admin
+  httpd.collector  | Apache Collector demon
+  httpd.graphite   | Apache Graphite daemon
+  httpd.parking    | Apache Parking Portal
   httpd.portal     | Apache Captive Portal
   httpd.proxy      | Apache Proxy Interception
   httpd.webservices| Apache Webservices
   iptables         | PacketFence firewall rules
   keepalived       | Virtual IP management
+  p0f              | Device fingerprinting daemon
   pf               | all services that should be running based on your config
   pfbandwidthd     | A pf service to monitor bandwidth usages
   pfdetect         | PF snort alert parser
   pfdhcplistener   | PF DHCP monitoring daemon
   pfdns            | DNS daemon
-  pfmon            | PF ARP monitoring daemon
+  pffilter         | PF conditions filtering daemon
+  pfmon            | PF monitoring daemon
+  pfqueue          | PF queueing service
   pfsetvlan        | PF VLAN isolation daemon
   radiusd          | FreeRADIUS daemon
   radsniff         | radsniff daemon
+  redis_ntlm_cache | Redis for the NTLM cache
   redis_queue      | Redis for pfqueue
   routes           | manage static routes
-  redis_ntlm_cache | Redis for the NTLM cache
   snmptrapd        | SNMP trap receiver daemon
-  snort            | Sourcefire Snort IDS
   statsd           | statsd service
-  suricata         | Suricata IDS
   winbindd         | Winbind daemon
-
-watch
-
- Watch performs services checks to make sure that everything is fine. It's
- behavior is controlled by servicewatch configuration parameters. watch is
- typically best called from cron with something like:
- */5 * * * * /usr/local/pf/bin/pfcmd service pf watch
 
 =head1 DESCRIPTION
 
@@ -83,7 +79,6 @@ our %ACTION_MAP = (
     status  => \&statusOfService,
     start   => \&startService,
     stop    => \&stopService,
-    watch   => \&watchService,
     restart => \&restartService,
     generateconfig => \&generateConfig,
     updatesystemd    => \&updateSystemd,
