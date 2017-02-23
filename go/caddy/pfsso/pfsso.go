@@ -3,6 +3,7 @@ package pfsso
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/fingerbank/processor/log"
 	"github.com/fingerbank/processor/statsd"
@@ -26,15 +27,36 @@ func init() {
 	})
 }
 
-func (h PfssoHandler) parseBody(ctx context.Context, body io.Reader) (map[string]string, int) {
+func (h PfssoHandler) parseSsoRequest(ctx context.Context, body io.Reader) (map[string]string, int, error) {
 	var info map[string]string
-	json.NewDecoder(body).Decode(&info)
+	err := json.NewDecoder(body).Decode(&info)
+
+	if err != nil {
+		msg := fmt.Sprintf("Error while decoding payload: %s", err)
+		log.LoggerWContext(ctx).Error(msg)
+		return nil, 0, errors.New(msg)
+	}
+
 	timeout, err := strconv.ParseInt(info["timeout"], 10, 32)
 	if err != nil {
 		log.LoggerWContext(ctx).Warn(fmt.Sprintf("Can't parse timeout '%s' into an int (%s). Will not specify timeout for request.", info["timeout"], err))
 	}
 
-	return info, int(timeout)
+	if err := h.validateInfo(ctx, info); err != nil {
+		return nil, 0, err
+	}
+
+	return info, int(timeout), nil
+}
+
+func (h PfssoHandler) validateInfo(ctx context.Context, info map[string]string) error {
+	required := []string{"ip", "mac", "role"}
+	for _, k := range required {
+		if _, ok := info[k]; !ok {
+			return errors.New(fmt.Sprintf("Missing %s in request", k))
+		}
+	}
+	return nil
 }
 
 func (h PfssoHandler) spawnSso(ctx context.Context, firewall firewallsso.FirewallSSOInt, f func() (bool, error)) {
@@ -48,7 +70,7 @@ func (h PfssoHandler) spawnSso(ctx context.Context, firewall firewallsso.Firewal
 		if sent {
 			log.LoggerWContext(ctx).Debug("Sent SSO to " + firewall.GetFirewallSSO(ctx).PfconfigHashNS)
 		} else {
-			log.LoggerWContext(ctx).Debug("Couldn't send SSO to " + firewall.GetFirewallSSO(ctx).PfconfigHashNS)
+			log.LoggerWContext(ctx).Debug("Didn't send SSO to " + firewall.GetFirewallSSO(ctx).PfconfigHashNS)
 		}
 	}()
 }
@@ -61,7 +83,12 @@ func (h PfssoHandler) handleUpdate(w http.ResponseWriter, r *http.Request, p htt
 	ctx := r.Context()
 	defer statsd.NewStatsDTiming(ctx).Send("PfssoHandler.handleUpdate")
 
-	info, timeout := h.parseBody(ctx, r.Body)
+	info, timeout, err := h.parseSsoRequest(ctx, r.Body)
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+		return
+	}
+
 	ctx = h.addInfoToContext(ctx, info)
 
 	var shouldStart bool
@@ -114,7 +141,12 @@ func (h PfssoHandler) handleStart(w http.ResponseWriter, r *http.Request, p http
 	ctx := r.Context()
 	defer statsd.NewStatsDTiming(ctx).Send("PfssoHandler.handleStart")
 
-	info, timeout := h.parseBody(ctx, r.Body)
+	info, timeout, err := h.parseSsoRequest(ctx, r.Body)
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+		return
+	}
+
 	ctx = h.addInfoToContext(ctx, info)
 
 	for _, firewall := range firewallsso.Firewalls.Structs {
@@ -132,7 +164,12 @@ func (h PfssoHandler) handleStop(w http.ResponseWriter, r *http.Request, p httpr
 	ctx := r.Context()
 	defer statsd.NewStatsDTiming(ctx).Send("PfssoHandler.handleStop")
 
-	info, _ := h.parseBody(ctx, r.Body)
+	info, _, err := h.parseSsoRequest(ctx, r.Body)
+	if err != nil {
+		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+		return
+	}
+
 	ctx = h.addInfoToContext(ctx, info)
 
 	for _, firewall := range firewallsso.Firewalls.Structs {
