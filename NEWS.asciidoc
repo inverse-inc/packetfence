@@ -35,6 +35,8 @@ Bug Fixes
  * Removed usage of pf_memoize which could create a race condition when adding a node.
  * Fix incorrect locationlog informations because of a null role.
  * Fixed syntax error in generated Suricata rules
+ * Fixed the Portal preview through the admin
+ * Fixed issue extracting the SSID from the switch HP::Controller_MSM710
 
 Version 6.5.0 released on 2016-01-30
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
