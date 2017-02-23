@@ -24,6 +24,8 @@ const pfconfigTestSocketPath string = "/usr/local/pf/var/run/pfconfig-test.sock"
 
 var pfconfigSocketPathCache string
 
+var SocketTimeout time.Duration = 60 * time.Second
+
 // Get the pfconfig socket path depending on whether or not we're in testing
 // Since the environment is not bound to change at runtime, the socket path is computed once and cached in pfconfigSocketPathCache
 // If the socket should be re-computed, empty out pfconfigSocketPathCache and run this function
@@ -57,20 +59,38 @@ func (q *Query) GetIdentifier() string {
 	return fmt.Sprintf("%s|%s", q.method, q.ns)
 }
 
+func connectSocket(ctx context.Context) net.Conn {
+
+	timeoutChan := time.After(SocketTimeout)
+
+	var c net.Conn
+	err := errors.New("Not yet connected")
+	for err != nil {
+		select {
+		case <-timeoutChan:
+			panic("Can't connect to pfconfig socket")
+		default:
+			// We try to connect to the pfconfig socket
+			// If we fail, we will wait a second before leaving this scope
+			// Otherwise, we continue and the for loop will detect the connection is valid since err will be nil
+			c, err = net.Dial("unix", getPfconfigSocketPath())
+			if err != nil {
+				log.LoggerWContext(ctx).Error("Cannot connect to pfconfig socket...")
+				time.Sleep(1 * time.Second)
+			}
+		}
+	}
+
+	return c
+}
+
 // Fetch data from the pfconfig socket for a string payload
 // Returns the bytes received from the socket
 func FetchSocket(ctx context.Context, payload string) []byte {
-	c, err := net.Dial("unix", getPfconfigSocketPath())
-
-	if err != nil {
-		panic(err)
-	}
+	c := connectSocket(ctx)
 
 	// Send our query in the socket
 	fmt.Fprintf(c, payload)
-	if err != nil {
-		panic(err)
-	}
 
 	var buf bytes.Buffer
 	buf.ReadFrom(c)
