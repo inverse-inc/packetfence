@@ -291,7 +291,8 @@ sub firewallsso : Public {
     )->call("/pfsso/".lc($postdata{method}), {
         ip => $postdata{ip}, 
         mac => pf::util::clean_mac($postdata{mac}),
-        timeout => $postdata{timeout},
+        # All values must be string for pfsso
+        timeout => $postdata{timeout}."",
         role => $node->{category},
     });
 
