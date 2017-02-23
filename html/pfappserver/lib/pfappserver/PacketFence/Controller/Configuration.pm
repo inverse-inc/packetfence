@@ -70,6 +70,10 @@ our %ALLOWED_SECTIONS = (
     mse_tab => undef,
     radius_authentication_methods => undef,
     define_policy => undef,
+    advanced_conf => undef,
+    system_config => undef,
+    portal_config => undef,
+    compliance => undef,
 );
 
 
@@ -229,6 +233,16 @@ sub soh :Local {
     $c->go('Controller::SoH', 'index');
 }
 
+=roles1
+
+=cut
+
+sub roles1 :Local {
+    my ($self, $c) = @_;
+
+    $c->go('Controller::Roles', 'index');
+}
+
 =head2 roles
 
 =cut
@@ -306,7 +320,7 @@ sub networks :Local {
 sub advanced_conf :Local {
     my ($self, $c) = @_;
 
-    $c->stash->{template} = "conf/advanced_conf.tt";
+    $c->stash->{template} = "config/advanced_conf.tt";
 }
 
 =head2 define_policy

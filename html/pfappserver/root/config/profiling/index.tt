@@ -1,5 +1,6 @@
 <h4 class="alert alert-warning">[% l('This section is for profiling. Fingerbank will help you every device type.') %]</h4>
 
+<div id="tabView">
   <ul class="nav nav-tabs">
     <li [% IF tab == 'general settings' %]class="active"[% END %]>
       <a href="#newTabView" data-href="[% c.uri_for(c.controller('Config::Fingerbank::Settings').action_for('index')) %]" data-toggle="tab">[% l('General Settings') %]</a>
@@ -32,4 +33,5 @@
 <div class="tab-content">
   <div class="tab-pane fade" id="newTabView">
   </div><!--tab-pane-->
+</div>
 </div>

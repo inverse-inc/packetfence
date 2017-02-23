@@ -37,6 +37,8 @@ function init() {
             var a = $(input).siblings('a[value="' + value  +  '"]');
             a.attr('default-value','yes');
         });
+        /* Load the first tab on section click */
+        $('#tabView').find('[data-toggle="tab"]').first().click();
 
     });
 
@@ -45,6 +47,7 @@ function init() {
         return true;
     });
 
+    /* Show the tab content */
     $('#section').on('show', '[href="#newTabView"]', function(e) {
         var btn = $(e.target);
         var name = btn.attr("href");

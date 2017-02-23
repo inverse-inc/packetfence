@@ -1,5 +1,6 @@
 <h4 class="alert alert-warning">[% l('This section is for scanners. you will be able to configure scan engine nad rules here.') %]</h4>
 
+<div id="tabView">
   <ul class="nav nav-tabs">
     <li [% IF tab == 'scan engines' %]class="active"[% END %]>
       <a href="#newTabView" data-href="[% c.uri_for(c.controller('Config::Scan').action_for('index')) %]" data-toggle="tab">[% l('Scan Engines') %]</a>
@@ -14,4 +15,5 @@
 <div class="tab-content">
   <div class="tab-pane fade" id="newTabView">
   </div><!--tab-pane-->
+</div>
 </div>
