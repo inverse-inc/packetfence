@@ -3,7 +3,6 @@ package filter_client
 import (
 	"bufio"
 	"encoding/json"
-	"fmt"
 	"net"
 )
 
