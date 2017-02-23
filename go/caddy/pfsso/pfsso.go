@@ -37,15 +37,24 @@ func (h PfssoHandler) parseBody(ctx context.Context, body io.Reader) (map[string
 	return info, int(timeout)
 }
 
-func (h PfssoHandler) spawnSso(ctx context.Context, firewall firewallsso.FirewallSSOInt, f func() bool) {
+func (h PfssoHandler) spawnSso(ctx context.Context, firewall firewallsso.FirewallSSOInt, f func() (bool, error)) {
 	go func() {
 		defer panichandler.Standard(ctx)
-		if !f() {
-			log.LoggerWContext(ctx).Error("Failed to send SSO to " + firewall.GetFirewallSSO(ctx).PfconfigHashNS)
-		} else {
+		sent, err := f()
+		if err != nil {
+			log.LoggerWContext(ctx).Error(fmt.Sprintf("Error while sending SSO to %s: %s"+firewall.GetFirewallSSO(ctx).PfconfigHashNS, err))
+		}
+
+		if sent {
 			log.LoggerWContext(ctx).Debug("Sent SSO to " + firewall.GetFirewallSSO(ctx).PfconfigHashNS)
+		} else {
+			log.LoggerWContext(ctx).Debug("Couldn't send SSO to " + firewall.GetFirewallSSO(ctx).PfconfigHashNS)
 		}
 	}()
+}
+
+func (h PfssoHandler) addInfoToContext(ctx context.Context, info map[string]string) context.Context {
+	return log.AddToLogContext(ctx, "ip", info["ip"], "mac", info["mac"], "role", info["role"])
 }
 
 func (h PfssoHandler) handleUpdate(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
@@ -53,6 +62,7 @@ func (h PfssoHandler) handleUpdate(w http.ResponseWriter, r *http.Request, p htt
 	defer statsd.NewStatsDTiming(ctx).Send("PfssoHandler.handleUpdate")
 
 	info, timeout := h.parseBody(ctx, r.Body)
+	ctx = h.addInfoToContext(ctx, info)
 
 	var shouldStart bool
 	for _, firewall := range firewallsso.Firewalls.Structs {
@@ -88,7 +98,7 @@ func (h PfssoHandler) handleUpdate(w http.ResponseWriter, r *http.Request, p htt
 		if shouldStart {
 			//Creating a shallow copy here so the anonymous function has the right reference
 			firewall := firewall
-			h.spawnSso(ctx, firewall, func() bool {
+			h.spawnSso(ctx, firewall, func() (bool, error) {
 				return firewallsso.ExecuteStart(ctx, firewall, info, timeout)
 			})
 		} else {
@@ -103,11 +113,12 @@ func (h PfssoHandler) handleStart(w http.ResponseWriter, r *http.Request, p http
 	defer statsd.NewStatsDTiming(ctx).Send("PfssoHandler.handleStart")
 
 	info, timeout := h.parseBody(ctx, r.Body)
+	ctx = h.addInfoToContext(ctx, info)
 
 	for _, firewall := range firewallsso.Firewalls.Structs {
 		//Creating a shallow copy here so the anonymous function has the right reference
 		firewall := firewall
-		h.spawnSso(ctx, firewall, func() bool {
+		h.spawnSso(ctx, firewall, func() (bool, error) {
 			return firewallsso.ExecuteStart(ctx, firewall, info, timeout)
 		})
 	}
@@ -120,11 +131,12 @@ func (h PfssoHandler) handleStop(w http.ResponseWriter, r *http.Request, p httpr
 	defer statsd.NewStatsDTiming(ctx).Send("PfssoHandler.handleStop")
 
 	info, _ := h.parseBody(ctx, r.Body)
+	ctx = h.addInfoToContext(ctx, info)
 
 	for _, firewall := range firewallsso.Firewalls.Structs {
 		//Creating a shallow copy here so the anonymous function has the right reference
 		firewall := firewall
-		h.spawnSso(ctx, firewall, func() bool {
+		h.spawnSso(ctx, firewall, func() (bool, error) {
 			return firewallsso.ExecuteStop(ctx, firewall, info)
 		})
 	}

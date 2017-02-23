@@ -102,13 +102,13 @@ func (fw *FirewallSSO) InfoToTemplateCtx(ctx context.Context, info map[string]st
 
 // Start method that will be called on every SSO called via ExecuteStart
 func (fw *FirewallSSO) Start(ctx context.Context, info map[string]string, timeout int) (bool, error) {
-	fw.logger(ctx).Debug("Sending SSO start")
+	log.LoggerWContext(ctx).Debug("Sending SSO start")
 	return true, nil
 }
 
 // Stop method that will be called on every SSO called via ExecuteStop
 func (fw *FirewallSSO) Stop(ctx context.Context, info map[string]string) (bool, error) {
-	fw.logger(ctx).Debug("Sending SSO stop")
+	log.LoggerWContext(ctx).Debug("Sending SSO stop")
 	return true, nil
 }
 
@@ -139,23 +139,23 @@ func (fw *FirewallSSO) getRadiusClient(ctx context.Context) *radius.Client {
 // Otherwise, if the IP is part of one of the networks, this succeeds, otherwise it fails
 func (fw *FirewallSSO) MatchesNetwork(ctx context.Context, info map[string]string) bool {
 	if len(fw.Networks) == 0 {
-		fw.logger(ctx).Debug("No network defined. Allowing all networks")
+		log.LoggerWContext(ctx).Debug("No network defined. Allowing all networks")
 		return true
 	}
 	ip := net.ParseIP(info["ip"])
 
 	if ip == nil {
-		fw.logger(ctx).Error(fmt.Sprintf("%s isn't a valid IP address. Cannot validate the network it belongs to.", ip))
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("%s isn't a valid IP address. Cannot validate the network it belongs to.", ip))
 		return false
 	}
 
 	for _, net := range fw.Networks {
 		if net.IpNet.Contains(ip) {
-			fw.logger(ctx).Debug(fmt.Sprintf("%s matches network %s", ip, net.Cidr))
+			log.LoggerWContext(ctx).Debug(fmt.Sprintf("%s matches network %s", ip, net.Cidr))
 			return true
 		}
 	}
-	fw.logger(ctx).Debug(fmt.Sprintf("%s doesn't match any configured network", ip))
+	log.LoggerWContext(ctx).Debug(fmt.Sprintf("%s doesn't match any configured network", ip))
 	return false
 }
 
@@ -185,14 +185,16 @@ func (fw *FirewallSSO) logger(ctx context.Context) log15.Logger {
 // Execute an SSO Start request on the specified firewall
 // Makes sure to call FirewallSSO.Start and to validate the network and role if necessary
 func ExecuteStart(ctx context.Context, fw FirewallSSOInt, info map[string]string, timeout int) (bool, error) {
-	ctx = log.AddToLogContext(ctx, "ip", info["ip"], "mac", info["mac"])
+	ctx = log.AddToLogContext(ctx, "firewall-id", fw.GetFirewallSSO(ctx).PfconfigHashNS)
+	log.LoggerWContext(ctx).Info("Processing SSO Start")
+
 	if !fw.MatchesRole(ctx, info) {
-		fw.logger(ctx).Info(fmt.Sprintf("Not sending SSO for user device %s since it doesn't match the role", info["role"]))
+		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO for user device %s since it doesn't match the role", info["role"]))
 		return false, nil
 	}
 
 	if !fw.MatchesNetwork(ctx, info) {
-		fw.logger(ctx).Info(fmt.Sprintf("Not sending SSO for IP %s since it doesn't match any configured network", info["ip"]))
+		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO for IP %s since it doesn't match any configured network", info["ip"]))
 		return false, nil
 	}
 
@@ -209,10 +211,11 @@ func ExecuteStart(ctx context.Context, fw FirewallSSOInt, info map[string]string
 // Execute an SSO Stop request on the specified firewall
 // Makes sure to call FirewallSSO.Start and to validate the network if necessary
 func ExecuteStop(ctx context.Context, fw FirewallSSOInt, info map[string]string) (bool, error) {
-	ctx = log.AddToLogContext(ctx, "ip", info["ip"], "mac", info["mac"])
+	ctx = log.AddToLogContext(ctx, "ip", info["ip"], "mac", info["mac"], "firewall-id", fw.GetFirewallSSO(ctx).PfconfigHashNS)
+	log.LoggerWContext(ctx).Info("Processing SSO Start")
 
 	if !fw.MatchesNetwork(ctx, info) {
-		fw.logger(ctx).Info(fmt.Sprintf("Not sending SSO for IP %s since it doesn't match any configured network", info["ip"]))
+		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO for IP %s since it doesn't match any configured network", info["ip"]))
 		return false, nil
 	}
 
