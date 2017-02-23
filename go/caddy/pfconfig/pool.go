@@ -17,9 +17,10 @@ func init() {
 	})
 }
 
+// Setup an async goroutine that refreshes the pfconfig pool every second
 func setup(c *caddy.Controller) error {
 	httpserver.GetConfig(c).AddMiddleware(func(next httpserver.Handler) httpserver.Handler {
-		return Pool{Next: next}
+		return PoolHandler{Next: next}
 	})
 
 	ctx := log.LoggerNewContext(context.Background())
@@ -33,11 +34,12 @@ func setup(c *caddy.Controller) error {
 	return nil
 }
 
-type Pool struct {
+type PoolHandler struct {
 	Next httpserver.Handler
 }
 
-func (h Pool) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
+// Middleware that ensures there is a read-lock on the pool during every request and released when the request is done
+func (h PoolHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 	pfconfigdriver.PfconfigPool.ReadLock(r.Context())
 	defer pfconfigdriver.PfconfigPool.ReadUnlock(r.Context())
 
