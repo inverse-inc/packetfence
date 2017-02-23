@@ -1,7 +1,6 @@
 package filter_client
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 	"syscall"
