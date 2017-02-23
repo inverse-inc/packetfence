@@ -42,7 +42,7 @@ BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
     @ISA    = qw(Exporter);
-    @EXPORT = qw(db_data db_connect db_disconnect get_db_handle db_query_execute db_ping db_cancel_current_query db_now);
+    @EXPORT = qw(db_data db_connect db_disconnect get_db_handle db_query_execute db_ping db_cancel_current_query db_now db_is_in_readonly_mode);
 
 }
 
@@ -405,6 +405,21 @@ sub db_cancel_current_query {
         $dbh_clone->do("KILL QUERY ". $DBH->{"mysql_thread_id"} . ";");
         $dbh_clone->disconnect();
     }
+}
+
+=item db_is_in_readonly_mode
+
+db_is_in_readonly_mode
+
+=cut
+
+sub db_is_in_readonly_mode {
+    my $dbh = db_connect();
+    my $sth = $dbh->prepare_cached('SELECT @@global.read_only;');
+    return 0 unless $sth->execute;
+    my $row = $sth->fetch;
+    $sth->finish;
+    return $row->[0];
 }
 
 =back
