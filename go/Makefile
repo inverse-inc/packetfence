@@ -17,3 +17,10 @@ _pfhttpd:
 clean-caddy-src:
 	find caddy/caddy/ -type f -exec sed -i.bak "s'github.com/mholt/caddy'github.com/inverse-inc/packetfence/go/caddy/caddy'g" {} \; ; find . -name '*.bak' -delete
 	find caddy/caddy/ -name '*_test.go' -delete
+
+.PHONY: test
+
+test:
+	/usr/local/pf/t/pfconfig-test ;\
+	PFCONFIG_TESTING=y go test ./... ;\
+	pkill pfconfig-test
