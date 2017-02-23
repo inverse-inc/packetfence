@@ -106,6 +106,8 @@ func (h PfssoHandler) handleUpdate(w http.ResponseWriter, r *http.Request, p htt
 		}
 
 	}
+
+	w.WriteHeader(http.StatusAccepted)
 }
 
 func (h PfssoHandler) handleStart(w http.ResponseWriter, r *http.Request, p httprouter.Params) {

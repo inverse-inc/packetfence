@@ -19,6 +19,8 @@ use Readonly;
 
 Readonly our $DEFAULT_CLIENT => "pf::api::jsonrpcclient";
 
+our $PFSSO_PORT = 8777;
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
