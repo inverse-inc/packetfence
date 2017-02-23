@@ -89,8 +89,8 @@ our (
     $captiveportal_profile_templates_path,
     $captiveportal_default_profile_templates_path,
     $maintenance_file,
-    $pffilter_socket_path
-    $control_dir
+    $pffilter_socket_path,
+    $control_dir,
 );
 
 BEGIN {
