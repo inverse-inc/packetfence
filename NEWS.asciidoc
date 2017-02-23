@@ -11,7 +11,7 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
-Version 6.5.1 released on XXXX-XX-XX
+Version 6.5.1 released on 2017-02-23
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Bug Fixes
