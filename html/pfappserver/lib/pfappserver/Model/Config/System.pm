@@ -352,6 +352,8 @@ sub writeNetworkConfigs {
             hwaddr          => $interfaces_ref->{$interface}->{'hwaddress'},
             ipaddr          => $interfaces_ref->{$interface}->{'ipaddress'},
             netmask         => $interfaces_ref->{$interface}->{'netmask'},
+            ipv6_address    => $interfaces_ref->{$interface}->{'ipv6_address'},
+            ipv6_prefix     => $interfaces_ref->{$interface}->{'ipv6_prefix'},
         };
 
         my $template = Template->new({
