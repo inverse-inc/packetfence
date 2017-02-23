@@ -16,6 +16,7 @@ use warnings;
 use Moo;
 use pf::log;
 use pf::config qw(%Config);
+use pf::util;
 
 extends 'pf::services::manager';
 
