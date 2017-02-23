@@ -6,6 +6,8 @@ Wants=packetfence-base.target packetfence-config.service packetfence-iptables.se
 After=packetfence-base.target packetfence-config.service packetfence-iptables.service
 
 [Service]
+StartLimitBurst=3
+StartLimitInterval=60
 Type=simple
 PIDFile=/usr/local/pf/var/run/httpd.webservices.pid
 ExecStartPre=/usr/local/pf/bin/pfcmd service httpd.webservices generateconfig

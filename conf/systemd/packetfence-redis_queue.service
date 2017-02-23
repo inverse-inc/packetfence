@@ -4,6 +4,8 @@ Wants=packetfence-base.target packetfence-config.service packetfence-iptables.se
 After=packetfence-base.target packetfence-config.service packetfence-iptables.service
 
 [Service]
+StartLimitBurst=3
+StartLimitInterval=60
 PIDFile=/usr/local/pf/var/run/redis_queue.pid
 ExecStartPre=/usr/local/pf/bin/pfcmd service redis_queue generateconfig
 ExecStart=/usr/bin/redis-server /usr/local/pf/var/conf/redis_queue.conf --daemonize no

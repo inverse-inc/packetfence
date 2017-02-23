@@ -6,6 +6,8 @@ Wants=packetfence-base.target packetfence-config.service packetfence-iptables.se
 After=packetfence-base.target packetfence-config.service packetfence-iptables.service
 
 [Service]
+StartLimitBurst=3
+StartLimitInterval=60
 PIDFile=/usr/local/pf/var/run/pfqueue.pid
 ExecStartPre=/usr/local/pf/bin/pfcmd service pfqueue generateconfig
 ExecStart=/usr/local/pf/sbin/pfqueue

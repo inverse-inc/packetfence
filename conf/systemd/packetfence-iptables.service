@@ -4,6 +4,8 @@ Wants=packetfence-config.service
 After=packetfence-config.service
 
 [Service]
+StartLimitBurst=3
+StartLimitInterval=60
 Type=oneshot
 RemainAfterExit=yes
 ExecStart=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::iptables' -e 'pf::services::manager::iptables->new()->_start()'

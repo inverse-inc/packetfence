@@ -4,6 +4,8 @@ After=packetfence-base.target
 Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
 
 [Service]
+StartLimitBurst=3
+StartLimitInterval=60
 Environment=KRB5CCNAME=FILE:/run/samba/krb5cc_samba
 RootDirectory=[% chroot_dir %]
 Type=notify

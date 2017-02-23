@@ -7,6 +7,8 @@ Wants=packetfence-base.target packetfence-config.service packetfence-iptables.se
 After=packetfence-base.target packetfence-config.service packetfence-iptables.service
 
 [Service]
+StartLimitBurst=3
+StartLimitInterval=60
 PIDFile=/usr/local/pf/var/run/collectd.pid
 ExecStartPre=/usr/local/pf/bin/pfcmd service collectd generateconfig
 ExecStart=/usr/sbin/collectd -P /usr/local/pf/var/run/collectd.pid -f -C /usr/local/pf/var/conf/collectd.conf

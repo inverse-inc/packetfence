@@ -4,6 +4,8 @@ Wants=packetfence-base.target packetfence-config.service packetfence-iptables.se
 After=packetfence-base.target packetfence-config.service packetfence-iptables.service
 
 [Service]
+StartLimitBurst=3
+StartLimitInterval=60
 PIDFile=/usr/local/pf/var/run/pfmon.pid
 ExecStart=/usr/local/pf/sbin/pfmon
 User=pf

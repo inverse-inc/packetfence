@@ -6,6 +6,8 @@ Wants=packetfence-base.target packetfence-config.service packetfence-iptables.se
 After=packetfence-base.target packetfence-config.service packetfence-iptables.service packetfence-haproxy.service
 
 [Service]
+StartLimitBurst=3
+StartLimitInterval=60
 Type=simple
 ExecStartPre=/usr/local/pf/bin/pfcmd service httpd.parking generateconfig
 ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.parking -DFOREGROUND  -Drhel

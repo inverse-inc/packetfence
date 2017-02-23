@@ -7,6 +7,8 @@ Requires=packetfence-config.service
 Conflicts=mysql.service mariadb.service
 
 [Service]
+StartLimitBurst=3
+StartLimitInterval=60
 Type=simple
 Slice=packetfence-base.slice
 
