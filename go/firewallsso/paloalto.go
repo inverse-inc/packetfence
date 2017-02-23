@@ -127,8 +127,6 @@ func (fw *PaloAlto) stopHttpPayload(ctx context.Context, info map[string]string)
 }
 
 func (fw *PaloAlto) stopHttp(ctx context.Context, info map[string]string) (bool, error) {
-	//TODO: change back to https when done testing
-	//TODO: Ignore cert checks
 	resp, err := fw.getHttpClient(ctx).PostForm("https://"+fw.PfconfigHashNS+":"+fw.Port+"/api/?type=user-id&action=set&key="+fw.Password,
 		url.Values{"cmd": {fw.stopHttpPayload(ctx, info)}})
 
