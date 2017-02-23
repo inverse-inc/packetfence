@@ -20,7 +20,8 @@ use Getopt::Long;
 
 my %options = (
     host => 'localhost',
-    port => 7911
+    port => 7911,
+    timeout => 5,
 );
 
 GetOptions(\%options, "port=i", "host=s", "key_name=s", "key_base64=s", "ip=s", "mac=s")
