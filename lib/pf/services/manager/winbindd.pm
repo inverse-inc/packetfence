@@ -93,6 +93,7 @@ sub build_namespaces(){
         pf_run("sudo ip netns exec $domain ip link set dev lo up");
         $i+=4;
     }
+    return 1;
 }
 
 

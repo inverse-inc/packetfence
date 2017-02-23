@@ -8,6 +8,7 @@ Before=packetfence-radiusd-auth.service
 StandardOutput=syslog
 StartLimitBurst=3
 StartLimitInterval=60
+ExecStartPre=/usr/local/pf/bin/pfcmd service winbindd generateconfig
 PIDFile=/usr/local/pf/var/run/winbindd-wrapper.pid
 ExecStart=/usr/local/pf/sbin/winbindd-wrapper
 Restart=on-failure
