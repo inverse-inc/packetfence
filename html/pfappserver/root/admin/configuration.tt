@@ -85,7 +85,20 @@ table.sources {
               [%- IF can_access_any("CONFIGURATION_MAIN_READ","CONNECTION_PROFILES_READ","PORTAL_MODULE_READ","ADMIN_ROLES_READ", "FILTERS_READ") -%]
               <li class="nav-header">[% pf_section_entry( 'define_policy', 'Policies and Access Control') | none %]</li>
               [%- IF can_access("USERS_ROLES_READ","CONFIGURATION_MAIN_READ") %]
-              [% pf_section_entry( 'roles', 'Devices') | none %]
+              <li class="" id="accordion-Devices">
+                <a data-toggle="collapse" data-parent="#accordion-Devices" href="#collapseDevices" class="collapsed">
+                  [% pf_section_entry( 'roles', 'Devices') | none %]
+                <i class="icon-chevron-up pull-right"></i></a>
+                <ul id="collapseDevices" class="collapse">
+                    <li>
+                      [% pf_section_entry( 'roles1', 'Roles') | none %]
+                      <!--<a href="#" data-toggle="pf-search-form"  data-target="#search" data-form-target="#search" data-parent="#collapseDevices">[% pf_section_entry( 'roles1', 'Roles') | none %]</a>-->
+                    </li>
+                    <li>
+                      <a href="#" data-toggle="pf-search-form"  data-target="#search" data-form-target="#search" data-parent="#collapseDevices">[% pf_section_entry( 'guests_admin_registration', 'Access Duration') | none %]</a>
+                    </li>
+                </ul>
+              </li>
               [%- END %]
               [%- IF can_access("USERS_SOURCES_READ") %]
               [% list_entry( 'Config::Authentication', 'index', 'Sources') | none %]
@@ -165,10 +178,6 @@ table.sources {
               [% pf_section_entry( 'vlan', 'SNMP') | none %]
               [%- IF can_access("FLOATING_DEVICES_READ") %]
               [% list_entry('Config::FloatingDevice', 'index', 'Floating Device') | none %]
-              [%- END %]
-              [%- IF can_access_any("INTERFACES_READ","SWITCHES_READ","FLOATING_DEVICES_READ","FIREWALL_SSO_READ") %]
-              [%- END %]
-              [%- IF can_access_any("USERS_ROLES_READ","USERS_SOURCES_READ", "PROVISIONING_READ", "PKI_PROVIDER_READ", "BILLING_TIER_READ") %]
               [%- END %]
           </div><!--/.well -->
         </div><!--/span-->
