@@ -17,7 +17,7 @@ Assumptions
 * Servers are running RHEL / CentOS 7
 * Servers have identical copies for network interfaces
 * Servers network interfaces are on the same layer 2 network
-* Servers hostnames must be resolvable via DNS resolution
+* Servers hostnames must be resolvable via DNS resolution or be in the hostfile (`/etc/hosts`) of each server.
 
 NOTE: Appended to this guide is a glossary on specialized terms used in this document.
 
@@ -31,15 +31,23 @@ NOTE: In this example, the database stack uses the native PacketFence MariaDB Ga
 
 CAUTION: Galera cluster is only supported in 3 nodes cluster and more (with an odd number of servers).
 
-PacketFence ships with a version of MariaDB that has Galera cluster built-in, so no additionnal packages are required.
+Installing packages
+^^^^^^^^^^^^^^^^^^^
+
+First, you will need to install Percona Xtrabackup for the synchronization to work correctly.
+
+  # yum install http://www.percona.com/downloads/percona-release/redhat/0.1-3/percona-release-0.1-3.noarch.rpm
+  # yum install percona-xtrabackup socat
+
+If you use the `/usr/local/pf/addons/database-backup-and-maintenance.sh` script, this will now enabled the Percona Xtrabackup mode. In order for it to work correctly, you should configure your installation as described in section '15.3.6. Using Percona XtraBackup' of the Administration guide.
 
 Configuring Galera
 ^^^^^^^^^^^^^^^^^^
 
 For the next steps, you want to make sure that you didn't configure anything in `/usr/local/pf/conf/cluster.conf`. If you already did, comment all the configuration in the file and do a configreload (`/usr/local/pf/bin/pfcmd configreload hard`).
 
-On each server of your cluster
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+On the first server of your cluster
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 First, start packetfence-mariadb and make sure it was able to start in 'standalone' mode.
 
@@ -250,6 +258,9 @@ Step 4: Integrating the two other nodes
 
 Now, you will need to integrate your 2 other nodes in your cluster.
 
+Base sync
+^^^^^^^^^
+
 Get the webservices user and password on the master node in 'Configuration/Web Services'
 If there's none, set the user, password and then restart httpd.webservices on the first server.
 
@@ -274,15 +285,39 @@ Make sure that this server is binding to it's own management address. If it's no
 
   # netstat -nlp | grep 9090
 
-Now, restart packetfence-mariadb so that the servers join the cluster.
+MariaDB sync
+^^^^^^^^^^^^
+
+Now, flush any MySQL data you have on this node and restart packetfence-mariadb so that the servers join the cluster.
+
+WARNING: If you have any data in MySQL on this node, this will destroy it.
+
+  # rm -fr /var/lib/mysql/*
 
   # systemctl restart packetfence-mariadb
 
-Make sure to join domains through 'Configuration/Domains' on each additional create node.
+Checking the MariaDB sync
++++++++++++++++++++++++++
+
+In order to check the MariaDB sync, you can look at the status of the wsrep status values inside MySQL.
+
+  mysql> show status like 'wsrep%';
+
+Important variables:
+  * 'wsrep_cluster_status': Display whether or not the node is part of a primary view or not. A healthy cluster should always show as primary
+  * 'wsrep_incoming_addresses': The current members of the cluster. All the nodes of your cluster should be listed there.
+  * 'wsrep_local_state_comment': Current sync state of the cluster. A healthy state is 'Synced'. Refer to the Galera cluster documentation for the meaning of the other values this can have.
+
+In order for the cluster to be considered healthy, all nodes must be listed under `wsrep_incoming_addresses` and `wsrep_local_state_comment` must be `Synced`. Otherwise look in the MariaDB log (`/var/lib/mysql/PF_HOSTNAME.err`)
+
+Wrapping up
+^^^^^^^^^^^
 
 Now start packetfence
 
   # /usr/local/pf/bin/pfcmd service pf start
+
+Next, make sure to join domains through 'Configuration/Domains' on each node.
 
 Step 5: Securing the cluster
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
