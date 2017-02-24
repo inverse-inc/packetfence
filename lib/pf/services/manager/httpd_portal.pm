@@ -47,6 +47,7 @@ sub additionalVars {
         loadbalancersIp => $self->loadbalancersIp($captive_portal),
         vhost_management_network => $self->vhost_management_network,
         vhosts => $self->vhosts,
+        ipv6_vhosts => $self->ipv6_vhosts,
         logformat => isenabled($cluster_enabled) ? 'loadbalanced_combined' : 'combined',
     );
     return %vars;
@@ -104,6 +105,17 @@ sub vhosts {
     } else {
         return ["127.0.0.1"];
     }
+}
+
+=head2 ipv6_vhosts
+
+Get IPv6 vhosts
+
+=cut
+
+sub ipv6_vhosts {
+    my ( $self ) = @_;
+    return [ uniq map { $_->{'Tipv6_address'}  } grep { defined $_->{'Tipv6_address'} } @internal_nets, @portal_ints ];
 }
 
 =head2 routedNets
