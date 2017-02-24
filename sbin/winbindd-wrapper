@@ -71,13 +71,6 @@ POSIX::sigaction(
 ) or die("winbindd-wrapper could not set SIGALRM handler: $!");
 
 POSIX::sigaction(
-    &POSIX::SIGHUP,
-    POSIX::SigAction->new(
-        'reload_config' , POSIX::SigSet->new(), &POSIX::SA_NODEFER
-    )
-) or die("winbindd-wrapper could not set SIGHUP handler: $!");
-
-POSIX::sigaction(
     &POSIX::SIGINT,
     POSIX::SigAction->new(
         'normal_sighandler' , POSIX::SigSet->new(), &POSIX::SA_NODEFER
@@ -124,20 +117,12 @@ our $PARENT_PID = $$;
 
 sub start {
     run_all_winbindd();
+    while($running) {
+        pause;
+    }
 }
 
 start();
-
-while($running){
-    sleep 1;
-    foreach my $pid (keys %CHILDREN){
-        unless(kill(0,$pid)){
-            $logger->error("Child $pid ($CHILDREN{$pid}) is dead. Respawning it.");
-            run_winbindd($CHILDREN{$pid});
-            delete $CHILDREN{$pid};
-        }
-    }
-}
 
 cleanup();
 
