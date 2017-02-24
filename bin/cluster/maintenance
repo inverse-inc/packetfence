@@ -1,0 +1,74 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+Script to put this node into maintenance state
+
+=head1 SYNOPSIS
+
+  To push out the configuration to the other nodes :
+   sync --as-master
+
+  Options :
+   --file : use with --as-master to push out only a single file
+   --with-fingerbank-db : use with --as-master to push the Fingerbank
+                          database during the sync (can be long)
+
+  To sync the configuration from a master server to this server :
+   sync --from=<master-ip> --api-user=<master-api-user> --api-password=<master-api-password>
+
+Add files to /usr/local/pf/conf/cluster-files.txt (one per line) to sync additionnal files during the cluster synchronization.
+
+
+=head1 DESCRIPTION
+
+Script to put this node into maintenance state. Will ensure that MariaDB will not re-elect itself as master if its unable to join an existing quorum
+
+=cut
+
+use strict;
+use warnings;
+
+use lib '/usr/local/pf/lib';
+
+use pf::log;
+BEGIN {
+  use Log::Log4perl qw(get_logger);
+  my $log_conf = q(
+  log4perl.rootLogger              = INFO, SCREEN
+  log4perl.appender.SCREEN         = Log::Log4perl::Appender::Screen
+  log4perl.appender.SCREEN.stderr  = 0
+  log4perl.appender.SCREEN.layout  = Log::Log4perl::Layout::PatternLayout
+  log4perl.appender.SCREEN.layout.ConversionPattern = %p : %m %n
+  );
+  Log::Log4perl::init(\$log_conf);
+}
+
+use pf::cluster;
+use Getopt::Long;
+
+my ($activate, $deactivate, $help);
+GetOptions (
+    "activate" => \$activate,
+    "deactivate" => \$deactivate,
+    "h" => \$help,
+);
+
+if($help){
+  pod2usage( -verbose => 1 );
+}
+
+my $maintenance_file = "/usr/local/pf/var/maintenance-mode";
+
+# Show status when there is no parameter
+if(!$activate && !$deactivate) {
+    my $msg = pf::cluster::is_in_maintenance() ? "Maintenance mode is activated" : "Maintenance mode is deactivated";
+    print $msg . "\n";
+}
+elsif($activate) {
+    pf::cluster::activate_maintenance();
+}
+elsif($deactivate) {
+    pf::cluster::deactivate_maintenance();
+}
+
