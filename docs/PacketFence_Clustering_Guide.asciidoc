@@ -97,7 +97,11 @@ host=127.0.0.1
 
 [monitoring]
 db_host=127.0.0.1
-....
+
+[active_active]
+# Change these 2 values by the credentials you've set when configuring MariaDB above
+galera_replication_username=pfcluster
+galera_replication_password=aMuchMoreSecurePassword
 ----
 
 In `conf/pfconfig.conf` :
@@ -105,8 +109,12 @@ In `conf/pfconfig.conf` :
 ----
 [mysql]
 host=127.0.0.1
-....
 ----
+
+Now, reload the configuration and restart packetfence-config. You will see errors related to a cache write issue but you can safely ignore it for now. These appear because packetfence-config cannot connect to the database yet.
+
+  # systemctl restart packetfence-config
+  # /usr/local/pf/bin/pfcmd configreload hard
 
 Going through the configurator
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -223,8 +231,13 @@ Once this configuration is done, reload the configuration and restart PacketFenc
  # /usr/local/pf/bin/pfcmd checkup
  # /usr/local/pf/bin/pfcmd service pf restart
 
-Then make sure the packetfence clustering services will be started at boot by running
-# systemctl set-default packetfence-cluster
+Then make sure the packetfence clustering services will be started at boot by running the following command on all of your servers
+
+ # systemctl set-default packetfence-cluster
+
+You should now restart packetfence-mariadb on the first server so that it now starts in clustered mode. Note that it will fail to start properly until at least one of the other node is alive (pingable). Once an alive quorum is reached it will be able to create a new cluster.
+
+ # systemctl restart packetfence-mariadb
 
 If no error is found in the previous configuration, the previous restart of packetfence should have started keepalived and radiusd-loadbalancer along with the other services.
 
