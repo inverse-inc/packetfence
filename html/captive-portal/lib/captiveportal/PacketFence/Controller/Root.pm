@@ -29,6 +29,7 @@ use File::Slurp qw(read_file);
 use pf::error;
 use pf::parking;
 use pf::constants::parking qw($PARKING_VID);
+use pf::db;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -56,6 +57,7 @@ sub auto : Private {
     my ( $self, $c ) = @_;
     $c->forward('setupLanguage');
     $c->forward('setupDynamicRouting');
+    $c->forward('checkReadonly');
     $c->forward('checkForParking');
 
     return 1;
@@ -332,6 +334,21 @@ sub end : ActionClass('RenderView') {
         $c->response->status(500);
         $c->clear_errors;
     }
+}
+
+=head2 checkReadonly
+
+checkReadonly
+
+=cut
+
+sub checkReadonly : Private {
+    my ($self, $c) = @_;
+    if (db_readonly_mode()) {
+        $c->stash->{template} = "readonly.html";
+        $c->detach();
+    }
+    return;
 }
 
 =head1 AUTHOR
