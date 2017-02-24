@@ -75,12 +75,17 @@ sub build {
         my $mask = $Config{$interface}{'mask'};
         my $type = $Config{$interface}{'type'};
 
+        my $ipv6_address    = $Config{$interface}{'ipv6_address'} if ( defined($Config{$interface}{'ipv6_address'}) && $Config{$interface}{'ipv6_address'} ne '' );
+        my $ipv6_prefix     = $Config{$interface}{'ipv6_prefix'} if ( defined($Config{$interface}{'ipv6_prefix'}) && $Config{$interface}{'ipv6_prefix'} ne '' );
+
         if ( defined($ip) && defined($mask) ) {
             $ip =~ s/ //g;
             $mask =~ s/ //g;
             $int_obj = pfconfig::objects::Net::Netmask->new( $ip, $mask );
             $int_obj->tag( "ip",  $ip );
             $int_obj->tag( "int", $int );
+            $int_obj->tag( "ipv6_address", $ipv6_address ) if ( defined($ipv6_address) && $ipv6_address ne '' );
+            $int_obj->tag( "ipv6_prefix", $ipv6_prefix ) if ( defined($ipv6_prefix) && $ipv6_prefix ne '' );
         }
 
         if ( !defined($type) ) {

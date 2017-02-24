@@ -16,6 +16,8 @@ sub TO_JSON {
        # Golang pfconfig driver expects this to be a string
        mask => $self->{BITS}."",
        int => $self->{Tint},
+       ipv6_address => $self->{Tipv6_address},
+       ipv6_prefix => $self->{Tipv6_prefix},
     };
     $o->{vip} = $self->{Tvip} if(defined($self->{Tvip}));
     return $o;
