@@ -1313,7 +1313,7 @@ sub parse_api_action_spec {
 
 sub ping {
     my ($host) = @_;
-    my $p = Net::Ping->new();
+    my $p = Net::Ping->new("icmp");
     return $p->ping($host);
 }
 
