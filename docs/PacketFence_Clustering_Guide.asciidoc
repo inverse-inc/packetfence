@@ -54,10 +54,10 @@ Then, you will need to create a user for the database replication that PacketFen
   mysql -u root -p
 
     mysql> CREATE USER 'pfcluster'@'%' IDENTIFIED BY 'aMuchMoreSecurePassword';
-    mysql> GRANT RELOAD, LOCK TABLES, REPLICATION CLIENT ON *.* TO 'pfcluster'@'%';
+    mysql> GRANT RELOAD, LOCK TABLES, REPLICATION CLIENT, SUPER ON *.* TO 'pfcluster'@'%';
 
     mysql> CREATE USER 'pfcluster'@'localhost' IDENTIFIED BY 'aMuchMoreSecurePassword';
-    mysql> GRANT RELOAD, LOCK TABLES, REPLICATION CLIENT ON *.* TO 'pfcluster'@'localhost';
+    mysql> GRANT RELOAD, LOCK TABLES, REPLICATION CLIENT, SUPER ON *.* TO 'pfcluster'@'localhost';
 
     mysql> FLUSH PRIVILEGES;
 
@@ -274,15 +274,15 @@ Make sure that this server is binding to it's own management address. If it's no
 
   # netstat -nlp | grep 9090
 
-Now replicate this server configuration to the other nodes in the cluster
+Now, restart packetfence-mariadb so that the servers join the cluster.
 
-  # /usr/local/pf/bin/cluster/sync --as-master
-
-Make sure at least /usr/local/pf/conf/cluster.conf was replicated to the other servers
+  # systemctl restart packetfence-mariadb
 
 Make sure to join domains through 'Configuration/Domains' on each additional create node.
 
-Now restart packetfence on each cluster server keeping the new node as the last one to be restarted.
+Now start packetfence
+
+  # /usr/local/pf/bin/pfcmd service pf start
 
 Step 5: Securing the cluster
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
