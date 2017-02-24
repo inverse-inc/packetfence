@@ -223,7 +223,8 @@ Once this configuration is done, reload the configuration and restart PacketFenc
  # /usr/local/pf/bin/pfcmd checkup
  # /usr/local/pf/bin/pfcmd service pf restart
 
-!!!!!!!!!!!!!!! INSTRUCTIONS ON MODIFYING THE TARGET FOR SYSTEMD HERE....
+Then make sure the packetfence clustering services will be started at boot by running
+# systemctl set-default packetfence-cluster
 
 If no error is found in the previous configuration, the previous restart of packetfence should have started keepalived and radiusd-loadbalancer along with the other services.
 
