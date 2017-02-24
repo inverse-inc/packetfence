@@ -3,7 +3,7 @@ Description=PacketFence MariaDB instance
 After=syslog.target
 After=network.target
 After=packetfence-config.service
-Requires=packetfence-config.service
+Wants=packetfence-config.service
 Conflicts=mysql.service mariadb.service
 
 [Service]
