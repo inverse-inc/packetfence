@@ -24,6 +24,7 @@ use pf::pfcmd::checkup;
 use pf::cluster;
 use pf::authentication;
 use pf::Authentication::constants qw($LOGIN_CHALLENGE);
+use pf::db;
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
@@ -65,6 +66,7 @@ sub auto :Private {
         $c->detach('challenge');
         return 0;
     }
+    $c->stash->{readonly_mode} = db_check_readonly();
 
     return 1;
 }
