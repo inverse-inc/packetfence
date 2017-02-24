@@ -9,7 +9,7 @@ include::includes/global-attributes.asciidoc[]
 
 About this Guide
 ----------------
-This guide has been created to give a quick start to install active/active clustering in PacketFence 5+. This guide does not include advanced troubleshooting of the active/active clustering. Refer to the documentation of HAProxy and Keepalive for advanced features.
+This guide has been created to give a quick start to install active/active clustering in PacketFence 7+. This guide does not include advanced troubleshooting of the active/active clustering. Refer to the documentation of HAProxy and Keepalive for advanced features.
 
 Assumptions
 -----------
@@ -19,13 +19,15 @@ Assumptions
 * Servers network interfaces are on the same layer 2 network
 * Servers hostnames must be resolvable via DNS resolution
 
+NOTE: Appended to this guide is a glossary on specialized terms used in this document.
+
 Installation on CentOS 7
 ------------------------
 
 Step 1: Install the replicated database
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-NOTE: In this example, the database stack uses the native MariaDB Galera cluster integration. Although other MySQL based clustering stacks are supported, they aren't covered in this guide. If you use an external database or want to use another clustering stack for the database, you can ignore this section and jump to Step 2 directly.
+NOTE: In this example, the database stack uses the native PacketFence MariaDB Galera cluster integration. Although other MySQL based clustering stacks are supported, they aren't covered in this guide. If you use an external database or want to use another clustering stack for the database, you can ignore this section and jump to Step 2 directly.
 
 CAUTION: Galera cluster is only supported in 3 nodes cluster and more (with an odd number of servers).
 
@@ -34,7 +36,7 @@ PacketFence ships with a version of MariaDB that has Galera cluster built-in, so
 Configuring Galera
 ^^^^^^^^^^^^^^^^^^
 
-For the next steps, you want to make sure that you didn't configure anything in /usr/local/pf/conf/cluster.conf. If you already did, comment all the configuration in the file and do a configreload.
+For the next steps, you want to make sure that you didn't configure anything in `/usr/local/pf/conf/cluster.conf`. If you already did, comment all the configuration in the file and do a configreload (`/usr/local/pf/bin/pfcmd configreload hard`).
 
 On each server of your cluster
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -311,6 +313,8 @@ You can prevent the management node from self-electing as master by putting it i
 Ungraceful shutdown behavior
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+NOTE: You can know a node was hard-shutdown if `/var/lib/mysql/gvwstate.dat` exists on the node.
+
 All nodes shutdown at the same time
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -319,7 +323,7 @@ If all of your nodes experience a hard-shutdown or hard-reset (like in the case 
 Recovering when a node is missing
 +++++++++++++++++++++++++++++++++
 
-If one of the nodes cannot recover, you can manually reset the cluster state. Note that this procedure is only valid if all the nodes were hard-shutdown at the same time. You can know a node was hard-shutdown if `/var/lib/mysql/gvwstate.dat` exists on the node.
+If one of the nodes cannot recover, you can manually reset the cluster state. Note that this procedure is only valid if all the nodes were hard-shutdown at the same time.
 
 First, stop packetfence-mariadb on all servers:
 
@@ -490,6 +494,14 @@ The following features are not supported when using active/active clustering.
 
 Appendix
 --------
+
+Glossary
+~~~~~~~~
+
+ * 'Alive quorum': An alive quorum is when more than 50% of the servers of the cluster are online and reachable on the network (pingable). This doesn't imply they offer service, but only that they are online on the network.
+ * 'Hard-shutdown': A hard shutdown is when a node or a service is stopped without being able to go through a proper exit cleanup. This can occur in the case of a power outage, hard reset of a server or `kill -9` of a service.
+ * 'Management node/server': The first server of a PacketFence cluster as defined in `/usr/local/pf/conf/cluster.conf`.
+ * 'Node': In the context of this document, a node is a member of the cluster while in other PacketFence documents it may represent an endpoint.
 
 Setting the interfaces name on CentOS 7
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
