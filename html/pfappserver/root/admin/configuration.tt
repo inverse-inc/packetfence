@@ -84,21 +84,24 @@ table.sources {
             <ul class="nav nav-list">
               [%- IF can_access_any("CONFIGURATION_MAIN_READ","CONNECTION_PROFILES_READ","PORTAL_MODULE_READ","ADMIN_ROLES_READ", "FILTERS_READ") -%]
               <li class="nav-header">[% pf_section_entry( 'define_policy', 'Policies and Access Control') | none %]</li>
-              [%- IF can_access("USERS_ROLES_READ","CONFIGURATION_MAIN_READ") %]
-              <li class="" id="accordion-Devices">
-                <a data-toggle="collapse" data-parent="#accordion-Devices" href="#collapseDevices" class="collapsed">
-                  [% pf_section_entry( 'roles', 'Devices') | none %]
+                <a class="collapse" data-toggle="collapse" href="#collapseDevices" aria-expanded="false" aria-controls="collapseExample">
+                  Devices
+                  <!--[%c.pf_hash_for(c.controller('Configuration').action_for('roles'), 'roles') %]">[% l("Devices") %]-->
                 <i class="icon-chevron-up pull-right"></i></a>
-                <ul id="collapseDevices" class="collapse">
+                <div class="collapse" id="collapseDevices">
+                  <ul>
                     <li>
-                      [% pf_section_entry( 'roles1', 'Roles') | none %]
-                      <!--<a href="#" data-toggle="pf-search-form"  data-target="#search" data-form-target="#search" data-parent="#collapseDevices">[% pf_section_entry( 'roles1', 'Roles') | none %]</a>-->
+                      <a href="[%c.pf_hash_for(c.controller('Configuration').action_for('roles'), 'roles') %]">[% l("Roles") %]</a>
                     </li>
                     <li>
-                      <a href="#" data-toggle="pf-search-form"  data-target="#search" data-form-target="#search" data-parent="#collapseDevices">[% pf_section_entry( 'guests_admin_registration', 'Access Duration') | none %]</a>
+                      <a href="[%c.pf_hash_for(c.controller('Configuration').action_for('roles'), 'access_duration') %]">[% l("Access Duration") %]</a>
                     </li>
-                </ul>
-              </li>
+                    <!--[% pf_section_entry( 'roles', 'Roles' ) | none %]
+                    [% pf_section_entry( 'roles', 'Access Duration' ) | none %]-->
+                  </ul>
+                </div>
+              [%- IF can_access("USERS_ROLES_READ","CONFIGURATION_MAIN_READ") %]
+              [% pf_section_entry( 'roles', 'Devices') | none %]
               [%- END %]
               [%- IF can_access("USERS_SOURCES_READ") %]
               [% list_entry( 'Config::Authentication', 'index', 'Sources') | none %]
@@ -143,14 +146,17 @@ table.sources {
               [%- IF can_access("BILLING_TIER_READ") %]
               [% list_entry('Config::BillingTiers', 'index', 'Billing Tiers') | none %]
               [%- END %]
-              [%- IF can_access("PROVISIONING_READ") %]
-              [% list_entry('Config::Provisioning', 'index', 'Provisioners') | none %]
-              [%- END %]
               [%- IF can_access("PKI_PROVIDER_READ") %]
               [% list_entry('Config::PKI_Provider', 'index', 'PKI Providers') | none %]
               [%- END %]
+              [%- IF can_access("PROVISIONING_READ") %]
+              [% list_entry('Config::Provisioning', 'index', 'Provisioners') | none %]
+              [%- END %]
               [% pf_section_entry( 'registration', 'Registration') | none %]
               <li class="nav-header">[% pf_section_entry('compliance', 'Compliance') | none %]</li>
+              [%- IF can_access("FINGERBANK_READ") %]
+              [% pf_section_entry( 'profiling', 'Profiling') | none %]
+              [%- END %]
               [%- IF can_access("VIOLATIONS_READ") %]
               [% list_entry('Violation', 'index', 'Violations') | none %]
               [%- END %]
@@ -162,9 +168,6 @@ table.sources {
               [%- END %]
               [%- IF can_access("PFDETECT_READ") %]
               [% list_entry('Config::Pfdetect', 'index', 'Syslog Parsers') | none %]
-              [%- END %]
-              [%- IF can_access("FINGERBANK_READ") %]
-              [% pf_section_entry( 'profiling', 'Fingerbank') | none %]
               [%- END %]
               <li class="nav-header">[% pf_section_entry('advanced_conf', 'Advanced Configuration') | none %]</li>
               [% IF can_access("MSE_READ") %]
