@@ -185,7 +185,7 @@ sub run_all_winbindd {
     sigprocmask(SIG_UNBLOCK,$mask);
 }
 
-=head2 runtask
+=head2 run_winbindd
 
 creates a new child to run a task
 
