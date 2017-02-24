@@ -86,7 +86,7 @@ On all your servers, add the following line in `/etc/sysctl.conf` and then reloa
 
   net.ipv4.ip_nonlocal_bind = 1
 
-Now, on the first server, create the PEM that combines the key and certificate for the http services. Adapt to your own paths if you are using different certificates. Most important is that the destination PEM file is `/usr/local/pf/conf/ssl/server.pem` as its the one used in haproxy.
+Now, on the first server, create the PEM that combines the key and certificate for the http services. Adapt to your own paths if you are using different certificates. What matters is that the path to the PEM file should be /usr/local/pf/conf/ssl/server.pem since HAProxy will expect it to be there.
 
   # cd /usr/local/pf/conf/ssl
   # cat server.key server.crt > server.pem
@@ -127,7 +127,7 @@ Now, reload the configuration and restart packetfence-config. You will see error
 Going through the configurator
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Now, on the first server of your cluster, you should go through the configurator, configuring the server like if it was in standalone (no HA interfaces). You should leave the services stopped at the end of the configurator.
+Now, on the first server of your cluster, you should go through the configurator, configuring the server as if it was in standalone (no HA interfaces). You should leave the services stopped at the end of the configurator.
 
 On the other servers of your cluster, configure only the network interfaces without going past that section in the configurator.
 
@@ -271,8 +271,8 @@ Do (and make sure it does it without any errors) :
 Where : 
 
 * '192.168.1.5' is the management IP of the other PacketFence node
-* 'packet' is the webservices username you have setup on the master node
-* 'fence' is the webservices password you have setup on the master node
+* 'packet' is the webservices username you have configured on the master node
+* 'fence' is the webservices password you have configured on the master node
 
 Reload the configuration and start the webservices on the new server
 
