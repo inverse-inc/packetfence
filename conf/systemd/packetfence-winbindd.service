@@ -1,19 +1,17 @@
 [Unit]
-Description=PacketFence Samba Winbind Daemon
-After=packetfence-base.target 
+Description=PacketFence SAMBA winbind Service
 Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
+After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+Before=packetfence-radiusd-auth.service
 
 [Service]
 StandardOutput=syslog
 StartLimitBurst=3
 StartLimitInterval=60
-Environment=KRB5CCNAME=FILE:/run/samba/krb5cc_samba
-RootDirectory=[% chroot_dir %]
-Type=notify
-NotifyAccess=all
-PIDFile=[% pidFile %]
-ExecStart=[% cmdLine %]
-ExecReload=/usr/bin/kill -HUP $MAINPID
+ExecStartPre=/usr/local/pf/bin/pfcmd service winbindd generateconfig
+PIDFile=/usr/local/pf/var/run/winbindd-wrapper.pid
+ExecStart=/usr/local/pf/sbin/winbindd-wrapper
+Restart=on-failure
 Slice=packetfence.slice
 
 [Install]
