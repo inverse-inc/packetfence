@@ -115,6 +115,13 @@
         </div>
       </div>
     </div>
+    [% IF readonly_mode %]
+    <div class="alert alert-block">
+      <button class="close" data-dismiss="alert">&times;</button>
+      <strong>[% l('Warning!') %]</strong>
+      <span>[% l('The database is in readonly mode not all functionality is available') %]</span>
+    </div>
+    [% END %]
 [% content | none %]
 
     <!-- Le javascript
