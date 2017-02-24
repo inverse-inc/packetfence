@@ -247,10 +247,11 @@ sub roles1 :Local {
 
 =cut
 
-sub roles :Local {
-    my ($self, $c) = @_;
+sub roles :Local :Args(1) {
+    my ($self, $c, $tab) = @_;
 
     $c->stash->{template} = "config/roles/index.tt";
+    $c->stash->{tab} = $tab;
 }
 
 =head2 domains
