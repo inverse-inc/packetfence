@@ -312,7 +312,7 @@ Requires: perl(Net::UDP)
 Requires: mod_qos
 Requires: %{real_name}-config = %{version}
 Requires: %{real_name}-pfcmd-suid = %{version}
-Requires: haproxy >= 1.5, keepalived >= 1.2
+Requires: haproxy >= 1.6, keepalived >= 1.2
 Requires: fingerbank >= 3.0.0
 Requires: perl(File::Tempdir)
 
