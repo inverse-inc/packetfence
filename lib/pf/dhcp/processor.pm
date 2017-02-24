@@ -150,6 +150,10 @@ Process a packet
 sub process_packet {
     my $timer = pf::StatsD::Timer->new();
     my ( $self ) = @_;
+    if (db_check_readonly()) {
+        $logger->trace("The database is in readonly mode skipping processing the database");
+        return;
+    }
 
     my $dhcp = $self->{dhcp};
 
