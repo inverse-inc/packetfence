@@ -471,9 +471,14 @@ sub _runtask {
             pause;
             last unless $running;
         }
-        
         $logger->trace("$id is running");
         my $start = time();
+        if (db_check_readonly()) {
+            $logger->trace(sub { "The database is in readonly mode skipping task $id" });
+            $time_taken = 0;
+            next;
+        }
+
         eval {
             $task->();
         };
