@@ -239,6 +239,8 @@ You should now restart packetfence-mariadb on the first server so that it now st
 
  # systemctl restart packetfence-mariadb
 
+NOTE: If the cluster is unable to get created properly, it may be because the other nodes have their MariaDB service running. Make sure you stop it on all nodes except the first one for now (`systemctl stop packetfence-mariadb`).
+
 If no error is found in the previous configuration, the previous restart of packetfence should have started keepalived and radiusd-loadbalancer along with the other services.
 
 You should now have service using the first server on the IP addresses defined in the 'CLUSTER' sections.
