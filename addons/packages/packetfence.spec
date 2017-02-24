@@ -891,6 +891,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd.pl
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd_vlan
 %attr(0755, pf, pf)     /usr/local/pf/bin/pftest
+%attr(0755, pf, pf)     /usr/local/pf/bin/cluster/maintenance
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/management_update
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/sync
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/pfupdate
@@ -1262,6 +1263,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfqueue
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfsetvlan
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pffilter
+%attr(0755, pf, pf)     /usr/local/pf/sbin/winbindd-wrapper
 %doc                    /usr/local/pf/UPGRADE.asciidoc
 %doc                    /usr/local/pf/UPGRADE.old
 %dir                    /usr/local/pf/var
