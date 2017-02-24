@@ -6,19 +6,11 @@ Script to put this node into maintenance state
 
 =head1 SYNOPSIS
 
-  To push out the configuration to the other nodes :
-   sync --as-master
+  When called with none of the options, this will output the current state of the maintenance mode on this node.
 
   Options :
-   --file : use with --as-master to push out only a single file
-   --with-fingerbank-db : use with --as-master to push the Fingerbank
-                          database during the sync (can be long)
-
-  To sync the configuration from a master server to this server :
-   sync --from=<master-ip> --api-user=<master-api-user> --api-password=<master-api-password>
-
-Add files to /usr/local/pf/conf/cluster-files.txt (one per line) to sync additionnal files during the cluster synchronization.
-
+   --activate : Activate the maintenance mode on this node
+   --deactivate : Deactivate the maintenance mode on this node
 
 =head1 DESCRIPTION
 
