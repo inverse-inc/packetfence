@@ -27,6 +27,9 @@ use pfconfig::cached_hash;
 use pf::StatsD::Timer;
 use pf::util::statsd qw(called);
 use POSIX::AtFork;
+use pf::CHI;
+
+my $CHI_READONLY = pf::CHI->new(driver => 'RawMemory', datastore => {});
 
 # Constants
 use constant MAX_RETRIES  => 3;
@@ -42,7 +45,7 @@ BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
     @ISA    = qw(Exporter);
-    @EXPORT = qw(db_data db_connect db_disconnect get_db_handle db_query_execute db_ping db_cancel_current_query db_now db_is_in_readonly_mode);
+    @EXPORT = qw(db_data db_connect db_disconnect get_db_handle db_query_execute db_ping db_cancel_current_query db_now db_readonly_mode db_check_readonly);
 
 }
 
@@ -407,19 +410,31 @@ sub db_cancel_current_query {
     }
 }
 
-=item db_is_in_readonly_mode
+=item db_readonly_mode
 
-db_is_in_readonly_mode
+db_readonly_mode
 
 =cut
 
-sub db_is_in_readonly_mode {
+sub db_readonly_mode {
     my $dbh = db_connect();
     my $sth = $dbh->prepare_cached('SELECT @@global.read_only;');
     return 0 unless $sth->execute;
     my $row = $sth->fetch;
     $sth->finish;
     return $row->[0];
+}
+
+=item db_check_readonly
+
+db_in_readonly
+
+=cut
+
+sub db_check_readonly {
+    my ($self) = @_;
+    my $mode = $CHI_READONLY->compute("inreadonly", {expires_in => '5'}, \&db_readonly_mode);
+    return $mode;
 }
 
 =back
