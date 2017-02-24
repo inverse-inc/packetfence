@@ -39,6 +39,8 @@ use constant PREPARE_SUB       => '_db_prepare';  # sub with <modulename>_db_pre
 use constant PREPARED_VAR      => '_db_prepared'; # prepare flag with <modulename>_db_prepared
 use constant PREPARE_PF_PREFIX => 'pf::';         # prefix to access exported _prepare(d) variables
 
+our $MYSQL_READONLY_ERROR = 1290;
+
 our ( $DBH, $LAST_CONNECT, $DB_Config, $NO_DIE_ON_DBH_ERROR );
 
 BEGIN {
@@ -305,11 +307,14 @@ sub db_query_execute {
             if (defined($dbi_err)) {
                 $dbi_err = int($dbi_err);
                 my $dbi_errstr = $dbh->errstr;
+                if ($dbi_err == $MYSQL_READONLY_ERROR) {
+                     $CHI_READONLY->set("inreadonly", 1);
+                }
                 # Do not retry server errors
                 if ($dbi_err < 2000) {
 
                     $logger->info("database query failed with: $dbi_errstr (errno: $dbi_err)");
-                    $done = 1;
+                    $done = 2;
                 }
                 else {
                     # retry client errors
@@ -321,28 +326,33 @@ sub db_query_execute {
                     "database query failed because statement handler was undefined or invalid, " . "will try again");
             }
 
-            # this forces real reconnection by invalidating last_connect timer for this thread
-            $LAST_CONNECT = 0;
-            db_connect();
+            unless ($done) {
+                # this forces real reconnection by invalidating last_connect timer for this thread
+                $LAST_CONNECT = 0;
+                db_connect();
 
-            # invalidate prepared database statements, forces a new preparation on next iteration
-            {
-                no strict 'refs';
-                ${$db_prepared_var} = 0;
+                # invalidate prepared database statements, forces a new preparation on next iteration
+                {
+                    no strict 'refs';
+                    ${$db_prepared_var} = 0;
+                }
             }
         }
 
         $attempts++;
     } while ($attempts < MAX_RETRIES && !$done);
 
-    if (!$done) {
-        $logger->error("Database issue: We tried ". MAX_RETRIES ." times to serve query $query called from "
-            .(caller(1))[3]." and we failed. Is the database running?");
-        $pf::StatsD::statsd->increment(called() . ".error.count" );
-        return;
-    } else {
+    if ($done == 1) {
         return $db_statement;
     }
+    if ($done) {
+        $logger->error("Database issue: Failed with a non-repeatable error with query $query");
+    } else {
+        $logger->error("Database issue: We tried ". MAX_RETRIES ." times to serve query $query called from "
+            .(caller(1))[3]." and we failed. Is the database running?");
+    }
+    $pf::StatsD::statsd->increment(called() . ".error.count" );
+    return;
 }
 
 =item db_transaction_execute
