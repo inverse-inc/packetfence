@@ -21,8 +21,6 @@ extends 'pf::services::manager';
 
 has '+name' => ( default => sub { 'pffilter' } );
 
-has '+launcher' => (default => sub { '%1$s -d' } );
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
