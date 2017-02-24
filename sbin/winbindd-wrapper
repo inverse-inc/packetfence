@@ -208,7 +208,10 @@ sub run_winbindd {
         ) or die("winbindd-wrapper could not set SIGCHLD handler: $!");
         $IS_CHILD = 1;
         Log::Log4perl::MDC->put('tid', $$);
-        exec("sudo chroot $chroot_path $binary -s $config_file -l $log_directory --foreground")
+        unless(exec("sudo chroot $chroot_path $binary -s $config_file -l $log_directory --foreground")) {
+            $logger->error("Failed to start the winbindd process $id");
+            exit 1;
+        }
     } else {
     }
 }
@@ -225,7 +228,9 @@ sub child_sighandler {
         my $child = waitpid(-1, WNOHANG);
         last unless $child > 0;
         my $id = delete $CHILDREN{$child};
-        run_winbindd($id);
+        if($running) {
+            run_winbindd($id);
+        }
     }
 }
 
