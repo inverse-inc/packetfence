@@ -82,6 +82,12 @@ check process packetfence-pfmon with pidfile /usr/local/pf/var/run/pfmon.pid
     stop program  = "/usr/local/pf/bin/pfcmd service pfmon stop"
     if 3 restarts within 10 cycles then alert
 
+check process packetfence-pfdhcplistener with pidfile /usr/local/pf/var/run/pfdhcplistener.pid
+    group PacketFence
+    start program = "/usr/local/pf/bin/pfcmd service pfdhcplistener start" with timeout 60 seconds
+    stop program  = "/usr/local/pf/bin/pfcmd service pfdhcplistener stop"
+    if 3 restarts within 10 cycles then alert
+
 check process packetfence-pfqueue with pidfile /usr/local/pf/var/run/pfqueue.pid
     group PacketFence
     start program = "/usr/local/pf/bin/pfcmd service pfqueue start" with timeout 60 seconds
@@ -107,15 +113,6 @@ check process packetfence-redis_queue with pidfile /usr/local/pf/var/run/redis_q
     stop program = "/usr/local/pf/bin/pfcmd service redis_queue stop"
     if failed host 127.0.0.1 port 6380 protocol redis for 5 cycles then alert
     if 3 restarts within 10 cycles then alert
-
-
-[% FOREACH pfdhcplistener IN PFDHCPLISTENERS %]
-check process packetfence-[% pfdhcplistener %] with pidfile /usr/local/pf/var/run/[% pfdhcplistener %].pid
-    group PacketFence
-    start program = "/usr/local/pf/sbin/pfdhcplistener -i [% USE String(pfdhcplistener) %][% String.remove('pfdhcplistener_') %] -d" with timeout 60 seconds
-    stop program  = "/usr/bin/pkill -F /usr/local/pf/var/run/[% pfdhcplistener %].pid"
-    if 3 restarts within 10 cycles then alert
-[% END %]
 
 
 [% FOREACH domain IN DOMAINS.keys %]

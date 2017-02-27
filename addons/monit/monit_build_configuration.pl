@@ -138,8 +138,6 @@ sub generate_specific_configurations {
             print " - $destination_file" . "$BACKUP_FILE_EXTENSION (BACKED UP FILE)\n";
         }
 
-        # Handling pfdhcplisteners
-        my $pfdhcplisteners = handle_pfdhcplisteners();
         # Handling domains (winbind configuration)
         my $domains = handle_domains();
 
@@ -152,7 +150,6 @@ sub generate_specific_configurations {
             FREERADIUS_BIN      => $freeradius_bin,
             EMAILS              => \@emails,
             SUBJECT_IDENTIFIER  => $subject_identifier,
-            PFDHCPLISTENERS     => $pfdhcplisteners,
             DOMAINS             => $domains,
             MAIL_BIN            => $mail_bin,
             SERVICE_BIN         => $service_bin,
@@ -160,22 +157,6 @@ sub generate_specific_configurations {
         };
         $tt->process($template_file, $vars, $destination_file) or die $tt->error();
     }
-}
-
-
-=head2 handle_pfdhcplisteners
-
-Generate the dhcplistener network interfaces array to be used in configuration templates
-
-=cut
-
-sub handle_pfdhcplisteners {
-    use pf::services::manager::pfdhcplistener;
-    my $self = pf::services::manager::pfdhcplistener->new(name => 'dummy');
-    my @managers = $self->pf::services::manager::pfdhcplistener::managers;
-    my @pfdhcplisteners = ();
-    push @pfdhcplisteners, $_->{name} foreach ( @managers );
-    return \@pfdhcplisteners;
 }
 
 
