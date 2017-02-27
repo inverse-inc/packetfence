@@ -286,6 +286,9 @@ Create a hash to create the hash for the on conflict data
 
 sub _on_conflict_data {
     my ($self) = @_;
+    if ($self->__from_table) {
+        return $self->_update_data;
+    }
     return $self->_insert_data;
 }
 
@@ -406,7 +409,7 @@ Returns the list of fields for the pf::dal object
 
 sub fields { [] }
 
-=item logger
+=head2 logger
 
 Return the current logger for the current pf::dal object
 
