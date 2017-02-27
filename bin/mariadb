@@ -294,7 +294,7 @@ sub normal_sighandler {
         # Don't listen to child signals anymore when cleaning up
         $SIG{CHLD} = "IGNORE";
 
-        kill(SIGKILL, $MYSQLD_PID);
+        kill(SIGTERM, $MYSQLD_PID);
         `pkill mysqld`;
         deletepid();
         $logger->debug( "pfmariadb caught SIG" . $_[0] . " - terminating" );
