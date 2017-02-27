@@ -13,4 +13,6 @@ use pf::services::manager::radsniff;
 
 my $cmd = pf::services::manager::radsniff->new()->_cmdLine();
 
-exec($cmd); 
+unless(exec($cmd)) {
+    exit 127;
+}
