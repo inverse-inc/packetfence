@@ -14,6 +14,7 @@ use pf::config qw(
 );
 use pf::util;
 use DBI;
+use pf::constants;
 
 our $PROGRAM_NAME = $0 = "pf-mariadb";
 
@@ -89,14 +90,19 @@ Launch MySQL/MariaDB with a specific set of arguments
 =cut
 
 sub launch_mysql {
-    my (@args) = @_;
+    my ($exec, @args) = @_;
+    $exec //= 1;
     
     my $args = join(' ', @ARGV, @args);
     # Must not lookup in /sbin for mysqld, but in /usr/sbin
     $ENV{PATH} = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin:/root/bin";
     my $cmd = "mysqld_safe --defaults-file=/usr/local/pf/var/conf/mariadb.conf $args";
     print "Starting MySQL with command: $cmd \n";
-    exec($cmd);
+    if($exec) {
+        exec($cmd);
+    } else {
+        `$cmd`;
+    }
 }
 
 =head2 fork_launch_mysql
@@ -127,7 +133,7 @@ sub fork_launch_mysql {
         $SIG{CHLD} = "DEFAULT";
         $IS_CHILD = 1;
         $0 = "pf-mariadb - mysqld spawner";
-        launch_mysql(@args);
+        launch_mysql($TRUE, @args);
         $RUNNING = 0;
         exit;
     }
@@ -230,7 +236,7 @@ sub attempt_start {
                     if(pf::cluster::cluster_index() == 0) {
                         $logger->info("Tried connecting to peers too many times. Will establish a new cluster");
                         `sed -i.bak "s/safe_to_bootstrap: 0/safe_to_bootstrap: 1/g" /var/lib/mysql/grastate.dat`;
-                        launch_mysql("--wsrep-recover");
+                        launch_mysql($FALSE, "--wsrep-recover");
                         fork_launch_mysql("create-new-cluster", "--wsrep-new-cluster");
                     }
                     else {
