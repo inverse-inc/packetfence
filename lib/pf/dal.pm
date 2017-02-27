@@ -284,7 +284,11 @@ Create a hash to create the hash for the on conflict data
 sub _on_conflict_data {
     my ($self) = @_;
     if ($self->__from_table) {
-        return $self->_update_data;
+        my ($status, $data) = $self->_update_data;
+        if (is_error($status) || (keys  %$data) > 0 ) {
+            return $status, $data;
+        }
+        # If nothing was updated make sure that we use the default
     }
     return $self->_insert_data;
 }
