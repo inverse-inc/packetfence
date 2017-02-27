@@ -516,6 +516,37 @@ sub create {
     return $obj->insert;
 }
 
+=head2 find_or_create
+
+finds a table record or creates it
+
+=cut
+
+sub find_or_create {
+    my ($proto, $args) = @_;
+    my $obj = $proto->new($args);
+    my $sqla = $proto->get_sql_abstract;
+    my ($sql, @bind) = $sqla->select(
+        -columns => $proto->field_names,
+        -from => $proto->table,
+        -where => $obj->primary_keys_where_clause,
+    );
+    my ($status, $sth) = $proto->db_execute($sql, @bind);
+    if (is_success($status)) {
+        my $row = $sth->fetchrow_hashref;
+        $sth->finish;
+        if ($row) {
+            my $obj = $proto->new_from_table($row);
+            return $STATUS::OK, $obj;
+        }
+    }
+    $status =  $obj->save;
+    if (is_error($status)) {
+        return $status, undef;
+    }
+    return $status, $obj;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
