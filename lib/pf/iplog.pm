@@ -58,25 +58,25 @@ sub iplog_db_prepare {
     # We could have used the iplog_list_open_by_ip_sql statement but for performances, we enforce the LIMIT 1
     # We add a 30 seconds grace time for devices that don't actually respect lease times 
     $iplog_statements->{'iplog_view_by_ip_sql'} = get_db_handle()->prepare(
-        qq [ SELECT * FROM iplog WHERE ip = ? AND (end_time = 0 OR ( end_time + INTERVAL 30 SECOND ) > NOW()) ORDER BY start_time DESC LIMIT 1 ]
+        qq [ SELECT mac, ip, start_time, end_time FROM iplog WHERE ip = ? AND (end_time = 0 OR ( end_time + INTERVAL 30 SECOND ) > NOW()) ORDER BY start_time DESC LIMIT 1 ]
     );
 
     # We could have used the iplog_list_open_by_mac_sql statement but for performances, we enforce the LIMIT 1
     # We add a 30 seconds grace time for devices that don't actually respect lease times 
     $iplog_statements->{'iplog_view_by_mac_sql'} = get_db_handle()->prepare(
-        qq [ SELECT * FROM iplog WHERE mac = ? AND (end_time = 0 OR ( end_time + INTERVAL 30 SECOND ) > NOW()) ORDER BY start_time DESC LIMIT 1 ]
+        qq [ SELECT  mac, ip, start_time, end_time FROM iplog WHERE mac = ? AND (end_time = 0 OR ( end_time + INTERVAL 30 SECOND ) > NOW()) ORDER BY start_time DESC LIMIT 1 ]
     );
 
     $iplog_statements->{'iplog_list_open_sql'} = get_db_handle()->prepare(
-        qq [ SELECT * FROM iplog WHERE end_time=0 OR end_time > NOW() ]
+        qq [ SELECT mac, ip, start_time, end_time FROM iplog WHERE end_time=0 OR end_time > NOW() ]
     );
 
     $iplog_statements->{'iplog_list_open_by_ip_sql'} = get_db_handle()->prepare(
-        qq [ SELECT * FROM iplog WHERE ip = ? AND (end_time = 0 OR end_time > NOW()) ORDER BY start_time DESC ]
+        qq [ SELECT mac, ip, start_time, end_time FROM iplog WHERE ip = ? AND (end_time = 0 OR end_time > NOW()) ORDER BY start_time DESC ]
     );
 
     $iplog_statements->{'iplog_list_open_by_mac_sql'} = get_db_handle()->prepare(
-        qq [ SELECT * FROM iplog WHERE mac = ? AND (end_time = 0 OR end_time > NOW()) ORDER BY start_time DESC ]
+        qq [ SELECT mac, ip, start_time, end_time FROM iplog WHERE mac = ? AND (end_time = 0 OR end_time > NOW()) ORDER BY start_time DESC ]
     );
 
     # Using WHERE clause and ORDER BY clause in subqueries to fasten resultset
@@ -84,13 +84,13 @@ sub iplog_db_prepare {
     # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
     $iplog_statements->{'iplog_get_history_by_ip_sql'} = get_db_handle()->prepare(
         qq [ SELECT * FROM
-                (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
+                (SELECT mac, ip, start_time, end_time, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
                 FROM iplog
                 WHERE ip = ?
                 ORDER BY start_time DESC) AS a
              UNION ALL
              SELECT * FROM
-                (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
+                (SELECT mac, ip, start_time, end_time, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
                 FROM iplog_history
                 WHERE ip = ?
                 ORDER BY start_time DESC) AS b
@@ -102,13 +102,13 @@ sub iplog_db_prepare {
     # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
     $iplog_statements->{'iplog_get_history_by_ip_with_date_sql'} = get_db_handle()->prepare(
         qq [ SELECT * FROM
-                (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
+                (SELECT mac, ip, start_time, end_time, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
                 FROM iplog
                 WHERE ip = ? AND start_time < FROM_UNIXTIME(?) AND (end_time > FROM_UNIXTIME(?) OR end_time = 0)
                 ORDER BY start_time DESC) AS a
              UNION ALL
              SELECT * FROM
-                (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
+                (SELECT mac, ip, start_time, end_time, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
                 FROM iplog_history
                 WHERE ip = ? AND start_time < FROM_UNIXTIME(?) AND (end_time > FROM_UNIXTIME(?) OR end_time = 0)
                 ORDER BY start_time DESC) AS b
@@ -120,13 +120,13 @@ sub iplog_db_prepare {
     # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
     $iplog_statements->{'iplog_get_history_by_mac_sql'} = get_db_handle()->prepare(
         qq [ SELECT * FROM
-                (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
+                (SELECT mac, ip, start_time, end_time, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
                 FROM iplog
                 WHERE mac = ?
                 ORDER BY start_time DESC) AS a
              UNION ALL
              SELECT * FROM
-                (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
+                (SELECT mac, ip, start_time, end_time, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
                 FROM iplog_history
                 WHERE mac = ?
                 ORDER BY start_time DESC) AS b
@@ -138,13 +138,13 @@ sub iplog_db_prepare {
     # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
     $iplog_statements->{'iplog_get_history_by_mac_with_date_sql'} = get_db_handle()->prepare(
         qq [ SELECT * FROM
-                (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
+                (SELECT mac, ip, start_time, end_time, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
                 FROM iplog
                 WHERE mac = ? AND start_time < FROM_UNIXTIME(?) AND (end_time > FROM_UNIXTIME(?) OR end_time = 0)
                 ORDER BY start_time DESC) AS a
              UNION ALL
              SELECT * FROM
-                (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
+                (SELECT mac, ip, start_time, end_time, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
                 FROM iplog_history
                 WHERE mac = ? AND start_time < FROM_UNIXTIME(?) AND (end_time > FROM_UNIXTIME(?) OR end_time = 0)
                 ORDER BY start_time DESC) AS b
@@ -153,7 +153,7 @@ sub iplog_db_prepare {
 
     # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
     $iplog_statements->{'iplog_get_archive_by_ip_sql'} = get_db_handle()->prepare(
-        qq [ SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
+        qq [ SELECT mac, ip, start_time, end_time, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
              FROM iplog_archive
              WHERE ip = ?
              ORDER BY start_time DESC LIMIT ? ]
@@ -161,7 +161,7 @@ sub iplog_db_prepare {
 
     # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
     $iplog_statements->{'iplog_get_archive_by_ip_with_date_sql'} = get_db_handle()->prepare(
-        qq [ SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
+        qq [ SELECT mac, ip, start_time, end_time, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
              FROM iplog_archive
              WHERE ip = ? AND start_time < FROM_UNIXTIME(?) AND (end_time > FROM_UNIXTIME(?) OR end_time = 0)
              ORDER BY start_time DESC LIMIT ? ]
@@ -169,7 +169,7 @@ sub iplog_db_prepare {
 
     # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
     $iplog_statements->{'iplog_get_archive_by_mac_sql'} = get_db_handle()->prepare(
-        qq [ SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
+        qq [ SELECT mac, ip, start_time, end_time, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
              FROM iplog_archive
              WHERE mac = ?
              ORDER BY start_time DESC LIMIT ? ]
@@ -177,7 +177,7 @@ sub iplog_db_prepare {
 
     # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
     $iplog_statements->{'iplog_get_archive_by_mac_with_date_sql'} = get_db_handle()->prepare(
-        qq [ SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
+        qq [ SELECT mac, ip, start_time, end_time, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
              FROM iplog_archive
              WHERE mac = ? AND start_time < FROM_UNIXTIME(?) AND (end_time > FROM_UNIXTIME(?) OR end_time = 0)
              ORDER BY start_time DESC LIMIT ? ]
@@ -208,7 +208,7 @@ sub iplog_db_prepare {
     );
 
     $iplog_statements->{'iplog_rotate_insert_sql'} = get_db_handle()->prepare(
-        qq [ INSERT INTO iplog_archive SELECT * FROM iplog_history WHERE end_time < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ? ]
+        qq [ INSERT INTO iplog_archive SELECT mac, ip, start_time, end_time FROM iplog_history WHERE end_time < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ? ]
     );
     $iplog_statements->{'iplog_rotate_delete_sql'} = get_db_handle()->prepare(
         qq [ DELETE FROM iplog_history WHERE end_time < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ? ]
