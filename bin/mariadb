@@ -6,7 +6,7 @@ use warnings;
 use lib '/usr/local/pf/lib';
 
 use pf::services::util;
-use POSIX qw(:signal_h pause _exit setuid setgid);
+use POSIX qw(:signal_h pause :sys_wait_h setuid setgid);
 use pf::log;
 use pf::cluster;
 use pf::config qw(
@@ -40,6 +40,15 @@ our $WAIT_TIME_ALIVE = 10;
 our $failed_counts = {};
 
 # init signal handlers
+my $old_child_sigaction = POSIX::SigAction->new;
+POSIX::sigaction(
+    &POSIX::SIGCHLD,
+    POSIX::SigAction->new(
+        'normal_sighandler' , POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    ),
+    $old_child_sigaction
+) or die("pf-mariadb could not set SIGCHLD handler: $!");
+
 POSIX::sigaction(
     &POSIX::SIGTERM,
     POSIX::SigAction->new(
@@ -53,6 +62,7 @@ POSIX::sigaction(
         'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
     )
 ) or $logger->logdie("pf-mariadb: could not set SIGINT handler: $!");
+
 
 my $STARTED_BECAUSE;
 
@@ -103,9 +113,13 @@ sub fork_launch_mysql {
     record_started_because($started_because);
 
     if($pid) {
-        $SIG{CHLD} = "IGNORE";
         $MYSQLD_PID = $pid;
     } elsif ($pid == 0) {
+        POSIX::sigaction(
+            &POSIX::SIGCHLD,
+            $old_child_sigaction,
+        ) or die("pf-mariadb could not set SIGCHLD handler: $!");
+
         my (undef, undef,$uid,$gid) = getpwnam('mysql');
         setuid($uid);
         setgid($gid);
@@ -265,9 +279,21 @@ END {
 
 exit(0);
 
+sub cleanup {
+}
+
+=head2 normal_sighandler
+
+Cleanup and stop processing when geting a signal
+
+=cut
+
 sub normal_sighandler {
     $RUNNING = 0;
     if(!$IS_CHILD) {
+        # Don't listen to child signals anymore when cleaning up
+        $SIG{CHLD} = "IGNORE";
+
         kill(SIGKILL, $MYSQLD_PID);
         `pkill mysqld`;
         deletepid();
