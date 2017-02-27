@@ -96,7 +96,7 @@ sub launch_mysql {
     $ENV{PATH} = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin:/root/bin";
     my $cmd = "mysqld_safe --defaults-file=/usr/local/pf/var/conf/mariadb.conf $args";
     print "Starting MySQL with command: $cmd \n";
-    `$cmd`;
+    exec($cmd);
 }
 
 =head2 fork_launch_mysql
@@ -114,8 +114,6 @@ sub fork_launch_mysql {
 
     if($pid) {
         $MYSQLD_SPAWNER_PID = $pid;
-        # Allow 5 seconds for the process to spawn before continuing in the main process
-        sleep 5;
     } elsif ($pid == 0) {
         POSIX::sigaction(
             &POSIX::SIGCHLD,
@@ -131,6 +129,7 @@ sub fork_launch_mysql {
         $0 = "pf-mariadb - mysqld spawner";
         launch_mysql(@args);
         $RUNNING = 0;
+        exit;
     }
 }
 
@@ -259,8 +258,7 @@ if(pf::cluster::is_in_maintenance) {
 
 attempt_start();
 while($RUNNING){
-    my $mysqld_pid = `pidof mysqld`;
-    if($MYSQLD_SPAWNER_PID && !$mysqld_pid) {
+    if(!kill(0, $MYSQLD_SPAWNER_PID)) {
         print "Failed starting with mode: $STARTED_BECAUSE \n";
         $failed_counts->{$STARTED_BECAUSE} //= 0;
         $failed_counts->{$STARTED_BECAUSE} ++;
@@ -309,30 +307,9 @@ When a child dies, we cleanup any leftover mysqld processes
 
 sub child_sighandler {
     local ($!, $?);
-    my $child_pid = $MYSQLD_SPAWNER_PID;
-
-    # Setting to 0 so the main loop doesn't start anymore processes
-    $MYSQLD_SPAWNER_PID = 0;
-
-    # Kill leftover processes
-    $SIG{CHLD} = "IGNORE";
-    `pkill mysqld`;
-    $SIG{CHLD} = "DEFAULT";
 
     while(1) {
-        my $child = waitpid($child_pid, WNOHANG);
+        my $child = waitpid(-1, WNOHANG);
         last unless $child > 0;
     }
-    
-    # Wait for the mysqld PID to change state/die before continuing
-    # If the process isn't alive anymore, it will be skipped
-    my $mysqld_pid = `pidof mysqld`;
-    while(1) {
-        last unless $mysqld_pid;
-        my $child = waitpid($mysqld_pid, WNOHANG);
-        last unless $child > 0;
-    }
-
-    # Setting this to -1 will have the main loop start a new process
-    $MYSQLD_SPAWNER_PID = -1;
 }
