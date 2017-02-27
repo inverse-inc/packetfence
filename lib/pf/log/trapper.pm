@@ -40,6 +40,23 @@ sub PRINTF {
     $self->PRINT($buf);
 }
 
+=head2 CLOSE
+
+CLOSE is a noop just returns 1
+
+=cut
+
+sub CLOSE { 1; }
+
+=head2 OPEN
+
+OPEN is a noop just returns 1
+
+=cut
+
+sub OPEN { 1; }
+
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
