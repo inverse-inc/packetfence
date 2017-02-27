@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 29;
+use Test::More tests => 30;
 
 use pf::error qw(is_success is_error);
 use pf::db;
@@ -120,25 +120,37 @@ is($node->voip, "yes", "Voip was saved");
 
 pf::dal::node->remove_by_id({mac => $test_mac});
 
-$node = pf::dal::node->new({ mac => $test_mac, computername => "zams-computer" });
+$node = pf::dal::node->new({ mac => $test_mac});
 
-my $node2 = pf::dal::node->new({ mac => $test_mac, computername => "zams-computer", voip => "yes" });
-
-ok(is_success($node->save), "Save node with voip = no");
+ok(is_success($node->save), "new node saved with default values");
 
 $node = pf::dal::node->find($test_mac);
 
-is($node->voip, "no", "voip = no was saved");
+my $node2 = pf::dal::node->find($test_mac);
 
-is($node->computername, "zams-computer", "computername was saved");
+$node->computername("zams-computer");
 
-ok(is_success($node2->save), "Save node with voip = yes");
+$node2->voip("yes");
 
-$node2 = pf::dal::node->find($test_mac);
+ok(is_success($node->save), "Save node with computername = zams-computer");
 
-is($node2->voip, "yes", "The last saved node won");
+ok(is_success($node2->save), "Save node2 with voip = yes");
 
-is($node2->computername, "zams-computer", "The last saved node won");
+$node = pf::dal::node->find($test_mac);
+
+is($node->voip, "yes", "Saving different values do not conflict");
+
+is($node->computername, "zams-computer", "Saving different values do not conflict");
+
+pf::dal::node->remove_by_id({mac => $test_mac});
+
+($status, $node) = pf::dal::node->find_or_create({ mac => $test_mac, computername => "zams-computer", voip => "yes" });
+
+is($status, $STATUS::CREATED, "$test_mac was successfully created");
+
+($status, $node) = pf::dal::node->find_or_create({ mac => $test_mac, computername => "zams-computer", voip => "yes" });
+
+is($status, $STATUS::OK, "$test_mac was successfully updated");
 
 pf::dal::node->remove_by_id({mac => $test_mac});
 
