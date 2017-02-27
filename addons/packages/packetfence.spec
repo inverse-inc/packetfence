@@ -1265,6 +1265,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfsetvlan
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pffilter
 %attr(0755, pf, pf)     /usr/local/pf/sbin/winbindd-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/radsniff-wrapper
 %doc                    /usr/local/pf/UPGRADE.asciidoc
 %doc                    /usr/local/pf/UPGRADE.old
 %dir                    /usr/local/pf/var

@@ -1,0 +1,16 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+radsniff-wrapper - wrapper around radsniff to start the PacketFence radsniff processes
+
+=cut
+
+use strict;
+use warnings;
+use lib qw( /usr/local/pf/lib );
+use pf::services::manager::radsniff;
+
+my $cmd = pf::services::manager::radsniff->new()->_cmdLine();
+
+exec($cmd); 

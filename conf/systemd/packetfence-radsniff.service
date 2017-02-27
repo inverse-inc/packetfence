@@ -9,9 +9,8 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
 StandardOutput=syslog
 StartLimitBurst=3
 StartLimitInterval=60
-Type=forking
 PIDFile=/usr/local/pf/var/run/radsniff.pid
-ExecStart=/usr/bin/radsniff -d /usr/local/pf/raddb/ -D /usr/local/pf/raddb/ -q -P /usr/local/pf/var/run/radsniff.pid -W10 -O /usr/local/pf/var/run/collectd-unixsock -i ens192
+ExecStart=/usr/local/pf/sbin/radsniff-wrapper
 Restart=on-failure
 Slice=packetfence.slice
 
