@@ -20,7 +20,7 @@ use strict;
 use warnings;
 use pf::db;
 use pf::log;
-use pf::error qw(is_error);
+use pf::error qw(is_error is_success);
 use pf::SQL::Abstract;
 use pf::dal::iterator;
 
@@ -271,11 +271,8 @@ sub upsert {
     ($status, my $sth) = $self->db_execute($stmt, @bind);
     return $status if is_error($status);
     my $rows = $sth->rows;
-    if ($rows) {
-        $self->_save_old_data();
-        return $STATUS::OK;
-    }
-    return $STATUS::BAD_REQUEST;
+    $self->_save_old_data();
+    return $rows == 1 ? $STATUS::CREATED : $STATUS::OK;
 }
 
 =head2 _on_conflict_data
