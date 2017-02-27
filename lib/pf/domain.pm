@@ -259,7 +259,6 @@ sub has_os_configuration {
     return $TRUE;
 }
 
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

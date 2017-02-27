@@ -187,10 +187,10 @@ Generate the managed by PacketFence domain list array to be used in configuratio
 
 sub handle_domains {
     use pf::config;
-    use pf::services::manager::winbindd_child;
+    use pf::file_paths;
     my %domains = ();
     foreach my $domain ( keys(%pf::config::ConfigDomain) ) {
-        $domains{$domain} = pf::services::manager::winbindd_child->new(name => "winbindd-$domain.conf", domain => "$domain")->pidFile;
+        $domains{$domain} = "$pf::file_paths::var_dir/run/$domain/winbindd.pid";
     }
     return \%domains;
 }
