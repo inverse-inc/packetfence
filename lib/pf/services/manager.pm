@@ -109,24 +109,6 @@ If set then the service will not cause an error if it fails to start
 
 has optional => ( is => 'rw', default => sub { 0 } );
 
-=head2 unitFilePath  
-
-The path to the systemd unit file for this service.
-
-=cut
-
-has unitFilePath => (is => 'rw', builder => '_build_unitFilePath', lazy => 1);
-
-=head2 systemdTemplateFilePath
-
-The path to the template used to generate the systemd unit file for this service.
-
-=cut
-
-has systemdTemplateFilePath => (is => 'rw', builder => '_build_systemdTemplateFilePath', lazy => 1);
-
-
-has systemdVars => (is => 'rw', builder => '_build_SystemdVars', lazy => 1);
 
 =head1 Methods
 
@@ -349,62 +331,6 @@ sub postStopCleanup {
         return $FALSE;
     }
     return $TRUE;
-}
-
-=head2 _build_unitFilePath 
-
-Return the fully qualified path to the systemd unit file output by generateUnitFile.
-
-=cut 
-
-sub _build_unitFilePath {
-    my $self = shift;
-    return $systemd_unit_dir . "/packetfence-" . $self->name . ".service";
-}
-
-=head2 _build_systemdTemplateFilePath 
-
-Return the fully qualified path to the template file used as input to generateUnitFile.
-
-=cut
-
-sub _build_systemdTemplateFilePath {
-    my $self = shift;
-    return $install_dir . "/conf/systemd/packetfence-" . $self->name . ".service.tt";
-}
-
-=head2 _buildSystemdVars 
-
-Return a hashref with the variables requied to populate the systemd Unit File template in generateUnitFile. 
-Stub, implement in subclasses as required.
-
-=cut
-
-sub _build_SystemdVars {
-    my $self    = shift;
-    my $cmdLine
-        = defined $self->_cmdLineArgs
-        ? $self->_cmdLine . " " . $self->_cmdLineArgs
-        : $self->_cmdLine;
-    return {
-        header_warning => "#This file is generated dynamically based on the PacketFence configuration. 
-# Look under " . $self->systemdTemplateFilePath . " for the template used to generate it.",
-        cmdLine => $cmdLine,
-        pidFile => $self->pidFile,
-    };
-}
-
-=head2 generateUnitFile
-
-Generates the systemd unit file for the service.
-
-=cut
-
-sub generateUnitFile {
-    my $self = shift;
-    my $vars = $self->systemdVars();
-    my $tt   = Template->new( ABSOLUTE => 1 );
-    $tt->process( $self->systemdTemplateFilePath, $vars, $self->unitFilePath ) or die $tt->error();
 }
 
 =head2 generateConfig
