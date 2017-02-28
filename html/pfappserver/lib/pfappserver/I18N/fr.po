@@ -931,7 +931,7 @@ msgstr "Bande passante par système d’exploitation"
 msgid "Bandwidth per Operating System Class"
 msgstr "Bande passante par Système d’exploitation"
 
-# pf::firewallsso (Firewall SSO)
+# firewallsso (Firewall SSO)
 msgid "BarracudaNG"
 msgstr "Coupe-feu Barracuda NG"
 
@@ -1146,7 +1146,7 @@ msgid ""
 "unregistered.<br/>Do not use if multiple devices share the same certificate"
 msgstr "Cocher cette case pour que le certificat soit révoqué lorsqu’un appareil est désenregistré.</br>À ne pas utiliser si plusieurs appareils partagent le même certificat."
 
-# pf::firewallsso (Firewall SSO)
+# firewallsso (Firewall SSO)
 msgid "Checkpoint"
 msgstr "Coupe-feu Check Point"
 
@@ -2949,7 +2949,7 @@ msgid ""
 "the httpd.portal process to be fully effective."
 msgstr "Forcer le portail a utiliser HTTPS pour tous les clients du portail. Notez  que chaque client sera forcé d’utiliser HTTPS pour toutes les URLs. Nécessite le redémarrage du processus httpd.portal pour que ce soit effectif."
 
-# pf::firewallsso (Firewall SSO)
+# firewallsso (Firewall SSO)
 msgid "FortiGate"
 msgstr "Coupe-feu FortiGate"
 
@@ -3251,7 +3251,7 @@ msgid ""
 " localy running SMTP server."
 msgstr "Adresse IP de votre serveur SMTP pour relayer les emails. Un champ vide permettra d’utiliser le serveur SMTP local."
 
-# pf::firewallsso (Firewall SSO)
+# firewallsso (Firewall SSO)
 msgid "Iboss"
 msgstr "Iboss"
 
@@ -5038,7 +5038,7 @@ msgstr "PacketFence utilise un serveur MySQL. Sur cette page vous devez spécifi
 msgid "PacketFence version"
 msgstr "Version de PacketFence"
 
-# pf::firewallsso (Firewall SSO)
+# firewallsso (Firewall SSO)
 msgid "PaloAlto"
 msgstr "PaloAlto Networks"
 
@@ -8688,7 +8688,7 @@ msgstr "WRIX - Mise à jour"
 msgid "Warning!"
 msgstr "Attention !"
 
-# pf::firewallsso (Firewall SSO)
+# firewallsso (Firewall SSO)
 msgid "WatchGuard"
 msgstr "WatchGuard"
 

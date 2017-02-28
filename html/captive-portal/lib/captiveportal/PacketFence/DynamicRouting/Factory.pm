@@ -8,8 +8,6 @@ captiveportal::PacketFence::DynamicRouting::Factory
 
 =head1 DESCRIPTION
 
-pf::factory::firewallsso
-
 The factory for creating captiveportal::PacketFence::DynamicRouting::Module objects
 
 =cut

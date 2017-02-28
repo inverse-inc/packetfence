@@ -22,6 +22,15 @@ our @EXPORT_OK = qw($SYSLOG_TRANSPORT $HTTP_TRANSPORT);
 Readonly::Scalar our $SYSLOG_TRANSPORT => "syslog";
 Readonly::Scalar our $HTTP_TRANSPORT => "http";
 
+Readonly::Scalar our $FIREWALL_TYPES => [
+    "BarracudaNG",
+    "Checkpoint",
+    "FortiGate",
+    "Iboss",
+    "PaloAlto",
+    "WatchGuard",
+];
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
