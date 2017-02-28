@@ -429,13 +429,7 @@ Create the primary key where clause
 
 sub primary_keys_where_clause {
     my ($self) = @_;
-    my $old_data = $self->__old_data;
-    my %where;
-    my $keys = $self->primary_keys;
-    for my $key (@$keys) {
-        $where{$key} = $old_data->{$key};
-    }
-    return \%where;
+    return $self->build_primary_keys_where_clause($self->{__old_data} // $self);
 }
 
 =head2 primary_keys
@@ -478,13 +472,11 @@ Remove row from the database
 
 sub remove_by_id {
     my ($self, $ids) = @_;
-    my %where;
-    my $keys = $self->primary_keys;
-    @where{@$keys} = @{$ids}{@$keys};
+    my $where = $self->build_primary_keys_where_clause($ids);
     my $sqla = $self->get_sql_abstract;
     my ($sql, @bind) = $sqla->delete(
         -from => $self->table,
-        -where => \%where,
+        -where => $where,
     );
     my ($status, $sth) = $self->db_execute($sql, @bind);
     return $status if is_error($status);
@@ -492,6 +484,18 @@ sub remove_by_id {
         return $STATUS::OK;
     }
     return $STATUS::NOT_FOUND;
+}
+
+=head2 build_primary_keys_where_clause
+
+=cut
+
+sub build_primary_keys_where_clause {
+    my ($self, $ids) = @_;
+    my %where;
+    my $keys = $self->primary_keys;
+    @where{@$keys} = @{$ids}{@$keys};
+    return \%where;
 }
 
 =head2 get_sql_abstract
