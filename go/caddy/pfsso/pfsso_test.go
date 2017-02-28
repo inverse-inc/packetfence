@@ -1,0 +1,198 @@
+package pfsso
+
+import (
+	"bytes"
+	"context"
+	"github.com/fingerbank/processor/log"
+	"github.com/fingerbank/processor/sharedutils"
+	"github.com/julienschmidt/httprouter"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+)
+
+var ctx = log.LoggerNewContext(context.Background())
+var pfsso, err = buildPfssoHandler(ctx)
+
+func TestValidateInfo(t *testing.T) {
+	sharedutils.CheckTestError(t, err)
+
+	// Test valid info
+	info := map[string]string{"ip": "1.2.3.4", "mac": "00:11:22:33:44:55", "username": "lzammit", "role": "default"}
+
+	if pfsso.validateInfo(ctx, info) != nil {
+		t.Error("Validate info failed with valid informations")
+	}
+
+	// Test missing ip
+	info = map[string]string{"mac": "00:11:22:33:44:55", "username": "lzammit", "role": "default"}
+
+	if pfsso.validateInfo(ctx, info) == nil {
+		t.Error("Validate info succeeded with invalid informations")
+	}
+
+	// Test missing mac
+	info = map[string]string{"ip": "1.2.3.4", "username": "lzammit", "role": "default"}
+
+	if pfsso.validateInfo(ctx, info) == nil {
+		t.Error("Validate info succeeded with invalid informations")
+	}
+
+	// Test missing username
+	info = map[string]string{"ip": "1.2.3.4", "mac": "00:11:22:33:44:55", "role": "default"}
+
+	if pfsso.validateInfo(ctx, info) == nil {
+		t.Error("Validate info succeeded with invalid informations")
+	}
+
+	// Test missing role
+	info = map[string]string{"ip": "1.2.3.4", "mac": "00:11:22:33:44:55", "username": "lzammit"}
+
+	if pfsso.validateInfo(ctx, info) == nil {
+		t.Error("Validate info succeeded with invalid informations")
+	}
+
+	// Test empty info
+	info = map[string]string{}
+
+	if pfsso.validateInfo(ctx, info) == nil {
+		t.Error("Validate info succeeded with invalid informations")
+	}
+}
+
+func TestParseSsoRequest(t *testing.T) {
+	// Valid payload with timeout
+	b := bytes.NewBuffer([]byte(`{"ip":"1.2.3.4", "mac": "00:11:22:33:44:55", "username":"lzammit", "role": "default", "timeout":"86400"}`))
+	info, timeout, err := pfsso.parseSsoRequest(ctx, b)
+
+	if err != nil {
+		t.Errorf("Valid payload yielded error: %s", err)
+	}
+
+	if info == nil {
+		t.Error("Valid payload yielded a nil info")
+	}
+
+	expected := 86400
+	if timeout != expected {
+		t.Errorf("Expected timeout %d but got %d", expected, timeout)
+	}
+
+	infoExpected := map[string]string{"ip": "1.2.3.4", "mac": "00:11:22:33:44:55", "username": "lzammit", "role": "default", "timeout": "86400"}
+	for k, expectedV := range infoExpected {
+		if v, ok := info[k]; ok {
+			if v != expectedV {
+				t.Errorf("Expected %s for key %s but got %s instead", expectedV, k, v)
+			}
+		}
+	}
+
+	//Valid payload without a timeout
+	b = bytes.NewBuffer([]byte(`{"ip":"1.2.3.4", "mac": "00:11:22:33:44:55", "username":"lzammit", "role": "default"}`))
+	info, timeout, err = pfsso.parseSsoRequest(ctx, b)
+
+	if err != nil {
+		t.Errorf("Valid payload yielded error: %s", err)
+	}
+
+	if info == nil {
+		t.Error("Valid payload yielded a nil info")
+	}
+
+	expected = 0
+	if timeout != expected {
+		t.Errorf("Expected timeout %d but got %d", expected, timeout)
+	}
+
+	//Invalid JSON payload
+	b = bytes.NewBuffer([]byte(`{"ip":"1.2.3.4", "mac": "00:11:22:33:44:55", "username":"lzammit", "role": "default"`))
+	info, timeout, err = pfsso.parseSsoRequest(ctx, b)
+
+	if err == nil {
+		t.Error("Invalid payload didn't give an error")
+	}
+
+	if info != nil {
+		t.Error("Invalid payload didn't provide a nil info")
+	}
+
+	expected = 0
+	if timeout != expected {
+		t.Errorf("Expected timeout %d but got %d", expected, timeout)
+	}
+
+	//Missing field in request
+	b = bytes.NewBuffer([]byte(`{"ip":"1.2.3.4", "mac": "00:11:22:33:44:55", "username":"lzammit"}`))
+	info, timeout, err = pfsso.parseSsoRequest(ctx, b)
+
+	if err == nil {
+		t.Error("Invalid payload didn't give an error")
+	}
+
+	if info != nil {
+		t.Error("Invalid payload didn't provide a nil info")
+	}
+
+	expected = 0
+	if timeout != expected {
+		t.Errorf("Expected timeout %d but got %d", expected, timeout)
+	}
+}
+
+func TestHandleStart(t *testing.T) {
+	req := httptest.NewRequest("POST", "/pfsso/start", bytes.NewBuffer([]byte(`{"ip":"1.2.3.4", "mac": "00:11:22:33:44:55", "username":"lzammit", "role": "default", "timeout":"86400"}`)))
+	recorder := httptest.NewRecorder()
+	pfsso.handleStart(recorder, req, httprouter.Params{})
+
+	if recorder.Code != http.StatusAccepted {
+		t.Error("Wrong status code from handleStart")
+	}
+
+	// Test invalid JSON payload
+	req = httptest.NewRequest("POST", "/pfsso/start", bytes.NewBuffer([]byte(`{"ip":"1.2.3.4", "mac": "00:11:22:33:44:55", "username":"lzammit", "role": "default", "timeout":"86400"`)))
+	recorder = httptest.NewRecorder()
+	pfsso.handleStart(recorder, req, httprouter.Params{})
+
+	if recorder.Code != http.StatusBadRequest {
+		t.Error("Wrong status code from handleStart")
+	}
+
+	// Test missing info
+	req = httptest.NewRequest("POST", "/pfsso/start", bytes.NewBuffer([]byte(`{"ip":"1.2.3.4", "mac": "00:11:22:33:44:55", "username":"lzammit", "timeout":"86400"}`)))
+	recorder = httptest.NewRecorder()
+	pfsso.handleStart(recorder, req, httprouter.Params{})
+
+	if recorder.Code != http.StatusBadRequest {
+		t.Error("Wrong status code from handleStart")
+	}
+
+}
+
+func TestHandleStop(t *testing.T) {
+	req := httptest.NewRequest("POST", "/pfsso/stop", bytes.NewBuffer([]byte(`{"ip":"1.2.3.4", "mac": "00:11:22:33:44:55", "username":"lzammit", "role": "default"}`)))
+	recorder := httptest.NewRecorder()
+	pfsso.handleStop(recorder, req, httprouter.Params{})
+
+	if recorder.Code != http.StatusAccepted {
+		t.Error("Wrong status code from handleStop")
+	}
+
+	// Test invalid JSON payload
+	req = httptest.NewRequest("POST", "/pfsso/stop", bytes.NewBuffer([]byte(`{"ip":"1.2.3.4", "mac": "00:11:22:33:44:55", "username":"lzammit", "role": "default"`)))
+	recorder = httptest.NewRecorder()
+	pfsso.handleStart(recorder, req, httprouter.Params{})
+
+	if recorder.Code != http.StatusBadRequest {
+		t.Error("Wrong status code from handleStart")
+	}
+
+	// Test missing info
+	req = httptest.NewRequest("POST", "/pfsso/stop", bytes.NewBuffer([]byte(`{"ip":"1.2.3.4", "mac": "00:11:22:33:44:55", "username":"lzammit"}`)))
+	recorder = httptest.NewRecorder()
+	pfsso.handleStart(recorder, req, httprouter.Params{})
+
+	if recorder.Code != http.StatusBadRequest {
+		t.Error("Wrong status code from handleStart")
+	}
+
+}

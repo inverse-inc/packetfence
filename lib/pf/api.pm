@@ -65,6 +65,8 @@ use pf::dhcp::processor();
 use pf::util::dhcpv6();
 use pf::domain::ntlm_cache();
 
+use pf::constants::api;
+
 sub event_add : Public {
     my ($class, %postdata) = @_;
     my $logger = pf::log::get_logger();
@@ -272,7 +274,7 @@ sub ipset_node_update : Public {
     return(pf::ipset->update_node($oldip, $srcip, $srcmac));
 }
 
-sub firewallsso : Public : Fork {
+sub firewallsso : Public {
     my ($class, %postdata) = @_;
     my @require = qw(method mac ip timeout);
     my @found = grep {exists $postdata{$_}} @require;
@@ -280,33 +282,21 @@ sub firewallsso : Public : Fork {
 
     my $logger = pf::log::get_logger();
 
-    foreach my $firewall_id ( sort keys %pf::config::ConfigFirewallSSO ) {
-        my $firewall = pf::factory::firewallsso->new($firewall_id);
+    my $node = pf::node::node_attributes($postdata{mac});
 
-        next unless($firewall->should_sso($postdata{ip}, $postdata{mac}));
+    pf::api::jsonrestclient->new(
+        proto => "http", 
+        host => "localhost", 
+        port => $pf::constants::api::PFSSO_PORT,
+    )->call("/pfsso/".lc($postdata{method}), {
+        ip => $postdata{ip}, 
+        mac => pf::util::clean_mac($postdata{mac}),
+        # All values must be string for pfsso
+        timeout => $postdata{timeout}."",
+        role => $node->{category},
+        username => $node->{pid},
+    });
 
-        if($postdata{method} eq "Update"){
-            if( pf::util::isenabled($pf::config::ConfigFirewallSSO{$firewall_id}{cache_updates}) ){
-                my $cache = pf::CHI->new( namespace => 'firewall_sso' );
-                my $cache_timeout = $pf::config::ConfigFirewallSSO{$firewall_id}{cache_timeout} || $postdata{timeout} / 2;
-                my $cache_key = "$firewall_id - $postdata{ip}";
-                $cache->compute($cache_key, { expires_in => $cache_timeout },
-                    sub {
-                        $logger->debug("Doing cached firewall SSO for '$cache_key' with expiration of $cache_timeout");
-                        $firewall->action($firewall_id,'Start',$postdata{'mac'},$postdata{'ip'},$postdata{'timeout'});
-                        return 1;
-                    }
-                );
-            }
-            else {
-                $firewall->action($firewall_id,'Start',$postdata{'mac'},$postdata{'ip'},$postdata{'timeout'});
-            }
-        }
-        else {
-            $firewall->action($firewall_id,$postdata{'method'},$postdata{'mac'},$postdata{'ip'},$postdata{'timeout'});
-        }
-
-    }
     return $pf::config::TRUE;
 }
 

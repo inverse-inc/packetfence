@@ -3,10 +3,14 @@ package pfconfigdriver
 import (
 	"context"
 	"github.com/davecgh/go-spew/spew"
+	"github.com/fingerbank/processor/log"
+	"github.com/fingerbank/processor/sharedutils"
+	"os"
+	"os/exec"
 	"testing"
 )
 
-var ctx = context.Background()
+var ctx = log.LoggerNewContext(context.Background())
 
 func TestFetchSocket(t *testing.T) {
 	result := FetchSocket(ctx, `{"method":"element", "key":"resource::fqdn","encoding":"json"}`+"\n")
@@ -24,7 +28,7 @@ func TestFetchSocket(t *testing.T) {
 
 func TestFetchDecodeSocket(t *testing.T) {
 	general := PfConfGeneral{}
-	FetchDecodeSocketStruct(ctx, &general)
+	FetchDecodeSocket(ctx, &general)
 
 	if general.Domain != "pfdemo.org" {
 		t.Error("PfConfGeneral wasn't fetched and parsed correctly")
@@ -33,7 +37,7 @@ func TestFetchDecodeSocket(t *testing.T) {
 
 	var sections PfconfigKeys
 	sections.PfconfigNS = "config::Pf"
-	FetchDecodeSocketStruct(ctx, &sections)
+	FetchDecodeSocket(ctx, &sections)
 
 	generalFound := false
 	for i := range sections.Keys {
@@ -48,35 +52,109 @@ func TestFetchDecodeSocket(t *testing.T) {
 	}
 
 	invalid := struct {
+		StructConfig
 		PfconfigMethod string `val:"hash_element"`
 		PfconfigNS     string `val:"vidange"`
 		PfconfigHashNS string `val:"vidange"`
 	}{}
 
-	err := FetchDecodeSocketStruct(ctx, &invalid)
+	err := FetchDecodeSocket(ctx, &invalid)
 
 	if err == nil {
 		t.Error("Invalid struct should have created an error in pfconfig driver but it didn't")
 	}
 
 	invalid2 := struct {
+		StructConfig
 		PfconfigMethod string `val:"vidange"`
 		PfconfigNS     string `val:"vidange"`
 		PfconfigHashNS string `val:"vidange"`
 	}{}
 
-	err = FetchDecodeSocketStruct(ctx, &invalid2)
+	err = FetchDecodeSocket(ctx, &invalid2)
 
 	if err == nil {
 		t.Error("Invalid struct should have created an error in pfconfig driver but it didn't")
 	}
+
+	var i PfconfigObject
+
+	i = &PfConfGeneral{}
+
+	err = FetchDecodeSocket(ctx, i)
+
+	if err != nil {
+		t.Error("Failed to fetch from pfconfig with type being in an interface")
+	}
+
+}
+
+func TestFetchDecodeSocketCache(t *testing.T) {
+	gen := PfConfGeneral{}
+
+	// Test loading a resource and validating the result
+	loaded, err := FetchDecodeSocketCache(ctx, &gen)
+	sharedutils.CheckTestError(t, err)
+
+	if !loaded {
+		t.Error("Resource wasn't loaded when calling a first time load")
+	}
+
+	expected := "pfdemo.org"
+	if gen.Domain != expected {
+		t.Errorf("Resource domain wasn't loaded correctly through resource pool. Got %s instead of %s", gen.Domain, expected)
+	}
+
+	if !(gen.GetLoadedAt().Year() > 0) {
+		t.Error("Resource wasn't marked as loaded")
+	}
+
+	// Test loading a resource again which shouldn't read from pfconfig as it hasn't changed from when it was last read
+	loaded, err = FetchDecodeSocketCache(ctx, &gen)
+	sharedutils.CheckTestError(t, err)
+
+	if loaded {
+		t.Error("Resource was loaded again even though it was already loaded")
+	}
+
+	expected = "pfdemo.org"
+	if gen.Domain != expected {
+		t.Errorf("Resource domain wasn't loaded correctly. Got %s instead of %s", gen.Domain, expected)
+	}
+
+	// Test changing data in pfconfig and reloading the resource
+	cmd := exec.Command("sed", "-i.bak", "s/domain=pfdemo.org/domain=zammitcorp.com/g", "/usr/local/pf/t/data/pf.conf")
+	err = cmd.Run()
+	sharedutils.CheckError(err)
+
+	// Expire data in pfconfig
+	FetchSocket(ctx, `{"method":"expire", "encoding":"json", "namespace":"config::Pf"}`+"\n")
+
+	// Load the resource while accepting the reusal of the data already populated in the resource
+	loaded, err = FetchDecodeSocketCache(ctx, &gen)
+	sharedutils.CheckTestError(t, err)
+
+	if !loaded {
+		t.Error("Resource wasn't loaded when control file expired")
+	}
+
+	expected = "zammitcorp.com"
+	if gen.Domain != expected {
+		t.Errorf("Resource domain wasn't loaded correctly through resource pool. Got %s instead of %s", gen.Domain, expected)
+	}
+	// Restore the prestine version of pf.conf
+	err = os.Rename("/usr/local/pf/t/data/pf.conf.bak", "/usr/local/pf/t/data/pf.conf")
+	sharedutils.CheckError(err)
+
+	// Reset the pfconfig namespace after putting back the old data
+	FetchSocket(ctx, `{"method":"expire", "encoding":"json", "namespace":"config::Pf"}`+"\n")
 
 }
 
 func TestArrayElements(t *testing.T) {
 	var li ListenInts
 
-	FetchDecodeSocketStruct(ctx, &li)
+	FetchDecodeSocket(ctx, &li)
 
 	expected := 2
 	if len(li.Element) != expected {

@@ -12,6 +12,12 @@ _pfhttpd:
 	cd - && \
 	mv caddy/caddy/caddy/caddy ${NAME}
 
+pfhttpd-race:
+	cd caddy/caddy/caddy && \
+	go build -race && \
+	cd - && \
+	mv caddy/caddy/caddy/caddy pfhttpd-race
+
 .PHONY: clean-caddy-src
 
 clean-caddy-src:

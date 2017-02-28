@@ -8,10 +8,13 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Sereal/Sereal/Go/sereal"
+	"github.com/fingerbank/processor/log"
 	"github.com/fingerbank/processor/sharedutils"
 	"io"
 	"net"
+	"os"
 	"reflect"
+	"time"
 	//"github.com/davecgh/go-spew/spew"
 )
 
@@ -20,6 +23,8 @@ const pfconfigSocketPath string = "/usr/local/pf/var/run/pfconfig.sock"
 const pfconfigTestSocketPath string = "/usr/local/pf/var/run/pfconfig-test.sock"
 
 var pfconfigSocketPathCache string
+
+var SocketTimeout time.Duration = 60 * time.Second
 
 // Get the pfconfig socket path depending on whether or not we're in testing
 // Since the environment is not bound to change at runtime, the socket path is computed once and cached in pfconfigSocketPathCache
@@ -41,30 +46,54 @@ type Query struct {
 	encoding string
 	method   string
 	ns       string
-	payload  string
 }
 
 // Get the payload to send to pfconfig based on the Query attributes
 // Also sets the payload attribute at the same time
 func (q *Query) GetPayload() string {
-	q.payload = fmt.Sprintf(`{"method":"%s", "key":"%s","encoding":"%s"}`+"\n", q.method, q.ns, q.encoding)
-	return q.payload
+	return fmt.Sprintf(`{"method":"%s", "key":"%s","encoding":"%s"}`+"\n", q.method, q.ns, q.encoding)
+}
+
+// Get a string identifier of the query
+func (q *Query) GetIdentifier() string {
+	return fmt.Sprintf("%s|%s", q.method, q.ns)
+}
+
+// Connect to the pfconfig socket
+// If it fails to connect, it will try it every second up to the time defined in SocketTimeout
+// After SocketTimeout is reached, this will panic
+func connectSocket(ctx context.Context) net.Conn {
+
+	timeoutChan := time.After(SocketTimeout)
+
+	var c net.Conn
+	err := errors.New("Not yet connected")
+	for err != nil {
+		select {
+		case <-timeoutChan:
+			panic("Can't connect to pfconfig socket")
+		default:
+			// We try to connect to the pfconfig socket
+			// If we fail, we will wait a second before leaving this scope
+			// Otherwise, we continue and the for loop will detect the connection is valid since err will be nil
+			c, err = net.Dial("unix", getPfconfigSocketPath())
+			if err != nil {
+				log.LoggerWContext(ctx).Error("Cannot connect to pfconfig socket...")
+				time.Sleep(1 * time.Second)
+			}
+		}
+	}
+
+	return c
 }
 
 // Fetch data from the pfconfig socket for a string payload
 // Returns the bytes received from the socket
 func FetchSocket(ctx context.Context, payload string) []byte {
-	c, err := net.Dial("unix", getPfconfigSocketPath())
-
-	if err != nil {
-		panic(err)
-	}
+	c := connectSocket(ctx)
 
 	// Send our query in the socket
 	fmt.Fprintf(c, payload)
-	if err != nil {
-		panic(err)
-	}
 
 	var buf bytes.Buffer
 	buf.ReadFrom(c)
@@ -88,16 +117,12 @@ func FetchSocket(ctx context.Context, payload string) []byte {
 // Lookup the pfconfig metadata for a specific field
 // If there is a non-zero value in the field, it will be taken
 // Otherwise it will take the value in the val tag of the field
-func metadataFromField(ctx context.Context, param PfconfigObject, fieldName string) string {
+func metadataFromField(ctx context.Context, param interface{}, fieldName string) string {
 	var ov reflect.Value
 
-	// PfconfigObject can be an actual struct or a reflect.Value
-	// If its not a reflect.Value, we get the reflect.Value for that struct
-	switch val := param.(type) {
-	case reflect.Value:
-		ov = val
-	default:
-		ov = reflect.ValueOf(param).Elem()
+	ov = reflect.ValueOf(param)
+	for ov.Kind() == reflect.Ptr || ov.Kind() == reflect.Interface {
+		ov = ov.Elem()
 	}
 
 	// We check if the field was set to a value as this will overide the value in the tag
@@ -184,30 +209,49 @@ func createQuery(ctx context.Context, o PfconfigObject) Query {
 	return query
 }
 
-// Fetch and decode a namespace from pfconfig given a pfconfig compatible struct
-// This cannot accept an interface and requires the struct to have been declared to its final type (so not created by the reflection)
-func FetchDecodeSocketStruct(ctx context.Context, o PfconfigObject) error {
-	return FetchDecodeSocket(ctx, o, reflect.Value{})
+// Checks wheter the LoadedAt field of the PfconfigObject (set by FetchDecodeSocket) is before or after the timestamp of the namespace control file.
+// If the LoadedAt field was set before the namespace control file, then the resource isn't valid anymore
+// If the namespace control file doesn't exist, the resource is considered invalid
+func IsValid(ctx context.Context, o PfconfigObject) bool {
+	ns := metadataFromField(ctx, o, "PfconfigNS")
+	controlFile := "/usr/local/pf/var/control/" + ns + "-control"
+
+	stat, err := os.Stat(controlFile)
+
+	if err != nil {
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("Cannot stat %s. Will consider resource as invalid"))
+		return false
+	} else {
+		controlTime := stat.ModTime()
+		if o.GetLoadedAt().Before(controlTime) {
+			log.LoggerWContext(ctx).Debug(fmt.Sprintf("Resource is not valid anymore. Was loaded at %s", o.GetLoadedAt()))
+			return false
+		} else {
+			return true
+		}
+	}
+}
+
+// Fetch and decode from the socket but only if the PfconfigObject is not valid anymore
+func FetchDecodeSocketCache(ctx context.Context, o PfconfigObject) (bool, error) {
+	query := createQuery(ctx, o)
+	ctx = log.AddToLogContext(ctx, "PfconfigObject", query.GetIdentifier())
+
+	// If the resource is still valid and is already loaded
+	if IsValid(ctx, o) {
+		return false, nil
+	}
+
+	err := FetchDecodeSocket(ctx, o)
+	return true, err
 }
 
 // Fetch and decode a namespace from pfconfig given a pfconfig compatible struct
-// The proper reflect.Value must be passed to extract the pfconfig metadata from
-func FetchDecodeSocketInterface(ctx context.Context, o PfconfigObject, reflectInfo reflect.Value) error {
-	return FetchDecodeSocket(ctx, o, reflectInfo)
-}
-
-// Fetch and decode a namespace from pfconfig given a pfconfig compatible struct
-// If reflectInfo is a valid reflect.Value, it will be used to extract the pfconfig metadata from it
 // This will fetch the json representation from pfconfig and decode it into o
 // o must be a pointer to the struct as this should be used by reference
-func FetchDecodeSocket(ctx context.Context, o PfconfigObject, reflectInfo reflect.Value) error {
-	var queryParam interface{}
-	if reflectInfo.IsValid() {
-		queryParam = reflectInfo
-	} else {
-		queryParam = o
-	}
-	query := createQuery(ctx, queryParam)
+func FetchDecodeSocket(ctx context.Context, o PfconfigObject) error {
+	query := createQuery(ctx, o)
+
 	jsonResponse := FetchSocket(ctx, query.GetPayload())
 	if query.method == "keys" {
 		if cs, ok := o.(*PfconfigKeys); ok {
@@ -227,6 +271,8 @@ func FetchDecodeSocket(ctx context.Context, o PfconfigObject, reflectInfo reflec
 			return errors.New(fmt.Sprintf("Element in response was invalid. Response was: %s", jsonResponse))
 		}
 	}
+
+	o.SetLoadedAt(time.Now())
 
 	return nil
 }

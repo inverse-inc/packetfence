@@ -1,29 +1,30 @@
-package pf::constants::api;
+package pf::services::manager::pfsso;
 
 =head1 NAME
 
-pf::constants::api - constants for the API
+pf::services::manager::pfsso - The service manager for the pfsso  service
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::constants::api
+pf::services::manager::pfsso
 
 =cut
 
 use strict;
 use warnings;
+use Moo;
+use pf::cluster;
 
-use Readonly;
+extends 'pf::services::manager';
 
-Readonly our $DEFAULT_CLIENT => "pf::api::jsonrpcclient";
-
-our $PFSSO_PORT = 8777;
+has '+name' => ( default => sub { 'pfsso' } );
 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
+
 
 =head1 COPYRIGHT
 
@@ -31,7 +32,7 @@ Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and::or
+This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
@@ -49,4 +50,3 @@ USA.
 =cut
 
 1;
-

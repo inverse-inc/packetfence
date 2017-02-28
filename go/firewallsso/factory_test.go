@@ -30,11 +30,11 @@ func TestFirewallSSOFetchDecodeSocket(t *testing.T) {
 
 	firewall := FirewallSSO{}
 	firewall.PfconfigHashNS = "testfw"
-	pfconfigdriver.FetchDecodeSocketStruct(ctx, &firewall)
+	pfconfigdriver.FetchDecodeSocket(ctx, &firewall)
 
 	iboss := Iboss{}
 	iboss.PfconfigHashNS = "testfw"
-	pfconfigdriver.FetchDecodeSocketStruct(ctx, &iboss)
+	pfconfigdriver.FetchDecodeSocket(ctx, &iboss)
 
 	if iboss.Port != "8015" || iboss.Type != "Iboss" {
 		t.Error("IBoss wasn't fetched and parsed correctly")

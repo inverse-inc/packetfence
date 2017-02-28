@@ -380,6 +380,11 @@ pfdns=enabled
 # Should pffilter be managed by PacketFence?
 pffilter=enabled
 #
+# services.pfsso
+#
+# Should pfsso be managed by PacketFence?
+pfsso=enabled
+#
 # services.snort
 #
 # Should snort be managed by PacketFence?
