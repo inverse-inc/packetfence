@@ -99,7 +99,7 @@ Requires: sscep
 Requires: p0f
 Requires: net-snmp >= 5.3.2.2
 Requires: perl >= %{perl_version}
-Requires: mariadb, mariadb-server
+Requires: MariaDB-server >= 10.1, MariaDB-client >= 10.1
 Requires: perl(DBD::mysql)
 # replaces the need for perl-suidperl which was deprecated in perl 5.12 (Fedora 14)
 Requires(pre): %{real_name}-pfcmd-suid
