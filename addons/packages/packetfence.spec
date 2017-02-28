@@ -1087,6 +1087,8 @@ fi
                         /usr/local/pf/conf/cluster.conf.example
 %config(noreplace)      /usr/local/pf/conf/listener.msg
                         /usr/local/pf/conf/listener.msg.example
+%dir                    /usr/local/pf/conf/caddy-services
+%config                 /usr/local/pf/conf/caddy-services/pfsso.conf
 %dir                    /usr/local/pf/conf/monitoring
 %config(noreplace)      /usr/local/pf/conf/monitoring/carbon.conf
                         /usr/local/pf/conf/monitoring/carbon.conf.example
