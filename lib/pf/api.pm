@@ -294,6 +294,7 @@ sub firewallsso : Public {
         # All values must be string for pfsso
         timeout => $postdata{timeout}."",
         role => $node->{category},
+        username => $node->{pid},
     });
 
     return $pf::config::TRUE;
