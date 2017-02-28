@@ -23,6 +23,7 @@ import (
 	// This is where other plugins get plugged in (imported)
 	_ "github.com/inverse-inc/packetfence/go/caddy/logger"
 	_ "github.com/inverse-inc/packetfence/go/caddy/pfsso"
+	_ "github.com/inverse-inc/packetfence/go/caddy/requestlimit"
 	_ "github.com/inverse-inc/packetfence/go/caddy/statsd"
 )
 
