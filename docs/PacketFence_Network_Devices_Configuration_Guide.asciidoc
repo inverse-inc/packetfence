@@ -5568,13 +5568,13 @@ Then, in 'Configuration->Service and Profiles->Accounting', create a server with
 
 After, create a Hotspot in 'Configuration->AP Zones->Your Zone->Hotspot WISPr->Create New'. Adjust 192.168.1.5 to the IP address of your portal.
 
-## screenshot hotspot
+image::docs/images/ruckus-smartzone-webauth-hotspot.png[scaledwidth="100%",alt="Ruckus SmartZone Hotspot"]
 
 Then, still on this page, in the 'Walled Gardens', make sure you add the portal IP address in this list.
 
 Next, you will need to configure your WLAN to use the Hotspot authentication and point it to PacketFence. Also ensure you set 'Use the controller as a proxy'.
 
-## screenshot wlan
+image::docs/images/ruckus-smartzone-webauth-ssid.png[scaledwidth="100%",alt="Ruckus SmartZone SSID"]
 
 Now, you should configure the Northbound API of the SmartZone so PacketFence can communicate with it. In order to do so, go in 'Configuration->System->Northbound Portal Interface' and set the 'Password' and save it. Keep the password closeby as it will be required for the PacketFence configuration. In this example, it will be `passwordForNorthboundAPI`.
 
