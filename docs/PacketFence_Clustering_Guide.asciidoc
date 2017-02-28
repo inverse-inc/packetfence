@@ -9,7 +9,7 @@ include::includes/global-attributes.asciidoc[]
 
 About this Guide
 ----------------
-This guide has been created to give a quick start to install active/active clustering in PacketFence 7+. This guide does not include advanced troubleshooting of the active/active clustering. Refer to the documentation of HAProxy and Keepalive for advanced features.
+This guide has been created to give a quick start to install active/active clustering in PacketFence 7+. This guide does not include advanced troubleshooting of the active/active clustering. Refer to the documentation of HAProxy and Keepalived for advanced features.
 
 Assumptions
 -----------
@@ -243,7 +243,7 @@ Once this configuration is done, reload the configuration and restart PacketFenc
  # /usr/local/pf/bin/pfcmd checkup
  # /usr/local/pf/bin/pfcmd service pf restart
 
-Then make sure the packetfence clustering services will be started at boot by running the following command on all of your servers
+Then make sure the PacketFence clustering services will be started at boot by running the following command on all of your servers
 
  # systemctl set-default packetfence-cluster
 
@@ -351,12 +351,12 @@ Step 5: Securing the cluster
 Keepalived secret
 ^^^^^^^^^^^^^^^^^
 
-It is highly recommended to modify the keepalive shared secret in your cluster to prevent attacks. In the administration interface, go in 'Configuration/Clustering' and change the 'Shared KEY'. Make sure you restart keepalived on all your servers using `/usr/local/pf/bin/pfcmd service keepalived restart`
+It is highly recommended to modify the keepalived shared secret in your cluster to prevent attacks. From the PacketFence web administration interface, go in 'Configuration/Clustering' and change the 'Shared KEY'. Make sure you restart keepalived on all your servers using `/usr/local/pf/bin/pfcmd service keepalived restart`
 
 Understanding the Galera cluster synchronization
 ------------------------------------------------
 
-The Galera cluster stack used by PacketFence ressembles a lot to how a normal MariaDB Galera cluster behaves but it contains hooks to auto-correct some issues that can occur.
+The Galera cluster stack used by PacketFence resembles a lot to how a normal MariaDB Galera cluster behaves but it contains hooks to auto-correct some issues that can occur.
 
 NOTE: A lot of useful information is logged in the MariaDB log which can be found in `/var/lib/mysql/PF_HOSTNAME.err`
 
@@ -365,12 +365,13 @@ Quorum behavior
 
 A loss of quorum is when a server is not able to be part of a group that represents more than 50% of the configured servers in the cluster. This can occur if a node is isolated from a network perspective or if more than 50% of its peers aren't alive (like in the case of a power outage).
 
-The Galera cluster stack will check in permanence that it has a quorum. Should one of the server be part of a group that doesn't have the quorum in the cluster, it will put itself in read-only mode and stop the synchronization. During that time, your PacketFence installation will continue working but with some features disabled.
+The Galera cluster stack will continuously check that it has a quorum. Should one of the server be part of a group that doesn't have the quorum in the cluster, it will put itself in read-only mode and stop the synchronization. During that time, your PacketFence installation will continue working but with some features disabled.
 
  * RADIUS MAC Authentication: Will continue working and will return RADIUS attributes associated with the role that is registered in the database. If VLAN or RADIUS filters can apply to this device, they will but any role change will not be persisted.
- * RADIUS 802.1x: Will continue working and if 'Dot1x recompute role from portal' is enabled, it will compute the role using the available authentication sources but will not save it in the database at the end of the request. If this parameter is disabled, it will behave like MAC Authentication. VLAN and RADIUS filters will still apply for the connections. If any of your sources are external (LDAP, AD, RADIUS, ...), they must be available for the request to complete successfully.
+ * RADIUS 802.1X: Will continue working and if 'Dot1x recompute role from portal' is enabled, it will compute the role using the available authentication sources but will not save it in the database at the end of the request. If this parameter is disabled, it will behave like MAC Authentication. VLAN and RADIUS filters will still apply for the connections. If any of your sources are external (LDAP, AD, RADIUS, ...), they must be available for the request to complete successfully.
  * Captive portal: The captive portal will be disabled and display a message stating the system is currently experiencing an issue.
  * DHCP listeners: The DHCP listeners will be disabled and packets will not be saved in the database. This also means Firewall SSO will not work during that time.
+ * Web administration interface: It will still be available in read-only mode for all sections and in read-write mode for the configuration section.
 
 Once the server that is in read-only mode joins a quorum, it will go back in read-write mode and the system will go back to its normal behavior automatically.
 
@@ -379,7 +380,7 @@ Graceful shutdown behavior
 
 When you are gracefully shutting down servers for a planned maintenance, you should always aim to leave a quorum alive so that once the server joins its peers again, it will always re-join the cluster gracefully. You can also leave only one of the nodes alive but keep in mind it will fall in read-only mode but once another node joins the cluster, it will be able to join gracefully.
 
-Should all your nodes be shutdown gracefully (not force killed), when they come back online, they will not be able to create a quorum automatically using the built-in Galera cluster stack. In this case, if the management node will self-elect as a master and have the other nodes join the cluster. This means that if you gracefully shutdown the management node 30 minutes before shutting down the other nodes, when they come back online you will lose the 30 minutes of data that aren't on the management node. 
+Should all your nodes be shutdown gracefully (not force killed), when they come back online, they will not be able to create a quorum automatically using the built-in Galera cluster stack. In this case, if the management node will self-elect as a master and have the other nodes join the cluster. This means that if you did gracefully shutdown the management node 30 minutes before shutting down the other nodes, when they come back online you will lose the 30 minutes of data that aren't on the management node. 
 
 Note that the self-election process of the management node can take up to 5 minutes and requires that more than 50% of the nodes be alive (pingable) during that time.
 
