@@ -69,7 +69,7 @@ Wrapper around systemctl. systemctl should in turn call the actuall _start.
 sub start {
     my ($self,$quick) = @_;
     system('sudo systemctl start packetfence-iptables');
-    return $?;
+    return $? == 0;
 }
 
 =head2 _start
