@@ -43,7 +43,17 @@ func (f *Factory) Instantiate(ctx context.Context, id string) (FirewallSSOInt, e
 		}
 
 		fwint := firewall2.(FirewallSSOInt)
-		fwint.init(ctx)
+
+		err = fwint.init(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		err = fwint.initChild(ctx)
+		if err != nil {
+			return nil, err
+		}
+
 		return fwint, nil
 	} else {
 		return nil, errors.New("Cannot find the type of the object")

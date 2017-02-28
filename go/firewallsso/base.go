@@ -18,6 +18,7 @@ import (
 // Basic interface that all FirewallSSO must implement
 type FirewallSSOInt interface {
 	init(ctx context.Context) error
+	initChild(ctx context.Context) error
 	logger(ctx context.Context) log15.Logger
 	getSourceIp(ctx context.Context) net.IP
 	Start(ctx context.Context, info map[string]string, timeout int) (bool, error)
@@ -52,6 +53,11 @@ func (fw *FirewallSSO) init(ctx context.Context) error {
 			return err
 		}
 	}
+	return nil
+}
+
+// Meant to be overriden in the child classes
+func (fw *FirewallSSO) initChild(ctx context.Context) error {
 	return nil
 }
 
