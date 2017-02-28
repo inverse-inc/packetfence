@@ -76,6 +76,12 @@ sub deauthTechniques {
     return $method,$tech{$method};
 }
 
+=head2 deauthenticateMacWebservices
+
+Deauthenticate a MAC address using the Ruckus Northbound API
+
+=cut
+
 sub deauthenticateMacWebservices {
     my ($self, $mac) = @_;
     my $logger = $self->logger;
