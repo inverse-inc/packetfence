@@ -41,14 +41,17 @@ type Query struct {
 	encoding string
 	method   string
 	ns       string
-	payload  string
 }
 
 // Get the payload to send to pfconfig based on the Query attributes
 // Also sets the payload attribute at the same time
 func (q *Query) GetPayload() string {
-	q.payload = fmt.Sprintf(`{"method":"%s", "key":"%s","encoding":"%s"}`+"\n", q.method, q.ns, q.encoding)
-	return q.payload
+	return fmt.Sprintf(`{"method":"%s", "key":"%s","encoding":"%s"}`+"\n", q.method, q.ns, q.encoding)
+}
+
+// Get a string identifier of the query
+func (q *Query) GetIdentifier() string {
+	return fmt.Sprintf("%s|%s", q.method, q.ns)
 }
 
 // Fetch data from the pfconfig socket for a string payload
@@ -91,13 +94,9 @@ func FetchSocket(ctx context.Context, payload string) []byte {
 func metadataFromField(ctx context.Context, param PfconfigObject, fieldName string) string {
 	var ov reflect.Value
 
-	// PfconfigObject can be an actual struct or a reflect.Value
-	// If its not a reflect.Value, we get the reflect.Value for that struct
-	switch val := param.(type) {
-	case reflect.Value:
-		ov = val
-	default:
-		ov = reflect.ValueOf(param).Elem()
+	ov = reflect.ValueOf(param)
+	for ov.Kind() == reflect.Ptr || ov.Kind() == reflect.Interface {
+		ov = ov.Elem()
 	}
 
 	// We check if the field was set to a value as this will overide the value in the tag
@@ -185,29 +184,11 @@ func createQuery(ctx context.Context, o PfconfigObject) Query {
 }
 
 // Fetch and decode a namespace from pfconfig given a pfconfig compatible struct
-// This cannot accept an interface and requires the struct to have been declared to its final type (so not created by the reflection)
-func FetchDecodeSocketStruct(ctx context.Context, o PfconfigObject) error {
-	return FetchDecodeSocket(ctx, o, reflect.Value{})
-}
-
-// Fetch and decode a namespace from pfconfig given a pfconfig compatible struct
-// The proper reflect.Value must be passed to extract the pfconfig metadata from
-func FetchDecodeSocketInterface(ctx context.Context, o PfconfigObject, reflectInfo reflect.Value) error {
-	return FetchDecodeSocket(ctx, o, reflectInfo)
-}
-
-// Fetch and decode a namespace from pfconfig given a pfconfig compatible struct
-// If reflectInfo is a valid reflect.Value, it will be used to extract the pfconfig metadata from it
 // This will fetch the json representation from pfconfig and decode it into o
 // o must be a pointer to the struct as this should be used by reference
-func FetchDecodeSocket(ctx context.Context, o PfconfigObject, reflectInfo reflect.Value) error {
-	var queryParam interface{}
-	if reflectInfo.IsValid() {
-		queryParam = reflectInfo
-	} else {
-		queryParam = o
-	}
-	query := createQuery(ctx, queryParam)
+func FetchDecodeSocket(ctx context.Context, o PfconfigObject) error {
+	query := createQuery(ctx, o)
+
 	jsonResponse := FetchSocket(ctx, query.GetPayload())
 	if query.method == "keys" {
 		if cs, ok := o.(*PfconfigKeys); ok {
