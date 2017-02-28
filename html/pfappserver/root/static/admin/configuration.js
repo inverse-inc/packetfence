@@ -38,9 +38,6 @@ function init() {
             a.attr('default-value','yes');
         });
         /* Load the first tab on section click */
-        //var tabs = $('#tabView').find('.active [data-toggle="tab"]').first();
-        //console.log(tabs);
-        //console.log($('#tabView').find('[data-toggle="tab"]').first());
         $('#tabView').find('[data-toggle="tab"]').first().tab('show');
 
     });
