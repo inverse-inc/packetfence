@@ -18,8 +18,15 @@ use base ('pf::Switch::Ruckus');
 use pf::accounting qw(node_accounting_dynauth_attr);
 use pf::constants;
 use pf::util;
+use LWP::UserAgent;
+use pf::node;
+use pf::violation;
+use pf::iplog;
+use JSON::MaybeXS qw(encode_json);
 
 sub description { 'Ruckus SmartZone Wireless Controllers' }
+sub supportsWebFormRegistration { return $FALSE; }
+sub supportsWirelessMacAuth { return $TRUE; }
 
 =over
 
@@ -49,38 +56,77 @@ sub parseExternalPortalRequest {
     return \%params;
 }
 
+=item deauthTechniques
 
-=item getAcceptForm
-
-Creates the form that should be given to the client device to trigger a reauthentication.
+Return the reference to the deauth technique or the default deauth technique.
 
 =cut
 
-sub getAcceptForm {
-    my ( $self, $mac, $destination_url, $portalSession ) = @_;
+sub deauthTechniques {
+    my ($self, $method) = @_;
     my $logger = $self->logger;
-    $logger->debug("Creating web release form");
+    my $default = $SNMP::HTTP;
+    my %tech = (
+        $SNMP::HTTP => 'deauthenticateMacWebservices',
+    );
 
-    my $client_ip = $portalSession->param("ecwp-original-param-uip");
-    my $controller_ip = $self->{_ip};
-
-    my $html_form = qq[
-        <form name="weblogin_form" action="http://$controller_ip:9997/SubscriberPortal/hotspotlogin" method="POST" style="display:none">
-          <input type="text" name="ip" value="$client_ip" />
-          <input type="text" name="username" value="$mac" />
-          <input type="text" name="password" value="$mac"/>
-          <input type="submit">
-        </form>
-
-        <script language="JavaScript" type="text/javascript">
-        window.setTimeout('document.weblogin_form.submit();', 1000);
-        </script>
-    ];
-
-    $logger->debug("Generated the following html form : ".$html_form);
-    return $html_form;
+    if (!defined($method) || !defined($tech{$method})) {
+        $method = $default;
+    }
+    return $method,$tech{$method};
 }
 
+=head2 deauthenticateMacWebservices
+
+Deauthenticate a MAC address using the Ruckus Northbound API
+
+=cut
+
+sub deauthenticateMacWebservices {
+    my ($self, $mac) = @_;
+    my $logger = $self->logger;
+    my $controllerIp = $self->{_controllerIp} || $self->{_ip};
+    my $webservicesPassword = $self->{_wsPwd};
+    my $ucmac = uc $mac;
+    my $ip = pf::iplog::mac2ip($mac);
+    my $node_info = node_view($mac);
+    my $payload;
+    if($node_info->{status} eq "unreg" || violation_count_reevaluate_access($mac)) {
+        $payload = encode_json({
+         "Vendor"=> "ruckus",
+         "RequestPassword"=> $webservicesPassword,
+         "APIVersion"=> "1.0",
+         "RequestCategory"=> "UserOnlineControl",
+         "RequestType"=> "Logout",
+         "UE-IP"=> $ip,
+         "UE-MAC"=> $ucmac
+        });
+    }
+    else {
+        $payload = encode_json({
+         "Vendor"=> "ruckus",
+         "RequestPassword"=> $webservicesPassword,
+         "APIVersion"=> "1.0",
+         "RequestCategory"=> "UserOnlineControl",
+         "RequestType"=> "Login",
+         "UE-IP"=> $ip,
+         "UE-MAC"=> $ucmac,
+         "UE-Proxy"=> "0",
+         "UE-Username"=> $ucmac,
+         "UE-Password"=> $ucmac
+        });
+    }
+    my $ua = LWP::UserAgent->new;
+    $ua->timeout(10);
+    my $res = $ua->post("https://$controllerIp:9443/portalintf", Content => $payload, "Content-Type" => "application/json");
+    if($res->is_success) {
+        $logger->info("Contacted Ruckus to perform deauthentication");
+        $logger->debug("Got the following response: ".$res->decoded_content);
+    }
+    else {
+        $logger->error("Failed to contact Ruckus for deauthentication");
+    }
+}
 
 =back
 
