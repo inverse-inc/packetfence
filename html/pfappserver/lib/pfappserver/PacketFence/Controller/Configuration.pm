@@ -74,6 +74,7 @@ our %ALLOWED_SECTIONS = (
     system_config => undef,
     portal_config => undef,
     compliance => undef,
+    integration => undef,
 );
 
 
@@ -353,6 +354,15 @@ sub compliance :Local {
     $c->stash->{template} = "config/compliance.tt";
 }
 
+=head2 integration
+
+=cut
+
+sub integration :Local {
+    my ($self, $c) = @_;
+
+    $c->stash->{template} = "config/integration.tt";
+}
 
 =head1 COPYRIGHT
 
