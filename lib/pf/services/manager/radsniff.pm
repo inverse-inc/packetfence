@@ -54,10 +54,10 @@ sub _cmdLine {
         my $management_ip         = pf::cluster::current_server()->{management_ip};
         my $filter = make_filter();
         my $ints = join(' ', map { "-i $_->{Tint}"} @radius_ints);
-        $self->executable . " -d $install_dir/raddb/ -D $install_dir/raddb/ -q -P $install_dir/var/run/radsniff.pid -W10 -O $install_dir/var/run/collectd-unixsock -f '$filter' $ints -i lo";
+        $self->executable . " -d $install_dir/raddb/ -D $install_dir/raddb/ -q -W10 -O $install_dir/var/run/collectd-unixsock -f '$filter' $ints -i lo";
     }
     else {
-        $self->executable . " -d $install_dir/raddb/ -D $install_dir/raddb/ -q -P $install_dir/var/run/radsniff.pid -W10 -O $install_dir/var/run/collectd-unixsock -i $management_network->{Tint}";
+        $self->executable . " -d $install_dir/raddb/ -D $install_dir/raddb/ -q -W10 -O $install_dir/var/run/collectd-unixsock -i $management_network->{Tint}";
     }
 }
 

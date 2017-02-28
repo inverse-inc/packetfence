@@ -9,7 +9,6 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
 StandardOutput=syslog
 StartLimitBurst=3
 StartLimitInterval=60
-PIDFile=/usr/local/pf/var/run/radsniff.pid
 ExecStart=/usr/local/pf/sbin/radsniff-wrapper
 Restart=on-failure
 Slice=packetfence.slice
