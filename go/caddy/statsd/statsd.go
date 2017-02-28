@@ -3,7 +3,6 @@ package caddystatsd
 import (
 	"context"
 	"fmt"
-	"github.com/fingerbank/processor/sharedutils"
 	"github.com/fingerbank/processor/statsd"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
@@ -52,7 +51,9 @@ func setup(c *caddy.Controller) error {
 	}
 
 	client, err := _statsd.New(_statsd.Prefix(prefix), _statsd.Network(proto))
-	sharedutils.CheckError(err)
+	if err != nil {
+		fmt.Printf("Couldn't initialize statsd client (%s) \n", err)
+	}
 
 	httpserver.GetConfig(c).AddMiddleware(func(next httpserver.Handler) httpserver.Handler {
 		return Statsd{Next: next, ctx: ctx, client: client}
@@ -68,8 +69,10 @@ type Statsd struct {
 }
 
 func (h Statsd) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
-	ctx := statsd.WithContext(r.Context(), h.client)
-	r = r.WithContext(ctx)
+	if h.client != nil {
+		ctx := statsd.WithContext(r.Context(), h.client)
+		r = r.WithContext(ctx)
+	}
 
 	return h.Next.ServeHTTP(w, r)
 }
