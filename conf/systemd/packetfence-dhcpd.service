@@ -12,6 +12,7 @@ StartLimitInterval=60
 Type=notify
 PIDFile=/usr/local/pf/var/run/dhcpd.pid
 ExecStartPre=/usr/local/pf/bin/pfcmd service dhcpd generateconfig
+ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::dhcpd' -e 'pf::services::manager::dhcpd->new()->preStartSetup()'
 ExecStart=/usr/sbin/dhcpd -pf /usr/local/pf/var/run/dhcpd.pid -f -lf /usr/local/pf/var/dhcpd/dhcpd.leases -cf /usr/local/pf/var/conf/dhcpd.conf 
 Restart=on-failure
 Slice=packetfence.slice
