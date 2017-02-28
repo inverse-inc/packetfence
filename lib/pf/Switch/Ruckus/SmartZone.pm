@@ -22,6 +22,7 @@ use LWP::UserAgent;
 use pf::node;
 use pf::violation;
 use pf::iplog;
+use JSON::MaybeXS qw(encode_json);
 
 sub description { 'Ruckus SmartZone Wireless Controllers' }
 sub supportsWebFormRegistration { return $FALSE; }
@@ -85,33 +86,29 @@ sub deauthenticateMacWebservices {
     my $node_info = node_view($mac);
     my $payload;
     if($node_info->{status} eq "unreg" || violation_count_reevaluate_access($mac)) {
-        $payload = <<EOT;
-{
- "Vendor": "ruckus",
- "RequestPassword": "$webservicesPassword",
- "APIVersion": "1.0",
- "RequestCategory": "UserOnlineControl",
- "RequestType": "Logout",
- "UE-IP": "$ip",
- "UE-MAC": "$ucmac"
-}
-EOT
+        $payload = encode_json({
+         "Vendor"=> "ruckus",
+         "RequestPassword"=> $webservicesPassword,
+         "APIVersion"=> "1.0",
+         "RequestCategory"=> "UserOnlineControl",
+         "RequestType"=> "Logout",
+         "UE-IP"=> $ip,
+         "UE-MAC"=> $ucmac
+        });
     }
     else {
-        $payload = <<EOT;
-{
- "Vendor": "ruckus",
- "RequestPassword": "$webservicesPassword",
- "APIVersion": "1.0",
- "RequestCategory": "UserOnlineControl",
- "RequestType": "Login",
- "UE-IP": "$ip",
- "UE-MAC": "$ucmac",
- "UE-Proxy": "0",
- "UE-Username": "$ucmac",
- "UE-Password": "$ucmac"
-}
-EOT
+        $payload = encode_json({
+         "Vendor"=> "ruckus",
+         "RequestPassword"=> $webservicesPassword,
+         "APIVersion"=> "1.0",
+         "RequestCategory"=> "UserOnlineControl",
+         "RequestType"=> "Login",
+         "UE-IP"=> $ip,
+         "UE-MAC"=> $ucmac,
+         "UE-Proxy"=> "0",
+         "UE-Username"=> $ucmac,
+         "UE-Password"=> $ucmac
+        });
     }
     my $ua = LWP::UserAgent->new;
     $ua->timeout(10);
