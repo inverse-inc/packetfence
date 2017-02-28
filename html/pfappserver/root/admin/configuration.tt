@@ -84,36 +84,17 @@ table.sources {
             <ul class="nav nav-list">
               [%- IF can_access_any("CONFIGURATION_MAIN_READ","CONNECTION_PROFILES_READ","PORTAL_MODULE_READ","ADMIN_ROLES_READ", "FILTERS_READ") -%]
               <li class="nav-header">[% pf_section_entry( 'define_policy', 'Policies and Access Control') | none %]</li>
-                <a class="collapse" data-toggle="collapse" href="#collapseDevices" aria-expanded="false" aria-controls="collapseExample">
-                  Devices
-                  <!--[%c.pf_hash_for(c.controller('Configuration').action_for('roles'), 'roles') %]">[% l("Devices") %]-->
-                <i class="icon-chevron-up pull-right"></i></a>
-                <div class="collapse" id="collapseDevices">
-                  <ul>
-                    <li>
-                      <a href="[%c.pf_hash_for(c.controller('Configuration').action_for('roles'), 'roles') %]">[% l("Roles") %]</a>
-                    </li>
-                    <li>
-                      <a href="[%c.pf_hash_for(c.controller('Configuration').action_for('roles'), 'access_duration') %]">[% l("Access Duration") %]</a>
-                    </li>
-                    <!--[% pf_section_entry( 'roles', 'Roles' ) | none %]
-                    [% pf_section_entry( 'roles', 'Access Duration' ) | none %]-->
-                  </ul>
-                </div>
               [%- IF can_access("USERS_ROLES_READ","CONFIGURATION_MAIN_READ") %]
-              [% pf_section_entry( 'roles', 'Devices') | none %]
+              [% pf_section_entry( 'roles', 'Roles') | none %]
+              [%- END %]
+              [%- IF can_access("DOMAIN_READ","REALM_READ") %]
+              [% pf_section_entry( 'domains', 'Domains') | none %]
               [%- END %]
               [%- IF can_access("USERS_SOURCES_READ") %]
               [% list_entry( 'Config::Authentication', 'index', 'Sources') | none %]
               [%- END %]
               [%- IF can_access("SWITCHES_READ") %]
               [% list_entry( 'Config::Switch', 'index', 'Switches') | none %]
-              [%- END %]
-              [%- IF can_access("DOMAIN_READ","REALM_READ") %]
-              [% pf_section_entry( 'domains', 'Domains') | none %]
-              [%- END %]
-              [%- IF can_access("PORTAL_MODULE_READ") %]
-              [% list_entry('Config::PortalModule', 'index', 'Portal Modules') | none %]
               [%- END %]
               [%- IF can_access("PORTAL_PROFILES_READ") %]
               [% list_entry( 'Config::Profile', 'index', 'Connection Profiles') | none %]
@@ -137,6 +118,13 @@ table.sources {
               [%- IF can_access("ADMIN_ROLES_READ") %]
               [% list_entry('Config::AdminRoles', 'index', 'Admin Access') | none %]
               [%- END %]
+              <li class="nav-header">[% pf_section_entry('intergration', 'Integration') | none %]</li>
+              [% IF can_access("MSE_READ") %]
+              [% pf_section_entry( 'mse_tab', 'Node MSE Tab') | none %]
+              [%- END %]
+              [%- IF can_access("CONFIGURATION_MAIN_READ") %]
+              [% pf_section_entry( 'metadefender', 'Metadefender') | none %]
+              [%- END %]
               <li class="nav-header">[% pf_section_entry('portal_config', 'Advanced Portal Configuration') | none %]</li>
               [% pf_section_entry('captive_portal', 'Captive Portal') | none %]
               [%- IF can_access("FILTERS_READ") %]
@@ -152,10 +140,16 @@ table.sources {
               [%- IF can_access("PROVISIONING_READ") %]
               [% list_entry('Config::Provisioning', 'index', 'Provisioners') | none %]
               [%- END %]
+              [%- IF can_access("PORTAL_MODULE_READ") %]
+              [% list_entry('Config::PortalModule', 'index', 'Portal Modules') | none %]
+              [%- END %]
+              [%- IF can_access("CONFIGURATION_MAIN_READ") %]
+              [% pf_section_entry( 'guests_admin_registration', 'Access Duration') | none %]
+              [%- END %]
               [% pf_section_entry( 'registration', 'Registration') | none %]
               <li class="nav-header">[% pf_section_entry('compliance', 'Compliance') | none %]</li>
               [%- IF can_access("FINGERBANK_READ") %]
-              [% pf_section_entry( 'profiling', 'Profiling') | none %]
+              [% pf_section_entry( 'profiling', 'Profiling with Fingerbank') | none %]
               [%- END %]
               [%- IF can_access("VIOLATIONS_READ") %]
               [% list_entry('Violation', 'index', 'Violations') | none %]
@@ -176,9 +170,6 @@ table.sources {
               [% pf_section_entry( 'monitoring', 'Monitoring') | none %]
               [% pf_section_entry( 'omapi', 'OMAPI') | none %]
               [% pf_section_entry( 'vlan', 'SNMP') | none %]
-              [% IF can_access("MSE_READ") %]
-              [% pf_section_entry( 'mse_tab', 'Node MSE Tab') | none %]
-              [%- END %]
               [%- IF can_access("FLOATING_DEVICES_READ") %]
               [% list_entry('Config::FloatingDevice', 'index', 'Floating Device') | none %]
               [%- END %]

@@ -233,25 +233,14 @@ sub soh :Local {
     $c->go('Controller::SoH', 'index');
 }
 
-=roles1
+=roles
 
 =cut
 
-sub roles1 :Local {
+sub roles :Local {
     my ($self, $c) = @_;
 
     $c->go('Controller::Roles', 'index');
-}
-
-=head2 roles
-
-=cut
-
-sub roles :Local :Args(1) {
-    my ($self, $c, $tab) = @_;
-
-    $c->stash->{template} = "config/roles/index.tt";
-    $c->stash->{tab} = $tab;
 }
 
 =head2 domains
