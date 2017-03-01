@@ -451,11 +451,11 @@ sub filter_authentication_sources {
     get_logger->info("Found authentication source '" . $realm_authentication_source->{id} . "' for realm '$realm'");
     
     if ( any { $_ eq $realm_authentication_source} @$sources ) {
-        get_logger->info("Realm '$realm' authentication source '" . $realm_authentication_source->{id} . "' is part of the available portal profile authentication sources. Using it as the only authentication source.");
+        get_logger->info("Realm '$realm' authentication source '" . $realm_authentication_source->{id} . "' is part of the available connection profile authentication sources. Using it as the only authentication source.");
         return ($realm_authentication_source);
     }
     else {
-        get_logger->info("Realm '$realm' authentication source '" . $realm_authentication_source->{id} . "' is not configured in the portal profile. Ignoring it and using the portal profile authentication sources");
+        get_logger->info("Realm '$realm' authentication source '" . $realm_authentication_source->{id} . "' is not configured in the connection profile. Ignoring it and using the connection profile authentication sources");
     }
 
     return @$sources;

@@ -219,7 +219,7 @@ Returns destination_url properly parsed, defended against XSS and with configure
 sub _getDestinationUrl {
     my ($self) = @_;
 
-    # Return portal profile's redirection URL if destination_url is not set or if redirection URL is forced
+    # Return connection profile's redirection URL if destination_url is not set or if redirection URL is forced
     if (!defined($self->cgi->param("destination_url")) || $self->getProfile->forceRedirectURL) {
         return $self->getProfile->getRedirectURL;
     }
@@ -449,7 +449,7 @@ sub setDestinationUrl {
 
 =item getProfile
 
-Returns the proper captive portal profile for the current session.
+Returns the proper captive connection profile for the current session.
 
 =cut
 

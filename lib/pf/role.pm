@@ -628,7 +628,7 @@ sub shouldAutoRegister {
     #$args->{'connection'}_type is set to the connnection type expressed as the constant in pf::config
     #$args->{'user_name'} is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$args->{'ssid'} is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
-    #$args->{'profile'} is set to the portal profile for the connection.
+    #$args->{'profile'} is set to the connection profile for the connection.
     my ($self, $args) = @_;
     my $logger = $self->logger;
 

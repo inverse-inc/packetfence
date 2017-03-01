@@ -1017,7 +1017,7 @@ sub guests {
 
 =item portal_profiles
 
-Make sure that portal profiles, if defined, have a filter and no unsupported parameters.
+Make sure that connection profiles, if defined, have a filter and no unsupported parameters.
 
 Make sure only one external authentication source is selected for each type.
 
