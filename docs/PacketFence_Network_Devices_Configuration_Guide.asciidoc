@@ -4318,7 +4318,7 @@ image::docs/images/aruba-l3-auth2.png[scaledwidth="100%",alt="Layer 3 profile 2"
 
 Now create the policy for the guest access, for example Internet only.
 
-Add the authentication for the Captive Portal Profile via `Security -> Authentication -> L3 Authentication -> Captive Portal Authentication Profile -> Server Group`:
+Add the authentication for the Captive Connection Profile via `Security -> Authentication -> L3 Authentication -> Captive Portal Authentication Profile -> Server Group`:
 
   aaa authentication captive-portal "packetfence-externalportal"
   server-group "packetfence"
@@ -4365,7 +4365,7 @@ Source NAT per Application
   alias "user" alias "packetfence-portal" "svc-http" src-nat queue low
   alias "user" alias "packetfence-portal" "svc-https" src-nat queue low
 
-Now add the newly created policy to the Captive Portal Profile, `Security -> User Roles`:
+Now add the newly created policy to the Captive Connection Profile, `Security -> User Roles`:
 
 image::docs/images/aruba-config-user-role.png[scaledwidth="100%",alt="User Role"]
 image::docs/images/aruba-interface-redirection.png[scaledwidth="100%",alt="Interface de redirection"]

@@ -400,15 +400,15 @@ Copy everything between the BEGIN and END lines, but not the lines themselves.
 Repeat this operation for the certificate key and intermediate certificate if any.
 
 
-Portal Profiles Configuration
+Connection Profiles Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Provisioners have to be enabled on the Portal Profiles configuration in the PacketFence GUI.
+Provisioners have to be enabled on the Connection Profiles configuration in the PacketFence GUI.
 
-Under Configuration > Main > Portal Profiles, select each of the provisioners created above which should be active for the profile.
-If no portal profile is defined, configure the "default" profile to use the provisioners created.
+Under Configuration > Main > Connection Profiles, select each of the provisioners created above which should be active for the profile.
+If no connection profile is defined, configure the "default" profile to use the provisioners created.
 
-NOTE: If you use two different portal profiles for the open and secure networks, make sure you configure the provisioners on both profiles.
+NOTE: If you use two different connection profiles for the open and secure networks, make sure you configure the provisioners on both profiles.
 
 
 Passthroughs required for Android

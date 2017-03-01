@@ -49,16 +49,16 @@ So now each time a device will enter or leave the specific zone PacketFence will
 Step 3: Configure a portal filter
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In `Configuration -> Portal Profiles -> Add profile -> Advanced filter` specify an advanced filter like that:
+In `Configuration -> Connection Profiles -> Add profile -> Advanced filter` specify an advanced filter like that:
 
  extended.mse_inout.locationMapHierarchy == "Campus>Building>Level>Zone"
 
 image::docs/images/Portal_filter.png[scaledwidth="100%",alt="Portal Filter"]
 
-And fill the other configuration needed to configure a portal profile then save it.
+And fill the other configuration needed to configure a connection profile then save it.
 
 That's all, now when a device will hit the captive portal and will be in the specific zone then
-it will hit this portal profile.
+it will hit this connection profile.
 
 MSE Tab
 -------

@@ -297,13 +297,13 @@ zxcvbnmqwertyuiop78
 ----- END PRIVATE KEY -----
 ----
 
-Portal Profiles Configuration
+Connection Profiles Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Provisioners have to be enabled on the Portal Profiles configuration in the PacketFence GUI.
+Provisioners have to be enabled on the Connection Profiles configuration in the PacketFence GUI.
 
-Under `Configuration->Main->Portal Profiles`, select each of the provisioners created above which should be active for the profile.
-If no portal profile is defined, configure the "default" profile to use the provisioners created.
+Under `Configuration->Main->Connection Profiles`, select each of the provisioners created above which should be active for the profile.
+If no connection profile is defined, configure the "default" profile to use the provisioners created.
 
 Passthroughs required for Android
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
