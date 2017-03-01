@@ -49,6 +49,7 @@ Handle the setvlan task
 my $logger = get_logger();
 
 sub doTask {
+    my $timer = pf::StatsD::Timer->new;
     my ($self, $args) = @_;
     my ($trapInfo, $variables) = @$args;
     my $switch_id = $trapInfo->{switchIp};
