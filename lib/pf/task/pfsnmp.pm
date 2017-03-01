@@ -50,7 +50,6 @@ my $logger = get_logger();
 
 sub doTask {
     my ($self, $args) = @_;
-    use Data::Dumper;get_logger->info(Dumper($args));
     my ($trapInfo, $variables) = @$args;
     my $switch_id = $trapInfo->{switchIp};
     unless (defined $switch_id) {
