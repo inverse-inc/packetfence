@@ -104,6 +104,7 @@ and return all the normal files under
 
 my @excluded_binaries = qw(
    /usr/local/pf/bin/pfcmd
+   /usr/local/pf/bin/pfhttpd
    /usr/local/pf/sbin/pfdns
    /usr/local/pf/bin/ntlm_auth_wrapper
    /usr/local/pf/bin/mysql_fingerbank_import.sh
