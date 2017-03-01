@@ -68,9 +68,18 @@ has_field 'categories' =>
              help => 'Nodes with the selected roles will be affected' },
   );
 
+has_field 'vsys' =>
+  (
+   type => 'PosInteger',
+   label => 'Vsys ',
+    tags => { after_element => \&help,
+             help => 'Please define the Virtual System number. This only has an effect when used with the HTTP transport.' },
+   default => 1,
+  );
+
 has_block definition =>
   (
-   render_list => [ qw(id type transport port password categories networks cache_updates cache_timeout) ],
+   render_list => [ qw(id type vsys transport port password categories networks cache_updates cache_timeout) ],
   );
 
 

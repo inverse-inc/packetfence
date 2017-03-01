@@ -15,6 +15,17 @@ type PaloAlto struct {
 	Transport string `json:"transport"`
 	Password  string `json:"password"`
 	Port      string `json:"port"`
+	Vsys      string `json:"vsys"`
+}
+
+// Firewall specific init
+func (fw *PaloAlto) initChild(ctx context.Context) error {
+	// Set a default value for vsys if there is none
+	if fw.Vsys == "" {
+		log.LoggerWContext(ctx).Debug("Setting default value for vsys as it isn't defined")
+		fw.Vsys = "1"
+	}
+	return nil
 }
 
 // Send an SSO start to the PaloAlto using either syslog or HTTP depending on the Transport value of the struct
@@ -75,7 +86,7 @@ func (fw *PaloAlto) startSyslog(ctx context.Context, info map[string]string, tim
 // Send a start to the PaloAlto using the HTTP transport
 // Will return an error if it fails to get a valid reply from it
 func (fw *PaloAlto) startHttp(ctx context.Context, info map[string]string, timeout int) (bool, error) {
-	resp, err := fw.getHttpClient(ctx).PostForm("https://"+fw.PfconfigHashNS+":"+fw.Port+"/api/?type=user-id&action=set&key="+fw.Password,
+	resp, err := fw.getHttpClient(ctx).PostForm("https://"+fw.PfconfigHashNS+":"+fw.Port+"/api/?type=user-id&vsys=vsys"+fw.Vsys+"&action=set&key="+fw.Password,
 		url.Values{"cmd": {fw.startHttpPayload(ctx, info, timeout)}})
 
 	if err != nil {
@@ -145,7 +156,7 @@ func (fw *PaloAlto) stopHttpPayload(ctx context.Context, info map[string]string)
 // Send an SSO stop using HTTP to the PaloAlto firewall
 // Returns an error if it fails to get a valid reply from the firewall
 func (fw *PaloAlto) stopHttp(ctx context.Context, info map[string]string) (bool, error) {
-	resp, err := fw.getHttpClient(ctx).PostForm("https://"+fw.PfconfigHashNS+":"+fw.Port+"/api/?type=user-id&action=set&key="+fw.Password,
+	resp, err := fw.getHttpClient(ctx).PostForm("https://"+fw.PfconfigHashNS+":"+fw.Port+"/api/?type=user-id&vsys=vsys"+fw.Vsys+"&action=set&key="+fw.Password,
 		url.Values{"cmd": {fw.stopHttpPayload(ctx, info)}})
 
 	if err != nil {
