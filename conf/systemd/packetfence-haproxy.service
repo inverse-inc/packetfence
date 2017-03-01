@@ -1,8 +1,8 @@
 [Unit]
 Description=PacketFence HAProxy Load Balancer
-After=packetfence.target packetfence-iptables.service
+After=packetfence-iptables.service
 Before=packetfence-httpd.portal.service packetfence-httpd.admin.service 
-Wants=packetfence.target packetfence-iptables.service
+Wants=packetfence-base.target packetfence-iptables.service
 
 [Service]
 StandardOutput=syslog
