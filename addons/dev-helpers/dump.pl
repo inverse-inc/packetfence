@@ -11,7 +11,7 @@ dump add documentation
 
 =head1 SYNOPSIS
 
-dump.pl <apachefilters|config|defaultconfig|doc_config|floatingdevices|firewallsso|profiles_filters|profiles|sources|switch <id>|switches|admin_roles|chiconfig|vlan_filters|scan|wmi|radius_filter|dhcp_filter>
+dump.pl <apachefilters|config|defaultconfig|doc_config|floatingdevices|profiles_filters|profiles|sources|switch <id>|switches|admin_roles|chiconfig|vlan_filters|scan|wmi|radius_filter|dhcp_filter>
 
 =head1 DESCRIPTION
 

@@ -20,16 +20,8 @@ use warnings;
 use pf::client;
 use pf::config qw(
     %ConfigFirewallSSO
-    $management_network
-);
-use pf::constants qw(
-    $TRUE
-    $FALSE
 );
 use pf::log;
-use List::MoreUtils qw(any);
-use NetAddr::IP;
-use pf::cluster;
 
 =head1 SUBROUTINES
 
@@ -44,28 +36,7 @@ sub new {
    $logger->debug("instantiating new pf::firewallsso");
    my ( $class, %argv ) = @_;
    my $self = bless {}, $class;
-   $self->{id} = $argv{id};
-   $self->{categories} = $argv{categories};
-   $self->{networks} = $argv{networks};
    return $self;
-}
-
-sub should_sso {
-    my ($self, $ip, $mac) = @_;
-    my $logger = get_logger();
-    my $ip_addr = NetAddr::IP->new($ip);
-    if(@{$self->{networks}} eq 0){
-        $logger->trace("Doing SSO on $self->{id} since it applies to any network");
-        return $TRUE;
-    }
-    elsif(any { $_->contains($ip_addr) }@{$self->{networks}}){
-        $logger->debug("Doing SSO on $self->{id} since IP belons to one of its networks");
-        return $TRUE;
-    }
-    else {
-        $logger->debug("Determined that SSO shouldn't be done on the node.");
-        return $FALSE;
-    }
 }
 
 =item do_sso
@@ -92,25 +63,6 @@ sub do_sso {
     $client->notify('firewallsso', %data );
 
 }
-
-=item sso_source_ip
-
-Computes which IP should be used as source IP address for the SSO
-
-Takes into account the active/active clustering 
-
-=cut
-
-sub sso_source_ip {
-    my ($self) = @_;
-    if($cluster_enabled){
-        pf::cluster::management_cluster_ip();
-    }
-    else {
-        return $management_network->tag('vip') || $management_network->tag('ip');
-    }
-}
-
 
 =back
 

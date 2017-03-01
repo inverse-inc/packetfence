@@ -867,7 +867,7 @@ msgstr ""
 msgid "Bandwidth per Operating System Class"
 msgstr ""
 
-# pf::firewallsso (Firewall SSO)
+# firewallsso (Firewall SSO)
 msgid "BarracudaNG"
 msgstr "Barracuda NG Firewall"
 
@@ -1076,7 +1076,7 @@ msgstr ""
 msgid "Check this box to have the certificate revoke when the node using it is unregistered.<br/>Do not use if multiple devices share the same certificate"
 msgstr ""
 
-# pf::firewallsso (Firewall SSO)
+# firewallsso (Firewall SSO)
 msgid "Checkpoint"
 msgstr "Check Point Firewall"
 
@@ -2755,7 +2755,7 @@ msgstr ""
 msgid "Force the captive portal to use HTTPS for all portal clients.Note that clients will be forced to use HTTPS on all URLs.This requires a restart of the httpd.portal process to be fully effective."
 msgstr ""
 
-# pf::firewallsso (Firewall SSO)
+# firewallsso (Firewall SSO)
 msgid "FortiGate"
 msgstr "FortiGate Firewall"
 
@@ -3032,7 +3032,7 @@ msgstr ""
 msgid "IP address of your SMTP server for e-mail relaying. Leaving empty to use the localy running SMTP server."
 msgstr ""
 
-# pf::firewallsso (Firewall SSO)
+# firewallsso (Firewall SSO)
 msgid "Iboss"
 msgstr ""
 
@@ -4666,7 +4666,7 @@ msgstr ""
 msgid "PacketFence version"
 msgstr ""
 
-# pf::firewallsso (Firewall SSO)
+# firewallsso (Firewall SSO)
 msgid "PaloAlto"
 msgstr "PaloAlto Networks"
 
@@ -8071,7 +8071,7 @@ msgstr "WRIX - Update"
 msgid "Warning!"
 msgstr ""
 
-# pf::firewallsso (Firewall SSO)
+# firewallsso (Firewall SSO)
 msgid "WatchGuard"
 msgstr ""
 

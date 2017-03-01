@@ -18,6 +18,7 @@ use pf::config;
 use pf::file_paths qw($lib_dir);
 use pf::util;
 use File::Find qw(find);
+use pf::constants::firewallsso;
 
 ## Definition
 has 'roles' => (is => 'ro', default => sub {[]});
@@ -116,34 +117,7 @@ Dynamically extract the descriptions from the various Firewall modules.
 sub options_type {
     my $self = shift;
 
-    my %paths = ();
-    my $wanted = sub {
-        if ((my ($module, $pack, $firewall) = $_ =~ m/$lib_dir\/((pf\/firewallsso\/([A-Z0-9][\w\/]+))\.pm)\z/)) {
-            $pack =~ s/\//::/g; $firewall =~ s/\//::/g;
-
-            # Parent folder is the vendor name
-            my @p = split /::/, $firewall;
-            my $vendor = shift @p;
-
-            # Only switch types with a 'description' subroutine are displayed
-            require $module;
-            if ($pack->can('description')) {
-                $paths{$vendor} = {} unless ($paths{$vendor});
-                $paths{$vendor}->{$firewall} = $pack->description;
-            }
-        }
-    };
-    find({ wanted => $wanted, no_chdir => 1 }, ("$lib_dir/pf/firewallsso"));
-
-    # Sort vendors and switches for display
-    my @modules;
-    foreach my $vendor (sort keys %paths) {
-        my @firewall = map {{ value => $_, label => $paths{$vendor}->{$_} }} sort keys %{$paths{$vendor}};
-        push @modules, { group => $vendor,
-                         options => \@firewall };
-    }
-
-    return @modules;
+    return map{$_ => $_} $pf::constants::firewallsso::FIREWALL_TYPES;
 }
 
 =head2 options_categories

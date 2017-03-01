@@ -51,7 +51,6 @@ use List::MoreUtils qw(uniq);
 use List::Util qw(pairmap);
 use File::Copy::Recursive qw(dircopy);
 use NetAddr::IP;
-use pf::factory::firewallsso;
 
 use pf::radius::rest();
 use pf::radius::constants;

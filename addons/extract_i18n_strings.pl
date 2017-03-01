@@ -20,7 +20,6 @@ use pf::admin_roles;
 use pf::Authentication::Source;
 use pf::Authentication::constants;
 use pf::factory::provisioner;
-use pf::factory::firewallsso;
 use pf::factory::condition::profile;
 use pf::Switch::constants;
 use pfappserver::PacketFence::Controller::Graph;
@@ -427,9 +426,6 @@ sub extract_modules {
 
     @values = sort map { "profile.filter." . $_ } keys %pf::factory::condition::profile::PROFILE_FILTER_TYPE_TO_CONDITION_TYPE;
     const('profile.filter', 'Portal Profile Filters', \@values);
-
-    @values = sort grep {$_} map { /^pf::firewallsso::(.*)/; $1 } @pf::factory::firewallsso::MODULES;
-    const('pf::firewallsso', 'Firewall SSO', \@values);
 
     const('pf::Switch::constants', 'Modes', \@SNMP::MODES);
 
