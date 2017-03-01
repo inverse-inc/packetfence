@@ -301,11 +301,11 @@ function portalProfileGlobalInit(element) {
 
 $('#section').on('section.loaded',function(event) {
     var initializers = [
-        {id : "#portal_profile_file_editor", initializer: initEditorPage},
-        {id : "#portal_profile_files", initializer: initTemplatesPage },
-        {id : "#portal_profile_index", initializer: initIndexPage },
-        {id : "#portal_profile_create", initializer: initCreatePage },
-        {id : "#portal_profile_read", initializer: initReadPage }
+        {id : "#connection_profile_file_editor", initializer: initEditorPage},
+        {id : "#connection_profile_files", initializer: initTemplatesPage },
+        {id : "#connection_profile_index", initializer: initIndexPage },
+        {id : "#connection_profile_create", initializer: initCreatePage },
+        {id : "#connection_profile_read", initializer: initReadPage }
     ];
     for (var i = 0; i < initializers.length; i++) {
         var initializer = initializers[i];

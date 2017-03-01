@@ -18,7 +18,7 @@
         'admin/config/fingerbank-settings',
         'admin/config/domains',
         'admin/config/authentication',
-        'admin/config/portal_profile',
+        'admin/config/connection_profile',
         'admin/config/pfdetect',
         'admin/config/provisioners',
         'admin/config/violations',
@@ -82,7 +82,7 @@ table.sources {
         <div class="span2">
           <div class="well sidebar-nav">
             <ul class="nav nav-list">
-              [%- IF can_access_any("CONFIGURATION_MAIN_READ","PORTAL_PROFILES_READ","PORTAL_MODULE_READ","ADMIN_ROLES_READ", "FILTERS_READ") -%]
+              [%- IF can_access_any("CONFIGURATION_MAIN_READ","CONNECTION_PROFILES_READ","PORTAL_MODULE_READ","ADMIN_ROLES_READ", "FILTERS_READ") -%]
               <li class="nav-header">[% l('Main') %]</li>
               [%- END %]
               [%- IF can_access("CONFIGURATION_MAIN_READ") %]
@@ -112,7 +112,7 @@ table.sources {
               [%- IF can_access("PORTAL_MODULE_READ") %]
               [% list_entry('Config::PortalModule', 'index', 'Portal Modules') | none %]
               [%- END %]
-              [%- IF can_access("PORTAL_PROFILES_READ") %]
+              [%- IF can_access("CONNECTION_PROFILES_READ") %]
               [% list_entry('Config::Profile', 'index', 'Connection Profiles') | none %]
               [%- END %]
               [%- IF can_access("ADMIN_ROLES_READ") %]

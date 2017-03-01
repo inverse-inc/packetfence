@@ -36,10 +36,10 @@ __PACKAGE__->config(
     },
     action => {
         # Configure access rights
-        view   => { AdminRole => 'PORTAL_PROFILES_READ' },
-        list   => { AdminRole => 'PORTAL_PROFILES_READ' },
-        create => { AdminRole => 'PORTAL_PROFILES_CREATE' },
-        update => { AdminRole => 'PORTAL_PROFILES_UPDATE' },
+        view   => { AdminRole => 'CONNECTION_PROFILES_READ' },
+        list   => { AdminRole => 'CONNECTION_PROFILES_READ' },
+        create => { AdminRole => 'CONNECTION_PROFILES_CREATE' },
+        update => { AdminRole => 'CONNECTION_PROFILES_UPDATE' },
     },
 );
 

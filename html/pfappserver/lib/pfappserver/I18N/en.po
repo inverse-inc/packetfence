@@ -4603,23 +4603,23 @@ msgid "PORTAL_MODULE_UPDATE"
 msgstr "Portal Modules - Update"
 
 # pf::admin_roles (Actions groups)
-msgid "PORTAL_PROFILES"
+msgid "CONNECTION_PROFILES"
 msgstr "Portal Profiles"
 
 # pf::admin_roles (Actions)
-msgid "PORTAL_PROFILES_CREATE"
+msgid "CONNECTION_PROFILES_CREATE"
 msgstr "Portal Profiles - Create"
 
 # pf::admin_roles (Actions)
-msgid "PORTAL_PROFILES_DELETE"
+msgid "CONNECTION_PROFILES_DELETE"
 msgstr "Portal Profiles - Delete"
 
 # pf::admin_roles (Actions)
-msgid "PORTAL_PROFILES_READ"
+msgid "CONNECTION_PROFILES_READ"
 msgstr "Portal Profiles - Read"
 
 # pf::admin_roles (Actions)
-msgid "PORTAL_PROFILES_UPDATE"
+msgid "CONNECTION_PROFILES_UPDATE"
 msgstr "Portal Profiles - Update"
 
 # pf::admin_roles (Actions groups)

@@ -9,7 +9,7 @@
 [%
   paths = full_file_name.split('/')
 %]
-<div id="portal_profile_file_editor" >
+<div id="connection_profile_file_editor" >
     <div class="modal fade hide" id="cancelEdit">
       <div class="modal-header">
         <h3><i>[% l('Dismiss Changes for ') %]</i> <span id="content"></span></h3>

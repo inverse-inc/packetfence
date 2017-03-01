@@ -4967,23 +4967,23 @@ msgid "PORTAL_MODULE_UPDATE"
 msgstr "Modules du portail - Mise à jour"
 
 # pf::admin_roles (Actions groups)
-msgid "PORTAL_PROFILES"
+msgid "CONNECTION_PROFILES"
 msgstr "Profils de portail"
 
 # pf::admin_roles (Actions)
-msgid "PORTAL_PROFILES_CREATE"
+msgid "CONNECTION_PROFILES_CREATE"
 msgstr "Profil de portail - Créer"
 
 # pf::admin_roles (Actions)
-msgid "PORTAL_PROFILES_DELETE"
+msgid "CONNECTION_PROFILES_DELETE"
 msgstr "Profil de portail - Supprimer"
 
 # pf::admin_roles (Actions)
-msgid "PORTAL_PROFILES_READ"
+msgid "CONNECTION_PROFILES_READ"
 msgstr "Profil de portail - Lecture"
 
 # pf::admin_roles (Actions)
-msgid "PORTAL_PROFILES_UPDATE"
+msgid "CONNECTION_PROFILES_UPDATE"
 msgstr "Profil de portail - Mise à jour"
 
 # pf::admin_roles (Actions groups)
