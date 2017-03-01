@@ -2303,7 +2303,7 @@ msgstr "Le rôle de destination dans lequel PacketFence mettra l’appareil lors
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid ""
 "Destination URL where PacketFence will forward the device. By default it "
-"will use the Redirection URL from the portal profile configuration."
+"will use the Redirection URL from the connection profile configuration."
 msgstr "URL de destination sur laquelle l’appareil va être redirigé. Par défaut l’URL  de redirection du profil de portail sera utilisée."
 
 # html/pfappserver/root/auditing/radiuslog/search.tt
@@ -2483,7 +2483,7 @@ msgstr "ID de l’autorité EAP-FAST"
 
 # html/pfappserver/root/config/authentication.tt
 msgid ""
-"Each portal profile must be associated with one or multiple authentication "
+"Each connection profile must be associated with one or multiple authentication "
 "sources while 802.1X connections use the ordered internal sources to "
 "determine which role to use. External sources are never used with 802.1X "
 "connections."
@@ -3012,7 +3012,7 @@ msgstr "Nom du groupe"
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid ""
 "HTML template the host will be redirected to while in violation. You can "
-"create new templates from the <em>Portal Profiles</em> configuration "
+"create new templates from the <em>Connection Profiles</em> configuration "
 "section."
 msgstr "Gabarit HTML sur lequel l’appareil va être redirigé pour cette violation. Vous pouvez créer de nouveaux gabarits depuis le menu <i>Profil de portail</i>. "
 
@@ -5495,14 +5495,14 @@ msgid "Portal Open Connections per server"
 msgstr "Connections ouvertes par serveur (Apache Portail)"
 
 # html/pfappserver/root/admin/configuration.tt
-msgid "Portal Profiles"
+msgid "Connection Profiles"
 msgstr "Profils de portail"
 
 # html/pfappserver/root/config/profile/create.tt
 # html/pfappserver/root/config/profile/edit.tt
 # html/pfappserver/root/config/profile/index.tt
 # html/pfappserver/root/config/profile/view.tt
-msgid "Portal Profiles and Pages"
+msgid "Connection Profiles and Pages"
 msgstr "Profil des portails et des pages."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
@@ -7515,7 +7515,7 @@ msgstr "Le nombre de fois qu’un compte local peut être utilisé après sa cr�
 # html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
 msgid ""
 "The authentication source to use in that realm.<br/>(Must also be defined in"
-" the portal profile)"
+" the connection profile)"
 msgstr "La source d’authentification à utiliser dans ce Realm. <br/> (Doit également être défini dans le profil de portail)"
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/Authentication/Source.pm
@@ -7913,11 +7913,11 @@ msgstr "Ceci activera l’enregistrement automatique des appareils pour ce profi
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid ""
-"This activates preregistration on the portal profile. Meaning, instead of "
+"This activates preregistration on the connection profile. Meaning, instead of "
 "applying the access to the currently connected device, it displays a local "
 "account that is created while registering. Note that activating this "
-"disables the on-site registration on this portal profile. Also, make sure "
-"the sources on the portal profile have \"Create local account\" enabled."
+"disables the on-site registration on this connection profile. Also, make sure "
+"the sources on the connection profile have \"Create local account\" enabled."
 msgstr "Cette option active le pré-enregistrement sur le profil de portail. Explication, au lieu de donner l’accès à l’équipement actuellement connecté, un compte local crée lors de l’enregistrement sera affiché. Si cette option est activée, l’enregistrement sur site est désactivé pour ce profil de portail. Vérifiez que les sources du profil de portail ont l’option \"Crée un compte local\" activé."
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
@@ -10649,59 +10649,59 @@ msgstr "Profil"
 msgid "profile.filter.$_"
 msgstr "profile.filter.$_"
 
-# profile.filter (Portal Profile Filters)
+# profile.filter (Connection Profile Filters)
 msgid "profile.filter.connection_sub_type"
 msgstr "Type de sous Connexion"
 
-# profile.filter (Portal Profile Filters)
+# profile.filter (Connection Profile Filters)
 msgid "profile.filter.connection_type"
 msgstr "Type de connexion"
 
-# profile.filter (Portal Profile Filters)
+# profile.filter (Connection Profile Filters)
 msgid "profile.filter.network"
 msgstr "Réseau"
 
-# profile.filter (Portal Profile Filters)
+# profile.filter (Connection Profile Filters)
 msgid "profile.filter.node_role"
 msgstr "Rôle de l’appareil"
 
-# profile.filter (Portal Profile Filters)
+# profile.filter (Connection Profile Filters)
 msgid "profile.filter.port"
 msgstr "Port"
 
-# profile.filter (Portal Profile Filters)
+# profile.filter (Connection Profile Filters)
 msgid "profile.filter.realm"
 msgstr "Realm"
 
-# profile.filter (Portal Profile Filters)
+# profile.filter (Connection Profile Filters)
 msgid "profile.filter.ssid"
 msgstr "SSID"
 
-# profile.filter (Portal Profile Filters)
+# profile.filter (Connection Profile Filters)
 msgid "profile.filter.switch"
 msgstr "Commutateur"
 
-# profile.filter (Portal Profile Filters)
+# profile.filter (Connection Profile Filters)
 msgid "profile.filter.switch_group"
 msgstr "Groupe de commutateur"
 
-# profile.filter (Portal Profile Filters)
+# profile.filter (Connection Profile Filters)
 msgid "profile.filter.switch_mac"
 msgstr "MAC du commutateur"
 
-# profile.filter (Portal Profile Filters)
+# profile.filter (Connection Profile Filters)
 msgid "profile.filter.switch_port"
 msgstr "Port du commutateur"
 
-# profile.filter (Portal Profile Filters)
+# profile.filter (Connection Profile Filters)
 msgid "profile.filter.time"
 msgstr "Période de temps"
 
-# profile.filter (Portal Profile Filters)
+# profile.filter (Connection Profile Filters)
 msgid "profile.filter.uri"
 msgstr "URI"
 
-# profile.filter (Portal Profile Filters)
+# profile.filter (Connection Profile Filters)
 msgid "profile.filter.vlan"
 msgstr "VLAN"
 
