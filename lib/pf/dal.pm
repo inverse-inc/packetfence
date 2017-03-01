@@ -99,6 +99,7 @@ sub db_execute {
         unless ($sth && $sth->execute(@params)) {
             my $err = $dbh->err;
             my $errstr = $dbh->errstr;
+            pf::db::db_handle_error($err);
             if ($err < 2000) {
                 $logger->error("database query failed with non retryable error: $errstr (errno: $err)");
                 last;
