@@ -31,6 +31,7 @@ sub process_view {
     my ($status, @scans);
     ($status, my $node) = $c->model("Node")->view($mac);
     my $device_class = $node->{device_class};
+    my $host_ip = $node->{iplog}->{ip};
     my $scan_model = $c->model("Config::Scan");
     eval {
         my $profile = pf::Portal::ProfileFactory->instantiate($mac);
@@ -59,7 +60,7 @@ sub process_view {
     }
     
  
-    return ($STATUS::OK, {items => \@items, device_class => $device_class});
+    return ($STATUS::OK, {items => \@items, device_class => $device_class, host_ip => $host_ip});
 }
 
 =head2 process_tab
