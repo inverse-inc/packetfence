@@ -11,7 +11,6 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/fingerbank/processor/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
