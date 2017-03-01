@@ -560,6 +560,7 @@ rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/fonts
 rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/images
 cp -r html $RPM_BUILD_ROOT/usr/local/pf/
 cp -r lib $RPM_BUILD_ROOT/usr/local/pf/
+cp -r go $RPM_BUILD_ROOT/usr/local/pf/
 cp -r NEWS.asciidoc $RPM_BUILD_ROOT/usr/local/pf/
 cp -r NEWS.old $RPM_BUILD_ROOT/usr/local/pf/
 cp -r README.md $RPM_BUILD_ROOT/usr/local/pf/
