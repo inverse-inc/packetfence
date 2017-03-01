@@ -1,26 +1,52 @@
 #!/bin/bash
 
-set -x
-
 PATH="/usr/local/go/bin:$PATH"
 
-PFSRC="$1"
-BINDST="$2"
-SHOULD_TEST=${SHOULD_TEST:-"1"}
+MODE="$1"
+PFSRC="$2"
+BINDST="$3"
+
+function usage {
+  echo "----------------------------------------------------------------------------"
+  echo "Usage        : build-go.sh test|build [args]"
+  echo "Build usage  : build-go.sh build /path/to/pf-sources /path/to/built/binaries"
+  echo "Test usage   : build-go.sh test /path/to/pf-sources"
+  echo "----------------------------------------------------------------------------"
+}
+
+function test_mode {
+  [[ "$MODE" == "test" ]]
+  return $?
+}
+
+function build_mode {
+  [[ "$MODE" == "build" ]]
+  return $?
+}
+
+if ! test_mode && ! build_mode ; then
+  echo "!!!!!! - You need to specify a valid mode (test|build)"
+  usage
+  exit 1
+fi
 
 if ! [ -d "$PFSRC" ]; then
-  echo "The source directory specified ($PFSRC) doesn't exist"
+  echo "!!!!!! - The source directory specified ($PFSRC) doesn't exist"
+  usage
   exit 1
 else
   echo "Building golang sources from $PFSRC"
 fi
 
-if ! [ -d "$BINDST" ]; then
-  echo "The binary destination specified ($BINDST) doesn't exist."
+if build_mode && ! [ -d "$BINDST" ]; then
+  echo "!!!!!! - The binary destination specified ($BINDST) doesn't exist."
+  usage
   exit 1
 else
   echo "Will place binaries in $BINDST"
 fi
+
+set -x
 
 export GOPATH=`mktemp -d`
 export GOBIN="$GOPATH/bin"
@@ -40,14 +66,16 @@ cd "$GOPATHPF"
 
 cd go
 
-#TODO: replace with vendoring solution
-# Get the application dependencies
-go get ./...
+if build_mode; then
+  #TODO: replace with vendoring solution
+  go get ./...
 
-# Create any binaries here and make sure to move them to the BINDST specified
-make pfhttpd
-mv pfhttpd $BINDST/
-
-# Delete the GOPATH
-rm -fr $GOPATH
+  # Create any binaries here and make sure to move them to the BINDST specified
+  make pfhttpd
+  mv pfhttpd $BINDST/
+elif test_mode; then
+  #TODO: replace with vendoring solution
+  go get -t ./...
+  PFCONFIG_TESTING=y go test ./...  
+fi
 
