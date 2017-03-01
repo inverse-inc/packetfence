@@ -150,6 +150,20 @@ sub db_ping {
     return $result;
 }
 
+=item db_handle_error
+
+db_handle_error
+
+=cut
+
+sub db_handle_error {
+    my ($err) = @_;
+    if ($err == $MYSQL_READONLY_ERROR) {
+        db_set_readonly_mode(1);
+    }
+    return ;
+}
+
 =item * db_disconnect
 
 =cut
@@ -307,9 +321,7 @@ sub db_query_execute {
             if (defined($dbi_err)) {
                 $dbi_err = int($dbi_err);
                 my $dbi_errstr = $dbh->errstr;
-                if ($dbi_err == $MYSQL_READONLY_ERROR) {
-                     $CHI_READONLY->set("inreadonly", 1);
-                }
+                db_handle_error($dbi_err);
                 # Do not retry server errors
                 if ($dbi_err < 2000) {
 
@@ -418,6 +430,17 @@ sub db_cancel_current_query {
         $dbh_clone->do("KILL QUERY ". $DBH->{"mysql_thread_id"} . ";");
         $dbh_clone->disconnect();
     }
+}
+
+=item db_set_readonly_mode
+
+db_set_readonly_mode
+
+=cut
+
+sub db_set_readonly_mode {
+    my ($mode) = @_;
+    $CHI_READONLY->set("inreadonly", $mode);
 }
 
 =item db_readonly_mode
