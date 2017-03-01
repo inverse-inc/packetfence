@@ -34,7 +34,7 @@ BEGIN {
     use Test::More;
     use Test::NoWarnings;
     our %exclude;
-    @exclude{qw(pf::WebAPI)} = ();
+    @exclude{qw(pf::WebAPI pf::snmptrapd)} = ();
     our @files = grep { !/^pfconfig/ } grep { /\.pm$/  } _readDirRecursive('/usr/local/pf/lib');
     our @libs = grep {!exists $exclude{$_}}
         map {
