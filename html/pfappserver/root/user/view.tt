@@ -63,6 +63,21 @@
                   <div class="controls">
                     <a class="btn btn-info" href="[% c.uri_for(c.controller('User').action_for('print'), [], [], { pids => user.pid }) %]" target="_new">[% l('Print') %]</a>
                     <a class="btn btn-info" href="[% c.uri_for(c.controller('User').action_for('mail'), [], [], { pids => user.pid }) %]" id="mailPassword" data-loading-text="[% l('mail_loading') %]">[% l('mail_btn') %]</a>
+                    [% IF sms_source %]
+                         <a class="btn btn-info" href="[% c.uri_for(c.controller('User').action_for('sms'), [], [], { pids => user.pid }) %]" id="smsPassword" data-loading-text="[% l('sms_loading') %]">[% l('sms_btn') %]</a>
+                        [% IF sms_carriers.size %]
+                          [% IF sms_carriers.size == 1 %]
+                            <input type="hidden" name="sms_carrier" value="[% sms_carriers.0.id %]" />
+                          [% ELSE %]
+                            <select name="sms_carrier">
+                              <option value="">[% l('Choose the Provider') %]</option>
+                            [% FOREACH sms_carrier IN sms_carriers %]
+                              <option value="[% sms_carrier.id %]">[% sms_carrier.name %]</option>
+                            [% END %]
+                            </select>
+                          [% END %]
+                        [% END %]
+                    [% END %]
                   </div>
                 </div>
               </div> 

@@ -32,7 +32,7 @@
       [% form_single.field('firstname').render | none %]
       [% form_single.field('lastname').render | none %]
       [% form_single.field('company').render | none %]
-      [% form_single.field('phone').render | none %]
+      [% form_single.field('telephone').render | none %]
       [% form_single.field('email').render | none %]
       [% form_single.field('address').render | none %]
       [% form_single.field('notes').render | none %]

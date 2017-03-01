@@ -53,6 +53,11 @@ has_field 'company' =>
    type => 'Text',
    label => 'Company',
   );
+has_field 'telephone' =>
+  (
+   type => 'Text',
+   label => 'Telephone',
+  );
 has_field 'email' =>
   (
    type => 'Email',

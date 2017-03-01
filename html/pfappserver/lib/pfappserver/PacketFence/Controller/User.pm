@@ -17,6 +17,7 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 use namespace::autoclean;
 use POSIX;
+use SQL::Abstract::More;
 
 use pfappserver::Form::User;
 use pfappserver::Form::User::Create;
@@ -24,6 +25,9 @@ use pfappserver::Form::User::Create::Single;
 use pfappserver::Form::User::Create::Multiple;
 use pfappserver::Form::User::Create::Import;
 use pf::admin_roles;
+use pf::sms_carrier qw(sms_carrier_custom_search);
+use pf::authentication qw(getAuthenticationSource);
+use pf::config qw(%Config);
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 with 'pfappserver::Role::Controller::BulkActions';
@@ -96,17 +100,18 @@ sub object :Chained('/') :PathPart('user') :CaptureArgs(1) {
 
 sub view :Chained('object') :PathPart('read') :Args(0) :AdminRoleAny(USERS_READ) :AdminRoleAny(USERS_READ_SPONSORED) {
     my ($self, $c) = @_;
-
     my ($form);
+    my $user = $c->stash->{user};
 
-    $form = pfappserver::Form::User->new(ctx => $c, init_object => $c->stash->{user});
+    $form = pfappserver::Form::User->new(ctx => $c, init_object => $user);
     $form->process();
-    $form->field('actions')->add_extra unless @{$c->stash->{user}{actions}}; # an action must be chosen
+    $form->field('actions')->add_extra unless @{$user->{actions}}; # an action must be chosen
     $c->stash->{form} = $form;
-    my $password = $c->stash->{user}{password};
+    my $password = $user->{password};
     if(defined $password) {
         $c->stash->{password_hash_type} = pf::password::password_get_hash_type($password);
     }
+    $self->_add_sms_source($c, $user);
 }
 
 =head2 delete
@@ -287,6 +292,9 @@ sub create :Local :AdminRoleAny('USERS_CREATE') :AdminRoleAny('USERS_CREATE_MULI
                 %data = (%{$form->value}, %{$form_single->value});
                 ($status, $message) = $self->getModel($c)->createSingle(\%data, $c->user);
                 @options = ('mail');
+                if ($self->_add_sms_source($c, \%data)) {
+                    push @options, 'sms';
+                }
                 $c->session->{'users_passwords'} = $message;
             }
         }
@@ -349,6 +357,36 @@ sub create :Local :AdminRoleAny('USERS_CREATE') :AdminRoleAny('USERS_CREATE_MULI
         $c->stash->{form_import} = $form_import;
     }
 }
+
+=head2 _add_sms_source
+
+Add SMS source information if advanced.source_to_send_sms_when_creating_users is configured
+
+=cut
+
+sub _add_sms_source {
+    my ($self, $c, $user) = @_;
+    my $sms_source_id = $Config{advanced}{source_to_send_sms_when_creating_users};
+    unless ($sms_source_id && $user->{telephone}) {
+        return;
+    }
+    my $sms_source = getAuthenticationSource($sms_source_id);
+    unless ($sms_source) {
+        return;
+    }
+    $c->stash->{sms_source} = $sms_source;
+    if ($sms_source->can("sms_carriers")) {
+        my $sqla = SQL::Abstract::More->new;
+        my ($sql, @bind) = $sqla->select(
+            -columns => [qw(id name)],
+            -from    => 'sms_carrier',
+            -where    => { id => $sms_source->sms_carriers },
+        );
+        $c->stash->{sms_carriers} = [sms_carrier_custom_search($sql, @bind)];
+    }
+    return 1;
+}
+
 
 =head2 advanced_search
 
@@ -456,6 +494,35 @@ sub mail :Local :AdminRole('USERS_UPDATE') {
 
     $c->response->status($status);
     $c->stash->{current_view} = 'JSON';
+}
+
+=head2 sms
+
+Send users credentials by sms
+
+/user/sms
+
+=cut
+
+sub sms :Local :AdminRole('USERS_UPDATE') {
+    my ($self, $c) = @_;
+
+    $c->stash->{current_view} = 'JSON';
+    my ($status, $result);
+    my @pids = split(/,/, $c->request->params->{pids});
+
+    ($status, $result) = $self->getModel($c)->sms($c, \@pids);
+    $self->audit_current_action($c, status => $status, pids => \@pids);
+
+    if (is_success($status)) {
+        $c->stash->{status_msg} = $c->loc('An sms was sent to [_1] out of [_2] users.',
+                                          scalar @pids, scalar @$result);
+    }
+    else {
+        $c->stash->{status_msg} = $result;
+    }
+
+    $c->response->status($status);
 }
 
 =head1 COPYRIGHT
