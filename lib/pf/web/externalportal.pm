@@ -29,7 +29,7 @@ use pf::config qw(
 use pf::ip4log;
 use pf::log;
 use pf::locationlog qw(locationlog_view_open_mac locationlog_get_session);
-use pf::Portal::Session;
+use pf::Connection::Session;
 use pf::util;
 use pf::web::constants;
 use pf::web::util;
@@ -154,7 +154,7 @@ sub _setup_session {
     my %info = (
         'client_mac' => $client_mac,
     );
-    my $portalSession = pf::Portal::Session->new(%info);
+    my $portalSession = pf::Connection::Session->new(%info);
     $portalSession->setClientIp($client_ip) if (defined($client_ip));
     $portalSession->setDestinationUrl($redirect_url) if (defined($redirect_url));
     $portalSession->setGrantUrl($grant_url) if (defined($grant_url));

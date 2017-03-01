@@ -1,14 +1,14 @@
-package pf::Portal::Profile;
+package pf::Connection::Profile;
 
 =head1 NAME
 
-pf::Portal::Profile
+pf::Connection::Profile
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::Portal::Profile wraps captive portal configuration in a way that we can
+pf::Connection::Profile wraps captive portal configuration in a way that we can
 provide several differently configured (behavior and template) captive
 portal from the same server.
 
@@ -22,7 +22,7 @@ use List::Util qw(first);
 use List::MoreUtils qw(all none any uniq);
 use pf::constants qw($TRUE $FALSE);
 use pf::constants::config qw($SELFREG_MODE_NULL $SELFREG_MODE_KICKBOX);
-use pf::constants::Portal::Profile qw($DEFAULT_ROOT_MODULE);
+use pf::constants::Connection::Profile qw($DEFAULT_ROOT_MODULE);
 use pf::util;
 use pf::config::util;
 use pf::log;
@@ -46,7 +46,7 @@ our $SOURCES_CACHE = pfconfig::memory_cached->new('config::Profiles');
 
 =item new
 
-No one should call ->new by himself. L<pf::Portal::ProfileFactory> should
+No one should call ->new by himself. L<pf::Connection::ProfileFactory> should
 be used instead.
 
 =cut

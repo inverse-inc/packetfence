@@ -39,7 +39,7 @@ use pf::scan::openvas;
 use pf::scan::wmi;
 use pf::util;
 use pf::violation qw(violation_close violation_exist_open violation_trigger violation_modify);
-use pf::Portal::ProfileFactory;
+use pf::Connection::ProfileFactory;
 use pf::api::jsonrpcclient;
 use Text::CSV_XS;
 use List::MoreUtils qw(any);
@@ -242,7 +242,7 @@ sub run_scan {
         return;
     }
 
-    my $profile = pf::Portal::ProfileFactory->instantiate($host_mac);
+    my $profile = pf::Connection::ProfileFactory->instantiate($host_mac);
     my $scanner = $profile->findScan($host_mac);
     # If no scan detected then we abort
     if (!$scanner) {

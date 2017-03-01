@@ -1,14 +1,14 @@
-package pf::constants::Portal::Profile;
+package pf::constants::Connection::Profile;
 
 =head1 NAME
 
-pf::constants::Portal::Profile - constants for Portal::Profile object
+pf::constants::Connection::Profile - constants for Portal::Profile object
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::constants::Portal::Profile
+pf::constants::Connection::Profile
 
 =cut
 

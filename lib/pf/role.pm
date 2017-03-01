@@ -41,7 +41,7 @@ use pf::floatingdevice::custom;
 use pf::constants::scan qw($POST_SCAN_VID);
 use pf::authentication;
 use pf::Authentication::constants;
-use pf::Portal::ProfileFactory;
+use pf::Connection::ProfileFactory;
 use pf::access_filter::vlan;
 use pf::person;
 use pf::lookup::person;

@@ -21,7 +21,7 @@ use pf::factory::condition::profile;
 use pf::condition::any;
 use pf::condition::all;
 use pf::condition::true;
-use pf::constants::Portal::Profile qw($DEFAULT_PROFILE $MATCH_STYLE_ALL);
+use pf::constants::Connection::Profile qw($DEFAULT_PROFILE $MATCH_STYLE_ALL);
 
 sub BUILDARGS {
     my ($self,$args)      = @_;

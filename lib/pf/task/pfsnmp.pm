@@ -32,7 +32,7 @@ use pf::constants qw($TRUE $FALSE);
 use pf::violation;
 use pf::node;
 use pf::util;
-use pf::Portal::ProfileFactory;
+use pf::Connection::ProfileFactory;
 use Cache::FileCache;
 our $traps_switchIfIndex_cache = new Cache::FileCache( {'namespace'=>'pfSetVlan_TrapsLimitSwitchIfIndex'} );
 # Initialize a new cache for the actions taken if the traps limit has been reached
@@ -393,7 +393,7 @@ sub handleMacTrap {
                         swicth          => $switch,
                         ifIndex         => $switch_port,
                         connection_type => $WIRED_SNMP_TRAPS,
-                        profile         => pf::Portal::ProfileFactory->instantiate($mac)});
+                        profile         => pf::Connection::ProfileFactory->instantiate($mac)});
                 my $fetchedVlan = $role->{vlan} || $switch->getVlanByName($role->{role});
                 if (   ($locationlog[0]->{'vlan'} == $vlan)
                     && ($vlan == $fetchedVlan))
@@ -637,7 +637,7 @@ sub handleSecureMacAddrViolationTrap {
                     switch          => $switch,
                     ifIndex         => $switch_port,
                     connection_type => $WIRED_SNMP_TRAPS,
-                    profile         => pf::Portal::ProfileFactory->instantiate($trapMac)});
+                    profile         => pf::Connection::ProfileFactory->instantiate($trapMac)});
             my $correctVlanForThisNode = $role->{vlan} || $switch->getVlanByName($role->{role});
             $switch->authorizeMAC($switch_port, $oldPC, $trapMac, $switch->getVlan($switch_port),
                 $correctVlanForThisNode);
@@ -666,7 +666,7 @@ sub handleSecureMacAddrViolationTrap {
                     switch          => $switch,
                     ifIndex         => $switch_port,
                     connection_type => $WIRED_SNMP_TRAPS,
-                    profile         => pf::Portal::ProfileFactory->instantiate($trapMac)});
+                    profile         => pf::Connection::ProfileFactory->instantiate($trapMac)});
             my $correctVlanForThisNode = $role->{vlan} || $switch->getVlanByName($role->{role});
             if (defined($old_mac_to_remove)) {
                 $logger->info(
@@ -868,7 +868,7 @@ sub node_determine_and_set_into_VLAN {
 
     my $role_obj = new pf::role::custom();
 
-    my $role = $role_obj->fetchRoleForNode({ mac => $mac, node_info => node_attributes($mac), switch => $switch, ifIndex => $ifIndex, connection_type => $connection_type, profile => pf::Portal::ProfileFactory->instantiate($mac)});
+    my $role = $role_obj->fetchRoleForNode({ mac => $mac, node_info => node_attributes($mac), switch => $switch, ifIndex => $ifIndex, connection_type => $connection_type, profile => pf::Connection::ProfileFactory->instantiate($mac)});
     my $vlan = $role->{vlan} || $switch->getVlanByName($role->{role});
 
     $switch->setVlan(

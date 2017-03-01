@@ -1,14 +1,14 @@
-package pf::Portal::ProfileFactory;
+package pf::Connection::ProfileFactory;
 
 =head1 NAME
 
-pf::Portal::ProfileFactory - Factory to construct special
-pf::Portal::Profile objects with complex initialization
+pf::Connection::ProfileFactory - Factory to construct special
+pf::Connection::Profile objects with complex initialization
 
 =head1 SYNOPSIS
 
 This module is meant to encapsulate the coupling between the configuration
-and the actual pf::Portal::Profile objects. Reading and parsing the
+and the actual pf::Connection::Profile objects. Reading and parsing the
 configuration containing all the necessary information needed to actually
 instantiate the objects.
 
@@ -22,7 +22,7 @@ use pf::log;
 use pf::config qw(%Profiles_Config);
 use pf::node;
 use pf::authentication;
-use pf::Portal::Profile;
+use pf::Connection::Profile;
 use pf::filter_engine::profile;
 use pf::factory::condition::profile;
 use pfconfig::cached_scalar;
@@ -33,7 +33,7 @@ use pf::StatsD::Timer;
 
 =head2 instantiate
 
-Create a new pf::Portal::Profile instance based on parameters given.
+Create a new pf::Connection::Profile instance based on parameters given.
 
 =cut
 
@@ -86,7 +86,7 @@ sub _from_profile {
     }
     $profile{guest_modes} = _guest_modes_from_sources($sources);
     $profile{name} = $profile_name;
-    my $instance =  pf::Portal::Profile->new( \%profile );
+    my $instance =  pf::Connection::Profile->new( \%profile );
     return $instance;
 }
 

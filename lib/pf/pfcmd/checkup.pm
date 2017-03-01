@@ -977,7 +977,7 @@ Validation related to the billing engine feature.
 sub billing {
     # validate each profile has at least a billing tier if it has one or more billing source
     foreach my $profile_id (keys %Profiles_Config){
-        my $profile = pf::Portal::ProfileFactory->_from_profile($profile_id);
+        my $profile = pf::Connection::ProfileFactory->_from_profile($profile_id);
         if($profile->getBillingSources() > 0 && @{$profile->getBillingTiers()} == 0){
             add_problem($WARN, "Profile $profile_id has billing sources configured but no billing tiers.");
         }
@@ -1214,7 +1214,7 @@ sub valid_certs {
 
 sub portal_modules {
     require pf::ConfigStore::PortalModule;
-    require pf::Portal::ProfileFactory;
+    require pf::Connection::ProfileFactory;
     require captiveportal::DynamicRouting::Application;
     require captiveportal::DynamicRouting::Factory;
 

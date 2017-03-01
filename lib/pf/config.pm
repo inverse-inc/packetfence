@@ -39,7 +39,7 @@ use Socket;
 use Time::Local;
 use Linux::Distribution;
 use DateTime;
-use pf::constants::Portal::Profile;
+use pf::constants::Connection::Profile;
 use pf::cluster;
 use pf::constants::config qw(
   $IF_ENFORCEMENT_DNS

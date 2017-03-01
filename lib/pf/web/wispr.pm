@@ -35,7 +35,7 @@ use pf::config qw(
 use pf::ip4log;
 use pf::node;
 use pf::web;
-use pf::Portal::Session;
+use pf::Connection::Session;
 use pf::util;
 use pf::locationlog;
 use pf::enforcement qw(reevaluate_access);
@@ -59,7 +59,7 @@ sub handler {
 
     $logger->trace("hitting wispr");
 
-    my $portalSession = pf::Portal::Session->new();
+    my $portalSession = pf::Connection::Session->new();
 
     my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
 

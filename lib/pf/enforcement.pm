@@ -57,7 +57,7 @@ use pf::cluster;
 use pf::firewallsso;
 use pf::constants::dhcp qw($DEFAULT_LEASE_LENGTH);
 use pf::ip4log;
-use pf::Portal::ProfileFactory;
+use pf::Connection::ProfileFactory;
 
 use Readonly;
 
@@ -242,7 +242,7 @@ sub _should_we_reassign_vlan {
         user_name => $user_name,
         ssid => $ssid,
         node_info => pf::node::node_attributes($mac),
-        profile => pf::Portal::ProfileFactory->instantiate($mac),
+        profile => pf::Connection::ProfileFactory->instantiate($mac),
     };
 
     my $newRole = $role_obj->fetchRoleForNode( $args );

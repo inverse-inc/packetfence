@@ -228,7 +228,7 @@ sub authorize {
     $options->{'last_dot1x_username'}  = $args->{'user_name'} if (defined($args->{'user_name'}));
     $options->{'realm'}                = $args->{'realm'} if (defined($args->{'realm'}));
 
-    my $profile = pf::Portal::ProfileFactory->instantiate($args->{'mac'},$options);
+    my $profile = pf::Connection::ProfileFactory->instantiate($args->{'mac'},$options);
     $args->{'profile'} = $profile; 
     
     $args->{'autoreg'} = 0;

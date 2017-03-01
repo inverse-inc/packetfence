@@ -1,14 +1,14 @@
-package pf::Portal::Session;
+package pf::Connection::Session;
 
 =head1 NAME
 
-pf::Portal::Session
+pf::Connection::Session
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::Portal::Session wraps several parameter we often need from the captive
+pf::Connection::Session wraps several parameter we often need from the captive
 portal.
 
 =cut
@@ -37,7 +37,7 @@ use pf::config qw(
 );
 use pf::file_paths qw($conf_dir);
 use pf::ip4log;
-use pf::Portal::ProfileFactory;
+use pf::Connection::ProfileFactory;
 use pf::util;
 use pf::web::constants;
 use pf::web::util;
@@ -114,7 +114,7 @@ sub _initialize {
 
     $self->{'_guest_node_mac'} = undef;
     $self->{'_profile'} = $self->_restoreFromSession("_profile", sub {
-            return pf::Portal::ProfileFactory->instantiate($self->getClientMac);
+            return pf::Connection::ProfileFactory->instantiate($self->getClientMac);
         }
     );
 
@@ -122,9 +122,9 @@ sub _initialize {
         my $option = {
             'last_uri' => $cgi->url(-absolute=>1),
         };
-        $self->session->param('_profile',pf::Portal::ProfileFactory->instantiate($self->getClientMac,$option));
+        $self->session->param('_profile',pf::Connection::ProfileFactory->instantiate($self->getClientMac,$option));
         $self->{'_profile'} = $self->_restoreFromSession("_profile", sub {
-                return pf::Portal::ProfileFactory->instantiate($self->getClientMac,$option);
+                return pf::Connection::ProfileFactory->instantiate($self->getClientMac,$option);
             }
         );
     } elsif (defined($cgi->url_param('code'))) {
@@ -133,12 +133,12 @@ sub _initialize {
             'portal' => $data->{portal},
         };
         $self->{'_profile'} = $self->_restoreFromSession("_profile", sub {
-                return pf::Portal::ProfileFactory->instantiate($self->getClientMac,$options);
+                return pf::Connection::ProfileFactory->instantiate($self->getClientMac,$options);
             }
         );
     } else {
         $self->{'_profile'} = $self->_restoreFromSession("_profile", sub {
-                return pf::Portal::ProfileFactory->instantiate($self->getClientMac);
+                return pf::Connection::ProfileFactory->instantiate($self->getClientMac);
             }
         );
     }

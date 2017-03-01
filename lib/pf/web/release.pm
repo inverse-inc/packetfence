@@ -23,7 +23,7 @@ use pf::config;
 use pf::file_paths qw($bin_dir);
 use pf::ip4log;
 use pf::node;
-use pf::Portal::Session;
+use pf::Connection::Session;
 use pf::constants::scan qw($SCAN_VID);
 use pf::util;
 use pf::violation;
@@ -38,7 +38,7 @@ sub handler
 
   my $logger = get_logger();
 
-  my $portalSession     = pf::Portal::Session->new();
+  my $portalSession     = pf::Connection::Session->new();
   my $cgi               = $portalSession->getCgi();
   my $session           = $portalSession->getSession();
   my $ip                = $portalSession->getClientIp();
