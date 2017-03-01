@@ -5,6 +5,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
 	"github.com/inverse-inc/packetfence/go/httpdispatcher"
+	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"net/http"
 )
@@ -28,7 +29,6 @@ func setup(c *caddy.Controller) error {
 
 	httpserver.GetConfig(c).AddMiddleware(func(next httpserver.Handler) httpserver.Handler {
 		h.Next = next
-		//TODO: change this to use the caddy logger
 		h.proxy = proxy
 		return h
 	})
@@ -42,6 +42,10 @@ type HttpDispatcherHandler struct {
 }
 
 func (h HttpDispatcherHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
+	ctx := r.Context()
+
+	defer panichandler.Http(ctx, w)
+
 	// This will never call the next middleware so make sure its the only «acting» middleware on this service
 	h.proxy.ServeHTTP(w, r)
 
