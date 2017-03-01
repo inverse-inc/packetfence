@@ -43,13 +43,6 @@ cd go
 #TODO: replace with vendoring solution
 # Get the application dependencies
 go get ./...
-# Get the test dependencies
-go get -t ./...
-
-if [[ $SHOULD_TEST -eq 1 ]] && ! PFCONFIG_TESTING=y go test ./...; then
-  echo "Failed to execute tests. Will not build."
-  exit 1
-fi
 
 # Create any binaries here and make sure to move them to the BINDST specified
 make pfhttpd
