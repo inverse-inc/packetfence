@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/Sereal/Sereal/Go/sereal"
 	"github.com/fingerbank/processor/log"
 	"github.com/fingerbank/processor/sharedutils"
 	"io"
@@ -153,13 +152,11 @@ func metadataFromField(ctx context.Context, param interface{}, fieldName string)
 }
 
 // Decode the struct from bytes given an encoding
-// Note that sereal doesn't properly work right now, so usage of JSON is advised
+// For now only JSON is supported
 func decodeInterface(ctx context.Context, encoding string, b []byte, o interface{}) {
 	switch encoding {
 	case "json":
 		decodeJsonInterface(ctx, b, o)
-	case "sereal":
-		decodeSerealInterface(ctx, b, o)
 	default:
 		panic(fmt.Sprintf("Unknown encoding %s", encoding))
 	}
@@ -175,20 +172,6 @@ func decodeJsonInterface(ctx context.Context, b []byte, o interface{}) {
 		} else if err != nil {
 			panic(err)
 		}
-	}
-}
-
-// NOTE: This currently doesn't work so don't use it for now.
-//       We will need to address this at some point in order to support Sereal payloads from pfconfig
-//       For now use the JSON encoding
-// Decode an array of bytes Sereal encoded into an interface
-// Panics if there is an error decoding the Sereal payload
-func decodeSerealInterface(ctx context.Context, b []byte, o interface{}) {
-	decoder := sereal.NewDecoder()
-	decoder.PerlCompat = false
-	err := decoder.Unmarshal(b, o)
-	if err != nil {
-		panic(err)
 	}
 }
 
