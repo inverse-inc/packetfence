@@ -1,0 +1,24 @@
+-- Update host on the fly
+
+core.register_action("change_host", { 'http-req'}, function(txn)
+   if txn.sf:req_fhdr("Host") == nil then
+       txn.set_var(txn,"req.host","[% fqdn %]") -- Update host on the fly
+   end
+end)
+
+-- Select backend based on Host header
+
+local string = require("string");
+
+core.register_action("select", { "http-req" }, function(txn)
+
+    if ( not ([% FOREACH host IN portal_host %] string.match(txn.sf:req_fhdr("Host"), '[% host %]') or[% END %] false ) ) then
+        txn:set_var("req.action","proxy")
+    else
+        if (txn.sf:path() == '/') then
+            txn:set_var("req.action","proxy")
+        elseif ( string.match(txn.sf:path(), '/common') or string.match(txn.sf:path(), '/content') or string.match(txn.sf:path(), '/favicon.ico') ) then
+            txn:set_var("req.action","static")
+        end
+    end
+end)

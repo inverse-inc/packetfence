@@ -88,7 +88,7 @@ Requires: chkconfig, coreutils, grep, openssl, sed, tar, wget, gettext, conntrac
 Requires: procps
 Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
 Requires: httpd, mod_ssl
-Requires: mod_perl, mod_qos, mod_evasive, mod_proxy_html
+Requires: mod_perl, mod_proxy_html
 requires: libapreq2
 Requires: dhcp
 Requires: redis
@@ -311,10 +311,9 @@ Requires: perl(Test::NoWarnings)
 # required for the fake CoA server
 Requires: perl(Net::UDP)
 # For managing the number of connections per device
-Requires: mod_qos
 Requires: %{real_name}-config = %{version}
 Requires: %{real_name}-pfcmd-suid = %{version}
-Requires: haproxy, keepalived >= 1.2
+Requires: haproxy >= 1.6, keepalived >= 1.2
 Requires: fingerbank >= 3.0.0
 Requires: perl(File::Tempdir)
 

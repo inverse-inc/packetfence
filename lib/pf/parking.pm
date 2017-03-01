@@ -93,7 +93,6 @@ sub remove_parking_actions {
     if($@) {
         get_logger->warn("Failed to remove client from parking using OMAPI ($@).");
     }
-
     pf_run("sudo ipset del $PARKING_IPSET_NAME $ip -exist 2>&1");
 }
 

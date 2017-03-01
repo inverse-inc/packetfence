@@ -476,6 +476,7 @@ var directives = []string{
 
 	// PacketFence service implementations
 	"pfsso",
+	"httpdispatcher",
 }
 
 const (

@@ -29,12 +29,6 @@
   <IfModule !mod_headers.c>
     LoadModule headers_module /usr/lib/apache2/modules/mod_headers.so
   </IfModule>
-  <IfModule !mod_proxy.c>
-    LoadModule proxy_module /usr/lib/apache2/modules/mod_proxy.so
-  </IfModule>
-  <IfModule !proxy_http.c>
-    LoadModule proxy_http_module /usr/lib/apache2/modules/mod_proxy_http.so
-  </IfModule>
   <IfModule !mod_authz_host.c>
     LoadModule authz_host_module /usr/lib/apache2/modules/mod_authz_host.so
   </IfModule>
@@ -52,13 +46,6 @@
   </IfModule>
   <IfModule !mod_apreq2.c>
     LoadModule apreq_module /usr/lib/apache2/modules/mod_apreq2.so
-  </IfModule>
-  # To activate this module add an entry in /etc/hosts for this server hostname.
-  #<IfModule !mod_unique_id.c>
-  #  LoadModule unique_id_module /usr/lib/apache2/modules/mod_unique_id.so
-  #</IfModule>
-  <IfModule !mod_qos.c>
-    LoadModule qos_module /usr/lib/apache2/modules/mod_qos.so
   </IfModule>
   <IfModule !mod_deflate.c>
     LoadModule deflate_module /usr/lib/apache2/modules/mod_deflate.so
@@ -99,12 +86,6 @@
   <IfModule !mod_headers.c>
     LoadModule headers_module modules/mod_headers.so
   </IfModule>
-  <IfModule !mod_proxy.c>
-    LoadModule proxy_module modules/mod_proxy.so
-  </IfModule>
-  <IfModule !proxy_http.c>
-    LoadModule proxy_http_module modules/mod_proxy_http.so
-  </IfModule>
   <IfModule !mod_authz_host.c>
     LoadModule authz_host_module modules/mod_authz_host.so
   </IfModule>
@@ -122,13 +103,6 @@
   </IfModule>
   <IfModule !mod_apreq2.c>
     LoadModule apreq_module modules/mod_apreq2.so
-  </IfModule>
-  # To activate this module add an entry in /etc/hosts for this server hostname.
-  #<IfModule !mod_unique_id.c>
-  #  LoadModule unique_id_module modules/mod_unique_id.so
-  #</IfModule>
-  <IfModule !mod_qos.c>
-    LoadModule qos_module modules/mod_qos.so
   </IfModule>
   <IfModule !mod_deflate.c>
     LoadModule deflate_module modules/mod_deflate.so
@@ -178,15 +152,6 @@ ServerLimit 512
 
 Header always set X-DNS-Prefetch-Control off
 
-<Proxy *>
-  [% IF apache_version == "2.4" %]
-  Require all granted 
-  [% ELSE %]
-  Order deny,allow
-  Allow from all
-  [% END %]
-</Proxy>
-
 <Files ~ "\.(cgi?)$">
   SSLOptions +StdEnvVars
 </Files>
@@ -219,56 +184,6 @@ KeepAlive Off
 MaxClients [% max_clients %]
 StartServers 4
 MinSpareServers 2
-
-[% IF captive_portal.httpd_mod_qos %]
-
-QS_SrvMaxConnClose [% qos %]
-QS_SrvMaxConnPerIP [% captive_portal.httpd_mod_qos_maximum_connections_per_device %]
-
-[% END %]
-
-[% IF captive_portal.httpd_mod_evasive %]
-
-    [% IF apache_version == "2.4" %]
-        [% SET mod_evasive_version = "24"%]
-    [% ELSE %]
-        [% SET mod_evasive_version = "20"%]
-    [% END %]
-    <IfDefine debian>
-      <IfModule !mod_evasive[% mod_evasive_version %].c>
-        LoadModule evasive20_module /usr/lib/apache2/modules/mod_evasive[% mod_evasive_version %].so
-      </IfModule>
-    </IfDefine>
-
-    <IfDefine rhel>
-      <IfModule !mod_evasive[% mod_evasive_version %].c>
-        LoadModule evasive20_module modules/mod_evasive[% mod_evasive_version %].so
-      </IfModule>
-    </IfDefine>
-
-    DOSHashTableSize [% captive_portal.httpd_mod_evasive_hash_table_size %]
-    DOSPageCount [% captive_portal.httpd_mod_evasive_page_count %]
-    DOSSiteCount [% captive_portal.httpd_mod_evasive_site_count %]
-    DOSPageInterval [% captive_portal.httpd_mod_evasive_page_interval %]
-    DOSSiteInterval [% captive_portal.httpd_mod_evasive_site_interval %]
-    DOSBlockingPeriod [% captive_portal.httpd_mod_evasive_blocking_period %]
-
-    [%- IF captive_portal.httpd_mod_evasive_email_notify -%]
-
-    DOSEmailNotify [%captive_portal.httpd_mod_evasive_email_notify%]
-
-    [%- END %]
-
-    DOSSystemCommand [% dos_system_cmd %]
-    DOSLogDir [% install_dir %]/logs/
-
-    [% FOREACH ip in captive_portal.httpd_mod_evasive_white_list -%]
-
-        DOSWhitelist [% ip %]
-
-    [%- END %]
-
-[% END %]
 
 HostnameLookups off
 MaxRequestsPerChild 1000
