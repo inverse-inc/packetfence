@@ -163,7 +163,7 @@ sub sanity_check {
     permissions();
     violations();
     switches();
-    portal_profiles();
+    connection_profiles();
     guests();
     vlan_filter_rules();
     apache_filter_rules();
@@ -1015,7 +1015,7 @@ sub guests {
     }
 }
 
-=item portal_profiles
+=item connection_profiles
 
 Make sure that connection profiles, if defined, have a filter and no unsupported parameters.
 
@@ -1024,7 +1024,7 @@ Make sure only one external authentication source is selected for each type.
 =cut
 
 # TODO: We might want to check if specified auth module(s) are valid... to do so, we'll have to separate the auth thing from the extension check.
-sub portal_profiles {
+sub connection_profiles {
 
     my $profile_params = qr/(?:locale |filter|logo|guest_self_reg|guest_modes|template_path|
         billing_tiers|description|sources|redirecturl|always_use_redirecturl|
@@ -1033,26 +1033,26 @@ sub portal_profiles {
         sms_request_limit|login_attempt_limit|block_interval|dot1x_recompute_role_from_portal|scan|root_module|preregistration|autoregister|access_registration_when_registered)/x;
     my $validator = pf::validation::profile_filters->new;
 
-    foreach my $portal_profile ( keys %Profiles_Config ) {
-        my $data = $Profiles_Config{$portal_profile};
+    foreach my $connection_profile ( keys %Profiles_Config ) {
+        my $data = $Profiles_Config{$connection_profile};
         # Checks for the non default profiles
-        if ($portal_profile ne 'default' ) {
-            add_problem( $WARN, "template directory '$install_dir/html/captive-portal/profile-templates/$portal_profile' for profile $portal_profile does not exist using default templates" )
-                if (!-d "$install_dir/html/captive-portal/profile-templates/$portal_profile");
+        if ($connection_profile ne 'default' ) {
+            add_problem( $WARN, "template directory '$install_dir/html/captive-portal/profile-templates/$connection_profile' for profile $connection_profile does not exist using default templates" )
+                if (!-d "$install_dir/html/captive-portal/profile-templates/$connection_profile");
 
-            add_problem ( $WARN, "missing filter parameter for profile $portal_profile" )
+            add_problem ( $WARN, "missing filter parameter for profile $connection_profile" )
                 if (!defined($data->{'filter'}) );
         }
 
 
         foreach my $key ( keys %$data ) {
-            add_problem( $WARN, "invalid parameter $key for profile $portal_profile" )
+            add_problem( $WARN, "invalid parameter $key for profile $connection_profile" )
                 if ( $key !~ /$profile_params/ );
             if ($key eq 'filter') {
                 foreach my $filter (@{$data->{filter}}) {
                     my ($rc, $message) = $validator->validate($filter);
                     unless ($rc) {
-                        add_problem( $WARN, "Filter '$filter' is invalid for profile '$portal_profile': $message ");
+                        add_problem( $WARN, "Filter '$filter' is invalid for profile '$connection_profile': $message ");
                     }
                 }
             }
@@ -1064,7 +1064,7 @@ sub portal_profiles {
             my $type = $source->{'type'};
             $external{$type} = 0 unless (defined $external{$type});
             $external{$type}++;
-            add_problem ( $WARN, "many authentication sources of type $type are selected for profile $portal_profile" )
+            add_problem ( $WARN, "many authentication sources of type $type are selected for profile $connection_profile" )
               if ($external{$type} > 1);
         }
     }
