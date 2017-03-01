@@ -18,6 +18,9 @@ use strict;
 use warnings;
 
 use base qw(pf::dal::_node);
+use Class::XSAccessor {
+    accessors => [qw(category bypass_role)],
+};
  
 =head1 AUTHOR
 
