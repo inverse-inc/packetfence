@@ -45,6 +45,10 @@ func NewProxy(ctx context.Context) *Proxy {
 	return &p
 }
 
+func (p *Proxy) Refresh(ctx context.Context) {
+	passThrough.readConfig(ctx)
+}
+
 // addToEndpointList compiles regex and adds it to an endpointList
 // if regex is valid
 // use t to choose list type: true for whitelist false for blacklist
@@ -158,19 +162,18 @@ func (p *Proxy) Configure(ctx context.Context, port string) {
 }
 
 func (p *passthrough) readConfig(ctx context.Context) {
-	var trapping pfconfigdriver.PfConfTrapping
-	var portal pfconfigdriver.PfConfCaptivePortal
-	var general pfconfigdriver.PfConfGeneral
+	trapping := pfconfigdriver.Config.PfConf.Trapping
+	general := pfconfigdriver.Config.PfConf.General
+	portal := pfconfigdriver.Config.PfConf.CaptivePortal
+
 	var scheme string
 
-	pfconfigdriver.FetchDecodeSocket(ctx, &trapping)
-	pfconfigdriver.FetchDecodeSocket(ctx, &portal)
-	pfconfigdriver.FetchDecodeSocket(ctx, &general)
-
+	p.proxypassthrough = make([]*regexp.Regexp, 0)
 	for _, v := range trapping.ProxyPassthroughs {
 		p.addFqdnToList(ctx, v)
 	}
 
+	p.detectionmechanisms = make([]*regexp.Regexp, 0)
 	for _, v := range portal.DetectionMecanismUrls {
 		p.addDetectionMechanismsToList(ctx, v)
 	}
@@ -179,14 +182,15 @@ func (p *passthrough) readConfig(ctx context.Context) {
 
 	rgx, _ := regexp.Compile("CaptiveNetworkSupport")
 	p.URIException = rgx
+
 	if portal.SecureRedirect == "enabled" {
 		p.SecureRedirect = true
 		scheme = "https"
-	}
-	if portal.SecureRedirect == "disabled" {
+	} else {
 		p.SecureRedirect = false
 		scheme = "http"
 	}
+
 	var portalURL url.URL
 	var wisprURL url.URL
 

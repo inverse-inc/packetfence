@@ -2,13 +2,12 @@ package caddyhttpdispatcher
 
 import (
 	"context"
-	"fmt"
-	"github.com/fingerbank/processor/log"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
 	"github.com/inverse-inc/packetfence/go/httpdispatcher"
+	"github.com/inverse-inc/packetfence/go/panichandler"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"net/http"
-	"runtime/debug"
 )
 
 func init() {
@@ -20,11 +19,17 @@ func init() {
 
 func setup(c *caddy.Controller) error {
 	h := HttpDispatcherHandler{}
+	ctx := context.Background()
+
+	proxy := httpdispatcher.NewProxy(ctx)
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Trapping)
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.General)
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.CaptivePortal)
+	pfconfigdriver.PfconfigPool.AddRefreshable(ctx, proxy)
 
 	httpserver.GetConfig(c).AddMiddleware(func(next httpserver.Handler) httpserver.Handler {
 		h.Next = next
-		//TODO: change this to use the caddy logger
-		h.proxy = httpdispatcher.NewProxy(context.Background())
+		h.proxy = proxy
 		return h
 	})
 
@@ -39,15 +44,7 @@ type HttpDispatcherHandler struct {
 func (h HttpDispatcherHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 	ctx := r.Context()
 
-	defer func() {
-		if r := recover(); r != nil {
-			msg := fmt.Sprintf("Recovered panic: %s.", r)
-			log.LoggerWContext(ctx).Error(msg)
-			fmt.Println(msg)
-			debug.PrintStack()
-			http.Error(w, "An internal error has occured, please check server side logs for details.", http.StatusInternalServerError)
-		}
-	}()
+	defer panichandler.Http(ctx, w)
 
 	// This will never call the next middleware so make sure its the only «acting» middleware on this service
 	h.proxy.ServeHTTP(w, r)
