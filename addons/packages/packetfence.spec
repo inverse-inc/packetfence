@@ -1254,6 +1254,7 @@ fi
 %config(noreplace)      /usr/local/pf/lib/pf/role/custom.pm
 %config(noreplace)      /usr/local/pf/lib/pf/web/custom.pm
 
+%dir                    /usr/local/pf/go
                         /usr/local/pf/go/*
 
 %dir                    /usr/local/pf/logs
