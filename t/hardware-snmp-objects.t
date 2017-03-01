@@ -56,7 +56,10 @@ my @whitelist = (
     'radiusDisconnect', 'supportsRoleBasedEnforcement', 'getRoleByName', 'returnRadiusAccessAccept',
     'synchronize_locationlog', 'extractVLAN',
     'supportsMABFloatingDevices', 'disableMABFloatingDevice', 'enableMABFloatingDevice', 'disableMABByIfIndex', 'enableMABByIfIndex',
-    'identifyConnectionType', 'logger', 'returnRoleAttributes', 'cachedSNMPRequest', 'getRelayAgentInfoOptRemoteIdSub', 'TO_JSON'
+    'identifyConnectionType', 'logger', 'returnRoleAttributes', 'cachedSNMPRequest', 'getRelayAgentInfoOptRemoteIdSub', 'TO_JSON',
+    'normalizeTrap', 'findTrapNormalizer', '_findTrapNormalizer', 'linkDownTrapNormalizer', 'linkUpTrapNormalizer', 'dot11DeauthenticateTrapNormalizer', 
+    'findTrapVarWithBase', 'getIfIndexFromTrap', 'findTrapOID', 'getMacFromTrapVariablesForOIDBase', 'extractMacFromVariable', 
+    'handleTrap', 'getExclusiveLock', 'getExclusiveLockForScope',
 );
 
 my @missing_subs;
