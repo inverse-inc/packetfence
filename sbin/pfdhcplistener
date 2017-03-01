@@ -67,6 +67,7 @@ our $PARENT_PID;
 our %CHILDREN;
 our @TASKS_RUN;
 our $ALARM_RECV = 0;
+our $TIMEOUT = 1 * 1000; # 1 second or 1000 milliseconds
 our $running = 1;
 
 $SIG{HUP}  = \&reload_config;
@@ -197,7 +198,7 @@ sub setup_pcap {
     # updating process name so we know what interface we are listening on
     # WARNING: the format is expected by watchdog in pf::services. Don't change lightly.
     $PROGRAM_NAME = basename($PROGRAM_NAME) . ": listening on $interface";
-    $pcap = Net::Pcap::pcap_open_live( $interface, $Config{advanced}{pfdhcplistener_packet_size}, 1, 10 * 1000, \$err );
+    $pcap = Net::Pcap::pcap_open_live( $interface, $Config{advanced}{pfdhcplistener_packet_size}, 1, $TIMEOUT, \$err );
 
     if (!defined($pcap)) {
         $logger->logdie("Unable to initiate packet capture. Is $interface an actual network interface?");
@@ -417,7 +418,10 @@ sub _runtask {
     setup_pcap($interface);
     while (is_running()) {
         my $result = Net::Pcap::dispatch( $pcap, -1, \&process_pkt, [ $interface , $pcap ] );
-        $logger->logdie(Net::Pcap::pcap_geterr($pcap)) if ($result == -1);
+        if ($result == -1) {
+            $logger->error(Net::Pcap::pcap_geterr($pcap));
+            last;
+        }
     }
     exit;
 }
