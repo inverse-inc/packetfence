@@ -1171,7 +1171,7 @@ fi
 %dir			/usr/local/pf/html/common/scss/
                         /usr/local/pf/html/common/scss/*.scss
 %dir                    /usr/local/pf/html/captive-portal/lib
-
+     
                         /usr/local/pf/html/captive-portal/lib/*
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Activate/Email.pm
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Authenticate.pm
@@ -1252,6 +1252,9 @@ fi
 %config(noreplace)      /usr/local/pf/lib/pf/soh/custom.pm
 %config(noreplace)      /usr/local/pf/lib/pf/role/custom.pm
 %config(noreplace)      /usr/local/pf/lib/pf/web/custom.pm
+
+                        /usr/local/pf/go/*
+
 %dir                    /usr/local/pf/logs
 # logfiles
 %ghost                  %logdir/packetfence.log
