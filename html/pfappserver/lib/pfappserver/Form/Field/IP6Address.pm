@@ -14,7 +14,7 @@ value is a valid IPv6 address.
 use HTML::FormHandler::Moose;
 extends 'HTML::FormHandler::Field::Text';
 
-use pf::util;
+use pf::util::IP;
 use namespace::autoclean;
 
 # If the field value matches one of the values defined in "accept", the field will pass validation.
@@ -40,7 +40,7 @@ apply
      check => sub {
          my ( $value, $field ) = @_;
          return 1 if ($field->accept && grep { $_ eq $value } @{$field->accept});
-         return (1) if pf::util::is_ipv6($value);
+         return (1) if pf::util::IP::is_ipv6($value);
      },
      message => sub {
          my ( $value, $field ) = @_;

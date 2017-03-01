@@ -42,7 +42,6 @@ use Digest::MD5;
 use Time::HiRes qw(stat time);
 use Fcntl qw(:DEFAULT);
 use Net::Ping;
-use Net::IP;
 
 our ( %local_mac );
 
@@ -154,20 +153,6 @@ sub valid_ips {
     } else {
         return (1);
     }
-}
-
-sub is_ipv6 {
-    my ( $maybe_ipv6 ) = @_;
-    my $logger = pf::log::get_logger();
-
-    unless ( Net::IP::ip_is_ipv6($maybe_ipv6) ) {
-        my $caller = ( caller(1) )[3] || basename($0);
-        $caller =~ s/^(pf::\w+|main):://;
-        $logger->debug("invalid IPv6: $maybe_ipv6 from $caller");
-        return (0);
-    }
-
-    return (1);
 }
 
 =item reverse_ip

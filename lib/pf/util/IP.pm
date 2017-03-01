@@ -40,6 +40,21 @@ sub detect {
 }
 
 
+sub is_ipv6 {
+    my ( $maybe_ipv6 ) = @_;
+    my $logger = pf::log::get_logger();
+
+    unless ( pf::IPv6::is_valid($maybe_ipv6) ) {
+        my $caller = ( caller(1) )[3] || basename($0);
+        $caller =~ s/^(pf::\w+|main):://;
+        $logger->debug("invalid IPv6: $maybe_ipv6 from $caller");
+        return (0);
+    }
+
+    return (1);
+}
+
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
