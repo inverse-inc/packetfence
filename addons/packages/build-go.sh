@@ -2,7 +2,7 @@
 
 set -x
 
-PATH="/usr/local/go:$PATH"
+PATH="/usr/local/go/bin:$PATH"
 
 PFSRC="$1"
 BINDST="$2"
