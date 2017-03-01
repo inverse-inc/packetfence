@@ -2,6 +2,8 @@
 
 set -x
 
+PATH="/usr/local/go:$PATH"
+
 PFSRC="$1"
 BINDST="$2"
 SHOULD_TEST=${SHOULD_TEST:-"1"}
@@ -39,7 +41,9 @@ cd "$GOPATHPF"
 cd go
 
 #TODO: replace with vendoring solution
+# Get the application dependencies
 go get ./...
+# Get the test dependencies
 go get -t ./...
 
 if [[ $SHOULD_TEST -eq 1 ]] && ! go test ./...; then
