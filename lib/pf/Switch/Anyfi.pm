@@ -39,23 +39,6 @@ sub supportsWirelessMacAuth { return $TRUE; }
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
 
-=head2 parseTrap
-
-This is called when we receive an SNMP-Trap for this device
-
-=cut
-
-sub parseTrap {
-    my ( $self, $trapString ) = @_;
-    my $trapHashRef;
-    my $logger = $self->logger;
-
-    $logger->debug("trap currently not handled");
-    $trapHashRef->{'trapType'} = 'unknown';
-
-    return $trapHashRef;
-}
-
 =head2 getVersion - obtain image version information from switch
 
 =cut

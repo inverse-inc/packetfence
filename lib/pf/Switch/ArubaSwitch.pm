@@ -98,23 +98,6 @@ sub dot1xPortReauthenticate {
 }
 
 
-=head2 parseTrap
-
-All traps ignored
-
-=cut
-
-sub parseTrap {
-    my ( $self, $trapString ) = @_;
-    my $trapHashRef;
-    my $logger = $self->logger;
-
-    $logger->debug("trap ignored, not useful for switch");
-    $trapHashRef->{'trapType'} = 'unknown';
-
-    return $trapHashRef;
-}
-
 =head2 getIfIndexByNasPortId
 
 Fetch the ifindex on the switch by NAS-Port-Id radius attribute

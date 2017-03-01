@@ -161,23 +161,6 @@ sub dot1xPortReauthenticate {
     return (defined($result));
 }
 
-=item parseTrap
-
-All traps ignored
-
-=cut
-
-sub parseTrap {
-    my ( $self, $trapString ) = @_;
-    my $trapHashRef;
-    my $logger = $self->logger;
-
-    $logger->debug("trap ignored, not useful for switch");
-    $trapHashRef->{'trapType'} = 'unknown';
-
-    return $trapHashRef;
-}
-
 =item getVoipVSA
 
 Get Voice over IP RADIUS Vendor Specific Attribute (VSA).

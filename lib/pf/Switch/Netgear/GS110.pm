@@ -135,14 +135,8 @@ sub _setVlan {
         = '1.3.6.1.2.1.17.7.1.4.3.1.2';                  # Q-BRIDGE-MIB
     my $result;
 
-    $logger->trace( "locking - trying to lock \$switch_locker{"
-            . $self->{_ip}
-            . "} in _setVlan" );
     {
-        lock %{ $switch_locker_ref->{ $self->{_ip} } };
-        $logger->trace( "locking - \$switch_locker{"
-                . $self->{_ip}
-                . "} locked in _setVlan" );
+        my $lock = $self->getExclusiveLock();
 
         # get current egress and untagged ports
         $self->{_sessionRead}->translate(0);

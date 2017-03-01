@@ -36,6 +36,10 @@ use pf::config qw(
     $WIRED_MAC_AUTH
     $NO_VOIP
 );
+use Errno qw(EINTR);
+use pf::file_paths qw(
+    $control_dir
+);
 use pf::locationlog;
 use pf::node;
 use pf::cluster;
@@ -47,12 +51,26 @@ use pf::Switch::constants;
 use pf::util;
 use pf::util::radius qw(perform_disconnect);
 use List::MoreUtils qw(any all);
+use List::Util qw(first);
 use Scalar::Util qw(looks_like_number);
-use List::MoreUtils qw(any);
 use pf::StatsD;
 use pf::util::statsd qw(called);
 use Time::HiRes;
 use pf::access_filter::radius;
+use File::Spec::Functions;
+use File::FcntlLock;
+
+#
+# %TRAP_NORMALIZERS
+# A hash of cisco trap normalizers
+# Use the following convention when adding a normalizer
+# <nameOfTrapNotificationType>TrapNormalizer
+#
+our %TRAP_NORMALIZERS = (
+    '.1.3.6.1.6.3.1.1.5.3' => 'linkDownTrapNormalizer',
+    '.1.3.6.1.6.3.1.1.5.4' => 'linkUpTrapNormalizer',
+    '.1.2.840.10036.1.6.0.2' => 'dot11DeauthenticateTrapNormalizer',
+);
 
 =head1 SUBROUTINES
 
@@ -3268,6 +3286,173 @@ sub externalPortalEnforcement {
     return $FALSE;
 }
 
+=item handleTrap
+
+Trap handling logic
+
+=back
+
+=head1 Methods for trap handling
+
+=over
+
+=item normalizeTrap
+
+Normalize a trap to the packetfence internal format.
+
+Example
+
+  {
+    trapType => 'up',
+    trapIfIndex => 1,
+  }
+
+The minimum information needed for the normalized trap data is the trapType
+If a trap cannot be normalized then trapType will be set to 'unknown'
+
+=cut
+
+sub normalizeTrap {
+    my ($self, $trapInfo) = @_;
+    my $normalizer = $self->findTrapNormalizer($trapInfo);
+    if ($normalizer) {
+        return $self->$normalizer($trapInfo);
+    }
+    return {trapType => 'unknown'};
+}
+
+=item findTrapNormalizer
+
+find the method to be used for normalizing a trap
+
+=cut
+
+sub findTrapNormalizer {
+    my ($self, $trapInfo) = @_;
+    my ($pdu, $variables) = @$trapInfo;
+    my $snmpTrapOID =  $self->findTrapOID($variables);
+    return undef unless $snmpTrapOID;
+    if (exists $TRAP_NORMALIZERS{$snmpTrapOID}) {
+        return $TRAP_NORMALIZERS{$snmpTrapOID};
+    }
+    return $self->_findTrapNormalizer($snmpTrapOID, $pdu, $variables);
+}
+
+=item _findTrapNormalizer
+
+The method for a pf::Switch subclass to override in order to find the trap normalizer method
+
+=cut
+
+sub _findTrapNormalizer {
+    return undef;
+}
+
+=item linkDownTrapNormalizer
+
+The trap normalizer for the linkDown trap
+
+=cut
+
+sub linkDownTrapNormalizer {
+    my ($self, $trapInfo) = @_;
+    return {
+        trapType => 'down',
+        trapIfIndex => $self->getIfIndexFromTrap($trapInfo->[1]),
+    };
+}
+
+=item linkUpTrapNormalizer
+
+The trap normalizer for the linkUp trap
+
+=cut
+
+sub linkUpTrapNormalizer {
+    my ($self, $trapInfo) = @_;
+    return {
+        trapType => 'up',
+        trapIfIndex => $self->getIfIndexFromTrap($trapInfo->[1]),
+    };
+}
+
+=item dot11DeauthenticateTrapNormalizer
+
+The trap normalizer for the dot11Deauthenticate trap
+
+=cut
+
+sub dot11DeauthenticateTrapNormalizer {
+    my ($self, $trapInfo) = @_;
+    return {
+        trapType => 'dot11Deauthentication',
+        trapMac => $self->getMacFromTrapVariablesForOIDBase($trapInfo->[1], '.1.2.840.10036.1.1.1.18.')
+    };
+}
+
+=item findTrapVarWithBase
+
+find the trap variables that start with an OID
+
+=cut
+
+sub findTrapVarWithBase {
+    my ($self, $variables, $base) = @_;
+    return grep { $_->[0] =~ /^\Q$base\E/ } @$variables;
+}
+
+=item getIfIndexFromTrap
+
+get the IfIndex from a trap
+
+=cut
+
+sub getIfIndexFromTrap {
+    my ($self, $variables) = @_;
+    my @indexes = $self->findTrapVarWithBase($variables,".1.3.6.1.2.1.2.2.1.1.");
+    return undef unless @indexes;
+    return undef unless $indexes[0][1] =~ /(INTEGER|Gauge32): (\d+)/;
+    return $2;
+}
+
+=item findTrapOID
+
+find the traps notification type OID
+
+=cut
+
+sub findTrapOID {
+    my ($self, $variables) = @_;
+    my $variable = first { $_->[0] eq '.1.3.6.1.6.3.1.1.4.1.0'} @$variables;
+    return undef unless $variable;
+    $variable->[1] =~ /OID: (.*)/;
+    return $1;
+}
+
+=item getMacFromTrapVariablesForOIDBase
+
+Get a mac from a trap variable based of it's OID
+
+=cut
+
+sub getMacFromTrapVariablesForOIDBase {
+    my ($self, $variables, $base) = @_;
+    my ($variable) = $self->findTrapVarWithBase($variables, $base);
+    return undef unless $variable;
+    return $self->extractMacFromVariable($variable);
+}
+
+=item extractMacFromVariable
+
+extract the mac address from a trap variable
+
+=cut
+
+sub extractMacFromVariable {
+    my ($self, $variable) = @_;
+    return undef unless $variable->[1] =~ /$SNMP::MAC_ADDRESS_FORMAT/;
+    return parse_mac_from_trap($1);
+}
 
 =item TO_JSON
 
@@ -3280,6 +3465,57 @@ sub TO_JSON {
     my %data = %$self;
     delete @data{qw(_sessionRead _sessionWrite _sessionControllerWrite)};
     return \%data;
+}
+
+=item handleTrap
+
+A hook for switch specific trap handling
+If a true value is returned then the trap will be handled using the default logic.
+
+=cut
+
+sub handleTrap { 1 }
+
+
+=item getExclusiveLock
+
+Get an exclusive lock for the switch
+
+=cut
+
+sub getExclusiveLock {
+    my ($self, $nonblock) = @_;
+    return $self->getExclusiveLockForScope('', $nonblock);
+}
+
+=item getExclusiveLockForScope
+
+Get an exclusive lock for the switch for a particular scope
+
+=cut
+
+sub getExclusiveLockForScope {
+    my ($self, $scope, $nonblock) = @_;
+    my $fh;
+    my $filename = "$control_dir/switch:$self->{_id}:$scope";
+    unless (open($fh, ">", $filename)) {
+        $self->logger("Cannot open $filename: $!");
+        return undef;
+    }
+    my $fs = File::FcntlLock->new(
+        l_type   => F_WRLCK,
+        l_whence => SEEK_SET,
+        l_start => 0,
+        l_len => 0,
+    );
+    my $type = $nonblock ? F_SETLK : F_SETLKW;
+    my $result;
+    1 while(!defined($result = $fs->lock($fh, $type)) && $! == EINTR);
+    unless (defined $result) {
+        $self->logger("Error getting lock on $filename: $!");
+        return undef;
+    }
+    return $fh;
 }
 
 =back
