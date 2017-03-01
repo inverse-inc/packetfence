@@ -119,7 +119,7 @@ EOT
             $i++;
             }
             my $cluster_ip = pf::cluster::cluster_ip($interface) || $cfg->{'ip'};
-            my @backend_ip = values %{pf::cluster::members_ips($interface)}
+            my @backend_ip = values %{pf::cluster::members_ips($interface)};
             push @backend_ip, '127.0.0.1' if !@backend_ip;
             my $backend_ip_config = '';
             foreach my $back_ip ( @backend_ip ) {
