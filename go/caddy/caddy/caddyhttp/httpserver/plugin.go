@@ -422,6 +422,7 @@ var directives = []string{
 	"maxrequestbody", // TODO: 'limits'
 	"timeouts",
 	"tls",
+	"requestlimit",
 
 	// services/utilities, or other directives that don't necessarily inject handlers
 	"startup",

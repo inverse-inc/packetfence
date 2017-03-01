@@ -24,6 +24,7 @@ import (
 	_ "github.com/inverse-inc/packetfence/go/caddy/logger"
 	_ "github.com/inverse-inc/packetfence/go/caddy/pfconfig"
 	_ "github.com/inverse-inc/packetfence/go/caddy/pfsso"
+	_ "github.com/inverse-inc/packetfence/go/caddy/requestlimit"
 	_ "github.com/inverse-inc/packetfence/go/caddy/statsd"
 )
 
