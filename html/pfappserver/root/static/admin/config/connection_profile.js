@@ -294,7 +294,7 @@ function initTemplatesPage(element) {
     initNewFileModal(element);
 }
 
-function portalProfileGlobalInit(element) {
+function connectionProfileGlobalInit(element) {
     initWidgets(element.find('.chzn-select'));
     disabledLinks(element);
 }
@@ -311,7 +311,7 @@ $('#section').on('section.loaded',function(event) {
         var initializer = initializers[i];
         var element = $(initializer.id);
         if (element.length) {
-            portalProfileGlobalInit(element);
+            connectionProfileGlobalInit(element);
             initializer.initializer(element);
         }
     }

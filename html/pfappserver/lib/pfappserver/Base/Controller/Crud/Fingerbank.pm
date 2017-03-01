@@ -8,7 +8,7 @@ pfappserver::Base::Controller::Crud::Fingerbank add documentation
 
 =head1 DESCRIPTION
 
-PortalProfile
+ConnectionProfile
 
 =cut
 
