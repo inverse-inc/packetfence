@@ -46,7 +46,7 @@ go get ./...
 # Get the test dependencies
 go get -t ./...
 
-if [[ $SHOULD_TEST -eq 1 ]] && ! go test ./...; then
+if [[ $SHOULD_TEST -eq 1 ]] && ! PFCONFIG_TESTING=y go test ./...; then
   echo "Failed to execute tests. Will not build."
   exit 1
 fi
