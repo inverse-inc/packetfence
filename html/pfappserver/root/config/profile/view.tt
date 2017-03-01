@@ -17,7 +17,7 @@
   <form id="update_profile" method="POST" action="[% c.uri_for(c.controller('Config::Profile').action_for('update'),[id])  %]"  class="form-horizontal">
     <ul class="breadcrumb">
       <li>
-        <a href="[% c.pf_hash_for(c.controller('Config::Profile').action_for('index')) %]" >[% l('Portal Profiles and Pages') %]</a>
+        <a href="[% c.pf_hash_for(c.controller('Config::Profile').action_for('index')) %]" >[% l('Connection Profiles and Pages') %]</a>
         <span class="divider"><i class="icon-chevron-right"></i></span>
       </li>
       <li class="active">[% id | html %]</li>

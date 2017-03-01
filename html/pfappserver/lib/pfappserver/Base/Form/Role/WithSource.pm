@@ -45,7 +45,7 @@ has_field 'source_id' =>
    element_class => ['chzn-select'],
    element_attr => {'data-placeholder' => 'Click to add a source'},
    tags => { after_element => \&help,
-             help => 'The sources to use in the module. If no sources are specified, all the sources on the Portal Profile will be used' },
+             help => 'The sources to use in the module. If no sources are specified, all the sources on the Connection Profile will be used' },
   );
 
 

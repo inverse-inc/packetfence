@@ -180,7 +180,7 @@ td a.btn { margin-left: 5px; }
   
   <ul class="breadcrumb">
     <li>
-      <a href="[% c.pf_hash_for(c.controller('Config::Profile').action_for('index')) %]" >Portal Profiles and Pages</a>
+      <a href="[% c.pf_hash_for(c.controller('Config::Profile').action_for('index')) %]" >Connection Profiles and Pages</a>
       <span class="divider"><i class="icon-chevron-right"></i></span>
     </li>
     <li>

@@ -71,7 +71,7 @@ __PACKAGE__->config(
 
 =head2 object
 
-Portal Profile chained dispatcher
+Connection Profile chained dispatcher
 
 /config/profile/*
 

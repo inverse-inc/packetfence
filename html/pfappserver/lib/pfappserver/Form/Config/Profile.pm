@@ -6,7 +6,7 @@ pfappserver::Form::Config::Profile
 
 =head1 DESCRIPTION
 
-Portal profile.
+Connection profile.
 
 =cut
 

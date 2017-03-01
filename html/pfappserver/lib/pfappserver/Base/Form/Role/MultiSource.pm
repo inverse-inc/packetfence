@@ -20,7 +20,7 @@ has_field 'multi_source_object_classes' =>
    element_class => ['input-xxlarge'],
    required => 0,
    tags => { after_element => \&help,
-             help => 'The sources inheriting from these classes and part of the portal profile will be added to the available sources' },
+             help => 'The sources inheriting from these classes and part of the connection profile will be added to the available sources' },
   );
 
 has_field 'multi_source_types' => 
@@ -30,7 +30,7 @@ has_field 'multi_source_types' =>
    label => 'Sources by type',
    required => 0,
    tags => { after_element => \&help,
-             help => 'The sources of these types and part of the portal profile will be added to the available sources' },
+             help => 'The sources of these types and part of the connection profile will be added to the available sources' },
   );
 
 has_field 'multi_source_auth_classes' => 
@@ -40,7 +40,7 @@ has_field 'multi_source_auth_classes' =>
    element_class => ['input-xxlarge'],
    required => 0,
    tags => { after_element => \&help,
-             help => 'The sources of these authentication classes and part of the portal profile will be added to the available sources' },
+             help => 'The sources of these authentication classes and part of the connection profile will be added to the available sources' },
   );
 
 has_block 'multi_source_definition' => (

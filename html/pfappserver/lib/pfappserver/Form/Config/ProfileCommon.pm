@@ -164,7 +164,7 @@ has_field 'always_use_redirecturl' =>
 
 =head2 preregistration
 
-Controls whether or not this portal profile is used for preregistration
+Controls whether or not this connection profile is used for preregistration
 
 =cut
 
@@ -175,13 +175,13 @@ has_field 'preregistration' =>
    checkbox_value => 'enabled',
    unchecked_value => 'disabled',
    tags => { after_element => \&help,
-             help => 'This activates preregistration on the portal profile. Meaning, instead of applying the access to the currently connected device, it displays a local account that is created while registering. Note that activating this disables the on-site registration on this portal profile. Also, make sure the sources on the portal profile have "Create local account" enabled.' },
+             help => 'This activates preregistration on the connection profile. Meaning, instead of applying the access to the currently connected device, it displays a local account that is created while registering. Note that activating this disables the on-site registration on this connection profile. Also, make sure the sources on the connection profile have "Create local account" enabled.' },
   );
 
 
 =head2 autoregister
 
-Controls whether or not this portal profile will autoregister users
+Controls whether or not this connection profile will autoregister users
 
 =cut
 
@@ -406,7 +406,7 @@ has_field 'scans.contains' =>
 
 =head2 preregistration
 
-Controls whether or not this portal profile is used for preregistration
+Controls whether or not this connection profile is used for preregistration
 
 =cut
 
