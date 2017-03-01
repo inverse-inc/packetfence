@@ -163,8 +163,20 @@ Save the pf::dal object in the database
 
 sub save {
     my ($self) = @_;
+    my $status = $self->pre_save;
+    if (is_error($status)) {
+        return $status;
+    }
     return $self->upsert;
 }
+
+=head2 pre_save
+
+pre_save
+
+=cut
+
+sub pre_save { $STATUS::OK }
 
 =head2 update
 
