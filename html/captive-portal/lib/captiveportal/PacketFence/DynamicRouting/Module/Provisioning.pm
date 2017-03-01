@@ -49,7 +49,7 @@ sub next {
 
 =head2 get_provisioner
 
-Get the provisioner from the session or the portal profile
+Get the provisioner from the session or the connection profile
 
 =cut
 

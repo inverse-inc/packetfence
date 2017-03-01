@@ -71,8 +71,8 @@ around 'source' => sub {
 =head2 _build_sources
 
 Build the sources from the source_id and the filtering attributes
-If source_id is not defined or empty, the filtering attributes will be applied to all the portal profile sources
-Otherwise, the sources defined in source_id will be used even if they are not part of the portal profile
+If source_id is not defined or empty, the filtering attributes will be applied to all the connection profile sources
+Otherwise, the sources defined in source_id will be used even if they are not part of the connection profile
 
 =cut
 
@@ -95,7 +95,7 @@ sub _build_sources {
     
         my %sources_map = map { $_->id => $_ } @sources;
     
-        # we respect the order defined in the portal module, then the one in the portal profile for the sources that are in it.
+        # we respect the order defined in the portal module, then the one in the connection profile for the sources that are in it.
         my @ordered_sources;
         foreach my $source_id (@{$self->app->profile->getSources()}){
             if(defined($sources_map{$source_id})){

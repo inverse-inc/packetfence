@@ -7348,7 +7348,7 @@ msgid "This activates automatic registation of devices for the profile. Devices 
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
-msgid "This activates preregistration on the connection profile. Meaning, instead of applying the access to the currently connected device, it displays a local account that is created while registering. Note that activating this disables the on-site registration on this portal profile. Also, make sure the sources on the portal profile have \"Create local account\" enabled."
+msgid "This activates preregistration on the connection profile. Meaning, instead of applying the access to the currently connected device, it displays a local account that is created while registering. Note that activating this disables the on-site registration on this connection profile. Also, make sure the sources on the connection profile have \"Create local account\" enabled."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
