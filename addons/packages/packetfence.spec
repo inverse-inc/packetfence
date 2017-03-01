@@ -428,6 +428,9 @@ make bin/ntlm_auth_wrapper
 # Define git_commit_id
 echo %{git_commit} > conf/git_commit_id
 
+# build golang binaries
+addons/packages/build-go.sh `pwd` `pwd`/bin
+
 find -name '*.example' -print0 | while read -d $'\0' file
 do
   cp $file "$(dirname $file)/$(basename $file .example)"
@@ -887,6 +890,7 @@ fi
 %dir                    /usr/local/pf/addons/watchdog
 %attr(0755, pf, pf)     /usr/local/pf/addons/watchdog/*.sh
 %dir                    /usr/local/pf/bin
+%attr(0755, pf, pf)     /usr/local/pf/bin/pfhttpd
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd.pl
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd_vlan
 %attr(0755, pf, pf)     /usr/local/pf/bin/pftest
