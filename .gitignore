@@ -49,6 +49,7 @@ conf/pki_provider.conf
 conf/authentication.conf
 conf/floating_network_device.conf
 conf/guest-managers.conf
+conf/passthrough.lua.tt
 conf/log.conf
 conf/chi.conf
 conf/dhcp_filters.conf
