@@ -134,7 +134,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !p.checkEndpointList(ctx, host) {
-		log.LoggerWContext(ctx).Info(fmt.Sprintln(host, "FORBIDDEN"))
+		log.LoggerWContext(ctx).Info(fmt.Sprintln(host, "FORBIDDEN host in blacklist"))
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}

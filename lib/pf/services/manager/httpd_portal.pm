@@ -94,13 +94,16 @@ Get vhosts
 
 sub vhosts {
     my ($self) = @_;
-    return
-        [
-            uniq map {
-                defined $_->{'Tvip'} && $_->{'Tvip'} ne '' ? $_->{'Tvip'} : $_->{'Tip'}
-            } @internal_nets, @portal_ints
-        ] if $cluster_enabled;
-    return ["127.0.0.1"];
+    if ($cluster_enabled) {
+        return
+            [
+                uniq map {
+                    defined $_->{'Tvip'} && $_->{'Tvip'} ne '' ? $_->{'Tvip'} : $_->{'Tip'}
+                } @internal_nets, @portal_ints
+            ];
+    } else {
+        return ["127.0.0.1"];
+    }
 }
 
 =head2 routedNets
