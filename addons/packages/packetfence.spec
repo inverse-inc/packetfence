@@ -904,6 +904,8 @@ fi
 %config(noreplace)      /usr/local/pf/conf/apache_filters.conf
                         /usr/local/pf/conf/apache_filters.conf.example
 %config(noreplace)      /usr/local/pf/conf/authentication.conf
+%config(noreplace)      /usr/local/pf/caddy-services/*.conf
+                        /usr/local/pf/caddy-services/*.conf.example
 %config(noreplace)      /usr/local/pf/conf/chi.conf
 %config                 /usr/local/pf/conf/chi.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/portal_modules.conf
