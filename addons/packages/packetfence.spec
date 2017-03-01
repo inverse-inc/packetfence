@@ -431,7 +431,7 @@ make bin/ntlm_auth_wrapper
 echo %{git_commit} > conf/git_commit_id
 
 # build golang binaries
-addons/packages/build-go.sh `pwd` `pwd`/bin
+addons/packages/build-go.sh build `pwd` `pwd`/bin
 
 find -name '*.example' -print0 | while read -d $'\0' file
 do
