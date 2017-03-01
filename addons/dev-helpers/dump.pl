@@ -151,6 +151,16 @@ sub _run {
     print Data::Dumper::Dumper(\%pf::admin_roles::ADMIN_ROLES);
 }
 
+package pf::dump::firewallsso;
+use base qw(pf::dump::cmd);
+use Data::Dumper;
+__PACKAGE__->mark_as_loaded();
+
+sub _run {
+    require pf::config;
+    print Data::Dumper::Dumper(\%pf::config::ConfigFirewallSSO);
+}
+
 package pf::dump::scan;
 use base qw(pf::dump::cmd);
 use Data::Dumper;
