@@ -1,25 +1,25 @@
-package pf::cmd::pf::portalprofileconfig;
+package pf::cmd::pf::connectionprofileconfig;
 =head1 NAME
 
-pf::cmd::pf::portalprofileconfig add documentation
+pf::cmd::pf::connectionprofileconfig add documentation
 
 =head1 SYNOPSIS
 
-pfcmd portalprofileconfig get <all|default|ID>
+pfcmd connectionprofileconfig get <all|default|ID>
 
-pfcmd portalprofileconfig add <ID> [assignments]
+pfcmd connectionprofileconfig add <ID> [assignments]
 
-pfcmd portalprofileconfig edit <ID> [assignments]
+pfcmd connectionprofileconfig edit <ID> [assignments]
 
-pfcmd portalprofileconfig delete <ID>
+pfcmd connectionprofileconfig delete <ID>
 
-pfcmd portalprofileconfig clone <TO_ID> <FROM_ID> [assignments]
+pfcmd connectionprofileconfig clone <TO_ID> <FROM_ID> [assignments]
 
 query/modify profiles.conf configuration file
 
 =head1 DESCRIPTION
 
-pf::cmd::pf::portalprofileconfig
+pf::cmd::pf::connectionprofileconfig
 
 =cut
 
