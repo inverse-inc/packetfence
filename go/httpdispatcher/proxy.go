@@ -163,9 +163,9 @@ func (p *passthrough) readConfig(ctx context.Context) {
 	var general pfconfigdriver.PfConfGeneral
 	var scheme string
 
-	pfconfigdriver.FetchDecodeSocketStruct(ctx, &trapping)
-	pfconfigdriver.FetchDecodeSocketStruct(ctx, &portal)
-	pfconfigdriver.FetchDecodeSocketStruct(ctx, &general)
+	pfconfigdriver.FetchDecodeSocket(ctx, &trapping)
+	pfconfigdriver.FetchDecodeSocket(ctx, &portal)
+	pfconfigdriver.FetchDecodeSocket(ctx, &general)
 
 	for _, v := range trapping.ProxyPassthroughs {
 		p.addFqdnToList(ctx, v)
@@ -175,14 +175,8 @@ func (p *passthrough) readConfig(ctx context.Context) {
 		p.addDetectionMechanismsToList(ctx, v)
 	}
 
+	p.DetectionMecanismBypass = portal.DetectionMecanismBypass == "enabled"
 
-	p.DetectionMecanismBypass = portal.DetectionMecanismBypass
-	if portal.DetectionMecanismBypass == "enabled" {
-		p.DetectionMecanismBypass = true
-	}
-	if portal.DetectionMecanismBypass == "disabled" {
-		p.DetectionMecanismBypass = false
-	}
 	rgx, _ := regexp.Compile("CaptiveNetworkSupport")
 	p.URIException = rgx
 	if portal.SecureRedirect == "enabled" {
@@ -215,7 +209,6 @@ func newProxyPassthrough(ctx context.Context) *passthrough {
 	return &p
 }
 
-
 // addFqdnToList add all the passthrough fqdn in a list
 func (p *passthrough) addFqdnToList(ctx context.Context, r string) error {
 	rgx, err := regexp.Compile(r)
@@ -238,7 +231,7 @@ func (p *passthrough) addDetectionMechanismsToList(ctx context.Context, r string
 	return err
 }
 
-// checkProxyPassthrough compare the host to the list of regex 
+// checkProxyPassthrough compare the host to the list of regex
 func (p *passthrough) checkProxyPassthrough(ctx context.Context, e string) bool {
 	if p.proxypassthrough == nil {
 		return false

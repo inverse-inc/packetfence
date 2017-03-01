@@ -1,10 +1,8 @@
 package httpdispatcher
 
-package main
-
 import (
 	"bytes"
-	"log"
+	"context"
 	"net/http/httptest"
 	"net/url"
 	"os"
@@ -12,15 +10,16 @@ import (
 	"testing"
 )
 
-var testproxy proxy
+var testproxy Proxy
+var ctx = context.Background()
 
 func TestMain(m *testing.M) {
-	passThrough = newProxyPassthrough()
+	passThrough = newProxyPassthrough(ctx)
 	rgx, _ := regexp.Compile("www.padl.com")
 	passThrough.proxypassthrough = append(passThrough.proxypassthrough, rgx)
 	rgx, _ = regexp.Compile("www.gstatic.com/generate_204")
 	passThrough.detectionmechanisms = append(passThrough.detectionmechanisms, rgx)
-	passThrough.DetectionMecanismBypass = "enabled"
+	passThrough.DetectionMecanismBypass = true
 	rgx, _ = regexp.Compile("CaptiveNetworkSupport")
 	passThrough.URIException = rgx
 
@@ -37,10 +36,7 @@ func TestMain(m *testing.M) {
 
 	passThrough.WisprURL = &wisprURL
 	passThrough.PortalURL = &portalURL
-	var l *log.Logger
-	l = log.New(os.Stdout, "REQUEST: ", log.Ldate|log.Ltime)
-	testproxy.requestLogger = l
-	testproxy.addToEndpointList("127.0.0.1")
+	testproxy.addToEndpointList(ctx, "127.0.0.1")
 	os.Exit(m.Run())
 }
 
@@ -71,5 +67,3 @@ func TestSimpleProxy(t *testing.T) {
 		t.Fatalf("Received non-200 response: %d\n", recorder.Code)
 	}
 }
-
-
