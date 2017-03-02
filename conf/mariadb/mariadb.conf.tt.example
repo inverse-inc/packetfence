@@ -11,6 +11,7 @@
 # this is only for the mysqld standalone daemon
 [mysqld]
 
+bind-address=[% server_ip %]
 port    = 3306
 socket    = /var/lib/mysql/mysql.sock
 skip-external-locking
@@ -147,10 +148,6 @@ wsrep_sst_method = xtrabackup
 wsrep_sst_auth = "[% replication_user %]:[% replication_password %]"
 wsrep_notify_cmd=/usr/local/pf/var/run/db-update
 wsrep_provider_options='pc.npvo=true'
-#
-# Allow server to accept connections on all interfaces.
-#
-bind-address=[% server_ip %]
 #
 # Optional setting
 wsrep_slave_threads=1
