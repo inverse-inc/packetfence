@@ -10,7 +10,7 @@ use pf::constants;
 use pf::config qw(%Config);
 use pf::activation qw($GUEST_ACTIVATION $SPONSOR_ACTIVATION);
 use pf::node;
-use pf::Portal::Session;
+use pf::Connection::Session;
 use pf::util qw(valid_mac isenabled);
 use pf::web;
 use pf::log;

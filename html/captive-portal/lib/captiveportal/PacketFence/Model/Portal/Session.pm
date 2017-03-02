@@ -251,7 +251,7 @@ sub _build_profile {
 
 sub _build_dispatcherSession {
     my ($self) = @_;
-    my $session = new pf::Portal::Session()->session;
+    my $session = new pf::Connection::Session()->session;
     my %session_data;
     my $logger = get_logger();
     foreach my $key ($session->param) {
