@@ -123,7 +123,7 @@ table.sources {
               [% pf_section_entry( 'mse_tab', 'Node MSE Tab') | none %]
               [%- END %]
               [%- IF can_access("CONFIGURATION_MAIN_READ") %]
-              [% pf_section_entry( 'metadefender', 'Metadefender') | none %]
+              [% pf_section_entry( 'metadefender', 'OPSWAT Metadefender') | none %]
               [%- END %]
               <li class="nav-header">[% pf_section_entry('portal_config', 'Advanced Portal Configuration') | none %]</li>
               [% pf_section_entry('captive_portal', 'Captive Portal') | none %]

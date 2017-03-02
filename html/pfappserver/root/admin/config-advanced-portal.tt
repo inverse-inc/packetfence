@@ -1,0 +1,96 @@
+[%  jsFiles = [
+        'app/jquery-ui',
+        'app/ace/ace'
+        'app/bootstrap-datepicker',
+        'app/bootstrap-timepicker',
+        'app/client/fineuploader',
+        'app/client/jquery-plugin',
+        'app/chosen.jquery.min',
+        'app/jquery.ba-hashchange',
+        'app/pf-bootstrap-swap-class',
+        'admin/configuration',
+        'admin/searches',
+        'admin/config/items',
+        'admin/config/provisioners',
+        'admin/config/scan-wmi',
+        'admin/config/filters',
+        'admin/config/portal_modules',
+        'js/interface',
+        'js/bootstrapSwitch',
+        'js/tree.jquery',
+        ]
+     cssFiles = [
+        'app/bootstrap-datepicker',
+        'app/bootstrap-timepicker',
+        'app/client/fineuploader',
+        'css/bootstrapSwitch',
+        'css/jqtree',
+        'admin/config/portal_modules',
+        ] -%]
+
+<style type="text/css">
+.row-fluid [class*="span"] {
+    display: inline-block;
+}
+/* fix inputs in tables */
+table input[type="text"] {
+    margin-bottom: 0px;
+}
+/* improve apparence of folders in files list */
+tr[data-swap] {
+    background-color: #fff;
+}
+tr[data-swap] > td {
+    border-left: 4px solid #ddd;
+    padding-left: 10px;
+    padding-right: 0;
+    margin-right: 0;
+}
+</style>
+[% MACRO list_entry(controller_name, action, description) BLOCK %]
+              <li>
+                <a href="[%c.pf_hash_for(c.controller(controller_name).action_for(action),[]) %]">[% l(description || action || controller_name) %]</a>
+              </li>
+[% END -%]
+
+[% MACRO pf_section_entry(section, description) BLOCK %]
+              <li>
+                <a href="[%c.pf_hash_for(c.controller('Configuration').action_for('section'),section) %]">[% l(description || section) %]</a>
+              </li>
+[% END -%]
+
+    <div class="container-fluid">
+      <div class="row-fluid">
+        <div class="span2">
+          <div class="well sidebar-nav">
+            <ul class="nav nav-list">
+              <li class="nav-header">[% pf_section_entry('portal_config', 'Advanced Portal Configuration') | none %]</li>
+              [% pf_section_entry('captive_portal', 'Captive Portal') | none %]
+              [%- IF can_access("FILTERS_READ") %]
+              [% list_entry('Config::Filters', 'index', 'Filter engines') | none %]
+              [%- END %]
+              [% pf_section_entry( 'parking', 'Parking') | none %]
+              [%- IF can_access("BILLING_TIER_READ") %]
+              [% list_entry('Config::BillingTiers', 'index', 'Billing Tiers') | none %]
+              [%- END %]
+              [%- IF can_access("PKI_PROVIDER_READ") %]
+              [% list_entry('Config::PKI_Provider', 'index', 'PKI Providers') | none %]
+              [%- END %]
+              [%- IF can_access("PROVISIONING_READ") %]
+              [% list_entry('Config::Provisioning', 'index', 'Provisioners') | none %]
+              [%- END %]
+              [%- IF can_access("PORTAL_MODULE_READ") %]
+              [% list_entry('Config::PortalModule', 'index', 'Portal Modules') | none %]
+              [%- END %]
+              [%- IF can_access("CONFIGURATION_MAIN_READ") %]
+              [% pf_section_entry( 'guests_admin_registration', 'Access Duration') | none %]
+              [%- END %]
+              [% pf_section_entry( 'registration', 'Registration') | none %]
+          </div><!--/.well -->
+        </div><!--/span-->
+        <div class="loader"><p><img src="[% c.uri_for('/static/app/loader-48.gif') %]"></p></div>
+        <div id="section" class="span10">
+        </div><!--/span-->
+      </div><!--/row-->
+    </div><!--/.fluid-container-->
+

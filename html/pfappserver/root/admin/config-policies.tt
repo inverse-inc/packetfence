@@ -1,0 +1,96 @@
+[%  jsFiles = [
+        'app/jquery-ui',
+        'app/ace/ace'
+        'app/bootstrap-datepicker',
+        'app/bootstrap-timepicker',
+        'app/client/fineuploader',
+        'app/client/jquery-plugin',
+        'app/chosen.jquery.min',
+        'app/jquery.ba-hashchange',
+        'app/pf-bootstrap-swap-class',
+        'admin/configuration',
+        'admin/searches',
+        'admin/config/items',
+        'admin/config/switches',
+        'admin/config/domains',
+        'admin/config/authentication',
+        'admin/config/portal_profile',
+        'admin/config/roles',
+        'js/interface',
+        'js/bootstrapSwitch',
+        'js/tree.jquery',
+        ]
+     cssFiles = [
+        'app/bootstrap-datepicker',
+        'app/bootstrap-timepicker',
+        'app/client/fineuploader',
+        'css/bootstrapSwitch',
+        'css/jqtree',
+        'admin/config/switches',
+        ] -%]
+
+<style type="text/css">
+.row-fluid [class*="span"] {
+    display: inline-block;
+}
+/* fix inputs in tables */
+table input[type="text"] {
+    margin-bottom: 0px;
+}
+/* improve apparence of folders in files list */
+tr[data-swap] {
+    background-color: #fff;
+}
+tr[data-swap] > td {
+    border-left: 4px solid #ddd;
+    padding-left: 10px;
+    padding-right: 0;
+    margin-right: 0;
+}
+/* authentication sources tables */
+table.sources {
+    table-layout: fixed;
+}
+</style>
+[% MACRO list_entry(controller_name, action, description) BLOCK %]
+              <li>
+                <a href="[%c.pf_hash_for(c.controller(controller_name).action_for(action),[]) %]">[% l(description || action || controller_name) %]</a>
+              </li>
+[% END -%]
+
+[% MACRO pf_section_entry(section, description) BLOCK %]
+              <li>
+                <a href="[%c.pf_hash_for(c.controller('Configuration').action_for('section'),section) %]">[% l(description || section) %]</a>
+              </li>
+[% END -%]
+
+    <div class="container-fluid">
+      <div class="row-fluid">
+        <div class="span2">
+          <div class="well sidebar-nav">
+            <ul class="nav nav-list">
+              <li class="nav-header">[% pf_section_entry( 'define_policy', 'Policies and Access Control') | none %]</li>
+              [%- IF can_access("USERS_ROLES_READ","CONFIGURATION_MAIN_READ") %]
+              [% pf_section_entry( 'roles', 'Roles') | none %]
+              [%- END %]
+              [%- IF can_access("DOMAIN_READ","REALM_READ") %]
+              [% pf_section_entry( 'domains', 'Domains') | none %]
+              <!--tab Microsoft Active Directory Domains && REALMS-->
+              [%- END %]
+              [%- IF can_access("USERS_SOURCES_READ") %]
+              [% list_entry( 'Config::Authentication', 'index', 'Sources') | none %]
+              [%- END %]
+              [%- IF can_access("SWITCHES_READ") %]
+              [% list_entry( 'Config::Switch', 'index', 'Switches') | none %]
+              [%- END %]
+              [%- IF can_access("PORTAL_PROFILES_READ") %]
+              [% list_entry( 'Config::Profile', 'index', 'Connection Profiles') | none %]
+              [%- END %]
+           </div><!--/.well -->
+        </div><!--/span-->
+        <div class="loader"><p><img src="[% c.uri_for('/static/app/loader-48.gif') %]"></p></div>
+        <div id="section" class="span10">
+        </div><!--/span-->
+      </div><!--/row-->
+    </div><!--/.fluid-container-->
+
