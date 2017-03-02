@@ -449,7 +449,7 @@ sub setDestinationUrl {
 
 =item getProfile
 
-Returns the proper captive connection profile for the current session.
+Returns the proper connection profile for the current session.
 
 =cut
 

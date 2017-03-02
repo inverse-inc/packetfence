@@ -69,7 +69,7 @@ sub new {
 
 =item getName
 
-Returns the name of the captive connection profile.
+Returns the name of the connection profile.
 
 =cut
 
@@ -82,7 +82,7 @@ sub getName {
 
 =item getLogo
 
-Returns the logo for the current captive connection profile.
+Returns the logo for the current connection profile.
 
 =cut
 
@@ -95,7 +95,7 @@ sub getLogo {
 
 =item getGuestModes
 
-Returns the available enabled modes for guest self-registration for the current captive connection profile.
+Returns the available enabled modes for guest self-registration for the current connection profile.
 
 =cut
 
@@ -212,7 +212,7 @@ sub getSAMLSources {
 
 =item getDescripton
 
-Returns either enabled or disabled according to the billing engine state for the current captive connection profile.
+Returns either enabled or disabled according to the billing engine state for the current connection profile.
 
 =cut
 
@@ -252,7 +252,7 @@ sub forceRedirectURL {
 
 =item getSources
 
-Returns the authentication sources IDs for the current captive connection profile.
+Returns the authentication sources IDs for the current connection profile.
 
 =cut
 
@@ -270,7 +270,7 @@ sub getProvisioners {
 
 =item getSourcesAsObjects
 
-Returns the authentication sources objects for the current captive connection profile.
+Returns the authentication sources objects for the current connection profile.
 
 =cut
 
@@ -284,7 +284,7 @@ sub getSourcesAsObjects {
 
 =item getInternalSources
 
-Returns the internal authentication sources objects for the current captive connection profile.
+Returns the internal authentication sources objects for the current connection profile.
 
 =cut
 
@@ -297,7 +297,7 @@ sub getInternalSources {
 
 =item getExternalSources
 
-Returns the external authentication sources objects for the current captive connection profile.
+Returns the external authentication sources objects for the current connection profile.
 
 =cut
 
@@ -310,7 +310,7 @@ sub getExternalSources {
 
 =item getExclusiveSources
 
-Returns the exclusive authentication sources objects for the current captive connection profile.
+Returns the exclusive authentication sources objects for the current connection profile.
 
 =cut
 
@@ -346,7 +346,7 @@ sub hasSource {
 
 =item getSourceByType
 
-Returns the first source object for the requested source type for the current captive connection profile.
+Returns the first source object for the requested source type for the current connection profile.
 
 =cut
 
@@ -359,7 +359,7 @@ sub getSourceByType {
 
 =item getSourcesByType
 
-Returns ALL the sources object for the requested source type for the current captive connection profile
+Returns ALL the sources object for the requested source type for the current connection profile
 
 =cut
 
