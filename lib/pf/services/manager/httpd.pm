@@ -75,8 +75,6 @@ sub port { undef }
 
 sub vhosts { [] }
 
-sub ipv6_vhosts { [] }
-
 sub apache_version {
     my ($self) = @_;
     my $cmd = $self->executable . " -v";
