@@ -26,7 +26,7 @@ use File::Copy::Recursive qw(dircopy);
 use File::Basename qw(fileparse);
 use Readonly;
 use pf::cluster;
-use pf::Portal::ProfileFactory;
+use pf::Connection::ProfileFactory;
 use captiveportal::DynamicRouting::Application;
 use pf::config qw(%connection_type %ConfigSwitchesGroup);
 use pf::constants qw($TRUE $FALSE);
@@ -332,7 +332,7 @@ sub preview :Chained('object') :PathPart :Args() :AdminRole('CONNECTION_PROFILES
     my ($self, $c, @pathparts) = @_;
     my $template = catfile(@pathparts);
     $self->add_fake_profile_data($c, $template, @pathparts);
-    my $profile = pf::Portal::ProfileFactory->instantiate("00:11:22:33:44:55", {portal => $c->stash->{id}});
+    my $profile = pf::Connection::ProfileFactory->instantiate("00:11:22:33:44:55", {portal => $c->stash->{id}});
     my $application = captiveportal::DynamicRouting::Application->new(
         user_session => {},
         session => {client_mac => $c->stash->{client_mac}, client_ip => $c->stash->{client_ip}},
