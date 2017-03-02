@@ -207,6 +207,13 @@ sub get_failed_count {
     return $failed_counts->{$_[0]} // 0;
 }
 
+=head2 quorum_management_server
+
+Quorum server that listens for servers sending their crash state data
+Forks a process and listens on 7890 until killed
+
+=cut
+
 sub quorum_management_server {
     my $pid = fork();
 
@@ -267,6 +274,13 @@ sub quorum_management_server {
     }
 }
 
+=head2 quorum_client_server
+
+Server that listens for client commands sent by the quorum server
+For now, it will set whether or not the server should be starting up
+
+=cut
+
 sub quorum_client_server {
 
     my $pid = fork();
@@ -321,6 +335,12 @@ sub quorum_client_server {
     }
 }
 
+=head2 send_to_quorum_client
+
+Send a message to the quorum client ($ip:7891)
+
+=cut
+
 sub send_to_quorum_client {
     my ($ip, $data) = @_;
     eval {
@@ -340,7 +360,13 @@ sub send_to_quorum_client {
     }
 }
 
-sub send_info_to_quorum_server {
+=head2 send_gvwstate_to_quorum_mgmt_server
+
+Send the gvwstate information to the quorum management server
+
+=cut
+
+sub send_gvwstate_to_quorum_mgmt_server {
     eval {
         my $gvwstate = "/var/lib/mysql/gvwstate.dat";
         my $myuuid = "unknown";
@@ -373,6 +399,12 @@ sub send_info_to_quorum_server {
     }
 }
 
+=head2 get_gvwstate_info
+
+Get the gvwstate info that has been populated in the cache up to now
+
+=cut
+
 sub get_gvwstate_info {
     my $info = {};
     for my $server (@cluster_servers) {
@@ -381,6 +413,12 @@ sub get_gvwstate_info {
     }
     return $info;
 }
+
+=head2 startup_clean_shutdown
+
+Startup procedure when service was cleanly shutdown
+
+=cut
 
 sub startup_clean_shutdown {
     if(db_available()) {
@@ -415,6 +453,12 @@ sub startup_clean_shutdown {
     }
 }
 
+=head2 startup_dirty_shutdown
+
+Startup procedure when service was shutdown by force
+
+=cut
+
 sub startup_dirty_shutdown {
     if(db_available()) {
         $logger->info("There is a peer with an alive DB. Will attempt to connect to the cluster");
@@ -441,10 +485,17 @@ sub startup_dirty_shutdown {
         } else {
             # All server (including the first one), must report their state to the master
             $logger->info("Not ready to startup, reporting state to master cluster server");
-            send_info_to_quorum_server();
+            send_gvwstate_to_quorum_mgmt_server();
         }
     }
 }
+
+=head2 act_on_quorum_server_data
+
+Get the latest quorum data and startup servers that should be started
+This will only start to act on the servers once it has received the data from all the cluster members
+
+=cut
 
 sub act_on_quorum_server_data {
     my $info = get_gvwstate_info();
@@ -453,6 +504,8 @@ sub act_on_quorum_server_data {
         $logger->info("Collected quorum information from all servers");
         my $latest_host;
         my $latest_timestamp = 0;
+
+        # Finding out the host that had the latest information about the cluster
         while(my ($hostname, $server_info) = each(%$info)) {
             if($server_info->{gvwstate_timestamp} > $latest_timestamp) {
                 $latest_host = $hostname;
@@ -466,12 +519,16 @@ sub act_on_quorum_server_data {
         my $latest_info = $info->{$latest_host};
         while(my ($hostname, $server_info) = each(%$info)) {
             my $uuid = $server_info->{gvwstate_uuid};
-            # If the server should be running and its not currently running
+            # If the server should be running given the latest state of the cluster
             if(any { $_ eq $uuid } @{$latest_info->{gvwstate_members}}) {
+
+                # Server is already alive, nothing to do
                 if(test_db($server_info->{server_mgmt_ip})) {
-                    $logger->info("Server $hostname is already up");
+                    $logger->info("Server $hostname is alive");
                     push @alive, $hostname;
-                } 
+                }
+                # Server is not alive, instruct it to start via the quorum client
+                # Note that once one of the servers will have started, this has little incidence on the cluster as other members will detect one is alive and connect to it
                 else {
                     $logger->info("$hostname was part of the latest gvwstate. Will instruct it to start.");
                     send_to_quorum_client($server_info->{server_mgmt_ip}, {should_start => 1});
@@ -482,6 +539,7 @@ sub act_on_quorum_server_data {
                 send_to_quorum_client($server_info->{server_mgmt_ip}, {should_start => 0});
             }
         }
+        # If one server is alive, its enough to get every server connected together
         if(scalar(@alive) > 0) {
             $logger->info("At least one of the servers was able to start up. Stopping quorum server process");
             $gvwstate_cache->clear();
@@ -492,6 +550,12 @@ sub act_on_quorum_server_data {
         $logger->info("Still missing quorum information for $missing servers. Following servers have reported: ".join(',', keys(%$info)));
     }
 }
+
+=head2 _check_pid
+
+Check if a PID is alive
+
+=cut
 
 sub _check_pid {
     my ($pid) = @_;
@@ -527,8 +591,12 @@ if(pf::cluster::is_in_maintenance) {
     exit;
 }
 
+# Clear the gvwstate on startup
 $gvwstate_cache->clear();
+
+# Do an initial startup
 attempt_start();
+
 while($RUNNING){
     # Quorum server is running so we're attempting to get a quorum
     if(_check_pid($QUORUM_MGMT_SERVER_PID)) {
