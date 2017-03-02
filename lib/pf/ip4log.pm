@@ -10,19 +10,15 @@ pf::ip4log
 
 Class to manage IPv4 address <-> MAC address bindings
 
-Contains the functions necessary to read and manage the DHCPv4
-information gathered by PacketFence on the network.
-
 =cut
 
 use strict;
 use warnings;
 
-use Moose;
-extends 'pf::iplog';
-
+# External libs
 use Date::Parse;
 
+# Internal libs
 use pf::CHI;
 use pf::config qw(
     $management_network
@@ -45,6 +41,7 @@ BEGIN {
     );
 }
 
+
 use constant IP4LOG                         => 'ip4log';
 use constant IP4LOG_CACHE_EXPIRE            => 60;
 use constant IP4LOG_DEFAULT_HISTORY_LIMIT   => '25';
@@ -58,7 +55,7 @@ our $ip4log_db_prepared = 0;
 our $ip4log_statements = {};
 
 sub ip4log_db_prepare {
-    my $logger = get_logger();
+    my $logger = pf::log::get_logger();
     $logger->debug("Preparing pf::ip4log database queries");
 
     # We could have used the ip4log_list_open_by_ip_sql statement but for performances, we enforce the LIMIT 1
@@ -243,7 +240,7 @@ sub ip2mac {
     my ( $ip ) = @_;
     my $logger = pf::log::get_logger;
 
-    unless (valid_ip($ip)) {
+    unless ( pf::util::valid_ip($ip) ) {
         $logger->warn("Trying to match MAC address with an invalid IP address '" . ($ip // "undef") . "'");
         return (0);
     }
@@ -252,7 +249,7 @@ sub ip2mac {
 
     # TODO: Special case that need to be documented
     if (ref($management_network) && $management_network->{'Tip'} eq $ip) {
-        return ( clean_mac("00:11:22:33:44:55") );
+        return ( pf::util::clean_mac("00:11:22:33:44:55") );
     }
 
     # We first query OMAPI since it is the fastest way and more reliable source of info in most cases
@@ -274,7 +271,7 @@ sub ip2mac {
         return (0);
     }
 
-    return clean_mac($mac);
+    return pf::util::clean_mac($mac);
 }
 
 =head2 _ip2mac_omapi
@@ -317,7 +314,7 @@ sub mac2ip {
     my ( $mac ) = @_;
     my $logger = pf::log::get_logger;
 
-    unless (valid_mac($mac)) {
+    unless ( pf::util::valid_mac($mac) ) {
         $logger->warn("Trying to match IP address with an invalid MAC address '" . ($mac // "undef") . "'");
         return (0);
     }
@@ -386,9 +383,9 @@ sub get_history {
 
     $params{'limit'} = defined $params{'limit'} ? $params{'limit'} : IP4LOG_DEFAULT_HISTORY_LIMIT;
 
-    return _history_by_mac($search_by, %params) if ( valid_mac($search_by) );
+    return _history_by_mac($search_by, %params) if ( pf::util::valid_mac($search_by) );
 
-    return _history_by_ip($search_by, %params) if ( valid_ip($search_by) );
+    return _history_by_ip($search_by, %params) if ( pf::util::valid_ip($search_by) );
 }
 
 =head2 get_archive
@@ -543,9 +540,9 @@ sub view {
     my ( $search_by ) = @_;
     my $logger = pf::log::get_logger;
 
-    return _view_by_mac($search_by) if ( defined($search_by) && valid_mac($search_by) );
+    return _view_by_mac($search_by) if ( defined($search_by) && pf::util::valid_mac($search_by) );
 
-    return _view_by_ip($search_by) if ( defined($search_by) && valid_ip($search_by) );
+    return _view_by_ip($search_by) if ( defined($search_by) && pf::util::valid_ip($search_by) );
 
     # Nothing has been returned due to invalid "search" parameter
     $logger->warn("Trying to view an 'ip4log' table entry without a valid parameter '" . ($search_by // "undef") . "'");
@@ -607,9 +604,9 @@ sub list_open {
     my ( $search_by ) = @_;
     my $logger = pf::log::get_logger;
 
-    return _list_open_by_mac($search_by) if ( defined($search_by) && valid_mac($search_by) );
+    return _list_open_by_mac($search_by) if ( defined($search_by) && pf::util::valid_mac($search_by) );
 
-    return _list_open_by_ip($search_by) if ( defined($search_by) && valid_ip($search_by) );
+    return _list_open_by_ip($search_by) if ( defined($search_by) && pf::util::valid_ip($search_by) );
 
     # We are either trying to list all the currently open 'ip4log' table entries or the given parameter was not valid.
     # Either way, we return the complete list
@@ -676,16 +673,16 @@ sub open {
     my $logger = pf::log::get_logger;
 
     # TODO: Should this really belong here ? Is it part of the responsability of ip4log to check that ?
-    if ( !node_exist($mac) ) {
-        node_add_simple($mac);
+    if ( !pf::node::node_exist($mac) ) {
+        pf::node::node_add_simple($mac);
     }
 
-    unless ( valid_ip($ip) ) {
+    unless ( pf::util::valid_ip($ip) ) {
         $logger->warn("Trying to open an 'ip4log' table entry with an invalid IP address '" . ($ip // "undef") . "'");
         return;
     }
 
-    unless ( valid_mac($mac) ) {
+    unless ( pf::util::valid_mac($mac) ) {
         $logger->warn("Trying to open an 'ip4log' table entry with an invalid MAC address '" . ($mac // "undef") . "'");
         return;
     }
@@ -755,7 +752,7 @@ sub close {
     my ( $ip ) = @_;
     my $logger = pf::log::get_logger;
 
-    unless ( valid_ip($ip) ) {
+    unless ( pf::util::valid_ip($ip) ) {
         $logger->warn("Trying to close an 'ip4log' table entry with an invalid IP address '" . ($ip // "undef") . "'");
         return (0);
     }
@@ -772,7 +769,7 @@ sub rotate {
     my $logger = pf::log::get_logger();
 
     $logger->debug("Calling rotate with window='$window_seconds' seconds, batch='$batch', timelimit='$time_limit'");
-    my $now = db_now();
+    my $now = pf::db::db_now();
     my $start_time = time;
     my $end_time;
     my $rows_rotated = 0;
@@ -816,7 +813,7 @@ sub cleanup {
         return;
     }
 
-    my $now = db_now();
+    my $now = pf::db::db_now();
     my $start_time = time;
     my $end_time;
     my $rows_deleted = 0;
@@ -942,7 +939,5 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
-
-__PACKAGE__->meta->make_immutable;
 
 1;
