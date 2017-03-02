@@ -482,8 +482,8 @@ sub act_on_quorum_server_data {
                 send_to_quorum_client($server_info->{server_mgmt_ip}, {should_start => 0});
             }
         }
-        if(scalar(@alive) == scalar(keys(%$info))) {
-            $logger->info("All servers are started. Stopping quorum processes");
+        if(scalar(@alive) > 0) {
+            $logger->info("At least one of the servers was able to start up. Stopping quorum server process");
             $gvwstate_cache->clear();
             kill(SIGTERM, $QUORUM_MGMT_SERVER_PID) if($QUORUM_MGMT_SERVER_PID);
         }
