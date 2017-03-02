@@ -2,7 +2,7 @@ package pf::constants::Connection::Profile;
 
 =head1 NAME
 
-pf::constants::Connection::Profile - constants for Portal::Profile object
+pf::constants::Connection::Profile - constants for Connection::Profile object
 
 =cut
 

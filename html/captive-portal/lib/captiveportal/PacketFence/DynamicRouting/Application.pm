@@ -43,7 +43,7 @@ has 'request' => (is => 'ro', required => 1);
 
 has 'hashed_params' => (is => 'rw');
 
-has 'profile' => (is => 'rw', required => 1, isa => "pf::Portal::Profile");
+has 'profile' => (is => 'rw', required => 1, isa => "pf::Connection::Profile");
 
 has 'template_output' => (is => 'rw');
 

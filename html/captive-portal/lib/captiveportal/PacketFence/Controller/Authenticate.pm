@@ -4,7 +4,7 @@ use Moose;
 use namespace::autoclean;
 use pf::constants;
 use pf::constants::eap_type qw($EAP_TLS);
-use pf::constants::Portal::Profile qw($DEFAULT_PROFILE);
+use pf::constants::Connection::Profile qw($DEFAULT_PROFILE);
 use pf::config qw(%Profiles_Config);;
 use pf::web qw(i18n i18n_format);
 use pf::node;
@@ -94,7 +94,7 @@ sub authenticationLogin : Private {
         my $options = {
             portal => $portal,
         };
-        $profile = pf::Portal::ProfileFactory->instantiate( $mac, $options);
+        $profile = pf::Connection::ProfileFactory->instantiate( $mac, $options);
     }
     $c->stash( profile => $profile );
 
