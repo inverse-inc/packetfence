@@ -162,6 +162,7 @@ sub view {
 
         # Fetch IP information
         $node->{iplog} = pf::ip4log::view($mac);
+        $node->{ip6log} = pf::ip6log::view($mac);
 
         # Fetch the IP activity of the past 14 days
 #        my $start_time = time() - 14 * 24 * 60 * 60;
@@ -182,6 +183,18 @@ sub view {
             my $last_iplog = shift @iplog_history;
             $node->{iplog}->{ip} = $last_iplog->{ip};
             $node->{iplog}->{end_time} = $last_iplog->{end_time};
+        }
+
+        my @ip6log_history = pf::ip6log::get_history($mac);
+        map { $_->{end_time} = '' if ($_->{end_time} eq '0000-00-00 00:00:00') } @ip6log_history;
+        $node->{ip6log}->{history} = \@ip6log_history;
+
+        if ($node->{ip6log}->{'ip'}) {
+            $node->{ip6log}->{active} = 1;
+        } else {
+            my $last_ip6log = shift @ip6log_history;
+            $node->{ip6log}->{ip} = $last_ip6log->{ip};
+            $node->{ip6log}->{end_time} = $last_ip6log->{end_time};
         }
 
         $node->{fingerbank_info} = pf::node::fingerbank_info($mac);

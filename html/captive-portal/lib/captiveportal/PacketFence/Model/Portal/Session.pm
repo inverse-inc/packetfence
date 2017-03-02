@@ -1,7 +1,9 @@
 package captiveportal::PacketFence::Model::Portal::Session;
 use Moose;
 
+use pf::util::IP;
 use pf::ip4log;
+use pf::ip6log;
 use pf::config qw(
     $management_network
     %CAPTIVE_PORTAL
@@ -61,9 +63,9 @@ USA.
 
 =cut
 
-has clientIp => (
+has clientIP => (
     is      => 'rw',
-    builder => '_build_clientIp',
+    builder => '_build_clientIP',
     lazy    => 1,
 );
 
@@ -149,7 +151,7 @@ sub ACCEPT_CONTEXT {
     return $model;
 }
 
-sub _build_clientIp {
+sub _build_clientIP {
     my ($self) = @_;
     my $logger = get_logger();
 
@@ -163,7 +165,7 @@ sub _build_clientIp {
         if(defined($session_ip)){
             $logger->info("Detected external portal client. Using the IP $session_ip address in it's session.");
             Log::Log4perl::MDC->put( 'ip', $session_ip );
-            return $session_ip;
+            return pf::util::IP::detect($session_ip);
         }
         else{
             $logger->error("Tried to compute the IP address from external portal session but found an undefined value");
@@ -182,7 +184,7 @@ sub _build_clientIp {
     if ( ( !$proxied_lookup{$directly_connected_ip} )
         && !( $directly_connected_ip ne '127.0.0.1' ) ) {
         Log::Log4perl::MDC->put( 'ip', $directly_connected_ip );
-        return $directly_connected_ip;
+        return pf::util::IP::detect($directly_connected_ip);
     }
 
     my $forwarded_for = $self->forwardedFor;
@@ -195,7 +197,7 @@ sub _build_clientIp {
             "Remote Address is $directly_connected_ip. Client is behind proxy? "
               . "Returning: $ip according to HTTP Headers" );
         Log::Log4perl::MDC->put( 'ip', $ip);
-        return $ip;
+        return pf::util::IP::detect($ip);
     }
 
     $logger->debug(
@@ -203,31 +205,39 @@ sub _build_clientIp {
 
      );
     Log::Log4perl::MDC->put( 'ip', $directly_connected_ip );
-    return $directly_connected_ip;
+    return pf::util::IP::detect($directly_connected_ip);
 }
 
 sub _build_clientMac {
     my ($self) = @_;
-    my $clientIp = $self->clientIp;
+    my $clientIP = $self->clientIP;
     my $mac;
-    if (defined $clientIp) {
-        $clientIp = clean_ip($clientIp);
+    if (defined $clientIP) {
         while ( my ($network,$network_config) = each %ConfigNetworks ) {
             next unless defined $network_config->{'fake_mac_enabled'} && isenabled($network_config->{'fake_mac_enabled'});
             next if !pf::config::is_network_type_inline($network);
             my $net_addr = NetAddr::IP->new($network,$network_config->{'netmask'});
-            my $ip = new NetAddr::IP::Lite $clientIp;
+            my $ip = new NetAddr::IP::Lite $clientIP->normalizedIP;
             if ($net_addr->contains($ip)) {
                 my $fake_mac = '00:00:' . join(':', map { sprintf("%02x", $_) } split /\./, $ip->addr());
                 my $gateway = $network_config->{'gateway'};
                 locationlog_synchronize($gateway, $gateway, undef, $NO_PORT, $NO_VLAN, $fake_mac, $NO_VOIP, $INLINE);
-                pf::ip4log::open($ip->addr(), $fake_mac);
+                if ( $clientIP->type eq 'ipv6' ) {
+                    pf::ip6log::open($clientIP->normalizedIP, $fake_mac);
+                } else {
+                    pf::ip4log::open($clientIP->normalizedIP, $fake_mac);
+                }
                 $mac = $fake_mac;
                 last;
             }
         }
-        $mac = pf::ip4log::ip2mac( $clientIp ) unless defined $mac;
+        if ( $clientIP->type eq 'ipv6' ) {
+            $mac = pf::ip6log::ip2mac( $clientIP->normalizedIP ) unless defined $mac;
+        } else {
+            $mac = pf::ip4log::ip2mac( $clientIP->normalizedIP ) unless defined $mac;
+        }
     }
+
     Log::Log4perl::MDC->put('mac', $mac) if defined $mac;
     return $mac;
 }
@@ -235,7 +245,7 @@ sub _build_clientMac {
 sub _build_profile {
     my ($self) = @_;
     my $options =  $self->options;
-    $options->{'last_ip'} = $self->clientIp;
+    $options->{'last_ip'} = $self->clientIP->normalizedIP;
     return pf::Portal::ProfileFactory->instantiate( $self->clientMac, $options );
 }
 

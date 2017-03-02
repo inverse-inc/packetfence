@@ -54,7 +54,7 @@ sub index : Path : Args(0) {
             }
             else {
                 my $client = pf::client::getClient();
-                $client->notify('start_scan', ip => $portalSession->clientIp, mac => $portalSession->clientMac);
+                $client->notify('start_scan', ip => $portalSession->clientIP->normalizedIP, mac => $portalSession->clientMac);
                 $c->stash(
                     template => "scan.html",
                     txt_message => "system scan in progress",
