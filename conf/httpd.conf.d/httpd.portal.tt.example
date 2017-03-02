@@ -169,7 +169,6 @@ SetEnvIf User-Agent collectd is_collectd
 User pf
 Group pf
 PerlOptions +GlobalRequest
-ProxyRequests Off
 
 ServerAdmin [% server_admin %]
 
