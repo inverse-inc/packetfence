@@ -393,10 +393,11 @@ Ungraceful shutdown behavior
 
 NOTE: You can know a node was hard-shutdown if `/var/lib/mysql/gvwstate.dat` exists on the node.
 
-All nodes shutdown at the same time
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+If at least one node is still alive, other nodes will be able to connect to it and re-integrate the cluster.
 
-If all of your nodes experience a hard-shutdown or hard-reset (like in the case of a power outage), they will all reconnect gracefully when *all* nodes of the cluster come back up. If only one of the node that was alive at the time of the outage is missing, the cluster will wait for this node to come back and no service will be given during that time. 
+Should all nodes experience an ungraceful shutdown, the management process will start a quorum server on port 7890 in order to collect information from the other nodes about their state when they were last shutdown. Once *every* node has reported its state when it died, the management node will select the latest state (based on the node provided timestamp of `/var/lib/mysql/gvwstate.dat`) and will instruct all members of this state to startup and all members that weren't part of it to leave their MySQL service off. Once all the servers that were in that state are started up, you will gain service on your database and the quorum server will shutdown. The nodes that were left off will detect that there is another node offering database service and will connect to it.
+
+If one or more of the nodes was gracefully shutdown, this process will not work and you will need to elect one of the nodes manually as the master with `/usr/local/pf/sbin/pf-mariadb --force-new-cluster` while making sure you delete `/var/lib/mysql/gvwstate.dat` on all the servers. Given the different amount of cases that can occur, selecting the node to elect as master is not documented in this guide. You should ensure you are electing the node with the latest data.
 
 Recovering when a node is missing
 +++++++++++++++++++++++++++++++++
@@ -411,16 +412,7 @@ Then remove `/var/lib/mysql/gvwstate.dat` on all the servers that are still aliv
 
 Then, if the management node is part of the alive nodes, start all of your servers and the management node will make sure to establish a new cluster. Note that this process can take up to 5 minutes to occur and will only occur if more than 50% of the nodes are alive (pingable).
 
-If the management node is not part of the alive nodes, select one of the servers of your cluster and create a new cluster using `/usr/local/pf/bin/mariadb --force-new-cluster`. Wait for another server to connect to this new cluster, break the command and start packetfence-mariadb like you normally would.
-
-All nodes shutdown with an interval
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Should all nodes be shutdown with an interval (even if it is in seconds), they will not be able to reconnect automatically using the Galera cluster stack.
-
-The cluster will attempt to automatically recover using this strategy:
-
-'TBD'
+If the management node is not part of the alive nodes, select one of the servers of your cluster and create a new cluster using `/usr/local/pf/sbin/pf-mariadb --force-new-cluster`. Wait for another server to connect to this new cluster, break the command and start packetfence-mariadb like you normally would.
 
 Putting a node in maintenance
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
