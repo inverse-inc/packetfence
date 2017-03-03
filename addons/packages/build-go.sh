@@ -60,22 +60,22 @@ trap cleanup EXIT
 cd "$GOPATH"
 GOPATHPF="$GOPATH/src/github.com/inverse-inc/packetfence"
 mkdir -p $GOPATHPF
-cp -a $PFSRC/* "$GOPATHPF/"
+
+find $PFSRC -maxdepth 1 -type d ! -name 'logs' ! -name 'var' ! -name 'pf' -exec cp -a {} "$GOPATHPF/" \;
 
 cd "$GOPATHPF"
 
 cd go
 
-if build_mode; then
-  #TODO: replace with vendoring solution
-  go get ./...
+# Install the dependencies
+go get -u github.com/kardianos/govendor
+govendor sync
 
+if build_mode; then
   # Create any binaries here and make sure to move them to the BINDST specified
   make pfhttpd
   mv pfhttpd $BINDST/
 elif test_mode; then
-  #TODO: replace with vendoring solution
-  go get -t ./...
-  PFCONFIG_TESTING=y go test ./...  
+  PFCONFIG_TESTING=y govendor test ./...  
 fi
 
