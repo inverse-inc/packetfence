@@ -1,7 +1,7 @@
 [Unit]
 Description=PacketFence Iptables configuration
-Wants=packetfence-config.service
-After=packetfence-config.service
+Wants=packetfence-haproxy.service packetfence-config.service
+After=packetfence-haproxy.service packetfence-config.service
 
 [Service]
 StandardOutput=syslog
