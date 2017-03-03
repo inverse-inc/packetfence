@@ -20,6 +20,7 @@ use Readonly;
 
 # Internal libs
 use pf::constants;
+use pf::db();
 use pf::ip6log();
 use pf::log();
 use pf::util::dhcpv6();
@@ -122,6 +123,11 @@ Readonly::Hash my %OPTION_TYPE_ATTRIBUTES => (
 sub process_packet {
     my ( $self, $udp_payload ) = @_;
     my $logger = pf::log::get_logger();
+
+    if ( pf::db::db_check_readonly() ) {
+        $logger->trace("The database is in readonly mode skipping processing the database");
+        return;
+    }
 
     # The payload is sent in base 64
     $udp_payload = MIME::Base64::decode($udp_payload);
