@@ -13,7 +13,8 @@ sub TO_JSON {
     my $o = {
        ip => $self->{Tip}, 
        ip_int => $self->{IBASE},
-       mask => $self->{BITS},
+       # Golang pfconfig driver expects this to be a string
+       mask => $self->{BITS}."",
        int => $self->{Tint},
     };
     $o->{vip} = $self->{Tvip} if(defined($self->{Tvip}));
