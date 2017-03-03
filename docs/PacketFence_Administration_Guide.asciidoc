@@ -3442,7 +3442,7 @@ Usage
 Guest self-registration
 +++++++++++++++++++++++
 
-Self-registration is enabled by default. It is part of the captive connection profile and can be accessed on the registration page by clicking the *Sign up* link.
+Self-registration is enabled by default. It is part of the connection profile and can be accessed on the registration page by clicking the *Sign up* link.
 
 image::docs/images/screenshot-captive-portal.png[alt="Captive portal screenshot"]
 
