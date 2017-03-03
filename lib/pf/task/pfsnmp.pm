@@ -88,7 +88,6 @@ our %TRAP_HANDLERS = (
     mac                           => \&handleMacTrap,
     down                          => \&handleDownTrap,
     roaming                       => \&handleRoamingTrap,
-    wirelessIPS                   => \&handleWirelessIPS,
     dot11Deauthentication         => \&handleDot11DeauthenticationTrap,
     secureMacAddrViolation        => \&handleSecureMacAddrViolationTrap,
 );
@@ -690,61 +689,6 @@ sub handleSecureMacAddrViolationTrap {
         }
     }
 
-}
-
-=head2 handleWirelessIPS
-
-handle a wirelessIPS trap for a switch
-
-=cut
-
-sub handleWirelessIPS {
-    return if (isdisabled($Config{'trapping'}{'wireless_ips'}));
-    my ($self, $switch, $trap) = @_;
-    my $trapMac = clean_mac($trap->{trapMac});
-
-    # Grab the OUI part
-    $trapMac =~ /^([0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}).*$/;
-    my $mac   = $1;
-    my @nodes = node_search($mac);
-    unless($nodes[0]) {
-        $logger->info("WIPS: Cannot find a valid match for $trapMac in the database, do nothing");
-        return;
-    }
-
-    #compare the strings, and output the percentage of match
-    my $match;
-    my %matchingNodes;
-    my $threshold = $Config{'trapping'}{'wireless_ips_threshold'};
-
-    foreach (@nodes) {
-        for (my $i = 8 ; $i <= length($trapMac) ; $i++) {
-            $match = substr($trapMac, 1, $i);
-
-            if ($_ !~ /$match/) {
-                my $percent = ($i / 16) * 100;
-                my $rounded = floor(floor($percent) / 5) * 5;
-                if ($rounded >= $threshold) {
-                    $matchingNodes{$_} = $rounded;
-                }
-                else {
-                    $logger->info(
-"WIPS: Found a valid MAC $_ , but the reliability is below the configured threshold, do nothing"
-                    );
-                }
-                last;
-            }
-        }
-    }
-
-    #TODO
-    #For each matching nodes, fire an internal WIDS violation
-    foreach my $keys (keys %matchingNodes) {
-        $logger->info("We will isolate $keys, threshold is $matchingNodes{$keys} percent");
-        violation_trigger({'mac' => $keys, 'tid' => $WIPS_VID, 'type' => 'INTERNAL'});
-    }
-
-    return;
 }
 
 =head2 do_port_security
