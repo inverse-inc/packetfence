@@ -15,7 +15,45 @@ Base class for processing DHCP packets
 use strict;
 use warnings;
 
+# External libs
+use Readonly;
+
+# Internal libs
+use pf::fingerbank;
+use pf::log;
+use pf::node;
+
 use Moose;
+
+
+Readonly::Hash my %FINGERBANK_ATTRIBUTES_MAP => (
+    client_mac              => 'mac',
+    ipv6_enterprise_number  => 'dhcp6_enterprise',
+    ipv6_requested_options  => 'dhcp6_fingerprint',
+    ipv6_vendor             => 'dhcp_vendor',
+);
+
+
+sub processFingerbank {
+    my ( $self, $attributes ) = @_;
+    my $logger = pf::log::get_logger();
+
+    my $fingerbank_args = {};
+    foreach my $key ( keys %{$attributes} ) {
+        if ( exists $FINGERBANK_ATTRIBUTES_MAP{$key} ) {
+            if ( ref($attributes->{$key}) eq 'ARRAY' ) {
+                $fingerbank_args->{$FINGERBANK_ATTRIBUTES_MAP{$key}} = join ',', @{$attributes->{$key}};
+            }
+            else {
+                $fingerbank_args->{$FINGERBANK_ATTRIBUTES_MAP{$key}} = $attributes->{$key};
+            }
+        }
+    }
+
+    pf::fingerbank::process($fingerbank_args);
+
+    pf::node::node_modify($fingerbank_args->{'mac'}, %{$fingerbank_args});
+}
 
 
 =head1 AUTHOR
