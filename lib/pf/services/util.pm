@@ -102,10 +102,12 @@ sub createpid {
 }
 
 sub deletepid {
-    my ($pname) = @_;
-    $pname = basename($0) if ( !$pname );
-    my $pidfile = $var_dir . "/run/$pname.pid";
-    unlink($pidfile) || return (-1);
+    my ($pname, $pidfile) = @_;
+    unless ($pidfile) {
+        $pname = basename($0) if ( !$pname );
+        $pidfile = $var_dir . "/run/$pname.pid";
+        unlink($pidfile) || return (-1);
+    }
     return (1);
 }
 
