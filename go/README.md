@@ -7,6 +7,12 @@ This is an initial draft on how to setup/use the PacketFence Golang libraries.
 
 First you must install Golang via the normal instructions (https://golang.org/doc/install) and setup your GOPATH correctly.
 
+In order to know which version of go you should be using, you can inspect one of the binaries that was provided with the PacketFence package:
+
+```
+strings /usr/local/pf/bin/pfhttpd | egrep -o 'go[0-9]+\.[0-9]+\.[0-9]+'
+```
+
 Assuming you installed your git repo in /usr/local/pf, you should then symlink /usr/local/pf/go to $GOPATH/src/github.com/inverse-inc/packetfence/go using:
 
 ```
@@ -17,11 +23,19 @@ Once that is done, you should be working in $GOPATH/src/github.com/inverse-inc/p
 
 ## Pulling the dependencies
 
-Dependencies should be pulled using 'go get' for now until we decide on a proper vendoring. In order to pull the dependencieS
+Dependencies should be pulled using 'govendor' which is used for dependency management.
+
+In order to install govendor:
+
+```
+# go get -u github.com/kardianos/govendor
+```
+
+Then pull the dependencies of PacketFence:
 
 ```
 # cd $GOPATH/src/github.com/inverse-inc/packetfence/go
-# go get ./...
+# govendor sync
 ```
 
 ## Building the code
@@ -55,7 +69,7 @@ localhost:1234 {
 }
 ```
 
-This file should be put in `/usr/local/pf/conf/caddy-services/NAME-OF-SERVICE.conf`
+This file should be put in `/usr/local/pf/conf/caddy-services/pfexample.conf`
 
 Note how you can control the logger configuration from the Caddyfile. If your middleware (in this example pfsso) uses or calls the logger, you *must* declare it in your Caddyfile.
 
@@ -64,7 +78,7 @@ If your middleware uses statsd, you don't have to configure statsd in your Caddy
 You can start pfhttpd with your Caddyfile using the following command:
 
 ```
-# /usr/local/pf/bin/pfhttpd -conf /usr/local/pf/conf/caddy-services/pfsso.conf
+# /usr/local/pf/bin/pfhttpd -conf /usr/local/pf/conf/caddy-services/pfexample.conf
 ```
 
 Once you have ascertained that the service is working correctly, you need to create an instance of pf::services::manager for it. You will also need to create a unitfile for it in conf/systemd like the following:
@@ -74,7 +88,7 @@ Once you have ascertained that the service is working correctly, you need to cre
 Description=PacketFence Example Service
 Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
 After=packetfence-base.target packetfence-config.service packetfence-iptables.service
-Before=packetfence-pfdhcplistener.service
+Before=packetfence-pfexample.service
 
 [Service]
 PIDFile=/usr/local/pf/var/run/pfexample.pid
@@ -98,19 +112,15 @@ In order to start the test pfconfig process:
 # cd /usr/local/pf/t && ./pfconfig-test
 ```
 
+In order to test while taking vendoring into consideration, you need to call govendor instead of go to execute the tests.
+
 Then you can proceed to execute all or some of the Golang unit tests:
 
 ```
 # cd $GOPATH/src/github.com/inverse-inc/packetfence/go
-# go test ./...
+# govendor test ./...
 
 # cd $GOPATH/src/github.com/inverse-inc/packetfence/go/firewallsso/lib
-# go test
+# govendor test
 ```
-
-## TODO
-
- * Integrate with pfconfig namespace expiration (for now any config change requires a restart)
- * Integrate a vendoring solution
- * A lot more things I'm sure...
 
