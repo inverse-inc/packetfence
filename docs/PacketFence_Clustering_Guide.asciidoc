@@ -397,7 +397,7 @@ If at least one node is still alive, other nodes will be able to connect to it a
 
 Should all nodes experience an ungraceful shutdown, the management process will start a quorum server on port 7890 in order to collect information from the other nodes about their state when they were last shutdown. Once *every* node has reported its state when it died, the management node will select the latest state (based on the node provided timestamp of `/var/lib/mysql/gvwstate.dat`) and will instruct all members of this state to startup and all members that weren't part of it to leave their MySQL service off. Once all the servers that were in that state are started up, you will gain service on your database and the quorum server will shutdown. The nodes that were left off will detect that there is another node offering database service and will connect to it.
 
-If one or more of the nodes was gracefully shutdown, this process will not work and you will need to elect one of the nodes manually as the master with `/usr/local/pf/sbin/pf-mariadb --force-new-cluster` while making sure you delete `/var/lib/mysql/gvwstate.dat` on all the servers. Given the different amount of cases that can occur, selecting the node to elect as master is not documented in this guide. You should ensure you are electing the node with the latest data.
+If one or more of the nodes was gracefully shutdown, this process will not work and you will need to elect one of the nodes manually as the master with `/usr/local/pf/sbin/pf-mariadb --force-new-cluster` while making sure you delete `/var/lib/mysql/gvwstate.dat` on all the servers. Given the different amount of cases that can occur, selecting the node to elect as master is not documented in this guide. You can refer to the section 'Electing a new master' when you know which node you want to elect.
 
 Recovering when a node is missing
 +++++++++++++++++++++++++++++++++
@@ -412,7 +412,40 @@ Then remove `/var/lib/mysql/gvwstate.dat` on all the servers that are still aliv
 
 Then, if the management node is part of the alive nodes, start all of your servers and the management node will make sure to establish a new cluster. Note that this process can take up to 5 minutes to occur and will only occur if more than 50% of the nodes are alive (pingable).
 
-If the management node is not part of the alive nodes, select one of the servers of your cluster and create a new cluster using `/usr/local/pf/sbin/pf-mariadb --force-new-cluster`. Wait for another server to connect to this new cluster, break the command and start packetfence-mariadb like you normally would.
+If the management node is not part of the alive nodes, see the section 'Electing a new master' to start up a new cluster.
+
+Electing a new master
+~~~~~~~~~~~~~~~~~~~~~
+
+CAUTION: Before doing this, we suggest you are confortable working with the MariaDB Galera cluster stack in order to fix potential conflicts that arise from this procedure.
+
+At any time, you can start up a new cluster without the management node which is the source of truth by default. In order to do so, execute: `/usr/local/pf/sbin/pf-mariadb --force-new-cluster`. 
+Wait for another server to connect to this new cluster, break the command and start packetfence-mariadb like you normally would.
+
+Note that if your management node is alive, but not communicating with the new master node, then it will create a new cluster on its side automatically unless it is in maintenance mode. When electing a new cluster, you should ensure your management has (or will have when its alive) valid communication with the newly promoted cluster. Otherwise, you will end up in a split brain situation. See 'Recovering from a split brain' to fix this.
+
+
+Recovering from a split brain
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you leave the cluster in auto-recovery mode without electing a master manually, the structure of the cluster is made so that a split-brain can never occur since a server will fallback in read-only if it can't join a primary view (quorum).
+
+Should you decide to elect a new master and cause a split-brain for crash recovery purpose, you will have to wipe the data on all the servers that are part of one side of the split brain. This should be done once all the servers have re-gained communication.
+
+On each of the discarded servers
+++++++++++++++++++++++++++++++++
+
+First, stop packetfence-mariadb on *all* the servers you want to discard data from.
+
+  service packetfence-mariadb stop
+
+On each of the servers you want to discard the data from, you must destroy all the data in `/var/lib/mysql` and start packetfence-mariadb so it resyncs its data from scratch.
+
+  rm -fr /var/lib/mysql/*
+  service packetfence-mariadb start
+
+You should then see `/var/lib/mysql` be populated again with the data and once MySQL becomes available again on the server, it means the sync has completed. In case of issues, look in the MySQL log file (`/var/lib/mysql/PF_HOSTNAME.err`)
+
 
 Putting a node in maintenance
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
