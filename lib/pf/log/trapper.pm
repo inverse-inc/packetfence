@@ -40,6 +40,8 @@ sub PRINTF {
     $self->PRINT($buf);
 }
 
+sub FILENO { undef }
+
 =head2 CLOSE
 
 CLOSE is a noop just returns 1
