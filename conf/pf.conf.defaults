@@ -10,11 +10,6 @@ domain=packetfence.org
 # Hostname of PacketFence system.  This is concatenated with the domain in Apache rewriting rules and therefore must be resolvable by clients.
 hostname=packetfence
 #
-# general.dnsservers
-#
-# Comma-delimited list of DNS servers.  Passthroughs are created to allow queries to these servers from even "trapped" nodes.
-dnsservers=127.0.0.1
-#
 # general.dhcpservers
 #
 # Comma-delimited list of DHCP servers.  Passthroughs are created to allow DHCP transactions from even "trapped" nodes.
@@ -97,12 +92,6 @@ tools/stinger.exe=http://download.nai.com/products/mcafee-avert/stng260.exe
 
 [trapping]
 #
-# trapping.registration
-#
-# If enabled, nodes will be required to register on first network access.  Further registration options are configured in the 
-# registration section.
-registration=enabled
-#
 # trapping.redirtimer
 #
 # How long to display the progress bar during trap release. Default value is 
@@ -124,36 +113,11 @@ wait_for_redirect = 1
 # registered. This "feature" will probably be reworked in the future.
 whitelist=
 #
-# trapping.detection
-#
-# Enables snort-based worm detection.  If you don't have a span interface available, don't bother enabling it.  If you do, 
-# you'll most definately want this on.
-detection=disabled
-
-#
-# trapping.detection_engine
-#
-# Let you choose from our supported IDS: snort or suricata
-#
-detection_engine=snort
-#
 # trapping.range
 #
 # Comma-delimited list of address ranges/CIDR blocks that Snort/Suricata will monitor/detect/trap on.  Gateway, network, and 
 # broadcast addresses are ignored.
 range=
-
-#
-# trapping.wireless_ips
-#
-# Enable wids trapping detection
-wireless_ips=disabled
-
-#
-# Set the threshold for wids
-#
-wireless_ips_threshold=90
-
 #
 # trapping.passthrough
 #
@@ -677,16 +641,6 @@ trap_limit_action =
 
 [inline]
 #
-# inline.ports_redirect
-#
-# Ports to intercept and redirect for trapped and unregistered systems.  Defaults to 80/tcp (HTTP), 443/tcp (HTTPS).
-# Redirecting 443/tcp (SSL) will work, although users might get certificate errors if you didn't install a valid 
-# certificate or if you don't use DNS (although IP-based certificates supposedly exist)
-# Redirecting 53/udp (DNS) seems to have issues and is also not recommended.
-# We also have experimental IMAP and POP3 listeners which give fake emails telling users to open their browsers.
-# Enable them via the ports.listeners parameter and add the IMAP (143/tcp) and POP3 (110/tcp) here.
-ports_redirect=80/tcp,443/tcp
-#
 # inline.should_reauth_on_vlan_change
 # Should have to reauthenticate the node if it change vlan
 should_reauth_on_vlan_change = disabled
@@ -694,45 +648,6 @@ should_reauth_on_vlan_change = disabled
 # inline.interfaceSNAT
 # Choose the interface(s) you want to use to enable snat (by default it´s the management interface)
 interfaceSNAT=
-
-# inline.accounting
-#
-# Should we handle accouting data for inline clients?
-# This controls inline accouting tasks in pfmon.
-accounting = disabled
-
-# inline.layer3_accounting_session_timeout
-#
-# Accounting 'sessions' created by pfbandwidthd (level 3 traffic only) that haven't been updated for more than this
-# amount of seconds will be considered inactive.
-# This should be higher than the interval at which pfmon runs
-# Defaults to 300 - 5 minutes
-layer3_accounting_session_timeout = 300
-
-# inline.layer3_accounting_sync_interval
-#
-# Interval at which pfbandwidthd (level 3 traffic only) should dump collected information into the database.
-# This should be lower than the interval at which pfmon runs
-# Defaults to 41 seconds
-layer3_accounting_sync_interval = 41
-
-[servicewatch]
-#
-# servicewatch.email
-#
-# Should pfcmd service pf watch send an email if services are not running?
-# You must make sure to call the watch command. Installing it in the cron is the
-# recommended approach:
-# */5 * * * * /usr/local/pf/bin/pfcmd service pf watch
-email=enabled
-#
-# servicewatch.restart
-#
-# Should pfcmd service pf watch restart PF if services are not running?
-# You must make sure to call the watch command. Installing it in the cron is the
-# recommended approach:
-# */5 * * * * /usr/local/pf/bin/pfcmd service pf watch
-restart=disabled
 
 [captive_portal]
 #
@@ -813,11 +728,6 @@ wispr_redirection = enabled
 # Language choice for the communication with administrators
 language=en_US
 #
-# advanced.reevaluate_access_reasons
-#
-# After which calls to pfcmd do we have to re-evaluate the state of a node and re-assign VLAN or change iptables rules
-reevaluate_access_reasons=node_modify,manage_register,manage_deregister,manage_vclose,manage_vopen,violation_modify,violation_add,violation_delete,redir.cgi,pfcmd_vlan,admin_modify
-#
 # advanced.sso_on_access_reevaluation
 #
 # Trigger Single-Sign-On (Firewall SSO) on access reevaluation
@@ -828,21 +738,6 @@ sso_on_access_reevaluation=disabled
 # Record the accounting data in the SQL tables.
 # Requires a restart of radiusd to be effective.
 record_accounting_in_sql=enabled
-#
-# advanced.pfcmd_error_color
-#
-# Color of the error text for pfcmd
-pfcmd_error_color=red
-#
-# advanced.pfcmd_warning_color
-#
-# Color of the warning text for pfcmd
-pfcmd_warning_color=yellow
-#
-# advanced.pfcmd_success_color
-#
-# Color of the success text for pfcmd
-pfcmd_success_color=green
 #
 # advanced.hash_passwords
 #
