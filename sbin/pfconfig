@@ -229,8 +229,7 @@ sub get_hash_element {
             $elem = {element => $sub_elem};
         }
         else{
-            print STDERR "Unknown key $query->{key}";
-            $logger->error("Unknown key $query->{key}");
+            $logger->debug("Unknown key $query->{key}");
             $elem = undef;
         }
     }
@@ -248,8 +247,7 @@ sub get_from_cache_or_croak {
         return $elem;
     }
     else{
-        print STDERR "Unknown key in cache $key \n";
-        $logger->error("Unknown key $key");
+        $logger->debug("Unknown key $key");
         send_output(undef, $socket);
         return undef;
     }
