@@ -14,11 +14,13 @@ Overrides the the location of config files to help with testing
 
 use strict;
 use warnings;
+use File::FcntlLock;
 
 use lib "/usr/local/pf/lib";
 
 our $PFCONFIG_TEST_PID_FILE = "/usr/local/pf/var/run/pfconfig-test.pid";
 our $test_dir;
+our $PFCONFIG_RUNNER;
 
 BEGIN {
     use File::Spec::Functions qw(catfile catdir rel2abs);
@@ -28,6 +30,7 @@ BEGIN {
 
     $test_dir = rel2abs(dirname($INC{'test_paths.pm'})) if exists $INC{'test_paths.pm'};
     $test_dir ||= catdir($install_dir,'t');
+    $PFCONFIG_RUNNER = catdir($test_dir, 'pfconfig-test'); 
     $pf::file_paths::switches_config_file = catfile($test_dir,'data/switches.conf');
     $pf::file_paths::admin_roles_config_file = catfile($test_dir,'data/admin_roles.conf');
     $pf::file_paths::chi_config_file = catfile($test_dir,'data/chi.conf');
@@ -48,6 +51,26 @@ BEGIN {
 
 
 }
+
+sub testIfFileUnlock {
+    my ($filename) = @_;
+    my $fs = File::FcntlLock->new(
+        l_type   => F_WRLCK,
+        l_whence => SEEK_SET,
+        l_start => 0,
+        l_len => 0,
+    );
+    my $fh;
+    unless (open( $fh, "+>>", $filename)) {
+        return undef;
+    }
+    my $result = $fs->lock($fh, F_GETLK); 
+    unless ($result) {
+        return undef;
+    }
+    return $fs->l_type == F_UNLCK;
+}
+
 
 =head1 AUTHOR
 
