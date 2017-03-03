@@ -57,7 +57,6 @@ our %ALLOWED_SECTIONS = (
     services => undef,
     vlan => undef,
     inline => undef,
-    servicewatch => undef,
     captive_portal => undef,
     advanced => undef,
     provisioning => undef,

@@ -1030,7 +1030,7 @@ sub connection_profiles {
 
     my $profile_params = qr/(?:locale |filter|logo|guest_self_reg|guest_modes|template_path|
         billing_tiers|description|sources|redirecturl|always_use_redirecturl|
-        nbregpages|allowed_devices|allow_android_devices|
+        allowed_devices|allow_android_devices|
         reuse_dot1x_credentials|provisioners|filter_match_style|sms_pin_retry_limit|
         sms_request_limit|login_attempt_limit|block_interval|dot1x_recompute_role_from_portal|scan|root_module|preregistration|autoregister|access_registration_when_registered)/x;
     my $validator = pf::validation::profile_filters->new;
