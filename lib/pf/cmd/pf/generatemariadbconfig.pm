@@ -47,7 +47,7 @@ sub _run {
         table_cache => $Config{database}{table_cache},
         max_allowed_packet => $Config{database}{max_allowed_packet},
         thread_cache_size => $Config{database}{thread_cache_size},
-        server_ip => $management_network->{Tvip} // $management_network->{Tip},
+        server_ip => $management_network ? $management_network->{Tvip} // $management_network->{Tip} : "",
     );
 
     if($cluster_enabled) {

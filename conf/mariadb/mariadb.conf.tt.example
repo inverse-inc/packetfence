@@ -11,7 +11,12 @@
 # this is only for the mysqld standalone daemon
 [mysqld]
 
+[% IF server_ip.length %]
 bind-address=[% server_ip %]
+[% ELSE %]
+skip-networking
+bind-address=
+[% END %]
 port    = 3306
 socket    = /var/lib/mysql/mysql.sock
 skip-external-locking
