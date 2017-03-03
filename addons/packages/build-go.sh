@@ -68,7 +68,8 @@ cd "$GOPATHPF"
 cd go
 
 # Install the dependencies
-govendor sync
+go get -u github.com/kardianos/govendor
+$GOPATH/bin/govendor sync
 
 if build_mode; then
   # Create any binaries here and make sure to move them to the BINDST specified
