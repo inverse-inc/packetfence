@@ -76,6 +76,6 @@ if build_mode; then
   make pfhttpd
   mv pfhttpd $BINDST/
 elif test_mode; then
-  PFCONFIG_TESTING=y govendor test ./...  
+  PFCONFIG_TESTING=y $GOPATH/bin/govendor test ./...  
 fi
 
