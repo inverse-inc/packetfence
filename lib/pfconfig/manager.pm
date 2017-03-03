@@ -343,7 +343,7 @@ sub is_valid {
         return 1;
     }
     else {
-        $logger->info("Memory configuration is not valid anymore for key $what");
+        $logger->debug("Memory configuration is not valid anymore for key $what");
         return 0;
     }
 }

@@ -250,7 +250,7 @@ sub is_valid {
         return 1;
     }
     else {
-        $logger->info("Memory configuration is not valid anymore for key $what in local cached_hash");
+        $logger->debug("Memory configuration is not valid anymore for key $what in local cached_hash");
         return 0;
     }
 }
