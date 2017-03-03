@@ -207,7 +207,7 @@ backend $cluster_ip-backend
         acl flag_abuser src_inc_gpc0(portal-http-$cluster_ip) --
         acl abuse  src_http_req_rate(portal-https-$cluster_ip) ge 20
         acl flag_abuser src_inc_gpc0(portal-https-$cluster_ip) --
-        http-response deny if abuse status_501 flag_abuse
+        http-response deny if abuse status_501 flag_abuser
 $backend_ip_config
 EOT
 
