@@ -76,8 +76,6 @@ Then, you will need to create a user for the database replication that PacketFen
 
 Next, you need to remove the empty users from your MySQL database:
 
-#TODO WHY?
-
   # mysql -u root -p
     mysql> delete from mysql.user where user = '' ;
     mysql> flush privileges;
@@ -87,7 +85,7 @@ Step 2 : Server configuration
 
 First, you need to make sure the interfaces name will be the same on all servers. See 'Setting the interfaces name on CentOS 7' in the Appendix section of this document if all your servers don't already have the same interface names.
 
-Next, you will need to configure the server so the services can bind on IP addresses they don't currently have configured. This allows faster failover of the services.
+Next, you will need to configure each server so the services can bind on IP addresses they don't currently have configured. This allows faster failover of the services.
 
 On all your servers, add the following line in `/etc/sysctl.conf` and then reload with 'sysctl -p'
 
@@ -106,6 +104,10 @@ Going through the configurator
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Now, on the first server of your cluster, you should go through the configurator, configuring the server as if it was in standalone (no HA interfaces). You should leave the services stopped at the end of the configurator.
+
+Then restart PacketFence's mariadb on the first server:
+
+  # service packetfence-mariadb restart
 
 On the other servers of your cluster, configure only the network interfaces without going past that section in the configurator. If the other servers already have the right IP addresses configured on their interfaces, you can ignore this step.
 
@@ -317,7 +319,7 @@ Make sure that this server is binding to it's own management address. If it's no
 MariaDB sync
 ^^^^^^^^^^^^
 
-First, ensure you now start packetfence-mariadb. Again this can take up to 5 minutes to start since its an initial cluster creation.
+First, ensure you now start packetfence-mariadb on the first server. Again this can take up to 5 minutes to start since its an initial cluster creation.
 
   service packetfence-mariadb start
 
