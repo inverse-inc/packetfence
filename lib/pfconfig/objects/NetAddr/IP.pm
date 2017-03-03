@@ -13,7 +13,8 @@ sub TO_JSON {
     my ($self) = @_;
     my $o = {
        ip => $self->addr(), 
-       mask => $self->mask(),
+       # The golang driver excepts this to be a string
+       mask => $self->mask()."",
        cidr => $self->cidr(),
     };
     return $o;
