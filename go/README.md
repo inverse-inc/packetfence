@@ -16,7 +16,7 @@ strings /usr/local/pf/bin/pfhttpd | egrep -o 'go[0-9]+\.[0-9]+\.[0-9]+'
 Assuming you installed your git repo in /usr/local/pf, you should then symlink /usr/local/pf/go to $GOPATH/src/github.com/inverse-inc/packetfence/go using:
 
 ```
-# ln -s $GOPATH/src/github.com/inverse-inc/packetfence/go /usr/local/pf/go
+# ln -s /usr/local/pf/go $GOPATH/src/github.com/inverse-inc/packetfence/go
 ```
 
 Once that is done, you should be working in $GOPATH/src/github.com/inverse-inc/packetfence/go and not /usr/local/pf/go so that Golang commands work correctly (they tend to misbehave outside of the GOPATH)
