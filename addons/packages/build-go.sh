@@ -68,7 +68,6 @@ cd "$GOPATHPF"
 cd go
 
 # Install the dependencies
-go get -u github.com/kardianos/govendor
 govendor sync
 
 if build_mode; then
