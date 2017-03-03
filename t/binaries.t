@@ -13,6 +13,7 @@ use strict;
 use warnings;
 
 use Test::More;
+use Test::ParallelSubtest max_parallel => 4;
 use Test::NoWarnings;
 
 BEGIN {
@@ -34,7 +35,10 @@ foreach my $current_binary (@binaries) {
     if ($current_binary =~ m#/usr/local/pf/bin/pfcmd\.pl#) {
         $flags = '-T';
     }
-    is( system("/usr/bin/perl $flags -c $current_binary 2>&1"), 0, "$current_binary compiles" );
+    bg_subtest "$current_binary" => sub {
+        plan tests => 1;
+        is( system("/usr/bin/perl $flags -c $current_binary 2>&1"), 0, "$current_binary compiles" );
+    };
 }
 
 =head1 AUTHOR
