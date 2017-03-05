@@ -24,7 +24,7 @@ use lib qw(/usr/local/pf/t);
 use TestUtils;
 
 my $formatter   = TAP::Formatter::Console->new({jobs => 4});
-my $ser_harness = TAP::Harness->new( { formatter => $formatter, jobs => 4 } );
+my $ser_harness = TAP::Harness->new( { formatter => $formatter, jobs => 6 } );
 my $par_harness = TAP::Harness->new(
     {   formatter => $formatter,
         jobs      => 4
