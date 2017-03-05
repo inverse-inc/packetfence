@@ -1,0 +1,212 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+pfdetect_SO - listen to snort alerts and create PF violations
+
+=head1 SYNOPSIS
+
+pfdetect_SO -p <snortpipe> [options]
+
+ Options:
+   -d     Daemonize
+   -h     Help
+
+=cut
+
+use strict;
+use warnings;
+use English qw( ‐no_match_vars ) ;  # Avoids regex performance penalty
+use File::Basename qw(basename);
+use File::Tail;
+use Getopt::Std;
+use Log::Log4perl;
+use Pod::Usage;
+use POSIX qw(:signal_h);
+
+use constant INSTALL_DIR => '/usr/local/pf';
+
+use lib INSTALL_DIR . "/lib";
+use pf::action;
+use pf::class;
+use pf::config;
+use pf::config::cached;
+use pf::db;
+use pf::iplog;
+use pf::node;
+use pf::os;
+use pf::person;
+use pf::trigger;
+use pf::util;
+use pf::violation;
+
+
+# initialization
+# --------------
+# assign process name (see #1464)
+$PROGRAM_NAME = basename($PROGRAM_NAME);
+
+# log4perl init
+Log::Log4perl->init_and_watch( INSTALL_DIR . "/conf/log.conf", $LOG4PERL_RELOAD_TIMER );
+my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
+Log::Log4perl::MDC->put( 'proc', basename($PROGRAM_NAME) );
+Log::Log4perl::MDC->put( 'tid',  $PID );
+
+# init signal handlers
+POSIX::sigaction(
+    &POSIX::SIGHUP,
+    POSIX::SigAction->new(
+        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
+) or $logger->logdie("pfdetect_SO: could not set SIGHUP handler: $!");
+
+POSIX::sigaction(
+    &POSIX::SIGTERM,
+    POSIX::SigAction->new(
+        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
+) or $logger->logdie("pfdetect_SO: could not set SIGTERM handler: $!");
+
+POSIX::sigaction(
+    &POSIX::SIGINT,
+    POSIX::SigAction->new(
+        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
+) or $logger->logdie("pfdetect_SO: could not set SIGINT handler: $!");
+
+
+my @ORIG_ARGV = @ARGV;
+my %args;
+getopts( 'dhp:', \%args );
+
+my $daemonize = $args{d};
+my $snortpipe = $args{p};
+my $snortpipe_fh;
+
+pod2usage( -verbose => 1 ) if ( $args{h} || !$args{p} );
+
+my ($line, $sid, $descr, $priority, $date, $srcmac, $srcip, $dstip);
+
+daemonize() if ($daemonize);
+
+$logger->info("initialized");
+
+# Added to resolve a problem where the program would exit (gracefully)
+# When it reached the end of the log file
+my $LogFile = File::Tail->new(name=>$snortpipe, maxinterval=>60, adjustafter=>3) or ($logger->err("Can't open log file!") && die );
+
+while (defined(my $line = $LogFile->read)) {
+
+	# OSSEC lines are useless for throwing violations, ignore them
+    if (index($line,"OSSEC") == -1) {
+
+	# Split the line on the Curly Brace { }
+	# Thanks to the guys on Freenode:#perl and google for helping
+	# with this regex.
+	my @Step1 = split(m/[{}](?![^{}!()]*\))/,$line);
+
+	# The stuff we need in in position 4
+	my @Step2 = split(" ",$Step1[4]);
+
+	# Got the Source IP!
+	$srcip=$Step2[0];
+
+	# Is the source IP internal to my network?  If not, skip it.
+	# I assume your internal netowrk is 10.0.0.0/8 based
+	# This should probably be replaced with some logic that can be evaluated 
+	# to ignore the correct IP space.
+	my @IP = split('\.',$srcip);
+	if ($IP[0] != 10) {next;}
+
+	# Here are the SNORT SID and the Description
+	$sid=$Step2[6];
+	$descr=$Step1[3];
+    } else {
+        $logger->warn("unknown input: $_ ");
+        next;
+    }
+
+    $srcmac = ip2mac($srcip);
+
+    if ($srcmac) {
+
+        $logger->info("pfdetect_SO: violation $sid [$descr]: $srcmac");
+        violation_trigger($srcmac, $sid, "detect", ( ip => $srcip ));
+    } else {
+        $logger->warn("pfdetect_SO: $srcip MAC NOT FOUND for violation $sid [$descr]");
+    }
+    #reload all cached configs after each iteration
+    pf::config::cached::ReloadConfigs();
+    print "";
+}
+
+END {
+    deletepid();
+    if (defined($snortpipe_fh)) {
+        $logger->info("stopping pfdetect_SO");
+        close($snortpipe_fh);
+    }
+}
+
+exit(0);
+
+sub daemonize {
+    chdir '/' or $logger->logdie("Can't chdir to /: $!");
+    open STDIN, '<', '/dev/null'
+        or $logger->logdie("Can't read /dev/null: $!");
+    my $log_file = "$install_dir/logs/pfdetect_SO";
+    open STDOUT, '>>', $log_file
+        or $logger->logdie("Can't write to $log_file: $!");
+
+    defined( my $pid = fork )
+        or $logger->logdie("pfdetect_SO: could not fork: $!");
+    POSIX::_exit(0) if ($pid);
+    if ( !POSIX::setsid() ) {
+        $logger->warn("could not start a new session: $!");
+    }
+    open STDERR, '>&STDOUT' or $logger->logdie("Can't dup stdout: $!");
+    my $daemon_pid = createpid();
+
+    # updating Log4perl's pid info
+    Log::Log4perl::MDC->put( 'tid',  $daemon_pid );
+}
+
+sub normal_sighandler {
+    deletepid();
+    $logger->logdie( "caught SIG" . $_[0] . " - terminating" );
+}
+
+
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
+
+Minor parts of this file may have been contributed. See CREDITS.
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2013 Inverse inc.
+
+Copyright (C) 2005 Kevin Amorin
+
+Copyright (C) 2005 David LaPorte
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
+
