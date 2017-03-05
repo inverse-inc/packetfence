@@ -16,12 +16,26 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::Harness;
+use TAP::Formatter::Console;
+use TAP::Harness;
+use TAP::Parser::Aggregator;
 
 use lib qw(/usr/local/pf/t);
 use TestUtils;
 
-runtests(
+my $formatter   = TAP::Formatter::Console->new({jobs => 4});
+my $ser_harness = TAP::Harness->new( { formatter => $formatter, jobs => 4 } );
+my $par_harness = TAP::Harness->new(
+    {   formatter => $formatter,
+        jobs      => 4
+    }
+);
+
+my @ser_tests = qw(
+    pfconfig.t 
+    merged_list.t
+);
+my @par_tests = (
     @TestUtils::compile_tests,
     @TestUtils::unit_tests,
     TestUtils::get_all_unittests(),
@@ -29,6 +43,13 @@ runtests(
     @TestUtils::quality_tests,
     @TestUtils::config_store_test,
 );
+
+my $aggregator = TAP::Parser::Aggregator->new;
+$aggregator->start();
+$ser_harness->aggregate_tests( $aggregator, @ser_tests );
+$par_harness->aggregate_tests( $aggregator, @par_tests );
+$aggregator->stop();
+$formatter->summary($aggregator);
 
 =head1 AUTHOR
 
