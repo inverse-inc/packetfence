@@ -4,4 +4,5 @@ $(function() { // DOM ready
 
     var read = $.proxy(view.readInterface, view);
     $('#section').on('click', '#createNetwork', read);
+    $('#section').on('click', '#createBond', read);
 });

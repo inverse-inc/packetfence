@@ -1,0 +1,10 @@
+DEVICE=[% name_bond %]
+NAME=[% name_bond %]
+ONBOOT=yes
+BOOTPROTO=none
+NM_CONTROLLED=yes
+IPADDR=[% ipaddr %]
+NETMASK=[% netmask %]
+TYPE=Bond
+BONDING_OPTS=mode=[% mode %]
+BONDING_MASTER=yes

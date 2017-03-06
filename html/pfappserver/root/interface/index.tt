@@ -5,5 +5,6 @@
 [%- IF can_access("INTERFACES_CREATE") %]
 <div class="form-actions">
   <a id="createNetwork" class="btn" href="[% c.uri_for(c.controller('Config::Networks').action_for('create')) %]">[% l('Add routed network') %]</a>
+  <a id="createBond" class="btn" href="[% c.uri_for(c.controller('Interface').action_for('create_bond')) %]">[% l('Create Bond Interface') %]</a>
 </div>
 [%- END %]

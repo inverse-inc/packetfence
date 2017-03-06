@@ -329,6 +329,7 @@ our $_network_conf_dir    = "/etc/sysconfig/";
 our $_interfaces_conf_dir = "network-scripts/";
 our $_network_conf_file   = "network";
 our $_interface_conf_file = "ifcfg-";
+our $_bond_slave         = "bond-slave-";
 our $var_dir              = "/usr/local/pf/var/";
 
 =head1 METHODS
@@ -341,28 +342,43 @@ sub writeNetworkConfigs {
     my ( $self, $interfaces_ref, $gateway, $gateway_interface ) = @_;
     my $logger = get_logger();
 
+    use Data::Dumper;
     my $status_msg;
 
+    
     foreach my $interface ( sort keys(%$interfaces_ref) ) {
+        $logger->info('my interface' . Dumper($interface));
         next if ( !($interfaces_ref->{$interface}->{'is_running'}) );
 
         my $vars = {
             logical_name    => $interface,
+            bond_name       => $interfaces_ref->{$interface}->{'bond_name'},
             vlan_device     => $interfaces_ref->{$interface}->{'vlan'},
             hwaddr          => $interfaces_ref->{$interface}->{'hwaddress'},
             ipaddr          => $interfaces_ref->{$interface}->{'ipaddress'},
             netmask         => $interfaces_ref->{$interface}->{'netmask'},
+            mode            => $interfaces_ref->{$interface}->{'mode'},
+            bond_slave      => $interfaces_ref->{$interface}->{'interfaces'},
         };
 
+        $logger->info('my VARS' . Dumper($vars));
         my $template = Template->new({
             INCLUDE_PATH    => "/usr/local/pf/html/pfappserver/root/interface",
             OUTPUT_PATH     => $var_dir,
         });
-        $template->process( "interface_rhel.tt", $vars, $_interface_conf_file.$interface );
+        
+        if ( defined $interfaces_ref->{$interface}->{'mode'} ) {
+            $template->process( "interface_bond_rhel.tt", $vars, $_interface_conf_file.$interface );
+            $template->process( "interface_bond_slave_rhel.tt", $vars, $_interface_conf_file.$_bond_slave.$interface );
+
+        } else {
+            $template->process( "interface_rhel.tt", $vars, $_interface_conf_file.$interface );
+        }
 
         if ( $template->error() ) {
             $status_msg = "Error while writing system network interfaces configuration";
             $logger->error("$status_msg");
+            $logger->error($template->error());
             return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
         }
         my $cmd = "cat $var_dir$_interface_conf_file$interface | sudo tee $_network_conf_dir$_interfaces_conf_dir$_interface_conf_file$interface 2>&1";

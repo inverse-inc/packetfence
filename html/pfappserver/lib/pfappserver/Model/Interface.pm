@@ -72,6 +72,98 @@ sub create {
     return ($STATUS::CREATED, ["Interface VLAN [_1] successfully created",$interface]);
 }
 
+=head2 create_bond
+
+=cut
+
+sub create_bond {
+    my ( $self, $interface, $data ) = @_;
+    my $logger = get_logger();
+
+    use Data::Dumper;
+    my ($status, $status_msg);
+
+    # This method does not handle the 'all' interface neither the 'lo' one
+    return ($STATUS::FORBIDDEN, "This method does not handle interface $interface")
+        if ( ($interface eq 'all') || ($interface eq 'lo') );
+
+    # Check if requested interface exists
+    ($status, $status_msg) = $self->exists($interface);
+    if ( is_success($status) ) {
+        $status_msg = ["Interface Bond [_1] already exists",$interface];
+        return ($STATUS::OK, $status_msg);
+    }
+
+    # Check if interfaces exists
+    my $interfaces_bond = $data->{interfaces};
+    foreach my $bond_interface (@$interfaces_bond) {
+        ($status, $status_msg) = $self->exists($bond_interface);
+        if ( is_error($status) ) {
+            $status_msg = ["Interfaces [_1] does not exists so can't create Bond on it",$bond_interface];
+            $logger->warn($status_msg);
+            return ($STATUS::PRECONDITION_FAILED, $status_msg);
+        }
+    }
+
+    # Create requested bond interface
+    my $mode = $data->{mode};
+    my $ipaddr = $data->{ipaddr};
+    my $netmask = $data->{netmask};
+    my $gateway = $data->{gateway};
+    my $block = Net::Netmask->new($ipaddr.':'.$netmask);
+    my $cidrmask = $block->bits();
+    $logger->info('tt' . Dumper($block, $cidrmask, $ipaddr. $data));
+    my $cmd = "sudo nmcli con add type bond con-name $interface ifname $interface mode $mode";
+    my $cmd_add_ip = "sudo nmcli con modify $interface ipv4.addresses $ipaddr/$cidrmask";
+    my $cmd_add_gateway = "sudo nmcli con modify $interface ipv4.gateway $gateway";
+    my $cmd_static = "sudo nmcli con modify $interface ipv4.method manual";
+    eval { $status = pf_run($cmd) };
+    if ( $@ || !$status ) {
+        $status_msg = ["Error in creating interface Bond [_1]",$interface];
+        $logger->error($status_msg);
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+    eval { $status = pf_run($cmd_add_ip) };
+    if ( $@ || !$status ) {
+        $status_msg = ["Error assigning an IP address or netmask to interface Bond [_1]",$interface];
+        $logger->error($status_msg);
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+    eval { $status = pf_run($cmd_add_gateway) };
+    if ( $@ || !$status ) {
+        $status_msg = ["Error assigning a gateway to interface Bond [_1]",$interface];
+        $logger->error($status_msg);
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+    eval { $status = pf_run($cmd_static) };
+    if ( $@ || !$status ) {
+        $status_msg = ["Error assigning the method manual as IP setting to interface Bond [_1]",$interface];
+        $logger->error($status_msg);
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+
+    # Creating requested slave bond interfaces
+    foreach my $bond_interface (@$interfaces_bond) {
+        my $cmd_slave = "sudo nmcli con add type bond-slave con-name $bond_interface-slave ifname $bond_interface-slave master $interface";
+        eval { $status = pf_run($cmd_slave) };
+        if ( $@ || !$status ) {
+            $status_msg = ["Error in creating interface Bond Slave [_1]",$bond_interface . "-slave"];
+            $logger->error($status_msg);
+            return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+        }
+    }
+
+    # Might want to move this one in the controller... create doesn't invoke up...
+    # Enable the newly created bond-slave interface
+    foreach my $bond_interface (@$interfaces_bond) {
+        $self->up($bond_interface);
+        return ($STATUS::CREATED, ["Interface Bond Slave [_1] successfully created",$bond_interface]);
+    }
+    # Enable the newly created bond interface
+    $self->up($interface);
+
+    return ($STATUS::CREATED, ["Interface Bond [_1] successfully created",$interface]);
+}
 =head2 delete
 
 =cut
@@ -357,6 +449,104 @@ sub update {
     return ($STATUS::OK, ["Interface [_1] successfully edited",$interface]);
 }
 
+=head2 update_bond
+
+=cut
+
+sub update_bond {
+    my ($self, $interface, $data) = @_;
+    my $models = $self->{models};
+    my $logger = get_logger();
+
+    my ($ipaddress, $netmask, $status, $status_msg);
+
+    $data->{netmask} = '255.255.255.0' unless ($data->{netmask});
+    $ipaddress = $data->{ipaddress};
+    $netmask = $data->{netmask};
+
+    # This method does not handle the 'all' interface neither the 'lo' one
+    return ($STATUS::FORBIDDEN, ["This method does not handle interface [_1]",$interface])
+        if ( ($interface eq 'all') || ($interface eq 'lo') );
+
+    # Check if requested interface exists
+    ($status, $status_msg) = $self->exists($interface);
+    if ( is_error($status) ) {
+        $status_msg = ["Interface [_1] does not exists",$interface];
+        $logger->warn("Interface $interface does not exists");
+        return ($STATUS::PRECONDITION_FAILED, $status_msg);
+    }
+
+    my @result = $self->_listInterfaces($interface);
+    my $interface_before = pop @result;
+
+    # Check if the network has changed
+    my $network = $models->{network}->getNetworkAddress($interface_before->{ipaddress}, $interface_before->{netmask});
+    my $new_network = $models->{network}->getNetworkAddress($ipaddress, $netmask);
+    if ($network && $new_network && $network ne $new_network) {
+        $logger->debug("Network has changed for $ipaddress ($network => $new_network)");
+        $models->{network}->renameItem($network, $new_network);
+    }
+
+    #initate variable
+    my $gateway = $data->{gateway};
+    my $cmd_add_ip = "sudo nmcli con modify $interface ipv4.addresses $ipaddress/$netmask";
+    my $cmd_add_gateway = "sudo nmcli con modify $interface ipv4.gateway $gateway";
+
+    if ( !defined($interface_before->{ipaddress})
+         || !defined($interface_before->{netmask})
+         || !defined($ipaddress)
+         || $ipaddress ne $interface_before->{ipaddress}
+         || $netmask ne $interface_before->{netmask}) {
+        my $gateway = $models->{'system'}->getDefaultGateway();
+        my $isDefaultRoute = (defined($interface_before->{ipaddress}) && $gateway eq $interface_before->{ipaddress});
+
+        # Replace IP address and netmask with new one
+        if ($ipaddress && $ipaddress ne '') {
+            my $block = Net::Netmask->new($ipaddress.':'.$netmask);
+            my $broadcast = $block->broadcast();
+            $netmask = $block->bits();
+
+            $logger->debug("IP address has changed ($interface $ipaddress/$netmask)");
+
+            #$cmd = sprintf "sudo ip addr add %s/%i broadcast %s dev %s", $ipaddress, $netmask, $broadcast, $interface;
+            eval { $status = pf_run($cmd_add_ip) };
+            if ( $@ || $status ) {
+                $status_msg = ["Can't assign IP address [_1] on interface [_2]", $ipaddress,$interface];
+                $logger->error($status);
+                $logger->error("$cmd_add_ip: $status");
+                return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+            }
+            elsif ($isDefaultRoute) {
+                # Restore gateway
+                $models->{'system'}->setDefaultRoute($ipaddress);
+            }
+
+            eval { $status = pf_run($cmd_add_gateway) };
+            if ( $@ || $status ) {
+                $status_msg = ["Can't assign gateway [_1] on interface [_2]",$gateway,$interface];
+                $logger->error($status);
+                $logger->error("$cmd_add_gateway: $status");
+                return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+            }
+            else {
+                $status_msg = ["Gateway [_1] successfully applied to interface [_2]",$gateway,$interface];
+                $logger->error($status);
+                $logger->error("$cmd_add_gateway: $status");
+                return ($STATUS::OK, $status_msg);
+            }
+            my $interfaces = $self->get('all');
+        }
+
+        @result = $self->_listInterfaces('all');
+        $models->{network}->cleanupNetworks(\@result);
+    }
+
+    # Set type
+    $data->{network} = $new_network;
+    $self->setType($interface, $data);
+
+    return ($STATUS::OK, ["Interface [_1] successfully edited",$interface]);
+}
 =head2 isActive
 
 =cut
@@ -418,7 +608,7 @@ sub getType {
 =cut
 
 sub setType {
-    my ($self, $interface, $interface_ref) = @_;
+    my ($self, $interface, $interface_ref, $data) = @_;
     my $logger = get_logger();
     my $models = $self->{models};
 
@@ -439,14 +629,23 @@ sub setType {
         # Update pf.conf
         $logger->debug("Updating or creating $interface interface");
 
+        if (defined $data) {
+            $models->{interface}->update_or_create($interface,
+                                    $self->_prepare_interface_for_pfconf($interface, $data, $type));
 
-        $models->{interface}->update_or_create($interface,
+        } else {
+            $models->{interface}->update_or_create($interface,
                                     $self->_prepare_interface_for_pfconf($interface, $interface_ref, $type));
+        }
 
         # Update networks.conf
         if ( $type =~ /management|portal|^radius$/ ) {
             # management interfaces must not appear in networks.conf
-            $models->{network}->remove($interface_ref->{network}) if ($interface_ref->{network});
+            if (defined $data) {
+                $models->{network}->remove($data->{network}) if ($data->{network});
+            } else {
+                $models->{network}->remove($interface_ref->{network}) if ($interface_ref->{network});
+            }
         }
         else {
             ($status, $network_ref) = $models->{network}->read($interface_ref->{network});
