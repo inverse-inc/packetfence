@@ -99,7 +99,7 @@ sub launch_mysql {
     my ($exec, @args) = @_;
     $exec //= 1;
     
-    my $args = join(' ', @ARGV, @args);
+    my $args = join(' ', @args);
     # Must not lookup in /sbin for mysqld, but in /usr/sbin
     $ENV{PATH} = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin:/root/bin";
     my $cmd = "mysqld_safe --defaults-file=/usr/local/pf/var/conf/mariadb.conf $args";
@@ -435,9 +435,7 @@ sub startup_clean_shutdown {
         else {
             if(pf::cluster::cluster_index() == 0) {
                 $logger->info("Tried connecting to peers too many times. Will establish a new cluster");
-                `sed -i.bak "s/safe_to_bootstrap: 0/safe_to_bootstrap: 1/g" /var/lib/mysql/grastate.dat`;
-                launch_mysql($FALSE, "--wsrep-recover");
-                fork_launch_mysql("create-new-cluster", "--wsrep-new-cluster");
+                bootstrap_new_cluster();
             }
             else {
                 $logger->info("Tried connecting to peers too many times. Will flush state and connect to a potentially newly formed cluster");
@@ -584,6 +582,16 @@ sub attempt_start {
     }
 }
 
+=head2 bootstrap_new_cluster
+
+=cut
+
+sub bootstrap_new_cluster {
+    `sed -i.bak "s/safe_to_bootstrap: 0/safe_to_bootstrap: 1/g" /var/lib/mysql/grastate.dat`;
+    launch_mysql($FALSE, "--wsrep-recover");
+    fork_launch_mysql("create-new-cluster", "--wsrep-new-cluster");
+}
+
 if(pf::cluster::is_in_maintenance) {
     my $msg = "Not starting because this node is in maintenance mode";
     print STDERR "$msg\n";
@@ -593,6 +601,14 @@ if(pf::cluster::is_in_maintenance) {
 
 # Clear the gvwstate on startup
 $gvwstate_cache->clear();
+
+if($ARGV[0] eq "--force-new-cluster") {
+    bootstrap_new_cluster();
+    while($RUNNING) {
+        pause;
+    }
+    exit;
+}
 
 # Do an initial startup
 attempt_start();
