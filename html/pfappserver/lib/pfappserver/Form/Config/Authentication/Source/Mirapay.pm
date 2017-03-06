@@ -15,6 +15,7 @@ pfappserver::Form::Authentication::Source::Mirapay
 use strict;
 use warnings;
 use HTML::FormHandler::Moose;
+use pf::config qw($fqdn);
 extends 'pfappserver::Form::Config::Authentication::Source::Billing';
 
 has_field base_url => (
@@ -28,13 +29,18 @@ has_field shared_secret => (
     required => 1,
 );
 
+has_field service_fqdn => (
+    type => 'Text',
+    default_method => sub { $fqdn }
+);
+
 has_field merchant_id => (
     type => 'Text',
     required => 1,
 );
 
 has_block definition => (
-    render_list => [qw(base_url shared_secret merchant_id currency test_mode create_local_account local_account_logins)]
+    render_list => [qw(base_url service_fqdn shared_secret merchant_id currency test_mode create_local_account local_account_logins)]
 );
 
 

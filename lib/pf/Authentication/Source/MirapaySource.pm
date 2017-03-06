@@ -17,7 +17,7 @@ use Digest::SHA qw(sha256_hex);
 use URI::Escape::XS qw(uri_escape uri_unescape);
 use Moose;
 use pf::log;
-use pf::config qw($default_pid);
+use pf::config qw($default_pid $fqdn);
 use pf::constants qw($TRUE $FALSE);
 use pf::Authentication::constants;
 use pf::util;
@@ -43,6 +43,10 @@ has '+type' => (default => 'Mirapay');
 has base_url => (
     is => 'rw',
     default => "https://staging.eigendev.com/MiraSecure/GetToken.php",
+);
+
+has service_fqdn => (
+    is => 'rw',
 );
 
 has shared_secret => (
@@ -149,6 +153,14 @@ sub make_mirapay_url {
     my $mkey = $self->calc_mkey(@params);
     my $query = join("&", pairmap {"$a=" . uri_escape($b)} @params, 'MKEY', $mkey);
     return "$url?$query";
+}
+
+sub _build_base_path {
+    my ($self) = @_;
+    my $id     = $self->id;
+    my $alt_fqdn = $self->service_fqdn || $fqdn;
+    my $base_path = "https://$alt_fqdn/billing/$id";
+    return $base_path;
 }
 
 sub iframe { 1 }
