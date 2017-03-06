@@ -27,7 +27,7 @@ use TestUtils;
 `/usr/local/pf/t/pfconfig-test`;
 `/usr/local/pf/t/pfconfig-test-serial`;
 
-my $JOBS = 6;
+my $JOBS = $ENV{'PF_SMOKE_TEST_JOBS'} ||  6;
 
 my $formatter   = is_interactive() ? TAP::Formatter::Console->new({jobs => $JOBS}) : TAP::Formatter::File->new();
 my $ser_harness = TAP::Harness->new( { formatter => $formatter, jobs => 1 } );
