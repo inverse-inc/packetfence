@@ -37,7 +37,11 @@ Installing packages
 First, you will need to install Percona Xtrabackup for the synchronization to work correctly.
 
   # yum install http://www.percona.com/downloads/percona-release/redhat/0.1-3/percona-release-0.1-3.noarch.rpm
-  # yum install percona-xtrabackup socat
+
+Disable Percona repositories, so that installing software from that repository requires explicit action.
+
+  # sed -i 's/enabled = 1/enabled = 0/g' /etc/yum.repos.d/percona-release.repo
+  # yum install percona-xtrabackup socat --enablerepo=percona-release-x86_64
 
 If you use the `/usr/local/pf/addons/database-backup-and-maintenance.sh` script, this will have enabled the Percona Xtrabackup mode. In order for the backups to still work correctly, you should configure your installation as described in section '15.3.6. Using Percona XtraBackup' of the Administration guide.
 
@@ -45,6 +49,7 @@ Configuring Galera
 ^^^^^^^^^^^^^^^^^^
 
 For the next steps, you want to make sure that you didn't configure anything in `/usr/local/pf/conf/cluster.conf`. If you already did, comment all the configuration in the file and do a configreload (`/usr/local/pf/bin/pfcmd configreload hard`).
+
 
 Setup on the first server of your cluster
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -59,7 +64,7 @@ Then, secure your installation
 
 Then, you will need to create a user for the database replication that PacketFence will use. You can use any username/password combination. After creating the user, keep its information close-by for usage in the configuration.
 
-  mysql -u root -p
+  # mysql -u root -p
 
     mysql> CREATE USER 'pfcluster'@'%' IDENTIFIED BY 'aMuchMoreSecurePassword';
     mysql> GRANT RELOAD, LOCK TABLES, REPLICATION CLIENT, SUPER ON *.* TO 'pfcluster'@'%';
@@ -80,7 +85,7 @@ Step 2 : Server configuration
 
 First, you need to make sure the interfaces name will be the same on all servers. See 'Setting the interfaces name on CentOS 7' in the Appendix section of this document if all your servers don't already have the same interface names.
 
-Next, you will need to configure the server so the services can bind on IP addresses they don't currently have configured. This allows faster failover of the services.
+Next, you will need to configure each server so the services can bind on IP addresses they don't currently have configured. This allows faster failover of the services.
 
 On all your servers, add the following line in `/etc/sysctl.conf` and then reload with 'sysctl -p'
 
@@ -88,12 +93,26 @@ On all your servers, add the following line in `/etc/sysctl.conf` and then reloa
 
 Then, disable the default MariaDB systemd service unit as PacketFence already provides one (packetfence-mariadb)
 
-  # systemctl disable packetfence-mariadb
+  # systemctl disable mariadb
 
 Now, on the first server, create the PEM that combines the key and certificate for the http services. Adapt to your own paths if you are using different certificates. What matters is that the path to the PEM file should be /usr/local/pf/conf/ssl/server.pem since HAProxy will expect it to be there.
 
   # cd /usr/local/pf/conf/ssl
   # cat server.key server.crt > server.pem
+
+Going through the configurator
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Now, on the first server of your cluster, you should go through the configurator, configuring the server as if it was in standalone (no HA interfaces). You should leave the services stopped at the end of the configurator.
+
+Then restart PacketFence's mariadb on the first server:
+
+  # service packetfence-mariadb restart
+
+On the other servers of your cluster, configure only the network interfaces without going past that section in the configurator. If the other servers already have the right IP addresses configured on their interfaces, you can ignore this step.
+
+Step 3 : Create a new cluster
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 PacketFence Configuration Modification
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -127,18 +146,12 @@ Now, reload the configuration and restart packetfence-config. You will see error
 
   # service packetfence-config restart
   # /usr/local/pf/bin/pfcmd configreload hard
+  # service packetfence-haproxy start
 
-Going through the configurator
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Configure cluster.conf
+^^^^^^^^^^^^^^^^^^^^^^
 
-Now, on the first server of your cluster, you should go through the configurator, configuring the server as if it was in standalone (no HA interfaces). You should leave the services stopped at the end of the configurator.
-
-On the other servers of your cluster, configure only the network interfaces without going past that section in the configurator. If the other servers already have the right IP addresses configured on their interfaces, you can ignore this step.
-
-Step 3 : Create a new cluster
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-In order to create a new cluster, you need to configure `/usr/local/pf/conf/cluster.conf`
+In order to create a new cluster, you need to configure `/usr/local/pf/conf/cluster.conf` on the first server of your cluster.
 
 You will need to configure it with your server hostname. To get it use : *hostname* in a command line.
 
@@ -265,6 +278,8 @@ Now, you will need to integrate your 2 other nodes in your cluster.
 Webservices configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+NOTE: If you access https://PF_HOSTNAME:1443, you will still be redirected to the configurator. In order to gain access to the full administration interface, open https://PF_HOSTNAME:1443/admin
+
 First, set the webservices user and password on the master node in 'Configuration/Web Services'. There should be a sync error you can safely ignore as the other servers of your cluster aren't joined yet.
 
 Once this is done, stop packetfence-mariadb on the first server (should be the only one that had it running):
@@ -305,7 +320,7 @@ Make sure that this server is binding to it's own management address. If it's no
 MariaDB sync
 ^^^^^^^^^^^^
 
-First, ensure you now start packetfence-mariadb. Again this can take up to 5 minutes to start since its an initial cluster creation.
+First, ensure you now start packetfence-mariadb on the first server. Again this can take up to 5 minutes to start since its an initial cluster creation.
 
   service packetfence-mariadb start
 
