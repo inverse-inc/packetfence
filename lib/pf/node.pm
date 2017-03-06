@@ -26,6 +26,7 @@ use pf::util::statsd qw(called);
 use pf::error qw(is_success);
 use pf::constants::parking qw($PARKING_VID);
 use CHI::Memoize qw(memoized);
+use pf::dal::node;
 
 use constant NODE => 'node';
 
@@ -81,6 +82,7 @@ BEGIN {
         node_search
         $STATUS_REGISTERED
         node_last_reg
+        node_defaults
     );
 }
 
@@ -1410,6 +1412,16 @@ sub fingerbank_info {
     $info ={ (%$info, %$device_info) };
 
     return $info;
+}
+
+=item node_defaults
+
+create the node defaults
+
+=cut
+
+sub node_defaults {
+    return pf::dal::node->_defaults;
 }
 
 =back
