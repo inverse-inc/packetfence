@@ -31,12 +31,12 @@ use Test::Exception;
 
 #This test will running last
 use Test::NoWarnings;
-
 use_ok("pf::CHI");
 
 my $cache_miss = 0;
 
 my $cache = pf::CHI->new( namespace => 't');
+$cache->clear;
 
 # Test computing with undef values
 
