@@ -1421,7 +1421,10 @@ create the node defaults
 =cut
 
 sub node_defaults {
-    return pf::dal::node->_defaults;
+    my ($mac) = @_;
+    my $node_info = pf::dal::node->_defaults;
+    $node_info->{mac} = $mac;
+    return $node_info;
 }
 
 =back
