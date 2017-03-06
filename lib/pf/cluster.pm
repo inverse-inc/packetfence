@@ -122,6 +122,17 @@ sub cluster_ip {
     return $ConfigCluster{$CLUSTER}->{"interface $interface"}->{ip};
 }
 
+=head2 cluster_ipv6
+
+Returns the cluster IPv6 address for an interface
+
+=cut
+
+sub cluster_ipv6 {
+    my ( $interface ) = @_;
+    return $ConfigCluster{$CLUSTER}->{"interface $interface"}->{ipv6_address};
+}
+
 =head2 management_cluster_ip
 
 Returns the management cluster IP address for the cluster
