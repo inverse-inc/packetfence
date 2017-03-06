@@ -176,14 +176,20 @@ sub authorize {
         node_add_simple($mac);
     }
 
+    my %temp_node_info;
+
     # Handling machine auth detection
     if ( defined($user_name) && $user_name =~ /^host\// ) {
         $logger->info("is doing machine auth with account '$user_name'.");
-        node_modify($mac, ('machine_account' => $user_name));
+        $temp_node_info{machine_account} = $user_name;
     }
 
     if (defined($session_id)) {
-         node_modify($mac, ('sessionid' => $session_id));
+        $temp_node_info{sessionid} => $session_id;
+    }
+
+    if (keys %temp_node_info == 0) {
+        node_modify($mac, %temp_node_info);
     }
 
     my $switch_id =  $switch->{_id};
