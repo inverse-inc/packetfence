@@ -335,7 +335,7 @@ sub processDHCPv6Reply {
     if ( $attributes->{'ip'} && $attributes->{'client_mac'} ) {
         foreach my $ip ( @{$attributes->{'ip'}} ) {
             my $ipv6 = pf::util::IP::detect($ip->{'client_ip'})->normalizedIP;
-            pf::ip6log::open($ipv6, $ip->{'type'}, $attributes->{'client_mac'}, $ip->{'lease_length'});
+            pf::ip6log::open($ipv6, $attributes->{'client_mac'}, $ip->{'type'}, $ip->{'lease_length'});
         }
         
     }

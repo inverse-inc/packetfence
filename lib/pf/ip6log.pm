@@ -622,7 +622,7 @@ Handle 'ip6log' table "new" entries. Will take care of either adding or updating
 =cut
 
 sub open {
-    my ( $ip, $type, $mac, $lease_length ) = @_;
+    my ( $ip, $mac, $type, $lease_length ) = @_;
     my $logger = pf::log::get_logger;
 
     # TODO: Should this really belong here ? Is it part of the responsability of ip6log to check that ?
@@ -642,10 +642,10 @@ sub open {
 
     if ( _exists($ip) ) {
         $logger->debug("An 'ip6log' table entry already exists for that IP ($ip). Proceed with updating it");
-        _update($ip, $type, $mac, $lease_length);
+        _update($ip, $mac, $type, $lease_length);
     } else {
         $logger->debug("No 'ip6log' table entry found for that IP ($ip). Creating a new one");
-        _insert($ip, $type, $mac, $lease_length);
+        _insert($ip, $mac, $type, $lease_length);
     }
 
     return (0);
@@ -660,7 +660,7 @@ Not meant to be used outside of this class. Refer to L<pf::ip6log::open>
 =cut
 
 sub _insert {
-    my ( $ip, $type, $mac, $lease_length ) = @_;
+    my ( $ip, $mac, $type, $lease_length ) = @_;
     my $logger = pf::log::get_logger;
 
     if ( $lease_length ) {
@@ -683,7 +683,7 @@ Not meant to be used outside of this class. Refer to L<pf::ip6log::open>
 =cut
 
 sub _update {
-    my ( $ip, $type, $mac, $lease_length ) = @_;
+    my ( $ip, $mac, $type, $lease_length ) = @_;
     my $logger = pf::log::get_logger;
 
     if ( $lease_length ) {
