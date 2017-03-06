@@ -205,7 +205,7 @@ sub authorize {
     my $role_obj = new pf::role::custom();
 
     # Vlan Filter
-    my $node_info = node_view($mac);
+    my $node_info = node_view($mac) || { %{node_defaults($mac)} , %temp_node_info} ;
     $args->{'ssid'} = $ssid;
     $args->{'node_info'} = $node_info;
     $args->{'fingerbank_info'} = pf::node::fingerbank_info($mac, $node_info);
