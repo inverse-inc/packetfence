@@ -3,7 +3,6 @@
 if [ -d /usr/local/go ]; then
   echo "/usr/local/go exists, refusing to setup"
 else
-
   set -x
 
   echo "Setting up golang environment for PacketFence"

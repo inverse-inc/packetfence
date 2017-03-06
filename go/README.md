@@ -5,21 +5,22 @@
 
 This is an initial draft on how to setup/use the PacketFence Golang libraries.
 
-First you must install Golang via the normal instructions (https://golang.org/doc/install) and setup your GOPATH correctly.
-
-In order to know which version of go you should be using, you can inspect one of the binaries that was provided with the PacketFence package:
+In order to bootstrap your environment from the version of /usr/local/pf/bin/pfhttpd
 
 ```
-strings /usr/local/pf/bin/pfhttpd | egrep -o 'go[0-9]+\.[0-9]+\.[0-9]+'
+# cd /usr/local/pf/go
+# make go-env
 ```
 
-Assuming you installed your git repo in /usr/local/pf, you should then symlink /usr/local/pf/go to $GOPATH/src/github.com/inverse-inc/packetfence/go using:
+You should then source your .bashrc to get the new environment variables
 
 ```
-# ln -s /usr/local/pf/go $GOPATH/src/github.com/inverse-inc/packetfence/go
+source ~/.bashrc
 ```
 
 Once that is done, you should be working in $GOPATH/src/github.com/inverse-inc/packetfence/go and not /usr/local/pf/go so that Golang commands work correctly (they tend to misbehave outside of the GOPATH)
+
+Your GOPATH will be setup in ~/gospace when using `make go-env`.
 
 ## Pulling the dependencies
 
