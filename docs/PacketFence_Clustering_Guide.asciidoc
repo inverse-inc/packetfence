@@ -706,7 +706,7 @@ Then, we should tell C to ignore A and B in their cluster configuration. In orde
 
 NOTE: From this moment on, you will lose the configuration changes and data changes that occur on nodes A and B.
 
-The commands above will make sure that nodes A and B will not be forwarding requests to C even if it is alive. Same goes for C which won't be sending traffic to A and B. This includes application traffic (RADIUS, HTTP, ...) as well as database replication traffic. This means A and B will continue to have the same database informations while C will start to diverge from it when it goes live. We'll make sure to reconcile this data afterwards.
+The commands above will make sure that nodes A and B will not be forwarding requests to C even if it is alive. Same goes for C which won't be sending traffic to A and B. This means A and B will continue to have the same database informations while C will start to diverge from it when it goes live. We'll make sure to reconcile this data afterwards.
 
 Complete upgrade of node C
 ++++++++++++++++++++++++++
