@@ -26,6 +26,7 @@ conf/currently-at
 conf/caddy-services/pfsso.conf
 bin/pfcmd
 bin/ntlm_auth_wrapper
+bin/pfhttpd
 src/pfcmd
 !conf/nessus/remotescan.nessus
 conf/snort/emerging*.rules
