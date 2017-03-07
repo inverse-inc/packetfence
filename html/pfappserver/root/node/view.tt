@@ -44,8 +44,8 @@
             <div class="control-group">
               <label class="control-label">[% l('IPv4 Address') %]</label>
               <div class="controls"><span class="uneditable">[% node.iplog.ip | html %] <span
-                                                                         [% IF node.iplog.active -%]
-                                                                         class="label label-success">Since [% node.iplog.start_time | html %]
+                    [% IF node.iplog.active -%]
+                    class="label label-success">Since [% node.iplog.start_time | html %]
                     [% ELSE -%]
                     class="label label-important">Inactive[% IF node.iplog.end_time %] since [% node.iplog.end_time | html %][% END %]
                     [% END -%]
@@ -55,8 +55,8 @@
             <div class="control-group">
               <label class="control-label">[% l('IPv6 Address') %]</label>
               <div class="controls"><span class="uneditable">[% node.ip6log.ip | html %] <span
-                                                                         [% IF node.ip6log.active -%]
-                                                                         class="label label-success">Since [% node.ip6log.start_time | html %]
+                    [% IF node.ip6log.active -%]
+                    class="label label-success">Since [% node.ip6log.start_time | html %]
                     [% ELSE -%]
                     class="label label-important">Inactive[% IF node.ip6log.end_time %] since [% node.ip6log.end_time | html %][% END %]
                     [% END -%]
