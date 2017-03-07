@@ -711,6 +711,13 @@ sub close {
     return (0);
 }
 
+
+=head2 rotate
+
+Rotate ip6log_history table old entries to ip6log_archive table
+
+=cut
+
 sub rotate {
     my $timer = pf::StatsD::Timer->new({sample_rate => 0.2});
     my ( $window_seconds, $batch, $time_limit ) = @_;
@@ -749,6 +756,15 @@ sub rotate {
     $logger->info("Rotated '$rows_rotated' entries from ip6log_history to ip6log_archive (start: '$start_time', end: '$end_time')");
     return (0);
 }
+
+
+=head2 cleanup
+
+Delete ip6log_archive table old entries.
+
+Will delete from ip6log_history table if ip6log rotation is disabled.
+
+=cut
 
 sub cleanup {
     my $timer = pf::StatsD::Timer->new({sample_rate => 0.2});
