@@ -40,7 +40,7 @@ use pf::node qw(nodes_registered_not_violators node_view node_deregister $STATUS
 use pf::nodecategory;
 use pf::util;
 use pf::violation qw(violation_view_open_uniq violation_count);
-use pf::iplog;
+use pf::ip4log;
 use pf::authentication;
 use pf::constants::parking qw($PARKING_IPSET_NAME);
 
@@ -150,7 +150,7 @@ sub generate_mangle_rules {
     }
 
     # Build lookup table for MAC/IP mapping
-    my @iplog_open = pf::iplog::list_open();
+    my @iplog_open = pf::ip4log::list_open();
     my %iplog_lookup = map { $_->{'mac'} => $_->{'ip'} } @iplog_open;
 
     # mark registered nodes that should not be isolated
@@ -262,7 +262,7 @@ sub iptables_mark_node {
         next if ( !pf::config::is_network_type_inline($network) );
 
         my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
-        my $iplog = $newip || pf::iplog::mac2ip($mac);
+        my $iplog = $newip || pf::ip4log::mac2ip($mac);
 
         if (defined $iplog) {
             my $ip = new NetAddr::IP::Lite clean_ip($iplog);
@@ -347,7 +347,7 @@ sub get_mangle_mark_for_mac {
     my $logger = get_logger();
     my $_EXIT_CODE_EXISTS = 1;
 
-    my $iplog = pf::iplog::mac2ip($mac);
+    my $iplog = pf::ip4log::mac2ip($mac);
 
     foreach my $network ( keys %ConfigNetworks ) {
         next if ( !pf::config::is_network_type_inline($network) );
@@ -394,7 +394,7 @@ sub ipset_remove_ip {
     $out  = pf_run($cmd);
     my @lines = split "\n+", $out;
 
-    my $mac = pf::iplog::ip2mac($ip);
+    my $mac = pf::ip4log::ip2mac($ip);
     my $node_info = pf::node::node_view($mac);
     my $role_id = $node_info->{'category_id'};
 
@@ -440,7 +440,7 @@ sub get_ip_from_ipset_by_mac {
         my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
         if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
             my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
-            my $tmp_ip = new NetAddr::IP::Lite clean_ip(pf::iplog::mac2ip($mac));
+            my $tmp_ip = new NetAddr::IP::Lite clean_ip(pf::ip4log::mac2ip($mac));
             if ($net_addr->contains($tmp_ip)) {
                 $ip = $tmp_ip->addr;
             }
@@ -561,7 +561,7 @@ Update the set
 sub iptables_update_set {
     my ( $mac, $old, $new ) = @_;
 
-    my $ip = pf::iplog::mac2ip($mac);
+    my $ip = pf::ip4log::mac2ip($mac);
 
     foreach my $network ( keys %ConfigNetworks ) {
         next if ( !pf::config::is_network_type_inline($network) );

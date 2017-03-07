@@ -211,6 +211,46 @@ backend $cluster_ip-backend
 $backend_ip_config
 EOT
 
+            # IPv6 handling
+            my $cluster_ipv6 = pf::cluster::cluster_ipv6($interface) || $cfg->{'ipv6_address'};
+            if ( defined($cluster_ipv6) ) {
+                $tags{'http'} .= <<"EOT";
+frontend portal-http-$cluster_ipv6
+        bind $cluster_ipv6:80
+        stick-table type ipv6 size 1m expire 10s store gpc0,http_req_rate(10s)
+        tcp-request connection track-sc1 src
+        http-request lua.change_host
+        acl host_exist var(req.host) -m found
+        http-request set-header Host %[var(req.host)] if host_exist
+        http-request lua.select
+        acl action var(req.action) -m found
+        acl unflag_abuser src_clr_gpc0 --
+        http-request allow if action unflag_abuser
+        http-request deny if { src_get_gpc0 gt 0 }
+        reqadd X-Forwarded-Proto:\\ http
+        use_backend %[var(req.action)]
+        default_backend $cluster_ip-backend
+        $bind_process
+
+frontend portal-https-$cluster_ipv6
+        bind $cluster_ipv6:443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
+        stick-table type ipv6 size 1m expire 10s store gpc0,http_req_rate(10s)
+        tcp-request connection track-sc1 src
+        http-request lua.change_host
+        acl host_exist var(req.host) -m found
+        http-request set-header Host %[var(req.host)] if host_exist
+        http-request lua.select
+        acl action var(req.action) -m found
+        acl unflag_abuser src_clr_gpc0 --
+        http-request allow if action unflag_abuser
+        http-request deny if { src_get_gpc0 gt 0 }
+        reqadd X-Forwarded-Proto:\\ https
+        use_backend %[var(req.action)]
+        default_backend $cluster_ip-backend
+        $bind_process
+EOT
+            }
+
         }
     }
 

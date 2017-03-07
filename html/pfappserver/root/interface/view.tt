@@ -7,6 +7,8 @@
     [% form.field('name').render_element | none %]
     [% form.field('ipaddress').render | none %]
     [% form.field('netmask').render | none %]
+    [% form.field('ipv6_address').render | none %]
+    [% form.field('ipv6_prefix').render | none %]
     [% form.field('type').render | none %]
     [% form.field('additional_listening_daemons').render | none %]
     [% form.field('high_availability').render | none UNLESS high_availability %]

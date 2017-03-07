@@ -21,7 +21,7 @@ use pf::util qw(clean_mac);
 use WWW::Curl::Easy;
 use XML::Simple;
 use pf::log;
-use pf::iplog;
+use pf::ip4log;
 use pf::ConfigStore::Provisioning;
 
 =head1 Atrributes
@@ -264,7 +264,7 @@ sub validate_ip_in_sepm {
 
 sub authorize {
     my ($self,$mac) = @_;
-    my $ip = pf::iplog::mac2ip($mac);
+    my $ip = pf::ip4log::mac2ip($mac);
     if(defined($ip)){
         my $logger = $self->logger;
         my $result = $self->validate_ip_in_sepm($ip);

@@ -21,7 +21,7 @@ use JSON::MaybeXS qw( decode_json );
 use pf::util qw(clean_mac);
 use XML::Simple;
 use pf::log;
-use pf::iplog;
+use pf::ip4log;
 use MIME::Base64;
 
 =head1 Atrributes
@@ -163,7 +163,7 @@ sub validate_mac_is_compliant{
 sub authorize {
     my ($self,$mac) = @_;
     my $logger = $self->logger;
-    my $ip = pf::iplog::mac2ip($mac);
+    my $ip = pf::ip4log::mac2ip($mac);
     $logger->info("Validating if $mac is compliant in mobileiron");
     return $self->validate_mac_is_compliant($mac);
 

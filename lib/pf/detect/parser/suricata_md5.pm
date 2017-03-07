@@ -19,7 +19,7 @@ use JSON;
 use Moo;
 
 use pf::api::queue;
-use pf::iplog;
+use pf::ip4log;
 use pf::log;
 
 extends qw(pf::detect::parser);
@@ -56,7 +56,7 @@ sub parse {
         return 0;   # Returning 0 to pfdetect indicates "job's done"
     }
 
-    my $mac = pf::iplog::ip2mac($data->{$endpoint});
+    my $mac = pf::ip4log::ip2mac($data->{$endpoint});
     if ( !defined($mac) || !$mac ) {
         $logger->debug("Trying to parse a Suricata md5 file line without a valid client MAC address. Nothing to do");
         return 0;   # Returning 0 to pfdetect indicates "job's done"

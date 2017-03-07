@@ -19,7 +19,7 @@ use pf::api::queue;
 use pf::util qw(isenabled clean_mac);
 use Clone qw(clone);
 use Moo;
-use pf::iplog;
+use pf::ip4log;
 extends qw(pf::detect::parser);
 
 has rules => (is => 'rw', default => sub {[]});
@@ -58,13 +58,13 @@ sub parseLineFromRule {
     }
     if (isenabled($rule->{ip_mac_translation}) ) {
         if (exists $data{ip} && !exists $data{mac}) {
-            my $mac = pf::iplog::ip2mac($data{ip});
+            my $mac = pf::ip4log::ip2mac($data{ip});
             if ($mac) {
                 $data{mac} = $mac;
             }
         }
         elsif (exists $data{mac} && !exists $data{ip}) {
-            my $ip = pf::iplog::mac2ip($data{mac});
+            my $ip = pf::ip4log::mac2ip($data{mac});
             if ($ip) {
                 $data{ip} = $ip;
             }

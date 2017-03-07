@@ -12,7 +12,8 @@
           <ul class="nav nav-tabs">
             <li class="active"><a href="#nodeInfo" data-toggle="tab">[% l('Info') %]</a></li>
             <li><a href="#nodeFingerprinting" data-toggle="tab">[% l('Fingerbank') %]</a></li>
-            <li><a href="#nodeIpLog" data-toggle="tab">[% l('IP Address') %]</a></li>
+            <li><a href="#nodeIpLog" data-toggle="tab">[% l('IPv4 Address') %]</a></li>
+            <li><a href="#nodeIpv6Log" data-toggle="tab">[% l('IPv6 Address') %]</a></li>
             [% FOREACH tab IN tabs %]
             <li><a href="#nodeAdditionalTabView" data-href="[% c.uri_for(c.controller('Node').action_for('tab_view'), [node.mac], tab) %]" data-toggle="tab">[% l(tab) %]</a></li>
             [% END %]
@@ -41,12 +42,23 @@
             </div>
 
             <div class="control-group">
-              <label class="control-label">[% l('IP Address') %]</label>
+              <label class="control-label">[% l('IPv4 Address') %]</label>
               <div class="controls"><span class="uneditable">[% node.iplog.ip | html %] <span
-                                                                         [% IF node.iplog.active -%]
-                                                                         class="label label-success">Since [% node.iplog.start_time | html %]
+                    [% IF node.iplog.active -%]
+                    class="label label-success">Since [% node.iplog.start_time | html %]
                     [% ELSE -%]
                     class="label label-important">Inactive[% IF node.iplog.end_time %] since [% node.iplog.end_time | html %][% END %]
+                    [% END -%]
+                </span></span></div>
+            </div>
+
+            <div class="control-group">
+              <label class="control-label">[% l('IPv6 Address') %]</label>
+              <div class="controls"><span class="uneditable">[% node.ip6log.ip | html %] <span
+                    [% IF node.ip6log.active -%]
+                    class="label label-success">Since [% node.ip6log.start_time | html %]
+                    [% ELSE -%]
+                    class="label label-important">Inactive[% IF node.ip6log.end_time %] since [% node.ip6log.end_time | html %][% END %]
                     [% END -%]
                 </span></span></div>
             </div>
@@ -140,7 +152,38 @@
               </table>
               [%- ELSE %]
               <div id="noResult" class="unwell">
-                <i class="icon-search icon-large"></i><p>[% l('No IP history') %]</p>
+                <i class="icon-search icon-large"></i><p>[% l('No IPv4 history') %]</p>
+              </div>
+              [%- END %]
+
+            </div><!--tab-pane-->
+
+            <div class="tab-pane fade" id="nodeIpv6Log">
+
+              [%- IF node.ip6log.history.size %]
+              <table class="table table-condensed table-hover">
+                <thead>
+                  <tr>
+                    <th>[% l('IP') %]</th>
+                    <th>[% l('Type') %]</th>
+                    <th>[% l('Start Time') %]</th>
+                    <th>[% l('End Time') %]</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  [% FOR item IN node.ip6log.history %]
+                  <tr[% IF item.end_time %] class="muted"[% END %]>
+                    <td>[% item.ip | html %]</td>
+                    <td>[% item.type | html %]</td>
+                    <td>[% item.start_time | html %]</td>
+                    <td>[% item.end_time | html %]</td>
+                  </tr>
+                  [% END %]
+                </tbody>
+              </table>
+              [%- ELSE %]
+              <div id="noResult" class="unwell">
+                <i class="icon-search icon-large"></i><p>[% l('No IPv6 history') %]</p>
               </div>
               [%- END %]
 

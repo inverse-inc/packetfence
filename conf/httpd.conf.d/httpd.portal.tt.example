@@ -384,6 +384,7 @@ NameVirtualHost [% vhost %]:443
 
 [% END %]
 
+
 [% IF vhost_management_network %]
     Listen [% vhost_management_network %]:[% ports.httpd_portal_modstatus %]
 

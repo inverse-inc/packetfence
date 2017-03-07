@@ -1,31 +1,32 @@
-#!/usr/bin/perl
+package pf::IP;
+
 =head1 NAME
 
-aaa_modperl_require
+pf::IP
 
 =cut
 
 =head1 DESCRIPTION
 
-aaa_modperl_require
+Base object class for handling / managing IP addresses
 
 =cut
 
-BEGIN {
-    use lib "/usr/local/pf/lib";
-    use pf::log 'service' => 'httpd.aaa', reinit => 1;
-}
+use strict;
+use warnings;
 
-use pf::config();
-use pf::node();
-use pf::locationlog();
-use pf::ip4log();
-use pf::violation();
-use pf::util();
-use pf::radius::custom();
-use pf::soh::custom();
+use Moose;
 
-1;
+# External libs
+
+# Internal libs
+use pf::log;
+
+
+has 'normalizedIP'  => (is => 'rw');
+has 'prefixLength'  => (is => 'rw', isa => 'Maybe[Int]');
+has 'type'          => (is => 'rw', default => undef);
+
 
 =head1 AUTHOR
 
@@ -37,7 +38,7 @@ Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and/or
+This program is free software; you can redistribute it and::or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
@@ -54,3 +55,6 @@ USA.
 
 =cut
 
+__PACKAGE__->meta->make_immutable;
+
+1;

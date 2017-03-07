@@ -25,7 +25,7 @@ use pf::config::util();
 use pf::config::trapping_range;
 use pf::ConfigStore::Interface();
 use pf::ConfigStore::Pf();
-use pf::iplog();
+use pf::ip4log();
 use pf::fingerbank;
 use pf::Portal::ProfileFactory();
 use pf::radius::custom();
@@ -60,7 +60,8 @@ use pf::lookup::person();
 use pf::enforcement();
 use pf::password();
 use pf::web::guest();
-use pf::dhcp::processor();
+use pf::dhcp::processor_v4();
+use pf::dhcp::processor_v6();
 use pf::util::dhcpv6();
 use pf::domain::ntlm_cache();
 
@@ -80,11 +81,11 @@ sub event_add : Public {
         $logger->warn("Received event(s) with out a source or destination id");
         return;
     }
-    my $srcmac = pf::iplog::ip2mac($srcip) if defined $srcip;
+    my $srcmac = pf::ip4log::ip2mac($srcip) if defined $srcip;
     # If trapping range is defined then check
     my $range = $pf::config::Config{'trapping'}{'range'};
     if (defined ($range) && $range ne '') {
-        my $dstmac = pf::iplog::ip2mac($dstip) if defined $dstip;
+        my $dstmac = pf::ip4log::ip2mac($dstip) if defined $dstip;
         my ($source_net_ip, $dest_net_ip);
         $source_net_ip = NetAddr::IP::Lite->new($srcip) if defined $srcmac;
         $dest_net_ip = NetAddr::IP::Lite->new($dstip) if defined $dstmac;
@@ -210,22 +211,22 @@ sub update_iplog : Public :AllowedAsAction(mac, $mac, ip, $ip) {
 
     my $logger = pf::log::get_logger();
 
-    $postdata{'oldip'}  = pf::iplog::mac2ip($postdata{'mac'}) if (!defined($postdata{'oldip'}));
-    $postdata{'oldmac'} = pf::iplog::ip2mac($postdata{'ip'}) if (!defined($postdata{'oldmac'}));
+    $postdata{'oldip'}  = pf::ip4log::mac2ip($postdata{'mac'}) if (!defined($postdata{'oldip'}));
+    $postdata{'oldmac'} = pf::ip4log::ip2mac($postdata{'ip'}) if (!defined($postdata{'oldmac'}));
 
     if ( $postdata{'oldmac'} && $postdata{'oldmac'} ne $postdata{'mac'} ) {
         $logger->info(
             "oldmac ($postdata{'oldmac'}) and newmac ($postdata{'mac'}) are different for $postdata{'ip'} - closing iplog entry"
         );
-        pf::iplog::close($postdata{'ip'});
+        pf::ip4log::close($postdata{'ip'});
     } elsif ($postdata{'oldip'} && $postdata{'oldip'} ne $postdata{'ip'}) {
         $logger->info(
             "oldip ($postdata{'oldip'}) and newip ($postdata{'ip'}) are different for $postdata{'mac'} - closing iplog entry"
         );
-        pf::iplog::close($postdata{'oldip'});
+        pf::ip4log::close($postdata{'oldip'});
     }
 
-    return (pf::iplog::open($postdata{'ip'}, $postdata{'mac'}, $postdata{'lease_length'}));
+    return (pf::ip4log::open($postdata{'ip'}, $postdata{'mac'}, $postdata{'lease_length'}));
 }
 
 sub unreg_node_for_pid : Public:AllowedAsAction(pid, $pid) {
@@ -256,14 +257,14 @@ sub open_iplog : Public {
     my ( $class, $mac, $ip, $lease_length ) = @_;
     my $logger = pf::log::get_logger();
 
-    return (pf::iplog::open($ip, $mac, $lease_length));
+    return (pf::ip4log::open($ip, $mac, $lease_length));
 }
 
 sub close_iplog : Public {
     my ( $class, $ip ) = @_;
     my $logger = pf::log::get_logger();
 
-    return (pf::iplog::close($ip));
+    return (pf::ip4log::close($ip));
 }
 
 sub ipset_node_update : Public {
@@ -583,7 +584,7 @@ sub register_node_ip : Public :AllowedAsAction(ip, $ip, pid, $pid) {
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
 
-    my $mac = pf::iplog::ip2mac($postdata{'ip'});
+    my $mac = pf::ip4log::ip2mac($postdata{'ip'});
     die "Cannot find host with IP address $postdata{'ip'}" unless $mac;
 
     return pf::node::node_register($mac, $postdata{'pid'}, %postdata);
@@ -601,7 +602,7 @@ sub deregister_node_ip : Public:AllowedAsAction(ip, $ip) {
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
 
-    my $mac = pf::iplog::ip2mac($postdata{'ip'});
+    my $mac = pf::ip4log::ip2mac($postdata{'ip'});
     die "Cannot find host with IP address $postdata{'ip'}" unless $mac;
 
     return pf::node::node_deregister($mac, %postdata);
@@ -1172,20 +1173,21 @@ sub reevaluate_access : Public :AllowedAsAction(mac, $mac, reason, $reason) {
     pf::enforcement::reevaluate_access( $postdata{'mac'}, $postdata{'reason'} );
 }
 
-=head2 process_dhcp
+=head2 process_dhcpv4
 
-Processes a DHCPv4 request through the pf::dhcp::processor module
+Processes a DHCPv4 request through the pf::dhcp::processor_v4 module
 The UDP payload must be base 64 encoded.
 
 =cut
 
-sub process_dhcp : Public {
+sub process_dhcpv4 : Public {
     my ($class, %postdata) = @_;
     my @require = qw(src_mac src_ip dest_mac dest_ip is_inline_vlan interface interface_ip interface_vlan net_type);
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,\@found);
 
-    pf::dhcp::processor->new(%postdata)->process_packet();
+    my $dhcpv4Processor = pf::dhcp::processor_v4->new(%postdata);
+    $dhcpv4Processor->process_packet();
 
     return $pf::config::TRUE;
 }
@@ -1201,53 +1203,9 @@ The UDP payload must be base 64 encoded.
 
 sub process_dhcpv6 : Public {
     my ( $class, $udp_payload ) = @_;
-    my $logger = pf::log::get_logger();
 
-    # The payload is sent in base 64
-    $udp_payload = MIME::Base64::decode($udp_payload);
-
-    my $dhcpv6 = pf::util::dhcpv6::decode_dhcpv6($udp_payload);
-
-    # these are relaying packets.
-    # in that case we take the inner part
-    if($dhcpv6->{msg_type} eq 12 || $dhcpv6->{msg_type} eq 13){
-        $logger->debug("Found relaying packet. Taking inner request/reply from it.");
-        $dhcpv6 = $dhcpv6->{options}->[0];
-    }
-
-    # we are only interested in solicits for the fingerprint and enterprise ID
-    if($dhcpv6->{msg_type} ne 1){
-        $logger->debug("Skipping DHCPv6 packet because it's not a solicit.");
-        return;
-    }
-
-    my ($mac_address, $dhcp6_enterprise, $dhcp6_fingerprint) = (undef, '', '');
-    foreach my $option (@{$dhcpv6->{options}}){
-        if(defined($option->{enterprise_number})){
-            $dhcp6_enterprise = $option->{enterprise_number};
-            $logger->debug("Found DHCPv6 enterprise ID '$dhcp6_enterprise'");
-        }
-        elsif(defined($option->{requested_options})){
-            $dhcp6_fingerprint = join ',', @{$option->{requested_options}};
-            $logger->debug("Found DHCPv6 fingerprint '$dhcp6_fingerprint'");
-        }
-        elsif(defined($option->{addr})){
-            $mac_address = $option->{addr};
-            $logger->debug("Found DHCPv6 link address (MAC) '$mac_address'");
-        }
-    }
-    Log::Log4perl::MDC->put('mac', $mac_address);
-    $logger->trace("Found DHCPv6 packet with fingerprint '$dhcp6_fingerprint' and enterprise ID '$dhcp6_enterprise'.");
-
-    my %fingerbank_query_args = (
-        mac                 => $mac_address,
-        dhcp6_fingerprint   => $dhcp6_fingerprint,
-        dhcp6_enterprise    => $dhcp6_enterprise,
-    );
-
-    pf::fingerbank::process(\%fingerbank_query_args);
-
-    pf::node::node_modify($mac_address, dhcp6_fingerprint => $dhcp6_fingerprint, dhcp6_enterprise => $dhcp6_enterprise);
+    my $dhcpv6Processor = pf::dhcp::processor_v6->new();
+    $dhcpv6Processor->process_packet($udp_payload);
 }
 
 =head2 copy_directory

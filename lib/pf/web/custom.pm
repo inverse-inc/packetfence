@@ -26,7 +26,7 @@ use Readonly;
 
 use pf::config;
 use pf::util;
-use pf::iplog;
+use pf::ip4log;
 use pf::node qw(node_attributes node_view node_modify);
 use pf::useragent;
 use pf::web;

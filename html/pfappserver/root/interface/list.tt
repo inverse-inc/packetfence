@@ -31,8 +31,8 @@
             <tr>
               <td><div class="switch switch-mini"><input type="checkbox" id="[% i | html %]" name="[% i | html %]"[% IF interfaces.$i.is_running %] checked="checked"[% END %]/></div></td>
               <td><a href="[% c.uri_for(c.controller('Interface').action_for('view'), [i]) %]">[% interfaces.$i.name | html %]</a>[% IF interfaces.$i.vlan %] <span class="label">vlan [% interfaces.$i.vlan | html %]</span>[% END %]</td>
-              <td>[% interfaces.$i.ipaddress | html %]</td>
-              <td class="hidden-phone">[% interfaces.$i.netmask | html %]</td>
+              <td>[% interfaces.$i.ipaddress | html %][% IF interfaces.$i.ipv6_address %]<br/>[% interfaces.$i.ipv6_address | html %][% END %]</td>
+              <td class="hidden-phone">[% interfaces.$i.netmask | html %][% IF interfaces.$i.ipv6_prefix %]<br/>[% interfaces.$i.ipv6_prefix | html %][% END %]</td>
               <td class="hidden-phone">[% IF interfaces.$i.type.match('management') %][% l('management') %][% ELSE %][% l(interfaces.$i.type) %][% END %]</td>
               <td>
                 [% IF interfaces.$i.vlan -%]

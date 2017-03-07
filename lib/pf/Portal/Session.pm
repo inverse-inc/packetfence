@@ -36,7 +36,7 @@ use pf::config qw(
     $management_network
 );
 use pf::file_paths qw($conf_dir);
-use pf::iplog;
+use pf::ip4log;
 use pf::Portal::ProfileFactory;
 use pf::util;
 use pf::web::constants;
@@ -384,7 +384,7 @@ sub getClientMac {
     elsif (defined($self->cgi->param('mac'))) {
         return encode_entities($self->cgi->param('mac'));
     }
-    return encode_entities(pf::iplog::ip2mac($self->getClientIp));
+    return encode_entities(pf::ip4log::ip2mac($self->getClientIp));
 }
 
 

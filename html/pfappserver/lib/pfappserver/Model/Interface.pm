@@ -203,16 +203,18 @@ sub exists {
 Returns an hashref with:
 
     $interface => {
-        name       => physical int (eth0 even if in a VLAN int)
-        ipaddress  => ...
-        netmask    => ...
-        is_running    => true / false value
-        network    => network address (ie 192.168.0.0 for a 192.168.0.1 IP)
-        hwaddress  => mac address
-        type       => enforcement type (see Enforcement model)
+        name            => physical int (eth0 even if in a VLAN int)
+        ipaddress       => ...
+        netmask         => ...
+        ipv6_address    => ...
+        ipv6_prefix     => ...
+        is_running      => true / false value
+        network         => network address (ie 192.168.0.0 for a 192.168.0.1 IP)
+        hwaddress       => mac address
+        type            => enforcement type (see Enforcement model)
     # and optionnally:
-        vlan       => vlan tag
-        dns        => network dns
+        vlan            => vlan tag
+        dns             => network dns
     }
 
 Where $interface is physical interface if there's no VLAN interface (eth0)
@@ -272,11 +274,13 @@ sub update {
     my $models = $self->{models};
     my $logger = get_logger();
 
-    my ($ipaddress, $netmask, $status, $status_msg);
+    my ($ipaddress, $netmask, $ipv6_address, $ipv6_prefix, $status, $status_msg);
 
     $interface_ref->{netmask} = '255.255.255.0' unless ($interface_ref->{netmask});
     $ipaddress = $interface_ref->{ipaddress};
     $netmask = $interface_ref->{netmask};
+    $ipv6_address = $interface_ref->{'ipv6_address'} if $interface_ref->{'ipv6_address'};
+    $ipv6_prefix = $interface_ref->{'ipv6_prefix'} if $interface_ref->{'ipv6_prefix'};
 
     # This method does not handle the 'all' interface neither the 'lo' one
     return ($STATUS::FORBIDDEN, ["This method does not handle interface [_1]",$interface])
@@ -301,12 +305,12 @@ sub update {
         $models->{network}->renameItem($network, $new_network);
     }
 
-    if ( !defined($interface_before->{ipaddress})
-         || !defined($interface_before->{netmask})
-         || !defined($ipaddress)
-         || $ipaddress ne $interface_before->{ipaddress}
-         || $netmask ne $interface_before->{netmask}) {
-        my $gateway = $models->{'system'}->getDefaultGateway();
+    my $network_configuration_changed = $FALSE;
+    my $gateway = $models->{'system'}->getDefaultGateway();
+
+    # IPv4 handling (live OS change)
+    if ( !defined($interface_before->{ipaddress}) || !defined($interface_before->{netmask}) || !defined($ipaddress) || $ipaddress ne $interface_before->{ipaddress} || $netmask ne $interface_before->{netmask} ) {
+        $network_configuration_changed = $TRUE;
         my $isDefaultRoute = (defined($interface_before->{ipaddress}) && $gateway eq $interface_before->{ipaddress});
 
         # Delete previous IP address
@@ -333,7 +337,7 @@ sub update {
             $cmd = sprintf "sudo ip addr add %s/%i broadcast %s dev %s", $ipaddress, $netmask, $broadcast, $interface;
             eval { $status = pf_run($cmd) };
             if ( $@ || $status ) {
-                $status_msg = ["Can't delete previous IP address of interface [_1] ([_2])",$interface,$ipaddress];
+                $status_msg = ["Can't add new IP address on interface [_1] ([_2])",$interface,$ipaddress];
                 $logger->error($status);
                 $logger->error("$cmd: $status");
                 return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
@@ -342,6 +346,48 @@ sub update {
                 # Restore gateway
                 $models->{'system'}->setDefaultRoute($ipaddress);
             }
+        }
+    }
+
+    # IPv6 handling (live OS change)
+    if ( !defined($interface_before->{ipv6_address}) || !defined($interface_before->{ipv6_prefix}) || !defined($ipv6_address) || $ipv6_address ne $interface_before->{ipv6_address} || $ipv6_prefix ne $interface_before->{ipv6_prefix} ) {
+        $network_configuration_changed = $TRUE;
+
+        # Delete previous IP address
+        my $cmd;
+        if ( defined($interface_before->{ipv6_network}) && $interface_before->{ipv6_network} ne '' ) {
+            $cmd = sprintf "sudo ip -6 addr del %s dev %s", $interface_before->{ipv6_network}, $interface_before->{name};
+            eval { $status = pf_run($cmd) };
+            if ( $@ || $status ) {
+                $status_msg = ["Can't delete previous IPv6 address of interface [_1] ([_2])", $interface, $interface_before->{ipv6_network}];
+                $logger->error("Can't delete previous IPv6 address of interface $interface");
+                $logger->error("$cmd: $status");
+                return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+            }
+        }
+
+        # Add new IP address and netmask
+        if ( $ipv6_address && $ipv6_address ne '' ) {
+            my $block = Net::Netmask->new($ipaddress.':'.$netmask);
+            my $broadcast = $block->broadcast();
+            $netmask = $block->bits();
+
+            $logger->debug("IPv6 address has changed ($interface $ipv6_address/$ipv6_prefix)");
+
+            $cmd = sprintf "sudo ip -6 addr add %s/%i dev %s", $ipv6_address, $ipv6_prefix, $interface;
+            eval { $status = pf_run($cmd) };
+            if ( $@ || $status ) {
+                $status_msg = ["Can't add new IPv6 address on interface [_1] ([_2])", $interface, $ipv6_address];
+                $logger->error($status);
+                $logger->error("$cmd: $status");
+                return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+            }
+        }
+    }
+
+    # Persistent OS change
+    if ( $network_configuration_changed ) {
+        if ($ipaddress && $ipaddress ne '') {
             my $interfaces = $self->get('all');
             $models->{'system'}->write_network_persistent($interfaces,$gateway);
         }
@@ -567,10 +613,11 @@ sub _listInterfaces {
     $ifname = '' if ($ifname eq 'all');
     my $cmd =
       {
-       link => "sudo ip -4 -o link show $ifname",
-       addr => "sudo ip -4 -o addr show %s"
+        link        => "sudo ip -4 -o link show $ifname",
+        addr        => "sudo ip -4 -o addr show %s",
+        ipv6_addr   => "sudo ip -6 -o addr show %s",
       };
-    my ($link, $addr);
+    my ($link, $addr, $ipv6_addr);
     eval { $link = pf_run($cmd->{link}) };
     if ($link) {
         # Parse output of ip command
@@ -600,6 +647,14 @@ sub _listInterfaces {
                     $interface->{netmask} = $netmask;
                 }
             }
+            eval { $ipv6_addr = pf_run(sprintf $cmd->{ipv6_addr}, $name) };
+            if ( $ipv6_addr ) {
+                if ($ipv6_addr =~ m/\binet6 (([^\/]+)\/(\d+)) scope global/) {
+                    $interface->{ipv6_network}  = $1,
+                    $interface->{ipv6_address}  = $2,
+                    $interface->{ipv6_prefix}   = $3,
+                }
+            }
             # we add it to the interfaces if it's not a virtual interface for the domains
             push(@interfaces_list, $interface) unless exists $ConfigDomain{$interface->{name}};
         }
@@ -621,10 +676,13 @@ sub _prepare_interface_for_pfconf {
     my $logger = get_logger();
 
     my $int_config_ref = {
-        ip => $int_model->{'ipaddress'},
-        mask => $int_model->{'netmask'},
-        vip => $int_model->{'vip'},
+        ip              => $int_model->{'ipaddress'},
+        mask            => $int_model->{'netmask'},
+        vip             => $int_model->{'vip'},
     };
+
+    $int_config_ref->{'ipv6_address'}   = $int_model->{'ipv6_address'} if ( $int_model->{'ipv6_address'} && $int_model->{'ipv6_address'} ne '' );
+    $int_config_ref->{'ipv6_prefix'}    = $int_model->{'ipv6_prefix'} if ( $int_model->{'ipv6_prefix'} && $int_model->{'ipv6_prefix'} ne '' );
 
     # logic to match our awkward relationship between pf.conf's type and
     # enforcement with networks.conf's type

@@ -32,7 +32,7 @@ use pf::config qw(
     $HTTP
     $HTTPS
 );
-use pf::iplog;
+use pf::ip4log;
 use pf::node;
 use pf::web;
 use pf::Portal::Session;

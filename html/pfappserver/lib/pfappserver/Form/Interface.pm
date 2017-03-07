@@ -26,14 +26,22 @@ has_field 'name' =>
 has_field 'ipaddress' =>
   (
    type => 'IPAddress',
-   label => 'IP Address',
+   label => 'IPv4 Address',
   );
 has_field 'netmask' =>
   (
    type => 'IPAddress',
-   label => 'Netmask',
+   label => 'IPv4 Netmask',
    element_attr => { 'placeholder' => '255.255.255.0' },
   );
+has_field 'ipv6_address' => (
+    type => 'IP6Address',
+    label => 'IPv6 Address',
+);
+has_field 'ipv6_prefix' => (
+    type=> 'Text',
+    label => 'IPv6 Prefix',
+);
 has_field 'type' =>
   (
    type => 'Select',
