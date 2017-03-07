@@ -16,13 +16,6 @@ use strict;
 use warnings;
 use Moo;
 
-use pf::config qw(
-    $management_network
-    %Config
-);
-use pf::cluster;
-use List::MoreUtils qw(uniq);
-
 extends 'pf::services::manager';
 
 has '+name' => (default => sub { 'httpd.dispatcher' } );
