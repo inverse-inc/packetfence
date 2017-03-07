@@ -693,20 +693,20 @@ First, we need to tell A and B to ignore C in their cluster configuration. In or
 
   # /usr/local/pf/bin/pfcmd cluster node-C-hostname disable
 
-Once this is done proceed to restart the following services node A and B **one at a time**. This will cause service failure during the restart on node A
+Once this is done proceed to restart the following services on nodes A and B **one at a time**. This will cause service failure during the restart on node A
 
   # /usr/local/pf/bin/pfcmd service haproxy restart
   # /usr/local/pf/bin/pfcmd service keepalived restart
   # service packetfence-mariadb restart 
 
-Then, we should tell C to ignore A and B in their cluster configuration. In order to do so, execute the following commands on node C while changing `node-A-hostname` and `node-B-hostname` by the hostname of node A and B respectively.
+Then, we should tell C to ignore A and B in their cluster configuration. In order to do so, execute the following commands on node C while changing `node-A-hostname` and `node-B-hostname` by the hostname of nodes A and B respectively.
 
   # /usr/local/pf/bin/pfcmd cluster node-A-hostname disable
   # /usr/local/pf/bin/pfcmd cluster node-B-hostname disable
 
-NOTE: From this moment on, you will lose the configuration changes and data changes that occur on node A and B.
+NOTE: From this moment on, you will lose the configuration changes and data changes that occur on nodes A and B.
 
-The commands above will make sure that node A and B will not be forwarding requests to C even if it is alive. Same goes for C which won't be sending traffic to A and B. This includes application traffic (RADIUS, HTTP, ...) as well as database replication traffic. This means A and B will continue to have the same database informations while C will start to diverge from it when it goes live. We'll make sure to reconcile this data afterwards.
+The commands above will make sure that nodes A and B will not be forwarding requests to C even if it is alive. Same goes for C which won't be sending traffic to A and B. This includes application traffic (RADIUS, HTTP, ...) as well as database replication traffic. This means A and B will continue to have the same database informations while C will start to diverge from it when it goes live. We'll make sure to reconcile this data afterwards.
 
 Complete upgrade of node C
 ++++++++++++++++++++++++++
@@ -806,7 +806,7 @@ Elect node C as database master
 
 CAUTION: After this step and until at least one of the other servers is synced with node C, the database will be in read-only mode.
 
-In order for node C to be able to elect itself as database master, we must tell it there are other members in its cluster by re-enabling node A and B in its cluster configuration
+In order for node C to be able to elect itself as database master, we must tell it there are other members in its cluster by re-enabling nodes A and B in its cluster configuration
 
   # /usr/local/pf/bin/pfcmd cluster node-A-hostname enable
   # /usr/local/pf/bin/pfcmd cluster node-B-hostname enable
@@ -815,22 +815,22 @@ Now, stop packetfence-mariadb on node C (`service packetfence-mariadb stop`) and
 
 You should validate that you are able to connect to the MySQL database even though it is in read-only mode using the MySQL command line. If its not, make sure you check the MySQL log (`/var/lib/mysql/PF_HOSTNAME.err`)
 
-Sync node A and B
-+++++++++++++++++
+Sync nodes A and B
+++++++++++++++++++
 
 On each of the servers you want to discard the data from, you must destroy all the data in `/var/lib/mysql` and start packetfence-mariadb so it resyncs its data from scratch.
 
   rm -fr /var/lib/mysql/*
   service packetfence-mariadb start
 
-Once one of the node has completed syncing (try connecting to it using the MySQL command line), then you can break the cluster election command you have running on node C and start node C normally (using `service packetfence-mariadb start`).
-
 Should there be any issues during the sync, make sure you look into the MySQL log (`/var/lib/mysql/PF_HOSTNAME.err`)
 
-Start node A and B
-++++++++++++++++++
+Once one of the node has completed syncing (try connecting to it using the MySQL command line), then you can break the cluster election command you have running on node C and start node C normally (using `service packetfence-mariadb start`).
 
-You can now safely start PacketFence on node A and B using:
+Start nodes A and B
++++++++++++++++++++
+
+You can now safely start PacketFence on nodes A and B using:
 
   # /usr/local/pf/bin/pfcmd service pf start
 
