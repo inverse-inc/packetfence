@@ -1,5 +1,5 @@
 global
-	chroot /var/lib/haproxy
+  external-check
 %%cpu%%
         user haproxy
 	group haproxy
@@ -51,6 +51,7 @@ frontend  main
 backend mysql
     mode tcp
     option tcplog
+    option external-check
     external-check command /usr/local/pf/var/run/db-check
     external-check path "/usr/bin:/bin"
 %%mysql_backend%%
