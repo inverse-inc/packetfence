@@ -129,26 +129,6 @@ EOT
 EOT
             }
 
-            $tags{'http'} .= <<"EOT";
-frontend portal-http-mgmt
-        bind $cluster_ip:80
-        reqadd X-Forwarded-Proto:\\ http
-        default_backend portal-mgmt-backend
-        $bind_process
-
-frontend portal-https-mgmt
-        bind $cluster_ip:443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
-        reqadd X-Forwarded-Proto:\\ https
-        default_backend portal-mgmt-backend
-        $bind_process
-
-backend portal-mgmt-backend
-        balance source
-        option httpclose
-        option forwardfor
-$backend_ip_config
-
-EOT
         }
         if ($cfg->{'type'} =~ /internal/ || $cfg->{'type'} =~ /portal/) {
             my $cluster_ip = pf::cluster::cluster_ip($interface) || $cfg->{'ip'};
