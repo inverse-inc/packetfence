@@ -246,11 +246,6 @@ sub ip2mac {
 
     my $mac;
 
-    # TODO: Special case that need to be documented
-    if (ref($management_network) && $management_network->{'Tip'} eq $ip) {
-        return ( pf::util::clean_mac("00:11:22:33:44:55") );
-    }
-
     $logger->debug("Trying to match MAC address to IP '$ip' using SQL 'ip6log' table");
     $mac = _ip2mac_sql($ip);
     $logger->debug("Matched IP '$ip' to MAC address '$mac' using SQL 'ip6log' table") if $mac;
