@@ -23,6 +23,16 @@ use pf::IPv6;
 use pf::log;
 
 
+=head2 detect
+
+Detect the type of a given [Maybe]IPv4/IPv6 address and check if it is valid
+
+Returns a pf::IPv4 / pf::IPv6 object depending on the type on success
+
+Returns undef on failure
+
+=cut
+
 sub detect {
     my ( $ip ) = @_;
     my $logger = pf::log::get_logger;
@@ -39,6 +49,12 @@ sub detect {
     return undef;
 }
 
+
+=head2 is_ipv6
+
+Check if a given [Maybe]IPv6 address is valid
+
+=cut
 
 sub is_ipv6 {
     my ( $maybe_ipv6 ) = @_;
