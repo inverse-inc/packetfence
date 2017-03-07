@@ -354,7 +354,7 @@ sub process_pkt {
 
             # Non IPv4 nor IPv6 packet
             else {
-                $logger->warn("Skipping non IPv4 nor IPv6 DHCP packet from MAC address '$args{'src_mac'}' (IP: '$args{'src_ip'}') for IP '$args{'dest_ip'}'");
+                $logger->debug("Skipping non IPv4 nor IPv6 DHCP packet from MAC address '$args{'src_mac'}' (IP: '$args{'src_ip'}') for IP '$args{'dest_ip'}'");
                 return; 
             }
         };
