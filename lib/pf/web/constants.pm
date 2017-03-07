@@ -101,6 +101,7 @@ Readonly::Scalar our $EXT_URL_CISCO_WLC             => '^/Cisco::WLC';
 Readonly::Scalar our $EXT_URL_COOVACHILLI           => '^/CoovaChilli';
 Readonly::Scalar our $EXT_URL_MERAKI                => '^/Meraki::MR';
 Readonly::Scalar our $EXT_URL_RUCKUS                => '^/Ruckus';
+Readonly::Scalar our $EXT_URL_RUCKUS_SMARTZONE      => '^/Ruckus::SmartZone';
 Readonly::Scalar our $EXT_URL_XIRRUS                => '^/Xirrus';
 
 # Provisioning engine

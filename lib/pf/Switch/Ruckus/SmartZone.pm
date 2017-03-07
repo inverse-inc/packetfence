@@ -51,6 +51,7 @@ sub parseExternalPortalRequest {
         client_ip       => defined($req->param('uip')) ? $req->param('uip') : undef,
         ssid            => $req->param('ssid'),
         redirect_url    => $req->param('url'),
+        switch_id       => $req->param('nbiIP'),
     );
 
     return \%params;
