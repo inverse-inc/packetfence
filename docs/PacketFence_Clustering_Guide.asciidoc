@@ -395,7 +395,7 @@ Graceful shutdown behavior
 
 When you are gracefully shutting down servers for a planned maintenance, you should always aim to leave a quorum alive so that once the server joins its peers again, it will always re-join the cluster gracefully. You can also leave only one of the nodes alive but keep in mind it will fall in read-only mode but once another node joins the cluster, it will be able to join gracefully.
 
-Should all your nodes be shutdown gracefully (not force killed), when they come back online, they will not be able to create a quorum automatically using the built-in Galera cluster stack. In this case, if the management node will self-elect as a master and have the other nodes join the cluster. This means that if you did gracefully shutdown the management node 30 minutes before shutting down the other nodes, when they come back online you will lose the 30 minutes of data that aren't on the management node. 
+Should all your nodes be shutdown gracefully (not force killed), when they come back online, they will not be able to create a quorum automatically using the built-in Galera cluster stack. In this case, the management node will self-elect as a master and have the other nodes join the cluster. This means that if you did gracefully shutdown the management node 30 minutes before shutting down the other nodes, when they come back online you will lose the 30 minutes of data that aren't on the management node. 
 
 Note that the self-election process of the management node can take up to 5 minutes and requires that more than 50% of the nodes be alive (pingable) during that time.
 
@@ -599,7 +599,7 @@ Then, should there be more than one version identifier across the alive servers,
 
 After that, the algorithm looks at which version is on the most servers. In the event that the dead servers are in higher number than the alive ones, the most recent version is taken. Otherwise, the version that is present on the most servers will be selected.
 
-When pushing a version to the other servers, if the current version has the most recent version or is part of the majority (depending on which push strategy was defined above), then he will be the one pushing the new configuration to the other servers. Otherwise, a webservice call is made to one of the servers running the selected version so that he pushes its configuration to its peers.
+When pushing a version to the other servers, if the current server has the most recent version or is part of the quorum (depending on which push strategy was defined above), then it will be the one pushing the new configuration to the other servers. Otherwise, a webservice call is made to one of the servers running the selected version so that it pushes its configuration to its peers.
 
 Unsupported features in active/active
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
