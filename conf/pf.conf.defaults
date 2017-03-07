@@ -455,6 +455,11 @@ httpd_webservices=enabled
 # Should httpd.collector be started?
 httpd_collector=disabled
 #
+# services.httpd_dispatcher
+#
+# Should httpd.dispatcher be started?
+httpd_dispatcher=enabled
+#
 # services.httpd_aaa
 #
 # Should httpd.aaa be started?

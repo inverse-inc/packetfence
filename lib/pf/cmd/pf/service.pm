@@ -21,7 +21,8 @@ Services managed by PacketFence:
   haproxy          | haproxy daemon
   httpd.aaa        | Apache AAA webservice
   httpd.admin      | Apache Web admin
-  httpd.collector  | Apache Collector demon
+  httpd.collector  | Apache Collector daemon
+  httpd.dispatcher | Captive portal dispatcher
   httpd.graphite   | Apache Graphite daemon
   httpd.parking    | Apache Parking Portal
   httpd.portal     | Apache Captive Portal
