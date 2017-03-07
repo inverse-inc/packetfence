@@ -20,9 +20,13 @@ extends 'pf::IP';
 
 # External libs
 use Net::IP;
+use Readonly;
 
 # Internal libs
 use pf::log;
+
+
+Readonly our $TYPE => 'ipv6';
 
 
 has 'ipv6'  => (is => 'rw');
@@ -39,7 +43,7 @@ around BUILDARGS => sub {
     undef($maybe_prefix) if ( defined($maybe_prefix) && ( $maybe_prefix < 0 || $maybe_prefix > 128 ) );
 
     return $class->$orig (
-        'type'          => 'ipv6',
+        'type'          => $TYPE,
         'ipv6'          => $maybe_ip,
         'prefixLength'  => $maybe_prefix,
         'normalizedIP'  => Net::IP::ip_expand_address($maybe_ip, 6),

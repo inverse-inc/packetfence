@@ -222,7 +222,7 @@ sub _build_clientMac {
                 my $fake_mac = '00:00:' . join(':', map { sprintf("%02x", $_) } split /\./, $ip->addr());
                 my $gateway = $network_config->{'gateway'};
                 locationlog_synchronize($gateway, $gateway, undef, $NO_PORT, $NO_VLAN, $fake_mac, $NO_VOIP, $INLINE);
-                if ( $clientIP->type eq 'ipv6' ) {
+                if ( $clientIP->type eq $pf::IPv6::TYPE ) {
                     pf::ip6log::open($clientIP->normalizedIP, $fake_mac);
                 } else {
                     pf::ip4log::open($clientIP->normalizedIP, $fake_mac);
@@ -231,7 +231,7 @@ sub _build_clientMac {
                 last;
             }
         }
-        if ( $clientIP->type eq 'ipv6' ) {
+        if ( $clientIP->type eq $pf::IPv6::TYPE ) {
             $mac = pf::ip6log::ip2mac( $clientIP->normalizedIP ) unless defined $mac;
         } else {
             $mac = pf::ip4log::ip2mac( $clientIP->normalizedIP ) unless defined $mac;

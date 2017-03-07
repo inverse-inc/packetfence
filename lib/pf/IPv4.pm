@@ -20,9 +20,13 @@ extends 'pf::IP';
 
 # External libs
 use Net::IP;
+use Readonly;
 
 # Internal libs
 use pf::log;
+
+
+Readonly our $TYPE => 'ipv4';
 
 
 has 'ipv4'  => (is => 'rw');
@@ -40,7 +44,7 @@ around BUILDARGS => sub {
     undef($maybe_cidr) if ( defined($maybe_cidr) && ( ($maybe_cidr < 0) || ($maybe_cidr > 32) ) );
 
     return $class->$orig (
-        'type'          => 'ipv4',
+        'type'          => $TYPE,
         'ipv4'          => $maybe_ip,
         'prefixLength'  => $maybe_cidr,
         'normalizedIP'  => Net::IP::ip_expand_address($maybe_ip, 4),
