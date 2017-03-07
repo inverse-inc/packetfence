@@ -703,6 +703,10 @@ Then, we should tell C to ignore A and B in their cluster configuration. In orde
 
   # /usr/local/pf/bin/pfcmd cluster node-A-hostname disable
   # /usr/local/pf/bin/pfcmd cluster node-B-hostname disable
+  
+And restart packetfence-mariadb so it runs without being in the cluster
+
+  # service packetfence-mariadb restart 
 
 NOTE: From this moment on, you will lose the configuration changes and data changes that occur on nodes A and B.
 
@@ -767,7 +771,7 @@ Next, upgrade your operating system and PacketFence on each server:
 
 NOTE: If you reboot your server during this procedure, make sure you set the systemd target to multi-user before rebooting and back to packetfence-cluster after it boots up. This will make sure your services don't start up after the reboot.
 
-You do not need to follow the upgrade procedure when upgrading these nodes. You should instead do a sync from node C from nodes A and B
+You do not need to follow the upgrade procedure when upgrading these nodes. You should instead do a sync from node C on nodes A and B
 
   # /usr/local/pf/bin/cluster/sync --from=192.168.1.5 --api-user=packet --api-password=fence
 
