@@ -38,7 +38,10 @@ Readonly::Hash my %DHCPV6_MESSAGE_TYPES => (
     5   => 'RENEW',
     7   => 'REPLY',
     8   => 'RELEASE',
+    12  => 'RELAY-FORW',
+    13  => 'RELAY-REPL',
 );
+my %DHCPV6_MESSAGE_TYPES_REVERSED = reverse %DHCPV6_MESSAGE_TYPES;
 
 Readonly::Hash my %MESSAGE_TYPE_PROCESSORS => (
     $DHCPV6_MESSAGE_TYPES{'1'}  => 'processDHCPv6Solicit',
@@ -135,18 +138,19 @@ sub process_packet {
 
     # These are relaying packets.
     # In that case we take the inner part
-    if ( $dhcpv6->{msg_type} eq 12 || $dhcpv6->{msg_type} eq 13 ) {
+    if ( $dhcpv6->{msg_type} eq $DHCPV6_MESSAGE_TYPES_REVERSED{'RELAY-FORW'} || $dhcpv6->{msg_type} eq $DHCPV6_MESSAGE_TYPES_REVERSED{'RELAY-REPL'} ) {
         $logger->debug("Found relaying packet. Taking inner request/reply from it.");
         $dhcpv6 = $dhcpv6->{options}->[0];
     }
 
     my $message_type = $DHCPV6_MESSAGE_TYPES{$dhcpv6->{msg_type}};
-    unless ( defined($message_type) ) {
+    my $packet_processor = $MESSAGE_TYPE_PROCESSORS{$message_type};
+
+    unless ( defined($message_type) && defined($packet_processor) ) {
         $logger->warn("Got a DHCPv6 packet of type '$dhcpv6->{msg_type}'. Do not process it");
         return;
     }
 
-    my $packet_processor = $MESSAGE_TYPE_PROCESSORS{$message_type};
     $self->$packet_processor($dhcpv6);
 }
 
