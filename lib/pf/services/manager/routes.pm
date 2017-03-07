@@ -92,6 +92,23 @@ sub isAlive {
     return (defined($pid) && $routes_applied);
 }
 
+=head2 pid
+
+Override the default method to check pid since there really is no such thing for routes (it's not a process).
+
+=cut
+
+sub pid {
+    my $self   = shift;
+    my $result = `sudo systemctl show -p ActiveState packetfence-routes`;
+    chomp $result;
+    my $state = ( split( '=', $result ) )[1];
+    if ( grep { $state eq $_ } qw( active activating deactivating ) ) {
+        return -1;
+    }
+    else { return 0; }
+}
+
 =head2 manageStaticRoute
 
 Add or remove static routes on the system
