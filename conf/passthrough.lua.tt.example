@@ -12,7 +12,7 @@ local string = require("string");
 
 core.register_action("select", { "http-req" }, function(txn)
 
-    if ( not ([% FOREACH host IN portal_host %] string.match(txn.sf:req_fhdr("Host"), '[% host %]') or[% END %] false ) ) then
+    if ( not ([% FOREACH host IN portal_host %] txn.sf:req_fhdr("Host") == '[% host %]' or[% END %] false ) ) then
         txn:set_var("req.action","proxy")
     else
         if (txn.sf:path() == '/') then
