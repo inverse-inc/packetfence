@@ -51,8 +51,23 @@ around BUILDARGS => sub {
 };
 
 
+=head2 is_valid
+
+Checks whether or not, a given IPv6 address is valid
+
+This sub can either be called in a procedural or object way
+
+Takes a pf::IPv6 (object call) or an IPv6 address (procedural call) as parameter
+
+Returns a valid IPv6 address from the pf::IPv6 object on success
+
+Returns undef on failure
+
+=cut
+
 sub is_valid {
     my $self = shift;
+    # Allow an object/procedural way of calling this sub (will instantiate an object and then call itself)
     if ( ref($self) ne __PACKAGE__ ) {
         my $name = (split '\:\:', (caller(0))[3])[-1];
         return __PACKAGE__->new($self)->$name();

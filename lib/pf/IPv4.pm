@@ -52,8 +52,23 @@ around BUILDARGS => sub {
 };
 
 
+=head2 is_valid
+
+Checks whether or not, a given IPv4 address is valid
+
+This sub can either be called in a procedural or object way
+
+Takes a pf::IPv4 (object call) or an IPv4 address (procedural call) as parameter
+
+Returns a valid IPv4 address from the pf::IPv4 object on success
+
+Returns undef on failure
+
+=cut
+
 sub is_valid {
     my $self = shift;
+    # Allow an object/procedural way of calling this sub (will instantiate an object and then call itself)
     if ( ref($self) ne __PACKAGE__ ) {
         my $name = (split '\:\:', (caller(0))[3])[-1];
         return __PACKAGE__->new($self)->$name();
@@ -62,6 +77,18 @@ sub is_valid {
     return $self->ipv4;
 }
 
+
+=head2 cidr2mask
+
+Transforms a CIDR notation (/XX) to an IPv4 subnet mask (XXX.XXX.XXX.XXX)
+
+Takes a valid CIDR notation as parameter
+
+Returns IPv4 subnet mask on success
+
+Returns undef on failure
+
+=cut
 
 sub cidr2mask {
     my ( $cidr ) = @_;
@@ -73,6 +100,18 @@ sub cidr2mask {
     return join ".", (unpack 'CCCC', pack("B*", $bits ));
 }
 
+
+=head2 mask2cidr
+
+Transforms an IPv4 subnet mask (XXX.XXX.XXX.XXX) to a CIDR notation (/XX)
+
+Takes a valid IPv4 subnet mask as parameter
+
+Returns CIDR notation on success
+
+Returns undef on failure
+
+=cut
 
 sub mask2cidr {
     my ( $mask ) = @_;
