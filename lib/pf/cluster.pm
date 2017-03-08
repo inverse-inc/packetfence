@@ -212,9 +212,7 @@ sub mysql_servers {
     if(scalar(@cluster_servers) >= 1){
         # we make the prefered management node the last prefered for MySQL
         my @servers = @cluster_servers;
-        my $management = shift @servers;
-        push @servers, $management;
-        return @servers;
+        return reverse(@servers);
     }
     else{
         return @cluster_servers;
