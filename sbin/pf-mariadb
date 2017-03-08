@@ -602,7 +602,7 @@ if(pf::cluster::is_in_maintenance) {
 # Clear the gvwstate on startup
 $gvwstate_cache->clear();
 
-if($ARGV[0] eq "--force-new-cluster") {
+if(defined($ARGV[0]) && $ARGV[0] eq "--force-new-cluster") {
     bootstrap_new_cluster();
     while($RUNNING) {
         pause;
