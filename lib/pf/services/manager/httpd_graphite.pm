@@ -82,7 +82,7 @@ sub generate_dashboard_settings {
 sub get_cluster_destinations {
     my $carbon_hosts_string;
     my @carbon_urls;
-    if ( @cluster_hosts > 1 and @cluster_servers > 1 ) {
+    if ( @cluster_servers > 1 ) {
         for (@cluster_servers) {
             push( @carbon_urls, '"' . $_->{management_ip} . ":9000" . '"' );
         }

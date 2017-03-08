@@ -57,7 +57,7 @@ sub _run {
             cluster_enabled => $cluster_enabled,
 
             server_ip => pf::cluster::current_server()->{management_ip},
-            servers_ip => [(map { $_->{management_ip} } @cluster_servers)],
+            servers_ip => [(map { $_->{management_ip} } pf::cluster::mysql_servers())],
 
             # TODO: have real configurable user
             replication_user => $Config{active_active}{galera_replication_username},

@@ -28,6 +28,7 @@ use pf::file_paths qw(
     $cluster_config_file
     $config_version_file
     $maintenance_file
+    $var_dir
 );
 use pf::util;
 use pf::constants;
@@ -50,7 +51,7 @@ our ( @ISA, @EXPORT );
 @EXPORT = qw(%ConfigCluster @cluster_servers @cluster_hosts $cluster_enabled $host_id $CLUSTER);
 
 our ($cluster_enabled, %ConfigCluster, @cluster_servers, @cluster_hosts);
-tie %ConfigCluster, 'pfconfig::cached_hash', 'config::Cluster';
+tie %ConfigCluster, 'pfconfig::cached_hash', 'config::Cluster()';
 tie @cluster_servers, 'pfconfig::cached_array', 'resource::cluster_servers';
 tie @cluster_hosts, 'pfconfig::cached_array', 'resource::cluster_hosts';
 $cluster_enabled = sub {
@@ -63,6 +64,37 @@ $cluster_enabled = sub {
 our $CLUSTER = "CLUSTER";
 
 our $host_id = hostname();
+
+=head2 node_disabled_file
+
+Path to the file that states whether or not a node is disabled
+
+=cut
+
+sub node_disabled_file {
+    my ($hostname) = @_;
+    return "$var_dir/run/$hostname-cluster-disabled";
+}
+
+=head2 enabled_servers
+
+Returns the @cluster_servers list without the servers that are disabled on this host
+
+=cut
+
+sub enabled_servers {
+    return map { (-f node_disabled_file($_->{host})) ? () : $_ } @cluster_servers;
+}
+
+=head2 enabled_hosts
+
+Returns the @cluster_hosts list without the servers that are disabled on this host
+
+=cut
+
+sub enabled_hosts {
+    return map { (-f node_disabled_file($_)) ? () : $_ } @cluster_hosts;
+}
 
 =head2 is_management
 
@@ -108,7 +140,7 @@ Returns the cluster config for this server
 =cut
 
 sub current_server {
-    return $cluster_servers[cluster_index()];
+    return (enabled_servers())[cluster_index()];
 }
 
 =head2 cluster_ip
@@ -150,7 +182,7 @@ Returns the index of this server in the cluster (lower is better)
 =cut
 
 sub cluster_index {
-    my $cluster_index = first_index { $_ eq $host_id } @cluster_hosts;
+    my $cluster_index = first_index { $_ eq $host_id } enabled_hosts();
     return $cluster_index;
 }
 
@@ -161,7 +193,7 @@ Compute whether or not this node is the primary DHCP server in the cluster
 =cut
 
 sub is_dhcpd_primary {
-    if(scalar(@cluster_servers) > 1){
+    if(scalar(enabled_servers()) > 1){
         # the non-management node is the primary
         return cluster_index() == 1 ? 1 : 0;
     }
@@ -190,15 +222,15 @@ Get the IP address of the DHCP peer for an interface
 sub dhcpd_peer {
     my ($interface) = @_;
 
-    unless(defined($cluster_servers[1])){
+    unless(defined((enabled_servers())[1])){
         return undef;
     }
 
     if(cluster_index() == 0){
-        return $cluster_servers[1]{"interface $interface"}->{ip};
+        return (enabled_servers())[1]{"interface $interface"}->{ip};
     }
     else {
-        return $cluster_servers[0]{"interface $interface"}->{ip};
+        return (enabled_servers())[0]{"interface $interface"}->{ip};
     }
 }
 
@@ -209,13 +241,13 @@ Get the list of the MySQL servers ordered by priority
 =cut
 
 sub mysql_servers {
-    if(scalar(@cluster_servers) >= 1){
+    if(scalar(enabled_servers()) >= 1){
         # we make the prefered management node the last prefered for MySQL
-        my @servers = @cluster_servers;
+        my @servers = enabled_servers();
         return reverse(@servers);
     }
     else{
-        return @cluster_servers;
+        return enabled_servers();
     }
 }
 
@@ -232,7 +264,7 @@ sub members_ips {
         $logger->warn("requesting member ips for an undefined interface...");
         return {};
     }
-    my %data = map { $_->{host} => $_->{"interface $interface"}->{ip} } @cluster_servers;
+    my %data = map { $_->{host} => $_->{"interface $interface"}->{ip} } enabled_servers();
     return \%data;
 }
 
@@ -248,7 +280,7 @@ sub api_call_each_server {
     require pf::api::jsonrpcclient;
     my @failed;
     my $method = $asynchronous ? "notify" : "call";
-    foreach my $server (@cluster_servers){
+    foreach my $server (enabled_servers()){
         next if($server->{host} eq $host_id);
         my $apiclient = pf::api::jsonrpcclient->new(host => $server->{management_ip}, proto => 'https');
         eval {
@@ -394,7 +426,7 @@ If this is not a cluster, it will dispatch the notification only to itself.
 sub notify_each_server {
     my (@args) = @_;
     if($cluster_enabled) {
-        foreach my $server (@cluster_servers) {
+        foreach my $server (enabled_servers()) {
             my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $server->{management_ip});
             $apiclient->notify(@args);
         }
@@ -465,7 +497,7 @@ Returns a map of the format {SERVER_NAME => VERSION, SERVER_NAME_2 => VERSION, .
 
 sub get_all_config_version {
     my %results;
-    foreach my $server (@cluster_hosts) {
+    foreach my $server (enabled_hosts()) {
         eval {
             $results{$server} = [pf::cluster::call_server($server, 'get_config_version')]->[0]->{version};
         };
@@ -511,8 +543,8 @@ sub handle_config_conflict {
         get_logger->warn("Current version is not the same as the one on all the other cluster servers");
         
         # Can't quorum using 2 hosts
-        if(scalar(@cluster_hosts) > 2) {
-            my $half = (scalar(@cluster_hosts) / 2);
+        if(scalar(enabled_hosts()) > 2) {
+            my $half = (scalar(enabled_hosts()) / 2);
             my $quorum = int($half) == $half ? $half + 1 : ceil($half);
 
             my $servers_count = 0;

@@ -153,12 +153,12 @@ Whether or not there is a ping quorum (i.e. servers are booted and online)
 
 sub ping_quorum {
     my $alive = 0;
-    foreach my $server (@cluster_servers) {
+    foreach my $server (pf::cluster::enabled_servers()) {
         if(ping($server->{management_ip})) {
             $alive ++;
         }
     }
-    return ($alive > (scalar(@cluster_servers) / 2));
+    return ($alive > (scalar(pf::cluster::enabled_servers()) / 2));
 }
 
 =head2 test_db
@@ -190,7 +190,7 @@ One of the cluster members has its database running.
 sub db_available {
     my $alive = 0;
 
-    foreach my $server (@cluster_servers) {
+    foreach my $server (pf::cluster::enabled_servers()) {
         my $host = $server->{management_ip};
         $alive ++ if(test_db($host));
     }
@@ -379,7 +379,7 @@ sub send_gvwstate_to_quorum_mgmt_server {
             $timestamp = ( stat($gvwstate) )[9];
         }
         my $socket = new IO::Socket::INET (
-            PeerHost => $cluster_servers[0]->{management_ip},
+            PeerHost => (pf::cluster::enabled_servers())[0]->{management_ip},
             PeerPort => '7890',
             Proto => 'tcp',
         );
@@ -407,7 +407,7 @@ Get the gvwstate info that has been populated in the cache up to now
 
 sub get_gvwstate_info {
     my $info = {};
-    for my $server (@cluster_servers) {
+    for my $server (pf::cluster::enabled_servers()) {
         my $server_info = $gvwstate_cache->get("gvwstate-".$server->{management_ip});
         $info->{$server->{host}} = $server_info if(defined($server_info));
     }
@@ -497,7 +497,7 @@ This will only start to act on the servers once it has received the data from al
 
 sub act_on_quorum_server_data {
     my $info = get_gvwstate_info();
-    my $missing = scalar(@cluster_servers) - scalar(keys(%$info));
+    my $missing = scalar(pf::cluster::enabled_servers()) - scalar(keys(%$info));
     if ($missing == 0) {
         $logger->info("Collected quorum information from all servers");
         my $latest_host;
