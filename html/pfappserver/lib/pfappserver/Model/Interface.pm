@@ -19,6 +19,7 @@ use pf::constants;
 use pf::config qw(%ConfigDomain);
 use pf::error qw(is_error is_success);
 use pf::util;
+use pf::util::IP;
 use pf::log;
 
 extends 'Catalyst::Model';
@@ -275,6 +276,9 @@ sub update {
     my $logger = get_logger();
 
     my ($ipaddress, $netmask, $ipv6_address, $ipv6_prefix, $status, $status_msg);
+
+    # Normalizing IPv6 address if exists
+    $interface_ref->{'ipv6_address'} = pf::util::IP::detect($interface_ref->{'ipv6_address'})->normalizedIP if $interface_ref->{'ipv6_address'};
 
     $interface_ref->{netmask} = '255.255.255.0' unless ($interface_ref->{netmask});
     $ipaddress = $interface_ref->{ipaddress};
@@ -654,6 +658,8 @@ sub _listInterfaces {
                     $interface->{ipv6_address}  = $2,
                     $interface->{ipv6_prefix}   = $3,
                 }
+                # Normalizing IPv6 address if exists
+                $interface->{ipv6_address} = pf::util::IP::detect($interface->{ipv6_address})->normalizedIP if $interface->{ipv6_address};
             }
             # we add it to the interfaces if it's not a virtual interface for the domains
             push(@interfaces_list, $interface) unless exists $ConfigDomain{$interface->{name}};
