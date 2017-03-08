@@ -647,6 +647,7 @@ sub deactivate_maintenance {
 
 Takes the active_active.password and ensures its a 56 bytes password
 Will pad the password with zeros if its less than that
+Will strip the password to 56 bytes if its more than that
 
 =cut
 
@@ -666,6 +667,12 @@ sub encryption_password {
 
     return $password;
 }
+
+=head2 cipher
+
+Get the cipher to encrypt/decrypt cluster communications
+
+=cut
 
 sub cipher {
     return Crypt::CBC->new(
