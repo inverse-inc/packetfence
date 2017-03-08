@@ -14,11 +14,12 @@ The pf::Switch::Fortinet::FortiGate  module implements an object oriented interf
 
 =head1 BUGS AND LIMITATIONS
 
+No doing deauthentication since this is a web form released switch
+
 =cut
 
 use strict;
 use warnings;
-use Log::Log4perl;
 use pf::node;
 use pf::violation;
 use pf::locationlog;
@@ -42,14 +43,22 @@ sub supportsWirelessMacAuth { return $TRUE; }
 sub supportsWiredMacAuth { return $TRUE; }
 
 
+=item getIfIndexByNasPortId
+
+Return constant sice there is no ifindex
+
+=cut
+
 sub getIfIndexByNasPortId {
    return 'external';
 }
 
 
 =item parseExternalPortalRequest
+
 Parse external portal request using URI and it's parameters then return an hash reference with the appropriate parameters
 See L<pf::web::externalportal::handle>
+
 =cut
 
 sub parseExternalPortalRequest {
@@ -117,6 +126,12 @@ sub returnRadiusAccessAccept {
     return $self->SUPER::returnRadiusAccessAccept($args);
 }
 
+=head2 getAcceptForm
+
+Return the accept form to the client
+
+=cut
+
 sub getAcceptForm {
     my ( $self, $mac , $destination_url,$cgi_session) = @_;
     my $logger = $self->logger;
@@ -142,6 +157,12 @@ sub getAcceptForm {
     return $html_form;
 }
 
+=head2 deauthenticateMacDefault
+
+Just log since there is no way to deauthenticate
+
+=cut
+
 sub deauthenticateMacDefault {
     get_logger->info("No doing deauthentication since this is a web form released switch.");
 }
@@ -153,7 +174,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 

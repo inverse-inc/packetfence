@@ -2,17 +2,12 @@ package pf::Switch::Fortinet;
 
 =head1 NAME
 
-pf::Switch::Fortinet - Object oriented module to access and configure enabled Netgear switches.
+pf::Switch::Fortinet - Object oriented module to access and configure enabled Fortinet.
 
 =cut
 
 use strict;
 use warnings;
-
-use Log::Log4perl;
-use Net::SNMP;
-
-use pf::Switch::constants;
 
 use base ('pf::Switch');
 
@@ -22,7 +17,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 
