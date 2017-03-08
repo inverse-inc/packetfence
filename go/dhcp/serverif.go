@@ -59,7 +59,6 @@ func ListenAndServeIf(interfaceName string, handler Handler, jobs chan job) erro
 		return err
 	}
 
-	// ip := net.ParseIP("0.0.0.0")
 	p, err := broadcastOpen(net.IPv4zero, 67, interfaceName)
 	if err != nil {
 		return err

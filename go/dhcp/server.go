@@ -43,14 +43,17 @@ func Serve(conn ServeConn, handler Handler, jobs chan job) error {
 
 	buffer := make([]byte, 1500)
 	for {
-		n, _, err := conn.ReadFrom(buffer)
+		n, addr, err := conn.ReadFrom(buffer)
+
 		if err != nil {
 			return err
 		}
 		if n < 240 { // Packet too small to be DHCP
 			continue
 		}
+
 		req := dhcp.Packet(buffer[:n])
+
 		if req.HLen() > 16 { // Invalid size
 			continue
 		}
@@ -64,10 +67,9 @@ func Serve(conn ServeConn, handler Handler, jobs chan job) error {
 				continue
 			}
 		}
-		// Create Job and push the work onto the jobCh.
-		jobe := job{req, reqType, options, handler, "Packet"}
+
+		jobe := job{req, reqType, options, handler, addr}
 		go func() {
-			// fmt.Printf("added: %s %s\n", job.name, job.duration)
 			jobs <- jobe
 		}()
 
