@@ -671,9 +671,11 @@ The PacketFence clustering stack has a mechanism that allows configuration confl
 
 In order to do, so go in 'Configuration->Maintenance' and set 'Cluster Check Interval' to `0`.
 
-Once this is done, restart pfmon on the management node using
+Once this is done, restart pfmon on all nodes using:
 
   # /usr/local/pf/bin/pfcmd service pfmon restart
+
+NOTE: It is normal that pfmon will refuse to start on nodes B and C. Nonetheless you should execute the command on them to make sure you catch any stale process.
 
 Upgrading node C
 ^^^^^^^^^^^^^^^^
@@ -858,7 +860,9 @@ Now that your cluster is back to a healthy state, you should reactivate the conf
 
 In order to do, so go in 'Configuration->Maintenance' and set 'Cluster Check Interval' to `1 minute` (or the value you prefer).
 
-Once this is done, restart pfmon on the management node using
+Once this is done, restart pfmon on all nodes using:
 
   # /usr/local/pf/bin/pfcmd service pfmon restart
+
+NOTE: It is normal that pfmon will refuse to start on nodes B and C. Nonetheless you should execute the command on them to make sure you catch any stale process.
 
