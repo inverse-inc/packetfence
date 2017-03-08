@@ -687,8 +687,8 @@ sub _prepare_interface_for_pfconf {
         vip             => $int_model->{'vip'},
     };
 
-    $int_config_ref->{'ipv6_address'}   = $int_model->{'ipv6_address'} if ( $int_model->{'ipv6_address'} && $int_model->{'ipv6_address'} ne '' );
-    $int_config_ref->{'ipv6_prefix'}    = $int_model->{'ipv6_prefix'} if ( $int_model->{'ipv6_prefix'} && $int_model->{'ipv6_prefix'} ne '' );
+    $int_config_ref->{'ipv6_address'}   = $int_model->{'ipv6_address'};
+    $int_config_ref->{'ipv6_prefix'}    = $int_model->{'ipv6_prefix'};
 
     # logic to match our awkward relationship between pf.conf's type and
     # enforcement with networks.conf's type
