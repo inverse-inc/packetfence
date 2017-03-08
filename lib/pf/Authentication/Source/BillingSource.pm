@@ -14,10 +14,13 @@ pf::Authentication::Source::BillingSource
 use strict;
 use warnings;
 use Moose;
-use pf::config qw($default_pid $fqdn);
+use pf::config qw($default_pid $fqdn %Config);
 use pf::constants qw($TRUE $FALSE);
 use pf::Authentication::constants;
 use pf::util;
+use pf::web::constants;
+use utf8;
+use Locale::gettext qw(gettext ngettext);
 
 extends 'pf::Authentication::Source';
 with 'pf::Authentication::CreateLocalAccountRole';
@@ -171,6 +174,53 @@ sub handle_hook {
     my ($self) = @_;
     return ;
 }
+
+=head2 confirmationInfo
+
+confirmationInfo
+
+=cut
+
+sub confirmationInfo {
+    my ($self, $parameters, $tier, $session) = @_;
+    return {
+        'firstname'        => $parameters->{firstname},
+        'lastname'         => $parameters->{lastname},
+        'email'            => $parameters->{email},
+        'tier_name'        => $tier->{'name'},
+        'tier_description' => $tier->{'description'},
+        'tier_price'       => $tier->{'price'},
+        'hostname'         => $Config{'general'}{'hostname'},
+        'domain'           => $Config{'general'}{'domain'},
+        'subject'          => i18n_format("%s: Network Access Order Confirmation", $Config{'general'}{'domain'}),
+        pf::web::constants::to_hash(),
+        $self->additionalConfirmationInfo($parameters, $tier, $session),
+      };
+}
+
+=head2 i18n_format
+
+Pass message id through gettext then sprintf it.
+
+Meant to be called from the TT templates.
+
+=cut
+
+sub i18n_format {
+    my ($msgid, @args) = @_;
+
+    my $result = sprintf(gettext($msgid), @args);
+    utf8::decode($result);
+    return $result;
+}
+
+=head2 additionalConfirmationInfo
+
+additionalConfirmationInfo
+
+=cut
+
+sub additionalConfirmationInfo { }
 
 =head1 AUTHOR
 
