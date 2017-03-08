@@ -45,6 +45,7 @@ use pf::node qw(node_attributes);
 use pf::util::radius qw(perform_coa perform_disconnect);
 use Try::Tiny;
 use pf::util;
+use Net::SSH2;
 
 sub supportsWiredMacAuth { return $TRUE; }
 sub supportsRadiusVoip { return $TRUE; }
