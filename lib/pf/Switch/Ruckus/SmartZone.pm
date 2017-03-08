@@ -21,7 +21,7 @@ use pf::util;
 use LWP::UserAgent;
 use pf::node;
 use pf::violation;
-use pf::iplog;
+use pf::ip4log;
 use JSON::MaybeXS qw(encode_json);
 
 sub description { 'Ruckus SmartZone Wireless Controllers' }
@@ -89,7 +89,7 @@ sub deauthenticateMacWebservices {
     my $controllerIp = $self->{_controllerIp} || $self->{_ip};
     my $webservicesPassword = $self->{_wsPwd};
     my $ucmac = uc $mac;
-    my $ip = pf::iplog::mac2ip($mac);
+    my $ip = pf::ip4log::mac2ip($mac);
     my $node_info = node_view($mac);
     my $payload;
     if($node_info->{status} eq "unreg" || violation_count_reevaluate_access($mac)) {
