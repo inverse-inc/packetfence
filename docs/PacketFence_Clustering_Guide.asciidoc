@@ -664,6 +664,17 @@ First, ensure you have taken backups of your data. We highly encourage you to pe
   # mysqldump --opt -u root -p pf | gzip > /root/packetfence_db.sql.gz
   # tar -C /usr/local -czf /root/packetfence.tar.gz pf --exclude='pf/logs' --exclude='pf/var'
 
+Disabling the auto-correction of configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The PacketFence clustering stack has a mechanism that allows configuration conflicts to be handled accross the servers. This will come in conflict with your upgrade, so you should disable it.
+
+In order to do, so go in 'Configuration->Maintenance' and set 'Cluster Check Interval' to `0`.
+
+Once this is done, restart pfmon on the management node using
+
+  # /usr/local/pf/bin/pfcmd service pfmon restart
+
 Upgrading node C
 ^^^^^^^^^^^^^^^^
 
@@ -691,7 +702,7 @@ Detach node C from the cluster
 
 First, we need to tell A and B to ignore C in their cluster configuration. In order to do so, execute the following command **on A and B** while changing `node-C-hostname` with the actual hostname of node C:
 
-  # /usr/local/pf/bin/pfcmd cluster node-C-hostname disable
+  # /usr/local/pf/bin/cluster/node node-C-hostname disable
 
 Once this is done proceed to restart the following services on nodes A and B **one at a time**. This will cause service failure during the restart on node A
 
@@ -701,8 +712,8 @@ Once this is done proceed to restart the following services on nodes A and B **o
 
 Then, we should tell C to ignore A and B in their cluster configuration. In order to do so, execute the following commands on node C while changing `node-A-hostname` and `node-B-hostname` by the hostname of nodes A and B respectively.
 
-  # /usr/local/pf/bin/pfcmd cluster node-A-hostname disable
-  # /usr/local/pf/bin/pfcmd cluster node-B-hostname disable
+  # /usr/local/pf/bin/cluster/node node-A-hostname disable
+  # /usr/local/pf/bin/cluster/node node-B-hostname disable
   
 And restart packetfence-mariadb so it runs without being in the cluster
 
@@ -812,8 +823,8 @@ CAUTION: After this step and until at least one of the other servers is synced w
 
 In order for node C to be able to elect itself as database master, we must tell it there are other members in its cluster by re-enabling nodes A and B in its cluster configuration
 
-  # /usr/local/pf/bin/pfcmd cluster node-A-hostname enable
-  # /usr/local/pf/bin/pfcmd cluster node-B-hostname enable
+  # /usr/local/pf/bin/cluster/node node-A-hostname enable
+  # /usr/local/pf/bin/cluster/node node-B-hostname enable
 
 Now, stop packetfence-mariadb on node C (`service packetfence-mariadb stop`) and elect node C as the master using `/usr/local/pf/sbin/pf-mariadb --force-new-cluster` and leave the process in foreground. 
 
@@ -840,5 +851,14 @@ You can now safely start PacketFence on nodes A and B using:
 
 You should now have full service on all 3 nodes using the latest version of PacketFence.
 
+Reactivate the configuration conflict handling
+++++++++++++++++++++++++++++++++++++++++++++++
 
+Now that your cluster is back to a healthy state, you should reactivate the configuration conflict resolution.
+
+In order to do, so go in 'Configuration->Maintenance' and set 'Cluster Check Interval' to `1 minute` (or the value you prefer).
+
+Once this is done, restart pfmon on the management node using
+
+  # /usr/local/pf/bin/pfcmd service pfmon restart
 
