@@ -243,7 +243,6 @@ sub quorum_management_server {
             next unless($client_socket);
             # Receive up to 2048 bytes
             # Payload should be a JSON value representing this:
-            # TODO: encrypt this with the active_active.password as a shared key
             # {
             #   "server_mgmt_ip": "1.2.3.4",
             #   "gvwstate_timestamp": 123456789,
@@ -257,6 +256,7 @@ sub quorum_management_server {
             eval {
                 my $payload = "";
                 $client_socket->recv($payload, 2048);
+                $payload = pf::cluster::decrypt_message($payload);
 
                 my $data = decode_json($payload);
                 $gvwstate_cache->set("gvwstate-".$data->{server_mgmt_ip}, $data);
@@ -311,13 +311,13 @@ sub quorum_client_server {
             next unless($client_socket);
             # Receive up to 2048 bytes
             # Payload should be a JSON value representing this:
-            # TODO: encrypt this with the active_active.password as a shared key
             # {
             #   "should_start": [1|0],
             # }
             eval {
                 my $payload = "";
                 $client_socket->recv($payload, 2048);
+                $payload = pf::cluster::decrypt_message($payload);
 
                 my $data = decode_json($payload);
                 $gvwstate_cache->set("gvwstate-should-start", $data->{should_start});
@@ -351,7 +351,7 @@ sub send_to_quorum_client {
         );
         die "cannot connect to the server $!\n" unless $socket;
 
-        $socket->send(encode_json($data));
+        $socket->send(pf::cluster::encrypt_message(encode_json($data)));
     };
     if($@) {
         my $msg = "Cannot send message to quorum client $ip: $@";
@@ -385,12 +385,12 @@ sub send_gvwstate_to_quorum_mgmt_server {
         );
         die "cannot connect to the server $!\n" unless $socket;
 
-        $socket->send(encode_json({
+        $socket->send(pf::cluster::encrypt_message(encode_json({
             server_mgmt_ip => pf::cluster::current_server->{management_ip},
             gvwstate_timestamp => $timestamp,
             gvwstate_uuid => $myuuid,
             gvwstate_members => $members,
-        }));
+        })));
     };
     if($@) {
         my $msg = "Cannot send state to master server: $@";
