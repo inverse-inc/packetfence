@@ -51,7 +51,7 @@ our ( @ISA, @EXPORT );
 @EXPORT = qw(%ConfigCluster @cluster_servers @cluster_hosts $cluster_enabled $host_id $CLUSTER);
 
 our ($cluster_enabled, %ConfigCluster, @cluster_servers, @cluster_hosts);
-tie %ConfigCluster, 'pfconfig::cached_hash', 'config::Cluster()';
+tie %ConfigCluster, 'pfconfig::cached_hash', 'config::Cluster';
 tie @cluster_servers, 'pfconfig::cached_array', 'resource::cluster_servers';
 tie @cluster_hosts, 'pfconfig::cached_array', 'resource::cluster_hosts';
 $cluster_enabled = sub {
