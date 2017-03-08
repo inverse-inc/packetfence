@@ -569,8 +569,8 @@ Refer to the clustering guide for details on how this works.
 =cut
 
 sub attempt_start {
-    # Just start it without anything special if we're in standalone mode
-    if(!$cluster_enabled) {
+    # Just start it without anything special if we're in standalone mode or if we're a single cluster node
+    if(!$cluster_enabled || scalar(pf::cluster::enabled_servers()) == 1) {
         fork_launch_mysql("standalone");
     }
     # MySQL isn't running but there is a gvwstate
