@@ -17,32 +17,83 @@ use warnings;
 use HTML::FormHandler::Moose;
 use pf::config qw($fqdn);
 extends 'pfappserver::Form::Config::Authentication::Source::Billing';
+with 'pfappserver::Base::Form::Role::Help';
 
 has_field base_url => (
-    type => 'Text',
+    type => 'Select',
+    label => 'Mirapay Iframe Base url',
+    options => [
+        { label => 'Staging', value => "https://staging.eigendev.com/MiraSecure/GetToken.php" },
+        { label => 'Prod 1',  value => "https://ms1.eigendev.com/MiraSecure/GetToken.php" },
+        { label => 'Prod 2',  value => "https://ms1.eigendev.com/MiraSecure/GetToken.php" },
+    ],
     default => "https://staging.eigendev.com/MiraSecure/GetToken.php",
     required => 1,
 );
 
-has_field shared_secret => (
+has_field direct_base_url => (
     type => 'Text',
+    label => 'Mirapay Direct Base url',
+    default => "https://staging.eigendev.com/OFT/EigenOFT_d.php",
     required => 1,
 );
 
-has_field service_fqdn => (
+has_field terminal_id => (
     type => 'Text',
-    default_method => sub { $fqdn }
+    required => 1,
+    label => 'Terminal ID',
+    tags => {
+        after_element => \&help,
+        help => 'Terminal ID for Mirapay Direct',
+    },
+);
+
+has_field shared_secret_direct => (
+    type => 'Text',
+    label => 'Shared Secret Direct',
+    required => 1,
+    tags => {
+        after_element => \&help,
+        help => 'MKEY for Mirapay Direct',
+    },
+    element_class => ['input-xlarge'],
+);
+
+has_field shared_secret => (
+    type => 'Text',
+    label => 'Shared Secret',
+    required => 1,
+    tags => {
+        after_element => \&help,
+        help => 'MKEY for the iframe',
+    },
+);
+
+has_field service_fqdn => (
+    label => 'Service FQDN',
+    type => 'Text',
+    default_method => sub { $fqdn },
+    tags => {
+        after_element => \&help,
+        help => 'Service FQDN',
+    },
 );
 
 has_field merchant_id => (
+    label => 'Merchant ID',
     type => 'Text',
     required => 1,
 );
 
 has_block definition => (
-    render_list => [qw(base_url service_fqdn shared_secret merchant_id currency test_mode create_local_account local_account_logins)]
+    render_list => [qw(
+        base_url direct_base_url service_fqdn
+        merchant_id shared_secret terminal_id
+        shared_secret_direct currency test_mode
+        create_local_account local_account_logins
+        send_email_confirmation
+    )]
 );
-
 
 =head1 AUTHOR
 
