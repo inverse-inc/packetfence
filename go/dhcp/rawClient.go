@@ -3,10 +3,13 @@ package main
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 	"log"
 	"net"
+	"os"
+	"strconv"
 
-	"golang.org/x/net/ipv4"
+	"syscall"
 
 	"github.com/mdlayher/ethernet"
 	"github.com/mdlayher/raw"
@@ -92,17 +95,6 @@ func (c *RawClient) sendDHCP(target net.HardwareAddr, dhcp []byte, dstIP net.IP,
 
 	udplen := 8 + len(dhcp)
 
-	h := &ipv4.Header{
-		Version:  ipv4.Version,
-		Len:      ipv4.HeaderLen,
-		TotalLen: ipv4.HeaderLen + UDP_HEADER_LEN + len(dhcp),
-		ID:       0,
-		Protocol: proto,
-		Dst:      dstIP.To4(),
-		Src:      srcIP.To4(),
-		TTL:      128,
-	}
-
 	ip := iphdr{
 		vhl:   0x45,
 		tos:   0,
@@ -121,7 +113,6 @@ func (c *RawClient) sendDHCP(target net.HardwareAddr, dhcp []byte, dstIP net.IP,
 
 	ip.iplen = uint16(totalLen)
 	ip.checksum()
-	h.Checksum = int(ip.csum)
 
 	buf := bytes.NewBuffer([]byte{})
 	err := binary.Write(buf, binary.BigEndian, &udp)
@@ -132,12 +123,14 @@ func (c *RawClient) sendDHCP(target net.HardwareAddr, dhcp []byte, dstIP net.IP,
 	udpHeader := buf.Bytes()
 	dataWithHeader := append(udpHeader, dhcp...)
 
-	out, err := h.Marshal()
+	buff := bytes.NewBuffer([]byte{})
+	err = binary.Write(buff, binary.BigEndian, &ip)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	packet := append(out, dataWithHeader...)
+	ipHeader := buff.Bytes()
+	packet := append(ipHeader, dataWithHeader...)
 
 	// Create Ethernet frame
 	f := &ethernet.Frame{
@@ -206,4 +199,80 @@ func (h *iphdr) checksum() {
 	var b bytes.Buffer
 	binary.Write(&b, binary.BigEndian, h)
 	h.csum = checksum(b.Bytes())
+}
+
+// sendUnicastDHCP create a udp packet and stores it in an
+// Ethernet frame, and sends the frame over a raw socket to attempt to wake
+// a machine.
+func sendUnicastDHCP(dhcp []byte, dstIP net.Addr, srcIP net.IP) error {
+
+	s, err := syscall.Socket(syscall.AF_INET, syscall.SOCK_RAW, syscall.IPPROTO_RAW)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	proto := 17
+
+	ipStr, portStr, _ := net.SplitHostPort(dstIP.String())
+	port, _ := strconv.Atoi(portStr)
+
+	udpsrc := uint(67)
+	udpdst := port
+
+	udp := udphdr{
+		src: uint16(udpsrc),
+		dst: uint16(udpdst),
+	}
+
+	udplen := 8 + len(dhcp)
+
+	ip := iphdr{
+		vhl:   0x45,
+		tos:   0,
+		id:    0x0000, // the kernel overwrites id if it is zero
+		off:   0,
+		ttl:   128,
+		proto: uint8(proto),
+	}
+	copy(ip.src[:], srcIP.To4())
+	copy(ip.dst[:], net.ParseIP(ipStr).To4())
+
+	udp.ulen = uint16(udplen)
+	udp.checksum(&ip, dhcp)
+
+	totalLen := 20 + udplen
+
+	ip.iplen = uint16(totalLen)
+	ip.checksum()
+
+	buf := bytes.NewBuffer([]byte{})
+	err = binary.Write(buf, binary.BigEndian, &udp)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	udpHeader := buf.Bytes()
+	dataWithHeader := append(udpHeader, dhcp...)
+
+	buff := bytes.NewBuffer([]byte{})
+	err = binary.Write(buff, binary.BigEndian, &ip)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	ipHeader := buff.Bytes()
+	packet := append(ipHeader, dataWithHeader...)
+
+	addr := syscall.SockaddrInet4{}
+	copy(addr.Addr[:], net.ParseIP(ipStr).To4())
+	addr.Port = int(udpdst)
+
+	err = syscall.Sendto(s, packet, 0, &addr)
+	// Send packet to target
+	err = syscall.Close(s)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error closing the socket: %v\n", err)
+		os.Exit(1)
+	}
+	return err
 }

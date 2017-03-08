@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"encoding/binary"
 	"log"
 	"math/rand"
 	"net/http"
@@ -21,16 +21,8 @@ var DHCPConfig *Interfaces
 
 var ctx = context.Background()
 
-type job struct {
-	p       dhcp.Packet
-	msgType dhcp.MessageType
-	options dhcp.Options
-	handler Handler
-	name    string
-}
-
 type lease struct {
-	nic    string    // Client's CHAddr
+	nic    uint32    // Client's CHAddr
 	expiry time.Time // When the lease expires
 }
 
@@ -67,17 +59,6 @@ func newDHCPConfig() *Interfaces {
 	return &p
 }
 
-func doWork(id int, jobe job) {
-	var ans Answer
-	fmt.Printf("worker%d: started %s\n", id, jobe.name)
-	if ans = jobe.handler.ServeDHCP(jobe.p, jobe.msgType, jobe.options); ans.D != nil {
-		client, _ := NewRawClient(ans.Iface)
-		client.sendDHCP(ans.MAC, ans.D, ans.IP, ans.SrcIP)
-		client.Close()
-	}
-
-}
-
 func main() {
 
 	// Read pfconfig
@@ -112,7 +93,6 @@ func main() {
 }
 
 func (h *Interface) run(jobs chan job) {
-	// spew.Dump(h)
 	ListenAndServeIf(h.Name, h, jobs)
 }
 
@@ -122,15 +102,19 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 	answer.MAC = p.CHAddr()
 	answer.SrcIP = h.Ipv4
 
-	// Detect the  handler to use (config)
-	if p.GIAddr().Equal(net.IPv4zero) {
-		for _, v := range h.network {
-			if v.dhcpHandler.layer2 {
-				handler = v.dhcpHandler
-				break
-			}
+	// Detect the handler to use (config)
+	// if p.GIAddr().Equal(net.IPv4zero) {
+	for _, v := range h.network {
+		if v.dhcpHandler.layer2 && p.GIAddr().Equal(net.IPv4zero) {
+			handler = v.dhcpHandler
+			break
+		}
+		if !p.GIAddr().Equal(net.IPv4zero) && v.network.Contains(p.GIAddr()) {
+			handler = v.dhcpHandler
+			break
 		}
 	}
+
 	if len(handler.ip) == 0 {
 		return answer
 	}
@@ -138,9 +122,10 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 	switch msgType {
 
 	case dhcp.Discover:
-
+		var nic uint32
 		// Need to be reworked to have a distributed ip range
-		free, nic := -1, p.CHAddr().String()
+
+		free, nic := -1, binary.BigEndian.Uint32(p.CHAddr())
 		for i, v := range handler.leases { // Find previous lease
 			if v.nic == nic {
 				free = i
@@ -148,7 +133,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 			}
 		}
 		if free = handler.freeLease(); free == -1 {
-			return
+			return answer
 		}
 
 	reply:
@@ -172,9 +157,9 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 
 		if len(reqIP) == 4 && !reqIP.Equal(net.IPv4zero) {
 			if leaseNum := dhcp.IPRange(handler.start, reqIP) - 1; leaseNum >= 0 && leaseNum < handler.leaseRange {
-				if l, exists := handler.leases[leaseNum]; !exists || l.nic == p.CHAddr().String() {
+				if l, exists := handler.leases[leaseNum]; !exists || l.nic == binary.BigEndian.Uint32(p.CHAddr()) {
 
-					handler.leases[leaseNum] = lease{nic: p.CHAddr().String(), expiry: time.Now().Add(handler.leaseDuration)}
+					handler.leases[leaseNum] = lease{nic: binary.BigEndian.Uint32(p.CHAddr()), expiry: time.Now().Add(handler.leaseDuration)}
 					answer.D = dhcp.ReplyPacket(p, dhcp.ACK, handler.ip, reqIP, handler.leaseDuration,
 						handler.options.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
 					return answer
@@ -184,7 +169,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 		answer.D = dhcp.ReplyPacket(p, dhcp.NAK, handler.ip, nil, 0, nil)
 
 	case dhcp.Release, dhcp.Decline:
-		nic := p.CHAddr().String()
+		nic := binary.BigEndian.Uint32(p.CHAddr())
 		for i, v := range handler.leases {
 			if v.nic == nic {
 				delete(handler.leases, i)
@@ -281,7 +266,6 @@ func (d *Interfaces) readConfig() {
 				}
 			}
 		}
-		//spew.Dump(ethIf)
 		d.intsNet = append(d.intsNet, ethIf)
 
 	}
