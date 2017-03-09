@@ -86,9 +86,14 @@ sub _build_sql_strings {
         remove   => "DELETE FROM $table WHERE $key = ?",
         clear    => "DELETE FROM $table where $key like $key_prefix_match",
         get_keys => "SELECT DISTINCT $key FROM $table where $key like $key_prefix_match and ? < $expires_at",
-        create   => "CREATE TABLE IF NOT EXISTS $table ("
-          . " $key VARCHAR( 300 ), $value TEXT, $expires_at REAL,"
-          . " PRIMARY KEY ( $key ) )",
+        create   => <<EOF
+CREATE TABLE IF NOT EXISTS $table (
+  $key VARCHAR(767),
+  $value LONGBLOB,
+  $expires_at REAL,
+  PRIMARY KEY ($key)
+)
+EOF
     };
 
     if ( $self->db_name eq 'MySQL' ) {
