@@ -5062,6 +5062,105 @@ Configure your access point with the following configuration:
   /radius incoming
   set accept=yes
 
+Webauth
++++++++
+
+You can use webauth (external captive portal) on Mikrotik APs. In order to do so, you will have to activate the hotspot feature in the AP configuration as well as modify the redirection template so that it points to PacketFence.
+
+First, you must establish an FTP connection to your access point and replace the content of `hotspot/login.html` with the following:
+
+  <html>
+  <head><title>...</title></head>
+  <body>
+  $(if chap-id)
+  <noscript>
+  <center><b>JavaScript required. Enable JavaScript to continue.</b></center>
+  </noscript>
+  $(endif)
+  <center>If you are not redirected in a few seconds, click 'continue' below<br>
+  <form name="redirect" action="http://192.168.1.5/Mikrotik" method="get">
+    <input type="hidden" name="mac" value="$(mac)">
+    <input type="hidden" name="ip" value="$(ip)">
+    <input type="hidden" name="username" value="$(username)">
+    <input type="hidden" name="link-login" value="$(link-login)">
+    <input type="hidden" name="link-orig" value="$(link-orig)">
+    <input type="hidden" name="error" value="$(error)">
+    <input type="hidden" name="chap-id" value="$(chap-id)">
+    <input type="hidden" name="chap-challenge" value="$(chap-challenge)">
+    <input type="hidden" name="link-login-only" value="$(link-login-only)">
+    <input type="hidden" name="link-orig-esc" value="$(link-orig-esc)">
+    <input type="hidden" name="mac-esc" value="$(mac-esc)">
+    <input type="hidden" name="ap-id" value="AP_IP_ADDRESS_HERE">
+    <input type="submit" value="continue">
+  </form>
+  <script language="JavaScript">
+  <!--
+     document.redirect.submit();
+  //-->
+  </script></center>
+  </body>
+  </html>
+
+Next, in the `login.html` you have just uploaded, make sure you change `AP_IP_ADDRESS_HERE` by the management IP address of your access point and `192.168.1.5` by the IP address of your PacketFence captive portal.
+
+Now, you must configure the hotspot feature on your AP. This configuration is done on top of an existing SSID you have previously configured which is on interface `wlan1`. Adjust the interface name if needed.
+
+  /ip hotspot
+  setup
+  
+  hotspot interface: wlan1
+
+  local address of network: 10.5.50.1/24
+  masquerade network: yes
+  Set pool for HotSpot addresses 
+  
+  address pool of network: 10.5.50.2-10.5.50.254
+  Select hotspot SSL certificate 
+  
+  select certificate: none
+  Select SMTP server 
+  
+  ip address of smtp server: 0.0.0.0
+  Setup DNS configuration 
+  
+  dns servers: 8.8.8.8
+  DNS name of local hotspot server 
+  
+  dns name: myhotspot
+  Create local hotspot user 
+  
+  name of local hotspot user: admin
+  password for the user: 
+
+Next, you need to allow access to the PacketFence portal in the hotspot access list. Change `192.168.1.5` with the IP address you pointed to in `login.html`
+
+  /ip hotspot walled-garden
+  add dst-host=192.168.1.5
+  add src-address=192.168.1.5
+
+  /ip hotspot walled-garden ip
+  add action=accept disabled=no dst-host=192.168.1.5
+  add action=accept disabled=no src-address=192.168.1.5
+
+Now, you will also need to configure the hotspot to point to your PacketFence RADIUS server:
+
+  /radius
+  add address=192.168.1.5 secret=useStrongerSecret service=hotspot
+
+  /ip hotspot profile
+  add hotspot-address=10.5.50.1 name=hsprof1 use-radius=yes
+
+Next, you need to configure PacketFence to use webauth for this Access Point using the following `switches.conf` configuration. Change `AP_IP_ADDRESS_HERE` by the IP address you've put in login.html.
+
+  [AP_IP_ADDRESS_HERE]
+  VlanMap=Y
+  RoleMap=N
+  mode=production
+  ExternalPortalEnforcement=Y
+  type=Mikrotik
+  radiusSecret=useStrongerSecret
+  registrationVlan=-1
+
 HP
 ~~
 

@@ -28,6 +28,7 @@ use pf::constants;
 use pf::config qw(
     $MAC
     $SSID
+    $WIRELESS_MAC_AUTH
 );
 sub description { 'Mikrotik' }
 
@@ -47,6 +48,67 @@ use pf::util::radius qw(perform_disconnect);
 sub supportsWirelessMacAuth { return $TRUE; }
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
+
+sub supportsExternalPortal { return $TRUE; }
+sub supportsWebFormRegistration { return $TRUE }
+
+=item parseExternalPortalRequest
+
+Parse external portal request using URI and it's parameters then return an hash reference with the appropriate parameters
+
+See L<pf::web::externalportal::handle>
+
+=cut
+
+sub parseExternalPortalRequest {
+    my ( $self, $r, $req ) = @_;
+    my $logger = $self->logger;
+
+    # Using a hash to contain external portal parameters
+    my %params = ();
+
+    %params = (
+        switch_id       => $req->param('ap-id'),
+        client_mac      => clean_mac($req->param('mac')),
+        client_ip       => $req->param('ip'),
+        status_code     => '200',
+    );
+
+    return \%params;
+}
+
+=head2 getAcceptForm
+
+Get the accept form to trigger the authentication on the Mikrotik when using webauth
+
+=cut
+
+sub getAcceptForm {
+    my ( $self, $mac , $destination_url, $cgi_session) = @_;
+    my $logger = $self->logger;
+    $logger->debug("Creating web release form");
+
+    my $linkLoginOnly = $cgi_session->param("ecwp-original-param-link-login-only");
+    my $linkOrig = $cgi_session->param("ecwp-original-param-link-orig");
+
+    use Digest::MD5 qw(md5_hex);
+    $mac =~ s/:/-/g;
+    my $pass = md5_hex($cgi_session->param("ecwp-original-param-chap-id").$mac.$cgi_session->param("ecwp-original-param-chap-challenge"));
+    my $html_form = qq[
+        <form name="sendin" method="POST" action="$linkLoginOnly">
+            <input type="hidden" name="dst" value="$linkOrig" />
+            <input type="hidden" name="popup" value="true" />
+            <input type="hidden" name="username" value="$mac">
+            <input type="hidden" name="password" value="$pass">
+        </form>
+        <script language="JavaScript" type="text/javascript">
+        window.setTimeout('document.weblogin_form.submit();', 1000);
+        </script>
+    ];
+
+    $logger->debug("Generated the following html form : ".$html_form);
+    return $html_form;
+}
 
 
 =item getVersion - obtain image version information from switch

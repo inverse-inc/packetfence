@@ -103,6 +103,7 @@ Readonly::Scalar our $EXT_URL_MERAKI                => '^/Meraki::MR';
 Readonly::Scalar our $EXT_URL_RUCKUS                => '^/Ruckus';
 Readonly::Scalar our $EXT_URL_RUCKUS_SMARTZONE      => '^/Ruckus::SmartZone';
 Readonly::Scalar our $EXT_URL_XIRRUS                => '^/Xirrus';
+Readonly::Scalar our $EXT_URL_MIKROTIK              => '^/Mikrotik';
 
 # Provisioning engine
 Readonly::Scalar our $URL_WIRELESS_PROFILE => '/wireless-profile.mobileconfig';
