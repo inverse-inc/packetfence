@@ -136,3 +136,14 @@ CREATE TABLE ip6log_archive (
   KEY end_time (end_time),
   KEY start_time (start_time)
 ) ENGINE=InnoDB;
+
+--
+-- Creating chi_cache table
+--
+
+CREATE TABLE `chi_cache` (
+  `key` VARCHAR(767),
+  `value` LONGTEXT,
+  PRIMARY KEY (`key`)
+);
+

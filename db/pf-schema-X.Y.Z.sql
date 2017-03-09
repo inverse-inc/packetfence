@@ -1239,12 +1239,6 @@ END /
 DELIMITER ;
 
 --
--- Updating to current version
---
-
-INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
-
---
 -- Creating auth_log table
 --
 
@@ -1261,3 +1255,20 @@ CREATE TABLE auth_log (
   KEY pid (pid),
   KEY  attempted_at (attempted_at)
 ) ENGINE=InnoDB;
+
+--
+-- Creating chi_cache table
+--
+
+CREATE TABLE `chi_cache` (
+  `key` VARCHAR(767),
+  `value` LONGTEXT,
+  PRIMARY KEY (`key`)
+);
+
+--
+-- Updating to current version
+--
+
+INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
+
