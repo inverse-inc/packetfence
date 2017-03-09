@@ -71,9 +71,6 @@ sub parseExternalPortalRequest {
         switch_id       => $req->param('ap-id'),
         client_mac      => clean_mac($req->param('mac')),
         client_ip       => $req->param('ip'),
-        ssid            => undef,
-        redirect_url    => undef,
-        grant_url       => undef,
         status_code     => '200',
     );
 
