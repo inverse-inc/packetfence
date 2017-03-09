@@ -21,6 +21,32 @@ use base qw(pf::dal::_node);
 use Class::XSAccessor {
     accessors => [qw(category bypass_role)],
 };
+
+our @FIELD_NAMES = (
+    (map {"node.$_|$_"} @pf::dal::_node::FIELD_NAMES),
+    'nc.name|category',
+    'nr.name|bypass_role',
+);
+
+=head2 find_from_tables
+
+Join the node_category table information in the node results
+
+=cut
+
+sub find_from_tables {
+    [-join => qw(node =>{node.category_id=nc.category_id} node_category|nc =>{node.bypass_role_id=nr.category_id} node_category|nr)],
+}
+
+=head2 field_names
+
+Override the standard field names for node
+
+=cut
+
+sub field_names {
+    [@FIELD_NAMES]
+}
  
 =head1 AUTHOR
 
