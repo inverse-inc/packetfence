@@ -680,6 +680,12 @@ sub populate_ntlm_redis_cache {
     }
 }
 
+=head2 cleanup_chi_database_cache
+
+Cleanup the expired keys in the chi_cache table of the database
+
+=cut
+
 sub cleanup_chi_database_cache {
     $logger->info("Expiring database CHI cache");
 
