@@ -847,7 +847,7 @@ On each of the servers you want to discard the data from, you must destroy all t
 
 Should there be any issues during the sync, make sure you look into the MySQL log (`/var/lib/mysql/PF_HOSTNAME.err`)
 
-Once one of the node has completed synced (try connecting to it using the MySQL command line), then you can break the cluster election command you have running on node C and start node C normally (using `service packetfence-mariadb start`).
+Once both nodes have completely synced (try connecting to it using the MySQL command line), then you can break the cluster election command you have running on node C and start node C normally (using `service packetfence-mariadb start`).
 
 Start nodes A and B
 +++++++++++++++++++
