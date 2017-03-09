@@ -370,7 +370,7 @@ Now start packetfence
 
 Next, make sure to join domains through 'Configuration/Domains' on each node.
 
-Disable the access to the configurator by setting the currently-at:
+Disable the access to the configurator by setting the currently-at on each server:
 
   # /usr/local/pf/bin/pfcmd version > /usr/local/pf/conf/currently-at
 
