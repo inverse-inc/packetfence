@@ -524,7 +524,7 @@ get the sql abstract object
 =cut
 
 sub get_sql_abstract {
-    return pf::SQL::Abstract->new(quote_char => '`');
+    return pf::SQL::Abstract->new(quote_char => '`', name_sep => '.');
 }
 
 =head2 create
