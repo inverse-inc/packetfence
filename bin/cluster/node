@@ -89,6 +89,7 @@ if(defined($ARGV[1])) {
 }
 else {
     print_node_state($node_hostname);
+    exit;
 }
 
 if($enable) {
