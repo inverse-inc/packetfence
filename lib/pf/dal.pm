@@ -122,16 +122,22 @@ Find the pf::dal object by it's primaries keys
 =cut
 
 sub find {
-    my ($proto, @ids) = @_;
-    my $sql = $proto->_find_one_sql;
-    my ($status, $sth) = $proto->db_execute($sql, @ids);
+    my ($proto, $ids) = @_;
+    my $where = $proto->build_primary_keys_where_clause($ids);
+    my $sqla = $proto->get_sql_abstract;
+    my ($sql, @bind) = $sqla->select(
+        -columns => $proto->field_names,
+        -from => $proto->find_from_tables,
+        -where => $where,
+    );
+    my ($status, $sth) = $proto->db_execute($sql, @bind);
     return $status, undef if is_error($status);
     my $row = $sth->fetchrow_hashref;
+    $sth->finish;
     unless ($row) {
         return $STATUS::NOT_FOUND, undef;
     }
     my $dal = $proto->new_from_table($row);
-    $sth->finish;
     return $STATUS::OK, $dal;
 }
 
@@ -533,6 +539,17 @@ sub create {
     return $obj->insert;
 }
 
+=head2 find_from_tables
+
+find_from_tables
+
+=cut
+
+sub find_from_tables {
+    my ($proto) = @_;
+    return $proto->table;
+}
+
 =head2 find_or_create
 
 finds a table record or creates it
@@ -545,7 +562,7 @@ sub find_or_create {
     my $sqla = $proto->get_sql_abstract;
     my ($sql, @bind) = $sqla->select(
         -columns => $proto->field_names,
-        -from => $proto->table,
+        -from => $proto->find_from_tables,
         -where => $obj->primary_keys_where_clause,
     );
     my ($status, $sth) = $proto->db_execute($sql, @bind);

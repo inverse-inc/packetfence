@@ -42,7 +42,7 @@ my $test_mac = "ff:ff:ff:ff:ff:fe";
 
 pf::dal::node->remove_by_id({mac => $test_mac});
 
-my ($status, $node) = pf::dal::node->find($test_mac);
+my ($status, $node) = pf::dal::node->find({mac => $test_mac});
 
 is ($status , $STATUS::NOT_FOUND, "Node does not exists");
 
@@ -58,7 +58,7 @@ ok(is_success($node->save), "Saving $test_mac into the database");
 
 ok($node->__from_table, "New node is in the database");
 
-$node = pf::dal::node->find($test_mac);
+$node = pf::dal::node->find({mac => $test_mac});
 
 ok($node, "Found node in database");
 
@@ -72,7 +72,7 @@ is_deeply($node_data, {sessionid => $new_session}, "Only saving values that chan
 
 ok(is_success($node->save), "Saving changes into the database");
 
-$node = pf::dal::node->find($test_mac);
+$node = pf::dal::node->find({mac => $test_mac});
 
 ok($node, "Reloading node from database");
 
@@ -86,7 +86,7 @@ $node->voip("yes");
 
 ok(is_success($node->save), "Save valid data into the database");
 
-$node = pf::dal::node->find($test_mac);
+$node = pf::dal::node->find({mac => $test_mac});
 
 ok($node, "Reloading node from database");
 
@@ -98,7 +98,7 @@ ok(is_error($node->save), "Cannot save a null value into the database");
 
 ok(is_success($node->remove), "Remove node in database");
 
-$node = pf::dal::node->find($test_mac);
+$node = pf::dal::node->find({mac => $test_mac});
 
 is ($node, undef, "Node does not exists");
 
@@ -112,7 +112,7 @@ $node->voip("yes");
 
 ok(is_success($node->save), "Saving node after being deleted from under us");
 
-$node = pf::dal::node->find($test_mac);
+$node = pf::dal::node->find({mac => $test_mac});
 
 ok($node, "Saving after being deleted");
 
@@ -124,9 +124,9 @@ $node = pf::dal::node->new({ mac => $test_mac});
 
 ok(is_success($node->save), "new node saved with default values");
 
-$node = pf::dal::node->find($test_mac);
+$node = pf::dal::node->find({mac => $test_mac});
 
-my $node2 = pf::dal::node->find($test_mac);
+my $node2 = pf::dal::node->find({mac => $test_mac});
 
 $node->computername("zams-computer");
 
@@ -136,7 +136,7 @@ ok(is_success($node->save), "Save node with computername = zams-computer");
 
 ok(is_success($node2->save), "Save node2 with voip = yes");
 
-$node = pf::dal::node->find($test_mac);
+$node = pf::dal::node->find({mac => $test_mac});
 
 is($node->voip, "yes", "Saving different values do not conflict");
 
