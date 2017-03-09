@@ -25,7 +25,7 @@ has_field base_url => (
     options => [
         { label => 'Staging', value => "https://staging.eigendev.com/MiraSecure/GetToken.php" },
         { label => 'Prod 1',  value => "https://ms1.eigendev.com/MiraSecure/GetToken.php" },
-        { label => 'Prod 2',  value => "https://ms1.eigendev.com/MiraSecure/GetToken.php" },
+        { label => 'Prod 2',  value => "https://ms2.eigendev.com/MiraSecure/GetToken.php" },
     ],
     default => "https://staging.eigendev.com/MiraSecure/GetToken.php",
     required => 1,
