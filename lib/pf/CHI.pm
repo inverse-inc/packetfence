@@ -21,6 +21,8 @@ use pf::file_paths qw(
     $chi_defaults_config_file
     $chi_config_file
     $var_dir
+    $pf_default_file
+    $pf_config_file
 );
 use pf::IniFiles;
 use Hash::Merge;
@@ -73,6 +75,10 @@ our $chi_default_config = pf::IniFiles->new( -file => $chi_defaults_config_file)
 
 our $chi_config = pf::IniFiles->new( -file => $chi_config_file, -allowempty => 1, -import => $chi_default_config) or die "Cannot open $chi_config_file";
 
+our $pf_default_config = pf::IniFiles->new( -file => $pf_default_file) or die "Cannot open $pf_default_file";
+
+our $pf_config = pf::IniFiles->new( -file => $pf_config_file, -allowempty => 1, -import => $pf_default_config) or die "Cannot open $pf_config_file";
+
 our %DEFAULT_CONFIG = (
     'namespace' => {
         map { $_ => { 'storage' => $_ } } @CACHE_NAMESPACES
@@ -108,7 +114,6 @@ sub chiConfigFromIniFile {
     foreach my $key (@keys) {
         $args{$key} = sectionData($chi_config,$key);
     }
-    my $dbi = delete $args{dbi};
     copyStorage($args{storage});
     foreach my $storage (values %{$args{storage}}) {
         my $driver = $storage->{driver};
@@ -116,7 +121,7 @@ sub chiConfigFromIniFile {
             if($driver eq 'File') {
                 setFileDriverParams($storage);
             } elsif($driver eq 'DBI') {
-                setDBIDriverParams($storage, $dbi);
+                setDBIDriverParams($storage);
             }
         }
         foreach my $param (qw(servers traits roles)) {
@@ -165,9 +170,8 @@ sub setFileDriverParams {
 
 sub setDBIDriverParams {
     my ($storage, $dbi) = @_;
-    $storage->{table_prefix} = 'cache_';
     $storage->{dbh} = sub {
-        my ($db,$host,$port,$user,$pass) = @{$dbi}{qw(db host port user pass)};
+        my ($db,$host,$port,$user,$pass) = @{sectionData($pf_config, "database")}{qw(db host port user pass)};
         return DBI->connect( "dbi:mysql:dbname=$db;host=$host;port=$port",
         $user, $pass, { RaiseError => 0, PrintError => 0 } );
     }

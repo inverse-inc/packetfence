@@ -47,6 +47,37 @@ expires_in=7d
 # Amount of time from the current time to expire an entry
 expires_in=24h
 
+[namespace accounting]
+#
+# namespace accounting.storage
+#
+# The storage to use for the namespace
+storage=distributed
+
+[storage distributed]
+#
+# namespace accounting.storage
+#
+# The storage to use
+storage=dbi
+#
+# storage redis.expires_on_backend
+#
+# Tell chi that the data expires on backend
+expires_on_backend = 1
+
+[storage dbi]
+#
+# storage dbi.driver
+#
+# The driver for the storage
+driver = DBI
+# 
+# storage dbi.table
+#
+# The table to use as the cache store
+table = chi_cache
+
 [storage redis]
 #
 # storage redis.driver
