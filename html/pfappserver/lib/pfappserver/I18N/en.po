@@ -9573,6 +9573,18 @@ msgstr "Violation Maintenance Interval"
 msgid "maintenance.violation_maintenance_timeout"
 msgstr "Violation Maintenance Timeout"
 
+# conf/documentation.conf
+msgid "maintenance.cleanup_chi_database_cache_batch"
+msgstr "CHI database storage cleanup Batch"
+
+# conf/documentation.conf
+msgid "maintenance.cleanup_chi_database_cache_interval"
+msgstr "CHI database storage cleanup Interval"
+
+# conf/documentation.conf
+msgid "maintenance.cleanup_chi_database_cache_timeout"
+msgstr "CHI database storage cleanup Timeout"
+
 # conf/documentation.conf (advanced.reevaluate_access_reasons options)
 msgid "manage_deregister"
 msgstr ""
