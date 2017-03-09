@@ -1262,7 +1262,7 @@ CREATE TABLE auth_log (
 
 CREATE TABLE `chi_cache` (
   `key` VARCHAR(767),
-  `value` LONGTEXT,
+  `value` LONGBLOB,
   `expires_at` REAL,
   PRIMARY KEY (`key`),
   KEY chi_cache_expires_at (expires_at)
