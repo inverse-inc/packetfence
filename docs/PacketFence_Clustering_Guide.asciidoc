@@ -135,13 +135,6 @@ galera_replication_username=pfcluster
 galera_replication_password=aMuchMoreSecurePassword
 ----
 
-In `conf/pfconfig.conf` :
-
-----
-[mysql]
-host=127.0.0.1
-----
-
 Now, reload the configuration and restart packetfence-config. You will see errors related to a cache write issue but you can safely ignore it for now. These appear because packetfence-config cannot connect to the database yet.
 
   # service packetfence-config restart
@@ -347,12 +340,33 @@ Important variables:
 
 In order for the cluster to be considered healthy, all nodes must be listed under `wsrep_incoming_addresses` and `wsrep_local_state_comment` must be `Synced`. Otherwise look in the MariaDB log (`/var/lib/mysql/PF_HOSTNAME.err`)
 
+Configure packetfence-config
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Now that your cluster is configured, you should point packetfence-config to use 127.0.0.1 as the database IP so it uses haproxy to find the database server.
+
+On the first, change the following `conf/pfconfig.conf` :
+
+----
+[mysql]
+host=127.0.0.1
+----
+
+Then, sync your cluster:
+
+  # /usr/local/pf/bin/cluster/sync --as-master
+
+And restart packetfence-config on all of your servers:
+
+  # service packetfence-config restart
+
+
 Wrapping up
 ^^^^^^^^^^^
 
 Now start packetfence
 
-  # systemctl isolate packetfence-cluster
+  # /usr/local/pf/bin/pfcmd service pf start
 
 Next, make sure to join domains through 'Configuration/Domains' on each node.
 
