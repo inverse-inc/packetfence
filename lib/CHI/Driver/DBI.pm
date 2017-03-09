@@ -74,7 +74,7 @@ sub _build_sql_strings {
     my $dbh   = $self->dbh->();
     my $table = $dbh->quote_identifier( $self->_table );
     my $value = $dbh->quote_identifier('value');
-    my $key_prefix_match = $dbh->quote_identifier( $self->key_prefix . "%" );
+    my $key_prefix_match = $dbh->quote( $self->key_prefix . "%" );
     my $key   =  $dbh->quote_identifier('key');
 
     my $strings = {
