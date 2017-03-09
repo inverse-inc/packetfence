@@ -1264,7 +1264,8 @@ CREATE TABLE `chi_cache` (
   `key` VARCHAR(767),
   `value` LONGTEXT,
   `expires_at` REAL,
-  PRIMARY KEY (`key`)
+  PRIMARY KEY (`key`),
+  KEY chi_cache_expires_at (expires_at)
 );
 
 --
