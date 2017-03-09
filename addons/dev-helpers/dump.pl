@@ -201,16 +201,6 @@ sub _run {
     print Data::Dumper::Dumper(\%pf::access_filter::dhcp::ConfigDhcpFilters);
 }
 
-package pf::dump::mdm_filters;
-use base qw(pf::dump::cmd);
-use Data::Dumper;
-__PACKAGE__->mark_as_loaded();
-
-sub _run {
-    require pf::access_filter::mdm;
-    print Data::Dumper::Dumper(\%pf::access_filter::dhcp::ConfigMdmFilters);
-}
-
 package main;
 use strict;
 use warnings;

@@ -25,7 +25,6 @@ use pf::log;
 use pf::constants::provisioning qw($SENTINEL_ONE_TOKEN_EXPIRY $NOT_COMPLIANT_FLAG);
 use pf::node;
 use pf::enforcement;
-use pf::access_filter::mdm;
 use List::MoreUtils qw(any);
 
 =head1 Atrributes
@@ -242,11 +241,7 @@ sub authorize {
         return $FALSE;
     }
     else {
-        if($info->{is_active} && !$info->{is_uninstalled}){
-            $logger->info("Agent is installed and active");
-            return $self->authorize_mdm_filters($mac, $info);
-        }
-        elsif($info->{is_uninstalled}) {
+        if($info->{is_uninstalled}) {
             $logger->info("Agent is uninstalled on device");
             return $FALSE;
         }
@@ -302,31 +297,6 @@ sub pollAndEnforce {
             }
         }
     }
-}
-
-=head2 authorize_mdm_filters
-
-Authorize this device through the MDM filters
-
-=cut
-
-sub authorize_mdm_filters {
-    my ($self, $mac, $agent_info) = @_;
-    my $logger = pf::log::get_logger;
-    $agent_info->{mac} = $mac;
-
-    my $filter = pf::access_filter::mdm->new;
-    my @result;
-    my @flags;
-
-    @result = $filter->filter('SentinelOneAgentInfo', $agent_info);
-    push @flags, @result if(@result);
-
-    @result = $filter->filter('SentinelOneReport', @flags);
-    $logger->info("Flags found via MDM engine : ".join(', ',@flags));
-    push @flags, @result if(@result);
-
-    return (any { $_ eq $NOT_COMPLIANT_FLAG} @flags) ? $FALSE : $TRUE;
 }
 
 =head2 uninstalled_devices
