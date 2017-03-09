@@ -856,6 +856,13 @@ You can now safely start PacketFence on nodes A and B using:
 
   # systemctl isolate packetfence-cluster
 
+Restart node C
+^^^^^^^^^^^^^^
+
+Now, you should restart PacketFence on node C so it becomes aware of its peers again.
+
+  # /usr/local/pf/bin/pfcmd service pf restart
+
 You should now have full service on all 3 nodes using the latest version of PacketFence.
 
 Reactivate the configuration conflict handling
