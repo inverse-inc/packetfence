@@ -680,39 +680,30 @@ sub populate_ntlm_redis_cache {
     }
 }
 
-# Use a global variable so we don't compute the DBI based namespaces everytime since the pf::CHI config only reloads on a service restart
-our $dbi_namespaces;
-
 sub cleanup_chi_database_cache {
     $logger->info("Expiring database CHI cache");
 
-    unless(defined($dbi_namespaces)) {
-        my $config = pf::CHI->config;
-        my @dbi_storages;
+    my $batch = $Config{maintenance}{cleanup_chi_database_cache_batch};
+    my $time_limit = $Config{maintenance}{cleanup_chi_database_cache_timeout};
 
-        # find all the storages that use the DBI driver
-        while(my ($storage, $storage_config) = each(%{$config->{storage}})) {
-            if($storage_config->{driver} eq "DBI") {
-                $logger->debug("Found storage $storage using the DBI driver");
-                push @dbi_storages, $storage;
-            }
+    my $start_time = time;
+    my $end_time;
+    my $rows_deleted = 0;
+
+    my $sth = get_db_handle()->prepare_cached("DELETE from chi_cache where ? > expires_at LIMIT ?");
+    while (1) {
+        my $rows = $sth->execute(time, $batch);
+        unless($rows) {
+            $logger->error("Issue executing statement: ".get_db_handle()->errstr);
         }
-        
-        while(my ($namespace, $namespace_config) = each(%{$config->{namespace}})) {
-            if(any { $namespace_config->{storage} eq $_ } @dbi_storages) {
-                $logger->debug("Found namespace $namespace using a DBI based storage");
-                push @$dbi_namespaces, $namespace;
-            }
-        }
+        $rows_deleted += $rows if $rows > 0;
+        $logger->debug("Deleted '$rows_deleted' entries from the CHI database cache");
+        $end_time = time;
+        last if $rows <= 0 || ( ( $end_time - $start_time ) > $time_limit );
     }
 
-    for my $namespace (@$dbi_namespaces) {
-        $logger->info("Expiring data in CHI database namespace $namespace");
-        my $cache = pf::CHI->new(namespace => $namespace);
-        for my $key ( map { /^(.*)$/;$1 } $cache->get_keys) {
-            $cache->remove($key) if $cache->exists_and_is_expired($key);
-        }
-    }
+    $logger->info("Done expiring database CHI cache");
+
 }
 
 =head1 AUTHOR

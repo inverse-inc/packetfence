@@ -144,6 +144,7 @@ CREATE TABLE ip6log_archive (
 CREATE TABLE `chi_cache` (
   `key` VARCHAR(767),
   `value` LONGTEXT,
+  `expires_at` REAL,
   PRIMARY KEY (`key`)
 );
 
