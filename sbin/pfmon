@@ -61,6 +61,7 @@ use Time::HiRes qw(time sleep);
 use pf::option82 qw(search_switch);
 use pf::CHI::Request;
 use pf::domain::ntlm_cache;
+use List::MoreUtils qw(any);
 
 pf::SwitchFactory->preloadConfiguredModules();
 
@@ -681,9 +682,32 @@ sub populate_ntlm_redis_cache {
 
 sub cleanup_chi_database_cache {
     $logger->info("Expiring database CHI cache");
-    my $cache = pf::CHI->new(namespace => "accounting");
-    for my $key ( map { /^(.*)$/;$1 } $cache->get_keys) {
-        $cache->remove($key) if $cache->exists_and_is_expired($key);
+    my $config = pf::CHI->config;
+
+    my @dbi_storages;
+    my @dbi_namespaces;
+
+    # find all the storages that use the DBI driver
+    while(my ($storage, $storage_config) = each(%{$config->{storage}})) {
+        if($storage_config->{driver} eq "DBI") {
+            $logger->debug("Found storage $storage using the DBI driver");
+            push @dbi_storages, $storage;
+        }
+    }
+    
+    while(my ($namespace, $namespace_config) = each(%{$config->{namespace}})) {
+        if(any { $namespace_config->{storage} eq $_ } @dbi_storages) {
+            $logger->debug("Found namespace $namespace using a DBI based storage");
+            push @dbi_namespaces, $namespace;
+        }
+    }
+
+    for my $namespace (@dbi_namespaces) {
+        $logger->info("Expiring data in CHI database namespace $namespace");
+        my $cache = pf::CHI->new(namespace => $namespace);
+        for my $key ( map { /^(.*)$/;$1 } $cache->get_keys) {
+            $cache->remove($key) if $cache->exists_and_is_expired($key);
+        }
     }
 }
 
