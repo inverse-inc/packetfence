@@ -85,7 +85,7 @@ sub _build_sql_strings {
         store2   => "UPDATE $table SET $value = ?, $expires_at = ? WHERE $key = ?",
         remove   => "DELETE FROM $table WHERE $key = ?",
         clear    => "DELETE FROM $table where $key like $key_prefix_match",
-        get_keys => "SELECT DISTINCT $key FROM $table where $key like $key_prefix_match",
+        get_keys => "SELECT DISTINCT $key FROM $table where $key like $key_prefix_match and ? < $expires_at",
         create   => "CREATE TABLE IF NOT EXISTS $table ("
           . " $key VARCHAR( 300 ), $value TEXT, $expires_at REAL,"
           . " PRIMARY KEY ( $key ) )",
@@ -96,7 +96,7 @@ sub _build_sql_strings {
             "INSERT INTO $table"
           . " ( $key, $value, $expires_at )"
           . " VALUES ( ?, ?, ? )"
-          . " ON DUPLICATE KEY UPDATE $value=VALUES($value)";
+          . " ON DUPLICATE KEY UPDATE $value=VALUES($value), $expires_at=VALUES($expires_at)";
         delete $strings->{store2};
     }
     elsif ( $self->db_name eq 'SQLite' ) {
@@ -175,7 +175,7 @@ sub get_keys {
     my $dbh = $self->has_dbh_ro ? $self->dbh_ro->() : $self->dbh->();
     my $sth = $dbh->prepare_cached( $self->sql_strings->{get_keys} )
       or croak $dbh->errstr;
-    $sth->execute() or croak $sth->errstr;
+    $sth->execute(time) or croak $sth->errstr;
     my $results = $sth->fetchall_arrayref( [0] );
 
     my $key_prefix = $self->key_prefix;
