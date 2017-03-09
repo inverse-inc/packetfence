@@ -300,6 +300,12 @@ sub registertasks  {
         \&populate_ntlm_redis_cache
     );
 
+    register_task(
+        'cleanup_chi_database_cache',
+        'cleanup_chi_database_cache_interval',
+        \&cleanup_chi_database_cache,
+    );
+
 }
 
 =head2 cleanup
@@ -670,6 +676,14 @@ sub populate_ntlm_redis_cache {
                 }
             }
         }
+    }
+}
+
+sub cleanup_chi_database_cache {
+    $logger->info("Expiring database CHI cache");
+    my $cache = pf::CHI->new(namespace => "accounting");
+    for my $key ( map { /^(.*)$/;$1 } $cache->get_keys) {
+        $cache->remove($key) if $cache->exists_and_is_expired($key);
     }
 }
 
