@@ -55,7 +55,16 @@ expires_in=24h
 storage=distributed
 
 [storage distributed]
+#
+# namespace accounting.storage
+#
+# The storage to use
 storage=dbi
+#
+# storage redis.expires_on_backend
+#
+# Tell chi that the data expires on backend
+expires_on_backend = 1
 
 [storage dbi]
 #

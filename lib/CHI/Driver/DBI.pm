@@ -7,6 +7,7 @@ use DBI::Const::GetInfoType;
 use Moose;
 use Moose::Util::TypeConstraints;
 use Carp qw(croak);
+use Time::HiRes qw(time);
 
 our $VERSION = '1.24';
 
@@ -74,43 +75,37 @@ sub _build_sql_strings {
     my $dbh   = $self->dbh->();
     my $table = $dbh->quote_identifier( $self->_table );
     my $value = $dbh->quote_identifier('value');
+    my $expires_at = $dbh->quote_identifier('expires_at');
     my $key_prefix_match = $dbh->quote( $self->key_prefix . "%" );
     my $key   =  $dbh->quote_identifier('key');
 
     my $strings = {
-        fetch    => "SELECT $value FROM $table WHERE $key = ?",
-        store    => "INSERT INTO $table ( $key, $value ) VALUES ( ?, ? )",
-        store2   => "UPDATE $table SET $value = ? WHERE $key = ?",
+        fetch    => "SELECT $value FROM $table WHERE $key = ? and ? < $expires_at",
+        store    => "INSERT INTO $table ( $key, $value, $expires_at ) VALUES ( ?, ?, ? )",
+        store2   => "UPDATE $table SET $value = ?, $expires_at = ? WHERE $key = ?",
         remove   => "DELETE FROM $table WHERE $key = ?",
         clear    => "DELETE FROM $table where $key like $key_prefix_match",
         get_keys => "SELECT DISTINCT $key FROM $table where $key like $key_prefix_match",
         create   => "CREATE TABLE IF NOT EXISTS $table ("
-          . " $key VARCHAR( 300 ), $value TEXT,"
+          . " $key VARCHAR( 300 ), $value TEXT, $expires_at REAL,"
           . " PRIMARY KEY ( $key ) )",
     };
 
     if ( $self->db_name eq 'MySQL' ) {
         $strings->{store} =
             "INSERT INTO $table"
-          . " ( $key, $value )"
-          . " VALUES ( ?, ? )"
+          . " ( $key, $value, $expires_at )"
+          . " VALUES ( ?, ?, ? )"
           . " ON DUPLICATE KEY UPDATE $value=VALUES($value)";
         delete $strings->{store2};
     }
     elsif ( $self->db_name eq 'SQLite' ) {
         $strings->{store} =
             "INSERT OR REPLACE INTO $table"
-          . " ( $key, $value )"
-          . " values ( ?, ? )";
+          . " ( $key, $value, $expires_at )"
+          . " values ( ?, ?, ? )";
         delete $strings->{store2};
     }
-    elsif ( $self->db_name eq 'PostgreSQL' ) {
-        $strings->{create} =
-            "CREATE TABLE IF NOT EXISTS $table ("
-          . " $key BYTEA, $value BYTEA,"
-          . " PRIMARY KEY ( $key ) )";
-    }
-
     return $strings;
 }
 
@@ -120,35 +115,25 @@ sub fetch {
     my $dbh = $self->has_dbh_ro ? $self->dbh_ro->() : $self->dbh->();
     my $sth = $dbh->prepare_cached( $self->sql_strings->{fetch} )
       or croak $dbh->errstr;
-    if ( $self->db_name eq 'PostgreSQL' ) {
-        $sth->bind_param( 1, undef, { pg_type => DBD::Pg::PG_BYTEA() } );
-    }
-    $sth->execute($self->namespaced_key($key)) or croak $sth->errstr;
+    $sth->execute($self->namespaced_key($key), time) or croak $sth->errstr;
     my $results = $sth->fetchall_arrayref;
 
     return $results->[0]->[0];
 }
 
 sub store {
-    my ( $self, $key, $data, ) = @_;
+    my ( $self, $key, $data, $expires_in) = @_;
+
+    # Setting the max to the max unix timestamp
+    my $expires_at = defined($expires_in) ? time + $expires_in : 2147483641;
 
     my $dbh = $self->dbh->();
     my $sth = $dbh->prepare_cached( $self->sql_strings->{store} );
-    if ( $self->db_name eq 'PostgreSQL' ) {
-        $sth->bind_param( 1, undef, { pg_type => DBD::Pg::PG_BYTEA() } );
-        $sth->bind_param( 2, undef, { pg_type => DBD::Pg::PG_BYTEA() } );
-    }
-    if ( not $sth->execute( $self->namespaced_key($key), $data ) ) {
+    if ( not $sth->execute( $self->namespaced_key($key), $data, $expires_at ) ) {
         if ( $self->sql_strings->{store2} ) {
             my $sth = $dbh->prepare_cached( $self->sql_strings->{store2} )
               or croak $dbh->errstr;
-            if ( $self->db_name eq 'PostgreSQL' ) {
-                $sth->bind_param( 1, undef,
-                    { pg_type => DBD::Pg::PG_BYTEA() } );
-                $sth->bind_param( 2, undef,
-                    { pg_type => DBD::Pg::PG_BYTEA() } );
-            }
-            $sth->execute( $data, $self->namespaced_key($key) )
+            $sth->execute( $data, $expires_at, $self->namespaced_key($key) )
               or croak $sth->errstr;
         }
         else {
@@ -166,9 +151,6 @@ sub remove {
     my $dbh = $self->dbh->();
     my $sth = $dbh->prepare_cached( $self->sql_strings->{remove} )
       or croak $dbh->errstr;
-    if ( $self->db_name eq 'PostgreSQL' ) {
-        $sth->bind_param( 1, undef, { pg_type => DBD::Pg::PG_BYTEA() } );
-    }
     $sth->execute($self->namespaced_key($key)) or croak $sth->errstr;
     $sth->finish;
 
