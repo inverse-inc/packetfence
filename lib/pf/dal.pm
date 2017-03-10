@@ -592,6 +592,17 @@ sub find_or_create {
     return $status, $obj;
 }
 
+=head2 merge_fields
+
+merge_fields
+
+=cut
+
+sub merged_fields {
+    my ($self) = @_;
+    return $self->field_names;
+}
+
 =head2 merge
 
 merge fields into object
@@ -601,7 +612,7 @@ merge fields into object
 sub merge {
     my ($self, $vals) = @_;
     return unless defined $vals && ref($vals) eq 'HASH';
-    foreach my $field ( @{$self->field_names} ) {
+    foreach my $field ( @{$self->merge_fields} ) {
         next unless exists $vals->{$field};
         $self->{$field} = $vals->{$field};
     }
