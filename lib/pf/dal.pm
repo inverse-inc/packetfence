@@ -592,6 +592,22 @@ sub find_or_create {
     return $status, $obj;
 }
 
+=head2 merge
+
+merge fields into object
+
+=cut
+
+sub merge {
+    my ($self, $vals) = @_;
+    return unless defined $vals && ref($vals) eq 'HASH';
+    foreach my $field ($self->field_names) {
+        next unless exists $vals->{$field};
+        $self->{$field} = $vals->{$field};
+    }
+    return ;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
