@@ -27,8 +27,8 @@ use pf::node;
 use Moose;
 
 
-has 'api_client'    => (is => 'ro', default => sub { pf::client::getClient });
-has 'filter_engine' => (is => 'rw', default => sub { pf::access_filter::dhcp->new });
+has 'apiClient'    => (is => 'ro', default => sub { pf::client::getClient });
+has 'filterEngine' => (is => 'rw', default => sub { pf::access_filter::dhcp->new });
 
 
 Readonly::Hash my %FINGERBANK_ATTRIBUTES_MAP => (
@@ -59,10 +59,10 @@ sub processFingerbank {
         }
     }
 
-    my $dhcp_filter_rule = $self->filter_engine->filter('DhcpFingerbank', $fingerbank_args);
+    my $dhcp_filter_rule = $self->filterEngine->filter('DhcpFingerbank', $fingerbank_args);
 
     unless ( $dhcp_filter_rule ) {
-        $self->api_client->notify('fingerbank_process', $fingerbank_args);
+        $self->apiClient->notify('fingerbank_process', $fingerbank_args);
         pf::node::node_modify($fingerbank_args->{'mac'}, %{$fingerbank_args});
     }
 }

@@ -114,7 +114,7 @@ Create a new DHCP processor
 #    if($self->{is_inline_vlan}){
 #        $self->{accessControl} = new pf::inline::custom();
 #    }
-#    $self->{api_client} = pf::client::getClient();
+#    $self->apiClient = pf::client::getClient();
 #    $self->_build_DHCP_networks();
 #    return $self;
 #}
@@ -230,7 +230,7 @@ sub process_packet {
         if (defined($dhcp->{'options'}{'12'})) {
             $tmp{'computername'} = $dhcp->{'options'}{'12'};
             if(isenabled($Config{network}{hostname_change_detection})){
-                $self->{api_client}->notify('detect_computername_change', $dhcp->{'chaddr'}, $tmp{'computername'});
+                $self->apiClient->notify('detect_computername_change', $dhcp->{'chaddr'}, $tmp{'computername'});
             }
         }
 
@@ -334,7 +334,7 @@ sub parse_dhcp_request {
     }
 
     if ($self->{is_inline_vlan}) {
-        $self->{api_client}->notify('synchronize_locationlog',$self->{interface_ip},$self->{interface_ip},undef, $NO_PORT, $self->{interface_vlan}, $dhcp->{'chaddr'}, $NO_VOIP, $INLINE, $self->{inline_sub_connection_type});
+        $self->apiClient->notify('synchronize_locationlog',$self->{interface_ip},$self->{interface_ip},undef, $NO_PORT, $self->{interface_vlan}, $dhcp->{'chaddr'}, $NO_VOIP, $INLINE, $self->{inline_sub_connection_type});
         $self->{accessControl}->performInlineEnforcement($dhcp->{'chaddr'});
     }
     else {
@@ -439,7 +439,7 @@ sub handle_new_ip {
        'mac' => $client_mac,
        'net_type' => $self->{net_type},
     );
-    $self->{api_client}->notify('trigger_scan', %data );
+    $self->apiClient->notify('trigger_scan', %data );
     my $firewallsso = pf::firewallsso->new;
     $firewallsso->do_sso('Update', $client_mac, $client_ip, $lease_length || $DEFAULT_LEASE_LENGTH);
 }
@@ -524,7 +524,7 @@ sub parse_dhcp_release {
     my $timer = pf::StatsD::Timer->new({level => 7});
     my ($self, $dhcp) = @_;
     $logger->debug("DHCPRELEASE from $dhcp->{'chaddr'} ($dhcp->{ciaddr})");
-    $self->{api_client}->notify('close_iplog',$dhcp->{'ciaddr'});
+    $self->apiClient->notify('close_iplog',$dhcp->{'ciaddr'});
 }
 
 =head2 parse_dhcp_inform
@@ -583,7 +583,7 @@ sub rogue_dhcp_handling {
            'tid' => $ROGUE_DHCP_TRIGGER,
            'type' => 'INTERNAL',
         );
-        $self->{api_client}->notify('trigger_violation', %data );
+        $self->apiClient->notify('trigger_violation', %data );
     } else {
         $logger->info("Unable to find MAC based on IP $dhcp_srv_ip for rogue DHCP server");
         $dhcp_srv_mac = 'unknown';
@@ -699,7 +699,7 @@ sub update_iplog {
 
         my $last_connection_type = $view_mac->{'last_connection_type'};
         if (defined $last_connection_type && $last_connection_type eq $connection_type_to_str{$INLINE}) {
-            $self->{api_client}->notify('ipset_node_update',$oldip, $srcip, $srcmac);
+            $self->apiClient->notify('ipset_node_update',$oldip, $srcip, $srcmac);
         }
     }
     elsif ($oldmac && $oldmac ne $srcmac) {
@@ -713,7 +713,7 @@ sub update_iplog {
         'oldip' => $oldip,
         'oldmac' => $oldmac,
     );
-    $self->{api_client}->notify('update_iplog', %data);
+    $self->apiClient->notify('update_iplog', %data);
 }
 
 =head2 get_local_dhcp_servers_by_ip
