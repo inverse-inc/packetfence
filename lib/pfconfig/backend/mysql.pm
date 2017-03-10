@@ -53,6 +53,36 @@ sub _get_db {
     return $db;
 }
 
+=head2 db_readonly_mode
+
+Whether or not the database is in read only mode
+In which case, we should not read from it since it can't be updated
+
+=cut
+
+sub db_readonly_mode {
+    my ($self) = @_;
+
+    my $logger = get_logger;
+
+    my $dbh = $self->{_db} || $self->_get_db();
+    my $sth = $dbh->prepare_cached('SELECT @@global.read_only;');
+
+    my $result;
+    eval {
+        $sth->execute;
+        my $row = $sth->fetch;
+        $sth->finish;
+        $result = $row->[0];
+    };
+    if($@) {
+        $logger->error("Cannot connect to database to see if its in read-only mode. Will consider it in read-only.");
+        return 1;
+    }
+    return $result;
+}
+
+
 =head2 _db_error
 
 Handle a database error
@@ -79,6 +109,12 @@ sub get {
         $self->_db_error();
         return undef;
     }
+
+    if($self->db_readonly_mode) {
+        $logger->error("Not gathering data from backend since its in read-only mode.");
+        return undef;
+    }
+
     my $statement = $db->prepare( "SELECT value FROM keyed WHERE id=" . $db->quote($key) );
     eval {
         $statement->execute();
@@ -168,6 +204,7 @@ sub list {
         $self->_db_error();
         return ();
     }
+    
     my $statement = $db->prepare( "SELECT id FROM keyed");
     eval {
         $statement->execute();
@@ -195,6 +232,7 @@ sub list_matching {
         $self->_db_error();
         return ();
     }
+
     my $statement = $db->prepare( "SELECT id FROM keyed where id regexp ".$db->quote($expression) );
     eval {
         $statement->execute();
