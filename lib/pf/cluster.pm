@@ -37,6 +37,7 @@ use Config::IniFiles;
 use File::Slurp qw(read_file write_file);
 use Time::HiRes qw(time);
 use POSIX qw(ceil);
+use Crypt::CBC;
 
 use Module::Pluggable
   'search_path' => [qw(pf::ConfigStore)],
@@ -672,6 +673,66 @@ Dectivate the maintenance mode for this node
 
 sub deactivate_maintenance {
     unlink($maintenance_file);
+}
+
+=head2 encryption_password
+
+Takes the active_active.password and ensures its a 56 bytes password
+Will pad the password with zeros if its less than that
+Will strip the password to 56 bytes if its more than that
+
+=cut
+
+sub encryption_password {
+    require pf::config;
+    my $password = $pf::config::Config{active_active}{password};
+    
+    my $desired_length = 56;
+
+    # Ensure it isn't more than 56 bytes
+    $password = substr($password, 0, $desired_length);
+
+    my $missing = $desired_length - length($password) - 1;
+    for my $i (0..$missing) {
+        $password .= "0";
+    }
+
+    return $password;
+}
+
+=head2 cipher
+
+Get the cipher to encrypt/decrypt cluster communications
+
+=cut
+
+sub cipher {
+    return Crypt::CBC->new(
+        -key => encryption_password(),
+        -cipher => 'Blowfish',
+    );
+}
+
+=head2 encrypt_message
+
+Encrypt a message using the cluster shared key
+
+=cut
+
+sub encrypt_message {
+    my ($text) = @_;
+    cipher()->encrypt_hex($text);
+}
+
+=head2 decrypt_message
+
+Decrypt a message using the cluster shared key
+
+=cut
+
+sub decrypt_message {
+    my ($text) = @_;
+    cipher()->decrypt_hex($text);
 }
 
 =head1 AUTHOR
