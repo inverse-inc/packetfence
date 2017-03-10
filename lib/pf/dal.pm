@@ -601,7 +601,7 @@ merge fields into object
 sub merge {
     my ($self, $vals) = @_;
     return unless defined $vals && ref($vals) eq 'HASH';
-    foreach my $field ($self->field_names) {
+    foreach my $field ( @{$self->field_names} ) {
         next unless exists $vals->{$field};
         $self->{$field} = $vals->{$field};
     }
