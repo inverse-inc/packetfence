@@ -63,10 +63,10 @@ sub status :Chained('service') :PathPart('') :Args(0) :AdminRole('SERVICES') {
 
 sub cluster_status :Local :AdminRole('SERVICES') {
     my ($self, $c) = @_;
-    $c->stash->{servers} = \@cluster_hosts;
+    $c->stash->{servers} = [pf::cluster::enabled_hosts()];
     $c->stash->{config_cluster} = \%ConfigCluster;
     $c->stash->{services} = {};
-    foreach my $server (@cluster_hosts){
+    foreach my $server (pf::cluster::enabled_hosts()){
         my ($status, $result) = $c->model('Services')->server_status($server);
         if(is_success($status)) {
             my $services = $result->{services};
@@ -81,7 +81,7 @@ sub cluster_status :Local :AdminRole('SERVICES') {
     }
     # Ensure all services have a status for all servers
     foreach my $service (keys %{$c->stash->{services}}) {
-        foreach my $server (@cluster_hosts) {
+        foreach my $server (pf::cluster::enabled_hosts()) {
             $c->stash->{services}->{$service}->{$server} //= "unknown";
         }
     }

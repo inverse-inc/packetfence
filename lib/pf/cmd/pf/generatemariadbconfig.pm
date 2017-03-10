@@ -50,14 +50,15 @@ sub _run {
         server_ip => $management_network ? $management_network->{Tvip} // $management_network->{Tip} : "",
     );
 
-    if($cluster_enabled) {
+    # Only generate cluster configuration if there is more than 1 enabled host in the cluster
+    if($cluster_enabled && scalar(pf::cluster::enabled_hosts()) > 1) {
         %vars = (
             %vars,
 
             cluster_enabled => $cluster_enabled,
 
             server_ip => pf::cluster::current_server()->{management_ip},
-            servers_ip => [(map { $_->{management_ip} } @cluster_servers)],
+            servers_ip => [(map { $_->{management_ip} } pf::cluster::mysql_servers())],
 
             # TODO: have real configurable user
             replication_user => $Config{active_active}{galera_replication_username},

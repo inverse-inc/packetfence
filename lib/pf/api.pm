@@ -729,7 +729,7 @@ sub expire_cluster : Public {
     expire($class, %postdata);
 
     my @failed;
-    foreach my $server (@cluster_servers){
+    foreach my $server (pf::cluster::enabled_servers()){
         next if($host_id eq $server->{host});
         my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $server->{management_ip});
         my %data = (
