@@ -393,6 +393,7 @@ sub portal_hosts {
     foreach my $net (@internal_nets) {
         push @hosts, $net->{Tip} if defined($net->{Tip});
         push @hosts, $net->{Tvip} if defined($net->{Tvip});
+        push @hosts, $net->{Tipv6_address} if defined($net->{Tipv6_address});
     }
     push @hosts, $management_network->{Tip} if defined($management_network->{Tip});
     push @hosts, $management_network->{Tvip} if defined($management_network->{Tvip});

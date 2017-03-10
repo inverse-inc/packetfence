@@ -194,6 +194,7 @@ EOT
             # IPv6 handling
             my $cluster_ipv6 = pf::cluster::cluster_ipv6($interface) || $cfg->{'ipv6_address'};
             if ( defined($cluster_ipv6) ) {
+                push @portal_ip, $cluster_ipv6;
                 $tags{'http'} .= <<"EOT";
 frontend portal-http-$cluster_ipv6
         bind $cluster_ipv6:80
