@@ -18,6 +18,7 @@ use pfconfig::constants;
 use UNIVERSAL::require;
 use Config::IniFiles;
 use pf::util;
+use pf::log;
 
 =head2 new
 
@@ -68,6 +69,7 @@ Get the backend object defined in the configuration or the default one
 sub get_backend {
     my ( $self ) = @_;
     my $cfg    = $self->section('general');
+    my $logger = get_logger;
 
     my $name = $cfg->{backend} || $pfconfig::constants::DEFAULT_BACKEND;
 
