@@ -144,7 +144,7 @@ sub process_packet {
     }
 
     my $message_type = $DHCPV6_MESSAGE_TYPES{$dhcpv6->{msg_type}};
-    my $packet_processor = $MESSAGE_TYPE_PROCESSORS{$message_type};
+    my $packet_processor = $MESSAGE_TYPE_PROCESSORS{$message_type} if defined($message_type);
 
     unless ( defined($message_type) && defined($packet_processor) ) {
         $logger->warn("Got a DHCPv6 packet of type '$dhcpv6->{msg_type}'. Do not process it");
