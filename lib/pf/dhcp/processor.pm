@@ -19,6 +19,7 @@ use warnings;
 use Readonly;
 
 # Internal libs
+use pf::access_filter::dhcp;
 use pf::client;
 use pf::log;
 use pf::node;
@@ -27,6 +28,7 @@ use Moose;
 
 
 has 'api_client'    => (is => 'ro', default => sub { pf::client::getClient });
+has 'filter_engine' => (is => 'rw', default => sub { pf::access_filter::dhcp->new });
 
 
 Readonly::Hash my %FINGERBANK_ATTRIBUTES_MAP => (
@@ -57,9 +59,12 @@ sub processFingerbank {
         }
     }
 
-    $self->api_client->notify('fingerbank_process', $fingerbank_args);
+    my $dhcp_filter_rule = $self->filter_engine->filter('DhcpFingerbank', $fingerbank_args);
 
-    pf::node::node_modify($fingerbank_args->{'mac'}, %{$fingerbank_args});
+    unless ( $dhcp_filter_rule ) {
+        $self->api_client->notify('fingerbank_process', $fingerbank_args);
+        pf::node::node_modify($fingerbank_args->{'mac'}, %{$fingerbank_args});
+    }
 }
 
 =head1 AUTHOR

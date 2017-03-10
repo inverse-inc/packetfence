@@ -43,7 +43,6 @@ use fingerbank::DB;
 use File::Slurp;
 use pf::file_paths qw($captiveportal_profile_templates_path);
 use pf::CHI;
-use pf::access_filter::dhcp;
 use pf::metadefender();
 use pf::services();
 
@@ -1069,13 +1068,7 @@ sub dynamic_register_node : Public :AllowedAsAction(mac, $mac, username, $userna
 
 sub fingerbank_process : Public {
     my ( $class, $args ) = @_;
-    my $filter = pf::access_filter::dhcp->new;
-    my $rule = $filter->filter('DhcpFingerbank', $args);
-    if (!$rule) {
-        delete $args->{'computername'};
-        return (pf::fingerbank::process($args));
-    }
-    return undef;
+    pf::fingerbank::process($args);
 }
 
 =head2 fingerbank_update_component
