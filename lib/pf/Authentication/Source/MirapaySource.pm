@@ -145,8 +145,9 @@ Verify the payment from mirapay
 
 sub verify {
     my ($self, $session, $parameters, $uri) = @_;
+    my $id = $self->id;
     my $logger = get_logger();
-    $logger->trace( sub {"Verifing $uri for source ". $self->id});
+    $logger->trace( sub {"Verifing $uri for source $id"});
     my $action_code = $parameters->{'ActionCode'} // $MIRAPAY_ACTION_CODE_DECLINED;
     if($MIRAPAY_ACTION_CODE_APPROVED ne $action_code) {
         die "Transaction declined";
@@ -156,7 +157,7 @@ sub verify {
     }
     my $results = $self->submit_approval_code($session, $parameters, $uri);
     if ($results->{approved} eq 'N') {
-        $logger->error( "Source " . $self->id . " Cannot submit approval code " . $self->id . " Error : " . $results->{operatorMessage});
+        $logger->error( "Source $id Cannot submit approval code Error : " . $results->{operatorMessage});
         die "Transaction failed";
     }
     return $results;
@@ -171,7 +172,9 @@ submit approval code to mirapay direct
 sub submit_approval_code {
     my ($self, $session, $parameters, $uri) = @_;
     my $logger = get_logger();
+    my $id = $self->id;
     my $url = $self->make_mirapay_direct_url($session, $parameters, $uri);
+    $logger->trace(sub { "Submitted url to mirapay direct for $id : $url"});
     my $request = HTTP::Request->new(GET => $url);
     my $ua = LWP::UserAgent->new;
     my $response = $ua->request($request);
@@ -179,6 +182,7 @@ sub submit_approval_code {
         die "Cannot Problem submitting approval code\n";
     }
     my $content = $response->content;
+    $logger->trace(sub { "Response back from mirapay direct for $id : $content"});
     my $results = $self->parse_mirapay_direct_response($content);
     return $results;
 }
