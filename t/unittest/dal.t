@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 30;
+use Test::More tests => 32;
 
 use pf::error qw(is_success is_error);
 use pf::db;
@@ -151,6 +151,14 @@ is($status, $STATUS::CREATED, "$test_mac was successfully created");
 ($status, $node) = pf::dal::node->find_or_create({ mac => $test_mac, computername => "zams-computer", voip => "yes" });
 
 is($status, $STATUS::OK, "$test_mac was successfully updated");
+
+my $data = {"computername" => "computer", voip => "no"};
+
+$node->merge($data);
+
+is($node->voip, $data->{voip}, "Test pf::dal->merge voip");
+
+is($node->computername, $data->{computername}, "Test pf::dal->merge computername");
 
 pf::dal::node->remove_by_id({mac => $test_mac});
 
