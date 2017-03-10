@@ -135,6 +135,14 @@ galera_replication_username=pfcluster
 galera_replication_password=aMuchMoreSecurePassword
 ----
 
+Then, in `conf/pfconfig.conf` :
+
+----
+[mysql]
+host=127.0.0.1
+----
+
+
 Now, reload the configuration and restart packetfence-config. You will see errors related to a cache write issue but you can safely ignore it for now. These appear because packetfence-config cannot connect to the database yet.
 
   # service packetfence-config restart
@@ -275,13 +283,8 @@ NOTE: If you access https://PF_HOSTNAME:1443, you will still be redirected to th
 
 First, set the webservices user and password on the master node in 'Configuration/Web Services'. There should be a sync error you can safely ignore as the other servers of your cluster aren't joined yet.
 
-Once this is done, stop packetfence-mariadb on the first server (should be the only one that had it running):
+And restart httpd.webservices on the first server:
 
-  # service packetfence-mariadb stop
-
-And restart packetfence-config and packetfence-httpd.webservices on the first server:
-
-  # service packetfence-config restart
   # /usr/local/pf/bin/pfcmd service httpd.webservices restart
 
 Sync the nodes
@@ -313,9 +316,13 @@ Make sure that this server is binding to it's own management address. If it's no
 MariaDB sync
 ^^^^^^^^^^^^
 
-First, ensure you now start packetfence-mariadb on the first server. Again this can take up to 5 minutes to start since its an initial cluster creation.
+First, ensure packetfence-mariadb is started on the first server. Again this can take up to 5 minutes to start since its an initial cluster creation.
 
-  service packetfence-mariadb start
+  # service packetfence-mariadb start
+
+And ensure packetfence-mariadb is stopped on the two servers that will be joined
+
+  # service packetfence-mariadb stop
 
 Now, flush any MySQL data you have on the new node and restart packetfence-mariadb so that the servers join the cluster.
 
@@ -339,26 +346,6 @@ Important variables:
   * 'wsrep_local_state_comment': Current sync state of the cluster. A healthy state is 'Synced'. Refer to the Galera cluster documentation for the meaning of the other values this can have.
 
 In order for the cluster to be considered healthy, all nodes must be listed under `wsrep_incoming_addresses` and `wsrep_local_state_comment` must be `Synced`. Otherwise look in the MariaDB log (`/var/lib/mysql/PF_HOSTNAME.err`)
-
-Configure packetfence-config
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Now that your cluster is configured, you should point packetfence-config to use 127.0.0.1 as the database IP so it uses haproxy to find the database server.
-
-On the first, change the following `conf/pfconfig.conf` :
-
-----
-[mysql]
-host=127.0.0.1
-----
-
-Then, sync your cluster:
-
-  # /usr/local/pf/bin/cluster/sync --as-master
-
-And restart packetfence-config on all of your servers:
-
-  # service packetfence-config restart
 
 
 Wrapping up
