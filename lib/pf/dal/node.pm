@@ -17,9 +17,26 @@ pf::dal implementation for the table node
 use strict;
 use warnings;
 
+use pf::error qw(is_error);
 use base qw(pf::dal::_node);
 use Class::XSAccessor {
     accessors => [qw(category bypass_role)],
+# The getter for current location log entries
+    getters   => [qw(
+          last_switch
+          last_port
+          last_vlan
+          last_connection_type
+          last_connection_sub_type
+          last_dot1x_username
+          last_ssid
+          stripped_user_name
+          realm
+          last_switch_mac
+          last_start_time
+          last_role
+          last_start_timestamp
+   )],
 };
 
 our @FIELD_NAMES = (
@@ -48,6 +65,48 @@ sub field_names {
     [@FIELD_NAMES]
 }
  
+=head2 _load_locationlog
+
+load the locationlog entries into the node object
+
+=cut
+
+sub _load_locationlog {
+    my ($self) = @_;
+    my $sqla = $self->get_sql_abstract;
+    my ($sql, @bind) = $sqla->select(
+        -columns => [
+            "locationlog.switch|last_switch",
+            "locationlog.port|last_port",
+            "locationlog.vlan|last_vlan",
+            "IF(ISNULL(`locationlog`.`connection_type`), '', `locationlog`.`connection_type`)|last_connection_type",
+            "IF(ISNULL(`locationlog`.`connection_sub_type`), '', `locationlog`.`connection_sub_type`)|last_connection_sub_type",
+            "locationlog.dot1x_username|last_dot1x_username",
+            "locationlog.ssid|last_ssid",
+            "locationlog.stripped_user_name|stripped_user_name",
+            "locationlog.realm|realm",
+            "locationlog.switch_mac|last_switch_mac",
+            "locationlog.start_time|last_start_time",
+            "locationlog.role|last_role",
+            "UNIX_TIMESTAMP(`locationlog`.`start_time`)|last_start_timestamp",
+          ],
+        -from => 'locationlog',
+        -where => { mac => $self->mac, end_time => '0000-00-00 00:00:00'},
+    );
+    my ($status, $sth) = $self->db_execute($sql, @bind);
+    return $status, undef if is_error($status);
+    my $row = $sth->fetchrow_hashref;
+    $sth->finish;
+    unless ($row) {
+        return $STATUS::NOT_FOUND;
+    }
+    #Manually set the location log fields
+    while (my ($key, $val) = each %$row) {
+        $self->{$key} = $val;
+    }
+    return $STATUS::OK;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
