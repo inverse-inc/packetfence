@@ -251,10 +251,16 @@ type=internal
 mask=255.255.255.0
 
 ----
-Once this configuration is done, reload the configuration and restart PacketFence to have it applied:
+
+Once this configuration is done, reload the configuration and perform a checkup.
   
  # /usr/local/pf/bin/pfcmd configreload hard
  # /usr/local/pf/bin/pfcmd checkup
+ 
+The reload and the checkup will complain about the unavailability of the database, which you can safely ignore for now. Most important is that you don't see any cluster configuration related errors during the checkup.
+ 
+Then, restart PacketFence to apply all your changes
+
  # /usr/local/pf/bin/pfcmd service pf restart
 
 Then make sure the PacketFence clustering services will be started at boot by running the following command on all of your servers
