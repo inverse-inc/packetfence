@@ -72,7 +72,6 @@ has 'inline_sub_connection_type' => ('is' => 'ro');
 has 'dhcp' => ('is' => 'ro');
 
 has 'accessControl' => (is => 'ro', builder => '_build_accessControl');
-has 'api_client'    => (is => 'ro', builder => 'pf::client::getClient');
 has 'dhcp_networks' => (is => 'ro', builder => '_build_DHCP_networks');
 
 our $logger = get_logger;
@@ -239,17 +238,18 @@ sub process_packet {
 
         # Fingerbank interaction
         my %fingerbank_query_args = (
-            dhcp_fingerprint    => $tmp{'dhcp_fingerprint'},
-            dhcp_vendor         => $tmp{'dhcp_vendor'},
-            mac                 => $dhcp->{'chaddr'},
-            computer_name       => $tmp{'computername'},
+            ipv4_requested_options  => $tmp{'dhcp_fingerprint'},
+            ipv4_vendor             => $tmp{'dhcp_vendor'},
+            client_mac              => $dhcp->{'chaddr'},
+            client_hostname         => $tmp{'computername'},
         );
 
         # When listening on the mgmt interface, we can't rely on yiaddr as we only see requests
         my $ip = ($dhcp->{'yiaddr'} ne "0.0.0.0") ? $dhcp->{'yiaddr'} : $dhcp->{'options'}{'50'};
-        $fingerbank_query_args{'ip'} = $ip if defined($ip);
+        $fingerbank_query_args{'client_ip'} = $ip if defined($ip);
 
-        $self->{api_client}->notify('fingerbank_process', \%fingerbank_query_args );
+        # Fingerbank integration
+        $self->processFingerbank(\%fingerbank_query_args);
 
         $logger->debug( sub {
             my $modified_node_log_message = '';

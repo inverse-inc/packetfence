@@ -19,18 +19,25 @@ use warnings;
 use Readonly;
 
 # Internal libs
-use pf::fingerbank;
+use pf::client;
 use pf::log;
 use pf::node;
 
 use Moose;
 
 
+has 'api_client' => (is => 'ro', builder => 'pf::client::getClient');
+
+
 Readonly::Hash my %FINGERBANK_ATTRIBUTES_MAP => (
     client_mac              => 'mac',
-    ipv6_enterprise_number  => 'dhcp6_enterprise',
+    client_ip               => 'ip',
+    client_hostname         => 'computer_name',
+    ipv4_requested_options  => 'dhcp_fingerprint',
+    ipv4_vendor             => 'dhcp_vendor',
     ipv6_requested_options  => 'dhcp6_fingerprint',
     ipv6_vendor             => 'dhcp_vendor',
+    ipv6_enterprise_number  => 'dhcp6_enterprise',
 );
 
 
@@ -50,7 +57,7 @@ sub processFingerbank {
         }
     }
 
-    pf::fingerbank::process($fingerbank_args);
+    $self->api_client->notify('fingerbank_process', $fingerbank_args);
 
     pf::node::node_modify($fingerbank_args->{'mac'}, %{$fingerbank_args});
 }
