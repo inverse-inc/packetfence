@@ -126,7 +126,7 @@ sub find {
     my $where = $proto->build_primary_keys_where_clause($ids);
     my $sqla = $proto->get_sql_abstract;
     my ($sql, @bind) = $sqla->select(
-        -columns => $proto->field_names,
+        -columns => $proto->find_columns,
         -from => $proto->find_from_tables,
         -where => $where,
     );
@@ -550,6 +550,17 @@ sub find_from_tables {
     return $proto->table;
 }
 
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    my ($self) = @_;
+    return $self->field_names;
+}
+
 =head2 find_or_create
 
 finds a table record or creates it
@@ -561,7 +572,7 @@ sub find_or_create {
     my $obj = $proto->new($args);
     my $sqla = $proto->get_sql_abstract;
     my ($sql, @bind) = $sqla->select(
-        -columns => $proto->field_names,
+        -columns => $proto->find_columns,
         -from => $proto->find_from_tables,
         -where => $obj->primary_keys_where_clause,
     );
