@@ -26,7 +26,7 @@ use pf::node;
 use Moose;
 
 
-has 'api_client' => (is => 'ro', builder => 'pf::client::getClient');
+has 'api_client'    => (is => 'ro', default => sub { pf::client::getClient });
 
 
 Readonly::Hash my %FINGERBANK_ATTRIBUTES_MAP => (
