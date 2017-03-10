@@ -101,7 +101,7 @@ sub db_execute {
             my $errstr = $dbh->errstr;
             pf::db::db_handle_error($err);
             if ($err < 2000) {
-                $logger->error("database query failed with non retryable error: $errstr (errno: $err)");
+                $logger->error("database query failed with non retryable error: $errstr (errno: $err) [$sql]");
                 last;
             }
             # retry client errors
