@@ -59,7 +59,7 @@ sub processFingerbank {
         }
     }
 
-    my $dhcp_filter_rule = $self->filterEngine->filter('DhcpFingerbank', $fingerbank_args);
+    my $dhcp_filter_rule = $self->filterEngine->filter('Fingerbank', $fingerbank_args);
 
     unless ( $dhcp_filter_rule ) {
         $self->apiClient->notify('fingerbank_process', $fingerbank_args);
