@@ -48,6 +48,8 @@ our @COLUMN_NAMES = (
     'nr.name|bypass_role',
 );
 
+our @MERGE_FIELD = (@pf::dal::_node::FIELD_NAMES, qw(category bypass_role));
+
 =head2 find_from_tables
 
 Join the node_category table information in the node results
@@ -68,6 +70,16 @@ sub find_columns {
     [@COLUMN_NAMES]
 }
  
+=head2 merge_fields
+
+merge_fields
+
+=cut
+
+sub merge_fields {
+    [@MERGE_FIELD]
+}
+
 =head2 _load_locationlog
 
 load the locationlog entries into the node object
