@@ -274,7 +274,7 @@ build the mirapay direct options
 sub build_mirapay_direct_options {
     my ($self, $parameters, $tier) = @_;
     my %options = (
-        transCode     => '07',
+        transCode     => '27',
         terminalId    => $self->terminal_id,
         approvalCode  => $parameters->{ApprovalCode},
         token         => $parameters->{EigenToken},
