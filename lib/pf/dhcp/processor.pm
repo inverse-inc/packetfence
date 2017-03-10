@@ -32,7 +32,7 @@ has 'api_client' => (is => 'ro', builder => 'pf::client::getClient');
 Readonly::Hash my %FINGERBANK_ATTRIBUTES_MAP => (
     client_mac              => 'mac',
     client_ip               => 'ip',
-    client_hostname         => 'computer_name',
+    client_hostname         => 'computername',
     ipv4_requested_options  => 'dhcp_fingerprint',
     ipv4_vendor             => 'dhcp_vendor',
     ipv6_requested_options  => 'dhcp6_fingerprint',

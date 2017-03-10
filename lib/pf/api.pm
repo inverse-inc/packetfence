@@ -1072,7 +1072,7 @@ sub fingerbank_process : Public {
     my $filter = pf::access_filter::dhcp->new;
     my $rule = $filter->filter('DhcpFingerbank', $args);
     if (!$rule) {
-        delete $args->{'computer_name'};
+        delete $args->{'computername'};
         return (pf::fingerbank::process($args));
     }
     return undef;

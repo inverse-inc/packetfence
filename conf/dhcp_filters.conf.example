@@ -5,7 +5,7 @@
 # Make a simple rule like this:
 #
 #[VIVIDE9]
-#filter = computer_name
+#filter = computername
 #operator = regex
 #value = ^VIVIDE9
 #
@@ -33,7 +33,7 @@
 #
 # filter can be:
 #     mac
-#     computer_name
+#     computername
 #     dhcp_fingerprint
 #     dhcp_vendor
 #
