@@ -118,6 +118,10 @@ has terminal_id => (
     required => 1,
 );
 
+has terminal_group_id => (
+    is => 'rw',
+);
+
 has shared_secret_direct => (
     is => 'rw',
     required => 1,
