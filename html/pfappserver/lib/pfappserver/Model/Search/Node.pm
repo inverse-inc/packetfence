@@ -106,7 +106,7 @@ sub make_builder {
             L_("IFNULL(device_type, ' ')", 'device_type'),
             L_("IFNULL(device_version, ' ')", 'device_version'),
             L_("IF(r1.acctstarttime IS NULL,'unknown',IF(r1.acctstoptime IS NULL, 'on', 'off'))", 'online'),
-            { table => 'iplog', name => 'ip', as => 'last_ip' },
+            { table => 'ip4log', name => 'ip', as => 'last_ip' },
             { table => 'locationlog', name => 'switch', as => 'switch_id' },
             { table => 'locationlog', name => 'switch_ip', as => 'switch_ip' },
             { table => 'locationlog', name => 'switch_mac', as => 'switch_mac' },
@@ -151,17 +151,17 @@ sub make_builder {
                     ],
                 },
                 {
-                    'table' => 'iplog',
+                    'table' => 'ip4log',
                     'join'  => 'LEFT',
                     'on'    =>
                     [
                         [
                             {
-                                'table' => 'iplog',
+                                'table' => 'ip4log',
                                 'name'  => 'ip',
                             },
                             '=',
-                            \"( SELECT `ip` FROM `iplog` WHERE `mac` = `node`.`mac`
+                            \"( SELECT `ip` FROM `ip4log` WHERE `mac` = `node`.`mac`
                                         ORDER BY `start_time` DESC LIMIT 1 )"
                         ]
                     ],
@@ -365,7 +365,7 @@ my %COLUMN_MAP = (
        name  => 'connection_type',
     },
     last_ip   => {
-       table => 'iplog',
+       table => 'ip4log',
        name  => 'ip',
     }, # BUG : retrieves the last IP address, no mather if a period range is defined
     violation   => {
