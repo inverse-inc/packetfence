@@ -15,7 +15,6 @@ Assumptions
 -----------
 * You have a configured PacketFence environment with working test equipment;
 * You have a SentinelOne instance available (this example uses `packetfence.sentinelone.net`)
-* You are aware of the licensing options available at https://www.metadefender.com/licensing
 
 Quick installation
 ------------------
@@ -75,7 +74,7 @@ Step 4: Test
 ~~~~~~~~~~~~
 You can now test that the installation of the SentinelOne client is mandatory after the device registration.
 Connect a device to your test network and register like you normally would.
-At the end of the registration process you will be presented a page asking you to install the OPSWAT Metadefender Endpoint client on your device.
+At the end of the registration process you will be presented a page asking you to install the SentinelOne client on your device.
 After you install the client click continue. If your access is enabled than this means the connectivity between PacketFence and SentinelOne is good.
 
 PacketFence polls SentinelOne at a regular interval (30 seconds by default) to find devices that have uninstalled their agent. When it detects them as uninstalled, it automatically brings the device back to the portal so the agent is installed.
