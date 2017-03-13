@@ -249,8 +249,8 @@ sub authorize {
             $logger->info("Agent is not active on device");
             return $FALSE;
         }
-        $logger->debug("Hitting default case for authorization. Rejecting device.");
-        return $FALSE;
+        $logger->info("Agent is installed and active.");
+        return $TRUE;
     }
 }
 
