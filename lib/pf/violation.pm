@@ -208,7 +208,7 @@ sub violation_db_prepare {
     $violation_statements->{'violation_delete_sql'} = get_db_handle()->prepare(qq [ delete from violation where id=? ]);
 
     $violation_statements->{'violation_close_sql'} = get_db_handle()->prepare(
-        qq [ update violation set release_date=now(),status="closed" where mac=? and vid=? and status="open" ]);
+        qq [ update violation set release_date=now(),status="closed" where mac=? and vid=? and (status="open" OR status="delayed") ]);
 
     $violation_statements->{'violation_grace_sql'} = get_db_handle()->prepare(
         qq [ select unix_timestamp(start_date)+grace_period-unix_timestamp(now()) from violation v left join class c on v.vid=c.vid where mac=? and v.vid=? and status="closed" order by start_date desc ]);
