@@ -114,16 +114,18 @@ check process packetfence-redis_queue with pidfile /usr/local/pf/var/run/redis_q
     if failed host 127.0.0.1 port 6380 protocol redis for 5 cycles then alert
     if 3 restarts within 10 cycles then alert
 
+[% DOMAINS.size > 0 %]
 check process packetfence-winbind with pidfile /usr/local/pf/var/run/winbindd-wrapper.pid
     group PacketFence
     start program = "/usr/local/pf/bin/pfcmd service windbindd start" with timeout 60 seconds
     stop program = "/usr/local/pf/bin/pfcmd service windbindd stop"
     if 3 restarts within 10 cycles then alert
 
-
 [% FOREACH domain IN DOMAINS.keys %]
 check process packetfence-winbind-[% domain %] with pidfile [% DOMAINS.$domain %]
     group PacketFence
     if changed ppid then alert
     depends on packetfence-winbind
+[% END %]
+
 [% END %]
