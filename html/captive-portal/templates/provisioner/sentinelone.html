@@ -3,29 +3,33 @@
   <h5 class="u-mb--">[% i18n("To complete your network activation you need to install the SentinelOne client.") %]</h5>
   <p>[% i18n("Once the application is installed, click 'Continue' to activate your network connection") %]</p>
 
-  <div class="layout__item u-1/2 u-2/3-lap u-1/1-palm">
+  <ul class="list-ui list-ui--btns">
     [% IF provisioner.win_agent_download_uri.defined %]
-    <a href="[% provisioner.win_agent_download_uri %]" class="btn btn--full" target="_blank">
-      <div class="flag">
-        <div class="flag__img">[% svgIcon(id='ic_phonelink_setup_black_24px',size='small') %]</div>
-        <p class="flag__body">[% i18n("Download Windows Agent") %]</p>
-      </div>
-    </a>
+    <li class="list-ui__item">
+      <a href="[% provisioner.win_agent_download_uri %]" class="btn btn--light btn--full" target="_blank">
+        <div class="flag">
+          <div class="flag__img">[% svgIcon(id='ic_phonelink_setup_black_24px',size='small') %]</div>
+          <p class="flag__body">[% i18n("Download Windows Agent") %]</p>
+        </div>
+      </a>
+    </li>
     [% END %] 
     [% IF provisioner.mac_osx_agent_download_uri.defined %]
-    <a href="[% provisioner.mac_osx_agent_download_uri %]" class="btn btn--full" target="_blank">
-      <div class="flag">
-        <div class="flag__img">[% svgIcon(id='ic_phonelink_setup_black_24px',size='small') %]</div>
-        <p class="flag__body">[% i18n("Download Mac OSX Agent") %]</p>
-      </div>
-    </a>
+    <li class="list-ui__item">
+      <a href="[% provisioner.mac_osx_agent_download_uri %]" class="btn btn--light btn--full" target="_blank">
+        <div class="flag">
+          <div class="flag__img">[% svgIcon(id='ic_phonelink_setup_black_24px',size='small') %]</div>
+          <p class="flag__body">[% i18n("Download Mac OSX Agent") %]</p>
+        </div>
+      </a>
+    </li>
     [% END %] 
-    <a href="/captive-portal" class="btn btn--full btn--light u-mt">
-      <div class="flag">
-        <div class="flag__img">[% svgIcon(id='ic_forward_black_24px',size='small') %]</div>
-        <p class="flag__body">[% i18n("Continue") %]</p>
-      </div>
-    </a>
-  </div>
+  </ul>
+  <a href="/captive-portal" class="btn btn--full btn--light u-mt">
+    <div class="flag">
+      <div class="flag__img">[% svgIcon(id='ic_forward_black_24px',size='small') %]</div>
+      <p class="flag__body">[% i18n("Continue") %]</p>
+    </div>
+  </a>
 </div>
 
