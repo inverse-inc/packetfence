@@ -61,6 +61,7 @@ use pf::accounting;
 use pf::cluster;
 use pf::api::queue;
 use pf::access_filter::radius;
+use pf::registration;
 
 our $VERSION = 1.03;
 
