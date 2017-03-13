@@ -59,6 +59,38 @@ timeout=10s
 # How long to keep a auth_log_cleanup entry before deleting it
 window=1W
 
+[cleanup_chi_database_cache]
+#
+# type
+#
+# The type of task to perform
+type=cleanup_chi_database_cache
+#
+# description
+#
+# The description of task to perform
+description=cleanup chi database cache
+#
+# status
+#
+# If the task cleanup_chi_database_cache is enabled
+status=enabled
+#
+# interval
+#
+# At which interval to run the cleanup chi database cache pfmon task
+interval=10s
+#
+# batch
+#
+# How many cleanup_chi_database_cache entries to clean up in one run
+batch=1000
+#
+# timeout
+#
+# How long a cleanup_chi_database_cache job can run
+timeout=10s
+
 [cluster_check]
 #
 # type
