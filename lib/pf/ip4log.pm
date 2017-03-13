@@ -46,7 +46,7 @@ use constant IP4LOG                         => 'ip4log';
 use constant IP4LOG_CACHE_EXPIRE            => 60;
 use constant IP4LOG_DEFAULT_HISTORY_LIMIT   => '25';
 use constant IP4LOG_DEFAULT_ARCHIVE_LIMIT   => '18446744073709551615'; # Yeah, that seems odd, but that's the MySQL documented way to use LIMIT with "unlimited"
-use constant IP4LOG_FLOORED_LEASE_LENGTH  => '120';  # In seconds. Default to 2 minutes
+use constant IP4LOG_FLOORED_LEASE_LENGTH    => '120';  # In seconds. Default to 2 minutes
 
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
