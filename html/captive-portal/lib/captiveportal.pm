@@ -190,7 +190,7 @@ has portalSession => (
 
 sub _build_portalSession {
     my ($c) = @_;
-    return $c->model('Portal::Session');
+    return $c->model('Connection::Session');
 }
 
 has profile => (
