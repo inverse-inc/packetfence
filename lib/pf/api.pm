@@ -1037,12 +1037,17 @@ sub dynamic_register_node : Public :AllowedAsAction(mac, $mac, username, $userna
     };
 
     my $source;
-    my $role = &pf::authentication::match([@sources], $params, $Actions::SET_ROLE, \$source);
-    #Compute autoreg if we use autoreg
-    my $value = &pf::authentication::match([@sources], $params, $Actions::SET_UNREG_DATE);
-    if (defined $value) {
+    my $matched = pf::authentication::match2([@sources], $params);
+    unless ($matched) {
+        $logger->warn("Did not find any actions to match");
+        return;
+    }
+    my $values = $matched->{values};
+    my $role = $values->{$Actions::SET_ROLE};
+    my $unregdate = $values->{$Actions::SET_UNREG_DATE};
+    if (defined $unregdate) {
         my %info = (
-            'unregdate' => $value,
+            'unregdate' => $unregdate,
             'category' => $role,
             'autoreg' => 'no',
             'pid' => $postdata{'username'},

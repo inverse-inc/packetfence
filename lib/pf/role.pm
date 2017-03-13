@@ -435,8 +435,11 @@ sub getRegisteredRole {
                 rule_class => 'authentication',
                 radius_request => $args->{radius_request},
             };
-            $role = &pf::authentication::match([@sources], $params, $Actions::SET_ROLE, \$source);
-            my $unregdate = &pf::authentication::match([@sources], $params, $Actions::SET_UNREG_DATE);
+            my $matched = pf::authentication::match2([@sources], $params);
+            $source = $matched->{source_id};
+            my $values = $matched->{values};
+            $role = $values->{$Actions::SET_ROLE};
+            my $unregdate = $values->{$Actions::SET_UNREG_DATE};
             pf::person::person_modify($args->{'user_name'},
                 'source'  => $source,
                 'portal'  => $profile->getName,
@@ -565,12 +568,15 @@ sub getNodeInfoForAutoReg {
             radius_request => $args->{radius_request},
         };
 
-        my $source;
+        my $matched = pf::authentication::match2([@sources], $params);
+        my $source = $matched->{source_id};
+
+        my $values = $matched->{values};
         # Don't override vlan filter role
         if (!defined($role)) {
-            $role = &pf::authentication::match([@sources], $params, $Actions::SET_ROLE, \$source);
+            $role = $values->{$Actions::SET_ROLE};
         }
-        my $unregdate = &pf::authentication::match([@sources], $params, $Actions::SET_UNREG_DATE);
+        my $unregdate = $values->{$Actions::SET_UNREG_DATE};
         
         # Trigger a person lookup for 802.1x users
         pf::lookup::person::async_lookup_person($args->{'user_name'}, $source);

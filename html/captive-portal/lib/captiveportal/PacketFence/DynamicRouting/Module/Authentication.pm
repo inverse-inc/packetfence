@@ -252,7 +252,7 @@ sub create_local_account {
 
     # We create a "password" (also known as a user account) using the pid
     # with different parameters coming from the authentication source (ie.: expiration date)
-    $actions = $actions // &pf::authentication::match( $self->source->id, $auth_params );
+    $actions = $actions // pf::authentication::match( $self->source->id, $auth_params );
 
     my $login_amount = ($self->source->local_account_logins eq $LOCAL_ACCOUNT_UNLIMITED_LOGINS) ? undef : $self->source->local_account_logins;
     $password = pf::password::generate($self->app->session->{username}, $actions, $password, $login_amount);

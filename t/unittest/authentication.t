@@ -14,7 +14,7 @@ autentication
 use strict;
 use warnings;
 
-use Test::More tests => 26;                      # last test to print
+use Test::More tests => 30;                      # last test to print
 
 use Test::NoWarnings;
 use diagnostics;
@@ -30,6 +30,8 @@ BEGIN {
 use_ok("pf::authentication");
 
 is(pf::authentication::match("bad_source_name",{ username => 'test' }), undef, "Return undef for an invalid name of source");
+
+is(pf::authentication::match2("bad_source_name",{ username => 'test' }), undef, "Return undef for an invalid name of source");
 
 is_deeply(
     pf::authentication::match("email", { username => 'user_manager', rule_class => 'authentication' }),
@@ -47,6 +49,29 @@ is_deeply(
     ],
     "match all authentication email actions"
 );
+
+my $results = pf::authentication::match2("email", { username => 'user_manager', rule_class => 'authentication' });
+
+ok($results, "match2 authentication email actions");
+
+is_deeply(
+    $results->{actions},
+    [
+        pf::Authentication::Action->new({
+            'value' => 'guest',
+            'type'  => 'set_role',
+            'class' => 'authentication',
+        }),
+        pf::Authentication::Action->new({
+            'value' => '1D',
+            'type'  => 'set_access_duration',
+            'class' => 'authentication',
+        }),
+    ],
+    "match2 all authentication email actions"
+);
+
+is($results->{source_id}, "email", "source id matched");
 
 is_deeply(
     pf::authentication::match("email", { username => 'user_manager', rule_class => 'administration' }),
