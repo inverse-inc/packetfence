@@ -1,4 +1,4 @@
-package captiveportal::PacketFence::Model::Portal::Session;
+package captiveportal::PacketFence::Model::Connection::Session;
 use Moose;
 
 use pf::util::IP;
@@ -30,7 +30,7 @@ use List::MoreUtils qw(any);
 
 =head1 NAME
 
-captiveportal::PacketFence::Model::Portal::Session - Catalyst Model
+captiveportal::PacketFence::Model::Connection::Session - Catalyst Model
 
 =head1 DESCRIPTION
 

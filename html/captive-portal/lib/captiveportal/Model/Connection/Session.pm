@@ -1,11 +1,11 @@
-package captiveportal::Model::Portal::Session;
+package captiveportal::Model::Connection::Session;
 use Moose;
 
-extends 'captiveportal::PacketFence::Model::Portal::Session';
+extends 'captiveportal::PacketFence::Model::Connection::Session';
 
 =head1 NAME
 
-captiveportal::Model::Portal::Session - Catalyst Model
+captiveportal::Model::Connection::Session - Catalyst Model
 
 =head1 DESCRIPTION
 
