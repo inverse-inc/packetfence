@@ -16,7 +16,7 @@ use warnings;
 use Readonly;
 use base qw(Exporter);
 our @EXPORT = qw(
-    $FALSE $TRUE $YES $NO $default_pid $admin_pid
+    $FALSE $TRUE $YES $NO $default_pid $admin_pid $WARNING_COLOR $ERROR_COLOR $SUCCESS_COLOR
     $HTTP $HTTPS $HTTP_PORT $HTTPS_PORT
 );
 
@@ -27,6 +27,9 @@ Readonly::Scalar our $YES => 'yes';
 Readonly::Scalar our $NO => 'no';
 Readonly::Scalar our $default_pid => 'default';
 Readonly::Scalar our $admin_pid => 'admin';
+Readonly::Scalar our $WARNING_COLOR => 'yellow';
+Readonly::Scalar our $ERROR_COLOR => 'red';
+Readonly::Scalar our $SUCCESS_COLOR => 'green';
 
 Readonly::Hash our %BUILTIN_USERS => (
     $default_pid => 1, 
