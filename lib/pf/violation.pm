@@ -226,7 +226,7 @@ sub violation_db_prepare {
         qq [ select count(*) from violation where mac=? and vid=? and status="open" ]);
 
     $violation_statements->{'violation_release_sql'} = get_db_handle()->prepare(
-        qq [ select id,mac,vid,notes,status from violation where release_date !=0 AND release_date <= NOW() AND status = "open" LIMIT ? ]);
+        qq [ select id,mac,vid,notes,status from violation where release_date !=0 AND release_date <= NOW() AND (status = "open" OR status = "delayed") LIMIT ? ]);
 
     $violation_statements->{'violation_last_closed_sql'} = get_db_handle()->prepare(
         qq [ select mac,vid,release_date from violation where mac = ? AND vid = ? AND status = "closed" ORDER BY release_date DESC LIMIT 1 ]);
