@@ -45,6 +45,7 @@ BEGIN {
 use constant IP6LOG                         => 'ip6log';
 use constant IP6LOG_DEFAULT_HISTORY_LIMIT   => '25';
 use constant IP6LOG_DEFAULT_ARCHIVE_LIMIT   => '18446744073709551615'; # Yeah, that seems odd, but that's the MySQL documented way to use LIMIT with "unlimited"
+use constant IP6LOG_FLOORED_LEASE_LENGTH    => '120';  # In seconds. Default to 2 minutes
 
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
@@ -623,6 +624,13 @@ sub open {
     # TODO: Should this really belong here ? Is it part of the responsability of ip6log to check that ?
     if ( !pf::node::node_exist($mac) ) {
         pf::node::node_add_simple($mac);
+    }
+
+    # Floor lease time to a "minimum" value to avoid some devices bad behaviors with DHCP standards
+    # ie. Do not set an end_time too low for an ip6log record
+    if ( $lease_length && ($lease_length < IP6LOG_FLOORED_LEASE_LENGTH) ) {
+        $logger->debug("Lease length '$lease_length' is below the minimal lease length '" . IP6LOG_FLOORED_LEASE_LENGTH . "'. Flooring it.");
+        $lease_length = IP6LOG_FLOORED_LEASE_LENGTH;
     }
 
     unless ( pf::util::IP::is_ipv6($ip) ) {
