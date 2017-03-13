@@ -34,24 +34,28 @@ has_field 'protocol' =>
 has_field 'api_username' =>
   (
    type => 'Text',
+   label => 'API username',
    required => 1,
   );
 
 has_field 'api_password' =>
   (
    type => 'Password',
+   label => 'API password',
    required => 1,
   );
 
 has_field 'win_agent_download_uri' =>
   (
    type => 'Text',
+   label => 'Windows agent download URI',
    required => 1,
   );
 
 has_field 'mac_osx_agent_download_uri' =>
   (
    type => 'Text',
+   label => 'Mac OSX agent download URI',
    required => 1,
   );
 
