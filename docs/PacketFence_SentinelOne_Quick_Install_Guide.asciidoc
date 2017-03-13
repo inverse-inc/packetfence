@@ -1,5 +1,5 @@
-SentineOne Quick Integration Guide
-==================================
+SentinelOne Quick Integration Guide
+===================================
 :encoding: UTF-8
 :lang: en
 :doctype: book
