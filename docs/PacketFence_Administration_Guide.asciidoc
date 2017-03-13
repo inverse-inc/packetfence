@@ -191,9 +191,13 @@ OS Installation
 
 Install your distribution with minimal installation and no additional packages. Then:
 
+On RedHat-based systems
 [options="compact"]
 * Disable Firewall
 * Disable SELinux
+
+On Debian
+[options="compact"]
 * Disable AppArmor
 * Disable resolvconf
 
@@ -201,7 +205,7 @@ Make sure your system is up to date and your yum or apt-get database is updated.
 
   yum update
 
-On a Debian or Ubuntu system, do:
+On a Debian system, do:
 
   apt-get update
   apt-get upgrade
