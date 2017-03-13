@@ -149,12 +149,7 @@ BEGIN {
         $radius_filters_config_file
         $billing_tiers_config_file
         $dhcp_filters_config_file
-<<<<<<< HEAD
         $dns_filters_config_file $dns_filters_default_config_file
-=======
-        $mdm_filters_config_file
-        $dns_filters_config_file
->>>>>>> added MDM filters
         $admin_audit_log
         $portal_modules_config_file $portal_modules_default_config_file
         $captiveportal_templates_path
