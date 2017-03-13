@@ -46,7 +46,7 @@ use constant IP4LOG                         => 'ip4log';
 use constant IP4LOG_CACHE_EXPIRE            => 60;
 use constant IP4LOG_DEFAULT_HISTORY_LIMIT   => '25';
 use constant IP4LOG_DEFAULT_ARCHIVE_LIMIT   => '18446744073709551615'; # Yeah, that seems odd, but that's the MySQL documented way to use LIMIT with "unlimited"
-use constant IPLOG_FLOORED_LEASE_LENGTH  => '120';  # In seconds. Default to 2 minutes
+use constant IP4LOG_FLOORED_LEASE_LENGTH  => '120';  # In seconds. Default to 2 minutes
 
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
@@ -679,10 +679,10 @@ sub open {
     }
 
     # Floor lease time to a "minimum" value to avoid some devices bad behaviors with DHCP standards
-    # ie. Do not set an end_time too low for an iplog record
-    if ( $lease_length && ($lease_length < IPLOG_FLOORED_LEASE_LENGTH) ) {
-        $logger->debug("Lease length '$lease_length' is below the minimal lease length '" . IPLOG_FLOORED_LEASE_LENGTH . "'. Flooring it.");
-        $lease_length = IPLOG_FLOORED_LEASE_LENGTH;
+    # ie. Do not set an end_time too low for an ip4log record
+    if ( $lease_length && ($lease_length < IP4LOG_FLOORED_LEASE_LENGTH) ) {
+        $logger->debug("Lease length '$lease_length' is below the minimal lease length '" . IP4LOG_FLOORED_LEASE_LENGTH . "'. Flooring it.");
+        $lease_length = IP4LOG_FLOORED_LEASE_LENGTH;
     }
 
     unless ( pf::util::valid_ip($ip) ) {
