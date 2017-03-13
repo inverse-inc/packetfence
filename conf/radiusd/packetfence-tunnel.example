@@ -244,9 +244,9 @@ session {
 post-auth {
 	rest
 	update {
-                &request:User-Password := "******"
-        }
-	if (&reply:PacketFence-Authorization-Status == "deny") {
+		&request:User-Password := "******"
+	}
+	if (&control:PacketFence-Authorization-Status == "deny") {
 		packetfence-audit-log-reject
 		reject
 	} else {
@@ -583,9 +583,9 @@ session {
 post-auth {
 	rest
 	update {
-                &request:User-Password := "******"
-        }
-	if (&reply:PacketFence-Authorization-Status == "deny") {
+		&request:User-Password := "******"
+	}
+	if (&control:PacketFence-Authorization-Status == "deny") {
 		packetfence-audit-log-reject
 		reject
 	} else {

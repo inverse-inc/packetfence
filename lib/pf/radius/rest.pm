@@ -37,15 +37,16 @@ sub format_response {
     while (my ($key, $value) = each %$radius_audit) {
         $audit{"control:$key"} = $value;
     }
+
     %mapped_object = ( %audit, %mapped_object);
 
     get_logger->trace(sub { use Data::Dumper ; "RADIUS REST object : ". Dumper(\%mapped_object) });
     $response = \%mapped_object;
 
-    $response->{'reply:PacketFence-Authorization-Status'} = 'allow';
+    $response->{'control:PacketFence-Authorization-Status'} = 'allow';
 
     if($radius_return == $RADIUS::RLM_MODULE_USERLOCK) {
-        $response->{'reply:PacketFence-Authorization-Status'} = 'deny';
+        $response->{'control:PacketFence-Authorization-Status'} = 'deny';
         $radius_return = $RADIUS::RLM_MODULE_OK
     }
 

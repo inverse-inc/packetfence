@@ -31,4 +31,5 @@ DEFAULT
     PacketFence-Domain                    !* ANY,
     PacketFence-Computer-Name             !* ANY,
     PacketFence-Handled                   !* ANY,
-    PacketFence-Request-Time              !* ANY
+    PacketFence-Request-Time              !* ANY,
+    PacketFence-Authorization-Status      !* ANY
