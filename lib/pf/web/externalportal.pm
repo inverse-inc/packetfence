@@ -15,6 +15,7 @@ pf::web::externalportal detect external portal workflow
 use strict;
 use warnings;
 
+use Readonly;
 use Apache2::Const -compile => qw(:http);
 use Apache2::Request;
 use Apache2::RequestRec;
@@ -33,6 +34,12 @@ use pf::util;
 use pf::web::constants;
 use pf::web::util;
 use pf::constants;
+
+# Some vendors don't support some charatcters in their redirect URL
+# This here below allows to map some URLs to a specific switch module
+Readonly our $SWITCH_REWRITE_MAP => {
+    'RuckusSmartZone' => 'Ruckus::SmartZone',
+};
 
 =head1 SUBROUTINES
 
@@ -77,6 +84,12 @@ sub handle {
     $logger->info("URI '$uri' is detected as an external captive portal URI");
     $uri =~ /\/([^\/]*)/;
     my $switch_type = $1;
+    if(exists($SWITCH_REWRITE_MAP->{$switch_type})) {
+        my $new_switch_type = $SWITCH_REWRITE_MAP->{$switch_type};
+        $logger->debug("Rewriting switch type $switch_type to $new_switch_type");
+        $switch_type = $new_switch_type;
+    }
+
     $switch_type = "pf::Switch::$switch_type";
     if ( !(eval "$switch_type->require()") ) {
         $logger->error("Cannot load perl module for switch type '$switch_type'. Either switch type is unknown or switch type perl module have compilation errors. " .
