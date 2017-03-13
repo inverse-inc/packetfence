@@ -2323,9 +2323,9 @@ NOTE: You can mix the MAC Authentication and 802.1X on the same switchport. If t
 RADIUS authentication for CLI access
 ++++++++++++++++++++++++++++++++++++
 
-Configure radius server ipaddress as primary server and the switch's ipaddress as the client-ip.  Be sure to specify the correct virtual router
+Configure RADIUS server IP address as primary server and the switch IP address as the client-ip.  Be sure to specify the correct virtual router
 
-  configure radius mgmt-access primary server <SERVER_IP> <SERVER_UDP_PORT> client-ip <CLIENT_IP> vr <VR>
+  configure radius mgmt-access primary server <SERVER_IP> 1815 client-ip <CLIENT_IP> vr <VR>
 
 Configure the RADIUS shared-secret
 
