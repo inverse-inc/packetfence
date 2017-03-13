@@ -23,6 +23,7 @@ use constant IPLOG => 'iplog';
 use constant IPLOG_CACHE_EXPIRE => 60;
 use constant IPLOG_DEFAULT_HISTORY_LIMIT => '25';
 use constant IPLOG_DEFAULT_ARCHIVE_LIMIT => '18446744073709551615'; # Yeah, that seems odd, but that's the MySQL documented way to use LIMIT with "unlimited"
+use constant IPLOG_FLOORED_LEASE_LENGTH  => '120';  # In seconds. Default to 2 minutes
 
 BEGIN {
     use Exporter ();
@@ -679,6 +680,13 @@ sub open {
     # TODO: Should this really belong here ? Is it part of the responsability of iplog to check that ?
     if ( !node_exist($mac) ) {
         node_add_simple($mac);
+    }
+
+    # Floor lease time to a "minimum" value to avoid some devices bad behaviors with DHCP standards
+    # ie. Do not set an end_time too low for an iplog record
+    if ( $lease_length && ($lease_length < IPLOG_FLOORED_LEASE_LENGTH) ) {
+        $logger->debug("Lease length '$lease_length' is below the minimal lease length '" . IPLOG_FLOORED_LEASE_LENGTH . "'. Flooring it.");
+        $lease_length = IPLOG_FLOORED_LEASE_LENGTH;
     }
 
     unless ( valid_ip($ip) ) {
