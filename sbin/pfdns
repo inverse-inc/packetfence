@@ -480,12 +480,14 @@ sub isolzone {
 }
 
 sub normal_sighandler {
-    foreach my $pid (keys %CHILDREN){
-        kill(SIGKILL, $pid);
-    }
-    deletepid();
-    $RUNNING = 0;
     $logger->debug( "pfdns: caught SIG" . $_[0] . " - terminating" );
+    $RUNNING = 0;
+    unless($IS_CHILD) {
+        foreach my $pid (keys %CHILDREN){
+            kill(SIGKILL, $pid);
+        }
+        deletepid();
+    }
 }
 
 sub populate_ipset_cache {
@@ -550,11 +552,13 @@ sub is_parent_alive {
 start_children();
 while($RUNNING){
     sleep 1;
-    foreach my $pid (keys %CHILDREN){
-        unless(kill(0,$pid)){
-            $logger->error("Child $pid ($CHILDREN{$pid}) is dead. Respawning it.");
-            run_child($CHILDREN{$pid});
-            delete $CHILDREN{$pid};
+    unless($IS_CHILD) {
+        foreach my $pid (keys %CHILDREN){
+            unless(kill(0,$pid)){
+                $logger->error("Child $pid ($CHILDREN{$pid}) is dead. Respawning it.");
+                run_child($CHILDREN{$pid});
+                delete $CHILDREN{$pid};
+            }
         }
     }
 }
