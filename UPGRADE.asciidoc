@@ -68,14 +68,6 @@ Upgrading from a version prior to X.Y.Z
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
 
-Admin Roles Configuration
-^^^^^^^^^^^^^^^^^^^^^^^^^
-You must rename "PORTAL_PROFILE" to "CONNECTION_PROFILE" in your adminroles.conf configuration file and reload the configuration after. You can automate this using:
-
-  cd /usr/local/pf
-  sed -i "s/PORTAL_PROFILE/CONNECTION_PROFILE/g" conf/adminroles.conf
-  bin/pfcmd configreload hard
-
 Upgrading from a version prior to 6.5.0
 ---------------------------------------
 
