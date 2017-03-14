@@ -10,7 +10,7 @@ use pf::config qw(%Config $fqdn);
 use pf::file_paths qw($conf_dir);
 use pf::log;
 use pf::util;
-use pf::Connection::Session;
+use pf::Portal::Session;
 use pf::web;
 use pf::node;
 use pf::useragent;

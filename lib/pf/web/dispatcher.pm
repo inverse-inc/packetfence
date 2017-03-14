@@ -39,7 +39,7 @@ use pf::web::constants;
 use pf::web::filter;
 use pf::web::util;
 use pf::proxypassthrough::constants;
-use pf::Connection::Session;
+use pf::Portal::Session;
 use pf::web::externalportal;
 use pf::inline;
 

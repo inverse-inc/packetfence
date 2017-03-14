@@ -1,4 +1,4 @@
-package captiveportal::PacketFence::Model::Connection::Session;
+package captiveportal::PacketFence::Model::Portal::Session;
 use Moose;
 
 use pf::util::IP;
@@ -30,7 +30,7 @@ use List::MoreUtils qw(any);
 
 =head1 NAME
 
-captiveportal::PacketFence::Model::Connection::Session - Catalyst Model
+captiveportal::PacketFence::Model::Portal::Session - Catalyst Model
 
 =head1 DESCRIPTION
 
@@ -251,7 +251,7 @@ sub _build_profile {
 
 sub _build_dispatcherSession {
     my ($self) = @_;
-    my $session = new pf::Connection::Session()->session;
+    my $session = new pf::Portal::Session()->session;
     my %session_data;
     my $logger = get_logger();
     foreach my $key ($session->param) {

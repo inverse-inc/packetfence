@@ -1,14 +1,14 @@
-package pf::Connection::Session;
+package pf::Portal::Session;
 
 =head1 NAME
 
-pf::Connection::Session
+pf::Portal::Session
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::Connection::Session wraps several parameter we often need from the captive
+pf::Portal::Session wraps several parameter we often need from the captive
 portal.
 
 =cut

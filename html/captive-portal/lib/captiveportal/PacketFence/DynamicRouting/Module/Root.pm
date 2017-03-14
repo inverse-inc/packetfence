@@ -34,7 +34,7 @@ use pf::util;
 use pf::violation;
 use pf::constants::scan qw($POST_SCAN_VID);
 use pf::inline;
-use pf::Connection::Session;
+use pf::Portal::Session;
 use pf::SwitchFactory;
 use pf::enforcement qw(reevaluate_access);
 use captiveportal::DynamicRouting::Module::Authentication::Billing;
@@ -115,7 +115,7 @@ sub handle_web_form_release {
             $switch = pf::SwitchFactory->instantiate($last_switch_id);
         }
     }
-    my $session = new pf::Connection::Session()->session;
+    my $session = new pf::Portal::Session()->session;
     if(defined($switch) && $switch && $switch->supportsWebFormRegistration && defined($session->param('is_external_portal')) && $session->param('is_external_portal')){
         get_logger->info("(" . $switch->{_id} . ") supports web form release. Will use this method to authenticate");
         $self->render('webFormRelease.html', {
