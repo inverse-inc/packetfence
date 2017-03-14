@@ -5,7 +5,7 @@
     <li [% IF tab == 'network general' %]class="active"[% END %]>
       <a href="#newTabView" data-href="[% c.uri_for(c.controller('Configuration').action_for('section'), 'networking') %]" data-toggle="tab">[% l('Network Settings') %]</a>
     </li>
-    <li [% IF tab == 'iinterfaces' %]class="active"[% END %]>
+    <li [% IF tab == 'interfaces' %]class="active"[% END %]>
       <a href="#newTabView" data-href="[% c.uri_for(c.controller('Configuration').action_for('section'), 'interfaces') %]" data-toggle="tab">[% l('Interfaces') %]</a>
     </li>
     <li [% IF tab == 'trapping' %]class="active"[% END %]>
