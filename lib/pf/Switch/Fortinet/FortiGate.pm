@@ -167,6 +167,17 @@ sub deauthenticateMacDefault {
     get_logger->info("No doing deauthentication since this is a web form released switch.");
 }
 
+=head2 getVersion
+
+return a constant since there is no api for this
+
+=cut
+
+sub getVersion {
+    my ($self) = @_;
+    return 0;
+}
+
 
 =head1 AUTHOR
 
