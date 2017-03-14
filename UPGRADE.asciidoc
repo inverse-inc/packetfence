@@ -68,6 +68,15 @@ Upgrading from a version prior to X.Y.Z
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
 
+
+Admin interface changes
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Due to changes in the admin interface, few actions will be required to be done. Execute the following commands:
+
+  cd /usr/local/pf
+  find conf/ -name "pf.conf" -exec sed -i "s/network\.[a-z]/networking\./g" '{}' \;
+
 Upgrading from a version prior to 6.5.0
 ---------------------------------------
 
