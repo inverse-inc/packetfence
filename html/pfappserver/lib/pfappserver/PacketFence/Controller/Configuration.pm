@@ -69,6 +69,11 @@ our %ALLOWED_SECTIONS = (
     metadefender => undef,
     mse_tab => undef,
     radius_authentication_methods => undef,
+    define_policy => undef,
+    advanced_conf => undef,
+    system_config => undef,
+    portal_config => undef,
+    compliance => undef,
 );
 
 
@@ -228,15 +233,137 @@ sub soh :Local {
     $c->go('Controller::SoH', 'index');
 }
 
-=head2 roles
+=roles1
 
 =cut
 
-sub roles :Local {
+sub roles1 :Local {
     my ($self, $c) = @_;
 
     $c->go('Controller::Roles', 'index');
 }
+
+=head2 roles
+
+=cut
+
+sub roles :Local :Args(1) {
+    my ($self, $c, $tab) = @_;
+
+    $c->stash->{template} = "config/roles/index.tt";
+    $c->stash->{tab} = $tab;
+}
+
+=head2 domains
+
+=cut
+
+sub domains :Local {
+    my ($self, $c) = @_;
+
+    $c->stash->{template} = "config/domains/index.tt";
+}
+
+=head2 main
+
+=cut
+
+sub main :Local {
+    my ($self, $c) = @_;
+
+    $c->stash->{template} = "config/main/index.tt";
+}
+
+=head2 cluster
+
+=cut
+
+sub cluster :Local {
+    my ($self, $c) = @_;
+
+    $c->stash->{template} = "config/cluster/index.tt";
+}
+
+=head2 scans
+
+=cut
+
+sub scans :Local {
+    my ($self, $c) = @_;
+
+    $c->stash->{template} = "config/scans/index.tt";
+}
+
+=head2 profiling
+
+=cut
+
+sub profiling :Local {
+    my ($self, $c) = @_;
+
+    $c->stash->{template} = "config/profiling/index.tt";
+}
+
+=head2 networks
+
+=cut
+
+sub networks :Local {
+    my ($self, $c) = @_;
+
+    $c->stash->{template} = "config/networks/index.tt";
+}
+
+=head2 advanced_conf
+
+=cut
+
+sub advanced_conf :Local {
+    my ($self, $c) = @_;
+
+    $c->stash->{template} = "config/advanced_conf.tt";
+}
+
+=head2 define_policy
+
+=cut
+
+sub define_policy :Local {
+    my ($self, $c) = @_;
+
+    $c->stash->{template} = "config/define_policy.tt";
+}
+
+=head2 system_config
+
+=cut
+
+sub system_config :Local {
+    my ($self, $c) = @_;
+
+    $c->stash->{template} = "config/system_config.tt";
+}
+
+=head2 portal_config
+
+=cut
+
+sub portal_config :Local {
+    my ($self, $c) = @_;
+
+    $c->stash->{template} = "config/portal_config.tt";
+}
+
+=head2 compliance
+
+=cut
+
+sub compliance :Local {
+    my ($self, $c) = @_;
+
+    $c->stash->{template} = "config/compliance.tt";
+}
+
 
 =head1 COPYRIGHT
 
