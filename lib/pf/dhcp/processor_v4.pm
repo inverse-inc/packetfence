@@ -229,7 +229,7 @@ sub process_packet {
         $tmp{'last_dhcp'} = mysql_date();
         if (defined($dhcp->{'options'}{'12'})) {
             $tmp{'computername'} = $dhcp->{'options'}{'12'};
-            if(isenabled($Config{network}{hostname_change_detection})){
+            if(isenabled($Config{networking}{hostname_change_detection})){
                 $self->apiClient->notify('detect_computername_change', $dhcp->{'chaddr'}, $tmp{'computername'});
             }
         }
@@ -319,7 +319,7 @@ sub parse_dhcp_request {
     # We check if we are running without dhcpd
     # This means we don't see ACK so we need to act on requests
     if( !$self->pf_is_dhcp($client_ip) && 
-        !isenabled($Config{network}{force_listener_update_on_ack}) ){
+        !isenabled($Config{networking}{force_listener_update_on_ack}) ){
         $self->processIPTasks( (client_mac => $client_mac, client_ip => $client_ip, lease_length => $lease_length) );
     }
     # We call the parking on all DHCPREQUEST since the actions have to be done on all servers and all servers receive the DHCPREQUEST
@@ -389,7 +389,7 @@ sub parse_dhcp_ack {
     # If yes, we are interested with the ACK
     # Packet also has to be valid
     if( $self->pf_is_dhcp($client_ip) || 
-        isenabled $Config{network}{force_listener_update_on_ack} ){
+        isenabled $Config{networking}{force_listener_update_on_ack} ){
         $self->processIPTasks( (client_mac => $client_mac, client_ip => $client_ip, lease_length => $lease_length) );
     }
     else {
