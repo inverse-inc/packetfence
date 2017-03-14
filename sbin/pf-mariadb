@@ -44,6 +44,8 @@ our $WAIT_TIME_FAIL = 10;
 # TODO: move this to configuration
 our $WAIT_TIME_ALIVE = 10;
 
+# We start with the assumption that we failed
+our $failed = $TRUE;
 our $failed_counts = {};
 
 # init signal handlers
@@ -620,6 +622,7 @@ while($RUNNING){
     }
 
     if(!_check_pid($MYSQLD_SPAWNER_PID)) {
+        $failed = $TRUE;
         print "Failed starting with mode: $STARTED_BECAUSE \n";
         $failed_counts->{$STARTED_BECAUSE} //= 0;
         $failed_counts->{$STARTED_BECAUSE} ++;
@@ -627,9 +630,18 @@ while($RUNNING){
         print "MariaDB is not alive \n";
         attempt_start();
     }
-    elsif($cluster_enabled and test_db(pf::cluster::current_server()->{management_ip})) {
-        $logger->info("Successful test to the DB. Flushing failure counts.");
-        $failed_counts = {};
+    elsif($cluster_enabled) {
+        if(test_db(pf::cluster::current_server()->{management_ip})) {
+            # We're coming from a previous failure, so we log it 
+            if($failed) {
+                $logger->info("Successful clustered connection to the DB.");
+            }
+            $failed_counts = {};
+            $failed = $FALSE;
+        }
+        else {
+            $failed = $TRUE;
+        }
     }
     sleep 1;
 }
