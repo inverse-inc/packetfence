@@ -54,6 +54,25 @@ sub instantiate {
     return $instance;
 }
 
+
+=head2 instantiate2
+
+instantiate a portal profile based off the node object
+
+=cut
+
+sub instantiate2 {
+    my ($self, $node_obj, $options) = @_;
+    $options ||= {};
+    if (defined($options->{'portal'})) {
+        return $self->_from_profile($options->{'portal'});
+    }
+    my $node_info = {%$node_obj, %$options};
+    my $profile_name = $PROFILE_FILTER_ENGINE->match_first($node_info);
+    my $instance = $self->_from_profile($profile_name);
+    return $instance;
+}
+
 =head2 _from_profile
 
 Massages the profile values before creating the object
