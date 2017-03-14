@@ -147,21 +147,16 @@ interception_proxy=disabled
 interception_proxy_port=8080,3128
 
 
-[registration]
+[device_registration]
 #
-# registration.button_text
+# device_registration.activation
 #
-#
-button_text=Register
-#
-# registration.device_registration
-#
-# Enable or Disable the ability to register a gaming device using the specific portal page designed to do it
+# Enable or Disable the ability to register a device using the specific portal page designed to do it
 device_registration=disabled
 #
-# registration.device_registration_role
+# device_registration.role
 #
-# The role to assign to gaming devices. If none is specified, the role of the registrant is used.
+# The role to assign to devices registered from the specific portal. If none is specified, the role of the registrant is used.
 device_registration_role=
 
 [guests_admin_registration]
