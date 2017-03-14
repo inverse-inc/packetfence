@@ -5,7 +5,7 @@ global_defs {
    notification_email_from %%fromaddr%%
    smtp_server %%smtpserver%%
    smtp_connect_timeout 30
-   router_id LVS_DEVEL
+   router_id PacketFence
 }
 
 vrrp_script haproxy {
