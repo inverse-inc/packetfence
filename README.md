@@ -1,13 +1,17 @@
 ## What is PacketFence?
 
-PacketFence is a fully supported, trusted, Free and Open Source network access control (NAC) system. Boasting an impressive feature set including a captive-portal for registration and remediation, centralized wired and wireless management, 802.1X support, layer-2 isolation of problematic devices, integration with IDSs and vulnerability scanners; PacketFence can be used to effectively secure networks - from small to very large heterogeneous networks.
+PacketFence is a fully supported, trusted, Free and Open Source
+network access control (NAC) system. Boasting an impressive feature
+set including a captive-portal for registration and remediation,
+centralized wired and wireless management, 802.1X support, layer-2
+isolation of problematic devices, integration with IDS solutions and vulnerability scanners; PacketFence can be used to effectively secure networks - from small to very large heterogeneous networks.
 
 You want to know who is on your network? You want to give different access to your network based on who is connecting? PacketFence is for you!
 
 
 ## Installation
 
-Follow the instructions provided in the [Administration Guide](http://packetfence.org/documentation/guides.html).
+Follow the instructions provided in the [Administration Guide](https://packetfence.org/support/index.html#/documentation).
 
 
 ## More Information
@@ -20,7 +24,7 @@ For more details and developer visible changes see the [project's page on Github
 
 ## Support
 
-Join the [community](http://packetfence.org/support/community.html) or request [commercial support](http://packetfence.org/support/commercial_support.html).
+Join the [community](https://packetfence.org/support/index.html#/community) or request [commercial support](https://packetfence.org/support/index.html#/commercial).
 
 ## Contribute
 
@@ -74,7 +78,7 @@ PacketFence is available in various languages. The following list describes the 
 * Polish - Maciej Uhlig
 * Spanish (Spain) - Dominique Couot
 
-If you would like to translate the software in an other language, please consult the [FAQ](http://packetfence.org/support/faqs/article/how-to-translate-packetfence-in-another-language.html).
+If you would like to translate the software in an other language, please consult the [FAQ](https://packetfence.org/support/faq/article/how-to-translate-packetfence-in-another-language.html).
 
 ## License
 
@@ -82,8 +86,8 @@ Licensed under the GNU General Public License v2.
 
 --
 
-[Inverse inc.](http://inverse.ca/) leads the development of the solution. Over the years, numerous people and organizations have contributed to the project and we would like to thank them all !
+[Inverse inc.](https://inverse.ca/) leads the development of the solution. Over the years, numerous people and organizations have contributed to the project and we would like to thank them all !
 
 
 
-[mailing_lists]: http://packetfence.org/support/community.html "Community Mailing Lists"
+[mailing_lists]: https://packetfence.org/support/index.html#/community "Community Mailing Lists"
