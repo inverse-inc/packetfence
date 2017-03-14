@@ -18,6 +18,7 @@ use warnings;
 use pf::log;
 
 use pf::constants;
+use Scalar::Util qw(blessed);
 use pf::constants::trigger qw($TRIGGER_ID_PROVISIONER $TRIGGER_TYPE_PROVISIONER);
 use pf::config qw(
     %ConfigFloatingDevices
@@ -448,12 +449,17 @@ sub getRegisteredRole {
                 'pid' => $args->{'user_name'},
             );
             if (defined $unregdate) {
-                %info = (%info, (unregdate => $unregdate));
+                $info{unregdate} = $unregdate;
             }
             if (defined $role) {
-                %info = (%info, (category => $role));
+                $info{category} = $role;
             }
-            node_modify($args->{'mac'},%info);
+            if (blessed ($args->{node_info})) {
+                $args->{node_info}->merge(\%info);
+            }
+            else {
+                node_modify($args->{'mac'},%info);
+            }
         }
     }
     # If a user based role has been found by matching authentication sources rules, we return it
