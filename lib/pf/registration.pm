@@ -32,7 +32,7 @@ use pf::constants::parking qw($PARKING_VID);
 
 =head2 setup_node_for_registration
 
-setup a node for registration and do the following actions
+setup a node for registration
 
 =cut
 
@@ -70,7 +70,7 @@ sub setup_node_for_registration {
 
 =head2 finalize_node_registration
 
-do the node registration after being saving
+do the node registration after saving
 
 =cut
 
