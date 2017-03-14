@@ -40,19 +40,26 @@ Create a new pf::Portal::Profile instance based on parameters given.
 tie our $PROFILE_FILTER_ENGINE , 'pfconfig::cached_scalar' => 'FilterEngine::Profile';
 
 sub instantiate {
-    my ( $self, $mac, $options ) = @_;
+    my ( $self, $mac_or_node_obj, $options ) = @_;
     $options ||= {};
     if (defined($options->{'portal'})) {
         return $self->_from_profile($options->{'portal'});
     }
+    my $node_info;
+    if (ref($mac_or_node_obj)) {
+        $node_info = $mac_or_node_obj;
+    }
+    else {
+        $node_info = node_view($mac_or_node_obj) || {};
+    }
 
-    my $node_info = node_view($mac) || {};
     $node_info = {%$node_info, %$options};
 
     my $profile_name = $PROFILE_FILTER_ENGINE->match_first($node_info);
     my $instance = $self->_from_profile($profile_name);
     return $instance;
 }
+
 
 =head2 _from_profile
 

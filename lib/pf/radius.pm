@@ -26,6 +26,7 @@ use pf::Connection;
 use pf::constants;
 use pf::constants::trigger qw($TRIGGER_TYPE_ACCOUNTING);
 use pf::constants::role qw($VOICE_ROLE);
+use pf::error qw(is_error);
 use pf::config qw(
     $ROLE_API_LEVEL
     $WIRELESS
@@ -60,6 +61,7 @@ use pf::accounting;
 use pf::cluster;
 use pf::api::queue;
 use pf::access_filter::radius;
+use pf::registration;
 
 our $VERSION = 1.03;
 
@@ -97,6 +99,7 @@ sub authorize {
     my $timer = pf::StatsD::Timer->new();
     my ($self, $radius_request) = @_;
     my $logger = $self->logger;
+    my ($do_auto_reg, %autoreg_node_defaults);;
     my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $self->_parseRequest($radius_request);
     my $RAD_REPLY_REF;
 
@@ -170,20 +173,20 @@ sub authorize {
         . "switch_mac => ".( defined($switch_mac) ? "($switch_mac)" : "(Unknown)" ).", mac => [$mac], port => $port, username => \"$user_name\""
         . ( defined $ssid ? ", ssid => $ssid" : '' ) );
 
-    #add node if necessary
-    if ( !node_exist($mac) ) {
-        $logger->info("does not yet exist in database. Adding it now");
-        node_add_simple($mac);
+    my ($status_code, $node_obj) = pf::dal::node->find_or_create({"mac" => $mac});
+    if (is_error($status_code)) {
+        $node_obj = pf::dal::node->new({"mac" => $mac});
     }
+    $node_obj->_load_locationlog;
 
     # Handling machine auth detection
     if ( defined($user_name) && $user_name =~ /^host\// ) {
         $logger->info("is doing machine auth with account '$user_name'.");
-        node_modify($mac, ('machine_account' => $user_name));
+        $node_obj->machine_account($user_name);
     }
 
     if (defined($session_id)) {
-         node_modify($mac, ('sessionid' => $session_id));
+        $node_obj->sessionid($session_id);
     }
 
     my $switch_id =  $switch->{_id};
@@ -194,15 +197,14 @@ sub authorize {
         $RAD_REPLY_REF = $self->_switchUnsupportedReply($args);
         goto CLEANUP;
     }
+    my %info;
 
 
     my $role_obj = new pf::role::custom();
 
-    # Vlan Filter
-    my $node_info = node_view($mac);
     $args->{'ssid'} = $ssid;
-    $args->{'node_info'} = $node_info;
-    $args->{'fingerbank_info'} = pf::node::fingerbank_info($mac, $node_info);
+    $args->{'node_info'} = $node_obj;
+    $args->{'fingerbank_info'} = pf::node::fingerbank_info($mac, $node_obj);
     my $result = $role_obj->filterVlan('IsPhone',$args);
     # determine if we need to perform automatic registration
     # either the switch detects that this is a phone or we take the result from the vlan filters
@@ -219,7 +221,7 @@ sub authorize {
 
     $options->{'last_connection_sub_type'} = $args->{'connection_sub_type'} if (defined( $args->{'connection_sub_type'}));
     $options->{'last_connection_type'} = connection_type_to_str($args->{'connection_type'}) if (defined( $args->{'connection_type'}));
-    $options->{'last_switch'}          = $args->{'switch'}->{_id} if (defined($args->{'switch'}->{_id}));
+    $options->{'last_switch'}          = $switch_id;
     $options->{'last_port'}            = $args->{'switch'}->{switch_port} if (defined($args->{'switch'}->{switch_port}));
     $options->{'last_vlan'}            = $args->{'vlan'} if (defined($args->{'vlan'}));
     $options->{'last_ssid'}            = $args->{'ssid'} if (defined($args->{'ssid'}));
@@ -232,15 +234,18 @@ sub authorize {
     $args->{'autoreg'} = 0;
     # should we auto-register? let's ask the VLAN object
     my ( $status, $status_msg );
-    if ($role_obj->shouldAutoRegister($args)) {
+    $do_auto_reg = $role_obj->shouldAutoRegister($args);
+    if ($do_auto_reg) {
         $args->{'autoreg'} = 1;
-        # automatic registration
-        my %autoreg_node_defaults = $role_obj->getNodeInfoForAutoReg($args);
-        $args->{'node_info'} = merge($args->{'node_info'}, \%autoreg_node_defaults);
+        %autoreg_node_defaults = $role_obj->getNodeInfoForAutoReg($args);
+        $node_obj->merge(\%autoreg_node_defaults);
         $logger->debug("[$mac] auto-registering node");
-        ( $status, $status_msg ) = pf::node::node_register($mac, $autoreg_node_defaults{'pid'}, %autoreg_node_defaults);
-        if (!$status) {
-            $logger->error("auto-registration of node failed");
+        # automatic registration
+        $info{autoreg} = 1;
+        ($status, $status_msg) = pf::registration::setup_node_for_registration($node_obj, \%info);
+        if (is_error($status)) {
+            $logger->error("auto-registration of node failed $status_msg");
+            $do_auto_reg = 0;
         }
     }
 
@@ -266,9 +271,10 @@ sub authorize {
     my $role = $role_obj->fetchRoleForNode($args);
     my $vlan = $switch->getVlanByName($role->{role}) if (isenabled($switch->{_VlanMap}));
     $vlan = $role->{vlan} || $vlan || 0;
-
     $args->{'node_info'}{'source'} = $role->{'source'} if (defined($role->{'source'}) && $role->{'source'} ne '');
     $args->{'node_info'}{'portal'} = $role->{'portal'} if (defined($role->{'portal'}) && $role->{'portal'} ne '');
+    $info{source} = $args->{node_info}{source};
+    $info{portal} = $args->{node_info}{portal};
 
     $args->{'vlan'} = $vlan;
     $args->{'wasInline'} = $role->{wasInline};
@@ -284,16 +290,23 @@ sub authorize {
     if (!$switch->supportsRadiusDynamicVlanAssignment() && !$role->{wasInline}) {
         $logger->info(
             "Switch doesn't support Dynamic VLAN assignment. " .
-            "Setting VLAN with SNMP on (" . $switch->{_id} . ") ifIndex $port to $vlan"
+            "Setting VLAN with SNMP on ($switch_id) ifIndex $port to $vlan"
         );
         # WARNING: passing empty switch-lock for now
         # When the _setVlan of a switch who can't do RADIUS VLAN assignment uses the lock we will need to re-evaluate
         $switch->_setVlan( $port, $vlan, undef, {} );
     }
-
     $RAD_REPLY_REF = $switch->returnRadiusAccessAccept($args);
 
 CLEANUP:
+    $status = $node_obj->save;
+    if (is_error($status)) {
+        logger->error("Cannot save $mac error ($status)");
+    }
+    if ($do_auto_reg) {
+        finalize_node_registration($node_obj);
+    }
+
     # cleanup
     $switch->disconnectRead();
     $switch->disconnectWrite();

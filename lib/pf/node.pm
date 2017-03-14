@@ -26,19 +26,16 @@ use pf::util::statsd qw(called);
 use pf::error qw(is_success);
 use pf::constants::parking qw($PARKING_VID);
 use CHI::Memoize qw(memoized);
+use pf::dal::node;
+use pf::constants::node qw(
+    $STATUS_REGISTERED
+    $STATUS_UNREGISTERED
+    $STATUS_PENDING
+    %ALLOW_STATUS
+);
 
 use constant NODE => 'node';
 
-# Node status constants
-#FIXME port all hard-coded strings to these constants
-Readonly::Scalar our $STATUS_REGISTERED => 'reg';
-Readonly::Scalar our $STATUS_UNREGISTERED => 'unreg';
-Readonly::Scalar our $STATUS_PENDING => 'pending';
-Readonly::Hash our %ALLOW_STATUS => (
-    $STATUS_REGISTERED   => 1,
-    $STATUS_UNREGISTERED => 1,
-    $STATUS_PENDING      => 1,
-);
 # Delay in millisecond to wait for triggering internal::node_discovered after discovering a node 
 Readonly::Scalar our $NODE_DISCOVERED_TRIGGER_DELAY => 10000;
 
@@ -81,6 +78,7 @@ BEGIN {
         node_search
         $STATUS_REGISTERED
         node_last_reg
+        node_defaults
     );
 }
 
@@ -1410,6 +1408,19 @@ sub fingerbank_info {
     $info ={ (%$info, %$device_info) };
 
     return $info;
+}
+
+=item node_defaults
+
+create the node defaults
+
+=cut
+
+sub node_defaults {
+    my ($mac) = @_;
+    my $node_info = pf::dal::node->_defaults;
+    $node_info->{mac} = $mac;
+    return $node_info;
 }
 
 =back

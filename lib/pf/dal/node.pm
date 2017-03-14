@@ -17,11 +17,109 @@ pf::dal implementation for the table node
 use strict;
 use warnings;
 
+use pf::error qw(is_error);
 use base qw(pf::dal::_node);
+
+our @LOCATION_LOG_GETTERS = qw(
+  last_switch
+  last_port
+  last_vlan
+  last_connection_type
+  last_connection_sub_type
+  last_dot1x_username
+  last_ssid
+  stripped_user_name
+  realm
+  last_switch_mac
+  last_start_time
+  last_role
+  last_start_timestamp
+);
+
 use Class::XSAccessor {
     accessors => [qw(category bypass_role)],
+# The getters for current location log entries
+    getters   => \@LOCATION_LOG_GETTERS,
 };
+
+our @COLUMN_NAMES = (
+    (map {"node.$_|$_"} @pf::dal::_node::FIELD_NAMES),
+    'nc.name|category',
+    'nr.name|bypass_role',
+);
+
+our @MERGE_FIELD = (@pf::dal::_node::FIELD_NAMES, qw(category bypass_role));
+
+=head2 find_from_tables
+
+Join the node_category table information in the node results
+
+=cut
+
+sub find_from_tables {
+    [-join => qw(node =>{node.category_id=nc.category_id} node_category|nc =>{node.bypass_role_id=nr.category_id} node_category|nr)],
+}
+
+=head2 find_columns
+
+Override the standard field names for node
+
+=cut
+
+sub find_columns {
+    [@COLUMN_NAMES]
+}
  
+=head2 merge_fields
+
+merge_fields
+
+=cut
+
+sub merge_fields {
+    [@MERGE_FIELD]
+}
+
+=head2 _load_locationlog
+
+load the locationlog entries into the node object
+
+=cut
+
+sub _load_locationlog {
+    my ($self) = @_;
+    my $sqla = $self->get_sql_abstract;
+    my ($sql, @bind) = $sqla->select(
+        -columns => [
+            "locationlog.switch|last_switch",
+            "locationlog.port|last_port",
+            "locationlog.vlan|last_vlan",
+            "IF(ISNULL(`locationlog`.`connection_type`), '', `locationlog`.`connection_type`)|last_connection_type",
+            "IF(ISNULL(`locationlog`.`connection_sub_type`), '', `locationlog`.`connection_sub_type`)|last_connection_sub_type",
+            "locationlog.dot1x_username|last_dot1x_username",
+            "locationlog.ssid|last_ssid",
+            "locationlog.stripped_user_name|stripped_user_name",
+            "locationlog.realm|realm",
+            "locationlog.switch_mac|last_switch_mac",
+            "locationlog.start_time|last_start_time",
+            "locationlog.role|last_role",
+            "UNIX_TIMESTAMP(`locationlog`.`start_time`)|last_start_timestamp",
+          ],
+        -from => 'locationlog',
+        -where => { mac => $self->mac, end_time => '0000-00-00 00:00:00'},
+    );
+    my ($status, $sth) = $self->db_execute($sql, @bind);
+    return $status, undef if is_error($status);
+    my $row = $sth->fetchrow_hashref;
+    $sth->finish;
+    unless ($row) {
+        return $STATUS::NOT_FOUND;
+    }
+    @{$self}{@LOCATION_LOG_GETTERS} = @{$row}{@LOCATION_LOG_GETTERS};
+
+    return $STATUS::OK;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

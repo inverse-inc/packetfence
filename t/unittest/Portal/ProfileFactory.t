@@ -15,7 +15,7 @@ use warnings;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 18;
+use Test::More tests => 20;
 
 BEGIN {
     #include test libs
@@ -23,6 +23,7 @@ BEGIN {
     #Module for overriding configuration paths
     use setup_test_config;
     use_ok("pf::Portal::ProfileFactory");
+    use_ok("pf::dal::node");
 }
 
 
@@ -90,6 +91,10 @@ $profile = pf::Portal::ProfileFactory->instantiate("00:00:00:00:00:00", { last_s
 is($profile->getName, "switches");
 
 $profile = pf::Portal::ProfileFactory->instantiate("00:00:00:00:00:00", { last_switch => '192.168.1.5'});
+
+is($profile->getName, "switches");
+
+$profile = pf::Portal::ProfileFactory->instantiate(pf::dal::node->new({ last_switch => '192.168.1.5'}), {});
 
 is($profile->getName, "switches");
 
