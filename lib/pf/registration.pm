@@ -23,6 +23,7 @@ use pf::log;
 use pf::person;
 use pf::lookup::person;
 use pf::violation;
+use pf::constants::node qw($STATUS_REGISTERED);
 use pf::util;
 use pf::dal::person;
 use pf::Portal::ProfileFactory; 
@@ -81,7 +82,7 @@ sub register_node {
         }
     }
 
-    $node->status('reg');
+    $node->status($STATUS_REGISTERED);
     $node->regdate(mysql_date());
     $status = $node->save;
 
