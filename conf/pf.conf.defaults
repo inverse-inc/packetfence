@@ -586,32 +586,21 @@ routes=enabled
 # location of the routes binary. only necessary to change if you are not running the rpmed version.
 routes_binary=/sbin/ip
 
-[vlan]
+[snmp_traps]
 #
-# vlan.closelocationlogonstop
+# snmp_traps.closelocationlogonstop
 #
 # Should open locationlog entries be closed when pfsetvlan is 
 # stopped
 closelocationlogonstop=disabled
 #
-#
-# vlan.nbtraphandlerthreads
-#
-# Number of trap handler threads pfsetvlan should start
-nbtraphandlerthreads = 5
-#
-# vlan.nbtrapparserthreads
-#
-# Number of trap parser threads pfsetvlan should start
-nbtrapparserthreads = 3
-#
-# vlan.bounce_duration
+# snmp_traps.bounce_duration
 #
 # Delay to wait between the shut / no-shut on a port. Some OS need a higher value than others.
 # Default should be reasonable for almost every OS but is too long for the usual proprietary OS.
 bounce_duration = 4s
 #
-# vlan.trap_limit
+# snmp_traps.trap_limit
 #
 # Controls whether or not the trap_limit feature is enabled. Trap limiting is
 # a way to limit the damage done by malicious users or misbehaving switch 
@@ -620,15 +609,15 @@ bounce_duration = 4s
 # parameters. Default is enabled.
 trap_limit = enabled
 #
-# vlan.trap_limit_threshold
+# snmp_traps.trap_limit_threshold
 #
 # Maximum number of SNMP traps that a switchport can send to PacketFence within
 # a minute without being flagged as DoS. Defaults to 100
 trap_limit_threshold = 100
 #
-# vlan.trap_limit_action
+# snmp_traps.trap_limit_action
 #
-# Action that PacketFence will take if the vlan.trap_limit_threshold is reached.
+# Action that PacketFence will take if the snmp_traps.trap_limit_threshold is reached.
 # Defaults to none. email will send an email every hour if the limit's still reached.
 # shut will shut the port on the switch and will also send an email even if email is not
 # specified.
