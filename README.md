@@ -84,7 +84,7 @@ If you would like to translate the software in an other language, please consult
 
 Licensed under the GNU General Public License v2.
 
---
+---
 
 [Inverse inc.](https://inverse.ca/) leads the development of the solution. Over the years, numerous people and organizations have contributed to the project and we would like to thank them all !
 
