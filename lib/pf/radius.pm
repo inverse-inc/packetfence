@@ -197,6 +197,7 @@ sub authorize {
         $RAD_REPLY_REF = $self->_switchUnsupportedReply($args);
         goto CLEANUP;
     }
+    my %info;
 
 
     my $role_obj = new pf::role::custom();
@@ -236,8 +237,16 @@ sub authorize {
     $do_auto_reg = $role_obj->shouldAutoRegister($args);
     if ($do_auto_reg) {
         $args->{'autoreg'} = 1;
-        $node_obj->autoreg("yes");
         %autoreg_node_defaults = $role_obj->getNodeInfoForAutoReg($args);
+        $node_obj->merge(\%autoreg_node_defaults);
+        $logger->debug("[$mac] auto-registering node");
+        # automatic registration
+        $info{autoreg} = 1;
+        ($status, $status_msg) = pf::registration::setup_node_for_registration($node_obj, \%info);
+        if (is_error($status)) {
+            $logger->error("auto-registration of node failed $status_msg");
+            $do_auto_reg = 0;
+        }
     }
 
     # if it's an IP Phone, let _authorizeVoip decide (extension point)
@@ -264,10 +273,8 @@ sub authorize {
     $vlan = $role->{vlan} || $vlan || 0;
     $args->{'node_info'}{'source'} = $role->{'source'} if (defined($role->{'source'}) && $role->{'source'} ne '');
     $args->{'node_info'}{'portal'} = $role->{'portal'} if (defined($role->{'portal'}) && $role->{'portal'} ne '');
-    my %info = (
-        source => $args->{node_info}{source},
-        portal => $args->{node_info}{portal},
-    );
+    $info{source} = $args->{node_info}{source};
+    $info{portal} = $args->{node_info}{portal};
 
     $args->{'vlan'} = $vlan;
     $args->{'wasInline'} = $role->{wasInline};
@@ -292,17 +299,13 @@ sub authorize {
     $RAD_REPLY_REF = $switch->returnRadiusAccessAccept($args);
 
 CLEANUP:
-    if ($do_auto_reg) {
-        # automatic registration
-        $node_obj->merge(\%autoreg_node_defaults);
-        $logger->debug("[$mac] auto-registering node");
-        $info{autoreg} = 1;
-        ($status, $status_msg) = pf::registration::register_node($node_obj, \%info);
-        if (is_error($status)) {
-            $logger->error("auto-registration of node failed $status_msg");
-        }
+    $status = $node_obj->save;
+    if (is_error($status)) {
+        logger->error("Cannot save $mac error ($status)");
     }
-    $node_obj->save;
+    if ($do_auto_reg) {
+        finalize_node_registration($node_obj);
+    }
 
     # cleanup
     $switch->disconnectRead();

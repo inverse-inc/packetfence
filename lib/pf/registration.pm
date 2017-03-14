@@ -30,16 +30,14 @@ use pf::Portal::ProfileFactory;
 use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID);
 use pf::constants::parking qw($PARKING_VID);
 
-=head2 register_node
+=head2 setup_node_for_registration
 
-register a node and do the following actions
-
-* Create a user and sync it's information with the source
-* If not auto reg trigger any scans for it's profile
+setup a node for registration and do the following actions
 
 =cut
 
-sub register_node {
+sub setup_node_for_registration {
+    $pf::StatsD::statsd->increment( called() . ".called" );
     my $timer = pf::StatsD::Timer->new();
     my ($node, $info) = @_;
     my $logger = get_logger();
@@ -49,28 +47,11 @@ sub register_node {
     my $status_msg = "";
     my $pid = $node->pid;
 
-    my ($status, $person) = pf::dal::person->find_or_create({"pid" => $pid});
-
-    if ($status == $STATUS::CREATED ) {
-        pf::lookup::person::async_lookup_person($pid, $info->{'source'});
-    }
-    if ($person) {
-        $person->source($info->{source});
-        $person->portal($info->{portal});
-        $person->save;
-    }
-
     # if it's for auto-registration and mac is already registered, we are done
     if ($info->{'autoreg'}) {
         $node->autoreg('yes');
         if ($node->status eq 'reg' ) {
-            $status = $node->save;
-            $status_msg = '';
-            if (is_error($status)) {
-                $status_msg = "modify of node $mac failed";
-                $logger->error($status_msg);
-            }
-            return ($status, $status_msg);
+            return ($STATUS::OK, '');
         }
     }
     else {
@@ -81,24 +62,48 @@ sub register_node {
             return ($STATUS::PRECONDITION_FAILED, $status_msg);
         }
     }
-
     $node->status($STATUS_REGISTERED);
     $node->regdate(mysql_date());
-    $status = $node->save;
 
-    if (is_error($status)) {
-        $status_msg = "modify of node $mac failed";
-        $logger->error($status_msg);
-        return ($status, $status_msg);
-    }
-    $pf::StatsD::statsd->increment( called() . ".called" );
+    return ($STATUS::OK, "");
+}
 
+=head2 finalize_node_registration
+
+do the node registration after being saving
+
+=cut
+
+sub finalize_node_registration {
+    my ($node, $info) = @_;
+
+    do_person_create($node, $info);
     # Closing any parking violations
-    pf::violation::violation_force_close($mac, $PARKING_VID);
+    pf::violation::violation_force_close($node->mac, $PARKING_VID);
 
     do_violation_scans($node);
 
-    return ($STATUS::OK, "");
+    return ;
+}
+
+=head2 do_person_create
+
+do the person create step of node registration
+
+=cut
+
+sub do_person_create {
+    my ($node, $info) = @_;
+    my $pid = $node->pid;
+    my ($status, $person) = pf::dal::person->find_or_create({"pid" => $pid});
+    if ($status == $STATUS::CREATED ) {
+        pf::lookup::person::async_lookup_person($pid, $info->{'source'});
+    }
+    if ($person) {
+        $person->source($info->{source});
+        $person->portal($info->{portal});
+        $person->save;
+    }
 }
 
 =head2 do_violation_scans
