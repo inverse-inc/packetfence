@@ -21,16 +21,16 @@ dhcpservers=127.0.0.1
 # http://www.php.net/manual/en/timezones.php
 timezone=America/Montreal
 
-[network]
+[networking]
 #
-# network.dhcpdetector
+# networking.dhcpdetector
 #
 # If enabled, PacketFence will monitor DHCP-specific items such as rogue DHCP services, DHCP-based OS fingerprinting, computername/hostname 
 # resolution, and (optionnally) option-82 location-based information.  The monitored DHCP packets are DHCPDISCOVERs and DHCPREQUESTs - both are broadcasts, 
 # meaning a span port is not necessary.  This feature is highly recommended if the internal network is DHCP-based.
 dhcpdetector=enabled
 #
-# network.dhcp_rate_limiting
+# networking.dhcp_rate_limiting
 #
 # Will rate-limit DHCP packets that contain the same information.
 # For example, a DHCPREQUEST for the same MAC/IP will only be processed once in the timeframe configured below.
@@ -38,45 +38,45 @@ dhcpdetector=enabled
 # A value of 0 will disable the rate limitation.
 dhcp_rate_limiting=5s
 #
-# network.rogue_dhcp_detection
+# networking.rogue_dhcp_detection
 #
 # Tries to identify Rogue DHCP Servers and triggers the 1100010 violation if one is found.
 # This feature is only available if the dhcpdetector is activated.
 rogue_dhcp_detection=enabled
 #
-# network.rogueinterval
+# networking.rogueinterval
 #
 # When rogue DHCP server detection is enabled, this parameter defines how often to email administrators.  With its default 
 # setting of 10, it will email administrators the details of the previous 10 DHCP offers.
 rogueinterval=10
 #
-# network.hostname_change_detection
+# networking.hostname_change_detection
 #
 # Will identify hostname changes and send an e-mail with these changes.
 # This can help detect MAC spoofing.
 hostname_change_detection=disabled
 #
-# network.dhcpoption82logger
+# networking.dhcpoption82logger
 #
 # If enabled PacketFence will monitor DHCP option82 location-based information.
 # This feature is only available if the dhcpdetector is activated.
 dhcpoption82logger=disabled
 #
-# network.dhcp_filter_by_message_types
+# networking.dhcp_filter_by_message_types
 #
 # Which dhcp message types are being listened by the pfdhcplistener.
 # Do not change unless you know what you are doing
 #Possibilities are: DHCPOFFER,DHCPREQUEST,DHCPDECLINE,DHCPACK,DHCPRELEASE
 dhcp_filter_by_message_types=DHCPREQUEST,DHCPACK
 #
-# network.force_listener_update_on_ack
+# networking.force_listener_update_on_ack
 #
 # This will only do the iplog update and other DHCP related task on a DHCPACK.
 # You need to make sure the UDP reflector is in place so this works on the production network.
 # This is implicitly activated on registration interfaces on which dhcpd runs.
 force_listener_update_on_ack=disabled
 #
-# network.interfaceSNAT
+# networking.interfaceSNAT
 # Choose interface(s) where you want to enable snat for passthrough (by default it's the management interface)
 interfaceSNAT=
 #
