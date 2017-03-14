@@ -594,7 +594,7 @@ sub find_or_create {
 
 =head2 merge_fields
 
-merge_fields
+An array ref of the fields to merge
 
 =cut
 
