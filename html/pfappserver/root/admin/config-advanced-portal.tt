@@ -69,7 +69,6 @@ tr[data-swap] > td {
               [%- IF can_access("FILTERS_READ") %]
               [% list_entry('Config::Filters', 'index', 'Filter engines') | none %]
               [%- END %]
-              [% pf_section_entry( 'parking', 'Parking') | none %]
               [%- IF can_access("BILLING_TIER_READ") %]
               [% list_entry('Config::BillingTiers', 'index', 'Billing Tiers') | none %]
               [%- END %]
@@ -85,7 +84,7 @@ tr[data-swap] > td {
               [%- IF can_access("CONFIGURATION_MAIN_READ") %]
               [% pf_section_entry( 'guests_admin_registration', 'Access Duration') | none %]
               [%- END %]
-              [% pf_section_entry( 'registration', 'Registration') | none %]
+              [% pf_section_entry( 'device_registration', 'Device Registration') | none %]
           </div><!--/.well -->
         </div><!--/span-->
         <div class="loader"><p><img src="[% c.uri_for('/static/app/loader-48.gif') %]"></p></div>
