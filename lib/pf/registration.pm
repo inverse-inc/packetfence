@@ -31,7 +31,10 @@ use pf::constants::parking qw($PARKING_VID);
 
 =head2 register_node
 
-register_node
+register a node and do the following actions
+
+* Create a user and sync it's information with the source
+* If not auto reg trigger any scans for it's profile
 
 =cut
 
@@ -90,24 +93,24 @@ sub register_node {
     $pf::StatsD::statsd->increment( called() . ".called" );
 
     # Closing any parking violations
-    # loading pf::violation here to prevent circular dependency
     pf::violation::violation_force_close($mac, $PARKING_VID);
 
-    do_violation_scans($mac);
+    do_violation_scans($node);
 
     return ($STATUS::OK, "");
 }
 
 =head2 do_violation_scans
 
-do_violation_scans
+do violation scans for a node
 
 =cut
 
 sub do_violation_scans {
-    my ($mac) = @_;
+    my ($node_obj) = @_;
+    my $mac = $node_obj->mac;
     my $logger = get_logger();
-    my $profile = pf::Portal::ProfileFactory->instantiate($mac);
+    my $profile = pf::Portal::ProfileFactory->instantiate($node_obj);
     my $scan = $profile->findScan($mac);
     if (defined($scan)) {
         # triggering a violation used to communicate the scan to the user
