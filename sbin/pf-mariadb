@@ -513,7 +513,7 @@ sub act_on_quorum_server_data {
             }
         }
         $logger->info("Latest info comes from $latest_host with a timestamp of $latest_timestamp");
-        continue unless(defined($latest_host));
+        next unless(defined($latest_host));
 
         my @alive;
         my $latest_info = $info->{$latest_host};
