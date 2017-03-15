@@ -97,6 +97,7 @@ our (
     $switch_control_dir,
     $pfmon_config_file, $pfmon_default_config_file,
     $switch_filters_config_file,
+    $multi_cluster_conf_dir,
 );
 
 BEGIN {
@@ -168,6 +169,7 @@ BEGIN {
         $switch_control_dir
         $pfmon_config_file $pfmon_default_config_file
         $switch_filters_config_file
+        $multi_cluster_conf_dir
     );
 }
 
@@ -176,6 +178,7 @@ $install_dir = '/usr/local/pf';
 # TODO bug#920 all application config data should use Readonly to avoid accidental post-startup alterration
 $bin_dir  = catdir( $install_dir,"bin" );
 $conf_dir = catdir( $install_dir,"conf" );
+$multi_cluster_conf_dir = catdir( $conf_dir,"multi-cluster" );
 $var_dir  = catdir( $install_dir,"var" );
 $lib_dir  = catdir( $install_dir,"lib" );
 $html_dir = catdir( $install_dir,"html" );

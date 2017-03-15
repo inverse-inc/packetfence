@@ -26,6 +26,7 @@ use pf::constants;
 use pf::CHI;
 use pf::file_paths qw(
     $conf_dir
+    $multi_cluster_conf_dir
 );
 use pf::util;
 
@@ -111,7 +112,7 @@ sub _buildCachedConfig {
 
 sub multiClusterHostDirectory {
     my ($self, $host) = @_;
-    return $conf_dir . "/multi-cluster/" . $host;
+    return $multi_cluster_conf_dir . "/" . $host;
 }
 
 sub _buildCachedConfigMultiCluster {
@@ -179,6 +180,7 @@ sub _buildCachedConfigMultiCluster {
             if ($config) {
                 $config->SetLastModTimestamp;
             }
+            $config->SetLastModTimestamp;
             return $config;
         });
 }
