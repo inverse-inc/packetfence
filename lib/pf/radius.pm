@@ -301,7 +301,7 @@ sub authorize {
 CLEANUP:
     $status = $node_obj->save;
     if (is_error($status)) {
-        logger->error("Cannot save $mac error ($status)");
+        $logger->error("Cannot save $mac error ($status)");
     }
     if ($do_auto_reg) {
         finalize_node_registration($node_obj);
