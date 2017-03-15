@@ -1,16 +1,16 @@
-package pf::dal::_userlog;
+package pf::dal::_ip4log_history;
 
 =head1 NAME
 
-pf::dal::_userlog - pf::dal implementation for the table userlog
+pf::dal::_ip4log_history - pf::dal implementation for the table ip4log_history
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_userlog
+pf::dal::_ip4log_history
 
-pf::dal implementation for the table userlog
+pf::dal implementation for the table ip4log_history
 
 =cut
 
@@ -18,8 +18,8 @@ use strict;
 use warnings;
 
 ###
-### pf::dal::_userlog is auto generated any change to this file will be lost
-### Instead change in the pf::dal::userlog module
+### pf::dal::_ip4log_history is auto generated any change to this file will be lost
+### Instead change in the pf::dal::ip4log_history module
 ###
 use base qw(pf::dal);
 
@@ -31,56 +31,62 @@ our %FIELDS_META;
 
 BEGIN {
     @FIELD_NAMES = qw(
+        id
         mac
-        pid
+        ip
         start_time
         end_time
     );
 
     %DEFAULTS = (
         mac => '',
-        pid => undef,
-        start_time => '0000-00-00 00:00:00',
-        end_time => undef,
+        ip => '',
+        start_time => '',
+        end_time => '',
     );
 
     @INSERTABLE_FIELDS = qw(
         mac
-        pid
+        ip
         start_time
         end_time
     );
 
     %FIELDS_META = (
-        mac => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
+        id => {
+            type => 'INT',
+            is_auto_increment => 1,
             is_primary_key => 1,
             is_nullable => 0,
         },
-        pid => {
+        mac => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
-            is_nullable => 1,
+            is_nullable => 0,
+        },
+        ip => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
         },
         start_time => {
             type => 'DATETIME',
             is_auto_increment => 0,
-            is_primary_key => 1,
+            is_primary_key => 0,
             is_nullable => 0,
         },
         end_time => {
             type => 'DATETIME',
             is_auto_increment => 0,
             is_primary_key => 0,
-            is_nullable => 1,
+            is_nullable => 0,
         },
     );
 
     @PRIMARY_KEYS = qw(
-        mac
-        start_time
+        id
     );
 }
 
@@ -90,7 +96,7 @@ use Class::XSAccessor {
 
 =head2 _defaults
 
-The default values of userlog
+The default values of ip4log_history
 
 =cut
 
@@ -100,7 +106,7 @@ sub _defaults {
 
 =head2 field_names
 
-Field names of userlog
+Field names of ip4log_history
 
 =cut
 
@@ -110,7 +116,7 @@ sub field_names {
 
 =head2 primary_keys
 
-The primary keys of userlog
+The primary keys of ip4log_history
 
 =cut
 
@@ -124,16 +130,16 @@ The table name
 
 =cut
 
-sub table { "userlog" }
+sub table { "ip4log_history" }
 
 our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
-    "SELECT * FROM `userlog` WHERE $where;";
+    "SELECT * FROM `ip4log_history` WHERE $where;";
 };
 
 =head2 _find_one_sql
 
-The precalculated sql to find a single row userlog
+The precalculated sql to find a single row ip4log_history
 
 =cut
 
@@ -143,7 +149,7 @@ sub _find_one_sql {
 
 =head2 _updateable_fields
 
-The updateable fields for userlog
+The updateable fields for ip4log_history
 
 =cut
 
@@ -153,7 +159,7 @@ sub _updateable_fields {
 
 =head2 _insertable_fields
 
-The insertable fields for userlog
+The insertable fields for ip4log_history
 
 =cut
 
@@ -163,7 +169,7 @@ sub _insertable_fields {
 
 =head2 get_meta
 
-Get the meta data for userlog
+Get the meta data for ip4log_history
 
 =cut
 

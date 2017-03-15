@@ -1,16 +1,16 @@
-package pf::dal::_userlog;
+package pf::dal::_chi_cache;
 
 =head1 NAME
 
-pf::dal::_userlog - pf::dal implementation for the table userlog
+pf::dal::_chi_cache - pf::dal implementation for the table chi_cache
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_userlog
+pf::dal::_chi_cache
 
-pf::dal implementation for the table userlog
+pf::dal implementation for the table chi_cache
 
 =cut
 
@@ -18,8 +18,8 @@ use strict;
 use warnings;
 
 ###
-### pf::dal::_userlog is auto generated any change to this file will be lost
-### Instead change in the pf::dal::userlog module
+### pf::dal::_chi_cache is auto generated any change to this file will be lost
+### Instead change in the pf::dal::chi_cache module
 ###
 use base qw(pf::dal);
 
@@ -31,47 +31,38 @@ our %FIELDS_META;
 
 BEGIN {
     @FIELD_NAMES = qw(
-        mac
-        pid
-        start_time
-        end_time
+        key
+        value
+        expires_at
     );
 
     %DEFAULTS = (
-        mac => '',
-        pid => undef,
-        start_time => '0000-00-00 00:00:00',
-        end_time => undef,
+        key => '',
+        value => undef,
+        expires_at => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
-        mac
-        pid
-        start_time
-        end_time
+        key
+        value
+        expires_at
     );
 
     %FIELDS_META = (
-        mac => {
+        key => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 1,
             is_nullable => 0,
         },
-        pid => {
-            type => 'VARCHAR',
+        value => {
+            type => 'LONGBLOB',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
-        start_time => {
-            type => 'DATETIME',
-            is_auto_increment => 0,
-            is_primary_key => 1,
-            is_nullable => 0,
-        },
-        end_time => {
-            type => 'DATETIME',
+        expires_at => {
+            type => 'DOUBLE',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
@@ -79,8 +70,7 @@ BEGIN {
     );
 
     @PRIMARY_KEYS = qw(
-        mac
-        start_time
+        key
     );
 }
 
@@ -90,7 +80,7 @@ use Class::XSAccessor {
 
 =head2 _defaults
 
-The default values of userlog
+The default values of chi_cache
 
 =cut
 
@@ -100,7 +90,7 @@ sub _defaults {
 
 =head2 field_names
 
-Field names of userlog
+Field names of chi_cache
 
 =cut
 
@@ -110,7 +100,7 @@ sub field_names {
 
 =head2 primary_keys
 
-The primary keys of userlog
+The primary keys of chi_cache
 
 =cut
 
@@ -124,16 +114,16 @@ The table name
 
 =cut
 
-sub table { "userlog" }
+sub table { "chi_cache" }
 
 our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
-    "SELECT * FROM `userlog` WHERE $where;";
+    "SELECT * FROM `chi_cache` WHERE $where;";
 };
 
 =head2 _find_one_sql
 
-The precalculated sql to find a single row userlog
+The precalculated sql to find a single row chi_cache
 
 =cut
 
@@ -143,7 +133,7 @@ sub _find_one_sql {
 
 =head2 _updateable_fields
 
-The updateable fields for userlog
+The updateable fields for chi_cache
 
 =cut
 
@@ -153,7 +143,7 @@ sub _updateable_fields {
 
 =head2 _insertable_fields
 
-The insertable fields for userlog
+The insertable fields for chi_cache
 
 =cut
 
@@ -163,7 +153,7 @@ sub _insertable_fields {
 
 =head2 get_meta
 
-Get the meta data for userlog
+Get the meta data for chi_cache
 
 =cut
 

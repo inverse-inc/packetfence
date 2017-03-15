@@ -1,16 +1,16 @@
-package pf::dal::_userlog;
+package pf::dal::_ip6log;
 
 =head1 NAME
 
-pf::dal::_userlog - pf::dal implementation for the table userlog
+pf::dal::_ip6log - pf::dal implementation for the table ip6log
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_userlog
+pf::dal::_ip6log
 
-pf::dal implementation for the table userlog
+pf::dal implementation for the table ip6log
 
 =cut
 
@@ -18,8 +18,8 @@ use strict;
 use warnings;
 
 ###
-### pf::dal::_userlog is auto generated any change to this file will be lost
-### Instead change in the pf::dal::userlog module
+### pf::dal::_ip6log is auto generated any change to this file will be lost
+### Instead change in the pf::dal::ip6log module
 ###
 use base qw(pf::dal);
 
@@ -32,21 +32,24 @@ our %FIELDS_META;
 BEGIN {
     @FIELD_NAMES = qw(
         mac
-        pid
+        ip
+        type
         start_time
         end_time
     );
 
     %DEFAULTS = (
         mac => '',
-        pid => undef,
-        start_time => '0000-00-00 00:00:00',
-        end_time => undef,
+        ip => '',
+        type => undef,
+        start_time => '',
+        end_time => '0000-00-00 00:00:00',
     );
 
     @INSERTABLE_FIELDS = qw(
         mac
-        pid
+        ip
+        type
         start_time
         end_time
     );
@@ -55,10 +58,16 @@ BEGIN {
         mac => {
             type => 'VARCHAR',
             is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        ip => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
             is_primary_key => 1,
             is_nullable => 0,
         },
-        pid => {
+        type => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -67,7 +76,7 @@ BEGIN {
         start_time => {
             type => 'DATETIME',
             is_auto_increment => 0,
-            is_primary_key => 1,
+            is_primary_key => 0,
             is_nullable => 0,
         },
         end_time => {
@@ -79,8 +88,7 @@ BEGIN {
     );
 
     @PRIMARY_KEYS = qw(
-        mac
-        start_time
+        ip
     );
 }
 
@@ -90,7 +98,7 @@ use Class::XSAccessor {
 
 =head2 _defaults
 
-The default values of userlog
+The default values of ip6log
 
 =cut
 
@@ -100,7 +108,7 @@ sub _defaults {
 
 =head2 field_names
 
-Field names of userlog
+Field names of ip6log
 
 =cut
 
@@ -110,7 +118,7 @@ sub field_names {
 
 =head2 primary_keys
 
-The primary keys of userlog
+The primary keys of ip6log
 
 =cut
 
@@ -124,16 +132,16 @@ The table name
 
 =cut
 
-sub table { "userlog" }
+sub table { "ip6log" }
 
 our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
-    "SELECT * FROM `userlog` WHERE $where;";
+    "SELECT * FROM `ip6log` WHERE $where;";
 };
 
 =head2 _find_one_sql
 
-The precalculated sql to find a single row userlog
+The precalculated sql to find a single row ip6log
 
 =cut
 
@@ -143,7 +151,7 @@ sub _find_one_sql {
 
 =head2 _updateable_fields
 
-The updateable fields for userlog
+The updateable fields for ip6log
 
 =cut
 
@@ -153,7 +161,7 @@ sub _updateable_fields {
 
 =head2 _insertable_fields
 
-The insertable fields for userlog
+The insertable fields for ip6log
 
 =cut
 
@@ -163,7 +171,7 @@ sub _insertable_fields {
 
 =head2 get_meta
 
-Get the meta data for userlog
+Get the meta data for ip6log
 
 =cut
 

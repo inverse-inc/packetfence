@@ -1,23 +1,23 @@
-package pf::dal::iplog_history;
+package pf::dal::ip6log_history;
 
 =head1 NAME
 
-pf::dal::iplog_history - pf::dal module to override for the table iplog_history
+pf::dal::ip6log_history - pf::dal module to override for the table ip6log_history
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::iplog_history
+pf::dal::ip6log_history
 
-pf::dal implementation for the table iplog_history
+pf::dal implementation for the table ip6log_history
 
 =cut
 
 use strict;
 use warnings;
 
-use base qw(pf::dal::_iplog_history);
+use base qw(pf::dal::_ip6log_history);
  
 =head1 AUTHOR
 
