@@ -36,6 +36,16 @@ authorize {
 	#  the MS-CHAP-Challenge attribute, and add 'Auth-Type := MS-CHAP'
 	#  to the request, which will cause the server to then use
 	#  the mschap module for authentication.
+        update control {
+            Cache-Status-Only = 'yes'
+        }
+        cache_ntlm
+        if (ok) {
+            cache_ntlm
+            if (&request:Tmp-Integer-9 > 1) {
+                reject
+            }
+        }
 	mschap
 
 	#
@@ -288,6 +298,7 @@ post-auth {
 	#  'edir_account_policy_check = yes' in the ldap module configuration
 	#
 	Post-Auth-Type REJECT {
+                packetfence-cache-ntlm-hit
 		update {
 			&request:User-Password := "******"
 		}

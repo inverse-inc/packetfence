@@ -1,0 +1,16 @@
+cache cache_ntlm {
+
+        driver = "rlm_cache_rbtree"
+        key = "%{User-Name}%{Calling-Station-Id}"
+        ttl = 300
+        add_stats = no
+        update {
+                &request:Tmp-Integer-9 += &request:Tmp-Integer-9
+
+                # Add our own to show when the cache was last updated
+                &reply:Reply-Message += "Cache last updated at %t"
+
+                &reply:Class := "%{randstr:ssssssssssssssssssssssssssssssss}"
+        }
+}
+

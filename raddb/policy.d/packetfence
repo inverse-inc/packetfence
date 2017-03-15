@@ -104,3 +104,31 @@ packetfence-mschap-authenticate {
       }
     }
 }
+
+
+packetfence-cache-ntlm-hit {
+  update control {
+    Cache-Status-Only = 'yes'
+  }
+  cache_ntlm
+  if (ok) {
+    cache_ntlm
+    update {
+      &request:Tmp-Integer-9 := "%{expr: 1 + %{&request:Tmp-Integer-9}}"
+    }
+    update control {
+      Cache-TTL = 0
+    }
+    cache_ntlm
+    update control {
+      Cache-TTL = 300
+    }
+    cache_ntlm
+  }
+  else {
+    update {
+      &request:Tmp-Integer-9 := 0
+    }
+    cache_ntlm
+  }
+}
