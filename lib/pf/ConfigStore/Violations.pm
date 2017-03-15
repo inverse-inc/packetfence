@@ -23,7 +23,7 @@ use pf::violation_config;
 
 extends 'pf::ConfigStore';
 
-sub configFile { $violations_config_file }
+has '+configFile' => ( default => $violations_config_file );
 
 sub importConfigFile { $violations_default_config_file };
 

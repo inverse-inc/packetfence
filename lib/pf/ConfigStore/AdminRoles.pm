@@ -20,7 +20,7 @@ extends 'pf::ConfigStore';
 
 sub expandableParams { return (qw(actions allowed_roles allowed_access_levels allowed_node_roles allowed_actions)); }
 
-sub configFile { $admin_roles_config_file }
+has '+configFile' => ( default => $admin_roles_config_file );
 
 sub pfconfigNamespace { 'config::AdminRoles' }
 

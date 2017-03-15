@@ -18,7 +18,7 @@ use Moo;
 use pf::file_paths qw($dns_filters_config_file);
 extends 'pf::ConfigStore';
 
-sub configFile { $dns_filters_config_file };
+has '+configFile' => ( default => $dns_filters_config_file );
 
 sub pfconfigNamespace {'config::DNS_Filters'}
 

@@ -18,7 +18,7 @@ use Moo;
 use pf::file_paths qw($radius_filters_config_file);
 extends 'pf::ConfigStore';
 
-sub configFile { $radius_filters_config_file };
+has '+configFile' => ( default => $radius_filters_config_file );
 
 sub pfconfigNamespace {'config::RadiusFilters'}
 

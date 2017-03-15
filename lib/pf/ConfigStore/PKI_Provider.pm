@@ -18,7 +18,7 @@ use namespace::autoclean;
 use pf::file_paths qw($pki_provider_config_file);
 extends 'pf::ConfigStore';
 
-sub configFile { $pki_provider_config_file }
+has '+configFile' => ( default => $pki_provider_config_file );
 
 sub pfconfigNamespace { 'config::PKI_Provider' }
 

@@ -17,7 +17,7 @@ use Moo;
 use pf::file_paths qw($scan_config_file);
 extends 'pf::ConfigStore';
 
-sub configFile { $scan_config_file };
+has '+configFile' => ( default => $scan_config_file );
 
 sub pfconfigNamespace {'config::Scan'}
 

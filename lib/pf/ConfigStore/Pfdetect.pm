@@ -19,7 +19,7 @@ use pf::file_paths qw($pfdetect_config_file);
 use Sort::Naturally qw(nsort);
 extends 'pf::ConfigStore';
 
-sub configFile { $pfdetect_config_file };
+has '+configFile' => ( default => $pfdetect_config_file );
 
 sub pfconfigNamespace {'config::Pfdetect'}
 

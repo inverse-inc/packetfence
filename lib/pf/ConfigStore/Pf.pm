@@ -29,7 +29,7 @@ has serviceUpdated => ( is => "rw" );
 
 =cut
 
-sub configFile {$pf_config_file};
+has '+configFile' => ( default => $pf_config_file );
 
 sub importConfigFile { $pf_default_file }
 

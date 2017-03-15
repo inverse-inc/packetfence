@@ -25,7 +25,7 @@ use pf::freeradius;
 extends qw(pf::ConfigStore Exporter);
 with 'pf::ConfigStore::Hierarchy';
 
-sub configFile { $switches_config_file }
+has '+configFile' => ( default => $switches_config_file );
 
 sub importConfigFile { $switches_default_config_file }
 

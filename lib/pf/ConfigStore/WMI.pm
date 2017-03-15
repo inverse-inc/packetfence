@@ -18,7 +18,7 @@ use Moo;
 use pf::file_paths qw($wmi_config_file);
 extends 'pf::ConfigStore';
 
-sub configFile { $wmi_config_file };
+has '+configFile' => ( default => $wmi_config_file );
 
 sub pfconfigNamespace {'config::Wmi'}
 

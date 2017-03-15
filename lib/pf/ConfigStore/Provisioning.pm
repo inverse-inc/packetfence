@@ -18,7 +18,7 @@ use pf::file_paths qw($provisioning_config_file);
 use pf::util;
 extends 'pf::ConfigStore';
 
-sub configFile { $provisioning_config_file };
+has '+configFile' => ( default => $provisioning_config_file );
 
 sub pfconfigNamespace {'config::Provisioning'}
 

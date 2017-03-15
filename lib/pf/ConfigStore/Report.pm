@@ -20,7 +20,7 @@ extends 'pf::ConfigStore';
 
 sub importConfigFile { $report_default_config_file };
 
-sub configFile { $report_config_file };
+has '+configFile' => ( default => $report_config_file );
 
 sub pfconfigNamespace {'config::Report'}
 

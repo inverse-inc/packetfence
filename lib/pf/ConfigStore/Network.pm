@@ -25,7 +25,7 @@ extends 'pf::ConfigStore';
 
 =cut
 
-sub configFile { $network_config_file }
+has '+configFile' => ( default => $network_config_file );
 
 sub pfconfigNamespace { 'config::Network' }
 

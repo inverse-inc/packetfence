@@ -19,7 +19,7 @@ use Moo;
 use pf::file_paths qw($dhcp_filters_config_file);
 extends 'pf::ConfigStore';
 
-sub configFile { $dhcp_filters_config_file };
+has '+configFile' => ( default => $dhcp_filters_config_file );
 
 sub pfconfigNamespace {'config::DhcpFilters'}
 

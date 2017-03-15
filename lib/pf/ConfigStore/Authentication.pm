@@ -34,7 +34,7 @@ extends 'pf::ConfigStore';
 
 =cut
 
-sub configFile { $authentication_config_file }
+has '+configFile' => ( default => $authentication_config_file );
 
 sub pfconfigNamespace {'config::Authentication'}
 

@@ -25,7 +25,7 @@ with 'pf::ConfigStore::Role::ValidGenericID';
 
 =cut
 
-sub configFile { $profiles_config_file }
+has '+configFile' => ( default => $profiles_config_file );
 
 sub importConfigFile { $profiles_default_config_file }
 

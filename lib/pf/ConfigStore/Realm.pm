@@ -21,7 +21,7 @@ use pf::file_paths qw(
 );
 extends 'pf::ConfigStore';
 
-sub configFile { $realm_config_file }
+has '+configFile' => ( default => $realm_config_file );
 
 sub importConfigFile { $realm_default_config_file }
 

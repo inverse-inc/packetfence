@@ -19,7 +19,7 @@ use pf::file_paths qw($floating_devices_config_file);
 extends 'pf::ConfigStore';
 
 
-sub configFile { $floating_devices_config_file }
+has '+configFile' => ( default => $floating_devices_config_file );
 
 sub pfconfigNamespace {'config::FloatingDevices'}
 

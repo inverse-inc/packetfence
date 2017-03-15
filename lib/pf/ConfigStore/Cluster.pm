@@ -19,7 +19,7 @@ use Moo;
 use pf::file_paths qw($cluster_config_file);;
 extends 'pf::ConfigStore';
 
-sub configFile { $cluster_config_file };
+has '+configFile' => ( default => $cluster_config_file );
 
 sub pfconfigNamespace {'config::Cluster'}
 

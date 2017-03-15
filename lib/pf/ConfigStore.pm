@@ -24,6 +24,10 @@ use pf::api::jsonrpcclient;
 use pf::cluster;
 use pf::constants;
 use pf::CHI;
+use pf::file_paths qw(
+    $conf_dir
+);
+use pf::util;
 
 =head1 FIELDS
 
@@ -40,7 +44,9 @@ has cachedConfig =>
    builder => '_buildCachedConfig'
 );
 
-has configFile => ( is => 'ro');
+has multiClusterHost => (is => 'rw');
+
+has configFile => ( is => 'rw');
 
 has pfconfigNamespace => ( is => 'ro', default => sub {undef});
 
@@ -75,6 +81,12 @@ Build the pf::IniFiles object
 
 sub _buildCachedConfig {
     my ($self) = @_;
+
+    # If this is for a multi-cluster host, then it needs to be built differently
+    if(defined($self->multiClusterHost)) {
+        return $self->_buildCachedConfigMultiCluster();
+    }
+
     my $chi             = $self->cache;
     my $file_path       = $self->configFile;
     my @args            = (-file => $file_path, -allowempty => 1);
@@ -84,6 +96,79 @@ sub _buildCachedConfig {
     if (defined $importConfigFile) {
         push @args, -import => pf::IniFiles->new(-file => $importConfigFile, -allowempty => 1);
     }
+
+    return $chi->compute(
+        $file_path,
+        {
+            expire_if => sub { $self->expire_if(@_) }
+        },
+        sub {
+            my $config = pf::IniFiles->new(@args);
+            $config->SetLastModTimestamp;
+            return $config;
+        });
+}
+
+sub multiClusterHostDirectory {
+    my ($self, $host) = @_;
+    return $conf_dir . "/multi-cluster/" . $host;
+}
+
+sub _buildCachedConfigMultiCluster {
+    my ($self) = @_;
+    my $chi             = $self->cache;
+    my $logger = get_logger;
+
+    # TODO
+    # if ($self->configFile not in $conf_dir) then die
+
+    my $file_path       = $self->configFile;
+    my $stripped_file_path = $file_path;
+    my $quoted_conf_dir = quotemeta($conf_dir) . "/";
+    $stripped_file_path =~ s/^$quoted_conf_dir//;
+
+    $self->configFile($self->multiClusterHostDirectory($self->multiClusterHost) . "/" . $stripped_file_path);
+    $file_path = $self->configFile;
+    
+    # Ensuring group/host directory and group/host config file exist
+    pf_make_dir($self->multiClusterHostDirectory($self->multiClusterHost));
+    touch_file($self->configFile);
+    pf_chown($self->configFile);
+
+    $logger->debug("Multi-cluster config file is: $file_path");
+    
+    my @args            = (-file => $file_path, -allowempty => 1);
+    my $default_section = $self->default_section;
+    push @args, -default => $default_section if defined $default_section;
+
+    my @parts = split("/", $self->multiClusterHost);
+
+    # We add all the group related configuration as imports.
+    # This doesn't add the deepest level as it is the one that serves as a base and is the -file parameter above
+    # $i is the last index minus 1 since we skip the last config
+    for(my $i=(scalar(@parts) - 2); $i >= 0; $i--) {
+        my $import_path = $self->multiClusterHostDirectory(join('/', @parts[0..$i])) . "/". $stripped_file_path;
+
+        # Ensuring the file exists
+        touch_file($import_path);
+        pf_chown($import_path);
+
+        $logger->debug("Adding file $import_path to the pf::IniFiles import");
+        push @args, -import => pf::IniFiles->new(-file => $import_path);
+    }
+
+    # Handling the non-multi-cluster configuration file that is on this server as it serves as the configuration baseline
+    my $importConfigFile = $conf_dir . "/" . $stripped_file_path;
+    $logger->debug("Adding file $importConfigFile to the pf::IniFiles import");
+    push @args, -import => pf::IniFiles->new(-file => $importConfigFile, -allowempty => 1); 
+    
+    # Handling defaults file here which should not be overriden in the multi-cluster directory
+    $importConfigFile = $self->importConfigFile;
+    if (defined $importConfigFile) {
+        $logger->debug("Adding file $importConfigFile to the pf::IniFiles import");
+        push @args, -import => pf::IniFiles->new(-file => $importConfigFile, -allowempty => 1);
+    }
+
     return $chi->compute(
         $file_path,
         {

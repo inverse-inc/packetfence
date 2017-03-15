@@ -17,7 +17,7 @@ use Moo;
 use pf::file_paths qw($billing_tiers_config_file);
 extends 'pf::ConfigStore';
 
-sub configFile { $billing_tiers_config_file };
+has '+configFile' => ( default => $billing_tiers_config_file );
 
 sub pfconfigNamespace {'config::BillingTiers'}
 

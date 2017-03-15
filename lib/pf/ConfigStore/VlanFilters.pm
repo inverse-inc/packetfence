@@ -17,7 +17,7 @@ use Moo;
 use pf::file_paths qw($vlan_filters_config_file);
 extends 'pf::ConfigStore';
 
-sub configFile { $vlan_filters_config_file };
+has '+configFile' => ( default => $vlan_filters_config_file );
 
 sub pfconfigNamespace {'config::VlanFilters'}
 
