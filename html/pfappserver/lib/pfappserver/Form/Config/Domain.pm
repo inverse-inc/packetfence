@@ -168,6 +168,17 @@ has_field 'ntlm_cache_batch' =>
              help => 'When this is enabled, all users matching the LDAP filter will be inserted in the cache via a background job (maintenance.populate_ntlm_redis_cache_interval controls the interval).' },
   );
 
+has_field 'ntlm_cache_batch_one_at_a_time' =>
+  (
+   type => 'Toggle',
+   checkbox_value => "enabled",
+   unchecked_value => "disabled",
+   label => 'NTLM cache background job individual fetch',
+   default => "disabled",
+   tags => { after_element => \&help,
+             help => 'Whether or not to fetch users on your AD one by one instead of doing a single batch fetch. This is useful when your AD is loaded or experiencing issues during the sync. Note that this makes the batch job much longer and is about 4 times slower when enabled.' },
+  );
+
 has_field 'ntlm_cache_on_connection' =>
   (
    type => 'Toggle',
@@ -186,7 +197,7 @@ has_block definition =>
 
 has_block ntlm_cache =>
   (
-   render_list => [ qw(ntlm_cache ntlm_cache_source ntlm_cache_filter ntlm_cache_expiry ntlm_cache_batch ntlm_cache_on_connection) ],
+   render_list => [ qw(ntlm_cache ntlm_cache_source ntlm_cache_filter ntlm_cache_expiry ntlm_cache_batch ntlm_cache_batch_one_at_a_time ntlm_cache_on_connection) ],
   );
 
 =head2 options_ntlm_cache_sources
