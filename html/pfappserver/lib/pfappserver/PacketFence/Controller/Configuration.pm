@@ -42,7 +42,6 @@ BEGIN {extends 'pfappserver::Base::Controller'; }
 
 our %ALLOWED_SECTIONS = (
     general => undef,
-    database => undef,
     networking => undef,
     trapping => undef,
     parking => undef,
@@ -263,11 +262,11 @@ sub main :Local {
     $c->stash->{template} = "config/main/index.tt";
 }
 
-=head2 database
+=head2 pfdb
 
 =cut
 
-sub database :Local {
+sub pfdb :Local {
     my ($self, $c) = @_;
 
     $c->stash->{template} = "config/database/index.tt";

@@ -158,7 +158,7 @@ table.sources {
               [%- END %]
               <li class="nav-header">[% pf_section_entry('system_config', 'System Configuration') | none %]</li>
               [% pf_section_entry( 'main', 'Main Configuration') | none %]
-              [% pf_section_entry( 'database', 'Database') | none %]
+              [% pf_section_entry( 'pfdb', 'Database Configuration') | none %]
               [% pf_section_entry( 'inline', 'Inline') | none %]
               [% pf_section_entry( 'cluster', 'Cluster') | none %]
               [%- END %]
