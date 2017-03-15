@@ -137,10 +137,11 @@ sub _buildCachedConfigMultiCluster {
     pf_chown($self->configFile);
 
     $logger->debug("Multi-cluster config file is: $file_path");
-    
-    my @args            = (-file => $file_path, -allowempty => 1);
+
     my $default_section = $self->default_section;
-    push @args, -default => $default_section if defined $default_section;
+
+    my @chain;
+    push @chain, $self->configFile;
 
     my @parts = split("/", $self->multiClusterHost);
 
@@ -155,31 +156,41 @@ sub _buildCachedConfigMultiCluster {
         pf_chown($import_path);
 
         $logger->debug("Adding file $import_path to the pf::IniFiles import");
-        push @args, -import => pf::IniFiles->new(-file => $import_path);
+        push @chain, $import_path;
     }
 
     # Handling the non-multi-cluster configuration file that is on this server as it serves as the configuration baseline
     my $importConfigFile = $conf_dir . "/" . $stripped_file_path;
     $logger->debug("Adding file $importConfigFile to the pf::IniFiles import");
-    push @args, -import => pf::IniFiles->new(-file => $importConfigFile, -allowempty => 1); 
+    push @chain, $importConfigFile;
     
     # Handling defaults file here which should not be overriden in the multi-cluster directory
     $importConfigFile = $self->importConfigFile;
     if (defined $importConfigFile) {
         $logger->debug("Adding file $importConfigFile to the pf::IniFiles import");
-        push @args, -import => pf::IniFiles->new(-file => $importConfigFile, -allowempty => 1);
+        push @chain, $importConfigFile;
+    }
+
+    # Starting from the biggest index of the chain (most general scope), up to the first which is the most specific
+    my $iniConfig;
+    for(my $i=scalar(@chain) -1; $i >= 0; $i--) {
+        my @args = (-file => $chain[$i], -allowempty => 1);
+        push @args, -default => $default_section if defined $default_section;
+
+        if($iniConfig) {
+            push @args, -import => $iniConfig;
+        }
+        $iniConfig = pf::IniFiles->new(@args);
     }
 
     return $chi->compute(
         $file_path,
         {
+            # TODO: validate expiration of all files in the chain
             expire_if => sub { $self->expire_if(@_) }
         },
         sub {
-            my $config = pf::IniFiles->new(@args);
-            if ($config) {
-                $config->SetLastModTimestamp;
-            }
+            my $config = $iniConfig;
             $config->SetLastModTimestamp;
             return $config;
         });
