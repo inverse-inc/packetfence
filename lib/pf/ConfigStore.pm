@@ -187,7 +187,7 @@ sub _buildCachedConfigMultiCluster {
         $file_path,
         {
             # TODO: validate expiration of all files in the chain
-            expire_if => sub { $self->expire_if(@_) }
+            expire_if => sub { 1 }
         },
         sub {
             my $config = $iniConfig;
