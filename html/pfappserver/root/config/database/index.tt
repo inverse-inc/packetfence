@@ -1,0 +1,16 @@
+<h4 class="alert alert-warning">[% l('This section is for the database. Make sure you know what you are doing before modifying setting, especially in the advanced section.') %]</h4>
+
+<div id="tabView">
+  <ul class="nav nav-tabs">
+    <li [% IF tab == 'database' %]class="active"[% END %]>
+      <a href="#newTabView" data-href="[% c.uri_for(c.controller('Config::Database').action_for('index')) %]" data-toggle="tab">[% l('Database General') %]</a>
+    </li>
+    <li [% IF tab == 'database_advanced' %]class="active"[% END %]>
+      <a href="#newTabView" data-href="[% c.uri_for(c.controller('Config::Database_advanced').action_for('index')) %]" data-toggle="tab">[% l('Database Advanced') %]</a>
+    </li>
+  </ul>
+<div class="tab-content">
+  <div class="tab-pane fade" id="newTabView">
+  </div><!--tab-pane-->
+</div>
+</div>

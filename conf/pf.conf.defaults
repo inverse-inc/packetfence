@@ -261,48 +261,50 @@ user=pf
 #
 # Password for the mysql database used by PacketFence. Changing this parameter after the initial configuration will *not* change it in the database it self, only in the configuration.
 pass=packet
+
+[database_advanced]
 #
-# database.key_buffer_size
+# database_advanced.key_buffer_size
 #
 # The key_buffer_size MySQL configuration attribute (in MB). Only change if you know what you are doing. Will only affect a locally running MySQL server.
 key_buffer_size=100
 #
-# database.innodb_buffer_pool_size
+# database_advanced.innodb_buffer_pool_size
 #
 # The innodb_buffer_pool_size MySQL configuration attribute (in MB). Only change if you know what you are doing. Will only affect a locally running MySQL server.
 innodb_buffer_pool_size=500
 #
-# database.innodb_additional_mem_pool_size
+# database_advanced.innodb_additional_mem_pool_size
 #
 # The innodb_additional_mem_pool_size MySQL configuration attribute (in MB). Only change if you know what you are doing. Will only affect a locally running MySQL server.
 innodb_additional_mem_pool_size=20
 #
-# database.query_cache_size
+# database_advanced.query_cache_size
 #
 # The query_cache_size MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.
 query_cache_size=0
 #
-# database.thread_concurrency
+# database_advanced.thread_concurrency
 #
 # The thread_concurrency MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.
 thread_concurrency=8
 #
-# database.max_connections
+# database_advanced.max_connections
 #
 # The max_connections MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.
 max_connections=500
 #
-# database.table_cache
+# database_advanced.table_cache
 #
 # The table_cache MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.
 table_cache=300
 #
-# database.thread_cache_size
+# database_advanced.thread_cache_size
 #
 # The thread_cache_size MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.
 thread_cache_size=25
 #
-# database.max_allowed_packet
+# database_advanced.max_allowed_packet
 #
 # The max_allowed_packet MySQL configuration attribute (in MB). Only change if you know what you are doing. Will only affect a locally running MySQL server.
 max_allowed_packet=16

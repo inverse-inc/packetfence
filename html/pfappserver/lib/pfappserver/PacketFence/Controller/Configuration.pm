@@ -263,6 +263,16 @@ sub main :Local {
     $c->stash->{template} = "config/main/index.tt";
 }
 
+=head2 database
+
+=cut
+
+sub database :Local {
+    my ($self, $c) = @_;
+
+    $c->stash->{template} = "config/database/index.tt";
+}
+
 =head2 cluster
 
 =cut
