@@ -65,7 +65,6 @@ tr[data-swap] > td {
               [%- IF can_access("INTERFACES_READ") %]
               [% pf_section_entry( 'networks', 'Networks') | none %]
               [%- END %]
-              [% pf_section_entry( 'graphite', 'Graphite') | none %]
               [% pf_section_entry( 'omapi', 'OMAPI') | none %]
               [% pf_section_entry( 'snmap_traps', 'SNMP') | none %]
               [%- IF can_access("FLOATING_DEVICES_READ") %]
