@@ -61,8 +61,11 @@ tr[data-swap] > td {
           <div class="well sidebar-nav">
             <ul class="nav nav-list">
               <li class="nav-header">[% pf_section_entry('intergration', 'Integration') | none %]</li>
+              [%- IF can_access("FIREWALL_SSO_READ") %]
+              [% list_entry('Config::Firewall_SSO', 'index', 'Firewall SSO') | none %]
+              [%- END %]
               [% IF can_access("MSE_READ") %]
-              [% pf_section_entry( 'mse_tab', 'Node MSE Tab') | none %]
+              [% pf_section_entry( 'mse_tab', 'Cisco Mobility Services Engine') | none %]
               [%- END %]
               [%- IF can_access("CONFIGURATION_MAIN_READ") %]
               [% pf_section_entry( 'metadefender', 'OPSWAT Metadefender') | none %]
