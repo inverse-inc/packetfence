@@ -554,6 +554,10 @@ sub commit {
     my ($self) = @_;
     my $result;
     my $error;
+
+    # TODO: do a commit of all the scopes below the one we are commtting so it picks up any changes that could now be the same
+    # ex: global scope parameter is now the same as the child who overided it and should now disapear from the file
+
     eval {
         $result = $self->rewriteConfig();
     };
