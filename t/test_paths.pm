@@ -1,4 +1,5 @@
 package test_paths;
+
 =head1 NAME
 
 test_paths
@@ -51,6 +52,12 @@ BEGIN {
 
 
 }
+
+=head2 testIfFileUnlock
+
+test if a file is unlocked
+
+=cut
 
 sub testIfFileUnlock {
     my ($filename) = @_;
