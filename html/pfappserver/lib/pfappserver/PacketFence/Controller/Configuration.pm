@@ -73,6 +73,9 @@ our %ALLOWED_SECTIONS = (
     portal_config => undef,
     compliance => undef,
     integration => undef,
+    pfdb => undef,
+    database => undef,
+    database_advanced => undef,
 );
 
 
