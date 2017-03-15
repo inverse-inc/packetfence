@@ -717,11 +717,11 @@ Ensure you configure at least:
 * SNMP Community Read: private
 * SNMP Community Write: private
 
-If you are using MAC authentication on this switch, you must adjust the FreeRADIUS configuration so it transforms the EAP requests this switch sends into requests that PacketFence will interpret as MAC authentication. This is necessary because the 'MAC Based' mode of the switch still performs EAP requests.
+If you are using MAC authentication on this switch, you must adjust the FreeRADIUS configuration so it transforms the EAP requests this switch sends into requests that PacketFence will interpret as MAC authentication. This configuration will also set missing attributes in the RADIUS requests since this switch doesn't follow the standard attributes that are usually sent during RADIUS authentication.
 
-To adjust it, go in `/usr/local/pf/conf/radiusd/packetfence` and uncomment the following line:
+To adjust it, go in `/usr/local/pf/conf/radiusd/packetfence` and add the following below the line that contains `packetfence-eap-mac-policy`:
 
-  packetfence-eap-mac-to-mab-policy
+  packetfence-allied-gs950-mab
 
 And then restart FreeRADIUS:
 

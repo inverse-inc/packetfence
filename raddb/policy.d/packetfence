@@ -101,7 +101,7 @@ packetfence-mschap-authenticate {
     }
 }
 
-packetfence-eap-mac-to-mab-policy {
+packetfence-allied-gs950-mab {
     if ( &EAP-Type ) {
         if (&User-Name && (&User-Name =~ /^${policy.mac-addr-regexp}$/i)) {
             update {
