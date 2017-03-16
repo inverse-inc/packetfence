@@ -173,6 +173,7 @@ CREATE TABLE node (
   KEY category_id (category_id),
   KEY `node_status` (`status`, `unregdate`),
   KEY `node_dhcpfingerprint` (`dhcp_fingerprint`),
+  KEY `node_last_seen` (`last_seen`),
   CONSTRAINT `0_57` FOREIGN KEY (`pid`) REFERENCES `person` (`pid`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `node_category_key` FOREIGN KEY (`category_id`) REFERENCES `node_category` (`category_id`)
 ) ENGINE=InnoDB;
