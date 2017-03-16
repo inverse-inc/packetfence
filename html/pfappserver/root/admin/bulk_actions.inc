@@ -9,6 +9,7 @@
     <li class="disabled"><a class="bulk_action" data-target="[% c.uri_for(c.controller.action_for('bulk_deregister'))  %]">[% l('Deregister') %]</a></li>
     [% IF bulk_type == 'node' %]
     <li class="disabled"><a class="bulk_action" data-target="[% c.uri_for(c.controller.action_for('bulk_reevaluate_access'))  %]">[% l('Reevaluate access') %]</a></li>
+    <li class="disabled"><a class="bulk_action" data-target="[% c.uri_for(c.controller.action_for('bulk_restart_switchport'))  %]">[% l('Restart Switchport') %]</a></li>
     [% END %]
     [% IF bulk_type == 'user' %]
     <li class="disabled"><a class="bulk_action" data-target="[% c.uri_for(c.controller.action_for('bulk_delete'))  %]">[% l('Delete') %]</a></li>

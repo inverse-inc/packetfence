@@ -38,6 +38,8 @@ use pf::useragent qw(node_useragent_view);
 use pf::util;
 use pf::config::util;
 use pf::violation;
+use pf::SwitchFactory;
+use pf::Connection;
 
 =head1 METHODS
 
@@ -466,6 +468,41 @@ sub reevaluate {
     return ($status, $status_msg);
 }
 
+=head2 restartSwitchport
+
+Restart the switchport for a MAC address.
+
+=cut
+
+sub restartSwitchport {
+    my ($self, $mac) = @_;
+    my $logger = get_logger();
+    my ($status, $status_msg) = ($STATUS::OK);
+
+    my $locationlog = locationlog_view_open_mac($mac);
+    unless($locationlog) {
+        return ($STATUS::INTERNAL_SERVER_ERROR, "Unable to find node location.");
+    }
+
+    my $connection = pf::Connection->new;
+    $connection->backwardCompatibleToAttributes($locationlog->{connection_type});
+    unless($connection->transport eq "Wired") {
+        return ($STATUS::INTERNAL_SERVER_ERROR, "Trying to restart the port of a non-wired connection");
+    }
+
+    my $switch = pf::SwitchFactory->instantiate($locationlog->{switch});
+    unless($switch) {
+        return ($STATUS::INTERNAL_SERVER_ERROR, "Unable to instantiate switch ".$locationlog->{switch});
+    }
+
+    unless($switch->bouncePort($locationlog->{port})) {
+        $status = $STATUS::INTERNAL_SERVER_ERROR;
+        $status_msg = "Couldn't restart port.";
+    }
+
+    return ($status, $status_msg);
+}
+
 =head2 availableStatus
 
 =cut
@@ -821,6 +858,22 @@ sub bulkApplyBypassRole {
         }
     }
     return ($STATUS::OK, ["Bypass Role was changed for [_1] node(s)", $count]);
+}
+
+=head2 bulkRestartSwitchport
+
+Restart the switchport for a list of MAC addresses
+
+=cut
+
+sub bulkRestartSwitchport {
+    my ($self, @macs) = @_;
+    my $count = 0;
+    foreach my $mac (@macs) {
+        my ($status, undef) = $self->restartSwitchport($mac);
+        $count ++ if(is_success($status));
+    }
+    return ($STATUS::OK, ["Switchport was restarted for [_1] node(s)", $count]);
 }
 
 =head2 bulkReevaluateAccess

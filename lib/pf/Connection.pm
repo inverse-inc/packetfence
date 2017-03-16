@@ -81,6 +81,43 @@ sub _stringToAttributes {
     ( lc($type) =~ /^8021x/ ) ? $self->is8021X($TRUE) : $self->is8021X($FALSE);
 }
 
+=head2 backwardCompatibleToAttributes
+
+Go from a backward compatible string (L<%pf::config::connection_type>) to attributes for this class
+
+=cut
+
+sub backwardCompatibleToAttributes {
+    my ($self, $type) = @_;
+
+    return if( lc($type) =~ /inline/ || !$type );
+
+    # We set the transport type
+    ( lc($type) =~ /^wireless-802\.11/ ) ? $self->transport("Wireless") : $self->transport("Wired");
+
+    # We check if SNMP. If so, we return immediately while setting the flag
+    if ( (lc($type) =~ /^snmp/) ) { 
+        $self->isSNMP($TRUE);
+        return
+    }
+    else {
+        $self->isSNMP($FALSE);
+    }
+
+    # We check if mac authentication
+    ( lc($type) eq "wired_mac_auth" || lc($type) eq "Ethernet-NoEAP" ) ? $self->isMacAuth($TRUE) : $self->isMacAuth($FALSE);
+
+    # We check if EAP
+    if ( lc($type) =~ /eap$/ && lc($type) !~ /noeap$/ ) {
+        $self->isEAP($TRUE);
+        $self->is8021X($TRUE); 
+        $self->isMacAuth($FALSE);
+    }
+    else {
+        $self->isEAP($FALSE) ; $self->is8021X($FALSE) ; $self->isMacAuth($TRUE);
+    }
+}
+
 =head2 attributesToBackwardCompatible
 
 Only for backward compatibility while we introduce the new connection types.
