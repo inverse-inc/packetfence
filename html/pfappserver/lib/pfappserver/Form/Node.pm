@@ -69,6 +69,11 @@ has_field 'unregdate' =>
    type => '+DateTimePicker',
    label => 'Unregistration',
   );
+has_field 'last_seen' =>
+  (
+   type => 'Uneditable',
+   label => 'Last Seen',
+  );
 has_field 'time_balance' =>
   (
    type => 'PosInteger',

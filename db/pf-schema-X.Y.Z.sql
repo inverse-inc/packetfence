@@ -167,11 +167,13 @@ CREATE TABLE node (
   sessionid varchar(30) default NULL,
   machine_account varchar(255) default NULL,
   bypass_role_id int default NULL,
+  last_seen DATETIME NOT NULL DEFAULT "0000-00-00 00:00:00",
   PRIMARY KEY (mac),
   KEY pid (pid),
   KEY category_id (category_id),
   KEY `node_status` (`status`, `unregdate`),
   KEY `node_dhcpfingerprint` (`dhcp_fingerprint`),
+  KEY `node_last_seen` (`last_seen`),
   CONSTRAINT `0_57` FOREIGN KEY (`pid`) REFERENCES `person` (`pid`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `node_category_key` FOREIGN KEY (`category_id`) REFERENCES `node_category` (`category_id`)
 ) ENGINE=InnoDB;

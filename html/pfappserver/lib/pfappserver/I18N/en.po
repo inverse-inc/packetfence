@@ -9518,6 +9518,10 @@ msgid "maintenance.node_cleanup_window"
 msgstr "Node Cleanup Window"
 
 # conf/documentation.conf
+msgid "maintenance.node_unreg_window"
+msgstr "Node Unregistration Window"
+
+# conf/documentation.conf
 msgid "maintenance.nodes_maintenance_interval"
 msgstr "Nodes Maintenance Interval"
 

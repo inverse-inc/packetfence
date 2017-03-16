@@ -947,6 +947,10 @@ sub handleTrap {
 
     # }}}2
 
+    # update last_seen of MAC address as some activity from it has been seen
+    node_update_last_seen($trapMac);
+
+
     # test if act on this trap {{{2
     my $switch = getSwitch($switch_id);
 

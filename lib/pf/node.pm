@@ -79,6 +79,7 @@ BEGIN {
         $STATUS_REGISTERED
         node_last_reg
         node_defaults
+        node_update_last_seen
     );
 }
 
@@ -130,9 +131,9 @@ sub node_db_prepare {
             detect_date, regdate, unregdate, lastskip,
             user_agent, computername, dhcp_fingerprint,
             last_arp, last_dhcp,
-            notes, autoreg, sessionid
+            notes, autoreg, sessionid, last_seen
         ) VALUES (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW()
         )
     ]
     );
@@ -158,7 +159,7 @@ sub node_db_prepare {
             IF(ISNULL(nr.name), '', nr.name) as bypass_role,
             detect_date, regdate, unregdate, lastskip, time_balance, bandwidth_balance,
             user_agent, computername, dhcp_fingerprint, dhcp_vendor, dhcp6_fingerprint, dhcp6_enterprise, device_type, device_class, device_version, device_score,
-            last_arp, last_dhcp,
+            last_arp, last_dhcp, last_seen,
             node.notes, autoreg, sessionid, machine_account
         FROM node
             LEFT JOIN node_category as nr on node.bypass_role_id = nr.category_id
@@ -174,7 +175,7 @@ sub node_db_prepare {
             IF(ISNULL(nr.name), '', nr.name) as bypass_role ,
             detect_date, regdate, unregdate, lastskip,
             user_agent, computername, device_class AS dhcp_fingerprint,
-            last_arp, last_dhcp,
+            last_arp, last_dhcp, last_seen,
             node.notes, autoreg, sessionid, machine_account
         FROM node
             LEFT JOIN node_category as nr on node.bypass_role_id = nr.category_id
@@ -215,7 +216,7 @@ sub node_db_prepare {
             IF(ISNULL(nr.name), '', nr.name) as bypass_role ,
             node.detect_date, node.regdate, node.unregdate, node.lastskip, node.time_balance, node.bandwidth_balance,
             node.user_agent, node.computername, node.dhcp_fingerprint, node.dhcp_vendor, node.dhcp6_fingerprint, node.dhcp6_enterprise, node.device_type, node.device_class, node.device_version, node.device_score,
-            node.last_arp, node.last_dhcp,
+            node.last_arp, node.last_dhcp, node.last_seen,
             node.notes, node.autoreg, node.sessionid, node.machine_account,
             UNIX_TIMESTAMP(node.regdate) AS regdate_timestamp,
             UNIX_TIMESTAMP(node.unregdate) AS unregdate_timestamp
@@ -281,7 +282,7 @@ sub node_db_prepare {
             IF(node.unregdate = '0000-00-00 00:00:00', '', node.unregdate) as unregdate,
             IF(node.lastskip = '0000-00-00 00:00:00', '', node.lastskip) as lastskip,
             node.user_agent, node.computername, device_class AS dhcp_fingerprint,
-            node.last_arp, node.last_dhcp,
+            node.last_arp, node.last_dhcp, node.last_seen,
             locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan,
             IF(ISNULL(locationlog.connection_type), '', locationlog.connection_type) as last_connection_type,
             locationlog.dot1x_username as last_dot1x_username, locationlog.ssid as last_ssid,
@@ -313,8 +314,11 @@ sub node_db_prepare {
     $node_statements->{'node_expire_lastarp_sql'} = get_db_handle()->prepare(
         qq [ select mac from node where unix_timestamp(last_arp) < (unix_timestamp(now()) - ?) and last_arp!=0 ]);
 
-    $node_statements->{'node_expire_lastdhcp_sql'} = get_db_handle()->prepare(
-        qq [ select mac from node where unix_timestamp(last_dhcp) < (unix_timestamp(now()) - ?) and last_dhcp !=0 and status="$STATUS_UNREGISTERED" ]);
+    $node_statements->{'node_expire_lastseen_sql'} = get_db_handle()->prepare(
+        qq [ select mac from node where unix_timestamp(last_seen) < (unix_timestamp(now()) - ?) and last_seen!="0000-00-00 00:00:00" and status="$STATUS_UNREGISTERED" ]);
+
+    $node_statements->{'node_unreg_lastseen_sql'} = get_db_handle()->prepare(
+        qq [ select mac from node where unix_timestamp(last_seen) < (unix_timestamp(now()) - ?) and last_seen!="0000-00-00 00:00:00" and status="$STATUS_REGISTERED" ]);
 
     $node_statements->{'node_is_unregistered_sql'} = get_db_handle()->prepare(
         qq[
@@ -386,6 +390,11 @@ sub node_db_prepare {
 
     $node_statements->{'node_update_bandwidth_sql'} = get_db_handle()->prepare(qq[
         UPDATE node SET bandwidth_balance = COALESCE(bandwidth_balance, 0) + ?
+        WHERE mac = ?
+    ]);
+
+    $node_statements->{'node_update_last_seen_sql'} = get_db_handle()->prepare(qq[
+        UPDATE node SET last_seen = NOW()
         WHERE mac = ?
     ]);
 
@@ -1139,30 +1148,66 @@ sub node_expire_lastarp {
     return db_data(NODE, $node_statements, 'node_expire_lastarp_sql', $time);
 }
 
-sub node_expire_lastdhcp {
+=item node_expire_lastseen
+
+Get the nodes that should be deleted based on the last_seen column 
+
+=cut
+
+sub node_expire_lastseen {
     my ($time) = @_;
-    return db_data(NODE, $node_statements, 'node_expire_lastdhcp_sql', $time);
+    return db_data(NODE, $node_statements, 'node_expire_lastseen_sql', $time);
 }
+
+=item node_unreg_lastseen
+
+Get the nodes that should be unregistered based on the last_seen column 
+
+=cut
+
+sub node_unreg_lastseen {
+    my ($time) = @_;
+    return db_data(NODE, $node_statements, 'node_unreg_lastseen_sql', $time);
+}
+
+=item node_cleanup
+
+Cleanup nodes that should be deleted or unregistered based on the maintenance parameters
+
+=cut
 
 sub node_cleanup {
     my $timer = pf::StatsD::Timer->new;
-    my ($time) = @_;
+    my ($delete_time, $unreg_time) = @_;
     my $logger = get_logger();
-    $logger->debug("calling node_cleanup with time=$time");
+    $logger->debug("calling node_cleanup with delete_time=$delete_time unreg_time=$unreg_time");
     
-    if($time eq "0") {
-        $logger->debug("Not deleting because the window is 0");
-        return;
-    }
-
-    foreach my $rowVlan ( node_expire_lastdhcp($time) ) {
-        my $mac = $rowVlan->{'mac'};
-        require pf::locationlog;
-        if (pf::locationlog::locationlog_update_end_mac($mac)) {
-            $logger->info("mac $mac not seen for $time seconds, deleting");
-           node_delete($mac);
+    if($delete_time ne "0") {
+        foreach my $row ( node_expire_lastseen($delete_time) ) {
+            my $mac = $row->{'mac'};
+            require pf::locationlog;
+            if (pf::locationlog::locationlog_update_end_mac($mac)) {
+                $logger->info("mac $mac not seen for $delete_time seconds, deleting");
+               node_delete($mac);
+            }
         }
     }
+    else {
+        $logger->debug("Not deleting because the window is 0");
+    }
+
+    if($unreg_time ne "0") {
+        foreach my $row ( node_unreg_lastseen($unreg_time) ) {
+            my $mac = $row->{'mac'};
+            $logger->info("mac $mac not seen for $unreg_time seconds, unregistering");
+            node_deregister($mac);
+            # not reevaluating access since the node is be inactive
+        }
+    }
+    else {
+        $logger->debug("Not unregistering because the window is 0");
+    }
+
     return (0);
 }
 
@@ -1421,6 +1466,22 @@ sub node_defaults {
     my $node_info = pf::dal::node->_defaults;
     $node_info->{mac} = $mac;
     return $node_info;
+}
+
+=item node_update_last_seen 
+
+Update the last_seen attribute of a node to now
+
+=cut
+
+sub node_update_last_seen {
+    my ($mac) = @_;
+    $mac = clean_mac($mac);
+    if($mac) {
+        get_logger->debug("Updating last_seen for $mac");
+        db_query_execute(NODE, $node_statements, 'node_update_last_seen_sql', $mac);
+        node_remove_from_cache($mac);
+    }
 }
 
 =back
