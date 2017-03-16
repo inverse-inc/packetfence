@@ -25,6 +25,7 @@ use pf::cluster;
 use pf::constants;
 use pf::CHI;
 use pf::file_paths qw(
+    $install_dir
     $conf_dir
     $multi_cluster_conf_dir
 );
@@ -125,7 +126,13 @@ sub _buildCachedConfigMultiCluster {
 
     my $file_path       = $self->configFile;
     my $stripped_file_path = $file_path;
-    my $quoted_conf_dir = quotemeta($conf_dir) . "/";
+
+    # Handle /usr/local/pf/conf
+    my $quoted_conf_dir = quotemeta($conf_dir . "/");
+    $stripped_file_path =~ s/^$quoted_conf_dir//;
+    
+    # Handle /usr/local/pf/t/data for tests
+    $quoted_conf_dir = quotemeta($install_dir . "/t/data/");
     $stripped_file_path =~ s/^$quoted_conf_dir//;
 
     $self->configFile($self->multiClusterHostDirectory($self->multiClusterHost) . "/" . $stripped_file_path);

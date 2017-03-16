@@ -17,7 +17,7 @@ use File::Temp;
 use Config::IniFiles;
 use Data::Dumper;
 
-use Test::More tests => 67;
+use Test::More tests => 71;
 
 use Test::NoWarnings;
 BEGIN {
@@ -288,7 +288,33 @@ $cluster_cs->commit();
 $ini = Config::IniFiles->new(-file => $cluster_cs->configFile, -allowempty => 1) or die Dumper(@Config::IniFiles::errors);
 is($ini->exists("test", "test"), '', "test.test doesn't exist after it became the same value as the parent");
 
+# Test changing data will create the right deltas
+$cs_class = "pf::ConfigStore::Pf";
 
+use_ok($cs_class);
+
+$child_cs = $cs_class->new(multiClusterHost => $child_scope);
+
+$child_cs->update_or_create("database", {"host" => "child"});
+
+$child_cs->commit();
+
+# check that it was put in the child file
+$ini = Config::IniFiles->new(-file => $child_cs->configFile, -allowempty => 1) or die Dumper(@Config::IniFiles::errors);
+is($ini->val("database", "host"), "child", "database.host exists in the child delta file");
+
+# check that it wasn't put in the global + cluster file
+$ini = Config::IniFiles->new(-file => $global_cs->configFile, -allowempty => 1) or die Dumper(@Config::IniFiles::errors);
+is($ini->exists("database", "host"), '', "database.host doesn't exist since its defined in child and no this file");
+
+$ini = Config::IniFiles->new(-file => $cluster_cs->configFile, -allowempty => 1) or die Dumper(@Config::IniFiles::errors);
+is($ini->exists("database", "host"), '', "database.host doesn't exist since its defined in parent");
+
+$cluster_cs = $cs_class->new(multiClusterHost => $cluster_scope);
+
+$cluster_cs->update_or_create("database", {"host" => "cluster"});
+
+$cluster_cs->commit();
 
 =head1 AUTHOR
 
