@@ -585,7 +585,7 @@ sub parseRequest {
             $session_id =$1;
         }
     }
-    return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, $session_id);
+    return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, $session_id, $nas_port_id);
 }
 
 =item parseExternalPortalRequest

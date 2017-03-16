@@ -157,3 +157,11 @@ ALTER TABLE node ADD last_seen DATETIME NOT NULL DEFAULT "0000-00-00 00:00:00";
 
 ALTER TABLE node ADD INDEX node_last_seen (last_seen);
 
+--
+-- Add ifDesc to locationlog and locationlog_archive
+--
+
+ALTER table locationlog ADD column ifDesc VARCHAR(255) DEFAULT NULL;
+
+ALTER table locationlog_archive ADD column ifDesc VARCHAR(255) DEFAULT NULL;
+

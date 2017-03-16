@@ -241,7 +241,8 @@ sub node_db_prepare {
            locationlog.stripped_user_name as stripped_user_name, locationlog.realm as realm,
            locationlog.switch_mac as last_switch_mac,
            locationlog.start_time as last_start_time, locationlog.role as last_role,
-           UNIX_TIMESTAMP(locationlog.start_time) as last_start_timestamp
+           UNIX_TIMESTAMP(locationlog.start_time) as last_start_timestamp,
+           locationlog.ifDesc as last_ifDesc
        FROM locationlog
        WHERE mac = ? AND end_time = 0
     SQL
