@@ -50,6 +50,20 @@ sub _update_section {
     }
 }
 
+=head2 cleanupBeforeCommit
+
+cleanupBeforeCommit
+
+=cut
+
+sub cleanupBeforeCommit {
+    my ($self, $data) = @_;
+    if ($data->{type} eq 'regex') {
+        delete $data->{loglines};
+    }
+    return ;
+}
+
 =head2 _Sections
 
 Just get the top level sections
