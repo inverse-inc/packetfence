@@ -215,7 +215,7 @@ sub cache_user {
         return ($FALSE, $msg) unless($username);
     }
 
-    my ($ntds_file, $msg) = secretsdump($domain, $source, "-just-dc-user $username");
+    my ($ntds_file, $msg) = secretsdump($domain, $source, "-just-dc-user '$username'");
     return ($FALSE, $msg) unless($ntds_file);
 
     my $info = extract_info_from_dump_line(read_ntds_file($ntds_file));
