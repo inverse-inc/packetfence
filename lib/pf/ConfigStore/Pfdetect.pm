@@ -57,7 +57,7 @@ cleanupBeforeCommit
 =cut
 
 sub cleanupBeforeCommit {
-    my ($self, $data) = @_;
+    my ($self, $id, $data) = @_;
     if ($data->{type} eq 'regex') {
         delete $data->{loglines};
     }
