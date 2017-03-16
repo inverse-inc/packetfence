@@ -56,7 +56,7 @@ sub PRINTF {
 
 =head2 FILENO
 
-Return undef to avoid Cache::BDB failing somethings
+Return undef to avoid Cache::BDB from failing sometimes
 
 =cut
 

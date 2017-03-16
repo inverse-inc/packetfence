@@ -23,15 +23,27 @@ use pfconfig::empty_string;
 
 my $empty_string = pfconfig::empty_string->new;
 
+=head2 init
+
+initialize the cache
+
+=cut
+
 sub init {
     my ($self) = @_;
     $self->{cache} = CHI->new(driver => 'Memory', datastore => {},'serializer' => 'Sereal');
 }
 
+=head2 set
+
+Set value in the CHI cache
+
+=cut
+
 sub set {
     my ( $self, $key, $value ) = @_;
 
-    # BDB doesn't write empty strings
+    # There is an issue writing empty strings with CHI Memory driver
     # We workaround it using a class that represents an empty string
     if ( defined($value) && "$value" eq '' ) {
         $value = $empty_string;
@@ -39,11 +51,17 @@ sub set {
     $self->SUPER::set( $key, $value );
 }
 
+=head2 get
+
+Get value from the CHI cache
+
+=cut
+
 sub get {
     my ( $self, $key ) = @_;
     my $value = $self->SUPER::get($key);
 
-    # BDB doesn't write empty strings
+    # There is an issue writing empty strings with CHI Memory driver
     # We workaround it using a class that represents an empty string
     if ( ref($value) eq "pfconfig::empty_string" && $value->isa("pfconfig::empty_string") ) {
         $value = '';

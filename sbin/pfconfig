@@ -417,6 +417,12 @@ sub normal_sighandler {
     $RUNNING = 0;
 }
 
+=head2 getLockOnPid
+
+get lock on pid file
+
+=cut
+
 sub getLockOnPid {
     my ($filename) = @_;
     my $fs = File::FcntlLock->new(
