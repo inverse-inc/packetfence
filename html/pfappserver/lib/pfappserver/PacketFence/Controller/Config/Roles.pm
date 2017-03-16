@@ -1,8 +1,8 @@
-package pfappserver::PacketFence::Controller::Roles;
+package pfappserver::PacketFence::Controller::Config::Roles;
 
 =head1 NAME
 
-pfappserver::PacketFence::Controller::Roles - Catalyst Controller
+pfappserver::PacketFence::Controller::Config::Roles - Catalyst Controller
 
 =head1 DESCRIPTION
 
@@ -24,7 +24,7 @@ BEGIN {
 __PACKAGE__->config(
     action => {
         # Reconfigure the object action from pfappserver::Base::Controller::Crud
-        object => { Chained => '/', PathPart => 'roles', CaptureArgs => 1 },
+        object => { Chained => '/', PathPart => 'config/roles', CaptureArgs => 1 },
         # Configure access rights
         view   => { AdminRole => 'USERS_ROLES_READ' },
         list   => { AdminRole => 'USERS_ROLES_READ' },
@@ -35,7 +35,7 @@ __PACKAGE__->config(
     },
     action_args => {
         # Setting the global model and form for all actions
-        '*' => { model => "Roles", form => "Role" },
+        '*' => { model => "Config::Roles", form => "Config::Roles" },
     },
 );
 
@@ -50,7 +50,7 @@ Show the 'view' template when creating or cloning roles.
 after [qw(create clone)] => sub {
     my ($self, $c) = @_;
     if (!(is_success($c->response->status) && $c->request->method eq 'POST' )) {
-        $c->stash->{template} = 'roles/read.tt';
+        $c->stash->{template} = 'config/roles/read.tt';
     }
 };
 
@@ -68,7 +68,7 @@ after view => sub {
             $c->stash->{action_uri} = $c->uri_for($self->action_for('create'));
         }
     }
-    $c->stash->{template} = 'roles/read.tt';
+    $c->stash->{template} = 'config/roles/read.tt';
 };
 
 =head2 index

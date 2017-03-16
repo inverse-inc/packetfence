@@ -1,14 +1,14 @@
-package pfappserver::Model::Roles;
+package pfappserver::Model::Config::Roles;
 
 =head1 NAME
 
-pfappserver::Model::Roles
+pfappserver::Model::Config::Roles
 
 =cut
 
 =head1 DESCRIPTION
 
-pfappserver::Model::Roles
+pfappserver::Model::Config::Roles
 
 =cut
 

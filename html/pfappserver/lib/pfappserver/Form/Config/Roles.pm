@@ -1,8 +1,8 @@
-package pfappserver::Form::Role;
+package pfappserver::Form::Config::Roles;
 
 =head1 NAME
 
-pfappserver::Form::Role - Web form for a role
+pfappserver::Form::Config::Roles - Web form for a role
 
 =head1 DESCRIPTION
 

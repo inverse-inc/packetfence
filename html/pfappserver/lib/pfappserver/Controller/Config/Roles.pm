@@ -1,18 +1,18 @@
-package pfappserver::Controller::Roles;
+package pfappserver::Controller::Config::Roles;
 
 =head1 NAME
 
-pfappserver::Controller::Roles
+pfappserver::Controller::Config::Roles
 
 =head1 DESCRIPTION
 
-Place all customization for Controller::Roles here
+Place all customization for Controller::Config::Roles here
 
 =cut
 
 use Moose;
 
-BEGIN { extends 'pfappserver::PacketFence::Controller::Roles'; }
+BEGIN { extends 'pfappserver::PacketFence::Controller::Config::Roles'; }
 
 =head1 AUTHOR
 
