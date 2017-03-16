@@ -36,15 +36,24 @@ has_field direct_base_url => (
     label => 'Mirapay Direct Base url',
     default => "https://staging.eigendev.com/OFT/EigenOFT_d.php",
     required => 1,
+    element_class => ['input-xlarge'],
 );
 
 has_field terminal_id => (
     type => 'Text',
-    required => 1,
     label => 'Terminal ID',
     tags => {
         after_element => \&help,
         help => 'Terminal ID for Mirapay Direct',
+    },
+);
+
+has_field terminal_group_id => (
+    type => 'Text',
+    label => 'Terminal Group ID',
+    tags => {
+        after_element => \&help,
+        help => 'Terminal Group ID for Mirapay Direct',
     },
 );
 
@@ -67,6 +76,7 @@ has_field shared_secret => (
         after_element => \&help,
         help => 'MKEY for the iframe',
     },
+    element_class => ['input-xlarge'],
 );
 
 has_field service_fqdn => (
