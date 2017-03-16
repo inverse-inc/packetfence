@@ -65,7 +65,7 @@ sub nodecategory_db_prepare {
     $logger->debug("Preparing pf::nodecategory database queries");
 
     $nodecategory_statements->{'nodecategory_upsert_sql'} = get_db_handle()->prepare(
-        qq [ INSERT INTO node_category(category_id, name, max_nodes_per_pid, notes) VALUES(?, ?, ?, ?) ON DUPLICATE KEY UPDATE name=?, max_nodes_per_pid=?, notes=? ]
+        qq [ INSERT INTO node_category(name, max_nodes_per_pid, notes) VALUES(?, ?, ?) ON DUPLICATE KEY UPDATE max_nodes_per_pid=?, notes=? ]
     );
 
     $nodecategory_statements->{'nodecategory_view_all_sql'} = get_db_handle()->prepare(
@@ -123,7 +123,7 @@ sub nodecategory_upsert {
     die "Missing ID for nodecategory_upsert" unless($id);
 
     $logger->info("Inserting/updating role with ID $id");
-    return db_data(NODECATEGORY, $nodecategory_statements, 'nodecategory_upsert_sql', $id, @data{qw/name max_nodes_per_pid notes/}, @data{qw/name max_nodes_per_pid notes/});
+    return db_data(NODECATEGORY, $nodecategory_statements, 'nodecategory_upsert_sql', $id, @data{qw/max_nodes_per_pid notes/}, @data{qw/max_nodes_per_pid notes/});
 }
 
 =item nodecategory_view_all - view all categories, returns an hashref

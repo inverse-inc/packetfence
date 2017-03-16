@@ -165,3 +165,7 @@ ALTER table locationlog ADD column ifDesc VARCHAR(255) DEFAULT NULL;
 
 ALTER table locationlog_archive ADD column ifDesc VARCHAR(255) DEFAULT NULL;
 
+--
+-- Add unicity index to node_category.name
+--
+ALTER TABLE node_category ADD UNIQUE INDEX node_category_name (name);

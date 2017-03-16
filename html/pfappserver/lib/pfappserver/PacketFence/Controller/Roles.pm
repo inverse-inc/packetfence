@@ -6,150 +6,81 @@ pfappserver::PacketFence::Controller::Roles - Catalyst Controller
 
 =head1 DESCRIPTION
 
-Catalyst Controller.
+Controller for Roles configuration.
 
 =cut
 
-use strict;
-use warnings;
-
 use HTTP::Status qw(:constants is_error is_success);
-use Moose;
+use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
-use POSIX;
 
-use pfappserver::Form::Role;
 
-BEGIN { extends 'pfappserver::Base::Controller'; }
+BEGIN {
+    extends 'pfappserver::Base::Controller';
+    with 'pfappserver::Base::Controller::Crud::Config';
+    with 'pfappserver::Base::Controller::Crud::Config::Clone';
+}
+
+__PACKAGE__->config(
+    action => {
+        # Reconfigure the object action from pfappserver::Base::Controller::Crud
+        object => { Chained => '/', PathPart => 'roles', CaptureArgs => 1 },
+        # Configure access rights
+        view   => { AdminRole => 'USERS_ROLES_READ' },
+        list   => { AdminRole => 'USERS_ROLES_READ' },
+        create => { AdminRole => 'USERS_ROLES_CREATE' },
+        clone  => { AdminRole => 'USERS_ROLES_CREATE' },
+        update => { AdminRole => 'USERS_ROLES_UPDATE' },
+        remove => { AdminRole => 'USERS_ROLES_DELETE' },
+    },
+    action_args => {
+        # Setting the global model and form for all actions
+        '*' => { model => "Roles", form => "Role" },
+    },
+);
 
 =head1 METHODS
 
+=head2 after create clone
+
+Show the 'view' template when creating or cloning roles.
+
+=cut
+
+after [qw(create clone)] => sub {
+    my ($self, $c) = @_;
+    if (!(is_success($c->response->status) && $c->request->method eq 'POST' )) {
+        $c->stash->{template} = 'roles/read.tt';
+    }
+};
+
+=head2 after view
+
+=cut
+
+after view => sub {
+    my ($self, $c) = @_;
+    if (!$c->stash->{action_uri}) {
+        my $id = $c->stash->{id};
+        if ($id) {
+            $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$c->stash->{id}]);
+        } else {
+            $c->stash->{action_uri} = $c->uri_for($self->action_for('create'));
+        }
+    }
+    $c->stash->{template} = 'roles/read.tt';
+};
+
 =head2 index
 
+Usage: /roles/
+
 =cut
 
-sub index :Path :Args(0) :AdminRole('USERS_ROLES_READ') {
+sub index :Path :Args(0) {
     my ($self, $c) = @_;
 
-    my ($status, $result) = $c->model('Roles')->list();
-    if (is_success($status)) {
-        $c->stash->{roles} = $result;
-    }
-    else {
-        $c->stash->{error} = $result;
-    }
-}
-
-=head2 create
-
-=cut
-
-sub create :Local :AdminRole('USERS_ROLES_CREATE') {
-    my ($self, $c) = @_;
-
-    my ($status, $result, $form);
-
-    if ($c->request->method eq 'POST') {
-        $form = pfappserver::Form::Role->new(ctx => $c);
-        $form->process(params => $c->req->params);
-        if ($form->has_errors) {
-            $status = HTTP_BAD_REQUEST;
-            $result = $form->field_errors;
-        }
-        else {
-            my $data = $form->value;
-            ($status, $result) = $c->model('Roles')->create($data->{name}, $data->{max_nodes_per_pid}, $data->{notes});
-            $self->audit_current_action($c, status => $status, id => $data->{name});
-        }
-
-        if (is_error($status)) {
-            $c->response->status($status);
-            $c->stash->{status_msg} = $result;
-        }
-        $c->stash->{current_view} = 'JSON';
-    }
-    else {
-        $c->stash->{action_uri} = $c->req->uri;
-        $c->forward('read');
-    }
-}
-
-=head2 object
-
-Roles controller dispatcher
-
-=cut
-
-sub object :Chained('/') :PathPart('roles') :CaptureArgs(1) {
-    my ($self, $c, $id) = @_;
-
-    my ($status, $result) = $c->model('Roles')->read($id);
-    if (is_success($status)) {
-        $c->stash->{role} = $result;
-    }
-    else {
-        $c->response->status($status);
-        $c->stash->{status_msg} = $result;
-        $c->stash->{current_view} = 'JSON';
-        $c->detach();
-    }
-}
-
-=head2 read
-
-=cut
-
-sub read :Chained('object') :PathPart('read') :Args(0) :AdminRole('USERS_ROLES_READ') {
-    my ($self, $c) = @_;
-
-    my ($status, $result, $form);
-
-    $c->stash->{template} = 'roles/read.tt';
-
-    if ($c->stash->{role}->{category_id}) {
-        # Update an existing role
-        $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$c->stash->{role}->{category_id}]);
-    }
-
-    $form = pfappserver::Form::Role->new(ctx => $c, init_object => $c->stash->{role});
-    $form->process();
-    $c->stash->{form} = $form;
-}
-
-=head2 update
-
-=cut
-
-sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('USERS_ROLES_UPDATE') {
-    my ($self, $c) = @_;
-
-    my ($status, $result, $form);
-
-    if ($c->request->method eq 'POST') {
-        $form = pfappserver::Form::Role->new(ctx => $c, id => $c->stash->{role}->{name});
-        $form->process(params => $c->req->params);
-        if ($form->has_errors) {
-            $status = HTTP_BAD_REQUEST;
-            $result = $form->field_errors;
-        }
-        else {
-            my $data = $form->value;
-            ($status, $result) = $c->model('Roles')->update($c->stash->{role},
-                                                            $c->stash->{role}->{name},
-                                                            $data->{max_nodes_per_pid},
-                                                            $data->{notes});
-            $self->audit_current_action($c, status => $status, id => $c->stash->{role}->{name});
-        }
-        if (is_error($status)) {
-            $c->response->status($status);
-            $c->stash->{status_msg} = $result;
-        }
-        $c->stash->{current_view} = 'JSON';
-    }
-    else {
-        $c->stash->{template} = 'violation/get.tt';
-        $c->forward('get');
-    }
+    $c->forward('list');
 }
 
 =head1 COPYRIGHT
