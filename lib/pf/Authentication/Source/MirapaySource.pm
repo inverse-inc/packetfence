@@ -341,7 +341,7 @@ sub _build_base_path {
 
 sub mirapay_direct_hash {
     my ($self, $shared_secret, $options) = @_;
-    return sha256_hex($shared_secret, $options->{terminalId}, $options->{transCode}, $options->{amount}, $options->{date}, $options->{token});
+    return sha256_hex($shared_secret, $self->terminal_id, $options->{transCode}, $options->{amount}, $options->{date}, $options->{token});
 }
 
 =head2 iframe
