@@ -53,7 +53,7 @@ In `Configuration -> Connection Profiles -> Add profile -> Advanced filter` spec
 
  extended.mse_inout.locationMapHierarchy == "Campus>Building>Level>Zone"
 
-image::docs/images/Portal_filter.png[scaledwidth="100%",alt="Portal Filter"]
+image::docs/images/Connection_filter.png[scaledwidth="100%",alt="Connection Filter"]
 
 And fill the other configuration needed to configure a connection profile then save it.
 
@@ -63,7 +63,7 @@ it will hit this connection profile.
 MSE Tab
 -------
 
-This configuration is really simple, you just have to enable and fill the URL, the username and password in `Configutaion -> Node MSE Tab`.
+This configuration is really simple, you just have to enable and fill the URL, the username and password in `Configuration -> Node MSE Tab`.
 So in our example:
 
  URL: http://192.168.1.6:8083
