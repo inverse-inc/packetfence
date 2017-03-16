@@ -32,6 +32,7 @@ BEGIN {
         nodecategory_db_prepare
         $nodecategory_db_prepared
 
+        nodecategory_populate_from_config
         nodecategory_upsert
         nodecategory_view_all
         nodecategory_view
@@ -94,6 +95,21 @@ sub nodecategory_db_prepare {
     $nodecategory_db_prepared = 1;
 }
 
+=item nodecategory_populate_from_config
+
+Populates the nodecategory table from the data in the configuration passes via parameter
+Note that this will not delete an existing DB role if it isn't in the configuration
+It will simply do an upsert of all the roles in the configuration
+
+=cut
+
+sub nodecategory_populate_from_config {
+    my ($config) = @_;
+    while(my ($id, $role) = each(%$config)) {
+        nodecategory_upsert($id, %$role);
+    }
+}
+
 =item nodecategory_upsert
 
 Insert of update a record given an ID
@@ -102,6 +118,11 @@ Insert of update a record given an ID
 
 sub nodecategory_upsert {
     my ($id, %data) = @_;
+    my $logger = get_logger;
+
+    die "Missing ID for nodecategory_upsert" unless($id);
+
+    $logger->info("Inserting/updating role with ID $id");
     return db_data(NODECATEGORY, $nodecategory_statements, 'nodecategory_upsert_sql', $id, @data{qw/name max_nodes_per_pid notes/}, @data{qw/name max_nodes_per_pid notes/});
 }
 

@@ -137,6 +137,8 @@ our (
     %ConfigSwitchesList,
 #Reports
     %ConfigReport,
+#Roles
+    %ConfigRoles,
 );
 
 BEGIN {
@@ -194,6 +196,7 @@ BEGIN {
         %ConfigSwitchesGroup
         %ConfigSwitchesList
         %ConfigReport
+        %ConfigRoles
     );
 }
 
@@ -275,6 +278,8 @@ tie %ConfigSwitchesGroup, 'pfconfig::cached_hash', 'resource::switches_group';
 tie %ConfigSwitchesList, 'pfconfig::cached_hash', 'resource::switches_list';
 
 tie %ConfigReport, 'pfconfig::cached_hash', 'config::Report';
+
+tie %ConfigRoles, 'pfconfig::cached_hash', 'config::Roles';
 
 $thread = 0;
 
