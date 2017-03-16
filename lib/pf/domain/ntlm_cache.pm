@@ -142,7 +142,7 @@ sub fetch_hashes_one_at_a_time {
     my @users = split(/\n/, read_file($users_file));
     foreach my $user (@users) {
 
-        my ($ntds_file, $msg) = secretsdump($domain, $source, "-just-dc-user $user");
+        my ($ntds_file, $msg) = secretsdump($domain, $source, "-just-dc-user '$user'");
         if ($ntds_file) {
             $content .= read_file($ntds_file);            
         }
