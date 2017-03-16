@@ -813,11 +813,11 @@ would return the `full-access` role to the nodes categorized as admin or enginee
 CAUTION: Make sure that the roles are properly defined on the network devices prior to assigning roles!
 
 Connection Profiles
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 PacketFence comes with a default connection profile. The follow parameters are important to configure no matter if you use the default connection profile or create a new one:
 
-* Redirect URL under *Configuration -> Connection Profile -> Portal Name*
+* Redirect URL under *Configuration -> Connection Profile -> Profile Name*
 
 For some browsers, it is preferable to redirect the user to a specific URL instead of the URL the user originally intended to visit. For these browsers, the URL defined in `redirecturl` will be the one where the user will be redirected. Affected browsers are Firefox 3 and later.
 
@@ -838,7 +838,7 @@ Here are the different configuration parameters that can be set for each connect
 
 Connection profiles should be managed from PacketFence's Web administrative GUI - from the *Configuration -> Connection Profiles* section. Adding a connection profile from that interface will correctly copy templates over - which can then be modified as you wish.
 
-* Filters under *Configuration -> Connection Profile -> Portal Name -> Filters*
+* Filters under *Configuration -> Connection Profile -> Profile Name -> Filters*
 
 PacketFence offers the following filters: Connection Type, Network, Node Role, Port, realm, SSID, Switch, Switch Port, URI, VLAN and Time period.
 
@@ -852,7 +852,7 @@ Example with the most common ones:
 
 CAUTION: Node role will take effect only with a 802.1X connection or if you use VLAN filters.
 
-* Advanced filter under *Configuration -> Connection Profile -> Portal Name -> Advanced Filter*
+* Advanced filter under *Configuration -> Connection Profile -> Profile Name -> Advanced Filter*
 
 Examples
 
@@ -3338,7 +3338,7 @@ Assign Scan definition to connection profiles
 +++++++++++++++++++++++++++++++++++++++++
 
 The last step is to assign one or more scanner you configured to one or more connection profiles.
-Go in Configuration -> Connection Profiles -> Edit a Portal -> Add Scan
+Go in Configuration -> Connection Profiles -> Edit a Profile -> Add Scan
 
 Hosting Nessus / OpenVAS remotely
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
