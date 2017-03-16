@@ -1,5 +1,6 @@
 <h4 class="alert alert-warning">[% l('This section is for the configuration of Active-Active clustering.') %]</h4>
 
+<div id="tabView">
   <ul class="nav nav-tabs">
     <li [% IF tab == 'active-active' %]class="active"[% END %]>
       <a href="#newTabView" data-href="[% c.uri_for(c.controller('Configuration').action_for('section'), 'active_active') %]" data-toggle="tab">[% l('Active-Active Clustering') %]</a>
@@ -11,4 +12,5 @@
 <div class="tab-content">
   <div class="tab-pane fade" id="newTabView">
   </div><!--tab-pane-->
+</div>
 </div>
