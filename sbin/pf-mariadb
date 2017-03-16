@@ -466,18 +466,6 @@ sub startup_dirty_shutdown {
     }
     else {
         $STARTED_BECAUSE = "attempting-to-get-quorum";
-        if(pf::cluster::cluster_index() == 0) {
-            if(!_check_pid($QUORUM_MGMT_SERVER_PID)) {
-                $logger->info("There is a gvwstate and we're the first server. Will start the management quorum server to find the state of all servers.");
-                # this below will fork, so the process will continue
-                quorum_management_server();
-            }
-        }
-
-        if(!_check_pid($QUORUM_CLIENT_SERVER_PID)) {
-            $logger->info("Starting client quorum server.");
-            quorum_client_server();
-        }
 
         if($gvwstate_cache->get("gvwstate-should-start")) {
             $logger->info("Ready to start.");
@@ -524,7 +512,7 @@ sub act_on_quorum_server_data {
 
                 # Server is already alive, nothing to do
                 if(test_db($server_info->{server_mgmt_ip})) {
-                    $logger->info("Server $hostname is alive");
+                    $logger->debug("Server $hostname is alive");
                     push @alive, $hostname;
                 }
                 # Server is not alive, instruct it to start via the quorum client
@@ -538,12 +526,6 @@ sub act_on_quorum_server_data {
                 $logger->info("$hostname wasn't part of the latest gvwstate. Will instruct it to stay off for now.");
                 send_to_quorum_client($server_info->{server_mgmt_ip}, {should_start => 0});
             }
-        }
-        # If one server is alive, its enough to get every server connected together
-        if(scalar(@alive) > 0) {
-            $logger->info("At least one of the servers was able to start up. Stopping quorum server process");
-            $gvwstate_cache->clear();
-            kill(SIGTERM, $QUORUM_MGMT_SERVER_PID) if($QUORUM_MGMT_SERVER_PID);
         }
     }
     else {
@@ -577,7 +559,8 @@ sub attempt_start {
     }
     # MySQL isn't running but there is a gvwstate
     elsif(!_check_pid($MYSQLD_SPAWNER_PID) && -f "/var/lib/mysql/gvwstate.dat") {
-        startup_dirty_shutdown();
+        #startup_dirty_shutdown();
+        startup_clean_shutdown();
     }
     else {
         startup_clean_shutdown();
@@ -616,6 +599,20 @@ if(defined($ARGV[0]) && $ARGV[0] eq "--force-new-cluster") {
 attempt_start();
 
 while($RUNNING){
+    if(pf::cluster::cluster_index() == 0) {
+        if(!_check_pid($QUORUM_MGMT_SERVER_PID)) {
+            $logger->info("Starting management quorum server");
+            # this below will fork, so the process will continue
+            quorum_management_server();
+        }
+    }
+
+    if(!_check_pid($QUORUM_CLIENT_SERVER_PID)) {
+        $logger->info("Starting client quorum server.");
+        # this below will fork, so the process will continue
+        quorum_client_server();
+    }
+
     # Quorum server is running so we're attempting to get a quorum
     if(_check_pid($QUORUM_MGMT_SERVER_PID)) {
         act_on_quorum_server_data();
@@ -631,6 +628,8 @@ while($RUNNING){
         attempt_start();
     }
     elsif($cluster_enabled) {
+        send_gvwstate_to_quorum_mgmt_server();
+
         if(test_db(pf::cluster::current_server()->{management_ip})) {
             # We're coming from a previous failure, so we log it 
             if($failed) {
@@ -643,7 +642,7 @@ while($RUNNING){
             $failed = $TRUE;
         }
     }
-    sleep 1;
+    sleep 5;
 }
 
 
