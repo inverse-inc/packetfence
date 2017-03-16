@@ -232,12 +232,6 @@ sub soh :Local {
 
 =cut
 
-sub roles :Local {
-    my ($self, $c) = @_;
-
-    $c->go('Controller::Roles', 'index');
-}
-
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2017 Inverse inc.
