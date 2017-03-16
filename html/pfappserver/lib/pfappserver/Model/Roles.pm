@@ -122,31 +122,6 @@ sub create {
   return ($status, $status_msg);
 }
 
-=head2 delete
-
-=cut
-
-sub delete {
-    my ($self, $role_ref) = @_;
-
-    my $logger = get_logger();
-    if (exists $STANDARD_ROLES{$role_ref->{name}}) {
-        return ($STATUS::FORBIDDEN, "The role '$role_ref->{name}' is a standard role and cannot be removed");
-    }
-    my ($status, $status_msg) = ($STATUS::OK);
-
-    eval {
-      nodecategory_delete($role_ref->{category_id});
-    };
-    if ($@) {
-        $logger->error($@);
-        $status = $STATUS::INTERNAL_SERVER_ERROR;
-        $status_msg = "Some nodes are still associated to this role.";
-    }
-
-    return ($status, $status_msg);
-}
-
 =head2 update
 
 =cut

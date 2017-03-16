@@ -152,23 +152,6 @@ sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('USERS_ROL
     }
 }
 
-=head2 delete
-
-=cut
-
-sub delete :Chained('object') :PathPart('delete') :Args(0) :AdminRole('USERS_ROLES_DELETE') {
-    my ($self, $c) = @_;
-
-    my ($status, $result) = $c->model('Roles')->delete($c->stash->{role});
-    $self->audit_current_action($c, status => $status, id => $c->stash->{role}->{name});
-    if (is_error($status)) {
-        $c->response->status($status);
-        $c->stash->{status_msg} = $result;
-    }
-
-    $c->stash->{current_view} = 'JSON';
-}
-
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2017 Inverse inc.

@@ -1,20 +1,6 @@
       <div class="modal fade hide" id="modalRole">
       </div>
 
-      <div class="modal fade hide" id="deleteRole">
-        <div class="modal-header">
-          <a class="close" data-dismiss="modal">&times;</a>
-          <h3><i>[% l('Delete Role') %]</i> <span></span></h3>
-        </div>
-        <div class="modal-body">
-          <p>[% l('Really delete this role?') %]</p>
-        </div>
-        <div class="modal-footer">
-          <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
-          <a href="#" class="btn btn-primary btn-danger"><i class="icon-trash"></i> [% l('Delete') %]</a>
-        </div>
-      </div>
-
       <h2>[% l('Roles')  %]</h2>
       [% IF error %]<div class="alert alert-error">
         <button class="close" data-dismiss="alert">&times;</button>
@@ -38,13 +24,8 @@
           <tr>
             <td>[% role.category_id | html %]</td>
             <td><a href="[% c.uri_for(c.controller('Roles').action_for('read'), [ role.category_id ]) %]#modalRole">[% role.name | html %]</a></td>
-	     <td class="hidden-phone">[% role.notes | html %]</td>
-	     <td class="hidden-phone">[% role.max_nodes_per_pid | html %]</td>
-	     <td>
-               [%- IF can_access("USERS_ROLES_DELETE") %]
-               <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('Roles').action_for('delete'), [ role.category_id ]) %]#deleteRole">[% l('Delete') %]</a>
-               [%- END %]
-             </td>
+            <td class="hidden-phone">[% role.notes | html %]</td>
+            <td class="hidden-phone">[% role.max_nodes_per_pid | html %]</td>
           </tr>
           [% END -%]
         </tbody>
