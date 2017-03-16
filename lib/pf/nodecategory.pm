@@ -32,6 +32,7 @@ BEGIN {
         nodecategory_db_prepare
         $nodecategory_db_prepared
 
+        nodecategory_upsert
         nodecategory_view_all
         nodecategory_view
         nodecategory_view_by_name
@@ -62,6 +63,10 @@ sub nodecategory_db_prepare {
     my $logger = get_logger();
     $logger->debug("Preparing pf::nodecategory database queries");
 
+    $nodecategory_statements->{'nodecategory_upsert_sql'} = get_db_handle()->prepare(
+        qq [ INSERT INTO node_category(category_id, name, max_nodes_per_pid, notes) VALUES(?, ?, ?, ?) ON DUPLICATE KEY UPDATE name=?, max_nodes_per_pid=?, notes=? ]
+    );
+
     $nodecategory_statements->{'nodecategory_view_all_sql'} = get_db_handle()->prepare(
         qq [ SELECT category_id, name, max_nodes_per_pid, notes FROM node_category ]
     );
@@ -87,6 +92,17 @@ sub nodecategory_db_prepare {
     );
 
     $nodecategory_db_prepared = 1;
+}
+
+=item nodecategory_upsert
+
+Insert of update a record given an ID
+
+=cut
+
+sub nodecategory_upsert {
+    my ($id, %data) = @_;
+    return db_data(NODECATEGORY, $nodecategory_statements, 'nodecategory_upsert_sql', $id, @data{qw/name max_nodes_per_pid notes/}, @data{qw/name max_nodes_per_pid notes/});
 }
 
 =item nodecategory_view_all - view all categories, returns an hashref
