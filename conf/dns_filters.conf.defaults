@@ -178,17 +178,233 @@ filter = qname
 operator = is
 value = msh.amazon.com
 
-[1:msh_amazon_com|samsungapps_com|cij_com|pinsightmedia_com|playstation_net|iheart_com|pandora_com|samsungcloudsolution_com|bose_vtuner_com|facebook|ssl_google_analytics_com|mtalk_google_com|mtalk4_google_com|office365_com|crashlytics_com|flurry_com|googleadservices_com|itunes_apple_com|push_apple_com|instagram_com|dropbox_com|ssl_apple_com|steampowered_com|service_gc_apple_com|accu_weather_com|dm_htcsense_com|icloud_com|dm_htcsense_com|configuration_apple_com|ls_apple_com|gsa_apple_com|fbcdn_net|snapchat_com|doubleclick_net|applovin_com|akamaihd_net]
+[ksmobile_com]
+filter = qname
+operator = regex
+value = (.*).ksmobile.com
+
+[lkqd_net]
+filter = qname
+operator = regex
+value = (.*).lkqd.net
+
+[3g_cn]
+filter = qname
+operator = regex
+value = (.*).3g.cn
+
+[outlook_com]
+filter = qname
+operator = regex
+value = (.*).outlook.com
+
+[gamesparks_net]
+filter = qname
+operator = regex
+value = (.*).gamesparks.net
+
+[accuweather_com]
+filter = qname
+operator = regex
+value = (.*).accuweather.com
+
+[videmob_com]
+filter = qname
+operator = regex
+value = (.*).videmob.com
+
+[ceipmsn_com]
+filter = qname
+operator = regex
+value = (.*).ceipmsn.com
+
+[portal_fb_com]
+filter = qname
+operator = regex
+value = portal.fb.com
+
+[cloudcell_com]
+filter = qname
+operator = regex
+value = (.*).cloudcell.com
+
+[jodoplay_com]
+filter = qname
+operator = regex
+value = (.*).jodoplay.com
+
+[ksmobile_net]
+filter = qname
+operator = regex
+value = (.*).ksmobile.net
+
+[norton_com]
+filter = qname
+operator = regex
+value = (.*).norton.com
+
+[cmcm_com]
+filter = qname
+operator = regex
+value = (.*).cmcm.com
+
+[avast_com]
+filter = qname
+operator = regex
+value = (.*).avast.com
+
+[acgvideo_com]
+filter = qname
+operator = regex
+value = (.*).acgvideo.com
+
+[officecdn_microsoft_com]
+filter = qname
+operator = regex
+value = officecdn.microsoft.com
+
+[baidu_com]
+filter = qname
+operator = regex
+value = (.*).baidu.com
+
+[mopub_com]
+filter = qname
+operator = regex
+value = (.*).mopub.com
+
+[taobao_com]
+filter = qname
+operator = regex
+value = (.*).taobao.com
+
+[magix_com]
+filter = qname
+operator = regex
+value = (.*).magix.com
+
+[gpsonextra_net]
+filter = qname
+operator = regex
+value = (.*).gpsonextra.net
+
+[fb_com]
+filter = qname
+operator = regex
+value = (.*).fb.com
+
+[netflix_com]
+filter = qname
+operator = regex
+value = (.*).netflix.com
+
+[360overseas_com]
+filter = qname
+operator = regex
+value = (.*).360overseas.com
+
+[xiaomi_net]
+filter = qname
+operator = regex
+value = (.*).xiaomi.net
+
+[xiaomi_com]
+filter = qname
+operator = regex
+value = (.*).xiaomi.com
+
+[nexage_com]
+filter = qname
+operator = regex
+value = (.*).nexage.com
+
+[isrmobile_com]
+filter = qname
+operator = regex
+value = (.*).isrmobile.com
+
+[duapps_com]
+filter = qname
+operator = regex
+value = (.*).duapps.com
+
+[deezer_com]
+filter = qname
+operator = regex
+value = (.*).deezer.com
+
+[xiaoying_co]
+filter = qname
+operator = regex
+value = (.*).xiaoying.co
+
+[sophosupd_net]
+filter = qname
+operator = regex
+value = (.*).sophosupd.net
+
+[sophosupd_com]
+filter = qname
+operator = regex
+value = (.*).sophosupd.com
+
+[izatcloud_net]
+filter = qname
+operator = regex
+value = (.*).izatcloud.net
+
+[spotify_com]
+filter = qname
+operator = regex
+value = (.*).spotify.com
+
+[nmgx_co_uk]
+filter = qname
+operator = regex
+value = (.*).nmgx.co.uk
+
+[leancloud_cn]
+filter = qname
+operator = regex
+value = (.*).leancloud.cn
+
+[windowsupdate_com]
+filter = qname
+operator = regex
+value = (.*).windowsupdate.com
+
+[vungle_com]
+filter = qname
+operator = regex
+value = (.*).vungle.com
+
+[wifi_osmino_com]
+filter = qname
+operator = regex
+value = (.*).osmino.com
+
+[kontagent_net]
+filter = qname
+operator = regex
+value = (.*).kontagent.net
+
+[skyhookwireless_com]
+filter = qname
+operator = regex
+value = (.*).skyhookwireless.com
+
+
+[1:msh_amazon_com|samsungapps_com|cij_com|pinsightmedia_com|playstation_net|iheart_com|pandora_com|samsungcloudsolution_com|bose_vtuner_com|facebook|ssl_google_analytics_com|mtalk_google_com|mtalk4_google_com|office365_com|crashlytics_com|flurry_com|googleadservices_com|itunes_apple_com|push_apple_com|instagram_com|dropbox_com|ssl_apple_com|steampowered_com|service_gc_apple_com|accu_weather_com|dm_htcsense_com|icloud_com|dm_htcsense_com|configuration_apple_com|ls_apple_com|gsa_apple_com|fbcdn_net|snapchat_com|doubleclick_net|applovin_com|akamaihd_net|skyhookwireless_com|kontagent_net|wifi_osmino_com|vungle_com|windowsupdate_com|leancloud_cn|nmgx_co_uk|spotify_com|izatcloud_net|sophosupd_com|sophosupd_net|xiaoying_co|deezer_com|duapps_com|isrmobile_com|nexage_com|xiaomi_com|xiaomi_net|360overseas_com|netflix_com|fb_com|gpsonextra_net|magix_com|mopub_com|taobao_com|ksmobile_com|lkqd_net|outlook_com|3g_cn|gamesparks_net|accuweather_com|videmob_com|ceipmsn_com|portal_fb_com|cloudcell_com|jodoplay_com|ksmobile_net|norton_com|cmcm_com|avast_com|acgvideo_com|officecdn_microsoft_com|baidu_com]
 scope = registration
 answer = $qname 30 IN A 127.0.0.1
 rcode = NOERROR
 
-[2:msh_amazon_com|samsungapps_com|cij_com|pinsightmedia_com|playstation_net|iheart_com|pandora_com|samsungcloudsolution_com|bose_vtuner_com|facebook|ssl_google_analytics_com|mtalk_google_com|mtalk4_google_com|office365_com|crashlytics_com|flurry_com|googleadservices_com|itunes_apple_com|push_apple_com|instagram_com|dropbox_com|ssl_apple_com|steampowered_com|service_gc_apple_com|accu_weather_com|dm_htcsense_com|icloud_com|dm_htcsense_com|configuration_apple_com|ls_apple_com|gsa_apple_com|fbcdn_net|snapchat_com|doubleclick_net|applovin_com|akamaihd_net]
+[2:msh_amazon_com|samsungapps_com|cij_com|pinsightmedia_com|playstation_net|iheart_com|pandora_com|samsungcloudsolution_com|bose_vtuner_com|facebook|ssl_google_analytics_com|mtalk_google_com|mtalk4_google_com|office365_com|crashlytics_com|flurry_com|googleadservices_com|itunes_apple_com|push_apple_com|instagram_com|dropbox_com|ssl_apple_com|steampowered_com|service_gc_apple_com|accu_weather_com|dm_htcsense_com|icloud_com|dm_htcsense_com|configuration_apple_com|ls_apple_com|gsa_apple_com|fbcdn_net|snapchat_com|doubleclick_net|applovin_com|akamaihd_net|skyhookwireless_com|kontagent_net|wifi_osmino_com|vungle_com|windowsupdate_com|leancloud_cn|nmgx_co_uk|spotify_com|izatcloud_net|sophosupd_com|sophosupd_net|xiaoying_co|deezer_com|duapps_com|isrmobile_com|nexage_com|xiaomi_com|xiaomi_net|360overseas_com|netflix_com|fb_com|gpsonextra_net|magix_com|mopub_com|taobao_com|ksmobile_com|lkqd_net|outlook_com|3g_cn|gamesparks_net|accuweather_com|videmob_com|ceipmsn_com|portal_fb_com|cloudcell_com|jodoplay_com|ksmobile_net|norton_com|cmcm_com|avast_com|acgvideo_com|officecdn_microsoft_com|baidu_com]
 scope = inline
 answer = $qname 30 IN A 127.0.0.1
 rcode = NOERROR
 
-[3:msh_amazon_com|samsungapps_com|cij_com|pinsightmedia_com|playstation_net|iheart_com|pandora_com|samsungcloudsolution_com|bose_vtuner_com|facebook|ssl_google_analytics_com|mtalk_google_com|mtalk4_google_com|office365_com|crashlytics_com|flurry_com|googleadservices_com|itunes_apple_com|push_apple_com|instagram_com|dropbox_com|ssl_apple_com|steampowered_com|service_gc_apple_com|accu_weather_com|dm_htcsense_com|icloud_com|dm_htcsense_com|configuration_apple_com|ls_apple_com|gsa_apple_com|fbcdn_net|snapchat_com|doubleclick_net|applovin_com|akamaihd_net]
+[3:msh_amazon_com|samsungapps_com|cij_com|pinsightmedia_com|playstation_net|iheart_com|pandora_com|samsungcloudsolution_com|bose_vtuner_com|facebook|ssl_google_analytics_com|mtalk_google_com|mtalk4_google_com|office365_com|crashlytics_com|flurry_com|googleadservices_com|itunes_apple_com|push_apple_com|instagram_com|dropbox_com|ssl_apple_com|steampowered_com|service_gc_apple_com|accu_weather_com|dm_htcsense_com|icloud_com|dm_htcsense_com|configuration_apple_com|ls_apple_com|gsa_apple_com|fbcdn_net|snapchat_com|doubleclick_net|applovin_com|akamaihd_net|skyhookwireless_com|kontagent_net|wifi_osmino_com|vungle_com|windowsupdate_com|leancloud_cn|nmgx_co_uk|spotify_com|izatcloud_net|sophosupd_com|sophosupd_net|xiaoying_co|deezer_com|duapps_com|isrmobile_com|nexage_com|xiaomi_com|xiaomi_net|360overseas_com|netflix_com|fb_com|gpsonextra_net|magix_com|mopub_com|taobao_com|ksmobile_com|lkqd_net|outlook_com|3g_cn|gamesparks_net|accuweather_com|videmob_com|ceipmsn_com|portal_fb_com|cloudcell_com|jodoplay_com|ksmobile_net|norton_com|cmcm_com|avast_com|acgvideo_com|officecdn_microsoft_com|baidu_com]
 scope = dnsenforcement
 answer = $qname 30 IN A 127.0.0.1
 rcode = NOERROR
