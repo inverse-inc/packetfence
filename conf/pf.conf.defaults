@@ -909,6 +909,11 @@ pfdhcplistener_packet_size=576
 #
 # The source to use to send an SMS when creating a user
 source_to_send_sms_when_creating_users=
+#
+# advanced.multihost
+#
+# Ability to manage all active devices from a same switch port
+multihost=disabled
 
 [omapi]
 #

@@ -201,6 +201,9 @@ sub view {
 
         $node->{fingerbank_info} = pf::node::fingerbank_info($mac);
 
+        # Check for multihost
+        $node->{'multihost'} = [pf::node::check_multihost($mac, {'switch_id' => $node->{'last_switch'}, 'switch_port' => $node->{'last_port'}, 'connection_type' => $node->{'last_connection_type'}})];
+
         #    my $node_accounting = node_accounting_view($mac);
         #    if (defined($node_accounting->{'mac'})) {
         #        my $daily_bw = node_accounting_daily_bw($mac);
@@ -538,7 +541,10 @@ sub violations {
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
-    return ($STATUS::OK, \@violations);
+    # Check for multihost
+    my @multihost = pf::node::check_multihost($mac);
+
+    return ($STATUS::OK, { 'violations' => \@violations, 'multihost' => \@multihost });
 }
 
 =head2 addViolation

@@ -301,12 +301,47 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('NODES_READ') 
 
 sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('NODES_UPDATE') {
     my ( $self, $c ) = @_;
-    my ($status, $message);
+    my ( $status, $message, $result );
+
     $c->stash->{current_view} = 'JSON';
-    my ($form, $nodeStatus);
+
+    if ( $c->request->params->{'multihost'} eq "yes" ) {
+        $c->log->info("Doing multihost 'update' called with MAC '" . $c->stash->{mac} . "'");
+        my @mac = pf::node::check_multihost($c->stash->{mac});
+        foreach my $mac ( @mac ) {
+            $c->log->info("Multihost 'update' for MAC '$mac'");
+            $c->stash->{mac} = $mac;
+            ( $status, $result ) = $self->_update($c);
+            if ( is_error($status) ) {
+                $c->response->status($status);
+                $c->stash->{status_msg} = $result;
+                return;
+            }
+        }
+    } else {
+        ( $status, $result ) = $self->_update($c);
+    }
+
+    $c->response->status($status);
+
+    if (is_error($status)) {
+        $c->stash->{status_msg} = $result; # TODO: localize error message
+    }
+}
+
+=head2 _update
+
+=cut
+
+sub _update {
+    my ( $self, $c ) = @_;
+    my ( $status, $message );
+
+    my ( $form, $nodeStatus );
     my $model = $c->model('Node');
-    ($status, my $result) = $model->view($c->stash->{mac});
-    if (is_success($status)) {
+
+    ( $status, my $result ) = $model->view($c->stash->{mac});
+    if ( is_success($status) ) {
         if( $self->_is_role_allowed($c, $result->{category}) ) {
             $nodeStatus = $model->availableStatus();
             $form = $c->form("Node",
@@ -317,12 +352,12 @@ sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('NODES_UPD
             $form->process(
                 params => {mac => $c->stash->{mac}, %{$c->request->params}},
             );
-            if ($form->has_errors) {
+            if ( $form->has_errors ) {
                 $status = HTTP_BAD_REQUEST;
                 $message = $form->field_errors;
             }
             else {
-                ($status, $result) = $c->model('Node')->update($c->stash->{mac}, $form->value);
+                ( $status, $result ) = $c->model('Node')->update($c->stash->{mac}, $form->value);
                 $self->audit_current_action($c, status => $status, mac => $c->stash->{mac});
             }
         }
@@ -331,10 +366,8 @@ sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('NODES_UPD
             $result = "Do not have permission to modify node";
         }
     }
-    $c->response->status($status);
-    if (is_error($status)) {
-        $c->stash->{status_msg} = $result; # TODO: localize error message
-    }
+
+    return ( $status, $result );
 }
 
 =head2 delete
@@ -393,7 +426,8 @@ sub violations :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
     my ($self, $c) = @_;
     my ($status, $result) = $c->model('Node')->violations($c->stash->{mac});
     if (is_success($status)) {
-        $c->stash->{items} = $result;
+        $c->stash->{items} = $result->{'violations'};
+        $c->stash->{multihost} = $result->{'multihost'};
         (undef, $result) = $c->model('Config::Violations')->readAll();
         my @violations = grep { $_->{id} ne 'defaults' } @$result; # remove defaults
         $c->stash->{violations} = \@violations;
@@ -410,12 +444,13 @@ sub violations :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
 =cut
 
 sub triggerViolation :Chained('object') :PathPart('trigger') :Args(1) :AdminRole('NODES_UPDATE') {
-    my ($self, $c, $id) = @_;
-    my ($status, $result) = $c->model('Config::Violations')->hasId($id);
-    if (is_success($status)) {
-        ($status, $result) = $c->model('Node')->addViolation($c->stash->{mac}, $id);
-        $self->audit_current_action($c, status => $status, mac => $c->stash->{mac}, violation_id => $id);
+    my ( $self, $c, $id ) = @_;
+
+    my ( $status, $result ) = $c->model('Config::Violations')->hasId($id);
+    if ( is_success($status) ) {
+        ( $status, $result ) = $self->_triggerViolation($c, $id);
     }
+
     $c->response->status($status);
     $c->stash->{status_msg} = $result;
     if (is_success($status)) {
@@ -424,6 +459,52 @@ sub triggerViolation :Chained('object') :PathPart('trigger') :Args(1) :AdminRole
     else {
         $c->stash->{current_view} = 'JSON';
     }
+}
+
+=head2 triggerViolation_multihost
+
+=cut
+
+sub triggerViolation_multihost :Chained('object') :PathPart('trigger_multihost') :Args(1) :AdminRole('NODES_UPDATE') {
+    my ( $self, $c, $id ) = @_;
+
+    my ( $status, $result ) = $c->model('Config::Violations')->hasId($id);
+    if ( is_success($status) ) {
+        $c->log->info("Doing multihost 'triggerViolation' called with MAC '" . $c->stash->{mac} . "'");
+        my @mac = pf::node::check_multihost($c->stash->{mac});
+        foreach my $mac ( @mac ) {
+            $c->log->info("Multihost 'triggerViolation' for MAC '$mac' with violation ID '$id'");
+            $c->stash->{mac} = $mac;
+            ( $status, $result ) = $self->_triggerViolation($c, $id);
+            if ( is_error($status) ) {
+                $c->stash->{current_view} = 'JSON';
+                return;
+            }
+        }
+    }
+
+    $c->response->status($status);
+    $c->stash->{status_msg} = $result;
+    if (is_success($status)) {
+        $c->forward('violations');
+    }
+    else {
+        $c->stash->{current_view} = 'JSON';
+    }        
+}
+
+=head2 _triggerViolation
+
+=cut
+
+sub _triggerViolation {
+    my ( $self, $c, $id ) = @_;
+
+    my ( $status, $result );
+    ( $status, $result ) = $c->model('Node')->addViolation($c->stash->{mac}, $id);
+    $self->audit_current_action($c, status => $status, mac => $c->stash->{mac}, violation_id => $id);
+
+    return ( $status, $result );
 }
 
 =head2 closeViolation

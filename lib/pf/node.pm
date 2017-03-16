@@ -33,6 +33,9 @@ use pf::constants::node qw(
     $STATUS_PENDING
     %ALLOW_STATUS
 );
+use pf::config qw(
+    %Config
+);
 
 use constant NODE => 'node';
 
@@ -1484,6 +1487,53 @@ sub node_update_last_seen {
         node_remove_from_cache($mac);
     }
 }
+
+
+=item check_multihost
+
+Verify, based on open location log for a MAC, if there's more than one endpoint on a switchport.
+
+location_info is an optionnal hashref containing switch ID, switch port and connection type. If provided, there is no need to look them up.
+
+=cut
+
+sub check_multihost {
+    my ( $mac, $location_info ) = @_;
+    my $logger = get_logger();
+
+    return unless isenabled($Config{'advanced'}{'multihost'});
+
+    $mac = clean_mac($mac);
+    unless ( defined $location_info && ($location_info->{'switch_id'} ne "") && ($location_info->{'switch_port'} ne "") && ($location_info->{'connection_type'} ne "") ) {
+        my $query = db_query_execute(NODE, $node_statements, 'node_last_locationlog_sql', $mac) || return (0);
+        my $locationlog_info_ref = $query->fetchrow_hashref();
+        $query->finish();
+        $location_info->{'switch_id'} = $locationlog_info_ref->{'last_switch'};
+        $location_info->{'switch_port'} = $locationlog_info_ref->{'last_port'};
+        $location_info->{'connection_type'} = $locationlog_info_ref->{'last_connection_type'};
+    }
+
+    # There is no "multihost" capabilities for wireless or inline connections
+    if ( ($location_info->{'connection_type'} =~ /^Wireless/)  || ($location_info->{'connection_type'} =~ /^Inline/) ) {
+        $logger->debug("Not looking up multihost presence with MAC '$mac' since it is a '$location_info->{'connection_type'}' connection");
+        return;
+    }
+
+    $logger->debug("Looking up multihost presence on switch ID '$location_info->{'switch_id'}', switch port '$location_info->{'switch_port'}' (with MAC '$mac')");
+
+    my @locationlog = pf::locationlog::locationlog_view_open_switchport_no_VoIP($location_info->{'switch_id'}, $location_info->{'switch_port'});
+
+    return unless scalar @locationlog > 1;
+
+    my @mac;
+    $logger->info("Found '" . scalar @locationlog . "' active devices on switch ID '$location_info->{'switch_id'}', switch port '$location_info->{'switch_port'}' (with MAC '$mac')");
+    for my $entry ( @locationlog ) {
+        push @mac, $entry->{'mac'};
+    }
+
+    return @mac;
+}
+
 
 =back
 

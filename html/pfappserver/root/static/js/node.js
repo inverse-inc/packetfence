@@ -298,6 +298,14 @@ NodeView.prototype.updateNode = function(e) {
     var form = modal.find('form').first();
     var btn = form.find('[type="submit"]').first();
     var valid = isFormValid(form);
+
+    var submitted_button = form.find("button[type=submit][clicked=true]");
+    if (submitted_button.attr("data-multihost")) {
+        form.find('[name="multihost"]').val("yes");
+    } else {
+        form.find('[name="multihost"]').val("no");
+    }
+
     if (valid) {
         resetAlert(modal_body);
         btn.button('loading');

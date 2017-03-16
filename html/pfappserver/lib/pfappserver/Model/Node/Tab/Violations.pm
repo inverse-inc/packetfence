@@ -44,7 +44,11 @@ sub process_view {
     }
     my (undef, $result) = $c->model('Config::Violations')->readAll();
     my @violations = grep { $_->{id} ne 'defaults' } @$result; # remove defaults
-    return ($STATUS::OK, { items => \@items, violations => \@violations });
+
+    # Check for multihost
+    my @multihost = pf::node::check_multihost($mac);
+
+    return ($STATUS::OK, { items => \@items, violations => \@violations, multihost => \@multihost });
 }
 
 =head2 process_tab
