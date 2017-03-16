@@ -115,7 +115,6 @@ has merchant_id => (
 
 has terminal_id => (
     is => 'rw',
-    required => 1,
 );
 
 has terminal_group_id => (
@@ -281,14 +280,20 @@ build the mirapay direct options
 
 sub build_mirapay_direct_options {
     my ($self, $parameters, $tier) = @_;
+    my $group_id     = $self->terminal_group_id;
     my %options = (
         transCode     => '27',
-        terminalId    => $self->terminal_id,
         approvalCode  => $parameters->{ApprovalCode},
         token         => $parameters->{EigenToken},
         date          => DateTime->now->strftime("%Y%m%d%H%M%S"),
         amount => $tier->{price} * 100,
     );
+    if (defined $group_id && length($group_id) ) {
+        $options{terminalIdGroup} = $group_id;
+    }
+    else {
+        $options{terminalId} = $self->terminal_id;
+    }
     $options{mkey} = $self->mirapay_direct_hash($self->shared_secret_direct, \%options);
     return \%options;
 }
