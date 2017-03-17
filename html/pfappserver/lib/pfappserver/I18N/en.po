@@ -8761,43 +8761,43 @@ msgstr "User"
 
 # conf/documentation.conf
 msgid "database_advanced"
-msgstr ""
+msgstr "Database Advanced"
 
 # conf/documentation.conf
 msgid "database_advanced.innodb_additional_mem_pool_size"
-msgstr ""
+msgstr "InnoDB additionnal mem pool size"
 
 # conf/documentation.conf
 msgid "database_advanced.innodb_buffer_pool_size"
-msgstr ""
+msgstr "InnoDB buffer pool size"
 
 # conf/documentation.conf
 msgid "database_advanced.key_buffer_size"
-msgstr ""
+msgstr "Key buffer size"
 
 # conf/documentation.conf
 msgid "database_advanced.max_allowed_packet"
-msgstr ""
+msgstr "Max allowed packets"
 
 # conf/documentation.conf
 msgid "database_advanced.max_connections"
-msgstr ""
+msgstr "Max connections"
 
 # conf/documentation.conf
 msgid "database_advanced.query_cache_size"
-msgstr ""
+msgstr "Query cache size"
 
 # conf/documentation.conf
 msgid "database_advanced.table_cache"
-msgstr ""
+msgstr "Table cache"
 
 # conf/documentation.conf
 msgid "database_advanced.thread_cache_size"
-msgstr ""
+msgstr "Thread cache size"
 
 # conf/documentation.conf
 msgid "database_advanced.thread_concurrency"
-msgstr ""
+msgstr "Thread concurrency"
 
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "days"
@@ -8832,15 +8832,15 @@ msgstr ""
 
 # conf/documentation.conf
 msgid "device_registration"
-msgstr ""
+msgstr "Device registration"
 
 # conf/documentation.conf
 msgid "device_registration.activation"
-msgstr ""
+msgstr "Enable device registration"
 
 # conf/documentation.conf
 msgid "device_registration.role"
-msgstr ""
+msgstr "Device registration role"
 
 # conf/documentation.conf (interface.type options)
 msgid "dhcp-listener"
@@ -9669,7 +9669,7 @@ msgstr "Password"
 
 # conf/documentation.conf
 msgid "mse_tab.url"
-msgstr ""
+msgstr "URL of MSE service"
 
 # conf/documentation.conf
 msgid "mse_tab.user"
@@ -9733,43 +9733,43 @@ msgstr "NAS Port Type"
 
 # conf/documentation.conf
 msgid "networking"
-msgstr ""
+msgstr "Network"
 
 # conf/documentation.conf
 msgid "networking.dhcp_filter_by_message_types"
-msgstr ""
+msgstr "DHCP Filter By Message Types"
 
 # conf/documentation.conf
 msgid "networking.dhcp_rate_limiting"
-msgstr ""
+msgstr "DHCP detector rate limiting"
 
 # conf/documentation.conf
 msgid "networking.dhcpdetector"
-msgstr ""
+msgstr "DHCP detector"
 
 # conf/documentation.conf
 msgid "networking.dhcpoption82logger"
-msgstr ""
+msgstr "DHCP option82"
 
 # conf/documentation.conf
 msgid "networking.force_listener_update_on_ack"
-msgstr ""
+msgstr "Force Listener update on DHCPACK"
 
 # conf/documentation.conf
 msgid "networking.hostname_change_detection"
-msgstr ""
+msgstr "Detect hostname changes"
 
 # conf/documentation.conf
 msgid "networking.interfaceSNAT"
-msgstr ""
+msgstr "SNAT Interface"
 
 # conf/documentation.conf
 msgid "networking.rogue_dhcp_detection"
-msgstr ""
+msgstr "Rogue DHCP detection"
 
 # conf/documentation.conf
 msgid "networking.rogueinterval"
-msgstr ""
+msgstr "Rogue interval"
 
 # html/pfappserver/root/config/pfdetect/view.tt
 msgid "new"
@@ -10480,27 +10480,27 @@ msgstr ""
 
 # conf/documentation.conf
 msgid "snmp_traps"
-msgstr ""
+msgstr "SNMP"
 
 # conf/documentation.conf
 msgid "snmp_traps.bounce_duration"
-msgstr ""
+msgstr "Bounce duration"
 
 # conf/documentation.conf
 msgid "snmp_traps.closelocationlogonstop"
-msgstr ""
+msgstr "Close on stop"
 
 # conf/documentation.conf
 msgid "snmp_traps.trap_limit"
-msgstr ""
+msgstr "Trap limiting"
 
 # conf/documentation.conf
 msgid "snmp_traps.trap_limit_action"
-msgstr ""
+msgstr "Trap limit action"
 
 # conf/documentation.conf
 msgid "snmp_traps.trap_limit_threshold"
-msgstr ""
+msgstr "Trap limiting threshold"
 
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "source"
