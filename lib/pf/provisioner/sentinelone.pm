@@ -284,7 +284,7 @@ sub pollAndEnforce {
         my $macs = $device->{data}->{mac_addresses};
         foreach my $mac (@$macs){
             $logger->info("$mac has uninstalled the SentinelOne agent. Verifying if it is handled of this provisioner.");
-            my $profile = pf::Portal::ProfileFactory->instantiate($mac);
+            my $profile = pf::Connection::ProfileFactory->instantiate($mac);
             if(my $provisioner = $profile->findProvisioner($mac)){
                 if($provisioner->id eq $self->id){
                     # We check via authorize that the agent is still uninstalled

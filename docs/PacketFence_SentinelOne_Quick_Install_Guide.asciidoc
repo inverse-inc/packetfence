@@ -61,7 +61,7 @@ Where:
 
 Add the provisioner to the profile
 ++++++++++++++++++++++++++++++++++
-Now that you have created the provisioner, go in the 'Portal Profiles' menu on the left and select the default portal.
+Now that you have created the provisioner, go in the 'Connection Profiles' menu on the left and select the default connection profile.
 Click 'Add Provisioner' and select the new SentinelOne that was created earlier.
 
 NOTE: Make sure you have passthroughs enabled before proceeding further. Instructions on how to enable passthroughs can be found in the 'Passthroughs' section of the Administration Guide.
