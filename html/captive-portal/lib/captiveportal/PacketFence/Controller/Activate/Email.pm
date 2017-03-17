@@ -216,7 +216,7 @@ sub doSponsorRegistration : Private {
 
             # we create a password using the actions from the sponsor authentication source;
             # NOTE: When sponsoring a network access, the new user will be created (in the password table) using
-            # the actions of the sponsor authentication source of the portal profile on which the *sponsor* has landed.
+            # the actions of the sponsor authentication source of the connection profile on which the *sponsor* has landed.
             my $actions = pf::authentication::match( $source->{id}, { username => $pid, user_email => $pid } );
             $info{'password'} =
               pf::password::generate( $pid, $actions );
@@ -237,7 +237,7 @@ sub doSponsorRegistration : Private {
         $logger->warn( "No active sponsor source for profile "
               . $profile->getName
         );
-        $self->showError("No active sponsor source for this Portal Profile.");
+        $self->showError("No active sponsor source for this Connection Profile.");
     }
 }
 

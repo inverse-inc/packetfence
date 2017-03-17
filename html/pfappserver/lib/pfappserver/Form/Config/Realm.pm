@@ -61,7 +61,7 @@ has_field 'source' =>
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'Click to select a source'},
    tags => { after_element => \&help,
-             help => 'The authentication source to use in that realm.<br/>(Must also be defined in the portal profile)' },
+             help => 'The authentication source to use in that realm.<br/>(Must also be defined in the connection profile)' },
   );
 
 

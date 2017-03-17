@@ -210,7 +210,7 @@ sub execute_child {
     # release_bypass is there for that. If it is set, it will keep the user in the portal
     my $node = node_view($self->current_mac);
     if($self->app->profile->canAccessRegistrationWhenRegistered() && $self->app->session->{release_bypass}) {
-        get_logger->info("Allowing user through portal even though he is registered as the release bypass is set and the portal profile is configured to let registered users use the registration module of the portal.");
+        get_logger->info("Allowing user through portal even though he is registered as the release bypass is set and the connection profile is configured to let registered users use the registration module of the portal.");
     }
     elsif(defined($node->{status}) && $node->{status} eq "reg"){
         return $self->unknown_state();

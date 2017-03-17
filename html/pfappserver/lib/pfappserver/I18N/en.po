@@ -2152,7 +2152,7 @@ msgid "Destination Role where PacketFence should put the client when a violation
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
-msgid "Destination URL where PacketFence will forward the device. By default it will use the Redirection URL from the portal profile configuration."
+msgid "Destination URL where PacketFence will forward the device. By default it will use the Redirection URL from the connection profile configuration."
 msgstr ""
 
 # html/pfappserver/root/auditing/radiuslog/search.tt
@@ -2328,7 +2328,7 @@ msgid "EAP-FAST authority ID"
 msgstr ""
 
 # html/pfappserver/root/config/authentication.tt
-msgid "Each portal profile must be associated with one or multiple authentication sources while 802.1X connections use the ordered internal sources to determine which role to use. External sources are never used with 802.1X connections."
+msgid "Each connection profile must be associated with one or multiple authentication sources while 802.1X connections use the ordered internal sources to determine which role to use. External sources are never used with 802.1X connections."
 msgstr ""
 
 # html/pfappserver/root/config/switch/list.tt
@@ -2815,7 +2815,7 @@ msgid "Group name"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
-msgid "HTML template the host will be redirected to while in violation. You can create new templates from the <em>Portal Profiles</em> configuration section."
+msgid "HTML template the host will be redirected to while in violation. You can create new templates from the <em>Connection Profiles</em> configuration section."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/HTTP.pm
@@ -4603,24 +4603,24 @@ msgid "PORTAL_MODULE_UPDATE"
 msgstr "Portal Modules - Update"
 
 # pf::admin_roles (Actions groups)
-msgid "PORTAL_PROFILES"
-msgstr "Portal Profiles"
+msgid "CONNECTION_PROFILES"
+msgstr "Connection Profiles"
 
 # pf::admin_roles (Actions)
-msgid "PORTAL_PROFILES_CREATE"
-msgstr "Portal Profiles - Create"
+msgid "CONNECTION_PROFILES_CREATE"
+msgstr "Connection Profiles - Create"
 
 # pf::admin_roles (Actions)
-msgid "PORTAL_PROFILES_DELETE"
-msgstr "Portal Profiles - Delete"
+msgid "CONNECTION_PROFILES_DELETE"
+msgstr "Connection Profiles - Delete"
 
 # pf::admin_roles (Actions)
-msgid "PORTAL_PROFILES_READ"
-msgstr "Portal Profiles - Read"
+msgid "CONNECTION_PROFILES_READ"
+msgstr "Connection Profiles - Read"
 
 # pf::admin_roles (Actions)
-msgid "PORTAL_PROFILES_UPDATE"
-msgstr "Portal Profiles - Update"
+msgid "CONNECTION_PROFILES_UPDATE"
+msgstr "Connection Profiles - Update"
 
 # pf::admin_roles (Actions groups)
 msgid "PROVISIONING"
@@ -5117,14 +5117,14 @@ msgid "Portal Open Connections per server"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
-msgid "Portal Profiles"
+msgid "Connection Profiles"
 msgstr ""
 
 # html/pfappserver/root/config/profile/create.tt
 # html/pfappserver/root/config/profile/edit.tt
 # html/pfappserver/root/config/profile/index.tt
 # html/pfappserver/root/config/profile/view.tt
-msgid "Portal Profiles and Pages"
+msgid "Connection Profiles and Pages"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
@@ -7009,7 +7009,7 @@ msgid "The amount of times, the local account can be used after its created. 0 m
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
-msgid "The authentication source to use in that realm.<br/>(Must also be defined in the portal profile)"
+msgid "The authentication source to use in that realm.<br/>(Must also be defined in the connection profile)"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/Authentication/Source.pm
@@ -7348,7 +7348,7 @@ msgid "This activates automatic registation of devices for the profile. Devices 
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
-msgid "This activates preregistration on the portal profile. Meaning, instead of applying the access to the currently connected device, it displays a local account that is created while registering. Note that activating this disables the on-site registration on this portal profile. Also, make sure the sources on the portal profile have \"Create local account\" enabled."
+msgid "This activates preregistration on the connection profile. Meaning, instead of applying the access to the currently connected device, it displays a local account that is created while registering. Note that activating this disables the on-site registration on this connection profile. Also, make sure the sources on the connection profile have \"Create local account\" enabled."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
@@ -10044,59 +10044,59 @@ msgstr "Profile"
 msgid "profile.filter.$_"
 msgstr ""
 
-# profile.filter (Portal Profile Filters)
+# profile.filter (Connection Profile Filters)
 msgid "profile.filter.connection_sub_type"
 msgstr "Connection Sub Type"
 
-# profile.filter (Portal Profile Filters)
+# profile.filter (Connection Profile Filters)
 msgid "profile.filter.connection_type"
 msgstr "Connection Type"
 
-# profile.filter (Portal Profile Filters)
+# profile.filter (Connection Profile Filters)
 msgid "profile.filter.network"
 msgstr "Network"
 
-# profile.filter (Portal Profile Filters)
+# profile.filter (Connection Profile Filters)
 msgid "profile.filter.node_role"
 msgstr "Node role"
 
-# profile.filter (Portal Profile Filters)
+# profile.filter (Connection Profile Filters)
 msgid "profile.filter.port"
 msgstr "Port"
 
-# profile.filter (Portal Profile Filters)
+# profile.filter (Connection Profile Filters)
 msgid "profile.filter.realm"
 msgstr "Realm"
 
-# profile.filter (Portal Profile Filters)
+# profile.filter (Connection Profile Filters)
 msgid "profile.filter.ssid"
 msgstr "SSID"
 
-# profile.filter (Portal Profile Filters)
+# profile.filter (Connection Profile Filters)
 msgid "profile.filter.switch"
 msgstr "Switch"
 
-# profile.filter (Portal Profile Filters)
+# profile.filter (Connection Profile Filters)
 msgid "profile.filter.switch_group"
 msgstr "Switch Group"
 
-# profile.filter (Portal Profile Filters)
+# profile.filter (Connection Profile Filters)
 msgid "profile.filter.switch_mac"
 msgstr "Switch Mac"
 
-# profile.filter (Portal Profile Filters)
+# profile.filter (Connection Profile Filters)
 msgid "profile.filter.switch_port"
 msgstr "Switch Port"
 
-# profile.filter (Portal Profile Filters)
+# profile.filter (Connection Profile Filters)
 msgid "profile.filter.time"
 msgstr "Time period"
 
-# profile.filter (Portal Profile Filters)
+# profile.filter (Connection Profile Filters)
 msgid "profile.filter.uri"
 msgstr "URI"
 
-# profile.filter (Portal Profile Filters)
+# profile.filter (Connection Profile Filters)
 msgid "profile.filter.vlan"
 msgstr "VLAN"
 

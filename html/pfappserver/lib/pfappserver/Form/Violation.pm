@@ -165,7 +165,7 @@ has_field 'template' =>
    type => 'Select',
    label => 'Template',
    tags => { after_element => \&help,
-             help => 'HTML template the host will be redirected to while in violation. You can create new templates from the <em>Portal Profiles</em> configuration section.' }
+             help => 'HTML template the host will be redirected to while in violation. You can create new templates from the <em>Connection Profiles</em> configuration section.' }
   );
 has_field 'button_text' =>
   (
@@ -189,7 +189,7 @@ has_field 'redirect_url' =>
    type => 'Text',
    label => 'Redirection URL',
    tags => { after_element => \&help,
-             help => 'Destination URL where PacketFence will forward the device. By default it will use the Redirection URL from the portal profile configuration.' }
+             help => 'Destination URL where PacketFence will forward the device. By default it will use the Redirection URL from the connection profile configuration.' }
   );
 has_field 'external_command' =>
   (

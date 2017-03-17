@@ -8,7 +8,7 @@ pfappserver::Base::Controller::Crud::Config add documentation
 
 =head1 DESCRIPTION
 
-PortalProfile
+ConnectionProfile
 
 =cut
 

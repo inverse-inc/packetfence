@@ -19,7 +19,7 @@ use pf::util;
 use pf::config::util;
 use pf::locationlog qw(locationlog_synchronize);
 use NetAddr::IP;
-use pf::Portal::ProfileFactory;
+use pf::Connection::ProfileFactory;
 use File::Spec::Functions qw(catdir);
 use pf::activation qw(view_by_code);
 use pf::web::constants;
@@ -246,7 +246,7 @@ sub _build_profile {
     my ($self) = @_;
     my $options =  $self->options;
     $options->{'last_ip'} = $self->clientIP->normalizedIP;
-    return pf::Portal::ProfileFactory->instantiate( $self->clientMac, $options );
+    return pf::Connection::ProfileFactory->instantiate( $self->clientMac, $options );
 }
 
 sub _build_dispatcherSession {

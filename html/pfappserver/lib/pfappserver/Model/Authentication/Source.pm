@@ -100,7 +100,7 @@ sub delete {
         }
     }
     else {
-        return ($STATUS::FORBIDDEN, "The source is used by portal profiles.");
+        return ($STATUS::FORBIDDEN, "The source is used by connection profiles.");
     }
 
     return ($STATUS::OK, "The user source was successfully deleted.");

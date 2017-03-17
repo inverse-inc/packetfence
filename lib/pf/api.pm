@@ -27,7 +27,7 @@ use pf::ConfigStore::Interface();
 use pf::ConfigStore::Pf();
 use pf::ip4log();
 use pf::fingerbank;
-use pf::Portal::ProfileFactory();
+use pf::Connection::ProfileFactory();
 use pf::radius::custom();
 use pf::violation();
 use pf::soh::custom();
@@ -449,7 +449,7 @@ sub _node_determine_and_set_into_VLAN {
         switch => $switch,
         ifIndex => $ifIndex,
         connection_type => $connection_type,
-        profile => pf::Portal::ProfileFactory->instantiate($mac),
+        profile => pf::Connection::ProfileFactory->instantiate($mac),
     };
 
     my $role = $role_obj->fetchRoleForNode($args);
@@ -939,7 +939,7 @@ sub trigger_scan :Public :Fork :AllowedAsAction($ip, mac, $mac, net_type, TYPE) 
     # post_registration (production vlan)
     # We sleep until (we hope) the device has had time issue an ACK.
     if (pf::util::is_prod_interface($postdata{'net_type'})) {
-        my $profile = pf::Portal::ProfileFactory->instantiate($postdata{'mac'});
+        my $profile = pf::Connection::ProfileFactory->instantiate($postdata{'mac'});
         my $scanner = $profile->findScan($postdata{'mac'});
         if (defined($scanner) && pf::util::isenabled($scanner->{'_post_registration'})) {
             pf::violation::violation_add( $postdata{'mac'}, $pf::constants::scan::POST_SCAN_VID );
@@ -952,7 +952,7 @@ sub trigger_scan :Public :Fork :AllowedAsAction($ip, mac, $mac, net_type, TYPE) 
         pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($vid eq $pf::constants::scan::POST_SCAN_VID);
     }
     else {
-        my $profile = pf::Portal::ProfileFactory->instantiate($postdata{'mac'});
+        my $profile = pf::Connection::ProfileFactory->instantiate($postdata{'mac'});
         my $scanner = $profile->findScan($postdata{'mac'});
         # pre_registration
         if (defined($scanner) && pf::util::isenabled($scanner->{'_pre_registration'})) {
@@ -1023,7 +1023,7 @@ sub dynamic_register_node : Public :AllowedAsAction(mac, $mac, username, $userna
     return unless pf::util::validate_argv(\@require,  \@found);
 
     my $logger = pf::log::get_logger();
-    my $profile = pf::Portal::ProfileFactory->instantiate($postdata{'mac'});
+    my $profile = pf::Connection::ProfileFactory->instantiate($postdata{'mac'});
     my $node_info = pf::node::node_view($postdata{'mac'});
     # We try this although the realm is not mandatory in case it proves to be useful in the future
     my @sources = $profile->getFilteredAuthenticationSources($postdata{'username'}, $postdata{'realm'});

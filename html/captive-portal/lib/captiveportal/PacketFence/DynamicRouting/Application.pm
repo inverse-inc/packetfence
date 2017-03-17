@@ -43,7 +43,7 @@ has 'request' => (is => 'ro', required => 1);
 
 has 'hashed_params' => (is => 'rw');
 
-has 'profile' => (is => 'rw', required => 1, isa => "pf::Portal::Profile");
+has 'profile' => (is => 'rw', required => 1, isa => "pf::Connection::Profile");
 
 has 'template_output' => (is => 'rw');
 
@@ -325,7 +325,7 @@ sub process_destination_url {
     my ($self) = @_;
     my $url = $self->session->{user_destination_url};
 
-    # Return portal profile's redirection URL if destination_url is not set or if redirection URL is forced
+    # Return connection profile's redirection URL if destination_url is not set or if redirection URL is forced
     if (!defined($url) || !$url || isenabled($self->profile->forceRedirectURL)) {
         $url = $self->profile->getRedirectURL;
     }
@@ -341,7 +341,7 @@ sub process_destination_url {
 
 
     my @portal_hosts = portal_hosts();
-    # if the destination URL points to the portal, we put the default URL of the portal profile
+    # if the destination URL points to the portal, we put the default URL of the connection profile
     if ( any { $_ eq $host } @portal_hosts) {
         get_logger->info("Replacing destination URL since it points to the captive portal");
         return $self->profile->getRedirectURL;

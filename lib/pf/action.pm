@@ -82,7 +82,7 @@ use pf::util;
 use pf::config::util;
 use pf::class qw(class_view class_view_actions);
 use pf::violation qw(violation_force_close);
-use pf::Portal::ProfileFactory;
+use pf::Connection::ProfileFactory;
 use pf::constants::scan qw($POST_SCAN_VID $PRE_SCAN_VID);
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
@@ -240,7 +240,7 @@ sub action_execute {
 sub action_enforce_provisioning {
     my ($mac, $vid, $notes) = @_;
     my $logger = get_logger();
-    my $profile = pf::Portal::ProfileFactory->instantiate($mac);
+    my $profile = pf::Connection::ProfileFactory->instantiate($mac);
     if (defined(my $provisioner = $profile->findProvisioner($mac))) {
         my $result = $provisioner->authorize($mac);
         if ($result == $TRUE) {

@@ -8,7 +8,7 @@ pfappserver::PacketFence::Controller::Config::Profile add documentation
 
 =head1 DESCRIPTION
 
-PortalProfile
+ConnectionProfile
 
 =cut
 
@@ -26,7 +26,7 @@ use File::Copy::Recursive qw(dircopy);
 use File::Basename qw(fileparse);
 use Readonly;
 use pf::cluster;
-use pf::Portal::ProfileFactory;
+use pf::Connection::ProfileFactory;
 use captiveportal::DynamicRouting::Application;
 use pf::config qw(%connection_type %ConfigSwitchesGroup);
 use pf::constants qw($TRUE $FALSE);
@@ -59,11 +59,11 @@ __PACKAGE__->config(
     },
     action => {
         # Configure access rights
-        view   => { AdminRole => 'PORTAL_PROFILES_READ' },
-        list   => { AdminRole => 'PORTAL_PROFILES_READ' },
-        create => { AdminRole => 'PORTAL_PROFILES_CREATE' },
-        update => { AdminRole => 'PORTAL_PROFILES_UPDATE' },
-        remove => { AdminRole => 'PORTAL_PROFILES_DELETE' },
+        view   => { AdminRole => 'CONNECTION_PROFILES_READ' },
+        list   => { AdminRole => 'CONNECTION_PROFILES_READ' },
+        create => { AdminRole => 'CONNECTION_PROFILES_CREATE' },
+        update => { AdminRole => 'CONNECTION_PROFILES_UPDATE' },
+        remove => { AdminRole => 'CONNECTION_PROFILES_DELETE' },
     },
 );
 
@@ -71,7 +71,7 @@ __PACKAGE__->config(
 
 =head2 object
 
-Portal Profile chained dispatcher
+Connection Profile chained dispatcher
 
 /config/profile/*
 
@@ -131,7 +131,7 @@ after view => sub {
     });
 };
 
-sub sort_profiles :Local :Args(0) :AdminRole('PORTAL_PROFILES_READ') {
+sub sort_profiles :Local :Args(0) :AdminRole('CONNECTION_PROFILES_READ') {
     my ($self, $c) = @_;
     $c->stash->{current_view} = 'JSON';
 }
@@ -142,7 +142,7 @@ Handles file uploads
 
 =cut
 
-sub upload :Chained('object') :PathPart('upload') :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
+sub upload :Chained('object') :PathPart('upload') :Args() :AdminRole('CONNECTION_PROFILES_UPDATE') {
     my ($self, $c, @pathparts) = @_;
     $c->stash->{current_view} = 'JSON';
     $self->validatePathParts($c, @pathparts);
@@ -179,7 +179,7 @@ Edit a file from the profile
 
 =cut
 
-sub edit :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
+sub edit :Chained('object') :PathPart :Args() :AdminRole('CONNECTION_PROFILES_UPDATE') {
     my ($self, $c, @pathparts) = @_;
     my $full_file_name = catfile(@pathparts);
     my ($file_name,$directory) = fileparse($full_file_name);
@@ -217,7 +217,7 @@ Create a new file in edit mode
 
 =cut
 
-sub edit_new :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
+sub edit_new :Chained('object') :PathPart :Args() :AdminRole('CONNECTION_PROFILES_UPDATE') {
     my ($self, $c, @pathparts) = @_;
     $self->validatePathParts($c, @pathparts);
     my $full_file_name = catfile(@pathparts);
@@ -248,7 +248,7 @@ Rename a file
 
 =cut
 
-sub rename :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
+sub rename :Chained('object') :PathPart :Args() :AdminRole('CONNECTION_PROFILES_UPDATE') {
     my ($self, $c,@pathparts) = @_;
     my $request = $c->request;
     my $to = $request->param('to');
@@ -272,7 +272,7 @@ Create a new file
 
 =cut
 
-sub new_file :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
+sub new_file :Chained('object') :PathPart :Args() :AdminRole('CONNECTION_PROFILES_UPDATE') {
     my ($self, $c, @pathparts) = @_;
     my $path = catfile(@pathparts);
     my $request = $c->request;
@@ -298,7 +298,7 @@ Save the contents of a file
 
 =cut
 
-sub save :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
+sub save :Chained('object') :PathPart :Args() :AdminRole('CONNECTION_PROFILES_UPDATE') {
     my ($self, $c, @pathparts) = @_;
     my $file_content = $c->req->param("file_content") || '';
     my $path = $self->_makeFilePath($c, @pathparts);
@@ -316,7 +316,7 @@ Show the preview of a file
 
 =cut
 
-sub show_preview :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_READ') {
+sub show_preview :Chained('object') :PathPart :Args() :AdminRole('CONNECTION_PROFILES_READ') {
     my ($self, $c, @pathparts) = @_;
     my $file_name = catfile(@pathparts);
     $c->stash(file_name => $file_name);
@@ -328,11 +328,11 @@ Preview a file
 
 =cut
 
-sub preview :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_READ') {
+sub preview :Chained('object') :PathPart :Args() :AdminRole('CONNECTION_PROFILES_READ') {
     my ($self, $c, @pathparts) = @_;
     my $template = catfile(@pathparts);
     $self->add_fake_profile_data($c, $template, @pathparts);
-    my $profile = pf::Portal::ProfileFactory->instantiate("00:11:22:33:44:55", {portal => $c->stash->{id}});
+    my $profile = pf::Connection::ProfileFactory->instantiate("00:11:22:33:44:55", {portal => $c->stash->{id}});
     my $application = captiveportal::DynamicRouting::Application->new(
         user_session => {},
         session => {client_mac => $c->stash->{client_mac}, client_ip => $c->stash->{client_ip}},
@@ -400,7 +400,7 @@ Delete file a from the profile
 
 =cut
 
-sub delete_file :Chained('object') :PathPart('delete') :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
+sub delete_file :Chained('object') :PathPart('delete') :Args() :AdminRole('CONNECTION_PROFILES_UPDATE') {
     my ($self, $c, @pathparts) = @_;
 
     $c->stash->{current_view} = 'JSON';
@@ -421,7 +421,7 @@ Revert a file from the filesystem
 
 =cut
 
-sub revert_file :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
+sub revert_file :Chained('object') :PathPart :Args() :AdminRole('CONNECTION_PROFILES_UPDATE') {
     my ($self, $c, @pathparts) = @_;
     $c->stash->{current_view} = 'JSON';
     my $file_path = $self->_makeFilePath($c, @pathparts);
@@ -435,7 +435,7 @@ Display all the files
 
 =cut
 
-sub files :Chained('object') :PathPart :Args(0) :AdminRole('PORTAL_PROFILES_READ') {
+sub files :Chained('object') :PathPart :Args(0) :AdminRole('CONNECTION_PROFILES_READ') {
     my ($self, $c) = @_;
     $c->stash(root => $self->mergeFilesFromPaths($c, $self->mergedPaths($c)));
 }
@@ -460,7 +460,7 @@ Copy files from one path to another
 
 =cut
 
-sub copy_file :Chained('object'): PathPart('copy'): Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
+sub copy_file :Chained('object'): PathPart('copy'): Args() :AdminRole('CONNECTION_PROFILES_UPDATE') {
     my ($self, $c, @pathparts) = @_;
     my $from = catfile(@pathparts);
     my $request = $c->request;
@@ -529,7 +529,7 @@ Revert all the files
 
 =cut
 
-sub revert_all :Chained('object') :PathPart :Args(0) :AdminRole('PORTAL_PROFILES_UPDATE') {
+sub revert_all :Chained('object') :PathPart :Args(0) :AdminRole('CONNECTION_PROFILES_UPDATE') {
     my ($self,$c) = @_;
 
     $c->stash->{current_view} = 'JSON';

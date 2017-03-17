@@ -26,7 +26,7 @@ use pf::violation;
 use pf::constants::node qw($STATUS_REGISTERED);
 use pf::util;
 use pf::dal::person;
-use pf::Portal::ProfileFactory; 
+use pf::Connection::ProfileFactory; 
 use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID);
 use pf::constants::parking qw($PARKING_VID);
 
@@ -116,7 +116,7 @@ sub do_violation_scans {
     my ($node_obj) = @_;
     my $mac = $node_obj->mac;
     my $logger = get_logger();
-    my $profile = pf::Portal::ProfileFactory->instantiate($node_obj);
+    my $profile = pf::Connection::ProfileFactory->instantiate($node_obj);
     my $scan = $profile->findScan($mac);
     if (defined($scan)) {
         # triggering a violation used to communicate the scan to the user

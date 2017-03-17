@@ -98,7 +98,7 @@ use pf::db;
 use pf::nodecategory;
 use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID);
 use pf::util;
-use pf::Portal::ProfileFactory;
+use pf::Connection::ProfileFactory;
 use pf::ipset;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
@@ -1036,7 +1036,7 @@ sub node_register {
     require pf::violation;
     pf::violation::violation_force_close($mac, $PARKING_VID);
 
-    my $profile = pf::Portal::ProfileFactory->instantiate($mac);
+    my $profile = pf::Connection::ProfileFactory->instantiate($mac);
     my $scan = $profile->findScan($mac);
     if (defined($scan)) {
         # triggering a violation used to communicate the scan to the user
@@ -1065,7 +1065,7 @@ sub node_deregister {
     $info{'lastskip'}  = 0;
     $info{'autoreg'}   = 'no';
 
-    my $profile = pf::Portal::ProfileFactory->instantiate($mac);
+    my $profile = pf::Connection::ProfileFactory->instantiate($mac);
     if(my $provisioner = $profile->findProvisioner($mac)){
         if(my $pki_provider = $provisioner->getPkiProvider() ){
             if(isenabled($pki_provider->revoke_on_unregistration)){

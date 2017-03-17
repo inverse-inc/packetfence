@@ -18,7 +18,7 @@
   <strong>[% l('Error!') %]</strong> <span>[% error %]</span>
 </div>[% END %]
 <p>[% l('Define the authentication sources to let users access the captive portal or the admin Web interface.') %]</p>
-<p>[% l('Each portal profile must be associated with one or multiple authentication sources while 802.1X connections use the ordered internal sources to determine which role to use. External sources are never used with 802.1X connections.') %]</p>
+<p>[% l('Each connection profile must be associated with one or multiple authentication sources while 802.1X connections use the ordered internal sources to determine which role to use. External sources are never used with 802.1X connections.') %]</p>
 
 [% IF message %]<div class="alert alert-success">
   <button class="close" data-dismiss="alert">&times;</button>

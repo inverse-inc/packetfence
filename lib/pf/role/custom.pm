@@ -28,7 +28,7 @@ use pf::violation qw(violation_count_reevaluate_access violation_exist_open viol
 
 use pf::authentication;
 use pf::Authentication::constants;
-use pf::Portal::ProfileFactory;
+use pf::Connection::ProfileFactory;
 
 our $VERSION = 1.04;
 

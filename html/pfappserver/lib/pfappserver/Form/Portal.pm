@@ -2,11 +2,11 @@ package pfappserver::Form::Portal;
 
 =head1 NAME
 
-pfappserver::Form::Portal - portal profiles
+pfappserver::Form::Portal - connection profiles
 
 =head1 DESCRIPTION
 
-Sortable list of portal profiles.
+Sortable list of connection profiles.
 
 =cut
 

@@ -471,7 +471,7 @@ The next key steps are important to understand how PacketFence works. In order t
 1. *roles* - a role in PacketFence will be eventually be mapped to a VLAN, an ACL or an external role. You must define the roles to use in your organization for network access
 2. *authentication* - once roles are defined, you must create an appropriate authentication source in PacketFence. That will allow PacketFence to compute the right role to be used for an endpoint, or the user using it
 3. *network devices* - once your roles and authentication sources are defined, you must add switches, WiFi controllers or APs to be managed by PacketFence. When doing so, you will configure how roles are being mapped to VLAN, ACLs or external roles
-4. *portal profiles* - at this point, you are almost ready to test. You will need to set which authentication sources are to be used on the default captive portal, or create an other one to suit your needs
+4. *connection profiles* - at this point, you are almost ready to test. You will need to set which authentication sources are to be used on the default captive portal, or create an other one to suit your needs
 5. test!
 
 NOTE: If you plan to use 802.1X - please see the _FreeRADIUS Configuration_ section below.
@@ -516,7 +516,7 @@ Multiple authentication sources can be defined, and will be tested in the order 
 
 When no condition is defined, the rule will be considered as a catch-all. When a catch-all is defined, all actions will be applied for any users that match in the authentication source.
 
-Once a source is defined, it can be used from *Configuration -> Portal Profiles*. Each portal profile has a list of authentication sources to use.
+Once a source is defined, it can be used from *Configuration -> Connection Profiles*. Each connection profile has a list of authentication sources to use.
 
 Example
 ^^^^^^^
@@ -812,12 +812,12 @@ would return the `full-access` role to the nodes categorized as admin or enginee
 
 CAUTION: Make sure that the roles are properly defined on the network devices prior to assigning roles!
 
-Portal Profiles
-~~~~~~~~~~~~~~~
+Connection Profiles
+~~~~~~~~~~~~~~~~~~~
 
-PacketFence comes with a default portal profile. The follow parameters are important to configure no matter if you use the default portal profile or create a new one:
+PacketFence comes with a default connection profile. The follow parameters are important to configure no matter if you use the default connection profile or create a new one:
 
-* Redirect URL under *Configuration -> Portal Profile -> Portal Name*
+* Redirect URL under *Configuration -> Connection Profile -> Profile Name*
 
 For some browsers, it is preferable to redirect the user to a specific URL instead of the URL the user originally intended to visit. For these browsers, the URL defined in `redirecturl` will be the one where the user will be redirected. Affected browsers are Firefox 3 and later.
 
@@ -825,20 +825,20 @@ For some browsers, it is preferable to redirect the user to a specific URL inste
 
 This IP is used as the web server who hosts the `common/network-access-detection.gif` which is used to detect if network access was enabled. It cannot be a domain name since it is used in registration or quarantine where DNS is black-holed. It is recommended that you allow your users to reach your PacketFence server and put your LAN's PacketFence IP. By default we will make this reach PacketFence's website as an easier and more accessible solution.
 
-In some cases, you may want to present a different captive portal (see below for the available customizations) according to the SSID, the VLAN, the switch IP/MAC or the URI the client connects to. To do so, PacketFence has the concept of portal profiles which gives you this possibility. 
+In some cases, you may want to present a different captive portal (see below for the available customizations) according to the SSID, the VLAN, the switch IP/MAC or the URI the client connects to. To do so, PacketFence has the concept of connection profiles which gives you this possibility. 
 
-When configured, portal profiles will override default values for which it is configured. When no values are configured in the profile, PacketFence will take its default ones (according to the "default" portal profile).
+When configured, connection profiles will override default values for which it is configured. When no values are configured in the profile, PacketFence will take its default ones (according to the "default" connection profile).
 
-Here are the different configuration parameters that can be set for each portal profiles. The only mandatory parameter is "filter", otherwise, PacketFence won't be able to correctly apply the portal profile. The parameters must be set in conf/profiles.conf:
+Here are the different configuration parameters that can be set for each connection profiles. The only mandatory parameter is "filter", otherwise, PacketFence won't be able to correctly apply the connection profile. The parameters must be set in conf/profiles.conf:
 
   [profilename1]
-  description = the description of your portal profile
+  description = the description of your connection profile
   filter = the name of the SSID for which you'd like to apply the profile, or the VLAN number
   sources = comma-separated list of authentications sources (IDs) to use
 
-Portal profiles should be managed from PacketFence's Web administrative GUI - from the *Configuration -> Portal Profiles* section. Adding a portal profile from that interface will correctly copy templates over - which can then be modified as you wish.
+Connection profiles should be managed from PacketFence's Web administrative GUI - from the *Configuration -> Connection Profiles* section. Adding a connection profile from that interface will correctly copy templates over - which can then be modified as you wish.
 
-* Filters under *Configuration -> Portal Profile -> Portal Name -> Filters*
+* Filters under *Configuration -> Connection Profile -> Profile Name -> Filters*
 
 PacketFence offers the following filters: Connection Type, Network, Node Role, Port, realm, SSID, Switch, Switch Port, URI, VLAN and Time period.
 
@@ -852,7 +852,7 @@ Example with the most common ones:
 
 CAUTION: Node role will take effect only with a 802.1X connection or if you use VLAN filters.
 
-* Advanced filter under *Configuration -> Portal Profile -> Portal Name -> Advanced Filter*
+* Advanced filter under *Configuration -> Connection Profile -> Profile Name -> Advanced Filter*
 
 Examples
 
@@ -876,7 +876,7 @@ Upon PacketFence installation, self-signed certificates will be created in `/usr
 Reuse 802.1X credentials
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-Under certain circumstances, for example to show an AUP after a successful 802.1X connection, it might be interesting to have the ability to use an "SSO emulation" in the sense that the user does not need to re-enter his credentials on the portal after having entered them during the 802.1X EAP process. The 'Reuse 802.1X credentials' portal profile option will address this purpose. The same username as the one used during the 802.1X connection will be used against the different portal profile authentication sources to recompute the role from the portal.
+Under certain circumstances, for example to show an AUP after a successful 802.1X connection, it might be interesting to have the ability to use an "SSO emulation" in the sense that the user does not need to re-enter his credentials on the portal after having entered them during the 802.1X EAP process. The 'Reuse 802.1X credentials' connection profile option will address this purpose. The same username as the one used during the 802.1X connection will be used against the different connection profile authentication sources to recompute the role from the portal.
 
 As a security precaution, this option will only reuse 802.1X credentials if there is an authentication source matching the provided realm. This means, if users use 802.1X credentials with a domain part (username@domain, domain\username), the domain part needs to be configured as a realm under the RADIUS section and an authentication source needs to be configured for that realm. If users do not use 802.1X credentials with a domain part, only the NULL realm will be match IF an authentication source is configured for it.
 
@@ -1266,7 +1266,7 @@ Portal Modules
 
 The PacketFence captive portal flow is highly customizable. This section will cover the 'Portal Modules' which are used to define the behavior of the captive portal.
 
-NOTE: When upgrading from a version that doesn't have the portal modules, the PacketFence Portal Modules configuration already comes with defaults that will fit most cases and offers the same behavior as previous versions of PacketFence. Meaning, all the available Portal Profile sources are used for authentication, then the available provisioners will be used.
+NOTE: When upgrading from a version that doesn't have the portal modules, the PacketFence Portal Modules configuration already comes with defaults that will fit most cases and offers the same behavior as previous versions of PacketFence. Meaning, all the available Connection Profile sources are used for authentication, then the available provisioners will be used.
 
 First, a brief description of the available Portal Modules: 
 
@@ -1297,7 +1297,7 @@ Creating a custom root module
 
 First, create a custom root module for our examples in order to not affect the default policy. In order to do so, go in 'Configuration -> Portal Modules', then click 'Add Portal Module' and select the type 'Root'. Give it the identifier `my_first_root_module` and the description `My first root module`, then hit save.
 
-Next, head to 'Configuration -> Portal Profiles', select the portal profile you use (most probably `default`) and then under 'Root Portal Module', assign `My first root module` then save your profile. If you were to access the captive portal now, an error would display since the Root module we configured doesn't contain anything.
+Next, head to 'Configuration -> Connection Profiles', select the connection profile you use (most probably `default`) and then under 'Root Portal Module', assign `My first root module` then save your profile. If you were to access the captive portal now, an error would display since the Root module we configured doesn't contain anything.
 
 You could add some of the pre-configured modules to the new Root module you created and that would make the error disappear.
 
@@ -1336,7 +1336,7 @@ The portal modules allow you to chain two or more modules together in order to m
 
 This example will allow you to configure a 'Chained' module that will require the user to login via any configured OAuth source (Github, Google+, ...)  and then validate his phone number using SMS registration.
 
-For the OAuth login we will use the `default_oauth_policy`, so just make sure you have an OAuth source configured correctly and available in your Portal Profile.
+For the OAuth login we will use the `default_oauth_policy`, so just make sure you have an OAuth source configured correctly and available in your Connection Profile.
 
 Then, we will create a module that will contain the definition of our SMS registration.
 
@@ -1357,11 +1357,11 @@ Mixing login and Secure SSID on-boarding on the portal
 
 This example will guide you through configuring a portal flow that will allow for devices to access an open SSID using an LDAP username/password but also give the choice to configure the Secure SSID directly from the portal.
 
-First, we need to configure the provisioners for the Secure SSID onboarding. Refer to section _Apple and Android Wireless Provisioning_ of this guide to configure your provisioners and add them to the portal profile.
+First, we need to configure the provisioners for the Secure SSID onboarding. Refer to section _Apple and Android Wireless Provisioning_ of this guide to configure your provisioners and add them to the connection profile.
 
 Create a provisioner of the type `Deny` and add it with your other provisioners (putting any other provisioner before it). This will make sure that if there is no match on the other provisioners, it will not allow the device through.
 
-Also in the portal profile add your LDAP source to the available sources so its the only one available.
+Also in the connection profile add your LDAP source to the available sources so its the only one available.
 
 Next, create a 'Provisioning' portal module by going in 'Configuration -> Portal Modules'. Set the 'Identifier' to `secure_boarding` and the description to `Board Secure SSID`. Also uncheck 'Skippable' so the user is forced to board the SSID should it choose this option.
 
@@ -1385,7 +1385,7 @@ Then put the following in the 'Message' field
 
 image::docs/images/portal-modules/hello_world.png[scaledwidth="100%",alt="Hello World"]
 
-Next, add `default_registration_policy` and `hello_world` in the 'Modules' of `my_first_root_module` (removing any previous modules) and save it. Now when visiting the portal, you should have to authenticate using the sources defined in your portal profile and you will then see the hello world message.
+Next, add `default_registration_policy` and `hello_world` in the 'Modules' of `my_first_root_module` (removing any previous modules) and save it. Now when visiting the portal, you should have to authenticate using the sources defined in your connection profile and you will then see the hello world message.
 
 image::docs/images/portal-modules/hello_world-my_first_root_module.png[scaledwidth="100%",alt="Hello World in my_first_root_module"]
 
@@ -1404,7 +1404,7 @@ Go in 'Configuration -> Portal Modules', then click 'Add Portal Module' and sele
 
 image::docs/images/portal-modules/token_system.png[scaledwidth="100%",alt="Token system"]
 
-Next, add `default_registration_policy` and `token_system` in the 'Modules' of `my_first_root_module` (removing any previous modules) and save it. Now when visiting the portal, you should have to authenticate using the sources defined in your portal profile and then you will be redirected to example token system. Clicking the continue link on that system will bring you back to the portal and complete the registration process.
+Next, add `default_registration_policy` and `token_system` in the 'Modules' of `my_first_root_module` (removing any previous modules) and save it. Now when visiting the portal, you should have to authenticate using the sources defined in your connection profile and then you will be redirected to example token system. Clicking the continue link on that system will bring you back to the portal and complete the registration process.
 
 Authentication Choice module (advanced)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1415,7 +1415,7 @@ All the sources that are defined in the 'Sources' field will be available for us
 
 You can also define which mandatory fields you want to prompt for these authentication choices. Although you can still configure them on any 'Authentication Choice' module, they will only be shown if they are applicable to the source. 
 
-In addition to the manual selection above you can dynamically select sources part of the Portal Profile based on their object attribute (Object Class, Authentication type, Authentication Class).
+In addition to the manual selection above you can dynamically select sources part of the Connection Profile based on their object attribute (Object Class, Authentication type, Authentication Class).
 
 NOTE: You can find all the authentication objects in `lib/pf/Authentication/Source`
 
@@ -1560,7 +1560,7 @@ In order to do that, in the administration interface, go in 'Configuration/Provi
 
 Now do the same thing for the iOS provisioner.
 
-After, you simply need to add the 'Android' and 'iOS' provisioners to your 'Portal Profile' configuration.
+After, you simply need to add the 'Android' and 'iOS' provisioners to your 'Connection Profile' configuration.
 
 For Android, you must allow passthroughs in your `pf.conf` configuration file:
 
@@ -1747,7 +1747,7 @@ Where :
 * *Role* is the target role the user should be in.
 * *Use time balance* defines if the access duration should be computed on real-time access duration meaning if the user buys 24 hours of access he can use the network for 24 hours in different time blocks. This requires a valid RADIUS accounting configuration.
 
-NOTE: If don't want to use all the billing tiers that are defined, you can specify the ones that should be active in the 'Portal profile'.
+NOTE: If don't want to use all the billing tiers that are defined, you can specify the ones that should be active in the 'Connection profile'.
 
 Subscription based registration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1820,7 +1820,7 @@ Now every time a user unsubscribes from a plan, PacketFence will be notified and
 Extending access before it ends
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-PacketFence allows users to extend their access before it has ended. In order to do so, you need to enable 'Allow access to registration portal when registered' accessible via the 'Captive Portal' tab of the 'Portal Profiles'. Once this is activated, the users can reach https://YOUR_PORTAL_IP/status and select 'Extend your access' in order to be able to access the billing section after they have registered.
+PacketFence allows users to extend their access before it has ended. In order to do so, you need to enable 'Allow access to registration portal when registered' accessible via the 'Captive Portal' tab of the 'Connection Profiles'. Once this is activated, the users can reach https://YOUR_PORTAL_IP/status and select 'Extend your access' in order to be able to access the billing section after they have registered.
 
 Devices Registration
 ~~~~~~~~~~~~~~~~~~~~
@@ -2156,7 +2156,7 @@ Also, add the following Authorized domains : *.google.com, *.google.ca, *.google
 
 Once you have your client id, and API key, you need to configure the OAuth2 provider. This can be done by adding a Google OAuth2 authentication source from *Configuration -> Sources*.
 
-Moreover, don't forget to add Google as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
+Moreover, don't forget to add Google as a registration mode from your connection profile definition, available from *Configuration -> Connection Profiles and Pages*.
 
 Facebook
 ^^^^^^^^
@@ -2171,7 +2171,7 @@ Also, add the following Authorized domains : *.facebook.com, *.fbcdn.net, *.akam
 
 Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Facebook OAuth2 authentication source from *Configuration -> Sources*.
 
-Moreover, don't forget to add Facebook as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
+Moreover, don't forget to add Facebook as a registration mode from your connection profile definition, available from *Configuration -> Connection Profiles and Pages*.
 
 CAUTION: By allowing OAuth through Facebook, you will give Facebook access to the users while they are sitting in the registration VLAN.
 
@@ -2184,7 +2184,7 @@ Of course, replace the hostname with the values from `general.hostname` and `gen
 
 Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a GitHub OAuth2 authentication source from *Configuration -> Sources*.
 
-Moreover, don't forget to add GitHub as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
+Moreover, don't forget to add GitHub as a registration mode from your connection profile definition, available from *Configuration -> Connection Profiles and Pages*.
 
 Instagram
 ^^^^^^^^^
@@ -2195,7 +2195,7 @@ Of course, replace the hostname with the values from `general.hostname` and `gen
 
 Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Instagram OAuth2 authentication source from *Configuration -> Sources*.
 
-Moreover, don't forget to add Instagram as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
+Moreover, don't forget to add Instagram as a registration mode from your connection profile definition, available from *Configuration -> Connection Profiles and Pages*.
 
 LinkedIn
 ^^^^^^^^
@@ -2206,7 +2206,7 @@ Of course, replace the hostname with the values from `general.hostname` and `gen
 
 Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a LinkedIn OAuth2 authentication source from *Configuration -> Sources*.
 
-Moreover, don't forget to add LinkedIn as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
+Moreover, don't forget to add LinkedIn as a registration mode from your connection profile definition, available from *Configuration -> Connection Profiles and Pages*.
 
 Also, LinkedIn requires a 'state' parameter for the authorization URL. If you modify it, make sure to add it at the end of your URL.
 
@@ -2219,7 +2219,7 @@ Of course, replace the hostname with the values from `general.hostname` and `gen
 
 Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Pinterest OAuth2 authentication source from *Configuration -> Sources*.
 
-Moreover, don't forget to add Pinterest as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
+Moreover, don't forget to add Pinterest as a registration mode from your connection profile definition, available from *Configuration -> Connection Profiles and Pages*.
 
 Twitter
 ^^^^^^^
@@ -2230,7 +2230,7 @@ Of course, replace the hostname with the values from `general.hostname` and `gen
 
 Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Twitter OAuth2 authentication source from *Configuration -> Sources*.
 
-Moreover, don't forget to add Twitter as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
+Moreover, don't forget to add Twitter as a registration mode from your connection profile definition, available from *Configuration -> Connection Profiles and Pages*.
 
 Windows Live
 ^^^^^^^^^^^^
@@ -2241,7 +2241,7 @@ Of course, replace the hostname with the values from `general.hostname` and `gen
 
 Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a WindowsLive OAuth2 authentication source from *Configuration -> Sources*.
 
-Moreover, don't forget to add WindowsLive as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
+Moreover, don't forget to add WindowsLive as a registration mode from your connection profile definition, available from *Configuration -> Connection Profiles and Pages*.
 
 
 Passthroughs
@@ -3120,7 +3120,7 @@ Where :
 * `Dynamic Window` will only works for accounting violations. The violation will be opened according to the time you set in the accounting violation (ie. You have an accounting violation for 10GB/month. If you bust the bandwidth after 3 days, the violation will open and the release date will be set for the last day of the current month). 
 * `Window` is the amount of time before a violation will be closed automatically. Instead of allowing people to reactivate the network, you may want to open a violation for a defined amount of time instead.
 * `Delay by` is the delay before triggering the violation.
-* `Template` is the HTML template the host will be redirected to while in violation. You can create new templates from the Portal Profiles configuration section.
+* `Template` is the HTML template the host will be redirected to while in violation. You can create new templates from the Connection Profiles configuration section.
 * `Button text` is the text of the button that is used when the user is releasing the violation directly from the captive portal.
 
 Advanced
@@ -3334,11 +3334,11 @@ Where `violationId` is either the ID of the Nessus plugin or the OID of the Open
 
 NOTE: Violations will trigger if the plugin is higher than a low severity vulnerability.
 
-Assign Scan definition to portal profiles
+Assign Scan definition to connection profiles
 +++++++++++++++++++++++++++++++++++++++++
 
-The last step is to assign one or more scanner you configured to one or more portal profiles.
-Go in Configuration -> Portal Profiles -> Edit a Portal -> Add Scan
+The last step is to assign one or more scanner you configured to one or more connection profiles.
+Go in Configuration -> Connection Profiles -> Edit a Profile -> Add Scan
 
 Hosting Nessus / OpenVAS remotely
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -3442,7 +3442,7 @@ Usage
 Guest self-registration
 +++++++++++++++++++++++
 
-Self-registration is enabled by default. It is part of the captive portal profile and can be accessed on the registration page by clicking the *Sign up* link.
+Self-registration is enabled by default. It is part of the connection profile and can be accessed on the registration page by clicking the *Sign up* link.
 
 image::docs/images/screenshot-captive-portal.png[alt="Captive portal screenshot"]
 
@@ -3476,7 +3476,7 @@ Default values are located in `/usr/local/pf/conf/pf.conf.defaults` and document
 
 These parameters can also be configured from the *Configuration -> Self Registration* section of the Web admin interface.
 
-Available registration modes are defined on a per-portal-profile basis. These are configurable from *Configuration -> Portal Profiles*. To disable the self-registration feature, simply remove all self-registration sources from the portal profile definition. Notice however that if your default portal profile has no source, it will use all authentication sources.
+Available registration modes are defined on a per-portal-profile basis. These are configurable from *Configuration -> Connection Profiles*. To disable the self-registration feature, simply remove all self-registration sources from the connection profile definition. Notice however that if your default connection profile has no source, it will use all authentication sources.
 
 CAUTION: A valid MTA configured in PacketFence is needed to correctly relay emails related to the guest module. If _localhost_ is used as smtpserver, make sure that a MTA is installed and configured on the server.
 

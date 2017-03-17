@@ -9,7 +9,7 @@
 [%
   paths = full_file_name.split('/')
 %]
-<div id="portal_profile_file_editor" >
+<div id="connection_profile_file_editor" >
     <div class="modal fade hide" id="cancelEdit">
       <div class="modal-header">
         <h3><i>[% l('Dismiss Changes for ') %]</i> <span id="content"></span></h3>
@@ -62,7 +62,7 @@
 
     <ul class="breadcrumb">
       <li>
-        <a href="[% c.pf_hash_for(c.controller('Config::Profile').action_for('index')) %]" >[% l('Portal Profiles and Pages') %]</a>
+        <a href="[% c.pf_hash_for(c.controller('Config::Profile').action_for('index')) %]" >[% l('Connection Profiles and Pages') %]</a>
         <span class="divider"><i class="icon-chevron-right"/></span>
       </li>
       <li>

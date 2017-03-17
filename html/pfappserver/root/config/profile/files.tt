@@ -12,7 +12,7 @@ td a.btn { margin-left: 5px; }
           </td>
           <td></td>
           <td>
-            [%- IF can_access("PORTAL_PROFILES_UPDATE") %]
+            [%- IF can_access("CONNECTION_PROFILES_UPDATE") %]
             <a class="btn btn-small pull-right" data-toggle="modal" data-target="#newFileModal" href="[% c.uri_for(c.controller('Config::Profile').action_for('new_file'),[id], paths) %]" ><i class="icon-plus"></i> [% l('New') %]</a>
             [% uploader_id = "uploader_" _ dir_id %]
             <div id="[% uploader_id | html %]" class="pull-right"></div>
@@ -64,7 +64,7 @@ td a.btn { margin-left: 5px; }
     %]
     <tr>
       <td>
-        [%- IF entry.editable && can_access("PORTAL_PROFILES_UPDATE") %]
+        [%- IF entry.editable && can_access("CONNECTION_PROFILES_UPDATE") %]
           <a href="[% c.pf_hash_for(c.controller('Config::Profile').action_for('edit'),[id], paths) %]" ><i class="icon-file"></i> [% name | html %]</a>
         [%- ELSE %]
             <i class="icon-file"></i> [% name | html %]
@@ -78,7 +78,7 @@ td a.btn { margin-left: 5px; }
         [%- ELSE %]
             <a class="btn btn-small disabled"><i class="icon-eye-close icon-border"></i></a>
         [%- END %]
-        [%- IF can_access("PORTAL_PROFILES_UPDATE") %]
+        [%- IF can_access("CONNECTION_PROFILES_UPDATE") %]
         <a class="btn btn-small" data-toggle="modal" data-target="#copyModal" href="[% c.uri_for(c.controller('Config::Profile').action_for('copy_file'), [ id ], paths ) %]" title="[% l('Copy') %]"> <i class="icon-copy icon-border"></i></a>
         [%- IF entry.delete_or_revert == 'revert' %]
             <a class="btn btn-small [% IF entry.delete_or_revert_disabled %] disabled[% END %]" data-toggle="modal" data-target="#revertModal" data-content="[% name | html %]"  data-href-background="[% c.uri_for(c.controller('Config::Profile').action_for("revert_file"), [ id ], paths ) %]" title="[% l('Revert') %]"> <i class="icon-refresh icon-border"></i></a>
@@ -115,7 +115,7 @@ td a.btn { margin-left: 5px; }
 [%- END -%]
 
 <h2></h2>
-<div id="portal_profile_files">
+<div id="connection_profile_files">
   <div class="modal fade hide" id="newFileModal">
     <div class="modal-header">
       <h3><i>[% l('New File') %]</i></h3>
@@ -180,7 +180,7 @@ td a.btn { margin-left: 5px; }
   
   <ul class="breadcrumb">
     <li>
-      <a href="[% c.pf_hash_for(c.controller('Config::Profile').action_for('index')) %]" >Portal Profiles and Pages</a>
+      <a href="[% c.pf_hash_for(c.controller('Config::Profile').action_for('index')) %]" >Connection Profiles and Pages</a>
       <span class="divider"><i class="icon-chevron-right"></i></span>
     </li>
     <li>
@@ -211,4 +211,4 @@ td a.btn { margin-left: 5px; }
 
     </div><!-- #files pane -->
   </div><!-- .tab-content -->
-</div><!-- #portal_profile_files -->
+</div><!-- #connection_profile_files -->

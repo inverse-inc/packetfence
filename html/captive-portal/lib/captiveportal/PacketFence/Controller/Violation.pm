@@ -88,7 +88,7 @@ sub index : Path : Args(0) {
 
 =head2 getSubTemplate
 
-Get the subtemplate in the right portal profile
+Get the subtemplate in the right connection profile
 
 =cut
 

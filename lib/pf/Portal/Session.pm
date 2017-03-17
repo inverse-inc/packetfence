@@ -37,7 +37,7 @@ use pf::config qw(
 );
 use pf::file_paths qw($conf_dir);
 use pf::ip4log;
-use pf::Portal::ProfileFactory;
+use pf::Connection::ProfileFactory;
 use pf::util;
 use pf::web::constants;
 use pf::web::util;
@@ -114,7 +114,7 @@ sub _initialize {
 
     $self->{'_guest_node_mac'} = undef;
     $self->{'_profile'} = $self->_restoreFromSession("_profile", sub {
-            return pf::Portal::ProfileFactory->instantiate($self->getClientMac);
+            return pf::Connection::ProfileFactory->instantiate($self->getClientMac);
         }
     );
 
@@ -122,9 +122,9 @@ sub _initialize {
         my $option = {
             'last_uri' => $cgi->url(-absolute=>1),
         };
-        $self->session->param('_profile',pf::Portal::ProfileFactory->instantiate($self->getClientMac,$option));
+        $self->session->param('_profile',pf::Connection::ProfileFactory->instantiate($self->getClientMac,$option));
         $self->{'_profile'} = $self->_restoreFromSession("_profile", sub {
-                return pf::Portal::ProfileFactory->instantiate($self->getClientMac,$option);
+                return pf::Connection::ProfileFactory->instantiate($self->getClientMac,$option);
             }
         );
     } elsif (defined($cgi->url_param('code'))) {
@@ -133,12 +133,12 @@ sub _initialize {
             'portal' => $data->{portal},
         };
         $self->{'_profile'} = $self->_restoreFromSession("_profile", sub {
-                return pf::Portal::ProfileFactory->instantiate($self->getClientMac,$options);
+                return pf::Connection::ProfileFactory->instantiate($self->getClientMac,$options);
             }
         );
     } else {
         $self->{'_profile'} = $self->_restoreFromSession("_profile", sub {
-                return pf::Portal::ProfileFactory->instantiate($self->getClientMac);
+                return pf::Connection::ProfileFactory->instantiate($self->getClientMac);
             }
         );
     }
@@ -219,7 +219,7 @@ Returns destination_url properly parsed, defended against XSS and with configure
 sub _getDestinationUrl {
     my ($self) = @_;
 
-    # Return portal profile's redirection URL if destination_url is not set or if redirection URL is forced
+    # Return connection profile's redirection URL if destination_url is not set or if redirection URL is forced
     if (!defined($self->cgi->param("destination_url")) || $self->getProfile->forceRedirectURL) {
         return $self->getProfile->getRedirectURL;
     }
@@ -449,7 +449,7 @@ sub setDestinationUrl {
 
 =item getProfile
 
-Returns the proper captive portal profile for the current session.
+Returns the proper connection profile for the current session.
 
 =cut
 

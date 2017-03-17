@@ -106,7 +106,7 @@ use pf::Switch::constants;
 use pf::util;
 use pf::config::util;
 use pf::role::custom $ROLE_API_LEVEL;
-use pf::Portal::ProfileFactory;
+use pf::Connection::ProfileFactory;
 
 =head1 SUBROUTINES
 
@@ -1031,7 +1031,7 @@ sub dot1xPortReauthenticate {
     $mac = $locationlog[0]->{'mac'};
     my $role_obj = new pf::role::custom();
 
-    my $role = $role_obj->fetchRoleForNode({ mac => $mac, node_info => pf::node::node_attributes($mac), switch => $self, ifIndex => $ifIndex, connection_type => $WIRED_802_1X, profile => pf::Portal::ProfileFactory->instantiate($mac)});
+    my $role = $role_obj->fetchRoleForNode({ mac => $mac, node_info => pf::node::node_attributes($mac), switch => $self, ifIndex => $ifIndex, connection_type => $WIRED_802_1X, profile => pf::Connection::ProfileFactory->instantiate($mac)});
     my $vlan = $self->getVlanByName($role->{role});
     $self->_setVlan(
         $ifIndex,

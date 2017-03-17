@@ -4,7 +4,7 @@ use Moose;
 use namespace::autoclean;
 use pf::constants;
 use pf::constants::eap_type qw($EAP_TLS);
-use pf::constants::Portal::Profile qw($DEFAULT_PROFILE);
+use pf::constants::Connection::Profile qw($DEFAULT_PROFILE);
 use pf::config qw(%Profiles_Config);;
 use pf::web qw(i18n i18n_format);
 use pf::node;
@@ -94,7 +94,7 @@ sub authenticationLogin : Private {
         my $options = {
             portal => $portal,
         };
-        $profile = pf::Portal::ProfileFactory->instantiate( $mac, $options);
+        $profile = pf::Connection::ProfileFactory->instantiate( $mac, $options);
     }
     $c->stash( profile => $profile );
 
@@ -170,11 +170,11 @@ sub getSources : Private {
 
     my $realm_source = get_realm_authentication_source($stripped_username, $realm);
     if( $realm_source && any { $_ eq $realm_source} @sources ){
-        $c->log->info("Realm source is part of the portal profile sources. Using it as the only auth source.");
+        $c->log->info("Realm source is part of the connection profile sources. Using it as the only auth source.");
         return ($realm_source);
     }
     elsif ( $realm_source ) {
-        $c->log->info("Realm source ".$realm_source->id." is configured in the realm $realm but is not in the portal profile. Ignoring it and using the portal profile sources.");
+        $c->log->info("Realm source ".$realm_source->id." is configured in the realm $realm but is not in the connection profile. Ignoring it and using the connection profile sources.");
     }
     return @sources;
 }

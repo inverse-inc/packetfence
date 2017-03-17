@@ -1,14 +1,14 @@
-package pf::Portal::Profile;
+package pf::Connection::Profile;
 
 =head1 NAME
 
-pf::Portal::Profile
+pf::Connection::Profile
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::Portal::Profile wraps captive portal configuration in a way that we can
+pf::Connection::Profile wraps captive portal configuration in a way that we can
 provide several differently configured (behavior and template) captive
 portal from the same server.
 
@@ -22,7 +22,7 @@ use List::Util qw(first);
 use List::MoreUtils qw(all none any uniq);
 use pf::constants qw($TRUE $FALSE);
 use pf::constants::config qw($SELFREG_MODE_NULL $SELFREG_MODE_KICKBOX);
-use pf::constants::Portal::Profile qw($DEFAULT_ROOT_MODULE);
+use pf::constants::Connection::Profile qw($DEFAULT_ROOT_MODULE);
 use pf::util;
 use pf::config::util;
 use pf::log;
@@ -46,7 +46,7 @@ our $SOURCES_CACHE = pfconfig::memory_cached->new('config::Profiles');
 
 =item new
 
-No one should call ->new by himself. L<pf::Portal::ProfileFactory> should
+No one should call ->new by himself. L<pf::Connection::ProfileFactory> should
 be used instead.
 
 =cut
@@ -69,7 +69,7 @@ sub new {
 
 =item getName
 
-Returns the name of the captive portal profile.
+Returns the name of the connection profile.
 
 =cut
 
@@ -82,7 +82,7 @@ sub getName {
 
 =item getLogo
 
-Returns the logo for the current captive portal profile.
+Returns the logo for the current connection profile.
 
 =cut
 
@@ -95,7 +95,7 @@ sub getLogo {
 
 =item getGuestModes
 
-Returns the available enabled modes for guest self-registration for the current captive portal profile.
+Returns the available enabled modes for guest self-registration for the current connection profile.
 
 =cut
 
@@ -145,7 +145,7 @@ sub findViolationTemplate {
 
 =item getBillingTiers
 
-Get the billing tiers for this portal profile
+Get the billing tiers for this connection profile
 
 =cut
 
@@ -201,7 +201,7 @@ sub hasBilling {
 
 =item getSAMLSources
 
-Get the SAML sources configured in this portal profile
+Get the SAML sources configured in this connection profile
 
 =cut
 
@@ -212,7 +212,7 @@ sub getSAMLSources {
 
 =item getDescripton
 
-Returns either enabled or disabled according to the billing engine state for the current captive portal profile.
+Returns either enabled or disabled according to the billing engine state for the current connection profile.
 
 =cut
 
@@ -252,7 +252,7 @@ sub forceRedirectURL {
 
 =item getSources
 
-Returns the authentication sources IDs for the current captive portal profile.
+Returns the authentication sources IDs for the current connection profile.
 
 =cut
 
@@ -270,7 +270,7 @@ sub getProvisioners {
 
 =item getSourcesAsObjects
 
-Returns the authentication sources objects for the current captive portal profile.
+Returns the authentication sources objects for the current connection profile.
 
 =cut
 
@@ -284,7 +284,7 @@ sub getSourcesAsObjects {
 
 =item getInternalSources
 
-Returns the internal authentication sources objects for the current captive portal profile.
+Returns the internal authentication sources objects for the current connection profile.
 
 =cut
 
@@ -297,7 +297,7 @@ sub getInternalSources {
 
 =item getExternalSources
 
-Returns the external authentication sources objects for the current captive portal profile.
+Returns the external authentication sources objects for the current connection profile.
 
 =cut
 
@@ -310,7 +310,7 @@ sub getExternalSources {
 
 =item getExclusiveSources
 
-Returns the exclusive authentication sources objects for the current captive portal profile.
+Returns the exclusive authentication sources objects for the current connection profile.
 
 =cut
 
@@ -346,7 +346,7 @@ sub hasSource {
 
 =item getSourceByType
 
-Returns the first source object for the requested source type for the current captive portal profile.
+Returns the first source object for the requested source type for the current connection profile.
 
 =cut
 
@@ -359,7 +359,7 @@ sub getSourceByType {
 
 =item getSourcesByType
 
-Returns ALL the sources object for the requested source type for the current captive portal profile
+Returns ALL the sources object for the requested source type for the current connection profile
 
 =cut
 
@@ -480,7 +480,7 @@ sub findProvisioner {
     my $logger = get_logger();
     my @provisioners = $self->provisionerObjects;
     unless(@provisioners){
-        $logger->trace("No provisioners configured for portal profile");
+        $logger->trace("No provisioners configured for connection profile");
         return;
     }
 
@@ -539,7 +539,7 @@ sub findScan {
     my $logger = get_logger();
     my @scanners = $self->scanObjects;
     unless(@scanners){
-        $logger->trace("No scan engine configured for portal profile");
+        $logger->trace("No scan engine configured for connection profile");
         return;
     }
 
@@ -555,7 +555,7 @@ sub findScan {
 
 =item getFilteredAuthenticationSources
 
-Return a list of authentication sources for the given portal profile filtered for a given username / realm
+Return a list of authentication sources for the given connection profile filtered for a given username / realm
 
 =cut
 
@@ -566,7 +566,7 @@ sub getFilteredAuthenticationSources {
 
 =item getRootModuleId
 
-Get the root module ID for the portal profile
+Get the root module ID for the connection profile
 
 =cut
 

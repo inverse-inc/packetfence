@@ -217,7 +217,7 @@ sub _captive_portal_resources_parser {
 
 =item _clean_urls_match_filter
 
-Return a regex that would match all the portal profile uri: filter
+Return a regex that would match all the connection profile uri: filter
 
 =cut
 
