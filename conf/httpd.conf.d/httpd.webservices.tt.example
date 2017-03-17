@@ -146,8 +146,18 @@ SSLRandomSeed  connect file:/dev/urandom 1024
 [% IF apache_version == "2.4" %]
 SSLSessionCache shmcb:[% install_dir %]/var/ssl_acache(512000)
 Mutex file:[% install_dir %]/var/ssl_mutex ssl-cache
-SSLProtocol All -SSLv2 -SSLv3
-SSLCipherSuite EECDH+AES:EDH+AES:-SHA1:EECDH+RC4:EDH+RC4:RC4-SHA:EECDH+AES256:EDH+AES256:AES256-SHA:!aNULL:!eNULL:!EXP:!LOW:!MD5
+# apache 2.4.18 | modern profile | OpenSSL 1.0.1e | https://mozilla.github.io/server-side-tls/ssl-config-generator/?server=haproxy-1.6.11&openssl=1.0.1e&hsts=no&profile=intermediate
+#Oldest compatible clients: Firefox 27, Chrome 30, IE 11 on Windows 7, Edge, Opera 17, Safari 9, Android 5.0, and Java 8
+SSLProtocol             all -SSLv3 -TLSv1 -TLSv1.1
+SSLCipherSuite          ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256
+SSLCompression          off
+SSLSessionTickets       off
+
+# OCSP Stapling, only in httpd 2.3.3 and later
+SSLUseStapling          on
+SSLStaplingResponderTimeout 5
+SSLStaplingReturnResponderErrors off
+SSLStaplingCache        shmcb:/var/run/ocsp(128000)
 [% ELSE %]
 SSLSessionCache  shm:[% install_dir %]/var/ssl_acache(512000)
 SSLMutex  file:[% install_dir %]/var/ssl_mutex
