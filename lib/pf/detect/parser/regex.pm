@@ -130,12 +130,11 @@ eval parameters
 
 sub evalParams {
     my ($self, $action_params, $args) = @_;
-    my @params = split(/\s*,\s*/, $action_params);
+    my @params = split(/\s*[,=]\s*/, $action_params);
     my @return;
     foreach my $param (@params) {
         $param =~ s/\$([A-Za-z0-9_]+)/$args->{$1} \/\/ '' /ge;
-        my @param_unit = split(/\s*=\s*/, $param);
-        push @return, @param_unit;
+        push @return, $param;
     }
     return \@return;
 }
