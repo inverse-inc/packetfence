@@ -82,7 +82,7 @@ sub event_add : Public {
     }
     my $srcmac = pf::ip4log::ip2mac($srcip) if defined $srcip;
     # If trapping range is defined then check
-    my $range = $pf::config::Config{'trapping'}{'range'};
+    my $range = $pf::config::Config{'fencing'}{'range'};
     if (defined ($range) && $range ne '') {
         my $dstmac = pf::ip4log::ip2mac($dstip) if defined $dstip;
         my ($source_net_ip, $dest_net_ip);
@@ -326,7 +326,7 @@ sub ReAssignVlan : Public : Fork {
         return;
     }
 
-    sleep $pf::config::Config{'trapping'}{'wait_for_redirect'};
+    sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};
 
     # SNMP traps connections need to be handled specially to account for port-security etc.
     if ( ($postdata{'connection_type'} & $pf::config::WIRED_SNMP_TRAPS) == $pf::config::WIRED_SNMP_TRAPS ) {
@@ -371,7 +371,7 @@ sub desAssociate : Public : Fork {
     my ($switchdeauthMethod, $deauthTechniques) = $switch->deauthTechniques($switch->{'_deauthMethod'});
 
     # sleep long enough to give the device enough time to fetch the redirection page.
-    sleep $pf::config::Config{'trapping'}{'wait_for_redirect'};
+    sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};
 
     $logger->info("[$postdata{'mac'}] DesAssociating mac on switch (".$switch->{'_id'}.")");
     $switch->$deauthTechniques($postdata{'mac'});
@@ -955,7 +955,7 @@ sub trigger_scan :Public :Fork :AllowedAsAction($ip, mac, $mac, net_type, TYPE) 
         # get violation id
         my $vid = $top_violation->{'vid'};
         return if not defined $vid;
-        sleep $pf::config::Config{'trapping'}{'wait_for_redirect'};
+        sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};
         pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($vid eq $pf::constants::scan::POST_SCAN_VID);
     }
     else {
@@ -968,7 +968,7 @@ sub trigger_scan :Public :Fork :AllowedAsAction($ip, mac, $mac, net_type, TYPE) 
         my $top_violation = pf::violation::violation_view_top($postdata{'mac'});
         my $vid = $top_violation->{'vid'};
         return if not defined $vid;
-        sleep $pf::config::Config{'trapping'}{'wait_for_redirect'};
+        sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};
         pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($vid eq $pf::constants::scan::PRE_SCAN_VID || $vid eq $pf::constants::scan::SCAN_VID);
     }
     return;

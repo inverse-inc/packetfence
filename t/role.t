@@ -58,9 +58,6 @@ can_ok($role_obj, qw(
     shouldAutoRegister
   ));
 
-# forcing pf configuration's registration trapping to be true
-$Config{'trapping'}{'registration'} = 'enabled';
-
 # setup a fake switch object
 my $switch = pf::SwitchFactory->instantiate('192.168.0.1');
 

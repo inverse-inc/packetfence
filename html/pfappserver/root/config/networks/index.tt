@@ -8,8 +8,8 @@
     <li [% IF tab == 'interfaces' %]class="active"[% END %]>
       <a href="#newTabView" data-href="[% c.uri_for(c.controller('Configuration').action_for('section'), 'interfaces') %]" data-toggle="tab">[% l('Interfaces') %]</a>
     </li>
-    <li [% IF tab == 'trapping' %]class="active"[% END %]>
-      <a href="#newTabView" data-href="[% c.uri_for(c.controller('Configuration').action_for('section'), 'trapping') %]" data-toggle="tab">[% l('Trapping') %]</a>
+    <li [% IF tab == 'fencing' %]class="active"[% END %]>
+      <a href="#newTabView" data-href="[% c.uri_for(c.controller('Configuration').action_for('section'), 'fencing') %]" data-toggle="tab">[% l('Fencing') %]</a>
     </li>
     <li [% IF tab == 'parking' %]class="active"[% END %]>
       <a href="#newTabView" data-href="[% c.uri_for(c.controller('Configuration').action_for('section'), 'parking') %]" data-toggle="tab">[% l('Device Parking') %]</a>

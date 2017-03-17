@@ -308,7 +308,7 @@ sub getRegistrationRole {
 
     # trapping on registration is enabled
 
-    if (!isenabled($Config{'trapping'}{'registration'})) {
+    if (!isenabled($Config{'fencing'}{'registration'})) {
         $logger->debug("Registration trapping disabled: skipping node is registered test");
         return ({ role => 0});
     }

@@ -97,7 +97,7 @@ sub whitelisted_mac {
     return (0) if ( !valid_mac($mac) );
     $mac = clean_mac($mac);
     foreach
-        my $whitelist ( split( /\s*,\s*/, $Config{'trapping'}{'whitelist'} ) )
+        my $whitelist ( split( /\s*,\s*/, $Config{'fencing'}{'whitelist'} ) )
     {
         if ( $mac eq clean_mac($whitelist) ) {
             $logger->info("$mac is whitelisted, skipping");
