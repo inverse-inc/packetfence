@@ -144,7 +144,12 @@ sub fetch_hashes_one_at_a_time {
 
         my ($ntds_file, $msg) = secretsdump($domain, $source, "-just-dc-user '$user'");
         if ($ntds_file) {
-            $content .= read_file($ntds_file);            
+            eval {
+                $content .= read_file($ntds_file);
+            };
+            if($@) {
+                $logger->error("Failed to open the NTDS file for user $user: $@");
+            }
         }
         else {
             $logger->error("Failed to fetch the NT hash of user $user: $msg");
