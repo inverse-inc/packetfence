@@ -225,15 +225,7 @@ sub violations :Local {
     $c->go('Controller::Violation', 'index');
 }
 
-=head2 soh
-
-=cut
-
-sub soh :Local {
-    my ($self, $c) = @_;
-
-    $c->go('Controller::SoH', 'index');
-}
+=head2 roles
 
 =roles
 

@@ -34,7 +34,6 @@ use pf::config qw(
     %Doc_Config
     $INLINE_API_LEVEL
     $ROLE_API_LEVEL
-    $SOH_API_LEVEL
     $RADIUS_API_LEVEL
     $ROLES_API_LEVEL
     %Profiles_Config
@@ -660,7 +659,6 @@ sub extensions {
     my @extensions = (
         { 'name' => 'Inline', 'module' => 'pf::inline::custom', 'api' => $INLINE_API_LEVEL, },
         { 'name' => 'Role', 'module' => 'pf::role::custom', 'api' => $ROLE_API_LEVEL, },
-        { 'name' => 'SoH', 'module' => 'pf::soh::custom', 'api' => $SOH_API_LEVEL, },
         { 'name' => 'RADIUS', 'module' => 'pf::radius::custom', 'api' => $RADIUS_API_LEVEL, },
         { 'name' => 'Roles', 'module' => 'pf::roles::custom', 'api' => $ROLES_API_LEVEL, },
     );

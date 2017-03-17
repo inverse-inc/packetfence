@@ -220,10 +220,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule.pm
 # html/pfappserver/lib/pfappserver/Form/Field/PfdetectRegexRule.pm
-# html/pfappserver/lib/pfappserver/Form/SoH.pm
 # html/pfappserver/root/admin/bulk_actions.inc
-# html/pfappserver/root/soh/index.tt
-# html/pfappserver/root/soh/read.tt
 # html/pfappserver/root/violation/list.tt
 msgid "Action"
 msgstr ""
@@ -416,10 +413,6 @@ msgstr ""
 
 # html/pfappserver/root/config/billingtiers/index.tt
 msgid "Add billing tier"
-msgstr ""
-
-# html/pfappserver/root/soh/index.tt
-msgid "Add filter"
 msgstr ""
 
 # html/pfappserver/root/config/floatingdevice/index.tt
@@ -1030,7 +1023,6 @@ msgstr ""
 # html/pfappserver/root/interface/create.tt
 # html/pfappserver/root/roles/index.tt
 # html/pfappserver/root/service/status.tt
-# html/pfappserver/root/soh/index.tt
 # html/pfappserver/root/user/list.tt
 # html/pfappserver/root/violation/list.tt
 msgid "Cancel"
@@ -1267,7 +1259,6 @@ msgstr ""
 # html/pfappserver/root/node/view.tt
 # html/pfappserver/root/node/violations.tt
 # html/pfappserver/root/roles/read.tt
-# html/pfappserver/root/soh/read.tt
 # html/pfappserver/root/user/list_password.tt
 # html/pfappserver/root/user/view.tt
 # html/pfappserver/root/violation/view.tt
@@ -1425,10 +1416,6 @@ msgstr ""
 # html/pfappserver/root/node/search.tt
 # html/pfappserver/root/user/nodes.tt
 msgid "Computer Name"
-msgstr ""
-
-# html/pfappserver/root/soh/read.tt
-msgid "Conditions"
 msgstr ""
 
 # html/pfappserver/root/admin/wrapper.tt
@@ -1906,10 +1893,6 @@ msgstr ""
 msgid "Define the authentication sources to let users access the captive portal or the admin Web interface."
 msgstr ""
 
-# html/pfappserver/root/soh/index.tt
-msgid "Define the filters which will apply to all NAP-capable clients that produce a statement of health (SoH)."
-msgstr ""
-
 # html/pfappserver/root/roles/index.tt
 msgid "Define the roles which will apply to all devices on your network."
 msgstr ""
@@ -2011,7 +1994,6 @@ msgstr ""
 # html/pfappserver/root/config/wrix/list.tt
 # html/pfappserver/root/interface/list.tt
 # html/pfappserver/root/roles/index.tt
-# html/pfappserver/root/soh/index.tt
 # html/pfappserver/root/user/view.tt
 # html/pfappserver/root/violation/list.tt
 msgid "Delete"
@@ -2056,10 +2038,6 @@ msgstr ""
 
 # html/pfappserver/root/config/profile/files.tt
 msgid "Delete File"
-msgstr ""
-
-# html/pfappserver/root/soh/index.tt
-msgid "Delete Filter"
 msgstr ""
 
 # html/pfappserver/root/config/firewall_sso/index.tt
@@ -2127,7 +2105,6 @@ msgid "Delete syslog parser"
 msgstr ""
 
 # html/pfappserver/root/config/networks/view.tt
-# html/pfappserver/root/soh/index.tt
 # html/pfappserver/root/violation/list.tt
 msgid "Deleting"
 msgstr ""
@@ -2532,7 +2509,6 @@ msgstr ""
 # html/pfappserver/root/configurator/wrapper.tt
 # html/pfappserver/root/node/create.tt
 # html/pfappserver/root/roles/index.tt
-# html/pfappserver/root/soh/index.tt
 # html/pfappserver/root/user/create.tt
 msgid "Error!"
 msgstr ""
@@ -2690,7 +2666,6 @@ msgid "Files"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Profile.pm
-# html/pfappserver/root/soh/read.tt
 msgid "Filter"
 msgstr ""
 
@@ -3095,7 +3070,6 @@ msgstr ""
 # html/pfappserver/root/config/provisioning/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
 # html/pfappserver/root/roles/index.tt
-# html/pfappserver/root/soh/index.tt
 # html/pfappserver/root/violation/list.tt
 msgid "Id"
 msgstr ""
@@ -3890,7 +3864,6 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/lib/pfappserver/Form/Role.pm
 # html/pfappserver/lib/pfappserver/Form/SavedSearch.pm
-# html/pfappserver/lib/pfappserver/Form/SoH.pm
 # html/pfappserver/root/authentication/source/rules_read.tt
 # html/pfappserver/root/config/authentication.tt
 # html/pfappserver/root/config/fingerbank/device/list.tt
@@ -3901,8 +3874,6 @@ msgstr ""
 # html/pfappserver/root/configurator/database.tt
 # html/pfappserver/root/node/tab_WMI_process.tt
 # html/pfappserver/root/roles/index.tt
-# html/pfappserver/root/soh/index.tt
-# html/pfappserver/root/soh/read.tt
 msgid "Name"
 msgstr ""
 
@@ -4016,10 +3987,6 @@ msgstr ""
 msgid "New File"
 msgstr ""
 
-# html/pfappserver/root/soh/read.tt
-msgid "New Filter"
-msgstr ""
-
 # html/pfappserver/root/config/firewall_sso/view.tt
 msgid "New Firewall SSO"
 msgstr ""
@@ -4131,10 +4098,6 @@ msgstr ""
 
 # html/pfappserver/root/user/nodes.tt
 msgid "No device found"
-msgstr ""
-
-# html/pfappserver/root/soh/index.tt
-msgid "No filter defined"
 msgstr ""
 
 # html/pfappserver/root/config/fingerprints/simple_search.tt
@@ -5485,10 +5448,6 @@ msgstr ""
 msgid "Really delete this rule ?"
 msgstr ""
 
-# html/pfappserver/root/soh/index.tt
-msgid "Really delete this statement of health filter?"
-msgstr ""
-
 # html/pfappserver/root/config/pfdetect/index.tt
 msgid "Really delete this syslog parser?"
 msgstr ""
@@ -5863,26 +5822,6 @@ msgstr ""
 msgid "SNMP"
 msgstr ""
 
-# pf::admin_roles (Actions groups)
-msgid "SOH"
-msgstr "SoH Filters"
-
-# pf::admin_roles (Actions)
-msgid "SOH_CREATE"
-msgstr "SoH Filters - Create"
-
-# pf::admin_roles (Actions)
-msgid "SOH_DELETE"
-msgstr "SoH Filters - Delete"
-
-# pf::admin_roles (Actions)
-msgid "SOH_READ"
-msgstr "SoH Filters - Read"
-
-# pf::admin_roles (Actions)
-msgid "SOH_UPDATE"
-msgstr "SoH Filters - Update"
-
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 # html/pfappserver/root/admin/nodes.tt
@@ -5986,7 +5925,6 @@ msgstr "Switches CLI - Write"
 # html/pfappserver/root/interface/view.tt
 # html/pfappserver/root/node/view.tt
 # html/pfappserver/root/roles/read.tt
-# html/pfappserver/root/soh/read.tt
 # html/pfappserver/root/user/view.tt
 # html/pfappserver/root/violation/view.tt
 msgid "Save"
@@ -6053,7 +5991,6 @@ msgstr ""
 # html/pfappserver/root/interface/view.tt
 # html/pfappserver/root/node/view.tt
 # html/pfappserver/root/roles/read.tt
-# html/pfappserver/root/soh/read.tt
 # html/pfappserver/root/user/view.tt
 # html/pfappserver/root/violation/view.tt
 msgid "Saving"
@@ -6631,10 +6568,6 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
 msgid "State for the certificate"
-msgstr ""
-
-# html/pfappserver/root/soh/index.tt
-msgid "Statement of Health"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
@@ -8343,7 +8276,6 @@ msgstr ""
 msgid "Your username or email address"
 msgstr ""
 
-# pf::config (SoH Actions)
 # pf::provisioner (Provisioners)
 msgid "accept"
 msgstr "Accept"
@@ -8549,10 +8481,6 @@ msgstr "Auth Status"
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "auth_type"
 msgstr "Auth Type"
-
-# pf::config (SoH Classes)
-msgid "auto-updates"
-msgstr ""
 
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "auto_reg"
@@ -8931,7 +8859,6 @@ msgstr ""
 # conf/documentation.conf (snmp_traps.trap_limit options)
 # conf/documentation.conf (trapping.interception_proxy options)
 # conf/documentation.conf (trapping.passthrough options)
-# pf::config (SoH Status)
 msgid "disabled"
 msgstr ""
 
@@ -9051,7 +8978,6 @@ msgstr ""
 # conf/documentation.conf (snmp_traps.trap_limit options)
 # conf/documentation.conf (trapping.interception_proxy options)
 # conf/documentation.conf (trapping.passthrough options)
-# pf::config (SoH Status)
 msgid "enabled"
 msgstr ""
 
@@ -9261,10 +9187,6 @@ msgstr "Inline Layer 2"
 msgid "inlinel3"
 msgstr "Inline Layer 3"
 
-# pf::config (SoH Status)
-msgid "installed"
-msgstr ""
-
 # conf/documentation.conf
 msgid "interface"
 msgstr ""
@@ -9350,10 +9272,6 @@ msgstr "Is Guest User"
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "is_phone"
 msgstr "Is a Phone"
-
-# html/pfappserver/lib/pfappserver/Form/SoH.pm
-msgid "isnot"
-msgstr ""
 
 # conf/documentation.conf (advanced.language options)
 msgid "it_IT"
@@ -9627,10 +9545,6 @@ msgstr "API key"
 msgid "metadefender.query_url_hash"
 msgstr "Query URL hash"
 
-# pf::config (SoH Status)
-msgid "microsoft"
-msgstr "Microsoft"
-
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "minutes"
 msgstr ""
@@ -9827,10 +9741,6 @@ msgstr ""
 
 # conf/documentation.conf (advanced.hash_passwords options)
 msgid "ntlm"
-msgstr ""
-
-# pf::config (SoH Status)
-msgid "ok"
 msgstr ""
 
 # conf/documentation.conf
@@ -10169,10 +10079,6 @@ msgstr "registered"
 msgid "registration"
 msgstr "Registration"
 
-# pf::config (SoH Actions)
-msgid "reject"
-msgstr ""
-
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "request_time"
 msgstr ""
@@ -10206,10 +10112,6 @@ msgstr ""
 # html/pfappserver/root/node/view.tt
 # html/pfappserver/root/service/status.tt
 msgid "seconds"
-msgstr ""
-
-# pf::config (SoH Classes)
-msgid "security-updates"
 msgstr ""
 
 # pf::provisioner (Provisioners)
@@ -10646,10 +10548,6 @@ msgstr "unregistered"
 msgid "unreg_action"
 msgstr "Deregister node"
 
-# pf::config (SoH Status)
-msgid "up2date"
-msgstr ""
-
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "upstream"
 msgstr ""
@@ -10721,10 +10619,6 @@ msgstr ""
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "uuid"
 msgstr "Unique ID"
-
-# pf::config (SoH Actions)
-msgid "violation"
-msgstr ""
 
 # conf/documentation.conf (interface.enforcement options)
 msgid "vlan"

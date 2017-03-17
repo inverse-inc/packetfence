@@ -30,7 +30,6 @@ use pf::fingerbank;
 use pf::Connection::ProfileFactory();
 use pf::radius::custom();
 use pf::violation();
-use pf::soh::custom();
 use pf::util();
 use pf::node();
 use pf::locationlog();
@@ -163,21 +162,6 @@ sub radius_update_locationlog : Public {
     };
     if ($@) {
         $logger->error("radius update locationlog accounting failed with error: $@");
-    }
-    return $return;
-}
-
-sub soh_authorize : Public {
-    my ($class, %radius_request) = @_;
-    my $logger = pf::log::get_logger();
-
-    my $soh = pf::soh::custom->new();
-    my $return;
-    eval {
-      $return = $soh->authorize(\%radius_request);
-    };
-    if ($@) {
-      $logger->error("soh authorize failed with error: $@");
     }
     return $return;
 }
