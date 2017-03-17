@@ -558,9 +558,10 @@ sub rogue_dhcp_handling {
     }
 
     # ignore local DHCP servers
-    return if ( grep({$_ eq $dhcp_srv_ip} get_local_dhcp_servers_by_ip()) );
+    my %local_dhcp_servers = pf::dhcp::processor::_get_local_dhcp_servers();
+    return if ( grep({$_ eq $dhcp_srv_ip} @{$local_dhcp_servers{'ip'}}) );
     if ( defined($dhcp_srv_mac) ) {
-        return if ( grep({$_ eq $dhcp_srv_mac} get_local_dhcp_servers_by_mac()) );
+        return if ( grep({$_ eq $dhcp_srv_mac} @{$local_dhcp_servers{'mac'}}) );
     }
 
     # ignore whitelisted DHCP servers
@@ -713,49 +714,6 @@ sub update_iplog {
     $self->apiClient->notify('update_iplog', %data);
 }
 
-=head2 get_local_dhcp_servers_by_ip
-
-Return a list of all dhcp servers IP that could be running locally.
-
-Caches results on first run then returns from cache.
-
-TODO: Should be refactored and putted into a class. IP and MAC methods should also be put into a single one.
-
-=cut
-
-sub get_local_dhcp_servers_by_ip {
-
-    # return from cache
-    return @local_dhcp_servers_ip if (@local_dhcp_servers_ip);
-
-    # look them up, fill cache and return result
-    foreach my $network (keys %ConfigNetworks) {
-
-        push @local_dhcp_servers_ip, $ConfigNetworks{$network}{'gateway'}
-            if ($ConfigNetworks{$network}{'dhcpd'} eq 'enabled');
-    }
-    return @local_dhcp_servers_ip;
-}
-
-=head2 get_local_dhcp_servers_by_mac
-
-Return a list of all mac addresses that could be issuing DHCP offers/acks locally.
-
-Caches results on first run then returns from cache.
-
-TODO: Should be refactored and putted into a class. IP and MAC methods should also be put into a single one.
-
-=cut
-
-sub get_local_dhcp_servers_by_mac {
-    # return from cache
-    return @local_dhcp_servers_mac if ( @local_dhcp_servers_mac );
-
-    # look them up, fill cache and return result
-    @local_dhcp_servers_mac = get_internal_macs();
-
-    return @local_dhcp_servers_mac;
-}
 
 =head1 AUTHOR
 

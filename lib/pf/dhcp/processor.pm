@@ -21,6 +21,10 @@ use Readonly;
 # Internal libs
 use pf::access_filter::dhcp;
 use pf::client;
+use pf::config qw(
+    %ConfigNetworks
+);
+use pf::config::util;
 use pf::log;
 use pf::node;
 
@@ -41,6 +45,39 @@ Readonly::Hash my %FINGERBANK_ATTRIBUTES_MAP => (
     ipv6_vendor             => 'dhcp_vendor',
     ipv6_enterprise_number  => 'dhcp6_enterprise',
 );
+
+
+# Local DHCP servers local cache
+my @local_dhcp_servers_mac;
+my @local_dhcp_servers_ip;
+
+
+=head2 _get_local_dhcp_servers
+
+Get the list of local (this server) IP and MAC address running DHCP server instances
+
+Locally caches results on first run then returns from cache.
+
+Returns an hash of arrays
+
+=cut
+
+sub _get_local_dhcp_servers {
+    # Look for local DHCP servers by IP if not already existent in local cache and fill it up
+    unless ( @local_dhcp_servers_ip ) {
+        foreach my $network ( keys %ConfigNetworks ) {
+            push @local_dhcp_servers_ip, $ConfigNetworks{$network}{'gateway'} if ($ConfigNetworks{$network}{'dhcpd'} eq 'enabled');
+        }
+    }
+
+    # Look for local DHCP servers by MAC if not already existent in local cache and fill it up
+    unless ( @local_dhcp_servers_mac ) {
+        @local_dhcp_servers_mac = pf::config::util::get_internal_macs();
+    }
+
+    # Return an hash of arrays for both the IPs and the MACs
+    return ( ip => [@local_dhcp_servers_ip], mac => [@local_dhcp_servers_mac] );
+}
 
 
 sub processFingerbank {
