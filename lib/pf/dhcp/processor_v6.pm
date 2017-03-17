@@ -30,6 +30,7 @@ use Moose;
 extends 'pf::dhcp::processor';
 
 
+# DHCPv6 message types
 Readonly::Hash my %DHCPV6_MESSAGE_TYPES => (
     1   => 'SOLICIT',
     2   => 'ADVERTISE',
@@ -43,6 +44,8 @@ Readonly::Hash my %DHCPV6_MESSAGE_TYPES => (
 );
 my %DHCPV6_MESSAGE_TYPES_REVERSED = reverse %DHCPV6_MESSAGE_TYPES;
 
+# DHCPv6 message types <-> processors mapping
+# Reference to %DHCPV6_MESSAGE_TYPES
 Readonly::Hash my %MESSAGE_TYPE_PROCESSORS => (
     $DHCPV6_MESSAGE_TYPES{'1'}  => 'processDHCPv6Solicit',
     $DHCPV6_MESSAGE_TYPES{'2'}  => 'processDHCPv6Advertise',
@@ -53,6 +56,7 @@ Readonly::Hash my %MESSAGE_TYPE_PROCESSORS => (
     $DHCPV6_MESSAGE_TYPES{'8'}  => 'processDHCPv6Release',
 );
 
+# DHCPv6 option types
 Readonly::Hash my %DHCPV6_OPTION_TYPES => (
     1   => 'CLIENTID',
     2   => 'SERVERID',
@@ -65,6 +69,13 @@ Readonly::Hash my %DHCPV6_OPTION_TYPES => (
     39  => 'FQDN',
 );
 
+# DHCPv6 option processing attributes
+# Reference to %DHCPV6_OPTION_TYPES
+# Always requires a 'type' (data, container, ip)
+# - data: generic data
+# - ip: IP address data
+# - container: data container (used for recursive options processing)
+# Requires 'attributes' to map data wanted
 Readonly::Hash my %OPTION_TYPE_ATTRIBUTES => (
     $DHCPV6_OPTION_TYPES{'1'}   => {
         type        => 'data',
@@ -123,6 +134,13 @@ Readonly::Hash my %OPTION_TYPE_ATTRIBUTES => (
     },
 );
 
+
+=head2 process_packet
+
+Process the packet with the appropriate processor according to the packet message type
+
+=cut
+
 sub process_packet {
     my ( $self, $udp_payload ) = @_;
     my $logger = pf::log::get_logger();
@@ -154,6 +172,12 @@ sub process_packet {
     $self->$packet_processor($dhcpv6);
 }
 
+
+=head2 _process_options
+
+Process packet options using mapping hashes according to packet message type and options
+
+=cut
 
 sub _process_options {
     my ( $options, $option_attributes, $recursive_attributes ) = @_;
