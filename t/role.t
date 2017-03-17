@@ -93,7 +93,7 @@ my $node_attributes = { mac => 'aa:bb:cc:dd:ee:ff', pid => 1, detect_date => '',
 
 # TODO: complete the test suite with more tests above the other cases
 my $switch_vlan_override = pf::SwitchFactory->instantiate('10.0.0.2');
-my $profile = pf::Portal::ProfileFactory->instantiate('aa:bb:cc:dd:ee:ff'); # should return default profile
+my $profile = pf::Connection::ProfileFactory->instantiate('aa:bb:cc:dd:ee:ff'); # should return default profile
 $role = $role_obj->fetchRoleForNode({mac => 'aa:bb:cc:dd:ee:ff', switch => $switch_vlan_override, ifIndex => '1001', node_info => $node_attributes, profile => $profile });
 is($role->{vlan}, '1', "determine vlan for registered user on custom switch");
 

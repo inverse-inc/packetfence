@@ -29,7 +29,7 @@ Log::Log4perl::MDC->put( 'proc', basename($0) );
 Log::Log4perl::MDC->put( 'tid',  0 );
 
 BEGIN {
-    use_ok('pf::Portal::ProfileFactory');
+    use_ok('pf::Connection::ProfileFactory');
     use_ok('pf::Portal::Session');
 }
 
