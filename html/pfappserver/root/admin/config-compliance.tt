@@ -72,7 +72,7 @@ tr[data-swap] > td {
               [%- IF can_access("VIOLATIONS_READ") %]
               [% list_entry('Violation', 'index', 'Violations') | none %]
               [%- END %]
-              [%- IF can_access("SCAN_READ","WMI_READ","CONFIGURATION_MAIN_READ") %]
+              [%- IF can_access("SCAN_READ","WMI_READ") %]
               [% pf_section_entry( 'scans', 'Scans') | none %]
               [%- END %]
               [%- IF can_access("PFDETECT_READ") %]

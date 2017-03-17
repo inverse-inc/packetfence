@@ -69,6 +69,7 @@ tr[data-swap] > td {
               [%- END %]
               [%- IF can_access("CONFIGURATION_MAIN_READ") %]
               [% pf_section_entry( 'metadefender', 'OPSWAT Metadefender') | none %]
+              [% pf_section_entry( 'webservices', 'Web Services') | none %]
               [%- END %]
           </div><!--/.well -->
         </div><!--/span-->

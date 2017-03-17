@@ -70,12 +70,11 @@ table.sources {
           <div class="well sidebar-nav">
             <ul class="nav nav-list">
               <li class="nav-header">[% pf_section_entry( 'define_policy', 'Policies and Access Control') | none %]</li>
-              [%- IF can_access("USERS_ROLES_READ","CONFIGURATION_MAIN_READ") %]
+              [%- IF can_access("USERS_ROLES_READ") %]
               [% pf_section_entry( 'roles', 'Roles') | none %]
               [%- END %]
               [%- IF can_access("DOMAIN_READ","REALM_READ") %]
               [% pf_section_entry( 'domains', 'Domains') | none %]
-              <!--tab Microsoft Active Directory Domains && REALMS-->
               [%- END %]
               [%- IF can_access("USERS_SOURCES_READ") %]
               [% list_entry( 'Config::Authentication', 'index', 'Sources') | none %]
