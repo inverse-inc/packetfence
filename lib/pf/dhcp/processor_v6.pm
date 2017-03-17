@@ -67,13 +67,13 @@ Readonly::Hash my %DHCPV6_OPTION_TYPES => (
 
 Readonly::Hash my %OPTION_TYPE_ATTRIBUTES => (
     $DHCPV6_OPTION_TYPES{'1'}   => {
-        type        => 'id',
+        type        => 'data',
         attributes  => {
             addr    => 'client_mac',
         },
     },
     $DHCPV6_OPTION_TYPES{'2'}   => {
-        type        => 'id',
+        type        => 'data',
         attributes  => {
             addr    => 'server_mac',
         },
@@ -96,27 +96,27 @@ Readonly::Hash my %OPTION_TYPE_ATTRIBUTES => (
         },
     },
     $DHCPV6_OPTION_TYPES{'6'}   => {
-        type        => 'id',
+        type        => 'data',
         attributes  => {
             requested_options   => 'ipv6_requested_options',
         },
     },
     $DHCPV6_OPTION_TYPES{'13'}  => {
-        type        => 'id',
+        type        => 'data',
         attributes  => {
             status_code     => 'status_code',
             status_message  => 'status_message',
         },
     },
     $DHCPV6_OPTION_TYPES{'16'}   => {
-        type        => 'id',
+        type        => 'data',
         attributes  => {
             enterprise_number   => 'ipv6_enterprise_number',
             data                => 'ipv6_vendor',
         },
     },
     $DHCPV6_OPTION_TYPES{'39'}   => {
-        type        => 'id',
+        type        => 'data',
         attributes  => {
             fqdn    => 'client_hostname',
         },
