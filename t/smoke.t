@@ -41,6 +41,7 @@ my $par_harness = TAP::Harness->new(
 # These test modify pfconfig data so they run serialized
 #
 my @ser_tests = qw(
+    binaries.t 
     pfconfig.t 
     merged_list.t
     CHI.t
@@ -60,16 +61,18 @@ my @par_tests = (
 
 my $aggregator = TAP::Parser::Aggregator->new;
 $aggregator->start();
-$ser_harness->aggregate_tests( $aggregator, @ser_tests );
 $par_harness->aggregate_tests( $aggregator, @par_tests );
+$ser_harness->aggregate_tests( $aggregator, @ser_tests );
 $aggregator->stop();
 $formatter->summary($aggregator);
 
-foreach my $test_service (qw(pfconfig-test pfconfig-test-serial)) {
-    next unless open(my $fh, "<", "/usr/local/pf/var/run/${test_service}.pid");
-    chomp(my $pid = <$fh>);
-    next unless $pid && $pid =~ /\d+/;
-    kill ('INT', $pid);
+END {
+    foreach my $test_service (qw(pfconfig-test pfconfig-test-serial)) {
+        next unless open(my $fh, "<", "/usr/local/pf/var/run/${test_service}.pid");
+        chomp(my $pid = <$fh>);
+        next unless $pid && $pid =~ /\d+/;
+        kill ('INT', $pid);
+    }
 }
 
 =head1 AUTHOR
