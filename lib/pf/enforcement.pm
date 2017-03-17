@@ -54,7 +54,6 @@ use pf::config::util;
 use pf::role::custom $ROLE_API_LEVEL;
 use pf::client;
 use pf::cluster;
-use pf::firewallsso;
 use pf::constants::dhcp qw($DEFAULT_LEASE_LENGTH);
 use pf::ip4log;
 use pf::Connection::ProfileFactory;
@@ -93,13 +92,9 @@ sub reevaluate_access {
         my $node = node_attributes($mac);
         my $ip = pf::ip4log::mac2ip($mac);
         if($ip){
-            my $firewallsso = pf::firewallsso->new;
-            if($node->{status} eq $STATUS_REGISTERED){
-                $firewallsso->do_sso('Update', $mac, $ip, $DEFAULT_LEASE_LENGTH);
-            }
-            else {
-                $firewallsso->do_sso('Stop', $mac, $ip, $DEFAULT_LEASE_LENGTH);
-            }
+            my $firewallsso_method = ( $node->{status} eq $STATUS_REGISTERED ) ? "Update" : "Stop";
+            my $client = pf::client::getClient();
+            $client->notify( 'firewallsso', (method => $firewallsso_method, mac => $mac, ip => $ip, timeout => $DEFAULT_LEASE_LENGTH) );
         }
         else {
             $logger->error("Can't do SSO for $mac because can't find its IP address");

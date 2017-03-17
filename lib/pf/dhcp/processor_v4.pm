@@ -34,7 +34,6 @@ use pf::config qw(
     $INLINE
 );
 use pf::db;
-use pf::firewallsso;
 use pf::inline::custom $INLINE_API_LEVEL;
 use pf::ip4log;
 use pf::lookup::node;
@@ -440,8 +439,7 @@ sub handle_new_ip {
        'net_type' => $self->{net_type},
     );
     $self->apiClient->notify('trigger_scan', %data );
-    my $firewallsso = pf::firewallsso->new;
-    $firewallsso->do_sso('Update', $client_mac, $client_ip, $lease_length || $DEFAULT_LEASE_LENGTH);
+    $self->apiClient->notify( 'firewallsso', (method => 'Update', mac => $client_mac, ip => $client_ip, timeout => $lease_length || $DEFAULT_LEASE_LENGTH) );
 }
 
 =head2 check_for_parking
@@ -693,9 +691,8 @@ sub update_iplog {
     my $oldmac = pf::ip4log::_ip2mac_sql($srcip);
     if ( $oldip && $oldip ne $srcip ) {
         my $view_mac = node_view($srcmac);
-        my $firewallsso = pf::firewallsso->new;
-        $firewallsso->do_sso('Stop', $srcmac,$oldip,undef);
-        $firewallsso->do_sso('Start', $srcmac, $srcip, $lease_length || $DEFAULT_LEASE_LENGTH);
+        $self->apiClient->notify( 'firewallsso', (method => 'Stop', mac => $srcmac, ip => $oldip, timeout => undef) );
+        $self->apiClient->notify( 'firewallsso', (method => 'Start', mac => $srcmac, ip => $srcip, timeout => $lease_length || $DEFAULT_LEASE_LENGTH) );
 
         my $last_connection_type = $view_mac->{'last_connection_type'};
         if (defined $last_connection_type && $last_connection_type eq $connection_type_to_str{$INLINE}) {

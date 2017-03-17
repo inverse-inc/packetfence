@@ -45,6 +45,7 @@ use pf::file_paths qw($captiveportal_profile_templates_path);
 use pf::CHI;
 use pf::metadefender();
 use pf::services();
+use pf::firewallsso();
 
 use List::MoreUtils qw(uniq);
 use List::Util qw(pairmap);
@@ -274,29 +275,12 @@ sub ipset_node_update : Public {
 }
 
 sub firewallsso : Public {
-    my ($class, %postdata) = @_;
+    my ( $class, %postdata ) = @_;
     my @require = qw(method mac ip timeout);
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
 
-    my $logger = pf::log::get_logger();
-
-    my $node = pf::node::node_attributes($postdata{mac});
-
-    pf::api::jsonrestclient->new(
-        proto => "http", 
-        host => "localhost", 
-        port => $pf::constants::api::PFSSO_PORT,
-    )->call("/pfsso/".lc($postdata{method}), {
-        ip => $postdata{ip}, 
-        mac => pf::util::clean_mac($postdata{mac}),
-        # All values must be string for pfsso
-        timeout => $postdata{timeout}."",
-        role => $node->{category},
-        username => $node->{pid},
-    });
-
-    return $pf::config::TRUE;
+    return pf::firewallsso::do_sso(%postdata);
 }
 
 sub ReAssignVlan : Public : Fork {
