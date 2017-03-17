@@ -101,6 +101,60 @@ sub generate_valid_users_file {
     }
 }
 
+=head2 fetch_hashes_all_at_once
+
+Fetch all the users hashes in the users file in a single batch (one secretsdump call)
+
+=cut
+
+sub fetch_hashes_all_at_once {
+    my ($domain, $users_file) = @_;
+    my $logger = get_logger;
+    
+    my $config = $ConfigDomain{$domain};
+    my $source = getAuthenticationSource($config->{ntlm_cache_source});
+    return ($FALSE, "Invalid LDAP source $config->{ntlm_cache_source}") unless(defined($source));
+
+    my ($ntds_file, $msg) = secretsdump($domain, $source, "-usersfile $users_file");
+    return ($FALSE, $msg) unless($ntds_file);
+    
+    $logger->info("Generated NTDS file $ntds_file using a single run.");
+    return ($ntds_file);
+}
+
+=head2 fetch_hashes_one_at_a_time
+
+Fetch all the users hashes in the users file calling secretsdump for each of them
+
+=cut
+
+sub fetch_hashes_one_at_a_time {
+    my ($domain, $users_file) = @_;
+    my $logger = get_logger;
+    
+    my $config = $ConfigDomain{$domain};
+    my $source = getAuthenticationSource($config->{ntlm_cache_source});
+    return ($FALSE, "Invalid LDAP source $config->{ntlm_cache_source}") unless(defined($source));
+
+    my $content = ""; 
+    my $tmpfile = File::Temp->new()->filename;
+
+    my @users = split(/\n/, read_file($users_file));
+    foreach my $user (@users) {
+
+        my ($ntds_file, $msg) = secretsdump($domain, $source, "-just-dc-user '$user'");
+        if ($ntds_file) {
+            $content .= read_file($ntds_file);            
+        }
+        else {
+            $logger->error("Failed to fetch the NT hash of user $user: $msg");
+        }
+    }
+    write_file($tmpfile, $content);
+
+    return ($tmpfile);
+}
+
 =head2 fetch_all_valid_hashes
 
 Fetch the NT hashes of all the valid users of a domain
@@ -110,9 +164,8 @@ Fetch the NT hashes of all the valid users of a domain
 sub fetch_all_valid_hashes {
     my ($domain) = @_;
     my $logger = get_logger;
+    
     my $config = $ConfigDomain{$domain};
-    my $source = getAuthenticationSource($config->{ntlm_cache_source});
-    return ($FALSE, "Invalid LDAP source $config->{ntlm_cache_source}") unless(defined($source));
 
     my ($valid_users_file, $err) = generate_valid_users_file($domain);
     unless($valid_users_file) {
@@ -121,11 +174,13 @@ sub fetch_all_valid_hashes {
         return ($FALSE, $msg);
     }
 
-    my ($ntds_file, $msg) = secretsdump($domain, $source, "-usersfile $valid_users_file");
-    return ($FALSE, $msg) unless($ntds_file);
+    if(isenabled($config->{ntlm_cache_batch_one_at_a_time})) {
+        return fetch_hashes_one_at_a_time($domain, $valid_users_file);
+    }
+    else {
+        return fetch_hashes_all_at_once($domain, $valid_users_file);
+    }
 
-    $logger->info("Generated NTDS file $ntds_file");
-    return ($ntds_file);
 }
 
 =head2 get_sync_samaccountname
