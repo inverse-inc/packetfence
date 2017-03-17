@@ -16,12 +16,40 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::Harness;
+use TAP::Formatter::Console;
+use TAP::Formatter::File;
+use TAP::Harness;
+use TAP::Parser::Aggregator;
+use IO::Interactive qw(is_interactive);
 
 use lib qw(/usr/local/pf/t);
 use TestUtils;
+`/usr/local/pf/t/pfconfig-test`;
+`/usr/local/pf/t/pfconfig-test-serial`;
 
-runtests(
+my $JOBS = $ENV{'PF_SMOKE_TEST_JOBS'} ||  6;
+
+my $formatter   = is_interactive() ? TAP::Formatter::Console->new({jobs => $JOBS}) : TAP::Formatter::File->new();
+my $ser_harness = TAP::Harness->new( { formatter => $formatter, jobs => 1 } );
+my $par_harness = TAP::Harness->new(
+    {   formatter => $formatter,
+        jobs      => $JOBS,
+    }
+);
+
+#
+# These test modify pfconfig data so they run serialized
+#
+my @ser_tests = qw(
+    pfconfig.t 
+    merged_list.t
+    CHI.t
+);
+
+#
+# These tests just need to read pfconfig data so they can run in parallel
+#
+my @par_tests = (
     @TestUtils::compile_tests,
     @TestUtils::unit_tests,
     TestUtils::get_all_unittests(),
@@ -29,6 +57,20 @@ runtests(
     @TestUtils::quality_tests,
     @TestUtils::config_store_test,
 );
+
+my $aggregator = TAP::Parser::Aggregator->new;
+$aggregator->start();
+$ser_harness->aggregate_tests( $aggregator, @ser_tests );
+$par_harness->aggregate_tests( $aggregator, @par_tests );
+$aggregator->stop();
+$formatter->summary($aggregator);
+
+foreach my $test_service (qw(pfconfig-test pfconfig-test-serial)) {
+    next unless open(my $fh, "<", "/usr/local/pf/var/run/${test_service}.pid");
+    chomp(my $pid = <$fh>);
+    next unless $pid && $pid =~ /\d+/;
+    kill ('INT', $pid);
+}
 
 =head1 AUTHOR
 

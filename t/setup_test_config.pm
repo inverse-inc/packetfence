@@ -1,4 +1,5 @@
 package setup_test_config;
+
 =head1 NAME
 
 setup_test_config
@@ -15,16 +16,16 @@ Setups the configuration for the testing environment
 use strict;
 use warnings;
 
+
 BEGIN {
     use test_paths;
+    use pf::CHI;
     use pfconfig::constants;
     use File::Spec::Functions qw(catfile);
-    use File::Slurp qw(read_file);
 
-    use File::Path qw(remove_tree);
-    remove_tree('/tmp/chi');
-
-    `/usr/local/pf/t/pfconfig-test`;
+    if (test_paths::testIfFileUnlock($test_paths::PFCONFIG_TEST_PID_FILE)) {
+        `$test_paths::PFCONFIG_RUNNER`
+    }
 
     use pf::db;
     # Setup database connection infos based on ENV variables if they are defined
@@ -47,12 +48,9 @@ BEGIN {
         $management_network->tag('ip', $Config{$section_name}{ip});
         $management_network->tag('vip', $Config{$section_name}{vip});
     }
+
 }
 
-END {
-    my $pid = read_file($test_paths::PFCONFIG_TEST_PID_FILE);
-    `kill $pid`
-}
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

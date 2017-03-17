@@ -7,6 +7,7 @@ use diagnostics;
 use lib '/usr/local/pf/lib';
 BEGIN {
     use lib qw(/usr/local/pf/t);
+    use test_paths_serial;
     use setup_test_config;
     `cp $pf::file_paths::switches_config_file $pf::file_paths::switches_config_file.tmp`;
     $pf::file_paths::switches_config_file = "$pf::file_paths::switches_config_file.tmp";

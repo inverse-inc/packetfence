@@ -40,7 +40,9 @@ use List::MoreUtils qw(first_index);
 use File::Basename qw(basename);
 use Getopt::Std;
 use POSIX qw(:signal_h);
+use File::FcntlLock;
 use pf::services::util;
+use pf::file_paths qw($var_dir);
 use pfconfig::constants;
 use Sereal::Encoder qw(sereal_encode_with_object);
 use pf::Sereal qw($ENCODER);
@@ -61,30 +63,10 @@ my %args = (
 
 getopts( 'dhs:n:p:c:', \%args );
 
-our $PROGRAM_NAME = $0 = $args{n};
-
-$pfconfig::constants::CONFIG_FILE_PATH = $args{c} if($args{c});
-
-my $socket_path = $args{s};
-unlink($socket_path);
-
-#Ensure that the file permissions of the socket is correct 0770
-umask(0007);
-
-my $listner = IO::Socket::UNIX->new(
-   Type   => SOCK_STREAM,
-   Local  => $socket_path,
-   Listen => SOMAXCONN,
-)
-   or die("Can't create server socket: $!\n");
-
-umask(0);
-
-my $cache = pfconfig::manager->new;
-$cache->preload_all();
-
-
 my $logger = get_logger;
+
+our $PROGRAM_NAME = $0 = $args{n};
+our $PID_FILE = $args{p} // "${var_dir}/run/$PROGRAM_NAME.pid";
 
 # init signal handlers
 POSIX::sigaction(
@@ -108,15 +90,39 @@ POSIX::sigaction(
     )
 ) or $logger->logdie("pfconfig: could not set SIGINT handler: $!");
 
+my $daemonize = $args{d};
+
+# standard signals and daemonize
+daemonize($PROGRAM_NAME, $PID_FILE) if ($daemonize);
+
+my $FILE_LOCK = getLockOnPid($PID_FILE);
+
+unless ($FILE_LOCK) {
+    die "cannot lock $PID_FILE another $PROGRAM_NAME is running\n";
+}
 
 # empty control file directory so subcaches in other processes
 # are expired when pfconfig is starting
 unlink glob "$pfconfig::constants::CONTROL_FILE_DIR/*";
 
-my $daemonize = $args{d};
+$pfconfig::constants::CONFIG_FILE_PATH = $args{c} if($args{c});
 
-# standard signals and daemonize
-daemonize($PROGRAM_NAME, $args{p}) if ($daemonize);
+my $socket_path = $args{s};
+unlink($socket_path);
+
+#Ensure that the file permissions of the socket is correct 0770
+umask(0007);
+
+my $listner = IO::Socket::UNIX->new(
+   Type   => SOCK_STREAM,
+   Local  => $socket_path,
+   Listen => SOMAXCONN,
+) or die("Can't create server socket: $!\n");
+
+umask(0);
+
+my $cache = pfconfig::manager->new;
+$cache->preload_all();
 
 our %DISPATCH = (
     'expire'             => \&expire,
@@ -179,8 +185,8 @@ while($RUNNING) {
 $logger->info("Stop running\n");
 
 END {
-    if ( !$args{h} ) {
-        deletepid($PROGRAM_NAME);
+    if (!$args{h} && $FILE_LOCK ) {
+        deletepid($PROGRAM_NAME, $PID_FILE);
     }
 }
 
@@ -409,6 +415,33 @@ the signal handler to shutdown the service
 
 sub normal_sighandler {
     $RUNNING = 0;
+}
+
+=head2 getLockOnPid
+
+get lock on pid file
+
+=cut
+
+sub getLockOnPid {
+    my ($filename) = @_;
+    my $fs = File::FcntlLock->new(
+        l_type   => F_WRLCK,
+        l_whence => SEEK_SET,
+        l_start => 0,
+        l_len => 0,
+    );
+    my $fh;
+    unless (open($fh, "+>>", $filename)) {
+        $logger->error("Cannot open $filename: $!");
+        return undef;
+    }
+    my $result = $fs->lock($fh, F_SETLK); 
+    unless (defined $result) {
+        $logger->error("Error getting lock on $filename: $!");
+        return undef;
+    }
+    return $fh;
 }
 
 =back

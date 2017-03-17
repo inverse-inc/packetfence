@@ -1,49 +1,39 @@
-#!/usr/bin/perl
+package test_paths_serial;
+
 =head1 NAME
 
-binaries.t
+test_paths
+
+=cut
 
 =head1 DESCRIPTION
 
-Compile check on perl binaries
+test_paths
+Overrides the the location of config files to help with testing
 
 =cut
 
 use strict;
 use warnings;
 
-use Test::More;
-use Test::ParallelSubtest max_parallel => 4;
-use Test::NoWarnings;
 
 BEGIN {
-    use lib qw(/usr/local/pf/t);
-    use setup_test_config;
-}
-use TestUtils qw(get_all_perl_binaries get_all_perl_cgi);
+    use test_paths;
+    use File::Spec::Functions qw(catfile catdir rel2abs);
+    use File::Basename qw(dirname);
+    use pf::file_paths qw($install_dir);
+    use pfconfig::constants;
+    $test_paths::PFCONFIG_TEST_PID_FILE = "/usr/local/pf/var/run/pfconfig-test-serial.pid";
+    $pfconfig::constants::CONFIG_FILE_PATH = catfile($test_paths::test_dir, 'data/pfconfig-serial.conf');
+    $test_paths::PFCONFIG_RUNNER = catfile($test_paths::test_dir, 'pfconfig-test-serial');
+    $pfconfig::constants::SOCKET_PATH = catfile($install_dir, "var/run/pfconfig-test-serial.sock");
 
-my @binaries = (
-    get_all_perl_binaries(),
-    get_all_perl_cgi()
-);
-
-# all files + no warnings
-plan tests => scalar @binaries * 1 + 1;
-
-foreach my $current_binary (@binaries) {
-    my $flags = '-I/usr/local/pf/t -Mtest_paths';
-    if ($current_binary =~ m#/usr/local/pf/bin/pfcmd\.pl#) {
-        $flags = '-T';
-    }
-    bg_subtest "$current_binary" => sub {
-        plan tests => 1;
-        is( system("/usr/bin/perl $flags -c $current_binary 2>&1"), 0, "$current_binary compiles" );
-    };
 }
 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
+
 
 =head1 COPYRIGHT
 
@@ -67,4 +57,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
+
+1;
+
 

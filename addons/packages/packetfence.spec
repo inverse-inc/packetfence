@@ -307,7 +307,7 @@ Requires: perl(Sereal::Encoder), perl(Sereal::Decoder), perl(Data::Serializer::S
 Requires: perl(Test::MockObject), perl(Test::MockModule)
 Requires: perl(Test::Perl::Critic), perl(Test::WWW::Mechanize)
 Requires: perl(Test::Pod), perl(Test::Pod::Coverage), perl(Test::Exception)
-Requires: perl(Test::NoWarnings)
+Requires: perl(Test::NoWarnings), perl(Test::ParallelSubtest)
 # required for the fake CoA server
 Requires: perl(Net::UDP)
 # For managing the number of connections per device
