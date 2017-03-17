@@ -48,9 +48,7 @@ sub generateConfig {
     $tags{'template'}      = "$conf_dir/snort.conf";
     $tags{'trapping-range'} = $Config{'trapping'}{'range'};
     my $dhcp_servers = $Config{'general'}{'dhcpservers'} || [];
-    my $dns_servers  = $Config{'general'}{'dnsservers'} || [];
     $tags{'dhcp_servers'} = join(",", @{ listify $dhcp_servers });
-    $tags{'dns_servers'}  = join(",", @{ listify $dns_servers });
     $tags{'install_dir'}   = $install_dir;
     my @rules;
 
