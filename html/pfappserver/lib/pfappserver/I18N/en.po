@@ -8443,7 +8443,7 @@ msgstr "PFDNS Processes"
 
 # conf/documentation.conf
 msgid "advanced.pffilter_processes"
-msgstr ""
+msgstr "PFFilter Processes"
 
 # conf/documentation.conf
 msgid "advanced.record_accounting_in_sql"
@@ -9476,7 +9476,7 @@ msgstr "Iplog Cleanup Window"
 
 # conf/documentation.conf
 msgid "maintenance.iplog_rotation"
-msgstr ""
+msgstr "Iplog Rotation"
 
 # conf/documentation.conf
 msgid "maintenance.iplog_rotation_batch"
@@ -9884,7 +9884,7 @@ msgstr "Other"
 
 # conf/documentation.conf
 msgid "parking"
-msgstr ""
+msgstr "Parking"
 
 # conf/documentation.conf
 msgid "parking.lease_length"
@@ -10575,6 +10575,10 @@ msgstr "p0f socket map"
 msgid "tcp_fingerprinting.p0f_socket_path"
 msgstr "p0f socket path"
 
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "tcp_fingerprinting.p0f_map_path"
+msgstr "p0f map path"
+
 # html/pfappserver/root/admin/users.tt
 msgid "telephone"
 msgstr ""
@@ -10668,7 +10672,7 @@ msgstr "Upstream URL"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "upstream.sqlite_db_retention"
-msgstr ""
+msgstr "Retention of the upstream sqlite DB"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "upstream.submit_url"
