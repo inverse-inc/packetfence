@@ -17,7 +17,7 @@ Read the following configuration files: F<dhcpd_vlan.conf>,
 F<networks.conf>, F<violations.conf> and F<switches.conf>.
 
 Generate the following configuration files: F<dhcpd.conf>, F<named.conf>,
-F<snort.conf>, F<httpd.conf>, F<snmptrapd.conf>.
+F<httpd.conf>, F<snmptrapd.conf>.
 
 =cut
 
