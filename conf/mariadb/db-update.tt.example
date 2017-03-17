@@ -11,17 +11,17 @@ PORT='[% db_config.port %]'
 
 primary_change()
 {
-    if [ "$PRIMARY" == "0" ]; then
+    if [ "$PRIMARY" == "0" ] || [ "$PEER_COUNT" == "0" ]; then
         echo 'SET GLOBAL wsrep_on=0; SET GLOBAL read_only="ON"; SET GLOBAL wsrep_on=1;'
     else
         echo 'SET GLOBAL read_only="OFF";'
     fi
 
-    if [ "$PEER_COUNT" == "0" ]; then
-        echo 'SET GLOBAL wsrep_on=0;'
-    else
-        echo 'SET GLOBAL wsrep_on=1;'
-    fi
+#    if [ "$PEER_COUNT" == "0" ]; then
+#        echo 'SET GLOBAL wsrep_on=0;'
+#    else
+#        echo 'SET GLOBAL wsrep_on=1;'
+#    fi
 }
 
 echo "Calling db-update with '$@'" | logger

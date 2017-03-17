@@ -22,7 +22,6 @@ use List::MoreUtils qw(any);
 our $PROGRAM_NAME = $0 = "pf-mariadb";
 
 my $logger = get_logger( $PROGRAM_NAME );
-my $gvwstate_cache = pf::CHI->new(namespace => "gvwstate_quorum");
 
 our $RUNNING = 1;
 
@@ -209,213 +208,6 @@ sub get_failed_count {
     return $failed_counts->{$_[0]} // 0;
 }
 
-=head2 quorum_management_server
-
-Quorum server that listens for servers sending their crash state data
-Forks a process and listens on 7890 until killed
-
-=cut
-
-sub quorum_management_server {
-    my $pid = fork();
-
-    if($pid) {
-        $QUORUM_MGMT_SERVER_PID = $pid;
-    } elsif ($pid == 0) {
-        POSIX::sigaction(
-            &POSIX::SIGCHLD,
-            $old_child_sigaction,
-        ) or die("pf-mariadb could not set SIGCHLD handler: $!");
-
-        $SIG{CHLD} = "DEFAULT";
-        $IS_CHILD = 1;
-        $0 = "pf-mariadb - quorum management server";
-
-        my $socket = new IO::Socket::INET (
-            LocalHost => '0.0.0.0',
-            LocalPort => '7890',
-            Proto => 'tcp',
-            Listen => 5,
-            Reuse => 1
-        );
-        die "cannot create socket $!\n" unless $socket;
-
-        while($RUNNING) {
-            my $client_socket = $socket->accept();
-            next unless($client_socket);
-            # Receive up to 2048 bytes
-            # Payload should be a JSON value representing this:
-            # {
-            #   "server_mgmt_ip": "1.2.3.4",
-            #   "gvwstate_timestamp": 123456789,
-            #   "gvwstate_uuid": "uuid1",
-            #   "gvwstate_members": [
-            #     "uuid1",
-            #     "uuid2",
-            #     ...
-            #   ]
-            # }
-            eval {
-                my $payload = "";
-                $client_socket->recv($payload, 2048);
-                $payload = pf::cluster::decrypt_message($payload);
-
-                my $data = decode_json($payload);
-                $gvwstate_cache->set("gvwstate-".$data->{server_mgmt_ip}, $data);
-
-                shutdown($client_socket, 1);
-            };
-            if($@) {
-                my $msg = "Error while receiving on quorum socket: $@";
-                print STDERR $msg;
-                $logger->error($msg);
-            }
-        }
-        # We've done our job if we're here, so we can safely exit
-        exit;
-    }
-}
-
-=head2 quorum_client_server
-
-Server that listens for client commands sent by the quorum server
-For now, it will set whether or not the server should be starting up
-
-=cut
-
-sub quorum_client_server {
-
-    my $pid = fork();
-
-    if($pid) {
-        $QUORUM_CLIENT_SERVER_PID = $pid;
-    } elsif ($pid == 0) {
-        POSIX::sigaction(
-            &POSIX::SIGCHLD,
-            $old_child_sigaction,
-        ) or die("pf-mariadb could not set SIGCHLD handler: $!");
-
-        $SIG{CHLD} = "DEFAULT";
-        $IS_CHILD = 1;
-        $0 = "pf-mariadb - quorum client server";
-
-        my $socket = new IO::Socket::INET (
-            LocalHost => '0.0.0.0',
-            LocalPort => '7891',
-            Proto => 'tcp',
-            Listen => 5,
-            Reuse => 1
-        );
-        die "cannot create socket $!\n" unless $socket;
-
-        while($RUNNING) {
-            my $client_socket = $socket->accept();
-            next unless($client_socket);
-            # Receive up to 2048 bytes
-            # Payload should be a JSON value representing this:
-            # {
-            #   "should_start": [1|0],
-            # }
-            eval {
-                my $payload = "";
-                $client_socket->recv($payload, 2048);
-                $payload = pf::cluster::decrypt_message($payload);
-
-                my $data = decode_json($payload);
-                $gvwstate_cache->set("gvwstate-should-start", $data->{should_start});
-
-                shutdown($client_socket, 1);
-            };
-            if($@) {
-                my $msg = "Error while receiving on quorum client socket: $@";
-                print STDERR $msg;
-                $logger->error($msg);
-            }
-        }
-        # We've done our job if we're here, so we can safely exit
-        exit;
-    }
-}
-
-=head2 send_to_quorum_client
-
-Send a message to the quorum client ($ip:7891)
-
-=cut
-
-sub send_to_quorum_client {
-    my ($ip, $data) = @_;
-    eval {
-        my $socket = new IO::Socket::INET (
-            PeerHost => $ip,
-            PeerPort => '7891',
-            Proto => 'tcp',
-        );
-        die "cannot connect to the server $!\n" unless $socket;
-
-        $socket->send(pf::cluster::encrypt_message(encode_json($data)));
-    };
-    if($@) {
-        my $msg = "Cannot send message to quorum client $ip: $@";
-        $logger->error($msg);
-        print STDERR $msg;
-    }
-}
-
-=head2 send_gvwstate_to_quorum_mgmt_server
-
-Send the gvwstate information to the quorum management server
-
-=cut
-
-sub send_gvwstate_to_quorum_mgmt_server {
-    eval {
-        my $gvwstate = "/var/lib/mysql/gvwstate.dat";
-        my $myuuid = "unknown";
-        my $members = [];
-        my $timestamp = 0;
-        if(-f $gvwstate) {
-            $myuuid = `cat $gvwstate | grep my_uuid | awk '{print \$2}'`;
-            $myuuid =~ s/\n//g;
-            $members = [ split("\n", `cat $gvwstate | grep member | awk '{print \$2}'`) ];
-            $timestamp = ( stat($gvwstate) )[9];
-        }
-        my $socket = new IO::Socket::INET (
-            PeerHost => (pf::cluster::enabled_servers())[0]->{management_ip},
-            PeerPort => '7890',
-            Proto => 'tcp',
-        );
-        die "cannot connect to the server $!\n" unless $socket;
-
-        $socket->send(pf::cluster::encrypt_message(encode_json({
-            server_mgmt_ip => pf::cluster::current_server->{management_ip},
-            gvwstate_timestamp => $timestamp,
-            gvwstate_uuid => $myuuid,
-            gvwstate_members => $members,
-        })));
-    };
-    if($@) {
-        my $msg = "Cannot send state to master server: $@";
-        $logger->error($msg);
-        print STDERR $msg;
-    }
-}
-
-=head2 get_gvwstate_info
-
-Get the gvwstate info that has been populated in the cache up to now
-
-=cut
-
-sub get_gvwstate_info {
-    my $info = {};
-    for my $server (pf::cluster::enabled_servers()) {
-        my $server_info = $gvwstate_cache->get("gvwstate-".$server->{management_ip});
-        $info->{$server->{host}} = $server_info if(defined($server_info));
-    }
-    return $info;
-}
-
 =head2 startup_clean_shutdown
 
 Startup procedure when service was cleanly shutdown
@@ -429,21 +221,14 @@ sub startup_clean_shutdown {
     }
     elsif(ping_quorum()) {
         $logger->info("There is an alive quorum but no db available on any server");
-        if(get_failed_count("peers-alive-no-db") < $PEERS_ALIVE_CONNECT_ATTEMPT) {
-            $logger->info("Trying to connect to peers to establish an eventual quorum");
-            sleep $WAIT_TIME_FAIL;
-            fork_launch_mysql("peers-alive-no-db");
+        my $safe_to_bootstrap = `cat /var/lib/mysql/grastate.dat | grep 'safe_to_bootstrap: 1'`;
+        if($safe_to_bootstrap) {
+            $logger->info("This node is safe to bootstrap from. Starting in bootstrap mode.");
+            bootstrap_new_cluster();
         }
         else {
-            if(pf::cluster::cluster_index() == 0) {
-                $logger->info("Tried connecting to peers too many times. Will establish a new cluster");
-                bootstrap_new_cluster();
-            }
-            else {
-                $logger->info("Tried connecting to peers too many times. Will flush state and connect to a potentially newly formed cluster");
-                `rm -f /var/lib/mysql/grastate.dat`;
-                fork_launch_mysql("join-new-cluster");
-            }
+            $logger->info("This node is not safe to bootstrap from. Starting in normal mode to connect to a bootstrapped peer.");
+            fork_launch_mysql("peers-alive-no-db-attempt-connect-to-bootstrapped");
         }
     }
     else {
@@ -453,85 +238,6 @@ sub startup_clean_shutdown {
     }
 }
 
-=head2 startup_dirty_shutdown
-
-Startup procedure when service was shutdown by force
-
-=cut
-
-sub startup_dirty_shutdown {
-    if(db_available()) {
-        $logger->info("There is a peer with an alive DB. Will attempt to connect to the cluster");
-        fork_launch_mysql("db-peer-available");
-    }
-    else {
-        $STARTED_BECAUSE = "attempting-to-get-quorum";
-
-        if($gvwstate_cache->get("gvwstate-should-start")) {
-            $logger->info("Ready to start.");
-            fork_launch_mysql("gvwstate-should-start");
-        } else {
-            # All server (including the first one), must report their state to the master
-            $logger->info("Not ready to startup, reporting state to master cluster server");
-            send_gvwstate_to_quorum_mgmt_server();
-        }
-    }
-}
-
-=head2 act_on_quorum_server_data
-
-Get the latest quorum data and startup servers that should be started
-This will only start to act on the servers once it has received the data from all the cluster members
-
-=cut
-
-sub act_on_quorum_server_data {
-    my $info = get_gvwstate_info();
-    my $missing = scalar(pf::cluster::enabled_servers()) - scalar(keys(%$info));
-    if ($missing == 0) {
-        $logger->info("Collected quorum information from all servers");
-        my $latest_host;
-        my $latest_timestamp = 0;
-
-        # Finding out the host that had the latest information about the cluster
-        while(my ($hostname, $server_info) = each(%$info)) {
-            if($server_info->{gvwstate_timestamp} > $latest_timestamp) {
-                $latest_host = $hostname;
-                $latest_timestamp = $server_info->{gvwstate_timestamp};
-            }
-        }
-        $logger->info("Latest info comes from $latest_host with a timestamp of $latest_timestamp");
-        next unless(defined($latest_host));
-
-        my @alive;
-        my $latest_info = $info->{$latest_host};
-        while(my ($hostname, $server_info) = each(%$info)) {
-            my $uuid = $server_info->{gvwstate_uuid};
-            # If the server should be running given the latest state of the cluster
-            if(any { $_ eq $uuid } @{$latest_info->{gvwstate_members}}) {
-
-                # Server is already alive, nothing to do
-                if(test_db($server_info->{server_mgmt_ip})) {
-                    $logger->debug("Server $hostname is alive");
-                    push @alive, $hostname;
-                }
-                # Server is not alive, instruct it to start via the quorum client
-                # Note that once one of the servers will have started, this has little incidence on the cluster as other members will detect one is alive and connect to it
-                else {
-                    $logger->info("$hostname was part of the latest gvwstate. Will instruct it to start.");
-                    send_to_quorum_client($server_info->{server_mgmt_ip}, {should_start => 1});
-                }
-            }
-            else {
-                $logger->info("$hostname wasn't part of the latest gvwstate. Will instruct it to stay off for now.");
-                send_to_quorum_client($server_info->{server_mgmt_ip}, {should_start => 0});
-            }
-        }
-    }
-    else {
-        $logger->info("Still missing quorum information for $missing servers. Following servers have reported: ".join(',', keys(%$info)));
-    }
-}
 
 =head2 _check_pid
 
@@ -557,10 +263,8 @@ sub attempt_start {
     if(!$cluster_enabled || scalar(pf::cluster::enabled_servers()) == 1) {
         fork_launch_mysql("standalone");
     }
-    # MySQL isn't running but there is a gvwstate
     elsif(!_check_pid($MYSQLD_SPAWNER_PID) && -f "/var/lib/mysql/gvwstate.dat") {
-        #startup_dirty_shutdown();
-        startup_clean_shutdown();
+        fork_launch_mysql("dirty-shutdown");
     }
     else {
         startup_clean_shutdown();
@@ -584,9 +288,6 @@ if(pf::cluster::is_in_maintenance) {
     exit;
 }
 
-# Clear the gvwstate on startup
-$gvwstate_cache->clear();
-
 if(defined($ARGV[0]) && $ARGV[0] eq "--force-new-cluster") {
     bootstrap_new_cluster();
     while($RUNNING) {
@@ -599,25 +300,6 @@ if(defined($ARGV[0]) && $ARGV[0] eq "--force-new-cluster") {
 attempt_start();
 
 while($RUNNING){
-    if(pf::cluster::cluster_index() == 0) {
-        if(!_check_pid($QUORUM_MGMT_SERVER_PID)) {
-            $logger->info("Starting management quorum server");
-            # this below will fork, so the process will continue
-            quorum_management_server();
-        }
-    }
-
-    if(!_check_pid($QUORUM_CLIENT_SERVER_PID)) {
-        $logger->info("Starting client quorum server.");
-        # this below will fork, so the process will continue
-        quorum_client_server();
-    }
-
-    # Quorum server is running so we're attempting to get a quorum
-    if(_check_pid($QUORUM_MGMT_SERVER_PID)) {
-        act_on_quorum_server_data();
-    }
-
     if(!_check_pid($MYSQLD_SPAWNER_PID)) {
         $failed = $TRUE;
         print "Failed starting with mode: $STARTED_BECAUSE \n";
@@ -628,8 +310,6 @@ while($RUNNING){
         attempt_start();
     }
     elsif($cluster_enabled) {
-        send_gvwstate_to_quorum_mgmt_server();
-
         if(test_db(pf::cluster::current_server()->{management_ip})) {
             # We're coming from a previous failure, so we log it 
             if($failed) {

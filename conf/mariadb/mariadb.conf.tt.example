@@ -152,7 +152,7 @@ wsrep_on=ON
 wsrep_sst_method = xtrabackup
 wsrep_sst_auth = "[% replication_user %]:[% replication_password %]"
 wsrep_notify_cmd=/usr/local/pf/var/run/db-update
-wsrep_provider_options='pc.npvo=true'
+wsrep_provider_options=''
 #
 # Optional setting
 wsrep_slave_threads=1
