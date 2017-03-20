@@ -21,13 +21,13 @@ sub generateConfig {
     }
 }
 
-sub commitDeltas {
+sub generateDeltas {
     my ($self) = @_;
-    $self->SUPER::commitDeltas();
+    $self->SUPER::generateDeltas();
 
     my %childs = %{$self->childs};
     while(my ($child_id, $child) = each(%childs)) {
-        $child->commitDeltas();
+        $child->generateDeltas();
     }
 }
 

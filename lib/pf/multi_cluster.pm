@@ -11,35 +11,49 @@ use pf::file_paths qw(
 );
 use File::Slurp qw(write_file);
 
-sub rootRegions {
-    my $regions = {};
-    for my $root (@{rootRegionNames()}) {
-        $regions->{$root} = pf::multi_cluster::region->new(name => $root);
-    }
-    return $regions;
+sub rootRegion {
+    return pf::multi_cluster::region->new(name => "ROOT");
 }
 
-sub rootRegionNames {
-    my $cs = pf::ConfigStore::MultiCluster->new();
-    my %allRegions;
-    my %childRegions;
-    for my $region (@{$cs->readAll("id")}) {
-        $allRegions{$region->{id}} = 1;
-        for my $childRegion (@{$region->{regions}}) {
-            $allRegions{$childRegion} = 1;
-            $childRegions{$childRegion} = 1;
+sub findObject {
+    my ($group, $id) = @_;
+    if($group->can('childs')) {
+        if(exists $group->childs->{$id}) {
+            return $group->childs->{$id};
+        }
+        else {
+            my %childs = %{$group->childs};
+            while(my ($child_id, $child) = each(%childs)) {
+                my $object = findObject($child, $id);
+                if(defined($object)) {
+                    return $object;
+                }
+            }
+            # Return undef if nothing was found above as it should have already returned
+            return undef;
         }
     }
-    my @rootRegions = map { exists($childRegions{$_}) ? () : $_ } keys(%allRegions);
-    return \@rootRegions;
+    else {
+        return undef;
+    }
 }
 
 sub generateAnsibleHosts {
     my ($dst) = @_;
     my $template = Template->new({ABSOLUTE => 1});
     my $output;
-    $template->process($conf_dir."/ansible-hosts.tt", {regions => rootRegions()}, \$output) or die $template->error();
+    $template->process($conf_dir."/ansible-hosts.tt", {regions => [rootRegion()]}, \$output) or die $template->error();
     write_file($dst, $output);
+}
+
+sub generateConfig {
+    my $region = defined($_[0]) ? $_[0] : rootRegion();
+    $region->generateConfig();
+}
+
+sub generateDeltas {
+    my $region = defined($_[0]) ? $_[0] : rootRegion();
+    $region->generateDeltas();
 }
 
 1;

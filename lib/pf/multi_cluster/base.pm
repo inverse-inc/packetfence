@@ -22,7 +22,7 @@ sub configStore {
     return $type->new(multiClusterHost => $self->path);
 }
 
-sub commitDeltas {
+sub generateDeltas {
     my ($self) = @_;
     for my $store (@{pf::cluster::stores_to_sync()}) {
         get_logger->info("Commiting deltas of store $store for ".$self->path);

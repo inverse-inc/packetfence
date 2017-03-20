@@ -16,14 +16,14 @@ sub generateConfig {
     }
 }
 
-sub commitDeltas {
+sub generateDeltas {
     my ($self) = @_;
-    $self->SUPER::commitDeltas();
+    $self->SUPER::generateDeltas();
 
     my %childs = %{$self->childs};
     while(my ($child_id, $child) = each(%childs)) {
         get_logger->info("Commiting child delta of region ".$self->name.": $child_id");
-        $child->commitDeltas();
+        $child->generateDeltas();
     }
 }
 
