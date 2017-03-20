@@ -108,13 +108,6 @@ sub build_child {
         $Config{$group}{$item} = normalize_time( $Config{$group}{$item} ) if ( $Config{$group}{$item} );
     }
 
-    # determine absolute paths
-    foreach my $val ("alerting.log") {
-        my ( $group, $item ) = split( /\./, $val );
-        if ( !File::Spec->file_name_is_absolute( $Config{$group}{$item} ) ) {
-            $Config{$group}{$item} = File::Spec->catfile( $log_dir, $Config{$group}{$item} );
-        }
-    }
     foreach my $val ("fencing.passthroughs") {
         my ( $group, $item ) = split( /\./, $val );
         $Config{$group}{$item} = [ split( /\s*,\s*/, $Config{$group}{$item}  // '' ) ];

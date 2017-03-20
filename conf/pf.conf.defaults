@@ -197,11 +197,6 @@ smtpserver=localhost
 #Subject prefix for email notifications of rogue DHCP servers, violations with an action of "email", or any other
 #PacketFence-related message.
 subjectprefix=PF Alert:
-#
-# alerting.log
-#
-# Log file where "log" actions are sent.
-log=violation.log
 
 [ports]
 #

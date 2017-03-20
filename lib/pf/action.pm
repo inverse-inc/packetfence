@@ -84,6 +84,7 @@ use pf::class qw(class_view class_view_actions);
 use pf::violation qw(violation_force_close);
 use pf::Connection::ProfileFactory;
 use pf::constants::scan qw($POST_SCAN_VID $PRE_SCAN_VID);
+use pf::file_paths qw($violation_log);
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $action_db_prepared = 0;
@@ -337,7 +338,7 @@ sub action_log {
     #my $date = $violation_info->{'start_date'};
     my $date = mysql_date();
 
-    my $logfile = untaint_chain($Config{'alerting'}{'log'});
+    my $logfile = $violation_log; #untaint_chain($Config{'alerting'}{'log'});
     $logger->info(
         "$logfile $date: $description ($vid) detected on node $mac ($ip)");
     my $log_fh;
