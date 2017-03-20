@@ -323,7 +323,7 @@ sub parse_dhcp_request {
     }
     # We call the parking on all DHCPREQUEST since the actions have to be done on all servers and all servers receive the DHCPREQUEST
     else {
-        $self->check_for_parking($client_mac, $client_ip);
+        $self->checkForParking($client_mac, $client_ip);
     }
 
     # As per RFC2131 in a DHCPREQUEST if ciaddr is set and we broadcast, we are in re-binding state
@@ -420,13 +420,13 @@ sub pf_is_dhcp {
 }
 
 
-=head2 check_for_parking
+=head2 checkForParking
 
 Check if a device should be in parking and adjust the lease time through OMAPI
 
 =cut
 
-sub check_for_parking {
+sub checkForParking {
     my ($self, $client_mac, $client_ip) = @_;
 
     unless(defined($Config{parking}{threshold}) && $Config{parking}{threshold}){

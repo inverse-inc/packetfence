@@ -127,7 +127,7 @@ sub processIPTasks {
     $self->apiClient->notify('trigger_scan', %iptasks_arguments );
 
     # Parking violation
-    $self->check_for_parking($iptasks_arguments{'mac'}, $iptasks_arguments{'ip'});
+    $self->checkForParking($iptasks_arguments{'mac'}, $iptasks_arguments{'ip'});
     if ( $iptasks_arguments{'oldmac'} && $iptasks_arguments{'oldmac'} ne $iptasks_arguments{'mac'} ) {
         # Remove the actions that were for the previous MAC address
         pf::parking::remove_parking_actions($iptasks_arguments{'oldmac'}, $iptasks_arguments{'ip'});
