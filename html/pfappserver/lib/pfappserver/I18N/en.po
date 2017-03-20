@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 6.5.9\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-03-20 10:26-0400\n"
+"PO-Revision-Date: 2017-03-20 13:06-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -3582,24 +3582,12 @@ msgstr ""
 msgid "Location of the snmptrapd binary. Only necessary to change if you are not running the RPMed version. "
 msgstr ""
 
-# conf/documentation.conf (services.snort_binary)
-msgid "Location of the snort binary. Only necessary to change if you are not running the RPMed version."
-msgstr ""
-
 # conf/documentation.conf (services.statsd_binary)
 msgid "Location of the statsd (node) binary."
 msgstr "Path of the node.js binary running statsd"
 
-# conf/documentation.conf (services.suricata_binary)
-msgid "Location of the suricata binary."
-msgstr ""
-
 # conf/documentation.conf (services.winbindd_binary)
 msgid "Location of the winbindd binary. Only necessary to change if you arenot running the RPMed version."
-msgstr ""
-
-# conf/documentation.conf (alerting.log)
-msgid "Log file where <i>log</i> actions are sent."
 msgstr ""
 
 # html/pfappserver/root/admin/wrapper.tt
@@ -6402,17 +6390,9 @@ msgstr ""
 msgid "Should snmptrapd be started? Keep enabled unless you know what you're doing."
 msgstr ""
 
-# conf/documentation.conf (services.snort)
-msgid "Should snort be managed by PacketFence?"
-msgstr ""
-
 # conf/documentation.conf (services.statsd)
 msgid "Should statsd be managed by PacketFence?"
 msgstr "Should statsd be managed by PacketFence?"
-
-# conf/documentation.conf (services.suricata)
-msgid "Should suricata be managed by PacketFence?"
-msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "Should the NTLM cache be enabled for this domain?"
@@ -8469,10 +8449,6 @@ msgid "alerting.fromaddr"
 msgstr "Sender"
 
 # conf/documentation.conf
-msgid "alerting.log"
-msgstr "Log"
-
-# conf/documentation.conf
 msgid "alerting.smtpserver"
 msgstr "SMTP server"
 
@@ -8905,9 +8881,7 @@ msgstr ""
 # conf/documentation.conf (services.redis_queue options)
 # conf/documentation.conf (services.routes options)
 # conf/documentation.conf (services.snmptrapd options)
-# conf/documentation.conf (services.snort options)
 # conf/documentation.conf (services.statsd options)
-# conf/documentation.conf (services.suricata options)
 # conf/documentation.conf (services.winbindd options)
 # conf/documentation.conf (snmp_traps.closelocationlogonstop options)
 # conf/documentation.conf (snmp_traps.trap_limit options)
@@ -9025,9 +8999,7 @@ msgstr ""
 # conf/documentation.conf (services.redis_queue options)
 # conf/documentation.conf (services.routes options)
 # conf/documentation.conf (services.snmptrapd options)
-# conf/documentation.conf (services.snort options)
 # conf/documentation.conf (services.statsd options)
-# conf/documentation.conf (services.suricata options)
 # conf/documentation.conf (services.winbindd options)
 # conf/documentation.conf (snmp_traps.closelocationlogonstop options)
 # conf/documentation.conf (snmp_traps.trap_limit options)
@@ -10408,28 +10380,12 @@ msgid "services.snmptrapd_binary"
 msgstr "snmptrapd path"
 
 # conf/documentation.conf
-msgid "services.snort"
-msgstr "snort"
-
-# conf/documentation.conf
-msgid "services.snort_binary"
-msgstr "snort path"
-
-# conf/documentation.conf
 msgid "services.statsd"
 msgstr "statsd"
 
 # conf/documentation.conf
 msgid "services.statsd_binary"
 msgstr "nodejs path"
-
-# conf/documentation.conf
-msgid "services.suricata"
-msgstr "suricata"
-
-# conf/documentation.conf
-msgid "services.suricata_binary"
-msgstr "suricata path"
 
 # conf/documentation.conf
 msgid "services.winbindd"
