@@ -104,7 +104,7 @@ sub search :Local :Args() :AdminRole('NODES_READ') {
         }
     }
 
-    (undef, $result) = $c->model('Config::Roles')->list();
+    (undef, $result) = $c->model('Config::Roles')->listFromDB();
     (undef, $violations ) = $c->model('Config::Violations')->readAll();
     $c->stash(
         status_msg => $status_msg,
@@ -246,7 +246,7 @@ sub object :Chained('/') :PathPart('node') :CaptureArgs(1) {
         $c->stash->{current_view} = 'JSON';
         $c->detach();
     }
-    ($status, $roles_ref) = $c->model('Config::Roles')->list();
+    ($status, $roles_ref) = $c->model('Config::Roles')->listFromDB();
     if (is_success($status)) {
         $c->stash->{roles} = $roles_ref;
     }
@@ -617,7 +617,7 @@ Get the allowed node roles for the current user
 sub get_allowed_node_roles {
     my ($self, $c) = @_;
     my %allowed_roles = map { $_ => undef } $self->get_allowed_options($c, 'allowed_node_roles');
-    (undef, my $all_roles) = $c->model('Config::Roles')->list();
+    (undef, my $all_roles) = $c->model('Config::Roles')->listFromDB();
     return $all_roles if keys %allowed_roles == 0;
     return [ grep { exists $allowed_roles{$_->{name}} } @$all_roles ];
 }

@@ -55,7 +55,7 @@ sub begin :Private {
 
     $model = $c->model("Config::Switch");
     ($status, $switch_default) = $model->read('default');
-    ($status, $roles) = $c->model('Config::Roles')->list;
+    ($status, $roles) = $c->model('Config::Roles')->listFromDB;
     $roles = undef unless(is_success($status));
     $c->stash->{roles} = $roles;
 

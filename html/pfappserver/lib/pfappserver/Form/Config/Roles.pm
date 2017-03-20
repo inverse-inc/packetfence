@@ -57,16 +57,6 @@ sub validate {
     if (grep { $_ eq $self->value->{id} } @ROLES) {
         $self->field('id')->add_error('This is a reserved name.');
     }
-    elsif ( !$self->value->{id}) {
-        # Build a list of existing roles
-        my ($status, $result) = $self->ctx->model('Config::Roles')->readAll();
-        if (is_success($status)) {
-            my %roles = map { $_->{id} => 1 } @$result;
-            if (defined $roles{$self->value->{id}}) {
-                $self->field('id')->add_error('This name is already taken.');
-            }
-        }
-    }
 }
 
 =head1 COPYRIGHT

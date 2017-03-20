@@ -125,7 +125,7 @@ sub field_list {
                 $field->{type} = 'Select';
                 $field->{element_class} = ['chzn-deselect', 'input'];
                 $field->{element_attr} = {'data-placeholder' => 'Select a role'};
-                my $roles = $self->ctx->model('Config::Roles')->list();
+                my $roles = $self->ctx->model('Config::Roles')->listFromDB();
                 my @options = ({ value => '', label => ''}, map { { value => $_->{name}, label => $_->{name} } } @$roles);
                 $field->{options} = \@options;
                 last;

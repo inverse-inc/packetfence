@@ -17,6 +17,8 @@ use Moose;
 use namespace::autoclean;
 use pf::config;
 use pf::ConfigStore::Roles;
+use pf::nodecategory;
+use pf::log;
 
 extends 'pfappserver::Base::Model::Config';
 
@@ -39,6 +41,31 @@ sub search {
     } else {
         return ($STATUS::NOT_FOUND,["[_1] matching [_2] not found"],$field,$value);
     }
+}
+
+=head2 listFromDB
+
+List the roles from the database
+
+=cut
+
+sub listFromDB {
+    my ( $self ) = @_;
+
+    my $logger = get_logger();
+    my ($status, $status_msg);
+
+    my @categories;
+    eval {
+        @categories = nodecategory_view_all();
+    };
+    if ($@) {
+        $status_msg = "Can't fetch node categories from database.";
+        $logger->error($status_msg);
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+
+    return ($STATUS::OK, \@categories);
 }
 
 __PACKAGE__->meta->make_immutable;
