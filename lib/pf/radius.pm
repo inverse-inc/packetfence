@@ -121,8 +121,6 @@ sub authorize {
 
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
 
-    $logger->info("Found ifDesc $ifDesc");
-
     if (!$mac) {
         return [$RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Mac is empty")];
     }
