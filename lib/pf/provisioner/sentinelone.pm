@@ -51,7 +51,7 @@ Host of the SentinelOne web API
 
 =cut
 
-has host => (is => 'rw', required => 1);
+has host => (is => 'rw', required => $TRUE);
 
 =head2 port
 
@@ -59,7 +59,7 @@ Port to connect to the SentinelOne web API
 
 =cut
 
-has port => (is => 'rw', default =>  sub { 443 } );
+has port => (is => 'rw', default =>  sub { $HTTPS_PORT } );
 
 =head2 protocol
 
@@ -67,7 +67,7 @@ Protocol to connect to the SentinelOne web API
 
 =cut
 
-has protocol => (is => 'rw', default => sub { "https" } );
+has protocol => (is => 'rw', default => sub { $HTTPS } );
 
 =head2 win_agent_download_uri
 
@@ -129,7 +129,7 @@ sub fetch_token {
 
     my $ua = LWP::UserAgent->new();
 
-    my $req = HTTP::Request::Common::POST($self->_build_uri("/web/api/v1.6/users/login"), [username => $self->api_username, password => $self->api_password]);
+    my $req = HTTP::Request::Common::POST($self->_build_uri("login"), [username => $self->api_username, password => $self->api_password]);
 
     my $res = $ua->request($req);
 
@@ -154,7 +154,7 @@ Fetch the agent information for a MAC address
 sub fetch_agent_info {
     my ($self, $mac) = @_;
     my $logger = get_logger;
-    my $uri = $self->_build_uri("/web/api/v1.6/agents?query=$mac");
+    my $uri = $self->_build_uri("agent_info") . "?query=$mac";
     my $req = HTTP::Request::Common::GET($uri);
     my $res = $self->execute_request($req);
     if($res == $pf::provisioner::COMMUNICATION_FAILED){
@@ -261,7 +261,13 @@ Build the API URI based on the configuration
 =cut
 
 sub _build_uri {
-    my ($self, $path) = @_;
+    my ($self, $type) = @_;
+    my $URIS = {
+        login => "/web/api/v1.6/users/login",
+        agent_info => "/web/api/v1.6/agents",
+        activities => "/web/api/v1.6/activities",
+    };
+    my $path = $URIS->{$type};
     return $self->protocol."://".$self->host.":".$self->port."/$path";
 }
 
@@ -308,7 +314,7 @@ Get the list of devices that have uninstalled the agent in the last X seconds
 sub uninstalled_devices {
     my ($self, $timeframe) = @_;
 
-    my $uri = $self->_build_uri("/web/api/v1.6/activities?activity_type__in=51&created_at__gt=".(time*1000 - ($timeframe*1000)));
+    my $uri = $self->_build_uri("activities") . "?activity_type__in=51&created_at__gt=".(time*1000 - ($timeframe*1000));
     my $req = HTTP::Request::Common::GET($uri);
     my $res = $self->execute_request($req);
     if($res == $pf::provisioner::COMMUNICATION_FAILED){
@@ -326,7 +332,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 

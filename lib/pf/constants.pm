@@ -17,6 +17,7 @@ use Readonly;
 use base qw(Exporter);
 our @EXPORT = qw(
     $FALSE $TRUE $YES $NO $default_pid $admin_pid
+    $HTTP $HTTPS $HTTP_PORT $HTTPS_PORT
 );
 
 # some global constants
@@ -31,6 +32,12 @@ Readonly::Hash our %BUILTIN_USERS => (
     $default_pid => 1, 
     $admin_pid => 1,
 );
+
+Readonly::Scalar our $HTTP_PORT => 80;
+Readonly::Scalar our $HTTPS_PORT => 443;
+
+Readonly::Scalar our $HTTP => "http";
+Readonly::Scalar our $HTTPS => "https";
 
 =head1 AUTHOR
 
