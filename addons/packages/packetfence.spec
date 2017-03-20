@@ -669,8 +669,12 @@ fi
 
 
 %post -n %{real_name}
-echo "Setting packetfence as the default systemd target"
-/bin/systemctl set-default packetfence.target
+if [ `systemctl get-default` = "packetfence-cluster.target" ]; then 
+    echo "This is an upgrade on a clustered system. We don't change the default systemd target."
+else 
+    echo "Setting packetfence.target as the default systemd target."
+    /bin/systemctl set-default packetfence.target
+fi
 
 #Check if log files exist and create them with the correct owner
 for fic_log in packetfence.log redis_cache.log
