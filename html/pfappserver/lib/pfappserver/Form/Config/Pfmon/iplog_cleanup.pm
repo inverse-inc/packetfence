@@ -9,66 +9,45 @@ pfappserver::Form::Config::Pfmon::iplog_cleanup - Web form for iplog_cleanup pfm
 =cut
 
 use HTML::FormHandler::Moose;
+use pfappserver::Form::Config::Pfmon qw(default_field_method);
 extends 'pfappserver::Form::Config::Pfmon';
-use pf::config::pfmon qw(%ConfigPfmonDefault);
 
-has_field 'batch' => ( 
+has_field 'batch' => (
     type => 'PosInteger', 
+    default_method => \&default_field_method,
 );
-has_field 'timeout' => ( 
+
+has_field 'timeout' => (
     type => 'Duration', 
-);
-has_field 'window' => ( 
-    type => 'Duration', 
+    default_method => \&default_field_method,
 );
 
-=head2 default_batch
+has_field 'window' => (
+    type => 'Duration',
+    default_method => \&default_field_method,
+);
 
-default value of batch
+has_field 'rotate_batch' => (
+    type => 'PosInteger',
+    default_method => \&default_field_method,
+);
 
-=cut
+has_field 'rotate_timeout' => (
+    type => 'Duration',
+    default_method => \&default_field_method,
+);
 
-sub default_batch {
-    return $ConfigPfmonDefault{iplog_cleanup}{batch};
-};
-=head2 default_timeout
+has_field 'rotate_window' => (
+    type => 'Duration',
+    default_method => \&default_field_method,
+);
 
-default value of timeout
-
-=cut
-
-sub default_timeout {
-    return $ConfigPfmonDefault{iplog_cleanup}{timeout};
-};
-=head2 default_window
-
-default value of window
-
-=cut
-
-sub default_window {
-    return $ConfigPfmonDefault{iplog_cleanup}{window};
-};
-
-=head2 default_interval
-
-default value of interval
-
-=cut
-
-sub default_interval {
-    return $ConfigPfmonDefault{iplog_cleanup}{interval};
-}
-
-=head2 default_enabled
-
-default value of enabled
-
-=cut
-
-sub default_enabled {
-    return $ConfigPfmonDefault{iplog_cleanup}{enabled};
-}
+has_field 'rotate' => (
+    type => 'Toggle',
+    checked_value => 'enabled',
+    unchecked_value => 'enabled',
+    default_method => \&default_field_method,
+);
 
 =head2 default_type
 
