@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 6.5.9\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-03-20 13:06-0400\n"
+"PO-Revision-Date: 2017-03-20 13:16-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -3209,7 +3209,7 @@ msgstr ""
 msgid "Initialize MySQL database"
 msgstr ""
 
-# html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/config/networks/index.tt
 # html/pfappserver/root/config/switch/view.tt
 msgid "Inline"
 msgstr ""
@@ -6202,7 +6202,7 @@ msgstr ""
 msgid "Set role"
 msgstr ""
 
-# conf/documentation.conf (advanced.pfdhcplistener_packet_size)
+# conf/documentation.conf (services.pfdhcplistener_packet_size)
 msgid "Set the max size of DHCP packetsDo not change unless you know what you are doing"
 msgstr ""
 
@@ -8405,10 +8405,6 @@ msgid "advanced.ntlm_redis_cache"
 msgstr "NTLM Redis cache"
 
 # conf/documentation.conf
-msgid "advanced.pfdhcplistener_packet_size"
-msgstr "pfdhcplistener Packet Size"
-
-# conf/documentation.conf
 msgid "advanced.pfdns_processes"
 msgstr "PFDNS Processes"
 
@@ -9230,7 +9226,7 @@ msgstr "IfIndex"
 # conf/documentation.conf (interface.enforcement options)
 # pf::config (Network types)
 msgid "inline"
-msgstr "inline"
+msgstr "Inline"
 
 # conf/documentation.conf
 msgid "inline.interfaceSNAT"
@@ -10308,12 +10304,16 @@ msgid "services.pfdhcplistener"
 msgstr "pfdhcplistener"
 
 # conf/documentation.conf
+msgid "services.pfdhcplistener_packet_size"
+msgstr "pfdhcplistener Packet Size"
+
+# conf/documentation.conf
 msgid "services.pfdns"
 msgstr "pfdns"
 
 # conf/documentation.conf
 msgid "services.pffilter"
-msgstr ""
+msgstr "pffilter"
 
 # conf/documentation.conf
 msgid "services.pfmon"

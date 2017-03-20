@@ -162,7 +162,6 @@ table.sources {
               [%- IF can_access("CONFIGURATION_MAIN_READ") %]
               [% pf_section_entry( 'main', 'Main Configuration') | none %]
               [% pf_section_entry( 'pfdb', 'Database') | none %]
-              [% pf_section_entry( 'inline', 'Inline') | none %]
               [% pf_section_entry( 'active_active', 'Cluster') | none %]
               [% pf_section_entry( 'radius_authentication_methods', 'Authentication Methods') | none %]
               [%- END %]
