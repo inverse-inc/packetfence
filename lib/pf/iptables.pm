@@ -365,16 +365,7 @@ sub generate_inline_rules {
 
 
     $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_REG --jump ACCEPT\n";
-    if (!isenabled($Config{'fencing'}{'registration'})) {
-        $logger->info(
-            "trapping.registration is disabled, adding rule so we accept unregistered users through inline interface"
-        );
-        $$filter_rules_ref .=
-            "-A $FW_FILTER_FORWARD_INT_INLINE "
-            . "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump ACCEPT\n"
-        ;
     }
-}
 
 =item generate_passthrough_rules
 
@@ -539,12 +530,6 @@ sub generate_nat_redirect_rules {
                         $gateway = $ConfigNetworks{$test_network}{'gateway'};
                     }
                 }
-            }
-            # Destination NAT to the portal on the UNREG mark if trapping.registration is enabled
-            if ( isenabled( $Config{'fencing'}{'registration'} ) ) {
-                $rules .=
-                    "-A $FW_PREROUTING_INT_INLINE --protocol $protocol --destination-port $port -s $network/$ConfigNetworks{$network}{'netmask'} " .
-                    "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump DNAT --to $gateway\n";
             }
 
             # Destination NAT to the portal on the ISOLATION mark

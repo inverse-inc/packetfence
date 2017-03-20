@@ -121,7 +121,7 @@ EOT
                     my $current_network = NetAddr::IP->new( $cfg->{'ip'}, $cfg->{'mask'} );
                     my $members;
                     # If we use passthroughs we only use management for DNS server as ipset sessions are not replicated
-                    if( isenabled($Config{active_active}{dns_on_vip_only}) || isenabled($Config{trapping}{passthrough}) ){
+                    if( isenabled($Config{active_active}{dns_on_vip_only}) || isenabled($Config{fencing}{passthrough}) ){
                         $members = pf::cluster::cluster_ip($interface);
                     }
                     else {

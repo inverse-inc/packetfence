@@ -306,13 +306,6 @@ sub getRegistrationRole {
     my ($self, $args) = @_;
     my $logger = $self->logger;
 
-    # trapping on registration is enabled
-
-    if (!isenabled($Config{'fencing'}{'registration'})) {
-        $logger->debug("Registration trapping disabled: skipping node is registered test");
-        return ({ role => 0});
-    }
-
     if (!defined($args->{'node_info'})) {
         # Vlan Filter
         my $role = $self->filterVlan('RegistrationRole',$args);

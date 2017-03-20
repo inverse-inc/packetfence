@@ -43,7 +43,7 @@ BEGIN {extends 'pfappserver::Base::Controller'; }
 our %ALLOWED_SECTIONS = (
     general => undef,
     networking => undef,
-    trapping => undef,
+    fencing => undef,
     parking => undef,
     device_registration => undef,
     guests_self_registration => undef,
