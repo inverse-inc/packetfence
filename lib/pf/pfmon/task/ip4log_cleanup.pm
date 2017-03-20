@@ -15,14 +15,18 @@ pf::pfmon::task::ip4log_cleanup
 use strict;
 use warnings;
 use Moose;
+use pf::ip4log;
+use pf::util qw(isenabled);
 extends qw(pf::pfmon::task);
 
 has 'batch' => ( is => 'rw', default => "100" );
+has 'timeout' => ( is => 'rw', default => "10s" );
+has 'window' => ( is => 'rw', default => "1M" );
+
+has 'rotate' => ( is => 'rw');
 has 'rotate_batch' => ( is => 'rw', default => "100" );
 has 'rotate_timeout' => ( is => 'rw', default => "10s" );
 has 'rotate_window' => ( is => 'rw', default => "1W" );
-has 'timeout' => ( is => 'rw', default => "10s" );
-has 'window' => ( is => 'rw', default => "1M" );
 
 =head2 run
 
@@ -32,8 +36,22 @@ run the ip4log cleanup task
 
 sub run {
     my ($self) = @_;
-    my $window = $self->window;
-    function($window, $self->batch, $self->timeout) if $self->window;
+    if (isenabled($self->rotate)) {
+        my $rotate_window = $self->rotate_window;
+        if ($rotate_window) {
+            pf::ip4log::rotate($rotate_window, $self->rotate_batch, $self->rotate_timeout);
+        }
+        my $window = $self->window;
+        if ($window) {
+            pf::ip4log::cleanup_archive($window, $self->batch, $self->timeout);
+        }
+    }
+    else {
+        my $window = $self->window;
+        if ($window) {
+            pf::ip4log::cleanup_history($window, $self->batch, $self->timeout);
+        }
+    }
 }
 
 =head1 AUTHOR
