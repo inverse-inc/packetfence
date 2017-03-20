@@ -24,6 +24,7 @@ use pf::db();
 use pf::ip6log();
 use pf::log();
 use pf::util::dhcpv6();
+use pf::util::IP();
 use pf::StatsD::Timer();
 
 use Moose;
@@ -222,6 +223,35 @@ sub _process_options {
     }
 
     return $option_attributes;
+}
+
+
+=head2 preProcessIPTasks
+
+Prepare arguments for 'processIPTasks'
+
+=cut
+
+sub preProcessIPTasks {
+    my $timer = pf::StatsD::Timer->new({level => 6});
+    my ( $self, $iptasks_arguments ) = @_;
+    my $logger = pf::log::get_logger();
+
+    my $ip   = $iptasks_arguments->{'ip'};
+    my $mac  = $iptasks_arguments->{'mac'};
+
+    # Sanitize input
+    unless ( pf::util::valid_mac($mac) || pf::util::IP::is_ipv6($ip) ) {
+        $logger->error("invalid MAC or IP: $mac $ip");
+        return;
+    }
+
+    # Add IP version to arguments
+    $iptasks_arguments->{'ipversion'} = "ipv6";
+    
+    # Get previous (old) mappings
+    $iptasks_arguments->{'oldip'}  = pf::ip6log::_mac2ip_sql($mac);
+    $iptasks_arguments->{'oldmac'} = pf::ip6log::_ip2mac_sql($ip);
 }
 
 

@@ -319,7 +319,7 @@ sub parse_dhcp_request {
     # This means we don't see ACK so we need to act on requests
     if( !$self->pf_is_dhcp($client_ip) && 
         !isenabled($Config{network}{force_listener_update_on_ack}) ){
-        $self->handle_new_ip($client_mac, $client_ip, $lease_length);
+        $self->processIPTasks( (client_mac => $client_mac, client_ip => $client_ip, lease_length => $lease_length) );
     }
     # We call the parking on all DHCPREQUEST since the actions have to be done on all servers and all servers receive the DHCPREQUEST
     else {
@@ -389,7 +389,7 @@ sub parse_dhcp_ack {
     # Packet also has to be valid
     if( $self->pf_is_dhcp($client_ip) || 
         isenabled $Config{network}{force_listener_update_on_ack} ){
-        $self->handle_new_ip($client_mac, $client_ip, $lease_length);
+        $self->processIPTasks( (client_mac => $client_mac, client_ip => $client_ip, lease_length => $lease_length) );
     }
     else {
         $logger->debug("Not acting on DHCPACK");
@@ -419,28 +419,6 @@ sub pf_is_dhcp {
     return $FALSE;
 }
 
-=head2 handle_new_ip
-
-Handle the tasks related to a device getting an IP address
-
-=cut
-
-sub handle_new_ip {
-    my $timer = pf::StatsD::Timer->new({level => 6});
-    my ($self, $client_mac, $client_ip, $lease_length) = @_;
-    $logger->info("Updating iplog and SSO for $client_mac -> $client_ip");
-    $self->update_iplog( $client_mac, $client_ip, $lease_length );
-
-    $self->check_for_parking($client_mac, $client_ip);
-
-    my %data = (
-       'ip' => $client_ip,
-       'mac' => $client_mac,
-       'net_type' => $self->{net_type},
-    );
-    $self->apiClient->notify('trigger_scan', %data );
-    $self->apiClient->notify( 'firewallsso', (method => 'Update', mac => $client_mac, ip => $client_ip, timeout => $lease_length || $DEFAULT_LEASE_LENGTH) );
-}
 
 =head2 check_for_parking
 
@@ -666,52 +644,35 @@ sub parse_dhcp_option82 {
     }
 }
 
-=head2 update_iplog
 
-Update the iplog entry for a device
-Also handles the SSO stop if the IP changes
+=head2 preProcessIPTasks
+
+Prepare arguments for 'processIPTasks'
 
 =cut
 
-sub update_iplog {
+sub preProcessIPTasks {
     my $timer = pf::StatsD::Timer->new({level => 6});
-    my ( $self, $srcmac, $srcip, $lease_length ) = @_;
-    $logger->debug("$srcip && $srcmac");
+    my ( $self, $iptasks_arguments ) = @_;
 
-    # return if MAC or IP is not valid
-    if ( !valid_mac($srcmac) || !valid_ip($srcip) ) {
-        $logger->error("invalid MAC or IP: $srcmac $srcip");
+    my $ip   = $iptasks_arguments->{'ip'};
+    my $mac  = $iptasks_arguments->{'mac'};
+
+    # Sanitize input
+    unless ( pf::util::valid_mac($mac) || pf::util::valid_ip($ip) ) {
+        $logger->error("invalid MAC or IP: $mac $ip");
         return;
     }
 
-    # update last_seen of MAC address as some activity from it has been seen
-    node_update_last_seen($srcmac);
+    # Add IP version to arguments
+    $iptasks_arguments->{'ipversion'} = "ipv4";
 
-    # we have to check directly in the DB since the OMAPI already contains the current lease info
-    my $oldip  = pf::ip4log::_mac2ip_sql($srcmac);
-    my $oldmac = pf::ip4log::_ip2mac_sql($srcip);
-    if ( $oldip && $oldip ne $srcip ) {
-        my $view_mac = node_view($srcmac);
-        $self->apiClient->notify( 'firewallsso', (method => 'Stop', mac => $srcmac, ip => $oldip, timeout => undef) );
-        $self->apiClient->notify( 'firewallsso', (method => 'Start', mac => $srcmac, ip => $srcip, timeout => $lease_length || $DEFAULT_LEASE_LENGTH) );
+    # Add specific IPv4 attribute
+    $iptasks_arguments->{'net_type'} = $self->net_type;
 
-        my $last_connection_type = $view_mac->{'last_connection_type'};
-        if (defined $last_connection_type && $last_connection_type eq $connection_type_to_str{$INLINE}) {
-            $self->apiClient->notify('ipset_node_update',$oldip, $srcip, $srcmac);
-        }
-    }
-    elsif ($oldmac && $oldmac ne $srcmac) {
-        # Remove the actions that were for the previous MAC address
-        pf::parking::remove_parking_actions($oldmac,$srcip);
-    }
-    my %data = (
-        'mac' => $srcmac,
-        'ip' => $srcip,
-        'lease_length' => $lease_length,
-        'oldip' => $oldip,
-        'oldmac' => $oldmac,
-    );
-    $self->apiClient->notify('update_iplog', %data);
+    # Get previous (old) mappings
+    $iptasks_arguments->{'oldip'}  = pf::ip4log::_mac2ip_sql($mac);
+    $iptasks_arguments->{'oldmac'} = pf::ip4log::_ip2mac_sql($ip);
 }
 
 

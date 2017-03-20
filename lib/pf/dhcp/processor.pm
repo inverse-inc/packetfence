@@ -23,8 +23,11 @@ use pf::access_filter::dhcp;
 use pf::client;
 use pf::config qw(
     %ConfigNetworks
+    %connection_type_to_str
+    $INLINE
 );
 use pf::config::util;
+use pf::constants::dhcp qw($DEFAULT_LEASE_LENGTH);
 use pf::log;
 use pf::node;
 
@@ -44,6 +47,12 @@ Readonly::Hash my %FINGERBANK_ATTRIBUTES_MAP => (
     ipv6_requested_options  => 'dhcp6_fingerprint',
     ipv6_vendor             => 'dhcp_vendor',
     ipv6_enterprise_number  => 'dhcp6_enterprise',
+);
+
+Readonly::Hash my %IPTASKS_ARGUMENTS_MAP => (
+    client_mac      => 'mac',
+    client_ip       => 'ip',
+    lease_length    => 'lease_length',
 );
 
 
@@ -77,6 +86,55 @@ sub _get_local_dhcp_servers {
 
     # Return an hash of arrays for both the IPs and the MACs
     return ( ip => [@local_dhcp_servers_ip], mac => [@local_dhcp_servers_mac] );
+}
+
+
+sub processIPTasks {
+    my ( $self, %arguments ) = @_;
+    my $logger = pf::log::get_logger();
+
+    # Parse arguments
+    my %iptasks_arguments = ();
+    foreach my $key ( keys %arguments ) {
+        if ( exists $IPTASKS_ARGUMENTS_MAP{$key} ) {
+            $iptasks_arguments{$IPTASKS_ARGUMENTS_MAP{$key}} = $arguments{$key};
+        }
+    }
+
+    $self->preProcessIPTasks(\%iptasks_arguments);
+
+    # update last_seen of MAC address as some activity from it has been seen
+    pf::node::node_update_last_seen($iptasks_arguments{'ip'});
+
+    # Firewall SSO
+    if ( $iptasks_arguments{'oldip'} && $iptasks_arguments{'oldip'} ne $iptasks_arguments{'ip'} ) {
+        $self->apiClient->notify( 'firewallsso', (method => 'Stop', mac => $iptasks_arguments{'mac'}, ip => $iptasks_arguments{'oldip'}, timeout => undef) );
+        $self->apiClient->notify( 'firewallsso', (method => 'Start', mac => $iptasks_arguments{'mac'}, ip => $iptasks_arguments{'ip'}, timeout => $iptasks_arguments{'lease_length'} || $DEFAULT_LEASE_LENGTH) );
+    }
+    $self->apiClient->notify( 'firewallsso', (method => 'Update', mac => $iptasks_arguments{'mac'}, ip => $iptasks_arguments{'ip'}, timeout => $iptasks_arguments{'lease_length'} || $DEFAULT_LEASE_LENGTH) );
+
+    # Inline enforcement
+    # 2017.03.20 - dwuelfrath@inverse.ca - There is currently no ipv6 support for inline enforcement. Remove the condition once "resolved"
+    unless ( $iptasks_arguments{'ipversion'} eq "ipv6" ) {
+        if ( $iptasks_arguments{'oldip'} && $iptasks_arguments{'oldip'} ne $iptasks_arguments{'ip'} ) {
+            my $node_view = node_view($iptasks_arguments{'mac'});
+            my $last_connection_type = $node_view->{'last_connection_type'};
+            $self->apiClient->notify('ipset_node_update', $iptasks_arguments{'oldip'}, $iptasks_arguments{'ip'}, $iptasks_arguments{'mac'}) if (defined $last_connection_type && $last_connection_type eq $connection_type_to_str{$INLINE});
+        }
+    }
+
+    # Conformity scan
+    $self->apiClient->notify('trigger_scan', %iptasks_arguments );
+
+    # Parking violation
+    $self->check_for_parking($iptasks_arguments{'mac'}, $iptasks_arguments{'ip'});
+    if ( $iptasks_arguments{'oldmac'} && $iptasks_arguments{'oldmac'} ne $iptasks_arguments{'mac'} ) {
+        # Remove the actions that were for the previous MAC address
+        pf::parking::remove_parking_actions($iptasks_arguments{'oldmac'}, $iptasks_arguments{'ip'});
+    }
+
+    # IPlog
+    $self->apiClient->notify('update_iplog', %iptasks_arguments);
 }
 
 
