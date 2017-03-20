@@ -26,6 +26,7 @@ use pf::constants::provisioning qw($SENTINEL_ONE_TOKEN_EXPIRY $NOT_COMPLIANT_FLA
 use pf::node;
 use pf::enforcement;
 use List::MoreUtils qw(any);
+use pf::error;
 
 =head1 Atrributes
 
@@ -191,14 +192,14 @@ sub execute_request {
         return $res;
     }
     else {
-        if($res->code == 401){
+        if($res->code == $STATUS::FORBIDDEN){
             # We try again but with a fully refreshed token
             $self->cache->remove($self->_token_cache_key);
             $res = $self->_execute_request($req);
             if($res->is_success){
                 return $res;
             }
-            elsif($res->code == 401){
+            elsif($res->code == $STATUS::FORBIDDEN){
                 get_logger->error("Cannot authenticate against SentinelOne API. Please check your configuration.");
                 return $pf::provisioner::COMMUNICATION_FAILED;
             }
