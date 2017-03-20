@@ -1125,6 +1125,8 @@ fi
                         /usr/local/pf/conf/monitoring/types.db.example
 %config(noreplace)      /usr/local/pf/conf/profiles.conf
 %config                 /usr/local/pf/conf/profiles.conf.defaults
+%config(noreplace)      /usr/local/pf/conf/roles.conf
+%config                 /usr/local/pf/conf/roles.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/snmptrapd.conf
 %config(noreplace)      /usr/local/pf/conf/snort.conf
 %config(noreplace)      /usr/local/pf/conf/snort.conf.pre_snort-2.8
