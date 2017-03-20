@@ -69,7 +69,7 @@ foreach my $task (sort @tasks) {
         }
         my $name = $attrib_name;
         $name =~ s/^${task}_//;
-        if ($name eq 'window') {
+        if ($name =~ /window/) {
             $vars{HAS_WINDOW} = 1;
             $vars{enabled} = 'disabled' if $default == 0;
         }
@@ -108,11 +108,11 @@ $tt->process("pfmon.conf.tt",{ 'configs' => \@config_info}, "conf/pfmon.conf.def
 sub mk_comment {
     my ($class, $name) = @_;
     my $comment = "TODO: comment for $class.$name";
-    if ($name eq 'timeout') {
+    if ($name =~ /timeout/) {
         $comment = "How long a $class job can run"
-    } elsif ($name eq 'batch') {
+    } elsif ($name =~ /batch/) {
         $comment = "How many $class entries to clean up in one run";
-    } elsif ($name eq 'window') {
+    } elsif ($name =~ 'window') {
         $comment = "How long to keep a $class entry before deleting it"
     }
     return $comment;

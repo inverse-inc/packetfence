@@ -9,46 +9,17 @@ pfappserver::Form::Config::Pfmon::[% class %] - Web form for [% class %] pfmon t
 =cut
 
 use HTML::FormHandler::Moose;
+[% IF attributes.size %]
+use pfappserver::Form::Config::Pfmon qw(default_field_method);
+[% END %]
 extends 'pfappserver::Form::Config::Pfmon';
-use pf::config::pfmon qw(%ConfigPfmonDefault);
 
 [% FOREACH attrib IN attributes -%]
 has_field '[% attrib.name %]' => ( 
     type => '[% attrib.field_type %]', 
+    default_method => \&default_field_method,
 );
 [% END -%]
-
-[% FOREACH attrib IN attributes -%]
-=head2 default_[% attrib.name %]
-
-default value of [% attrib.name %]
-
-=cut
-
-sub default_[% attrib.name %] {
-    return $ConfigPfmonDefault{[%class%]}{[% attrib.name %]};
-};
-[% END -%]
-
-=head2 default_interval
-
-default value of interval
-
-=cut
-
-sub default_interval {
-    return $ConfigPfmonDefault{[%class%]}{interval};
-}
-
-=head2 default_enabled
-
-default value of enabled
-
-=cut
-
-sub default_enabled {
-    return $ConfigPfmonDefault{[%class%]}{enabled};
-}
 
 =head2 default_type
 
@@ -62,7 +33,7 @@ sub default_type {
 
 has_block  definition =>
   (
-    render_list => [qw(type enabled interval[% FOREACH a IN attributes%] [% a.name %][% END %])],
+    render_list => [qw(type status interval[% FOREACH a IN attributes%] [% a.name %][% END %])],
   );
 
 

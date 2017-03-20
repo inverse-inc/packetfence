@@ -1,37 +1,39 @@
-package pf::pfmon::task::iplog_rotation;
+package pf::pfmon::task::ip4log_cleanup;
 
 =head1 NAME
 
-pf::pfmon::task::iplog_rotation - class for pfmon task iplog rotation
+pf::pfmon::task::ip4log_cleanup - class for pfmon task ip4log cleanup
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::pfmon::task::iplog_rotation
+pf::pfmon::task::ip4log_cleanup
 
 =cut
 
 use strict;
 use warnings;
-use pf::iplog;
 use Moose;
 extends qw(pf::pfmon::task);
 
-has 'batch' => ( is => 'rw' );
-has 'timeout' => ( is => 'rw', isa => 'PfInterval', coerce => 1 );
-has 'window' => ( is => 'rw', isa => 'PfInterval', coerce => 1 );
+has 'batch' => ( is => 'rw', default => "100" );
+has 'rotate_batch' => ( is => 'rw', default => "100" );
+has 'rotate_timeout' => ( is => 'rw', default => "10s" );
+has 'rotate_window' => ( is => 'rw', default => "1W" );
+has 'timeout' => ( is => 'rw', default => "10s" );
+has 'window' => ( is => 'rw', default => "1M" );
 
 =head2 run
 
-run the iplog rotation task
+run the ip4log cleanup task
 
 =cut
 
 sub run {
     my ($self) = @_;
     my $window = $self->window;
-    pf::iplog::rotate($window, $self->batch, $self->timeout) if $self->window;
+    function($window, $self->batch, $self->timeout) if $self->window;
 }
 
 =head1 AUTHOR

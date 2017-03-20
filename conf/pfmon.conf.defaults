@@ -157,79 +157,57 @@ status=enabled
 # At which interval to run the inline accounting maintenance pfmon task
 interval=60s
 
-[iplog_cleanup]
+[ip4log_cleanup]
 #
 # type
 #
 # The type of task to perform
-type=iplog_cleanup
+type=ip4log_cleanup
 #
 # description
 #
 # The description of task to perform
-description=iplog cleanup
+description=ip4log cleanup
 #
 # status
 #
-# If the task iplog_cleanup is enabled
+# If the task ip4log_cleanup is enabled
 status=enabled
 #
 # interval
 #
-# At which interval to run the iplog cleanup pfmon task
+# At which interval to run the ip4log cleanup pfmon task
 interval=60s
 #
 # batch
 #
-# How many iplog_cleanup entries to clean up in one run
+# How many ip4log_cleanup entries to clean up in one run
 batch=100
+#
+# rotate_batch
+#
+# How many ip4log_cleanup entries to clean up in one run
+rotate_batch=100
+#
+# rotate_timeout
+#
+# How long a ip4log_cleanup job can run
+rotate_timeout=10s
+#
+# rotate_window
+#
+# How long to keep a ip4log_cleanup entry before deleting it
+rotate_window=1W
 #
 # timeout
 #
-# How long a iplog_cleanup job can run
+# How long a ip4log_cleanup job can run
 timeout=10s
 #
 # window
 #
-# How long to keep a iplog_cleanup entry before deleting it
+# How long to keep a ip4log_cleanup entry before deleting it
 window=1M
-
-[iplog_rotation]
-#
-# type
-#
-# The type of task to perform
-type=iplog_rotation
-#
-# description
-#
-# The description of task to perform
-description=iplog rotation
-#
-# status
-#
-# If the task iplog_rotation is enabled
-status=disabled
-#
-# interval
-#
-# At which interval to run the iplog rotation pfmon task
-interval=60s
-#
-# batch
-#
-# How many iplog_rotation entries to clean up in one run
-batch=100
-#
-# timeout
-#
-# How long a iplog_rotation job can run
-timeout=10s
-#
-# window
-#
-# How long to keep a iplog_rotation entry before deleting it
-window=1W
 
 [locationlog_cleanup]
 #

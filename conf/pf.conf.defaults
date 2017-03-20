@@ -883,10 +883,10 @@ pfdns_processes=4
 # Amount of pffilter processes to start
 pffilter_processes=4
 #
-# advanced.update_iplog_with_accounting
+# advanced.update_ip4log_with_accounting
 #
 # Use the information included in the accounting to update the iplog
-update_iplog_with_accounting=disabled
+update_ip4log_with_accounting=disabled
 #
 # advanced.locationlog_close_on_accounting_stop
 #
@@ -1028,56 +1028,45 @@ aaa_port=7070
 
 [maintenance]
 #
-# maintenance.iplog_rotation
+# maintenance.ip4log_cleanup_window
 #
-# Enable or disable iplog rotation (moving iplog_history records to iplog_archive)
-# If disabled, 'iplog_cleanup' will delete from the iplog_history table rather than the iplog_archive using the iplog rotation window, interval, batch and timeout parameters.
-iplog_rotation=disabled
+# How long to keep a ip4log_archive entry before deleting it
+ip4log_cleanup_window=1M
 #
-# maintenance.iplog_rotation_window
+# maintenance.ip4log_cleanup_interval
 #
-# How long to keep iplog history entry before rotating it to iplog archive (or deleting it if rotation is disabled).
-iplog_rotation_window=1W
+# At which interval to run the ip4log_archive cleanup job
+ip4log_cleanup_interval=60s
 #
-# maintenance.iplog_rotation_interval
+# maintenance.ip4log_cleanup_batch
 #
-# At which interval to run the iplog history rotation job (or deletion job if rotation is disabled).
-iplog_rotation_interval=60s
+# How many ip4log_archive entries to clean up in one job
+ip4log_cleanup_batch=100
 #
-# maintenance.iplog_rotation_batch
+# maintenance.ip4log_cleanup_timeout
 #
-# How many iplog history entries to rotate (or to delete if rotation is disabled) in one job.
-iplog_rotation_batch=100
-#
-# maintenance.iplog_rotation_timeout
-#
-# How long a iplog history rotation job (or deletion job if rotation is disabled) can take before being killed.
-iplog_rotation_timeout=10s
-#
-# maintenance.iplog_cleanup_window
-#
-# How long to keep a iplog_archive entry before deleting it
-iplog_cleanup_window=1M
-#
-# maintenance.iplog_cleanup_interval
-#
-# At which interval to run the iplog_archive cleanup job
-iplog_cleanup_interval=60s
-#
-# maintenance.iplog_cleanup_batch
-#
-# How many iplog_archive entries to clean up in one job
-iplog_cleanup_batch=100
-#
-# maintenance.iplog_cleanup_timeout
-#
-# How long a iplog_archive cleanup job can take before being killed
-iplog_cleanup_timeout=10s
+# How long a ip4log_archive cleanup job can take before being killed
+ip4log_cleanup_timeout=10s
 #
 # maintenance.locationlog_cleanup_window
 #
 # How long to keep a locationlog entry before deleting it
 locationlog_cleanup_window=1W
+#
+# maintenance.ip4log_cleanup_rotate_window
+#
+# How long to keep iplog history entry before rotating it to iplog archive (or deleting it if rotation is disabled).
+ip4log_cleanup_rotate_window=1W
+#
+# maintenance.ip4log_cleanup_rotate_batch
+#
+# How many iplog history entries to rotate (or to delete if rotation is disabled) in one job.
+ip4log_cleanup_rotate_batch=100
+#
+# maintenance.ip4log_cleanup_rotate_timeout
+#
+# How long a iplog history rotation job (or deletion job if rotation is disabled) can take before being killed.
+ip4log_cleanup_rotate_timeout=10s
 #
 # maintenance.locationlog_cleanup_interval
 #

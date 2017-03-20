@@ -1,74 +1,43 @@
-package pfappserver::Form::Config::Pfmon::iplog_rotation;
+package pfappserver::Form::Config::Pfmon::ip4log_cleanup;
 
 =head1 NAME
 
-pfappserver::Form::Config::Pfmon::iplog_rotation - Web form for iplog_rotation pfmon task
+pfappserver::Form::Config::Pfmon::ip4log_cleanup - Web form for ip4log_cleanup pfmon task
 
 =head1 DESCRIPTION
 
 =cut
 
 use HTML::FormHandler::Moose;
+
+use pfappserver::Form::Config::Pfmon qw(default_field_method);
+
 extends 'pfappserver::Form::Config::Pfmon';
-use pf::config::pfmon qw(%ConfigPfmonDefault);
 
 has_field 'batch' => ( 
     type => 'PosInteger', 
+    default_method => \&default_field_method,
+);
+has_field 'rotate_batch' => ( 
+    type => 'Text', 
+    default_method => \&default_field_method,
+);
+has_field 'rotate_timeout' => ( 
+    type => 'Text', 
+    default_method => \&default_field_method,
+);
+has_field 'rotate_window' => ( 
+    type => 'Text', 
+    default_method => \&default_field_method,
 );
 has_field 'timeout' => ( 
     type => 'Duration', 
+    default_method => \&default_field_method,
 );
 has_field 'window' => ( 
     type => 'Duration', 
+    default_method => \&default_field_method,
 );
-
-=head2 default_batch
-
-default value of batch
-
-=cut
-
-sub default_batch {
-    return $ConfigPfmonDefault{iplog_rotation}{batch};
-};
-=head2 default_timeout
-
-default value of timeout
-
-=cut
-
-sub default_timeout {
-    return $ConfigPfmonDefault{iplog_rotation}{timeout};
-};
-=head2 default_window
-
-default value of window
-
-=cut
-
-sub default_window {
-    return $ConfigPfmonDefault{iplog_rotation}{window};
-};
-
-=head2 default_interval
-
-default value of interval
-
-=cut
-
-sub default_interval {
-    return $ConfigPfmonDefault{iplog_rotation}{interval};
-}
-
-=head2 default_enabled
-
-default value of enabled
-
-=cut
-
-sub default_enabled {
-    return $ConfigPfmonDefault{iplog_rotation}{enabled};
-}
 
 =head2 default_type
 
@@ -77,12 +46,12 @@ default value of type
 =cut
 
 sub default_type {
-    return "iplog_rotation";
+    return "ip4log_cleanup";
 }
 
 has_block  definition =>
   (
-    render_list => [qw(type enabled interval batch timeout window)],
+    render_list => [qw(type status interval batch rotate_batch rotate_timeout rotate_window timeout window)],
   );
 
 
