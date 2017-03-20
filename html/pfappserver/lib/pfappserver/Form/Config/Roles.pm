@@ -59,7 +59,7 @@ sub validate {
     }
     elsif ( !$self->value->{id}) {
         # Build a list of existing roles
-        my ($status, $result) = $self->ctx->model('Roles')->readAll();
+        my ($status, $result) = $self->ctx->model('Config::Roles')->readAll();
         if (is_success($status)) {
             my %roles = map { $_->{id} => 1 } @$result;
             if (defined $roles{$self->value->{id}}) {

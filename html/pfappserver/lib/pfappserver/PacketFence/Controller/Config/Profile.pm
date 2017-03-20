@@ -122,7 +122,7 @@ Append additional data after the view
 
 after view => sub {
     my ($self, $c) = @_;
-    my ($status, $roles) = $c->model('Roles')->list;
+    my ($status, $roles) = $c->model('Config::Roles')->list;
     $c->stash({
         connection_types => [ keys %connection_type ],
         connection_sub_types => [ sort keys %RADIUS_EAP_TYPE_2_VALUES ],

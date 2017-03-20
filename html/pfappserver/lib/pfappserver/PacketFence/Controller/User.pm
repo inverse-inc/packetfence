@@ -247,7 +247,7 @@ sub create :Local :AdminRoleAny('USERS_CREATE') :AdminRoleAny('USERS_CREATE_MULI
     my ($type, %data, @options);
     my ($status, $result, $message);
 
-    ($status, $result) = $c->model('Roles')->list();
+    ($status, $result) = $c->model('Config::Roles')->list();
     if (is_success($status)) {
         @roles = map { $_->{name} => $_->{name} } @$result;
     }
@@ -417,7 +417,7 @@ sub advanced_search :Local :Args() :AdminRoleAny(USERS_READ) :AdminRoleAny(USERS
         $c->stash(current_view => 'JSON') if ($c->request->params->{'json'});
     }
     my ( $roles, $violations );
-    (undef, $roles) = $c->model('Roles')->list();
+    (undef, $roles) = $c->model('Config::Roles')->list();
     (undef, $violations) = $c->model('Config::Violations')->readAll();
     $c->stash(
         status_msg => $status_msg,

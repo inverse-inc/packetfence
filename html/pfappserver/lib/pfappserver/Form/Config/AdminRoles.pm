@@ -176,7 +176,7 @@ To automatically add the context to the Form
 
 sub ACCEPT_CONTEXT {
     my ($class, $c, @args) = @_;
-    my ($status, $roles) = $c->model('Roles')->list();
+    my ($status, $roles) = $c->model('Config::Roles')->list();
     return $class->SUPER::ACCEPT_CONTEXT($c, roles => $roles, @args);
 }
 

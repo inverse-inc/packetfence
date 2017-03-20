@@ -169,7 +169,7 @@ sub options_roles {
     my $self = shift;
     my @options_values = $self->form->_get_allowed_options('allowed_roles');
     unless( @options_values ) {
-        my ($status, $result) = $self->form->ctx->model('Roles')->list();
+        my ($status, $result) = $self->form->ctx->model('Config::Roles')->list();
         @options_values = map { $_->{name} } @$result if (is_success($status));
     }
     # Build a list of existing roles

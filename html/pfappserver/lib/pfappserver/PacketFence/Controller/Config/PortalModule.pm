@@ -140,7 +140,7 @@ after list => sub {
 
 after view => sub {
     my ($self, $c) = @_;
-    $c->stash->{node_roles} = $c->model('Roles')->list();
+    $c->stash->{node_roles} = $c->model('Config::Roles')->list();
     $c->stash->{access_durations} = [split(/\s*,\s*/, $Config{'guests_admin_registration'}{'access_duration_choices'})];
 };
 

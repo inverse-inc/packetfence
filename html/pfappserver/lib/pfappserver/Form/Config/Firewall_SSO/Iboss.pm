@@ -86,7 +86,7 @@ has_block definition =>
 sub options_categories {
     my $self = shift;
 
-    my ($status, $result) = $self->form->ctx->model('Roles')->list();
+    my ($status, $result) = $self->form->ctx->model('Config::Roles')->list();
     my @roles = map { $_->{name} => $_->{name} } @{$result} if ($result);
     return ('' => '', @roles);
 }

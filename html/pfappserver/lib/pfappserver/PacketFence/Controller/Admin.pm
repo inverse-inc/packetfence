@@ -271,7 +271,7 @@ sub auditing_radius_log :Chained('object') :PathPart('auditing/radius_log') :Arg
     my ( $self, $c ) = @_;
     my $id = $c->user->id;
     my ($status, $saved_searches) = $c->model("SavedSearch::RadiusLog")->read_all($id);
-    (undef, my $roles) = $c->model('Roles')->list();
+    (undef, my $roles) = $c->model('Config::Roles')->list();
     my $sg = pf::ConfigStore::SwitchGroup->new;
 
     my $switch_groups = [
@@ -356,7 +356,7 @@ sub nodes :Chained('object') :PathPart('nodes') :Args(0) :AdminRole('NODES_READ'
 
     my $id = $c->user->id;
     my ($status, $saved_searches) = $c->model("SavedSearch::Node")->read_all($id);
-    (undef, my $roles) = $c->model('Roles')->list();
+    (undef, my $roles) = $c->model('Config::Roles')->list();
     my $switches_list = pf::ConfigStore::Switch->new->readAll("Id");
     my @switches_filtered = grep { !defined $_->{group} && $_->{Id} !~ /^group(.*)/ && $_->{Id} ne 'default' } @$switches_list;
     my $switches = [

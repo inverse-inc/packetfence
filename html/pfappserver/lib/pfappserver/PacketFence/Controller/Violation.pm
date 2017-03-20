@@ -76,7 +76,7 @@ sub begin :Private {
         $violations = $result;
     }
     my @roles = map {{ name => $_ }} @ROLES;
-    ($status, $result) = $c->model('Roles')->list();
+    ($status, $result) = $c->model('Config::Roles')->list();
     if (is_success($status)) {
         push(@roles, @$result);
     }
