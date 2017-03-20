@@ -139,7 +139,7 @@ sub processIPTasks {
 
     # IPlog
     if ( $iptasks_arguments{'ipversion'} eq "ipv4" ) {
-        $self->apiClient->notify('update_iplog', %iptasks_arguments);
+        $self->apiClient->notify('update_ip4log', %iptasks_arguments);
     } elsif ( $iptasks_arguments{'ipversion'} eq "ipv6" ) {
         $self->apiClient->notify('update_ip6log', %iptasks_arguments);
     }

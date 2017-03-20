@@ -203,7 +203,7 @@ sub radius_switch_access : Public {
     return $return;
 }
 
-sub update_iplog : Public :AllowedAsAction(mac, $mac, ip, $ip) {
+sub update_ip4log : Public :AllowedAsAction(mac, $mac, ip, $ip) {
     my ($class, %postdata) = @_;
     my @require = qw(mac ip);
     my @found = grep {exists $postdata{$_}} @require;
@@ -1336,7 +1336,7 @@ sub handle_accounting_metadata : Public {
         # Tracking IP address.
         if(pf::util::isenabled($pf::config::Config{advanced}{update_iplog_with_accounting})){
             $logger->info("Updating iplog from accounting request");
-            $client->notify("update_iplog", mac => $mac, ip => $RAD_REQUEST{'Framed-IP-Address'}) if ($RAD_REQUEST{'Framed-IP-Address'} );
+            $client->notify("update_ip4log", mac => $mac, ip => $RAD_REQUEST{'Framed-IP-Address'}) if ($RAD_REQUEST{'Framed-IP-Address'} );
         }
         else {
             pf::log::get_logger->debug("Not handling iplog update because we're not configured to do so on accounting packets.");
