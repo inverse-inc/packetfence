@@ -216,17 +216,43 @@ sub update_iplog : Public :AllowedAsAction(mac, $mac, ip, $ip) {
 
     if ( $postdata{'oldmac'} && $postdata{'oldmac'} ne $postdata{'mac'} ) {
         $logger->info(
-            "oldmac ($postdata{'oldmac'}) and newmac ($postdata{'mac'}) are different for $postdata{'ip'} - closing iplog entry"
+            "oldmac ($postdata{'oldmac'}) and newmac ($postdata{'mac'}) are different for $postdata{'ip'} - closing ip4log entry"
         );
         pf::ip4log::close($postdata{'ip'});
     } elsif ($postdata{'oldip'} && $postdata{'oldip'} ne $postdata{'ip'}) {
         $logger->info(
-            "oldip ($postdata{'oldip'}) and newip ($postdata{'ip'}) are different for $postdata{'mac'} - closing iplog entry"
+            "oldip ($postdata{'oldip'}) and newip ($postdata{'ip'}) are different for $postdata{'mac'} - closing ip4log entry"
         );
         pf::ip4log::close($postdata{'oldip'});
     }
 
     return (pf::ip4log::open($postdata{'ip'}, $postdata{'mac'}, $postdata{'lease_length'}));
+}
+
+sub update_ip6log : Public :AllowedAsAction(mac, $mac, ip, $ip) {
+    my ($class, %postdata) = @_;
+    my @require = qw(mac ip);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless pf::util::validate_argv(\@require,  \@found);
+
+    my $logger = pf::log::get_logger();
+
+    $postdata{'oldip'}  = pf::ip6log::mac2ip($postdata{'mac'}) if (!defined($postdata{'oldip'}));
+    $postdata{'oldmac'} = pf::ip6log::ip2mac($postdata{'ip'}) if (!defined($postdata{'oldmac'}));
+
+    if ( $postdata{'oldmac'} && $postdata{'oldmac'} ne $postdata{'mac'} ) {
+        $logger->info(
+            "oldmac ($postdata{'oldmac'}) and newmac ($postdata{'mac'}) are different for $postdata{'ip'} - closing ip6log entry"
+        );
+        pf::ip6log::close($postdata{'ip'});
+    } elsif ($postdata{'oldip'} && $postdata{'oldip'} ne $postdata{'ip'}) {
+        $logger->info(
+            "oldip ($postdata{'oldip'}) and newip ($postdata{'ip'}) are different for $postdata{'mac'} - closing ip6log entry"
+        );
+        pf::ip6log::close($postdata{'oldip'});
+    }
+
+    return (pf::ip6log::open($postdata{'ip'}, $postdata{'mac'}, $postdata{'ip_type'}, $postdata{'lease_length'}));
 }
 
 sub unreg_node_for_pid : Public:AllowedAsAction(pid, $pid) {

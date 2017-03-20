@@ -237,8 +237,9 @@ sub preProcessIPTasks {
     my ( $self, $iptasks_arguments ) = @_;
     my $logger = pf::log::get_logger();
 
-    my $ip   = $iptasks_arguments->{'ip'};
-    my $mac  = $iptasks_arguments->{'mac'};
+    $iptasks_arguments->{'ip'} = pf::util::IP::detect($iptasks_arguments->{'ip'})->normalizedIP;
+    my $ip  = $iptasks_arguments->{'ip'};
+    my $mac = $iptasks_arguments->{'mac'};
 
     # Sanitize input
     unless ( pf::util::valid_mac($mac) || pf::util::IP::is_ipv6($ip) ) {
@@ -252,6 +253,18 @@ sub preProcessIPTasks {
     # Get previous (old) mappings
     $iptasks_arguments->{'oldip'}  = pf::ip6log::_mac2ip_sql($mac);
     $iptasks_arguments->{'oldmac'} = pf::ip6log::_ip2mac_sql($ip);
+}
+
+
+=head2 checkForParking
+
+=cut
+
+sub checkForParking {
+    my ( $self ) = @_;
+    my $logger = pf::log::get_logger();
+
+    $logger->debug("Parking not implemented for IPv6");
 }
 
 
@@ -392,8 +405,7 @@ sub processDHCPv6Reply {
     # Handling ip6log update
     if ( $attributes->{'ip'} && $attributes->{'client_mac'} ) {
         foreach my $ip ( @{$attributes->{'ip'}} ) {
-            my $ipv6 = pf::util::IP::detect($ip->{'client_ip'})->normalizedIP;
-            pf::ip6log::open($ipv6, $attributes->{'client_mac'}, $ip->{'type'}, $ip->{'lease_length'});
+            $self->processIPTasks( (client_mac => $attributes->{'client_mac'}, client_ip => $ip->{'client_ip'}, lease_length => $ip->{'lease_length'}, ip_type => $ip->{'type'}) );
         }
         
     }

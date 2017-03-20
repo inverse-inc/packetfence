@@ -53,6 +53,7 @@ Readonly::Hash my %IPTASKS_ARGUMENTS_MAP => (
     client_mac      => 'mac',
     client_ip       => 'ip',
     lease_length    => 'lease_length',
+    ip_type         => 'ip_type',
 );
 
 
@@ -124,7 +125,10 @@ sub processIPTasks {
     }
 
     # Conformity scan
-    $self->apiClient->notify('trigger_scan', %iptasks_arguments );
+    # 2017.03.20 - dwuelfrath@inverse.ca - There is currently no ipv6 support for conformity scan. Remove the condition once "resolved"
+    unless ( $iptasks_arguments{'ipversion'} eq "ipv6" ) {
+        $self->apiClient->notify('trigger_scan', %iptasks_arguments );
+    }
 
     # Parking violation
     $self->checkForParking($iptasks_arguments{'mac'}, $iptasks_arguments{'ip'});
@@ -134,7 +138,11 @@ sub processIPTasks {
     }
 
     # IPlog
-    $self->apiClient->notify('update_iplog', %iptasks_arguments);
+    if ( $iptasks_arguments{'ipversion'} eq "ipv4" ) {
+        $self->apiClient->notify('update_iplog', %iptasks_arguments);
+    } elsif ( $iptasks_arguments{'ipversion'} eq "ipv6" ) {
+        $self->apiClient->notify('update_ip6log', %iptasks_arguments);
+    }
 }
 
 
