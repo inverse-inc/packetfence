@@ -2,13 +2,12 @@ package pf::ConfigStore::Roles;
 =head1 NAME
 
 pf::ConfigStore::Roles
-Store Roles configuration
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::ConfigStore::Roles
+Store and manipulate roles configuration
 
 =cut
 

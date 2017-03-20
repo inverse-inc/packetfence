@@ -8,7 +8,7 @@ pfappserver::Model::Config::Roles
 
 =head1 DESCRIPTION
 
-pfappserver::Model::Config::Roles
+Model for the roles from roles.conf
 
 =cut
 
