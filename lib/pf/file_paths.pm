@@ -98,6 +98,7 @@ our (
     $pfmon_config_file, $pfmon_default_config_file,
     $switch_filters_config_file,
     $multi_cluster_conf_dir,
+    $multi_cluster_config_file,
 );
 
 BEGIN {
@@ -170,6 +171,7 @@ BEGIN {
         $pfmon_config_file $pfmon_default_config_file
         $switch_filters_config_file
         $multi_cluster_conf_dir
+        $multi_cluster_config_file
     );
 }
 
@@ -221,6 +223,7 @@ $violations_config_file = catfile($conf_dir, "violations.conf");
 $violations_default_config_file = catfile($conf_dir, "violations.conf.defaults");
 $dhcp_fingerprints_file = catfile($conf_dir, "dhcp_fingerprints.conf");
 $admin_roles_config_file = catfile($conf_dir, "adminroles.conf");
+$multi_cluster_config_file = catfile($conf_dir, "multi-cluster.conf");
 
 $violations_config_file       = catfile($conf_dir, "violations.conf");
 $authentication_config_file   = catfile($conf_dir, "authentication.conf");

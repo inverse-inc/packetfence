@@ -116,15 +116,8 @@ sub multiClusterHostDirectory {
     return $multi_cluster_conf_dir . "/" . $host;
 }
 
-sub _buildCachedConfigMultiCluster {
-    my ($self) = @_;
-    my $chi             = $self->cache;
-    my $logger = get_logger;
-
-    # TODO
-    # if ($self->configFile not in $conf_dir) then die
-
-    my $file_path       = $self->configFile;
+sub cleanedFilePath {
+    my ($self, $file_path) = @_;
     my $stripped_file_path = $file_path;
 
     # Handle /usr/local/pf/conf
@@ -135,8 +128,21 @@ sub _buildCachedConfigMultiCluster {
     $quoted_conf_dir = quotemeta($install_dir . "/t/data/");
     $stripped_file_path =~ s/^$quoted_conf_dir//;
 
+    return $stripped_file_path;
+}
+
+sub _buildCachedConfigMultiCluster {
+    my ($self) = @_;
+    my $chi             = $self->cache;
+    my $logger = get_logger;
+
+    # TODO
+    # if ($self->configFile not in $conf_dir) then die
+
+    my $stripped_file_path = $self->cleanedFilePath($self->configFile);
+
     $self->configFile($self->multiClusterHostDirectory($self->multiClusterHost) . "/" . $stripped_file_path);
-    $file_path = $self->configFile;
+    my $file_path = $self->configFile;
     
     # Ensuring group/host directory and group/host config file exist
     pf_make_dir($self->multiClusterHostDirectory($self->multiClusterHost));
