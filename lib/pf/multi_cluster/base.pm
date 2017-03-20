@@ -9,6 +9,10 @@ has 'name', is => 'rw';
 
 has 'parent', is => 'rw';
 
+sub ref {
+    return ref($_[0]);
+}
+
 sub multiClusterConfigStore {
     return pf::ConfigStore::MultiCluster->new();
 }

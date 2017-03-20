@@ -1,0 +1,30 @@
+[% MACRO generate(o) BLOCK %]
+[% IF o.ref == "pf::multi_cluster::standalone_server" %]
+
+[[% o.name %]]
+[% o.name %] pf_config_path=/usr/local/pf/var/conf/multi-cluster/[% o.path %]
+
+[% ELSIF o.ref == "pf::multi_cluster::cluster" %]
+
+[[% o.name %]]
+[% FOREACH serverId IN o.childs.keys ; server=o.childs.$serverId ;
+  server.name _ "pf_config_path=/usr/local/pf/var/conf/multi-cluster/" _ server.path _ "\n"; 
+END %]
+
+[% ELSIF o.ref == "pf::multi_cluster::region" %]
+[[% o.name %]:children]
+[% FOREACH childId IN o.childs.keys ;
+  childId _ "\n";
+END %]
+
+[% FOREACH childId IN o.childs.keys %]
+[% generate(o.childs.$childId) %]
+[% END %]
+
+[% END %]
+
+[% END %]
+
+[% FOREACH regionId IN regions.keys %]
+[% generate(regions.$regionId) %]
+[% END %]
