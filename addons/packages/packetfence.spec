@@ -1234,7 +1234,6 @@ fi
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Graph.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Interface.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Node.pm
-%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Roles.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Root.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/SavedSearch/Node.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/SavedSearch/User.pm
