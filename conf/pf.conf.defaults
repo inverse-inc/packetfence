@@ -346,26 +346,6 @@ pffilter=enabled
 # Should pfsso be managed by PacketFence?
 pfsso=enabled
 #
-# services.snort
-#
-# Should snort be managed by PacketFence?
-snort=enabled
-#
-# services.snort_binary
-#
-# Location of the snort binary. Only necessary to change if you are not running the RPMed version. 
-snort_binary=/usr/sbin/snort
-#
-# services.suricata
-#
-# Should suricata be managed by PacketFence?
-suricata=enabled
-#
-# services.suricata_binary
-# 
-# Location of the suricata binary.
-suricata_binary=/usr/bin/suricata
-#
 # services.radiusd
 #
 # Should radiusd be managed by PacketFence?
