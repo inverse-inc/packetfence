@@ -39,8 +39,8 @@ has_field 'type' =>
 has_field 'status' =>
   (
    type => 'Toggle',
-   checkbox_value => 'yes',
-   unchecked_value => 'no',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
    default_method => \&default_field_method,
   );
 
