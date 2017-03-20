@@ -9,54 +9,19 @@ pfappserver::Form::Config::Pfmon::cleanup_chi_database_cache - Web form for clea
 =cut
 
 use HTML::FormHandler::Moose;
+
+use pfappserver::Form::Config::Pfmon qw(default_field_method);
+
 extends 'pfappserver::Form::Config::Pfmon';
-use pf::config::pfmon qw(%ConfigPfmonDefault);
 
 has_field 'batch' => ( 
     type => 'PosInteger', 
+    default_method => \&default_field_method,
 );
 has_field 'timeout' => ( 
     type => 'Duration', 
+    default_method => \&default_field_method,
 );
-
-=head2 default_batch
-
-default value of batch
-
-=cut
-
-sub default_batch {
-    return $ConfigPfmonDefault{cleanup_chi_database_cache}{batch};
-};
-=head2 default_timeout
-
-default value of timeout
-
-=cut
-
-sub default_timeout {
-    return $ConfigPfmonDefault{cleanup_chi_database_cache}{timeout};
-};
-
-=head2 default_interval
-
-default value of interval
-
-=cut
-
-sub default_interval {
-    return $ConfigPfmonDefault{cleanup_chi_database_cache}{interval};
-}
-
-=head2 default_enabled
-
-default value of enabled
-
-=cut
-
-sub default_enabled {
-    return $ConfigPfmonDefault{cleanup_chi_database_cache}{enabled};
-}
 
 =head2 default_type
 
@@ -70,7 +35,7 @@ sub default_type {
 
 has_block  definition =>
   (
-    render_list => [qw(type enabled interval batch timeout)],
+    render_list => [qw(type status interval batch timeout)],
   );
 
 

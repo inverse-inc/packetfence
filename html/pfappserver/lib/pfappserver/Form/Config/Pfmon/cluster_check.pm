@@ -9,30 +9,9 @@ pfappserver::Form::Config::Pfmon::cluster_check - Web form for cluster_check pfm
 =cut
 
 use HTML::FormHandler::Moose;
+
 extends 'pfappserver::Form::Config::Pfmon';
-use pf::config::pfmon qw(%ConfigPfmonDefault);
 
-
-
-=head2 default_interval
-
-default value of interval
-
-=cut
-
-sub default_interval {
-    return $ConfigPfmonDefault{cluster_check}{interval};
-}
-
-=head2 default_enabled
-
-default value of enabled
-
-=cut
-
-sub default_enabled {
-    return $ConfigPfmonDefault{cluster_check}{enabled};
-}
 
 =head2 default_type
 
@@ -46,7 +25,7 @@ sub default_type {
 
 has_block  definition =>
   (
-    render_list => [qw(type enabled interval)],
+    render_list => [qw(type status interval)],
   );
 
 

@@ -9,30 +9,9 @@ pfappserver::Form::Config::Pfmon::fingerbank_data_update - Web form for fingerba
 =cut
 
 use HTML::FormHandler::Moose;
+
 extends 'pfappserver::Form::Config::Pfmon';
-use pf::config::pfmon qw(%ConfigPfmonDefault);
 
-
-
-=head2 default_interval
-
-default value of interval
-
-=cut
-
-sub default_interval {
-    return $ConfigPfmonDefault{fingerbank_data_update}{interval};
-}
-
-=head2 default_enabled
-
-default value of enabled
-
-=cut
-
-sub default_enabled {
-    return $ConfigPfmonDefault{fingerbank_data_update}{enabled};
-}
 
 =head2 default_type
 
@@ -46,7 +25,7 @@ sub default_type {
 
 has_block  definition =>
   (
-    render_list => [qw(type enabled interval)],
+    render_list => [qw(type status interval)],
   );
 
 
