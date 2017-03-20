@@ -99,6 +99,7 @@ our (
     $switch_filters_config_file,
     $multi_cluster_conf_dir,
     $multi_cluster_config_file,
+    $ansible_hosts_file,
 );
 
 BEGIN {
@@ -172,6 +173,7 @@ BEGIN {
         $switch_filters_config_file
         $multi_cluster_conf_dir
         $multi_cluster_config_file
+        $ansible_hosts_file
     );
 }
 
@@ -223,7 +225,9 @@ $violations_config_file = catfile($conf_dir, "violations.conf");
 $violations_default_config_file = catfile($conf_dir, "violations.conf.defaults");
 $dhcp_fingerprints_file = catfile($conf_dir, "dhcp_fingerprints.conf");
 $admin_roles_config_file = catfile($conf_dir, "adminroles.conf");
+
 $multi_cluster_config_file = catfile($conf_dir, "multi-cluster.conf");
+$ansible_hosts_file = catfile("/etc/ansible/hosts");
 
 $violations_config_file       = catfile($conf_dir, "violations.conf");
 $authentication_config_file   = catfile($conf_dir, "authentication.conf");

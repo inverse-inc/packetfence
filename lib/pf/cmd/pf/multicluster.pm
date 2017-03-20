@@ -14,6 +14,7 @@ pf::cmd::pf::multicluster
 
    generateconfig <scope>  | generate the configuration to be pushed for a scope in /usr/local/pf/var/multi-cluster/
    generatedeltas <scope>  | generate the delta files for all regions/clusters/servers in /usr/local/pf/conf/multi-cluster/
+   generateansiblehosts    | generate the ansible hosts file
 
 =head1 DESCRIPTION
 
@@ -23,72 +24,57 @@ pf::cmd::pf::multicluster
 
 use strict;
 use warnings;
-use base qw(pf::cmd);
-use pf::constants::exit_code qw($EXIT_SUCCESS);
+use base qw(pf::base::cmd::action_cmd);
+use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
 use pf::multi_cluster;
+use pf::constants;
+use pf::file_paths qw(
+    $ansible_hosts_file
+);
 
 =head1 METHODS
 
-=head2 parseArgs
-
-parsing the arguments for the multicluster command
-
 =cut
 
-sub parseArgs {
+sub lookup_scope {
     my ($self) = @_;
-    my @args = $self->args;
-    if (@args < 1 || @args > 3 ) {
-        print STDERR  "invalid arguments\n";
-        return 0;
-    }
-
-    my $action = shift @args;
-    my $action_method = "action_$action";
-    unless ($self->can($action_method)) {
-        print STDERR "invalid option '$action'\n";
-        return 0;
-    }
-    $self->{action_method} = $action_method;
-    $self->{key} = shift @args;
-
-    unless($self->{region} = pf::multi_cluster::findObject(pf::multi_cluster::rootRegion, $self->{key})) {
+    $self->{key} = shift @{$self->{args}};
+    if($self->{key} && !($self->{scope} = pf::multi_cluster::findObject(pf::multi_cluster::rootRegion, $self->{key}))) {
         print STDERR  "invalid scope $self->{key}\n";
-        return 0;
+        return $FALSE;
     }
-
-    return 1;
+    return $TRUE;
 }
 
-=head2 action_expire
+sub parse_scope_command {
+    my ($self, @args) = @_;
+    $self->{args} = \@args;
+    return $self->lookup_scope();
+}
 
-Handles the remove action
-
-=cut
+sub parse_generateconfig {
+    return parse_scope_command(@_);
+}
 
 sub action_generateconfig {
     my ($self) = @_;
-    pf::multi_cluster::generateConfig($self->{region});
+    pf::multi_cluster::generateConfig($self->{scope});
+}
+
+sub parse_generatedeltas {
+    return parse_scope_command(@_);
 }
 
 sub action_generatedeltas {
     my ($self) = @_;
-    pf::multi_cluster::generateDeltas($self->{region});
+    exit $EXIT_FAILURE unless($self->lookup_scope);
+    pf::multi_cluster::generateDeltas($self->{scope});
 }
 
-=head2 _run
-
-performs the action of the command
-
-=cut
-
-sub _run {
+sub action_generateansiblehosts {
     my ($self) = @_;
-    my $action_method = $self->{action_method};
-    $self->$action_method();
-    return 0;
+    pf::multi_cluster::generateAnsibleHosts($ansible_hosts_file);
 }
-
 
 =head1 AUTHOR
 
