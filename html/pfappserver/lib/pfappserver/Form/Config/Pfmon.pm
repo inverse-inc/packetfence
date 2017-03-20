@@ -15,7 +15,10 @@ use warnings;
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
+use pf::config::pfmon qw(%ConfigPfmonDefault);
 
+use Exporter qw(import);
+our @EXPORT_OK = qw(default_field_method);
 use pf::log;
 
 ## Definition
@@ -26,26 +29,39 @@ has_field 'id' =>
    required => 1,
    messages => { required => 'Please specify the name of the pfmon entry' },
   );
+
 has_field 'type' =>
   (
    type => 'Hidden',
    required => 1,
   );
+
 has_field 'status' =>
   (
    type => 'Toggle',
    checkbox_value => 'yes',
    unchecked_value => 'no',
+   default_method => \&default_field_method,
   );
+
 has_field 'interval' =>
   (
    type => 'Duration',
+   default_method => \&default_field_method,
   );
 
 has_block  definition =>
   (
-    render_list => [qw(type enabled interval)],
+    render_list => [qw(type status interval)],
   );
+
+sub default_field_method {
+    my ($field) = @_;
+    my $name = $field->name;
+    my $task_name = ref($field->form);
+    $task_name =~ s/^pfappserver::Form::Config::Pfmon:://;
+    return $ConfigPfmonDefault{$task_name}{$name};
+}
 
 =head1 COPYRIGHT
 
