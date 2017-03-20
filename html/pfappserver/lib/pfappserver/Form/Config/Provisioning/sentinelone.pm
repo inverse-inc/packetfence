@@ -2,15 +2,19 @@ package pfappserver::Form::Config::Provisioning::sentinelone;
 
 =head1 NAME
 
-pfappserver::Form::Config::Provisioning - Web form for a SentinelOne provisioner
+pfappserver::Form::Config::Provisioning::sentinelone
 
 =head1 DESCRIPTION
+
+Web form for a SentinelOne provisioner
 
 =cut
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Provisioning';
 with 'pfappserver::Base::Form::Role::Help';
+
+use pf::constants;
 
 has_field 'host' =>
   (
@@ -20,14 +24,14 @@ has_field 'host' =>
 has_field 'port' =>
   (
    type => 'PosInteger',
-   required => 1,
-   default => 443,
+   required => $TRUE,
+   default => $HTTPS_PORT,
   );
 
 has_field 'protocol' =>
   (
    type => 'Select',
-   options => [{ label => 'http', value => 'http' }, { label => 'https' , value => 'https' }],
+   options => [{ label => $HTTP, value => $HTTP }, { label => $HTTPS , value => $HTTPS }],
    default => 'https',
   );
 
@@ -35,28 +39,28 @@ has_field 'api_username' =>
   (
    type => 'Text',
    label => 'API username',
-   required => 1,
+   required => $TRUE,
   );
 
 has_field 'api_password' =>
   (
    type => 'Password',
    label => 'API password',
-   required => 1,
+   required => $TRUE,
   );
 
 has_field 'win_agent_download_uri' =>
   (
    type => 'Text',
    label => 'Windows agent download URI',
-   required => 1,
+   required => $TRUE,
   );
 
 has_field 'mac_osx_agent_download_uri' =>
   (
    type => 'Text',
    label => 'Mac OSX agent download URI',
-   required => 1,
+   required => $TRUE,
   );
 
 has_block definition =>
@@ -66,7 +70,7 @@ has_block definition =>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 
