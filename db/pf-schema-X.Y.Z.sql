@@ -100,7 +100,8 @@ CREATE TABLE `node_category` (
   `name` varchar(255) NOT NULL,
   `max_nodes_per_pid` int default 0,
   `notes` varchar(255) default NULL,
-  PRIMARY KEY (`category_id`)
+  PRIMARY KEY (`category_id`),
+  UNIQUE KEY node_category_name (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --

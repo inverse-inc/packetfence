@@ -1,8 +1,8 @@
-package pfappserver::Form::Role;
+package pfappserver::Form::Config::Roles;
 
 =head1 NAME
 
-pfappserver::Form::Role - Web form for a role
+pfappserver::Form::Config::Roles - Web form for a role
 
 =head1 DESCRIPTION
 
@@ -19,9 +19,7 @@ use HTTP::Status qw(:constants is_success);
 use pf::config;
 use pf::constants::role qw(@ROLES);
 
-has 'id' => ( is => 'ro' );
-
-has_field 'name' =>
+has_field 'id' =>
   (
    type => 'Text',
    label => 'Name',
@@ -29,6 +27,7 @@ has_field 'name' =>
    messages => { required => 'Please specify a name for the role.' },
    apply => [ pfappserver::Base::Form::id_validator('role name') ]
   );
+
 has_field 'notes' =>
   (
    type => 'Text',
@@ -55,20 +54,16 @@ Make sure the role name is unique.
 sub validate {
     my $self = shift;
 
-    if (grep { $_ eq $self->value->{name} } @ROLES) {
-        $self->field('name')->add_error('This is a reserved name.');
+    if (grep { $_ eq $self->value->{id} } @ROLES) {
+        $self->field('id')->add_error('This is a reserved name.');
     }
-    elsif ($self->{id} && $self->{id} ne $self->value->{name}) {
+    elsif ( !$self->value->{id}) {
         # Build a list of existing roles
-        $self->field('name')->add_error('Cannot rename a role name');
-    }
-    elsif ( !$self->{id}) {
-        # Build a list of existing roles
-        my ($status, $result) = $self->ctx->model('Roles')->list();
+        my ($status, $result) = $self->ctx->model('Roles')->readAll();
         if (is_success($status)) {
-            my %roles = map { $_->{name} => 1 } @$result;
-            if (defined $roles{$self->value->{name}}) {
-                $self->field('name')->add_error('This name is already taken.');
+            my %roles = map { $_->{id} => 1 } @$result;
+            if (defined $roles{$self->value->{id}}) {
+                $self->field('id')->add_error('This name is already taken.');
             }
         }
     }

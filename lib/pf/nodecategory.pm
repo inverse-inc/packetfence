@@ -32,12 +32,13 @@ BEGIN {
         nodecategory_db_prepare
         $nodecategory_db_prepared
 
+        nodecategory_populate_from_config
+        nodecategory_upsert
         nodecategory_view_all
         nodecategory_view
         nodecategory_view_by_name
         nodecategory_add
         nodecategory_modify
-        nodecategory_delete
         nodecategory_exist
         nodecategory_lookup
     );
@@ -63,6 +64,10 @@ sub nodecategory_db_prepare {
     my $logger = get_logger();
     $logger->debug("Preparing pf::nodecategory database queries");
 
+    $nodecategory_statements->{'nodecategory_upsert_sql'} = get_db_handle()->prepare(
+        qq [ INSERT INTO node_category(name, max_nodes_per_pid, notes) VALUES(?, ?, ?) ON DUPLICATE KEY UPDATE max_nodes_per_pid=?, notes=? ]
+    );
+
     $nodecategory_statements->{'nodecategory_view_all_sql'} = get_db_handle()->prepare(
         qq [ SELECT category_id, name, max_nodes_per_pid, notes FROM node_category ]
     );
@@ -83,15 +88,42 @@ sub nodecategory_db_prepare {
         qq [ UPDATE node_category SET name=?, max_nodes_per_pid=?, notes=? WHERE category_id = ? ]
     );
 
-    $nodecategory_statements->{'nodecategory_delete_sql'} = get_db_handle()->prepare(
-        qq [ DELETE FROM node_category WHERE category_id = ? ]
-    );
-
     $nodecategory_statements->{'nodecategory_exist_sql'} = get_db_handle()->prepare(
         qq [ SELECT category_id FROM node_category WHERE category_id = ? ]
     );
 
     $nodecategory_db_prepared = 1;
+}
+
+=item nodecategory_populate_from_config
+
+Populates the nodecategory table from the data in the configuration passes via parameter
+Note that this will not delete an existing DB role if it isn't in the configuration
+It will simply do an upsert of all the roles in the configuration
+
+=cut
+
+sub nodecategory_populate_from_config {
+    my ($config) = @_;
+    while(my ($id, $role) = each(%$config)) {
+        nodecategory_upsert($id, %$role);
+    }
+}
+
+=item nodecategory_upsert
+
+Insert of update a record given an ID
+
+=cut
+
+sub nodecategory_upsert {
+    my ($id, %data) = @_;
+    my $logger = get_logger;
+
+    die "Missing ID for nodecategory_upsert" unless($id);
+
+    $logger->info("Inserting/updating role with ID $id");
+    return db_data(NODECATEGORY, $nodecategory_statements, 'nodecategory_upsert_sql', $id, @data{qw/max_nodes_per_pid notes/}, @data{qw/max_nodes_per_pid notes/});
 }
 
 =item nodecategory_view_all - view all categories, returns an hashref
@@ -172,20 +204,6 @@ sub nodecategory_modify {
             $cat_id
         )
     );
-}
-
-=item nodecategory_delete - delete a node category
-
-=cut
-
-sub nodecategory_delete {
-    my ($id) = @_;
-
-    my $result = db_query_execute(NODECATEGORY, $nodecategory_statements, 'nodecategory_delete_sql', $id);
-    if (!defined($result)) {
-        die("database query failed! Are you trying to delete a category with nodes in it? See logs for details.");
-    }
-    return (0);
 }
 
 =item nodecategory_exist - does a node category exists? returns 1 if so, 0 otherwise

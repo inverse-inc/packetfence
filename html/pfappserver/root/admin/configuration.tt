@@ -142,7 +142,7 @@ table.sources {
               [%- IF can_access_any("USERS_ROLES_READ","USERS_SOURCES_READ", "PROVISIONING_READ", "PKI_PROVIDER_READ", "BILLING_TIER_READ") %]
               <li class="nav-header">[% l('Users') %]</li>
               [%- IF can_access("USERS_ROLES_READ") %]
-              [% pf_section_entry( 'roles', 'Roles') | none %]
+              [% list_entry('Config::Roles', 'index', 'Roles') | none %]
               [%- END %]
               [%- IF can_access("CONFIGURATION_MAIN_READ") %]
               [% pf_section_entry( 'guests_admin_registration', 'Access Duration') | none %]
