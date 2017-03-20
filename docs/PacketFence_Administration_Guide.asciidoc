@@ -3078,7 +3078,7 @@ Where :
 ** `Send email to owner` will email the violation details to the owner of the device. Will only work if the person has it's email field populated. 
 ** `Send email to admin` will email the violation details to the address specified in `[alerting].emailaddr`, using `[alerting].smtpserver`. Multiple `emailaddr` can be separated by comma.
 ** `Reevaluate access` will place the device in the destination VLAN configured in the violation. It opens a violation and leaves it open. If it is not there, the violation is opened and then automatically closed.
-** `Log message` will log the violation in the log file defined in `[alerting].log`.
+** `Log message` will log the violation in the log file violation.log.
 ** `External command` will execute a command on the operating system when this violation is raised.
 ** `Close a violation` will close an existing violation for this device when this one is raised.
 ** `Set role` will modify the role of the device.
@@ -3921,13 +3921,13 @@ image::docs/images/domain-ntlm-cache-2.png[scaledwidth="100%",alt="Domain NTLM c
 
 Once done, click 'Save' to commit your changes.
 
-After that, you will need to enable the `redis_ntlm_cache` service which is used by PacketFence to store the cached credentials. In order to do so, go in 'Configuration->Services' and enable 'redis_ntlm_cache' and save the changes.
+After that, you will need to enable the `redis_ntlm_cache` service which is used by PacketFence to store the cached credentials. In order to do so, goviolation.logConfiguration->Main Configuration->Services' and enable 'redis_ntlm_cache' and save the changes.
 
 Next, start the service via pfcmd:
 
   /usr/local/pf/bin/pfcmd service redis_ntlm_cache start
 
-If you chose to enable 'NTLM cache background job' in one of your domains, you will need to enable the pfmon job that will periodically cache the credentials. This can be configured in 'Configuration->Maintenance->NTLM cache job interval'. It is advised to set this to half the expiration of the credentials you have set in the domain configuration. This will ensure you have an optimal cache hit. Once done, restart the `pfmon` service.
+If you chose to enable 'NTLM cache background job' in one of your domains, you will need to enable the pfmon job that will periodically cache the credentials. This can be configured in 'Configuration->System Configuration->Main Configuration->Maintenance->NTLM cache job interval'. It is advised to set this to half the expiration of the credentials you have set in the domain configuration. This will ensure you have an optimal cache hit. Once done, restart the `pfmon` service.
 
 Active Directory configuration
 ++++++++++++++++++++++++++++++
