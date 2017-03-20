@@ -13,7 +13,7 @@
       <td class="item"><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id | html %]</a></td>
       <td>[% item.description | html%]</td>
       <td>[% item.interval | html%]</td>
-      <td>[% item.enabled | html%]</td>
+      <td>[% item.status | html%]</td>
     </tr>
     [% END -%]
   </tbody>
