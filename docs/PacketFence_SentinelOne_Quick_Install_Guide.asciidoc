@@ -24,7 +24,7 @@ Step 1: Download the agents
 
 You will first need to download the SentinelOne agents in order to host them on the PacketFence server.
 
-In order to do so, in your SentinelOne management console, go in 'Settings->Updates', then download the Windows and Mac OSX agents on your computer. Once they have been download transfer them on your PacketFence server using SCP. This example will use `/usr/local/pf/html/common/SentinelOne.exe` as the Windows agent path and `/usr/local/pf/html/common/SentinelOne.pkg` as the MAC OSX agent path. 
+In order to do so, in your SentinelOne management console, go in 'Settings->Updates', then download the Windows and Mac OSX agents on your computer. Once they have been download transfer them on your PacketFence server using SCP. This example will use `/usr/local/pf/html/common/SentinelOne.exe` as the Windows agent path and `/usr/local/pf/html/common/SentinelOne.pkg` as the Mac OSX agent path. 
 
 image::docs/images/sentinelone-agent-download.png[scaledwidth="100%",alt="SentinelOne agent download"]
 
@@ -57,7 +57,7 @@ Where:
 * 'API username' is the username of the user you created above in SentinelOne.
 * 'API password' is the password of the API user.
 * 'Windows agent download URI' is the URI on which the users should download the Windows agent. If you followed the path in this guide, it should be `/common/SentinelOne.exe`.
-* 'Mac OSX agent download URI' is the URI on which the users should download the MAC OSX agent. If you followed the path in this guide, it should be `/common/SentinelOne.pkg`.
+* 'Mac OSX agent download URI' is the URI on which the users should download the Mapf::errorc OSX agent. If you followed the path in this guide, it should be `/common/SentinelOne.pkg`.
 
 Add the provisioner to the profile
 ++++++++++++++++++++++++++++++++++
@@ -75,7 +75,7 @@ Step 4: Test
 You can now test that the installation of the SentinelOne client is mandatory after the device registration.
 Connect a device to your test network and register like you normally would.
 At the end of the registration process you will be presented a page asking you to install the SentinelOne client on your device.
-After you install the client click continue. If your access is enabled than this means the connectivity between PacketFence and SentinelOne is good.
+After you install the client click continue. If your access is enabled then this means the connectivity between PacketFence and SentinelOne is good.
 
 PacketFence polls SentinelOne at a regular interval (30 seconds by default) to find devices that have uninstalled their agent. When it detects them as uninstalled, it automatically brings the device back to the portal so the agent is installed.
 
