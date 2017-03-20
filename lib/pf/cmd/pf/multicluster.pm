@@ -76,6 +76,16 @@ sub action_generateansiblehosts {
     pf::multi_cluster::generateAnsibleHosts($ansible_hosts_file);
 }
 
+sub parse_pushconfiguration {
+    return parse_scope_command(@_);
+}
+
+sub action_pushconfiguration {
+    my ($self) = @_;
+    my $scope = $self->{scope} ? $self->{scope}->name : "ROOT";
+    exec("/usr/bin/ansible-playbook /etc/ansible/packetfence-configuration.yml --extra-vars \"target=$scope\"");
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
