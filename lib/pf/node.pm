@@ -1484,7 +1484,6 @@ sub node_update_last_seen {
     if($mac) {
         get_logger->debug("Updating last_seen for $mac");
         db_query_execute(NODE, $node_statements, 'node_update_last_seen_sql', $mac);
-        node_remove_from_cache($mac);
     }
 }
 
