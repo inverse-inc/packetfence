@@ -38,6 +38,8 @@ has 'apiClient'    => (is => 'ro', default => sub { pf::client::getClient });
 has 'filterEngine' => (is => 'rw', default => sub { pf::access_filter::dhcp->new });
 
 
+# Fingerbank processing arguments mapping
+# Only arguments listed (mapped) below will be processed
 Readonly::Hash my %FINGERBANK_ARGUMENTS_MAP => (
     client_mac              => 'mac',
     client_ip               => 'ip',
@@ -49,6 +51,8 @@ Readonly::Hash my %FINGERBANK_ARGUMENTS_MAP => (
     ipv6_enterprise_number  => 'dhcp6_enterprise',
 );
 
+# IP tasks processing arguments mapping
+# Only arguments listed (mapped) below will be processed
 Readonly::Hash my %IPTASKS_ARGUMENTS_MAP => (
     client_mac      => 'mac',
     client_ip       => 'ip',
@@ -89,6 +93,18 @@ sub _get_local_dhcp_servers {
     return ( ip => [@local_dhcp_servers_ip], mac => [@local_dhcp_servers_mac] );
 }
 
+
+=head2 processIPTasks
+
+Different IP based tasks processing part of the DHCP flow
+
+- Firewall SSO
+- Inline enforcement
+- Conformity scan
+- Parking violation
+- iplog
+
+=cut
 
 sub processIPTasks {
     my ( $self, %arguments ) = @_;
@@ -145,6 +161,12 @@ sub processIPTasks {
     }
 }
 
+
+=head2 processFingerbank
+
+Fingerbank processing part of the DHCP flow
+
+=cut
 
 sub processFingerbank {
     my ( $self, $attributes ) = @_;
