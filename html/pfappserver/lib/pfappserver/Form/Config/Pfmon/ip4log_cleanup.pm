@@ -34,6 +34,12 @@ has_field 'timeout' => (
     type => 'Duration', 
     default_method => \&default_field_method,
 );
+has_field 'rotate' => (
+    type => 'Toggle',
+    default_method => \&default_field_method,
+    checked_value => 'enabled',
+    unchecked_value => 'disabled',
+);
 has_field 'window' => ( 
     type => 'Duration', 
     default_method => \&default_field_method,

@@ -184,6 +184,11 @@ interval=60s
 # How many ip4log_cleanup entries to clean up in one run
 batch=100
 #
+# rotate
+#
+# ip4log is rotated
+rotate_batch=disabled
+#
 # rotate_batch
 #
 # How many ip4log_cleanup entries to clean up in one run
