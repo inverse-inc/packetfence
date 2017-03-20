@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 6.5.9\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-03-16 16:57-0400\n"
+"PO-Revision-Date: 2017-03-20 10:26-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -163,8 +163,16 @@ msgstr ""
 msgid "API key to interact with upstream Fingerbank project"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/sentinelone.pm
+msgid "API password"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/HTTP.pm
 msgid "API password (basic auth)"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/sentinelone.pm
+msgid "API username"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/HTTP.pm
@@ -181,6 +189,10 @@ msgstr "Auditing - Read"
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Authentication.pm
 msgid "AUP template"
+msgstr ""
+
+# conf/documentation.conf (advanced.multihost)
+msgid "Ability to manage all active devices from a same switch port"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Email.pm
@@ -431,7 +443,7 @@ msgstr ""
 msgid "Add provisioner"
 msgstr ""
 
-# html/pfappserver/root/roles/index.tt
+# html/pfappserver/root/config/roles/index.tt
 msgid "Add role"
 msgstr ""
 
@@ -485,7 +497,7 @@ msgstr ""
 msgid "Address"
 msgstr ""
 
-# conf/documentation.conf (trapping.range)
+# conf/documentation.conf (fencing.range)
 msgid "Address ranges/CIDR blocks that PacketFence will monitor/detect/trap on.  Gateway, network, and broadcast addresses are ignored. Comma-delimited entries should be of the form <ul><li>a.b.c.0/24</li><li>a.b.c.0-255</li><li>a.b.c.0-a.b.c.255</li><li>a.b.c.d</li></ul>"
 msgstr ""
 
@@ -973,6 +985,26 @@ msgstr "Main Configuration - Read"
 msgid "CONFIGURATION_MAIN_UPDATE"
 msgstr "Main Configuration - Update"
 
+# pf::admin_roles (Actions groups)
+msgid "CONNECTION_PROFILES"
+msgstr "Connection Profiles"
+
+# pf::admin_roles (Actions)
+msgid "CONNECTION_PROFILES_CREATE"
+msgstr "Connection Profiles - Create"
+
+# pf::admin_roles (Actions)
+msgid "CONNECTION_PROFILES_DELETE"
+msgstr "Connection Profiles - Delete"
+
+# pf::admin_roles (Actions)
+msgid "CONNECTION_PROFILES_READ"
+msgstr "Connection Profiles - Read"
+
+# pf::admin_roles (Actions)
+msgid "CONNECTION_PROFILES_UPDATE"
+msgstr "Connection Profiles - Update"
+
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 msgid "CPU Wait"
 msgstr ""
@@ -1021,7 +1053,6 @@ msgstr ""
 # html/pfappserver/root/config/wmi/index.tt
 # html/pfappserver/root/config/wrix/index.tt
 # html/pfappserver/root/interface/create.tt
-# html/pfappserver/root/roles/index.tt
 # html/pfappserver/root/service/status.tt
 # html/pfappserver/root/user/list.tt
 # html/pfappserver/root/violation/list.tt
@@ -1250,6 +1281,7 @@ msgstr ""
 # html/pfappserver/root/config/pki_provider/view.tt
 # html/pfappserver/root/config/provisioning/view.tt
 # html/pfappserver/root/config/realm/view.tt
+# html/pfappserver/root/config/roles/read.tt
 # html/pfappserver/root/config/scan/view.tt
 # html/pfappserver/root/config/switch/view.tt
 # html/pfappserver/root/config/wmi/view.tt
@@ -1258,7 +1290,6 @@ msgstr ""
 # html/pfappserver/root/interface/view.tt
 # html/pfappserver/root/node/view.tt
 # html/pfappserver/root/node/violations.tt
-# html/pfappserver/root/roles/read.tt
 # html/pfappserver/root/user/list_password.tt
 # html/pfappserver/root/user/view.tt
 # html/pfappserver/root/violation/view.tt
@@ -1352,7 +1383,7 @@ msgstr ""
 msgid "Comma-delimited list of DHCP servers."
 msgstr ""
 
-# conf/documentation.conf (trapping.whitelist)
+# conf/documentation.conf (fencing.whitelist)
 msgid "Comma-delimited list of MAC addresses that are immune to isolation. In inline Level 2 enforcement, the firewall is opened for them as if they were registered. This <i>feature</i> will probably be reworked in the future."
 msgstr ""
 
@@ -1360,11 +1391,11 @@ msgstr ""
 msgid "Comma-delimited list of URLs known to be used by devices to detect the presence of a captive portal and trigger their captive portal mechanism."
 msgstr ""
 
-# conf/documentation.conf (trapping.passthroughs)
+# conf/documentation.conf (fencing.passthroughs)
 msgid "Comma-delimited list of domains to allow access from the registration VLAN.If no port is specified for the domain (ex: example.com), it opens TCP 80 and 443.You can specify a specific port to open (ex: example.com:tcp:25) which opens port 25 in TCP. When no protocol is specified (ex: example.com:25), this opens the port for both the UDP and TCP protocol.You can specify the same domain with a different port multiple times and they will be combined.The configuration parameter <i>passthrough</i> must be enabled for passthroughs to be effective."
 msgstr ""
 
-# conf/documentation.conf (trapping.proxy_passthroughs)
+# conf/documentation.conf (fencing.proxy_passthroughs)
 msgid "Comma-delimited list of domains to be used with apache passthroughs. The configuration parameter <i>passthrough</i> must be enabled for passthroughs to be effective."
 msgstr ""
 
@@ -1372,7 +1403,7 @@ msgstr ""
 msgid "Comma-delimited list of interfaces used to SNAT inline level 2 traffic"
 msgstr ""
 
-# conf/documentation.conf (trapping.interception_proxy_port)
+# conf/documentation.conf (fencing.interception_proxy_port)
 msgid "Comma-delimited list of port used by proxy interception."
 msgstr ""
 
@@ -1460,6 +1491,13 @@ msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
 msgid "Connection Profiles"
+msgstr ""
+
+# html/pfappserver/root/config/profile/create.tt
+# html/pfappserver/root/config/profile/edit.tt
+# html/pfappserver/root/config/profile/index.tt
+# html/pfappserver/root/config/profile/view.tt
+msgid "Connection Profiles and Pages"
 msgstr ""
 
 # html/pfappserver/root/node/tab_Location_view.tt
@@ -1893,7 +1931,7 @@ msgstr ""
 msgid "Define the authentication sources to let users access the captive portal or the admin Web interface."
 msgstr ""
 
-# html/pfappserver/root/roles/index.tt
+# html/pfappserver/root/config/roles/index.tt
 msgid "Define the roles which will apply to all devices on your network."
 msgstr ""
 
@@ -1993,7 +2031,6 @@ msgstr ""
 # html/pfappserver/root/config/wrix/index.tt
 # html/pfappserver/root/config/wrix/list.tt
 # html/pfappserver/root/interface/list.tt
-# html/pfappserver/root/roles/index.tt
 # html/pfappserver/root/user/view.tt
 # html/pfappserver/root/violation/list.tt
 msgid "Delete"
@@ -2068,10 +2105,6 @@ msgstr ""
 msgid "Delete Realm"
 msgstr ""
 
-# html/pfappserver/root/roles/index.tt
-msgid "Delete Role"
-msgstr ""
-
 # html/pfappserver/root/config/wmi/index.tt
 msgid "Delete Rule"
 msgstr ""
@@ -2125,7 +2158,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source.pm
 # html/pfappserver/lib/pfappserver/Form/Config/BillingTiers.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule.pm
-# html/pfappserver/lib/pfappserver/Form/Role.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Roles.pm
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 # html/pfappserver/root/authentication/source/rules_read.tt
 # html/pfappserver/root/config/adminroles/list.tt
@@ -2135,10 +2168,10 @@ msgstr ""
 # html/pfappserver/root/config/portal_module/list_view.tt
 # html/pfappserver/root/config/profile/index.tt
 # html/pfappserver/root/config/provisioning/list.tt
+# html/pfappserver/root/config/roles/index.tt
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/useragents/simple_search.tt
 # html/pfappserver/root/node/violations.tt
-# html/pfappserver/root/roles/index.tt
 # html/pfappserver/root/user/violations.tt
 # html/pfappserver/root/violation/list.tt
 msgid "Description"
@@ -2506,9 +2539,9 @@ msgstr ""
 # html/pfappserver/root/admin/wrapper.tt
 # html/pfappserver/root/config/authentication.tt
 # html/pfappserver/root/config/profile/index.tt
+# html/pfappserver/root/config/roles/index.tt
 # html/pfappserver/root/configurator/wrapper.tt
 # html/pfappserver/root/node/create.tt
-# html/pfappserver/root/roles/index.tt
 # html/pfappserver/root/user/create.tt
 msgid "Error!"
 msgstr ""
@@ -2648,6 +2681,10 @@ msgstr "Floating Devices - Update"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
 msgid "Fake MAC Address"
+msgstr ""
+
+# html/pfappserver/root/config/networks/index.tt
+msgid "Fencing"
 msgstr ""
 
 # html/pfappserver/root/config/profile/files.tt
@@ -2902,6 +2939,14 @@ msgstr ""
 msgid "How long an auth_log cleanup job can take before being killed"
 msgstr ""
 
+# conf/documentation.conf (maintenance.node_unreg_window)
+msgid "How long can a registered node be inactive on the network before it becomes unregistered"
+msgstr ""
+
+# conf/documentation.conf (maintenance.node_cleanup_window)
+msgid "How long can an unregistered node be inactive on the network before being deleted.This shouldn't be used if you are using port-security"
+msgstr ""
+
 # conf/documentation.conf (maintenance.cleanup_chi_database_cache_timeout)
 msgid "How long is the cleanup_chi_database_cache task is allowed to run"
 msgstr ""
@@ -2910,7 +2955,7 @@ msgstr ""
 msgid "How long is the violation maintenance task is allowed to run"
 msgstr ""
 
-# conf/documentation.conf (trapping.redirtimer)
+# conf/documentation.conf (fencing.redirtimer)
 msgid "How long to display the progress bar during trap release. Default value is based on VLAN enforcement techniques. Inline enforcement only users could lower the value."
 msgstr ""
 
@@ -2920,10 +2965,6 @@ msgstr ""
 
 # conf/documentation.conf (maintenance.locationlog_cleanup_window)
 msgid "How long to keep a locationlog entry before deleting it"
-msgstr ""
-
-# conf/documentation.conf (maintenance.node_cleanup_window)
-msgid "How long to keep a node entry before deleting it"
 msgstr ""
 
 # conf/documentation.conf (maintenance.radius_audit_log_cleanup_window)
@@ -2962,7 +3003,7 @@ msgstr ""
 msgid "How many radius audit log entries to clean up in one job"
 msgstr ""
 
-# conf/documentation.conf (trapping.wait_for_redirect)
+# conf/documentation.conf (fencing.wait_for_redirect)
 msgid "How many seconds the webservice should wait before deassociating or reassigning VLAN. If we don't wait, the device may switch VLAN before it has a chance to load the redirection page."
 msgstr ""
 
@@ -3069,7 +3110,6 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Device.pm
 # html/pfappserver/root/config/provisioning/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
-# html/pfappserver/root/roles/index.tt
 # html/pfappserver/root/violation/list.tt
 msgid "Id"
 msgstr ""
@@ -3103,7 +3143,7 @@ msgstr ""
 msgid "If enabled, PacketFence will monitor DHCP-specific items such as rogue DHCP services, DHCP-based OS fingerprinting, computername/hostname resolution, and (optionnally) option-82 location-based information. The monitored DHCP packets are DHCPDISCOVERs and DHCPREQUESTs - both are broadcasts, meaning a span port is not necessary.  This feature is highly recommended if the internal network is DHCP-based."
 msgstr ""
 
-# conf/documentation.conf (trapping.interception_proxy)
+# conf/documentation.conf (fencing.interception_proxy)
 msgid "If enabled, we will intercept proxy request on the specified ports to forward to the captive portal."
 msgstr ""
 
@@ -3337,6 +3377,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Field/PfdetectRegexRule.pm
 msgid "Last If match"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Node.pm
+msgid "Last Seen"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/User.pm
@@ -3699,6 +3743,10 @@ msgstr ""
 msgid "MSE_READ"
 msgstr "MSE - Read"
 
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/sentinelone.pm
+msgid "Mac OSX agent download URI"
+msgstr ""
+
 # html/pfappserver/root/admin/configuration.tt
 msgid "Main Configuration"
 msgstr ""
@@ -3732,8 +3780,8 @@ msgstr ""
 msgid "Max Lease Time"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Role.pm
-# html/pfappserver/root/roles/index.tt
+# html/pfappserver/lib/pfappserver/Form/Config/Roles.pm
+# html/pfappserver/root/config/roles/index.tt
 msgid "Max nodes per user"
 msgstr ""
 
@@ -3844,6 +3892,10 @@ msgid "NTLM cache background job"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "NTLM cache background job individual fetch"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "NTLM cache on connection"
 msgstr ""
 
@@ -3858,11 +3910,11 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Rule.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source.pm
 # html/pfappserver/lib/pfappserver/Form/Config/BillingTiers.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Roles.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 # html/pfappserver/lib/pfappserver/Form/Config/WMI.pm
 # html/pfappserver/lib/pfappserver/Form/Field/PfdetectRegexRule.pm
 # html/pfappserver/lib/pfappserver/Form/Node.pm
-# html/pfappserver/lib/pfappserver/Form/Role.pm
 # html/pfappserver/lib/pfappserver/Form/SavedSearch.pm
 # html/pfappserver/root/authentication/source/rules_read.tt
 # html/pfappserver/root/config/authentication.tt
@@ -3870,10 +3922,10 @@ msgstr ""
 # html/pfappserver/root/config/fingerbank/mac_vendor/list.tt
 # html/pfappserver/root/config/pki_provider/list.tt
 # html/pfappserver/root/config/profile/index.tt
+# html/pfappserver/root/config/roles/index.tt
 # html/pfappserver/root/config/scan/list.tt
 # html/pfappserver/root/configurator/database.tt
 # html/pfappserver/root/node/tab_WMI_process.tt
-# html/pfappserver/root/roles/index.tt
 msgid "Name"
 msgstr ""
 
@@ -4023,7 +4075,7 @@ msgstr ""
 msgid "New Realm"
 msgstr ""
 
-# html/pfappserver/root/roles/read.tt
+# html/pfappserver/root/config/roles/read.tt
 msgid "New Role"
 msgstr ""
 
@@ -4122,7 +4174,7 @@ msgid "No role"
 msgstr ""
 
 # html/pfappserver/root/config/adminroles/index.tt
-# html/pfappserver/root/roles/index.tt
+# html/pfappserver/root/config/roles/index.tt
 msgid "No role defined"
 msgstr ""
 
@@ -4553,26 +4605,6 @@ msgid "PORTAL_MODULE_UPDATE"
 msgstr "Portal Modules - Update"
 
 # pf::admin_roles (Actions groups)
-msgid "CONNECTION_PROFILES"
-msgstr "Connection Profiles"
-
-# pf::admin_roles (Actions)
-msgid "CONNECTION_PROFILES_CREATE"
-msgstr "Connection Profiles - Create"
-
-# pf::admin_roles (Actions)
-msgid "CONNECTION_PROFILES_DELETE"
-msgstr "Connection Profiles - Delete"
-
-# pf::admin_roles (Actions)
-msgid "CONNECTION_PROFILES_READ"
-msgstr "Connection Profiles - Read"
-
-# pf::admin_roles (Actions)
-msgid "CONNECTION_PROFILES_UPDATE"
-msgstr "Connection Profiles - Update"
-
-# pf::admin_roles (Actions groups)
 msgid "PROVISIONING"
 msgstr "Provisioning"
 
@@ -4823,7 +4855,7 @@ msgstr ""
 msgid "Please specify a group name"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Role.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Roles.pm
 msgid "Please specify a name for the role."
 msgstr ""
 
@@ -5076,17 +5108,6 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 msgid "Portal Open Connections per server"
-msgstr ""
-
-# html/pfappserver/root/admin/configuration.tt
-msgid "Connection Profiles"
-msgstr ""
-
-# html/pfappserver/root/config/profile/create.tt
-# html/pfappserver/root/config/profile/edit.tt
-# html/pfappserver/root/config/profile/index.tt
-# html/pfappserver/root/config/profile/view.tt
-msgid "Connection Profiles and Pages"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
@@ -5440,10 +5461,6 @@ msgstr ""
 msgid "Really delete this profile?"
 msgstr ""
 
-# html/pfappserver/root/roles/index.tt
-msgid "Really delete this role?"
-msgstr ""
-
 # html/pfappserver/root/config/wmi/index.tt
 msgid "Really delete this rule ?"
 msgstr ""
@@ -5631,6 +5648,11 @@ msgstr ""
 msgid "Restart All"
 msgstr ""
 
+# html/pfappserver/root/admin/bulk_actions.inc
+# html/pfappserver/root/node/view.tt
+msgid "Restart Switchport"
+msgstr ""
+
 # html/pfappserver/root/config/wrix/search_form.tt
 msgid "Restricted Access"
 msgstr ""
@@ -5680,8 +5702,8 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/root/config/roles/read.tt
 # html/pfappserver/root/node/search.tt
-# html/pfappserver/root/roles/read.tt
 msgid "Role"
 msgstr ""
 
@@ -5734,8 +5756,8 @@ msgstr ""
 # html/pfappserver/root/admin/auditing_radius_log.tt
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/config/roles/index.tt
 # html/pfappserver/root/config/switch/view.tt
-# html/pfappserver/root/roles/index.tt
 msgid "Roles"
 msgstr ""
 
@@ -5916,6 +5938,7 @@ msgstr "Switches CLI - Write"
 # html/pfappserver/root/config/profile/view.tt
 # html/pfappserver/root/config/provisioning/view.tt
 # html/pfappserver/root/config/realm/view.tt
+# html/pfappserver/root/config/roles/read.tt
 # html/pfappserver/root/config/scan/view.tt
 # html/pfappserver/root/config/switch/view.tt
 # html/pfappserver/root/config/wmi/view.tt
@@ -5924,10 +5947,13 @@ msgstr "Switches CLI - Write"
 # html/pfappserver/root/configurator/database.tt
 # html/pfappserver/root/interface/view.tt
 # html/pfappserver/root/node/view.tt
-# html/pfappserver/root/roles/read.tt
 # html/pfappserver/root/user/view.tt
 # html/pfappserver/root/violation/view.tt
 msgid "Save"
+msgstr ""
+
+# html/pfappserver/root/node/view.tt
+msgid "Save (All Devices)"
 msgstr ""
 
 # html/pfappserver/root/config/profile/create.tt
@@ -5984,16 +6010,20 @@ msgstr ""
 # html/pfappserver/root/config/portal_module/view.tt
 # html/pfappserver/root/config/provisioning/view.tt
 # html/pfappserver/root/config/realm/view.tt
+# html/pfappserver/root/config/roles/read.tt
 # html/pfappserver/root/config/scan/view.tt
 # html/pfappserver/root/config/switch/view.tt
 # html/pfappserver/root/config/wmi/view.tt
 # html/pfappserver/root/config/wrix/view.tt
 # html/pfappserver/root/interface/view.tt
 # html/pfappserver/root/node/view.tt
-# html/pfappserver/root/roles/read.tt
 # html/pfappserver/root/user/view.tt
 # html/pfappserver/root/violation/view.tt
 msgid "Saving"
+msgstr ""
+
+# html/pfappserver/root/node/view.tt
+msgid "Saving (All Devices)"
 msgstr ""
 
 # html/pfappserver/root/config/profile/edit.tt
@@ -6482,6 +6512,10 @@ msgstr ""
 msgid "Source Switch Port"
 msgstr ""
 
+# html/pfappserver/root/admin/nodes.tt
+msgid "Source Switch Port Description"
+msgstr ""
+
 # html/pfappserver/root/admin/auditing_radius_log.tt
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/profile/tab-content.tt
@@ -6712,6 +6746,10 @@ msgstr ""
 
 # html/pfappserver/root/node/search.tt
 msgid "Switch Port"
+msgstr ""
+
+# html/pfappserver/root/node/search.tt
+msgid "Switch Port Description"
 msgstr ""
 
 # html/pfappserver/root/config/switch/list.tt
@@ -7067,7 +7105,7 @@ msgstr ""
 msgid "The maximal unregistration date that can be set."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Role.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Roles.pm
 msgid "The maximum number of nodes a user having this role can register."
 msgstr ""
 
@@ -7299,6 +7337,10 @@ msgstr ""
 msgid "There's not enough data to generate this graph. Is PacketFence in production?"
 msgstr ""
 
+# html/pfappserver/root/node/view.tt
+msgid "Therefore, you can apply change to ALL of those devices."
+msgstr ""
+
 # conf/documentation.conf (captive_portal.network_detection_ip)
 msgid "This IP is used as the webserver who hosts the common/network-access-detection.gif which is used to detect if network access was enabled. It cannot be a domain name since it is used in registration or quarantine where DNS is blackholed. It is recommended that you allow your users to reach your PacketFence server and put your LAN's PacketFence IP. By default we will make this reach PacketFence's website as an easy solution."
 msgstr ""
@@ -7329,6 +7371,10 @@ msgstr ""
 
 # conf/documentation.conf (captive_portal.image_path)
 msgid "This is the path where the gif is on the webserver to detect if the network accesshas been enabled."
+msgstr ""
+
+# html/pfappserver/root/node/view.tt
+msgid "This node is wired to a switchport on which other active devices were detected."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
@@ -7404,10 +7450,6 @@ msgstr ""
 msgid "Transport"
 msgstr ""
 
-# html/pfappserver/root/config/networks/index.tt
-msgid "Trapping"
-msgstr ""
-
 # html/pfappserver/root/config/portal_module/index.tt
 msgid "Tree View"
 msgstr ""
@@ -7418,6 +7460,10 @@ msgstr ""
 
 # html/pfappserver/root/node/violations.tt
 msgid "Trigger"
+msgstr ""
+
+# html/pfappserver/root/node/violations.tt
+msgid "Trigger (All Devices)"
 msgstr ""
 
 # conf/documentation.conf (advanced.sso_on_access_reevaluation)
@@ -8051,6 +8097,7 @@ msgstr "WRIX - Update"
 msgid "Warning!"
 msgstr ""
 
+# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/cluster/index.tt
 # html/pfappserver/root/config/switch/view.tt
 msgid "Web Services"
@@ -8069,7 +8116,7 @@ msgstr ""
 msgid "When enabled the /status page will only be available on theproduction network. By default this is disabled"
 msgstr ""
 
-# conf/documentation.conf (trapping.passthrough)
+# conf/documentation.conf (fencing.passthrough)
 msgid "When enabled, PacketFence uses pfdns if you defined <i>Passthroughs</i> or Apache mod-proxy if you defined <i>Proxy passthroughs</i> to allow trapped devices to reach web sites."
 msgstr ""
 
@@ -8095,6 +8142,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "When this is enabled, an async job will cache the NTLM credentials of the user every time he connects."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Whether or not to fetch users on your AD one by one instead of doing a single batch fetch. This is useful when your AD is loaded or experiencing issues during the sync. Note that this makes the batch job much longer and is about 4 times slower when enabled."
 msgstr ""
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (proxy.verify_ssl)
@@ -8147,6 +8198,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Window"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/sentinelone.pm
+msgid "Windows agent download URI"
 msgstr ""
 
 # pfappserver::PacketFence::Controller::Graph (graph type)
@@ -8362,6 +8417,10 @@ msgid "advanced.locationlog_close_on_accounting_stop"
 msgstr "locationlog Close On Accounting Stop"
 
 # conf/documentation.conf
+msgid "advanced.multihost"
+msgstr ""
+
+# conf/documentation.conf
 msgid "advanced.ntlm_redis_cache"
 msgstr "NTLM Redis cache"
 
@@ -8446,14 +8505,6 @@ msgstr "Android"
 # html/pfappserver/root/admin/users.tt
 msgid "anniversary"
 msgstr "Anniversary"
-
-# pf::config (SoH Classes)
-msgid "antispyware"
-msgstr ""
-
-# pf::config (SoH Classes)
-msgid "antivirus"
-msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Rule.pm
 # html/pfappserver/root/admin/nodes.tt
@@ -8795,6 +8846,7 @@ msgstr ""
 # conf/documentation.conf (active_active.dns_on_vip_only options)
 # conf/documentation.conf (advanced.disable_pf_domain_auth options)
 # conf/documentation.conf (advanced.locationlog_close_on_accounting_stop options)
+# conf/documentation.conf (advanced.multihost options)
 # conf/documentation.conf (advanced.ntlm_redis_cache options)
 # conf/documentation.conf (advanced.record_accounting_in_sql options)
 # conf/documentation.conf (advanced.sso_on_access_reevaluation options)
@@ -8805,6 +8857,8 @@ msgstr ""
 # conf/documentation.conf (captive_portal.status_only_on_production options)
 # conf/documentation.conf (captive_portal.wispr_redirection options)
 # conf/documentation.conf (device_registration.activation options)
+# conf/documentation.conf (fencing.interception_proxy options)
+# conf/documentation.conf (fencing.passthrough options)
 # conf/documentation.conf (inline.should_reauth_on_vlan_change options)
 # conf/documentation.conf (maintenance.iplog_rotation options)
 # conf/documentation.conf (maintenance.person_cleanup options)
@@ -8857,8 +8911,6 @@ msgstr ""
 # conf/documentation.conf (services.winbindd options)
 # conf/documentation.conf (snmp_traps.closelocationlogonstop options)
 # conf/documentation.conf (snmp_traps.trap_limit options)
-# conf/documentation.conf (trapping.interception_proxy options)
-# conf/documentation.conf (trapping.passthrough options)
 msgid "disabled"
 msgstr ""
 
@@ -8914,6 +8966,7 @@ msgstr ""
 # conf/documentation.conf (active_active.dns_on_vip_only options)
 # conf/documentation.conf (advanced.disable_pf_domain_auth options)
 # conf/documentation.conf (advanced.locationlog_close_on_accounting_stop options)
+# conf/documentation.conf (advanced.multihost options)
 # conf/documentation.conf (advanced.ntlm_redis_cache options)
 # conf/documentation.conf (advanced.record_accounting_in_sql options)
 # conf/documentation.conf (advanced.sso_on_access_reevaluation options)
@@ -8924,6 +8977,8 @@ msgstr ""
 # conf/documentation.conf (captive_portal.status_only_on_production options)
 # conf/documentation.conf (captive_portal.wispr_redirection options)
 # conf/documentation.conf (device_registration.activation options)
+# conf/documentation.conf (fencing.interception_proxy options)
+# conf/documentation.conf (fencing.passthrough options)
 # conf/documentation.conf (inline.should_reauth_on_vlan_change options)
 # conf/documentation.conf (maintenance.iplog_rotation options)
 # conf/documentation.conf (maintenance.person_cleanup options)
@@ -8976,8 +9031,6 @@ msgstr ""
 # conf/documentation.conf (services.winbindd options)
 # conf/documentation.conf (snmp_traps.closelocationlogonstop options)
 # conf/documentation.conf (snmp_traps.trap_limit options)
-# conf/documentation.conf (trapping.interception_proxy options)
-# conf/documentation.conf (trapping.passthrough options)
 msgid "enabled"
 msgstr ""
 
@@ -9014,9 +9067,45 @@ msgstr "Event Type"
 msgid "external_action"
 msgstr ""
 
-# pf::config (SoH Classes)
-msgid "firewall"
-msgstr ""
+# conf/documentation.conf
+msgid "fencing"
+msgstr "Fencing"
+
+# conf/documentation.conf
+msgid "fencing.interception_proxy"
+msgstr "Proxy Interception"
+
+# conf/documentation.conf
+msgid "fencing.interception_proxy_port"
+msgstr "Proxy Interception Port"
+
+# conf/documentation.conf
+msgid "fencing.passthrough"
+msgstr "Passthrough"
+
+# conf/documentation.conf
+msgid "fencing.passthroughs"
+msgstr "Passthroughs"
+
+# conf/documentation.conf
+msgid "fencing.proxy_passthroughs"
+msgstr "Proxy Passthroughs"
+
+# conf/documentation.conf
+msgid "fencing.range"
+msgstr "Addresses ranges"
+
+# conf/documentation.conf
+msgid "fencing.redirtimer"
+msgstr "Redirection delay"
+
+# conf/documentation.conf
+msgid "fencing.wait_for_redirect"
+msgstr "Wait for redirect"
+
+# conf/documentation.conf
+msgid "fencing.whitelist"
+msgstr "Whitelist"
 
 # pfappserver::Model::Node::Tab::MSE (MSE Tab)
 msgid "firstLocatedTime"
@@ -9890,59 +9979,59 @@ msgstr "Profile"
 msgid "profile.filter.$_"
 msgstr ""
 
-# profile.filter (Connection Profile Filters)
+# profile.filter (Portal Profile Filters)
 msgid "profile.filter.connection_sub_type"
 msgstr "Connection Sub Type"
 
-# profile.filter (Connection Profile Filters)
+# profile.filter (Portal Profile Filters)
 msgid "profile.filter.connection_type"
 msgstr "Connection Type"
 
-# profile.filter (Connection Profile Filters)
+# profile.filter (Portal Profile Filters)
 msgid "profile.filter.network"
 msgstr "Network"
 
-# profile.filter (Connection Profile Filters)
+# profile.filter (Portal Profile Filters)
 msgid "profile.filter.node_role"
 msgstr "Node role"
 
-# profile.filter (Connection Profile Filters)
+# profile.filter (Portal Profile Filters)
 msgid "profile.filter.port"
 msgstr "Port"
 
-# profile.filter (Connection Profile Filters)
+# profile.filter (Portal Profile Filters)
 msgid "profile.filter.realm"
 msgstr "Realm"
 
-# profile.filter (Connection Profile Filters)
+# profile.filter (Portal Profile Filters)
 msgid "profile.filter.ssid"
 msgstr "SSID"
 
-# profile.filter (Connection Profile Filters)
+# profile.filter (Portal Profile Filters)
 msgid "profile.filter.switch"
 msgstr "Switch"
 
-# profile.filter (Connection Profile Filters)
+# profile.filter (Portal Profile Filters)
 msgid "profile.filter.switch_group"
 msgstr "Switch Group"
 
-# profile.filter (Connection Profile Filters)
+# profile.filter (Portal Profile Filters)
 msgid "profile.filter.switch_mac"
 msgstr "Switch Mac"
 
-# profile.filter (Connection Profile Filters)
+# profile.filter (Portal Profile Filters)
 msgid "profile.filter.switch_port"
 msgstr "Switch Port"
 
-# profile.filter (Connection Profile Filters)
+# profile.filter (Portal Profile Filters)
 msgid "profile.filter.time"
 msgstr "Time period"
 
-# profile.filter (Connection Profile Filters)
+# profile.filter (Portal Profile Filters)
 msgid "profile.filter.uri"
 msgstr "URI"
 
-# profile.filter (Connection Profile Filters)
+# profile.filter (Portal Profile Filters)
 msgid "profile.filter.vlan"
 msgstr "VLAN"
 
@@ -10112,6 +10201,10 @@ msgstr ""
 # html/pfappserver/root/node/view.tt
 # html/pfappserver/root/service/status.tt
 msgid "seconds"
+msgstr ""
+
+# pf::provisioner (Provisioners)
+msgid "sentinelone"
 msgstr ""
 
 # pf::provisioner (Provisioners)
@@ -10477,10 +10570,6 @@ msgstr "p0f socket map"
 msgid "tcp_fingerprinting.p0f_socket_path"
 msgstr "p0f socket path"
 
-# /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "tcp_fingerprinting.p0f_map_path"
-msgstr "p0f map path"
-
 # html/pfappserver/root/admin/users.tt
 msgid "telephone"
 msgstr ""
@@ -10493,46 +10582,6 @@ msgstr "Testing"
 # html/pfappserver/root/admin/users.tt
 msgid "title"
 msgstr ""
-
-# conf/documentation.conf
-msgid "trapping"
-msgstr "Trapping"
-
-# conf/documentation.conf
-msgid "trapping.interception_proxy"
-msgstr "Proxy Interception"
-
-# conf/documentation.conf
-msgid "trapping.interception_proxy_port"
-msgstr "Proxy Interception Port"
-
-# conf/documentation.conf
-msgid "trapping.passthrough"
-msgstr "Passthrough"
-
-# conf/documentation.conf
-msgid "trapping.passthroughs"
-msgstr "Passthroughs"
-
-# conf/documentation.conf
-msgid "trapping.proxy_passthroughs"
-msgstr "Proxy Passthroughs"
-
-# conf/documentation.conf
-msgid "trapping.range"
-msgstr "Addresses ranges"
-
-# conf/documentation.conf
-msgid "trapping.redirtimer"
-msgstr "Redirection delay"
-
-# conf/documentation.conf
-msgid "trapping.wait_for_redirect"
-msgstr "Wait for redirect"
-
-# conf/documentation.conf
-msgid "trapping.whitelist"
-msgstr "Whitelist"
 
 # pf::Authentication::Source::ADSource (available_attributes)
 # pf::Authentication::Source::LDAPSource (available_attributes)

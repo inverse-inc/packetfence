@@ -331,9 +331,6 @@ sub extract_modules {
     }
 
     const('pf::config', 'VALID_TRIGGER_TYPES', keys(%pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE));
-    const('pf::config', 'SoH Actions', \@pf::config::SOH_ACTIONS);
-    const('pf::config', 'SoH Classes', \@pf::config::SOH_CLASSES);
-    const('pf::config', 'SoH Status', \@pf::config::SOH_STATUS);
     const('pf::config', 'Inline triggers', [$pf::config::MAC, $pf::config::PORT, $pf::config::SSID, $pf::config::ALWAYS]);
     const('pf::config', 'Network types', [$pf::config::NET_TYPE_VLAN_REG, $pf::config::NET_TYPE_VLAN_ISOL, $pf::config::NET_TYPE_INLINE, 'management', 'other']);
     const('pf::radius_audit_log', 'RADIUS Audit Log', \@pf::radius_audit_log::FIELDS);

@@ -529,7 +529,6 @@ cp -r addons/high-availability/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/integration-testing/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/packages/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/snort/ $RPM_BUILD_ROOT/usr/local/pf/addons/
-cp -r addons/soh/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/upgrade/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/watchdog/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/AD/* $RPM_BUILD_ROOT/usr/local/pf/addons/AD/
@@ -894,8 +893,6 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/addons/snort/update_rules.pl
                         /usr/local/pf/addons/snort/oinkmaster.conf
                         /usr/local/pf/addons/snort/oinkmaster.conf.2.8.6
-%dir                    /usr/local/pf/addons/soh
-%doc                    /usr/local/pf/addons/soh/README.rst
 %dir                    /usr/local/pf/addons/upgrade
 %attr(0755, pf, pf)     /usr/local/pf/addons/upgrade/*.pl
 %dir                    /usr/local/pf/addons/watchdog
@@ -1251,7 +1248,6 @@ fi
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/SavedSearch/Node.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/SavedSearch/User.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Service.pm
-%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/SoH.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/User.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Violation.pm
                         /usr/local/pf/lib
@@ -1268,7 +1264,6 @@ fi
                         /usr/local/pf/lib/pf/radius/constants.pm
 %config(noreplace)      /usr/local/pf/lib/pf/radius/custom.pm
 %config(noreplace)      /usr/local/pf/lib/pf/roles/custom.pm
-%config(noreplace)      /usr/local/pf/lib/pf/soh/custom.pm
 %config(noreplace)      /usr/local/pf/lib/pf/role/custom.pm
 %config(noreplace)      /usr/local/pf/lib/pf/web/custom.pm
 
@@ -1322,10 +1317,8 @@ fi
 %attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/example
 %attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/inner-tunnel
 %attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/originate-coa
-%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/packetfence-soh
 %attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/proxy-inner-tunnel
 %attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/robust-proxy-accounting
-%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/soh
 %attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/status
 %attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/virtual.example.com
 %attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/vmps
