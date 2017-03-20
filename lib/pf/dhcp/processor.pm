@@ -38,7 +38,7 @@ has 'apiClient'    => (is => 'ro', default => sub { pf::client::getClient });
 has 'filterEngine' => (is => 'rw', default => sub { pf::access_filter::dhcp->new });
 
 
-Readonly::Hash my %FINGERBANK_ATTRIBUTES_MAP => (
+Readonly::Hash my %FINGERBANK_ARGUMENTS_MAP => (
     client_mac              => 'mac',
     client_ip               => 'ip',
     client_hostname         => 'computername',
@@ -144,12 +144,12 @@ sub processFingerbank {
 
     my $fingerbank_args = {};
     foreach my $key ( keys %{$attributes} ) {
-        if ( exists $FINGERBANK_ATTRIBUTES_MAP{$key} ) {
+        if ( exists $FINGERBANK_ARGUMENTS_MAP{$key} ) {
             if ( ref($attributes->{$key}) eq 'ARRAY' ) {
-                $fingerbank_args->{$FINGERBANK_ATTRIBUTES_MAP{$key}} = join ',', @{$attributes->{$key}};
+                $fingerbank_args->{$FINGERBANK_ARGUMENTS_MAP{$key}} = join ',', @{$attributes->{$key}};
             }
             else {
-                $fingerbank_args->{$FINGERBANK_ATTRIBUTES_MAP{$key}} = $attributes->{$key};
+                $fingerbank_args->{$FINGERBANK_ARGUMENTS_MAP{$key}} = $attributes->{$key};
             }
         }
     }
