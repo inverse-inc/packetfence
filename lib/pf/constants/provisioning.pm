@@ -1,43 +1,40 @@
-package pf::constants;
+package pf::constants::provisioning;
+
 =head1 NAME
 
-pf::constants add documentation
+pf::constants::provisioning
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::constants
+pf::constants::provisioning - Constants for provisioner modules
 
 =cut
 
-use strict;
-use warnings;
-use Readonly;
 use base qw(Exporter);
-our @EXPORT = qw(
-    $FALSE $TRUE $YES $NO $default_pid $admin_pid
-    $HTTP $HTTPS $HTTP_PORT $HTTPS_PORT
+our @EXPORT_OK = qw(
+    $SENTINEL_ONE_TOKEN_EXPIRY
+    $NOT_COMPLIANT_FLAG
 );
 
-# some global constants
-Readonly::Scalar our $FALSE => 0;
-Readonly::Scalar our $TRUE => 1;
-Readonly::Scalar our $YES => 'yes';
-Readonly::Scalar our $NO => 'no';
-Readonly::Scalar our $default_pid => 'default';
-Readonly::Scalar our $admin_pid => 'admin';
+use Readonly;
 
-Readonly::Hash our %BUILTIN_USERS => (
-    $default_pid => 1, 
-    $admin_pid => 1,
-);
+=item $SENTINEL_ONE_TOKEN_EXPIRY
 
-Readonly::Scalar our $HTTP_PORT => 80;
-Readonly::Scalar our $HTTPS_PORT => 443;
+Amount of seconds a Sentinel one token is valid (1 hour)
 
-Readonly::Scalar our $HTTP => "http";
-Readonly::Scalar our $HTTPS => "https";
+=cut
+
+Readonly our $SENTINEL_ONE_TOKEN_EXPIRY => 60*60;
+
+=item $NOT_COMPLIANT_FLAG
+
+The flag that defines a non-compliant device as returned by the MDM filters
+
+=cut
+
+Readonly our $NOT_COMPLIANT_FLAG => "non-compliant";
 
 =head1 AUTHOR
 

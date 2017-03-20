@@ -24,6 +24,7 @@ use IO::Interface::Simple;
 use pf::log;
 use Readonly;
 use NetAddr::IP;
+use pf::constants;
 
 BEGIN {
     use Exporter ();
@@ -699,6 +700,7 @@ sub generate_interception_rules {
 
 sub generate_provisioning_passthroughs {
     my $logger = get_logger();
+    $logger->debug("Installing passthroughs for provisioning");
     foreach my $config (tied(%ConfigProvisioning)->search(type => 'sepm')) {
         $logger->info("Adding passthrough for Symantec Endpoint Manager");
         my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{'host'},8014 2>&1");
@@ -711,20 +713,30 @@ sub generate_provisioning_passthroughs {
         my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{boarding_host},$config->{boarding_port} 2>&1");
         my @lines  = pf_run($cmd);
         # Allow http communication with the MobileIron server
-        $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{boarding_host},80 2>&1");
+        $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{boarding_host},$HTTP_PORT 2>&1");
         @lines  = pf_run($cmd);
         # Allow https communication with the MobileIron server
-        $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{boarding_host},443 2>&1");
+        $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{boarding_host},$HTTPS_PORT 2>&1");
         @lines  = pf_run($cmd);
     }
 
     foreach my $config (tied(%ConfigProvisioning)->search(type => 'opswat')) {
         $logger->info("Adding passthrough for OPSWAT");
-        # Allow http communication with the MobileIron server
-        my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},80 2>&1");
+        # Allow http communication with the OSPWAT server
+        my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTP_PORT 2>&1");
         my @lines  = pf_run($cmd);
-        # Allow https communication with the MobileIron server
-        $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},443 2>&1");
+        # Allow https communication with the OPSWAT server
+        $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTPS_PORT 2>&1");
+        @lines  = pf_run($cmd);
+    }
+
+    foreach my $config (tied(%ConfigProvisioning)->search(type => 'sentinelone')) {
+        $logger->info("Adding passthrough for SentinelOne");
+        # Allow http communication with the SentinelOne server
+        my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTP_PORT 2>&1");
+        my @lines  = pf_run($cmd);
+        # Allow https communication with the SentinelOne server
+        $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTPS_PORT 2>&1");
         @lines  = pf_run($cmd);
     }
 

@@ -375,10 +375,6 @@ Readonly our $WEB_ADMIN_ALL => 4294967295;
 Readonly our $VOIP    => 'yes';
 Readonly our $NO_VOIP => 'no';
 
-# HTTP constants
-Readonly our $HTTP => 'http';
-Readonly our $HTTPS => 'https';
-
 # API version constants
 Readonly::Scalar our $RADIUS_API_LEVEL => 1.02;
 Readonly::Scalar our $ROLE_API_LEVEL => 1.04;
