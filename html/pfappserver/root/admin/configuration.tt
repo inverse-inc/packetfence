@@ -129,7 +129,7 @@ table.sources {
               [% pf_section_entry('captive_portal', 'Captive Portal') | none %]
               [%- END %]
               [%- IF can_access("FILTERS_READ") %]
-              [% list_entry('Config::Filters', 'index', 'Filter engines') | none %]
+              [% list_entry('Config::Filters', 'index', 'Filter Engines') | none %]
               [%- END %]
               [%- IF can_access("BILLING_TIER_READ") %]
               [% list_entry('Config::BillingTiers', 'index', 'Billing Tiers') | none %]
