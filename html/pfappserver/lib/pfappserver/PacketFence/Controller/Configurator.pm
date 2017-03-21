@@ -497,8 +497,10 @@ sub services :Chained('object') :PathPart('services') :Args(0) {
         # Start the services
         if (!$c->session->{started}) {
             $c->session->{started} = 1;
-            # restart pfconfig
+            # we need to restart mariadb so that it applies the network configuration
+            system("sudo /usr/bin/systemctl restart packetfence-mariadb");
             system("sudo /usr/local/pf/bin/pfcmd service pf updatesystemd");
+            # restart pfconfig
             $c->model("Config::System")->restart_pfconfig();
             $c->detach(Service => 'pf_start');
         } else {
