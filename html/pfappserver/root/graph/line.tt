@@ -7,9 +7,12 @@
   </div>
   [% END %]
   [% IF section == 'reports' -%]
-  <h2>[% title | html %]</h2>
-  <h6>[% range.start | html %] <i class="icon-arrow-right"></i> [% range.end | html %]</h6>
+  <div class="card-block">
+    <h2>[% title | html %]</h2>
+    <h6>[% range.start | html %] <i class="icon-arrow-right"></i> [% range.end | html %]</h6>
+  </div>
   [%- END %]
+  <div class="card-block">
   [%- IF labels.size > 0 %]
   <div id="[% l(id) | html %]" class="chart"></div>
   <script type="text/javascript">
@@ -30,4 +33,5 @@
     [% l("There's not enough data to generate this graph. Is PacketFence in production?") %]
   </div>
   [%- END %]
+  </div>
 </div>

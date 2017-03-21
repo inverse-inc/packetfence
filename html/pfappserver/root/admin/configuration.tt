@@ -1,50 +1,25 @@
 [%  jsFiles = [
-        'app/jquery-ui',
         'app/ace/ace'
         'app/bootstrap-datepicker',
         'app/bootstrap-timepicker',
         'app/client/fineuploader',
         'app/client/jquery-plugin',
-        'app/chosen.jquery.min',
-        'app/jquery.ba-hashchange',
         'app/pf-bootstrap-swap-class',
-        'admin/configuration',
+        'js/configuration',
         'admin/searches',
-        'admin/config/items',
-        'admin/config/interfaces',
-        'admin/config/switches',
-        'admin/config/floatingdevices',
-        'admin/config/fingerbank-devices',
-        'admin/config/fingerbank-settings',
-        'admin/config/domains',
-        'admin/config/authentication',
-        'admin/config/connection_profile',
-        'admin/config/pfdetect',
-        'admin/config/provisioners',
-        'admin/config/violations',
-        'admin/config/roles',
-        'admin/config/scan-wmi',
-        'admin/config/filters',
-        'admin/config/portal_modules',
         'js/interface',
-        'js/bootstrapSwitch',
         'js/tree.jquery',
         ]
      cssFiles = [
         'app/bootstrap-datepicker',
         'app/bootstrap-timepicker',
         'app/client/fineuploader',
-        'css/bootstrapSwitch',
         'css/jqtree',
         'admin/config/switches',
-        'admin/config/portal_modules',
         'admin/config/violations',
         ] -%]
 
 <style type="text/css">
-.row-fluid [class*="span"] {
-    display: inline-block;
-}
 /* fix inputs in tables */
 table input[type="text"] {
     margin-bottom: 0px;
@@ -76,12 +51,38 @@ table.sources {
               </li>
 [% END -%]
 
-    <div class="container-fluid">
-      <div class="row-fluid">
-        <div class="span2">
-          <div class="well sidebar-nav">
+      <div class="sidenav-fluid">
+        <div class="row-fluid">
+          <div class="sidenav sidenav-category span1">
+            <ul class="nav sidenav-icon-list">
+              <li data-category="policy">
+                <a href="#configuration/define_policy"><i class="icon-2x icon-id-card"></i></a>
+                <!-- [% l('Policies and Access Control') %] -->
+              </li>
+              <li data-category="compliance">
+                <a href="#compliance"><i class="icon-2x icon-shield"></i></a>
+              </li>
+              <li data-category="integration">
+                <a href="#integration"><i class="icon-2x icon-puzzle-piece"></i></a>
+              </li>
+              <li data-category="portal_config">
+                <a href="#portal_config"><i class="icon-2x icon-hand-paper-o"></i></a>
+              </li>
+              <li data-category="advanced_conf">
+                <a href="#advanced_conf"><i class="icon-2x icon-sliders"></i></a>
+              </li>
+              <li data-category="system">
+                <a href="#system_config"><i class="icon-2x icon-database"></i></a>
+              </li>
+            </ul>
+          </div>
+          <div class="sidenav sidenav-section span3 offset1"
+               data-category="policy">
+            <ul class="nav nav-header">
+              <li>[% l('Policies and Access Control') %]</li>
+              <li class="divider-horizontal"></li>
+            </ul>
             <ul class="nav nav-list">
-              <li class="nav-header">[% pf_section_entry( 'define_policy', 'Policies and Access Control') | none %]</li>
               [%- IF can_access("USERS_ROLES_READ") %]
               [% list_entry( 'Config::Roles', 'index', 'Roles') | none %]
               [%- END %]
@@ -97,10 +98,15 @@ table.sources {
               [%- IF can_access("CONNECTION_PROFILES_READ") %]
               [% list_entry( 'Config::Profile', 'index', 'Connection Profiles') | none %]
               [%- END %]
-              [%- IF can_access("PFMON_READ") %]
-              [% list_entry('Config::Pfmon', 'index', 'Maintenance Tasks') | none %]
-              [%- END %]
-              <li class="nav-header">[% pf_section_entry('compliance', 'Compliance') | none %]</li>
+            </ul>
+          </div>
+          <div class="sidenav sidenav-section sidenav-inverse span3 offset1"
+               data-category="compliance">
+            <ul class="nav nav-header">
+              <li>[% l('Compliance') %]</li>
+              <li class="divider-horizontal"></li>
+            </ul>
+            <ul class="nav nav-list">
               [%- IF can_access("FINGERBANK_READ") %]
               [% pf_section_entry( 'profiling', 'Fingerbank Profiling') | none %]
               [%- END %]
@@ -113,7 +119,15 @@ table.sources {
               [%- IF can_access("PFDETECT_READ") %]
               [% list_entry('Config::Pfdetect', 'index', 'Syslog Parsers') | none %]
               [%- END %]
-              <li class="nav-header">[% pf_section_entry('integration', 'Integration') | none %]</li>
+            </ul>
+          </div>
+          <div class="sidenav sidenav-section sidenav-inverse span3 offset1"
+               data-category="integration">
+            <ul class="nav nav-header">
+              <li>[% l('Integration') %]</li>
+              <li class="divider-horizontal"></li>
+            </ul>
+            <ul class="nav nav-list">
               [%- IF can_access("FIREWALL_SSO_READ") %]
               [% list_entry('Config::Firewall_SSO', 'index', 'Firewall SSO') | none %]
               [%- END %]
@@ -124,7 +138,15 @@ table.sources {
               [% pf_section_entry( 'metadefender', 'OPSWAT Metadefender') | none %]
               [% pf_section_entry( 'webservices', 'Web Services') | none %]
               [%- END %]
-              <li class="nav-header">[% pf_section_entry('portal_config', 'Advanced Portal Configuration') | none %]</li>
+            </ul>
+          </div>
+          <div class="sidenav sidenav-section sidenav-inverse span3 offset1"
+               data-category="portal_config">
+            <ul class="nav nav-header">
+              <li>[% l('Advanced Portal Configuration') %]</li>
+              <li class="divider-horizontal"></li>
+            </ul>
+            <ul class="nav nav-list">
               [%- IF can_access("CONFIGURATION_MAIN_READ") %]
               [% pf_section_entry('captive_portal', 'Captive Portal') | none %]
               [%- END %]
@@ -147,7 +169,16 @@ table.sources {
               [% pf_section_entry( 'guests_admin_registration', 'Access Duration') | none %]
               [%- END %]
               [% pf_section_entry( 'device_registration', 'Device Registration') | none %]
-              <li class="nav-header">[% pf_section_entry('advanced_conf', 'Advanced Configuration') | none %]</li>
+            </ul>
+          </div>
+          <div class="sidenav sidenav-section sidenav-inverse span3 offset1"
+               data-category="advanced_conf">
+            <ul class="nav nav-header">
+              <li>[% l('Advanced Configuration') %]</li>
+              <!-- <li class="nav-header">[% pf_section_entry('advanced_conf', 'Advanced Configuration') | none %]</li> -->
+              <li class="divider-horizontal"></li>
+            </ul>
+            <ul class="nav nav-list">
               [%- IF can_access("INTERFACES_READ") %]
               [% pf_section_entry( 'networks', 'Networks') | none %]
               [%- END %]
@@ -155,10 +186,22 @@ table.sources {
               [% pf_section_entry( 'omapi', 'OMAPI') | none %]
               [% pf_section_entry( 'snmp_traps', 'SNMP') | none %]
               [%- END %]
+              [%- IF can_access("PFMON_READ") %]
+              [% list_entry('Config::Pfmon', 'index', 'Maintenance Tasks') | none %]
+              [%- END %]
               [%- IF can_access("FLOATING_DEVICES_READ") %]
               [% list_entry('Config::FloatingDevice', 'index', 'Floating Device') | none %]
               [%- END %]
-              <li class="nav-header">[% pf_section_entry('system_config', 'System Configuration') | none %]</li>
+            </ul>
+          </div>
+          <div class="sidenav sidenav-section sidenav-inverse span3 offset1"
+               data-category="system">
+            <ul class="nav nav-header">
+              <li>[% l('System Configuration') %]</li>
+              <!-- <li class="nav-header">[% pf_section_entry('system_config', 'System Configuration') | none %]</li> -->
+              <li class="divider-horizontal"></li>
+            </ul>
+            <ul class="nav nav-list">
               [%- IF can_access("CONFIGURATION_MAIN_READ") %]
               [% pf_section_entry( 'main', 'Main Configuration') | none %]
               [% pf_section_entry( 'pfdb', 'Database') | none %]
@@ -168,11 +211,17 @@ table.sources {
               [%- IF can_access("ADMIN_ROLES_READ") %]
               [% list_entry('Config::AdminRoles', 'index', 'Admin Access') | none %]
               [%- END %]
-          </div><!--/.well -->
+            </ul>
+          </div><!--/span-->
+        </div><!--/.row-fluid-->
+      </div><!--/.sidenav-row-->
+
+      <div class="row-fluid">
+        <div class="container-fluid span14 offset4">
+        <div id="section">
+          <div class="loader"><p><img src="[% c.uri_for('/static/app/loader-48.gif') %]"></p></div>
         </div><!--/span-->
-        <div class="loader"><p><img src="[% c.uri_for('/static/app/loader-48.gif') %]"></p></div>
-        <div id="section" class="span10">
-        </div><!--/span-->
-      </div><!--/row-->
-    </div><!--/.fluid-container-->
+        </div><!--/row-->
+      </div>
+    </div><!--/.container-fluid-->
 

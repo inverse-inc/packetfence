@@ -2,16 +2,16 @@
 
     <div class="container-fluid">
       <div class="row-fluid">
-        <div class="span2"></div>
-        <div class="span10">
-          <h2>[% l('Admin Login') %]</h2>
-[% IF status_msg %]
+        <div class="card offset4 span10">
+          <h2 class="card-title">[% l('Admin Login') %]</h2>
+          <form name="login" class="form-horizontal" action="[% c.uri_for(c.controller.action_for('login')) %]" method="post">
+          <div class="card-block">
+          [% IF status_msg %]
           <div class="alert alert-warning">
             <button class="close" data-dismiss="alert-success">&times;</button>
             <strong>[% l("Warning!") %]</strong> <span>[% status_msg %]</span>
           </div>
 [% END %]
-          <form name="login" class="form-horizontal" action="[% c.uri_for(c.controller.action_for('login')) %]" method="post">
             <input type="hidden" name="redirect_url" value="[% redirect_action || c.uri_for(c.controller.action_for('index')) %]">
             <div class="control-group">
               <label class="control-label" for="username">[% l('Username') %]</label>
@@ -25,6 +25,7 @@
                 <input type="password" class="input" name="password" id="password">
               </div>
             </div>
+          </div>
             <div class="form-actions">
               <button type="submit" class="btn btn-primary" data-loading-text="[% l('Logging in ..') %]">[% l('Login') %]</button>
             </div>

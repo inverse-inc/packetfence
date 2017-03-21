@@ -1,5 +1,6 @@
-<h2>[% l('Queue') %]</h2>
-<div>
+<div class="card">
+  <h2 class="card-title">[% l('Queue') %]</h2>
+<div class="card-block">
   <table class="table table-condensed table-striped">
     <thead>
       <tr><th colspan="3">[%l('Queue Counts')%]</th></tr>
@@ -69,4 +70,6 @@
       </td>
     </tr>
   [% END %]
+</div>
+</div>
 </div>

@@ -16,12 +16,18 @@
         </div>
       </div>
 
-      <h2>[% l('Billing Tiers')  %]</h2>
+      <div class="card">
+        <div class="card-title">
+          <h2>[% l('Billing Tiers') %]</h2>
+        </div>
 
-      [% INCLUDE config/billingtiers/list.tt %]
+        <div class="card-block">
+          [% INCLUDE config/billingtiers/list.tt %]
+        </div>
 
       [%- IF can_access("BILLING_TIER_CREATE") %]
       <div class="form-actions">
         <a class="btn createItem" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add billing tier') %]</a>
       </div>
       [%- END %]
+      </div>

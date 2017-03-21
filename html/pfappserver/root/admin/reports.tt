@@ -9,9 +9,7 @@
         'app/graphs',
         'app/bootstrap-datepicker',
         'app/bootstrap-timepicker',
-        'app/jquery.ba-hashchange',
         'admin/config/items',
-        'app/chosen.jquery.min',
         'js/bootstrapSwitch',
         'js/node',
         'js/user',
@@ -23,7 +21,6 @@
      cssFiles = [
         'app/bootstrap-timepicker',
         'admin/reports'
-        'css/bootstrap'
         ] -%]
 [% MACRO list_entry(action,description) BLOCK %]
               <li[% IF section == action %] class="active"[% END %]>
@@ -31,10 +28,9 @@
               </li>
 [% END -%]
 
-    <div class="container-fluid">
+    <div class="sidenav-fluid">
       <div class="row-fluid">
-        <div class="span2">
-          <div class="sidebar-nav well">
+        <div class="sidenav sidenav-section span3">
             <ul class="nav nav-list">
               <li class="nav-header">[% l('Nodes') %]</li>
               [% list_entry('graph/nodes', 'Nodes States') | none %]
@@ -52,12 +48,15 @@
               [% END %]
             </ul>
           </div><!--/.well -->
-        </div><!--/span-->
-        <div class="span10">
+      </div><!--/span-->
+    </div>
+
+    <div class="row-fluid">
+      <div class="container-fluid offset3 span15">
 
 
           <div class="loader"><p><img src="[% c.uri_for('/static/app/loader-48.gif') %]"></p></div>
-          <div id="section">
+          <div id="section" class="card">
             <div class="graph"></div>
           </div>
         </div><!--/span -->

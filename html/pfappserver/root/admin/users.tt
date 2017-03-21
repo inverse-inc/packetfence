@@ -39,14 +39,14 @@ form {
 
     [% INCLUDE admin/saved_search.inc method="" savedSearchController="SavedSearch::User"%] 
 
-    <div class="container-fluid">
+    <div class="sidenav-fluid">
       <div class="row-fluid">
-        <div class="span2">
-          <div class="row-fluid">
-            <div class="span12">
-              <div class="sidebar-nav well">
+        <div class="sidenav sidenav-section span3">
+                <ul class="nav nav-header">
+                  <li>[% l('Users') %]</li>
+                  <li class="divider-horizontal"></li>
+                </ul>
                 <ul class="nav nav-list">
-                  <li class="nav-header">[% l('Users') %]</li>
                   [%- IF can_access_any('USERS_READ', 'USERS_READ_SPONSORED') -%]
                   <li class="active"><a href="#">[% l('Search') %]</a></li>
                   [%- END -%]
@@ -88,16 +88,18 @@ form {
                 </div>
               </div>
             </div>-->
-          </div><!--/.well -->
-        </div><!--/span-->
-        <div class="span10">
+    </div><!--/span-->
+    <div class="row-fluid">
+      <div class="container-fluid offset3 span15">
+        <div class="card">
+          <div class="card-title">
           <div class="tabbable">
             <div class="tab-content">
               <ul class="nav nav-tabs">
                 <li class="active"><a href="#simple" data-toggle="tab">[% l('Simple') %]</a></li>
                 <li><a href="#advanced" data-toggle="tab">[% l('Advanced') %]</a></li>
               </ul>
-              <div class="tab-pane active well" id="simple">
+              <div class="tab-pane active" id="simple">
                 <form id="simpleUserSearch" method="POST" name="simpleUserSearch" class="form-inline" action="[% c.uri_for(c.controller('User').action_for('simple_search')) %]">
                     <div>
                         [% INCLUDE per_page_select.tt %]
@@ -106,7 +108,7 @@ form {
                   <input type="text" name="filter" placeholder="[% l('Search...') %]">
                     <div class="btn-group pull-right">
                       <button class="btn btn-primary"><i class="icon-search icon-white"></i> [% l('Search') %]</button>
-                      <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="icon-chevron-up"></span></a>
+                      <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a>
                       <ul class="dropdown-menu up">
                         <li><a href="#" data-export-url="[% c.uri_for(c.controller('User').action_for('simple_search')) %]" data-export-form="#simpleUserSearch" class="exportCSVBtn">[% l('Export to CSV') %]</a></li>
                         <li><a href="#" id="simpleSavedSearchBtn" >[% l('Save as...') %]</a></li>
@@ -114,15 +116,10 @@ form {
                     </div>
                 </form>
               </div><!--#simple-->
-              <div class="tab-pane well" id="advanced">
+              <div class="tab-pane" id="advanced">
                 <form id="advancedUserSearch" method="POST" name="advancedUserSearch" class="form-inline" action="[% c.uri_for(c.controller('User').action_for('advanced_search')) %]">
                   <table class="table-dynamic">
                     <thead>
-                      <tr>
-                        <td>
-                        [% INCLUDE per_page_select.tt %]
-                        </td>
-                      <tr>
                       <tr>
                         <td>
                           [% match_options = BLOCK %]
@@ -181,8 +178,8 @@ form {
                           <input name="searches.0.value" disabled="disabled" type="text" class="span6" placeholder="[% l('String...') %]">
                         </td>
                         <td class="action">
-                          <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
-                          <a class="btn-icon" href="#delete"><i class="icon-minus-sign"></i></a>
+                          <a class="btn-icon" href="#add"><i class="icon-plus-circle"></i></a>
+                          <a class="btn-icon" href="#delete"><i class="icon-minus-circle"></i></a>
                         </td>
                       </tr>
                       <tr class="dynamic-row">
@@ -230,16 +227,19 @@ form {
                           <input name="searches.0.value" type="text" class="span6" placeholder="[% l('String...') %]">
                         </td>
                         <td class="action">
-                          <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
-                          <!--a class="btn-icon" href="#delete"><i class="icon-minus-sign"></i></a-->
+                          <a class="btn-icon" href="#add"><i class="icon-plus-circle"></i></a>
+                          <!--a class="btn-icon" href="#delete"><i class="icon-minus-circle"></i></a-->
                         </td>
                       </tr>
                       <tr>
-                        <td style="padding-top: 1em">
+                        <td>
+                        [% INCLUDE per_page_select.tt %]
+                        </td>
+                        <td>
                           <div class="btn-group pull-right">
                             <button class="btn btn-primary"><i class="icon-search icon-white"></i> [% l('Search') %]</button>
-                            <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
-                            <ul class="dropdown-menu">
+                            <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a>
+                            <ul class="dropdown-menu up">
                               <li><a href="#" data-export-url="[% c.uri_for(c.controller('User').action_for('advanced_search')) %]" data-export-form="#advancedUserSearch" class="exportCSVBtn">[% l('Export to CSV') %]</a></li>
                               <li><a id="advancedSavedSearchBtn">[% l('Save as...') %]</a></li>
                             </ul>
@@ -252,8 +252,9 @@ form {
               </div><!--#advanced-->
             </div><!--/.tab-content-->
           </div><!--/.tabbable-->
+          </div>
           <div class="loader span12"><p><img src="[% c.uri_for('/static/app/loader-48.gif') %]"></p></div>
-          <div class="row-fluid users" id="section">
+          <div class="users card-block" id="section">
           </div>
         </div><!--/span-->
       </div><!--/row-->

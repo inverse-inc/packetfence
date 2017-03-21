@@ -20,8 +20,7 @@
   <div class="navbar-inner">
     <div class="container">
       <div class="nav-collapse collapse navbar-responsive-collapse">
-        <form id="search" name="search" class="navbar-search pull-left input-daterange datetimepicker" action="[%c.uri_for(c.controller.action_for('search'))%]" method="POST">
-          <div style="width: 441px">
+        <form id="search" name="search" class="input-daterange datetimepicker" action="[%c.uri_for(c.controller.action_for('search'))%]" method="POST">
             <table id="searchConditions" class="table-dynamic">
                <thead>
                   <tr>
@@ -45,8 +44,8 @@
                    [% PROCESS search_options disabled=1 %]
                   </td>
                   <td class="action">
-                    <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
-                    <a class="btn-icon" href="#delete"><i class="icon-minus-sign"></i></a>
+                    <a class="btn-icon" href="#add"><i class="icon-plus-circle"></i></a>
+                    <a class="btn-icon" href="#delete"><i class="icon-minus-circle"></i></a>
                   </td>
                 </tr>
               </tbody>
@@ -61,9 +60,9 @@
                     </div>
                   </td>
                 </tr>
+                <tr><td>&nbsp;</td></tr>
                 <tr>
-                  <td style="padding-top: 1em">
-                    <div class="pull-left">
+                  <td>
                     [% per_page_options = BLOCK %]
                       <select name="per_page" class="input-mini">
                         <option value="25" [% "selected=selected" IF per_page == 25 %]>25</option>
@@ -73,12 +72,11 @@
                       </select>
                     [% END %]
                     [% l('Display [_1] entries per page', [per_page_options]) | none %]
-                    </div>
                   </td>
                   <td>
-                    <div class="btn-group">
+                    <div class="btn-group pull-right">
                       <button class="btn btn-primary"><i class="icon-search icon-white"></i> [% l('Search') %]</button>
-                      <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
+                      <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a>
                       <ul class="dropdown-menu">
                            <li><a href="#" data-export-url="[% c.uri_for(c.controller.action_for('search')) %]" data-export-form="#search" class="exportCSVBtn">[% l('Export to CSV') %]</a></li>
                           <li><a  data-toggle="modal" data-target="#savedSearch" >[% l('Save as...') %]</a></li>
@@ -88,7 +86,6 @@
                 </tr>
               </tfoot>
             </table>
-          </div>
         </form>
       </div>
     </div>

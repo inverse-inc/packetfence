@@ -51,8 +51,8 @@
                    [% PROCESS search_options disabled=1 %]
                   </td>
                   <td class="action">
-                    <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
-                    <a class="btn-icon" href="#delete"><i class="icon-minus-sign"></i></a>
+                    <a class="btn-icon" href="#add"><i class="icon-plus-circle"></i></a>
+                    <a class="btn-icon" href="#delete"><i class="icon-minus-circle"></i></a>
                   </td>
                 </tr>
               </tbody>

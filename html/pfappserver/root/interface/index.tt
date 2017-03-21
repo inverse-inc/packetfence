@@ -1,9 +1,15 @@
-<h2>[% l('Interfaces & Networks') %]</h2>
+<div class="card">
+  <div class="card-title">
+    <h2>[% l('Interfaces & Networks') %]</h2>
+  </div>
 
-[% INCLUDE interface/list.tt %]
+  <div class="card-block">
+    [% INCLUDE interface/list.tt %]
+  </div>
 
 [%- IF can_access("INTERFACES_CREATE") %]
 <div class="form-actions">
   <a id="createNetwork" class="btn" href="[% c.uri_for(c.controller('Config::Networks').action_for('create')) %]">[% l('Add routed network') %]</a>
 </div>
 [%- END %]
+</div>

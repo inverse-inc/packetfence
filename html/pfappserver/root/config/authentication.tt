@@ -12,13 +12,17 @@
   </div>
 </div><!-- deleteSource -->
 
-<h2>[% l('Users Sources')  %]</h2>
+<div class="card">
+  <div class="card-title">
+    <h2>[% l('Users Sources')  %]</h2>
+<p>[% l('Define the authentication sources to let users access the captive portal or the admin Web interface.') %]</p>
+<p>[% l('Each connection profile must be associated with one or multiple authentication sources while 802.1X connections use the ordered internal sources to determine which role to use. External sources are never used with 802.1X connections.') %]</p>
+  </div>
+  <div class="card-block">
 [% IF error %]<div class="alert alert-error">
   <button class="close" data-dismiss="alert">&times;</button>
   <strong>[% l('Error!') %]</strong> <span>[% error %]</span>
 </div>[% END %]
-<p>[% l('Define the authentication sources to let users access the captive portal or the admin Web interface.') %]</p>
-<p>[% l('Each connection profile must be associated with one or multiple authentication sources while 802.1X connections use the ordered internal sources to determine which role to use. External sources are never used with 802.1X connections.') %]</p>
 
 [% IF message %]<div class="alert alert-success">
   <button class="close" data-dismiss="alert">&times;</button>
@@ -144,11 +148,11 @@
 <div id="noSource" class="unwell[% ' hidden' IF form.field('sources').num_fields %]">
   <i class="icon-group icon-large"></i><p>[% l('No source defined') %]</p>
 </div>
-
+</div>
 [%- IF can_access("USERS_SOURCES_CREATE") %]
 <div class="form-actions">
   <div class="btn-group">
-    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">[% l('Add source') %] <span class="caret"></span></a>
+    <a class="btn dropdown-toggle" data-toggle="dropdown">[% l('Add source') %] <span class="caret"></span></a>
     <ul id="createSource" class="dropdown-menu">
       <li class="dropdown-submenu">
         <a tabindex="-1">[% l('Internal') %]</a>
@@ -186,3 +190,4 @@
   </div>
 </div>
 [%- END %]
+</div>

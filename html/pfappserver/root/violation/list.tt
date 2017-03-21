@@ -17,7 +17,11 @@
         </div>
       </div>
 
-      <h2>[% l('Violations')  %]</h2>
+      <div class="card">
+        <div class="card-title">
+          <h2>[% l('Violations')  %]</h2>
+        </div>
+        <div class="card-block">
       [% IF items.size -%]
       <table class="table">
         <thead>
@@ -64,9 +68,11 @@
       <div id="noViolation" class="unwell[% ' hidden' IF items.size > 0 %]">
         <i class="icon-legal icon-large"></i><p>[% l('No violation defined') %]</p>
       </div>
+      </div>
 
       [%- IF can_access("VIOLATIONS_CREATE") %]
       <div class="form-actions">
         <a id="createViolation" class="btn" href="[% c.uri_for(c.controller('Violation').action_for('create')) %]">[% l('Add violation') %]</a>
       </div>
       [%- END %]
+      </div>

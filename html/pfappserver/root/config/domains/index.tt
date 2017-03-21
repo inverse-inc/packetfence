@@ -1,5 +1,9 @@
-<h4 class="alert alert-warning">[% l('This section is for Domains and REALMS. Manage to which domains your PacketFence server is joined.') %]</h4>
-
+<p class="p3 p-info">[% l('This section is for Domains and REALMS. Manage to which domains your PacketFence server is joined.') %]</p>
+<div class="card">
+  <div class="card-title">
+    <h2>[% l('Domains') %]</h2>
+  </div>
+<div class="card-block">
 <div id="tabView">
   <ul class="nav nav-tabs">
     <li [% IF tab == 'domains' %]class="active"[% END %]>
@@ -12,5 +16,7 @@
 <div class="tab-content">
   <div class="tab-pane fade" id="newTabView">
   </div><!--tab-pane-->
+</div>
+</div>
 </div>
 </div>

@@ -1,10 +1,8 @@
-
-
-<h1>
-Portal modules
-</h1>
-
-
+<div class="card">
+  <div class="card-title">
+    <h2>[% l('Portal modules') %]</h2>
+  </div>
+  <div class="card-block">
 
 <div class="tabbable">
   <ul class="nav nav-tabs">
@@ -20,10 +18,12 @@ Portal modules
     </div>
   </div>
 </div>
+</div>
 
-[%- IF can_access("PORTAL_MODULE_CREATE") %]
+  [%- IF can_access("PORTAL_MODULE_CREATE") %]
+<div class="form-actions">
   <div class="btn-group">
-    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">[% l('Add Portal module') %] <span class="caret"></span></a>
+    <a class="btn dropdown-toggle" data-toggle="dropdown">[% l('Add Portal module') %] <span class="caret"></span></a>
     <ul id="createPortalModule" class="dropdown-menu">
       [% FOREACH type IN types.keys -%]
         [% IF types.$type.size %]
@@ -42,3 +42,5 @@ Portal modules
     </ul>
   </div>
 [% END %]
+  </div>
+</div>

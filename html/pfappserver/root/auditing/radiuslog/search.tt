@@ -8,10 +8,11 @@
       <!--th[% " class=\"$class\"" IF class %]><a href="[% c.uri_for(search_action,page_num,per_page,params)  %]">[% title | html %][% IF by == column %] <i class="icon-sort-[% IF new_direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</a></th-->
       <th[% " class=\"$class\"" IF class %]>[% title | html %][% IF by == column %] <i class="icon-sort-[% IF new_direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</th>
 [% END -%]
+      <div class="card-block">
       <table id="radiusAuditLog" class="table table-condensed table-striped items">
            <thead>
              <tr>
-               <td colspan="[% display_columns.size + 1%]">
+               <td colspan="[% display_columns.size + 2 %]">
             [% pagination(c.controller.action_for("search"), page_num, page_count, {by => by, direction => direction}, '', null, {"data-no-refresh" => "yes"}) | none %]
                </td>
              </tr>
@@ -48,9 +49,10 @@
         [% END %]
         <tfoot>
            <tr>
-               <td colspan="[% display_columns.size + 1%]">
+               <td colspan="[% display_columns.size + 2 %]">
             [% pagination(c.controller.action_for("search"), page_num, page_count, {by => by, direction => direction}, '', null, {"data-no-refresh" => "yes"}) | none %]
                </td>
            </tr>
         </tfoot>
       </table>
+</div>

@@ -7,7 +7,6 @@
         'app/raphael/g.pie-min',
         'app/graphs',
         'app/bootstrap-datepicker',
-        'app/jquery.ba-hashchange',
         'admin/status',
         ]
      cssFiles = [
@@ -15,12 +14,14 @@
         'css/bootstrapSwitch',
         'admin/status',
         ] -%]
-    <div class="container-fluid">
+    <div class="sidenav-fluid">
       <div class="row-fluid">
-        <div class="span2">
-          <div class="sidebar-nav well">
+        <div class="sidenav sidenav-section span3">
+            <ul class="nav nav-header">
+              <li>[% l('Overview') %]</li>
+              <li class="divider-horizontal"></li>
+            </ul>
             <ul class="nav nav-list">
-              <li class="nav-header">[% l('Overview') %]</li>
               [%- IF can_access("REPORTS") %]
               <li><a href="#graph/dashboard">[% l('Dashboard') %]</a></li>
               <li><a href="#graph/systemstate">[% l('System state') %]</a></li>
@@ -39,15 +40,17 @@
               <li><a href="#">[% l('Server') %]</a></li>
               <li><a href="#">[% l('Logs') %]</a></li> -->
             </ul>
-          </div><!--/.well -->
-        </div><!--/span-->
+          </div><!--/.sidenav-section -->
+      </div><!--/span-->
+    </div>
+    <div class="row-fluid">
+      <div class="container-fluid offset3 span15">
         <div class="loader"><p><img src="[% c.uri_for('/static/app/loader-48.gif') %]"></p></div>
-        <div id="section" class="span10">
-          <div id="dashboard" class="row-fluid">
+        <div id="section">
+          <div id="dashboard" class="card">
             <span style="float: left; height: 320px">
               <!-- This span is required to compute the real section's width in JavaScript -->
             </span>
           </div>
         </div><!--/span-->
       </div><!--/row-->
-    </div><!--/container-->

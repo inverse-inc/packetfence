@@ -16,6 +16,7 @@
         </div>
       </div>
 
+      <!-- <h2>[% l('Domain') %]</h2> -->
       [% IF block_edit %]
         <div class="alert alert-danger">
           <h3>External configuration detected.</h3>
@@ -23,10 +24,9 @@
           <p>Once this step is completed, you will be able to access this page.</p>
         </div>
       [% ELSE %]
-        <h2>[% l('Domain')  %]</h2>
-        <h4 class="alert alert-warning">[% l('Make sure you configure IPv4 forwarding on your server before continuing. Refer to the PacketFence administration guide for details.') %]</h4>
+        <div class="alert alert-warning">[% l('Make sure you configure IPv4 forwarding on your server before continuing. Refer to the PacketFence administration guide for details.') %]</div>
         [% UNLESS items.size %]
-        <h4 class="alert alert-warning">[% l('After configuring your first domain, you will need to restart the radiusd service to activate domain authentication.') %]</h4>
+        <div class="alert alert-warning">[% l('After configuring your first domain, you will need to restart the radiusd service to activate domain authentication.') %]</div>
         [% END %]
 
         [% INCLUDE config/domain/list.tt %]

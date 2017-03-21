@@ -1,12 +1,14 @@
 <div class="modal fade hide" id="modalRole">
       </div>
 
-      <h2>[% l('Roles')  %]</h2>
+      <div class="card">
+        <h2 class="card-title">[% l('Roles') %] [% doc('_roles_management') | none %]</h2>
+        <div class="card-block">
       [% IF error %]<div class="alert alert-error">
         <button class="close" data-dismiss="alert">&times;</button>
         <strong>[% l('Error!') %]</strong> <span>[% error %]</span>
       </div>[% END %]
-      <p>[% l('Define the roles which will apply to all devices on your network.') %]</p>
+      <p class="p3">[% l('Define the roles which will apply to all devices on your network.') %]</p>
 
       [% IF items.size -%]
       <table class="table">
@@ -33,9 +35,11 @@
       <div id="noRole" class="unwell[% ' hidden' IF items.size %]">
         <i class="icon-briefcase icon-large"></i><p>[% l('No role defined') %]</p>
       </div>
+      </div><!--/.card-block-->
 
       [%- IF can_access("USERS_ROLES_CREATE") %]
       <div class="form-actions">
         <a id="createRole" class="btn" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add role') %]</a>
       </div>
       [%- END %]
+      </div>

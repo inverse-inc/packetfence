@@ -100,14 +100,14 @@
         { name => 'voip', label => l('VoIP') },
     ]
 
-%]
+        %]
             <h2>
               [% l('Results') %]
             </h2>
             [% INCLUDE admin/bulk_actions.inc id="node_bulk_actions" bulk_type='node'%]
-            <div class="btn-group hidden-phone">
-              <form id="columns" action="[% c.uri_for(search_action,1,per_page) %]" method="POST">
-              <a class="btn btn-link btn-small dropdown-toggle" data-toggle="dropdown" href="#">
+            <form id="columns" action="[% c.uri_for(search_action,1,per_page) %]" method="POST"
+                  class="btn-group hidden-phone">
+              <a class="btn btn-link btn-small dropdown-toggle" data-toggle="dropdown">
                 <i class="icon-columns"></i> [% l('Columns') %]
                 <i class="icon-angle-down"></i>
               </a>
@@ -116,8 +116,7 @@
                     [% column_checkbox( column.name , column.label) | none %]
                 [% END %]
               </ul>
-              </form>
-            </div>
+            </form>
             [% node_pagination(search_action, page_num, page_count, {by => by, direction => direction}, from_form) | none %]
             <form id="items" method="POST">
               <table id="nodes" class="table table-condensed table-striped">

@@ -1,5 +1,7 @@
-<h4 class="alert alert-warning">[% l('This section is for networking. Interfaces, networks and DNS related will be configured here.') %]</h4>
+<p class="p3 p-info">[% l('This section is for networking. Interfaces, networks and DNS related will be configured here.') %]</p>
 
+<div class="card">
+  <div class="card-block">
 <div id="tabView">
   <ul class="nav nav-tabs">
     <li [% IF tab == 'network general' %]class="active"[% END %]>
@@ -22,4 +24,6 @@
   <div class="tab-pane fade" id="newTabView">
   </div><!--tab-pane-->
 </div>
+</div>
+  </div>
 </div>

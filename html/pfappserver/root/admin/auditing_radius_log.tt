@@ -1,53 +1,11 @@
-[%  jsFiles = [
-        'app/jquery-ui',
-        'app/bootstrap-datepicker',
-        'app/bootstrap-timepicker',
-        'app/chosen.jquery.min',
-        'app/jquery.ba-hashchange',
-        'app/raphael/raphael-min',
-        'app/raphael/g.raphael-min',
-        'app/raphael/g.bar-min',
-        'app/raphael/g.dot-min',
-        'app/raphael/g.line-min',
-        'app/raphael/g.pie-min',
-        'app/graphs',
-        'app/uri',
-        'admin/searches',
-        'js/bootstrapSwitch',
-        'admin/config/items',
-        'js/node',
-        'js/user',
-        'admin/nodes',
-        'admin/radiuslog',
-        'admin/radiusauditlog'
-        ]
-     cssFiles = [
-        'app/bootstrap-timepicker',
-        'admin/reports'
-        ] 
--%]
-<style type="text/css">
-form {
-    margin-bottom: 0px;
-}
-</style>
     [% INCLUDE admin/saved_search.inc savedSearchController="SavedSearch::RadiusLog" method="POST" %] 
-    <div class="container-fluid">
-      <div class="row-fluid">
-        <div class="tab-content"> 
-            <ul class="nav nav-tabs">
-                <li class="active"><a href="[% c.uri_for(c.controller('Admin').action_for('auditing_radius_log')) %]">[% l('RADIUS Audit Log') %]</a></li>
-                <li><a href="[% c.uri_for(c.controller('Admin').action_for('auditing_option82')) %]">[% l('DHCP Option 82') %]</a></li>
+            <ul class="nav nav-header">
+              <li>[% l('RADIUS Audit Log') %]</li>
+              <li class="divider-horizontal"></li>
             </ul>
-        </div>
-      </div>
-      <div class="row-fluid">
-        <div class="span2">
-          <div class="sidebar-nav well">
             <ul class="nav nav-list">
-              <li class="nav-header">[% l('RADIUS Audit Log') %]</li>
               <li class="divider"></li>
-              <li class="" id="accordion-SwithGroup">
+              <li id="accordion-SwithGroup">
                 <a data-toggle="collapse" data-parent="#accordion-SwithGroup" href="#collapseSwitchGroup" class="collapsed">
                     [% l('Switch Groups')%]
                 <i class="icon-chevron-up pull-right"></i></a>
@@ -219,11 +177,3 @@ form {
               </li>
               [%END%]
             </ul>
-          </div><!--/.well -->
-        </div><!--/span-->
-        <div class="span10">
-          <div id="section">
-          </div>
-        </div><!--/span-->
-      </div><!--/row-->
-    </div><!--/.fluid-container-->

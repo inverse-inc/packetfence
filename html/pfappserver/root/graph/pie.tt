@@ -1,15 +1,16 @@
 [% INCLUDE "admin/reports-header.tt" %]
 <div class="piegraph">
-  <h2>[% title %]</h2>
-  <h6>[% range.start | html %] <i class="icon-arrow-right"></i> [% range.end | html %]</h6>
+  <div class="card-block">
+    <h2>[% title %]</h2>
+    <h6>[% range.start | html %] <i class="icon-arrow-right"></i> [% range.end | html %]</h6>
+  </div>
+  <div class="card-block">
   [% IF options.size %]<i class="icon-bar-chart"></i>
   [% FOREACH o IN options -%]
   <a href="[% c.pf_hash_for(c.action, o) %]"[% IF option == o %] class="active"[% END %]>[% l(o) %]</a>
   [% UNLESS loop.last %] |[% END -%]
   [% END -%]
   [% END -%]
-</div>
-<hr/>
 
 [%- IF labels.size > 0 %]
 <div class="row-fluid">
@@ -56,3 +57,4 @@ graphs.charts['[% l(id) | css %]'] = {
   [% l("There's not enough data to generate this graph. Is PacketFence in production?") %]
 </div>
 [%- END %]
+</div>
