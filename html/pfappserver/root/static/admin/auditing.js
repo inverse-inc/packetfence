@@ -1,8 +1,10 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
+
 $(function() { // DOM ready
 });
 
 function init() {
-    $('#section').on('section.loaded', function(event) {
+  $('#section').on('section.loaded', function(event) {
         $('#report_radius_audit_log .radiud_audit_log_datetimepicker a').click(function(event) {
             event.preventDefault();
             var a = event.currentTarget;
@@ -36,17 +38,14 @@ function init() {
             return false;
         });
         var modal  = $("#savedSearch");
-        modal.on('shown', function(event) {
-            $(this).find(':input:first').focus();
-        });
         var saved_search_form = $("#savedSearchForm");
         var search_form = $('#search');
         saved_search_form.on('submit', function(event) {
             modal.modal('hide');
             var uri = new URI(search_form.attr('action'));
-            var query = uri.resource()
-                + "?"
-                + search_form.serialize();
+            var query = uri.resource() +
+                "?" +
+                search_form.serialize();
             query = query.replace(/^\//,'');
             saved_search_form
             .find('[name="query"]')
@@ -75,6 +74,6 @@ function init() {
         });
     });
     /* Initialize datepickers */
-    $(window).hashchange(pfOnHashChange(updateSection,'/radiuslog/'));
-    $(window).hashchange();
+  $(window).hashchange(pfOnHashChange(updateSection,'/auditing/radiuslog/'));
+  $(window).hashchange();
 }

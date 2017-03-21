@@ -1,3 +1,5 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
+
 $(function() { // DOM ready
     var items = new Items();
     var view = new ItemView({ items: items, parent: $('#section') });
@@ -6,8 +8,8 @@ $(function() { // DOM ready
 /*
  * The Items class defines the operations available from the controller.
  */
-var Items = function() {
-};
+function Items() {
+}
 
 Items.prototype.id = "#items";
 
@@ -44,10 +46,10 @@ Items.prototype.post = function(options) {
 /*
  * The ItemView class defines the DOM operations from the Web interface.
  */
-var ItemView = function(options) {
+function ItemView(options) {
     var that = this;
     this.parent = options.parent;
-    var items = options.items
+    var items = options.items;
     this.items = items;
     this.disableToggle = false;
     var id = items.id;
@@ -80,9 +82,7 @@ var ItemView = function(options) {
 
     var search_next = $.proxy(this.searchNext, this);
     options.parent.on('click', id + ' [href*="/search"]', search_next);
-
-};
-
+}
 
 ItemView.prototype.readItem = function(e) {
     e.preventDefault();

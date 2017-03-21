@@ -1,3 +1,5 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
+
 $(function() { // DOM ready
     var switches = new Switches();
     var view = new SwitchView({ switches: switches, parent: $('#section') });
@@ -260,9 +262,9 @@ SwitchView.prototype.addToGroup = function(e) {
             });
             showSuccess($('#modalSwitch .modal-body').children().first(), data.status_msg);
         },
-        errorSibling: $('#modalSwitch .modal-body').children().first(),
+        errorSibling: $('#modalSwitch .modal-body').children().first()
     });
-}
+};
 
 SwitchView.prototype.removeGroup = function(e) {
     e.preventDefault();
@@ -273,7 +275,7 @@ SwitchView.prototype.removeGroup = function(e) {
         url: a.attr('href'),
         success: function(data) {
             a.closest('.switchGroupMember').remove();
-            if ($('.switchGroupMember').size() == 0){
+            if ($('.switchGroupMember').size() === 0) {
               $('#switchMembersEmpty').closest('tr').removeClass('hidden');
             }
             showSuccess($('#modalSwitch .modal-body').children().first(), data.status_msg);
@@ -300,7 +302,7 @@ SwitchView.prototype.refreshPage = function() {
     var formId = pagination.attr('data-from-form') || '#search';
     var form = $(formId);
     var link = pagination.find('li.disabled a[href]').first();
-    if(form.length == 0) {
+    if (form.length === 0) {
         form = $('#search');
     }
     var columns = $('#columns');
@@ -333,7 +335,7 @@ SwitchView.prototype.refreshTable = function() {
     var formId = pagination.attr('data-from-form') || '#search';
     var form = $(formId);
     var link = pagination.find('li.disabled a[href]').first();
-    if(form.length == 0) {
+    if(form.length === 0) {
         form = $('#search');
     }
     var columns = $('#columns');
@@ -494,11 +496,11 @@ SwitchView.prototype.searchSwitch = function(query, process){
             });
             var input = $('#modalSwitch #newMember');
             var control = input.closest('.control-group');
-            if (results.length == 0)
+            if (results.length === 0)
                 control.addClass('error');
             else
                 control.removeClass('error');
             process(results);
         }
     });
-}
+};

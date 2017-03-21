@@ -1,3 +1,5 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
+
 $(function() { // DOM ready
 });
 
@@ -74,7 +76,4 @@ function init() {
             $(this).find(':input:first').focus();
         });
     });
-    /* Initialize datepickers */
-    $(window).hashchange(pfOnHashChange(updateSection,'/auditing/radiuslog/'));
-    $(window).hashchange();
 }

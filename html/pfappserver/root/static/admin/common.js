@@ -1,3 +1,6 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
+/* jshint evil: true */
+
 /*
  * Update an action input field depending on the selected action type.
  * Used in
@@ -7,7 +10,7 @@
 
 function update_attribute(element, name, regex, replace_str) {
     var new_attr = element.attr(name);
-    if (new_attr != null) {
+    if (new_attr !== null) {
         new_attr = new_attr.replace(regex, replace_str);
         element.attr(name, new_attr);
     }
@@ -130,12 +133,12 @@ function activateNavLink() {
     if (hash && hash != '#') {
         // Find the longest match
         // Sort links by descending order by string length
-        $('.sidebar-nav .nav-list a').sort(function(a,b){
+        $('.sidenav .nav a').sort(function(a,b) {
            return b.href.length - a.href.length;
         })
         // Find the first link
         .filter(function(i,link) {
-            if(false === found && hash.indexOf(link.hash) === 0) {
+            if (false === found && hash.indexOf(link.hash) === 0) {
                 found = true;
                 return true;
             }
@@ -143,7 +146,7 @@ function activateNavLink() {
         }).trigger('click');
     }
     if (false === found) {
-        $('.sidebar-nav .nav-list a').first().trigger('click');
+        $('.sidenav .nav a').first().trigger('click');
     }
 }
 
@@ -185,7 +188,7 @@ function doUpdateSection(ajax_data) {
                 .fail(function(jqXHR) {
                     var status_msg = getStatusMsg(jqXHR);
                     var alert_section = section.children('h1, h2, h3').first().next();
-                    if (alert_section.length == 0) {
+                    if (alert_section.length === 0) {
                         section.prepend('<h2></h2><div></div>');
                         alert_section = section.children().first().next();
                     }
@@ -210,7 +213,7 @@ function pfOnHashChange(updater, default_url) {
     return function(event) {
         var hash = location.hash;
         var href = '/' + hash.replace(/^#\/*/,'');
-        if (default_url !== undefined && (href == '' || href == '/')) {
+        if (default_url !== undefined && (href === '' || href == '/')) {
             href = default_url;
         }
         return updater(href,event);
@@ -260,7 +263,7 @@ function updateDynamicRowsAfterRemove(table) {
         var id = '#' + table.attr('id') + 'Empty';
         if ($(id).length) {
             // The table can be empty
-            if (count == 0) {
+            if (count === 0) {
                 if (tbody.prev('thead').length && tbody.attr('data-no-remove') != "yes" )
                     table.remove();
                 $(id).removeClass('hidden');
@@ -324,7 +327,7 @@ function updateExtendedDurationExample(group) {
     var fromString = fromElement.html();
     var toElement = $('#extendedTo');
 
-    function padZero(i) { return (i < 10)? '0'+i : i; };
+    function padZero(i) { return (i < 10)? '0'+i : i; }
 
     if (!fromDate) {
         // Initialize the reference date
@@ -418,9 +421,33 @@ $(function () { // DOM ready
     });
 
     /* Register links in the sidebar list */
-    $('.sidebar-nav .nav-list a:not([data-toggle])').click(function(event) {
+    function _enableCategory(category) {
+        // Activate corresponding category
+        $('.sidenav-category .active').filter(function(i, li) {
+            if ($(li).attr('data-category') != category)
+                $(li).removeClass('active');
+        });
+        $('.sidenav-category [data-category="' + category + '"]').addClass('active');
+        // Show corresponding list of sections
+        $('.sidenav-section').each(function(i, section) {
+            var $section = $(section);
+            if ($section.attr('data-category') == category)
+                $section.show();
+            else
+                $section.hide();
+        });
+    }
+    $('.sidenav-category a').click(function(event) {
+        var li = $(this).parent();
+        var category = li.attr('data-category');
+        _enableCategory(category);
+        return true;
+    });
+    $('.sidenav-section a:not([data-toggle])').click(function(event) {
         var item = $(this).parent();
-        $('.sidebar-nav .nav-list .active').removeClass('active');
+        var category = item.closest('.sidenav-section').attr('data-category');
+        _enableCategory(category);
+        $('.sidenav-section .active').removeClass('active');
         item.addClass('active');
         return true;
     });
@@ -438,7 +465,7 @@ $(function () { // DOM ready
         copy.find(':input').each(function(i,e) {
             var input = $(e);
             var template_parent = input.closest('[id^="dynamic-list-template"]');
-            if (template_parent.length == 0) {
+            if (template_parent.length === 0) {
                 input.removeAttr('disabled');
                 input.removeClass('disabled');
             }
@@ -462,13 +489,13 @@ $(function () { // DOM ready
         var siblings = data_target.siblings();
         var template_control_group = $(link.attr("data-template-control-group"));
         data_target.remove();
-        if (siblings.length == 0) {
+        if (siblings.length === 0) {
             target_wrapper.addClass('hidden');
             template_control_group.removeClass('hidden');
         } else {
             siblings.each(function(i,e) {
                 dynamic_list_update_all_attributes($(e), base_id, i);
-            })
+            });
         }
         return false;
     });
@@ -518,7 +545,7 @@ $(function () { // DOM ready
         dp.pickers[0].element.trigger({ type: 'changeDate', date: dp.pickers[0].date });
 
         // End date
-        var format = dp.pickers[1].element.attr('data-date-format');
+        format = dp.pickers[1].element.attr('data-date-format');
         var now_str = format.replace('yyyy', now.yyyy).replace('mm', now.mm).replace('dd', now.dd);
         dp.pickers[1].element.val(now_str);
         dp.pickers[1].update();
@@ -558,7 +585,7 @@ $(function () { // DOM ready
             appendTo: 'body',
             cursor: 'move',
             helper: function(event) {
-                var txt = new Array();
+                var txt = [];
                 if (event.target.tagName == 'TD') {
                     var row = $(event.target).closest('tr').first();
                     row.find('td').each(function () {
@@ -586,15 +613,17 @@ $(function () { // DOM ready
             scope: id,
             accept: function(obj) {
                 var delta = 0;
+                var dragIndex;
+                var dropIndex;
                 if (obj.context.tagName == 'TR') {
-                    var dragIndex = obj.context.rowIndex;
-                    var dropIndex = this.rowIndex;
+                    dragIndex = obj.context.rowIndex;
+                    dropIndex = this.rowIndex;
                     delta = dropIndex - dragIndex;
                 }
                 else {
                     var items = $(this).closest('ul').children();
-                    var dragIndex = items.index(obj);
-                    var dropIndex = items.index(this);
+                    dragIndex = items.index(obj);
+                    dropIndex = items.index(this);
                     delta = dropIndex - dragIndex;
                 }
                 return (delta < 0 || delta > 1);
@@ -660,7 +689,7 @@ $(function () { // DOM ready
                 wrapper.children().each(function(i,e) {
                     var element = $(e);
                     dynamic_list_update_all_attributes(element, base_id, i);
-                })
+                });
             }
         });
     });
@@ -694,7 +723,7 @@ $(function () { // DOM ready
             updateDynamicRows(rows);
             var count = rows.length;
             if (count >= 2) {
-                var table = tbody.closest('table');
+                table = tbody.closest('table');
                 var id = '#' + table.attr('id') + 'Empty';
                 if ($(id).length) {
                     $(id).addClass('hidden');
@@ -874,7 +903,7 @@ $(function () { // DOM ready
                         $("body,html").animate({scrollTop:0}, 'fast');
                         var status_msg = getStatusMsg(jqXHR);
                         showError($('#section h2'), status_msg);
-                    })
+                    });
             });
     });
 
@@ -930,18 +959,19 @@ $(function () { // DOM ready
     if (typeof initModals == 'function') initModals();
 
     $('#checkup_dropdown_toggle').click(function () {
+      var li;
       if($(this).closest('li').hasClass('open')) {
         $.get("/admin/checkup", function(data){
           var dropdown = $('#checkup_dropdown');
           dropdown.html('');
           if(data.items.problems.length > 0){
             for(var i in data.items.problems){
-              var li = $('<li class="disabled"><a href="#">'+data.items.problems[i].severity+' : '+data.items.problems[i].message+'</a></li>');
+              li = $('<li class="disabled"><a href="#">'+data.items.problems[i].severity+' : '+data.items.problems[i].message+'</a></li>');
               dropdown.append(li);
             }
           }
           else{
-            var li = $('<li class="disabled"><a href="#">No problem detected !</a></li>');
+            li = $('<li class="disabled"><a href="#">No problem detected !</a></li>');
             dropdown.append(li);
           }
         });
@@ -961,7 +991,7 @@ function FingerbankSearch() {
 FingerbankSearch.prototype.model_stripped = function() {
   var that = this;
   return this.model.split('::Model::')[1].toLowerCase();
-}
+};
 
 FingerbankSearch.prototype.search = function(query, process) {
   var that = this;
@@ -985,14 +1015,14 @@ FingerbankSearch.prototype.search = function(query, process) {
           that.results = data.items;
           var input = that.typeahead_field;
           var control = input.closest('.control-group');
-          if (results.length == 0)
+          if (results.length === 0)
               control.addClass('error');
           else
               control.removeClass('error');
           process(results);
       }
   });
-}
+};
 
 FingerbankSearch.setup = function() {
   $('.fingerbank-type-ahead').doOnce('.fingerbank-type-ahead', function(){ 
@@ -1035,6 +1065,6 @@ FingerbankSearch.setup = function() {
           search.typeahead_field.val('');
           return false;      
         });
-      })()
+      })();
   });
-}
+};

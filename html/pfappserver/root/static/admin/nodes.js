@@ -1,3 +1,5 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
+
 $(function() { // DOM ready
     var nodes = new Nodes();
     var view = new NodeView({ nodes: nodes, parent: $('#section') });

@@ -56,7 +56,7 @@ var RadiusAuditLogView = function(options) {
 };
 
 RadiusAuditLogView.prototype = (function(){
-    function F(){};
+    function F(){}
     F.prototype = ItemView.prototype;
     return new F();
 })();

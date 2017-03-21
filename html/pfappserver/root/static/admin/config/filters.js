@@ -1,3 +1,4 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
 
 var filtersView;
 $(function() { // DOM ready
@@ -25,25 +26,24 @@ FiltersView.prototype.setupEditor = function(){
   this.disableButtons();
   
   this.initialValue = this.editor.getValue();
-}
+};
 
 FiltersView.prototype.revert = function(e){
   this.editor.setValue(this.initialValue, -1);
   this.disableButtons();
-}
+};
 
 FiltersView.prototype.disableButtons = function() {
   $('#filtersForm .btn').addClass('disabled');
   
   this.enableButtonsProxy = $.proxy(this.enableButtons, this);
   this.editor.on("change",this.enableButtonsProxy);
-
-}
+};
 
 FiltersView.prototype.enableButtons = function() {
   $('#filtersForm .btn').removeClass('disabled');
   this.editor.removeEventListener("change",this.enableButtonsProxy);
-}
+};
 
 FiltersView.prototype.update = function(e){
   var that = this;
@@ -66,4 +66,4 @@ FiltersView.prototype.update = function(e){
   });
 
   return false;
-}
+};

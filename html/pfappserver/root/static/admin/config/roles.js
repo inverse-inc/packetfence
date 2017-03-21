@@ -1,4 +1,6 @@
-    /* Show a Role */
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
+
+/* Show a Role */
     $('#section').on('click', '[href*="#modalRole"]', function(event) {
         var modal = $('#modalRole');
         var url = $(this).attr('href');

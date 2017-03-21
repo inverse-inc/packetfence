@@ -1,3 +1,5 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
+
 function init() {
 
     /* Save a section */
@@ -59,8 +61,9 @@ function init() {
         return true;
     });
 
-    var href =  $('.sidebar-nav .nav-list a').first().attr('href');
-    if(href) {
+    /* Automatically load first category */
+    var href =  $('.sidenav-category a').first().attr('href');
+    if (href) {
         href = href.replace(/^.*#/,"/");
     } else {
         href = "/configuration";

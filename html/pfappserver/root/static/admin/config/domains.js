@@ -1,3 +1,5 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
+
 var domainView;
 $(function() { // DOM ready
     var items = new Domains();
@@ -7,8 +9,8 @@ $(function() { // DOM ready
 /*
  * The FloatingDevices class defines the operations available from the controller.
  */
-var Domains = function() {
-};
+function Domains() {
+}
 
 Domains.prototype = new Items();
 Domains.prototype.id  = '#domains';
@@ -16,7 +18,7 @@ Domains.prototype.formName  = 'modalDomain';
 Domains.prototype.modalId   = '#modalDomain';
 
 
-var DomainView = function(options) {
+function DomainView(options) {
     ItemView.call(this,options);
     var that = this;
     this.parent = options.parent;
@@ -31,10 +33,10 @@ var DomainView = function(options) {
 
     var save_and_join = $.proxy(this.updateAndJoinDomain, this);
     options.parent.on('click', '#saveAndJoinDomain', save_and_join);
-};
+}
 
 DomainView.prototype = (function(){
-    function F(){};
+    function F(){}
     F.prototype = ItemView.prototype;
     return new F();
 })();
@@ -71,12 +73,12 @@ DomainView.prototype.updateAndJoinDomain = function(e) {
               // Restore hidden/template rows
               form.find('tr.hidden :input').removeAttr('disabled');
               btn.button('reset');
-              $('#modalDomainWait').modal('hide');          
+              $('#modalDomainWait').modal('hide');
           },
           success: function(data) {
               var content = $('<div></div>');
               content.append('<h3>Result of the domain join</h3>'); 
-              content.append($('<pre>'+data.items['join_output']+'</pre>')); 
+              content.append($('<pre>' + data.items.join_output + '</pre>'));
               that.showResultModal(content); 
               that.list();
           },
@@ -184,13 +186,13 @@ DomainView.prototype.setPassword = function(domain,callback) {
     return false;
   });
   modal.modal('show');
-}
+};
 
 $(document).ready(function(){
   $('#section').on('click', '.rejoin_domain', function(event){
     var that = this;
-    event.preventDefault()
-    var domain_name = $(event.target).parent().parent().children().children().html()
+    event.preventDefault();
+    var domain_name = $(event.target).parent().parent().children().children().html();
     domainView.setPassword(domain_name, function(){
       var view = domainView;
       var jbtn = $(that);
@@ -207,9 +209,9 @@ $(document).ready(function(){
               $("body,html").animate({scrollTop:0}, 'fast');
               var content = $('<div></div>');
               content.append('<h3>Result of the domain leave</h3>'); 
-              content.append($('<pre>'+data.items['leave_output']+'</pre>')); 
+              content.append($('<pre>'+data.items.leave_output+'</pre>'));
               content.append('<h3>Result of the domain join</h3>'); 
-              content.append($('<pre>'+data.items['join_output']+'</pre>')); 
+              content.append($('<pre>'+data.items.join_output+'</pre>'));
               $('#modalDomainWait').modal('hide');
               domainView.showResultModal(content); 
               view.list();
@@ -229,7 +231,7 @@ $(document).ready(function(){
 
   $('#section').on('click', '#refresh_domains', function(event){
     
-    event.preventDefault()
+    event.preventDefault();
     var initial_content = $('#refresh_domains').html();
     $('#refresh_domains').attr('disabled', 'disabled');
     // need to be i18ned 
@@ -260,7 +262,7 @@ $(document).ready(function(){
     var width = $('#domainProgressBar').width();
     if(!width && width !== 0) return; 
     var parentWidth = $('#domainProgressBar').offsetParent().width();
-    var width = 100*width/parentWidth;
+    width = 100*width/parentWidth;
     if(width == 100){
       width = 0;
     }
@@ -273,4 +275,4 @@ $(document).ready(function(){
     $('#domainProgressBar').css('width', width+'%');
   }, 15000);
 
-})
+});

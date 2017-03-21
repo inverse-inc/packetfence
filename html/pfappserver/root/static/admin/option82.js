@@ -50,7 +50,4 @@ function init() {
             $(this).find(':input:first').focus();
         });
     });
-    /* Initialize datepickers */
-    $(window).hashchange(pfOnHashChange(updateSection,'/dhcpoption82/'));
-    $(window).hashchange();
 }

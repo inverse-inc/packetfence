@@ -1,3 +1,5 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
+
 $(function() { // DOM ready
     var items = new FingerbankDevices();
     var view = new FingerbankDeviceView({ items: items, parent: $('#section') });
@@ -29,7 +31,7 @@ var FingerbankDeviceView = function(options) {
     var showChildren = $.proxy(this.showChildren, this);
     options.parent.on('click', '#fingerbankdevices [href$="/children"]', showChildren);
     var read = $.proxy(this.readItem, this);
-    options.parent.on('click', '#fingerbankdevices [href$="/add_child"], ', read);
+    options.parent.on('click', '#fingerbankdevices [href$="/add_child"]', read);
     options.parent.on('show hidden','.collapse',function(event) {
         var that = $(this);
         var tr = that.closest('tr').first();
@@ -40,7 +42,7 @@ var FingerbankDeviceView = function(options) {
 };
 
 FingerbankDeviceView.prototype = (function(){
-    function F(){};
+    function F(){}
     F.prototype = ItemView.prototype;
     return new F();
 })();

@@ -1,3 +1,5 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
+
 $(function() { // DOM ready
     var items = new FloatingDevices();
     var view = new FloatingDeviceView({ items: items, parent: $('#section') });
@@ -39,7 +41,7 @@ var FloatingDeviceView = function(options) {
 };
 
 FloatingDeviceView.prototype = (function(){
-    function F(){};
+    function F(){}
     F.prototype = ItemView.prototype;
     return new F();
 })();
