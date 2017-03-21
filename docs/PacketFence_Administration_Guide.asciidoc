@@ -3407,31 +3407,8 @@ NOTE: A 'portal' interface type is required to use this feature. A 'portal' inte
 Configuration
 ^^^^^^^^^^^^^
 
-Guest self-registration
-+++++++++++++++++++++++
-
-It is possible to modify the default values of the guest self-registration feature by editing `/usr/local/pf/conf/pf.conf`.
-
-Default values are located in `/usr/local/pf/conf/pf.conf.defaults` and documentation for every settings is available in `/usr/local/pf/conf/documentation.conf`.
-
-  [guests_self_registration]
-  guest_pid=email
-  preregistration=disabled
-
-These parameters can also be configured from the *Configuration -> Self Registration* section of the Web admin interface.
-
-Available registration modes are defined on a per-portal-profile basis. These are configurable from *Configuration -> Policies and Access Control -> Connection Profiles*. To disable the self-registration feature, simply remove all self-registration sources from the connection profile definition. Notice however that if your default connection profile has no source, it will use all authentication sources.
-
-CAUTION: A valid MTA configured in PacketFence is needed to correctly relay emails related to the guest module. If _localhost_ is used as smtpserver, make sure that a MTA is installed and configured on the server.
-
-NOTE: A 'portal' interface type is required to use this feature. A 'portal' interface type can be added to any network interface using the web admin GUI.
-
-Self-registered guests are added under the users tab of the PacketFence Web administration interface.
-
-Managed guests
-++++++++++++++
-
-It is possible to modify the default values of the guests created from the Web admin interface by editing `/usr/local/pf/conf/pf.conf`.
+Access Duration
++++++++++++++++
 
 Default values are located in `/usr/local/pf/conf/pf.conf.defaults` and documentation for every settings is available in `/usr/local/pf/conf/documentations.conf`.
 
@@ -3452,8 +3429,7 @@ Let's explain the meaning of each parameter:
 * `OPERATOR`: either + or -. The duration following the operator is added or subtracted from the base duration.
 * `DATE_UNIT`: a character corresponding to the units of the extended duration. Limited to date units (D (days), W (weeks), M (months), or Y (years)).
 
-These parameters can also be configured from the *Configuration -> Admin Registration* section of the Web admin interface.
-
+These parameters should be configured from the *Configuration -> Advanced Portal Configuration -> Access Duration* section of the Web admin interface.
 
 From the Users page of the PacketFence Web admin interface, it is possible to set the access duration of users, change their password and more.
 
@@ -3465,7 +3441,7 @@ To minimally configure guest pre-registration, you must make sure that the follo
   [guests_self_registration]
   preregistration=enabled
 
-This parameter can also be configured from the *Configuration -> Self Registration* section.
+This parameter should be configured from the *Configuration -> Policies and Access Control -> Connection Profiles -> Profile Name* section.
 
 Finally, it is advised that you read the whole guest self-registration section since pre-registration is simply a twist of the self-registration process.
 
@@ -3729,18 +3705,21 @@ CentOS 6 and 7 servers
 ++++++++++++++++++++++
 
 For CentOS 6:
+
 ----
 # for x86_64
 # wget http://inverse.ca/downloads/PacketFence/CentOS6/extra/x86_64/RPMS/udp-reflector-1.0-6.1.x86_64.rpm
 ----
 
 For CentOS 7:
+
 ----
 # for x86_64
 # wget http://inverse.ca/downloads/PacketFence/CentOS7/extra/x86_64/RPMS/udp-reflector-1.0-6.1.x86_64.rpm
 ----
 
 Now install the sensor:
+
 ----
 # rpm -i udp-reflector-*.rpm
 ----
@@ -3755,6 +3734,7 @@ First make sure you have the following packages installed:
 * gcc-c++
 
 Get the source code of the sensor:
+
 ----
 # mkdir -p ~/udp-reflector && cd ~/udp-reflector
 # wget http://inverse.ca/downloads/PacketFence/udp-reflector/udp_reflector.cpp
@@ -3773,6 +3753,7 @@ Place the following line in `/etc/rc.local`
 ----
 
 Start the sensor:
+
 ----
 # /usr/local/bin/udp_reflector -s pcap0:67 -d 192.168.1.5:767 -b 25000 &
 ----
