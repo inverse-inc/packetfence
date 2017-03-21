@@ -51,6 +51,7 @@ our %ALLOWED_SECTIONS = (
     billing => undef,
     alerting => undef,
     scan => undef,
+    roles => undef,
     maintenance => undef,
     expire => undef,
     services => undef,
@@ -223,18 +224,6 @@ sub violations :Local {
     my ($self, $c) = @_;
 
     $c->go('Controller::Violation', 'index');
-}
-
-=head2 roles
-
-=roles
-
-=cut
-
-sub roles :Local {
-    my ($self, $c) = @_;
-
-    $c->go('Controller::Roles', 'index');
 }
 
 =head2 domains

@@ -83,7 +83,7 @@ table.sources {
             <ul class="nav nav-list">
               <li class="nav-header">[% pf_section_entry( 'define_policy', 'Policies and Access Control') | none %]</li>
               [%- IF can_access("USERS_ROLES_READ") %]
-              [% pf_section_entry( 'roles', 'Roles') | none %]
+              [% list_entry( 'Config::Roles', 'index', 'Roles') | none %]
               [%- END %]
               [%- IF can_access("DOMAIN_READ","REALM_READ") %]
               [% pf_section_entry( 'domains', 'Domains') | none %]
