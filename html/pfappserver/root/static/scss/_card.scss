@@ -44,9 +44,13 @@
   margin: 0 $baseLineHeight;
 }
 
-.card-block form:not([class~=form-horizontal]) .form-actions {
+.card-block .form-actions {
   padding-left: 0;
   padding-right: 0;
+}
+
+.card-block .form-horizontal .form-actions {
+  padding-left: $horizontalComponentOffset;
 }
 
 .card .card {
