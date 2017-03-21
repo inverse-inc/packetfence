@@ -238,7 +238,7 @@ EOT
     parse_template( \%tags, "$conf_dir/haproxy.conf", "$generated_conf_dir/haproxy.conf" );
 
     my $fqdn = $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'};
-    $fqdn =~ s/([-])/%$1/g;
+    $fqdn =~ s/([.-])/%$1/g;
 
     push @portal_ip, $fqdn;
 
