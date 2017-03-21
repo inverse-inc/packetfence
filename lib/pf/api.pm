@@ -203,6 +203,13 @@ sub radius_switch_access : Public {
     return $return;
 }
 
+
+=head2 update_ip4log
+
+Update ip4log based on provided IP addresses and MAC addresses
+
+=cut
+
 sub update_ip4log : Public :AllowedAsAction(mac, $mac, ip, $ip) {
     my ($class, %postdata) = @_;
     my @require = qw(mac ip);
@@ -228,6 +235,13 @@ sub update_ip4log : Public :AllowedAsAction(mac, $mac, ip, $ip) {
 
     return (pf::ip4log::open($postdata{'ip'}, $postdata{'mac'}, $postdata{'lease_length'}));
 }
+
+
+=head2 update_ip6log
+
+Update ip6log based on provided IP addresses and MAC addresses
+
+=cut
 
 sub update_ip6log : Public :AllowedAsAction(mac, $mac, ip, $ip) {
     my ($class, %postdata) = @_;
