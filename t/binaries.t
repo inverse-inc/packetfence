@@ -16,7 +16,7 @@ use warnings;
 our $jobs;
 
 BEGIN {
-    $jobs = $ENV{'PF_SMOKE_TEST_JOBS'} || 4;
+    $jobs = $ENV{'PF_SMOKE_TEST_JOBS'} || 6;
 }
 
 use Test::More;
