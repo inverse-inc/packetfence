@@ -127,7 +127,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					<VersionHigh>2.0</VersionHigh>
 					<AccessLocation>CDATA[[isocc=,cc=,ac=,network=PacketFence,]]</AccessLocation>
 					<LocationName>CDATA[[PacketFence]]</LocationName>
-					<LoginURL>{{.WisprUrl.String}}</LoginURL>
+					<LoginURL>{{.WisprURL.String}}</LoginURL>
 				</Redirect>
 			</WISPAccessGatewayParam>-->
 	</body>
