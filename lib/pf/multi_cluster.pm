@@ -42,7 +42,7 @@ sub generateAnsibleHosts {
     my ($dst) = @_;
     my $template = Template->new({ABSOLUTE => 1});
     my $output;
-    $template->process($conf_dir."/ansible-hosts.tt", {regions => {rootRegion()->name => rootRegion()}}, \$output) or die $template->error();
+    $template->process($conf_dir."/ansible/hosts.tt", {regions => {rootRegion()->name => rootRegion()}}, \$output) or die $template->error();
     write_file($dst, $output);
 }
 
