@@ -71,14 +71,18 @@ packetfence-eap-mac-policy {
 packetfence-audit-log-accept {
     if(&User-Name != "dummy") {
         request-timing
-        -sql
+        -sql = {
+            fail = 1
+        }
     }
 }
 
 packetfence-audit-log-reject {
     if(&User-Name != "dummy") {
         request-timing
-        -sql_reject
+        -sql_reject = {
+            fail = 1
+        }
     }
 }
 
