@@ -116,9 +116,9 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 <head><title>302 Moved Temporarily</title></head>
 <body>
 	<h1>Moved</h1>
-		<p>The document has moved <a href=\"{{.PortalURL.String}}\">here</a>.</p>
-		<!--<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-			<WISPAccessGatewayParam xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"http://www.wballiance.net/wispr/wispr_2_0.xsd\">
+		<p>The document has moved <a href="{{.PortalURL.String}}">here</a>.</p>
+		<!--<?xml version="1.0" encoding="UTF-8"?>
+			<WISPAccessGatewayParam xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.wballiance.net/wispr/wispr_2_0.xsd">
 				<Redirect>
 					<MessageType>100</MessageType>
 					<ResponseCode>0</ResponseCode>
