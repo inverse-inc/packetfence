@@ -16,6 +16,7 @@ use pf::file_paths qw(
     $ansible_restart_playbook_file
 );
 use File::Slurp qw(write_file);
+use List::MoreUtils qw(uniq);
 
 sub rootRegion {
     return pf::multi_cluster::region->new(name => "ROOT");
@@ -51,7 +52,7 @@ sub configFiles {
         my $file = pf::file_paths::cleaned($cs->configFile);
         push @files, $file;
     }
-    return \@files;
+    return [uniq(@files)];
 }
 
 sub generateAnsibleConfig {
