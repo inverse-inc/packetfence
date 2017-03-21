@@ -1,9 +1,9 @@
 ---
-- name: packetfence-push-configuration
+- name: packetfence-pull-configuration
   hosts: "{{ target }}"
   remote_user: root
   tasks:
     [% FOREACH configFile IN configFiles %]
-    - name: Push configuration [% configFile %]
+    - name: Pull configuration [% configFile %]
       fetch: src=/usr/local/pf/conf/[% configFile %] dest=/usr/local/pf/conf/multi-cluster/{{ host_path }}/ flat=yes
     [% END %]
