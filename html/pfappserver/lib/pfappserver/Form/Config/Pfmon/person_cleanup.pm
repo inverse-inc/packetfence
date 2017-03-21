@@ -6,6 +6,8 @@ pfappserver::Form::Config::Pfmon::person_cleanup - Web form for person_cleanup p
 
 =head1 DESCRIPTION
 
+Web form for person_cleanup pfmon task
+
 =cut
 
 use HTML::FormHandler::Moose;

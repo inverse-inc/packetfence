@@ -6,6 +6,8 @@ pfappserver::Form::Config::Pfmon::populate_ntlm_redis_cache - Web form for popul
 
 =head1 DESCRIPTION
 
+Web form for populate_ntlm_redis_cache pfmon task
+
 =cut
 
 use HTML::FormHandler::Moose;

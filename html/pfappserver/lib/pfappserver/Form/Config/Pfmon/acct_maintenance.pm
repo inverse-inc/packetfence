@@ -6,6 +6,8 @@ pfappserver::Form::Config::Pfmon::acct_maintenance - Web form for acct_maintenan
 
 =head1 DESCRIPTION
 
+Web form for acct_maintenance pfmon task
+
 =cut
 
 use HTML::FormHandler::Moose;

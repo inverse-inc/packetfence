@@ -6,6 +6,8 @@ pfappserver::Form::Config::Pfmon::ip4log_cleanup - Web form for ip4log_cleanup p
 
 =head1 DESCRIPTION
 
+Web form for ip4log_cleanup pfmon task
+
 =cut
 
 use HTML::FormHandler::Moose;
@@ -14,36 +16,43 @@ use pfappserver::Form::Config::Pfmon qw(default_field_method);
 
 extends 'pfappserver::Form::Config::Pfmon';
 
-has_field 'batch' => ( 
-    type => 'PosInteger', 
+has_field 'batch' => (
+    type => 'PosInteger',
     default_method => \&default_field_method,
 );
-has_field 'rotate_batch' => ( 
-    type => 'Text', 
-    default_method => \&default_field_method,
-);
-has_field 'rotate_timeout' => ( 
-    type => 'Text', 
-    default_method => \&default_field_method,
-);
-has_field 'rotate_window' => ( 
-    type => 'Text', 
-    default_method => \&default_field_method,
-);
-has_field 'timeout' => ( 
-    type => 'Duration', 
-    default_method => \&default_field_method,
-);
+
 has_field 'rotate' => (
     type => 'Toggle',
-    default_method => \&default_field_method,
     checked_value => 'enabled',
     unchecked_value => 'disabled',
-);
-has_field 'window' => ( 
-    type => 'Duration', 
     default_method => \&default_field_method,
 );
+
+has_field 'rotate_batch' => (
+    type => 'PosInteger',
+    default_method => \&default_field_method,
+);
+
+has_field 'rotate_timeout' => (
+    type => 'Duration',
+    default_method => \&default_field_method,
+);
+
+has_field 'rotate_window' => (
+    type => 'Duration',
+    default_method => \&default_field_method,
+);
+
+has_field 'timeout' => (
+    type => 'Duration',
+    default_method => \&default_field_method,
+);
+
+has_field 'window' => (
+    type => 'Duration',
+    default_method => \&default_field_method,
+);
+
 
 =head2 default_type
 
@@ -57,7 +66,7 @@ sub default_type {
 
 has_block  definition =>
   (
-    render_list => [qw(type status interval batch rotate_batch rotate_timeout rotate_window timeout window)],
+    render_list => [qw(type status interval batch timeout window rotate rotate_batch rotate_timeout rotate_window)],
   );
 
 

@@ -6,6 +6,8 @@ pfappserver::Form::Config::Pfmon::fingerbank_data_update - Web form for fingerba
 
 =head1 DESCRIPTION
 
+Web form for fingerbank_data_update pfmon task
+
 =cut
 
 use HTML::FormHandler::Moose;

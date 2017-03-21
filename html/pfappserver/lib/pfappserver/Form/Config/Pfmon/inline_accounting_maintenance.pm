@@ -6,6 +6,8 @@ pfappserver::Form::Config::Pfmon::inline_accounting_maintenance - Web form for i
 
 =head1 DESCRIPTION
 
+Web form for inline_accounting_maintenance pfmon task
+
 =cut
 
 use HTML::FormHandler::Moose;

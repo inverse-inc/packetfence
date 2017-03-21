@@ -6,6 +6,8 @@ pfappserver::Form::Config::Pfmon::cluster_check - Web form for cluster_check pfm
 
 =head1 DESCRIPTION
 
+Web form for cluster_check pfmon task
+
 =cut
 
 use HTML::FormHandler::Moose;

@@ -6,6 +6,8 @@ pfappserver::Form::Config::Pfmon::radius_audit_log_cleanup - Web form for radius
 
 =head1 DESCRIPTION
 
+Web form for radius_audit_log_cleanup pfmon task
+
 =cut
 
 use HTML::FormHandler::Moose;
@@ -14,18 +16,21 @@ use pfappserver::Form::Config::Pfmon qw(default_field_method);
 
 extends 'pfappserver::Form::Config::Pfmon';
 
-has_field 'batch' => ( 
-    type => 'PosInteger', 
+has_field 'batch' => (
+    type => 'PosInteger',
     default_method => \&default_field_method,
 );
-has_field 'timeout' => ( 
-    type => 'Duration', 
+
+has_field 'timeout' => (
+    type => 'Duration',
     default_method => \&default_field_method,
 );
-has_field 'window' => ( 
-    type => 'Duration', 
+
+has_field 'window' => (
+    type => 'Duration',
     default_method => \&default_field_method,
 );
+
 
 =head2 default_type
 

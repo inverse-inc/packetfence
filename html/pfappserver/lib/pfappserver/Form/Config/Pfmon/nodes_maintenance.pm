@@ -6,6 +6,8 @@ pfappserver::Form::Config::Pfmon::nodes_maintenance - Web form for nodes_mainten
 
 =head1 DESCRIPTION
 
+Web form for nodes_maintenance pfmon task
+
 =cut
 
 use HTML::FormHandler::Moose;

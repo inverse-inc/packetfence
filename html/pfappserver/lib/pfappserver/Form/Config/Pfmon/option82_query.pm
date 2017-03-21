@@ -6,6 +6,8 @@ pfappserver::Form::Config::Pfmon::option82_query - Web form for option82_query p
 
 =head1 DESCRIPTION
 
+Web form for option82_query pfmon task
+
 =cut
 
 use HTML::FormHandler::Moose;

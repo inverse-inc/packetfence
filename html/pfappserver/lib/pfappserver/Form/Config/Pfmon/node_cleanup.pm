@@ -6,6 +6,8 @@ pfappserver::Form::Config::Pfmon::node_cleanup - Web form for node_cleanup pfmon
 
 =head1 DESCRIPTION
 
+Web form for node_cleanup pfmon task
+
 =cut
 
 use HTML::FormHandler::Moose;
@@ -14,10 +16,11 @@ use pfappserver::Form::Config::Pfmon qw(default_field_method);
 
 extends 'pfappserver::Form::Config::Pfmon';
 
-has_field 'window' => ( 
-    type => 'Duration', 
+has_field 'window' => (
+    type => 'Duration',
     default_method => \&default_field_method,
 );
+
 
 =head2 default_type
 
