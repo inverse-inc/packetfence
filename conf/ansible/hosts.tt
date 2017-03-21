@@ -2,13 +2,13 @@
 [% IF o.ref == "pf::multi_cluster::standalone_server" %]
 
 [[% o.name %]]
-[% o.name %] pf_config_path=/usr/local/pf/var/conf/multi-cluster/[% o.path %]/
+[% o.name %] host_path=[% o.path %]
 
 [% ELSIF o.ref == "pf::multi_cluster::cluster" %]
 
 [[% o.name %]]
 [% FOREACH serverId IN o.childs.keys ; server=o.childs.$serverId ;
-  server.name _ "pf_config_path=/usr/local/pf/var/conf/multi-cluster/" _ server.path _ "/" _ "\n"; 
+  server.name _ "host_path=" _ server.path _ "\n"; 
 END %]
 
 [% ELSIF o.ref == "pf::multi_cluster::region" %]

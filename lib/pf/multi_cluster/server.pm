@@ -16,7 +16,7 @@ sub generateConfig {
         get_logger->info("Generating config of store $store for ".$self->path);
 
         my $dst_dir = $var_dir . "/conf/multi-cluster/" . $self->path; 
-        my $dst_file = $dst_dir . "/" . $cs->cleanedFilePath($cs->configFile);
+        my $dst_file = $dst_dir . "/" . pf::file_paths::cleaned($cs->configFile);
 
         pf_make_dir($dst_dir);
         touch_file($dst_file);

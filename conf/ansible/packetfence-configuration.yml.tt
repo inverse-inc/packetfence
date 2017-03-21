@@ -1,8 +1,0 @@
----
-- hosts: "{{ target }}"
-  remote_user: root
-  tasks:
-    - name: Push configuration
-      copy: src={{ pf_config_path }} dest=/usr/local/pf/conf/ directory_mode=yes
-    - name: Reload configuration
-      command: /usr/local/pf/bin/pfcmd configreload hard

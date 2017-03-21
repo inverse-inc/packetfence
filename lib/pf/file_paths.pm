@@ -100,7 +100,8 @@ our (
     $multi_cluster_conf_dir,
     $multi_cluster_config_file,
     $ansible_hosts_file,
-    $ansible_configuration_playbook_file,
+    $ansible_push_configuration_playbook_file,
+    $ansible_pull_configuration_playbook_file,
     $ansible_restart_playbook_file,
 );
 
@@ -176,7 +177,8 @@ BEGIN {
         $multi_cluster_conf_dir
         $multi_cluster_config_file
         $ansible_hosts_file
-        $ansible_configuration_playbook_file
+        $ansible_push_configuration_playbook_file
+        $ansible_pull_configuration_playbook_file
         $ansible_restart_playbook_file
     );
 }
@@ -232,7 +234,8 @@ $admin_roles_config_file = catfile($conf_dir, "adminroles.conf");
 
 $multi_cluster_config_file = catfile($conf_dir, "multi-cluster.conf");
 $ansible_hosts_file = catfile("/etc/ansible/hosts");
-$ansible_configuration_playbook_file = catfile("/etc/ansible/packetfence-configuration.yml");
+$ansible_push_configuration_playbook_file = catfile("/etc/ansible/packetfence-push-configuration.yml");
+$ansible_pull_configuration_playbook_file = catfile("/etc/ansible/packetfence-pull-configuration.yml");
 $ansible_restart_playbook_file = catfile("/etc/ansible/packetfence-restart.yml");
 
 $violations_config_file       = catfile($conf_dir, "violations.conf");
@@ -326,6 +329,21 @@ $cache_control_file = catfile($var_dir, "cache_control");
 $config_version_file = catfile($var_dir, "config_version");
 
 $maintenance_file = catfile($var_dir,"maintenance-mode");
+
+sub cleaned {
+    my ($file_path) = @_;
+    my $stripped_file_path = $file_path;
+
+    # Handle /usr/local/pf/conf
+    my $quoted_conf_dir = quotemeta($conf_dir . "/");
+    $stripped_file_path =~ s/^$quoted_conf_dir//;
+    
+    # Handle /usr/local/pf/t/data for tests
+    $quoted_conf_dir = quotemeta($install_dir . "/t/data/");
+    $stripped_file_path =~ s/^$quoted_conf_dir//;
+
+    return $stripped_file_path;
+}
 
 =head1 AUTHOR
 

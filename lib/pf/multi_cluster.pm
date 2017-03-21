@@ -4,12 +4,15 @@ use strict;
 use warnings;
 
 use Template;
+use pf::log;
+use pf::cluster;
 use pf::ConfigStore::MultiCluster;
 use pf::multi_cluster::region;
 use pf::file_paths qw(
     $conf_dir
     $ansible_hosts_file
-    $ansible_configuration_playbook_file
+    $ansible_push_configuration_playbook_file
+    $ansible_pull_configuration_playbook_file
     $ansible_restart_playbook_file
 );
 use File::Slurp qw(write_file);
@@ -41,6 +44,16 @@ sub findObject {
     }
 }
 
+sub configFiles {
+    my @files;
+    for my $store (@{pf::cluster::stores_to_sync()}) {
+        my $cs = $store->new;
+        my $file = pf::file_paths::cleaned($cs->configFile);
+        push @files, $file;
+    }
+    return \@files;
+}
+
 sub generateAnsibleConfig {
     my $template = Template->new({ABSOLUTE => 1});
 
@@ -49,9 +62,14 @@ sub generateAnsibleConfig {
     $template->process($conf_dir."/ansible/hosts.tt", {regions => {rootRegion()->name => rootRegion()}}, \$output) or die $template->error();
     write_file($dst, $output);
 
-    $dst = $ansible_configuration_playbook_file;
+    $dst = $ansible_push_configuration_playbook_file;
     $output = undef;
-    $template->process($conf_dir."/ansible/packetfence-configuration.yml.tt", {}, \$output) or die $template->error();
+    $template->process($conf_dir."/ansible/packetfence-push-configuration.yml.tt", {configFiles => configFiles()}, \$output) or die $template->error();
+    write_file($dst, $output);
+    
+    $dst = $ansible_pull_configuration_playbook_file;
+    $output = undef;
+    $template->process($conf_dir."/ansible/packetfence-pull-configuration.yml.tt", {configFiles => configFiles()}, \$output) or die $template->error();
     write_file($dst, $output);
     
     $dst = $ansible_restart_playbook_file;
