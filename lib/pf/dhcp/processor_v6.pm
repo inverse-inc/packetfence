@@ -402,7 +402,7 @@ sub processDHCPv6Reply {
 
     my $attributes = _process_options($dhcpv6->{options});
 
-    # Handling ip6log update
+    # Handling IP tasks
     if ( $attributes->{'ip'} && $attributes->{'client_mac'} ) {
         foreach my $ip ( @{$attributes->{'ip'}} ) {
             $self->processIPTasks( (client_mac => $attributes->{'client_mac'}, client_ip => $ip->{'client_ip'}, lease_length => $ip->{'lease_length'}, ip_type => $ip->{'type'}) );
