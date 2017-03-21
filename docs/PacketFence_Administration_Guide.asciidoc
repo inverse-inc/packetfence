@@ -573,7 +573,7 @@ Then, we add a rule:
 
 NOTE: When a rule is defined as a catch-all, it will always match if the username attribute matches the queried one. This applies for Active Directory, LDAP and Apache htpasswd file sources. Kerberos and RADIUS will act as true catch-all, and accept everything.
 
-NOTE: If you want to use other LDAP attributes in your authentication source, add them in 'g->Advanced->Custom LDAP attributes'. They will then be available in the rules you define.
+NOTE: If you want to use other LDAP attributes in your authentication source, add them in 'Configuration->System Configuration->Main Configuration->Advanced->Custom LDAP attributes'. They will then be available in the rules you define.
 
 External API authentication
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1306,7 +1306,7 @@ Prompting for fields without authentication
 
 In order to prompt fields without authentication, you can use the Null source with the Null Portal Module.
 
-PacketFence already comes with a Null source pre-configured. If you haven't modified it or deleted it, you can use it for this example. Otherwise, go in 'Configuration -> Sources' and create a new Null source with a catchall rule that assigns a role and access duration.
+PacketFence already comes with a Null source pre-configured. If you haven't modified it or deleted it, you can use it for this example. Otherwise, go in 'Configuration -> Policies and Access Control -> Sources' and create a new Null source with a catchall rule that assigns a role and access duration.
 
 Then go in 'Configuration -> Advanced Portal Configuration -> Advanced Portal Configuration -> Portal Modules' and click 'Add Portal Module' and select 'Authentication -> Null'. Set the 'Identifier' to `prompt_fields` and configure the module with the 'Mandatory fields' you want and uncheck 'Require AUP' so that the user doesn't have to accept the AUP before submitting these fields.
 
@@ -1731,7 +1731,7 @@ Adding billing tiers
 
 Once you have configured one or more billing source, you need to define billing tiers which will define the price and target authentication rules for the user.
 
-In the PacketFence administration interface, go in 'g->Advanced Portal Configuration->Billing tiers'
+In the PacketFence administration interface, go in 'Configuration->Advanced Portal Configuration->Billing tiers'
 
 Then click 'Add billing tier' and configure it.
 
@@ -1864,6 +1864,7 @@ In order for PacketFence to allow eduroam authentication, the FreeRADIUS configu
 First, modify the /usr/local/pf/raddb/clients.conf file to allow the eduroam servers to connect to your PacketFence server. Add the eduroam servers as clients and make sure to add the proper RADIUS secret. Set a shortname to refer to these clients as you will later need it to exclude them from some parts of the PacketFence configuration.
 
 clients.conf example:
+
 ----
 client tlrs1.eduroam.us {
         secret = useStrongerSecret
@@ -1923,6 +1924,7 @@ the requests are processed entirely by FreeRADIUS. If the REALM sets a different
 home server pool, the requests are proxied to the servers defined within that pool. 
 
 proxy.conf example:
+
 ----
 # This realm is for requests which don't have an explicit realm
 # prefix or suffix.  User names like "bob" will match this one.
@@ -1959,6 +1961,7 @@ Thirdly, you must configure the packetfence FreeRADIUS virtual servers to treat 
 In /usr/local/pf/raddb/sites-enabled/packetfence, modify the authorize section like this:
 
 raddb/sites-enabled/packetfence example:
+
 ----
 authorize {
         # pay attention to the order of the modules. It matters.
@@ -1992,6 +1995,7 @@ If you omit this change the request will be sent to PacketFence where it will be
 eduroam servers are not part of your configured switches.
 
 raddb/sites-enabled/packetfence-tunnel example:
+
 ----
 post-auth {
         exec
@@ -2012,6 +2016,7 @@ post-auth {
 Finally, make sure that the realms module is configured this way ( see /usr/local/pf/raddb/modules/realm ): 
 
 raddb/modules/realm example:
+
 ----
 # 'username@realm'
 realm suffix {
@@ -2154,7 +2159,7 @@ You can keep the default configuration, modify the App ID & App Secret (Given by
 
 Also, add the following Authorized domains : *.google.com, *.google.ca, *.google.fr, *.gstatic.com,googleapis.com,accounts.youtube.com (Make sure that you have the google domain from your country like Canada => *.google.ca, France => *.google.fr, etc...)
 
-Once you have your client id, and API key, you need to configure the OAuth2 provider. This can be done by adding a Google OAuth2 authentication source from *Configuration -> Sources*.
+Once you have your client id, and API key, you need to configure the OAuth2 provider. This can be done by adding a Google OAuth2 authentication source from *Configuration -> Policies and Access Control -> Sources*.
 
 Moreover, don't forget to add Google as a registration mode from your connection profile definition, available from *Configuration -> Policies and Access Control -> Connection Profiles and Pages*.
 
@@ -2169,7 +2174,7 @@ You can keep the default configuration, modify the App ID & App Secret (Given by
 
 Also, add the following Authorized domains : *.facebook.com, *.fbcdn.net, *.akamaihd.net (May change)
 
-Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Facebook OAuth2 authentication source from *Configuration -> Sources*.
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Facebook OAuth2 authentication source from *Configuration -> Policies and Access Control -> Sources*.
 
 Moreover, don't forget to add Facebook as a registration mode from your connection profile definition, available from *Configuration -> Policies and Access Control -> Connection Profiles and Pages*.
 
@@ -2182,7 +2187,7 @@ https://YOUR_PORTAL_HOSTNAME/oauth2/callback
 
 Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
 
-Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a GitHub OAuth2 authentication source from *Configuration -> Sources*.
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a GitHub OAuth2 authentication source from *Configuration -> Policies and Access Control -> Sources*.
 
 Moreover, don't forget to add GitHub as a registration mode from your connection profile definition, available from *Configuration -> Policies and Access Control -> Connection Profiles and Pages*.
 
@@ -2193,7 +2198,7 @@ https://YOUR_PORTAL_HOSTNAME/oauth2/callback
 
 Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
 
-Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Instagram OAuth2 authentication source from *Configuration -> Sources*.
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Instagram OAuth2 authentication source from *Configuration -> Policies and Access Control -> Sources*.
 
 Moreover, don't forget to add Instagram as a registration mode from your connection profile definition, available from *Configuration -> Policies and Access Control -> Connection Profiles and Pages*.
 
@@ -2204,7 +2209,7 @@ https://YOUR_PORTAL_HOSTNAME/oauth2/callback
 
 Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
 
-Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a LinkedIn OAuth2 authentication source from *Configuration -> Sources*.
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a LinkedIn OAuth2 authentication source from *Configuration -> Policies and Access Control -> Sources*.
 
 Moreover, don't forget to add LinkedIn as a registration mode from your connection profile definition, available from *Configuration -> Policies and Access Control -> Connection Profiles and Pages*.
 
@@ -2217,7 +2222,7 @@ https://YOUR_PORTAL_HOSTNAME/oauth2/callback
 
 Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
 
-Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Pinterest OAuth2 authentication source from *Configuration -> Sources*.
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Pinterest OAuth2 authentication source from *Configuration -> Policies and Access Control -> Sources*.
 
 Moreover, don't forget to add Pinterest as a registration mode from your connection profile definition, available from *Configuration -> Policies and Access Control -> Connection Profiles and Pages*.
 
@@ -2228,7 +2233,7 @@ https://YOUR_PORTAL_HOSTNAME/oauth2/callback
 
 Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
 
-Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Twitter OAuth2 authentication source from *Configuration -> Sources*.
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Twitter OAuth2 authentication source from *Configuration -> Policies and Access Control -> Sources*.
 
 Moreover, don't forget to add Twitter as a registration mode from your connection profile definition, available from *Configuration -> Policies and Access Control -> Connection Profiles and Pages*.
 
@@ -2239,7 +2244,7 @@ https://YOUR_PORTAL_HOSTNAME/oauth2/callback
 
 Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
 
-Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a WindowsLive OAuth2 authentication source from *Configuration -> Sources*.
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a WindowsLive OAuth2 authentication source from *Configuration -> Policies and Access Control -> Sources*.
 
 Moreover, don't forget to add WindowsLive as a registration mode from your connection profile definition, available from *Configuration -> Policies and Access Control -> Connection Profiles and Pages*.
 
@@ -2254,7 +2259,7 @@ There are two solutions for passthroughs - one using DNS resolution and iptables
 Note that non-HTTP (including HTTPS) protocols cannot use the mod_proxy approach.
 You can use one of them or both but for if a domain is configured in both, DNS passthroughs have a higher priority.
 
-In order to use the passthroughs feature in PacketFence, you need to enable it from the GUI in *g->Advanced Configuration->Networks->Fencing*, enable *Passthrough* and then save.
+In order to use the passthroughs feature in PacketFence, you need to enable it from the GUI in *Configuration->Advanced Configuration->Networks->Fencing*, enable *Passthrough* and then save.
 
 DNS passthroughs
 ^^^^^^^^^^^^^^^^
@@ -2263,7 +2268,7 @@ If you just enabled the passthroughs, you should restart the iptables services a
 
 Once done, add `net.ipv4.ip_forward=1` in `/etc/sysctl.conf` and reload it using `sysctl -p`. This enables packet routing in the kernel.
 
-Then add passthroughs in *g->Advanced Configuration->Networks->Fencing->Passthroughs*. They can be of the following format:
+Then add passthroughs in *Configuration->Advanced Configuration->Networks->Fencing->Passthroughs*. They can be of the following format:
 
  * *example.com*: opens ports 80 and 443 in TCP for example.com
  * *example.com:1812*: opens the port 1812 in TCP and UDP for example.com
@@ -2280,7 +2285,7 @@ At the same time, it will add the entry to a special ipset which will allow acce
 mod_proxy passthroughs
 ^^^^^^^^^^^^^^^^^^^^^^
 
-The proxy passthroughs can be configured in *g->Advanced Configuration->Networks->Fencing->Proxy Passthroughs*.
+The proxy passthroughs can be configured in *Configuration->Advanced Configuration->Networks->Fencing->Proxy Passthroughs*.
 Add a new FQDN (can also be a wildcard domain like *.google.com). Port specific passthroughs cannot be used as these only apply to port 80 in TCP.
 Then for this FQDN, pfdns will still answer with the IP address of the captive portal and when a device hits the captive portal, PacketFence will detect that this FQDN has a passthrough configured in PacketFence and will forward the traffic to mod_proxy.
 
@@ -2704,9 +2709,9 @@ In the event that you are managing a large registration network with devices tha
 
 Using the parking feature, you can make these devices have a longer lease and hit an extremely lightweight captive portal so that the amount of resources they consume is minimal. In that captive portal, they will see a message explaining that they haven't registered their device for a certain amount of time, and will let them leave the *parked* state by pressing a link. 
 
-The *parked* vs *unparked* state is controlled through violation `1300003` which gets triggered according to the `parking.threshold` setting ('g->Advanced Configuration->Networks->Device Parking').
+The *parked* vs *unparked* state is controlled through violation `1300003` which gets triggered according to the `parking.threshold` setting ('Configuration->Advanced Configuration->Networks->Device Parking').
 
-So, in order to activate the parking, go in 'g->Advanced Configuration->Networks->Device Parking' and set the threshold to a certain amount of seconds. A suggested value would be `21600` which is 6 hours. This means that if a device stays in your registration network for more than 6 hours in a row, it will trigger violation `1300003` and place that device into the *parked* state.
+So, in order to activate the parking, go in 'Configuration->Advanced Configuration->Networks->Device Parking' and set the threshold to a certain amount of seconds. A suggested value would be `21600` which is 6 hours. This means that if a device stays in your registration network for more than 6 hours in a row, it will trigger violation `1300003` and place that device into the *parked* state.
 
 In that same section, you can define the lease length of the user when he is in the *parked* state.
 
@@ -3840,7 +3845,7 @@ Switch login access
 
 PacketFence is able to act as an authentication and authorization service on the port 1815 for granting command-line interface (CLI) access to switches.
 PacketFence currently supports Cisco switches and these must be configured using the following guide: http://www.cisco.com/c/en/us/support/docs/security-vpn/remote-authentication-dial-user-service-radius/116291-configure-freeradius-00.html
-From the PacketFence's web admin interface, you must configure an Admin Access role (g->Advanced Configuration->Admin access) that contains the action 'Switches CLI - Read' or 'Switches CLI - Write' and assign this role to an internal user or in an Administration rule in an internal source.
+From the PacketFence's web admin interface, you must configure an Admin Access role (Configuration->Advanced Configuration->Admin access) that contains the action 'Switches CLI - Read' or 'Switches CLI - Write' and assign this role to an internal user or in an Administration rule in an internal source.
 
 DHCP Option 82
 ~~~~~~~~~~~~~~
@@ -3903,7 +3908,7 @@ apt-get install python-impacket
 PacketFence configuration
 +++++++++++++++++++++++++
 
-First of all, you will need to enable the NTLM caching globally by enabling 'NTLM Redis cache' in 'g->Advanced'. You then need to restart radiusd.
+First of all, you will need to enable the NTLM caching globally by enabling 'NTLM Redis cache' in 'Configuration->System Configuration->Main Configuration->Advanced'. You then need to restart radiusd.
 
 Once that is done, you need to configure PacketFence to start caching the credentials. In order to do so, go in 'Configuration->Policies and Access Control->Domains->Microsoft Active Directory Domains' and select the domain you want to cache the credentials for. 
 
