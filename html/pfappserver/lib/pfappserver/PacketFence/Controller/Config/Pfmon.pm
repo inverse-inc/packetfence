@@ -59,7 +59,7 @@ sub index :Path :Args(0) {
 before [qw(create clone remove)] => sub {
     my ($self, $c) = @_;
     my $name = $c->action->name;
-    $c->log->error("cannot perform the follow action on a pfmon task $name");
+    $c->log->error("cannot perform the following action on a pfmon task $name");
     $c->detach();
 };
 
