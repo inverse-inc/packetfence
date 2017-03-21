@@ -28,6 +28,7 @@ use pf::config qw(
 );
 use pf::config::util;
 use pf::constants::dhcp qw($DEFAULT_LEASE_LENGTH);
+use pf::constants::IP qw($IPV4 $IPV6);
 use pf::log;
 use pf::node;
 
@@ -132,7 +133,7 @@ sub processIPTasks {
 
     # Inline enforcement
     # 2017.03.20 - dwuelfrath@inverse.ca - There is currently no ipv6 support for inline enforcement. Remove the condition once "resolved"
-    unless ( $iptasks_arguments{'ipversion'} eq "ipv6" ) {
+    unless ( $iptasks_arguments{'ipversion'} eq $IPV6 ) {
         if ( $iptasks_arguments{'oldip'} && $iptasks_arguments{'oldip'} ne $iptasks_arguments{'ip'} ) {
             my $node_view = node_view($iptasks_arguments{'mac'});
             my $last_connection_type = $node_view->{'last_connection_type'};
@@ -142,7 +143,7 @@ sub processIPTasks {
 
     # Conformity scan
     # 2017.03.20 - dwuelfrath@inverse.ca - There is currently no ipv6 support for conformity scan. Remove the condition once "resolved"
-    unless ( $iptasks_arguments{'ipversion'} eq "ipv6" ) {
+    unless ( $iptasks_arguments{'ipversion'} eq $IPV6 ) {
         $self->apiClient->notify('trigger_scan', %iptasks_arguments );
     }
 
@@ -154,9 +155,9 @@ sub processIPTasks {
     }
 
     # IPlog
-    if ( $iptasks_arguments{'ipversion'} eq "ipv4" ) {
+    if ( $iptasks_arguments{'ipversion'} eq $IPV4 ) {
         $self->apiClient->notify('update_ip4log', %iptasks_arguments);
-    } elsif ( $iptasks_arguments{'ipversion'} eq "ipv6" ) {
+    } elsif ( $iptasks_arguments{'ipversion'} eq $IPV6 ) {
         $self->apiClient->notify('update_ip6log', %iptasks_arguments);
     }
 }

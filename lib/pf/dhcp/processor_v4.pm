@@ -22,6 +22,7 @@ use Try::Tiny;
 use pf::client;
 use pf::constants;
 use pf::constants::dhcp qw($DEFAULT_LEASE_LENGTH);
+use pf::constants::IP qw($IPV4);
 use pf::clustermgmt;
 use pf::config qw(
     $INLINE_API_LEVEL
@@ -665,7 +666,7 @@ sub preProcessIPTasks {
     }
 
     # Add IP version to arguments
-    $iptasks_arguments->{'ipversion'} = "ipv4";
+    $iptasks_arguments->{'ipversion'} = $IPV4;
 
     # Add specific IPv4 attribute
     $iptasks_arguments->{'net_type'} = $self->net_type;

@@ -20,6 +20,7 @@ use Readonly;
 
 # Internal libs
 use pf::constants;
+use pf::constants::IP qw($IPV6);
 use pf::db();
 use pf::ip6log();
 use pf::log();
@@ -248,7 +249,7 @@ sub preProcessIPTasks {
     }
 
     # Add IP version to arguments
-    $iptasks_arguments->{'ipversion'} = "ipv6";
+    $iptasks_arguments->{'ipversion'} = $IPV6;
     
     # Get previous (old) mappings
     $iptasks_arguments->{'oldip'}  = pf::ip6log::_mac2ip_sql($mac);
