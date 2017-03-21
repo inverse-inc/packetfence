@@ -1,3 +1,4 @@
+%%snmpTrapdAddr%%
 %%userLines%%
 %%authLines%%
 perl do "/usr/local/pf/lib/pf/snmptrapd.pm";
