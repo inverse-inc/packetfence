@@ -1,0 +1,11 @@
+---
+- name: packetfence-push-configuration
+  hosts: "{{ target }}"
+  remote_user: root
+  tasks:
+    [% FOREACH configFile IN configFiles %]
+    - name: Push configuration [% configFile %]
+      copy: src=/usr/local/pf/var/conf/multi-cluster/{{ host_path }}/[% configFile %] dest=/usr/local/pf/conf/[% configFile %]
+    [% END %]
+    - name: Reload configuration
+      command: /usr/local/pf/bin/pfcmd configreload hard

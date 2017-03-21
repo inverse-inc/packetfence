@@ -1,5 +1,7 @@
 ---
-- hosts: "{{ target }}"
+- name: packetfence-restart
+  serial: 1
+  hosts: "{{ target }}"
   remote_user: root
   tasks:
     - name: Restart PacketFence
