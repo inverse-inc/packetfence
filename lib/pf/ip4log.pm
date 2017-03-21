@@ -835,7 +835,7 @@ sub cleanup_history {
 
 =head2 _cleanup
 
-The generic cleanup for iplog tables
+The generic cleanup for ip4log tables
 
 =cut
 
