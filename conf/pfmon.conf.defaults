@@ -214,6 +214,63 @@ timeout=10s
 # How long to keep a ip4log_cleanup entry before deleting it
 window=1M
 
+[ip6log_cleanup]
+#
+# type
+#
+# The type of task to perform
+type=ip6log_cleanup
+#
+# description
+#
+# The description of task to perform
+description=ip6log cleanup
+#
+# status
+#
+# If the task ip6log_cleanup is enabled
+status=enabled
+#
+# interval
+#
+# At which interval to run the ip6log cleanup pfmon task
+interval=60s
+#
+# batch
+#
+# How many ip6log_cleanup entries to clean up in one run
+batch=100
+#
+# rotate
+#
+# Enabled rotate for ip6log_cleanup
+rotate=disabled
+#
+# rotate_batch
+#
+# How many ip6log_cleanup entries to clean up in one run
+rotate_batch=100
+#
+# rotate_timeout
+#
+# How long a ip6log_cleanup job can run
+rotate_timeout=10s
+#
+# rotate_window
+#
+# How long to keep a ip6log_cleanup entry before deleting it
+rotate_window=1W
+#
+# timeout
+#
+# How long a ip6log_cleanup job can run
+timeout=10s
+#
+# window
+#
+# How long to keep a ip6log_cleanup entry before deleting it
+window=1M
+
 [locationlog_cleanup]
 #
 # type
