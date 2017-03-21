@@ -2,26 +2,22 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Administrator - PacketFence</title>
+    <title>[% l('Administrator') %] - PacketFence</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="PacketFence Administrator">
     <meta name="author" content="Inverse">
 
-    <!-- Le styles -->
+    <!-- styles -->
 [% FOREACH css = cssFiles -%]
     <link rel="stylesheet" href="[% c.uri_for("/static/${css}.css") %]">
 [% END -%]
-    <link rel="stylesheet" href="[% c.uri_for('/static/css/bootstrap.css') %]">
+    <link rel="stylesheet" href="[% c.uri_for('/static/css/styles.css') %]">
     <link rel="stylesheet" href="[% c.uri_for('/static/app/application.css') %]">
-    <link rel="stylesheet" href="[% c.uri_for('/static/css/bootstrap-responsive.css') %]">
     <link rel="stylesheet" href="[% c.uri_for('/static/admin/common.css') %]">
 
-    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="[% c.uri_for('/static/app/html5.js') %]"></script>
-    <![endif]-->
-    <!--[if IE 7]>
-      <link rel="stylesheet" href="[% c.uri_for('/static/css/font-awesome-ie7.css') %]">
     <![endif]-->
   </head>
 
@@ -44,16 +40,21 @@
 
     <div id="navbar" class="navbar navbar-fixed-top navbar-inverse">
       <div class="navbar-inner">
-        <div class="container-fluid">
+        <div class="row-fluid">
           <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </a>
-          <a class="brand" href="#"><img src="[% c.uri_for('/static/app/packetfence.white.png') %]"/></a>
+          <a class="brand visible-phone" href="#">
+            <img src="[% c.uri_for('/static/img/packetfence.white.small.svg') %]" style="height: 32px"/>
+          </a>
+          <a class="brand span3 hidden-tablet" href="#">
+            <img src="[% c.uri_for('/static/img/packetfence.white.svg') %]" style="height: 32px"/>
+          </a>
           [%- IF c.user_allowed_in_admin() %]
           <div class="nav-collapse">
-            <ul class="nav">
+            <ul class="nav nav-header">
               [%- IF can_access_any("REPORTS","SERVICES") %]
               <li[% ' class="active"' IF c.action.name == 'status' %]>
                 <a href="[% c.uri_for(c.controller('Admin').action_for('status')) %]">[% l('Status') %]</a>
@@ -85,26 +86,26 @@
               </li>
               [%- END %]
             </ul>
-            <ul class="nav pull-right">
+            <ul class="nav nav-header pull-right">
               <li class="dropdown">
-                <a href="#" id="checkup_dropdown_toggle" class="dropdown-toggle" data-toggle="dropdown">[% l('Perform checkup') %]</a>
+                <a id="checkup_dropdown_toggle" class="dropdown-toggle" data-toggle="dropdown">[% l('Perform checkup') %]</a>
                 <ul class="dropdown-menu" id="checkup_dropdown">
-                  <li class="disabled"><a href="#"><img src="/static/app/loader-48.gif"></a></li>
+                  <li class="disabled"><a><img src="/static/app/loader-48.gif"></a></li>
                 </ul>
               </li>
             </ul>
             <ul class="nav pull-right">
               <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-info-sign icon-white"></i></a>
+                <a class="dropdown-toggle" data-toggle="dropdown"><i class="icon-info-circle icon-white"></i></a>
                 <ul class="dropdown-menu">
-                  <li class="disabled"><a href="#"><b>[% l('PacketFence version') %]</b>: [% pf_release | html %]</a></li>
-                  <li class="disabled"><a href="#"><b>[% l('Server') %]</b>: [% server_hostname | html %]</a></li>
+                  <li class="disabled"><a><b>[% l('PacketFence version') %]</b>: [% pf_release | html %]</a></li>
+                  <li class="disabled"><a><b>[% l('Server') %]</b>: [% server_hostname | html %]</a></li>
                 </ul>
               </li>
             </ul>
-            <ul class="nav pull-right">
+            <ul class="nav nav-header pull-right">
               <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-user icon-white"></i> [% c.user | html %]<b class="caret"></b></a>
+                <a href="" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-user-circle icon-white"></i> [% c.user | html %]<b class="caret"></b></a>
                 <ul class="dropdown-menu">
                   <li><a href="[% c.uri_for(c.controller('Admin').action_for('logout')) %]"><i class="icon-off"></i> [% l('Log out') %]</a></li>
                 </ul>
@@ -132,13 +133,14 @@
         "Cannot Load Content": "[% l('Cannot Load Content') | js %]"
     };
     </script>
-    <script type="text/javascript" src="[% c.uri_for('/static/app/jquery.js') %]"></script>
-    <script type="text/javascript" src="[% c.uri_for('/static/js/bootstrap.js') %]"></script>
+    <script type="text/javascript" src="[% c.uri_for('/static/js/vendor/jquery.min.js') %]"></script>
+    <script type="text/javascript" src="[% c.uri_for('/static/js/vendor/jquery-ui.min.js') %]"></script>
+    <script type="text/javascript" src="[% c.uri_for('/static/js/vendor/jquery-extra.min.js') %]"></script>
+    <script type="text/javascript" src="[% c.uri_for('/static/js/vendor/bootstrap.min.js') %]"></script>
 [% FOREACH js = jsFiles -%]
     <script type="text/javascript" src="[% c.uri_for("/static/${js}.js") %]" charset="UTF-8"></script>
 [% END -%]
-    <script type="text/javascript" src="[% c.uri_for('/static/app/application.js') %]"></script>
-    <script type="text/javascript" src="[% c.uri_for('/static/admin/common.js') %]"></script>
+    <script type="text/javascript" src="[% c.uri_for('/static/js/pfappserver.js') %]"></script>
 
   </body>
 </html>
