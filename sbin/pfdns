@@ -52,6 +52,7 @@ use Storable 'dclone';
 use pf::access_filter::dns;
 use pf::CHI::Request;
 use pf::util::dns;
+use pf::ipset_cache;
 
 pf::SwitchFactory->preloadConfiguredModules();
 
@@ -106,7 +107,8 @@ my @routed_dns_enforcement_nets_named;
 
 my $CHI_CACHE = pf::CHI->new( namespace => 'pfdns' );
 our $IPSET_SESSION = 'pfsession_passthrough';
-our %IPSET_CACHE;
+
+our $IPSET_CACHE = pf::ipset_cache->new({setname => $IPSET_SESSION});
 
 Readonly::Scalar our $TTL                => '15';
 Readonly::Scalar our $HTTPS_PORT         => '443';
@@ -180,7 +182,7 @@ sub run_child {
     }
 }
 
-populate_ipset_cache($IPSET_SESSION);
+$IPSET_CACHE->populate_cache();
 
 my $ns = new Net::DNS::Nameserver(
     LocalAddr       => [@ip_addr],
@@ -353,22 +355,39 @@ sub regzone {
     } elsif ($qtype eq "SRV") {
         #Handle SRV record to be able to contact Active Directory in the reg vlan
         $rcode = "NXDOMAIN";
+        my @ip_port_pairs;
         foreach my $key ( keys %domain_dns_servers ) {
             if ($qname =~ /(.*)_msdcs.$key/i) {
                 my $resolver = new Net::DNS::Resolver(nameservers => [$domain_dns_servers{$key}]);
                 my $reply = $resolver->search($qname, $qtype);
                 next if !defined($reply);
-                foreach my $answer ($reply->answer) {
-                    my $query = $CHI_CACHE->compute("srv-".$answer->target, sub { $resolver->search($answer->target, 'A') });
+                my @answers = $reply->answer;
+                foreach my $answer (@answers) {
+                    my $target = $answer->{target};
+                    if (!defined $target) {
+                        $logger->warn("Invalid target for answer");
+                        next;
+                    }
+                    my $query = $CHI_CACHE->compute("srv-$target", sub { $resolver->search($target, 'A') });
                     if ($query) {
+                        my $port = $answer->port;
+                        if ($qname =~ /\._udp\./) {
+                            $port = "udp:$port";
+                        }
                         get_logger->info("Resolved $qname as an Active Directory domain name. Adding passthroughs into ipset.");
-                        add_answers_to_ipset($query,$IPSET_SESSION,$answer->port, 'udp:88', 'udp:123', 'udp:135', '135', 'udp:137', 'udp:138', '139', 'udp:389', 'udp:445', '445', 'udp:464', '464', 'tcp:1025', '49155', '49156', '49172');
+                        push @ip_port_pairs,
+                          format_query_to_ip_port(
+                            $query, $port, 'udp:88',   'udp:123', 'udp:135', '135',
+                            'udp:137', 'udp:138',     '139',      'udp:389', 'udp:445', '445',
+                            'udp:464', '464',         'tcp:1025', '49155',   '49156',   '49172'
+                          );
                     }
                 }
                 $rcode = "NOERROR";
-                push @ans, $reply->answer;
+                push @ans, @answers;
             }
         }
+        $IPSET_CACHE->add_pairs(\@ip_port_pairs);
     } else{
         $rcode = "NXDOMAIN";
     }
@@ -379,6 +398,18 @@ sub regzone {
     return @answer;
 }
 
+sub format_query_to_ip_port {
+    my ($query, @ports) = @_;
+    my @pairs;
+    foreach my $rr ($query->answer) {
+        next unless $rr->type eq "A";
+        my $ip = $rr->address;
+        foreach my $port (@ports) {
+            push @pairs, {ip => $ip, port => $port};
+        }
+    }
+    return @pairs;
+}
 
 =head2 regzone_non_filtered
 
@@ -399,8 +430,9 @@ sub regzone_non_filtered {
     my ($ttl, $rdata);
     my $res = Net::DNS::Resolver->new;
     my $query_non_filtered = resolve_with_cache("A", $qname);
+    my @ip_port_pairs;
     if ($query_non_filtered) {
-        add_answers_to_ipset($query_non_filtered, $IPSET_SESSION, @$ports);
+        push @ip_port_pairs, format_query_to_ip_port($query, $HTTP_PORT, $HTTPS_PORT);
         push @ans, $query_non_filtered->answer;
         if (@ans) {
             $results{rcode} = "NOERROR";
@@ -409,47 +441,10 @@ sub regzone_non_filtered {
             $logger->warn("Unresolved passthrough domain $qname");
         }
     }
+    $IPSET_CACHE->add_pairs(\@ip_port_pairs);
     return \%results;
 }
 
-
-=head2 add_answers_to_ipset
-
-=cut
-
-sub add_answers_to_ipset {
-    my ($query,$setname,@ports) = @_;
-    my @ops;
-    foreach my $rr ($query->answer) {
-        next unless $rr->type eq "A";
-        my $ip = $rr->address;
-        foreach my $port (@ports) {
-            push @ops, "add $setname $ip,$port" unless is_in_ipset_cache($setname,$ip,$port);
-        }
-    }
-    if(@ops) {
-        my $ipset;
-        my $data = join("\n", @ops, "");
-        open($ipset,"| LANG=C sudo ipset restore 2>&1");
-        print $ipset $data;
-        close($ipset);
-    }
-}
-
-=head2 add_ip_port_to_ipset
-
-add ipset rule to the cache if it is not already there
-
-=cut
-
-sub add_ip_port_to_ipset {
-    my ($setname,$ip,$port) = @_;
-    unless (is_in_ipset_cache($setname,$ip,$port)) {
-        my $cmd = "sudo ipset --add $setname $ip,$port 2>&1";
-        my $_EXIT_CODE_EXISTS = "1";
-        my @lines = pf_run($cmd, accepted_exit_status => [$_EXIT_CODE_EXISTS]);
-    }
-}
 
 =head2 isolzone
 
@@ -496,24 +491,6 @@ sub normal_sighandler {
     }
 }
 
-sub populate_ipset_cache {
-    my ($session) = @_;
-    my $in_header = 1;
-    my @lines =
-      pf_run("sudo ipset list $session 2>/dev/null",
-        accepted_exit_status => [1]);
-
-    while (my $line = shift @lines) {
-        last if $line =~ /Members:/;
-    }
-
-    while (my $line = shift @lines) {
-        if ($line =~ /(\d+(?:\.\d+){3}),tcp:(\d+)/) {
-            add_to_ipset_cache($session,$1,$2);
-        }
-    }
-}
-
 =head2 resolve_with_cache
 
 Resolve a DNS name using the cache
@@ -539,16 +516,6 @@ sub resolve_with_cache {
         }
     }
     return $reply;
-}
-
-sub add_to_ipset_cache {
-    my ($session,$ip,$port) = @_;
-    $IPSET_CACHE{join(':',$session,$ip,$port)} = undef;
-}
-
-sub is_in_ipset_cache {
-    my ($session,$ip,$port) = @_;
-    return exists $IPSET_CACHE{join(':',$session,$ip,$port)};
 }
 
 sub is_parent_alive {
