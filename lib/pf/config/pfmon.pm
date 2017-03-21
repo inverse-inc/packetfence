@@ -1,36 +1,31 @@
-package pf::Moose::Types;
+package pf::config::pfmon;
 
 =head1 NAME
 
-pf::Moose::Types -
+pf::config::pfmon
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::Moose::Types
+Configuration from conf/pfmon.conf and conf/pfmon.conf.defaults
 
 =cut
 
 use strict;
 use warnings;
-use Moose::Util::TypeConstraints;
-use NetAddr::IP;
-use pf::util qw(normalize_time);
+use pfconfig::cached_hash;
 
-subtype 'NetAddrIpStr', as 'NetAddr::IP';
+BEGIN {
+    use Exporter ();
+    our ( @ISA, @EXPORT_OK );
+    @ISA = qw(Exporter);
+    @EXPORT_OK = qw(%ConfigPfmon %ConfigPfmonDefault);
+}
 
-coerce 'NetAddrIpStr', from 'Str', via { NetAddr::IP->new($_) };
+tie our %ConfigPfmon, 'pfconfig::cached_hash', 'config::Pfmon';
 
-subtype 'RegexpRefStr', as 'RegexpRef';
-
-coerce 'RegexpRefStr', from 'Str', via {qr/$_/};
-
-subtype 'PfInterval', as 'Int';
-
-coerce 'PfInterval', from 'Str', via { return normalize_time($_) };
-
-no Moose::Util::TypeConstraints;
+tie our %ConfigPfmonDefault, 'pfconfig::cached_hash', 'config::PfmonDefault';
 
 =head1 AUTHOR
 
@@ -60,4 +55,3 @@ USA.
 =cut
 
 1;
-

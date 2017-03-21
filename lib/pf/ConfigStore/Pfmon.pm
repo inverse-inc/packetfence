@@ -1,40 +1,31 @@
-package pf::Moose::Types;
+package pf::ConfigStore::Pfmon;
 
 =head1 NAME
 
-pf::Moose::Types -
+pf::ConfigStore::Pfmon
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::Moose::Types
+pf::ConfigStore::Pfmon
 
 =cut
 
-use strict;
-use warnings;
-use Moose::Util::TypeConstraints;
-use NetAddr::IP;
-use pf::util qw(normalize_time);
+use HTTP::Status qw(:constants is_error is_success);
+use Moo;
+use namespace::autoclean;
+use pf::file_paths qw($pfmon_config_file $pfmon_default_config_file);
+extends 'pf::ConfigStore';
 
-subtype 'NetAddrIpStr', as 'NetAddr::IP';
+sub configFile { $pfmon_config_file }
 
-coerce 'NetAddrIpStr', from 'Str', via { NetAddr::IP->new($_) };
+sub importConfigFile { $pfmon_default_config_file }
 
-subtype 'RegexpRefStr', as 'RegexpRef';
+sub pfconfigNamespace { 'config::Pfmon' }
 
-coerce 'RegexpRefStr', from 'Str', via {qr/$_/};
 
-subtype 'PfInterval', as 'Int';
-
-coerce 'PfInterval', from 'Str', via { return normalize_time($_) };
-
-no Moose::Util::TypeConstraints;
-
-=head1 AUTHOR
-
-Inverse inc. <info@inverse.ca>
+__PACKAGE__->meta->make_immutable;
 
 =head1 COPYRIGHT
 
@@ -60,4 +51,3 @@ USA.
 =cut
 
 1;
-

@@ -3235,10 +3235,6 @@ msgstr ""
 msgid "Interval at which PacketFence updates the local Fingerbank data from the cloud API"
 msgstr ""
 
-# conf/documentation.conf (maintenance.online_node_count_interval)
-msgid "Interval at which PacketFence updates the online node count"
-msgstr ""
-
 # conf/documentation.conf (maintenance.option82_query_interval)
 msgid "Interval at which PacketFence will query compatible switches for DHCP Option 82 switch MAC address"
 msgstr ""
@@ -9524,10 +9520,6 @@ msgstr "Node Unregistration Window"
 # conf/documentation.conf
 msgid "maintenance.nodes_maintenance_interval"
 msgstr "Nodes Maintenance Interval"
-
-# conf/documentation.conf
-msgid "maintenance.online_node_count_interval"
-msgstr "Online Node State Update Interval"
 
 # conf/documentation.conf
 msgid "maintenance.option82_query_interval"

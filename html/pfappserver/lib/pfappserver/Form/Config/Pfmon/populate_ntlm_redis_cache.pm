@@ -1,40 +1,35 @@
-package pf::Moose::Types;
+package pfappserver::Form::Config::Pfmon::populate_ntlm_redis_cache;
 
 =head1 NAME
 
-pf::Moose::Types -
-
-=cut
+pfappserver::Form::Config::Pfmon::populate_ntlm_redis_cache - Web form for populate_ntlm_redis_cache pfmon task
 
 =head1 DESCRIPTION
 
-pf::Moose::Types
+Web form for populate_ntlm_redis_cache pfmon task
 
 =cut
 
-use strict;
-use warnings;
-use Moose::Util::TypeConstraints;
-use NetAddr::IP;
-use pf::util qw(normalize_time);
+use HTML::FormHandler::Moose;
 
-subtype 'NetAddrIpStr', as 'NetAddr::IP';
+extends 'pfappserver::Form::Config::Pfmon';
 
-coerce 'NetAddrIpStr', from 'Str', via { NetAddr::IP->new($_) };
 
-subtype 'RegexpRefStr', as 'RegexpRef';
+=head2 default_type
 
-coerce 'RegexpRefStr', from 'Str', via {qr/$_/};
+default value of type
 
-subtype 'PfInterval', as 'Int';
+=cut
 
-coerce 'PfInterval', from 'Str', via { return normalize_time($_) };
+sub default_type {
+    return "populate_ntlm_redis_cache";
+}
 
-no Moose::Util::TypeConstraints;
+has_block  definition =>
+  (
+    render_list => [qw(type status interval)],
+  );
 
-=head1 AUTHOR
-
-Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
@@ -59,5 +54,6 @@ USA.
 
 =cut
 
-1;
+__PACKAGE__->meta->make_immutable;
 
+1;

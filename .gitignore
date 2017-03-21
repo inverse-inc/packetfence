@@ -84,6 +84,7 @@ conf/domain.conf
 conf/radius_filters.conf
 conf/scan.conf
 conf/pfqueue.conf
+conf/pfmon.conf
 conf/wmi.conf
 conf/pfdetect.conf
 conf/billing_tiers.conf

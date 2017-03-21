@@ -1,38 +1,39 @@
-package pf::Moose::Types;
+package pf::pfmon::task::node_cleanup;
 
 =head1 NAME
 
-pf::Moose::Types -
+pf::pfmon::task::node_cleanup - class for pfmon task node cleanup
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::Moose::Types
+pf::pfmon::task::node_cleanup
 
 =cut
 
 use strict;
 use warnings;
-use Moose::Util::TypeConstraints;
-use NetAddr::IP;
-use pf::util qw(normalize_time);
+use pf::node;
+use Moose;
+extends qw(pf::pfmon::task);
 
-subtype 'NetAddrIpStr', as 'NetAddr::IP';
+has 'window' => ( is => 'rw', isa => 'PfInterval', coerce => 1 );
 
-coerce 'NetAddrIpStr', from 'Str', via { NetAddr::IP->new($_) };
+=head2 run
 
-subtype 'RegexpRefStr', as 'RegexpRef';
+run the node cleanup task
 
-coerce 'RegexpRefStr', from 'Str', via {qr/$_/};
+=cut
 
-subtype 'PfInterval', as 'Int';
-
-coerce 'PfInterval', from 'Str', via { return normalize_time($_) };
-
-no Moose::Util::TypeConstraints;
+sub run {
+    my ($self) = @_;
+    my $window = $self->window;
+    node_cleanup($window) if $self->window;
+}
 
 =head1 AUTHOR
+
 
 Inverse inc. <info@inverse.ca>
 
@@ -60,4 +61,3 @@ USA.
 =cut
 
 1;
-

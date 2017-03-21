@@ -1,38 +1,41 @@
-package pf::Moose::Types;
+package pf::pfmon::task::locationlog_cleanup;
 
 =head1 NAME
 
-pf::Moose::Types -
+pf::pfmon::task::locationlog_cleanup - class for pfmon task locationlog cleanup
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::Moose::Types
+pf::pfmon::task::locationlog_cleanup
 
 =cut
 
 use strict;
 use warnings;
-use Moose::Util::TypeConstraints;
-use NetAddr::IP;
-use pf::util qw(normalize_time);
+use Moose;
+use pf::locationlog;
+extends qw(pf::pfmon::task);
 
-subtype 'NetAddrIpStr', as 'NetAddr::IP';
+has 'batch' => ( is => 'rw' );
+has 'window' => ( is => 'rw', isa => 'PfInterval', coerce => 1 );
+has 'timeout' => ( is => 'rw', isa => 'PfInterval', coerce => 1 );
 
-coerce 'NetAddrIpStr', from 'Str', via { NetAddr::IP->new($_) };
+=head2 run
 
-subtype 'RegexpRefStr', as 'RegexpRef';
+run the locationlog cleanup task
 
-coerce 'RegexpRefStr', from 'Str', via {qr/$_/};
+=cut
 
-subtype 'PfInterval', as 'Int';
-
-coerce 'PfInterval', from 'Str', via { return normalize_time($_) };
-
-no Moose::Util::TypeConstraints;
+sub run {
+    my ($self) = @_;
+    my $window = $self->window;
+    locationlog_cleanup($window, $self->batch, $self->timeout) if $self->window;
+}
 
 =head1 AUTHOR
+
 
 Inverse inc. <info@inverse.ca>
 
@@ -60,4 +63,3 @@ USA.
 =cut
 
 1;
-

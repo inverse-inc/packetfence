@@ -810,11 +810,39 @@ sub rotate {
     return (0);
 }
 
-sub cleanup {
-    my $timer = pf::StatsD::Timer->new({sample_rate => 0.2});
-    my ( $window_seconds, $batch, $time_limit, $table ) = @_;
+
+=head2 cleanup_archive
+
+Cleanup the ip4log_archive table
+
+=cut
+
+sub cleanup_archive {
+    my ( $window_seconds, $batch, $time_limit ) = @_;
+    return _cleanup($window_seconds, $batch, $time_limit, 'ip4log_archive_cleanup_sql');
+}
+
+=head2 cleanup_history
+
+Cleanup the ip4log_history table
+
+=cut
+
+sub cleanup_history {
+    my ( $window_seconds, $batch, $time_limit ) = @_;
+    return _cleanup($window_seconds, $batch, $time_limit, 'ip4log_history_cleanup_sql');
+}
+
+=head2 _cleanup
+
+The generic cleanup for ip4log tables
+
+=cut
+
+sub _cleanup {
+    my ( $window_seconds, $batch, $time_limit, $query_name ) = @_;
     my $logger = pf::log::get_logger();
-    $logger->debug("Calling cleanup with window='$window_seconds' seconds, batch='$batch', timelimit='$time_limit'");
+    $logger->debug("Calling cleanup with for $query_name window='$window_seconds' seconds, batch='$batch', timelimit='$time_limit'");
 
     if ( $window_seconds eq "0" ) {
         $logger->debug("Not deleting because the window is 0");
@@ -825,9 +853,6 @@ sub cleanup {
     my $start_time = time;
     my $end_time;
     my $rows_deleted = 0;
-    $table ||= 'ip4log_archive';
-
-    my $query_name = $table eq 'ip4log_history' ? 'ip4log_history_cleanup_sql' : 'ip4log_archive_cleanup_sql';
 
     while (1) {
         my $query = db_query_execute(IP4LOG, $ip4log_statements, $query_name, $now, $window_seconds, $batch) || return (0);
@@ -835,11 +860,11 @@ sub cleanup {
         $query->finish;
         $end_time = time;
         $rows_deleted += $rows if $rows > 0;
-        $logger->trace("Deleted '$rows_deleted' entries from $table (start: '$start_time', end: '$end_time')");
+        $logger->trace("Deleted '$rows_deleted' entries with $query_name (start: '$start_time', end: '$end_time')");
         last if $rows <= 0 || ( ( $end_time - $start_time ) > $time_limit );
     }
 
-    $logger->info("Deleted '$rows_deleted' entries from $table (start: '$start_time', end: '$end_time')");
+    $logger->info("Deleted '$rows_deleted' entries with $query_name (start: '$start_time', end: '$end_time')");
     return (0);
 }
 

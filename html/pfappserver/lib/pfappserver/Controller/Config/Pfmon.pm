@@ -1,36 +1,18 @@
-package pf::Moose::Types;
+package pfappserver::Controller::Config::Pfmon;
 
 =head1 NAME
 
-pf::Moose::Types -
-
-=cut
+pfappserver::Controller::Config::Pfmon
 
 =head1 DESCRIPTION
 
-pf::Moose::Types
+Place all customization for Controller::Config::Pfmon here
 
 =cut
 
-use strict;
-use warnings;
-use Moose::Util::TypeConstraints;
-use NetAddr::IP;
-use pf::util qw(normalize_time);
+use Moose;
 
-subtype 'NetAddrIpStr', as 'NetAddr::IP';
-
-coerce 'NetAddrIpStr', from 'Str', via { NetAddr::IP->new($_) };
-
-subtype 'RegexpRefStr', as 'RegexpRef';
-
-coerce 'RegexpRefStr', from 'Str', via {qr/$_/};
-
-subtype 'PfInterval', as 'Int';
-
-coerce 'PfInterval', from 'Str', via { return normalize_time($_) };
-
-no Moose::Util::TypeConstraints;
+BEGIN { extends 'pfappserver::PacketFence::Controller::Config::Pfmon'; }
 
 =head1 AUTHOR
 
@@ -59,5 +41,7 @@ USA.
 
 =cut
 
-1;
 
+__PACKAGE__->meta->make_immutable;
+
+1;

@@ -1,38 +1,39 @@
-package pf::Moose::Types;
+package pf::pfmon::task::violation_maintenance;
 
 =head1 NAME
 
-pf::Moose::Types -
+pf::pfmon::task::violation_maintenance - class for pfmon task violation maintenance
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::Moose::Types
+pf::pfmon::task::violation_maintenance
 
 =cut
 
 use strict;
 use warnings;
-use Moose::Util::TypeConstraints;
-use NetAddr::IP;
-use pf::util qw(normalize_time);
+use Moose;
+use pf::violation;
+extends qw(pf::pfmon::task);
 
-subtype 'NetAddrIpStr', as 'NetAddr::IP';
+has 'batch' => ( is => 'rw');
+has 'timeout' => ( is => 'rw', isa => 'PfInterval', coerce => 1 );
 
-coerce 'NetAddrIpStr', from 'Str', via { NetAddr::IP->new($_) };
+=head2 run
 
-subtype 'RegexpRefStr', as 'RegexpRef';
+run the violation maintenance task
 
-coerce 'RegexpRefStr', from 'Str', via {qr/$_/};
+=cut
 
-subtype 'PfInterval', as 'Int';
-
-coerce 'PfInterval', from 'Str', via { return normalize_time($_) };
-
-no Moose::Util::TypeConstraints;
+sub run {
+    my ($self) = @_;
+    violation_maintenance($self->batch, $self->timeout);
+}
 
 =head1 AUTHOR
+
 
 Inverse inc. <info@inverse.ca>
 
@@ -60,4 +61,3 @@ USA.
 =cut
 
 1;
-

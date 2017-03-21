@@ -1,40 +1,47 @@
-package pf::Moose::Types;
+package pfappserver::Form::Config::Pfmon::cleanup_chi_database_cache;
 
 =head1 NAME
 
-pf::Moose::Types -
-
-=cut
+pfappserver::Form::Config::Pfmon::cleanup_chi_database_cache - Web form for cleanup_chi_database_cache pfmon task
 
 =head1 DESCRIPTION
 
-pf::Moose::Types
+Web form for cleanup_chi_database_cache pfmon task
 
 =cut
 
-use strict;
-use warnings;
-use Moose::Util::TypeConstraints;
-use NetAddr::IP;
-use pf::util qw(normalize_time);
+use HTML::FormHandler::Moose;
 
-subtype 'NetAddrIpStr', as 'NetAddr::IP';
+use pfappserver::Form::Config::Pfmon qw(default_field_method);
 
-coerce 'NetAddrIpStr', from 'Str', via { NetAddr::IP->new($_) };
+extends 'pfappserver::Form::Config::Pfmon';
 
-subtype 'RegexpRefStr', as 'RegexpRef';
+has_field 'batch' => (
+    type => 'PosInteger',
+    default_method => \&default_field_method,
+);
 
-coerce 'RegexpRefStr', from 'Str', via {qr/$_/};
+has_field 'timeout' => (
+    type => 'Duration',
+    default_method => \&default_field_method,
+);
 
-subtype 'PfInterval', as 'Int';
 
-coerce 'PfInterval', from 'Str', via { return normalize_time($_) };
+=head2 default_type
 
-no Moose::Util::TypeConstraints;
+default value of type
 
-=head1 AUTHOR
+=cut
 
-Inverse inc. <info@inverse.ca>
+sub default_type {
+    return "cleanup_chi_database_cache";
+}
+
+has_block  definition =>
+  (
+    render_list => [qw(type status interval batch timeout)],
+  );
+
 
 =head1 COPYRIGHT
 
@@ -59,5 +66,6 @@ USA.
 
 =cut
 
-1;
+__PACKAGE__->meta->make_immutable;
 
+1;

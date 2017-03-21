@@ -1,38 +1,36 @@
-package pf::Moose::Types;
+package pf::pfmon::task::acct_maintenance;
 
 =head1 NAME
 
-pf::Moose::Types -
+pf::pfmon::task::acct_maintenance - class for pfmon task acct maintenance
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::Moose::Types
+pf::pfmon::task::acct_maintenance
 
 =cut
 
 use strict;
 use warnings;
-use Moose::Util::TypeConstraints;
-use NetAddr::IP;
-use pf::util qw(normalize_time);
+use pf::accounting qw(acct_maintenance);
+use Moose;
+extends qw(pf::pfmon::task);
 
-subtype 'NetAddrIpStr', as 'NetAddr::IP';
 
-coerce 'NetAddrIpStr', from 'Str', via { NetAddr::IP->new($_) };
+=head2 run
 
-subtype 'RegexpRefStr', as 'RegexpRef';
+run the acct maintenance task
 
-coerce 'RegexpRefStr', from 'Str', via {qr/$_/};
+=cut
 
-subtype 'PfInterval', as 'Int';
-
-coerce 'PfInterval', from 'Str', via { return normalize_time($_) };
-
-no Moose::Util::TypeConstraints;
+sub run {
+    acct_maintenance();
+}
 
 =head1 AUTHOR
+
 
 Inverse inc. <info@inverse.ca>
 
@@ -60,4 +58,3 @@ USA.
 =cut
 
 1;
-

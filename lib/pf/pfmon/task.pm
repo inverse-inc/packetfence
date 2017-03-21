@@ -1,36 +1,56 @@
-package pf::Moose::Types;
+package pf::pfmon::task;
 
 =head1 NAME
 
-pf::Moose::Types -
+pf::pfmon::task - The base class for pfmon tasks
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::Moose::Types
+pf::pfmon::task
 
 =cut
 
 use strict;
 use warnings;
-use Moose::Util::TypeConstraints;
-use NetAddr::IP;
-use pf::util qw(normalize_time);
 
-subtype 'NetAddrIpStr', as 'NetAddr::IP';
+use pf::util qw(isenabled);
+use pf::Moose::Types;
+use Moose;
 
-coerce 'NetAddrIpStr', from 'Str', via { NetAddr::IP->new($_) };
+has type => (is => 'ro', isa => 'Str', required => 1);
 
-subtype 'RegexpRefStr', as 'RegexpRef';
+has id => (is => 'ro', isa => 'Str', required => 1);
 
-coerce 'RegexpRefStr', from 'Str', via {qr/$_/};
+has status => (is => 'ro', isa => 'Str', required => 1);
 
-subtype 'PfInterval', as 'Int';
+has interval => (is => 'ro', isa => 'PfInterval', required => 1, coerce => 1);
 
-coerce 'PfInterval', from 'Str', via { return normalize_time($_) };
+=head2 run
 
-no Moose::Util::TypeConstraints;
+The method for the sub classes to override
+
+=cut
+
+sub run {
+    my ($proto) = @_;
+    my $class = ref ($proto) || $proto;
+    die "${class}::run was not overridden";
+}
+
+
+=head2 is_enabled
+
+checks if enabled is "true"
+
+=cut
+
+sub is_enabled {
+    my ($self) = @_;
+    return isenabled($self->status);
+}
+
 
 =head1 AUTHOR
 
@@ -60,4 +80,3 @@ USA.
 =cut
 
 1;
-

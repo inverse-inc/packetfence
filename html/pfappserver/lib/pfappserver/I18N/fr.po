@@ -3513,10 +3513,6 @@ msgid ""
 "cloud API"
 msgstr "Fréquence de mise à jour les données locales de Fingerbank depuis l’API du cloud"
 
-# conf/documentation.conf (maintenance.online_node_count_interval)
-msgid "Interval at which PacketFence updates the online node count"
-msgstr "Fréquence de mise à jour du nombre d’appareils en ligne"
-
 # conf/documentation.conf (maintenance.option82_query_interval)
 msgid ""
 "Interval at which PacketFence will query compatible switches for DHCP Option"
@@ -10141,10 +10137,6 @@ msgstr "Plage horaire de nettoyage des appareils"
 # conf/documentation.conf
 msgid "maintenance.nodes_maintenance_interval"
 msgstr "Fréquence de la maintenance des appareils"
-
-# conf/documentation.conf
-msgid "maintenance.online_node_count_interval"
-msgstr "Fréquence de mise à jour du status des appareils en ligne"
 
 # conf/documentation.conf
 msgid "maintenance.option82_query_interval"

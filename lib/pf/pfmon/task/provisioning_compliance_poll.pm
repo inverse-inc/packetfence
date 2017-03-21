@@ -1,38 +1,40 @@
-package pf::Moose::Types;
+package pf::pfmon::task::provisioning_compliance_poll;
 
 =head1 NAME
 
-pf::Moose::Types -
+pf::pfmon::task::provisioning_compliance_poll - class for pfmon task provisioning compliance poll
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::Moose::Types
+pf::pfmon::task::provisioning_compliance_poll
 
 =cut
 
 use strict;
 use warnings;
-use Moose::Util::TypeConstraints;
-use NetAddr::IP;
-use pf::util qw(normalize_time);
+use Moose;
+extends qw(pf::pfmon::task);
 
-subtype 'NetAddrIpStr', as 'NetAddr::IP';
+=head2 run
 
-coerce 'NetAddrIpStr', from 'Str', via { NetAddr::IP->new($_) };
+Polls each provisioner to enforce compliance
 
-subtype 'RegexpRefStr', as 'RegexpRef';
+=cut
 
-coerce 'RegexpRefStr', from 'Str', via {qr/$_/};
-
-subtype 'PfInterval', as 'Int';
-
-coerce 'PfInterval', from 'Str', via { return normalize_time($_) };
-
-no Moose::Util::TypeConstraints;
+sub run {
+    my ($self) = @_;
+    foreach my $id (@{pf::ConfigStore::Provisioning->new->readAllIds}) {
+        my $provisioner = pf::factory::provisioner->new($id);
+        if($provisioner->supportsPolling){
+            $provisioner->pollAndEnforce($self->interal);
+        }
+    }
+}
 
 =head1 AUTHOR
+
 
 Inverse inc. <info@inverse.ca>
 
@@ -60,4 +62,3 @@ USA.
 =cut
 
 1;
-

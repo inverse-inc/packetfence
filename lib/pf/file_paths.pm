@@ -94,6 +94,7 @@ our (
     $pffilter_socket_path,
     $control_dir,
     $switch_control_dir,
+    $pfmon_config_file, $pfmon_default_config_file,
 );
 
 BEGIN {
@@ -162,6 +163,7 @@ BEGIN {
         $pffilter_socket_path
         $control_dir
         $switch_control_dir
+        $pfmon_config_file $pfmon_default_config_file
     );
 }
 
@@ -250,6 +252,8 @@ $dns_filters_default_config_file = catfile($conf_dir,"dns_filters.conf.defaults"
 $admin_audit_log = catfile($log_dir, "httpd.admin.audit.log");
 $portal_modules_config_file = catfile($conf_dir,"portal_modules.conf");
 $portal_modules_default_config_file = catfile($conf_dir,"portal_modules.conf.defaults");
+$pfmon_config_file = catfile($conf_dir,"pfmon.conf");
+$pfmon_default_config_file = catfile($conf_dir,"pfmon.conf.defaults");
 
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
