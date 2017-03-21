@@ -31,7 +31,7 @@ sub parse {
 
     if(defined($data->{type}) && $data->{type} eq "DHCPACK") {
         my $apiclient = pf::api::queue->new;
-        $apiclient->notify('update_iplog', ( 'mac' => $data->{mac}, ip => $data->{ip} ));
+        $apiclient->notify('update_ip4log', ( 'mac' => $data->{mac}, ip => $data->{ip} ));
     }
 
     return 0;   # Returning 0 to pfdetect indicates "job's done"

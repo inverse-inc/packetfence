@@ -8,61 +8,65 @@ pf::firewallsso
 
 =head1 DESCRIPTION
 
-pf::firewallsso
-
-This module is used for sending firewallsso request to the web api
+Sends firewall SSO request to pfsso engine
 
 =cut
 
 use strict;
 use warnings;
 
-use pf::client;
+use pf::api::jsonrpcclient;
 use pf::config qw(
     %ConfigFirewallSSO
 );
+use pf::constants qw(
+    $TRUE
+);
+use pf::constants::api;
 use pf::log;
+use pf::node();
+use pf::util();
+
 
 =head1 SUBROUTINES
 
 =over
 
-=item new
-
-=cut
-
-sub new {
-   my $logger = get_logger();
-   $logger->debug("instantiating new pf::firewallsso");
-   my ( $class, %argv ) = @_;
-   my $self = bless {}, $class;
-   return $self;
-}
 
 =item do_sso
-
-Send the firewall sso update request to the webapi.
 
 =cut
 
 sub do_sso {
-    my ($self, $method, $mac, $ip, $timeout) = @_;
-    return unless scalar keys %ConfigFirewallSSO;
-    my $logger = get_logger();
+    my ( %postdata ) = @_;
+    my $logger = pf::log::get_logger();
 
-    my $client = pf::client::getClient();
+    unless ( scalar keys %ConfigFirewallSSO ) {
+        $logger->debug("Trying to do firewall SSO without any firewall SSO configured. Exiting");
+        return;
+    }
 
-    my %data = (
-       'method'           => $method,
-       'mac'              => $mac,
-       'ip'               => $ip,
-       'timeout'          => $timeout
-    );
-    $logger->trace("Sending a firewallsso $method for ($mac,$ip) ");
+    my $mac = pf::util::clean_mac($postdata{mac});
+    my $node = pf::node::node_attributes($mac);
 
-    $client->notify('firewallsso', %data );
+    $logger->info("Sending a firewall SSO '$postdata{method}' request for MAC '$mac' and IP '$postdata{ip}'");
 
+    pf::api::jsonrestclient->new(
+        proto   => "http",
+        host    => "localhost",
+        port    => $pf::constants::api::PFSSO_PORT,
+    )->call("/pfsso/".lc($postdata{method}), {
+        ip          => $postdata{ip},
+        mac         => $mac,
+        # All values must be string for pfsso
+        timeout     => $postdata{timeout}."",
+        role        => $node->{category},
+        username    => $node->{pid},
+    });
+
+    return $TRUE;
 }
+
 
 =back
 

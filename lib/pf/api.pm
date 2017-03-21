@@ -43,9 +43,9 @@ use fingerbank::DB;
 use File::Slurp;
 use pf::file_paths qw($captiveportal_profile_templates_path);
 use pf::CHI;
-use pf::access_filter::dhcp;
 use pf::metadefender();
 use pf::services();
+use pf::firewallsso();
 
 use List::MoreUtils qw(uniq);
 use List::Util qw(pairmap);
@@ -203,7 +203,14 @@ sub radius_switch_access : Public {
     return $return;
 }
 
-sub update_iplog : Public :AllowedAsAction(mac, $mac, ip, $ip) {
+
+=head2 update_ip4log
+
+Update ip4log based on provided IP addresses and MAC addresses
+
+=cut
+
+sub update_ip4log : Public :AllowedAsAction(mac, $mac, ip, $ip) {
     my ($class, %postdata) = @_;
     my @require = qw(mac ip);
     my @found = grep {exists $postdata{$_}} @require;
@@ -216,17 +223,50 @@ sub update_iplog : Public :AllowedAsAction(mac, $mac, ip, $ip) {
 
     if ( $postdata{'oldmac'} && $postdata{'oldmac'} ne $postdata{'mac'} ) {
         $logger->info(
-            "oldmac ($postdata{'oldmac'}) and newmac ($postdata{'mac'}) are different for $postdata{'ip'} - closing iplog entry"
+            "oldmac ($postdata{'oldmac'}) and newmac ($postdata{'mac'}) are different for $postdata{'ip'} - closing ip4log entry"
         );
         pf::ip4log::close($postdata{'ip'});
     } elsif ($postdata{'oldip'} && $postdata{'oldip'} ne $postdata{'ip'}) {
         $logger->info(
-            "oldip ($postdata{'oldip'}) and newip ($postdata{'ip'}) are different for $postdata{'mac'} - closing iplog entry"
+            "oldip ($postdata{'oldip'}) and newip ($postdata{'ip'}) are different for $postdata{'mac'} - closing ip4log entry"
         );
         pf::ip4log::close($postdata{'oldip'});
     }
 
     return (pf::ip4log::open($postdata{'ip'}, $postdata{'mac'}, $postdata{'lease_length'}));
+}
+
+
+=head2 update_ip6log
+
+Update ip6log based on provided IP addresses and MAC addresses
+
+=cut
+
+sub update_ip6log : Public :AllowedAsAction(mac, $mac, ip, $ip) {
+    my ($class, %postdata) = @_;
+    my @require = qw(mac ip);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless pf::util::validate_argv(\@require,  \@found);
+
+    my $logger = pf::log::get_logger();
+
+    $postdata{'oldip'}  = pf::ip6log::mac2ip($postdata{'mac'}) if (!defined($postdata{'oldip'}));
+    $postdata{'oldmac'} = pf::ip6log::ip2mac($postdata{'ip'}) if (!defined($postdata{'oldmac'}));
+
+    if ( $postdata{'oldmac'} && $postdata{'oldmac'} ne $postdata{'mac'} ) {
+        $logger->info(
+            "oldmac ($postdata{'oldmac'}) and newmac ($postdata{'mac'}) are different for $postdata{'ip'} - closing ip6log entry"
+        );
+        pf::ip6log::close($postdata{'ip'});
+    } elsif ($postdata{'oldip'} && $postdata{'oldip'} ne $postdata{'ip'}) {
+        $logger->info(
+            "oldip ($postdata{'oldip'}) and newip ($postdata{'ip'}) are different for $postdata{'mac'} - closing ip6log entry"
+        );
+        pf::ip6log::close($postdata{'oldip'});
+    }
+
+    return (pf::ip6log::open($postdata{'ip'}, $postdata{'mac'}, $postdata{'ip_type'}, $postdata{'lease_length'}));
 }
 
 sub unreg_node_for_pid : Public:AllowedAsAction(pid, $pid) {
@@ -275,29 +315,12 @@ sub ipset_node_update : Public {
 }
 
 sub firewallsso : Public {
-    my ($class, %postdata) = @_;
+    my ( $class, %postdata ) = @_;
     my @require = qw(method mac ip timeout);
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
 
-    my $logger = pf::log::get_logger();
-
-    my $node = pf::node::node_attributes($postdata{mac});
-
-    pf::api::jsonrestclient->new(
-        proto => "http", 
-        host => "localhost", 
-        port => $pf::constants::api::PFSSO_PORT,
-    )->call("/pfsso/".lc($postdata{method}), {
-        ip => $postdata{ip}, 
-        mac => pf::util::clean_mac($postdata{mac}),
-        # All values must be string for pfsso
-        timeout => $postdata{timeout}."",
-        role => $node->{category},
-        username => $node->{pid},
-    });
-
-    return $pf::config::TRUE;
+    return pf::firewallsso::do_sso(%postdata);
 }
 
 sub ReAssignVlan : Public : Fork {
@@ -1069,13 +1092,7 @@ sub dynamic_register_node : Public :AllowedAsAction(mac, $mac, username, $userna
 
 sub fingerbank_process : Public {
     my ( $class, $args ) = @_;
-    my $filter = pf::access_filter::dhcp->new;
-    my $rule = $filter->filter('DhcpFingerbank', $args);
-    if (!$rule) {
-        delete $args->{'computer_name'};
-        return (pf::fingerbank::process($args));
-    }
-    return undef;
+    pf::fingerbank::process($args);
 }
 
 =head2 fingerbank_update_component
@@ -1333,7 +1350,7 @@ sub handle_accounting_metadata : Public {
         # Tracking IP address.
         if(pf::util::isenabled($pf::config::Config{advanced}{update_iplog_with_accounting})){
             $logger->info("Updating iplog from accounting request");
-            $client->notify("update_iplog", mac => $mac, ip => $RAD_REQUEST{'Framed-IP-Address'}) if ($RAD_REQUEST{'Framed-IP-Address'} );
+            $client->notify("update_ip4log", mac => $mac, ip => $RAD_REQUEST{'Framed-IP-Address'}) if ($RAD_REQUEST{'Framed-IP-Address'} );
         }
         else {
             pf::log::get_logger->debug("Not handling iplog update because we're not configured to do so on accounting packets.");
