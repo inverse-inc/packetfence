@@ -840,8 +840,9 @@ You should validate that you are able to connect to the MySQL database even thou
 Sync nodes A and B
 ++++++++++++++++++
 
-On each of the servers you want to discard the data from, you must destroy all the data in `/var/lib/mysql` and start packetfence-mariadb so it resyncs its data from scratch.
+On each of the servers you want to discard the data from, stop packetfence-mariadb, you must destroy all the data in `/var/lib/mysql` and start packetfence-mariadb so it resyncs its data from scratch.
 
+  # service packetfence-mariadb stop
   # rm -fr /var/lib/mysql/*
   # service packetfence-mariadb start
 
