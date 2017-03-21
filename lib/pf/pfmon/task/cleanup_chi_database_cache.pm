@@ -22,13 +22,14 @@ extends qw(pf::pfmon::task);
 has 'batch' => ( is => 'rw', default => 1000 );
 has 'timeout' => ( is => 'rw', default => 10 );
 
+
+my $logger = get_logger();
+
 =head2 run
 
 run the cleanup chi database cache task
 
 =cut
-
-my $logger = get_logger();
 
 sub run {
     my ($self) = @_;
