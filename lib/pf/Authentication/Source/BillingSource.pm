@@ -18,7 +18,6 @@ use pf::config qw($default_pid $fqdn %Config);
 use pf::constants qw($TRUE $FALSE);
 use pf::Authentication::constants;
 use pf::util;
-use pf::web::constants;
 use utf8;
 use Locale::gettext qw(gettext ngettext);
 
@@ -183,6 +182,7 @@ confirmationInfo
 
 sub confirmationInfo {
     my ($self, $parameters, $tier, $session) = @_;
+    require pf::web::constants;
     return {
         'firstname'        => $parameters->{firstname},
         'lastname'         => $parameters->{lastname},
