@@ -833,7 +833,11 @@ Next, enable node C on nodes A and B by executing the following command on the t
 
   # /usr/local/pf/bin/cluster/node node-C-hostname enable
 
-Now, stop packetfence-mariadb on node C (`service packetfence-mariadb stop`) and elect node C as the master using `/usr/local/pf/sbin/pf-mariadb --force-new-cluster` and leave the process in foreground. 
+Now, stop packetfence-mariadb on node C, regenerate the MariaDB configuration and start it as a new master:
+
+ # service packetfence-mariadb stop
+ # /usr/local/pf/bin/pfcmd generatemariadbconfig
+ # /usr/local/pf/sbin/pf-mariadb --force-new-cluster 
 
 You should validate that you are able to connect to the MySQL database even though it is in read-only mode using the MySQL command line. If its not, make sure you check the MySQL log (`/var/lib/mysql/PF_HOSTNAME.err`)
 
