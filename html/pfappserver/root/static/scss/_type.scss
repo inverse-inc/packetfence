@@ -1,0 +1,34 @@
+/// _type.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2 -*-
+
+h2 {
+  font-size: $baseLineHeight;
+  font-weight: 200;
+}
+
+.p3 {
+  color: #565656;
+  font-size: $baseFontSize - 1;
+}
+
+.p-info,
+.p-warning {
+  &:before {
+    font-family: FontAwesome;
+    font-size: $baseFontSize;
+    margin-right: 0.25em;
+  }  
+}
+
+.p-info {
+  &:before {
+    @extend .icon-info-circle:before;
+  }  
+}
+
+.p-warning {
+  &:before {
+    @extend .icon-exclamation-circle:before;
+    color: $warningText;
+    color: $btnWarningBackgroundHighlight;
+  }  
+}

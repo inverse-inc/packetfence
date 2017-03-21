@@ -1,0 +1,46 @@
+/// _buttons.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2 -*-
+
+.btn {
+  font-size: $baseFontSize - 2;
+  background: none;
+  border: 1px solid $btnBorder;
+  color: darken($btnBorder, 40%);;
+  box-shadow: none;
+  text-shadow: none;
+  text-transform: uppercase;
+}
+
+.btn {
+  font-size: $baseFontSize - 2;
+}
+
+.btn-link {
+  border-color: transparent;
+}
+
+.btn-primary {
+  border-color: $btnPrimaryBackground;
+  color: $btnPrimaryBackground;
+}
+
+.btn-info {
+  border-color: $btnInfoBackground;
+  color: $btnInfoBackground;
+}
+
+.btn-success {
+  border-color: $btnSuccessBackground;
+  color: $btnSuccessBackground;
+}
+
+.btn-warning {
+  border-color: $btnWarningBackground;
+  color: $btnWarningBackground;
+}
+
+.btn-danger,
+.btn-danger.disabled {
+  background-color: $white;
+  border-color: $btnDangerBackground;
+  color: $btnDangerBackground;
+}

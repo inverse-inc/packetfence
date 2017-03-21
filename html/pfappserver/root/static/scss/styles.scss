@@ -1,0 +1,78 @@
+/// styles.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2 -*-
+
+//@import "bootstrap";
+
+// Core variables and mixins
+@import "variables";
+@import "bootstrap/variables"; // Modify this for custom colors, font-sizes, etc
+@import "bootstrap/mixins";
+
+// CSS Reset
+@import "bootstrap/reset";
+
+// Grid system and page structure
+@import "bootstrap/scaffolding";
+@import "bootstrap/grid";
+@import "bootstrap/layouts";
+
+// Base CSS
+@import "bootstrap/type";
+@import "type";
+@import "bootstrap/code";
+@import "bootstrap/forms";
+@import "forms";
+@import "bootstrap/tables";
+
+// Components: common
+//@import "bootstrap/sprites";
+@import "bootstrap/dropdowns";
+@import "dropdowns";
+@import "bootstrap/wells";
+@import "bootstrap/component-animations";
+@import "bootstrap/close";
+
+// Components: Buttons & Alerts
+@import "bootstrap/buttons";
+@import "buttons";
+@import "bootstrap/button-groups";
+@import "button-groups";
+@import "bootstrap/alerts"; // Note: alerts share common CSS with buttons and thus have styles in buttons
+
+// Components: Nav
+@import "bootstrap/navs";
+@import "navs";
+@import "bootstrap/navbar";
+@import "navbar";
+@import "bootstrap/breadcrumbs";
+@import "bootstrap/pagination";
+@import "bootstrap/pager";
+
+// Components: Popovers
+@import "bootstrap/modals";
+@import "bootstrap/tooltip";
+@import "bootstrap/popovers";
+
+// Components: Misc
+@import "bootstrap/thumbnails";
+@import "bootstrap/media";
+@import "bootstrap/labels-badges";
+@import "bootstrap/progress-bars";
+@import "bootstrap/accordion";
+@import "bootstrap/carousel";
+@import "bootstrap/hero-unit";
+
+// Utility classes
+@import "bootstrap/utilities"; // Has to be last to override when necessary
+
+// Chosen component
+@import "chosen";
+
+// Custom components for pfappserver
+@import "body";
+@import "sidenav";
+@import "icon";
+@import "card";
+
+// Responsive
+@import "bootstrap/responsive";
+@import "responsive-navbar";

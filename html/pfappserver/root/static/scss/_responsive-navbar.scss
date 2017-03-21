@@ -1,0 +1,10 @@
+/// _responsive-navbar.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2 -*-
+
+/**
+ * Remove extra padding on tablet and bellow
+ */
+@media (max-width: $navbarCollapseWidth) {
+  .navbar-fixed-top {
+    margin-bottom: 0;
+  }
+}

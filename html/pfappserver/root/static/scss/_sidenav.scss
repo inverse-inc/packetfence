@@ -1,0 +1,73 @@
+/// _sidenav.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2 -*-
+
+$sidenavCategoryColorActive: lighten($blue, 30%);
+
+.sidenav {
+  position: fixed;
+  height: 100%;
+  margin-left: 0;
+  padding-top: $baseFontSize;
+  overflow: hidden;
+  overflow-y: auto;
+}
+
+.sidenav-fluid {
+  @include grid-fluid($fluidGridColumnWidth + $fluidGridGutterWidth, 0);
+}
+
+.sidenav-icon-list {
+  display: inline-block;
+  li {
+    min-height: 2em;
+    padding: $paddingLarge; 
+    text-align: center;
+  }
+}
+
+.sidenav {
+  @extend .navbar-inverse;
+  border-color: $navbarInverseBorder;
+
+  .nav-header,
+  .nav-header li {
+    color: $sidenavCategoryColorActive;
+    text-shadow: none;
+  }
+
+  .nav > li > a:hover {
+    color: darken($navbarInverseLinkColorHover, 20%);
+  }
+
+  .nav .active > a,
+  .nav .active > a:hover {
+    background-color: initial;
+  }
+}
+
+.sidenav-category {  
+  @include gradient-vertical($navbarInverseBackgroundHighlight, $navbarInverseBackground);
+
+  &.sidenav .nav .active > a,
+  &.sidenav .nav .active > a:hover {
+    color: $sidenavCategoryColorActive;
+    text-shadow: 0 0 6px $sidenavCategoryColorActive;
+  }
+}
+
+.sidenav-section {
+  @include gradient-vertical($navbarInverseBackgroundHighlight, lighten($navbarInverseBackground, 10%));
+
+  &.sidenav .nav .active > a {
+    @include gradient-horizontal(lighten($navbarInverseBackgroundHighlight, 5%), lighten($navbarInverseBackgroundHighlight, 10%));
+  }
+}
+
+.sidenav .divider {
+  background-color: lighten($navbarInverseBackgroundHighlight, 10%);
+  border-bottom-color: lighten($navbarInverseBackground, 10%);
+}
+
+.sidenav .divider-horizontal {
+  border-top: 1px solid $sidenavCategoryColorActive;
+  box-shadow: 0 0 6px $sidenavCategoryColorActive;
+}

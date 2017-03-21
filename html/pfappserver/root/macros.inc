@@ -4,6 +4,11 @@
 
 [%- MACRO i18n_format(text, args) BLOCK;c.localize(text, args) | none;END -%]
 
+[%- MACRO doc(section, guide) BLOCK -%]
+[%- UNLESS guide; guide = 'Administration_Guide'; END -%]
+<a href="https://packetfence.org/doc/PacketFence_[% guide %].html#[% section %]"><i class="icon-question-circle-o"></i></a>
+[%- END -%]
+
 [%- MACRO pagination_path(section, params)  BLOCK -%]
     [%- tags =  [ 'page_num'  'by'  'direction'  'per_page'  'filter'] -%]
     [%- "${section}" -%]

@@ -1,0 +1,22 @@
+/// _icon.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2 -*-
+
+$fa-font-path: "../font";
+$fa-css-prefix: icon;
+$fa-font-size-base: $baseFontSize;
+$fa-line-height-base: 1;
+                      
+/**
+ * Don't require the icon to include the prefix.
+ *
+ * @see bower_components/font-awesome/scss/_core.scss
+ */
+[class|=#{$fa-css-prefix}] {
+  display: inline-block;
+  font: normal normal normal #{$fa-font-size-base}/#{$fa-line-height-base} FontAwesome; // shortening font declaration
+  font-size: inherit; // can't have font-size inherit on line above, so need to override
+  text-rendering: auto; // optimizelegibility throws things off #1094
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@import "font-awesome";

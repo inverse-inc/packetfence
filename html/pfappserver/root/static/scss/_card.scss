@@ -1,0 +1,58 @@
+/// _card.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2 -*-
+
+.card {
+  position: relative;
+  display: block;
+  background-color: #fff;
+  width: 100%;
+  margin-top: 24px;
+  margin: $baseLineHeight 0;
+  box-shadow: 0 3px 0 0 #d7d7d7;
+  border-radius: $baseBorderRadius;
+  border: 1px solid #d7d7d7;
+}
+
+.card .navbar {
+  margin-bottom: 0;
+}
+
+.card-title,
+.card .navbar-inner {
+  background: none;
+  border: none;
+  box-shadow: none;
+  border-bottom: 1px solid $navbarBorder;
+  border-radius: 0;
+  letter-spacing: normal;
+  padding: $fontSizeSmall $baseLineHeight;
+}
+
+.card-block {
+  border-bottom: 1px solid #eee;
+  padding: 12px 18px;
+  display: block;
+  @include clearfix();
+}
+
+.card .form-actions {
+  margin: 0;
+  background-color: initial;
+  border-top: none;
+}
+
+.card .form-horizontal .form-actions {
+  margin: 0 $baseLineHeight;
+}
+
+.card-block form:not([class~=form-horizontal]) .form-actions {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.card .card {
+  border: 0;
+  margin: 0;
+  .card-title {
+    padding-top: 0;
+  }
+}

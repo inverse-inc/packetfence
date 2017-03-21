@@ -1,0 +1,32 @@
+/// _navbar.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2 -*-
+
+/**
+ * Adjust padding of PacketFence logo. Expected height of logo is 30px.
+ */
+.navbar .brand {
+  padding: floor(($navbarHeight - 30)/2) 20px;
+}
+
+/**
+ * Use nav-header in navbar but remove extra padding.
+ */
+.navbar .nav-header {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/**
+ * Display top border for active entry.
+ */
+.navbar .nav .active > a {
+  border-top: 2px solid $white;
+  box-shadow: inset 0 6px 8px -8px white
+}
+
+/**
+ * Links under collapsable entries should take all space
+ */
+.nav .collapse a {
+  display: block;
+  width: 100%;
+}
