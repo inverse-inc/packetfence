@@ -6,6 +6,8 @@ pfappserver::Form::Config::Pfmon::[% class %] - Web form for [% class %] pfmon t
 
 =head1 DESCRIPTION
 
+Web form for [% class %] pfmon task
+
 =cut
 
 use HTML::FormHandler::Moose;
@@ -15,10 +17,15 @@ use pfappserver::Form::Config::Pfmon qw(default_field_method);
 extends 'pfappserver::Form::Config::Pfmon';
 
 [% FOREACH attrib IN attributes -%]
-has_field '[% attrib.name %]' => ( 
-    type => '[% attrib.field_type %]', 
+has_field '[% attrib.name %]' => (
+    type => '[% attrib.field_type %]',
+[%IF attrib.field_type == 'Toggle' -%]
+    checked_value => 'enabled',
+    unchecked_value => 'disabled',
+[% END -%]
     default_method => \&default_field_method,
 );
+
 [% END -%]
 
 =head2 default_type

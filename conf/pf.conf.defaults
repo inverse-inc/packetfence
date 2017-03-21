@@ -1056,6 +1056,11 @@ locationlog_cleanup_window=1W
 # maintenance.ip4log_cleanup_rotate_window
 #
 # How long to keep iplog history entry before rotating it to iplog archive (or deleting it if rotation is disabled).
+ip4log_cleanup_rotate=disabled
+#
+# maintenance.ip4log_cleanup_rotate_window
+#
+# How long to keep iplog history entry before rotating it to iplog archive (or deleting it if rotation is disabled).
 ip4log_cleanup_rotate_window=1W
 #
 # maintenance.ip4log_cleanup_rotate_batch

@@ -35,7 +35,8 @@ my @config_info;
 my %field_types = (
     window => 'Duration',
     timeout => 'Duration',
-    batch => 'PosInteger'
+    batch => 'PosInteger',
+    rotate => 'Toggle',
 );
 
 foreach my $task (sort @tasks) {
@@ -62,10 +63,14 @@ foreach my $task (sort @tasks) {
         }
         my $default = $value;
         my $type = $Doc_Config{"maintenance.$attrib_name"}{type};
+        my $field_type = 'Text';
         if ($type eq 'time') {
             $default = normalize_time($default);
-        } elsif ($type ne 'numeric') {
-            $default = "\"$default\"";
+            $field_type = 'Duration';
+        } elsif ($type eq 'toggle') {
+            $field_type = 'Toggle';
+        } elsif ($type eq 'numeric') {
+            $field_type = 'PosInteger';
         }
         my $name = $attrib_name;
         $name =~ s/^${task}_//;
@@ -73,7 +78,7 @@ foreach my $task (sort @tasks) {
             $vars{HAS_WINDOW} = 1;
             $vars{enabled} = 'disabled' if $default == 0;
         }
-        push @attributes, {name => $name, default => $default, value => $value, comment => mk_comment($class, $name), field_type => mk_field_type($class, $name) };
+        push @attributes, {name => $name, default => $default, value => $value, comment => mk_comment($class, $name), field_type => $field_type };
     }
 
     my $out_path = "lib/pf/pfmon/task/${class}.pm";
@@ -100,6 +105,9 @@ foreach my $task (sort @tasks) {
 sub mk_field_type {
     my ($class, $name) = @_;
     return $field_types{$name} if exists $field_types{$name};
+    while (my ($k, $v) = each %field_types) {
+        return $v if $name =~ /_\Q$k\E$/;
+    }
     return 'Text';
 }
 $tt->process("pfmon.conf.tt",{ 'configs' => \@config_info}, "conf/pfmon.conf.defaults") or die $tt->error;
