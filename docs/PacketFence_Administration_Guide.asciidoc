@@ -3279,7 +3279,7 @@ Where `violationId` is either the ID of the Nessus plugin or the OID of the Open
 NOTE: Violations will trigger if the plugin is higher than a low severity vulnerability.
 
 Assign Scan definition to connection profiles
-+++++++++++++++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++++++++++++++
 
 The last step is to assign one or more scanner you configured to one or more connection profiles.
 Go in Configuration -> Policies and Access Control -> Connection Profiles -> Edit a Profile -> Add Scan
@@ -3448,7 +3448,7 @@ Finally, it is advised that you read the whole guest self-registration section s
 CAUTION: A valid MTA configured in PacketFence is needed to correctly relay emails related to the guest module. If _localhost_ is used as smtpserver, make sure that a MTA is installed and configured on the server.
 
 Active Directory Integration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Deleted Account
 ^^^^^^^^^^^^^^^
@@ -3526,7 +3526,7 @@ At the bottom, select in the list "Run a new instance in parallel" in order to u
 Validate with Ok and give the account who will run this task. (Usually _DOMAIN\Administrator_)
 
 Disabled Account
-^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^
 
 Create the script `unreg_node_disabled_account.ps1` on the Windows Server with the following content. Make sure to change `@IP_PACKETFENCE` to the IP address of your PacketFence server. You'll also need to change the username and password as they must match the credentials defined in the Web admin interface under *Configuration -> Advanced Portal Configuration -> Web Services*.
 
