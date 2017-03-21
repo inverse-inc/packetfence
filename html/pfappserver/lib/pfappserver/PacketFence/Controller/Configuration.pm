@@ -51,7 +51,6 @@ our %ALLOWED_SECTIONS = (
     billing => undef,
     alerting => undef,
     scan => undef,
-    roles => undef,
     maintenance => undef,
     expire => undef,
     services => undef,

@@ -83,18 +83,6 @@ sub index :Path :Args(0) {
     $c->forward('list');
 }
 
-=head2 view
-
-=cut
-
-sub view :Path :Args(1) {
-    my ($self, $c, $name) = @_;
-    
-    $c->stash->{tab} = $name;
-    $self->object($c, $name);
-    $c->stash->{template} = "config/roles/index.tt";
-}
-
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2017 Inverse inc.

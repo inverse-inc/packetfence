@@ -1,4 +1,4 @@
-      <div class="modal fade hide" id="modalRole">
+<div class="modal fade hide" id="modalRole">
       </div>
 
       <h2>[% l('Roles')  %]</h2>
