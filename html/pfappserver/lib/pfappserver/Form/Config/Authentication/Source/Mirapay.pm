@@ -21,7 +21,7 @@ with 'pfappserver::Base::Form::Role::Help';
 
 has_field base_url => (
     type => 'Select',
-    label => 'Mirapay Iframe Base url',
+    label => 'Iframe Base url',
     options => [
         { label => 'Staging', value => "https://staging.eigendev.com/MiraSecure/GetToken.php" },
         { label => 'Prod 1',  value => "https://ms1.eigendev.com/MiraSecure/GetToken.php" },
@@ -33,15 +33,16 @@ has_field base_url => (
 
 has_field direct_base_url => (
     type => 'Text',
-    label => 'Mirapay Direct Base url',
+    label => 'Direct Base url',
     default => "https://staging.eigendev.com/OFT/EigenOFT_d.php",
     required => 1,
-    element_class => ['input-xlarge'],
+    element_class => ['input-xxlarge'],
 );
 
 has_field terminal_id => (
     type => 'Text',
     label => 'Terminal ID',
+    required => 1,
     tags => {
         after_element => \&help,
         help => 'Terminal ID for Mirapay Direct',
@@ -97,11 +98,29 @@ has_field merchant_id => (
 
 has_block definition => (
     render_list => [qw(
-        base_url direct_base_url service_fqdn
-        merchant_id shared_secret terminal_id
-        shared_secret_direct currency test_mode
-        create_local_account local_account_logins
+        service_fqdn
+        currency
+        test_mode
+        create_local_account
+        local_account_logins
         send_email_confirmation
+    )]
+);
+
+has_block iframe => (
+    render_list => [qw(
+        base_url
+        merchant_id
+        shared_secret
+    )]
+);
+
+has_block direct => (
+    render_list => [qw(
+        direct_base_url
+        terminal_id
+        shared_secret_direct
+        terminal_group_id
     )]
 );
 
