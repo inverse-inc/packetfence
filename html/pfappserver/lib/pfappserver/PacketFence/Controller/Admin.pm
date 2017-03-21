@@ -260,7 +260,6 @@ sub reports :Chained('object') :PathPart('reports') :Args(0) :AdminRole('REPORTS
 
 sub auditing :Chained('object') :PathPart('auditing') :Args(0) :AdminRole('AUDITING_READ') {
     my ( $self, $c ) = @_;
-    $c->forward('auditing_radius_log');
 }
 
 =head2 auditing_radius_log
