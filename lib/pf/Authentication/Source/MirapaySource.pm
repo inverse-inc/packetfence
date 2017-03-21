@@ -115,6 +115,7 @@ has merchant_id => (
 
 has terminal_id => (
     is => 'rw',
+    required => 1,
 );
 
 has terminal_group_id => (
