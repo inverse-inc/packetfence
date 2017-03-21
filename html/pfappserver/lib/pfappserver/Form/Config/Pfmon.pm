@@ -2,11 +2,11 @@ package pfappserver::Form::Config::Pfmon;
 
 =head1 NAME
 
-pfappserver::Form::Config::Pfmon - Web form for an admin role
+pfappserver::Form::Config::Pfmon - Web form for pfmon.conf
 
 =head1 DESCRIPTION
 
-Form definition to create or update an admin role
+Form definition to update an pfmon tasks
 
 =cut
 
