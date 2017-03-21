@@ -8,6 +8,8 @@ use pf::ConfigStore::MultiCluster;
 use pf::multi_cluster::region;
 use pf::file_paths qw(
     $conf_dir
+    $ansible_hosts_file
+    $ansible_configuration_playbook_file
 );
 use File::Slurp qw(write_file);
 
@@ -38,11 +40,17 @@ sub findObject {
     }
 }
 
-sub generateAnsibleHosts {
-    my ($dst) = @_;
+sub generateAnsibleConfig {
     my $template = Template->new({ABSOLUTE => 1});
+
+    my $dst = $ansible_hosts_file;
     my $output;
     $template->process($conf_dir."/ansible/hosts.tt", {regions => {rootRegion()->name => rootRegion()}}, \$output) or die $template->error();
+    write_file($dst, $output);
+
+    $dst = $ansible_configuration_playbook_file;
+    $output = undef;
+    $template->process($conf_dir."/ansible/packetfence-configuration.yml.tt", {}, \$output) or die $template->error();
     write_file($dst, $output);
 }
 

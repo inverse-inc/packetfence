@@ -71,9 +71,9 @@ sub action_generatedeltas {
     pf::multi_cluster::generateDeltas($self->{scope});
 }
 
-sub action_generateansiblehosts {
+sub action_generateansibleconfig {
     my ($self) = @_;
-    pf::multi_cluster::generateAnsibleHosts($ansible_hosts_file);
+    pf::multi_cluster::generateAnsibleConfig();
 }
 
 sub parse_pushconfiguration {
