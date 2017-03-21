@@ -8,7 +8,7 @@
 
 [[% o.name %]]
 [% FOREACH serverId IN o.childs.keys ; server=o.childs.$serverId ;
-  server.name _ "host_path=" _ server.path _ "\n"; 
+  server.name _ " host_path=" _ o.path _ "\n"; 
 END %]
 
 [% ELSIF o.ref == "pf::multi_cluster::region" %]
