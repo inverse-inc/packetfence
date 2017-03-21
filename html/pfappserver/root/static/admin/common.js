@@ -436,6 +436,7 @@ $(function () { // DOM ready
             else
                 $section.hide();
         });
+        $('.sidenav-section .active').removeClass('active');
     }
     $('.sidenav-category a').click(function(event) {
         var li = $(this).parent();
@@ -447,7 +448,6 @@ $(function () { // DOM ready
         var item = $(this).parent();
         var category = item.closest('.sidenav-section').attr('data-category');
         _enableCategory(category);
-        $('.sidenav-section .active').removeClass('active');
         item.addClass('active');
         return true;
     });
