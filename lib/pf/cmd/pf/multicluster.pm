@@ -12,9 +12,10 @@ pf::cmd::pf::multicluster
 
   Commands:
 
-   generateconfig <scope>  | generate the configuration to be pushed for a scope in /usr/local/pf/var/multi-cluster/
-   generatedeltas <scope>  | generate the delta files for all regions/clusters/servers in /usr/local/pf/conf/multi-cluster/
-   generateansiblehosts    | generate the ansible hosts file
+   generateconfig [<scope>]  | generate the configuration to be pushed for a scope in /usr/local/pf/var/multi-cluster/
+   generatedeltas [<scope>]  | generate the delta files for all regions/clusters/servers in /usr/local/pf/conf/multi-cluster/
+   generateansibleconfig     | generate the ansible configuration and playbooks
+   play <playbook> [<scope>] | play an ansible playbook on the desired scope
 
 =head1 DESCRIPTION
 
@@ -31,6 +32,7 @@ use pf::constants;
 use pf::file_paths qw(
     $ansible_hosts_file
 );
+use pf::util;
 
 =head1 METHODS
 
@@ -76,14 +78,25 @@ sub action_generateansibleconfig {
     pf::multi_cluster::generateAnsibleConfig();
 }
 
-sub parse_pushconfiguration {
-    return parse_scope_command(@_);
+sub parse_play {
+    my ($self, @args) = @_;
+    
+    $self->{args} = \@args;
+    $self->{playbook} = pf::multi_cluster::findAnsiblePlaybook(shift @{$self->{args}});
+    unless(defined($self->{playbook})) {
+        print STDERR "Cannot find playbook to execute.\n";
+        return 0;
+    }
+
+    my $result = $self->lookup_scope();
+    return $result unless($result);
 }
 
-sub action_pushconfiguration {
+sub action_play {
     my ($self) = @_;
+    my $playbook = untaint_chain($self->{playbook});
     my $scope = $self->{scope} ? $self->{scope}->name : "ROOT";
-    exec("/usr/bin/ansible-playbook /etc/ansible/packetfence-configuration.yml --extra-vars \"target=$scope\"");
+    exec("/usr/bin/ansible-playbook $playbook --extra-vars \"target=$scope\"");
 }
 
 =head1 AUTHOR

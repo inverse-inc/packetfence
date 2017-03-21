@@ -1,0 +1,7 @@
+---
+- hosts: "{{ target }}"
+  remote_user: root
+  tasks:
+    - name: Restart PacketFence
+      command: /usr/local/pf/bin/pfcmd service pf restart
+

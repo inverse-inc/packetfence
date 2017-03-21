@@ -101,6 +101,7 @@ our (
     $multi_cluster_config_file,
     $ansible_hosts_file,
     $ansible_configuration_playbook_file,
+    $ansible_restart_playbook_file,
 );
 
 BEGIN {
@@ -176,6 +177,7 @@ BEGIN {
         $multi_cluster_config_file
         $ansible_hosts_file
         $ansible_configuration_playbook_file
+        $ansible_restart_playbook_file
     );
 }
 
@@ -231,6 +233,7 @@ $admin_roles_config_file = catfile($conf_dir, "adminroles.conf");
 $multi_cluster_config_file = catfile($conf_dir, "multi-cluster.conf");
 $ansible_hosts_file = catfile("/etc/ansible/hosts");
 $ansible_configuration_playbook_file = catfile("/etc/ansible/packetfence-configuration.yml");
+$ansible_restart_playbook_file = catfile("/etc/ansible/packetfence-restart.yml");
 
 $violations_config_file       = catfile($conf_dir, "violations.conf");
 $authentication_config_file   = catfile($conf_dir, "authentication.conf");

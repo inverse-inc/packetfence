@@ -10,6 +10,7 @@ use pf::file_paths qw(
     $conf_dir
     $ansible_hosts_file
     $ansible_configuration_playbook_file
+    $ansible_restart_playbook_file
 );
 use File::Slurp qw(write_file);
 
@@ -52,6 +53,18 @@ sub generateAnsibleConfig {
     $output = undef;
     $template->process($conf_dir."/ansible/packetfence-configuration.yml.tt", {}, \$output) or die $template->error();
     write_file($dst, $output);
+    
+    $dst = $ansible_restart_playbook_file;
+    $output = undef;
+    $template->process($conf_dir."/ansible/packetfence-restart.yml.tt", {}, \$output) or die $template->error();
+    write_file($dst, $output);
+}
+
+sub findAnsiblePlaybook {
+    my ($playbook) = @_;
+    return unless(defined($playbook));
+    $playbook = "/etc/ansible/packetfence-$playbook.yml";
+    return (-f $playbook) ? $playbook : undef;
 }
 
 sub generateConfig {
