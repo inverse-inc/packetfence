@@ -777,7 +777,7 @@ PacketFence needs sometimes to establish an interactive command-line session wit
   cliPwd = admin_pwd
   cliEnablePwd =
 
-It can also be done through the Web Administration Interface under *Configuration -> Switches*.
+It can also be done through the Web Administration Interface under *Configuration -> Policies and Access Control -> Switches*.
 
 Web Services Interface
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -788,7 +788,7 @@ PacketFence sometimes needs to establish a dialog with the Web Services capabili
   wsUser = admin
   wsPwd = admin_pwd
 
-It can also be done through the Web Administration Interface under *Configuration -> Switches*.
+It can also be done through the Web Administration Interface under *Configuration -> Policies and Access Control -> Switches*.
 
 Role-based enforcement support
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -807,7 +807,7 @@ And you assign it to the global `roles` parameter or the per-switch one. For exa
   engineeringRole=full-access
   salesRole=little-access
 
-would return the `full-access` role to the nodes categorized as admin or engineering and the role `little-access` to nodes categorized as sales. It can also be done through the Web Administration Interface under *Configuration -> Switches*.
+would return the `full-access` role to the nodes categorized as admin or engineering and the role `little-access` to nodes categorized as sales. It can also be done through the Web Administration Interface under *Configuration -> Policies and Access Control -> Switches*.
 
 
 CAUTION: Make sure that the roles are properly defined on the network devices prior to assigning roles!
@@ -1244,7 +1244,7 @@ Restart the radiusd service in order to apply the change.
 
 /usr/local/pf/bin/pfcmd service radiusd restart
 
-CAUTION: You will need to disable password hashing in the database for local authentication to work. In the administration interface, go in 'Configuration -> Advanced' and set 'Database passwords hashing method' to `plaintext` or `ntlm`. Don't use `bcrypt`.
+CAUTION: You will need to disable password hashing in the database for local authentication to work. In the administration interface, go in 'Configuration -> System Configuration -> Main Configuration ->Advanced' and set 'Database passwords hashing method' to `plaintext` or `ntlm`. Don't use `bcrypt`.
 
 Tests
 ^^^^^
@@ -1839,7 +1839,7 @@ The following can be configured by editing the pf.conf file:
 
 Make sure the role exists in PacketFence otherwise you will encounter registration errors. Moreover, make sure the role mapping for your particular equipment is done.
 
-These parameters can also be configured from the *Configuration -> Registration* section.
+These parameters can also be configured from the *Configuration -> -> Advanced Portal Configuration -> Device Registration* section.
 
 NOTE: A 'portal' interface type is required to use this feature. A 'portal' interface type can be added to any network interface using the web admin GUI.
 
@@ -2475,67 +2475,6 @@ For example, for the VLAN 20 remote registration network:
 If your edge switches support 'vlan-isolation' you can also apply the ACL
 there.  This has the advantage of preventing machines in isolation from
 attempting to attack each other.
-
-Statement of Health (SoH)
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The Statement of Health (SoH) is product that has been developed by Microsoft. In the Microsoft world, this is named Network Access Protection or NAP. On Windows versions from XP SP2 to Windows 7, there is a NAP service installed that can relay health information (Anti-Virus update status, Windows Update status, etc) to a RADIUS Server or a DHCP server. The section below explains you how to do SoH policies with PacketFence.
- 
-Installation
-^^^^^^^^^^^^
-
-By default, we turn SoH off. To enable its support, simply uncomment the following lines in `/usr/local/pf/conf/radiusd/eap.conf`.
-
-  soh=yes
-  soh-virtual-server = "soh-server"
-
-Restart the RADIUS service afterward.
-
-On the client side, to enable SoH for EAP, do the following (Windows 7 example):
-
-----
-sc config napagent start=auto
-sc start napagent
-
-:: Wired 802.1X
-sc config dot3svc start=auto depend=napagent
-sc start dot3svc
-
-netsh nap client show config
-
-:: get the "ID" value for the "EAP Quarantine Enforcement Client"
-netsh nap client set enforce id=$ID admin=enable
-----
-
-The last step is to select the "Enforce Network Access Protection" checkbox under the EAP profile settings. Those steps can be easily configured using GPOs.
-
-Configuration of SoH policy
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-In order to enforce a SoH policy, we need to create it first. This is done using the *Configuration -> Compliance -> Statement of Health* module.
-
-Policy example
-^^^^^^^^^^^^^^
-
-Let's walk through an example situation. Suppose you want to display a remediation page to clients that do not have an anti-virus enabled.
-
-The three broad steps are: create a violation class for the condition, then create an SoH filter to trigger the violation when "anti-virus is disabled", and finally, reload the violations.
-
-First, create the proper violation either via the Admin UI, or by editing the `conf/violations.conf` files:
-
-  [4000001]
-  desc=No anti-virus enabled
-  url=/remediation.php?template=noantivirus
-  actions=reevaluate_access,email,log
-  enabled=Y
-
-NOTE: You may also want to set other attributes such as auto_enable, grace, etc.
-
-When done with the violation, visit the Web Administration under *Configuration -> Compliance -> Statement of Health* and (edit the filter named *Default*, or) use the *Add a filter* button to create a filter named *antivirus*. Click on *antivirus* in the filter list, and select *Trigger violation* in the action drop-down. Enter the vid of the violation you created above in the input box that appears.
-
-Next, click on *Add a condition*, and select *Anti-virus*, *is*, and *disabled* in the drop-down boxes that appear. Click on the *Save filters* button. Finally, reload the violations either by restarting PacketFence or using the `pfcmd reload violations` command.
-
-The last step is to create a new remediation template called `noantivirus.php` on the filesystem in the `html/captive-portal/violations` folder. Edit it to include the text you want to display to the users.
 
 VLAN Filter Definition
 ~~~~~~~~~~~~~~~~~~~~~~
