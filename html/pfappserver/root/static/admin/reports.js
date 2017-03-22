@@ -1,3 +1,5 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
+
 function init() {
     $('#section').on('section.loaded', function(event) {
         /* Initialize datepickers */
@@ -37,13 +39,13 @@ function init() {
 
     /* Reload section when changing date */
     $('body').on('changeDate', '.input-daterange input', function(event) {
-        var dp = $(this).closest('.datepicker').data('datepicker');
-        if (!dp.dates) {
+        var dp = $(this).parent().data('datepicker');
+        if (!dp.inputs) {
             return;
         }
-        var start = dp.dates[0];
+        var start = $(dp.inputs[0]).datepicker('getDate');
         var startDate = [start.getUTCFullYear(), (start.getUTCMonth() + 1), start.getUTCDate()].join('-');
-        var end = dp.dates[1];
+        var end = $(dp.inputs[1]).datepicker('getDate');
         var endDate = [end.getUTCFullYear(), (end.getUTCMonth() + 1), end.getUTCDate()].join('-');
         var graph = $('.piegraph a.active, .sidebar-nav .nav-list .active a').last().attr('href').substr(1);
         location.hash = [graph, startDate, endDate].join('/');

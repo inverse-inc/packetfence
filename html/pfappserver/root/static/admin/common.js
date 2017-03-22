@@ -102,9 +102,8 @@ function initWidgets(elements) {
         var defaultTime = $(this).val().length? 'value' : false;
         $(this).timepicker({ defaultTime: defaultTime, showSeconds: false, showMeridian: false });
     });
-    elements.filter('.datepicker').datepicker({ autoclose: true });
-    if (elements.bootstrapSwitch)
-        elements.filter('.switch').bootstrapSwitch();
+    elements.filter('.datepicker, .input-daterange').datepicker({ autoclose: true });
+    elements.filter('.switch').bootstrapSwitch();
 }
 
 function submitFormHideModal(modal,form) {
@@ -171,18 +170,15 @@ function doUpdateSection(ajax_data) {
                 })
                 .done(function(data) {
                     section.html(data);
-                    section.find('.datepicker').datepicker({ autoclose: true });
+                    section.find('.datepicker, .input-daterange').datepicker({ autoclose: true });
                     section.find('.timepicker-default').each(function() {
                         // Keep the placeholder visible if the input has no value
                         var defaultTime = $(this).val().length? 'value' : false;
                         $(this).timepicker({ defaultTime: defaultTime, showSeconds: false, showMeridian: false });
                     });
-                    if (section.chosen) {
-                        section.find('.chzn-select:visible').chosen();
-                        section.find('.chzn-deselect:visible').chosen({allow_single_deselect: true});
-                    }
-                    if (section.bootstrapSwitch)
-                        section.find('.switch').bootstrapSwitch();
+                    section.find('.chzn-select:visible').chosen();
+                    section.find('.chzn-deselect:visible').chosen({allow_single_deselect: true});
+                    section.find('.switch').bootstrapSwitch();
                     section.trigger('section.loaded');
                 })
                 .fail(function(jqXHR) {
@@ -429,14 +425,14 @@ $(function () { // DOM ready
         });
         $('.sidenav-category [data-category="' + category + '"]').addClass('active');
         // Show corresponding list of sections
-        $('.sidenav-section').each(function(i, section) {
-            var $section = $(section);
+        $('.sidenav-fluid .sidenav-section').each(function() {
+            var $section = $(this);
             if ($section.attr('data-category') == category)
                 $section.show();
             else
                 $section.hide();
         });
-        $('.sidenav-section .active').removeClass('active');
+        $('.sidenav-fluid .sidenav-section .active').removeClass('active');
     }
     $('.sidenav-category a').click(function(event) {
         var li = $(this).parent();
@@ -514,15 +510,15 @@ $(function () { // DOM ready
     /* Range datepickers
      * See https://github.com/eternicode/bootstrap-datepicker/tree/range */
 
-    $('body').on('changeDate', '.datepicker input[name="start"]', function(event) {
+    $('body').on('changeDate', '.input-daterange input[name="start"]', function(event) {
         var dp = $(this).parent().data('datepicker');
         // Limit the start date of the second datepicker to this new date
-        dp.pickers[1].setStartDate(event.date);
+        $(dp.inputs[1]).datepicker('setStartDate', event.date);
     });
-    $('body').on('changeDate', '.datepicker input[name="end"]', function(event) {
+    $('body').on('changeDate', '.input-daterange input[name="end"]', function(event) {
         var dp = $(this).parent().data('datepicker');
         // Limit the end date of the first datepicker to this new date
-        dp.pickers[0].setEndDate(event.date);
+        $(dp.inputs[0]).datepicker('setEndDate', event.date);
     });
     $('body').on('click', '.datepicker a[href*="day"]', function(event) {
         event.preventDefault();
@@ -945,6 +941,12 @@ $(function () { // DOM ready
         updateExtendedDurationExample($('.extended-duration'));
         bindExportCSV();
         FingerbankSearch.setup();
+
+        // If the section includes a dynamic sidenav section, move it to the sidenav row
+        var sidenav = $('.sidenav-fluid .row-fluid').first();
+        $('#section').find('.sidenav-section').each(function() {
+            $(this).detach().appendTo(sidenav).show();
+        });
     });
 
     /* Update extended duration widget when changing parameters of the duration */
