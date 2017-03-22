@@ -53,7 +53,7 @@ sub run {
         last if $rows <= 0 || ( ( $end_time - $start_time ) > $time_limit );
     }
 
-    $logger->info("Done expiring database CHI cache");
+    $logger->debug("Done expiring database CHI cache");
 }
 
 =head1 AUTHOR
