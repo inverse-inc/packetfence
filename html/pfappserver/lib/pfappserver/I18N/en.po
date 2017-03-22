@@ -9140,7 +9140,7 @@ msgstr "Inline"
 
 # conf/documentation.conf
 msgid "inline.accounting"
-msgstr ""
+msgstr "Accounting"
 
 # conf/documentation.conf
 msgid "inline.interfaceSNAT"
@@ -9148,15 +9148,15 @@ msgstr "SNAT Interface"
 
 # conf/documentation.conf
 msgid "inline.layer3_accounting_session_timeout"
-msgstr ""
+msgstr "Accounting session timeout"
 
 # conf/documentation.conf
 msgid "inline.layer3_accounting_sync_interval"
-msgstr ""
+msgstr "Accounting sync interval"
 
 # conf/documentation.conf
 msgid "inline.ports_redirect"
-msgstr ""
+msgstr "Ports redirect"
 
 # conf/documentation.conf
 msgid "inline.should_reauth_on_vlan_change"
