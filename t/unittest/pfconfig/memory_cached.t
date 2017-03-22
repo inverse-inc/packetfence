@@ -18,7 +18,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 6;                      # last test to print
+use Test::More tests => 10;                      # last test to print
 
 use Test::NoWarnings;
 
