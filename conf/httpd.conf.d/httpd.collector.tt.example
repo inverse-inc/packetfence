@@ -130,7 +130,6 @@ MaxSpareServers  10
 HostnameLookups  off
 MaxRequestsPerChild  1000
 
-Header always append X-Frame-Options SAMEORIGIN
 ErrorLog  [% install_dir %]/logs/[% name %].error
 
 User pf
