@@ -47,7 +47,7 @@ BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
     @ISA    = qw(Exporter);
-    @EXPORT = qw(db_data db_connect db_disconnect get_db_handle db_query_execute db_ping db_cancel_current_query db_now db_readonly_mode db_check_readonly);
+    @EXPORT = qw(db_data db_connect db_disconnect get_db_handle db_query_execute db_ping db_cancel_current_query db_now db_readonly_mode db_check_readonly $MYSQL_READONLY_ERROR);
 
 }
 
@@ -267,6 +267,7 @@ sub db_query_execute {
     my $attempts = 0;
     my $done = 0;
     my $db_statement;
+    my $dbi_err = 0;
     do {
         $logger->trace(sub {"attempt #$attempts to run query $query from module $from_module"});
 
@@ -317,14 +318,13 @@ sub db_query_execute {
         } else {
 
             # is it a DBI error?
-            my $dbi_err = $dbh->err;
+            $dbi_err = $dbh->err;
             if (defined($dbi_err)) {
                 $dbi_err = int($dbi_err);
                 my $dbi_errstr = $dbh->errstr;
                 db_handle_error($dbi_err);
                 # Do not retry server errors
                 if ($dbi_err < 2000) {
-
                     $logger->info("database query failed with: $dbi_errstr (errno: $dbi_err)");
                     $done = 2;
                 }
@@ -358,7 +358,12 @@ sub db_query_execute {
         return $db_statement;
     }
     if ($done) {
-        $logger->error("Database issue: Failed with a non-repeatable error with query $query");
+        if (defined $dbi_err && $dbi_err == $MYSQL_READONLY_ERROR) {
+            $logger->warn("Database issue: attempting to update a readonly database");
+        }
+        else {
+            $logger->error("Database issue: Failed with a non-repeatable error with query $query");
+        }
     } else {
         $logger->error("Database issue: We tried ". MAX_RETRIES ." times to serve query $query called from "
             .(caller(1))[3]." and we failed. Is the database running?");
