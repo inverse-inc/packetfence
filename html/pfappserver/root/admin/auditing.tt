@@ -30,7 +30,15 @@
         </li>
       </ul>
     </div><!--/.sidenav-category-->
-    </div>
+    <div class="sidenav sidenav-section offset1 span3"
+         data-category="radius">
+      <!-- placeholder for dynamic sidenav section -->
+    </div><!--/.sidenav-section-->
+    <div class="sidenav sidenav-section offset1 span3"
+         data-category="dhcp82">
+      <!-- placeholder for dynamic sidenav section -->
+    </div><!--/.sidenav-section-->
+  </div>
 </div>
 <div class="row-fluid">
   <div class="container-fluid offset4 span14">

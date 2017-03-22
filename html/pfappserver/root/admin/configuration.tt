@@ -83,6 +83,7 @@ table.sources {
             </ul>
           </div>
           <div class="sidenav sidenav-section span3 offset1"
+               style="display: none"
                data-category="policy">
             <ul class="nav nav-header">
               <li>[% l('Policies and Access Control') %]</li>
@@ -107,6 +108,7 @@ table.sources {
             </ul>
           </div>
           <div class="sidenav sidenav-section sidenav-inverse span3 offset1"
+               style="display: none"
                data-category="compliance">
             <ul class="nav nav-header">
               <li>[% l('Compliance') %]</li>
@@ -128,6 +130,7 @@ table.sources {
             </ul>
           </div>
           <div class="sidenav sidenav-section sidenav-inverse span3 offset1"
+               style="display: none"
                data-category="integration">
             <ul class="nav nav-header">
               <li>[% l('Integration') %]</li>
@@ -150,6 +153,7 @@ table.sources {
             </ul>
           </div>
           <div class="sidenav sidenav-section sidenav-inverse span3 offset1"
+               style="display: none"
                data-category="portal_config">
             <ul class="nav nav-header">
               <li>[% l('Advanced Access Configuration') %]</li>
@@ -181,6 +185,7 @@ table.sources {
             </ul>
           </div>
           <div class="sidenav sidenav-section sidenav-inverse span3 offset1"
+               style="display: none"
                data-category="advanced_conf">
             <ul class="nav nav-header">
               <li>[% l('Advanced Configuration') %]</li>
@@ -201,6 +206,7 @@ table.sources {
             </ul>
           </div>
           <div class="sidenav sidenav-section sidenav-inverse span3 offset1"
+               style="display: none"
                data-category="system">
             <ul class="nav nav-header">
               <li>[% l('System Configuration') %]</li>
