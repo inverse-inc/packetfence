@@ -848,6 +848,8 @@ BEGIN
 
   DECLARE Opened_Sessions int(12);
   DECLARE Latest_acctstarttime datetime;
+  DECLARE cnt int(12);
+  DECLARE counte int(12);
   SELECT count(acctuniqueid), max(acctstarttime)
   INTO Opened_Sessions, Latest_acctstarttime
   FROM radacct
@@ -863,43 +865,34 @@ BEGIN
         AND (acctstoptime IS NULL OR acctstoptime = 0);
   END IF;
 
-  # Collect traffic previous values in the update table
-  SELECT acctinputoctets, acctoutputoctets, acctsessiontime, acctupdatetime
-    INTO Previous_Input_Octets, Previous_Output_Octets, Previous_Session_Time, Previous_AcctUpdate_Time
+
+  # Detect if we receive in the same time a stop before the interim update
+  SELECT COUNT(*)
+  INTO cnt
+  FROM radacct
+  WHERE acctuniqueid = p_acctuniqueid
+  AND (acctstoptime = p_timestamp);
+
+  # If there is an old closed entry then update it
+  IF (cnt = 1) THEN
+    UPDATE radacct SET
+        framedipaddress = p_framedipaddress,
+        acctsessiontime = p_acctsessiontime,
+        acctinputoctets = p_acctinputoctets,
+        acctoutputoctets = p_acctoutputoctets,
+        acctupdatetime = p_timestamp
+    WHERE acctuniqueid = p_acctuniqueid
+    AND (acctstoptime = p_timestamp);
+  END IF;
+
+  #Detect if there is an radacct entry open
+  SELECT count(callingstationid), acctinputoctets, acctoutputoctets, acctsessiontime, acctupdatetime
+    INTO counte, Previous_Input_Octets, Previous_Output_Octets, Previous_Session_Time, Previous_AcctUpdate_Time
     FROM radacct
-    WHERE acctuniqueid = p_acctuniqueid 
+    WHERE (acctuniqueid = p_acctuniqueid) 
     AND (acctstoptime IS NULL OR acctstoptime = 0) LIMIT 1;
 
-  IF (Previous_Session_Time IS NULL) THEN
-    # Set values to 0 when no previous records
-    SET Previous_Session_Time = 0;
-    SET Previous_Input_Octets = 0;
-    SET Previous_Output_Octets = 0;
-    SET Previous_AcctUpdate_Time = p_timestamp;
-    # If there is no open session for this, open one.
-    INSERT INTO radacct 
-           (
-            acctsessionid,      acctuniqueid,       username, 
-            realm,              nasipaddress,       nasportid, 
-            nasporttype,        acctstarttime,      
-            acctupdatetime,     acctsessiontime,    acctauthentic, 
-            connectinfo_start,  acctinputoctets, 
-            acctoutputoctets,   calledstationid,    callingstationid, 
-            servicetype,        framedprotocol, 
-            framedipaddress
-           ) 
-    VALUES 
-        (
-            p_acctsessionid,        p_acctuniqueid,     p_username,
-            p_realm,                p_nasipaddress,     p_nasportid,
-            p_nasporttype,          date_sub(p_timestamp, INTERVAL p_acctsessiontime SECOND ), 
-            p_timestamp,            p_acctsessiontime , p_acctauthentic,
-            p_connectinfo_start,    p_acctinputoctets,
-            p_acctoutputoctets,     p_calledstationid, p_callingstationid,
-            p_servicetype,          p_framedprotocol,
-            p_framedipaddress
-        );
-  ELSE 
+  IF (counte = 1) THEN
     # Update record with new traffic
     UPDATE radacct SET
         framedipaddress = p_framedipaddress,
@@ -910,9 +903,40 @@ BEGIN
         acctinterval = timestampdiff( second, Previous_AcctUpdate_Time,  p_timestamp  )
     WHERE acctuniqueid = p_acctuniqueid 
     AND (acctstoptime IS NULL OR acctstoptime = 0);
+  ELSE
+    IF (cnt = 0) THEN
+      # If there is no open session for this, open one.
+      # Set values to 0 when no previous records
+      SET Previous_Session_Time = 0;
+      SET Previous_Input_Octets = 0;
+      SET Previous_Output_Octets = 0;
+      SET Previous_AcctUpdate_Time = p_timestamp;
+      INSERT INTO radacct
+             (
+              acctsessionid,acctuniqueid,username,
+              realm,nasipaddress,nasportid,
+              nasporttype,acctstarttime,
+              acctupdatetime,acctsessiontime,acctauthentic,
+              connectinfo_start,acctinputoctets,
+              acctoutputoctets,calledstationid,callingstationid,
+              servicetype,framedprotocol,
+              framedipaddress
+             )
+      VALUES
+          (
+              p_acctsessionid,p_acctuniqueid,p_username,
+              p_realm,p_nasipaddress,p_nasportid,
+              p_nasporttype,date_sub(p_timestamp, INTERVAL p_acctsessiontime SECOND ),
+              p_timestamp,p_acctsessiontime,p_acctauthentic,
+              p_connectinfo_start,p_acctinputoctets,
+              p_acctoutputoctets,p_calledstationid,p_callingstationid,
+              p_servicetype,p_framedprotocol,
+              p_framedipaddress
+          );
+     END IF;
+   END IF;
 
-  END IF;
-
+ 
   # Create new record in the log table
   INSERT INTO radacct_log
    (acctsessionid, username, nasipaddress,
