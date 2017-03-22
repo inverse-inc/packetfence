@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-addons/migrate-config-to-pfmon-conf.pl
+addons/upgrade/to-7.0-pf.conf-to-pfmon.conf.pl
 
 =cut
 
