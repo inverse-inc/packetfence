@@ -67,7 +67,7 @@ Step 4: SSO Configuration in PacketFence
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Now that we have the key, we will configure the PaloAlto firewall in PacketFence.
 
-Go to *Configuration -> Firewall SSO -> Add Firewall -> PaloAlto*.
+Go to *Configuration -> Integration -> Firewall SSO -> Add Firewall -> PaloAlto*.
 
 [options="compact"]
 * *Hostname or IP Address*: IP of your firewall
@@ -117,7 +117,7 @@ Step 4: SSO Configuration in PacketFence
 
 Next you need to configure the firewall in PacketFence.
 
-Go to *Configuration -> Firewall SSO -> Add Firewall -> PaloAlto*.
+Go to *Configuration -> Integration -> Firewall SSO -> Add Firewall -> PaloAlto*.
 
 [options="compact"]
 * *Hostname or IP Address*: IP of your firewall
