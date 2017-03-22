@@ -60,19 +60,19 @@ table.sources {
                 <!-- [% l('Policies and Access Control') %] -->
               </li>
               <li data-category="compliance">
-                <a href="#compliance"><i class="icon-2x icon-shield"></i></a>
+                <a href="#configuration/compliance"><i class="icon-2x icon-shield"></i></a>
               </li>
               <li data-category="integration">
-                <a href="#integration"><i class="icon-2x icon-puzzle-piece"></i></a>
+                <a href="#configuration/integration"><i class="icon-2x icon-puzzle-piece"></i></a>
               </li>
               <li data-category="portal_config">
-                <a href="#portal_config"><i class="icon-2x icon-hand-paper-o"></i></a>
+                <a href="#configuration/portal_config"><i class="icon-2x icon-hand-paper-o"></i></a>
               </li>
               <li data-category="advanced_conf">
-                <a href="#advanced_conf"><i class="icon-2x icon-sliders"></i></a>
+                <a href="#configuration/advanced_conf"><i class="icon-2x icon-sliders"></i></a>
               </li>
               <li data-category="system">
-                <a href="#system_config"><i class="icon-2x icon-database"></i></a>
+                <a href="#configuration/system_config"><i class="icon-2x icon-database"></i></a>
               </li>
             </ul>
           </div>
