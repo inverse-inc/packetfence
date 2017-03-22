@@ -4190,18 +4190,18 @@ This section will adress specific problems and known solutions.
 
 "Internet Explorer cannot display the webpage"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Problem: Internet Explorer 8-10 will probably raise "Internet Explorer cannot display the webpage" errors when attempting to access PacketFence admin interface. 
+Problem: Internet Explorer 8-10 will probably raise "Internet Explorer cannot display the webpage" errors when attempting to access PacketFence administration interface. 
 
 Troubleshoot: 
 
- * Verify that PacketFence admininstation interface is started:
+ * Verify that PacketFence administration interface is started:
 
   # cd /usr/local/pf
   # bin/pfcmd service httpd.admin start
  
 Solution: 
  
-* TLSv1.2 needs to be activated for PacketFence admin interface to be accessible. It is advised that you update your browser. If not possible: 
+* TLSv1.2 needs to be activated for PacketFence admininstation interface to be accessible. It is advised that you update your browser. If not possible: 
 
   Within  Internet Explorer: click Tools, Internet Options, Advanced and make sure that TLS v1.2 is enabled under the security section. Retry.
 
