@@ -178,6 +178,8 @@ SSLCipherSuite ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-R
 [% END %]
 
 SSLHonorCipherOrder  on
+X-XSS-Protection: 1; mode=block
+
 ErrorLog  [% install_dir %]/logs/[% name %].error
 
 ServerAdmin [% server_admin %]
