@@ -28,7 +28,7 @@ Catalyst Controller.
 
 sub auto : Private {
     my ( $self, $c ) = @_;
-    if (isdisabled( $Config{'registration'}{'device_registration'} ) )
+    if (isdisabled( $Config{'device_registration'}{'status'} ) )
     {
         $self->showError($c,"Device registration module is not enabled" );
         $c->detach;

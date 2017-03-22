@@ -2446,7 +2446,7 @@ msgstr ""
 msgid "Enable external portal enforcement when supported by network equipment"
 msgstr ""
 
-# conf/documentation.conf (device_registration.activation)
+# conf/documentation.conf (device_registration.status)
 msgid "Enable or Disable the ability to register a device using the specific portal page designed to do it"
 msgstr ""
 
@@ -8786,7 +8786,7 @@ msgid "device_registration"
 msgstr "Device registration"
 
 # conf/documentation.conf
-msgid "device_registration.activation"
+msgid "device_registration.status"
 msgstr "Enable device registration"
 
 # conf/documentation.conf

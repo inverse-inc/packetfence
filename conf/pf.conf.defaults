@@ -152,7 +152,7 @@ interception_proxy_port=8080,3128
 # device_registration.activation
 #
 # Enable or Disable the ability to register a device using the specific portal page designed to do it
-activation=disabled
+status=disabled
 #
 # device_registration.role
 #
