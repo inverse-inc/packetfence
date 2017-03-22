@@ -143,7 +143,7 @@ sub registerNode : Private {
             $c->stash->{device_mac} = $mac;
             # Get role for device registration
             my $role =
-              $Config{'registration'}{'device_registration_role'};
+              $Config{'device_registration'}{'role'};
             if ($role) {
                 $logger->debug("Device registration role is $role (from pf.conf)");
             } else {
