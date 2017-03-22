@@ -1,0 +1,109 @@
+== Idioms.scalar == map:id, sc:s, insert ==
+my	$<CURSOR>;
+== Idioms.scalar+assignment == map:ida, sc:s, insert ==
+my	$<CURSOR>	= <+val+>;
+== Idioms.scalar_list == map:idd, sc:s, insert ==
+my	( $<CURSOR>, $<+name+> );
+== Idioms.array == map:ia, sc:a, insert ==
+my	@<CURSOR>;
+== Idioms.array+assignment == map:iaa, sc:a, insert ==
+my	@<CURSOR>	= ( <+val+>, <+val+>, );
+== Idioms.hash == map:ih, sc:h ==
+my	%<CURSOR>;
+== Idioms.hash+assignment == map:ihh, sc:h, insert ==
+my	%<CURSOR>	= (
+	<+key1+> => <+val1+>,
+	<+key2+> => <+val2+>,
+	);
+== Idioms.regex == map:ir, sc:r, insert ==
+my	$rgx_<CURSOR>	= qr/<+regexp+>/;
+== Idioms.match == map:im, sc:m, insert ==
+$<CURSOR> =~ m/<+regexp+>/xm
+== Idioms.substitute == map:is, sc:s, insert ==
+$<CURSOR> =~ s/<+pattern+>/<+replacement+>/xm
+== Idioms.translate == map:it, sc:t, insert ==
+$<CURSOR> =~ tr/<+searchlist+>/<+replacementlist+>/
+== Idioms.subroutine == map:isu, sc:s ==
+=head2 |?FUNCTION_NAME|
+
+TODO: documention
+
+=cut
+
+sub |FUNCTION_NAME| {
+	my ($par1<CURSOR>) = @_;
+<SPLIT>	return ;
+}
+
+== Idioms.method == map:imd, sc:s ==
+=head2 |?METHOD_NAME|
+
+|METHOD_NAME|
+
+=cut
+
+sub |METHOD_NAME| {
+	my ($self<CURSOR>) = @_;
+<SPLIT>	return ;
+}
+
+== Idioms.hookable_private == map:imhp, sc:s ==
+=head2 |?METHOD_NAME|
+
+TODO: documention
+
+=cut
+
+sub |METHOD_NAME| : Hookable('Private') {
+    my ( $self, $c ) = @_;
+}
+
+== Idioms.hookable == map:imh, sc:s ==
+=head2 |?METHOD_NAME|
+
+TODO: documention
+
+=cut
+
+sub |METHOD_NAME| : Hookable {
+    my ( $self, $c ) = @_;
+}
+
+== Idioms.print == map:ip, sc:p, insert ==
+print "<CURSOR>\n";
+== Idioms.open input file == map:ii, sc:i ==
+my	$|?FILEPOINTER|_file_name = '<CURSOR>';		# input file name
+
+open  my $|FILEPOINTER|, '<', $|FILEPOINTER|_file_name
+or die  "$0 : failed to open  input file '$|FILEPOINTER|_file_name' : $!\n";
+
+<SPLIT>{-continue_here-}
+close  $|FILEPOINTER|
+or warn "$0 : failed to close input file '$|FILEPOINTER|_file_name' : $!\n";
+
+== Idioms.open output file == map:io, sc:o ==
+my	$|?FILEPOINTER|_file_name = '<CURSOR>';		# output file name
+
+open  my $|FILEPOINTER|, '>', $|FILEPOINTER|_file_name
+or die  "$0 : failed to open  output file '$|FILEPOINTER|_file_name' : $!\n";
+
+<SPLIT>{-continue_here-}
+close  $|FILEPOINTER|
+or warn "$0 : failed to close output file '$|FILEPOINTER|_file_name' : $!\n";
+
+== Idioms.open pipe == map:ipi, sc:p ==
+my	$|?PIPE|_command = " |<CURSOR> ";		# pipe command
+
+open  my $|PIPE|, $|PIPE|_command
+or die  "$0 : failed to open  pipe '$|PIPE|_command' : $!\n";
+
+<SPLIT>{-continue_here-}
+close  $|PIPE|
+or warn "$0 : failed to close pipe '$|PIPE|_command' : $!\n";
+
+== Idioms.STDIN == sc:i, insert ==
+<STDIN><CURSOR>
+== Idioms.STDOUT == sc:o, insert ==
+<STDOUT><CURSOR>
+== Idioms.STDERR == sc:e, insert ==
+<STDERR><CURSOR>
