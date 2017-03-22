@@ -14,7 +14,7 @@
       <a href="#newTabView" data-href="[% c.uri_for(c.controller('Configuration').action_for('section'), 'advanced') %]" data-toggle="tab">[% l('Advanced') %]</a>
     </li>
     <li [% IF tab == 'Maintenance' %]class="active"[% END %]>
-      <a href="#newTabView" data-href="[% c.uri_for(c.controller('Configuration').action_for('section'), 'maintenance') %]" data-toggle="tab">[% l('Maintenance') %]</a>
+      <a href="#newTabView" data-href="[% c.uri_for(c.controller('Config::Pfmon').action_for('index')) %]" data-toggle="tab">[% l('Maintenance') %]</a>
     </li>
     <li [% IF tab == 'Services' %]class="active"[% END %]>
       <a href="#newTabView" data-href="[% c.uri_for(c.controller('Configuration').action_for('section'), 'services') %]" data-toggle="tab">[% l('Services') %]</a>

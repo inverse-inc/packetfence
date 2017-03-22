@@ -186,9 +186,6 @@ table.sources {
               [% pf_section_entry( 'omapi', 'OMAPI') | none %]
               [% pf_section_entry( 'snmp_traps', 'SNMP') | none %]
               [%- END %]
-              [%- IF can_access("PFMON_READ") %]
-              [% list_entry('Config::Pfmon', 'index', 'Maintenance Tasks') | none %]
-              [%- END %]
               [%- IF can_access("FLOATING_DEVICES_READ") %]
               [% list_entry('Config::FloatingDevice', 'index', 'Floating Device') | none %]
               [%- END %]
@@ -203,7 +200,9 @@ table.sources {
             </ul>
             <ul class="nav nav-list">
               [%- IF can_access("CONFIGURATION_MAIN_READ") %]
+              [%- IF can_access("PFMON_READ") %]
               [% pf_section_entry( 'main', 'Main Configuration') | none %]
+              [%- END %]
               [% pf_section_entry( 'pfdb', 'Database') | none %]
               [% pf_section_entry( 'active_active', 'Cluster') | none %]
               [% pf_section_entry( 'radius_authentication_methods', 'Authentication Methods') | none %]
