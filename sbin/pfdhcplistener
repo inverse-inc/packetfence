@@ -198,7 +198,7 @@ sub setup_pcap {
     # updating process name so we know what interface we are listening on
     # WARNING: the format is expected by watchdog in pf::services. Don't change lightly.
     $PROGRAM_NAME = basename($PROGRAM_NAME) . ": listening on $interface";
-    $pcap = Net::Pcap::pcap_open_live( $interface, $Config{advanced}{pfdhcplistener_packet_size}, 1, $TIMEOUT, \$err );
+    $pcap = Net::Pcap::pcap_open_live( $interface, $Config{services}{pfdhcplistener_packet_size}, 1, $TIMEOUT, \$err );
 
     if (!defined($pcap)) {
         $logger->logdie("Unable to initiate packet capture. Is $interface an actual network interface?");
