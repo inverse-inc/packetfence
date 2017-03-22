@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 6.5.9\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-03-20 13:16-0400\n"
+"PO-Revision-Date: 2017-03-22 12:42-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -23,10 +23,30 @@ msgstr ""
 msgid "%1 nodes imported, %2 skipped"
 msgstr ""
 
+# html/pfappserver/root/auditing/radiuslog/index.tt
+msgid "1 hour"
+msgstr ""
+
+# html/pfappserver/root/auditing/radiuslog/index.tt
+msgid "12 hours"
+msgstr ""
+
+# html/pfappserver/root/auditing/radiuslog/index.tt
+msgid "24 hours"
+msgstr ""
+
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/reports-header.tt
 # html/pfappserver/root/graph/report.tt
 msgid "30 days"
+msgstr ""
+
+# html/pfappserver/root/auditing/radiuslog/index.tt
+msgid "30 minutes"
+msgstr ""
+
+# html/pfappserver/root/auditing/radiuslog/index.tt
+msgid "6 hours"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
@@ -525,6 +545,7 @@ msgstr ""
 msgid "Administration"
 msgstr ""
 
+# html/pfappserver/root/admin/wrapper.tt
 # html/pfappserver/root/configurator/admin.tt
 msgid "Administrator"
 msgstr ""
@@ -742,26 +763,6 @@ msgstr ""
 # html/pfappserver/root/config/profile/edit.tt
 # html/pfappserver/root/config/profile/view.tt
 msgid "Are you sure want to save your changes?"
-msgstr ""
-
-# conf/documentation.conf (maintenance.auth_log_cleanup_interval)
-msgid "At which interval to run the auth_log cleanup job"
-msgstr ""
-
-# conf/documentation.conf (maintenance.iplog_cleanup_interval)
-msgid "At which interval to run the iplog archive cleanup job"
-msgstr ""
-
-# conf/documentation.conf (maintenance.iplog_rotation_interval)
-msgid "At which interval to run the iplog history rotation job (or deletion job if rotation is disabled)."
-msgstr ""
-
-# conf/documentation.conf (maintenance.locationlog_cleanup_interval)
-msgid "At which interval to run the locationlog cleanup job"
-msgstr ""
-
-# conf/documentation.conf (maintenance.radius_audit_log_cleanup_interval)
-msgid "At which interval to run the radius audit log cleanup job"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SAML.pm
@@ -1111,7 +1112,7 @@ msgstr ""
 msgid "Children"
 msgstr ""
 
-# conf/documentation.conf (networking.interfaceSNAT)
+# conf/documentation.conf (network.interfaceSNAT)
 msgid "Choose interface(s) where you want to enable snat for passthrough (by default it's the management interface)"
 msgstr ""
 
@@ -1278,6 +1279,7 @@ msgstr ""
 # html/pfappserver/root/config/firewall_sso/view.tt
 # html/pfappserver/root/config/floatingdevice/view.tt
 # html/pfappserver/root/config/networks/view.tt
+# html/pfappserver/root/config/pfmon/view.tt
 # html/pfappserver/root/config/pki_provider/view.tt
 # html/pfappserver/root/config/provisioning/view.tt
 # html/pfappserver/root/config/realm/view.tt
@@ -1686,12 +1688,6 @@ msgstr ""
 msgid "DHCP Fingerprints"
 msgstr ""
 
-# html/pfappserver/root/admin/auditing.tt
-# html/pfappserver/root/admin/auditing_option82.tt
-# html/pfappserver/root/admin/auditing_radius_log.tt
-msgid "DHCP Option 82"
-msgstr "DHCP Option 82"
-
 # pf::dhcp_option82 (DHCP Option 82)
 msgid "DHCP Option 82 Vlan"
 msgstr ""
@@ -1723,35 +1719,39 @@ msgstr ""
 msgid "DHCP server"
 msgstr ""
 
-# conf/documentation.conf (networking.dhcp_filter_by_message_types options)
+# html/pfappserver/root/admin/auditing.tt
+msgid "DHCP82"
+msgstr ""
+
+# conf/documentation.conf (network.dhcp_filter_by_message_types options)
 msgid "DHCPACK"
 msgstr ""
 
-# conf/documentation.conf (networking.dhcp_filter_by_message_types options)
+# conf/documentation.conf (network.dhcp_filter_by_message_types options)
 msgid "DHCPDECLINE"
 msgstr ""
 
-# conf/documentation.conf (networking.dhcp_filter_by_message_types options)
+# conf/documentation.conf (network.dhcp_filter_by_message_types options)
 msgid "DHCPDISCOVER"
 msgstr ""
 
-# conf/documentation.conf (networking.dhcp_filter_by_message_types options)
+# conf/documentation.conf (network.dhcp_filter_by_message_types options)
 msgid "DHCPINFORM"
 msgstr ""
 
-# conf/documentation.conf (networking.dhcp_filter_by_message_types options)
+# conf/documentation.conf (network.dhcp_filter_by_message_types options)
 msgid "DHCPNAK"
 msgstr ""
 
-# conf/documentation.conf (networking.dhcp_filter_by_message_types options)
+# conf/documentation.conf (network.dhcp_filter_by_message_types options)
 msgid "DHCPOFFER"
 msgstr ""
 
-# conf/documentation.conf (networking.dhcp_filter_by_message_types options)
+# conf/documentation.conf (network.dhcp_filter_by_message_types options)
 msgid "DHCPRELEASE"
 msgstr ""
 
-# conf/documentation.conf (networking.dhcp_filter_by_message_types options)
+# conf/documentation.conf (network.dhcp_filter_by_message_types options)
 msgid "DHCPREQUEST"
 msgstr ""
 
@@ -2164,6 +2164,7 @@ msgstr ""
 # html/pfappserver/root/config/adminroles/list.tt
 # html/pfappserver/root/config/authentication.tt
 # html/pfappserver/root/config/fingerbank/device/upstream/list.tt
+# html/pfappserver/root/config/pfmon/list.tt
 # html/pfappserver/root/config/pki_provider/list.tt
 # html/pfappserver/root/config/portal_module/list_view.tt
 # html/pfappserver/root/config/profile/index.tt
@@ -2308,6 +2309,7 @@ msgstr ""
 
 # html/pfappserver/root/admin/auditing_radius_log.tt
 # html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/config/domains/index.tt
 msgid "Domains"
 msgstr ""
 
@@ -2446,7 +2448,7 @@ msgstr ""
 msgid "Enable external portal enforcement when supported by network equipment"
 msgstr ""
 
-# conf/documentation.conf (device_registration.status)
+# conf/documentation.conf (device_registration.activation)
 msgid "Enable or Disable the ability to register a device using the specific portal page designed to do it"
 msgstr ""
 
@@ -2456,10 +2458,6 @@ msgstr ""
 
 # conf/documentation.conf (captive_portal.wispr_redirection)
 msgid "Enable or disable WISPr redirection capabilities on the captive-portal"
-msgstr ""
-
-# conf/documentation.conf (maintenance.iplog_rotation)
-msgid "Enable or disable iplog rotation (moving iplog_history records to iplog_archive)If disabled, 'iplog_cleanup' will delete from the iplog_history table rather than the iplog_archive using the iplog rotation window, interval, batch and timeout parameters."
 msgstr ""
 
 # conf/documentation.conf (captive_portal.network_detection)
@@ -2707,7 +2705,7 @@ msgid "Filter"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
-msgid "Filter engines"
+msgid "Filter Engines"
 msgstr ""
 
 # html/pfappserver/root/config/profile/tab-content.tt
@@ -2919,96 +2917,12 @@ msgstr ""
 msgid "Hours"
 msgstr ""
 
-# conf/documentation.conf (maintenance.iplog_cleanup_timeout)
-msgid "How long a iplog archive cleanup job can take before being killed"
-msgstr ""
-
-# conf/documentation.conf (maintenance.iplog_rotation_timeout)
-msgid "How long a iplog history rotation job (or deletion job if rotation is disabled) can take before being killed."
-msgstr ""
-
-# conf/documentation.conf (maintenance.locationlog_cleanup_timeout)
-msgid "How long a locationlog cleanup job can take before being killed"
-msgstr ""
-
-# conf/documentation.conf (maintenance.radius_audit_log_cleanup_timeout)
-msgid "How long a radius audit log cleanup job can take before being killed"
-msgstr ""
-
-# conf/documentation.conf (maintenance.auth_log_cleanup_timeout)
-msgid "How long an auth_log cleanup job can take before being killed"
-msgstr ""
-
-# conf/documentation.conf (maintenance.node_unreg_window)
-msgid "How long can a registered node be inactive on the network before it becomes unregistered"
-msgstr ""
-
-# conf/documentation.conf (maintenance.node_cleanup_window)
-msgid "How long can an unregistered node be inactive on the network before being deleted.This shouldn't be used if you are using port-security"
-msgstr ""
-
-# conf/documentation.conf (maintenance.cleanup_chi_database_cache_timeout)
-msgid "How long is the cleanup_chi_database_cache task is allowed to run"
-msgstr ""
-
-# conf/documentation.conf (maintenance.violation_maintenance_timeout)
-msgid "How long is the violation maintenance task is allowed to run"
-msgstr ""
-
 # conf/documentation.conf (fencing.redirtimer)
 msgid "How long to display the progress bar during trap release. Default value is based on VLAN enforcement techniques. Inline enforcement only users could lower the value."
 msgstr ""
 
-# conf/documentation.conf (maintenance.iplog_cleanup_window)
-msgid "How long to keep a iplog archive entry before deleting it"
-msgstr ""
-
-# conf/documentation.conf (maintenance.locationlog_cleanup_window)
-msgid "How long to keep a locationlog entry before deleting it"
-msgstr ""
-
-# conf/documentation.conf (maintenance.radius_audit_log_cleanup_window)
-msgid "How long to keep a radius audit log entry before deleting it"
-msgstr ""
-
-# conf/documentation.conf (maintenance.auth_log_cleanup_window)
-msgid "How long to keep an auth_log entry before deleting it"
-msgstr ""
-
-# conf/documentation.conf (maintenance.iplog_rotation_window)
-msgid "How long to keep iplog history entry before rotating it to iplog archive (or deleting it if rotation is disabled)."
-msgstr ""
-
-# conf/documentation.conf (maintenance.auth_log_cleanup_batch)
-msgid "How many auth_log entries to clean up in one job"
-msgstr ""
-
-# conf/documentation.conf (maintenance.cleanup_chi_database_cache_batch)
-msgid "How many expired CHI database entries does pfmon batches"
-msgstr ""
-
-# conf/documentation.conf (maintenance.iplog_cleanup_batch)
-msgid "How many iplog archive entries to clean up in one job"
-msgstr ""
-
-# conf/documentation.conf (maintenance.iplog_rotation_batch)
-msgid "How many iplog history entries to rotate (or to delete if rotation is disabled) in one job."
-msgstr ""
-
-# conf/documentation.conf (maintenance.locationlog_cleanup_batch)
-msgid "How many locationlog entries to clean up in one job"
-msgstr ""
-
-# conf/documentation.conf (maintenance.radius_audit_log_cleanup_batch)
-msgid "How many radius audit log entries to clean up in one job"
-msgstr ""
-
 # conf/documentation.conf (fencing.wait_for_redirect)
 msgid "How many seconds the webservice should wait before deassociating or reassigning VLAN. If we don't wait, the device may switch VLAN before it has a chance to load the redirection page."
-msgstr ""
-
-# conf/documentation.conf (maintenance.violation_maintenance_batch)
-msgid "How many violations does pfmon batches"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/DHCP6_Enterprise.pm
@@ -3135,11 +3049,11 @@ msgstr ""
 msgid "If %1 of the following conditions are met:"
 msgstr ""
 
-# conf/documentation.conf (networking.dhcpoption82logger)
+# conf/documentation.conf (network.dhcpoption82logger)
 msgid "If enabled PacketFence will monitor DHCP option82 location-based information. This feature is only available if the dhcpdetector is activated."
 msgstr ""
 
-# conf/documentation.conf (networking.dhcpdetector)
+# conf/documentation.conf (network.dhcpdetector)
 msgid "If enabled, PacketFence will monitor DHCP-specific items such as rogue DHCP services, DHCP-based OS fingerprinting, computername/hostname resolution, and (optionnally) option-82 location-based information. The monitored DHCP packets are DHCPDISCOVERs and DHCPREQUESTs - both are broadcasts, meaning a span port is not necessary.  This feature is highly recommended if the internal network is DHCP-based."
 msgstr ""
 
@@ -3253,52 +3167,8 @@ msgstr ""
 msgid "Internal Sources"
 msgstr ""
 
-# conf/documentation.conf (maintenance.cluster_check_interval)
-msgid "Interval at which PacketFence checks the health state of the cluster and attempts to resolve any detected conflicts"
-msgstr ""
-
-# conf/documentation.conf (maintenance.cleanup_chi_database_cache_interval)
-msgid "Interval at which PacketFence cleans up the CHI database storage"
-msgstr ""
-
-# conf/documentation.conf (maintenance.populate_ntlm_redis_cache_interval)
-msgid "Interval at which PacketFence populates the NTLM cache"
-msgstr ""
-
-# conf/documentation.conf (maintenance.acct_maintenance_interval)
-msgid "Interval at which PacketFence runs accounting maintenance"
-msgstr ""
-
-# conf/documentation.conf (maintenance.inline_accounting_maintenance_interval)
-msgid "Interval at which PacketFence runs inline accounting maintenance"
-msgstr ""
-
-# conf/documentation.conf (maintenance.node_cleanup_interval)
-msgid "Interval at which PacketFence runs node cleanup"
-msgstr ""
-
-# conf/documentation.conf (maintenance.nodes_maintenance_interval)
-msgid "Interval at which PacketFence runs nodes maintenance"
-msgstr ""
-
-# conf/documentation.conf (maintenance.person_cleanup_interval)
-msgid "Interval at which PacketFence runs person cleanup"
-msgstr ""
-
-# conf/documentation.conf (maintenance.provisioning_compliance_poll_interval)
-msgid "Interval at which PacketFence runs the polling enforcement on the provisioners."
-msgstr ""
-
-# conf/documentation.conf (maintenance.violation_maintenance_interval)
-msgid "Interval at which PacketFence runs violation maintenance"
-msgstr ""
-
-# conf/documentation.conf (maintenance.fingerbank_data_update_interval)
-msgid "Interval at which PacketFence updates the local Fingerbank data from the cloud API"
-msgstr ""
-
-# conf/documentation.conf (maintenance.option82_query_interval)
-msgid "Interval at which PacketFence will query compatible switches for DHCP Option 82 switch MAC address"
+# html/pfappserver/root/config/pfmon/list.tt
+msgid "Interval"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Admin.pm
@@ -3356,23 +3226,7 @@ msgid "Languages"
 msgstr ""
 
 # html/pfappserver/root/auditing/radiuslog/index.tt
-msgid "Last 1 hour"
-msgstr ""
-
-# html/pfappserver/root/auditing/radiuslog/index.tt
-msgid "Last 12 hours"
-msgstr ""
-
-# html/pfappserver/root/auditing/radiuslog/index.tt
-msgid "Last 24 hours"
-msgstr ""
-
-# html/pfappserver/root/auditing/radiuslog/index.tt
-msgid "Last 30 minutes"
-msgstr ""
-
-# html/pfappserver/root/auditing/radiuslog/index.tt
-msgid "Last 6 hours"
+msgid "Last"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Field/PfdetectRegexRule.pm
@@ -3743,6 +3597,10 @@ msgstr ""
 msgid "Maintenance"
 msgstr ""
 
+# html/pfappserver/root/config/pfmon/index.tt
+msgid "Maintenance Tasks"
+msgstr ""
+
 # html/pfappserver/root/config/domain/index.tt
 msgid "Make sure you configure IPv4 forwarding on your server before continuing. Refer to the PacketFence administration guide for details."
 msgstr ""
@@ -4053,6 +3911,10 @@ msgstr ""
 
 # html/pfappserver/root/configurator/database.tt
 msgid "New Password"
+msgstr ""
+
+# html/pfappserver/root/config/pfmon/view.tt
+msgid "New Pfmon Entry"
 msgstr ""
 
 # html/pfappserver/root/config/provisioning/view.tt
@@ -4523,6 +4385,18 @@ msgstr "Syslog Parsers - Read"
 msgid "PFDETECT_UPDATE"
 msgstr "Syslog Parsers - Update"
 
+# pf::admin_roles (Actions groups)
+msgid "PFMON"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "PFMON_READ"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "PFMON_UPDATE"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 msgid "PID"
 msgstr ""
@@ -4779,6 +4653,14 @@ msgstr ""
 msgid "Person Name"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Pfmon.pm
+msgid "Pfmon Name"
+msgstr ""
+
+# html/pfappserver/root/config/pfmon/view.tt
+msgid "Pfmon Task"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
 msgid "Phone"
 msgstr ""
@@ -4968,6 +4850,10 @@ msgstr ""
 msgid "Please specify the name of the admin role."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Pfmon.pm
+msgid "Please specify the name of the pfmon entry"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Field/PfdetectRegexRule.pm
 msgid "Please specify the name of the rule"
 msgstr ""
@@ -5107,6 +4993,10 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Twitter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "Portal URL"
+msgstr ""
+
+# html/pfappserver/root/config/portal_module/index.tt
+msgid "Portal modules"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
@@ -5264,6 +5154,7 @@ msgstr ""
 msgid "Queue Counts"
 msgstr ""
 
+# html/pfappserver/root/admin/auditing.tt
 # html/pfappserver/root/auditing/radiuslog/view.tt
 # html/pfappserver/root/config/switch/view.tt
 msgid "RADIUS"
@@ -5289,8 +5180,6 @@ msgstr ""
 msgid "RADIUS Accounting requests received/s"
 msgstr ""
 
-# html/pfappserver/root/admin/auditing.tt
-# html/pfappserver/root/admin/auditing_option82.tt
 # html/pfappserver/root/admin/auditing_radius_log.tt
 msgid "RADIUS Audit Log"
 msgstr "RADIUS Audit Log"
@@ -5298,10 +5187,6 @@ msgstr "RADIUS Audit Log"
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 msgid "RADIUS Average Access-Request Latency"
 msgstr ""
-
-# html/pfappserver/root/admin/auditing.tt
-msgid "RADIUS Log"
-msgstr "RADIUS Log"
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 msgid "RADIUS Total Access-Requests/s"
@@ -5919,6 +5804,7 @@ msgstr "Switches CLI - Write"
 # html/pfappserver/root/config/floatingdevice/view.tt
 # html/pfappserver/root/config/networks/view.tt
 # html/pfappserver/root/config/pfdetect/view.tt
+# html/pfappserver/root/config/pfmon/view.tt
 # html/pfappserver/root/config/pki_provider/view.tt
 # html/pfappserver/root/config/portal_module/view.tt
 # html/pfappserver/root/config/profile/create.tt
@@ -5968,7 +5854,6 @@ msgstr ""
 msgid "Save file"
 msgstr ""
 
-# html/pfappserver/root/admin/auditing.tt
 # html/pfappserver/root/admin/auditing_option82.tt
 # html/pfappserver/root/admin/auditing_radius_log.tt
 # html/pfappserver/root/admin/nodes.tt
@@ -5994,6 +5879,7 @@ msgstr ""
 # html/pfappserver/root/config/floatingdevice/view.tt
 # html/pfappserver/root/config/networks/view.tt
 # html/pfappserver/root/config/pfdetect/view.tt
+# html/pfappserver/root/config/pfmon/view.tt
 # html/pfappserver/root/config/pki_provider/view.tt
 # html/pfappserver/root/config/portal_module/view.tt
 # html/pfappserver/root/config/provisioning/view.tt
@@ -6589,6 +6475,7 @@ msgstr ""
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/wrapper.tt
 # html/pfappserver/root/config/pfdetect/list.tt
+# html/pfappserver/root/config/pfmon/list.tt
 # html/pfappserver/root/configurator/services.tt
 # html/pfappserver/root/node/search.tt
 # html/pfappserver/root/service/status.tt
@@ -6828,6 +6715,10 @@ msgstr ""
 
 # html/pfappserver/root/violation/list.tt
 msgid "Target Role"
+msgstr ""
+
+# html/pfappserver/root/config/pfmon/list.tt
+msgid "Task Name"
 msgstr ""
 
 # html/pfappserver/root/pfqueue/index.tt
@@ -7378,7 +7269,7 @@ msgid "This section is for profiling. Fingerbank will help you every device type
 msgstr ""
 
 # html/pfappserver/root/config/scans/index.tt
-msgid "This section is for scanners. you will be able to configure scan engine nad rules here."
+msgid "This section is for scanners. you will be able to configure scan engine and rules here."
 msgstr ""
 
 # html/pfappserver/root/config/cluster/index.tt
@@ -7405,7 +7296,7 @@ msgstr ""
 msgid "This step covers some basic configuration parameters required to have a functional PacketFence installation."
 msgstr ""
 
-# conf/documentation.conf (networking.force_listener_update_on_ack)
+# conf/documentation.conf (network.force_listener_update_on_ack)
 msgid "This will only do the iplog update and other DHCP related task on a DHCPACK.You need to make sure the UDP reflector is in place so this works on the production network.This is implicitly activated on registration interfaces on which dhcpd runs."
 msgstr ""
 
@@ -7434,7 +7325,7 @@ msgstr ""
 msgid "Tree View"
 msgstr ""
 
-# conf/documentation.conf (networking.rogue_dhcp_detection)
+# conf/documentation.conf (network.rogue_dhcp_detection)
 msgid "Tries to identify Rogue DHCP Servers and triggers the 1100010 violation if one is found. This feature is only available if the dhcpdetector is activated."
 msgstr ""
 
@@ -7842,10 +7733,6 @@ msgstr ""
 msgid "Users Sources"
 msgstr ""
 
-# conf/documentation.conf (maintenance.person_cleanup)
-msgid "Users that do not own any device will be deleted.Locally created users will only be deleted when their account expires."
-msgstr ""
-
 # pf::admin_roles (Actions groups)
 msgid "VIOLATIONS"
 msgstr "Violations"
@@ -8104,7 +7991,7 @@ msgstr ""
 msgid "When enabled, PacketFence will not use the role initialy computed on the portal but will use the dot1x username to recompute the role."
 msgstr ""
 
-# conf/documentation.conf (networking.rogueinterval)
+# conf/documentation.conf (network.rogueinterval)
 msgid "When rogue DHCP server detection is enabled, this parameter defines how often to email administrators.  With its default setting of 10, it will email administrators the details of the previous 10 DHCP offers."
 msgstr ""
 
@@ -8144,7 +8031,7 @@ msgstr ""
 msgid "Whether or not, this redirection can be skipped."
 msgstr ""
 
-# conf/documentation.conf (networking.dhcp_filter_by_message_types)
+# conf/documentation.conf (network.dhcp_filter_by_message_types)
 msgid "Which dhcp message types are being listened by the pfdhcplistener.Do not change unless you know what you are doing"
 msgstr ""
 
@@ -8168,11 +8055,11 @@ msgstr ""
 msgid "Will cache results of matching a rule"
 msgstr ""
 
-# conf/documentation.conf (networking.hostname_change_detection)
+# conf/documentation.conf (network.hostname_change_detection)
 msgid "Will identify hostname changes and send an e-mail with these changes.This can help detect MAC spoofing."
 msgstr ""
 
-# conf/documentation.conf (networking.dhcp_rate_limiting)
+# conf/documentation.conf (network.dhcp_rate_limiting)
 msgid "Will rate-limit DHCP packets that contain the same information.For example, a DHCPREQUEST for the same MAC/IP will only be processed once in the timeframe configured below.This is independant of the DHCP server/relay handling the packet and is only based on the IP, MAC Address and DHCP type inside the packet.A value of 0 will disable the rate limitation."
 msgstr ""
 
@@ -8786,8 +8673,8 @@ msgid "device_registration"
 msgstr "Device registration"
 
 # conf/documentation.conf
-msgid "device_registration.status"
-msgstr "Enable device registration"
+msgid "device_registration.activation"
+msgstr "Enabled"
 
 # conf/documentation.conf
 msgid "device_registration.role"
@@ -8832,14 +8719,12 @@ msgstr ""
 # conf/documentation.conf (fencing.interception_proxy options)
 # conf/documentation.conf (fencing.passthrough options)
 # conf/documentation.conf (inline.should_reauth_on_vlan_change options)
-# conf/documentation.conf (maintenance.iplog_rotation options)
-# conf/documentation.conf (maintenance.person_cleanup options)
 # conf/documentation.conf (mse_tab.enabled options)
-# conf/documentation.conf (networking.dhcpdetector options)
-# conf/documentation.conf (networking.dhcpoption82logger options)
-# conf/documentation.conf (networking.force_listener_update_on_ack options)
-# conf/documentation.conf (networking.hostname_change_detection options)
-# conf/documentation.conf (networking.rogue_dhcp_detection options)
+# conf/documentation.conf (network.dhcpdetector options)
+# conf/documentation.conf (network.dhcpoption82logger options)
+# conf/documentation.conf (network.force_listener_update_on_ack options)
+# conf/documentation.conf (network.hostname_change_detection options)
+# conf/documentation.conf (network.rogue_dhcp_detection options)
 # conf/documentation.conf (omapi.ip2mac_lookup options)
 # conf/documentation.conf (omapi.mac2ip_lookup options)
 # conf/documentation.conf (parking.place_in_dhcp_parking_group options)
@@ -8950,14 +8835,12 @@ msgstr ""
 # conf/documentation.conf (fencing.interception_proxy options)
 # conf/documentation.conf (fencing.passthrough options)
 # conf/documentation.conf (inline.should_reauth_on_vlan_change options)
-# conf/documentation.conf (maintenance.iplog_rotation options)
-# conf/documentation.conf (maintenance.person_cleanup options)
 # conf/documentation.conf (mse_tab.enabled options)
-# conf/documentation.conf (networking.dhcpdetector options)
-# conf/documentation.conf (networking.dhcpoption82logger options)
-# conf/documentation.conf (networking.force_listener_update_on_ack options)
-# conf/documentation.conf (networking.hostname_change_detection options)
-# conf/documentation.conf (networking.rogue_dhcp_detection options)
+# conf/documentation.conf (network.dhcpdetector options)
+# conf/documentation.conf (network.dhcpoption82logger options)
+# conf/documentation.conf (network.force_listener_update_on_ack options)
+# conf/documentation.conf (network.hostname_change_detection options)
+# conf/documentation.conf (network.rogue_dhcp_detection options)
 # conf/documentation.conf (omapi.ip2mac_lookup options)
 # conf/documentation.conf (omapi.mac2ip_lookup options)
 # conf/documentation.conf (parking.place_in_dhcp_parking_group options)
@@ -9385,170 +9268,6 @@ msgstr "Send Email"
 msgid "mail_loading"
 msgstr "Sending .."
 
-# conf/documentation.conf
-msgid "maintenance"
-msgstr "Maintenance"
-
-# conf/documentation.conf
-msgid "maintenance.acct_maintenance_interval"
-msgstr "Acct Maintenance Interval"
-
-# conf/documentation.conf
-msgid "maintenance.auth_log_cleanup_batch"
-msgstr "Authentication log Cleanup Batch"
-
-# conf/documentation.conf
-msgid "maintenance.auth_log_cleanup_interval"
-msgstr "Authentication log Cleanup Interval"
-
-# conf/documentation.conf
-msgid "maintenance.auth_log_cleanup_timeout"
-msgstr "Authentication log Cleanup Timeout"
-
-# conf/documentation.conf
-msgid "maintenance.auth_log_cleanup_window"
-msgstr "Authentication log Cleanup Window"
-
-# conf/documentation.conf
-msgid "maintenance.cleanup_chi_database_cache_batch"
-msgstr "CHI database storage cleanup Batch"
-
-# conf/documentation.conf
-msgid "maintenance.cleanup_chi_database_cache_interval"
-msgstr "CHI database storage cleanup Interval"
-
-# conf/documentation.conf
-msgid "maintenance.cleanup_chi_database_cache_timeout"
-msgstr "CHI database storage cleanup Timeout"
-
-# conf/documentation.conf
-msgid "maintenance.cluster_check_interval"
-msgstr "Cluster Check Interval"
-
-# conf/documentation.conf
-msgid "maintenance.fingerbank_data_update_interval"
-msgstr "Fingerbank Data Update Interval"
-
-# conf/documentation.conf
-msgid "maintenance.inline_accounting_maintenance_interval"
-msgstr "Inline Accounting Maintenance Interval"
-
-# conf/documentation.conf
-msgid "maintenance.iplog_cleanup_batch"
-msgstr "Iplog Cleanup Batch"
-
-# conf/documentation.conf
-msgid "maintenance.iplog_cleanup_interval"
-msgstr "Iplog Cleanup Interval"
-
-# conf/documentation.conf
-msgid "maintenance.iplog_cleanup_timeout"
-msgstr "Iplog Cleanup Timeout"
-
-# conf/documentation.conf
-msgid "maintenance.iplog_cleanup_window"
-msgstr "Iplog Cleanup Window"
-
-# conf/documentation.conf
-msgid "maintenance.iplog_rotation"
-msgstr "Iplog Rotation"
-
-# conf/documentation.conf
-msgid "maintenance.iplog_rotation_batch"
-msgstr "Iplog Rotation Batch"
-
-# conf/documentation.conf
-msgid "maintenance.iplog_rotation_interval"
-msgstr "Iplog Rotation Interval"
-
-# conf/documentation.conf
-msgid "maintenance.iplog_rotation_timeout"
-msgstr "Iplog Rotation Timeout"
-
-# conf/documentation.conf
-msgid "maintenance.iplog_rotation_window"
-msgstr "Iplog Rotation Window"
-
-# conf/documentation.conf
-msgid "maintenance.locationlog_cleanup_batch"
-msgstr "Locationlog Cleanup Batch"
-
-# conf/documentation.conf
-msgid "maintenance.locationlog_cleanup_interval"
-msgstr "Locationlog Cleanup Interval"
-
-# conf/documentation.conf
-msgid "maintenance.locationlog_cleanup_timeout"
-msgstr "Locationlog Cleanup Timeout"
-
-# conf/documentation.conf
-msgid "maintenance.locationlog_cleanup_window"
-msgstr "Locationlog Cleanup Window"
-
-# conf/documentation.conf
-msgid "maintenance.node_cleanup_interval"
-msgstr "Node Cleanup Interval"
-
-# conf/documentation.conf
-msgid "maintenance.node_cleanup_window"
-msgstr "Node Cleanup Window"
-
-# conf/documentation.conf
-msgid "maintenance.node_unreg_window"
-msgstr "Node Unregistration Window"
-
-# conf/documentation.conf
-msgid "maintenance.nodes_maintenance_interval"
-msgstr "Nodes Maintenance Interval"
-
-# conf/documentation.conf
-msgid "maintenance.option82_query_interval"
-msgstr "Option82 Query Interval"
-
-# conf/documentation.conf
-msgid "maintenance.person_cleanup"
-msgstr "Users Cleanup"
-
-# conf/documentation.conf
-msgid "maintenance.person_cleanup_interval"
-msgstr "Users Cleanup Interval"
-
-# conf/documentation.conf
-msgid "maintenance.populate_ntlm_redis_cache_interval"
-msgstr "NTLM cache job interval"
-
-# conf/documentation.conf
-msgid "maintenance.provisioning_compliance_poll_interval"
-msgstr "Provisioning Compliance Poll Interval"
-
-# conf/documentation.conf
-msgid "maintenance.radius_audit_log_cleanup_batch"
-msgstr "RADIUS Audit Log Cleanup Batch"
-
-# conf/documentation.conf
-msgid "maintenance.radius_audit_log_cleanup_interval"
-msgstr "RADIUS Audit Log Cleanup Interval"
-
-# conf/documentation.conf
-msgid "maintenance.radius_audit_log_cleanup_timeout"
-msgstr "RADIUS Audit Log Cleanup Timeout"
-
-# conf/documentation.conf
-msgid "maintenance.radius_audit_log_cleanup_window"
-msgstr "RADIUS Audit Log Cleanup Window"
-
-# conf/documentation.conf
-msgid "maintenance.violation_maintenance_batch"
-msgstr "Violation Maintenance Batch"
-
-# conf/documentation.conf
-msgid "maintenance.violation_maintenance_interval"
-msgstr "Violation Maintenance Interval"
-
-# conf/documentation.conf
-msgid "maintenance.violation_maintenance_timeout"
-msgstr "Violation Maintenance Timeout"
-
 # conf/documentation.conf (interface.type options)
 msgid "managed"
 msgstr ""
@@ -9703,43 +9422,43 @@ msgid "nas_port_type"
 msgstr "NAS Port Type"
 
 # conf/documentation.conf
-msgid "networking"
-msgstr "Network"
+msgid "network"
+msgstr "Networking"
 
 # conf/documentation.conf
-msgid "networking.dhcp_filter_by_message_types"
+msgid "network.dhcp_filter_by_message_types"
 msgstr "DHCP Filter By Message Types"
 
 # conf/documentation.conf
-msgid "networking.dhcp_rate_limiting"
+msgid "network.dhcp_rate_limiting"
 msgstr "DHCP detector rate limiting"
 
 # conf/documentation.conf
-msgid "networking.dhcpdetector"
+msgid "network.dhcpdetector"
 msgstr "DHCP detector"
 
 # conf/documentation.conf
-msgid "networking.dhcpoption82logger"
+msgid "network.dhcpoption82logger"
 msgstr "DHCP option82"
 
 # conf/documentation.conf
-msgid "networking.force_listener_update_on_ack"
+msgid "network.force_listener_update_on_ack"
 msgstr "Force Listener update on DHCPACK"
 
 # conf/documentation.conf
-msgid "networking.hostname_change_detection"
+msgid "network.hostname_change_detection"
 msgstr "Detect hostname changes"
 
 # conf/documentation.conf
-msgid "networking.interfaceSNAT"
+msgid "network.interfaceSNAT"
 msgstr "SNAT Interface"
 
 # conf/documentation.conf
-msgid "networking.rogue_dhcp_detection"
+msgid "network.rogue_dhcp_detection"
 msgstr "Rogue DHCP detection"
 
 # conf/documentation.conf
-msgid "networking.rogueinterval"
+msgid "network.rogueinterval"
 msgstr "Rogue interval"
 
 # html/pfappserver/root/config/pfdetect/view.tt
