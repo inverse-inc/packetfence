@@ -48,7 +48,6 @@ type PfConfGeneral struct {
 	PfconfigNS     string `val:"config::Pf"`
 	PfconfigHashNS string `val:"general"`
 	Domain         string `json:"domain"`
-	DNS_Servers    string `json:"dnsservers"`
 	Timezone       string `json:"timezone"`
 	Hostname       string `json:"hostname"`
 	DHCP_Servers   string `json:"dhcpservers"`
