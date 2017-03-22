@@ -748,7 +748,10 @@ sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config
 # Getting rid of wrong ipv6 dns address
 sed -i 's/\%.*$//g' /etc/resolv.conf
 
-# skip if this is an update
+# Enabling ip forwarding
+echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
+sysctl -p /etc/sysctl.conf
+
 #Starting PacketFence.
 echo "Starting PacketFence Administration GUI..."
 #removing old cache
