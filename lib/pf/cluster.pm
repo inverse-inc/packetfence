@@ -106,7 +106,7 @@ Returns 1 if this node is the management node (i.e. owning the management ip)
 sub is_management {
     my $logger = get_logger();
     unless($cluster_enabled){
-        $logger->info("Clustering is not enabled. Cannot be management node.");
+        $logger->debug("Clustering is not enabled. Cannot be management node.");
         return 0;
     }
     my $cluster_ip = management_cluster_ip();
