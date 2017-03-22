@@ -936,7 +936,7 @@ sub _generate_hosts {
     if (@cluster_hosts) {
         @hosts = @cluster_hosts;
     }
-    elsif ($Config{'monitoring'}{'graphite_hosts'}) {
+    elsif ($Config{'graphite'}{'graphite_hosts'}) {
 
     }
     else {
