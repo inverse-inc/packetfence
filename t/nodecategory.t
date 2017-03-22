@@ -39,7 +39,6 @@ can_ok('pf::nodecategory', qw(
     nodecategory_view_by_name
     nodecategory_add
     nodecategory_modify
-    nodecategory_delete
     nodecategory_exist
     nodecategory_lookup
 ));
