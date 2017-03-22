@@ -1564,7 +1564,7 @@ After, you simply need to add the 'Android' and 'iOS' provisioners to your 'Conn
 
 For Android, you must allow passthroughs in your `pf.conf` configuration file:
 
-  [trapping]
+  [fencing]
   passthrough=enabled
   passthroughs=*.ggpht.com,*.googleusercontent.com,android.clients.google.com,*.googleapis.com,*.android.clients.google.com,*.gvt1.com
 
@@ -2148,7 +2148,7 @@ In order to have oauth2 working properly, you need to enable IP forwarding on yo
 
 Save the file, and issue a `sysctl -p` to update the OS config.
 
-You must also enable the passthrough option in your PacketFence configuration (trapping.passthrough in pf.conf).
+You must also enable the passthrough option in your PacketFence configuration (fencing.passthrough in pf.conf).
 
 Google
 ^^^^^^
@@ -2743,21 +2743,6 @@ Blocking malicious activities with violations
 Policy violations allow you to restrict client system access based on violations of certain policies. For example, if you do not allow P2P type traffic on your network, and you are running the appropriate software to detect it and trigger a violation for a given client, PacketFence will give that client a "blocked" page which can be customized to your wishes.
 
 In order to be able to block malicious activities, installation and configuration of a PacketFence compatible IDS is required. PacketFence currently support Snort, Suricata and Security Onion.
-
-Snort
-^^^^^
-
-Installation
-++++++++++++
-
-The installation procedure is quite simple for SNORT. We maintain a working version on the PacketFence repository. To install it, simply run the following command:
-
-  yum install snort
-
-Configuration
-+++++++++++++
-
-PacketFence provides a basic `snort.conf` template that you may need to edit depending of the Snort version. The file is located in `/usr/local/pf/conf`. It is rarely necessary to change anything in that file to make Snort work and trap alerts. DO NOT edit the `snort.conf` located in `/usr/local/pf/var/conf`, all the modification will be destroyed on each PacketFence restart.
 
 Suricata
 ^^^^^^^^

@@ -53,11 +53,11 @@ type PfConfGeneral struct {
 	DHCP_Servers   string `json:"dhcpservers"`
 }
 
-type PfConfTrapping struct {
+type PfConfFencing struct {
 	StructConfig
 	PfconfigMethod        string   `val:"hash_element"`
 	PfconfigNS            string   `val:"config::Pf"`
-	PfconfigHashNS        string   `val:"trapping"`
+	PfconfigHashNS        string   `val:"fencing"`
 	WirelessIpsThreshold  string   `json:"wireless_ips_threshold"`
 	InterceptionProxy     string   `json:"interception_proxy"`
 	Detection             string   `json:"detection"`
@@ -131,7 +131,7 @@ type configStruct struct {
 	}
 	PfConf struct {
 		General       PfConfGeneral
-		Trapping      PfConfTrapping
+		Fencing       PfConfFencing
 		CaptivePortal PfConfCaptivePortal
 	}
 }

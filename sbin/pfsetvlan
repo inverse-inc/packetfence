@@ -2030,7 +2030,7 @@ sub handle_wireless_ips {
    my ($trapMac) = @_;
 
    # Return if wireless IPS feature is disabled
-   return if (isdisabled($Config{'trapping'}{'wireless_ips'}));
+   return if (isdisabled($Config{'fencing'}{'wireless_ips'}));
 
    # Grab the OUI part
    $trapMac =~ /^([0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}).*$/;
@@ -2040,7 +2040,7 @@ sub handle_wireless_ips {
    #compare the strings, and output the percentage of match
    my $match;
    my %matchingNodes;
-   my $threshold = $Config{'trapping'}{'wireless_ips_threshold'};
+   my $threshold = $Config{'fencing'}{'wireless_ips_threshold'};
 
    if (defined($nodes[0])) {
     foreach (@nodes) {

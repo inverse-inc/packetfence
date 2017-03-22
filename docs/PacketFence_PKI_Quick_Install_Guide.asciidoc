@@ -416,7 +416,7 @@ Passthroughs required for Android
 
 Android devices require passthroughs to be created to allow them to fetch the configuration application from the Play Store.
 
-Add the following to the "Trapping" section of the Configuration tab in the PacketFence GUI.
+Add the following to the "Fencing" section of the Configuration tab in the PacketFence GUI.
 
 ----
 passthrough=enabled

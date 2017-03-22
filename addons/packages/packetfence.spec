@@ -1134,11 +1134,6 @@ fi
 %config(noreplace)      /usr/local/pf/conf/roles.conf
 %config                 /usr/local/pf/conf/roles.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/snmptrapd.conf
-%config(noreplace)      /usr/local/pf/conf/snort.conf
-%config(noreplace)      /usr/local/pf/conf/snort.conf.pre_snort-2.8
-                        /usr/local/pf/conf/snort.conf.pre_snort-2.8.example
-%config(noreplace)      /usr/local/pf/conf/suricata.yaml
-                        /usr/local/pf/conf/suricata.yaml.example
 %config                 /usr/local/pf/conf/ui.conf
 %config                 /usr/local/pf/conf/ui.conf.es_ES
 %config(noreplace)      /usr/local/pf/conf/ui-global.conf
