@@ -1,6 +1,7 @@
 <h4 class="alert alert-warning">[% l('This section is for the database. Make sure you know what you are doing before modifying setting, especially in the advanced section.') %]</h4>
 
 <div class="card">
+<div class="card-title">
 <div id="tabView">
   <ul class="nav nav-tabs">
     <li [% IF tab == 'database' %]class="active"[% END %]>
