@@ -269,7 +269,7 @@ Requires: perl(POSIX::AtFork)
 Requires: perl(Hash::Merge)
 Requires: perl(IO::Socket::INET6)
 Requires: perl(IO::Interface)
-Requires: perl(Time::Period)
+Requires: perl(Time::Period) >= 1.25
 Requires: perl(Time::Piece)
 Requires: perl(Number::Range)
 Requires: perl(Algorithm::Combinatorics)

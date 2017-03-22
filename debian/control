@@ -68,7 +68,7 @@ Depends: ${misc:Depends}, vlan,
  perl-modules,libdata-swap-perl,libdata-structure-util-perl,
  liblinux-fd-perl, liblinux-inotify2-perl, libfile-touch-perl, libhash-merge-perl, libposix-atfork-perl,
  libcrypt-openssl-pkcs12-perl,libcrypt-openssl-x509-perl,libconst-fast-perl,
- libtime-period-perl, libtime-piece-perl, libsereal-encoder-perl, libsereal-decoder-perl, libdata-serializer-sereal-perl (>= 1.04), libphp-serialization-perl,
+ libtime-period-perl (>= 1.25), libtime-piece-perl, libsereal-encoder-perl, libsereal-decoder-perl, libdata-serializer-sereal-perl (>= 1.04), libphp-serialization-perl,
  libnet-ip-perl, libdigest-hmac-perl, libcrypt-openssl-pkcs10-perl, libcrypt-openssl-rsa-perl, libfile-tempdir-perl,
  liburi-escape-xs-perl, libsql-abstract-more-perl (>= 1.28), libio-socket-timeout-perl, liblinux-distribution-perl, libwww-twilio-api-perl,
 # hard-coded to specific version because v3 broke the API and we haven't ported to it yet
