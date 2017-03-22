@@ -17,12 +17,11 @@
       </div>
 
 <div class="card">
-  <div class="card-block">
+    <div class="card-title">
       <h2>[% l('WRIX') %]</h2>
-  </div>
-      <div class="well">
-        [% INCLUDE config/wrix/search_form.tt %]
-      </div>
+    </div>
+    <div class="card-block">
+      [% INCLUDE config/wrix/search_form.tt %]
       [% INCLUDE config/wrix/list.tt %]
       <div class="form-actions">
         <a class="btn createItem" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add Wrix Entry') %]</a>
