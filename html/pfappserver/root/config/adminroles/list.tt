@@ -1,3 +1,5 @@
+<div class="card">
+  <div class="card-block">
       <table id="items" class="table items[% ' hidden' UNLESS items.size %]" data-list-uri="[% c.uri_for(c.controller.action_for('list')) %]">
         <thead>
           <tr>
@@ -19,3 +21,5 @@
           [% END -%]
         </tbody>
       </table>
+</div>
+</div>
