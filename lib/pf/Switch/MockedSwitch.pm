@@ -538,7 +538,7 @@ sub bouncePort {
     my ($self, $ifIndex) = @_;
 
     #$self->setAdminStatus( $ifIndex, $SNMP::DOWN );
-    sleep($Config{'vlan'}{'bounce_duration'});
+    sleep($Config{'snmp_traps'}{'bounce_duration'});
     #$self->setAdminStatus( $ifIndex, $SNMP::UP );
 
     return $TRUE;

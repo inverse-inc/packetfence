@@ -187,8 +187,8 @@ foreach my $switch_id ( grep { $_ ne 'default' } keys %{ pf::SwitchFactory->conf
 }
 
 db_disconnect();
-add_new_threads_to_list( "signalHandlerThreadListQueued", $Config{'vlan'}{'nbtraphandlerthreads'} );
-add_new_threads_to_list( "signalHandlerTrapListQueued"  , $Config{'vlan'}{'nbtrapparserthreads'}  );
+add_new_threads_to_list( "signalHandlerThreadListQueued", $Config{'snmp_traps'}{'nbtraphandlerthreads'} );
+add_new_threads_to_list( "signalHandlerTrapListQueued"  , $Config{'snmp_traps'}{'nbtrapparserthreads'}  );
 db_connect();
 
 sub add_new_threads_to_list {
@@ -1789,7 +1789,7 @@ sub normal_sighandler {
     my $logger     = get_logger('pfsetvlan');
     my $lockLogger = get_logger('pfsetvlan::locking');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
-    if (   ( isenabled( $Config{'vlan'}{'closelocationlogonstop'} ) )
+    if (   ( isenabled( $Config{'snmp_traps'}{'closelocationlogonstop'} ) )
         && ( threads->self->tid() == 0 ) )
     {
 
@@ -1880,14 +1880,14 @@ sub perform_trap_limiting {
     my $logger = get_logger('pfsetvlan');
 
     # skipping if feature is disabled
-    return $FALSE if (isdisabled($Config{'vlan'}{'trap_limit'}));
+    return $FALSE if (isdisabled($Config{'snmp_traps'}{'trap_limit'}));
 
     # skipping if trapIfIndex is undef
     return $FALSE if (!defined($switchIfIndex));
 
     # Poking tied config files here instead of declaring them globally is arguably discutable on terms of performances
-    my $trapsLimitThreshold = $Config{'vlan'}{'trap_limit_threshold'};
-    my $trapsLimitAction = $Config{'vlan'}{'trap_limit_action'};
+    my $trapsLimitThreshold = $Config{'snmp_traps'}{'trap_limit_threshold'};
+    my $trapsLimitAction = $Config{'snmp_traps'}{'trap_limit_action'};
 
     my $switchId = $switch->{_id};
     my $cached_traps_switchIfIndex = $traps_switchIfIndex_cache->get($switchId.$switchIfIndex);
@@ -1928,7 +1928,7 @@ sub perform_trap_limiting {
     }
 
     $logger->warn(
-        "We received many traps (over $Config{'vlan'}{'trap_limit_threshold'}) in a minute "
+        "We received many traps (over $Config{'snmp_traps'}{'trap_limit_threshold'}) in a minute "
         . "from ifIndex $switchIfIndex of switch $switch->{_id}"
     );
 

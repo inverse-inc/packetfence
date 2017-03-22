@@ -830,15 +830,15 @@ sub node_determine_and_set_into_VLAN {
 # sub perform_trap_limiting {{{1
 sub perform_trap_limiting {
     # skipping if feature is disabled
-    return $FALSE if (isdisabled($Config{'vlan'}{'trap_limit'}));
+    return $FALSE if (isdisabled($Config{'snmp_traps'}{'trap_limit'}));
 
     my ( $switch, $switchIfIndex ) = @_;
     # skipping if trapIfIndex is undef
     return $FALSE if (!defined($switchIfIndex));
 
     # Poking tied config files here instead of declaring them globally is arguably discutable on terms of performances
-    my $trapsLimitThreshold = $Config{'vlan'}{'trap_limit_threshold'};
-    my $trapsLimitAction = $Config{'vlan'}{'trap_limit_action'};
+    my $trapsLimitThreshold = $Config{'snmp_traps'}{'trap_limit_threshold'};
+    my $trapsLimitAction = $Config{'snmp_traps'}{'trap_limit_action'};
 
     my $switchId = $switch->{_id};
     my $cached_traps_switchIfIndex = $traps_switchIfIndex_cache->get($switchId.$switchIfIndex);
@@ -879,7 +879,7 @@ sub perform_trap_limiting {
     }
 
     $logger->warn(
-        "We received many traps (over $Config{'vlan'}{'trap_limit_threshold'}) in a minute "
+        "We received many traps (over $Config{'snmp_traps'}{'trap_limit_threshold'}) in a minute "
         . "from ifIndex $switchIfIndex of switch $switch->{_id}"
     );
 
