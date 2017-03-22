@@ -49,6 +49,30 @@ $result = $mem->compute_from_subcache($testkey, sub {"value changed !"});
 is($result, "value changed !", 
     "Value is properly recompute_from_subcached when namespace expired.");
 
+my $testns2 = "testns2";
+$mem = pfconfig::memory_cached->new($testns, $testns2);
+
+$result = $mem->compute_from_subcache($testkey, sub {"dinde"});
+is($result, "dinde", 
+    "Computing should return proper value");
+
+$result = $mem->compute_from_subcache($testkey, sub {"that-would-be-bad"});
+is($result, "dinde", 
+    "Computing should return cached value if no namespace has expired in the namespace list");
+
+$manager->touch_cache($testns);
+
+$result = $mem->compute_from_subcache($testkey, sub {"value changed !"});
+is($result, "value changed !", 
+    "Value is properly recompute_from_subcached when one of the namespaces expired.");
+
+$manager->touch_cache($testns2);
+
+$result = $mem->compute_from_subcache($testkey, sub {"value changed again !"});
+is($result, "value changed !", 
+    "Value is properly recompute_from_subcached when on of the namespaces expired.");
+
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
