@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 6.5.9\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-03-22 12:55-0400\n"
+"PO-Revision-Date: 2017-03-22 14:09-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -248,6 +248,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Twilio.pm
 msgid "Account SID"
+msgstr ""
+
+# conf/documentation.conf (inline.layer3_accounting_session_timeout)
+msgid "Accounting sessions created by pfbandwidthd that haven't been updated for more than this amount of seconds will be considered inactive. This should be higher than the interval at which pfmon runs Defaults to 300 - 5 minutes"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule.pm
@@ -2448,7 +2452,7 @@ msgstr ""
 msgid "Enable external portal enforcement when supported by network equipment"
 msgstr ""
 
-# conf/documentation.conf (device_registration.activation)
+# conf/documentation.conf (device_registration.status)
 msgid "Enable or Disable the ability to register a device using the specific portal page designed to do it"
 msgstr ""
 
@@ -3169,6 +3173,10 @@ msgstr ""
 
 # html/pfappserver/root/config/pfmon/list.tt
 msgid "Interval"
+msgstr ""
+
+# conf/documentation.conf (inline.layer3_accounting_sync_interval)
+msgid "Interval at which pfbandwidthd should dump collected information into the database. This should be lower than the interval at which pfmon runs. Defaults to 41 seconds"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Admin.pm
@@ -5007,6 +5015,10 @@ msgstr ""
 msgid "Portal modules"
 msgstr ""
 
+# conf/documentation.conf (inline.ports_redirect)
+msgid "Ports to intercept and redirect for trapped and unregistered systems.  Defaults to 80/tcp (HTTP), 443/tcp (HTTPS). Redirecting 443/tcp (SSL) will work, although users might get certificate errors if you didn't install a valid certificate or if you don't use DNS (although IP-based certificates supposedly exist). Redirecting 53/udp (DNS) seems to have issues and is also not recommended."
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "Precreate the computer account in a specific OU. The OU string read from top to bottom without RDNs and delimited by a '/'. E.g. \"Computers/Servers/Unix\""
 msgstr ""
@@ -6306,6 +6318,10 @@ msgstr ""
 
 # conf/documentation.conf (services.redis_ntlm_cache)
 msgid "Should the redis NTLM cache be started? Use this if you are enabling an Active Directory NTLM cache."
+msgstr ""
+
+# conf/documentation.conf (inline.accounting)
+msgid "Should we handle accouting data for inline clients? This controls inline accouting tasks in pfmon."
 msgstr ""
 
 # conf/documentation.conf (services.winbindd)
@@ -7930,6 +7946,7 @@ msgstr ""
 msgid "WPA2"
 msgstr ""
 
+# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/wrix/index.tt
 # pf::admin_roles (Actions groups)
 msgid "WRIX"
@@ -8681,12 +8698,12 @@ msgid "device_registration"
 msgstr "Device registration"
 
 # conf/documentation.conf
-msgid "device_registration.activation"
-msgstr "Enabled"
-
-# conf/documentation.conf
 msgid "device_registration.role"
 msgstr "Device registration role"
+
+# conf/documentation.conf
+msgid "device_registration.status"
+msgstr "Activate device registration"
 
 # conf/documentation.conf (interface.type options)
 msgid "dhcp-listener"
@@ -8723,9 +8740,10 @@ msgstr ""
 # conf/documentation.conf (captive_portal.secure_redirect options)
 # conf/documentation.conf (captive_portal.status_only_on_production options)
 # conf/documentation.conf (captive_portal.wispr_redirection options)
-# conf/documentation.conf (device_registration.activation options)
+# conf/documentation.conf (device_registration.status options)
 # conf/documentation.conf (fencing.interception_proxy options)
 # conf/documentation.conf (fencing.passthrough options)
+# conf/documentation.conf (inline.accounting options)
 # conf/documentation.conf (inline.should_reauth_on_vlan_change options)
 # conf/documentation.conf (mse_tab.enabled options)
 # conf/documentation.conf (network.dhcpdetector options)
@@ -8839,9 +8857,10 @@ msgstr ""
 # conf/documentation.conf (captive_portal.secure_redirect options)
 # conf/documentation.conf (captive_portal.status_only_on_production options)
 # conf/documentation.conf (captive_portal.wispr_redirection options)
-# conf/documentation.conf (device_registration.activation options)
+# conf/documentation.conf (device_registration.status options)
 # conf/documentation.conf (fencing.interception_proxy options)
 # conf/documentation.conf (fencing.passthrough options)
+# conf/documentation.conf (inline.accounting options)
 # conf/documentation.conf (inline.should_reauth_on_vlan_change options)
 # conf/documentation.conf (mse_tab.enabled options)
 # conf/documentation.conf (network.dhcpdetector options)
@@ -9120,8 +9139,24 @@ msgid "inline"
 msgstr "Inline"
 
 # conf/documentation.conf
+msgid "inline.accounting"
+msgstr ""
+
+# conf/documentation.conf
 msgid "inline.interfaceSNAT"
 msgstr "SNAT Interface"
+
+# conf/documentation.conf
+msgid "inline.layer3_accounting_session_timeout"
+msgstr ""
+
+# conf/documentation.conf
+msgid "inline.layer3_accounting_sync_interval"
+msgstr ""
+
+# conf/documentation.conf
+msgid "inline.ports_redirect"
+msgstr ""
 
 # conf/documentation.conf
 msgid "inline.should_reauth_on_vlan_change"
