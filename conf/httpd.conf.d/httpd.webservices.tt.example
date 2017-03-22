@@ -165,6 +165,7 @@ SSLHonorCipherOrder  on
 
 TraceEnable Off
 
+Header always append X-Frame-Options SAMEORIGIN
 ErrorLog  [% install_dir %]/logs/[% name %].error
 
 User pf
