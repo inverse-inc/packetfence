@@ -1,7 +1,7 @@
 <h4 class="alert alert-warning">[% l('This section is for the database. Make sure you know what you are doing before modifying setting, especially in the advanced section.') %]</h4>
 
 <div class="card">
-<div class="card-title">
+<div class="card-block">
 <div id="tabView">
   <ul class="nav nav-tabs">
     <li [% IF tab == 'database' %]class="active"[% END %]>
@@ -11,10 +11,10 @@
       <a href="#newTabView" data-href="[% c.uri_for(c.controller('Configuration').action_for('section'), 'database_advanced') %]" data-toggle="tab">[% l('Database Advanced') %]</a>
     </li>
   </ul>
-</div>
 <div class="tab-content">
   <div class="tab-pane fade" id="newTabView">
   </div><!--tab-pane-->
+</div>
 </div>
 </div>
 </div>
