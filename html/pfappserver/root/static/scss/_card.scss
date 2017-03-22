@@ -34,6 +34,10 @@
   @include clearfix();
 }
 
+#section:not(.card-block) {
+  margin-top: 20px;
+}
+
 .card .form-actions {
   margin: 0;
   background-color: initial;
