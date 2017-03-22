@@ -79,12 +79,6 @@ sub reevaluate_access {
     # Untaint MAC
     $mac = clean_mac($mac);
 
-    # function must be in advanced.reevaluate_access_reasons list otherwise bail out
-    if ( none { $_ eq $function } split( /\s*,\s*/, $Config{'advanced'}{'reevaluate_access_reasons'} ) ) {
-        $logger->info("access re-evaluation requested but denied by configuration");
-        return $FALSE;
-    }
-
     $logger->info("re-evaluating access ($function called)");
     $opts{'force'} = '1' if ($function eq 'admin_modify');
 
