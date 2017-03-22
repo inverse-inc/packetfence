@@ -38,7 +38,7 @@ use pf::config qw(
 use pfconfig::memory_cached;
 
 # a memory cache tied to the config::Profiles namepace
-our $SOURCES_CACHE = pfconfig::memory_cached->new('config::Profiles');
+our $SOURCES_CACHE = pfconfig::memory_cached->new('config::Profiles', 'config::Authentication');
 
 =head1 METHODS
 
