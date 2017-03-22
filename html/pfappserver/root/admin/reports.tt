@@ -1,5 +1,4 @@
 [%  jsFiles = [
-        'app/jquery-ui',
         'app/raphael/raphael-min',
         'app/raphael/g.raphael-min',
         'app/raphael/g.bar-min',
@@ -7,10 +6,7 @@
         'app/raphael/g.line-min',
         'app/raphael/g.pie-min',
         'app/graphs',
-        'app/bootstrap-datepicker',
-        'app/bootstrap-timepicker',
         'admin/config/items',
-        'js/bootstrapSwitch',
         'js/node',
         'js/user',
         'admin/searches',
@@ -19,7 +15,6 @@
         'admin/dynamicreport'
         ]
      cssFiles = [
-        'app/bootstrap-timepicker',
         'admin/reports'
         ] -%]
 [% MACRO list_entry(action,description) BLOCK %]

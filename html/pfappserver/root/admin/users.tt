@@ -1,9 +1,4 @@
 [%  jsFiles = [
-        'app/bootstrap-datepicker',
-        'app/bootstrap-timepicker',
-        'app/chosen.jquery.min',
-        'app/jquery-ui',
-        'app/jquery.ba-hashchange',
         'app/raphael/raphael-min',
         'app/raphael/g.raphael-min',
         'app/raphael/g.bar-min',
@@ -14,20 +9,13 @@
         'app/uri',
         'admin/users',
         'admin/searches',
-        'js/bootstrapSwitch',
         'js/node',
         'js/user',
         ]
      cssFiles = [
-        'app/bootstrap-datepicker',
-        'app/bootstrap-timepicker',
-        'css/bootstrapSwitch',
         ] -%]
 
 <style type="text/css">
-form {
-    margin-bottom: 0px;
-}
 .bootstrap-timepicker table {
     width: 160px;
 }

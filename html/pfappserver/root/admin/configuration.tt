@@ -1,7 +1,5 @@
 [%  jsFiles = [
         'app/ace/ace'
-        'app/bootstrap-datepicker',
-        'app/bootstrap-timepicker',
         'app/client/fineuploader',
         'app/client/jquery-plugin',
         'app/pf-bootstrap-swap-class',
@@ -11,8 +9,6 @@
         'js/tree.jquery',
         ]
      cssFiles = [
-        'app/bootstrap-datepicker',
-        'app/bootstrap-timepicker',
         'app/client/fineuploader',
         'css/jqtree',
         'admin/config/switches',

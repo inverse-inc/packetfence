@@ -6,12 +6,9 @@
         'app/raphael/g.line-min',
         'app/raphael/g.pie-min',
         'app/graphs',
-        'app/bootstrap-datepicker',
         'admin/status',
         ]
      cssFiles = [
-        'app/bootstrap-datepicker',
-        'css/bootstrapSwitch',
         'admin/status',
         ] -%]
     <div class="sidenav-fluid">
