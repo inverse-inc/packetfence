@@ -304,6 +304,7 @@ session {
 #  Once we KNOW that the user has been authenticated, there are
 #  additional steps we can take.
 post-auth {
+
 	# Add in PacketFence configuration
 	update {
 		&request:FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
