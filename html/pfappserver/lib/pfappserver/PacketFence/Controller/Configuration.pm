@@ -229,9 +229,10 @@ sub violations :Local {
 
 =cut
 
-sub domains :Local :CaptureArgs(1) {
+sub domains :Local {
     my ($self, $c, $name) = @_;
 
+    $c->stash->{tab} = $name;
     $c->stash->{default_tab} = "domain";
     $c->stash->{tabs} = {
         domain => {
@@ -252,9 +253,42 @@ sub domains :Local :CaptureArgs(1) {
 =cut
 
 sub main :Local {
-    my ($self, $c) = @_;
+    my ($self, $c, $name) = @_;
 
-    $c->stash->{template} = "config/main/index.tt";
+    $c->stash->{tab} = $name;
+    $c->stash->{default_tab} = "general";
+    $c->stash->{tabs} = {
+        general => {
+            controller => 'Controller::Configuration',
+            action => 'section',
+            action_args => ['general'],
+            name => 'General Configuration', 
+        },
+        alerting => {
+            controller => 'Controller::Configuration',
+            action => 'section',
+            action_args => ['alerting'],
+            name => 'Alerting', 
+        },
+        advanced => {
+            controller => 'Controller::Configuration',
+            action => 'section',
+            action_args => ['advanced'],
+            name => 'Advanced', 
+        },
+        maintenance => {
+            controller => 'Controller::Config::Pfmon',
+            name => 'Maintenance', 
+        },
+        services => {
+            controller => 'Controller::Configuration',
+            action => 'section',
+            action_args => ['services'],
+            name => 'Services', 
+        },
+    };
+
+    $c->forward('_handle_tab_view');
 }
 
 =head2 pfdb
@@ -361,10 +395,11 @@ sub _handle_tab_view : Private {
     my ($self, $c) = @_;
     my $name = $c->stash->{tab} // $c->stash->{default_tab};
     $c->stash->{tab} = $name;
-    $c->visit($c->stash->{tabs}->{$name}->{controller}, 'index');
+    my $action = $c->stash->{tabs}->{$name}->{action} // "index";
+    $c->visit($c->stash->{tabs}->{$name}->{controller}, $action, $c->stash->{tabs}->{$name}->{action_args});
     $c->stash->{inner_content} = $c->response->body;
     $c->response->body(undef);
-    $c->stash->{template} = "configuration/"$c->action->name".tt";
+    $c->stash->{template} = "configuration/" . $c->action->name . ".tt";
 }
 
 =head1 COPYRIGHT
