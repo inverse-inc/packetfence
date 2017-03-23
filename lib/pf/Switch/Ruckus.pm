@@ -82,7 +82,7 @@ sub supportsWebFormRegistration {
 # <nameOfTrapNotificationType>TrapNormalizer
 #
 our %TRAP_NORMALIZERS = (
-    '1.3.6.1.4.1.25053.2.2.1.4' => 'ruckusZDEventRogueAPTrapTrapNormalizer'
+    '.1.3.6.1.4.1.25053.2.2.1.4' => 'ruckusZDEventRogueAPTrapTrapNormalizer'
 );
 
 =item getVersion
