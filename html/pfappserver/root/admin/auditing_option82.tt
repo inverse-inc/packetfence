@@ -1,4 +1,3 @@
-    [% INCLUDE admin/saved_search.inc savedSearchController="SavedSearch::DHCPOption82" method="POST" %] 
             <ul class="nav nav-header">
               <li>[% l('Option82') %]</li>
               <li class="divider-horizontal"></li>

@@ -1,11 +1,12 @@
-  <div class="sidenav sidenav-section offset1 span3"
-       style="display: none"
-       data-category="dhcp82">
-    [% INCLUDE admin/auditing_option82.tt %]
-  </div><!--/.sidenav-section-->
+<div class="sidenav sidenav-section offset1 span3"
+     style="display: none"
+     data-category="dhcp82">
+  [% INCLUDE admin/auditing_option82.tt %]
+</div><!--/.sidenav-section-->
 
-  <div class="modal modal-large fade hide" id="modalItem">
-  </div>
+[% INCLUDE admin/saved_search.inc savedSearchController="SavedSearch::DHCPOption82" method="POST" %]
+
+<div class="modal modal-large fade hide" id="modalItem"></div>
 
 [%- BLOCK search_options %]
   <select name="searches.0.name"[% ' disabled="disabled"' IF disabled %] class="span4">
