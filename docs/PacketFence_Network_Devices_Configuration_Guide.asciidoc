@@ -2261,7 +2261,7 @@ On each interface (not uplink)
 N2000 Series (N2024P)
 ^^^^^^^^^^^^^^^^^^^^^
 
-This configuration was tested on the version: 6.2.1.6
+This configuration was tested with firmware version 6.2.1.6
 
 Global config settings:
 
