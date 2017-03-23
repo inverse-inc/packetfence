@@ -78,6 +78,12 @@ our %ALLOWED_SECTIONS = (
     database_advanced => undef,
 );
 
+=head2 pf_sections_doc
+
+The administration guide anchors associated to configuration sections from pf.conf
+
+=cut
+
 sub pf_sections_doc : Private {
     my ($self, $c) = @_;
     return {
@@ -355,6 +361,12 @@ sub integration :Local {
     $c->stash->{template} = "configuration/integration.tt";
 }
 
+=head2 _handle_tab_view
+
+Handle the tab view rendering of a super-section
+
+=cut
+
 sub _handle_tab_view : Private {
     my ($self, $c) = @_;
 
@@ -370,6 +382,12 @@ sub _handle_tab_view : Private {
     $c->response->body(undef);
     $c->stash->{template} = "configuration/" . $c->action->name . ".tt";
 }
+
+=head2 all_subsections
+
+Returns the definitions of all 'super-sections' that contain a group of sections
+
+=cut
 
 sub all_subsections : Private {
     my ($self, $c) = @_;
