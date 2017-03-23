@@ -235,20 +235,6 @@ sub domains :Local {
 
     $c->stash->{tab} = $name;
     $c->stash->{default_tab} = "domain";
-    $c->stash->{tabs} = sub {
-        tie my %map, 'Tie::IxHash', (
-            domain => {
-                controller => 'Controller::Config::Domain',
-                name => 'Microsoft Active Directory Domains', 
-            },
-            realm => { 
-                controller => 'Controller::Config::Realm',
-                name => 'REALMS',
-            },
-        );
-        return \%map;
-    }->();
-
     $c->forward('_handle_tab_view');
 }
 
@@ -261,39 +247,6 @@ sub main :Local {
 
     $c->stash->{tab} = $name;
     $c->stash->{default_tab} = "general";
-    $c->stash->{tabs} = sub {
-        tie my %map, 'Tie::IxHash', (
-            general => {
-                controller => 'Controller::Configuration',
-                action => 'section',
-                action_args => ['general'],
-                name => 'General Configuration', 
-            },
-            alerting => {
-                controller => 'Controller::Configuration',
-                action => 'section',
-                action_args => ['alerting'],
-                name => 'Alerting', 
-            },
-            advanced => {
-                controller => 'Controller::Configuration',
-                action => 'section',
-                action_args => ['advanced'],
-                name => 'Advanced', 
-            },
-            maintenance => {
-                controller => 'Controller::Config::Pfmon',
-                name => 'Maintenance', 
-            },
-            services => {
-                controller => 'Controller::Configuration',
-                action => 'section',
-                action_args => ['services'],
-                name => 'Services', 
-            },
-        );
-        return \%map;
-    }->();
 
     $c->forward('_handle_tab_view');
 }
@@ -307,24 +260,6 @@ sub database :Local {
 
     $c->stash->{tab} = $name;
     $c->stash->{default_tab} = "database";
-    $c->stash->{tabs} = sub {
-        tie my %map, 'Tie::IxHash', (
-            database => {
-                controller => 'Controller::Configuration',
-                action => 'section',
-                action_args => ['database'],
-                name => 'General', 
-            },
-            database_advanced => {
-                controller => 'Controller::Configuration',
-                action => 'section',
-                action_args => ['database_advanced'],
-                name => 'Advanced', 
-            },
-        );
-        return \%map;
-    }->();
-
     $c->forward('_handle_tab_view');
 }
 
@@ -337,19 +272,6 @@ sub scans :Local {
 
     $c->stash->{tab} = $name;
     $c->stash->{default_tab} = "scan_engines";
-    $c->stash->{tabs} = sub {
-        tie my %map, 'Tie::IxHash', (
-            scan_engines => {
-                controller => 'Controller::Config::Scan',
-                name => 'Scan Engines', 
-            },
-            wmi_rules => {
-                controller => 'Controller::Config::WMI',
-                name => 'WMI Rules', 
-            },
-        );
-        return \%map;
-    }->();
 
     $c->forward('_handle_tab_view');
 }
@@ -363,47 +285,6 @@ sub profiling :Local {
 
     $c->stash->{tab} = $name;
     $c->stash->{default_tab} = "general";
-    $c->stash->{tabs} = sub {
-        tie my %map, 'Tie::IxHash', (
-            general => {
-                controller => 'Controller::Config::Fingerbank::Settings',
-                name => 'General Settings', 
-            },
-            combinations => {
-                controller => 'Controller::Config::Fingerbank::Combination',
-                name => 'Combinations', 
-            },
-            devices => {
-                controller => 'Controller::Config::Fingerbank::Device',
-                name => 'Devices', 
-            },
-            dhcp_fingerprints => {
-                controller => 'Controller::Config::Fingerbank::DHCP_Fingerprint',
-                name => 'DHCP Fingerprints', 
-            },
-            dhcp_vendors => {
-                controller => 'Controller::Config::Fingerbank::DHCP_Vendor',
-                name => 'DHCP Vendors', 
-            },
-            dhcp6_fingerprints => {
-                controller => 'Controller::Config::Fingerbank::DHCP6_Fingerprint',
-                name => 'DHCPv6 Fingerprints', 
-            },
-            dhcp6_enterprises => {
-                controller => 'Controller::Config::Fingerbank::DHCP6_Enterprise',
-                name => 'DHCPv6 Enterprises', 
-            },
-            mac_vendors => {
-                controller => 'Controller::Config::Fingerbank::MAC_Vendor',
-                name => 'MAC Vendors', 
-            },
-            user_agents => {
-                controller => 'Controller::Config::Fingerbank::User_Agent',
-                name => 'User Agents',
-            },
-        );
-        return \%map;
-    }->();
 
     $c->forward('_handle_tab_view');
 }
@@ -417,41 +298,6 @@ sub networks :Local {
 
     $c->stash->{tab} = $name;
     $c->stash->{default_tab} = "network";
-    $c->stash->{tabs} = sub {
-        tie my %map, 'Tie::IxHash', (
-            network => {
-                controller => 'Controller::Configuration',
-                action => 'section',
-                action_args => ['network'],
-                name => 'Network Settings', 
-            },
-            interfaces => {
-                controller => 'Controller::Configuration',
-                action => 'section',
-                action_args => ['interfaces'],
-                name => 'Interfaces', 
-            },
-            inline => {
-                controller => 'Controller::Configuration',
-                action => 'section',
-                action_args => ['inline'],
-                name => 'Inline', 
-            },
-            fencing => {
-                controller => 'Controller::Configuration',
-                action => 'section',
-                action_args => ['fencing'],
-                name => 'Fencing', 
-            },
-            parking => {
-                controller => 'Controller::Configuration',
-                action => 'section',
-                action_args => ['parking'],
-                name => 'Device Parking', 
-            },
-        );
-        return \%map;
-    }->();
 
     $c->forward('_handle_tab_view');
 }
@@ -518,13 +364,183 @@ sub integration :Local {
 
 sub _handle_tab_view : Private {
     my ($self, $c) = @_;
+
+    $c->stash->{tabs} = $c->forward('_stash_tabs')->{$c->action->name};
+
     my $name = $c->stash->{tab} // $c->stash->{default_tab};
     $c->stash->{tab} = $name;
-    my $action = $c->stash->{tabs}->{$name}->{action} // "index";
-    $c->visit($c->stash->{tabs}->{$name}->{controller}, $action, $c->stash->{tabs}->{$name}->{action_args});
+    my $current_tab = $c->stash->{tabs}->{$name};
+
+    my $action = $current_tab->{action} // "index";
+    $c->visit($current_tab->{controller}, $action, $current_tab->{action_args});
     $c->stash->{inner_content} = $c->response->body;
     $c->response->body(undef);
     $c->stash->{template} = "configuration/" . $c->action->name . ".tt";
+}
+
+sub _stash_tabs : Private {
+    my ($self, $c) = @_;
+
+    return {
+        database => sub {
+            tie my %map, 'Tie::IxHash', (
+                database => {
+                    controller => 'Controller::Configuration',
+                    action => 'section',
+                    action_args => ['database'],
+                    name => 'General', 
+                },
+                database_advanced => {
+                    controller => 'Controller::Configuration',
+                    action => 'section',
+                    action_args => ['database_advanced'],
+                    name => 'Advanced', 
+                },
+            );
+            return \%map;
+        }->(),
+
+        domains => sub {
+            tie my %map, 'Tie::IxHash', (
+                domain => {
+                    controller => 'Controller::Config::Domain',
+                    name => 'Microsoft Active Directory Domains', 
+                },
+                realm => { 
+                    controller => 'Controller::Config::Realm',
+                    name => 'REALMS',
+                },
+            );
+            return \%map;
+        }->(),
+
+        main => sub {
+            tie my %map, 'Tie::IxHash', (
+                general => {
+                    controller => 'Controller::Configuration',
+                    action => 'section',
+                    action_args => ['general'],
+                    name => 'General Configuration', 
+                },
+                alerting => {
+                    controller => 'Controller::Configuration',
+                    action => 'section',
+                    action_args => ['alerting'],
+                    name => 'Alerting', 
+                },
+                advanced => {
+                    controller => 'Controller::Configuration',
+                    action => 'section',
+                    action_args => ['advanced'],
+                    name => 'Advanced', 
+                },
+                maintenance => {
+                    controller => 'Controller::Config::Pfmon',
+                    name => 'Maintenance', 
+                },
+                services => {
+                    controller => 'Controller::Configuration',
+                    action => 'section',
+                    action_args => ['services'],
+                    name => 'Services', 
+                },
+            );
+            return \%map;
+        }->(),
+
+        networks => sub {
+            tie my %map, 'Tie::IxHash', (
+                network => {
+                    controller => 'Controller::Configuration',
+                    action => 'section',
+                    action_args => ['network'],
+                    name => 'Network Settings', 
+                },
+                interfaces => {
+                    controller => 'Controller::Configuration',
+                    action => 'section',
+                    action_args => ['interfaces'],
+                    name => 'Interfaces', 
+                },
+                inline => {
+                    controller => 'Controller::Configuration',
+                    action => 'section',
+                    action_args => ['inline'],
+                    name => 'Inline', 
+                },
+                fencing => {
+                    controller => 'Controller::Configuration',
+                    action => 'section',
+                    action_args => ['fencing'],
+                    name => 'Fencing', 
+                },
+                parking => {
+                    controller => 'Controller::Configuration',
+                    action => 'section',
+                    action_args => ['parking'],
+                    name => 'Device Parking', 
+                },
+            );
+            return \%map;
+        }->(),
+
+        profiling => sub {
+            tie my %map, 'Tie::IxHash', (
+                general => {
+                    controller => 'Controller::Config::Fingerbank::Settings',
+                    name => 'General Settings', 
+                },
+                combinations => {
+                    controller => 'Controller::Config::Fingerbank::Combination',
+                    name => 'Combinations', 
+                },
+                devices => {
+                    controller => 'Controller::Config::Fingerbank::Device',
+                    name => 'Devices', 
+                },
+                dhcp_fingerprints => {
+                    controller => 'Controller::Config::Fingerbank::DHCP_Fingerprint',
+                    name => 'DHCP Fingerprints', 
+                },
+                dhcp_vendors => {
+                    controller => 'Controller::Config::Fingerbank::DHCP_Vendor',
+                    name => 'DHCP Vendors', 
+                },
+                dhcp6_fingerprints => {
+                    controller => 'Controller::Config::Fingerbank::DHCP6_Fingerprint',
+                    name => 'DHCPv6 Fingerprints', 
+                },
+                dhcp6_enterprises => {
+                    controller => 'Controller::Config::Fingerbank::DHCP6_Enterprise',
+                    name => 'DHCPv6 Enterprises', 
+                },
+                mac_vendors => {
+                    controller => 'Controller::Config::Fingerbank::MAC_Vendor',
+                    name => 'MAC Vendors', 
+                },
+                user_agents => {
+                    controller => 'Controller::Config::Fingerbank::User_Agent',
+                    name => 'User Agents',
+                },
+            );
+            return \%map;
+        }->(),
+        
+        scans => sub {
+            tie my %map, 'Tie::IxHash', (
+                scan_engines => {
+                    controller => 'Controller::Config::Scan',
+                    name => 'Scan Engines', 
+                },
+                wmi_rules => {
+                    controller => 'Controller::Config::WMI',
+                    name => 'WMI Rules', 
+                },
+            );
+            return \%map;
+        }->(),
+
+    }
 }
 
 =head1 COPYRIGHT

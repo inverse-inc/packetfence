@@ -448,7 +448,20 @@ $(function () { // DOM ready
         var item = $(this).parent();
         var category = item.closest('.sidenav-section').attr('data-category');
         _enableCategory(category);
+
+        if(item.hasClass('subsection')) {
+          item.closest('.section').addClass('active');
+        }
+        
         item.addClass('active');
+
+        // Define the first element as active if there is none selected
+        console.log(item);
+        console.log(item.find('ul').find('li.active'));
+        if(item.hasClass('section') && item.find('ul').find('li.active').length === 0) {  
+          $(item.find('ul').find('li')[0]).addClass('active');
+        }
+
         return true;
     });
 
