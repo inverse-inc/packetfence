@@ -146,7 +146,7 @@ sub _setVlan {
             . $self->{_ip}
             . "} in _setVlan" );
     {
-        lock %{ $switch_locker_ref->{ $self->{_ip} } };
+        my $lock = $self->getExclusiveLock();
         $logger->trace( "locking - \$switch_locker{"
                 . $self->{_ip}
                 . "} locked in _setVlan" );
