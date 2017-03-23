@@ -291,14 +291,31 @@ sub main :Local {
     $c->forward('_handle_tab_view');
 }
 
-=head2 pfdb
+=head2 database
 
 =cut
 
-sub pfdb :Local {
-    my ($self, $c) = @_;
+sub database :Local {
+    my ($self, $c, $name) = @_;
 
-    $c->stash->{template} = "config/database/index.tt";
+    $c->stash->{tab} = $name;
+    $c->stash->{default_tab} = "database";
+    $c->stash->{tabs} = {
+        database => {
+            controller => 'Controller::Configuration',
+            action => 'section',
+            action_args => ['database'],
+            name => 'General', 
+        },
+        database_advanced => {
+            controller => 'Controller::Configuration',
+            action => 'section',
+            action_args => ['database_advanced'],
+            name => 'Advanced', 
+        },
+    };
+
+    $c->forward('_handle_tab_view');
 }
 
 =head2 scans
@@ -306,9 +323,22 @@ sub pfdb :Local {
 =cut
 
 sub scans :Local {
-    my ($self, $c) = @_;
+    my ($self, $c, $name) = @_;
 
-    $c->stash->{template} = "config/scans/index.tt";
+    $c->stash->{tab} = $name;
+    $c->stash->{default_tab} = "scan_engines";
+    $c->stash->{tabs} = {
+        scan_engines => {
+            controller => 'Controller::Config::Scan',
+            name => 'Scan Engines', 
+        },
+        wmi_rules => {
+            controller => 'Controller::Config::WMI',
+            name => 'WMI Rules', 
+        },
+    };
+
+    $c->forward('_handle_tab_view');
 }
 
 =head2 profiling
@@ -316,9 +346,50 @@ sub scans :Local {
 =cut
 
 sub profiling :Local {
-    my ($self, $c) = @_;
+    my ($self, $c, $name) = @_;
 
-    $c->stash->{template} = "config/profiling/index.tt";
+    $c->stash->{tab} = $name;
+    $c->stash->{default_tab} = "general";
+    $c->stash->{tabs} = {
+        general => {
+            controller => 'Controller::Config::Fingerbank::Settings',
+            name => 'General Settings', 
+        },
+        combinations => {
+            controller => 'Controller::Config::Fingerbank::Combination',
+            name => 'Combinations', 
+        },
+        devices => {
+            controller => 'Controller::Config::Fingerbank::Device',
+            name => 'Devices', 
+        },
+        dhcp_fingerprints => {
+            controller => 'Controller::Config::Fingerbank::DHCP_Fingerprint',
+            name => 'DHCP Fingerprints', 
+        },
+        dhcp_vendors => {
+            controller => 'Controller::Config::Fingerbank::DHCP_Vendor',
+            name => 'DHCP Vendors', 
+        },
+        dhcp6_fingerprints => {
+            controller => 'Controller::Config::Fingerbank::DHCP6_Fingerprint',
+            name => 'DHCPv6 Fingerprints', 
+        },
+        dhcp6_enterprises => {
+            controller => 'Controller::Config::Fingerbank::DHCP6_Enterprise',
+            name => 'DHCPv6 Enterprises', 
+        },
+        mac_vendors => {
+            controller => 'Controller::Config::Fingerbank::MAC_Vendor',
+            name => 'MAC Vendors', 
+        },
+        user_agents => {
+            controller => 'Controller::Config::Fingerbank::User_Agent',
+            name => 'User Agents',
+        },
+    };
+
+    $c->forward('_handle_tab_view');
 }
 
 =head2 networks
@@ -326,9 +397,44 @@ sub profiling :Local {
 =cut
 
 sub networks :Local {
-    my ($self, $c) = @_;
+    my ($self, $c, $name) = @_;
 
-    $c->stash->{template} = "config/networks/index.tt";
+    $c->stash->{tab} = $name;
+    $c->stash->{default_tab} = "network";
+    $c->stash->{tabs} = {
+        network => {
+            controller => 'Controller::Configuration',
+            action => 'section',
+            action_args => ['network'],
+            name => 'Network Settings', 
+        },
+        interfaces => {
+            controller => 'Controller::Configuration',
+            action => 'section',
+            action_args => ['interfaces'],
+            name => 'Interfaces', 
+        },
+        inline => {
+            controller => 'Controller::Configuration',
+            action => 'section',
+            action_args => ['inline'],
+            name => 'Inline', 
+        },
+        fencing => {
+            controller => 'Controller::Configuration',
+            action => 'section',
+            action_args => ['fencing'],
+            name => 'Fencing', 
+        },
+        parking => {
+            controller => 'Controller::Configuration',
+            action => 'section',
+            action_args => ['parking'],
+            name => 'Device Parking', 
+        },
+    };
+
+    $c->forward('_handle_tab_view');
 }
 
 =head2 advanced_conf
@@ -338,7 +444,7 @@ sub networks :Local {
 sub advanced_conf :Local {
     my ($self, $c) = @_;
 
-    $c->stash->{template} = "config/advanced_conf.tt";
+    $c->stash->{template} = "configuration/advanced_conf.tt";
 }
 
 =head2 define_policy
@@ -348,7 +454,7 @@ sub advanced_conf :Local {
 sub define_policy :Local {
     my ($self, $c) = @_;
 
-    $c->stash->{template} = "config/define_policy.tt";
+    $c->stash->{template} = "configuration/define_policy.tt";
 }
 
 =head2 system_config
@@ -358,7 +464,7 @@ sub define_policy :Local {
 sub system_config :Local {
     my ($self, $c) = @_;
 
-    $c->stash->{template} = "config/system_config.tt";
+    $c->stash->{template} = "configuration/system_config.tt";
 }
 
 =head2 portal_config
@@ -368,7 +474,7 @@ sub system_config :Local {
 sub portal_config :Local {
     my ($self, $c) = @_;
 
-    $c->stash->{template} = "config/portal_config.tt";
+    $c->stash->{template} = "configuration/portal_config.tt";
 }
 
 =head2 compliance
@@ -378,7 +484,7 @@ sub portal_config :Local {
 sub compliance :Local {
     my ($self, $c) = @_;
 
-    $c->stash->{template} = "config/compliance.tt";
+    $c->stash->{template} = "configuration/compliance.tt";
 }
 
 =head2 integration
@@ -388,7 +494,7 @@ sub compliance :Local {
 sub integration :Local {
     my ($self, $c) = @_;
 
-    $c->stash->{template} = "config/integration.tt";
+    $c->stash->{template} = "configuration/integration.tt";
 }
 
 sub _handle_tab_view : Private {
