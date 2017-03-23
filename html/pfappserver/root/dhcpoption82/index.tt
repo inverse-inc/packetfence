@@ -1,3 +1,8 @@
+  <div class="sidenav sidenav-section offset1 span3"
+      data-category="dhcp82">
+    [% INCLUDE admin/auditing_option82.tt %]
+  </div><!--/.sidenav-section-->
+
   <div class="modal modal-large fade hide" id="modalItem">
   </div>
 
