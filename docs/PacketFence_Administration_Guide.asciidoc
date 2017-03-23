@@ -821,7 +821,7 @@ PacketFence comes with a default connection profile. The follow parameters are i
 
 For some browsers, it is preferable to redirect the user to a specific URL instead of the URL the user originally intended to visit. For these browsers, the URL defined in `redirecturl` will be the one where the user will be redirected. Affected browsers are Firefox 3 and later.
 
-* IP under *Configuration -> Advanced Portal Configuration -> Captive portal*
+* IP under *Configuration -> Advanced Access Configuration -> Captive portal*
 
 This IP is used as the web server who hosts the `common/network-access-detection.gif` which is used to detect if network access was enabled. It cannot be a domain name since it is used in registration or quarantine where DNS is black-holed. It is recommended that you allow your users to reach your PacketFence server and put your LAN's PacketFence IP. By default we will make this reach PacketFence's website as an easier and more accessible solution.
 
@@ -1295,7 +1295,7 @@ This section will contain the following examples:
 Creating a custom root module
 +++++++++++++++++++++++++++++
 
-First, create a custom root module for our examples in order to not affect the default policy. In order to do so, go in 'Configuration -> Advanced Portal Configuration -> Advanced Portal Configuration -> Portal Modules', then click 'Add Portal Module' and select the type 'Root'. Give it the identifier `my_first_root_module` and the description `My first root module`, then hit save.
+First, create a custom root module for our examples in order to not affect the default policy. In order to do so, go in 'Configuration -> Advanced Access Configuration -> Advanced Access Configuration -> Portal Modules', then click 'Add Portal Module' and select the type 'Root'. Give it the identifier `my_first_root_module` and the description `My first root module`, then hit save.
 
 Next, head to 'Configuration -> Policies and Access Control -> Connection Profiles', select the connection profile you use (most probably `default`) and then under 'Root Portal Module', assign `My first root module` then save your profile. If you were to access the captive portal now, an error would display since the Root module we configured doesn't contain anything.
 
@@ -1308,7 +1308,7 @@ In order to prompt fields without authentication, you can use the Null source wi
 
 PacketFence already comes with a Null source pre-configured. If you haven't modified it or deleted it, you can use it for this example. Otherwise, go in 'Configuration -> Policies and Access Control -> Sources' and create a new Null source with a catchall rule that assigns a role and access duration.
 
-Then go in 'Configuration -> Advanced Portal Configuration -> Advanced Portal Configuration -> Portal Modules' and click 'Add Portal Module' and select 'Authentication -> Null'. Set the 'Identifier' to `prompt_fields` and configure the module with the 'Mandatory fields' you want and uncheck 'Require AUP' so that the user doesn't have to accept the AUP before submitting these fields.
+Then go in 'Configuration -> Advanced Access Configuration -> Advanced Access Configuration -> Portal Modules' and click 'Add Portal Module' and select 'Authentication -> Null'. Set the 'Identifier' to `prompt_fields` and configure the module with the 'Mandatory fields' you want and uncheck 'Require AUP' so that the user doesn't have to accept the AUP before submitting these fields.
 
 image::docs/images/portal-modules/prompt_fields.png[scaledwidth="100%",alt="Prompt fields module"]
 
@@ -1323,7 +1323,7 @@ You can also add additional mandatory fields to the default policies that are al
 
 This example will make the `default_guest_policy` require the user to enter a first name, last name and address so that guests have to enter these three information before registering.
 
-Go in 'Configuration -> Advanced Portal Configuration -> Portal Modules' and click the `default_guest_policy`. Add `firstname`, `lastname` and `address` to the 'Mandatory fields' and save.
+Go in 'Configuration -> Advanced Access Configuration -> Portal Modules' and click the `default_guest_policy`. Add `firstname`, `lastname` and `address` to the 'Mandatory fields' and save.
 
 Next, add the `default_guest_policy` to `my_first_root_module` (removing any previous modules). Now when visiting the portal, selecting any of the guest sources will require you to enter both the mandatory fields of the source (ex: phone + mobile provider)  and the mandatory fields you defined in the `default_guest_policy`.
 
@@ -1340,7 +1340,7 @@ For the OAuth login we will use the `default_oauth_policy`, so just make sure yo
 
 Then, we will create a module that will contain the definition of our SMS registration.
 
-Go in 'Configuration -> Advanced Portal Configuration -> Portal Modules' then click 'Add Portal Module' and select 'Authentication -> SMS'.
+Go in 'Configuration -> Advanced Access Configuration -> Portal Modules' then click 'Add Portal Module' and select 'Authentication -> SMS'.
 
 Configure the portal module so that it uses the `sms` source and uncheck the 'Require AUP' option since the user will have already accepted the AUP when registering using OAuth.
 
@@ -1363,7 +1363,7 @@ Create a provisioner of the type `Deny` and add it with your other provisioners 
 
 Also in the connection profile add your LDAP source to the available sources so its the only one available.
 
-Next, create a 'Provisioning' portal module by going in 'Configuration -> Advanced Portal Configuration -> Portal Modules'. Set the 'Identifier' to `secure_boarding` and the description to `Board Secure SSID`. Also uncheck 'Skippable' so the user is forced to board the SSID should it choose this option.
+Next, create a 'Provisioning' portal module by going in 'Configuration -> Advanced Access Configuration -> Portal Modules'. Set the 'Identifier' to `secure_boarding` and the description to `Board Secure SSID`. Also uncheck 'Skippable' so the user is forced to board the SSID should it choose this option.
 
 Then, still in the Portal Modules, create a 'Choice' module. Set the 'Identifier' to `login_or_boarding` and description to 'Login or Boarding'. Add `secure_boarding` and `default_login_policy` to the 'Modules' field and save.
 
@@ -1376,7 +1376,7 @@ Displaying a message to the user after the registration
 
 Using the 'Message' module you can display a custom message to the user. You can also customize the template to display in order to display a fully custom page.
 
-Go in 'Configuration -> Advanced Portal Configuration -> Portal Modules', then click 'Add Portal Module' and select 'Message'. Set the 'Identifier' to `hello_world` and the description to `Hello World`.
+Go in 'Configuration -> Advanced Access Configuration -> Portal Modules', then click 'Add Portal Module' and select 'Message'. Set the 'Identifier' to `hello_world` and the description to `Hello World`.
 
 Then put the following in the 'Message' field
 
@@ -1400,7 +1400,7 @@ The example script is located in `addons/example_external_auth/token.php` and a 
 
 Once you have the script installed and working on URL: `http://YOUR_PORTAL_HOSTNAME:10000/token.php`, you can configure what you need on the PacketFence side.
 
-Go in 'Configuration -> Advanced Portal Configuration -> Portal Modules', then click 'Add Portal Module' and select 'URL'. Set the 'Identifier' to `token_system`, the 'Description' to `Token system` and the 'URL' to `http://YOUR_PORTAL_HOSTNAME:10000/token.php`.
+Go in 'Configuration -> Advanced Access Configuration -> Portal Modules', then click 'Add Portal Module' and select 'URL'. Set the 'Identifier' to `token_system`, the 'Description' to `Token system` and the 'URL' to `http://YOUR_PORTAL_HOSTNAME:10000/token.php`.
 
 image::docs/images/portal-modules/token_system.png[scaledwidth="100%",alt="Token system"]
 
@@ -1556,7 +1556,7 @@ Configure the feature
 
 First of all, you need to configure the SSID that your devices will use after they go though the authentication process.
 
-In order to do that, in the administration interface, go in 'Configuration -> Advanced Portal Configuration -> Provisioners'. Then select the 'android' provisioner. Enter the SSID and save.
+In order to do that, in the administration interface, go in 'Configuration -> Advanced Access Configuration -> Provisioners'. Then select the 'android' provisioner. Enter the SSID and save.
 
 Now do the same thing for the iOS provisioner.
 
@@ -1731,7 +1731,7 @@ Adding billing tiers
 
 Once you have configured one or more billing source, you need to define billing tiers which will define the price and target authentication rules for the user.
 
-In the PacketFence administration interface, go in 'Configuration->Advanced Portal Configuration->Billing tiers'
+In the PacketFence administration interface, go in 'Configuration->Advanced Access Configuration->Billing tiers'
 
 Then click 'Add billing tier' and configure it.
 
@@ -1839,7 +1839,7 @@ The following can be configured by editing the pf.conf file:
 
 Make sure the role exists in PacketFence otherwise you will encounter registration errors. Moreover, make sure the role mapping for your particular equipment is done.
 
-These parameters can also be configured from the *Configuration -> -> Advanced Portal Configuration -> Device Registration* section.
+These parameters can also be configured from the *Configuration -> -> Advanced Access Configuration -> Device Registration* section.
 
 NOTE: A 'portal' interface type is required to use this feature. A 'portal' interface type can be added to any network interface using the web admin GUI.
 
@@ -3414,7 +3414,7 @@ Let's explain the meaning of each parameter:
 * `OPERATOR`: either + or -. The duration following the operator is added or subtracted from the base duration.
 * `DATE_UNIT`: a character corresponding to the units of the extended duration. Limited to date units (D (days), W (weeks), M (months), or Y (years)).
 
-These parameters should be configured from the *Configuration -> Advanced Portal Configuration -> Access Duration* section of the Web admin interface.
+These parameters should be configured from the *Configuration -> Advanced Access Configuration -> Access Duration* section of the Web admin interface.
 
 From the Users page of the PacketFence Web admin interface, it is possible to set the access duration of users, change their password and more.
 
@@ -3438,7 +3438,7 @@ Active Directory Integration
 Deleted Account
 ^^^^^^^^^^^^^^^
 
-Create the script `unreg_node_deleted_account.ps1` on the Windows Server with the following content. Make sure to change `@IP_PACKETFENCE` to the IP address of your PacketFence server. You'll also need to change the username and password as they must match the credentials defined in the Web admin interface under *Configuration -> Advanced Portal Configuration -> Web Services*.
+Create the script `unreg_node_deleted_account.ps1` on the Windows Server with the following content. Make sure to change `@IP_PACKETFENCE` to the IP address of your PacketFence server. You'll also need to change the username and password as they must match the credentials defined in the Web admin interface under *Configuration -> Advanced Access Configuration -> Web Services*.
 
 ----
 #########################################################################################
@@ -3513,7 +3513,7 @@ Validate with Ok and give the account who will run this task. (Usually _DOMAIN\A
 Disabled Account
 ^^^^^^^^^^^^^^^^
 
-Create the script `unreg_node_disabled_account.ps1` on the Windows Server with the following content. Make sure to change `@IP_PACKETFENCE` to the IP address of your PacketFence server. You'll also need to change the username and password as they must match the credentials defined in the Web admin interface under *Configuration -> Advanced Portal Configuration -> Web Services*.
+Create the script `unreg_node_disabled_account.ps1` on the Windows Server with the following content. Make sure to change `@IP_PACKETFENCE` to the IP address of your PacketFence server. You'll also need to change the username and password as they must match the credentials defined in the Web admin interface under *Configuration -> Advanced Access Configuration -> Web Services*.
 
 ----
 ##########################################################################################
@@ -3589,7 +3589,7 @@ Validate with Ok and give the account who will run this task. (Usually _DOMAIN\A
 Locked Account
 ^^^^^^^^^^^^^^
 
-Create the script `unreg_node_locked_account.ps1` on the Windows Server with the following content. Make sure to change `@IP_PACKETFENCE` to the IP address of your PacketFence server. You'll also need to change the username and password as they must match the credentials defined in the Web admin interface under *Configuration -> Advanced Portal Configuration -> Web Services*.
+Create the script `unreg_node_locked_account.ps1` on the Windows Server with the following content. Make sure to change `@IP_PACKETFENCE` to the IP address of your PacketFence server. You'll also need to change the username and password as they must match the credentials defined in the Web admin interface under *Configuration -> Advanced Access Configuration -> Web Services*.
 
 ----
 #########################################################################################

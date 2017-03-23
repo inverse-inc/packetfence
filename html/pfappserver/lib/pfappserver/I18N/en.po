@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 6.5.9\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-03-22 14:09-0400\n"
+"PO-Revision-Date: 2017-03-23 13:15-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -556,18 +556,17 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
-# html/pfappserver/root/config/main/index.tt
 # html/pfappserver/root/violation/view.tt
 msgid "Advanced"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
-# html/pfappserver/root/config/advanced_conf.tt
-msgid "Advanced Configuration"
+msgid "Advanced Access Configuration"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
-msgid "Advanced Portal Configuration"
+# html/pfappserver/root/configuration/advanced_conf.tt
+msgid "Advanced Configuration"
 msgstr ""
 
 # html/pfappserver/root/configurator/admin.tt
@@ -582,7 +581,6 @@ msgstr ""
 msgid "Alert pipe"
 msgstr ""
 
-# html/pfappserver/root/config/main/index.tt
 # html/pfappserver/root/configurator/configuration.tt
 msgid "Alerting"
 msgstr ""
@@ -1341,7 +1339,6 @@ msgid "Columns Order"
 msgstr ""
 
 # html/pfappserver/root/config/fingerbank/combination/view.tt
-# html/pfappserver/root/config/profiling/index.tt
 msgid "Combination"
 msgstr ""
 
@@ -1445,7 +1442,7 @@ msgid "Company"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
-# html/pfappserver/root/config/compliance.tt
+# html/pfappserver/root/configuration/compliance.tt
 msgid "Compliance"
 msgstr ""
 
@@ -1688,7 +1685,6 @@ msgid "DHCP Fingerprint ID"
 msgstr ""
 
 # html/pfappserver/root/config/fingerbank/dhcp_fingerprint/index.tt
-# html/pfappserver/root/config/profiling/index.tt
 msgid "DHCP Fingerprints"
 msgstr ""
 
@@ -1707,7 +1703,6 @@ msgid "DHCP Vendor ID"
 msgstr ""
 
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/index.tt
-# html/pfappserver/root/config/profiling/index.tt
 msgid "DHCP Vendors"
 msgstr ""
 
@@ -1788,12 +1783,7 @@ msgid "DHCPv6 Fingerprint ID"
 msgstr ""
 
 # html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/index.tt
-# html/pfappserver/root/config/profiling/index.tt
 msgid "DHCPv6 Fingerprints"
-msgstr ""
-
-# html/pfappserver/root/config/profiling/index.tt
-msgid "DHCPv6 Vendors"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Interface.pm
@@ -1862,20 +1852,8 @@ msgstr ""
 msgid "Dashboard"
 msgstr ""
 
-# html/pfappserver/root/admin/configuration.tt
-msgid "Database"
-msgstr ""
-
-# html/pfappserver/root/config/database/index.tt
-msgid "Database Advanced"
-msgstr ""
-
 # html/pfappserver/root/configurator/database.tt
 msgid "Database Configuration"
-msgstr ""
-
-# html/pfappserver/root/config/database/index.tt
-msgid "Database General"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
@@ -1923,7 +1901,7 @@ msgstr ""
 msgid "Default pid value to assign to imported nodes."
 msgstr ""
 
-# html/pfappserver/root/config/define_policy.tt
+# html/pfappserver/root/configuration/define_policy.tt
 msgid "Define Policy"
 msgstr ""
 
@@ -2233,10 +2211,6 @@ msgstr ""
 msgid "Device ID"
 msgstr ""
 
-# html/pfappserver/root/config/networks/index.tt
-msgid "Device Parking"
-msgstr ""
-
 # html/pfappserver/root/admin/configuration.tt
 msgid "Device Registration"
 msgstr ""
@@ -2259,7 +2233,6 @@ msgid "Device type"
 msgstr ""
 
 # html/pfappserver/root/config/fingerbank/device/index.tt
-# html/pfappserver/root/config/profiling/index.tt
 # html/pfappserver/root/user/view.tt
 msgid "Devices"
 msgstr ""
@@ -2312,8 +2285,7 @@ msgid "Domain name of the PacketFence server."
 msgstr ""
 
 # html/pfappserver/root/admin/auditing_radius_log.tt
-# html/pfappserver/root/admin/configuration.tt
-# html/pfappserver/root/config/domains/index.tt
+# html/pfappserver/root/configuration/domains.tt
 msgid "Domains"
 msgstr ""
 
@@ -2685,10 +2657,6 @@ msgstr "Floating Devices - Update"
 msgid "Fake MAC Address"
 msgstr ""
 
-# html/pfappserver/root/config/networks/index.tt
-msgid "Fencing"
-msgstr ""
-
 # html/pfappserver/root/config/profile/files.tt
 msgid "File Name"
 msgstr ""
@@ -2723,10 +2691,6 @@ msgstr ""
 
 # html/pfappserver/root/config/fingerbank/settings/onboard.tt
 msgid "Fingerbank Onboarding"
-msgstr ""
-
-# html/pfappserver/root/admin/configuration.tt
-msgid "Fingerbank Profiling"
 msgstr ""
 
 # html/pfappserver/root/config/fingerbank/settings/index.tt
@@ -2799,14 +2763,6 @@ msgstr ""
 
 # html/pfappserver/root/configurator/configuration.tt
 msgid "General"
-msgstr ""
-
-# html/pfappserver/root/config/main/index.tt
-msgid "General Configuration"
-msgstr ""
-
-# html/pfappserver/root/config/profiling/index.tt
-msgid "General Settings"
 msgstr ""
 
 # html/pfappserver/root/configurator/fingerbank.tt
@@ -3127,7 +3083,6 @@ msgstr ""
 msgid "Initialize MySQL database"
 msgstr ""
 
-# html/pfappserver/root/config/networks/index.tt
 # html/pfappserver/root/config/switch/view.tt
 msgid "Inline"
 msgstr ""
@@ -3151,12 +3106,8 @@ msgid "Instructions"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
-# html/pfappserver/root/config/integration.tt
+# html/pfappserver/root/configuration/integration.tt
 msgid "Integration"
-msgstr ""
-
-# html/pfappserver/root/config/networks/index.tt
-msgid "Interfaces"
 msgstr ""
 
 # html/pfappserver/root/interface/index.tt
@@ -3556,7 +3507,6 @@ msgid "MAC Vendor ID"
 msgstr ""
 
 # html/pfappserver/root/config/fingerbank/mac_vendor/index.tt
-# html/pfappserver/root/config/profiling/index.tt
 msgid "MAC Vendors"
 msgstr ""
 
@@ -3595,14 +3545,6 @@ msgstr "MSE - Read"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/sentinelone.pm
 msgid "Mac OSX agent download URI"
-msgstr ""
-
-# html/pfappserver/root/admin/configuration.tt
-msgid "Main Configuration"
-msgstr ""
-
-# html/pfappserver/root/config/main/index.tt
-msgid "Maintenance"
 msgstr ""
 
 # html/pfappserver/root/config/pfmon/index.tt
@@ -3673,10 +3615,6 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Message.pm
 msgid "Message"
-msgstr ""
-
-# html/pfappserver/root/config/domains/index.tt
-msgid "Microsoft Active Directory Domains"
 msgstr ""
 
 # html/pfappserver/root/user/view.tt
@@ -3831,10 +3769,6 @@ msgstr ""
 msgid "Network Interfaces"
 msgstr ""
 
-# html/pfappserver/root/config/networks/index.tt
-msgid "Network Settings"
-msgstr ""
-
 # conf/documentation.conf (interface.mask)
 msgid "Network mask for the IPv4 address of the named interface."
 msgstr ""
@@ -3843,7 +3777,6 @@ msgstr ""
 msgid "Network type"
 msgstr ""
 
-# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/configurator/networks.tt
 msgid "Networks"
 msgstr ""
@@ -4987,7 +4920,7 @@ msgstr ""
 msgid "Port the proxy is listening on"
 msgstr ""
 
-# html/pfappserver/root/config/portal_config.tt
+# html/pfappserver/root/configuration/portal_config.tt
 msgid "Portal General Configuration"
 msgstr ""
 
@@ -5235,10 +5168,6 @@ msgstr "RADIUS Audit Log - Read"
 # pf::admin_roles (Actions groups)
 msgid "REALM"
 msgstr "RADIUS Realms"
-
-# html/pfappserver/root/config/domains/index.tt
-msgid "REALMS"
-msgstr ""
 
 # pf::admin_roles (Actions)
 msgid "REALM_CREATE"
@@ -5935,10 +5864,6 @@ msgstr ""
 msgid "Scan Engine"
 msgstr ""
 
-# html/pfappserver/root/config/scans/index.tt
-msgid "Scan Engines"
-msgstr ""
-
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 msgid "Scan Type"
 msgstr ""
@@ -5961,10 +5886,6 @@ msgstr ""
 
 # html/pfappserver/root/config/profile/tab-content.tt
 msgid "Scanners"
-msgstr ""
-
-# html/pfappserver/root/admin/configuration.tt
-msgid "Scans"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
@@ -6091,7 +6012,6 @@ msgid "Service Provider entity ID"
 msgstr ""
 
 # html/pfappserver/root/admin/status.tt
-# html/pfappserver/root/config/main/index.tt
 # html/pfappserver/root/service/status.tt
 msgid "Services"
 msgstr ""
@@ -6680,7 +6600,7 @@ msgid "System"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
-# html/pfappserver/root/config/system_config.tt
+# html/pfappserver/root/configuration/system_config.tt
 msgid "System Configuration"
 msgstr ""
 
@@ -7280,19 +7200,19 @@ msgstr ""
 msgid "This section allows you to configure locally proxied content.  We typically use this to proxy tools like Stinger rather than having to continually download the latest version. Ex: tools/stinger.exe=<a href=\"http://download.nai.com/products/mcafee-avert/stinger.exe\">http://download.nai.com/products/mcafee-avert/stinger.exe</a> The Stinger utility could then be accessed at <a href=\"https://pfhostname/proxies/tools/stinger.exe.\">https://pfhostname/proxies/tools/stinger.exe.</a>"
 msgstr ""
 
-# html/pfappserver/root/config/domains/index.tt
+# html/pfappserver/root/configuration/domains.tt
 msgid "This section is for Domains and REALMS. Manage to which domains your PacketFence server is joined."
 msgstr ""
 
-# html/pfappserver/root/config/networks/index.tt
+# html/pfappserver/root/configuration/networks.tt
 msgid "This section is for networking. Interfaces, networks and DNS related will be configured here."
 msgstr ""
 
-# html/pfappserver/root/config/profiling/index.tt
+# html/pfappserver/root/configuration/profiling.tt
 msgid "This section is for profiling. Fingerbank will help you every device type."
 msgstr ""
 
-# html/pfappserver/root/config/scans/index.tt
+# html/pfappserver/root/configuration/scans.tt
 msgid "This section is for scanners. you will be able to configure scan engine and rules here."
 msgstr ""
 
@@ -7300,11 +7220,11 @@ msgstr ""
 msgid "This section is for the configuration of Active-Active clustering."
 msgstr ""
 
-# html/pfappserver/root/config/database/index.tt
+# html/pfappserver/root/configuration/database.tt
 msgid "This section is for the database. Make sure you know what you are doing before modifying setting, especially in the advanced section."
 msgstr ""
 
-# html/pfappserver/root/config/main/index.tt
+# html/pfappserver/root/configuration/main.tt
 msgid "This section is for the general system configuration. Anything related to the services or PacketFence general configuration will be find here."
 msgstr ""
 
@@ -7673,7 +7593,6 @@ msgid "User Agent ID"
 msgstr ""
 
 # html/pfappserver/root/config/fingerbank/user_agent/index.tt
-# html/pfappserver/root/config/profiling/index.tt
 # html/pfappserver/root/config/useragents/simple_search.tt
 msgid "User Agents"
 msgstr ""
@@ -7908,7 +7827,6 @@ msgid "WMI"
 msgstr "WMI Rules"
 
 # html/pfappserver/root/config/scan/type/wmi.tt
-# html/pfappserver/root/config/scans/index.tt
 # html/pfappserver/root/config/wmi/index.tt
 # html/pfappserver/root/config/wmi/list.tt
 msgid "WMI Rules"

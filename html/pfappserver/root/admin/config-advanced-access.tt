@@ -64,7 +64,7 @@ tr[data-swap] > td {
         <div class="span2">
           <div class="well sidebar-nav">
             <ul class="nav nav-list">
-              <li class="nav-header">[% pf_section_entry('portal_config', 'Advanced Portal Configuration') | none %]</li>
+              <li class="nav-header">[% pf_section_entry('portal_config', 'Advanced Access Configuration') | none %]</li>
               [% pf_section_entry('captive_portal', 'Captive Portal') | none %]
               [%- IF can_access("FILTERS_READ") %]
               [% list_entry('Config::Filters', 'index', 'Filter engines') | none %]

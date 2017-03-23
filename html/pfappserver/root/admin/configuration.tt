@@ -151,7 +151,7 @@ table.sources {
           <div class="sidenav sidenav-section sidenav-inverse span3 offset1"
                data-category="portal_config">
             <ul class="nav nav-header">
-              <li>[% l('Advanced Portal Configuration') %]</li>
+              <li>[% l('Advanced Access Configuration') %]</li>
               <li class="divider-horizontal"></li>
             </ul>
             <ul class="nav nav-list">
