@@ -10,12 +10,12 @@
 # Loick Pelet <lpelet.inverse@gmail.com>, 2013
 # Loick Pelet <lpelet.inverse@gmail.com>, 2013
 # Louis Munro <git@louismunro.com>, 2015
-# lzammit <lzammit@inverse.ca>, 2014-2016
+# lzammit <lzammit@inverse.ca>, 2014-2017
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-01-30 15:18+0000\n"
+"PO-Revision-Date: 2017-03-23 13:36+0000\n"
 "Last-Translator: oeufdure <fdurand@inverse.ca>\n"
 "Language-Team: French (http://www.transifex.com/inverse/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
@@ -501,7 +501,7 @@ msgstr "Ajouter ou modifier une source du type Eduroam requiert un redémarrage 
 
 # html/pfappserver/root/authentication/source/type/Eduroam.tt
 msgid "Adding or modifying (not applicable for 'Rules\\"
-msgstr ""
+msgstr "L'ajout ou la modification (Non applicable pour les 'Règles\\"
 
 # html/pfappserver/root/config/realm/index.tt
 msgid ""
@@ -2483,11 +2483,11 @@ msgstr "ID de l’autorité EAP-FAST"
 
 # html/pfappserver/root/config/authentication.tt
 msgid ""
-"Each connection profile must be associated with one or multiple authentication "
-"sources while 802.1X connections use the ordered internal sources to "
-"determine which role to use. External sources are never used with 802.1X "
-"connections."
-msgstr "Chaque profil de portail doit être associé à une ou plusieurs sources d’authentification 802.1X tandis que les connexions utilisent des sources internes dans l’ordre pour déterminer le rôle. Les sources externes ne sont jamais utilisées avec les connexions 802.1X."
+"Each connection profile must be associated with one or multiple "
+"authentication sources while 802.1X connections use the ordered internal "
+"sources to determine which role to use. External sources are never used with"
+" 802.1X connections."
+msgstr "Chaque profil de connexion doit être associé à une ou plusieurs sources d’authentification 802.1X tandis que les connexions utilisent des sources internes dans l’ordre pour déterminer le rôle. Les sources externes ne sont jamais utilisées avec les connexions 802.1X."
 
 # html/pfappserver/root/config/switch/list.tt
 msgid "Edit floating device"
@@ -3014,7 +3014,7 @@ msgid ""
 "HTML template the host will be redirected to while in violation. You can "
 "create new templates from the <em>Connection Profiles</em> configuration "
 "section."
-msgstr "Gabarit HTML sur lequel l’appareil va être redirigé pour cette violation. Vous pouvez créer de nouveaux gabarits depuis le menu <i>Profil de portail</i>. "
+msgstr "Gabarit HTML sur lequel l’appareil va être redirigé pour cette violation. Vous pouvez créer de nouveaux gabarits depuis le menu <i>Profil de connexion</i>. "
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/HTTP.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Kerberos.pm
@@ -4964,23 +4964,23 @@ msgstr "Modules du portail - Mise à jour"
 
 # pf::admin_roles (Actions groups)
 msgid "CONNECTION_PROFILES"
-msgstr "Profils de portail"
+msgstr "Profils de connexion"
 
 # pf::admin_roles (Actions)
 msgid "CONNECTION_PROFILES_CREATE"
-msgstr "Profil de portail - Créer"
+msgstr "Profil de connexion - Créer"
 
 # pf::admin_roles (Actions)
 msgid "CONNECTION_PROFILES_DELETE"
-msgstr "Profil de portail - Supprimer"
+msgstr "Profil de connexion - Supprimer"
 
 # pf::admin_roles (Actions)
 msgid "CONNECTION_PROFILES_READ"
-msgstr "Profil de portail - Lecture"
+msgstr "Profil de connexion - Lecture"
 
 # pf::admin_roles (Actions)
 msgid "CONNECTION_PROFILES_UPDATE"
-msgstr "Profil de portail - Mise à jour"
+msgstr "Profil de connexion - Mise à jour"
 
 # pf::admin_roles (Actions groups)
 msgid "PROVISIONING"
@@ -5492,14 +5492,14 @@ msgstr "Connections ouvertes par serveur (Apache Portail)"
 
 # html/pfappserver/root/admin/configuration.tt
 msgid "Connection Profiles"
-msgstr "Profils de portail"
+msgstr "Profils de connexion"
 
 # html/pfappserver/root/config/profile/create.tt
 # html/pfappserver/root/config/profile/edit.tt
 # html/pfappserver/root/config/profile/index.tt
 # html/pfappserver/root/config/profile/view.tt
 msgid "Connection Profiles and Pages"
-msgstr "Profil des portails et des pages."
+msgstr "Profil des connections et des pages."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
@@ -7512,7 +7512,7 @@ msgstr "Le nombre de fois qu’un compte local peut être utilisé après sa cr�
 msgid ""
 "The authentication source to use in that realm.<br/>(Must also be defined in"
 " the connection profile)"
-msgstr "La source d’authentification à utiliser dans ce Realm. <br/> (Doit également être défini dans le profil de portail)"
+msgstr "La source d’authentification à utiliser dans ce Realm. <br/> (Doit également être défini dans le profil de connexion)"
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/Authentication/Source.pm
 msgid "The authentication source was not found."
@@ -7760,6 +7760,10 @@ msgid ""
 "caching."
 msgstr "La source Active Directory à utiliser par le cache NTLM."
 
+# conf/documentation.conf (advanced.source_to_send_sms_when_creating_users)
+msgid "The source to use to send an SMS when creating a user"
+msgstr "La source a utiliser pour envoyer un SMS quand on crée un utilisateur"
+
 # html/pfappserver/lib/pfappserver/Form/Config/BillingTiers.pm
 msgid "The target role of the devices that use this tier."
 msgstr "Le rôle à attribuer pour les appareils qui utilisent ce plan"
@@ -7909,12 +7913,13 @@ msgstr "Ceci activera l’enregistrement automatique des appareils pour ce profi
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid ""
-"This activates preregistration on the connection profile. Meaning, instead of "
-"applying the access to the currently connected device, it displays a local "
-"account that is created while registering. Note that activating this "
-"disables the on-site registration on this connection profile. Also, make sure "
-"the sources on the connection profile have \"Create local account\" enabled."
-msgstr "Cette option active le pré-enregistrement sur le profil de portail. Explication, au lieu de donner l’accès à l’équipement actuellement connecté, un compte local crée lors de l’enregistrement sera affiché. Si cette option est activée, l’enregistrement sur site est désactivé pour ce profil de portail. Vérifiez que les sources du profil de portail ont l’option \"Crée un compte local\" activé."
+"This activates preregistration on the connection profile. Meaning, instead "
+"of applying the access to the currently connected device, it displays a "
+"local account that is created while registering. Note that activating this "
+"disables the on-site registration on this connection profile. Also, make "
+"sure the sources on the connection profile have \"Create local account\" "
+"enabled."
+msgstr "Cette option active le pré-enregistrement sur le profil de connextion. Explication, au lieu de donner l’accès à l’équipement actuellement connecté, un compte local crée lors de l’enregistrement sera affiché. Si cette option est activée, l’enregistrement sur site est désactivé pour ce profil de portail. Vérifiez que les sources du profil de connexion ont l’option \"Crée un compte local\" activé."
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid ""
@@ -8140,6 +8145,11 @@ msgstr "Utilisateurs - Défini en temps que sponsor"
 # pf::admin_roles (Actions)
 msgid "USERS_READ"
 msgstr "Utilisateurs - Lecture"
+
+# pf::admin_roles (Actions groups)
+# pf::admin_roles (Actions)
+msgid "USERS_READ_SPONSORED"
+msgstr "Utilisateurs - Lecture des parains"
 
 # pf::admin_roles (Actions groups)
 msgid "USERS_ROLES"
@@ -8994,6 +9004,14 @@ msgstr "Clé partagée"
 msgid "active_active.virtual_router_id"
 msgstr "ID du Routeur Virtuel"
 
+# conf/documentation.conf
+msgid "active_active.galera_replication_username"
+msgstr "Utilisateur de réplication Galera"
+
+# conf/documentation.conf
+msgid "active_active.galera_replication_password"
+msgstr "Mot de passe de réplication Galera"
+
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 # pfappserver::Form::Field::Duration (Operators)
 msgid "add"
@@ -9062,6 +9080,10 @@ msgstr "Enregistrer la comptabilisation dans les tables SQL"
 # conf/documentation.conf
 msgid "advanced.reevaluate_access_reasons"
 msgstr "Réévaluation d’accès"
+
+# conf/documentation.conf
+msgid "advanced.source_to_send_sms_when_creating_users"
+msgstr "Source SMS pour envoyer les messages de création d’utilisateur "
 
 # conf/documentation.conf
 msgid "advanced.sso_on_access_reevaluation"
@@ -9428,6 +9450,34 @@ msgstr "Port"
 # conf/documentation.conf
 msgid "database.user"
 msgstr "Utilisateur"
+
+# conf/documentation.conf
+msgid "database.key_buffer_size"
+msgstr "Taille du buffer"
+
+# conf/documentation.conf
+msgid "database.innodb_buffer_pool_size"
+msgstr "Taille du pool de buffer InnoDB"
+
+# conf/documentation.conf
+msgid "database.innodb_additional_mem_pool_size"
+msgstr "Taille du buffer additionnel InnoDB"
+
+# conf/documentation.conf
+msgid "database.query_cache_size"
+msgstr "Taille du cache pour les requetes"
+
+# conf/documentation.conf
+msgid "database.thread_concurrency"
+msgstr "Nombre de Thread"
+
+# conf/documentation.conf
+msgid "database.max_connections"
+msgstr "Connexions maximum"
+
+# conf/documentation.conf
+msgid "database.table_cache"
+msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "days"
@@ -10135,6 +10185,10 @@ msgid "maintenance.node_cleanup_window"
 msgstr "Plage horaire de nettoyage des appareils"
 
 # conf/documentation.conf
+msgid "maintenance.node_unreg_window"
+msgstr "Plage horaire de désenregistrement des appareils"
+
+# conf/documentation.conf
 msgid "maintenance.nodes_maintenance_interval"
 msgstr "Fréquence de la maintenance des appareils"
 
@@ -10185,6 +10239,18 @@ msgstr "Fréquence de la maintenance des violations"
 # conf/documentation.conf
 msgid "maintenance.violation_maintenance_timeout"
 msgstr "Temps maximum de la maintenance des violations"
+
+# conf/documentation.conf
+msgid "maintenance.cleanup_chi_database_cache_batch"
+msgstr ""
+
+# conf/documentation.conf
+msgid "maintenance.cleanup_chi_database_cache_interval"
+msgstr ""
+
+# conf/documentation.conf
+msgid "maintenance.cleanup_chi_database_cache_timeout"
+msgstr ""
 
 # conf/documentation.conf (advanced.reevaluate_access_reasons options)
 msgid "manage_deregister"
@@ -11279,6 +11345,15 @@ msgstr "Date de désenregistrement"
 # conf/documentation.conf (vlan.trap_limit_action options)
 msgid "shut"
 msgstr "désactiver"
+
+# html/pfappserver/root/user/view.tt
+msgid "sms_btn"
+msgstr "Envoyer un SMS"
+
+# html/pfappserver/root/user/list_password.tt (options)
+# html/pfappserver/root/user/view.tt
+msgid "sms_loading"
+msgstr "En cours d’envoi"
 
 # pf::Authentication::Source::ADSource (available_attributes)
 # pf::Authentication::Source::LDAPSource (available_attributes)
