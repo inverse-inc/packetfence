@@ -338,7 +338,7 @@ sub action_log {
     #my $date = $violation_info->{'start_date'};
     my $date = mysql_date();
 
-    my $logfile = $violation_log; #untaint_chain($Config{'alerting'}{'log'});
+    my $logfile = $violation_log;
     $logger->info(
         "$logfile $date: $description ($vid) detected on node $mac ($ip)");
     my $log_fh;
