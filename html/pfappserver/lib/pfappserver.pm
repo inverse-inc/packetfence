@@ -310,6 +310,12 @@ sub user_allowed_in_admin {
     return $c->user_in_realm('admin') || $c->user_in_realm('proxy') || $c->authenticate({}, 'proxy');
 }
 
+=head2 doc
+
+Generate the URL to a section of documentation
+
+=cut
+
 sub doc {
     my ($c, $section, $guide) = @_;
     $guide //= "Administration_Guide";
