@@ -35,7 +35,7 @@ __PACKAGE__->config(
 
 sub index: Path :Args(0) {
     my ($self, $c) = @_;
-    $c->go('Config::Fingerbank::Device::Upstream' => 'index');
+    $c->visit('Config::Fingerbank::Device::Upstream' => 'index');
 }
 
 
