@@ -177,6 +177,19 @@ sub extract_modules {
     const('pf::web::constants', 'Locales', \@WEB::LOCALES);
 }
 
+=head2 parse_person
+
+Extract pf::person::FIELDS with the first caracter as upper
+
+=cut
+
+sub parse_person {
+    foreach my $field (@pf::person::FIELDS){
+        add_string(ucfirst($field),'pf::person::FIELDS');
+    }
+}
+
+
 =head2 print_po
 
 Print the PO file constructed from the extracted localizable strings.
@@ -207,7 +220,7 @@ msgstr ""
 "Language-Team: English\\n"
 "Language: en\\n"
 "MIME-Version: 1.0\\n"
-"Content-Type: text/plain; charset=ASCII\\n"
+"Content-Type: text/plain; charset=UTF-8\\n"
 "Content-Transfer-Encoding: 8bit\\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\\n"
 
@@ -256,6 +269,7 @@ sub verify {
 
 &parse_po;
 &parse_tt;
+&parse_person;
 &parse_mc;
 &extract_modules;
 &print_po;
