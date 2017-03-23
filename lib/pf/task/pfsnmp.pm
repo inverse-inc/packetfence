@@ -204,8 +204,11 @@ sub handleUpTrap {
     my $secureMacAddrHashRef;
     my $nbAttempts = 0;
 
-    #Rework retry logic blocking logic
-    @macArray = $switch->_getMacAtIfIndex($switch_port);
+    do {
+        sleep( $switch->{_macSearchesSleepInterval} ) unless ( $nbAttempts == 0 );
+        @macArray = $switch->_getMacAtIfIndex($switch_port);
+        $nbAttempts++;
+    } while(($nbAttempts < $switch->{_macSearchesMaxNb}) && ((time-$start) < 120) && (scalar(@macArray) == 0));
 
     if (scalar(@macArray) == 0) {
         if ($nbAttempts >= $switch->{_macSearchesMaxNb}) {
