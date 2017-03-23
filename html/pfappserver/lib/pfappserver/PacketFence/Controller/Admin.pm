@@ -395,7 +395,7 @@ sub users :Chained('object') :PathPart('users') :Args(0) :AdminRoleAny('USERS_RE
 sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
     my ( $self, $c, $section ) = @_;
 
-    $c->stash->{subsections} = $c->forward('Controller::Configuration', '_stash_tabs');
+    $c->stash->{subsections} = $c->forward('Controller::Configuration', 'all_subsections');
 
 }
 

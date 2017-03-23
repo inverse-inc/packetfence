@@ -234,7 +234,6 @@ sub domains :Local {
     my ($self, $c, $name) = @_;
 
     $c->stash->{tab} = $name;
-    $c->stash->{default_tab} = "domain";
     $c->forward('_handle_tab_view');
 }
 
@@ -246,7 +245,6 @@ sub main :Local {
     my ($self, $c, $name) = @_;
 
     $c->stash->{tab} = $name;
-    $c->stash->{default_tab} = "general";
 
     $c->forward('_handle_tab_view');
 }
@@ -259,7 +257,6 @@ sub database :Local {
     my ($self, $c, $name) = @_;
 
     $c->stash->{tab} = $name;
-    $c->stash->{default_tab} = "database";
     $c->forward('_handle_tab_view');
 }
 
@@ -271,7 +268,6 @@ sub scans :Local {
     my ($self, $c, $name) = @_;
 
     $c->stash->{tab} = $name;
-    $c->stash->{default_tab} = "scan_engines";
 
     $c->forward('_handle_tab_view');
 }
@@ -284,7 +280,6 @@ sub profiling :Local {
     my ($self, $c, $name) = @_;
 
     $c->stash->{tab} = $name;
-    $c->stash->{default_tab} = "general";
 
     $c->forward('_handle_tab_view');
 }
@@ -297,7 +292,6 @@ sub networks :Local {
     my ($self, $c, $name) = @_;
 
     $c->stash->{tab} = $name;
-    $c->stash->{default_tab} = "network";
 
     $c->forward('_handle_tab_view');
 }
@@ -365,9 +359,9 @@ sub integration :Local {
 sub _handle_tab_view : Private {
     my ($self, $c) = @_;
 
-    $c->stash->{tabs} = $c->forward('_stash_tabs')->{$c->action->name};
+    $c->stash->{tabs} = $c->forward('all_subsections')->{$c->action->name};
 
-    my $name = $c->stash->{tab} // $c->stash->{default_tab};
+    my $name = $c->stash->{tab} // (keys(%{$c->stash->{tabs}}))[0];
     $c->stash->{tab} = $name;
     my $current_tab = $c->stash->{tabs}->{$name};
 
@@ -378,7 +372,7 @@ sub _handle_tab_view : Private {
     $c->stash->{template} = "configuration/" . $c->action->name . ".tt";
 }
 
-sub _stash_tabs : Private {
+sub all_subsections : Private {
     my ($self, $c) = @_;
 
     return {
