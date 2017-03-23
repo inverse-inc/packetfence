@@ -1,6 +1,6 @@
 <div class="card">
   <div class="card-title">
-    <h2>[% l(section) %]</h2>
+    <h2>[% l(section) %] [% IF doc_anchor ; doc(doc_anchor) | none ; END %]</h2>
 
 [% IF section == "maintenance" %]
 <div class="alert alert-warning">

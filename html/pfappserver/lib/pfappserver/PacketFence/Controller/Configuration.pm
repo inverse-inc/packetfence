@@ -79,6 +79,13 @@ our %ALLOWED_SECTIONS = (
     database_advanced => undef,
 );
 
+sub pf_sections_doc : Private {
+    my ($self, $c) = @_;
+    return {
+        fencing => '_vidange',
+    };
+};
+
 
 =head2 index
 
@@ -96,6 +103,9 @@ The generic handler for all pf sections
 sub section :Path :Args(1) :AdminRole('CONFIGURATION_MAIN_READ') {
     my ($self, $c, $section) = @_;
     my $logger = get_logger();
+
+    $c->stash->{doc_anchor} = $c->forward('pf_sections_doc')->{$section};
+
     if (exists $ALLOWED_SECTIONS{$section} ) {
         my ($params, $form);
         my ($status,$status_msg,$results);

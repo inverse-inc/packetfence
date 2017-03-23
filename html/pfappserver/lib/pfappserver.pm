@@ -310,6 +310,12 @@ sub user_allowed_in_admin {
     return $c->user_in_realm('admin') || $c->user_in_realm('proxy') || $c->authenticate({}, 'proxy');
 }
 
+sub doc {
+    my ($c, $section, $guide) = @_;
+    $guide //= "Administration_Guide";
+    return "https://packetfence.org/doc/PacketFence_$guide.html#$section"
+}
+
 # Logging
 __PACKAGE__->log(Log::Log4perl::Catalyst->new(INSTALL_DIR . '/conf/log.conf.d/httpd.admin.conf',watch_delay => 5 * 60));
 
