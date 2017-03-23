@@ -390,7 +390,7 @@ sub handleMacTrap {
                 my $role = $role_obj->fetchRoleForNode({
                         mac             => $mac,
                         node_info       => node_attributes($mac),
-                        swicth          => $switch,
+                        switch          => $switch,
                         ifIndex         => $switch_port,
                         connection_type => $WIRED_SNMP_TRAPS,
                         profile         => pf::Connection::ProfileFactory->instantiate($mac)});
