@@ -166,16 +166,6 @@ sub duration :Local :Args(2) {
     $c->response->status($status);
 }
 
-=head2 interfaces
-
-=cut
-
-sub interfaces :Local {
-    my ($self, $c) = @_;
-
-    $c->go('Controller::Interface', 'index');
-}
-
 =head2 switches
 
 =cut
@@ -451,9 +441,7 @@ sub all_subsections : Private {
                     name => 'Network Settings', 
                 },
                 interfaces => {
-                    controller => 'Controller::Configuration',
-                    action => 'section',
-                    action_args => ['interfaces'],
+                    controller => 'Controller::Interface',
                     name => 'Interfaces', 
                 },
                 inline => {
