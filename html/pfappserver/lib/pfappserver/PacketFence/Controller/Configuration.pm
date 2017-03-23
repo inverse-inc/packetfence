@@ -244,12 +244,7 @@ sub domains :Local :CaptureArgs(1) {
         },
     };
 
-    $name //= $c->stash->{default_tab};
-    $c->stash->{tab} = $name;
-    $c->visit($c->stash->{tabs}->{$name}->{controller}, 'index');
-    $c->stash->{inner_content} = $c->response->body;
-    $c->response->body(undef);
-    $c->stash->{template} = "configuration/domains.tt";
+    $c->forward('_handle_tab_view');
 }
 
 =head2 main
@@ -270,16 +265,6 @@ sub pfdb :Local {
     my ($self, $c) = @_;
 
     $c->stash->{template} = "config/database/index.tt";
-}
-
-=head2 cluster
-
-=cut
-
-sub cluster :Local {
-    my ($self, $c) = @_;
-
-    $c->stash->{template} = "config/cluster/index.tt";
 }
 
 =head2 scans
@@ -370,6 +355,16 @@ sub integration :Local {
     my ($self, $c) = @_;
 
     $c->stash->{template} = "config/integration.tt";
+}
+
+sub _handle_tab_view : Private {
+    my ($self, $c) = @_;
+    my $name = $c->stash->{tab} // $c->stash->{default_tab};
+    $c->stash->{tab} = $name;
+    $c->visit($c->stash->{tabs}->{$name}->{controller}, 'index');
+    $c->stash->{inner_content} = $c->response->body;
+    $c->response->body(undef);
+    $c->stash->{template} = "configuration/"$c->action->name".tt";
 }
 
 =head1 COPYRIGHT
