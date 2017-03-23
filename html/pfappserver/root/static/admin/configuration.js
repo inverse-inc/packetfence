@@ -42,12 +42,6 @@ function init() {
         /* Load the first tab on section click */
         $('#tabView').find('[data-toggle="tab"]').first().tab('show');
 
-        console.log("bouzin")
-        /* Show the tab content */
-        $('[href="#newTabView"]').on('click', function(e) {
-          console.log("yes hello");
-        });
-
     });
 
     $('#section').on('reset', function(event) {
