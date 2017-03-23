@@ -18,7 +18,7 @@
 
       <div class="card">
         <div class="card-title">
-          <h2>[% l('Billing Tiers') %]</h2>
+          <h2>[% l('Billing Tiers') %] [% doc('_billing_engine') | none %]</h2>
         </div>
 
         <div class="card-block">

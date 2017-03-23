@@ -19,7 +19,7 @@
 
       <div class="card">
         <div class="card-title">
-          <h2>[% l('Violations')  %]</h2>
+          <h2>[% l('Violations') %] [% doc('_violations') | none %]</h2>
         </div>
         <div class="card-block">
       [% IF items.size -%]

@@ -25,6 +25,7 @@
           <li [% IF controller_namespace == 'Config::SwitchGroup' %]class="active" [% END %]>
             <a href="[% c.pf_hash_for(c.controller('Config::SwitchGroup').action_for('index'),[]) %]">[% l('Switch Groups') %]</a>
           </li>
+          [% doc('_network_devices_definition_switches_conf') | none %]
         </ul>
       </div>
       [% INCLUDE config/switch/list.tt %]

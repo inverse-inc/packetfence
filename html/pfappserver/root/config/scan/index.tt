@@ -15,7 +15,7 @@
         </div>
       </div>
 
-      <h2>[% l('Scan Engine')  %]</h2>
+      <h2>[% l('Scan Engine') %] [% doc('_scanner_definition') | none %]</h2>
 
       [% INCLUDE config/scan/list.tt %]
 
