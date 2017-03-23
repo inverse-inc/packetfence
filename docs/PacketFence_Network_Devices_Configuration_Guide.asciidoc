@@ -2258,6 +2258,37 @@ On each interface (not uplink)
   exit
 
 
+N2000 Series (N2024P)
+^^^^^^^^^^^^^^^^^^^^^
+
+This configuration was tested on the version: 6.2.1.6
+
+Global config settings:
+
+Radius configuration:
+
+  aaa authentication login "defaultList" local
+  authentication enable
+  dot1x system-auth-control
+  aaa authentication dot1x default radius
+  aaa authorization network default radius
+  dot1x dynamic-vlan enable
+  radius-server key "useStrongerSecret"
+  radius-server host auth 192.168.1.5
+  name "PacketFence"
+
+802.1X interface configuration:
+
+  interface Gi0/0/1
+  switchport mode general
+  switchport general allowed vlan add 1-3,100
+  dot1x port-control mac-based
+  dot1x unauth-vlan 2
+  dot1x mac-auth-bypass
+  authentication order mab dot1x
+  voice vlan 100
+  exit
+
 Edge core
 ~~~~~~~~~
 
