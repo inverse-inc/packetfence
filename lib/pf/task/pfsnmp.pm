@@ -110,6 +110,7 @@ sub handleTrap {
     }
 
     my $trapMac = $trap->{trapMac};
+    Log::Log4perl::MDC->put('mac', $trapMac);
     if ( defined($trapMac) && $switch->isFakeMac($trapMac) ) {
         $logger->info("MAC $trapMac is a fake MAC. Stop $trapType handling");
         return;
