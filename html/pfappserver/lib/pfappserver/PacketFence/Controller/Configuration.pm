@@ -229,10 +229,27 @@ sub violations :Local {
 
 =cut
 
-sub domains :Local {
-    my ($self, $c) = @_;
+sub domains :Local :CaptureArgs(1) {
+    my ($self, $c, $name) = @_;
 
-    $c->stash->{template} = "config/domains/index.tt";
+    $c->stash->{default_tab} = "domain";
+    $c->stash->{tabs} = {
+        domain => {
+            controller => 'Controller::Config::Domain',
+            name => 'Microsoft Active Directory Domains', 
+        },
+        realm => { 
+            controller => 'Controller::Config::Realm',
+            name => 'REALMS',
+        },
+    };
+
+    $name //= $c->stash->{default_tab};
+    $c->stash->{tab} = $name;
+    $c->visit($c->stash->{tabs}->{$name}->{controller}, 'index');
+    $c->stash->{inner_content} = $c->response->body;
+    $c->response->body(undef);
+    $c->stash->{template} = "configuration/domains.tt";
 }
 
 =head2 main
