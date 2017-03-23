@@ -87,7 +87,6 @@ The administration guide anchors associated to configuration sections from pf.co
 sub pf_sections_doc : Private {
     my ($self, $c) = @_;
     return {
-        fencing => '_fencing',
         parking => '_parked_devices',
         inline => '_technical_introduction_to_inline_enforcement',
     };
