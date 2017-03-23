@@ -35,22 +35,22 @@
 }
 
 #section:not(.card-block) {
-  margin-top: 20px;
+  margin-top: $baseLineHeight;
+}
+
+.card-actions {
+  margin: 0 18px;
 }
 
 .card .form-actions {
-  margin: 0;
+  margin-bottom: 0;
+  margin-top: 0;
   background-color: initial;
   border-top: none;
 }
 
-.card .form-horizontal .form-actions {
-  margin: 0 $baseLineHeight;
-}
-
 .card-block .form-actions {
   padding-left: 0;
-  padding-right: 0;
 }
 
 .card-block .form-horizontal .form-actions {

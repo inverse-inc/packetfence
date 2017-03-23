@@ -26,7 +26,7 @@
               </div>
             </div>
           </div>
-            <div class="form-actions">
+            <div class="card-actions form-actions">
               <button type="submit" class="btn btn-primary" data-loading-text="[% l('Logging in ..') %]">[% l('Login') %]</button>
             </div>
           </form>
