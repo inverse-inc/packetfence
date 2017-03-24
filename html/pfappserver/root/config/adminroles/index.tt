@@ -17,7 +17,7 @@
 
 <div class="card">
   <div class="card-block">
-      <h2>[% l('Admin Roles') %]</h2>
+      <h2>[% l('Admin Roles') %] [% doc('_admin_access') | none %]</h2>
 
       <p>[% l('Define roles with specific access rights to the Web administration interface. Roles are assigned to users depending on their authentication source.') %]</p>
 

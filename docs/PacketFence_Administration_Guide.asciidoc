@@ -3855,7 +3855,7 @@ Because of that, it is possible to limit the number of SNMP traps coming in from
 
 Here's the default config for the SNMP traps limit feature. As you can see, by default, PacketFence will log the abnormal activity after 100 traps from the same switch port in a minute. These configurations are in the `conf/pf.conf` file:
 
-  [vlan]
+  [snmp_traps]
   trap_limit = enabled
   trap_limit_threshold = 100
   trap_limit_action = 
