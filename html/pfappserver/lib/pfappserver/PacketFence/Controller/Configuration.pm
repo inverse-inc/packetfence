@@ -27,6 +27,7 @@ use pf::util qw(load_oui download_oui);
 # imported but it's better than duplicating regex all over the place.
 use pf::config qw(
     access_duration
+    %Doc_Config
 );
 use pf::admin_roles;
 use pfappserver::Form::Config::Pf;
@@ -78,21 +79,6 @@ our %ALLOWED_SECTIONS = (
     database_advanced => undef,
 );
 
-=head2 pf_sections_doc
-
-The administration guide anchors associated to configuration sections from pf.conf
-
-=cut
-
-sub pf_sections_doc : Private {
-    my ($self, $c) = @_;
-    return {
-        parking => '_parked_devices',
-        inline => '_technical_introduction_to_inline_enforcement',
-    };
-};
-
-
 =head2 index
 
 =cut
@@ -110,7 +96,7 @@ sub section :Path :Args(1) :AdminRole('CONFIGURATION_MAIN_READ') {
     my ($self, $c, $section) = @_;
     my $logger = get_logger();
 
-    $c->stash->{doc_anchor} = $c->forward('pf_sections_doc')->{$section};
+    $c->stash->{doc_anchor} = exists($Doc_Config{$section}) ? $Doc_Config{$section}{guide_anchor} : undef;
 
     if (exists $ALLOWED_SECTIONS{$section} ) {
         my ($params, $form);

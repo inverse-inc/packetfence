@@ -89,6 +89,7 @@ BEGIN {
         pf_chown
         user_chown
         ping
+        generate_doc_url
     );
 }
 
@@ -1316,6 +1317,19 @@ sub ping {
     my $p = Net::Ping->new("icmp");
     return $p->ping($host);
 }
+
+=head2 generate_doc_url
+
+Generate the URL to a section of documentation
+
+=cut
+
+sub generate_doc_url {
+    my ($section, $guide) = @_;
+    $guide //= "Administration_Guide";
+    return "https://packetfence.org/doc/PacketFence_$guide.html#$section"
+}
+
 
 =back
 
