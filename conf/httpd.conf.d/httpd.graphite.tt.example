@@ -117,6 +117,7 @@ MaxSpareServers 1
 HostnameLookups off
 MaxRequestsPerChild 1000
 
+Header set X-XSS-Protection "1; mode=block"
 ErrorLog  [% install_dir %]/logs/[% name %].error
 
 ServerAdmin [% server_admin %]
