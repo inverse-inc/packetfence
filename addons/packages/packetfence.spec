@@ -420,6 +420,13 @@ done
         -pdf docs/$GUIDE.pdf
     done
     %endif
+    
+    # Build HTML doc
+    make html
+    mkdir -p docs/html/docs/images/
+    cp -a docs/images/* docs/html/docs/images/
+    cp -a docs/html html/pfappserver/root/static/doc
+    
 %endif
 
 # build pfcmd C wrapper
@@ -1151,6 +1158,8 @@ fi
 %dir                    /usr/local/pf/db
                         /usr/local/pf/db/*
 %dir                    /usr/local/pf/docs
+%dir                    /usr/local/pf/html/pfappserver/root/static/doc
+%doc                    /usr/local/pf/html/pfappserver/root/static/doc/*
 %doc                    /usr/local/pf/docs/*.asciidoc
 %if %{builddoc} == 1
 %{?el6:%doc             /usr/local/pf/docs/*.pdf }
