@@ -25,6 +25,7 @@ use pf::lookup::person;
 use pf::violation;
 use pf::constants::node qw($STATUS_REGISTERED);
 use pf::util;
+use pf::util::statsd qw(called);
 use pf::dal::person;
 use pf::Connection::ProfileFactory; 
 use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID);
