@@ -10203,6 +10203,10 @@ msgid "tcp_fingerprinting"
 msgstr ""
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "tcp_fingerprinting.p0f_map_path"
+msgstr "p0f map path"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "tcp_fingerprinting.p0f_map_url"
 msgstr "p0f map URL"
 
