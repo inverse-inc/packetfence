@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 6.5.9\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-03-23 13:15-0400\n"
+"PO-Revision-Date: 2017-03-24 16:27-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -1418,6 +1418,11 @@ msgstr ""
 msgid "Common Name Attribute"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
+msgid "Common Name Format"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
 msgid "Common name Attribute"
 msgstr ""
@@ -1917,6 +1922,11 @@ msgstr ""
 msgid "Define the roles which will apply to all devices on your network."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
+msgid "Defines how the common name will be formated. %s will expand to the defined Common Name Attribute value"
+msgstr ""
+
 # conf/documentation.conf (active_active.conflict_resolution_threshold)
 msgid "Defines the amount of seconds after which pfmon attempts to resolve a configuration version conflict between cluster members.For example, if this is set to 5 minutes, then a resolution will be attempted when the members will be detected running a different version for more than 5 minutes."
 msgstr ""
@@ -2269,7 +2279,6 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/WMI.pm
-# html/pfappserver/root/config/domain/index.tt
 # html/pfappserver/root/config/domain/list.tt
 # html/pfappserver/root/config/domain/view.tt
 # html/pfappserver/root/configurator/configuration.tt
@@ -2285,7 +2294,7 @@ msgid "Domain name of the PacketFence server."
 msgstr ""
 
 # html/pfappserver/root/admin/auditing_radius_log.tt
-# html/pfappserver/root/configuration/domains.tt
+# html/pfappserver/root/config/domain/index.tt
 msgid "Domains"
 msgstr ""
 
@@ -5325,7 +5334,6 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Kerberos.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
-# html/pfappserver/root/config/realm/index.tt
 # html/pfappserver/root/config/realm/list.tt
 # html/pfappserver/root/config/realm/view.tt
 msgid "Realm"
@@ -5336,6 +5344,7 @@ msgid "Realm Options"
 msgstr ""
 
 # html/pfappserver/root/admin/auditing_radius_log.tt
+# html/pfappserver/root/config/realm/index.tt
 msgid "Realms"
 msgstr ""
 
@@ -7204,12 +7213,12 @@ msgstr ""
 msgid "This section is for Domains and REALMS. Manage to which domains your PacketFence server is joined."
 msgstr ""
 
-# html/pfappserver/root/configuration/networks.tt
-msgid "This section is for networking. Interfaces, networks and DNS related will be configured here."
+# html/pfappserver/root/configuration/profiling.tt
+msgid "This section is for devices profiling. Fingerbank will help you identify every device type on your network."
 msgstr ""
 
-# html/pfappserver/root/configuration/profiling.tt
-msgid "This section is for profiling. Fingerbank will help you every device type."
+# html/pfappserver/root/configuration/networks.tt
+msgid "This section is for networking. Interfaces, networks and DNS related will be configured here."
 msgstr ""
 
 # html/pfappserver/root/configuration/scans.tt
@@ -10201,10 +10210,6 @@ msgstr "Symantec App Center"
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "tcp_fingerprinting"
 msgstr ""
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "tcp_fingerprinting.p0f_map_path"
-msgstr "p0f map path"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "tcp_fingerprinting.p0f_map_url"

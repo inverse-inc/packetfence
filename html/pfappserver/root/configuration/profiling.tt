@@ -1,4 +1,4 @@
-<p class="p3 p-info">[% l('This section is for profiling. Fingerbank will help you every device type.') %]</p>
+<p class="p3 p-info">[% l('This section is for devices profiling. Fingerbank will help you identify every device type on your network.') %]</p>
 <div class="card">
   <div class="card-block">
     <ul class="nav nav-tabs">
