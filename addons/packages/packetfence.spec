@@ -427,7 +427,7 @@ done
 make html
 mkdir -p docs/html/docs/images/
 cp -a docs/images/* docs/html/docs/images/
-cp -a docs/html html/pfappserver/root/static/doc
+mv docs/html html/pfappserver/root/static/doc
 
 # build pfcmd C wrapper
 gcc -g0 src/pfcmd.c -o bin/pfcmd
