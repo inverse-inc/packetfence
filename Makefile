@@ -29,6 +29,12 @@ html: $(patsubst %.asciidoc,%.html,$(notdir $(wildcard docs/PacketFence_*.asciid
 		-n \
 		$<
 
+doc-pfappserver:
+	make html
+	mkdir -p docs/html/docs/images/
+	cp -a docs/images/* docs/html/docs/images/
+	mv docs/html html/pfappserver/root/static/doc
+
 pfcmd.help:
 	/usr/local/pf/bin/pfcmd help > docs/pfcmd.help
 
