@@ -198,7 +198,7 @@ UserView.prototype.createUser = function(e) {
             }
             else {
                 // We received JSON
-                var text = $('textarea').value();
+                var text = body.find('textarea').val();
                 var data = $.parseJSON(text);
                 if (data.status < 300)
                     showPermanentSuccess(form, data.status_msg);
