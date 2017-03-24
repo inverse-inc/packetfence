@@ -308,7 +308,7 @@ CLEANUP:
         $logger->error("Cannot save $mac error ($status)");
     }
     if ($do_auto_reg) {
-        finalize_node_registration($node_obj);
+        pf::registration::finalize_node_registration($node_obj);
     }
 
     # cleanup
