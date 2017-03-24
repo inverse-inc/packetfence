@@ -144,7 +144,7 @@ has_field 'cn_format' => (
     default => '%s',
     tags    => {
         after_element   => \&help,
-        help            => 'Defines how the common name will be formated. %s will expand the defined Common Name Attribute value',
+        help            => 'Defines how the common name will be formated. %s will expand to the defined Common Name Attribute value',
     },
 );
 
