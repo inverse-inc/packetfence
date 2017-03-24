@@ -120,9 +120,19 @@ has_field 'cn_attribute' =>
              help => 'Defines what attribute of the node to use as the common name during the certificate generation.' },
   );
 
+has_field 'cn_format' => (
+    type    => 'Text',
+    label   => 'Common Name Format',
+    default => '%s',
+    tags    => {
+        after_element   => \&help,
+        help            => 'Defines how the common name will be formated. %s will expand to the defined Common Name Attribute value',
+    },
+);
+
 has_block definition =>
   (
-    render_list => [qw(type url username password country state locality organization organizational_unit cn_attribute ca_cert_path server_cert_path)],
+    render_list => [qw(type url username password country state locality organization organizational_unit cn_attribute cn_format ca_cert_path server_cert_path)],
   );
 
 =head1 COPYRIGHT

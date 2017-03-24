@@ -138,6 +138,16 @@ has_field 'cn_attribute' => (
     },
 );
 
+has_field 'cn_format' => (
+    type    => 'Text',
+    label   => 'Common Name Format',
+    default => '%s',
+    tags    => {
+        after_element   => \&help,
+        help            => 'Defines how the common name will be formated. %s will expand to the defined Common Name Attribute value',
+    },
+);
+
 has_field 'server_cert_path' => (
     type        => 'Path',
     label       => 'Server cert path',
@@ -159,7 +169,7 @@ has_field 'revoke_on_unregistration' => (
 );
 
 has_block 'definition' => (
-    render_list => [ qw(type proto host port username password profile country state organization cn_attribute revoke_on_unregistration ca_cert_path server_cert_path) ],
+    render_list => [ qw(type proto host port username password profile country state organization cn_attribute cn_format revoke_on_unregistration ca_cert_path server_cert_path) ],
 );
 
 =head1 AUTHOR

@@ -29,6 +29,8 @@ has server_cert => (is => 'ro' , builder => 1, lazy => 1);
 
 has cn_attribute => (is => 'rw');
 
+has cn_format => (is => 'rw', default => '%s');
+
 has revoke_on_unregistration => (is => 'rw', default => 'N');
 
 =head2 country
@@ -199,7 +201,7 @@ sub ca_cn {
 
 sub user_cn {
     my ($self, $node_info) = @_;
-    my $cn = $node_info->{$self->cn_attribute};
+    my $cn = sprintf($self->cn_format, $node_info->{$self->cn_attribute});
     if( defined($cn) ) {
         return $cn;
     }
