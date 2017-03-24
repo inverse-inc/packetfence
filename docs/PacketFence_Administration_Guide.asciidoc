@@ -2737,7 +2737,7 @@ In the example above, you can see that the violation table is 'left joined' to t
 Admin Access
 ~~~~~~~~~~~~
 
-You can manage which access you give to some PacketFence administrators. To do that go through 'Configuration->System Configuration->Admin Access'. Then go to your source which authenticate administrator and create an 'administration' rule and assign the wanted Admin role.
+You can manage which access you give to PacketFence administrators. To do that go through 'Configuration->System Configuration->Admin Access'. Then go to your source which authenticate administrator and create an 'administration' rule and assign the wanted Admin role. This functionality allows you to have a granular control on which section of the admin interface is available to whom.
 
 Optional components
 -------------------
