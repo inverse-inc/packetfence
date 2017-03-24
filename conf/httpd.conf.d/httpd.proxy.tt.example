@@ -152,7 +152,6 @@ SSLStaplingCache        shmcb:/var/run/ocsp(128000)
 [% END %]
 
 SSLHonorCipherOrder  on
-Header always append X-Frame-Options SAMEORIGIN
 ErrorLog  [% install_dir %]/logs/[% name %].error
 
 ServerAdmin [% server_admin %]
