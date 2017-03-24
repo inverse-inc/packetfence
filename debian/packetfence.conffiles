@@ -169,7 +169,6 @@
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Graph.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Interface.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Node.pm
-/usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Roles.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Root.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/SavedSearch/Node.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/SavedSearch/User.pm
