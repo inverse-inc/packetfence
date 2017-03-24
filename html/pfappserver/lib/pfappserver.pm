@@ -43,6 +43,7 @@ BEGIN {
 }
 use pf::CHI;
 use pf::CHI::Request;
+use pf::util qw();
 use pf::SwitchFactory;
 pf::SwitchFactory->preloadAllModules();
 
@@ -308,6 +309,15 @@ Checks to see if the user is allowed in admin
 sub user_allowed_in_admin {
     my ($c) = @_;
     return $c->user_in_realm('admin') || $c->user_in_realm('proxy') || $c->authenticate({}, 'proxy');
+}
+
+=head2 generate_doc_url
+
+=cut
+
+sub generate_doc_url {
+    my ($c, $anchor, $guide) = @_;
+    return pf::util::generate_doc_url($anchor, $guide);
 }
 
 # Logging

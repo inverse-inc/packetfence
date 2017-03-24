@@ -43,7 +43,7 @@ sub field_list {
         my $defaults = $Default_Config{$section};
         $doc_section->{description} =~ s/\n//sg;
         my $doc_anchor = $doc_section->{guide_anchor};
-        my $doc_anchor_html = defined($doc_anchor) ? ' <a href="' . generate_doc_url($doc_anchor) . '"><i class="icon-question-circle-o"></i></a> ' : '';
+        my $doc_anchor_html = defined($doc_anchor) ? ' <a target="_blank" href="' . generate_doc_url($doc_anchor) . '"><i class="icon-question-circle-o"></i></a> ' : '';
         my $field =
           { element_attr => { 'placeholder' => $defaults->{$name} },
             tags => { after_element => \&help, # role method, defined in Base::Form::Role::Help

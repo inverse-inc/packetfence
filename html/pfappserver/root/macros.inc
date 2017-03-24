@@ -6,7 +6,7 @@
 
 [%- MACRO doc(section, guide) BLOCK -%]
 [%- UNLESS guide; guide = 'Administration_Guide'; END -%]
-<a href="https://packetfence.org/doc/PacketFence_[% guide %].html#[% section %]"><i class="icon-question-circle-o"></i></a>
+<a href="[% c.generate_doc_url(section, guide) %]"><i class="icon-question-circle-o"></i></a>
 [%- END -%]
 
 [%- MACRO pagination_path(section, params)  BLOCK -%]
