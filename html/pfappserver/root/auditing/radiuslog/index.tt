@@ -1,4 +1,4 @@
-<div class="sidenav sidenav-section offset1 span3"
+<div id="radiuslog-sidenav" class="sidenav sidenav-section offset1 span3"
      style="display: none"
      data-category="radius">
   [% INCLUDE admin/auditing_radius_log.tt %]

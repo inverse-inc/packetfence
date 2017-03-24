@@ -945,7 +945,13 @@ $(function () { // DOM ready
         // If the section includes a dynamic sidenav section, move it to the sidenav row
         var sidenav = $('.sidenav-fluid .row-fluid').first();
         $('#section').find('.sidenav-section').each(function() {
-            $(this).detach().appendTo(sidenav).show();
+            if (this.id && sidenav.find('#' + this.id).length > 0)
+                // Section is already there; show it
+                sidenav.find('#' + this.id).show();
+            else {
+                // Append section
+                $(this).detach().appendTo(sidenav).show();
+            }
         });
     });
 

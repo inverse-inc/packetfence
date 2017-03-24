@@ -4,7 +4,7 @@
 module.exports = function(grunt) {
   var js_files = {
     'js/pfappserver.js': ['app/application.js', 'admin/common.js'],
-    'js/auditing.js': ['admin/auditing.js', 'admin/radiusauditlog.js'],
+    'js/auditing.js': ['admin/auditing.js', 'admin/radiusauditlog.js', 'admin/radiuslog.js', 'admin/option82.js'],
     'js/configuration.js': ['admin/configuration.js', 'admin/config/*.js']
   };
   var js_files_vendor_custom = {

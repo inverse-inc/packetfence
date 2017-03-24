@@ -1,4 +1,4 @@
-<div class="sidenav sidenav-section offset1 span3"
+<div id="dhcp82-sidenav" class="sidenav sidenav-section offset1 span3"
      style="display: none"
      data-category="dhcp82">
   [% INCLUDE admin/auditing_option82.tt %]
