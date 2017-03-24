@@ -17,6 +17,7 @@
         'css/jqtree',
         'admin/config/switches',
         'admin/config/violations',
+        'admin/config/fingerbank-settings',
         ] -%]
 
 <style type="text/css">
