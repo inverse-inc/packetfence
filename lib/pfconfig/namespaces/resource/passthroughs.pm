@@ -52,12 +52,12 @@ sub build {
     my ($self) = @_;
 
     my @all_passthroughs = (
-        @{$self->{config}->{trapping}->{passthroughs}}, 
+        @{$self->{config}->{trapping}->{passthroughs} // []},
         map{
             $_->isa("pf::Authentication::Source::OAuthSource") 
                 ? split(/\s*,\s*/, $_->{domains})
                 : () 
-        } @{$self->{authentication_sources}},
+        } @{$self->{authentication_sources} // []},
     );
 
     my %passthroughs = (
