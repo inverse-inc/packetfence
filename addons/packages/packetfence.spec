@@ -423,11 +423,8 @@ done
     
 %endif
 
-# Build HTML doc for pfappserver
-make html
-mkdir -p docs/html/docs/images/
-cp -a docs/images/* docs/html/docs/images/
-mv docs/html html/pfappserver/root/static/doc
+# Build the HTML doc for pfappserver
+make html/pfappserver/root/static/doc
 
 # build pfcmd C wrapper
 gcc -g0 src/pfcmd.c -o bin/pfcmd

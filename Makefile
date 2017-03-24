@@ -29,7 +29,7 @@ html: $(patsubst %.asciidoc,%.html,$(notdir $(wildcard docs/PacketFence_*.asciid
 		-n \
 		$<
 
-doc-pfappserver:
+html/pfappserver/root/static/doc:
 	make html
 	mkdir -p docs/html/docs/images/
 	cp -a docs/images/* docs/html/docs/images/
@@ -119,4 +119,4 @@ fingerbank:
 pf-dal:
 	perl /usr/local/pf/addons/dev-helpers/bin/generator-data-access-layer.pl
 
-devel: configurations conf/ssl/server.crt conf/pf_omapi_key conf/local_secret bin/pfcmd raddb/certs/server.crt sudo translation mysql-schema raddb/sites-enabled fingerbank chown_pf permissions bin/ntlm_auth_wrapper
+devel: configurations conf/ssl/server.crt conf/pf_omapi_key conf/local_secret bin/pfcmd raddb/certs/server.crt sudo translation mysql-schema raddb/sites-enabled fingerbank chown_pf permissions bin/ntlm_auth_wrapper html/pfappserver/root/static/doc
