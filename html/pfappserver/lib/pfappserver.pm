@@ -43,7 +43,7 @@ BEGIN {
 }
 use pf::CHI;
 use pf::CHI::Request;
-use pf::util qw();
+use pf::web::util;
 use pf::SwitchFactory;
 pf::SwitchFactory->preloadAllModules();
 
@@ -311,13 +311,15 @@ sub user_allowed_in_admin {
     return $c->user_in_realm('admin') || $c->user_in_realm('proxy') || $c->authenticate({}, 'proxy');
 }
 
-=head2 generate_doc_url
+=head2 generate_doc_link
+
+Generate the HTML link to a section of documentation
 
 =cut
 
-sub generate_doc_url {
-    my ($c, $anchor, $guide) = @_;
-    return pf::util::generate_doc_url($anchor, $guide);
+sub generate_doc_link {
+    my ($c, $section, $guide) = @_;
+    return pf::web::util::generate_doc_link($section, $guide);
 }
 
 # Logging
