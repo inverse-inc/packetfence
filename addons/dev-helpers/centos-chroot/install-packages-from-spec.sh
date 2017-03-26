@@ -20,6 +20,4 @@ EL_VERSION=$(cat /etc/redhat-release | perl -p -e's/^.*(\d+)\..*$/$1/' )
 
 rpm -q -D"el$EL_VERSION 1" -D"builddoc 0" --requires  --specfile $SPEC | grep -v packetfence \
     | perl -pi -e's/ +$//' | sort -u \
-    | xargs -d '\n' $REPOQUERY --whatprovides \
-    | sort -u | grep -v perl-LDAP \
-    | xargs $YUM install
+    | xargs -d '\n' $YUM install
