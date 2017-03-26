@@ -118,6 +118,8 @@ HostnameLookups off
 MaxRequestsPerChild 1000
 
 Header set X-XSS-Protection "1; mode=block"
+Header always append X-Frame-Options SAMEORIGIN
+
 ErrorLog  [% install_dir %]/logs/[% name %].error
 
 ServerAdmin [% server_admin %]

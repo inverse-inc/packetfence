@@ -124,6 +124,8 @@ DocumentRoot [% install_dir %]/html/parking
 DirectoryIndex index.html
 
 Header set X-XSS-Protection "1; mode=block"
+Header always append X-Frame-Options SAMEORIGIN
+
 ErrorLog [% install_dir %]/logs/[% name %].error
 
 LogLevel warn

@@ -216,6 +216,7 @@ SSLStaplingCache        shmcb:/var/run/ocsp(128000)
 
 SSLHonorCipherOrder on
 Header set X-XSS-Protection "1; mode=block"
+Header always append X-Frame-Options SAMEORIGIN
 
 ErrorLog [% install_dir %]/logs/[% name %].error
 

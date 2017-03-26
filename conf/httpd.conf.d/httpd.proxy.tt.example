@@ -152,7 +152,6 @@ SSLStaplingCache        shmcb:/var/run/ocsp(128000)
 [% END %]
 
 SSLHonorCipherOrder  on
-
 ErrorLog  [% install_dir %]/logs/[% name %].error
 
 ServerAdmin [% server_admin %]
