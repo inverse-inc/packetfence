@@ -408,8 +408,8 @@ sub locationlog_synchronize {
     my $timer = pf::StatsD::Timer->new({ sample_rate => 0.2 });
     my ( $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc) = @_;
     
-    get_logger->info("sync locationlog with ifDesc $ifDesc");
     my $logger = get_logger();
+    $logger->trace(sub {"sync locationlog with ifDesc " . ($ifDesc // "undef")});
     $logger->trace("locationlog_synchronize called");
 
     # flag to determine if we must insert a new record or not
