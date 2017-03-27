@@ -186,6 +186,7 @@ Usage: /config/domain/update_rejoin/:domainId
 
 sub update_rejoin :Local :Args(1) {
     my ($self, $c, $domain) = @_;
+    $c->stash->{id} = $domain;
     $c->forward('update');
     $c->forward('rejoin');
 }
