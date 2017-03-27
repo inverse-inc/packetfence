@@ -14,6 +14,15 @@ if $syslogtag contains "eduroam" and $syslogfacility-text == "local4" then -/usr
 if $syslogtag contains "load_balancer" and $syslogfacility-text == "local5" then -/usr/local/pf/logs/radius-load_balancer.log
 & ~
 
+# REDIS
+if $syslogtag contains "redis-queue" then -/usr/local/pf/logs/redis_queue.log
+& ~
+
+if $syslogtag contains "redis-cache" then -/usr/local/pf/logs/redis_cache.log
+& ~
+
+if $syslogtag contains "redis-ntlm-cache" then -/usr/local/pf/logs/redis_ntlm_cache.log
+& ~
 
 # PFDHCPLISTENER
 if $syslogtag contains "pfdhcplistener" then -/usr/local/pf/logs/pfdhcplistener.log
