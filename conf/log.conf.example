@@ -5,8 +5,6 @@ log4perl.rootLogger = INFO, PFSYSLOG
 
 ### Categories ###
 # Below, you can specify different categories (based on package names) for different logging levels
-#log4perl.category.pf.SNMP = WARN
-
 
 ### Global (PacketFence) log facility configuration ###
 ### Not meant to be modified ###

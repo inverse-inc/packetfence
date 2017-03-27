@@ -1,5 +1,5 @@
 ### httpd.portal logger ###
-#log4perl.rootLogger = INFO, PFSYSLOG
+log4perl.rootLogger = INFO, HTTPD_PORTAL
 
 ### Catalyst logger ###
 ## Used to separate Catalyst framework logs in a different log file
@@ -15,17 +15,22 @@ log4perl.category.fingerbank = INFO, PORTAL_FINGERBANK
 log4perl.additivity.fingerbank = 0
 
 ### Categories ###
+log4perl.appender.HTTPD_PORTAL		                                      = Log::Dispatch::Syslog
+log4perl.appender.HTTPD_PORTAL.ident     	                              = packetfence
+log4perl.appender.HTTPD_PORTAL.facility                                   = local5
+log4perl.appender.HTTPD_PORTAL.layout.ConversionPattern                   = %p %X{proc}(%X{tid}): %m (%M)%n
+log4perl.appender.HTTPD_PORTAL.layout                                     = PatternLayout
 
 ### General Catalyst (pfappserver) log facility configuration ###
-log4perl.appender.PORTAL_CATALYST		                             = Log::Dispatch::Syslog
-log4perl.appender.PORTAL_CATALYST.ident     	                             = portal_catalyst
-log4perl.appender.PORTAL_CATALYST.facility                                   = local5
-log4perl.appender.PORTAL_CATALYST.layout.ConversionPattern                   = %p %X{proc}(%X{tid}): %m (%M)%n
-log4perl.appender.PORTAL_CATALYST.layout                                     = PatternLayout
+log4perl.appender.PORTAL_CATALYST		                                  = Log::Dispatch::Syslog
+log4perl.appender.PORTAL_CATALYST.ident     	                          = portal_catalyst
+log4perl.appender.PORTAL_CATALYST.facility                                = local5
+log4perl.appender.PORTAL_CATALYST.layout.ConversionPattern                = %p %X{proc}(%X{tid}): %m (%M)%n
+log4perl.appender.PORTAL_CATALYST.layout                                  = PatternLayout
 
 ### General Fingerbank log facility configuration ###
-log4perl.appender.PORTAL_FINGERBANK		                             = Log::Dispatch::Syslog
-log4perl.appender.PORTAL_FINGERBANK.ident     	                             = fingerbank
-log4perl.appender.PORTAL_FINGERBANK.facility                                 = local5
-log4perl.appender.PORTAL_FINGERBANK.layout.ConversionPattern                 = %p %X{proc}(%X{tid}): %m (%M)%n
-log4perl.appender.PORTAL_FINGERBANK.layout                                   = PatternLayout
+log4perl.appender.PORTAL_FINGERBANK		                                  = Log::Dispatch::Syslog
+log4perl.appender.PORTAL_FINGERBANK.ident     	                          = fingerbank
+log4perl.appender.PORTAL_FINGERBANK.facility                              = local5
+log4perl.appender.PORTAL_FINGERBANK.layout.ConversionPattern              = %p %X{proc}(%X{tid}): %m (%M)%n
+log4perl.appender.PORTAL_FINGERBANK.layout                                = PatternLayout
