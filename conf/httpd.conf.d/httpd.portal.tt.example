@@ -218,7 +218,7 @@ SSLHonorCipherOrder on
 Header set X-XSS-Protection "1; mode=block"
 Header always append X-Frame-Options SAMEORIGIN
 
-ErrorLog [% install_dir %]/logs/[% name %].error
+ErrorLog "| /usr/bin/logger -thttpd_portal_err -plocal5.err"
 
 #disable htaccess starting at web root
 <Directory />
@@ -238,8 +238,8 @@ NameVirtualHost [% vhost %]:443
 <VirtualHost [% vhost %]:80 > 
      ServerName   [% server_name %]
      DocumentRoot [% install_dir %]/html/captive-portal/lib
-     ErrorLog [% install_dir %]/logs/[% name %].error
-     CustomLog [% install_dir %]/logs/[% name %].access [% logformat %] env=!is_collectd
+     ErrorLog "| /usr/bin/logger -thttpd_portal_err -plocal5.err"
+     CustomLog "| /usr/bin/logger -thttpd_portal -plocal5.info"  loadbalanced_combined
      Include [% var_dir %]/conf/captive-portal-common
      AllowEncodedSlashes on
      Alias       /static [% install_dir %]/html/captive-portal/root/static
@@ -318,8 +318,8 @@ NameVirtualHost [% vhost %]:443
 <VirtualHost  [% vhost %]:443 >
      ServerName   [% server_name %]
      DocumentRoot [% install_dir%]/html/captive-portal/lib
-     ErrorLog [% install_dir %]/logs/[% name %].error
-     CustomLog [% install_dir %]/logs/[% name %].access [% logformat %] env=!is_collectd
+     ErrorLog "| /usr/bin/logger -thttpd_portal_err-plocal5.err"
+     CustomLog "| /usr/bin/logger -thttpd_portal -plocal5.info"  loadbalanced_combined
      Include [% var_dir %]/conf/captive-portal-common
      AllowEncodedSlashes on
      Alias       /static [% install_dir %]/html/captive-portal/root/static
@@ -403,8 +403,8 @@ NameVirtualHost [% vhost %]:443
     <VirtualHost [% vhost_management_network %]:[% ports.httpd_portal_modstatus %] >
         ServerName   [% server_name %]
         DocumentRoot [% install_dir%]/html/captive-portal/lib
-        ErrorLog [% install_dir %]/logs/[% name %].error
-        CustomLog [% install_dir %]/logs/[% name %].access [% logformat %] env=!is_collectd
+        ErrorLog "| /usr/bin/logger -thttpd_portal_err -plocal5.err"
+        CustomLog "| /usr/bin/logger -thttpd_portal -plocal5.info"  loadbalanced_combined
 
         <Location  /modstatus >
             SetHandler server-status
