@@ -41,23 +41,23 @@ sub lookup_node {
         $return .= "MAC Address    : $mac\n";
 
         # fetch IP and DHCP information
-        my $node_iplog_info = pf::ip4log::view($mac);
-        if (defined($node_iplog_info->{'ip'})) {
+        my $node_ip4log_info = pf::ip4log::view($mac);
+        if (defined($node_ip4log_info->{'ip'})) {
 
-            $return .= "IP Address     : ".$node_iplog_info->{'ip'}." (active)\n";
-            $return .= "IP Info        : IP active since " . $node_iplog_info->{'start_time'};
-            if ($node_iplog_info->{'end_time'} ne '0000-00-00 00:00:00') {
-                $return .= " and DHCP lease valid until ".$node_iplog_info->{'end_time'};
+            $return .= "IP Address     : ".$node_ip4log_info->{'ip'}." (active)\n";
+            $return .= "IP Info        : IP active since " . $node_ip4log_info->{'start_time'};
+            if ($node_ip4log_info->{'end_time'} ne '0000-00-00 00:00:00') {
+                $return .= " and DHCP lease valid until ".$node_ip4log_info->{'end_time'};
             }
             $return .= "\n";
             
         } else {
-            my @node_iplog_history_info = pf::ip4log::get_history($mac);
-            if (ref($node_iplog_history_info[0]) eq 'HASH' && defined($node_iplog_history_info[0]->{'ip'})) {
-                my $latest_iplog = $node_iplog_history_info[0];
-                $return .= "IP Address     : ".$latest_iplog->{'ip'}." (inactive)\n";
-                $return .= "IP Info        : IP was last seen active between " . $latest_iplog->{'start_time'} .
-                           " and ". $latest_iplog->{'end_time'} . "\n";
+            my @node_ip4log_history_info = pf::ip4log::get_history($mac);
+            if (ref($node_ip4log_history_info[0]) eq 'HASH' && defined($node_ip4log_history_info[0]->{'ip'})) {
+                my $latest_ip4log = $node_ip4log_history_info[0];
+                $return .= "IP Address     : ".$latest_ip4log->{'ip'}." (inactive)\n";
+                $return .= "IP Info        : IP was last seen active between " . $latest_ip4log->{'start_time'} .
+                           " and ". $latest_ip4log->{'end_time'} . "\n";
             } else {
                 $return .= "IP Address     : Unknown\n";
                 $return .= "IP Info        : No IP information available\n";

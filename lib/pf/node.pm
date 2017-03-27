@@ -292,7 +292,7 @@ sub node_db_prepare {
             locationlog.dot1x_username as last_dot1x_username, locationlog.ssid as last_ssid,
             locationlog.stripped_user_name as stripped_user_name, locationlog.realm as realm,
             locationlog.switch_mac as last_switch_mac,
-            iplog.ip as last_ip,
+            ip4log.ip as last_ip,
             COUNT(DISTINCT violation.id) as nbopenviolations,
             node.notes
         FROM node
@@ -300,7 +300,7 @@ sub node_db_prepare {
             LEFT JOIN node_category as nc on node.category_id = nc.category_id
             LEFT JOIN violation ON node.mac=violation.mac AND violation.status = 'open'
             LEFT JOIN locationlog ON node.mac=locationlog.mac AND end_time = 0
-            LEFT JOIN iplog ON node.mac=iplog.mac AND (iplog.end_time = '0000-00-00 00:00:00' OR iplog.end_time > NOW())
+            LEFT JOIN ip4log ON node.mac=ip4log.mac AND (ip4log.end_time = '0000-00-00 00:00:00' OR ip4log.end_time > NOW())
         GROUP BY node.mac
     ];
 
@@ -374,7 +374,7 @@ sub node_db_prepare {
         SELECT n.mac, n.pid, n.detect_date, n.regdate, n.unregdate, n.lastskip,
             n.status, n.user_agent, n.computername, n.notes,
             i.ip, i.start_time, i.end_time, n.last_arp
-        FROM node n LEFT JOIN iplog i ON n.mac=i.mac
+        FROM node n LEFT JOIN ip4log i ON n.mac=i.mac
         WHERE n.status = "unreg" AND (i.end_time = 0 OR i.end_time > now())
     ]);
 
@@ -382,7 +382,7 @@ sub node_db_prepare {
         SELECT n.mac, n.pid, n.detect_date, n.regdate, n.unregdate, n.lastskip,
             n.status, n.user_agent, n.computername, n.notes, n.dhcp_fingerprint,
             i.ip, i.start_time, i.end_time, n.last_arp
-        FROM node n, iplog i
+        FROM node n, ip4log i
         WHERE n.mac = i.mac AND (i.end_time = 0 OR i.end_time > now())
     ]);
 
@@ -822,7 +822,7 @@ sub node_view_all {
                 $node_view_all_sql .= " HAVING node.mac LIKE $like"
                   . " OR node.computername LIKE $like"
                   . " OR node.pid LIKE $like"
-                  . " OR iplog.ip LIKE $like";
+                  . " OR ip4log.ip LIKE $like";
             }
         }
     }
