@@ -3,7 +3,6 @@ Description=PacketFence Iptables configuration
 Wants=packetfence-mariadb.service packetfence-config.service
 
 [Service]
-StandardOutput=syslog
 StartLimitBurst=3
 StartLimitInterval=60
 Type=oneshot

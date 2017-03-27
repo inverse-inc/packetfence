@@ -5,7 +5,6 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
 Before=packetfence-radiusd-auth.service
 
 [Service]
-StandardOutput=syslog
 StartLimitBurst=3
 StartLimitInterval=60
 ExecStartPre=/usr/local/pf/bin/pfcmd service winbindd generateconfig

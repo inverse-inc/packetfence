@@ -4,7 +4,6 @@ Wants=packetfence-config.service
 After=packetfence-config.service
 
 [Service]
-StandardOutput=syslog
 StartLimitBurst=3
 StartLimitInterval=60
 Type=oneshot

@@ -4,7 +4,6 @@ After=network.target packetfence-redis-cache.service
 Wants=packetfence-redis-cache.service
 
 [Service]
-StandardOutput=syslog
 StartLimitBurst=3
 StartLimitInterval=60
 Type=simple

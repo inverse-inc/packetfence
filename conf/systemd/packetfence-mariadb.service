@@ -7,7 +7,6 @@ Wants=packetfence-config.service
 Conflicts=mysql.service mariadb.service
 
 [Service]
-StandardOutput=syslog
 StartLimitBurst=3
 StartLimitInterval=60
 Type=simple
