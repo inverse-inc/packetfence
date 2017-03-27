@@ -151,6 +151,7 @@ Requires: perl(Log::Log4perl) >= 1.43
 Requires: perl(Log::Any)
 Requires: perl(Log::Any::Adapter)
 Requires: perl(Log::Any::Adapter::Log4perl)
+Requires: perl(Log::Dispatch::Syslog)
 Requires: perl(Net::Cisco::MSE::REST)
 # Required by switch modules
 # Net::Appliance::Session specific version added because newer versions broke API compatibility (#1312)
