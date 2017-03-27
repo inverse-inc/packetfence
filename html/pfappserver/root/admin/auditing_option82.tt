@@ -15,7 +15,7 @@
                       <li><a href="#" data-toggle="pf-search-form" data-parent="#collapseSwitchGroupDefault" data-target="#search" data-form-target="#search">[% switch.id %]</a>
                         <form>
                           <input type="hidden" name="searches.0.name" value="switch_id"/>
-                          <input type="hidden" name="searches.0.op" value="is"/>
+                          <input type="hidden" name="searches.0.op" value="equal"/>
                           <input type="hidden" name="searches.0.value" value="[% switch.id %]"/>
                         </form>
                         </li>
@@ -28,7 +28,7 @@
                         <li><a href="#" data-toggle="pf-search-form" data-parent="#collapse_[% switch_group.id %]"data-target="#search" data-form-target="#search">[% member.id %]</a>
                           <form>
                             <input type="hidden" name="searches.0.name" value="switch_id"/>
-                            <input type="hidden" name="searches.0.op" value="is"/>
+                            <input type="hidden" name="searches.0.op" value="equal"/>
                             <input type="hidden" name="searches.0.value" value="[% member.id %]"/>
                           </form>
                         </li>
