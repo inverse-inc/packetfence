@@ -1,0 +1,103 @@
+# RADIUS
+if $syslogtag contains "auth" and $syslogfacility-text == "local1" then -/usr/local/pf/logs/radius.log
+& ~
+
+if $syslogtag contains "acct" and $syslogfacility-text == "local2" then -/usr/local/pf/logs/radius-acct.log
+& ~
+
+if $syslogtag contains "cli" and $syslogfacility-text == "local3" then -/usr/local/pf/logs/radius-cli.log
+& ~
+
+if $syslogtag contains "eduroam" and $syslogfacility-text == "local4" then -/usr/local/pf/logs/radius-eduroam.log
+& ~
+
+if $syslogtag contains "load_balancer" and $syslogfacility-text == "local5" then -/usr/local/pf/logs/radius-load_balancer.log
+& ~
+
+
+# PFDHCPLISTENER
+if $syslogtag contains "pfdhcplistener" then -/usr/local/pf/logs/pfdhcplistener.log
+& ~
+
+# FINGERBANK
+if $syslogtag contains "fingerbank" then -/usr/local/pf/logs/fingerbank.log
+& ~
+
+# HTTPD services 
+if $syslogtag contains "httpd_parking_err" then -/usr/local/pf/logs/httpd.parking.error
+& ~
+if $syslogtag contains "httpd_parking" then -/usr/local/pf/logs/httpd.parking.access
+& ~
+
+if $syslogtag contains "httpd_portal_err" then -/usr/local/pf/logs/httpd.portal.error
+& ~
+if $syslogtag contains "httpd_portal" then -/usr/local/pf/logs/httpd.portal.access
+& ~
+
+if $programname contains "httpd_webservices_err" then -/usr/local/pf/logs/httpd.webservices.error
+& ~
+if $programname contains "httpd_webservices" then -/usr/local/pf/logs/httpd.webservices.access
+& ~
+
+if $syslogtag contains "packetfence" then -/usr/local/pf/logs/packetfence.log
+& ~
+if $syslogtag contains "httpd_admin_err" then -/usr/local/pf/logs/httpd.admin.error
+& ~
+if $syslogtag contains "httpd_admin_access" then -/usr/local/pf/logs/httpd.admin.access
+& ~
+if $syslogtag contains "httpd_admin" then -/usr/local/pf/logs/httpd.admin.log
+& ~
+
+if $syslogtag contains "httpd_collector_err" then -/usr/local/pf/logs/httpd.collector.error
+& ~
+if $syslogtag contains "httpd_collector" then -/usr/local/pf/logs/httpd.collector.log
+& ~
+
+if $syslogtag contains "httpd_graphite_err" then -/usr/local/pf/logs/httpd.graphite.error
+& ~
+if $syslogtag contains "httpd_graphite" then -/usr/local/pf/logs/httpd.graphite.access
+& ~
+
+if $syslogtag contains "httpd_proxy_err" then -/usr/local/pf/logs/httpd.proxy.error
+& ~
+if $syslogtag contains "httpd_proxy" then -/usr/local/pf/logs/httpd.proxy.access
+& ~
+
+if $syslogtag contains "admin_catalyst" then -/usr/local/pf/logs/httpd.admin.catalyst
+& ~
+
+if $syslogtag contains "portal_catalyst" then -/usr/local/pf/logs/httpd.portal.catalyst
+& ~
+
+# PFCONFIG
+if $programname == "pfconfig" then -/usr/local/pf/logs/pfconfig.log
+& ~
+
+# PFDNS
+if $programname == "pfdns" then -/usr/local/pf/logs/pfdns.log
+& ~
+
+# PFFILTER
+if $programname == "pffilter" then -/usr/local/pf/logs/pffilter.log
+& ~
+
+# PFMON
+if $programname == "pfmon" then -/usr/local/pf/logs/pfmon.log
+& ~
+
+# PFQUEUE
+if $programname == "pfqueue" then -/usr/local/pf/logs/pfqueue.log
+& ~
+
+# COLLECTD
+if $programname == "collectd" then -/usr/local/pf/logs/collectd.log
+& ~
+
+# PFDETECT
+if $programname == "pfdetect" then -/usr/local/pf/logs/pfdetect.log
+& ~
+
+# PFBANDWIDTHD
+if $programname == "pfbandwidthd" then -/usr/local/pf/logs/pfbandwidthd.log
+& ~
+

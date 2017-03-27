@@ -1,21 +1,6 @@
 ### httpd.aaa logger ###
-log4perl.rootLogger = INFO, HTTPD_AAA
 
 ### Categories ###
 # Below, you can specify different categories (based on package names) for different logging levels
 #log4perl.category.pf.SNMP = WARN
-
-### Logging for httpd.aaa
-log4perl.appender.HTTPD_AAA                              = pf::log::FileAppender
-# Replace /usr/local/pf/logs/packetfence.log by /usr/local/pf/logs/httpd.aaa.log to allow
-# httpd.aaa to log in its own log file.
-log4perl.appender.HTTPD_AAA.filename                     = /usr/local/pf/logs/packetfence.log
-log4perl.appender.HTTPD_AAA.syswrite                     = 1
-log4perl.appender.HTTPD_AAA.mode                         = append
-log4perl.appender.HTTPD_AAA.layout                       = PatternLayout
-log4perl.appender.HTTPD_AAA.layout.ConversionPattern     = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
-log4perl.appender.HTTPD_AAA.umask                        = 0002
-log4perl.appender.HTTPD_AAA.user                         = pf
-log4perl.appender.HTTPD_AAA.group                        = pf
-log4perl.appender.HTTPD_AAA.binmode                      = utf8
 
