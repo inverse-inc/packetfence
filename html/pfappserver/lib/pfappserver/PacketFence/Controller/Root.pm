@@ -15,6 +15,7 @@ use warnings;
 
 use Moose;
 use namespace::autoclean;
+use pf::db;
 
 BEGIN { extends 'Catalyst::Controller' }
 
@@ -28,6 +29,19 @@ __PACKAGE__->config(namespace => '');
 =head1 METHODS
 
 =over
+
+
+=head2 auto
+
+auto
+
+=cut
+
+sub auto :Private {
+    my ( $self, $c ) = @_;
+    $c->stash->{readonly_mode} = db_check_readonly();
+    return 1;
+}
 
 =item index
 
