@@ -140,6 +140,11 @@ case "$1" in
 
 
         /sbin/ldconfig
+        # Enabling ip forwarding
+        echo "# ip forwarding enabled by packetfence" >> /etc/sysctl.conf
+        echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
+        sysctl -p /etc/sysctl.conf
+
         #Starting PacketFence.
         echo "Starting PacketFence Administration GUI..."
         #removing old cache
