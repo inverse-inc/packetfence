@@ -185,8 +185,6 @@ binary-arch: build install
 ifeq ($(jessie),yes)
 	dh_systemd_enable
 endif
-
-override_dh_installinit:
 	dh_installinit --no-restart-on-upgrade
 	dh_installinit --name=packetfence-carbon-cache
 	dh_installinit --name=packetfence-carbon-relay
@@ -229,7 +227,6 @@ override_dh_installinit:
 	dh_installinit --name=packetfence-snmptrapd
 	dh_installinit --name=packetfence-statsd
 	dh_installinit --name=packetfence-winbindd
-
 
 	dh_installcron
 #	dh_installinfo
