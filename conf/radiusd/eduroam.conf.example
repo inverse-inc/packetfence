@@ -23,7 +23,7 @@ log {
 	#  The command-line option "-X" over-rides this option, and forces
 	#  logging to go to stdout.
 	#
-	destination = files
+	destination = syslog
 
 	#
 	#  Highlight important messages sent to stderr and stdout.
@@ -86,7 +86,7 @@ log {
 	#  The exact values permitted here are OS-dependent.  You probably
 	#  don't want to change this.
 	#
-	syslog_facility = daemon
+	syslog_facility = local4
 
 	#  Log the full User-Name attribute, as it was found in the request.
 	#

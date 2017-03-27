@@ -1,7 +1,7 @@
 ### Root/Parent (PacketFence) logger ###
 # Will log everything (even categories defined to log in another appender) unless 
 # specified using the additivity parameter
-log4perl.rootLogger = INFO, LOGFILE
+log4perl.rootLogger = INFO, PFSYSLOG
 
 ### Categories ###
 # Below, you can specify different categories (based on package names) for different logging levels
@@ -10,12 +10,8 @@ log4perl.rootLogger = INFO, LOGFILE
 
 ### Global (PacketFence) log facility configuration ###
 ### Not meant to be modified ###
-log4perl.appender.LOGFILE                               = Log::Log4perl::Appender::File
-log4perl.appender.LOGFILE.filename                      = /usr/local/pf/logs/packetfence.log
-log4perl.appender.LOGFILE.mode                          = append
-log4perl.appender.LOGFILE.layout                        = PatternLayout
-log4perl.appender.LOGFILE.layout.ConversionPattern      = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: %m (%M)%n
-log4perl.appender.LOGFILE.umask                         = 0002
-log4perl.appender.LOGFILE.user                          = pf
-log4perl.appender.LOGFILE.group                         = pf
-log4perl.appender.LOGFILE.binmode                       = utf8
+log4perl.appender.PFSYSLOG                                = Log::Dispatch::Syslog
+log4perl.appender.PFSYSLOG.ident                          = packetfence
+log4perl.appender.PFSYSLOG.facility                       = local5
+log4perl.appender.PFSYSLOG.layout.ConversionPattern       = %p %X{proc}(%X{tid}): %m (%M)%n
+log4perl.appender.PFSYSLOG.layout                         = PatternLayout
