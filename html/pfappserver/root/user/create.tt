@@ -40,7 +40,7 @@
 
     [% IF can_access('USERS_CREATE_MULTIPLE') %]
       <div class="tab-pane fade" id="multiple">
-        <div class="alert alert-info">[% l('The usernames are constructed from the <b>prefix</b> and the <b>quantity</b>. For example, setting the prefix to <i>guest</i> and the quantity to <i>3</i> creates usernames <i>guest1</i>,<i> guest2</i> and <i>guest3</i>. Random passwords will be created.') | html %]</div>
+        <div class="alert alert-info">[% l('The usernames are constructed from the <b>prefix</b> and the <b>quantity</b>. For example, setting the prefix to <i>guest</i> and the quantity to <i>3</i> creates usernames <i>guest1</i>, <i>guest2</i> and <i>guest3</i>. Random passwords will be created.') | none %]</div>
         [% form_multiple.field('prefix').render | none %]
         [% form_multiple.field('quantity').render | none %]
         [% form_single.field('pid_overwrite').render | none %]
