@@ -220,7 +220,6 @@ endif
 	dh_installinit --name=packetfence-radiusd-eduroam
 	dh_installinit --name=packetfence-radiusd-load_balancer
 	dh_installinit --name=packetfence-radsniff
-	dh_installinit --name=packetfence-redis-cache
 	dh_installinit --name=packetfence-redis_ntlm_cache
 	dh_installinit --name=packetfence-redis_queue
 	dh_installinit --name=packetfence-routes
