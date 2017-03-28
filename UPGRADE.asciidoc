@@ -80,7 +80,8 @@ When you updated the packetfence package, it already set the system target to `p
 MariaDB configuration
 ^^^^^^^^^^^^^^^^^^^^^
 
-If you are hosting the MySQL/MariaDB service on your PacketFence servers (it is by default), you should now manage the service via `packetfence-mariadb.service` instead of `mariadb.service`
+If you are hosting the MySQL/MariaDB service on your PacketFence servers (it is by default), you should now manage the service via `packetfence-mariadb.service` instead of `mariadb.service`. 
+The changes in the server startup will be done automatically by the packaging.
 
 Maintenance configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^
