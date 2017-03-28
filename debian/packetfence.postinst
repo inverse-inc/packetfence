@@ -148,6 +148,11 @@ case "$1" in
         echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
         sysctl -p /etc/sysctl.conf
 
+        #fixing ntp to make sure it doesn't interfere with virtual interfaces
+        sed -i '/NTPD_OPTS/d' /etc/default/ntpd
+        echo 'NTPD_OPTS="-g -L"' >> /etc/default/ntpd
+
+
         #Starting PacketFence.
         echo "Starting PacketFence Administration GUI..."
         #removing old cache

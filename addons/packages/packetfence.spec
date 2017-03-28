@@ -762,7 +762,10 @@ sed -i 's/\%.*$//g' /etc/resolv.conf
 echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
 sysctl -p /etc/sysctl.conf
 
-#enabling and starting ntp, required for Active Directory communications. Will talk to ntp.pool.org by default.
+#Fixing ntp to not deal with virtual interfaces
+sed -i '/OPTIONS/d' /etc/sysconfig/ntpd
+echo 'OPTIONS="-g -L"' >> /etc/sysconfig/ntpd
+#enabling and starting ntp, required for Active Directory communications. Will talk to centos.pool.ntp.org by default.
 /bin/systemctl enable ntp
 /bin/systemctl start ntp
 
