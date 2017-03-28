@@ -67,6 +67,32 @@ Once the additionnal steps are completed, restart packetfence-config and packetf
 Upgrading from a version prior to 7.0.0
 ---------------------------------------
 
+NOTE: You cannot upgrade from CentOS 6 or Debian Jessie to PacketFence 7.0 and above
+
+MariaDB upgrade (CentOS + RHEL only)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Upgrading to PacketFence 7+ will install a more recent version of MariaDB than the one that is shipped with CentOS.
+
+In order to upgrade the MariaDB metadata files and tables, first stop any started process.
+
+  systemctl stop mariadb
+  systemctl stop packetfence-mariadb
+  
+Then start a mysqld_safe process manually (this will start a background process)
+  
+  mysqld_safe &
+ 
+Then, execute the upgrade script and enter the root password when prompted
+  
+  mysql_upgrade -u root -p
+  
+When done, kill the mysqld_safe process we started before the update, reattach to it and wait for it to exit
+
+  kill %1 && fg
+  
+Note that it might take up to a few minutes for the process to exit depending on the size of your database.
+
 Systemd configuration
 ^^^^^^^^^^^^^^^^^^^^^
 
