@@ -585,6 +585,7 @@ sub is_config_documented {
     #i.e. make sure that pf.conf contains everything defined in
     #documentation.conf
     foreach my $section ( keys %Doc_Config) {
+        next unless $section =~ /\./;
         my ( $group, $item ) = split( /\./, $section );
         my $doc = $Doc_Config{$section};
         my $type = $doc->{'type'};
