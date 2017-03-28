@@ -504,7 +504,13 @@ sub resolve_with_cache {
     my $cache_key = "resolve-$qtype-$qname";
 
     my $res   = Net::DNS::Resolver->new;
-    my $reply = $CHI_CACHE->get($cache_key);
+    my $encoded_reply = $CHI_CACHE->get($cache_key);
+
+    my $reply;
+    if($encoded_reply) {
+        $reply = decode Net::DNS::Packet(\$encoded_reply);
+    }
+
     unless($reply){
         $reply = $res->search($qname, $qtype);
         return unless($reply);
@@ -512,7 +518,7 @@ sub resolve_with_cache {
         my $cloned_reply = dclone($reply);
         my @answers = $cloned_reply->answer;
         if($reply){
-            $CHI_CACHE->set($cache_key, $reply, $answers[0]->ttl);
+            $CHI_CACHE->set($cache_key, $reply->encode, $answers[0]->ttl);
         }
     }
     return $reply;
