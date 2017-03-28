@@ -51,6 +51,7 @@ You should take care to review any changes to configuration files and merge them
 To find out which configuration files have changed run this command:
 
 RHEL and CentOS:
+
   find /usr/local/pf -name \*.rpmnew
 
 The list of files returned are the new versions shipped with PacketFence.
@@ -134,6 +135,34 @@ An SQL upgrade script has been provided to upgrade the database from the 6.5 sch
 To upgrade the database schema, run the following command: 
 
   mysql -u root -p pf -v < /usr/local/pf/db/upgrade-6.5.0-7.0.0.sql
+
+Running 7.0+ in a cluster
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A complete re-visit of the database clustering stack was done in version 7.0. If you run your PacketFence installation in a cluster, make sure you read the following section.
+
+Active/Active clusters with Active/Passive DB (default before 7.0)
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+We highly suggest you migrate your existing clustered installation using Corosync/Pacemaker to the new cluster stack of PacketFence that uses MariaDB Galera cluster. 
+The easiest way to perform this is to build new servers and port your configuration (by copying the configuration files) and your database (using mysqldump).
+There are ways to migrate the 2 existing nodes to a 3 nodes cluster but this is not covered in this guide.
+
+Note that you can safely keep your existing 2 node cluster with Corosync/Pacemaker in place and things will work like before.
+
+Active/Active clusters with external DB
++++++++++++++++++++++++++++++++++++++++
+
+No changes to your clustering stack is required when using an external database.
+
+Active/Passive clusters
++++++++++++++++++++++++
+
+No changes are required to your database stack as MariaDB supports being deployed in Active/Passive
+
+You will need to adjust the Corosync/Pacemaker configuration to take in consideration the changes made to systemd for PacketFence services (managed by a target instead of a service unit file)
+
+-- We need to write this section and figure out how to start the systemd target via pacemaker
 
 Upgrading from a version prior to 6.5.0
 ---------------------------------------
