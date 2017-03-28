@@ -102,6 +102,20 @@ In order to migrate your settings from pf.conf to pfmon.conf, run the following 
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
 
+DHCP filters configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Minor changes were made to the DHCP filters configuration (`/usr/local/pf/conf/dhcp_filters.conf`).
+
+First, the computer_name attribute was renamed to computername to be consistent with the rest of the application.
+Then, the DhcpFingerbank scope was changed to Fingebank
+
+In order to rename those in an automated way:
+
+  cd /usr/local/pf
+  sed -i "s/computer_name/computername/g" conf/dhcp_filters.conf
+  sed -i "s/DhcpFingerbank/Fingerbank/g" conf/dhcp_filters.conf
+
 Upgrading from a version prior to 6.5.0
 ---------------------------------------
 
