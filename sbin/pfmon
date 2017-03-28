@@ -376,7 +376,8 @@ waits for signals
 sub waitforit {
     while($running) {
         alarm(1) if !$process;
-        pause;
+        #  Only pause if their are no registered tasks
+        pause unless @REGISTERED_TASKS;
         $logger->debug("Awake from pause");
         reload_config();
         runtasks();

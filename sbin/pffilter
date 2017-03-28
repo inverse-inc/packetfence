@@ -412,7 +412,8 @@ waits for signals
 
 sub waitforit {
     while ($running) {
-        pause;
+        #  Only pause if their are no registered tasks
+        pause unless @REGISTERED_TASKS;
         runtasks();
     }
 }
