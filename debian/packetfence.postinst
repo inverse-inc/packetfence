@@ -122,7 +122,7 @@ case "$1" in
         systemctl restart rsyslog
         
         for service in apache2 snmptrapfmt bind9 freeradius apparmor isc-dhcp-server collectd haproxy carbon-cache keepalived redis-server samba winbind nmbd; do
-
+            
             if [ -e "/etc/init.d/"$service ] ; then
                 invoke-rc.d $service stop  > /dev/null 2>&1
                 if [ -e /etc/lsb-release ]; then
@@ -166,6 +166,7 @@ case "$1" in
         systemctl enable packetfence-routes
         systemctl isolate packetfence-base.target
         systemctl enable packetfence-httpd.admin
+        systemctl enable ntp
 
         echo Installation complete
         echo "* Please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."

@@ -39,6 +39,7 @@ Depends: ${misc:Depends}, vlan,
  sudo,
  p0f (>=3.06),
  sscep,
+ ntp,
 # process management
  procps,
 # perl basic components
