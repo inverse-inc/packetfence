@@ -98,11 +98,6 @@ function init() {
         });
     });
 
-    $('form[name="advancedNodeSearch"] [name$=".name"]').trigger('saved_search.loaded');
-    $('form[name="advancedNodeSearch"] [name$=".op"]').trigger('saved_search.loaded');
-    $('form[name="simpleNodeSearch"] [name$=".name"]').trigger('saved_search.loaded');
-    $('form[name="simpleNodeSearch"] [name$=".op"]').trigger('saved_search.loaded');
-
     /* Hash change handlder */
     var win = $(window);
     win.hashchange(pfOnHashChange(updateNodeSearchSection,'/node/'));
