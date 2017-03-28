@@ -94,15 +94,15 @@ install: build
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/webadmin_cache
 	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/cache/configfiles
 	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/cache/configfilesdata
-ifeq ($(jessie),yes)
+#ifeq ($(jessie),yes)
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/ssl_mutex
-endif
+#endif
 	touch $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/cache_control
 	#Configurator integration
-ifneq (,$(filter yes,$(wheezy) $(precise)))
-	install -d -m0700 $(CURDIR)/debian/packetfence/etc/init.d
-endif
-ifeq ($(jessie),yes)
+#ifneq (,$(filter yes,$(wheezy) $(precise)))
+#	install -d -m0700 $(CURDIR)/debian/packetfence/etc/init.d
+#endif
+#ifeq ($(jessie),yes)
 	install -d -m0700 $(CURDIR)/debian/packetfence/lib/systemd/system
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/systemd/system
 	install -m0644 $(CURDIR)/debian/packetfence.target $(CURDIR)/debian/packetfence/etc/systemd/system
@@ -113,7 +113,7 @@ ifeq ($(jessie),yes)
 	install -d -m0700 $(CURDIR)/debian/etc/systemd/system/packetfence-cluster.target.wants
 	install -m0644 $(CURDIR)/debian/packetfence.slice $(CURDIR)/debian/packetfence/etc/systemd/system
 	install -m0644 $(CURDIR)/debian/packetfence-base.slice $(CURDIR)/debian/packetfence/etc/systemd/system
-endif
+#endif
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/default
 	#Sudoer
 	install -oroot -groot -d -m0750 $(CURDIR)/debian/packetfence/etc/sudoers.d
@@ -141,20 +141,20 @@ endif
 	mv bin/ntlm_auth_wrapper $(CURDIR)/debian/packetfence-ntlm-wrapper$(PREFIX)/$(NAME)/bin
 	# packetfence-config
 	install -d $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/sbin
-ifeq ($(jessie),yes)
+#ifeq ($(jessie),yes)
 	install -d -m0700 $(CURDIR)/debian/packetfence-config/lib/systemd/system
-endif
+#endif
 	install -d -m0700 $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/conf
 	install -d -m2770 $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/var/cache/pfconfig
 	install -m0755 sbin/pfconfig $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/sbin
 	install -m0600 conf/pfconfig.conf.example $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/conf/pfconfig.conf
 	# packetfence-redis-cache
-ifneq (,$(filter yes,$(wheezy) $(precise)))
-	install -d -m0700 $(CURDIR)/debian/packetfence-redis-cache/etc/init.d
-endif
-ifeq ($(jessie),yes)
+#ifneq (,$(filter yes,$(wheezy) $(precise)))
+#	install -d -m0700 $(CURDIR)/debian/packetfence-redis-cache/etc/init.d
+#endif
+#ifeq ($(jessie),yes)
 	install -d -m0700 $(CURDIR)/debian/packetfence-redis-cache/lib/systemd/system
-endif
+#endif
 	install -d -m2770 $(CURDIR)/debian/packetfence-redis-cache$(PREFIX)/$(NAME)/var/run
 	install -d -m0700 $(CURDIR)/debian/packetfence-redis-cache$(PREFIX)/$(NAME)/conf
 	install -d -m2770 $(CURDIR)/debian/packetfence-redis-cache$(PREFIX)/$(NAME)/logs
@@ -189,7 +189,6 @@ endif
 	dh_installinit --name=packetfence-carbon-cache
 	dh_installinit --name=packetfence-carbon-relay
 	dh_installinit --name=packetfence-collectd
-	dh_installinit --name=packetfence-config
 	dh_installinit --name=packetfence-dhcpd
 	dh_installinit --name=packetfence-haproxy
 	dh_installinit --name=packetfence-httpd.aaa
