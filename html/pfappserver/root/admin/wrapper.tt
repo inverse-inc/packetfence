@@ -115,7 +115,7 @@
         </div>
       </div>
     </div>
-    [% IF readonly_mode %]
+    [%- IF c.user_allowed_in_admin() && readonly_mode %]
     <div class="alert alert-error alert-block">
       <button class="close" data-dismiss="alert">&times;</button>
       <strong>[% l('Warning!') %]</strong>
