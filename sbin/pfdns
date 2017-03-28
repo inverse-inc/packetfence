@@ -21,7 +21,7 @@ use Readonly;
 use File::Basename qw(basename);
 use Getopt::Std;
 use Pod::Usage;
-use POSIX qw(:signal_h);
+use POSIX qw(:signal_h pause :sys_wait_h SIG_BLOCK SIG_UNBLOCK);
 use Try::Tiny;
 use Net::DNS::Nameserver;
 use NetAddr::IP;
@@ -64,28 +64,6 @@ pf::SwitchFactory->preloadConfiguredModules();
 our $PROGRAM_NAME = $0 = "pfdns";
 
 my $logger = get_logger( $PROGRAM_NAME );
-
-POSIX::sigaction(
-    &POSIX::SIGHUP,
-    POSIX::SigAction->new(
-        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
-    )
-) or $logger->logdie("pfdns: could not set SIGHUP handler: $!");
-
-POSIX::sigaction(
-    &POSIX::SIGTERM,
-    POSIX::SigAction->new(
-        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
-    )
-) or $logger->logdie("pfdns: could not set SIGTERM handler: $!");
-
-POSIX::sigaction(
-    &POSIX::SIGINT,
-    POSIX::SigAction->new(
-        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
-    )
-) or $logger->logdie("pfdns: could not set SIGINT handler: $!");
-
 
 my %args;
 getopts( 'dhi:', \%args );
@@ -160,25 +138,41 @@ our $PARENT_PID = $$;
 my %CHILDREN;
 my $IS_CHILD = 0;
 my $CHILDREN_TO_START = $Config{advanced}{pfdns_processes};
+our @WORKERS = (1 .. $CHILDREN_TO_START);
+our $ALARM_RECV = 0;
 
-sub start_children {
-    my $i = 1;
-    while($i <= $CHILDREN_TO_START){
-        run_child($i);
-        $i++;
+$SIG{HUP} = \&normal_sighandler;
+$SIG{INT} = \&normal_sighandler;
+$SIG{TERM} = \&normal_sighandler;
+$SIG{CHLD} = \&child_sighandler;
+
+
+sub start_workers {
+    my $mask = POSIX::SigSet->new(POSIX::SIGCHLD());
+    sigprocmask(SIG_BLOCK,$mask);
+    while(@WORKERS) {
+        my $worker = shift @WORKERS;
+        run_worker($worker);
     }
+    sigprocmask(SIG_UNBLOCK,$mask);
 }
 
-sub run_child {
+sub run_worker {
     my ($id) = @_;
     my $pid = fork();
     if($pid) {
         $CHILDREN{$pid} = $id;
-        $SIG{CHLD} = "IGNORE";
     } elsif ($pid == 0) {
         $SIG{CHLD} = "DEFAULT";
         $IS_CHILD = 1;
-        _run_child($id);
+        eval {
+            _run_worker($id);
+        };
+        if ($@) {
+            $logger->error($@);
+        }
+        $logger->trace(sub { "$$ shutting down" });
+        POSIX::_exit(0);
     }
 }
 
@@ -196,7 +190,7 @@ my $ns = new Net::DNS::Nameserver(
 daemonize($PROGRAM_NAME) if ($daemonize);
 $started_successfully = 1;
 
-sub _run_child {
+sub _run_worker {
     my ($id) = @_;
     $0 = "$0 - $id";
     while($RUNNING) {
@@ -483,12 +477,6 @@ sub isolzone {
 sub normal_sighandler {
     $logger->debug( "pfdns: caught SIG" . $_[0] . " - terminating" );
     $RUNNING = 0;
-    unless($IS_CHILD) {
-        foreach my $pid (keys %CHILDREN){
-            kill(SIGKILL, $pid);
-        }
-        deletepid();
-    }
 }
 
 =head2 resolve_with_cache
@@ -528,19 +516,68 @@ sub is_parent_alive {
     kill (0,$PARENT_PID)
 }
 
-start_children();
-while($RUNNING){
-    sleep 1;
-    unless($IS_CHILD) {
-        foreach my $pid (keys %CHILDREN){
-            unless(kill(0,$pid)){
-                $logger->error("Child $pid ($CHILDREN{$pid}) is dead. Respawning it.");
-                run_child($CHILDREN{$pid});
-                delete $CHILDREN{$pid};
-            }
+=head2 cleanup
+
+cleans after children
+
+=cut
+
+sub cleanup {
+    kill_and_wait_for_children('INT',30);
+    signal_children('KILL');
+}
+
+=head2 kill_and_wait_for_children
+
+signal children and waits for them to exit process
+
+=cut
+
+sub kill_and_wait_for_children {
+    my ($signal,$waittime) = @_;
+    signal_children($signal);
+    $ALARM_RECV = 0;
+    alarm $waittime;
+    while (((keys %CHILDREN) != 0 ) && !$ALARM_RECV) {
+        pause;
+    }
+}
+
+=head2 signal_children
+
+sends a signal to all active children
+
+=cut
+
+sub signal_children {
+    my ($signal) = @_;
+    kill ( $signal, keys %CHILDREN);
+}
+
+=head2 child_sighandler
+
+reaps the children
+
+=cut
+
+sub child_sighandler {
+    local ($!, $?);
+    while(1) {
+        my $child = waitpid(-1, WNOHANG);
+        last unless $child > 0;
+        my $worker = delete $CHILDREN{$child};
+        if (defined $worker) {
+            push @WORKERS, $worker;
         }
     }
 }
+
+while($RUNNING){
+    start_workers();
+    pause;
+}
+
+cleanup();
 
 =head1 COPYRIGHT
 
