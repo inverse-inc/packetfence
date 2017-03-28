@@ -98,6 +98,10 @@ if $programname == "pfmon" then -/usr/local/pf/logs/pfmon.log
 if $programname == "pfqueue" then -/usr/local/pf/logs/pfqueue.log
 & ~
 
+# PFSSO and all pfhttpd services
+if $programname == "pfhttpd" then -/usr/local/pf/logs/packetfence.log
+& ~
+
 # COLLECTD
 if $programname == "collectd" then -/usr/local/pf/logs/collectd.log
 & ~
