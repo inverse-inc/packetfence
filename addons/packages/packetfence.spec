@@ -870,6 +870,7 @@ fi
 %dir %attr(0750,root,root) %{_sysconfdir}/sudoers.d
 %config %attr(0440,root,root) %{_sysconfdir}/sudoers.d/packetfence
 %config %attr(0644,root,root) %{_sysconfdir}/logrotate.d/packetfence
+%config %attr(0644,root,root) %{_sysconfdir}/rsyslog.d/packetfence.conf
 %config %attr(0600,root,root) %{_sysconfdir}/cron.d/packetfence
 
 %dir                    /usr/local/pf
