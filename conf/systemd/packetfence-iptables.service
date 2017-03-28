@@ -1,7 +1,6 @@
 [Unit]
 Description=PacketFence Iptables configuration
-Wants=packetfence-haproxy.service packetfence-config.service
-After=packetfence-haproxy.service packetfence-config.service
+Wants=packetfence-mariadb.service packetfence-config.service
 
 [Service]
 StandardOutput=syslog
@@ -14,4 +13,4 @@ ExecStop=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::iptables' -e 'p
 Slice=packetfence-base.slice
 
 [Install]
-WantedBy=packetfence-base.target
+WantedBy=packetfence.target
