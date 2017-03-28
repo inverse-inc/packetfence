@@ -1,3 +1,16 @@
+diff --git a/conf/mariadb/mariadb.conf.tt.example b/conf/mariadb/mariadb.conf.tt.example
+index f70bd6f..670ef55 100644
+--- a/conf/mariadb/mariadb.conf.tt.example
++++ b/conf/mariadb/mariadb.conf.tt.example
+@@ -18,7 +18,7 @@ skip-networking
+ bind-address=
+ [% END %]
+ port    = 3306
+-socket    = /var/lib/mysql/mysql.sock
++socket    = /var/run/mysqld/mysqld.sock
+ skip-external-locking
+ key_buffer_size = [% key_buffer_size %]M
+ max_allowed_packet = [% max_allowed_packet %]M
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
 index c2b16ff..518f3a4 100644
 --- a/conf/pf.conf.defaults
@@ -48,10 +61,10 @@ index c2b16ff..518f3a4 100644
  #
  # services.routes
 diff --git a/conf/systemd/packetfence-dhcpd.service b/conf/systemd/packetfence-dhcpd.service
-index 8f588bc..547c22f 100644
+index b9fdb51..030c89e 100644
 --- a/conf/systemd/packetfence-dhcpd.service
 +++ b/conf/systemd/packetfence-dhcpd.service
-@@ -12,7 +12,7 @@ StartLimitInterval=60
+@@ -11,7 +11,7 @@ StartLimitInterval=60
  Type=notify
  PIDFile=/usr/local/pf/var/run/dhcpd.pid
  ExecStartPre=/usr/local/pf/bin/pfcmd service dhcpd generateconfig
@@ -61,10 +74,10 @@ index 8f588bc..547c22f 100644
  Restart=on-failure
  Slice=packetfence.slice
 diff --git a/conf/systemd/packetfence-iptables.service b/conf/systemd/packetfence-iptables.service
-index 594edce..fd49686 100644
+index 8880030..5539442 100644
 --- a/conf/systemd/packetfence-iptables.service
 +++ b/conf/systemd/packetfence-iptables.service
-@@ -9,8 +9,8 @@ StartLimitBurst=3
+@@ -7,8 +7,8 @@ StartLimitBurst=3
  StartLimitInterval=60
  Type=oneshot
  RemainAfterExit=yes
@@ -75,23 +88,11 @@ index 594edce..fd49686 100644
  Slice=packetfence-base.slice
  
  [Install]
-diff --git a/conf/systemd/packetfence-mariadb.service b/conf/systemd/packetfence-mariadb.service
-index 5b6b112d..32c9bc3 100644
---- a/conf/systemd/packetfence-mariadb.service
-+++ b/conf/systemd/packetfence-mariadb.service
-@@ -7,6 +7,7 @@ Wants=packetfence-config.service
- Conflicts=mysql.service mariadb.service
- 
- [Service]
-+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
- StandardOutput=syslog
- StartLimitBurst=3
- StartLimitInterval=60
 diff --git a/conf/systemd/packetfence-routes.service b/conf/systemd/packetfence-routes.service
-index 36d7625..3c5e56c 100644
+index 5bc3736..f0c7fc4 100644
 --- a/conf/systemd/packetfence-routes.service
 +++ b/conf/systemd/packetfence-routes.service
-@@ -9,8 +9,8 @@ StartLimitBurst=3
+@@ -8,8 +8,8 @@ StartLimitBurst=3
  StartLimitInterval=60
  Type=oneshot
  RemainAfterExit=yes
