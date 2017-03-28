@@ -9,7 +9,7 @@ StartLimitBurst=3
 StartLimitInterval=60
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::iptables' -e 'pf::services::manager::iptables->new()->_start()'
+ExecStart=/bin/perl -I/usr/local/pf/lib -Mpf::db -Mpf::services::manager::iptables -e 'my $db ; while(!$db) { eval { $db = db_connect() } } ; pf::services::manager::iptables->new()->_start()'
 ExecStop=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::iptables' -e 'pf::services::manager::iptables->new()->_stop()'
 Slice=packetfence-base.slice
 
