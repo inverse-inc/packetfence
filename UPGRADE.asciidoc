@@ -63,7 +63,7 @@ Once the additionnal steps are completed, restart packetfence-config and packetf
   service packetfence-config restart
   service packetfence restart
 
-Upgrading from a version prior to X.Y.Z
+Upgrading from a version prior to 7.0.0
 ---------------------------------------
 
 Systemd configuration
@@ -124,6 +124,16 @@ The source of truth for roles is now in a configuration file instead of being in
   /usr/local/pf/addons/upgrade/to-7.0-roles-conf.pl
 
 NOTE: The roles still exist in the database like before (node_category table), but their source of truth is now in the configuration file. Should you remove a role manually from roles.conf, it will *not* be removed from the database unless you manually go delete it from the database.
+
+Database schema updates
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Changes have been made to the database schema. You will need to update it accordingly.
+An SQL upgrade script has been provided to upgrade the database from the 6.5 schema to 7.0.
+
+To upgrade the database schema, run the following command: 
+
+  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-6.5.0-7.0.0.sql
 
 Upgrading from a version prior to 6.5.0
 ---------------------------------------
