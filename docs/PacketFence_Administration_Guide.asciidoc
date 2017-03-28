@@ -669,7 +669,7 @@ In order for your users to be able to access the Identity Provider login page, y
 
 To do so, go in 'Configuration -> Advanced Configuration -> Networks -> Fencing', then check 'Passthrough' and add the Identity Provider domain name to the 'Passhtroughs' list.
 
-Next, restart iptables and pfdns to apply your new passthroughs. Also make sure `net.ipv4.ip_forward = 1` is configured in `/etc/sysctl.conf`.
+Next, restart iptables and pfdns to apply your new passthroughs. 
 
 Network Devices Definition (switches.conf)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -889,14 +889,7 @@ Option 1: Authentication against Active Directory (AD)
 
 CAUTION: If you are using an Active/Active or Active/Passive cluster, please follow the instructions under 'Option 1b' since the instructions below do not currently work in a cluster.
 
-In order to have domain authentication working properly, you need to enable IP forwarding on your server. To do it permanently, look in the `/etc/sysctl.conf`, and set the following line:
-
-  # Controls IP packet forwarding
-  net.ipv4.ip_forward = 1
-
-Now execute `sysctl -p` to apply the configuration
-
-Next, go in the Administration interface under *Configuration -> Policies and Access Control -> Domains -> Microsoft Active Directory Domains*.
+Go in the Administration interface under *Configuration -> Policies and Access Control -> Domains -> Microsoft Active Directory Domains*.
 
 NOTE: If you can't access this section and you have previously configured your server to bind to a domain externally to PacketFence, make sure you run `/usr/local/pf/addons/AD/migrate.pl`
 
@@ -2140,6 +2133,7 @@ The captive portal of PacketFence allows a guest/user to register using his Goog
 For each providers, we maintain an allowed domain list to punch holes into the firewall so the user can hit the provider login page.
 This list is available in each OAuth2 authentication source.
 
+<<<<<<< afecf7c43938dc70e540c185c340f24cc132d24f
 In order to have oauth2 working properly, you need to enable IP forwarding on your servers. To do it permanently, look in the `/etc/sysctl.conf`, and set the following line:
 
   # Controls IP packet forwarding
@@ -2148,6 +2142,9 @@ In order to have oauth2 working properly, you need to enable IP forwarding on yo
 Save the file, and issue a `sysctl -p` to update the OS config.
 
 You must also enable the passthrough option in your PacketFence configuration (fencing.passthrough in pf.conf).
+=======
+You must also enable the passthrough option in your PacketFence configuration (trapping.passthrough in pf.conf).
+>>>>>>> No more allusion to net.ipv4.ip_forward in the Admin guide since it is activated at package installation.
 
 Google
 ^^^^^^
@@ -2265,9 +2262,13 @@ DNS passthroughs
 
 If you just enabled the passthroughs, you should restart the iptables services after configuring the parameter (`/usr/local/pf/bin/pfcmd service iptables restart`).
 
+<<<<<<< afecf7c43938dc70e540c185c340f24cc132d24f
 Once done, add `net.ipv4.ip_forward=1` in `/etc/sysctl.conf` and reload it using `sysctl -p`. This enables packet routing in the kernel.
 
 Then add passthroughs in *Configuration->Advanced Configuration->Networks->Fencing->Passthroughs*. They can be of the following format:
+=======
+Then add passthroughs in *Configuration->Trapping->Passthroughs*. They can be of the following format:
+>>>>>>> No more allusion to net.ipv4.ip_forward in the Admin guide since it is activated at package installation.
 
  * *example.com*: opens ports 80 and 443 in TCP for example.com
  * *example.com:1812*: opens the port 1812 in TCP and UDP for example.com
