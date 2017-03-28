@@ -16,5 +16,6 @@ my $cmd = pf::services::manager::p0f->new()->_cmdLine();
 createpid('p0f');
 
 unless(exec($cmd)) {
+    deletepid('p0f');
     exit 127;
 }
