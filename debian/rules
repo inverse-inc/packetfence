@@ -109,7 +109,7 @@ install: build
 	install -m0644 $(CURDIR)/debian/packetfence-base.target $(CURDIR)/debian/packetfence/etc/systemd/system
 	install -m0644 $(CURDIR)/debian/packetfence-cluster.target $(CURDIR)/debian/packetfence/etc/systemd/system
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/systemd/system/packetfence-base.target.wants
-	install -d -m0700 $(CURDIR)/debian/packetfence/etc/systemd/system/packetfence-target.target.wants
+	install -d -m0700 $(CURDIR)/debian/packetfence/etc/systemd/system/packetfence.target.wants
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/systemd/system/packetfence-cluster.target.wants
 	install -m0644 $(CURDIR)/debian/packetfence.slice $(CURDIR)/debian/packetfence/etc/systemd/system
 	install -m0644 $(CURDIR)/debian/packetfence-base.slice $(CURDIR)/debian/packetfence/etc/systemd/system
