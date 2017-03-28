@@ -19,6 +19,8 @@ Options:
   wait-between          | Time to wait between runs
   additionnal-condition | Additionnal SQL condition to add to the cleanup queries
   seed                  | Add dummy data in radacct to test the script
+  update                | Update instead of delete
+  update-field          | The date field to update
 
 =head1 DESCRIPTION
 
@@ -130,6 +132,41 @@ sub clean {
     }
 }
 
+=head2 update
+
+Update a field with a time value of the table based on the objects options
+
+=cut
+
+sub update {
+    my ($self) = @_;
+    my $TABLE = $self->{'table'} || die_with_help("Missing table argument");
+    my $DATE_FIELD = $self->{'date-field'} || die_with_help("Missing date-field argument");
+    my $OLDER_THAN = $self->{'older-than'} || "1 MONTH";
+    my $RUN_LIMIT = $self->{'run-limit'} || 500;
+    my $WAIT_BETWEEN = $self->{'wait-between'} || 0.5;
+    my $ADDITIONNAL_CONDITIONS = $self->{'additionnal-condition'} || "(1=1)";
+    my $UPDATE_FIELD = $self->{'update-field'} || die_with_help("Missing update-field argument");
+
+    my $sth = $self->{dbh}->prepare("select count(*) from $TABLE where $DATE_FIELD <  ( NOW() - INTERVAL $OLDER_THAN ) AND $ADDITIONNAL_CONDITIONS");
+    $sth->execute();
+    my @result = $sth->fetchrow_array;
+
+    my $amount_to_delete = $result[0];
+
+    my $runs = int($amount_to_delete / $RUN_LIMIT)+1;
+
+    get_logger->info("Updating $amount_to_delete entries from $TABLE in $runs runs batching $RUN_LIMIT at the time waiting $WAIT_BETWEEN seconds between runs.");
+
+    my $i=0;
+    for(my $i=1; $i<=$runs; $i++){
+        get_logger->debug("Executing run $i");
+        $sth = $self->{dbh}->prepare("update $TABLE set $UPDATE_FIELD = NOW() where $DATE_FIELD < ( NOW() - INTERVAL $OLDER_THAN ) AND $ADDITIONNAL_CONDITIONS limit $RUN_LIMIT");
+        $sth->execute();
+        select(undef,undef,undef,$WAIT_BETWEEN);
+    }
+}
+
 =head2 die_with_help
 
 Die with an error message and by showing the help
@@ -160,6 +197,8 @@ sub execute {
       "wait-between=f",
       "additionnal-condition=s",
       "seed!",
+      "update!",
+      "update-field=s",
     ) || die_with_help("Invalid options");
 
     die_with_help("Help : ") if($options{h});
@@ -168,7 +207,11 @@ sub execute {
     if($cleaner->{seed}){
         $cleaner->seed_data();
     }
-    $cleaner->clean();
+    if ($cleaner->{update}) {
+        $cleaner->update();
+    } else {
+        $cleaner->clean();
+    }
 }
 
 execute();

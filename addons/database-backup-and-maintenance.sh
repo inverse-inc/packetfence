@@ -75,8 +75,7 @@ fi
 # Is the database run on the current server?
 if [ -f /var/run/mysqld/mysqld.pid ] || [ -f /var/run/mariadb/mariadb.pid ]; then
 
-    # Close radacct entries that are open more than one time
-    mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e "update radacct a JOIN (select callingstationid,count(*) as cnt, max(acctupdatetime) as acctupdatetime from radacct where acctstoptime is null group by callingstationid having cnt > 1) as b ON a.callingstationid=b.callingstationid and a.acctupdatetime<>b.acctupdatetime and a.acctstoptime is null set acctstoptime=now();"
+    /usr/local/pf/addons/database-cleaner.pl --table=radacct --date-field=acctupdatetime --older-than="1 WEEK" --additionnal-condition="acctstoptime IS NOT NULL" --update --update-field=acctstoptime
 
     /usr/local/pf/addons/database-cleaner.pl --table=radacct --date-field=acctstarttime --older-than="1 WEEK" --additionnal-condition="acctstoptime IS NOT NULL"
     
