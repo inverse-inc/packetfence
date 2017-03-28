@@ -75,6 +75,18 @@ index f361e07..fac5cc1 100644
  Slice=packetfence-base.slice
  
  [Install]
+diff --git a/conf/systemd/packetfence-mariadb.service b/conf/systemd/packetfence-mariadb.service
+index 5b6b112d..32c9bc3 100644
+--- a/conf/systemd/packetfence-mariadb.service
++++ b/conf/systemd/packetfence-mariadb.service
+@@ -7,6 +7,7 @@ Wants=packetfence-config.service
+ Conflicts=mysql.service mariadb.service
+ 
+ [Service]
++Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ StandardOutput=syslog
+ StartLimitBurst=3
+ StartLimitInterval=60
 diff --git a/conf/systemd/packetfence-routes.service b/conf/systemd/packetfence-routes.service
 index 36d7625..3c5e56c 100644
 --- a/conf/systemd/packetfence-routes.service
