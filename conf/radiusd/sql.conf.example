@@ -442,3 +442,4 @@ sql sql_reject {
         # Read database-specific queries
         $INCLUDE ${modconfdir}/${.:name}/main/mysql/reject.conf
 }
+

@@ -118,8 +118,11 @@ case "$1" in
 
         # managing services
         set +e
+        echo "Restarting rsyslog"
+        systemctl restart rsyslog
+        
         for service in apache2 snmptrapfmt bind9 freeradius apparmor isc-dhcp-server collectd haproxy carbon-cache keepalived redis-server samba winbind nmbd; do
-            
+
             if [ -e "/etc/init.d/"$service ] ; then
                 invoke-rc.d $service stop  > /dev/null 2>&1
                 if [ -e /etc/lsb-release ]; then

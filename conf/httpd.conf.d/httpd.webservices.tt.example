@@ -165,7 +165,7 @@ SSLHonorCipherOrder  on
 
 TraceEnable Off
 
-ErrorLog  [% install_dir %]/logs/[% name %].error
+ErrorLog "| /usr/bin/logger -thttpd_webservices_err -plocal5.err"  
 
 User pf
 Group pf
@@ -194,8 +194,8 @@ Listen [% vhost %]:[% port %]
 <VirtualHost [% vhost %]:[% port %] >
     ServerName [% server_name %]
     DocumentRoot [% install_dir %]/html/pfappserver/lib
-    ErrorLog [% install_dir %]/logs/[% name %].error
-    CustomLog [% install_dir %]/logs/[% name %].access combined env=!is_collectd
+    ErrorLog "| /usr/bin/logger -thttpd_webservices_err -plocal5.err"  
+    CustomLog "| /usr/bin/logger -thttpd_webservices -plocal5.info" combined
     SSLEngine on
     Include [% var_dir %]/conf/ssl-certificates.conf
     <Location / >
@@ -215,8 +215,8 @@ Listen 127.0.0.1:[% port %]
 <VirtualHost 127.0.0.1:[% port %] >
     ServerName [% server_name %]
     DocumentRoot [% install_dir %]/html/pfappserver/lib
-    ErrorLog [% install_dir %]/logs/[% name %].error
-    CustomLog [% install_dir %]/logs/[% name %].access combined env=!is_collectd
+    ErrorLog "| /usr/bin/logger -thttpd_webservices_err -plocal5.err"  
+    CustomLog "| /usr/bin/logger -thttpd_webservices -plocal5.info" combined
     SetHandler modperl
     PerlResponseHandler pf::WebAPI
     <Location / >

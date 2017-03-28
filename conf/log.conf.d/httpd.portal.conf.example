@@ -3,54 +3,34 @@ log4perl.rootLogger = INFO, HTTPD_PORTAL
 
 ### Catalyst logger ###
 ## Used to separate Catalyst framework logs in a different log file
-log4perl.category.Catalyst = WARN, CATALYST
+log4perl.category.Catalyst = WARN, PORTAL_CATALYST
 
 ## Prevent the message from bubbling up to it's parents
 log4perl.additivity.Catalyst = 0
 
 ### Fingerbank logger ###
 ## Used to separate Fingerbank logs in a different log file
-log4perl.category.fingerbank = INFO, FINGERBANK
+log4perl.category.fingerbank = INFO, PORTAL_FINGERBANK
 ## Prevent the message from bubbling up to it's parents
 log4perl.additivity.fingerbank = 0
 
 ### Categories ###
-# Below, you can specify different categories (based on package names) for different logging levels
-#log4perl.category.pf.SNMP = WARN
-
-### Logging for httpd.portal
-log4perl.appender.HTTPD_PORTAL                              = pf::log::FileAppender
-# Replace /usr/local/pf/logs/packetfence.log by /usr/local/pf/logs/httpd.portal.log to allow
-# httpd.portal to log in its own log file.
-log4perl.appender.HTTPD_PORTAL.filename                     = /usr/local/pf/logs/packetfence.log
-log4perl.appender.HTTPD_PORTAL.syswrite                     = 1
-log4perl.appender.HTTPD_PORTAL.mode                         = append
-log4perl.appender.HTTPD_PORTAL.layout                       = PatternLayout
-log4perl.appender.HTTPD_PORTAL.layout.ConversionPattern     = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
-log4perl.appender.HTTPD_PORTAL.umask                        = 0002
-log4perl.appender.HTTPD_PORTAL.user                         = pf
-log4perl.appender.HTTPD_PORTAL.group                        = pf
-log4perl.appender.HTTPD_PORTAL.binmode                      = utf8
-
+log4perl.appender.HTTPD_PORTAL		                                      = Log::Dispatch::Syslog
+log4perl.appender.HTTPD_PORTAL.ident     	                              = packetfence
+log4perl.appender.HTTPD_PORTAL.facility                                   = local5
+log4perl.appender.HTTPD_PORTAL.layout.ConversionPattern                   = %p %X{proc}(%X{tid}): %m (%M)%n
+log4perl.appender.HTTPD_PORTAL.layout                                     = PatternLayout
 
 ### General Catalyst (pfappserver) log facility configuration ###
-log4perl.appender.CATALYST                                 = pf::log::FileAppender
-log4perl.appender.CATALYST.filename                        = /usr/local/pf/logs/httpd.portal.catalyst
-log4perl.appender.CATALYST.mode                            = append
-log4perl.appender.CATALYST.layout                          = PatternLayout
-log4perl.appender.CATALYST.layout.ConversionPattern        = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
-log4perl.appender.CATALYST.umask                           = 0002
-log4perl.appender.CATALYST.user                            = pf
-log4perl.appender.CATALYST.group                           = pf
-log4perl.appender.CATALYST.binmode                         = utf8
+log4perl.appender.PORTAL_CATALYST		                                  = Log::Dispatch::Syslog
+log4perl.appender.PORTAL_CATALYST.ident     	                          = portal_catalyst
+log4perl.appender.PORTAL_CATALYST.facility                                = local5
+log4perl.appender.PORTAL_CATALYST.layout.ConversionPattern                = %p %X{proc}(%X{tid}): %m (%M)%n
+log4perl.appender.PORTAL_CATALYST.layout                                  = PatternLayout
 
 ### General Fingerbank log facility configuration ###
-log4perl.appender.FINGERBANK                               = pf::log::FileAppender
-log4perl.appender.FINGERBANK.filename                      = /usr/local/fingerbank/logs/fingerbank.log
-log4perl.appender.FINGERBANK.mode                          = append
-log4perl.appender.FINGERBANK.layout                        = PatternLayout
-log4perl.appender.FINGERBANK.layout.ConversionPattern      = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
-log4perl.appender.FINGERBANK.umask                         = 0002
-log4perl.appender.FINGERBANK.user                          = pf
-log4perl.appender.FINGERBANK.group                         = fingerbank
-log4perl.appender.FINGERBANK.binmode                       = utf8
+log4perl.appender.PORTAL_FINGERBANK		                                  = Log::Dispatch::Syslog
+log4perl.appender.PORTAL_FINGERBANK.ident     	                          = fingerbank
+log4perl.appender.PORTAL_FINGERBANK.facility                              = local5
+log4perl.appender.PORTAL_FINGERBANK.layout.ConversionPattern              = %p %X{proc}(%X{tid}): %m (%M)%n
+log4perl.appender.PORTAL_FINGERBANK.layout                                = PatternLayout

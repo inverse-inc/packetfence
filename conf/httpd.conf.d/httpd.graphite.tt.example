@@ -120,7 +120,7 @@ MaxRequestsPerChild 1000
 Header set X-XSS-Protection "1; mode=block"
 Header always append X-Frame-Options SAMEORIGIN
 
-ErrorLog  [% install_dir %]/logs/[% name %].error
+ErrorLog "| /usr/bin/logger -thttpd_graphite_err -plocal5.err"
 
 ServerAdmin [% server_admin %]
 
@@ -142,8 +142,8 @@ TraceEnable Off
   <VirtualHost [% vhost %]:[% port %] >
       ServerName [% server_name %]
       DocumentRoot  [% install_dir %]/html/pfappserver/lib
-      ErrorLog      [% install_dir %]/logs/[% name %].error
-      CustomLog   [% install_dir %]/logs/[% name %].access combined
+      ErrorLog "| /usr/bin/logger -thttpd_graphite_err -plocal5.err"
+      CustomLog  "| /usr/bin/logger -thttpd_graphite -plocal5.info" combined
       WSGIScriptAlias  / [% install_dir %]/conf/httpd.conf.d/graphite-web.wsgi
       WSGIImportScript [% install_dir %]/conf/httpd.conf.d/graphite-web.wsgi process-group=%{GLOBAL} application-group=%{GLOBAL}
       Header           set Access-Control-Allow-Origin "*"

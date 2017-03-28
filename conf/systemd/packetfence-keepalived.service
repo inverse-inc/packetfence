@@ -4,7 +4,6 @@ After=packetfence.target packetfence-haproxy.service
 Wants=packetfence.target packetfence-iptables.service
 
 [Service]
-StandardOutput=syslog
 StartLimitBurst=3
 StartLimitInterval=60
 Type=forking

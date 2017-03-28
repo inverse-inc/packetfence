@@ -152,7 +152,8 @@ SSLStaplingCache        shmcb:/var/run/ocsp(128000)
 [% END %]
 
 SSLHonorCipherOrder  on
-ErrorLog  [% install_dir %]/logs/[% name %].error
+
+ErrorLog "| /usr/bin/logger -thttpd_proxy_err -plocal5.err"  
 
 ServerAdmin [% server_admin %]
 
@@ -181,8 +182,8 @@ Listen 127.0.0.1:[% port %]
     ProxyPreserveHost on
     ProxyVia off
     LogLevel error
-    ErrorLog [% install_dir %]/logs/[% name %].error
-    CustomLog [% install_dir %]/logs/[% name %].access combined
+    ErrorLog "| /usr/bin/logger -thttpd_proxy_err -plocal5.err"  
+    CustomLog "| /usr/bin/logger -thttpd_proxy -plocal5.info"  combined
 </VirtualHost>
 
 [% FOREACH vhost IN vhosts %]
@@ -203,8 +204,8 @@ Listen [% vhost %]:[% proxy_port %]
     ProxyPreserveHost On
     AllowCONNECT 444 443
     ProxyVia full
-    ErrorLog [% install_dir %]/logs/[% name %].error
-    CustomLog [% install_dir %]/logs/[% name %].access combined
+    ErrorLog "| /usr/bin/logger -thttpd_proxy_err -plocal5.err"  
+    CustomLog "| /usr/bin/logger -thttpd_proxy -plocal5.info"  combined
 </VirtualHost>
 
 [% END %]
