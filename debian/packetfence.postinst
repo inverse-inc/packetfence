@@ -150,18 +150,19 @@ case "$1" in
         #removing old cache
         rm -rf /usr/local/pf/var/cache/
         # Start packetfence web administration
-        if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
-            update-rc.d mysql defaults
-            update-rc.d packetfence defaults 60 || exit 0
-            invoke-rc.d packetfence-config restart
-            invoke-rc.d packetfence start httpd.admin
+        if [ `systemctl get-default` = "packetfence-cluster.target" ]; then
+	    echo "This is an upgrade on a clustered system. We don't change the default systemd target."
+        else
+            echo "Setting packetfence.target as the default systemd target."
+           /bin/systemctl set-default packetfence.target
         fi
-        if [ ${DIST} = "jessie" ] ; then
-            systemctl enable mysql
-            systemctl enable packetfence
-            systemctl restart packetfence-config
-            systemctl start packetfence@httpd.admin
-        fi
+        systemctl enable packetfence-mariadb
+        systemctl enable packetfence-redis-cache
+        systemctl enable packetfence-config
+        systemctl enable packetfence-iptables
+        systemctl enable packetfence-routes
+        systemctl isolate packetfence-base
+        systemctl enable packetfence-httpd.admin
 
         echo Installation complete
         echo "* Please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."

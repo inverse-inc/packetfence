@@ -104,7 +104,15 @@ ifneq (,$(filter yes,$(wheezy) $(precise)))
 endif
 ifeq ($(jessie),yes)
 	install -d -m0700 $(CURDIR)/debian/packetfence/lib/systemd/system
-	install -m0300 $(CURDIR)/debian/packetfence@.service $(CURDIR)/debian/packetfence/lib/systemd/system
+	install -d -m0700 $(CURDIR)/debian/packetfence/etc/systemd/system
+	install -m0644 $(CURDIR)/debian/packetfence.target $(CURDIR)/debian/packetfence/etc/systemd/system
+	install -m0644 $(CURDIR)/debian/packetfence-base.target $(CURDIR)/debian/packetfence/etc/systemd/system
+	install -m0644 $(CURDIR)/debian/packetfence-cluster.target $(CURDIR)/debian/packetfence/etc/systemd/system
+	install -d -m0700 $(CURDIR)/debian/etc/systemd/system/packetfence-base.target.wants
+	install -d -m0700 $(CURDIR)/debian/etc/systemd/system/packetfence-target.target.wants
+	install -d -m0700 $(CURDIR)/debian/etc/systemd/system/packetfence-cluster.target.wants
+	install -m0644 $(CURDIR)/debian/packetfence.slice $(CURDIR)/debian/packetfence/etc/systemd/system
+	install -m0644 $(CURDIR)/debian/packetfence-base.slice $(CURDIR)/debian/packetfence/etc/systemd/system
 endif
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/default
 	#Sudoer
@@ -177,9 +185,49 @@ binary-arch: build install
 ifeq ($(jessie),yes)
 	dh_systemd_enable
 endif
-ifneq (,$(filter yes,$(wheezy) $(precise)))
-	dh_installinit
-endif
+	dh_installinit --no-restart-on-upgrade
+	dh_installinit --name=packetfence-carbon-cache
+	dh_installinit --name=packetfence-carbon-relay
+	dh_installinit --name=packetfence-collectd
+	dh_installinit --name=packetfence-config
+	dh_installinit --name=packetfence-dhcpd
+	dh_installinit --name=packetfence-haproxy
+	dh_installinit --name=packetfence-httpd.aaa
+	dh_installinit --name=packetfence-httpd.admin
+	dh_installinit --name=packetfence-httpd.collector
+	dh_installinit --name=packetfence-httpd.dispatcher
+	dh_installinit --name=packetfence-httpd.graphite
+	dh_installinit --name=packetfence-httpd.parking
+	dh_installinit --name=packetfence-httpd.portal
+	dh_installinit --name=packetfence-httpd.proxy
+	dh_installinit --name=packetfence-httpd.webservices
+	dh_installinit --name=packetfence-iptables
+	dh_installinit --name=packetfence-keepalived
+	dh_installinit --name=packetfence-mariadb
+	dh_installinit --name=packetfence-p0f
+	dh_installinit --name=packetfence-pfbandwidthd
+	dh_installinit --name=packetfence-pfdetect
+	dh_installinit --name=packetfence-pfdhcplistener
+	dh_installinit --name=packetfence-pfdns
+	dh_installinit --name=packetfence-pffilter
+	dh_installinit --name=packetfence-pfmon
+	dh_installinit --name=packetfence-pfqueue
+	dh_installinit --name=packetfence-pfsetvlan
+	dh_installinit --name=packetfence-pfsso
+	dh_installinit --name=packetfence-radiusd-acct
+	dh_installinit --name=packetfence-radiusd-auth
+	dh_installinit --name=packetfence-radiusd-cli
+	dh_installinit --name=packetfence-radiusd-eduroam
+	dh_installinit --name=packetfence-radiusd-load_balancer
+	dh_installinit --name=packetfence-radsniff
+	dh_installinit --name=packetfence-redis-cache
+	dh_installinit --name=packetfence-redis_ntlm_cache
+	dh_installinit --name=packetfence-redis_queue
+	dh_installinit --name=packetfence-routes
+	dh_installinit --name=packetfence-snmptrapd
+	dh_installinit --name=packetfence-statsd
+	dh_installinit --name=packetfence-winbindd
+
 	dh_installcron
 #	dh_installinfo
 	dh_installman

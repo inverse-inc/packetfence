@@ -111,6 +111,10 @@ case "$1" in
 
 
         usermod pf -a -G fingerbank,winbindd_priv
+        systemctl disable mariadb
+        systemctl disable packetfence-redis-cache
+        systemctl disable packetfence-config
+        systemctl disable packetfence.service
         exit 0
     ;;
     abort-upgrade)
