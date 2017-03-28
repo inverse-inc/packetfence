@@ -56,7 +56,7 @@ var DynamicReportView = function(options) {
 };
 
 DynamicReportView.prototype = (function(){
-    function F(){};
+    function F(){}
     F.prototype = ItemView.prototype;
     return new F();
 })();

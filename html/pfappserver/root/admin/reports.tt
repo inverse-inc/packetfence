@@ -11,8 +11,7 @@
         'js/user',
         'admin/searches',
         'admin/nodes',
-        'admin/reports'
-        'admin/dynamicreport'
+        'js/reports'
         ]
      cssFiles = [
         'admin/reports'
