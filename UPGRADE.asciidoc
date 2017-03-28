@@ -73,7 +73,7 @@ All PacketFence services are managed individually via systemd unit files instead
 
 You should make sure the `packetfence` service is disabled so that it doesn't start the services.
 
-  # systemctl disable packetfence.service
+  systemctl disable packetfence.service
 
 When you updated the packetfence package, it already set the system target to `packetfence.target`.
 
@@ -82,6 +82,14 @@ MariaDB configuration
 
 If you are hosting the MySQL/MariaDB service on your PacketFence servers (it is by default), you should now manage the service via `packetfence-mariadb.service` instead of `mariadb.service`. 
 The changes in the server startup will be done automatically by the packaging.
+
+Admin roles configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Given the portal profiles have now been renamed to connection profiles, you need to make sure any admin role that allowed portal profile Create/Read/Update/Delete operations is updated to be valid for connection profiles.
+
+  cd /usr/local/pf
+  sed -i "s/PORTAL_PROFILE/CONNECTION_PROFILE/g" conf/adminroles.conf
 
 Maintenance configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^
