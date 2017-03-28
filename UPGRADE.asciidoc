@@ -60,6 +60,7 @@ Then, once you are done make sure to delete these files so that there is no conf
 
 Once the additionnal steps are completed, restart packetfence-config and packetfence
 
+  /usr/local/pf/bin/pfcmd fixpermissions
   /usr/local/pf/bin/pfcmd pfconfig clear_backend
   service packetfence-config restart
   service packetfence restart
