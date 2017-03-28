@@ -281,6 +281,8 @@ sub database :Chained('object') :PathPart('database') :Args(0) {
             if (is_success($status)) {
                 # everything has been done successfully
                 $c->session->{completed}->{$c->action->name} = 1;
+                # we need to restart mariadb so that it applies the network configuration
+                system("sudo /usr/bin/systemctl restart packetfence-mariadb");
             }
         }
     }
@@ -497,8 +499,6 @@ sub services :Chained('object') :PathPart('services') :Args(0) {
         # Start the services
         if (!$c->session->{started}) {
             $c->session->{started} = 1;
-            # we need to restart mariadb so that it applies the network configuration
-            system("sudo /usr/bin/systemctl restart packetfence-mariadb");
             system("sudo /usr/local/pf/bin/pfcmd service pf updatesystemd");
             # restart pfconfig
             $c->model("Config::System")->restart_pfconfig();
