@@ -309,7 +309,7 @@ sub _update_from_actions {
 
     _update_field_for_action(
         $data,$actions,'valid_from',
-        'valid_from',undef
+        'valid_from', '0000-00-00 00:00:00'
     );
     _update_field_for_action(
         $data,$actions,'expiration',
