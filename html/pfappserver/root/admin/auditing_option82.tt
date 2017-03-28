@@ -3,7 +3,8 @@
               <li class="divider-horizontal"></li>
             </ul>
             <ul class="nav nav-list">
-              <li class="" id="accordion-SwithGroup">
+              <li class="divider"></li>
+              <li id="accordion-SwithGroup">
                 <a data-toggle="collapse" data-parent="#accordion-SwithGroup" href="#collapseSwitchGroup" class="collapsed">
                     [% l('Switch Groups')%]
                 <i class="icon-chevron-up pull-right"></i></a>
@@ -27,7 +28,7 @@
                         <li><a href="#" data-toggle="pf-search-form" data-parent="#collapse_[% switch_group.id %]"data-target="#search" data-form-target="#search">[% member.id %]</a>
                           <form>
                             <input type="hidden" name="searches.0.name" value="switch_id"/>
-                            <input type="hidden" name="searches.0.op" value="equal"/>
+                            <input type="hidden" na-me="searches.0.op" value="equal"/>
                             <input type="hidden" name="searches.0.value" value="[% member.id %]"/>
                           </form>
                         </li>
