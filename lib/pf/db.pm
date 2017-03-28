@@ -455,7 +455,10 @@ db_readonly_mode
 =cut
 
 sub db_readonly_mode {
-    my $dbh = db_connect();
+    my $dbh = eval {
+        db_connect()
+    };
+    return 0 unless $dbh;
     my $sth = $dbh->prepare_cached('SELECT @@global.read_only;');
     return 0 unless $sth->execute;
     my $row = $sth->fetch;
