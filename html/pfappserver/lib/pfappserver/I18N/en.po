@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 6.5.9\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-03-29 14:10-0400\n"
+"PO-Revision-Date: 2017-03-29 15:43-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -1871,6 +1871,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/root/admin/nodes.tt
 msgid "Default"
 msgstr ""
 
@@ -2704,6 +2705,10 @@ msgstr ""
 
 # html/pfappserver/root/config/fingerbank/settings/onboard.tt
 msgid "Fingerbank Onboarding"
+msgstr ""
+
+# html/pfappserver/root/configuration/compliance.tt
+msgid "Fingerbank Profile:"
 msgstr ""
 
 # html/pfappserver/root/config/fingerbank/settings/index.tt
@@ -4461,6 +4466,18 @@ msgstr ""
 msgid "PacketFence Eduroam RADIUS virtual server authentication listening port"
 msgstr ""
 
+# html/pfappserver/root/configuration/compliance.tt
+msgid "PacketFence can ensure a high-level of security on your network by enforcing compliance of your acceptable use policy. The compliance modules are:"
+msgstr ""
+
+# html/pfappserver/root/configuration/compliance.tt
+msgid "PacketFence can receive security event information from multiple solutions over syslog. You can configure which data input you want to accept from this module."
+msgstr ""
+
+# html/pfappserver/root/configuration/compliance.tt
+msgid "PacketFence can use active vulnerability like Nessus, OpenVAS or Windows Management Instrumentation (WMI) to proactively scan endpoints for security problems. You can define the scanners being used here;"
+msgstr ""
+
 # html/pfappserver/root/configurator/enforcement.tt
 msgid "PacketFence is the server that assigns the Role (or ACL) to the devices. This mode is for web authentication."
 msgstr ""
@@ -5911,6 +5928,10 @@ msgstr ""
 msgid "Scanners"
 msgstr ""
 
+# html/pfappserver/root/configuration/compliance.tt
+msgid "Scans:"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
@@ -6622,6 +6643,10 @@ msgstr ""
 msgid "Syslog Parsers"
 msgstr ""
 
+# html/pfappserver/root/configuration/compliance.tt
+msgid "Syslog Parsers:"
+msgstr ""
+
 # html/pfappserver/root/config/pfdetect/view.tt
 msgid "Syslog parser"
 msgstr ""
@@ -7207,6 +7232,10 @@ msgstr ""
 msgid "This is an advanced section. Proceed with caution when editing."
 msgstr ""
 
+# html/pfappserver/root/configuration/compliance.tt
+msgid "This is for device profiling or fingerprinting using the Fingerbank solution. Fingerbank allows you to accurately identify an endpoint on your network (printer vs. tablet);"
+msgstr ""
+
 # conf/documentation.conf (guests_admin_registration.default_access_duration)
 msgid "This is the default access duration value selected in the dropdown. The value must be part of the above list of access duration choices."
 msgstr ""
@@ -7225,6 +7254,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid "This option emulates SSO when someone needs to face the captive portal after a successful 802.1x connection. 802.1x credentials are reused on the portal to match an authentication and get the appropriate actions. As a security precaution, this option will only reuse 802.1x credentials if there is an authentication source matching the provided realm. This means, if users use 802.1x credentials with a domain part (username@domain, domain\\username), the domain part needs to be configured as a realm under the RADIUS section and an authentication source needs to be configured for that realm. If users do not use 802.1x credentials with a domain part, only the NULL realm will be match IF an authentication source is configured for it."
+msgstr ""
+
+# html/pfappserver/root/configuration/compliance.tt
+msgid "This powerful module allows you to tie security events (malware detection, unauthorized operating system, etc.) with actions such as quarantining endpoints, sending email alerts and showing remediation instructions from captive portal;"
 msgstr ""
 
 # conf/documentation.conf (proxies)
@@ -7797,6 +7830,10 @@ msgstr ""
 # html/pfappserver/root/violation/list.tt
 # pfappserver::PacketFence::Controller::Graph (graph type)
 msgid "Violations"
+msgstr ""
+
+# html/pfappserver/root/configuration/compliance.tt
+msgid "Violations:"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Interface.pm
