@@ -9,7 +9,7 @@ Type=oneshot
 RemainAfterExit=yes
 ExecStart=/bin/perl -I/usr/local/pf/lib -Mpf::db -Mpf::services::manager::iptables -e 'my $db ; while(!$db) { eval { $db = db_connect() ; sleep 1 } } ; pf::services::manager::iptables->new()->_start()'
 ExecStop=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::iptables' -e 'pf::services::manager::iptables->new()->_stop()'
-Slice=packetfence-base.slice
+Slice=packetfence.slice
 
 [Install]
 WantedBy=packetfence.target
