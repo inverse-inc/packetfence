@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 6.5.9\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-03-29 15:43-0400\n"
+"PO-Revision-Date: 2017-03-29 16:41-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -700,7 +700,7 @@ msgid "Any"
 msgstr ""
 
 # html/pfappserver/root/config/pfdetect/index.tt
-msgid "Any change to the syslog parsers requires a restart of the pfdetect and pfqueue service."
+msgid "Any change to the syslog parsers requires a restart of the pfdetect and pfqueue services."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm

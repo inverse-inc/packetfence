@@ -19,7 +19,7 @@
         <div class="card-title">
           <h2>[% l('Syslog Parsers') %]</h2>
             <div class="alert alert-warning">
-        <strong>[% l('Warning!') %]</strong> [% l('Any change to the syslog parsers requires a restart of the pfdetect and pfqueue service.') %]</div>
+        <strong>[% l('Warning!') %]</strong> [% l('Any change to the syslog parsers requires a restart of the pfdetect and pfqueue services.') %]</div>
       </div>
         <div class="card-block">
           [% INCLUDE config/pfdetect/list.tt %]
