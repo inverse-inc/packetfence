@@ -34,7 +34,6 @@ use pf::config qw(
     %Doc_Config
     $INLINE_API_LEVEL
     $ROLE_API_LEVEL
-    $SOH_API_LEVEL
     $RADIUS_API_LEVEL
     $ROLES_API_LEVEL
     %Profiles_Config
@@ -139,12 +138,6 @@ sub sanity_check {
 
     if ( isenabled($Config{'services'}{'radiusd'} ) ) {
         freeradius();
-    }
-
-    if ( isenabled($Config{'trapping'}{'detection'}) ) {
-        ids();
-
-        #TODO Suricata check
     }
 
     billing();
@@ -318,45 +311,6 @@ sub fingerbank {
     }
 }
 
-=item ids
-
-Validation related to the Snort/Suricata IDS usage
-
-=cut
-
-sub ids {
-
-    # make sure a monitor device is present if trapping.detection is enabled
-    if ( !$monitor_int ) {
-        add_problem( $WARN,
-            "monitor interface not defined, please disable trapping.detection " .
-            "or set an interface type=...,monitor in pf.conf"
-        );
-    }
-
-    # make sure named pipe 'alert' is present if trapping.detection is enabled
-    my $alertpipe = "$install_dir/var/alert";
-    if ( !-p $alertpipe ) {
-        if ( !POSIX::mkfifo( $alertpipe, oct(666) ) ) {
-            add_problem( $WARN, "IDS alert pipe ($alertpipe) does not exist and unable to create it" );
-        }
-    }
-
-    # make sure trapping.detection_engine=snort|suricata
-    if ( $Config{'trapping'}{'detection_engine'} ne 'snort' && $Config{'trapping'}{'detection_engine'} ne 'suricata' ) {
-        add_problem( $WARN,
-            "Detection Engine (trapping.detection_engine) needs to be either snort or suricata."
-        );
-    }
-
-    if ( $Config{'trapping'}{'detection_engine'} eq "snort" && !-x $Config{'services'}{'snort_binary'} ) {
-        add_problem( $WARN, "snort binary is not executable / does not exist!" );
-    }
-    elsif ( $Config{'trapping'}{'detection_engine'} eq "suricata" && !-x $Config{'services'}{'suricata_binary'} ) {
-        add_problem( $WARN, "suricata binary is not executable / does not exist!" );
-    }
-
-}
 
 =item omapi
 
@@ -631,6 +585,7 @@ sub is_config_documented {
     #i.e. make sure that pf.conf contains everything defined in
     #documentation.conf
     foreach my $section ( keys %Doc_Config) {
+        next unless $section =~ /\./;
         my ( $group, $item ) = split( /\./, $section );
         my $doc = $Doc_Config{$section};
         my $type = $doc->{'type'};
@@ -705,7 +660,6 @@ sub extensions {
     my @extensions = (
         { 'name' => 'Inline', 'module' => 'pf::inline::custom', 'api' => $INLINE_API_LEVEL, },
         { 'name' => 'Role', 'module' => 'pf::role::custom', 'api' => $ROLE_API_LEVEL, },
-        { 'name' => 'SoH', 'module' => 'pf::soh::custom', 'api' => $SOH_API_LEVEL, },
         { 'name' => 'RADIUS', 'module' => 'pf::radius::custom', 'api' => $RADIUS_API_LEVEL, },
         { 'name' => 'Roles', 'module' => 'pf::roles::custom', 'api' => $ROLES_API_LEVEL, },
     );
@@ -1030,7 +984,7 @@ sub connection_profiles {
 
     my $profile_params = qr/(?:locale |filter|logo|guest_self_reg|guest_modes|template_path|
         billing_tiers|description|sources|redirecturl|always_use_redirecturl|
-        nbregpages|allowed_devices|allow_android_devices|
+        allowed_devices|allow_android_devices|
         reuse_dot1x_credentials|provisioners|filter_match_style|sms_pin_retry_limit|
         sms_request_limit|login_attempt_limit|block_interval|dot1x_recompute_role_from_portal|scan|root_module|preregistration|autoregister|access_registration_when_registered)/x;
     my $validator = pf::validation::profile_filters->new;

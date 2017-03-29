@@ -1,3 +1,4 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
 
 function initVariableList(editor) {
     $('#variable_list').on('click', '.insert-into-file', function(event) {
@@ -225,14 +226,14 @@ function initReadPage(element) {
         // Select the next option that was not yet selected
         try {
             options.each(function(index,element) {
-                var selector = '[value="' + element.value   + '"]';
-                if(selected_options.filter(selector).length == 0) {
+                var selector = '[value="' + element.value + '"]';
+                if(selected_options.filter(selector).length === 0) {
                     $(element).attr("selected", "selected");
                     throw "";
                 }
             });
         }
-        catch(e) {};
+        catch(e) {}
         // If all options have been added, remove the add button
         var rows = row.siblings(':not(.hidden)').andSelf();
         if (rows.length == options.length) {
@@ -272,7 +273,7 @@ function updateFilterMatchInput(type_input, keep) {
     var type_value = type_input.val();
     var match_input_template_id = '#' + type_value + "_filter_match";
     var match_input_template = $(match_input_template_id);
-    if ( match_input_template.length == 0 ) {
+    if ( match_input_template.length === 0) {
         match_input_template = $('#default_filter_match');
     }
     if ( match_input_template.length ) {

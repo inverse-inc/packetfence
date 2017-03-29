@@ -10,11 +10,6 @@ domain=packetfence.org
 # Hostname of PacketFence system.  This is concatenated with the domain in Apache rewriting rules and therefore must be resolvable by clients.
 hostname=packetfence
 #
-# general.dnsservers
-#
-# Comma-delimited list of DNS servers.  Passthroughs are created to allow queries to these servers from even "trapped" nodes.
-dnsservers=127.0.0.1
-#
 # general.dhcpservers
 #
 # Comma-delimited list of DHCP servers.  Passthroughs are created to allow DHCP transactions from even "trapped" nodes.
@@ -95,110 +90,74 @@ interfaceSNAT=
 [proxies]
 tools/stinger.exe=http://download.nai.com/products/mcafee-avert/stng260.exe
 
-[trapping]
+[fencing]
 #
-# trapping.registration
-#
-# If enabled, nodes will be required to register on first network access.  Further registration options are configured in the 
-# registration section.
-registration=enabled
-#
-# trapping.redirtimer
+# fencing.redirtimer
 #
 # How long to display the progress bar during trap release. Default value is 
 # based on VLAN enforcement techniques. Inline enforcement only users could
 # lower the value.
 redirtimer=20s
 # 
-# trapping.wait_for_redirect
+# fencing.wait_for_redirect
 #
 # How many seconds should the WebAPI sleep before actually triggering the VLAN change.
 # This is meant to give the device enough time to fetch the redirection page before 
 # switching VLAN.
 wait_for_redirect = 1
 #
-# trapping.whitelist
+# fencing.whitelist
 #
 # Comma-delimited list of MAC addresses that are immune to isolation. In 
 # inline level 2 enforcement, the firewall is opened for them as if they were 
 # registered. This "feature" will probably be reworked in the future.
 whitelist=
 #
-# trapping.detection
-#
-# Enables snort-based worm detection.  If you don't have a span interface available, don't bother enabling it.  If you do, 
-# you'll most definately want this on.
-detection=disabled
-
-#
-# trapping.detection_engine
-#
-# Let you choose from our supported IDS: snort or suricata
-#
-detection_engine=snort
-#
-# trapping.range
+# fencing.range
 #
 # Comma-delimited list of address ranges/CIDR blocks that Snort/Suricata will monitor/detect/trap on.  Gateway, network, and 
 # broadcast addresses are ignored.
 range=
-
 #
-# trapping.wireless_ips
-#
-# Enable wids trapping detection
-wireless_ips=disabled
-
-#
-# Set the threshold for wids
-#
-wireless_ips_threshold=90
-
-#
-# trapping.passthrough
+# fencing.passthrough
 #
 # When enabled, pfdns will resolve the real IP addresses of passthroughs and add them in the ipset session to give access
 # to trapped devices. Don´t forget to enable ip_forward on your server.
 passthrough=disabled
 #
-# trapping.passthroughs
+# fencing.passthroughs
 #
 # Comma-delimited list of domains to be used as HTTP and HTTPS passthroughs to web sites.
 #
 passthroughs=
 #
-# trapping.proxy_passthroughs
+# fencing.proxy_passthroughs
 #
 # Comma-delimited list of domains to be use for apache passthrough
 proxy_passthroughs=crl.geotrust.com,ocsp.geotrust.com,crl.thawte.com,ocsp.thawte.com,crl.comodoca.com,ocsp.comodoca.com,crl.incommon.org,ocsp.incommon.org,crl.usertrust.com,ocsp.usertrust.com,mscrl.microsoft.com,crl.microsoft.com,ocsp.apple.com,ocsp.digicert.com,ocsp.entrust.com,srvintl-crl.verisign.com,ocsp.verisign.com,ctldl.windowsupdate.com,crl.globalsign.net,pki.google.com,www.microsoft.com,crl.godaddy.com,ocsp.godaddy.com,certificates.godaddy.com,crl.globalsign.com,secure.globalsign.com,cacerts.digicert.com,crt.comodoca.com,crl.incommon-rsa.org,crl.quovadisglobal.com,cert.incommon.org,crt.usertrust.com,crl.verisign.com,crl.starfieldtech.com,developer.apple.com,ts-crl.ws.symantec.com,certificates.intel.com
 #
-# trapping.interception_proxy
+# fencing.interception_proxy
 #
 # When enabled, packetfence will intercept proxy request to somes specified port
 interception_proxy=disabled
 #
-# trapping.interception_proxy_port
+# fencing.interception_proxy_port
 #
 # Comma-delimited list of port used to intercept proxy traffic
 interception_proxy_port=8080,3128
 
 
-[registration]
+[device_registration]
 #
-# registration.button_text
+# device_registration.status
 #
+# Enable or Disable the ability to register a device using the specific portal page designed to do it
+status=disabled
 #
-button_text=Register
+# device_registration.role
 #
-# registration.device_registration
-#
-# Enable or Disable the ability to register a gaming device using the specific portal page designed to do it
-device_registration=disabled
-#
-# registration.device_registration_role
-#
-# The role to assign to gaming devices. If none is specified, the role of the registrant is used.
-device_registration_role=
+# The role to assign to devices registered from the specific portal. If none is specified, the role of the registrant is used.
+role=
 
 [guests_admin_registration]
 #
@@ -238,11 +197,6 @@ smtpserver=localhost
 #Subject prefix for email notifications of rogue DHCP servers, violations with an action of "email", or any other
 #PacketFence-related message.
 subjectprefix=PF Alert:
-#
-# alerting.log
-#
-# Log file where "log" actions are sent.
-log=violation.log
 
 [ports]
 #
@@ -302,48 +256,50 @@ user=pf
 #
 # Password for the mysql database used by PacketFence. Changing this parameter after the initial configuration will *not* change it in the database it self, only in the configuration.
 pass=packet
+
+[database_advanced]
 #
-# database.key_buffer_size
+# database_advanced.key_buffer_size
 #
 # The key_buffer_size MySQL configuration attribute (in MB). Only change if you know what you are doing. Will only affect a locally running MySQL server.
 key_buffer_size=100
 #
-# database.innodb_buffer_pool_size
+# database_advanced.innodb_buffer_pool_size
 #
 # The innodb_buffer_pool_size MySQL configuration attribute (in MB). Only change if you know what you are doing. Will only affect a locally running MySQL server.
 innodb_buffer_pool_size=500
 #
-# database.innodb_additional_mem_pool_size
+# database_advanced.innodb_additional_mem_pool_size
 #
 # The innodb_additional_mem_pool_size MySQL configuration attribute (in MB). Only change if you know what you are doing. Will only affect a locally running MySQL server.
 innodb_additional_mem_pool_size=20
 #
-# database.query_cache_size
+# database_advanced.query_cache_size
 #
 # The query_cache_size MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.
 query_cache_size=0
 #
-# database.thread_concurrency
+# database_advanced.thread_concurrency
 #
 # The thread_concurrency MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.
 thread_concurrency=8
 #
-# database.max_connections
+# database_advanced.max_connections
 #
 # The max_connections MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.
 max_connections=500
 #
-# database.table_cache
+# database_advanced.table_cache
 #
 # The table_cache MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.
 table_cache=300
 #
-# database.thread_cache_size
+# database_advanced.thread_cache_size
 #
 # The thread_cache_size MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.
 thread_cache_size=25
 #
-# database.max_allowed_packet
+# database_advanced.max_allowed_packet
 #
 # The max_allowed_packet MySQL configuration attribute (in MB). Only change if you know what you are doing. Will only affect a locally running MySQL server.
 max_allowed_packet=16
@@ -384,26 +340,6 @@ pffilter=enabled
 #
 # Should pfsso be managed by PacketFence?
 pfsso=enabled
-#
-# services.snort
-#
-# Should snort be managed by PacketFence?
-snort=enabled
-#
-# services.snort_binary
-#
-# Location of the snort binary. Only necessary to change if you are not running the RPMed version. 
-snort_binary=/usr/sbin/snort
-#
-# services.suricata
-#
-# Should suricata be managed by PacketFence?
-suricata=enabled
-#
-# services.suricata_binary
-# 
-# Location of the suricata binary.
-suricata_binary=/usr/bin/suricata
 #
 # services.radiusd
 #
@@ -528,6 +464,12 @@ redis_binary=/usr/bin/redis-server
 # Should pfdhcplistener be started?
 pfdhcplistener=enabled
 #
+# services.pfdhcplistener_packet_size
+#
+# Set the max size of DHCP packets
+# Do not change unless you know what you are doing
+pfdhcplistener_packet_size=576
+#
 # services.keepalived
 #
 # Should keepalived be started?
@@ -627,32 +569,31 @@ routes=enabled
 # location of the routes binary. only necessary to change if you are not running the rpmed version.
 routes_binary=/sbin/ip
 
-[vlan]
+[snmp_traps]
 #
-# vlan.closelocationlogonstop
+# snmp_traps.nbtraphandlerthreads
+#
+# Number of trap handler threads pfsetvlan should start
+nbtraphandlerthreads = 5
+#
+# snmp_traps.nbtrapparserthreads
+#
+# Number of trap parser threads pfsetvlan should start
+nbtrapparserthreads = 3
+#
+# snmp_traps.closelocationlogonstop
 #
 # Should open locationlog entries be closed when pfsetvlan is 
 # stopped
 closelocationlogonstop=disabled
 #
-#
-# vlan.nbtraphandlerthreads
-#
-# Number of trap handler threads pfsetvlan should start
-nbtraphandlerthreads = 5
-#
-# vlan.nbtrapparserthreads
-#
-# Number of trap parser threads pfsetvlan should start
-nbtrapparserthreads = 3
-#
-# vlan.bounce_duration
+# snmp_traps.bounce_duration
 #
 # Delay to wait between the shut / no-shut on a port. Some OS need a higher value than others.
 # Default should be reasonable for almost every OS but is too long for the usual proprietary OS.
 bounce_duration = 4s
 #
-# vlan.trap_limit
+# snmp_traps.trap_limit
 #
 # Controls whether or not the trap_limit feature is enabled. Trap limiting is
 # a way to limit the damage done by malicious users or misbehaving switch 
@@ -661,21 +602,40 @@ bounce_duration = 4s
 # parameters. Default is enabled.
 trap_limit = enabled
 #
-# vlan.trap_limit_threshold
+# snmp_traps.trap_limit_threshold
 #
 # Maximum number of SNMP traps that a switchport can send to PacketFence within
 # a minute without being flagged as DoS. Defaults to 100
 trap_limit_threshold = 100
 #
-# vlan.trap_limit_action
+# snmp_traps.trap_limit_action
 #
-# Action that PacketFence will take if the vlan.trap_limit_threshold is reached.
+# Action that PacketFence will take if the snmp_traps.trap_limit_threshold is reached.
 # Defaults to none. email will send an email every hour if the limit's still reached.
 # shut will shut the port on the switch and will also send an email even if email is not
 # specified.
 trap_limit_action = 
 
 [inline]
+# inline.accounting
+#
+# Should we handle accouting data for inline clients?
+# This controls inline accouting tasks in pfmon.
+accounting = disabled
+#
+# inline.layer3_accounting_session_timeout
+#
+# Accounting 'sessions' created by pfbandwidthd (level 3 traffic only) that haven't been updated for more than this
+# amount of seconds will be considered inactive.
+# This should be higher than the interval at which pfmon runs
+# Defaults to 300 - 5 minutes
+layer3_accounting_session_timeout = 300
+# inline.layer3_accounting_sync_interval
+#
+# Interval at which pfbandwidthd (level 3 traffic only) should dump collected information into the database.
+# This should be lower than the interval at which pfmon runs
+# Defaults to 41 seconds
+layer3_accounting_sync_interval = 41
 #
 # inline.ports_redirect
 #
@@ -694,45 +654,6 @@ should_reauth_on_vlan_change = disabled
 # inline.interfaceSNAT
 # Choose the interface(s) you want to use to enable snat (by default it´s the management interface)
 interfaceSNAT=
-
-# inline.accounting
-#
-# Should we handle accouting data for inline clients?
-# This controls inline accouting tasks in pfmon.
-accounting = disabled
-
-# inline.layer3_accounting_session_timeout
-#
-# Accounting 'sessions' created by pfbandwidthd (level 3 traffic only) that haven't been updated for more than this
-# amount of seconds will be considered inactive.
-# This should be higher than the interval at which pfmon runs
-# Defaults to 300 - 5 minutes
-layer3_accounting_session_timeout = 300
-
-# inline.layer3_accounting_sync_interval
-#
-# Interval at which pfbandwidthd (level 3 traffic only) should dump collected information into the database.
-# This should be lower than the interval at which pfmon runs
-# Defaults to 41 seconds
-layer3_accounting_sync_interval = 41
-
-[servicewatch]
-#
-# servicewatch.email
-#
-# Should pfcmd service pf watch send an email if services are not running?
-# You must make sure to call the watch command. Installing it in the cron is the
-# recommended approach:
-# */5 * * * * /usr/local/pf/bin/pfcmd service pf watch
-email=enabled
-#
-# servicewatch.restart
-#
-# Should pfcmd service pf watch restart PF if services are not running?
-# You must make sure to call the watch command. Installing it in the cron is the
-# recommended approach:
-# */5 * * * * /usr/local/pf/bin/pfcmd service pf watch
-restart=disabled
 
 [captive_portal]
 #
@@ -813,11 +734,6 @@ wispr_redirection = enabled
 # Language choice for the communication with administrators
 language=en_US
 #
-# advanced.reevaluate_access_reasons
-#
-# After which calls to pfcmd do we have to re-evaluate the state of a node and re-assign VLAN or change iptables rules
-reevaluate_access_reasons=node_modify,manage_register,manage_deregister,manage_vclose,manage_vopen,violation_modify,violation_add,violation_delete,redir.cgi,pfcmd_vlan,admin_modify
-#
 # advanced.sso_on_access_reevaluation
 #
 # Trigger Single-Sign-On (Firewall SSO) on access reevaluation
@@ -828,21 +744,6 @@ sso_on_access_reevaluation=disabled
 # Record the accounting data in the SQL tables.
 # Requires a restart of radiusd to be effective.
 record_accounting_in_sql=enabled
-#
-# advanced.pfcmd_error_color
-#
-# Color of the error text for pfcmd
-pfcmd_error_color=red
-#
-# advanced.pfcmd_warning_color
-#
-# Color of the warning text for pfcmd
-pfcmd_warning_color=yellow
-#
-# advanced.pfcmd_success_color
-#
-# Color of the success text for pfcmd
-pfcmd_success_color=green
 #
 # advanced.hash_passwords
 #
@@ -898,12 +799,6 @@ locationlog_close_on_accounting_stop=enabled
 # Level of timing stats to keep - 0 is the lowest - 10 the highest amount to log
 # Do not change unless you know what you are doing
 timing_stats_level=5
-#
-# advanced.pfdhcplistener_packet_size
-#
-# Set the max size of DHCP packets
-# Do not change unless you know what you are doing
-pfdhcplistener_packet_size=576
 #
 # advanced.source_to_send_sms_when_creating_users
 #
@@ -1072,34 +967,34 @@ galera_replication_username=
 # Defines the replication password to be used for the MariaDB Galera cluster replication
 galera_replication_password=
 
-[monitoring]
+[graphite]
 #
-# monitoring.graphite_host
+# graphite.graphite_host
 #
 graphite_host=localhost
 
 #
-# monitoring.graphite_port
+# graphite.graphite_port
 #
 graphite_port=2013
 
 #
-# monitoring.db_port
+# graphite.db_port
 #
 db_port=
 
 #
-# monitoring.db_host
+# graphite.db_host
 #
 db_host=
 
 #
-# monitoring.db_user
+# graphite.db_user
 #
 db_user=
 
 #
-# monitoring.db_pass
+# graphite.db_pass
 #
 db_pass=
 

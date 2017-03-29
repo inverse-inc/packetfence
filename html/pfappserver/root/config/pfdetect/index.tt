@@ -15,17 +15,20 @@
         </div>
       </div>
 
-      <h2>[% l('Syslog Parsers') %]</h2>
-      <div class="alert alert-warning">
-        <strong>[% l('Warning!') %]</strong> [% l('Any change to the syslog parsers requires a restart of the pfdetect and pfqueue service.') %]
+      <div class="card">
+        <div class="card-title">
+          <h2>[% l('Syslog Parsers') %]</h2>
+            <div class="alert alert-warning">
+        <strong>[% l('Warning!') %]</strong> [% l('Any change to the syslog parsers requires a restart of the pfdetect and pfqueue service.') %]</div>
       </div>
-
-      [% INCLUDE config/pfdetect/list.tt %]
+        <div class="card-block">
+          [% INCLUDE config/pfdetect/list.tt %]
+        </div>
 
       [%- IF can_access("PFDETECT_CREATE") %]
         <div class="form-actions">
           <div class="btn-group">
-            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">[% l('Add Syslog parser') %] <span class="caret"></span></a>
+            <a class="btn dropdown-toggle" data-toggle="dropdown">[% l('Add Syslog parser') %] <span class="caret"></span></a>
             <ul id="createSource" class="dropdown-menu">
               [% FOREACH type IN types -%]
                 <li><a href="[% c.pf_hash_for(c.controller.action_for('create_type'), type) %]">[% l(type) %]</a></li>
@@ -34,3 +37,4 @@
           </div>
         </div>
       [%- END %]
+      </div>

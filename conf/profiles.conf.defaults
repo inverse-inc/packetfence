@@ -11,7 +11,6 @@ logo=/common/packetfence-cp.png
 redirecturl=http://www.packetfence.org/
 always_use_redirecturl=disabled
 locale=en_US
-nbregpages=0
 filter_match_style=any
 block_interval=10m
 sms_pin_retry_limit=0

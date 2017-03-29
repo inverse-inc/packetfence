@@ -45,6 +45,7 @@ NOTE: You will need the packages hostapd-commun and wpad-mini if they are not in
 Step 2: Dynamic VLAN Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Connect using SSH to the AP and create the file : /etc/config/hostapd.vlan
+
 ----
 *           wlan0.#
 ----
@@ -54,6 +55,7 @@ Step 3: Hostapd configuration
 You will need to modify the hostapd script that comes with the package that we previously installed.
 
 Connect using SSH to the AP and run these commands:
+
 ----
 cd /lib/netifd/
 mv hostapd.sh hostapd.sh.old
@@ -122,7 +124,7 @@ NOTE:  It's known that you can't put 2 SSIDs with the same dae server at the sam
 
 Step 5: PacketFence configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Log in to the PacketFence administration web page and go under *Configuration -> Switches -> Add switch*.
+Log in to the PacketFence administration web page and go under *Configuration -> Policies and Access Control -> Switches -> Add switch*.
 
 Definition:
 [options="compact"]

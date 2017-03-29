@@ -1,3 +1,5 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
+
 $(function() { // DOM ready
     var items = new RadiusAuditLog();
     var view = new RadiusAuditLogView({ items: items, parent: $('#section') });
@@ -47,7 +49,6 @@ RadiusAuditLog.prototype.post = function(options) {
  * The RadiusAuditLogView class defines the DOM operations from the Web interface.
  */
 
-
 var RadiusAuditLogView = function(options) {
     ItemView.call(this,options);
     var that = this;
@@ -56,7 +57,7 @@ var RadiusAuditLogView = function(options) {
 };
 
 RadiusAuditLogView.prototype = (function(){
-    function F(){};
+    function F(){}
     F.prototype = ItemView.prototype;
     return new F();
 })();

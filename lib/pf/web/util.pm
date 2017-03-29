@@ -297,6 +297,29 @@ sub is_certificate_self_signed {
     return $self_signed;
 }
 
+=head2 generate_doc_url
+
+Generate the URL to a section of documentation
+
+=cut
+
+sub generate_doc_url {
+    my ($section, $guide) = @_;
+    $guide //= "Administration_Guide";
+    return "https://packetfence.org/doc/PacketFence_$guide.html#$section"
+}
+
+=head2 generate_doc_url
+
+Generate the HTML link to a section of documentation
+
+=cut
+
+sub generate_doc_link {
+    my ($section, $guide) = @_;
+    return '<a target="_blank" href="' . generate_doc_url($section, $guide) . '"><i class="icon-question-circle-o"></i></a>';
+}
+
 =back
 
 =head1 AUTHOR

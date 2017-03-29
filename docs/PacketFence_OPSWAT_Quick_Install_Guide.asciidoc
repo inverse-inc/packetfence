@@ -99,7 +99,7 @@ image::docs/images/opswat-portal.png[scaledwidth="100%",alt="OPSWAT portal confi
 
 Step 6: Add the necessary passthroughs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Next, still in the PacketFence administration console, go in 'Trapping' in the left menu, then scroll then to 'Passthroughs'.
+Next, still in the PacketFence administration console, go in 'Fencing' in the left menu, then scroll then to 'Passthroughs'.
 Check the 'Passthrough' box above the field and add the following domains to the passthrough list.
 
 * gears.opswat.com

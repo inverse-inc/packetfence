@@ -67,8 +67,8 @@
                       <input name="searches.0.value" disabled="disabled" type="text" class="span6" placeholder="[% l('String...') %]">
                     </td>
                     <td class="action">
-                      <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
-                      <a class="btn-icon" href="#delete"><i class="icon-minus-sign"></i></a>
+                      <a class="btn-icon" href="#add"><i class="icon-plus-circle"></i></a>
+                      <a class="btn-icon" href="#delete"><i class="icon-minus-circle"></i></a>
                     </td>
                   </tr>
                   <tr class="dynamic-row">
@@ -121,8 +121,8 @@
                       <input name="searches.0.value" type="text" class="span6" placeholder="[% l('String...') %]">
                     </td>
                     <td class="action">
-                      <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
-                      <a class="btn-icon hidden" href="#delete"><i class="icon-minus-sign"></i></a>
+                      <a class="btn-icon" href="#add"><i class="icon-plus-circle"></i></a>
+                      <a class="btn-icon hidden" href="#delete"><i class="icon-minus-circle"></i></a>
                     </td>
                   </tr>
                 </tbody>

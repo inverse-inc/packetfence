@@ -15,14 +15,18 @@
         </div>
       </div>
 
-      <h2>[% l('Firewall SSO')  %]</h2>
-
-      [% INCLUDE config/firewall_sso/list.tt %]
+      <div class="card">
+        <div class="card-title">
+          <h2>[% l('Firewall SSO')  %]</h2>
+        </div>
+        <div class="card-block">
+          [% INCLUDE config/firewall_sso/list.tt %]
+        </div>
 
       [%- IF can_access("FIREWALL_SSO_CREATE") %]
         <div class="form-actions">
           <div class="btn-group">
-            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">[% l('Add Firewall') %] <span class="caret"></span></a>
+            <a class="btn dropdown-toggle" data-toggle="dropdown">[% l('Add Firewall') %] <span class="caret"></span></a>
             <ul id="createSource" class="dropdown-menu">
               [% FOREACH type IN types -%]
                 <li><a class="createItem" href="[% c.uri_for(c.controller.action_for('create_type'), type) %]">[% l(type) %]</a></li>

@@ -419,17 +419,6 @@ sub guestModeAllowed {
     return any { $mode eq $_} @{$self->getGuestModes};
 }
 
-=item nbregpages
-
-The number of registration pages to be shown before signup or registration
-
-=cut
-
-sub nbregpages {
-    my ($self) = @_;
-    return $self->{'_nbregpages'};
-}
-
 =item reuseDot1xCredentials
 
 Reuse dot1x credentials when authenticating

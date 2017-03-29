@@ -117,14 +117,9 @@ sub parseTrap {
     my $trapHashRef;
     my $logger = $self->logger;
 
-    # Handle WIPS Trap
-    if ( $trapString =~ /BEGIN VARIABLEBINDINGS.*\.1\.3\.6\.1\.4\.1\.388\.50\.1\.2\.1\.4 = STRING: "Unsanctioned AP ([A-F0-9]{2}-[A-F0-9]{2}-[A-F0-9]{2}-[A-F0-9]{2}-[A-F0-9]{2}-[A-F0-9]{2})/){
-        $trapHashRef->{'trapType'}    = 'wirelessIPS';
-        $trapHashRef->{'trapMac'} = clean_mac($1);
-    } else {
-        $logger->debug("trap currently not handled");
-        $trapHashRef->{'trapType'} = 'unknown';
-    }
+    $logger->debug("trap currently not handled");
+    $trapHashRef->{'trapType'} = 'unknown';
+
     return $trapHashRef;
 }
 

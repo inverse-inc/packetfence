@@ -15,7 +15,9 @@
         </div>
       </div>
 
-      <h2>[% l('Admin Roles') %]</h2>
+<div class="card">
+  <div class="card-block">
+      <h2>[% l('Admin Roles') %] [% doc('_admin_access') | none %]</h2>
 
       <p>[% l('Define roles with specific access rights to the Web administration interface. Roles are assigned to users depending on their authentication source.') %]</p>
 
@@ -30,3 +32,5 @@
         <a class="btn createItem" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add admin role') %]</a>
       </div>
       [%- END %]
+  </div>
+</div>

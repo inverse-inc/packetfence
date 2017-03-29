@@ -82,7 +82,7 @@ sub scan_status : Private {
     $c->stash(
         title => "scan: scan in progress",
         template    => 'scan-in-progress.html',
-        timer         => $Config{'trapping'}{'redirtimer'},
+        timer         => $Config{'fencing'}{'redirtimer'},
         txt_message => [
             'scan in progress contact support if too long',
             $scan_start_time

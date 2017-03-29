@@ -153,13 +153,13 @@ function isFormInputEmpty(input) {
     var value;
 
     if (input.attr('data-toggle') == 'buttons-radio')
-        value = input.find('.active').length == 0? null : 1;
+        value = input.find('.active').length === 0? null : 1;
     else
         value = input.val();
 
-    if (value == null
-        || typeof value == 'string' && $.trim(value).length == 0
-        || value.length == 0) {
+    if (value === null ||
+        typeof value == 'string' && $.trim(value).length === 0 ||
+        value.length === 0) {
         control.addClass('error');
         empty = true;
 

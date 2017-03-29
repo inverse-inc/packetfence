@@ -162,14 +162,14 @@ func (p *Proxy) Configure(ctx context.Context, port string) {
 }
 
 func (p *passthrough) readConfig(ctx context.Context) {
-	trapping := pfconfigdriver.Config.PfConf.Trapping
+	fencing := pfconfigdriver.Config.PfConf.Fencing
 	general := pfconfigdriver.Config.PfConf.General
 	portal := pfconfigdriver.Config.PfConf.CaptivePortal
 
 	var scheme string
 
 	p.proxypassthrough = make([]*regexp.Regexp, 0)
-	for _, v := range trapping.ProxyPassthroughs {
+	for _, v := range fencing.ProxyPassthroughs {
 		p.addFqdnToList(ctx, v)
 	}
 

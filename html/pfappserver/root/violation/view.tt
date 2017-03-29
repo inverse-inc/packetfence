@@ -41,7 +41,7 @@ violationsView.event_triggers = JSON.parse("[% json_event_triggers | js %]")
         <div id="viewTriggers">
           <div class="control-group">
               <a id="add_trigger" class="btn btn-default" href="#addTrigger">
-                <i class="icon icon-plus-sign"></i>
+                <i class="icon icon-plus-circle"></i>
               </a>
           </div>
 

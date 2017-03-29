@@ -29,7 +29,6 @@ pod_coverage_ok("pf::radius");
 pod_coverage_ok("pf::services::apache");
 pod_coverage_ok("pf::services::dhcpd");
 pod_coverage_ok("pf::services::named");
-pod_coverage_ok("pf::soh");
 pod_coverage_ok("pf::Switch");
 pod_coverage_ok("pf::util::apache");
 pod_coverage_ok("pf::util::dhcp");

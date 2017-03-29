@@ -49,7 +49,7 @@ So now each time a device will enter or leave the specific zone PacketFence will
 Step 3: Configure a portal filter
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In `Configuration -> Connection Profiles -> Add profile -> Advanced filter` specify an advanced filter like that:
+In `Configuration Policies and Access Control -> Connection Profiles -> Add profile -> Advanced filter` specify an advanced filter like that:
 
  extended.mse_inout.locationMapHierarchy == "Campus>Building>Level>Zone"
 
@@ -63,7 +63,7 @@ it will hit this connection profile.
 MSE Tab
 -------
 
-This configuration is really simple, you just have to enable and fill the URL, the username and password in `Configuration -> Node MSE Tab`.
+This configuration is really simple, you just have to enable and fill the URL, the username and password in `Configuration -> Integration -> Cisco Mobility Service Engine`.
 So in our example:
 
  URL: http://192.168.1.6:8083

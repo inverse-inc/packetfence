@@ -2,14 +2,19 @@
 [% SET action_uri = c.uri_for(c.controller.action_for('update'), [ item.id ]) %]
 [% ELSE %]
 [% SET action_uri = c.req.uri %]
-
 [%END%]
+
 <ul class="breadcrumb">
   <li><a href="[% c.pf_hash_for(c.controller.action_for('index')) %]">[% l('Syslog Parsers') %]</a> <span class="divider"><i class="icon-chevron-right"></i></span></li>
   <li class="active">[% IF item.id %][% item.id | html %][% ELSE %][% l('new') %][% END %]</li>
 
 </ul>
-<h3><i>[% l('Syslog parser') %]</i> [% item.type | html %]</h3>
+
+<div class="card">
+  <div class="card-title">
+    <h2><i>[% l('Syslog parser') %]</i> [% item.type | html %]</h2>
+  </div>
+  <div class="card-block">
 <div class="hidden" id="regex_parser_templates">
   <input id="default_api_parameters" name="default_api_parameters" type="text" class="input-xxlarge" >
   [% FOREACH regex_allowed_action IN regex_allowed_actions %]
@@ -32,3 +37,5 @@
     </div>
 
 </form>
+  </div>
+  </div>

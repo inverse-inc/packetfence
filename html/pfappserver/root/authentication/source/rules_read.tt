@@ -20,7 +20,7 @@
                   <td>[% rule.field('class').value %]</td>
                   <td>[% rule.field('description').value %]</td>
                   <td class="action">
-                    <a class="btn-icon" href="#delete"><i class="icon-minus-sign"></i></a>
+                    <a class="btn-icon" href="#delete"><i class="icon-minus-circle"></i></a>
                   </td>
                 </tr>
                 [% END %]

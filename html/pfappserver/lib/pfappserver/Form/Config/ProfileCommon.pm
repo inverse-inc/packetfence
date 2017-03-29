@@ -48,7 +48,7 @@ The captival portal block
 
 has_block 'captive_portal' =>
   (
-    render_list => [qw(logo redirecturl always_use_redirecturl nbregpages block_interval sms_pin_retry_limit sms_request_limit login_attempt_limit access_registration_when_registered)],
+    render_list => [qw(logo redirecturl always_use_redirecturl block_interval sms_pin_retry_limit sms_request_limit login_attempt_limit access_registration_when_registered)],
   );
 
 =head1 Fields
@@ -301,18 +301,6 @@ has_field 'dot1x_recompute_role_from_portal' =>
     default => 'enabled',
     tags => { after_element => \&help,
              help => 'When enabled, PacketFence will not use the role initialy computed on the portal but will use the dot1x username to recompute the role.' },
-  );
-
-
-=head2 nbregpages
-
-=cut
-
-has_field 'nbregpages' =>
-  (
-    type => 'PosInteger',
-    label => 'Number of Registration Pages',
-    default => 0,
   );
 
 =head2 block_interval

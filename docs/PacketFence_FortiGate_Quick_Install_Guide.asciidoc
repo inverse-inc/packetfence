@@ -55,7 +55,7 @@ image::docs/images/doc-fortigate-SSO_accounting.png[scaledwidth="100%",alt="Conf
 Step 4: SSO Configuration in PacketFence
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Go to *Configuration -> Firewall SSO -> Add Firewall -> FortiGate*.
+Go to *Configuration -> Integration -> Firewall SSO -> Add Firewall -> FortiGate*.
 
 [options="compact"]
 * *Hostname or IP Address*: IP of your firewall

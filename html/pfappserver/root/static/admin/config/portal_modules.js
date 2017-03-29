@@ -1,3 +1,4 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
 
 $('#section').on('click', '[id$="Empty"]', function(event) {
   event.preventDefault();
@@ -34,7 +35,7 @@ $('#section').on('submit', 'form[name="formItem"]', function(e) {
         btn.button('reset');
     }).done(function(data, textStatus, jqXHR) {
         showSuccess(form, "Saved");
-        window.location.hash = "#config/portal_module/"+form.find('input[name="id"]').val()+"/read"
+        window.location.hash = "#config/portal_module/"+form.find('input[name="id"]').val()+"/read";
     }).fail(function(jqXHR) {
         $("body,html").animate({scrollTop:0}, 'fast');
         var status_msg = getStatusMsg(jqXHR);
@@ -91,7 +92,7 @@ function updateActionMatchInput(type_input, keep) {
     var type_value = type_input.val();
     var match_input_template_id = '#' + type_value + "_action_match";
     var match_input_template = $(match_input_template_id);
-    if ( match_input_template.length == 0 ) {
+    if ( match_input_template.length === 0) {
         match_input_template = $('#default_action_match');
     }
     if ( match_input_template.length ) {

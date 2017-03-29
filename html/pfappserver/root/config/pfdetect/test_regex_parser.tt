@@ -33,7 +33,7 @@ $VAR1 = [
 [% FOREACH run IN dryrun_info %]
   <div>
     <div>
-        <a data-toggle="collapse" data-target="#dry_run_info_results_[% loop.index %]"> <i class="icon-plus-sign"></i> [% l('Click to see actions for') %] </a> - <b>[% run.line %]</b> 
+        <a data-toggle="collapse" data-target="#dry_run_info_results_[% loop.index %]"> <i class="icon-plus-circle"></i> [% l('Click to see actions for') %] </a> - <b>[% run.line %]</b>
     </div>
     <div id=dry_run_info_results_[% loop.index %] class="collapse">
     [% IF run.matches.size %]

@@ -38,15 +38,15 @@ sub _run {
     my $tt = Template->new(ABSOLUTE => 1);
 
     my %vars = (
-        key_buffer_size => $Config{database}{key_buffer_size},
-        innodb_buffer_pool_size => $Config{database}{innodb_buffer_pool_size},
-        innodb_additional_mem_pool_size => $Config{database}{innodb_additional_mem_pool_size},
-        query_cache_size => $Config{database}{query_cache_size},
-        thread_concurrency => $Config{database}{thread_concurrency},
-        max_connections => $Config{database}{max_connections},
-        table_cache => $Config{database}{table_cache},
-        max_allowed_packet => $Config{database}{max_allowed_packet},
-        thread_cache_size => $Config{database}{thread_cache_size},
+        key_buffer_size => $Config{database_advanced}{key_buffer_size},
+        innodb_buffer_pool_size => $Config{database_advanced}{innodb_buffer_pool_size},
+        innodb_additional_mem_pool_size => $Config{database_advanced}{innodb_additional_mem_pool_size},
+        query_cache_size => $Config{database_advanced}{query_cache_size},
+        thread_concurrency => $Config{database_advanced}{thread_concurrency},
+        max_connections => $Config{database_advanced}{max_connections},
+        table_cache => $Config{database_advanced}{table_cache},
+        max_allowed_packet => $Config{database_advanced}{max_allowed_packet},
+        thread_cache_size => $Config{database_advanced}{thread_cache_size},
         server_ip => $management_network ? $management_network->{Tvip} // $management_network->{Tip} : "",
     );
 

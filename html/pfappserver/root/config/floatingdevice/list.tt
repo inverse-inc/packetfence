@@ -16,12 +16,14 @@
             <td class="hidden-phone">[% item.pvid | html %]</td>
             <td class="hidden-phone">[% IF item.trunkPort == 'yes' %]<i class=" icon-ok"></i>[% END %]</td>
             <td>
+              <div class="text-right">
               [%- IF can_access("FLOATING_DEVICES_CREATE") %]
               <a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('clone'), [ item.id]) %]">[% l('Clone') %]</a>
               [%- END %]
               [%- IF can_access("FLOATING_DEVICES_DELETE") %]
               <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller.action_for('remove'), [ item.id ]) %]">[% l('Delete') %]</a>
               [%- END %]
+              </div>
             </td>
           </tr>
           [% END -%]

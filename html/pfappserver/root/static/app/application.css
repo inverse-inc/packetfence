@@ -1,14 +1,3 @@
-/* bootstrap.css fix for larger top navbar */
-body {
-    padding-top: 60px;
-}
-.navbar .brand {
-    padding: 11px 20px 11px;
-}
-/* bootstrap.css fix to remove padding surrounding sidebar */
-.sidebar-nav {
-    padding: 9px 0;
-}
 /* bootstrap.css fix to show dropdown menus in modals */
 .dropdown-menu {
     z-index: 2050;
@@ -103,5 +92,4 @@ form .uneditable {
 }
 .nav li a:hover, .nav li a:focus {
     text-decoration: none;
-    background-color: #eeeeee;
 }

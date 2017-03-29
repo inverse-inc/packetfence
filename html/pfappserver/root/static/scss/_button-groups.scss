@@ -1,0 +1,22 @@
+/// _button-groups.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2 -*-
+
+.btn-group > .btn,
+.btn-group > .dropdown-menu,
+.btn-group > .popover {
+  font-size: $baseFontSize - 2;
+}
+
+.btn-primary .caret {
+  border-top-color: $btnPrimaryBackground;
+  border-bottom-color: $btnPrimaryBackground;
+}
+
+.btn-primary:hover .caret,
+.btn-group.open .btn-primary .caret {
+  border-top-color: $white;
+  border-bottom-color: $white;
+}
+
+.btn-group.open .dropdown-toggle {
+  box-shadow: none;
+}

@@ -153,7 +153,7 @@ Once you are done, restart PacketFence using `service packetfence restart`
 Step 6: Configuration
 ~~~~~~~~~~~~~~~~~~~~~
 
-In PacketFence configure the webservices username and password under *Configuration -> Webservices*
+In PacketFence configure the webservices username and password under *Configuration -> Integration -> Webservices*
 
 Still in PacketFence, add a new switch for the OpenDaylight controller
 

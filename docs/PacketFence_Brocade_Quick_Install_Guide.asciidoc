@@ -185,7 +185,7 @@ Configuring the Brocade equipment in PacketFence
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Now that you have a fully functional PacketFence installation, you'll need to add the Brocade switch and wireless controller to the PacketFence switches database for correct integration.
 
-To do so, login to the PacketFence web administration interface if it is not already done. Click on the Configuration tab and select the switches section.
+To do so, login to the PacketFence web administration interface if it is not already done. Click on the Configuration tab and select the switches section under Policies and Access Control.
 
 We'll use the clone function to add a new network device to the PacketFence database. With the mouse pointer, go over the default switch and you'll see a set of icons appearing at the left of it. Click on the second one (a paper sheet with a plus sign).
 

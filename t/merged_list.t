@@ -38,9 +38,9 @@ use Test::Exception;
 
 use_ok('pf::config');
 
-my @default_proxy_passthroughs = split /\s*,\s*/, $pf::config::Default_Config{trapping}{proxy_passthroughs};
+my @default_proxy_passthroughs = split /\s*,\s*/, $pf::config::Default_Config{fencing}{proxy_passthroughs};
 # We use proxy_passthroughs to test the mergeable lists
-ok(@default_proxy_passthroughs ~~ $pf::config::Config{trapping}{proxy_passthroughs}, "Not overriden passthroughs are equal to the default ones.");
+ok(@default_proxy_passthroughs ~~ $pf::config::Config{fencing}{proxy_passthroughs}, "Not overriden passthroughs are equal to the default ones.");
 
 use_ok('pf::ConfigStore::Pf');
 
@@ -50,14 +50,14 @@ my @additionnal = (
 );
 
 my $cs = pf::ConfigStore::Pf->new;
-$cs->update('trapping', {'proxy_passthroughs' => join ',', @additionnal});
+$cs->update('fencing', {'proxy_passthroughs' => join ',', @additionnal});
 $cs->commit();
 
-ok(!(@default_proxy_passthroughs ~~ $pf::config::Config{trapping}{proxy_passthroughs}), "Merged passthroughs are not equal to the default ones.");
+ok(!(@default_proxy_passthroughs ~~ $pf::config::Config{fencing}{proxy_passthroughs}), "Merged passthroughs are not equal to the default ones.");
 
-ok(([@default_proxy_passthroughs, @additionnal] ~~ $pf::config::Config{trapping}{proxy_passthroughs}), "Merged passthroughs are actually merged");
+ok(([@default_proxy_passthroughs, @additionnal] ~~ $pf::config::Config{fencing}{proxy_passthroughs}), "Merged passthroughs are actually merged");
 
-$cs->update('trapping', {'proxy_passthroughs' => undef});
+$cs->update('fencing', {'proxy_passthroughs' => undef});
 $cs->commit();
 
 END {
