@@ -331,21 +331,6 @@ as
 * registration-based and scheduled vulnerability scans.
 
 
-%package -n %{real_name}-remote-snort-sensor
-Group: System Environment/Daemons
-Requires: perl >= %{perl_version}, perl(File::Tail), perl(Config::IniFiles) >= 2.88, perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay), perl(LWP::Protocol::https), perl(SOAP::Lite)
-Requires: perl(Moo), perl(Data::MessagePack), perl(WWW::Curl)
-Conflicts: %{real_name}
-AutoReqProv: 0
-Summary: Files needed for sending snort alerts to packetfence
-BuildArch: noarch
-
-%description -n %{real_name}-remote-snort-sensor
-The %{real_name}-remote-snort-sensor package contains the files needed
-for sending snort or suricata alerts from a remote sensor to a PacketFence
-server.
-
-
 %package -n %{real_name}-remote-arp-sensor
 Group: System Environment/Daemons
 Requires: perl >= %{perl_version}, perl(Config::IniFiles) >= 2.88, perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay), perl(LWP::Protocol::https), perl(Net::Pcap) >= 0.16, memcached, perl(Cache::Memcached)
@@ -635,18 +620,6 @@ then
   exit
 fi
 
-%pre -n %{real_name}-remote-snort-sensor
-
-if ! /usr/bin/id pf &>/dev/null; then
-    if ! /bin/getent group  pf &>/dev/null; then
-        /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
-                echo Unexpected error adding user "pf" && exit
-    else
-        /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf -g pf || \
-                echo Unexpected error adding user "pf" && exit
-    fi
-fi
-
 %pre -n %{real_name}-remote-arp-sensor
 
 if ! /usr/bin/id pf &>/dev/null; then
@@ -778,10 +751,6 @@ echo Installation complete
 echo "  * Please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."
 echo "  * Please stop your iptables service if you don't have access to configurator."
 
-%post -n %{real_name}-remote-snort-sensor
-echo "Adding PacketFence remote Snort Sensor startup script"
-/sbin/chkconfig --add pfdetectd
-
 %post -n %{real_name}-remote-arp-sensor
 echo "Adding PacketFence remote ARP Sensor startup script"
 /sbin/chkconfig --add pfarp
@@ -795,12 +764,6 @@ echo "Adding PacketFence config startup script"
 if [ $1 -eq 0 ] ; then
 /bin/systemctl set-default multi-user.target
 /bin/systemctl isolate multi-user.target
-fi
-
-%preun -n %{real_name}-remote-snort-sensor
-if [ $1 -eq 0 ] ; then
-        /sbin/service pfdetectd stop &>/dev/null || :
-        /sbin/chkconfig --del pfdetectd
 fi
 
 %preun -n %{real_name}-remote-arp-sensor
@@ -819,13 +782,6 @@ fi
 if [ $1 -eq 0 ]; then
         if /usr/bin/id pf &>/dev/null; then
                /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
-        fi
-fi
-
-%postun -n %{real_name}-remote-snort-sensor
-if [ $1 -eq 0 ]; then
-        if /usr/bin/id pf &>/dev/null; then
-                /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
         fi
 fi
 
@@ -1318,17 +1274,6 @@ fi
 %dir                    /usr/local/pf/var/redis_ntlm_cache
 %dir                    /usr/local/pf/var/ssl_mutex
 %config(noreplace)      /usr/local/pf/var/cache_control
-
-# Remote snort sensor file list
-%files -n %{real_name}-remote-snort-sensor
-%defattr(-, pf, pf)
-%dir                    /usr/local/pf
-%dir                    /usr/local/pf/conf
-%config(noreplace)      /usr/local/pf/conf/pfdetect_remote.conf
-%dir                    /usr/local/pf/sbin
-%attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect_remote
-%dir                    /usr/local/pf/var
-%dir                    /usr/local/pf/var/run
 
 # Remote arp sensor file list
 %files -n %{real_name}-remote-arp-sensor

@@ -150,18 +150,6 @@ Architecture: all
 Description: documentation for packetfence
  The package packetfence-doc contains the documentation files needed for the admin gui
 
-Package: packetfence-remote-snort-sensor
-Architecture: all
-Depends: ${misc:Depends}, snort | suricata, libfile-tail-perl, libconfig-inifiles-perl (>= 2.88),
- libio-socket-ssl-perl, libxml-parser-perl, libcrypt-ssleay-perl,
-# FIXME track what requires the conveyor stuff and identify it. If we can, get rid of it.
- libsoap-lite-perl, libthread-conveyor-monitored-perl, libthread-conveyor-perl
-Conflicts: packetfence
-Description: Files needed for sending snort alerts to packetfence 
- The packetfence-remote-snort-sensor package contains the files needed
- for sending snort alerts from a remote snort sensor to a PacketFence
- server.
-
 Package: packetfence-test
 Architecture: all
 Depends: packetfence, libtest-mockmodule-perl,
