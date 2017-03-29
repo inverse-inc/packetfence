@@ -529,7 +529,6 @@ cp -r addons/dev-helpers/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/high-availability/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/integration-testing/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/packages/ $RPM_BUILD_ROOT/usr/local/pf/addons/
-cp -r addons/snort/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/upgrade/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/watchdog/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/AD/* $RPM_BUILD_ROOT/usr/local/pf/addons/AD/
@@ -713,18 +712,13 @@ if [ ! -f /usr/local/pf/conf/local_secret ]; then
     date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/local_secret
 fi
 
-for service in snortd httpd snmptrapd portreserve redis
+for service in httpd snmptrapd portreserve redis
 do
   if /bin/systemctl -a | grep $service > /dev/null 2>&1; then
     echo "Disabling $service startup script"
     /bin/systemctl disable $service > /dev/null 2>&1
   fi
 done
-
-if [ -e /etc/logrotate.d/snort ]; then
-  echo Removing /etc/logrotate.d/snort - it kills snort every night
-  rm -f /etc/logrotate.d/snort
-fi
 
 #Check if RADIUS have a dh
 if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
@@ -896,10 +890,6 @@ fi
 %dir                    /usr/local/pf/addons/pfconfig/comparator
 %attr(0755, pf, pf)     /usr/local/pf/addons/pfconfig/comparator/*.pl
 %attr(0755, pf, pf)     /usr/local/pf/addons/pfconfig/comparator/*.sh
-%dir                    /usr/local/pf/addons/snort
-%attr(0755, pf, pf)     /usr/local/pf/addons/snort/update_rules.pl
-                        /usr/local/pf/addons/snort/oinkmaster.conf
-                        /usr/local/pf/addons/snort/oinkmaster.conf.2.8.6
 %dir                    /usr/local/pf/addons/upgrade
 %attr(0755, pf, pf)     /usr/local/pf/addons/upgrade/*.pl
 %dir                    /usr/local/pf/addons/watchdog
@@ -1061,13 +1051,6 @@ fi
                         /usr/local/pf/conf/suricata_categories.txt.example
 %config(noreplace)      /usr/local/pf/conf/scan.conf
                         /usr/local/pf/conf/scan.conf.example
-%dir                    /usr/local/pf/conf/snort
-%config(noreplace)      /usr/local/pf/conf/snort/classification.config
-                        /usr/local/pf/conf/snort/classification.config.example
-%config(noreplace)      /usr/local/pf/conf/snort/local.rules
-                        /usr/local/pf/conf/snort/local.rules.example
-%config(noreplace)      /usr/local/pf/conf/snort/reference.config
-                        /usr/local/pf/conf/snort/reference.config.example
 %dir                    /usr/local/pf/conf/ssl
 %dir                    /usr/local/pf/conf/systemd
 %config                 /usr/local/pf/conf/systemd/*
