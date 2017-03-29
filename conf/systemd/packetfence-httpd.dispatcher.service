@@ -1,5 +1,5 @@
 [Unit]
-Description=PacketFence PFSSO Service
+Description=PacketFence HTTP Dispatcher
 Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
 After=packetfence-base.target packetfence-config.service packetfence-iptables.service
 Before=packetfence-httpd.portal.service

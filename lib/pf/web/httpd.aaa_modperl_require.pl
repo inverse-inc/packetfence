@@ -23,7 +23,6 @@ use pf::ip4log();
 use pf::violation();
 use pf::util();
 use pf::radius::custom();
-use pf::soh::custom();
 
 1;
 

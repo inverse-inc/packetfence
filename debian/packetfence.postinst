@@ -118,8 +118,11 @@ case "$1" in
 
         # managing services
         set +e
-        for service in apache2 snmptrapfmt bind9 freeradius apparmor isc-dhcp-server collectd haproxy carbon-cache keepalived redis-server smbd samba winbind nmbd; do
-            
+        echo "Restarting rsyslog"
+        systemctl restart rsyslog
+        
+        for service in apache2 snmptrapfmt bind9 freeradius apparmor isc-dhcp-server collectd haproxy carbon-cache keepalived redis-server samba winbind nmbd; do
+
             if [ -e "/etc/init.d/"$service ] ; then
                 invoke-rc.d $service stop  > /dev/null 2>&1
                 if [ -e /etc/lsb-release ]; then
@@ -141,10 +144,10 @@ case "$1" in
 
         /sbin/ldconfig
         # Enabling ip forwarding
-        echo "# ip forwarding enabled by packetfence" >> /etc/sysctl.conf
-        echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
-        sysctl -p /etc/sysctl.conf
-
+        echo "# ip forwarding enabled by packetfence" > /etc/sysctl.d/99-ip_forward.conf
+        echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.d/99-ip_forward.conf
+        sysctl -p /etc/sysctl.d/99-ip_forward.conf
+ 
         #Starting PacketFence.
         echo "Starting PacketFence Administration GUI..."
         #removing old cache
@@ -163,6 +166,9 @@ case "$1" in
         systemctl enable packetfence-routes
         systemctl isolate packetfence-base.target
         systemctl enable packetfence-httpd.admin
+
+        /usr/local/pf/bin/pfcmd configreload
+        /bin/systemctl start packetfence-httpd.admin
 
         echo Installation complete
         echo "* Please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."

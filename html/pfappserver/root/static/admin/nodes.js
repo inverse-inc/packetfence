@@ -1,3 +1,5 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
+
 $(function() { // DOM ready
     var nodes = new Nodes();
     var view = new NodeView({ nodes: nodes, parent: $('#section') });
@@ -96,8 +98,6 @@ function init() {
         });
     });
 
-    $('form[name="advancedNodeSearch"] [name$=".name"]').trigger('saved_search.loaded');
-    $('form[name="advancedNodeSearch"] [name$=".op"]').trigger('saved_search.loaded');
     $('form[name="simpleNodeSearch"] [name$=".name"]').trigger('saved_search.loaded');
     $('form[name="simpleNodeSearch"] [name$=".op"]').trigger('saved_search.loaded');
 

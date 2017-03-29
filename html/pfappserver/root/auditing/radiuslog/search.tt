@@ -11,7 +11,7 @@
       <table id="radiusAuditLog" class="table table-condensed table-striped items">
            <thead>
              <tr>
-               <td colspan="[% display_columns.size + 1%]">
+               <td colspan="[% display_columns.size + 2 %]">
             [% pagination(c.controller.action_for("search"), page_num, page_count, {by => by, direction => direction}, '', null, {"data-no-refresh" => "yes"}) | none %]
                </td>
              </tr>
@@ -48,7 +48,7 @@
         [% END %]
         <tfoot>
            <tr>
-               <td colspan="[% display_columns.size + 1%]">
+               <td colspan="[% display_columns.size + 2 %]">
             [% pagination(c.controller.action_for("search"), page_num, page_count, {by => by, direction => direction}, '', null, {"data-no-refresh" => "yes"}) | none %]
                </td>
            </tr>

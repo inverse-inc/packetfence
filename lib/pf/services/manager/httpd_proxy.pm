@@ -24,13 +24,13 @@ has '+name' => (default => sub { 'httpd.proxy' } );
 
 sub isManaged {
     my ($self) = @_;
-    return  isenabled($Config{'trapping'}{'interception_proxy'}) && $self->SUPER::isManaged();
+    return  isenabled($Config{'fencing'}{'interception_proxy'}) && $self->SUPER::isManaged();
 }
 
 sub additionalVars {
     my ($self) = @_;
     my %vars = (
-        proxy_ports => [split(/ *, */,$Config{'trapping'}{'interception_proxy_port'})],
+        proxy_ports => [split(/ *, */,$Config{'fencing'}{'interception_proxy_port'})],
     );
     return %vars;
 }

@@ -32,19 +32,19 @@ TypesDB     "%%install_dir%%/var/conf/types.db"
 # accessed.                                                                  #
 ##############################################################################
 
-#LoadPlugin syslog
-LoadPlugin logfile
+LoadPlugin syslog
+#LoadPlugin logfile
 
-<Plugin logfile>
-	LogLevel info
-	File "%%log_dir%%/collectd.log"
-	Timestamp true
-	PrintSeverity true
-</Plugin>
-
-#<Plugin syslog>
+#<Plugin logfile>
 #	LogLevel info
+#	File "%%log_dir%%/collectd.log"
+#	Timestamp true
+#	PrintSeverity true
 #</Plugin>
+
+<Plugin syslog>
+	LogLevel info
+</Plugin>
 
 ##############################################################################
 # LoadPlugin section                                                         #

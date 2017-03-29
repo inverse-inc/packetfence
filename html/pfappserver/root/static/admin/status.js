@@ -1,3 +1,5 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
+
 var refresh = {
     timeout: null,
     callback: reloadGraphs,
@@ -12,7 +14,7 @@ var refresh = {
 function drawGraphs() {
 
     var href, pos,
-      a = $('.sidebar-nav .nav-list a').first(),
+      a = $('.sidenav .nav-list a').first(),
       width = $('#dashboard').width();
 
     if (a) {
@@ -55,10 +57,10 @@ function init() {
 
     /* Reload dashboard when changing date */
     $('body').on('changeDate', '.input-daterange input', function(event) {
-        var dp = $(this).closest('.datepicker').data('datepicker');
-        var start = dp.dates[0];
+        var dp = $(this).parent().data('datepicker');
+        var start = $(dp.inputs[0]).datepicker('getDate');
         var startDate = [start.getUTCFullYear(), (start.getUTCMonth() + 1), start.getUTCDate()].join('-');
-        var end = dp.dates[1];
+        var end = $(dp.inputs[1]).datepicker('getDate');
         var endDate = [end.getUTCFullYear(), (end.getUTCMonth() + 1), end.getUTCDate()].join('-');
         var width = $('#dashboard').width();
         location.hash = ['graph', 'dashboard', startDate, endDate].join('/') + '?width=' + width;
@@ -70,7 +72,9 @@ function init() {
         if (section.children('#dashboard').length) {
             // Set the end date of the range datepickers to today
             var today = new Date();
-            $('.datepicker').find('input').each(function() { $(this).data('datepicker').setEndDate(today) });
+            $('.input-daterange').find('input').each(function() {
+                $(this).datepicker('setEndDate', today);
+            });
 
             // Set base url of images for automatic refresh (see reloadGraphs function)
             $('#dashboard img').each(function() {

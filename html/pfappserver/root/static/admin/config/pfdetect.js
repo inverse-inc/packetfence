@@ -1,3 +1,4 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
 
 $(function() { // DOM ready
     var items = new Pfdetects();
@@ -27,7 +28,7 @@ var PfdetectView = function(options) {
     ItemView.call(this, options);
     var that = this;
     this.parent = options.parent;
-    var items = options.items
+    var items = options.items;
     this.items = items;
     var id = items.id;
     var formName = items.formName;
@@ -48,7 +49,7 @@ var PfdetectView = function(options) {
 };
 
 PfdetectView.prototype = (function(){
-    function F(){};
+    function F(){}
     F.prototype = ItemView.prototype;
     return new F();
 })();
@@ -123,7 +124,7 @@ PfdetectView.prototype.testRegex = function(e) {
 };
 
 PfdetectView.prototype.showTestRegex = function(e) {
-    $('textarea[name="loglines"]').removeAttr('disabled')
+    $('textarea[name="loglines"]').removeAttr('disabled');
 };
 
 PfdetectView.prototype.handleChangeApiMethod = function(e) {
@@ -132,7 +133,7 @@ PfdetectView.prototype.handleChangeApiMethod = function(e) {
     var search_type = search_input.val();
     var api_parameters_id = '#' + search_type + "_api_parameters";
     var api_parameters_template = $(api_parameters_id);
-    if (api_parameters_template.length == 0 ) {
+    if (api_parameters_template.length === 0) {
         api_parameters_template = $('#default_api_parameters');
     }
     if (api_parameters_template.length) {

@@ -86,8 +86,6 @@ my @routed_dns_enforcement_nets_named;
 my $CHI_CACHE = pf::CHI->new( namespace => 'pfdns' );
 our $IPSET_SESSION = 'pfsession_passthrough';
 
-our $IPSET_CACHE = pf::ipset_cache->new({setname => $IPSET_SESSION});
-
 Readonly::Scalar our $TTL                => '15';
 Readonly::Scalar our $HTTPS_PORT         => '443';
 Readonly::Scalar our $HTTP_PORT         => '80';
@@ -134,17 +132,21 @@ foreach my $network ( keys %ConfigNetworks ) {
 
 tie our %domain_dns_servers, 'pfconfig::cached_hash', 'resource::domain_dns_servers';
 
-our $PARENT_PID = $$;
 my %CHILDREN;
 my $IS_CHILD = 0;
 my $CHILDREN_TO_START = $Config{advanced}{pfdns_processes};
 our @WORKERS = (1 .. $CHILDREN_TO_START);
 our $ALARM_RECV = 0;
 
+our $IPSET_CACHE = pf::ipset_cache->new({setname => $IPSET_SESSION});
+#Load the ipset cache before setting up the signals to avoid the child handler being called
+$IPSET_CACHE->populate_cache();
+
 $SIG{HUP} = \&normal_sighandler;
 $SIG{INT} = \&normal_sighandler;
 $SIG{TERM} = \&normal_sighandler;
 $SIG{CHLD} = \&child_sighandler;
+$SIG{ALRM} = \&alarm_sighandler;
 
 
 sub start_workers {
@@ -176,8 +178,6 @@ sub run_worker {
     }
 }
 
-$IPSET_CACHE->populate_cache();
-
 my $ns = new Net::DNS::Nameserver(
     LocalAddr       => [@ip_addr],
     LocalPort    => 53,
@@ -188,12 +188,13 @@ my $ns = new Net::DNS::Nameserver(
 
 # standard signals and daemonize
 daemonize($PROGRAM_NAME) if ($daemonize);
+our $PARENT_PID = $$;
 $started_successfully = 1;
 
 sub _run_worker {
     my ($id) = @_;
     $0 = "$0 - $id";
-    while($RUNNING) {
+    while($RUNNING && is_parent_alive()) {
         $ns->loop_once(10);
     }
 }
@@ -572,9 +573,20 @@ sub child_sighandler {
     }
 }
 
+=head2 alarm_sighandler
+
+the alarm signal handler
+
+=cut
+
+sub alarm_sighandler {
+    $ALARM_RECV = 1;
+}
+
+
 while($RUNNING){
     start_workers();
-    pause;
+    pause unless @WORKERS;
 }
 
 cleanup();

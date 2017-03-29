@@ -19,6 +19,7 @@ use pf::log;
 use pf::IniFiles;
 use pf::file_paths qw($pf_default_file);
 use pf::authentication;
+use pf::web::util;
 
 has 'section' => ( is => 'ro' );
 
@@ -41,10 +42,12 @@ sub field_list {
         my $doc_section = $Doc_Config{$doc_section_name};
         my $defaults = $Default_Config{$section};
         $doc_section->{description} =~ s/\n//sg;
+        my $doc_anchor = $doc_section->{guide_anchor};
+        my $doc_anchor_html = defined($doc_anchor) ? " " . pf::web::util::generate_doc_link($doc_anchor) . " " : '';
         my $field =
           { element_attr => { 'placeholder' => $defaults->{$name} },
             tags => { after_element => \&help, # role method, defined in Base::Form::Role::Help
-                      help => $doc_section->{description} },
+                      help => $doc_section->{description} . $doc_anchor_html },
             id => $name,
             label => $doc_section_name,
             type => 'Text',

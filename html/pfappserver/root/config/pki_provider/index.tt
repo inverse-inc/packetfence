@@ -15,14 +15,19 @@
         </div>
       </div>
 
-      <h2>[% l('PKI Providers') %]</h2>
+      <div class="card">
+        <div class="card-title">
+          <h2>[% l('PKI Providers') %]</h2>
+        </div>
 
-      [% INCLUDE config/pki_provider/list.tt %]
+        <div class="card-block">
+          [% INCLUDE config/pki_provider/list.tt %]
+        </div>
 
       [%- IF can_access("PKI_PROVIDER_CREATE") %]
         <div class="form-actions">
           <div class="btn-group">
-            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">[% l('Add PKI Provider') %] <span class="caret"></span></a>
+            <a class="btn dropdown-toggle" data-toggle="dropdown">[% l('Add PKI Provider') %] <span class="caret"></span></a>
             <ul class="dropdown-menu">
               [% FOREACH type IN types.keys.sort -%]
                 <li><a class="createItem" href="[% c.uri_for(c.controller.action_for('create_type'), type) %]">[% types.$type.description %]</a></li>
@@ -31,3 +36,4 @@
           </div>
         </div>
       [%- END %]
+      </div>

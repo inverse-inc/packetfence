@@ -1,5 +1,5 @@
 <div id="[%id%]" class="btn-group">
-  <a id="bulk_actions" class="btn btn-link btn-small dropdown-toggle" data-toggle="dropdown" href="#">
+  <a id="bulk_actions" class="btn btn-link btn-small dropdown-toggle" data-toggle="dropdown">
     <i class="icon-cog"></i> [% l('Action') %]
     <i class="icon-angle-down"></i>
   </a>

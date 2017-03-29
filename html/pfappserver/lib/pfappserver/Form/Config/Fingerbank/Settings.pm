@@ -49,7 +49,11 @@ sub field_list {
                 $field->{type}            = 'Toggle';
                 $field->{checkbox_value}  = 'enabled';
                 $field->{unchecked_value} = 'disabled';
-            } else {
+            } 
+            elsif ($type eq 'numeric') {
+                $field->{type} = 'PosInteger';
+            }
+            else {
                 $field->{type} = 'Text';
             }
 

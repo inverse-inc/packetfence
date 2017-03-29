@@ -6,13 +6,8 @@ log4perl.rootLogger = INFO, PFMON
 #log4perl.category.pf.SNMP = WARN
 
 ### Logging for pfmon
-log4perl.appender.PFMON                              = pf::log::FileAppender
-log4perl.appender.PFMON.filename                     = /usr/local/pf/logs/pfmon.log
-log4perl.appender.PFMON.syswrite                     = 1
-log4perl.appender.PFMON.mode                         = append
-log4perl.appender.PFMON.layout                       = PatternLayout
-log4perl.appender.PFMON.layout.ConversionPattern     = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: %m (%M)%n
-log4perl.appender.PFMON.umask                        = 0002
-log4perl.appender.PFMON.user                         = pf
-log4perl.appender.PFMON.group                        = pf
-log4perl.appender.PFMON.binmode                      = utf8
+log4perl.appender.PFMON                                = Log::Dispatch::Syslog
+log4perl.appender.PFMON.ident                          = pfmon
+log4perl.appender.PFMON.facility                       = local5
+log4perl.appender.PFMON.layout.ConversionPattern       = %p %X{proc}(%X{tid}): %m (%M)%n
+log4perl.appender.PFMON.layout                         = PatternLayout

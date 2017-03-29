@@ -115,6 +115,9 @@ install: build
 	install -m0644 $(CURDIR)/debian/packetfence-base.slice $(CURDIR)/debian/packetfence/etc/systemd/system
 #endif
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/default
+	# copy the rsyslog configuration file 
+	install -d -m0755 $(CURDIR)/debian/packetfence/etc/rsyslog.d
+	install -m0600 $(CURDIR)/debian/packetfence.rsyslog $(CURDIR)/debian/packetfence/etc/rsyslog.d/packetfence.conf
 	#Sudoer
 	install -oroot -groot -d -m0750 $(CURDIR)/debian/packetfence/etc/sudoers.d
 	install -oroot -groot -m0440 $(CURDIR)/debian/packetfence.sudoers $(CURDIR)/debian/packetfence/etc/sudoers.d/packetfence
@@ -163,6 +166,14 @@ install: build
 	echo $(C_ID) > $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/git_commit_id
 	#Create our dhcpd.leases
 	touch $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/dhcpd/dhcpd.leases
+	#Documentation
+	for i in `find * -name "*.asciidoc" -path 'docs/*' -type f`; do \
+		asciidoctor -D $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/doc -n $$i; \
+	done
+	install -d -m0744 $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/doc/docs/images
+	for i in `find * -path 'docs/images/*' -type f`; do \
+		install -m0444 $$i $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/doc/docs/images/; \
+	done
 # Build architecture-independent files here.
 binary-indep: build install
 # We have nothing to do by default.

@@ -199,7 +199,7 @@ SSLHonorCipherOrder  on
 Header set X-XSS-Protection "1; mode=block"
 Header always append X-Frame-Options SAMEORIGIN
 
-ErrorLog  [% install_dir %]/logs/[% name %].error
+ErrorLog      "| /usr/bin/logger -thttpd_admin_err -plocal5.err" 
 
 ServerAdmin [% server_admin %]
 
@@ -238,8 +238,8 @@ ProxyHTMLLinks  script      src for
   <VirtualHost [% vhost %]:[% ports.admin %] >
       ServerName [% server_name %]
       DocumentRoot  [% install_dir %]/html/pfappserver/lib
-      ErrorLog  [% install_dir %]/logs/[% name %].error
-      CustomLog   [% install_dir %]/logs/[% name %].access combined
+      ErrorLog      "| /usr/bin/logger -thttpd_admin_err -plocal5.err" 
+      CustomLog     "| /usr/bin/logger -thttpd_admin_access -plocal5.info" combined
       AllowEncodedSlashes on
       SSLEngine on
       Include  [% var_dir %]/conf/ssl-certificates.conf
@@ -301,8 +301,8 @@ ProxyHTMLLinks  script      src for
   <VirtualHost [% vhost %]:[% ports.pf_status %] >
       ServerName [% server_name %]
       DocumentRoot  [% install_dir %]/html/pfappserver/lib
-      ErrorLog      [% install_dir %]/logs/[% name %].error
-      CustomLog     [% install_dir %]/logs/[% name %].access combined
+      ErrorLog      "| /usr/bin/logger -thttpd_admin_err -plocal5.err" 
+      CustomLog     "| /usr/bin/logger -thttpd_admin_access -plocal5.info" combined
       AllowEncodedSlashes on
       PerlModule pf::clustermgmt
       PerlTransHandler pf::clustermgmt

@@ -5549,7 +5549,7 @@ input[type="submit"].btn.btn-mini {
 }
 
 .tab-content {
-  overflow: auto;
+  overflow: visible;
 }
 
 .tabs-below > .nav-tabs,

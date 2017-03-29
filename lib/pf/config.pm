@@ -167,7 +167,7 @@ BEGIN {
         $VOIP $NO_VOIP $NO_PORT $NO_VLAN
         %connection_type %connection_type_to_str %connection_type_explained %connection_type_explained_to_str
         %connection_group %connection_group_to_str
-        $RADIUS_API_LEVEL $ROLE_API_LEVEL $INLINE_API_LEVEL $AUTHENTICATION_API_LEVEL $SOH_API_LEVEL $BILLING_API_LEVEL
+        $RADIUS_API_LEVEL $ROLE_API_LEVEL $INLINE_API_LEVEL $AUTHENTICATION_API_LEVEL $BILLING_API_LEVEL
         $ROLES_API_LEVEL
         $SELFREG_MODE_EMAIL $SELFREG_MODE_SMS $SELFREG_MODE_SPONSOR $SELFREG_MODE_GOOGLE $SELFREG_MODE_FACEBOOK $SELFREG_MODE_GITHUB $SELFREG_MODE_INSTAGRAM $SELFREG_MODE_LINKEDIN $SELFREG_MODE_PRINTEREST $SELFREG_MODE_WIN_LIVE $SELFREG_MODE_TWITTER $SELFREG_MODE_NULL $SELFREG_MODE_KICKBOX $SELFREG_MODE_BLACKHOLE
         %CAPTIVE_PORTAL
@@ -380,7 +380,6 @@ Readonly::Scalar our $RADIUS_API_LEVEL => 1.02;
 Readonly::Scalar our $ROLE_API_LEVEL => 1.04;
 Readonly::Scalar our $INLINE_API_LEVEL => 1.01;
 Readonly::Scalar our $AUTHENTICATION_API_LEVEL => 1.11;
-Readonly::Scalar our $SOH_API_LEVEL => 1.00;
 Readonly::Scalar our $BILLING_API_LEVEL => 1.00;
 Readonly::Scalar our $ROLES_API_LEVEL => 0.90;
 
@@ -417,50 +416,6 @@ Readonly::Scalar our $ALWAYS => "always";
 
 Readonly::Scalar our $NO_PORT => 0;
 Readonly::Scalar our $NO_VLAN => 0;
-
-# SoH filters
-Readonly our $SOH_ACTION_ACCEPT => 'accept';
-Readonly our $SOH_ACTION_REJECT => 'reject';
-Readonly our $SOH_ACTION_VIOLATION => 'violation';
-
-Readonly::Array our @SOH_ACTIONS =>
-  (
-   $SOH_ACTION_ACCEPT,
-   $SOH_ACTION_REJECT,
-   $SOH_ACTION_VIOLATION
-  );
-
-Readonly our $SOH_CLASS_FIREWALL => 'firewall';
-Readonly our $SOH_CLASS_ANTIVIRUS => 'antivirus';
-Readonly our $SOH_CLASS_ANTISPYWARE => 'antispyware';
-Readonly our $SOH_CLASS_AUTO_UPDATES => 'auto-updates';
-Readonly our $SOH_CLASS_SECURITY_UPDATES => 'security-updates';
-
-Readonly::Array our @SOH_CLASSES =>
-  (
-   $SOH_CLASS_FIREWALL,
-   $SOH_CLASS_ANTIVIRUS,
-   $SOH_CLASS_ANTISPYWARE,
-   $SOH_CLASS_AUTO_UPDATES,
-   $SOH_CLASS_SECURITY_UPDATES
-  );
-
-Readonly our $SOH_STATUS_OK => 'ok';
-Readonly our $SOH_STATUS_INSTALLED => 'installed';
-Readonly our $SOH_STATUS_ENABLED => 'enabled';
-Readonly our $SOH_STATUS_DISABLED => 'disabled';
-Readonly our $SOH_STATUS_UP2DATE => 'up2date';
-Readonly our $SOH_STATUS_MICROSOFT => 'microsoft';
-
-Readonly::Array our @SOH_STATUS =>
-  (
-   $SOH_STATUS_OK,
-   $SOH_STATUS_INSTALLED,
-   $SOH_STATUS_ENABLED,
-   $SOH_STATUS_DISABLED,
-   $SOH_STATUS_UP2DATE,
-   $SOH_STATUS_MICROSOFT
-  );
 
 # Log Reload Timer in seconds
 Readonly our $LOG4PERL_RELOAD_TIMER => 5 * 60;

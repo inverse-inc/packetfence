@@ -4,6 +4,11 @@
 
 [%- MACRO i18n_format(text, args) BLOCK;c.localize(text, args) | none;END -%]
 
+[%- MACRO doc(section, guide) BLOCK -%]
+[%- UNLESS guide; guide = 'Administration_Guide'; END -%]
+[% c.generate_doc_link(section, guide) | none %]
+[%- END -%]
+
 [%- MACRO pagination_path(section, params)  BLOCK -%]
     [%- tags =  [ 'page_num'  'by'  'direction'  'per_page'  'filter'] -%]
     [%- "${section}" -%]

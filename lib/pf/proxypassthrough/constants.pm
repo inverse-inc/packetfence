@@ -31,7 +31,7 @@ Build all the permit domain for passthrough
 
 =cut
 
-sub proxy_passthrough { @{ $Config{trapping}{proxy_passthroughs} }; }
+sub proxy_passthrough { @{ $Config{fencing}{proxy_passthroughs} }; }
 
 =head2 passthrough_remediation
 

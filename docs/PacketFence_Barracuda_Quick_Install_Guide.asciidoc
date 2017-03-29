@@ -21,7 +21,7 @@ Quick installation
 ------------------
 Step 1: Configuration of the Barracuda in PacketFence
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Go to *Configuration -> Firewall SSO -> Add Firewall -> Barracuda*.
+Go to *Configuration -> Integration -> Firewall SSO -> Add Firewall -> Barracuda*.
 
 [options="compact"]
 * *Hostname or IP Address*: IP of your Barracuda

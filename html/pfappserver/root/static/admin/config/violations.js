@@ -1,3 +1,5 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
+
 $(function() { // DOM ready
 
     /* Show a violation from the received HTML */
@@ -14,12 +16,12 @@ $(function() { // DOM ready
         $('.trigger option').each(function(elem){
           var jthis = $(this);
           var infos = jthis.val().split('::');
-          if(infos[0].toLowerCase() == "accounting"){
+          if(infos[0].toLowerCase() == "accounting") {
             var new_value = violationsView.prettify_accounting(infos[0], infos[1]);
-            jthis.html(new_value)
+            jthis.html(new_value);
             jthis.closest('select').trigger("liszt:updated");
           }
-        })
+        });
         modal.modal('show');
     }
 
@@ -104,7 +106,7 @@ $(function() { // DOM ready
                 .done(function(data) {
                     row.remove();
                     var table = $('#section table');
-                    if (table.find('tbody tr').length == 0) {
+                    if (table.find('tbody tr').length === 0) {
                         // No more violations
                         table.remove();
                         $('#noViolation').removeClass('hidden');
@@ -146,7 +148,7 @@ $(function() { // DOM ready
             command_group.fadeIn('fast');
 
         // Show/hide the user_mail_message field if 'email_user' is add/remove
-        var command_group = $('#user_mail_message').closest('.control-group');
+        command_group = $('#user_mail_message').closest('.control-group');
         if ($.inArray('email_user', actions) < 0)
             command_group.fadeOut('fast');
         else
@@ -190,32 +192,32 @@ $(function() { // DOM ready
     });
 
     $.fn.typeahead.Constructor.prototype.select = function () {
-      var val = this.$menu.find('.active').data('item')
+      var val = this.$menu.find('.active').data('item');
       this.$element
         .val(this.updater(val))
-        .change()
-      return this.hide()
+        .change();
+      return this.hide();
     };
 
     $.fn.typeahead.Constructor.prototype.render = function (items) {
-      var that = this
+      var that = this;
 
       items = $(items).map(function (i, item) {
-        i = $(that.options.item).data('item', item)
-        i.find('a').html(that.highlighter(item))
-        return i[0]
-      })
+        i = $(that.options.item).data('item', item);
+        i.find('a').html(that.highlighter(item));
+        return i[0];
+      });
 
-      items.first().addClass('active')
-      this.$menu.html(items)
-      return this
+      items.first().addClass('active');
+      this.$menu.html(items);
+      return this;
     };
 
     /* Modal Editor: remove a trigger */
     $('body').on('click', '[href="#deleteTrigger"]', function(event) {
         event.preventDefault();
         var jthis = $(event.target);
-        jthis.closest('.control-group').remove()
+        jthis.closest('.control-group').remove();
         if(!$('#viewTriggers').find('select').length){
           $('#noTrigger').show();
         }
@@ -280,7 +282,7 @@ $(function() { // DOM ready
         var type_select = $('#trigger_type').find(':selected');
         var type = type_select.val();
 
-        if(type == '') return false;
+        if(type === '') return false;
   
         var type_name = type_select.text();
         var value = type + "::" + id;
@@ -294,9 +296,9 @@ $(function() { // DOM ready
       var trigger_amount = $('#accounting_widget_amount').val();    
       var trigger_unit = $('#accounting_widget_unit').find(':selected').val();    
       var trigger_window = $('#accounting_widget_window').find(':selected').val();    
-      console.log(trigger_direction+trigger_amount+trigger_unit+trigger_window)
+      console.log(trigger_direction+trigger_amount+trigger_unit+trigger_window);
       var tid = trigger_direction+trigger_amount+trigger_unit+trigger_window;
-      var trigger = "accounting::"+tid
+      var trigger = "accounting::"+tid;
       violationsView.append_trigger(trigger, violationsView.prettify_accounting("accounting",tid));
     });
 
@@ -319,7 +321,7 @@ $(function() { // DOM ready
         event.preventDefault();
         $('#editTrigger .control-group select').not('#trigger_type').not('.trigger_widget_select').appendTo('#viewTriggers');
         violationsView.recompute_triggers();
-        console.log($('#trigger').val())
+        console.log($('#trigger').val());
         $('[name="violation"]').submit();
         return false;
     });
@@ -328,18 +330,18 @@ $(function() { // DOM ready
         var type = $('#trigger_type option:selected').val();
         $('.trigger_widget').slideUp();
         $('.'+type+'_triggers').slideDown();
-    })
+    });
 
     $('body').on('click', '.trigger_widget a', function(){
         var modal = $('#modalViolation');
         modal.modal('hide');
         window.location = $(this).attr('href'); 
-    })
+    });
 
 
 });
 
-var ViolationsView = function(){}
+var ViolationsView = function(){};
 
 ViolationsView.prototype.recompute_triggers = function() {
   var grouped = {};
@@ -348,7 +350,7 @@ ViolationsView.prototype.recompute_triggers = function() {
       var select = option.closest('select');
       select.uniqueId();
       if(!grouped[select.attr('id')]){
-        grouped[select.attr('id')] = []
+        grouped[select.attr('id')] = [];
       }
       grouped[select.attr('id')].push(option.val());
   });
@@ -361,14 +363,14 @@ ViolationsView.prototype.recompute_triggers = function() {
       trigger = "("+trigger+")";
     }
     else {
-      trigger = grouped[key][0]
+      trigger = grouped[key][0];
     }
     triggers.push(trigger);
   }
 
   $('#trigger').val(triggers.join());
 
-}
+};
 
 ViolationsView.add_combined_trigger_form = function(){
   var form = [
@@ -383,10 +385,10 @@ ViolationsView.add_combined_trigger_form = function(){
   '  </span>',
   '  <select multiple="multiple" class="chzn-select input-xxlarge">',
   '  </select>',
-  '</div>']
+  '</div>'];
 
   return form.join(' ');
-}
+};
 
 ViolationsView.prototype.prettify_accounting = function(type, value) {
   var lc_type = type.toLowerCase();
@@ -397,25 +399,25 @@ ViolationsView.prototype.prettify_accounting = function(type, value) {
   else if(lc_value == "timeexpired") pretty = "Time expired";
   else {
     var rx = /^(TOT|IN|OUT)([0-9]+)(B|KB|MB|GB|TB)([DWMY])$/;
-    var results = rx.exec(value)
+    var results = rx.exec(value);
     var direction = results[1];
-    var amount = results[2]
-    var unit = results[3]
-    var timeframe = results[4]
+    var amount = results[2];
+    var unit = results[3];
+    var timeframe = results[4];
     console.log(results);
-    pretty = ""
+    pretty = "";
 
-    if(direction == "TOT") pretty += "Total traffic over "+amount+" "+unit+" "
-    else if(direction == "IN") pretty += "Inbound traffic over "+amount+" "+unit+" "
-    else if(direction == "OUT") pretty += "Outbound traffic over "+amount+" "+unit+" "
+    if(direction == "TOT") pretty += "Total traffic over "+amount+" "+unit+" ";
+    else if(direction == "IN") pretty += "Inbound traffic over "+amount+" "+unit+" ";
+    else if(direction == "OUT") pretty += "Outbound traffic over "+amount+" "+unit+" ";
 
-    if(timeframe == "D") pretty += "per day"
-    else if(timeframe == "W") pretty += "per week"
-    else if(timeframe == "M") pretty += "per month"
-    else if(timeframe == "Y") pretty += "per year"
+    if(timeframe == "D") pretty += "per day";
+    else if(timeframe == "W") pretty += "per week";
+    else if(timeframe == "M") pretty += "per month";
+    else if(timeframe == "Y") pretty += "per year";
   }
   return pretty;
-}
+};
 
 ViolationsView.prototype.append_trigger = function(value,value_pretty){
   var that = this;
@@ -449,11 +451,11 @@ ViolationsView.prototype.append_trigger = function(value,value_pretty){
       select.append('<option value="' + value + '" selected="selected">' + value_pretty + '</option>');
   select.trigger("liszt:updated");
 
-}
+};
 
 ViolationsView.prototype.add_fingerbank_trigger = function(search, id, display){
   var that = this;
   violationsView.append_trigger(search.model_stripped()+"::"+id, search.model_stripped() + " " + display);
-}
+};
 
 var violationsView = new ViolationsView();

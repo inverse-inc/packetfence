@@ -115,9 +115,9 @@ sub _run {
     $SERVICE_HEADER ="service|command\n";
     $IS_INTERACTIVE = is_interactive();
     $RESET_COLOR =  $IS_INTERACTIVE ? color 'reset' : '';
-    $WARNING_COLOR =  $IS_INTERACTIVE ? color $Config{advanced}{pfcmd_warning_color} : '';
-    $ERROR_COLOR =  $IS_INTERACTIVE ? color $Config{advanced}{pfcmd_error_color} : '';
-    $SUCCESS_COLOR =  $IS_INTERACTIVE ? color $Config{advanced}{pfcmd_success_color} : '';
+    $WARNING_COLOR = $IS_INTERACTIVE ? color $YELLOW_COLOR : '';
+    $ERROR_COLOR = $IS_INTERACTIVE ? color $RED_COLOR : '';
+    $SUCCESS_COLOR = $IS_INTERACTIVE ? color $GREEN_COLOR : '';
     my $actionHandler;
     $action =~ /^(.*)$/;
     $action = $1;

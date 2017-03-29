@@ -142,12 +142,6 @@ trigger=internal::hostname_change
 actions=log
 enabled=Y
 
-[1100020]
-desc=Wireless IPS
-trigger=internal::1100020
-actions=email_admin,log
-enabled=Y
-
 #
 #  1200000 - 120099 Reserved for required administration violations
 #

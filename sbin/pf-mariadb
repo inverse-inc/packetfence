@@ -102,7 +102,7 @@ sub launch_mysql {
     
     my $args = join(' ', @args);
     # Must not lookup in /sbin for mysqld, but in /usr/sbin
-    $ENV{PATH} = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin:/root/bin";
+    $ENV{PATH} = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin:/root/bin:/bin";
     my $cmd = "mysqld_safe --defaults-file=/usr/local/pf/var/conf/mariadb.conf $args";
     print "Starting MySQL with command: $cmd \n";
     if($exec) {

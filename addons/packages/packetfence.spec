@@ -151,6 +151,7 @@ Requires: perl(Log::Log4perl) >= 1.43
 Requires: perl(Log::Any)
 Requires: perl(Log::Any::Adapter)
 Requires: perl(Log::Any::Adapter::Log4perl)
+Requires: perl(Log::Dispatch::Syslog)
 Requires: perl(Net::Cisco::MSE::REST)
 # Required by switch modules
 # Net::Appliance::Session specific version added because newer versions broke API compatibility (#1312)
@@ -529,7 +530,6 @@ cp -r addons/high-availability/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/integration-testing/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/packages/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/snort/ $RPM_BUILD_ROOT/usr/local/pf/addons/
-cp -r addons/soh/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/upgrade/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/watchdog/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/AD/* $RPM_BUILD_ROOT/usr/local/pf/addons/AD/
@@ -537,6 +537,7 @@ cp -r addons/monit/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.pl $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.sh $RPM_BUILD_ROOT/usr/local/pf/addons/
 %{__install} -D packetfence.logrotate $RPM_BUILD_ROOT/etc/logrotate.d/packetfence
+%{__install} -D packetfence.rsyslog $RPM_BUILD_ROOT/etc/rsyslog.d/packetfence.conf
 cp -r sbin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r conf $RPM_BUILD_ROOT/usr/local/pf/
 cp -r raddb $RPM_BUILD_ROOT/usr/local/pf/
@@ -690,6 +691,9 @@ if [ ! -e /usr/local/pf/logs/$fic_log ]; then
 fi
 done
 
+echo "Restarting rsyslogd"
+/bin/systemctl restart rsyslog
+
 #Make ssl certificate
 if [ ! -f /usr/local/pf/conf/ssl/server.crt ]; then
     openssl req -x509 -new -nodes -days 365 -batch\
@@ -753,8 +757,9 @@ sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config
 sed -i 's/\%.*$//g' /etc/resolv.conf
 
 # Enabling ip forwarding
-echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
-sysctl -p /etc/sysctl.conf
+echo "# ip forwarding enabled by packetfence" > /etc/sysctl.d/99-ip_forward.conf
+echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.d/99-ip_forward.conf
+sysctl -p /etc/sysctl.d/99-ip_forward.conf
 
 #Starting PacketFence.
 echo "Starting PacketFence Administration GUI..."
@@ -865,6 +870,7 @@ fi
 %dir %attr(0750,root,root) %{_sysconfdir}/sudoers.d
 %config %attr(0440,root,root) %{_sysconfdir}/sudoers.d/packetfence
 %config %attr(0644,root,root) %{_sysconfdir}/logrotate.d/packetfence
+%config %attr(0644,root,root) %{_sysconfdir}/rsyslog.d/packetfence.conf
 %config %attr(0600,root,root) %{_sysconfdir}/cron.d/packetfence
 
 %dir                    /usr/local/pf
@@ -894,8 +900,6 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/addons/snort/update_rules.pl
                         /usr/local/pf/addons/snort/oinkmaster.conf
                         /usr/local/pf/addons/snort/oinkmaster.conf.2.8.6
-%dir                    /usr/local/pf/addons/soh
-%doc                    /usr/local/pf/addons/soh/README.rst
 %dir                    /usr/local/pf/addons/upgrade
 %attr(0755, pf, pf)     /usr/local/pf/addons/upgrade/*.pl
 %dir                    /usr/local/pf/addons/watchdog
@@ -1137,11 +1141,6 @@ fi
 %config(noreplace)      /usr/local/pf/conf/roles.conf
 %config                 /usr/local/pf/conf/roles.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/snmptrapd.conf
-%config(noreplace)      /usr/local/pf/conf/snort.conf
-%config(noreplace)      /usr/local/pf/conf/snort.conf.pre_snort-2.8
-                        /usr/local/pf/conf/snort.conf.pre_snort-2.8.example
-%config(noreplace)      /usr/local/pf/conf/suricata.yaml
-                        /usr/local/pf/conf/suricata.yaml.example
 %config                 /usr/local/pf/conf/ui.conf
 %config                 /usr/local/pf/conf/ui.conf.es_ES
 %config(noreplace)      /usr/local/pf/conf/ui-global.conf
@@ -1251,7 +1250,6 @@ fi
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/SavedSearch/Node.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/SavedSearch/User.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Service.pm
-%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/SoH.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/User.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Violation.pm
                         /usr/local/pf/lib
@@ -1268,7 +1266,6 @@ fi
                         /usr/local/pf/lib/pf/radius/constants.pm
 %config(noreplace)      /usr/local/pf/lib/pf/radius/custom.pm
 %config(noreplace)      /usr/local/pf/lib/pf/roles/custom.pm
-%config(noreplace)      /usr/local/pf/lib/pf/soh/custom.pm
 %config(noreplace)      /usr/local/pf/lib/pf/role/custom.pm
 %config(noreplace)      /usr/local/pf/lib/pf/web/custom.pm
 
@@ -1297,6 +1294,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pffilter
 %attr(0755, pf, pf)     /usr/local/pf/sbin/winbindd-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/radsniff-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/p0f-wrapper
 %doc                    /usr/local/pf/UPGRADE.asciidoc
 %doc                    /usr/local/pf/UPGRADE.old
 %dir                    /usr/local/pf/var
@@ -1322,10 +1320,8 @@ fi
 %attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/example
 %attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/inner-tunnel
 %attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/originate-coa
-%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/packetfence-soh
 %attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/proxy-inner-tunnel
 %attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/robust-proxy-accounting
-%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/soh
 %attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/status
 %attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/virtual.example.com
 %attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/vmps

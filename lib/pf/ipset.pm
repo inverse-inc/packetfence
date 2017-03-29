@@ -109,7 +109,7 @@ sub iptables_generate {
     my $google_enabled = $guest_self_registration{$SELFREG_MODE_GOOGLE};
     my $facebook_enabled = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
     my $github_enabled = $guest_self_registration{$SELFREG_MODE_GITHUB};
-    my $passthrough_enabled = isenabled($Config{'trapping'}{'passthrough'});
+    my $passthrough_enabled = isenabled($Config{'fencing'}{'passthrough'});
 
     if ($google_enabled || $facebook_enabled || $github_enabled || $passthrough_enabled) {
         $cmd = "sudo ipset --create pfsession_passthrough hash:ip,port 2>&1";
@@ -203,7 +203,7 @@ sub generate_mangle_rules {
 
     # mark whitelisted users
     # TODO whitelist concept on it's way to the graveyard
-    foreach my $mac ( split( /\s*,\s*/, $Config{'trapping'}{'whitelist'} ) ) {
+    foreach my $mac ( split( /\s*,\s*/, $Config{'fencing'}{'whitelist'} ) ) {
         $mangle_rules .=
           "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac --jump MARK --set-mark 0x$IPTABLES_MARK_REG\n"
             ;

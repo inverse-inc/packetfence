@@ -3,7 +3,7 @@
   <button class="close" data-dismiss="alert">&times;</button>
   <strong>[% l('Error!') %]</strong> <span>[% error %]</span>
 </div>[% END %]
-<p>[% l('Manually add nodes to the system.') %]</p>
+<p class="p3 p-info">[% l('Manually add nodes to the system.') %]</p>
 
 <iframe class="hidden" src="about:blank" id="iframe_form" name="iframe_form"></iframe>
 

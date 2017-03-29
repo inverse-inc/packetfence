@@ -4,7 +4,6 @@ After=network.target
 Before=packetfence-config.service
 
 [Service]
-StandardOutput=syslog
 StartLimitBurst=3
 StartLimitInterval=60
 PIDFile=/usr/local/pf/var/run/redis_cache.pid

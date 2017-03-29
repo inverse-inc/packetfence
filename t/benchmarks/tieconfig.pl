@@ -23,10 +23,10 @@ use lib '/usr/local/pf/lib';
 
 use pf::config;
 
-our $trapsLimitThreshold = $Config{'vlan'}{'trap_limit_threshold'};
+our $trapsLimitThreshold = $Config{'snmp_traps'}{'trap_limit_threshold'};
 
 sub accessTied {
-    return $Config{'vlan'}{'trap_limit_threshold'} + 1;
+    return $Config{'snmp_traps'}{'trap_limit_threshold'} + 1;
 }
 
 sub accessGlobal {

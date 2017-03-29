@@ -59,13 +59,13 @@ sub generate_local_settings {
         : $management_network->tag('ip');
 
     $tags{'secret'}               = generate_secret();
-    $tags{'graphite_host'}        = "$Config{'monitoring'}{'graphite_host'}";
-    $tags{'graphite_port'}        = "$Config{'monitoring'}{'graphite_port'}";
+    $tags{'graphite_host'}        = "$Config{'graphite'}{'graphite_host'}";
+    $tags{'graphite_port'}        = "$Config{'graphite'}{'graphite_port'}";
     $tags{'db_graphite_database'} = $Config{'database'}{'db'} . "_graphite";
-    $tags{'db_host'}              = $Config{'monitoring'}{'db_host'} || $Config{'database'}{'host'};
-    $tags{'db_port'}              = $Config{'monitoring'}{'db_port'} || $Config{'database'}{'port'};
-    $tags{'db_user'}              = $Config{'monitoring'}{'db_user'} || $Config{'database'}{'user'};
-    $tags{'db_password'}          = $Config{'monitoring'}{'db_pass'} || $Config{'database'}{'pass'};
+    $tags{'db_host'}              = $Config{'graphite'}{'db_host'} || $Config{'database'}{'host'};
+    $tags{'db_port'}              = $Config{'graphite'}{'db_port'} || $Config{'database'}{'port'};
+    $tags{'db_user'}              = $Config{'graphite'}{'db_user'} || $Config{'database'}{'user'};
+    $tags{'db_password'}          = $Config{'graphite'}{'db_pass'} || $Config{'database'}{'pass'};
     $tags{'carbon_hosts'} = get_cluster_destinations()
       // '"' . $tags{'graphite_host'} . ":9000" . '"';
 

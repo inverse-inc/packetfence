@@ -48,8 +48,8 @@ sub generate_storage_config {
     my %tags;
     $tags{'template'}      = "$conf_dir/monitoring/storage-schemas.conf";
     $tags{'hostname'}      = "$Config{'general'}{'hostname'}";
-    $tags{'graphite_host'} = "$Config{'monitoring'}{'graphite_host'}";
-    $tags{'graphite_port'} = "$Config{'monitoring'}{'graphite_port'}";
+    $tags{'graphite_host'} = "$Config{'graphite'}{'graphite_host'}";
+    $tags{'graphite_port'} = "$Config{'graphite'}{'graphite_port'}";
     $tags{'install_dir'}   = "$install_dir";
 
     parse_template( \%tags, "$tags{'template'}",
@@ -64,8 +64,8 @@ sub generate_carbon_config {
       defined( $management_network->tag('vip') )
       ? $management_network->tag('vip')
       : $management_network->tag('ip');
-    $tags{'graphite_host'} = "$Config{'monitoring'}{'graphite_host'}";
-    $tags{'graphite_port'} = "$Config{'monitoring'}{'graphite_port'}";
+    $tags{'graphite_host'} = "$Config{'graphite'}{'graphite_host'}";
+    $tags{'graphite_port'} = "$Config{'graphite'}{'graphite_port'}";
     $tags{'carbon_hosts'} =
       ( get_cluster_destinations() || $tags{'management_ip'} . ":2004" );
 

@@ -1,16 +1,16 @@
-<h2>[% l('Services') %]</h2>
 <div class="modal fade hide" id="confirmStop">
   <div class="modal-header"><h3>[% l('Warning!') %]</h3></div>
   <div class="modal-body">
     <p>[% l('The web admin interface will no longer be accessible if you stop this service.') %]</p>
     <p>[% l('A manual start from the command line will be required. Are you sure you want to continue?') %]</p>
   </div>
-    <div class="modal-footer">
-      <button class="btn" data-dismiss="modal">[% l('Cancel') %]</button>
-      <button type="button" data-dismiss="modal" class="btn btn-primary btn-danger">[% l('Stop Anyway') %]</button>
-    </div>
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal">[% l('Cancel') %]</button>
+    <button type="button" data-dismiss="modal" class="btn btn-primary btn-danger">[% l('Stop Anyway') %]</button>
+  </div>
 </div>
-<div>
+<div class="card">
+  <h2 class="card-title">[% l('Services') %]</h2>
     <div class="form-actions">
       <div class="pull-right">
         <button type="submit" class="btn btn-danger" data-toggle="modal" data-confirm-stop-href="[%c.uri_for(c.controller.action_for('stop'),['pf'])%]" data-target="#confirmStop" ><i class="icon-fixed-width icon-stop"></i> [% l('Stop All') %]</button>
@@ -18,6 +18,7 @@
         <button type="submit" class="btn btn-warning" data-href-background="[%c.uri_for(c.controller.action_for('restart'),['pf'])%]"><i class="icon-fixed-width icon-refresh"></i> [% l('Restart All') %]</button>
       </div>
     </div>
+    <div class="card-block">
   <table class="table">
     <thead>
       <tr>
@@ -63,7 +64,8 @@
       [%- END %]
       [%- END %]
     </tbody>
-  </table>
+</table>
+</div>
     <div class="form-actions">
       <div class="pull-right">
         <button type="submit" class="btn btn-danger" data-toggle="modal" data-confirm-stop-href="[%c.uri_for(c.controller.action_for('stop'),['pf'])%]" data-target="#confirmStop" ><i class="icon-fixed-width icon-stop"></i> [% l('Stop All') %]</button>

@@ -2,11 +2,10 @@
 Description=PacketFence Administration  Apache HTTP Server 
 Documentation=man:httpd(8)
 Documentation=man:apachectl(8)
-Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
-After=packetfence-base.target packetfence-config.service packetfence-iptables.service packetfence-haproxy.service
+Wants=packetfence-base.target packetfence-config.service
+After=packetfence-base.target packetfence-config.service packetfence-haproxy.service
 
 [Service]
-StandardOutput=syslog
 StartLimitBurst=3
 StartLimitInterval=60
 Type=simple

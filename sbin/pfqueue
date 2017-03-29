@@ -331,7 +331,8 @@ sub wait_for_it {
         $logger->trace("Starting tasks");
         run_tasks();
         $logger->trace("Finish tasks");
-        pause;
+        #  Only pause if their are no registered tasks
+        pause unless @REGISTERED_TASKS;
         $logger->trace("Woke up from a signal");
     }
     $logger->trace("Signaled to stop running");

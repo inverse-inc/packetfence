@@ -36,43 +36,17 @@
   <input name="searches.0.value"[% ' disabled="disabled"' IF disabled %] type="text" class="span6" placeholder="[% l('String...') %]">
   </div>
 [% END -%]
-[%  jsFiles = [
-        'app/jquery-ui',
-        'app/bootstrap-datepicker',
-        'app/bootstrap-timepicker',
-        'app/chosen.jquery.min',
-        'app/jquery.ba-hashchange',
-        'app/raphael/raphael-min',
-        'app/raphael/g.raphael-min',
-        'app/raphael/g.bar-min',
-        'app/raphael/g.dot-min',
-        'app/raphael/g.line-min',
-        'app/raphael/g.pie-min',
+  [%  jsFiles = [
+        'js/raphael.min',
         'app/graphs',
-        'app/uri',
         'admin/nodes',
         'admin/searches',
-        'js/bootstrapSwitch',
         'js/node',
         'js/user',
         ]
      cssFiles = [
-        'app/bootstrap-datepicker',
-        'app/bootstrap-timepicker',
-        'css/bootstrapSwitch',
         ] -%]
 
-<style type="text/css">
-form {
-    margin-bottom: 0px;
-}
-.bootstrap-timepicker table {
-    width: 160px;
-}
-.table-dynamic .action {
-    width: 36px;
-}
-</style>
     [% roles_options = BLOCK %]
         [% FOREACH role IN roles %]
         <option value="[% role.name %]">[% role.name %]</option>
@@ -157,12 +131,14 @@ form {
     </div>
 
     [% INCLUDE admin/saved_search.inc savedSearchController="SavedSearch::Node" method="POST" %] 
-    <div class="container-fluid">
+    <div class="sidenav-fluid">
       <div class="row-fluid">
-        <div class="span2">
-          <div class="sidebar-nav well">
+        <div class="sidenav sidenav-section span3">
+            <ul class="nav nav-header">
+              <li>[% l('Nodes') %]</li>
+              <div class="divider-horizontal"></div>
+            </ul>
             <ul class="nav nav-list">
-              <li class="nav-header">[% l('Nodes') %]</li>
               [%- IF can_access("NODES_READ") -%]
               <li class="active"><a href="#">[% l('Search') %]</a></li>
               [%- END -%]
@@ -205,25 +181,27 @@ form {
                 </form>
               </li>
               <li class="divider"></li>
-              <li class="" id="accordion-SwithGroup">
-                <a data-toggle="collapse" data-parent="#accordion-SwithGroup" href="#collapseSwitchGroup" class="collapsed">
-                    [% l('Switch Groups')%]
-                <i class="icon-chevron-up pull-right"></i></a>
-                <ul id="collapseSwitchGroup" class="collapse">
-                  <a data-toggle="collapse" data-parent="#collapseSwitchGroup" href="#collapseSwitchGroupDefault" class="collapsed">Default<i class="icon-chevron-up pull-right"></i></a>
-                    <li id="collapseSwitchGroupDefault" class="collapse">
-                      <ul>[% FOREACH switch IN switches %]
-                      <li><a href="#" data-toggle="pf-search-form" data-parent="#collapseSwitchGroupDefault" data-target="advanced">[% switch.id %]</a>
+              <li id="accordion-SwithGroup">
+                <a data-toggle="collapse" data-parent="#accordion-SwithGroup" href="#collapseSwitchGroup" class="collapsed">[% l('Switch Groups') %] <i class="icon-chevron-up pull-right"></i></a>
+                <ul id="collapseSwitchGroup" class="nav nav-list collapse">
+                  <li class="sidenav-subsection">
+                    <a data-toggle="collapse" data-parent="#collapseSwitchGroup" href="#collapseSwitchGroupDefault" class="collapsed">[% l('Default') %]<i class="icon-chevron-up pull-right"></i></a>
+                  </li>
+                  <li id="collapseSwitchGroupDefault" class="collapse">
+                    <ul>[% FOREACH switch IN switches %]
+                      <li class="sidenav-subsection-extend"><a href="#" data-toggle="pf-search-form" data-parent="#collapseSwitchGroupDefault" data-target="advanced">[% switch.id %]</a>
                         <form>
                           <input type="hidden" name="searches.0.name" value="switch_id"/>
                           <input type="hidden" name="searches.0.op" value="is"/>
                           <input type="hidden" name="searches.0.value" value="[% switch.id %]"/>
                         </form>
-                        </li>
+                      </li>
                       [% END %]</ul>
-                    </li>
+                  </li>
                   [% FOREACH switch_group IN switch_groups %]
+                  <li>
                     <a data-toggle="collapse" data-parent="#collapseSwitchGroup" href="#collapse_[% switch_group.id %]" class="collapsed">[% switch_group.id %]<i class="icon-chevron-up pull-right"></i></a>
+                  </li>
                     <li id="collapse_[% switch_group.id %]" class="collapse">
                       <ul>[% FOREACH member IN switch_group.members %]
                         <li><a href="#" data-toggle="pf-search-form" data-parent="#collapse_[% switch_group.id %]"data-target="advanced">[% member.id %]</a>
@@ -244,9 +222,9 @@ form {
                 <a data-toggle="collapse" data-parent="#accordion-Role" href="#collapseRole" class="collapsed">
                   [% l('Roles') %]
                 <i class="icon-chevron-up pull-right"></i></a>
-                <ul id="collapseRole" class="collapse">
+                <ul id="collapseRole" class="nav nav-list collapse">
                   [% FOREACH role IN roles %]
-                    <li>
+                    <li class="sidenav-subsection">
                       <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseRole">[% role.name %]</a>
                         <form>
                           <input type="hidden" name="searches.0.name" value="category"/>
@@ -262,8 +240,8 @@ form {
                 <a data-toggle="collapse" data-parent="#accordion-OS" href="#collapseOS" class="collapsed">
                    [% l('OS') %]
                 <i class="icon-chevron-up pull-right"></i></a>
-                <ul id="collapseOS" class="collapse">
-                  <li>
+                <ul id="collapseOS" class="nav nav-list collapse">
+                  <li class="sidenav-subsection">
                     <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseOS">Windows</a>
                       <form>
                         <input type="hidden" name="searches.0.name" value="device_class"/>
@@ -271,7 +249,7 @@ form {
                         <input type="hidden" name="searches.0.value" value="Windows"/>
                       </form>
                   </li>
-                  <li>
+                  <li class="sidenav-subsection">
                     <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseOS">Linux</a>
                       <form>
                         <input type="hidden" name="searches.0.name" value="device_class"/>
@@ -279,7 +257,7 @@ form {
                         <input type="hidden" name="searches.0.value" value="Linux"/>
                       </form>
                   </li>
-                  <li>
+                  <li class="sidenav-subsection">
                     <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseOS">MacOS</a>
                       <form>
                         <input type="hidden" name="searches.0.name" value="device_class"/>
@@ -312,17 +290,21 @@ form {
               [%END%]
               [%- END -%]
             </ul>
-          </div><!--/.well -->
         </div><!--/span-->
         <form id="search" action="[% c.uri_for(c.controller('Node').action_for('search')) %]"></form>
-        <div class="span10">
+      </div><!--/.row-fluid-->
+    </div><!--/.sidenav-fluid-->
+    <div class="row-fluid">
+      <div class="container-fluid offset3 span15">
+        <div class="card">
+          <div class="card-title">
             <div class="tabbable">
               <div class="tab-content">
                 <ul class="nav nav-tabs">
                   <li class="active"><a href="#simple" data-toggle="tab">[% l('Simple') %]</a></li>
                   <li><a href="#advanced" data-toggle="tab">[% l('Advanced') %]</a></li>
                 </ul>
-                <div class="tab-pane active well" id="simple">
+                <div class="tab-pane active" id="simple">
                   <form id="simpleNodeSearch" method="POST" name="simpleNodeSearch" class="form-inline" action="[% c.uri_for(c.controller('Node').action_for('simple_search')) %]">
                   <table style="width:100%">
                     <tbody>
@@ -346,7 +328,7 @@ form {
                         <td>
                           <div class="btn-group pull-right">
                             <button type="submit" class="btn btn-primary"><i class="icon-search icon-white"></i> [% l('Search') %]</button>
-                            <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="icon-chevron-up"></span></a>
+                            <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><span class="icon-chevron-up"></span></a>
                             <ul class="dropdown-menu up" role="menu">
                               <li><a href="#" data-export-url="[% c.uri_for(c.controller('Node').action_for('search')) %]" data-export-form="#simpleNodeSearch" class="exportCSVBtn">[% l('Export to CSV') %]</a></li>
                               <li><a href="#" id="simpleSavedSearchBtn">[% l('Save as...') %]</a></li>
@@ -358,20 +340,10 @@ form {
                   </table>
                   </form>
                 </div>
-                <div class="tab-pane well" id="advanced">
+                <div class="tab-pane" id="advanced">
                   <form id="advancedSearch" name="advancedNodeSearch" method="POST" class="form-inline" action="[% c.uri_for(c.controller('Node').action_for('advanced_search')) %]">
-                  <br/>
                   <table id="advancedSearchConditions" class="table-dynamic">
                     <thead data-no-remove="yes">
-                        <tr>
-                        <th colspan="2" class="pull-left">
-                          <div class="control-group">
-                            <div class="controls">
-                            [% INCLUDE per_page_select.tt %]
-                            </div>
-                          </div>
-                        </th>
-                        </tr>
                         <tr>
                           <th colspan="2" class="pull-left">
                           <div class="control-group">
@@ -416,12 +388,12 @@ form {
                       <tr class="hidden dynamic-row">
                         <td>
                          <div class="control-group">
-                         [% PROCESS search_options disabled=1 %]
+                           [% PROCESS search_options disabled=1 %]
                          </div>
                         </td>
                         <td class="action">
-                          <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
-                          <a class="btn-icon" href="#delete"><i class="icon-minus-sign"></i></a>
+                          <a class="btn-icon" href="#add"><i class="icon-plus-circle"></i></a>
+                          <a class="btn-icon" href="#delete"><i class="icon-minus-circle"></i></a>
                         </td>
                       </tr>
                       <tr class="dynamic-row">
@@ -431,8 +403,8 @@ form {
                          </div>
                         </td>
                         <td class="action">
-                          <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
-                          <a class="btn-icon" href="#delete"><i class="icon-minus-sign"></i></a>
+                          <a class="btn-icon" href="#add"><i class="icon-plus-circle"></i></a>
+                          <a class="btn-icon" href="#delete"><i class="icon-minus-circle"></i></a>
                         </td>
                       </tr>
                     </tbody>
@@ -450,10 +422,20 @@ form {
                         </td>
                       </tr>
                       <tr>
-                        <td colspan="2" style="padding-top: 1em">
+                        <td>&nbsp;</td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <div class="control-group">
+                            <div class="controls">
+                            [% INCLUDE per_page_select.tt %]
+                            </div>
+                          </div>
+                        </td>
+                        <td>
                           <div class="btn-group pull-right">
                             <button class="btn btn-primary"><i class="icon-search icon-white"></i> [% l('Search') %]</button>
-                            <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="icon-chevron-up"></span></a>
+                            <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><span class="icon-chevron-up"></span></a>
                             <ul class="dropdown-menu up">
                               <li><a id="advancedSavedSearchBtn" >[% l('Save as...') %]</a></li>
                               <li><a href="#" data-export-url="[% c.uri_for(c.controller('Node').action_for('search')) %]" data-export-form="#advancedSearch" class="exportCSVBtn">[% l('Export to CSV') %]</a></li>
@@ -466,10 +448,12 @@ form {
                 </div>
               </div>
             </div>
-          </form>
-          <div class="loader span12"><p><img src="[% c.uri_for('/static/app/loader-48.gif') %]"></p></div>
-          <div class="row-fluid nodes" id="section">
+            </form>
           </div>
+
+          <div class="loader span12"><p><img src="[% c.uri_for('/static/app/loader-48.gif') %]"></p></div>
+            <div class="nodes card-block" id="section">
+            </div>
         </div><!--/span-->
       </div><!--/row-->
     </div><!--/.fluid-container-->

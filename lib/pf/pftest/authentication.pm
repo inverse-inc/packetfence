@@ -16,6 +16,7 @@ pf::pftest::authentication
 use strict;
 use warnings;
 use pf::cmd;
+use pf::constants;
 use base qw(pf::cmd);
 use Term::ANSIColor;
 use IO::Interactive qw(is_interactive);
@@ -28,8 +29,6 @@ sub _run {
     my ($self) = @_;
     require pf::authentication;
     import pf::authentication;
-    require pf::config;
-    import pf::config;
     my $show_color = colors_supported();;
     my ($user,$pass,@source_ids) = $self->args;
     my @sources;
@@ -48,21 +47,21 @@ sub _run {
             my ($result,$message) = $source->authenticate($user,$pass);
             $message = '' unless defined $message;
             if ($result == $LOGIN_SUCCESS) {
-                print color $pf::config::Config{advanced}{pfcmd_success_color} if $show_color;
+                print color $GREEN_COLOR if $show_color;
                 print $indent,"Authentication SUCCEEDED against ",$source->id," ($message) \n";
             }
             elsif ($result == $LOGIN_CHALLENGE) {
-                print color $pf::config::Config{advanced}{pfcmd_warning_color} if $show_color;
+                print color $YELLOW_COLOR if $show_color;
                 print $indent,"Authentication CHALLENGE return for ",$source->id," (Challenge message $message->{message}) \n";
             } else {
-                print color $pf::config::Config{advanced}{pfcmd_error_color} if $show_color;
+                print color $RED_COLOR if $show_color;
                 print $indent,"Authentication FAILED against ",$source->id," ($message) \n";
             }
             print color 'reset' if $show_color;
             my $matched;
             foreach my $class ( @Rules::CLASSES ) {
                 if( $matched = pf::authentication::match2([$source], {username => $user, rule_class => $class})) {
-                    print color $pf::config::Config{advanced}{pfcmd_success_color} if $show_color;
+                    print color $GREEN_COLOR if $show_color;
                     print $indent ,"Matched against ",$source->id," for '$class' rules\n";
                     {
                         local $indent = $indent x 2;
@@ -71,7 +70,7 @@ sub _run {
                         }
                     }
                 } else {
-                    print color $pf::config::Config{advanced}{pfcmd_error_color} if $show_color;
+                    print color $RED_COLOR if $show_color;
                     print $indent,"Did not match against ",$source->id," for '$class' rules\n";
                 }
             }

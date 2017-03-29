@@ -86,6 +86,7 @@ our (
     $roles_default_config_file,
     $dns_filters_config_file, $dns_filters_default_config_file,
     $admin_audit_log,
+    $violation_log,
     $portal_modules_config_file, $portal_modules_default_config_file,
     $captiveportal_templates_path,
     $captiveportal_profile_templates_path,
@@ -155,6 +156,7 @@ BEGIN {
         $roles_default_config_file
         $dns_filters_config_file $dns_filters_default_config_file
         $admin_audit_log
+        $violation_log
         $portal_modules_config_file $portal_modules_default_config_file
         $captiveportal_templates_path
         $captiveportal_profile_templates_path
@@ -250,6 +252,7 @@ $roles_default_config_file = catfile($conf_dir,"roles.conf.defaults");
 $dns_filters_config_file = catfile($conf_dir,"dns_filters.conf");
 $dns_filters_default_config_file = catfile($conf_dir,"dns_filters.conf.defaults");
 $admin_audit_log = catfile($log_dir, "httpd.admin.audit.log");
+$violation_log = catfile($log_dir, "violation.log");
 $portal_modules_config_file = catfile($conf_dir,"portal_modules.conf");
 $portal_modules_default_config_file = catfile($conf_dir,"portal_modules.conf.defaults");
 $pfmon_config_file = catfile($conf_dir,"pfmon.conf");

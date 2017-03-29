@@ -128,9 +128,6 @@ sub parseTrap {
         $trapHashRef->{'trapType'}    = 'dot11Deauthentication';
         $trapHashRef->{'trapMac'} = parse_mac_from_trap($1);
 
-    } elsif ( $trapString =~ /\.1\.3\.6\.1\.4\.1\.14823\.2\.3\.1\.11\.1\.1\.5\.0 = $SNMP::MAC_ADDRESS_FORMAT/ ) {
-        $trapHashRef->{'trapType'}    = 'wirelessIPS';
-        $trapHashRef->{'trapMac'} = parse_mac_from_trap($1);
     } else {
         $logger->debug("trap currently not handled");
         $trapHashRef->{'trapType'} = 'unknown';

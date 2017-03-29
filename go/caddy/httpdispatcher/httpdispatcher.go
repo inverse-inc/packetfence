@@ -22,7 +22,7 @@ func setup(c *caddy.Controller) error {
 	ctx := context.Background()
 
 	proxy := httpdispatcher.NewProxy(ctx)
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Trapping)
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Fencing)
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.General)
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.CaptivePortal)
 	pfconfigdriver.PfconfigPool.AddRefreshable(ctx, proxy)

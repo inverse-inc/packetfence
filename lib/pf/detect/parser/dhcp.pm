@@ -17,8 +17,6 @@ use warnings;
 
 use Moo;
 
-use pf::api::queue;
-use pf::ip4log;
 use pf::log;
 
 extends qw(pf::detect::parser);
@@ -30,7 +28,7 @@ sub parse {
     my $data = $self->_parse($line);
 
     if(defined($data->{type}) && $data->{type} eq "DHCPACK") {
-        my $apiclient = pf::api::queue->new;
+        my $apiclient = $self->getApiClient();
         $apiclient->notify('update_ip4log', ( 'mac' => $data->{mac}, ip => $data->{ip} ));
     }
 
