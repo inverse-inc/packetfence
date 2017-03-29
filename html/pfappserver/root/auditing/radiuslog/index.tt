@@ -118,5 +118,7 @@
       </div>
     </div>
   </div>
-[% INCLUDE auditing/radiuslog/search.tt %]
+  <div class="card-block">
+    [% INCLUDE auditing/radiuslog/search.tt %]
+  </div>
 </div>
