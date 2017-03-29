@@ -5,6 +5,11 @@ h2 {
   font-weight: 200;
 }
 
+h3 {
+  font-size: $baseLineHeight * 0.85;
+  font-weight: 200;
+}
+
 .p3 {
   color: #565656;
   font-size: $baseFontSize - 1;
@@ -22,7 +27,7 @@ h2 {
 .p-info {
   &:before {
     @extend .icon-info-circle:before;
-  }  
+  }
 }
 
 .p-warning {

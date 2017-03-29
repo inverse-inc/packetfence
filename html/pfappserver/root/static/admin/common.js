@@ -102,7 +102,7 @@ function initWidgets(elements) {
         var defaultTime = $(this).val().length? 'value' : false;
         $(this).timepicker({ defaultTime: defaultTime, showSeconds: false, showMeridian: false });
     });
-    elements.filter('.datepicker, .input-daterange').datepicker({ autoclose: true });
+    elements.filter('.datepicker, .input-daterange input').datepicker({ autoclose: true });
     elements.filter('.switch').bootstrapSwitch();
 }
 
@@ -458,6 +458,8 @@ $(function () { // DOM ready
 
         return true;
     });
+
+    $('#navbar [data-toggle="tooltip"]').tooltip({placement: 'bottom'});
 
     $('body').on('click', '[data-toggle="dynamic-list"]', function(event) {
         event.preventDefault();

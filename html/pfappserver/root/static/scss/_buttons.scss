@@ -2,6 +2,7 @@
 
 .btn {
   font-size: $baseFontSize - 2;
+  font-weight: normal;
   background: none;
   border: 1px solid $btnBorder;
   color: darken($btnBorder, 40%);;
