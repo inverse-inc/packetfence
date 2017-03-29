@@ -166,6 +166,10 @@ install: build
 	echo $(C_ID) > $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/git_commit_id
 	#Create our dhcpd.leases
 	touch $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/dhcpd/dhcpd.leases
+	#Documentation
+	for i in `find * -name "*.asciidoc" -path 'docs/*' -type d`; do \
+		asciidoctor -D $(CURDIR)/debian/packetfence-doc/html/pfappserver/root/static/doc -n $i; \
+	done
 # Build architecture-independent files here.
 binary-indep: build install
 # We have nothing to do by default.

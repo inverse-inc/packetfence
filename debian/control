@@ -147,8 +147,9 @@ Description: PacketFence network registration / worm mitigation system
 
 Package: packetfence-doc
 Architecture: all
+Build-Depends: asciidoctor
 Description: documentation for packetfence
- <insert long description, indented with spaces>
+ The package packetfence-doc contains the documentation files needed for the admin gui
 
 Package: packetfence-remote-snort-sensor
 Architecture: all
