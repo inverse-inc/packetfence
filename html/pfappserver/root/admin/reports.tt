@@ -1,10 +1,5 @@
 [%  jsFiles = [
-        'app/raphael/raphael-min',
-        'app/raphael/g.raphael-min',
-        'app/raphael/g.bar-min',
-        'app/raphael/g.dot-min',
-        'app/raphael/g.line-min',
-        'app/raphael/g.pie-min',
+        'js/raphael.min',
         'app/graphs',
         'admin/config/items',
         'js/node',

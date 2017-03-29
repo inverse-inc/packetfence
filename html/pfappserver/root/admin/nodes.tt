@@ -36,33 +36,17 @@
   <input name="searches.0.value"[% ' disabled="disabled"' IF disabled %] type="text" class="span6" placeholder="[% l('String...') %]">
   </div>
 [% END -%]
-[%  jsFiles = [
-        'app/bootstrap-timepicker',
-        'app/raphael/raphael-min',
-        'app/raphael/g.raphael-min',
-        'app/raphael/g.bar-min',
-        'app/raphael/g.dot-min',
-        'app/raphael/g.line-min',
-        'app/raphael/g.pie-min',
+  [%  jsFiles = [
+        'js/raphael.min',
         'app/graphs',
-        'app/uri',
         'admin/nodes',
         'admin/searches',
         'js/node',
         'js/user',
         ]
      cssFiles = [
-        'app/bootstrap-timepicker',
         ] -%]
 
-<style type="text/css">
-.bootstrap-timepicker table {
-    width: 160px;
-}
-.table-dynamic .action {
-    width: 36px;
-}
-</style>
     [% roles_options = BLOCK %]
         [% FOREACH role IN roles %]
         <option value="[% role.name %]">[% role.name %]</option>

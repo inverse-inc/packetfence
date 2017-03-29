@@ -39,7 +39,16 @@ module.exports = function(grunt) {
       'bower_components/jquery-ui/ui/widgets/droppable.js'
     ],
     'js/vendor/jquery-extra.min.js': [
-      'js/jquery.browser.js'
+      'js/jquery.browser.js',
+      'app/uri.js'
+    ],
+    'js/raphael.min.js': [
+      'app/raphael/raphael-min.js',
+      'app/raphael/g.raphael-min.js',
+      'app/raphael/g.bar-min.js',
+      'app/raphael/g.dot-min.js',
+      'app/raphael/g.line-min.js',
+      'app/raphael/g.pie-min.js'
     ]
   };
   var sass_include_paths = [
