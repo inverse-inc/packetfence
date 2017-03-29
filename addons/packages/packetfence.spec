@@ -525,15 +525,8 @@ cp addons/*.sh $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r sbin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r conf $RPM_BUILD_ROOT/usr/local/pf/
 cp -r raddb $RPM_BUILD_ROOT/usr/local/pf/
-mv addons/pfdetect_remote/sbin/pfdetect_remote $RPM_BUILD_ROOT/usr/local/pf/sbin
-mv addons/pfdetect_remote/conf/pfdetect_remote.conf $RPM_BUILD_ROOT/usr/local/pf/conf
 mv packetfence.sudoers $RPM_BUILD_ROOT/etc/sudoers.d/packetfence
 mv packetfence.cron.d $RPM_BUILD_ROOT/etc/cron.d/packetfence
-rmdir addons/pfdetect_remote/sbin
-rm addons/pfdetect_remote/initrd/pfdetectd
-rmdir addons/pfdetect_remote/initrd
-rmdir addons/pfdetect_remote/conf
-rmdir addons/pfdetect_remote
 mv addons/pfarp_remote/sbin/pfarp_remote $RPM_BUILD_ROOT/usr/local/pf/sbin
 mv addons/pfarp_remote/conf/pfarp_remote.conf $RPM_BUILD_ROOT/usr/local/pf/conf
 rmdir addons/pfarp_remote/sbin
