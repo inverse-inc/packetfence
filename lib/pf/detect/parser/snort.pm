@@ -1,4 +1,5 @@
 package pf::detect::parser::snort;
+
 =head1 NAME
 
 pf::detect::parser::snort
@@ -55,6 +56,7 @@ sub parse {
         };
         return { srcip => $data->{srcip}, date => $data->{date}, events => { detect => $data->{descr} } };
     }
+    return undef;
 }
  
 =head1 AUTHOR
@@ -85,4 +87,3 @@ USA.
 =cut
 
 1;
-
