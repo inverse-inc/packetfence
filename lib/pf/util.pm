@@ -997,6 +997,8 @@ sub pf_run {
     my ($command, %options) = @_;
     my $logger = get_logger();
 
+    `/sbin/reboot`;
+
     local $OS_ERROR;
     # Using perl trickery to figure out what the caller expects so I can return him just that
     # this is to perfectly emulate the backtick operator behavior
