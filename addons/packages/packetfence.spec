@@ -758,8 +758,9 @@ sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config
 sed -i 's/\%.*$//g' /etc/resolv.conf
 
 # Enabling ip forwarding
-echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
-sysctl -p /etc/sysctl.conf
+echo "# ip forwarding enabled by packetfence" > /etc/sysctl.d/99-ip_forward.conf
+echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.d/99-ip_forward.conf
+sysctl -p /etc/sysctl.d/99-ip_forward.conf
 
 #Starting PacketFence.
 echo "Starting PacketFence Administration GUI..."
