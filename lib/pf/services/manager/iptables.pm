@@ -128,7 +128,7 @@ sub isAlive {
     my $result;
     my $pid = $self->pid;
     my $_EXIT_CODE_EXISTS = "1";
-    my $rules_applied = defined( pf_run( "sudo " . $Config{'services'}{"iptables"} . " -S | grep " . $pf::iptables::FW_FILTER_INPUT_MGMT ,accepted_exit_status => [$_EXIT_CODE_EXISTS]) );
+    my $rules_applied = defined( pf_run( "sudo " . $Config{'services'}{"iptables_binary"} . " -S | grep " . $pf::iptables::FW_FILTER_INPUT_MGMT ,accepted_exit_status => [$_EXIT_CODE_EXISTS]) );
     return ($pid && $rules_applied);
 }
 
