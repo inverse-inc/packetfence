@@ -1,2 +1,1 @@
-<h2>[% l('System Configuration') %]</h2>
-<img src="img/instagram-icon.png" alt="Define a Policy">
+<h2><b>[% l('System Configuration') %]</b></h2>
