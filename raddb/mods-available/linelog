@@ -15,7 +15,7 @@ linelog {
 	#
 	#  If the filename is "syslog", then the log messages will
 	#  go to syslog.
-	filename = ${logdir}/radius.log
+	filename = syslog
 	#filename = ${logdir}/linelog
 
 	#
@@ -62,7 +62,7 @@ linelog {
 	#  - ftp         The file transfer protocol daemons: ftpd(8),
 	#                tftpd(8).
 	#  - local[0-7]  Reserved for local use.
-#	syslog_facility = daemon
+	syslog_facility = local6
 
 	#  Syslog severity (if logging via syslog). Defaults to info.
 	#  Possible values are:
@@ -136,9 +136,11 @@ linelog log_accounting {
 	#
 	format = ""
 
-	filename = ${logdir}/linelog-accounting
+	filename = syslog
 
 	permissions = 0600
+
+	syslog_facility = local7
 
 	reference = "Accounting-Request.%{%{Acct-Status-Type}:-unknown}"
 
