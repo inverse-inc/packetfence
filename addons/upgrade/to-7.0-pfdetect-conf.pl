@@ -19,7 +19,7 @@ use pf::IniFiles;
 use pf::file_paths qw($pfdetect_config_file);
 
 exit 0 unless -e $pfdetect_config_file;
-my $ini = pf::IniFiles->new(-file => $pfdetect_config_file);
+my $ini = pf::IniFiles->new(-file => $pfdetect_config_file, -allowempty => 1);
 
 for my $section ($ini->Sections()) {
     print "Checking $section\n";
