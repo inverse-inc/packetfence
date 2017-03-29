@@ -168,7 +168,10 @@ install: build
 	touch $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/dhcpd/dhcpd.leases
 	#Documentation
 	for i in `find * -name "*.asciidoc" -path 'docs/*' -type f`; do \
-		asciidoctor -D $(CURDIR)/debian/packetfence-doc/html/pfappserver/root/static/doc -n $$i; \
+		asciidoctor -D $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/doc -n $$i; \
+	done
+	for i in `find * -path 'docs/images/*' -type f`; do \
+		install -m0444 $$i $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/doc/docs/images/; \
 	done
 # Build architecture-independent files here.
 binary-indep: build install
