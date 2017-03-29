@@ -15,7 +15,6 @@ pf::detect::parser::regex
 use strict;
 use warnings;
 use pf::log;
-use pf::api::queue;
 use pf::util qw(isenabled clean_mac);
 use Clone qw(clone);
 use Moo;
@@ -109,17 +108,6 @@ sub prepAction {
         });
     my $params = $self->evalParams($action_params, $data);
     return [$action, $params];
-}
-
-=head2 getApiClient
-
-get the api client
-
-=cut
-
-sub getApiClient {
-    my ($self) = @_;
-    return pf::api::queue->new(queue => 'pfdetect');
 }
 
 =head2 evalParams
