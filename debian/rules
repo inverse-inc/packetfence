@@ -167,7 +167,7 @@ install: build
 	#Create our dhcpd.leases
 	touch $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/dhcpd/dhcpd.leases
 	#Documentation
-	for i in `find * -name "*.asciidoc" -path 'docs/*' -type d`; do \
+	for i in `find * -name "*.asciidoc" -path 'docs/*' -type f`; do \
 		asciidoctor -D $(CURDIR)/debian/packetfence-doc/html/pfappserver/root/static/doc -n $i; \
 	done
 # Build architecture-independent files here.
