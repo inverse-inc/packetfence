@@ -90,6 +90,7 @@ Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
 Requires: httpd, mod_ssl
 Requires: mod_perl, mod_proxy_html
 requires: libapreq2
+Requires: ntp
 Requires: dhcp
 Requires: redis
 Requires: freeradius >= 3.0.13-19, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils, freeradius-redis, freeradius-rest, freeradius-radsniff >= 3.0.13-19
@@ -760,6 +761,13 @@ sed -i 's/\%.*$//g' /etc/resolv.conf
 # Enabling ip forwarding
 echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
 sysctl -p /etc/sysctl.conf
+
+#Fixing ntp to not deal with virtual interfaces
+sed -i '/OPTIONS/d' /etc/sysconfig/ntpd
+echo 'OPTIONS="-g -L"' >> /etc/sysconfig/ntpd
+#enabling and starting ntp, required for Active Directory communications. Will talk to centos.pool.ntp.org by default.
+/bin/systemctl enable ntp
+/bin/systemctl start ntp
 
 #Starting PacketFence.
 echo "Starting PacketFence Administration GUI..."
