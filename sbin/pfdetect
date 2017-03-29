@@ -147,7 +147,7 @@ sub _run_detector {
         $logger->info("listening on $alert_pipe");
     }
 
-    my $client = pf::api::queue->new(queue => 'pfdetect');
+    my $client = $parser->getApiClient();
 
     while (<$alert_pipe_fh>) {
         last unless $running;
