@@ -2257,7 +2257,6 @@ If you just enabled the passthroughs, you should restart the iptables services a
 
 Then add passthroughs in *Configuration->Advanced Configuration->Networks->Fencing->Passthroughs*. They can be of the following format:
 
-
  * *example.com*: opens ports 80 and 443 in TCP for example.com
  * *example.com:1812*: opens the port 1812 in TCP and UDP for example.com
  * *example.com:tcp:1812*: opens the port 1812 in TCP for example.com
