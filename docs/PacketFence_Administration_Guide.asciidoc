@@ -889,7 +889,7 @@ Option 1: Authentication against Active Directory (AD)
 
 CAUTION: If you are using an Active/Active or Active/Passive cluster, please follow the instructions under 'Option 1b' since the instructions below do not currently work in a cluster.
 
-Go in the Administration interface under *Configuration -> Domains*.
+Go in the Administration interface under *Configuration -> Policies and Access Control -> Domains*.
 
 NOTE: If you can't access this section and you have previously configured your server to bind to a domain externally to PacketFence, make sure you run `/usr/local/pf/addons/AD/migrate.pl`
 
