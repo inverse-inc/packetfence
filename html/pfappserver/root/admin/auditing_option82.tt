@@ -23,10 +23,11 @@
                       [% END %]</ul>
                     </li>
                   [% FOREACH switch_group IN switch_groups %]
+                  <li class="sidenav-subsection">
                     <a data-toggle="collapse" data-parent="#collapseOption82SwitchGroup" href="#collapse_[% switch_group.id %]" class="collapsed">[% switch_group.id %]<i class="icon-chevron-up pull-right"></i></a>
                     <li id="collapse_[% switch_group.id %]" class="collapse">
                       <ul>[% FOREACH member IN switch_group.members %]
-                        <li><a href="#" data-toggle="pf-search-form" data-parent="#collapse_[% switch_group.id %]"data-target="#search" data-form-target="#search">[% member.id %]</a>
+                        <li class="sidenav-subsection-extend"><a href="#" data-toggle="pf-search-form" data-parent="#collapse_[% switch_group.id %]"data-target="#search" data-form-target="#search">[% member.id %]</a>
                           <form>
                             <input type="hidden" name="searches.0.name" value="switch_id"/>
                             <input type="hidden" name="searches.0.op" value="equal"/>
