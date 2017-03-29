@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 6.5.9\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-03-24 16:27-0400\n"
+"PO-Revision-Date: 2017-03-29 14:10-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -1508,6 +1508,10 @@ msgstr ""
 msgid "Connection Profiles and Pages"
 msgstr ""
 
+# html/pfappserver/root/configuration/define_policy.tt
+msgid "Connection Profiles:"
+msgstr ""
+
 # html/pfappserver/root/node/tab_Location_view.tt
 msgid "Connection Sub Type"
 msgstr ""
@@ -1906,10 +1910,6 @@ msgstr ""
 msgid "Default pid value to assign to imported nodes."
 msgstr ""
 
-# html/pfappserver/root/configuration/define_policy.tt
-msgid "Define Policy"
-msgstr ""
-
 # html/pfappserver/root/config/adminroles/index.tt
 msgid "Define roles with specific access rights to the Web administration interface. Roles are assigned to users depending on their authentication source."
 msgstr ""
@@ -2296,6 +2296,10 @@ msgstr ""
 # html/pfappserver/root/admin/auditing_radius_log.tt
 # html/pfappserver/root/config/domain/index.tt
 msgid "Domains"
+msgstr ""
+
+# html/pfappserver/root/configuration/define_policy.tt
+msgid "Domains:"
 msgstr ""
 
 # html/pfappserver/root/configurator/enforcement.tt
@@ -2754,6 +2758,10 @@ msgstr ""
 msgid "For Disconnect request, if we have to send to another port"
 msgstr ""
 
+# html/pfappserver/root/configuration/define_policy.tt
+msgid "For PacketFence to work properly, you must define in the following order:"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid "Force redirection URL"
 msgstr ""
@@ -2774,6 +2782,7 @@ msgstr ""
 msgid "General"
 msgstr ""
 
+# html/pfappserver/root/config/fingerbank/settings/onboard.tt
 # html/pfappserver/root/configurator/fingerbank.tt
 msgid "Get Aboard!"
 msgstr ""
@@ -3560,10 +3569,6 @@ msgstr ""
 msgid "Maintenance Tasks"
 msgstr ""
 
-# html/pfappserver/root/config/domain/index.tt
-msgid "Make sure you configure IPv4 forwarding on your server before continuing. Refer to the PacketFence administration guide for details."
-msgstr ""
-
 # html/pfappserver/root/node/create.tt
 msgid "Manually add nodes to the system."
 msgstr ""
@@ -3946,6 +3951,10 @@ msgstr ""
 
 # html/pfappserver/root/pfqueue/index.tt
 msgid "No Task Counters."
+msgstr ""
+
+# html/pfappserver/root/dynamicreport/search.tt
+msgid "No data found"
 msgstr ""
 
 # html/pfappserver/root/user/nodes.tt
@@ -4869,6 +4878,7 @@ msgid "Please specify the workgroup"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/configuration/define_policy.tt
 msgid "Policies and Access Control"
 msgstr ""
 
@@ -5590,6 +5600,10 @@ msgstr ""
 # html/pfappserver/root/config/roles/index.tt
 # html/pfappserver/root/config/switch/view.tt
 msgid "Roles"
+msgstr ""
+
+# html/pfappserver/root/configuration/define_policy.tt
+msgid "Roles:"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
@@ -6341,6 +6355,10 @@ msgstr ""
 msgid "Sources"
 msgstr ""
 
+# html/pfappserver/root/configuration/define_policy.tt
+msgid "Sources:"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Specifies if a host can self remediate the violation (enable network button) or if they can not and must call the help desk."
 msgstr ""
@@ -6588,6 +6606,10 @@ msgstr ""
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/switch/index.tt
 msgid "Switches"
+msgstr ""
+
+# html/pfappserver/root/configuration/define_policy.tt
+msgid "Switches:"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
@@ -7117,7 +7139,7 @@ msgid "The username to use for login to the captive portal."
 msgstr ""
 
 # html/pfappserver/root/user/create.tt
-msgid "The usernames are constructed from the <b>prefix</b> and the <b>quantity</b>. For example, setting the prefix to <i>guest</i> and the quantity to <i>3</i> creates usernames <i>guest1</i>,<i> guest2</i> and <i>guest3</i>. Random passwords will be created."
+msgid "The usernames are constructed from the <b>prefix</b> and the <b>quantity</b>. For example, setting the prefix to <i>guest</i> and the quantity to <i>3</i> creates usernames <i>guest1</i>, <i>guest2</i> and <i>guest3</i>. Random passwords will be created."
 msgstr ""
 
 # conf/documentation.conf (active_active.virtual_router_id)
@@ -7931,6 +7953,14 @@ msgstr ""
 msgid "What's going on?"
 msgstr ""
 
+# html/pfappserver/root/configuration/define_policy.tt
+msgid "When an endpoint connects to the network, PacketFence must be able to assign a role to it, or its user. The role can then be translated to a VLAN, a set of ACL, a switch manufacturer policy identifier or a combinations of all of this."
+msgstr ""
+
+# html/pfappserver/root/configuration/define_policy.tt
+msgid "When devices are connecting to your network, you might want to show a captive portal or auto-register the device. You can control the behavior in this module."
+msgstr ""
+
 # conf/documentation.conf (captive_portal.status_only_on_production)
 msgid "When enabled the /status page will only be available on theproduction network. By default this is disabled"
 msgstr ""
@@ -8150,6 +8180,10 @@ msgstr ""
 msgid "Your username or email address"
 msgstr ""
 
+# html/pfappserver/root/configuration/define_policy.tt
+msgid "a role will allow PacketFence to grant different network access to endpoints connecting to your network. For example, employee vs. guest;"
+msgstr ""
+
 # pf::provisioner (Provisioners)
 msgid "accept"
 msgstr "Accept"
@@ -8343,6 +8377,10 @@ msgstr "Auth Status"
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "auth_type"
 msgstr "Auth Type"
+
+# html/pfappserver/root/configuration/define_policy.tt
+msgid "authentication sources will allow you to identify users and assign them roles and access durations;"
+msgstr ""
 
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "auto_reg"
@@ -9056,6 +9094,10 @@ msgstr ""
 msgid "ibm"
 msgstr "IBM"
 
+# html/pfappserver/root/configuration/define_policy.tt
+msgid "if you want to authenticate users or machines using a Microsoft Active Domain Controller (DC), you have to join the PacketFence server to the DC;"
+msgstr ""
+
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "ifindex"
 msgstr "IfIndex"
@@ -9185,6 +9227,10 @@ msgstr "Is a Phone"
 
 # conf/documentation.conf (advanced.language options)
 msgid "it_IT"
+msgstr ""
+
+# html/pfappserver/root/configuration/define_policy.tt
+msgid "lPacketFence manages switches, access points and WiFi controllers. You have to add the equipment you want PacketFence to manage and do the role by VLAN/ACL/policy identifier mapping;"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/User.pm
