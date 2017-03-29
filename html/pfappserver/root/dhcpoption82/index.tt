@@ -97,5 +97,7 @@
       </div>
     </div>
   </div>
-[% INCLUDE dhcpoption82/search.tt %]
+  <div class="card-block">
+    [% INCLUDE dhcpoption82/search.tt %]
+  </div>
 </div>
