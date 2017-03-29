@@ -42,7 +42,6 @@ case "$1" in
         chmod 0755 $PACKETFENCE/addons/*.pl
         chmod 0755 $PACKETFENCE/addons/*.sh
         chmod 0755 $PACKETFENCE/addons/upgrade/*.pl
-        chmod 0755 $PACKETFENCE/addons/snort/*.pl
         chmod 0755 $PACKETFENCE/addons/watchdog/*.sh
         chmod 0755 $PACKETFENCE/bin/*
         chmod 0755 $PACKETFENCE/sbin/*
