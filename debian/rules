@@ -170,6 +170,7 @@ install: build
 	for i in `find * -name "*.asciidoc" -path 'docs/*' -type f`; do \
 		asciidoctor -D $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/doc -n $$i; \
 	done
+	install -d -m0744 $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/doc/docs/images
 	for i in `find * -path 'docs/images/*' -type f`; do \
 		install -m0444 $$i $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/doc/docs/images/; \
 	done
