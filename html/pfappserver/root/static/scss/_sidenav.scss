@@ -1,6 +1,9 @@
 /// _sidenav.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2 -*-
 
-$sidenavCategoryColorActive: lighten($blue, 30%);
+$sidenavCategoryColorActive:    lighten($blue, 30%);
+$sidenavItemHeight:             $baseLineHeight + 6px; // line-height + padding
+$sidenavItemBulletSize:         8px;
+$sidenavSubsectionColor:        darken($navbarInverseText, 30%);
 
 /**
  * Sidenav is fixed on the left side of the viewpane and dark by default.
@@ -60,9 +63,6 @@ $sidenavCategoryColorActive: lighten($blue, 30%);
     background-color: initial;
   }
 
-  $sidenavItemHeight: $baseLineHeight + 6px; // line-height + padding
-  $sidenavItemBulletSize: 8px;
-
   .sidenav-subsection {
     position: relative;
     &.active > a {
@@ -72,7 +72,7 @@ $sidenavCategoryColorActive: lighten($blue, 30%);
     &:not(:last-child)::before {
       content: '';
       position: absolute;
-      background: darken($navbarInverseText, 30%);
+      background: $sidenavSubsectionColor;
       width: 2px;
       height: $sidenavItemHeight - $sidenavItemBulletSize;
       left: $sidenavItemBulletSize/2 - 1px;
@@ -84,7 +84,7 @@ $sidenavCategoryColorActive: lighten($blue, 30%);
     // The circle
     &::after {
       background-color: $navbarInverseBorder;
-      border: 2px solid darken($navbarInverseText, 30%);
+      border: 2px solid $sidenavSubsectionColor;
       top: 50%;
       left: 0;
       width: $sidenavItemBulletSize;
@@ -118,7 +118,7 @@ $sidenavCategoryColorActive: lighten($blue, 30%);
     &::before {
       content: '';
       position: absolute;
-      background: $navbarInverseText;
+      background: $sidenavSubsectionColor;
       width: 2px;
       height: $sidenavItemHeight;
       left: $sidenavItemBulletSize/2 - 1px;
