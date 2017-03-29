@@ -74,7 +74,7 @@
   </div>
 
   [%- IF can_access("PORTAL_MODULE_UPDATE") %]
-  <div class="form-actions">
+  <div class="card-actions form-actions">
     <button type="submit" class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>
     [% IF source.id %]<button type="reset" class="btn">[% l('Reset') %]</button>[% END %]
   </div>

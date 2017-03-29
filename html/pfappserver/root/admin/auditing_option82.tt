@@ -3,7 +3,6 @@
               <li class="divider-horizontal"></li>
             </ul>
             <ul class="nav nav-list">
-              <li class="divider"></li>
               <li id="accordion-SwithGroup">
                 <a data-toggle="collapse" href="#collapseOption82SwitchGroup" class="collapsed">
                     [% l('Switch Groups')%]

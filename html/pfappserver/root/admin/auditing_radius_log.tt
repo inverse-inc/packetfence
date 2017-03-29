@@ -3,38 +3,41 @@
               <li class="divider-horizontal"></li>
             </ul>
             <ul class="nav nav-list">
-              <li class="divider"></li>
               <li id="accordion-SwithGroup">
                 <a data-toggle="collapse" href="#collapseRadiusSwitchGroup" class="collapsed">
                     [% l('Switch Groups')%]
                 <i class="icon-chevron-up pull-right"></i></a>
-                <ul id="collapseRadiusSwitchGroup" class="collapse">
-                  <a data-toggle="collapse" href="#collapseRadiusSwitchGroupDefault" class="collapsed">Default<i class="icon-chevron-up pull-right"></i></a>
-                    <li id="collapseRadiusSwitchGroupDefault" class="collapse">
-                      <ul>[% FOREACH switch IN switches %]
-                      <li><a href="#" data-toggle="pf-search-form" data-target="#search" data-form-target="#search">[% switch.id %]</a>
+                <ul id="collapseRadiusSwitchGroup" class="nav nav-list collapse">
+                  <li class="sidenav-subsection">
+                    <a data-toggle="collapse" href="#collapseRadiusSwitchGroupDefault" class="collapsed">Default<i class="icon-chevron-up pull-right"></i></a>
+                  </li>
+                  <li id="collapseRadiusSwitchGroupDefault" class="collapse">
+                    <ul>[% FOREACH switch IN switches %]
+                      <li class="sidenav-subsection-extend"><a href="#" data-toggle="pf-search-form" data-target="#search" data-form-target="#search">[% switch.id %]</a>
                         <form>
                           <input type="hidden" name="searches.0.name" value="nas_ip_address"/>
                           <input type="hidden" name="searches.0.op" value="equal"/>
                           <input type="hidden" name="searches.0.value" value="[% switch.id %]"/>
                         </form>
-                        </li>
+                      </li>
                       [% END %]</ul>
-                    </li>
+                  </li>
                   [% FOREACH switch_group IN switch_groups %]
+                  <li class="sidenav-subsection">
                     <a data-toggle="collapse" href="#collapse_[% switch_group.id %]" class="collapsed">[% switch_group.id %]<i class="icon-chevron-up pull-right"></i></a>
-                    <li id="collapse_[% switch_group.id %]" class="collapse">
-                      <ul>[% FOREACH member IN switch_group.members %]
-                        <li><a href="#" data-toggle="pf-search-form" data-target="#search" data-form-target="#search">[% member.id %]</a>
-                          <form>
-                            <input type="hidden" name="searches.0.name" value="nas_ip_address"/>
-                            <input type="hidden" name="searches.0.op" value="equal"/>
-                            <input type="hidden" name="searches.0.value" value="[% member.id %]"/>
-                          </form>
-                        </li>
+                  </li>
+                  <li id="collapse_[% switch_group.id %]" class="collapse">
+                    <ul>[% FOREACH member IN switch_group.members %]
+                      <li class="sidenav-subsection-extend"><a href="#" data-toggle="pf-search-form" data-target="#search" data-form-target="#search">[% member.id %]</a>
+                        <form>
+                          <input type="hidden" name="searches.0.name" value="nas_ip_address"/>
+                          <input type="hidden" name="searches.0.op" value="equal"/>
+                          <input type="hidden" name="searches.0.value" value="[% member.id %]"/>
+                        </form>
+                      </li>
                       [% END %]
-                      </ul>
-                    </li>
+                    </ul>
+                  </li>
                   [% END %]
                 </ul>
               </li>
@@ -43,9 +46,9 @@
                 <a data-toggle="collapse" href="#collapseRole" class="collapsed">
                   [% l('Roles') %]
                 <i class="icon-chevron-up pull-right"></i></a>
-                <ul id="collapseRole" class="collapse">
+                <ul id="collapseRole" class="nav nav-list collapse">
                   [% FOREACH role IN roles %]
-                    <li>
+                    <li class="sidenav-subsection">
                       <a href="#" data-toggle="pf-search-form"  data-target="#search" data-form-target="#search">[% role.name %]</a>
                         <form>
                           <input type="hidden" name="searches.0.name" value="role"/>
@@ -60,8 +63,8 @@
                 <a data-toggle="collapse" href="#collapseStatus" class="collapsed">
                    [% l('Status') %]
                 <i class="icon-chevron-up pull-right"></i></a>
-                <ul id="collapseStatus" class="collapse">
-                  <li>
+                <ul id="collapseStatus" class="nav nav-list collapse">
+                  <li class="sidenav-subsection">
                     <a href="#" data-toggle="pf-search-form" data-target="#search" data-form-target="#search">Register</a>
                       <form>
                         <input type="hidden" name="searches.0.name" value="node_status"/>
@@ -69,7 +72,7 @@
                         <input type="hidden" name="searches.0.value" value="reg"/>
                       </form>
                   </li>
-                  <li>
+                  <li class="sidenav-subsection">
                     <a href="#" data-toggle="pf-search-form" data-target="#search" data-form-target="#search">Unregister</a>
                       <form>
                         <input type="hidden" name="searches.0.name" value="node_status"/>
@@ -77,7 +80,7 @@
                         <input type="hidden" name="searches.0.value" value="unreg"/>
                       </form>
                   </li>
-                  <li>
+                  <li class="sidenav-subsection">
                     <a href="#" data-toggle="pf-search-form" data-target="#search" data-form-target="#search">Accepted</a>
                       <form>
                         <input type="hidden" name="searches.0.name" value="auth_status"/>
@@ -85,7 +88,7 @@
                         <input type="hidden" name="searches.0.value" value="accept"/>
                       </form>
                   </li>
-                  <li>
+                  <li class="sidenav-subsection">
                     <a href="#" data-toggle="pf-search-form" data-target="#search" data-form-target="#search">Rejected</a>
                       <form>
                         <input type="hidden" name="searches.0.name" value="auth_status"/>
@@ -99,9 +102,9 @@
                 <a data-toggle="collapse" href="#collapseSource" class="collapsed">
                   [% l('Sources') %]
                 <i class="icon-chevron-up pull-right"></i></a>
-                <ul id="collapseSource" class="collapse">
+                <ul id="collapseSource" class="nav nav-list collapse">
                   [% FOREACH source IN sources %]
-                    <li>
+                    <li class="sidenav-subsection">
                       <a href="#" data-toggle="pf-search-form"  data-target="#search" data-form-target="#search">[% source.id %]</a>
                         <form>
                           <input type="hidden" name="searches.0.name" value="source"/>
@@ -116,9 +119,9 @@
                 <a data-toggle="collapse" href="#collapseRealm" class="collapsed">
                   [% l('Realms') %]
                 <i class="icon-chevron-up pull-right"></i></a>
-                <ul id="collapseRealm" class="collapse">
+                <ul id="collapseRealm" class="nav nav-list collapse">
                   [% FOREACH realm IN realms %]
-                    <li>
+                    <li class="sidenav-subsection">
                       <a href="#" data-toggle="pf-search-form"  data-target="#search" data-form-target="#search">[% realm.Id %]</a>
                         <form>
                           <input type="hidden" name="searches.0.name" value="realm"/>
@@ -133,9 +136,9 @@
                 <a data-toggle="collapse" href="#collapseProfile" class="collapsed">
                   [% l('Profiles') %]
                 <i class="icon-chevron-up pull-right"></i></a>
-                <ul id="collapseProfile" class="collapse">
+                <ul id="collapseProfile" class="nav nav-list collapse">
                   [% FOREACH profile IN profiles %]
-                    <li>
+                    <li class="sidenav-subsection">
                       <a href="#" data-toggle="pf-search-form"  data-target="#search" data-form-target="#search">[% profile.Id %]</a>
                         <form>
                           <input type="hidden" name="searches.0.name" value="profile"/>
@@ -150,9 +153,9 @@
                 <a data-toggle="collapse" href="#collapseDomain" class="collapsed">
                   [% l('Domains') %]
                 <i class="icon-chevron-up pull-right"></i></a>
-                <ul id="collapseDomain" class="collapse">
+                <ul id="collapseDomain" class="nav nav-list collapse">
                   [% FOREACH domain IN domains %]
-                    <li>
+                    <li class="sidenav-subsection">
                       <a href="#" data-toggle="pf-search-form"  data-target="#search" data-form-target="#search">[% domain.Id %]</a>
                         <form>
                           <input type="hidden" name="searches.0.name" value="pf_domain"/>

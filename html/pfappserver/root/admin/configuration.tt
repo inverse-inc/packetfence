@@ -45,10 +45,10 @@ table.sources {
 [% MACRO pf_section_entry(section, description, subsections) BLOCK %]
               <li class="section">
                 <a href="[%c.pf_hash_for(c.controller('Configuration').action_for('section'),section) %]">[% l(description || section) %]</a>
-                <ul>
-                [% FOREACH subsection IN subsections.keys %]
-                <li class="subsection"><a href="[%c.pf_hash_for(c.controller('Configuration').action_for(section),subsection) %]">[% subsections.$subsection.name %]</a></li>
-                [% END %]
+                <ul class="nav nav-list">
+                  [% FOREACH subsection IN subsections.keys %]
+                  <li class="sidenav-subsection"><a href="[%c.pf_hash_for(c.controller('Configuration').action_for(section),subsection) %]">[% subsections.$subsection.name %]</a></li>
+                  [% END %]
                 </ul>
               </li>
 [% END -%]
