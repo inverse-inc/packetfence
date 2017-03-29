@@ -9650,6 +9650,34 @@ msgstr "pending"
 msgid "pf_domain"
 msgstr "Domain"
 
+# pf::factory::detect::parser (Detect Parsers)
+msgid "pfdetect_type_dhcp"
+msgstr ""
+
+# pf::factory::detect::parser (Detect Parsers)
+msgid "pfdetect_type_fortianalyser"
+msgstr ""
+
+# pf::factory::detect::parser (Detect Parsers)
+msgid "pfdetect_type_regex"
+msgstr ""
+
+# pf::factory::detect::parser (Detect Parsers)
+msgid "pfdetect_type_security_onion"
+msgstr ""
+
+# pf::factory::detect::parser (Detect Parsers)
+msgid "pfdetect_type_snort"
+msgstr ""
+
+# pf::factory::detect::parser (Detect Parsers)
+msgid "pfdetect_type_suricata"
+msgstr ""
+
+# pf::factory::detect::parser (Detect Parsers)
+msgid "pfdetect_type_suricata_md5"
+msgstr ""
+
 # pf::Authentication::Source::SMSSource (available_attributes)
 # pf::Authentication::Source::TwilioSource (available_attributes)
 msgid "phonenumber"

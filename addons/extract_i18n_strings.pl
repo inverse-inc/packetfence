@@ -31,6 +31,7 @@ use pf::config;
 use pf::radius_audit_log;
 use pf::constants::admin_roles qw(@ADMIN_ACTIONS);
 use pf::dhcp_option82;
+use pf::factory::detect::parser;
 
 use constant {
     APP => 'html/pfappserver',
@@ -335,6 +336,7 @@ sub extract_modules {
     const('pf::config', 'Network types', [$pf::config::NET_TYPE_VLAN_REG, $pf::config::NET_TYPE_VLAN_ISOL, $pf::config::NET_TYPE_INLINE, 'management', 'other']);
     const('pf::radius_audit_log', 'RADIUS Audit Log', \@pf::radius_audit_log::FIELDS);
     const('pf::dhcp_option82', 'DHCP Option 82', [values %pf::dhcp_option82::HEADINGS]);
+    const('pf::factory::detect::parser', 'Detect Parsers', [map { /^pf::detect::parser::(.*)/;"pfdetect_type_$1"  } @pf::factory::detect::parser::MODULES]);
 
     my @values = map { "${_}_action" } @pf::action::VIOLATION_ACTIONS;
     const('pf::action', 'VIOLATION_ACTIONS', \@values);
