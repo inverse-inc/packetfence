@@ -155,7 +155,7 @@ sub _run_detector {
         my $line = $_;
         $logger->info("alert received: '$line'");
         my $data = $parser->parse($line);
-        unless($data || $data eq '0') { # Getting '0' from the parser indicates "job's done" which mean, nothing more to do for that line
+        unless(defined $data) { # Error parsing line
             $logger->warn("unknown input: $line ");
             next;
         }
