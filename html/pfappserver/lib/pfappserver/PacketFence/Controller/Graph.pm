@@ -519,21 +519,6 @@ sub systemstate :Local :AdminRole('REPORTS') {
                 'target' => 'aliasByNode(*.conntrack.percent-used,0)',
                 'columns' => 2
                },
-               {
-                'description' => $c->loc('DRBD Stats'),
-                'target' => 'aliasByNode(*.*.drbd_resource-{unacknowledged,pending,oos},0,2)',
-                'columns' => 2
-               },
-               {
-                'description' => $c->loc('DRBD Network'),
-                'target' => 'aliasByNode(*.*.drbd_resource-{network_recv,network_send},0,2)',
-                'columns' => 2
-               },
-               {
-                'description' => $c->loc('DRBD Disk read/write'),
-                'target' => 'aliasByNode(*.*.drbd_resource-{disk_read,disk_write},0,2)',
-                'columns' => 2
-               },
               ];
 
     foreach my $graph (@$graphs) {
