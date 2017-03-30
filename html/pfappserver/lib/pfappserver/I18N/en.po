@@ -9652,31 +9652,31 @@ msgstr "Domain"
 
 # pf::factory::detect::parser (Detect Parsers)
 msgid "pfdetect_type_dhcp"
-msgstr ""
+msgstr "DHCP"
 
 # pf::factory::detect::parser (Detect Parsers)
 msgid "pfdetect_type_fortianalyser"
-msgstr ""
+msgstr "FortiAnalyzer"
 
 # pf::factory::detect::parser (Detect Parsers)
 msgid "pfdetect_type_regex"
-msgstr ""
+msgstr "regex"
 
 # pf::factory::detect::parser (Detect Parsers)
 msgid "pfdetect_type_security_onion"
-msgstr ""
+msgstr "Security Onion"
 
 # pf::factory::detect::parser (Detect Parsers)
 msgid "pfdetect_type_snort"
-msgstr ""
+msgstr "Snort"
 
 # pf::factory::detect::parser (Detect Parsers)
 msgid "pfdetect_type_suricata"
-msgstr ""
+msgstr "Suricata"
 
 # pf::factory::detect::parser (Detect Parsers)
 msgid "pfdetect_type_suricata_md5"
-msgstr ""
+msgstr "Suricata MD5"
 
 # pf::Authentication::Source::SMSSource (available_attributes)
 # pf::Authentication::Source::TwilioSource (available_attributes)
