@@ -114,9 +114,7 @@ td a.btn { margin-left: 5px; }
   </table>
 [%- END -%]
 
-<div class="card">
 <h2></h2>
-<div class="card-block">
 <div id="connection_profile_files">
   <div class="modal fade hide" id="newFileModal">
     <div class="modal-header">
@@ -191,6 +189,8 @@ td a.btn { margin-left: 5px; }
     </li>
     <li class="active">[% l('Files') %]</li>
   </ul>
+  <div class="card">
+  <div class="card-block">
   <div class="tab-content">
     <a class="btn btn-info pull-right" href="/portal_preview/captive-portal?PORTAL=[% id %]" target="_blank">[% l('Preview') %]</a>
     <ul class="nav nav-tabs">
@@ -213,6 +213,6 @@ td a.btn { margin-left: 5px; }
 
     </div><!-- #files pane -->
   </div><!-- .tab-content -->
+  </div><!-- card-block -->
+  </div><!-- card -->
 </div><!-- #connection_profile_files -->
-</div>
-</div>
