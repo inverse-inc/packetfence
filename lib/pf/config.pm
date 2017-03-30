@@ -910,6 +910,9 @@ sub configreload {
     require pf::SwitchFactory;
     require pf::freeradius;
     pf::freeradius::freeradius_populate_nas_config(\%pf::SwitchFactory::SwitchConfig);
+    
+    require pf::nodecategory;
+    pf::nodecategory::nodecategory_populate_from_config( \%pf::config::ConfigRoles );
 
     return ;
 }
