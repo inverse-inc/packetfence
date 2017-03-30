@@ -4,12 +4,20 @@
     <div class="navbar-inner">
       <div class=" container">
         <div class="nav-collapse collapse navbar-responsive-collapse">
-
-          <form class="navbar-search pull-left input-daterange" action="">
-            <input type="text" class="search-query input-small" name="start" value="[% c.session.dashboard.start | html %]" data-date-format="yyyy-mm-dd" />
-            <i class="icon-arrow-right"></i>
-            <input type="text" class="search-query input-small" name="end" value="[% c.session.dashboard.end | html %]" data-date-format="yyyy-mm-dd" date-datestart="[% c.session.dashboard_start | html %]" />
-          </form>
+          <div class="pull-left">
+            <form class="navbar-search input-daterange"
+                  data-date-format="yyyy-mm-dd">
+              <input type="text" class="input-small" name="start"
+                     value="[% c.session.dashboard.start | html %]"
+                     data-date-format="yyyy-mm-dd" />
+              <i class="icon-arrow-right"></i>
+              <input type="text" class="input-small" name="end"
+                     value="[% c.session.dashboard.end | html %]"
+                     data-date-format="yyyy-mm-dd"
+                     date-datestart="[% c.session.dashboard_start | html %]" />
+            </form>
+            <a id="changeDate" class="btn" href="#"><i class="icon-refresh"></i></a>
+          </div>
         </div>
 
         <ul class="nav pull-right">
@@ -26,7 +34,7 @@
 
   <div class="card-block">
   [% FOREACH graph IN graphs %]
-  <span style="float: left;">
+  <span style="float: left; width: [% 50 * graph.columns %]%">
     <h4>[% graph.description %]</h4>
     <img src="[% graph.url %]" style="height: [% graph.height %]px; width: [% graph.width %]px;">
   </span>

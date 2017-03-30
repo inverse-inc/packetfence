@@ -1,6 +1,4 @@
 [%  jsFiles = [
-        'js/raphael.min',
-        'app/graphs',
         'admin/status',
         ]
      cssFiles = [
@@ -39,10 +37,5 @@
       <div class="container-fluid offset3 span15">
         <div class="loader"><p><img src="[% c.uri_for('/static/app/loader-48.gif') %]"></p></div>
         <div id="section">
-          <div id="dashboard" class="card">
-            <span style="float: left; height: 320px">
-              <!-- This span is required to compute the real section's width in JavaScript -->
-            </span>
-          </div>
-        </div><!--/span-->
+        </div>
       </div><!--/row-->

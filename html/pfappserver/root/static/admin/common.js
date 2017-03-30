@@ -125,28 +125,33 @@ function submitFormHideModal(modal,form) {
             showError($('#section h2'), status_msg);
         });
 }
-/* Trigger a mouse click on the active sidebar navigation link */
+
+/**
+ * Trigger a mouse click on the sidebar navigation link matching the current location hash.
+ */
 function activateNavLink() {
     var hash = location.hash;
     var found = false;
+    var link = null;
     if (hash && hash != '#') {
         // Find the longest match
         // Sort links by descending order by string length
-        $('.sidenav .nav a').sort(function(a,b) {
-           return b.href.length - a.href.length;
+        link = $('.sidenav .nav a').sort(function(a,b) {
+            return b.href.length - a.href.length;
         })
         // Find the first link
         .filter(function(i,link) {
             if (false === found && hash.indexOf(link.hash) === 0) {
                 found = true;
-                return true;
+                return found;
             }
             return false;
-        }).trigger('click');
+        });
     }
-    if (false === found) {
-        $('.sidenav .nav a').first().trigger('click');
-    }
+    if (link === null)
+        link = $('.sidenav .nav a').first();
+
+    link.trigger('click');
 }
 
 /* Update #section using an ajax request */
@@ -171,6 +176,10 @@ function doUpdateSection(ajax_data) {
                 .done(function(data) {
                     section.html(data);
                     section.find('.datepicker, .input-daterange').datepicker({ autoclose: true });
+                    section.find('.input-daterange input').on('changeDate', function(event) {
+                        // Force autoclose
+                        $('.datepicker').remove();
+                    });
                     section.find('.timepicker-default').each(function() {
                         // Keep the placeholder visible if the input has no value
                         var defaultTime = $(this).val().length? 'value' : false;
