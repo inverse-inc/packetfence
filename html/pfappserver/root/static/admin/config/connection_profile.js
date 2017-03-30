@@ -235,7 +235,7 @@ function initReadPage(element) {
         }
         catch(e) {}
         // If all options have been added, remove the add button
-        var rows = row.siblings(':not(.hidden)').andSelf();
+        var rows = row.siblings(':not(.hidden)').addBack();
         if (rows.length == options.length) {
             rows.find('[href="#add"]').addClass('hidden');
         }

@@ -653,7 +653,7 @@ $(function () { // DOM ready
                 src.insertBefore(dst);
 
                 // Update indexes
-                var rows = dst.siblings(':not(.hidden)').andSelf();
+                var rows = dst.siblings(':not(.hidden)').addBack();
                 updateDynamicRows(rows);
                 dst.closest('table, ul').trigger('admin.ordered');
             }
