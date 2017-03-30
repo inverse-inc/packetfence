@@ -115,10 +115,12 @@ $sidenavSubsectionColor:        darken($navbarInverseText, 30%);
   }
   .sidenav-subsection-extend {
     list-style: none;
+    position: relative;
     &::before {
       content: '';
       position: absolute;
       background: $sidenavSubsectionColor;
+      margin-left: -25px; // counter padding of ul (see _type.scss)
       width: 2px;
       height: $sidenavItemHeight;
       left: $sidenavItemBulletSize/2 - 1px;
