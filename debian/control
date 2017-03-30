@@ -133,7 +133,7 @@ Depends: ${misc:Depends}, vlan,
 # for packaging
  dpkg-distribution,
 # golang build
- golang,
+ golang-1.7-go,
 # Distribution specific
  ${packetfence:dist}
 Description: PacketFence network registration / worm mitigation system
