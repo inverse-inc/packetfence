@@ -132,6 +132,8 @@ Depends: ${misc:Depends}, vlan,
  libnet-syslog-perl,
 # for packaging
  dpkg-distribution,
+# golang build
+ golang,
 # Distribution specific
  ${packetfence:dist}
 Description: PacketFence network registration / worm mitigation system
@@ -193,3 +195,8 @@ Package: packetfence-redis-cache
 Architecture: all
 Depends: ${misc:Depends}, redis-server, redis-tools, dpkg-distribution
 Description: Init script to manage redis server.
+
+Package: packetfence-golang-daemon
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: PacketFence Golang binary.

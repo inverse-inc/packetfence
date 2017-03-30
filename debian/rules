@@ -167,6 +167,8 @@ install: build
 	for i in `find * -path 'docs/images/*' -type f`; do \
 		install -m0444 $$i $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/doc/docs/images/; \
 	done
+	#Golang binary
+	addons/packages/build-go.sh build `pwd` `pwd`/bin
 # Build architecture-independent files here.
 binary-indep: build install
 # We have nothing to do by default.
