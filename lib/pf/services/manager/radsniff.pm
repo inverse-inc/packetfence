@@ -39,7 +39,8 @@ sub make_filter {
     my @array;
     foreach my $int (@ints) {
         my $interface = $int->{Tint};
-        push(@array, pf::cluster::cluster_ip($interface));
+        my $members_ips = pf::cluster::members_ips($interface);
+        push(@array, $members_ips->{$host_id});
     }
     $filter .= join(" or ",  map { "host $_"} @array);
     $filter .= ') and ( ';
