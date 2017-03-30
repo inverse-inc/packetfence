@@ -63,7 +63,7 @@ export GOBIN="$GODATH/bin"
 
 # Exit hook to cleanup the tmp GOPATH when exiting
 function cleanup {
-  rm -rf "$GOPATH"
+  rm -rf "$GODATH"
 }
 trap cleanup EXIT
 
