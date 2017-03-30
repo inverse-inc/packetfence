@@ -6,7 +6,8 @@
 <form name="modalItem" class="form-horizontal form-condensed" action="[% action_uri %]" method="post">
   <div class="modal-header">
     <a class="close" data-dismiss="modal">&times;</a>
-    <h3>[% IF item.id.defined %]<i>[% l('Scan Engine') %]</i> [% item.id | html %][% ELSE %][% l('New Scan Engine') %][% END %] <small>[% l(item.type) %]</small></h3>
+    [% SET label = "scan_type_" _ item.type %]
+    <h3>[% IF item.id.defined %]<i>[% l('Scan Engine') %]</i> [% item.id | html %][% ELSE %][% l('New Scan Engine') %][% END %] <small>[% l(label) %]</small></h3>
   </div>
 
   <div class="modal-body">

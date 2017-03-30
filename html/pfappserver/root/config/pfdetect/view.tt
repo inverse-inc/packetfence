@@ -12,7 +12,8 @@
 
 <div class="card">
   <div class="card-title">
-    <h2><i>[% l('Syslog parser') %]</i> [% item.type | html %]</h2>
+    [% SET label = "pfdetect_type_" _ item.type %]
+    <h2><i>[% l('Syslog parser') %]</i> [% l(label) %]</h2>
   </div>
   <div class="card-block">
 <div class="hidden" id="regex_parser_templates">
