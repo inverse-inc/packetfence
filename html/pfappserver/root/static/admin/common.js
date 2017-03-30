@@ -10,7 +10,7 @@
 
 function update_attribute(element, name, regex, replace_str) {
     var new_attr = element.attr(name);
-    if (new_attr !== null) {
+    if (new_attr !== undefined) {
         new_attr = new_attr.replace(regex, replace_str);
         element.attr(name, new_attr);
     }
