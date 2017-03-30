@@ -10,13 +10,17 @@
   <li class="active">[% heading | html %]</li>
 </ul>
 
+<div class="card">
+<div class="card-title">
 <h3>[% heading | html %] <small>[% source.type | html %]</small></h3>
+</div>
 
     [% IF message %]<div class="alert alert-success">
       <button class="close" data-dismiss="alert">&times;</button>
       <strong>[% l('Success!') %]</strong> [% message %]
     </div>[% END -%]
 
+  <div class="card-block">
     <form name="source" class="form-horizontal" method="post" action="[% action_uri %]">
         [% form.field('id').render | none %]
         [% form.field('description').render | none %]
@@ -32,3 +36,5 @@
         </div>
         [%- END %]
       </form>
+  </div>
+</div>
