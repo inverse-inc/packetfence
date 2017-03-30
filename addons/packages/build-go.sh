@@ -1,10 +1,11 @@
 #!/bin/bash
 
-PATH="/usr/local/go/bin:$PATH"
+PATH="/usr/local/go/bin:/usr/lib/go-1.7/bin:$PATH"
 
 MODE="$1"
 PFSRC="$2"
 BINDST="$3"
+DEBPATH="$4"
 
 function usage {
   echo "----------------------------------------------------------------------------"
@@ -48,8 +49,17 @@ fi
 
 set -x
 
-export GOPATH=`mktemp -d`
-export GOBIN="$GOPATH/bin"
+
+if [ -z "$DEBPATH"]; then
+    export GODATH=`mktemp -d`
+else
+    export GODATH=`mktemp -d -p $DEBPATH`
+    export GOROOT="/usr/lib/go-1.7/"
+    export GOPATH=$GODATH:/usr/share/go:/usr/share/go/src/pkg:/usr/share/go-1.7
+fi
+
+
+export GOBIN="$GODATH/bin"
 
 # Exit hook to cleanup the tmp GOPATH when exiting
 function cleanup {
@@ -57,8 +67,8 @@ function cleanup {
 }
 trap cleanup EXIT
 
-cd "$GOPATH"
-GOPATHPF="$GOPATH/src/github.com/inverse-inc/packetfence"
+cd "$GODATH"
+GOPATHPF="$GODATH/src/github.com/inverse-inc/packetfence"
 mkdir -p $GOPATHPF
 
 find $PFSRC -maxdepth 1 -type d ! -name 'logs' ! -name 'var' ! -name 'pf' -exec cp -a {} "$GOPATHPF/" \;
@@ -69,7 +79,7 @@ cd go
 
 # Install the dependencies
 go get -u github.com/kardianos/govendor
-$GOPATH/bin/govendor sync
+$GODATH/bin/govendor sync
 
 if build_mode; then
   # Create any binaries here and make sure to move them to the BINDST specified
@@ -78,4 +88,3 @@ if build_mode; then
 elif test_mode; then
   PFCONFIG_TESTING=y $GOPATH/bin/govendor test ./...  
 fi
-
