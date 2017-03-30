@@ -17,6 +17,7 @@ use warnings;
 use Moose;
 use pf::config qw(%Config);
 use pf::option82 qw(search_switch);
+use pf::util;
 extends qw(pf::pfmon::task);
 
 
