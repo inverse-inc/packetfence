@@ -168,9 +168,8 @@ install: build
 		install -m0444 $$i $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/doc/docs/images/; \
 	done
 	#Golang binary
-        #Golang binary
-        install -d -m0744 $(CURDIR)/debian/packetfence-golang-daemon$(PREFIX)/$(NAME)/bin
-        addons/packages/build-go.sh build $(CURDIR)/ $(CURDIR)/debian/packetfence-golang-daemon$(PREFIX)/$(NAME)/bin $(CURDIR)/debian
+	install -d -m0744 $(CURDIR)/debian/packetfence-golang-daemon$(PREFIX)/$(NAME)/bin
+	addons/packages/build-go.sh build $(CURDIR)/ $(CURDIR)/debian/packetfence-golang-daemon$(PREFIX)/$(NAME)/bin $(CURDIR)/debian
 # Build architecture-independent files here.
 binary-indep: build install
 # We have nothing to do by default.
