@@ -306,7 +306,7 @@ Generate the URL to a section of documentation
 sub generate_doc_url {
     my ($section, $guide) = @_;
     $guide //= "Administration_Guide";
-    return "https://packetfence.org/doc/PacketFence_$guide.html#$section"
+    return "/static/doc/PacketFence_$guide.html#$section"
 }
 
 =head2 generate_doc_url
