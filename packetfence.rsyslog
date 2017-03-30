@@ -1,3 +1,11 @@
+# Disable rate-limiting of syslog
+$SystemLogRateLimitInterval 0
+$SystemLogRateLimitBurst 0
+
+# Disable rate-limiting of journal messages
+$imjournalRatelimitInterval 0
+$imjournalRatelimitBurst 0
+
 # RADIUS
 if $syslogtag contains "auth" and $syslogfacility-text == "local1" then -/usr/local/pf/logs/radius.log
 & ~
