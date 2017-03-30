@@ -890,7 +890,7 @@ Option 1: Authentication against Active Directory (AD)
 
 CAUTION: If you are using an Active/Active or Active/Passive cluster, please follow the instructions under 'Option 1b' since the instructions below do not currently work in a cluster.
 
-First, go in the Administration interface under *Configuration -> Policies and Access Control -> Domains -> Microsoft Active Directory Domains*.
+Go in the Administration interface under *Configuration -> Policies and Access Control -> Domains -> Microsoft Active Directory Domains*.
 
 NOTE: If you can't access this section and you have previously configured your server to bind to a domain externally to PacketFence, make sure you run `/usr/local/pf/addons/AD/migrate.pl`
 
@@ -2134,7 +2134,7 @@ The captive portal of PacketFence allows a guest/user to register using his Goog
 For each providers, we maintain an allowed domain list to punch holes into the firewall so the user can hit the provider login page.
 This list is available in each OAuth2 authentication source.
 
-You must also enable the passthrough option in your PacketFence configuration (fencing.passthrough in pf.conf).
+You must enable the passthrough option in your PacketFence configuration (fencing.passthrough in pf.conf).
 
 Google
 ^^^^^^
