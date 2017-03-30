@@ -641,6 +641,9 @@ fi
 %post -n %{real_name}
 
 /usr/bin/mkdir -p /var/log/journal/
+/usr/bin/mkdir -p /usr/lib/systemd/journald.conf.d
+echo "RateLimitInterval=0" > /usr/lib/systemd/journald.conf.d/01-packetfence.conf
+echo "RateLimitBurst=0" >> /usr/lib/systemd/journald.conf.d/01-packetfence.conf
 echo "Restarting journald to enable persistent logging"
 /bin/systemctl restart systemd-journald
 
