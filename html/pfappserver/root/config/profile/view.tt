@@ -14,7 +14,6 @@
     </div>
   </div><!-- cancelEdit -->
 
-<div class="card">
   <form id="update_profile" method="POST" action="[% c.uri_for(c.controller('Config::Profile').action_for('update'),[id])  %]"  class="form-horizontal">
     <ul class="breadcrumb">
       <li>
@@ -23,7 +22,9 @@
       </li>
       <li class="active">[% id | html %]</li>
     </ul>
+    <div class="card">
     <h2><!-- first sibling of alerts --></h2>
+    <div class="card-block">
     <div class="tab-content">
       <a class="btn btn-info pull-right" href="/portal_preview/captive-portal?PORTAL=[% id %]" target="_blank">[% l('Preview') %]</a>
       <ul class="nav nav-tabs">
@@ -49,6 +50,7 @@
         <button type="reset" class="btn">[% l('Reset') %]</button>
       </div>
       [%- END %]
+    </div>
     </div>
   </form>
 

@@ -116,6 +116,7 @@ td a.btn { margin-left: 5px; }
 
 <div class="card">
 <h2></h2>
+<div class="card-block">
 <div id="connection_profile_files">
   <div class="modal fade hide" id="newFileModal">
     <div class="modal-header">
@@ -213,4 +214,5 @@ td a.btn { margin-left: 5px; }
     </div><!-- #files pane -->
   </div><!-- .tab-content -->
 </div><!-- #connection_profile_files -->
+</div>
 </div>
