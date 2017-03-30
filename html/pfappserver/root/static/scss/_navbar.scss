@@ -4,6 +4,7 @@
  * Adjust padding of PacketFence logo. Expected height of logo is 30px.
  */
 .navbar .brand {
+  margin-left: 0;
   padding: floor(($navbarHeight - 30)/2) 20px;
 }
 

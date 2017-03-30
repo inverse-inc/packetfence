@@ -49,7 +49,7 @@
           <a class="brand visible-phone" href="#">
             <img src="[% c.uri_for('/static/img/packetfence.white.small.svg') %]" style="height: 32px"/>
           </a>
-          <a class="brand span3 hidden-tablet" href="#">
+          <a class="brand span3 hidden-phone" href="#">
             <img src="[% c.uri_for('/static/img/packetfence.white.svg') %]" style="height: 32px"/>
           </a>
           [%- IF c.user_allowed_in_admin() %]
