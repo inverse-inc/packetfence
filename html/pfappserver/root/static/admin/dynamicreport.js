@@ -17,6 +17,8 @@ DynamicReport.prototype.formName  = 'modalDynamicReport';
 
 DynamicReport.prototype.modalId   = '#modalDynamicReport';
 
+DynamicReport.prototype.createSelector = ".createDynamicReport";
+
 DynamicReport.prototype.get = function(options) {
     $.ajax({
         url: options.url

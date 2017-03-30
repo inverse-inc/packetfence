@@ -19,6 +19,8 @@ Pfdetects.prototype.formName  = 'modalPfdetect';
 
 Pfdetects.prototype.modalId   = '#modalPfdetect';
 
+Pfdetects.prototype.createSelector = ".createPfdetect";
+
 /*
  * The PfdetectView class defines the DOM operations from the Web interface.
  */

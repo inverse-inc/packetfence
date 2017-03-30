@@ -19,6 +19,8 @@ FloatingDevices.prototype.formName  = 'modalFloatingDevice';
 
 FloatingDevices.prototype.modalId   = '#modalFloatingDevice';
 
+FloatingDevices.prototype.createSelector = ".createFloatingDevice";
+
 /*
  * The FloatingDeviceView class defines the DOM operations from the Web interface.
  */

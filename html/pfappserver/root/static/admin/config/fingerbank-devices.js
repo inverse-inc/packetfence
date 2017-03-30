@@ -19,6 +19,8 @@ FingerbankDevices.prototype.formName  = 'modalFingerbankDevice';
 
 FingerbankDevices.prototype.modalId   = '#modalFingerbankDevice';
 
+FingerbankDevices.prototype.createSelector = ".createFingerbankDevice";
+
 /*
  * The FingerbankDeviceView class defines the DOM operations from the Web interface.
  */

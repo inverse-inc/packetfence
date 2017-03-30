@@ -17,6 +17,8 @@ Items.prototype.formName = "modalItem";
 
 Items.prototype.modalId = "#modalItem";
 
+Items.prototype.createSelector = ".createItem";
+
 Items.prototype.get = function(options) {
     $.ajax({
         url: options.url
@@ -59,7 +61,7 @@ function ItemView(options) {
     var read = $.proxy(this.readItem, this);
     options.parent.on('click', id + ' .item [href$="/read"]', read);
     options.parent.on('click', id + ' [href$="/clone"]', read);
-    options.parent.on('click', '.createItem', read);
+    options.parent.on('click', items.createSelector, read);
 
     // Save the modifications from the modal
     var update = $.proxy(this.updateItem, this);

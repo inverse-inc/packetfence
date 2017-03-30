@@ -19,6 +19,8 @@ RadiusAuditLog.prototype.formName  = 'modalRadiusAuditLog';
 
 RadiusAuditLog.prototype.modalId   = '#modalRadiusAuditLog';
 
+RadiusAuditLog.prototype.createSelector = ".createRadiusAuditLog";
+
 RadiusAuditLog.prototype.get = function(options) {
     $.ajax({
         url: options.url

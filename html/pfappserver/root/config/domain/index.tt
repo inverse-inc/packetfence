@@ -32,7 +32,7 @@
 
         <div class="form-actions">
         [%- IF can_access("DOMAIN_CREATE") %]
-          <a class="btn createItem" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add Domain') %]</a>
+          <a class="btn createDomain" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add Domain') %]</a>
         [%- END %]
           
         </div>

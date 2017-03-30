@@ -16,6 +16,7 @@ Domains.prototype = new Items();
 Domains.prototype.id  = '#domains';
 Domains.prototype.formName  = 'modalDomain';
 Domains.prototype.modalId   = '#modalDomain';
+Domains.prototype.createSelector = ".createDomain";
 
 
 function DomainView(options) {

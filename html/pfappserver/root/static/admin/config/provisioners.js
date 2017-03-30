@@ -19,6 +19,8 @@ Provisioners.prototype.formName  = 'modalProvisioner';
 
 Provisioners.prototype.modalId   = '#modalProvisioner';
 
+Provisioners.prototype.createSelector = ".createProvisioner";
+
 /*
  * The ProvisionerView class defines the DOM operations from the Web interface.
  */

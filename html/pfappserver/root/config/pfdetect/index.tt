@@ -29,7 +29,7 @@
         <div class="form-actions">
           <div class="btn-group">
             <a class="btn dropdown-toggle" data-toggle="dropdown">[% l('Add Syslog parser') %] <span class="caret"></span></a>
-            <ul id="createSource" class="dropdown-menu">
+            <ul class="dropdown-menu">
               [% FOREACH type IN types -%]
                 [% SET label = "pfdetect_type_$type"%]
                 <li><a href="[% c.pf_hash_for(c.controller.action_for('create_type'), type) %]">[% l(label) %]</a></li>
