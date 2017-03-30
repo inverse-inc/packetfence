@@ -27,7 +27,7 @@
   <div class="navbar-inner">
     <div class="container">
       <div class="nav-collapse collapse navbar-responsive-collapse">
-        <form id="search" name="search" class="input-daterange datetimepicker" action="[%c.uri_for(c.controller.action_for('search'))%]" method="POST">
+        <form id="search" name="search" action="[%c.uri_for(c.controller.action_for('search'))%]" method="POST">
             <table id="searchConditions" class="table-dynamic">
                <thead>
                   <tr>
