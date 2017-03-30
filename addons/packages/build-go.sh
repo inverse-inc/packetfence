@@ -72,7 +72,7 @@ GOPATHPF="$GODATH/src/github.com/inverse-inc/packetfence"
 mkdir -p $GOPATHPF
 
 
-find $PFSRC -maxdepth 1 -type d ! -path 'debian/*' ! -path 'debian' ! -path 'logs/*' ! -path 'logs' ! -path 'var/*' ! -path 'var' ! -path 'pf/*' ! -path 'pf' ! -path 'docs/*' ! -path 'docs' -exec cp -a {} "$GOPATHPF/" \;
+find $PFSRC -maxdepth 1 -type d ! -path '*/debian' ! -path '*/logs' ! -path '*/var' ! -path '*/lib' ! -path '*/docs' -exec cp -a {} "$GOPATHPF/" \;
 #find $PFSRC -maxdepth 1 -type d ! -name 'logs' ! -name 'var' ! -name 'pf' ! -name 'docs' -exec cp -a {} "$GOPATHPF/" \;
 
 cd "$GOPATHPF"
