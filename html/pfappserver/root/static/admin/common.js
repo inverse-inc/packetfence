@@ -449,7 +449,7 @@ $(function () { // DOM ready
         _enableCategory(category);
         return true;
     });
-    $('.sidenav-section a:not([data-toggle])').click(function(event) {
+    $('.sidenav-section a:not([data-toggle]):not([target])').click(function(event) {
         var item = $(this).parent();
         var category = item.closest('.sidenav-section').attr('data-category');
         _enableCategory(category);
