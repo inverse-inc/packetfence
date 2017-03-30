@@ -99,12 +99,12 @@ case "$1" in
         fi
 
 
-	if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
-	    echo "Building default RADIUS certificates..."
-	    cd /usr/local/pf/raddb/certs
-	    make
-	else
-	    echo "DH already exists, won't touch it!"
+	    if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
+	        echo "Building default RADIUS certificates..."
+	        cd /usr/local/pf/raddb/certs
+	        make
+	    else
+	        echo "DH already exists, won't touch it!"
         fi
 
         if [ ! -f /usr/local/pf/conf/pf.conf ]; then
@@ -115,11 +115,18 @@ case "$1" in
             echo "pf.conf already exists, won't touch it!"
         fi
 
-        # managing services
-        set +e
+        echo "Enabling persistent journal"
+        /usr/bin/install -d -g systemd-journal /var/log/journal
+        /usr/bin/setfacl -R -nm g:adm:rx,d:g:adm:rx /var/log/journal
+
         echo "Restarting rsyslog"
         systemctl restart rsyslog
         
+        echo "Restarting rsyslog"
+        systemctl restart rsyslog
+        
+        # managing services
+        set +e
         for service in apache2 snmptrapfmt bind9 freeradius apparmor isc-dhcp-server collectd haproxy carbon-cache keepalived redis-server samba winbind nmbd; do
 
             if [ -e "/etc/init.d/"$service ] ; then

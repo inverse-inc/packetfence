@@ -639,6 +639,11 @@ fi
 
 
 %post -n %{real_name}
+
+/usr/bin/mkdir -p /var/log/journal/
+echo "Restarting journald to enable persistent logging"
+/bin/systemctl restart systemd-journald
+
 if [ `systemctl get-default` = "packetfence-cluster.target" ]; then 
     echo "This is an upgrade on a clustered system. We don't change the default systemd target."
 else 
