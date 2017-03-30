@@ -9,6 +9,7 @@
 [%
   paths = full_file_name.split('/')
 %]
+<div class="card">
 <div id="connection_profile_file_editor" >
     <div class="modal fade hide" id="cancelEdit">
       <div class="modal-header">
@@ -105,4 +106,5 @@
       </form>
     </div>
 
+</div>
 </div>

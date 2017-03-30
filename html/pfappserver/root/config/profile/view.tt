@@ -14,6 +14,7 @@
     </div>
   </div><!-- cancelEdit -->
 
+<div class="card">
   <form id="update_profile" method="POST" action="[% c.uri_for(c.controller('Config::Profile').action_for('update'),[id])  %]"  class="form-horizontal">
     <ul class="breadcrumb">
       <li>
@@ -51,4 +52,5 @@
     </div>
   </form>
 
+</div>
 </div>
