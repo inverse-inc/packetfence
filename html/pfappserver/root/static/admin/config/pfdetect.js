@@ -91,7 +91,7 @@ PfdetectView.prototype.toggleResults = function(e) {
     var div = $(e.currentTarget);
     var icon = $('a[data-target="#'+ div.attr("id") + '"] i');
     if (icon.length) {
-        icon.toggleClass("icon-minus-sign", 1);
+        icon.toggleClass("icon-minus-circle", 1);
     }
 };
 

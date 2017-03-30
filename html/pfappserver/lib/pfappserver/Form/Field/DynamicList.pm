@@ -250,9 +250,9 @@ sub append_delete_button {
     my $add_attrs = $parent->add_button_attr;
     my $delete_attrs = $parent->delete_button_attr($field);
     return qq{
-        <a class="btn-icon" $add_attrs><i class="icon-plus-sign"></i></a>
+        <a class="btn-icon" $add_attrs><i class="icon-plus-circle"></i></a>
         </span><span class="add-on">
-        <a class="btn-icon" $delete_attrs><i class="icon-minus-sign"></i></a>
+        <a class="btn-icon" $delete_attrs><i class="icon-minus-circle"></i></a>
         };
 }
 
