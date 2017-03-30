@@ -21,7 +21,9 @@
       </li>
       <li class="active">[% l('Create') %]</li>
     </ul>
+    <div class="card">
     <h2><!-- first sibling of alerts --></h2>
+    <div class="card-block">
     <form id="create_profile" method="POST" action="[% c.uri_for(c.controller('Config::Profile').action_for('create'))  %]"  class="form-horizontal">
     <div class="tab-content">
       <ul class="nav nav-tabs">
@@ -49,6 +51,8 @@
       [%- END %]
     </div>
     </form>
+  </div>
+  </div>
   </div>
 
 </div>
