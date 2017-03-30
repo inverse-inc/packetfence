@@ -50,7 +50,7 @@ fi
 set -x
 
 
-if [ -z "$DEBPATH"]; then
+if [ -z "$DEBPATH" ]; then
     export GODATH=`mktemp -d`
 else
     export GODATH=`mktemp -d -p $DEBPATH`
