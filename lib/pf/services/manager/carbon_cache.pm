@@ -68,6 +68,7 @@ sub generate_carbon_config {
     $tags{'graphite_port'} = "$Config{'graphite'}{'graphite_port'}";
     $tags{'carbon_hosts'} =
       ( get_cluster_destinations() || $tags{'management_ip'} . ":2004" );
+    $tags{'replication_factor'} = scalar(split(',', $tags{'carbon_hosts'}));
 
     parse_template( \%tags, "$tags{'template'}", "$install_dir/var/conf/carbon.conf" );
 }

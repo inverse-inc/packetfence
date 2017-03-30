@@ -251,7 +251,7 @@ RELAY_METHOD = consistent-hashing
 # If you use consistent-hashing you can add redundancy by replicating every
 # datapoint to more than one machine.
 #REPLICATION_FACTOR = 1
-REPLICATION_FACTOR = 2
+REPLICATION_FACTOR = %%replication_factor%%
 
 # This is a list of carbon daemons we will send any relayed or
 # generated metrics to. The default provided would send to a single
