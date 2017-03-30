@@ -295,6 +295,7 @@ $captiveportal_default_profile_templates_path = catdir ($captiveportal_profile_t
     $dhcp_filters_config_file,
     $roles_config_file,
     $dns_filters_config_file,
+    $pfmon_config_file,
 );
 
 $pffilter_socket_path = catfile($var_dir, "run/pffilter.sock");
