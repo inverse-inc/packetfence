@@ -11,7 +11,7 @@
           <tr>
             <td class="item"><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id | html %]</a></td>
             <td>[% item.type | html %]</td>
-            <td>
+            <td class="text-right">
               [%- IF can_access("SCAN_CREATE") %]
               <a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('clone'), [ item.id]) %]">[% l('Clone') %]</a>
               [%- END %]
