@@ -17,10 +17,10 @@
     <div class="sidenav sidenav-category span1">
       <ul class="nav sidenav-icon-list">
         <li data-category="radius">
-          <a href="#auditing/radiuslog">[% l('RADIUS') %]</a>
+          <a href="#auditing/radiuslog" data-toggle="tooltip" title="[% l('RADIUS') %]"><i class="icon-2x icon-unlock-alt"></i></a>
         </li>
         <li data-category="dhcp82">
-          <a href="#dhcpoption82">[% l('DHCP82') %]</a>
+          <a href="#dhcpoption82" data-toggle="tooltip" title="[% l('DHCP82') %]"><i class="icon-2x icon-list"></i></a>
         </li>
       </ul>
     </div><!--/.sidenav-category-->
