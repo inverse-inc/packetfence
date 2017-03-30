@@ -75,6 +75,8 @@ fi
 # Is the database run on the current server?
 if [ -f /var/run/mysqld/mysqld.pid ] || [ -f /var/run/mariadb/mariadb.pid ]; then
 
+    /usr/local/pf/addons/database-cleaner.pl --table=radacct --date-field=acctupdatetime --older-than="1 WEEK" --additionnal-condition="acctstoptime IS NOT NULL" --update --update-field=acctstoptime
+
     /usr/local/pf/addons/database-cleaner.pl --table=radacct --date-field=acctstarttime --older-than="1 WEEK" --additionnal-condition="acctstoptime IS NOT NULL"
     
     /usr/local/pf/addons/database-cleaner.pl --table=radacct_log --date-field=timestamp --older-than="1 WEEK"
