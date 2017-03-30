@@ -18,7 +18,9 @@ use pf::node;
 use Moose;
 extends qw(pf::pfmon::task);
 
-has 'window' => ( is => 'rw', isa => 'PfInterval', coerce => 1 );
+has 'delete_window' => ( is => 'rw', isa => 'PfInterval', coerce => 1 );
+
+has 'unreg_window' => ( is => 'rw', isa => 'PfInterval', coerce => 1 );
 
 =head2 run
 
@@ -28,8 +30,7 @@ run the node cleanup task
 
 sub run {
     my ($self) = @_;
-    my $window = $self->window;
-    node_cleanup($window) if $self->window;
+    node_cleanup($self->delete_window, $self->unreg_window);
 }
 
 =head1 AUTHOR

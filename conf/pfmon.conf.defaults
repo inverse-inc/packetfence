@@ -332,8 +332,14 @@ interval=60s
 #
 # window
 #
-# How long to keep a node_cleanup entry before deleting it
-window=0D
+# How long to keep an inactive node before deleting it
+delete_window=0D
+#
+# unreg_window
+#
+# How long to keep an inactive node before unregistering it
+unreg_window=0D
+
 
 [nodes_maintenance]
 #

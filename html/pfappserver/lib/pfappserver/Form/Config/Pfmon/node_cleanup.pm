@@ -15,12 +15,21 @@ use HTML::FormHandler::Moose;
 use pfappserver::Form::Config::Pfmon qw(default_field_method);
 
 extends 'pfappserver::Form::Config::Pfmon';
+with 'pfappserver::Base::Form::Role::Help';
 
-has_field 'window' => (
+has_field 'unreg_window' => (
     type => 'Duration',
     default_method => \&default_field_method,
+    tags => { after_element => \&help,
+             help => 'How long can an unregistered node be inactive on the network before being deleted.<br>This shouldn\'t be used if you are using port-security' },
 );
 
+has_field 'delete_window' => (
+    type => 'Duration',
+    default_method => \&default_field_method,
+    tags => { after_element => \&help,
+             help => 'How long can a registered node be inactive on the network before it becomes unregistered' },
+);
 
 =head2 default_type
 
@@ -34,7 +43,7 @@ sub default_type {
 
 has_block  definition =>
   (
-    render_list => [qw(type status interval window)],
+    render_list => [qw(type status interval unreg_window delete_window)],
   );
 
 
