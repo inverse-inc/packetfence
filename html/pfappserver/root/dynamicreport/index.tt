@@ -21,10 +21,10 @@
         <form id="search" name="search" class="form-inline datetimepicker" action="[%c.uri_for(c.controller.action_for('search'))%]" method="POST">
           <input type="hidden" name="report_id" value="[% report.id %]">
           <div class="">
-            <input type="text" class="datepicker input-small" id="start_date"  name="start.date" value="[% start.date %]" data-date-format="yyyy-mm-dd" />
+            <input type="text" class="input-date input-small" id="start_date"  name="start.date" value="[% start.date %]" data-date-format="yyyy-mm-dd" />
             <input type="text" name="start.time" id="start_time" value="[% start.time %]" class="timepicker-default input-small" placeholder="HH:MM"/>
             <i class="icon-arrow-right"></i>
-            <input type="text" class="datepicker input-small" id="end_date" name="end.date" value="[% end.date %]" data-date-format="yyyy-mm-dd" date-datestart="[% end_date %]" />
+            <input type="text" class="input-date input-small" id="end_date" name="end.date" value="[% end.date %]" data-date-format="yyyy-mm-dd" date-datestart="[% end_date %]" />
             <input type="text" name="end.time" id="end_time" value="[% end.time %]" class="timepicker-default input-small" placeholder="HH:MM"/>
           </div>
           <div>

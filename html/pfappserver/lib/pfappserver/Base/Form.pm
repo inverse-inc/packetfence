@@ -74,7 +74,7 @@ sub build_update_subfields {{
        },
        'DatePicker' =>
        {
-        element_class =>  ['datepicker', 'input-small'],
+        element_class =>  ['input-date', 'input-small'],
         element_attr => { 'data-date-format' => 'yyyy-mm-dd',
                           placeholder => 'yyyy-mm-dd' },
        },

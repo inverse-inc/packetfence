@@ -102,7 +102,7 @@ function initWidgets(elements) {
         var defaultTime = $(this).val().length? 'value' : false;
         $(this).timepicker({ defaultTime: defaultTime, showSeconds: false, showMeridian: false });
     });
-    elements.filter('.datepicker, .input-daterange input').datepicker({ autoclose: true });
+    elements.filter('.input-date, .input-daterange input').datepicker({ autoclose: true });
     elements.filter('.switch').bootstrapSwitch();
 }
 
@@ -175,7 +175,7 @@ function doUpdateSection(ajax_data) {
                 })
                 .done(function(data) {
                     section.html(data);
-                    section.find('.datepicker, .input-daterange').datepicker({ autoclose: true });
+                    section.find('.input-date, .input-daterange').datepicker({ autoclose: true });
                     section.find('.input-daterange input').on('changeDate', function(event) {
                         // Force autoclose
                         $('.datepicker').remove();
@@ -531,12 +531,12 @@ $(function () { // DOM ready
         // Limit the end date of the first datepicker to this new date
         $(dp.inputs[0]).datepicker('setEndDate', event.date);
     });
-    $('body').on('click', '.datepicker a[href*="day"]', function(event) {
+    $('body').on('click', '.input-date a[href*="day"]', function(event) {
         event.preventDefault();
 
         // The number of days is extracted from the href attribute
         var days = $(this).attr('href').replace(/#last([0-9]+)days?/, "$1");
-        var dp = $(this).closest('.datepicker').data('datepicker');
+        var dp = $(this).closest('.input-date').data('datepicker');
         var nowDate = new Date();
         var now = {
             yyyy: nowDate.getFullYear(),

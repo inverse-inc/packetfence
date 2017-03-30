@@ -54,7 +54,7 @@ $(function () {
     $('body').on('blur', 'input[data-required]', function() {
         isFormInputEmpty($(this));
     });
-    $('body').on('changeDate', 'input.datepicker[data-required]', function() {
+    $('body').on('changeDate', '.input-date[data-required]', function() {
         isFormInputEmpty($(this));
     });
 

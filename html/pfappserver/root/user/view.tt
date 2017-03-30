@@ -87,7 +87,7 @@
             <div class="tab-pane fade" id="userActions">
               <div class="control-group">
                 <label class="control-label" for="valid_from">[% l('Registration Window') %]</label>
-                <div class="controls input-daterange datepicker">
+                <div class="controls input-daterange" data-date-format="yyyy-mm-dd">
                   [% form.field('valid_from').render_element | none %] <i class="icon-arrow-right"></i>
                   [% form.field('expiration').render_element | none %]
                 </div>

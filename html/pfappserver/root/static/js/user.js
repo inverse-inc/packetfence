@@ -145,7 +145,7 @@ UserView.prototype.readUser = function(e) {
             $('#modalUser').remove();
             $('body').append(data);
             var modal = $("#modalUser");
-            modal.find('.datepicker').datepicker({ autoclose: true });
+            modal.find('.input-date').datepicker({ autoclose: true });
             modal.find('#ruleActions tr:not(.hidden) select[name$=type]').each(function() {
                 updateAction($(this), true);
             });

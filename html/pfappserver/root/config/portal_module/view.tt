@@ -10,7 +10,7 @@
           <option value="[% access_duration %]"> [% access_duration %] </option>
        [% END %]
      </select>
-     <input data-required="1" id="set_unregdate_action_match" name="set_unregdate_action_match" value="" class="datepicker input-small" data-date-format="yyyy-mm-dd" placeholder="yyyy-mm-dd" type="text">
+     <input data-required="1" id="set_unregdate_action_match" name="set_unregdate_action_match" value="" class="input-date input-small" data-date-format="yyyy-mm-dd" placeholder="yyyy-mm-dd" type="text">
   </div>
 
 <ul class="breadcrumb">

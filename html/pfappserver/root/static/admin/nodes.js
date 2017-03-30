@@ -61,11 +61,11 @@ function updateNodeSearchSection(href, event) {
 
 function init() {
     /* Initialize datepickers */
-    $('.tab-content .datepicker').datepicker({ autoclose: true });
+    $('.tab-content .input-date').datepicker({ autoclose: true });
 
     /* Set the end date of the range datepickers to today */
     var today = new Date();
-    $('.tab-content .datepicker input').each(function() { $(this).data('datepicker').setEndDate(today) });
+    $('.tab-content .input-date').each(function() { $(this).data('datepicker').setEndDate(today) });
 
     /* Submit dropdown menu form when hiding the dropdown menu;
        Used to show or hide columns */
