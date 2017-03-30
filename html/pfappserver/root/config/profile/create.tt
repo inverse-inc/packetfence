@@ -13,7 +13,6 @@
     </div>
   </div><!-- cancelEdit -->
 
-  <div class="span10">
     <ul class="breadcrumb">
       <li>
         <a href="[% c.pf_hash_for(c.controller('Config::Profile').action_for('index')) %]" >[% l('Connection Profiles and Pages') %]</a>
