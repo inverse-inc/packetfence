@@ -58,23 +58,23 @@ table.sources {
           <div class="sidenav sidenav-category span1">
             <ul class="nav sidenav-icon-list">
               <li data-category="policy">
-                <a href="#configuration/define_policy"><i class="icon-2x icon-id-card"></i></a>
+                <a href="#configuration/define_policy" data-toggle="tooltip" title="[% l('Policy') %]"><i class="icon-2x icon-id-card"></i></a>
                 <!-- [% l('Policies and Access Control') %] -->
               </li>
               <li data-category="compliance">
-                <a href="#configuration/compliance"><i class="icon-2x icon-shield"></i></a>
+                <a href="#configuration/compliance" data-toggle="tooltip" title="[% l('Compliance') %]"><i class="icon-2x icon-shield"></i></a>
               </li>
               <li data-category="integration">
-                <a href="#configuration/integration"><i class="icon-2x icon-puzzle-piece"></i></a>
+                <a href="#configuration/integration" data-toggle="tooltip" title="[% l('Integration') %] "><i class="icon-2x icon-puzzle-piece"></i></a>
               </li>
               <li data-category="portal_config">
-                <a href="#configuration/portal_config"><i class="icon-2x icon-hand-paper-o"></i></a>
+                <a href="#configuration/portal_config" data-toggle="tooltip" title="[% l('Portal Configuration') %]"  ><i class="icon-2x icon-hand-paper-o"></i></a>
               </li>
               <li data-category="advanced_conf">
-                <a href="#configuration/advanced_conf"><i class="icon-2x icon-sliders"></i></a>
+                <a href="#configuration/advanced_conf" data-toggle="tooltip" title="[% l('Advanced Configuration') %]"><i class="icon-2x icon-sliders"></i></a>
               </li>
               <li data-category="system">
-                <a href="#configuration/system_config"><i class="icon-2x icon-database"></i></a>
+                <a href="#configuration/system_config" data-toggle="tooltip" title="[% l('System Config') %]"><i class="icon-2x icon-database"></i></a>
               </li>
             </ul>
           </div>
