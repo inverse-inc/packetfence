@@ -25,6 +25,8 @@ sub default_type {
     return "acct_maintenance";
 }
 
+sub task_description { "Task for inline accounting maintenance" }
+
 has_block  definition =>
   (
     render_list => [qw(type status interval)],
