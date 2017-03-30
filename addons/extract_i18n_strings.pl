@@ -338,7 +338,7 @@ sub extract_modules {
     const('pf::radius_audit_log', 'RADIUS Audit Log', \@pf::radius_audit_log::FIELDS);
     const('pf::dhcp_option82', 'DHCP Option 82', [values %pf::dhcp_option82::HEADINGS]);
     const('pf::factory::detect::parser', 'Detect Parsers', [map { /^pf::detect::parser::(.*)/;"pfdetect_type_$1"  } @pf::factory::detect::parser::MODULES]);
-    const('pf::factory::scan', 'Scans Engine', [map { /^pf::scan/;"scan_type_$1"  } @pf::factory::scan::MODULES]);
+    const('pf::factory::scan', 'Scans Engine', [map { /^pf::scan(.*)/; my $x = $1;  $x =~ s/(::)/_/g; "scan_type$x"  } @pf::factory::scan::MODULES]);
 
     my @values = map { "${_}_action" } @pf::action::VIOLATION_ACTIONS;
     const('pf::action', 'VIOLATION_ACTIONS', \@values);

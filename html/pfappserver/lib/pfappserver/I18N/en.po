@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 6.5.9\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-03-29 16:41-0400\n"
+"PO-Revision-Date: 2017-03-30 11:04-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -1838,18 +1838,6 @@ msgstr "RADIUS Domains - Read"
 # pf::admin_roles (Actions)
 msgid "DOMAIN_UPDATE"
 msgstr "RADIUS Domains - Update"
-
-# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
-msgid "DRBD Disk read/write"
-msgstr ""
-
-# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
-msgid "DRBD Network"
-msgstr ""
-
-# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
-msgid "DRBD Stats"
-msgstr ""
 
 # html/pfappserver/root/configurator/services.tt
 # html/pfappserver/root/service/cluster_status.tt
@@ -4899,6 +4887,10 @@ msgstr ""
 msgid "Policies and Access Control"
 msgstr ""
 
+# html/pfappserver/root/admin/configuration.tt
+msgid "Policy"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/HTTP.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/RADIUS.pm
@@ -4954,6 +4946,10 @@ msgstr ""
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (proxy.port)
 msgid "Port the proxy is listening on"
+msgstr ""
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "Portal Configuration"
 msgstr ""
 
 # html/pfappserver/root/configuration/portal_config.tt
@@ -6653,6 +6649,10 @@ msgstr ""
 
 # html/pfappserver/root/admin/status.tt
 msgid "System"
+msgstr ""
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "System Config"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
@@ -9964,6 +9964,22 @@ msgstr ""
 # pf::Authentication::Source::ADSource (available_attributes)
 msgid "sAMAccountType"
 msgstr ""
+
+# pf::factory::scan (Scans Engine)
+msgid "scan_type_nessus"
+msgstr "Nessus"
+
+# pf::factory::scan (Scans Engine)
+msgid "scan_type_nessus6"
+msgstr "Nessus 6"
+
+# pf::factory::scan (Scans Engine)
+msgid "scan_type_openvas"
+msgstr "OpenVAS"
+
+# pf::factory::scan (Scans Engine)
+msgid "scan_type_wmi"
+msgstr "WMI"
 
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 # html/pfappserver/root/node/view.tt
