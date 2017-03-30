@@ -1,31 +1,32 @@
 [%  jsFiles = ['configurator/enforcement'] -%]
-    <div class="container">
+    <div class="container-fluid">
       [% INCLUDE configurator/tracker.inc %]
-      <div class="row">
-        <div class="span3">
+      <div class="row-fluid">
+        <div class="span4">
           <div class="page-header step">
             <h1>[% l('Step') %] [% step_index %]</h1>
             </div>
         </div>
-        <div class="span9">
+        <div class="span14">
           <div class="page-header">
             <h1>[% l('Enforcement') %]
             <small>[% l('Choose your enforcement mechanisms') %]</small></h1>
           </div>
         </div>
       </div>
-      <div class="row">
-        <div class="span3">
-          <div class="well">
+      <div class="row-fluid">
+        <div class="span4">
+          <div class="instructions well">
             <h3>[% l('Instructions') %]</h3>
             <p>[% l('On this page, you choose your enforcement mechanism(s).') %]</p>
             <p>[% l("Don't worry, you can always come back to this step if you change your mind.") %]</p>
           </div>
         </div>
-        <div class="span9">
-          <div class="form-horizontal">
-            <form name="enforcement">
-              <h3>[% l('Enforcement Mechanisms') %]</h3>
+        <div class="span14">
+          <div class="card">
+            <form name="enforcement" class="form-horizontal">
+              <h2 class="card-title">[% l('Enforcement Mechanisms') %]</h2>
+              <div class="card-block">
               <table class="table">
                 <thead>
                   <tr>
@@ -66,15 +67,11 @@
                 </tbody>
               </table>
 
-              <fieldset>
-                <div class="form-actions">
-                  <button type="submit" class="btn btn-primary pull-right"  href="[% next_step %]">[% l('Continue') %] <i class="icon-circle-arrow-right icon-white"></i></button>
-                </div>
-              </fieldset>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary pull-right"  href="[% next_step %]">[% l('Continue') %] <i class="icon-arrow-circle-right icon-white"></i></button>
+              </div>
             </form>
          </div>
       </div>
-      <footer>
-        <p>&copy; Inverse 2017</p>
-      </footer>
     </div><!--/container-->

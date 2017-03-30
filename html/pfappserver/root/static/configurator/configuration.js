@@ -44,7 +44,7 @@ function saveStep(href) {
         });
     }
     else {
-        var form = $('form[name="config"]');
+        var form = $('form[name="config"] h3').first();
         resetAlert(form.parent());
         showError(form, 'Please verify your configuration.');
         $("body,html").animate({scrollTop:0}, 'fast');

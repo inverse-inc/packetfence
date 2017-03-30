@@ -7,16 +7,14 @@
     <meta name="description" content="Configurator for PacketFence">
     <meta name="author" content="Inverse">
 
-    <!-- Le styles -->
+    <!-- styles -->
 [% FOREACH css = cssFiles -%]
     <link rel="stylesheet" href="[% c.uri_for("/static/${css}.css") %]">
 [% END -%]
-    <link href="[% c.uri_for('/static/css/bootstrap.css') %]" rel="stylesheet">
-    <link href="[% c.uri_for('/static/app/application.css') %]" rel="stylesheet">
+    <link href="[% c.uri_for('/static/css/styles.css') %]" rel="stylesheet">
     <link href="[% c.uri_for('/static/configurator/common.css') %]" rel="stylesheet">
-    <link href="[% c.uri_for('/static/css/bootstrap-responsive.css') %]" rel="stylesheet">
 
-    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="[% c.uri_for('/static/app/html5.js') %]"></script>
     <![endif]-->
@@ -41,15 +39,22 @@
 
     <div id="navbar" class="navbar navbar-fixed-top navbar-inverse">
       <div class="navbar-inner">
-        <div class="container">
-          <a class="brand" href="#"><img src="[% c.uri_for('/static/app/packetfence.white.png') %]"/></a>
-          <h6 class="pull-right">[% l('Configuration Wizard') %]</h6>
+        <div class="row-fluid">
+          <a class="brand visible-phone" href="#">
+            <img src="[% c.uri_for('/static/img/packetfence.white.small.svg') %]" style="height: 32px"/>
+          </a>
+          <a class="brand span3 hidden-phone" href="#">
+            <img src="[% c.uri_for('/static/img/packetfence.white.svg') %]" style="height: 32px"/>
+          </a>
+          <ul class="nav nav-header pull-right">
+            <li><a>[% l('Configuration Wizard') %]</a></li>
+          </ul>
         </div>
       </div>
     </div>
 [% content | none %]
 
-    <!-- Le javascript
+    <!-- Javascript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script type="text/javascript">
@@ -57,12 +62,13 @@
         "Cannot Load Content": "[% l('Cannot Load Content') | js %]"
     };
     </script>
-    <script src="[% c.uri_for('/static/app/jquery.js') %]"></script>
-    <script src="[% c.uri_for('/static/js/bootstrap.js') %]"></script>
+    <script type="text/javascript" src="[% c.uri_for('/static/js/vendor/jquery.min.js') %]"></script>
+    <script type="text/javascript" src="[% c.uri_for('/static/js/vendor/jquery-extra.min.js') %]"></script>
+    <script type="text/javascript" src="[% c.uri_for('/static/js/vendor/bootstrap.min.js') %]"></script>
 [% FOREACH js = jsFiles -%]
     <script type="text/javascript" src="[% c.uri_for("/static/${js}.js") %]" charset="UTF-8"></script>
 [% END -%]
-    <script src="[% c.uri_for('/static/app/application.js') %]"></script>
+    <script type="text/javascript" src="[% c.uri_for('/static/js/pfappserver.js') %]"></script>
     <script src="[% c.uri_for('/static/configurator/common.js') %]"></script>
 
   </body>

@@ -1,5 +1,14 @@
 /// _type.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2 -*-
 
+h1 {
+  font-size: $baseLineHeight * 1.75;
+  font-weight: 200;
+
+  small {
+    font-size: $baseLineHeight;
+  }
+}
+
 h2 {
   font-size: $baseLineHeight;
   font-weight: 200;
@@ -7,6 +16,10 @@ h2 {
 
 h3 {
   font-size: $baseLineHeight * 0.85;
+  font-weight: 200;
+}
+
+h1 small {
   font-weight: 200;
 }
 
