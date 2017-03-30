@@ -849,7 +849,7 @@ BEGIN
   DECLARE Opened_Sessions int(12);
   DECLARE Latest_acctstarttime datetime;
   DECLARE cnt int(12);
-  DECLARE counte int(12);
+  DECLARE countmac int(12);
   SELECT count(acctuniqueid), max(acctstarttime)
   INTO Opened_Sessions, Latest_acctstarttime
   FROM radacct
@@ -887,12 +887,12 @@ BEGIN
 
   #Detect if there is an radacct entry open
   SELECT count(callingstationid), acctinputoctets, acctoutputoctets, acctsessiontime, acctupdatetime
-    INTO counte, Previous_Input_Octets, Previous_Output_Octets, Previous_Session_Time, Previous_AcctUpdate_Time
+    INTO countmac, Previous_Input_Octets, Previous_Output_Octets, Previous_Session_Time, Previous_AcctUpdate_Time
     FROM radacct
     WHERE (acctuniqueid = p_acctuniqueid) 
     AND (acctstoptime IS NULL OR acctstoptime = 0) LIMIT 1;
 
-  IF (counte = 1) THEN
+  IF (countmac = 1) THEN
     # Update record with new traffic
     UPDATE radacct SET
         framedipaddress = p_framedipaddress,
