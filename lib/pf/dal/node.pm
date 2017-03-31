@@ -80,6 +80,18 @@ sub merge_fields {
     [@MERGE_FIELD]
 }
 
+=head2 update_last_seen
+
+update_last_seen
+
+=cut
+
+sub update_last_seen {
+    my ($self) = @_;
+    $self->last_seen(\['NOW()']);
+    return ;
+}
+
 =head2 _load_locationlog
 
 load the locationlog entries into the node object

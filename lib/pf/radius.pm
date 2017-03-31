@@ -162,9 +162,6 @@ sub authorize {
         radius_request => $radius_request,
     };
 
-    # update last_seen of MAC address as some activity from it has been seen
-    node_update_last_seen($mac);
-
     $logger->trace( sub { "received a radius authorization request with parameters: ".
         "nas port type => $args->{nas_port_type}, switch_ip => ($switch_ip), EAP-Type => $args->{eap_type}, ".
         "mac => [$mac], port => $port, username => \"$user_name\"" });
@@ -182,6 +179,8 @@ sub authorize {
         $node_obj = pf::dal::node->new({"mac" => $mac});
     }
     $node_obj->_load_locationlog;
+    # update last_seen of MAC address as some activity from it has been seen
+    $node_obj->update_last_seen();
 
     # Handling machine auth detection
     if ( defined($user_name) && $user_name =~ /^host\// ) {
