@@ -3794,7 +3794,7 @@ After=dev-disk-by\x2duuid-6509e6e1\x2daf2d\x2d4d23\x2d9ebd\x2da9aa8801e658.swap 
 ```
 
 Operating System Best Practices
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------
 
 IPTables
 ~~~~~~~~
