@@ -3771,9 +3771,9 @@ Workaround
 
  * Obtain the list of swap items that should be considered by systemd for it to enforce a correct ordering:
 
----
+----
 #grep swap /var/log/dmesg |grep "dead -> active"
----
+----
 
 In our example, that gave the following output:
 
