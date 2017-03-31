@@ -169,7 +169,7 @@ install: build
 	done
 	#Golang binary
 	install -d -m0744 $(CURDIR)/debian/packetfence-golang-daemon$(PREFIX)/$(NAME)/bin
-	addons/packages/build-go.sh build $(CURDIR)/ $(CURDIR)/debian/packetfence-golang-daemon$(PREFIX)/$(NAME)/bin $(CURDIR)/debian
+	PATH=$$PATH:/usr/lib/go-1.7/bin && addons/packages/build-go.sh build $(CURDIR)/ $(CURDIR)/debian/packetfence-golang-daemon$(PREFIX)/$(NAME)/bin $(CURDIR)/debian
 # Build architecture-independent files here.
 binary-indep: build install
 # We have nothing to do by default.
