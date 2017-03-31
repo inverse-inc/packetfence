@@ -20,8 +20,8 @@
       <script src="[% c.uri_for('/static/app/html5.js') %]"></script>
     <![endif]-->
   </head>
-
-  <body[% IF readonly_mode %] class="navbar-error"[% END %]>
+  [% SET SHOW_READONLY_ERROR = c.user_allowed_in_admin() && readonly_mode %]
+  <body[% IF SHOW_READONLY_ERROR %] class="navbar-error"[% END %]>
 
     <div class="alert alert-block hide">
       <button class="close" data-dismiss="alert">&times;</button>
@@ -38,7 +38,7 @@
       <strong>[% l('Error!') %]</strong> <span></span>
     </div>
 
-    <div id="navbar" class="navbar navbar-fixed-top navbar-inverse[% IF readonly_mode %] navbar-error[% END %]">
+    <div id="navbar" class="navbar navbar-fixed-top navbar-inverse[% IF SHOW_READONLY_ERROR %] navbar-error[% END %]">
       <div class="navbar-inner">
         <div class="row-fluid">
           <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
@@ -116,7 +116,7 @@
           </div><!--/.nav-collapse -->
           [%- END %]
         </div>
-        [% IF readonly_mode %]
+        [% IF SHOW_READONLY_ERROR %]
         <div class="row-error">
           <strong>[% l('Warning!') %]</strong>
           <span>[% l('The database is in readonly mode. Not all functionality is available.') %]</span>
