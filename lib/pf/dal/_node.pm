@@ -60,6 +60,7 @@ BEGIN {
         sessionid
         machine_account
         bypass_role_id
+        last_seen
     );
 
     %DEFAULTS = (
@@ -92,6 +93,7 @@ BEGIN {
         sessionid => undef,
         machine_account => undef,
         bypass_role_id => undef,
+        last_seen => '0000-00-00 00:00:00',
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -124,6 +126,7 @@ BEGIN {
         sessionid
         machine_account
         bypass_role_id
+        last_seen
     );
 
     %FIELDS_META = (
@@ -308,6 +311,12 @@ BEGIN {
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
+        },
+        last_seen => {
+            type => 'DATETIME',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
         },
     );
 

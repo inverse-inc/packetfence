@@ -39,7 +39,7 @@ BEGIN {
     );
 
     %DEFAULTS = (
-        vid => '0',
+        vid => '',
         tid_start => '',
         tid_end => '',
         type => '',
