@@ -120,7 +120,7 @@ case "$1" in
 
         /usr/bin/install -d -g systemd-journal /var/log/journal
         /usr/bin/setfacl -R -nm g:adm:rx,d:g:adm:rx /var/log/journal
-        /usr/bin/mkdir -p /usr/lib/systemd/journald.conf.d
+        /bin/mkdir -p /usr/lib/systemd/journald.conf.d
         echo "RateLimitInterval=0" > /usr/lib/systemd/journald.conf.d/01-packetfence.conf
         echo "RateLimitBurst=0" >> /usr/lib/systemd/journald.conf.d/01-packetfence.conf
         echo "Restarting journald to enable persistent logging"
