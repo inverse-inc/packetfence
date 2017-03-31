@@ -1354,6 +1354,14 @@ sub radius_rest_accounting :Public :RestPath(/radius/rest/accounting) {
 
     my $return = $class->handle_accounting_metadata(%remapped_radius_request);
 
+    my $radius = new pf::radius::custom();
+    eval {
+        $return = $radius->accounting(\%remapped_radius_request);
+    };
+    if ($@) {
+        $logger->error("radius accounting failed with error: $@");
+    }
+
     # This will die with the proper code if it is a deny
     $return = pf::radius::rest::format_response($return);
 
