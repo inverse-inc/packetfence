@@ -50,8 +50,9 @@ parse the Line using the rule
 
 sub parseLineFromRule {
     my ($self, $rule, $line) = @_;
-    return undef unless $line =~ $rule->{regex};
+    return 0, undef unless $line =~ $rule->{regex};
     my %data = %+;
+    my $success = 1;
     if (exists $data{mac}) {
         $data{mac} = clean_mac($data{mac});
     }
@@ -61,15 +62,25 @@ sub parseLineFromRule {
             if ($mac) {
                 $data{mac} = $mac;
             }
+            else {
+                my $logger = get_logger();
+                $logger->error("Parser id " . $self->id . " : Failed performing ip2mac translation skipping rule $rule->{name}");
+                $success = 0;
+            }
         }
         elsif (exists $data{mac} && !exists $data{ip}) {
             my $ip = pf::ip4log::mac2ip($data{mac});
             if ($ip) {
                 $data{ip} = $ip;
             }
+            else {
+                my $logger = get_logger();
+                $logger->error("Parser id " . $self->id . " : Failed performing mac2ip translation skipping rule $rule->{name}");
+                $success = 0;
+            }
         }
     }
-    return \%data;
+    return $success, \%data;
 }
 
 =head2 sendActions
@@ -135,7 +146,7 @@ match line
 =cut
 
 sub matchLine {
-    my ($self, $line) = @_;
+    my ($self, $line, $include_ip2mac_failures) = @_;
     my @actions;
     my @rules;
     my @matches;
@@ -146,8 +157,10 @@ sub matchLine {
         my $rule_name = $r->{name};
         $logger->trace( sub { "Pfdetect Regex $id checking rule $rule_name" });
         my $rule = clone($r);
-        my $data = $self->parseLineFromRule($rule, $line);
-        next unless defined $data;
+        my ($success, $data) = $self->parseLineFromRule($rule, $line);
+        if ($success == 0 && !$include_ip2mac_failures) {
+            next;
+        }
         $logger->trace( sub { "Pfdetect Regex $id rule $rule_name matched" });
         my %match = (
             rule => $rule,
@@ -180,7 +193,7 @@ sub dryRun {
     for my $line (@lines) {
         my %run = (
             line => $line,
-            matches => $self->matchLine($line),
+            matches => $self->matchLine($line, 1),
         );
         push @runs, \%run;
     }
