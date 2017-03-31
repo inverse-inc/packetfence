@@ -18,7 +18,7 @@
     <li class="active"><a href="#single" data-toggle="tab"><i class="icon-user"></i> [% l('Single') %]</a></li>
     [% IF can_access('USERS_CREATE_MULTIPLE') %]
       <li><a href="#multiple" data-toggle="tab"><i class="icon-group"></i> [% l('Multiple') %]</a></li>
-      <li><a href="#import" data-toggle="tab"><i class="icon-upload-alt"></i> [% l('Import') %]</a></li>
+      <li><a href="#import" data-toggle="tab"><i class="icon-upload"></i> [% l('Import') %]</a></li>
     [% END %]
   </ul>
 

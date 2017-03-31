@@ -102,7 +102,7 @@
         <div class="form-actions">
           <a id="file-editor-save" href="#" class="btn btn-primary disabled editorToggle" data-toggle="modal" data-target="#saveFile"><i class="icon-save"></i> [% l('Save') %]</a>
           <a id="file-editor-reset" href="#" class="btn btn-danger disabled editorToggle" data-toggle="modal" data-target="#resetContent"><i class="icon-refresh"></i> [% l('Revert Changes') %]</a>
-          <a id="file-editor-preview" class="btn editorToggle" target="_blank" href="[% c.uri_for(c.controller('Config::Profile').action_for('preview'),[id],paths) %]" ><i class="icon-eye-open"></i> [% l('Preview') %]</a>
+          <a id="file-editor-preview" class="btn editorToggle" target="_blank" href="[% c.uri_for(c.controller('Config::Profile').action_for('preview'),[id],paths) %]" ><i class="icon-eye"></i> [% l('Preview') %]</a>
         </div>
       </form>
     </div>

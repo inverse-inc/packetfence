@@ -113,7 +113,7 @@
             </div>
             </div>
               <div class="form-actions">
-                <button type="submit" class="btn btn-primary pull-right" href="[% next_step %]">[% l('Continue') %] <i class="icon-circle-arrow-right icon-white"></i></button>
+                <button type="submit" class="btn btn-primary pull-right" href="[% next_step %]">[% l('Continue') %] <i class="icon-arrow-circle-right icon-white"></i></button>
               </div>
             </div>
           </form>

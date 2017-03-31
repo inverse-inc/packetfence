@@ -12,7 +12,7 @@
 
   <ul class="nav nav-tabs">
     <li class="active"><a href="#single" data-toggle="tab"><i class="icon-desktop"></i> [% l('Single') %]</a></li>
-    <li><a href="#import" data-toggle="tab"><i class="icon-upload-alt"></i> [% l('Import') %]</a></li>
+    <li><a href="#import" data-toggle="tab"><i class="icon-upload"></i> [% l('Import') %]</a></li>
   </ul>
 
   <div class="tab-content">

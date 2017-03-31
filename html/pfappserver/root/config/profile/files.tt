@@ -8,7 +8,7 @@ td a.btn { margin-left: 5px; }
     [% dir_id = "profile_dir_" _ dirs.join("_") _ "_" _ loop.count %]
         <tr>
           <td>
-            <a data-toggle="collapse" data-parent="false" data-target="#[% dir_id | html %]"><i data-swap="icon-folder-[%IF entry.hidden %]open[%ELSE%]close[% END %]" class="icon-folder-[%IF entry.hidden %]close[%ELSE%]open[% END %]"></i> [% name %]</a>
+            <a data-toggle="collapse" data-parent="false" data-target="#[% dir_id | html %]"><i data-swap="icon-folder-[%IF entry.hidden %]open[%ELSE%]close[% END %]" class="icon-folder[%IF entry.hidden %][%ELSE%]-open[% END %]"></i> [% name %]</a>
           </td>
           <td></td>
           <td>
@@ -74,9 +74,9 @@ td a.btn { margin-left: 5px; }
       <td>
         <div class="btn-group pull-right">
         [%- IF entry.previewable %]
-            <a class="btn btn-small" target="_blank" href="[% c.uri_for(c.controller('Config::Profile').action_for('preview'), [ id ], paths) %]"  title="[% l('Preview') %]"> <i class="icon-eye-open icon-border"></i></a>
+            <a class="btn btn-small" target="_blank" href="[% c.uri_for(c.controller('Config::Profile').action_for('preview'), [ id ], paths) %]"  title="[% l('Preview') %]"> <i class="icon-eye icon-border"></i></a>
         [%- ELSE %]
-            <a class="btn btn-small disabled"><i class="icon-eye-close icon-border"></i></a>
+            <a class="btn btn-small disabled"><i class="icon-eye-slash icon-border"></i></a>
         [%- END %]
         [%- IF can_access("CONNECTION_PROFILES_UPDATE") %]
         <a class="btn btn-small" data-toggle="modal" data-target="#copyModal" href="[% c.uri_for(c.controller('Config::Profile').action_for('copy_file'), [ id ], paths ) %]" title="[% l('Copy') %]"> <i class="icon-copy icon-border"></i></a>
