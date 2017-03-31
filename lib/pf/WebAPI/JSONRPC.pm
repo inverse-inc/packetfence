@@ -48,11 +48,12 @@ sub handler {
     my $content = $self->get_all_content($r);
     my $data = eval {decode_json $content };
     if ($@) {
-        get_logger->error($@);
+        my $error = $@;
+        get_logger->error($error);
         return $self->send_response(
             $r,
             Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE,
-            $self->make_error_object(undef, $JSONRPC_ERROR_CODE_PARSE_ERROR, "Cannot parse request\n", $@),
+            $self->make_error_object(undef, $JSONRPC_ERROR_CODE_PARSE_ERROR, "Cannot parse request\n", $error),
         );
     }
     my $ref_type = ref $data;
@@ -105,11 +106,12 @@ sub handler {
             }
         };
         if ($@) {
-            get_logger->error($@);
+            my $error = $@;
+            get_logger->error($error);
             return $self->send_response(
                 $r,
                 Apache2::Const::HTTP_INTERNAL_SERVER_ERROR,
-                $self->make_error_object($id, $JSONRPC_ERROR_CODE_GENERIC_ERROR, $@)
+                $self->make_error_object($id, $JSONRPC_ERROR_CODE_GENERIC_ERROR, $error)
             );
         }
         return $self->send_response($r, Apache2::Const::HTTP_OK, $object);
