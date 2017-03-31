@@ -13,6 +13,7 @@ Web form for cluster_check pfmon task
 use HTML::FormHandler::Moose;
 
 extends 'pfappserver::Form::Config::Pfmon';
+with 'pfappserver::Base::Form::Role::Help';
 
 
 =head2 default_type
@@ -24,6 +25,8 @@ default value of type
 sub default_type {
     return "cluster_check";
 }
+
+sub task_description { "Task that checks the health state of the cluster and attempts to resolve any detected conflicts." }
 
 has_block  definition =>
   (

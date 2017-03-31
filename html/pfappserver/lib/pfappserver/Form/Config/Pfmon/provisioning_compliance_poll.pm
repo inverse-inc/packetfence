@@ -13,6 +13,7 @@ Web form for provisioning_compliance_poll pfmon task
 use HTML::FormHandler::Moose;
 
 extends 'pfappserver::Form::Config::Pfmon';
+with 'pfappserver::Base::Form::Role::Help';
 
 
 =head2 default_type
@@ -24,6 +25,8 @@ default value of type
 sub default_type {
     return "provisioning_compliance_poll";
 }
+
+sub task_description { "Task that runs the polling enforcement on the provisioners." }
 
 has_block  definition =>
   (

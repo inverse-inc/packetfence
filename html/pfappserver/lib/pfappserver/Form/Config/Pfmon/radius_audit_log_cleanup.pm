@@ -15,6 +15,7 @@ use HTML::FormHandler::Moose;
 use pfappserver::Form::Config::Pfmon qw(default_field_method);
 
 extends 'pfappserver::Form::Config::Pfmon';
+with 'pfappserver::Base::Form::Role::Help';
 
 has_field 'batch' => (
     type => 'PosInteger',
@@ -31,6 +32,7 @@ has_field 'window' => (
     default_method => \&default_field_method,
 );
 
+sub task_description { "Controls the cleanup of the radius_audit_log table. Entries older than the window will be removed from the table." }
 
 =head2 default_type
 

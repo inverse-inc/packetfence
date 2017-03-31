@@ -13,6 +13,7 @@ Web form for nodes_maintenance pfmon task
 use HTML::FormHandler::Moose;
 
 extends 'pfappserver::Form::Config::Pfmon';
+with 'pfappserver::Base::Form::Role::Help';
 
 
 =head2 default_type
@@ -24,6 +25,8 @@ default value of type
 sub default_type {
     return "nodes_maintenance";
 }
+
+sub task_description { "Task to unregister nodes that have an unregistration date older than the current date and time." }
 
 has_block  definition =>
   (

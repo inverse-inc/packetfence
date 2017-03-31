@@ -13,6 +13,7 @@ Web form for option82_query pfmon task
 use HTML::FormHandler::Moose;
 
 extends 'pfappserver::Form::Config::Pfmon';
+with 'pfappserver::Base::Form::Role::Help';
 
 
 =head2 default_type
@@ -24,6 +25,8 @@ default value of type
 sub default_type {
     return "option82_query";
 }
+
+sub task_description { "Task to query compatible switches for DHCP Option 82 switch MAC address." }
 
 has_block  definition =>
   (

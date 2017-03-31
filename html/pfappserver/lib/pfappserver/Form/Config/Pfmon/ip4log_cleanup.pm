@@ -15,6 +15,7 @@ use HTML::FormHandler::Moose;
 use pfappserver::Form::Config::Pfmon qw(default_field_method);
 
 extends 'pfappserver::Form::Config::Pfmon';
+with 'pfappserver::Base::Form::Role::Help';
 
 has_field 'batch' => (
     type => 'PosInteger',
@@ -26,6 +27,8 @@ has_field 'rotate' => (
     checked_value => 'enabled',
     unchecked_value => 'disabled',
     default_method => \&default_field_method,
+    tags => { after_element => \&help,
+             help => 'Enable or disable ip4log rotation (moving ip4log_history records to ip4log_archive)<br>If disabled, this task will delete from the iplog_history table rather than the iplog_archive using the iplog rotation window, interval, batch and timeout parameters.' },
 );
 
 has_field 'rotate_batch' => (
@@ -41,6 +44,8 @@ has_field 'rotate_timeout' => (
 has_field 'rotate_window' => (
     type => 'Duration',
     default_method => \&default_field_method,
+    tags => { after_element => \&help,
+             help => 'How long to keep ip4log history entry before rotating it to ip4log archive.' },
 );
 
 has_field 'timeout' => (
@@ -51,8 +56,11 @@ has_field 'timeout' => (
 has_field 'window' => (
     type => 'Duration',
     default_method => \&default_field_method,
+    tags => { after_element => \&help,
+             help => 'How long to keep a ip4log archive entry before deleting it (or ip4log history if rotation is disabled)' },
 );
 
+sub task_description { "Controls the cleanup and rotation of IP entries in IPv4 tables." }
 
 =head2 default_type
 

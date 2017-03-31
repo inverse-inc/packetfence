@@ -15,6 +15,7 @@ use HTML::FormHandler::Moose;
 use pfappserver::Form::Config::Pfmon qw(default_field_method);
 
 extends 'pfappserver::Form::Config::Pfmon';
+with 'pfappserver::Base::Form::Role::Help';
 
 has_field 'batch' => (
     type => 'PosInteger',

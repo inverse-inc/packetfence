@@ -15,6 +15,7 @@ use HTML::FormHandler::Moose;
 use pfappserver::Form::Config::Pfmon qw(default_field_method);
 
 extends 'pfappserver::Form::Config::Pfmon';
+with 'pfappserver::Base::Form::Role::Help';
 
 has_field 'batch' => (
     type => 'PosInteger',
@@ -36,6 +37,8 @@ default value of type
 sub default_type {
     return "violation_maintenance";
 }
+
+sub task_description { "Task that controls the execution of delayed violation." }
 
 has_block  definition =>
   (

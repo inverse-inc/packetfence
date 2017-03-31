@@ -13,6 +13,7 @@ Web form for populate_ntlm_redis_cache pfmon task
 use HTML::FormHandler::Moose;
 
 extends 'pfappserver::Form::Config::Pfmon';
+with 'pfappserver::Base::Form::Role::Help';
 
 
 =head2 default_type
@@ -24,6 +25,8 @@ default value of type
 sub default_type {
     return "populate_ntlm_redis_cache";
 }
+
+sub task_description { "Task to control the population of the Active Directory NTLM cache" }
 
 has_block  definition =>
   (

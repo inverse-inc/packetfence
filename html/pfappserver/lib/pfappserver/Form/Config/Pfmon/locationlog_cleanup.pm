@@ -15,6 +15,7 @@ use HTML::FormHandler::Moose;
 use pfappserver::Form::Config::Pfmon qw(default_field_method);
 
 extends 'pfappserver::Form::Config::Pfmon';
+with 'pfappserver::Base::Form::Role::Help';
 
 has_field 'batch' => (
     type => 'PosInteger',
@@ -41,6 +42,8 @@ default value of type
 sub default_type {
     return "locationlog_cleanup";
 }
+
+sub task_description { "Controls the cleanup of the locationlog table. Entries older than the window will be removed from the table." }
 
 has_block  definition =>
   (

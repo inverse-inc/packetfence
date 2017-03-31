@@ -15,6 +15,7 @@ use HTML::FormHandler::Moose;
 use pfappserver::Form::Config::Pfmon qw(default_field_method);
 
 extends 'pfappserver::Form::Config::Pfmon';
+with 'pfappserver::Base::Form::Role::Help';
 
 has_field 'batch' => (
     type => 'PosInteger',
@@ -26,6 +27,8 @@ has_field 'rotate' => (
     checked_value => 'enabled',
     unchecked_value => 'disabled',
     default_method => \&default_field_method,
+    tags => { after_element => \&help,
+             help => 'Enable or disable ip6log rotation (moving ip6log_history records to ip6log_archive)<br>If disabled, this task will delete from the iplog_history table rather than the iplog_archive using the iplog rotation window, interval, batch and timeout parameters.' },
 );
 
 has_field 'rotate_batch' => (
@@ -41,6 +44,8 @@ has_field 'rotate_timeout' => (
 has_field 'rotate_window' => (
     type => 'Duration',
     default_method => \&default_field_method,
+    tags => { after_element => \&help,
+             help => 'How long to keep ip6log history entry before rotating it to ip6log archive.' },
 );
 
 has_field 'timeout' => (
@@ -51,6 +56,8 @@ has_field 'timeout' => (
 has_field 'window' => (
     type => 'Duration',
     default_method => \&default_field_method,
+    tags => { after_element => \&help,
+             help => 'How long to keep a ip6log archive entry before deleting it (or ip6log history if rotation is disabled)' },
 );
 
 
@@ -63,6 +70,8 @@ default value of type
 sub default_type {
     return "ip6log_cleanup";
 }
+
+sub task_description { "Controls the cleanup and rotation of IP entries in IPv6 tables." }
 
 has_block  definition =>
   (

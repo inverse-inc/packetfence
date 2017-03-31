@@ -13,6 +13,7 @@ Web form for person_cleanup pfmon task
 use HTML::FormHandler::Moose;
 
 extends 'pfappserver::Form::Config::Pfmon';
+with 'pfappserver::Base::Form::Role::Help';
 
 
 =head2 default_type
@@ -24,6 +25,8 @@ default value of type
 sub default_type {
     return "person_cleanup";
 }
+
+sub task_description { "Task to delete users that do not own any device. Locally created users will only be deleted when their account expires." }
 
 has_block  definition =>
   (

@@ -13,6 +13,7 @@ Web form for fingerbank_data_update pfmon task
 use HTML::FormHandler::Moose;
 
 extends 'pfappserver::Form::Config::Pfmon';
+with 'pfappserver::Base::Form::Role::Help';
 
 
 =head2 default_type
@@ -24,6 +25,8 @@ default value of type
 sub default_type {
     return "fingerbank_data_update";
 }
+
+sub task_description { "Task that controls updates of the local Fingerbank data from the cloud API" }
 
 has_block  definition =>
   (

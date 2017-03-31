@@ -13,6 +13,7 @@ Web form for acct_maintenance pfmon task
 use HTML::FormHandler::Moose;
 
 extends 'pfappserver::Form::Config::Pfmon';
+with 'pfappserver::Base::Form::Role::Help';
 
 
 =head2 default_type
@@ -25,7 +26,7 @@ sub default_type {
     return "acct_maintenance";
 }
 
-sub task_description { "Task for inline accounting maintenance" }
+sub task_description { "Task that controls the inline accounting maintenance (bandwidth checks)." }
 
 has_block  definition =>
   (
