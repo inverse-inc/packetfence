@@ -43,8 +43,6 @@ sub default_type {
     return "auth_log_cleanup";
 }
 
-sub task_description { "Controls the cleanup of the auth_log table. Entries older than the window will be removed from the table." }
-
 has_block  definition =>
   (
     render_list => [qw(type status interval batch timeout window)],

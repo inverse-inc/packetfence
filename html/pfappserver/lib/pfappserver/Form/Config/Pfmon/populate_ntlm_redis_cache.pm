@@ -26,8 +26,6 @@ sub default_type {
     return "populate_ntlm_redis_cache";
 }
 
-sub task_description { "Task to control the population of the Active Directory NTLM cache" }
-
 has_block  definition =>
   (
     render_list => [qw(type status interval)],

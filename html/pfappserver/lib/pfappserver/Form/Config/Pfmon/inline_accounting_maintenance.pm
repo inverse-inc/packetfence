@@ -26,8 +26,6 @@ sub default_type {
     return "inline_accounting_maintenance";
 }
 
-sub task_description { "Task that controls the inline accounting maintenance (bandwidth checks)." }
-
 has_block  definition =>
   (
     render_list => [qw(type status interval)],

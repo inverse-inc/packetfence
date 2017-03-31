@@ -38,8 +38,6 @@ sub default_type {
     return "cleanup_chi_database_cache";
 }
 
-sub task_description { "Controls the cleanup of the CHI cache database storage." }
-
 has_block  definition =>
   (
     render_list => [qw(type status interval batch timeout)],

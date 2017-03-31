@@ -26,8 +26,6 @@ sub default_type {
     return "nodes_maintenance";
 }
 
-sub task_description { "Task to unregister nodes that have an unregistration date older than the current date and time." }
-
 has_block  definition =>
   (
     render_list => [qw(type status interval)],

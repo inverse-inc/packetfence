@@ -60,8 +60,6 @@ has_field 'window' => (
              help => 'How long to keep a ip4log archive entry before deleting it (or ip4log history if rotation is disabled)' },
 );
 
-sub task_description { "Controls the cleanup and rotation of IP entries in IPv4 tables." }
-
 =head2 default_type
 
 default value of type

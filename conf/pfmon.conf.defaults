@@ -10,7 +10,7 @@ type=acct_maintenance
 # description
 #
 # The description of task to perform
-description=acct maintenance
+description=Task that controls the inline accounting maintenance (bandwidth checks).
 #
 # status
 #
@@ -32,7 +32,7 @@ type=auth_log_cleanup
 # description
 #
 # The description of task to perform
-description=auth log cleanup
+description=Controls the cleanup of the auth_log table. Entries older than the window will be removed from the table.
 #
 # status
 #
@@ -69,7 +69,7 @@ type=cleanup_chi_database_cache
 # description
 #
 # The description of task to perform
-description=cleanup chi database cache
+description=Controls the cleanup of the CHI cache database storage.
 #
 # status
 #
@@ -101,7 +101,7 @@ type=cluster_check
 # description
 #
 # The description of task to perform
-description=cluster check
+description=Task that checks the health state of the cluster and attempts to resolve any detected conflicts.
 #
 # status
 #
@@ -123,7 +123,7 @@ type=fingerbank_data_update
 # description
 #
 # The description of task to perform
-description=fingerbank data update
+description=Task that controls updates of the local Fingerbank data from the cloud API.
 #
 # status
 #
@@ -145,7 +145,7 @@ type=inline_accounting_maintenance
 # description
 #
 # The description of task to perform
-description=inline accounting maintenance
+description=Task that controls the inline accounting maintenance (bandwidth checks).
 #
 # status
 #
@@ -167,7 +167,7 @@ type=ip4log_cleanup
 # description
 #
 # The description of task to perform
-description=ip4log cleanup
+description=Controls the cleanup and rotation of IP entries in IPv4 tables.
 #
 # status
 #
@@ -224,7 +224,7 @@ type=ip6log_cleanup
 # description
 #
 # The description of task to perform
-description=ip6log cleanup
+description=Controls the cleanup and rotation of IP entries in IPv6 tables.
 #
 # status
 #
@@ -281,7 +281,7 @@ type=locationlog_cleanup
 # description
 #
 # The description of task to perform
-description=locationlog cleanup
+description=Controls the cleanup of the locationlog table. Entries older than the window will be removed from the table.
 #
 # status
 #
@@ -318,7 +318,7 @@ type=node_cleanup
 # description
 #
 # The description of task to perform
-description=node cleanup
+description=Controls the actions made on inactive nodes (based on the last_seen attribute of the node).
 #
 # status
 #
@@ -351,7 +351,7 @@ type=nodes_maintenance
 # description
 #
 # The description of task to perform
-description=nodes maintenance
+description=Task to unregister nodes that have an unregistration date older than the current date and time.
 #
 # status
 #
@@ -373,7 +373,7 @@ type=option82_query
 # description
 #
 # The description of task to perform
-description=option82 query
+description=Task to query compatible switches for DHCP Option 82 switch MAC address.
 #
 # status
 #
@@ -395,7 +395,7 @@ type=person_cleanup
 # description
 #
 # The description of task to perform
-description=person cleanup
+description=Task to delete users that do not own any device. Locally created users will only be deleted when their account expires.
 #
 # status
 #
@@ -417,7 +417,7 @@ type=populate_ntlm_redis_cache
 # description
 #
 # The description of task to perform
-description=populate ntlm redis cache
+description=Task to control the population of the Active Directory NTLM cache.
 #
 # status
 #
@@ -439,7 +439,7 @@ type=provisioning_compliance_poll
 # description
 #
 # The description of task to perform
-description=provisioning compliance poll
+description=Task that runs the polling enforcement on the provisioners.
 #
 # status
 #
@@ -461,7 +461,7 @@ type=radius_audit_log_cleanup
 # description
 #
 # The description of task to perform
-description=radius audit log cleanup
+description=Controls the cleanup of the radius_audit_log table. Entries older than the window will be removed from the table.
 #
 # status
 #
@@ -498,7 +498,7 @@ type=violation_maintenance
 # description
 #
 # The description of task to perform
-description=violation maintenance
+description=Task that controls the execution of delayed violation.
 #
 # status
 #

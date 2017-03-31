@@ -26,8 +26,6 @@ sub default_type {
     return "provisioning_compliance_poll";
 }
 
-sub task_description { "Task that runs the polling enforcement on the provisioners." }
-
 has_block  definition =>
   (
     render_list => [qw(type status interval)],

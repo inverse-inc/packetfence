@@ -26,8 +26,6 @@ sub default_type {
     return "fingerbank_data_update";
 }
 
-sub task_description { "Task that controls updates of the local Fingerbank data from the cloud API" }
-
 has_block  definition =>
   (
     render_list => [qw(type status interval)],

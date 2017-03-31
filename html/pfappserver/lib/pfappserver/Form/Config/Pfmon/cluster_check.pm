@@ -26,8 +26,6 @@ sub default_type {
     return "cluster_check";
 }
 
-sub task_description { "Task that checks the health state of the cluster and attempts to resolve any detected conflicts." }
-
 has_block  definition =>
   (
     render_list => [qw(type status interval)],

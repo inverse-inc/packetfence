@@ -38,8 +38,6 @@ sub default_type {
     return "violation_maintenance";
 }
 
-sub task_description { "Task that controls the execution of delayed violation." }
-
 has_block  definition =>
   (
     render_list => [qw(type status interval batch timeout)],

@@ -71,8 +71,6 @@ sub default_type {
     return "ip6log_cleanup";
 }
 
-sub task_description { "Controls the cleanup and rotation of IP entries in IPv6 tables." }
-
 has_block  definition =>
   (
     render_list => [qw(type status interval batch timeout window rotate rotate_batch rotate_timeout rotate_window)],

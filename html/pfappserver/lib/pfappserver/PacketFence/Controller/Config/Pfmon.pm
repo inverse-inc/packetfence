@@ -71,6 +71,7 @@ before [qw(view update)] => sub {
     my $type = $item->{type};
     my $form = $c->action->{form};
     $c->stash->{current_form} = "${form}::${type}";
+    $c->stash->{task_description} = $item->{description};
 };
 
 =head1 COPYRIGHT
