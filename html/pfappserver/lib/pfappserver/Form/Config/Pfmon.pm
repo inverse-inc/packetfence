@@ -42,12 +42,16 @@ has_field 'status' =>
    checkbox_value => 'enabled',
    unchecked_value => 'disabled',
    default_method => \&default_field_method,
+    tags => { after_element => \&help,
+             help => 'Whether or not this task is enabled.<br>Requires a restart of pfmon to be effective.' },
   );
 
 has_field 'interval' =>
   (
    type => 'Duration',
    default_method => \&default_field_method,
+    tags => { after_element => \&help,
+             help => 'Interval (frequency) at which the task is executed.<br>Requires a restart of pfmon to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.' },
   );
 
 has_block  definition =>
