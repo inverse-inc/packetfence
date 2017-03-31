@@ -105,7 +105,7 @@ sub update_field {
 
     if ($field->required) {
         $field->set_element_attr('data-required' => 'required');
-        $field->tags->{label_after} = ' <i class="icon-exclamation-sign"></i>';
+        $field->tags->{label_after} = ' <i class="icon-exclamation-circle"></i>';
     }
     if ($field->type eq 'PosInteger') {
         $field->type_attr($field->html5_type_attr);
