@@ -56,6 +56,16 @@ case "$1" in
         if [ -e /etc/lsb-release ]; then
             usermod dhcpd -a -G pf
         fi
+
+        
+        # journald 
+        /usr/bin/install -d -g systemd-journal /var/log/journal
+        /usr/bin/setfacl -R -nm g:adm:rx,d:g:adm:rx /var/log/journal
+        echo "RateLimitInterval=0" >> /etc/systemd/journald.conf
+        echo "RateLimitBurst=0" >> /etc/systemd/journald.conf
+        echo "Restarting journald to enable persistent logging"
+        /bin/systemctl restart systemd-journald
+
         exit 0
     ;;
     
@@ -106,6 +116,15 @@ case "$1" in
           test -d /usr/local/pf/var/cache && rmdir --ignore-fail-on-non-empty /usr/local/pf/var/cache
         fi
 
+        if dpkg --compare-versions "$2" lt "7"; then
+            # journald 
+            /usr/bin/install -d -g systemd-journal /var/log/journal
+            /usr/bin/setfacl -R -nm g:adm:rx,d:g:adm:rx /var/log/journal
+            echo "RateLimitInterval=0" >> /etc/systemd/journald.conf
+            echo "RateLimitBurst=0" >> /etc/systemd/journald.conf
+            echo "Restarting journald to enable persistent logging"
+        fi
+        /bin/systemctl restart systemd-journald
         stop_service_if_exists pfappserver
         stop_service_if_exists packetfence
 
