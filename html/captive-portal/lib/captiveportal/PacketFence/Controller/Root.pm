@@ -55,6 +55,7 @@ captiveportal::PacketFence::Controller::Root - Root Controller for captiveportal
 
 sub auto : Private {
     my ( $self, $c ) = @_;
+    $c->stash->{statsd_timer} = pf::StatsD::Timer->new({ 'stat' => 'captiveportal/' . $c->request->path, level => 6 });
     $c->forward('setupLanguage');
     $c->forward('setupDynamicRouting');
     $c->forward('checkReadonly');
@@ -133,7 +134,6 @@ index
 
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
-    my $timer = pf::StatsD::Timer->new({level => 6});
 
     $c->forward('dynamic_application');
 }
@@ -347,6 +347,7 @@ sub end : ActionClass('RenderView') {
         $c->response->status(500);
         $c->clear_errors;
     }
+    $c->stash->{statsd_timer} = undef;
 }
 
 =head2 checkReadonly
