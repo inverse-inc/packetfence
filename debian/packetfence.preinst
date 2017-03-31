@@ -63,6 +63,7 @@ case "$1" in
         /usr/bin/setfacl -R -nm g:adm:rx,d:g:adm:rx /var/log/journal
         echo "RateLimitInterval=0" >> /etc/systemd/journald.conf
         echo "RateLimitBurst=0" >> /etc/systemd/journald.conf
+        echo "ForwardToWall=no" >> /etc/systemd/journald.conf
         echo "Restarting journald to enable persistent logging"
         /bin/systemctl restart systemd-journald
 
@@ -122,6 +123,7 @@ case "$1" in
             /usr/bin/setfacl -R -nm g:adm:rx,d:g:adm:rx /var/log/journal
             echo "RateLimitInterval=0" >> /etc/systemd/journald.conf
             echo "RateLimitBurst=0" >> /etc/systemd/journald.conf
+            echo "ForwardToWall=no" >> /etc/systemd/journald.conf
             echo "Restarting journald to enable persistent logging"
         fi
         /bin/systemctl restart systemd-journald
