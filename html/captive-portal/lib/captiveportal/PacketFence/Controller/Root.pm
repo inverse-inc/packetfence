@@ -316,17 +316,6 @@ sub getRequestLanguages : Private{
     return \@l;
 }
 
-=head2 setupStatsd
-
-setup statsd
-
-=cut
-
-sub setupStatsd : Private {
-    my ($self, $c) = @_;
-    return ;
-}
-
 =head2 end
 
 Attempt to render a view, if needed.
