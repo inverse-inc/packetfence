@@ -25,23 +25,19 @@ tie %doc, 'Config::IniFiles',
 #plan the number of tests
 my $testNb = 0;
 foreach my $section ( tied(%default_cfg)->Sections ) {
-    foreach my $key ( keys( %{ $default_cfg{$section} } ) ) {
-        if ($section ne 'proxies') {
-            $testNb++;
-        }
-    }
+    next if $section eq 'proxies';
+    $testNb += scalar keys( %{ $default_cfg{$section} } );
 }
 foreach my $section ( tied(%doc)->Sections ) {
-    if ( ($section ne 'proxies') && ($section ne 'passthroughs') ) {
-        if ($section =~ /^([^.]+)\.(.+)$/) {
-            if ( ($1 ne 'interface') && ($1 ne 'services')
-                 && (! ( ($1 eq 'alerting') && ($2 eq 'fromaddr') ) )
-            ) {
-                $testNb++;
-            }
-        } else {
-            die("unable to parse section $section");
+    next if $section eq 'proxies' || exists $doc{$section}{guide_anchor};
+    if ($section =~ /^([^.]+)\.(.+)$/) {
+        if ( ($1 ne 'interface') && ($1 ne 'services')
+             && (! ( ($1 eq 'alerting') && ($2 eq 'fromaddr') ) )
+        ) {
+            $testNb++;
         }
+    } else {
+        die("unable to parse section $section");
     }
 }
 
@@ -53,29 +49,26 @@ use_ok('pf::config');
 
 #run the tests
 foreach my $section ( tied(%default_cfg)->Sections ) {
+    next if $section eq 'proxies';
     foreach my $key ( keys( %{ $default_cfg{$section} } ) ) {
-        if ($section ne 'proxies') {
-            my $param = "$section.$key";
-            ok ( exists($doc{$param}{'description'}),
-                 "$param is documented" );
-        }
+        my $param = "$section.$key";
+        ok ( exists($doc{$param}{'description'}),
+             "$param is documented" );
     }
 }
 
 foreach my $section ( tied(%doc)->Sections ) {
-    if ( ($section ne 'proxies')
-        && ($section ne 'passthroughs')
-        ) {
-        if ($section =~ /^([^.]+)\.(.+)$/) {
-            if ( ($1 ne 'interface') && ($1 ne 'services')
-                 && (! ( ($1 eq 'alerting') && ($2 eq 'fromaddr') ) )
-               ) {
-                ok ( exists($default_cfg{$1}{$2}),
-                     "$section has default value" );
-            }
-        } else {
-            die("unable to parse section $section");
+    next if exists $doc{$section}{guide_anchor};
+    next if $section eq 'proxies';
+    if ($section =~ /^([^.]+)\.(.+)$/) {
+        if ( ($1 ne 'interface') && ($1 ne 'services')
+             && (! ( ($1 eq 'alerting') && ($2 eq 'fromaddr') ) )
+           ) {
+            ok ( exists($default_cfg{$1}{$2}),
+                 "$section has default value" );
         }
+    } else {
+        die("unable to parse section $section");
     }
 }
 
