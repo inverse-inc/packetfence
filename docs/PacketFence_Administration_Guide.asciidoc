@@ -3820,13 +3820,13 @@ image::docs/images/domain-ntlm-cache-2.png[scaledwidth="100%",alt="Domain NTLM c
 
 Once done, click 'Save' to commit your changes.
 
-After that, you will need to enable the `redis_ntlm_cache` service which is used by PacketFence to store the cached credentials. In order to do so, goviolation.logConfiguration->Main Configuration->Services' and enable 'redis_ntlm_cache' and save the changes.
+After that, you will need to enable the `redis_ntlm_cache` service which is used by PacketFence to store the cached credentials. In order to do so, go in Configuration->Main Configuration->Services' and enable 'redis_ntlm_cache' and save the changes.
 
 Next, start the service via pfcmd:
 
   /usr/local/pf/bin/pfcmd service redis_ntlm_cache start
 
-If you chose to enable 'NTLM cache background job' in one of your domains, you will need to enable the pfmon job that will periodically cache the credentials. This can be configured in 'Configuration->System Configuration->Main Configuration->Maintenance->NTLM cache job interval'. It is advised to set this to half the expiration of the credentials you have set in the domain configuration. This will ensure you have an optimal cache hit. Once done, restart the `pfmon` service.
+If you chose to enable 'NTLM cache background job' in one of your domains, you will need to enable the pfmon job that will periodically cache the credentials. This can be configured in 'Configuration->System Configuration->Main Configuration->Maintenance->populate_ntlm_redis_cache'. It is advised to set the interval of this task to half the expiration of the credentials you have set in the domain configuration. This will ensure you have an optimal cache hit. Once done, restart the `pfmon` service.
 
 Active Directory configuration
 ++++++++++++++++++++++++++++++
