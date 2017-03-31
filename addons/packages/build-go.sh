@@ -52,6 +52,7 @@ set -x
 
 if [ -z "$DEBPATH" ]; then
     export GODATH=`mktemp -d`
+    export GOPATH=$GOPATH
 else
     export GODATH=`mktemp -d -p $DEBPATH`
     export GOROOT="/usr/lib/go-1.7/"
