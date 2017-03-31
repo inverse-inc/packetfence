@@ -11,7 +11,7 @@
     <tbody>
     [%- FOR item IN items %]
     <tr[% ' class="muted"' IF item.status == 'closed' %]>
-      <td>[% '<i class="icon-clock"></i>' IF item.status == 'delayed' %] [% item.description | html %]</td>
+      <td>[% '<i class="icon-clock-o"></i>' IF item.status == 'delayed' %] [% item.description | html %]</td>
       <td>[% item.start_date | html %]</td>
       <td>[% item.release_date | html %]</td>
       <td>
