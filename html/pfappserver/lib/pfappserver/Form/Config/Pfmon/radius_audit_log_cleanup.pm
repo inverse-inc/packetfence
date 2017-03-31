@@ -32,8 +32,6 @@ has_field 'window' => (
     default_method => \&default_field_method,
 );
 
-sub task_description { "Controls the cleanup of the radius_audit_log table. Entries older than the window will be removed from the table." }
-
 =head2 default_type
 
 default value of type

@@ -63,8 +63,6 @@ sub default_field_method {
     return $ConfigPfmonDefault{$task_name}{$name};
 }
 
-sub task_description { undef }
-
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2017 Inverse inc.

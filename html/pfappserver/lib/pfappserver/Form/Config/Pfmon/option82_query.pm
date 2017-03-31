@@ -26,8 +26,6 @@ sub default_type {
     return "option82_query";
 }
 
-sub task_description { "Task to query compatible switches for DHCP Option 82 switch MAC address." }
-
 has_block  definition =>
   (
     render_list => [qw(type status interval)],
