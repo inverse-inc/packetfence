@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PATH="/usr/local/go/bin:/usr/lib/go-1.7/bin:$PATH"
+PATH="/usr/local/go/bin:$PATH"
 
 MODE="$1"
 PFSRC="$2"
@@ -52,13 +52,11 @@ set -x
 
 if [ -z "$DEBPATH" ]; then
     export GODATH=`mktemp -d`
-    export GOPATH=$GODATH
 else
     export GODATH=`mktemp -d -p $DEBPATH`
-    export GOROOT="/usr/lib/go-1.7/"
-    export GOPATH=$GODATH:/usr/share/go:/usr/share/go/src/pkg:/usr/share/go-1.7
 fi
 
+export GOPATH=$GODATH
 
 export GOBIN="$GODATH/bin"
 
