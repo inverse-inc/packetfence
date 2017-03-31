@@ -51,23 +51,23 @@ set -x
 
 
 if [ -z "$DEBPATH" ]; then
-    export GODATH=`mktemp -d`
+    export GOPATH=`mktemp -d`
 else
-    export GODATH=`mktemp -d -p $DEBPATH`
+    export GOPATH=`mktemp -d -p $DEBPATH`
 fi
 
-export GOPATH=$GODATH
+export GOPATH
 
-export GOBIN="$GODATH/bin"
+export GOBIN="$GOPATH/bin"
 
 # Exit hook to cleanup the tmp GOPATH when exiting
 function cleanup {
-  rm -rf "$GODATH"
+  rm -rf "$GOPATH"
 }
 trap cleanup EXIT
 
-cd "$GODATH"
-GOPATHPF="$GODATH/src/github.com/inverse-inc/packetfence"
+cd "$GOPATH"
+GOPATHPF="$GOPATH/src/github.com/inverse-inc/packetfence"
 mkdir -p $GOPATHPF
 
 
@@ -79,7 +79,7 @@ cd go
 
 # Install the dependencies
 go get -u github.com/kardianos/govendor
-$GODATH/bin/govendor sync
+$GOPATH/bin/govendor sync
 
 if build_mode; then
   # Create any binaries here and make sure to move them to the BINDST specified
