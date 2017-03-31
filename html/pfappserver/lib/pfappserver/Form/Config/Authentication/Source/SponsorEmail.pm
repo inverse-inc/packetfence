@@ -14,6 +14,7 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Authentication::Source';
 with 'pfappserver::Base::Form::Role::Help';
 
+use pfappserver::Form::Field::Duration;
 use pf::Authentication::Source::SponsorEmailSource;
 
 # Form fields
