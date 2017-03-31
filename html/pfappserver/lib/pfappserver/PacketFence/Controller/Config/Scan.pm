@@ -13,6 +13,8 @@ Controller for scan management.
 use HTTP::Status qw(:constants is_error is_success);
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
+use List::MoreUtils qw(any);
+use pf::config qw(%Profiles_Config);
 
 use pf::factory::scan;
 
@@ -77,6 +79,29 @@ sub index :Path :Args(0) {
     $c->stash->{types} = [ sort grep {$_} map { /^pf::scan::(.*)/;$1  } @pf::factory::scan::MODULES];
     $c->forward('list');
 }
+
+before [qw(remove)] => sub {
+    my ($self, $c, @args) = @_;
+    # We check that it's not used by any connection profile
+    my $found = 0;
+    my $id = $c->stash->{item}{id};
+    for my $config (values %Profiles_Config) {
+        my @scans = split( /\s*,\s*/, ($config->{scans} // ''));
+        if ( any { $_ eq $id } @scans ) {
+            $found = 1;
+            last;
+        }
+    }
+
+    if ($found) {
+        $c->response->status($STATUS::FORBIDDEN);
+        $c->stash->{status_msg} = "This scanner is used by at least one Connection Profile.";
+        $c->stash->{current_view} = 'JSON';
+        $c->detach();
+    }
+
+};
+
 
 =head1 COPYRIGHT
 
