@@ -55,7 +55,7 @@ captiveportal::PacketFence::Controller::Root - Root Controller for captiveportal
 
 sub auto : Private {
     my ( $self, $c ) = @_;
-    $c->stash->{statsd_timer} = pf::StatsD::Timer->new({ 'stat' => 'captiveportal/' . $c->request->path });
+    $c->stash->{statsd_timer} = pf::StatsD::Timer->new({ 'stat' => 'captiveportal/' . $c->request->path, level => 6 });
     $c->forward('setupLanguage');
     $c->forward('setupDynamicRouting');
     $c->forward('checkReadonly');
