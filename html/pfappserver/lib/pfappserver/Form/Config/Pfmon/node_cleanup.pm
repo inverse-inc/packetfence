@@ -12,7 +12,7 @@ Web form for node_cleanup pfmon task
 
 use HTML::FormHandler::Moose;
 
-use pfappserver::Form::Config::Pfmon qw(default_field_method);
+use pfappserver::Form::Config::Pfmon qw(default_field_method batch_help_text timeout_help_text window_help_text);
 
 extends 'pfappserver::Form::Config::Pfmon';
 with 'pfappserver::Base::Form::Role::Help';

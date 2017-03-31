@@ -12,7 +12,7 @@ Web form for ip6log_cleanup pfmon task
 
 use HTML::FormHandler::Moose;
 
-use pfappserver::Form::Config::Pfmon qw(default_field_method);
+use pfappserver::Form::Config::Pfmon qw(default_field_method batch_help_text timeout_help_text window_help_text);
 
 extends 'pfappserver::Form::Config::Pfmon';
 with 'pfappserver::Base::Form::Role::Help';
@@ -20,6 +20,8 @@ with 'pfappserver::Base::Form::Role::Help';
 has_field 'batch' => (
     type => 'PosInteger',
     default_method => \&default_field_method,
+    tags => { after_element => \&help,
+             help => \&batch_help_text },
 );
 
 has_field 'rotate' => (
@@ -34,11 +36,15 @@ has_field 'rotate' => (
 has_field 'rotate_batch' => (
     type => 'PosInteger',
     default_method => \&default_field_method,
+    tags => { after_element => \&help,
+             help => \&batch_help_text },
 );
 
 has_field 'rotate_timeout' => (
     type => 'Duration',
     default_method => \&default_field_method,
+    tags => { after_element => \&help,
+             help => \&timeout_help_text },
 );
 
 has_field 'rotate_window' => (
@@ -51,6 +57,8 @@ has_field 'rotate_window' => (
 has_field 'timeout' => (
     type => 'Duration',
     default_method => \&default_field_method,
+    tags => { after_element => \&help,
+             help => \&timeout_help_text },
 );
 
 has_field 'window' => (

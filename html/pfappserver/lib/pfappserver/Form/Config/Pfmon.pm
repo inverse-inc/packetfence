@@ -18,7 +18,7 @@ with 'pfappserver::Base::Form::Role::Help';
 use pf::config::pfmon qw(%ConfigPfmonDefault);
 
 use Exporter qw(import);
-our @EXPORT_OK = qw(default_field_method);
+our @EXPORT_OK = qw(default_field_method batch_help_text timeout_help_text window_help_text);
 use pf::log;
 
 ## Definition
@@ -66,6 +66,12 @@ sub default_field_method {
     $task_name =~ s/^pfappserver::Form::Config::Pfmon:://;
     return $ConfigPfmonDefault{$task_name}{$name};
 }
+
+sub batch_help_text { "Amount of items that will be processed in each batch of this task. Batches are executed until there is no more items to process or until the timeout is reached." }
+
+sub timeout_help_text { "Maximum amount of time this task can run." }
+
+sub window_help_text { "Like a building window but not at all like it" }
 
 =head1 COPYRIGHT
 
