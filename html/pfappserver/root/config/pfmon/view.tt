@@ -10,8 +10,8 @@
     <h3>
     [% IF item %]<i>[% l('Pfmon Task') %]</i> [% item.id | html %][% ELSE %][% l('New Pfmon Entry') %][% END %]
 
-    [% IF task_description %]
-    <p class="p3 p-info">[% task_description %]</p>
+    [% IF item.description %]
+    <p class="p3 p-info">[% item.description %]</p>
     [% END %]
     </h3>
   </div>
