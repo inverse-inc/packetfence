@@ -12,10 +12,10 @@ index f70bd6f..670ef55 100644
  key_buffer_size = [% key_buffer_size %]M
  max_allowed_packet = [% max_allowed_packet %]M
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-index c2b16ff..518f3a4 100644
+index 894ecc3..0e1eff8 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
-@@ -413,7 +413,7 @@ radiusd=enabled
+@@ -349,7 +349,7 @@ radiusd=enabled
  # services.radiusd_binary
  # 
  # Location of the named binary. Only necessary to change if you are not running the RPMed version.
@@ -24,7 +24,7 @@ index c2b16ff..518f3a4 100644
  #
  # services.iptables
  #
-@@ -478,7 +478,7 @@ httpd_graphite=enabled
+@@ -414,7 +414,7 @@ httpd_graphite=enabled
  # services.httpd_binary
  #
  # Location of the apache binary. Only necessary to change if you are not running the RPMed version.
@@ -33,7 +33,7 @@ index c2b16ff..518f3a4 100644
  #
  # services.pfsetvlan
  #
-@@ -584,7 +584,7 @@ statsd=enabled
+@@ -526,7 +526,7 @@ statsd=enabled
  # services.statsd_binary
  # 
  # Location of the statsd (node) binary. Only necessary to change if you are not running the pre-packaged version.
@@ -42,7 +42,7 @@ index c2b16ff..518f3a4 100644
  #
  # services.radsniff
  #
-@@ -604,7 +604,7 @@ p0f=enabled
+@@ -546,7 +546,7 @@ p0f=enabled
  # services.p0f_binary
  # 
  # Location of the p0f binary. Only necessary to change if you are not running the pre-packaged version.
@@ -51,7 +51,7 @@ index c2b16ff..518f3a4 100644
  #
  # services.openssl_binary
  #
-@@ -614,7 +614,7 @@ openssl_binary=/usr/bin/openssl
+@@ -556,7 +556,7 @@ openssl_binary=/usr/bin/openssl
  # services.arp_binary
  # 
  # location of the arp binary. only necessary to change if you are not running the rpmed version.
@@ -87,7 +87,7 @@ index 48561ce..8639df9 100644
  ExecStop=/bin/kill -WINCH ${MAINPID}
  # We want systemd to give httpd some time to finish gracefully, but still want
 diff --git a/conf/systemd/packetfence-httpd.admin.service b/conf/systemd/packetfence-httpd.admin.service
-index bf7cc7d..b42830d 100644
+index 421ef73..25ea9ea 100644
 --- a/conf/systemd/packetfence-httpd.admin.service
 +++ b/conf/systemd/packetfence-httpd.admin.service
 @@ -12,7 +12,7 @@ Type=simple
@@ -192,6 +192,71 @@ index 0675726..0e21952 100644
  Slice=packetfence.slice
  
  [Install]
+diff --git a/conf/systemd/packetfence-radiusd-acct.service b/conf/systemd/packetfence-radiusd-acct.service
+index 5361cf1..4948bea 100644
+--- a/conf/systemd/packetfence-radiusd-acct.service
++++ b/conf/systemd/packetfence-radiusd-acct.service
+@@ -12,7 +12,7 @@ StartLimitBurst=3
+ StartLimitInterval=60
+ PIDFile=/usr/local/pf/var/run/radiusd-acct.pid
+ ExecStartPre=/usr/local/pf/bin/pfcmd service radiusd generateconfig
+-ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n acct -fm 
++ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n acct -fm 
+ Restart=on-failure
+ Slice=packetfence.slice
+ 
+diff --git a/conf/systemd/packetfence-radiusd-auth.service b/conf/systemd/packetfence-radiusd-auth.service
+index a124d7e..d8cd58f 100644
+--- a/conf/systemd/packetfence-radiusd-auth.service
++++ b/conf/systemd/packetfence-radiusd-auth.service
+@@ -11,7 +11,7 @@ StartLimitBurst=3
+ StartLimitInterval=60
+ PIDFile=/usr/local/pf/var/run/radiusd-auth.pid
+ ExecStartPre=/usr/local/pf/bin/pfcmd service radiusd generateconfig
+-ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n auth -fm 
++ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n auth -fm 
+ Restart=on-failure
+ Slice=packetfence.slice
+ 
+diff --git a/conf/systemd/packetfence-radiusd-cli.service b/conf/systemd/packetfence-radiusd-cli.service
+index ae84a07..92c558b 100644
+--- a/conf/systemd/packetfence-radiusd-cli.service
++++ b/conf/systemd/packetfence-radiusd-cli.service
+@@ -11,7 +11,7 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
+ StartLimitBurst=3
+ StartLimitInterval=60
+ PIDFile=/usr/local/pf/var/run/radiusd-cli.pid
+-ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n cli -fm 
++ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n cli -fm 
+ ExecStartPre=/usr/local/pf/bin/pfcmd service radiusd generateconfig
+ Restart=on-failure
+ Slice=packetfence.slice
+diff --git a/conf/systemd/packetfence-radiusd-eduroam.service b/conf/systemd/packetfence-radiusd-eduroam.service
+index f3a6db7..d0fb24d 100644
+--- a/conf/systemd/packetfence-radiusd-eduroam.service
++++ b/conf/systemd/packetfence-radiusd-eduroam.service
+@@ -11,7 +11,7 @@ StartLimitBurst=3
+ StartLimitInterval=60
+ PIDFile=/usr/local/pf/var/run/radiusd-eduroam.pid
+ ExecStartPre=/usr/local/pf/bin/pfcmd service radiusd generateconfig
+-ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n eduroam -fm 
++ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n eduroam -fm 
+ Restart=on-failure
+ Slice=packetfence.slice
+ 
+diff --git a/conf/systemd/packetfence-radiusd-load_balancer.service b/conf/systemd/packetfence-radiusd-load_balancer.service
+index 314b1d1..9709fa2 100644
+--- a/conf/systemd/packetfence-radiusd-load_balancer.service
++++ b/conf/systemd/packetfence-radiusd-load_balancer.service
+@@ -11,7 +11,7 @@ StartLimitBurst=3
+ StartLimitInterval=60
+ PIDFile=/usr/local/pf/var/run/radiusd-load_balancer.pid
+ ExecStartPre=/usr/local/pf/bin/pfcmd service radiusd generateconfig
+-ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n load_balancer -fm 
++ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n load_balancer -fm 
+ Restart=on-failure
+ Slice=packetfence.slice
+ 
 diff --git a/conf/systemd/packetfence-routes.service b/conf/systemd/packetfence-routes.service
 index 5bc3736..f0c7fc4 100644
 --- a/conf/systemd/packetfence-routes.service
@@ -207,3 +272,16 @@ index 5bc3736..f0c7fc4 100644
  Slice=packetfence-base.slice
  
  [Install]
+diff --git a/conf/systemd/packetfence-statsd.service b/conf/systemd/packetfence-statsd.service
+index 517d38f..4521aec 100644
+--- a/conf/systemd/packetfence-statsd.service
++++ b/conf/systemd/packetfence-statsd.service
+@@ -9,7 +9,7 @@ StartLimitInterval=60
+ Type=simple
+ PIDFile=/usr/local/pf/var/run/statsd.pid
+ ExecStartPre=/usr/local/pf/bin/pfcmd service statsd generateconfig
+-ExecStart=/usr/bin/node /usr/local/pf/lib/Etsy/statsd/bin/statsd /usr/local/pf/var/conf/statsd_config.js 
++ExecStart=/usr/bin/nodejs /usr/local/pf/lib/Etsy/statsd/bin/statsd /usr/local/pf/var/conf/statsd_config.js 
+ Restart=on-failure
+ Slice=packetfence.slice
+ 
