@@ -16,6 +16,9 @@
       </div>
 
       <div class="card">
+        <div class="card-title">
+          <h2>[% l('Switches') %] [% doc('_network_devices_definition_switches_conf') | none %]</h2>
+        </div>
         <div class="card-block">
       <div class="tab-content">
         <ul class="nav nav-tabs">
@@ -25,7 +28,6 @@
           <li [% IF controller_namespace == 'Config::SwitchGroup' %]class="active" [% END %]>
             <a href="[% c.pf_hash_for(c.controller('Config::SwitchGroup').action_for('index'),[]) %]">[% l('Switch Groups') %]</a>
           </li>
-          [% doc('_network_devices_definition_switches_conf') | none %]
         </ul>
       </div>
       [% INCLUDE config/switch/list.tt %]
