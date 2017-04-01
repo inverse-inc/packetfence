@@ -9,6 +9,7 @@
   box-shadow: none;
   text-shadow: none;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .btn {
@@ -44,4 +45,22 @@
   background-color: $white;
   border-color: $btnDangerBackground;
   color: $btnDangerBackground;
+}
+
+/* icon-only links */
+.btn-icon {
+  color: #000000;
+  cursor: pointer;
+  text-shadow: 0 1px 0 #ffffff;
+  opacity: 0.2;
+  filter: alpha(opacity=20);
+  font-size: 17px;
+  margin-left: 3px;
+  vertical-align: middle;
+}
+.btn-icon:hover {
+  color: #000000;
+  text-decoration: none;
+  opacity: 0.4;
+  filter: alpha(opacity=40);
 }
