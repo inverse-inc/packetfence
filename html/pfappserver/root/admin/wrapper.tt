@@ -119,7 +119,7 @@
         [% IF SHOW_READONLY_ERROR %]
         <div class="row-error">
           <strong>[% l('Warning!') %]</strong>
-          <span>[% l('The database is in readonly mode. Not all functionality is available.') %]</span>
+          <span>[% l('The database is in readonly mode. Not all functionality is available.') %] [% doc('_quorum_behavior', 'Clustering_Guide') | none %]</span>
         </div>
         [% END %]
       </div>
