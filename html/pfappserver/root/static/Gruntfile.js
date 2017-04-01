@@ -27,7 +27,7 @@ module.exports = function(grunt) {
       'bower_components/bootstrap-switch/src/js/bootstrap-switch.js',
       'app/bootstrap-timepicker.js',
       'app/jquery.ba-hashchange.js',
-      'app/chosen.jquery.js'
+      'js/vendor/chosen.jquery.js'
     ],
     'js/vendor/jquery-ui.min.js': [
       'bower_components/jquery-ui/ui/version.js',

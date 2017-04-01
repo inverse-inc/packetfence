@@ -630,23 +630,22 @@ Copyright (c) 2011 by Harvest
     };
 
     Chosen.prototype.update_position = function() {
-      var dd_top, maxHeight, offset, realDropdownTop, window_scroll;
+      var dd_top, maxHeight, offset, realDropdownTop;
       if (this.results_showing) {
         dd_top = this.is_multiple ? this.container.height() : this.container.height() - 1;
         offset = this.container.offset();
-        window_scroll = $(window).scrollTop();
         this.form_field_jq.trigger("liszt:showing_dropdown", {
           chosen: this
         });
         this.dropdown.css({
-          "top": (offset.top + dd_top - window_scroll) + "px",
+          "top": (offset.top + dd_top) + "px",
           "left": offset.left + "px",
           "width": (this.container.outerWidth(true) - 2) + "px",
           "maxHeight": "99999px",
           "display": "block"
         });
         this.search_results.css("maxHeight", "240px");
-        realDropdownTop = this.dropdown.offset().top - window_scroll;
+        realDropdownTop = this.dropdown.offset().top - $(window).scrollTop();
         maxHeight = $(window).height() - realDropdownTop;
         if (maxHeight > 240) {
           maxHeight = 240;
