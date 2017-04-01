@@ -55,6 +55,7 @@ sub field_list {
             }
             else {
                 $field->{type} = 'Text';
+                $field->{element_class} = ['input-xxlarge'];
             }
 
             push ( @$list, $field_name => $field );
