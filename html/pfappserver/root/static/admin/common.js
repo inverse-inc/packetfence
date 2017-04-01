@@ -792,9 +792,14 @@ $(function () { // DOM ready
     $('#section').on('click','a.updates_section_status_msg', function() {
         var that = $(this);
         var href = that.attr('href');
+        var sibling = that.data('sibling');
         var section = $('#section');
-        var sibling = that.parent().next();
         var loader = section.prev('.loader');
+        if (sibling)
+            sibling = that.closest(sibling);
+        else
+            sibling = that.parent().next();
+        var menu = sibling.find('[data-toggle="dropdown"]');
         if (loader) loader.show();
         section.fadeTo('fast', 0.5);
         $.ajax(href)
@@ -815,6 +820,9 @@ $(function () { // DOM ready
                 showPermanentError(sibling, status_msg);
             }
         });
+        if (menu.length)
+            menu.dropdown('toggle'); // close dropdown menu
+
         return false;
     });
 

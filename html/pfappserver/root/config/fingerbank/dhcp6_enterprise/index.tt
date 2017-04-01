@@ -17,6 +17,4 @@
 
       <h2>[% l('DHCPv6 Enterprises') %]</h2>
 
-      [% INCLUDE config/fingerbank/header.tt %]
-
       [% INCLUDE config/fingerbank/dhcp6_enterprise/list.tt %]
