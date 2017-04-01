@@ -188,6 +188,10 @@ function doUpdateSection(ajax_data) {
                     section.find('.chzn-select:visible').chosen();
                     section.find('.chzn-deselect:visible').chosen({allow_single_deselect: true});
                     section.find('.switch').bootstrapSwitch();
+                    if (Clipboard.isSupported())
+                        section.find('.clipboard .icon-clipboard').tooltip({ title: _('Copy') });
+                    else
+                        section.find('.clipboard .icon-clipboard').remove();
                     section.trigger('section.loaded');
                 })
                 .fail(function(jqXHR) {
@@ -415,6 +419,7 @@ $(function () { // DOM ready
             // Reload the page and let the server render the proper template (most likely the login page)
             window.location.reload(true);
     };
+
     /* Default values for Ajax requests */
     $.ajaxSetup({
         timeout: 120000,
@@ -469,6 +474,17 @@ $(function () { // DOM ready
     });
 
     $('#navbar [data-toggle="tooltip"]').tooltip({placement: 'bottom'});
+
+    if (Clipboard.isSupported()) {
+        var clipboard = new Clipboard('.icon-clipboard.btn-icon');
+        clipboard.on('success', function(e) {
+            var btn = $(e.trigger);
+            btn.tooltip('destroy').tooltip({ title: _('Copied') }).tooltip('show');
+            setTimeout(function() {
+                btn.tooltip('destroy').tooltip({ title: _('Copy') });
+            }, 3000);
+        });
+    }
 
     $('body').on('click', '[data-toggle="dynamic-list"]', function(event) {
         event.preventDefault();

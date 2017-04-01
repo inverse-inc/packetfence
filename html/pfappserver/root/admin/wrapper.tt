@@ -131,7 +131,9 @@
     <!-- Placed at the end of the document so the pages load faster -->
     <script type="text/javascript">
     var labels = {
-        "Cannot Load Content": "[% l('Cannot Load Content') | js %]"
+      "Cannot Load Content": "[% l('Cannot Load Content') | js %]",
+      "Copy": "[% l('Copy') | js %]",
+      "Copied": "[% l('Copied') | js %]",
     };
     </script>
     <script type="text/javascript" src="[% c.uri_for('/static/js/vendor/jquery.min.js') %]"></script>
