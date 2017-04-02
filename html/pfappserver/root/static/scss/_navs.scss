@@ -6,3 +6,7 @@
 .nav-tabs > .active > a:focus {
   background-color: $white;
 }
+
+.tab-content {
+  overflow: visible; // prevent scrolling, see commit 0e1fa9b
+}

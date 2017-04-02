@@ -1,5 +1,7 @@
 /// _chosen.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2 -*-
 
+$zindexChosen: $zindexModal + 1;
+
 /* Fixing overflow:hidden bug */
 .chzn-container .chzn-drop {
   position: fixed;
@@ -19,7 +21,7 @@
   top: 29px;
   left: 0;
   @include box-shadow(0 4px 5px rgba(0,0,0,.15));
-  z-index: 1050;
+  z-index: $zindexChosen;
 }
 /* @end */
 
@@ -89,7 +91,7 @@
   position: relative;
   margin: 0;
   white-space: nowrap;
-  z-index: 1050;
+  z-index: $zindexChosen;
   &:after {
     content: '\f002';
     font-family: FontAwesome;
