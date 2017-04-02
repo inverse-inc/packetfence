@@ -1,5 +1,9 @@
 /* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
 
+function init() {
+  $('#section .switch').bootstrapSwitch();
+}
+
 function initModals() {
     var interfaces = new Interfaces();
     new InterfaceView({ interfaces: interfaces, parent: $('#section') });
