@@ -61,7 +61,11 @@ function updateNodeSearchSection(href, event) {
 
 function init() {
     /* Initialize datepickers */
-    $('.tab-content .input-date').datepicker({ autoclose: true });
+    $('.tab-content .input-date, .tab-content .input-daterange').datepicker({ autoclose: true });
+    $('.tab-content .input-daterange input').on('changeDate', function(event) {
+        // Force autoclose
+        $('.datepicker').remove();
+    });
 
     /* Set the end date of the range datepickers to today */
     var today = new Date();

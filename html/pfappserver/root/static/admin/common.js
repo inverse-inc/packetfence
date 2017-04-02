@@ -547,12 +547,12 @@ $(function () { // DOM ready
         // Limit the end date of the first datepicker to this new date
         $(dp.inputs[0]).datepicker('setEndDate', event.date);
     });
-    $('body').on('click', '.input-date a[href*="day"]', function(event) {
+    $('body').on('click', '.input-daterange a[href*="day"]', function(event) {
         event.preventDefault();
 
         // The number of days is extracted from the href attribute
         var days = $(this).attr('href').replace(/#last([0-9]+)days?/, "$1");
-        var dp = $(this).closest('.input-date').data('datepicker');
+        var dp = $(this).closest('.input-daterange').data('datepicker');
         var nowDate = new Date();
         var now = {
             yyyy: nowDate.getFullYear(),
