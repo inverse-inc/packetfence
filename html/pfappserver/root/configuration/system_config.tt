@@ -1,11 +1,13 @@
-<h2><b>[% l('System Configuration') %]</b></h2>
+<div class="documentation">
+  <h1>[% l('System Configuration') %]</h1>
 
-<p>[% l('PacketFence allows you to perform advanced system configuration. Among the configuration options, there are:') %]</p>
+  <p>[% l('PacketFence allows you to perform advanced system configuration. Among the configuration options, there are:') %]</p>
 
-<ul>
-<li>1. <b>[% l('Main Configuration:') %]</b> [% l('This allows you set the DNS name, SMTP information for alerts, default language and more;') %]</li>
-<li>2. <b>[% l('Database:') %]</b> [% l('PacketFence makes use of a MySQL/MariaDB database. You can configure the connection information from this module;') %]</li>
-<li>3. <b>[% l('Cluster:') %]</b> [% l('PacketFence supports clustering of 3+ members. You can configure the clustering solution from this module;') %]</li>
-<li>4. <b>[% l('Authentication Methods:') %]</b> [% l('EAP methods provided by PacketFence can be changed from this module;') %]</li>
-<li>5. <b>[% l('Admin Access:') %]</b> [% l('Different access level can be defined for the PacketFence administrative interface from this module.') %]</li>
-</ul>
+  <ul>
+    <li>1. <b>[% l('Main Configuration:') %]</b> [% l('This allows you set the DNS name, SMTP information for alerts, default language and more;') %]</li>
+    <li>2. <b>[% l('Database:') %]</b> [% l('PacketFence makes use of a MySQL/MariaDB database. You can configure the connection information from this module;') %]</li>
+    <li>3. <b>[% l('Cluster:') %]</b> [% l('PacketFence supports clustering of 3+ members. You can configure the clustering solution from this module;') %]</li>
+    <li>4. <b>[% l('Authentication Methods:') %]</b> [% l('EAP methods provided by PacketFence can be changed from this module;') %]</li>
+    <li>5. <b>[% l('Admin Access:') %]</b> [% l('Different access level can be defined for the PacketFence administrative interface from this module.') %]</li>
+  </ul>
+</div>
