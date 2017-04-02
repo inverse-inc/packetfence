@@ -473,8 +473,28 @@ $(function () { // DOM ready
         return true;
     });
 
+    /* Register events for animation of sidebar tooltips */
+    $('.sidenav-category').on('mouseenter', '[data-category]', function(event) {
+        var $this = $(this);
+        var category = $this.data('category');
+        var isActive = $this.hasClass('active');
+        $('.sidenav-category-extend').addClass('show').find('li').each(function() {
+            var $this = $(this);
+            if (!isActive && $this.data('category') == category)
+                $this.addClass('show');
+            else
+                $this.removeClass('show');
+        });
+    });
+    $('.sidenav-category').on('mouseleave mouseup', '[data-category]', function(event) {
+        $('.sidenav-category-extend').removeClass('show')
+            .find('[data-category]').removeClass('show');
+    });
+
+    /* Enable tooltip in top navbar */
     $('#navbar [data-toggle="tooltip"]').tooltip({placement: 'bottom'});
 
+    /* Configure tooltips of "copy to clipboard" buttons */
     if (typeof Clipboard !== "undefined" && Clipboard.isSupported()) {
         var clipboard = new Clipboard('.icon-clipboard.btn-icon');
         clipboard.on('success', function(e) {

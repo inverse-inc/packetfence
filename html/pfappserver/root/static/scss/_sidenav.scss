@@ -32,9 +32,8 @@ $sidenavSubsectionColor:        darken($navbarInverseText, 30%);
  * Icon-based navigation list.
  */
 .sidenav-icon-list {
-  //display: inline-block;
-  li {
-    min-height: 2em;
+  li a {
+    height: 2em;
     padding: 11px 0;
     text-align: center;
   }
@@ -130,7 +129,8 @@ $sidenavSubsectionColor:        darken($navbarInverseText, 30%);
   }
 }
 
-.sidenav-category {  
+.sidenav-category,
+.sidenav-category-extend {
   @include gradient-vertical($navbarInverseBackgroundHighlight, $navbarInverseBackground);
 
   &.sidenav .nav .active > a,
@@ -139,6 +139,50 @@ $sidenavSubsectionColor:        darken($navbarInverseText, 30%);
     background-color: initial;
     color: $sidenavCategoryColorActive;
     text-shadow: 0 0 6px $sidenavCategoryColorActive;
+  }
+
+  &.sidenav .nav > li > a {
+    background-color: transparent;
+    transition: background-color 0.3s ease-in-out;
+  }
+
+  &.sidenav .nav > li > a:hover,
+  &.sidenav.sidenav-category-extend [data-category],
+  &.sidenav.sidenav-category-extend [data-category] a {
+    color: $black;
+    background-color: $sidenavCategoryColorActive;
+    transition: all 0.3s ease-in-out;
+  }
+}
+
+/**
+ * Tooltips for icon-based categories
+ */
+.sidenav-category-extend {
+  background-color: transparent;
+  background-image: none;
+  display: none; // hidden by default
+
+  &.show {
+    display: block;
+    z-index: $zindexTooltip;
+  }
+
+  [data-category] {
+    opacity: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    transform: translateX(-20%);
+
+    &.show {
+      box-shadow: -30px 0px 30px 10px rgba(0,0,0,0.75);
+      opacity: 1;
+      transform: translateX(0%);
+    }
+
+    a {
+      font-size: 1em;
+    }
   }
 }
 
