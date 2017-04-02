@@ -87,4 +87,7 @@ $navbarErrorHeight: 32px;
 // Because of additional error message bellow the main navbar, lower the content accordingly
 body.navbar-error {
   padding-top: $navbarHeight + $navbarErrorHeight;
+  .sidenav {
+    top: $navbarHeight + $navbarErrorHeight;
+  }
 }
