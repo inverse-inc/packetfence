@@ -350,10 +350,10 @@
                             <div class="input-daterange controls"
                                  data-date-format="yyyy-mm-dd">
                                 <label class="control-label input-medium text-left">[% l('Online Between:') %]</label>
-                                <input type="text" class="input-small" name="online_date.start"
+                                <input type="text" class="input-date input-small" name="online_date.start"
                                        data-date-format="yyyy-mm-dd" />
                                 <i class="icon-arrow-right"></i>
-                                <input type="text" class="input-small" name="online_date.end"
+                                <input type="text" class="input-date input-small" name="online_date.end"
                                        data-date-format="yyyy-mm-dd" />
                                 <a href="#last0day">[% l('Today') %]</a> | <a href="#last7days">[% l('7 days') %]</a> | <a href="#last30days">[% l('30 days') %]</a> | <a href="#last60days">[% l('60 days') %]</a>
                             </div>
