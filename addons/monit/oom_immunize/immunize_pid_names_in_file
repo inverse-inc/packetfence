@@ -1,0 +1,2 @@
+#!/bin/bash
+grep -v "^#" process_names_to_immunize |while read name; do PID_TO_IMMUNIZE=$(pidof $name); if [ -e /proc/$PID_TO_IMMUNIZE/oom_adj ]; then echo -17 > /proc/$PID_TO_IMMUNIZE/oom_adj; fi;  done
