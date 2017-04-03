@@ -24,6 +24,7 @@ conf/log.conf.d/*.conf
 conf/nessus/
 conf/currently-at
 conf/caddy-services/pfsso.conf
+conf/caddy-services/httpdispatcher.conf
 bin/pfcmd
 bin/ntlm_auth_wrapper
 bin/pfhttpd
