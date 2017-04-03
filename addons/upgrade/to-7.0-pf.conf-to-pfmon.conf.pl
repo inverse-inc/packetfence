@@ -27,6 +27,10 @@ if (!$ini->SectionExists('maintenance')) {
     exit 0;
 }
 
+my %NEW_OLD = (
+    ip4log_cleanup => 'iplog_cleanup',
+);
+
 my $cs = pf::ConfigStore::Pfmon->new;
 
 my $items = $cs->readAll('id');
@@ -34,13 +38,14 @@ my $items = $cs->readAll('id');
 foreach my $item (@$items) {
     my $id = delete $item->{id};
     my %values;
-    if ($ini->exists("maintenance", $id)) {
-        my $old_value = $ini->val("maintenance", $id);
-        $ini->delval("maintenance", $id);
-        $values{enabled} = $old_value;
+    my $old_key_pref = exists $NEW_OLD{$id} ? $NEW_OLD{$id} : $id;
+    if ($ini->exists("maintenance", $old_key_pref)) {
+        my $old_value = $ini->val("maintenance", $old_key_pref);
+        $ini->delval("maintenance", $old_key_pref);
+        $values{status} = $old_value;
     }
     while (my ($key, $value) = each %$item) {
-        my $old_key_name = "${id}_$key";
+        my $old_key_name = "${old_key_pref}_$key";
         if (!$ini->exists("maintenance", $old_key_name)) {
             next;
         }
