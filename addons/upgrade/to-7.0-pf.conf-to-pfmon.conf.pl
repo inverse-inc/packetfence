@@ -31,9 +31,27 @@ my %NEW_OLD = (
     ip4log_cleanup => 'iplog_cleanup',
 );
 
+my %NEW_KEY_OLD = (
+   ip4log_cleanup => {
+        rotate => 'iplog_rotation',
+        rotate_window => 'iplog_rotation_window',
+        rotate_batch => 'iplog_rotation_batch',
+        rotate_timeout => 'iplog_rotation_timeout',
+   },
+   node_cleanup => {
+        delete_window => 'node_cleanup_window',
+   },
+);
+
 my $cs = pf::ConfigStore::Pfmon->new;
 
 my $items = $cs->readAll('id');
+
+our %KEYS_TO_IGNORE = (
+    type => 1,
+    status => 1,
+    description => 1,
+);
 
 foreach my $item (@$items) {
     my $id = delete $item->{id};
@@ -45,8 +63,10 @@ foreach my $item (@$items) {
         $values{status} = $old_value;
     }
     while (my ($key, $value) = each %$item) {
-        my $old_key_name = "${old_key_pref}_$key";
+        next if exists $KEYS_TO_IGNORE{$key};
+        my $old_key_name = exists $NEW_KEY_OLD{$id}{$key} ? $NEW_KEY_OLD{$id}{$key} : "${old_key_pref}_$key";
         if (!$ini->exists("maintenance", $old_key_name)) {
+            print "No old value to migrate for ${id}.${key}\n";
             next;
         }
         my $old_value = $ini->val("maintenance", $old_key_name);
