@@ -8,6 +8,47 @@ pf::cmd::pf::pfmon -
 
 pfcmd pfmon <task> [options...]
 
+
+=head2 tasks
+
+=over
+
+=item acct_maintenance
+
+=item auth_log_cleanup
+
+=item cleanup_chi_database_cache
+
+=item cluster_check
+
+=item fingerbank_data_update
+
+=item inline_accounting_maintenance
+
+=item ip4log_cleanup
+
+=item ip6log_cleanup
+
+=item locationlog_cleanup
+
+=item node_cleanup
+
+=item nodes_maintenance
+
+=item option82_query
+
+=item person_cleanup
+
+=item populate_ntlm_redis_cache
+
+=item provisioning_compliance_poll
+
+=item radius_audit_log_cleanup
+
+=item violation_maintenance
+
+=back
+
 =head1 DESCRIPTION
 
 pf::cmd::pf::pfmon
