@@ -27,7 +27,8 @@ $zindexChosen: $zindexModal + 1;
 
 /* @group Single Chosen */
 .chzn-container-single .chzn-single {
-  @include border-radius(5px);
+  @extend select;
+  @include border-radius($inputBorderRadius);
   @include background-clip(padding-box);
   border: 1px solid $inputBorder;
   display: block;
