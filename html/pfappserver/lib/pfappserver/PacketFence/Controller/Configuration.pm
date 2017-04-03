@@ -402,7 +402,7 @@ sub all_subsections : Private {
             tie my %map, 'Tie::IxHash', (
                 domain => {
                     controller => 'Controller::Config::Domain',
-                    name => 'Microsoft Active Directory Domains', 
+                    name => 'Active Directory Domains', 
                 },
                 realm => { 
                     controller => 'Controller::Config::Realm',
