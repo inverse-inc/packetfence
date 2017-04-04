@@ -86,7 +86,7 @@ sub doTask {
         return;
     }
 
-    my $lock = $switch->getExclusiveLockForScope("ifindex" : $trap->{trapIfIndex}, 1);
+    my $lock = $switch->getExclusiveLockForScope("ifindex:" . $trap->{trapIfIndex}, 1);
     unless ($lock) {
         # If IfIndex switch combo is being worked on requeue trap
         # This logic does not handle the case were a pending up trap
