@@ -119,7 +119,7 @@ Depends: ${misc:Depends}, vlan,
  haproxy (>= 1.6), keepalived (>= 1.2), arping,
 # monitoring
  collectd (>=5.5), collectd-core,collectd-utils, libcollectdclient0 | libcollectdclient1, python-django (>=1.7),
- python-django-tagging, python-pyparsing, python-mysqldb, graphite-carbon, python-whisper,
+ python-django-tagging, python-pyparsing, python-mysqldb, graphite-carbon (>=0.9.15), python-whisper,
  nodejs, libapache2-mod-wsgi,
  graphite-web,
 # EAP TLS
