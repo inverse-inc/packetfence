@@ -34,3 +34,9 @@ workers=4
 #
 [queue pfdetect]
 workers=1
+
+#
+# pfsnmp queue configuration
+#
+[queue pfsnmp]
+workers=1
