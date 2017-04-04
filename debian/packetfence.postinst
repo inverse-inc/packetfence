@@ -163,8 +163,9 @@ case "$1" in
         systemctl enable packetfence-config
         systemctl enable packetfence-iptables
         systemctl enable packetfence-routes
-        systemctl isolate packetfence-base.target
         systemctl enable packetfence-httpd.admin
+		systemctl daemon-reload
+        systemctl isolate packetfence-base.target
 
         /usr/local/pf/bin/pfcmd configreload
         /bin/systemctl start packetfence-httpd.admin

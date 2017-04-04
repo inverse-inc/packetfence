@@ -113,6 +113,7 @@ install: build
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/systemd/system/packetfence-cluster.target.wants
 	install -m0644 $(CURDIR)/debian/packetfence.slice $(CURDIR)/debian/packetfence/etc/systemd/system
 	install -m0644 $(CURDIR)/debian/packetfence-base.slice $(CURDIR)/debian/packetfence/etc/systemd/system
+	install -m0644 $(CURDIR)/debian/ifup@.service $(CURDIR)/debian/packetfence/etc/systemd/system
 #endif
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/default
 	# copy the rsyslog configuration file 
