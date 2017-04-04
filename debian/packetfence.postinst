@@ -158,6 +158,9 @@ case "$1" in
             echo "Setting packetfence.target as the default systemd target."
            /bin/systemctl set-default packetfence.target
         fi
+        echo "Restarting journald to enable persistent logging"
+        /bin/systemctl restart systemd-journald
+
         systemctl enable packetfence-mariadb
         systemctl enable packetfence-redis-cache
         systemctl enable packetfence-config

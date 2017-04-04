@@ -38,6 +38,10 @@ case "$1" in
     ;;
     upgrade)
         stop_service_if_exists packetfence-redis-cache
+        set +e 
+        rm /etc/init.d/packetfence-redis-cache
+        rm /etc/rc*.d/*packetfence-redis-cache
+        set -e 
         exit 0
     ;;
     abort-upgrade)

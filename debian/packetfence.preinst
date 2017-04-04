@@ -124,9 +124,11 @@ case "$1" in
             echo "RateLimitInterval=0" >> /etc/systemd/journald.conf
             echo "RateLimitBurst=0" >> /etc/systemd/journald.conf
             echo "ForwardToWall=no" >> /etc/systemd/journald.conf
-            echo "Restarting journald to enable persistent logging"
         fi
-        /bin/systemctl restart systemd-journald
+        set +e 
+        rm /etc/init.d/packetfence
+        rm /etc/rc*.d/*packetfence
+        set -e 
         stop_service_if_exists pfappserver
         stop_service_if_exists packetfence
 
