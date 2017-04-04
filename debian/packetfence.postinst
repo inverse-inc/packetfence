@@ -170,7 +170,6 @@ case "$1" in
         set +e
         /usr/local/pf/bin/pfcmd configreload
         set -e
-        /usr/local/pf/bin/pfcmd configreload
         /bin/systemctl start packetfence-httpd.admin
 
         echo Installation complete
