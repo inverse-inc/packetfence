@@ -34,6 +34,7 @@ use pf::node;
 use pf::util;
 use pf::Connection::ProfileFactory;
 use Cache::FileCache;
+use pf::pfqueue::producer::redis;
 our $traps_switchIfIndex_cache = new Cache::FileCache( {'namespace'=>'pfSetVlan_TrapsLimitSwitchIfIndex'} );
 # Initialize a new cache for the actions taken if the traps limit has been reached
 our $traps_email_cache = new Cache::FileCache( {'namespace'=>'pfSetVlan_TrapsLimitEmail'} );
@@ -80,6 +81,22 @@ sub doTask {
         return;
     }
 
+    if ($trap->{trapType} eq 'unknown') {
+        $logger->debug("ignoring unknown trap for $switch_id");
+        return;
+    }
+
+    my $lock = $switch->getExclusiveLockForScope("ifindex" : $trap->{trapIfIndex}, 1);
+    unless ($lock) {
+        # If IfIndex switch combo is being worked on requeue trap
+        # This logic does not handle the case were a pending up trap
+        # Can be cancelled by an incoming down trap
+        # If there is an issue with timing we could change it to be
+        # placed into a delayed queue
+        my $client = pf::pfqueue::producer::redis->new();
+        $client->submit("pfsnmp", "pfsnmp", $args);
+        $logger->debug("requeuing trap for $switch_id : $trap->{trapIfIndex}");
+    }
     return $self->handleTrap($switch, $trap);
 }
 
@@ -103,11 +120,6 @@ sub handleTrap {
     my ($self, $switch, $trap) = @_;
     my $trapType = $trap->{trapType};
     my $switch_id = $switch->{_id};
-    if ($trapType eq 'unknown') {
-        $logger->debug("ignoring unknown trap for switch_id");
-        return;
-    }
-
     my $trapMac = $trap->{trapMac};
     Log::Log4perl::MDC->put('mac', $trapMac);
     if ( defined($trapMac) && $switch->isFakeMac($trapMac) ) {
