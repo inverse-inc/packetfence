@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 6.5.9\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-04-04 14:01-0400\n"
+"PO-Revision-Date: 2017-04-04 14:34-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -4578,7 +4578,7 @@ msgid "PacketFence Eduroam RADIUS virtual server authentication listening port"
 msgstr ""
 
 # html/pfappserver/root/configuration/portal_config.tt
-msgid "PacketFence allows you to create advanced filtering rules based on DHCP, DNS or HTTP information. It also allows you to define advanced role-mapping or VLAN-mapping rules;"
+msgid "PacketFence allows you to create advanced filtering rules based on RADIUS, DHCP, DNS or HTTP information. It also allows you to define advanced role-mapping or VLAN-mapping rules;"
 msgstr ""
 
 # html/pfappserver/root/configuration/advanced_conf.tt
@@ -5097,10 +5097,6 @@ msgstr ""
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (proxy.port)
 msgid "Port the proxy is listening on"
-msgstr ""
-
-# html/pfappserver/root/admin/configuration.tt
-msgid "Portal Configuration"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
@@ -7401,7 +7397,7 @@ msgid "This allows PacketFence to define tiers for billing engines integration."
 msgstr ""
 
 # html/pfappserver/root/configuration/integration.tt
-msgid "This allows PacketFence to expose some of its APIs through Web Services. See the PacketFence Developer Guide for API documentation;"
+msgid "This allows PacketFence to expose some of its APIs through Web Services. See the PacketFence Developers Guide for API documentation;"
 msgstr ""
 
 # html/pfappserver/root/configuration/integration.tt
@@ -8238,6 +8234,10 @@ msgstr ""
 msgid "When enabled, PacketFence will not use the role initialy computed on the portal but will use the dot1x username to recompute the role."
 msgstr ""
 
+# html/pfappserver/root/configuration/portal_config.tt
+msgid "When provisioning in EAP-TLS, PacketFence needs to be configured to integrate with PKI infrastructure. This is done in this module;"
+msgstr ""
+
 # conf/documentation.conf (network.rogueinterval)
 msgid "When rogue DHCP server detection is enabled, this parameter defines how often to email administrators.  With its default setting of 10, it will email administrators the details of the previous 10 DHCP offers."
 msgstr ""
@@ -8256,10 +8256,6 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "When this is enabled, an async job will cache the NTLM credentials of the user every time he connects."
-msgstr ""
-
-# html/pfappserver/root/configuration/portal_config.tt
-msgid "When using EAP-TLS, PacketFence needs to be configured to integrate with PKI infrastructure. This is done in this module;"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Pfmon.pm

@@ -4,9 +4,9 @@
 
 <ul>
 <li>1. <b>[% l('Captive Portal:') %]</b> [% l('This is for changing global captive-portal parameters;') %]</li>
-<li>2. <b>[% l('Filter Engines:') %]</b> [% l('PacketFence allows you to create advanced filtering rules based on DHCP, DNS or HTTP information. It also allows you to define advanced role-mapping or VLAN-mapping rules;') %]</li>
+<li>2. <b>[% l('Filter Engines:') %]</b> [% l('PacketFence allows you to create advanced filtering rules based on RADIUS, DHCP, DNS or HTTP information. It also allows you to define advanced role-mapping or VLAN-mapping rules;') %]</li>
 <li>3. <b>[% l('Billing Tiers:') %]</b> [% l('This allows PacketFence to define tiers for billing engines integration.') %]</li>
-<li>4. <b>[% l('PKI Provider:') %]</b> [% l('When using EAP-TLS, PacketFence needs to be configured to integrate with PKI infrastructure. This is done in this module;') %]</li>
+<li>4. <b>[% l('PKI Provider:') %]</b> [% l('When provisioning in EAP-TLS, PacketFence needs to be configured to integrate with PKI infrastructure. This is done in this module;') %]</li>
 <li>5. <b>[% l('Provisioners:') %]</b> [% l('PacketFence can "push" provisioning agents on endpoints to auto-configure the WiFi connection during the registration process. You can configure the provisioning agents in this module;') %]</li>
 <li>6. <b>[% l('Portal Modules:') %]</b> [% l('The module allows you to deeply customize the captive portal workflows;') %]</li>
 <li>7. <b>[% l('Access Duration:') %]</b> [% l('This allows you to set the various access duration that will be available in your actions definition from your authentication sources;') %]</li>
