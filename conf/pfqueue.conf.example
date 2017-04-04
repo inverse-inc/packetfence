@@ -8,31 +8,35 @@
 #
 #Connection details of the queue consumer
 #
-[consumer]
-redis_server=127.0.0.1:6380
-redis_reconnect=1
-redis_every=100
+#[consumer]
+#redis_server=127.0.0.1:6380
+#redis_reconnect=1
+#redis_every=100
 
 #
 # general queue configuration
 #
-[queue general]
-workers=4
-delayed_queue_batch=100
-delayed_queue_sleep=100
-delayed_queue_workers=1
+#[queue general]
+#workers=4
+#has_delayed_queue=enabled
+#delayed_queue_batch=100
+#delayed_queue_sleep=100
+#delayed_queue_workers=1
 
 #
 # pfdhcplistener queue configuration
 #
-[queue pfdhcplistener]
-workers=4
+#[queue pfdhcplistener]
+#workers=4
 
 #
 # pfdetect queue configuration
 #
-[queue pfdetect]
-workers=1
+#[queue pfdetect]
+#workers=1
 
-[queue pfsnmp]
-workers=1
+#
+# pfsnmp queue configuration
+#
+#[queue pfsnmp]
+#workers=1
