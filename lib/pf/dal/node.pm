@@ -80,6 +80,48 @@ sub merge_fields {
     [@MERGE_FIELD]
 }
 
+=head2 _pre_save
+
+_pre_save
+
+=cut
+
+sub _pre_save {
+    my ($self) = @_;
+    return $self->_update_category_ids;
+}
+
+=head2 _update_category_ids
+
+_update_category_ids
+
+=cut
+
+sub _update_category_id {
+    my ($self) = @_;
+    my $category = $self->category;
+    my $bypass_role = $self->bypass_role;
+    my @names;
+    push @names, $category if defined $category;
+    push @names, $bypass_role if defined $bypass_role;
+    my $sqla          = $self->get_sql_abstract;
+    my ($stmt, @bind) = $sqla->select(
+        -columns => [qw(category_id name)],
+        -from => 'node_category',
+        -where   => {name => { -in => \@names}},
+    );
+    my ($status, $sth) = $self->db_execute($stmt, @bind);
+    return $status if is_error($status);
+    my $lookup = $sth->fetchall_hashref('name');
+    if (defined $bypass_role) {
+        $self->{bypass_role_id} = $lookup->{$bypass_role}{category_id};
+    }
+    if (defined $category) {
+        $self->{category_id} = $lookup->{$category}{category_id};
+    }
+    return $STATUS::OK;
+}
+
 =head2 update_last_seen
 
 update_last_seen
