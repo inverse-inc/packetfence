@@ -1549,7 +1549,7 @@ Configure the feature
 
 First of all, you need to configure the SSID that your devices will use after they go though the authentication process.
 
-In order to do that, in the administration interface, go in 'Configuration -> Advanced Access Configuration -> Provisioners'. Then select the 'android' provisioner. Enter the SSID and save.
+In order to do that, in the administration interface, go in 'Portal Configuration -> Provisioners'. Then select the 'android' provisioner. Enter the SSID and save.
 
 Now do the same thing for the iOS provisioner.
 
