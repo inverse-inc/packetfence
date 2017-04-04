@@ -20,3 +20,13 @@ $fa-line-height-base: 1;
 }
 
 @import "font-awesome";
+
+/**
+ * Icon displayed beside a *required* form's label.
+ */
+.icon-required {
+  @extend .icon-asterisk;
+  color: $btnDangerBackgroundHighlight;
+  font-size: 50%;
+  vertical-align: super;
+}
