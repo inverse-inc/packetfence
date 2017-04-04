@@ -39,4 +39,4 @@ workers=1
 # pfsnmp queue configuration
 #
 [queue pfsnmp]
-workers=1
+workers=4
