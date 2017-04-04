@@ -48,6 +48,7 @@ pf::client::setClient("pf::api::can_fork");
 use threads;
 use pf::factory::task;
 use pf::services::manager::pfdetect;
+use pf::services::manager::snmptrapd;
 
 
 
@@ -395,16 +396,21 @@ sub get_consumer {
     return $consumer;
 }
 
+our %QUEUE_TO_SERVICE = (
+    pfdetect => 'pf::services::manager::pfdetect',
+    pfsnmp => 'pf::services::manager::snmptrapd',
+);
+
 =head2 skip_queue
 
-
+Checks to see if a queue should be worked on
 
 =cut
 
 sub skip_queue {
     my ($name) = @_;
-    if ($name eq 'pfdetect') {
-        my $manger = pf::services::manager::pfdetect->new;        
+    if (exists $QUEUE_TO_SERVICE{$name}) {
+        my $manger = $QUEUE_TO_SERVICE{$name}->new;
         return $manger->isManaged ? $FALSE : $TRUE;
     }
     return $FALSE;
