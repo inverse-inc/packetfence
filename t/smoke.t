@@ -65,6 +65,22 @@ $par_harness->aggregate_tests( $aggregator, @par_tests );
 $ser_harness->aggregate_tests( $aggregator, @ser_tests );
 $aggregator->stop();
 $formatter->summary($aggregator);
+my $total  = $aggregator->total;
+my $passed = $aggregator->passed;
+my $failed = $aggregator->failed;
+my @parsers = $aggregator->parsers;
+
+my $num_bad = 0;
+for my $parser (@parsers) {
+    $num_bad++ if $parser->has_problems;
+}
+
+die(sprintf(
+        "Failed %d/%d test programs. %d/%d subtests failed.\n",
+        $num_bad, scalar @parsers, $failed, $total
+    )
+) if $num_bad;
+
 
 END {
     foreach my $test_service (qw(pfconfig-test pfconfig-test-serial)) {
