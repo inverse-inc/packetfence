@@ -1,1 +1,10 @@
 <h2><b>[% l('Advanced Configuration') %]</b></h2>
+
+<p> [% l('PacketFence allows you to perform advanced solution configuration. Among the configuration options, there are:') %]</p>
+
+<ul>
+<li>1. <b>[% l('Networks:') %]</b> [% l('This allows you to configure networks managed by PacketFence, in-bound and fencing configuration parameters as well as parking of endpoints;') %]</li>
+<li>2. <b>[% l('OMAPI:') %]</b> [% l('This allows you to enable or not OMAPI-based IP address to MAC address lookups;') %]</li>
+<li>3. <b>[% l('SNMP:') %]</b> [% l('The SNMP engine in PacketFence can be configured here;') %]</li>
+<li>4. <b>[% l('Floating Devices:') %]</b> [% l('This allows you to create floating devices in PacketFence - like a switch for example that moves around in the network. PacketFence will automatically reconfigure a switch port and a floating device is connected.') %]</li>
+</ul>

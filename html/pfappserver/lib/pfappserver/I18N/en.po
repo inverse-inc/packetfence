@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 6.5.9\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-04-04 13:29-0400\n"
+"PO-Revision-Date: 2017-04-04 14:01-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -228,6 +228,10 @@ msgstr ""
 msgid "Access Duration"
 msgstr ""
 
+# html/pfappserver/root/configuration/portal_config.tt
+msgid "Access Duration:"
+msgstr ""
+
 # html/pfappserver/root/node/view.tt
 msgid "Access Time Balance"
 msgstr ""
@@ -240,6 +244,10 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Pinterest.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "Access Token Parameter"
+msgstr ""
+
+# html/pfappserver/root/configuration/portal_config.tt
+msgid "Access control decisions in PacketFence can be modified through advanced parameters. Among them, there are:"
 msgstr ""
 
 # html/pfappserver/root/configurator/admin.tt
@@ -530,6 +538,10 @@ msgstr ""
 msgid "Admin Access"
 msgstr ""
 
+# html/pfappserver/root/configuration/system_config.tt
+msgid "Admin Access:"
+msgstr ""
+
 # html/pfappserver/root/admin/login.tt
 msgid "Admin Login"
 msgstr ""
@@ -558,6 +570,7 @@ msgid "Advanced"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/configuration/portal_config.tt
 msgid "Advanced Access Configuration"
 msgstr ""
 
@@ -804,6 +817,10 @@ msgstr ""
 msgid "Authentication Methods"
 msgstr ""
 
+# html/pfappserver/root/configuration/system_config.tt
+msgid "Authentication Methods:"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/HTTP.pm
 msgid "Authentication URL"
 msgstr ""
@@ -916,6 +933,10 @@ msgstr ""
 # html/pfappserver/root/config/billingtiers/list.tt
 # html/pfappserver/root/config/profile/tab-content.tt
 msgid "Billing Tiers"
+msgstr ""
+
+# html/pfappserver/root/configuration/portal_config.tt
+msgid "Billing Tiers:"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
@@ -1073,6 +1094,10 @@ msgstr "An error occured while contacting the server. Please try again later."
 # html/pfappserver/root/config/profile/files.tt
 # html/pfappserver/root/config/profile/view.tt
 msgid "Captive Portal"
+msgstr ""
+
+# html/pfappserver/root/configuration/portal_config.tt
+msgid "Captive Portal:"
 msgstr ""
 
 # conf/documentation.conf (active_active.centralized_deauth)
@@ -1319,6 +1344,10 @@ msgstr ""
 
 # html/pfappserver/root/admin/status.tt
 msgid "Cluster state"
+msgstr ""
+
+# html/pfappserver/root/configuration/system_config.tt
+msgid "Cluster:"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
@@ -1859,6 +1888,10 @@ msgstr ""
 msgid "Database Configuration"
 msgstr ""
 
+# html/pfappserver/root/configuration/system_config.tt
+msgid "Database:"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Deauthentication Method"
 msgstr ""
@@ -2220,6 +2253,10 @@ msgstr ""
 msgid "Device Registration"
 msgstr ""
 
+# html/pfappserver/root/configuration/portal_config.tt
+msgid "Device Registration:"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/root/admin/nodes.tt
 msgid "Device Type"
@@ -2240,6 +2277,10 @@ msgstr ""
 # html/pfappserver/root/config/fingerbank/device/index.tt
 # html/pfappserver/root/user/view.tt
 msgid "Devices"
+msgstr ""
+
+# html/pfappserver/root/configuration/system_config.tt
+msgid "Different access level can be defined for the PacketFence administrative interface from this module."
 msgstr ""
 
 # conf/documentation.conf (advanced.disable_pf_domain_auth)
@@ -2337,6 +2378,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Wrix.pm
 msgid "EAP TTLS"
+msgstr ""
+
+# html/pfappserver/root/configuration/system_config.tt
+msgid "EAP methods provided by PacketFence can be changed from this module;"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
@@ -2696,6 +2741,10 @@ msgstr ""
 msgid "Filter Engines"
 msgstr ""
 
+# html/pfappserver/root/configuration/portal_config.tt
+msgid "Filter Engines:"
+msgstr ""
+
 # html/pfappserver/root/config/profile/tab-content.tt
 msgid "Filters"
 msgstr ""
@@ -2763,6 +2812,10 @@ msgstr ""
 
 # html/pfappserver/root/config/floatingdevice/index.tt
 msgid "Floating Devices"
+msgstr ""
+
+# html/pfappserver/root/configuration/advanced_conf.tt
+msgid "Floating Devices:"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
@@ -3608,6 +3661,10 @@ msgstr "MSE - Read"
 msgid "Mac OSX agent download URI"
 msgstr ""
 
+# html/pfappserver/root/configuration/system_config.tt
+msgid "Main Configuration:"
+msgstr ""
+
 # html/pfappserver/root/config/pfmon/index.tt
 msgid "Maintenance Tasks"
 msgstr ""
@@ -3840,6 +3897,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 msgid "Networks on which to do SSO"
+msgstr ""
+
+# html/pfappserver/root/configuration/advanced_conf.tt
+msgid "Networks:"
 msgstr ""
 
 # html/pfappserver/root/config/profile/files.tt
@@ -4171,6 +4232,10 @@ msgstr ""
 msgid "OMAPI"
 msgstr ""
 
+# html/pfappserver/root/configuration/advanced_conf.tt
+msgid "OMAPI:"
+msgstr ""
+
 # html/pfappserver/root/admin/configuration.tt
 msgid "OPSWAT Metadefender"
 msgstr ""
@@ -4435,6 +4500,10 @@ msgstr ""
 msgid "PKI Provider type"
 msgstr ""
 
+# html/pfappserver/root/configuration/portal_config.tt
+msgid "PKI Provider:"
+msgstr ""
+
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/pki_provider/index.tt
 msgid "PKI Providers"
@@ -4508,6 +4577,22 @@ msgstr ""
 msgid "PacketFence Eduroam RADIUS virtual server authentication listening port"
 msgstr ""
 
+# html/pfappserver/root/configuration/portal_config.tt
+msgid "PacketFence allows you to create advanced filtering rules based on DHCP, DNS or HTTP information. It also allows you to define advanced role-mapping or VLAN-mapping rules;"
+msgstr ""
+
+# html/pfappserver/root/configuration/advanced_conf.tt
+msgid "PacketFence allows you to perform advanced solution configuration. Among the configuration options, there are:"
+msgstr ""
+
+# html/pfappserver/root/configuration/system_config.tt
+msgid "PacketFence allows you to perform advanced system configuration. Among the configuration options, there are:"
+msgstr ""
+
+# html/pfappserver/root/configuration/portal_config.tt
+msgid "PacketFence can \"push\" provisioning agents on endpoints to auto-configure the WiFi connection during the registration process. You can configure the provisioning agents in this module;"
+msgstr ""
+
 # html/pfappserver/root/configuration/compliance.tt
 msgid "PacketFence can ensure a high-level of security on your network by enforcing compliance of your acceptable use policy. The compliance modules are:"
 msgstr ""
@@ -4530,6 +4615,14 @@ msgstr ""
 
 # html/pfappserver/root/configurator/enforcement.tt
 msgid "PacketFence is the server that assigns the VLAN (or roles) to the devices. This is the prefered enforcement mechanism for manageable equipment."
+msgstr ""
+
+# html/pfappserver/root/configuration/system_config.tt
+msgid "PacketFence makes use of a MySQL/MariaDB database. You can configure the connection information from this module;"
+msgstr ""
+
+# html/pfappserver/root/configuration/system_config.tt
+msgid "PacketFence supports clustering of 3+ members. You can configure the clustering solution from this module;"
 msgstr ""
 
 # html/pfappserver/root/configurator/database.tt
@@ -5010,13 +5103,13 @@ msgstr ""
 msgid "Portal Configuration"
 msgstr ""
 
-# html/pfappserver/root/configuration/portal_config.tt
-msgid "Portal General Configuration"
-msgstr ""
-
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/portal_module/view.tt
 msgid "Portal Modules"
+msgstr ""
+
+# html/pfappserver/root/configuration/portal_config.tt
+msgid "Portal Modules:"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
@@ -5166,6 +5259,10 @@ msgstr ""
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/profile/tab-content.tt
 msgid "Provisioners"
+msgstr ""
+
+# html/pfappserver/root/configuration/portal_config.tt
+msgid "Provisioners:"
 msgstr ""
 
 # html/pfappserver/root/config/provisioning/index.tt
@@ -5758,6 +5855,10 @@ msgstr ""
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/switch/view.tt
 msgid "SNMP"
+msgstr ""
+
+# html/pfappserver/root/configuration/advanced_conf.tt
+msgid "SNMP:"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
@@ -6874,6 +6975,10 @@ msgstr ""
 msgid "The Root Portal Module to use"
 msgstr ""
 
+# html/pfappserver/root/configuration/advanced_conf.tt
+msgid "The SNMP engine in PacketFence can be configured here;"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/URL.pm
 msgid "The URL on which the user should be redirected."
 msgstr ""
@@ -7041,6 +7146,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Message.pm
 msgid "The message that will be displayed to the user. Use with caution as the HTML contained in this field will NOT be escaped."
+msgstr ""
+
+# html/pfappserver/root/configuration/portal_config.tt
+msgid "The module allows you to deeply customize the captive portal workflows;"
 msgstr ""
 
 # html/pfappserver/root/node/create.tt
@@ -7287,6 +7396,10 @@ msgstr ""
 msgid "This allows PacketFence to define Wireless Roaming Intermediary eXchange (WRIX) information on access points it manages."
 msgstr ""
 
+# html/pfappserver/root/configuration/portal_config.tt
+msgid "This allows PacketFence to define tiers for billing engines integration."
+msgstr ""
+
 # html/pfappserver/root/configuration/integration.tt
 msgid "This allows PacketFence to expose some of its APIs through Web Services. See the PacketFence Developer Guide for API documentation;"
 msgstr ""
@@ -7303,8 +7416,36 @@ msgstr ""
 msgid "This allows already registered users to be able to re-register their device by first accessing the status page and then accessing the portal. This is useful to allow users to extend their access even though they are already registered."
 msgstr ""
 
+# html/pfappserver/root/configuration/system_config.tt
+msgid "This allows you set the DNS name, SMTP information for alerts, default language and more;"
+msgstr ""
+
+# html/pfappserver/root/configuration/advanced_conf.tt
+msgid "This allows you to configure networks managed by PacketFence, in-bound and fencing configuration parameters as well as parking of endpoints;"
+msgstr ""
+
+# html/pfappserver/root/configuration/advanced_conf.tt
+msgid "This allows you to create floating devices in PacketFence - like a switch for example that moves around in the network. PacketFence will automatically reconfigure a switch port and a floating device is connected."
+msgstr ""
+
+# html/pfappserver/root/configuration/advanced_conf.tt
+msgid "This allows you to enable or not OMAPI-based IP address to MAC address lookups;"
+msgstr ""
+
+# html/pfappserver/root/configuration/portal_config.tt
+msgid "This allows you to enable the device registration feature in PacketFence - which allows users to manually register endpoints from a portal page."
+msgstr ""
+
+# html/pfappserver/root/configuration/portal_config.tt
+msgid "This allows you to set the various access duration that will be available in your actions definition from your authentication sources;"
+msgstr ""
+
 # html/pfappserver/root/config/filters/index.tt
 msgid "This is an advanced section. Proceed with caution when editing."
+msgstr ""
+
+# html/pfappserver/root/configuration/portal_config.tt
+msgid "This is for changing global captive-portal parameters;"
 msgstr ""
 
 # html/pfappserver/root/configuration/compliance.tt
@@ -8115,6 +8256,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "When this is enabled, an async job will cache the NTLM credentials of the user every time he connects."
+msgstr ""
+
+# html/pfappserver/root/configuration/portal_config.tt
+msgid "When using EAP-TLS, PacketFence needs to be configured to integrate with PKI infrastructure. This is done in this module;"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Pfmon.pm
