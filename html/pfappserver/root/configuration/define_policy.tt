@@ -5,9 +5,9 @@
 <p>[% l('For PacketFence to work properly, you must define in the following order:') %]</p>
 
 <ul>
-<li>1. <b>[% l('Roles:') %]</b> [% l('a role will allow PacketFence to grant different network access to endpoints connecting to your network. For example, employee vs. guest;') %]</li>
-<li>2. <b>[% l('Domains:') %]</b>  [% l('if you want to authenticate users or machines using a Microsoft Active Domain Controller (DC), you have to join the PacketFence server to the DC;') %]</li>
-<li>3. <b>[% l('Sources:') %]</b> [% l('authentication sources will allow you to identify users and assign them roles and access durations;') %]</li>
-<li>4. <b>[% l('Switches:') %]</b> [% l('lPacketFence manages switches, access points and WiFi controllers. You have to add the equipment you want PacketFence to manage and do the role by VLAN/ACL/policy identifier mapping;') %]</li>
+<li>1. <b>[% l('Roles:') %]</b> [% l('A role will allow PacketFence to grant different network access to endpoints connecting to your network. For example, employee vs. guest;') %]</li>
+<li>2. <b>[% l('Domains:') %]</b>  [% l('If you want to authenticate users or machines using a Active Directory Domain Controller (DC), you have to join the PacketFence server to the DC;') %]</li>
+<li>3. <b>[% l('Sources:') %]</b> [% l('Authentication sources will allow you to identify users and assign them roles and access durations;') %]</li>
+<li>4. <b>[% l('Switches:') %]</b> [% l('PacketFence manages switches, access points and WiFi controllers. You have to add the equipment you want PacketFence to manage and do the role by VLAN/ACL/policy identifier mapping;') %]</li>
 <li>5. <b>[% l('Connection Profiles:') %]</b> [% l('When devices are connecting to your network, you might want to show a captive portal or auto-register the device. You can control the behavior in this module.') %]</li>
 </ul>
