@@ -33,6 +33,28 @@ sub index :Path : Args(0) {
         miss_counters => $model->miss_counters,
         queue_counts => $model->queue_counts,
     });
+    $c->forward('graphs');
+}
+
+=head2 graphs
+
+Generate the graphs for the queue page
+
+=cut
+
+sub graphs :Private {
+    my ($self, $c, $start, $end) = @_;
+    my $width = $c->request->param('width');
+
+    my $graph = {
+                'description' => $c->loc('Last hour queue counts'),
+                'target' => 'aliasByNode(stats.gauges.*.pfqueue.stats.queue_counts.*,6)',
+                'columns' => 2
+               };
+
+    $graph->{url} = $c->forward(Graph => '_buildGraphiteURL', ['-1h', "", $graph]);
+
+    $c->stash->{queue_counts_graph} = $graph;
 }
 
 sub counters :Args {
