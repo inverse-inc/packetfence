@@ -7,14 +7,17 @@ function init() {
         var form = $(this);
         var url = form.attr('action');
         var valid = isFormValid(form);
+        var btn = form.find('.btn-primary');
 
         if (valid) {
+            btn.button('loading');
             $.ajax({
                 type: 'POST',
                 url: url,
                 data: form.serialize()
             })
             .always(function() {
+                btn.button('reset');
                 $("body,html").animate({scrollTop:0}, 'fast');
                 resetAlert($('#section'));
             })

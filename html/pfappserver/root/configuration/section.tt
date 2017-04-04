@@ -17,7 +17,7 @@
     </div>
     [%- IF can_access("CONFIGURATION_MAIN_UPDATE") %]
     <div class="card-actions form-actions">
-      <button type="submit" class="btn btn-primary">[% l('Save') %]</button>
+      <button type="submit" class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>
       <button type="reset" class="btn">[% l('Reset') %]</button>
     </div>
     [%- END %]

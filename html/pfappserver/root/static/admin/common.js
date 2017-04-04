@@ -188,7 +188,7 @@ function doUpdateSection(ajax_data) {
                     section.find('.chzn-select:visible').chosen();
                     section.find('.chzn-deselect:visible').chosen({allow_single_deselect: true});
                     section.find('.switch').bootstrapSwitch();
-                    if (Clipboard.isSupported())
+                    if (typeof Clipboard !== 'undefined' && Clipboard.isSupported())
                         section.find('.clipboard .icon-clipboard').tooltip({ title: _('Copy') });
                     else
                         section.find('.clipboard .icon-clipboard').remove();
@@ -475,7 +475,7 @@ $(function () { // DOM ready
 
     $('#navbar [data-toggle="tooltip"]').tooltip({placement: 'bottom'});
 
-    if (Clipboard.isSupported()) {
+    if (typeof Clipboard !== "undefined" && Clipboard.isSupported()) {
         var clipboard = new Clipboard('.icon-clipboard.btn-icon');
         clipboard.on('success', function(e) {
             var btn = $(e.trigger);
