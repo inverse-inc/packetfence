@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 6.5.9\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-04-03 10:52-0400\n"
+"PO-Revision-Date: 2017-04-04 13:29-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -257,6 +257,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule.pm
 # html/pfappserver/lib/pfappserver/Form/Field/PfdetectRegexRule.pm
 # html/pfappserver/root/admin/bulk_actions.inc
+# html/pfappserver/root/config/fingerbank/header.tt
 # html/pfappserver/root/violation/list.tt
 msgid "Action"
 msgstr ""
@@ -1128,6 +1129,10 @@ msgstr ""
 msgid "Circuit ID String"
 msgstr ""
 
+# html/pfappserver/root/configuration/integration.tt
+msgid "Cisco Mobility Services Engine:"
+msgstr ""
+
 # html/pfappserver/root/admin/configuration.tt
 msgid "Cisco Mobility Sevices Engine"
 msgstr ""
@@ -1554,6 +1559,11 @@ msgstr ""
 msgid "Controls whether or not the trap limit feature is enabled. Trap limiting is a way to limit the damage done by malicious users or misbehaving switch that sends too many traps to PacketFence causing it to be overloaded. Trap limiting is controlled by the trap limit threshold and trap limit action parameters. Default is enabled."
 msgstr ""
 
+# html/pfappserver/root/admin/wrapper.tt
+msgid "Copied"
+msgstr ""
+
+# html/pfappserver/root/admin/wrapper.tt
 # html/pfappserver/root/config/profile/files.tt
 msgid "Copy"
 msgstr ""
@@ -2703,6 +2713,10 @@ msgstr ""
 msgid "Fingerbank Profile:"
 msgstr ""
 
+# html/pfappserver/root/configuration/profiling.tt
+msgid "Fingerbank Profiling"
+msgstr ""
+
 # html/pfappserver/root/config/fingerbank/settings/index.tt
 msgid "Fingerbank Settings"
 msgstr ""
@@ -2723,6 +2737,10 @@ msgstr ""
 # html/pfappserver/root/config/firewall_sso/index.tt
 # html/pfappserver/root/config/firewall_sso/view.tt
 msgid "Firewall SSO"
+msgstr ""
+
+# html/pfappserver/root/configuration/integration.tt
+msgid "Firewall SSO:"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
@@ -4165,6 +4183,10 @@ msgstr ""
 msgid "OPSWAT Metadefender Cloud Scanner URL for hash queries"
 msgstr ""
 
+# html/pfappserver/root/configuration/integration.tt
+msgid "OPSWAT Metadefender:"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 # html/pfappserver/root/admin/nodes.tt
@@ -4496,6 +4518,10 @@ msgstr ""
 
 # html/pfappserver/root/configuration/compliance.tt
 msgid "PacketFence can use active vulnerability like Nessus, OpenVAS or Windows Management Instrumentation (WMI) to proactively scan endpoints for security problems. You can define the scanners being used here;"
+msgstr ""
+
+# html/pfappserver/root/configuration/integration.tt
+msgid "PacketFence integrates with many 3 rd party solutions. Among the solutions, there are:"
 msgstr ""
 
 # html/pfappserver/root/configurator/enforcement.tt
@@ -5906,6 +5932,7 @@ msgstr ""
 # html/pfappserver/root/config/switch/view.tt
 # html/pfappserver/root/config/wmi/view.tt
 # html/pfappserver/root/config/wrix/view.tt
+# html/pfappserver/root/configuration/section.tt
 # html/pfappserver/root/interface/view.tt
 # html/pfappserver/root/node/view.tt
 # html/pfappserver/root/user/view.tt
@@ -7256,6 +7283,22 @@ msgstr ""
 msgid "This activates preregistration on the connection profile. Meaning, instead of applying the access to the currently connected device, it displays a local account that is created while registering. Note that activating this disables the on-site registration on this connection profile. Also, make sure the sources on the connection profile have \"Create local account\" enabled."
 msgstr ""
 
+# html/pfappserver/root/configuration/integration.tt
+msgid "This allows PacketFence to define Wireless Roaming Intermediary eXchange (WRIX) information on access points it manages."
+msgstr ""
+
+# html/pfappserver/root/configuration/integration.tt
+msgid "This allows PacketFence to expose some of its APIs through Web Services. See the PacketFence Developer Guide for API documentation;"
+msgstr ""
+
+# html/pfappserver/root/configuration/integration.tt
+msgid "This allows PacketFence to let the firewall know who is using a particular IP address on the network. The firewall can then apply per-user or per-role policies;"
+msgstr ""
+
+# html/pfappserver/root/configuration/integration.tt
+msgid "This allows PacketFence to query OPSWAT Metadefender Cloud for file hashes in order to detect malware or virus infected files. This is done through the Suricata HTTP file extraction plugin;"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid "This allows already registered users to be able to re-register their device by first accessing the status page and then accessing the portal. This is useful to allow users to extend their access even though they are already registered."
 msgstr ""
@@ -7290,6 +7333,10 @@ msgstr ""
 
 # html/pfappserver/root/configuration/compliance.tt
 msgid "This powerful module allows you to tie security events (malware detection, unauthorized operating system, etc.) with actions such as quarantining endpoints, sending email alerts and showing remediation instructions from captive portal;"
+msgstr ""
+
+# html/pfappserver/root/configuration/integration.tt
+msgid "This provides PacketFence geographical location information of endpoints on the network. You can then provide a different captive portal based on where the device is physically located, or position an endpoint on a specific map of a building;"
 msgstr ""
 
 # conf/documentation.conf (proxies)
@@ -7770,7 +7817,7 @@ msgstr ""
 
 # html/pfappserver/root/config/authentication.tt
 msgid "Users Sources"
-msgstr ""
+msgstr "Sources"
 
 # pf::admin_roles (Actions groups)
 msgid "VIOLATIONS"
@@ -7978,6 +8025,10 @@ msgstr ""
 msgid "WRIX Information"
 msgstr ""
 
+# html/pfappserver/root/configuration/integration.tt
+msgid "WRIX:"
+msgstr ""
+
 # pf::admin_roles (Actions)
 msgid "WRIX_CREATE"
 msgstr "WRIX - Create"
@@ -8011,6 +8062,10 @@ msgstr ""
 # html/pfappserver/root/config/cluster/index.tt
 # html/pfappserver/root/config/switch/view.tt
 msgid "Web Services"
+msgstr ""
+
+# html/pfappserver/root/configuration/integration.tt
+msgid "Web Services:"
 msgstr ""
 
 # html/pfappserver/root/configurator/enforcement.tt
@@ -9436,7 +9491,7 @@ msgstr "Months"
 
 # conf/documentation.conf
 msgid "mse_tab"
-msgstr "MSE Lookup Service"
+msgstr "Cisco Mobility Services Engine"
 
 # conf/documentation.conf
 msgid "mse_tab.enabled"
@@ -10499,7 +10554,7 @@ msgstr "Registration"
 
 # conf/documentation.conf
 msgid "webservices"
-msgstr "Webservices"
+msgstr "Web Services"
 
 # conf/documentation.conf
 msgid "webservices.aaa_port"
