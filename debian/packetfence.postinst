@@ -167,6 +167,9 @@ case "$1" in
 		systemctl daemon-reload
         systemctl isolate packetfence-base.target
 
+        set +e
+        /usr/local/pf/bin/pfcmd configreload
+        set -e
         /usr/local/pf/bin/pfcmd configreload
         /bin/systemctl start packetfence-httpd.admin
 
