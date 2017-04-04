@@ -50,9 +50,9 @@ while(my ($orig, $new) = each(%PARAMS_TO_RENAME)) {
 
     print "Moving parameter $orig_param from section $orig_section to $new_section.$new_param \n";
 
-    my $orig_val = $config->val($orig_section, $orig_param);
 
-    if($orig_val) {
+    if($config->exists($orig_section, $orig_param)) {
+        my $orig_val = $config->val($orig_section, $orig_param);
         # Delete any existing destination (new) parameter
         $config->delval($new_section, $new_param);
 
