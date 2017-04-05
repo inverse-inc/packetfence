@@ -36,6 +36,7 @@ use Try::Tiny;
 use MIME::Lite;
 use Encode qw(encode);
 use pf::util;
+use pf::Connection::ProfileFactory;
 use pf::constants::Connection::Profile qw($DEFAULT_PROFILE);
 
 =head1 CONSTANTS
