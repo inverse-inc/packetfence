@@ -6,7 +6,7 @@
 [% heading = l('New Source')  %]
 [%END%]
 <ul class="breadcrumb">
-  <li><a href="[% c.pf_hash_for(c.controller('Config::Authentication').action_for('index')) %]">[% l('User Sources') %]</a> <span class="divider"><i class="icon-chevron-right"></i></span></li>
+  <li><a href="[% c.pf_hash_for(c.controller('Config::Authentication').action_for('index')) %]">[% l('Authentication Sources') %]</a> <span class="divider"><i class="icon-chevron-right"></i></span></li>
   <li class="active">[% heading | html %]</li>
 </ul>
 
