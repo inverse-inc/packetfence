@@ -93,12 +93,15 @@ ItemView.prototype.readItem = function(e) {
     var modal = $(this.items.modalId);
     var section = $('#section');
     var loader = section.prev('.loader');
+    var target = e.target;
+    if (target.nodeName != 'A')
+        target = target.parentNode;
     loader.show();
     section.fadeTo('fast', 0.5);
     modal.empty();
     $('.chzn-drop').remove(); // fixes a chzn bug with optgroups
     this.items.get({
-        url: $(e.target).attr('href'),
+        url: $(target).attr('href'),
         always: function() {
             loader.hide();
             section.stop();
