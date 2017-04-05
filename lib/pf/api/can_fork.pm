@@ -54,7 +54,16 @@ sub notify {
         }
         if ($pid) {
             $logger->debug("Fork $method off");
+            waitpid($pid, 0);
             return;
+        }
+        $pid = fork();
+        unless (defined $pid) {
+            $logger->error("Error in double fork $!");
+            POSIX::_exit(0);
+        }
+        if ($pid) {
+            POSIX::_exit(0);
         }
         Log::Log4perl::MDC->put( 'tid', $$ );
     }
