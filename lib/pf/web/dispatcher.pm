@@ -186,6 +186,19 @@ sub html_redirect {
     }
 
     my $captive_portal_domain = $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'};
+   
+	# Look up the hostname of the incoming request and use it for the captive portal 
+	foreach my $key (keys %Config) {
+        if ($key =~ /interface/) {
+            if ($Config{$key}{'ip'} eq $r->connection->local_ip) {
+                if (exists $Config{$key}{'hostname'}) {
+                    $captive_portal_domain = $Config{$key}{'hostname'};
+                    last;
+                }
+            }
+        }
+    }
+    
     my $ip = defined($r->headers_in->{'X-Forwarded-For'}) ? $r->headers_in->{'X-Forwarded-For'} : $r->connection->remote_ip;
     $ip = new NetAddr::IP::Lite clean_ip($ip);
     my $user_agent = $r->headers_in->{'User-Agent'};
