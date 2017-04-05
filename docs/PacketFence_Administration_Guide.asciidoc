@@ -1546,20 +1546,29 @@ Apple devices such as iPhones, iPads, iPods and Mac OS X (10.7+) support wireles
 
 Configure the feature
 ^^^^^^^^^^^^^^^^^^^^^
+NOTE: If EAP-TLS provisioning is desired, you have to configure a PKI before going any further. Two guides exists to assist you: 'PacketFence_PKI_Quick_Install_Guide', which covers PacketFence's implementation, or 'PacketFence_MSPKI_Quick_Install_Guide' which covers Microsoft's.
 
-First of all, you need to configure the SSID that your devices will use after they go though the authentication process.
+First of all, you need to configure the SSID that your devices will use after they go through the authentication process.
 
-In order to do that, in the administration interface, go in 'Portal Configuration -> Provisioners'. Then select the 'android' provisioner. Enter the SSID and save.
-
-Now do the same thing for the iOS provisioner.
+In order to do that, in the administration interface, go in 'Portal Configuration -> Provisioners'. Then select the 'android' / 'iOS' provisioner. Enter SSID relative information and roles to which the provisioner applies and save. Note that the default RADIUS certificate path is `/usr/local/pf/raddb/certs/server.crt`.
 
 After, you simply need to add the 'Android' and 'iOS' provisioners to your 'Connection Profile' configuration.
 
-For Android, you must allow passthroughs in your `pf.conf` configuration file:
+Android specificities
++++++++++++++++++++++
+
+For Android, you must allow passthroughs in your `pf.conf` configuration file. You might need to adapt the following to your geolocality:
+NOTE: If no other passthrough has been configured before, the feature itself needs to be activated. Please refer to the 'Passthroughs' section of this guide before continuing.
 
   [fencing]
   passthrough=enabled
-  passthroughs=*.ggpht.com,*.googleusercontent.com,android.clients.google.com,*.googleapis.com,*.android.clients.google.com,*.gvt1.com
+  passthroughs=*.ggpht.com,*.googleusercontent.com,android.clients.google.com,*.googleapis.com,*.android.clients.google.com,*.gvt1.com,*.l.google.com,play.google.com,*.gstatic.com
+
+Then run the following commands so that passthroughs become effective:  
+
+  /usr/local/pf/bin/pfcmd service iptables restart
+  /usr/local/pf/bin/pfcmd configreload hard
+  /usr/local/pf/bin/pfcmd service pfdns restart
 
 Profile generation
 ^^^^^^^^^^^^^^^^^^
