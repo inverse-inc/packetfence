@@ -36,6 +36,7 @@ use Try::Tiny;
 use MIME::Lite;
 use Encode qw(encode);
 use pf::util;
+use pf::constants::Connection::Profile qw($DEFAULT_PROFILE);
 
 =head1 CONSTANTS
 
@@ -458,6 +459,8 @@ sub send_email {
     my ($type, $activation_code, $template, %info) = @_;
     my $logger = get_logger();
 
+    my $profile = pf::Connection::ProfileFactory->_from_profile($info{portal}) // pf::Connection::ProfileFactory->_from_profile($DEFAULT_PROFILE);
+
     my $user_locale = clean_locale(setlocale(POSIX::LC_MESSAGES));
     if ($type eq $SPONSOR_ACTIVATION) {
         $logger->debug('We are doing sponsor activation', $user_locale);
@@ -490,7 +493,7 @@ sub send_email {
     require pf::web;
 
     my %TmplOptions = (
-        INCLUDE_PATH    => "$html_dir/captive-portal/templates/emails/",
+        INCLUDE_PATH    => [ map { $_ . "/emails/" } @{$profile->{_template_paths}} ],
         ENCODING        => 'utf8',
     );
 
@@ -535,6 +538,8 @@ sub create_and_send_activation_code {
         portal  => $portal,
         timeout => $info{'activation_timeout'}
     );
+
+    $info{portal} = $portal;
 
     my $activation_code = create(\%args);
     if (defined($activation_code)) {
