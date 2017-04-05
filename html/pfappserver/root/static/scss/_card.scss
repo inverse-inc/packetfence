@@ -3,7 +3,7 @@
 .card {
   position: relative;
   display: block;
-  background-color: #fff;
+  background-color: $cardBackground;
   width: 100%;
   margin-top: 24px;
   margin: $baseLineHeight 0;
