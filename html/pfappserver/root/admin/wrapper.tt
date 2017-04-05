@@ -92,7 +92,7 @@
                   <i class="icon-wrench"></i>
                 </a>
                 <ul class="dropdown-menu" id="checkup_dropdown">
-                  <li class="disabled"><a><img src="/static/app/loader-48.gif"></a></li>
+                  <li class="disabled"><div class="text-center"><i class="icon-spin icon-circle-o-notch"></i></div></li>
                 </ul>
               </li>
             </ul>

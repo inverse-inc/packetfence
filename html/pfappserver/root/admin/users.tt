@@ -225,7 +225,7 @@
             </div><!--/.tab-content-->
           </div><!--/.tabbable-->
           </div>
-          <div class="loader span12"><p><img src="[% c.uri_for('/static/app/loader-48.gif') %]"></p></div>
+          <div class="loader"><i class="icon"></i></div>
           <div class="users card-block" id="section">
           </div>
         </div><!--/span-->

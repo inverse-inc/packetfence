@@ -47,11 +47,6 @@ table .category-header {
 .table .btn-group, .table-condensed select {
     vertical-align: top;
 }
-.loader {
-    position: fixed;
-    left: 50%;
-    margin-top: 10px;
-}
 .unwell {
     color: #ccc;
     font-size: 24px;

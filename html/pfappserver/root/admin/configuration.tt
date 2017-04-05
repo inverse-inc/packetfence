@@ -229,7 +229,7 @@
       <div class="row-fluid">
         <div class="container-fluid span14 offset4">
         <div id="section">
-          <div class="loader"><p><img src="[% c.uri_for('/static/app/loader-48.gif') %]"></p></div>
+          <div class="loader"><i class="icon"></i></div>
         </div><!--/span-->
         </div><!--/row-->
       </div>

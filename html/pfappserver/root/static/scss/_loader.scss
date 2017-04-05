@@ -1,0 +1,13 @@
+/// _loader.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2 -*-
+
+.loader {
+    position: fixed;
+    margin-top: 10px;
+    @extend .offset6;
+
+    i {
+      @extend .icon-spin;
+      @extend .icon-2x;
+      @extend .icon-circle-o-notch;
+    }
+}
