@@ -4,3 +4,8 @@
   overflow: hidden;
   max-width: 0;
 }
+
+.card .table .table {
+  // Nesting inside card
+  background-color: $cardBackground;
+}
