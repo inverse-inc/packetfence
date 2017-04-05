@@ -5,7 +5,7 @@
       <div class=" container">
         <div class="nav-collapse collapse navbar-responsive-collapse">
           <div class="pull-left">
-            <form class="navbar-search input-daterange"
+            <form class="form-horizontal navbar-search input-daterange"
                   data-date-format="yyyy-mm-dd">
               <input type="text" class="input-small" name="start"
                      value="[% c.session.dashboard.start | html %]"
@@ -15,8 +15,8 @@
                      value="[% c.session.dashboard.end | html %]"
                      data-date-format="yyyy-mm-dd"
                      date-datestart="[% c.session.dashboard_start | html %]" />
+              <a id="changeDate" class="btn-icon btn-icon-primary" href="#"><i class="icon-refresh"></i></a>
             </form>
-            <a id="changeDate" class="btn" href="#"><i class="icon-refresh"></i></a>
           </div>
         </div>
 
