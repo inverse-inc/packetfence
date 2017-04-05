@@ -256,8 +256,9 @@ $zindexChosen: $zindexModal + 1;
 
 /* @group Active  */
 .chzn-container-active .chzn-single {
-  @include box-shadow(0 0 5px rgba(0,0,0,.3));
-  border: 1px solid #5897fb;
+  //@extend select:focus;
+  //@include box-shadow(0 0 5px rgba(0,0,0,.3));
+  //border: 1px solid #5897fb;
 }
 .chzn-container-active .chzn-single-with-drop {
   border: 1px solid #aaa;
