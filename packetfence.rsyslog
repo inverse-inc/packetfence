@@ -112,7 +112,7 @@ if $programname == "pfmon" then -/usr/local/pf/logs/pfmon.log
 & stop
 
 # PFQUEUE
-if $programname == "pfqueue" then -/usr/local/pf/logs/pfqueue.log
+if $programname == "pfqueue" then -/usr/local/pf/logs/packetfence.log
 & stop
 
 # PFSSO and all pfhttpd services
