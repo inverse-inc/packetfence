@@ -25,7 +25,7 @@
            </thead>
         [% FOREACH item IN items %]
             <tr>
-              <td>
+              <td class="item">
                 <a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]"><i class="icon-plus-circle"></i></a>
               </td>
                <td>
