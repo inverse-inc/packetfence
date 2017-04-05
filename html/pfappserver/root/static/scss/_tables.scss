@@ -17,6 +17,11 @@ tr[data-swap] {
     }
 }
 
+// Fix inputs in tables
+table input[type="text"] {
+  margin-bottom: 0px;
+}
+
 .card .table .table {
   // Nesting inside card
   background-color: $cardBackground;
