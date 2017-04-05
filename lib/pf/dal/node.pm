@@ -80,13 +80,13 @@ sub merge_fields {
     [@MERGE_FIELD]
 }
 
-=head2 _pre_save
+=head2 pre_save
 
-_pre_save
+pre_save
 
 =cut
 
-sub _pre_save {
+sub pre_save {
     my ($self) = @_;
     return $self->_update_category_ids;
 }
@@ -97,7 +97,7 @@ _update_category_ids
 
 =cut
 
-sub _update_category_id {
+sub _update_category_ids {
     my ($self) = @_;
     my $category = $self->category;
     my $bypass_role = $self->bypass_role;
