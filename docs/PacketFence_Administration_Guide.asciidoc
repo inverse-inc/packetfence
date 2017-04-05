@@ -3090,9 +3090,11 @@ Scanner Definition
 ++++++++++++++++++
 
 First go in Configuration and Scanner Definition:
+
 image::docs/images/scan_definition.png[alt="Scanner definition"]
 
 Then add a scan:
+
 image::docs/images/scan_type.png[alt="Scanner add"]
 
 There are common parameters for each scan engines:
