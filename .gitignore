@@ -178,3 +178,6 @@ logs/
 var/
 raddb/sites-enabled/
 html/captive-portal/content/node_modules/
+
+raddb/mods-config/python/*.pyc
+raddb/mods-config/python/*.pyo
