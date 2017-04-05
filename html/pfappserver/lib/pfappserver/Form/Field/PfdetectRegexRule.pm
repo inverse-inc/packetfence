@@ -89,7 +89,7 @@ If enabled then do ip to mac and mac to ip translation
 
 has_field 'ip_mac_translation' => (
     type            => 'Toggle',
-    label           => 'IP <=> MAC',
+    label           => 'IP <i class="icon-exchange"></i> MAC',
     default         => 'enabled',
     checkbox_value  => 'enabled',
     unchecked_value => 'disabled',
