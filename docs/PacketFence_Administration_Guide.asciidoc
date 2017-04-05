@@ -3089,9 +3089,7 @@ In order for the compliance checks to correctly work with PacketFence (communica
 Scanner Definition
 ++++++++++++++++++
 
-First go in Configuration and Scanner Definition:
-
-image::docs/images/scan_definition.png[alt="Scanner definition"]
+First go in Configuration and Scanner Definition: 'Configuration->Compliance->Scans Engines'
 
 Then add a scan:
 
