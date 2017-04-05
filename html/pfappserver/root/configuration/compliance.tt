@@ -1,12 +1,12 @@
 <div class="documentation">
-  <h1>[% l('Compliance') %]</h1>
+  <h1><i class="icon-shield"></i> [% l('Compliance') %]</h1>
 
   <p>[% l('PacketFence can ensure a high-level of security on your network by enforcing compliance of your acceptable use policy. The compliance modules are:') %]</p>
 
-  <ul>
-    <li>1. <b>[% l('Fingerbank Profile:') %]</b> [% l('This is for device profiling or fingerprinting using the Fingerbank solution. Fingerbank allows you to accurately identify an endpoint on your network (printer vs. tablet);') %]</li>
-    <li>2. <b>[% l('Scans:') %]</b> [% l('PacketFence can use active vulnerability like Nessus, OpenVAS or Windows Management Instrumentation (WMI) to proactively scan endpoints for security problems. You can define the scanners being used here;') %]</li>
-    <li>3. <b>[% l('Syslog Parsers:') %]</b> [% l('PacketFence can receive security event information from multiple solutions over syslog. You can configure which data input you want to accept from this module.') %]</li>
-    <li>4. <b>[% l('Violations:') %]</b> [% l('This powerful module allows you to tie security events (malware detection, unauthorized operating system, etc.) with actions such as quarantining endpoints, sending email alerts and showing remediation instructions from captive portal;') %]</li>
-  </ul>
+  <dl>
+    <dt>[% l('Fingerbank Profile:') %]</dt> <dd>[% l('This is for device profiling or fingerprinting using the Fingerbank solution. Fingerbank allows you to accurately identify an endpoint on your network (printer vs. tablet);') %]</dd>
+    <dt>[% l('Scans:') %]</dt> <dd>[% l('PacketFence can use active vulnerability like Nessus, OpenVAS or Windows Management Instrumentation (WMI) to proactively scan endpoints for security problems. You can define the scanners being used here;') %]</dd>
+    <dt>[% l('Syslog Parsers:') %]</dt> <dd>[% l('PacketFence can receive security event information from multiple solutions over syslog. You can configure which data input you want to accept from this module.') %]</dd>
+    <dt>[% l('Violations:') %]</dt> <dd>[% l('This powerful module allows you to tie security events (malware detection, unauthorized operating system, etc.) with actions such as quarantining endpoints, sending email alerts and showing remediation instructions from captive portal;') %]</dd>
+  </dl>
 </div>
