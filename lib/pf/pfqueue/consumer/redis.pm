@@ -84,11 +84,11 @@ sub process_next_job {
     if ($queue) {
         my $data = $redis->hget($task_id, 'data');
         my $task_counter_id = _get_task_counter_id_from_task_id($task_id);
-        if($data) {
+        if ($data) {
             local $@;
             eval {
                 sereal_decode_with_object($DECODER, $data, my $item);
-                if (ref ($item) eq 'ARRAY' ) {
+                if (ref($item) eq 'ARRAY') {
                     my $type = $item->[0];
                     my $args = $item->[1];
                     eval {
@@ -107,7 +107,7 @@ sub process_next_job {
             $logger->error("Invalid task id $task_id provided");
         }
         $redis->hincrby($PFQUEUE_COUNTER, $task_counter_id, -1, sub { });
-        $redis->del($task_id, sub {});
+        $redis->del($task_id, sub { });
         $redis->wait_all_responses();
     }
 }
