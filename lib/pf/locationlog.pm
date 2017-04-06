@@ -330,7 +330,6 @@ sub locationlog_view_open_mac {
 sub locationlog_insert_start {
     my ( $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $locationlog_mac, $ifDesc ) = @_;
     my $logger = get_logger();
-    $logger->info("inserting start with ifDesc $ifDesc");
 
     my $conn_type = connection_type_to_str($connection_type)
         or $logger->info("Asked to insert a locationlog entry with connection type unknown.");
