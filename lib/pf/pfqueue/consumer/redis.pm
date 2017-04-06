@@ -69,6 +69,14 @@ sub BUILDARGS {
     return $args;
 }
 
+=head2 _empty
+
+_empty
+
+=cut
+
+sub _empty { }
+
 =head2 process_next_job
 
 Process the next job in the queue
@@ -81,34 +89,45 @@ sub process_next_job {
     my $queue_name = $self->queue_name;
     my $logger = get_logger();
     my ($queue, $task_id) = $redis->brpop($queue_name, 1);
-    if ($queue) {
-        my $data = $redis->hget($task_id, 'data');
-        my $task_counter_id = _get_task_counter_id_from_task_id($task_id);
-        if ($data) {
-            local $@;
-            eval {
-                sereal_decode_with_object($DECODER, $data, my $item);
-                if (ref($item) eq 'ARRAY') {
-                    my $type = $item->[0];
-                    my $args = $item->[1];
-                    eval {
-                        "pf::task::$type"->doTask($args);
-                    };
-                    die $@ if $@;
-                } else {
-                    $logger->error("Invalid object stored in queue");
-                }
-            };
-            if ($@) {
-                $logger->error($@);
+    unless (defined $queue) {
+        return;
+    }
+    my $task_counter_id = _get_task_counter_id_from_task_id($task_id);
+    my $data;
+    $redis->multi(\&_empty);
+    $redis->hincrby($PFQUEUE_COUNTER, $task_counter_id, -1, \&_empty);
+    $redis->hget($task_id, 'data', \&_empty);
+    $redis->del($task_id, \&_empty);
+    $redis->exec(sub {
+        my ($replies, $error) = @_;
+        return if defined $error;
+        # Get the second reply which gets the data from the task hash
+        my ($hget_reply, $hget_error) = @{$replies->[1]};
+        return if defined $hget_error;
+        $data = $hget_reply;
+    });
+    $redis->wait_all_responses();
+    if ($data) {
+        local $@;
+        eval {
+            sereal_decode_with_object($DECODER, $data, my $item);
+            if (ref($item) eq 'ARRAY') {
+                my $type = $item->[0];
+                my $args = $item->[1];
+                eval {
+                    "pf::task::$type"->doTask($args);
+                };
+                die $@ if $@;
+            } else {
+                $logger->error("Invalid object stored in queue");
             }
-        } else {
-            $redis->hincrby($PFQUEUE_EXPIRED_COUNTER, $task_counter_id, 1, sub { });
-            $logger->error("Invalid task id $task_id provided");
+        };
+        if ($@) {
+            $logger->error($@);
         }
-        $redis->hincrby($PFQUEUE_COUNTER, $task_counter_id, -1, sub { });
-        $redis->del($task_id, sub { });
-        $redis->wait_all_responses();
+    } else {
+        $redis->hincrby($PFQUEUE_EXPIRED_COUNTER, $task_counter_id, 1);
+        $logger->error("Invalid task id $task_id provided");
     }
 }
 
