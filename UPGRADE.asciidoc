@@ -170,6 +170,13 @@ To upgrade the database schema, run the following command:
 
   mysql -u root -p pf -v < /usr/local/pf/db/upgrade-6.5.0-7.0.0.sql
 
+Redis Queue
+^^^^^^^^^^^
+
+Clear the redis queue to avoid old stale jobs from being processes.
+
+  redis-cli -p 6380 FLUSHALL
+
 Running 7.0+ in a cluster
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
