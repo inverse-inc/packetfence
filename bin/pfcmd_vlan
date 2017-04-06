@@ -74,7 +74,6 @@ This script allows to execute the following commands related to switches and VLA
 use strict;
 use warnings;
 
-use Net::MAC::Vendor;
 use Data::Dumper;
 use File::Basename qw(basename);
 use Getopt::Long;
@@ -90,6 +89,7 @@ use constant {
 };
 
 use lib INSTALL_DIR . '/lib';
+use Net::MAC::Vendor;
 use pf::db;
 use pf::constants;
 use pf::config qw(%connection_type_explained $UNKNOWN);
