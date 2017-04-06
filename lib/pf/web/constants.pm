@@ -104,7 +104,7 @@ Readonly::Scalar our $EXT_URL_RUCKUS                => '^/Ruckus';
 Readonly::Scalar our $EXT_URL_RUCKUS_SMARTZONE      => '^/RuckusSmartZone';
 Readonly::Scalar our $EXT_URL_XIRRUS                => '^/Xirrus';
 Readonly::Scalar our $EXT_URL_MIKROTIK              => '^/Mikrotik';
-Readonly::Scalar our $EXT_URL_FORTIGATE             => '^/Fortigate';
+Readonly::Scalar our $EXT_URL_FORTIGATE             => '^/Fortinet::FortiGate';
 
 # Provisioning engine
 Readonly::Scalar our $URL_WIRELESS_PROFILE => '/wireless-profile.mobileconfig';
