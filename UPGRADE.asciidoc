@@ -68,7 +68,7 @@ Once the additionnal steps are completed, restart packetfence-config and packetf
 Upgrading from a version prior to 7.0.0
 ---------------------------------------
 
-NOTE: You cannot upgrade from CentOS 6 or Debian Jessie to PacketFence 7.0 and above
+NOTE: You cannot upgrade from CentOS 6 or Debian Wheezy to PacketFence 7.0 and above
 
 MariaDB upgrade (CentOS + RHEL only)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
