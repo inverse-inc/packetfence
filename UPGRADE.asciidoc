@@ -70,6 +70,18 @@ Upgrading from a version prior to 7.0.0
 
 NOTE: You cannot upgrade from CentOS 6 or Debian Wheezy to PacketFence 7.0 and above
 
+Debian upgrade
+^^^^^^^^^^^^^^
+
+The requirement for MariaDB 10.1 means that a simple "apt upgrade" will not be enough.
+You will need to run either of the following two commands: 
+    apt full-upgrade
+or 
+    apt install packetfence
+
+Note that "full-upgrade" may also affect other packages you might have installed on the system.
+
+
 MariaDB upgrade (CentOS + RHEL only)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
