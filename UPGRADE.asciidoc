@@ -190,6 +190,12 @@ The easiest way to perform this is to build new servers and port your configurat
 There are ways to migrate the 2 existing nodes to a 3 nodes cluster but this is not covered in this guide.
 
 Note that you can safely keep your existing 2 node cluster with Corosync/Pacemaker in place and things will work like before.
+You will simply have to adjust your Corosync configuration so that MariaDB points to the packetfence-mariadb file instead of the mariadb unit.
+
+  primitive MariaDB systemd:packetfence-mariadb \
+          op start timeout=60s interval=0 \
+          op stop timeout=60s interval=0 \
+          op monitor interval=20s timeout=30s
 
 Active/Active clusters with external DB
 +++++++++++++++++++++++++++++++++++++++
