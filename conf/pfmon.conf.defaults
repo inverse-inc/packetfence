@@ -488,6 +488,28 @@ timeout=10s
 # How long to keep a radius_audit_log_cleanup entry before deleting it
 window=1D
 
+[queue_stats]
+#
+# type
+#
+# The type of task to perform
+type=queue_stats
+#
+# description
+#
+# The description of task to perform
+description=Task that controls the polling of pfqueue's stats (queue counts).
+#
+# status
+#
+# If the task violation_maintenance is enabled
+status=enabled
+#
+# interval
+#
+# At which interval to run the violation maintenance pfmon task
+interval=60s
+
 [violation_maintenance]
 #
 # type

@@ -1,5 +1,6 @@
 <div class="card">
   <h2 class="card-title">[% l('Queue') %]</h2>
+
 <div class="card-block">
   <table class="table table-condensed table-striped">
     <thead>
@@ -8,14 +9,25 @@
         <th>[% l('Queue') %]</th>
         <th width="30%">[% l('Count') %]</th>
       </tr>
+
     </thead>
+
     [% FOREACH counter IN queue_counts %]
       <tr>
         <td> [% counter.name %]</td>
         <td> [% counter.count %]</td>
       </tr>
     [% END %]
+    
   </table>
+
+  <div>
+    <h5>[% queue_counts_graph.description %]</h5>
+    <span style="float: left; width: [% queue_counts_graph.width %]px;">
+      <img src="[% queue_counts_graph.url %]" style="height: [% queue_counts_graph.height %]px; width: [% queue_counts_graph.width %]px;">
+    </span>
+  </div>
+
   [% IF counters && counters.size > 0 %]
   <table class="table table-condensed table-striped">
     <thead>
