@@ -25,14 +25,17 @@ our $LUA_INCR_RATE_LIMITER = <<LUA;
     end
 LUA
 
+our $RATE_LIMITER_PREFIX = "RateLimiter:";
+
 sub is_pass_limit {
     my ($key, $limit, $expire) = @_;
+    my $rkey = $RATE_LIMITER_PREFIX . $key;
     my $redis = get_redis();
-    my $count = $redis->get($key);
+    my $count = $redis->get($rkey);
     if (defined $count && $count >= $limit) {
         return 1;
     }
-    my $reply = $redis->evalsha($LUA_INCR_RATE_LIMITER_SHA1, 1, $key, $expire);
+    my $reply = $redis->evalsha($LUA_INCR_RATE_LIMITER_SHA1, 1, $rkey, $expire);
     return 0;
 }
 
