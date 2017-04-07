@@ -199,7 +199,7 @@ No changes to your clustering stack is required when using an external database.
 Active/Passive clusters
 +++++++++++++++++++++++
 
-CAUTION: You shouldn't be running active/passive clusters anymore. If you do, you're pretty much on your own for community support. Inverse provides professionnal services to help you maintain these clusters. If you intend to keep an active/passive cluster, we suggest you have deep knowledge of corosync/pacemaker and strong Linux skills.
+CAUTION: You shouldn't be running active/passive clusters anymore. If you do, you're pretty much on your own for community support. Inverse provides professionnal services to help you maintain these clusters. If you intend to keep an active/passive cluster, we suggest you have deep knowledge of Corosync/Pacemaker and strong Linux skills.
 
 First, no changes are required to your database stack as MariaDB supports being deployed in Active/Passive
 
@@ -209,7 +209,7 @@ Then, you must adjust the systemd default target so PacketFence doesn't start on
 
   # systemctl set-default multi-user.target
 
-You should then change your corosync configuration for MariaDB and PacketFence to the following:
+You should then change your Corosync configuration for MariaDB and PacketFence to the following:
 
 	primitive MariaDB systemd:packetfence-mariadb \
 	        op start timeout=60s interval=0 \
