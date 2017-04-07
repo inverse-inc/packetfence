@@ -11,6 +11,7 @@ StartLimitBurst=3
 StartLimitInterval=60
 PIDFile=/usr/local/pf/var/run/radiusd-eduroam.pid
 ExecStartPre=/usr/local/pf/bin/pfcmd service radiusd generateconfig
+ExecStartPre=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n eduroam -Cxm -lstdout
 ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n eduroam -fm 
 Restart=on-failure
 Slice=packetfence.slice

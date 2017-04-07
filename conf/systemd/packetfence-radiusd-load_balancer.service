@@ -11,6 +11,7 @@ StartLimitBurst=3
 StartLimitInterval=60
 PIDFile=/usr/local/pf/var/run/radiusd-load_balancer.pid
 ExecStartPre=/usr/local/pf/bin/pfcmd service radiusd generateconfig
+ExecStartPre=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n load_balancer -Cxm -lstdout
 ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n load_balancer -fm 
 Restart=on-failure
 Slice=packetfence.slice

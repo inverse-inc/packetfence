@@ -12,6 +12,7 @@ StartLimitBurst=3
 StartLimitInterval=60
 PIDFile=/usr/local/pf/var/run/radiusd-acct.pid
 ExecStartPre=/usr/local/pf/bin/pfcmd service radiusd generateconfig
+ExecStartPre=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n acct -Cxm -lstdout 
 ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n acct -fm 
 Restart=on-failure
 Slice=packetfence.slice
