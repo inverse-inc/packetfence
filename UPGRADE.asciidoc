@@ -199,11 +199,26 @@ No changes to your clustering stack is required when using an external database.
 Active/Passive clusters
 +++++++++++++++++++++++
 
-No changes are required to your database stack as MariaDB supports being deployed in Active/Passive
+CAUTION: You shouldn't be running active/passive clusters anymore. If you do, you're pretty much on your own for community support. Inverse provides professionnal services to help you maintain these clusters. If you intend to keep an active/passive cluster, we suggest you have deep knowledge of corosync/pacemaker and strong Linux skills.
 
-You will need to adjust the Corosync/Pacemaker configuration to take in consideration the changes made to systemd for PacketFence services (managed by a target instead of a service unit file)
+First, no changes are required to your database stack as MariaDB supports being deployed in Active/Passive
 
--- We need to write this section and figure out how to start the systemd target via pacemaker
+You will need to adjust the Corosync/Pacemaker configuration to take in consideration the changes made to systemd for PacketFence services. Before 7.0, PacketFence used to be controlled via a single systemd unit file while now it uses a multiple services grouped in targets. In order to mimic the single service behavior that was in previous versions, a unit file is provided here: https://github.com/inverse-inc/packetfence/blob/devel/packetfence-active-passive.service. You should install this file in `/etc/systemd/system/packetfence.service` and make sure there are no other leftovers of `packetfence.service` unit files on your system.
+
+Then, you must adjust the systemd default target so PacketFence doesn't start on boot and note that this should be done on every future upgrade of your system.
+
+  # systemctl set-default multi-user.target
+
+You should then change your corosync configuration for MariaDB and PacketFence to the following:
+
+	primitive MariaDB systemd:packetfence-mariadb \
+	        op start timeout=60s interval=0 \
+	        op stop timeout=60s interval=0 \
+	        op monitor interval=20s timeout=30s
+	primitive PacketFence systemd:packetfence \
+	        op start timeout=300s interval=0 \
+	        op stop timeout=300s interval=0 \
+	        op monitor interval=300s timeout=300s
 
 Upgrading from a version prior to 6.5.0
 ---------------------------------------
