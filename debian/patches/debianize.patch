@@ -1,8 +1,6 @@
-diff --git a/conf/mariadb/mariadb.conf.tt.example b/conf/mariadb/mariadb.conf.tt.example
-index f70bd6f..670ef55 100644
 --- a/conf/mariadb/mariadb.conf.tt.example
 +++ b/conf/mariadb/mariadb.conf.tt.example
-@@ -18,7 +18,7 @@ skip-networking
+@@ -18,7 +18,7 @@
  bind-address=
  [% END %]
  port    = 3306
@@ -11,11 +9,9 @@ index f70bd6f..670ef55 100644
  skip-external-locking
  key_buffer_size = [% key_buffer_size %]M
  max_allowed_packet = [% max_allowed_packet %]M
-diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-index 894ecc3..0e1eff8 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
-@@ -349,7 +349,7 @@ radiusd=enabled
+@@ -349,7 +349,7 @@
  # services.radiusd_binary
  # 
  # Location of the named binary. Only necessary to change if you are not running the RPMed version.
@@ -24,7 +20,7 @@ index 894ecc3..0e1eff8 100644
  #
  # services.iptables
  #
-@@ -414,7 +414,7 @@ httpd_graphite=enabled
+@@ -414,7 +414,7 @@
  # services.httpd_binary
  #
  # Location of the apache binary. Only necessary to change if you are not running the RPMed version.
@@ -33,7 +29,7 @@ index 894ecc3..0e1eff8 100644
  #
  # services.pfsetvlan
  #
-@@ -526,7 +526,7 @@ statsd=enabled
+@@ -526,7 +526,7 @@
  # services.statsd_binary
  # 
  # Location of the statsd (node) binary. Only necessary to change if you are not running the pre-packaged version.
@@ -42,7 +38,7 @@ index 894ecc3..0e1eff8 100644
  #
  # services.radsniff
  #
-@@ -546,7 +546,7 @@ p0f=enabled
+@@ -546,7 +546,7 @@
  # services.p0f_binary
  # 
  # Location of the p0f binary. Only necessary to change if you are not running the pre-packaged version.
@@ -51,7 +47,7 @@ index 894ecc3..0e1eff8 100644
  #
  # services.openssl_binary
  #
-@@ -556,7 +556,7 @@ openssl_binary=/usr/bin/openssl
+@@ -556,7 +556,7 @@
  # services.arp_binary
  # 
  # location of the arp binary. only necessary to change if you are not running the rpmed version.
@@ -60,11 +56,9 @@ index 894ecc3..0e1eff8 100644
  
  #
  # services.routes
-diff --git a/conf/systemd/packetfence-dhcpd.service b/conf/systemd/packetfence-dhcpd.service
-index b9fdb51..030c89e 100644
 --- a/conf/systemd/packetfence-dhcpd.service
 +++ b/conf/systemd/packetfence-dhcpd.service
-@@ -11,7 +11,7 @@ StartLimitInterval=60
+@@ -11,7 +11,7 @@
  Type=notify
  PIDFile=/usr/local/pf/var/run/dhcpd.pid
  ExecStartPre=/usr/local/pf/bin/pfcmd service dhcpd generateconfig
@@ -73,11 +67,9 @@ index b9fdb51..030c89e 100644
  ExecStart=/usr/sbin/dhcpd -pf /usr/local/pf/var/run/dhcpd.pid -f -lf /usr/local/pf/var/dhcpd/dhcpd.leases -cf /usr/local/pf/var/conf/dhcpd.conf 
  Restart=on-failure
  Slice=packetfence.slice
-diff --git a/conf/systemd/packetfence-httpd.aaa.service b/conf/systemd/packetfence-httpd.aaa.service
-index 48561ce..8639df9 100644
 --- a/conf/systemd/packetfence-httpd.aaa.service
 +++ b/conf/systemd/packetfence-httpd.aaa.service
-@@ -12,7 +12,7 @@ StartLimitInterval=60
+@@ -12,7 +12,7 @@
  Type=simple
  PIDFile=/usr/local/pf/var/run/httpd.aaa.pid
  ExecStartPre=/usr/local/pf/bin/pfcmd service httpd.aaa generateconfig
@@ -86,11 +78,9 @@ index 48561ce..8639df9 100644
  ExecReload=/bin/kill -USR1 ${MAINPID}
  ExecStop=/bin/kill -WINCH ${MAINPID}
  # We want systemd to give httpd some time to finish gracefully, but still want
-diff --git a/conf/systemd/packetfence-httpd.admin.service b/conf/systemd/packetfence-httpd.admin.service
-index 421ef73..25ea9ea 100644
 --- a/conf/systemd/packetfence-httpd.admin.service
 +++ b/conf/systemd/packetfence-httpd.admin.service
-@@ -12,7 +12,7 @@ Type=simple
+@@ -12,7 +12,7 @@
  PIDFile=/usr/local/pf/var/run/httpd.admin.pid
  Environment=X_PORTAL=default
  ExecStartPre=/usr/local/pf/bin/pfcmd service httpd.admin generateconfig
@@ -99,11 +89,9 @@ index 421ef73..25ea9ea 100644
  ExecReload=/bin/kill -USR1 ${MAINPID}
  ExecStop=/bin/kill -WINCH ${MAINPID}
  # We want systemd to give httpd some time to finish gracefully, but still want
-diff --git a/conf/systemd/packetfence-httpd.collector.service b/conf/systemd/packetfence-httpd.collector.service
-index 2951a9d..54e0e06 100644
 --- a/conf/systemd/packetfence-httpd.collector.service
 +++ b/conf/systemd/packetfence-httpd.collector.service
-@@ -11,7 +11,7 @@ StartLimitInterval=60
+@@ -11,7 +11,7 @@
  Type=simple
  PIDFile=/usr/local/pf/var/run/httpd.collector.pid
  ExecStartPre=/usr/local/pf/bin/pfcmd service httpd.collector generateconfig
@@ -112,11 +100,9 @@ index 2951a9d..54e0e06 100644
  ExecReload=/bin/kill -USR1 ${MAINPID}
  ExecStop=/bin/kill -WINCH ${MAINPID}
  # We want systemd to give httpd some time to finish gracefully, but still want
-diff --git a/conf/systemd/packetfence-httpd.graphite.service b/conf/systemd/packetfence-httpd.graphite.service
-index eac9c8b..7f87533 100644
 --- a/conf/systemd/packetfence-httpd.graphite.service
 +++ b/conf/systemd/packetfence-httpd.graphite.service
-@@ -11,7 +11,7 @@ StartLimitInterval=60
+@@ -11,7 +11,7 @@
  Type=simple
  PIDFile=/usr/local/pf/var/run/httpd.graphite.pid
  ExecStartPre=/usr/local/pf/bin/pfcmd service httpd.graphite generateconfig
@@ -125,11 +111,9 @@ index eac9c8b..7f87533 100644
  ExecReload=/bin/kill -USR1 ${MAINPID}
  ExecStop=/bin/kill -WINCH ${MAINPID}
  # We want systemd to give httpd some time to finish gracefully, but still want
-diff --git a/conf/systemd/packetfence-httpd.parking.service b/conf/systemd/packetfence-httpd.parking.service
-index 00b21e2..4953797 100644
 --- a/conf/systemd/packetfence-httpd.parking.service
 +++ b/conf/systemd/packetfence-httpd.parking.service
-@@ -10,7 +10,7 @@ StartLimitBurst=3
+@@ -10,7 +10,7 @@
  StartLimitInterval=60
  Type=simple
  ExecStartPre=/usr/local/pf/bin/pfcmd service httpd.parking generateconfig
@@ -138,11 +122,9 @@ index 00b21e2..4953797 100644
  ExecReload=/bin/kill -USR1 ${MAINPID}
  ExecStop=/bin/kill -WINCH ${MAINPID}
  # We want systemd to give httpd some time to finish gracefully, but still want
-diff --git a/conf/systemd/packetfence-httpd.portal.service b/conf/systemd/packetfence-httpd.portal.service
-index bcd8b39..7e5e439 100644
 --- a/conf/systemd/packetfence-httpd.portal.service
 +++ b/conf/systemd/packetfence-httpd.portal.service
-@@ -11,7 +11,7 @@ StartLimitInterval=60
+@@ -11,7 +11,7 @@
  Type=simple
  PIDFile=/usr/local/pf/var/run/httpd.portal.pid
  ExecStartPre=/usr/local/pf/bin/pfcmd service httpd.portal generateconfig
@@ -151,11 +133,9 @@ index bcd8b39..7e5e439 100644
  ExecReload=/bin/kill -USR1 ${MAINPID}
  ExecStop=/bin/kill -WINCH ${MAINPID}
  # We want systemd to give httpd some time to finish gracefully, but still want
-diff --git a/conf/systemd/packetfence-httpd.proxy.service b/conf/systemd/packetfence-httpd.proxy.service
-index 0c23cc9..39946d2 100644
 --- a/conf/systemd/packetfence-httpd.proxy.service
 +++ b/conf/systemd/packetfence-httpd.proxy.service
-@@ -11,7 +11,7 @@ StartLimitInterval=60
+@@ -11,7 +11,7 @@
  Type=simple
  PIDFile=/usr/local/pf/var/run/httpd.proxy.pid
  ExecStartPre=/usr/local/pf/bin/pfcmd service httpd.proxy generateconfig
@@ -164,11 +144,9 @@ index 0c23cc9..39946d2 100644
  ExecReload=/bin/kill -USR1 ${MAINPID}
  ExecStop=/bin/kill -WINCH ${MAINPID}
  # We want systemd to give httpd some time to finish gracefully, but still want
-diff --git a/conf/systemd/packetfence-httpd.webservices.service b/conf/systemd/packetfence-httpd.webservices.service
-index ed57858..c043d78 100644
 --- a/conf/systemd/packetfence-httpd.webservices.service
 +++ b/conf/systemd/packetfence-httpd.webservices.service
-@@ -11,7 +11,7 @@ StartLimitInterval=60
+@@ -11,7 +11,7 @@
  Type=simple
  PIDFile=/usr/local/pf/var/run/httpd.webservices.pid
  ExecStartPre=/usr/local/pf/bin/pfcmd service httpd.webservices generateconfig
@@ -177,11 +155,9 @@ index ed57858..c043d78 100644
  ExecReload=/bin/kill -USR1 ${MAINPID}
  ExecStop=/bin/kill -WINCH ${MAINPID}
  # We want systemd to give httpd some time to finish gracefully, but still want
-diff --git a/conf/systemd/packetfence-iptables.service b/conf/systemd/packetfence-iptables.service
-index 0675726..0e21952 100644
 --- a/conf/systemd/packetfence-iptables.service
 +++ b/conf/systemd/packetfence-iptables.service
-@@ -7,8 +7,8 @@ StartLimitBurst=3
+@@ -7,8 +7,8 @@
  StartLimitInterval=60
  Type=oneshot
  RemainAfterExit=yes
@@ -192,76 +168,70 @@ index 0675726..0e21952 100644
  Slice=packetfence.slice
  
  [Install]
-diff --git a/conf/systemd/packetfence-radiusd-acct.service b/conf/systemd/packetfence-radiusd-acct.service
-index 5361cf1..4948bea 100644
 --- a/conf/systemd/packetfence-radiusd-acct.service
 +++ b/conf/systemd/packetfence-radiusd-acct.service
-@@ -12,7 +12,7 @@ StartLimitBurst=3
+@@ -12,7 +12,8 @@
  StartLimitInterval=60
  PIDFile=/usr/local/pf/var/run/radiusd-acct.pid
  ExecStartPre=/usr/local/pf/bin/pfcmd service radiusd generateconfig
 -ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n acct -fm 
++ExecStartPre=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n acct -Cxm -lstdout
 +ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n acct -fm 
  Restart=on-failure
  Slice=packetfence.slice
  
-diff --git a/conf/systemd/packetfence-radiusd-auth.service b/conf/systemd/packetfence-radiusd-auth.service
-index a124d7e..d8cd58f 100644
 --- a/conf/systemd/packetfence-radiusd-auth.service
 +++ b/conf/systemd/packetfence-radiusd-auth.service
-@@ -11,7 +11,7 @@ StartLimitBurst=3
+@@ -11,7 +11,8 @@
  StartLimitInterval=60
  PIDFile=/usr/local/pf/var/run/radiusd-auth.pid
  ExecStartPre=/usr/local/pf/bin/pfcmd service radiusd generateconfig
 -ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n auth -fm 
++ExecStartPre=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n auth -Cxm -lstdout
 +ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n auth -fm 
  Restart=on-failure
  Slice=packetfence.slice
  
-diff --git a/conf/systemd/packetfence-radiusd-cli.service b/conf/systemd/packetfence-radiusd-cli.service
-index ae84a07..92c558b 100644
 --- a/conf/systemd/packetfence-radiusd-cli.service
 +++ b/conf/systemd/packetfence-radiusd-cli.service
-@@ -11,7 +11,7 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
+@@ -11,8 +11,9 @@
  StartLimitBurst=3
  StartLimitInterval=60
  PIDFile=/usr/local/pf/var/run/radiusd-cli.pid
 -ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n cli -fm 
-+ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n cli -fm 
  ExecStartPre=/usr/local/pf/bin/pfcmd service radiusd generateconfig
++ExecStartPre=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n cli -Cxm -lstdout
++ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n cli -fm 
  Restart=on-failure
  Slice=packetfence.slice
-diff --git a/conf/systemd/packetfence-radiusd-eduroam.service b/conf/systemd/packetfence-radiusd-eduroam.service
-index f3a6db7..d0fb24d 100644
+ 
 --- a/conf/systemd/packetfence-radiusd-eduroam.service
 +++ b/conf/systemd/packetfence-radiusd-eduroam.service
-@@ -11,7 +11,7 @@ StartLimitBurst=3
+@@ -11,7 +11,8 @@
  StartLimitInterval=60
  PIDFile=/usr/local/pf/var/run/radiusd-eduroam.pid
  ExecStartPre=/usr/local/pf/bin/pfcmd service radiusd generateconfig
 -ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n eduroam -fm 
++ExecStartPre=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n eduroam -Cxm -lstdout
 +ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n eduroam -fm 
  Restart=on-failure
  Slice=packetfence.slice
  
-diff --git a/conf/systemd/packetfence-radiusd-load_balancer.service b/conf/systemd/packetfence-radiusd-load_balancer.service
-index 314b1d1..9709fa2 100644
 --- a/conf/systemd/packetfence-radiusd-load_balancer.service
 +++ b/conf/systemd/packetfence-radiusd-load_balancer.service
-@@ -11,7 +11,7 @@ StartLimitBurst=3
+@@ -11,7 +11,8 @@
  StartLimitInterval=60
  PIDFile=/usr/local/pf/var/run/radiusd-load_balancer.pid
  ExecStartPre=/usr/local/pf/bin/pfcmd service radiusd generateconfig
 -ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n load_balancer -fm 
++ExecStartPre=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n load_balancer -Cxm -lstdout
 +ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n load_balancer -fm 
  Restart=on-failure
  Slice=packetfence.slice
  
-diff --git a/conf/systemd/packetfence-routes.service b/conf/systemd/packetfence-routes.service
-index 5bc3736..f0c7fc4 100644
 --- a/conf/systemd/packetfence-routes.service
 +++ b/conf/systemd/packetfence-routes.service
-@@ -8,8 +8,8 @@ StartLimitBurst=3
+@@ -8,8 +8,8 @@
  StartLimitInterval=60
  Type=oneshot
  RemainAfterExit=yes
@@ -272,11 +242,9 @@ index 5bc3736..f0c7fc4 100644
  Slice=packetfence-base.slice
  
  [Install]
-diff --git a/conf/systemd/packetfence-statsd.service b/conf/systemd/packetfence-statsd.service
-index 517d38f..4521aec 100644
 --- a/conf/systemd/packetfence-statsd.service
 +++ b/conf/systemd/packetfence-statsd.service
-@@ -9,7 +9,7 @@ StartLimitInterval=60
+@@ -9,7 +9,7 @@
  Type=simple
  PIDFile=/usr/local/pf/var/run/statsd.pid
  ExecStartPre=/usr/local/pf/bin/pfcmd service statsd generateconfig
