@@ -330,7 +330,9 @@ sub wait_for_it {
         $logger->trace("Starting tasks");
         run_tasks();
         $logger->trace("Finish tasks");
-        pause;
+        if (@REGISTERED_TASKS == 0) {
+            pause;
+        }
         $logger->trace("Woke up from a signal");
     }
     $logger->trace("Signaled to stop running");
