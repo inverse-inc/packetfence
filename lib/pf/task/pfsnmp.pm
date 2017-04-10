@@ -34,8 +34,8 @@ use pf::node;
 use pf::util;
 use pf::config::util;
 use pf::Connection::ProfileFactory;
-use Cache::FileCache;
 use pf::pfqueue::producer::redis;
+use pf::Redis;
 use pf::rate_limiter;
 
 my %switch_locker;
@@ -90,17 +90,11 @@ sub doTask {
         return;
     }
 
-    my $lock = $switch->getExclusiveLockForScope("ifindex:" . $trap->{trapIfIndex}, 1);
+    my $lock = $self->lockSwitch($switch, $trap, $args);
 
     unless ($lock) {
-        # If IfIndex switch combo is being worked on requeue trap
-        # This logic does not handle the case were a pending up trap
-        # Can be cancelled by an incoming down trap
-        # If there is an issue with timing we could change it to be
-        # placed into a delayed queue
-        my $client = pf::pfqueue::producer::redis->new();
-        $client->submit("pfsnmp", "pfsnmp", $args);
-        $logger->debug("requeuing trap for $switch_id : $trap->{trapIfIndex}");
+        $logger->debug("cannot get a lock on the switch $switch_id");
+        return;
     }
     return $self->handleTrap($switch, $trap);
 }
@@ -129,7 +123,7 @@ sub handleTrap {
     Log::Log4perl::MDC->put('mac', $trapMac);
     if ( defined($trapMac) && $switch->isFakeMac($trapMac) ) {
         $logger->info("MAC $trapMac is a fake MAC. Stop $trapType handling");
-        return;
+        goto CLEANUP;
     }
 
     my $role_obj = new pf::role::custom();
@@ -137,12 +131,12 @@ sub handleTrap {
     my $weActOnThisTrap = $role_obj->doWeActOnThisTrap($switch, $switch_port, $trapType);
     if ($weActOnThisTrap == 0 ) {
         $logger->info("doWeActOnThisTrap returns false. Stop $trapType handling");
-        return;
+        goto CLEANUP;
     }
 
     unless (exists $TRAP_HANDLERS{$trapType}) {
         $logger->error("There is no handling for $trapType");
-        return;
+        goto CLEANUP;
     }
 
     eval {
@@ -151,6 +145,9 @@ sub handleTrap {
     if($@) {
         $logger->error("Error occured while handling trap : $@");
     }
+
+CLEANUP:
+    removeKillSignal($switch, $trap);
     $switch->disconnectRead();
     $switch->disconnectWrite();
     return;
@@ -220,9 +217,15 @@ sub handleUpTrap {
     my @macArray = ();
     my $secureMacAddrHashRef;
     my $nbAttempts = 0;
-
+    my $killKey = makeKillKey($switch, $trap);
+    my $redis = pf::Redis->new;
     do {
         sleep( $switch->{_macSearchesSleepInterval} ) unless ( $nbAttempts == 0 );
+        my $kill = $redis->get($killKey);
+        if (defined $kill && $kill == 1) {
+            $logger->info("Up trap processing stopped because we recieved the kill signal for $switch_id $switch_port");
+            return;
+        }
         @macArray = $switch->_getMacAtIfIndex($switch_port);
         $nbAttempts++;
     } while(($nbAttempts < $switch->{_macSearchesMaxNb}) && ((time-$start) < 120) && (scalar(@macArray) == 0));
@@ -892,6 +895,70 @@ sub performTrapLimiting {
     return $TRUE;
 }
 
+=head2 lockSwitch
+
+lockSwitch
+
+=cut
+
+sub lockSwitch {
+    my ($self, $switch, $trap, $args) = @_;
+    my $lock = $switch->getExclusiveLockForScope("ifindex:" . $trap->{trapIfIndex}, 1);
+    unless ($lock) {
+        # If IfIndex switch combo is being worked on requeue trap
+        # This logic does not handle the case were a current up trap
+        # Can be cancelled by an incoming down trap
+        # If there is an issue with timing we could change it to be
+        # placed into a delayed queue
+        $self->requeueTrap($args);
+        if ($trap->{trapType} eq 'down') {
+            my $redis = pf::Redis->new;
+            my $key = makeKillKey($switch, $trap);
+            $redis->set($key, 1);
+        }
+    }
+    return $lock;
+}
+
+=head2 makeKillKey
+
+makeKillKey
+
+=cut
+
+sub makeKillKey {
+    my ($switch, $trap) = @_;
+    my $key = "Kill:$switch->{_id}:$trap->{trapIfIndex}:";
+    return $key;
+}
+
+=head2 removeKillSignal
+
+removeKillSignal
+
+=cut
+
+sub removeKillSignal {
+    my ($switch, $trap) = @_;
+    my $redis = pf::Redis->new();
+    my $killKey = makeKillKey($switch, $trap);
+    $redis->del($killKey);
+    return ;
+}
+
+=head2 requeueTrap
+
+requeueTrap
+
+=cut
+
+sub requeueTrap {
+    my ($self, $args) = @_;
+    my $client = pf::pfqueue::producer::redis->new();
+    $client->submit("pfsnmp", "pfsnmp", $args);
+    $logger->debug("requeuing trap for $switch->{_id} : $trap->{trapIfIndex}");
+    return ;
+}
 
 =head1 AUTHOR
 
