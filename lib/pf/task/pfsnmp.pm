@@ -911,6 +911,7 @@ sub lockSwitch {
         # If there is an issue with timing we could change it to be
         # placed into a delayed queue
         $self->requeueTrap($args);
+        $logger->debug("requeuing trap for $switch->{_id} : $trap->{trapIfIndex}");
         if ($trap->{trapType} eq 'down') {
             my $redis = pf::Redis->new;
             my $key = makeKillKey($switch, $trap);
@@ -956,7 +957,6 @@ sub requeueTrap {
     my ($self, $args) = @_;
     my $client = pf::pfqueue::producer::redis->new();
     $client->submit("pfsnmp", "pfsnmp", $args);
-    $logger->debug("requeuing trap for $switch->{_id} : $trap->{trapIfIndex}");
     return ;
 }
 
