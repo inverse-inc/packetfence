@@ -41,7 +41,7 @@ sub _cmdLine {
         }
         my @tmp_bpf_filter = map {"not ( host $_ and port 7788 )"} @ha_ips;
         my $p0f_bpf_filter = join( " and ", @tmp_bpf_filter );
-        $p0f_cmdline = $self->executable . " -i any -p -f $p0f_map -s $p0f_sock  $p0f_bpf_filter ";
+        $p0f_cmdline = $self->executable . " -i any -p -f $p0f_map -s $p0f_sock  '$p0f_bpf_filter' ";
     }
     else {
         $p0f_cmdline = $self->executable . " -i any -p -f $p0f_map -s $p0f_sock ";
