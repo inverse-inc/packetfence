@@ -85,7 +85,13 @@ sub doTask {
         return;
     }
 
+    if ($self->performTrapLimiting($switch, $trap->{trapIfIndex})) {
+        $logger->debug("too many traps for $switch_id");
+        return;
+    }
+
     my $lock = $switch->getExclusiveLockForScope("ifindex:" . $trap->{trapIfIndex}, 1);
+
     unless ($lock) {
         # If IfIndex switch combo is being worked on requeue trap
         # This logic does not handle the case were a pending up trap
@@ -838,12 +844,12 @@ sub node_determine_and_set_into_VLAN {
     );
 }
 
-# sub perform_trap_limiting {{{1
-sub perform_trap_limiting {
+# sub performTrapLimiting {{{1
+sub performTrapLimiting {
     # skipping if feature is disabled
     return $FALSE if (isdisabled($Config{'snmp_traps'}{'trap_limit'}));
 
-    my ( $switch, $switchIfIndex ) = @_;
+    my ($self, $switch, $switchIfIndex) = @_;
     # skipping if trapIfIndex is undef or empty
     return $FALSE if (!defined($switchIfIndex) || $switchIfIndex eq '');
 
