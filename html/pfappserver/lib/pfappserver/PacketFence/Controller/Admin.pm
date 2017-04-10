@@ -110,13 +110,16 @@ sub login :Local :Args(0) {
                     # Don't send a standard 302 redirect code; return the redirection URL in the JSON payload
                     # and perform the redirection on the client side
                     $c->response->status(HTTP_ACCEPTED);
+                    my $uri;
                     if ($challenge) {
-                        $c->stash->{success} = $c->uri_for($self->action_for('challenge'))->as_string;
+                        $uri = $c->uri_for($self->action_for('challenge'))->as_string;
                     } elsif ($req->params->{'redirect_url'}) {
-                        $c->stash->{success} = $req->params->{'redirect_url'};
-                    } else {
-                        $c->stash->{success} = $c->uri_for($self->action_for('index'))->as_string;
+                        $uri = $req->params->{'redirect_url'};
                     }
+                    if (!defined $uri || $uri !~ /^http/i) {
+                        $uri = $c->uri_for($self->action_for('index'))->as_string;
+                    }
+                    $c->stash->{success} = $uri;
                 } else {
                     $c->response->status(HTTP_UNAUTHORIZED);
                     $c->stash->{status_msg} = $c->loc("You don't have the rights to perform this action.");
