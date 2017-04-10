@@ -1,7 +1,7 @@
 package firewallsso
 
 import (
-	"github.com/fingerbank/processor/sharedutils"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"testing"
 )
 

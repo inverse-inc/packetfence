@@ -3,7 +3,7 @@ package caddystatsd
 import (
 	"context"
 	"fmt"
-	"github.com/fingerbank/processor/statsd"
+	"github.com/inverse-inc/packetfence/go/statsd"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
 	_statsd "gopkg.in/alexcesaro/statsd.v2"

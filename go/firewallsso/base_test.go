@@ -2,7 +2,7 @@ package firewallsso
 
 import (
 	"context"
-	"github.com/fingerbank/processor/log"
+	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/util"
 	"testing"

@@ -51,30 +51,6 @@
 			"revisionTime": "2017-01-10T07:11:07Z"
 		},
 		{
-			"checksumSHA1": "OJQzKm2ltgYJMwE1zTchVVYt5bc=",
-			"path": "github.com/fingerbank/processor/log",
-			"revision": "45480a6fc353ea30f06ecc5456d7bfd7a43406a9",
-			"revisionTime": "2017-02-23T12:45:34Z"
-		},
-		{
-			"checksumSHA1": "URR5kTIbZ1ZRGkJBidR3tAcEm94=",
-			"path": "github.com/fingerbank/processor/requesthistory",
-			"revision": "45480a6fc353ea30f06ecc5456d7bfd7a43406a9",
-			"revisionTime": "2017-02-23T12:45:34Z"
-		},
-		{
-			"checksumSHA1": "YNyW9rOf7PWUr4Mh4P0/xUKEn/8=",
-			"path": "github.com/fingerbank/processor/sharedutils",
-			"revision": "45480a6fc353ea30f06ecc5456d7bfd7a43406a9",
-			"revisionTime": "2017-02-23T12:45:34Z"
-		},
-		{
-			"checksumSHA1": "eQ6f14nO0LUNcKG5QOgbHIHwvSg=",
-			"path": "github.com/fingerbank/processor/statsd",
-			"revision": "45480a6fc353ea30f06ecc5456d7bfd7a43406a9",
-			"revisionTime": "2017-02-23T12:45:34Z"
-		},
-		{
 			"checksumSHA1": "VdXZPcDRHK1T7XjBu2KW8Mb8S6w=",
 			"path": "github.com/flynn/go-shlex",
 			"revision": "3f9db97f856818214da2e1057f8ad84803971cff",

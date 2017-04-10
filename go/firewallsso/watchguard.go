@@ -3,8 +3,8 @@ package firewallsso
 import (
 	"context"
 	"fmt"
-	"github.com/fingerbank/processor/log"
-	"github.com/fingerbank/processor/sharedutils"
+	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"layeh.com/radius"
 	"net"
 )

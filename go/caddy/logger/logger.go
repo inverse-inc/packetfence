@@ -3,9 +3,9 @@ package caddylog
 import (
 	"context"
 	"fmt"
-	"github.com/fingerbank/processor/log"
-	"github.com/fingerbank/processor/requesthistory"
-	"github.com/fingerbank/processor/sharedutils"
+	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/packetfence/go/requesthistory"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"github.com/inconshreveable/log15"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"

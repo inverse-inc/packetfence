@@ -2,7 +2,7 @@ package firewallsso
 
 import (
 	"context"
-	"github.com/fingerbank/processor/log"
+	"github.com/inverse-inc/packetfence/go/log"
 )
 
 // A mock FW for use in unit tests

@@ -2,7 +2,7 @@ package pfconfigdriver
 
 import (
 	"context"
-	"github.com/fingerbank/processor/log"
+	"github.com/inverse-inc/packetfence/go/log"
 	"reflect"
 	"sync"
 	"time"
