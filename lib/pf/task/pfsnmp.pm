@@ -827,16 +827,13 @@ lockSwitch
 =cut
 
 sub lockSwitch {
-    my ($self, $switch, $trap, $args) = @_;
+    my ($self, $switch, $trap) = @_;
     my $lock = $switch->getExclusiveLockForScope("ifindex:" . $trap->{trapIfIndex}, 1);
     unless ($lock) {
         # If IfIndex switch combo is being worked on requeue trap
-        # This logic does not handle the case were a current up trap
-        # Can be cancelled by an incoming down trap
-        # If there is an issue with timing we could change it to be
-        # placed into a delayed queue
-        $self->requeueTrap($args);
+        $self->requeueTrap($trap);
         $logger->debug("requeuing trap for $switch->{_id} : $trap->{trapIfIndex}");
+        # If there is a down trap coming in then signal the up trap to stop
         if ($trap->{trapType} eq 'down') {
             my $redis = pf::Redis->new;
             my $key = makeKillKey($switch, $trap);
@@ -854,7 +851,7 @@ makeKillKey
 
 sub makeKillKey {
     my ($switch, $trap) = @_;
-    my $key = "Kill:$switch->{_id}:$trap->{trapIfIndex}:";
+    my $key = "Kill:$switch->{_id}:$trap->{trapIfIndex}";
     return $key;
 }
 
