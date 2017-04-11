@@ -8,6 +8,8 @@ rm -f \
         work/vagrant_private_key \
         work/Vagrantfile
 
+rm -f PacketFence-ZEN.ova
+
 vagrant destroy -f
 
 vagrant up
