@@ -15,6 +15,7 @@ pf::task::pfsnmp_parsing
 use strict;
 use warnings;
 use pf::log;
+use pf::Redis;
 use pf::SwitchFactory;
 use pf::Switch::constants;
 use pf::pfqueue::producer::redis;
@@ -24,6 +25,8 @@ use pf::config::util;
 use pf::constants qw($TRUE $FALSE);
 use pf::util;
 use pf::config qw(%Config);
+use pf::util::pfqueue qw(task_counter_id consumer_redis_client);
+use pf::constants::pfqueue qw($PFQUEUE_COUNTER);
 
 =head2 doTask
 
@@ -99,6 +102,12 @@ sub ignoreTrap {
     my $type = $trap->{trapType};
     if ($type eq 'secureMacAddrViolation') {
         if (!$switch->isPortSecurityEnabled($trap->{trapIfIndex})) {
+            return 1;
+        }
+        my $counter_id = task_counter_id("pfsnmp", "pfsnmp", $trap);
+        my $redis = consumer_redis_client();
+        my $count = $redis->hget($PFQUEUE_COUNTER, $counter_id);
+        if (defined $count && $count > 0) {
             return 1;
         }
     } elsif ($type eq 'mac') {
