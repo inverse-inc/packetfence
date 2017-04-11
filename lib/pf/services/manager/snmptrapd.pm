@@ -16,7 +16,7 @@ use warnings;
 use Moo;
 use pf::cluster;
 use pf::constants;
-use pf::config qw($management_network);
+use pf::config qw($management_network %Config);
 use pf::file_paths qw(
     $install_dir
     $generated_conf_dir
@@ -67,9 +67,13 @@ sub generateConfig {
     $tags{'authLines'} = '';
     $tags{'userLines'} = '';
     $tags{'snmpTrapdAddr'} = '';
+    $tags{'perlaction'} = '';
     my $management_ip = getManagementIp();
     if ($management_ip) {
         $tags{'snmpTrapdAddr'} = "snmpTrapdAddr $management_ip";
+    }
+    if (isdisabled($Config{services}{pfsetvlan})) {
+        $tags{perlaction} = "perl do \"/usr/local/pf/lib/pf/snmptrapd.pm\";\n";
     }
 
     foreach my $user_key ( sort keys %$snmpv3_users ) {
