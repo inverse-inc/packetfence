@@ -50,9 +50,8 @@ my $logger = get_logger();
 
 sub doTask {
     my $timer = pf::StatsD::Timer->new;
-    my ($self, $args) = @_;
-    my ($trapInfo, $variables) = @$args;
-    my $switch_id = $trapInfo->{switchIp};
+    my ($self, $trap) = @_;
+    my $switch_id = $trap->{switchId};
     unless (defined $switch_id) {
         $logger->error("No switch found in trap");
         return;
@@ -64,33 +63,7 @@ sub doTask {
         return;
     }
 
-    my $trap = $switch->normalizeTrap($args);
-    unless ($trap) {
-        $logger->error("Unable to normalize trap sent from $switch_id ");
-        return;
-    }
-    
-    # Set default values
-    for my $key (qw(trapVlan trapOperation trapMac trapSSID trapClientUserName trapIfIndex trapConnectionType)) {
-        $trap->{$key} //= '';
-    }
-
-    unless ($switch->handleTrap($trap)) {
-        $logger->error("Skipping general trap handling for $switch_id");
-        return;
-    }
-
-    if ($trap->{trapType} eq 'unknown') {
-        $logger->debug("ignoring unknown trap for $switch_id");
-        return;
-    }
-
-    if ($self->performTrapLimiting($switch, $trap->{trapIfIndex})) {
-        $logger->debug("too many traps for $switch_id");
-        return;
-    }
-
-    my $lock = $self->lockSwitch($switch, $trap, $args);
+    my $lock = $self->lockSwitch($switch, $trap);
 
     unless ($lock) {
         $logger->debug("cannot get a lock on the switch $switch_id");
@@ -845,54 +818,6 @@ sub node_determine_and_set_into_VLAN {
         \%switch_locker,
         $mac
     );
-}
-
-# sub performTrapLimiting {{{1
-sub performTrapLimiting {
-    # skipping if feature is disabled
-    return $FALSE if (isdisabled($Config{'snmp_traps'}{'trap_limit'}));
-
-    my ($self, $switch, $switchIfIndex) = @_;
-    # skipping if trapIfIndex is undef or empty
-    return $FALSE if (!defined($switchIfIndex) || $switchIfIndex eq '');
-
-    my $trapsLimitAction = $Config{'snmp_traps'}{'trap_limit_action'};
-
-    # if there's no action configured then let's continue parsing the trap
-    return $FALSE if ( isempty($trapsLimitAction) );
-
-    # Poking tied config files here instead of declaring them globally is arguably discutable on terms of performances
-    my $trapsLimitThreshold = $Config{'snmp_traps'}{'trap_limit_threshold'};
-
-    my $switchId = $switch->{_id};
-
-    return $FALSE unless pf::rate_limiter::is_pass_limit("trap.${switchId}.${switchIfIndex}", $trapsLimitThreshold, 60);
-
-    if ( is_in_list('email', $trapsLimitAction) || is_in_list('shut', $trapsLimitAction) ) {
-        my %email;
-
-        $email{'subject'} = "Too many traps coming from switch $switchId";
-        $email{'message'} = "Too many SNMP traps were received from a switchport according to the threshold.\n\n";
-        $email{'message'} .= "Switch: $switchId\n";
-        $email{'message'} .= "ifIndex: $switchIfIndex\n";
-        $email{'message'} .= "Threshold: maximum $trapsLimitThreshold SNMP traps per 1 minute.\n";
-
-        if ( is_in_list('shut', $trapsLimitAction) ) {
-            $email{'message'} .= "Action: PacketFence SHUTTED THE PORT";
-            $switch->setAdminStatus($switchIfIndex, $SNMP::DOWN);
-        }
-        #Send an alert only once every hour
-        unless (pf::rate_limiter::is_pass_limit("trapemail.${switchId}.${switchIfIndex}", 1 , 3600 )) {
-            pfmailer(%email);
-        }
-    }
-
-    $logger->warn(
-        "We received many traps (over $trapsLimitThreshold) in a minute "
-        . "from ifIndex $switchIfIndex of switch $switch->{_id}"
-    );
-
-    return $TRUE;
 }
 
 =head2 lockSwitch
