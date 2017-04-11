@@ -168,67 +168,6 @@
  Slice=packetfence.slice
  
  [Install]
---- a/conf/systemd/packetfence-radiusd-acct.service
-+++ b/conf/systemd/packetfence-radiusd-acct.service
-@@ -12,7 +12,8 @@
- StartLimitInterval=60
- PIDFile=/usr/local/pf/var/run/radiusd-acct.pid
- ExecStartPre=/usr/local/pf/bin/pfcmd service radiusd generateconfig
--ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n acct -fm 
-+ExecStartPre=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n acct -Cxm -lstdout
-+ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n acct -fm 
- Restart=on-failure
- Slice=packetfence.slice
- 
---- a/conf/systemd/packetfence-radiusd-auth.service
-+++ b/conf/systemd/packetfence-radiusd-auth.service
-@@ -11,7 +11,8 @@
- StartLimitInterval=60
- PIDFile=/usr/local/pf/var/run/radiusd-auth.pid
- ExecStartPre=/usr/local/pf/bin/pfcmd service radiusd generateconfig
--ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n auth -fm 
-+ExecStartPre=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n auth -Cxm -lstdout
-+ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n auth -fm 
- Restart=on-failure
- Slice=packetfence.slice
- 
---- a/conf/systemd/packetfence-radiusd-cli.service
-+++ b/conf/systemd/packetfence-radiusd-cli.service
-@@ -11,8 +11,9 @@
- StartLimitBurst=3
- StartLimitInterval=60
- PIDFile=/usr/local/pf/var/run/radiusd-cli.pid
--ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n cli -fm 
- ExecStartPre=/usr/local/pf/bin/pfcmd service radiusd generateconfig
-+ExecStartPre=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n cli -Cxm -lstdout
-+ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n cli -fm 
- Restart=on-failure
- Slice=packetfence.slice
- 
---- a/conf/systemd/packetfence-radiusd-eduroam.service
-+++ b/conf/systemd/packetfence-radiusd-eduroam.service
-@@ -11,7 +11,8 @@
- StartLimitInterval=60
- PIDFile=/usr/local/pf/var/run/radiusd-eduroam.pid
- ExecStartPre=/usr/local/pf/bin/pfcmd service radiusd generateconfig
--ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n eduroam -fm 
-+ExecStartPre=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n eduroam -Cxm -lstdout
-+ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n eduroam -fm 
- Restart=on-failure
- Slice=packetfence.slice
- 
---- a/conf/systemd/packetfence-radiusd-load_balancer.service
-+++ b/conf/systemd/packetfence-radiusd-load_balancer.service
-@@ -11,7 +11,8 @@
- StartLimitInterval=60
- PIDFile=/usr/local/pf/var/run/radiusd-load_balancer.pid
- ExecStartPre=/usr/local/pf/bin/pfcmd service radiusd generateconfig
--ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n load_balancer -fm 
-+ExecStartPre=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n load_balancer -Cxm -lstdout
-+ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n load_balancer -fm 
- Restart=on-failure
- Slice=packetfence.slice
- 
 --- a/conf/systemd/packetfence-routes.service
 +++ b/conf/systemd/packetfence-routes.service
 @@ -8,8 +8,8 @@
@@ -250,6 +189,71 @@
  ExecStartPre=/usr/local/pf/bin/pfcmd service statsd generateconfig
 -ExecStart=/usr/bin/node /usr/local/pf/lib/Etsy/statsd/bin/statsd /usr/local/pf/var/conf/statsd_config.js 
 +ExecStart=/usr/bin/nodejs /usr/local/pf/lib/Etsy/statsd/bin/statsd /usr/local/pf/var/conf/statsd_config.js 
+ Restart=on-failure
+ Slice=packetfence.slice
+ 
+--- a/conf/systemd/packetfence-radiusd-acct.service
++++ b/conf/systemd/packetfence-radiusd-acct.service
+@@ -12,8 +12,8 @@
+ StartLimitInterval=60
+ PIDFile=/usr/local/pf/var/run/radiusd-acct.pid
+ ExecStartPre=/usr/local/pf/bin/pfcmd service radiusd generateconfig
+-ExecStartPre=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n acct -Cxm -lstdout 
+-ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n acct -fm 
++ExecStartPre=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n acct -Cxm -lstdout 
++ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n acct -fm 
+ Restart=on-failure
+ Slice=packetfence.slice
+ 
+--- a/conf/systemd/packetfence-radiusd-auth.service
++++ b/conf/systemd/packetfence-radiusd-auth.service
+@@ -11,8 +11,8 @@
+ StartLimitInterval=60
+ PIDFile=/usr/local/pf/var/run/radiusd-auth.pid
+ ExecStartPre=/usr/local/pf/bin/pfcmd service radiusd generateconfig
+-ExecStartPre=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n auth -Cxm -lstdout 
+-ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n auth -fm 
++ExecStartPre=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n auth -Cxm -lstdout 
++ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n auth -fm 
+ Restart=on-failure
+ Slice=packetfence.slice
+ 
+--- a/conf/systemd/packetfence-radiusd-cli.service
++++ b/conf/systemd/packetfence-radiusd-cli.service
+@@ -12,8 +12,8 @@
+ StartLimitInterval=60
+ PIDFile=/usr/local/pf/var/run/radiusd-cli.pid
+ ExecStartPre=/usr/local/pf/bin/pfcmd service radiusd generateconfig
+-ExecStartPre=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n cli -Cxm -lstdout 
+-ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n cli -fm 
++ExecStartPre=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n cli -Cxm -lstdout 
++ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n cli -fm 
+ Restart=on-failure
+ Slice=packetfence.slice
+ 
+--- a/conf/systemd/packetfence-radiusd-eduroam.service
++++ b/conf/systemd/packetfence-radiusd-eduroam.service
+@@ -11,8 +11,8 @@
+ StartLimitInterval=60
+ PIDFile=/usr/local/pf/var/run/radiusd-eduroam.pid
+ ExecStartPre=/usr/local/pf/bin/pfcmd service radiusd generateconfig
+-ExecStartPre=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n eduroam -Cxm -lstdout
+-ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n eduroam -fm 
++ExecStartPre=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n eduroam -Cxm -lstdout
++ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n eduroam -fm 
+ Restart=on-failure
+ Slice=packetfence.slice
+ 
+--- a/conf/systemd/packetfence-radiusd-load_balancer.service
++++ b/conf/systemd/packetfence-radiusd-load_balancer.service
+@@ -11,8 +11,8 @@
+ StartLimitInterval=60
+ PIDFile=/usr/local/pf/var/run/radiusd-load_balancer.pid
+ ExecStartPre=/usr/local/pf/bin/pfcmd service radiusd generateconfig
+-ExecStartPre=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n load_balancer -Cxm -lstdout
+-ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n load_balancer -fm 
++ExecStartPre=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n load_balancer -Cxm -lstdout
++ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n load_balancer -fm 
  Restart=on-failure
  Slice=packetfence.slice
  
