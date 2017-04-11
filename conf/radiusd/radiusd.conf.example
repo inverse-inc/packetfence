@@ -452,7 +452,7 @@ $INCLUDE clients.conf
 thread pool {
 	#  Number of servers to start initially --- should be a reasonable
 	#  ballpark figure.
-	start_servers = 5
+	start_servers = 0
 
 	#  Limit on the total number of servers running.
 	#
