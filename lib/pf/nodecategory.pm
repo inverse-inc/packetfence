@@ -121,15 +121,21 @@ sub nodecategory_upsert {
     my ($id, %data) = @_;
     my $logger = get_logger;
 
-    if(pf::version::version_get_last_db_version() =~ /^[0-6]\./) {
-        $logger->error("Cannot upsert a nodecategory in a database that is on a version below 7.0.0. Please upgrade your database schema.");
+    eval {
+        if(pf::version::version_get_last_db_version() =~ /^[0-6]\./) {
+            $logger->error("Cannot upsert a nodecategory in a database that is on a version below 7.0.0. Please upgrade your database schema.");
+            return;
+        }
+
+        die "Missing ID for nodecategory_upsert" unless($id);
+
+        $logger->info("Inserting/updating role with ID $id");
+        return db_data(NODECATEGORY, $nodecategory_statements, 'nodecategory_upsert_sql', $id, @data{qw/max_nodes_per_pid notes/}, @data{qw/max_nodes_per_pid notes/});
+    };
+    if($@) {
+        $logger->error("Cannot upsert nodecategory (role) in the database. Error was: $@");
         return;
     }
-
-    die "Missing ID for nodecategory_upsert" unless($id);
-
-    $logger->info("Inserting/updating role with ID $id");
-    return db_data(NODECATEGORY, $nodecategory_statements, 'nodecategory_upsert_sql', $id, @data{qw/max_nodes_per_pid notes/}, @data{qw/max_nodes_per_pid notes/});
 }
 
 =item nodecategory_view_all - view all categories, returns an hashref
