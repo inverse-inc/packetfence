@@ -40,3 +40,8 @@ workers=1
 #
 [queue pfsnmp]
 workers=8
+#
+# pfsnmp_parsing queue configuration
+#
+[queue pfsnmp_parsing]
+workers=4
