@@ -43,7 +43,7 @@ sub task_counter_id {
     elsif ($type eq 'pfsnmp_parsing' && $args_ref eq 'ARRAY') {
         $counter_id .= ":" . $args->[0]->{switchIp};
     }
-    elsif ($type eq 'pfsnmp' eq 'HASH') {
+    elsif ($type eq 'pfsnmp' && $args_ref eq 'HASH') {
         $counter_id .= join(":","", $args->{switchId}, $args->{trapIfIndex}, $args->{'trapType'});
     }
 
