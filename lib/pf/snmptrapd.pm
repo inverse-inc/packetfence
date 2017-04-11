@@ -44,7 +44,7 @@ sub receiver {
     my $producer = pf::pfqueue::producer::redis->new({
         redis => _redis_client(),
     });
-    $producer->submit("pfsnmp", "pfsnmp", [$trapInfo, $variables] );
+    $producer->submit("pfsnmp_parsing", "pfsnmp_parsing", [$trapInfo, $variables] );
     return NETSNMPTRAPD_HANDLER_OK;
 }
 
