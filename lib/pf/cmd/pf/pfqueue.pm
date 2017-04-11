@@ -31,9 +31,9 @@ use pf::util::pfqueue qw(consumer_redis_client);
 use pf::pfqueue::stats;
 use base qw(pf::base::cmd::action_cmd);
 
-our @STATS_FIELDS = qw(name queue count);
+our @STATS_FIELDS = qw(queue name count);
 our @COUNT_FIELDS = qw(name count);
-our $STATS_FORMAT = "  %-20s %-10s %-20s\n";
+our $STATS_FORMAT = "  %-20s %-30s %-10s\n";
 our $COUNT_FORMAT = "  %-20s %-10s\n";
 
 sub stats {
@@ -87,7 +87,11 @@ sub action_stats {
 sub _print_counters {
     my ($self, $title, $format, $fields, $counters) = @_;
     print "\n$title\n";
-    print sprintf($format, @$fields);
+    my $heading = sprintf($format, @$fields);
+    print $heading;
+    $heading =~ s/./-/g;
+    $heading =~ s/^--/  /g;
+    print $heading;
     foreach my $counter (@$counters) {
         print sprintf($format, @{$counter}{@$fields});
     }
