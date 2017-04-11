@@ -16,12 +16,18 @@ use strict;
 use warnings;
 use pf::log;
 use pf::SwitchFactory;
+use pf::Switch::constants;
 use pf::pfqueue::producer::redis;
 use pf::StatsD::Timer;
+use pf::rate_limiter;
+use pf::config::util;
+use pf::constants qw($TRUE $FALSE);
+use pf::util;
+use pf::config qw(%Config);
 
 =head2 doTask
 
-Parse the snmp trap for the switch
+Parse the snmp trap for a switch and queue the trap for processing
 
 =cut
 
@@ -54,6 +60,16 @@ sub doTask {
         return;
     }
 
+    if ($self->performTrapLimiting($switch, $trap->{trapIfIndex})) {
+        $logger->debug("too many traps for $switch_id");
+        return;
+    }
+
+    unless ($switch->handleTrap($trap)) {
+        $logger->error("Skipping general trap handling for $switch_id");
+        return;
+    }
+
     $trap->{switchId} = $switch_id;
     $trap->{trapVariables} = $variables;
     $trap->{trapMeta} = $trapInfo;
@@ -63,8 +79,82 @@ sub doTask {
         $trap->{$key} //= '';
     }
 
+    if (ignoreTrap($switch, $trap)) {
+        $logger->debug("Trap ignored for '$switch_id'");
+        return;
+    }
+
     my $client = pf::pfqueue::producer::redis->new(queue => 'pfsnmp');
     $client->submit("pfsnmp", "pfsnmp", $trap);
+}
+
+=head2 ignoreTrap
+
+ignoreTrap
+
+=cut
+
+sub ignoreTrap {
+    my ($switch, $trap) = @_;
+    my $type = $trap->{trapType};
+    if ($type eq 'secureMacAddrViolation') {
+        if (!$switch->isPortSecurityEnabled($trap->{trapIfIndex})) {
+            return 1;
+        }
+    } elsif ($type eq 'mac') {
+        if ( $trap->{trapVlan} ne $switch->getVlan($trap->{trapIfIndex})) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+# sub performTrapLimiting {{{1
+sub performTrapLimiting {
+    # skipping if feature is disabled
+    return $FALSE if (isdisabled($Config{'snmp_traps'}{'trap_limit'}));
+
+    my ($self, $switch, $switchIfIndex) = @_;
+    # skipping if trapIfIndex is undef or empty
+    return $FALSE if (!defined($switchIfIndex) || $switchIfIndex eq '');
+
+    my $trapsLimitAction = $Config{'snmp_traps'}{'trap_limit_action'};
+
+    # if there's no action configured then let's continue parsing the trap
+    return $FALSE if ( isempty($trapsLimitAction) );
+
+    # Poking tied config files here instead of declaring them globally is arguably discutable on terms of performances
+    my $trapsLimitThreshold = $Config{'snmp_traps'}{'trap_limit_threshold'};
+
+    my $switchId = $switch->{_id};
+
+    return $FALSE unless pf::rate_limiter::is_pass_limit("trap.${switchId}.${switchIfIndex}", $trapsLimitThreshold, 60);
+
+    if ( is_in_list('email', $trapsLimitAction) || is_in_list('shut', $trapsLimitAction) ) {
+        my %email;
+
+        $email{'subject'} = "Too many traps coming from switch $switchId";
+        $email{'message'} = "Too many SNMP traps were received from a switchport according to the threshold.\n\n";
+        $email{'message'} .= "Switch: $switchId\n";
+        $email{'message'} .= "ifIndex: $switchIfIndex\n";
+        $email{'message'} .= "Threshold: maximum $trapsLimitThreshold SNMP traps per 1 minute.\n";
+
+        if ( is_in_list('shut', $trapsLimitAction) ) {
+            $email{'message'} .= "Action: PacketFence SHUTTED THE PORT";
+            $switch->setAdminStatus($switchIfIndex, $SNMP::DOWN);
+        }
+        #Send an alert only once every hour
+        unless (pf::rate_limiter::is_pass_limit("trapemail.${switchId}.${switchIfIndex}", 1 , 3600 )) {
+            pfmailer(%email);
+        }
+    }
+
+    $logger->warn(
+        "We received many traps (over $trapsLimitThreshold) in a minute "
+        . "from ifIndex $switchIfIndex of switch $switch->{_id}"
+    );
+
+    return $TRUE;
 }
 
 =head1 AUTHOR
