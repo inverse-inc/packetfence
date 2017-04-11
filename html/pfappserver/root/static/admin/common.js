@@ -1133,8 +1133,10 @@ FingerbankSearch.setup = function() {
             eval(search.add_action + "(search,id,display)");
           }
           else {
-            search.add_to.append('<option selected="selected" value="'+id+'">'+display+'</option>');
-            search.add_to.trigger("liszt:updated");
+            if(display !== undefined) {
+                search.add_to.append('<option selected="selected" value="'+id+'">'+display+'</option>');
+                search.add_to.trigger("liszt:updated");
+            }
           }
           search.typeahead_field.val('');
           return false;      
