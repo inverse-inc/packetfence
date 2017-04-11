@@ -1530,10 +1530,7 @@ sub hasPhoneAtIfIndex {
 sub isPhoneAtIfIndex {
     my ( $self, $mac, $ifIndex ) = @_;
     my $logger = $self->logger;
-    if ( !$self->isVoIPEnabled() ) {
-        $logger->debug( "VoIP not enabled on switch " . $self->{_id} );
-        return 0;
-    }
+
     if ( $self->isFakeVoIPMac($mac) ) {
         $logger->debug("MAC $mac is fake VoIP MAC");
         return 1;
