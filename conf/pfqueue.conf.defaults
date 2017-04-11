@@ -36,12 +36,7 @@ workers=4
 workers=1
 
 #
-# pfsnmp_parsing queue configuration
-#
-[queue pfsnmp_parsing]
-workers=4
-#
 # pfsnmp queue configuration
 #
 [queue pfsnmp]
-workers=4
+workers=8
