@@ -68,7 +68,7 @@ has_field 'bind_dn' =>
 
 has_field 'dns_servers' =>
   (
-   type => 'IPAddress',
+   type => 'IPAddresses',
    label => 'DNS server(s)',
    required => 1,
    messages => { required => 'Please specify the DNS server(s)' },

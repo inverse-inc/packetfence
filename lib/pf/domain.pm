@@ -206,9 +206,11 @@ sub generate_resolv_conf {
     my $logger = get_logger();
     foreach my $domain (keys %ConfigDomain){
         pf_run("/usr/bin/sudo /bin/mkdir -p /etc/netns/$domain");
-        my %vars = (domain => $domain);
-        my %tmp = (%vars, %{$ConfigDomain{$domain}});
-        %vars = %tmp;
+        my @dns_servers = split(',', $ConfigDomain{$domain}{'dns_servers'});
+        my %vars = (
+            dns_name    => $ConfigDomain{$domain}{'dns_name'},
+            dns_servers => [ @dns_servers ],
+        );
         pf_run("/usr/bin/sudo /bin/chown pf.pf /etc/netns/$domain");
         pf_run("/usr/bin/sudo touch /etc/netns/$domain/resolv.conf");
         pf_run("/usr/bin/sudo chown pf.pf /etc/netns/$domain/resolv.conf");
