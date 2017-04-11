@@ -66,14 +66,14 @@ has_field 'bind_dn' =>
              help => 'The username of a Domain Admin to use to join the server to the domain' },
   );
 
-has_field 'dns_server' =>
+has_field 'dns_servers' =>
   (
    type => 'IPAddress',
-   label => 'DNS server',
+   label => 'DNS server(s)',
    required => 1,
-   messages => { required => 'Please specify the DNS server' },
+   messages => { required => 'Please specify the DNS server(s)' },
    tags => { after_element => \&help,
-             help => 'The IP address of the DNS server for this domain.' },
+             help => 'The IP address(es) of the DNS server(s) for this domain. Comma delimited if multiple.' },
   );
 
 has_field 'server_name' =>
@@ -192,7 +192,7 @@ has_field 'ntlm_cache_on_connection' =>
 
 has_block definition =>
   (
-   render_list => [ qw(workgroup dns_name server_name ad_server dns_server bind_dn bind_pass ou registration) ],
+   render_list => [ qw(workgroup dns_name server_name ad_server dns_servers bind_dn bind_pass ou registration) ],
   );
 
 has_block ntlm_cache =>
