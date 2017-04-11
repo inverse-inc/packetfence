@@ -49,7 +49,7 @@ use threads;
 use pf::factory::task;
 use pf::services::manager::pfdetect;
 use pf::services::manager::snmptrapd;
-use pf::services::manager::setvlan;
+use pf::services::manager::pfsetvlan;
 
 
 
@@ -403,7 +403,7 @@ our %QUEUE_TO_SERVICE = (
 );
 
 our %QUEUE_OFF_TO_SERVICE = (
-    pfsnmp => 'pf::services::manager::setvlan',
+    pfsnmp => 'pf::services::manager::pfsetvlan',
 );
 
 =head2 skip_queue
