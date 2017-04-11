@@ -92,6 +92,7 @@ sub submit {
     $redis->lpush($queue_name, $id, sub {});
     $redis->exec(sub {});
     $redis->wait_all_responses();
+    return $id;
 }
 
 sub submit_delayed {
@@ -113,6 +114,7 @@ sub submit_delayed {
     $redis->zadd("Delayed:$queue", $time_milli, $id, sub {});
     $redis->exec(sub {});
     $redis->wait_all_responses();
+    return $id;
 }
 
 
