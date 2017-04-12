@@ -28,8 +28,10 @@ BEGIN { extends 'pfappserver::Base::Controller'; }
 sub index :Path : Args(0) {
     my ($self, $c) = @_;
     my $model = $c->model('Pfqueue');
+    my $counters = [ map { $_->{count} > 0 ? $_ : () } @{$model->counters} ];
+    use Data::Dumper ; $c->log->info(Dumper($counters));
     $c->stash({
-        counters => $model->counters,
+        counters => $counters,
         miss_counters => $model->miss_counters,
         queue_counts => $model->queue_counts,
     });
@@ -60,9 +62,10 @@ sub graphs :Private {
 sub counters :Args {
     my ($self, $c) = @_;
     my $model = $c->model('Pfqueue');
+    my $counters = [ map { $_->{count} > 0 } @{$model->counters} ];
     $c->stash({
         current_view => 'JSON',
-        counters => $model->counters,
+        counters => $counters,
         miss_counters => $model->miss_counters,
     });
 }
