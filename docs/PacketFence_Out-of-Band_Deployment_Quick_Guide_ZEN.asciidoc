@@ -98,7 +98,7 @@ Make sure that there is only one virtual network card created, and also make sur
 Virtual Machine passwords
 -------------------------
 
-.Management (SSH/Console) and MySQL
+.Management (SSH/Console)
 * Login: root
 * Password: p@ck3tf3nc3
 
