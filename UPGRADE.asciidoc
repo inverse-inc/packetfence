@@ -30,6 +30,8 @@ Upgrade procedure
 
 Please refer to the https://github.com/inverse-inc/packetfence/blob/stable/docs/PacketFence_Clustering_Guide.asciidoc[PacketFence Clustering Guide], more specifically the https://github.com/inverse-inc/packetfence/blob/stable/docs/PacketFence_Clustering_Guide.asciidoc#performing-an-upgrade-on-a-cluster[Perform an upgrade on a cluser] section.
 
+NOTE: You cannot upgrade from a pre-PacketFence v7 to a PacketFence v7 clustered environment using the provided instructions.
+
 ### For a standalone server
 
 It is recommended that you stop the currently running PacketFence services before proceeding any further.
