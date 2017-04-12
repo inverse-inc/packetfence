@@ -26,6 +26,14 @@ It is recommend to go through (read) the upgrade instructions specific to the up
 Upgrade procedure
 -----------------
 
+For a clustered environment
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Please refer to the PacketFence Clustering Guide available at 'https://github.com/inverse-inc/packetfence/blob/stable/docs/PacketFence_Clustering_Guide.asciidoc', more specifically the "Perform an upgrade on a cluser" section 'https://github.com/inverse-inc/packetfence/blob/stable/docs/PacketFence_Clustering_Guide.asciidoc#performing-an-upgrade-on-a-cluster'
+
+For a standalone server
+^^^^^^^^^^^^^^^^^^^^^^^
+
 It is recommended that you stop the currently running PacketFence services before proceeding any further.
 To do so, run the following commands:
 
