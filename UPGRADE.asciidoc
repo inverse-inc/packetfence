@@ -141,6 +141,13 @@ Given the portal profiles have now been renamed to connection profiles, you need
   cd /usr/local/pf
   sed -i "s/PORTAL_PROFILE/CONNECTION_PROFILE/g" conf/adminroles.conf
 
+PacketFence configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Multiple parameters inside pf.conf have been renamed for better clarity. Execute the following in order to migrate the parameters.
+
+  /usr/local/pf/addons/upgrade/to-7.0-pf-conf-changes.pl
+
 Maintenance configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
