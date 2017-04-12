@@ -62,11 +62,27 @@ PacketFence should now be upgraded. However, there may be extra steps required d
 Debian based systems
 ^^^^^^^^^^^^^^^^^^^^
 ====
-Run the following command to update PacketFence:
+The requirement for MariaDB 10.1 means that a simple "apt upgrade" will not be enough.
+You will need to help apt through the upgrade by manually removing some packages and installing some others.
+The need to ensure you have backups cannot be overstated.
 
-  apt update
+Make sure the apt database is up to date
 
-  apt install packetfence
+    apt update
+
+Remove the mysql 5.5 packages (do not purge them, as that would delete the database)
+
+    dpkg -r --force-all mysql-client-5.5 mysql-common mysql-server mysql-server-5.5 mysql-server-core-5.5 libmysqlclient18
+
+Install the newer Mariadb-10.1 packages
+
+    apt install libmariadbclient18 libmysqlclient18 mariadb-common mariadb-server-10.1 galera-3 gawk mariadb-client-10.1 mariadb-server-core-10.1 rsync socat libmpfr4 mariadb-client-core-10.1 mysql-common
+
+Finally, upgrade the rest of the packages
+
+    apt full-upgrade
+
+Note that "full-upgrade" may also affect other packages you might have installed on the system if you had other software than PacketFence on it.
 
 Since PacketFence heavily relies on Fingerbank, it is recommended to make sure running the latest version:
 
@@ -119,31 +135,6 @@ An SQL upgrade script has been provided to upgrade the database from the 6.5 sch
 To upgrade the database schema, run the following command:
 
   mysql -u root -p pf -v < /usr/local/pf/db/upgrade-6.5.0-7.0.0.sql
-
-Debian upgrade
-^^^^^^^^^^^^^^
-
-The requirement for MariaDB 10.1 means that a simple "apt upgrade" will not be enough.
-You will need to help apt through the upgrade by manually removing some packages and installing some others.
-The need to ensure you have backups cannot be overstated.
-
-Make sure the apt database is up to date
-    apt update
-
-Remove the mysql 5.5 packages (do not purge them, as that would delete the database)
-
-    dpkg -r --force-all mysql-client-5.5 mysql-common mysql-server mysql-server-5.5 mysql-server-core-5.5 libmysqlclient18
-
-Install the newer Mariadb-10.1 packages
-
-    apt install libmariadbclient18 libmysqlclient18 mariadb-common mariadb-server-10.1 galera-3 gawk mariadb-client-10.1 mariadb-server-core-10.1 rsync socat libmpfr4 mariadb-client-core-10.1 mysql-common
-
-Finally, upgrade the rest of the packages
-
-    apt full-upgrade
-
-Note that "full-upgrade" may also affect other packages you might have installed on the system if you had other software than PacketFence on it.
-
 
 MariaDB upgrade (CentOS + RHEL only)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
