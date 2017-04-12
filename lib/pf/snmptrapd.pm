@@ -44,8 +44,8 @@ sub receiver {
     my $producer = pf::pfqueue::producer::redis->new({
         redis => _redis_client(),
     });
-#    Delay parsing by three seconds to allow snmp to do it's magic
-    $producer->submit_delayed("pfsnmp_parsing", "pfsnmp_parsing", 3000, [$trapInfo, $variables]);
+#    Delay parsing by two seconds to allow snmp to do it's magic
+    $producer->submit_delayed("pfsnmp_parsing", "pfsnmp_parsing", 2000, [$trapInfo, $variables]);
     return NETSNMPTRAPD_HANDLER_OK;
 }
 
