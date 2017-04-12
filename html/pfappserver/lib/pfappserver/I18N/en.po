@@ -8591,6 +8591,10 @@ msgid "active_active.dns_on_vip_only"
 msgstr "pfdns on VIP only"
 
 # conf/documentation.conf
+msgid "active_active.galera_replication"
+msgstr "Galera replication"
+
+# conf/documentation.conf
 msgid "active_active.galera_replication_password"
 msgstr "Galera replication password"
 
