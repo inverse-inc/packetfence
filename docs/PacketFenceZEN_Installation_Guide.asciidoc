@@ -201,8 +201,6 @@ Step 3: Database Configuration
 ++++++++++++++++++++++++++++++
 This step will configure the MySQL server needed by PacketFence. Database and schema will be created as well as the necessary user for operations. Root account will also be secured if necessary (set a password and disallow remote login).
 
-Since the MySQL installation is pre-built with the username "root" and the password "p@ck3tfence", you can simply enter these in the root account credentials section and click Test.
-
 Next section of this step is the PacketFence user account on the MySQL server. Simply leave the default pf username here and choose of a password. This one will automatically be set in the PacketFence configuration where you'll be able to retrieve it in any case. Once the password entered twice, click Create user.
 
 Third section will create the database and load the correct schema on it. Simply leave the default and click Create tables and indexes.
@@ -337,15 +335,6 @@ Once a computer has been registered, make sure:
 
 * PacketFence puts the switch port into the regular VLAN
 * The computer has access to the network and the internet.
-
-
-PacketFence Web Admin Interface
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-PacketFence provides a web admin interface. Go to https://DHCP_RECEIVED_IP:1443
-
-* User: admin
-* Password: p\@ck3tf3nc3
 
 include::includes/additional-info.asciidoc[]
 
