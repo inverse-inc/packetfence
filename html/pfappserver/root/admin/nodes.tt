@@ -265,6 +265,30 @@
                         <input type="hidden" name="searches.0.value" value="Macintosh"/>
                       </form>
                   </li>
+                  <li class="sidenav-subsection">
+                    <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseOS">Smartphones/PDAs/Tablets</a>
+                      <form>
+                        <input type="hidden" name="searches.0.name" value="device_class"/>
+                        <input type="hidden" name="searches.0.op" value="is"/>
+                        <input type="hidden" name="searches.0.value" value="Smartphones/PDAs/Tablets"/>
+                      </form>
+                  </li>
+                  <li class="sidenav-subsection">
+                    <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseOS">Gaming Consoles</a>
+                      <form>
+                        <input type="hidden" name="searches.0.name" value="device_class"/>
+                        <input type="hidden" name="searches.0.op" value="is"/>
+                        <input type="hidden" name="searches.0.value" value="Gaming Consoles"/>
+                      </form>
+                  </li>
+                  <li class="sidenav-subsection">
+                    <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseOS">VoIP Phones/Adapters</a>
+                      <form>
+                        <input type="hidden" name="searches.0.name" value="device_class"/>
+                        <input type="hidden" name="searches.0.op" value="is"/>
+                        <input type="hidden" name="searches.0.value" value="VoIP Phones/Adapters"/>
+                      </form>
+                  </li>
                 </ul>
               </li>
 
