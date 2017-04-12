@@ -3082,11 +3082,8 @@ msgid "IP"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Field/PfdetectRegexRule.pm
-msgid "IP <i class=\"icon-exchange\"></i> MAC"
-msgstr ""
-
 # html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "IP <i class=\\"icon-exchange\\"></i> MAC"
+msgid "IP <i class=\"icon-exchange\"></i> MAC"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/FloatingDevice.pm
@@ -7326,7 +7323,7 @@ msgid "The query_cache_size MySQL configuration attribute. Only change if you kn
 msgstr ""
 
 # html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "The regex to match against a log entry. The regex may have <a href=\\"http://perldoc.perl.org/perlre.html#(%3f'NAME'pattern)\\">named captures</a> which can be used for parameter replacement start a '$'."
+msgid "The regex to match against a log entry. The regex may have <a href=\"http://perldoc.perl.org/perlre.html#(%3f'NAME'pattern)\">named captures</a> which can be used for parameter replacement start a '$'."
 msgstr ""
 
 # conf/documentation.conf (device_registration.role)
