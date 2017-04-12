@@ -118,7 +118,7 @@ cp /etc/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-CENTOS $RPM_BUILD_ROOT%{_sysconfdir}
 rm -rf $RPM_BUILD_ROOT
 
 %files -n %{real_name}
-%defattr(0755, root, root)
+%defattr(0644, root, root)
 %config /etc/yum.repos.d/packetfence.repo
 /etc/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-CENTOS
 
