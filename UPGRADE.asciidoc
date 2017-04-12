@@ -28,7 +28,7 @@ Upgrade procedure
 
 ### For a clustered environment
 
-Please refer to the PacketFence Clustering Guide available at 'https://github.com/inverse-inc/packetfence/blob/stable/docs/PacketFence_Clustering_Guide.asciidoc', more specifically the "Perform an upgrade on a cluser" section 'https://github.com/inverse-inc/packetfence/blob/stable/docs/PacketFence_Clustering_Guide.asciidoc#performing-an-upgrade-on-a-cluster'
+Please refer to the [PacketFence Clustering Guide](https://github.com/inverse-inc/packetfence/blob/stable/docs/PacketFence_Clustering_Guide.asciidoc), more specifically the [Perform an upgrade on a cluser](https://github.com/inverse-inc/packetfence/blob/stable/docs/PacketFence_Clustering_Guide.asciidoc#performing-an-upgrade-on-a-cluster) section.
 
 ### For a standalone server
 
