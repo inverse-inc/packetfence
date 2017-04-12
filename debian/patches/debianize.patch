@@ -58,8 +58,12 @@
  # services.routes
 --- a/conf/systemd/packetfence-dhcpd.service
 +++ b/conf/systemd/packetfence-dhcpd.service
-@@ -11,7 +11,7 @@
- Type=notify
+@@ -8,10 +8,10 @@
+ [Service]
+ StartLimitBurst=3
+ StartLimitInterval=60
+-Type=notify
++Type=simple
  PIDFile=/usr/local/pf/var/run/dhcpd.pid
  ExecStartPre=/usr/local/pf/bin/pfcmd service dhcpd generateconfig
 -ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::dhcpd' -e 'pf::services::manager::dhcpd->new()->preStartSetup()'
