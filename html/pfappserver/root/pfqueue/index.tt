@@ -39,6 +39,7 @@
       </tr>
     </thead>
     [% FOREACH counter IN counters %]
+      [% NEXT IF counter.count < 1 %]
       <tr>
         <td> [% counter.queue %]</td>
         <td>[% counter.name %] </td>
@@ -64,6 +65,7 @@
       </tr>
     </thead>
     [% FOREACH counter IN miss_counters %]
+      [% NEXT IF counter.count < 1 %]
       <tr>
         <td>[% counter.queue %]</td>
         <td>[% counter.name %] </td>
