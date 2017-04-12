@@ -130,6 +130,7 @@ You will need to help apt through the upgrade by manually removing some packages
 The need to ensure you have backups cannot be overstated.
 
 Make sure the apt database is up to date
+
     apt update
 
 Remove the mysql 5.5 packages (do not purge them, as that would delete the database)
