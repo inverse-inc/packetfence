@@ -112,16 +112,6 @@ Upgrading from a version prior to 7.0.0
 
 NOTE: You cannot upgrade from CentOS 6 or Debian Wheezy to PacketFence 7.0 and above
 
-Database schema update
-^^^^^^^^^^^^^^^^^^^^^^
-
-Changes have been made to the database schema. You will need to update it accordingly.
-An SQL upgrade script has been provided to upgrade the database from the 6.5 schema to 7.0.
-
-To upgrade the database schema, run the following command:
-
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-6.5.0-7.0.0.sql
-
 Debian upgrade
 ^^^^^^^^^^^^^^
 
@@ -147,7 +137,6 @@ Finally, upgrade the rest of the packages
 
 Note that "full-upgrade" may also affect other packages you might have installed on the system if you had other software than PacketFence on it.
 
-
 MariaDB upgrade (CentOS + RHEL only)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -171,6 +160,20 @@ When done, kill the mysqld_safe process we started before the update, reattach t
   kill %1 && fg
   
 Note that it might take up to a few minutes for the process to exit depending on the size of your database.
+
+Once done, restart the MariaDB service (managed by PacketFence)
+
+  systemctl start packetfence-mariadb
+
+Database schema update
+^^^^^^^^^^^^^^^^^^^^^^
+
+Changes have been made to the database schema. You will need to update it accordingly.
+An SQL upgrade script has been provided to upgrade the database from the 6.5 schema to 7.0.
+
+To upgrade the database schema, run the following command:
+
+  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-6.5.0-7.0.0.sql
 
 Systemd configuration
 ^^^^^^^^^^^^^^^^^^^^^
