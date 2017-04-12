@@ -155,10 +155,10 @@ SSLCompression          off
 
 
 # OCSP Stapling, only in httpd 2.3.3 and later
-SSLUseStapling          on
-SSLStaplingResponderTimeout 5
-SSLStaplingReturnResponderErrors off
-SSLStaplingCache        shmcb:/var/run/ocsp(128000)
+#SSLUseStapling          on
+#SSLStaplingResponderTimeout 5
+#SSLStaplingReturnResponderErrors off
+#SSLStaplingCache        shmcb:/var/run/ocsp(128000)
 [% END %]
 
 SSLHonorCipherOrder  on

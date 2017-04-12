@@ -189,10 +189,10 @@ SSLCompression          off
 # OCSP Stapling, only in httpd 2.3.3 and later
 # https://wiki.mozilla.org/Security/Server_Side_TLS#OCSP_Stapling
 # "The server will send a cached OCSP response only if the client requests it, by announcing support for the status_request TLS extension in its CLIENT HELLO."
-SSLUseStapling          on
-SSLStaplingResponderTimeout 5
-SSLStaplingReturnResponderErrors off
-SSLStaplingCache        shmcb:/var/run/ocsp(128000)
+#SSLUseStapling          on
+#SSLStaplingResponderTimeout 5
+#SSLStaplingReturnResponderErrors off
+#SSLStaplingCache        shmcb:/var/run/ocsp(128000)
 [% END %]
 
 SSLHonorCipherOrder  on
