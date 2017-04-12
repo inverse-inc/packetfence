@@ -124,6 +124,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Apr 12 2017 Inverse inc. <info@inverse.ca> - 1.2-7
+- Permission fix. 
+
 * Thu Jan 05 2017 Inverse inc. <info@inverse.ca> - 1.2-6
 - Merged changes from the build system for dynamic versioning
 - Added GPG key
