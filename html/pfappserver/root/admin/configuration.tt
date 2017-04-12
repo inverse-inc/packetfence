@@ -66,13 +66,13 @@ table.sources {
                 <a href="#configuration/integration" data-toggle="tooltip" title="[% l('Integration') %] "><i class="icon-2x icon-puzzle-piece"></i></a>
               </li>
               <li data-category="portal_config">
-                <a href="#configuration/portal_config" data-toggle="tooltip" title="[% l('Advanced Access Configuration') %]"  ><i class="icon-2x icon-hand-paper-o"></i></a>
+                <a href="#configuration/portal_config" data-toggle="tooltip" title="[% l('Advanced Access Configuration') %]"  ><i class="icon-2x icon-list-alt"></i></a>
               </li>
               <li data-category="advanced_conf">
                 <a href="#configuration/advanced_conf" data-toggle="tooltip" title="[% l('Advanced Configuration') %]"><i class="icon-2x icon-sliders"></i></a>
               </li>
               <li data-category="system">
-                <a href="#configuration/system_config" data-toggle="tooltip" title="[% l('System Config') %]"><i class="icon-2x icon-database"></i></a>
+                <a href="#configuration/system_config" data-toggle="tooltip" title="[% l('System Config') %]"><i class="icon-2x icon-cogs"></i></a>
               </li>
             </ul>
           </div>
@@ -88,7 +88,7 @@ table.sources {
                 <div class="nav-header"><a href="#">[% l('Integration') %]</a></div>
               </li>
               <li data-category="portal_config">
-                <div class="nav-header"><a href="#">[% l('Portal Configuration') %]</a></div>
+                <div class="nav-header"><a href="#">[% l('Advanced Access Configuration') %]</a></div>
               </li>
               <li data-category="advanced_conf">
                 <div class="nav-header"><a href="#">[% l('Advanced Configuration') %]</a></div>
