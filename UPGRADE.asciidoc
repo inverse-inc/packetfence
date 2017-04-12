@@ -131,12 +131,15 @@ Make sure the apt database is up to date
     apt update
 
 Remove the mysql 5.5 packages (do not purge them, as that would delete the database)
+
     dpkg -r --force-all mysql-client-5.5 mysql-common mysql-server mysql-server-5.5 mysql-server-core-5.5 libmysqlclient18
 
 Install the newer Mariadb-10.1 packages
+
     apt install libmariadbclient18 libmysqlclient18 mariadb-common mariadb-server-10.1 galera-3 gawk mariadb-client-10.1 mariadb-server-core-10.1 rsync socat libmpfr4 mariadb-client-core-10.1 mysql-common
 
 Finally, upgrade the rest of the packages
+
     apt full-upgrade
 
 Note that "full-upgrade" may also affect other packages you might have installed on the system if you had other software than PacketFence on it.
