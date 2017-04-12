@@ -917,7 +917,7 @@ Troubleshooting
 
 * You can test the authentication process using the following command `chroot /chroots/<mydomain> ntlm_auth --username=administrator`
 
-NOTE: Under certain conditions, the test join may show as unsuccessful in the Administration interface but the authentication process will still work properly. Try the test above before doing any additional troubleshooting
+NOTE: Under certain conditions, the test join may show as unsuccessful in the Administration interface but the authentication process will still work properly. Try the test above before doing any additional troubleshooting. Also try reloading the page in the GUI since in some case the browser side of the ajax call may time out while the join actually succeeds.
 
 Default domain configuration
 ++++++++++++++++++++++++++++
