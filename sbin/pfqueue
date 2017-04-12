@@ -237,10 +237,25 @@ sub run_task {
             _run_task(@$task);
         };
         $logger->error("Error running the task $@") if $@;
-        exit 0;
+        cleanup_task();
+        #Exit quickly because it takes a long time for perl to cleanup
+        POSIX::_exit(0);
     } else {
         $logger->error("Fork error $!");
     }
+}
+
+=head2 cleanup_task
+
+cleanup connections before exiting
+
+=cut
+
+sub cleanup_task {
+    db_disconnect();
+    pf::Redis::CLONE();
+    pf::LDAP::CLONE();
+    return ;
 }
 
 =head2 _run_task
