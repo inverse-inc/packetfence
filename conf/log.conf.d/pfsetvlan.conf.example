@@ -9,5 +9,5 @@ log4perl.rootLogger = INFO, PFSETVLAN
 log4perl.appender.PFSETVLAN                                = Log::Dispatch::Syslog
 log4perl.appender.PFSETVLAN.ident                          = packetfence
 log4perl.appender.PFSETVLAN.facility                       = local5
-log4perl.appender.PFSETVLAN.layout.ConversionPattern       = %p %X{proc}(%X{tid}): %m (%M)%n
+log4perl.appender.PFSETVLAN.layout.ConversionPattern       = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
 log4perl.appender.PFSETVLAN.layout                         = PatternLayout

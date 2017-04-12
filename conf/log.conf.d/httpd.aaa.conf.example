@@ -6,5 +6,5 @@ log4perl.rootLogger = INFO, HTTPD_AAA
 log4perl.appender.HTTPD_AAA                                = Log::Dispatch::Syslog
 log4perl.appender.HTTPD_AAA.ident                          = packetfence_httpd.aaa
 log4perl.appender.HTTPD_AAA.facility                       = local5
-log4perl.appender.HTTPD_AAA.layout.ConversionPattern       = %p %X{proc}(%X{tid}): %m (%M)%n
+log4perl.appender.HTTPD_AAA.layout.ConversionPattern       = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
 log4perl.appender.HTTPD_AAA.layout                         = PatternLayout

@@ -9,5 +9,5 @@ log4perl.rootLogger = INFO, PFDNS
 log4perl.appender.PFDNS                                = Log::Dispatch::Syslog
 log4perl.appender.PFDNS.ident                          = pfdns
 log4perl.appender.PFDNS.facility                       = local5
-log4perl.appender.PFDNS.layout.ConversionPattern       = %p %X{proc}(%X{tid}): %m (%M)%n
+log4perl.appender.PFDNS.layout.ConversionPattern       = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
 log4perl.appender.PFDNS.layout                         = PatternLayout
