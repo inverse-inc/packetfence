@@ -197,6 +197,13 @@ New parameters have been introduced in conf/pfdetect.conf. Run the following scr
 
   /usr/local/pf/addons/upgrade/to-7.0-pfdetect-conf.pl
 
+Logging service
+^^^^^^^^^^^^^^^
+
+Since all logging now goes through rsyslog, if you had edited the logging configuration (e.g. to forward logs to a centralized syslog server) make sure that the new logging rules in `/etc/rsyslog.d/packetfence.conf` do not conflict with your changes.
+
+Take a look at `/usr/local/pf/conf/log.conf` and `/usr/local/pf/conf/log.conf.d/*` for the detailed configuration of the PacketFence services.
+
 Database schema updates
 ^^^^^^^^^^^^^^^^^^^^^^^
 
