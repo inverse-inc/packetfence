@@ -40,8 +40,13 @@ workers=1
 #
 [queue pfsnmp]
 workers=8
+
 #
 # pfsnmp_parsing queue configuration
 #
 [queue pfsnmp_parsing]
 workers=4
+has_delayed_queue=enabled
+delayed_queue_batch=100
+delayed_queue_sleep=100
+delayed_queue_workers=1
