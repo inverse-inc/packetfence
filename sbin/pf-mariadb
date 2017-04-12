@@ -134,6 +134,9 @@ sub fork_launch_mysql {
         ) or die("pf-mariadb could not set SIGCHLD handler: $!");
 
         my (undef, undef,$uid,$gid) = getpwnam('mysql');
+        my $sockdir = "/var/run/mysqld";
+        mkdir $sockdir;
+        chown $uid, $gid, $sockdir;
         setuid($uid);
         setgid($gid);
 
