@@ -4,7 +4,7 @@ log4perl.rootLogger = INFO, HTTPD_AAA
 ### Categories ###
 # Below, you can specify different categories (based on package names) for different logging levels
 log4perl.appender.HTTPD_AAA                                = Log::Dispatch::Syslog
-log4perl.appender.HTTPD_AAA.ident                          = packetfence
+log4perl.appender.HTTPD_AAA.ident                          = packetfence_httpd.aaa
 log4perl.appender.HTTPD_AAA.facility                       = local5
 log4perl.appender.HTTPD_AAA.layout.ConversionPattern       = %p %X{proc}(%X{tid}): %m (%M)%n
 log4perl.appender.HTTPD_AAA.layout                         = PatternLayout

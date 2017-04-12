@@ -21,14 +21,14 @@ log4perl.additivity.pf.dhcp = 0
 
 ### General Fingerbank log facility configuration ###
 log4perl.appender.WEBSERVICES_FINGERBANK                                = Log::Dispatch::Syslog
-log4perl.appender.WEBSERVICES_FINGERBANK.ident                          = fingerbank
+log4perl.appender.WEBSERVICES_FINGERBANK.ident                          = fingerbank_httpd.webservices
 log4perl.appender.WEBSERVICES_FINGERBANK.facility                       = local5
 log4perl.appender.WEBSERVICES_FINGERBANK.layout.ConversionPattern       = %p %X{proc}(%X{tid}): %m (%M)%n
 log4perl.appender.WEBSERVICES_FINGERBANK.layout                         = PatternLayout
 
 ### DHCP processing log facility configuration ###
 log4perl.appender.WEBSERVICES_DHCP                                = Log::Dispatch::Syslog
-log4perl.appender.WEBSERVICES_DHCP.ident                          = pfdhcplistener
+log4perl.appender.WEBSERVICES_DHCP.ident                          = pfdhcplistener_httpd.webservices
 log4perl.appender.WEBSERVICES_DHCP.facility                       = local5
 log4perl.appender.WEBSERVICES_DHCP.layout.ConversionPattern       = %p %X{proc}(%X{tid}): %m (%M)%n
 log4perl.appender.WEBSERVICES_DHCP.layout                         = PatternLayout

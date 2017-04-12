@@ -16,7 +16,7 @@ log4perl.additivity.fingerbank = 0
 
 ### Categories ###
 log4perl.appender.HTTPD_PORTAL		                                      = Log::Dispatch::Syslog
-log4perl.appender.HTTPD_PORTAL.ident     	                              = packetfence
+log4perl.appender.HTTPD_PORTAL.ident     	                              = packetfence_httpd.portal
 log4perl.appender.HTTPD_PORTAL.facility                                   = local5
 log4perl.appender.HTTPD_PORTAL.layout.ConversionPattern                   = %p %X{proc}(%X{tid}): %m (%M)%n
 log4perl.appender.HTTPD_PORTAL.layout                                     = PatternLayout
@@ -30,7 +30,7 @@ log4perl.appender.PORTAL_CATALYST.layout                                  = Patt
 
 ### General Fingerbank log facility configuration ###
 log4perl.appender.PORTAL_FINGERBANK		                                  = Log::Dispatch::Syslog
-log4perl.appender.PORTAL_FINGERBANK.ident     	                          = fingerbank
+log4perl.appender.PORTAL_FINGERBANK.ident     	                          = fingerbank_httpd.portal
 log4perl.appender.PORTAL_FINGERBANK.facility                              = local5
 log4perl.appender.PORTAL_FINGERBANK.layout.ConversionPattern              = %p %X{proc}(%X{tid}): %m (%M)%n
 log4perl.appender.PORTAL_FINGERBANK.layout                                = PatternLayout

@@ -33,7 +33,7 @@ log4perl.appender.ADMIN_CATALYST.layout                                 = Patter
 
 ### General Fingerbank log facility configuration ###
 log4perl.appender.ADMIN_FINGERBANK                                = Log::Dispatch::Syslog
-log4perl.appender.ADMIN_FINGERBANK.ident                          = fingerbank
+log4perl.appender.ADMIN_FINGERBANK.ident                          = fingerbank_httpd.admin
 log4perl.appender.ADMIN_FINGERBANK.facility                       = local5
 log4perl.appender.ADMIN_FINGERBANK.layout.ConversionPattern       = %p %X{proc}(%X{tid}): %m (%M)%n
 log4perl.appender.ADMIN_FINGERBANK.layout                         = PatternLayout
