@@ -78,6 +78,16 @@ Upgrading from a version prior to 7.0.0
 
 NOTE: You cannot upgrade from CentOS 6 or Debian Wheezy to PacketFence 7.0 and above
 
+Database schema update
+^^^^^^^^^^^^^^^^^^^^^^
+
+Changes have been made to the database schema. You will need to update it accordingly.
+An SQL upgrade script has been provided to upgrade the database from the 6.5 schema to 7.0.
+
+To upgrade the database schema, run the following command:
+
+  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-6.5.0-7.0.0.sql
+
 Debian upgrade
 ^^^^^^^^^^^^^^
 
@@ -203,16 +213,6 @@ Logging service
 Since all logging now goes through rsyslog, if you had edited the logging configuration (e.g. to forward logs to a centralized syslog server) make sure that the new logging rules in `/etc/rsyslog.d/packetfence.conf` do not conflict with your changes.
 
 Take a look at `/usr/local/pf/conf/log.conf` and `/usr/local/pf/conf/log.conf.d/*` for the detailed configuration of the PacketFence services.
-
-Database schema updates
-^^^^^^^^^^^^^^^^^^^^^^^
-
-Changes have been made to the database schema. You will need to update it accordingly.
-An SQL upgrade script has been provided to upgrade the database from the 6.5 schema to 7.0.
-
-To upgrade the database schema, run the following command: 
-
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-6.5.0-7.0.0.sql
 
 Redis Queue
 ^^^^^^^^^^^
