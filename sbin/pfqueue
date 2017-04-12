@@ -446,6 +446,29 @@ sub skip_queue {
     return $FALSE;
 }
 
+=head2 distribute_queues
+
+Evenly distribute queues based off their weights
+
+=cut
+
+sub distribute_queues {
+    my ($priorities) = @_;
+    my @distribution;
+    my $running = 1;
+    while ($running) {
+       $running = 0;
+        for my $p (@$priorities) {
+            if ($p->{weight}) {
+                $p->{weight}--;
+                push @distribution, $p->{name};
+                $running++;
+            }
+        }
+    }
+    return \@distribution;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
