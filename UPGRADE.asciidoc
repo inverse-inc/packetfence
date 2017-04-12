@@ -6,6 +6,9 @@ http://www.packetfence.org/
 General Upgrade Tips
 --------------------
 
+Database backup
+^^^^^^^^^^^^^^^
+
 Before making any changes to your database, ensure that you have a backup.
 A complete database backup can be taken using this command:
 
@@ -15,6 +18,9 @@ If your database is more than a few hundred megabytes, you may also want to cons
 
 It is also possible to simply backup the actual MySQL files themselves -- as long as the database is not currently running.
 To do so, stop mysql and then copy all files under /var/lib/mysql to a secure directory.
+
+PacketFence configurations and codebase backup
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Taking a complete backup of your current installation is strongly recommended.
 You can take a backup of the pf directory with the following command:
