@@ -60,15 +60,13 @@ PacketFence should now be upgraded. However, there may be extra steps required d
 Debian based systems
 ^^^^^^^^^^^^^^^^^^^^
 
-Run the following command to update PacketFence:
-
   apt update
+
+Run the following command to update PacketFence:
 
   apt install packetfence
 
 Since PacketFence heavily relies on Fingerbank, it is recommended to make sure running the latest version:
-
-  apt update
 
   apt install fingerbank
 
