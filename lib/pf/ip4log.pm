@@ -249,7 +249,7 @@ sub ip2mac {
     my $mac;
 
     # TODO: Special case that need to be documented
-    if (ref($management_network) && $management_network->{'Tip'} eq $ip) {
+    if ($ip eq "127.0.0.1" || (ref($management_network) && $management_network->{'Tip'} eq $ip)) {
         return ( pf::util::clean_mac("00:11:22:33:44:55") );
     }
 

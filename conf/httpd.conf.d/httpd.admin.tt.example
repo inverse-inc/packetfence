@@ -263,7 +263,7 @@ ProxyHTMLLinks  script      src for
           RewriteCond %{HTTP_COOKIE} PF_PORTAL=([^;]+)
           RewriteRule ^(.*)$ - [E=X_PORTAL:%1]
           RequestHeader unset Accept-Encoding
-          RequestHeader append X-Forwarded-For-PacketFence "[% vhosts.0 %]"
+          RequestHeader append X-Forwarded-For-PacketFence "127.0.0.1"
 
           ProxyPassReverse /
           # Debian 7 has an older version of mod_proxy_html
