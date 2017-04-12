@@ -33,8 +33,10 @@ use base qw(pf::base::cmd::action_cmd);
 
 our @STATS_FIELDS = qw(queue name count);
 our @COUNT_FIELDS = qw(name count);
-our $STATS_FORMAT = "  %-20s %-30s %-10s\n";
-our $COUNT_FORMAT = "  %-20s %-10s\n";
+our $STATS_HEADING_FORMAT = "| %-20s | %-30s | %-10s |\n";
+our $STATS_FORMAT = "| %-20s | %-30s | % 10d |\n";
+our $COUNT_HEADING_FORMAT = "| %-20s | %-10s |\n";
+our $COUNT_FORMAT = "| %-20s |% 10d |\n";
 
 sub stats {
     return pf::pfqueue::stats->new;
@@ -77,24 +79,26 @@ Stats all the queue
 sub action_stats {
     my ($self) = @_;
     my $stats = $self->stats;
-    $self->_print_counters("Queue Counts\n", $COUNT_FORMAT, \@COUNT_FIELDS, $stats->queue_counts);
-    $self->_print_counters("Outstanding Task Counters\n", $STATS_FORMAT, \@STATS_FIELDS, $stats->counters);
-    $self->_print_counters("Expired Task Counters\n", $STATS_FORMAT, \@STATS_FIELDS, $stats->miss_counters);
+    $self->_print_counters("Queue Counts\n", $COUNT_HEADING_FORMAT, $COUNT_FORMAT, \@COUNT_FIELDS, $stats->queue_counts);
+    $self->_print_counters("Outstanding Task Counters\n", $STATS_HEADING_FORMAT, $STATS_FORMAT, \@STATS_FIELDS, $stats->counters);
+    $self->_print_counters("Expired Task Counters\n", $STATS_HEADING_FORMAT, $STATS_FORMAT, \@STATS_FIELDS, $stats->miss_counters);
     print "\n";
     return $EXIT_SUCCESS;
 }
 
 sub _print_counters {
-    my ($self, $title, $format, $fields, $counters) = @_;
+    my ($self, $title, $heading_format, $format, $fields, $counters) = @_;
     print "\n$title\n";
-    my $heading = sprintf($format, @$fields);
+    my $heading = sprintf($heading_format, @$fields);
+    my $delimter = $heading;
+    $delimter =~ s/./-/g;
+    print $delimter;
     print $heading;
-    $heading =~ s/./-/g;
-    $heading =~ s/^--/  /g;
-    print $heading;
+    print $delimter;
     foreach my $counter (@$counters) {
         print sprintf($format, @{$counter}{@$fields});
     }
+    print $delimter;
 }
 
 =head2 action_count
