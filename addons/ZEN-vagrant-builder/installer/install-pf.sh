@@ -2,9 +2,6 @@
 
 cat /vagrant/installer/rc.local > /etc/rc.local
 
-#epel is there in the base image but we don't want it...
-#rm /etc/yum.repos.d/epel.repo
-
 #repo used for the initial install of PacketFence
 cp /vagrant/installer/packetfence.repo /etc/yum.repos.d/
 
