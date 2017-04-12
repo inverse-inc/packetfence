@@ -55,6 +55,7 @@ sub service :Chained('/') :PathPart('service') :CaptureArgs(1) {
 sub status :Chained('service') :PathPart('') :Args(0) :AdminRole('SERVICES') {
     my ($self, $c) = @_;
     $self->_process_model_results($c, $c->stash->{model}->status);
+    $c->stash->{'server_hostname'}  = $c->model('Admin')->server_hostname();
 }
 
 =head2 cluster_status
