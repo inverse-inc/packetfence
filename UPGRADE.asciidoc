@@ -246,6 +246,11 @@ You will simply have to adjust your Corosync configuration so that MariaDB point
           op start timeout=60s interval=0 \
           op stop timeout=60s interval=0 \
           op monitor interval=20s timeout=30s
+	  
+You must then disable the MariaDB Galera cluster as a replication mechanism as you will still be using DRBD. In order to do so, add the following in `/usr/local/pf/conf/pf.conf`
+
+  [active_active]
+  galera_replication=disabled
 
 Active/Active clusters with external DB
 +++++++++++++++++++++++++++++++++++++++
