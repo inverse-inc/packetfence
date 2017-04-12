@@ -400,10 +400,12 @@ sub get_consumer {
 our %QUEUE_TO_SERVICE = (
     pfdetect => 'pf::services::manager::pfdetect',
     pfsnmp => 'pf::services::manager::snmptrapd',
+    pfsnmp_parsing => 'pf::services::manager::snmptrapd',
 );
 
 our %QUEUE_OFF_TO_SERVICE = (
     pfsnmp => 'pf::services::manager::pfsetvlan',
+    pfsnmp_parsing => 'pf::services::manager::pfsetvlan',
 );
 
 =head2 skip_queue
