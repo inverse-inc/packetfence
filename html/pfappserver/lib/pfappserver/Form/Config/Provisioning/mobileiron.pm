@@ -18,7 +18,7 @@ has_field username => (
 );
 
 has_field password => (
-    type => 'Password',
+    type => 'ObfuscatedText',
     required => 1,
 );
 

@@ -51,7 +51,7 @@ has_field 'ad_server' =>
 
 has_field 'bind_pass' =>
   (
-   type => 'Password',
+   type => 'ObfuscatedText',
    label => 'Password',
    tags => { after_element => \&help,
              help => 'The password of a Domain Admin to use to join the server to the domain. Will not be stored permanently and is only used while joining the domain.' },

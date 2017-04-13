@@ -41,7 +41,7 @@ has_field 'username' =>
 
 has_field 'password' =>
   (
-   type => 'Password',
+   type => 'ObfuscatedText',
    label => 'Password',
    required => 1,
    messages => { required => 'You must specify the password' },

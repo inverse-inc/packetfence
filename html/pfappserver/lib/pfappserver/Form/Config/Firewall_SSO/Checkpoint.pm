@@ -30,7 +30,7 @@ has_field 'id' =>
   );
 has_field 'password' =>
   (
-   type => 'Password',
+   type => 'ObfuscatedText',
    label => 'Secret',
    required => 1,
    messages => { required => 'You must specify the radius shared secret' },

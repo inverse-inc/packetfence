@@ -44,7 +44,7 @@ has_field 'api_username' =>
 
 has_field 'api_password' =>
   (
-   type => 'Password',
+   type => 'ObfuscatedText',
    label => 'API password',
    required => $TRUE,
   );

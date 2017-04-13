@@ -39,7 +39,7 @@ has_field 'transport' =>
 
 has_field 'password' =>
   (
-   type => 'Password',
+   type => 'ObfuscatedText',
    label => 'Secret or Key',
    tags => { after_element => \&help,
              help => 'If using the HTTP transport, specify the password for the Palo Alto API' },

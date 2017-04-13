@@ -31,7 +31,7 @@ has_field 'port' =>
   );
 has_field 'secret' =>
   (
-   type => 'Password',
+   type => 'ObfuscatedText',
    label => 'Secret',
    required => 1,
   );

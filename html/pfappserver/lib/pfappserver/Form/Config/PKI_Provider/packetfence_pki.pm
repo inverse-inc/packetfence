@@ -73,7 +73,7 @@ has_field 'username' => (
 );
 
 has_field 'password' => (
-    type        => 'Password',
+    type        => 'ObfuscatedText',
     label       => 'Password',
     tags        => {
         after_element   => \&help,
