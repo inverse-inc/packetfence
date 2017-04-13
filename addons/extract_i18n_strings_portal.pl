@@ -16,6 +16,7 @@ can be localized.
 use File::Find;
 use lib qw(/usr/local/pf/lib /usr/local/pf/html/pfappserver/lib);
 use pf::web::constants;
+use pf::person;
 
 use constant {
     CONF => 'conf',
@@ -132,22 +133,29 @@ Extract localizable strings from Models and Controllers classes.
 =cut
 
 sub parse_mc {
-    my $base = 'lib/pf/web/';
     my @modules = ('lib/pf/web.pm');
+    my @dir = qw(lib/pf/web html/captive-portal/lib/captiveportal/PacketFence/Controller html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting html/captive-portal/lib/captiveportal/PacketFence/Form);
 
     my $pm = sub {
         return unless -f && m/\.pm$/;
         push(@modules, $File::Find::name);
     };
 
-    find($pm, $base);
+    foreach my $base (@dir) {
+        find($pm, $base);
+    }
 
     my $line;
     foreach my $module (@modules) {
         open(PM, $module);
+        $module =~ s/^\.\///;
         while (defined($line = <PM>)) {
             chomp $line;
             if ($line =~ m/i18n(_format)?\(['"]([^\$].+?[^'"\\])["']\)/) {
+                my $string = $2;
+                $string =~ s/\\'/'/g;
+                add_string($string, $module);
+            } elsif ($line =~ m/(title|message|label)\s+=>\s+['"]([^\$].+?[^'"\\])["']/) {
                 my $string = $2;
                 $string =~ s/\\'/'/g;
                 add_string($string, $module);
