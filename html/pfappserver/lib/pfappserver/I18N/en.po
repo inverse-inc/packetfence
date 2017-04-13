@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 6.5.9\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-04-12 13:20-0400\n"
+"PO-Revision-Date: 2017-04-13 10:45-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -106,7 +106,7 @@ msgid "A profile id can only contain alphanumeric characters, dashes, period and
 msgstr ""
 
 # html/pfappserver/root/configuration/define_policy.tt
-msgid "A role will allow PacketFence to grant different network access to endpoints connecting to your network. For example, employee vs. guest;"
+msgid "A role will allow PacketFence to grant different network access to endpoints connecting to your network. For example, employee vs. guest."
 msgstr ""
 
 # html/pfappserver/root/admin/reports.tt
@@ -847,6 +847,12 @@ msgstr ""
 msgid "Authentication Methods:"
 msgstr ""
 
+# html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/authentication/source/read.tt
+# html/pfappserver/root/config/authentication.tt
+msgid "Authentication Sources"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/HTTP.pm
 msgid "Authentication URL"
 msgstr ""
@@ -856,7 +862,7 @@ msgid "Authentication listening port"
 msgstr ""
 
 # html/pfappserver/root/configuration/define_policy.tt
-msgid "Authentication sources will allow you to identify users and assign them roles and access durations;"
+msgid "Authentication sources will allow you to identify users and assign them roles and access durations."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/HTTP.pm
@@ -2244,7 +2250,6 @@ msgstr ""
 msgid "Destination URL where PacketFence will forward the device. By default it will use the Redirection URL from the connection profile configuration."
 msgstr ""
 
-# html/pfappserver/root/auditing/radiuslog/search.tt
 # html/pfappserver/root/dhcpoption82/search.tt
 msgid "Details"
 msgstr ""
@@ -2419,7 +2424,7 @@ msgid "EAP TTLS"
 msgstr ""
 
 # html/pfappserver/root/configuration/system_config.tt
-msgid "EAP methods provided by PacketFence can be changed from this module;"
+msgid "EAP methods provided by PacketFence can be changed from this module."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
@@ -3220,7 +3225,7 @@ msgid "If you use an alternative port, please specify. This parameter is ignored
 msgstr ""
 
 # html/pfappserver/root/configuration/define_policy.tt
-msgid "If you want to authenticate users or machines using a Active Directory Domain Controller (DC), you have to join the PacketFence server to the DC;"
+msgid "If you want to authenticate users or machines using a Active Directory Domain Controller (DC), you have to join the PacketFence server to the DC."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SAML.pm
@@ -4636,7 +4641,7 @@ msgid "PacketFence Eduroam RADIUS virtual server authentication listening port"
 msgstr ""
 
 # html/pfappserver/root/configuration/portal_config.tt
-msgid "PacketFence allows you to create advanced filtering rules based on RADIUS, DHCP, DNS or HTTP information. It also allows you to define advanced role-mapping or VLAN-mapping rules;"
+msgid "PacketFence allows you to create advanced filtering rules based on RADIUS, DHCP, DNS or HTTP information. It also allows you to define advanced role-mapping or VLAN-mapping rules."
 msgstr ""
 
 # html/pfappserver/root/configuration/advanced_conf.tt
@@ -4648,7 +4653,7 @@ msgid "PacketFence allows you to perform advanced system configuration. Among th
 msgstr ""
 
 # html/pfappserver/root/configuration/portal_config.tt
-msgid "PacketFence can \"push\" provisioning agents on endpoints to auto-configure the WiFi connection during the registration process. You can configure the provisioning agents in this module;"
+msgid "PacketFence can \"push\" provisioning agents on endpoints to auto-configure the WiFi connection during the registration process. You can configure the provisioning agents in this module."
 msgstr ""
 
 # html/pfappserver/root/configuration/compliance.tt
@@ -4660,7 +4665,7 @@ msgid "PacketFence can receive security event information from multiple solution
 msgstr ""
 
 # html/pfappserver/root/configuration/compliance.tt
-msgid "PacketFence can use active vulnerability like Nessus, OpenVAS or Windows Management Instrumentation (WMI) to proactively scan endpoints for security problems. You can define the scanners being used here;"
+msgid "PacketFence can use active vulnerability like Nessus, OpenVAS or Windows Management Instrumentation (WMI) to proactively scan endpoints for security problems. You can define the scanners being used here."
 msgstr ""
 
 # html/pfappserver/root/configuration/integration.tt
@@ -4676,15 +4681,15 @@ msgid "PacketFence is the server that assigns the VLAN (or roles) to the devices
 msgstr ""
 
 # html/pfappserver/root/configuration/system_config.tt
-msgid "PacketFence makes use of a MySQL/MariaDB database. You can configure the connection information from this module;"
+msgid "PacketFence makes use of a MySQL/MariaDB database. You can configure the connection information from this module."
 msgstr ""
 
 # html/pfappserver/root/configuration/define_policy.tt
-msgid "PacketFence manages switches, access points and WiFi controllers. You have to add the equipment you want PacketFence to manage and do the role by VLAN/ACL/policy identifier mapping;"
+msgid "PacketFence manages switches, access points and WiFi controllers. You have to add the equipment you want PacketFence to manage and do the role by VLAN/ACL/policy identifier mapping."
 msgstr ""
 
 # html/pfappserver/root/configuration/system_config.tt
-msgid "PacketFence supports clustering of 3+ members. You can configure the clustering solution from this module;"
+msgid "PacketFence supports clustering of 3+ members. You can configure the clustering solution from this module."
 msgstr ""
 
 # html/pfappserver/root/configurator/database.tt
@@ -6596,7 +6601,6 @@ msgid "Source Switch Port Description"
 msgstr ""
 
 # html/pfappserver/root/admin/auditing_radius_log.tt
-# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/profile/tab-content.tt
 msgid "Sources"
 msgstr ""
@@ -7053,7 +7057,7 @@ msgid "The Root Portal Module to use"
 msgstr ""
 
 # html/pfappserver/root/configuration/advanced_conf.tt
-msgid "The SNMP engine in PacketFence can be configured here;"
+msgid "The SNMP engine in PacketFence can be configured here."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/URL.pm
@@ -7234,7 +7238,7 @@ msgid "The message that will be displayed to the user. Use with caution as the H
 msgstr ""
 
 # html/pfappserver/root/configuration/portal_config.tt
-msgid "The module allows you to deeply customize the captive portal workflows;"
+msgid "The module allows you to deeply customize the captive portal workflows."
 msgstr ""
 
 # html/pfappserver/root/config/pfdetect/type/regex.tt
@@ -7498,15 +7502,15 @@ msgid "This allows PacketFence to define tiers for billing engines integration."
 msgstr ""
 
 # html/pfappserver/root/configuration/integration.tt
-msgid "This allows PacketFence to expose some of its APIs through Web Services. See the PacketFence Developers Guide for API documentation;"
+msgid "This allows PacketFence to expose some of its APIs through Web Services. See the PacketFence Developers Guide for API documentation."
 msgstr ""
 
 # html/pfappserver/root/configuration/integration.tt
-msgid "This allows PacketFence to let the firewall know who is using a particular IP address on the network. The firewall can then apply per-user or per-role policies;"
+msgid "This allows PacketFence to let the firewall know who is using a particular IP address on the network. The firewall can then apply per-user or per-role policies."
 msgstr ""
 
 # html/pfappserver/root/configuration/integration.tt
-msgid "This allows PacketFence to query OPSWAT Metadefender Cloud for file hashes in order to detect malware or virus infected files. This is done through the Suricata HTTP file extraction plugin;"
+msgid "This allows PacketFence to query OPSWAT Metadefender Cloud for file hashes in order to detect malware or virus infected files. This is done through the Suricata HTTP file extraction plugin."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
@@ -7514,11 +7518,11 @@ msgid "This allows already registered users to be able to re-register their devi
 msgstr ""
 
 # html/pfappserver/root/configuration/system_config.tt
-msgid "This allows you set the DNS name, SMTP information for alerts, default language and more;"
+msgid "This allows you set the DNS name, SMTP information for alerts, default language and more."
 msgstr ""
 
 # html/pfappserver/root/configuration/advanced_conf.tt
-msgid "This allows you to configure networks managed by PacketFence, in-bound and fencing configuration parameters as well as parking of endpoints;"
+msgid "This allows you to configure networks managed by PacketFence, in-bound and fencing configuration parameters as well as parking of endpoints."
 msgstr ""
 
 # html/pfappserver/root/configuration/advanced_conf.tt
@@ -7526,7 +7530,7 @@ msgid "This allows you to create floating devices in PacketFence - like a switch
 msgstr ""
 
 # html/pfappserver/root/configuration/advanced_conf.tt
-msgid "This allows you to enable or not OMAPI-based IP address to MAC address lookups;"
+msgid "This allows you to enable or not OMAPI-based IP address to MAC address lookups."
 msgstr ""
 
 # html/pfappserver/root/configuration/portal_config.tt
@@ -7534,7 +7538,7 @@ msgid "This allows you to enable the device registration feature in PacketFence 
 msgstr ""
 
 # html/pfappserver/root/configuration/portal_config.tt
-msgid "This allows you to set the various access duration that will be available in your actions definition from your authentication sources;"
+msgid "This allows you to set the various access duration that will be available in your actions definition from your authentication sources."
 msgstr ""
 
 # html/pfappserver/root/config/filters/index.tt
@@ -7542,11 +7546,11 @@ msgid "This is an advanced section. Proceed with caution when editing."
 msgstr ""
 
 # html/pfappserver/root/configuration/portal_config.tt
-msgid "This is for changing global captive-portal parameters;"
+msgid "This is for changing global captive-portal parameters."
 msgstr ""
 
 # html/pfappserver/root/configuration/compliance.tt
-msgid "This is for device profiling or fingerprinting using the Fingerbank solution. Fingerbank allows you to accurately identify an endpoint on your network (printer vs. tablet);"
+msgid "This is for device profiling or fingerprinting using the Fingerbank solution. Fingerbank allows you to accurately identify an endpoint on your network (printer vs. tablet)."
 msgstr ""
 
 # conf/documentation.conf (guests_admin_registration.default_access_duration)
@@ -7570,11 +7574,11 @@ msgid "This option emulates SSO when someone needs to face the captive portal af
 msgstr ""
 
 # html/pfappserver/root/configuration/compliance.tt
-msgid "This powerful module allows you to tie security events (malware detection, unauthorized operating system, etc.) with actions such as quarantining endpoints, sending email alerts and showing remediation instructions from captive portal;"
+msgid "This powerful module allows you to tie security events (malware detection, unauthorized operating system, etc.) with actions such as quarantining endpoints, sending email alerts and showing remediation instructions from captive portal."
 msgstr ""
 
 # html/pfappserver/root/configuration/integration.tt
-msgid "This provides PacketFence geographical location information of endpoints on the network. You can then provide a different captive portal based on where the device is physically located, or position an endpoint on a specific map of a building;"
+msgid "This provides PacketFence geographical location information of endpoints on the network. You can then provide a different captive portal based on where the device is physically located, or position an endpoint on a specific map of a building."
 msgstr ""
 
 # conf/documentation.conf (proxies)
@@ -7990,10 +7994,6 @@ msgstr ""
 msgid "User Name Write"
 msgstr ""
 
-# html/pfappserver/root/authentication/source/read.tt
-msgid "User Sources"
-msgstr ""
-
 # html/pfappserver/root/config/fingerbank/user_agent/view.tt
 msgid "User_Agent"
 msgstr ""
@@ -8052,10 +8052,6 @@ msgstr ""
 # html/pfappserver/root/admin/wrapper.tt
 msgid "Users"
 msgstr ""
-
-# html/pfappserver/root/config/authentication.tt
-msgid "Users Sources"
-msgstr "Sources"
 
 # pf::admin_roles (Actions groups)
 msgid "VIOLATIONS"
@@ -8336,7 +8332,7 @@ msgid "When enabled, PacketFence will not use the role initialy computed on the 
 msgstr ""
 
 # html/pfappserver/root/configuration/portal_config.tt
-msgid "When provisioning in EAP-TLS, PacketFence needs to be configured to integrate with PKI infrastructure. This is done in this module;"
+msgid "When provisioning in EAP-TLS, PacketFence needs to be configured to integrate with PKI infrastructure. This is done in this module."
 msgstr ""
 
 # conf/documentation.conf (network.rogueinterval)
@@ -8361,6 +8357,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Pfmon.pm
 msgid "Whether or not this task is enabled.<br>Requires a restart of pfmon to be effective."
+msgstr ""
+
+# conf/documentation.conf (active_active.galera_replication)
+msgid "Whether or not to activate galera cluster when using a cluster"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
@@ -9063,6 +9063,7 @@ msgstr ""
 # conf/documentation.conf (active_active.auth_on_management options)
 # conf/documentation.conf (active_active.centralized_deauth options)
 # conf/documentation.conf (active_active.dns_on_vip_only options)
+# conf/documentation.conf (active_active.galera_replication options)
 # conf/documentation.conf (advanced.disable_pf_domain_auth options)
 # conf/documentation.conf (advanced.locationlog_close_on_accounting_stop options)
 # conf/documentation.conf (advanced.multihost options)
@@ -9180,6 +9181,7 @@ msgstr ""
 # conf/documentation.conf (active_active.auth_on_management options)
 # conf/documentation.conf (active_active.centralized_deauth options)
 # conf/documentation.conf (active_active.dns_on_vip_only options)
+# conf/documentation.conf (active_active.galera_replication options)
 # conf/documentation.conf (advanced.disable_pf_domain_auth options)
 # conf/documentation.conf (advanced.locationlog_close_on_accounting_stop options)
 # conf/documentation.conf (advanced.multihost options)
