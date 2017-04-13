@@ -999,12 +999,26 @@ $(function () { // DOM ready
         FingerbankSearch.setup();
         $('.pf-obfuscated-text + button').hover(function(e) {
             var $this = $(this);
-            $this.prev().attr('type','text');
+            var input = $this.prev();
+            input.attr('type', 'text');
+            var x_placeholder = input.attr('x-placeholder');
+            if (x_placeholder) {
+                var placeholder = input.attr('placeholder');
+                input.attr('placeholder', x_placeholder);
+                input.attr('x-placeholder', placeholder);
+            }
             $this.find('i').removeClass('icon-eye').addClass('icon-eye-slash');
         },
         function(e) {
             var $this = $(this);
-            $this.prev().attr('type','password');
+            var input = $this.prev();
+            input.attr('type', 'password');
+            var x_placeholder = input.attr('x-placeholder');
+            if (x_placeholder) {
+                var placeholder = input.attr('placeholder');
+                input.attr('placeholder', x_placeholder);
+                input.attr('x-placeholder', placeholder);
+            }
             $this.find('i').removeClass('icon-eye-slash').addClass('icon-eye');
         });
 
