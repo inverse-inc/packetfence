@@ -1,0 +1,69 @@
+<div class="row-fluid">
+  <span class="offset2 span4">
+    <div class="card">
+      <div class="card-block">
+        <table class="table unbordered">
+          <tr>
+            <th>[% l('Version') %]</th>
+            <td><div class="pull-right">[% pf_release | html %]</div></td>
+          </tr>
+          <tr>
+            <th>[% l('Server') %]</th>
+            <td><div class="pull-right">[% server_hostname | html %]</div></td>
+          </tr>
+        </table>
+      </div>
+      <div class="form-actions">
+        <a class="btn btn-block" href="https://packetfence.org/support/index.html#/commercial"
+           target="_blank">[% l('Support Inquiry') %]</a>
+      </div>
+    </div>
+        <p class="text-right">
+          <a href="https://inverse.ca/"><img alt="Inverse" src="[% c.uri_for('/static/img/inverse.small.png') %]"></a>
+        </p>
+  </span>
+  <span class="span9">
+    
+    <div class="card">
+      <div class="card-title">
+        <h2>[% l('Documentation') %]</h2>
+      </div>
+      <div class="card-block">
+        [% MACRO guide(name, path) BLOCK %]
+        <li>
+          <a href="[% doc_url(null, path) %]" target="_blank">[% l(name) %]</a>
+        </li>
+        [% END -%]
+        <ul class="nav nav-pills nav-vertical">
+          [%
+          guide('Administration Guide', 'Administration_Guide') | none;
+          guide('Network Devices Configuration Guide', 'Network_Devices_Configuration_Guide') | none;
+          guide('Inline Deployment Quick Guide using ZEN', 'Inline_Deployment_Quick_Guide_ZEN') | none;
+          guide('Out-of-Band Deployment Quick Guide using ZEN', 'Out-of-Band_Deployment_Quick_Guide_ZEN') | none;
+          guide('Clustering Quick Installation Guide', 'Clustering_Guide') | none;
+          guide('PKI Quick Installation Guide', 'PKI_Quick_Install_Guide') | none;
+          guide('Developer\'s Guide', 'Developers_Guide') | none
+          %]
+        </ul>
+
+        <h3>[% l('Integration Guides') %]</h3>
+        <ul class="nav nav-pills nav-vertical">
+          [%
+          guide('Aerohive Networks', 'Aerohive_Quick_Install_Guide') | none;
+          guide('Anyfi Networks', 'Anyfi_Quick_Install_Guide') | none;
+          guide('Barracuda firewall', 'Barracuda_Quick_Install_Guide') | none;
+          guide('Checkpoint firewall', 'Checkpoint_Quick_Install_Guide') | none;
+          guide('CoovaChilli access controller', 'CoovaChilli_Quick_Integration_Guide') | none;
+          guide('FortiGate firewall', 'FortiGate_Quick_Install_Guide') | none;
+          guide('Microsoft PKI (MSPKI)', 'MSPKI_Quick_Install_Guide') | none;
+          guide('MobileIron mobile device manager', 'MobileIron_Quick_Install_Guide') | none;
+          guide('OpenWrt', 'OpenWrt-Hostapd-15-05_Quick_Install_Guide') | none;
+          guide('OPSWAT Metadefender Endpoint Management', 'OPSWAT_Quick_Install_Guide') | none;
+          guide('PaloAlto firewall', 'PaloAlto_Quick_Install_Guide') | none;
+          guide('Symantec Endpoint Protection Manager', 'SEPM_Quick_Install_Guide') | none;
+          %]
+        </ul>
+      </div>
+    </div>
+  </span>
+</div>
