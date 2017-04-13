@@ -151,9 +151,9 @@ host=127.0.0.1
 
 Now, reload the configuration and restart packetfence-config. You will see errors related to a cache write issue but you can safely ignore it for now. These appear because packetfence-config cannot connect to the database yet.
 
-  # systemctl packetfence-config restart
+  # systemctl restart packetfence-config
   # /usr/local/pf/bin/pfcmd configreload hard
-  # systemctl packetfence-haproxy start
+  # systemctl restart packetfence-haproxy
 
 Configure cluster.conf
 ^^^^^^^^^^^^^^^^^^^^^^
