@@ -88,7 +88,7 @@ has_field 'binddn' =>
   );
 has_field 'password' =>
   (
-   type => 'Password',
+   type => 'ObfuscatedText',
    label => 'Password',
    trim => undef,
   );
