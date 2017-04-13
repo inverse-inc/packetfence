@@ -1,3 +1,4 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
 function saveSearchFromForm(form_id) {
     var modal  = $("#savedSearch");
     var saved_search_form = $("#savedSearchForm");

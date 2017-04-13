@@ -40,8 +40,9 @@ module.exports = function(grunt) {
     ],
     'js/vendor/jquery-extra.min.js': [
       'js/jquery.browser.js',
+      'js/jquery.loader.js',
       'app/uri.js',
-      'bower_components/clipboard/dist/clipboard.js'
+      'bower_components/clipboard/dist/clipboard.js',
     ],
     'js/raphael.min.js': [
       'app/raphael/raphael-min.js',

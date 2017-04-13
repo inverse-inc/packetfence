@@ -481,7 +481,6 @@
             </form>
           </div>
 
-          <div class="loader"><i class="icon"></i></div>
           <div class="nodes card-block" id="section">
           </div>
         </div><!--/span-->

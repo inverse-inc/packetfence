@@ -92,20 +92,20 @@ ItemView.prototype.readItem = function(e) {
     var that = this;
     var modal = $(this.items.modalId);
     var section = $('#section');
-    var loader = section.prev('.loader');
     var target = e.target;
     if (target.nodeName != 'A')
         target = target.parentNode;
-    loader.show();
+    section.loader();
     section.fadeTo('fast', 0.5);
     modal.empty();
     $('.chzn-drop').remove(); // fixes a chzn bug with optgroups
     this.items.get({
         url: $(target).attr('href'),
         always: function() {
-            loader.hide();
             section.stop();
-            section.fadeTo('fast', 1.0);
+            section.fadeTo('fast', 1.0, function() {
+                section.loader('hide');
+            });
         },
         success: function(data) {
             modal.append(data);
@@ -219,7 +219,7 @@ ItemView.prototype.search = function(e) {
     e.preventDefault();
     var form = $(e.target);
     var url = form.attr('action');
-    this.searchRefresh(url,form);
+    this.searchRefresh(url, form);
     return false;
 };
 
@@ -235,7 +235,7 @@ ItemView.prototype.searchNext = function(e) {
 ItemView.prototype.searchRefresh = function(search_url,form) {
     var table = $(this.items.id);
     var that = this;
-    table.fadeTo('fast',0.5,function() {
+    table.fadeTo('fast', 0.5, function() {
         that.items.post({
             url: search_url,
             data: form.serialize(),

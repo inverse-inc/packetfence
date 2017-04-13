@@ -42,13 +42,9 @@
 
     <div class="row-fluid">
       <div class="container-fluid offset3 span15">
-
-
-          <div class="loader"><i class="icon"></i></div>
-          <div id="section" class="card">
+        <div id="section" class="card">
             <div class="graph"></div>
           </div>
         </div><!--/span -->
-
       </div><!--/row -->
     </div><!--/.fluid-container-->

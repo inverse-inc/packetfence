@@ -164,17 +164,18 @@ function doUpdateSection(ajax_data) {
     var section = $('#section');
     if (section) {
         $("body,html").animate({scrollTop:0}, 'fast');
-        var loader = section.prev('.loader');
-        loader.show();
+        section.loader();
         section.fadeTo('fast', 0.5, function() {
             $.ajax(ajax_data)
                 .always(function() {
-                    loader.hide();
-                    section.fadeTo('fast', 1.0);
+                    section.fadeTo('fast', 1.0, function() {
+                        section.loader('hide');
+                    });
                     resetAlert(section);
                 })
                 .done(function(data) {
-                    section.html(data);
+                    section.empty();
+                    section.append(data);
                     section.find('.input-date, .input-daterange').datepicker({ autoclose: true });
                     section.find('.input-daterange input').on('changeDate', function(event) {
                         // Force autoclose
@@ -196,10 +197,10 @@ function doUpdateSection(ajax_data) {
                 })
                 .fail(function(jqXHR) {
                     var status_msg = getStatusMsg(jqXHR);
-                    var alert_section = section.children('h1, h2, h3').first().next();
+                    var alert_section = section.find('h1, h2, h3').first().next();
                     if (alert_section.length === 0) {
-                        section.prepend('<h2></h2><div></div>');
-                        alert_section = section.children().first().next();
+                        section.prepend('<div class="card-actions"><h2></h2><div></div></div>');
+                        alert_section = section.find('h2').first().next();
                     }
                     showPermanentError(alert_section, status_msg);
                 });

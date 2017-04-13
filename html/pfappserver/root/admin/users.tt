@@ -225,7 +225,6 @@
             </div><!--/.tab-content-->
           </div><!--/.tabbable-->
           </div>
-          <div class="loader"><i class="icon"></i></div>
           <div class="users card-block" id="section">
           </div>
         </div><!--/span-->

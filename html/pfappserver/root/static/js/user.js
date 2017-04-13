@@ -1,3 +1,5 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
+
 "use strict";
 
 /*
@@ -131,15 +133,15 @@ UserView.prototype.readUser = function(e) {
     e.preventDefault();
 
     var section = $('#section');
-    var loader = section.prev('.loader');
-    loader.show();
+    section.loader();
     section.fadeTo('fast', 0.5);
     this.users.get({
         url: $(e.target).attr('href'),
         always: function() {
-            loader.hide();
             section.stop();
-            section.fadeTo('fast', 1.0);
+            section.fadeTo('fast', 1.0, function() {
+                section.loader('hide');
+            });
         },
         success: function(data) {
             $('#modalUser').remove();
@@ -418,17 +420,17 @@ UserView.prototype.readNode = function(e) {
 
     var url = $(e.target).attr('href');
     var section = $('#section');
-    var loader = section.prev('.loader');
     var modalUser = $("#modalUser");
     var modalUser_body = modalUser.find('.modal-body').first();
-    loader.show();
+    section.loader();
     section.fadeTo('fast', 0.5);
     this.users.get({
         url: url,
         always: function() {
-            loader.hide();
             section.stop();
-            section.fadeTo('fast', 1.0);
+            section.fadeTo('fast', 1.0, function() {
+                section.loader('hide');
+            });
         },
         success: function(data) {
             $('body').append(data);
@@ -486,10 +488,10 @@ UserView.prototype.advancedSearchUpdater = function(e) {
     var link = $(e.currentTarget);
     var form = $('#advancedSearch');
     var href = link.attr("href");
-    if(href) {
+    if (href) {
         href = href.replace(/^.*#user\/advanced_search\//,'');
         var values = href.split("/");
-        for(var i =0;i<values.length;i+=2) {
+        for(var i = 0; i < values.length; i += 2) {
             var name = values[i];
             var value = values[i + 1];
             form.find('[name="' + name + '"]:not(:disabled)').val(value);
@@ -513,22 +515,20 @@ UserView.prototype.submitItems = function(e) {
         if (items.length) {
             if (section) {
                 $("body,html").animate({scrollTop:0}, 'fast');
-                var loader = section.prev('.loader');
-                loader.show();
+                section.loader();
                 section.fadeTo('fast', 0.5, function() {
                     users.post({
                         url: target.attr("data-target"),
                         data: items,
+                        always: function(data) {
+                            $(window).hashchange();
+                        },
                         success: function(data) {
                             var show_msg = function() {
                                 showSuccess($("#section").find('h2').first(), data.status_msg);
                                 $("#section").off('section.loaded', show_msg);
                             };
                             $("#section").on('section.loaded', show_msg);
-                        },
-                        always: function(data) {
-                            loader.hide();
-                            $(window).hashchange();
                         },
                         errorSibling: status_container
                     });
@@ -555,17 +555,16 @@ UserView.prototype.changeOrder = function(e, form_id) {
     var href = link.attr("href");
     var section = $('#section');
     var status_container = $("#section").find('h2').first();
-    var loader = section.prev('.loader');
     var form = $(form_id);
-    loader.show();
-    section.fadeTo('fast', 0.5);
+    section.loader();
     section.fadeTo('fast', 0.5, function() {
         that.users.post({
             url: href,
             data: form.serialize(),
             always: function() {
-                loader.hide();
-                section.fadeTo('fast', 1.0);
+                section.fadeTo('fast', 1.0, function() {
+                    section.loader('hide');
+                });
             },
             success: function(data) {
                 section.html(data);
@@ -584,23 +583,20 @@ UserView.prototype.searchPagination = function(e) {
     var pagination = link.closest('.pagination');
     var formId = pagination.attr('data-from-form') || '#search';
     var form = $(formId);
-    if(form.length == 0) {
+    if (form.length === 0)
         form = $('#search');
-    }
-//    var columns = $('#columns');
     var href = link.attr("href");
     var section = $('#section');
     var status_container = $("#section").find('h2').first();
-    var loader = section.prev('.loader');
-    loader.show();
-    section.fadeTo('fast', 0.5);
+    section.loader();
     section.fadeTo('fast', 0.5, function() {
         that.users.post({
             url: href,
             data: form.serialize(),
             always: function() {
-                loader.hide();
-                section.fadeTo('fast', 1.0);
+                section.fadeTo('fast', 1.0, function() {
+                    section.loader('hide');
+                });
             },
             success: function(data) {
                 section.html(data);
@@ -618,18 +614,17 @@ UserView.prototype.submitSearch = function(e) {
     var form = $(e.currentTarget);
     var href = form.attr("action");
     var section = $('#section');
-    var columns = $('#columns');
     $("body,html").animate({scrollTop:0}, 'fast');
     var status_container = $("#section").find('h2').first();
-    var loader = section.prev('.loader');
-    loader.show();
+    section.loader();
     section.fadeTo('fast', 0.5, function() {
         that.users.post({
             url: href,
             data: form.serialize(),
             always: function() {
-                loader.hide();
-                section.fadeTo('fast', 1.0);
+                section.fadeTo('fast', 1.0, function() {
+                    section.loader('hide');
+                });
             },
             success: function(data) {
                 section.html(data);
