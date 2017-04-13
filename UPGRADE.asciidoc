@@ -17,7 +17,7 @@ A complete database backup can be taken using this command:
 If your database is more than a few hundred megabytes, you may also want to consider using a tool such as Percona XtraBackup which makes for much faster restores than mysqldump.
 
 It is also possible to simply backup the actual MySQL files themselves -- as long as the database is not currently running.
-To do so, stop mysql and then copy all files under /var/lib/mysql to a secure directory.
+To do so, stop MySQL and then copy all files under /var/lib/mysql to a secure directory.
 
 PacketFence configurations and codebase backup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -51,11 +51,11 @@ Run the following command to update PacketFence:
 
   yum update packetfence --enablerepo=packetfence
   
-Since PacketFence heavily relies on Fingerbank, it is recommended to make sure running the latest version:
+Since PacketFence heavily relies on Fingerbank, it is recommended to make sure you are running the latest version:
 
   yum update fingerbank --enablerepo=packetfence
 
-PacketFence should now be upgraded. However, there may be extra steps required depending on the version you are upgrading from. Please review the following notes about upgrading from an older release.
+PacketFence and Fingerbank should now be upgraded. However, there may be extra steps required depending on the version you are upgrading from. Please review the following notes about upgrading from an older release.
 
 Debian based systems
 ^^^^^^^^^^^^^^^^^^^^
@@ -66,11 +66,11 @@ Run the following command to update PacketFence:
 
   apt install packetfence
 
-Since PacketFence heavily relies on Fingerbank, it is recommended to make sure running the latest version:
+Since PacketFence heavily relies on Fingerbank, it is recommended to make sure you are running the latest version:
 
   apt install fingerbank
 
-PacketFence should now be upgraded. However, there may be extra steps required depending on the version you are upgrading from. Please review the following notes about upgrading from an older release.
+PacketFence and Fingerbank should now be upgraded. However, there may be extra steps required depending on the version you are upgrading from. Please review the following notes about upgrading from an older release.
 
 '''
 
@@ -123,7 +123,7 @@ Make sure the apt database is up to date
 
     apt update
 
-Remove the mysql 5.5 packages (do not purge them, as that would delete the database)
+Remove the MySQL 5.5 packages (do not purge them, as that would delete the database)
 
     dpkg -r --force-all mysql-client-5.5 mysql-common mysql-server mysql-server-5.5 mysql-server-core-5.5 libmysqlclient18
 
@@ -266,7 +266,7 @@ We highly suggest you migrate your existing clustered installation using Corosyn
 The easiest way to perform this is to build new servers and port your configuration (by copying the configuration files) and your database (using mysqldump).
 There are ways to migrate the 2 existing nodes to a 3 nodes cluster but this is not covered in this guide.
 
-Note that you can safely keep your existing 2 node cluster with Corosync/Pacemaker in place and things will work like before.
+Note that you can safely keep your existing 2-node cluster with Corosync/Pacemaker in place and things will work like before.
 You will simply have to adjust your Corosync configuration so that MariaDB points to the packetfence-mariadb file instead of the mariadb unit.
 
   primitive MariaDB systemd:packetfence-mariadb \
@@ -289,7 +289,7 @@ Active/Passive clusters
 
 CAUTION: You shouldn't be running active/passive clusters anymore. If you do, you're pretty much on your own for community support. Inverse provides professionnal services to help you maintain these clusters. If you intend to keep an active/passive cluster, we suggest you have deep knowledge of Corosync/Pacemaker and strong Linux skills.
 
-First, no changes are required to your database stack as MariaDB supports being deployed in Active/Passive
+First, no changes are required to your database stack as MariaDB supports being deployed in Active/Passive.
 
 You will need to adjust the Corosync/Pacemaker configuration to take in consideration the changes made to systemd for PacketFence services. Before 7.0, PacketFence used to be controlled via a single systemd unit file while now it uses a multiple services grouped in targets. In order to mimic the single service behavior that was in previous versions, a unit file is provided here: https://github.com/inverse-inc/packetfence/blob/devel/packetfence-active-passive.service. You should install this file in `/etc/systemd/system/packetfence.service` and make sure there are no other leftovers of `packetfence.service` unit files on your system.
 
