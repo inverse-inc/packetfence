@@ -18,6 +18,12 @@ use namespace::autoclean;
 
 has '+type_attr'        => ( default => 'password' );
 
+sub BUILD {
+    my ($self, @args) = @_;
+    $self->add_element_class(qw(pf-obfuscated-text));
+    $self->set_tag('input_append_button', '<i class="icon-eye"></i>');
+}
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2017 Inverse inc.
