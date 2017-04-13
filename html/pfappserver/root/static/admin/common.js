@@ -997,6 +997,16 @@ $(function () { // DOM ready
         updateExtendedDurationExample($('.extended-duration'));
         bindExportCSV();
         FingerbankSearch.setup();
+        $('.pf-obfuscated-text + button').hover(function(e) {
+            var $this = $(this);
+            $this.prev().attr('type','text');
+            $this.find('i').removeClass('icon-eye').addClass('icon-eye-slash');
+        },
+        function(e) {
+            var $this = $(this);
+            $this.prev().attr('type','password');
+            $this.find('i').removeClass('icon-eye-slash').addClass('icon-eye');
+        });
 
         // If the section includes a dynamic sidenav section, move it to the sidenav row
         var sidenav = $('.sidenav-fluid .row-fluid').first();
