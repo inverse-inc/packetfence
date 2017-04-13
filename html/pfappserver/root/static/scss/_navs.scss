@@ -10,3 +10,8 @@
 .tab-content {
   overflow: visible; // prevent scrolling, see commit 0e1fa9b
 }
+
+// Basic pills but vertical
+.nav-pills.nav-vertical > li {
+  float: none;
+}

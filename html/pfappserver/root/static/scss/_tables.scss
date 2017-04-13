@@ -5,6 +5,13 @@
   max-width: 0;
 }
 
+// No-border cells
+.table.unbordered {
+  td, th {
+    border-top: 0;
+  }
+}
+
 // Improve apparence of folders in files list
 tr[data-swap] {
     background-color: #fff;
@@ -22,7 +29,7 @@ table input[type="text"] {
   margin-bottom: 0px;
 }
 
+// Nested inside card
 .card .table .table {
-  // Nesting inside card
   background-color: $cardBackground;
 }
