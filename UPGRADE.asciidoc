@@ -280,6 +280,22 @@ You must then disable the MariaDB Galera cluster as a replication mechanism as y
 
   [active_active]
   galera_replication=disabled
+  
+You must also instruct packetfence-mariadb to bind to the management IP address of the server manually.
+
+In order to do so, change the following section in `/usr/local/pf/conf/mariadb/mariadb.conf.tt`:
+
+  [% IF server_ip.length %]
+  bind-address=[% server_ip %]
+  [% ELSE %]
+  skip-networking
+  bind-address=
+  [% END %]
+
+with:
+  bind-address=1.2.3.4
+
+Where 1.2.3.4 is the management IP address of the server.
 
 Active/Active clusters with external DB
 +++++++++++++++++++++++++++++++++++++++
