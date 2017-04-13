@@ -107,7 +107,7 @@ Now, on the first server of your cluster, you should go through the configurator
 
 Then restart PacketFence's mariadb on the first server:
 
-  # systemctl packetfence-mariadb restart
+  # systemctl restart packetfence-mariadb
 
 On the other servers of your cluster, configure only the network interfaces without going past that section in the configurator. If the other servers already have the right IP addresses configured on their interfaces, you can ignore this step.
 
