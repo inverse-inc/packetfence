@@ -1265,21 +1265,33 @@ sub is_in_list {
 
 =item validate_date
 
-Validates a date to ensure it doesn't exceed 2038-01-18
+Check if a date is between 1970-01-01 and 2038-01-18
 
 =cut
 
 sub validate_date {
     my ($date) = @_;
-    my $t = Time::Piece->strptime($date, "%Y-%m-%d");
-    if(
-        $t->year > 2038
-        || $t->year == 2038 && $t->mon > 1
-        || $t->year == 2038 && $t->mon == 1 && $t->mday > 18
-    ) {
-        return $FALSE;
+    my $valid = $FALSE;
+
+    eval {
+        my $t = Time::Piece->strptime($date, "%Y-%m-%d");
+        if (
+            $t->year > 2038
+            || $t->year == 2038 && $t->mon > 1
+            || $t->year == 2038 && $t->mon == 1 && $t->mday > 18
+            || $t->year < 1970
+           ) {
+            $valid = $FALSE;
+        }
+        else {
+            $valid = $TRUE;
+        }
+    };
+    if ($@) {
+        $valid = $FALSE;
     }
-    return $TRUE;
+
+    return $valid;
 }
 
 =item clean_locale
