@@ -64,6 +64,7 @@ backend mysql
     #option external-check
     #external-check command /usr/local/pf/var/run/db-check
     #external-check path "/usr/bin:/bin"
+    timeout connect 3s
 %%mysql_backend%%
 
 backend proxy
