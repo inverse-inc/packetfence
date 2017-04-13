@@ -1817,23 +1817,6 @@ sub reverseBitmask {
     return $flippedBitMask;
 }
 
-=item getSysUptime - returns the sysUpTime
-
-=cut
-
-sub getSysUptime {
-    my ($self)        = @_;
-    my $logger        = $self->logger;
-    my $oid_sysUptime = '1.3.6.1.2.1.1.3.0';
-    if ( !$self->connectRead() ) {
-        return '';
-    }
-    $logger->trace("SNMP get_request for sysUptime: $oid_sysUptime");
-    my $result = $self->{_sessionRead}
-        ->get_request( -varbindlist => [$oid_sysUptime] );
-    return $result->{$oid_sysUptime};
-}
-
 =item getIfType - return the ifType
 
 =cut
