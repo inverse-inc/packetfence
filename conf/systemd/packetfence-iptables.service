@@ -1,6 +1,6 @@
 [Unit]
 Description=PacketFence Iptables configuration
-Wants=packetfence-mariadb.service packetfence-config.service
+Wants=packetfence-config.service
 
 [Service]
 StartLimitBurst=3
