@@ -90,7 +90,7 @@
               </div><!--#simple-->
               <div class="tab-pane" id="advanced">
                 <form id="advancedUserSearch" method="POST" name="advancedUserSearch" class="form-inline" action="[% c.uri_for(c.controller('User').action_for('advanced_search')) %]">
-                  <table class="table-dynamic">
+                  <table id="advancedUserSearchConditions" class="table-dynamic">
                     <thead>
                       <tr>
                         <td>
@@ -104,9 +104,10 @@
                         </td>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody data-no-remove="yes">
                       <tr class="hidden dynamic-row">
                         <td>
+                         <div class="control-group">
                           <select name="searches.0.name" disabled="disabled" class="span4">
                             <option value="username">[% l('username') %]</option>
                             <option value="name">[% l('name') %]</option>
@@ -148,6 +149,7 @@
                             <option value="like">[% l('matches') %]</option>
                           </select>
                           <input name="searches.0.value" disabled="disabled" type="text" class="span6" placeholder="[% l('String...') %]">
+                            </div>
                         </td>
                         <td class="action">
                           <a class="btn-icon" href="#add"><i class="icon-plus-circle"></i></a>
@@ -156,6 +158,7 @@
                       </tr>
                       <tr class="dynamic-row">
                         <td>
+                         <div class="control-group">
                           <select name="searches.0.name" class="span4">
                             <option value="username">[% l('username') %]</option>
                             <option value="name">[% l('name') %]</option>
@@ -197,11 +200,29 @@
                             <option value="like">[% l('matches') %]</option>
                           </select>
                           <input name="searches.0.value" type="text" class="span6" placeholder="[% l('String...') %]">
+                            </div>
                         </td>
                         <td class="action">
                           <a class="btn-icon" href="#add"><i class="icon-plus-circle"></i></a>
-                          <!--a class="btn-icon" href="#delete"><i class="icon-minus-circle"></i></a-->
+                          <a class="btn-icon" href="#delete"><i class="icon-minus-circle"></i></a>
                         </td>
+                      </tr>
+                    </tbody>
+                    <tfoot>
+                      <tr>
+                        <td colspan="2">
+                          <div class="control-group">
+                            <div id="advancedUserSearchConditionsEmpty" class="hidden unwell unwell-horizontal">
+                              <p>
+                                <i class="icon-search icon-large"> </i>
+                                <a href="#add">[% l('Add a condition.') %]</a>
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>&nbsp;</td>
                       </tr>
                       <tr>
                         <td>
@@ -218,7 +239,7 @@
                           </div>
                         </td>
                       </tr>
-                    </tbody>
+                    </tfoot>
                   </table>
                 </form>
               </div><!--#advanced-->
