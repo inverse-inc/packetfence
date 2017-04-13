@@ -56,7 +56,7 @@ Setup on the first server of your cluster
 
 First, start packetfence-mariadb and make sure it was able to start in 'standalone' mode.
 
-  # systemctl packetfence-mariadb start
+  # systemctl start packetfence-mariadb
 
 Then, secure your installation
 
