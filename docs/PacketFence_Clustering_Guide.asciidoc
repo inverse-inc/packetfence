@@ -271,11 +271,11 @@ Then make sure the PacketFence clustering services will be started at boot by ru
 
 Still on the first server, start MariaDB forcing it to create a new cluster. This command will not return until you break it, so leave it running in the background and continue on.
 
- # systemctl packetfence-mariadb stop
+ # systemctl stop packetfence-mariadb
  # /usr/local/pf/bin/pfcmd generatemariadbconfig
  # /usr/local/pf/sbin/pf-mariadb --force-new-cluster
 
-NOTE: If the cluster is unable to get created properly, it may be because the other nodes have their MariaDB service running. Make sure you stop it on all nodes except the first one for now (`systemctl packetfence-mariadb stop` and `systemctl mariadb stop`).
+NOTE: If the cluster is unable to get created properly, it may be because the other nodes have their MariaDB service running. Make sure you stop it on all nodes except the first one for now (`systemctl stop packetfence-mariadb` and `systemctl stop mariadb`).
 
 Then, restart PacketFence to apply all your changes
 
@@ -318,7 +318,7 @@ Where :
 
 Reload the configuration and start the webservices on the new server
 
-  # systemctl packetfence-config restart
+  # systemctl restart packetfence-config
   # /usr/local/pf/bin/pfcmd configreload
   # /usr/local/pf/bin/pfcmd service haproxy restart
   # /usr/local/pf/bin/pfcmd service httpd.webservices restart
@@ -334,7 +334,7 @@ First, ensure your MariaDB instance running with `--force-new-cluster` is still 
 
 Then, ensure packetfence-mariadb is stopped on the two servers that will be joined
 
-  # systemctl packetfence-mariadb stop
+  # systemctl stop packetfence-mariadb
 
 Now, flush any MySQL data you have on the new node and restart packetfence-mariadb so that the servers join the cluster.
 
@@ -342,7 +342,7 @@ WARNING: If you have any data in MySQL on this node, this will destroy it.
 
   # rm -fr /var/lib/mysql/*
 
-  # systemctl packetfence-mariadb restart
+  # systemctl restart packetfence-mariadb
 
 Checking the MariaDB sync
 +++++++++++++++++++++++++
@@ -364,7 +364,7 @@ Starting the first server normally
 
 Once all servers are synced, go on the first server that should still be running with the `--force-new-cluster` option, break the command and then start packetfence-mariadb normally:
 
-  # systemctl packetfence-mariadb start
+  # systemctl start packetfence-mariadb
 
 Wrapping up
 ^^^^^^^^^^^
@@ -432,7 +432,7 @@ If one of the nodes cannot recover, you can manually reset the cluster state. No
 
 First, stop packetfence-mariadb on all servers:
 
-  # systemctl packetfence-mariadb stop
+  # systemctl stop packetfence-mariadb
 
 Then remove `/var/lib/mysql/gvwstate.dat` on all the servers that are still alive.
 
@@ -460,12 +460,12 @@ On each of the discarded servers
 
 First, stop packetfence-mariadb on *all* the servers you want to discard data from.
 
-  systemctl packetfence-mariadb stop
+  systemctl stop packetfence-mariadb
 
 On each of the servers you want to discard the data from, you must destroy all the data in `/var/lib/mysql` and start packetfence-mariadb so it resyncs its data from scratch.
 
   rm -fr /var/lib/mysql/*
-  systemctl packetfence-mariadb start
+  systemctl start packetfence-mariadb
 
 You should then see `/var/lib/mysql` be populated again with the data and once MySQL becomes available again on the server, it means the sync has completed. In case of issues, look in the MySQL log file (`/var/lib/mysql/PF_HOSTNAME.err`)
 
@@ -497,7 +497,7 @@ NOTE: Removing a server from the cluster requires a restart of the PacketFence s
 
 First, you will need to stop PacketFence on your server and put it offline.
 
-  # systemctl packetfence stop
+  # systemctl stop packetfence
   # shutdown -h 0
 
 Then you need to remove all the configuration associated to the server from /usr/local/pf/conf/cluster.conf on one of the remaining nodes. 
@@ -726,11 +726,11 @@ Then, we should tell C to ignore A and B in their cluster configuration. In orde
   
 Now on packetfence-mariadb on all nodes
 
-  # systemctl packetfence-mariadb stop
+  # systemctl stop packetfence-mariadb
 
 Then start them in the following order: A then B then C
   
-  # systemctl packetfence-mariadb start
+  # systemctl start packetfence-mariadb
 
 NOTE: From this moment on, you will lose the configuration changes and data changes that occur on nodes A and B.
 
@@ -748,7 +748,7 @@ Stop service on nodes A and B
 Next, stop all application service on node A and B along with the database:
 
   # /usr/local/pf/bin/pfcmd service pf stop
-  # systemctl packetfence-mariadb stop
+  # systemctl stop packetfence-mariadb
 
 Start service on node C
 +++++++++++++++++++++++
@@ -769,12 +769,12 @@ If your migration to node C goes wrong, you can fail back to nodes A and B by st
 
 **On node C**
 
-  # systemctl packetfence-mariadb stop
+  # systemctl stop packetfence-mariadb
   # /usr/local/pf/bin/pfcmd service pf stop
 
 **On nodes A and B**
 
-  # systemctl packetfence-mariadb start
+  # systemctl start packetfence-mariadb
   # systemctl isolate packetfence-cluster
 
 Once you are feeling confident to try your failover to node C again, you can do the exact opposite of the commands above to try your upgrade again.
@@ -841,7 +841,7 @@ Next, enable node C on nodes A and B by executing the following command on the t
 
 Now, stop packetfence-mariadb on node C, regenerate the MariaDB configuration and start it as a new master:
 
- # systemctl packetfence-mariadb stop
+ # systemctl stop packetfence-mariadb
  # /usr/local/pf/bin/pfcmd generatemariadbconfig
  # /usr/local/pf/sbin/pf-mariadb --force-new-cluster 
 
@@ -852,13 +852,13 @@ Sync nodes A and B
 
 On each of the servers you want to discard the data from, stop packetfence-mariadb, you must destroy all the data in `/var/lib/mysql` and start packetfence-mariadb so it resyncs its data from scratch.
 
-  # systemctl packetfence-mariadb stop
+  # systemctl stop packetfence-mariadb
   # rm -fr /var/lib/mysql/*
-  # systemctl packetfence-mariadb start
+  # systemctl start packetfence-mariadb
 
 Should there be any issues during the sync, make sure you look into the MySQL log (`/var/lib/mysql/PF_HOSTNAME.err`)
 
-Once both nodes have completely synced (try connecting to it using the MySQL command line), then you can break the cluster election command you have running on node C and start node C normally (using `systemctl packetfence-mariadb start`).
+Once both nodes have completely synced (try connecting to it using the MySQL command line), then you can break the cluster election command you have running on node C and start node C normally (using `systemctl start packetfence-mariadb`).
 
 Start nodes A and B
 +++++++++++++++++++
