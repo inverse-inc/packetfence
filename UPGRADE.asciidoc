@@ -34,7 +34,7 @@ NOTE: These are general upgrade instructions. Make sure to go through (read) the
 
 ### For a clustered environment
 
-Please refer to the https://github.com/inverse-inc/packetfence/blob/stable/docs/PacketFence_Clustering_Guide.asciidoc[PacketFence Clustering Guide], more specifically the https://github.com/inverse-inc/packetfence/blob/stable/docs/PacketFence_Clustering_Guide.asciidoc#performing-an-upgrade-on-a-cluster[Perform an upgrade on a cluser] section.
+Please refer to the https://github.com/inverse-inc/packetfence/blob/stable/docs/PacketFence_Clustering_Guide.asciidoc[PacketFence Clustering Guide], more specifically the https://github.com/inverse-inc/packetfence/blob/stable/docs/PacketFence_Clustering_Guide.asciidoc#performing-an-upgrade-on-a-cluster[Perform an upgrade on a cluster] section.
 
 ### For a standalone server
 
