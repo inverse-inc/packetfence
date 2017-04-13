@@ -322,6 +322,17 @@ sub generate_doc_link {
     return pf::web::util::generate_doc_link($section, $guide);
 }
 
+=head2 generate_doc_url
+
+Generate the URL to a section of documentation
+
+=cut
+
+sub generate_doc_url {
+    my ($c, $section, $guide) = @_;
+    return pf::web::util::generate_doc_url($section, $guide);
+}
+
 # Logging
 __PACKAGE__->log(Log::Log4perl::Catalyst->new(INSTALL_DIR . '/conf/log.conf.d/httpd.admin.conf',watch_delay => 5 * 60));
 

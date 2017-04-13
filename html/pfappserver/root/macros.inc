@@ -9,6 +9,11 @@
 [% c.generate_doc_link(section, guide) | none %]
 [%- END -%]
 
+[%- MACRO doc_url(section, guide) BLOCK -%]
+[%- UNLESS guide; guide = 'Administration_Guide'; END -%]
+[% c.generate_doc_url(section, guide) | none %]
+[%- END -%]
+
 [%- MACRO pagination_path(section, params)  BLOCK -%]
     [%- tags =  [ 'page_num'  'by'  'direction'  'per_page'  'filter'] -%]
     [%- "${section}" -%]
