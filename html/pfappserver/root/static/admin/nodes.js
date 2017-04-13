@@ -45,7 +45,7 @@ function updateNodeSearchSection(href, event) {
             var input = to_form.find('[name="' + param.name + '"]:not(:disabled)');
             input.val(param.value);
         }
-        $('[href="#advanced"][data=toggle="tab"]').click();
+        $('[href="#advanced"][data-toggle="tab"]').click();
         var win = $(window);
         win.unbind('hashchange');
         win.hashchange(function() {
