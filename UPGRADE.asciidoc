@@ -268,6 +268,8 @@ We highly suggest you migrate your existing clustered installation using Corosyn
 The easiest way to perform this is to build new servers and port your configuration (by copying the configuration files) and your database (using mysqldump).
 There are ways to migrate the 2 existing nodes to a 3 nodes cluster but this is not covered in this guide.
 
+*Corosync adjustment*
+
 Note that you can safely keep your existing 2-node cluster with Corosync/Pacemaker in place and things will work like before.
 You will simply have to adjust your Corosync configuration so that MariaDB points to the packetfence-mariadb file instead of the mariadb unit.
 
@@ -275,12 +277,16 @@ You will simply have to adjust your Corosync configuration so that MariaDB point
           op start timeout=60s interval=0 \
           op stop timeout=60s interval=0 \
           op monitor interval=20s timeout=30s
-	  
+	 
+*Disabling Galera cluster*
+
 You must then disable the MariaDB Galera cluster as a replication mechanism as you will still be using DRBD. In order to do so, add the following in `/usr/local/pf/conf/pf.conf`
 
   [active_active]
   galera_replication=disabled
-  
+ 
+*IP address bind*
+
 You must also instruct packetfence-mariadb to bind to the management IP address of the server manually.
 
 In order to do so, change the following section in `/usr/local/pf/conf/mariadb/mariadb.conf.tt`:
@@ -296,6 +302,12 @@ with:
   bind-address=1.2.3.4
 
 Where 1.2.3.4 is the management IP address of the server.
+
+*Disable packetfence-mariadb on boot*
+
+Like in previous versions where mariadb shouldn't have been started on boot, now you must ensure its replacement (packetfence-mariadb) doesn't start on boot.
+
+  systemctl disable packetfence-mariadb
 
 Active/Active clusters with external DB
 +++++++++++++++++++++++++++++++++++++++
