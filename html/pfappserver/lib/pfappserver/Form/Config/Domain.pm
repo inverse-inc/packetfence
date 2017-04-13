@@ -29,7 +29,6 @@ has_field 'id' =>
    messages => { required => 'Please specify an identifier' },
    tags => { after_element => \&help,
              help => 'Specify a unique identifier for your configuration.<br/>This doesn\'t have to be related to your domain' },
-   apply => [ pfappserver::Base::Form::id_validator('identifier') ]
   );
 
 has_field 'workgroup' =>
@@ -222,6 +221,11 @@ Validate NTLM cache fields if ntlm_cache is enabled
 
 sub validate {
     my ($self) = @_;
+
+    if($self->field('id')->value() !~ /^[0-9a-zA-Z]+$/) {
+        $self->field('id')->add_error("The id is invalid. The id can only contain alphanumeric characters.");
+    }
+
     if(isenabled($self->field('ntlm_cache')->value())) {
         get_logger->info("Validating NTLM cache fields because it is enabled.");
         unless($self->field('ntlm_cache_source')->value) {
