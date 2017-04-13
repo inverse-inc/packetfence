@@ -249,7 +249,10 @@ Redis Queue
 
 Clear the redis queue to avoid old stale jobs from being processes.
 
+
+  systemctl start packetfence-redis_queue
   redis-cli -p 6380 FLUSHALL
+  systemctl stop packetfence-redis_queue
 
 Running 7.0+ in a cluster
 ^^^^^^^^^^^^^^^^^^^^^^^^^
