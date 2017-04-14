@@ -24,6 +24,22 @@ sub BUILD {
     $self->set_tag('input_append_button', '<i class="icon-eye"></i>');
 }
 
+=head2 element_attributes
+
+Add the x-placeholder attribute if the placeholder field exists
+
+=cut
+
+sub element_attributes {
+    my ( $self, @args ) = @_;
+    my $attr = $self->SUPER::element_attributes(@args);
+    if (exists $attr->{placeholder} && defined $attr->{placeholder}) {
+        $attr->{'x-placeholder'} = $attr->{placeholder};
+        $attr->{placeholder} =~ s/./\*/g;
+    }
+    return $attr;
+}
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2017 Inverse inc.
@@ -48,4 +64,5 @@ USA.
 =cut
 
 __PACKAGE__->meta->make_immutable;
+
 1;
