@@ -148,8 +148,10 @@ sub append_add_delete_buttons {
     my $add_button_attr = $parent->add_button_attr;
     my $delete_button_attrs = qq{data-toggle="dynamic-list-delete" data-template-control-group="${template_control_group_target}" data-target-wrapper="$target_wrapper" data-base-id="$base_id" data-target="#$group_target"};
     my $content = qq{
-        <a class="btn-icon" $delete_button_attrs><i class="icon-minus-circle"></i></a>
-        <a class="btn-icon" $add_button_attr><i class="icon-plus-circle"></i></a>
+        <span class="action pull-right">
+          <a class="btn-icon" $delete_button_attrs><i class="icon-minus-circle"></i></a>
+          <a class="btn-icon" $add_button_attr><i class="icon-plus-circle"></i></a>
+        </span>
     };
     return $content;
 }
