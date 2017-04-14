@@ -227,7 +227,7 @@
       </div><!--/.sidenav-row-->
 
       <div class="row-fluid">
-        <div class="container-fluid span14 offset4">
+        <div class="container-fluid span14 offset4 span18-navbarcollapse">
         <div id="section">
           <div class="loader"><i class="icon"></i></div>
         </div><!--/span-->

@@ -62,7 +62,7 @@
             </div>-->
     </div><!--/span-->
     <div class="row-fluid">
-      <div class="container-fluid offset3 span15">
+      <div class="container-fluid offset3 span15 span18-navbarcollapse">
         <div class="card">
           <div class="card-title">
           <div class="tabbable">

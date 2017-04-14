@@ -8,6 +8,7 @@ $sidenavSubsectionColor:        darken($navbarInverseText, 30%);
 /**
  * Sidenav is fixed on the left side of the viewpane and dark by default.
  * Right content has to be offset accordingly.
+ * See _responsive-sidenav.scss.
  */
 .sidenav {
   @extend .navbar-inverse;
@@ -16,7 +17,6 @@ $sidenavSubsectionColor:        darken($navbarInverseText, 30%);
   overflow: hidden;
   overflow-y: auto;
   padding-top: $baseFontSize;
-  position: fixed;
   top: $navbarHeight;
   bottom: 0;
 }
@@ -192,6 +192,10 @@ $sidenavSubsectionColor:        darken($navbarInverseText, 30%);
   &.sidenav .nav .active > a {
     @include gradient-horizontal(lighten($navbarInverseBackgroundHighlight, 5%), lighten($navbarInverseBackgroundHighlight, 10%));
   }
+}
+
+.sidenav .nav-list .pull-right {
+  margin-left: 1em;
 }
 
 .sidenav .nav-list .nav-list {

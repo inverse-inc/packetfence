@@ -1,9 +1,12 @@
 /// _responsive-navbar.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2 -*-
 
 /**
- * Remove extra padding on tablet and bellow
+ * Tablet and bellow
  */
 @media (max-width: $navbarCollapseWidth) {
+  /**
+   * Remove extra padding
+   */
   .navbar-fixed-top {
     margin-bottom: 0;
   }
@@ -11,5 +14,18 @@
   .navbar-fixed-bottom .navbar-inner {
     padding-top: 0px;
     padding-bottom: 0px;
+  }
+}
+
+/**
+ * Desktop
+ */
+@media (min-width: $navbarCollapseDesktopWidth) {
+  /**
+   * Display top border for active entry.
+   */
+  .navbar .nav .active > a {
+    border-top: 2px solid $white;
+    box-shadow: inset 0 6px 8px -8px white
   }
 }
