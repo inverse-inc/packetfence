@@ -30,8 +30,12 @@ module.exports = function(grunt) {
       'js/vendor/chosen.jquery.min.js'
     ],
     'js/vendor/jquery-ui.min.js': [
+      'bower_components/jquery-ui/ui/data.js',
       'bower_components/jquery-ui/ui/version.js',
       'bower_components/jquery-ui/ui/plugin.js',
+      'bower_components/jquery-ui/ui/safe-active-element.js',
+      'bower_components/jquery-ui/ui/safe-blur.js',
+      'bower_components/jquery-ui/ui/scroll-parent.js',
       'bower_components/jquery-ui/ui/unique-id.js',
       'bower_components/jquery-ui/ui/widget.js',
       'bower_components/jquery-ui/ui/widgets/mouse.js',
