@@ -670,8 +670,9 @@ $(function () { // DOM ready
                 var delta = 0;
                 var dragIndex;
                 var dropIndex;
-                if (obj.context.tagName == 'TR') {
-                    dragIndex = obj.context.rowIndex;
+                var contextObj = obj.first()[0];
+                if (contextObj.tagName == 'TR') {
+                    dragIndex = contextObj.rowIndex;
                     dropIndex = this.rowIndex;
                     delta = dropIndex - dragIndex;
                 }
@@ -697,14 +698,14 @@ $(function () { // DOM ready
         });
     });
 
-    /* Activate sortable tables and lists (rows/items can be re-ordered) */
+    /* Activate sortable divs (divs can be re-ordered) */
     $('body').on('mousemove',
                  '.dynamic-list-sortable .sort-handle:not(.ui-draggable)',
                  function() {
         var row = $(this);
         var scope = row.attr('data-sortable-scope');
         var item = $(row.attr('data-sortable-item'));
-        row.draggable({
+        item.draggable({
             scope: scope,
             handle: '.sort-handle',
             appendTo: 'body',
@@ -717,21 +718,20 @@ $(function () { // DOM ready
         item.siblings().droppable({
             scope: scope,
             accept: function(obj) {
-                var text1 = $(obj.context).text();
-                return $(obj.context).text() != $(this).find('.sort-handle:first').text();
+                var handleIndex = obj.find('.sort-handle:first').text();
+                return handleIndex != $(this).find('.sort-handle:first').text();
             },
             hoverClass: 'drop-dynamic-row',
             drop: function(event, ui) {
                 var dst = $(this);
                 var dst_index = parseInt(dst.find('.sort-handle:first').text(), 10);
-                var draggable = ui.draggable;
+                var draggable = ui.draggable.find('.sort-handle:first');
                 var wrapper = $(draggable.attr('data-sortable-parent'));
                 var item = $(draggable.attr('data-sortable-item'));
                 var last_index = wrapper.children().length;
                 var base_id = draggable.attr("data-base-id");
                 var src = item.detach();
                 var src_index = parseInt(src.find('.sort-handle:first').text(), 10);
-                console.log(src_index, dst_index, last_index);
                 if (dst_index == last_index) {
                     wrapper.append(src);
                 }
