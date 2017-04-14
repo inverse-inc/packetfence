@@ -997,30 +997,7 @@ $(function () { // DOM ready
         updateExtendedDurationExample($('.extended-duration'));
         bindExportCSV();
         FingerbankSearch.setup();
-        $('.pf-obfuscated-text + button').hover(function(e) {
-            var $this = $(this);
-            var input = $this.prev();
-            input.attr('type', 'text');
-            var x_placeholder = input.attr('x-placeholder');
-            if (x_placeholder) {
-                var placeholder = input.attr('placeholder');
-                input.attr('placeholder', x_placeholder);
-                input.attr('x-placeholder', placeholder);
-            }
-            $this.find('i').removeClass('icon-eye').addClass('icon-eye-slash');
-        },
-        function(e) {
-            var $this = $(this);
-            var input = $this.prev();
-            input.attr('type', 'password');
-            var x_placeholder = input.attr('x-placeholder');
-            if (x_placeholder) {
-                var placeholder = input.attr('placeholder');
-                input.attr('placeholder', x_placeholder);
-                input.attr('x-placeholder', placeholder);
-            }
-            $this.find('i').removeClass('icon-eye-slash').addClass('icon-eye');
-        });
+        setupObfuscatedTextHover('.pf-obfuscated-text + button');
 
         // If the section includes a dynamic sidenav section, move it to the sidenav row
         var sidenav = $('.sidenav-fluid .row-fluid').first();
@@ -1079,9 +1056,38 @@ $(function () { // DOM ready
 
     $('#section').on('show', '.modal', function(e) {
       FingerbankSearch.setup();
+      setupObfuscatedTextHover('.modal .pf-obfuscated-text + button');
     });
 
 });
+
+function obfuscatedTextHover(element, type, class_remove, class_add) {
+    var input = element.prev();
+    input.attr('type', type);
+    var x_placeholder = input.attr('x-placeholder');
+    if (x_placeholder) {
+        var placeholder = input.attr('placeholder');
+        input.attr('placeholder', x_placeholder);
+        input.attr('x-placeholder', placeholder);
+    }
+    element.find('i').removeClass(class_remove).addClass(class_add);
+}
+
+function obfuscatedTextHoverOnEvent(e) {
+    obfuscatedTextHover($(this), 'text', 'icon-eye', 'icon-eye-slash');
+}
+
+function obfuscatedTextHoverOffEvent(e) {
+    obfuscatedTextHover($(this), 'password', 'icon-eye-slash', 'icon-eye');
+}
+
+function setupObfuscatedTextHover(selector) {
+    var element = $(selector);
+    //remove the previous
+    element.off("mouseenter.pf mouseleave.pf");
+    element.on("mouseenter.pf", obfuscatedTextHoverOnEvent);
+    element.on("mouseleave.pf", obfuscatedTextHoverOffEvent);
+}
 
 function FingerbankSearch() {
 
