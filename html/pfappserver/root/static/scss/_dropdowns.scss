@@ -4,6 +4,11 @@
   text-transform: none;
 }
 
+.dropdown-submenu > .dropdown-menu.up {
+  // Align submenu with item of parent menu when displaying menus upwards (See issue #2310)
+  bottom: 0% !important;
+}
+
 .dropdown-unselectable {
   // See .dropdown-menu > li > a
   display: block;
