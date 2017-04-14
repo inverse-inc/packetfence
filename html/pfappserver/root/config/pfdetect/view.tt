@@ -13,8 +13,12 @@
 <div class="card">
   <div class="card-title">
     [% SET label = "pfdetect_type_" _ item.type %]
-    <h2><i>[% l('Syslog parser') %]</i> [% l(label) %]</h2>
-  </div>
+    <h2><i>[% l('Syslog parser') %]</i> [% l(label) %]
+    [% IF item.type == "regex" %]
+      [% doc('_regex_syslog_parser') | none %]
+    [% END %]
+    </h2>
+ </div>
   <div class="card-block">
 <div class="hidden" id="regex_parser_templates">
   <input id="default_api_parameters" name="default_api_parameters" type="text" class="input-xxlarge" >
