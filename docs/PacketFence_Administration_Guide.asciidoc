@@ -2746,24 +2746,24 @@ You are now able to create syslog parser using regex. This will allow you comple
 
 Configuring a Regex Syslog Parser
 
-Enabled - You can enable/disable the parser from running
-Alert Pipe - A previously created alert pipe (FIFO)
-Rules - The list of rules that defines how to match log file entries and what action(s) to take when matching
+- Enabled - You can enable/disable the parser from running
+- Alert Pipe - A previously created alert pipe (FIFO)
+- Rules - The list of rules that defines how to match log file entries and what action(s) to take when matching
 
 Regex Syslog Parser Rule
 
-Name - The name of the rule
-Regex - The regex to match against a log entry. The regex may have http://perldoc.perl.org/perlre.html#(%3f'NAME'pattern[named captures] which can be used for parameter replacement start a '$'.
-Actions - A list of actions to take when the regex matches
-IP icon-exchange MAC - Perform automatic translation of IPs to MACs and the other way around
-Last if matches - Stop processing the other rules if this rule matched
+- Name - The name of the rule
+- Regex - The regex to match against a log entry. The regex may have http://perldoc.perl.org/perlre.html#(%3f'NAME'pattern[named captures] which can be used for parameter replacement start a '$'.
+- Actions - A list of actions to take when the regex matches
+- IP to MAC - Perform automatic translation of IPs to MACs and the other way around
+- Last if matches - Stop processing the other rules if this rule matched
 
 Defining Actions
 
 An action have two parts
 
-method - The name of the action you want to take
-parameter list - The list of parameters you want to provide to the method. Each parameter is seperated by a comma. The parameters that are to be replaced by a named capture.
+- method - The name of the action you want to take
+- parameter list - The list of parameters you want to provide to the method. Each parameter is seperated by a comma. The parameters that are to be replaced by a named capture.
 
 Example Action
 
