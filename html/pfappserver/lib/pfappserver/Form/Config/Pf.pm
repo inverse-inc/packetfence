@@ -180,8 +180,6 @@ sub field_list {
             };
             $type eq 'obfuscated' && do {
                 $field->{type} = 'ObfuscatedText';
-                $field->{element_attr}{'x-placeholder'} = $field->{element_attr}{'placeholder'};;
-                $field->{element_attr}{'placeholder'} =~ s/./\*/g;
                 last;
             };
             $type eq 'sms_sources' && do {
