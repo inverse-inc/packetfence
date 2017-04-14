@@ -15,7 +15,6 @@ use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 
 use pfappserver::Form::Config::Switch;
-use pf::config::cached;
 
 BEGIN {
     extends 'pfappserver::Base::Controller';
