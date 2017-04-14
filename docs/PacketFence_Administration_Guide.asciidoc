@@ -2739,6 +2739,45 @@ Admin Access
 
 You can manage which access you give to PacketFence administrators. To do that go through 'Configuration->System Configuration->Admin Access'. Then go to your source which authenticate administrator and create an 'administration' rule and assign the wanted Admin role. This functionality allows you to have a granular control on which section of the admin interface is available to whom.
 
+Regex Syslog Parser
+~~~~~~~~~~~~~~~~~~~
+
+You are now able to create syslog parser using regex. This will allow you complex filters and rules to work on data receive via syslog.
+
+Configuring a Regex Syslog Parser
+
+Enabled - You can enable/disable the parser from running
+Alert Pipe - A previously created alert pipe (FIFO)
+Rules - The list of rules that defines how to match log file entries and what action(s) to take when matching
+
+Regex Syslog Parser Rule
+
+Name - The name of the rule
+Regex - The regex to match against a log entry. The regex may have http://perldoc.perl.org/perlre.html#(%3f'NAME'pattern[named captures] which can be used for parameter replacement start a '$'.
+Actions - A list of actions to take when the regex matches
+IP icon-exchange MAC - Perform automatic translation of IPs to MACs and the other way around
+Last if matches - Stop processing the other rules if this rule matched
+
+Defining Actions
+
+An action have two parts
+
+method - The name of the action you want to take
+parameter list - The list of parameters you want to provide to the method. Each parameter is seperated by a comma. The parameters that are to be replaced by a named capture.
+
+Example Action
+
+Regex - 
+
+    mac\s*:\s*(?&lt;mac&gt;[a-zA-Z0-9]{2}(:[a-zA-Z0-9]{2}){5}), notes\s*:\s*(?&lt;notes&gt;.*)
+
+Action - 
+
+    modify_node:  mac, $mac, notes, $notes
+
+
+
+
 Optional components
 -------------------
 
