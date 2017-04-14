@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 6.5.9\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-04-13 10:45-0400\n"
+"PO-Revision-Date: 2017-04-14 11:06-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -81,24 +81,12 @@ msgstr ""
 msgid "A description of the billing tier"
 msgstr ""
 
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "A flexible and powerful tool for defining actions based of log file entries in PacketFence."
-msgstr ""
-
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "A list of actions to take when the regex matches"
-msgstr ""
-
 # html/pfappserver/root/service/status.tt
 msgid "A manual start from the command line will be required. Are you sure you want to continue?"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "A message that will be added to the e-mail sent to the user regarding this violation."
-msgstr ""
-
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "A previously created alert pipe (FIFO)"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
@@ -282,7 +270,6 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Field/PfdetectRegexRule.pm
 # html/pfappserver/root/admin/bulk_actions.inc
 # html/pfappserver/root/config/fingerbank/header.tt
-# html/pfappserver/root/config/pfdetect/type/regex.tt
 # html/pfappserver/root/violation/list.tt
 msgid "Action"
 msgstr ""
@@ -303,7 +290,6 @@ msgstr ""
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/list.tt
 # html/pfappserver/root/config/fingerbank/mac_vendor/list.tt
 # html/pfappserver/root/config/fingerbank/user_agent/list.tt
-# html/pfappserver/root/config/pfdetect/type/regex.tt
 # html/pfappserver/root/user/create.tt
 # html/pfappserver/root/user/view.tt
 # html/pfappserver/root/violation/list.tt
@@ -434,6 +420,7 @@ msgid "Add a billing tier."
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/authentication/source/rule_read.tt
 # html/pfappserver/root/config/switch/view.tt
@@ -577,6 +564,10 @@ msgid "Administration"
 msgstr ""
 
 # html/pfappserver/root/admin/wrapper.tt
+msgid "Administration Guide"
+msgstr ""
+
+# html/pfappserver/root/admin/wrapper.tt
 # html/pfappserver/root/configurator/admin.tt
 msgid "Administrator"
 msgstr ""
@@ -603,10 +594,6 @@ msgstr ""
 
 # html/pfappserver/root/config/domain/index.tt
 msgid "After configuring your first domain, you will need to restart the radiusd service to activate domain authentication."
-msgstr ""
-
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "Alert Pipe"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Pfdetect.pm
@@ -710,10 +697,6 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "An LDAP query to filter out the users that should be cached."
-msgstr ""
-
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "An action have two parts"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/User.pm
@@ -1386,6 +1369,10 @@ msgstr ""
 msgid "Cluster:"
 msgstr ""
 
+# html/pfappserver/root/admin/wrapper.tt
+msgid "Clustering Quick Installation Guide"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "CoA Port"
 msgstr ""
@@ -1553,10 +1540,6 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
 msgid "Configure various options"
-msgstr ""
-
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "Configuring a Regex Syslog Parser"
 msgstr ""
 
 # html/pfappserver/root/configurator/fingerbank.tt
@@ -2017,10 +2000,6 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
 msgid "Defines what attribute of the node to use as the common name during the certificate generation."
-msgstr ""
-
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "Defining Actions"
 msgstr ""
 
 # html/pfappserver/root/config/switch/view.tt
@@ -2550,7 +2529,6 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Pfdetect.pm
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
-# html/pfappserver/root/config/pfdetect/type/regex.tt
 msgid "Enabled"
 msgstr ""
 
@@ -2627,10 +2605,6 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Field/ExtendedDuration.pm
 msgid "Example"
-msgstr ""
-
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "Example Action"
 msgstr ""
 
 # html/pfappserver/root/config/authentication.tt
@@ -2945,10 +2919,6 @@ msgstr ""
 msgid "HTML template the host will be redirected to while in violation. You can create new templates from the <em>Connection Profiles</em> configuration section."
 msgstr ""
 
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "Help"
-msgstr ""
-
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/HTTP.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Kerberos.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
@@ -3087,7 +3057,6 @@ msgid "IP"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Field/PfdetectRegexRule.pm
-# html/pfappserver/root/config/pfdetect/type/regex.tt
 msgid "IP <i class=\"icon-exchange\"></i> MAC"
 msgstr ""
 
@@ -3365,10 +3334,6 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Pfqueue.pm
 msgid "Last hour queue counts"
-msgstr ""
-
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "Last if matches"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/User.pm
@@ -3887,7 +3852,6 @@ msgstr ""
 # html/pfappserver/root/config/authentication.tt
 # html/pfappserver/root/config/fingerbank/device/list.tt
 # html/pfappserver/root/config/fingerbank/mac_vendor/list.tt
-# html/pfappserver/root/config/pfdetect/type/regex.tt
 # html/pfappserver/root/config/pki_provider/list.tt
 # html/pfappserver/root/config/profile/index.tt
 # html/pfappserver/root/config/roles/index.tt
@@ -3939,6 +3903,10 @@ msgstr ""
 
 # html/pfappserver/root/config/networks/view.tt
 msgid "Network"
+msgstr ""
+
+# html/pfappserver/root/admin/wrapper.tt
+msgid "Network Devices Configuration Guide"
 msgstr ""
 
 # html/pfappserver/root/configurator/networks.tt
@@ -4696,10 +4664,6 @@ msgstr ""
 msgid "PacketFence uses a MySQL database. On this page, you need to specify the root password to access the MySQL server to create an account specific to PacketFence and create the required database tables and indexes."
 msgstr ""
 
-# html/pfappserver/root/admin/wrapper.tt
-msgid "PacketFence version"
-msgstr ""
-
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Device.pm
 msgid "Parent device"
 msgstr ""
@@ -4828,7 +4792,6 @@ msgid "Path to Service Provider key (x509)"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Field/PfdetectRegexRule.pm
-# html/pfappserver/root/config/pfdetect/type/regex.tt
 msgid "Perform automatic translation of IPs to MACs and the other way around"
 msgstr ""
 
@@ -5610,12 +5573,7 @@ msgid "Reevaluate access"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Field/PfdetectRegexRule.pm
-# html/pfappserver/root/config/pfdetect/type/regex.tt
 msgid "Regex"
-msgstr ""
-
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "Regex Syslog Parser Rule"
 msgstr ""
 
 # html/pfappserver/root/admin/bulk_actions.inc
@@ -5866,7 +5824,6 @@ msgid "Rule"
 msgstr ""
 
 # html/pfappserver/root/authentication/source/rules_read.tt
-# html/pfappserver/root/config/pfdetect/type/regex.tt
 msgid "Rules"
 msgstr ""
 
@@ -6731,10 +6688,6 @@ msgstr ""
 msgid "Stop processing rules if this rule matches"
 msgstr ""
 
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "Stop processing the other rules if this rule matched"
-msgstr ""
-
 # html/pfappserver/root/configurator/services.tt
 # html/pfappserver/root/service/cluster_status.tt
 # html/pfappserver/root/service/status.tt
@@ -7048,10 +7001,6 @@ msgstr ""
 msgid "The Private Key for signing in pem format"
 msgstr ""
 
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "The Regex Syslog Parser"
-msgstr ""
-
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid "The Root Portal Module to use"
 msgstr ""
@@ -7209,14 +7158,6 @@ msgstr ""
 msgid "The last step of this configuration wizard is to start the PacketFence daemons."
 msgstr ""
 
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "The list of parameters you want to provide to the method. Each parameter is seperated by a comma. The parameters that are to be replaced by a named capture."
-msgstr ""
-
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "The list of rules that defines how to match log file entries and what action(s) to take when matching"
-msgstr ""
-
 # conf/documentation.conf (database_advanced.max_allowed_packet)
 msgid "The max_allowed_packet MySQL configuration attribute (in MB). Only change if you know what you are doing. Will only affect a locally running MySQL server."
 msgstr ""
@@ -7239,14 +7180,6 @@ msgstr ""
 
 # html/pfappserver/root/configuration/portal_config.tt
 msgid "The module allows you to deeply customize the captive portal workflows."
-msgstr ""
-
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "The name of the action you want to take"
-msgstr ""
-
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "The name of the rule"
 msgstr ""
 
 # html/pfappserver/root/node/create.tt
@@ -7324,10 +7257,6 @@ msgstr ""
 
 # conf/documentation.conf (database_advanced.query_cache_size)
 msgid "The query_cache_size MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server."
-msgstr ""
-
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "The regex to match against a log entry. The regex may have <a href=\"http://perldoc.perl.org/perlre.html#(%3f'NAME'pattern)\">named captures</a> which can be used for parameter replacement start a '$'."
 msgstr ""
 
 # conf/documentation.conf (device_registration.role)
@@ -8109,6 +8038,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 # html/pfappserver/lib/pfappserver/Form/Node.pm
+# html/pfappserver/root/admin/wrapper.tt
 # html/pfappserver/root/node/tab_WMI_process.tt
 msgid "Version"
 msgstr ""
@@ -8485,10 +8415,6 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
 msgid "You can add options in the realm definition"
-msgstr ""
-
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "You can enable/disable the parser from running"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Admin.pm
@@ -9701,10 +9627,6 @@ msgstr "API key"
 msgid "metadefender.query_url_hash"
 msgstr "Query URL hash"
 
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "method"
-msgstr ""
-
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "minutes"
 msgstr ""
@@ -9951,10 +9873,6 @@ msgstr ""
 # pf::config (Network types)
 msgid "other"
 msgstr "Other"
-
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "parameter list"
-msgstr ""
 
 # conf/documentation.conf
 msgid "parking"
