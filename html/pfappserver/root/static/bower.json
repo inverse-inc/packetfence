@@ -10,5 +10,8 @@
     "bootstrap-datepicker": "1.6.x",
     "jquery": "latest",
     "jquery-ui": "latest"
+  },
+  "resolutions": {
+    "jquery": "3.x"
   }
 }
