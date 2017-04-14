@@ -31,6 +31,23 @@
 
 [% IF form.field('sources').num_fields -%]
 
+[%
+FOREACH source IN form.field('sources').fields;
+  type = source.field('class').value;
+  SWITCH type;
+    CASE 'internal';
+      has_internal_sources = 1;
+    CASE 'external';
+      has_external_sources = 1;
+    CASE 'exclusive';
+      has_exclusive_sources = 1;
+    CASE 'billing';
+      has_billing_sources = 1;
+  END;
+END
+%]
+
+  [% IF has_internal_sources %]
   <h4>[% l('Internal Sources') %]</h4>
   <form name="authentication" class="form-horizontal" method="post" action="[% c.uri_for(c.controller('Config::Authentication').action_for('update')) %]">
     <table class="table sources table-sortable admin_ordered">
@@ -60,7 +77,9 @@
       </tbody>
     </table>
   </form>
+  [% END %]
 
+  [% IF has_external_sources %]
   <h4>[% l('External Sources') %]</h4>
   <table class="table sources">
     <thead>
@@ -90,7 +109,9 @@
       [% END -%]
     </tbody>
   </table>
+  [% END %]
 
+  [% IF has_exclusive_sources %]
   <h4>[% l('Exclusive Sources') %]</h4>
   <table class="table sources">
     <thead>
@@ -116,7 +137,9 @@
       [% END -%]
     </tbody>
   </table>
+  [% END %]
 
+  [% IF has_billing_sources %]
   <h4>[% l('Billing Sources') %]</h4>
   <table class="table sources">
     <thead>
@@ -142,6 +165,7 @@
       [% END -%]
     </tbody>
   </table>
+  [% END %]
 
 [% END -%]
 
