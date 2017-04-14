@@ -352,7 +352,7 @@ function updateExtendedDurationExample(group) {
 
     // Build duration representation
     var interval = group.find('[name$=".duration.interval"]').val();
-    var unit = group.find('input[name$=".duration.unit"]').val();
+    var unit = group.find('[name$=".duration.unit"]').val();
     if (interval && unit) {
         var duration = interval + unit;
         var day_base = group.find('[name$="day_base"]').is(':checked');
@@ -361,7 +361,7 @@ function updateExtendedDurationExample(group) {
             var e_duration = {
                 operator: group.find('[name$="operator"]').val(),
                 interval: group.find('[name$="extended_duration.interval"]').val(),
-                unit: group.find('input[name$="extended_duration.unit"]').val()
+                unit: group.find('[name$="extended_duration.unit"]').val()
             };
             duration += period_base? "R" : "F";
             if (e_duration.operator && e_duration.interval && e_duration.unit) {
