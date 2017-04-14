@@ -53,6 +53,9 @@ Create a new saved search
 sub create {
     my ($self,$id,$saved_search) = @_;
     $saved_search->{namespace} = $self->namespace;
+    if (savedsearch_name_taken($saved_search)) {
+        return ($STATUS::INTERNAL_SERVER_ERROR, "name is already taken");
+    }
     if( savedsearch_add($saved_search) ) {
         return ($STATUS::OK,"");
     } else {
