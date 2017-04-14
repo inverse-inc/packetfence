@@ -30,3 +30,10 @@ $fa-line-height-base: 1;
   font-size: 50%;
   vertical-align: super;
 }
+
+/**
+ * Alias for Windows Live oauth source
+ */
+.icon-windowslive {
+  @extend .icon-windows;
+}
