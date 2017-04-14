@@ -36,7 +36,7 @@
       <div class="control-group">
         <label class="control-label">[% l('Columns Order') %]</label>
         <div class="controls">
-          <table class="columns table table-sortable table-condensed">
+          <table id="node-import" class="columns table table-sortable table-condensed">
             <tbody>
               [% FOREACH column IN form_import.field('columns').fields -%]
               <tr>
