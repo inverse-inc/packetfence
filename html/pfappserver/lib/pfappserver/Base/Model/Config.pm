@@ -77,7 +77,7 @@ sub rollback {
     my ($self) = @_;
     my ($status, $status_msg);
     my $config = $self->configStore;
-    $config->Rollback();
+    $config->rollback();
     return (HTTP_OK,"Config rollbacked");
 }
 
