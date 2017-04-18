@@ -249,7 +249,7 @@ Under Security Configuration:
    AAA Policy: Select the Policy you just created in the previous step
    Encryption: Select Open
 
-Under Network Configuration:
+Under Advanced Configuration:
 
    RADIUS Dynamic Authorization: Select
 
@@ -270,7 +270,7 @@ Under Security Configuration:
    Encryption: Select WPA/WPA2-TKIP
    Fast Roaming: Unselect everything
 
-Under Network Configuration:
+Under Advanced Configuration:
 
    RADIUS Dynamic Authorization: Select
 
