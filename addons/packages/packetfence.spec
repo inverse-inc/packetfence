@@ -61,7 +61,7 @@ BuildRequires: perl(Parse::RecDescent)
 # Required to build documentation
 # See docs/docbook/README.asciidoc for more info about installing requirements.
 # TODO fop on EL5 is actually xmlgraphics-fop
-%{?el6:BuildRequires: asciidoc >= 8.6.2, fop, libxslt, docbook-style-xsl, xalan-j2 }
+BuildRequires: asciidoc >= 8.6.2, fop, libxslt, docbook-style-xsl, xalan-j2
 
 %description
 
@@ -389,8 +389,6 @@ for TRANSLATION in de en es fr he_IL it nl pl_PL pt_BR; do
 done
 
 %if %{builddoc} == 1
-    # RHEL6 only: generating PDF guides
-    %if 0%{?el6}
     # generating custom XSL for titlepage
     xsltproc -o docs/docbook/xsl/titlepage-fo.xsl \
         /usr/share/sgml/docbook/xsl-stylesheets/template/titlepage.xsl \
@@ -405,7 +403,6 @@ done
         -xsl docs/docbook/xsl/packetfence-fo.xsl \
         -pdf docs/$GUIDE.pdf
     done
-    %endif
     
 %endif
 
@@ -1100,7 +1097,7 @@ fi
 %doc                    /usr/local/pf/html/pfappserver/root/static/doc/*
 %doc                    /usr/local/pf/docs/*.asciidoc
 %if %{builddoc} == 1
-%{?el6:%doc             /usr/local/pf/docs/*.pdf }
+%doc                    /usr/local/pf/docs/*.pdf 
 %endif
 %doc                    /usr/local/pf/docs/*.xml
 %doc                    /usr/local/pf/docs/fdl-1.2.txt
