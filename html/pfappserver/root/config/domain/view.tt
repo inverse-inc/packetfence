@@ -17,6 +17,9 @@
       <div id="settings" class="tab-pane fade in active">
         [%- IF item.id %]<input type="hidden" name="id" value="[% item.id | html %]">[% ELSE ; form.field('id').render | none ; END %]
         [% form.block('definition').render | none %]
+        <div class="alert alert-warning">
+          <strong>Note</strong> "Allow on registration" option requires passthroughs to be enabled as well as configured to allow both the domain DNS name and each domain controllers DNS name (or *.dns name)<br/>Exemple: inverse.local, *.inverse.local
+        </div>
       </div>
       <div id="ntlm-cache" class="tab-pane fade">[% form.block('ntlm_cache').render | none %]</div>
     </div>
