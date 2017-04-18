@@ -94,11 +94,11 @@ Then, once you are done make sure to delete these files so that there is no conf
 Debian based systems
 ^^^^^^^^^^^^^^^^^^^^
 
-Debian installation system should have interactively ask for existing modified files.
+Debian installation system should have interactively asked for existing modified files.
 
 '''
 
-Once the additionnal steps are completed, restart packetfence-config and packetfence
+Once the additionnal steps below are completed, restart packetfence-config and packetfence
 
   /usr/local/pf/bin/pfcmd fixpermissions
   /usr/local/pf/bin/pfcmd pfconfig clear_backend
@@ -167,8 +167,8 @@ Once done, restart the MariaDB service (managed by PacketFence)
 
   systemctl start packetfence-mariadb
 
-Database schema update
-^^^^^^^^^^^^^^^^^^^^^^
+Database schema update (All linux distributions)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Changes have been made to the database schema. You will need to update it accordingly.
 An SQL upgrade script has been provided to upgrade the database from the 6.5 schema to 7.0.
