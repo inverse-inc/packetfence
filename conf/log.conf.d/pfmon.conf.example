@@ -9,5 +9,5 @@ log4perl.rootLogger = INFO, PFMON
 log4perl.appender.PFMON                                = Log::Dispatch::Syslog
 log4perl.appender.PFMON.ident                          = pfmon
 log4perl.appender.PFMON.facility                       = local5
-log4perl.appender.PFMON.layout.ConversionPattern       = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
+log4perl.appender.PFMON.layout.ConversionPattern       = %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
 log4perl.appender.PFMON.layout                         = PatternLayout

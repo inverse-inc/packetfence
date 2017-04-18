@@ -20,19 +20,19 @@ log4perl.additivity.pf.dhcp = 0
 log4perl.appender.QUEUE_SYSLOG                                = Log::Dispatch::Syslog
 log4perl.appender.QUEUE_SYSLOG.ident                          = pfqueue
 log4perl.appender.QUEUE_SYSLOG.facility                       = local5
-log4perl.appender.QUEUE_SYSLOG.layout.ConversionPattern       = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
+log4perl.appender.QUEUE_SYSLOG.layout.ConversionPattern       = %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
 log4perl.appender.QUEUE_SYSLOG.layout                         = PatternLayout
 
 ### General Fingerbank log facility configuration ###
 log4perl.appender.QUEUE_FINGERBANK                                = Log::Dispatch::Syslog
 log4perl.appender.QUEUE_FINGERBANK.ident                          = fingerbank
 log4perl.appender.QUEUE_FINGERBANK.facility                       = local5
-log4perl.appender.QUEUE_FINGERBANK.layout.ConversionPattern       = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
+log4perl.appender.QUEUE_FINGERBANK.layout.ConversionPattern       = %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
 log4perl.appender.QUEUE_FINGERBANK.layout                         = PatternLayout
 #
 ### DHCP processing log facility configuration ###
 log4perl.appender.QUEUE_DHCP                                = Log::Dispatch::Syslog
 log4perl.appender.QUEUE_DHCP.ident                          = pfdhcplistener
 log4perl.appender.QUEUE_DHCP.facility                       = local5
-log4perl.appender.QUEUE_DHCP.layout.ConversionPattern       = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
+log4perl.appender.QUEUE_DHCP.layout.ConversionPattern       = %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
 log4perl.appender.QUEUE_DHCP.layout                         = PatternLayout

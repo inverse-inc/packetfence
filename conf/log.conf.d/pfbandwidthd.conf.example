@@ -9,5 +9,5 @@ log4perl.rootLogger = INFO, PFBANDWIDTHD
 log4perl.appender.PFBANDWIDTHD                                = Log::Dispatch::Syslog
 log4perl.appender.PFBANDWIDTHD.ident                          = pfbandwidthd
 log4perl.appender.PFBANDWIDTHD.facility                       = local5
-log4perl.appender.PFBANDWIDTHD.layout.ConversionPattern       = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
+log4perl.appender.PFBANDWIDTHD.layout.ConversionPattern       = %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
 log4perl.appender.PFBANDWIDTHD.layout                         = PatternLayout
