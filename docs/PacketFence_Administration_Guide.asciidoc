@@ -2775,7 +2775,7 @@ Action -
 
     modify_node:  mac, $mac, notes, $notes
 
-uricata example:
+Suricata example:
 -----------------
 
 PacketFence already contains a syslog parser for Suricata. This is an example to raise a violation from a syslog alert on the Suricata SID.
