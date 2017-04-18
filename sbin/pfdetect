@@ -153,6 +153,7 @@ sub _run_detector {
         last unless $running;
 
         my $line = $_;
+        $chomp($line);
         $logger->info("alert received: '$line'");
         my $data = $parser->parse($line);
         unless(defined $data) { # Error parsing line
