@@ -23,6 +23,7 @@ use POSIX qw(:signal_h pause :sys_wait_h);
 use Pod::Usage;
 use Fcntl qw(:flock);
 use Scalar::Util qw(blessed);
+use Time::HiRes qw(usleep);
 
 #pf::log must always be initilized first
 BEGIN {
@@ -35,6 +36,7 @@ BEGIN {
 use pf::file_paths qw($var_dir);;
 use pf::util;
 use pf::constants qw($TRUE $FALSE);
+use pf::constants::pfqueue qw($PFQUEUE_WEIGHTS);
 use pf::config::pfqueue;
 use pf::services::util;
 use pf::db;
@@ -120,27 +122,44 @@ Register all tasks
 =cut
 
 sub register_tasks {
+    my @weights;
+    my @delay_queues;
     foreach my $queue_config (@{$ConfigPfqueue{queues}} ) {
         my $name = $queue_config->{name};
         if (skip_queue($name)) {
             next;
         }
+        my $queue_name = "Queue:$name";
+        my $weight = $queue_config->{weight};
+        if ($weight) {
+            push @weights, {name => $name, queue_name => $queue_name, weight => $weight};
+        }
         my $worker = $queue_config->{workers};
         foreach (1 .. $worker) {
-            register_task("Queue:$name",\&process_queue, {  queue_name => "Queue:$name"});
+            register_task("Queue:$name", \&process_queue, $queue_name);
         }
-        if ($queue_config->{has_delayed_queue}) {
-            my $delayed_queue = "Delayed:$name";
-            my $submit_queue = "Queue:$name";
-            my $parameters = {
-                'delay_queue' => $delayed_queue,
-                'submit_queue' => $submit_queue,
-                'batch' => $queue_config->{delayed_queue_batch},
-                'batch_sleep' => $queue_config->{delayed_queue_sleep},
-            };
-            for(1 .. $queue_config->{delayed_queue_workers}) {
-                register_task($delayed_queue, \&process_delayed_jobs, $parameters );
-            }
+        my $delayed_queue = "Delayed:$name";
+        my $parameters = {
+            'delay_queue' => $delayed_queue,
+            'submit_queue' => $queue_name,
+            'batch_sleep' => 100000,
+            'batch' => 100,
+        };
+        push @delay_queues, $parameters;
+    }
+    if (@delay_queues) {
+        register_task("Delayed Worker", \&process_delayed_jobs, \@delay_queues );
+    }
+    if (@weights) {
+        @weights = sort { $a->{weight} <=> $b->{weight} } @weights;
+        my $weighted_queues = distribute_queues(\@weights);
+        my $consumer = get_consumer('worker');
+        my $redis = $consumer->redis;
+        $redis->del($PFQUEUE_WEIGHTS);
+        $redis->lpush($PFQUEUE_WEIGHTS, @$weighted_queues);
+        my $workers = $ConfigPfqueue{pfqueue}{workers};
+        for (1 .. $workers) {
+            register_task("worker", \&process_multiple_queues, {} );
         }
     }
 }
@@ -269,12 +288,12 @@ sub _run_task {
     $0 = "pfqueue - $id";
     my $consumer;
     while ($running) {
-        $consumer = get_consumer($id, $parameters) unless $consumer;
+        $consumer = get_consumer($id) unless $consumer;
         pf::CHI::Request::clear_all();
         pf::log::reset_log_context();
         eval {
             #reload all cached configs before running the task
-            $task->($consumer);
+            $task->($consumer, $parameters);
         };
         if ($@) {
             $logger->error("Error running task '$id': $@");
@@ -315,6 +334,30 @@ sub register_task {
 
 }
 
+=head2 process_multiple_queues
+
+Process multiple queues
+
+=cut
+
+sub process_multiple_queues {
+    my ($consumer, @args) = @_;
+    my $redis = $consumer->redis;
+    my @queues;
+    $redis->multi(sub{});
+    $redis->lrange($PFQUEUE_WEIGHTS, 0, -1);
+    $redis->rpoplpush($PFQUEUE_WEIGHTS, $PFQUEUE_WEIGHTS, sub {});
+    $redis->exec(sub{
+        my ($replies, $error) = @_;
+        return if defined $error;
+        my ($lrange_reply, $lrange_error) =  @{$replies->[0]};
+        return if $lrange_error;
+        @queues = map { $_->[0] } @$lrange_reply;
+    });
+    $redis->wait_all_responses();
+    $consumer->process_next_job(\@queues);
+}
+
 =head2 process_queue
 
 Process queue
@@ -333,8 +376,11 @@ Move the delayed jobs to the work queue
 =cut
 
 sub process_delayed_jobs {
-    my ($consumer, @args) = @_;
-    $consumer->process_delayed_jobs(@args);
+    my ($consumer, $args) = @_;
+    for my $arg (@$args) {
+        $consumer->process_delayed_jobs($arg);
+    }
+    usleep(100000);
 }
 
 =head2 wait_for_it
@@ -402,9 +448,9 @@ get consumer
 =cut
 
 sub get_consumer {
-    my ($id, $parameters) = @_;
+    my ($id) = @_;
     my $consumer = eval {
-        pf::pfqueue::consumer::redis->new({ %{$ConfigPfqueue{"consumer"}}, %{$parameters || {}}, redis_name => $id })
+        pf::pfqueue::consumer::redis->new({ %{$ConfigPfqueue{"consumer"}}, redis_name => $id })
     };
     if ($@) {
         $logger->error($@);
@@ -461,7 +507,7 @@ sub distribute_queues {
         for my $p (@$priorities) {
             if ($p->{weight}) {
                 $p->{weight}--;
-                push @distribution, $p->{name};
+                push @distribution, $p->{queue_name};
                 $running++;
             }
         }
