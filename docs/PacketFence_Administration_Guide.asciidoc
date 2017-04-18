@@ -2775,7 +2775,160 @@ Action -
 
     modify_node:  mac, $mac, notes, $notes
 
+uricata example:
+-----------------
 
+PacketFence already contains a syslog parser for Suricata. This is an example to raise a violation from a syslog alert on the Suricata SID.
+
+The first step is to create the syslog regex parser and then create the violation.
+
+Syslog regex parser configuration:
+----------------------------------
+
+To create the syslog regex parser you will need to go to *Configuration -> Compliance -> Syslog Parsers -> Add a Syslog Parser -> regex*
+
+Here the configuration of the syslog regex parser:
+
+    Detector *: Suricata
+    Enabled: checked
+    Alert pipe: /usr/local/pf/var/suricata (To create the fifo file, do: mkfifo /usr/local/pf/var/suricata)
+
+    Rules:
+    
+    Rule - New:
+    
+    Name *: ET P2P Kaaza Media desktop p2pnetworking.exe
+    Regex *: (?<date>\d{2}\/\d{2}\/\d{4}-\d{2}:\d{2}:\d{2}.*?)  \[\*\*\] \[\d+:(?<sid>\d+):\d+\] (?<message>.*?) \[\*\*\].* (?<srcip>\d{1,3}(\.\d{1,3}){3}):(?<srcport>\d+) -> (?<ip>\d{1,3}(\.\d{1,3}){3}):(?<port>\d+)
+    Action: trigger_violation mac, $mac, tid, $sid, type, detect
+    Last if match: unchecked
+    IP to MAC: checked
+
+Save the regex rule.
+
+You can directly test your rule. In the previous example the parser expect a syslog string like this:
+
+    02/26/2017-14:29:00.524309  [**] [1:2000340:10] ET P2P Kaaza Media desktop p2pnetworking.exe Activity [**] [Classification: Potential Corporate Privacy Violation] [Priority: 1] {UDP} 173.194.7.75:443 -> 1.2.3.4:46742
+
+In order to have a correct match in the rule, you will need to have a valid iplog entry in the database. Put the string in the test box and then click on the 'RUN TEST' button, you should get:
+
+    Click to see actions for - 02/26/2017-14:29:00.524309 [**] [1:2000340:10] ET P2P Kaaza Media desktop p2pnetworking.exe Activity [**] [Classification: Potential Corporate Privacy Violation] [Priority: 1] {UDP} 173.194.7.75:443 -> 1.2.3.4:46742
+ 
+    - ET P2P Kaaza Media desktop p2pnetworking.exe : trigger_violation('mac', '00:11:22:33:44:55', 'tid', '2000340', 'type', 'detect')
+
+We can see that PacketFence will execute the violation on the mac address 00:11:22:33:44:55.
+
+Violation creation:
+-------------------
+
+Now you will need to create the violation with the trigger id '2000340' in order to isolate the device. In order to do so, go to *Configuration -> Compliance -> Violation -> ADD VIOLATION*
+
+Definition:
+
+    Enabled: ON
+    Identifier: 1500001
+    Description: ET P2P Kaaza Media
+    Action: Reevaluate Access Action; Log message
+    Priority: 1
+
+Triggers:
+
+* Click on the + button
+* Look for 'detect' in the dropdown list
+* Add the trigger ID: 2000340 and click the ADD button
+* Click on the '<' button next to 'Select Some Options'
+
+Remediation:
+
+    Auto Enable: checked
+    Max Enables: 2
+    Grace: 5 minutes
+    Template: p2p.html
+
+Click on the SAVE button.
+
+Now you will need to restart the pfqueue and the pfdetect services.
+
+    /usr/local/pf/bin/pfcmd service pfqueue restart
+    
+    /usr/local/pf/bin/pfcmd service pfdetect restart (Make sure that you have your pipe file otherwise the process won't start)
+
+StreamScan example:
+-----------------
+
+This is an example to raise a violation from a syslog alert on a StreamScan alert ID.
+
+The first step is to create the syslog regex parser and then create the violation.
+
+Syslog regex parser configuration:
+----------------------------------
+
+To create the syslog regex parser you will need to go to *Configuration -> Compliance -> Syslog Parsers -> Add a Syslog Parser -> regex*
+
+Here the configuration of the syslog regex parser:
+
+    Detector *: StreamScan
+    Enabled: checked
+    Alert pipe: /usr/local/pf/var/streamscan (To create the fifo file, do: mkfifo /usr/local/pf/var/streamscan)
+
+    Rules:
+    
+    Rule - New:
+    
+    Name *: SSH Alert
+    Regex *: CDS\[(?<cds_id>\d+)\].*device=(?<device_ip>\d+(\.\d+){3}) threat="(?<threat>.*?)" direction=(?<direction>[^ ]+) sourceip=(?<sourceip>\d+(\.\d+){3}) sourceport=(?<sourceport>\d+) destip=(?<destip>\d+(\.\d+){3}) destport=(?<destport>\d+) app=(?<app>[^ ]*) timestamp=(?<timestamp>[^ ]*) sid=(?<sid>[^ ]*)
+    Action: trigger_violation mac, $mac, tid, $sid, type, detect
+    Last if match: unchecked
+    IP to MAC: checked
+
+Save the regex rule.
+
+You can directly test your rule. In the previous example the parser expect a syslog string like this:
+
+    Apr  6 10:16:18 ubuntu CDS[83162]:type=violation device=172.20.20.193 threat="ssh trafic detected" direction=inbound sourceip=172.145.25.10 sourceport=22 destip=172.145.25.10 destport=42290 app=ssh timestamp=2017-04-06_10-16-18.965687 sid=1234
+
+In order to have a correct match in the rule, you will need to have a valid iplog entry in the database. Put the string in the test box and then click on the 'RUN TEST' button, you should get:
+
+    Results
+
+    Click to see actions for - Apr 6 10:16:18 ubuntu CDS[83162]:type=violation device=172.20.20.193 threat="ssh trafic detected" direction=inbound sourceip=172.145.25.10 sourceport=22 destip=172.145.25.10 destport=42290 app=ssh timestamp=2017-04-06_10-16-18.965687 sid=1234
+    - violation : trigger_violation('mac', '00:11:22:33:44:55', 'tid', '1234', 'type', 'detect')
+
+We can see that PacketFence will execute the violation on the mac address 00:11:22:33:44:55.
+
+Violation creation:
+-------------------
+
+Now you will need to create the violation with the trigger id '2000340' in order to isolate the device. In order to do so, go to *Configuration -> Compliance -> Violation -> ADD VIOLATION*
+
+Definition:
+
+    Enabled: ON
+    Identifier: 1234
+    Description: Illegal SSH traffic
+    Action: Reevaluate Access Action; Log message
+    Priority: 1
+
+Triggers:
+
+* Click on the + button
+* Look for 'detect' in the dropdown list
+* Add the trigger ID: 2000340 and click the ADD button
+* Click on the '<' button next to 'Select Some Options'
+
+Remediation:
+
+    Auto Enable: checked
+    Max Enables: 2
+    Grace: 5 minutes
+    Template: generic.html
+
+Click on the SAVE button.
+
+Now you will need to restart the pfqueue and the pfdetect services.
+
+    /usr/local/pf/bin/pfcmd service pfqueue restart
+    
+    /usr/local/pf/bin/pfcmd service pfdetect restart (Make sure that you have your pipe file otherwise the process won't start)
 
 
 Optional components
