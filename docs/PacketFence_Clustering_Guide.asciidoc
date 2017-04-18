@@ -295,7 +295,7 @@ Webservices configuration
 
 NOTE: If you access https://PF_HOSTNAME:1443, you will still be redirected to the configurator. In order to gain access to the full administration interface, open https://PF_HOSTNAME:1443/admin
 
-First, set the webservices user and password on the master node in 'Configuration/Web Services'. There should be a sync error you can safely ignore as the other servers of your cluster aren't joined yet.
+First, set the webservices user and password on the master node in 'Configuration/Integration/Web Services'. There should be a sync error you can safely ignore as the other servers of your cluster aren't joined yet.
 
 And restart httpd.webservices on the first server:
 
