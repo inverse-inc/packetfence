@@ -2787,7 +2787,7 @@ Syslog regex parser configuration:
 
 To create the syslog regex parser you will need to go to *Configuration -> Compliance -> Syslog Parsers -> Add a Syslog Parser -> regex*
 
-Here the configuration of the syslog regex parser:
+Here is the configuration of the syslog regex parser:
 
     Detector *: Suricata
     Enabled: checked
@@ -2815,7 +2815,7 @@ In order to have a correct match in the rule, you will need to have a valid iplo
  
     - ET P2P Kaaza Media desktop p2pnetworking.exe : trigger_violation('mac', '00:11:22:33:44:55', 'tid', '2000340', 'type', 'detect')
 
-We can see that PacketFence will execute the violation on the mac address 00:11:22:33:44:55.
+We can see that PacketFence will execute the violation on the MAC address 00:11:22:33:44:55.
 
 Violation creation:
 -------------------
@@ -2850,7 +2850,9 @@ Now you will need to restart the pfqueue and the pfdetect services.
 
     /usr/local/pf/bin/pfcmd service pfqueue restart
     
-    /usr/local/pf/bin/pfcmd service pfdetect restart (Make sure that you have your pipe file otherwise the process won't start)
+    /usr/local/pf/bin/pfcmd service pfdetect restart 
+
+Make sure that you have your pipe file otherwise the process won't start.
 
 StreamScan example:
 -----------------
@@ -2893,7 +2895,7 @@ In order to have a correct match in the rule, you will need to have a valid iplo
     Click to see actions for - Apr 6 10:16:18 ubuntu CDS[83162]:type=violation device=172.20.20.193 threat="ssh trafic detected" direction=inbound sourceip=172.145.25.10 sourceport=22 destip=172.145.25.10 destport=42290 app=ssh timestamp=2017-04-06_10-16-18.965687 sid=1234
     - violation : trigger_violation('mac', '00:11:22:33:44:55', 'tid', '1234', 'type', 'detect')
 
-We can see that PacketFence will execute the violation on the mac address 00:11:22:33:44:55.
+We can see that PacketFence will execute the violation on the MAC address 00:11:22:33:44:55.
 
 Violation creation:
 -------------------
@@ -2928,7 +2930,9 @@ Now you will need to restart the pfqueue and the pfdetect services.
 
     /usr/local/pf/bin/pfcmd service pfqueue restart
     
-    /usr/local/pf/bin/pfcmd service pfdetect restart (Make sure that you have your pipe file otherwise the process won't start)
+    /usr/local/pf/bin/pfcmd service pfdetect restart 
+
+Make sure that you have your pipe file otherwise the process won't start.
 
 
 Optional components
