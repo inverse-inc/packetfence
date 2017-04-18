@@ -417,7 +417,7 @@ sub regzone_non_filtered {
     my ($qname, $qclass, $qtype, $peerhost, $query, $conn) = @_;
     my ($matches_passthrough, $ports) = pf::util::dns::matches_passthrough($qname);
     #Exit early if it does not match
-    return unless($qtype eq 'A' && $matches_passthrough);
+    return unless($qtype eq 'A' && isenabled($Config{fencing}{passthrough}) && $matches_passthrough);
     my @ans;
     my %results = (
         ans   => \@ans,
