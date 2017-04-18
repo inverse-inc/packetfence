@@ -324,7 +324,7 @@ Login to your HiveManager using the admin credentials. You should see the Dashbo
 
 Configure the AAA Servers
 +++++++++++++++++++++++++
-On the left menu, click on 'Advanced Configuration', then 'Authentication', then 'AAA Client Settings'. We need to add the PacketFence RADIUS server here. Click on the 'New' button, and provide follow this configuration.
+On the left menu, click on 'Network Configuration', then 'Authentication', then 'AAA Client Settings'. We need to add the PacketFence RADIUS server here. Click on the 'New' button, and provide follow this configuration.
 
 image::docs/images/aerohive-radius-pf.png[scaledwidth="100%",alt="RADIUS server configuration"]
 
@@ -358,7 +358,7 @@ image::docs/images/aerohive-user-profile-prod.png[scaledwidth="100%",alt="User p
 
 Configure SNMP
 ^^^^^^^^^^^^^^
-You now need to configure the SNMP to add a valid read community string. Click on the 'Configure' pane, and on 'Advanced Configuration', then 'Management Policies', then 'SNMP Assignments'. Now click on 'New' and follow this configuration.
+You now need to configure the SNMP to add a valid read community string. Click on the 'Configure' pane, and on 'Network Configuration', then 'Management Policies', then 'SNMP Assignments'. Now click on 'New' and follow this configuration.
 
 image::docs/images/aerohive-add-snmp.png[scaledwidth="100%",alt="SNMP configuration"]
 
@@ -375,13 +375,13 @@ Login to your HiveManager using the admin credentials. You should see the Dashbo
 Configure the External Captive Portal
 +++++++++++++++++++++++++++++++++++++
 
-On the left menu, click on 'Advanced Configuration', then 'Authentication', then 'Captive Web Portals'. Click on 'New' to create a Captive Portal, configure it as follow:
+On the left menu, click on 'Network Configuration', then 'Authentication', then 'Captive Web Portals'. Click on 'New' to create a Captive Portal, configure it as follow:
 
 image::docs/images/aerohive-external-portal.png[scaledwidth="100%",alt="Captive Web Portal configuration"]
 
 Configure the AAA Servers
 +++++++++++++++++++++++++
-On the left menu, click on 'Advanced Configuration', then 'Authentication', then 'AAA Client Settings'. We need to add the PacketFence RADIUS server here. Click on the 'New' button, and provide follow this configuration.
+On the left menu, click on 'Network Configuration', then 'Authentication', then 'AAA Client Settings'. We need to add the PacketFence RADIUS server here. Click on the 'New' button, and provide follow this configuration.
 
 image::docs/images/aerohive-radius-pf.png[scaledwidth="100%",alt="RADIUS server configuration"]
 
@@ -419,7 +419,7 @@ image::docs/images/aerohive-user-profile-prod.png[scaledwidth="100%",alt="User p
 
 Configure SNMP
 ^^^^^^^^^^^^^^
-You now need to configure the SNMP to add a valid read community string. Click on the 'Configure' pane, and on 'Advanced Configuration', then 'Management Policies', then 'SNMP Assignments'. Now click on 'New' and follow this configuration.
+You now need to configure the SNMP to add a valid read community string. Click on the 'Configure' pane, and on 'Network Configuration', then 'Management Policies', then 'SNMP Assignments'. Now click on 'New' and follow this configuration.
 
 image::docs/images/aerohive-add-snmp.png[scaledwidth="100%",alt="SNMP configuration"]
 

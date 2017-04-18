@@ -1,7 +1,7 @@
 <div class="documentation">
-  <h1><i class="icon-sliders"></i> [% l('Advanced Configuration') %]</h1>
+  <h1><i class="icon-sliders"></i> [% l('Network Configuration') %]</h1>
 
-  <p> [% l('PacketFence allows you to perform advanced solution configuration. Among the configuration options, there are:') %]</p>
+  <p> [% l('PacketFence allows you to perform solution related network configuration. Among the configuration options, there are:') %]</p>
 
   <dl>
     <dt>[% l('Networks:') %]</dt> <dd>[% l('This allows you to configure networks managed by PacketFence, in-bound and fencing configuration parameters as well as parking of endpoints.') %]</dd>

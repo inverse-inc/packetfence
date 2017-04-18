@@ -668,7 +668,7 @@ Passthroughs
 
 In order for your users to be able to access the Identity Provider login page, you will need to activate passthroughs and add the Identity Provider domain to the allowed passthroughs.
 
-To do so, go in 'Configuration -> Advanced Configuration -> Networks -> Fencing', then check 'Passthrough' and add the Identity Provider domain name to the 'Passhtroughs' list.
+To do so, go in 'Configuration -> Network Configuration -> Networks -> Fencing', then check 'Passthrough' and add the Identity Provider domain name to the 'Passhtroughs' list.
 
 Next, restart iptables and pfdns to apply your new passthroughs. 
 
@@ -1562,7 +1562,7 @@ Android specificities
 For Android provisioning support, you must activate and adjust the passthroughs. You might need to adapt them depending on your geolocality.
 NOTE: Please refer to the 'Passthroughs' section of this guide if needed.
 
-In the administation inferface, go in 'Advanced Configuration -> Fencing'. Activate 'Passthrough' and make sure the following passthrough are present:
+In the administation inferface, go in 'Network Configuration -> Fencing'. Activate 'Passthrough' and make sure the following passthrough are present:
 
   *.ggpht.com,*.googleusercontent.com,android.clients.google.com,*.googleapis.com,*.android.clients.google.com,*.gvt1.com,*.l.google.com,play.google.com,*.gstatic.com
 
@@ -2125,7 +2125,7 @@ As we mentioned earlier, each floating network device has to be identified. Ther
 
 [options="compact"]
 * by editing `conf/floating_network_device.conf`
-* through the Web GUI, in *Configuration -> Advanced Configuration -> Floating Device*
+* through the Web GUI, in *Configuration -> Network Configuration -> Floating Device*
 
 Here are the settings that are available:
 
@@ -2261,14 +2261,14 @@ There are two solutions for passthroughs - one using DNS resolution and iptables
 Note that non-HTTP (including HTTPS) protocols cannot use the mod_proxy approach.
 You can use one of them or both but for if a domain is configured in both, DNS passthroughs have a higher priority.
 
-In order to use the passthroughs feature in PacketFence, you need to enable it from the GUI in *Configuration->Advanced Configuration->Networks->Fencing*, enable *Passthrough* and then save.
+In order to use the passthroughs feature in PacketFence, you need to enable it from the GUI in *Configuration->Network Configuration->Networks->Fencing*, enable *Passthrough* and then save.
 
 DNS passthroughs
 ^^^^^^^^^^^^^^^^
 
 If you just enabled the passthroughs, you should restart the iptables services after configuring the parameter (`/usr/local/pf/bin/pfcmd service iptables restart`).
 
-Then add passthroughs in *Configuration->Advanced Configuration->Networks->Fencing->Passthroughs*. They can be of the following format:
+Then add passthroughs in *Configuration->Network Configuration->Networks->Fencing->Passthroughs*. They can be of the following format:
 
  * *example.com*: opens ports 80 and 443 in TCP for example.com
  * *example.com:1812*: opens the port 1812 in TCP and UDP for example.com
@@ -2285,7 +2285,7 @@ At the same time, it will add the entry to a special ipset which will allow acce
 mod_proxy passthroughs
 ^^^^^^^^^^^^^^^^^^^^^^
 
-The proxy passthroughs can be configured in *Configuration->Advanced Configuration->Networks->Fencing->Proxy Passthroughs*.
+The proxy passthroughs can be configured in *Configuration->Network Configuration->Networks->Fencing->Proxy Passthroughs*.
 Add a new FQDN (can also be a wildcard domain like *.google.com). Port specific passthroughs cannot be used as these only apply to port 80 in TCP.
 Then for this FQDN, pfdns will still answer with the IP address of the captive portal and when a device hits the captive portal, PacketFence will detect that this FQDN has a passthrough configured in PacketFence and will forward the traffic to mod_proxy.
 
@@ -2365,7 +2365,7 @@ Proxy Interception
 
 PacketFence enables you to intercept proxy requests and forward them to the captive portal. It only works one layer-2 networks  because PacketFence must be the default gateway.
 In order to use the Proxy Interception feature, you need to enable it from the GUI in
-*Configuration -> Advanced Configuration -> Networks -> Fencing* and check *Proxy Interception*.
+*Configuration -> Network Configuration -> Networks -> Fencing* and check *Proxy Interception*.
 
 Add the port you want to intercept (like 8080 or 3128) and add a new entry in the `/etc/hosts` file to resolve the fully qualified domain name (fqdn) of the captive portal to the IP address of the registration interface. This modification is mandatory in order for Apache to receives the proxy requests.
 
@@ -2633,7 +2633,7 @@ This enforcement mode used by itself can be bypassed by the device by using a di
 
 The first can be prevented using an ACL on your routing equipment, the second can be prevented by combining DNS enforcement with Single-Sign-On on your network equipment. Please see the Firewall Single-Sign-On documentation for details on how to accomplish this.
 
-In order to configure DNS enforcement, you first need to go in 'Configuration -> Advanced Configuration -> Networks -> Interfaces' then select one of your interfaces and set it in DNS enforcement mode.
+In order to configure DNS enforcement, you first need to go in 'Configuration -> Network Configuration -> Networks -> Interfaces' then select one of your interfaces and set it in DNS enforcement mode.
 
 After, you need to configure a routed network for this interface by clicking 'Add routed network'. See the 'Routed Networks' section of this document for details on how to configure it.
 
@@ -2648,9 +2648,9 @@ In the event that you are managing a large registration network with devices tha
 
 Using the parking feature, you can make these devices have a longer lease and hit an extremely lightweight captive portal so that the amount of resources they consume is minimal. In that captive portal, they will see a message explaining that they haven't registered their device for a certain amount of time, and will let them leave the *parked* state by pressing a link. 
 
-The *parked* vs *unparked* state is controlled through violation `1300003` which gets triggered according to the `parking.threshold` setting ('Configuration->Advanced Configuration->Networks->Device Parking').
+The *parked* vs *unparked* state is controlled through violation `1300003` which gets triggered according to the `parking.threshold` setting ('Configuration->Network Configuration->Networks->Device Parking').
 
-So, in order to activate the parking, go in 'Configuration->Advanced Configuration->Networks->Device Parking' and set the threshold to a certain amount of seconds. A suggested value would be `21600` which is 6 hours. This means that if a device stays in your registration network for more than 6 hours in a row, it will trigger violation `1300003` and place that device into the *parked* state.
+So, in order to activate the parking, go in 'Configuration->Network Configuration->Networks->Device Parking' and set the threshold to a certain amount of seconds. A suggested value would be `21600` which is 6 hours. This means that if a device stays in your registration network for more than 6 hours in a row, it will trigger violation `1300003` and place that device into the *parked* state.
 
 In that same section, you can define the lease length of the user when he is in the *parked* state.
 
@@ -2667,7 +2667,7 @@ Here are the main settings:
 * The amount of time a user can *unpark* their device is controlled through the 'Remediation -> Max enable' setting.
 * The amount of grace time between two parking violations is controlled by the 'Remediation -> Grace' setting. This means, once a user release himself from the *parked* state, he will have at least this amount of time to register before the parking triggers again.
 * The destination role (thus VLAN) of the user is controlled by 'Advanced -> Role'. You should leave the user in the registration role, but should you want to dedicate a role for parking, you can set it there.
-* The `Template` attribute will only be used when the user is on the normal PacketFence portal and not the one dedicated for parking. If you want the user to access the non-parking portal, disable 'Show parking portal' in 'Configuration -> Advanced Configuration -> Networks -> Device Parking'
+* The `Template` attribute will only be used when the user is on the normal PacketFence portal and not the one dedicated for parking. If you want the user to access the non-parking portal, disable 'Show parking portal' in 'Configuration -> Network Configuration -> Networks -> Device Parking'
 
 Custom reports
 ~~~~~~~~~~~~~~
@@ -3794,13 +3794,13 @@ Switch login access
 
 PacketFence is able to act as an authentication and authorization service on the port 1815 for granting command-line interface (CLI) access to switches.
 PacketFence currently supports Cisco switches and these must be configured using the following guide: http://www.cisco.com/c/en/us/support/docs/security-vpn/remote-authentication-dial-user-service-radius/116291-configure-freeradius-00.html
-From the PacketFence's web admin interface, you must configure an Admin Access role (Configuration->Advanced Configuration->Admin access) that contains the action 'Switches CLI - Read' or 'Switches CLI - Write' and assign this role to an internal user or in an Administration rule in an internal source.
+From the PacketFence's web admin interface, you must configure an Admin Access role (Configuration->Network Configuration->Admin access) that contains the action 'Switches CLI - Read' or 'Switches CLI - Write' and assign this role to an internal user or in an Administration rule in an internal source.
 
 DHCP Option 82
 ~~~~~~~~~~~~~~
 
 PacketFence is able to locate a device on the network even if the switch port is not managed by PacketFence.
-To use this feature you need to add all the switches in PacketFence and enable SNMP read (switch and PacketFence side) and enable DHCP option 82 in Configuration -> Advanced Configuration -> Networks -> Network.
+To use this feature you need to add all the switches in PacketFence and enable SNMP read (switch and PacketFence side) and enable DHCP option 82 in Configuration -> Network Configuration -> Networks -> Network.
 Once enabled, restart the pfdhcplistener and pfmon services.
 pfmon will query via SNMP all the switches to create a map (MAC <-> switch)
 pfdhcplistener will parse the DHCP Option 82 and will use the map to resolve the MAC to the switch and will update the locationlog of the device.
@@ -3943,7 +3943,7 @@ Here's the default config for the SNMP traps limit feature. As you can see, by d
   trap_limit_threshold = 100
   trap_limit_action = 
 
-Alternatively, you can configure these parameters from the PacketFence Web administrative GUI, in the *Configuration -> Advanced Configuration -> SNMP* section.
+Alternatively, you can configure these parameters from the PacketFence Web administrative GUI, in the *Configuration -> Network Configuration -> SNMP* section.
 
 MySQL optimizations
 ~~~~~~~~~~~~~~~~~~~

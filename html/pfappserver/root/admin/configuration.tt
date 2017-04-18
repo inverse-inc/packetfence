@@ -48,8 +48,8 @@
               <li data-category="portal_config">
                 <a href="#configuration/portal_config" data-toggle="tooltip" title="[% l('Advanced Access Configuration') %]"  ><i class="icon-2x icon-list-alt"></i></a>
               </li>
-              <li data-category="advanced_conf">
-                <a href="#configuration/advanced_conf" data-toggle="tooltip" title="[% l('Advanced Configuration') %]"><i class="icon-2x icon-sliders"></i></a>
+              <li data-category="network_conf">
+                <a href="#configuration/network_conf" data-toggle="tooltip" title="[% l('Network Configuration') %]"><i class="icon-2x icon-sliders"></i></a>
               </li>
               <li data-category="system">
                 <a href="#configuration/system_config" data-toggle="tooltip" title="[% l('System Config') %]"><i class="icon-2x icon-cogs"></i></a>
@@ -70,8 +70,8 @@
               <li data-category="portal_config">
                 <div class="nav-header"><a href="#">[% l('Advanced Access Configuration') %]</a></div>
               </li>
-              <li data-category="advanced_conf">
-                <div class="nav-header"><a href="#">[% l('Advanced Configuration') %]</a></div>
+              <li data-category="network_conf">
+                <div class="nav-header"><a href="#">[% l('Network Configuration') %]</a></div>
               </li>
               <li data-category="system">
                 <div class="nav-header"><a href="#">[% l('System Configuration') %]</a></div>
@@ -182,10 +182,10 @@
           </div>
           <div class="sidenav sidenav-section sidenav-inverse span3 offset1"
                style="display: none"
-               data-category="advanced_conf">
+               data-category="network_conf">
             <ul class="nav nav-header">
-              <li>[% l('Advanced Configuration') %]</li>
-              <!-- <li class="nav-header">[% pf_section_entry('advanced_conf', 'Advanced Configuration') | none %]</li> -->
+              <li>[% l('Network Configuration') %]</li>
+              <!-- <li class="nav-header">[% pf_section_entry('network_conf', 'Network Configuration') | none %]</li> -->
               <li class="divider-horizontal"></li>
             </ul>
             <ul class="nav nav-list">

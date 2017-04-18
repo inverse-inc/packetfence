@@ -70,7 +70,7 @@ our %ALLOWED_SECTIONS = (
     mse_tab => undef,
     radius_authentication_methods => undef,
     define_policy => undef,
-    advanced_conf => undef,
+    network_conf => undef,
     system_config => undef,
     portal_config => undef,
     compliance => undef,
@@ -288,14 +288,14 @@ sub networks :Local {
     $c->forward('_handle_tab_view');
 }
 
-=head2 advanced_conf
+=head2 network_conf
 
 =cut
 
-sub advanced_conf :Local {
+sub network_conf :Local {
     my ($self, $c) = @_;
 
-    $c->stash->{template} = "configuration/advanced_conf.tt";
+    $c->stash->{template} = "configuration/network_conf.tt";
 }
 
 =head2 define_policy

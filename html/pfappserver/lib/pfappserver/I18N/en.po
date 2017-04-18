@@ -584,8 +584,8 @@ msgid "Advanced Access Configuration"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
-# html/pfappserver/root/configuration/advanced_conf.tt
-msgid "Advanced Configuration"
+# html/pfappserver/root/configuration/network_conf.tt
+msgid "Network Configuration"
 msgstr ""
 
 # html/pfappserver/root/configurator/admin.tt
@@ -2836,7 +2836,7 @@ msgstr ""
 msgid "Floating Devices"
 msgstr ""
 
-# html/pfappserver/root/configuration/advanced_conf.tt
+# html/pfappserver/root/configuration/network_conf.tt
 msgid "Floating Devices:"
 msgstr ""
 
@@ -3929,7 +3929,7 @@ msgstr ""
 msgid "Networks on which to do SSO"
 msgstr ""
 
-# html/pfappserver/root/configuration/advanced_conf.tt
+# html/pfappserver/root/configuration/network_conf.tt
 msgid "Networks:"
 msgstr ""
 
@@ -4262,7 +4262,7 @@ msgstr ""
 msgid "OMAPI"
 msgstr ""
 
-# html/pfappserver/root/configuration/advanced_conf.tt
+# html/pfappserver/root/configuration/network_conf.tt
 msgid "OMAPI:"
 msgstr ""
 
@@ -4612,7 +4612,7 @@ msgstr ""
 msgid "PacketFence allows you to create advanced filtering rules based on RADIUS, DHCP, DNS or HTTP information. It also allows you to define advanced role-mapping or VLAN-mapping rules."
 msgstr ""
 
-# html/pfappserver/root/configuration/advanced_conf.tt
+# html/pfappserver/root/configuration/network_conf.tt
 msgid "PacketFence allows you to perform advanced solution configuration. Among the configuration options, there are:"
 msgstr ""
 
@@ -5885,7 +5885,7 @@ msgstr ""
 msgid "SNMP"
 msgstr ""
 
-# html/pfappserver/root/configuration/advanced_conf.tt
+# html/pfappserver/root/configuration/network_conf.tt
 msgid "SNMP:"
 msgstr ""
 
@@ -7005,7 +7005,7 @@ msgstr ""
 msgid "The Root Portal Module to use"
 msgstr ""
 
-# html/pfappserver/root/configuration/advanced_conf.tt
+# html/pfappserver/root/configuration/network_conf.tt
 msgid "The SNMP engine in PacketFence can be configured here."
 msgstr ""
 
@@ -7450,15 +7450,15 @@ msgstr ""
 msgid "This allows you set the DNS name, SMTP information for alerts, default language and more."
 msgstr ""
 
-# html/pfappserver/root/configuration/advanced_conf.tt
+# html/pfappserver/root/configuration/network_conf.tt
 msgid "This allows you to configure networks managed by PacketFence, in-bound and fencing configuration parameters as well as parking of endpoints."
 msgstr ""
 
-# html/pfappserver/root/configuration/advanced_conf.tt
+# html/pfappserver/root/configuration/network_conf.tt
 msgid "This allows you to create floating devices in PacketFence - like a switch for example that moves around in the network. PacketFence will automatically reconfigure a switch port and a floating device is connected."
 msgstr ""
 
-# html/pfappserver/root/configuration/advanced_conf.tt
+# html/pfappserver/root/configuration/network_conf.tt
 msgid "This allows you to enable or not OMAPI-based IP address to MAC address lookups."
 msgstr ""
 
