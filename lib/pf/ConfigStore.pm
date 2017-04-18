@@ -91,7 +91,9 @@ sub _buildCachedConfig {
         },
         sub {
             my $config = pf::IniFiles->new(@args);
-            $config->SetLastModTimestamp;
+            if ($config) {
+                $config->SetLastModTimestamp;
+            }
             return $config;
         });
 }
