@@ -2866,7 +2866,7 @@ Syslog regex parser configuration:
 
 To create the syslog regex parser you will need to go to *Configuration -> Compliance -> Syslog Parsers -> Add a Syslog Parser -> regex*
 
-Here the configuration of the syslog regex parser:
+Here is the configuration of the syslog regex parser:
 
     Detector *: StreamScan
     Enabled: checked
