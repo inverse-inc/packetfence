@@ -826,7 +826,7 @@ Should be rewritten as
 
 The older syntax is still supported but will be deprecated in a future release.
 
-The operators match and match_not has changed thier behavior.
+The operators match and match_not has changed their behavior.
 They will match (or not match) the exact string given in the condition.
 The following condition
 
