@@ -5860,6 +5860,46 @@ Finally, we need to tie the service profiles with the proper AAA configuration.
   set authentication mac ssid PacketFence-Public * PF-RADIUS
   set authentication dot1x ssid PacketFence-Secure ** pass-through PF-RADIUS
 
+[float]
+Ubiquiti
+~~~~~~~~
+
+Web authentication
+^^^^^^^^^^^^^^^^^^
+
+In order to configure web-authentication (external captive-portal) on Ubiquiti access points, you must have access to a Unifi controller and your APs must be connected to it.
+
+First, you must configure the guest policy. Go in 'Settings->Guest Control' and configure it as shown below:
+
+## screenshot guest policy
+
+Make sure you enabled 'Enable Guest Portal', and that you've set 'External portal server'.
+
+You also need to enter the IP address of a portal enabled interface on the PacketFence server in 'Custom Portal'. Then in the 'ACCESS CONTROL' section, add that same IP address to the 'Pre-Authorization Access'
+
+Then, still in the settings, create or edit a new SSID with the following settings:
+
+## screenshot guest ssid
+
+Once this is done, you will need to define all your APs MAC addresses in the PacketFence switches with a configuration similar to this:
+
+  [00:11:22:33:44:55]
+  description=Ubiquiti AP
+  ExternalPortalEnforcement=Y
+  type=Ubiquity::Unifi
+  controllerIp=1.2.3.4
+  wsTransport=HTTPS
+  wsUser=admin
+  wsPwd=admin
+
+Where :
+
+[options="compact"]
+* *wsTransport* is the protocol used to connect to port 8443 of the Unifi controller and should be HTTPS. This is configured in the 'Web Services' tab of the switch.
+* *wsUser* is a valid administrator username on your Unifi controller. This is configured in the 'Web Services' tab of the switch.
+* *wsPwd* is the password that is associated to the wsUser. This is configured in the 'Web Services' tab of the switch.
+* *controllerIp* is the IP address of your Unifi controller. This is configured in the 'Definition' tab of the switch.
+
 Xirrus
 ~~~~~~
 
