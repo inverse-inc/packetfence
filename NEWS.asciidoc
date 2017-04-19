@@ -23,7 +23,7 @@ New Features
  * IPv6 network stack in PacketFence (PR#2024)
  * New Golang-based HTTP dispatcher (#1301/PR#2029/PR#2067)
  * New Golang-based pfsso service to handle the firewall SSO requests (#1144/PR#2037/PR#2062)
- * Revamped the Web administration GUI (PR#2108)
+ * Revamped the Web administration interface (PR#2108)
 
 Enhancements
 ++++++++++++
@@ -31,12 +31,12 @@ Enhancements
  * SNMP traps are now handled in pfqueue (PR#1656)
  * Added the ability to grant CLI write access for Extreme Networks switches (PR#1699)
  * Added a distributed cache for the accounting information to safely disable the SQL accounting records in active/active clusters (PR#1715)
- * Reduce the number of ipset calls when adding ports for Active Directory (PR#1886)
- * pfmon tasks has their own configuration file (PR#1918)
- * new command pfcmd pfmon - for running pfmon task via pfcmd (PR#1918)
+ * Reduced the number of ipset calls when adding ports for Active Directory (PR#1886)
+ * pfmon tasks have their own configuration file (PR#1918)
+ * new command "pfcmd pfmon" - for running pfmon tasks via pfcmd (PR#1918)
  * CentOS repositories (packetfence and packetfence-devel) packages are now signed (PR#1946)
  * Added way to unregister devices that were inactive for a certain amount of time (maintenance.node_unreg_window) (PR#1948)
- * Added a new last_seen column to nodes to track their last activity (Authentication, HTTP portal, DHCP) (PR#1948)
+ * Added a new last_seen column to nodes table to track their last activity (Authentication, HTTP portal, DHCP) (PR#1948)
  * Delete nodes based on the new last_seen column instead of looking at the last DHCP packet (PR#1948)
  * iplog: Floored lease time for "tolerance" (#1965/PR#1968)
  * Can now restart the switchport where a node is connected from the administration interface (PR#2006)
@@ -49,13 +49,13 @@ Enhancements
  * Updated the Ruckus SmartZone module to use the most recent webauth technique available (PR#2059/PR#2088)
  * Added vsys support for PaloAlto firewall SSO modules (PR#2061)
  * Portal Profile has been renamed to Connection Profile (PR#2066)
- * Move common flows / process of DHCP processors in base class (PR#2086)
+ * Moved common flows / process of DHCP processors in base class (PR#2086)
  * Removed PacketFence-Authorization-Status attribute from the RADIUS replies to prevent RADIUS replies from being discarded due to an unknown attribute (#2085/PR#2087)
  * Added option to fetch users one by one in the NTLM cache instead of all together (PR#2093)
  * New parallel testing infrastructure (PR#2094)
  * Roles are now stored in a configuration file for easier backup and management (PR#2097)
  * Tightened up HAproxy's SSL termination security (#893/#410/#411/#412)
- * Tightened up Apache's encryption security by requiring TLS v1.2 support only and restricted ciphersuites (#893/#410/#411/#412)
+ * Tightened up Apache's encryption security by requiring TLS v1.2 support only and restricted cipher suites (#893/#410/#411/#412)
  * Clickjacking attack prevention enforcement for recent browsers (PR#2111)
  * Cross-site scripting (XSS) filtering is now requested from your browser (PR#2114)
  * Dell N2000 series support (#675/PR#2115)
@@ -75,7 +75,7 @@ Bug Fixes
  * pfqueue stats: Outstanding Task Counters isn't accurate (#1726)
  * pfdhcplistener: Segfaulting when keepalived transitions quickly from backup/master/backup (#1737)
  * pfdhcplistener takes a minute to die (#1791)
- * captive-portal: i18n label for dynamic fields (#1911)
+ * captive-portal: i18n labels for dynamic fields (#1911)
 
 
 Version 6.5.1 released on 2017-02-24
