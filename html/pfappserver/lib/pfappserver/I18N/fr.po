@@ -15,8 +15,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-04-14 19:17+0000\n"
-"Last-Translator: Antoine Amacher <aamacher@inverse.ca>\n"
+"PO-Revision-Date: 2017-04-19 15:00+0000\n"
+"Last-Translator: oeufdure <fdurand@inverse.ca>\n"
 "Language-Team: French (http://www.transifex.com/inverse/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -80,7 +80,7 @@ msgstr "90 jours"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/AdminProxy.pm
 msgid "A comma seperated list of IP Address"
-msgstr "Liste d'adresses IP séparées par des virgules"
+msgstr "Liste d’adresses IP séparées par des virgules"
 
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
 msgid ""
@@ -91,16 +91,6 @@ msgstr "Une liste des durées d’accès disponibles pour l’utilisateur admin 
 # html/pfappserver/lib/pfappserver/Form/Config/BillingTiers.pm
 msgid "A description of the billing tier"
 msgstr "Description du plan de facturation"
-
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid ""
-"A flexible and powerful tool for defining actions based of log file entries "
-"in PacketFence."
-msgstr "Un outil flexible et puissant pour définir des actions basées sur des entrées de fichiers journaux dans PacketFence."
-
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "A list of actions to take when the regex matches"
-msgstr "Une liste des actions à prendre lorsqu'une regex correspond"
 
 # html/pfappserver/root/service/status.tt
 msgid ""
@@ -114,10 +104,6 @@ msgid ""
 "violation."
 msgstr "Un message qui sera ajouté au courriel envoyé à l’utilisateur concernant la violation."
 
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "A previously created alert pipe (FIFO)"
-msgstr "Le fichier d'alert (FIFO) précédemment créer."
-
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid ""
 "A profile id can only contain alphanumeric characters, dashes, period and or"
@@ -127,8 +113,8 @@ msgstr "Un identifiant de profile peux seulement contenir des caractères alphan
 # html/pfappserver/root/configuration/define_policy.tt
 msgid ""
 "A role will allow PacketFence to grant different network access to endpoints"
-" connecting to your network. For example, employee vs. guest;"
-msgstr "Un rôle permettra à PacketFence d'accorder un accès réseau aux différent appareils connectés à votre réseau. Par exemple, employé ou bien invité;"
+" connecting to your network. For example, employee vs. guest."
+msgstr "Un rôle permettra à PacketFence d’accorder un accès réseau aux différent appareils connectés à votre réseau. Par exemple, employé ou bien invité."
 
 # html/pfappserver/root/admin/reports.tt
 msgid "ACCOUNTING"
@@ -250,7 +236,7 @@ msgstr "Gabarit de la politique d’utilisation"
 
 # conf/documentation.conf (advanced.multihost)
 msgid "Ability to manage all active devices from a same switch port"
-msgstr "Possibilité de gérer tous les périphériques actifs à partir d'un même port de commutateur"
+msgstr "Possibilité de gérer tous les périphériques actifs à partir d’un même port de commutateur"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Email.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SponsorEmail.pm
@@ -287,7 +273,7 @@ msgstr "Paramètre du jeton d’accès"
 msgid ""
 "Access control decisions in PacketFence can be modified through advanced "
 "parameters. Among them, there are:"
-msgstr "Les décisions de contrôle d'accès dans PacketFence peuvent être modifiées par des paramètres avancés. Parmi ceux-ci, il y a:"
+msgstr "Les décisions de contrôle d’accès dans PacketFence peuvent être modifiées par des paramètres avancés. Parmi ceux-ci, il y a:"
 
 # html/pfappserver/root/configurator/admin.tt
 msgid "Access to the administration interface"
@@ -308,7 +294,6 @@ msgstr "Les sessions de comptabilisation créés par pfbandwidthd qui n’ont pa
 # html/pfappserver/lib/pfappserver/Form/Field/PfdetectRegexRule.pm
 # html/pfappserver/root/admin/bulk_actions.inc
 # html/pfappserver/root/config/fingerbank/header.tt
-# html/pfappserver/root/config/pfdetect/type/regex.tt
 # html/pfappserver/root/violation/list.tt
 msgid "Action"
 msgstr "Action"
@@ -319,7 +304,7 @@ msgid ""
 "reached. Defaults to none. email will send an email every hour if the "
 "limit's still reached. shut will shut the port on the switch and will also "
 "send an email even if email is not specified."
-msgstr "Action que PacketFence prendra si le seuil snmp_traps.trap_limit_est atteint. Par défaut, aucun. Email enverra un courrier électronique toutes les heures si la limite est toujours atteinte. Shut va fermer le port sur le commutateur et enverra un courrier électronique même si Email n'est pas spécifié."
+msgstr "Action que PacketFence prendra si le seuil snmp_traps.trap_limit_est atteint. Par défaut, aucun. Email enverra un courrier électronique toutes les heures si la limite est toujours atteinte. Shut va fermer le port sur le commutateur et enverra un courrier électronique même si Email n’est pas spécifié."
 
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
@@ -333,7 +318,6 @@ msgstr "Action que PacketFence prendra si le seuil snmp_traps.trap_limit_est att
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/list.tt
 # html/pfappserver/root/config/fingerbank/mac_vendor/list.tt
 # html/pfappserver/root/config/fingerbank/user_agent/list.tt
-# html/pfappserver/root/config/pfdetect/type/regex.tt
 # html/pfappserver/root/user/create.tt
 # html/pfappserver/root/user/view.tt
 # html/pfappserver/root/violation/list.tt
@@ -467,6 +451,7 @@ msgid "Add a billing tier."
 msgstr "Ajouter un plan de facturation."
 
 # html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/authentication/source/rule_read.tt
 # html/pfappserver/root/config/switch/view.tt
@@ -560,7 +545,7 @@ msgstr "Ajouter ou modifier une source du type Eduroam requiert un redémarrage 
 
 # html/pfappserver/root/authentication/source/type/Eduroam.tt
 msgid "Adding or modifying (not applicable for 'Rules\\"
-msgstr "L'ajout ou la modification (Non applicable pour les 'Règles\\"
+msgstr "L’ajout ou la modification (Non applicable pour les 'Règles\\"
 
 # html/pfappserver/root/config/realm/index.tt
 msgid ""
@@ -621,6 +606,10 @@ msgid "Administration"
 msgstr "Administration"
 
 # html/pfappserver/root/admin/wrapper.tt
+msgid "Administration Guide"
+msgstr "Guide d’administration"
+
+# html/pfappserver/root/admin/wrapper.tt
 # html/pfappserver/root/configurator/admin.tt
 msgid "Administrator"
 msgstr "Administrateur"
@@ -634,12 +623,12 @@ msgstr "Avancé"
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/configuration/portal_config.tt
 msgid "Advanced Access Configuration"
-msgstr "Configuration d'accès avancée"
+msgstr "Configuration d’accès avancée"
 
 # html/pfappserver/root/admin/configuration.tt
-# html/pfappserver/root/configuration/advanced_conf.tt
-msgid "Advanced Configuration"
-msgstr "Configuration Avancée"
+# html/pfappserver/root/configuration/network_conf.tt
+msgid "Network Configuration"
+msgstr "Configuration réseau"
 
 # html/pfappserver/root/configurator/admin.tt
 msgid ""
@@ -653,10 +642,6 @@ msgid ""
 "After configuring your first domain, you will need to restart the radiusd "
 "service to activate domain authentication."
 msgstr "Apres avoir configuré votre premier domaine vous devez redémarrer radiusd pour activer l’authentification sur celui-ci."
-
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "Alert Pipe"
-msgstr "Canal d’alerte"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Pfdetect.pm
 msgid "Alert pipe"
@@ -687,7 +672,7 @@ msgstr "Autoriser le domaine local"
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid "Allow access to registration portal when registered"
-msgstr "Autoriser l’accès au portail d'enregistrement même en étant enregistré. "
+msgstr "Autoriser l’accès au portail d’enregistrement même en étant enregistré. "
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "Allow on registration"
@@ -767,15 +752,11 @@ msgid ""
 "Amount of upstream databases to retain on disk in db/. Should be at least "
 "one in case any running processes are still pointing on the old file "
 "descriptor of the database."
-msgstr "Nombre de base de donnée fingerbank à garder sur le disque. Devrait être au minimum 1 au cas ou certains processus pointent toujours sur l'ancien descripteur de fichier."
+msgstr "Nombre de base de donnée fingerbank à garder sur le disque. Devrait être au minimum 1 au cas ou certains processus pointent toujours sur l’ancien descripteur de fichier."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "An LDAP query to filter out the users that should be cached."
 msgstr "Un filtre LDAP permettant de filtrer les utilisateurs qui doivent être cachés."
-
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "An action have two parts"
-msgstr "Une action a deux parties"
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/User.pm
 msgid "An email was sent to %1 out of %2 users."
@@ -913,6 +894,12 @@ msgstr "Méthodes d’authentification"
 msgid "Authentication Methods:"
 msgstr "Méthodes d’authentification:"
 
+# html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/authentication/source/read.tt
+# html/pfappserver/root/config/authentication.tt
+msgid "Authentication Sources"
+msgstr "Sources d’authentification"
+
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/HTTP.pm
 msgid "Authentication URL"
 msgstr "URL d’authentification"
@@ -924,8 +911,8 @@ msgstr "Port d’écoute de l’authentification"
 # html/pfappserver/root/configuration/define_policy.tt
 msgid ""
 "Authentication sources will allow you to identify users and assign them "
-"roles and access durations;"
-msgstr "Les sources d'authentification vous permettrons d'identifier les utilisateurs et de leur assigner roles et durée d’accès."
+"roles and access durations."
+msgstr "Les sources d’authentification vous permettrons d’identifier les utilisateurs et de leur assigner roles et durée d’accès."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/HTTP.pm
 msgid "Authorization URL"
@@ -1456,6 +1443,10 @@ msgstr "État du cluster"
 msgid "Cluster:"
 msgstr "Cluster:"
 
+# html/pfappserver/root/admin/wrapper.tt
+msgid "Clustering Quick Installation Guide"
+msgstr "Guide d’installation rapide du clustering"
+
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "CoA Port"
 msgstr "Port CoA"
@@ -1551,7 +1542,7 @@ msgid ""
 "can specify the same domain with a different port multiple times and they "
 "will be combined.The configuration parameter <i>passthrough</i> must be "
 "enabled for passthroughs to be effective."
-msgstr "Liste de domaines délimités par une virgule autorisés sur le VLAN d enregistrement. Si aucun port n'est spécifié pour un domaine alors le port 80 et 443 seront ouverts. Vous pouvez spécifier le port a ouvrir (example.com:tcp:25) qui ouvrira le port 25 en TCP. Quand aucun protocole n'est spécifié (example.com:25) alors le port sera ouvert pour UDP et TCP. Vous pouvez spécifier le même domaine avec des ports différents plusieurs fois, ils seront combiné entre eux. Le paramètre de configuration <i>passthrough</i> doit être activé pour que cette configuration soit effective."
+msgstr "Liste de domaines délimités par une virgule autorisés sur le VLAN d’enregistrement. Si aucun port n’est spécifié pour un domaine alors le port 80 et 443 seront ouverts. Vous pouvez spécifier le port a ouvrir (example.com:tcp:25) qui ouvrira le port 25 en TCP. Quand aucun protocole n'est spécifié (example.com:25) alors le port sera ouvert pour UDP et TCP. Vous pouvez spécifier le même domaine avec des ports différents plusieurs fois, ils seront combiné entre eux. Le paramètre de configuration <i>passthrough</i> doit être activé pour que cette configuration soit effective."
 
 # conf/documentation.conf (fencing.proxy_passthroughs)
 msgid ""
@@ -1649,10 +1640,6 @@ msgstr "Configurer les interfaces réseau"
 msgid "Configure various options"
 msgstr "Configurer différentes options"
 
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "Configuring a Regex Syslog Parser"
-msgstr "Configure une regex pour un parser syslog"
-
 # html/pfappserver/root/configurator/fingerbank.tt
 msgid ""
 "Configuring your Fingerbank API key will allow for more accurate "
@@ -1702,7 +1689,7 @@ msgstr "Types de Connexions"
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 msgid "Conntrack percent used"
-msgstr "Pourcentage d'utilisation du Conntrack"
+msgstr "Pourcentage d’utilisation du Conntrack"
 
 # html/pfappserver/root/configurator/services.tt
 msgid "Console Output"
@@ -2110,7 +2097,7 @@ msgstr "Définit les roles qui seront appliqués sur tous les équipements sur v
 msgid ""
 "Defines how the common name will be formated. %s will expand to the defined "
 "Common Name Attribute value"
-msgstr "Définis comment le nom d’hôte sera formaté. %s s'étendra avec la valeur de l'attribut du nom d’hôte "
+msgstr "Définis comment le nom d’hôte sera formaté. %s s’étendra avec la valeur de l’attribut du nom d’hôte"
 
 # conf/documentation.conf (active_active.conflict_resolution_threshold)
 msgid ""
@@ -2130,11 +2117,11 @@ msgstr "Définis le mot de passe qui sera utilisé pour la réplication du clust
 msgid ""
 "Defines the replication username to be used for the MariaDB Galera cluster "
 "replication"
-msgstr "Définis l'utilisateur qui sera utilisé pour la réplication du cluster MariaDB Galera"
+msgstr "Définis l’utilisateur qui sera utilisé pour la réplication du cluster MariaDB Galera"
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Authentication/Password.pm
 msgid "Defines the username used for all authentications"
-msgstr "Défini l'utilisateur pour toutes les authentifications."
+msgstr "Défini l’utilisateur pour toutes les authentifications."
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 msgid ""
@@ -2147,10 +2134,6 @@ msgid ""
 "Defines what attribute of the node to use as the common name during the "
 "certificate generation."
 msgstr "Définit quel attribut de l’appareil est à utiliser pour le nom d’hôte durant la génération du certificat."
-
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "Defining Actions"
-msgstr "Actions déterminantes"
 
 # html/pfappserver/root/config/switch/view.tt
 # html/pfappserver/root/violation/view.tt
@@ -2402,7 +2385,6 @@ msgid ""
 "will use the Redirection URL from the connection profile configuration."
 msgstr "URL de destination sur laquelle l’appareil va être redirigé. Par défaut l’URL  de redirection du profil de portail sera utilisée."
 
-# html/pfappserver/root/auditing/radiuslog/search.tt
 # html/pfappserver/root/dhcpoption82/search.tt
 msgid "Details"
 msgstr "Détails"
@@ -2446,11 +2428,11 @@ msgstr "ID de l’appareil"
 
 # html/pfappserver/root/admin/configuration.tt
 msgid "Device Registration"
-msgstr "Enregistrement d'appareil"
+msgstr "Enregistrement d’appareil"
 
 # html/pfappserver/root/configuration/portal_config.tt
 msgid "Device Registration:"
-msgstr "Enregistrement d'appareil:"
+msgstr "Enregistrement d’appareil:"
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/root/admin/nodes.tt
@@ -2479,7 +2461,7 @@ msgstr "Appareils"
 msgid ""
 "Different access level can be defined for the PacketFence administrative "
 "interface from this module."
-msgstr "Différents niveau d’accès peuvent être définis pour l'interface d'administration de PacketFence depuis ce module."
+msgstr "Différents niveau d’accès peuvent être définis pour l’interface d’administration de PacketFence depuis ce module."
 
 # conf/documentation.conf (advanced.disable_pf_domain_auth)
 msgid "Disable Active-Directory domain configuration from within PacketFence"
@@ -2583,8 +2565,8 @@ msgid "EAP TTLS"
 msgstr "EAP TTLS"
 
 # html/pfappserver/root/configuration/system_config.tt
-msgid "EAP methods provided by PacketFence can be changed from this module;"
-msgstr "Les méthodes EAP gérés par PacketFence peuvent être changés depuis ce module;"
+msgid "EAP methods provided by PacketFence can be changed from this module."
+msgstr "Les méthodes EAP gérés par PacketFence peuvent être changés depuis ce module."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
 msgid "EAP type"
@@ -2743,7 +2725,6 @@ msgstr "Activez cette option pour éviter les requêtes de mises à jour au coup
 
 # html/pfappserver/lib/pfappserver/Form/Config/Pfdetect.pm
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
-# html/pfappserver/root/config/pfdetect/type/regex.tt
 msgid "Enabled"
 msgstr "Activer"
 
@@ -2825,10 +2806,6 @@ msgstr "Erreur !"
 # html/pfappserver/lib/pfappserver/Form/Field/ExtendedDuration.pm
 msgid "Example"
 msgstr "Exemple"
-
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "Example Action"
-msgstr "Example d'action"
 
 # html/pfappserver/root/config/authentication.tt
 msgid "Exclusive"
@@ -3060,7 +3037,7 @@ msgstr "Appareil itinérant"
 msgid "Floating Devices"
 msgstr "Appareils Itinérants"
 
-# html/pfappserver/root/configuration/advanced_conf.tt
+# html/pfappserver/root/configuration/network_conf.tt
 msgid "Floating Devices:"
 msgstr "Appareils Itinérants:"
 
@@ -3075,7 +3052,7 @@ msgstr "Pour les requetes de déconnexion si vous devez l’envoyer a un autre p
 # html/pfappserver/root/configuration/define_policy.tt
 msgid ""
 "For PacketFence to work properly, you must define in the following order:"
-msgstr "Pour que PacketFence fonctionne correctement, vous devez définir dans l'ordre suivant:"
+msgstr "Pour que PacketFence fonctionne correctement, vous devez définir dans l’ordre suivant:"
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid "Force redirection URL"
@@ -3150,10 +3127,6 @@ msgid ""
 "create new templates from the <em>Connection Profiles</em> configuration "
 "section."
 msgstr "Gabarit HTML sur lequel l’appareil va être redirigé pour cette violation. Vous pouvez créer de nouveaux gabarits depuis le menu <i>Profil de connexion</i>. "
-
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "Help"
-msgstr "Aide"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/HTTP.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Kerberos.pm
@@ -3257,12 +3230,12 @@ msgstr "Combien de temps garder une entrée d’ip6log archive avant de la suppr
 # html/pfappserver/lib/pfappserver/Form/Config/Pfmon/ip4log_cleanup.pm
 msgid ""
 "How long to keep ip4log history entry before rotating it to ip4log archive."
-msgstr "Combien de temps garder une entrée d’ip4log history avant de la déplacer dans l'ip4log archive."
+msgstr "Combien de temps garder une entrée d’ip4log history avant de la déplacer dans l’ip4log archive."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Pfmon/ip6log_cleanup.pm
 msgid ""
 "How long to keep ip6log history entry before rotating it to ip6log archive."
-msgstr "Combien de temps garder une entrée d’ip6log history avant de la déplacer dans l'ip6log archive."
+msgstr "Combien de temps garder une entrée d’ip6log history avant de la déplacer dans l’ip6log archive."
 
 # conf/documentation.conf (fencing.wait_for_redirect)
 msgid ""
@@ -3315,7 +3288,6 @@ msgid "IP"
 msgstr "IP"
 
 # html/pfappserver/lib/pfappserver/Form/Field/PfdetectRegexRule.pm
-# html/pfappserver/root/config/pfdetect/type/regex.tt
 msgid "IP <i class=\"icon-exchange\"></i> MAC"
 msgstr "IP <i class=\"icon-exchange\"></i> MAC"
 
@@ -3357,7 +3329,7 @@ msgstr "Masque de sous-réseau IPv4"
 msgid ""
 "IPv4 address of the named interface - note that this should mirror the OS-"
 "level configuration but it does not make any OS-level changes."
-msgstr "Adresse IPv4 de l’interface nommée - noter que cela devrait refléter la configuration au niveau du système d’exploitation, mais il n'effectue pas de modifications sur de celui-ci."
+msgstr "Adresse IPv4 de l’interface nommée - noter que cela devrait refléter la configuration au niveau du système d’exploitation, mais il n’effectue pas de modifications sur de celui-ci."
 
 # html/pfappserver/lib/pfappserver/Form/Interface.pm
 # html/pfappserver/root/node/view.tt
@@ -3372,7 +3344,7 @@ msgstr "Préfxe IPv6 "
 msgid ""
 "IPv6 address of the named interface - note that this should mirror the OS-"
 "level configuration but it does not make any OS-level changes."
-msgstr "Adresse IPv6 de l’interface nommée - noter que cela devrait refléter la configuration au niveau du système d’exploitation, mais il n'effectue pas de modifications sur celui-ci."
+msgstr "Adresse IPv6 de l’interface nommée - noter que cela devrait refléter la configuration au niveau du système d’exploitation, mais il n’effectue pas de modifications sur celui-ci."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Device.pm
 # html/pfappserver/root/config/provisioning/list.tt
@@ -3500,8 +3472,8 @@ msgstr "Si vous utiliser un port alternatif alors définissez le. Ce paramètre 
 # html/pfappserver/root/configuration/define_policy.tt
 msgid ""
 "If you want to authenticate users or machines using a Active Directory "
-"Domain Controller (DC), you have to join the PacketFence server to the DC;"
-msgstr "Si vous souhaitez authentifier des utilisateurs ou des machines par l’intermédiaire d'un Contrôleur de Domaine Active Directory(DC) , vous devez joindre le serveur PacketFence au DC."
+"Domain Controller (DC), you have to join the PacketFence server to the DC."
+msgstr "Si vous souhaitez authentifier des utilisateurs ou des machines par l’intermédiaire d’un Contrôleur de Domaine Active Directory(DC) , vous devez joindre le serveur PacketFence au DC."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SAML.pm
 msgid ""
@@ -3652,11 +3624,7 @@ msgstr "Dernier vu"
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Pfqueue.pm
 msgid "Last hour queue counts"
-msgstr ""
-
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "Last if matches"
-msgstr "Dernier si correspond"
+msgstr "Nombres d’objets dans la queue depuis la dernière heure"
 
 # html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
@@ -4045,7 +4013,7 @@ msgstr "MSE - Lecture"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/sentinelone.pm
 msgid "Mac OSX agent download URI"
-msgstr "URI pour télécharger l'agent Mac OSX "
+msgstr "URI pour télécharger l’agent Mac OSX "
 
 # html/pfappserver/root/configuration/system_config.tt
 msgid "Main Configuration:"
@@ -4222,7 +4190,6 @@ msgstr "Hachage NTLM"
 # html/pfappserver/root/config/authentication.tt
 # html/pfappserver/root/config/fingerbank/device/list.tt
 # html/pfappserver/root/config/fingerbank/mac_vendor/list.tt
-# html/pfappserver/root/config/pfdetect/type/regex.tt
 # html/pfappserver/root/config/pki_provider/list.tt
 # html/pfappserver/root/config/profile/index.tt
 # html/pfappserver/root/config/roles/index.tt
@@ -4276,13 +4243,17 @@ msgstr "Masque de sous-réseau"
 msgid "Network"
 msgstr "Réseau"
 
+# html/pfappserver/root/admin/wrapper.tt
+msgid "Network Devices Configuration Guide"
+msgstr "Guide de configuration des equiepements réseau"
+
 # html/pfappserver/root/configurator/networks.tt
 msgid "Network Interfaces"
 msgstr "Interfaces réseaux"
 
 # conf/documentation.conf (interface.mask)
 msgid "Network mask for the IPv4 address of the named interface."
-msgstr "Masque réseau pour l'adresse IPv4 de cette interface."
+msgstr "Masque réseau pour l’adresse IPv4 de cette interface."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
 msgid "Network type"
@@ -4296,7 +4267,7 @@ msgstr "Réseaux"
 msgid "Networks on which to do SSO"
 msgstr "Réseaux sur lesquels appliquer le SSO"
 
-# html/pfappserver/root/configuration/advanced_conf.tt
+# html/pfappserver/root/configuration/network_conf.tt
 msgid "Networks:"
 msgstr "Réseaux:"
 
@@ -4635,7 +4606,7 @@ msgstr "Nombre de processus parser que pfsetvlan devrait démarrer"
 msgid "OMAPI"
 msgstr "OMAPI"
 
-# html/pfappserver/root/configuration/advanced_conf.tt
+# html/pfappserver/root/configuration/network_conf.tt
 msgid "OMAPI:"
 msgstr "OMAPI:"
 
@@ -5001,14 +4972,14 @@ msgstr "Port d’écoute d’authentification du serveur RADIUS Eduroam "
 msgid ""
 "PacketFence allows you to create advanced filtering rules based on RADIUS, "
 "DHCP, DNS or HTTP information. It also allows you to define advanced role-"
-"mapping or VLAN-mapping rules;"
-msgstr "PacketFence vous permet de créer des règles de filtrage avancés basés sur les informations RADIUS, DHCP, DNS ou HTTP. Cela vous permet de définir de manière avancée les règles de role-mapping ou VLAN-mapping.  "
+"mapping or VLAN-mapping rules."
+msgstr "PacketFence vous permet de créer des règles de filtrage avancés basés sur les informations RADIUS, DHCP, DNS ou HTTP. Cela vous permet de définir de manière avancée les règles de role-mapping ou VLAN-mapping."
 
-# html/pfappserver/root/configuration/advanced_conf.tt
+# html/pfappserver/root/configuration/network_conf.tt
 msgid ""
 "PacketFence allows you to perform advanced solution configuration. Among the"
 " configuration options, there are:"
-msgstr "PacketFence vous permet d'effectuer des configuration avancée. Parmi les options de configurations il y a:"
+msgstr "PacketFence vous permet d’effectuer des configuration avancée. Parmi les options de configurations il y a:"
 
 # html/pfappserver/root/configuration/system_config.tt
 msgid ""
@@ -5020,14 +4991,14 @@ msgstr "PacketFence vous permet des options de configuration avancée system. Pa
 msgid ""
 "PacketFence can \"push\" provisioning agents on endpoints to auto-configure "
 "the WiFi connection during the registration process. You can configure the "
-"provisioning agents in this module;"
-msgstr "PacketFence peut \"pousser\" des agent de configuration sur les périphériques pour configurer automatiquement une connexion WiFi pendant l'enregistrement. Vous pouvez configurer les agents de configurations depuis ce module."
+"provisioning agents in this module."
+msgstr "PacketFence peut \"pousser\" des agent de configuration sur les périphériques pour configurer automatiquement une connexion WiFi pendant l’enregistrement. Vous pouvez configurer les agents de configurations depuis ce module."
 
 # html/pfappserver/root/configuration/compliance.tt
 msgid ""
 "PacketFence can ensure a high-level of security on your network by enforcing"
 " compliance of your acceptable use policy. The compliance modules are:"
-msgstr "PacketFence peut assurer un niveau de sécurité élevé sur votre réseau en mettant en oeuvre la conformité de votre politique d'utilisation. Les modules de conformite sont:"
+msgstr "PacketFence peut assurer un niveau de sécurité élevé sur votre réseau en mettant en oeuvre la conformité de votre politique d’utilisation. Les modules de conformité sont:"
 
 # html/pfappserver/root/configuration/compliance.tt
 msgid ""
@@ -5040,8 +5011,8 @@ msgstr "PacketFence peut recevoir les informations de événements de sécurité
 msgid ""
 "PacketFence can use active vulnerability like Nessus, OpenVAS or Windows "
 "Management Instrumentation (WMI) to proactively scan endpoints for security "
-"problems. You can define the scanners being used here;"
-msgstr "PacketFence peut utiliser des scanners de vulnérabilités comme Nessus, OpenVAS, Windows Management Interface (WMI) pour scanner de manière proactive les périphériques contre des problèmes de sécurité. Vous pouvez définir les scanners utilisés ici;"
+"problems. You can define the scanners being used here."
+msgstr "PacketFence peut utiliser des scanners de vulnérabilités comme Nessus, OpenVAS, Windows Management Interface (WMI) pour scanner de manière proactive les périphériques contre des problèmes de sécurité. Vous pouvez définir les scanners utilisés ici."
 
 # html/pfappserver/root/configuration/integration.tt
 msgid ""
@@ -5064,21 +5035,21 @@ msgstr "PacketFence est le serveur qui assigne le VLAN (ou rôles) à l’équip
 # html/pfappserver/root/configuration/system_config.tt
 msgid ""
 "PacketFence makes use of a MySQL/MariaDB database. You can configure the "
-"connection information from this module;"
-msgstr "PacketFence utilise MySQL/MariaDB comme base de données. Vous pouvez configurer les informations de connexion depuis ce module;"
+"connection information from this module."
+msgstr "PacketFence utilise MySQL/MariaDB comme base de données. Vous pouvez configurer les informations de connexion depuis ce module."
 
 # html/pfappserver/root/configuration/define_policy.tt
 msgid ""
 "PacketFence manages switches, access points and WiFi controllers. You have "
 "to add the equipment you want PacketFence to manage and do the role by "
-"VLAN/ACL/policy identifier mapping;"
+"VLAN/ACL/policy identifier mapping."
 msgstr "PacketFence gère les commutateurs, points d’accès et contrôleurs WiFi. Vous devez ajouter les équipements que PacketFence doit gérer et configurer la correspondance de rôle par VLAN/ACL/politiques."
 
 # html/pfappserver/root/configuration/system_config.tt
 msgid ""
 "PacketFence supports clustering of 3+ members. You can configure the "
-"clustering solution from this module;"
-msgstr "PacketFence supporte le clustering de 3 noeuds. Vous pouvez configurer le clustering depuis ce module;"
+"clustering solution from this module."
+msgstr "PacketFence supporte le clustering de 3 noeuds. Vous pouvez configurer le clustering depuis ce module."
 
 # html/pfappserver/root/configurator/database.tt
 msgid ""
@@ -5086,10 +5057,6 @@ msgid ""
 "root password to access the MySQL server to create an account specific to "
 "PacketFence and create the required database tables and indexes."
 msgstr "PacketFence utilise un serveur MySQL. Sur cette page vous devez spécifier le mot de passe root pour accéder au serveur de base de données, créer un compte spécifique à PacketFence et créer la base donnée et les indexes. "
-
-# html/pfappserver/root/admin/wrapper.tt
-msgid "PacketFence version"
-msgstr "Version de PacketFence"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Device.pm
 msgid "Parent device"
@@ -5221,9 +5188,8 @@ msgid "Path to Service Provider key (x509)"
 msgstr "Chemin de la clé (x509) du fournisseur de service"
 
 # html/pfappserver/lib/pfappserver/Form/Field/PfdetectRegexRule.pm
-# html/pfappserver/root/config/pfdetect/type/regex.tt
 msgid "Perform automatic translation of IPs to MACs and the other way around"
-msgstr ""
+msgstr "Effectue une traduction automatique de IPs vers MACs, egalement dans le sens inverse."
 
 # html/pfappserver/root/admin/wrapper.tt
 msgid "Perform checkup"
@@ -5266,7 +5232,7 @@ msgstr "Texte brut (pas de chiffrement)"
 msgid ""
 "Please define the Virtual System number. This only has an effect when used "
 "with the HTTP transport."
-msgstr ""
+msgstr "Veuillez définir le nombre du Système Virtuel. Cela a un effet uniquement si utilisé en HTTP."
 
 # html/pfappserver/root/config/domain/list.tt
 msgid "Please enter administrative credentials to connect to the domain"
@@ -5441,7 +5407,7 @@ msgstr "Veuillez spécifier le nom du rôle admin."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Pfmon.pm
 msgid "Please specify the name of the pfmon entry"
-msgstr "Veuillez spécifier le nom de l'entrée Pfmon"
+msgstr "Veuillez spécifier le nom de l’entrée Pfmon"
 
 # html/pfappserver/lib/pfappserver/Form/Field/PfdetectRegexRule.pm
 msgid "Please specify the name of the rule"
@@ -5502,7 +5468,7 @@ msgstr "Veuillez spécifier le \"Workgroup\""
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/configuration/define_policy.tt
 msgid "Policies and Access Control"
-msgstr "Politiques et Control d'Accès"
+msgstr "Politiques et Control d’Accès"
 
 # html/pfappserver/root/admin/configuration.tt
 msgid "Policy"
@@ -5608,11 +5574,11 @@ msgid ""
 "Precreate the computer account in a specific OU. The OU string read from top"
 " to bottom without RDNs and delimited by a '/'. E.g. "
 "\"Computers/Servers/Unix\""
-msgstr "Créer le compte machine dans un OU spécifique. L'OU est du type \"Computeurs/Servers/Unix\" sans la racine du domaine."
+msgstr "Créer le compte machine dans un OU spécifique. L’OU est du type \"Computeurs/Servers/Unix\" sans la racine du domaine."
 
 # conf/documentation.conf (interface.ipv6_prefix)
 msgid "Prefix for the IPv6 address of the named interface."
-msgstr "Préfixe pour l'adresse IPv6 de cette interface."
+msgstr "Préfixe pour l’adresse IPv6 de cette interface."
 
 # html/pfappserver/root/config/profile/index.tt
 msgid ""
@@ -6029,13 +5995,8 @@ msgid "Reevaluate access"
 msgstr "Réévaluer l’accès"
 
 # html/pfappserver/lib/pfappserver/Form/Field/PfdetectRegexRule.pm
-# html/pfappserver/root/config/pfdetect/type/regex.tt
 msgid "Regex"
 msgstr "Regex"
-
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "Regex Syslog Parser Rule"
-msgstr "Regex de la règle du Parser Syslog "
 
 # html/pfappserver/root/admin/bulk_actions.inc
 msgid "Register"
@@ -6287,7 +6248,6 @@ msgid "Rule"
 msgstr "Règle"
 
 # html/pfappserver/root/authentication/source/rules_read.tt
-# html/pfappserver/root/config/pfdetect/type/regex.tt
 msgid "Rules"
 msgstr "Règles"
 
@@ -6349,7 +6309,7 @@ msgstr "Limite la demande de nouvelle tentative de SMS"
 msgid "SNMP"
 msgstr "SNMP"
 
-# html/pfappserver/root/configuration/advanced_conf.tt
+# html/pfappserver/root/configuration/network_conf.tt
 msgid "SNMP:"
 msgstr "SNMP:"
 
@@ -7081,7 +7041,6 @@ msgid "Source Switch Port Description"
 msgstr "Description du port source du commutateur"
 
 # html/pfappserver/root/admin/auditing_radius_log.tt
-# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/profile/tab-content.tt
 msgid "Sources"
 msgstr "Sources"
@@ -7217,10 +7176,6 @@ msgstr "Arrêter quand même"
 # html/pfappserver/lib/pfappserver/Form/Field/PfdetectRegexRule.pm
 msgid "Stop processing rules if this rule matches"
 msgstr "Arrêter de traiter les règles si cette règle correspond."
-
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "Stop processing the other rules if this rule matched"
-msgstr "Arrêter de traiter les autres règles si cette règle correspond."
 
 # html/pfappserver/root/configurator/services.tt
 # html/pfappserver/root/service/cluster_status.tt
@@ -7552,17 +7507,13 @@ msgstr "L’OUI correspond au 6 premiers éléments d’une adresse MAC. Elle do
 msgid "The Private Key for signing in pem format"
 msgstr "La clé privé permettant permettant de signer les certificats au format PEM"
 
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "The Regex Syslog Parser"
-msgstr "Le Parser Regex Syslog"
-
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid "The Root Portal Module to use"
 msgstr "Le module racine du portail à utiliser"
 
-# html/pfappserver/root/configuration/advanced_conf.tt
-msgid "The SNMP engine in PacketFence can be configured here;"
-msgstr "Le moteur SNMP de PacetFence peut être configure ici;"
+# html/pfappserver/root/configuration/network_conf.tt
+msgid "The SNMP engine in PacketFence can be configured here."
+msgstr "Le moteur SNMP de PacetFence peut être configure ici."
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/URL.pm
 msgid "The URL on which the user should be redirected."
@@ -7718,21 +7669,21 @@ msgid ""
 "The innodb_additional_mem_pool_size MySQL configuration attribute (in MB). "
 "Only change if you know what you are doing. Will only affect a locally "
 "running MySQL server."
-msgstr "L'attribut de configuration innodb_additional_mem_pool_size(en MB) de MySQL. Le changer uniquement si vous savez ce que vous faites. Ceci affectera uniquement une version local du serveur MySQL."
+msgstr "L’attribut de configuration innodb_additional_mem_pool_size(en MB) de MySQL. Le changer uniquement si vous savez ce que vous faites. Ceci affectera uniquement une version local du serveur MySQL."
 
 # conf/documentation.conf (database_advanced.innodb_buffer_pool_size)
 msgid ""
 "The innodb_buffer_pool_size MySQL configuration attribute (in MB). Only "
 "change if you know what you are doing. Will only affect a locally running "
 "MySQL server."
-msgstr "L'attribut de configuration innodb_buffer_pool_size(en MB) de MySQL. Le changer uniquement si vous savez ce que vous faites. Ceci affectera uniquement une version local du serveur MySQL."
+msgstr "L’attribut de configuration innodb_buffer_pool_size(en MB) de MySQL. Le changer uniquement si vous savez ce que vous faites. Ceci affectera uniquement une version local du serveur MySQL."
 
 # conf/documentation.conf (database_advanced.key_buffer_size)
 msgid ""
 "The key_buffer_size MySQL configuration attribute (in MB). Only change if "
 "you know what you are doing. Will only affect a locally running MySQL "
 "server."
-msgstr "L'attribut de configuration key_buffer_size (en MB) de MySQL. Le changer uniquement si vous savez ce que vous faites. Ceci affectera uniquement une version local du serveur MySQL."
+msgstr "L’attribut de configuration key_buffer_size (en MB) de MySQL. Le changer uniquement si vous savez ce que vous faites. Ceci affectera uniquement une version local du serveur MySQL."
 
 # html/pfappserver/root/configurator/services.tt
 msgid ""
@@ -7740,31 +7691,18 @@ msgid ""
 "daemons."
 msgstr "La dernière étape de l’assistant de configuration vous permet de démarrer PacketFence."
 
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid ""
-"The list of parameters you want to provide to the method. Each parameter is "
-"seperated by a comma. The parameters that are to be replaced by a named "
-"capture."
-msgstr ""
-
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid ""
-"The list of rules that defines how to match log file entries and what "
-"action(s) to take when matching"
-msgstr ""
-
 # conf/documentation.conf (database_advanced.max_allowed_packet)
 msgid ""
 "The max_allowed_packet MySQL configuration attribute (in MB). Only change if"
 " you know what you are doing. Will only affect a locally running MySQL "
 "server."
-msgstr "L'attribut de configuration max_allowed_packet (en MB) de MySQL. Le changer uniquement si vous savez ce que vous faites. Ceci affectera uniquement une version local du serveur MySQL."
+msgstr "L’attribut de configuration max_allowed_packet (en MB) de MySQL. Le changer uniquement si vous savez ce que vous faites. Ceci affectera uniquement une version local du serveur MySQL."
 
 # conf/documentation.conf (database_advanced.max_connections)
 msgid ""
 "The max_connections MySQL configuration attribute. Only change if you know "
 "what you are doing. Will only affect a locally running MySQL server."
-msgstr "L'attribut de configuration max_connections de MySQL. Le changer uniquement si vous savez ce que vous faites. Ceci affectera uniquement une version local du serveur MySQL."
+msgstr "L’attribut de configuration max_connections de MySQL. Le changer uniquement si vous savez ce que vous faites. Ceci affectera uniquement une version local du serveur MySQL."
 
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
 msgid "The maximal unregistration date that can be set."
@@ -7782,16 +7720,8 @@ msgstr "Le message sera affiché à l’utilisateur. Utiliser avec prudence, car
 
 # html/pfappserver/root/configuration/portal_config.tt
 msgid ""
-"The module allows you to deeply customize the captive portal workflows;"
-msgstr "Ce module vous permet d'approfondir la personnalisation du flow du portail captif."
-
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "The name of the action you want to take"
-msgstr "Le nom de l'action que vous voulez effectuer"
-
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "The name of the rule"
-msgstr "Le nom de la règle"
+"The module allows you to deeply customize the captive portal workflows."
+msgstr "Ce module vous permet d’approfondir la personnalisation du flow du portail captif."
 
 # html/pfappserver/root/node/create.tt
 msgid ""
@@ -7803,7 +7733,7 @@ msgstr "L’appareil sera automatiquement enregistré. Si la MAC correspond à u
 msgid ""
 "The password of a Domain Admin to use to join the server to the domain. Will"
 " not be stored permanently and is only used while joining the domain."
-msgstr "Le mot de passe d'un Administrateur du domaine pour joindre le serveur au domaine. Ne sera pas enregistré et ne sera utilisé que pour joindre le domaine."
+msgstr "Le mot de passe d’un Administrateur du domaine pour joindre le serveur au domaine. Ne sera pas enregistré et ne sera utilisé que pour joindre le domaine."
 
 # conf/documentation.conf (graphite.db_pass)
 msgid ""
@@ -7881,14 +7811,7 @@ msgstr "La clé privée pour signer les profiles"
 msgid ""
 "The query_cache_size MySQL configuration attribute. Only change if you know "
 "what you are doing. Will only affect a locally running MySQL server."
-msgstr "L'attribut de configuration query_cache_size de MySQL. Le changer uniquement si vous savez ce que vous faites. Ceci affectera uniquement une version local du serveur MySQL."
-
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid ""
-"The regex to match against a log entry. The regex may have <a "
-"href=\"http://perldoc.perl.org/perlre.html#(%3f'NAME'pattern)\">named "
-"captures</a> which can be used for parameter replacement start a '$'."
-msgstr ""
+msgstr "L’attribut de configuration query_cache_size de MySQL. Le changer uniquement si vous savez ce que vous faites. Ceci affectera uniquement une version local du serveur MySQL."
 
 # conf/documentation.conf (device_registration.role)
 msgid ""
@@ -7922,7 +7845,7 @@ msgstr "La source a utiliser pour envoyer un SMS quand on crée un utilisateur"
 msgid ""
 "The table_cache MySQL configuration attribute. Only change if you know what "
 "you are doing. Will only affect a locally running MySQL server."
-msgstr "L'attribut de configuration table_cache de MySQL. Le changer uniquement si vous savez ce que vous faites. Ceci affectera uniquement une version local du serveur MySQL."
+msgstr "L’attribut de configuration table_cache de MySQL. Le changer uniquement si vous savez ce que vous faites. Ceci affectera uniquement une version local du serveur MySQL."
 
 # html/pfappserver/lib/pfappserver/Form/Config/BillingTiers.pm
 msgid "The target role of the devices that use this tier."
@@ -7949,13 +7872,13 @@ msgstr "Le gabarit à utiliser pour afficher le message"
 msgid ""
 "The thread_cache_size MySQL configuration attribute. Only change if you know"
 " what you are doing. Will only affect a locally running MySQL server."
-msgstr "L'attribut de configuration thread_cache_size de MySQL. Le changer uniquement si vous savez ce que vous faites. Ceci affectera uniquement une version local du serveur MySQL."
+msgstr "L’attribut de configuration thread_cache_size de MySQL. Le changer uniquement si vous savez ce que vous faites. Ceci affectera uniquement une version local du serveur MySQL."
 
 # conf/documentation.conf (database_advanced.thread_concurrency)
 msgid ""
 "The thread_concurrency MySQL configuration attribute. Only change if you "
 "know what you are doing. Will only affect a locally running MySQL server."
-msgstr "L'attribut de configuration thread_concurrency de MySQL. Le changer uniquement si vous savez ce que vous faites. Ceci affectera uniquement une version local du serveur MySQL."
+msgstr "L’attribut de configuration thread_concurrency de MySQL. Le changer uniquement si vous savez ce que vous faites. Ceci affectera uniquement une version local du serveur MySQL."
 
 # conf/documentation.conf (parking.threshold)
 msgid ""
@@ -7994,7 +7917,7 @@ msgstr "L’URL utilisée pour se connecter au service de certificats SCEP"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "The username of a Domain Admin to use to join the server to the domain"
-msgstr "Le nom d'utilisateur d'un administrateur du domaine pour joindre le serveur."
+msgstr "Le nom d’utilisateur d’un administrateur du domaine pour joindre le serveur."
 
 # conf/documentation.conf (graphite.db_user)
 msgid ""
@@ -8101,32 +8024,32 @@ msgstr "Cette option active le pré-enregistrement sur le profil de connextion. 
 msgid ""
 "This allows PacketFence to define Wireless Roaming Intermediary eXchange "
 "(WRIX) information on access points it manages."
-msgstr "Ceci permet à PacketFence de définir les informations Wireless Roaming Intermediary eXchange (WRIX) sur les points d’accès qu'il gère."
+msgstr "Ceci permet à PacketFence de définir les informations Wireless Roaming Intermediary eXchange (WRIX) sur les points d’accès qu’il gère."
 
 # html/pfappserver/root/configuration/portal_config.tt
 msgid ""
 "This allows PacketFence to define tiers for billing engines integration."
-msgstr "Ceci permet à PacketFence de définir les niveaux pour l'intégration avec le moteur de paiement."
+msgstr "Ceci permet à PacketFence de définir les niveaux pour l’intégration avec le moteur de paiement."
 
 # html/pfappserver/root/configuration/integration.tt
 msgid ""
 "This allows PacketFence to expose some of its APIs through Web Services. See"
-" the PacketFence Developers Guide for API documentation;"
-msgstr "Ceci permet à PacketFence d'exposer une partie de son API au travers des Services Web. Voir le PacketFence Developers Guide pour une documentation sur l'API;"
+" the PacketFence Developers Guide for API documentation."
+msgstr "Ceci permet à PacketFence d’exposer une partie de son API au travers des Services Web. Voir le PacketFence Developers Guide pour une documentation sur l’API."
 
 # html/pfappserver/root/configuration/integration.tt
 msgid ""
 "This allows PacketFence to let the firewall know who is using a particular "
 "IP address on the network. The firewall can then apply per-user or per-role "
-"policies;"
-msgstr "Ceci permet à PacketFence de laisser savoir au pare-feu qui utilise une certaine adresse IP sur le réseau. Le pare-feu peut alors appliquer les politiques par-utilisateur ou par-rôles;"
+"policies."
+msgstr "Ceci permet à PacketFence de laisser savoir au pare-feu qui utilise une certaine adresse IP sur le réseau. Le pare-feu peut alors appliquer les politiques par-utilisateur ou par-rôles."
 
 # html/pfappserver/root/configuration/integration.tt
 msgid ""
 "This allows PacketFence to query OPSWAT Metadefender Cloud for file hashes "
 "in order to detect malware or virus infected files. This is done through the"
-" Suricata HTTP file extraction plugin;"
-msgstr "Ceci permet à PacketFence d'effectuer des requêtes vers OPSWAT Metadefender Cloud sur des hashs de fichier pour détecter des fichiers infecté par malware ou virus. Ceci est fait au travers de l'extension Suricata HTTP file extraction;"
+" Suricata HTTP file extraction plugin."
+msgstr "Ceci permet à PacketFence d’effectuer des requêtes vers OPSWAT Metadefender Cloud sur des hashs de fichier pour détecter des fichiers infecté par malware ou virus. Ceci est fait au travers de l’extension Suricata HTTP file extraction."
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid ""
@@ -8134,59 +8057,59 @@ msgid ""
 "by first accessing the status page and then accessing the portal. This is "
 "useful to allow users to extend their access even though they are already "
 "registered."
-msgstr "Permet aux utilisateurs déjà enregistrés d'enregistrer à nouveau leur appareils en accédant a la page de statut et ensuite d’accéder au portail. Utile pour étendre l’accès même si ils sont déjà enregistrés. utilisateurs  "
+msgstr "Permet aux utilisateurs déjà enregistrés d’enregistrer à nouveau leur appareils en accédant a la page de statut et ensuite d’accéder au portail. Utile pour étendre l’accès même si ils sont déjà enregistrés. utilisateurs  "
 
 # html/pfappserver/root/configuration/system_config.tt
 msgid ""
 "This allows you set the DNS name, SMTP information for alerts, default "
-"language and more;"
-msgstr "Ceci vous permet de configurer le nom DNS, les informations SMTP pour les alertes, le language par defaut et plus encore;"
+"language and more."
+msgstr "Ceci vous permet de configurer le nom DNS, les informations SMTP pour les alertes, le language par defaut et plus encore."
 
-# html/pfappserver/root/configuration/advanced_conf.tt
+# html/pfappserver/root/configuration/network_conf.tt
 msgid ""
 "This allows you to configure networks managed by PacketFence, in-bound and "
-"fencing configuration parameters as well as parking of endpoints;"
+"fencing configuration parameters as well as parking of endpoints."
 msgstr "Ceci vous permet de configurer les réseaux gérer par PacketFence, les paramètres de configurations in-bound et fencing ainsi que ceux du parking d’équipements."
 
-# html/pfappserver/root/configuration/advanced_conf.tt
+# html/pfappserver/root/configuration/network_conf.tt
 msgid ""
 "This allows you to create floating devices in PacketFence - like a switch "
 "for example that moves around in the network. PacketFence will automatically"
 " reconfigure a switch port and a floating device is connected."
-msgstr "Ceci vous permet de créer des appareils itinérants dans PacketFence - par exemple, comme un commutateur qui se déplace sur le réseau. PacketFence re-configurera automatiquement un port de commutateur lorsqu'un appareil itinérant se connecte."
+msgstr "Ceci vous permet de créer des appareils itinérants dans PacketFence - par exemple, comme un commutateur qui se déplace sur le réseau. PacketFence re-configurera automatiquement un port de commutateur lorsqu’un appareil itinérant se connecte."
 
-# html/pfappserver/root/configuration/advanced_conf.tt
+# html/pfappserver/root/configuration/network_conf.tt
 msgid ""
 "This allows you to enable or not OMAPI-based IP address to MAC address "
-"lookups;"
-msgstr "Ceci permet d'activer ou non la recherche d'IP adresses vers MAC basé sur OMAPI"
+"lookups."
+msgstr "Ceci permet d’activer ou non la recherche d’IP adresses vers MAC basé sur OMAPI."
 
 # html/pfappserver/root/configuration/portal_config.tt
 msgid ""
 "This allows you to enable the device registration feature in PacketFence - "
 "which allows users to manually register endpoints from a portal page."
-msgstr "Ceci permet d'activer la fonctionnalité d'enregistrement d'appareil dans PacketFence - celle-ci permet aux utilisateurs d’enregistré manuellement des périphériques depuis une page du portail. "
+msgstr "Ceci permet d’activer la fonctionnalité d’enregistrement d’appareil dans PacketFence - celle-ci permet aux utilisateurs d’enregistrer manuellement des périphériques depuis une page du portail. "
 
 # html/pfappserver/root/configuration/portal_config.tt
 msgid ""
 "This allows you to set the various access duration that will be available in"
-" your actions definition from your authentication sources;"
-msgstr "Ceci vous permet de configurer différentes durée d’accès qui seront disponibles lors de la définition de vos règles dans les sources d'authentification; "
+" your actions definition from your authentication sources."
+msgstr "Ceci vous permet de configurer différentes durée d’accès qui seront disponibles lors de la définition de vos règles dans les sources d’authentification."
 
 # html/pfappserver/root/config/filters/index.tt
 msgid "This is an advanced section. Proceed with caution when editing."
 msgstr "Ceci est une section avancée. A utiliser avec précaution."
 
 # html/pfappserver/root/configuration/portal_config.tt
-msgid "This is for changing global captive-portal parameters;"
-msgstr "Ceci est pour changer les paramètres globaux du portail captif;"
+msgid "This is for changing global captive-portal parameters."
+msgstr "Ceci est pour changer les paramètres globaux du portail captif."
 
 # html/pfappserver/root/configuration/compliance.tt
 msgid ""
 "This is for device profiling or fingerprinting using the Fingerbank "
 "solution. Fingerbank allows you to accurately identify an endpoint on your "
-"network (printer vs. tablet);"
-msgstr ""
+"network (printer vs. tablet)."
+msgstr "Ceci est pour le profilage d’équipements ou l’empreinte en utilisant Fingerbank. Fingerbank vous permet d’identifier de manière précise un équipement sur votre réseau (imprimante, tablette)."
 
 # conf/documentation.conf (guests_admin_registration.default_access_duration)
 msgid ""
@@ -8210,7 +8133,7 @@ msgstr "Ceci est le chemin d’accès pour l’emplacement du gif sur le serveur
 msgid ""
 "This node is wired to a switchport on which other active devices were "
 "detected."
-msgstr ""
+msgstr "Ce nœud est branché sur un port de commutateur sur lequel d’autres périphériques actifs ont été détectés."
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid ""
@@ -8231,16 +8154,16 @@ msgid ""
 "This powerful module allows you to tie security events (malware detection, "
 "unauthorized operating system, etc.) with actions such as quarantining "
 "endpoints, sending email alerts and showing remediation instructions from "
-"captive portal;"
-msgstr ""
+"captive portal."
+msgstr "Ce module vous permet d’analyser des événements de sécurité (détection de logiciels malveillants, système d’exploitation non autorisé, etc.) avec des actions telles que la mise en quarantaine d’appareils, l’envoi d'alertes par courrier électronique et l’affichage des instructions d'assainissement sur le portail captif."
 
 # html/pfappserver/root/configuration/integration.tt
 msgid ""
 "This provides PacketFence geographical location information of endpoints on "
 "the network. You can then provide a different captive portal based on where "
 "the device is physically located, or position an endpoint on a specific map "
-"of a building;"
-msgstr ""
+"of a building."
+msgstr "Ceci fournis a PacketFence les informations de localisation géographique des équipements sur votre réseau. Vous pouvez alors fournir un portail captif différent basé sur où l’équipement se trouve physiquement, ou placer un équipement sur une carte spécifique du batiment."
 
 # conf/documentation.conf (proxies)
 msgid ""
@@ -8263,7 +8186,7 @@ msgstr "Cette section est pour les Domaines et REALMS. Configurer à quels domai
 msgid ""
 "This section is for devices profiling. Fingerbank will help you identify "
 "every device type on your network."
-msgstr ""
+msgstr "Cette section est pour le profilage d’équipements. Fingerbank vous aidera à identifié tout les équipements sur votre réseau."
 
 # html/pfappserver/root/configuration/networks.tt
 msgid ""
@@ -8275,7 +8198,7 @@ msgstr "Cette section est pour le réseau. Les Interfaces, les réseaux et le DN
 msgid ""
 "This section is for scanners. you will be able to configure scan engine and "
 "rules here."
-msgstr "Cette section est pour les scanners. Vous pouvez configurer les moteurs d'analyse et règles ici."
+msgstr "Cette section est pour les scanners. Vous pouvez configurer les moteurs d’analyse et règles ici."
 
 # html/pfappserver/root/config/cluster/index.tt
 msgid "This section is for the configuration of Active-Active clustering."
@@ -8285,13 +8208,13 @@ msgstr "Cette section est pour la configuration du cluster actif-actif."
 msgid ""
 "This section is for the database. Make sure you know what you are doing "
 "before modifying setting, especially in the advanced section."
-msgstr ""
+msgstr "Cette section est pour la base de données. Soyez certain de savoir ce que vous faites avant de modifiez cette section, surtout la partie avancee."
 
 # html/pfappserver/root/configuration/main.tt
 msgid ""
 "This section is for the general system configuration. Anything related to "
 "the services or PacketFence general configuration will be find here."
-msgstr ""
+msgstr "Cette section est pour la configuration global du système. Tout ce qui est relié aux services ou à la configuration général de PacketFence est dans cette section."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "This server's name"
@@ -8376,7 +8299,7 @@ msgstr "Compte Twilio SID"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Twilio.pm
 msgid "Twilio Auth Token"
-msgstr "Token d'authentification Twilio"
+msgstr "Token d’authentification Twilio"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Twilio.pm
 msgid "Twilio provided phone number which will show as the sender"
@@ -8555,7 +8478,7 @@ msgstr "Inconnu"
 msgid ""
 "Unless specified otherwise, each account will be printed on a single page "
 "with the acceptable user policy."
-msgstr "Chaque compte sera imprimé sur une page avec la politique d'acces"
+msgstr "Chaque compte sera imprimé sur une page avec la politique d’acces"
 
 # html/pfappserver/lib/pfappserver/Form/User.pm
 msgid "Unlimited logins when empty."
@@ -8696,10 +8619,6 @@ msgstr "Nom d’utilisateur pour les Trappes"
 msgid "User Name Write"
 msgstr "Utilisateur pour la communauté Ecriture"
 
-# html/pfappserver/root/authentication/source/read.tt
-msgid "User Sources"
-msgstr "Sources utilisateur"
-
 # html/pfappserver/root/config/fingerbank/user_agent/view.tt
 msgid "User_Agent"
 msgstr "User_Agent"
@@ -8761,10 +8680,6 @@ msgstr "Nom d’utilisateur pour se connecter au service de certificats SCEP"
 msgid "Users"
 msgstr "Utilisateurs"
 
-# html/pfappserver/root/config/authentication.tt
-msgid "Users Sources"
-msgstr "Sources"
-
 # pf::admin_roles (Actions groups)
 msgid "VIOLATIONS"
 msgstr "Violations"
@@ -8821,6 +8736,7 @@ msgstr "Vendor"
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 # html/pfappserver/lib/pfappserver/Form/Node.pm
+# html/pfappserver/root/admin/wrapper.tt
 # html/pfappserver/root/node/tab_WMI_process.tt
 msgid "Version"
 msgstr "Version"
@@ -9029,7 +8945,7 @@ msgid ""
 " a role to it, or its user. The role can then be translated to a VLAN, a set"
 " of ACL, a switch manufacturer policy identifier or a combinations of all of"
 " this."
-msgstr "Lorsqu'un appareil se connecte au réseau, PacketFence doit pouvoir lui attribuer un rôle ou son utilisateur. Le rôle peut ensuite être traduit en un VLAN, un ensemble d'ACL, un identifiant de politique de fabricant de commutateur ou une combinaison de tout cela."
+msgstr "Lorsqu’un appareil se connecte au réseau, PacketFence doit pouvoir lui attribuer un rôle ou son utilisateur. Le rôle peut ensuite être traduit en un VLAN, un ensemble d’ACL, un identifiant de politique de fabricant de commutateur ou une combinaison de tout cela."
 
 # html/pfappserver/root/configuration/define_policy.tt
 msgid ""
@@ -9060,8 +8976,8 @@ msgstr "Si activé PacketFence n’utilisera pas le rôle initialement défini p
 # html/pfappserver/root/configuration/portal_config.tt
 msgid ""
 "When provisioning in EAP-TLS, PacketFence needs to be configured to "
-"integrate with PKI infrastructure. This is done in this module;"
-msgstr "Lors du provisioning EAP-TLS, PacketFence doit être configuré pour s'intégrer à une infrastructure PKI. Ceci est fait dans ce module;"
+"integrate with PKI infrastructure. This is done in this module."
+msgstr "Lors du provisioning EAP-TLS, PacketFence doit être configuré pour s’intégrer à une infrastructure PKI. Ceci est fait dans ce module."
 
 # conf/documentation.conf (network.rogueinterval)
 msgid ""
@@ -9094,7 +9010,7 @@ msgstr "Si activé, tous les utilisateurs retournés par le filtre seront insér
 msgid ""
 "When this is enabled, an async job will cache the NTLM credentials of the "
 "user every time he connects."
-msgstr "Si activé, un travail asynchrone cachera dans le cache le hash NTLM de cet utilisateur a chaque fois qu'il se connecte."
+msgstr "Si activé, un travail asynchrone cachera dans le cache le hash NTLM de cet utilisateur a chaque fois qu’il se connecte."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Pfmon.pm
 msgid ""
@@ -9102,13 +9018,17 @@ msgid ""
 "effective."
 msgstr "Que cette tâche soit ou non activée. <br> Nécessite un redémarrage de pfmon pour être appliquer."
 
+# conf/documentation.conf (active_active.galera_replication)
+msgid "Whether or not to activate galera cluster when using a cluster"
+msgstr "S’il est possible ou pas, de vérifier le SSL lors de l’utilisation d’un proxy"
+
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid ""
 "Whether or not to fetch users on your AD one by one instead of doing a "
 "single batch fetch. This is useful when your AD is loaded or experiencing "
 "issues during the sync. Note that this makes the batch job much longer and "
 "is about 4 times slower when enabled."
-msgstr "Qu'il s'agisse ou non de chercher des utilisateurs sur votre AD un par lot au lieu de faire une recherche un par un. Ceci est utile lorsque votre AD est chargé ou que vous rencontrez des problèmes pendant la synchronisation. Notez que cela rend le travail par lots beaucoup plus long et est environ 4 fois plus lent lorsqu'il est activé."
+msgstr "Qu’il s’agisse ou non de chercher des utilisateurs sur votre AD un par lot au lieu de faire une recherche un par un. Ceci est utile lorsque votre AD est chargé ou que vous rencontrez des problèmes pendant la synchronisation. Notez que cela rend le travail par lots beaucoup plus long et est environ 4 fois plus lent lorsqu’il est activé."
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (proxy.verify_ssl)
 msgid "Whether or not to verify SSL when using proxying"
@@ -9165,7 +9085,7 @@ msgid ""
 "timeframe configured below.This is independant of the DHCP server/relay "
 "handling the packet and is only based on the IP, MAC Address and DHCP type "
 "inside the packet.A value of 0 will disable the rate limitation."
-msgstr "Limitera le traitement de paquets DHCP contenant la même information. Par exemple une requête DHCPREQUEST contenant la même MAC/IP ne sera traité qu'une seule fois dans la tranche de temps configuré plus bas.Une valeur de 0 désactive cette limite."
+msgstr "Limitera le traitement de paquets DHCP contenant la même information. Par exemple une requête DHCPREQUEST contenant la même MAC/IP ne sera traité qu’une seule fois dans la tranche de temps configuré plus bas.Une valeur de 0 désactive cette limite."
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Window"
@@ -9173,7 +9093,7 @@ msgstr "Fenêtre"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/sentinelone.pm
 msgid "Windows agent download URI"
-msgstr "URI pour télécharger l'agent de Windows"
+msgstr "URI pour télécharger l’agent de Windows"
 
 # pfappserver::PacketFence::Controller::Graph (graph type)
 msgid "Wired Connections"
@@ -9242,10 +9162,6 @@ msgstr "Mauvais nom d’utilisateur ou mot de passe."
 # html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
 msgid "You can add options in the realm definition"
 msgstr "Vous pouvez ajouter des options dans la définition du Realm"
-
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "You can enable/disable the parser from running"
-msgstr "Vous pouvez activer / désactiver le parser"
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Admin.pm
 msgid "You don't have the rights to perform this action."
@@ -9350,6 +9266,10 @@ msgid "active_active.dns_on_vip_only"
 msgstr "pfdns uniquement sur la VIP"
 
 # conf/documentation.conf
+msgid "active_active.galera_replication"
+msgstr "Réplication de Galera"
+
+# conf/documentation.conf
 msgid "active_active.galera_replication_password"
 msgstr "Mot de passe de réplication Galera"
 
@@ -9400,7 +9320,7 @@ msgstr "Fermer le locationlog lors d’un arrêt de la comptabilisation"
 
 # conf/documentation.conf
 msgid "advanced.multihost"
-msgstr "Multihost"
+msgstr "Hôtes multiple"
 
 # conf/documentation.conf
 msgid "advanced.ntlm_redis_cache"
@@ -9785,15 +9705,15 @@ msgstr "Description"
 
 # conf/documentation.conf
 msgid "device_registration"
-msgstr "Enregistrement d'appareil"
+msgstr "Enregistrement d’appareil"
 
 # conf/documentation.conf
 msgid "device_registration.role"
-msgstr "Role pour l'enregistrement d'appareil"
+msgstr "Role pour l’enregistrement d’appareil"
 
 # conf/documentation.conf
 msgid "device_registration.status"
-msgstr "Activer l'enregistrement d'appareil"
+msgstr "Activer l’enregistrement d’appareil"
 
 # conf/documentation.conf (interface.type options)
 msgid "dhcp-listener"
@@ -9821,6 +9741,7 @@ msgstr "dhcplistener"
 # conf/documentation.conf (active_active.auth_on_management options)
 # conf/documentation.conf (active_active.centralized_deauth options)
 # conf/documentation.conf (active_active.dns_on_vip_only options)
+# conf/documentation.conf (active_active.galera_replication options)
 # conf/documentation.conf (advanced.disable_pf_domain_auth options)
 # conf/documentation.conf (advanced.locationlog_close_on_accounting_stop
 # options)
@@ -9942,6 +9863,7 @@ msgstr "en_US"
 # conf/documentation.conf (active_active.auth_on_management options)
 # conf/documentation.conf (active_active.centralized_deauth options)
 # conf/documentation.conf (active_active.dns_on_vip_only options)
+# conf/documentation.conf (active_active.galera_replication options)
 # conf/documentation.conf (advanced.disable_pf_domain_auth options)
 # conf/documentation.conf (advanced.locationlog_close_on_accounting_stop
 # options)
@@ -10069,7 +9991,7 @@ msgstr "Proxy Passthroughs"
 
 # conf/documentation.conf
 msgid "fencing.range"
-msgstr "Plages d'adressage"
+msgstr "Plages d’adressage"
 
 # conf/documentation.conf
 msgid "fencing.redirtimer"
@@ -10164,7 +10086,7 @@ msgstr "groupMembership"
 
 # pf::Authentication::Source::AdminProxySource (available_attributes)
 msgid "group_header"
-msgstr ""
+msgstr "Entête du groupe"
 
 # conf/documentation.conf
 msgid "guests_admin_registration"
@@ -10282,11 +10204,11 @@ msgstr "Adresse IP"
 
 # conf/documentation.conf
 msgid "interface.ipv6_address"
-msgstr "Adresse IPv6 de l'interface"
+msgstr "Adresse IPv6 de l’interface"
 
 # conf/documentation.conf
 msgid "interface.ipv6_prefix"
-msgstr "Préfixe IPv6 de l'interface"
+msgstr "Préfixe IPv6 de l’interface"
 
 # conf/documentation.conf
 msgid "interface.mask"
@@ -10461,10 +10383,6 @@ msgstr "Clé de l’API"
 # conf/documentation.conf
 msgid "metadefender.query_url_hash"
 msgstr "Hash de l’URL pour la requête"
-
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "method"
-msgstr "Méthode"
 
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "minutes"
@@ -10712,10 +10630,6 @@ msgstr "Organisation"
 # pf::config (Network types)
 msgid "other"
 msgstr "Autre"
-
-# html/pfappserver/root/config/pfdetect/type/regex.tt
-msgid "parameter list"
-msgstr "Liste de paramètres"
 
 # conf/documentation.conf
 msgid "parking"

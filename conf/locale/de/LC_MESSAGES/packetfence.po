@@ -17,8 +17,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-04-18 19:19+0000\n"
-"Last-Translator: inverse <info@inverse.ca>\n"
+"PO-Revision-Date: 2017-04-19 12:17+0000\n"
+"Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language-Team: German (http://www.transifex.com/inverse/packetfence/language/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -41,7 +41,7 @@ msgstr "Zugriff autorisiert"
 # html/captive-
 # portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
 msgid "Access granted"
-msgstr ""
+msgstr "Zugriff gewährt"
 
 # html/captive-portal/templates/activation/sponsor_accepted.html
 msgid "Access to the guest network granted"
@@ -60,11 +60,11 @@ msgstr "Laut der Anbieterkonfiguration kann dieses Gerät nicht auf das Netzwerk
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Root.pm
 msgid "Account created"
-msgstr ""
+msgstr "Konto erstellt"
 
 # html/captive-portal/templates/emails/emails-guest_email_preregistration.html
 msgid "Activate your network access"
-msgstr ""
+msgstr "Aktivieren Sie Ihren Netzwerkzugang"
 
 # pf::person::FIELDS
 msgid "Address"
@@ -94,7 +94,7 @@ msgstr ""
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Application.pm
 msgid "An error occured"
-msgstr ""
+msgstr "Ein Fehler ist aufgetreten"
 
 # pf::person::FIELDS
 msgid "Anniversary"
@@ -148,7 +148,7 @@ msgstr "Firma"
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/SMS.pm
 msgid "Confirm Mobile Phone Number"
-msgstr ""
+msgstr "Handynummer bestätigen"
 
 # html/captive-portal/templates/challenge.html
 # html/captive-portal/templates/message.html
@@ -173,7 +173,7 @@ msgstr "Kosten"
 
 # html/captive-portal/templates/account.html
 msgid "Created account %s"
-msgstr ""
+msgstr "Konto %s erstellt"
 
 # pf::person::FIELDS
 msgid "Custom_field_1"
@@ -467,7 +467,7 @@ msgstr "MAC-Adresse"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
 msgid "Mobile provider"
-msgstr ""
+msgstr "Mobilfunkanbieter"
 
 # html/captive-portal/templates/emails/emails-guest_email_activation.html
 msgid "Network access activation"
@@ -484,7 +484,7 @@ msgstr "Spitzname"
 
 # pf::person::FIELDS
 msgid "Notes"
-msgstr ""
+msgstr "Notizen"
 
 # html/captive-portal/templates/emails/emails-violation-triggered.html
 msgid "OS"
@@ -570,7 +570,7 @@ msgstr "Passwort"
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Billing.pm
 msgid "Pay for your access"
-msgstr ""
+msgstr "Bezahlen Sie für den Zugang"
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
 msgid "Phone number"
@@ -614,7 +614,7 @@ msgstr ""
 # html/captive-
 # portal/lib/captiveportal/PacketFence/Controller/DeviceRegistration.pm
 msgid "Registration"
-msgstr ""
+msgstr "Registrierung"
 
 # html/captive-portal/templates/status.html
 msgid "Registration Date"
@@ -639,7 +639,7 @@ msgstr ""
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/SAML.pm
 msgid "SAML authentication"
-msgstr ""
+msgstr "SAML-Authentifizierung"
 
 # html/captive-portal/templates/device-registration/registration.html
 msgid "Select Console"
@@ -647,7 +647,7 @@ msgstr "Konsole auswählen"
 
 # html/captive-portal/templates/content-with-choice.html
 msgid "Select an authentication method"
-msgstr ""
+msgstr "Wählen Sie eine Authentifizierungsmethode aus"
 
 # html/captive-portal/templates/release.html
 # html/captive-portal/templates/scan-in-progress.html
@@ -676,7 +676,7 @@ msgstr ""
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Status.pm
 msgid "State - Network Access"
-msgstr ""
+msgstr "Status - Netzwerkzugang"
 
 # html/captive-portal/templates/emails/emails-billing_confirmation.html
 msgid "Status"
@@ -693,7 +693,7 @@ msgstr "Danke für Ihre Kooperation."
 
 # html/captive-portal/templates/emails/emails-billing_confirmation.html
 msgid "Thank you for your purchase."
-msgstr ""
+msgstr "Danke für Ihren Kauf."
 
 # html/captive-portal/templates/emails/emails-guest_email_activation.html
 # html/captive-portal/templates/emails/emails-guest_email_preregistration.html
