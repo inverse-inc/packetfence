@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 6.5.9\n"
+"Project-Id-Version: 7.0.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-04-18 14:12-0400\n"
+"PO-Revision-Date: 2017-04-19 11:56-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -581,11 +581,6 @@ msgstr ""
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/configuration/portal_config.tt
 msgid "Advanced Access Configuration"
-msgstr ""
-
-# html/pfappserver/root/admin/configuration.tt
-# html/pfappserver/root/configuration/network_conf.tt
-msgid "Network Configuration"
 msgstr ""
 
 # html/pfappserver/root/configurator/admin.tt
@@ -3905,6 +3900,11 @@ msgstr ""
 msgid "Network"
 msgstr ""
 
+# html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/configuration/network_conf.tt
+msgid "Network Configuration"
+msgstr ""
+
 # html/pfappserver/root/admin/wrapper.tt
 msgid "Network Devices Configuration Guide"
 msgstr ""
@@ -4612,12 +4612,12 @@ msgstr ""
 msgid "PacketFence allows you to create advanced filtering rules based on RADIUS, DHCP, DNS or HTTP information. It also allows you to define advanced role-mapping or VLAN-mapping rules."
 msgstr ""
 
-# html/pfappserver/root/configuration/network_conf.tt
-msgid "PacketFence allows you to perform advanced solution configuration. Among the configuration options, there are:"
-msgstr ""
-
 # html/pfappserver/root/configuration/system_config.tt
 msgid "PacketFence allows you to perform advanced system configuration. Among the configuration options, there are:"
+msgstr ""
+
+# html/pfappserver/root/configuration/network_conf.tt
+msgid "PacketFence allows you to perform solution related network configuration. Among the configuration options, there are:"
 msgstr ""
 
 # html/pfappserver/root/configuration/portal_config.tt

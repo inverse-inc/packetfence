@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-04-19 15:00+0000\n"
+"PO-Revision-Date: 2017-04-19 15:59+0000\n"
 "Last-Translator: oeufdure <fdurand@inverse.ca>\n"
 "Language-Team: French (http://www.transifex.com/inverse/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
@@ -624,11 +624,6 @@ msgstr "Avancé"
 # html/pfappserver/root/configuration/portal_config.tt
 msgid "Advanced Access Configuration"
 msgstr "Configuration d’accès avancée"
-
-# html/pfappserver/root/admin/configuration.tt
-# html/pfappserver/root/configuration/network_conf.tt
-msgid "Network Configuration"
-msgstr "Configuration réseau"
 
 # html/pfappserver/root/configurator/admin.tt
 msgid ""
@@ -4243,6 +4238,11 @@ msgstr "Masque de sous-réseau"
 msgid "Network"
 msgstr "Réseau"
 
+# html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/configuration/network_conf.tt
+msgid "Network Configuration"
+msgstr "Configuration réseau"
+
 # html/pfappserver/root/admin/wrapper.tt
 msgid "Network Devices Configuration Guide"
 msgstr "Guide de configuration des equiepements réseau"
@@ -4975,17 +4975,17 @@ msgid ""
 "mapping or VLAN-mapping rules."
 msgstr "PacketFence vous permet de créer des règles de filtrage avancés basés sur les informations RADIUS, DHCP, DNS ou HTTP. Cela vous permet de définir de manière avancée les règles de role-mapping ou VLAN-mapping."
 
-# html/pfappserver/root/configuration/network_conf.tt
-msgid ""
-"PacketFence allows you to perform advanced solution configuration. Among the"
-" configuration options, there are:"
-msgstr "PacketFence vous permet d’effectuer des configuration avancée. Parmi les options de configurations il y a:"
-
 # html/pfappserver/root/configuration/system_config.tt
 msgid ""
 "PacketFence allows you to perform advanced system configuration. Among the "
 "configuration options, there are:"
 msgstr "PacketFence vous permet des options de configuration avancée system. Parmi ces options, il y a:"
+
+# html/pfappserver/root/configuration/network_conf.tt
+msgid ""
+"PacketFence allows you to perform solution related network configuration. "
+"Among the configuration options, there are:"
+msgstr "PacketFence vous permet d’effectuer des configurations réseau. Parmi les options de configurations il y a:"
 
 # html/pfappserver/root/configuration/portal_config.tt
 msgid ""
