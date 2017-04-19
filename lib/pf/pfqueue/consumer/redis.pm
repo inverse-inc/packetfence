@@ -170,7 +170,7 @@ sub process_delayed_jobs {
     my $time_milli = $seconds * 1000 + int($micro / 1000);
     $redis->evalsha($LUA_DELAY_JOBS_MOVE_SHA1, 2, $params->{delay_queue}, $params->{submit_queue}, $time_milli, $params->{batch});
     # Sleep for 10 milliseconds
-    usleep($params->{batch_sleep});
+    usleep($params->{batch_usleep});
 }
 
 =head2 on_connect

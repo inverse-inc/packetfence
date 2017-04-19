@@ -92,6 +92,7 @@ flock($fh, LOCK_EX | LOCK_NB) or die "cannot lock $pidfile another pfqueue is ru
 $HAS_LOCK = 1;
 
 our $running = 1;
+our @delay_queues;
 
 # standard signals and daemonize
 daemonize($PROGRAM_NAME) if ($daemonize);
@@ -123,7 +124,6 @@ Register all tasks
 
 sub register_tasks {
     my @weights;
-    my @delay_queues;
     foreach my $queue_config (@{$ConfigPfqueue{queues}} ) {
         my $name = $queue_config->{name};
         if (skip_queue($name)) {
@@ -142,13 +142,10 @@ sub register_tasks {
         my $parameters = {
             'delay_queue' => $delayed_queue,
             'submit_queue' => $queue_name,
-            'batch_sleep' => 100000,
-            'batch' => 100,
+            'batch_usleep' => 10000, # Time to sleep between each batch in microseconds
+            'batch' => 1000,
         };
         push @delay_queues, $parameters;
-    }
-    if (@delay_queues) {
-        register_task("Delayed Worker", \&process_delayed_jobs, \@delay_queues );
     }
     if (@weights) {
         @weights = sort { $a->{weight} <=> $b->{weight} } @weights;
@@ -390,13 +387,15 @@ waits for signals
 =cut
 
 sub wait_for_it {
+    my $consumer = get_consumer();
     while ($running) {
-        $logger->trace("Starting tasks");
         run_tasks();
-        $logger->trace("Finish tasks");
-        #  Only pause if their are no registered tasks
-        pause unless @REGISTERED_TASKS;
-        $logger->trace("Woke up from a signal");
+        eval {
+            process_delayed_jobs($consumer, \@delay_queues);
+        };
+        if ($@) {
+            $consumer = get_consumer();
+        }
     }
     $logger->trace("Signaled to stop running");
 }
