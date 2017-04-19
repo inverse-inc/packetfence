@@ -8,7 +8,7 @@ yum update packetfence-release --enablerepo=packetfence -y
 
 # PacketFence installation
 yum install perl -y
-yum install --enablerepo=packetfence-devel packetfence -y
+yum install --enablerepo=$PFREPO $PFPACKAGE -y
 
 # Setting the hostname
 hostname PacketFence-ZEN

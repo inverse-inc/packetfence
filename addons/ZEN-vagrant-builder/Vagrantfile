@@ -72,6 +72,10 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.provision "shell", inline: <<-SHELL
-    bash /vagrant/installer/install-pf.sh
+    export PFREPO="#{ENV['PFREPO'] || "packetfence"}"
+    export PFPACKAGE="#{ENV['PFPACKAGE'] || "packetfence"}"
+    echo "Installing $PFPACKAGE from repo $PFREPO"
+
+    /vagrant/installer/install-pf.sh
   SHELL
 end
