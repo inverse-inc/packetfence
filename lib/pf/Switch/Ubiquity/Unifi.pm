@@ -42,7 +42,7 @@ sub description { 'Unifi Controller' }
 # access technology supported
 sub supportsExternalPortal { return $TRUE; }
 
-=item parseExternalPortalRequest
+=head2 parseExternalPortalRequest
 
 Parse external portal request using URI and it's parameters then return an hash reference with the appropriate parameters
 
@@ -71,7 +71,7 @@ sub parseExternalPortalRequest {
     return \%params;
 }
 
-=item deauthTechniques
+=head2 deauthTechniques
 
 Return the reference to the deauth technique or the default deauth technique.
 
@@ -90,6 +90,12 @@ sub deauthTechniques {
     }
     return $method,$tech{$method};
 }
+
+=head2 _deauthenticateMacWithHTTP
+
+Enable or disable the access of a user (portal vs no portal) using an HTTP webservices call
+
+=cut
 
 sub _deauthenticateMacWithHTTP {
     my ( $self, $mac ) = @_;
