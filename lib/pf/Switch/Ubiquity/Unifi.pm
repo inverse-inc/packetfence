@@ -11,7 +11,7 @@ manage Unifi  controllers
 
 =head1 STATUS
 
-Developed and tested on something running X.Y.Z
+Developed and tested on Unifi controller version 5.4.14 with a UniFi AP-AC-Pro running 3.4.14.3413
 
 =head1 BUGS AND LIMITATIONS
 
