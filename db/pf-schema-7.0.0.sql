@@ -2,9 +2,9 @@
 -- Setting the major/minor/sub-minor version of the DB
 --
 
-SET @MAJOR_VERSION = 6;
-SET @MINOR_VERSION = 5;
-SET @SUBMINOR_VERSION = 9;
+SET @MAJOR_VERSION = 7;
+SET @MINOR_VERSION = 0;
+SET @SUBMINOR_VERSION = 0;
 
 --
 -- The VERSION_INT to ensure proper ordering of the version in queries
