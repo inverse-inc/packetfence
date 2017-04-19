@@ -5860,7 +5860,6 @@ Finally, we need to tie the service profiles with the proper AAA configuration.
   set authentication mac ssid PacketFence-Public * PF-RADIUS
   set authentication dot1x ssid PacketFence-Secure ** pass-through PF-RADIUS
 
-[float]
 Ubiquiti
 ~~~~~~~~
 
@@ -5871,7 +5870,7 @@ In order to configure web-authentication (external captive-portal) on Ubiquiti a
 
 First, you must configure the guest policy. Go in 'Settings->Guest Control' and configure it as shown below:
 
-## screenshot guest policy
+image::docs/images/ubiquiti-unifi-guest-policy.png[scaledwidth="100%",alt="Unifi web-auth policy"]
 
 Make sure you enabled 'Enable Guest Portal', and that you've set 'External portal server'.
 
@@ -5879,7 +5878,7 @@ You also need to enter the IP address of a portal enabled interface on the Packe
 
 Then, still in the settings, create or edit a new SSID with the following settings:
 
-## screenshot guest ssid
+image::docs/images/ubiquiti-unifi-guest-ssid.png[scaledwidth="100%",alt="Unifi web-auth SSID"]
 
 Once this is done, you will need to define all your APs MAC addresses in the PacketFence switches with a configuration similar to this:
 
