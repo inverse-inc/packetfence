@@ -49,8 +49,6 @@
   <!-- CentOS / RHEL -->
   <xsl:import href="/usr/share/sgml/docbook/xsl-stylesheets-1.78.1/fo/docbook.xsl"/>
   <xsl:import href="/usr/share/sgml/docbook/xsl-stylesheets/fo/docbook.xsl"/>
-  <!-- Debian / Ubuntu -->
-  <xsl:import href="/usr/share/xml/docbook/stylesheet/docbook-xsl/fo/docbook.xsl"/>
 
   <!-- title page extra styling -->
   <xsl:import href="titlepage-fo.xsl"/>
