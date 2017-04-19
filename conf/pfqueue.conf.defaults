@@ -50,3 +50,4 @@ weight=4
 #
 [queue pfsnmp_parsing]
 weight=2
+workers=0
