@@ -298,7 +298,7 @@ zxcvbnmqwertyuiop78
 ----
 
 Connection Profiles Configuration
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Provisioners have to be enabled on the Connection Profiles configuration in the PacketFence GUI.
 
