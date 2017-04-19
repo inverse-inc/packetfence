@@ -80,9 +80,17 @@ sub process_next_job {
         $queues = [$queues];
     }
     my $logger = get_logger();
-    my ($queue, $task_id) = $redis->brpop(@$queues, 1);
-    unless (defined $queue) {
-        return;
+    my ($queue, $task_id);
+    if (@$queues == 1) {
+        # Use the faster nonblocking rpop first if there is nothing there use the blocking version
+        ($task_id) = $redis->rpop(@$queues);
+    }
+    unless (defined $task_id) {
+        # Block for a second
+        ($queue, $task_id) = $redis->brpop(@$queues, 1);
+        unless (defined $queue) {
+            return;
+        }
     }
     my $task_counter_id = _get_task_counter_id_from_task_id($task_id);
     my $data;
