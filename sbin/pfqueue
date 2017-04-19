@@ -377,7 +377,7 @@ sub process_delayed_jobs {
     for my $arg (@$args) {
         $consumer->process_delayed_jobs($arg);
     }
-    usleep(100000);
+    usleep(50000);
 }
 
 =head2 wait_for_it
