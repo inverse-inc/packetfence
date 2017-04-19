@@ -66,7 +66,7 @@ Utility function for normalizing the counter data
 
 sub _counter_map {
     my ($counters, $key) = @_;
-    $key =~ /^\Q$PFQUEUE_QUEUE_PREFIX\E([^:]+):(.*)$/;
+    return unless $key =~ /^\Q$PFQUEUE_QUEUE_PREFIX\E([^:]+):(.*)$/;
     my $queue = $1;
     my $name = $2;
     my %counter = (
