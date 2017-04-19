@@ -10242,7 +10242,7 @@ msgstr ""
 
 # pf::provisioner (Provisioners)
 msgid "sentinelone"
-msgstr ""
+msgstr "SentinelOne"
 
 # pf::provisioner (Provisioners)
 msgid "sepm"
