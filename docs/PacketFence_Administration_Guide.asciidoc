@@ -2855,7 +2855,7 @@ Now you will need to restart the pfqueue and the pfdetect services.
 Make sure that you have your pipe file otherwise the process won't start.
 
 StreamScan example:
------------------
+-------------------
 
 This is an example to raise a violation from a syslog alert on a StreamScan alert ID.
 
