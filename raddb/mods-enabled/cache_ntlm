@@ -2,6 +2,7 @@ cache cache_ntlm {
 
         driver = "rlm_cache_rbtree"
         key = "%{User-Name}%{Calling-Station-Id}"
+        # Cache for 5 minutes
         ttl = 300
         add_stats = no
         update {
@@ -9,8 +10,6 @@ cache cache_ntlm {
 
                 # Add our own to show when the cache was last updated
                 &reply:Reply-Message += "Cache last updated at %t"
-
-                &reply:Class := "%{randstr:ssssssssssssssssssssssssssssssss}"
         }
 }
 
