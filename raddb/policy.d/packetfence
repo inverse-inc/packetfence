@@ -132,3 +132,16 @@ packetfence-cache-ntlm-hit {
     cache_ntlm
   }
 }
+
+packetfence-control-ntlm-failure {
+  update control {
+    Cache-Status-Only = 'yes'
+  }
+  cache_ntlm
+  if (ok) {
+    cache_ntlm
+    if (&request:Tmp-Integer-9 > 1) {
+      reject
+    }
+  }
+}
