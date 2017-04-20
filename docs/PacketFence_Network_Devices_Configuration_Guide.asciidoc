@@ -5154,30 +5154,37 @@ Now, you must configure the hotspot feature on your AP. This configuration is do
 
   /ip hotspot
   setup
-  
+
   hotspot interface: wlan1
 
   local address of network: 10.5.50.1/24
   masquerade network: yes
-  Set pool for HotSpot addresses 
   
+Set pool for HotSpot addresses 
+
   address pool of network: 10.5.50.2-10.5.50.254
-  Select hotspot SSL certificate 
-  
+
+Select hotspot SSL certificate 
+
   select certificate: none
-  Select SMTP server 
-  
+
+Select SMTP server 
+
   ip address of smtp server: 0.0.0.0
-  Setup DNS configuration 
   
+Setup DNS configuration 
+
   dns servers: 8.8.8.8
-  DNS name of local hotspot server 
   
+DNS name of local hotspot server 
+
   dns name: myhotspot
-  Create local hotspot user 
   
+Create local hotspot user 
+
   name of local hotspot user: admin
   password for the user: 
+
 
 Next, you need to allow access to the PacketFence portal in the hotspot access list. Change `192.168.1.5` with the IP address you pointed to in `login.html`
 
