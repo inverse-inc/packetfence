@@ -60,6 +60,7 @@
           guide('OpenWrt', 'OpenWrt-Hostapd-15-05_Quick_Install_Guide') | none;
           guide('OPSWAT Metadefender Endpoint Management', 'OPSWAT_Quick_Install_Guide') | none;
           guide('PaloAlto firewall', 'PaloAlto_Quick_Install_Guide') | none;
+          guide('SentinelOne Server', 'SentinelOne_Quick_Install_Guide') | none;
           guide('Symantec Endpoint Protection Manager', 'SEPM_Quick_Install_Guide') | none;
           %]
         </ul>
