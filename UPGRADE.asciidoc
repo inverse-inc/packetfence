@@ -317,6 +317,12 @@ Where 1.2.3.4 is the management IP address of the server.
 Like in previous versions where mariadb shouldn't have been started on boot, now you must ensure its replacement (packetfence-mariadb) doesn't start on boot.
 
   systemctl disable packetfence-mariadb
+  
+*Enabling the packetfence-cluster target*
+
+Next, you must set the default target to packetfence-cluster:
+
+  systemctl set-default packetfence-cluster.target
 
 Active/Active clusters with external DB
 +++++++++++++++++++++++++++++++++++++++
