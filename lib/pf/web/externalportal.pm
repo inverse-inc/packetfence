@@ -100,14 +100,15 @@ sub handle {
     return $FALSE unless $switch_type->supportsExternalPortal;
 
     my %params = (
-        session_id      => undef,   # External portal session ID when working by session ID flow
-        switch_id       => undef,   # Switch ID
-        client_mac      => undef,   # Client (endpoint) MAC address
-        client_ip       => undef,   # Client (endpoint) IP address
-        ssid            => undef,   # SSID connecting to
-        redirect_url    => undef,   # Redirect URL
-        grant_url       => undef,   # Grant URL
-        status_code     => undef,   # Status code
+        session_id              => undef,   # External portal session ID when working by session ID flow
+        switch_id               => undef,   # Switch ID
+        client_mac              => undef,   # Client (endpoint) MAC address
+        client_ip               => undef,   # Client (endpoint) IP address
+        ssid                    => undef,   # SSID connecting to
+        redirect_url            => undef,   # Redirect URL
+        grant_url               => undef,   # Grant URL
+        status_code             => undef,   # Status code
+        synchronize_locationlog => undef,   # Should we synchronize locationlog
     );
 
     my $switch_params = $switch_type->parseExternalPortalRequest($r, $req);
