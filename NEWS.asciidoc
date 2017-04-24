@@ -17,6 +17,7 @@ Version X.Y.Z released on 0000-00-00
 New Features
 ++++++++++++
 
+ * Added support for web authentication (external captive-portal) on Ubiquiti Unifi Controller
 
 Enhancements
 ++++++++++++
