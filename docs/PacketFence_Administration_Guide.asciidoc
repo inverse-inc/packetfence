@@ -2877,7 +2877,7 @@ Here is the configuration of the syslog regex parser:
     Rule - New:
     
     Name *: SSH Alert
-    Regex *: CDS\[(?<cds_id>\d+)\].*device=(?<device_ip>\d+(\.\d+){3}) threat="(?<threat>.*?)" direction=(?<direction>[^ ]+) sourceip=(?<sourceip>\d+(\.\d+){3}) sourceport=(?<sourceport>\d+) destip=(?<destip>\d+(\.\d+){3}) destport=(?<destport>\d+) app=(?<app>[^ ]*) timestamp=(?<timestamp>[^ ]*) sid=(?<sid>[^ ]*)
+    Regex *: CDS\[(?<cds_id>\d+)\].*device=(?<device_ip>\d+(\.\d+){3}) threat="(?<threat>.*?)" direction=(?<direction>[^ ]+) sourceip=(?<sourceip>\d+(\.\d+){3}) sourceport=(?<sourceport>\d+) destip=(?<ip>\d+(\.\d+){3}) destport=(?<destport>\d+) app=(?<app>[^ ]*) timestamp=(?<timestamp>[^ ]*) sid=(?<sid>\d+)
     Action: trigger_violation mac, $mac, tid, $sid, type, detect
     Last if match: unchecked
     IP to MAC: checked
