@@ -139,8 +139,8 @@ sub handle {
 
     pf::ip4log::open($params{'client_ip'}, $params{'client_mac'}, 3600);
 
-    # Updating locationlog unless there is a session ID parameter, which means a locationlog entry was already opened on session creation
-    $switch->synchronize_locationlog("0", "0", $params{'client_mac'}, 0, $WIRELESS_MAC_AUTH, undef, $params{'client_mac'}, $params{'ssid'}) unless ( defined($params{'session_id'}) );
+    # Updating locationlog if required
+    $switch->synchronize_locationlog("0", "0", $params{'client_mac'}, 0, $WIRELESS_MAC_AUTH, undef, $params{'client_mac'}, $params{'ssid'}) if ( $params{'synchronize_locationlog'} );
 
     my $portalSession = $self->_setup_session($req, $params{'client_mac'}, $params{'client_ip'}, $params{'redirect_url'}, $params{'grant_url'});
 
