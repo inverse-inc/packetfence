@@ -60,12 +60,13 @@ sub parseExternalPortalRequest {
     my $client_ip = defined($r->headers_in->{'X-Forwarded-For'}) ? $r->headers_in->{'X-Forwarded-For'} : $r->connection->remote_ip;
 
     %params = (
-        switch_id       => $req->param('ap'),
-        client_mac      => clean_mac($req->param('id')),
-        client_ip       => $client_ip,
-        ssid            => $req->param('ssid'),
-        redirect_url    => $req->param('url'),
-        status_code     => '200',
+        switch_id               => $req->param('ap'),
+        client_mac              => clean_mac($req->param('id')),
+        client_ip               => $client_ip,
+        ssid                    => $req->param('ssid'),
+        redirect_url            => $req->param('url'),
+        status_code             => '200',
+        synchronize_locationlog => $TRUE,
     );
 
     return \%params;
