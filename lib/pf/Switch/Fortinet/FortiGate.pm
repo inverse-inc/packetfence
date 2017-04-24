@@ -69,11 +69,12 @@ sub parseExternalPortalRequest {
     my %params = ();
 
     %params = (
-        switch_id       => $req->param('apip'),
-        client_mac      => clean_mac($req->param('usermac')),
-        client_ip       => $req->param('userip'),
-        grant_url       => $req->param('post'),
-        status_code     => '200',
+        switch_id               => $req->param('apip'),
+        client_mac              => clean_mac($req->param('usermac')),
+        client_ip               => $req->param('userip'),
+        grant_url               => $req->param('post'),
+        status_code             => '200',
+        synchronize_locationlog => $TRUE,
     );
 
     return \%params;
