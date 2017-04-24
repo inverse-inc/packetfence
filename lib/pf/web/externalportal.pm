@@ -87,14 +87,15 @@ sub handle {
     return $FALSE unless $switch_type->supportsExternalPortal;
 
     my %params = (
-        session_id      => undef,   # External portal session ID when working by session ID flow
-        switch_id       => undef,   # Switch ID
-        client_mac      => undef,   # Client (endpoint) MAC address
-        client_ip       => undef,   # Client (endpoint) IP address
-        ssid            => undef,   # SSID connecting to
-        redirect_url    => undef,   # Redirect URL
-        grant_url       => undef,   # Grant URL
-        status_code     => undef,   # Status code
+        session_id              => undef,   # External portal session ID when working by session ID flow
+        switch_id               => undef,   # Switch ID
+        client_mac              => undef,   # Client (endpoint) MAC address
+        client_ip               => undef,   # Client (endpoint) IP address
+        ssid                    => undef,   # SSID connecting to
+        redirect_url            => undef,   # Redirect URL
+        grant_url               => undef,   # Grant URL
+        status_code             => undef,   # Status code
+        synchronize_locationlog => undef,   # Should we synchronize locationlog
     );
 
     my $switch_params = $switch_type->parseExternalPortalRequest($r, $req);
@@ -125,8 +126,8 @@ sub handle {
 
     pf::iplog::open($params{'client_ip'}, $params{'client_mac'}, 3600);
 
-    # Updating locationlog unless there is a session ID parameter, which means a locationlog entry was already opened on session creation
-    $switch->synchronize_locationlog("0", "0", $params{'client_mac'}, 0, $WIRELESS_MAC_AUTH, undef, $params{'client_mac'}, $params{'ssid'}) unless ( defined($params{'session_id'}) );
+    # Updating locationlog if required
+    $switch->synchronize_locationlog("0", "0", $params{'client_mac'}, 0, $WIRELESS_MAC_AUTH, undef, $params{'client_mac'}, $params{'ssid'}) if ( $params{'synchronize_locationlog'} );
 
     my $portalSession = $self->_setup_session($req, $params{'client_mac'}, $params{'client_ip'}, $params{'redirect_url'}, $params{'grant_url'});
 

@@ -556,11 +556,12 @@ sub parseExternalPortalRequest {
     my %params = ();
 
     %params = (
-        switch_id       => defined($req->param('switchip')) ? $req->param('switchip') : $req->param('apname'),
-        client_mac      => clean_mac($req->param('mac')),
-        client_ip       => $req->param('ip'),
-        ssid            => $req->param('essid'),
-        redirect_url    => $req->param('url'),
+        switch_id               => defined($req->param('switchip')) ? $req->param('switchip') : $req->param('apname'),
+        client_mac              => clean_mac($req->param('mac')),
+        client_ip               => $req->param('ip'),
+        ssid                    => $req->param('essid'),
+        redirect_url            => $req->param('url'),
+        synchronize_locationlog =>  $FALSE,
     );
 
     return \%params;

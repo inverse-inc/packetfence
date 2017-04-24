@@ -187,11 +187,12 @@ sub parseExternalPortalRequest {
     my %params = ();
 
     %params = (
-        switch_id       => $req->param('sip'),
-        client_mac      => clean_mac($req->param('client_mac')),
-        client_ip       => defined($req->param('uip')) ? $req->param('uip') : undef,
-        ssid            => $req->param('ssid'),
-        redirect_url    => $req->param('url'),
+        switch_id               => $req->param('sip'),
+        client_mac              => clean_mac($req->param('client_mac')),
+        client_ip               => defined($req->param('uip')) ? $req->param('uip') : undef,
+        ssid                    => $req->param('ssid'),
+        redirect_url            => $req->param('url'),
+        synchronize_locationlog => $FALSE,
     );
 
     return \%params;

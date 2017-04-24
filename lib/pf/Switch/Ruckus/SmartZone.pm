@@ -40,10 +40,11 @@ sub parseExternalPortalRequest {
     my %params = ();
 
     %params = (
-        client_mac      => clean_mac($req->param('client_mac')),
-        client_ip       => defined($req->param('uip')) ? $req->param('uip') : undef,
-        ssid            => $req->param('ssid'),
-        redirect_url    => $req->param('url'),
+        client_mac              => clean_mac($req->param('client_mac')),
+        client_ip               => defined($req->param('uip')) ? $req->param('uip') : undef,
+        ssid                    => $req->param('ssid'),
+        redirect_url            => $req->param('url'),
+        synchronize_locationlog => $TRUE,
     );
 
     return \%params;
