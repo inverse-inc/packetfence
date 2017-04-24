@@ -187,7 +187,7 @@ sub parseExternalPortalRequest {
         client_ip               => defined($req->param('uip')) ? $req->param('uip') : undef,
         ssid                    => $req->param('ssid'),
         redirect_url            => $req->param('url'),
-        synchronize_locationlog => $TRUE,
+        synchronize_locationlog => $FALSE,
     );
 
     return \%params;
