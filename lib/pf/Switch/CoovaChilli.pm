@@ -57,12 +57,13 @@ sub parseExternalPortalRequest {
     my %params = ();
 
     %params = (
-        switch_id       => $req->connection->remote_ip,
-        client_mac      => clean_mac($req->param('mac')),
-        client_ip       => $req->param('ip'),
-        ssid            => $req->param('ssid'),
-        redirect_url    => $req->param('userurl'),
-        status_code     => $req->param('res'),
+        switch_id               => $req->connection->remote_ip,
+        client_mac              => clean_mac($req->param('mac')),
+        client_ip               => $req->param('ip'),
+        ssid                    => $req->param('ssid'),
+        redirect_url            => $req->param('userurl'),
+        status_code             => $req->param('res'),
+        synchronize_locationlog => $TRUE,
     );
 
     return \%params;
