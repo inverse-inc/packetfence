@@ -58,7 +58,7 @@ tie our @uri_filters, 'pfconfig::cached_array', 'resource::URI_Filters';
 =cut
 
 # normal flow
-Readonly::Scalar our $URL_SLASH                => '/';
+Readonly::Scalar our $URL_SLASH                 => '/';
 Readonly::Scalar our $URL_ACCESS                => '/access';
 Readonly::Scalar our $URL_LOGOUT                => '/logout';
 Readonly::Scalar our $URL_BILLING               => '/billing';
