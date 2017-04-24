@@ -105,6 +105,8 @@ Readonly::Scalar our $EXT_URL_RUCKUS_SMARTZONE      => '^/RuckusSmartZone';
 Readonly::Scalar our $EXT_URL_XIRRUS                => '^/Xirrus';
 Readonly::Scalar our $EXT_URL_MIKROTIK              => '^/Mikrotik';
 Readonly::Scalar our $EXT_URL_FORTIGATE             => '^/Fortinet::FortiGate';
+# Ubiquiti doesn't support setting the URL so we much detect it using this URL which will then map to the Ubiquiti module in pf::web::externalportal
+Readonly::Scalar our $EXT_URL_UBIQUITI              => '^/guest/s/default';
 
 # Provisioning engine
 Readonly::Scalar our $URL_WIRELESS_PROFILE => '/wireless-profile.mobileconfig';

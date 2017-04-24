@@ -39,6 +39,7 @@ use pf::constants;
 # This here below allows to map some URLs to a specific switch module
 Readonly our $SWITCH_REWRITE_MAP => {
     'RuckusSmartZone' => 'Ruckus::SmartZone',
+    'guest' => 'Ubiquity::Unifi',
 };
 
 =head1 SUBROUTINES
