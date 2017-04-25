@@ -299,7 +299,7 @@ sub _buildGraphiteURL :Private {
     my $options =
       {
        graphite_host => $c->req->uri->host,
-       graphite_port => '9000'
+       graphite_port => $Config{'ports'}{'admin'},
       };
 
     if (!$width) {
@@ -342,7 +342,7 @@ sub _buildGraphiteURL :Private {
     $params->{hideAxes} = 'false';
     $params->{colorList} = '#1f77b4,#ff7f0e,#2ca02c,#d62728,#9467bd,#8c564b,#e377c2,#7f7f7f,#bcbd22,#17becf';
 
-    my $url = sprintf('http://%s:%s/render?%s',
+    my $url = sprintf('https://%s:%s/metrics/render?%s',
                       $options->{graphite_host},
                       $options->{graphite_port},
                       join('&', map { $_ . '=' . uri_escape($params->{$_}) }
