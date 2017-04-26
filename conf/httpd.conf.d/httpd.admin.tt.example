@@ -281,7 +281,7 @@ ProxyHTMLLinks  script      src for
           Header add Set-Cookie "PF_PORTAL=%{X_PORTAL}e; Path=/portal_preview" env=X_PORTAL
       </Location>
 
-      <Location /metrics >
+      <Location /admin/metrics >
           RequestHeader unset Accept-Encoding
           RequestHeader append X-Forwarded-For-PacketFence "127.0.0.1"
 

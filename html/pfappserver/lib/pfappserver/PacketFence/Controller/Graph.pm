@@ -296,12 +296,6 @@ sub _buildGraphiteURL :Private {
       ? $management_network->tag('vip')
       : $management_network->tag('ip');
 
-    my $options =
-      {
-       graphite_host => $c->req->uri->host,
-       graphite_port => $Config{'ports'}{'admin'},
-      };
-
     if (!$width) {
         $width = 1170;
     }
@@ -342,9 +336,7 @@ sub _buildGraphiteURL :Private {
     $params->{hideAxes} = 'false';
     $params->{colorList} = '#1f77b4,#ff7f0e,#2ca02c,#d62728,#9467bd,#8c564b,#e377c2,#7f7f7f,#bcbd22,#17becf';
 
-    my $url = sprintf('https://%s:%s/metrics/render?%s',
-                      $options->{graphite_host},
-                      $options->{graphite_port},
+    my $url = sprintf('./metrics/render?%s',
                       join('&', map { $_ . '=' . uri_escape($params->{$_}) }
                           grep { $_ ne "target" } grep { $_ ne "description" } keys(%$params))); # we don't map the target here. It can be an arrayref
 
