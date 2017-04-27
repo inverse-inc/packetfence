@@ -143,7 +143,7 @@ TraceEnable Off
       ServerName [% server_name %]
       DocumentRoot  [% install_dir %]/html/pfappserver/lib
       ErrorLog "| /usr/bin/logger -thttpd_graphite_err -plocal5.err"
-      CustomLog  "| /usr/bin/logger -thttpd_graphite -plocal5.info" combined
+      CustomLog  "| /usr/bin/logger -thttpd_graphite -plocal5.info" loadbalanced_combined
       WSGIScriptAlias  / [% install_dir %]/conf/httpd.conf.d/graphite-web.wsgi
       WSGIImportScript [% install_dir %]/conf/httpd.conf.d/graphite-web.wsgi process-group=%{GLOBAL} application-group=%{GLOBAL}
       Header           set Access-Control-Allow-Origin "*"

@@ -67,7 +67,10 @@ sub vhosts {
 
 sub additionalVars {
     my ($self) = @_;
-    return (preview_ip => $self->portal_preview_ip);
+    return (
+        preview_ip   => $self->portal_preview_ip,
+        graphite_url => "localhost:9000"
+    );
 }
 
 =head2 portal_preview_ip
