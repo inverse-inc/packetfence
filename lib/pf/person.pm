@@ -355,6 +355,13 @@ sub person_modify {
     my ( $pid, %data ) = @_;
 
     my $logger = get_logger();
+
+    foreach my $item ( keys(%data) ){
+        if(ref($data{$item}) eq "ARRAY"){
+           $data{$item} = join(',',(@{$data{$item}}));
+        }
+    }
+
     if ( !person_exist($pid) ) {
         if ( person_add( $pid, %data ) ) {
             $logger->warn(
