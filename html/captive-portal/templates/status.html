@@ -202,9 +202,19 @@ $(document).ready(function() {
   <p class="media__body">[% i18n("You have no registered devices.") %]</p>
 </div>
 [% END %]
+<div class="layout layout--center">
+  <div class="layout__item u-mt u-2/3 u-1/1-palm">
+    <a href="/device-registration" class="btn btn--full btn--light">
+      <div class="flag">
+        <div class="flag__img">[% svgIcon(id='ic_add_circle_black_24px',size='small') %]</div>
+        <p class="flag__body">[% i18n("Register a device") %]</p>
+      </div>
+    </a>
+  </div>
+</div>
 [% UNLESS showLogin %]
 <div class="layout layout--center">
-  <div class="layout__item u-2/3 u-1/1-palm">
+  <div class="layout__item u-mt u-2/3 u-1/1-palm">
     <a href="/status/logout" class="btn btn--full btn--light">
       <div class="flag">
         <div class="flag__img">[% svgIcon(id='ic_close_black_24px',size='small') %]</div>
