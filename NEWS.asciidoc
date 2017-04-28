@@ -22,6 +22,7 @@ New Features
 Enhancements
 ++++++++++++
 
+ * Add a button to access status from device registration and the other way around
 
 Bug Fixes
 +++++++++
