@@ -740,7 +740,7 @@ sub expire_cluster : Public {
 
     my @failed;
     foreach my $server (@cluster_servers){
-        next if($host_id eq $server->{host});
+        next if($pf::cluster::host_id eq $server->{host});
         my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $server->{management_ip});
         my %data = (
             namespace => $postdata{namespace},
@@ -758,7 +758,7 @@ sub expire_cluster : Public {
 
         %data = (
             conf_file => $postdata{conf_file},
-            server => $host_id,
+            server => $pf::cluster::host_id,
         );
 
         eval {
