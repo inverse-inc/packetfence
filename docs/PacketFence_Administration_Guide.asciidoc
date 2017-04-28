@@ -2937,9 +2937,9 @@ Make sure that you have your pipe file otherwise the process won't start.
 Rsyslog configuration
 ---------------------
 
-You will need to create a rsyslog configuration to forward all the syslog message sent by StreamScan to the pipe file /usr/local/pf/var/cds
+You will need to create a rsyslog configuration to forward all the syslog messages sent by StreamScan to the pipe file /usr/local/pf/var/cds
 
-First you need to activate the syslog under the rsyslog configuration file located at /etc/rsyslog.conf, uncomment the two parameters:
+First you need to enable the syslog under the rsyslog configuration file located at /etc/rsyslog.conf, uncomment the two parameters:
 
     # Provides UDP syslog reception
     $ModLoad imudp
