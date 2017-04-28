@@ -58,6 +58,7 @@ tie our @uri_filters, 'pfconfig::cached_array', 'resource::URI_Filters';
 =cut
 
 # normal flow
+Readonly::Scalar our $URL_SLASH                 => '/';
 Readonly::Scalar our $URL_ACCESS                => '/access';
 Readonly::Scalar our $URL_LOGOUT                => '/logout';
 Readonly::Scalar our $URL_BILLING               => '/billing';
@@ -105,6 +106,8 @@ Readonly::Scalar our $EXT_URL_RUCKUS_SMARTZONE      => '^/RuckusSmartZone';
 Readonly::Scalar our $EXT_URL_XIRRUS                => '^/Xirrus';
 Readonly::Scalar our $EXT_URL_MIKROTIK              => '^/Mikrotik';
 Readonly::Scalar our $EXT_URL_FORTIGATE             => '^/Fortinet::FortiGate';
+# Ubiquiti doesn't support setting the URL so we much detect it using this URL which will then map to the Ubiquiti module in pf::web::externalportal
+Readonly::Scalar our $EXT_URL_UBIQUITI              => '^/guest/s/default';
 
 # Provisioning engine
 Readonly::Scalar our $URL_WIRELESS_PROFILE => '/wireless-profile.mobileconfig';

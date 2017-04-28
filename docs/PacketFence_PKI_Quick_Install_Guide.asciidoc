@@ -144,7 +144,7 @@ You will need to configure the following items:
 Follow the four step wizard to create your certification authority, your client and server profile and your REST API configuration.
 
 Certification Authority
-^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
 
 image::docs/images/packetfence-pki-myca.png[scaledwidth="100%",alt="Certification authority"]
 
@@ -401,7 +401,7 @@ Repeat this operation for the certificate key and intermediate certificate if an
 
 
 Connection Profiles Configuration
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Provisioners have to be enabled on the Connection Profiles configuration in the PacketFence GUI.
 

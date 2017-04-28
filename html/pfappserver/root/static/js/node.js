@@ -495,7 +495,6 @@ NodeView.prototype.searchPagination = function(e) {
             url: href,
             data: form.serialize() + "&" + columns.serialize(),
             always: function() {
-                loader.hide();
                 section.fadeTo('fast', 1.0, function() {
                     section.loader('hide');
                 });

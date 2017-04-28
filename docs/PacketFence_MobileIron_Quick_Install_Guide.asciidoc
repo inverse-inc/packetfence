@@ -88,7 +88,7 @@ Replace `accountName` by your real account/instance name at MobileIron.
 * Windows: `https://m.mobileiron.net/accountName/EnrollmentServer/Discovery.svc`
 
 Add the provisioner to the connection profile
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 In order for the provisioner to be used by your captive portal you need to add it in its configuration.
 Go in 'Connection Profiles', then select the portal you want to modify and add 'mobileiron' as a provisioner.
 

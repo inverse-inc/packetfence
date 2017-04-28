@@ -18,19 +18,19 @@ log4perl.additivity.fingerbank = 0
 log4perl.appender.HTTPD_PORTAL		                                      = Log::Dispatch::Syslog
 log4perl.appender.HTTPD_PORTAL.ident     	                              = packetfence_httpd.portal
 log4perl.appender.HTTPD_PORTAL.facility                                   = local5
-log4perl.appender.HTTPD_PORTAL.layout.ConversionPattern                   = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
+log4perl.appender.HTTPD_PORTAL.layout.ConversionPattern                   = %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
 log4perl.appender.HTTPD_PORTAL.layout                                     = PatternLayout
 
 ### General Catalyst (pfappserver) log facility configuration ###
 log4perl.appender.PORTAL_CATALYST		                                  = Log::Dispatch::Syslog
 log4perl.appender.PORTAL_CATALYST.ident     	                          = portal_catalyst
 log4perl.appender.PORTAL_CATALYST.facility                                = local5
-log4perl.appender.PORTAL_CATALYST.layout.ConversionPattern                = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
+log4perl.appender.PORTAL_CATALYST.layout.ConversionPattern                = %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
 log4perl.appender.PORTAL_CATALYST.layout                                  = PatternLayout
 
 ### General Fingerbank log facility configuration ###
 log4perl.appender.PORTAL_FINGERBANK		                                  = Log::Dispatch::Syslog
 log4perl.appender.PORTAL_FINGERBANK.ident     	                          = fingerbank_httpd.portal
 log4perl.appender.PORTAL_FINGERBANK.facility                              = local5
-log4perl.appender.PORTAL_FINGERBANK.layout.ConversionPattern              = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
+log4perl.appender.PORTAL_FINGERBANK.layout.ConversionPattern              = %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
 log4perl.appender.PORTAL_FINGERBANK.layout                                = PatternLayout

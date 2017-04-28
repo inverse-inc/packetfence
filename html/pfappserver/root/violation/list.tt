@@ -52,7 +52,7 @@
               [% IF profiles.size > 1 %]
               <div class="btn-group">[% END %]
                 <a class="btn btn-mini[% ' disabled' UNLESS violation.template %]" target="_blank" href="[% c.uri_for(c.controller('Config::Profile').action_for('preview'), [profiles.0], 'violations', "$violation.template") %].html" ><i class="icon-eye"></i> [% l('Preview') %]</a>
-                [% IF profiles.size > 1 %]<a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
+                [% IF profiles.size > 1 %]<a class="btn btn-mini dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a>
                 <ul class="dropdown-menu">
                   [% FOR profile IN profiles -%]
                   <li><a target="_blank" href="[% c.uri_for(c.controller('Config::Profile').action_for('preview'), [profile], 'violations', "$violation.template") %].html" >[% profile | html %]</a></li>[% END %]

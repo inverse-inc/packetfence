@@ -2854,8 +2854,9 @@ Now you will need to restart the pfqueue and the pfdetect services.
 
 Make sure that you have your pipe file otherwise the process won't start.
 
+
 StreamScan CDS example:
------------------
+-----------------------
 
 This is an example to raise a violation from a syslog alert on a StreamScan alert ID.
 
@@ -2876,6 +2877,7 @@ Here is the configuration of the syslog regex parser:
     
     Rule - New:
     
+
     Name *: ET TROJAN
     Regex *:  CDS\[(?<cds_id>\d+)\].*?type=(?<type>[^ ]*).*?threat="(?<threat>.*?)" direction=(?<direction>[^ ]+) sourceip=(?<sourceip>\d+(\.\d+){3}) sourceport=(?<sourceport>\d+) destip=(?<ip>\d+(\.\d+){3}) destport=(?<destport>\d+) app=(?<app>[^ ]*) timestamp=(?<timestamp>[^ ]*) sid=(?<sid>\d+)
     Action: trigger_violation mac, $mac, tid, $sid, type, detect

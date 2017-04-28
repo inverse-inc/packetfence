@@ -126,7 +126,7 @@ In `conf/pf.conf` :
 [database]
 host=127.0.0.1
 
-[monitoring]
+[graphite]
 db_host=127.0.0.1
 
 [active_active]

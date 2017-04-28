@@ -878,11 +878,11 @@ msgstr "Português"
 
 # html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Blackhole.pm
 msgid "register: not allowed to register"
-msgstr ""
+msgstr "You are not allowed to register on this network."
 
 # html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module.pm
 msgid "release: enabling network"
-msgstr ""
+msgstr "Enabling network access."
 
 # lib/pf/web/release.pm
 msgid "release: reopen browser"

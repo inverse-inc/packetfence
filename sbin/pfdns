@@ -358,7 +358,8 @@ sub regzone {
                 next if !defined($reply);
                 my @answers = $reply->answer;
                 foreach my $answer (@answers) {
-                    my $target = $answer->{target};
+                    my $target_labels = $answer->{target}->{label};
+                    my $target = join('.', @$target_labels);
                     if (!defined $target) {
                         $logger->warn("Invalid target for answer");
                         next;
@@ -417,7 +418,7 @@ sub regzone_non_filtered {
     my ($qname, $qclass, $qtype, $peerhost, $query, $conn) = @_;
     my ($matches_passthrough, $ports) = pf::util::dns::matches_passthrough($qname);
     #Exit early if it does not match
-    return unless($qtype eq 'A' && $matches_passthrough);
+    return unless($qtype eq 'A' && isenabled($Config{fencing}{passthrough}) && $matches_passthrough);
     my @ans;
     my %results = (
         ans   => \@ans,

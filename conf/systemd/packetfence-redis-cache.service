@@ -8,7 +8,7 @@ StartLimitBurst=3
 StartLimitInterval=60
 PIDFile=/usr/local/pf/var/run/redis_cache.pid
 ExecStart=/usr/bin/redis-server /usr/local/pf/conf/redis_cache.conf --daemonize no
-ExecStop=/usr/bin/kill $MAINPID
+ExecStop=/bin/kill $MAINPID
 Slice=packetfence-base.slice
 Restart=on-failure
 
