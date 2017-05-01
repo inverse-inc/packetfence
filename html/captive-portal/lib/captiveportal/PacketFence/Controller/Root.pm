@@ -260,6 +260,7 @@ sub getLanguages :Private {
     foreach my $browser_language (@$browser_languages) {
         $browser_language =~ s/^(\w{2})(_\w{2})?/lc($1) . uc($2 || "")/e;
         my $language = $1;
+        next unless(defined($language));
         if (grep(/^$language$/, @authorized_locales)) {
             $lang = $browser_language;
             my $match = first { /$language(.*)/ } @authorized_locales;
