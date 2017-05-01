@@ -4166,7 +4166,7 @@ Edit `/etc/my.cnf` (or your local `my.cnf`):
   # set cache size
   key_buffer_size=900M
   table_cache=300
-  query_cache_size=256M
+  query_cache_size=16M
   # enable slow query log
   log_slow_queries = ON
 
