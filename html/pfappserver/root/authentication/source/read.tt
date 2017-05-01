@@ -12,7 +12,7 @@
 
 <div class="card">
 <div class="card-title">
-<h3><i class="icon-2x icon-[% source.type | html | lower %]"></i>[% heading | html %] <small>[% source.type | html %]</small></i></h3>
+<h3><i class="icon-2x icon-[% source.type | html | lower %]"></i>&nbsp[% heading | html %] <small>[% source.type | html %]</small></i></h3>
 </div>
 
     [% IF message %]<div class="alert alert-success">

@@ -77,9 +77,9 @@
       [% IF source.field('class').value == 'external' %]
       <tr>
           <td class="hidden-phone"></td>
-        <td>[% source.field('id').render_element | none %]<a href="[% c.pf_hash_for(c.controller('Config::Authentication::Source').action_for('read'), [ source.field('id').value ]) %]">[% source.field('id').value | html %]</a></td>
+        <td>[% source.field('id').render_element | none %]<a href="[% c.pf_hash_for(c.controller('Config::Authentication::Source').action_for('read'), [ source.field('id').value ]) %]">[% source.field('id').value | html %]</a>&nbsp<i class="icon-[% source.field('type').value | lower %]"</i></td>
         <td class="hidden-phone">[% source.field('description').value | html %]</td>
-        <td>[% l(source.field('type').value) %]<i class="icon-[% source.field('type') | lower %]"></i></td>
+        <td>[% l(source.field('type').value) %]</td>
         <td>
           [%- IF can_access("USERS_SOURCES_DELETE") %]
           <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('Config::Authentication::Source').action_for('delete'), [ source.field('id').value ]) %]">[% l('Delete') %]</a>
@@ -133,7 +133,7 @@
       [% IF source.field('class').value == 'billing' %]
       <tr>
           <td class="hidden-phone"></td>
-        <td>[% source.field('id').render_element | none %]<a href="[% c.pf_hash_for(c.controller('Config::Authentication::Source').action_for('read'), [ source.field('id').value ]) %]">[% source.field('id').value | html %]</a></td>
+        <td>[% source.field('id').render_element | none %]<a href="[% c.pf_hash_for(c.controller('Config::Authentication::Source').action_for('read'), [ source.field('id').value ]) %]">[% source.field('id').value | html %]</a>&nbsp<i class="icon-[% source.field('type').value | lower %]"</i></td>
         <td class="hidden-phone">[% source.field('description').value | html %]</td>
         <td>[% l(source.field('type').value) %]</td>
         <td><a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('Config::Authentication::Source').action_for('delete'), [ source.field('id').value ]) %]">[% l('Delete') %]</a></td>
