@@ -61,7 +61,8 @@ sub CLONE {
 sub AT_FORK_CHILD {
     if ($DBH) {
         $DBH->{InactiveDestroy} = 1;
-        $DBH = undef;
+        $DBH->disconnect;
+        undef $DBH;
         $LAST_CONNECT = 0;
     }
 }
