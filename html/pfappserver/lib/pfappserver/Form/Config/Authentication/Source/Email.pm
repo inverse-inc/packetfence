@@ -68,7 +68,7 @@ has_field 'activation_domain' =>
    required => 0,
     tags => {
         after_element => \&help,
-        help => 'Set this value if you want to change the hostname in the validation link.',
+        help => 'Set this value if you want to change the hostname in the validation link. Changing this requires to restart haproxy.',
     },
   );
 

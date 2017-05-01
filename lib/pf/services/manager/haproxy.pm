@@ -35,6 +35,7 @@ use pf::log;
 use pf::util;
 use pf::cluster;
 use Template;
+use pf::authentication;
 
 extends 'pf::services::manager';
 
@@ -238,12 +239,17 @@ EOT
     parse_template( \%tags, "$conf_dir/haproxy.conf", "$generated_conf_dir/haproxy.conf" );
 
     my $fqdn = $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'};
-    $fqdn =~ s/([.-])/%$1/g;
 
-    push @portal_ip, $fqdn;
+    my @portal_hosts = (@portal_ip, $fqdn);
+
+    # Add any activation domain in the authentication sources
+    push @portal_hosts, map { $_->{activation_domain} ? $_->{activation_domain} : () } @{getAllAuthenticationSources()};
+
+    # Escape special chars for lua matches
+    @portal_hosts = map { $_ =~ s/([.-])/%$1/g ; $_ } @portal_hosts;
 
     my $vars = {
-        portal_host => sub { return @portal_ip},
+        portal_host => sub { return @portal_hosts },
         fqdn => $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'},
     };
 
