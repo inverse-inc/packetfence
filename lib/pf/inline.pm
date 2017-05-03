@@ -125,7 +125,7 @@ sub fetchMarkForNode {
     my $logger = get_logger(ref($self));
 
     # Violation first
-    my $open_violation_count = violation_count_reevaluate_access($mac);
+    my $open_violation_count = pf::violation::violation_count_reevaluate_access($mac);
     if ($open_violation_count != 0) {
         $logger->info(
             "has $open_violation_count open violations(s) with action=trap; it needs to firewalled"
