@@ -37,8 +37,10 @@ Get a connection to the database
 
 sub _get_db {
     my ($self) = @_;
-    return $self->{_db} if (defined $self->{_db});
+    return $self->{_db} if (defined $self->{_db} && $self->{_db}->ping);
     my $logger = get_logger;
+    $logger->info("Connecting to MySQL database");
+    
     my $cfg    = pfconfig::config->new->section('mysql');
     my $db;
     eval {
