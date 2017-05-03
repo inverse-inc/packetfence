@@ -336,7 +336,7 @@ sub process_destination_url {
     };
     if($@) {
         get_logger->info("Invalid destination_url $url. Replacing with profile defined one.");
-        return $self->profile->getRedirectURL;
+        $url = $self->profile->getRedirectURL;
     }
 
 
@@ -344,7 +344,7 @@ sub process_destination_url {
     # if the destination URL points to the portal, we put the default URL of the portal profile
     if ( any { $_ eq $host } @portal_hosts) {
         get_logger->info("Replacing destination URL since it points to the captive portal");
-        return $self->profile->getRedirectURL;
+        $url = $self->profile->getRedirectURL;
     }
 
     $url = decode_entities(uri_unescape($url));
