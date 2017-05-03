@@ -20,6 +20,7 @@ use POSIX;
 use pf::dhcp_option82;
 use pf::ConfigStore::SwitchGroup;
 use pf::ConfigStore::Switch;
+use pf::SwitchFactory;
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
@@ -110,6 +111,7 @@ sub search :Local :Args(0) :AdminRole('AUDITING_READ') {
         columns => [sort @pf::dhcp_option82::FIELDS],
         display_columns => [sort @pf::dhcp_option82::FIELDS],
         headings => \%pf::dhcp_option82::HEADINGS,
+        switch_config => \%pf::SwitchFactory::SwitchConfig,
     });
     $c->response->status($status);
 }
@@ -171,6 +173,7 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('AUDITING_READ
         columns => [sort @pf::dhcp_option82::FIELDS],
         display_columns => [sort keys %pf::dhcp_option82::HEADINGS],
         headings => \%pf::dhcp_option82::HEADINGS,
+        switch_config => \%pf::SwitchFactory::SwitchConfig,
     });
 }
 
