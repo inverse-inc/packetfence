@@ -129,7 +129,7 @@ sub ACCEPT_CONTEXT {
         $options = {
             'portal' => $data->{portal},
         };
-    } elsif ( $forwardedFor && $mgmt_ip && ( $forwardedFor =~  $mgmt_ip) ) {
+    } elsif ( $forwardedFor && ( $forwardedFor =~  '127.0.0.1') ) {
         if (defined($request->param('PORTAL'))) {
             $options = {
                 'portal' => $request->param('PORTAL'),
