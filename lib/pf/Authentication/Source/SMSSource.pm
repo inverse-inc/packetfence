@@ -19,9 +19,10 @@ use Moose;
 extends 'pf::Authentication::Source';
 with 'pf::Authentication::CreateLocalAccountRole';
 
-has '+class'        => (default => 'external');
-has '+type'         => (default => 'SMS');
-has 'sms_carriers'  => (isa => 'ArrayRef', is => 'rw', default => sub {[]});
+has '+class'          => (default => 'external');
+has '+type'           => (default => 'SMS');
+has 'sms_carriers'    => (isa => 'ArrayRef', is => 'rw', default => sub {[]});
+has 'pin_code_length' => (default => 6, is => 'rw', isa => 'Int');
 
 =head1 METHODS
 

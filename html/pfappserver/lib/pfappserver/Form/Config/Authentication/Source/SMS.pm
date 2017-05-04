@@ -42,6 +42,16 @@ has_field 'create_local_account' => (
     },
 );
 
+has_field 'pin_code_length' => (
+    type => 'PosInteger',
+    label => 'PIN Code Length',
+    default => pf::Authentication::Source::SMSSource->meta->get_attribute('pin_code_length')->default,
+    tags => {
+        after_element => \&help,
+        help => 'The length of the PIN code to be sent over sms',
+    },
+);
+
 has_field 'local_account_logins' => (
     type => 'PosInteger',
     label => 'Amount of logins for the local account',
