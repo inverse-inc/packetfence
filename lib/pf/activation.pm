@@ -609,9 +609,6 @@ sub sms_activation_create_send {
     my ($mac, $pid, $phone_number, $portal, $provider_id, $authentication_source) = @_;
     my $logger = get_logger();
 
-    # Strip non-digits
-    $phone_number =~ s/\D//g;
-
     my ( $success, $err ) = ( $TRUE, 0 );
     my %args = (
         mac         => $mac,
