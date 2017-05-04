@@ -66,11 +66,6 @@ Readonly::Scalar our $EXPIRATION => 31*24*60*60; # defaults to 31 days
 
 =cut
 
-# Default hash format version
-Readonly::Scalar our $HASH_FORMAT => 1;
-# Hash formats
-Readonly::Scalar our $SIMPLE_MD5 => 1;
-
 =head2 Email activation types
 
 
@@ -136,7 +131,7 @@ sub activation_db_prepare {
     $activation_statements->{'activation_find_code_sql'} = get_db_handle()->prepare(qq[
         SELECT code_id, pid, mac, contact_info, activation_code, expiration, status, type, portal, email_pattern as carrier_email_pattern, unregdate
         FROM activation LEFT JOIN sms_carrier ON carrier_id=sms_carrier.id
-        WHERE activation_code LIKE ?
+        WHERE activation_code = ?
     ]);
 
     $activation_statements->{'activation_view_by_code_sql'} = get_db_handle()->prepare(qq[
@@ -207,7 +202,7 @@ view an pending activation record by activation code without hash-format. Return
 sub find_code {
     my ($activation_code) = @_;
     my $query = db_query_execute(ACTIVATION, $activation_statements,
-        'activation_find_code_sql', '%'.$activation_code);
+        'activation_find_code_sql', $activation_code);
     my $ref = $query->fetchrow_hashref();
 
     # just get one row and finish
@@ -225,7 +220,7 @@ sub find_unverified_code {
     my ($activation_code) = @_;
     my $query = db_query_execute(ACTIVATION, $activation_statements,
         'activation_find_unverified_code_sql',
-        "${HASH_FORMAT}:${activation_code}", $UNVERIFIED
+        $activation_code, $UNVERIFIED
     );
     my $ref = $query->fetchrow_hashref();
 
@@ -345,17 +340,16 @@ Returns the activation code
 =cut
 
 sub create {
-    my $args = shift;
-    my ($mac, $pid, $pending_addr, $type, $portal, $provider_id, $timeout);
-    (
-        $mac          = $args->{'mac'},
-        $pid          = $args->{'pid'},
-        $pending_addr = $args->{'pending'},
-        $type         = $args->{'type'},
-        $portal       = $args->{'portal'},
-        $provider_id  = $args->{'provider_id'},
-        $timeout      = $args->{'timeout'}
-    );
+    my ($args) = @_;
+    my $mac          = $args->{'mac'};
+    my $pid          = $args->{'pid'};
+    my $pending_addr = $args->{'pending'};
+    my $type         = $args->{'type'};
+    my $portal       = $args->{'portal'};
+    my $provider_id  = $args->{'provider_id'};
+    my $timeout      = $args->{'timeout'};
+    my $code_length  = $args->{'code_length'};
+    my $no_unique    = $args->{'no_unique'};
 
     my $logger = get_logger();
 
@@ -374,6 +368,8 @@ sub create {
         'type' => $type,
         'portal' => $portal,
         'carrier_id' => $provider_id,
+        'code_length' => $code_length,
+        'no_unique' => $no_unique,
     );
 
     # caculate activation code expiration
@@ -405,31 +401,26 @@ generate proper activation code. Created to encapsulate flexible hash types.
 sub _generate_activation_code {
     my (%data) = @_;
     my $logger = get_logger();
+    my $code;
+    my $code_length = $data{'code_length'};
+    my $no_unique = $data{'no_unique'};
+    do {
+        # generating something not so easy to guess (and hopefully not in rainbowtables)
+        my $hash = md5_hex(
+            join("|",
+                time + int(rand(10)),
+                grep {defined $_} @data{qw(expiration mac pid contact_info)})
+        );
+        if($code_length ) {
+            $code = substr($hash, 0, $code_length);
+        } else {
+            $code = $hash;
+        }
+        # make sure the generated code is unique
+        $code = undef if (!$no_unique && view_by_code($code));
+    } while (!defined($code));
 
-    if ($HASH_FORMAT == $SIMPLE_MD5) {
-        my $code;
-        do {
-            # generating something not so easy to guess (and hopefully not in rainbowtables)
-            my $hash = md5_hex(
-                join("|",
-                    time + int(rand(10)),
-                    grep {defined $_} @data{qw(expiration mac pid contact_info)})
-            );
-            # - taking out a couple of hex (avoids overflow in step below)
-            # then keeping first 8
-            if($data{'type'} eq 'sms') {
-                $code = "$SIMPLE_MD5:". substr($hash, 0, 8);
-            } else {
-                $code = "$SIMPLE_MD5:". $hash;
-            }
-            # make sure the generated code is unique
-            $code = undef if (view_by_code($code));
-        } while (!defined($code));
-
-        return $code;
-    } else {
-        $logger->warn("Hash format unknown, couldn't generate activation code");
-    }
+    return $code;
 }
 
 =head2 _unpack_activation_code
@@ -616,7 +607,9 @@ sub sms_activation_create_send {
         pending     => $phone_number,
         type        => "sms",
         portal      => $portal,
-        provider_id => $provider_id
+        provider_id => $provider_id,
+        code_length => $authentication_source->pin_code_length,
+        no_unique   => 1,
     );
 
     my $activation_code = create(\%args);
