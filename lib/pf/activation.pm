@@ -210,6 +210,7 @@ sub find_code {
     return ($ref);
 }
 
+
 =head2 find_unverified_code
 
 find an unused pending activation record by doing a LIKE in the code, returns an hashref
@@ -423,24 +424,6 @@ sub _generate_activation_code {
     return $code;
 }
 
-=head2 _unpack_activation_code
-
-grab the hash-format and the activation hash out of the activation code
-
-Returns a list of: hash version, hash
-
-=cut
-
-sub _unpack_activation_code {
-    my ($activation_code) = @_;
-
-    if ($activation_code =~ /^(\d+):(\w+)$/) {
-        return ($1, $2);
-    }
-    # return undef on failure
-    return;
-}
-
 =head2 send_email
 
 Send an email with the activation code
@@ -461,13 +444,12 @@ sub send_email {
     my $smtpserver = $Config{'alerting'}{'smtpserver'};
     $info{'from'} = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
     $info{'currentdate'} = POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
-    my ($hash_version, $hash) = _unpack_activation_code($activation_code);
 
     if (defined($info{'activation_domain'})) {
-        $info{'activation_uri'} = "https://". $info{'activation_domain'} . "$WEB::URL_EMAIL_ACTIVATION_LINK/$hash";
+        $info{'activation_uri'} = "https://". $info{'activation_domain'} . "$WEB::URL_EMAIL_ACTIVATION_LINK/$activation_code";
     } else {
         $info{'activation_uri'} = "https://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
-            ."$WEB::URL_EMAIL_ACTIVATION_LINK/$hash";
+            ."$WEB::URL_EMAIL_ACTIVATION_LINK/$activation_code";
     }
 
     # Hash merge. Note that on key collisions the result of view_by_code() will win
@@ -555,9 +537,9 @@ sub validate_code {
     }
 
     # Force a solid match.
-    my ($hash_version, $hash) = _unpack_activation_code($activation_record->{'activation_code'});
-    if ($activation_code ne $hash) {
-        $logger->info("Activation code is not exactly the same as the one on record. $activation_code != $hash");
+    my $code = $activation_record->{'activation_code'};
+    if ($activation_code ne $code) {
+        $logger->info("Activation code is not exactly the same as the one on record. $activation_code != $code");
         return;
     }
 
@@ -565,6 +547,17 @@ sub validate_code {
     $logger->info(($activation_record->{mac}?"[$activation_record->{mac}]":"[unknown]") . " Activation code sent to email $activation_record->{contact_info} from $activation_record->{pid} successfully verified. "
                 . " for activation type: $activation_record->{type}");
     return $activation_record;
+}
+
+=head2 validate_code_with_mac
+
+validate_code_with_mac
+
+=cut
+
+sub validate_code_with_mac {
+    my ($mac, $activation_code) = @_;
+    return ;
 }
 
 =head2 set_status_verified
@@ -637,7 +630,7 @@ sub send_sms {
     my $smtpserver = $Config{'alerting'}{'smtpserver'};
     $info{'from'} = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
     $info{'currentdate'} = POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
-    my ($hash_version, $pin) = _unpack_activation_code($activation_code);
+    my $pin = $activation_code;
 
     # Hash merge. Note that on key collisions the result of view_by_code() will win
     %info = (%info, %{view_by_code($activation_code)});
