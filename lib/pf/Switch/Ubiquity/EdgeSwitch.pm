@@ -1,13 +1,13 @@
-package pf::Switch::Ubiquity::EdgeSwitch;
+package pf::Switch::Ubiquiti::EdgeSwitch;
 
 
 =head1 NAME
 
-pf::Switch::Ubiquity::EdgeSwitch
+pf::Switch::Ubiquiti::EdgeSwitch
 
 =head1 SYNOPSIS
 
-pf::Switch::Ubiquity::EdgeSwitch module manages access to EdgeSwitch
+pf::Switch::Ubiquiti::EdgeSwitch module manages access to EdgeSwitch
 
 =head1 STATUS
 
@@ -19,7 +19,7 @@ use strict;
 use warnings;
 use pf::log;
 
-use base ('pf::Switch::Ubiquity');
+use base ('pf::Switch::Ubiquiti');
 use pf::constants;
 use pf::config qw(
     $WIRED_802_1X

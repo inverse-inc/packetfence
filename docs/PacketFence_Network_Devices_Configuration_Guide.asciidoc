@@ -3857,7 +3857,7 @@ Global config settings
   SNMP-server host 192.168.1.5 public version 1
 
 
-Ubiquity
+Ubiquiti
 ~~~~~~~~
 
 EdgeSwitch
@@ -5892,7 +5892,7 @@ Once this is done, you will need to define all your APs MAC addresses in the Pac
   [00:11:22:33:44:55]
   description=Ubiquiti AP
   ExternalPortalEnforcement=Y
-  type=Ubiquity::Unifi
+  type=Ubiquiti::Unifi
   controllerIp=1.2.3.4
   wsTransport=HTTPS
   wsUser=admin
