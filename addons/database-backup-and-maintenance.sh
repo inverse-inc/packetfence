@@ -21,6 +21,8 @@ DB_USER=$(perl -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{user}
 DB_PWD=$(perl -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{pass}');
 DB_NAME=$(perl -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{db}');
 DB_HOST=$(perl -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{host}');
+REP_USER=$(perl -I/usr/local/pf/lib -Mpf::config -e 'print $pf::config::Config{active_active}{galera_replication_username}');
+REP_PWD=$(perl -I/usr/local/pf/lib -Mpf::config -e 'print $pf::config::Config{active_active}{galera_replication_password}');
 PF_DIRECTORY='/usr/local/pf/'
 BACKUP_DIRECTORY='/root/backup/'
 BACKUP_DB_FILENAME='packetfence-db-dump'
@@ -72,8 +74,17 @@ else
     echo "ERROR: There is not enough space in $BACKUP_DIRECTORY to safely backup files. Skipping the backup." > /usr/local/pf/var/backup_files.status
 fi 
 
-# Is the database run on the current server?
-if [ -f /var/run/mysqld/mysqld.pid ] || [ -f /var/run/mariadb/mariadb.pid ]; then
+SHOULD_BACKUP=1
+# If we are using Galera cluster and that we're not the first server in the galera incomming addresses, we will not backup
+if [ -f /var/lib/mysql/grastate.dat ]; then
+    FIRST_SERVER=`mysql -u$REP_USER -p$REP_PWD -e 'show status like "wsrep_incoming_addresses";' | tail -1 | awk '{ print $2 }' | awk -F "," '{ print $1 }' | awk -F ":" '{ print $1 }'`
+    if ! ip a | grep $FIRST_SERVER; then
+        SHOULD_BACKUP=0
+    fi
+fi
+
+# Is the database running on the current server and should we be running a backup ?
+if [ $SHOULD_BACKUP -eq 1 ] && { [ -f /var/run/mysqld/mysqld.pid ] || [ -f /var/run/mariadb/mariadb.pid ] || [ -f /var/lib/mysql/`hostname`.pid ]; }; then
 
     /usr/local/pf/addons/database-cleaner.pl --table=radacct --date-field=acctupdatetime --older-than="1 WEEK" --additionnal-condition="acctstoptime IS NOT NULL" --update --update-field=acctstoptime
 
