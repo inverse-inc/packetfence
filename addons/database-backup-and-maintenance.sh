@@ -77,7 +77,7 @@ fi
 SHOULD_BACKUP=1
 # If we are using Galera cluster and that we're not the first server in the galera incomming addresses, we will not backup
 if [ -f /var/lib/mysql/grastate.dat ]; then
-    FIRST_SERVER=`mysql -u$REP_USER -p$REP_PWD -e 'show status like "wsrep_incoming_addresses";' | tail -1 | awk '{ print $2 }' | awk -F "," '{ print $1 }' | awk -F ":" '{ print $1 }'`
+    FIRST_SERVER=`mysql -u$REP_USER -p$REP_PWD -e 'show status like "wsrep_incoming_addresses";' | tail -1 | awk '{ print $2 }' | awk -F "," '{ print $1 }' | awk -F ":" '{ print $1 }' > /dev/null`
     if ! ip a | grep $FIRST_SERVER; then
         SHOULD_BACKUP=0
     fi
