@@ -24,12 +24,12 @@
 <div class="form-actions">
   <div class="btn-group">
     <a class="btn dropdown-toggle" data-toggle="dropdown">[% l('Add Portal module') %] <span class="caret"></span></a>
-    <ul id="createPortalModule" class="dropdown-menu">
+    <ul id="createPortalModule" class="dropdown-menu up">
       [% FOREACH type IN types.keys -%]
         [% IF types.$type.size %]
       <li class="dropdown-submenu">
         <a tabindex="-1">[% l(type) %]</a>
-        <ul class="dropdown-menu" id="internal_types">
+        <ul class="dropdown-menu up" id="internal_types">
         [% FOREACH subtype IN types.$type %]
             <li><a href="[% c.pf_hash_for(c.controller.action_for('create_type'), subtype) %]">[% l(subtype) %]</a></li>
         [% END %]
