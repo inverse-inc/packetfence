@@ -599,18 +599,21 @@ EOT
         # Eduroam integration
         if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
             my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
-            my $ipaddr = $tags{'virt_ip'};
             my $listening_port = $eduroam_authentication_source[0]{'auth_listening_port'};
             $tags{'eduroam'} = <<"EOT";
 # Eduroam integration
-
+EOT
+            foreach my $interface ( @radius_ints ) {
+                my $cluster_ip = pf::cluster::cluster_ip($interface->{Tint});
+                $tags{'eduroam'} .= <<"EOT";
 listen {
-        ipaddr = $ipaddr
+        ipaddr = $cluster_ip
         port = $listening_port
         type = auth
         virtual_server = eduroam.cluster
 }
 EOT
+            }
         } else {
             $tags{'eduroam'} = "# Eduroam integration is not configured";
         }
