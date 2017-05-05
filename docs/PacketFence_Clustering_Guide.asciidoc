@@ -375,7 +375,7 @@ Now start packetfence
 
   # /usr/local/pf/bin/pfcmd service pf start
 
-Next, make sure to join domains through 'Configuration/Domains' on each node.
+Next, make sure to join domains through 'Configuration/Polices And Access Control/Domains/Active Directory Domains' on each node.
 
 Disable the access to the configurator by setting the currently-at on each server:
 
@@ -387,7 +387,7 @@ Step 5: Securing the cluster
 Keepalived secret
 ^^^^^^^^^^^^^^^^^
 
-It is highly recommended to modify the keepalived shared secret in your cluster to prevent attacks. From the PacketFence web administration interface, go in 'Configuration/Clustering' and change the 'Shared KEY'. Make sure you restart keepalived on all your servers using `/usr/local/pf/bin/pfcmd service keepalived restart`
+It is highly recommended to modify the keepalived shared secret in your cluster to prevent attacks. From the PacketFence web administration interface, go in 'Configuration/System Configuration/Cluster' and change the 'Shared KEY'. Make sure you restart keepalived on all your servers using `/usr/local/pf/bin/pfcmd service keepalived restart`
 
 Understanding the Galera cluster synchronization
 ------------------------------------------------
