@@ -72,7 +72,8 @@ Readonly::Scalar our $EXPIRATION => 31*24*60*60; # defaults to 31 days
 =cut
 
 Readonly our $SPONSOR_ACTIVATION => 'sponsor';
-Readonly our $GUEST_ACTIVATION => 'guest';
+Readonly our $GUEST_ACTIVATION   => 'guest';
+Readonly our $SMS_ACTIVATION     => 'sms';
 
 
 BEGIN {
@@ -83,7 +84,7 @@ BEGIN {
     @EXPORT_OK = qw(
         view_by_code
         $UNVERIFIED $EXPIRED $VERIFIED $INVALIDATED
-        $SPONSOR_ACTIVATION $GUEST_ACTIVATION
+        $SPONSOR_ACTIVATION $GUEST_ACTIVATION $SMS_ACTIVATION
     );
 }
 
@@ -126,6 +127,12 @@ sub activation_db_prepare {
         SELECT code_id, pid, mac, contact_info, activation_code, expiration, status, type, portal, email_pattern as carrier_email_pattern, unregdate
         FROM activation LEFT JOIN sms_carrier ON carrier_id=sms_carrier.id
         WHERE activation_code = ? AND status = ? AND expiration >= NOW()
+    ]);
+
+    $activation_statements->{'activation_find_unverified_code_type_mac_sql'} = get_db_handle()->prepare(qq[
+        SELECT code_id, pid, mac, contact_info, activation_code, expiration, status, type, portal, email_pattern as carrier_email_pattern, unregdate
+        FROM activation LEFT JOIN sms_carrier ON carrier_id=sms_carrier.id
+        WHERE mac = ? AND type = ? activation_code = ? AND status = ? AND expiration >= NOW()
     ]);
 
     $activation_statements->{'activation_find_code_sql'} = get_db_handle()->prepare(qq[
@@ -556,8 +563,43 @@ validate_code_with_mac
 =cut
 
 sub validate_code_with_mac {
-    my ($mac, $activation_code) = @_;
-    return ;
+    my ($mac, $activation_code, $type) = @_;
+    my $logger = get_logger();
+
+    my $activation_record = find_unverified_code_by_mac($mac, $activation_code, $type);
+    if (!defined($activation_record) || ref($activation_record eq 'HASH')) {
+        $logger->info("Unable to retrieve pending activation entry based on activation code: $activation_code");
+        return;
+    }
+
+    # Force a solid match.
+    my $code = $activation_record->{'activation_code'};
+    if ($activation_code ne $code) {
+        $logger->info("Activation code is not exactly the same as the one on record. $activation_code != $code");
+        return;
+    }
+
+    # At this point, code is validated: return the activation record
+    $logger->info("[$activation_record->{mac}] Activation code sent to email $activation_record->{contact_info} from $activation_record->{pid} successfully verified. for activation type: $activation_record->{type}");
+    return $activation_record;
+}
+
+=head2 find_unverified_code_by_mac
+
+find_unverified_code_by_mac
+
+=cut
+
+sub find_unverified_code_by_mac {
+    my ($mac, $activation_code, $type) = @_;
+    my $query = db_query_execute(ACTIVATION, $activation_statements,
+        'activation_find_unverified_code_type_mac_sql',
+        $mac, $type, $activation_code, $UNVERIFIED
+    );
+    my $ref = $query->fetchrow_hashref();
+    # just get one row and finish
+    $query->finish();
+    return $ref;
 }
 
 =head2 set_status_verified
