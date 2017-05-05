@@ -375,7 +375,7 @@ Now start packetfence
 
   # /usr/local/pf/bin/pfcmd service pf start
 
-Next, make sure to join domains through 'Configuration/Polices And Access Control/Domains/Active Directory Domains' on each node.
+Next, make sure to join domains through 'Configuration/Policies And Access Control/Domains/Active Directory Domains' on each node.
 
 Disable the access to the configurator by setting the currently-at on each server:
 
