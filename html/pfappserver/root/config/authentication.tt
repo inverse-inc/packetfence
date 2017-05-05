@@ -153,10 +153,10 @@
 <div class="form-actions">
   <div class="btn-group">
     <a class="btn dropdown-toggle" data-toggle="dropdown">[% l('Add source') %] <span class="caret"></span></a>
-    <ul id="createSource" class="dropdown-menu">
+    <ul id="createSource" class="dropdown-menu up">
       <li class="dropdown-submenu">
         <a tabindex="-1">[% l('Internal') %]</a>
-        <ul class="dropdown-menu" id="internal_types">
+        <ul class="dropdown-menu up" id="internal_types">
           [% FOREACH type IN internal_types.sort -%]
             <li><a href="[% c.pf_hash_for(c.controller('Config::Authentication::Source').action_for('create'), type) %]">[% l(type) %]</a></li>
           [% END -%]
@@ -164,7 +164,7 @@
       </li>
       <li class="dropdown-submenu">
         <a tabindex="-1">[% l('External') %]</a>
-        <ul class="dropdown-menu" id="external_types">
+        <ul class="dropdown-menu up" id="external_types">
           [% FOREACH type IN external_types.sort -%]
             <li><a href="[% c.pf_hash_for(c.controller('Config::Authentication::Source').action_for('create'), type) %]">[% l(type) %]</a></li>
           [% END -%]
@@ -172,7 +172,7 @@
       </li>
       <li class="dropdown-submenu">
         <a tabindex="-1">[% l('Exclusive') %]</a>
-        <ul class="dropdown-menu" id="exclusive_types">
+        <ul class="dropdown-menu up" id="exclusive_types">
           [% FOREACH type IN exclusive_types.sort -%]
             <li><a href="[% c.pf_hash_for(c.controller('Config::Authentication::Source').action_for('create'), type) %]">[% l(type) %]</a></li>
           [% END -%]
@@ -180,7 +180,7 @@
       </li>
       <li class="dropdown-submenu">
         <a tabindex="-1">[% l('Billing') %]</a>
-        <ul class="dropdown-menu" id="billing_types">
+        <ul class="dropdown-menu up" id="billing_types">
           [% FOREACH type IN billing_types.sort -%]
             <li><a href="[% c.pf_hash_for(c.controller('Config::Authentication::Source').action_for('create'), type) %]">[% l(type) %]</a></li>
           [% END -%]

@@ -353,7 +353,7 @@
                           <div class="btn-group pull-right">
                             <button type="submit" class="btn btn-primary"><i class="icon-search icon-white"></i> [% l('Search') %]</button>
                             <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><span class="icon-chevron-up"></span></a>
-                            <ul class="dropdown-menu up" role="menu">
+                            <ul class="dropdown-menu" role="menu">
                               <li><a href="#" data-export-url="[% c.uri_for(c.controller('Node').action_for('search')) %]" data-export-form="#simpleNodeSearch" class="exportCSVBtn">[% l('Export to CSV') %]</a></li>
                               <li><a href="#" id="simpleSavedSearchBtn">[% l('Save as...') %]</a></li>
                             </ul>
@@ -466,7 +466,7 @@
                           <div class="btn-group pull-right">
                             <button class="btn btn-primary"><i class="icon-search icon-white"></i> [% l('Search') %]</button>
                             <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><span class="icon-chevron-up"></span></a>
-                            <ul class="dropdown-menu up">
+                            <ul class="dropdown-menu">
                               <li><a id="advancedSavedSearchBtn" >[% l('Save as...') %]</a></li>
                               <li><a href="#" data-export-url="[% c.uri_for(c.controller('Node').action_for('search')) %]" data-export-form="#advancedSearch" class="exportCSVBtn">[% l('Export to CSV') %]</a></li>
                             </ul>
