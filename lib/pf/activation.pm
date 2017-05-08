@@ -563,10 +563,10 @@ validate_code_with_mac
 =cut
 
 sub validate_code_with_mac {
-    my ($mac, $activation_code, $type) = @_;
+    my ($type, $activation_code, $mac) = @_;
     my $logger = get_logger();
 
-    my $activation_record = find_unverified_code_by_mac($mac, $activation_code, $type);
+    my $activation_record = find_unverified_code_by_mac($type, $activation_code, $mac);
     if (!defined($activation_record) || ref($activation_record eq 'HASH')) {
         $logger->info("Unable to retrieve pending activation entry based on activation code: $activation_code");
         return;
@@ -591,7 +591,7 @@ find_unverified_code_by_mac
 =cut
 
 sub find_unverified_code_by_mac {
-    my ($mac, $activation_code, $type) = @_;
+    my ($type, $activation_code, $mac) = @_;
     my $query = db_query_execute(ACTIVATION, $activation_statements,
         'activation_find_unverified_code_type_mac_sql',
         $mac, $type, $activation_code, $UNVERIFIED

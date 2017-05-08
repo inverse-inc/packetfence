@@ -158,11 +158,11 @@ Validate the provided PIN
 sub validate_pin {
     my ($self, $pin) = @_;
     get_logger->debug("Mobile phone number validation attempt");
-
-    if (my $record = pf::activation::validate_code_with_mac($self->current_mac, $pin, $SMS_ACTIVATION)) {
+    my $mac = $self->current_mac;
+    if (my $record = pf::activation::validate_code_with_mac($SMS_ACTIVATION, $pin, $mac)) {
         return ($TRUE, 0, $record);
     }
-    pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED);
+    pf::auth_log::change_record_status($self->source->id, $mac, $pf::auth_log::FAILED);
     return ($FALSE, $GUEST::ERROR_INVALID_PIN);
 }
 
