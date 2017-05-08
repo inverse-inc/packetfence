@@ -126,7 +126,7 @@ sub activation_db_prepare {
     $activation_statements->{'activation_find_unverified_code_sql'} = get_db_handle()->prepare(qq[
         SELECT code_id, pid, mac, contact_info, activation_code, expiration, status, type, portal, email_pattern as carrier_email_pattern, unregdate
         FROM activation LEFT JOIN sms_carrier ON carrier_id=sms_carrier.id
-        WHERE activation_code = ? AND status = ? AND expiration >= NOW()
+        WHERE type = ? AND activation_code = ? AND status = ? AND expiration >= NOW()
     ]);
 
     $activation_statements->{'activation_find_unverified_code_type_mac_sql'} = get_db_handle()->prepare(qq[
@@ -231,10 +231,10 @@ find an unused pending activation record by doing a LIKE in the code, returns an
 =cut
 
 sub find_unverified_code {
-    my ($activation_code) = @_;
+    my ($type, $activation_code) = @_;
     my $query = db_query_execute(ACTIVATION, $activation_statements,
         'activation_find_unverified_code_sql',
-        $activation_code, $UNVERIFIED
+        $type, $activation_code, $UNVERIFIED
     );
     my $ref = $query->fetchrow_hashref();
 
@@ -474,10 +474,10 @@ sub send_email {
     $info{'currentdate'} = POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
 
     if (defined($info{'activation_domain'})) {
-        $info{'activation_uri'} = "https://". $info{'activation_domain'} . "$WEB::URL_EMAIL_ACTIVATION_LINK/$activation_code";
+        $info{'activation_uri'} = "https://". $info{'activation_domain'} . "$WEB::URL_EMAIL_ACTIVATION_LINK/$type/$activation_code";
     } else {
         $info{'activation_uri'} = "https://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
-            ."$WEB::URL_EMAIL_ACTIVATION_LINK/$activation_code";
+            ."$WEB::URL_EMAIL_ACTIVATION_LINK/$type/$activation_code";
     }
 
     # Hash merge. Note that on key collisions the result of view_by_code() will win
@@ -555,10 +555,10 @@ sub create_and_send_activation_code {
 
 # returns the validated activation record hashref or undef
 sub validate_code {
-    my ($activation_code) = @_;
+    my ($type, $activation_code) = @_;
     my $logger = get_logger();
 
-    my $activation_record = find_unverified_code($activation_code);
+    my $activation_record = find_unverified_code($type, $activation_code);
     if (!defined($activation_record) || ref($activation_record eq 'HASH')) {
         $logger->info("Unable to retrieve pending activation entry based on activation code: $activation_code");
         return;

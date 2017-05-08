@@ -52,8 +52,8 @@ sub index : Path : Args(0) {
     }
 }
 
-sub code : Path : Args(1) {
-    my ( $self, $c, $code ) = @_;
+sub code : Path : Args(2) {
+    my ( $self, $c, $type, $code ) = @_;
     my $portalSession = $c->portalSession;
     my $profile       = $c->profile;
     my $node_mac;
@@ -61,7 +61,7 @@ sub code : Path : Args(1) {
     my $logger  = $c->log;
 
     # validate code
-    my $activation_record = pf::activation::validate_code($code);
+    my $activation_record = pf::activation::validate_code($type, $code);
     if (  !defined($activation_record)
         || ref($activation_record) ne 'HASH'
         || !defined( $activation_record->{'type'} ) ) {
