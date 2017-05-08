@@ -28,16 +28,6 @@ has 'redis' => (is => 'rw', lazy => 1, builder => 1);
 
 has 'redis_args' => (is => 'rw', default => sub { {} });
 
-has 'queue_name' => (is => 'rw');
-
-has 'delay_queue' => (is => 'rw');
-
-has 'submit_queue' => (is => 'rw');
-
-has 'batch' => (is => 'rw');
-
-has 'batch_sleep' => (is => 'rw');
-
 #
 # This lua script gets all the job id from a zset with a timestamp less the one passed
 # Then push all the job ids the work queue
@@ -84,13 +74,23 @@ Process the next job in the queue
 =cut
 
 sub process_next_job {
-    my ($self) = @_;
+    my ($self, $queues) = @_;
     my $redis = $self->redis;
-    my $queue_name = $self->queue_name;
+    if (ref ($queues) ne 'ARRAY') {
+        $queues = [$queues];
+    }
     my $logger = get_logger();
-    my ($queue, $task_id) = $redis->brpop($queue_name, 1);
-    unless (defined $queue) {
-        return;
+    my ($queue, $task_id);
+    if (@$queues == 1) {
+        # Use the faster nonblocking rpop first if there is nothing there use the blocking version
+        ($task_id) = $redis->rpop(@$queues);
+    }
+    unless (defined $task_id) {
+        # Block for a second
+        ($queue, $task_id) = $redis->brpop(@$queues, 1);
+        unless (defined $queue) {
+            return;
+        }
     }
     my $task_counter_id = _get_task_counter_id_from_task_id($task_id);
     my $data;
@@ -161,16 +161,16 @@ Process delayed jobs
 =cut
 
 sub process_delayed_jobs {
-    my ($self) = @_;
+    my ($self, $params) = @_;
     my $redis = $self->redis;
 
     #Getting the current time from the redis service
     my ($seconds, $micro) = $redis->time;
     die "error getting time from the redis service" unless defined $seconds && defined $micro;
     my $time_milli = $seconds * 1000 + int($micro / 1000);
-    $redis->evalsha($LUA_DELAY_JOBS_MOVE_SHA1, 2, $self->delay_queue, $self->submit_queue, $time_milli, $self->batch);
+    $redis->evalsha($LUA_DELAY_JOBS_MOVE_SHA1, 2, $params->{delay_queue}, $params->{submit_queue}, $time_milli, $params->{batch});
     # Sleep for 10 milliseconds
-    usleep($self->batch_sleep);
+    usleep($params->{batch_usleep});
 }
 
 =head2 on_connect

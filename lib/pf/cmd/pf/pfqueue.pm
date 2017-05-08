@@ -88,6 +88,7 @@ sub action_stats {
 
 sub _print_counters {
     my ($self, $title, $heading_format, $format, $fields, $counters) = @_;
+    return if @$counters == 0;
     print "\n$title\n";
     my $heading = sprintf($heading_format, @$fields);
     my $delimter = $heading;

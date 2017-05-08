@@ -5,6 +5,12 @@
 # If you did not receive this file, see
 # http://www.fsf.org/licensing/licenses/gpl.html
 
+[pfqueue]
+#
+# The number of shared workers
+#
+workers=8
+
 #
 #Connection details of the queue consumer
 #
@@ -17,36 +23,63 @@ redis_every=100
 # general queue configuration
 #
 [queue general]
-workers=4
-has_delayed_queue=enabled
-delayed_queue_batch=100
-delayed_queue_sleep=100
-delayed_queue_workers=1
+#
+# The weight of queue among shared workers
+#
+weight=4
+#
+# The number of dedicated workers for queue
+#
+workers=1
 
 #
 # pfdhcplistener queue configuration
 #
 [queue pfdhcplistener]
-workers=4
+#
+# The weight of queue among shared workers
+#
+weight=4
+#
+# The number of dedicated workers for queue
+#
+workers=1
 
 #
 # pfdetect queue configuration
 #
 [queue pfdetect]
+#
+# The weight of queue among shared workers
+#
+weight=4
+#
+# The number of dedicated workers for queue
+#
 workers=1
 
 #
 # pfsnmp queue configuration
 #
 [queue pfsnmp]
-workers=8
+#
+# The weight of queue among shared workers
+#
+weight=4
+#
+# The number of dedicated workers for queue
+#
+workers=0
 
 #
 # pfsnmp_parsing queue configuration
 #
 [queue pfsnmp_parsing]
-workers=4
-has_delayed_queue=enabled
-delayed_queue_batch=100
-delayed_queue_sleep=100
-delayed_queue_workers=1
+#
+# The weight of queue among shared workers
+#
+weight=2
+#
+# The number of dedicated workers for queue
+#
+workers=0
