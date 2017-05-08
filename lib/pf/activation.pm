@@ -150,7 +150,7 @@ sub activation_db_prepare {
     $activation_statements->{'activation_view_by_code_mac_sql'} = get_db_handle()->prepare(qq[
         SELECT code_id, pid, mac, contact_info, activation_code, expiration, status, type, portal, email_pattern as carrier_email_pattern, unregdate
         FROM activation LEFT JOIN sms_carrier ON carrier_id=sms_carrier.id
-        WHERE activation_code = ? AND mac = ?
+        WHERE type = ? AND activation_code = ? AND mac = ?
     ]);
 
     $activation_statements->{'activation_add_sql'} = get_db_handle()->prepare(qq[
@@ -267,9 +267,9 @@ view_by_code_mac
 =cut
 
 sub view_by_code_mac {
-    my ($code, $mac) = @_;
+    my ($type, $code, $mac) = @_;
     my $query = db_query_execute(ACTIVATION, $activation_statements,
-        'activation_view_by_code_mac_sql', $code, $mac);
+        'activation_view_by_code_mac_sql',$type , $code, $mac);
     my $ref = $query->fetchrow_hashref();
     # just get one row and finish
     $query->finish();

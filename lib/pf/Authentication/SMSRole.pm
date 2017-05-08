@@ -28,7 +28,7 @@ Send the Activation SMS
 sub sendActivationSMS {
     my ( $self, $pin, $mac ) = @_;
 
-    my $activation = pf::activation::view_by_code_mac($pin, $mac);
+    my $activation = pf::activation::view_by_code_mac($pf::activation::SMS_ACTIVATION, $pin, $mac);
     my $phone_number = $activation->{'contact_info'};
 
     return $self->sendSMS({to=> $phone_number, message => "PIN: $pin", activation => $activation});
