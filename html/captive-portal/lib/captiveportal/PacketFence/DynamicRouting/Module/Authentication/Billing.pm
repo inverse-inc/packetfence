@@ -25,6 +25,7 @@ use pf::config;
 use pf::violation;
 use pf::config::violation;
 use pf::config::util;
+use pf::web::guest;
 use pf::util;
 use pf::node;
 use pf::constants;
@@ -245,7 +246,18 @@ sub process_transaction {
         }
     }
 
-    if(isenabled($self->source->{create_local_account})){
+    if (isenabled($billing->send_email_confirmation)) {
+        my $request_fields = $session->{request_fields};
+        my %parameters = (
+            firstname => $request_fields->{firstname},
+            lastname => $request_fields->{lastname},
+            email => $request_fields->{email},
+        );
+        my $info = $billing->confirmationInfo(\%parameters, $tier, $session);
+        pf::web::guest::send_template_email( 'billing_confirmation', $info->{'subject'}, $info );
+    }
+
+    if (isenabled($billing->create_local_account)) {
         my $actions = [
             pf::Authentication::Action->new({
                 type    => $Actions::SET_ACCESS_DURATION, 
@@ -309,20 +321,22 @@ sub confirm {
     my $billing = $self->source;
 
     my $pid  = $self->request_fields->{$self->pid_field};
+    my $app = $self->app;
 
     get_logger->debug("Entering billing confirmation for user $pid");
 
     my $data = eval {
-          $billing->prepare_payment($self->app->session, $self->session->{tier}, $self->app->request->parameters, $self->app->request->uri)
+          $billing->prepare_payment($app->session, $self->session->{tier}, $app->request->parameters, $app->request->uri)
     };
     if ($@) {
         get_logger->error($@);
-        $self->app->flash->{error} = "An error occured while preparing the request to the external provider";
+        $app->flash->{error} = "An error occured while preparing the request to the external provider";
         $self->redirect_root();
         return;
     }
 
     $self->username($pid);
+    $self->session->{request_fields} = $self->request_fields;
 
     $self->render("billing/confirm_" . $billing->type . ".html", {
         %{$data},

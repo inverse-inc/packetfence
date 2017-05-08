@@ -52,6 +52,13 @@ has_field test_mode => (
     unchecked_value => '0',
 );
 
+has_field 'send_email_confirmation' => (
+   type => 'Toggle',
+   label => 'Send billing confirmation',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+);
+
 =head2 options_currency
 
 Currencies options for the a billing sources
