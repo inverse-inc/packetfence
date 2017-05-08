@@ -15,7 +15,6 @@ pf::Authentication::SMSRole
 use strict;
 use warnings;
 use Moose::Role;
-use pf::activation;
 
 has 'pin_code_length' => (default => 6, is => 'rw', isa => 'Int');
 
@@ -27,6 +26,7 @@ Send the Activation SMS
 
 sub sendActivationSMS {
     my ( $self, $pin, $mac ) = @_;
+    require pf::activation;
 
     my $activation = pf::activation::view_by_code_mac($pf::activation::SMS_ACTIVATION, $pin, $mac);
     my $phone_number = $activation->{'contact_info'};
