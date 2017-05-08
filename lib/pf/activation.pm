@@ -672,7 +672,7 @@ sub sms_activation_create_send {
 
     my $activation_code = create(\%args);
     if (defined($activation_code)) {
-        unless ($authentication_source->sendActivationSMS($activation_code)) {
+        unless ($authentication_source->sendActivationSMS($activation_code, $mac)) {
             ($success, $err) = ($FALSE, $GUEST::ERRORS{$GUEST::ERROR_CONFIRMATION_SMS});
             invalidate_codes($args{'mac'}, $args{'pid'}, $args{'pending'});
         }
