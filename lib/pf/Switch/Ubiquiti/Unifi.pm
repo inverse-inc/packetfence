@@ -1,12 +1,12 @@
-package pf::Switch::Ubiquity::Unifi;
+package pf::Switch::Ubiquiti::Unifi;
 
 =head1 NAME
 
-pf::Switch::Ubiquity::Unifi
+pf::Switch::Ubiquiti::Unifi
 
 =head1 SYNOPSIS
 
-The pf::Switch::Ubiquity::Unifi module implements an object oriented interface to
+The pf::Switch::Ubiquiti::Unifi module implements an object oriented interface to
 manage Unifi  controllers
 
 =head1 STATUS

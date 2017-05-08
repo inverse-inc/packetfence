@@ -1,12 +1,12 @@
-package pf::Switch::Ubiquity;
+package pf::Switch::Ubiquiti;
 
 =head1 NAME
 
-pf::Switch::Ubiquity - Object oriented module for Ubiquity
+pf::Switch::Ubiquiti - Object oriented module for Ubiquiti
 
 =head1 SYNOPSIS
 
-The pf::Switch::Ubiquity module
+The pf::Switch::Ubiquiti module
 
 =cut
 
