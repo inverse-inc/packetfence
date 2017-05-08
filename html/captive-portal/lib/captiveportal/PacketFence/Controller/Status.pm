@@ -116,8 +116,43 @@ sub login : Local {
 
 sub devices : Local {
     my ( $self, $c ) = @_;
-
+    my $pid     = $c->user_session->{"username"};
+    if ( $c->has_errors ) {
+        $c->stash->{txt_auth_error} = join(' ', grep { ref ($_) eq '' } @{$c->error});
+        $c->clear_errors;
+    }
+    if ($pid) {
+        $c->forward('userIsAuthenticated');
+    } else {
+        $c->forward('userIsNotAuthenticated');
+    }
+    $c->stash(
+        title => "Status - Manage Devices",
+        template => 'status/devices.html',
+        access_registration_when_registered => $c->profile->canAccessRegistrationWhenRegistered(),
+    );
 }
+
+sub person : Local {
+    my ( $selfc, $c ) = @_;
+    my $pid     = $c->user_session->{"username"};
+    if ( $c->has_errors ) {
+        $c->stash->{txt_auth_error} = join(' ', grep { ref ($_) eq '' } @{$c->error});
+        $c->clear_errors;
+    }
+    if ($pid) {
+        $c->forward('userIsAuthenticated');
+    } else {
+        $c->forward('userIsNotAuthenticated');
+    }
+    if ($pid->hasLocalAccount()) {
+        #has right to change PW
+    }
+    $c->stash(
+        title => "Status - Manage Account",
+        template => 'status/person.html',
+    }
+} 
 
 sub logout : Local {
     my ( $self, $c ) = @_;
