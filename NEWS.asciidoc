@@ -22,10 +22,11 @@ New Features
 Enhancements
 ++++++++++++
 
- * Add a button to access status from device registration and the other way around
+ * Add a button to access status from device registration and the other way around(PR #2259)
  * Added the ability to specify multiple DNS server(s) for domain join configuration (PR #2223)
  * Allow to force a predefined sponsor during sponsor authentication (PR #2150)
  * Updated pfdns default filters (PR #2165)
+ * Added brands icons to authentication source (i.e Twitter, PayPal etc ..) in the administration interface (PR #2287)
 
 Bug Fixes
 +++++++++
@@ -34,6 +35,7 @@ Bug Fixes
  * Dashboard metrics are now fetched over https (#2272)
  * Twilio: "To" phone number is being stripped of any "+" sign (#2296)
  * radiusd: load-balancer fails to start in cluster with eduroam (#2303)
+ * Renamed Ubiquity to Ubiquiti (PR #2293)
 
 
 Version 7.0.0 released on 2017-04-19
