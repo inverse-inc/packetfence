@@ -681,48 +681,6 @@ sub sms_activation_create_send {
     return ($success, $err, $activation_code);
 }
 
-=head2 send_sms -
-
-Send SMS with activation code
-
-=cut
-
-sub send_sms {
-    my ($activation_code) = @_;
-    my $logger = get_logger();
-
-    my %info;
-    my $smtpserver = $Config{'alerting'}{'smtpserver'};
-    $info{'from'} = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
-    $info{'currentdate'} = POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
-    my $pin = $activation_code;
-
-    # Hash merge. Note that on key collisions the result of view_by_code() will win
-    %info = (%info, %{view_by_code($activation_code)});
-
-    my $email = sprintf($info{'carrier_email_pattern'}, $info{'contact_info'});
-    my $msg = MIME::Lite->new(
-        From        =>  $info{'from'},
-        To          =>  $email,
-        Subject     =>  "Network Activation",
-        Data        =>  "PIN: $pin"
-    );
-
-    my $result = 0;
-    eval {
-      $msg->send('smtp', $smtpserver, Timeout => 20);
-      $result = $msg->last_send_successful();
-      $logger->info("Email sent to $email (Network Activation)");
-    };
-    if ($@) {
-      my $msg = "Can't send email to $email: $@";
-      $msg =~ s/\n//g;
-      $logger->error($msg);
-    }
-
-    return $result;
-}
-
 =head2 set_unregdate
 
 Set the unregdate that should be assigned to the node once the activation record has been validated
