@@ -144,7 +144,7 @@ sub activation_db_prepare {
     $activation_statements->{'activation_view_by_code_sql'} = get_db_handle()->prepare(qq[
         SELECT code_id, pid, mac, contact_info, activation_code, expiration, status, type, portal, email_pattern as carrier_email_pattern, unregdate
         FROM activation LEFT JOIN sms_carrier ON carrier_id=sms_carrier.id
-        WHERE activation_code = ?
+        WHERE type = ? AND activation_code = ?
     ]);
 
     $activation_statements->{'activation_view_by_code_mac_sql'} = get_db_handle()->prepare(qq[
@@ -250,9 +250,9 @@ view an pending  activation record by exact activation code (including hash form
 =cut
 
 sub view_by_code {
-    my ($activation_code) = @_;
+    my ($type, $activation_code) = @_;
     my $query = db_query_execute(ACTIVATION, $activation_statements,
-        'activation_view_by_code_sql', $activation_code);
+        'activation_view_by_code_sql', $type, $activation_code);
     my $ref = $query->fetchrow_hashref();
 
     # just get one row and finish
@@ -432,8 +432,9 @@ sub _generate_activation_code {
     my (%data) = @_;
     my $logger = get_logger();
     my $code;
-    my $code_length = $data{'code_length'};
+    my $code_length = $data{'code_length'} // 0;
     my $no_unique = $data{'no_unique'};
+    my $type = $data{'type'};
     do {
         # generating something not so easy to guess (and hopefully not in rainbowtables)
         my $hash = md5_hex(
@@ -441,13 +442,13 @@ sub _generate_activation_code {
                 time + int(rand(10)),
                 grep {defined $_} @data{qw(expiration mac pid contact_info)})
         );
-        if($code_length ) {
+        if ($code_length > 0) {
             $code = substr($hash, 0, $code_length);
         } else {
             $code = $hash;
         }
         # make sure the generated code is unique
-        $code = undef if (!$no_unique && view_by_code($code));
+        $code = undef if (!$no_unique && view_by_code($type, $code));
     } while (!defined($code));
 
     return $code;
@@ -481,7 +482,7 @@ sub send_email {
     }
 
     # Hash merge. Note that on key collisions the result of view_by_code() will win
-    %info = (%info, %{view_by_code($activation_code)});
+    %info = (%info, %{view_by_code($type, $activation_code)});
 
     my $import_succesfull = try { require MIME::Lite::TT; };
     if (!$import_succesfull) {
