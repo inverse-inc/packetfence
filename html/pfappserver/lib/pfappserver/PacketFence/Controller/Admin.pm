@@ -324,6 +324,14 @@ sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
 
 }
 
+=head2 help
+
+=cut
+
+sub help :Chained('object') :PathPart('help') :Args(0) {
+    my ( $self, $c ) = @_;
+}
+
 =head2 checkup
 
 =cut

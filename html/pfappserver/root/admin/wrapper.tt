@@ -97,18 +97,8 @@
               </li>
             </ul>
             <ul class="nav nav-header pull-right">
-              <li class="dropdown">
-                <a href="" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-question-circle icon-white"></i><b class="caret"></b></a>
-                <ul class="dropdown-menu">
-                  <li class="dropdown-unselectable"><b>[% l('Version') %]</b>: [% pf_release | html %]</li>
-                  <li class="dropdown-unselectable"><b>[% l('Server') %]</b>: [% server_hostname | html %]</li>
-                  <li class="divider"></li>
-                  <li><a href="[% doc_url() %]" target="_blank">[% l('Administration Guide') %]</a></li>
-                  <li><a href="[% doc_url(null, 'Network_Devices_Configuration_Guide') %]"
-                         target="_blank">[% l('Network Devices Configuration Guide') %]</a></li>
-                  <li><a href="[% doc_url(null, 'Clustering_Guide') %]"
-                         target="_blank">[% l('Clustering Quick Installation Guide') %]</a></li>
-                </ul>
+              <li>
+                <a href="[% c.uri_for(c.controller('Admin').action_for('help')) %]"><i class="icon-question-circle icon-white"></i></a>
               </li>
             </ul>
             <ul class="nav nav-header pull-right">
