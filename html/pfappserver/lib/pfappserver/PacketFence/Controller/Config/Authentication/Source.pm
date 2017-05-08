@@ -17,10 +17,12 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 use namespace::autoclean;
 use POSIX;
+use utf8;
 
 use pf::ConfigStore::Authentication;
 
 use pf::authentication;
+use pf::util;
 use pfappserver::Form::Config::Authentication::Source;
 use pfappserver::Form::Config::Authentication::Rule;
 
@@ -123,7 +125,7 @@ sub read :Chained('object') :PathPart('read') :Args(0) :AdminRole('USERS_SOURCES
             my @attrs = map { $_->name } $c->stash->{source}->meta->get_all_attributes();
             @obj{@attrs} = @{$c->stash->{source}}{@attrs};
         }
-        $form = $form->new(ctx => $c, init_object => \%obj);
+        $form = $form->new(ctx => $c, init_object => utf8_decoder \%obj);
         $form->process();
         $c->stash->{form} = $form;
         $c->stash->{template} = 'authentication/source/read.tt' unless ($c->stash->{template});
@@ -172,7 +174,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('USERS_SOU
         my %obj;
         my @attrs = map { $_->name } $source->meta->get_all_attributes();
         @obj{@attrs} = @{$source}{@attrs};
-        $form->process( ctx => $c, init_object => \%obj);
+        $form->process( ctx => $c, init_object => utf8_decoder \%obj);
         $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$form->value->{id}]);
         $c->stash->{form} = $form;
         $c->stash->{template} = 'authentication/source/read.tt';
@@ -302,7 +304,7 @@ sub rule_read :Chained('rule_object') :PathPart('read') :Args(0) :AdminRole('USE
     }
 
     $form = pfappserver::Form::Config::Authentication::Rule->new(ctx => $c,
-                                                         init_object => $c->stash->{rule},
+                                                         init_object => utf8_decoder($c->stash->{rule}),
                                                          source_type => $c->stash->{source}->{type},
                                                          attrs => $c->stash->{source}->available_attributes());
     $form->process;

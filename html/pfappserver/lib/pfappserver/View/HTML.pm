@@ -10,6 +10,7 @@ use Template::AutoFilter;
 use Template::AutoFilter::Parser;
 
 __PACKAGE__->config(
+    ENCODING    => 'UTF-8',
     TEMPLATE_EXTENSION => '.tt',
     PRE_PROCESS => 'macros.inc',
     FILTERS => {

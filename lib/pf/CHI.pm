@@ -27,6 +27,7 @@ use DBI;
 use Scalar::Util qw(tainted reftype);
 use pf::log;
 use Log::Any::Adapter;
+use utf8;
 Log::Any::Adapter->set('Log4perl');
 
 my @PRELOADED_CHI_DRIVERS;
@@ -163,7 +164,7 @@ sub setDBIDriverParams {
     $storage->{dbh} = sub {
         my ($db,$host,$port,$user,$pass) = @{$dbi}{qw(db host port user pass)};
         return DBI->connect( "dbi:mysql:dbname=$db;host=$host;port=$port",
-        $user, $pass, { RaiseError => 0, PrintError => 0 } );
+        $user, $pass, { RaiseError => 0, PrintError => 0, mysql_enable_utf8 => 1 } );
     }
 }
 
