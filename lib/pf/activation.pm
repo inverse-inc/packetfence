@@ -184,7 +184,7 @@ sub activation_db_prepare {
     );
 
     $activation_statements->{'activation_set_unregdate_sql'} = get_db_handle()->prepare(
-        qq [ UPDATE activation set unregdate = ? where activation_code = ? ]
+        qq [ UPDATE activation set unregdate = ? where type = ? AND activation_code = ? ]
     );
 
     $activation_db_prepared = 1;
@@ -462,7 +462,6 @@ Send an email with the activation code
 sub send_email {
     my ($type, $activation_code, $template, %info) = @_;
     my $logger = get_logger();
-
     my $profile = pf::Connection::ProfileFactory->_from_profile($info{portal}) // pf::Connection::ProfileFactory->_from_profile($DEFAULT_PROFILE);
 
     my $user_locale = clean_locale(setlocale(POSIX::LC_MESSAGES));
@@ -731,11 +730,11 @@ Set the unregdate that should be assigned to the node once the activation record
 =cut
 
 sub set_unregdate {
-    my ($activation_code, $unregdate) = @_;
+    my ($type, $activation_code, $unregdate) = @_;
     get_logger->debug("Setting unregdate $unregdate for activation code $activation_code");
 
     return(db_query_execute(ACTIVATION, $activation_statements,
-        'activation_set_unregdate_sql', $unregdate, $activation_code));
+        'activation_set_unregdate_sql', $unregdate, $type, $activation_code));
 }
 
 # TODO: add an expire / cleanup sub
