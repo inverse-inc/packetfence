@@ -1239,6 +1239,22 @@ Restart the radiusd service in order to apply the change.
 
 CAUTION: You will need to disable password hashing in the database for local authentication to work. In the administration interface, go in 'Configuration -> System Configuration -> Main Configuration ->Advanced' and set 'Database passwords hashing method' to `plaintext` or `ntlm`. Don't use `bcrypt`.
 
+Option 6: Limit brute force EAP authentication
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This section will allow you to limit a brute force attack and prevent the locking of Active Directory accounts.
+
+Edit `/usr/local/pf/conf/radiusd/packetfence-tunnel`
+
+----
+# Uncomment the following lines to enable this feature
+packetfence-control-ntlm-failure
+packetfence-cache-ntlm-hit
+----
+
+By default it will reject for 5 minutes a device that has been rejected twice in the last 5 minutes.
+Fell free to change the default values in `raddb/policy.d/packetfence` and in `raddb/mods-enabled/cache_ntlm`
+
 Tests
 ^^^^^
 
