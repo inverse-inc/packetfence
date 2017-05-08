@@ -25,6 +25,8 @@ use pf::util qw(normalize_time);
 
 has '+source' => (isa => 'pf::Authentication::Source::SponsorEmailSource');
 
+has 'forced_sponsor' => ('is' => 'rw');
+
 =head2 allowed_urls_auth_module
 
 The allowed URLs in this module
@@ -35,6 +37,26 @@ sub allowed_urls_auth_module {
     return [
         '/sponsor/check',
     ];
+}
+
+=head2 _build_required_fields
+
+Build the required fields based on the PID field, the custom fields and the mandatory fields of the source
+Will remove the sponsor field from the required fields if there is a forced sponsor
+
+=cut
+
+sub _build_required_fields {
+    my ($self) = @_;
+    
+    my @fields = @{$self->SUPER::_build_required_fields()};
+    if($self->forced_sponsor) {
+        @fields = (grep {$_ ne 'sponsor'  } @fields);
+        return \@fields;
+    }
+    else {
+        return \@fields;
+    }
 }
 
 =head2 before done
@@ -124,7 +146,8 @@ sub do_sponsor_registration {
         return;
     }
 
-    return unless($self->_validate_sponsor($self->request_fields->{sponsor}));
+    my $sponsor = $self->forced_sponsor || $self->request_fields->{sponsor};
+    return unless($self->_validate_sponsor($sponsor));
 
     # form valid, adding person (using modify in case person already exists)
     my $note = 'sponsored confirmation Date of arrival: ' . time2str("%Y-%m-%d %H:%M:%S", time);
@@ -136,9 +159,12 @@ sub do_sponsor_registration {
     $info{'activation_timeout'} = normalize_time($source->{email_activation_timeout});
     # fetch more info for the activation email
     # this is meant to be overridden in pf::web::custom with customer specific needs
-    foreach my $key (qw(firstname lastname telephone company sponsor)) {
+    foreach my $key (qw(firstname lastname telephone company)) {
         $info{$key} = $self->request_fields->{$key};
     }
+
+    $info{'sponsor'} = $sponsor;
+
     $info{'subject'} = $self->app->i18n_format("%s: Guest access request", $Config{'general'}{'domain'});
 
     # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
