@@ -4827,6 +4827,8 @@ image::docs/images/SSID_5.png[scaledwidth="100%",alt="SSID step 5"]
 
 image::docs/images/SSID_6.png[scaledwidth="100%",alt="SSID step 6"]
 
+NOTE: On more recent controllers, the value 'Radius NAC' in the 'NAC State' setting will be called 'ISE NAC'.
+
 image::docs/images/SSID_7.png[scaledwidth="100%",alt="SSID step 7"]
 
 * Then you have to create two ACLs - one to deny all traffic except the required one to hit the portal (Pre-Auth-For-WebRedirect ) and the other
