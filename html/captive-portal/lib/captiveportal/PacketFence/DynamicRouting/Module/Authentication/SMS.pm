@@ -14,7 +14,7 @@ use Moose;
 extends 'captiveportal::DynamicRouting::Module::Authentication';
 with 'captiveportal::Role::FieldValidation';
 
-use pf::activation;
+use pf::activation qw($SMS_ACTIVATION);
 use pf::log;
 use pf::constants;
 use pf::sms_carrier;
@@ -193,7 +193,7 @@ sub validation {
     my ($status, $reason, $record) = $self->validate_pin($pin);
     if($status){
         $self->username($record->{pid});
-        pf::activation::set_status_verified($pin);
+        pf::activation::set_status_verified($SMS_ACTIVATION, $pin);
         pf::auth_log::record_completed_guest($self->source->id, $self->current_mac, $pf::auth_log::COMPLETED);
         $self->done();
     }

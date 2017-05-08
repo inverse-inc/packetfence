@@ -138,7 +138,7 @@ sub activation_db_prepare {
     $activation_statements->{'activation_find_code_sql'} = get_db_handle()->prepare(qq[
         SELECT code_id, pid, mac, contact_info, activation_code, expiration, status, type, portal, email_pattern as carrier_email_pattern, unregdate
         FROM activation LEFT JOIN sms_carrier ON carrier_id=sms_carrier.id
-        WHERE activation_code = ?
+        WHERE type = ? AND activation_code = ?
     ]);
 
     $activation_statements->{'activation_view_by_code_sql'} = get_db_handle()->prepare(qq[
@@ -213,9 +213,9 @@ view an pending activation record by activation code without hash-format. Return
 =cut
 
 sub find_code {
-    my ($activation_code) = @_;
+    my ($type, $activation_code) = @_;
     my $query = db_query_execute(ACTIVATION, $activation_statements,
-        'activation_find_code_sql', $activation_code);
+        'activation_find_code_sql',$type, $activation_code);
     my $ref = $query->fetchrow_hashref();
 
     # just get one row and finish
@@ -632,10 +632,10 @@ Change the status of a given pending activation code to VERIFIED which means it 
 =cut
 
 sub set_status_verified {
-    my ($activation_code) = @_;
+    my ($type, $activation_code) = @_;
     my $logger = get_logger();
 
-    my $activation_record = find_code($activation_code);
+    my $activation_record = find_code($type, $activation_code);
     modify_status($activation_record->{'code_id'}, $VERIFIED);
 }
 
