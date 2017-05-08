@@ -25,6 +25,7 @@ Enhancements
  * Add a button to access status from device registration and the other way around
  * Added the ability to specify multiple DNS server(s) for domain join configuration (PR #2223)
  * Allow to force a predefined sponsor during sponsor authentication (PR #2150)
+ * Updated pfdns default filters (PR #2165)
 
 Bug Fixes
 +++++++++
