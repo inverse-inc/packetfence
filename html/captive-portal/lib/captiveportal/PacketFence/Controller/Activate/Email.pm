@@ -42,14 +42,8 @@ Catalyst Controller.
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
     my $request = $c->request;
-    my $code    = $request->param('code');
-    my $logger  = $c->log;
-    if ( defined $code ) {
-        $c->forward( 'code', [$code] );
-    } else {
-        $self->showError($c,"An activation code is required");
-        $c->detach;
-    }
+    $self->showError($c,"An type and activation code is required");
+    $c->detach;
 }
 
 sub code : Path : Args(2) {
