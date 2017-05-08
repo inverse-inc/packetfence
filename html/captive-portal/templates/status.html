@@ -202,6 +202,7 @@ $(document).ready(function() {
   <p class="media__body">[% i18n("You have no registered devices.") %]</p>
 </div>
 [% END %]
+[% UNLESS showLogin %]
 <div class="layout layout--center">
   <div class="layout__item u-mt u-2/3 u-1/1-palm">
     <a href="/device-registration" class="btn btn--full btn--light">
@@ -212,7 +213,6 @@ $(document).ready(function() {
     </a>
   </div>
 </div>
-[% UNLESS showLogin %]
 <div class="layout layout--center">
   <div class="layout__item u-mt u-2/3 u-1/1-palm">
     <a href="/status/logout" class="btn btn--full btn--light">
