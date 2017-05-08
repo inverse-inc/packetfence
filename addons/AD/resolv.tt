@@ -1,2 +1,4 @@
 search [% dns_name %]
+[% FOREACH dns_server IN dns_servers %]
 nameserver [% dns_server %]
+[% END %]
