@@ -32,6 +32,7 @@ Bug Fixes
 
  * When performing a CoA, we should open a locationlog entry with the new role (#2222)
  * Dashboard metrics are now fetched over https (#2272)
+ * Twilio: "To" phone number is being stripped of any "+" sign (#2296)
 
 
 Version 7.0.0 released on 2017-04-19
