@@ -1235,6 +1235,7 @@ sub cluster {
     require pf::cluster;
     require pf::ConfigStore::Interface;
     require pfconfig::namespaces::config::Cluster;
+    require List::MoreUtils;
 
     unless($pf::cluster::cluster_enabled){
         return;
@@ -1246,8 +1247,12 @@ sub cluster {
 
     my $cluster_config = pfconfig::namespaces::config::Cluster->new;
     $cluster_config->build();
-    
+
     unshift @servers, $cluster_config->{_CLUSTER};
+
+    unless(List::MoreUtils::any { $_->{host} eq $pf::cluster::host_id} @servers) {
+        add_problem($FATAL, "current host ($pf::cluster::host_id) is missing from the cluster.conf file");
+    }
 
     # Check each member configuration
     foreach my $server (@servers){
