@@ -109,6 +109,13 @@ Don't forget to edit the `/usr/local/pf/conf/currently-at` file to match the new
 
   cat /usr/local/pf/conf/pf-release > /usr/local/pf/conf/currently-at
 
+Upgrading from a version prior to 7.1.0
+---------------------------------------
+
+The PacketFence Active Directory Domains integration now supports multiple DNS servers to be specified to find a DC. For this reason the parameter dns_server has been renamed to dns_servers in domain.conf. In order to automatically rename the parameters, run the following command:
+
+    sed -i.bak "s/^dns_server/dns_servers/g" /usr/local/pf/conf/domain.conf
+
 Upgrading from a version prior to 7.0.0
 ---------------------------------------
 
