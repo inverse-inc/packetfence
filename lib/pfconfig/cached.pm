@@ -48,10 +48,10 @@ Creates the object but shouldn't be used since it's made as an interface to use 
 =cut
 
 sub new {
-    my ($class, $namespace) = @_;
+    my ($class, @args) = @_;
     my $self = bless {}, $class;
 
-    $self->init($namespace);
+    $self->init(@args);
 
     return $self;
 }
