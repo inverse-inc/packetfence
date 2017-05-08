@@ -1,0 +1,52 @@
+[%# Welcome text %]
+<div class="layout--center">
+  <h2>[% i18n("Your Network Access Status") %]</h2>
+</div>
+
+[% IF txt_auth_error.defined %]
+<div class="media media--error u-p u-mb">
+  <div class="media__img">[% flashIcon(level='error') %]</div>
+  <p class="media__body">[% i18n(txt_auth_error) %]</p>
+</div>
+[% END %]
+
+<div class="media media--notice u-p u-mb">
+  <div class="media__img">[% flashIcon(level='notice') %]</div>
+  <p class="media__body">
+    [%- IF node.status == 'reg' %]
+    [%   i18n_format("Your device is registered to <strong>%s</strong>", node.pid) | none %]
+    [%- ELSE %]
+    [%   i18n("Your current device is not registered on our network.") %]
+    [%- END %]
+  </p>
+</div>
+[% IF nodes.size > 0 %]
+  <table class="table table--rows table--compact">
+    <caption>[% i18n("Your registered devices") %]</caption>
+    <thead>
+      <tr>
+        <th>[% i18n("MAC Address") %]</th>
+        <th class="hidden-popup">[% i18n("OS Type") %]</th>
+        <th class="hidden-popup">[% i18n("Registration Date") %]</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      [%- FOREACH n IN nodes %]
+      [% NEXT IF n.status != 'reg' %]
+      <tr>
+        <td>[% n.mac %]</td>
+        <td class="hidden-popup">[% n.dhcp_fingerprint %]</td>
+        <td class="hidden-popup">[% n.regdate IF n.regdate != '0000-00-00 00:00:00' %]</td>
+        <td style="text-align: right"><a href="/node/manager/unreg/[% n.mac %]" class="btn btn--small">[% i18n("Unregister") %]</a></td>
+      </tr>
+      [%- END %]
+    </tbody>
+  </table>
+[%- ELSE %]
+<div class="media media--notice u-p u-mb">
+  <div class="media__img">[% flashIcon(level='notice') %]</div>
+  <p class="media__body">[% i18n("You have no registered devices.") %]</p>
+</div>
+[% END %]
+

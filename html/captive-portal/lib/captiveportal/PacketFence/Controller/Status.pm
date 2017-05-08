@@ -114,6 +114,11 @@ sub login : Local {
     $c->forward('index');
 }
 
+sub devices : Local {
+    my ( $self, $c ) = @_;
+
+}
+
 sub logout : Local {
     my ( $self, $c ) = @_;
     $c->user_session({});
