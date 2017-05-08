@@ -37,6 +37,7 @@ use MIME::Lite;
 use Encode qw(encode);
 use pf::util;
 use pf::Connection::ProfileFactory;
+use pf::web::guest::constants;
 use pf::constants::Connection::Profile qw($DEFAULT_PROFILE);
 
 =head1 CONSTANTS
@@ -98,7 +99,6 @@ use pf::db;
 use pf::util;
 use pf::web::constants;
 # TODO this dependency is unfortunate, ideally it wouldn't be in that direction
-use pf::web::guest;
 use pf::log;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
