@@ -4747,7 +4747,7 @@ Wireless LAN Controller (WLC) or Wireless Services Module (WiSM)
 In this section, we cover the basic configuration of the WiSM for PacketFence using the web interface.
 
 * First, globally define the FreeRADIUS server running on PacketFence
-  (PacketFence's IP) and make sure _Support for RFC 3576_ is enabled (if not present it is enabled by default)
+  (PacketFence's IP) and make sure _Support for RFC 3576_ (also called _Support for CoA_) is enabled. When the option is missing from your WLC, it is enabled by default.
 
 image::docs/images/cisco-wlc-radius-define.png[scaledwidth="100%",alt="Freeradius server"]
 
