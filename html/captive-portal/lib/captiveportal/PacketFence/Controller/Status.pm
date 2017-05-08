@@ -46,7 +46,7 @@ sub index : Path : Args(0) {
         $c->forward('userIsNotAuthenticated');
     }
     $c->stash(
-        title => "State - Network Access",
+        title => "Status - Network Access",
         template => 'status.html',
         billing  => $c->profile->hasBilling(),
         access_registration_when_registered => $c->profile->canAccessRegistrationWhenRegistered(),

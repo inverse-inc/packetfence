@@ -173,6 +173,28 @@ $(document).ready(function() {
     </div>
   </div>
 </form>
+[% ELSIF has_local_account %]
+<div class="layout layout--center">
+  <div class="layout__item u-mt u-2/3 u-1/1-palm">
+    <a href="/devices" class="btn btn--full btn--light">
+      <div class="flag">
+        <div class="flag__img">[% svgIcon(id='ic_person_black_24px',size='small') %]</div>
+        <p class="flag__body">[% i18n("Change my password") %]</p>
+      </div>
+    </a>
+  </div>
+</div>
+[% ELSIF nodes.size > 0 %]
+<div class="layout layout--center">
+  <div class="layout__item u-mt u-2/3 u-1/1-palm">
+    <a href="/devices" class="btn btn--full btn--light">
+      <div class="flag">
+        <div class="flag__img">[% svgIcon(id='ic_devices_black_24px',size='small') %]</div>
+        <p class="flag__body">[% i18n("Manage my devices") %]</p>
+      </div>
+    </a>
+  </div>
+</div>
 [% ELSIF nodes.size > 0 %]
   <table class="table table--rows table--compact">
     <caption>[% i18n("Your registered devices") %]</caption>
