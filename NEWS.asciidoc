@@ -27,6 +27,7 @@ Enhancements
  * Allow to force a predefined sponsor during sponsor authentication (PR #2150)
  * Updated pfdns default filters (PR #2165)
  * Added brands icons to authentication source (i.e Twitter, PayPal etc ..) in the administration interface (PR #2287)
+ * Allow pfqueue workers to perform work across multiple queues (PR #2260)
 
 Bug Fixes
 +++++++++
