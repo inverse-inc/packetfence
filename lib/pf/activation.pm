@@ -147,6 +147,12 @@ sub activation_db_prepare {
         WHERE activation_code = ?
     ]);
 
+    $activation_statements->{'activation_view_by_code_mac_sql'} = get_db_handle()->prepare(qq[
+        SELECT code_id, pid, mac, contact_info, activation_code, expiration, status, type, portal, email_pattern as carrier_email_pattern, unregdate
+        FROM activation LEFT JOIN sms_carrier ON carrier_id=sms_carrier.id
+        WHERE activation_code = ? AND mac = ?
+    ]);
+
     $activation_statements->{'activation_add_sql'} = get_db_handle()->prepare(qq[
         INSERT INTO activation (pid, mac, contact_info, carrier_id, activation_code, expiration, status, type, portal)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -249,6 +255,22 @@ sub view_by_code {
         'activation_view_by_code_sql', $activation_code);
     my $ref = $query->fetchrow_hashref();
 
+    # just get one row and finish
+    $query->finish();
+    return ($ref);
+}
+
+=head2 view_by_code_mac
+
+view_by_code_mac
+
+=cut
+
+sub view_by_code_mac {
+    my ($code, $mac) = @_;
+    my $query = db_query_execute(ACTIVATION, $activation_statements,
+        'activation_view_by_code_mac_sql', $code, $mac);
+    my $ref = $query->fetchrow_hashref();
     # just get one row and finish
     $query->finish();
     return ($ref);
@@ -551,8 +573,10 @@ sub validate_code {
     }
 
     # At this point, code is validated: return the activation record
-    $logger->info(($activation_record->{mac}?"[$activation_record->{mac}]":"[unknown]") . " Activation code sent to email $activation_record->{contact_info} from $activation_record->{pid} successfully verified. "
-                . " for activation type: $activation_record->{type}");
+    $logger->info( "["
+          . ( $activation_record->{mac} ? $activation_record->{mac} : "unknown" )
+          . "] Activation code sent to email $activation_record->{contact_info} from $activation_record->{pid} successfully verified.  for activation type: $activation_record->{type}"
+    );
     return $activation_record;
 }
 
