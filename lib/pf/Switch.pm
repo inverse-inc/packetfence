@@ -3163,6 +3163,17 @@ sub cache {
    return pf::CHI->new( namespace => 'switch' );
 }
 
+=item cache_distributed
+
+Returns the distributed cache for the switch namespace
+
+=cut
+
+sub cache_distributed {
+    my ( $self ) = @_;
+    return pf::CHI->new( namespace => 'switch_distributed' );
+}
+
 =item returnAuthorizeWrite
 
 Return radius attributes to allow write access

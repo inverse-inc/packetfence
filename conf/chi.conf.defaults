@@ -117,6 +117,18 @@ reconnect=60
 # Amount of time from the current time to expire an entry
 expires_in=1d
 
+[namespace switch_distributed]
+#
+# namespace switch_distributed.storage
+#
+# The storage to use for the namespace
+storage=distributed
+#
+# namespace switch_distributed.expires_in
+#
+# Amount of time from the current time to expire an entry
+expires_in=10m
+
 [storage person_lookup]
 #
 # storage person_lookup.expires_in
