@@ -84,6 +84,7 @@ Readonly::Scalar our $HIGHER => 'higher';
 Readonly::Scalar our $HIGHER_OR_EQUALS => 'higher or equals';
 Readonly::Scalar our $IS_BEFORE => 'is before';
 Readonly::Scalar our $IS => 'is';
+Readonly::Scalar our $IN_TIME_PERIOD => 'in_time_period';
 Readonly::Scalar our $IS_NOT => 'is not';
 Readonly::Scalar our $IS_AFTER => 'is after';
 Readonly::Scalar our $IS_MEMBER => 'is member of';
@@ -98,6 +99,7 @@ Readonly::Scalar our $SUBSTRING => 'substring';
 Readonly::Scalar our $NUMBER => 'number';
 Readonly::Scalar our $DATE => 'date';
 Readonly::Scalar our $TIME => 'time';
+Readonly::Scalar our $TIME_PERIOD => 'time_period';
 Readonly::Scalar our $CONNECTION => 'connection';
 Readonly::Scalar our $LDAP_ATTRIBUTE => 'ldapattribute';
 
@@ -113,6 +115,7 @@ Readonly::Hash our %OPERATORS =>
    $NUMBER => [$LOWER, $LOWER_OR_EQUALS, $EQUALS, $HIGHER, $HIGHER_OR_EQUALS],
    $DATE => [$IS_BEFORE, $IS, $IS_AFTER],
    $TIME => [$IS_BEFORE, $IS_AFTER],
+   $TIME_PERIOD => [$IN_TIME_PERIOD],
    $CONNECTION => [$IS, $IS_NOT],
    $LDAP_ATTRIBUTE => [$STARTS, $EQUALS, $NOT_EQUALS, $CONTAINS, $ENDS, $MATCHES, $IS_MEMBER],
   );

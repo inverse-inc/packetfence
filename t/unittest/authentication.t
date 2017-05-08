@@ -14,7 +14,7 @@ autentication
 use strict;
 use warnings;
 
-use Test::More tests => 30;                      # last test to print
+use Test::More tests => 32;                      # last test to print
 
 use Test::NoWarnings;
 use diagnostics;
@@ -253,6 +253,23 @@ is(
     1,
     "match second rule htpasswd1 by username with action"
 );
+
+is(
+    pf::authentication::match(
+        "htpasswd1",
+        {
+            current_time_period => 1484846231,
+            rule_class          => 'administration',
+            username => 'in_time_period',
+        },
+        'set_access_level',
+        \$source_id_ref
+    ),
+    'Violation Manager',
+    "match time period condition ",
+);
+
+is($source_id_ref, 'htpasswd1', "Source id ref found");
 
 =head1 AUTHOR
 
