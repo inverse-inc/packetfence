@@ -11,14 +11,17 @@
         <a href="#" class="btn btn-primary btn-danger"><i class="icon-trash"></i> [% l('Delete') %]</a>
       </div>
     </div><!-- deleteItem -->
-
-<h2>[% l('Users Sources')  %]</h2>
+<div class="card">
+  <div class="card-title">
+    <h2>[% l('Authentication Sources') %] [% doc('_authentication') | none %]</h2>
+<p>[% l('Define the authentication sources to let users access the captive portal or the admin Web interface.') %]</p>
+<p>[% l('Each connection profile must be associated with one or multiple authentication sources while 802.1X connections use the ordered internal sources to determine which role to use. External sources are never used with 802.1X connections.') %]</p>
+  </div>
+  <div class="card-block">
 [% IF error %]<div class="alert alert-error">
   <button class="close" data-dismiss="alert">&times;</button>
   <strong>[% l('Error!') %]</strong> <span>[% error %]</span>
 </div>[% END %]
-<p>[% l('Define the authentication sources to let users access the captive portal or the admin Web interface.') %]</p>
-<p>[% l('Each portal profile must be associated with one or multiple authentication sources while 802.1X connections use the ordered internal sources to determine which role to use. External sources are never used with 802.1X connections.') %]</p>
 
 [% IF message %]<div class="alert alert-success">
   <button class="close" data-dismiss="alert">&times;</button>
@@ -27,6 +30,7 @@
 
       [% INCLUDE config/source/list.tt %]
 
+</div>
 [%- IF can_access("USERS_SOURCES_CREATE") %]
 <div class="form-actions">
   <div class="btn-group">
@@ -68,3 +72,4 @@
   </div>
 </div>
 [%- END %]
+</div>
