@@ -145,12 +145,14 @@ sub person : Local {
     } else {
         $c->forward('userIsNotAuthenticated');
     }
-    if ($pid->hasLocalAccount()) {
-        #has right to change PW
-    }
-    $c->stash(
-        title => "Status - Manage Account",
-        template => 'status/person.html',
+    if (person->has_local_account($pid)) {
+        $c->stash(
+            has_local_account => 1,
+            title => "Status - Manage Account",
+            template => 'status/person.html',
+        );
+    } else {
+        $c->forward('index');
     }
 } 
 
