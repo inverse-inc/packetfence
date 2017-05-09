@@ -28,7 +28,7 @@ var SourceView = function(options) {
     this.parent = options.parent;
     this.items = options.items;
     var changeRuleClass = $.proxy(this.changeRuleClass, this);
-    options.parent.on('change', 'form[name="modalSource"] select[name=$"class"]', changeRuleClass);
+    options.parent.on('change', 'form[name="modalSource"] select[name$="class"]', changeRuleClass);
 };
 
 SourceView.prototype = (function(){
