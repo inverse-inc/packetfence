@@ -2,16 +2,18 @@ package main
 
 import (
 	"encoding/binary"
+	"fmt"
 	"log"
-	"math/rand"
-	"net/http"
 
 	"bitbucket.org/oeufdure/pfconfigdriver"
+	"github.com/RoaringBitmap/roaring"
+	"github.com/davecgh/go-spew/spew"
 	dhcp "github.com/krolaw/dhcp4"
 
 	"context"
 	_ "expvar"
 	"net"
+	"net/http"
 	_ "net/http/pprof"
 	"strconv"
 	"time"
@@ -33,6 +35,8 @@ type DHCPHandler struct {
 	leaseRange    int           // Number of IPs to distribute (starting from start)
 	leaseDuration time.Duration // Lease period
 	leases        map[int]lease // Map to keep track of leases
+	hwcache       *Cache
+	available     *roaring.Bitmap // RoaringBitmap to keep trak of available ip
 	layer2        bool
 }
 
@@ -61,10 +65,14 @@ func newDHCPConfig() *Interfaces {
 
 func main() {
 
+	c := New(5*time.Minute, 10*time.Minute)
+	fmt.Printf("%T", c)
+
 	// Read pfconfig
 	DHCPConfig = newDHCPConfig()
 	DHCPConfig.readConfig()
 
+	// spew.Dump(DHCPConfig)
 	// Queue value
 	var (
 		maxQueueSize = 100
@@ -85,6 +93,7 @@ func main() {
 
 	for _, v := range DHCPConfig.intsNet {
 		v := v
+		// spew.Dump(v)
 		go func() {
 			v.run(jobs)
 		}()
@@ -114,7 +123,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 			break
 		}
 	}
-
+	// spew.Dump(handler.hwcache)
 	if len(handler.ip) == 0 {
 		return answer
 	}
@@ -123,23 +132,32 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 
 	case dhcp.Discover:
 		var nic uint32
-		// Need to be reworked to have a distributed ip range
+		var free int
+		nic = binary.BigEndian.Uint32(p.CHAddr())
+		spew.Dump(p.CHAddr())
+		spew.Dump(nic)
+		i := handler.available.Iterator()
 
-		free, nic := -1, binary.BigEndian.Uint32(p.CHAddr())
-		for i, v := range handler.leases { // Find previous lease
-			if v.nic == nic {
-				free = i
-				goto reply
-			}
+		// Search in the cache if the mac address already get assigned
+		if x, found := handler.hwcache.Get(nic); found {
+			free = x.(int)
+			handler.hwcache.Set(nic, free, handler.hwcache.defaultExpiration)
+			goto reply
 		}
-		if free = handler.freeLease(); free == -1 {
+
+		// Search for the next available ip in the pool
+		if i.HasNext() {
+			element := i.Next()
+			free = int(element)
+			handler.available.Remove(element)
+			handler.hwcache.Set(nic, free, handler.hwcache.defaultExpiration)
+		} else {
 			return answer
 		}
 
 	reply:
 		answer.IP = dhcp.IPAdd(handler.start, free)
 		answer.Iface = h.intNet
-
 		answer.D = dhcp.ReplyPacket(p, dhcp.Offer, handler.ip, answer.IP, handler.leaseDuration,
 			handler.options.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
 		return answer
@@ -154,12 +172,10 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 		}
 		answer.IP = reqIP
 		answer.Iface = h.intNet
-
+		nic := binary.BigEndian.Uint32(p.CHAddr())
 		if len(reqIP) == 4 && !reqIP.Equal(net.IPv4zero) {
 			if leaseNum := dhcp.IPRange(handler.start, reqIP) - 1; leaseNum >= 0 && leaseNum < handler.leaseRange {
-				if l, exists := handler.leases[leaseNum]; !exists || l.nic == binary.BigEndian.Uint32(p.CHAddr()) {
-
-					handler.leases[leaseNum] = lease{nic: binary.BigEndian.Uint32(p.CHAddr()), expiry: time.Now().Add(handler.leaseDuration)}
+				if _, found := handler.hwcache.Get(nic); found {
 					answer.D = dhcp.ReplyPacket(p, dhcp.ACK, handler.ip, reqIP, handler.leaseDuration,
 						handler.options.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
 					return answer
@@ -170,32 +186,15 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 
 	case dhcp.Release, dhcp.Decline:
 		nic := binary.BigEndian.Uint32(p.CHAddr())
-		for i, v := range handler.leases {
-			if v.nic == nic {
-				delete(handler.leases, i)
-				break
-			}
+		if x, found := handler.hwcache.Get(nic); found {
+			handler.available.Add(uint32(x.(int)))
+			handler.hwcache.Delete(nic)
 		}
 	}
-
 	return answer
 }
 
-func (h *DHCPHandler) freeLease() int {
-	now := time.Now()
-	b := rand.Intn(h.leaseRange) // Try random first
-	for _, v := range [][]int{[]int{b, h.leaseRange}, []int{0, b}} {
-		for i := v[0]; i < v[1]; i++ {
-			if l, ok := h.leases[i]; !ok || l.expiry.Before(now) {
-				return i
-			}
-		}
-	}
-	return -1
-}
-
 func (d *Interfaces) readConfig() {
-	// var ethIfs Interfaces
 
 	var interfaces pfconfigdriver.ListenInts
 	pfconfigdriver.FetchDecodeSocketStruct(ctx, &interfaces)
@@ -246,7 +245,22 @@ func (d *Interfaces) readConfig() {
 					seconds, _ := strconv.Atoi(ConfNet.DhcpDefaultLeaseTime)
 					DHCPScope.leaseDuration = time.Duration(seconds) * time.Second
 					DHCPScope.leaseRange = dhcp.IPRange(net.ParseIP(ConfNet.DhcpStart), net.ParseIP(ConfNet.DhcpEnd))
+
+					// Initialize roaring bitmap
+					available := roaring.New()
+					available.AddRange(0, uint64(dhcp.IPRange(net.ParseIP(ConfNet.DhcpStart), net.ParseIP(ConfNet.DhcpEnd))))
+					DHCPScope.available = available
+
 					DHCPScope.leases = make(map[int]lease, 10)
+
+					// Initialize hardware cache
+					hwcache := New(time.Duration(seconds)*time.Second, (time.Duration(seconds)*time.Second)+10*time.Duration(seconds))
+
+					hwcache.OnEvicted(func(nic uint32, pool interface{}) {
+						DHCPScope.available.Add(uint32(pool.(int)))
+					})
+
+					DHCPScope.hwcache = hwcache
 					var options = make(map[dhcp.OptionCode][]byte)
 
 					options[dhcp.OptionSubnetMask] = []byte(net.ParseIP(ConfNet.Netmask).To4())
