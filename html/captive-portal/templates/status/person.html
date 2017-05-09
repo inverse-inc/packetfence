@@ -1,0 +1,52 @@
+[%# Welcome text %]
+<div class="layout--center">
+  <h2>[% i18n("Your Network Access Status") %]</h2>
+</div>
+
+[% IF txt_auth_error.defined %]
+<div class="media media--error u-p u-mb">
+  <div class="media__img">[% flashIcon(level='error') %]</div>
+  <p class="media__body">[% i18n(txt_auth_error) %]</p>
+</div>
+[% END %]
+
+<form name="reset_pw" method="post" action="/status/reset_pw">
+  <div class="layout layout--center">
+    <div class="layout__item u-mt u-2/3 u-1/1-palm">
+        <div class="input-container">
+        <label for="password">[% i18n("Password") %]</label>
+          <input class="field" name="password" id="password" type="password" />
+        <label for="password">[% i18n("Confirm your password") %]</label>
+          <input class="field" name="password2" id="password2" type="password" />
+        <button type="submit" name="submit" class="btn btn--full btn--accent u-mt">
+          <div class="flag">
+            <div class="flag__img">[% svgIcon(id='ic_done_black_24px',size='small') %]</div>
+            <p class="flag__body layout--left">[% i18n("Change your password") %]</p>
+          </div>
+        </button>
+    </div>
+  </div>
+
+[% IF error = 1 %]
+<div class="media media--error u-p u-mb">
+  <div class="media__img">[% flashIcon(level='error') %]</div>
+  <p class="media__body">[% i18n("The passwords you type do not match") %]</p>
+</div>
+[% ELSIF error = 2 %]
+<div class="media media--error u-p u-mb">
+  <div class="media__img">[% flashIcon(level='error') %]</div>
+  <p class="media__body">[% i18n("A password field has not been fill") %]</p>
+</div>
+[% END %]
+
+  <div class="layout layout--center">
+    <div class="layout__item u-mt u-2/3 u-1/1-palm">
+      <a href="/status" class="btn btn--full btn--light">
+        <div class="flag">
+          <div class="flag__img">[% svgIcon(id='ic_more_horiz_black_24px',size='small') %]</div>
+          <p class="flag__body">[% i18n("Access home menu") %]</p>
+        </div>
+      </a>
+    </div>
+  </div>
+</form>

@@ -44,6 +44,7 @@ BEGIN {
         person_custom_search
         person_cleanup
         persons_without_nodes
+        person_has_local_account
         $PID_RE
     );
 }
@@ -448,13 +449,13 @@ sub person_cleanup {
     }
 }
 
-=head2 has_local_account
+=head2 person_has_local_account
 
 Query the DB to see if the pid is a local account
 
 =cut
 
-sub has_local_account {
+sub person_has_local_account {
     my ($pid) = @_;
 
     return db_data(PERSON, $person_statements, 'person_local_account', $pid);

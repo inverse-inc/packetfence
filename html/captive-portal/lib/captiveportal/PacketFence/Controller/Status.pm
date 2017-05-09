@@ -45,6 +45,9 @@ sub index : Path : Args(0) {
     } else {
         $c->forward('userIsNotAuthenticated');
     }
+    if (person_has_local_account($pid)) {
+        $c->stash->{hasLocalAccount} = 1;
+    }
     $c->stash(
         title => "Status - Network Access",
         template => 'status.html',
@@ -145,16 +148,27 @@ sub person : Local {
     } else {
         $c->forward('userIsNotAuthenticated');
     }
-    if (person->has_local_account($pid)) {
-        $c->stash(
-            has_local_account => 1,
-            title => "Status - Manage Account",
-            template => 'status/person.html',
-        );
-    } else {
-        $c->forward('index');
-    }
+    $c->stash(
+        title => "Status - Manage Account",
+        template => 'status/person.html',
+    );
 } 
+
+sub reset_pw : Local {
+    my ( $self, $c ) =@_;
+    my $pid     = $c->user_session->{"username"};
+    my $request = $c->request;
+    my $password = $request->param('password');
+    my $password2 = $request->param('password2');
+    if ( all_defined ( $password, $password2 ) && ( $password = $password2 ) {
+        pf::password::reset_password($pid, $password)
+    } elsif ( $password != $password2 ) {
+        $c->stash->{error} = 1;
+    } else {
+        $c->stash->{error} = 2;
+    }
+}
+
 
 sub logout : Local {
     my ( $self, $c ) = @_;
