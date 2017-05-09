@@ -15,8 +15,6 @@ use pf::Authentication::Source::HtpasswdSource;
 extends 'pfappserver::Form::Config::Source';
 with 'pfappserver::Base::Form::Role::Help';
 
-has '+source_type' => (default => 'pf::Authentication::Source::HtpasswdSource');
-
 # Form fields
 has_field 'path' =>
   (
@@ -38,7 +36,7 @@ has_field 'stripped_user_name' =>
 
 has_block  definition =>
   (
-    render_list => [qw(description path stripped_user_name rules)],
+    render_list => [qw(path stripped_user_name)],
   );
 
 
