@@ -9,16 +9,23 @@ pf::cmd::pf::cache add documentation
 
 Namespaces:
 
+  accounting
   clustering
-  configfilesdata
   configfiles
+  configfilesdata
+  fingerbank
+  firewall_sso
   httpd.admin
   httpd.portal
+  ldap_auth
+  metadefender
+  omapi
   person_lookup
   pfdns
+  provisioning
   route_int
-  switch.overlay
   switch
+  switch.overlay
 
 Options:
 
