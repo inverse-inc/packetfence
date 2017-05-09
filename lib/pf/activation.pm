@@ -376,6 +376,7 @@ sub create {
         'carrier_id' => $provider_id,
         'code_length' => $code_length,
         'no_unique' => $no_unique,
+        'style'    => $args->{style},
     );
 
     # caculate activation code expiration
@@ -411,17 +412,20 @@ sub _generate_activation_code {
     my $code_length = $data{'code_length'} // 0;
     my $no_unique = $data{'no_unique'};
     my $type = $data{'type'};
+    my $style = $data{'style'} // 'md5';
     do {
         # generating something not so easy to guess (and hopefully not in rainbowtables)
-        my $hash = md5_hex(
-            join("|",
-                time + int(rand(10)),
-                grep {defined $_} @data{qw(expiration mac pid contact_info)})
-        );
-        if ($code_length > 0) {
-            $code = substr($hash, 0, $code_length);
+        if ($style eq 'digits') {
+            $code = int(rand(9999999999)) + 1;
         } else {
-            $code = $hash;
+            $code = md5_hex(
+                join("|",
+                    time + int(rand(10)),
+                    grep {defined $_} @data{qw(expiration mac pid contact_info)})
+            );
+        }
+        if ($code_length > 0) {
+            $code = substr($code, 0, $code_length);
         }
         # make sure the generated code is unique
         $code = undef if (!$no_unique && view_by_code($type, $code));
@@ -659,6 +663,7 @@ sub sms_activation_create_send {
         provider_id => $provider_id,
         code_length => $authentication_source->pin_code_length,
         no_unique   => 1,
+        style       => 'digits',
     );
 
     my $activation_code = create(\%args);
