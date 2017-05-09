@@ -766,7 +766,7 @@ sub getVlanByName {
         # VLAN name doesn't exist
         $pf::StatsD::statsd->increment(called() . ".error" );
         $logger->warn("No parameter ${vlanName}Vlan found in conf/switches.conf for the switch " . $self->{_id});
-        return;
+        return undef;
     }
 
     if ($vlanName eq "inline" && length($self->{'_vlans'}->{$vlanName}) == 0) {
