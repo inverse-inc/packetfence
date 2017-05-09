@@ -132,7 +132,7 @@ sub activation_db_prepare {
     $activation_statements->{'activation_find_unverified_code_type_mac_sql'} = get_db_handle()->prepare(qq[
         SELECT code_id, pid, mac, contact_info, activation_code, expiration, status, type, portal, email_pattern as carrier_email_pattern, unregdate
         FROM activation LEFT JOIN sms_carrier ON carrier_id=sms_carrier.id
-        WHERE mac = ? AND type = ? activation_code = ? AND status = ? AND expiration >= NOW()
+        WHERE mac = ? AND type = ? AND activation_code = ? AND status = ? AND expiration >= NOW()
     ]);
 
     $activation_statements->{'activation_view_by_code_sql'} = get_db_handle()->prepare(qq[
