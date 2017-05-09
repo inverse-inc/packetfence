@@ -6,6 +6,8 @@ import (
 	"os"
 	"syscall"
 
+	"github.com/davecgh/go-spew/spew"
+
 	"golang.org/x/net/ipv4"
 )
 
@@ -53,7 +55,6 @@ func ServeIf(ifIndex int, p *ipv4.PacketConn, handler Handler, jobs chan job) er
 // Serve with handler to handle requests on incoming packets.
 // i.e. ListenAndServeIf("eth0",handler)
 func ListenAndServeIf(interfaceName string, handler Handler, jobs chan job) error {
-	// spew.Dump(handler)
 	iface, err := net.InterfaceByName(interfaceName)
 	if err != nil {
 		return err
@@ -64,6 +65,7 @@ func ListenAndServeIf(interfaceName string, handler Handler, jobs chan job) erro
 		return err
 	}
 	defer p.Close()
+	spew.Dump(p)
 	return ServeIf(iface.Index, p, handler, jobs)
 }
 
@@ -73,6 +75,10 @@ func broadcastOpen(bindAddr net.IP, port int, ifname string) (*ipv4.PacketConn, 
 		log.Fatal(err)
 	}
 	if err = syscall.SetsockoptInt(s, syscall.SOL_SOCKET, syscall.SO_REUSEADDR, 1); err != nil {
+		log.Fatal(err)
+	}
+
+	if err = syscall.SetsockoptInt(s, syscall.SOL_SOCKET, syscall.SO_BROADCAST, 1); err != nil {
 		log.Fatal(err)
 	}
 	//syscall.SetsockoptInt(s, syscall.SOL_SOCKET, syscall.SO_REUSEPORT, 1)

@@ -42,7 +42,9 @@ type ServeConn interface {
 func Serve(conn ServeConn, handler Handler, jobs chan job) error {
 
 	buffer := make([]byte, 1500)
+
 	for {
+
 		n, addr, err := conn.ReadFrom(buffer)
 
 		if err != nil {

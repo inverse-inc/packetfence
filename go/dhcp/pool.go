@@ -2,6 +2,7 @@ package main
 
 import (
 	_ "expvar"
+	"fmt"
 	"net"
 	_ "net/http/pprof"
 
@@ -18,7 +19,7 @@ type job struct {
 
 func doWork(id int, jobe job) {
 	var ans Answer
-	// fmt.Printf("worker%d: started %s\n", id, jobe.name)
+	fmt.Printf("worker%d: started %s\n", id, jobe.msgType)
 	if ans = jobe.handler.ServeDHCP(jobe.p, jobe.msgType, jobe.options); ans.D != nil {
 		// spew.Dump(jobe.options)
 		ipStr, _, _ := net.SplitHostPort(jobe.addr.String())
