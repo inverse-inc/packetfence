@@ -1,8 +1,6 @@
 package main
 
 import (
-	"encoding/binary"
-	"fmt"
 	"log"
 
 	"context"
@@ -15,7 +13,6 @@ import (
 
 	"bitbucket.org/oeufdure/pfconfigdriver"
 	"github.com/RoaringBitmap/roaring"
-	"github.com/davecgh/go-spew/spew"
 	dhcp "github.com/krolaw/dhcp4"
 	"github.com/patrickmn/go-cache"
 )
@@ -24,21 +21,15 @@ var DHCPConfig *Interfaces
 
 var ctx = context.Background()
 
-type lease struct {
-	nic    uint32    // Client's CHAddr
-	expiry time.Time // When the lease expires
-}
-
 type DHCPHandler struct {
 	ip            net.IP        // Server IP to use
 	options       dhcp.Options  // Options to send to DHCP Clients
 	start         net.IP        // Start of IP range to distribute
 	leaseRange    int           // Number of IPs to distribute (starting from start)
 	leaseDuration time.Duration // Lease period
-	// leases        map[int]lease // Map to keep track of leases
-	hwcache   *cache.Cache
-	available *roaring.Bitmap // RoaringBitmap to keep trak of available ip
-	layer2    bool
+	hwcache       *cache.Cache
+	available     *roaring.Bitmap // RoaringBitmap to keep trak of available ip
+	layer2        bool
 }
 
 type Interfaces struct {
@@ -66,14 +57,10 @@ func newDHCPConfig() *Interfaces {
 
 func main() {
 
-	c := cache.New(5*time.Minute, 10*time.Minute)
-	fmt.Printf("%T", c)
-
 	// Read pfconfig
 	DHCPConfig = newDHCPConfig()
 	DHCPConfig.readConfig()
 
-	// spew.Dump(DHCPConfig)
 	// Queue value
 	var (
 		maxQueueSize = 100
@@ -94,7 +81,6 @@ func main() {
 
 	for _, v := range DHCPConfig.intsNet {
 		v := v
-		// spew.Dump(v)
 		go func() {
 			v.run(jobs)
 		}()
@@ -113,7 +99,6 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 	answer.SrcIP = h.Ipv4
 
 	// Detect the handler to use (config)
-	// if p.GIAddr().Equal(net.IPv4zero) {
 	for _, v := range h.network {
 		if v.dhcpHandler.layer2 && p.GIAddr().Equal(net.IPv4zero) {
 			handler = v.dhcpHandler
@@ -124,7 +109,6 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 			break
 		}
 	}
-	// spew.Dump(handler.hwcache)
 	if len(handler.ip) == 0 {
 		return answer
 	}
@@ -132,15 +116,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 	switch msgType {
 
 	case dhcp.Discover:
-		var nic uint32
-		// var noc uint64
 		var free int
-		fmt.Printf("%T", p.CHAddr())
-		nic = binary.BigEndian.Uint32(p.CHAddr())
-		// noc = binary.BigEndian.Uint64(p.CHAddr())
-		spew.Dump(p.CHAddr())
-
-		spew.Dump(nic)
 		i := handler.available.Iterator()
 
 		// Search in the cache if the mac address already get assigned
@@ -256,8 +232,6 @@ func (d *Interfaces) readConfig() {
 					available := roaring.New()
 					available.AddRange(0, uint64(dhcp.IPRange(net.ParseIP(ConfNet.DhcpStart), net.ParseIP(ConfNet.DhcpEnd))))
 					DHCPScope.available = available
-
-					// DHCPScope.leases = make(map[int]lease, 10)
 
 					// Initialize hardware cache
 					hwcache := cache.New(time.Duration(seconds)*time.Second, (time.Duration(seconds)*time.Second)+10*time.Duration(seconds))
