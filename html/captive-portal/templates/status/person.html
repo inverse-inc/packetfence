@@ -10,7 +10,7 @@
 </div>
 [% END %]
 
-[% IF status %]
+[% UNLESS ShowLogin %]
 <form name="reset_pw" method="post" action="/status/reset_pw">
   <div class="layout layout--center">
     <div class="layout__item u-mt u-2/3 u-1/1-palm">
@@ -28,8 +28,9 @@
     </div>
   </div>
 </form>
-[% ELSIF status == success %]
-<div class="media media--error u-p u-mb">
+[% END %]
+[% IF status == success %]
+<div class="media media--notice u-p u-mb">
   <div class="media__img">[% flashIcon(level='notice') %]</div>
   <p class="media__body">[% i18n("Your password have been updated") %]</p>
 </div>

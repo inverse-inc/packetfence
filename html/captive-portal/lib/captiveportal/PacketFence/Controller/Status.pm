@@ -151,7 +151,7 @@ sub person : Local {
     $c->stash(
         title => "Status - Manage Account",
         template => 'status/person.html',
-        status => 1,
+        status => 'ok',
     );
 } 
 
@@ -169,7 +169,7 @@ sub reset_pw : Local {
     } else {
         $c->stash->{status} = "error_fill";
     }
-    $c->stash->{template} = 'status/person.html',
+    $c->stash->{template} = 'status/person.html';
 }
 
 
