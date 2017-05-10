@@ -2870,8 +2870,8 @@ Now you will need to restart the pfqueue and the pfdetect services.
 
 Make sure that you have your pipe file otherwise the process won't start.
 
-StreamScan example:
--------------------
+StreamScan CDS example:
+-----------------------
 
 This is an example to raise a violation from a syslog alert on a StreamScan alert ID.
 
@@ -2886,14 +2886,14 @@ Here is the configuration of the syslog regex parser:
 
     Detector *: StreamScan
     Enabled: checked
-    Alert pipe: /usr/local/pf/var/streamscan (To create the fifo file, do: mkfifo /usr/local/pf/var/streamscan)
+    Alert pipe: /usr/local/pf/var/cds (To create the fifo file, do: mkfifo /usr/local/pf/var/cds)
 
     Rules:
     
     Rule - New:
     
-    Name *: SSH Alert
-    Regex *: CDS\[(?<cds_id>\d+)\].*device=(?<device_ip>\d+(\.\d+){3}) threat="(?<threat>.*?)" direction=(?<direction>[^ ]+) sourceip=(?<sourceip>\d+(\.\d+){3}) sourceport=(?<sourceport>\d+) destip=(?<ip>\d+(\.\d+){3}) destport=(?<destport>\d+) app=(?<app>[^ ]*) timestamp=(?<timestamp>[^ ]*) sid=(?<sid>\d+)
+    Name *: ET TROJAN
+    Regex *:  CDS\[(?<cds_id>\d+)\].*?type=(?<type>[^ ]*).*?threat="(?<threat>.*?)" direction=(?<direction>[^ ]+) sourceip=(?<sourceip>\d+(\.\d+){3}) sourceport=(?<sourceport>\d+) destip=(?<ip>\d+(\.\d+){3}) destport=(?<destport>\d+) app=(?<app>[^ ]*) timestamp=(?<timestamp>[^ ]*) sid=(?<sid>\d+)
     Action: trigger_violation mac, $mac, tid, $sid, type, detect
     Last if match: unchecked
     IP to MAC: checked
@@ -2902,14 +2902,14 @@ Save the regex rule.
 
 You can directly test your rule. In the previous example the parser expect a syslog string like this:
 
-    Apr  6 10:16:18 ubuntu CDS[83162]:type=violation device=172.20.20.193 threat="ssh trafic detected" direction=inbound sourceip=172.145.25.10 sourceport=22 destip=172.145.25.10 destport=42290 app=ssh timestamp=2017-04-06_10-16-18.965687 sid=1234
+    Apr 24 16:50:41 ubuntu CDS[13423]: type=alert threat="ET TROJAN Likely Zbot Generic Post to gate.php no accept headers" direction=outgoing sourceip=192.168.254.194 sourceport=53252 destip=5.175.143.42 destport=80 app=HTTP timestamp=2017-04-24_16-50-41.832096 sid=2022985
 
 In order to have a correct match in the rule, you will need to have a valid iplog entry in the database. Put the string in the test box and then click on the 'RUN TEST' button, you should get:
 
     Results
 
-    Click to see actions for - Apr 6 10:16:18 ubuntu CDS[83162]:type=violation device=172.20.20.193 threat="ssh trafic detected" direction=inbound sourceip=172.145.25.10 sourceport=22 destip=172.145.25.10 destport=42290 app=ssh timestamp=2017-04-06_10-16-18.965687 sid=1234
-    - violation : trigger_violation('mac', '00:11:22:33:44:55', 'tid', '1234', 'type', 'detect')
+    Click to see actions for - Apr 24 16:50:41 ubuntu CDS[13423]: type=alert threat="ET TROJAN Likely Zbot Generic Post to gate.php no accept headers" direction=outgoing sourceip=192.168.254.194 sourceport=53252 destip=5.175.143.42 destport=80 app=HTTP timestamp=2017-04-24_16-50-41.832096 sid=2022985
+    - violation : trigger_violation('mac', '00:11:22:33:44:55', 'tid', '2022985', 'type', 'detect')
 
 We can see that PacketFence will execute the violation on the MAC address 00:11:22:33:44:55.
 
@@ -2921,8 +2921,8 @@ Now you will need to create the violation with the trigger id '2000340' in order
 Definition:
 
     Enabled: ON
-    Identifier: 1234
-    Description: Illegal SSH traffic
+    Identifier: 2022985
+    Description: ET Trojan
     Action: Reevaluate Access Action; Log message
     Priority: 1
 
@@ -2930,7 +2930,7 @@ Triggers:
 
 * Click on the + button
 * Look for 'detect' in the dropdown list
-* Add the trigger ID: 2000340 and click the ADD button
+* Add the trigger ID: 2022985 and click the ADD button
 * Click on the '<' button next to 'Select Some Options'
 
 Remediation:
@@ -2949,6 +2949,30 @@ Now you will need to restart the pfqueue and the pfdetect services.
     /usr/local/pf/bin/pfcmd service pfdetect restart 
 
 Make sure that you have your pipe file otherwise the process won't start.
+
+Rsyslog configuration
+---------------------
+
+You will need to create a rsyslog configuration to forward all the syslog messages sent by StreamScan to the pipe file /usr/local/pf/var/cds
+
+First you need to enable the syslog under the rsyslog configuration file located at /etc/rsyslog.conf, uncomment the two parameters:
+
+    # Provides UDP syslog reception
+    $ModLoad imudp
+    $UDPServerRun 514
+
+Then create the forwarding configuration:
+
+    vim /etc/rsyslog.d/cds.conf
+
+Put the follow configuration in it where the IP 1.2.3.4 is your syslog source server:
+
+    if ($fromhost-ip=='172.20.20.181') then /usr/local/pf/var/cds
+    &~
+
+Restart rsyslog to apply the configuration
+
+    service rsyslog restart
 
 
 Optional components
