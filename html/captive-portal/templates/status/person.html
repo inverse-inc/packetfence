@@ -1,15 +1,3 @@
-[%# Welcome text %]
-<div class="layout--center">
-  <h2>[% i18n("Your Network Access Status") %]</h2>
-</div>
-
-[% IF txt_auth_error.defined %]
-<div class="media media--error u-p u-mb">
-  <div class="media__img">[% flashIcon(level='error') %]</div>
-  <p class="media__body">[% i18n(txt_auth_error) %]</p>
-</div>
-[% END %]
-
 [% IF status == "success" %]
 <div class="media media--notice u-p u-mb">
   <div class="media__img">[% flashIcon(level='notice') %]</div>
@@ -38,22 +26,23 @@
           <input class="field" name="password2" id="password2" type="password" />
         <button type="submit" name="submit" class="btn btn--full btn--accent u-mt">
           <div class="flag">
-            <div class="flag__img">[% svgIcon(id='ic_done_black_24px',size='small') %]</div>
+            <div class="flag__img">[% svgIcon(id='ic_lock_black_24px',size='small') %]</div>
             <p class="flag__body layout--left">[% i18n("Change your password") %]</p>
           </div>
         </button>
+        </div>
     </div>
   </div>
 </form>
 [% END %]
 
-  <div class="layout layout--center">
-    <div class="layout__item u-mt u-2/3 u-1/1-palm">
-      <a href="/status" class="btn btn--full btn--light">
-        <div class="flag">
-          <div class="flag__img">[% svgIcon(id='ic_home_black_24px',size='small') %]</div>
-          <p class="flag__body">[% i18n("Access main menu") %]</p>
-        </div>
-      </a>
-    </div>
+<div class="layout layout--center">
+  <div class="layout__item u-mt u-2/3 u-1/1-palm">
+    <a href="/status" class="btn btn--full btn--light">
+      <div class="flag">
+        <div class="flag__img">[% svgIcon(id='ic_home_black_24px',size='small') %]</div>
+        <p class="flag__body">[% i18n("Access main menu") %]</p>
+      </div>
+    </a>
   </div>
+</div>
