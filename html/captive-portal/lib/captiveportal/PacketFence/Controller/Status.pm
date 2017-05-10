@@ -151,7 +151,6 @@ sub person : Local {
     $c->stash(
         title => "Status - Manage Account",
         template => 'status/person.html',
-        status => 'ok',
     );
 } 
 
@@ -164,7 +163,7 @@ sub reset_pw : Local {
     if ( all_defined ( $password, $password2 ) && ( $password eq $password2 ) ) {
         pf::password::reset_password($pid, $password);
         $c->stash->{status} = "success";
-    } elsif ( $password != $password2 ) {
+    } elsif ( $password ne $password2 ) {
         $c->stash->{status} = "error_match";
     } else {
         $c->stash->{status} = "error_fill";

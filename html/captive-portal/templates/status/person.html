@@ -10,6 +10,23 @@
 </div>
 [% END %]
 
+[% IF status == "success" %]
+<div class="media media--notice u-p u-mb">
+  <div class="media__img">[% flashIcon(level='notice') %]</div>
+  <p class="media__body">[% i18n("Your password have been updated") %]</p>
+</div>
+[% ELSIF status == "error_match" %]
+<div class="media media--error u-p u-mb">
+  <div class="media__img">[% flashIcon(level='error') %]</div>
+  <p class="media__body">[% i18n("The passwords you type do not match") %]</p>
+</div>
+[% ELSIF status == "error_fill" %]
+<div class="media media--error u-p u-mb">
+  <div class="media__img">[% flashIcon(level='error') %]</div>
+  <p class="media__body">[% i18n("A password field has not been fill") %]</p>
+</div>
+[% END %]
+
 [% UNLESS ShowLogin %]
 <form name="reset_pw" method="post" action="/status/reset_pw">
   <div class="layout layout--center">
@@ -28,22 +45,6 @@
     </div>
   </div>
 </form>
-[% END %]
-[% IF status == success %]
-<div class="media media--notice u-p u-mb">
-  <div class="media__img">[% flashIcon(level='notice') %]</div>
-  <p class="media__body">[% i18n("Your password have been updated") %]</p>
-</div>
-[% ELSIF status == error_match %]
-<div class="media media--error u-p u-mb">
-  <div class="media__img">[% flashIcon(level='error') %]</div>
-  <p class="media__body">[% i18n("The passwords you type do not match") %]</p>
-</div>
-[% ELSIF status == error_fill %]
-<div class="media media--error u-p u-mb">
-  <div class="media__img">[% flashIcon(level='error') %]</div>
-  <p class="media__body">[% i18n("A password field has not been fill") %]</p>
-</div>
 [% END %]
 
   <div class="layout layout--center">
