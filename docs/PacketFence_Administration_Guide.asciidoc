@@ -1239,8 +1239,8 @@ Restart the radiusd service in order to apply the change.
 
 CAUTION: You will need to disable password hashing in the database for local authentication to work. In the administration interface, go in 'Configuration -> System Configuration -> Main Configuration ->Advanced' and set 'Database passwords hashing method' to `plaintext` or `ntlm`. Don't use `bcrypt`.
 
-Option 6: Limit brute force EAP authentication
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Limit brute force EAP authentication
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This section will allow you to limit a brute force attack and prevent the locking of Active Directory accounts.
 
