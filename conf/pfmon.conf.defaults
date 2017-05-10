@@ -541,3 +541,30 @@ batch=1000
 #
 # How long a violation_maintenance job can run
 timeout=10s
+
+[switch_cache_lldpLocalPort_description]
+#
+# type
+#
+# The type of task to perform
+type=switch_cache_lldpLocalPort_description
+#
+# description
+#
+# The description of task to perform
+description=Cache switches LLDP local port descriptions
+#
+# status
+#
+# If the task auth_log_cleanup is enabled
+status=enabled
+#
+# interval
+#
+# At which interval to run the auth log cleanup pfmon task
+interval=1m
+#
+# process_switchranges
+#
+# Whether or not a switch range should be expanded to process each of its IPs
+process_switchranges=disabled
