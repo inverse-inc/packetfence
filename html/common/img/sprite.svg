@@ -115,6 +115,10 @@
     <path d="M0 0h24v24H0z" fill="none"/>
     <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
   </svg></symbol>
+  <symbol id='ic_home_black_24px' viewBox='0 0 24 24'><svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+    <path d="M0 0h24v24H0z" fill="none"/>
+  </svg></symbol>
   <symbol id='instagram-icon' viewBox='0 0 256 256'>
   <svg width="256px" height="256px" viewBox="0 0 256 256" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="xMidYMid">
     <g>
