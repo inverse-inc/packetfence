@@ -2870,7 +2870,7 @@ Here is the configuration of the syslog regex parser:
 
     Detector *: StreamScan
     Enabled: checked
-    Alert pipe: /usr/local/pf/var/cds (To create the fifo file, do: mkfifo /usr/local/pf/var/cds)
+    Alert pipe: /usr/local/pf/var/cds
 
     Rules:
     
@@ -2938,6 +2938,8 @@ Rsyslog configuration
 ---------------------
 
 You will need to create a rsyslog configuration to forward all the syslog messages sent by StreamScan to the pipe file /usr/local/pf/var/cds
+
+    mkfifo /usr/local/pf/var/cds
 
 First you need to enable the syslog under the rsyslog configuration file located at /etc/rsyslog.conf, uncomment the two parameters:
 
