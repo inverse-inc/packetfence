@@ -17,11 +17,11 @@ use pf::constants qw($TRUE $FALSE);
 
 use Moose;
 extends 'pf::Authentication::Source';
-with 'pf::Authentication::CreateLocalAccountRole';
+with qw(pf::Authentication::CreateLocalAccountRole pf::Authentication::SMSRole);
 
-has '+class'        => (default => 'external');
-has '+type'         => (default => 'SMS');
-has 'sms_carriers'  => (isa => 'ArrayRef', is => 'rw', default => sub {[]});
+has '+class'          => (default => 'external');
+has '+type'           => (default => 'SMS');
+has 'sms_carriers'    => (isa => 'ArrayRef', is => 'rw', default => sub {[]});
 
 =head1 METHODS
 
@@ -103,22 +103,6 @@ List of mandatory fields for this source
 
 sub mandatoryFields {
     return qw(telephone mobileprovider);
-}
-
-=head2 sendActivationSMS
-
-Send the Activation SMS
-
-=cut
-
-sub sendActivationSMS {
-    my ( $self, $activation_code ) = @_;
-
-    my ($hash_version, $pin) = pf::activation::_unpack_activation_code($activation_code);
-    my $activation = pf::activation::view_by_code($activation_code);
-    my $phone_number = $activation->{'contact_info'};
-
-    return $self->sendSMS({to=> $phone_number, message => "PIN: $pin", activation => $activation});
 }
 
 =head2 sendSMS

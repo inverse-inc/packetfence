@@ -124,8 +124,8 @@ sub ACCEPT_CONTEXT {
             'in_uri_portal' => 1,
         };
     } elsif ( $c->action && $c->controller->isa('captiveportal::Controller::Activate::Email') && $c->action->name eq 'code' ) {
-        my $code = $c->request->arguments->[0];
-        my $data = view_by_code("1:".$code);
+        my ($type, $code) = @{$c->request->arguments}[0,1];
+        my $data = view_by_code($type, $code);
         $options = {
             'portal' => $data->{portal},
         };

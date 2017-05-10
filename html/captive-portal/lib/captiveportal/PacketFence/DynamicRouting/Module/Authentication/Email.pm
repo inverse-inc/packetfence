@@ -127,7 +127,7 @@ after 'execute_actions' => sub {
     # Don't make the user leave the portal in preregistration
     if(!$self->app->preregistration) {
         # we record the unregdate to reuse it after
-        pf::activation::set_unregdate($self->session->{activation_code}, $self->new_node_info->{unregdate});
+        pf::activation::set_unregdate($pf::activation::GUEST_ACTIVATION, $self->session->{activation_code}, $self->new_node_info->{unregdate});
 
         get_logger->debug("Source ".$self->source->id." has an activation timeout of ".$self->source->{email_activation_timeout});
         # Use the activation timeout to set the unregistration date

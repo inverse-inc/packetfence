@@ -42,18 +42,12 @@ Catalyst Controller.
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
     my $request = $c->request;
-    my $code    = $request->param('code');
-    my $logger  = $c->log;
-    if ( defined $code ) {
-        $c->forward( 'code', [$code] );
-    } else {
-        $self->showError($c,"An activation code is required");
-        $c->detach;
-    }
+    $self->showError($c,"An type and activation code is required");
+    $c->detach;
 }
 
-sub code : Path : Args(1) {
-    my ( $self, $c, $code ) = @_;
+sub code : Path : Args(2) {
+    my ( $self, $c, $type, $code ) = @_;
     my $portalSession = $c->portalSession;
     my $profile       = $c->profile;
     my $node_mac;
@@ -61,7 +55,7 @@ sub code : Path : Args(1) {
     my $logger  = $c->log;
 
     # validate code
-    my $activation_record = pf::activation::validate_code($code);
+    my $activation_record = pf::activation::validate_code($type, $code);
     if (  !defined($activation_record)
         || ref($activation_record) ne 'HASH'
         || !defined( $activation_record->{'type'} ) ) {
@@ -87,7 +81,7 @@ sub code : Path : Args(1) {
         if($unregdate) {
             get_logger->info("Extending duration to $unregdate");
             node_modify($node_mac, unregdate => $unregdate);
-            pf::activation::set_status_verified($code);
+            pf::activation::set_status_verified($GUEST_ACTIVATION, $code);
             $c->stash(
                 title => "Access granted",
                 template => "activation/email.html",
@@ -225,7 +219,7 @@ sub doSponsorRegistration : Private {
                 \%info );
         }
 
-        pf::activation::set_status_verified($code);
+        pf::activation::set_status_verified($SPONSOR_ACTIVATION, $code);
 
         # send to a success page
         $c->stash(

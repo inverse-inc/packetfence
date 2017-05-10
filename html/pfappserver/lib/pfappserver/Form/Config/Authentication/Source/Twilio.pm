@@ -54,6 +54,16 @@ has_field 'twilio_phone_number' => (
     default         => pf::Authentication::Source::TwilioSource->meta->get_attribute('twilio_phone_number')->default,
 );
 
+has_field 'pin_code_length' => (
+    type => 'PosInteger',
+    label => 'PIN Code Length',
+    default => pf::Authentication::Source::TwilioSource->meta->get_attribute('pin_code_length')->default,
+    tags => {
+        after_element => \&help,
+        help => 'The length of the PIN code to be sent over sms',
+    },
+);
+
 
 =head1 AUTHOR
 

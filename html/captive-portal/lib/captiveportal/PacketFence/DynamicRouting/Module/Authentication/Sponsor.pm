@@ -21,6 +21,7 @@ use Date::Format qw(time2str);
 use pf::Authentication::constants;
 use pf::activation;
 use pf::web::guest;
+use pf::auth_log;
 use pf::util qw(normalize_time);
 
 has '+source' => (isa => 'pf::Authentication::Source::SponsorEmailSource');
@@ -109,7 +110,7 @@ sub check_activation {
         $self->app->redirect("/signup");
         return;
     }
-    my $record = pf::activation::view_by_code($self->session->{activation_code});
+    my $record = pf::activation::view_by_code($pf::activation::SPONSOR_ACTIVATION, $self->session->{activation_code});
     if($record->{status} eq "verified"){
         get_logger->info("Activation record has been validated.");
         $self->session->{sponsor_activated} = $TRUE;

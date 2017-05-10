@@ -127,15 +127,6 @@ sub _initialize {
                 return pf::Connection::ProfileFactory->instantiate($self->getClientMac,$option);
             }
         );
-    } elsif (defined($cgi->url_param('code'))) {
-        my $data = view_by_code("1:".$cgi->param('code'));
-        $options = {
-            'portal' => $data->{portal},
-        };
-        $self->{'_profile'} = $self->_restoreFromSession("_profile", sub {
-                return pf::Connection::ProfileFactory->instantiate($self->getClientMac,$options);
-            }
-        );
     } else {
         $self->{'_profile'} = $self->_restoreFromSession("_profile", sub {
                 return pf::Connection::ProfileFactory->instantiate($self->getClientMac);
