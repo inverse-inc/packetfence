@@ -318,7 +318,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('NODES_UPD
             );
             if ($form->has_errors) {
                 $status = HTTP_BAD_REQUEST;
-                $message = $form->field_errors;
+                $result = $form->field_errors;
             }
             else {
                 ($status, $result) = $c->model('Node')->update($c->stash->{mac}, $form->value);
