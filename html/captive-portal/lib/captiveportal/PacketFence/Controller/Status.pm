@@ -151,22 +151,25 @@ sub person : Local {
     $c->stash(
         title => "Status - Manage Account",
         template => 'status/person.html',
+        status => 1,
     );
 } 
 
 sub reset_pw : Local {
-    my ( $self, $c ) =@_;
+    my ( $self, $c ) = @_;
     my $pid     = $c->user_session->{"username"};
     my $request = $c->request;
     my $password = $request->param('password');
     my $password2 = $request->param('password2');
-    if ( all_defined ( $password, $password2 ) && ( $password = $password2 ) {
-        pf::password::reset_password($pid, $password)
+    if ( all_defined ( $password, $password2 ) && ( $password eq $password2 ) ) {
+        pf::password::reset_password($pid, $password);
+        $c->stash->{status} = "success";
     } elsif ( $password != $password2 ) {
-        $c->stash->{error} = 1;
+        $c->stash->{status} = "error_match";
     } else {
-        $c->stash->{error} = 2;
+        $c->stash->{status} = "error_fill";
     }
+    $c->stash->{template} = 'status/person.html',
 }
 
 

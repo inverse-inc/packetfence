@@ -10,6 +10,7 @@
 </div>
 [% END %]
 
+[% IF status %]
 <form name="reset_pw" method="post" action="/status/reset_pw">
   <div class="layout layout--center">
     <div class="layout__item u-mt u-2/3 u-1/1-palm">
@@ -26,13 +27,18 @@
         </button>
     </div>
   </div>
-
-[% IF error = 1 %]
+</form>
+[% ELSIF status == success %]
+<div class="media media--error u-p u-mb">
+  <div class="media__img">[% flashIcon(level='notice') %]</div>
+  <p class="media__body">[% i18n("Your password have been updated") %]</p>
+</div>
+[% ELSIF status == error_match %]
 <div class="media media--error u-p u-mb">
   <div class="media__img">[% flashIcon(level='error') %]</div>
   <p class="media__body">[% i18n("The passwords you type do not match") %]</p>
 </div>
-[% ELSIF error = 2 %]
+[% ELSIF status == error_fill %]
 <div class="media media--error u-p u-mb">
   <div class="media__img">[% flashIcon(level='error') %]</div>
   <p class="media__body">[% i18n("A password field has not been fill") %]</p>
@@ -49,4 +55,3 @@
       </a>
     </div>
   </div>
-</form>
