@@ -36,6 +36,10 @@ authorize {
 	#  the MS-CHAP-Challenge attribute, and add 'Auth-Type := MS-CHAP'
 	#  to the request, which will cause the server to then use
 	#  the mschap module for authentication.
+
+	# Uncomment if you need to reject user who already failed ntlm_auth (see packetfence-cache-ntlm-hit too)
+	# packetfence-control-ntlm-failure
+
 	mschap
 
 	#
@@ -288,6 +292,8 @@ post-auth {
 	#  'edir_account_policy_check = yes' in the ldap module configuration
 	#
 	Post-Auth-Type REJECT {
+		# Uncomment if you need to limit failed ntlm authentication (see packetfence-control-ntlm-failure too)
+		# packetfence-cache-ntlm-hit
 		update {
 			&request:User-Password := "******"
 		}
