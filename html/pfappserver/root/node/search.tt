@@ -67,7 +67,7 @@
       <li><a href="[% c.uri_for(action, add_captures, params) %]">&rarr;</a></li>
     [% ELSE %]
       <li class="disabled"><span>&hellip;</span></li>
-      <li class="disabled"><a href="[% c.uri_for(action, add_captures, params) %]">&rarr;</a></li>
+      <li class="disabled"><span>&rarr;</span></li>
     [% END %]
   </ul>
 </div>
