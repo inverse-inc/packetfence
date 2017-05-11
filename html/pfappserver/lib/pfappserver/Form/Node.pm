@@ -17,6 +17,7 @@ with 'pfappserver::Base::Form::Role::AllowedOptions';
 use HTTP::Status qw(is_error);
 use pf::config qw(%Config);
 use pf::log;
+use pf::util;
 
 # Form select options
 has 'roles' => ( is => 'ro' );
@@ -66,8 +67,47 @@ has_field 'regdate' =>
   );
 has_field 'unregdate' =>
   (
-   type => '+DateTimePicker',
+   type => 'Compound',
    label => 'Unregistration',
+   do_wrapper => 1,
+   do_label => 1,
+   inflate_default_method => sub {
+     my ($self, $value) = @_;
+     return {} unless ($value =~ m/(\d{4}-\d{1,2}-\d{1,2}) (\d{1,2}:\d{1,2})/);
+     my $hash = {date => $1,
+                 time => $2};
+     return $hash;
+   },
+   deflate_value_method => sub {
+     my ($self, $value) = @_;
+     my $date = $value->{date};
+     my $time = $value->{time};
+     return "$date $time";
+   }
+  );
+has_field 'unregdate.date' =>
+  (
+   type => 'Text',
+   do_label => 0,
+   widget_wrapper => 'None',
+   element_class =>  ['input-date', 'input-small'],
+   element_attr => { 'data-date-format' => 'yyyy-mm-dd',
+                          placeholder => 'yyyy-mm-dd' },
+   validate_method => sub {
+    my ($field) = @_;
+    my $date = $field->value;
+    return if $date =~ /0000-\d{2}-\d{2}/;
+    if (!validate_date($date)) {
+        $field->add_error("Date shouldn't exceed 2038-01-18");
+    }
+
+   },
+  );
+has_field 'unregdate.time' =>
+  (
+   type => 'TimePicker',
+   do_label => 0,
+   widget_wrapper => 'None',
   );
 has_field 'last_seen' =>
   (
