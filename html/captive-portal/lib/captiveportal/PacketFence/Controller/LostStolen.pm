@@ -35,16 +35,22 @@ sub index : Path : Args(1) {
         if ($trigger) {
             $c->stash(
                 mac => $mac,
-                template     => 'lost_stolen.html',
+                template => 'lost_stolen.html',
                 status => 'success',
             );
         } else {
             $c->stash(
                 mac => $mac,
-                template     => 'lost_stolen.html',
+                template => 'lost_stolen.html',
                 status => 'error',
             );
         }
+    } else {
+        $c->stash(
+            mac => $mac,
+            template => 'lost_stolen.html',
+            status => 'notowned',
+        );
     }
 }
 
