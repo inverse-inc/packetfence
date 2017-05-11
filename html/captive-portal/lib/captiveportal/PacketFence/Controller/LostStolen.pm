@@ -2,6 +2,7 @@ package captiveportal::PacketFence::Controller::LostStolen;
 use Moose;
 use namespace::autoclean;
 use pf::violation;
+use pf::constants;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -25,19 +26,16 @@ sub index : Path : Args(1) {
     my ( $self, $c, $mac ) = @_;
     my $portalSession = $c->portalSession;
 
-    my $violation = violation_trigger($mac);
+    my $vid = "1300005";
+    my $trigger = violation_add($mac, $vid);
 
-    if ($violation) {
-
-        # There is  to trigger the violation Lost or Stolen
-        # Put the device in isolation and alerts user + admin
-        my $vid   = $violation->{'vid'};
-        my $class = class_view($vid);
+    if ($trigger) {
         $c->stash(
+            mac => $mac,
             violation_id => $vid,
-            enable_text  => $class->{button_text},
             template     => 'lost_stolen.html',
         );
+        return ($STATUS::OK, 'The device ' . $mac . 'was successfully declared as lost or stolen.');
     } else {
         $self->showError( $c, "error to apply the status: Lost or Stolen" );
     }
