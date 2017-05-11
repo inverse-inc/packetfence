@@ -3,6 +3,7 @@ use Moose;
 use namespace::autoclean;
 use pf::violation;
 use pf::constants;
+use pf::node;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -24,23 +25,26 @@ Catalyst Controller.
 
 sub index : Path : Args(1) {
     my ( $self, $c, $mac ) = @_;
-    #my $portalSession = $c->portalSession;
-
+    my $node = node_view($mac);
+    my $owner = lc($node->{pid});
+    my $username = lc($c->user_session->{username});
     my $vid = "1300005";
-    my $trigger = violation_add($mac, $vid);
+    if ( $username eq $owner ) {
+        my $trigger = violation_add($mac, $vid);
 
-    if ($trigger) {
-        $c->stash(
-            mac => $mac,
-            template     => 'lost_stolen.html',
-            status => 'success',
-        );
-    } else {
-        $c->stash(
-            mac => $mac,
-            template     => 'lost_stolen.html',
-            status => 'error',
-        );
+        if ($trigger) {
+            $c->stash(
+                mac => $mac,
+                template     => 'lost_stolen.html',
+                status => 'success',
+            );
+        } else {
+            $c->stash(
+                mac => $mac,
+                template     => 'lost_stolen.html',
+                status => 'error',
+            );
+        }
     }
 }
 
