@@ -200,6 +200,29 @@ sub logout :Local :Args(0) {
     $c->stash->{'status_msg'} = $c->loc("You have been logged out.");
 }
 
+our @ROLES_TO_ACTIONS = (
+    {
+        roles => [qw(SERVICES)],
+        action => 'status',
+    },
+    {
+        roles => [qw(REPORTS)],
+        action => 'reports',
+    },
+    {
+        roles => [qw(AUDITING_READ)],
+        action => 'auditing',
+    },
+    {
+        roles => [qw(NODES_READ)],
+        action => 'nodes',
+    },
+    {
+        roles => [qw(USERS_READ USERS_READ_SPONSORED)],
+        action => 'users',
+    },
+);
+
 =head2 index
 
 =cut
@@ -208,19 +231,19 @@ sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
     my @roles = $c->user->roles();
     my $action;
-    if (admin_can_do_any(\@roles,qw(SERVICES REPORTS))) {
-        $action = 'status';
-    } elsif( admin_can_do_any(\@roles, 'AUDITING_READ' ) ) {
-        $action = 'auditing';
-    } elsif( admin_can_do_any(\@roles,qw(USERS_READ USERS_READ_SPONSORED))) {
-        $action = 'users';
-    } elsif( admin_can_do_any(\@roles,qw(NODES_READ))) {
-        $action = 'nodes';
-    } elsif( admin_can_do_any_in_group(\@roles, 'CONFIGURATION_GROUP_READ' ) ) {
-        $action = 'configuration';
-    } else {
-        $action = 'logout';
-        $c->log->error("A role action is not properly defined");
+    for my $roles_to_action (@ROLES_TO_ACTIONS) {
+        if (admin_can_do_any(\@roles, @{$roles_to_action->{roles}})) {
+            $action = $roles_to_action->{action};
+            last;
+        }
+    }
+    unless ($action) {
+        if (admin_can_do_any_in_group(\@roles, 'CONFIGURATION_GROUP_READ')) {
+            $action = 'configuration';
+        } else {
+            $action = 'logout';
+            $c->log->error("A role action is not properly defined");
+        }
     }
     $c->response->redirect($c->uri_for($c->controller->action_for($action)));
 }
