@@ -1,3 +1,4 @@
+[% UNLESS ShowLogin %]
 <div class="media media--notice u-p u-mb">
   <div class="media__img">[% flashIcon(level='notice') %]</div>
   <p class="media__body">
@@ -27,7 +28,7 @@
         <td class="hidden-popup">[% n.dhcp_fingerprint %]</td>
         <td class="hidden-popup">[% n.regdate IF n.regdate != '0000-00-00 00:00:00' %]</td>
         <td style="text-align: right"><a href="/node/manager/unreg/[% n.mac %]" class="btn btn--small">[% i18n("Unregister") %]</a></td>
-        <td style="text-align: right"><a href="/lost_stolen" class="btn btn--icon"><div class="flag"><div class="flag__img">[% svgIcon(id='ic_phonelink_erase_black_18px',size='small') %]</div></div></a></td>
+        <td style="text-align: right"><a href="/loststolen/[% n.mac %]" class="btn btn--icon"><div class="flag"><div class="flag__img">[% svgIcon(id='ic_phonelink_erase_black_18px',size='small') %]</div></div></a></td>
       </tr>
       [%- END %]
     </tbody>
@@ -37,6 +38,7 @@
   <div class="media__img">[% flashIcon(level='notice') %]</div>
   <p class="media__body">[% i18n("You have no registered devices.") %]</p>
 </div>
+[% END %]
 [% END %]
 <div class="layout layout--center">
   <div class="layout__item u-mt u-2/3 u-1/1-palm">

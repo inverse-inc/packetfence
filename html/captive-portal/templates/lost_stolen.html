@@ -1,3 +1,14 @@
+[% IF status == "success" %]
+<div class="media media--notice u-p u-mb">
+  <div class="media__img">[% flashIcon(level='notice') %]</div>
+  <p class="media__body">[% i18n_format("Your device %s has been declared as lost or stolen.", mac) | none %]</p>
+</div>
+[% ELSIF status == "error" %]
+<div class="media media--error u-p u-mb">
+  <div class="media__img">[% flashIcon(level='error') %]</div>
+  <p class="media__body">[% i18n_format("An error occured while trying to delcare the device %s as lost or stolen.", mac) | none %]</p>
+</div>
+[% END %]
 <div class="layout layout--center">
   <div class="layout__item u-mt u-2/3 u-1/1-palm">
     <a href="/status" class="btn btn--full btn--light">

@@ -1,48 +1,17 @@
-package captiveportal::PacketFence::Controller::LostStolen;
+package captiveportal::Controller::LostStolen;
 use Moose;
-use namespace::autoclean;
-use pf::violation;
-use pf::constants;
 
-BEGIN { extends 'captiveportal::Base::Controller'; }
+BEGIN { extends 'captiveportal::PacketFence::Controller::LostStolen'; }
 
 =head1 NAME
 
-captiveportal::PacketFence::Controller::LostStolen - Catalyst Controller
+captiveportal::Controller::LostStolen - LostStolen Controller for captiveportal
 
 =head1 DESCRIPTION
 
-Catalyst Controller.
-
-=head1 METHODS
+[enter your description here]
 
 =cut
-
-=head2 index
-
-=cut
-
-sub index : Path : Args(1) {
-    my ( $self, $c, $mac ) = @_;
-    #my $portalSession = $c->portalSession;
-
-    my $vid = "1300005";
-    my $trigger = violation_add($mac, $vid);
-
-    if ($trigger) {
-        $c->stash(
-            mac => $mac,
-            template     => 'lost_stolen.html',
-            status => 'success',
-        );
-    } else {
-        $c->stash(
-            mac => $mac,
-            template     => 'lost_stolen.html',
-            status => 'error',
-        );
-    }
-}
 
 =head1 AUTHOR
 
@@ -70,5 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
+
+__PACKAGE__->meta->make_immutable;
 
 1;
