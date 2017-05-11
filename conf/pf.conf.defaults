@@ -774,6 +774,11 @@ ntlm_redis_cache=disabled
 # List of LDAP attributes that can be used in the sources configuration
 ldap_attributes=uid,cn,department,displayName,distinguishedName,givenName,memberOf,sn,eduPersonPrimaryAffiliation,mail,postOfficeBox,description,groupMembership
 #
+# advanced.radius_attributes
+#
+# List of RADIUS attributes that can be used in the sources configuration
+radius_attributes=username,NAS-ID,Called-Station-Id,Calling-Station-Id
+#
 # advanced.pfdns_processes
 #
 # Amount of pfdns processes to start

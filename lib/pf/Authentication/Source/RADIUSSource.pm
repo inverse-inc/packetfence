@@ -12,6 +12,7 @@ use pf::constants qw($TRUE $FALSE);
 use pf::Authentication::constants qw($LOGIN_CHALLENGE);
 use pf::constants::authentication::messages;
 use pf::log;
+use pf::config qw(%Config);
 
 our $RADIUS_STATE = 'State';
 our $RADIUS_REPLY_MESSAGE = 'Reply-Message';
@@ -48,9 +49,9 @@ sub available_attributes {
   my $self = shift;
 
   my $super_attributes = $self->SUPER::available_attributes;
-  my $own_attributes = [{ value => "username", type => $Conditions::SUBSTRING }];
-
-  return [@$super_attributes, @$own_attributes];
+  my @attributes = @{$Config{advanced}->{radius_attributes}};
+  my @radius_attributes = map { { value => $_, type => $Conditions::SUBSTRING } } @attributes;
+  return [@$super_attributes, @radius_attributes];
 }
 
 =head2  authenticate
@@ -114,7 +115,7 @@ sub _handle_radius_request {
         return ($FALSE, $COMMUNICATION_ERROR_MSG);
     }
     if ($result == ACCESS_ACCEPT) {
-        return ($TRUE, $AUTH_SUCCESS_MSG);
+        return ($TRUE, $AUTH_SUCCESS_MSG, $self->_fetch_attributes($result, $radius));
     }
     elsif ($result == ACCESS_CHALLENGE) {
         return ($LOGIN_CHALLENGE, $self->_make_challenge_data($result, $radius));
@@ -138,6 +139,18 @@ sub _make_challenge_data {
         state      => $state_attribute->{RawValue},
         state_code => $state_attribute->{Code},
         message    => $message_attribute->{Value},
+    };
+}
+
+=head2 _fetch_attributes
+
+=cut
+
+sub _fetch_attributes {
+    my ($self, $result, $radius) = @_;
+    my @attributes = $radius->get_attributes;
+    return {
+        attributes => \@attributes,
     };
 }
 
@@ -167,13 +180,21 @@ sub check_radius_password {
 =cut
 
 sub match_in_subclass {
-    my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
+    my ($self, $params, $rule, $own_conditions, $matching_conditions, $extra) = @_;
     $params->{'username'} = $params->{'stripped_user_name'} if (defined($params->{'stripped_user_name'} ) && $params->{'stripped_user_name'} ne '' && isenabled($self->{'stripped_user_name'}));
     my $username =  $params->{'username'};
+
     foreach my $condition (@{ $own_conditions }) {
         if ($condition->{'attribute'} eq "username") {
             if ( $condition->matches("username", $username) ) {
                 push(@{ $matching_conditions }, $condition);
+            }
+        }
+        for my $attribute (@{ $extra->{attributes}} ) {
+            if ($condition->{'attribute'} eq $attribute->{'Name'} ) {
+                if ( $condition->matches($condition->{'attribute'}, $attribute->{'Value'}) ) {
+                    push(@{ $matching_conditions }, $condition);
+                }
             }
         }
     }

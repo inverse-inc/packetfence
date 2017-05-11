@@ -195,7 +195,7 @@ sub authenticate {
         $username = $self->clean_username($username);
 
         # validate login and password
-        my ( $return, $message, $source_id ) =
+        my ( $return, $message, $source_id, $extra ) =
           pf::authentication::authenticate( { 'username' => $username, 'password' => $password, 'rule_class' => $Rules::AUTH }, @sources );
         if (!defined $return || $return == $LOGIN_FAILURE) {
             pf::auth_log::record_auth(join(',',map { $_->id } @sources), $self->current_mac, $username, $pf::auth_log::FAILED);
@@ -204,6 +204,7 @@ sub authenticate {
             return;
 
         }
+        $self->session->{extra} = $extra if defined($extra);
         $self->username($username);
         $self->source(pf::authentication::getAuthenticationSource($source_id));
         if ( $return == $LOGIN_SUCCESS ) {
