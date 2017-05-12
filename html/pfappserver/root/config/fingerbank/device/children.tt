@@ -9,6 +9,7 @@
         [%- IF can_access("FINGERBANK_CREATE") %]
         <a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('clone'), [ scope,  item.id ]) %]">[% l('Clone') %]</a>
         <a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('add_child'), [ scope,  item.id ]) %]">[% l('Add Child') %]</a>
+        <a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('allow_reg'), [ scope,  item.id ]) %]">[% l('Allow Reg') %]</a>
         [%- END %]
         [%- IF scope == 'Local' && can_access("FINGERBANK_DELETE") %]
         <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller.action_for('remove'), [ scope, item.id ]) %]">[% l('Delete') %]</a>

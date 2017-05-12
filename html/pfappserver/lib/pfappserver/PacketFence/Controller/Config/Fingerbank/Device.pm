@@ -79,6 +79,16 @@ sub add_child : Chained('object') :PathPart('add_child') :Args(0) {
     }
 }
 
+=head2 allow_reg
+
+Allowed matching OUI to be used from device-registration
+
+=cut
+
+sub allow_reg : Chained('object') :PathPart('allow_reg') :Args(0){
+    my ( $self, $c ) =@_;
+}
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2017 Inverse inc.
