@@ -72,7 +72,6 @@ Readonly::Scalar our $URL_WISPR                 => '/wispr';
 Readonly::Scalar our $URL_OAUTH2                => '/oauth2/(.+)';
 Readonly::Scalar our $URL_LOST_STOLEN           => '/loststolen/(.+)';
 Readonly::Scalar our $URL_STATUS                => '/status';
-Readonly::Scalar our $URL_STATUS_DEVICES        => '/status/devices';
 Readonly::Scalar our $URL_STATUS_RESETPW        => '/status/reset_pw';
 Readonly::Scalar our $URL_STATUS_PERSON         => '/status/person';
 Readonly::Scalar our $URL_STATUS_LOGIN          => '/status/login';

@@ -134,8 +134,8 @@ $(document).ready(function() {
     </div>
   </div>
 </form>
-[% END %]
 
+[% ELSE %]
 <div class="layout layout--left">
   <div class="layout__item u-mt u-2/3 u-1/1-palm">
     <a href="/device-registration" class="btn btn--small btn--light">
@@ -147,7 +147,7 @@ $(document).ready(function() {
   </div>
 </div>
 <br/>
-[% IF hasLocalAccount %]
+[%- IF hasLocalAccount %]
 <div class="layout layout--left">
   <div class="layout__item u-mt u-2/3 u-1/1-palm">
     <a href="/status/person" class="btn btn--small btn--light">
@@ -162,7 +162,7 @@ $(document).ready(function() {
 [% END %]
 
 
-[% IF nodes.size > 0 %]
+[%- IF nodes.size > 0 %]
     <h3>[% i18n("Your registered devices") %]</h3>
       [% IF node.status == reg %]
       <div class="[ box box--small ][ frame frame--raised ]">
@@ -213,4 +213,4 @@ $(document).ready(function() {
     </a>
   </div>
 </div>
-
+[% END %]
