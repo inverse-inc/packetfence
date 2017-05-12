@@ -28,6 +28,7 @@ Enhancements
  * Updated pfdns default filters (PR #2165)
  * Added brands icons to authentication source (i.e Twitter, PayPal etc ..) in the administration interface (PR #2287)
  * Allow pfqueue workers to perform work across multiple queues (PR #2260)
+ * Added a way to set time and bandwidth balance in action rule (requires accounting to work) (PR #1936)
 
 Bug Fixes
 +++++++++
