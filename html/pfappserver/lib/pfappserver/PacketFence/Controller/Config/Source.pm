@@ -41,6 +41,8 @@ __PACKAGE__->config(
     },
 );
 
+our @SOURCE_TYPES = qw(billing internal external exclusive);
+
 =head1 METHODS
 
 =head2 index
@@ -51,25 +53,18 @@ Usage: /config/source
 
 sub index :Path :Args(0) {
     my ($self, $c) = @_;
-    my $internal_types = availableAuthenticationSourceTypes('internal');
-    my $external_types = availableAuthenticationSourceTypes('external');
-    my $exclusive_types = availableAuthenticationSourceTypes('exclusive');
-    my $billing_types = availableAuthenticationSourceTypes('billing');
-    $c->stash({
-        internal_types  => $internal_types,
-        external_types  => $external_types,
-        exclusive_types => $exclusive_types,
-        billing_types   => $billing_types,
-
-    });
-
+    my %types;
+    foreach my $type (@SOURCE_TYPES) {
+        $types{"${type}_types"} = availableAuthenticationSourceTypes($type);
+    }
+    $c->stash(\%types);
     $c->forward('list');
 }
 
 after list => sub {
     my ($self, $c) = @_;
     my $items = $c->stash->{items};
-    my %source_by_class;
+    my %source_by_class = map { $_ => [] } @SOURCE_TYPES;
     foreach my $item (@$items) {
         my $type = $item->{type};
         next if $type eq 'SQL';
@@ -108,7 +103,6 @@ after [qw(create clone)] => sub {
         }
     }
 };
-
 
 =head1 COPYRIGHT
 

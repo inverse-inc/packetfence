@@ -1,6 +1,7 @@
 [% MACRO source_listing(id, heading, items, sortable) BLOCK %]
+[% IF items.size %]
 <h4>[% l(heading) %]</h4>
-<table id=[% id %] class="table sources [% ' hidden' UNLESS items.size %]" >
+<table id=[% id %] class="table sources" >
   <thead>
     <tr>
       <th class="hidden-phone" width="20px"></th>
@@ -10,7 +11,7 @@
       <th></th>
     </tr>
   </thead>
-  <tbody class="dynamic-list-sortable">
+  <tbody class="[% IF sortable %]dynamic-list-sortable[% END %]">
     [% FOREACH item IN items %]
     <tr id=[% item.id %]>
       [% IF sortable %]
@@ -33,9 +34,12 @@
       </td>
     </tr>
     [% END -%]
-    <!--tr><td colspan="3"></td><td class="hidden-phone" colspan="2"></td></tr-->
   </tbody>
+  <tfoot>
+    <tr><td colspan="3"></td><td class="hidden-phone" colspan="2"></td></tr>
+  </tfoot>
 </table>
+[% END %]
 [% END %]
 
 <div id="sources"  data-list-uri="[% c.uri_for(c.controller.action_for('list')) %]" >
