@@ -54,7 +54,7 @@ button.#{$inuit-btn-namespace}btn {
 
 .#{$inuit-btn-namespace}btn--light {
   background-color: $pf-btn-background-light;
-  border: none;
+  border-color: $pf-btn-background-light;
   color: $pf-list-tint-color;
 
   &:hover {

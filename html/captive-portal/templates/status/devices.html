@@ -10,29 +10,24 @@
   </p>
 </div>
 [% IF nodes.size > 0 %]
-  <table class="table table--rows table--compact">
-    <caption>[% i18n("Your registered devices") %]</caption>
-    <thead>
-      <tr>
-        <th>[% i18n("MAC Address") %]</th>
-        <th class="hidden-popup">[% i18n("OS Type") %]</th>
-        <th class="hidden-popup">[% i18n("Registration Date") %]</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
+    <h3>[% i18n("Your registered devices") %]</h3>
       [%- FOREACH n IN nodes %]
       [% NEXT IF n.status != 'reg' %]
-      <tr>
-        <td>[% n.mac %]</td>
-        <td class="hidden-popup">[% n.dhcp_fingerprint %]</td>
-        <td class="hidden-popup">[% n.regdate IF n.regdate != '0000-00-00 00:00:00' %]</td>
-        <td style="text-align: right"><a href="/node/manager/unreg/[% n.mac %]" class="btn btn--small">[% i18n("Unregister") %]</a></td>
-        <td style="text-align: right"><a href="/loststolen/[% n.mac %]" class="btn btn--icon"><div class="flag"><div class="flag__img">[% svgIcon(id='ic_phonelink_erase_black_18px',size='small') %]</div></div></a></td>
-      </tr>
+      <div class="[ box box--small ][ frame frame--raised ]">
+        <div class="[ layout layout--middle ]">
+          <div class="layout__item [ u-1/2 u-1/1-lap u-1/1-palm ]">
+            <ul class="list-bare">
+            [% IF n.dhcp_fingerprint %]<li>[% n.dhcp_fingerprint %]</li>[% END %]
+            <li>[% i18n("MAC") %] <b>[% n.mac %]</b></li>
+            [% IF n.regdate != '0000-00-00 00:00:00' %]<li>[% i18n("Registered on") %] <b>[% n.regdate %]</b></li>[% END %]
+        </ul>
+          </div><div class="layout__item layout--right [ u-1/2 u-1/1-lap u-1/1-palm ]">
+            <a href="/node/manager/unreg/[% n.mac %]" class="[ btn btn--small ] u-mb--desk">[% i18n("Unregister") %]</a>
+            <a href="/loststolen/[% n.mac %]" class="btn btn--light btn--small">[% i18n("Declare as lost or stolen") %]</a>
+          </div>
+        </div>
+      </div>
       [%- END %]
-    </tbody>
-  </table>
 [%- ELSE %]
 <div class="media media--notice u-p u-mb">
   <div class="media__img">[% flashIcon(level='notice') %]</div>
