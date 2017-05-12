@@ -20,6 +20,9 @@
     <li [% IF tab == 'dns-filters' %]class="active"[% END %]>
       <a href="#config/filters/dns-filters">[% l('DNS filters') %]</a>
     </li>
+    <li [% IF tab == 'switch-filters' %]class="active"[% END %]>
+      <a href="#config/filters/switch-filters">[% l('Switch filters') %]</a>
+    </li>
   </ul>
 
   [%- IF can_access("FILTERS_UPDATE") %]

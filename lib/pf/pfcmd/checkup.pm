@@ -1050,7 +1050,7 @@ sub vlan_filter_rules {
             add_problem ( $WARN, "Missing operator attribute in $rule vlan filter rule")
                 if (!defined($ConfigVlanFilters{$rule}->{'operator'}));
             add_problem ( $WARN, "Missing value attribute in $rule vlan filter rule")
-                if (!defined($ConfigVlanFilters{$rule}->{'value'}));
+                if (!defined($ConfigVlanFilters{$rule}->{'value'}) && $ConfigVlanFilters{$rule}->{'operator'} ne 'defined' && $ConfigVlanFilters{$rule}->{'operator'} ne 'not_defined');
         }
     }
 }

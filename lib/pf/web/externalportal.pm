@@ -34,6 +34,7 @@ use pf::util;
 use pf::web::constants;
 use pf::web::util;
 use pf::constants;
+use pf::access_filter::switch;
 
 # Some vendors don't support some charatcters in their redirect URL
 # This here below allows to map some URLs to a specific switch module
@@ -69,29 +70,48 @@ sub handle {
     my ( $self, $r ) = @_;
     my $logger = get_logger;
 
+    my $switch_type;
+
     my $req = Apache2::Request->new($r);
     my $uri = $r->uri;
 
-    # Discarding non external portal requests
-    unless ( $uri =~ /$WEB::EXTERNAL_PORTAL_URL/o ) {
-        $logger->debug("Tested URI '$uri' against external portal mechanism and does not appear to be one.");
-        return $FALSE;
+    my $params = $req->param;
+    my $headers_in = $r->headers_in();
+
+
+    my $args = {
+        uri => $uri,
+        (defined $params ? (params => { %$params }) : ()),
+        (defined $headers_in ? (headers => { %$headers_in }) : ()),
+    };
+
+    my $filter = pf::access_filter::switch->new;
+    my $type_switch = $filter->filter('external_portal', $args);
+
+    if (!$type_switch) {
+        # Discarding non external portal requests
+        unless ( $uri =~ /$WEB::EXTERNAL_PORTAL_URL/o ) {
+            $logger->debug("Tested URI '$uri' against external portal mechanism and does not appear to be one.");
+            return $FALSE;
+        }
+
+        # Parsing external portal URL information for switch handling
+        # URI will usually be in the form (/Switch::Type/sid424242), where:
+        # - Switch::Type will be the switch type to instantiate (mandatory)
+        # - sid424242 is the optional PacketFence session ID to track the session when working by session ID and not by URI parameters
+        $logger->info("URI '$uri' is detected as an external captive portal URI");
+        $uri =~ /\/([^\/]*)/;
+        $switch_type = $1;
+        if(exists($SWITCH_REWRITE_MAP->{$switch_type})) {
+            my $new_switch_type = $SWITCH_REWRITE_MAP->{$switch_type};
+            $logger->debug("Rewriting switch type $switch_type to $new_switch_type");
+            $switch_type = $new_switch_type;
+        }
+        $switch_type = "pf::Switch::$switch_type";
+    } else {
+        $switch_type = "pf::Switch::$type_switch";
     }
 
-    # Parsing external portal URL information for switch handling
-    # URI will usually be in the form (/Switch::Type/sid424242), where:
-    # - Switch::Type will be the switch type to instantiate (mandatory)
-    # - sid424242 is the optional PacketFence session ID to track the session when working by session ID and not by URI parameters
-    $logger->info("URI '$uri' is detected as an external captive portal URI");
-    $uri =~ /\/([^\/]*)/;
-    my $switch_type = $1;
-    if(exists($SWITCH_REWRITE_MAP->{$switch_type})) {
-        my $new_switch_type = $SWITCH_REWRITE_MAP->{$switch_type};
-        $logger->debug("Rewriting switch type $switch_type to $new_switch_type");
-        $switch_type = $new_switch_type;
-    }
-
-    $switch_type = "pf::Switch::$switch_type";
     if ( !(eval "$switch_type->require()") ) {
         $logger->error("Cannot load perl module for switch type '$switch_type'. Either switch type is unknown or switch type perl module have compilation errors. " .
         "See the following message for details: $@");
