@@ -25,9 +25,9 @@
       [% ELSE %]
       <td class="hidden-phone"></td>
       [% END %]
-      <td ><a href="[% c.pf_hash_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id | html %]</a></td>
+      <td><a href="[% c.pf_hash_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id | html %]</a></td>
       <td class="hidden-phone">[% item.description | html%]</td>
-      <td>[% item.type | html%]</td>
+      <td>[% item.type | html %]</td>
       <td>
         [% IF can_access("USERS_SOURCES_CREATE") %]<a class="btn btn-mini" href="[% c.pf_hash_for(c.controller.action_for('clone'), [ item.id]) %]">[% l('Clone') %]</a>[% END %]
         [% IF can_access("USERS_SOURCES_DELETE") %]<a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller.action_for('remove'), [ item.id ]) %]">[% l('Delete') %]</a>[% END %]
