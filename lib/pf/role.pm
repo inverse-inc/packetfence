@@ -434,6 +434,8 @@ sub getRegisteredRole {
             my $values = $matched->{values};
             $role = $values->{$Actions::SET_ROLE};
             my $unregdate = $values->{$Actions::SET_UNREG_DATE};
+            my $time_balance =  $values->{$Actions::SET_TIME_BALANCE};
+            my $bandwidth_balance =  $values->{$Actions::SET_BANDWIDTH_BALANCE};
             pf::person::person_modify($args->{'user_name'},
                 'source'  => $source,
                 'portal'  => $profile->getName,
@@ -449,6 +451,12 @@ sub getRegisteredRole {
             }
             if (defined $role) {
                 $info{category} = $role;
+            }
+            if (defined $time_balance) {
+                $info{time_balance} = pf::util::normalize_time($time_balance);
+            }
+            if (defined $bandwidth_balance) {
+                $info{bandwidth_balance} = pf::util::unpretty_bandwidth($bandwidth_balance);
             }
             if (blessed ($args->{node_info})) {
                 $args->{node_info}->merge(\%info);
@@ -576,7 +584,10 @@ sub getNodeInfoForAutoReg {
             $role = $values->{$Actions::SET_ROLE};
         }
         my $unregdate = $values->{$Actions::SET_UNREG_DATE};
-        
+        my $time_balance =  $values->{$Actions::SET_TIME_BALANCE};
+        my $bandwidth_balance =  $values->{$Actions::SET_BANDWIDTH_BALANCE};        
+        $node_info{'time_balance'} = pf::util::normalize_time($time_balance) if (defined($time_balance));
+        $node_info{'bandwidth_balance'} = pf::util::unpretty_bandwidth($bandwidth_balance) if (defined($bandwidth_balance));
         # Trigger a person lookup for 802.1x users
         pf::lookup::person::async_lookup_person($args->{'user_name'}, $source);
 

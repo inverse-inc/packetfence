@@ -20,6 +20,7 @@ our @EXPORT = qw(
 use pf::authentication;
 use pf::config;
 use pf::Authentication::constants;
+use pf::util;
 
 our %AUTHENTICATION_ACTIONS = (
     set_role => sub { $_[0]->new_node_info->{category} = $_[1]; },
@@ -28,6 +29,10 @@ our %AUTHENTICATION_ACTIONS = (
     unregdate_from_source => sub { $_[0]->new_node_info->{unregdate} = pf::authentication::match($_[0]->source->id, $_[0]->auth_source_params, $Actions::SET_UNREG_DATE); },
     role_from_source => sub { $_[0]->new_node_info->{category} = pf::authentication::match($_[0]->source->id, $_[0]->auth_source_params, $Actions::SET_ROLE); },
     no_action => sub {},
+    set_time_balance => sub { $_[0]->new_node_info->{time_balance} = pf::util::normalize_time($_[1]) },
+    set_bandwidth_balance => sub { $_[0]->new_node_info->{bandwidth_balance} = pf::util::unpretty_bandwidth($_[1]) },
+    time_balance_from_source => sub { $_[0]->new_node_info->{time_balance} = pf::util::normalize_time(pf::authentication::match($_[0]->source->id, $_[0]->auth_source_params, $Actions::SET_TIME_BALANCE)); },
+    bandwidth_balance_from_source => sub { $_[0]->new_node_info->{bandwidth_balance} = pf::util::unpretty_bandwidth(pf::authentication::match($_[0]->source->id, $_[0]->auth_source_params, $Actions::SET_BANDWIDTH_BALANCE)); },
 );
 
 =head1 AUTHOR

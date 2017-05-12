@@ -91,7 +91,7 @@ sub validate {
 
     @actions = grep { $_->{type} eq $Actions::SET_ROLE } @{$self->value->{actions}};
     if (scalar @actions > 0) {
-        @actions = grep { $_->{type} eq $Actions::SET_ACCESS_DURATION || $_->{type} eq $Actions::SET_UNREG_DATE }
+        @actions = grep { $_->{type} eq $Actions::SET_ACCESS_DURATION || $_->{type} eq $Actions::SET_UNREG_DATE ||  $_->{type} eq $Actions::SET_TIME_BALANCE}
           @{$self->value->{actions}};
         if (scalar @actions == 0) {
             $self->field('actions')->add_error("You must set an access duration or an unregistration date when setting a role.");
