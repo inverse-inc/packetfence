@@ -1,3 +1,29 @@
+<div class="layout layout--left">
+  <div class="layout__item u-mt u-2/3 u-1/1-palm">
+    <a href="/status" class="btn btn--small btn--light">
+      <div class="flag">
+        <div class="flag__img">[% svgIcon(id='ic_devices_black_24px',size='small') %]</div>
+        <p class="flag__body">[% i18n("Manage my devices") %]</p>
+      </div>
+    </a>
+  </div>
+</div>
+<br/>
+[% IF hasLocalAccount %]
+<div class="layout layout--left">
+  <div class="layout__item u-mt u-2/3 u-1/1-palm">
+    <a href="/status/person" class="btn btn--small btn--light">
+      <div class="flag">
+        <div class="flag__img">[% svgIcon(id='ic_person_black_24px',size='small') %]</div>
+        <p class="flag__body">[% i18n("Change my password") %]</p>
+      </div>
+    </a>
+  </div>
+</div>
+<br/>
+[% END %]
+
+
 [% IF txt_auth_error.defined %]
 <div class="media media--error u-p u-mb">
   <div class="media__img">[% flashIcon(level='error') %]</div>
@@ -39,16 +65,6 @@
     </div>
   </div>
 </form>
-<div class="layout layout--center">
-  <div class="layout__item u-mt u-2/3 u-1/1-palm">
-    <a href="/status" class="btn btn--full btn--light">
-      <div class="flag">
-        <div class="flag__img">[% svgIcon(id='ic_home_black_24px',size='small') %]</div>
-        <p class="flag__body">[% i18n("Access main menu") %]</p>
-      </div>
-    </a>
-  </div>
-</div>
 <div class="layout layout--center">
   <div class="layout__item u-mt u-2/3 u-1/1-palm">
     <a href="/device-registration/logout" class="btn btn--full btn--light">

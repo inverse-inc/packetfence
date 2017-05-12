@@ -12,20 +12,6 @@ $(document).ready(function() {
       return false;
     }
   });
-
-  // Toggle the disable state of the buttons and links when the user
-  // accepts or refuses the AUP
-  $("input[name='aup_signed']").each(function() {
-    $(this).on('change', function(event) {
-      var accepted = this.checked;
-      $('.btn').each(function() {
-        if (accepted)
-          $(this).removeClass('disabled');
-        else
-          $(this).addClass('disabled');
-      });
-    });
-  });
   [% END %]
 
   [%- IF node.expiration %]
@@ -88,17 +74,6 @@ $(document).ready(function() {
 </div>
 [% END %]
 
-<div class="media media--notice u-p u-mb">
-  <div class="media__img">[% flashIcon(level='notice') %]</div>
-  <p class="media__body">
-    [%- IF node.status == 'reg' %]
-    [%   i18n_format("Your device is registered to <strong>%s</strong>", node.pid) | none %]
-    [%- ELSE %]
-    [%   i18n("Your current device is not registered on our network.") %]
-    [%- END %]
-  </p>
-</div>
-
 [%- IF node.expiration %]
 <div class="media media--notice u-p u-mb">
   <div class="media__img">[% flashIcon(level='notice') %]</div>
@@ -124,15 +99,6 @@ $(document).ready(function() {
 
   <div class="layout--center">
     <h5>[% i18n("Login to manage registered devices") %]</h5>
-  </div>
-
-  [%# AUP %]
-  <div class="box box--large-height box--tint">
-    [% INCLUDE aup_text.html %]
-  </div>
-  <div class="layout--center input-checkbox-container u-p">
-    <input id="aup" name="aup_signed" type="checkbox" />
-    <label for="aup">[% i18n("I accept the terms") %]</label>
   </div>
 
   <div class="layout layout--center">
@@ -168,22 +134,23 @@ $(document).ready(function() {
     </div>
   </div>
 </form>
-[% ELSIF nodes.size > 0 %]
-<div class="layout layout--center">
+[% END %]
+
+<div class="layout layout--left">
   <div class="layout__item u-mt u-2/3 u-1/1-palm">
-    <a href="/status/devices" class="btn btn--full btn--light">
+    <a href="/device-registration" class="btn btn--small btn--light">
       <div class="flag">
-        <div class="flag__img">[% svgIcon(id='ic_devices_black_24px',size='small') %]</div>
-        <p class="flag__body">[% i18n("Manage my devices") %]</p>
+        <div class="flag__img">[% svgIcon(id='ic_add_circle_black_24px',size='small') %]</div>
+        <p class="flag__body">[% i18n("Register another device") %]</p>
       </div>
     </a>
   </div>
 </div>
-[% END %]
+<br/>
 [% IF hasLocalAccount %]
-<div class="layout layout--center">
+<div class="layout layout--left">
   <div class="layout__item u-mt u-2/3 u-1/1-palm">
-    <a href="/status/person" class="btn btn--full btn--light">
+    <a href="/status/person" class="btn btn--small btn--light">
       <div class="flag">
         <div class="flag__img">[% svgIcon(id='ic_person_black_24px',size='small') %]</div>
         <p class="flag__body">[% i18n("Change my password") %]</p>
@@ -191,18 +158,51 @@ $(document).ready(function() {
     </a>
   </div>
 </div>
+<br/>
 [% END %]
-[% UNLESS showLogin %]
-<div class="layout layout--center">
-  <div class="layout__item u-mt u-2/3 u-1/1-palm">
-    <a href="/device-registration" class="btn btn--full btn--light">
-      <div class="flag">
-        <div class="flag__img">[% svgIcon(id='ic_add_circle_black_24px',size='small') %]</div>
-        <p class="flag__body">[% i18n("Register a device") %]</p>
+
+
+[% IF nodes.size > 0 %]
+    <h3>[% i18n("Your registered devices") %]</h3>
+      [% IF node.status == reg %]
+      <div class="[ box box--small ][ frame frame--raised ]">
+        <div class="[ layout layout--middle ]">
+          <div class="layout__item [ u-1/2 u-1/1-lap u-1/1-palm ]">
+            <ul class="list-bare">
+                [% IF n.device_class %]<li>[% i18n("OS Type ") %]<b>[% n.device_class %]</b></li>[% END %]
+            <li>[% i18n("MAC") %] <b>[% n.mac %]</b></li>
+            [% IF n.regdate != '0000-00-00 00:00:00' %]<li>[% i18n("Registered on") %] <b>[% n.regdate %]</b></li>[% END %]
+        </ul>
+          </div><div class="layout__item layout--right [ u-1/2 u-1/1-lap u-1/1-palm ]">
+              <p>[% i18n("This is your current device.") %]</p>
+          </div>
+        </div>
       </div>
-    </a>
-  </div>
+      [% END %]
+      [%- FOREACH n IN nodes %]
+      [% NEXT IF n.status != 'reg' %]
+      <div class="[ box box--small ][ frame frame--raised ]">
+        <div class="[ layout layout--middle ]">
+          <div class="layout__item [ u-1/2 u-1/1-lap u-1/1-palm ]">
+            <ul class="list-bare">
+                [% IF n.device_class %]<li>[% i18n("OS Type ") %]<b>[% n.device_class %]</b></li>[% END %]
+            <li>[% i18n("MAC") %] <b>[% n.mac %]</b></li>
+            [% IF n.regdate != '0000-00-00 00:00:00' %]<li>[% i18n("Registered on") %] <b>[% n.regdate %]</b></li>[% END %]
+        </ul>
+          </div><div class="layout__item layout--right [ u-1/2 u-1/1-lap u-1/1-palm ]">
+            <a href="/node/manager/unreg/[% n.mac %]" class="[ btn btn--small ] u-mb--desk">[% i18n("Unregister") %]</a>
+            <a href="/loststolen/[% n.mac %]" class="btn btn--light btn--small">[% i18n("Declare as lost or stolen") %]</a>
+          </div>
+        </div>
+      </div>
+      [%- END %]
+[%- ELSE %]
+<div class="media media--notice u-p u-mb">
+  <div class="media__img">[% flashIcon(level='notice') %]</div>
+  <p class="media__body">[% i18n("You have no registered devices.") %]</p>
 </div>
+[% END %]
+
 <div class="layout layout--center">
   <div class="layout__item u-mt u-2/3 u-1/1-palm">
     <a href="/status/logout" class="btn btn--full btn--light">
@@ -213,5 +213,4 @@ $(document).ready(function() {
     </a>
   </div>
 </div>
-[% END %]
 
