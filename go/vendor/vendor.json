@@ -69,6 +69,18 @@
 			"revisionTime": "2016-11-28T19:12:14Z"
 		},
 		{
+			"checksumSHA1": "ZVzABul4nD/fzyYnbe+5bsJ4nBg=",
+			"path": "github.com/gorilla/rpc/v2",
+			"revision": "22c016f3df3febe0c1f6727598b6389507e03a18",
+			"revisionTime": "2016-09-23T22:06:01Z"
+		},
+		{
+			"checksumSHA1": "7yTdbVbA4b9KQbkkbdIU7OL2ivM=",
+			"path": "github.com/gorilla/rpc/v2/json2",
+			"revision": "22c016f3df3febe0c1f6727598b6389507e03a18",
+			"revisionTime": "2016-09-23T22:06:01Z"
+		},
+		{
 			"checksumSHA1": "++qMWbJ7ptiXehuLTFtEDGGnwpM=",
 			"path": "github.com/gorilla/websocket",
 			"revision": "9bc973af0682dc73a22553a08bfe00ee6255f56f",
