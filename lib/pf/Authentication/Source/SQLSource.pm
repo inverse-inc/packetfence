@@ -19,6 +19,7 @@ use Moose;
 extends 'pf::Authentication::Source';
 
 has '+type' => ( default => 'SQL' );
+has 'stripped_user_name' => (isa => 'Str', is => 'rw', default => 'yes');
 
 =head1 METHODS
 
