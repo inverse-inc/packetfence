@@ -69,7 +69,7 @@ sub cleanupAfterRead {
             my $value = $data->{$key};
             my @values = split( /\s*,\s*/, $value ) if $value;
             $data->{$key} = \@values;
-        } elsif ($type eq 'list') {
+        } elsif ($type eq 'list') || ($type eq 'fingerbank_select'){
             my $value = $data->{$key};
             if ($value) {
                 $data->{$key} = join("\n", split( /\s*,\s*/, $value));

@@ -83,6 +83,11 @@ sub field_list {
                 #   if $field->{element_attr}->{placeholder};
                 last;
             };
+            $type eq 'fingerbank_list' && do {
+                $field->{type} = 'FingerbankSelect';
+                $field->{element_class} = ['input-xxlarge'];
+                last;
+            };
             $type eq 'merged_list' && do {
                 delete $field->{element_attr}->{placeholder};
                 $field->{tags}->{before_element} = \&defaults_list;
