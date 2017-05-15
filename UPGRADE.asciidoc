@@ -119,6 +119,11 @@ The PacketFence Active Directory Domains integration now supports multiple DNS s
 
     sed -i.bak "s/^dns_server/dns_servers/g" /usr/local/pf/conf/domain.conf
 
+Add default values to new auth source parameters
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    /usr/local/pf/addons/upgrade/to-7.1-authentication-conf.pl
+
 Upgrading from a version prior to 7.0.0
 ---------------------------------------
 
