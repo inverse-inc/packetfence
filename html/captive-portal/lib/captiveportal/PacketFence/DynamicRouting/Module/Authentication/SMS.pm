@@ -37,6 +37,26 @@ sub allowed_urls_auth_module {
     ];
 }
 
+=head2 _build_required_fields
+
+Build the required fields based on the PID field, the custom fields and the mandatory fields of the source
+Will remove the mobileprovider field from the required fields if there is only one choice available
+
+=cut
+
+sub _build_required_fields {
+    my ($self) = @_;
+    
+    my @fields = @{$self->SUPER::_build_required_fields()};
+    if(scalar(@{$self->carriers}) == 1) {
+        @fields = (grep {$_ ne 'mobileprovider' } @fields);
+        return \@fields;
+    }
+    else {
+        return \@fields;
+    }
+}
+
 =head2 execute_child
 
 Execute the module
@@ -82,6 +102,23 @@ sub no_pin {
     $self->redirect_root();
 }
 
+=head2 carriers
+
+The SMS carriers based on the source
+
+=cut
+
+sub carriers {
+    my ($self) = @_;
+    if ( $self->source->meta->get_attribute('sms_carriers') ) {
+        my @carriers = map { { label => $_->{name}, value => $_->{id} } } @{sms_carrier_view_all($self->source)};
+        return \@carriers;
+    }
+    else {
+        return [];
+    }
+}
+
 =head2 prompt_fields
 
 Prompt fields with source specific SMS carriers
@@ -92,9 +129,8 @@ sub prompt_fields {
     my ($self) = @_;
 
     if ( $self->source->meta->get_attribute('sms_carriers') ) {
-        my @carriers = map { { label => $_->{name}, value => $_->{id} } } @{sms_carrier_view_all($self->source)};
         $self->SUPER::prompt_fields({
-            sms_carriers => \@carriers, 
+            sms_carriers => $self->carriers, 
         });
     } else {
         $self->SUPER::prompt_fields();
@@ -123,7 +159,8 @@ sub validate_info {
 
     my $telephone = $self->request_fields->{telephone};
     my $pid = $self->request_fields->{$self->pid_field};
-    my $mobileprovider = $self->request_fields->{mobileprovider};
+    my @carriers = @{$self->carriers};
+    my $mobileprovider = (scalar(@carriers) == 1) ? $carriers[0]->{"value"} : $self->request_fields->{mobileprovider};
     
     if ($self->app->reached_retry_limit('sms_request_limit', $self->app->profile->{_sms_request_limit})) {
         $self->app->flash->{error} = $GUEST::ERRORS{$GUEST::ERROR_MAX_RETRIES};
