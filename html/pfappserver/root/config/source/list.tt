@@ -1,7 +1,7 @@
 [% MACRO source_listing(id, heading, items, sortable) BLOCK %]
 [% IF items.size %]
 <h4>[% l(heading) %]</h4>
-<table id=[% id %] class="table sources" >
+<table id="[% id %]" class="table sources" >
   <thead>
     <tr>
       <th class="hidden-phone" width="20px"></th>
@@ -13,7 +13,7 @@
   </thead>
   <tbody class="[% IF sortable %]dynamic-list-sortable[% END %]">
     [% FOREACH item IN items %]
-    <tr id=[% item.id %]>
+    <tr id="[% item.id %]">
       [% IF sortable %]
       <td 
         class="hidden-phone sort-handle" 
