@@ -65,6 +65,19 @@ sub _load_file_into_array {
     return @items;
 }
 
+=item fetch_mac_by_devices 
+
+=cut 
+
+sub fetch_mac_by_devices {
+    my ($self) = @_;
+    my @oses = @{$self->oses || []};
+
+    #if no oses are defined then it will not match any oses
+    return $FALSE if @oses == 0;
+
+}
+
 =item is_allowed
 
 Validate if mac address is an allowed device mac
