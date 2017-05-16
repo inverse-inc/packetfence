@@ -25,7 +25,6 @@ has_field 'type' => (
     type           => 'Select',
     widget_wrapper => 'None',
     options_method => \&options_type,
-    element_class  => ['span3'],
     do_label       => 0,
 );
 
@@ -48,9 +47,9 @@ sub options_type {
     my ($classname, $actions_ref, @actions);
     my $form = $self->form;
 
-    my $source = $form->get_source;
     my @allowed_actions = $form->_get_allowed_options('allowed_actions');
     unless (@allowed_actions) {
+        my $source = $form->get_source;
         @allowed_actions = @{$source->available_actions()};
     }
     @actions = map { 
