@@ -46,6 +46,14 @@ has_field 'local_account_logins' => (
     },
 );
 
+has_field 'send_email_confirmation' => (
+   type => 'Toggle',
+   label => 'Send billing confirmation',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+);
+
+
 has_field test_mode => (
     type => 'Checkbox',
     checkbox_value => '1',
