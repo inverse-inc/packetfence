@@ -136,30 +136,6 @@ $(document).ready(function() {
 </form>
 
 [% ELSE %]
-<div class="layout layout--left">
-  <div class="layout__item u-mt u-2/3 u-1/1-palm">
-    <a href="/device-registration" class="btn btn--small btn--light">
-      <div class="flag">
-        <div class="flag__img">[% svgIcon(id='ic_add_circle_black_24px',size='small') %]</div>
-        <p class="flag__body">[% i18n("Register another device") %]</p>
-      </div>
-    </a>
-  </div>
-</div>
-[%- IF hasLocalAccount %]
-<div class="layout layout--left">
-  <div class="layout__item u-mt u-2/3 u-1/1-palm">
-    <a href="/status/person" class="btn btn--small btn--light">
-      <div class="flag">
-        <div class="flag__img">[% svgIcon(id='ic_person_black_24px',size='small') %]</div>
-        <p class="flag__body">[% i18n("Change my password") %]</p>
-      </div>
-    </a>
-  </div>
-</div>
-[% END %]
-<br/>
-
 
 [%- IF nodes.size > 0 %]
     <h3>[% i18n("Your registered devices") %]</h3>
@@ -202,6 +178,28 @@ $(document).ready(function() {
 </div>
 [% END %]
 
+<div class="layout layout--center">
+  <div class="layout__item u-mt u-2/3 u-1/1-palm">
+    <a href="/device-registration" class="btn btn--full btn--light">
+      <div class="flag">
+        <div class="flag__img">[% svgIcon(id='ic_add_circle_black_24px',size='small') %]</div>
+        <p class="flag__body">[% i18n("Register another device") %]</p>
+      </div>
+    </a>
+  </div>
+</div>
+[%- IF hasLocalAccount %]
+<div class="layout layout--center">
+  <div class="layout__item u-mt u-2/3 u-1/1-palm">
+    <a href="/status/person" class="btn btn--full btn--light">
+      <div class="flag">
+        <div class="flag__img">[% svgIcon(id='ic_person_black_24px',size='small') %]</div>
+        <p class="flag__body">[% i18n("Change my password") %]</p>
+      </div>
+    </a>
+  </div>
+</div>
+[% END %]
 <div class="layout layout--center">
   <div class="layout__item u-mt u-2/3 u-1/1-palm">
     <a href="/status/logout" class="btn btn--full btn--light">

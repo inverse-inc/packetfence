@@ -18,8 +18,6 @@ use warnings;
 use HTML::Entities;
 use Readonly;
 
-use fingerbank::Model::Endpoint;
-
 use pf::constants;
 use pf::config qw(%Config);
 use pf::enforcement qw(reevaluate_access);

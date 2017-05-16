@@ -1,6 +1,13 @@
-<div class="layout layout--left">
+[% IF status_msg.defined %]
+<div class="media media--notice u-p u-mb">
+  <div class="media__img">[% flashIcon(level='notice') %]</div>
+  <p class="media__body">[% i18n(status_msg) %]</p>
+</div>
+[% END %]
+
+<div class="layout layout--center">
   <div class="layout__item u-mt u-2/3 u-1/1-palm">
-    <a href="/status" class="btn btn--small btn--light">
+    <a href="/status" class="btn btn--full btn--light">
       <div class="flag">
         <div class="flag__img">[% svgIcon(id='ic_devices_black_24px',size='small') %]</div>
         <p class="flag__body">[% i18n("Manage my devices") %]</p>
@@ -8,9 +15,9 @@
     </a>
   </div>
 </div>
-<div class="layout layout--left">
+<div class="layout layout--center">
   <div class="layout__item u-mt u-2/3 u-1/1-palm">
-    <a href="/device-registration" class="btn btn--small btn--light">
+    <a href="/device-registration" class="btn btn--full btn--light">
       <div class="flag">
         <div class="flag__img">[% svgIcon(id='ic_add_circle_black_24px',size='small') %]</div>
         <p class="flag__body">[% i18n("Register another device") %]</p>
@@ -19,9 +26,9 @@
   </div>
 </div>
 [% IF hasLocalAccount %]
-<div class="layout layout--left">
+<div class="layout layout--center">
   <div class="layout__item u-mt u-2/3 u-1/1-palm">
-    <a href="/status/person" class="btn btn--small btn--light">
+    <a href="/status/person" class="btn btn--full btn--light">
       <div class="flag">
         <div class="flag__img">[% svgIcon(id='ic_person_black_24px',size='small') %]</div>
         <p class="flag__body">[% i18n("Change my password") %]</p>
@@ -30,11 +37,13 @@
   </div>
 </div>
 [% END %]
-<br/>
-
-[% IF status_msg.defined %]
-<div class="media media--notice u-p u-mb">
-  <div class="media__img">[% flashIcon(level='notice') %]</div>
-  <p class="media__body">[% i18n(status_msg) %]</p>
+<div class="layout layout--center">
+  <div class="layout__item u-mt u-2/3 u-1/1-palm">
+    <a href="/device-registration/logout" class="btn btn--full btn--light">
+      <div class="flag">
+        <div class="flag__img">[% svgIcon(id='ic_close_black_24px',size='small') %]</div>
+        <p class="flag__body">[% i18n("Logout") %]</p>
+      </div>
+    </a>
+  </div>
 </div>
-[% END %]
