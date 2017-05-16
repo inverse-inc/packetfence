@@ -106,11 +106,13 @@ sub iptables_generate {
     my $google_enabled = $guest_self_registration{$SELFREG_MODE_GOOGLE};
     my $facebook_enabled = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
     my $github_enabled = $guest_self_registration{$SELFREG_MODE_GITHUB};
-    my $passthrough_enabled = isenabled($Config{'fencing'}{'passthrough'});
+    my $passthrough_enabled = (isenabled($Config{'fencing'}{'passthrough'}) || isenabled($Config{'fencing'}{'isolation_passthrough'}));
 
     if ($google_enabled || $facebook_enabled || $github_enabled || $passthrough_enabled) {
         $cmd = "sudo ipset --create pfsession_passthrough hash:ip,port 2>&1";
         my @lines  = pf_run($cmd);
+        $cmd = "sudo ipset --create pfsession_isol_passthrough hash:ip,port 2>&1";
+        @lines  = pf_run($cmd);
     }
     $self->SUPER::iptables_generate();
 }

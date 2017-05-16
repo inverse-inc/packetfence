@@ -19,6 +19,7 @@ use pf::constants;
 use pfconfig::cached_hash;
 
 tie our %passthroughs, 'pfconfig::cached_hash', 'resource::passthroughs';
+tie our %isolation_passthroughs, 'pfconfig::cached_hash', 'resource::isolation_passthroughs';
 
 =head2 matches_passthrough
 
@@ -49,6 +50,42 @@ sub matches_passthrough {
         my $domain = join('.', @sub_parts);
         if(exists($passthroughs{wildcard}{$domain})) {
             return ($TRUE, $passthroughs{wildcard}{$domain});
+        }
+    }
+
+    # Fallback to not a passthrough
+    return ($FALSE, []);
+}
+
+=head2 matches_isolation_passthrough
+
+Whether or not a domain matches a configured DNS isolation passthrough
+
+Returns 2 values
+- Whether or not it matched
+- List of ports that should be opened for this domain
+
+=cut
+
+sub matches_isolation_passthrough {
+    my ($domain) = @_;
+
+    # undef domains are not passthroughs
+    return ($FALSE, []) unless(defined($domain));
+
+    # Check for non-wildcard passthroughs
+    if(exists($isolation_passthroughs{normal}{$domain})) {
+        return ($TRUE, $isolation_passthroughs{normal}{$domain});
+    }
+
+    # check if its a sub-domain of a wildcard domain
+    my @parts = split(/\./, $domain);
+    my $last_element = scalar(@parts)-1;
+    for (my $i=$last_element; $i>0; $i--) {
+        my @sub_parts = @parts[$i..$last_element];
+        my $domain = join('.', @sub_parts);
+        if(exists($isolation_passthroughs{wildcard}{$domain})) {
+            return ($TRUE, $isolation_passthroughs{wildcard}{$domain});
         }
     }
 

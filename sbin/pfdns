@@ -86,6 +86,7 @@ my @routed_dns_enforcement_nets_named;
 
 my $CHI_CACHE = pf::CHI->new( namespace => 'pfdns' );
 our $IPSET_SESSION = 'pfsession_passthrough';
+our $IPSET_ISOL_SESSION = 'pfsession_isol_passthrough';
 
 Readonly::Scalar our $TTL                => '15';
 Readonly::Scalar our $HTTPS_PORT         => '443';
@@ -140,8 +141,11 @@ our @WORKERS = (1 .. $CHILDREN_TO_START);
 our $ALARM_RECV = 0;
 
 our $IPSET_CACHE = pf::ipset_cache->new({setname => $IPSET_SESSION});
+our $IPSET_ISOL_CACHE = pf::ipset_cache->new({setname => $IPSET_ISOL_SESSION});
+
 #Load the ipset cache before setting up the signals to avoid the child handler being called
 $IPSET_CACHE->populate_cache();
+$IPSET_ISOL_CACHE->populate_cache();
 
 $SIG{HUP} = \&normal_sighandler;
 $SIG{INT} = \&normal_sighandler;
@@ -244,7 +248,19 @@ sub response_handler {
 
     foreach my $network (@routed_inline_nets_named) {
         if ($network->contains($ip)) {
-            return regzone($qname, $qclass, $qtype, $peerhost, $query, $conn, 'inline', $args);
+            my $mac = pf::ip4log::ip2mac($ip_addr);
+
+            unless($mac){
+                $logger->warn("Can't lookup IP $ip_addr to a MAC address. Returning result as if unreg.");
+                return regzone($qname, $qclass, $qtype, $peerhost, $query, $conn, 'dnsenforcement', $args);
+            }
+            require pf::violation;
+            my $top_violation = pf::violation::violation_view_top($mac);
+            if (defined($top_violation)) {
+                return isolzone($qname, $qclass, $qtype, $peerhost, $query, $conn, 'inline', $args);
+            } else {
+                return regzone($qname, $qclass, $qtype, $peerhost, $query, $conn, 'inline', $args);
+            }
         }
     }
 
@@ -445,6 +461,39 @@ sub regzone_non_filtered {
     return \%results;
 }
 
+=head2 isolzone_non_filtered
+
+Non filtered isolation zone answered
+
+=cut
+
+sub isolzone_non_filtered {
+    my ($qname, $qclass, $qtype, $peerhost, $query, $conn) = @_;
+    my ($matches_passthrough, $ports) = pf::util::dns::matches_isolation_passthrough($qname);
+    #Exit early if it does not match
+    return unless($qtype eq 'A' && isenabled($Config{fencing}{isolation_passthrough}) && $matches_passthrough);
+    my @ans;
+    my %results = (
+        ans   => \@ans,
+        rcode => "NXDOMAIN",
+    );
+    my ($ttl, $rdata);
+    my $res = Net::DNS::Resolver->new;
+    my $query_non_filtered = resolve_with_cache("A", $qname);
+    my @ip_port_pairs;
+    if ($query_non_filtered) {
+        push @ip_port_pairs, format_query_to_ip_port($query_non_filtered, $HTTP_PORT, $HTTPS_PORT);
+        push @ans, $query_non_filtered->answer;
+        if (@ans) {
+            $results{rcode} = "NOERROR";
+        }
+        else {
+            $logger->warn("Unresolved passthrough domain $qname");
+        }
+    }
+    $IPSET_ISOL_CACHE->add_pairs(\@ip_port_pairs);
+    return \%results;
+}
 
 =head2 isolzone
 
@@ -458,6 +507,12 @@ sub isolzone {
     my $_EXIT_CODE_EXISTS = "1";
 
     $logger->trace("Requested Domain: ".$qname);
+    my $results = isolzone_non_filtered($qname, $qclass, $qtype, $peerhost, $query, $conn);
+    if ($results) {
+        my @answer = ($results->{rcode}, $results->{ans}, \@auth, \@add, { aa => 1 });
+        $logger->trace(sub { use Data::Dumper; "Response : ".Dumper(\@answer) });
+        return @answer;
+    }
     if ($qtype eq "A") {
         my $ttl = $TTL;
         my $rdata = (defined($loadb_ip->{$conn->{sockhost}})) ? $loadb_ip->{$conn->{sockhost}} : $conn->{sockhost};
