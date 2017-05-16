@@ -108,8 +108,7 @@ Build the render list from the fields defined in the class
 
 sub render_list_definition {
     my ($self) = @_;
-    my $meta = $self->meta;
-    my @fields =  grep {!exists $EXCLUDE{$_}} map { $_->{name}} @{$meta->field_list};
+    my @fields =  grep {!exists $EXCLUDE{$_}} map { $_->{name}} $self->all_fields;
     return \@fields;
 }
 
