@@ -18,11 +18,17 @@ use Moo;
 use pf::file_paths qw($install_dir);
 use pf::log;
 use pf::util;
-use pf::config qw(
+
+use pf::config qw (
     %ConfigNetworks
+    %Config
+    @listen_ints
 );
+use pf::nodecategory qw(nodecategory_view_all);
+
 use IPC::Cmd qw[can_run run];
 use pf::constants qw($TRUE $FALSE);
+use POSIX qw(ceil);
 
 extends 'pf::services::manager';
 
@@ -155,10 +161,20 @@ Add or remove static routes on the system
 sub manageStaticRoute {
     my $add_Route = @_;
     my $logger = get_logger();
+    my $full_path = can_run('ip');
 
     if (!$add_Route) {
         if (-f "$install_dir/var/static_routes.bak") {
             open (my $fh, "$install_dir/var/static_routes.bak");
+            while (my $row = <$fh>) {
+                chomp $row;
+                my $cmd = untaint_chain($row);
+                my @out = pf_run($cmd);
+            }
+            close $fh;
+        }
+        if (-f "$install_dir/var/virtual_routes.bak") {
+            open (my $fh, "$install_dir/var/virtual_routes.bak");
             while (my $row = <$fh>) {
                 chomp $row;
                 my $cmd = untaint_chain($row);
@@ -185,6 +201,55 @@ sub manageStaticRoute {
             }
         }
         close $fh;
+        open ($fh, "+>$install_dir/var/virtual_routes.bak");
+
+        foreach my $interface ( @listen_ints ) {
+            my $cfg = $Config{"interface $interface"};
+            next unless $cfg;
+            my $current_interface = NetAddr::IP->new( $cfg->{'ip'}, $cfg->{'mask'} );
+
+            foreach my $network ( keys %ConfigNetworks ) {
+                # shorter, more convenient local accessor
+                my %net = %{$ConfigNetworks{$network}};
+                my $current_network = NetAddr::IP->new( $network, $net{'netmask'} );
+                my $ip = NetAddr::IP::Lite->new(clean_ip($net{'gateway'}));
+                if (defined($net{'next_hop'})) {
+                    $ip = NetAddr::IP::Lite->new(clean_ip($net{'next_hop'}));
+                }
+                if ($current_interface->contains($ip)) {
+                    if ( $net{'dhcpd'} eq 'enabled' ) {
+                        if (isenabled($net{'split_network'})) {
+                            my @categories = nodecategory_view_all();
+                            push @categories, {'category_id' => '0', 'notes' => 'registration',  'max_nodes_per_pid' => '0', 'name' => 'registration'  };
+                            my $count = @categories;
+                            my $len = $current_network->masklen;
+                            my $cidr = (ceil(log($count)/log(2)) + $len);
+                            if ($cidr > 30) {
+                                $logger->error("Can't split network");
+                                return;
+                            }
+                            my @sub_net = $current_network->split($cidr);
+                            foreach my $net (@sub_net) {
+                                my $role = pop @categories;
+                                next unless $role->{'name'};
+                                my $pool = $role->{'name'}.$interface;
+                                my $pf_ip = $net + 1;
+                                my $cmd = "sudo $full_path addr del ".$pf_ip->addr."/32 dev $interface";
+                                $cmd = untaint_chain($cmd);
+                                print $fh $cmd."\n";
+                                my @out = pf_run($cmd);
+                                $cmd = "sudo $full_path addr add ".$pf_ip->addr."/32 dev $interface";
+                                @out = pf_run($cmd);
+                                my $first = $net + 2;
+                            }
+                        }
+                    }
+                } else {
+                    next;
+                }
+            }
+        }
+        close $fh;
     }
 }
 
@@ -197,7 +262,7 @@ sub isManaged {
         # shorter, more convenient local accessor
         my %net = %{$ConfigNetworks{$network}};
 
-        if ( defined($net{'next_hop'}) && ($net{'next_hop'} =~ /^(?:\d{1,3}\.){3}\d{1,3}$/) ) {
+        if ( ( defined($net{'next_hop'}) && ($net{'next_hop'} =~ /^(?:\d{1,3}\.){3}\d{1,3}$/) ) || isenabled($net{'split_network'}) ) {
             return $TRUE;
         }
     }
