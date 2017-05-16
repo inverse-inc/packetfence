@@ -28,7 +28,7 @@ Depends: ${misc:Depends}, vlan,
  libapache2-request-perl, libtie-dxhash-perl, libapache-session-perl,
  libapache-ssllookup-perl,
 # freeradius
- freeradius (>= 3.0.13.9), freeradius-ldap, 
+ freeradius (>= 3.0.14.2), freeradius-ldap, 
  freeradius-mysql, freeradius-utils, freeradius-rest, freeradius-redis,
 # binary
  make,

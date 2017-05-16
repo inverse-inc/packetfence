@@ -92,7 +92,7 @@ Requires: mod_perl, mod_proxy_html
 requires: libapreq2
 Requires: dhcp
 Requires: redis
-Requires: freeradius >= 3.0.13-19, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils, freeradius-redis, freeradius-rest, freeradius-radsniff >= 3.0.13-19
+Requires: freeradius >= 3.0.14-2, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils, freeradius-redis, freeradius-rest, freeradius-radsniff >= 3.0.14-2
 Requires: make
 Requires: net-tools
 Requires: sscep
@@ -727,6 +727,9 @@ sed -i 's/\%.*$//g' /etc/resolv.conf
 echo "# ip forwarding enabled by packetfence" > /etc/sysctl.d/99-ip_forward.conf
 echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.d/99-ip_forward.conf
 sysctl -p /etc/sysctl.d/99-ip_forward.conf
+
+# reloading systemd unit files
+/bin/systemctl daemon-reload
 
 #Starting PacketFence.
 echo "Starting PacketFence Administration GUI..."
