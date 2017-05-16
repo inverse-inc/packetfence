@@ -73,6 +73,7 @@ has_field 'actions' => (
     type     => 'DynamicList',
     do_label => 1,
     required => 1,
+    sortable => 1,
     num_when_empty => 1,
 );
 
