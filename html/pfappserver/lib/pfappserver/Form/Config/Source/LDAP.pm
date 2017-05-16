@@ -10,9 +10,13 @@ Form definition to create or update a LDAP user source.
 
 =cut
 
+use pf::Authentication::Source::LDAPSource;
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Source';
 with 'pfappserver::Base::Form::Role::Help';
+
+our $META = pf::Authentication::Source::LDAPSource->meta;
+
 
 # Form fields
 has_field 'host' =>
@@ -21,6 +25,7 @@ has_field 'host' =>
    label => 'Host',
    element_class => ['input-small'],
    element_attr => {'placeholder' => '127.0.0.1'},
+   default => $META->get_attribute('host')->default,
   );
 has_field 'port' =>
   (
@@ -28,16 +33,16 @@ has_field 'port' =>
    label => 'Port',
    element_class => ['input-mini'],
    element_attr => {'placeholder' => '389'},
+   default => $META->get_attribute('port')->default,
   );
 has_field 'connection_timeout' =>
   (
     type         => 'PosInteger',
     label        => 'Connection timeout',
     element_attr => {
-        'placeholder' =>
-            pf::Authentication::Source::LDAPSource->meta->get_attribute('connection_timeout')->default
+        'placeholder' => $META->get_attribute('connection_timeout')->default
     },
-    default => pf::Authentication::Source::LDAPSource->meta->get_attribute('connection_timeout')->default,
+    default => $META->get_attribute('connection_timeout')->default,
   );
 has_field 'encryption' =>
   (
@@ -51,12 +56,14 @@ has_field 'encryption' =>
    ],
    required => 1,
    element_class => ['input-small'],
+   default => 'none',
   );
 has_field 'basedn' =>
   (
    type => 'Text',
    label => 'Base DN',
    required => 1,
+   default => '',
    element_class => ['span10'],
   );
 has_field 'scope' =>
@@ -71,12 +78,14 @@ has_field 'scope' =>
     { value => 'sub', label => 'Subtree' },
     { value => 'children', label => 'Children' },
    ],
+   default => 'base',
   );
 has_field 'usernameattribute' =>
   (
    type => 'Text',
    label => 'Username Attribute',
    required => 1,
+   default => '',
   );
 has_field 'binddn' =>
   (
@@ -85,12 +94,14 @@ has_field 'binddn' =>
    element_class => ['span10'],
    tags => { after_element => \&help,
              help => 'Leave this field empty if you want to perform an anonymous bind.' },
+   default => '',
   );
 has_field 'password' =>
   (
    type => 'Password',
    label => 'Password',
    trim => undef,
+   default => '',
   );
 has_field 'stripped_user_name' =>
   (
@@ -101,6 +112,7 @@ has_field 'stripped_user_name' =>
    label           => 'Use stripped username ',
    tags => { after_element => \&help,
              help => 'Use stripped username returned by RADIUS to test the following rules.' },
+   default => $META->get_attribute('stripped_user_name')->default,
   );
 
 has_field 'cache_match',
@@ -109,16 +121,16 @@ has_field 'cache_match',
    label => 'Cache match',
    checkbox_value => '1',
    unchecked_value => '0',
-   default => 0,
    tags => { after_element => \&help,
              help => 'Will cache results of matching a rule' },
+   default => $META->get_attribute('cache_match')->default,
   );
 
 has_field 'email_attribute' => (
     type => 'Text',
     label => 'Email attribute',
     required => 0,
-    default => pf::Authentication::Source::LDAPSource->meta->get_attribute('email_attribute')->default,
+    default => $META->get_attribute('email_attribute')->default,
     tags => {
         after_element => \&help,
         help => 'LDAP attribute name that stores the email address against which the filter will match.',
