@@ -18,78 +18,106 @@ use warnings;
 use HTML::Entities;
 use Readonly;
 
-use pf::config;
-use pf::file_paths qw($allowed_device_oui_file $allowed_device_types_file);
+use pf::constants;
+use pf::config qw(%Config);
 use pf::enforcement qw(reevaluate_access);
 use pf::node qw(node_register is_max_reg_nodes_reached);
 use pf::util;
+use pf::db;
+use pf::log;
 use pf::web;
 use pf::web::custom;    # called last to allow redefinitions
 
 use pf::authentication;
 use pf::Authentication::constants;
 use List::MoreUtils qw(any);
+use constant DEVICE_REGISTRATION => 'device_registration';
 
-Readonly our @DEVICE_OUI => _load_file_into_array($allowed_device_oui_file);
-Readonly our @DEVICE_TYPES => _load_file_into_array($allowed_device_types_file);
+# The next two variables and the _prepare sub are required for database handling magic (see pf::db)
+our $device_registration_db_prepared = 0;
+# in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
+# the hash if required
+our $device_registration_statements = {};
 
 =head1 SUBROUTINES
 
-=over
+=cut
+
+=head1 device_registration_db_prepared
+
+Queries to fetch mac_vendor_id and device_id matching
 
 =cut
 
+sub device_registration_db_prepared {
+    my $logger = get_logger(); 
+    $logger->debug("Preparing pf::web::device_registration database queries");
+    
+    $device_registration_statements->{device_registration_mac_vendor_id_sql} = get_db_handle()->prepare(qq[ 
+        SELECT id 
+        FROM mac_vendor 
+        WHERE mac= ?
+    ]);
 
-=item _load_file_into_array
+    $device_registration_statements->{device_registration_device_id_sql} = get_db_handle()->prepare(qq[ 
+        SELECT device_id 
+        FROM combination 
+        WHERE mac_vendor_id= ?
+        GROUP BY device_id 
+        ORDER BY count(device_id) desc LIMIT 1
+    ]);
 
-Loads each line of file into array
-Trimming spaces and removing shell style comments from each line
-
-=cut
-
-sub _load_file_into_array {
-    my ($file_name) = @_;
-    my @items;
-    if(-r $file_name) {
-        local *FILE;
-        open(FILE,$file_name);
-        @items =
-            grep {$_}
-            map {
-                #Getting rid of newlines, comments and trimming spaces
-                chomp; s/#.*$//; s/^\s+//; s/\s+$//;
-                $_;
-            } <FILE>;
-        close(FILE);
-    }
-    return @items;
+    $device_registration_db_prepared = 1;
 }
 
-=item fetch_mac_by_devices 
+=item mac_vendor_id
+
+Get the matching mac_vendor_id from Fingerbank
+
+=cut
+
+sub mac_vendor_id {
+    my ($mac) = @_; 
+
+    return(db_query_execute(DEVICE_REGISTRATION, $device_registration_statements, 'device_registration_mac_vendor_id_sql', $mac));
+}
+
+=item device_id
+
+Get the matching device_id from Fingerbank
+
+=cut
+
+sub device_id {
+    my ($mac_vendor_id) = @_; 
+    
+    return(db_query_execute(DEVICE_REGISTRATION, $device_registration_statements, 'device_registration_device_id_sql', $mac_vendor_id));
+}
+
+=item is_allowed 
+
+Verify 
 
 =cut 
 
-sub fetch_mac_by_devices {
-    my ($self) = @_;
-    my @oses = @{$self->oses || []};
+sub is_allowed {
+    my ($self, $mac) = @_;
+    my $oses = $Config{'device_registration'}{'oses'};
+    my @oses = split(',', $oses);
 
     #if no oses are defined then it will not match any oses
     return $FALSE if @oses == 0;
 
-}
+    $mac =~ s/://g;
+    my $mac_vendor = substr($mac, 0,6);
+    my $mac_vendor_id = mac_vendor_id($mac_vendor);
+    my $device_id = device_id($mac_vendor_id);
 
-=item is_allowed
-
-Validate if mac address is an allowed device mac
-
-=cut
-
-sub is_allowed {
-    my ($mac) = @_;
-    return 1 unless @DEVICE_OUI;
-    $mac =~ s/O/0/i;
-    $mac = clean_mac($mac);
-    return any { $mac =~ /^\Q$_\E/i } @DEVICE_OUI;
+    if (grep {$device_id eq $_} @oses) {
+        return $TRUE
+    } else {
+        return $FALSE
+    }
 }
 
 =back
