@@ -47,10 +47,6 @@ has_field 'domains' =>
              help => 'Comma separated list of domains that will be resolve with the correct IP addresses.' },
   );
 
-has_block definition => (
-    render_list => [qw(api_login_id transaction_key md5_hash domains currency test_mode create_local_account local_account_logins)]
-);
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
