@@ -18,10 +18,11 @@ with 'pfappserver::Base::Form::Role::Help';
 # Form fields
 has_field 'path' =>
   (
-   type => 'Text',
+   type => 'Path',
    label => 'File Path',
    required => 1,
    element_class => ['input-xxlarge'],
+   default => '',
   );
 has_field 'stripped_user_name' =>
   (
@@ -33,12 +34,6 @@ has_field 'stripped_user_name' =>
    tags => { after_element => \&help,
              help => 'Use stripped username returned by RADIUS to test the following rules.' },
   );
-
-has_block  definition =>
-  (
-    render_list => [qw(path stripped_user_name)],
-  );
-
 
 =head2 validate
 
