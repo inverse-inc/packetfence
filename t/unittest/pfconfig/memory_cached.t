@@ -69,7 +69,7 @@ is($result, "value changed !",
 $manager->touch_cache($testns2);
 
 $result = $mem->compute_from_subcache($testkey, sub {"value changed again !"});
-is($result, "value changed !", 
+is($result, "value changed again !", 
     "Value is properly recompute_from_subcached when on of the namespaces expired.");
 
 
