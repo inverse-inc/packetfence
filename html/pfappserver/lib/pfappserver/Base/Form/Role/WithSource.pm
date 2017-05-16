@@ -25,6 +25,8 @@ after 'setup' => sub {
     }
     else {
         $self->field('source_id')->options([$self->options_sources(multiple => 0)]);
+
+        # The multi-source field should be set to inactive so it doesn't display
         $self->field('multi_source_ids')->inactive($TRUE);
     }
 
@@ -40,8 +42,15 @@ after 'process' => sub {
     }
 };
 
+=head2 source_fields
+
+The fields that need to be used to display the source(s) selection
+
+=cut
+
 sub source_fields {
     my ($self) = @_;
+    # No need to add the multi_source_ids fields as it will be taken when looking at all the dynamic tables
     return $self->for_module->does('captiveportal::Role::MultiSource') ? qw() : qw(source_id);
 }
 
@@ -69,16 +78,6 @@ has_field 'source_id' =>
    tags => { after_element => \&help,
              help => 'The sources to use in the module. If no sources are specified, all the sources on the Connection Profile will be used' },
   );
-
-#sub field_list {
-#    my ($self) = @_;
-#    use Data::Dumper; get_logger->info(Dumper(\@_));
-#    my $class = ref($self);
-#    get_logger->info("yes hello i'm zayme president of zaymebabwe ". $class);
-#    require $class;
-#    return $class::field_list($self);
-#}
-
 
 sub options_sources {
     my ($self, %options) = @_;

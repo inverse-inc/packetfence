@@ -21,6 +21,8 @@ use pf::file_paths qw(
 );
 extends 'pf::ConfigStore';
 
+use pf::log;
+
 sub configFile { $portal_modules_config_file};
 
 sub importConfigFile { $portal_modules_default_config_file }
@@ -58,6 +60,7 @@ sub cleanupBeforeCommit {
     
     # portal_modules.conf always stores sources in source_id whether they are multiple or single, so we take multi_source_ids and put it in source_id
     if (scalar(@{$object->{multi_source_ids}}) > 0) {
+        get_logger->debug("Multiple sources were defined for this object, taking the content of multi_source_ids to put it in source_id");
         $object->{source_id} = delete $object->{multi_source_ids};
     } else {
         delete $object->{multi_source_ids};
