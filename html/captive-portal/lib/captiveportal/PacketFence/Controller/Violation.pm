@@ -75,6 +75,7 @@ sub index : Path : Args(0) {
             'title'        => 'violation: quarantine established',
             'template'     => 'remediation.html',
             'sub_template' => $subTemplate,
+            'redirect_url' => $class->{'redirect_url'},
             map { $_ => $node_info->{$_} }
               qw(dhcp_fingerprint last_switch last_port
               last_vlan last_connection_type last_ssid username)
