@@ -556,12 +556,12 @@ description=Cache switches LLDP local port descriptions
 #
 # status
 #
-# If the task auth_log_cleanup is enabled
+# If the task switch_cache_lldpLocalPort_description is enabled
 status=enabled
 #
 # interval
 #
-# At which interval to run the auth log cleanup pfmon task
+# At which interval to run the switch_cache_lldpLocalPort_description pfmon task
 interval=1m
 #
 # process_switchranges
