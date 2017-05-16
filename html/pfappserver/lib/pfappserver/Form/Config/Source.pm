@@ -93,6 +93,13 @@ sub build_render_list_definition {
     return $block->form->render_list_definition;
 }
 
+our %EXCLUDE = (
+    id => 1,
+    type => 1,
+    description => 1,
+    rules => 1,
+);
+
 =head2 render_list_definition
 
 Build the render list from the fields defined in the class
@@ -102,7 +109,7 @@ Build the render list from the fields defined in the class
 sub render_list_definition {
     my ($self) = @_;
     my $meta = $self->meta;
-    my @fields = map { $_->{name}} @{$meta->field_list};
+    my @fields =  grep {!exists $EXCLUDE{$_}} map { $_->{name}} @{$meta->field_list};
     return \@fields;
 }
 
@@ -200,7 +207,7 @@ sub get_source {
     my ($self) = @_;
     my $args = $self->getSourceArgs;
     my $source_type = $self->source_type;
-    return newAuthenticationSource($source_type, 'source', {rules =>[], %$args, id => 'source'});
+    return newAuthenticationSource($source_type, 'source', { %$args, id => 'source', rules =>[]});
 }
 
 
@@ -212,12 +219,12 @@ get the source args
 
 sub getSourceArgs {
     my ($self) = @_;
-    my $args = $self->init_object;
+    my $args = $self->value;
     if (!defined ($args) || keys %$args == 0 ) {
         $args = $self->params;
     }
     if (!defined ($args) || keys %$args == 0 ) {
-        $args = $self->value;
+        $args = $self->init_object;
     }
     return $args;
 }
