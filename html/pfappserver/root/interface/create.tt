@@ -17,6 +17,7 @@
     [% form.field('vip').render | none %]
     [% form.field('dhcpd_enabled').render | none %]
     [% form.field('nat_enabled').render | none %]
+    [% form.field('split_network').render | none %]
     <p class="info_inline">[% l('Remember to enable ip_forward on your operating system for the inline mode to work.') %]</p>
     <p class="info_routed">[% l('Since NATting mode is disabled, PacketFence will adjust iptables to rules to route traffic rather than natting it. Make sure to add the routes on the system.') %]</p>
   </div>

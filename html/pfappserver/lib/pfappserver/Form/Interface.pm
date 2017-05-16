@@ -98,6 +98,14 @@ has_field 'nat_enabled' => (
     label => 'Enable NATting',
 );
 
+has_field 'split_network' => (
+    type => 'Toggle',
+    checkbox_value => 1,
+    unchecked_value => 0,
+    default => 0,
+    label => 'Split network by role',
+);
+
 =head2 options_type
 
 =cut
