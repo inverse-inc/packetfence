@@ -27,7 +27,7 @@ has source_type => (is => 'ro', builder => '_build_source_type', lazy => 1);
 has_field 'id' =>
   (
    type => 'Text',
-   label => 'Source Name',
+   label => 'Name',
    required => 1,
    messages => { required => 'Please specify the name of the source entry' },
   );
