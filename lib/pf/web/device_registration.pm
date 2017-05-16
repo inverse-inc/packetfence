@@ -84,11 +84,11 @@ Verify
 
 sub is_allowed {
     my ($mac) = @_;
-    my @oses = $Config{'device_registration'}{'oses'};
+    my $logger = get_logger();
+    my @oses = @{$Config{'device_registration'}{'oses'}};
 
     #if no oses are defined then it will not match any oses
     return $FALSE if @oses == 0;
-    my $logger = get_logger();
 
     $mac =~ s/://g;
     my $mac_vendor = substr($mac, 0,6);
@@ -97,23 +97,17 @@ sub is_allowed {
     my ($status, $result) = fingerbank::Model::Device->find([{ id => $device_id}, {columns => ['name']}]);
 
     # We are loading the fingerbank endpoint model to verify if the device id is matching as a parent or child
-
     if (is_success($status)){
         my $device_name = $result->name;
         my $endpoint = fingerbank::Model::Endpoint->new(name => $device_name, version => undef, score => undef);
-        my $endpoint_id = $endpoint->is_a_by_id($device_id);
-        $logger->debug("The device id requested to register is ".$device_id." .");
 
-        if (grep {$endpoint_id eq $_} @oses) {
+        for my $id (@oses) {
             $logger->debug("The devices type ".$device_name." is authorized to be registered via the device-registration module");
-            return $TRUE
-        } else {
-            $logger->debug("The devices type ".$device_name." is not authorized to be registered via the device-registration module");
-            return $FALSE
+            return $TRUE if($endpoint->is_a_by_id($id));
         }
     } else {
         $logger->debug("Cannot find a matching device name for this device id ".$device_id." .");
-        return $FALSE
+        return $FALSE;
     }
 }
 

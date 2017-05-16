@@ -178,7 +178,7 @@ sub registerNode : Private {
             reevaluate_access($mac, 'manage_register');
         }
     } else {
-        $self->showError($c,"Please verify the provided MAC address.");
+        $self->showError($c,"The provided MAC address is not allowed to be register.");
     }
 }
 
