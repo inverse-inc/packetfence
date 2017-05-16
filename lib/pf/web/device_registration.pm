@@ -18,6 +18,7 @@ use warnings;
 use HTML::Entities;
 use Readonly;
 
+use fingerbank::Model::Endpoint;
 use pf::constants;
 use pf::config qw(%Config);
 use pf::enforcement qw(reevaluate_access);
@@ -31,7 +32,7 @@ use pf::web::custom;    # called last to allow redefinitions
 use pf::authentication;
 use pf::Authentication::constants;
 use List::MoreUtils qw(any);
-use constant DEVICE_REGISTRATION => 'device_registration';
+use constant DEVICE_REGISTRATION => 'web::device_registration';
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $device_registration_db_prepared = 0;
@@ -43,24 +44,24 @@ our $device_registration_statements = {};
 
 =cut
 
-=head1 device_registration_db_prepared
+=head1 device_registration_db_prepare
 
 Queries to fetch mac_vendor_id and device_id matching
 
 =cut
 
-sub device_registration_db_prepared {
+sub device_registration_db_prepare {
     my $logger = get_logger(); 
     $logger->debug("Preparing pf::web::device_registration database queries");
     
-    $device_registration_statements->{device_registration_mac_vendor_id_sql} = get_db_handle()->prepare(qq[ 
+    $device_registration_statements->{'device_registration_mac_vendor_id_sql'} = get_db_handle()->prepare(qq[ 
         SELECT id 
         FROM mac_vendor 
         WHERE mac= ?
     ]);
 
-    $device_registration_statements->{device_registration_device_id_sql} = get_db_handle()->prepare(qq[ 
-        SELECT device_id 
+    $device_registration_statements->{'device_registration_device_id_sql'} = get_db_handle()->prepare(qq[ 
+        SELECT device_id, device_name 
         FROM combination 
         WHERE mac_vendor_id= ?
         GROUP BY device_id 
@@ -101,9 +102,8 @@ Verify
 =cut 
 
 sub is_allowed {
-    my ($self, $mac) = @_;
-    my $oses = $Config{'device_registration'}{'oses'};
-    my @oses = split(',', $oses);
+    my ($mac) = @_;
+    my @oses = $Config{'device_registration'}{'oses'};
 
     #if no oses are defined then it will not match any oses
     return $FALSE if @oses == 0;
@@ -111,9 +111,14 @@ sub is_allowed {
     $mac =~ s/://g;
     my $mac_vendor = substr($mac, 0,6);
     my $mac_vendor_id = mac_vendor_id($mac_vendor);
-    my $device_id = device_id($mac_vendor_id);
+    my ($device_id, $device_name) = device_id($mac_vendor_id);
 
-    if (grep {$device_id eq $_} @oses) {
+    # We are loading the fingerbank endpoint model to verify if the device id is matching as a parent or child
+
+    my $endpoint = fingerbank::Model::Endpoint->new(name => $device_name, version => undef, score => undef);
+    my $endpoint_id = $endpoint->is_a_by_id($device_id);
+
+    if (grep {$endpoint_id eq $_} @oses) {
         return $TRUE
     } else {
         return $FALSE
