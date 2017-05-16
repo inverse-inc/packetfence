@@ -19,12 +19,13 @@ use HTML::Entities;
 use Readonly;
 
 use fingerbank::Model::Endpoint;
+
 use pf::constants;
 use pf::config qw(%Config);
 use pf::enforcement qw(reevaluate_access);
 use pf::node qw(node_register is_max_reg_nodes_reached);
 use pf::util;
-use pf::db;
+use pf::error qw(is_success);
 use pf::log;
 use pf::web;
 use pf::web::custom;    # called last to allow redefinitions
@@ -32,44 +33,10 @@ use pf::web::custom;    # called last to allow redefinitions
 use pf::authentication;
 use pf::Authentication::constants;
 use List::MoreUtils qw(any);
-use constant DEVICE_REGISTRATION => 'web::device_registration';
-
-# The next two variables and the _prepare sub are required for database handling magic (see pf::db)
-our $device_registration_db_prepared = 0;
-# in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
-# the hash if required
-our $device_registration_statements = {};
 
 =head1 SUBROUTINES
 
 =cut
-
-=head1 device_registration_db_prepare
-
-Queries to fetch mac_vendor_id and device_id matching
-
-=cut
-
-sub device_registration_db_prepare {
-    my $logger = get_logger(); 
-    $logger->debug("Preparing pf::web::device_registration database queries");
-    
-    $device_registration_statements->{'device_registration_mac_vendor_id_sql'} = get_db_handle()->prepare(qq[ 
-        SELECT id 
-        FROM mac_vendor 
-        WHERE mac= ?
-    ]);
-
-    $device_registration_statements->{'device_registration_device_id_sql'} = get_db_handle()->prepare(qq[ 
-        SELECT device_id, device_name 
-        FROM combination 
-        WHERE mac_vendor_id= ?
-        GROUP BY device_id 
-        ORDER BY count(device_id) desc LIMIT 1
-    ]);
-
-    $device_registration_db_prepared = 1;
-}
 
 =item mac_vendor_id
 
@@ -79,8 +46,15 @@ Get the matching mac_vendor_id from Fingerbank
 
 sub mac_vendor_id {
     my ($mac) = @_; 
+    my $logger = get_logger();
 
-    return(db_query_execute(DEVICE_REGISTRATION, $device_registration_statements, 'device_registration_mac_vendor_id_sql', $mac));
+    my ($status, $result) = fingerbank::Model::MAC_Vendor->find([{ mac => $mac }, {columns => ['id']}]);
+
+    if(is_success($status)){
+        return $result->id;
+    }else {
+        $logger->debug("Cannot find mac vendor ".$mac." in the database");
+    }
 }
 
 =item device_id
@@ -91,8 +65,15 @@ Get the matching device_id from Fingerbank
 
 sub device_id {
     my ($mac_vendor_id) = @_; 
-    
-    return(db_query_execute(DEVICE_REGISTRATION, $device_registration_statements, 'device_registration_device_id_sql', $mac_vendor_id));
+    my $logger = get_logger();
+
+    my ($status, $result) = fingerbank::Model::Combination->find([{ mac_vendor_id => $mac_vendor_id }, {columns => ['device_id']}]);
+
+    if(is_success($status)){
+        return $result->device_id;
+    }else {
+        $logger->debug("Cannot find matching device id ".$result->device_id." for this mac vendor id ".$mac_vendor_id." in the database");
+    }
 }
 
 =item is_allowed 
@@ -107,20 +88,31 @@ sub is_allowed {
 
     #if no oses are defined then it will not match any oses
     return $FALSE if @oses == 0;
+    my $logger = get_logger();
 
     $mac =~ s/://g;
     my $mac_vendor = substr($mac, 0,6);
     my $mac_vendor_id = mac_vendor_id($mac_vendor);
-    my ($device_id, $device_name) = device_id($mac_vendor_id);
+    my $device_id = device_id($mac_vendor_id);
+    my ($status, $result) = fingerbank::Model::Device->find([{ id => $device_id}, {columns => ['name']}]);
 
     # We are loading the fingerbank endpoint model to verify if the device id is matching as a parent or child
 
-    my $endpoint = fingerbank::Model::Endpoint->new(name => $device_name, version => undef, score => undef);
-    my $endpoint_id = $endpoint->is_a_by_id($device_id);
+    if (is_success($status)){
+        my $device_name = $result->name;
+        my $endpoint = fingerbank::Model::Endpoint->new(name => $device_name, version => undef, score => undef);
+        my $endpoint_id = $endpoint->is_a_by_id($device_id);
+        $logger->debug("The device id requested to register is ".$device_id." .");
 
-    if (grep {$endpoint_id eq $_} @oses) {
-        return $TRUE
+        if (grep {$endpoint_id eq $_} @oses) {
+            $logger->debug("The devices type ".$device_name." is authorized to be registered via the device-registration module");
+            return $TRUE
+        } else {
+            $logger->debug("The devices type ".$device_name." is not authorized to be registered via the device-registration module");
+            return $FALSE
+        }
     } else {
+        $logger->debug("Cannot find a matching device name for this device id ".$device_id." .");
         return $FALSE
     }
 }
