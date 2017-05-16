@@ -72,10 +72,6 @@ has_field 'activation_domain' =>
     },
   );
 
-has_block definition => (
-    render_list => [ qw(description activation_domain email_activation_timeout allow_localdomain create_local_account local_account_logins)]
-);
-
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2017 Inverse inc.
