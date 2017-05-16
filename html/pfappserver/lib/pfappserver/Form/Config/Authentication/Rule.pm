@@ -67,7 +67,7 @@ has_field 'conditions.attribute' =>
    localize_labels => 1,
    options_method => \&options_attributes,
    widget_wrapper => 'None',
-   element_class => ['span3'],
+   element_class => ['span5'],
   );
 has_field 'conditions.operator' =>
   (
@@ -75,7 +75,7 @@ has_field 'conditions.operator' =>
    localize_labels => 1,
    options_method => \&options_operators,
    widget_wrapper => 'None',
-   element_class => ['span3'],
+   element_class => ['span5'],
   );
 has_field 'conditions.value' =>
   (
@@ -89,14 +89,14 @@ has_field "${Conditions::SUBSTRING}_operator" =>
    wrapper => 0,
    localize_labels => 1,
    options_method => \&operators,
-   element_class => ['span3'],
+   element_class => ['span5'],
   );
 has_field "${Conditions::SUBSTRING}_value" =>
   (
    type => 'Text',
    do_label => 0,
    wrapper => 0,
-   element_class => ['span5'],
+   element_class => ['span8'],
   );
 has_field "${Conditions::NUMBER}_operator" =>
   (
@@ -105,14 +105,14 @@ has_field "${Conditions::NUMBER}_operator" =>
    wrapper => 0,
    localize_labels => 1,
    options_method => \&operators,
-   element_class => ['span3'],
+   element_class => ['span5'],
  );
 has_field "${Conditions::NUMBER}_value" =>
   (
    type => 'PosInteger',
    do_label => 0,
    wrapper => 0,
-   element_class => ['span5'],
+   element_class => ['span8'],
   );
 has_field "${Conditions::DATE}_operator" =>
   (
@@ -121,7 +121,7 @@ has_field "${Conditions::DATE}_operator" =>
    wrapper => 0,
    localize_labels => 1,
    options_method => \&operators,
-   element_class => ['span3'],
+   element_class => ['span5'],
   );
 has_field "${Conditions::DATE}_value" =>
   (
@@ -136,14 +136,14 @@ has_field "${Conditions::TIME}_operator" =>
    wrapper => 0,
    localize_labels => 1,
    options_method => \&operators,
-   element_class => ['span3'],
+   element_class => ['span5'],
   );
 has_field "${Conditions::TIME}_value" =>
   (
    type => 'TimePicker',
    do_label => 0,
    wrapper => 0,
-   element_class => ['span5'],
+   element_class => ['span8'],
   );
 has_field "${Conditions::TIME_PERIOD}_operator" =>
   (
@@ -152,14 +152,14 @@ has_field "${Conditions::TIME_PERIOD}_operator" =>
    wrapper => 0,
    localize_labels => 1,
    options_method => \&operators,
-   element_class => ['span3'],
+   element_class => ['span5'],
   );
 has_field "${Conditions::TIME_PERIOD}_value" =>
   (
    type => 'Text',
    do_label => 0,
    wrapper => 0,
-   element_class => ['span5'],
+   element_class => ['span8'],
   );
 has_field "${Conditions::CONNECTION}_operator" =>
   (
@@ -168,7 +168,7 @@ has_field "${Conditions::CONNECTION}_operator" =>
    wrapper => 0,
    localize_labels => 1,
    options_method => \&operators,
-   element_class => ['span3'],
+   element_class => ['span5'],
   );
 has_field "${Conditions::CONNECTION}_value" =>
   (
@@ -177,7 +177,7 @@ has_field "${Conditions::CONNECTION}_value" =>
    wrapper => 0,
    localize_labels => 1,
    options_method => \&options_connection,
-   element_class => ['span5'],
+   element_class => ['span8'],
   );
 has_field "${Conditions::LDAP_ATTRIBUTE}_operator" =>
   (
@@ -186,14 +186,14 @@ has_field "${Conditions::LDAP_ATTRIBUTE}_operator" =>
    wrapper => 0,
    localize_labels => 1,
    options_method => \&operators,
-   element_class => ['span3'],
+   element_class => ['span5'],
   );
 has_field "${Conditions::LDAP_ATTRIBUTE}_value" =>
   (
    type => 'Text',
    do_label => 0,
    wrapper => 0,
-   element_class => ['span5'],
+   element_class => ['span8'],
   );
 
 =head2 build_block_list
