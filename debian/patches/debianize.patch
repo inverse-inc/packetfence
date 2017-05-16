@@ -172,19 +172,6 @@
  Slice=packetfence.slice
  
  [Install]
---- a/conf/systemd/packetfence-routes.service
-+++ b/conf/systemd/packetfence-routes.service
-@@ -8,8 +8,8 @@
- StartLimitInterval=60
- Type=oneshot
- RemainAfterExit=yes
--ExecStart=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::routes' -e 'pf::services::manager::routes->new()->start()'
--ExecStop=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::routes' -e 'pf::services::manager::routes->new()->stop()'
-+ExecStart=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::routes' -e 'pf::services::manager::routes->new()->start()'
-+ExecStop=/usr//bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::routes' -e 'pf::services::manager::routes->new()->stop()'
- Slice=packetfence-base.slice
- 
- [Install]
 --- a/conf/systemd/packetfence-statsd.service
 +++ b/conf/systemd/packetfence-statsd.service
 @@ -9,7 +9,7 @@
@@ -261,3 +248,16 @@
  Restart=on-failure
  Slice=packetfence.slice
  
+--- a/conf/systemd/packetfence-routes.service
++++ b/conf/systemd/packetfence-routes.service
+@@ -8,8 +8,8 @@
+ StartLimitInterval=60
+ Type=oneshot
+ RemainAfterExit=yes
+-ExecStart=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::routes' -e 'pf::services::manager::routes->new()->_start()'
+-ExecStop=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::routes' -e 'pf::services::manager::routes->new()->_stop()'
++ExecStart=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::routes' -e 'pf::services::manager::routes->new()->_start()'
++ExecStop=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::routes' -e 'pf::services::manager::routes->new()->_stop()'
+ Slice=packetfence-base.slice
+ 
+ [Install]
