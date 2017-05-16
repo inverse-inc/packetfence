@@ -25,18 +25,6 @@ has_field identity_token =>
    required => 1,
   );
 
-has_field 'domains' =>
-  (
-   type => 'Text',
-   label => 'Authorized domains',
-   required => 1,
-   default => pf::Authentication::Source::PaypalSource->meta->get_attribute('domains')->default,
-   element_attr => {'placeholder' => pf::Authentication::Source::PaypalSource->meta->get_attribute('domains')->default},
-   element_class => ['input-xlarge'],
-   tags => { after_element => \&help,
-             help => 'Comma separated list of domains that will be resolve with the correct IP addresses.' },
-  );
-
 has_field cert_id =>
   (
    type => 'Text',
@@ -88,9 +76,18 @@ has_field payment_type =>
              help => 'The type of transactions this source will do (donations or sales).' },
   );
 
-has_block definition => (
-    render_list => [qw(identity_token cert_id payment_type domains email_address cert_file key_file paypal_cert_file currency test_mode create_local_account local_account_logins)]
-);
+has_field 'domains' =>
+  (
+   type => 'Text',
+   label => 'Authorized domains',
+   required => 1,
+   default => pf::Authentication::Source::PaypalSource->meta->get_attribute('domains')->default,
+   element_attr => {'placeholder' => pf::Authentication::Source::PaypalSource->meta->get_attribute('domains')->default},
+   element_class => ['input-xlarge'],
+   tags => { after_element => \&help,
+             help => 'Comma separated list of domains that will be resolve with the correct IP addresses.' },
+  );
+
 
 =head1 AUTHOR
 
