@@ -18,7 +18,8 @@ New Features
 ++++++++++++
 
  * Added support for web authentication (external captive-portal) on Ubiquiti Unifi Controller
- * New Firewall/SSO (JSON-RPC) for communicating with custom firewalls
+ * New Firewall/SSO (JSON-RPC) for communicating with custom firewalls (PR #2320)
+ * VoIP detection: LLDP lookup enhancement (#2227) (PR #2316)
 
 Enhancements
 ++++++++++++
