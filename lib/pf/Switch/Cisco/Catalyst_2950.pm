@@ -1134,46 +1134,6 @@ sub getPhonesLLDPAtIfIndex {
     return @phones;
 }
 
-=item ifIndexToLldpLocalPort
-
-Translate an ifIndex into an LLDP Local Port number.
-
-We use ifDescr to lookup the lldpRemLocalPortNum in the lldpLocPortDesc table.
-
-=cut
-
-sub ifIndexToLldpLocalPort {
-    my ( $self, $ifIndex ) = @_;
-    my $logger = $self->logger;
-
-    # if can't SNMP read abort
-    return if ( !$self->connectRead() );
-
-    my $ifDescr = $self->getIfDesc($ifIndex);
-    return if (!defined($ifDescr) || $ifDescr eq '');
-
-    my $oid_lldpLocPortDesc = '1.0.8802.1.1.2.1.3.7.1.4'; # from LLDP-MIB
-
-    $logger->trace("SNMP get_table for lldpLocPortDesc: $oid_lldpLocPortDesc");
-    my $cache = $self->cache;
-    my $result = $cache->compute([$self->{'_id'},$oid_lldpLocPortDesc], sub { $self->{_sessionRead}->get_table( -baseoid => $oid_lldpLocPortDesc) } );
-    # here's what we are getting here. Looking for the last element of the OID: lldpRemLocalPortNum
-    # iso.0.8802.1.1.2.1.3.7.1.4.10 = STRING: "FastEthernet1/0/8"
-    # iso.0.8802.1.1.2.1.3.7.1.4.11 = STRING: "FastEthernet1/0/9"
-    # iso.0.8802.1.1.2.1.3.7.1.4.12 = STRING: "FastEthernet1/0/10"
-    # iso.0.8802.1.1.2.1.3.7.1.4.13 = STRING: "FastEthernet1/0/11"
-    foreach my $entry ( keys %{$result} ) {
-        if ( $result->{$entry} eq $ifDescr ) {
-            if ( $entry =~ /^$oid_lldpLocPortDesc\.([0-9]+)$/ ) {
-                return $1;
-            }
-        }
-    }
-
-    # nothing found
-    return;
-}
-
 =item getIfIndexByNasPortId
 
 Fetch the ifindex on the switch by NAS-Port-Id radius attribute
@@ -1190,7 +1150,7 @@ sub getIfIndexByNasPortId {
     my $OID_ifDesc = '1.3.6.1.2.1.2.2.1.2';
     my $ifDescHashRef;
     my $cache = $self->cache;
-    my $result = $cache->compute([$self->{'_id'},$OID_ifDesc], sub { $self->{_sessionRead}->get_table( -baseoid => $OID_ifDesc )});
+    my $result = $cache->compute($self->{'_id'} . "-" . $OID_ifDesc, sub { $self->{_sessionRead}->get_table( -baseoid => $OID_ifDesc )});
     foreach my $key ( keys %{$result} ) {
         my $ifDesc = $result->{$key};
         if ( $ifDesc =~ /^$ifDesc_param$/i ) {

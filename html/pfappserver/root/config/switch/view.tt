@@ -161,6 +161,7 @@
   </div><!--modal-body-->
 
   <div class="modal-footer">
+    [% IF can_access("SWITCHES_UPDATE") %]<a href="[% c.uri_for(c.controller('Config::Switch').action_for('invalidate_cache'), [ item.id ]) %]" id="invalidate_cache" class="btn btn-danger pull-left"> [% l('Invalidate cache') %]</a>[% END %]
     <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
     [% IF can_access("SWITCHES_UPDATE") %]<button class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>[% END %]
   </div>

@@ -246,6 +246,35 @@ sub create_in_group :Local :Args(1) :AdminRole('SWITCHES_CREATE') {
     $c->stash->{form}->update_fields($c->stash->{item});
 }
 
+=head2 invalidate_cache
+
+Usage /config/switch/:id/invalidate_cache
+
+Invalidate switch distributed cache
+
+=cut
+
+sub invalidate_cache :Chained('object') :PathPart('invalidate_cache') :Args(0) {
+    my ( $self, $c ) = @_;
+    my $model = $self->getModel($c);
+    my $idKey = $model->idKey;
+
+    my $switch = pf::SwitchFactory->instantiate($c->stash->{$idKey});
+    unless ( ref($switch) ) {
+        $c->log->error("Unable to instantiate switch object using switch_id '" . $c->stash->{$idKey} . "'");
+    }
+
+    $switch->invalidate_distributed_cache();
+
+    my $id = $c->stash->{$idKey};
+    $c->stash(
+        status_msg   => "Cleared distributed cache for switch ID '$id'",
+        current_view => 'JSON',
+    );
+    $c->response->status(200);
+}
+
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2017 Inverse inc.
