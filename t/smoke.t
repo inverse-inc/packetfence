@@ -45,7 +45,6 @@ my @ser_tests = qw(
     pfconfig.t 
     merged_list.t
     CHI.t
-    memory_cached.t
 );
 
 #
