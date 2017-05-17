@@ -20,11 +20,11 @@ after 'setup' => sub {
     my ($self) = @_;
 
     if($self->for_module->does('captiveportal::Role::MultiSource')){
-        $self->field('multi_source_ids.contains')->options([$self->options_sources(multiple => 1)]);
+        $self->field('multi_source_ids.contains')->options([$self->options_sources(multiple => $TRUE)]);
         $self->field('multi_source_ids')->inactive($FALSE);
     }
     else {
-        $self->field('source_id')->options([$self->options_sources(multiple => 0)]);
+        $self->field('source_id')->options([$self->options_sources(multiple => $FALSE)]);
 
         # The multi-source field should be set to inactive so it doesn't display
         $self->field('multi_source_ids')->inactive($TRUE);
@@ -57,8 +57,8 @@ sub source_fields {
 has_field 'multi_source_ids' =>
   (
     'type' => 'DynamicTable',
-    'sortable' => 1,
-    'do_label' => 0,
+    'sortable' => $TRUE,
+    'do_label' => $FALSE,
   );
 
 has_field 'multi_source_ids.contains' =>
