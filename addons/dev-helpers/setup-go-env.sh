@@ -11,9 +11,12 @@ else
   tar -C /usr/local -xzf /tmp/$GOVERSION.linux-amd64.tar.gz
   rm /tmp/$GOVERSION.linux-amd64.tar.gz
 
-  echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc
-  echo 'export GOPATH=~/gospace' >> ~/.bashrc
-  echo 'export PATH=~/gospace/bin:$PATH' >> ~/.bashrc
+  SETUP='
+export PATH=$PATH:/usr/local/go/bin
+export GOPATH=~/gospace
+export PATH=~/gospace/bin:$PATH'
+  echo "$SETUP" >> ~/.bashrc
+  eval "$SETUP"
 
   mkdir -p $GOPATH/src/github.com/inverse-inc/packetfence
   
