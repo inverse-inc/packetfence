@@ -42,6 +42,19 @@ sub description { 'Unifi Controller' }
 # access technology supported
 sub supportsExternalPortal { return $TRUE; }
 
+=head2 synchronize_locationlog
+
+Override the Switch method so that the controller IP is inserted as the switch_ip in the locationlog
+
+=cut
+
+sub synchronize_locationlog {
+    my ( $self, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc) = @_;
+    # Set the switch IP to the controller IP so that the locationlog entry has the proper switch_ip entry
+    $self->{_ip} = $self->{_controllerIp};
+    $self->SUPER::synchronize_locationlog($ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc);
+}
+
 =head2 parseExternalPortalRequest
 
 Parse external portal request using URI and it's parameters then return an hash reference with the appropriate parameters
