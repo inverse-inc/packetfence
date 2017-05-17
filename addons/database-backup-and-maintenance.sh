@@ -106,7 +106,9 @@ if [ $SHOULD_BACKUP -eq 1 ] && { [ -f /var/run/mysqld/mysqld.pid ] || [ -f /var/
         if [ $PERCONA_XTRABACKUP_INSTALLED -eq 1 ]; then
             find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-innobackup-*.xbstream.gz" -mtime +$NB_DAYS_TO_KEEP_DB -delete
             echo "----- Backup started on `date +%F_%Hh%M` -----" >> /usr/local/pf/logs/innobackup.log
-            innobackupex --user=$DB_USER --password=$DB_PWD  --no-timestamp --stream=xbstream  /tmp/ 2>> /usr/local/pf/logs/innobackup.log | gzip - > $BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-innobackup-`date +%F_%Hh%M`.xbstream.gz
+            INNO_TMP="/tmp/pf-innobackups"
+            mkdir -p $INNO_TMP
+            innobackupex --user=$DB_USER --password=$DB_PWD  --no-timestamp --stream=xbstream --tmpdir=$INNO_TMP $INNO_TMP 2>> /usr/local/pf/logs/innobackup.log | gzip - > $BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-innobackup-`date +%F_%Hh%M`.xbstream.gz
             tail -1 /usr/local/pf/logs/innobackup.log | grep 'completed OK!'
             BACKUPRC=$?
             if (( $BACKUPRC > 0 )); then 
