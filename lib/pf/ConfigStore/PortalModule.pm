@@ -59,7 +59,7 @@ sub cleanupBeforeCommit {
     my ($self, $id, $object) = @_;
     
     # portal_modules.conf always stores sources in source_id whether they are multiple or single, so we take multi_source_ids and put it in source_id
-    if (scalar(@{$object->{multi_source_ids}}) > 0) {
+    if (defined($object->{multi_source_ids}) && scalar(@{$object->{multi_source_ids}}) > 0) {
         get_logger->debug("Multiple sources were defined for this object, taking the content of multi_source_ids to put it in source_id");
         $object->{source_id} = delete $object->{multi_source_ids};
     } else {
