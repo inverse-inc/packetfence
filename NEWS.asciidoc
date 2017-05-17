@@ -42,6 +42,7 @@ Bug Fixes
  * radiusd: load-balancer fails to start in cluster with eduroam (#2303)
  * Renamed Ubiquity to Ubiquiti (PR #2293)
  * Set up variable GOPATH correctly while setting up developer environment for go (PR #2319)
+ * Fix authentication sources ordering issue for portal modules when using the administration interface (#2323)
 
 
 Version 7.0.0 released on 2017-04-19
