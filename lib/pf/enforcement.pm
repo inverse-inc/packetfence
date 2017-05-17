@@ -252,14 +252,21 @@ sub _should_we_reassign_vlan {
             }
         }
     }
-    if (defined($role)) {
-        if ($role ne $newRole->{role}) {
-            $logger->info(
-                "Reassignment required (current Role = $role but should be in Role $newRole->{role})"
-            );
-            return $TRUE;
-        }
+
+    # If the role in the locationlog is not defined and the new one is, then we reevaluate access
+    if (!defined($role) && defined($newRole->{role})) {
+        $logger->info(
+            "Reassignment required (current Role is undefined and should be in Role $newRole->{role})"
+        );
+        return $TRUE;
     }
+    elsif ($role ne $newRole->{role}) {
+        $logger->info(
+            "Reassignment required (current Role = $role but should be in Role $newRole->{role})"
+        );
+        return $TRUE;
+    }
+
     $logger->debug("No reassignment required.");
     return $FALSE;
 }
