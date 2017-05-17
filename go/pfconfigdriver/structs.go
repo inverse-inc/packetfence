@@ -137,3 +137,30 @@ type configStruct struct {
 }
 
 var Config configStruct
+
+type PfNetwork struct {
+	PfconfigMethod string `val:"keys"`
+	PfconfigNS     string `val:"config::Network"`
+	Keys           []string
+}
+
+type NetworkConf struct {
+	PfconfigMethod       string `val:"hash_element"`
+	PfconfigNS           string `val:"config::Network"`
+	PfconfigHashNS       string `val:"-"`
+	Dns                  string `json:"dns"`
+	DhcpStart            string `json:"dhcp_start"`
+	Gateway              string `json:"gateway"`
+	DomainName           string `json:"domain-name"`
+	NatEnabled           string `json:"nat_enabled"`
+	DhcpMaxLeaseTime     string `json:"dhcp_max_lease_time"`
+	Named                string `json:"named"`
+	FakeMacEnabled       string `json:"fake_mac_enabled"`
+	Dhcpd                string `json:"dhcpd"`
+	DhcpEnd              string `json:"dhcp_end"`
+	Type                 string `json:"type"`
+	Netmask              string `json:"netmask"`
+	DhcpDefaultLeaseTime string `json:"dhcp_default_lease_time"`
+	NextHop              string `json:"next_hop"`
+	SplitNetwork         string `json:"split_network"`
+}
