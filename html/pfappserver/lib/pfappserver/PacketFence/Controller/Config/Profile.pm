@@ -206,7 +206,8 @@ sub getFileContent {
     foreach my $dir ($self->mergedPaths($c)) {
         my $file = catfile($dir,$file_path);
         next unless -f $file;
-        return read_file($file);
+        my $content = read_file($file, binmode => ':utf8');
+        return $content;
     }
     return;
 }
