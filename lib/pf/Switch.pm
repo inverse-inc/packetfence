@@ -17,6 +17,7 @@ use warnings;
 
 use Carp;
 use Data::Dumper;
+use Net::IP;
 use Net::SNMP;
 use pf::log;
 use Try::Tiny;
@@ -3568,6 +3569,48 @@ sub ifIndexToLldpLocalPort {
 
     # nothing found
     return;
+}
+
+=item invalidate_distributed_cache
+
+Invalidate the distributed cache for a given switch object
+
+=cut
+
+sub invalidate_distributed_cache {
+    my ( $self ) = @_;
+    my $logger = $self->logger;
+
+    $logger->info("Invalidating distributed switch cache for switch '" . $self->{_id} . "'");
+
+    if ( $self->{_id} =~ /\// ) {
+        $logger->info("Processing switch range '" . $self->{_id} . "'");
+        my $ip = new Net::IP($self->{_id});
+        do {
+            $logger->info("Invalidating distributed switch cache for switch '" . $ip->ip() . "' part of switch range '" . $self->{_id} . "'");
+            $self->remove_switch_from_cache($ip->ip());
+        } while (++$ip);
+    } else {
+        $self->remove_switch_from_cache($self->{_id});
+    }
+}
+
+=item remove_switch_from_cache
+
+Remove all switch distributed cache keys for a given switch
+
+=cut
+
+sub remove_switch_from_cache {
+    my ( $self, $key ) = @_;
+    my $logger = $self->logger;
+
+    my $cache = $self->cache_distributed;
+    my %cache_content = $cache->get_keys();
+
+    foreach ( keys %cache_content ) {
+        $cache->remove($_) if $_ =~ /^$key-/;
+    }
 }
 
 =back

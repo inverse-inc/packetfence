@@ -113,7 +113,8 @@ var SwitchView = function(options) {
     // pagination search
     options.parent.on('click', '#switches [href*="/switch/search"]', $.proxy(this.searchPagination, this));
 
-
+    // invalidate cache
+    options.parent.on('click', '#invalidate_cache', $.proxy(this.invalidateCache, this));
 };
 
 SwitchView.prototype.readSwitch = function(e) {
@@ -478,6 +479,22 @@ SwitchView.prototype.deleteConfirm = function(e) {
     });
     modal.modal({ show: true });
     return false;
+};
+
+SwitchView.prototype.invalidateCache = function(e) {
+    e.preventDefault();
+
+    var modal = $('#modalSwitch');
+    var modal_body = modal.find('.modal-body');
+    var link = $(e.target);
+    var url = link.attr('href');
+    this.switches.get({
+        url: url,
+        success: function(data) {
+            showSuccess(modal_body.children().first(), data.status_msg);
+        },
+        errorSibling: modal_body.children().first()
+    });
 };
 
 SwitchView.prototype.searchSwitch = function(query, process){
