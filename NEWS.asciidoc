@@ -18,6 +18,7 @@ New Features
 ++++++++++++
 
  * Added support for web authentication (external captive-portal) on Ubiquiti Unifi Controller
+ * New Firewall/SSO (JSON-RPC) for communicating with custom firewalls
 
 Enhancements
 ++++++++++++
