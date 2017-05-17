@@ -66,7 +66,7 @@ The fields to display
 
 sub child_definition {
     my ($self) = @_;
-    return (qw(source_id pid_field custom_fields with_aup aup_template signup_template), $self->auth_module_definition());
+    return ($self->source_fields, qw(pid_field custom_fields with_aup aup_template signup_template), $self->auth_module_definition());
 }
 
 =head2 BUILD

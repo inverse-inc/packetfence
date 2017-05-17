@@ -14,17 +14,22 @@ use HTML::FormHandler::Moose::Role;
 with 'pfappserver::Base::Form::Role::Help';
 
 use pf::log;
+use pf::constants;
 
 after 'setup' => sub {
     my ($self) = @_;
 
     if($self->for_module->does('captiveportal::Role::MultiSource')){
-        $self->field('source_id')->multiple(1);
-        $self->field('source_id')->options([$self->options_sources(multiple => 1)]);
+        $self->field('multi_source_ids.contains')->options([$self->options_sources(multiple => $TRUE)]);
+        $self->field('multi_source_ids')->inactive($FALSE);
     }
     else {
-        $self->field('source_id')->options([$self->options_sources(multiple => 0)]);
+        $self->field('source_id')->options([$self->options_sources(multiple => $FALSE)]);
+
+        # The multi-source field should be set to inactive so it doesn't display
+        $self->field('multi_source_ids')->inactive($TRUE);
     }
+
 };
 
 after 'process' => sub {
@@ -37,6 +42,32 @@ after 'process' => sub {
     }
 };
 
+=head2 source_fields
+
+The fields that need to be used to display the source(s) selection
+
+=cut
+
+sub source_fields {
+    my ($self) = @_;
+    # No need to add the multi_source_ids fields as it will be taken when looking at all the dynamic tables
+    return $self->for_module->does('captiveportal::Role::MultiSource') ? qw() : qw(source_id);
+}
+
+has_field 'multi_source_ids' =>
+  (
+    'type' => 'DynamicTable',
+    'sortable' => $TRUE,
+    'do_label' => $FALSE,
+  );
+
+has_field 'multi_source_ids.contains' =>
+  (
+    type => 'Select',
+    widget_wrapper => 'DynamicTableRow',
+  );
+
+
 has_field 'source_id' =>
   (
    type => 'Select',
@@ -47,7 +78,6 @@ has_field 'source_id' =>
    tags => { after_element => \&help,
              help => 'The sources to use in the module. If no sources are specified, all the sources on the Connection Profile will be used' },
   );
-
 
 sub options_sources {
     my ($self, %options) = @_;

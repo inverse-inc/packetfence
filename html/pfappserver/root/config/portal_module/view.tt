@@ -54,7 +54,7 @@
         <div id="[% field %]Empty" class="unwell unwell-horizontal[% ' hidden' IF form.field(field).index > 1 %]">
           <p>
             <i class="icon-cog icon-large"></i>
-            [% l('No ' _ field _ ' selected') %]
+            [% l('No ' _ l(field) _ ' selected') %]
             <a href="#add">[% l('Add one.') %]</a>
           </p>
           <p>[% form.field(field).tags.when_empty %]</p>

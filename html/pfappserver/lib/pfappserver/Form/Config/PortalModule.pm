@@ -130,7 +130,7 @@ sub dynamic_tables {
     my ($self) = @_;
     my @fields;
     foreach my $field ($self->all_fields){
-        if($field->type eq "DynamicTable") {
+        if($field->type eq "DynamicTable" && $field->is_active) {
             push @fields, $field->name;
         }
     }
