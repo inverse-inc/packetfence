@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "nameserver 8.8.8.8" > /etc/resolv.conf
+
 # Install the PacketFence repos
 yum localinstall http://packetfence.org/downloads/PacketFence/RHEL7/`uname -i`/RPMS/packetfence-release-1.2-6.el7.centos.noarch.rpm -y
 
