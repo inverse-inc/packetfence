@@ -98,7 +98,6 @@
 
 
 :input-internal-isol_vlan-if - [0:0]
--A input-internal-isol_vlan-if -m set --match-set portal_deny src --jump REJECT
 # DNS
 -A input-internal-isol_vlan-if --protocol tcp --match tcp --dport 53  --jump ACCEPT
 -A input-internal-isol_vlan-if --protocol udp --match udp --dport 53  --jump ACCEPT
