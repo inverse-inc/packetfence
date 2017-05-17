@@ -475,7 +475,7 @@ sub copy_file :Chained('object'): PathPart('copy'): Args() :AdminRole('CONNECTIO
         $c->forward('path_exists');
         $c->stash->{current_view} = 'JSON';
         $c->log->info("Copying file $from_path to $to_path");
-        pf::util::safe_file_update($to_path, $self->getFileContent($c, $from_path));
+        pf::util::safe_file_update($to_path, $self->getFileContent($c, $from));
         # Sync file in cluster if necessary
         $self->_sync_file($c, $to_path);
     }
