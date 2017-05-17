@@ -87,7 +87,10 @@ sub add_searches {
         $builder->where(')');
         $builder->where('AND');
     }
+    $builder->where('(');
     $builder->where( { table => 'r2', name => 'radacctid' }, 'IS NULL' );
+    $builder->where( { table => 'locationlog2', name => 'id' }, 'IS NULL' );
+    $builder->where(')');
 }
 
 sub make_builder {
@@ -193,6 +196,82 @@ sub make_builder {
                            '=',
                            '0000-00-00 00:00:00'
                         ],
+                    ],
+                },
+                {
+                    'table' => 'locationlog',
+                    'as' => 'locationlog2',
+                    'join'  => 'LEFT',
+                    'on'    =>
+                    [
+                        [
+                            {
+                                'table' => 'node',
+                                'name'  => 'mac',
+                            },
+                            '=',
+                            {
+                                'table' => 'locationlog2',
+                                'name'  => 'mac',
+                            },
+                        ],
+                        [ 'AND' ],
+                        [
+                           {
+                               'table'  => 'locationlog2',
+                               'name'   => 'end_time',
+                           },
+                           '=',
+                           '0000-00-00 00:00:00'
+                        ],
+                        [ 'AND' ],
+                        ['('],
+                        [
+                            {
+                                'table' => 'locationlog',
+                                'name'  => 'start_time',
+                            },
+                            '<',
+                            {
+                                'table' => 'locationlog2',
+                                'name'  => 'start_time',
+                            },
+                        ],
+                        ['OR'],
+                        ['('],
+                        [
+                            {
+                                'table' => 'locationlog',
+                                'name'  => 'start_time',
+                            },
+                            '=',
+                            {
+                                'table' => 'locationlog2',
+                                'name'  => 'start_time',
+                            },
+                        ],
+                        ['AND'],
+                        [
+                            {
+                                'table' => 'locationlog',
+                                'name'  => 'id',
+                            },
+                            '<',
+                            {
+                                'table' => 'locationlog2',
+                                'name'  => 'id',
+                            },
+                        ],
+                        [')'],
+                        ['OR'],
+                        [
+                            {
+                                'table' => 'locationlog',
+                                'name'  => 'start_time',
+                            },
+                            'IS NULL',
+                        ],
+                        [')'],
                     ],
                 },
                 {
