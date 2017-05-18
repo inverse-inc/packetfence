@@ -3009,6 +3009,17 @@ sub cache {
    return pf::CHI->new( namespace => 'switch' );
 }
 
+=item cache_distributed
+
+Returns the distributed cache for the switch namespace
+
+=cut
+
+sub cache_distributed {
+    my ( $self ) = @_;
+    return pf::CHI->new( namespace => 'switch_distributed' );
+}
+
 =item returnAuthorizeWrite
 
 Return RADIUS attributes to allow write access
@@ -3090,6 +3101,110 @@ sub externalPortalEnforcement {
     $logger->info("External portal enforcement either not supported '" . $self->supportsExternalPortal . "' or not configured '" . $self->{_ExternalPortalEnforcement} . "' on network equipment '" . $self->{_id} . "'");
     return $FALSE;
 }
+
+=item getLldpLocPortDesc
+
+Query the switch for lldpLocPortDesc table and cache the result
+
+=cut
+
+sub getLldpLocPortDesc {
+    my ( $self ) = @_;
+    my $logger = $self->logger;
+
+    # if can't SNMP read abort
+    return if ( !$self->connectRead() );
+
+    my $oid_lldpLocPortDesc = '1.0.8802.1.1.2.1.3.7.1.4'; # from LLDP-MIB
+    $logger->trace("SNMP get_table for lldpLocPortDesc: $oid_lldpLocPortDesc");
+    my $cache = $self->cache_distributed;
+    my $result = $cache->compute($self->{'_id'} . "-" . $oid_lldpLocPortDesc, sub { $self->{_sessionRead}->get_table( -baseoid => $oid_lldpLocPortDesc, -maxrepetitions  => 1 ) } );
+    # here's what we are getting here. Looking for the last element of the OID: lldpRemLocalPortNum
+    # iso.0.8802.1.1.2.1.3.7.1.4.10 = STRING: "FastEthernet1/0/8"
+    # iso.0.8802.1.1.2.1.3.7.1.4.11 = STRING: "FastEthernet1/0/9"
+    # iso.0.8802.1.1.2.1.3.7.1.4.12 = STRING: "FastEthernet1/0/10"
+    # iso.0.8802.1.1.2.1.3.7.1.4.13 = STRING: "FastEthernet1/0/11"
+    # NOTE: We set the maxrepetitions to '1' to use 'get-next-requests' instead of 'get-bulk-requests' which tend to return empty results if response is to big
+
+    return $result;
+}
+
+=item ifIndexToLldpLocalPort
+
+Translate an ifIndex into an LLDP Local Port number.
+
+We use ifDescr to lookup the lldpRemLocalPortNum in the lldpLocPortDesc table.
+
+=cut
+
+sub ifIndexToLldpLocalPort {
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
+
+    # if can't SNMP read abort
+    return if ( !$self->connectRead() );
+
+    my $ifDescr = $self->getIfDesc($ifIndex);
+    return if (!defined($ifDescr) || $ifDescr eq '');
+
+    # Get lldpLocPortDesc
+    my $oid_lldpLocPortDesc = '1.0.8802.1.1.2.1.3.7.1.4'; # from LLDP-MIB
+    my $result = $self->getLldpLocPortDesc();
+
+    foreach my $entry ( keys %{$result} ) {
+        if ( $result->{$entry} eq $ifDescr ) {
+            if ( $entry =~ /^$oid_lldpLocPortDesc\.([0-9]+)$/ ) {
+                return $1;
+            }
+        }
+    }
+
+    # nothing found
+    return;
+}
+
+=item invalidate_distributed_cache
+
+Invalidate the distributed cache for a given switch object
+
+=cut
+
+sub invalidate_distributed_cache {
+    my ( $self ) = @_;
+    my $logger = $self->logger;
+
+    $logger->info("Invalidating distributed switch cache for switch '" . $self->{_id} . "'");
+
+    if ( $self->{_id} =~ /\// ) {
+        $logger->info("Processing switch range '" . $self->{_id} . "'");
+        my $ip = new Net::IP($self->{_id});
+        do {
+            $logger->info("Invalidating distributed switch cache for switch '" . $ip->ip() . "' part of switch range '" . $self->{_id} . "'");
+            $self->remove_switch_from_cache($ip->ip());
+        } while (++$ip);
+    } else {
+        $self->remove_switch_from_cache($self->{_id});
+    }
+}
+
+=item remove_switch_from_cache
+
+Remove all switch distributed cache keys for a given switch
+
+=cut
+
+sub remove_switch_from_cache {
+    my ( $self, $key ) = @_;
+    my $logger = $self->logger;
+
+    my $cache = $self->cache_distributed;
+    my %cache_content = $cache->get_keys();
+
+    foreach ( keys %cache_content ) {
+        $cache->remove($_) if $_ =~ /^$key-/;
+    }
+}
+
 
 =back
 
