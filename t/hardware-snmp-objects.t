@@ -60,8 +60,6 @@ my @whitelist = (
     'normalizeTrap', 'findTrapNormalizer', '_findTrapNormalizer', 'linkDownTrapNormalizer', 'linkUpTrapNormalizer', 'dot11DeauthenticateTrapNormalizer', 
     'findTrapVarWithBase', 'getIfIndexFromTrap', 'findTrapOID', 'getMacFromTrapVariablesForOIDBase', 'extractMacFromVariable', 
     'handleTrap', 'getExclusiveLock', 'getExclusiveLockForScope',
-    # TODO, Implement these and close #2335
-     'cache_distributed', 'getLldpLocPortDesc', 'ifIndexToLldpLocalPort', 'invalidate_distributed_cache',  'remove_switch_from_cache'
 );
 
 my @missing_subs;
