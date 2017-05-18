@@ -580,7 +580,11 @@ sub logstate :Local :AdminRole('REPORTS') {
 sub reports :Local :AdminRole('REPORTS') {
     my ($self, $c, $start, $end) = @_;
 
-    $c->stash->{dynamic_reports} = { map { $_ => $ConfigReport{$_}->{description} } keys(%ConfigReport) };
+    my @builtin_report_ids = sort { $ConfigReport{$a}->{description} cmp $ConfigReport{$b}->{description} } map { $ConfigReport{$_}->{type} eq "builtin" ? $_ : () } keys %ConfigReport;
+    my @custom_report_ids = sort { $ConfigReport{$a}->{description} cmp $ConfigReport{$b}->{description} } map { $ConfigReport{$_}->{type} ne "builtin" ? $_ : () } keys %ConfigReport;
+    $c->stash->{builtin_report_ids} = \@builtin_report_ids;
+    $c->stash->{custom_report_ids} = \@custom_report_ids;
+    $c->stash->{dynamic_reports} = \%ConfigReport;
 
     $self->_saveRange($c, $REPORTS, $start, $end);
 

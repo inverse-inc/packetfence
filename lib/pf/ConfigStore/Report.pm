@@ -14,9 +14,11 @@ ConfigStore for the reports configuration
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths qw($report_config_file);
+use pf::file_paths qw($report_config_file $report_default_config_file);
 use pf::util;
 extends 'pf::ConfigStore';
+
+sub importConfigFile { $report_default_config_file };
 
 sub configFile { $report_config_file };
 

@@ -20,6 +20,7 @@ use warnings;
 use pfconfig::namespaces::config;
 use pf::file_paths qw(
     $report_config_file
+    $report_default_config_file
 );
 
 use base 'pfconfig::namespaces::config';
@@ -28,6 +29,9 @@ sub init {
     my ($self) = @_;
     $self->{file}              = $report_config_file;
     $self->{expandable_params} = [ qw(searches columns order_fields base_conditions) ];
+    
+    my $defaults = Config::IniFiles->new( -file => $report_default_config_file );
+    $self->{added_params}->{'-import'} = $defaults;
 }
 
 sub build_child {
