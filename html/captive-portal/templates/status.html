@@ -136,10 +136,7 @@ $(document).ready(function() {
 </form>
 
 [% ELSE %]
-
-[%- IF nodes.size > 0 %]
-    <h3>[% i18n("Your registered devices") %]</h3>
-      [% IF node.status == reg %]
+[% IF node.status == reg %]
       <div class="[ box box--small ][ frame frame--raised ]">
         <div class="[ layout layout--middle ]">
           <div class="layout__item [ u-1/2 u-1/1-lap u-1/1-palm ]">
@@ -154,6 +151,9 @@ $(document).ready(function() {
         </div>
       </div>
       [% END %]
+
+[%- IF nodes.size > 0 %]
+    <h3>[% i18n("Your registered devices") %]</h3>
       [%- FOREACH n IN nodes %]
       [% NEXT IF n.status != 'reg' %]
       <div class="[ box box--small ][ frame frame--raised ]">
@@ -186,22 +186,14 @@ $(document).ready(function() {
         <p class="flag__body">[% i18n("Register another device") %]</p>
       </div>
     </a>
-  </div>
-</div>
 [%- IF hasLocalAccount %]
-<div class="layout layout--center">
-  <div class="layout__item u-mt u-2/3 u-1/1-palm">
     <a href="/status/person" class="btn btn--full btn--light">
       <div class="flag">
         <div class="flag__img">[% svgIcon(id='ic_person_black_24px',size='small') %]</div>
         <p class="flag__body">[% i18n("Change my password") %]</p>
       </div>
     </a>
-  </div>
-</div>
 [% END %]
-<div class="layout layout--center">
-  <div class="layout__item u-mt u-2/3 u-1/1-palm">
     <a href="/status/logout" class="btn btn--full btn--light">
       <div class="flag">
         <div class="flag__img">[% svgIcon(id='ic_close_black_24px',size='small') %]</div>
