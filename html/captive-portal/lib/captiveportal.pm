@@ -3,7 +3,8 @@ use Moose;
 use Moose::Util qw(apply_all_roles);
 use namespace::autoclean;
 use Log::Log4perl::Catalyst;
-
+use Data::Dumper qw(Dumper);
+use pf::log;
 use Catalyst::Runtime 5.80;
 
 # Set flags and add plugins for the application.
@@ -128,6 +129,27 @@ sub loadCustomStatic {
         $dirs = $portalSession->templateIncludePath;
     }
     return $dirs;
+}
+
+=head2 csp_server_headers
+
+Returns host specific CSP headers for portal
+
+=cut
+
+sub csp_server_headers {
+    my ($c) = @_;
+    my $logger=get_logger();
+    my $host = $c->request->header('Host');
+    if($host =~ /^(.*):/) {
+        $host = $1;
+    }
+    $logger->error("host: $host");
+
+    #$c->response->header('Content-Security-Policy' => "default-src 'self' $host");
+    $c->response->header('Content-Security-Policy-Report-Only' => "default-src 'self' $host");
+    #Header set Content-Security-Policy-Report-Only: "default-src 'self' [% vhost %];" 
+    #return $c->response->headers->header( 'X-Catalyst' => $Catalyst::VERSION );
 }
 
 =head2 user_cache
