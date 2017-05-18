@@ -35,6 +35,7 @@ pfcmd_vlan command [options]
    -setIfAdminStatus    set the admin status of the specified switch port
    -setVlan             set VLAN on the specified switch port
    -setVlanAllPort      set VLAN on all non-UpLink ports of the specified switch
+   -wiredDeauth         de-authenticate a wired client
 
  Options:
    -alias               switch port description
@@ -51,7 +52,8 @@ pfcmd_vlan command [options]
                          4 : trace
    -vlan                VLAN id
    -vlanName            VLAN name (as in switches.conf)
-
+   -connectionType      Type of connection (see lib/pf/config.pm)
+ 
 =head1 DESCRIPTION
 
 This script allows to execute the following commands related to switches and VLANs:
@@ -113,6 +115,7 @@ my $vlan             = 0;
 my $vlanName         = '';
 my $mac              = undef;
 my $alias            = '';
+my $connectionType   = undef;
 my $cmd              = '';
 my $help;
 my $man;
@@ -144,9 +147,11 @@ my $deauthenticateDot1x;
 my $reAssignVlan;
 my $reevaluateAccess;
 my $runSwitchMethod;
+my $wiredDeauth;
 
 GetOptions(
     "alias:s"             => \$alias,
+    "connectionType:i"    => \$connectionType,
     "deauthenticate"      => \$deauthenticate,
     "deauthenticateDot1x" => \$deauthenticateDot1x,
     "getAlias"            => \$getAlias,
@@ -181,7 +186,8 @@ GetOptions(
     "switch:s"            => \$switchDescRegExp,
     "verbose:i"           => \$logLevel,
     "vlan:i"              => \$vlan,
-    "vlanName:s"          => \$vlanName
+    "vlanName:s"          => \$vlanName,
+    "wiredDeauth"         => \$wiredDeauth,
 ) or pod2usage( -verbose => 1 );
 
 pod2usage( -verbose => 2 ) if $man;
@@ -690,6 +696,28 @@ if ($reevaluateAccess) {
         print "MAC $mac cannot be found\n";
     }
     $logger->debug("finished handling 'getLocation' command");
+
+} elsif ($wiredDeauth) {
+    if (!defined($mac) || $mac eq '') {
+        exit_wrong_args("the MAC argument is necessary");
+    }
+    if (!defined($ifIndex) || $ifIndex eq '') {
+        exit_wrong_args("the ifindex argument is necessary");
+    }
+    if (!defined($connectionType) || $connectionType eq '') {
+        exit_wrong_args("the connectionType argument is necessary");
+    }
+    if ( $switchDescRegExp eq '' ) {
+        exit_wrong_args("the switch argument is necessary");
+    }
+    my $switch = $switchFactory->instantiate($switchDescRegExp);
+    if (!$switch) {
+        exit_wrong_args("unknown switch $switchDescRegExp");
+    } else {
+        $logger->debug("start handling 'wiredDeauth' command");
+        $switch->wiredDeauthenticateMac($ifIndex, $mac, $connectionType);
+        $logger->debug("finished handling 'wiredDeauth' command");
+    }
 
 } else {
     pod2usage( -verbose => 1 );

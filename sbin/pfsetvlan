@@ -1634,10 +1634,18 @@ sub handleTrap {
     } elsif ( $trapType eq 'reAssignVlan' ) {
         my $connection_type = $trapOperation; # WARNING: I used trapOperation to carry the connection type
         $logger->info("$trapType trap received on $switch_id ifIndex $switch_port");
-
+        my $command = "wiredDeauth";
+        my $switchId = $switch->{_id};
         if (defined($connection_type) && ($connection_type == $WIRED_802_1X || $connection_type == $WIRED_MAC_AUTH) ) {
             my ($switchdeauthMethod, $deauthTechniques) = $switch->wiredeauthTechniques($switch->{_deauthMethod},$connection_type);
-            $switch->$deauthTechniques($switch_port,$trapMac);
+            if (($switchdeauthMethod eq $SNMP::SSH) || ($switchdeauthMethod eq $SNMP::TELNET)) {
+                # we spawn a shell to workaround a thread safety bug in Net::Appliance::Session when using SSH transport
+                # http://www.cpanforum.com/threads/6909
+                pf_run("/usr/local/pf/bin/pfcmd_vlan -$command -switch $switchId -ifIndex $switch_port -mac $trapMac -connectionType $connection_type");
+            }
+            else {
+                $switch->$deauthTechniques($switch_port, $trapMac);
+            }
         } else {
 
             my @locationlog = locationlog_view_open_switchport_no_VoIP( $switch_id, $switch_port );

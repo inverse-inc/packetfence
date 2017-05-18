@@ -2482,6 +2482,19 @@ sub deauthenticateMac {
     $self->$deauthTechniques($mac);
 }
 
+=item deauthenticateMac - performs wired deauthentication
+
+mac - mac address to deauthenticate
+
+=cut
+
+sub wiredDeauthenticateMac {
+    my ($this, $ifIndex, $mac, $connectionType) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ($switchdeauthMethod, $deauthTechniques) = $this->wiredeauthTechniques($this->{_deauthMethod}, $connectionType);
+    $this->$deauthTechniques($ifIndex, $mac);
+}
+
 =item dot1xPortReauthenticate
 
 Forces 802.1x re-authentication of a given ifIndex
