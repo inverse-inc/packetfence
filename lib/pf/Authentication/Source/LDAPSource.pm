@@ -514,14 +514,17 @@ sub search_attributes_in_subclass {
                   base => $self->{'basedn'},
                   filter => "($self->{'usernameattribute'}=$username)"
     );
+    if ($searchresult->is_error()) {
+      $logger->error("Unable to locate user '$username'");
+      return ($FALSE, $COMMUNICATION_ERROR_MSG);
+    }
+    if ($searchresult->count == 0) {
+      $logger->error("Unable to locate user '$username'");
+      return ($FALSE, $COMMUNICATION_ERROR_MSG);
+    }
     my $entry = $searchresult->entry();
 
-    if (!$entry) {
-        $logger->warn("Unable to locate user '$username'");
-    }
-    else {
-         $logger->info("User: '$username' found in the directory");
-    }
+    $logger->info("User: '$username' found in the directory");
 
     my $info = {};
     foreach my $attrs (keys %ATTRIBUTES_MAP){
