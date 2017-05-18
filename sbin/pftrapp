@@ -1,0 +1,36 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use pf::ipc;
+
+# this script must be added to snmptrapd.conf
+# perl do "<path>/pftrapp"
+
+my $ipc = pf::ipc->new;
+
+sub my_receiver {
+    my $data;
+    $data->{received} = time;
+    $data->{from} = $1 if ($_[0]{receivedfrom} =~ /\[(\d+\.\d+\.\d+\.\d+)\]\:\d+\-\>/);
+    $data->{community} = $_[0]{community};
+
+    foreach my $x (@{$_[1]}) {
+        my $type = $1 if ($x->[1] =~ /^(.+)\:\s+/);
+        $x->[1] =~ s/^.+\:\s+//g;
+        $data->{varbinds}->{$x->[0]} = $x->[1];
+    }
+
+    # dump trap into a queue for a process to read.
+     $ipc->enqueue('traps',$data) or warn $!;
+
+    # can use a publish/subscriber as well to allow multiple processes to read the messages.
+    # But the message is lost if there is nobody listening.
+    #$ipc->pfpublish('sub_traps',$data);
+
+}
+
+# filtering can be added here
+NetSNMP::TrapReceiver::register("all", \&my_receiver) ||
+warn "failed to register our perl trap handler\n";
+
