@@ -32,6 +32,7 @@ Enhancements
  * Allow pfqueue workers to perform work across multiple queues (PR #2260)
  * Added a way to set time and bandwidth balance in action rule (requires accounting to work) (PR #1936)
  * Don't display the mobileprovider field when doing SMS authentication with only one carrier enabled (PR #2322)
+ * Added new reports in the administration interface (PR #2313)
 
 Bug Fixes
 +++++++++
