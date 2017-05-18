@@ -8,6 +8,7 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
 
 [Service]
 Type=notify
+WatchdogSec=10
 StartLimitBurst=3
 StartLimitInterval=60
 PIDFile=/usr/local/pf/var/run/radiusd-load_balancer.pid
