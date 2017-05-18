@@ -21,6 +21,12 @@ $pf-box-width--small: $inuit-base-line-height * 2;
   color: $pf-box-tint-color;
 }
 
+.#{$inuit-box-namespace}box--tint--r {
+  @include font-size($inuit-base-font-size * 0.8, 1.5);
+  background-color: $pf-box-tint-background-r;
+  color: $pf-box-tint-color;
+}
+
 .#{$inuit-box-namespace}box--accent {
   background-color: $pf-base-accent-color;
 }

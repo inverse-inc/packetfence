@@ -7,6 +7,7 @@ use pf::config;
 use pf::node;
 use pf::person;
 use pf::web;
+use pf::violation qw(violation_view_open);
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -56,12 +57,27 @@ sub index : Path : Args(0) {
     );
 }
 
+sub has_open_violation : Path : Args(1) {
+    my ( $mac ) = @_;
+   
+    my @violations = violation_view_open($mac);
+    if ( grep {$_->{'vid'} eq "1300005"} @violations ) {
+        return $TRUE
+    } else {
+        return $FALSE
+    }
+}
+
 sub userIsAuthenticated : Private {
     my ( $self, $c ) = @_;
     my $pid   = $c->user_session->{"username"};
     my @nodes = person_nodes($pid);
     foreach my $node (@nodes) {
         setExpiration($node);
+        my $mac = $node->{'mac'};
+        if (has_open_violation($mac)) {
+            $node->{lostOrStolen} = 1;
+        }
     }
     $c->stash(
         nodes    => \@nodes,

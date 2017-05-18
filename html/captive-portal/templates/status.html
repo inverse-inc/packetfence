@@ -157,6 +157,22 @@ $(document).ready(function() {
       [% END %]
 
       [% NEXT IF n.status != 'reg' OR n.mac == node.mac %]
+      [% IF n.lostOrStolen %]
+      <div class="[ box box--small box--tint--r][ frame frame--raised ]">
+        <div class="[ layout layout--middle ]">
+          <div class="layout__item [ u-1/2 u-1/1-lap u-1/1-palm ]">
+            <ul class="list-bare">
+                [% IF n.device_class %]<li>[% i18n("OS Type ") %]<b>[% n.device_class %]</b></li>[% END %]
+            <li>[% i18n("MAC") %] <b>[% n.mac %]</b></li>
+            [% IF n.regdate != '0000-00-00 00:00:00' %]<li>[% i18n("Registered on") %] <b>[% n.regdate %]</b></li>[% END %]
+        </ul>
+          </div><div class="layout__item layout--right [ u-1/2 u-1/1-lap u-1/1-palm ]">
+            <a href="/node/manager/unreg/[% n.mac %]" class="[ btn btn--small ] u-mb--desk">[% i18n("Unregister") %]</a>
+            <a href="/loststolen/[% n.mac %]" class="btn btn--light btn--small">[% i18n("Declare as lost or stolen") %]</a>
+          </div>
+        </div>
+      </div>
+      [% ELSE %]
       <div class="[ box box--small ][ frame frame--raised ]">
         <div class="[ layout layout--middle ]">
           <div class="layout__item [ u-1/2 u-1/1-lap u-1/1-palm ]">
@@ -171,6 +187,7 @@ $(document).ready(function() {
           </div>
         </div>
       </div>
+      [% END %]
 
       [%- END %]
 [%- ELSE %]

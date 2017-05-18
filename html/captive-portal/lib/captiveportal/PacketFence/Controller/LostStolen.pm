@@ -4,6 +4,7 @@ use namespace::autoclean;
 use pf::violation;
 use pf::constants;
 use pf::node;
+use pf::util;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
