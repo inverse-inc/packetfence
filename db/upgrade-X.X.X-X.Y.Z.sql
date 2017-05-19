@@ -3,6 +3,12 @@
 --
 
 --
+-- Remove hash prefix from activation table
+--
+
+UPDATE activation SET activation_code = SUBSTR(activation_code, INSTR(activation_code, ":") + 1 );
+
+--
 -- Setting the major/minor/sub-minor version of the DB
 --
 
