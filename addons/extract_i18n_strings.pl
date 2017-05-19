@@ -385,6 +385,10 @@ sub extract_modules {
       md5_hash
       transaction_key
       api_login_id
+      shared_secret
+      merchant_id
+      terminal_id
+      shared_secret_direct
     );
     foreach (@$types) {
         my $type = "pf::Authentication::Source::${_}Source";
