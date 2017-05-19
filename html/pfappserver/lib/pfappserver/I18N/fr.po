@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-04-19 15:59+0000\n"
+"PO-Revision-Date: 2017-04-21 13:36+0000\n"
 "Last-Translator: oeufdure <fdurand@inverse.ca>\n"
 "Language-Team: French (http://www.transifex.com/inverse/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
@@ -8192,7 +8192,7 @@ msgstr "Cette section est pour le profilage d’équipements. Fingerbank vous ai
 msgid ""
 "This section is for networking. Interfaces, networks and DNS related will be"
 " configured here."
-msgstr "Cette section est pour le réseau. Les Interfaces, les réseaux et le DNS peuvent etre configugrer ici."
+msgstr "Cette section est pour le réseau. Les Interfaces, les réseaux et le DNS peuvent être configurés ici."
 
 # html/pfappserver/root/configuration/scans.tt
 msgid ""

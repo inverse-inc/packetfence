@@ -11,6 +11,37 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
+
+Version 7.0.1 released on 2017-05-19
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bug Fixes
++++++++++
+
+ * Fixed incorrect locationlog entry when performing RADIUS CoA (#2222)
+ * Twilio: "To" phone number is being stripped of any "+" sign (#2296)
+ * Fixed radiusd load-balancer failing to start in cluster with eduroam (#2303)
+ * Fix authentication sources ordering issue for portal modules when using the administration interface (#2323)
+ * Fix innobackup tmp directory when used with Galera cluster
+ * Fix width of auth sources conditions fields (#2312)
+ * Fixed admin login when only allowed to see auditing section
+ * Fixed locationlog entries for VOIP devices when no voice VLAN is defined (#2314) 
+ * Fixed authentication sources cache in connection profile (#2309) 
+ * Fixed loose matching of host in haproxy dispatcher (#2299) 
+ * Fixed lost MySQL handle errors in pfconfig
+ * Handle sources activation host in haproxy dispatcher (#2266)
+ * Fixed incorrect handling of unregistration year 
+ * Fixed incorrect LDAP error when user not found
+ * Fixed file cloning in connection profile
+ * Fixed display of roles in admin GUI
+ * Fixed unregistration date handling when it is over 2038 (#2269)
+ * Fixed logging errors for undefined values
+ * Fixed queues blocking when forking
+ * Fixed pagination in GUI node search
+ * Fixed OS type display in status page
+ * Fixed URL for connection profile preview
+ 
+
 Version 7.0.0 released on 2017-04-19
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

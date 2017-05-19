@@ -3,6 +3,7 @@
 # This file is distributed under the same license as the PacketFence package.
 # 
 # Translators:
+# Andre Perdigao <suporte@hospic.com.br>, 2017
 # Brivaldo Junior <condector@gmail.com>, 2011
 # Diego de Souza Lopes <djkakaroto@gmail.com>, 2011-2017
 # Diego de Souza Lopes <djkakaroto@gmail.com>, 2013
@@ -16,8 +17,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-04-19 15:57+0000\n"
-"Last-Translator: inverse <info@inverse.ca>\n"
+"PO-Revision-Date: 2017-05-15 17:57+0000\n"
+"Last-Translator: Andre Perdigao <suporte@hospic.com.br>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/inverse/packetfence/language/pt_BR/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -35,12 +36,12 @@ msgstr "Uma senha randômica de certificado foi gerado para você. Por favor not
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_confirmed.html
 msgid "Access Authorized"
-msgstr ""
+msgstr "Acesso Autorizado"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
 msgid "Access granted"
-msgstr ""
+msgstr "Acesso Garantido"
 
 # html/captive-portal/templates/activation/sponsor_accepted.html
 msgid "Access to the guest network granted"
@@ -59,15 +60,15 @@ msgstr "De acordo com a configuração de provisioner, este dispositivo não pod
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Root.pm
 msgid "Account created"
-msgstr ""
+msgstr "Acesso Creado"
 
 # html/captive-portal/templates/emails/emails-guest_email_preregistration.html
 msgid "Activate your network access"
-msgstr ""
+msgstr "Ativar o acesso à rede"
 
 # pf::person::FIELDS
 msgid "Address"
-msgstr ""
+msgstr "Endereço"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
 msgid ""
@@ -75,7 +76,7 @@ msgid ""
 "access\".(defined($email_timeout) ? \" during $email_timeout\" : \"\").\". "
 "In order to complete your registration, you will need to click on the link "
 "emailed to you."
-msgstr ""
+msgstr "Após o registro, você receberá acesso temporário à rede \". (Defined ($ email_timeout)?\" Durante $ email_timeout \":\" \").\". Para completar o seu registro, você precisará clicar no link enviado para você."
 
 # html/captive-portal/templates/provisioner/sepm.html
 msgid "Alternate installer"
@@ -83,25 +84,25 @@ msgstr "Instalador alternativo"
 
 # html/captive-portal/templates/emails/emails-guest_admin_pregistration.html
 msgid "An account has been created for you to access our network."
-msgstr ""
+msgstr "Uma conta foi criada para que você possa acessar nossa rede."
 
 # html/captive-portal/templates/account.html
 msgid "An e-mail with the login informations will follow in the next minutes"
-msgstr ""
+msgstr "Um e-mail com as informações de login seguirá nos próximos minutos."
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Root.pm
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Application.pm
 msgid "An error occured"
-msgstr ""
+msgstr "Um erro ocorreu."
 
 # pf::person::FIELDS
 msgid "Anniversary"
-msgstr ""
+msgstr "Aniversário"
 
 # pf::person::FIELDS
 msgid "Apartment_number"
-msgstr ""
+msgstr "Número do Apartamento"
 
 # html/captive-portal/templates/activation/sponsor_login.html
 msgid "Before we proceed with guest activation, we need you to authenticate."
@@ -110,23 +111,23 @@ msgstr "Antes de prosseguir com a ativação de convidados, precisamos de você 
 # html/captive-portal/templates/emails/emails-
 # billing_stripe_customer.subscription.deleted.html
 msgid "Billing cancellation"
-msgstr ""
+msgstr "Cancelamento de faturamento"
 
 # html/captive-portal/templates/emails/emails-billing_confirmation.html
 msgid "Billing invoice"
-msgstr ""
+msgstr "Boleto de Faturamento"
 
 # pf::person::FIELDS
 msgid "Birthday"
-msgstr ""
+msgstr "Dia do Nascimento"
 
 # pf::person::FIELDS
 msgid "Building_number"
-msgstr ""
+msgstr "Numero do Build"
 
 # pf::person::FIELDS
 msgid "Cell_phone"
-msgstr ""
+msgstr "Numero do Celular"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/TLSEnrollment.pm
@@ -138,16 +139,16 @@ msgstr "Geração de certificado para conexão EAP TLS"
 
 # html/captive-portal/templates/saml.html
 msgid "Click here to login on %s"
-msgstr ""
+msgstr "Clique aqui para logar %s"
 
 # pf::person::FIELDS
 msgid "Company"
-msgstr ""
+msgstr "Compania"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/SMS.pm
 msgid "Confirm Mobile Phone Number"
-msgstr ""
+msgstr "Confirmar Numero de Celular"
 
 # html/captive-portal/templates/challenge.html
 # html/captive-portal/templates/message.html
@@ -172,47 +173,47 @@ msgstr "Custo"
 
 # html/captive-portal/templates/account.html
 msgid "Created account %s"
-msgstr ""
+msgstr "Criação de conta"
 
 # pf::person::FIELDS
 msgid "Custom_field_1"
-msgstr ""
+msgstr "Campo_customizável_1"
 
 # pf::person::FIELDS
 msgid "Custom_field_2"
-msgstr ""
+msgstr "Campo_customizável_2"
 
 # pf::person::FIELDS
 msgid "Custom_field_3"
-msgstr ""
+msgstr "Campo_customizável_3"
 
 # pf::person::FIELDS
 msgid "Custom_field_4"
-msgstr ""
+msgstr "Campo_customizável_4"
 
 # pf::person::FIELDS
 msgid "Custom_field_5"
-msgstr ""
+msgstr "Campo_customizável_5"
 
 # pf::person::FIELDS
 msgid "Custom_field_6"
-msgstr ""
+msgstr "Campo_customizável_6"
 
 # pf::person::FIELDS
 msgid "Custom_field_7"
-msgstr ""
+msgstr "Campo_customizável_7"
 
 # pf::person::FIELDS
 msgid "Custom_field_8"
-msgstr ""
+msgstr "Campo_customizável_8"
 
 # pf::person::FIELDS
 msgid "Custom_field_9"
-msgstr ""
+msgstr "Campo_customizável_9"
 
 # html/captive-portal/templates/billing/tier.html
 msgid "Description"
-msgstr ""
+msgstr "Descrição"
 
 # html/captive-portal/templates/device-registration/registration.html
 msgid "Device MAC address"
@@ -225,24 +226,24 @@ msgstr "Tipo do dispositivo"
 # html/captive-
 # portal/lib/captiveportal/PacketFence/Controller/DeviceRegistration.pm
 msgid "Device registration landing"
-msgstr ""
+msgstr "Carregando Registro de Dispositivo"
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
 msgid "Do NOT authorize access if you were not expecting this guest."
-msgstr ""
+msgstr "Acesso não autorizado caso não seja convidado."
 
 # html/captive-portal/templates/provisioner/sepm.html
 # html/captive-portal/templates/provisioner/symantec.html
 msgid "Download"
-msgstr ""
+msgstr "Baixar Arquivo"
 
 # html/captive-portal/templates/provisioner/sentinelone.html
 msgid "Download Mac OSX Agent"
-msgstr ""
+msgstr "Baixar Agent para Mac OSX"
 
 # html/captive-portal/templates/provisioner/sentinelone.html
 msgid "Download Windows Agent"
-msgstr ""
+msgstr "Baixar Agente para Windows"
 
 # html/captive-portal/templates/pki_provider/packetfence_pki.html
 msgid "E-mail"
@@ -259,7 +260,7 @@ msgstr "E-mail"
 # portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
 msgid ""
 "Email activation code has been verified. Access granted until : $unregdate"
-msgstr ""
+msgstr "E-mail com Código  de ativação verificado. Acesso permitido até : $unregdate"
 
 # html/captive-portal/templates/violations/bandwidth_expiration.html
 msgid "Expiration"
@@ -267,7 +268,7 @@ msgstr "Expiração"
 
 # html/captive-portal/templates/emails/emails-billing_confirmation.html
 msgid "Extend access duration"
-msgstr ""
+msgstr "Duração de acesso estendido."
 
 # html/captive-portal/templates/status.html
 msgid "Extend your access"
@@ -277,7 +278,7 @@ msgstr "Estenda seu acesso"
 msgid ""
 "Failure to do so within %s minutes will result in a termination of your "
 "network access."
-msgstr ""
+msgstr "Falha na tentativa de conectar dentro de %s minutos resultará em um encerramento do seu acesso à rede."
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
 # pf::person::FIELDS
@@ -286,7 +287,7 @@ msgstr "Nome"
 
 # pf::person::FIELDS
 msgid "Gender"
-msgstr ""
+msgstr "Gênero"
 
 # html/captive-portal/templates/pki_provider/packetfence_local.html
 # html/captive-portal/templates/pki_provider/packetfence_pki.html
@@ -297,16 +298,16 @@ msgstr "Gerar certificado"
 # html/captive-
 # portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
 msgid "Guest Sponsor Login"
-msgstr ""
+msgstr "Login do Patrocinador Convidado"
 
 # html/captive-portal/templates/emails/emails-guest_email_activation.html
 # html/captive-portal/templates/emails/emails-guest_email_preregistration.html
 msgid "Guest access to the network was requested using this email address."
-msgstr ""
+msgstr "O acesso de convidado à rede foi solicitado usando este endereço de e-mail."
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
 msgid "Guest request"
-msgstr ""
+msgstr "Requisição de convidado."
 
 # html/captive-portal/templates/emails/emails-billing_confirmation.html
 # html/captive-portal/templates/emails/emails-
@@ -329,15 +330,15 @@ msgstr "Olá"
 # html/captive-portal/templates/emails/emails-
 # guest_local_account_creation.html
 msgid "Here are the info."
-msgstr ""
+msgstr "Aqui estão as informações."
 
 # html/captive-portal/templates/emails/emails-violation-triggered.html
 msgid "Here are the informations of the infringing device"
-msgstr ""
+msgstr "Aqui estão as informações do dispositivo infrator."
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
 msgid "Here is the information the guest provided with registration form"
-msgstr ""
+msgstr "Aqui estão as informações fornecidas pelo convidado no formulário de inscrição."
 
 # html/captive-portal/templates/emails/emails-violation-triggered.html
 msgid "Hostname"
@@ -355,19 +356,19 @@ msgstr "Eu não tenho um PIN"
 
 # html/captive-portal/templates/provisioner/mobileiron.html
 msgid "If you are using a Windows phone"
-msgstr ""
+msgstr "Caso utilize um telefone Windows"
 
 # html/captive-portal/templates/provisioner/mobileiron.html
 msgid "If you are using an Android phone or tablet"
-msgstr ""
+msgstr "Caso estiver utilizando um telefone ou tablet Android."
 
 # html/captive-portal/templates/provisioner/mobileiron.html
 msgid "If you are using an Apple phone or tablet"
-msgstr ""
+msgstr "Caso estiver utilizando um telefone ou Tablet Apple."
 
 # html/captive-portal/templates/provisioner/sepm.html
 msgid "If you find the program above not working you can try this one:"
-msgstr ""
+msgstr "Caso o programa acima não funcionar favor tentar este:"
 
 # html/captive-portal/templates/emails/emails-
 # guest_email_preregistration_confirmed.html
@@ -379,7 +380,7 @@ msgstr ""
 msgid ""
 "If you have any questions regarding the registration process please contact "
 "your local support staff."
-msgstr ""
+msgstr "Em caso de dúvidas sobre o processo de registro, entre em contato com a equipe de suporte local."
 
 # html/captive-portal/templates/release.html
 # html/captive-portal/templates/scan.html
@@ -409,12 +410,12 @@ msgstr "A fim de completar sua conexão com o SSID seguro, você precisará de e
 # html/captive-portal/templates/provisioner/opswat.html
 # html/captive-portal/templates/provisioner/windows.html
 msgid "Install Agent"
-msgstr ""
+msgstr "Instalar Agente."
 
 # html/captive-portal/templates/provisioner/android.html
 # html/captive-portal/templates/provisioner/mobileconfig.html
 msgid "Install wireless profile"
-msgstr ""
+msgstr "Instalar Perfil Wi-fi"
 
 # html/captive-portal/templates/billing/index.html
 msgid "Internet Access Package"
@@ -426,11 +427,11 @@ msgid ""
 "Just to let you know that an user account has been created while registering"
 " your device. You may now want to use it for different features (devices "
 "registration, status page)."
-msgstr ""
+msgstr "Apenas para informá-lo de que uma conta de usuário foi criada durante o registro do dispositivo. Agora você pode querer usá-lo para diferentes recursos (registro de dispositivos, página de status)."
 
 # pf::person::FIELDS
 msgid "Lang"
-msgstr ""
+msgstr "Linguagem"
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
 # pf::person::FIELDS
@@ -466,11 +467,11 @@ msgstr "Endereço MAC"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
 msgid "Mobile provider"
-msgstr ""
+msgstr "Provedor Móvel."
 
 # html/captive-portal/templates/emails/emails-guest_email_activation.html
 msgid "Network access activation"
-msgstr ""
+msgstr "Ativação de acesso à rede."
 
 # html/captive-portal/templates/release.html
 # html/captive-portal/templates/waiting.html
@@ -479,11 +480,11 @@ msgstr "O acesso à rede foi concedido"
 
 # pf::person::FIELDS
 msgid "Nickname"
-msgstr ""
+msgstr "Apelido."
 
 # pf::person::FIELDS
 msgid "Notes"
-msgstr ""
+msgstr "Anotações"
 
 # html/captive-portal/templates/emails/emails-violation-triggered.html
 msgid "OS"
@@ -498,7 +499,7 @@ msgstr "Tipo de SO"
 msgid ""
 "Once on site, select guest access on the captive portal and use the "
 "following username and password to authenticate"
-msgstr ""
+msgstr "Uma vez no Portal, selecione o acesso de convidado e digite o nome de usuário e senha para autenticar"
 
 # html/captive-portal/templates/provisioner/ibm.html
 # html/captive-portal/templates/provisioner/opswat.html
@@ -513,7 +514,7 @@ msgstr "Uma vez que a aplicação está instalada, clique em \"Continuar\" para 
 msgid ""
 "Once the application is installed, click Continue to activate your network "
 "connection"
-msgstr ""
+msgstr "Depois que o aplicativo estiver instalado, clique em Continuar para ativar sua conexão de rede"
 
 # html/captive-portal/templates/provisioner/sepm.html
 msgid ""
@@ -526,19 +527,19 @@ msgid ""
 "Once you click on the activation link the guest will be sent a username and "
 "password by email which will allow him to register as a guest in the network"
 " once on-site."
-msgstr ""
+msgstr "Depois de clicar no link de ativação, o convidado receberá um nome de usuário e uma senha por e-mail, o que permitirá que ele se registre e tenha acesso à rede."
 
 # html/captive-portal/templates/emails/emails-guest_email_preregistration.html
 msgid ""
 "Once you have activated you will receive a username and password to use once"
 " you'll be on-site."
-msgstr ""
+msgstr "Uma vez ativado você receberá um nome de usuário e senha para usar no Portal de acesso."
 
 # html/captive-portal/templates/emails/emails-guest_admin_pregistration.html
 msgid ""
 "Once you will be on-site, authenticate using the following credentials to "
 "our captive portal"
-msgstr ""
+msgstr "Autentique-se usando as seguintes credenciais no nosso Portal de acesso."
 
 # html/captive-portal/templates/sms/validate.html
 msgid "PIN"
@@ -546,7 +547,7 @@ msgstr "PIN"
 
 # html/captive-portal/templates/layout.html
 msgid "PacketFence Registration system"
-msgstr ""
+msgstr "Sistema de Registro PacketFence"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
 # html/captive-portal/templates/account.html
@@ -569,7 +570,7 @@ msgstr "Senha"
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Billing.pm
 msgid "Pay for your access"
-msgstr ""
+msgstr "Pague para ter acesso."
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
 msgid "Phone number"
@@ -577,21 +578,21 @@ msgstr "Telefone"
 
 # pf::person::FIELDS
 msgid "Pid"
-msgstr ""
+msgstr "Pid"
 
 # html/captive-portal/templates/emails/emails-guest_email_activation.html
 # html/captive-portal/templates/emails/emails-guest_email_preregistration.html
 msgid "Please ignore this request if you have not requested network access."
-msgstr ""
+msgstr "Favor ignorar caso não tenha solicitado acesso a rede."
 
 # pf::person::FIELDS
 msgid "Portal"
-msgstr ""
+msgstr "Portal"
 
 # html/captive-portal/templates/emails/emails-
 # guest_email_preregistration_confirmed.html
 msgid "PreRegister confirmation"
-msgstr ""
+msgstr "Confirmação de Pré-registro"
 
 # html/captive-portal/templates/emails/emails-guest_admin_pregistration.html
 # html/captive-portal/templates/emails/emails-guest_email_preregistration.html
@@ -600,7 +601,7 @@ msgstr "Pré-Registro"
 
 # html/captive-portal/templates/billing/tier.html
 msgid "Price"
-msgstr ""
+msgstr "Preço"
 
 # html/captive-portal/templates/device-registration/registration.html
 msgid "Register"
@@ -608,12 +609,12 @@ msgstr "Registrar"
 
 # html/captive-portal/templates/device-registration/landing.html
 msgid "Register another device"
-msgstr ""
+msgstr "Registro de um novo dispositivo."
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/Controller/DeviceRegistration.pm
 msgid "Registration"
-msgstr ""
+msgstr "Cadastro"
 
 # html/captive-portal/templates/status.html
 msgid "Registration Date"
@@ -625,20 +626,20 @@ msgstr "Registro pendente"
 
 # html/captive-portal/templates/layout.html
 msgid "Restart from the beginning"
-msgstr ""
+msgstr "Favor tentar novamente."
 
 # html/captive-portal/templates/layout.html
 msgid "Restart registration process"
-msgstr ""
+msgstr "Reiniciando processo de cadastro."
 
 # pf::person::FIELDS
 msgid "Room_number"
-msgstr ""
+msgstr "Numero_sala"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/SAML.pm
 msgid "SAML authentication"
-msgstr ""
+msgstr "Autenticação SAML"
 
 # html/captive-portal/templates/device-registration/registration.html
 msgid "Select Console"
@@ -646,7 +647,7 @@ msgstr "Selecionar Console"
 
 # html/captive-portal/templates/content-with-choice.html
 msgid "Select an authentication method"
-msgstr ""
+msgstr "Selecionar um método de autenticação"
 
 # html/captive-portal/templates/release.html
 # html/captive-portal/templates/scan-in-progress.html
@@ -658,24 +659,24 @@ msgstr "Algumas versões do Internet Explorer pode demorar um pouco antes de oco
 
 # pf::person::FIELDS
 msgid "Source"
-msgstr ""
+msgstr "Fonte"
 
 # pf::person::FIELDS
 msgid "Sponsor"
-msgstr ""
+msgstr "Patrocinador"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
 msgid "Sponsor Email"
-msgstr ""
+msgstr "E-mail do Patrocinador"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
 msgid "Sponsor request accepted"
-msgstr ""
+msgstr "Solicitação aceita pelo Patrocinador"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Status.pm
 msgid "State - Network Access"
-msgstr ""
+msgstr "Acesso a Rede - Status"
 
 # html/captive-portal/templates/emails/emails-billing_confirmation.html
 msgid "Status"
@@ -684,33 +685,33 @@ msgstr "Status"
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
 # pf::person::FIELDS
 msgid "Telephone"
-msgstr ""
+msgstr "Numero de Telefone"
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
 msgid "Thank you for your cooperation."
-msgstr ""
+msgstr "Obrigado pela cooperação."
 
 # html/captive-portal/templates/emails/emails-billing_confirmation.html
 msgid "Thank you for your purchase."
-msgstr ""
+msgstr "Obrigado pela sua Compra."
 
 # html/captive-portal/templates/emails/emails-guest_email_activation.html
 # html/captive-portal/templates/emails/emails-guest_email_preregistration.html
 msgid "Thank you for your understanding"
-msgstr ""
+msgstr "Obrigado pela compreensão"
 
 # html/captive-portal/templates/emails/emails-
 # billing_stripe_customer.subscription.deleted.html
 msgid "The network access of device %s has been revoked."
-msgstr ""
+msgstr "O acesso a rede do dispositivo %s foi revogada."
 
 # html/captive-portal/templates/readonly.html
 msgid "The system is in maintenance mode"
-msgstr ""
+msgstr "Sistema está em manutenção"
 
 # html/captive-portal/templates/account.html
 msgid "This account can only be used once."
-msgstr ""
+msgstr "Esta conta só pode ser utilizada uma vez."
 
 # html/captive-portal/templates/emails/emails-billing_confirmation.html
 # html/captive-portal/templates/emails/emails-guest_email_preregistration.html
@@ -720,24 +721,24 @@ msgstr ""
 # html/captive-portal/templates/emails/emails-guest_sponsor_confirmed.html
 # html/captive-portal/templates/emails/emails-violation-triggered.html
 msgid "This is a post only E-mail, please do not reply."
-msgstr ""
+msgstr "Este é apenas um e-mail de postagem, por favor, não responda."
 
 # html/captive-portal/templates/emails/emails-guest_admin_pregistration.html
 msgid "This username and password will be valid starting"
-msgstr ""
+msgstr "Esse nome de usuário e senha serão válidos"
 
 # html/captive-portal/templates/billing/tier.html
 msgid "Tier"
-msgstr ""
+msgstr "Nivel"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Billing.pm
 msgid "Tier confirmation"
-msgstr ""
+msgstr "Confirmação de nível"
 
 # pf::person::FIELDS
 msgid "Title"
-msgstr ""
+msgstr "Titulo"
 
 # html/captive-portal/templates/provisioner/mobileiron.html
 msgid "To complete your network activation you need to install MobileIron"
@@ -758,7 +759,7 @@ msgstr "Para completar sua ativação de rede você precisará instalar o client
 msgid ""
 "To complete your network activation you need to install the SentinelOne "
 "client."
-msgstr ""
+msgstr "Para completar a ativação da rede, você precisa instalar o cliente SentinelOne."
 
 # html/captive-portal/templates/provisioner/sepm.html
 msgid ""
@@ -773,7 +774,7 @@ msgstr "Para completar sua ativação a rede você precisa instalar o cliente Sy
 
 # html/captive-portal/templates/emails/emails-billing_confirmation.html
 msgid "To extend your network access, please visit"
-msgstr ""
+msgstr "Para estender seu acesso à rede, visite Portal de acesso."
 
 # html/captive-portal/templates/provisioner/accept.html
 msgid ""
@@ -787,7 +788,7 @@ msgstr "Para o usuário: experimente clicar em \"Continuar\" para ver se resolve
 
 # html/captive-portal/templates/emails/emails-billing_confirmation.html
 msgid "To view your current network status, please visit"
-msgstr ""
+msgstr "Para verificar status atual rede, visite o Portal de Acesso"
 
 # html/captive-portal/templates/emails/emails-billing_confirmation.html
 msgid "Transaction ID"
@@ -795,7 +796,7 @@ msgstr "ID da Transação"
 
 # html/captive-portal/templates/billing/tier.html
 msgid "Transaction summary"
-msgstr ""
+msgstr "Resumo transação"
 
 # html/captive-portal/templates/release.html
 # html/captive-portal/templates/scan-in-progress.html
@@ -812,14 +813,14 @@ msgstr "Cancelar Registro"
 msgid ""
 "Until you click on the activation link this guest will have NO Internet "
 "access."
-msgstr ""
+msgstr "Clique no link de ativação para ter acesso à Internet."
 
 # html/captive-portal/templates/emails/emails-
 # guest_local_account_creation.html
 # html/captive-portal/templates/emails/emails-
 # guest_sponsor_preregistration.html
 msgid "User Account"
-msgstr ""
+msgstr "Conta de Usuário"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
 # html/captive-portal/templates/account.html
@@ -838,15 +839,15 @@ msgstr "Nome de Usuário"
 
 # html/captive-portal/templates/emails/emails-violation-triggered.html
 msgid "Violation %s was detected on your device."
-msgstr ""
+msgstr "A violação %s foi detectada no dispositivo."
 
 # html/captive-portal/templates/emails/emails-violation-triggered.html
 msgid "Violation detected !"
-msgstr ""
+msgstr "Violação detectada !"
 
 # pf::person::FIELDS
 msgid "Work_phone"
-msgstr ""
+msgstr "Telefone do Trabalho"
 
 # html/captive-portal/templates/pki_provider/packetfence_local.html
 # html/captive-portal/templates/pki_provider/packetfence_pki.html
@@ -856,7 +857,7 @@ msgstr "Você também poderá modificar sua senha abaixo."
 
 # html/captive-portal/templates/emails/emails-violation-triggered.html
 msgid "You have been detected doing malicious activity on the network."
-msgstr ""
+msgstr "Foi detectado uma atividade mal-intencionada na rede pelo dispositivo."
 
 # html/captive-portal/templates/status.html
 msgid "You have no registered devices."
@@ -889,18 +890,18 @@ msgstr "Seu dispositivo atual não está registrado em nossa rede."
 
 # html/captive-portal/templates/status.html
 msgid "Your device is registered to <strong>%s</strong>"
-msgstr ""
+msgstr "Seu dispositivo está registrado em <strong>%s</strong>"
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_confirmed.html
 # html/captive-portal/templates/emails/emails-
 # guest_sponsor_preregistration.html
 msgid "Your guest access to the network was authorized."
-msgstr ""
+msgstr "Seu acesso de convidado à rede foi autorizado."
 
 # html/captive-portal/templates/emails/emails-
 # guest_email_preregistration_confirmed.html
 msgid "Your guest access to the network was confirmed."
-msgstr ""
+msgstr "Seu acesso de convidado à rede foi confirmado."
 
 # html/captive-portal/templates/status.html
 msgid "Your network access ends in <strong id=\"expiration\"></strong>"
@@ -933,7 +934,7 @@ msgstr "O seu registro está pendente de aprovação. Uma vez aprovado, o usuár
 # html/captive-portal/templates/emails/emails-
 # billing_stripe_customer.subscription.deleted.html
 msgid "Your subscribtion was cancelled."
-msgstr ""
+msgstr "Sua inscrição foi cancelada."
 
 # pf::web::constants (Locales)
 msgid "de_DE"
@@ -990,11 +991,11 @@ msgstr "Português"
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Blackhole.pm
 msgid "register: not allowed to register"
-msgstr ""
+msgstr "Você não tem permissão para se registrar nesta rede."
 
 # html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module.pm
 msgid "release: enabling network"
-msgstr ""
+msgstr "Liberando acesso a rede."
 
 # lib/pf/web/release.pm
 msgid "release: reopen browser"
@@ -1002,7 +1003,7 @@ msgstr "Você pode ter que re-abrir o seu navegador para ter acesso à Internet.
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
 msgid "requested guest access to your network."
-msgstr ""
+msgstr "Solicitando acesso de convidado a rede."
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Remediation.pm
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
