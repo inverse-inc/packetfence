@@ -3,8 +3,6 @@ use Moose;
 use Moose::Util qw(apply_all_roles);
 use namespace::autoclean;
 use Log::Log4perl::Catalyst;
-use Data::Dumper qw(Dumper);
-use pf::log;
 use Catalyst::Runtime 5.80;
 
 # Set flags and add plugins for the application.
@@ -139,11 +137,6 @@ Returns host specific CSP headers for portal
 
 sub csp_server_headers {
     my ($c) = @_;
-    my $logger=get_logger();
-    my $host = $c->request->header('Host');
-    if($host =~ /^(.*):/) {
-        $host = $1;
-    }
     
     my $captive_portal_network_detection_ip = $Config{'captive_portal'}{'network_detection_ip'};
     $c->response->header('Content-Security-Policy' => "default-src 'self'; img-src 'self' $captive_portal_network_detection_ip");
