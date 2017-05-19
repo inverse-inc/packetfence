@@ -164,3 +164,17 @@ type NetworkConf struct {
 	NextHop              string `json:"next_hop"`
 	SplitNetwork         string `json:"split_network"`
 }
+
+type PfRoles struct {
+	PfconfigMethod string `val:"keys"`
+	PfconfigNS     string `val:"config::Roles"`
+	Keys           []string
+}
+
+type RolesConf struct {
+	PfconfigMethod string `val:"hash_element"`
+	PfconfigNS     string `val:"config::Roles"`
+	PfconfigHashNS string `val:"-"`
+	Notes          string `json:"notes"`
+	MaxNodesPerPid string `json:"max_nodes_per_pid"`
+}
