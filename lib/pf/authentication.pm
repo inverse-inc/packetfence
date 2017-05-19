@@ -221,7 +221,7 @@ sub authenticate {
 
     # If no source(s) provided, all (except 'exclusive' ones) configured sources are used
     unless (@sources) {
-        @sources = grep { $_->class ne 'exclusive'  } @authentication_sources;
+        @sources = @{pf::authentication::getInternalAuthenticationSources()};
     }
     my $display_username = (defined $username) ? $username : "(anonymous)";
 
