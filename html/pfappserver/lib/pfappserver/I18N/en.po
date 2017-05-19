@@ -1225,6 +1225,7 @@ msgstr ""
 msgid "Click to add a role"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Pf.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 msgid "Click to add an OS"
@@ -3443,6 +3444,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
 msgid "List of roles available to the admin user to assign to a user. If none are provided then all roles are available"
+msgstr ""
+
+# conf/documentation.conf (device_registration.oses)
+msgid "Lists of OSES where the MAC vendor will be allowed to be registered via the device registration page."
 msgstr ""
 
 # html/pfappserver/root/config/fingerbank/device/list.tt
@@ -9113,6 +9118,10 @@ msgstr ""
 # conf/documentation.conf
 msgid "device_registration"
 msgstr "Device registration"
+
+# conf/documentation.conf
+msgid "device_registration.oses"
+msgstr "Authorized devices"
 
 # conf/documentation.conf
 msgid "device_registration.role"
