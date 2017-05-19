@@ -216,7 +216,8 @@ sub generate_filter_if_src_to_chain {
             }
             $rules .= "-A INPUT --in-interface $dev -d 224.0.0.0/8 -j ACCEPT\n";
             $rules .= "-A INPUT --in-interface $dev -p vrrp -j ACCEPT\n";
-            $rules .= "-A INPUT --in-interface $dev --protocol tcp --match tcp --dport 647\n" if ($pf::cluster_enabled);
+            $rules .= "# DHCP Sync\n";
+            $rules .= "-A INPUT --in-interface $dev --protocol tcp --match tcp --dport 647 -j ACCEPT\n" if ($pf::cluster_enabled);
             $rules .= "-A INPUT --in-interface $dev -d ".$cluster_ip." --jump $FW_FILTER_INPUT_INT_VLAN\n" if ($cluster_enabled);
             $rules .= "-A INPUT --in-interface $dev -d " . $interface->tag("vip") . " --jump $FW_FILTER_INPUT_INT_VLAN\n" if $interface->tag("vip");
             $rules .= "-A INPUT --in-interface $dev -d " . $interface->tag("ip") . " --jump $FW_FILTER_INPUT_INT_VLAN\n";
@@ -231,7 +232,8 @@ sub generate_filter_if_src_to_chain {
             my $mgmt_ip = (defined($management_network->tag('vip'))) ? $management_network->tag('vip') : $management_network->tag('ip');
             $rules .= "-A INPUT --in-interface $dev -d 224.0.0.0/8 -j ACCEPT\n";
             $rules .= "-A INPUT --in-interface $dev -p vrrp -j ACCEPT\n";
-            $rules .= "-A INPUT --in-interface $dev --protocol tcp --match tcp --dport 647\n" if ($cluster_enabled);
+            $rules .= "# DHCP Sync\n";
+            $rules .= "-A INPUT --in-interface $dev --protocol tcp --match tcp --dport 647 -j ACCEPT\n" if ($cluster_enabled);
             $rules .= "-A INPUT --in-interface $dev -d ".$cluster_ip." --jump $FW_FILTER_INPUT_INT_INLINE\n" if ($cluster_enabled);
             $rules .= "-A INPUT --in-interface $dev -d $ip --jump $FW_FILTER_INPUT_INT_INLINE\n";
             $rules .= "-A INPUT --in-interface $dev -d 255.255.255.255 --jump $FW_FILTER_INPUT_INT_INLINE\n";
