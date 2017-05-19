@@ -80,8 +80,9 @@ func Serve(conn ServeConn, handler Handler, jobs chan job) error {
 
 // ListenAndServe listens on the UDP network address addr and then calls
 // Serve with handler to handle requests on incoming packets.
-func ListenAndServe(handler Handler, jobs chan job) error {
-	l, err := net.ListenPacket("udp4", ":67")
+func ListenAndServe(handler Handler, jobs chan job, dhcphandler DHCPHandler) error {
+	l, err := net.ListenPacket("udp4", dhcphandler.ip.String()+":67")
+
 	if err != nil {
 		return err
 	}

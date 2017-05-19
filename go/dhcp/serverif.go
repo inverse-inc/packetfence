@@ -6,8 +6,6 @@ import (
 	"os"
 	"syscall"
 
-	"github.com/davecgh/go-spew/spew"
-
 	"golang.org/x/net/ipv4"
 )
 
@@ -65,7 +63,7 @@ func ListenAndServeIf(interfaceName string, handler Handler, jobs chan job) erro
 		return err
 	}
 	defer p.Close()
-	spew.Dump(p)
+
 	return ServeIf(iface.Index, p, handler, jobs)
 }
 
@@ -81,7 +79,60 @@ func broadcastOpen(bindAddr net.IP, port int, ifname string) (*ipv4.PacketConn, 
 	if err = syscall.SetsockoptInt(s, syscall.SOL_SOCKET, syscall.SO_BROADCAST, 1); err != nil {
 		log.Fatal(err)
 	}
-	//syscall.SetsockoptInt(s, syscall.SOL_SOCKET, syscall.SO_REUSEPORT, 1)
+	// syscall.SetsockoptInt(s, syscall.SOL_SOCKET, syscall.SO_REUSEPORT, 1)
+	if err = syscall.SetsockoptString(s, syscall.SOL_SOCKET, syscall.SO_BINDTODEVICE, ifname); err != nil {
+		log.Fatal(err)
+	}
+
+	lsa := syscall.SockaddrInet4{Port: port}
+	copy(lsa.Addr[:], bindAddr.To4())
+
+	if err = syscall.Bind(s, &lsa); err != nil {
+		syscall.Close(s)
+		log.Fatal(err)
+	}
+	f := os.NewFile(uintptr(s), "")
+	c, err := net.FilePacketConn(f)
+	f.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+	p := ipv4.NewPacketConn(c)
+
+	return p, nil
+}
+
+// ListenAndServeIf listens on the UDP network address addr and then calls
+// Serve with handler to handle requests on incoming packets.
+// i.e. ListenAndServeIf("eth0",handler)
+func ListenAndServeIfUnicast(interfaceName string, handler Handler, jobs chan job, dhcphandler DHCPHandler) error {
+	iface, err := net.InterfaceByName(interfaceName)
+	if err != nil {
+		return err
+	}
+
+	p, err := UnicastOpen(dhcphandler.ip, 67, interfaceName)
+	if err != nil {
+		return err
+	}
+	defer p.Close()
+
+	return ServeIf(iface.Index, p, handler, jobs)
+}
+
+func UnicastOpen(bindAddr net.IP, port int, ifname string) (*ipv4.PacketConn, error) {
+	s, err := syscall.Socket(syscall.AF_INET, syscall.SOCK_DGRAM, syscall.IPPROTO_UDP)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err = syscall.SetsockoptInt(s, syscall.SOL_SOCKET, syscall.SO_REUSEADDR, 1); err != nil {
+		log.Fatal(err)
+	}
+
+	// if err = syscall.SetsockoptInt(s, syscall.SOL_SOCKET, syscall.SO_BROADCAST, 1); err != nil {
+	// 	log.Fatal(err)
+	// }
+	// syscall.SetsockoptInt(s, syscall.SOL_SOCKET, syscall.SO_REUSEPORT, 1)
 	if err = syscall.SetsockoptString(s, syscall.SOL_SOCKET, syscall.SO_BINDTODEVICE, ifname); err != nil {
 		log.Fatal(err)
 	}
