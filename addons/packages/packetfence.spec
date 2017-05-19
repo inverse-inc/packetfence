@@ -1093,6 +1093,7 @@ fi
 %config(noreplace)      /usr/local/pf/conf/wmi.conf
                         /usr/local/pf/conf/wmi.conf.example
 %config(noreplace)      /usr/local/pf/conf/report.conf
+                        /usr/local/pf/conf/report.conf.defaults
                         /usr/local/pf/conf/report.conf.example
 %doc                    /usr/local/pf/COPYING
 %dir                    /usr/local/pf/db
