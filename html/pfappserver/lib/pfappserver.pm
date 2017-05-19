@@ -332,6 +332,17 @@ sub generate_doc_url {
     return pf::web::util::generate_doc_url($section, $guide);
 }
 
+=head2 csp_server_headers
+
+Returns host specific CSP headers for portal
+
+=cut
+
+sub csp_server_headers {
+    my ($c) = @_;
+    $c->response->header('Content-Security-Policy' => "default-src 'self';");
+}
+
 # Logging
 __PACKAGE__->log(Log::Log4perl::Catalyst->new(INSTALL_DIR . '/conf/log.conf.d/httpd.admin.conf',watch_delay => 5 * 60));
 

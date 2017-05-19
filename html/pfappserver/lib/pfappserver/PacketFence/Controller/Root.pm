@@ -16,7 +16,7 @@ use warnings;
 use Moose;
 use namespace::autoclean;
 use pf::db;
-
+use pf::config qw(%Config);
 BEGIN { extends 'Catalyst::Controller' }
 
 #
@@ -84,6 +84,11 @@ Attempt to render a view, if needed.
 
 sub end : ActionClass('RenderView') {
     my ( $self, $c ) = @_;
+     
+    if($Config{'advanced'}{'csp_security_headers'} eq 'enabled'){
+        $c->csp_server_headers();
+    }
+  
     if (defined($c->req->header('accept')) && $c->req->header('accept') eq 'application/json'){
         $c->stash->{current_view} = 'JSON';
     }

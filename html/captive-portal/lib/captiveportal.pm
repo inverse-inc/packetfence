@@ -144,12 +144,9 @@ sub csp_server_headers {
     if($host =~ /^(.*):/) {
         $host = $1;
     }
-    $logger->error("host: $host");
-
-    #$c->response->header('Content-Security-Policy' => "default-src 'self' $host");
-    $c->response->header('Content-Security-Policy-Report-Only' => "default-src 'self' $host");
-    #Header set Content-Security-Policy-Report-Only: "default-src 'self' [% vhost %];" 
-    #return $c->response->headers->header( 'X-Catalyst' => $Catalyst::VERSION );
+    
+    my $captive_portal_network_detection_ip = $Config{'captive_portal'}{'network_detection_ip'};
+    $c->response->header('Content-Security-Policy' => "default-src 'self'; img-src 'self' $captive_portal_network_detection_ip");
 }
 
 =head2 user_cache
