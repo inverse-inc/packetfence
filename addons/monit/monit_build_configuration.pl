@@ -34,7 +34,7 @@ my $MONIT_PATH  = ( $OS eq "rhel" ) ? "/etc/monit.d" : "/etc/monit/conf.d";
 
 
 if ( $#ARGV eq "-1" ) {
-    print "Usage: ./monit_configuration_builder.pl 'email(s)' 'subject' 'configurations'\n\n";
+    print "Usage: ./monit_configuration_builder.pl 'email(s)' 'subject' 'configurations' 'mailserver'\n\n";
     print "email(s): List of alerting email address(es) (comma-separated if more than one)\n";
     print "subject: Identifier for email alerts\n";
     print "configurations: List of configuration to generate (comma-separated if more than one)\n";
@@ -44,13 +44,15 @@ if ( $#ARGV eq "-1" ) {
     print "  - active-active: Will add some checks for active-active clustering related services\n";
     print "  - os-winbind: Will add a check for the operating system winbindd process. Use it when the winbind/samba configuration is made outside PacketFence\n";
     print "  - os-checks: Will add some OS best-practices checks\n";
+    print "mailserver: IP or resolvable FQDN of the mail server to use to send alerts (optional)"
     die "\n";
 }
 
-my ( $emails, $subject_identifier, $configurations ) = @ARGV;
+my ( $emails, $subject_identifier, $configurations, $mailserver ) = @ARGV;
 die "No alerting email address(es) specified\n" if !defined $emails;
 die "No alerting subject specified\n" if !defined $subject_identifier;
 die "No configuration(s) specified\n" if !defined $configurations;
+$mailserver = "localhost" if !defined $mailserver;
 
 
 my @emails = split(/\,/, $emails);
@@ -80,6 +82,7 @@ sub generate_monit_configurations {
         MONIT_LOG_FILE      => $MONIT_LOG_FILE,
         EMAILS              => \@emails,
         SUBJECT_IDENTIFIER  => $subject_identifier,
+        MAILSERVER          => $mailserver,
     };
     my $tt = Template->new(ABSOLUTE => 1);
     my $template_file;
@@ -149,6 +152,7 @@ sub generate_specific_configurations {
             FREERADIUS_BIN      => $freeradius_bin,
             EMAILS              => \@emails,
             SUBJECT_IDENTIFIER  => $subject_identifier,
+            MAILSERVER          => $mailserver,
             DOMAINS             => $domains,
             MAIL_BIN            => $mail_bin,
             SERVICE_BIN         => $service_bin,

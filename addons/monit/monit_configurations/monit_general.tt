@@ -1,7 +1,7 @@
 set daemon 2    # Monitor resources every 2 seconds (1 cycle is 2 seconds)
 set logfile syslog facility log_daemon
 
-set mailserver localhost
+set mailserver [% MAILSERVER %]
 set mail-format {
     from: monit@$HOST
     subject: [% SUBJECT_IDENTIFIER %] | Monit Alert -- $EVENT on resource '$SERVICE'
