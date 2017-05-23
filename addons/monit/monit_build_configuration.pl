@@ -95,7 +95,7 @@ sub generate_monit_configurations {
         print "Generating '$backup_file' (BACKED UP FILE)\n";
     }
     $tt->process($template_file, $vars, $destination_file) or die $tt->error();
-    print "\n/!\\ -> Applied 'Monit' configuration. You might want to restart 'Monit' for the change to take place\n\n";
+    print "\n/!\\ -> Applied 'Monit' configuration. You might want to restart it for the change to take place\n\n";
 
     # Syslog configuration
     $template_file = catfile($MONIT_CONF_TEMPLATES_PATH, "syslog_monit" . $TEMPLATE_FILE_EXTENSION);
@@ -108,7 +108,8 @@ sub generate_monit_configurations {
     }
     $tt->process($template_file, $vars, $destination_file) or die $tt->error();
     unlink "$MONIT_PATH/logging"; # Remove default Monit logging configuration file
-    print "\n/!\\ -> Applied 'rsyslog' configuration. You might want to restart 'rsyslog' for the change to take place\n\n";
+    system("/bin/systemctl restart rsyslog");
+    print "\n/!\\ -> Applied 'rsyslog' configuration and restarted it for the new configuration to take place.\n\n";
 }
 
 
