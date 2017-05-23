@@ -76,8 +76,6 @@ Will also take care of backing up existing file (.bak) before overwritting
 =cut
 
 sub generate_monit_configurations {
-    my $syslog_engine = ( $OS eq "rhel" ) ? "syslog" : "rsyslog";
-
     my $vars = {
         MONIT_LOG_FILE      => $MONIT_LOG_FILE,
         EMAILS              => \@emails,
@@ -97,11 +95,11 @@ sub generate_monit_configurations {
         print "Generating '$backup_file' (BACKED UP FILE)\n";
     }
     $tt->process($template_file, $vars, $destination_file) or die $tt->error();
-    print "\n/!\\ -> Applied Monit configuration. You might want to restart Monit for the change to take place\n\n";
+    print "\n/!\\ -> Applied 'Monit' configuration. You might want to restart 'Monit' for the change to take place\n\n";
 
     # Syslog configuration
     $template_file = catfile($MONIT_CONF_TEMPLATES_PATH, "syslog_monit" . $TEMPLATE_FILE_EXTENSION);
-    $destination_file = "/etc/$syslog_engine.d/monit.conf";
+    $destination_file = "/etc/rsyslog.d/monit.conf";
     print "Generating '$destination_file'\n";
     if ( -e $destination_file ) {
         my $backup_file = catfile($MONIT_PATH, "syslog_monit" . $CONF_FILE_EXTENSION . $BACKUP_FILE_EXTENSION);
@@ -110,7 +108,7 @@ sub generate_monit_configurations {
     }
     $tt->process($template_file, $vars, $destination_file) or die $tt->error();
     unlink "$MONIT_PATH/logging"; # Remove default Monit logging configuration file
-    print "\n/!\\ -> Applied $syslog_engine configuration. You might want to restart $syslog_engine for the change to take place\n\n";
+    print "\n/!\\ -> Applied 'rsyslog' configuration. You might want to restart 'rsyslog' for the change to take place\n\n";
 }
 
 
