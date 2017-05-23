@@ -33,6 +33,7 @@ CHECK PROCESS packetfence-dhcpd MATCHING "dhcpd"
     stop program  = "/usr/local/pf/bin/pfcmd service dhcpd stop"
     if 3 restarts within 10 cycles then alert
     if cpu usage > 90% for 10 cycles then restart
+    if mem > 1024 MB for 10 cycles then restart
 
 CHECK PROCESS packetfence-httpd.aaa MATCHING "pf/var/conf/httpd.conf.d/httpd.aaa"
     group PacketFence
