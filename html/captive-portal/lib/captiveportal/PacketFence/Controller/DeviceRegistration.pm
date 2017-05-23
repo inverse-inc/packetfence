@@ -33,7 +33,6 @@ sub auto : Private {
         $self->showError($c,"Device registration module is not enabled" );
         $c->detach;
     }
-    $c->stash->{console_types} = \@pf::web::device_registration::DEVICE_TYPES;
     return 1;
 }
 
@@ -60,6 +59,12 @@ sub index : Path : Args(0) {
         my $device_mac = clean_mac($request->param('device_mac'));
         my $device_type;
         $device_type = $request->param('console_type') if ( defined($request->param('console_type')) );
+        #$c->forward('registerNode', [ $pid, $device_mac, $device_type ]);
+        #unless ($c->has_errors) {
+        #    $c->stash(status_msg  => [ "The MAC address %s has been successfully registered.", $device_mac ]);
+        #    $c->detach('landing');
+        #}
+
         if(valid_mac($device_mac)) {
             # Register device
             $c->forward('registerNode', [ $pid, $device_mac, $device_type ]);
@@ -178,7 +183,8 @@ sub registerNode : Private {
             reevaluate_access($mac, 'manage_register');
         }
     } else {
-        $self->showError($c,"The provided MAC address is not allowed to be register.");
+        $c->stash( error => "The provided MAC address is not allowed to be register." );
+        $c->forward('index');
     }
 }
 

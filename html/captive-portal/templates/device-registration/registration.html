@@ -5,6 +5,13 @@
 </div>
 [% END %]
 
+[% IF error %]
+<div class="media media--error u-p u-mb">
+  <div class="media__img">[% flashIcon(level='error') %]</div>
+  <p class="media__body">[% i18n(error) %]</p>
+</div>
+[% END %]
+
 <form name="registration" method="post" action="/device-registration">
 
   <div class="layout layout--center">
