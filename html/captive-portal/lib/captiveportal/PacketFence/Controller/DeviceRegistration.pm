@@ -59,21 +59,21 @@ sub index : Path : Args(0) {
         my $device_mac = clean_mac($request->param('device_mac'));
         my $device_type;
         $device_type = $request->param('console_type') if ( defined($request->param('console_type')) );
-        #$c->forward('registerNode', [ $pid, $device_mac, $device_type ]);
-        #unless ($c->has_errors) {
-        #    $c->stash(status_msg  => [ "The MAC address %s has been successfully registered.", $device_mac ]);
-        #    $c->detach('landing');
-        #}
-
-        if(valid_mac($device_mac)) {
-            # Register device
-            $c->forward('registerNode', [ $pid, $device_mac, $device_type ]);
-            unless ($c->has_errors) {
-                $c->stash(status_msg  => [ "The MAC address %s has been successfully registered.", $device_mac ]);
-                $c->detach('landing');
-            }
+        $c->forward('registerNode', [ $pid, $device_mac, $device_type ]);
+        unless ($c->has_errors) {
+            $c->stash(status_msg  => [ "The MAC address %s has been successfully registered.", $device_mac ]);
+            $c->detach('landing');
         }
-    $c->stash(txt_auth_error => "Please verify the provided MAC address.");
+
+        #if(valid_mac($device_mac)) {
+        #    # Register device
+        #    $c->forward('registerNode', [ $pid, $device_mac, $device_type ]);
+        #    unless ($c->has_errors) {
+        #        $c->stash(status_msg  => [ "The MAC address %s has been successfully registered.", $device_mac ]);
+        #        $c->detach('landing');
+        #    }
+        #}
+        #$c->stash(txt_auth_error => "Please verify the provided MAC address.");
     }
     # User is authenticated so display registration page
     $c->stash(title => "Registration", template => 'device-registration/registration.html');
@@ -103,7 +103,6 @@ sub userNotLoggedIn : Private {
     my $username = $request->param('username');
     my $password = $request->param('password');
     if ( all_defined( $username, $password ) ) {
-        $c->forward(Authenticate => 'verifyAup');
         $c->forward(Authenticate => 'authenticationLogin');
         if ($c->has_errors) {
             $c->detach('login');
@@ -136,7 +135,7 @@ sub landing : Local : Args(0) {
 sub registerNode : Private {
     my ( $self, $c, $pid, $mac, $type ) = @_;
     my $logger = $c->log;
-    if ( pf::web::device_registration::is_allowed($mac) ) {
+    if ( pf::web::device_registration::is_allowed($mac) && valid_mac($mac) ) {
         my ($node) = node_view($mac);
         if( $node && $node->{status} ne $pf::node::STATUS_UNREGISTERED ) {
             $self->showError($c,"$mac is already registered or pending to be registered. Please verify MAC address if correct contact your network administrator");
