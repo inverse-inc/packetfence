@@ -219,7 +219,7 @@ sub authenticate {
     my $username = $params->{'username'};
     my $password = $params->{'password'};
 
-    # If no source(s) provided, all (except 'exclusive' ones) configured sources are used
+    # If no source(s) provided, all 'internal' configured sources are used
     unless (@sources) {
         @sources = @{pf::authentication::getInternalAuthenticationSources()};
     }
