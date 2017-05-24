@@ -21,14 +21,14 @@ has_field 'unreg_window' => (
     type => 'Duration',
     default_method => \&default_field_method,
     tags => { after_element => \&help,
-             help => 'How long can an unregistered node be inactive on the network before being deleted.<br>This shouldn\'t be used if you are using port-security' },
+             help => 'How long can a registered node be inactive on the network before it becomes unregistered' },
 );
 
 has_field 'delete_window' => (
     type => 'Duration',
     default_method => \&default_field_method,
     tags => { after_element => \&help,
-             help => 'How long can a registered node be inactive on the network before it becomes unregistered' },
+             help => 'How long can an unregistered node be inactive on the network before being deleted.<br>This shouldn\'t be used if you are using port-security' },
 );
 
 =head2 default_type
