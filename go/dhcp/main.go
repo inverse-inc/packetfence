@@ -16,6 +16,7 @@ import (
 
 	"bitbucket.org/oeufdure/pfconfigdriver"
 	"github.com/RoaringBitmap/roaring"
+	"github.com/coreos/go-systemd/daemon"
 	netadv "github.com/fdurand/go-netadv"
 	_ "github.com/go-sql-driver/mysql"
 	dhcp "github.com/krolaw/dhcp4"
@@ -110,7 +111,28 @@ func main() {
 		}()
 	}
 	// Api
-	log.Fatal(http.ListenAndServe(":22222", nil))
+	l, err := net.Listen("tcp", ":22222")
+	if err != nil {
+		log.Panicf("cannot listen: %s", err)
+	}
+	daemon.SdNotify(false, "READY=1")
+
+	go func() {
+		interval, err := daemon.SdWatchdogEnabled(false)
+		if err != nil || interval == 0 {
+			return
+		}
+		for {
+			_, err := http.Get("http://127.0.0.1:22222")
+			if err == nil {
+				daemon.SdNotify(false, "WATCHDOG=1")
+			}
+			time.Sleep(interval / 3)
+		}
+	}()
+	http.Serve(l, nil)
+
+	// log.Fatal(http.ListenAndServe(":22222", nil))
 }
 
 // Broadcast runner
