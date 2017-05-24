@@ -46,6 +46,7 @@ Bug Fixes
  * Fix authentication sources ordering issue for portal modules when using the administration interface (#2323)
  * Fix too large scoping of authentication sources (#2338)
  * Prevent usage of a 'Null' source in the device registration page (#1784)
+ * Fixes duplicate nodes displaying when there are multiple locationlog entries (#1848)
 
 
 Version 7.0.0 released on 2017-04-19
