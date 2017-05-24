@@ -169,21 +169,11 @@ our %WHERE_SINGLE_OPS = (
 sub _single_where_clause {
     my ($self,$op) = @_;
     my @clauses;
-    if (exists $WHERE_SINGLE_OPS{lc($op)}) {
-        my $has_elements = $self->has_where_clause_elements;
-        if($self->has_where_clause_elements) {
-            my $last_elem = $self->last_where_clause_element;
-            if(!exists $WHERE_SINGLE_OPS{$last_elem} ) {
-                $self->_add_implict_and() if $op eq '(';
-                @clauses = ($op);
-            }
-        } elsif($op eq '(') {
-            @clauses = ($op);
-        } else {
-            die "$op cannot be first where clause";
-        }
-    } elsif( ref($op) eq 'SCALAR'  ) {
-        @clauses = $$op;
+    if( ref($op) eq 'SCALAR'  ) {
+        @clauses = ($$op);
+    }
+    elsif (exists $WHERE_SINGLE_OPS{lc($op)}) {
+        @clauses = ($op);
     }
     else {
         die "$op cannot be added to where clause";
@@ -223,7 +213,7 @@ sub _add_implict_and {
     my $logger = get_logger();
     if($self->has_where_clause_elements) {
         my $last_elem = $self->last_where_clause_element;
-        if($last_elem eq ')' || ! exists $WHERE_SINGLE_OPS{$last_elem} ) {
+        if($last_elem eq ')' || ! exists $WHERE_SINGLE_OPS{lc($last_elem)} ) {
            $self->add_to_where_clause_elements('and');
         }
     }
