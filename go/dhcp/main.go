@@ -14,9 +14,9 @@ import (
 
 	"bitbucket.org/oeufdure/pfconfigdriver"
 	"github.com/RoaringBitmap/roaring"
+	netadv "github.com/fdurand/go-netadv"
 	dhcp "github.com/krolaw/dhcp4"
 	"github.com/patrickmn/go-cache"
-	netadv "github.com/simlelievre/go-netadv"
 )
 
 var DHCPConfig *Interfaces
