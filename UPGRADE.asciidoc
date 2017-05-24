@@ -124,6 +124,13 @@ Add default values to new auth source parameters
 
     /usr/local/pf/addons/upgrade/to-7.1-authentication-conf.pl
 
+Instagram source changes
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Due to a change in the API of Instagram please do the following if you are using an Instagram OAuth2 source:
+
+    sed -i "s/scope=email/scope=basic/g" /usr/local/pf/conf/authentication.conf
+
 Upgrading from a version prior to 7.0.0
 ---------------------------------------
 
