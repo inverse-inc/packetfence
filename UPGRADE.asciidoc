@@ -127,9 +127,8 @@ Add default values to new auth source parameters
 Instagram source changes
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-Due to a change in the API of Instagram please do the following if you are using an Instagram OAuth2 source:
+Due to a change in the API of Instagram please change the scope if you are using an Instagram OAuth2 source. Replace 'scope=email' by 'scope=basic' in conf/authentication.conf under the section '[Instagram Source]'.
 
-    sed -i "s/scope=email/scope=basic/g" /usr/local/pf/conf/authentication.conf
 
 Upgrading from a version prior to 7.0.0
 ---------------------------------------
