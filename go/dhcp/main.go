@@ -1,6 +1,8 @@
 package main
 
 import (
+	"database/sql"
+	"encoding/binary"
 	"log"
 	"math"
 
@@ -15,11 +17,13 @@ import (
 	"bitbucket.org/oeufdure/pfconfigdriver"
 	"github.com/RoaringBitmap/roaring"
 	netadv "github.com/fdurand/go-netadv"
+	_ "github.com/go-sql-driver/mysql"
 	dhcp "github.com/krolaw/dhcp4"
 	"github.com/patrickmn/go-cache"
 )
 
 var DHCPConfig *Interfaces
+var database *sql.DB
 
 var ctx = context.Background()
 
@@ -60,6 +64,10 @@ func newDHCPConfig() *Interfaces {
 }
 
 func main() {
+
+	// Read DB config
+	configDatabase := readDBConfig()
+	connectDB(configDatabase, database)
 
 	// Read pfconfig
 	DHCPConfig = newDHCPConfig()
@@ -345,7 +353,7 @@ func (d *Interfaces) readConfig() {
 							})
 
 							DHCPScope.hwcache = hwcache
-
+							initiaLease(&DHCPScope)
 							var options = make(map[dhcp.OptionCode][]byte)
 
 							options[dhcp.OptionSubnetMask] = []byte(DHCPNet.network.Mask)
@@ -392,7 +400,7 @@ func (d *Interfaces) readConfig() {
 						})
 
 						DHCPScope.hwcache = hwcache
-
+						initiaLease(&DHCPScope)
 						var options = make(map[dhcp.OptionCode][]byte)
 
 						options[dhcp.OptionSubnetMask] = []byte(net.ParseIP(ConfNet.Netmask).To4())
@@ -435,5 +443,58 @@ func dec(ip net.IP) {
 		if ip[j] > 0 {
 			break
 		}
+	}
+}
+
+func readDBConfig() pfconfigdriver.PfconfigDatabase {
+	var sections pfconfigdriver.PfconfigDatabase
+	sections.PfconfigNS = "config::Pf"
+	sections.PfconfigMethod = "hash_element"
+	sections.PfconfigHashNS = "database"
+
+	pfconfigdriver.FetchDecodeSocketStruct(ctx, &sections)
+	return sections
+}
+
+func connectDB(configDatabase pfconfigdriver.PfconfigDatabase, db *sql.DB) {
+	database, _ = sql.Open("mysql", configDatabase.DBUser+":"+configDatabase.DBPassword+"@tcp("+configDatabase.DBHost+":"+configDatabase.DBPort+")/"+configDatabase.DBName+"?parseTime=true")
+
+}
+
+func initiaLease(dhcpHandler *DHCPHandler) {
+	// Need to calculate the end ip because of the ip per role feature
+	endip := binary.BigEndian.Uint32(dhcpHandler.start.To4()) + uint32(dhcpHandler.leaseRange) - uint32(1)
+	a := make([]byte, 4)
+	binary.BigEndian.PutUint32(a, endip)
+	ipend := net.IPv4(a[0], a[1], a[2], a[3])
+
+	rows, err := database.Query("select ip,mac,end_time from ip4log where inet_aton(ip) between inet_aton(?) and inet_aton(?) and (end_time = 0 OR  end_time > NOW()) ORDER BY ip", dhcpHandler.start.String(), ipend.String())
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+	var (
+		ipstr    string
+		mac      string
+		end_time time.Time
+	)
+	for rows.Next() {
+		err := rows.Scan(&ipstr, &mac, &end_time)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Calculate the leasetime from the date in the database
+		now := time.Now()
+		leaseDuration := end_time.Sub(now)
+		ip := net.ParseIP(ipstr)
+
+		// Calculate the position for the roaring bitmap
+		position := uint32(binary.BigEndian.Uint32(ip.To4())) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
+		// Remove the position in the roaming bitmap
+		dhcpHandler.available.Remove(position)
+		// Add the mac in the cache
+		dhcpHandler.hwcache.Set(mac, int(position), leaseDuration)
+
 	}
 }
