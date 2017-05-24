@@ -83,13 +83,17 @@ sub add_searches {
     }
     if (@searches) {
         $builder->where('(');
-        $builder->where($all_or_any)->where(@$_) for @searches;
+        my $search = shift @searches;
+        $builder->where(@$search);
+        for $search (@searches) {
+            $builder->where($all_or_any)->where(@$search);
+        }
         $builder->where(')');
         $builder->where('AND');
     }
     $builder->where('(');
-    $builder->where( { table => 'r2', name => 'radacctid' }, 'IS NULL' );
-    $builder->where( { table => 'locationlog2', name => 'id' }, 'IS NULL' );
+    $builder->where( { table => 'r2', name => 'radacctid' }, 'IS NULL')->where('AND')
+    ->where( { table => 'locationlog2', name => 'id' }, 'IS NULL');
     $builder->where(')');
 }
 
