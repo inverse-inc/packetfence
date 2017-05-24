@@ -279,6 +279,18 @@ Clear the redis queue to avoid old stale jobs from being processes.
   systemctl start packetfence-redis_queue
   redis-cli -p 6380 FLUSHALL
   systemctl stop packetfence-redis_queue
+  
+SSL certificates
+^^^^^^^^^^^^^^^^
+
+Given that haproxy is now the termination point for the captive portal, any SSL configuration you have in `/usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf` needs to be ported so that it works with haproxy.
+
+Easiest solution is to bundle your server cert, your intermediates (if any) along with the key in the default file used by the PacketFence haproxy process (`/usr/local/pf/conf/ssl/server.pem`)
+
+In order to do so:
+
+  # cd /usr/local/pf/
+  # cat /path/to/your/server.crt /path/to/your/intermediates.crt /path/to/your/server.key > /usr/local/pf/conf/ssl/server.pem
 
 Running 7.0+ in a cluster
 ^^^^^^^^^^^^^^^^^^^^^^^^^
