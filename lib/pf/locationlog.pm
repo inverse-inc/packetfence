@@ -413,6 +413,7 @@ sub locationlog_synchronize {
 
     # flag to determine if we must insert a new record or not
     my $mustInsert = 0;
+    my $inserted = 0;
 
     if ( defined($mac) ) {
 
@@ -439,6 +440,9 @@ sub locationlog_synchronize {
                 db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_update_end_mac_sql', $mac)
                     || return (0);
                 locationlog_insert_start($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $locationlog_mac, $ifDesc);
+
+                # We just inserted an entry so we won't want to add another one
+                $inserted = 1;
             }
 
         } else {
@@ -482,7 +486,7 @@ sub locationlog_synchronize {
     }
 
     # we insert a locationlog entry
-    if ($mustInsert) {
+    if ($mustInsert && !$inserted) {
         locationlog_insert_start($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, undef, $ifDesc)
             or $logger->warn("Unable to insert a locationlog entry.");
     }
