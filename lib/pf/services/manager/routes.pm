@@ -18,16 +18,16 @@ use Moo;
 use pf::file_paths qw($install_dir);
 use pf::log;
 use pf::util;
-
-use pf::config qw (
+use pf::config qw(
     %ConfigNetworks
-    %Config
     @listen_ints
+    %Config
 );
-use pf::nodecategory qw(nodecategory_view_all);
-
 use IPC::Cmd qw[can_run run];
 use pf::constants qw($TRUE $FALSE);
+
+use pf::nodecategory qw(nodecategory_view_all);
+
 use POSIX qw(ceil);
 
 extends 'pf::services::manager';
@@ -119,7 +119,7 @@ sub isAlive {
     my ($self,$pid) = @_;
     my $result;
     $pid = $self->pid;
-    my $route_exist = '';
+    my $route_exist;
 
     foreach my $network ( keys %ConfigNetworks ) {
         # shorter, more convenient local accessor
@@ -132,6 +132,7 @@ sub isAlive {
     }
     my $routes_applied = $FALSE;
     $routes_applied = defined(pf_run("route | grep ".$route_exist)) if ($route_exist);
+    $routes_applied = $TRUE if (-f "$install_dir/var/routes_applied");
     return (defined($pid) && $routes_applied);
 }
 
@@ -182,6 +183,9 @@ sub manageStaticRoute {
             }
             close $fh;
         }
+        if (-f "$install_dir/var/routes_applied") {
+           unlink("$install_dir/var/routes_applied");
+        }
     } else {
         open (my $fh, "+>$install_dir/var/static_routes.bak");
 
@@ -203,7 +207,7 @@ sub manageStaticRoute {
         close $fh;
         open ($fh, "+>$install_dir/var/virtual_routes.bak");
 
-        foreach my $interface ( @listen_ints ) {
+       foreach my $interface ( @listen_ints ) {
             my $cfg = $Config{"interface $interface"};
             next unless $cfg;
             my $current_interface = NetAddr::IP->new( $cfg->{'ip'}, $cfg->{'mask'} );
@@ -234,11 +238,11 @@ sub manageStaticRoute {
                                 next unless $role->{'name'};
                                 my $pool = $role->{'name'}.$interface;
                                 my $pf_ip = $net + 1;
-                                my $cmd = "sudo $full_path addr del ".$pf_ip->addr."/32 dev $interface";
+                                my $cmd = "sudo $full_path addr del ".$pf_ip->addr."/".$cidr." dev $interface";
                                 $cmd = untaint_chain($cmd);
                                 print $fh $cmd."\n";
                                 my @out = pf_run($cmd);
-                                $cmd = "sudo $full_path addr add ".$pf_ip->addr."/32 dev $interface";
+                                $cmd = "sudo $full_path addr add ".$pf_ip->addr."/".$cidr." dev $interface";
                                 @out = pf_run($cmd);
                                 my $first = $net + 2;
                             }
@@ -250,8 +254,11 @@ sub manageStaticRoute {
             }
         }
         close $fh;
+        touch_file("$install_dir/var/routes_applied");
     }
 }
+
+
 
 sub isManaged {
     my ($self) = @_;
@@ -268,6 +275,7 @@ sub isManaged {
     }
     return $FALSE;
 }
+
 
 =head1 AUTHOR
 
