@@ -19,12 +19,16 @@ import (
 	"github.com/coreos/go-systemd/daemon"
 	netadv "github.com/fdurand/go-netadv"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/gorilla/mux"
 	dhcp "github.com/krolaw/dhcp4"
 	"github.com/patrickmn/go-cache"
 )
 
 var DHCPConfig *Interfaces
 var database *sql.DB
+
+var GlobalIpCache *cache.Cache
+var GlobalMacCache *cache.Cache
 
 var ctx = context.Background()
 
@@ -65,6 +69,11 @@ func newDHCPConfig() *Interfaces {
 }
 
 func main() {
+
+	// Initialize IP cache
+	GlobalIpCache = cache.New(5*time.Minute, 10*time.Minute)
+	// Initialize Mac cache
+	GlobalMacCache = cache.New(5*time.Minute, 10*time.Minute)
 
 	// Read DB config
 	configDatabase := readDBConfig()
@@ -110,6 +119,11 @@ func main() {
 			v.run(jobs)
 		}()
 	}
+
+	router := mux.NewRouter()
+	router.HandleFunc("/mac2ip/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", handleMac2Ip).Methods("GET")
+	router.HandleFunc("/ip2mac/{ip:(?:[0-9]{1,3}.){3}.(?:[0-9]{1,3})}", handleIP2Mac).Methods("GET")
+
 	// Api
 	l, err := net.Listen("tcp", ":22222")
 	if err != nil {
@@ -130,9 +144,7 @@ func main() {
 			time.Sleep(interval / 3)
 		}
 	}()
-	http.Serve(l, nil)
-
-	// log.Fatal(http.ListenAndServe(":22222", nil))
+	http.Serve(l, router)
 }
 
 // Broadcast runner
@@ -153,12 +165,18 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 	answer.SrcIP = h.Ipv4
 
 	// Detect the handler to use (config)
+	var NodeCache *cache.Cache
+	NodeCache = cache.New(3*time.Second, 5*time.Second)
+	var node NodeInfo
 	for _, v := range h.network {
 		if v.dhcpHandler.layer2 && p.GIAddr().Equal(net.IPv4zero) {
 			// Ip per role ?
 			if v.splittednet == true {
-				// TO DO use a cache
-				node := NodeInformation(p.CHAddr())
+				if x, found := NodeCache.Get(p.CHAddr().String()); found {
+					node = x.(NodeInfo)
+				} else {
+					node = NodeInformation(p.CHAddr())
+				}
 
 				var category string
 				var nodeinfo = node.Result[0]
@@ -238,6 +256,9 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 				if index, found := handler.hwcache.Get(p.CHAddr().String()); found {
 					answer.D = dhcp.ReplyPacket(p, dhcp.ACK, handler.ip, reqIP, handler.leaseDuration,
 						handler.options.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
+					// Update Global Caches
+					GlobalIpCache.Set(reqIP.String(), p.CHAddr().String(), handler.leaseDuration+(time.Duration(15)*time.Second))
+					GlobalMacCache.Set(p.CHAddr().String(), reqIP.String(), handler.leaseDuration+(time.Duration(15)*time.Second))
 					// Update the cache
 					handler.hwcache.Set(p.CHAddr().String(), index, handler.leaseDuration+(time.Duration(15)*time.Second))
 					return answer
@@ -518,6 +539,7 @@ func initiaLease(dhcpHandler *DHCPHandler) {
 		dhcpHandler.available.Remove(position)
 		// Add the mac in the cache
 		dhcpHandler.hwcache.Set(mac, int(position), leaseDuration)
-
+		GlobalIpCache.Set(ipstr, mac, leaseDuration)
+		GlobalMacCache.Set(mac, ipstr, leaseDuration)
 	}
 }
