@@ -322,6 +322,37 @@ server, DHCP server, RADIUS server) using:
   sudo apt-get update
   sudo apt-get install packetfence
 
+Network design assumptions
+--------------------------
+
+Through this Administration Guide's examples, we use the following assumptions for our network infrastructure:
+
+Network Setup
+~~~~~~~~~~~~~
+
+* VLAN 1 is the management VLAN
+* VLAN 2 is the registration VLAN (unregistered devices will be put in this VLAN)
+* VLAN 3 is the isolation VLAN (isolated devices will be put in this VLAN)
+* VLAN 4 is the MAC detection VLAN (empty VLAN: no DHCP, no routing, no nothing)
+* VLAN 5 is the guest VLAN
+* VLAN 10 is the “regular” VLAN
+* VLAN 200 is the “inline” VLAN
+
+Please refer to the following table for IP and Subnet information :
+
+[options="header",cols="1,2,2,2,3",grid="rows"]
+|==============================================================================
+|VLAN ID  |VLAN Name     |Subnet           |Gateway        |PacketFence Address
+|1        |Management    |DHCP             |               |DHCP
+|2        |Registration  |192.168.2.0/24   |192.168.2.10   |192.168.2.10
+|3        |Isolation     |192.168.3.0/24   |192.168.3.10   |192.168.3.10
+|4        |Mac Detection |                 |               |
+|5        |Guests        |192.168.5.0/24   |192.168.5.10   |192.168.5.10
+|10       |Normal        |192.168.1.0/24   |192.168.1.1    |192.168.1.10
+|200      |Inline        |192.168.200.0/24 |192.168.200.10 |192.168.200.10
+|==============================================================================
+
+
 Get off on the right foot
 -------------------------
 
