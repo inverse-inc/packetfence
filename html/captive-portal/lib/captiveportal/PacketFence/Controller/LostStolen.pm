@@ -2,6 +2,7 @@ package captiveportal::PacketFence::Controller::LostStolen;
 use Moose;
 use namespace::autoclean;
 use pf::violation;
+use pf::constants::violation qw($LOST_OR_STOLEN);
 use pf::constants;
 use pf::node;
 use pf::util;
@@ -29,13 +30,12 @@ sub index : Path : Args(1) {
     my $node = node_view($mac);
     my $owner = lc($node->{pid});
     my $username = lc($c->user_session->{username});
-    my $vid = "1300005";
     $c->stash(
         mac => $mac,
         template => 'lost_stolen.html',
     );
     if ( $username eq $owner ) {
-        my $trigger = violation_add($mac, $vid);
+        my $trigger = violation_add($mac, $LOST_OR_STOLEN);
 
         if ($trigger) {
             $c->stash(
