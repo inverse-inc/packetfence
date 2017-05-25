@@ -59,21 +59,16 @@ sub index : Path : Args(0) {
         my $device_mac = clean_mac($request->param('device_mac'));
         my $device_type;
         $device_type = $request->param('console_type') if ( defined($request->param('console_type')) );
-        $c->forward('registerNode', [ $pid, $device_mac, $device_type ]);
-        unless ($c->has_errors) {
-            $c->stash(status_msg  => [ "The MAC address %s has been successfully registered.", $device_mac ]);
-            $c->detach('landing');
-        }
 
-        #if(valid_mac($device_mac)) {
-        #    # Register device
-        #    $c->forward('registerNode', [ $pid, $device_mac, $device_type ]);
-        #    unless ($c->has_errors) {
-        #        $c->stash(status_msg  => [ "The MAC address %s has been successfully registered.", $device_mac ]);
-        #        $c->detach('landing');
-        #    }
-        #}
-        #$c->stash(txt_auth_error => "Please verify the provided MAC address.");
+        if(valid_mac($device_mac)) {
+            # Register device
+            $c->forward('registerNode', [ $pid, $device_mac, $device_type ]);
+            #unless ($c->has_errors) {
+            #    $c->stash(status_msg  => [ "The MAC address %s has been successfully registered.", $device_mac ]);
+            #    $c->detach('landing');
+            #}
+        }
+        $c->stash(txt_auth_error => "Please verify the provided MAC address.");
     }
     # User is authenticated so display registration page
     $c->stash(title => "Registration", template => 'device-registration/registration.html');
@@ -180,10 +175,13 @@ sub registerNode : Private {
             $c->portalSession->guestNodeMac($mac);
             node_modify($mac, status => "reg", %info);
             reevaluate_access($mac, 'manage_register');
+            $c->stash( status_msg  => [ "The MAC address %s has been successfully registered.", $mac ]);
+            $c->detach('landing');
+ 
         }
     } else {
-        $c->stash( error => "The provided MAC address is not allowed to be register." );
-        $c->forward('index');
+        $c->stash( status_msg_error => [ "The provided MAC address %s is not allowed to be registered using this self-service page.", $mac ]);
+        $c->detach('landing');
     }
 }
 

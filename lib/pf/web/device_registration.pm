@@ -68,7 +68,7 @@ sub device_from_mac_vendor {
     my ($status, $result) = fingerbank::Model::Combination->find([{ mac_vendor_id => $mac_vendor_id }, {columns => ['device_id']}]);
 
     if(is_success($status)){
-        return $result->device_id;
+        return $result;#->device_id;
     }else {
         $logger->debug("Cannot find matching device id ".$result->device_id." for this mac vendor id ".$mac_vendor_id." in the database");
     }
@@ -92,7 +92,8 @@ sub is_allowed {
     $mac =~ s/://g;
     my $mac_vendor = substr($mac, 0,6);
     my $mac_vendor_id = mac_vendor_id($mac_vendor);
-    my $device_id = device_from_mac_vendor($mac_vendor_id);
+    my $device = device_from_mac_vendor($mac_vendor_id);
+    my $device_id = $device->device_id;
     my ($status, $result) = fingerbank::Model::Device->find([{ id => $device_id}, {columns => ['name']}]);
 
     # We are loading the fingerbank endpoint model to verify if the device id is matching as a parent or child
