@@ -251,9 +251,18 @@ sub _build_profile {
 
 sub _build_dispatcherSession {
     my ($self) = @_;
-    my $session = new pf::Portal::Session()->session;
-    my %session_data;
     my $logger = get_logger();
+
+    # Restore with a dummy MAC since we don't care about what contains the session if it can't be restored from the session ID
+    my $dummy_mac = "ff:ff:ff:ff:ff:ff";
+    my $session = new pf::Portal::Session(client_mac => $dummy_mac)->session;
+
+    if($session->param('_client_mac') eq $dummy_mac) {
+        $logger->debug("Ignoring dispatcher session as it wasn't restored from a valid session ID");
+        return {};
+    }
+
+    my %session_data;
     foreach my $key ($session->param) {
         my $value = $session->param($key);
         $logger->debug( sub { "Adding session parameter from dispatcher session to Catalyst session : $key : " . ($value // 'undef') });
