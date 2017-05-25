@@ -6,12 +6,12 @@
 [% ELSIF status == "error" %]
 <div class="media media--error u-p u-mb">
   <div class="media__img">[% flashIcon(level='error') %]</div>
-  <p class="media__body">[% i18n_format("An error occured while trying to delcare the device %s as lost or stolen.", mac) | none %]</p>
+  <p class="media__body">[% i18n_format("An error occured while trying to declare the device %s as lost or stolen.", mac) | none %]</p>
 </div>
 [% ELSIF status == "notowned" %]
 <div class="media media--error u-p u-mb">
   <div class="media__img">[% flashIcon(level='error') %]</div>
-  <p class="media__body">[% i18n_format("You do not own this device %s, therefor you can not decalre it as lost or stolen.", mac) | none %]</p>
+  <p class="media__body">[% i18n_format("You do not own this device %s, therefor you can not declare it as lost or stolen.", mac) | none %]</p>
 </div>
 [% END %]
 <div class="layout layout--center">
@@ -23,7 +23,7 @@
       </div>
     </a>
 [% IF hasLocalAccount %]
-    <a href="/status/person" class="btn btn--full btn--light">
+    <a href="/status/reset_password" class="btn btn--full btn--light">
       <div class="flag">
         <div class="flag__img">[% svgIcon(id='ic_person_black_24px',size='small') %]</div>
         <p class="flag__body">[% i18n("Change my password") %]</p>

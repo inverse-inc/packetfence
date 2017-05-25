@@ -30,26 +30,24 @@ sub index : Path : Args(1) {
     my $owner = lc($node->{pid});
     my $username = lc($c->user_session->{username});
     my $vid = "1300005";
+    $c->stash(
+        mac => $mac,
+        template => 'lost_stolen.html',
+    );
     if ( $username eq $owner ) {
         my $trigger = violation_add($mac, $vid);
 
         if ($trigger) {
             $c->stash(
-                mac => $mac,
-                template => 'lost_stolen.html',
                 status => 'success',
             );
         } else {
             $c->stash(
-                mac => $mac,
-                template => 'lost_stolen.html',
                 status => 'error',
             );
         }
     } else {
         $c->stash(
-            mac => $mac,
-            template => 'lost_stolen.html',
             status => 'notowned',
         );
     }

@@ -253,13 +253,12 @@ enabled=N
 
 [1300005]
 priority=1
-actions=email_user,email_admin,log,role
+actions=email_user,email_admin,log,reevaluate_access
 desc=Lost or Stolen
 enabled=Y
 template=banned_devices
 auto_enable=N
-user_mail_message=Your devices %mac as been declared as lost or stolen. Please contact your system administrator to be able to use this device again on the network.
-target_category=isolation
+user_mail_message=Your device %mac as been declared as lost or stolen. Please contact your system administrator to be able to use this device again on the network.
 
 #
 # 1400000 - 1499999 Reserved for local violations

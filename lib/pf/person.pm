@@ -44,7 +44,6 @@ BEGIN {
         person_custom_search
         person_cleanup
         persons_without_nodes
-        person_has_local_account
         $PID_RE
     );
 }
@@ -187,12 +186,6 @@ sub person_db_prepare {
             GROUP BY pid
             HAVING count(node.mac)=0;
             ]);
-
-    $person_statements->{'person_local_account'} = get_db_handle()->prepare(
-        qq[
-            SELECT pid
-            FROM password
-            WHERE password IS NOT NULL AND pid = ? ]);
 
     $person_db_prepared = 1;
 }
@@ -448,19 +441,6 @@ sub person_cleanup {
         person_delete($pid);
     }
 }
-
-=head2 person_has_local_account
-
-Query the DB to see if the pid is a local account
-
-=cut
-
-sub person_has_local_account {
-    my ($pid) = @_;
-
-    return db_data(PERSON, $person_statements, 'person_local_account', $pid);
-}
-
 
 =head1 AUTHOR
 

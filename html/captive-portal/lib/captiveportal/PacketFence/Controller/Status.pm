@@ -5,9 +5,10 @@ use pf::util;
 use pf::constants;
 use pf::config;
 use pf::node;
-use pf::person;
 use pf::web;
 use pf::violation qw(violation_view_open);
+use pf::constants::violation qw($LOST_OR_STOLEN);
+use pf::password qw(view);
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -46,8 +47,8 @@ sub index : Path : Args(0) {
     } else {
         $c->forward('userIsNotAuthenticated');
     }
-    if (person_has_local_account($pid)) {
-        $c->stash->{hasLocalAccount} = 1;
+    if (view($pid)) {
+        $c->stash->{hasLocalAccount} = $TRUE;
     }
     $c->stash(
         title => "Status - Network Access",
@@ -57,11 +58,11 @@ sub index : Path : Args(0) {
     );
 }
 
-sub has_open_violation : Path : Args(1) {
+sub is_lost_stolen : Path : Args(1) {
     my ( $mac ) = @_;
    
     my @violations = violation_view_open($mac);
-    if ( grep {$_->{'vid'} eq "1300005"} @violations ) {
+    if ( grep {$_->{'vid'} eq $LOST_OR_STOLEN} @violations ) {
         return $TRUE
     } else {
         return $FALSE
@@ -75,8 +76,8 @@ sub userIsAuthenticated : Private {
     foreach my $node (@nodes) {
         setExpiration($node);
         my $mac = $node->{'mac'};
-        if (has_open_violation($mac)) {
-            $node->{lostOrStolen} = 1;
+        if (is_lost_stolen($mac)) {
+            $node->{lostOrStolen} = $TRUE;
         }
     }
     $c->stash(
@@ -132,8 +133,8 @@ sub login : Local {
     $c->forward('index');
 }
 
-sub person : Local {
-    my ( $selfc, $c ) = @_;
+sub reset_password : Local {
+    my ( $self, $c ) = @_;
     my $pid     = $c->user_session->{"username"};
     if ( $c->has_errors ) {
         $c->stash->{txt_auth_error} = join(' ', grep { ref ($_) eq '' } @{$c->error});
@@ -146,7 +147,7 @@ sub person : Local {
     }
     $c->stash(
         title => "Status - Manage Account",
-        template => 'status/person.html',
+        template => 'status/reset_password.html',
     );
 } 
 
@@ -164,7 +165,7 @@ sub reset_pw : Local {
     } else {
         $c->stash->{status} = "error_fill";
     }
-    $c->stash->{template} = 'status/person.html';
+    $c->stash->{template} = 'status/reset_password.html';
 }
 
 
