@@ -131,7 +131,7 @@ sub loadCustomStatic {
 
 =head2 csp_server_headers
 
-Returns host specific CSP headers for portal
+Returns host specific CSP headers
 
 =cut
 
@@ -139,7 +139,7 @@ sub csp_server_headers {
     my ($c) = @_;
     
     my $captive_portal_network_detection_ip = $Config{'captive_portal'}{'network_detection_ip'};
-    $c->response->header('Content-Security-Policy' => "default-src 'self'; img-src 'self' $captive_portal_network_detection_ip");
+    $c->response->header('Content-Security-Policy' => "default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self' $captive_portal_network_detection_ip;");
 }
 
 =head2 user_cache
