@@ -109,6 +109,8 @@ sub _initialize {
         }
     );
 
+    $self->{_dummy_session} = (defined($mac) && $mac eq "ff:ff:ff:ff:ff:ff");
+
     # Don't assign $mac if the dummy MAC was used for restoring the session
     $self->{'_client_mac'} = ((defined($mac) && $mac ne "ff:ff:ff:ff:ff:ff") ? $mac : undef) || $self->session->param("_client_mac") || $self->_restoreFromSession("_client_mac",sub {
             return $self->getClientMac;

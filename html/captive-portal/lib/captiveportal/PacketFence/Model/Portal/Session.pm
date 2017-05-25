@@ -255,12 +255,15 @@ sub _build_dispatcherSession {
 
     # Restore with a dummy MAC since we don't care about what contains the session if it can't be restored from the session ID
     my $dummy_mac = "ff:ff:ff:ff:ff:ff";
-    my $session = new pf::Portal::Session(client_mac => $dummy_mac)->session;
+    
+    my $portal_session = new pf::Portal::Session(client_mac => $dummy_mac);
 
-    if($session->param('_client_mac') eq $dummy_mac) {
+    if($portal_session->{_dummy_session}) {
         $logger->debug("Ignoring dispatcher session as it wasn't restored from a valid session ID");
         return {};
     }
+
+    my $session = $portal_session->session;
 
     my %session_data;
     foreach my $key ($session->param) {
