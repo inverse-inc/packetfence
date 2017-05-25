@@ -29,6 +29,8 @@ use POSIX qw(locale_h); #qw(setlocale);
 use Readonly;
 use URI::Escape::XS qw(uri_escape uri_unescape);
 use File::Spec::Functions;
+use Digest::MD5 qw(md5_hex);
+use Crypt::GeneratePassword qw(word);
 
 use pf::constants;
 use pf::config qw(
@@ -94,10 +96,11 @@ sub _initialize {
 
     $self->{'_cgi'} = $cgi;
 
-    my $sid = $cgi->cookie(SESSION_ID) || $cgi->param(SESSION_ID) || $cgi;
+    my $md5_mac = defined($mac) ? md5_hex($mac) : undef;
+    my $sid = $cgi->cookie(SESSION_ID) || $cgi->param(SESSION_ID) || $md5_mac || md5_hex(word(8, 12));
     $logger->debug("using session id '$sid'" );
     my $session;
-    $self->{'_session'} = $session = new CGI::Session( "driver:chi", $sid, { chi_class => 'pf::CHI', namespace => 'httpd.portal' } );
+    $self->{'_session'} = $session = new CGI::Session( "driver:chi;id:static", $sid, { chi_class => 'pf::CHI', namespace => 'httpd.portal' } );
     $logger->error(CGI::Session->errstr()) unless $session;
     $session->expires($EXPIRES_IN);
 
