@@ -198,8 +198,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 		// Search in the cache if the mac address already get assigned
 		if x, found := handler.hwcache.Get(p.CHAddr().String()); found {
 			free = x.(int)
-
-			handler.hwcache.Set(p.CHAddr().String(), free, handler.leaseDuration)
+			handler.hwcache.Set(p.CHAddr().String(), free, handler.leaseDuration+(time.Duration(15)*time.Second))
 			goto reply
 		}
 
@@ -208,7 +207,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 			element := i.Next()
 			free = int(element)
 			handler.available.Remove(element)
-			handler.hwcache.Set(p.CHAddr().String(), free, handler.leaseDuration)
+			handler.hwcache.Set(p.CHAddr().String(), free, handler.leaseDuration+(time.Duration(15)*time.Second))
 		} else {
 			return answer
 		}
@@ -236,9 +235,11 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 
 		if len(reqIP) == 4 && !reqIP.Equal(net.IPv4zero) {
 			if leaseNum := dhcp.IPRange(handler.start, reqIP) - 1; leaseNum >= 0 && leaseNum < handler.leaseRange {
-				if _, found := handler.hwcache.Get(p.CHAddr().String()); found {
+				if index, found := handler.hwcache.Get(p.CHAddr().String()); found {
 					answer.D = dhcp.ReplyPacket(p, dhcp.ACK, handler.ip, reqIP, handler.leaseDuration,
 						handler.options.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
+					// Update the cache
+					handler.hwcache.Set(p.CHAddr().String(), index, handler.leaseDuration+(time.Duration(15)*time.Second))
 					return answer
 				}
 			}
