@@ -3,9 +3,7 @@ use Moose;
 use namespace::autoclean;
 use pf::violation;
 use pf::constants::violation qw($LOST_OR_STOLEN);
-use pf::constants;
 use pf::node;
-use pf::util;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
