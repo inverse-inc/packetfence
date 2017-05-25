@@ -339,6 +339,11 @@ dhcpd=enabled
 # Location of the dhcpd binary. Only necessary to change if you are not running the RPMed version.
 dhcpd_binary=/usr/sbin/dhcpd
 #
+# services.go_dhcpd
+#
+# Should go_dhcpd be managed by PacketFence?
+go_dhcpd=disabled
+#
 # services.haproxy
 #
 # Should haproxy be started?
