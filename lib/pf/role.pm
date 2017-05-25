@@ -33,7 +33,7 @@ use pf::config qw(
 );
 use pf::node qw(node_exist node_modify);
 use pf::Switch::constants;
-use pf::constants::role qw($VOICE_ROLE);
+use pf::constants::role qw($VOICE_ROLE $REJECT_ROLE);
 use pf::util;
 use pf::config::util;
 use pf::floatingdevice::custom;
@@ -400,17 +400,17 @@ sub getRegisteredRole {
         pf::violation::violation_add( $args->{'mac'}, $POST_SCAN_VID );
     }
 
-    $role = _check_bypass($args);
-    if( $role ) {
-        return $role;
-    }
-
     $logger->debug("Trying to determine VLAN from role.");
 
     # Vlan Filter
     $role = $self->filterVlan('RegisteredRole',$args);
     if ( $role ) {
         return ({ role => $role});
+    }
+
+    $role = _check_bypass($args);
+    if( $role ) {
+        return $role;
     }
 
     # Try MAC_AUTH, then other EAP methods and finally anything else.
@@ -712,6 +712,12 @@ sub isInlineTrigger {
 sub _check_bypass {
     my ( $args ) = @_;
     my $logger = get_logger();
+
+    # If the role of the node is the REJECT role, then we early return as it has precedence over the bypass role and VLAN
+    if($args->{node_info}->{category} eq $REJECT_ROLE) {
+        $logger->debug("Not considering bypass role and VLAN since the role of the device is $REJECT_ROLE");
+        return undef;
+    }
 
     # Bypass VLAN/role is configured in node record so we return accordingly
     if ( defined( $args->{'node_info'}->{'bypass_vlan'} ) && ( $args->{'node_info'}->{'bypass_vlan'} ne '' ) ) {
