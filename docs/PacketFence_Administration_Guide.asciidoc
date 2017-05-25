@@ -181,7 +181,34 @@ PacketFence takes care of handling the operation of the following services:
 Installation
 ------------
 
-This section will guide you through the installation of PacketFence together with its dependencies.
+This section will guide you through the installation of PacketFence together with its dependencies. 
+
+PacketFence is distributed in two different format: packages for Linux Debian and Red Hat Enterprise, and as a virtual machine image named Zero Effort NAC (ZEN).
+
+PacketFence ZEN Virtual Machine
+~~~~~~~~~~~~~~~
+
+PacketFence ZEN {release_version} comes in a pre-built virtual disk (OVA). If you are using an ESX-type hypervisor, you need to import the OVA using vSphere Client (or vCenter).  We are not supporting any Xen-based hypervisors yet.
+
+PacketFence ZEN has been tested under VMWare ESXi 4.0 & 5.0 with 8GB RAM dedicated to the virtual machine. It might work using other virtualization products.  You need a 64-bit capable CPU on your host.
+
+Import to ESX
+^^^^^^^^^^^^^
+
+Make sure that there is only one virtual network card created, and also make sure that your vEthernet is connected to a virtual switch (vSwitch). You will need to create a “TRUNK” profile to allow all VLAN tags (usually VLAN all (4095)), and assign the profile to the PacketFence ZEN VM vEthernet.
+
+Before booting your VM, make sure the network cable coming from the TRUNK port for the demonstration PC is correctly connected in the switch and the PC and that the link is up.
+
+Virtual Machine passwords
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.Management (SSH/Console)
+* Login: root
+* Password: p@ck3tf3nc3
+
+.Captive Portal / 802.1X Registration User
+* Login: demouser
+* Password: demouser
 
 OS Installation
 ~~~~~~~~~~~~~~~
