@@ -9,7 +9,7 @@ StartLimitBurst=3
 StartLimitInterval=60
 Type=notify
 WatchdogSec=30s
-ExecStart=/usr/local/pf/go/sbin/dhcpd 
+ExecStart=/usr/local/pf/sbin/go_dhcpd
 Restart=on-failure
 Slice=packetfence.slice
 
