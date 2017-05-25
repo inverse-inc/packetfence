@@ -8,7 +8,7 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
 [Service]
 StartLimitBurst=3
 StartLimitInterval=60
-Type=simple
+Type=notify
 PIDFile=/usr/local/pf/var/run/httpd.webservices.pid
 ExecStartPre=/usr/local/pf/bin/pfcmd service httpd.webservices generateconfig
 ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.webservices -DFOREGROUND  -Drhel

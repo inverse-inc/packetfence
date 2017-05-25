@@ -64,6 +64,9 @@
   <IfModule !mod_headers.c>
     LoadModule headers_module /usr/lib/apache2/modules/mod_headers.so
   </IfModule>
+  <IfModule !mod_systemd.c>
+    LoadModule systemd_module     /usr/lib/apache2/modules/mod_systemd.so
+  </IfModule>
 </IfDefine>
 
 #RHEL specific
@@ -127,7 +130,9 @@
   <IfModule !mod_headers.c>
       LoadModule headers_module modules/mod_headers.so
   </IfModule>
-
+  <IfModule !mod_systemd.c>
+    LoadModule systemd_module   modules/mod_systemd.so
+  </IfModule>
 </IfDefine>
 [% IF apache_version == "2.4" %]
 Mutex posixsem default
