@@ -45,6 +45,7 @@ use pf::web::constants;
 use pf::web::util;
 use pf::web::constants;
 use pf::activation qw(view_by_code);
+use pf::constants::Portal::Session qw($DUMMY_MAC);
 
 =head1 CONSTANTS
 
@@ -109,10 +110,10 @@ sub _initialize {
         }
     );
 
-    $self->{_dummy_session} = (defined($mac) && $mac eq "ff:ff:ff:ff:ff:ff");
+    $self->{_dummy_session} = (defined($mac) && $mac eq $DUMMY_MAC);
 
     # Don't assign $mac if the dummy MAC was used for restoring the session
-    $self->{'_client_mac'} = ((defined($mac) && $mac ne "ff:ff:ff:ff:ff:ff") ? $mac : undef) || $self->session->param("_client_mac") || $self->_restoreFromSession("_client_mac",sub {
+    $self->{'_client_mac'} = ((defined($mac) && $mac ne $DUMMY_MAC) ? $mac : undef) || $self->session->param("_client_mac") || $self->_restoreFromSession("_client_mac",sub {
             return $self->getClientMac;
         }
     );

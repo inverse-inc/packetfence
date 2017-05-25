@@ -27,6 +27,7 @@ use URI::URL;
 use URI::Escape::XS qw(uri_escape uri_unescape);
 use HTML::Entities;
 use List::MoreUtils qw(any);
+use pf::constants::Portal::Session qw($DUMMY_MAC);
 
 =head1 NAME
 
@@ -254,9 +255,7 @@ sub _build_dispatcherSession {
     my $logger = get_logger();
 
     # Restore with a dummy MAC since we don't care about what contains the session if it can't be restored from the session ID
-    my $dummy_mac = "ff:ff:ff:ff:ff:ff";
-    
-    my $portal_session = new pf::Portal::Session(client_mac => $dummy_mac);
+    my $portal_session = new pf::Portal::Session(client_mac => $DUMMY_MAC);
 
     if($portal_session->{_dummy_session}) {
         $logger->debug("Ignoring dispatcher session as it wasn't restored from a valid session ID");
