@@ -53,6 +53,9 @@
   <IfModule !mod_status.c>
     LoadModule status_module /usr/lib/apache2/modules/mod_status.so
   </IfModule>
+  <IfModule !mod_systemd.c>
+    LoadModule systemd_module     /usr/lib/apache2/modules/mod_systemd.so
+  </IfModule>
 </IfDefine>
 
 #RHEL specific
@@ -109,6 +112,9 @@
   </IfModule>
   <IfModule !mod_status.c>
     LoadModule status_module modules/mod_status.so
+  </IfModule>
+  <IfModule !mod_systemd.c>
+    LoadModule systemd_module modules/mod_systemd.so
   </IfModule>
 </IfDefine>
 

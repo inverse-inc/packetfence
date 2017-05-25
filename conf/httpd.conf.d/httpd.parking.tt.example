@@ -43,6 +43,9 @@
   <IfModule !mod_rewrite.c>
     LoadModule rewrite_module /usr/lib/apache2/modules/mod_rewrite.so
   </IfModule>
+  <IfModule !mod_systemd.c>
+    LoadModule systemd_module     /usr/lib/apache2/modules/mod_systemd.so
+  </IfModule>
 </IfDefine>
 
 #RHEL specific
@@ -87,6 +90,9 @@
   </IfModule>
   <IfModule !mod_rewrite.c>
     LoadModule rewrite_module modules/mod_rewrite.so
+  </IfModule>
+  <IfModule !mod_systemd.c>
+    LoadModule systemd_module modules/mod_systemd.so
   </IfModule>
 </IfDefine>
 

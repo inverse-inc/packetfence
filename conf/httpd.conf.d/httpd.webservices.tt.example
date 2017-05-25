@@ -52,6 +52,9 @@
   <IfModule !mod_setenvif.c>
     LoadModule setenvif_module /usr/lib/apache2/modules/mod_setenvif.so
   </IfModule>
+  <IfModule !mod_systemd.c>
+    LoadModule systemd_module     /usr/lib/apache2/modules/mod_systemd.so
+  </IfModule>
 
 </IfDefine>
 
@@ -106,6 +109,9 @@
   </IfModule>
   <IfModule !mod_setenvif.c>
     LoadModule setenvif_module modules/mod_setenvif.so
+  </IfModule>
+  <IfModule !mod_systemd.c>
+    LoadModule systemd_module modules/mod_systemd.so
   </IfModule>
 </IfDefine>
 

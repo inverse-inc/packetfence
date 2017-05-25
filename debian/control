@@ -26,7 +26,7 @@ Depends: ${misc:Depends}, vlan,
  apache2, apache2-utils, libapache2-mod-proxy-html,
  apache2-mpm-prefork, libapache2-mod-apreq2, libapache2-mod-perl2,
  libapache2-request-perl, libtie-dxhash-perl, libapache-session-perl,
- libapache-ssllookup-perl,
+ libapache-ssllookup-perl, libapache2-mod-systemd,
 # freeradius
  freeradius (>= 3.0.14.2), freeradius-ldap, 
  freeradius-mysql, freeradius-utils, freeradius-rest, freeradius-redis,
