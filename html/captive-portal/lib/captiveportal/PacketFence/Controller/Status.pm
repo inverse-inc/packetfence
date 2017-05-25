@@ -5,6 +5,7 @@ use pf::util;
 use pf::constants;
 use pf::config;
 use pf::node;
+use pf::person;
 use pf::web;
 use pf::violation qw(violation_view_open);
 use pf::constants::violation qw($LOST_OR_STOLEN);
