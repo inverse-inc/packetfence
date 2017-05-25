@@ -68,7 +68,7 @@ sub device_from_mac_vendor {
     my ($status, $result) = fingerbank::Model::Combination->find([{ mac_vendor_id => $mac_vendor_id }, {columns => ['device_id']}]);
 
     if(is_success($status)){
-        return $result->device;
+        return $result->device_id;
     }else {
         $logger->debug("Cannot find matching device id ".$result->device_id." for this mac vendor id ".$mac_vendor_id." in the database");
     }

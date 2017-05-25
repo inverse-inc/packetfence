@@ -46,27 +46,5 @@
     </div>
   </div>
 </form>
-<div class="layout layout--center">
-  <div class="layout__item u-mt u-2/3 u-1/1-palm">
-    <a href="/status" class="btn btn--full btn--light">
-      <div class="flag">
-        <div class="flag__img">[% svgIcon(id='ic_devices_black_24px',size='small') %]</div>
-        <p class="flag__body">[% i18n("Manage my devices") %]</p>
-      </div>
-    </a>
-[% IF hasLocalAccount %]
-    <a href="/status/reset_password" class="btn btn--full btn--light">
-      <div class="flag">
-        <div class="flag__img">[% svgIcon(id='ic_person_black_24px',size='small') %]</div>
-        <p class="flag__body">[% i18n("Change my password") %]</p>
-      </div>
-    </a>
-[% END %]
-    <a href="/device-registration/logout" class="btn btn--full btn--light">
-      <div class="flag">
-        <div class="flag__img">[% svgIcon(id='ic_close_black_24px',size='small') %]</div>
-        <p class="flag__body">[% i18n("Logout") %]</p>
-      </div>
-    </a>
-  </div>
-</div>
+
+[% INCLUDE status/menu.html %]
