@@ -30,6 +30,10 @@ var database *sql.DB
 var GlobalIpCache *cache.Cache
 var GlobalMacCache *cache.Cache
 
+// Control
+var ControlOut map[string]chan interface{}
+var ControlIn map[string]chan interface{}
+
 var ctx = context.Background()
 
 type DHCPHandler struct {
@@ -89,6 +93,9 @@ func main() {
 		maxWorkers   = 50
 	)
 
+	ControlIn = make(map[string]chan interface{})
+	ControlOut = make(map[string]chan interface{})
+
 	// create job channel
 	jobs := make(chan job, maxQueueSize)
 
@@ -104,8 +111,14 @@ func main() {
 	// Unicast listener
 	for _, v := range DHCPConfig.intsNet {
 		v := v
+		// Create a channel for each interface
+		channelIn := make(chan interface{})
+		channelOut := make(chan interface{})
+
 		for net := range v.network {
 			net := net
+			ControlIn[v.Name] = channelIn
+			ControlOut[v.Name] = channelOut
 			go func() {
 				v.runUnicast(jobs, v.network[net].dhcpHandler)
 			}()
@@ -123,6 +136,7 @@ func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/mac2ip/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", handleMac2Ip).Methods("GET")
 	router.HandleFunc("/ip2mac/{ip:(?:[0-9]{1,3}.){3}.(?:[0-9]{1,3})}", handleIP2Mac).Methods("GET")
+	router.HandleFunc("/stats/{int:.*}", handleStats).Methods("GET")
 
 	// Api
 	l, err := net.Listen("tcp", ":22222")
@@ -149,6 +163,23 @@ func main() {
 
 // Broadcast runner
 func (h *Interface) run(jobs chan job) {
+
+	go func() {
+		stats := make(map[string]Stats)
+		inchannel := ControlIn[h.Name]
+		outchannel := ControlOut[h.Name]
+		for {
+
+			netinterface := <-inchannel
+
+			for _, v := range h.network {
+				var statistiques roaring.Statistics
+				statistiques = v.dhcpHandler.available.Stats()
+				stats[v.network.String()] = Stats{EthernetName: netinterface.(string), Net: v.network.String(), Free: int(statistiques.RunContainerValues) + 1}
+			}
+			outchannel <- stats
+		}
+	}()
 	ListenAndServeIf(h.Name, h, jobs)
 
 }
@@ -168,6 +199,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 	var NodeCache *cache.Cache
 	NodeCache = cache.New(3*time.Second, 5*time.Second)
 	var node NodeInfo
+
 	for _, v := range h.network {
 		if v.dhcpHandler.layer2 && p.GIAddr().Equal(net.IPv4zero) {
 			// Ip per role ?
@@ -192,17 +224,20 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 					answer.SrcIP = handler.ip
 					break
 				}
-			}
-		} else {
-			handler = v.dhcpHandler
-			break
-		}
 
-		if !p.GIAddr().Equal(net.IPv4zero) && v.network.Contains(p.GIAddr()) {
-			handler = v.dhcpHandler
-			break
+			} else {
+
+				handler = v.dhcpHandler
+				break
+			}
+
+			if !p.GIAddr().Equal(net.IPv4zero) && v.network.Contains(p.GIAddr()) {
+				handler = v.dhcpHandler
+				break
+			}
 		}
 	}
+
 	if len(handler.ip) == 0 {
 		return answer
 	}
@@ -210,6 +245,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 	switch msgType {
 
 	case dhcp.Discover:
+
 		var free int
 		i := handler.available.Iterator()
 
@@ -297,6 +333,7 @@ func (d *Interfaces) readConfig() {
 
 		adresses, _ := eth.Addrs()
 		for _, adresse := range adresses {
+
 			var NetIP *net.IPNet
 			var IP net.IP
 			IP, NetIP, _ = net.ParseCIDR(adresse.String())
@@ -318,7 +355,7 @@ func (d *Interfaces) readConfig() {
 				ConfNet.PfconfigHashNS = key
 				pfconfigdriver.FetchDecodeSocketStruct(ctx, &ConfNet)
 
-				if NetIP.Contains(net.ParseIP(ConfNet.Dns)) {
+				if (NetIP.Contains(net.ParseIP(ConfNet.Dns)) || NetIP.Contains(net.ParseIP(ConfNet.NextHop))) && (NetIP.Contains(net.ParseIP(ConfNet.DhcpStart)) && NetIP.Contains(net.ParseIP(ConfNet.DhcpEnd))) {
 					// IP per role
 					if ConfNet.SplitNetwork == "enabled" {
 						var keyConfRoles pfconfigdriver.PfconfigKeys
@@ -390,7 +427,7 @@ func (d *Interfaces) readConfig() {
 							DHCPScope.available = available
 
 							// Initialize hardware cache
-							hwcache := cache.New(time.Duration(seconds)*time.Second, (time.Duration(seconds)*time.Second)+10*time.Duration(seconds))
+							hwcache := cache.New(time.Duration(seconds)*time.Second, (time.Duration(seconds)*time.Second)+10*time.Second)
 
 							hwcache.OnEvicted(func(nic string, pool interface{}) {
 								DHCPScope.available.Add(uint32(pool.(int)))
@@ -411,7 +448,6 @@ func (d *Interfaces) readConfig() {
 								DHCPScope.layer2 = true
 							}
 							DHCPNet.dhcpHandler = DHCPScope
-
 							ethIf.network = append(ethIf.network, DHCPNet)
 							if lastrole == true {
 								break
@@ -437,7 +473,7 @@ func (d *Interfaces) readConfig() {
 						DHCPScope.available = available
 
 						// Initialize hardware cache
-						hwcache := cache.New(time.Duration(seconds)*time.Second, (time.Duration(seconds)*time.Second)+10*time.Duration(seconds))
+						hwcache := cache.New(time.Duration(seconds)*time.Second, (time.Duration(seconds)*time.Second)+10*time.Second)
 
 						hwcache.OnEvicted(func(nic string, pool interface{}) {
 							DHCPScope.available.Add(uint32(pool.(int)))
@@ -469,6 +505,7 @@ func (d *Interfaces) readConfig() {
 	}
 }
 
+// inc function use to increment an ip
 func inc(ip net.IP) {
 	for j := len(ip) - 1; j >= 0; j-- {
 		ip[j]++
@@ -478,6 +515,7 @@ func inc(ip net.IP) {
 	}
 }
 
+// inc function use to decrement an ip
 func dec(ip net.IP) {
 	for j := len(ip) - 1; j >= 0; j-- {
 		ip[j]--
@@ -490,6 +528,7 @@ func dec(ip net.IP) {
 	}
 }
 
+// readDBConfig read pfconfig database configuration
 func readDBConfig() pfconfigdriver.PfconfigDatabase {
 	var sections pfconfigdriver.PfconfigDatabase
 	sections.PfconfigNS = "config::Pf"
@@ -500,11 +539,13 @@ func readDBConfig() pfconfigdriver.PfconfigDatabase {
 	return sections
 }
 
+// connectDB connect to the database
 func connectDB(configDatabase pfconfigdriver.PfconfigDatabase, db *sql.DB) {
 	database, _ = sql.Open("mysql", configDatabase.DBUser+":"+configDatabase.DBPassword+"@tcp("+configDatabase.DBHost+":"+configDatabase.DBPort+")/"+configDatabase.DBName+"?parseTime=true")
 
 }
 
+// initiaLease fetch the database to remove already assigned ip addresses
 func initiaLease(dhcpHandler *DHCPHandler) {
 	// Need to calculate the end ip because of the ip per role feature
 	endip := binary.BigEndian.Uint32(dhcpHandler.start.To4()) + uint32(dhcpHandler.leaseRange) - uint32(1)
