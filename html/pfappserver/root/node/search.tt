@@ -148,7 +148,7 @@
                             [% ELSIF name == "switch_description" %]
                             <td class="hidden-phone">[% switches.${node.switch_ip}.description | html %]</td>
                             [% ELSIF name == "last_ip" %]
-                            <td style="white-space: nowrap">[% IF node.last_ssid %]<i class="icon-signal"></i> [% END %][% node.last_ip | html %]</td>
+                            <td class="no-wrap">[% IF node.last_ssid %]<i class="icon-signal"></i> [% END %][% node.last_ip | html %]</td>
                             [% ELSIF name == "online" %]
                             <td><span class="label label-[% IF node.online == "on" %]success[% ELSIF node.online =="off" %]important[% ELSE %]info[% END %]">[% l(node.online) | html %]</span></td>
                             [% ELSE %]

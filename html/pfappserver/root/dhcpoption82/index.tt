@@ -1,5 +1,4 @@
-<div id="dhcp82-sidenav" class="sidenav sidenav-section offset1 span3"
-     style="display: none"
+<div id="dhcp82-sidenav" class="sidenav sidenav-section offset1 span3 hide"
      data-category="dhcp82">
   [% INCLUDE admin/auditing_option82.tt %]
 </div><!--/.sidenav-section-->
@@ -61,7 +60,7 @@
                   <td>
                     <div id="searchConditionsEmpty" class="unwell unwell-horizontal">
                       <p>
-                        <i class="icon-search" style="line-height: 24px"></i>
+                        <i class="icon-search"></i>
                         <a href="#add">[% l('Add a condition.') %]</a>
                       </p>
                     </div>

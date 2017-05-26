@@ -513,9 +513,9 @@ $(function () { // DOM ready
         $('.sidenav-fluid .sidenav-section').each(function() {
             var $section = $(this);
             if ($section.attr('data-category') == category)
-                $section.show();
+                $section.removeClass('hide');
             else
-                $section.hide();
+                $section.addClass('hide');
         });
         $('.sidenav-fluid .sidenav-section .active').removeClass('active');
     }
