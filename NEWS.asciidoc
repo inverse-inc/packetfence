@@ -11,6 +11,17 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
+Version 7.0.2 released on 2017-05-19
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bug Fixes
++++++++++
+ * Fixed issue with ip4log cleanup job when rotation was enabled (#2358 and #2359)
+ * Adjusted default ip4log retention to match what was in PacketFence version 7 and below
+ * Make REJECT role have precedence over bypass role and VLAN
+ * Make VLAN filters have precedence over bypass role and VLAN
+ * Fix useless sessions being created in web-auth in the dispatcher (#2352)
+ * Load liblasso during runtime in order to prevent a segfault of Apache on Debian 8.8 (#2342)
 
 Version 7.0.1 released on 2017-05-19
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
