@@ -212,7 +212,7 @@ sub ip4log_db_prepare {
     );
 
     $ip4log_statements->{'ip4log_rotate_insert_sql'} = get_db_handle()->prepare(
-        qq [ INSERT INTO ip4log_archive SELECT mac, ip, start_time, end_time FROM ip4log_history WHERE end_time < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ? ]
+        qq [ INSERT INTO ip4log_archive(mac,ip,start_time,end_time) SELECT mac, ip, start_time, end_time FROM ip4log_history WHERE end_time < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ? ]
     );
     $ip4log_statements->{'ip4log_rotate_delete_sql'} = get_db_handle()->prepare(
         qq [ DELETE FROM ip4log_history WHERE end_time < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ? ]
