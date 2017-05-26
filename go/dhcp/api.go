@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -13,6 +12,13 @@ import (
 type Node struct {
 	Mac string `json:"MAC"`
 	Ip  string `json:"IP"`
+}
+
+// Node struct
+type Stats struct {
+	EthernetName string `json:"Interface"`
+	Net          string `json:"Network"`
+	Free         int    `json:"Free"`
 }
 
 func handleIP2Mac(res http.ResponseWriter, req *http.Request) {
@@ -33,7 +39,6 @@ func handleIP2Mac(res http.ResponseWriter, req *http.Request) {
 		fmt.Fprint(res, string(outgoingJSON))
 		return
 	}
-	log.Println("Not found")
 	http.Error(res, "Not found", http.StatusInternalServerError)
 	return
 }
@@ -56,7 +61,29 @@ func handleMac2Ip(res http.ResponseWriter, req *http.Request) {
 		fmt.Fprint(res, string(outgoingJSON))
 		return
 	}
-	log.Println("Not found")
 	http.Error(res, "Not found", http.StatusInternalServerError)
 	return
+}
+
+func handleStats(res http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
+
+	if _, ok := ControlIn[vars["int"]]; ok {
+		ControlIn[vars["int"]] <- vars["int"]
+
+		stat := <-ControlOut[vars["int"]]
+
+		outgoingJSON, error := json.Marshal(stat)
+
+		if error != nil {
+			http.Error(res, error.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		fmt.Fprint(res, string(outgoingJSON))
+		return
+	} else {
+		http.Error(res, "Not found", http.StatusInternalServerError)
+		return
+	}
 }
