@@ -36,6 +36,8 @@ our %TIME_ATTR = (
     interval => 1,
     window => 1,
     timeout => 1,
+    rotate_timeout => 1,
+    rotate_window => 1,
 );
 
 sub build_child {
