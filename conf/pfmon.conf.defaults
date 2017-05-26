@@ -202,7 +202,7 @@ rotate_timeout=10s
 # rotate_window
 #
 # How long to keep a ip4log_cleanup entry before deleting it
-rotate_window=1W
+rotate_window=1D
 #
 # timeout
 #
@@ -212,7 +212,7 @@ timeout=10s
 # window
 #
 # How long to keep a ip4log_cleanup entry before deleting it
-window=1M
+window=1W
 
 [ip6log_cleanup]
 #
