@@ -25,6 +25,7 @@ use URI::URL;
 use URI::Escape::XS qw(uri_escape uri_unescape);
 use HTML::Entities;
 use List::MoreUtils qw(any);
+use pf::constants::Portal::Session qw($DUMMY_MAC);
 
 =head1 NAME
 
@@ -241,9 +242,19 @@ sub _build_profile {
 
 sub _build_dispatcherSession {
     my ($self) = @_;
-    my $session = new pf::Portal::Session()->session;
-    my %session_data;
     my $logger = get_logger();
+
+    # Restore with a dummy MAC since we don't care about what contains the session if it can't be restored from the session ID
+    my $portal_session = new pf::Portal::Session(client_mac => $DUMMY_MAC);
+
+    if($portal_session->{_dummy_session}) {
+        $logger->debug("Ignoring dispatcher session as it wasn't restored from a valid session ID");
+        return {};
+    }
+
+    my $session = $portal_session->session;
+
+    my %session_data;
     foreach my $key ($session->param) {
         my $value = $session->param($key);
         $logger->debug( sub { "Adding session parameter from dispatcher session to Catalyst session : $key : " . ($value // 'undef') });

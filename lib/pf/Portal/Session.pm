@@ -29,6 +29,8 @@ use POSIX qw(locale_h); #qw(setlocale);
 use Readonly;
 use URI::Escape::XS qw(uri_escape uri_unescape);
 use File::Spec::Functions;
+use Digest::MD5 qw(md5_hex);
+use Crypt::GeneratePassword qw(word);
 
 use pf::constants;
 use pf::config qw(
@@ -43,6 +45,7 @@ use pf::web::constants;
 use pf::web::util;
 use pf::web::constants;
 use pf::activation qw(view_by_code);
+use pf::constants::Portal::Session qw($DUMMY_MAC);
 
 =head1 CONSTANTS
 
@@ -94,10 +97,11 @@ sub _initialize {
 
     $self->{'_cgi'} = $cgi;
 
-    my $sid = $cgi->cookie(SESSION_ID) || $cgi->param(SESSION_ID) || $cgi;
+    my $md5_mac = defined($mac) ? md5_hex($mac) : undef;
+    my $sid = $cgi->cookie(SESSION_ID) || $cgi->param(SESSION_ID) || $md5_mac || md5_hex(word(8, 12));
     $logger->debug("using session id '$sid'" );
     my $session;
-    $self->{'_session'} = $session = new CGI::Session( "driver:chi", $sid, { chi_class => 'pf::CHI', namespace => 'httpd.portal' } );
+    $self->{'_session'} = $session = new CGI::Session( "driver:chi;id:static", $sid, { chi_class => 'pf::CHI', namespace => 'httpd.portal' } );
     $logger->error(CGI::Session->errstr()) unless $session;
     $session->expires($EXPIRES_IN);
 
@@ -106,7 +110,10 @@ sub _initialize {
         }
     );
 
-    $self->{'_client_mac'} = $mac || $self->session->param("_client_mac") || $self->_restoreFromSession("_client_mac",sub {
+    $self->{_dummy_session} = (defined($mac) && $mac eq $DUMMY_MAC);
+
+    # Don't assign $mac if the dummy MAC was used for restoring the session
+    $self->{'_client_mac'} = ((defined($mac) && $mac ne $DUMMY_MAC) ? $mac : undef) || $self->session->param("_client_mac") || $self->_restoreFromSession("_client_mac",sub {
             return $self->getClientMac;
         }
     );
