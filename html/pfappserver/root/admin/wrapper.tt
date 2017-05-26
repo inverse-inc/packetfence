@@ -129,7 +129,7 @@
     {
       "Cannot Load Content": "[% l('Cannot Load Content') | js %]",
       "Copy": "[% l('Copy') | js %]",
-      "Copied": "[% l('Copied') | js %]",
+      "Copied": "[% l('Copied') | js %]"
     }
     </script>
     <script type="text/javascript" src="[% c.uri_for('/static/js/vendor/jquery.min.js') %]"></script>
