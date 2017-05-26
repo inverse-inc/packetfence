@@ -1,4 +1,9 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
 $(function () {
+    /* Load localized labels */
+    var labels = document.getElementById('labels');
+    window.labels = JSON.parse(labels.textContent || labels.innerHTML);
+
     /* Activate toggle buttons */
     $('body').on(
         {'mouseenter': function(event) {

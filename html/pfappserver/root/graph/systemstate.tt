@@ -34,9 +34,9 @@
 
   <div class="card-block">
   [% FOREACH graph IN graphs %]
-  <span style="float: left; width: [% 50 * graph.columns %]%">
+  <span class="graph graph-[% graph.columns %]c">
     <h4>[% graph.description %]</h4>
-    <img src="[% graph.url %]" style="height: [% graph.height %]px; width: [% graph.width %]px;">
+    <img src="[% graph.url %]" height="[% graph.height %]" width="[% graph.width %]">
   </span>
   [%- END %]
   </div>

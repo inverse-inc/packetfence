@@ -67,7 +67,7 @@
               <button type="submit" class="btn btn-primary pull-right[% UNLESS completed %] disabled[% END %]" href="[% next_step %]">[% l('Start PacketFence') %]</button>
             </div>
           </form>
-          <div id="serviceErrors" class="alert alert-danger"[% UNLESS error %] style="display: none;"[% END %]>
+          <div id="serviceErrors" class="alert alert-danger[% UNLESS error %] hide[% END %]">
             <button class="close" data-dismiss="alert">&times;</button>
             <strong>[% l('Console Output') %]</strong>
             <pre>[% error %]</pre>

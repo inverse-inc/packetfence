@@ -47,10 +47,10 @@
             <span class="icon-bar"></span>
           </a>
           <a class="brand visible-phone" href="#">
-            <img src="[% c.uri_for('/static/img/packetfence.white.small.svg') %]" style="height: 32px"/>
+            <img src="[% c.uri_for('/static/img/packetfence.white.small.svg') %]"/>
           </a>
           <a class="brand span3 hidden-phone" href="#">
-            <img src="[% c.uri_for('/static/img/packetfence.white.svg') %]" style="height: 32px"/>
+            <img src="[% c.uri_for('/static/img/packetfence.white.svg') %]"/>
           </a>
           [%- IF c.user_allowed_in_admin() %]
           <div class="nav-collapse">
@@ -125,12 +125,12 @@
     <!-- Le javascript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script type="text/javascript">
-    var labels = {
+    <script id="labels" type="text/json">
+    {
       "Cannot Load Content": "[% l('Cannot Load Content') | js %]",
       "Copy": "[% l('Copy') | js %]",
       "Copied": "[% l('Copied') | js %]",
-    };
+    }
     </script>
     <script type="text/javascript" src="[% c.uri_for('/static/js/vendor/jquery.min.js') %]"></script>
     <script type="text/javascript" src="[% c.uri_for('/static/js/vendor/jquery-ui.min.js') %]"></script>
