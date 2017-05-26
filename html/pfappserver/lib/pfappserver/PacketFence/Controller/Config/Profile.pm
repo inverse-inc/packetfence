@@ -16,6 +16,8 @@ use strict;
 use warnings;
 use Moose;
 use namespace::autoclean;
+use MIME::Lite::TT;
+use Encode qw(encode);
 use File::Copy;
 use pf::constants::user;
 use HTTP::Status qw(:constants is_error is_success);
@@ -345,6 +347,66 @@ sub preview :Chained('object') :PathPart :Args() :AdminRole('CONNECTION_PROFILES
     $application->render($template, $c->stash);
     $c->response->body($application->template_output);
     $c->response->content_type('text/html');
+    $c->detach();
+
+}
+
+=head2 preview_emails
+
+Preview a email
+
+=cut
+
+sub preview_emails :Chained('object') :PathPart('preview/emails') :Args() :AdminRole('CONNECTION_PROFILES_READ') {
+    my ($self, $c, @pathparts) = @_;
+    my $template = catfile(@pathparts);
+    my %TmplOptions = (
+        INCLUDE_PATH    => [ map { $_ . "/emails/" } $self->mergedPaths($c)],
+        ENCODING        => 'utf8',
+    );
+    my %info;
+    my %vars = (
+        %info,
+        i18n => \&pf::web::i18n,
+        i18n_format => \&pf::web::i18n_format,
+        firstname => 'Firstname',
+        lastname => 'Lastname',
+        username => 'Username',
+        tier_description => 'Your Tier Description',
+        tier_name => 'Tier Name',
+        tier_price => '1.00',
+        transaction_id => '1223',
+        password => 'password',
+        txt_expiration => 'Expiration',
+        txt_duration => '3 days',
+        activation_uri => '',
+        pid => 'pid',
+        valid_from => 'Dec 31, 1999',
+        telephone => '1234567',
+        description => 'description',
+        mac => '00:00:00:00:00:00',
+        os => 'Windows',
+        hostname => 'hostname',
+        domain => 'domain',
+        URL_BILLING => '/billing',
+        URL_STATUS => '/status',
+        additionnal_message => 'Additional Message',
+    );
+
+    utf8::decode($info{'subject'});
+    my $msg = MIME::Lite::TT->new(
+        From        =>  $info{'from'},
+        To          =>  $info{'contact_info'},
+        Cc          =>  $info{'cc'},
+        Subject     =>  encode("MIME-Header", $info{'subject'}),
+        Template    =>  $template,
+        TmplOptions =>  \%TmplOptions,
+        TmplParams  =>  \%vars,
+        TmplUpgrade =>  1,
+    );
+
+    $c->response->content_type('text/html');
+    $c->response->body($msg->{Data} // "Test");
     $c->detach();
 
 }
