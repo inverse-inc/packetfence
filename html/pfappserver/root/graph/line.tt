@@ -17,12 +17,12 @@
   <div id="[% l(id) | html %]" class="chart"></div>
   <script id="graphs.charts" type="text/json">
 {
-    '[% l(id) | css %]': {
-      'type': '[% graphtype | css %]',
-      'labels': ['[% labels.join("','") | html %]'],
-      'series': {
+    "[% l(id) | css %]": {
+      "type": "[% graphtype | css %]",
+      "labels": ["[% labels.join('","') | html %]"],
+      "series": {
         [% FOREACH set IN series.keys -%]
-        '[% l(set) | css %]': [[% series.$set.join(',') | html %]][% UNLESS loop.last %],[% END %]
+        "[% l(set) | css %]": [[% series.$set.join(",") | html %]][% UNLESS loop.last %],[% END %]
         [%- END %]
       }
     }
