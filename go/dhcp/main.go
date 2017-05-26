@@ -111,14 +111,14 @@ func main() {
 	// Unicast listener
 	for _, v := range DHCPConfig.intsNet {
 		v := v
-		// Create a channel for each interface
+		// Create a channel for each interfaces
 		channelIn := make(chan interface{})
 		channelOut := make(chan interface{})
-
+		ControlIn[v.Name] = channelIn
+		ControlOut[v.Name] = channelOut
 		for net := range v.network {
 			net := net
-			ControlIn[v.Name] = channelIn
-			ControlOut[v.Name] = channelOut
+
 			go func() {
 				v.runUnicast(jobs, v.network[net].dhcpHandler)
 			}()
@@ -137,6 +137,7 @@ func main() {
 	router.HandleFunc("/mac2ip/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", handleMac2Ip).Methods("GET")
 	router.HandleFunc("/ip2mac/{ip:(?:[0-9]{1,3}.){3}.(?:[0-9]{1,3})}", handleIP2Mac).Methods("GET")
 	router.HandleFunc("/stats/{int:.*}", handleStats).Methods("GET")
+	router.HandleFunc("/parking/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", handleParking).Methods("GET")
 
 	// Api
 	l, err := net.Listen("tcp", ":22222")
@@ -170,14 +171,21 @@ func (h *Interface) run(jobs chan job) {
 		outchannel := ControlOut[h.Name]
 		for {
 
-			netinterface := <-inchannel
-
-			for _, v := range h.network {
-				var statistiques roaring.Statistics
-				statistiques = v.dhcpHandler.available.Stats()
-				stats[v.network.String()] = Stats{EthernetName: netinterface.(string), Net: v.network.String(), Free: int(statistiques.RunContainerValues) + 1}
+			Request := <-inchannel
+			if Request.(ApiReq).Req == "stats" {
+				for _, v := range h.network {
+					var statistiques roaring.Statistics
+					statistiques = v.dhcpHandler.available.Stats()
+					stats[v.network.String()] = Stats{EthernetName: Request.(ApiReq).NetInterface, Net: v.network.String(), Free: int(statistiques.RunContainerValues) + 1}
+				}
+				outchannel <- stats
 			}
-			outchannel <- stats
+			// if Request.(ApiReq).Req == "parking" {
+			// 	if x, found := h.network[Request.(ApiReq).NetWork].dhcpHandler.hwcache.Get(Request.(ApiReq).Mac); found {
+			// 		free := x.(int)
+			// 		h.network[Request.(ApiReq).NetWork].dhcpHandler.hwcache.Set(Request.(ApiReq).Mac, free, (time.Duration(3600) * time.Second))
+			// 	}
+			// }
 		}
 	}()
 	ListenAndServeIf(h.Name, h, jobs)
@@ -583,4 +591,21 @@ func initiaLease(dhcpHandler *DHCPHandler) {
 		GlobalIpCache.Set(ipstr, mac, leaseDuration)
 		GlobalMacCache.Set(mac, ipstr, leaseDuration)
 	}
+}
+
+func InterfaceScopeFromMac(MAC string) (string, string) {
+	var NetInterface string
+	var NetWork string
+	if index, found := GlobalMacCache.Get(MAC); found {
+		for _, v := range DHCPConfig.intsNet {
+			v := v
+			for network := range v.network {
+				if v.network[network].network.Contains(net.ParseIP(index.(string))) {
+					NetInterface = v.Name
+					NetWork = v.network[network].network.String()
+				}
+			}
+		}
+	}
+	return NetInterface, NetWork
 }

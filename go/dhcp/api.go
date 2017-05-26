@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/gorilla/mux"
 )
 
@@ -19,6 +20,13 @@ type Stats struct {
 	EthernetName string `json:"Interface"`
 	Net          string `json:"Network"`
 	Free         int    `json:"Free"`
+}
+
+type ApiReq struct {
+	Req          string
+	NetInterface string
+	NetWork      string
+	Mac          string
 }
 
 func handleIP2Mac(res http.ResponseWriter, req *http.Request) {
@@ -69,7 +77,8 @@ func handleStats(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
 	if _, ok := ControlIn[vars["int"]]; ok {
-		ControlIn[vars["int"]] <- vars["int"]
+		Request := ApiReq{Req: "stats", NetInterface: vars["int"], NetWork: ""}
+		ControlIn[vars["int"]] <- Request
 
 		stat := <-ControlOut[vars["int"]]
 
@@ -86,4 +95,18 @@ func handleStats(res http.ResponseWriter, req *http.Request) {
 		http.Error(res, "Not found", http.StatusInternalServerError)
 		return
 	}
+}
+
+func handleParking(res http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
+	InterFaceName, NetWork := InterfaceScopeFromMac(vars["mac"])
+	if _, ok := ControlIn[InterFaceName]; ok {
+		Request := ApiReq{Req: "parking", NetInterface: InterFaceName, NetWork: NetWork, Mac: vars["mac"]}
+		ControlIn[InterFaceName] <- Request
+		stat := <-ControlOut[InterFaceName]
+		spew.Dump(stat)
+	}
+
+	spew.Dump(InterFaceName)
+	spew.Dump(NetWork)
 }
