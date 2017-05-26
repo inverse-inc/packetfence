@@ -15,16 +15,18 @@
   <div class="card-block">
   [%- IF labels.size > 0 %]
   <div id="[% l(id) | html %]" class="chart"></div>
-  <script type="text/javascript">
-    graphs.charts['[% l(id) | html %]'] = {
-      type: '[% graphtype | html %]',
-      labels: ['[% labels.join("','") | html %]'],
-      series: {
+  <script id="graphs.charts" type="text/json">
+{
+    '[% l(id) | css %]': {
+      'type': '[% graphtype | css %]',
+      'labels': ['[% labels.join("','") | html %]'],
+      'series': {
         [% FOREACH set IN series.keys -%]
-        '[% l(set) | html %]' : [[% series.$set.join(',') | html %]][% UNLESS loop.last %],[% END %]
+        '[% l(set) | css %]': [[% series.$set.join(',') | html %]][% UNLESS loop.last %],[% END %]
         [%- END %]
       }
-    };
+    }
+}
   </script>
   [%- ELSE %]
   <div class="alert alert-block">

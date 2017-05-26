@@ -16,16 +16,18 @@
 <div class="row-fluid">
   <div class="span8">
     <div id="[% l(id) | css %]" class="chart"></div>
-    <script type="text/javascript">
-graphs.charts['[% l(id) | css %]'] = {
-    type: '[% graphtype | html %]',
-    labels: ['[% labels.join("','") | html %]'],
-    series: {
-    [% FOREACH set IN series.keys -%]
-      '[% l(set) | css %]' : [[% series.$set.join(',') | html %]][% UNLESS loop.last %],[% END %]
-    [%- END %]
+    <script id="graphs.charts" type="text/json">
+{
+    '[% l(id) | css %]': {
+      'type': '[% graphtype | css %]',
+      'labels': ['[% labels.join("','") | html %]'],
+      'series': {
+        [% FOREACH set IN series.keys -%]
+        '[% l(set) | css %]': [[% series.$set.join(',') | html %]][% UNLESS loop.last %],[% END %]
+        [%- END %]
+      }
     }
-};
+}
     </script>
   </div>
   <div class="span4">
