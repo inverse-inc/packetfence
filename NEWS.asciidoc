@@ -22,6 +22,8 @@ Bug Fixes
  * Make VLAN filters have precedence over bypass role and VLAN
  * Fix useless sessions being created in web-auth in the dispatcher (#2352)
  * Load liblasso during runtime in order to prevent a segfault of Apache on Debian 8.8 (#2342)
+ * Fix syntax error in the guest_sponsor_preregistration email template
+ * Fix previewing email templates in the admin
 
 Version 7.0.1 released on 2017-05-19
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
