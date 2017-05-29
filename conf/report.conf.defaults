@@ -15,7 +15,7 @@ description=SMS registration
 # The table to search from
 base_table=activation
 # The columns to select
-columns=activation.pid as "Owner", activation.mac "MAC Address", sms_carrier.name as "Carrier", activation.activation_code as "Activation code", activation.expiration as "Code expiration", activation.unregdate as "Unreg date", activation.status as "Status", activation.portal as "Connection profile"
+columns=activation.pid as "Owner", activation.mac "MAC Address", sms_carrier.name as "Carrier", activation.activation_code as "Activation code", activation.expiration as "Code expiration", activation.status as "Status", activation.portal as "Connection profile"
 searches=string:Owner:activation.pid,string:MAC Address:activation.mac,string:Activation Code:activation.activation_code,string:Status:activation.status,string:Connection Profile:activation.portal
 # Left join sms_carrier
 joins=<<EOT
