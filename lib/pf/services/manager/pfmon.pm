@@ -20,11 +20,6 @@ extends 'pf::services::manager';
 
 has '+name' => ( default => sub { 'pfmon' } );
 
-sub isManaged {
-    my ($self) = @_;
-    return $self->SUPER::isManaged() && (!$pf::cluster::cluster_enabled || pf::cluster::is_management());
-}
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
