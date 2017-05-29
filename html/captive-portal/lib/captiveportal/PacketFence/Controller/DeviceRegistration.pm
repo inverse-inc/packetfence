@@ -63,10 +63,6 @@ sub index : Path : Args(0) {
         if(valid_mac($device_mac)) {
             # Register device
             $c->forward('registerNode', [ $pid, $device_mac, $device_type ]);
-            #unless ($c->has_errors) {
-            #    $c->stash(status_msg  => [ "The MAC address %s has been successfully registered.", $device_mac ]);
-            #    $c->detach('landing');
-            #}
         }
         $c->stash(txt_auth_error => "Please verify the provided MAC address.");
     }
