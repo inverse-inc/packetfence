@@ -102,8 +102,10 @@ sub is_allowed {
         my $endpoint = fingerbank::Model::Endpoint->new(name => $device_name, version => undef, score => undef);
 
         for my $id (@oses) {
-            $logger->debug("The devices type ".$device_name." is authorized to be registered via the device-registration module");
-            return $TRUE if($endpoint->is_a_by_id($id));
+            if ($endpoint->is_a_by_id($id)) {
+                $logger->debug("The devices type ".$device_name." is authorized to be registered via the device-registration module");
+                return $TRUE;
+            }
         }
     } else {
         $logger->debug("Cannot find a matching device name for this device id ".$device_id." .");
