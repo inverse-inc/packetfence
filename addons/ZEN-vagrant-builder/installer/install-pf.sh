@@ -40,4 +40,4 @@ INSERT INTO password (pid, password, valid_from, expiration, access_duration, ac
 
 EOM
 
-echo $DEMOUSER_SQL >> /usr/local/pf/db/pf-schema.sql
+printf $DEMOUSER_SQL >> /usr/local/pf/db/pf-schema.sql
