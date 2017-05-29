@@ -86,6 +86,7 @@ sub execute_child {
         $self->do_sponsor_registration();
     }
     elsif(pf::activation::activation_has_entry($self->current_mac,'sponsor')){
+        $self->check_session_activation();
         $self->waiting_room();
     }
     elsif($self->session->{sponsor_activated}){
@@ -93,6 +94,22 @@ sub execute_child {
     }
     else{
         $self->prompt_fields();
+    }
+}
+
+=head2 check_session_activation
+
+If the activation entry cannot be restored from the session, it will redirect to signup after invalidating any previous codes
+
+=cut
+
+sub check_session_activation {
+    my ($self) = @_;
+    unless($self->session->{activation_code}){
+        get_logger->error("Cannot restore activation code from user session.");
+        pf::activation::invalidate_codes_for_mac($self->current_mac, "sponsor");
+        $self->app->redirect("/signup");
+        $self->detach();
     }
 }
 
@@ -104,12 +121,9 @@ Check if the access has been approved
 
 sub check_activation {
     my ($self) = @_;
-    unless($self->session->{activation_code}){
-        get_logger->error("Cannot restore activation code from user session.");
-        pf::activation::invalidate_codes_for_mac($self->current_mac, "sponsor");
-        $self->app->redirect("/signup");
-        return;
-    }
+    
+    $self->check_session_activation();
+
     my $record = pf::activation::view_by_code($pf::activation::SPONSOR_ACTIVATION, $self->session->{activation_code});
     if($record->{status} eq "verified"){
         get_logger->info("Activation record has been validated.");
