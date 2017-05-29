@@ -110,3 +110,7 @@ func handleParking(res http.ResponseWriter, req *http.Request) {
 	spew.Dump(InterFaceName)
 	spew.Dump(NetWork)
 }
+
+func handleHelp(res http.ResponseWriter, req *http.Request) {
+	fmt.Fprint(res, `Help`)
+}

@@ -29,6 +29,7 @@ var database *sql.DB
 
 var GlobalIpCache *cache.Cache
 var GlobalMacCache *cache.Cache
+var GlobalOptionMacCache *cache.Cache
 
 // Control
 var ControlOut map[string]chan interface{}
@@ -78,6 +79,8 @@ func main() {
 	GlobalIpCache = cache.New(5*time.Minute, 10*time.Minute)
 	// Initialize Mac cache
 	GlobalMacCache = cache.New(5*time.Minute, 10*time.Minute)
+
+	GlobalOptionMacCache = cache.New(60*time.Minute, 61*time.Minute)
 
 	// Read DB config
 	configDatabase := readDBConfig()
@@ -134,6 +137,7 @@ func main() {
 	}
 
 	router := mux.NewRouter()
+	router.HandleFunc("/help/", handleHelp).Methods("GET")
 	router.HandleFunc("/mac2ip/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", handleMac2Ip).Methods("GET")
 	router.HandleFunc("/ip2mac/{ip:(?:[0-9]{1,3}.){3}.(?:[0-9]{1,3})}", handleIP2Mac).Methods("GET")
 	router.HandleFunc("/stats/{int:.*}", handleStats).Methods("GET")
@@ -210,8 +214,10 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 
 	for _, v := range h.network {
 		if v.dhcpHandler.layer2 && p.GIAddr().Equal(net.IPv4zero) {
+
 			// Ip per role ?
 			if v.splittednet == true {
+
 				if x, found := NodeCache.Get(p.CHAddr().String()); found {
 					node = x.(NodeInfo)
 				} else {
@@ -238,12 +244,13 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 				handler = v.dhcpHandler
 				break
 			}
-
-			if !p.GIAddr().Equal(net.IPv4zero) && v.network.Contains(p.GIAddr()) {
-				handler = v.dhcpHandler
-				break
-			}
 		}
+
+		if (!p.GIAddr().Equal(net.IPv4zero) && v.network.Contains(p.GIAddr())) || v.network.Contains(p.CIAddr()) {
+			handler = v.dhcpHandler
+			break
+		}
+
 	}
 
 	if len(handler.ip) == 0 {
@@ -329,7 +336,6 @@ func (d *Interfaces) readConfig() {
 	var keyConfNet pfconfigdriver.PfconfigKeys
 	keyConfNet.PfconfigNS = "config::Network"
 
-	var ConfNet pfconfigdriver.NetworkConf
 	pfconfigdriver.FetchDecodeSocketStruct(ctx, &keyConfNet)
 
 	for _, v := range interfaces.Element {
@@ -360,10 +366,11 @@ func (d *Interfaces) readConfig() {
 			ethIf.layer2 = append(ethIf.layer2, NetIP)
 
 			for _, key := range keyConfNet.Keys {
+				var ConfNet pfconfigdriver.NetworkConf
 				ConfNet.PfconfigHashNS = key
-				pfconfigdriver.FetchDecodeSocketStruct(ctx, &ConfNet)
 
-				if (NetIP.Contains(net.ParseIP(ConfNet.Dns)) || NetIP.Contains(net.ParseIP(ConfNet.NextHop))) && (NetIP.Contains(net.ParseIP(ConfNet.DhcpStart)) && NetIP.Contains(net.ParseIP(ConfNet.DhcpEnd))) {
+				pfconfigdriver.FetchDecodeSocketStruct(ctx, &ConfNet)
+				if NetIP.Contains(net.ParseIP(ConfNet.Dns)) && (NetIP.Contains(net.ParseIP(ConfNet.DhcpStart)) && NetIP.Contains(net.ParseIP(ConfNet.DhcpEnd))) || NetIP.Contains(net.ParseIP(ConfNet.NextHop)) {
 					// IP per role
 					if ConfNet.SplitNetwork == "enabled" {
 						var keyConfRoles pfconfigdriver.PfconfigKeys
