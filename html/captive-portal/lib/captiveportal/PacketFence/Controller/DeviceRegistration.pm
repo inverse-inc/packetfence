@@ -3,11 +3,12 @@ use Moose;
 use namespace::autoclean;
 use pf::Authentication::constants;
 use pf::config qw(%Config);
+use pf::constants;
 use pf::log;
 use pf::node;
 use pf::util;
+use pf::error qw(is_success);
 use pf::web;
-use pf::web::device_registration;
 use pf::enforcement qw(reevaluate_access);
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
@@ -126,7 +127,7 @@ sub landing : Local : Args(0) {
 sub registerNode : Private {
     my ( $self, $c, $pid, $mac, $type ) = @_;
     my $logger = $c->log;
-    if ( pf::web::device_registration::is_allowed($mac) && valid_mac($mac) ) {
+    if ( is_allowed($mac) && valid_mac($mac) ) {
         my ($node) = node_view($mac);
         if( $node && $node->{status} ne $pf::node::STATUS_UNREGISTERED ) {
             $c->stash( status_msg_error => ["%s is already registered or pending to be registered. Please verify MAC address if correct contact your network administrator", $mac]);
@@ -178,6 +179,83 @@ sub registerNode : Private {
     } else {
         $c->stash( status_msg_error => [ "The provided MAC address %s is not allowed to be registered using this self-service page.", $mac ]);
         $c->detach('landing');
+    }
+}
+
+=item mac_vendor_id
+
+Get the matching mac_vendor_id from Fingerbank
+
+=cut
+
+sub mac_vendor_id {
+    my ($mac) = @_; 
+    my $logger = get_logger();
+
+    my ($status, $result) = fingerbank::Model::MAC_Vendor->find([{ mac => $mac }, {columns => ['id']}]);
+
+    if(is_success($status)){
+        return $result->id;
+    }else {
+        $logger->debug("Cannot find mac vendor ".$mac." in the database");
+    }
+}
+
+=item device_from_mac_vendor
+
+Get the matching device infos by mac vendor from Fingerbank
+
+=cut
+
+sub device_from_mac_vendor {
+    my ($mac_vendor_id) = @_; 
+    my $logger = get_logger();
+
+    my ($status, $result) = fingerbank::Model::Combination->find([{ mac_vendor_id => $mac_vendor_id }, {columns => ['device_id']}]);
+
+    if(is_success($status)){
+        return $result;
+    }else {
+        $logger->debug("Cannot find matching device id ".$result->device_id." for this mac vendor id ".$mac_vendor_id." in the database");
+    }
+}
+
+=item is_allowed 
+
+Verify 
+
+=cut 
+
+sub is_allowed {
+    my ($mac) = @_;
+    $mac =~ s/O/0/i;
+    my $logger = get_logger();
+    my @oses = @{$Config{'device_registration'}{'allowed_devices'}};
+
+    #if no oses are defined then it will not match any oses
+    return $FALSE if @oses == 0;
+
+    $mac =~ s/://g;
+    my $mac_vendor = substr($mac, 0,6);
+    my $mac_vendor_id = mac_vendor_id($mac_vendor);
+    my $device = device_from_mac_vendor($mac_vendor_id);
+    my $device_id = $device->device_id;
+    my ($status, $result) = fingerbank::Model::Device->find([{ id => $device_id}, {columns => ['name']}]);
+
+    # We are loading the fingerbank endpoint model to verify if the device id is matching as a parent or child
+    if (is_success($status)){
+        my $device_name = $result->name;
+        my $endpoint = fingerbank::Model::Endpoint->new(name => $device_name, version => undef, score => undef);
+
+        for my $id (@oses) {
+            if ($endpoint->is_a_by_id($id)) {
+                $logger->debug("The devices type ".$device_name." is authorized to be registered via the device-registration module");
+                return $TRUE;
+            }
+        }
+    } else {
+        $logger->debug("Cannot find a matching device name for this device id ".$device_id." .");
+        return $FALSE;
     }
 }
 
