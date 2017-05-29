@@ -27,11 +27,10 @@ mv package.box work/
 cd work/
 tar -xvf package.box
 
-# Instead of using the OVF created by the export, we use another one with our standards
-#../fix_ovf_alt box.ovf
-#\mv vmx_box.ovf box.ovf
+../fix_ovf_alt box.ovf
+\mv vmx_box.ovf box.ovf
 
-yes | cp ../box-release.ovf box.ovf
+#yes | cp ../box-release.ovf box.ovf
 
 ovftool --lax box.ovf box.ova
 
