@@ -4,6 +4,7 @@ use namespace::autoclean;
 use pf::violation;
 use pf::constants::violation qw($LOST_OR_STOLEN);
 use pf::node;
+use pf::util qw(strip_username);
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -27,12 +28,15 @@ sub index : Path : Args(1) {
     my ( $self, $c, $mac ) = @_;
     my $node = node_view($mac);
     my $owner = lc($node->{pid});
+    my $stripped_owner = strip_username($owner);
     my $username = lc($c->user_session->{username});
+    my $stripped_username = strip_username($username);
+
     $c->stash(
         mac => $mac,
         template => 'lost_stolen.html',
     );
-    if ( $username eq $owner ) {
+    if ( $stripped_username eq $stripped_owner ) {
         my $trigger = violation_add($mac, $LOST_OR_STOLEN);
 
         if ($trigger) {
