@@ -12,7 +12,7 @@ dist:
 	git update-index --no-assume-unchanged $(CSS_FILES)
 	git add -f $(CSS_FILES)
 	@if ! git diff --cached --quiet --exit-code; then \
-		git commit -m "(web admin) Update generated files"; \
+		git commit -m "(web common) Update generated files"; \
 	else \
 		echo "Nothing to commit; skipping git-commit"; \
 	fi
