@@ -15,6 +15,6 @@ CHECK PROCESS packetfence-keepalived MATCHING "keepalived"
 
 CHECK PROCESS packetfence-radiusd-load_balancer MATCHING "pf/raddb -n load_balancer"
     group PacketFence
-    start program = "/usr/sbin/[% FREERADIUS_BIN %] -d /usr/local/pf/raddb -n load_balancer" with timeout 60 seconds
-    stop program  = "/usr/bin/pkill -f '/usr/sbin/[% FREERADIUS_BIN %] -d /usr/local/pf/raddb -n load_balancer'"
+    start program = "[% SERVICE_BIN %] packetfence-radiusd-load_balancer start"
+    stop program  = "[% SERVICE_BIN %] packetfence-radiusd-load_balancer stop"
     if 3 restarts within 10 cycles then alert
