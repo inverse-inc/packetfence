@@ -5,13 +5,14 @@
   },
   "homepage": "http://packetfence.org",
   "devDependencies": {
-    "autoprefixer": "^6.3.4",
-    "csswring": "^4.2.2",
-    "es6-promise": "^3.1.2",
-    "grunt": "^0.4.5",
-    "grunt-contrib-watch": "^1.0.0",
-    "grunt-postcss": "^0.8.0",
-    "grunt-sass": "^1.1.0",
+    "autoprefixer": ">=6.3.4",
+    "csswring": ">=4.2.2",
+    "es6-promise": ">=3.1.2",
+    "grunt": ">=0.4.5",
+    "grunt-cli": "^1.2.0",
+    "grunt-contrib-watch": ">=1.0.0",
+    "grunt-postcss": ">=0.8.0",
+    "grunt-sass": ">=1.1.0",
     "inuit-block": "^0.1.2",
     "inuit-box": "^0.4.4",
     "inuit-box-sizing": "0.2.0",
@@ -42,7 +43,7 @@
     "inuit-tables": "^0.2.1",
     "inuit-tools-widths": "^0.1.4",
     "inuit-widths": "^0.4.2",
-    "postcss": "^5.0.19",
-    "time-grunt": "^1.3.0"
+    "postcss": ">=5.0.19",
+    "time-grunt": ">=1.3.0"
   }
 }
