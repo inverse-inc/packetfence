@@ -89,6 +89,7 @@
 /usr/local/pf/conf/monitoring/types.db
 /usr/local/pf/html/captive-portal/captiveportal.conf
 /usr/local/pf/html/common/styles.css
+/usr/local/pf/html/common/styles.css.map
 /usr/local/pf/html/common/styles-dark.css
 /usr/local/pf/html/common/Gruntfile.js
 /usr/local/pf/html/common/package.json
