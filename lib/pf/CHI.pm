@@ -77,7 +77,6 @@ our $chi_config = pf::IniFiles->new( -file => $chi_config_file, -allowempty => 1
 
 our $pf_default_config = pf::IniFiles->new( -file => $pf_default_file) or die "Cannot open $pf_default_file";
 
-our $pf_config = pf::IniFiles->new( -file => $pf_config_file, -allowempty => 1, -import => $pf_default_config) or die "Cannot open $pf_config_file";
 
 our %DEFAULT_CONFIG = (
     'namespace' => {
@@ -171,6 +170,7 @@ sub setFileDriverParams {
 sub setDBIDriverParams {
     my ($storage, $dbi) = @_;
     $storage->{dbh} = sub {
+        my $pf_config = pf::IniFiles->new( -file => $pf_config_file, -allowempty => 1, -import => $pf_default_config) or die "Cannot open $pf_config_file";
         my ($db,$host,$port,$user,$pass) = @{sectionData($pf_config, "database")}{qw(db host port user pass)};
         return DBI->connect( "dbi:mysql:dbname=$db;host=$host;port=$port",
         $user, $pass, { RaiseError => 0, PrintError => 0 } );
