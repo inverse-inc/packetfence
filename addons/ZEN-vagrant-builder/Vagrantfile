@@ -77,7 +77,5 @@ Vagrant.configure("2") do |config|
     echo "Installing $PFPACKAGE from repo $PFREPO"
 
     /vagrant/installer/install-pf.sh
-
-    userdel vagrant
   SHELL
 end
