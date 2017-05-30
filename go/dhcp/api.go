@@ -3,10 +3,13 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/gorilla/mux"
+	dhcp "github.com/krolaw/dhcp4"
 )
 
 // Node struct
@@ -27,6 +30,11 @@ type ApiReq struct {
 	NetInterface string
 	NetWork      string
 	Mac          string
+}
+
+type Options struct {
+	Option dhcp.OptionCode `json:"option"`
+	Value  string          `json:"value"`
 }
 
 func handleIP2Mac(res http.ResponseWriter, req *http.Request) {
@@ -109,6 +117,42 @@ func handleParking(res http.ResponseWriter, req *http.Request) {
 
 	spew.Dump(InterFaceName)
 	spew.Dump(NetWork)
+}
+
+func handleOverrideOptions(res http.ResponseWriter, req *http.Request) {
+
+	vars := mux.Vars(req)
+
+	var options []Options
+
+	body, err := ioutil.ReadAll(io.LimitReader(req.Body, 1048576))
+	if err != nil {
+		panic(err)
+	}
+	if err := req.Body.Close(); err != nil {
+		panic(err)
+	}
+	if err := json.Unmarshal(body, &options); err != nil {
+		res.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		res.WriteHeader(422) // unprocessable entity
+		if err := json.NewEncoder(res).Encode(err); err != nil {
+			panic(err)
+		}
+	}
+
+	var dhcpOptions = make(map[dhcp.OptionCode][]byte)
+	for _, option := range options {
+		dhcpOptions[option.Option] = []byte(option.Value)
+	}
+
+	GlobalOptionMacCache.SetDefault(vars["mac"], dhcpOptions)
+	spew.Dump(options)
+	spew.Dump(dhcpOptions)
+	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	res.WriteHeader(http.StatusCreated)
+	// if err := json.NewEncoder(res).Encode(t); err != nil {
+	// 	panic(err)
+	// }
 }
 
 func handleHelp(res http.ResponseWriter, req *http.Request) {

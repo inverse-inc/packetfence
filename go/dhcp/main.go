@@ -142,7 +142,7 @@ func main() {
 	router.HandleFunc("/ip2mac/{ip:(?:[0-9]{1,3}.){3}.(?:[0-9]{1,3})}", handleIP2Mac).Methods("GET")
 	router.HandleFunc("/stats/{int:.*}", handleStats).Methods("GET")
 	router.HandleFunc("/parking/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", handleParking).Methods("GET")
-
+	router.HandleFunc("/options/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}/{options:.*}", handleOverrideOptions).Methods("POST")
 	// Api
 	l, err := net.Listen("tcp", ":22222")
 	if err != nil {
@@ -211,10 +211,20 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 	var NodeCache *cache.Cache
 	NodeCache = cache.New(3*time.Second, 5*time.Second)
 	var node NodeInfo
-
 	for _, v := range h.network {
-		if v.dhcpHandler.layer2 && p.GIAddr().Equal(net.IPv4zero) {
 
+		// Case dhcprequest from an already assigned l3 ip address
+		if p.GIAddr().Equal(net.IPv4zero) && v.network.Contains(p.CIAddr()) {
+			handler = v.dhcpHandler
+			break
+		}
+
+		// Case of a l2 dhcp request
+		if v.dhcpHandler.layer2 && p.GIAddr().Equal(net.IPv4zero) {
+			// Case we are in L3
+			if !p.CIAddr().Equal(net.IPv4zero) && !v.network.Contains(p.CIAddr()) {
+				continue
+			}
 			// Ip per role ?
 			if v.splittednet == true {
 
@@ -250,7 +260,6 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 			handler = v.dhcpHandler
 			break
 		}
-
 	}
 
 	if len(handler.ip) == 0 {
@@ -285,8 +294,17 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 
 		answer.IP = dhcp.IPAdd(handler.start, free)
 		answer.Iface = h.intNet
+		// Add options on the fly
+		GlobalOptions := handler.options
+		// Add options on the fly
+		if x, found := GlobalOptionMacCache.Get(p.CHAddr().String()); found {
+			for key, value := range x.(map[dhcp.OptionCode][]byte) {
+				GlobalOptions[key] = value
+			}
+		}
+
 		answer.D = dhcp.ReplyPacket(p, dhcp.Offer, handler.ip, answer.IP, handler.leaseDuration,
-			handler.options.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
+			GlobalOptions.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
 
 		return answer
 
@@ -301,12 +319,18 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 		}
 		answer.IP = reqIP
 		answer.Iface = h.intNet
-
 		if len(reqIP) == 4 && !reqIP.Equal(net.IPv4zero) {
 			if leaseNum := dhcp.IPRange(handler.start, reqIP) - 1; leaseNum >= 0 && leaseNum < handler.leaseRange {
 				if index, found := handler.hwcache.Get(p.CHAddr().String()); found {
+					GlobalOptions := handler.options
+					// Add options on the fly
+					if x, found := GlobalOptionMacCache.Get(p.CHAddr().String()); found {
+						for key, value := range x.(map[dhcp.OptionCode][]byte) {
+							GlobalOptions[key] = value
+						}
+					}
 					answer.D = dhcp.ReplyPacket(p, dhcp.ACK, handler.ip, reqIP, handler.leaseDuration,
-						handler.options.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
+						GlobalOptions.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
 					// Update Global Caches
 					GlobalIpCache.Set(reqIP.String(), p.CHAddr().String(), handler.leaseDuration+(time.Duration(15)*time.Second))
 					GlobalMacCache.Set(p.CHAddr().String(), reqIP.String(), handler.leaseDuration+(time.Duration(15)*time.Second))
