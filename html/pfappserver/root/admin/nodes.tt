@@ -37,7 +37,7 @@
   </div>
 [% END -%]
   [%  jsFiles = [
-        'js/raphael.min',
+        'js/vendor/raphael.min',
         'app/graphs',
         'admin/nodes',
         'admin/searches',

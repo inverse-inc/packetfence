@@ -1,5 +1,5 @@
 [%  jsFiles = [
-        'js/raphael.min',
+        'js/vendor/raphael.min',
         'app/graphs',
         'admin/users',
         'admin/searches',
