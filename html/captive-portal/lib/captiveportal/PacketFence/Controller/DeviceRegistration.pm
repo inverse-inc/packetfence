@@ -10,6 +10,7 @@ use pf::util;
 use pf::error qw(is_success);
 use pf::web;
 use pf::enforcement qw(reevaluate_access);
+use fingerbank::DB_Factory;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -212,15 +213,12 @@ sub device_from_mac_vendor {
     my $logger = get_logger();
 
     for my $schema (("Local", "Upstream")) { 
-        use fingerbank::DB_Factory;
         my $db = fingerbank::DB_Factory->instantiate(schema => $schema);
         my $view_class = "fingerbank::Schema::".$schema."::CombinationMacVendorByDevice";
         my $bind_params = $view_class->view_bind_params([$mac_vendor_id]);
         my $result = $db->handle->resultset('CombinationMacVendorByDevice')->search({}, { bind => $bind_params })->first;
         if ($result) {
             my $device_id = $result->device_id;
-            use Data::Dumper;
-            $logger->info('result' . Dumper($result));
             $logger->info("Found $device_id for MAC vendor $mac_vendor_id");
             return $device_id;
         }
