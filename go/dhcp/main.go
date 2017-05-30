@@ -213,18 +213,9 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 	var node NodeInfo
 	for _, v := range h.network {
 
-		// Case dhcprequest from an already assigned l3 ip address
-		if p.GIAddr().Equal(net.IPv4zero) && v.network.Contains(p.CIAddr()) {
-			handler = v.dhcpHandler
-			break
-		}
-
 		// Case of a l2 dhcp request
 		if v.dhcpHandler.layer2 && p.GIAddr().Equal(net.IPv4zero) {
-			// Case we are in L3
-			if !p.CIAddr().Equal(net.IPv4zero) && !v.network.Contains(p.CIAddr()) {
-				continue
-			}
+
 			// Ip per role ?
 			if v.splittednet == true {
 
@@ -237,7 +228,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 				var category string
 				var nodeinfo = node.Result[0]
 				// Undefined role then use the registration one
-				if nodeinfo.Category == "" {
+				if nodeinfo.Category == "" || nodeinfo.Status == "unreg" {
 					category = "registration"
 				} else {
 					category = nodeinfo.Category
@@ -248,12 +239,20 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 					answer.SrcIP = handler.ip
 					break
 				}
-
+				continue
 			} else {
-
+				// Case we are in L3
+				if !p.CIAddr().Equal(net.IPv4zero) && !v.network.Contains(p.CIAddr()) {
+					continue
+				}
 				handler = v.dhcpHandler
 				break
 			}
+		}
+		// Case dhcprequest from an already assigned l3 ip address
+		if p.GIAddr().Equal(net.IPv4zero) && v.network.Contains(p.CIAddr()) {
+			handler = v.dhcpHandler
+			break
 		}
 
 		if (!p.GIAddr().Equal(net.IPv4zero) && v.network.Contains(p.GIAddr())) || v.network.Contains(p.CIAddr()) {
@@ -309,16 +308,17 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 		return answer
 
 	case dhcp.Request:
-
-		if server, ok := options[dhcp.OptionServerIdentifier]; ok && (!net.IP(server).Equal(h.Ipv4) && !net.IP(server).Equal(handler.ip)) {
-			return answer // Message not for this dhcp server
-		}
+		// Some client will not send OptionServerIdentifier
+		// if server, ok := options[dhcp.OptionServerIdentifier]; ok && (!net.IP(server).Equal(h.Ipv4) && !net.IP(server).Equal(handler.ip)) {
+		// 	return answer // Message not for this dhcp server
+		// }
 		reqIP := net.IP(options[dhcp.OptionRequestedIPAddress])
 		if reqIP == nil {
 			reqIP = net.IP(p.CIAddr())
 		}
 		answer.IP = reqIP
 		answer.Iface = h.intNet
+
 		if len(reqIP) == 4 && !reqIP.Equal(net.IPv4zero) {
 			if leaseNum := dhcp.IPRange(handler.start, reqIP) - 1; leaseNum >= 0 && leaseNum < handler.leaseRange {
 				if index, found := handler.hwcache.Get(p.CHAddr().String()); found {
@@ -394,7 +394,8 @@ func (d *Interfaces) readConfig() {
 				ConfNet.PfconfigHashNS = key
 
 				pfconfigdriver.FetchDecodeSocketStruct(ctx, &ConfNet)
-				if NetIP.Contains(net.ParseIP(ConfNet.Dns)) && (NetIP.Contains(net.ParseIP(ConfNet.DhcpStart)) && NetIP.Contains(net.ParseIP(ConfNet.DhcpEnd))) || NetIP.Contains(net.ParseIP(ConfNet.NextHop)) {
+				if (NetIP.Contains(net.ParseIP(ConfNet.DhcpStart)) && NetIP.Contains(net.ParseIP(ConfNet.DhcpEnd))) || NetIP.Contains(net.ParseIP(ConfNet.NextHop)) {
+					// NetIP.Contains(net.ParseIP(ConfNet.Dns)) &&
 					// IP per role
 					if ConfNet.SplitNetwork == "enabled" {
 						var keyConfRoles pfconfigdriver.PfconfigKeys
