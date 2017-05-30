@@ -92,7 +92,7 @@ Requires: mod_perl, mod_proxy_html
 requires: libapreq2
 Requires: dhcp
 Requires: redis
-Requires: freeradius >= 3.0.14-2, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils, freeradius-redis, freeradius-rest, freeradius-radsniff >= 3.0.14-2
+Requires: freeradius >= 3.0.15-4, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils, freeradius-redis, freeradius-rest, freeradius-radsniff >= 3.0.15-4
 Requires: make
 Requires: net-tools
 Requires: sscep
