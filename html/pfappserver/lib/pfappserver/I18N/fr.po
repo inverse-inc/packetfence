@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-04-19 15:59+0000\n"
+"PO-Revision-Date: 2017-05-31 19:17+0000\n"
 "Last-Translator: oeufdure <fdurand@inverse.ca>\n"
 "Language-Team: French (http://www.transifex.com/inverse/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
@@ -8192,7 +8192,7 @@ msgstr "Cette section est pour le profilage d’équipements. Fingerbank vous ai
 msgid ""
 "This section is for networking. Interfaces, networks and DNS related will be"
 " configured here."
-msgstr "Cette section est pour le réseau. Les Interfaces, les réseaux et le DNS peuvent etre configugrer ici."
+msgstr "Cette section est pour le réseau. Les Interfaces, les réseaux et le DNS peuvent être configurés ici."
 
 # html/pfappserver/root/configuration/scans.tt
 msgid ""
@@ -8444,6 +8444,14 @@ msgstr "Sources utilisateurs - Mise à jour"
 # pf::admin_roles (Actions)
 msgid "USERS_UPDATE"
 msgstr "Utilisateurs - Mise à jour"
+
+# pf::admin_roles (Actions)
+msgid "USERS_SET_TIME_BALANCE"
+msgstr "Utilisateurs - Paramétrer le temps d'utilisation"
+
+# pf::admin_roles (Actions)
+msgid "USERS_SET_BANDWIDTH_BALANCE"
+msgstr "Utilisateurs - Paramétrer la quantité de trafic"
 
 # html/pfappserver/root/config/wrix/search_form.tt
 msgid "UTC Timezone"
@@ -9559,6 +9567,10 @@ msgstr "Créer le"
 msgid "current_time"
 msgstr "Heure actuelle"
 
+# pf::Authentication::Source (common_attributes)
+msgid "current_time_period"
+msgstr "Période de temps actuelle"
+
 # pfappserver::Model::Node::Tab::MSE (MSE Tab)
 msgid "currentlyTracked"
 msgstr "Actuellement suivit"
@@ -10152,6 +10164,10 @@ msgstr "IBM"
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "ifindex"
 msgstr "IfIndex"
+
+# pf::Authentication::constants (Conditions)
+msgid "in_time_period"
+msgstr "dans la période de temps"
 
 # conf/documentation.conf (interface.enforcement options)
 # pf::config (Network types)
@@ -11237,6 +11253,14 @@ msgstr "Rôle"
 msgid "set_unreg_date"
 msgstr "Date de désenregistrement"
 
+# pf::Authentication::constants (Actions)
+msgid "set_time_balance"
+msgstr "Temps d'utilisation"
+
+# pf::Authentication::constants (Actions)
+msgid "set_bandwidth_balance"
+msgstr "Quantité de trafic"
+
 # conf/documentation.conf (snmp_traps.trap_limit_action options)
 msgid "shut"
 msgstr "désactiver"
@@ -11524,3 +11548,6 @@ msgstr "oui"
 # html/pfappserver/root/config/profile/files.tt
 msgid "{percent}% of {total_size}"
 msgstr "{percent}% de {total_size}"
+
+msgid "multi_source_ids"
+msgstr "sources"

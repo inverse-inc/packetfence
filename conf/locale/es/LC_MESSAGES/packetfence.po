@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-04-19 15:57+0000\n"
+"PO-Revision-Date: 2017-05-31 18:56+0000\n"
 "Last-Translator: inverse <info@inverse.ca>\n"
 "Language-Team: Spanish (http://www.transifex.com/inverse/packetfence/language/es/)\n"
 "MIME-Version: 1.0\n"
@@ -93,6 +93,11 @@ msgstr ""
 msgid "An error occured"
 msgstr ""
 
+# html/captive-
+# portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
+msgid "An type and activation code is required"
+msgstr ""
+
 # pf::person::FIELDS
 msgid "Anniversary"
 msgstr ""
@@ -168,6 +173,11 @@ msgstr "Continuar"
 msgid "Cost"
 msgstr ""
 
+# html/captive-
+# portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
+msgid "Could not find unregistration date for this activation code."
+msgstr ""
+
 # html/captive-portal/templates/account.html
 msgid "Created account %s"
 msgstr ""
@@ -223,6 +233,11 @@ msgstr "Tipo de Dispositivo"
 # html/captive-
 # portal/lib/captiveportal/PacketFence/Controller/DeviceRegistration.pm
 msgid "Device registration landing"
+msgstr ""
+
+# html/captive-
+# portal/lib/captiveportal/PacketFence/Controller/DeviceRegistration.pm
+msgid "Device registration module is not enabled"
 msgstr ""
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
@@ -462,6 +477,11 @@ msgstr "MAC"
 msgid "MAC Address"
 msgstr "Dirección MAC"
 
+# html/captive-portal/templates/device-registration/landing.html
+# html/captive-portal/templates/device-registration/registration.html
+msgid "Manage registered devices"
+msgstr ""
+
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
 msgid "Mobile provider"
 msgstr ""
@@ -477,6 +497,19 @@ msgstr "Acceso a la red se ha concedido"
 
 # pf::person::FIELDS
 msgid "Nickname"
+msgstr ""
+
+# html/captive-
+# portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
+msgid "No active sponsor source for this Connection Profile."
+msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/Controller/Node/Manager.pm
+msgid "Not allowed to deregister $mac"
+msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/Controller/Node/Manager.pm
+msgid "Not logged in or node ID $mac is not known"
 msgstr ""
 
 # pf::person::FIELDS
@@ -582,6 +615,11 @@ msgstr ""
 msgid "Please ignore this request if you have not requested network access."
 msgstr ""
 
+# html/captive-
+# portal/lib/captiveportal/PacketFence/Controller/DeviceRegistration.pm
+msgid "Please verify the provided MAC address."
+msgstr ""
+
 # pf::person::FIELDS
 msgid "Portal"
 msgstr ""
@@ -603,6 +641,10 @@ msgstr ""
 # html/captive-portal/templates/device-registration/registration.html
 msgid "Register"
 msgstr "Registro"
+
+# html/captive-portal/templates/status.html
+msgid "Register a device"
+msgstr ""
 
 # html/captive-portal/templates/device-registration/landing.html
 msgid "Register another device"
@@ -695,6 +737,13 @@ msgstr ""
 # html/captive-portal/templates/emails/emails-guest_email_activation.html
 # html/captive-portal/templates/emails/emails-guest_email_preregistration.html
 msgid "Thank you for your understanding"
+msgstr ""
+
+# html/captive-
+# portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
+msgid ""
+"The activation code provided is invalid. Reasons could be: it never existed,"
+" it was already used or has expired."
 msgstr ""
 
 # html/captive-portal/templates/emails/emails-
@@ -935,23 +984,29 @@ msgstr ""
 
 # pf::web::constants (Locales)
 msgid "de_DE"
-msgstr "Deutsch"
+msgstr ""
+
+# html/captive-
+# portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
+msgid "does not have permission to sponsor a user"
+msgstr ""
 
 # pf::web::constants (Locales)
 msgid "en_US"
-msgstr "English"
+msgstr ""
 
+# html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
 # lib/pf/web/release.pm
 msgid "error: max re-enables reached"
-msgstr "Máximo de reactivaciones alcanzado!"
+msgstr ""
 
 # lib/pf/web/release.pm
 msgid "error: not found in the database"
-msgstr "Su ordenador no fue encontrado en la base de datos de PacketFence. Por favor reinicie para solucionar este problema."
+msgstr ""
 
 # pf::web::constants (Locales)
 msgid "es_ES"
-msgstr "Español"
+msgstr ""
 
 # pf::web::constants (Locales)
 msgid "fr_CA"
@@ -959,7 +1014,7 @@ msgstr "fr_CA"
 
 # pf::web::constants (Locales)
 msgid "fr_FR"
-msgstr "Francés"
+msgstr ""
 
 # pf::web::constants (Locales)
 msgid "he_IL"
@@ -967,23 +1022,23 @@ msgstr "he_IL"
 
 # html/captive-portal/templates/layout.html
 msgid "help: provide info"
-msgstr "Si tiene alguna pregunta sobre esta página, contacte con su técnico local. Por favor indique la siguiente información: "
+msgstr ""
 
 # pf::web::constants (Locales)
 msgid "it_IT"
-msgstr "Italiano"
+msgstr ""
 
 # pf::web::constants (Locales)
 msgid "nl_NL"
-msgstr "Alemán"
+msgstr ""
 
 # pf::web::constants (Locales)
 msgid "pl_PL"
-msgstr "Polaco"
+msgstr ""
 
 # pf::web::constants (Locales)
 msgid "pt_BR"
-msgstr "Portugués"
+msgstr ""
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Blackhole.pm
@@ -996,7 +1051,7 @@ msgstr ""
 
 # lib/pf/web/release.pm
 msgid "release: reopen browser"
-msgstr "Debe abrir de nuevo su navegador web para obtener acceso a Internet. Si usted esta conectando con un teléfono, usted necesita reiniciciar su computador para obtener acceso Internet."
+msgstr ""
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
 msgid "requested guest access to your network."
@@ -1006,9 +1061,9 @@ msgstr ""
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
 # html/captive-portal/templates/scan-in-progress.html
 msgid "scan: scan in progress"
-msgstr "Su sistema está siendo analizado"
+msgstr ""
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
 # lib/pf/web.pm
 msgid "system scan in progress"
-msgstr "Su sistema está siendo analizado - este proceso tardará aproximadamente %s segundos."
+msgstr ""
