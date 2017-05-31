@@ -8,3 +8,29 @@ log4perl.appender.HTTPD_AAA.ident                          = packetfence_httpd.a
 log4perl.appender.HTTPD_AAA.facility                       = local5
 log4perl.appender.HTTPD_AAA.layout.ConversionPattern       = %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
 log4perl.appender.HTTPD_AAA.layout                         = PatternLayout
+
+### Fingerbank logger ###
+## Used to separate Fingerbank logs in a different log file
+log4perl.category.fingerbank = INFO, AAA_FINGERBANK
+## Prevent the message from bubbling up to it's parents
+log4perl.additivity.fingerbank = 0
+
+### DHCP processing logger ###
+## Used to separate the DHCP processing into a different log file
+log4perl.category.pf.dhcp = INFO, AAA_DHCP
+## Prevent the message from bubbling up to it's parents
+log4perl.additivity.pf.dhcp = 0
+#
+### General Fingerbank log facility configuration ###
+log4perl.appender.AAA_FINGERBANK                                = Log::Dispatch::Syslog
+log4perl.appender.AAA_FINGERBANK.ident                          = fingerbank_httpd.aaa
+log4perl.appender.AAA_FINGERBANK.facility                       = local5
+log4perl.appender.AAA_FINGERBANK.layout.ConversionPattern       = %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
+log4perl.appender.AAA_FINGERBANK.layout                         = PatternLayout
+
+### DHCP processing log facility configuration ###
+log4perl.appender.AAA_DHCP                                = Log::Dispatch::Syslog
+log4perl.appender.AAA_DHCP.ident                          = pfdhcplistener_httpd.aaa
+log4perl.appender.AAA_DHCP.facility                       = local5
+log4perl.appender.AAA_DHCP.layout.ConversionPattern       = %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
+log4perl.appender.AAA_DHCP.layout                         = PatternLayout

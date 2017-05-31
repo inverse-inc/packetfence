@@ -1,6 +1,5 @@
 ### httpd.webservices logger ###
-# PFSYSLOG is defined in conf/log.conf
-#log4perl.rootLogger = INFO, PFSYSLOG
+log4perl.rootLogger = INFO, HTTPD_WEBSERVICES
 
 ### Categories ###
 # Below, you can specify different categories (based on package names) for different logging levels
@@ -18,6 +17,13 @@ log4perl.category.pf.dhcp = INFO, WEBSERVICES_DHCP
 ## Prevent the message from bubbling up to it's parents
 log4perl.additivity.pf.dhcp = 0
 
+### Categories ###
+# Below, you can specify different categories (based on package names) for different logging levels
+log4perl.appender.HTTPD_WEBSERVICES                                = Log::Dispatch::Syslog
+log4perl.appender.HTTPD_WEBSERVICES.ident                          = packetfence_httpd.webservices
+log4perl.appender.HTTPD_WEBSERVICES.facility                       = local5
+log4perl.appender.HTTPD_WEBSERVICES.layout.ConversionPattern       = %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
+log4perl.appender.HTTPD_WEBSERVICES.layout                         = PatternLayout
 
 ### General Fingerbank log facility configuration ###
 log4perl.appender.WEBSERVICES_FINGERBANK                                = Log::Dispatch::Syslog
