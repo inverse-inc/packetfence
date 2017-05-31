@@ -2284,6 +2284,8 @@ In order to use the passthroughs feature in PacketFence, you need to enable it f
 DNS passthroughs
 ^^^^^^^^^^^^^^^^
 
+NOTE: In active-active cluster, `pfdns` needs to listen on VIP only. *Configuration->System Configuration->Cluster->pfdns on VIP only*
+
 If you just enabled the passthroughs, you should restart the iptables services after configuring the parameter (`/usr/local/pf/bin/pfcmd service iptables restart`).
 
 Then add passthroughs in *Configuration->Network Configuration->Networks->Fencing->Passthroughs*. They can be of the following format:
