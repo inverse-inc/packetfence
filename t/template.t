@@ -36,7 +36,7 @@ sub setup {
     @FILES = (
         file_templates(qr/^.*\.(tt|inc)\z/s, '/usr/local/pf/html/pfappserver/root'),
         file_templates(qr/^.*\.tt\z/s, '/usr/local/pf/conf', '/usr/local/pf/addons'),
-        file_templates(qr/^.*html\z/s, '/usr/local/pf/html/captive-portal/templates'),
+        file_templates(qr/^.*\.html\z/s, '/usr/local/pf/html/captive-portal/templates'),
     );
     $TESTS = (scalar @FILES) * 2 + 1;
     $PARSER = Template::Parser->new;
