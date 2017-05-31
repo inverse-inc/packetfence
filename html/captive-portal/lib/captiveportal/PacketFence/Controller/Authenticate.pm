@@ -76,7 +76,7 @@ sub authenticationLogin : Private {
     my $profile = $c->profile;
     my $portalSession = $c->portalSession;
     my $mac           = $portalSession->clientMac;
-    my ( $return, $message, $source_id );
+    my ( $return, $message, $source_id, $extra );
     $logger->debug("authentication attempt");
 
     if ($request->{'match'} eq "status/login") {
