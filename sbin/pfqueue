@@ -89,7 +89,7 @@ open(my $fh, ">>$pidfile");
 flock($fh, LOCK_EX | LOCK_NB) or die "cannot lock $pidfile another pfqueue is running\n";
 $HAS_LOCK = 1;
 
-our $running = 1;
+our $running = 10000;
 
 # standard signals and daemonize
 daemonize($PROGRAM_NAME) if ($daemonize);
@@ -288,6 +288,10 @@ sub _run_task {
         }
         unless ($consumer) {
             sleep (int(rand(5)) + 1);
+        }
+    } continue {
+        if ($running > 0) {
+            $running--;
         }
     }
     $logger->trace("$$ shutting down");
