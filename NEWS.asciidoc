@@ -11,7 +11,7 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
-Version X.Y.Z released on 0000-00-00
+Version 7.1.0 released on 2017-06-01
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 New Features
@@ -38,17 +38,57 @@ Enhancements
 Bug Fixes
 +++++++++
 
- * When performing a CoA, we should open a locationlog entry with the new role (#2222)
  * Dashboard metrics are now fetched over https (#2272)
- * Twilio: "To" phone number is being stripped of any "+" sign (#2296)
- * radiusd: load-balancer fails to start in cluster with eduroam (#2303)
  * Renamed Ubiquity to Ubiquiti (PR #2293)
  * Set up variable GOPATH correctly while setting up developer environment for go (PR #2319)
- * Fix authentication sources ordering issue for portal modules when using the administration interface (#2323)
  * Fix too large scoping of authentication sources (#2338)
  * Prevent usage of a 'Null' source in the device registration page (#1784)
  * Fixes duplicate nodes displaying when there are multiple locationlog entries (#1848)
+ * Fixed an issue with the Instagram OAuth2 source, where the scope has been modified on the API
 
+Version 7.0.2 released on 2017-05-19
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bug Fixes
++++++++++
+
+ * Fixed issue with ip4log cleanup job when rotation was enabled (#2358 and #2359)
+ * Adjusted default ip4log retention to match what was in PacketFence version 7 and below
+ * Make REJECT role have precedence over bypass role and VLAN
+ * Make VLAN filters have precedence over bypass role and VLAN
+ * Fix useless sessions being created in web-auth in the dispatcher (#2352)
+ * Load liblasso during runtime in order to prevent a segfault of Apache on Debian 8.8 (#2342)
+ * Fix syntax error in the guest_sponsor_preregistration email template
+ * Fix previewing email templates in the admin
+
+Version 7.0.1 released on 2017-05-19
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bug Fixes
++++++++++
+
+ * Fixed incorrect locationlog entry when performing RADIUS CoA (#2222)
+ * Twilio: "To" phone number is being stripped of any "+" sign (#2296)
+ * Fixed radiusd load-balancer failing to start in cluster with eduroam (#2303)
+ * Fix authentication sources ordering issue for portal modules when using the administration interface (#2323)
+ * Fix innobackup tmp directory when used with Galera cluster
+ * Fix width of auth sources conditions fields (#2312)
+ * Fixed admin login when only allowed to see auditing section
+ * Fixed locationlog entries for VOIP devices when no voice VLAN is defined (#2314) 
+ * Fixed authentication sources cache in connection profile (#2309) 
+ * Fixed loose matching of host in haproxy dispatcher (#2299) 
+ * Fixed lost MySQL handle errors in pfconfig
+ * Handle sources activation host in haproxy dispatcher (#2266)
+ * Fixed incorrect handling of unregistration year 
+ * Fixed incorrect LDAP error when user not found
+ * Fixed file cloning in connection profile
+ * Fixed display of roles in admin GUI
+ * Fixed unregistration date handling when it is over 2038 (#2269)
+ * Fixed logging errors for undefined values
+ * Fixed queues blocking when forking
+ * Fixed pagination in GUI node search
+ * Fixed OS type display in status page
+ * Fixed URL for connection profile preview
 
 Version 7.0.0 released on 2017-04-19
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
