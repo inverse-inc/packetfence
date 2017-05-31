@@ -41,7 +41,7 @@ Please refer to the https://github.com/inverse-inc/packetfence/blob/stable/docs/
 It is recommended that you stop the currently running PacketFence services before proceeding any further.
 To do so, run the following commands:
 
-  service packetfence stop
+  /usr/local/pf/bin/pfcmd service pf stop
   service packetfence-config stop
 
 RHEL / CentOS based systems
