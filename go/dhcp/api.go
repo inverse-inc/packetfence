@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net"
 	"net/http"
 
 	"github.com/davecgh/go-spew/spew"
@@ -35,6 +36,7 @@ type ApiReq struct {
 type Options struct {
 	Option dhcp.OptionCode `json:"option"`
 	Value  string          `json:"value"`
+	Type   string          `json:"type"`
 }
 
 func handleIP2Mac(res http.ResponseWriter, req *http.Request) {
@@ -142,7 +144,15 @@ func handleOverrideOptions(res http.ResponseWriter, req *http.Request) {
 
 	var dhcpOptions = make(map[dhcp.OptionCode][]byte)
 	for _, option := range options {
-		dhcpOptions[option.Option] = []byte(option.Value)
+		var Value interface{}
+		switch option.Type {
+		case "ipaddr":
+			Value = net.ParseIP(option.Value)
+			dhcpOptions[option.Option] = Value.(net.IP).To4()
+		case "string":
+			Value = option.Value
+			dhcpOptions[option.Option] = []byte(Value.(string))
+		}
 	}
 
 	GlobalOptionMacCache.SetDefault(vars["mac"], dhcpOptions)
