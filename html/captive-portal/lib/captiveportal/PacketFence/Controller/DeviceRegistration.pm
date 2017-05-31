@@ -240,8 +240,19 @@ sub is_allowed {
     my $logger = get_logger();
     my @oses = @{$Config{'device_registration'}{'allowed_devices'}};
 
-    #if no oses are defined then it will not match any oses
+    # If no oses are defined then it will not match any oses
     return $FALSE if @oses == 0;
+
+    # Verify if the device is existing in the table node and if it's device_type is allowed
+    my $node = node_view($mac);
+    my $device_type = $node->{device_type};
+    for my $id (@oses) {
+        my $endpoint = fingerbank::Model::Endpoint->new(name => $device_type, version => undef, score => undef);
+        if ( defined($device_type) && $endpoint->is_a_by_id($id)) {
+            $logger->debug("The devices type ".$device_type." is authorized to be registered via the device-registration module");
+            return $TRUE;
+        }
+    }
 
     $mac =~ s/://g;
     my $mac_vendor = substr($mac, 0,6);
