@@ -129,6 +129,16 @@ Instagram source changes
 
 Due to a change in the API of Instagram please change the scope if you are using an Instagram OAuth2 source. Replace 'scope=email' by 'scope=basic' in conf/authentication.conf under the section '[Instagram Source]'.
 
+Database schema update (All linux distributions)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Changes have been made to the database schema. You will need to update it accordingly.
+An SQL upgrade script has been provided to upgrade the database from the 7.0 schema to 7.1.
+
+To upgrade the database schema, run the following command:
+
+  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-7.0.0-7.1.0.sql
+
 
 Upgrading from a version prior to 7.0.0
 ---------------------------------------
