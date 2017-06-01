@@ -152,6 +152,10 @@ func handleOverrideOptions(res http.ResponseWriter, req *http.Request) {
 		case "string":
 			Value = option.Value
 			dhcpOptions[option.Option] = []byte(Value.(string))
+		case "int":
+			Value = option.Value
+			dhcpOptions[option.Option] = []byte(Value.(string))
+
 		}
 	}
 
