@@ -168,7 +168,7 @@ func handleOverrideOptions(res http.ResponseWriter, req *http.Request) {
 
 	var result = map[string][]*Info{
 		"result": {
-			&Info{Mac: vars["mac"], Status: "Ok"},
+			&Info{Mac: vars["mac"], Status: "ACK"},
 		},
 	}
 
@@ -189,19 +189,26 @@ func handleRemoveOptions(res http.ResponseWriter, req *http.Request) {
 
 	vars := mux.Vars(req)
 
+	var result = map[string][]*Info{
+		"result": {
+			&Info{Mac: vars["mac"], Status: "ACK"},
+		},
+	}
+
 	if _, found := GlobalOptionMacCache.Get(vars["mac"]); found {
 		GlobalOptionMacCache.Delete(vars["mac"])
 
-		var result = map[string][]*Info{
+	} else {
+		result = map[string][]*Info{
 			"result": {
-				&Info{Mac: vars["mac"], Status: "Ok"},
+				&Info{Mac: vars["mac"], Status: "NAK"},
 			},
 		}
+	}
 
-		res.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		res.WriteHeader(http.StatusOK)
-		if err := json.NewEncoder(res).Encode(result); err != nil {
-			panic(err)
-		}
+	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	res.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(res).Encode(result); err != nil {
+		panic(err)
 	}
 }

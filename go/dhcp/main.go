@@ -143,7 +143,7 @@ func main() {
 	router.HandleFunc("/stats/{int:.*}", handleStats).Methods("GET")
 	// router.HandleFunc("/parking/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", handleParking).Methods("GET")
 	router.HandleFunc("/options/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}/{options:.*}", handleOverrideOptions).Methods("POST")
-	router.HandleFunc("/removeoptions/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", handleOverrideOptions).Methods("GET")
+	router.HandleFunc("/removeoptions/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", handleRemoveOptions).Methods("POST")
 	// Api
 	l, err := net.Listen("tcp", ":22222")
 	if err != nil {
