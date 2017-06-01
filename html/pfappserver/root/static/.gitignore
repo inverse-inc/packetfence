@@ -1,3 +1,6 @@
+bower_components/
+css/styles.css*
 doc/
-node_modules/
 font/FontAwesome.otf
+js/vendor/
+node_modules/
