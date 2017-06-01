@@ -322,7 +322,7 @@ sub _run_task {
 }
 
 sub get_tasks_count {
-    my $tasks_count = $ConfigPfqueue{pfqueue}{max_tasks} // $PFQUEUE_MAX_TASKS;
+    my $tasks_count = $ConfigPfqueue{pfqueue}{max_tasks} // $PFQUEUE_MAX_TASKS_DEFAULT;
     if ($tasks_count == 0) {
         $tasks_count = -1;
     }
