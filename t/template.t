@@ -36,9 +36,10 @@ sub setup {
     @FILES = (
         file_templates(qr/^.*\.(tt|inc)\z/s, '/usr/local/pf/html/pfappserver/root'),
         file_templates(qr/^.*\.tt\z/s, '/usr/local/pf/conf', '/usr/local/pf/addons'),
-        file_templates(qr/^.*\.html\z/s, '/usr/local/pf/html/captive-portal/templates'),
+        file_templates(qr/^.*\.tt.example\z/s, '/usr/local/pf/conf'),
+        file_templates(qr/^.*\.(html|inc|tt|xml)\z/s, '/usr/local/pf/html/captive-portal/templates'),
     );
-    $TESTS = (scalar @FILES) * 2 + 1;
+    $TESTS = (scalar @FILES) + 1;
     $PARSER = Template::Parser->new;
     plan tests => $TESTS;
 }
@@ -55,7 +56,6 @@ sub runtests {
 sub test_template {
     my ($file) = @_;
     my $text = slurp_file($file);
-    ok(defined($text), "read the contents of $file");
     my $template = $PARSER->parse($text);
     ok($template, "Syntax check for template toolkit file '$file'");
 }
