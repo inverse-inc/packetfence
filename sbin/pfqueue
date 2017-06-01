@@ -36,7 +36,7 @@ BEGIN {
 use pf::file_paths qw($var_dir);;
 use pf::util;
 use pf::constants qw($TRUE $FALSE);
-use pf::constants::pfqueue qw($PFQUEUE_WEIGHTS);
+use pf::constants::pfqueue qw($PFQUEUE_WEIGHTS $PFQUEUE_MAX_TASKS_DEFAULT);
 use pf::config::pfqueue;
 use pf::services::util;
 use pf::db;
@@ -91,7 +91,8 @@ open(my $fh, ">>$pidfile");
 flock($fh, LOCK_EX | LOCK_NB) or die "cannot lock $pidfile another pfqueue is running\n";
 $HAS_LOCK = 1;
 
-our $running = 10000;
+our $running = 1;
+our $TASKS;
 our @delay_queues;
 
 # standard signals and daemonize
@@ -159,6 +160,17 @@ sub register_tasks {
             register_task("worker", \&process_multiple_queues, {} );
         }
     }
+}
+
+
+=head2 worker_should_run
+
+worker_should_run
+
+=cut
+
+sub worker_should_run {
+    $running && $TASKS && is_parent_alive()
 }
 
 =head2 cleanup
@@ -284,7 +296,8 @@ sub _run_task {
     my ($id, $task, $parameters) = @_;
     $0 = "pfqueue - $id";
     my $consumer;
-    while ($running) {
+    $TASKS = get_tasks_count();
+    while (worker_should_run()) {
         $consumer = get_consumer($id) unless $consumer;
         pf::CHI::Request::clear_all();
         pf::log::reset_log_context();
@@ -297,20 +310,22 @@ sub _run_task {
             $consumer = undef;
         }
 
-        #Stop running if parent is no longer alive
-        unless (is_parent_alive()) {
-            $logger->error("Parent is no longer running shutting down");
-            $running = 0;
-        }
         unless ($consumer) {
             sleep (int(rand(5)) + 1);
         }
     } continue {
-        if ($running > 0) {
-            $running--;
+        if ($TASKS > 0) {
+            $TASKS--;
         }
     }
     $logger->trace("$$ shutting down");
+}
+
+sub get_tasks_count {
+    my $tasks_count = $ConfigPfqueue{pfqueue}{max_tasks} // $PFQUEUE_MAX_TASKS;
+    if ($tasks_count == 0) {
+        $tasks_count = -1;
+    }
 }
 
 =head2 is_parent_alive

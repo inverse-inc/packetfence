@@ -10,6 +10,12 @@
 # The number of shared workers
 #
 workers=8
+#
+# The number of tasks a worker does before exiting
+# If it is set 0 or a negative number workers will
+# stay alive forever
+#
+max_tasks=2000
 
 #
 #Connection details of the queue consumer
