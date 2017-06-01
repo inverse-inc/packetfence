@@ -295,14 +295,19 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 		answer.Iface = h.intNet
 		// Add options on the fly
 		GlobalOptions := handler.options
+		leaseDuration := handler.leaseDuration
 		// Add options on the fly
 		if x, found := GlobalOptionMacCache.Get(p.CHAddr().String()); found {
 			for key, value := range x.(map[dhcp.OptionCode][]byte) {
+				if key == dhcp.OptionIPAddressLeaseTime {
+					seconds, _ := strconv.Atoi(string(value))
+					leaseDuration = time.Duration(seconds) * time.Second
+				}
 				GlobalOptions[key] = value
 			}
 		}
 
-		answer.D = dhcp.ReplyPacket(p, dhcp.Offer, handler.ip, answer.IP, handler.leaseDuration,
+		answer.D = dhcp.ReplyPacket(p, dhcp.Offer, handler.ip, answer.IP, leaseDuration,
 			GlobalOptions.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
 
 		return answer
@@ -323,19 +328,24 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 			if leaseNum := dhcp.IPRange(handler.start, reqIP) - 1; leaseNum >= 0 && leaseNum < handler.leaseRange {
 				if index, found := handler.hwcache.Get(p.CHAddr().String()); found {
 					GlobalOptions := handler.options
+					leaseDuration := handler.leaseDuration
 					// Add options on the fly
 					if x, found := GlobalOptionMacCache.Get(p.CHAddr().String()); found {
 						for key, value := range x.(map[dhcp.OptionCode][]byte) {
+							if key == dhcp.OptionIPAddressLeaseTime {
+								seconds, _ := strconv.Atoi(string(value))
+								leaseDuration = time.Duration(seconds) * time.Second
+							}
 							GlobalOptions[key] = value
 						}
 					}
-					answer.D = dhcp.ReplyPacket(p, dhcp.ACK, handler.ip, reqIP, handler.leaseDuration,
+					answer.D = dhcp.ReplyPacket(p, dhcp.ACK, handler.ip, reqIP, leaseDuration,
 						GlobalOptions.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
 					// Update Global Caches
-					GlobalIpCache.Set(reqIP.String(), p.CHAddr().String(), handler.leaseDuration+(time.Duration(15)*time.Second))
-					GlobalMacCache.Set(p.CHAddr().String(), reqIP.String(), handler.leaseDuration+(time.Duration(15)*time.Second))
+					GlobalIpCache.Set(reqIP.String(), p.CHAddr().String(), leaseDuration+(time.Duration(15)*time.Second))
+					GlobalMacCache.Set(p.CHAddr().String(), reqIP.String(), leaseDuration+(time.Duration(15)*time.Second))
 					// Update the cache
-					handler.hwcache.Set(p.CHAddr().String(), index, handler.leaseDuration+(time.Duration(15)*time.Second))
+					handler.hwcache.Set(p.CHAddr().String(), index, leaseDuration+(time.Duration(15)*time.Second))
 					return answer
 				}
 			}
