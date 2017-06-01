@@ -17,7 +17,7 @@
 
 <div class="card">
 <div class="card-title">
-<h3><i class="icon-2x icon-[% item.type | html | lower %]"></i>&nbsp[% heading %]<small>[% item.type | html %]</small></i></h3>
+<h3><i class="icon-2x icon-[% item.type | html | lower %]"></i>&nbsp[% heading %] <small>[% item.type | html %]</small></i></h3>
 </div>
 
     [% IF message %]
