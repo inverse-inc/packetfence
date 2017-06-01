@@ -45,6 +45,7 @@ Bug Fixes
  * Prevent usage of a 'Null' source in the device registration page (#1784)
  * Fixes duplicate nodes displaying when there are multiple locationlog entries (#1848)
  * Fixed an issue with the Instagram OAuth2 source, where the scope has been modified on the API
+ * Fixed and issue where the logging configuration was ignored for httpd.aaaa and httpd.webservices (#2350)
 
 Version 7.0.2 released on 2017-05-19
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

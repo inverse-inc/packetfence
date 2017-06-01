@@ -13,8 +13,8 @@ UPDATE activation SET activation_code = SUBSTR(activation_code, INSTR(activation
 --
 
 SET @MAJOR_VERSION = 7;
-SET @MINOR_VERSION = 0;
-SET @SUBMINOR_VERSION = 9;
+SET @MINOR_VERSION = 1;
+SET @SUBMINOR_VERSION = 0;
 
 --
 -- The VERSION_INT to ensure proper ordering of the version in queries
