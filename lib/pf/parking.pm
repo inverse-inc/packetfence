@@ -111,7 +111,7 @@ sub remove_parking_actions {
             proto   => "http",
             host    => "localhost",
             port    => $pf::constants::api::GO_DHCP_PORT,
-        )->call("/removeoptions/".$mac."/",
+        )->call("/removeoptions/".$mac,{}
         );
     }
     if($@) {
