@@ -4992,7 +4992,7 @@ image::docs/images/Meraki-config-pf-url.png[scaledwidth="100%",alt="PacketFence 
 VLAN enforcement
 ++++++++++++++++
 
-This section will cover how to configure the Meraki to use with VLAN enforcement, use the configuration in the section `WebAuth` for the SSID.
+This section will cover how to configure the Meraki WiFI controller to use with VLAN enforcement, use the configuration in the section `WebAuth` for the SSID.
 
 In the configuration of PacketFence, use "Role by VLAN ID" and fill your VLANs matching roles.
 
