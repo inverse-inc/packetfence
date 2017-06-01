@@ -75,8 +75,10 @@ else
 fi 
 
 SHOULD_BACKUP=1
+IS_CLUSTER=0
 # If we are using Galera cluster and that we're not the first server in the galera incomming addresses, we will not backup
 if [ -f /var/lib/mysql/grastate.dat ]; then
+    IS_CLUSTER=1
     FIRST_SERVER=`mysql -u$REP_USER -p$REP_PWD -e 'show status like "wsrep_incoming_addresses";' | tail -1 | awk '{ print $2 }' | awk -F "," '{ print $1 }' | awk -F ":" '{ print $1 }'`
     if ! ip a | grep $FIRST_SERVER > /dev/null; then
         SHOULD_BACKUP=0
@@ -103,6 +105,12 @@ if [ $SHOULD_BACKUP -eq 1 ] && { [ -f /var/run/mysqld/mysqld.pid ] || [ -f /var/
     BACKUPS_AVAILABLE_SPACE=`df --output=avail $BACKUP_DIRECTORY | awk 'NR == 2 { print $1  }'`
     MYSQL_USED_SPACE=`du -s /var/lib/mysql | awk '{ print $1 }'`
     if (( $BACKUPS_AVAILABLE_SPACE > (( $MYSQL_USED_SPACE /2 )) )); then 
+
+        if [ $IS_CLUSTER -eq 1 ]; then
+             echo "Temporarily stopping Galera cluster sync for DB backup"
+             mysql -u$REP_USER -p$REP_PWD -e 'set global wsrep_desync=ON;'
+        fi
+
         if [ $PERCONA_XTRABACKUP_INSTALLED -eq 1 ]; then
             find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-innobackup-*.xbstream.gz" -mtime +$NB_DAYS_TO_KEEP_DB -delete
             echo "----- Backup started on `date +%F_%Hh%M` -----" >> /usr/local/pf/logs/innobackup.log
@@ -131,6 +139,12 @@ if [ $SHOULD_BACKUP -eq 1 ] && { [ -f /var/run/mysqld/mysqld.pid ] || [ -f /var/
                 echo "OK" > /usr/local/pf/var/backup_db.status
             fi
         fi
+        
+        if [ $IS_CLUSTER -eq 1 ]; then
+             echo "Reenabling Galera cluster sync"
+             mysql -u$REP_USER -p$REP_PWD -e 'set global wsrep_desync=OFF;'
+        fi
+
     else 
         echo "There is not enough space in $BACKUP_DIRECTORY to safely backup the database. Skipping backup." >&2
         echo "There is not enough space in $BACKUP_DIRECTORY to safely backup the database. Skipping backup." > /usr/local/pf/var/backup_db.status
