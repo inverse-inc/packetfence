@@ -81,7 +81,7 @@ SourceView.prototype.updateItem = function(e) {
                     that.list();
                 }
             },
-            errorSibling: form.prev()
+            errorSibling: form
         });
     }
 };
