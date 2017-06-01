@@ -141,8 +141,9 @@ func main() {
 	router.HandleFunc("/mac2ip/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", handleMac2Ip).Methods("GET")
 	router.HandleFunc("/ip2mac/{ip:(?:[0-9]{1,3}.){3}.(?:[0-9]{1,3})}", handleIP2Mac).Methods("GET")
 	router.HandleFunc("/stats/{int:.*}", handleStats).Methods("GET")
-	router.HandleFunc("/parking/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", handleParking).Methods("GET")
+	// router.HandleFunc("/parking/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", handleParking).Methods("GET")
 	router.HandleFunc("/options/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}/{options:.*}", handleOverrideOptions).Methods("POST")
+	router.HandleFunc("/removeoptions/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", handleOverrideOptions).Methods("GET")
 	// Api
 	l, err := net.Listen("tcp", ":22222")
 	if err != nil {

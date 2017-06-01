@@ -39,6 +39,11 @@ type Options struct {
 	Type   string          `json:"type"`
 }
 
+type Info struct {
+	Status string `json:"status"`
+	Mac    string `json:"MAC"`
+}
+
 func handleIP2Mac(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
@@ -107,19 +112,19 @@ func handleStats(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func handleParking(res http.ResponseWriter, req *http.Request) {
-	vars := mux.Vars(req)
-	InterFaceName, NetWork := InterfaceScopeFromMac(vars["mac"])
-	if _, ok := ControlIn[InterFaceName]; ok {
-		Request := ApiReq{Req: "parking", NetInterface: InterFaceName, NetWork: NetWork, Mac: vars["mac"]}
-		ControlIn[InterFaceName] <- Request
-		stat := <-ControlOut[InterFaceName]
-		spew.Dump(stat)
-	}
-
-	spew.Dump(InterFaceName)
-	spew.Dump(NetWork)
-}
+// func handleParking(res http.ResponseWriter, req *http.Request) {
+// 	vars := mux.Vars(req)
+// 	InterFaceName, NetWork := InterfaceScopeFromMac(vars["mac"])
+// 	if _, ok := ControlIn[InterFaceName]; ok {
+// 		Request := ApiReq{Req: "parking", NetInterface: InterFaceName, NetWork: NetWork, Mac: vars["mac"]}
+// 		ControlIn[InterFaceName] <- Request
+// 		stat := <-ControlOut[InterFaceName]
+// 		spew.Dump(stat)
+// 	}
+//
+// 	spew.Dump(InterFaceName)
+// 	spew.Dump(NetWork)
+// }
 
 func handleOverrideOptions(res http.ResponseWriter, req *http.Request) {
 
@@ -160,15 +165,43 @@ func handleOverrideOptions(res http.ResponseWriter, req *http.Request) {
 	}
 
 	GlobalOptionMacCache.SetDefault(vars["mac"], dhcpOptions)
+
+	var result = map[string][]*Info{
+		"result": {
+			&Info{Mac: vars["mac"], Status: "Ok"},
+		},
+	}
+
 	spew.Dump(options)
 	spew.Dump(dhcpOptions)
 	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	res.WriteHeader(http.StatusCreated)
-	// if err := json.NewEncoder(res).Encode(t); err != nil {
-	// 	panic(err)
-	// }
+	res.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(res).Encode(result); err != nil {
+		panic(err)
+	}
 }
 
 func handleHelp(res http.ResponseWriter, req *http.Request) {
 	fmt.Fprint(res, `Help`)
+}
+
+func handleRemoveOptions(res http.ResponseWriter, req *http.Request) {
+
+	vars := mux.Vars(req)
+
+	if _, found := GlobalOptionMacCache.Get(vars["mac"]); found {
+		GlobalOptionMacCache.Delete(vars["mac"])
+
+		var result = map[string][]*Info{
+			"result": {
+				&Info{Mac: vars["mac"], Status: "Ok"},
+			},
+		}
+
+		res.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		res.WriteHeader(http.StatusOK)
+		if err := json.NewEncoder(res).Encode(result); err != nil {
+			panic(err)
+		}
+	}
 }

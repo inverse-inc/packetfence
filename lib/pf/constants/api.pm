@@ -20,6 +20,7 @@ use Readonly;
 Readonly our $DEFAULT_CLIENT => "pf::api::jsonrpcclient";
 
 our $PFSSO_PORT = 8777;
+our $GO_DHCPD_PORT = 22222;
 
 =head1 AUTHOR
 
