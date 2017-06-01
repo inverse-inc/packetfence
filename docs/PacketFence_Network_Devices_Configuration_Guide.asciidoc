@@ -4960,7 +4960,7 @@ To configure Hostapd software you can use the same configuration parameters abov
 Meraki
 ~~~~~~
 
-To add the AP on PacketFence make sure to add the AP by IP, using the internal IP of the AP.
+To add the AP on PacketFence use the internal IP of the AP.
 
 WebAuth
 +++++++
@@ -4994,7 +4994,7 @@ VLAN enforcement
 
 This section will cover how to configure the Meraki to use with VLAN enforcement, use the configuration in the section `WebAuth` for the SSID.
 
-In the configuration of PacketFence, use "Role by VLAN ID" and fill the VLAN matching your controller.
+In the configuration of PacketFence, use "Role by VLAN ID" and fill your VLANs matching roles.
 
 image::docs/images/Meraki-vlan-pf.png[scaledwidth="100%",alt="PacketFence role configuration"]
 
