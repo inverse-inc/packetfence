@@ -29,7 +29,6 @@
 
   <div class="card-block">
 <form name="modalSource" class="form-horizontal" action="[% action_url %]" method="post">
-  [%- IF item.id %]<input type="hidden" name="id" value="[% item.id | html %]">[% END %]
 
         [% form.field('id').render | none %]
         [% form.block('standard').render | none %]
