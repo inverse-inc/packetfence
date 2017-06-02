@@ -87,6 +87,14 @@ before [qw(clone view _processCreatePost update)] => sub {
     $c->stash->{current_form} = "${form}::${type}";
 };
 
+before view => sub {
+    my ($self, $c) = @_;
+    my $message = delete $c->session->{message};
+    if (defined $message) {
+        $c->stash->{message} = $c->pf_localize($message);
+    }
+};
+
 sub create_type : Path('create') : Args(1) {
     my ($self, $c, $type) = @_;
     my $model = $self->getModel($c);
@@ -99,6 +107,7 @@ after [qw(create clone)] => sub {
     my ($self, $c) = @_;
     if ($c->request->method eq 'POST') {
         if(is_success($c->response->status)) {
+            $c->session->{message} = $c->stash->{status_msg};
             $c->response->location( $c->pf_hash_for($self->action_for('view'), [$c->stash->{id}]));
         }
     }
