@@ -293,8 +293,7 @@ sub pf_localize {
     unless ($ref_type) {
         @args = ($msg);
     } else {
-        my $text = shift @$msg;
-        @args = ($text,$msg);
+        @args = @$msg;
     }
     return $c->localize(@args);
 }
