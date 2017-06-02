@@ -5,7 +5,6 @@
         'app/pf-bootstrap-swap-class',
         'js/configuration',
         'admin/searches',
-        'admin/config/source',
         'js/interface',
         'js/tree.jquery',
         ]
