@@ -159,6 +159,7 @@ sub validate_info {
 
     my $telephone = $self->request_fields->{telephone};
     my $pid = $self->request_fields->{$self->pid_field};
+    $pid =~ s/[\(\) \-]//g;
     my @carriers = @{$self->carriers};
     my $mobileprovider = (scalar(@carriers) == 1) ? $carriers[0]->{"value"} : $self->request_fields->{mobileprovider};
     
