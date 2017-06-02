@@ -25,14 +25,15 @@ Sources.prototype.modalId   = '#modalSource';
 var SourceView = function(options) {
     ItemView.call(this, options);
     var that = this;
-    this.parent = options.parent;
-    this.items = options.items;
+    var id = options.items.id;
+    options.parent.off('click', id + ' [href$="/clone"]');
+    options.parent.off('click', id + ' [href$="/delete"]');
     var changeRuleClass = $.proxy(this.changeRuleClass, this);
     options.parent.on('change', 'form[name="modalSource"] select[name$="class"]', changeRuleClass);
 };
 
 SourceView.prototype = (function(){
-    function F(){};
+    function F(){}
     F.prototype = ItemView.prototype;
     return new F();
 })();
