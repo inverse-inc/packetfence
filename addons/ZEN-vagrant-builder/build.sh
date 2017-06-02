@@ -30,6 +30,8 @@ tar -xvf package.box
 ../fix_ovf_alt box.ovf
 \mv vmx_box.ovf box.ovf
 
+#yes | cp ../box-release.ovf box.ovf
+
 ovftool --lax box.ovf box.ova
 
 mv box.ova ../PacketFence-ZEN.ova
