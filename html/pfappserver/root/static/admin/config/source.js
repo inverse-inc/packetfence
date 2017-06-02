@@ -78,8 +78,7 @@ SourceView.prototype.updateItem = function(e) {
                     location.hash = jqXHR.getResponseHeader('Location');
                 }
                 else {
-                    showSuccess(table, data.status_msg);
-                    that.list();
+                    showSuccess(form, data.status_msg);
                 }
             },
             errorSibling: form
