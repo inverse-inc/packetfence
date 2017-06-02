@@ -113,7 +113,7 @@ sub _handler {
     }
 
     # Billing hooks
-    if ($r->uri =~ m#/hook/billing#) {
+    if ($uri =~ m#/hook/billing#) {
         $logger->trace("Found the hook");
         $r->handler('modperl');
         $r->set_handlers( PerlResponseHandler => ['pf::web::billinghook'] );
