@@ -182,6 +182,8 @@ In order to upgrade the MariaDB metadata files and tables, first stop any starte
   
 Then start a mysqld_safe process manually (this will start a background process)
   
+  mkdir -p /var/run/mariadb
+  chown mysql: /var/run/mariadb
   mysqld_safe --basedir=/usr &
  
 Then, execute the upgrade script and enter the root password when prompted
