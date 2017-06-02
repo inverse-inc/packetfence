@@ -7,9 +7,35 @@ $(function() {
       dotsParent = document.getElementById('dots'),
       cards = $('.card');
 
+  initButtons();
   initDots();
   initSvgSprite();
-  
+
+  function initButtons() {
+    // Don't propagate mouse clicks on disabled buttons and links
+    $('.btn').on('click', function(event) {
+      if ($(this).hasClass('disabled')) {
+        event.stopPropagation();
+        return false;
+      }
+    });
+
+    // Show overlapping box with id defined from the data-box-show attribute
+    $('.js-box-show').on('click', function(event) {
+      var boxId = $(this).attr('data-box-show');
+      $('#'+boxId).removeClass('hide');
+      event.stopPropagation();
+      return false;
+    });
+
+    // Hide box container
+    $('.js-box-hide').on('click', function(event) {
+      $(this).closest('.box').addClass('hide');
+      event.stopPropagation();
+      return false;
+    });
+  }
+
   function initDots() {
     var index, $card;
 

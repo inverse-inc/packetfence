@@ -25,6 +25,37 @@ button.#{$inuit-btn-namespace}btn {
   }
 }
 
+.#{$inuit-btn-namespace}btn--inverted {
+  background-color: transparent;
+  border-color: $pf-color-light-gray;
+  border-style: solid;
+  border-width: 2px;
+  color: darken($pf-color-light-gray, 20%);
+  &:hover {
+    background-color: $pf-color-light-gray;
+    color: #fff !important;
+  }
+}
+
+.#{$inuit-btn-namespace}btn--inverted.#{$inuit-btn-namespace}btn--error {
+  border-color: $pf-color-error;
+  color: $pf-color-error;
+  &:hover {
+    background-color: $pf-color-error;
+    color: #fff !important;
+  }
+}
+
+// Inverted button inside inverted box -- make text lighter
+.#{$inuit-box-namespace}box--inverted {
+  .#{$inuit-btn-namespace}btn--inverted {
+    color: lighten($pf-color-light-gray, 10%);
+    &.#{$inuit-btn-namespace}btn--error {
+      color: lighten($pf-color-error, 10%);
+    }
+  }
+}
+
 .#{$inuit-btn-namespace}btn--icon {
   background-color: transparent;
   border: none;

@@ -4,16 +4,6 @@
 var paused = false;
 
 $(document).ready(function() {
-  [%- IF showLogin %]
-  // Don't propagate mouse clicks on disabled buttons and links
-  $('.btn').on('click', function(event) {
-    if ($(this).hasClass('disabled')) {
-      event.stopPropagation();
-      return false;
-    }
-  });
-  [% END %]
-
   [%- IF node.expiration %]
   // Initialization of the countdown
   $("#expiration").html(countdown([% node.expiration %] * 1000,
@@ -141,17 +131,17 @@ $(document).ready(function() {
     <h3>[% i18n("Your registered devices") %]</h3>
       [%- FOREACH n IN nodes %]
       [% IF n.mac == node.mac AND node.status == 'reg' %]
-      <div class="[ box box--small ][ frame frame--raised ]">
+      <div class="[ box box--highlight ][ frame frame--raised ] u-mt--">
         <div class="[ layout layout--middle ]">
           <div class="layout__item [ u-1/2 u-1/1-lap u-1/1-palm ]">
             <ul class="list-bare">
-                [% IF node.device_class %]<li>[% i18n("OS Type ") %]<b>[% node.device_class %]</b></li>[% END %]
-                [% IF node.computername %]<li>[% i18n("Computer name ") %]<b>[% node.computername %]</b></li>[% END %]
-            <li>[% i18n("MAC") %] <b>[% node.mac %]</b></li>
-            [% IF node.regdate != '0000-00-00 00:00:00' %]<li>[% i18n("Registered on") %] <b>[% node.regdate %]</b></li>[% END %]
-        </ul>
+              [% IF node.device_class %]<li>[% i18n("OS Type ") %]<b>[% node.device_class %]</b></li>[% END %]
+              [% IF node.computername %]<li>[% i18n("Computer name ") %]<b>[% node.computername %]</b></li>[% END %]
+              <li>[% i18n("MAC") %] <b>[% node.mac %]</b></li>
+              [% IF node.regdate != '0000-00-00 00:00:00' %]<li>[% i18n("Registered on") %] <b>[% node.regdate %]</b></li>[% END %]
+            </ul>
           </div><div class="layout__item layout--right [ u-1/2 u-1/1-lap u-1/1-palm ]">
-              <p>[% i18n("This is your current device.") %]</p>
+              <div>[% i18n("This is your current device.") %]</div>
           </div>
         </div>
       </div>
@@ -159,22 +149,22 @@ $(document).ready(function() {
 
       [% NEXT IF n.status != 'reg' OR n.mac == node.mac %]
       [% IF n.lostOrStolen %]
-      <div class="[ box box--small ][ frame frame--raised ]">
+      <div class="[ box box--overlook ][ frame ] u-mt--">
         <div class="[ layout layout--middle ]">
           <div class="layout__item [ u-1/2 u-1/1-lap u-1/1-palm ]">
             <ul class="list-bare">
-                [% IF n.device_class %]<li>[% i18n("OS Type ") %]<b>[% n.device_class %]</b></li>[% END %]
-                [% IF n.computername %]<li>[% i18n("Computer name ") %]<b>[% n.computername %]</b></li>[% END %]
-            <li>[% i18n("MAC") %] <b>[% n.mac %]</b></li>
-            [% IF n.regdate != '0000-00-00 00:00:00' %]<li>[% i18n("Registered on") %] <b>[% n.regdate %]</b></li>[% END %]
-        </ul>
+              [% IF n.device_class %]<li>[% i18n("OS Type ") %]<b>[% n.device_class %]</b></li>[% END %]
+              [% IF n.computername %]<li>[% i18n("Computer name ") %]<b>[% n.computername %]</b></li>[% END %]
+              <li>[% i18n("MAC") %] <b>[% n.mac %]</b></li>
+              [% IF n.regdate != '0000-00-00 00:00:00' %]<li>[% i18n("Registered on") %] <b>[% n.regdate %]</b></li>[% END %]
+            </ul>
           </div><div class="layout__item layout--right [ u-1/2 u-1/1-lap u-1/1-palm ]">
-              <p>[% i18n("This device is declared as lost or stolen.") %]</p>
+              <div>[% i18n("This device is declared as lost or stolen.") %]</div>
           </div>
         </div>
       </div>
       [% ELSE %]
-      <div class="[ box box--small ][ frame frame--raised ]">
+      <div class="[ box ][ frame frame--raised ] u-mt--">
         <div class="[ layout layout--middle ]">
           <div class="layout__item [ u-1/2 u-1/1-lap u-1/1-palm ]">
             <ul class="list-bare">
@@ -182,10 +172,32 @@ $(document).ready(function() {
                 [% IF n.computername %]<li>[% i18n("Computer name ") %]<b>[% n.computername %]</b></li>[% END %]
             <li>[% i18n("MAC") %] <b>[% n.mac %]</b></li>
             [% IF n.regdate != '0000-00-00 00:00:00' %]<li>[% i18n("Registered on") %] <b>[% n.regdate %]</b></li>[% END %]
-        </ul>
+            </ul>
           </div><div class="layout__item layout--right [ u-1/2 u-1/1-lap u-1/1-palm ]">
-            <a href="/node/manager/unreg/[% n.mac %]" class="[ btn btn--small ] u-mb--desk">[% i18n("Unregister") %]</a>
-            <a href="/loststolen/[% n.mac %]" class="[ btn btn--small ] btn--light u-mb--desk">[% i18n("Declare as lost or stolen") %]</a>
+            <a href="/node/manager/unreg/[% n.mac %]"
+               data-box-show="confirmUnregister[% n.mac.remove('\W+') %]"
+               class="[ btn btn--small js-box-show ] u-mb--desk">[% i18n("Unregister") %]</a>
+            <a href="/loststolen/[% n.mac %]"
+               data-box-show="confirmLostStolen[% n.mac.remove('\W+') %]"
+               class="[ btn btn--small btn--light js-box-show ]">[% i18n("Declare as lost or stolen") %]</a>
+          </div>
+        </div>
+        <div id="confirmUnregister[% n.mac.remove('\W+') %]" class="[ box box--small box--inverted box--overlap ] hide">
+          <div class="[ layout layout--middle ]">
+            <div class="[ layout__item layout--center ] [ u-1/1 ]">
+              <div class="[ u-mb u-mb--palm ]">[% i18n_format("Really unregister %s? The device will be immediately disconnected from the network.", n.mac) %]</div>
+              <a href="/node/manager/unreg/[% n.mac %]" class="[ btn btn--small btn--inverted btn--error ]">[% i18n("Unregister") %]</a>
+              <a href="#cancel" class="[ btn btn--small btn--inverted js-box-hide ]">[% i18n("Cancel") %]</a>
+            </div>
+          </div>
+        </div>
+        <div id="confirmLostStolen[% n.mac.remove('\W+') %]" class="[ box box--small box--inverted box--overlap ] hide">
+          <div class="[ layout layout--middle ]">
+            <div class="[ layout__item layout--center ] [ u-1/1 ]">
+              <div class="[ u-mb u-mb--palm ]">[% i18n_format("The device %s will be disconnected and won't be able to be registered again.", n.mac) %]</div>
+              <a href="/node/manager/unreg/[% n.mac %]" class="[ btn btn--small btn--inverted btn--error ]">[% i18n("Declare as lost or stolen") %]</a>
+              <a href="#cancel" class="[ btn btn--small btn--inverted js-box-hide ]">[% i18n("Cancel") %]</a>
+            </div>
           </div>
         </div>
       </div>

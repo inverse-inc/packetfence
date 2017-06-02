@@ -5,6 +5,10 @@ $pf-box-hero-width--palm: $inuit-base-line-height * 4;
 
 $pf-box-width--small: $inuit-base-line-height * 2;
 
+.#{$inuit-box-namespace}box {
+  position: relative;
+}
+
 .#{$inuit-box-namespace}box--large-height {
   max-height: $inuit-base-line-height * 12;
   overflow: auto;
@@ -23,6 +27,37 @@ $pf-box-width--small: $inuit-base-line-height * 2;
 
 .#{$inuit-box-namespace}box--accent {
   background-color: $pf-base-accent-color;
+}
+
+.#{$inuit-box-namespace}box--inverted {
+  background-color: $pf-color-gray;
+  color: #fff;
+}
+
+.#{$inuit-box-namespace}box--highlight {
+  border-left: 8px solid $pf-base-accent-color;
+  > .layout {
+    transform: translateX(-8px);
+  }
+}
+
+.#{$inuit-box-namespace}box--overlook {
+  background-color: $pf-color-tint;
+  background-image: repeating-linear-gradient(-45deg,
+                                              $pf-color-tint,
+                                              $pf-color-tint 2px,
+                                              transparent 2px,
+                                              transparent 4px);
+  opacity: 0.7;
+}
+
+.#{$inuit-box-namespace}box--overlap {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
 }
 
 .#{$inuit-box-namespace}box--hero {

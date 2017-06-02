@@ -105,3 +105,7 @@ $inuit-enable-responsive-paddings--none:  true;
 @import "trumps.flag";
 @import "trumps.media";
 //@import "trumps.dev";
+
+.hide {
+  display: none;
+}
