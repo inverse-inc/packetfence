@@ -49,10 +49,50 @@ sub lookup_scope {
     return $TRUE;
 }
 
+sub lookup_confirm_scope {
+    my ($self) = @_;
+    my $result = $self->lookup_scope();
+
+    return $result unless($result);
+
+    my $scope = $self->{scope};
+    my $scope_string;
+
+    if($scope) {
+        if($scope->isa("pf::multi_cluster::standalone_server")) {
+            $scope_string = "the PacketFence server ".$scope->name;
+        }
+        elsif($scope->isa("pf::multi_cluster::cluster")) {
+            $scope_string = "all the servers in the PacketFence cluster " . $scope->name;
+        }
+        elsif($scope->isa("pf::multi_cluster::region")) {
+            $scope_string = "all the servers in region " . $scope->name;
+        }
+        else {
+            $scope_string = $scope->name . " and all the PacketFence servers it contains";
+        }
+    }
+    else {
+        $scope_string = "**ALL** the managed PacketFence servers";
+    }
+
+    print "You are about to execute this command on $scope_string. Do you wish to continue (y/n)? ";
+    my $confirm = <STDIN>;
+    chomp $confirm;
+    if($confirm eq "y") {
+        return $TRUE;
+    }
+    else {
+        print STDERR "Aborting from user input...\n";
+        exit 1;
+        return $TRUE;
+    }
+}
+
 sub parse_scope_command {
     my ($self, @args) = @_;
     $self->{args} = \@args;
-    return $self->lookup_scope();
+    return $self->lookup_confirm_scope();
 }
 
 sub parse_generateconfig {
@@ -70,7 +110,7 @@ sub parse_generatedeltas {
 
 sub action_generatedeltas {
     my ($self) = @_;
-    exit $EXIT_FAILURE unless($self->lookup_scope);
+    exit $EXIT_FAILURE unless($self->lookup_confirm_scope);
     pf::multi_cluster::generateDeltas($self->{scope});
 }
 
@@ -85,7 +125,7 @@ sub parse_run {
     $self->{args} = \@args;
     $self->{ansible_command} = shift @{$self->{args}};
 
-    my $result = $self->lookup_scope();
+    my $result = $self->lookup_confirm_scope();
     return $result unless($result);
 }
 
@@ -106,7 +146,7 @@ sub parse_play {
         return 0;
     }
 
-    my $result = $self->lookup_scope();
+    my $result = $self->lookup_confirm_scope();
     return $result unless($result);
 }
 
