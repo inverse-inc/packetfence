@@ -189,3 +189,23 @@ type PfconfigDatabase struct {
 	DBName         string `json:"db"`
 	DBPort         string `json:"port"`
 }
+
+type PfCluster struct {
+        PfconfigMethod string `val:"keys"`
+        PfconfigNS     string `val:"config::Cluster"`
+        Keys           []string
+}
+
+type ClusterMembers struct {
+        PfconfigMethod       string `val:"keys"`
+        PfconfigNS           string `val:"config::Cluster"`
+        PfconfigHashNS       string `val:"-"`
+        Interfaces           []string Details
+        ManagementIp         string `json:"management_ip"`
+        Host                 string `json:"host"`
+}
+
+type Details struct {
+        Ip                   string `json:"ip"`
+        Type                 string `json:"type"`
+}
