@@ -122,7 +122,7 @@ sub login : Local : Args(0) {
 
 sub landing : Local : Args(0) {
     my ( $self, $c ) = @_;
-    $c->stash( title => "Device registration landing", template => 'device-registration/landing.html' );
+    $c->stash( title => "Device registration landing", template => 'device-registration/registration.html' );
 }
 
 sub registerNode : Private {
@@ -132,7 +132,7 @@ sub registerNode : Private {
         my ($node) = node_view($mac);
         if( $node && $node->{status} ne $pf::node::STATUS_UNREGISTERED ) {
             $c->stash( status_msg_error => ["%s is already registered or pending to be registered. Please verify MAC address if correct contact your network administrator", $mac]);
-            $c->detach('landing');
+            $c->detach('index');
         } else {
             my $session = $c->user_session;
             my $source_id = $session->{source_id};
@@ -175,7 +175,7 @@ sub registerNode : Private {
             node_modify($mac, status => "reg", %info);
             reevaluate_access($mac, 'manage_register');
             $c->stash( status_msg  => [ "The MAC address %s has been successfully registered.", $mac ]);
-            $c->detach('landing');
+            $c->detach('Controller::Status', 'index');
         }
     } else {
         $c->stash( status_msg_error => [ "The provided MAC address %s is not allowed to be registered using this self-service page.", $mac ]);
