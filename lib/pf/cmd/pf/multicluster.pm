@@ -16,6 +16,7 @@ pf::cmd::pf::multicluster
    generatedeltas [<scope>]  | generate the delta files for all regions/clusters/servers in /usr/local/pf/conf/multi-cluster/
    generateansibleconfig     | generate the ansible configuration and playbooks
    play <playbook> [<scope>] | play an ansible playbook on the desired scope
+   run <command> [<scope>]   | run a command on the desired scope
 
 =head1 DESCRIPTION
 
@@ -76,6 +77,23 @@ sub action_generatedeltas {
 sub action_generateansibleconfig {
     my ($self) = @_;
     pf::multi_cluster::generateAnsibleConfig();
+}
+
+sub parse_run {
+    my ($self, @args) = @_;
+    
+    $self->{args} = \@args;
+    $self->{ansible_command} = shift @{$self->{args}};
+
+    my $result = $self->lookup_scope();
+    return $result unless($result);
+}
+
+sub action_run {
+    my ($self) = @_;
+    my $command = untaint_chain($self->{ansible_command});
+    my $scope = $self->{scope} ? $self->{scope}->name : "ROOT";
+    exec("/usr/bin/ansible $scope -a '$command'")
 }
 
 sub parse_play {
