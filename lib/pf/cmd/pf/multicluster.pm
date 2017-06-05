@@ -5,7 +5,7 @@ pf::cmd::pf::multicluster
 
 =head1 SYNOPSIS
 
- pfcmd pfconfig <command> <scope>
+ pfcmd multicluster <command> <scope>
 
  The scope parameter represents a region/cluster/server to apply the command to. 
  When scope is omited, the command applies to the ROOT region
