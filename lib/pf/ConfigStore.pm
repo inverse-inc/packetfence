@@ -158,12 +158,13 @@ sub _buildCachedConfigMultiCluster {
     }
 
     # Handling the non-multi-cluster configuration file that is on this server as it serves as the configuration baseline
-    my $importConfigFile = $conf_dir . "/" . $stripped_file_path;
-    $logger->debug("Adding file $importConfigFile to the pf::IniFiles import");
-    push @chain, $importConfigFile;
+    # TODO: Evaluate if we want this
+#    my $importConfigFile = $conf_dir . "/" . $stripped_file_path;
+#    $logger->debug("Adding file $importConfigFile to the pf::IniFiles import");
+#    push @chain, $importConfigFile;
     
     # Handling defaults file here which should not be overriden in the multi-cluster directory
-    $importConfigFile = $self->importConfigFile;
+    my $importConfigFile = $self->importConfigFile;
     if (defined $importConfigFile) {
         $logger->debug("Adding file $importConfigFile to the pf::IniFiles import");
         push @chain, $importConfigFile;
