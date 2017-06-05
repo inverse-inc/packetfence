@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 7.0.9\n"
+"Project-Id-Version: 7.1.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-05-31 14:53-0400\n"
+"PO-Revision-Date: 2017-06-05 14:02-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-# html/captive-portal/templates/status/person.html
+# html/captive-portal/templates/status/reset_password.html
 msgid "A password field has not been fill"
 msgstr ""
 
@@ -78,12 +78,12 @@ msgstr ""
 msgid "An error occured"
 msgstr ""
 
-# html/captive-portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
-msgid "An type and activation code is required"
+# html/captive-portal/templates/lost_stolen.html
+msgid "An error occured while trying to declare the device %s as lost or stolen."
 msgstr ""
 
-# html/captive-portal/templates/lost_stolen.html
-msgid "An error occured while trying to delcare the device %s as lost or stolen."
+# html/captive-portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
+msgid "An type and activation code is required"
 msgstr ""
 
 # pf::person::FIELDS
@@ -114,6 +114,11 @@ msgstr ""
 msgid "Building_number"
 msgstr ""
 
+# html/captive-portal/templates/status.html
+# html/captive-portal/templates/status/menu.html
+msgid "Cancel"
+msgstr ""
+
 # pf::person::FIELDS
 msgid "Cell_phone"
 msgstr ""
@@ -125,14 +130,11 @@ msgstr ""
 msgid "Certificate generation for EAP TLS connection"
 msgstr ""
 
-# html/captive-portal/templates/device-registration/landing.html
-# html/captive-portal/templates/device-registration/registration.html
-# html/captive-portal/templates/lost_stolen.html
 # html/captive-portal/templates/status.html
 msgid "Change my password"
 msgstr ""
 
-# html/captive-portal/templates/status/person.html
+# html/captive-portal/templates/status/reset_password.html
 msgid "Change your password"
 msgstr ""
 
@@ -144,11 +146,15 @@ msgstr ""
 msgid "Company"
 msgstr ""
 
+# html/captive-portal/templates/status.html
+msgid "Computer name "
+msgstr ""
+
 # html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/SMS.pm
 msgid "Confirm Mobile Phone Number"
 msgstr ""
 
-# html/captive-portal/templates/status/person.html
+# html/captive-portal/templates/status/reset_password.html
 msgid "Confirm your password"
 msgstr ""
 
@@ -435,10 +441,8 @@ msgstr ""
 msgid "Login to manage registered devices"
 msgstr ""
 
-# html/captive-portal/templates/device-registration/landing.html
-# html/captive-portal/templates/device-registration/registration.html
-# html/captive-portal/templates/lost_stolen.html
 # html/captive-portal/templates/status.html
+# html/captive-portal/templates/status/menu.html
 msgid "Logout"
 msgstr ""
 
@@ -449,18 +453,6 @@ msgstr ""
 
 # html/captive-portal/templates/emails/emails-violation-triggered.html
 msgid "MAC Address"
-msgstr ""
-
-# html/captive-portal/templates/device-registration/landing.html
-# html/captive-portal/templates/device-registration/registration.html
-msgid "Manage registered devices"
-msgstr ""
-
-# html/captive-portal/templates/device-registration/landing.html
-# html/captive-portal/templates/device-registration/registration.html
-# html/captive-portal/templates/lost_stolen.html
-# html/captive-portal/templates/status/person.html
-msgid "Manage my devices"
 msgstr ""
 
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
@@ -555,7 +547,7 @@ msgstr ""
 # html/captive-portal/templates/pki_provider/packetfence_pki.html
 # html/captive-portal/templates/pki_provider/scep.html
 # html/captive-portal/templates/status.html
-# html/captive-portal/templates/status/person.html
+# html/captive-portal/templates/status/reset_password.html
 msgid "Password"
 msgstr ""
 
@@ -576,10 +568,6 @@ msgstr ""
 msgid "Please ignore this request if you have not requested network access."
 msgstr ""
 
-# html/captive-portal/lib/captiveportal/PacketFence/Controller/DeviceRegistration.pm
-msgid "Please verify the provided MAC address."
-msgstr ""
-
 # pf::person::FIELDS
 msgid "Portal"
 msgstr ""
@@ -597,17 +585,15 @@ msgstr ""
 msgid "Price"
 msgstr ""
 
+# html/captive-portal/templates/status.html
+msgid "Really unregister %s? The device will be immediately disconnected from the network."
+msgstr ""
+
 # html/captive-portal/templates/device-registration/registration.html
 msgid "Register"
 msgstr ""
 
 # html/captive-portal/templates/status.html
-msgid "Register a device"
-msgstr ""
-
-# html/captive-portal/templates/device-registration/landing.html
-# html/captive-portal/templates/status.html
-# html/captive-portal/templates/status/person.html
 msgid "Register another device"
 msgstr ""
 
@@ -703,11 +689,15 @@ msgstr ""
 msgid "The activation code provided is invalid. Reasons could be: it never existed, it was already used or has expired."
 msgstr ""
 
+# html/captive-portal/templates/status.html
+msgid "The device %s will be disconnected and won't be able to be registered again."
+msgstr ""
+
 # html/captive-portal/templates/emails/emails-billing_stripe_customer.subscription.deleted.html
 msgid "The network access of device %s has been revoked."
 msgstr ""
 
-# html/captive-portal/templates/status/person.html
+# html/captive-portal/templates/status/reset_password.html
 msgid "The passwords you type do not match"
 msgstr ""
 
@@ -849,7 +839,7 @@ msgid "You can also modify the password below."
 msgstr ""
 
 # html/captive-portal/templates/lost_stolen.html
-msgid "You do not own this device %s, therefor you can not decalre it as lost or stolen."
+msgid "You do not own this device %s, therefor you can not declare it as lost or stolen."
 msgstr ""
 
 # html/captive-portal/templates/emails/emails-violation-triggered.html
@@ -902,7 +892,7 @@ msgstr ""
 msgid "Your network access is currently being enabled. Once network connectivity is established you will be automatically redirected."
 msgstr ""
 
-# html/captive-portal/templates/status/person.html
+# html/captive-portal/templates/status/reset_password.html
 msgid "Your password have been updated"
 msgstr ""
 

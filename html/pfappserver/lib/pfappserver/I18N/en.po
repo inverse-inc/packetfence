@@ -3434,6 +3434,10 @@ msgstr ""
 msgid "List of all the choices offered in the access duration action of an authentication source."
 msgstr ""
 
+# conf/documentation.conf (device_registration.allowed_devices)
+msgid "List of allowed devices to be registered via the device registration page."
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SMS.pm
 msgid "List of phone carriers available to the user"
 msgstr ""
@@ -3444,10 +3448,6 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
 msgid "List of roles available to the admin user to assign to a user. If none are provided then all roles are available"
-msgstr ""
-
-# conf/documentation.conf (device_registration.oses)
-msgid "Lists of OSES where the MAC vendor will be allowed to be registered via the device registration page."
 msgstr ""
 
 # html/pfappserver/root/config/fingerbank/device/list.tt
@@ -9120,8 +9120,8 @@ msgid "device_registration"
 msgstr "Device registration"
 
 # conf/documentation.conf
-msgid "device_registration.oses"
-msgstr "Authorized devices"
+msgid "device_registration.allowed_devices"
+msgstr "Allowed devices"
 
 # conf/documentation.conf
 msgid "device_registration.role"
