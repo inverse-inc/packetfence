@@ -73,6 +73,7 @@ BEGIN {
         node_last_reg
         node_defaults
         node_update_last_seen
+        node_last_reg_non_inline_on_category
     );
 }
 
@@ -1202,6 +1203,40 @@ sub check_multihost {
     return @mac;
 }
 
+
+=item node_last_reg_non_inline_on_category
+
+Return the last mac that has been register in a specific category
+May be sometimes usefull for custom
+
+=cut
+
+sub node_last_reg_non_inline_on_category {
+    my ( $mac,    $category ) = @_;
+    my ( $status, $iter )     = pf::dal::node->search(
+        -where => {
+            'node.mac'             => { '!=', $mac },
+            'node_category.name'   => $category,
+            'locationlog.end_time' => $ZERO_DATE,
+            'locationlog.connection_type' => { "!=" => 'Inline' },
+        },
+        -columns => [qw(node.mac)],
+        -from    => [
+            -join => 'node',
+            "<={node.mac=locationlog.mac}",
+            "locationlog",
+            '<={node.category_id=node_category.category_id}',
+            'node_category',
+        ],
+        -limit      => 1,
+        -order_by   => { -desc => 'node.regdate' },
+        -with_class => undef,
+    );
+    if ( is_error($status) ) {
+        return;
+    }
+    return @{ $iter->all() // [] };
+}
 
 =back
 
