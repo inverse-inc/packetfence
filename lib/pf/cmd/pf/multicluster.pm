@@ -84,8 +84,7 @@ sub lookup_confirm_scope {
     }
     else {
         print STDERR "Aborting from user input...\n";
-        exit 1;
-        return $TRUE;
+        exit $EXIT_FAILURE;
     }
 }
 
