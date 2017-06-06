@@ -19,6 +19,7 @@ use base qw(Exporter);
 use List::MoreUtils qw(any all uniq);
 use pfconfig::cached_hash;
 use pf::constants;
+use pf::db qw(db_check_readonly);
 use pf::constants::admin_roles qw(@ADMIN_ACTIONS);
 use DateTime::Format::Strptime;
 
@@ -48,16 +49,28 @@ our %ADMIN_GROUP_ACTIONS = (
       ],
 );
 
+# Actions allowed in readonly mode
+our %ADMIN_IN_READONLY = map { $_ => 1 } qw(SERVICES REPORTS), (grep { /_READ/ } @ADMIN_ACTIONS);
+
+sub _filter_actions {
+    if (db_check_readonly()) {
+        return grep { exists $ADMIN_IN_READONLY{$_} } @_;
+    }
+    return @_;
+}
+
 sub admin_can_do_any_in_group {
-    my ($roles,$group) = @_;
-    my $actions = $ADMIN_GROUP_ACTIONS{$group} if exists $ADMIN_GROUP_ACTIONS{$group};
-    return ref $actions eq 'ARRAY' && admin_can_do_any($roles,@$actions);
+    my ($roles, $group) = @_;
+    my @actions = @{$ADMIN_GROUP_ACTIONS{$group}} if exists $ADMIN_GROUP_ACTIONS{$group};
+    return admin_can_do_any($roles, @actions);
 }
 
 sub admin_can {
     my ($roles, @actions) = @_;
 
     return 0 if any {$_ eq 'NONE'} @$roles;
+    @actions = _filter_actions(@actions);
+    return 0 if @actions == 0;
     return any {
         my $role = $_;
         exists $ADMIN_ROLES{$role} && all { exists $ADMIN_ROLES{$role}{ACTIONS}{$_} } @actions
@@ -68,6 +81,8 @@ sub admin_can_do_any {
     my ($roles, @actions) = @_;
 
     return 0 if any {$_ eq 'NONE'} @$roles;
+    @actions = _filter_actions(@actions);
+    return 0 if @actions == 0;
     return any {
         my $role = $_;
         exists $ADMIN_ROLES{$role} && any { exists $ADMIN_ROLES{$role}{ACTIONS}{$_} } @actions
