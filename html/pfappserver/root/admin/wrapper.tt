@@ -142,14 +142,14 @@
 [% END -%]
     <!-- TODO: move this into a JS file we'll load here -->
     <script>
+      [% IF multi_cluster_scope %]
       $.ajaxPrefilter(function(options, originalOptions, xhr){
-        console.log(options);
-        //TODO: check for multi-cluster being enabled
         if(options.url.indexOf("multi-cluster-scope") == -1) {
           options.url += options.url.indexOf("?") != -1 ? "&" : "?";
           options.url +="multi-cluster-scope=[% multi_cluster_scope %]";
         }
       });
+      [% END %]
     </script>
 
   </body>

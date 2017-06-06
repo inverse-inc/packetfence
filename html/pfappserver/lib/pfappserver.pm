@@ -245,12 +245,12 @@ sub uri_for {
 
     my $uri = $self->SUPER::uri_for(@args);
 
-    # TODO: change this
-    #if($MULTI_CLUSTER_ENABLED) {
-    $uri .= ($uri =~ m/\?/) ? "&" : "?";
-    $uri .= "multi-cluster-scope=" . $self->stash->{'multi_cluster_scope'};
-    $uri = URI->new($uri);
-    #}
+    # TODO: validate that multi-cluster is enabled
+    if($self->stash->{multi_cluster_scope}) {
+        $uri .= ($uri =~ m/\?/) ? "&" : "?";
+        $uri .= "multi-cluster-scope=" . $self->stash->{'multi_cluster_scope'};
+        $uri = URI->new($uri);
+    }
 
     return $uri;
 }
