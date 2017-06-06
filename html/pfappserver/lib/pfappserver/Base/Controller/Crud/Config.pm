@@ -19,8 +19,32 @@ use MooseX::MethodAttributes::Role;
 use namespace::autoclean;
 use pf::log;
 use HTML::FormHandler::Params;
+use pf::multi_cluster;
 
 with 'pfappserver::Base::Controller::Crud';
+
+around 'getModel' => sub {
+    my ($orig, $self, $c, @args) = @_;
+
+    use Data::Dumper; use pf::log;
+    #get_logger->info("Around getModel", Dumper(\@args));
+
+    my $model = $self->$orig($c, @args);
+
+    my $object = 'stdalone.inverse';
+    my $scope = pf::multi_cluster::findObject(pf::multi_cluster::rootRegion, $object);
+
+    if($scope) {
+        get_logger->info("Setting multi-cluster host in ConfigStore to ", $scope->path);
+        $model->multiClusterHost($scope->path);
+#        $model->configStore();
+        return $model;
+    }
+    else {
+        get_logger->error("Unable to find multi cluster object for object $object");
+        return undef;
+    }
+};
 
 =head2 Methods
 

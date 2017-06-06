@@ -20,18 +20,7 @@ use pf::ConfigStore::Provisioning;
 
 extends 'pfappserver::Base::Model::Config';
 
-=head2 Methods
-
-=over
-
-=item _buildConfigStore
-
-buld the config store
-
-=cut
-
-sub _buildConfigStore { pf::ConfigStore::Provisioning->new }
-
+has '+configStoreClass' => (default => 'pf::ConfigStore::Provisioning');
 
 __PACKAGE__->meta->make_immutable;
 

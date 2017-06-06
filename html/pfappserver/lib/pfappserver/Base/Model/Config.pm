@@ -16,6 +16,7 @@ Is the Generic class for the cached config
 use Moose;
 use namespace::autoclean;
 use HTTP::Status qw(:constants :is);
+use pf::log;
 
 BEGIN { extends 'Catalyst::Model'; }
 
@@ -27,9 +28,13 @@ BEGIN { extends 'Catalyst::Model'; }
 
 has configStore => (
    is => 'ro',
-   lazy => 1,
+   lazy_build => 1,
    isa => 'pf::ConfigStore',
-   builder => '_buildConfigStore'
+);
+
+has multiClusterHost => (
+    is => 'rw',
+#    trigger => \&clear_configStore,
 );
 
 has configStoreClass => (is => 'ro');
@@ -316,9 +321,16 @@ sub ACCEPT_CONTEXT {
     return $self->new(\%args);
 }
 
-sub _buildConfigStore {
+sub _build_configStore {
     my ($self) = @_;
-    return $self->configStoreClass->new;
+    if($self->multiClusterHost) {
+        get_logger->info("Building configstore for multi-cluster host ".$self->multiClusterHost);
+        return $self->configStoreClass->new(multiClusterHost => $self->multiClusterHost)
+    }
+    else {
+        get_logger->info("Building configstore for this host");
+        return $self->configStoreClass->new;
+    }
 }
 
 =head2 countAll
