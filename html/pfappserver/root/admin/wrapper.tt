@@ -147,7 +147,7 @@
         //TODO: check for multi-cluster being enabled
         if(options.url.indexOf("multi-cluster-scope") == -1) {
           options.url += options.url.indexOf("?") != -1 ? "&" : "?";
-          options.url +="multi-cluster-scope=stdalone.inverse";
+          options.url +="multi-cluster-scope=[% multi_cluster_scope %]";
         }
       });
     </script>

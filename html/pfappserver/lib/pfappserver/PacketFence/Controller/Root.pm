@@ -40,6 +40,7 @@ auto
 sub auto :Private {
     my ( $self, $c ) = @_;
     $c->stash->{readonly_mode} = db_check_readonly();
+    $c->stash->{'multi_cluster_scope'} = $c->request->param('multi-cluster-scope');
     return 1;
 }
 

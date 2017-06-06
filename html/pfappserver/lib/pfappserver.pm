@@ -248,7 +248,7 @@ sub uri_for {
     # TODO: change this
     #if($MULTI_CLUSTER_ENABLED) {
     $uri .= ($uri =~ m/\?/) ? "&" : "?";
-    $uri .= "multi-cluster-scope=stdalone.inverse";
+    $uri .= "multi-cluster-scope=" . $self->stash->{'multi_cluster_scope'};
     $uri = URI->new($uri);
     #}
 
