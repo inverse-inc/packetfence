@@ -145,7 +145,6 @@ $(document).ready(function() {
               [% IF node.device_class %]<li>[% i18n("OS Type ") %]<b>[% node.device_class %]</b></li>[% END %]
               [% IF node.computername %]<li>[% i18n("Computer name ") %]<b>[% node.computername %]</b></li>[% END %]
               [% IF node.bandwidth_balance %]<li>[% i18n("Bandwidth balance ") %]<b>[% node.bandwidth_balance %]</b></li>[% END %]
-              [% IF node.time_balance %]<li>[% i18n("Time balance ") %]<b>[% node.time_balance %]</b></li>[% END %]
               <li>[% i18n("MAC") %] <b>[% node.mac %]</b></li>
               [% IF node.regdate != '0000-00-00 00:00:00' %]<li>[% i18n("Registered on") %] <b>[% node.regdate %]</b></li>[% END %]
             </ul>
@@ -164,6 +163,8 @@ $(document).ready(function() {
             <ul class="list-bare">
               [% IF n.device_class %]<li>[% i18n("OS Type ") %]<b>[% n.device_class %]</b></li>[% END %]
               [% IF n.computername %]<li>[% i18n("Computer name ") %]<b>[% n.computername %]</b></li>[% END %]
+              [% IF n.bandwidth_balance %]<li>[% i18n("Bandwidth balance ") %]<b>[% n.bandwidth_balance %]</b></li>[% END %]
+              [% IF n.time_balance %]<li>[% i18n("Time balance ") %]<b>[% n.time_balance %]</b></li>[% END %]
               <li>[% i18n("MAC") %] <b>[% n.mac %]</b></li>
               [% IF n.regdate != '0000-00-00 00:00:00' %]<li>[% i18n("Registered on") %] <b>[% n.regdate %]</b></li>[% END %]
             </ul>
@@ -179,6 +180,8 @@ $(document).ready(function() {
             <ul class="list-bare">
                 [% IF n.device_class %]<li>[% i18n("OS Type ") %]<b>[% n.device_class %]</b></li>[% END %]
                 [% IF n.computername %]<li>[% i18n("Computer name ") %]<b>[% n.computername %]</b></li>[% END %]
+                [% IF n.bandwidth_balance %]<li>[% i18n("Bandwidth balance ") %]<b>[% n.bandwidth_balance %]</b></li>[% END %]
+                [% IF n.time_balance %]<li>[% i18n("Time balance ") %]<b>[% n.time_balance %]</b></li>[% END %]
                 <li>[% i18n("MAC") %] <b>[% n.mac %]</b></li>
                 [% IF n.regdate != '0000-00-00 00:00:00' %]<li>[% i18n("Registered on") %] <b>[% n.regdate %]</b></li>[% END %]
             </ul>
