@@ -243,7 +243,16 @@ sub uri_for {
     @args = (@args, @$args_ref);
     push(@args, $query) if (defined $query);
 
-    return $self->SUPER::uri_for(@args);
+    my $uri = $self->SUPER::uri_for(@args);
+
+    # TODO: change this
+    #if($MULTI_CLUSTER_ENABLED) {
+    $uri .= ($uri =~ m/\?/) ? "&" : "?";
+    $uri .= "multi-cluster-scope=stdalone.inverse";
+    $uri = URI->new($uri);
+    #}
+
+    return $uri;
 }
 
 =head2 forms
@@ -341,13 +350,18 @@ around 'model' => sub {
     get_logger->info("Around model ", Dumper(\@args));
 
     my $model = $c->$orig(@args);
+
+    unless($c->request->param("multi-cluster-scope")) {
+        get_logger->trace("No multi-cluster-scope parameter");
+        return $model;
+    }
     
     unless($model->can('multiClusterHost')) {
         get_logger->info("Model $model doesn't support multiClusterHost so it won't be overriden");
         return $model;
     }
 
-    my $object = 'stdalone.inverse';
+    my $object = $c->request->param("multi-cluster-scope");
     my $scope = pf::multi_cluster::findObject(pf::multi_cluster::rootRegion, $object);
 
     if($scope) {

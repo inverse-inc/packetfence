@@ -1,7 +1,6 @@
 /* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
 
 function init() {
-
     /* Save a section */
     $('#section').on('submit', 'form[name="section"]', function(event) {
         var form = $(this);
@@ -76,5 +75,5 @@ function init() {
     $(window).hashchange();
 
     activateNavLink();
-}
 
+}
