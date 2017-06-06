@@ -491,6 +491,10 @@ sub radiusDisconnect {
             nas_port => $coa_port,
         };
 
+        if (defined($self->{'_controllerPort'}) && $self->{'_controllerPort'} ne '') {
+            $connection_info->{'nas_port'} = $self->{'_controllerPort'};
+        }
+
         $logger->debug("network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
         my $roleResolver = pf::roles::custom->instance();
         my $role = $roleResolver->getRoleForNode($mac, $self);
@@ -543,6 +547,11 @@ sub radiusDisconnect {
                 LocalAddr => $self->deauth_source_ip($send_disconnect_to),
                 nas_port => $nas_port,
             };
+
+            if (defined($self->{'_controllerPort'}) && $self->{'_controllerPort'} ne '') {
+                $connection_info->{'nas_port'} = $self->{'_controllerPort'};
+            }
+
             $response = perform_disconnect($connection_info, $attributes_ref);
         }
     } catch {
