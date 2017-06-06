@@ -28,8 +28,9 @@ BEGIN { extends 'Catalyst::Model'; }
 
 has configStore => (
    is => 'ro',
-   lazy_build => 1,
+   lazy => 1,
    isa => 'pf::ConfigStore',
+   builder => '_build_configStore',
 );
 
 has multiClusterHost => (

@@ -24,6 +24,8 @@ use Time::HiRes qw(stat time);
 *errors = \@Config::IniFiles::errors;
 use List::MoreUtils qw(all first_index uniq);
 use Scalar::Util qw(tainted reftype);
+use pf::constants;
+use pf::log;
 
 =head2 new
 
@@ -188,8 +190,18 @@ sub HasChanged {
         $imported_expired = $imported->HasChanged() if defined $imported;
     }
     my $last_mod_timestamp = $self->GetLastModTimestamp;
-    my $result = $imported_expired || (defined $last_mod_timestamp && $last_mod_timestamp != $self->GetCurrentModTimestamp );
-    return $result;
+    if($imported_expired) {
+        get_logger->debug("Imported config is expired");
+        return $imported_expired;
+    }
+    elsif(defined $last_mod_timestamp && $last_mod_timestamp != $self->GetCurrentModTimestamp ) {
+        get_logger->debug("Last modification timestamp is not the same as the current modification timestamp $last_mod_timestamp != ".$self->GetCurrentModTimestamp);
+        return $TRUE;
+    }
+    else {
+        get_logger->debug("Configuration isn't expired");
+        return $FALSE;
+    }
 }
 
 

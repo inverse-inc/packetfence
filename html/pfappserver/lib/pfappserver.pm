@@ -341,7 +341,7 @@ around 'model' => sub {
     get_logger->info("Around model ", Dumper(\@args));
 
     my $model = $c->$orig(@args);
-
+    
     unless($model->can('multiClusterHost')) {
         get_logger->info("Model $model doesn't support multiClusterHost so it won't be overriden");
         return $model;
@@ -353,7 +353,6 @@ around 'model' => sub {
     if($scope) {
         get_logger->info("Setting multi-cluster host in $model to ", $scope->path);
         $model->multiClusterHost($scope->path);
-#        $model->configStore();
         return $model;
     }
     else {

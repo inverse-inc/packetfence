@@ -131,7 +131,7 @@ sub _buildCachedConfigMultiCluster {
     
     # Ensuring group/host directory and group/host config file exist
     pf_make_dir($self->multiClusterHostDirectory($self->multiClusterHost));
-    touch_file($self->configFile);
+    touch_file($self->configFile) unless(-f $self->configFile);
     pf_chown($self->configFile);
 
     $logger->debug("Multi-cluster config file is: $file_path");
@@ -170,28 +170,27 @@ sub _buildCachedConfigMultiCluster {
         push @chain, $importConfigFile;
     }
 
-    # Starting from the biggest index of the chain (most general scope), up to the first which is the most specific
-    my $iniConfig;
-    for(my $i=scalar(@chain) -1; $i >= 0; $i--) {
-        my @args = (-file => $chain[$i], -allowempty => 1);
-        push @args, -default => $default_section if defined $default_section;
-
-        if($iniConfig) {
-            push @args, -import => $iniConfig;
-        }
-        $iniConfig = pf::IniFiles->new(@args);
-    }
-
     return $chi->compute(
         $file_path,
         {
             # TODO: validate expiration of all files in the chain
-            expire_if => sub { 1 }
+            expire_if => sub { $self->expire_if(@_) }
         },
         sub {
-            my $config = $iniConfig;
-            $config->SetLastModTimestamp;
-            return $config;
+            # Starting from the biggest index of the chain (most general scope), up to the first which is the most specific
+            my $iniConfig;
+            for(my $i=scalar(@chain) -1; $i >= 0; $i--) {
+                my @args = (-file => $chain[$i], -allowempty => 1);
+                push @args, -default => $default_section if defined $default_section;
+
+                if($iniConfig) {
+                    push @args, -import => $iniConfig;
+                }
+                $iniConfig = pf::IniFiles->new(@args);
+            }
+
+            $iniConfig->SetLastModTimestamp;
+            return $iniConfig;
         });
 }
 
@@ -200,8 +199,11 @@ sub cache { pf::CHI->new(namespace => 'configfiles'); }
 sub expire_if  {
     my ($self, $cached_obj) = @_;
     my $config = $cached_obj->value;
-    return 1 unless $config;
-    return $config->HasChanged();
+    unless($config) {
+        get_logger->debug("Config is undefined, considering it as expired");
+        return 1;
+    }
+    return $config->HasChanged(1);
 }
 
 =head2 rollback
