@@ -22,6 +22,7 @@ use pf::constants;
 use pf::db qw(db_check_readonly);
 use pf::constants::admin_roles qw(@ADMIN_ACTIONS);
 use DateTime::Format::Strptime;
+use pf::log;
 
 our @EXPORT = qw(admin_can admin_can_do_any admin_can_do_any_in_group %ADMIN_ROLES admin_allowed_options admin_allowed_options_all check_allowed_unreg_date);
 our %ADMIN_ROLES;
@@ -52,11 +53,34 @@ our %ADMIN_GROUP_ACTIONS = (
 # Actions allowed in readonly mode
 our %ADMIN_IN_READONLY = map { $_ => 1 } qw(SERVICES REPORTS), (grep { /_READ/ } @ADMIN_ACTIONS);
 
-sub _filter_actions {
-    if (db_check_readonly()) {
-        return grep { exists $ADMIN_IN_READONLY{$_} } @_;
+sub admin_multicluster_roles {
+    my @roles;
+    for my $role (@{$ADMIN_GROUP_ACTIONS{CONFIGURATION_GROUP_READ}}) {
+        if($role =~ /(.*)_READ$/) {
+            my $base_role = quotemeta($1);
+            push @roles, grep {/^$base_role/} @ADMIN_ACTIONS;
+        }
+        else {
+            get_logger->error("Unable to extract base admin role from $role");
+        }
     }
-    return @_;
+
+    return map {$_ => 1} @roles;
+}
+
+sub _filter_actions {
+    my (@actions) = @_;
+    if (db_check_readonly()) {
+        return grep { exists $ADMIN_IN_READONLY{$_} } @actions;
+    }
+
+    if (pf::multi_cluster::enabled()) {
+        get_logger->debug("Filtering out administrative roles for multi master");
+        my %multi_master_roles = admin_multicluster_roles();
+        return grep { exists $multi_master_roles{$_} } @actions;
+    }
+
+    return @actions;
 }
 
 sub admin_can_do_any_in_group {
