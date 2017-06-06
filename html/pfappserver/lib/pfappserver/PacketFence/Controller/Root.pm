@@ -16,6 +16,7 @@ use warnings;
 use Moose;
 use namespace::autoclean;
 use pf::db;
+use pf::multi_cluster;
 
 BEGIN { extends 'Catalyst::Controller' }
 
@@ -40,7 +41,12 @@ auto
 sub auto :Private {
     my ( $self, $c ) = @_;
     $c->stash->{readonly_mode} = db_check_readonly();
-    $c->stash->{'multi_cluster_scope'} = $c->request->param('multi-cluster-scope');
+
+    $c->stash->{'multi_cluster_enabled'} = pf::multi_cluster::enabled();
+    if($c->stash->{'multi_cluster_enabled'}) {
+        $c->stash->{'multi_cluster_scope'} = $c->request->param('multi-cluster-scope');
+    }
+
     return 1;
 }
 

@@ -246,7 +246,7 @@ sub uri_for {
     my $uri = $self->SUPER::uri_for(@args);
 
     # TODO: validate that multi-cluster is enabled
-    if($self->stash->{multi_cluster_scope}) {
+    if($self->stash->{multi_cluster_enabled} && $self->stash->{multi_cluster_scope}) {
         $uri .= ($uri =~ m/\?/) ? "&" : "?";
         $uri .= "multi-cluster-scope=" . $self->stash->{'multi_cluster_scope'};
         $uri = URI->new($uri);
@@ -351,7 +351,7 @@ around 'model' => sub {
 
     my $model = $c->$orig(@args);
 
-    unless($c->request->param("multi-cluster-scope")) {
+    unless($c->stash->{multi_cluster_scope}) {
         get_logger->trace("No multi-cluster-scope parameter");
         return $model;
     }
@@ -361,7 +361,7 @@ around 'model' => sub {
         return $model;
     }
 
-    my $object = $c->request->param("multi-cluster-scope");
+    my $object = $c->stash->{multi_cluster_scope};
     my $scope = pf::multi_cluster::findObject(pf::multi_cluster::rootRegion, $object);
 
     if($scope) {

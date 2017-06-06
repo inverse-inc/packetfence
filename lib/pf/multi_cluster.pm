@@ -14,9 +14,14 @@ use pf::file_paths qw(
     $ansible_push_configuration_playbook_file
     $ansible_pull_configuration_playbook_file
     $ansible_restart_playbook_file
+    $multi_cluster_config_file
 );
 use File::Slurp qw(write_file);
 use List::MoreUtils qw(uniq);
+
+sub enabled {
+    return (-f $multi_cluster_config_file)
+}
 
 sub rootRegion {
     return pf::multi_cluster::region->new(name => "ROOT");

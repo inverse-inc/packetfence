@@ -85,7 +85,7 @@
                 <a href="[% c.uri_for(c.controller('Admin').action_for('configuration')) %]">[% l('Configuration') %]</a>
               </li>
               [%- END %]
-              [%- IF can_access_group_any("CONFIGURATION_GROUP_READ") %]
+              [%- IF multi_cluster_enabled %]
               <li[% ' class="active"' IF c.action.name == 'select_scope' %]>
                 <a href="[% c.uri_for(c.controller('Admin').action_for('select_scope')) %]">[% l('Select scope') %]</a>
               </li>
@@ -147,7 +147,7 @@
 [% END -%]
     <!-- TODO: move this into a JS file we'll load here -->
     <script>
-      [% IF multi_cluster_scope %]
+      [% IF multi_cluster_enabled AND multi_cluster_scope %]
       $.ajaxPrefilter(function(options, originalOptions, xhr){
         if(options.url.indexOf("multi-cluster-scope") == -1) {
           options.url += options.url.indexOf("?") != -1 ? "&" : "?";
