@@ -21,11 +21,9 @@ extends 'pfappserver::Base::Model::Config';
 
 =head1 Methods
 
-=head2 _buildConfigStore
-
 =cut
 
-sub _buildConfigStore { pf::ConfigStore::SwitchGroup->new; }
+has '+configStoreClass' => (default => 'pf::ConfigStore::SwitchGroup');
 
 =head2 remove
 

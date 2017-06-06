@@ -20,8 +20,7 @@ use List::MoreUtils qw(any);
 
 extends 'pfappserver::Base::Model::Config';
 
-
-sub _buildConfigStore { pf::ConfigStore::PortalModule->new }
+has '+configStoreClass' => (default => 'pf::ConfigStore::PortalModule');
 
 =head2 remove
 

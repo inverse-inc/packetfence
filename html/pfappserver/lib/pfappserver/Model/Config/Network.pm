@@ -25,11 +25,9 @@ has '+idKey' => (default => 'network');
 
 =head1 METHODS
 
-=head2 _buildCachedConfig
-
 =cut
 
-sub _buildConfigStore { pf::ConfigStore::Network->new }
+has '+configStoreClass' => (default => 'pf::ConfigStore::Network');
 
 =head2 getRoutedNetworks
 

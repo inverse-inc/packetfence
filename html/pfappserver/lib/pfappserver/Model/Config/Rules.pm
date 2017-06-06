@@ -23,13 +23,9 @@ has '+itemsKey' => (default => 'rules');
 
 =head2 Methods
 
-=over
-
-=item _buildConfigStore
-
 =cut
 
-sub _buildConfigStore { return pf::ConfigStore::Authentication->new;}
+has '+configStoreClass' => (default => 'pf::ConfigStore::Authentication');
 
 __PACKAGE__->meta->make_immutable;
 

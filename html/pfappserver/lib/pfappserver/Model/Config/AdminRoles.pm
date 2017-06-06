@@ -19,8 +19,7 @@ use pf::ConfigStore::AdminRoles;
 
 extends 'pfappserver::Base::Model::Config';
 
-
-sub _buildConfigStore { pf::ConfigStore::AdminRoles->new }
+has '+configStoreClass' => (default => 'pf::ConfigStore::AdminRoles');
 
 __PACKAGE__->meta->make_immutable;
 

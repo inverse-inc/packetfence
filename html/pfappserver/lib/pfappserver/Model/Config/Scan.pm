@@ -20,8 +20,7 @@ use pf::ConfigStore::Scan;
 
 extends 'pfappserver::Base::Model::Config';
 
-
-sub _buildConfigStore { pf::ConfigStore::Scan->new }
+has '+configStoreClass' => (default => 'pf::ConfigStore::Scan');
 
 =head2 Methods
 

@@ -25,11 +25,9 @@ extends 'pfappserver::Base::Model::Config';
 
 =over
 
-=item _buildCachedConfig
-
 =cut
 
-sub _buildConfigStore { pf::ConfigStore::Pf->new ; }
+has '+configStoreClass' => (default => 'pf::ConfigStore::Pf');
 
 =item remove
 

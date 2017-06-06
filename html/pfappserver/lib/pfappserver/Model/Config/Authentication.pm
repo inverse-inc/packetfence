@@ -25,11 +25,9 @@ has '+itemsKey' => (default => 'sources');
 
 =head1 METHODS
 
-=head2 _buildCachedConfig
-
 =cut
 
-sub _buildConfigStore { pf::ConfigStore::Authentication->new ;}
+has '+configStoreClass' => (default => 'pf::ConfigStore::Authentication');
 
 =head2 readAll
 

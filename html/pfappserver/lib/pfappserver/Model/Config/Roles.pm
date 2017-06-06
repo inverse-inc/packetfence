@@ -22,8 +22,7 @@ use pf::log;
 
 extends 'pfappserver::Base::Model::Config';
 
-
-sub _buildConfigStore { pf::ConfigStore::Roles->new }
+has '+configStoreClass' => (default => 'pf::ConfigStore::Roles');
 
 =head2 Methods
 

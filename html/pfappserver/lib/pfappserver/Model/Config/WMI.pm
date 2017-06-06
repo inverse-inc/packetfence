@@ -21,7 +21,7 @@ use pf::ConfigStore::WMI;
 extends 'pfappserver::Base::Model::Config';
 
 
-sub _buildConfigStore { pf::ConfigStore::WMI->new }
+has '+configStoreClass' => (default => 'pf::ConfigStore::WMI');
 
 =head2 Methods
 

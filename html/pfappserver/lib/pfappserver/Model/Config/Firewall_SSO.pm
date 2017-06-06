@@ -20,8 +20,7 @@ use pf::ConfigStore::Firewall_SSO;
 
 extends 'pfappserver::Base::Model::Config';
 
-
-sub _buildConfigStore { pf::ConfigStore::Firewall_SSO->new }
+has '+configStoreClass' => (default => 'pf::ConfigStore::Firewall_SSO');
 
 =head2 Methods
 

@@ -20,8 +20,7 @@ use pf::ConfigStore::FloatingDevice;
 
 extends 'pfappserver::Base::Model::Config';
 
-
-sub _buildConfigStore { pf::ConfigStore::FloatingDevice->new }
+has '+configStoreClass' => (default => 'pf::ConfigStore::FloatingDevice');
 
 =head2 Methods
 

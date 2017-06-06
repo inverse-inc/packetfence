@@ -21,7 +21,7 @@ use pf::ConfigStore::Provisioning;
 extends 'pfappserver::Base::Model::Config';
 
 
-sub _buildConfigStore { pf::ConfigStore::PKI_Provider->new }
+has '+configStoreClass' => (default => 'pf::ConfigStore::PKI_Provider');
 
 =head2 remove
 

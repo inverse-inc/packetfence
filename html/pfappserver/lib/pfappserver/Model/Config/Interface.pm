@@ -20,13 +20,9 @@ extends 'pfappserver::Base::Model::Config';
 
 =head2 Methods
 
-=over
-
-=item _buildConfigStore
-
 =cut
 
-sub _buildConfigStore { pf::ConfigStore::Interface->new; }
+has '+configStoreClass' => (default => 'pf::ConfigStore::Interface');
 
 __PACKAGE__->meta->make_immutable;
 

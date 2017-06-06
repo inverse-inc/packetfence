@@ -20,8 +20,7 @@ use pf::ConfigStore::Pfdetect;
 
 extends 'pfappserver::Base::Model::Config';
 
-
-sub _buildConfigStore { pf::ConfigStore::Pfdetect->new }
+has '+configStoreClass' => (default => 'pf::ConfigStore::Pfdetect');
 
 __PACKAGE__->meta->make_immutable;
 

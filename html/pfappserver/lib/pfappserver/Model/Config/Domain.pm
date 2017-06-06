@@ -22,8 +22,7 @@ use pf::domain;
 
 extends 'pfappserver::Base::Model::Config';
 
-
-sub _buildConfigStore { pf::ConfigStore::Domain->new }
+has '+configStoreClass' => (default => 'pf::ConfigStore::Domain');
 
 =head2 Methods
 

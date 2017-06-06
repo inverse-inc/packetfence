@@ -19,8 +19,7 @@ use pf::ConfigStore::Pfmon;
 
 extends 'pfappserver::Base::Model::Config';
 
-
-sub _buildConfigStore { pf::ConfigStore::Pfmon->new }
+has '+configStoreClass' => (default => 'pf::ConfigStore::Pfmon');
 
 __PACKAGE__->meta->make_immutable;
 

@@ -20,8 +20,7 @@ use pf::ConfigStore::Realm;
 
 extends 'pfappserver::Base::Model::Config';
 
-
-sub _buildConfigStore { pf::ConfigStore::Realm->new }
+has '+configStoreClass' => (default => 'pf::ConfigStore::Realm');
 
 =head2 Methods
 

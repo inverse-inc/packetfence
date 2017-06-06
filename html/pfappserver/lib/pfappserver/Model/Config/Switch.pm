@@ -27,7 +27,7 @@ use HTTP::Status qw(:constants is_error is_success);
 
 extends 'pfappserver::Base::Model::Config';
 
-sub _buildConfigStore {return pf::ConfigStore::Switch->new;}
+has '+configStoreClass' => (default => 'pf::ConfigStore::Switch');
 
 =head1 METHODS
 

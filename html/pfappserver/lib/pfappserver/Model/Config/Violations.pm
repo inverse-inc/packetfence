@@ -23,7 +23,7 @@ use List::MoreUtils qw(uniq);
 
 extends 'pfappserver::Base::Model::Config';
 
-sub _buildConfigStore { pf::ConfigStore::Violations->new }
+has '+configStoreClass' => (default => 'pf::ConfigStore::Violations');
 
 =head1 Methods
 
