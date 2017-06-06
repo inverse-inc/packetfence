@@ -22,6 +22,7 @@ Enhancements
 ++++++++++++
 
 * caddy based services now support systemd notifications.
+* Only display readonly actions in readonly mode (PR #2384)
 
 Bug Fixes
 +++++++++
