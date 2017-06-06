@@ -46,6 +46,7 @@ use pf::CHI::Request;
 use pf::web::util;
 use pf::SwitchFactory;
 pf::SwitchFactory->preloadAllModules();
+use pf::multi_cluster;
 
 extends 'Catalyst';
 
@@ -332,6 +333,34 @@ sub generate_doc_url {
     my ($c, $section, $guide) = @_;
     return pf::web::util::generate_doc_url($section, $guide);
 }
+
+around 'model' => sub {
+    my ($orig, $c, @args) = @_;
+
+    use Data::Dumper; use pf::log;
+    get_logger->info("Around model ", Dumper(\@args));
+
+    my $model = $c->$orig(@args);
+
+    unless($model->can('multiClusterHost')) {
+        get_logger->info("Model $model doesn't support multiClusterHost so it won't be overriden");
+        return $model;
+    }
+
+    my $object = 'stdalone.inverse';
+    my $scope = pf::multi_cluster::findObject(pf::multi_cluster::rootRegion, $object);
+
+    if($scope) {
+        get_logger->info("Setting multi-cluster host in $model to ", $scope->path);
+        $model->multiClusterHost($scope->path);
+#        $model->configStore();
+        return $model;
+    }
+    else {
+        get_logger->error("Unable to find multi cluster object for object $object");
+        return undef;
+    }
+};
 
 # Logging
 __PACKAGE__->log(Log::Log4perl::Catalyst->new(INSTALL_DIR . '/conf/log.conf.d/httpd.admin.conf',watch_delay => 5 * 60));
