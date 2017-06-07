@@ -20,7 +20,6 @@ use captiveportal::DynamicRouting::Factory;
 use Tie::IxHash;
 use List::MoreUtils qw(any);
 use JSON::MaybeXS;
-use pf::config qw(%ConfigPortalModules %Config);
 
 BEGIN {
     extends 'pfappserver::Base::Controller';
@@ -132,7 +131,7 @@ after list => sub {
     my @roots = $self->getModel($c)->configStore->search("type", "Root", "id");
     my @structured_roots;
     foreach my $root (@roots){
-        push @structured_roots, $self->_module_as_hashref($root->{id});
+        push @structured_roots, $self->_module_as_hashref($c, $root->{id});
     }
     $c->stash->{structured_roots} = \@structured_roots;
     $c->stash->{structured_roots_json} = encode_json($c->stash->{structured_roots});
@@ -141,16 +140,16 @@ after list => sub {
 after view => sub {
     my ($self, $c) = @_;
     $c->stash->{node_roles} = $c->model('Config::Roles')->listFromDB();
-    $c->stash->{access_durations} = [split(/\s*,\s*/, $Config{'guests_admin_registration'}{'access_duration_choices'})];
+    $c->stash->{access_durations} = [split(/\s*,\s*/, $c->model("Config::Pf")->configStore->read('guests_admin_registration')->{'access_duration_choices'})];
 };
 
 sub _module_as_hashref : Private {
-    my ($self, $id) = @_;
-    my $modules = $ConfigPortalModules{$id}{modules};
+    my ($self, $c, $id) = @_;
+    my $modules = $c->model('Config::PortalModule')->configStore->read($id)->{modules};
     return {
-        label => "$id (".$ConfigPortalModules{$id}{description}.")",
+        label => "$id (".$c->model('Config::PortalModule')->configStore->read($id)->{description}.")",
         id => $id,
-        children => [map { $self->_module_as_hashref($_) } @$modules],
+        children => [map { $self->_module_as_hashref($c, $_) } @$modules],
     };
 }
 

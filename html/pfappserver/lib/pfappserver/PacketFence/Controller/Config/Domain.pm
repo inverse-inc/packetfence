@@ -16,7 +16,6 @@ use namespace::autoclean;
 
 use pf::util;
 use pf::domain;
-use pf::config qw(%ConfigDomain);
 
 BEGIN {
     extends 'pfappserver::Base::Controller';
@@ -79,7 +78,7 @@ after list => sub {
     $c->log->debug("Checking if user can edit the domain config");
     # we block the editing if the user has an OS configuration and no configured domains
     # this means he hasn't gone through the migration script
-    $c->stash->{block_edit} = ( pf::domain::has_os_configuration() && !keys(%ConfigDomain) );
+    $c->stash->{block_edit} = ( pf::domain::has_os_configuration() && !@{$c->model("Config::Domain")->configStore->readAllIds} );
 };
 
 =head2 after view
