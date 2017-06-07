@@ -20,6 +20,7 @@ has_field 'host' =>
    type => 'Text',
    label => 'Host',
    required => 1,
+   default => "",
    element_class => ['input-small'],
    element_attr => {'placeholder' => '127.0.0.1'},
   );
@@ -28,6 +29,7 @@ has_field 'realm' =>
    type => 'Text',
    label => 'Realm',
    required => 1,
+   default => "",
   );
 has_field 'stripped_user_name' =>
   (
