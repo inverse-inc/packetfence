@@ -102,6 +102,7 @@ Depends: ${misc:Depends}, vlan,
  libchi-driver-redis-perl,
  libredis-fast-perl,
  libcache-fastmmap-perl, libterm-size-any-perl,
+ libswitch-perl,
 # packaging workaround (we don't require it but something in catalyst seem to do)
  libmodule-install-perl,
 # i18n
