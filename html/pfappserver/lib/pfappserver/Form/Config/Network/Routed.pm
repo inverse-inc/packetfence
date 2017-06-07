@@ -15,7 +15,6 @@ extends 'pfappserver::Form::Config::Network';
 with 'pfappserver::Base::Form::Role::Help';
 
 use HTTP::Status qw(:constants is_success);
-use pf::config;
 
 has_field 'network' =>
   (

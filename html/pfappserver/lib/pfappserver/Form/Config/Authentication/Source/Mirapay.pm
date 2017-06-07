@@ -15,7 +15,6 @@ pfappserver::Form::Authentication::Source::Mirapay
 use strict;
 use warnings;
 use HTML::FormHandler::Moose;
-use pf::config qw($fqdn);
 extends 'pfappserver::Form::Config::Authentication::Source::Billing';
 with 'pfappserver::Base::Form::Role::Help';
 
@@ -83,7 +82,6 @@ has_field shared_secret => (
 has_field service_fqdn => (
     label => 'Service FQDN',
     type => 'Text',
-    default_method => sub { $fqdn },
     tags => {
         after_element => \&help,
         help => 'Service FQDN',

@@ -15,7 +15,6 @@ extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
 
 use pf::log;
-use pf::config;
 use pf::util;
 use pf::authentication;
 

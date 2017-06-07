@@ -14,7 +14,6 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
 
-use pf::config;
 use pf::file_paths qw($lib_dir);
 use pf::util;
 use File::Find qw(find);

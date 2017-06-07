@@ -16,7 +16,6 @@ with 'pfappserver::Base::Form::Role::Help';
 
 use HTTP::Status qw(:constants is_success);
 
-use pf::config;
 use pf::constants::role qw(@ROLES);
 
 has_field 'id' =>

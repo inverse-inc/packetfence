@@ -14,7 +14,6 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Firewall_SSO';
 with 'pfappserver::Base::Form::Role::Help';
 
-use pf::config;
 use pf::util;
 use File::Find qw(find);
 use pf::constants::firewallsso qw($SYSLOG_TRANSPORT $HTTP_TRANSPORT);

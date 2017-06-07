@@ -31,6 +31,11 @@ sub get_language_handle_from_ctx {
     return pfappserver::I18N->get_handle( @{ $self->ctx->languages } );
 }
 
+sub getModel {
+    my ($self, @args) = @_;
+    return $self->ctx->model(@args);
+}
+
 =head2 html_attributes
 
 Translate placeholders in select inputs (data-placeholder), if defined

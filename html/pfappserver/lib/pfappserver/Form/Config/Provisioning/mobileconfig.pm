@@ -8,7 +8,6 @@ pfappserver::Form::Config::Provisioning - Web form for a switch
 
 =cut
 
-use pf::config;
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Provisioning';
 with 'pfappserver::Base::Form::Role::Help';

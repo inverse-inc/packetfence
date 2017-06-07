@@ -12,8 +12,6 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
 
-use pf::config qw(%ConfigPKI_Provider);
-
 has roles => ( is => 'rw' );
 has violations => ( is => 'rw');
 
@@ -95,7 +93,8 @@ has_block definition =>
 =cut
 
 sub options_pki_provider {
-    return { value => '', label => '' }, map { { value => $_, label => $_ } } sort keys %ConfigPKI_Provider;
+    my ($self) = @_;
+    return { value => '', label => '' }, map { { value => $_, label => $_ } } sort @{$self->form->getModel("Config::PKI_Provider")->readAllIds};
 }
 
 =head2 options_roles
