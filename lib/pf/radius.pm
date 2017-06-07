@@ -64,6 +64,7 @@ use pf::api::queue;
 use pf::access_filter::radius;
 use pf::registration;
 use pf::access_filter::switch;
+use pf::role::pool;
 
 our $VERSION = 1.03;
 
