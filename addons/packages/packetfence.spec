@@ -168,6 +168,8 @@ Requires: perl(Net::Pcap) >= 0.16
 Requires: perl(NetPacket) >= 1.2.0
 # pfdns
 Requires: perl(Net::DNS), perl(Net::DNS::Nameserver), perl(Module::Metadata)
+# systemd sd_notify support
+Requires: perl(Systemd::Daemon)
 # RADIUS CoA support
 Requires: perl(Net::Radius::Dictionary), perl(Net::Radius::Packet)
 # SNMP to network hardware

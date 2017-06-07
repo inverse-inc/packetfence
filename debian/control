@@ -30,6 +30,8 @@ Depends: ${misc:Depends}, vlan,
 # freeradius
  freeradius (>= 3.0.15.6), freeradius-ldap, 
  freeradius-mysql, freeradius-utils, freeradius-rest, freeradius-redis,
+# systemd sd_notify support
+ libsystemd-daemon-perl,
 # binary
  make,
  samba,
