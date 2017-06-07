@@ -48,7 +48,7 @@ var SwitchView = function(options) {
 
     // Display the switch in a modal
     var read = $.proxy(this.readSwitch, this);
-    options.parent.on('click', '#switches [href$="/read"], #switches [href$="/clone"], .createSwitch', read);
+    options.parent.on('click', '#switches [href*="/read"], #switches [href*="/clone"], .createSwitch', read);
 
     // Save the modifications from the modal
     var update = $.proxy(this.updateSwitch, this);
@@ -56,11 +56,11 @@ var SwitchView = function(options) {
 
     // Delete the switch
     var delete_s = $.proxy(this.deleteConfirm, this);
-    options.parent.on('click', '#switches [href$="/delete"]', delete_s);
+    options.parent.on('click', '#switches [href*="/delete"]', delete_s);
 
     // Remove the group from the switch
     var remove_group = $.proxy(this.removeGroup, this);
-    options.parent.on('click', 'form[name="modalSwitch"] [href$="/remove_group"]', remove_group);
+    options.parent.on('click', 'form[name="modalSwitch"] [href*="/remove_group"]', remove_group);
 
     // Add a group to the switch group
     var add_to_group = $.proxy(this.addToGroup, this);

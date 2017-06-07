@@ -59,8 +59,8 @@ function ItemView(options) {
 
     // Display the switch in a modal
     var read = $.proxy(this.readItem, this);
-    options.parent.on('click', id + ' .item [href$="/read"]', read);
-    options.parent.on('click', id + ' [href$="/clone"]', read);
+    options.parent.on('click', id + ' .item [href*="/read"]', read);
+    options.parent.on('click', id + ' [href*="/clone"]', read);
     options.parent.on('click', items.createSelector, read);
 
     // Save the modifications from the modal
@@ -69,7 +69,7 @@ function ItemView(options) {
 
     // Delete the switch
     var delete_item = $.proxy(this.deleteItem, this);
-    options.parent.on('click', id + ' [href$="/delete"]', delete_item);
+    options.parent.on('click', id + ' [href*="/delete"]', delete_item);
 
     var list_items = $.proxy(this.listItems, this);
     options.parent.on('click', id + ' [href*="/list"]', list_items);

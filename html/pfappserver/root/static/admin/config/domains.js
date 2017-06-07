@@ -27,10 +27,10 @@ function DomainView(options) {
 
     var id = this.items.id;
 
-    options.parent.off('click', id + ' [href$="/delete"]');
+    options.parent.off('click', id + ' [href*="/delete"]');
 
     var delete_item = $.proxy(this.deleteItem, this);
-    options.parent.on('click', id + ' [href$="/delete"]', delete_item);
+    options.parent.on('click', id + ' [href*="/delete"]', delete_item);
 
     var save_and_join = $.proxy(this.updateAndJoinDomain, this);
     options.parent.on('click', '#saveAndJoinDomain', save_and_join);

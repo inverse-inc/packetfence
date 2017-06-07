@@ -34,7 +34,7 @@ var PfdetectView = function(options) {
     this.items = items;
     var id = items.id;
     var formName = items.formName;
-    options.parent.off('click', id + ' [href$="/clone"]');
+    options.parent.off('click', id + ' [href*="/clone"]');
 
     var showTestRegex = $.proxy(this.showTestRegex, this);
     options.parent.on('show', '#test-regex', showTestRegex);

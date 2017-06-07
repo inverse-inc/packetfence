@@ -45,9 +45,9 @@ var NodeView = function(options) {
 
     var read = $.proxy(this.readNode, this);
     var body = $('body');
-    options.parent.on('click', '#nodes [href*="node"][href$="/read"]', read);
+    options.parent.on('click', '#nodes [href*="node"][href*="/read"]', read);
 
-    this.proxyClick(body, '.node [href*="node"][href$="/read"]', this.readNode);
+    this.proxyClick(body, '.node [href*="node"][href*="/read"]', this.readNode);
 
     this.proxyFor(body, 'show', '#modalNode', this.showNode);
 
@@ -67,7 +67,7 @@ var NodeView = function(options) {
 
     this.proxyFor(body, 'submit', '#modalNode form[name="modalNode"]', this.updateNode);
 
-    this.proxyClick(body, '#modalNode [href$="/delete"]', this.deleteNode);
+    this.proxyClick(body, '#modalNode [href*="/delete"]', this.deleteNode);
 
     this.proxyFor(body, 'show', 'a[data-toggle="tab"][href="#nodeViolations"]', this.loadTab);
 

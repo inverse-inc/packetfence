@@ -53,13 +53,13 @@ var InterfaceView = function(options) {
     this.disableToggle = false;
 
     var read = $.proxy(this.readInterface, this);
-    options.parent.on('click', '#interfaces [href$="/read"], #interfaces [href$="/create"], #interfaces [href$="/view"]', read);
+    options.parent.on('click', '#interfaces [href*="/read"], #interfaces [href$="/create"], #interfaces [href$="/view"]', read);
 
     var update = $.proxy(this.updateInterface, this);
     options.parent.on('submit', 'form[name="modalEditInterface"], form[name="modalCreateVlan"]', update);
 
     var delete_i = $.proxy(this.deleteInterface, this);
-    options.parent.on('click', '#interfaces [href$="/delete"]', delete_i);
+    options.parent.on('click', '#interfaces [href*="/delete"]', delete_i);
 
     var toggle = $.proxy(this.toggleInterface, this);
     options.parent.on('switch-change', '#interfaces .switch', toggle);
@@ -71,7 +71,7 @@ var InterfaceView = function(options) {
     options.parent.on('change', '[name="fake_mac_enabled"]', fakeMacChanged);
 
     var delete_n = $.proxy(this.deleteNetwork, this);
-    options.parent.on('click', 'form[name="modalEditInterface"] [href$="/delete"]', delete_n);
+    options.parent.on('click', 'form[name="modalEditInterface"] [href*="/delete"]', delete_n);
 };
 
 InterfaceView.prototype.readInterface = function(e) {
