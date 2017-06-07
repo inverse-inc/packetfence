@@ -22,12 +22,14 @@ has_field 'client_id' =>
    type => 'Text',
    label => 'API ID',
    required => 1,
+   default => '',
   );
 has_field 'client_secret' =>
   (
    type => 'Text',
    label => 'API Secret',
    required => 1,
+   default => '',
   );
 has_field 'site' =>
   (

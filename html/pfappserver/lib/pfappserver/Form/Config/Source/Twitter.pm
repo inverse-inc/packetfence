@@ -31,6 +31,7 @@ has_field 'client_secret' =>
    type => 'Text',
    label => 'API Secret',
    required => 1,
+   default => '',
   );
 has_field 'site' =>
   (

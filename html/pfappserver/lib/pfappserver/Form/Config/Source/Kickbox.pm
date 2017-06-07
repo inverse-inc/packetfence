@@ -24,6 +24,7 @@ has_field 'api_key' =>
    type => 'Text',
    label => 'API KEY',
    required => 1,
+   default => '',
    tags => { after_element => \&help,
              help => 'Kickbox.io API key.' },
   );
