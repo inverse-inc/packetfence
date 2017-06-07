@@ -65,6 +65,9 @@ sub admin_multicluster_roles {
         }
     }
 
+    # Remove the interfaces role as we don't want to modify network config using multi-cluster console
+    @roles = grep { $_ !~ /^INTERFACES_/ } @roles;
+
     return map {$_ => 1} @roles;
 }
 
