@@ -373,6 +373,11 @@ sub TIEHASH {
     return $object;
 }
 
+sub HasImportedSection {
+    my ($self, $name) = @_;
+    return defined($self->{imported}) && $self->{imported}->SectionExists($name);
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

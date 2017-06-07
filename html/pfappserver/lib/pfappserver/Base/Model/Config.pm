@@ -226,6 +226,11 @@ Removes an existing item
 sub remove {
     my ($self, $id) = @_;
     my ($status,$status_msg) = $self->hasId($id);
+
+    if($self->configStore->cachedConfig->HasImportedSection($id)) {
+        return HTTP_PRECONDITION_FAILED, ["Cannot remove section [_1] from the configuration because it is declared in one of the parent scopes. You will need to delete it from all the parent scopes where it is declared prior to removing it from here.",$id];
+    }
+
     if(is_success($status)) {
         unless($self->configStore->remove($id)) {
             $status_msg = ["Error removing section [_1] from the configuration",$id];
