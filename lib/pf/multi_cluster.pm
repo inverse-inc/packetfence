@@ -29,7 +29,10 @@ sub rootRegion {
 
 sub findObject {
     my ($group, $id) = @_;
-    if($group->can('childs')) {
+    if($group->name eq $id) {
+        return $group;
+    }
+    elsif($group->can('childs')) {
         if(exists $group->childs->{$id}) {
             return $group->childs->{$id};
         }

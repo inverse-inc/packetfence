@@ -85,11 +85,6 @@
                 <a href="[% c.uri_for(c.controller('Admin').action_for('configuration')) %]">[% l('Configuration') %]</a>
               </li>
               [%- END %]
-              [%- IF multi_cluster_enabled %]
-              <li[% ' class="active"' IF c.action.name == 'select_scope' %]>
-                <a href="[% c.uri_for(c.controller('Admin').action_for('select_scope')) %]">[% l('Select scope') %]</a>
-              </li>
-              [%- END %]
             </ul>
             <ul class="nav nav-header pull-right">
               <li class="dropdown" data-toggle="tooltip" title="[% l('Perform checkup') %]">
@@ -114,6 +109,13 @@
                 </ul>
               </li>
             </ul>
+            [%- IF multi_cluster_enabled %]
+            <ul class="nav nav-header pull-right">
+              <li>
+                <a href="[% c.uri_for(c.controller('Admin').action_for('select_scope')) %]">[% multi_cluster_scope %] <i class="icon-map-marker icon-white"></i></a>
+              </li>
+            </ul>
+            [% END %]
           </div><!--/.nav-collapse -->
           [%- END %]
         </div>

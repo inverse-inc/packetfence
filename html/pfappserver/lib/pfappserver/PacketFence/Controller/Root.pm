@@ -44,7 +44,7 @@ sub auto :Private {
 
     $c->stash->{'multi_cluster_enabled'} = pf::multi_cluster::enabled();
     if($c->stash->{'multi_cluster_enabled'}) {
-        $c->stash->{'multi_cluster_scope'} = $c->request->param('multi-cluster-scope');
+        $c->stash->{'multi_cluster_scope'} = $c->request->param('multi-cluster-scope') || pf::multi_cluster::rootRegion()->name;
     }
 
     return 1;
