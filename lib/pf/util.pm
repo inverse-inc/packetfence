@@ -89,6 +89,7 @@ BEGIN {
         pf_chown
         user_chown
         ping
+        flatten_array
     );
 }
 
@@ -1342,6 +1343,9 @@ sub ping {
     return $p->ping($host);
 }
 
+sub flatten_array { 
+    map { ref $_ eq 'ARRAY' ? flatten_array(@$_) : $_ } @_ 
+}
 
 =back
 

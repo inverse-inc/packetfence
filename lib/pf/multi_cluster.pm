@@ -18,6 +18,7 @@ use pf::file_paths qw(
 );
 use File::Slurp qw(write_file);
 use List::MoreUtils qw(uniq);
+use pf::util;
 
 sub enabled {
     return (-f $multi_cluster_config_file)
@@ -27,8 +28,33 @@ sub rootRegion {
     return pf::multi_cluster::region->new(name => "ROOT");
 }
 
+sub allChilds {
+    my ($group) = @_;
+    my @childs;
+    if($group->isa("pf::multi_cluster::region")) {
+        my @direct_childs = values(%{$group->childs});
+        push @childs, @direct_childs;
+        push @childs, flatten_array([map { allChilds($_) } @direct_childs]);
+        return \@childs;
+    }
+    else {
+        return [];
+    }
+}
+
+=head2 objectId
+
+Provides the object identifier given its full path
+
+=cut
+
+sub objectId {
+    return (split("/", $_[0]))[-1];
+}
+
 sub findObject {
     my ($group, $id) = @_;
+    
     if($group->name eq $id) {
         return $group;
     }
