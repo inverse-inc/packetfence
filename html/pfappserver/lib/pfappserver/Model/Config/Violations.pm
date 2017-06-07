@@ -34,7 +34,8 @@ Return the list of available remediation templates
 =cut
 
 sub availableTemplates {
-    my @dirs = map { uniq(@{pf::Connection::ProfileFactory->_from_profile($_)->{_template_paths}}) } keys(%Profiles_Config);
+    my ($self, $c) = @_;
+    my @dirs = map { uniq(@{pf::Connection::ProfileFactory->_from_profile($_)->{_template_paths}}) } @{$c->model("Config::Profile")->readAllIds};
     my @templates;
     foreach my $dir (@dirs) {
         next unless opendir(my $dh, $dir . '/violations');

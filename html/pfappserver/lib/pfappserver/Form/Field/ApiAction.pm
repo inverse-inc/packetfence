@@ -20,7 +20,6 @@ extends 'HTML::FormHandler::Field::Compound';
 use namespace::autoclean;
 use pf::api;
 
-use pf::config;
 use pf::factory::condition::profile;
 use pf::validation::profile_filters;
 use pf::log;

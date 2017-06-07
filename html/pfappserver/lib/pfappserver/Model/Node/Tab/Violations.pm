@@ -14,7 +14,6 @@ pfappserver::Model::Node::Tab::Violations
 
 use strict;
 use warnings;
-use pf::config qw(%Config);
 use pf::error qw(is_error is_success);
 use pf::violation;
 use base qw(pfappserver::Base::Model::Node::Tab);

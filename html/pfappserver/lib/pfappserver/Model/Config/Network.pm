@@ -14,7 +14,6 @@ pfappserver::Model::Config::Network
 
 use Moose;
 use namespace::autoclean;
-use pf::config;
 use pf::error qw(is_error is_success);
 use pf::util qw(sort_ip);
 use pf::ConfigStore::Network;

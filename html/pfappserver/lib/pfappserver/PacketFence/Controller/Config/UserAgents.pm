@@ -18,7 +18,6 @@ use Moose;
 use namespace::autoclean;
 use URI::Escape::XS;
 
-use pf::config qw(%Config);
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
@@ -72,7 +71,7 @@ sub upload :Local :Args(0) :AdminRole('USERAGENTS_READ') {
               {
                 useragent_fingerprints => encode_base64($gziped),
                 'ref' => $c->uri_for($c->action),
-                email => $Config{'alerting'}{'emailaddr'},
+                email => $c->model("Config::Pf")->configStore->read("alerting")->{'emailaddr'},
                 pf_release => $release
               }
             );

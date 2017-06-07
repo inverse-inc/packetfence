@@ -14,7 +14,6 @@ pfappserver::Model::Node::Tab::Location
 
 use strict;
 use warnings;
-use pf::config qw(%Config);
 use pf::error qw(is_error is_success);
 use pf::locationlog qw(locationlog_history_mac);
 use base qw(pfappserver::Base::Model::Node::Tab);

@@ -81,7 +81,7 @@ sub begin :Private {
     }
     ($status, $violation_default) = $model->read('defaults');
     $triggers = $model->listTriggers();
-    $templates = $model->availableTemplates();
+    $templates = $model->availableTemplates($c);
     $c->stash(
         trigger_types => [sort(keys(%pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE))],
         current_model_instance => $model,

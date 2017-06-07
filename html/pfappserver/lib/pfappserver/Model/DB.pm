@@ -18,7 +18,6 @@ use Moose;
 use namespace::autoclean;
 
 use pf::log;
-use pf::config;
 use pf::file_paths qw($install_dir);
 use pf::error;
 use pf::util;
