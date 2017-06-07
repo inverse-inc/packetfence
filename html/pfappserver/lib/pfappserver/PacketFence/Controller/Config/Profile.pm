@@ -30,7 +30,7 @@ use Readonly;
 use pf::cluster;
 use pf::Connection::ProfileFactory;
 use captiveportal::DynamicRouting::Application;
-use pf::config qw(%connection_type %ConfigSwitchesGroup);
+use pf::config qw(%connection_type);
 use pf::constants qw($TRUE $FALSE);
 use pf::util;
 use pf::file_paths qw(
@@ -129,7 +129,7 @@ after view => sub {
         connection_types => [ keys %connection_type ],
         connection_sub_types => [ sort keys %RADIUS_EAP_TYPE_2_VALUES ],
         node_roles => $roles,
-        switch_groups => [ keys %ConfigSwitchesGroup ],
+        switch_groups => $c->model("Config::SwitchGroup")->configStore->readAllIds(),
     });
 };
 

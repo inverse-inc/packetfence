@@ -37,6 +37,7 @@ __PACKAGE__->config(
         remove => { AdminRole => 'SWITCHES_DELETE' },
     },
     action_args => {
+        '*' => { model => "Config::Switch", form => "Config::Switch" },
         search => { form => 'AdvancedSearch' },
     }
 );

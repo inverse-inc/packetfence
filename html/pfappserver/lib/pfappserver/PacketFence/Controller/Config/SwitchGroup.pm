@@ -33,6 +33,9 @@ __PACKAGE__->config(
         update => { AdminRole => 'SWITCHES_UPDATE' },
         remove => { AdminRole => 'SWITCHES_DELETE' },
     },
+    action_args => {
+        '*' => { model => "Config::SwitchGroup", form => "Config::SwitchGroup" },
+    }
 );
 
 =head2 begin

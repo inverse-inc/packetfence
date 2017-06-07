@@ -15,7 +15,6 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 use pf::factory::provisioner;
-use pf::config qw(%Profiles_Config);
 use List::MoreUtils qw(any);
 
 BEGIN {
@@ -60,7 +59,7 @@ before [qw(remove)] => sub {
     my ($self, $c, @args) = @_;
     # We check that it's not used by any connection profile
     my $count = 0;
-    while (my ($id, $config) = each %Profiles_Config) {
+    for my $config (@{$c->model("Config::Profile")->readAll("id")}) {
         $count ++ if ( any { $_ eq $c->stash->{'id'} } @{$config->{provisioners}});
     }
 

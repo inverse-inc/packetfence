@@ -19,9 +19,6 @@ use HTML::FormHandler::Moose::Role;
 use List::MoreUtils qw(uniq);
 
 use pf::authentication;
-use pf::ConfigStore::Provisioning;
-use pf::ConfigStore::BillingTiers;
-use pf::ConfigStore::Scan;
 use pf::web::constants;
 use pf::constants::Connection::Profile;
 use pfappserver::Form::Field::Duration;
@@ -436,7 +433,8 @@ Returns the list of sources to be displayed
 =cut
 
 sub options_billing_tiers {
-    return  map { { value => $_, label => $_ } } @{pf::ConfigStore::BillingTiers->new->readAllIds};
+    my ($self) = @_;
+    return  map { { value => $_, label => $_ } } @{$self->form->getModel("Config::BillingTiers")->configStore->readAllIds};
 }
 
 =head2 options_provisioners
@@ -446,7 +444,8 @@ Returns the list of sources to be displayed
 =cut
 
 sub options_provisioners {
-    return  map { { value => $_, label => $_ } } @{pf::ConfigStore::Provisioning->new->readAllIds};
+    my ($self) = @_;
+    return  map { { value => $_, label => $_ } } @{$self->form->getModel("Config::Provisioning")->configStore->readAllIds};
 }
 
 =head2 options_scan
@@ -456,7 +455,8 @@ Returns the list of scan to be displayed
 =cut
 
 sub options_scan {
-    return  map { { value => $_, label => $_ } } @{pf::ConfigStore::Scan->new->readAllIds};
+    my ($self) = @_;
+    return  map { { value => $_, label => $_ } } @{$self->form->getModel("Config::Scan")->configStore->readAllIds};
 }
 
 =head2 options_root_module
@@ -466,7 +466,8 @@ Returns the list of root modules to be displayed
 =cut
 
 sub options_root_module {
-    my $cs = pf::ConfigStore::PortalModule->new;
+    my ($self) = @_;
+    my $cs = $self->form->getModel("Config::PortalModule")->configStore;
     return map { $_->{type} eq "Root" ? { value => $_->{id}, label => $_->{description} } : () } @{$cs->readAll("id")};
 }
 

@@ -20,7 +20,7 @@ use pf::ConfigStore::BillingTiers;
 
 extends 'pfappserver::Base::Model::Config';
 
-has '+configStoreClass' => (default => 'pf::ConfigStore::BillingTiers-');
+has '+configStoreClass' => (default => 'pf::ConfigStore::BillingTiers');
 
 =head2 Methods
 

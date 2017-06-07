@@ -14,7 +14,6 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 use List::MoreUtils qw(any);
-use pf::config qw(%Profiles_Config);
 
 use pf::factory::scan;
 
@@ -85,9 +84,8 @@ before [qw(remove)] => sub {
     # We check that it's not used by any connection profile
     my $found = 0;
     my $id = $c->stash->{item}{id};
-    for my $config (values %Profiles_Config) {
-        my @scans = split( /\s*,\s*/, ($config->{scans} // ''));
-        if ( any { $_ eq $id } @scans ) {
+    for my $config (@{$c->model("Config::Profile")->configStore->readAll()}) {
+        if ( any { $_ eq $id } @{$config->{scans}} ) {
             $found = 1;
             last;
         }
