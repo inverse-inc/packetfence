@@ -14,7 +14,6 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::PortalModule';
 with 'pfappserver::Base::Form::Role::Help';
 
-use pf::ConfigStore::PortalModule;
 use captiveportal::util;
 
 has_field 'modules' =>
@@ -43,7 +42,7 @@ sub BUILD {
 
 sub options_modules {
     my ($self) = @_;
-    my $cs = pf::ConfigStore::PortalModule->new;
+    my $cs = $self->form->getModel("Config::PortalModule")->configStore;
     my $modules = $cs->readAll("id");
 
     my $modules_by_type = captiveportal::util::modules_by_type($modules);

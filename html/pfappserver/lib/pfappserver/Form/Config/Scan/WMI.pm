@@ -73,7 +73,8 @@ Returns the list of wmi rules to be displayed
 =cut
 
 sub options_wmi_rules {
-    return  map { { value => $_, label => $_ } } @{pf::ConfigStore::WMI->new->readAllIds};
+    my ($self) = @_;
+    return  map { { value => $_, label => $_ } } @{$self->form->getModel("Config::WMI")->configStore->readAllIds};
 }
 
 sub oses {

@@ -584,7 +584,7 @@ sub update_fields {
     $init_object ||= $self->init_object;
     my $id = $init_object->{id} if $init_object;
     my $inherit_from = $init_object->{group} || "default";
-    my $cs = pf::ConfigStore::SwitchGroup->new;
+    my $cs = $self->getModel("Config::SwitchGroup")->configStore;
     my $placeholders = $cs->fullConfig($inherit_from);
 
     if (defined $id && $id eq 'default') {
@@ -682,7 +682,7 @@ sub options_groups {
     my $self = shift;
     my @couples;
     push @couples, ('' => 'None');
-    my $cs = pf::ConfigStore::SwitchGroup->new;
+    my $cs = $self->form->getModel("Config::SwitchGroup")->configStore;
     my @groups = @{$cs->readAll("id")};
     push @couples, map { $_->{id} => $_->{description} } @groups;
 
@@ -763,8 +763,8 @@ Validate the list of uplink ports.
 
 sub validate {
     my $self = shift;
-    my $config = pf::ConfigStore::Switch->new;
-    my $groupConfig = pf::ConfigStore::SwitchGroup->new;
+    my $config = $self->getModel("Config::Switch")->configStore;
+    my $groupConfig = $self->getModel("Config::SwitchGroup")->configStore;
 
     my @triggers;
     my $always = any { $_->{type} eq $ALWAYS } @{$self->value->{inlineTrigger}};

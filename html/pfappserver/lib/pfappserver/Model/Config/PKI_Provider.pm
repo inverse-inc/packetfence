@@ -32,7 +32,7 @@ Override the parent method to validate we don't remove a PKI provider that is us
 sub remove {
     my ($self, $id) = @_;
     pf::log::get_logger->info("Deleting $id");
-    my @results = pf::ConfigStore::Provisioning->new->search("pki_provider", $id, "id");
+    my @results = $self->getModel("Config::Provisioning")->configStore->search("pki_provider", $id, "id");
     if(@results){
         my @ids = map { $_->{id} } @results;
         my $csv = join(', ', @ids);

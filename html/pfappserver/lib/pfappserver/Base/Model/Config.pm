@@ -334,6 +334,19 @@ sub _build_configStore {
     }
 }
 
+=head2 getModel
+
+Get another model while respecting the current multi-cluster scope
+
+=cut
+
+sub getModel {
+    my ($self, $name) = @_;
+    my $model = "pfappserver::Model::$name"->new;
+    $model->multiClusterHost($self->multiClusterHost);
+    return $model;
+}
+
 =head2 countAll
 
 Counts all the items

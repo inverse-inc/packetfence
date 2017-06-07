@@ -294,7 +294,7 @@ sub auditing :Chained('object') :PathPart('auditing') :Args(0) :AdminRole('AUDIT
 
 sub nodes :Chained('object') :PathPart('nodes') :Args(0) :AdminRole('NODES_READ') {
     my ( $self, $c ) = @_;
-    my $sg = pf::ConfigStore::SwitchGroup->new;
+    my $sg = $c->model("Config::SwitchGroup")->configStore;
  
     my $switch_groups = [
     map {
@@ -306,7 +306,7 @@ sub nodes :Chained('object') :PathPart('nodes') :Args(0) :AdminRole('NODES_READ'
     my $id = $c->user->id;
     my ($status, $saved_searches) = $c->model("SavedSearch::Node")->read_all($id);
     (undef, my $roles) = $c->model('Config::Roles')->listFromDB();
-    my $switches_list = pf::ConfigStore::Switch->new->readAll("Id");
+    my $switches_list = $c->model("Config::Switch")->configStore->readAll("Id");
     my @switches_filtered = grep { !defined $_->{group} && $_->{Id} !~ /^group(.*)/ && $_->{Id} ne 'default' } @$switches_list;
     my $switches = [
     map {
