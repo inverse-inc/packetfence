@@ -34,6 +34,7 @@ has_field 'secret' =>
    type => 'ObfuscatedText',
    label => 'Secret',
    required => 1,
+   default => '',
   );
 has_field 'timeout' =>
   (
