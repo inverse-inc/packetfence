@@ -84,10 +84,12 @@ before [qw(remove)] => sub {
     # We check that it's not used by any connection profile
     my $found = 0;
     my $id = $c->stash->{item}{id};
-    for my $config (@{$c->model("Config::Profile")->configStore->readAll()}) {
-        if ( any { $_ eq $id } @{$config->{scans}} ) {
-            $found = 1;
-            last;
+    for my $cs ($c->model("Config::Profile")->scopeChildConfigstores) {
+        for my $config (@{$cs->readAll()}) {
+            if ( any { $_ eq $id } @{$config->{scans}} ) {
+                $found = 1;
+                last;
+            }
         }
     }
 
