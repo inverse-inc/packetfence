@@ -150,7 +150,7 @@ sub _buildCachedConfigMultiCluster {
         my $import_path = $self->multiClusterHostDirectory(join('/', @parts[0..$i])) . "/". $stripped_file_path;
 
         # Ensuring the file exists
-        touch_file($import_path) unless(-f $self->configFile);
+        touch_file($import_path) unless(-f $import_path);
         pf_chown($import_path);
 
         $logger->debug("Adding file $import_path to the pf::IniFiles import");
