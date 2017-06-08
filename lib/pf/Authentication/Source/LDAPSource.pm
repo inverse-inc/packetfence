@@ -170,7 +170,7 @@ sub _connect {
   my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}", level => 7});
   my $connection;
   my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
+  my ($LDAPServer, $LDAPServerPort);
   my @LDAPServers = split(/\s*,\s*/, $self->{'host'});
   # uncomment the next line if you want the servers to be tried in random order
   # to spread out the connections amongst a set of servers
@@ -181,11 +181,12 @@ sub _connect {
   }
 
   TRYSERVER:
-  foreach my $LDAPServer ( @LDAPServers ) {
+  foreach my $s (@LDAPServers) {
+    $LDAPServer = $s;
+    $LDAPServerPort = undef;
     # check to see if the hostname includes a port (e.g. server:port)
-    my $LDAPServerPort;
-    if ( $LDAPServer =~ /:/ ) {
-        $LDAPServerPort = ( split(/:/,$LDAPServer) )[-1];
+    if ($LDAPServer =~ /:/) {
+        $LDAPServerPort = (split(/:/, $LDAPServer))[-1];
     }
     $LDAPServerPort //=  $self->{'port'} ;
     $connection = pf::LDAP->new(
@@ -210,7 +211,7 @@ sub _connect {
     $logger->error("[$self->{'id'}] Unable to connect to any LDAP server");
     $pf::StatsD::statsd->increment("${timer_stat_prefix}.error.count" );
   }
-  return undef;
+  return (undef, $LDAPServer, $LDAPServerPort);
 }
 
 
@@ -406,24 +407,26 @@ sub test {
 
   # Connect
   my ( $connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
+  my $id = $self->{id};
 
-  if (! defined($connection)) {
-    $logger->warn("[$self->{'id'}] Unable to connect to any LDAP server");
-    return ($FALSE, "Can't connect to server or bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
+  if (!defined($connection)) {
+    my $binddn = $self->{'binddn'} // '';
+    $logger->warn("[$id] Unable to connect to any LDAP server");
+    return ($FALSE, "Can't connect to server or bind with '$binddn' on $LDAPServer:$LDAPServerPort");
   }
-
+  my $base = $self->{basedn};
   # Search
   my $filter = "($self->{'usernameattribute'}=packetfence)";
   my $result = $connection->search(
-    base => $self->{'basedn'},
+    base => $base,
     filter => $filter,
     scope => $self->{'scope'},
     attrs => ['dn'],
-    sizelimit => 1
+    sizelimit => 1,
   );
 
   if ($result->is_error) {
-      $logger->warn("[$self->{'id'}] Unable to execute search $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort: ".$result->error);
+      $logger->warn("[$id] Unable to execute search $filter from '$base' on $LDAPServer:$LDAPServerPort: " . ($result->error // '' ));
       return ($FALSE, 'Wrong base DN or username attribute');
   }
 
