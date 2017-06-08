@@ -203,13 +203,13 @@ func converttobyte(b string) []byte {
 	return result
 }
 
-func decodeOptions(b string) map[dhcp.OptionCode][]byte {
+func decodeOptions(b string) (map[dhcp.OptionCode][]byte, bool) {
 	var options []Options
 	_, value := etcdGet(b)
 	decodedValue := converttobyte(value)
 	var dhcpOptions = make(map[dhcp.OptionCode][]byte)
 	if err := json.Unmarshal(decodedValue, &options); err != nil {
-		return dhcpOptions
+		return dhcpOptions, false
 	}
 
 	for _, option := range options {
@@ -227,5 +227,5 @@ func decodeOptions(b string) map[dhcp.OptionCode][]byte {
 
 		}
 	}
-	return dhcpOptions
+	return dhcpOptions, true
 }
