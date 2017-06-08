@@ -150,7 +150,7 @@ sub _buildCachedConfigMultiCluster {
         my $import_path = $self->multiClusterHostDirectory(join('/', @parts[0..$i])) . "/". $stripped_file_path;
 
         # Ensuring the file exists
-        touch_file($import_path);
+        touch_file($import_path) unless(-f $self->configFile);
         pf_chown($import_path);
 
         $logger->debug("Adding file $import_path to the pf::IniFiles import");
@@ -203,7 +203,7 @@ sub expire_if  {
         get_logger->debug("Config is undefined, considering it as expired");
         return 1;
     }
-    return $config->HasChanged(1);
+    return $config->HasChanged();
 }
 
 =head2 rollback
