@@ -17,6 +17,7 @@ use Moose;
 use namespace::autoclean;
 use HTTP::Status qw(:constants :is);
 use pf::log;
+use pf::multi_cluster;
 
 BEGIN { extends 'Catalyst::Model'; }
 
@@ -336,6 +337,18 @@ sub _build_configStore {
     else {
         get_logger->info("Building configstore for this host");
         return $self->configStoreClass->new;
+    }
+}
+
+sub scopeChildConfigstores {
+    my ($self) = @_;
+    if(!pf::multi_cluster::enabled()) {
+        return $self->configStore;
+    }
+    else {
+        return map { 
+            $_->configStore($self->configStoreClass) 
+        } @{pf::multi_cluster::allChilds(pf::multi_cluster::findObject(pf::multi_cluster::rootRegion(), $self->multiClusterHost))}
     }
 }
 

@@ -17,6 +17,7 @@ use Moose;
 use namespace::autoclean;
 use pf::ConfigStore::PKI_Provider;
 use pf::ConfigStore::Provisioning;
+use pf::log;
 
 extends 'pfappserver::Base::Model::Config';
 
@@ -32,7 +33,9 @@ Override the parent method to validate we don't remove a PKI provider that is us
 sub remove {
     my ($self, $id) = @_;
     pf::log::get_logger->info("Deleting $id");
-    my @results = $self->getModel("Config::Provisioning")->configStore->search("pki_provider", $id, "id");
+    my @results = map { 
+        $_->search("pki_provider", $id, "id") 
+    } $self->getModel("Config::Provisioning")->scopeChildConfigstores;
     if(@results){
         my @ids = map { $_->{id} } @results;
         my $csv = join(', ', @ids);
