@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"net"
 	"net/http"
 	"strconv"
@@ -208,11 +207,11 @@ func decodeOptions(b string) map[dhcp.OptionCode][]byte {
 	var options []Options
 	_, value := etcdGet(b)
 	decodedValue := converttobyte(value)
-	if err := json.Unmarshal(decodedValue, &options); err != nil {
-		log.Fatal(err)
-	}
-	// spew.Dump(options)
 	var dhcpOptions = make(map[dhcp.OptionCode][]byte)
+	if err := json.Unmarshal(decodedValue, &options); err != nil {
+		return dhcpOptions
+	}
+
 	for _, option := range options {
 		var Value interface{}
 		switch option.Type {
