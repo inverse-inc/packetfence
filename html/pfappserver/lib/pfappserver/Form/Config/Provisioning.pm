@@ -94,7 +94,7 @@ has_block definition =>
 
 sub options_pki_provider {
     my ($self) = @_;
-    return { value => '', label => '' }, map { { value => $_, label => $_ } } sort @{$self->form->getModel("Config::PKI_Provider")->readAllIds};
+    return { value => '', label => '' }, map { { value => $_, label => $_ } } sort @{$self->form->getModel("Config::PKI_Provider")->configStore->readAllIds};
 }
 
 =head2 options_roles
