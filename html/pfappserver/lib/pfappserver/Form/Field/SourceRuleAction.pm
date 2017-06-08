@@ -13,11 +13,12 @@ Manages the action of  user source rule
 use pfappserver::Form::Field::DynamicList;
 use pf::Authentication::Action;
 use HTML::FormHandler::Moose;
+use pf::Authentication::constants;
+
 extends 'HTML::FormHandler::Field::Compound';
 has '+widget_wrapper' => (default => 'Bootstrap');
 has '+inflate_default_method'=> ( default => sub { \&inflate } );
 has '+deflate_value_method'=> ( default => sub { \&deflate } );
-
 
 # Form fields
 
@@ -46,22 +47,22 @@ sub options_type {
 
     my ($classname, $actions_ref, @actions);
     my $form = $self->form;
+    my $rule_class = $self->parent->parent->parent->rule_class;
 
     my @allowed_actions = $form->_get_allowed_options('allowed_actions');
     unless (@allowed_actions) {
         my $source = $form->get_source;
         @allowed_actions = @{$source->available_actions()};
     }
-    @actions = map { 
-      { value => $_, 
-        label => $self->_localize($_), 
-        attributes => { 'data-rule-class' => pf::Authentication::Action->getRuleClassForAction($_) } 
-      } 
-    } @allowed_actions;
+    @actions = map {
+      {
+        value => $_,
+        label => $self->_localize($_),
+      }
+    } grep { pf::Authentication::Action->getRuleClassForAction($_) eq $rule_class } @allowed_actions;
 
     return @actions;
 }
-
 
 =head2 inflate
 

@@ -43,9 +43,11 @@ has_field 'description' =>
    required => 1,
    default => '',
   );
-has_field 'rules' =>
+
+has_field "${Rules::AUTH}_rules" =>
   (
    type => 'DynamicList',
+   label => 'Authentication Rules',
    do_label => 1,
    do_wrapper => 1,
    sortable => 1,
@@ -54,11 +56,38 @@ has_field 'rules' =>
         "dynamic-list-append_controls" => \&rules_add_control,
     }
   );
-has_field 'rules.contains' =>
+
+has_field "${Rules::AUTH}_rules.contains" =>
   (
    type => 'SourceRule',
    widget_wrapper => 'Accordion',
    build_label_method => \&build_rule_label,
+   rule_class => $Rules::AUTH,
+   pfappserver::Form::Field::DynamicList::child_options(),
+   tags => {
+        accordion_heading_content => \&accordion_heading_content,
+    }
+  );
+
+has_field "${Rules::ADMIN}_rules" =>
+  (
+   type => 'DynamicList',
+   label => 'Administration Rules',
+   do_label => 1,
+   do_wrapper => 1,
+   sortable => 1,
+   num_when_empty => 0,
+    tags => {
+        "dynamic-list-append_controls" => \&rules_add_control,
+    }
+  );
+
+has_field "${Rules::ADMIN}_rules.contains" =>
+  (
+   type => 'SourceRule',
+   widget_wrapper => 'Accordion',
+   build_label_method => \&build_rule_label,
+   rule_class => $Rules::ADMIN,
    pfappserver::Form::Field::DynamicList::child_options(),
    tags => {
         accordion_heading_content => \&accordion_heading_content,
@@ -120,8 +149,10 @@ sub build_rule_label {
 
 sub build_render_list_rules {
     my ($block) = @_;
-    if ($block->form->source_class->has_authentication_rules) {
-        return ['rules']
+    my $source = $block->form->source_class;
+    if ($source->has_authentication_rules) {
+        my @rules = map { "${_}_rules" } @{$source->available_rule_classes};
+        return \@rules;
     }
 
     return [];
@@ -138,7 +169,8 @@ sub rules_add_control {
     my $attrs  = $field->add_button_attr;
     my $form =  $field->form;
     my $text = $form->_localize("No Rule Defined");
-    my $button_text = $form->_localize("Add Rule");
+    my $label = $field->label;
+    my $button_text = $form->_localize("Add $label");
     return qq{
 <div class="controls unwell unwell-horizontal">
   <div class="input">

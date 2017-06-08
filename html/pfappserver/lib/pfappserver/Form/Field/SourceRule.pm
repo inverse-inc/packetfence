@@ -19,7 +19,7 @@ use pf::Authentication::constants;
 
 
 # Form select options
-has 'attrs' => (is => 'ro');
+has 'rule_class' => (is => 'ro');
 
 # Form fields
 has_field 'id' => (
@@ -28,15 +28,6 @@ has_field 'id' => (
     required => 1,
     messages => {required => 'Please specify an identifier for the rule.'},
     apply    => [{check => qr/^\S+$/, message => 'The name must not contain spaces.'}],
-);
-
-has_field 'class' => (
-    type            => 'Select',
-    label           => 'Class',
-    localize_labels => 1,
-    options_method  => \&options_rule_classes,
-    default         => 'auth',
-    element_attr => { 'data-toggle' => 'pf-rule-class'}
 );
 
 has_field 'description' => (
@@ -101,24 +92,6 @@ sub condition_control {
           <a $attrs class="btn" >$button_text</a></p></div>};
 }
 
-=head2 options_rule_classes
-
-Populate the 'class' field of a rule based on the available rule classes for a specific authentication source.
-
-=cut
-
-sub options_rule_classes {
-    my $self = shift;
-
-    my $source = $self->form->get_source;
-    my @options;
-    foreach (@{$source->available_rule_classes}) {
-        push(@options, {value => $_, label => $_});
-    }
-
-    return \@options;
-}
-
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2017 Inverse inc.
@@ -143,4 +116,5 @@ USA.
 =cut
 
 __PACKAGE__->meta->make_immutable;
+
 1;
