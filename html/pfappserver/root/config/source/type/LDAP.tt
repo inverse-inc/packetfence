@@ -17,7 +17,7 @@
     <div class="input-append">
       [% form.field('password').render_element | none %]
       <button type="button" class="btn"><i class="icon-eye"></i></button>
-      <a class="btn" id="testSource" href="[% c.uri_for(c.controller.action_for('test'), [item.type]) %]">[% l('Test') %]</a>
+      <a class="btn" id="testSourceBtn" href="[% c.uri_for(c.controller.action_for('test'), [item.type]) %]">[% l('Test') %]</a>
     </div>
   </div>
 </div>

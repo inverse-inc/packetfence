@@ -30,6 +30,7 @@ var SourceView = function(options) {
     options.parent.off('click', id + ' [href$="/delete"]');
     var changeRuleClass = $.proxy(this.changeRuleClass, this);
     options.parent.on('change', 'form[name="modalSource"] select[name$="class"]', changeRuleClass);
+    options.parent.on('click' , '#testSourceBtn', $.proxy(this.testSource, this));
 };
 
 SourceView.prototype = (function(){
@@ -53,6 +54,28 @@ SourceView.prototype.changeRuleClass = function(e) {
     var hidden_options = actions.find('option[data-rule-class!="' + type + '"]');
     hidden_options.addClass('hidden');
     hidden_options.attr('disabled', 'disabled');
+};
+
+SourceView.prototype.testSource = function(e) {
+    e.preventDefault();
+    var btn = $(e.target);
+    var form = btn.closest('form');
+    var valid = isFormValid(form);
+
+    resetAlert($('#section'));
+    if (valid) {
+        this.items.post({
+            url: btn.attr('href'),
+            data: form.serialize(),
+            always: function() {
+                btn.button('reset');
+            },
+            success: function(data, textStatus, jqXHR) {
+                showSuccess(form, data.status_msg);
+            },
+            errorSibling: form
+        });
+    }
 };
 
 SourceView.prototype.updateItem = function(e) {
