@@ -319,15 +319,17 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 			GlobalOptions := handler.options
 			leaseDuration := handler.leaseDuration
 			// Add options on the fly
-			x := decodeOptions(p.CHAddr().String())
-			// if x, found := GlobalOptionMacCache.Get(p.CHAddr().String()); found {
-			for key, value := range x {
-				// for key, value := range x.(map[dhcp.OptionCode][]byte) {
-				if key == dhcp.OptionIPAddressLeaseTime {
-					seconds, _ := strconv.Atoi(string(value))
-					leaseDuration = time.Duration(seconds) * time.Second
+			x, err := decodeOptions(p.CHAddr().String())
+			if err {
+				// if x, found := GlobalOptionMacCache.Get(p.CHAddr().String()); found {
+				for key, value := range x {
+					// for key, value := range x.(map[dhcp.OptionCode][]byte) {
+					if key == dhcp.OptionIPAddressLeaseTime {
+						seconds, _ := strconv.Atoi(string(value))
+						leaseDuration = time.Duration(seconds) * time.Second
+					}
+					GlobalOptions[key] = value
 				}
-				GlobalOptions[key] = value
 			}
 
 			answer.D = dhcp.ReplyPacket(p, dhcp.Offer, handler.ip, answer.IP, leaseDuration,
@@ -353,15 +355,16 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 						GlobalOptions := handler.options
 						leaseDuration := handler.leaseDuration
 						// Add options on the fly
-						x := decodeOptions(p.CHAddr().String())
-						for key, value := range x {
-							if key == dhcp.OptionIPAddressLeaseTime {
-								seconds, _ := strconv.Atoi(string(value))
-								leaseDuration = time.Duration(seconds) * time.Second
+						x, err := decodeOptions(p.CHAddr().String())
+						if err {
+							for key, value := range x {
+								if key == dhcp.OptionIPAddressLeaseTime {
+									seconds, _ := strconv.Atoi(string(value))
+									leaseDuration = time.Duration(seconds) * time.Second
+								}
+								GlobalOptions[key] = value
 							}
-							GlobalOptions[key] = value
 						}
-						// }
 						answer.D = dhcp.ReplyPacket(p, dhcp.ACK, handler.ip, reqIP, leaseDuration,
 							GlobalOptions.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
 						// Update Global Caches
