@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"encoding/binary"
+	"fmt"
 	"log"
 	"math"
 
@@ -16,6 +17,7 @@ import (
 
 	"bitbucket.org/oeufdure/pfconfigdriver"
 	"github.com/RoaringBitmap/roaring"
+	"github.com/coreos/etcd/client"
 	"github.com/coreos/go-systemd/daemon"
 	netadv "github.com/fdurand/go-netadv"
 	_ "github.com/go-sql-driver/mysql"
@@ -29,13 +31,16 @@ var database *sql.DB
 
 var GlobalIpCache *cache.Cache
 var GlobalMacCache *cache.Cache
-var GlobalOptionMacCache *cache.Cache
 
 // Control
 var ControlOut map[string]chan interface{}
 var ControlIn map[string]chan interface{}
 
+var VIP map[string]bool
+
 var ctx = context.Background()
+
+var Capi *client.Config
 
 type DHCPHandler struct {
 	ip            net.IP        // Server IP to use
@@ -74,13 +79,13 @@ func newDHCPConfig() *Interfaces {
 }
 
 func main() {
+	// Initialize etcd config
+	Capi = etcdInit()
 
 	// Initialize IP cache
 	GlobalIpCache = cache.New(5*time.Minute, 10*time.Minute)
 	// Initialize Mac cache
 	GlobalMacCache = cache.New(5*time.Minute, 10*time.Minute)
-
-	GlobalOptionMacCache = cache.New(60*time.Minute, 61*time.Minute)
 
 	// Read DB config
 	configDatabase := readDBConfig()
@@ -89,6 +94,18 @@ func main() {
 	// Read pfconfig
 	DHCPConfig = newDHCPConfig()
 	DHCPConfig.readConfig()
+
+	VIP = make(map[string]bool)
+
+	go func() {
+		var interfaces pfconfigdriver.ListenInts
+		pfconfigdriver.FetchDecodeSocketStruct(ctx, &interfaces)
+		for {
+			DHCPConfig.detectVIP(interfaces)
+
+			time.Sleep(3 * time.Second)
+		}
+	}()
 
 	// Queue value
 	var (
@@ -141,9 +158,9 @@ func main() {
 	router.HandleFunc("/mac2ip/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", handleMac2Ip).Methods("GET")
 	router.HandleFunc("/ip2mac/{ip:(?:[0-9]{1,3}.){3}.(?:[0-9]{1,3})}", handleIP2Mac).Methods("GET")
 	router.HandleFunc("/stats/{int:.*}", handleStats).Methods("GET")
-	// router.HandleFunc("/parking/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", handleParking).Methods("GET")
 	router.HandleFunc("/options/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}/{options:.*}", handleOverrideOptions).Methods("POST")
-	router.HandleFunc("/removeoptions/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", handleRemoveOptions).Methods("POST")
+	router.HandleFunc("/removeoptions/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", handleRemoveOptions).Methods("GET")
+
 	// Api
 	l, err := net.Listen("tcp", ":22222")
 	if err != nil {
@@ -170,6 +187,7 @@ func main() {
 // Broadcast runner
 func (h *Interface) run(jobs chan job) {
 
+	// Communicate with the server that run on an interface
 	go func() {
 		stats := make(map[string]Stats)
 		inchannel := ControlIn[h.Name]
@@ -177,6 +195,7 @@ func (h *Interface) run(jobs chan job) {
 		for {
 
 			Request := <-inchannel
+			// Send back stats
 			if Request.(ApiReq).Req == "stats" {
 				for _, v := range h.network {
 					var statistiques roaring.Statistics
@@ -185,12 +204,12 @@ func (h *Interface) run(jobs chan job) {
 				}
 				outchannel <- stats
 			}
-			// if Request.(ApiReq).Req == "parking" {
-			// 	if x, found := h.network[Request.(ApiReq).NetWork].dhcpHandler.hwcache.Get(Request.(ApiReq).Mac); found {
-			// 		free := x.(int)
-			// 		h.network[Request.(ApiReq).NetWork].dhcpHandler.hwcache.Set(Request.(ApiReq).Mac, free, (time.Duration(3600) * time.Second))
-			// 	}
-			// }
+			// Update the lease
+			if Request.(ApiReq).Req == "initialease" {
+				for _, v := range h.network {
+					initiaLease(&v.dhcpHandler)
+				}
+			}
 		}
 	}()
 	ListenAndServeIf(h.Name, h, jobs)
@@ -265,102 +284,189 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 	if len(handler.ip) == 0 {
 		return answer
 	}
+	// Do we have the vip ?
+	if VIP[h.Name] {
+		fmt.Println("Process packet")
+		switch msgType {
 
-	switch msgType {
+		case dhcp.Discover:
 
-	case dhcp.Discover:
+			var free int
+			i := handler.available.Iterator()
 
-		var free int
-		i := handler.available.Iterator()
+			// Search in the cache if the mac address already get assigned
+			if x, found := handler.hwcache.Get(p.CHAddr().String()); found {
+				free = x.(int)
+				handler.hwcache.Set(p.CHAddr().String(), free, handler.leaseDuration+(time.Duration(15)*time.Second))
+				goto reply
+			}
 
-		// Search in the cache if the mac address already get assigned
-		if x, found := handler.hwcache.Get(p.CHAddr().String()); found {
-			free = x.(int)
-			handler.hwcache.Set(p.CHAddr().String(), free, handler.leaseDuration+(time.Duration(15)*time.Second))
-			goto reply
-		}
+			// Search for the next available ip in the pool
+			if i.HasNext() {
+				element := i.Next()
+				free = int(element)
+				handler.available.Remove(element)
+				handler.hwcache.Set(p.CHAddr().String(), free, handler.leaseDuration+(time.Duration(15)*time.Second))
+			} else {
+				return answer
+			}
 
-		// Search for the next available ip in the pool
-		if i.HasNext() {
-			element := i.Next()
-			free = int(element)
-			handler.available.Remove(element)
-			handler.hwcache.Set(p.CHAddr().String(), free, handler.leaseDuration+(time.Duration(15)*time.Second))
-		} else {
-			return answer
-		}
+		reply:
 
-	reply:
-
-		answer.IP = dhcp.IPAdd(handler.start, free)
-		answer.Iface = h.intNet
-		// Add options on the fly
-		GlobalOptions := handler.options
-		leaseDuration := handler.leaseDuration
-		// Add options on the fly
-		if x, found := GlobalOptionMacCache.Get(p.CHAddr().String()); found {
-			for key, value := range x.(map[dhcp.OptionCode][]byte) {
+			answer.IP = dhcp.IPAdd(handler.start, free)
+			answer.Iface = h.intNet
+			// Add options on the fly
+			GlobalOptions := handler.options
+			leaseDuration := handler.leaseDuration
+			// Add options on the fly
+			x := decodeOptions(p.CHAddr().String())
+			// if x, found := GlobalOptionMacCache.Get(p.CHAddr().String()); found {
+			for key, value := range x {
+				// for key, value := range x.(map[dhcp.OptionCode][]byte) {
 				if key == dhcp.OptionIPAddressLeaseTime {
 					seconds, _ := strconv.Atoi(string(value))
 					leaseDuration = time.Duration(seconds) * time.Second
 				}
 				GlobalOptions[key] = value
 			}
-		}
 
-		answer.D = dhcp.ReplyPacket(p, dhcp.Offer, handler.ip, answer.IP, leaseDuration,
-			GlobalOptions.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
+			answer.D = dhcp.ReplyPacket(p, dhcp.Offer, handler.ip, answer.IP, leaseDuration,
+				GlobalOptions.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
 
-		return answer
+			return answer
 
-	case dhcp.Request:
-		// Some client will not send OptionServerIdentifier
-		// if server, ok := options[dhcp.OptionServerIdentifier]; ok && (!net.IP(server).Equal(h.Ipv4) && !net.IP(server).Equal(handler.ip)) {
-		// 	return answer // Message not for this dhcp server
-		// }
-		reqIP := net.IP(options[dhcp.OptionRequestedIPAddress])
-		if reqIP == nil {
-			reqIP = net.IP(p.CIAddr())
-		}
-		answer.IP = reqIP
-		answer.Iface = h.intNet
+		case dhcp.Request:
+			// Some client will not send OptionServerIdentifier
+			// if server, ok := options[dhcp.OptionServerIdentifier]; ok && (!net.IP(server).Equal(h.Ipv4) && !net.IP(server).Equal(handler.ip)) {
+			// 	return answer // Message not for this dhcp server
+			// }
+			reqIP := net.IP(options[dhcp.OptionRequestedIPAddress])
+			if reqIP == nil {
+				reqIP = net.IP(p.CIAddr())
+			}
+			answer.IP = reqIP
+			answer.Iface = h.intNet
 
-		if len(reqIP) == 4 && !reqIP.Equal(net.IPv4zero) {
-			if leaseNum := dhcp.IPRange(handler.start, reqIP) - 1; leaseNum >= 0 && leaseNum < handler.leaseRange {
-				if index, found := handler.hwcache.Get(p.CHAddr().String()); found {
-					GlobalOptions := handler.options
-					leaseDuration := handler.leaseDuration
-					// Add options on the fly
-					if x, found := GlobalOptionMacCache.Get(p.CHAddr().String()); found {
-						for key, value := range x.(map[dhcp.OptionCode][]byte) {
+			if len(reqIP) == 4 && !reqIP.Equal(net.IPv4zero) {
+				if leaseNum := dhcp.IPRange(handler.start, reqIP) - 1; leaseNum >= 0 && leaseNum < handler.leaseRange {
+					if index, found := handler.hwcache.Get(p.CHAddr().String()); found {
+						GlobalOptions := handler.options
+						leaseDuration := handler.leaseDuration
+						// Add options on the fly
+						x := decodeOptions(p.CHAddr().String())
+						for key, value := range x {
 							if key == dhcp.OptionIPAddressLeaseTime {
 								seconds, _ := strconv.Atoi(string(value))
 								leaseDuration = time.Duration(seconds) * time.Second
 							}
 							GlobalOptions[key] = value
 						}
+						// }
+						answer.D = dhcp.ReplyPacket(p, dhcp.ACK, handler.ip, reqIP, leaseDuration,
+							GlobalOptions.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
+						// Update Global Caches
+						GlobalIpCache.Set(reqIP.String(), p.CHAddr().String(), leaseDuration+(time.Duration(15)*time.Second))
+						GlobalMacCache.Set(p.CHAddr().String(), reqIP.String(), leaseDuration+(time.Duration(15)*time.Second))
+						// Update the cache
+						handler.hwcache.Set(p.CHAddr().String(), index, leaseDuration+(time.Duration(15)*time.Second))
+						return answer
 					}
-					answer.D = dhcp.ReplyPacket(p, dhcp.ACK, handler.ip, reqIP, leaseDuration,
-						GlobalOptions.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
-					// Update Global Caches
-					GlobalIpCache.Set(reqIP.String(), p.CHAddr().String(), leaseDuration+(time.Duration(15)*time.Second))
-					GlobalMacCache.Set(p.CHAddr().String(), reqIP.String(), leaseDuration+(time.Duration(15)*time.Second))
-					// Update the cache
-					handler.hwcache.Set(p.CHAddr().String(), index, leaseDuration+(time.Duration(15)*time.Second))
-					return answer
 				}
 			}
+			answer.D = dhcp.ReplyPacket(p, dhcp.NAK, handler.ip, nil, 0, nil)
+
+		case dhcp.Release, dhcp.Decline:
+
+			if x, found := handler.hwcache.Get(p.CHAddr().String()); found {
+				handler.available.Add(uint32(x.(int)))
+				handler.hwcache.Delete(p.CHAddr().String())
+			}
 		}
-		answer.D = dhcp.ReplyPacket(p, dhcp.NAK, handler.ip, nil, 0, nil)
+		return answer
+	}
+	answer.Iface = h.intNet
+	answer.D = dhcp.ReplyPacket(p, dhcp.NAK, handler.ip, nil, 0, nil)
+	return answer
+}
 
-	case dhcp.Release, dhcp.Decline:
+// Detect the vip on each interfaces
+func (d *Interfaces) detectVIP(interfaces pfconfigdriver.ListenInts) {
+	// var keyConfCluster pfconfigdriver.PfconfigKeys
+	// keyConfCluster.PfconfigNS = "config::Cluster"
+	//
+	// pfconfigdriver.FetchDecodeSocketStruct(ctx, &keyConfCluster)
+	//
+	//
+	// for _, key := range keyConfCluster.Keys {
+	//
+	// 	var interfaces pfconfigdriver.ListenInts
+	// 	pfconfigdriver.FetchDecodeSocketStruct(ctx, &interfaces)
+	//
+	// 	// for _, kaye := range interfaces.Element {
+	//
+	// 	var ConfCluster pfconfigdriver.ClustMemb
+	//
+	// 	ConfCluster.PfconfigHashNS = key
+	// 	// ConfCluster.Interfaces = interfaces.Element
+	// 	pfconfigdriver.FetchDecodeSocketStruct(ctx, &ConfCluster)
+	// 	// if key != "CLUSTER" {
+	// 	// 	continue
+	// 	// }
+	// 	spew.Dump(ConfCluster)
+	// }
 
-		if x, found := handler.hwcache.Get(p.CHAddr().String()); found {
-			handler.available.Add(uint32(x.(int)))
-			handler.hwcache.Delete(p.CHAddr().String())
+	for _, v := range interfaces.Element {
+
+		if _, found := VIP[v]; !found {
+			VIP[v] = false
+		}
+
+		eth, _ := net.InterfaceByName(v)
+		adresses, _ := eth.Addrs()
+		var found bool
+		found = false
+		for _, adresse := range adresses {
+			IP, _, _ := net.ParseCIDR(adresse.String())
+			if IP.Equal(net.ParseIP("172.21.135.4")) {
+				found = true
+				if VIP[v] == false {
+					fmt.Println(v + " got the VIP")
+					if _, ok := ControlIn[v]; ok {
+						Request := ApiReq{Req: "initialease", NetInterface: v, NetWork: ""}
+						ControlIn[v] <- Request
+					}
+					VIP[v] = true
+				}
+			}
+			if IP.Equal(net.ParseIP("172.21.136.4")) {
+				found = true
+				if VIP[v] == false {
+					fmt.Println(v + " got the VIP")
+					if _, ok := ControlIn[v]; ok {
+						Request := ApiReq{Req: "initialease", NetInterface: v, NetWork: ""}
+						ControlIn[v] <- Request
+					}
+					VIP[v] = true
+				}
+				VIP[v] = true
+			}
+			if IP.Equal(net.ParseIP("172.21.137.4")) {
+				found = true
+				if VIP[v] == false {
+					fmt.Println(v + " got the VIP")
+					if _, ok := ControlIn[v]; ok {
+						Request := ApiReq{Req: "initialease", NetInterface: v, NetWork: ""}
+						ControlIn[v] <- Request
+					}
+					VIP[v] = true
+				}
+				VIP[v] = true
+			}
+		}
+		if found == false {
+			VIP[v] = false
 		}
 	}
-	return answer
 }
 
 func (d *Interfaces) readConfig() {
@@ -374,7 +480,9 @@ func (d *Interfaces) readConfig() {
 	pfconfigdriver.FetchDecodeSocketStruct(ctx, &keyConfNet)
 
 	for _, v := range interfaces.Element {
+
 		eth, _ := net.InterfaceByName(v)
+		// TO DO Check if the interface exist
 		var ethIf Interface
 
 		ethIf.intNet = eth
@@ -651,4 +759,55 @@ func InterfaceScopeFromMac(MAC string) (string, string) {
 		}
 	}
 	return NetInterface, NetWork
+}
+
+// etcdInit initiate the connection to etcd
+func etcdInit() *client.Config {
+	cfg := client.Config{
+		Endpoints: []string{"http://127.0.0.1:2379"},
+		Transport: client.DefaultTransport,
+		// set timeout per request to fail fast when the target endpoint is unavailable
+		HeaderTimeoutPerRequest: time.Second,
+	}
+	return &cfg
+}
+
+func etcdInsert(key string, value string) bool {
+	c, err := client.New(*Capi)
+	if err != nil {
+		return false
+	}
+	kapi := client.NewKeysAPI(c)
+	_, err = kapi.Set(context.Background(), key, value, nil)
+	if err != nil {
+		return false
+	} else {
+		return true
+	}
+}
+
+func etcdGet(key string) (string, string) {
+	c, err := client.New(*Capi)
+	if err != nil {
+		return "", ""
+	}
+	kapi := client.NewKeysAPI(c)
+	resp, err := kapi.Get(context.Background(), key, nil)
+	if err != nil {
+		return "", ""
+	}
+	return resp.Node.Key, resp.Node.Value
+}
+
+func etcdDel(key string) bool {
+	c, err := client.New(*Capi)
+	if err != nil {
+		return false
+	}
+	kapi := client.NewKeysAPI(c)
+	_, err = kapi.Delete(context.Background(), key, nil)
+	if err != nil {
+		return false
+	}
+	return true
 }
