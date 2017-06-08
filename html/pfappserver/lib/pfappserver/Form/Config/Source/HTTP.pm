@@ -53,10 +53,9 @@ has_field 'username' =>
   );
 has_field 'password' =>
   (
-   type => 'Text',
+   type => 'ObfuscatedText',
    label => 'API password (basic auth)',
    trim => undef,
-   password => 0,
   );
 has_field 'authentication_url' =>
   (
