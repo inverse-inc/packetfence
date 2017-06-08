@@ -24,6 +24,7 @@ use Pod::Usage;
 use Fcntl qw(:flock);
 use Scalar::Util qw(blessed);
 use Time::HiRes qw(usleep);
+use Systemd::Daemon qw{ -soft -notify };
 
 #pf::log must always be initilized first
 BEGIN {
@@ -102,10 +103,12 @@ Log::Log4perl::MDC->put( 'tid', $$ );
 pf::SwitchFactory->preloadConfiguredModules();
 
 register_tasks();
+&Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
 wait_for_it();
 cleanup();
 
 END {
+    &Systemd::Daemon::notify( STOPPING => 1 );
     if (!$args{h} && $HAS_LOCK && !$IS_CHILD) {
         deletepid();
         $logger->info("stopping pfqueue");

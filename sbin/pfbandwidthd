@@ -25,6 +25,7 @@ use NetPacket::Ethernet;
 use NetPacket::IP;
 use IO::Select;
 use Socket;
+use Systemd::Daemon qw{ -soft -notify };
 
 BEGIN {
     # log4perl init
@@ -154,6 +155,7 @@ foreach my $pcap (@devs) {
 
 # Change user to pf
 dropprivs("pf", "pf");
+&Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
 
 while ($RUNNING) {
     my @select_set = $read_set->can_read;
@@ -287,6 +289,7 @@ sub normal_sighandler {
     if ( threads->self->tid() == 0 ) {
         $logger->logdie(
             "pfbandwidthd: caught SIG" . $_[0] . " - terminating" );
+            &Systemd::Daemon::notify( STOPPING => 1 );
     }
 }
 

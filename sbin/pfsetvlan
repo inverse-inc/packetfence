@@ -45,7 +45,7 @@ use Getopt::Long;
 use Net::SMTP;
 use Pod::Usage;
 use POSIX;
-
+use Systemd::Daemon qw{ -soft -notify };
 
 use constant {
     PFCMD_FILE => INSTALL_DIR . "/bin/pfcmd"
@@ -217,6 +217,8 @@ sub add_new_threads_to_list {
 # }}}1
 
 # main program - read trap lines and addTrapLineToQueue($trapLine) {{{1
+
+&Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
 my $currentTrapLine = undef;
 my $completeTrapLine;
 my $inMultiLineTrap = 0;
@@ -2109,6 +2111,7 @@ sub add_to_switch_locker {
 }
 
 END {
+    &Systemd::Daemon::notify( STOPPING => 1 );
     if ( ( !$man ) && ( !$help ) ) {
         $logger->info("stopping pfsetvlan");
         deletepid();

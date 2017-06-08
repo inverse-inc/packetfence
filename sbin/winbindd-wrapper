@@ -23,6 +23,7 @@ use File::Basename qw(basename);
 use POSIX qw(:signal_h pause :sys_wait_h SIG_BLOCK SIG_UNBLOCK);
 use Pod::Usage;
 use Fcntl qw(:flock);
+use Systemd::Daemon qw{ -soft -notify };
 
 #pf::log must always be initilized first
 BEGIN {
@@ -117,6 +118,7 @@ our $PARENT_PID = $$;
 
 sub start {
     run_all_winbindd();
+    &Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
     while($running) {
         pause;
     }
@@ -127,6 +129,7 @@ start();
 cleanup();
 
 END {
+    &Systemd::Daemon::notify( STOPPING => 1 );
     if ( !$args{h} && $HAS_LOCK ) {
         unless($IS_CHILD) {
             deletepid();
