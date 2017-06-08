@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net"
 	"net/http"
+	"strconv"
+	"strings"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/gorilla/mux"
 	dhcp "github.com/krolaw/dhcp4"
 )
@@ -130,8 +132,6 @@ func handleOverrideOptions(res http.ResponseWriter, req *http.Request) {
 
 	vars := mux.Vars(req)
 
-	var options []Options
-
 	body, err := ioutil.ReadAll(io.LimitReader(req.Body, 1048576))
 	if err != nil {
 		panic(err)
@@ -139,32 +139,9 @@ func handleOverrideOptions(res http.ResponseWriter, req *http.Request) {
 	if err := req.Body.Close(); err != nil {
 		panic(err)
 	}
-	if err := json.Unmarshal(body, &options); err != nil {
-		res.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		res.WriteHeader(422) // unprocessable entity
-		if err := json.NewEncoder(res).Encode(err); err != nil {
-			panic(err)
-		}
-	}
 
-	var dhcpOptions = make(map[dhcp.OptionCode][]byte)
-	for _, option := range options {
-		var Value interface{}
-		switch option.Type {
-		case "ipaddr":
-			Value = net.ParseIP(option.Value)
-			dhcpOptions[option.Option] = Value.(net.IP).To4()
-		case "string":
-			Value = option.Value
-			dhcpOptions[option.Option] = []byte(Value.(string))
-		case "int":
-			Value = option.Value
-			dhcpOptions[option.Option] = []byte(Value.(string))
-
-		}
-	}
-
-	GlobalOptionMacCache.SetDefault(vars["mac"], dhcpOptions)
+	// Insert iformation in etcd
+	_ = etcdInsert(vars["mac"], converttostring(body))
 
 	var result = map[string][]*Info{
 		"result": {
@@ -172,8 +149,6 @@ func handleOverrideOptions(res http.ResponseWriter, req *http.Request) {
 		},
 	}
 
-	spew.Dump(options)
-	spew.Dump(dhcpOptions)
 	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	res.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(res).Encode(result); err != nil {
@@ -195,20 +170,63 @@ func handleRemoveOptions(res http.ResponseWriter, req *http.Request) {
 		},
 	}
 
-	if _, found := GlobalOptionMacCache.Get(vars["mac"]); found {
-		GlobalOptionMacCache.Delete(vars["mac"])
-
-	} else {
+	err := etcdDel(vars["mac"])
+	if !err {
 		result = map[string][]*Info{
 			"result": {
 				&Info{Mac: vars["mac"], Status: "NAK"},
 			},
 		}
 	}
-
 	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	res.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(res).Encode(result); err != nil {
 		panic(err)
 	}
+}
+
+func converttostring(b []byte) string {
+	s := make([]string, len(b))
+	for i := range b {
+		s[i] = strconv.Itoa(int(b[i]))
+	}
+	return strings.Join(s, ",")
+}
+
+func converttobyte(b string) []byte {
+	s := strings.Split(b, ",")
+	var result []byte
+	for i := range s {
+		value, _ := strconv.Atoi(s[i])
+		result = append(result, byte(value))
+
+	}
+	return result
+}
+
+func decodeOptions(b string) map[dhcp.OptionCode][]byte {
+	var options []Options
+	_, value := etcdGet(b)
+	decodedValue := converttobyte(value)
+	if err := json.Unmarshal(decodedValue, &options); err != nil {
+		log.Fatal(err)
+	}
+	// spew.Dump(options)
+	var dhcpOptions = make(map[dhcp.OptionCode][]byte)
+	for _, option := range options {
+		var Value interface{}
+		switch option.Type {
+		case "ipaddr":
+			Value = net.ParseIP(option.Value)
+			dhcpOptions[option.Option] = Value.(net.IP).To4()
+		case "string":
+			Value = option.Value
+			dhcpOptions[option.Option] = []byte(Value.(string))
+		case "int":
+			Value = option.Value
+			dhcpOptions[option.Option] = []byte(Value.(string))
+
+		}
+	}
+	return dhcpOptions
 }

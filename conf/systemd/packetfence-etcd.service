@@ -1,0 +1,18 @@
+[Unit]
+Description=PacketFence ETCD Server Daemon
+Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
+After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+Before=packetfence-httpd.portal.service
+
+[Service]
+Type=notify
+Restart=always
+RestartSec=5s
+LimitNOFILE=40000
+TimeoutStartSec=0
+ExecStartPre=/usr/local/pf/bin/pfcmd service etcd generateconfig
+ExecStart=/usr/local/pf/sbin/etcd --config-file /usr/local/pf/var/conf/etcd.conf.yml
+Slice=packetfence.slice
+
+[Install]
+WantedBy=packetfence.target

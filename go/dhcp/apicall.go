@@ -79,7 +79,11 @@ func NodeInformation(target net.HardwareAddr) (r NodeInfo) {
 	b := bytes.NewBuffer([]byte{})
 	json.NewEncoder(b).Encode(q)
 
-	res, _ := http.Post("http://127.0.0.1:9090", "application/jsonrequest", b)
+	res, err := http.Post("http://127.0.0.1:9090", "application/jsonrequest", b)
+
+	if err != nil {
+		return r
+	}
 
 	json.NewDecoder(res.Body).Decode(&r)
 	return r
