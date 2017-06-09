@@ -190,22 +190,12 @@ type PfconfigDatabase struct {
 	DBPort         string `json:"port"`
 }
 
-type PfCluster struct {
-        PfconfigMethod string `val:"keys"`
-        PfconfigNS     string `val:"config::Cluster"`
-        Keys           []string
-}
-
-type ClusterMembers struct {
-        PfconfigMethod       string `val:"keys"`
-        PfconfigNS           string `val:"config::Cluster"`
-        PfconfigHashNS       string `val:"-"`
-        Interfaces           []string Details
-        ManagementIp         string `json:"management_ip"`
-        Host                 string `json:"host"`
-}
-
-type Details struct {
-        Ip                   string `json:"ip"`
-        Type                 string `json:"type"`
+type NetInterface struct {
+	PfconfigMethod string `val:"hash_element"`
+	PfconfigNS     string `val:"-"`
+	PfconfigHashNS string `val:"-"`
+	Ip             string `json:"ip"`
+	Type           string `json:"type"`
+	Enforcement    string `json:"enforcement"`
+	Mask           string `json:"mask"`
 }

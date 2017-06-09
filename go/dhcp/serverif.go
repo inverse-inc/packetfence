@@ -105,13 +105,13 @@ func broadcastOpen(bindAddr net.IP, port int, ifname string) (*ipv4.PacketConn, 
 // ListenAndServeIf listens on the UDP network address addr and then calls
 // Serve with handler to handle requests on incoming packets.
 // i.e. ListenAndServeIf("eth0",handler)
-func ListenAndServeIfUnicast(interfaceName string, handler Handler, jobs chan job, dhcphandler DHCPHandler) error {
+func ListenAndServeIfUnicast(interfaceName string, handler Handler, jobs chan job, ip net.IP) error {
 	iface, err := net.InterfaceByName(interfaceName)
 	if err != nil {
 		return err
 	}
 
-	p, err := UnicastOpen(dhcphandler.ip, 67, interfaceName)
+	p, err := UnicastOpen(ip, 67, interfaceName)
 	if err != nil {
 		return err
 	}
