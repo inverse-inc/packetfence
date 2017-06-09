@@ -338,6 +338,11 @@ dhcpd_binary=/usr/sbin/dhcpd
 # Should go_dhcpd be managed by PacketFence?
 go_dhcpd=disabled
 #
+# services.etcd
+#
+# Should etcd be managed by PacketFence?
+etcd=enabled
+#
 # services.haproxy
 #
 # Should haproxy be started?
