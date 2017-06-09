@@ -547,6 +547,14 @@ sub flatten_list {
     }
 }
 
+sub commitMultiCluster {
+    my ($self) = @_;
+    my $object = pf::multi_cluster::findObject(pf::multi_cluster::rootRegion(), pf::multi_cluster::objectId($self->multiClusterHost));
+    for my $child (@{pf::multi_cluster::allChilds($object)}) {
+        $child->configStore(ref($self))->commit();
+    }
+}
+
 =head2 commit
 
 =cut
@@ -555,9 +563,6 @@ sub commit {
     my ($self) = @_;
     my $result;
     my $error;
-
-    # TODO: do a commit of all the scopes below the one we are commtting so it picks up any changes that could now be the same
-    # ex: global scope parameter is now the same as the child who overided it and should now disapear from the file
 
     eval {
         $result = $self->rewriteConfig();
@@ -568,6 +573,8 @@ sub commit {
     }
 
     if($result){
+        $self->commitMultiCluster() if(pf::multi_cluster::enabled());
+
         if(pf::cluster::increment_config_version()) {
             ($result,$error) = $self->commitPfconfig;
         }
