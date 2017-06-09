@@ -10,4 +10,4 @@
     - name: Reload configuration
       command: /usr/local/pf/bin/pfcmd configreload hard
     - name: record-push-configuration
-      local_action: command mkdir -p /usr/local/pf/var/deployed/{{ host_path }} && touch /usr/local/pf/var/deployed/{{ host_path }}
+      local_action: command bash -c "mkdir -p /usr/local/pf/var/deployed/{{ host_path }} && touch /usr/local/pf/var/deployed/{{ host_path }}"
