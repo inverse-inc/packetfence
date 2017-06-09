@@ -348,7 +348,7 @@ sub scopeChildConfigstores {
     else {
         return map { 
             $_->configStore($self->configStoreClass) 
-        } @{pf::multi_cluster::allChilds(pf::multi_cluster::findObject(pf::multi_cluster::rootRegion(), $self->multiClusterHost))}
+        } @{pf::multi_cluster::allChilds(pf::multi_cluster::findObject(pf::multi_cluster::rootRegion(), pf::multi_cluster::objectId($self->multiClusterHost)))}
     }
 }
 
