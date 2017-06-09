@@ -1,13 +1,13 @@
+<div class="modal modal-large fade hide" id="modalScopeSelector">
 
-[%- MACRO multi_cluster_scope_change_uri(baseUri, scope) BLOCK -%]
-[% baseUri _ "?multi-cluster-scope=" _ scope %]
+[%- MACRO multi_cluster_scope_change_uri(scope) BLOCK -%]
+[% "?multi-cluster-scope=" _ scope %]
 [%- END -%]
 
 [%- MACRO multi_cluster_render(object) BLOCK -%]
   [% IF object.isa("pf::multi_cluster::region") %]
-  [% uri = c.request.uri.split("\\?").0 %]
   <li>
-    <b><a href="[% multi_cluster_scope_change_uri(uri, object.name) %]">[% object.name %]</a></b>
+    <b><a href="[% multi_cluster_scope_change_uri(object.name) %]">[% object.name %]</a></b>
     <ul>
     [% FOREACH child IN object.childs.keys %]
     [% multi_cluster_render(object.childs.$child) | none %]
@@ -15,15 +15,22 @@
     </ul>
   </li>
   [% ELSIF object.isa("pf::multi_cluster::cluster") %]
-  <li><a href="[% multi_cluster_scope_change_uri(uri, object.name) %]">'[% object.name %]' cluster</a></li>
+  <li><a href="[% multi_cluster_scope_change_uri(object.name) %]">'[% object.name %]' cluster</a></li>
   [% ELSIF object.isa("pf::multi_cluster::standalone_server") %]
-  <li><a href="[% multi_cluster_scope_change_uri(uri, object.name) %]">'[% object.name %]' server</a></li>
+  <li><a href="[% multi_cluster_scope_change_uri(object.name) %]">'[% object.name %]' server</a></li>
   [% END %]
 [%- END -%]
 
-<h1>Select the configuration scope</h1>
-<h2>Currently working on [% multi_cluster_scope %]</h2>
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">&times;</a>
+    <h3>Configuration scope</h3>
+  </div>
 
-<ul>
-[% multi_cluster_render(rootRegion) | none %]
-</ul>
+  <div class="modal-body">
+    <h5>Currently working on [% multi_cluster_scope %]</h5>
+    <ul>
+      [% multi_cluster_render(rootRegion) | none %]
+    </ul>
+  </div>
+
+</div>

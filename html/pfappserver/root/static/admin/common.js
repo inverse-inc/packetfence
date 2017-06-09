@@ -295,11 +295,11 @@ jQuery.fn.extend({
       if(!$(o).attr('data-do-bind-id')) {
         var gen_id = $("<a></a>").uniqueId().attr('id');
         $(o).attr('data-do-bind-id', gen_id);
-      } 
+      }
     });
   },
-  /* 
-   * Ensures that the function passes in parameter will only be executed once for an element of the DOM 
+  /*
+   * Ensures that the function passes in parameter will only be executed once for an element of the DOM
    * Useful to bind click events when objects load without double affecting the event to existing elements
    *
    */
@@ -431,6 +431,37 @@ $(function () { // DOM ready
         }
     });
 
+    $('#scopeSelector').on('click', function(e) {
+        e.preventDefault();
+
+        var section = $('#section');
+        section.loader();
+        section.fadeTo('fast', 0.5);
+        $.ajax($(e.target).attr('href'))
+            .always(function() {
+                section.stop();
+                section.fadeTo('fast', 1.0, function() {
+                    section.loader('hide');
+                });
+            })
+            .done(function(data) {
+                $('body').append(data);
+                var modal = $("#modalScopeSelector");
+                var hash = location.hash;
+                if (hash && hash != '#') {
+                    modal.find('a').each(function() {
+                        this.href += hash;
+                    });
+                }
+                modal.modal({ show: true });
+            })
+            .fail(function(jqXHR) {
+                var errorSibling = section.find('h2').first();
+                var status_msg = getStatusMsg(jqXHR);
+                showError(errorSibling, status_msg);
+            });
+    });
+
     /* Register links in the sidebar list */
     function _enableCategory(category) {
         // Activate corresponding category
@@ -463,11 +494,11 @@ $(function () { // DOM ready
         if(item.hasClass('subsection')) {
           item.closest('.section').addClass('active');
         }
-        
+
         item.addClass('active');
 
         // Define the first element as active if there is none selected
-        if(item.hasClass('section') && item.find('ul').find('li.active').length === 0) {  
+        if(item.hasClass('section') && item.find('ul').find('li.active').length === 0) {
           $(item.find('ul').find('li')[0]).addClass('active');
         }
 
@@ -1130,7 +1161,7 @@ FingerbankSearch.prototype.search = function(query, process) {
 };
 
 FingerbankSearch.setup = function() {
-  $('.fingerbank-type-ahead').doOnce('.fingerbank-type-ahead', function(){ 
+  $('.fingerbank-type-ahead').doOnce('.fingerbank-type-ahead', function(){
       var o = this;
 
       // Creating a new scope since we are in a loop
@@ -1170,7 +1201,7 @@ FingerbankSearch.setup = function() {
             }
           }
           search.typeahead_field.val('');
-          return false;      
+          return false;
         });
       })();
   });

@@ -352,6 +352,7 @@ sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
 sub select_scope :Chained('object') :PathPart('select_scope') :Args(0) {
     my ($self, $c) = @_;
     $c->stash->{rootRegion} = pf::multi_cluster::rootRegion();
+    $c->stash->{current_view} = 'HTML';
 }
 
 =head2 help
