@@ -43,9 +43,7 @@ authentication source.
 =cut
 
 sub options_type {
-    my $self = shift;
-
-    my ($classname, $actions_ref, @actions);
+    my ($self) = @_;
     my $form = $self->form;
     my $rule_class = $self->parent->parent->parent->rule_class;
 
@@ -54,7 +52,7 @@ sub options_type {
         my $source = $form->get_source;
         @allowed_actions = @{$source->available_actions()};
     }
-    @actions = map {
+    my @actions = map {
       {
         value => $_,
         label => $self->_localize($_),
