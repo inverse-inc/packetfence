@@ -2,7 +2,7 @@ package pfappserver::Form::Config::Authentication::Source::OpenID;
 
 =head1 NAME
 
-pfappserver::Form::Config::Authentication::Source::OpenID - Web form for a Instagram user source
+pfappserver::Form::Config::Authentication::Source::OpenID - Web form for a OpenID user source
 
 =head1 DESCRIPTION
 
@@ -32,24 +32,21 @@ has_field 'client_secret' =>
 has_field 'site' =>
   (
    type => 'Text',
-   label => 'Graph API URL',
+   label => 'API URL',
    required => 1,
-   default => pf::Authentication::Source::OpenIDSource->meta->get_attribute('site')->default,
    element_class => ['input-xlarge'],
   );
 has_field 'access_token_path' =>
   (
    type => 'Text',
-   label => 'Graph API Token Path',
+   label => 'API Token Path',
    required => 1,
-   default => pf::Authentication::Source::OpenIDSource->meta->get_attribute('access_token_path')->default,
   );
-has_field 'access_token_param' =>
+has_field 'authorize_path' =>
   (
    type => 'Text',
-   label => 'Access Token Parameter',
+   label => 'API Authorize Path',
    required => 1,
-   default => pf::Authentication::Source::OpenIDSource->meta->get_attribute('access_token_param')->default,
   );
 has_field 'scope' =>
   (
@@ -63,9 +60,8 @@ has_field 'scope' =>
 has_field 'protected_resource_url' =>
   (
    type => 'Text',
-   label => 'Graph API URL of logged user',
+   label => 'API URL of logged user',
    required => 1,
-   default => pf::Authentication::Source::OpenIDSource->meta->get_attribute('protected_resource_url')->default,
    element_class => ['input-xlarge'],
   );
 has_field 'redirect_url' =>
@@ -85,8 +81,6 @@ has_field 'domains' =>
    type => 'Text',
    label => 'Authorized domains',
    required => 1,
-   default => pf::Authentication::Source::OpenIDSource->meta->get_attribute('domains')->default,
-   element_attr => {'placeholder' => pf::Authentication::Source::OpenIDSource->meta->get_attribute('domains')->default},
    element_class => ['input-xlarge'],
    tags => { after_element => \&help,
              help => 'Comma separated list of domains that will be resolve with the correct IP addresses.' },
