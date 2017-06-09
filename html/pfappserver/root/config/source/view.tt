@@ -28,6 +28,7 @@
       <strong>[% l('Success!') %]</strong> [% message %]
     </div>
     [% END -%]
+    [% form.block('action_templates').render | none %]
 <form name="modalSource" class="form-horizontal" action="[% action_url %]" method="post">
 
         [% form.field('id').render | none %]

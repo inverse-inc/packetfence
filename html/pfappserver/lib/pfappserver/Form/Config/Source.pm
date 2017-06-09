@@ -17,10 +17,14 @@ extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help','pfappserver::Base::Form::Role::AllowedOptions';
 
 use pfappserver::Form::Field::DynamicList;
+use pfappserver::Base::Form::Authentication::Action;
 
 use pf::log;
 use pf::authentication;
 use pf::Authentication::constants;
+our %ACTION_FIELD_OPTIONS;
+
+*ACTION_FIELD_OPTIONS = \%pfappserver::Base::Form::Authentication::Action::ACTION_FIELD_OPTIONS;
 
 has source_type => (is => 'ro', builder => '_build_source_type', lazy => 1);
 
@@ -106,6 +110,15 @@ has_block rules =>
     build_render_list_method => \&build_render_list_rules,
   );
 
+has_block action_templates =>
+  (
+    attr => {
+        id => 'action_templates',
+    },
+    class => [qw(hidden)],
+    render_list => [ map { "${_}_action" } keys %ACTION_FIELD_OPTIONS ],
+  );
+
 =head2 build_render_list_definition
 
 The definition block's render list builder
@@ -122,9 +135,18 @@ our %EXCLUDE = (
     type => 1,
     description => 1,
     rules => 1,
-    "${Rules::AUTH}_rules" => 1,
-    "${Rules::ADMIN}_rules" => 1,
+    action_templates => 1,
+    (map { ("${_}_rules"  => 1) } @Rules::CLASSES),
+    (map { ("${_}_action" => 1) } keys %ACTION_FIELD_OPTIONS),
 );
+
+while (my ($f, $o) = each %ACTION_FIELD_OPTIONS) {
+    has_field "${f}_action" => (
+        %$o,
+        do_wrapper => 0,
+        do_label   => 0,
+    );
+}
 
 =head2 render_list_definition
 
