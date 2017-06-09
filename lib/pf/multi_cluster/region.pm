@@ -27,6 +27,17 @@ sub generateDeltas {
     }
 }
 
+sub hasUnpushedChanges {
+    my ($self) = @_;
+    my %childs = %{$self->childs};
+    for my $id (keys(%childs)) {
+        get_logger->debug("Checking if child $id has unpushed changes");
+        my $child = $childs{$id};
+        return 1 if($child->hasUnpushedChanges());
+    }
+    return 0;
+}
+
 sub childs {
     my ($self) = @_;
     return { %{$self->regions}, %{$self->clusters}, %{$self->standalone_servers} };
