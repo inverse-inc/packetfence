@@ -20,6 +20,7 @@ use pfappserver::Form::Field::DynamicList;
 
 use pf::log;
 use pf::authentication;
+use pf::Authentication::constants;
 
 has source_type => (is => 'ro', builder => '_build_source_type', lazy => 1);
 
@@ -127,6 +128,8 @@ our %EXCLUDE = (
     type => 1,
     description => 1,
     rules => 1,
+    "${Rules::AUTH}_rules" => 1,
+    "${Rules::ADMIN}_rules" => 1,
 );
 
 =head2 render_list_definition
