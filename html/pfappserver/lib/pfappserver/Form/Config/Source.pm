@@ -168,16 +168,15 @@ sub rules_add_control {
     my ($field) = @_;
     my $attrs  = $field->add_button_attr;
     my $form =  $field->form;
-    my $text = $form->_localize("No Rule Defined");
     my $label = $field->label;
-    my $button_text = $form->_localize("Add $label");
+    my $text = $form->_localize("No $label");
+    my $button_text = $form->_localize("Add Rule");
     return qq{
-<div class="controls unwell unwell-horizontal">
-  <div class="input">
-    <p><i class="icon-filter icon-large"></i>$text<br/>
-      <a $attrs class="btn" >$button_text</a>
-    </p>
-  </div>
+<div class="pull-left">
+  <p>
+   <i class="icon-cogs icon-large"></i> $text<br/>
+   <a $attrs class="btn" >$button_text</a>
+  </p>
 </div>
 };
 }
