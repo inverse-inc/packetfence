@@ -54,6 +54,8 @@ sub objectId {
 
 sub findObject {
     my ($group, $id) = @_;
+
+    return undef unless(defined($id));
     
     if($group->name eq $id) {
         return $group;
@@ -82,6 +84,8 @@ sub findObject {
 sub configFiles {
     my @files;
     for my $store (@{pf::cluster::stores_to_sync()}) {
+        next if($store eq "pf::ConfigStore::MultiCluster");
+
         my $cs = $store->new;
         my $file = pf::file_paths::cleaned($cs->configFile);
         push @files, $file;
@@ -128,6 +132,32 @@ sub generateConfig {
 sub generateDeltas {
     my $region = defined($_[0]) ? $_[0] : rootRegion();
     $region->generateDeltas();
+}
+
+sub play {
+    my ($playbook, $scope) = @_;
+    _play(findAnsiblePlaybook($playbook), $scope);
+}
+
+sub _play {
+    my ($playbook, $scope) = @_;
+    $playbook = untaint_chain($playbook);
+    $scope = untaint_chain($scope);
+    system("/usr/bin/ansible-playbook $playbook --extra-vars \"target=$scope\"");
+}
+
+sub addObject {
+    my ($type, $parent, $name) = @_;
+    my $config = pf::IniFiles->new(-file => $multi_cluster_config_file);
+
+    my $existing = $config->val($parent, $type);
+    if($existing) {
+        $config->setval($parent, $type, $existing . ",$name");
+    }
+    else {
+        $config->newval($parent, $type, $name);
+    }
+    $config->RewriteConfig();
 }
 
 1;

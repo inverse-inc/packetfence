@@ -18,6 +18,22 @@ pf::cmd::pf::multicluster
    play <playbook> [<scope>] | play an ansible playbook on the desired scope
    run <command> [<scope>]   | run a command on the desired scope
 
+  Creating a server from an existing deployment
+   NOTE: Prior to executing this command, you need to copy the root's user key on the servers
+
+   create <server|cluster> <hostname> <parent-region> [<object-name>]
+
+   Where:
+    - <server|cluster> is whether the server is a server or a cluster
+    - <hostname> is the resolvable hostname of the current deployment (in case of a cluster, use the CLUSTER management IP address or DNS name)
+    - <parent-region> is the parent region this new object will be in. Define new regions in multi-cluster.conf. By default, only the ROOT region exists
+    - <object-name> is the name of the object that will be created in multi-master.conf. Only respected when importing a cluster as servers use their hostname
+
+   Examples:
+    create server pf-MTL-1.inverse.ca montreal pf-MTL-1
+    create cluster 10.1.1.1 montreal pf-MTL
+
+
 =head1 DESCRIPTION
 
 pf::cmd::pf::multicluster
@@ -32,6 +48,7 @@ use pf::multi_cluster;
 use pf::constants;
 use pf::file_paths qw(
     $ansible_hosts_file
+    $multi_cluster_conf_dir
 );
 use pf::util;
 
@@ -150,16 +167,66 @@ sub parse_play {
 
 sub action_play {
     my ($self) = @_;
-    my $playbook = untaint_chain($self->{playbook});
+    my $playbook = $self->{playbook};
     my $scope = $self->{scope} ? $self->{scope}->name : "ROOT";
-    exec("/usr/bin/ansible-playbook $playbook --extra-vars \"target=$scope\"");
+    pf::multi_cluster::_play($playbook, $scope);
+}
+
+sub parse_create {
+    my ($self, @args) = @_;
+
+    #<server|cluster> <hostname> <parent-region> <name>
+    ($self->{object_type}, $self->{hostname}, $self->{parent_region_name}, $self->{name}) = @args;
+
+    if($self->{object_type} eq "server") {
+        $self->{name} = $self->{hostname};
+        $self->{conf_object_type} = "standalone_servers";
+    }
+    elsif($self->{object_type} eq "cluster") {
+        $self->{conf_object_type} = "clusters";
+    }
+    else {
+        print STDERR "Invalid object type specified \n";
+        return $FALSE;
+    }
+
+    unless($self->{parent_region} = pf::multi_cluster::findObject(pf::multi_cluster::rootRegion, $self->{parent_region_name})) {
+        print STDERR "Invalid parent region ".$self->{parent_region_name}."\n";
+        return $FALSE;
+    }
+
+    if(pf::multi_cluster::findObject(pf::multi_cluster::rootRegion, $self->{name})) {
+        print STDERR "A cluster or server with this name already exists in the configuration\n";
+        return $FALSE;
+    }
+
+    return $TRUE;
+}
+
+sub action_create {
+    my ($self) = @_;
+
+    pf::multi_cluster::addObject($self->{conf_object_type}, $self->{parent_region_name}, $self->{name});
+    $self->{created_object} = pf::multi_cluster::findObject(pf::multi_cluster::rootRegion, $self->{name});
+
+    if($self->{object_type} eq "cluster") {
+        print "Importing cluster.conf from ".$self->{hostname}."\n";
+        my $from = untaint_chain($self->{hostname}.":/usr/local/pf/conf/cluster.conf");
+        my $to = untaint_chain($multi_cluster_conf_dir . "/" . $self->{created_object}->path);
+        system("scp $from $to");
+    }
+
+    pf::multi_cluster::generateAnsibleConfig();
+
+    pf::multi_cluster::play("pull-configuration", $self->{name});
+    pf::multi_cluster::generateDeltas($self->{created_object});
+
+    print "Imported $self->{object_type} into multi-cluster.conf \n";
 }
 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
-
-Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
