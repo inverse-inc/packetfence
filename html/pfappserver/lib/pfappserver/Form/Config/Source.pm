@@ -53,9 +53,6 @@ has_field "${Rules::AUTH}_rules" =>
    do_wrapper => 1,
    sortable => 1,
    num_when_empty => 0,
-    tags => {
-        "dynamic-list-append_controls" => \&rules_add_control,
-    }
   );
 
 has_field "${Rules::AUTH}_rules.contains" =>
@@ -78,9 +75,6 @@ has_field "${Rules::ADMIN}_rules" =>
    do_wrapper => 1,
    sortable => 1,
    num_when_empty => 0,
-    tags => {
-        "dynamic-list-append_controls" => \&rules_add_control,
-    }
   );
 
 has_field "${Rules::ADMIN}_rules.contains" =>
@@ -160,30 +154,6 @@ sub build_render_list_rules {
 
     return [];
 }
-
-=head2 rules_add_control
-
-Override the default add button
-
-=cut
-
-sub rules_add_control {
-    my ($field) = @_;
-    my $attrs  = $field->add_button_attr;
-    my $form =  $field->form;
-    my $label = $field->label;
-    my $text = $form->_localize("No $label");
-    my $button_text = $form->_localize("Add Rule");
-    return qq{
-<div class="pull-left">
-  <p>
-   <i class="icon-cogs icon-large"></i> $text<br/>
-   <a $attrs class="btn" >$button_text</a>
-  </p>
-</div>
-};
-}
-
 
 sub accordion_heading_content {
     my ($field) = @_;
