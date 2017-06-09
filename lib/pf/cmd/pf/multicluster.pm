@@ -109,7 +109,6 @@ sub parse_generatedeltas {
 
 sub action_generatedeltas {
     my ($self) = @_;
-    exit $EXIT_FAILURE unless($self->lookup_confirm_scope);
     pf::multi_cluster::generateDeltas($self->{scope});
 }
 
