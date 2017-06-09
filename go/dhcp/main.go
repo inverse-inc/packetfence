@@ -37,13 +37,15 @@ var ControlOut map[string]chan interface{}
 var ControlIn map[string]chan interface{}
 
 var VIP map[string]bool
+var VIPIp map[string]net.IP
 
 var ctx = context.Background()
 
 var Capi *client.Config
 
 type DHCPHandler struct {
-	ip            net.IP        // Server IP to use
+	ip            net.IP // Server IP to use
+	vip           net.IP
 	options       dhcp.Options  // Options to send to DHCP Clients
 	start         net.IP        // Start of IP range to distribute
 	leaseRange    int           // Number of IPs to distribute (starting from start)
@@ -91,11 +93,8 @@ func main() {
 	configDatabase := readDBConfig()
 	connectDB(configDatabase, database)
 
-	// Read pfconfig
-	DHCPConfig = newDHCPConfig()
-	DHCPConfig.readConfig()
-
 	VIP = make(map[string]bool)
+	VIPIp = make(map[string]net.IP)
 
 	go func() {
 		var interfaces pfconfigdriver.ListenInts
@@ -106,6 +105,10 @@ func main() {
 			time.Sleep(3 * time.Second)
 		}
 	}()
+
+	// Read pfconfig
+	DHCPConfig = newDHCPConfig()
+	DHCPConfig.readConfig()
 
 	// Queue value
 	var (
@@ -138,10 +141,12 @@ func main() {
 		ControlOut[v.Name] = channelOut
 		for net := range v.network {
 			net := net
-
 			go func() {
-				v.runUnicast(jobs, v.network[net].dhcpHandler)
+				v.runUnicast(jobs, v.network[net].dhcpHandler.ip)
 			}()
+
+			// We only need one listener per ip
+			break
 		}
 	}
 
@@ -217,8 +222,9 @@ func (h *Interface) run(jobs chan job) {
 }
 
 // Unicast runner
-func (h *Interface) runUnicast(jobs chan job, handler DHCPHandler) {
-	ListenAndServeIfUnicast(h.Name, h, jobs, handler)
+func (h *Interface) runUnicast(jobs chan job, ip net.IP) {
+
+	ListenAndServeIfUnicast(h.Name, h, jobs, ip)
 }
 
 func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options dhcp.Options) (answer Answer) {
@@ -285,8 +291,9 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 		return answer
 	}
 	// Do we have the vip ?
+
 	if VIP[h.Name] {
-		fmt.Println("Process packet")
+		fmt.Println("Process " + msgType.String() + " packet for " + p.CHAddr().String())
 		switch msgType {
 
 		case dhcp.Discover:
@@ -394,31 +401,18 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 
 // Detect the vip on each interfaces
 func (d *Interfaces) detectVIP(interfaces pfconfigdriver.ListenInts) {
-	// var keyConfCluster pfconfigdriver.PfconfigKeys
-	// keyConfCluster.PfconfigNS = "config::Cluster"
-	//
-	// pfconfigdriver.FetchDecodeSocketStruct(ctx, &keyConfCluster)
-	//
-	//
-	// for _, key := range keyConfCluster.Keys {
-	//
-	// 	var interfaces pfconfigdriver.ListenInts
-	// 	pfconfigdriver.FetchDecodeSocketStruct(ctx, &interfaces)
-	//
-	// 	// for _, kaye := range interfaces.Element {
-	//
-	// 	var ConfCluster pfconfigdriver.ClustMemb
-	//
-	// 	ConfCluster.PfconfigHashNS = key
-	// 	// ConfCluster.Interfaces = interfaces.Element
-	// 	pfconfigdriver.FetchDecodeSocketStruct(ctx, &ConfCluster)
-	// 	// if key != "CLUSTER" {
-	// 	// 	continue
-	// 	// }
-	// 	spew.Dump(ConfCluster)
-	// }
+
+	var keyConfCluster pfconfigdriver.NetInterface
+	keyConfCluster.PfconfigNS = "config::Pf(CLUSTER)"
 
 	for _, v := range interfaces.Element {
+		keyConfCluster.PfconfigHashNS = "interface " + v
+		pfconfigdriver.FetchDecodeSocketStruct(ctx, &keyConfCluster)
+		// Nothing in keyConfCluster.Ip so we are not in cluster mode
+		if keyConfCluster.Ip == "" {
+			VIP[v] = true
+			continue
+		}
 
 		if _, found := VIP[v]; !found {
 			VIP[v] = false
@@ -430,7 +424,8 @@ func (d *Interfaces) detectVIP(interfaces pfconfigdriver.ListenInts) {
 		found = false
 		for _, adresse := range adresses {
 			IP, _, _ := net.ParseCIDR(adresse.String())
-			if IP.Equal(net.ParseIP("172.21.135.4")) {
+			VIPIp[v] = net.ParseIP(keyConfCluster.Ip)
+			if IP.Equal(VIPIp[v]) {
 				found = true
 				if VIP[v] == false {
 					fmt.Println(v + " got the VIP")
@@ -440,30 +435,6 @@ func (d *Interfaces) detectVIP(interfaces pfconfigdriver.ListenInts) {
 					}
 					VIP[v] = true
 				}
-			}
-			if IP.Equal(net.ParseIP("172.21.136.4")) {
-				found = true
-				if VIP[v] == false {
-					fmt.Println(v + " got the VIP")
-					if _, ok := ControlIn[v]; ok {
-						Request := ApiReq{Req: "initialease", NetInterface: v, NetWork: ""}
-						ControlIn[v] <- Request
-					}
-					VIP[v] = true
-				}
-				VIP[v] = true
-			}
-			if IP.Equal(net.ParseIP("172.21.137.4")) {
-				found = true
-				if VIP[v] == false {
-					fmt.Println(v + " got the VIP")
-					if _, ok := ControlIn[v]; ok {
-						Request := ApiReq{Req: "initialease", NetInterface: v, NetWork: ""}
-						ControlIn[v] <- Request
-					}
-					VIP[v] = true
-				}
-				VIP[v] = true
 			}
 		}
 		if found == false {
@@ -624,6 +595,9 @@ func (d *Interfaces) readConfig() {
 						DHCPNet.network.IP = net.ParseIP(key)
 						DHCPNet.network.Mask = net.IPMask(net.ParseIP(ConfNet.Netmask))
 						DHCPScope.ip = IP.To4()
+						if _, found := VIPIp[eth.Name]; found {
+							DHCPScope.vip = VIPIp[eth.Name]
+						}
 						DHCPScope.start = net.ParseIP(ConfNet.DhcpStart)
 						seconds, _ := strconv.Atoi(ConfNet.DhcpDefaultLeaseTime)
 						DHCPScope.leaseDuration = time.Duration(seconds) * time.Second
