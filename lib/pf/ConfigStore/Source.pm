@@ -42,13 +42,17 @@ Update section
 
 sub _update_section {
     my ($self, $section, $assignments) = @_;
-    my $rules = delete $assignments->{rules} // [];
+    my $admin_rules = delete $assignments->{"${Rules::ADMIN}_rules"} // [];
+    my $auth_rules = delete $assignments->{"${Rules::AUTH}_rules"} // [];
+    $_->{class} = $Rules::ADMIN for @$admin_rules;
+    $_->{class} = $Rules::AUTH for @$auth_rules;
+    my @rules = (@$admin_rules, @$auth_rules);
     $self->SUPER::_update_section($section, $assignments);
     my $cachedConfig = $self->cachedConfig;
     for my $sub_section ( grep {/^$section rule/} $cachedConfig->Sections ) {
         $cachedConfig->DeleteSection($sub_section);
     }
-    for my $rule (@$rules) {
+    for my $rule (@rules) {
         my $name = delete $rule->{id};
         $self->_update_subfield_in_data($rule, "actions", "action");
         $self->_update_subfield_in_data($rule, "conditions", "condition");
@@ -68,19 +72,20 @@ sub _update_subfield_in_data {
 
 sub cleanupAfterRead {
     my ($self, $id, $item, $idKey) = @_;
-    my @rules;
+    $item->{"${Rules::AUTH}_rules"} = [];
+    $item->{"${Rules::ADMIN}_rules"} = [];
     for my $sub_section ( $self->cachedConfig->Sections ) {
         next unless  $sub_section =~ /^$id rule (.*)$/;
         my $id = $1;
         my $rule = $self->readRaw($sub_section);
+        my $class = delete $rule->{class};
         $rule->{id} = $id;
         my @action_keys = nsort grep {/^action\d+$/} keys %$rule;
         $rule->{actions} = [delete @$rule{@action_keys}];
         my @conditions_keys = nsort grep {/^condition\d+$/} keys %$rule;
         $rule->{conditions} = [delete @$rule{@conditions_keys}];
-        push @rules, $rule;
+        push $item->{"${class}_rules"}, $rule;
     }
-    $item->{rules} = \@rules;
 }
 
 before rewriteConfig => sub {
