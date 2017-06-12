@@ -28,8 +28,6 @@ var SourceView = function(options) {
     var id = options.items.id;
     options.parent.off('click', id + ' [href$="/clone"]');
     options.parent.off('click', id + ' [href$="/delete"]');
-    var changeRuleClass = $.proxy(this.changeRuleClass, this);
-    options.parent.on('change', 'form[name="modalSource"] select[name$="class"]', changeRuleClass);
     options.parent.on('click' , '#testSourceBtn', $.proxy(this.testSource, this));
 };
 
@@ -38,23 +36,6 @@ SourceView.prototype = (function(){
     F.prototype = ItemView.prototype;
     return new F();
 })();
-
-SourceView.prototype.changeRuleClass = function(e) {
-    var select = $(e.target);
-    var type = select.attr("value");
-    var name = select.attr("name");
-    var rule_id = name.replace(".class","");
-    var rule = select.closest(escapeJqueryId("#" + "accordion." + rule_id));
-    var actions_id =  escapeJqueryId('#' + rule_id + ".actions");
-    var actions = $(actions_id);
-    var show_options_selector = 'option[data-rule-class="' + type + '"]';
-    var shown_options = actions.find(show_options_selector);
-    shown_options.removeClass('hidden');
-    shown_options.removeAttr('disabled');
-    var hidden_options = actions.find('option[data-rule-class!="' + type + '"]');
-    hidden_options.addClass('hidden');
-    hidden_options.attr('disabled', 'disabled');
-};
 
 SourceView.prototype.testSource = function(e) {
     e.preventDefault();
