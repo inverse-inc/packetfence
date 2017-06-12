@@ -27,10 +27,16 @@ var SourceView = function(options) {
     var that = this;
     var items = options.items;
     var id = items.id;
+    var formName = items.formName;
+    var formSelector = 'form[name="'+ formName + '"]';
     options.parent.off('click', id + ' [href$="/clone"]');
     options.parent.off('click', id + ' [href$="/delete"]');
     options.parent.on('click' , '#testSourceBtn', $.proxy(this.testSource, this));
-    options.parent.on('change', 'form[name="'+ items.formName + '"]' + ' select[name*="action"][name$=".type"]', $.proxy(this.changeAction));
+    options.parent.on('change', formSelector + ' select[name*="\\.conditions\\."][name$=".attribute"]', $.proxy(this.changeCondition, this));
+    options.parent.on('change', formSelector + ' select[name*="\\.actions\\."][name$=".type"]', $.proxy(this.changeAction, this));
+    options.parent.on('section.loaded', $.proxy(this.loadSource, this));
+    options.parent.on('dynamic-list.add', 'div[id^="accordion\\.group\\.administration_rules\\."]', $.proxy(this.addRule, this));
+    options.parent.on('dynamic-list.add', 'div[id^="accordion\\.group\\.authentication_rules\\."]', $.proxy(this.addRule, this));
 };
 
 SourceView.prototype = (function(){
@@ -39,8 +45,30 @@ SourceView.prototype = (function(){
     return new F();
 })();
 
+SourceView.prototype.addRule = function(e) {
+    var rule = $(e.target);
+    rule.find('select[name*="\\.actions\\."][name$=".type"]:not(.disabled)').each(function() {
+        updateAction($(this), true);
+    });
+};
+
+SourceView.prototype.loadSource = function(e) {
+    var formName = this.items.formName;
+    $('#action_templates').find('option').removeAttr('id');
+    $('form[name="'+ formName + '"] select[name*="\\.conditions\\."][name$=".attribute"]:not(.disabled)').each(function() {
+       // updateCondition($(this));
+    });
+    $('form[name="'+ formName + '"] select[name*="\\.actions\\."][name$=".type"]:not(.disabled)').each(function() {
+        updateAction($(this), true);
+    });
+};
+
 SourceView.prototype.changeAction = function(e) {
     updateAction($(e.target), false);
+};
+
+SourceView.prototype.changeCondition = function(e) {
+    updateCondition($(e.target), false);
 };
 
 SourceView.prototype.testSource = function(e) {
