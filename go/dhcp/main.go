@@ -2,10 +2,8 @@ package main
 
 import (
 	"database/sql"
-	"encoding/binary"
 	"fmt"
 	"log"
-	"math"
 
 	"context"
 	_ "expvar"
@@ -19,7 +17,6 @@ import (
 	"github.com/RoaringBitmap/roaring"
 	"github.com/coreos/etcd/client"
 	"github.com/coreos/go-systemd/daemon"
-	netadv "github.com/fdurand/go-netadv"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	dhcp "github.com/krolaw/dhcp4"
@@ -42,43 +39,6 @@ var VIPIp map[string]net.IP
 var ctx = context.Background()
 
 var Capi *client.Config
-
-type DHCPHandler struct {
-	ip            net.IP // Server IP to use
-	vip           net.IP
-	options       dhcp.Options  // Options to send to DHCP Clients
-	start         net.IP        // Start of IP range to distribute
-	leaseRange    int           // Number of IPs to distribute (starting from start)
-	leaseDuration time.Duration // Lease period
-	hwcache       *cache.Cache
-	available     *roaring.Bitmap // RoaringBitmap to keep trak of available ip
-	layer2        bool
-	role          string
-}
-
-type Interfaces struct {
-	intsNet []Interface
-}
-
-type Interface struct {
-	Name    string
-	intNet  *net.Interface
-	network []Network
-	layer2  []*net.IPNet
-	Ipv4    net.IP
-	Ipv6    net.IP
-}
-
-type Network struct {
-	network     net.IPNet
-	dhcpHandler DHCPHandler
-	splittednet bool
-}
-
-func newDHCPConfig() *Interfaces {
-	var p Interfaces
-	return &p
-}
 
 func main() {
 	// Initialize etcd config
@@ -323,17 +283,21 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 			answer.IP = dhcp.IPAdd(handler.start, free)
 			answer.Iface = h.intNet
 			// Add options on the fly
-			GlobalOptions := handler.options
+			var GlobalOptions dhcp.Options
+			var options = make(map[dhcp.OptionCode][]byte)
+			for key, value := range handler.options {
+				options[key] = value
+			}
+			GlobalOptions = options
 			leaseDuration := handler.leaseDuration
 			// Add options on the fly
 			x, err := decodeOptions(p.CHAddr().String())
 			if err {
-				// if x, found := GlobalOptionMacCache.Get(p.CHAddr().String()); found {
 				for key, value := range x {
-					// for key, value := range x.(map[dhcp.OptionCode][]byte) {
 					if key == dhcp.OptionIPAddressLeaseTime {
 						seconds, _ := strconv.Atoi(string(value))
 						leaseDuration = time.Duration(seconds) * time.Second
+						continue
 					}
 					GlobalOptions[key] = value
 				}
@@ -359,7 +323,12 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 			if len(reqIP) == 4 && !reqIP.Equal(net.IPv4zero) {
 				if leaseNum := dhcp.IPRange(handler.start, reqIP) - 1; leaseNum >= 0 && leaseNum < handler.leaseRange {
 					if index, found := handler.hwcache.Get(p.CHAddr().String()); found {
-						GlobalOptions := handler.options
+						var GlobalOptions dhcp.Options
+						var options = make(map[dhcp.OptionCode][]byte)
+						for key, value := range handler.options {
+							options[key] = value
+						}
+						GlobalOptions = options
 						leaseDuration := handler.leaseDuration
 						// Add options on the fly
 						x, err := decodeOptions(p.CHAddr().String())
@@ -368,6 +337,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 								if key == dhcp.OptionIPAddressLeaseTime {
 									seconds, _ := strconv.Atoi(string(value))
 									leaseDuration = time.Duration(seconds) * time.Second
+									continue
 								}
 								GlobalOptions[key] = value
 							}
@@ -397,394 +367,4 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 	answer.Iface = h.intNet
 	answer.D = dhcp.ReplyPacket(p, dhcp.NAK, handler.ip, nil, 0, nil)
 	return answer
-}
-
-// Detect the vip on each interfaces
-func (d *Interfaces) detectVIP(interfaces pfconfigdriver.ListenInts) {
-
-	var keyConfCluster pfconfigdriver.NetInterface
-	keyConfCluster.PfconfigNS = "config::Pf(CLUSTER)"
-
-	for _, v := range interfaces.Element {
-		keyConfCluster.PfconfigHashNS = "interface " + v
-		pfconfigdriver.FetchDecodeSocketStruct(ctx, &keyConfCluster)
-		// Nothing in keyConfCluster.Ip so we are not in cluster mode
-		if keyConfCluster.Ip == "" {
-			VIP[v] = true
-			continue
-		}
-
-		if _, found := VIP[v]; !found {
-			VIP[v] = false
-		}
-
-		eth, _ := net.InterfaceByName(v)
-		adresses, _ := eth.Addrs()
-		var found bool
-		found = false
-		for _, adresse := range adresses {
-			IP, _, _ := net.ParseCIDR(adresse.String())
-			VIPIp[v] = net.ParseIP(keyConfCluster.Ip)
-			if IP.Equal(VIPIp[v]) {
-				found = true
-				if VIP[v] == false {
-					fmt.Println(v + " got the VIP")
-					if _, ok := ControlIn[v]; ok {
-						Request := ApiReq{Req: "initialease", NetInterface: v, NetWork: ""}
-						ControlIn[v] <- Request
-					}
-					VIP[v] = true
-				}
-			}
-		}
-		if found == false {
-			VIP[v] = false
-		}
-	}
-}
-
-func (d *Interfaces) readConfig() {
-
-	var interfaces pfconfigdriver.ListenInts
-	pfconfigdriver.FetchDecodeSocketStruct(ctx, &interfaces)
-
-	var keyConfNet pfconfigdriver.PfconfigKeys
-	keyConfNet.PfconfigNS = "config::Network"
-
-	pfconfigdriver.FetchDecodeSocketStruct(ctx, &keyConfNet)
-
-	for _, v := range interfaces.Element {
-
-		eth, _ := net.InterfaceByName(v)
-		// TO DO Check if the interface exist
-		var ethIf Interface
-
-		ethIf.intNet = eth
-		ethIf.Name = eth.Name
-
-		adresses, _ := eth.Addrs()
-		for _, adresse := range adresses {
-
-			var NetIP *net.IPNet
-			var IP net.IP
-			IP, NetIP, _ = net.ParseCIDR(adresse.String())
-
-			a, b := NetIP.Mask.Size()
-			if a == b {
-				continue
-			}
-
-			if IP.To16() != nil {
-				ethIf.Ipv6 = IP
-			}
-			if IP.To4() != nil {
-				ethIf.Ipv4 = IP
-			}
-			ethIf.layer2 = append(ethIf.layer2, NetIP)
-
-			for _, key := range keyConfNet.Keys {
-				var ConfNet pfconfigdriver.NetworkConf
-				ConfNet.PfconfigHashNS = key
-
-				pfconfigdriver.FetchDecodeSocketStruct(ctx, &ConfNet)
-				if (NetIP.Contains(net.ParseIP(ConfNet.DhcpStart)) && NetIP.Contains(net.ParseIP(ConfNet.DhcpEnd))) || NetIP.Contains(net.ParseIP(ConfNet.NextHop)) {
-					// NetIP.Contains(net.ParseIP(ConfNet.Dns)) &&
-					// IP per role
-					if ConfNet.SplitNetwork == "enabled" {
-						var keyConfRoles pfconfigdriver.PfconfigKeys
-						keyConfRoles.PfconfigNS = "config::Roles"
-
-						pfconfigdriver.FetchDecodeSocketStruct(ctx, &keyConfRoles)
-
-						// Add the registration role
-						keyConfRoles.Keys = append(keyConfRoles.Keys, "registration")
-
-						netsize, _ := NetIP.Mask.Size()
-
-						cidr := math.Ceil(math.Log(float64(len(keyConfRoles.Keys)))/math.Log(2) + float64(netsize))
-
-						smallnet, _ := netadv.SplitNetworks(NetIP, uint(cidr))
-
-						var Roles []string
-						var Role string
-
-						Roles = append([]string(nil), keyConfRoles.Keys...)
-
-						for _, subnet := range smallnet {
-							var DHCPNet Network
-							var DHCPScope DHCPHandler
-							var lastrole bool
-							if len(Roles) == 1 {
-								lastrole = true
-								Role = Roles[0]
-							} else {
-								Role, Roles = Roles[len(Roles)-1], Roles[:len(Roles)-1]
-							}
-							DHCPScope.role = Role
-							DHCPNet.splittednet = true
-							var ip net.IP
-							ip = append([]byte(nil), subnet.IP...)
-
-							// First ip available in the scope (packetfence ip)
-							inc(ip)
-							DHCPNet.network.IP = append([]byte(nil), subnet.IP...)
-
-							DHCPNet.network.Mask = subnet.Mask
-							DHCPScope.ip = append([]byte(nil), ip...)
-
-							// First ip available for endpoint
-							inc(ip)
-							DHCPScope.start = append([]byte(nil), ip...)
-							var seconds int
-
-							if Role == "registration" {
-								// lease duration need to be low in registration role
-								seconds, _ = strconv.Atoi("30")
-							} else {
-								seconds, _ = strconv.Atoi(ConfNet.DhcpDefaultLeaseTime)
-							}
-							DHCPScope.leaseDuration = time.Duration(seconds) * time.Second
-							var ips net.IP
-
-							for ipe := net.IPv4(subnet.IP[0], subnet.IP[1], subnet.IP[2], subnet.IP[3]); subnet.Contains(ipe); inc(ipe) {
-								ips = append([]byte(nil), ipe...)
-							}
-							// Decrement twice to have the last ip available for the scope
-							dec(ips)
-							dec(ips)
-							DHCPScope.leaseRange = dhcp.IPRange(ip, ips)
-
-							// Initialize roaring bitmap
-							available := roaring.New()
-							available.AddRange(0, uint64(dhcp.IPRange(ip, ips)))
-							DHCPScope.available = available
-
-							// Initialize hardware cache
-							hwcache := cache.New(time.Duration(seconds)*time.Second, (time.Duration(seconds)*time.Second)+10*time.Second)
-
-							hwcache.OnEvicted(func(nic string, pool interface{}) {
-								DHCPScope.available.Add(uint32(pool.(int)))
-							})
-
-							DHCPScope.hwcache = hwcache
-							initiaLease(&DHCPScope)
-							var options = make(map[dhcp.OptionCode][]byte)
-
-							options[dhcp.OptionSubnetMask] = []byte(DHCPNet.network.Mask)
-							options[dhcp.OptionDomainNameServer] = []byte(net.ParseIP(ConfNet.Dns).To4())
-							options[dhcp.OptionRouter] = []byte(DHCPScope.ip.To4())
-							options[dhcp.OptionDomainName] = []byte(ConfNet.DomainName)
-							DHCPScope.options = options
-							if len(ConfNet.NextHop) > 0 {
-								DHCPScope.layer2 = false
-							} else {
-								DHCPScope.layer2 = true
-							}
-							DHCPNet.dhcpHandler = DHCPScope
-							ethIf.network = append(ethIf.network, DHCPNet)
-							if lastrole == true {
-								break
-							}
-						}
-
-					} else {
-						//Need to find a way to be able to change values dynamically
-						var DHCPNet Network
-						var DHCPScope DHCPHandler
-						DHCPNet.splittednet = false
-						DHCPNet.network.IP = net.ParseIP(key)
-						DHCPNet.network.Mask = net.IPMask(net.ParseIP(ConfNet.Netmask))
-						DHCPScope.ip = IP.To4()
-						if _, found := VIPIp[eth.Name]; found {
-							DHCPScope.vip = VIPIp[eth.Name]
-						}
-						DHCPScope.start = net.ParseIP(ConfNet.DhcpStart)
-						seconds, _ := strconv.Atoi(ConfNet.DhcpDefaultLeaseTime)
-						DHCPScope.leaseDuration = time.Duration(seconds) * time.Second
-						DHCPScope.leaseRange = dhcp.IPRange(net.ParseIP(ConfNet.DhcpStart), net.ParseIP(ConfNet.DhcpEnd))
-
-						// Initialize roaring bitmap
-						available := roaring.New()
-						available.AddRange(0, uint64(dhcp.IPRange(net.ParseIP(ConfNet.DhcpStart), net.ParseIP(ConfNet.DhcpEnd))))
-						DHCPScope.available = available
-
-						// Initialize hardware cache
-						hwcache := cache.New(time.Duration(seconds)*time.Second, (time.Duration(seconds)*time.Second)+10*time.Second)
-
-						hwcache.OnEvicted(func(nic string, pool interface{}) {
-							DHCPScope.available.Add(uint32(pool.(int)))
-						})
-
-						DHCPScope.hwcache = hwcache
-						initiaLease(&DHCPScope)
-						var options = make(map[dhcp.OptionCode][]byte)
-
-						options[dhcp.OptionSubnetMask] = []byte(net.ParseIP(ConfNet.Netmask).To4())
-						options[dhcp.OptionDomainNameServer] = []byte(net.ParseIP(ConfNet.Dns).To4())
-						options[dhcp.OptionRouter] = []byte(net.ParseIP(ConfNet.Gateway).To4())
-						options[dhcp.OptionDomainName] = []byte(ConfNet.DomainName)
-						DHCPScope.options = options
-						if len(ConfNet.NextHop) > 0 {
-							DHCPScope.layer2 = false
-						} else {
-							DHCPScope.layer2 = true
-						}
-						DHCPNet.dhcpHandler = DHCPScope
-
-						ethIf.network = append(ethIf.network, DHCPNet)
-					}
-				}
-			}
-		}
-		d.intsNet = append(d.intsNet, ethIf)
-
-	}
-}
-
-// inc function use to increment an ip
-func inc(ip net.IP) {
-	for j := len(ip) - 1; j >= 0; j-- {
-		ip[j]++
-		if ip[j] > 0 {
-			break
-		}
-	}
-}
-
-// inc function use to decrement an ip
-func dec(ip net.IP) {
-	for j := len(ip) - 1; j >= 0; j-- {
-		ip[j]--
-		if ip[j] == 255 {
-			continue
-		}
-		if ip[j] > 0 {
-			break
-		}
-	}
-}
-
-// readDBConfig read pfconfig database configuration
-func readDBConfig() pfconfigdriver.PfconfigDatabase {
-	var sections pfconfigdriver.PfconfigDatabase
-	sections.PfconfigNS = "config::Pf"
-	sections.PfconfigMethod = "hash_element"
-	sections.PfconfigHashNS = "database"
-
-	pfconfigdriver.FetchDecodeSocketStruct(ctx, &sections)
-	return sections
-}
-
-// connectDB connect to the database
-func connectDB(configDatabase pfconfigdriver.PfconfigDatabase, db *sql.DB) {
-	database, _ = sql.Open("mysql", configDatabase.DBUser+":"+configDatabase.DBPassword+"@tcp("+configDatabase.DBHost+":"+configDatabase.DBPort+")/"+configDatabase.DBName+"?parseTime=true")
-
-}
-
-// initiaLease fetch the database to remove already assigned ip addresses
-func initiaLease(dhcpHandler *DHCPHandler) {
-	// Need to calculate the end ip because of the ip per role feature
-	endip := binary.BigEndian.Uint32(dhcpHandler.start.To4()) + uint32(dhcpHandler.leaseRange) - uint32(1)
-	a := make([]byte, 4)
-	binary.BigEndian.PutUint32(a, endip)
-	ipend := net.IPv4(a[0], a[1], a[2], a[3])
-
-	rows, err := database.Query("select ip,mac,end_time from ip4log where inet_aton(ip) between inet_aton(?) and inet_aton(?) and (end_time = 0 OR  end_time > NOW()) ORDER BY ip", dhcpHandler.start.String(), ipend.String())
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer rows.Close()
-	var (
-		ipstr    string
-		mac      string
-		end_time time.Time
-	)
-	for rows.Next() {
-		err := rows.Scan(&ipstr, &mac, &end_time)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		// Calculate the leasetime from the date in the database
-		now := time.Now()
-		leaseDuration := end_time.Sub(now)
-		ip := net.ParseIP(ipstr)
-
-		// Calculate the position for the roaring bitmap
-		position := uint32(binary.BigEndian.Uint32(ip.To4())) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
-		// Remove the position in the roaming bitmap
-		dhcpHandler.available.Remove(position)
-		// Add the mac in the cache
-		dhcpHandler.hwcache.Set(mac, int(position), leaseDuration)
-		GlobalIpCache.Set(ipstr, mac, leaseDuration)
-		GlobalMacCache.Set(mac, ipstr, leaseDuration)
-	}
-}
-
-func InterfaceScopeFromMac(MAC string) (string, string) {
-	var NetInterface string
-	var NetWork string
-	if index, found := GlobalMacCache.Get(MAC); found {
-		for _, v := range DHCPConfig.intsNet {
-			v := v
-			for network := range v.network {
-				if v.network[network].network.Contains(net.ParseIP(index.(string))) {
-					NetInterface = v.Name
-					NetWork = v.network[network].network.String()
-				}
-			}
-		}
-	}
-	return NetInterface, NetWork
-}
-
-// etcdInit initiate the connection to etcd
-func etcdInit() *client.Config {
-	cfg := client.Config{
-		Endpoints: []string{"http://127.0.0.1:2379"},
-		Transport: client.DefaultTransport,
-		// set timeout per request to fail fast when the target endpoint is unavailable
-		HeaderTimeoutPerRequest: time.Second,
-	}
-	return &cfg
-}
-
-func etcdInsert(key string, value string) bool {
-	c, err := client.New(*Capi)
-	if err != nil {
-		return false
-	}
-	kapi := client.NewKeysAPI(c)
-	_, err = kapi.Set(context.Background(), key, value, nil)
-	if err != nil {
-		return false
-	} else {
-		return true
-	}
-}
-
-func etcdGet(key string) (string, string) {
-	c, err := client.New(*Capi)
-	if err != nil {
-		return "", ""
-	}
-	kapi := client.NewKeysAPI(c)
-	resp, err := kapi.Get(context.Background(), key, nil)
-	if err != nil {
-		return "", ""
-	}
-	return resp.Node.Key, resp.Node.Value
-}
-
-func etcdDel(key string) bool {
-	c, err := client.New(*Capi)
-	if err != nil {
-		return false
-	}
-	kapi := client.NewKeysAPI(c)
-	_, err = kapi.Delete(context.Background(), key, nil)
-	if err != nil {
-		return false
-	}
-	return true
 }
