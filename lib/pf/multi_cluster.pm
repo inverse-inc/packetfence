@@ -134,12 +134,12 @@ sub generateDeltas {
     $region->generateDeltas();
 }
 
-sub play {
+sub playCLI {
     my ($playbook, $scope) = @_;
     _play(findAnsiblePlaybook($playbook), $scope);
 }
 
-sub _play {
+sub _playCLI {
     my ($playbook, $scope) = @_;
     $playbook = untaint_chain($playbook);
     $scope = untaint_chain($scope);

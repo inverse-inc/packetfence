@@ -169,7 +169,7 @@ sub action_play {
     my ($self) = @_;
     my $playbook = $self->{playbook};
     my $scope = $self->{scope} ? $self->{scope}->name : "ROOT";
-    pf::multi_cluster::_play($playbook, $scope);
+    pf::multi_cluster::_playCLI($playbook, $scope);
 }
 
 sub parse_create {
@@ -219,7 +219,7 @@ sub action_create {
 
     pf::multi_cluster::generateAnsibleConfig();
 
-    pf::multi_cluster::play("pull-configuration", $self->{name});
+    pf::multi_cluster::playCLI("pull-configuration", $self->{name});
     pf::multi_cluster::generateDeltas($self->{created_object});
 
     # TODO: fixme and get the rights correctly when creating object
