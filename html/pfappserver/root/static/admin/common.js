@@ -445,8 +445,13 @@ $(function () { // DOM ready
                 });
             })
             .done(function(data) {
-                $('body').append(data);
+                // remove any existing scope selectors
                 var modal = $("#modalScopeSelector");
+                modal.remove();
+
+                $('body').append(data);
+                modal = $("#modalScopeSelector");
+
                 var hash = location.hash;
                 if (hash && hash != '#') {
                     modal.find('a').each(function() {
