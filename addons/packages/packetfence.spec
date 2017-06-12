@@ -667,13 +667,8 @@ echo "Restarting rsyslogd"
 /bin/systemctl restart rsyslog
 
 #Make ssl certificate
-if [ ! -f /usr/local/pf/conf/ssl/server.crt ]; then
-    openssl req -x509 -new -nodes -days 365 -batch\
-    	-out /usr/local/pf/conf/ssl/server.crt\
-    	-keyout /usr/local/pf/conf/ssl/server.key\
-    	-nodes -config /usr/local/pf/conf/openssl.cnf
-    cat /usr/local/pf/conf/ssl/server.crt /usr/local/pf/conf/ssl/server.key > /usr/local/pf/conf/ssl/server.pem
-fi
+cd /usr/local/pf
+make conf/ssl/server.pem
 
 # Create OMAPI key
 if [ ! -f /usr/local/pf/conf/pf_omapi_key ]; then

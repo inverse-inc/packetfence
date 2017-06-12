@@ -44,13 +44,20 @@ configurations:
 	find -type f -name '*.example' -print0 | while read -d $$'\0' file; do cp -n $$file "$$(dirname $$file)/$$(basename $$file .example)"; done
 	touch /usr/local/pf/conf/pf.conf
 
-.PHONY: ssl-certs
+# server certs and keys
+# the | in the prerequisites ensure the target is not created if it already exists
+# see https://www.gnu.org/software/make/manual/make.html#Prerequisite-Types
+conf/ssl/server.pem: | conf/ssl/server.key conf/ssl/server.crt conf/ssl/server.pem 
+	cat conf/ssl/server.crt conf/ssl/server.key > conf/ssl/server.pem
 
-conf/ssl/server.crt:
-	openssl req -x509 -new -nodes -days 365 -batch \
+conf/ssl/server.crt: | conf/ssl/server.crt
+	openssl req -new -x509 -days 365 \
 	-out /usr/local/pf/conf/ssl/server.crt \
-	-keyout /usr/local/pf/conf/ssl/server.key \
-	-nodes -config /usr/local/pf/conf/openssl.cnf
+	-key /usr/local/pf/conf/ssl/server.key \
+	-config /usr/local/pf/conf/openssl.cnf
+	
+conf/ssl/server.key: | conf/ssl/server.key
+	openssl genrsa -out /usr/local/pf/conf/ssl/server.key 2048
 
 conf/pf_omapi_key:
 	/usr/bin/openssl rand -base64 -out /usr/local/pf/conf/pf_omapi_key 32
