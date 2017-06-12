@@ -521,6 +521,7 @@ cp addons/*.pl $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.sh $RPM_BUILD_ROOT/usr/local/pf/addons/
 %{__install} -D packetfence.logrotate $RPM_BUILD_ROOT/etc/logrotate.d/packetfence
 %{__install} -D packetfence.rsyslog $RPM_BUILD_ROOT/etc/rsyslog.d/packetfence.conf
+%{__install} -D packetfence.journald $RPM_BUILD_ROOT/usr/lib/systemd/journald.conf.d/01-packetfence.conf
 cp -r sbin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r conf $RPM_BUILD_ROOT/usr/local/pf/
 cp -r raddb $RPM_BUILD_ROOT/usr/local/pf/
@@ -640,11 +641,6 @@ fi
 %post -n %{real_name}
 
 /usr/bin/mkdir -p /var/log/journal/
-/usr/bin/mkdir -p /usr/lib/systemd/journald.conf.d
-echo "[Journal]" > /usr/lib/systemd/journald.conf.d/01-packetfence.conf
-echo "RateLimitInterval=0" >> /usr/lib/systemd/journald.conf.d/01-packetfence.conf
-echo "RateLimitBurst=0" >> /usr/lib/systemd/journald.conf.d/01-packetfence.conf
-echo "ForwardToWall=no" >> /usr/lib/systemd/journald.conf.d/01-packetfence.conf
 echo "Restarting journald to enable persistent logging"
 /bin/systemctl restart systemd-journald
 
