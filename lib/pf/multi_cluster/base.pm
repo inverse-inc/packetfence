@@ -68,7 +68,7 @@ sub generateDeltas {
 
 sub path {
     my ($self) = @_;
-    return defined($self->parent) ? $self->parent . "/" . $self->name : $self->name;
+    return defined($self->parent) ? $self->parent->path . "/" . $self->name : $self->name;
 }
 
 sub generateConfig {

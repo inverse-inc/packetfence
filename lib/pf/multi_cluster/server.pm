@@ -18,7 +18,7 @@ sub generateConfig {
         my $dst_dir = $var_dir . "/conf/multi-cluster/" . $self->path; 
         my $dst_file = $dst_dir . "/" . pf::file_paths::cleaned($cs->configFile);
 
-        pf_make_dir($dst_dir);
+        pf_make_dir($dst_dir) unless(-d $dst_dir);
         touch_file($dst_file);
         pf_chown($dst_file);
 

@@ -54,7 +54,7 @@ sub childsByType {
     my $section_name = $type . "s";
 
     for my $object (@{$config->{$section_name}}) {
-        $objects{$object} = "pf::multi_cluster::$type"->new(name => $object, parent => $self->path);
+        $objects{$object} = "pf::multi_cluster::$type"->new(name => $object, parent => $self);
     }
 
     return \%objects;

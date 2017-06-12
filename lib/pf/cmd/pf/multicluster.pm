@@ -213,6 +213,7 @@ sub action_create {
         print "Importing cluster.conf from ".$self->{hostname}."\n";
         my $from = untaint_chain($self->{hostname}.":/usr/local/pf/conf/cluster.conf");
         my $to = untaint_chain($multi_cluster_conf_dir . "/" . $self->{created_object}->path);
+        pf_make_dir($to) unless(-d $to);
         system("scp $from $to");
     }
 
@@ -220,6 +221,9 @@ sub action_create {
 
     pf::multi_cluster::play("pull-configuration", $self->{name});
     pf::multi_cluster::generateDeltas($self->{created_object});
+
+    # TODO: fixme and get the rights correctly when creating object
+    `chown -R pf: /usr/local/pf/conf/`;
 
     print "Imported $self->{object_type} into multi-cluster.conf \n";
 }

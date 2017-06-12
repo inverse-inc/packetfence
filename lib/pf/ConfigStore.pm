@@ -130,7 +130,7 @@ sub _buildCachedConfigMultiCluster {
     my $file_path = $self->configFile;
     
     # Ensuring group/host directory and group/host config file exist
-    pf_make_dir($self->multiClusterHostDirectory($self->multiClusterHost));
+    pf_make_dir($self->multiClusterHostDirectory($self->multiClusterHost)) unless($self->multiClusterHostDirectory($self->multiClusterHost));
     touch_file($self->configFile) unless(-f $self->configFile);
     pf_chown($self->configFile);
 
