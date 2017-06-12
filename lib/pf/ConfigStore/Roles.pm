@@ -19,7 +19,7 @@ use pf::nodecategory;
 use pf::config;
 extends 'pf::ConfigStore';
 
-sub configFile { $roles_config_file };
+has '+configFile' => ( default => $roles_config_file );
 sub importConfigFile { $roles_default_config_file }
 
 sub pfconfigNamespace {'config::Roles'}
