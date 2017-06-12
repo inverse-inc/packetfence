@@ -15,6 +15,7 @@ use pf::file_paths qw(
     $ansible_pull_configuration_playbook_file
     $ansible_restart_playbook_file
     $multi_cluster_config_file
+    $ansible_dir
 );
 use File::Slurp qw(write_file);
 use List::MoreUtils qw(uniq);
