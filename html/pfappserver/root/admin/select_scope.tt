@@ -40,9 +40,9 @@
 
 <style>
 .all-pushed {
-  background-color:green;
+  color:green;
 }
 .unpushed-changes {
-  background-color:red;
+  color:red;
 }
 </style>
