@@ -120,7 +120,7 @@ sub generateAnsibleConfig {
 sub findAnsiblePlaybook {
     my ($playbook) = @_;
     return unless(defined($playbook));
-    $playbook = "/etc/ansible/packetfence-$playbook.yml";
+    $playbook = "$ansible_dir/packetfence-$playbook.yml";
     return (-f $playbook) ? $playbook : undef;
 }
 
