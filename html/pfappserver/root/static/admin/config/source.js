@@ -25,10 +25,12 @@ Sources.prototype.modalId   = '#modalSource';
 var SourceView = function(options) {
     ItemView.call(this, options);
     var that = this;
-    var id = options.items.id;
+    var items = options.items;
+    var id = items.id;
     options.parent.off('click', id + ' [href$="/clone"]');
     options.parent.off('click', id + ' [href$="/delete"]');
     options.parent.on('click' , '#testSourceBtn', $.proxy(this.testSource, this));
+    options.parent.on('change', 'form[name="'+ items.formName + '"]' + ' select[name*="action"][name$=".type"]', $.proxy(this.changeAction));
 };
 
 SourceView.prototype = (function(){
@@ -36,6 +38,10 @@ SourceView.prototype = (function(){
     F.prototype = ItemView.prototype;
     return new F();
 })();
+
+SourceView.prototype.changeAction = function(e) {
+    updateAction($(e.target), false);
+};
 
 SourceView.prototype.testSource = function(e) {
     e.preventDefault();
