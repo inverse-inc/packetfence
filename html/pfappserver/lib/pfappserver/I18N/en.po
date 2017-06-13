@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 7.1.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-06-13 13:28-0400\n"
+"PO-Revision-Date: 2017-06-13 14:13-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -124,6 +124,7 @@ msgstr "Admin Roles - Update"
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/OpenID.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Pinterest.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Twitter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
@@ -159,6 +160,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/OpenID.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Twitter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "API Token Path"
@@ -166,6 +168,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/OpenID.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Twitter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "API URL"
@@ -174,6 +177,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/OpenID.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Twitter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "API URL of logged user"
@@ -659,6 +663,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Instagram.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/OpenID.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Pinterest.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SMS.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SponsorEmail.pm
@@ -733,6 +738,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Instagram.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/OpenID.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Pinterest.pm
 msgid "App ID"
 msgstr ""
@@ -740,6 +746,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Instagram.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/OpenID.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Pinterest.pm
 msgid "App Secret"
 msgstr ""
@@ -854,6 +861,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Instagram.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/OpenID.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Paypal.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Pinterest.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Stripe.pm
@@ -1444,6 +1452,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Instagram.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/OpenID.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Paypal.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Pinterest.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Stripe.pm
@@ -1644,6 +1653,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Instagram.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/OpenID.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Pinterest.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SMS.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SponsorEmail.pm
@@ -1674,6 +1684,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Instagram.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/OpenID.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Pinterest.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "Create a local account on the PacketFence system based on the account email address provided."
@@ -5206,6 +5217,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Instagram.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/OpenID.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Pinterest.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Twitter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
@@ -6188,6 +6200,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Instagram.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/OpenID.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Pinterest.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "Scope"
@@ -7243,6 +7256,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Instagram.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/OpenID.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Pinterest.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Twitter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
@@ -7302,6 +7316,10 @@ msgstr ""
 msgid "The node will be automatically registered. If the MAC matches an existing node, it will also be modified and registered."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/OpenID.pm
+msgid "The number of times, the local account can be used after it is created. 0 means infinite."
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "The password of a Domain Admin to use to join the server to the domain. Will not be stored permanently and is only used while joining the domain."
 msgstr ""
@@ -7342,6 +7360,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Instagram.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/OpenID.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Pinterest.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "The permissions the application requests."
@@ -10838,6 +10857,7 @@ msgstr "User Name"
 # pf::Authentication::Source::MirapaySource (available_attributes)
 # pf::Authentication::Source::NullSource (available_attributes)
 # pf::Authentication::Source::OAuthSource (available_attributes)
+# pf::Authentication::Source::OpenIDSource (available_attributes)
 # pf::Authentication::Source::PaypalSource (available_attributes)
 # pf::Authentication::Source::PinterestSource (available_attributes)
 # pf::Authentication::Source::RADIUSSource (available_attributes)

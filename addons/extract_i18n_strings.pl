@@ -389,6 +389,7 @@ sub extract_modules {
       merchant_id
       terminal_id
       shared_secret_direct
+      domains
     );
     foreach (@$types) {
         my $type = "pf::Authentication::Source::${_}Source";
