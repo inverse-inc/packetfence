@@ -91,6 +91,7 @@
                 <a href="" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-wrench"></i> <b class="caret"></b></a>
                 <ul class="dropdown-menu">
                   <li id="checkup_task"><a href="" id="checkup_task_toggle">[% l('Perform checkup') %]</a></li>
+                  <li id="fixpermissions_task"><a href="" id="fixpermissions_task_toggle">[% l('Fix permissions') %]</a></li>
                 </ul>
               </li>
             </ul>

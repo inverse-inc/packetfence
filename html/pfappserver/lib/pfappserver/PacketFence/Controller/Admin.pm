@@ -24,6 +24,7 @@ use pf::pfcmd::checkup;
 use pf::cluster;
 use pf::authentication;
 use pf::Authentication::constants qw($LOGIN_CHALLENGE);
+use pf::util;
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
@@ -365,6 +366,17 @@ sub checkup :Chained('object') :PathPart('checkup') :Args(0) {
     my ( $self, $c ) = @_;
     my @problems = sanity_check();
     $c->stash->{items}->{problems} = \@problems;
+    $c->stash->{current_view} = 'JSON';
+}
+
+=head2 fixpermissions
+
+=cut
+
+sub fixpermissions :Chained('object') :PathPart('fixpermissions') :Args(0) {
+    my ( $self, $c ) = @_;
+    my @result = pf::util::fix_files_permissions();
+    $c->stash->{item}->{fixpermissions_result} = \@result;
     $c->stash->{current_view} = 'JSON';
 }
 

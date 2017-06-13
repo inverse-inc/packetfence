@@ -1054,6 +1054,19 @@ $(function () { // DOM ready
         return false;
     });
 
+    $('#fixpermissions_task_toggle').click(function (e) {
+        e.preventDefault();
+        var that = $(this);
+        $(this).html('<li class="disabled"><div class="text-center"><i class="icon-spin icon-circle-o-notch"></i></div></li>');
+        $.get("/admin/fixpermissions", function(data){
+          var li;
+          that.html('<b>Fix permissions result</b>');
+          li = $('<li class="disabled">Fixed permissions !</li>');
+          that.append(li);
+        });
+        return false;
+    });
+
     $('#section').on('show', '.modal', function(e) {
       FingerbankSearch.setup();
       setupObfuscatedTextHover('.modal .pf-obfuscated-text + button');

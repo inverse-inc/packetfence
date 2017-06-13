@@ -502,6 +502,16 @@ sub fix_file_permissions {
     pf_run('sudo /usr/local/pf/bin/pfcmd fixpermissions file "' . $file . '"');
 }
 
+=item fix_files_permissions
+
+Fix the files permissions
+
+=cut
+
+sub fix_files_permissions {
+    pf_run('sudo /usr/local/pf/bin/pfcmd fixpermissions');
+}
+
 sub parse_template {
     my ( $tags, $template, $destination, $comment_char ) = @_;
     my $logger = get_logger();
