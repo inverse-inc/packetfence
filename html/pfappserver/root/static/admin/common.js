@@ -62,6 +62,48 @@ function updateAction(type, keep_value) {
     changeInputFromTemplate(value, $('#' + action + '_action'), keep_value);
 }
 
+/* Update a rule condition input field depending on the type of the selected attribute */
+function updateCondition(attribute) {
+    var type = attribute.find(':selected').attr('data-type');
+    var operator = attribute.next();
+
+    if (type != operator.attr('data-type')) {
+        // Disable fields to be replaced
+        var value = operator.next();
+        operator.attr('disabled', 1);
+        value.attr('disabled', 1);
+
+        // Replace operator field
+        var operator_new = $('#' + type + '_operator').clone();
+        operator_new.attr('id', operator.attr('id'));
+        operator_new.attr('name', operator.attr('name'));
+        operator_new.insertBefore(operator);
+
+        // Replace value field
+        var value_new = $('#' + type + '_value').clone();
+        value_new.attr('id', value.attr('id'));
+        value_new.attr('name', value.attr('name'));
+        value_new.insertBefore(value);
+
+        if (!operator.attr('data-type')) {
+            // Preserve values of an existing condition
+            operator_new.val(operator.val());
+            value_new.val(value.val());
+        }
+
+        // Remove previous fields
+        value.remove();
+        operator.remove();
+
+        // Remember the data type
+        operator_new.attr('data-type', type);
+
+        // Initialize rendering widgets
+        initWidgets(value_new);
+    }
+}
+
+
 function escapeJqueryId( myid ) {
     return myid.replace( /(:|\.|\[|\]|,|=|\\)/g, "\\$1" );
 }
