@@ -71,6 +71,10 @@ form .uneditable {
     text-decoration: none;
 }
 
+.input-append.input-prepend select {
+    vertical-align: top;
+}
+
 .input-prepend .chzn-choices .search-choice,
 .input-append .chzn-choices .search-choice {
     font-size : 14px;
