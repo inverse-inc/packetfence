@@ -22,6 +22,8 @@ use pfappserver::Base::Form::Authentication::Action;
 use pf::log;
 use pf::authentication;
 use pf::Authentication::constants;
+use pf::config qw(%connection_group %connection_type);
+
 our %ACTION_FIELD_OPTIONS;
 
 *ACTION_FIELD_OPTIONS = \%pfappserver::Base::Form::Authentication::Action::ACTION_FIELD_OPTIONS;
@@ -110,14 +112,16 @@ has_block rules =>
     build_render_list_method => \&build_render_list_rules,
   );
 
-has_block action_templates =>
-  (
+has_block action_templates => (
     attr => {
         id => 'action_templates',
     },
     class => [qw(hidden)],
-    render_list => [ map { "${_}_action" } keys %ACTION_FIELD_OPTIONS ],
-  );
+    render_list => [
+        (map { "${_}_action" } keys %ACTION_FIELD_OPTIONS),
+        (map { ("${_}_operator", "${_}_value") } @Conditions::TYPES),
+    ],
+);
 
 =head2 build_render_list_definition
 
@@ -138,6 +142,7 @@ our %EXCLUDE = (
     action_templates => 1,
     (map { ("${_}_rules"  => 1) } @Rules::CLASSES),
     (map { ("${_}_action" => 1) } keys %ACTION_FIELD_OPTIONS),
+    (map { ("${_}_operator" => 1, "${_}_value" => 1) } @Conditions::TYPES),
 );
 
 while (my ($f, $o) = each %ACTION_FIELD_OPTIONS) {
@@ -146,6 +151,83 @@ while (my ($f, $o) = each %ACTION_FIELD_OPTIONS) {
         do_wrapper => 0,
         do_label   => 0,
     );
+}
+
+## Condition Operators
+for my $c (@Conditions::TYPES) {
+    has_field "${c}_operator" => (
+        type            => 'Select',
+        do_label        => 0,
+        do_wrapper      => 0,
+        localize_labels => 1,
+        options_method  => \&operators,
+        element_class   => ['span5'],
+    );
+}
+
+## Condition Text Fields
+for my $c ( $Conditions::SUBSTRING, $Conditions::TIME_PERIOD, $Conditions::LDAP_ATTRIBUTE ) {
+    has_field "${c}_value" => (
+        type          => 'Text',
+        do_label      => 0,
+        do_wrapper    => 0,
+        element_class => ['span8'],
+    );
+}
+
+has_field "${Conditions::NUMBER}_value" => (
+    type          => 'PosInteger',
+    do_label      => 0,
+    wrapper       => 0,
+    element_class => ['span8'],
+);
+
+has_field "${Conditions::DATE}_value" => (
+    type => 'DatePicker',
+    do_label => 0,
+    do_wrapper => 0,
+);
+
+has_field "${Conditions::TIME}_value" => (
+    type => 'TimePicker',
+    do_label => 0,
+    do_wrapper => 0,
+    element_class => ['span8'],
+);
+
+has_field "${Conditions::CONNECTION}_value" => (
+    type => 'Select',
+    do_label => 0,
+    do_wrapper => 0,
+    localize_labels => 1,
+    options_method => \&options_connection,
+    element_class => ['span8'],
+);
+
+=head2 options_connection
+
+Populate the connection types and connection groups field for the
+'connection type' condition.
+
+=cut
+
+sub options_connection {
+    my $self = shift;
+
+    my @types = map { { value => $_, label => $_ } } sort keys %connection_type;
+    my @groups = map { { value => $_, label => $_ } } sort keys %connection_group;
+
+    return
+      [
+       {
+        group => 'Types',
+        options => \@types,
+       },
+       {
+        group => 'Groups',
+        options => \@groups,
+       },
+      ];
 }
 
 =head2 render_list_definition
@@ -253,6 +335,22 @@ sub getSourceArgs {
     }
     return $args;
 }
+
+=head2 operators
+
+Return the appropriate operators for the condition type select field.
+
+=cut
+
+sub operators {
+    my $self = shift;
+
+    my ($type) = $self->name =~ m/^(.+)_operator$/;
+    my @operators = map { $_ => $self->_localize($_) } @{$Conditions::OPERATORS{$type}};
+
+    return @operators;
+}
+
 
 
 =head1 COPYRIGHT
