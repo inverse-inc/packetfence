@@ -55,7 +55,7 @@ our %ADMIN_IN_READONLY = map { $_ => 1 } qw(SERVICES REPORTS), (grep { /_READ/ }
 
 sub admin_multicluster_roles {
     my @roles;
-    for my $role (@{$ADMIN_GROUP_ACTIONS{CONFIGURATION_GROUP_READ}}) {
+    for my $role (@{$ADMIN_GROUP_ACTIONS{CONFIGURATION_GROUP_READ}}, "REMOTE_DEPLOYMENT_READ") {
         if($role =~ /(.*)_READ$/) {
             my $base_role = quotemeta($1);
             push @roles, grep {/^$base_role/} @ADMIN_ACTIONS;

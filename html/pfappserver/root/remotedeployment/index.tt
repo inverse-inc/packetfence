@@ -1,0 +1,41 @@
+[%- MACRO multi_cluster_push(object) BLOCK -%]
+<a href="[% c.uri_for(c.controller.action_for('deploy'), [ object.name ]) %]">[% IF object.isa("pf::multi_cluster::region") %]PUSH ALL[% ELSE %]PUSH[% END %]</a>
+[%- END -%]
+
+[%- MACRO multi_cluster_scope_state_class(scope) BLOCK -%]
+[% IF scope.hasUnpushedChanges() %]unpushed-changes[% ELSE %]all-pushed[% END %]
+[%- END -%]
+
+[%- MACRO multi_cluster_render(object) BLOCK -%]
+  [% IF object.isa("pf::multi_cluster::region") %]
+  <li>
+    <b id="remote-deployment-[% object.name %]" class="[% multi_cluster_scope_state_class(object) %]">[% object.name %]</b> [% multi_cluster_push(object) | none %]
+    <ul>
+    [% FOREACH child IN object.childs.keys %]
+    [% multi_cluster_render(object.childs.$child) | none %]
+    [% END %]
+    </ul>
+  </li>
+  [% ELSE %]
+  <li><span id="remote-deployment-[% object.name %]" class="[% multi_cluster_scope_state_class(object) %]">[% object.name %]</span> [% multi_cluster_push(object) | none %]</li>
+  [% END %]
+[%- END -%]
+
+<ul>
+  [% multi_cluster_render(rootRegion) | none %]
+</ul>
+
+</div>
+
+<script>
+  
+</script>
+
+<style>
+.all-pushed {
+  color:green;
+}
+.unpushed-changes {
+  color:red;
+}
+</style>

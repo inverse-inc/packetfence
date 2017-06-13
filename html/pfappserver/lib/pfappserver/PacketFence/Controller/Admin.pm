@@ -374,6 +374,11 @@ sub checkup :Chained('object') :PathPart('checkup') :Args(0) {
     $c->stash->{current_view} = 'JSON';
 }
 
+sub remote_deployment :Chained('object') :PathPart('remote_deployment') :Args(0) {
+    my ( $self, $c ) = @_;
+    $c->go(RemoteDeployment => "index");
+}
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2017 Inverse inc.
