@@ -1034,24 +1034,24 @@ $(function () { // DOM ready
     if (typeof init == 'function') init();
     if (typeof initModals == 'function') initModals();
 
-    $('#checkup_dropdown_toggle').click(function () {
-      var li;
-      if($(this).closest('li').hasClass('open')) {
+    $('#checkup_task_toggle').click(function (e) {
+        e.preventDefault();
+        var that = $(this);
+        $(this).html('<li class="disabled"><div class="text-center"><i class="icon-spin icon-circle-o-notch"></i></div></li>');
         $.get("/admin/checkup", function(data){
-          var dropdown = $('#checkup_dropdown');
-          dropdown.html('');
+          var li;
+          that.html('<b>Checkup result(s)</b>');
           if(data.items.problems.length > 0){
             for(var i in data.items.problems){
-              li = $('<li class="disabled"><a href="#">'+data.items.problems[i].severity+' : '+data.items.problems[i].message+'</a></li>');
-              dropdown.append(li);
+              li = $('<li class="disabled">'+data.items.problems[i].severity+' : '+data.items.problems[i].message+'</li>');
+              that.append(li);
             }
-          }
-          else{
-            li = $('<li class="disabled"><a href="#">No problem detected !</a></li>');
-            dropdown.append(li);
+          } else {
+            li = $('<li class="disabled">No problem detected !</li>');
+            that.append(li);
           }
         });
-      }
+        return false;
     });
 
     $('#section').on('show', '.modal', function(e) {
