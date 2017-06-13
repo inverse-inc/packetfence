@@ -11,7 +11,6 @@ to perform the OAuth flow since Net::OAuth2 lacks support for OpenID OAuth.
 
 =cut
 
-use pf::person;
 use pf::log;
 use Moose;
 extends 'pf::Authentication::Source::OAuthSource';
