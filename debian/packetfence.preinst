@@ -64,6 +64,8 @@ case "$1" in
         echo "RateLimitInterval=0" >> /etc/systemd/journald.conf
         echo "RateLimitBurst=0" >> /etc/systemd/journald.conf
         echo "ForwardToWall=no" >> /etc/systemd/journald.conf
+        echo "SystemMaxUse=1G" >> /etc/systemd/journald.conf
+        echo "SystemKeepFree=1G" >> /etc/systemd/journald.conf
         echo "Restarting journald to enable persistent logging"
         /bin/systemctl restart systemd-journald
 
