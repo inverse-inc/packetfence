@@ -10,15 +10,12 @@ OpenID OAuth module
 
 =cut
 
-use WWW::Curl::Easy;
 use Moose;
-use JSON::MaybeXS;
-use pf::log;
-use pf::error qw(is_success is_error);
-use Data::Dumper;
 extends 'captiveportal::DynamicRouting::Module::Authentication::OAuth';
 
 has '+source' => (isa => 'pf::Authentication::Source::OpenIDSource');
+
+has 'token_scheme' => (is => 'rw', default => sub {"auth-header:Bearer"});
 
 =head1 AUTHOR
 
