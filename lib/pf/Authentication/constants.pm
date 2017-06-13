@@ -103,6 +103,16 @@ Readonly::Scalar our $TIME_PERIOD => 'time_period';
 Readonly::Scalar our $CONNECTION => 'connection';
 Readonly::Scalar our $LDAP_ATTRIBUTE => 'ldapattribute';
 
+Readonly::Array our @TYPES => (
+    $SUBSTRING,
+    $NUMBER,
+    $DATE,
+    $TIME,
+    $TIME_PERIOD,
+    $CONNECTION,
+    $LDAP_ATTRIBUTE,
+);
+
 =item OPERATORS
 
 Allowed operators for each attribute datatype
