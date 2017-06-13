@@ -27,7 +27,7 @@ has_field 'attribute' => (
     localize_labels => 1,
     widget_wrapper  => 'None',
     options_method  => \&options_attributes,
-    element_class   => ['span3'],
+    element_class   => ['span5'],
     do_label        => 0,
 );
 
@@ -79,25 +79,6 @@ sub options_operators {
     my @options = map {$_ => $_} keys %all_operators;
 
     return @options;
-}
-
-=head2 options_rule_classes
-
-Populate the 'class' field of a rule based on the available rule classes for a specific authentication source.
-
-=cut
-
-sub options_rule_classes {
-    my $self = shift;
-
-    my $source = $self->form->get_source;
-
-    my @options;
-    foreach (@{$source->available_rule_classes}) {
-        push(@options, {value => $_, label => $_});
-    }
-
-    return \@options;
 }
 
 =head2 inflate
