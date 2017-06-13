@@ -82,7 +82,7 @@ has_field 'domains' =>
    element_attr => {'placeholder' => pf::Authentication::Source::TwitterSource->meta->get_attribute('domains')->default},
    element_class => ['input-xlarge'],
    tags => { after_element => \&help,
-             help => 'Comma separated list of domains that will be resolve with the correct IP addresses.' },
+             help => 'Comma-separated list of domains that will be resolved with the correct IP addresses.' },
   );
 
 =head1 COPYRIGHT

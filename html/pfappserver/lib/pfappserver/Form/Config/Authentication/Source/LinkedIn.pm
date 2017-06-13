@@ -86,7 +86,7 @@ has_field 'domains' =>
    element_attr => {'placeholder' => pf::Authentication::Source::LinkedInSource->meta->get_attribute('domains')->default},
    element_class => ['input-xlarge'],
    tags => { after_element => \&help,
-             help => 'Comma separated list of domains that will be resolve with the correct IP addresses.' },
+             help => 'Comma-separated list of domains that will be resolved with the correct IP addresses.' },
   );
 
 has_field 'create_local_account' => (
@@ -107,7 +107,7 @@ has_field 'local_account_logins' => (
     default => pf::Authentication::Source::LinkedInSource->meta->get_attribute('local_account_logins')->default,
     tags => {
         after_element => \&help_list,
-        help => 'The amount of times, the local account can be used after its created. 0 means infinite.'
+        help => 'The amount of times, the local account can be used after it is created. 0 means infinite.'
     },
 );
 

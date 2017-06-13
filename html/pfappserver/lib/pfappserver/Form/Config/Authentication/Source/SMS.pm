@@ -58,7 +58,7 @@ has_field 'local_account_logins' => (
     default => pf::Authentication::Source::SMSSource->meta->get_attribute('local_account_logins')->default,
     tags => {
         after_element => \&help_list,
-        help => 'The amount of times, the local account can be used after its created. 0 means infinite.'
+        help => 'The amount of times, the local account can be used after it is created. 0 means infinite.'
     },
 );
 
