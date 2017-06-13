@@ -75,14 +75,16 @@ function updateCondition(attribute) {
 
         // Replace operator field
         var operator_new = $('#' + type + '_operator').clone();
-        operator_new.attr('id', operator.attr('id'));
-        operator_new.attr('name', operator.attr('name'));
+        $.each(["id", "name", "data-required"], function(i, attr) {
+            operator_new.attr(attr, operator.attr(attr));
+        });
         operator_new.insertBefore(operator);
 
         // Replace value field
         var value_new = $('#' + type + '_value').clone();
-        value_new.attr('id', value.attr('id'));
-        value_new.attr('name', value.attr('name'));
+        $.each(["id", "name", "data-required"], function(i, attr) {
+            value_new.attr(attr, value.attr(attr));
+        });
         value_new.insertBefore(value);
 
         if (!operator.attr('data-type')) {
