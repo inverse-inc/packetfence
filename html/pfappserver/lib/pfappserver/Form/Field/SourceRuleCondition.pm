@@ -25,6 +25,10 @@ has '+deflate_value_method'=> ( default => sub { \&deflate } );
 has_field 'attribute' => (
     type            => 'Select',
     localize_labels => 1,
+    required        => 1,
+    element_attr   => {
+        'data-required' => 'required',
+    },
     widget_wrapper  => 'None',
     options_method  => \&options_attributes,
     element_class   => ['span5'],
@@ -33,6 +37,10 @@ has_field 'attribute' => (
 
 has_field 'operator' => (
     type           => 'Select',
+    required        => 1,
+    element_attr   => {
+        'data-required' => 'required',
+    },
     widget_wrapper => 'None',
     options_method => \&options_operators,
     element_class  => ['span3'],
@@ -41,6 +49,10 @@ has_field 'operator' => (
 
 has_field 'value' => (
     type           => 'Text',
+    required       => 1,
+    element_attr   => {
+        'data-required' => 'required',
+    },
     do_label       => 0,
     widget_wrapper => 'None',
 );
