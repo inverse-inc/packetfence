@@ -7,20 +7,38 @@
 [%- MACRO multi_cluster_scope_state_class(scope) BLOCK -%]
 [% IF scope.hasUnpushedChanges() %]unpushed-changes[% ELSE %]all-pushed[% END %]
 [%- END -%]
-[%- MACRO multi_cluster_render(object) BLOCK -%]
+
+[%- MACRO current_scope_icon(scope) BLOCK %]
+[%
+  SET icon = "circle";
+  SET class = "all-pushed";
+  IF scope.name == multi_cluster_scope;
+    icon = "check-circle";
+  END;
+  IF object.isa("pf::multi_cluster::region");
+    icon = "${icon}-o";
+  END;
+  IF scope.hasUnpushedChanges();
+    class = "unpushed-changes";
+  END
+%]
+<i class="icon-[% icon %] [% class %]"></i>
+[% END %]
+
+[%- MACRO multi_cluster_render(object, class) BLOCK -%]
   [% IF object.isa("pf::multi_cluster::region") %]
   <li>
-    <b><a class="[% multi_cluster_scope_state_class(object) %]" href="[% multi_cluster_scope_change_uri(object.name) %]">[% object.name %]</a></b>
-    <ul>
+    <a href="#" onClick="return toggleClusterNode(event, this);" class="collapse [% class %]" data-toggle="collapse" data-target="#[% object.name %]"><i class="icon"></i></a> [% current_scope_icon(object) | none %] <b><a href="[% multi_cluster_scope_change_uri(object.name) %]">[% object.name %]</a></b>
+    <ul id="[% object.name %]" class="collapse [% class %]">
     [% FOREACH child IN object.childs.keys %]
     [% multi_cluster_render(object.childs.$child) | none %]
     [% END %]
     </ul>
   </li>
   [% ELSIF object.isa("pf::multi_cluster::cluster") %]
-  <li><a class="[% multi_cluster_scope_state_class(object) %]" href="[% multi_cluster_scope_change_uri(object.name) %]">'[% object.name %]' cluster</a></li>
+  <li class="collapse-leaf">[% current_scope_icon(object) | none %] <a href="[% multi_cluster_scope_change_uri(object.name) %]">[% object.name %]</a> <i class="icon-clone muted"></i></li>
   [% ELSIF object.isa("pf::multi_cluster::standalone_server") %]
-  <li><a class="[% multi_cluster_scope_state_class(object) %]" href="[% multi_cluster_scope_change_uri(object.name) %]">'[% object.name %]' server</a></li>
+  <li class="collapse-leaf">[% current_scope_icon(object) | none %] <a href="[% multi_cluster_scope_change_uri(object.name) %]">[% object.name %]</a></li>
   [% END %]
 [%- END -%]
 
@@ -30,13 +48,20 @@
   </div>
 
   <div class="modal-body">
-    <h5>Currently working on [% multi_cluster_scope %]</h5>
-    <ul>
-      [% multi_cluster_render(rootRegion) | none %]
+    <ul style="list-style: none">
+      [% multi_cluster_render(rootRegion, "in") | none %]
     </ul>
   </div>
 
 </div>
+
+<script type="text/javascript">
+  function toggleClusterNode(event, node) {
+    $(node).toggleClass("in");
+    event.preventDefault();
+    return false;
+  }
+</script>
 
 <style>
 .all-pushed {
@@ -44,5 +69,24 @@
 }
 .unpushed-changes {
   color:red;
+}
+.collapse-leaf {
+  list-style: none;
+  margin-left: 24px;
+}
+[data-toggle="collapse"] {
+  color: #333;
+}
+.collapse > .icon:before {
+  content: "\F0DA";
+  display: inline-block;
+  font-size: 18px;
+  line-height: 24px;
+  min-height: 24px;
+  min-width: 24px;
+  text-align: center;
+}
+.collapse.in > .icon:before {
+  content: "\F0D7";
 }
 </style>
