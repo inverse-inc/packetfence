@@ -1259,7 +1259,7 @@ sub radius_rest_authorize :Public :RestPath(/radius/rest/authorize) {
 
     my $return;
 
-    if ($remapped_radius_request{'Calling-Station-Id'}) {
+    if (pf::util::valid_mac($remapped_radius_request{'Calling-Station-Id'}) {
         $return = $class->radius_authorize(%remapped_radius_request);
     } else {
         $return = $class->radius_switch_access(%remapped_radius_request);
