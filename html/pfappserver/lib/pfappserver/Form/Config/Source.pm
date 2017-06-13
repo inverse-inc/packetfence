@@ -178,7 +178,7 @@ for my $c ( $Conditions::SUBSTRING, $Conditions::TIME_PERIOD, $Conditions::LDAP_
 has_field "${Conditions::NUMBER}_value" => (
     type          => 'PosInteger',
     do_label      => 0,
-    wrapper       => 0,
+    do_wrapper    => 0,
     element_class => ['span8'],
 );
 
