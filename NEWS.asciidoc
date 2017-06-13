@@ -28,6 +28,7 @@ Bug Fixes
 +++++++++
 
 * Added a cleanup of the number in the SMS source (#1966)
+* TLS certificates and keys will no longer be overwritten (#2366)
 
 Version 7.1.0 released on 2017-06-01
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
