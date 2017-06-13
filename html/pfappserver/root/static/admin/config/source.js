@@ -37,6 +37,9 @@ var SourceView = function(options) {
     options.parent.on('section.loaded', $.proxy(this.loadSource, this));
     options.parent.on('dynamic-list.add', 'div[id^="accordion\\.group\\.administration_rules\\."]', $.proxy(this.addRule, this));
     options.parent.on('dynamic-list.add', 'div[id^="accordion\\.group\\.authentication_rules\\."]', $.proxy(this.addRule, this));
+
+    options.parent.on('dynamic-list.add', 'div[id*="\\.actions\\."]', $.proxy(this.addAction, this));
+    options.parent.on('dynamic-list.add', 'div[id*="\\.conditions\\."]', $.proxy(this.addCondition, this));
 };
 
 SourceView.prototype = (function(){
@@ -44,6 +47,20 @@ SourceView.prototype = (function(){
     F.prototype = ItemView.prototype;
     return new F();
 })();
+
+SourceView.prototype.addCondition = function(e) {
+    e.stopPropagation();
+    var condition = $(e.target);
+    updateAction(condition.find('select[name*="\\.conditions\\."][name$=".attribute"]'), true);
+    return false;
+};
+
+SourceView.prototype.addAction = function(e) {
+    e.stopPropagation();
+    var action = $(e.target);
+    updateAction(action.find('select[name*="\\.actions\\."][name$=".type"]'), true);
+    return false;
+};
 
 SourceView.prototype.addRule = function(e) {
     var rule = $(e.target);
@@ -56,7 +73,7 @@ SourceView.prototype.loadSource = function(e) {
     var formName = this.items.formName;
     $('#action_templates').find('option').removeAttr('id');
     $('form[name="'+ formName + '"] select[name*="\\.conditions\\."][name$=".attribute"]:not(.disabled)').each(function() {
-       // updateCondition($(this));
+        updateCondition($(this));
     });
     $('form[name="'+ formName + '"] select[name*="\\.actions\\."][name$=".type"]:not(.disabled)').each(function() {
         updateAction($(this), true);
