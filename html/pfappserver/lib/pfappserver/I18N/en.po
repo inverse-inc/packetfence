@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 7.1.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-06-13 13:14-0400\n"
+"PO-Revision-Date: 2017-06-13 13:28-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -7246,7 +7246,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Pinterest.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Twitter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
-msgid "The hostname must be the one of your captive portal."
+msgid "The hostname must match your hostname and domain parameters set in System Configuration > Main Configuration > General Configuration."
 msgstr ""
 
 # conf/documentation.conf (graphite.db_host)

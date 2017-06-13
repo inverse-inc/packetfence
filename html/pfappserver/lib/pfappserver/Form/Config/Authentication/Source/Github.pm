@@ -84,7 +84,7 @@ has_field 'redirect_url' =>
    element_attr => {'placeholder' => pf::Authentication::Source::GithubSource->meta->get_attribute('redirect_url')->default},
    element_class => ['input-xlarge'],
    tags => { after_element => \&help,
-             help => 'The hostname must be the one of your captive portal.' },
+             help => 'The hostname must match your hostname and domain parameters set in System Configuration > Main Configuration > General Configuration.' },
   );
 has_field 'domains' =>
   (
