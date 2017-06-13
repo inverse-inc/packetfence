@@ -9,7 +9,7 @@ captiveportal::DynamicRouting::Module::Authentication::OAuth::OpenID - OpenID Co
 
 =head1 DESCRIPTION
 
-[enter your description here]
+OpenID OAuth module
 
 =cut
 

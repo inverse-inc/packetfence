@@ -24,7 +24,7 @@ has 'client_secret' => (isa => 'Str', is => 'rw', required => 1);
 has 'site' => (isa => 'Str', is => 'rw');
 has 'access_token_path' => (isa => 'Str', is => 'rw');
 has 'authorize_path' => (isa => 'Str', is => 'rw');
-has 'scope' => (isa => 'Str', is => 'rw', default => 'openid profile');
+has 'scope' => (isa => 'Str', is => 'rw', default => 'openid');
 has 'protected_resource_url' => (isa => 'Str', is => 'rw');
 has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/callback');
 has 'domains' => (isa => 'Str', is => 'rw', required => 1);

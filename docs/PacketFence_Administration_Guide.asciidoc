@@ -501,6 +501,7 @@ PacketFence can authenticate users that register devices via the captive portal 
 * LDAP
 * LinkedIn (OAuth 2)
 * Null
+* OpenID Connect (OAuth 2)
 * Pinterest (OAuth 2)
 * RADIUS
 * SMS
@@ -2163,7 +2164,7 @@ NOTE: OAuth2 authentication does not work with Webauth enforcement
 
 NOTE: OAuth2 authentication will fail by design when previewed through "Connection Profiles"  
 
-The captive portal of PacketFence allows a guest/user to register using his Google, Facebook, LinkedIn, Windows Live, Twitter, Instagram, Pinterest or Github account.
+The captive portal of PacketFence allows a guest/user to register using his Google, Facebook, LinkedIn, Windows Live, Twitter, Instagram, Pinterest, OpenID Connect or Github account.
 
 For each providers, we maintain an allowed domain list to punch holes into the firewall so the user can hit the provider login page.
 This list is available in each OAuth2 authentication source.
@@ -2234,6 +2235,20 @@ Once you have your information, you need to configure the OAuth2 provider. This 
 Moreover, don't forget to add LinkedIn as a registration mode from your connection profile definition, available from *Configuration -> Policies and Access Control -> Connection Profiles and Pages*.
 
 Also, LinkedIn requires a 'state' parameter for the authorization URL. If you modify it, make sure to add it at the end of your URL.
+
+OpenID Connect
+^^^^^^^^^^^^^^
+Using OpenID Connect is a bit deifferent than other OAuth2 sources. The reason behind that is because you will setup your own OpenID Connect source or depend on a provider for it. Details like token path, authorize path or API URL are specific to your setup. To start create your own or get a host please go here: http://openid.net/connect/. 
+
+When you create your App, make sure you specify the following as the Callback URL, https://YOUR_PORTAL_HOSTNAME/oauth2/callback. 
+
+Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
+
+OpenID connect have different ways to configure it, make sure to create a client ID and a client secret to work with PacketFence.
+
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding an OpenID OAuth2 authentication source from *Configuration -> Policies and Access Control -> Sources*.
+
+Moreover, don't forget to add OpenID as a registration mode from your connection profile definition, available from *Configuration -> Policies and Access Control -> Connection Profiles and Pages*.
 
 Pinterest
 ^^^^^^^^^
