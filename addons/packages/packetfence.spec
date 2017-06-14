@@ -327,6 +327,9 @@ Requires: haproxy >= 1.6, keepalived >= 1.3.6
 Requires: fingerbank >= 3.1.1, fingerbank < 4.0.0
 Requires: perl(File::Tempdir)
 
+# etcd
+Requires: etcd >= 3.1
+
 %description -n %{real_name}
 
 PacketFence is an open source network access control (NAC) system. 
