@@ -362,6 +362,18 @@ sub getSourceArgs {
     if (!defined ($args) || keys %$args == 0 ) {
         $args = $self->init_object;
     }
+    for my $name (keys %$args) {
+        my $field = $self->field($name);
+        next unless $field;
+        # Deflate the duration fields
+        # To avoid dummy sources from not being created
+        if ($field->type eq 'Duration') {
+            my $value = $args->{$name};
+            if (ref $value eq 'HASH') {
+                $args->{$name} = $field->duration_deflate($value);
+            }
+        }
+    }
     return $args;
 }
 

@@ -51,16 +51,6 @@ has_field 'activation_domain' =>
     },
   );
 
-sub getSourceArgs {
-    my ($self) = @_;
-    my $args = $self->SUPER::getSourceArgs();
-    if (ref $args->{email_activation_timeout} eq 'HASH') {
-        my $field = $self->field('email_activation_timeout');
-        $args->{email_activation_timeout} = $field->duration_deflate($args->{email_activation_timeout});
-    }
-    return $args;
-}
-
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2017 Inverse inc.
