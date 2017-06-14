@@ -3,12 +3,6 @@
 	"ignore": "test",
 	"package": [
 		{
-			"checksumSHA1": "y7zQik4pYQnLUh194ZCvoLTrIHU=",
-			"path": "bitbucket.org/oeufdure/pfconfigdriver",
-			"revision": "68adab27ca484d5ed2f9e1966a868e2fba3566c1",
-			"revisionTime": "2017-02-22T21:39:55Z"
-		},
-		{
 			"checksumSHA1": "zNuawhKsP7Gy/aK91rEJzwvYobE=",
 			"path": "github.com/RoaringBitmap/roaring",
 			"revision": "6dacb3b11b80b593f3718e4599c7354711f4f117",
