@@ -13,12 +13,12 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/RoaringBitmap/roaring"
 	"github.com/coreos/etcd/client"
 	"github.com/coreos/go-systemd/daemon"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	dhcp "github.com/krolaw/dhcp4"
 	"github.com/patrickmn/go-cache"
 )
