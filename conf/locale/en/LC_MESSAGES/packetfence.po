@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 7.1.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-06-05 14:02-0400\n"
+"PO-Revision-Date: 2017-06-14 14:37-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -14,10 +14,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-
-# html/captive-portal/templates/status/reset_password.html
-msgid "A password field has not been fill"
-msgstr ""
 
 # html/captive-portal/templates/pki_provider/packetfence_local.html
 # html/captive-portal/templates/pki_provider/packetfence_pki.html
@@ -92,6 +88,10 @@ msgstr ""
 
 # pf::person::FIELDS
 msgid "Apartment_number"
+msgstr ""
+
+# html/captive-portal/templates/status.html
+msgid "Bandwidth balance "
 msgstr ""
 
 # html/captive-portal/templates/activation/sponsor_login.html
@@ -429,15 +429,13 @@ msgstr ""
 msgid "Lastname"
 msgstr ""
 
-# html/captive-portal/lib/captiveportal/PacketFence/Controller/DeviceRegistration.pm
 # html/captive-portal/templates/activation/sponsor_login.html
-# html/captive-portal/templates/device-registration/login.html
 # html/captive-portal/templates/oauth2/landing.html
-# html/captive-portal/templates/status.html
+# html/captive-portal/templates/status/login.html
 msgid "Login"
 msgstr ""
 
-# html/captive-portal/templates/status.html
+# html/captive-portal/templates/status/login.html
 msgid "Login to manage registered devices"
 msgstr ""
 
@@ -527,6 +525,10 @@ msgstr ""
 msgid "Once you will be on-site, authenticate using the following credentials to our captive portal"
 msgstr ""
 
+# html/captive-portal/templates/status/reset_password.html
+msgid "One of the password fields hasn't been filled"
+msgstr ""
+
 # html/captive-portal/templates/sms/validate.html
 msgid "PIN"
 msgstr ""
@@ -538,7 +540,6 @@ msgstr ""
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
 # html/captive-portal/templates/account.html
 # html/captive-portal/templates/activation/sponsor_login.html
-# html/captive-portal/templates/device-registration/login.html
 # html/captive-portal/templates/emails/emails-guest_admin_pregistration.html
 # html/captive-portal/templates/emails/emails-guest_email_preregistration_confirmed.html
 # html/captive-portal/templates/emails/emails-guest_local_account_creation.html
@@ -546,7 +547,7 @@ msgstr ""
 # html/captive-portal/templates/pki_provider/packetfence_local.html
 # html/captive-portal/templates/pki_provider/packetfence_pki.html
 # html/captive-portal/templates/pki_provider/scep.html
-# html/captive-portal/templates/status.html
+# html/captive-portal/templates/status/login.html
 # html/captive-portal/templates/status/reset_password.html
 msgid "Password"
 msgstr ""
@@ -660,6 +661,10 @@ msgid "Status"
 msgstr ""
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Status.pm
+msgid "Status - Login"
+msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/Controller/Status.pm
 msgid "Status - Manage Account"
 msgstr ""
 
@@ -697,12 +702,12 @@ msgstr ""
 msgid "The network access of device %s has been revoked."
 msgstr ""
 
-# html/captive-portal/templates/status/reset_password.html
-msgid "The passwords you type do not match"
-msgstr ""
-
 # html/captive-portal/templates/readonly.html
 msgid "The system is in maintenance mode"
+msgstr ""
+
+# html/captive-portal/templates/status/reset_password.html
+msgid "The two entered passwords did not match"
 msgstr ""
 
 # html/captive-portal/templates/account.html
@@ -736,6 +741,10 @@ msgstr ""
 
 # html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Billing.pm
 msgid "Tier confirmation"
+msgstr ""
+
+# html/captive-portal/templates/status.html
+msgid "Time balance "
 msgstr ""
 
 # pf::person::FIELDS
@@ -811,12 +820,11 @@ msgstr ""
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
 # html/captive-portal/templates/account.html
 # html/captive-portal/templates/activation/sponsor_login.html
-# html/captive-portal/templates/device-registration/login.html
 # html/captive-portal/templates/emails/emails-guest_admin_pregistration.html
 # html/captive-portal/templates/emails/emails-guest_email_preregistration_confirmed.html
 # html/captive-portal/templates/emails/emails-guest_local_account_creation.html
 # html/captive-portal/templates/emails/emails-guest_sponsor_preregistration.html
-# html/captive-portal/templates/status.html
+# html/captive-portal/templates/status/login.html
 msgid "Username"
 msgstr ""
 
@@ -893,7 +901,7 @@ msgid "Your network access is currently being enabled. Once network connectivity
 msgstr ""
 
 # html/captive-portal/templates/status/reset_password.html
-msgid "Your password have been updated"
+msgid "Your password has been updated"
 msgstr ""
 
 # html/captive-portal/templates/status.html
