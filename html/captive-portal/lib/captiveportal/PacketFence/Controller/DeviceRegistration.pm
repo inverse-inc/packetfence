@@ -240,8 +240,8 @@ sub is_allowed {
     my $logger = get_logger();
     my @oses = @{$Config{'device_registration'}{'allowed_devices'}};
 
-    # If no oses are defined then it will not match any oses
-    return $FALSE if @oses == 0;
+    # If no oses are defined then it will allow every devices to be registered
+    return $TRUE if @oses == 0;
 
     # Verify if the device is existing in the table node and if it's device_type is allowed
     my $node = node_view($mac);
