@@ -6,9 +6,6 @@ pf::Authentication::Source::OpenIDSource
 
 =head1 DESCRIPTION
 
-This module implements methods for the OpenID source and the methods necessary
-to perform the OAuth flow since Net::OAuth2 lacks support for OpenID OAuth.
-
 =cut
 
 use pf::log;
