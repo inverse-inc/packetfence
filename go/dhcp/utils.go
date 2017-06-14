@@ -158,7 +158,7 @@ func (d *Interfaces) detectVIP(interfaces pfconfigdriver.ListenInts) {
 
 	for _, v := range interfaces.Element {
 		keyConfCluster.PfconfigHashNS = "interface " + v
-		pfconfigdriver.FetchDecodeSocketStruct(ctx, &keyConfCluster)
+		pfconfigdriver.FetchDecodeSocket(ctx, &keyConfCluster)
 		// Nothing in keyConfCluster.Ip so we are not in cluster mode
 		if keyConfCluster.Ip == "" {
 			VIP[v] = true

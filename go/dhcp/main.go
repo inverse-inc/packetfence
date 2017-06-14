@@ -58,7 +58,7 @@ func main() {
 
 	go func() {
 		var interfaces pfconfigdriver.ListenInts
-		pfconfigdriver.FetchDecodeSocketStruct(ctx, &interfaces)
+		pfconfigdriver.FetchDecodeSocket(ctx, &interfaces)
 		for {
 			DHCPConfig.detectVIP(interfaces)
 

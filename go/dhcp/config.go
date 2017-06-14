@@ -57,19 +57,19 @@ func readDBConfig() pfconfigdriver.PfconfigDatabase {
 	sections.PfconfigMethod = "hash_element"
 	sections.PfconfigHashNS = "database"
 
-	pfconfigdriver.FetchDecodeSocketStruct(ctx, &sections)
+	pfconfigdriver.FetchDecodeSocket(ctx, &sections)
 	return sections
 }
 
 func (d *Interfaces) readConfig() {
 
 	var interfaces pfconfigdriver.ListenInts
-	pfconfigdriver.FetchDecodeSocketStruct(ctx, &interfaces)
+	pfconfigdriver.FetchDecodeSocket(ctx, &interfaces)
 
 	var keyConfNet pfconfigdriver.PfconfigKeys
 	keyConfNet.PfconfigNS = "config::Network"
 
-	pfconfigdriver.FetchDecodeSocketStruct(ctx, &keyConfNet)
+	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfNet)
 
 	for _, v := range interfaces.Element {
 
@@ -104,7 +104,7 @@ func (d *Interfaces) readConfig() {
 				var ConfNet pfconfigdriver.NetworkConf
 				ConfNet.PfconfigHashNS = key
 
-				pfconfigdriver.FetchDecodeSocketStruct(ctx, &ConfNet)
+				pfconfigdriver.FetchDecodeSocket(ctx, &ConfNet)
 				if (NetIP.Contains(net.ParseIP(ConfNet.DhcpStart)) && NetIP.Contains(net.ParseIP(ConfNet.DhcpEnd))) || NetIP.Contains(net.ParseIP(ConfNet.NextHop)) {
 					// NetIP.Contains(net.ParseIP(ConfNet.Dns)) &&
 					// IP per role
@@ -112,7 +112,7 @@ func (d *Interfaces) readConfig() {
 						var keyConfRoles pfconfigdriver.PfconfigKeys
 						keyConfRoles.PfconfigNS = "config::Roles"
 
-						pfconfigdriver.FetchDecodeSocketStruct(ctx, &keyConfRoles)
+						pfconfigdriver.FetchDecodeSocket(ctx, &keyConfRoles)
 
 						// Add the registration role
 						keyConfRoles.Keys = append(keyConfRoles.Keys, "registration")
