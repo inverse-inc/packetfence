@@ -344,10 +344,20 @@ dhcpd_binary=/usr/sbin/dhcpd
 # Should go_dhcpd be managed by PacketFence?
 go_dhcpd=disabled
 #
+# services.go_dhcpd_binary
+#
+# Location of the go_dhcpd binary.
+go_dhcpd_binary=/usr/local/pf/bin/go_dhcpd
+#
 # services.etcd
 #
 # Should etcd be managed by PacketFence?
 etcd=enabled
+#
+# services.etcd_binary
+#
+# Location of the etcd binary. Only necessary to change if you are not running the RPMed version.
+etcd_binary=/usr/bin/etcd
 #
 # services.haproxy
 #
