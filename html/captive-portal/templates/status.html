@@ -84,48 +84,14 @@ $(document).ready(function() {
 </div>
 [%- END %]
 
-[% IF showLogin %]
-<form name="login" method="post" action="/status/login">
-
-  <div class="layout--center">
-    <h5>[% i18n("Login to manage registered devices") %]</h5>
-  </div>
-
-  <div class="layout layout--center">
-    <div class="layout__item u-2/3 u-1/1-palm">
-
-      [%# User / Pass %]
-      <div class="input-container">
-        <label for="username">[% i18n("Username") %]</label>
-        <input class="field" name="username" id="username" type="text" value="[% username %]" />
-      </div>
-      <div class="input-container">
-        <label for="password">[% i18n("Password") %]</label>
-        <input class="field" name="password" id="password" type="password" />
-      </div>
-
-      [%# submit %]
-      <button type="submit" name="submit" class="btn btn--full btn--accent u-mt">
-        <div class="flag">
-          <div class="flag__img">[% svgIcon(id='ic_done_black_24px',size='small') %]</div>
-          <p class="flag__body layout--left">[% i18n("Login") %]</p>
-        </div>
-      </button>
-
-      [%- IF billing %]
-      <a href="[% URL_STATUS_BILLING %]" class="btn btn--full btn--light u-mt">
-        <div class="flag">
-          <div class="flag__img">[% svgIcon(id='ic_credit_card_black_24px',size='small') %]</div>
-          <p class="flag__body">[% i18n("Extend your access") %]</p>
-        </div>
-      </a>
-      [%- END %]
-
+[%- IF billing %]
+  <a href="[% URL_STATUS_BILLING %]" class="btn btn--full btn--light u-mt">
+    <div class="flag">
+      <div class="flag__img">[% svgIcon(id='ic_credit_card_black_24px',size='small') %]</div>
+      <p class="flag__body">[% i18n("Extend your access") %]</p>
     </div>
-  </div>
-</form>
-
-[% ELSE %]
+  </a>
+[%- END %]
 
 [% IF status_msg.defined %]
 <div class="media media--notice u-p u-mb">
@@ -247,5 +213,3 @@ $(document).ready(function() {
     </a>
   </div>
 </div>
-
-[% END %]

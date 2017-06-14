@@ -25,16 +25,17 @@ Catalyst Controller.
 
 =cut
 
-=head2 index
-
-=cut
-
 sub auto :Private {
     my ( $self, $c ) = @_;
     $c->session->{release_bypass} = $TRUE;
     $c->forward('setupCurrentNodeInfo');
     return 1;
 }
+
+=head2 index
+
+=cut
+
 
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
@@ -46,7 +47,8 @@ sub index : Path : Args(0) {
     if ($pid) {
         $c->forward('userIsAuthenticated');
     } else {
-        $c->forward('userIsNotAuthenticated');
+        $c->response->redirect('/status/login');
+        $c->detach();
     }
     if (view($pid)) {
         $c->stash->{hasLocalAccount} = $TRUE;
@@ -86,11 +88,6 @@ sub userIsAuthenticated : Private {
     );
 }
 
-sub userIsNotAuthenticated : Private {
-    my ( $self, $c ) = @_;
-    $c->stash->{showLogin} = 1;
-}
-
 sub setupCurrentNodeInfo : Private {
     my ( $self, $c ) = @_;
     my $portalSession = $c->portalSession;
@@ -125,13 +122,19 @@ sub login : Local {
     my $request = $c->request;
     my $username = $request->param('username');
     my $password = $request->param('password');
+    $c->stash( 
+        template => 'status/login.html',
+        title => "Status - Login",
+    );
     if ( all_defined( $username, $password ) ) {
-        if ($c->has_errors) {
-            $c->detach('index');
-        }
         $c->forward(Authenticate => 'authenticationLogin');
+        if ( $c->has_errors ) {
+            $c->stash->{txt_auth_error} = join(' ', grep { ref ($_) eq '' } @{$c->error});
+            $c->clear_errors;
+        } else {
+            $c->response->redirect('/status');
+        }
     }
-    $c->forward('index');
 }
 
 sub reset_password : Local {
@@ -144,7 +147,7 @@ sub reset_password : Local {
     if ($pid) {
         $c->forward('userIsAuthenticated');
     } else {
-        $c->forward('userIsNotAuthenticated');
+        $c->forward('login');
     }
     $c->stash(
         title => "Status - Manage Account",

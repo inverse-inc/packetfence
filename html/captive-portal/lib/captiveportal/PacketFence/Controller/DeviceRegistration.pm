@@ -54,7 +54,7 @@ sub index : Path : Args(0) {
         $c->forward('userNotLoggedIn');
     } elsif ( $request->param('cancel') ) {
         $c->user_session({});
-        $c->detach('login');
+        $c->response->redirect('/status');
     }
     if ( $request->method eq 'POST' && $request->param('device_mac') ) {
         # User is authenticated and requesting to register a device
@@ -92,32 +92,7 @@ sub gaming_registration: Path('/gaming-registration') {
 
 sub userNotLoggedIn : Private {
     my ($self, $c) = @_;
-    my $request = $c->request;
-    my $username = $request->param('username');
-    my $password = $request->param('password');
-    if ( all_defined( $username, $password ) ) {
-        $c->forward(Authenticate => 'authenticationLogin');
-        if ($c->has_errors) {
-            $c->detach('login');
-        }
-    } else {
-        $c->detach('login');
-    }
-}
-
-=head2 login
-
-Display the device registration login
-
-=cut
-
-sub login : Local : Args(0) {
-    my ( $self, $c ) = @_;
-    if ( $c->has_errors ) {
-        $c->stash->{txt_auth_error} = join(' ', grep { ref ($_) eq '' } @{$c->error});
-        $c->clear_errors;
-    }
-    $c->stash( title => "Login", template => 'device-registration/login.html' );
+    $c->response->redirect('/status/login');
 }
 
 sub landing : Local : Args(0) {
