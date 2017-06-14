@@ -5,12 +5,11 @@ import (
 	"database/sql"
 	"encoding/binary"
 	"fmt"
-	"log"
 	"net"
 	"time"
 
-	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/coreos/etcd/client"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
 // inc function use to increment an ip
@@ -52,7 +51,9 @@ func initiaLease(dhcpHandler *DHCPHandler) {
 
 	rows, err := database.Query("select ip,mac,end_time from ip4log where inet_aton(ip) between inet_aton(?) and inet_aton(?) and (end_time = 0 OR  end_time > NOW()) ORDER BY ip", dhcpHandler.start.String(), ipend.String())
 	if err != nil {
-		log.Fatal(err)
+		// Log here
+		// fmt.Println(err)
+		return
 	}
 	defer rows.Close()
 	var (
@@ -63,7 +64,9 @@ func initiaLease(dhcpHandler *DHCPHandler) {
 	for rows.Next() {
 		err := rows.Scan(&ipstr, &mac, &end_time)
 		if err != nil {
-			log.Fatal(err)
+			// Log here
+			fmt.Println(err)
+			return
 		}
 
 		// Calculate the leasetime from the date in the database
