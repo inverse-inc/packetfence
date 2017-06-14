@@ -274,6 +274,16 @@ sub invalidate_cache :Chained('object') :PathPart('invalidate_cache') :Args(0) {
     $c->response->status(200);
 }
 
+=head1 import_from_csv
+
+A method to be able to import switches from a CSV
+
+=cut
+
+sub import_from_csv :Local :Args(1) :AdminRole('SWITCHES_CREATE') {
+
+
+}
 
 =head1 COPYRIGHT
 

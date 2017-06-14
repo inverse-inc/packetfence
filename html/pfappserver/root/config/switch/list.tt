@@ -31,6 +31,9 @@
                 </form>
               [% END %]
               [% pagination(c.controller.action_for(action), page_num, page_count, {}) | none %]</th>
+                <div class="btn-group pull-right">
+                  <button class="btn btn-primary"><a href="#" data-export-url="[% c.uri_for(c.controller('Switch').action_for('import_csv')) %]" data-export-form="#simpleUserSearch" class="importCSVBtn">[% l('Import from CSV') %]</button>
+                </div>
           </tr>
           <tr>
             <th>[% l('Identifier') %]</th>
