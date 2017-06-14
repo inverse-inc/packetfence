@@ -23,7 +23,7 @@ use pf::file_paths qw($authentication_config_file);
 
 sub configFile {$authentication_config_file};
 
-sub pfconfigNamespace { 'config::Source' }
+sub pfconfigNamespace { 'config::Authentication' }
 
 =head2 _Sections
 
@@ -59,6 +59,12 @@ sub _update_section {
         $self->SUPER::_update_section("$section rule $name", $rule);
     }
 }
+
+=head2 _update_subfield_in_data
+
+update subfield in data
+
+=cut
 
 sub _update_subfield_in_data {
     my ($self, $data, $from, $to) = @_;
