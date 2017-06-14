@@ -1036,19 +1036,20 @@ $(function () { // DOM ready
 
     $('#checkup_task_toggle').click(function (e) {
         e.preventDefault();
-        var that = $(this);
-        $(this).html('<li class="disabled"><div class="text-center"><i class="icon-spin icon-circle-o-notch"></i></div></li>');
+        var thatParent = $(this).parent();
+        thatParent.addClass("disabled");
+        thatParent.html('<div class="text-center"><i class="icon-spin icon-circle-o-notch"></i></div>');
         $.get("/admin/checkup", function(data){
           var li;
-          that.html('<b>Checkup result(s)</b>');
+          thatParent.html('<a href="#" disabled><b>Checkup result(s)</b></a>');
           if(data.items.problems.length > 0){
             for(var i in data.items.problems){
-              li = $('<li class="disabled">'+data.items.problems[i].severity+' : '+data.items.problems[i].message+'</li>');
-              that.append(li);
+              li = $('<li class="disabled"><a href="#" disabled>'+data.items.problems[i].severity+' : '+data.items.problems[i].message+'</a></li>');
+              thatParent.after(li);
             }
           } else {
-            li = $('<li class="disabled">No problem detected !</li>');
-            that.append(li);
+            li = $('<li class="disabled"><a href="#" disabled>No problem detected !</a></li>');
+            thatParent.after(li);
           }
         });
         return false;
@@ -1056,13 +1057,14 @@ $(function () { // DOM ready
 
     $('#fixpermissions_task_toggle').click(function (e) {
         e.preventDefault();
-        var that = $(this);
-        $(this).html('<li class="disabled"><div class="text-center"><i class="icon-spin icon-circle-o-notch"></i></div></li>');
+        var thatParent = $(this).parent();
+        thatParent.addClass("disabled");
+        thatParent.html('<div class="text-center"><i class="icon-spin icon-circle-o-notch"></i></div>');
         $.get("/admin/fixpermissions", function(data){
           var li;
-          that.html('<b>Fix permissions result</b>');
-          li = $('<li class="disabled">Fixed permissions !</li>');
-          that.append(li);
+          thatParent.html('<a href="#" disabled><b>Fix permissions result</b></a>');
+          li = $('<li class="disabled"><a href="#" disabled>Fixed permissions !</a></li>');
+          thatParent.after(li);
         });
         return false;
     });
