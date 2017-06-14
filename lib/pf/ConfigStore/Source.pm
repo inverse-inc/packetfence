@@ -54,19 +54,19 @@ sub _update_section {
     }
     for my $rule (@rules) {
         my $name = delete $rule->{id};
-        $self->_update_subfield_in_data($rule, "actions", "action");
-        $self->_update_subfield_in_data($rule, "conditions", "condition");
+        $self->_update_array_field($rule, "actions", "action");
+        $self->_update_array_field($rule, "conditions", "condition");
         $self->SUPER::_update_section("$section rule $name", $rule);
     }
 }
 
-=head2 _update_subfield_in_data
+=head2 _update_array_field
 
-update subfield in data
+Update array field data to seperate field for each entry
 
 =cut
 
-sub _update_subfield_in_data {
+sub _update_array_field {
     my ($self, $data, $from, $to) = @_;
     my $fields = delete $data->{$from} // [];
     my $i = 0;
