@@ -31,6 +31,7 @@ Bug Fixes
 * Added a cleanup of the number in the SMS source (#1966)
 * TLS certificates and keys will no longer be overwritten (#2366)
 * journald: limit logfile size #2380
+* Limit the amount of tasks a worker processes to avoid memory from growing
 
 Version 7.1.0 released on 2017-06-01
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
