@@ -113,6 +113,12 @@ has_block rules =>
     build_render_list_method => \&build_render_list_rules,
   );
 
+has_block local_account =>
+  (
+    render_list => [],
+  );
+
+
 has_block action_templates => (
     attr => {
         id => 'action_templates',
@@ -141,6 +147,9 @@ our %EXCLUDE = (
     description => 1,
     rules => 1,
     action_templates => 1,
+    local_account => 1,
+    create_local_account => 1,
+    local_account_logins => 1,
     (map { ("${_}_rules"  => 1) } @Rules::CLASSES),
     (map { ("${_}_action" => 1) } keys %ACTION_FIELD_OPTIONS),
     (map { ("${_}_operator" => 1, "${_}_value" => 1) } @Conditions::TYPES),
