@@ -8,7 +8,7 @@ pfappserver::Form::Source::Mirapay
 
 =head1 DESCRIPTION
 
-pfappserver::Form::Source::Mirapay
+Form definition to create or update an Mirapay authentication source.
 
 =cut
 

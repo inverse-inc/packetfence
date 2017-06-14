@@ -2,13 +2,13 @@ package pfappserver::Form::Config::Source::Blackhole;
 
 =head1 NAME
 
-pfappserver::Form::Config::Source::Blackhole add documentation
+pfappserver::Form::Config::Source::Blackhole
 
 =cut
 
 =head1 DESCRIPTION
 
-pfappserver::Form::Config::Source::Blackhole
+Form definition to create or update an Blackhole authentication source.
 
 =cut
 
@@ -46,4 +46,3 @@ USA.
 =cut
 
 1;
-

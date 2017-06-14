@@ -8,7 +8,7 @@ pfappserver::Form::Config::Source::EAPTLS
 
 =head1 DESCRIPTION
 
-pfappserver::Form::Config::Source::EAPTLS
+Form definition to create or update an EAPTLS authentication source.
 
 =cut
 

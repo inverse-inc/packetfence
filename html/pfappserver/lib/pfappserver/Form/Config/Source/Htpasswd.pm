@@ -47,7 +47,7 @@ sub validate {
     $self->SUPER::validate();
 
     unless (-r $self->value->{path}) {
-        $self->field('path')->add_error("The file is not readable.");
+        $self->field('path')->add_error("The file is not readable by the user 'pf'.");
     }
 }
 

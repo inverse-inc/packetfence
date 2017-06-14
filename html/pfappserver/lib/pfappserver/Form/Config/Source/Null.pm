@@ -2,13 +2,13 @@ package pfappserver::Form::Config::Source::Null;
 
 =head1 NAME
 
-pfappserver::Form::Config::Source::Null add documentation
+pfappserver::Form::Config::Source::Null
 
 =cut
 
 =head1 DESCRIPTION
 
-pfappserver::Form::Config::Source::Null
+Form definition to create or update a Null authentication source.
 
 =cut
 
@@ -54,4 +54,3 @@ USA.
 =cut
 
 1;
-

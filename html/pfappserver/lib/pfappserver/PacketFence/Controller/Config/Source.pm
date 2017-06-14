@@ -6,7 +6,7 @@ pfappserver::PacketFence::Controller::Config::Source - Catalyst Controller
 
 =head1 DESCRIPTION
 
-Controller for admin roles management.
+Controller for authentication source
 
 =cut
 

@@ -8,7 +8,8 @@ pfappserver::Form::Config::Source::Billing;
 
 =head1 DESCRIPTION
 
-pfappserver::Form::Authentication::Source::Billing
+Parent class for Billing Form
+
 
 =cut
 

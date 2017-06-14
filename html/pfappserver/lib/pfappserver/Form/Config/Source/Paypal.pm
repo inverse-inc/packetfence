@@ -8,7 +8,7 @@ pfappserver::Form::Config:::Authentication::Source::Paypal
 
 =head1 DESCRIPTION
 
-pfappserver::Form::Config:::Authentication::Source::Paypal
+Form definition to create or update a Paypal authentication source.
 
 =cut
 

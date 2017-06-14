@@ -8,7 +8,7 @@ pfappserver::Form::Config:::Authentication::Source::AuthorizeNet
 
 =head1 DESCRIPTION
 
-pfappserver::Form::Config:::Authentication::Source::AuthorizeNet
+Form definition to create or update an AuthorizeNet authentication source.
 
 =cut
 

@@ -8,7 +8,7 @@ pfappserver::Form::Config::Source::AdminProxy - Form for the AdminProxySource
 
 =head1 DESCRIPTION
 
-pfappserver::Form::Config::Source::AdminProxy
+Form definition to create or update an AdminProxy authentication source.
 
 =cut
 
@@ -47,7 +47,7 @@ has_field 'group_header' => (
 
 =head2 validate
 
-validate
+Validate Proxy IP Addresses
 
 =cut
 
