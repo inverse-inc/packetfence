@@ -34,6 +34,7 @@ has_field 'secret' =>
    type => 'ObfuscatedText',
    label => 'Secret',
    required => 1,
+   # Default value needed for creating dummy source
    default => '',
   );
 has_field 'timeout' =>

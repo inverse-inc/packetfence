@@ -22,17 +22,22 @@ with 'pfappserver::Base::Form::Role::Help';
 has_field api_login_id => (
     type => 'Text',
     required => 1,
+    # Default value needed for creating dummy source
+    default => '',
 );
 
 has_field transaction_key => (
     type => 'Text',
     required => 1,
+    # Default value needed for creating dummy source
 );
 
 has_field md5_hash => (
     label => 'MD5 hash',
     type => 'Text',
     required => 1,
+    # Default value needed for creating dummy source
+    default => '',
 );
 
 has_field 'domains' =>

@@ -24,6 +24,7 @@ has_field 'api_key' =>
    type => 'Text',
    label => 'API KEY',
    required => 1,
+   # Default value needed for creating dummy source
    default => '',
    tags => { after_element => \&help,
              help => 'Kickbox.io API key.' },

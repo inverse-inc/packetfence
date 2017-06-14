@@ -47,6 +47,7 @@ has_field terminal_id => (
         after_element => \&help,
         help => 'Terminal ID for Mirapay Direct',
     },
+    # Default value needed for creating dummy source
     default => '',
 );
 
@@ -68,6 +69,7 @@ has_field shared_secret_direct => (
         help => 'MKEY for Mirapay Direct',
     },
     element_class => ['input-xlarge'],
+    # Default value needed for creating dummy source
     default => '',
 );
 
@@ -80,6 +82,7 @@ has_field shared_secret => (
         help => 'MKEY for the iframe',
     },
     element_class => ['input-xlarge'],
+    # Default value needed for creating dummy source
     default => '',
 );
 
@@ -97,6 +100,7 @@ has_field merchant_id => (
     label => 'Merchant ID',
     type => 'Text',
     required => 1,
+    # Default value needed for creating dummy source
     default => '',
 );
 

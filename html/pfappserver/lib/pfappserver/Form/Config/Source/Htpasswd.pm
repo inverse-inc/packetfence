@@ -22,6 +22,7 @@ has_field 'path' =>
    label => 'File Path',
    required => 1,
    element_class => ['input-xxlarge'],
+   # Default value needed for creating dummy source
    default => '',
   );
 has_field 'stripped_user_name' =>

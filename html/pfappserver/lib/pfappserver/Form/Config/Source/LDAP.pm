@@ -63,6 +63,7 @@ has_field 'basedn' =>
    type => 'Text',
    label => 'Base DN',
    required => 1,
+   # Default value needed for creating dummy source
    default => '',
    element_class => ['span10'],
   );
@@ -85,6 +86,7 @@ has_field 'usernameattribute' =>
    type => 'Text',
    label => 'Username Attribute',
    required => 1,
+   # Default value needed for creating dummy source
    default => '',
   );
 has_field 'binddn' =>
@@ -94,6 +96,7 @@ has_field 'binddn' =>
    element_class => ['span10'],
    tags => { after_element => \&help,
              help => 'Leave this field empty if you want to perform an anonymous bind.' },
+   # Default value needed for creating dummy source
    default => '',
   );
 has_field 'password' =>
@@ -101,6 +104,7 @@ has_field 'password' =>
    type => 'ObfuscatedText',
    label => 'Password',
    trim => undef,
+   # Default value needed for creating dummy source
    default => '',
   );
 has_field 'stripped_user_name' =>

@@ -24,6 +24,7 @@ has_field 'account_sid' => (
     type        => 'Text',
     label       => 'Account SID',
     required    => 1,
+    # Default value needed for creating dummy source
     default     => '',
     tags        => {
         after_element   => \&help,
@@ -35,6 +36,7 @@ has_field 'auth_token' => (
     type        => 'Text',
     label       => 'Auth Token',
     required    => 1,
+    # Default value needed for creating dummy source
     default     => "",
     tags        => {
         after_element   => \&help,
@@ -46,6 +48,7 @@ has_field 'twilio_phone_number' => (
     type            => 'Text',
     label           => 'Phone Number (From)',
     required        => 1,
+    # Default value needed for creating dummy source
     default         => "",
     tags            => {
         after_element   => \&help,
@@ -54,7 +57,6 @@ has_field 'twilio_phone_number' => (
     element_attr    => {
         placeholder     => pf::Authentication::Source::TwilioSource->meta->get_attribute('twilio_phone_number')->default,
     },
-    default         => pf::Authentication::Source::TwilioSource->meta->get_attribute('twilio_phone_number')->default,
 );
 
 has_field 'pin_code_length' => (

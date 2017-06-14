@@ -26,6 +26,7 @@ has_block definition => (
 has_field 'proxy_addresses' => (
     type => 'TextArea',
     required => 1,
+    # Default value needed for creating dummy source
     default => '',
     tags => {
         after_element => \&help,
@@ -36,12 +37,14 @@ has_field 'proxy_addresses' => (
 has_field 'user_header' => (
     type => 'Text',
     required => 1,
+    # Default value needed for creating dummy source
     default => '',
 );
 
 has_field 'group_header' => (
     type => 'Text',
     required => 1,
+    # Default value needed for creating dummy source
     default => '',
 );
 

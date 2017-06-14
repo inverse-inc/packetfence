@@ -48,6 +48,7 @@ has_field 'description' =>
    type => 'Text',
    label => 'Description',
    required => 1,
+   # Default value needed for creating dummy source
    default => '',
   );
 

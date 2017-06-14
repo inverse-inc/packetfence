@@ -22,6 +22,7 @@ has_field 'client_id' =>
    type => 'Text',
    label => 'App ID',
    required => 1,
+   # Default value needed for creating dummy source
    default => '',
   );
 has_field 'client_secret' =>
@@ -29,6 +30,7 @@ has_field 'client_secret' =>
    type => 'Text',
    label => 'App Secret',
    required => 1,
+   # Default value needed for creating dummy source
    default => '',
   );
 has_field 'site' =>

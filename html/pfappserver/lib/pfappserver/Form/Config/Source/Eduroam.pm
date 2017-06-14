@@ -24,6 +24,7 @@ has_field 'server1_address' => (
     type        => 'Text',
     label       => 'Server 1 address',
     required    => 1,
+    # Default value needed for creating dummy source
     default     => "",
     tags        => {
         after_element   => \&help,
@@ -35,6 +36,7 @@ has_field 'server2_address' => (
     type        => 'Text',
     label       => 'Server 2 address',
     required    => 1,
+    # Default value needed for creating dummy source
     default     => "",
     tags        => {
         after_element   => \&help,
@@ -46,6 +48,7 @@ has_field 'radius_secret' => (
     type        => 'Text',
     label       => 'RADIUS secret',
     required    => 1,
+    # Default value needed for creating dummy source
     default     => "",
     tags        => {
         after_element   => \&help,
