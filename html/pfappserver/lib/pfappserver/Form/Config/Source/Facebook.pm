@@ -13,6 +13,7 @@ Form definition to create or update a Facebook user source.
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Source';
 with 'pfappserver::Base::Form::Role::Help';
+with 'pfappserver::Base::Form::Role::SourceLocalAccount';
 
 use pf::Authentication::Source::FacebookSource;
 
@@ -95,28 +96,6 @@ has_field 'domains' =>
    tags => { after_element => \&help,
              help => 'Comma separated list of domains that will be resolve with the correct IP addresses.' },
   );
-
-has_field 'create_local_account' => (
-    type => 'Toggle',
-    checkbox_value => 'yes',
-    unchecked_value => 'no',
-    label => 'Create Local Account',
-    default => pf::Authentication::Source::FacebookSource->meta->get_attribute('create_local_account')->default,
-    tags => {
-        after_element => \&help,
-        help => 'Create a local account on the PacketFence system based on the account email address provided.',
-    },
-);
-
-has_field 'local_account_logins' => (
-    type => 'PosInteger',
-    label => 'Amount of logins for the local account',
-    default => pf::Authentication::Source::FacebookSource->meta->get_attribute('local_account_logins')->default,
-    tags => {
-        after_element => \&help_list,
-        help => 'The amount of times, the local account can be used after its created. 0 means infinite.'
-    },
-);
 
 =head1 COPYRIGHT
 

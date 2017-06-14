@@ -13,6 +13,7 @@ Form definition to create or update an Email-verified user source.
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Source';
 with 'pfappserver::Base::Form::Role::Help';
+with 'pfappserver::Base::Form::Role::SourceLocalAccount';
 
 use pf::Authentication::Source::EmailSource;
 use pfappserver::Form::Field::Duration;
@@ -38,28 +39,6 @@ has_field 'allow_localdomain' =>
    tags => { after_element => \&help,
              help => 'Accept self-registration with email address from the local domain' },
   );
-
-has_field 'create_local_account' => (
-    type => 'Toggle',
-    checkbox_value => 'yes',
-    unchecked_value => 'no',
-    label => 'Create Local Account',
-    default => pf::Authentication::Source::EmailSource->meta->get_attribute('create_local_account')->default,
-    tags => {
-        after_element => \&help,
-        help => 'Create a local account on the PacketFence system based on the email address provided.',
-    },
-);
-
-has_field 'local_account_logins' => (
-    type => 'PosInteger',
-    label => 'Amount of logins for the local account',
-    default => pf::Authentication::Source::EmailSource->meta->get_attribute('local_account_logins')->default,
-    tags => {
-        after_element => \&help_list,
-        help => 'The amount of times, the local account can be used after its created. 0 means infinite.'
-    },
-);
 
 has_field 'activation_domain' =>
   (

@@ -18,6 +18,7 @@ use HTML::FormHandler::Moose;
 use pf::config qw($fqdn);
 extends 'pfappserver::Form::Config::Source::Billing';
 with 'pfappserver::Base::Form::Role::Help';
+with 'pfappserver::Base::Form::Role::SourceLocalAccount';
 
 has_field base_url => (
     type => 'Select',
@@ -109,8 +110,6 @@ has_block definition => (
         service_fqdn
         currency
         test_mode
-        create_local_account
-        local_account_logins
         send_email_confirmation
     )]
 );

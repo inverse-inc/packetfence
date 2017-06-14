@@ -13,6 +13,7 @@ Form definition to create or update an SMS-verified user source.
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Source';
 with 'pfappserver::Base::Form::Role::Help';
+with 'pfappserver::Base::Form::Role::SourceLocalAccount';
 
 use pf::Authentication::Source::SMSSource;
 use pf::sms_carrier;
@@ -29,29 +30,6 @@ has_field 'sms_carriers' =>
    tags => { after_element => \&help,
              help => 'List of phone carriers available to the user' },
   );
-
-has_field 'create_local_account' => (
-    type => 'Toggle',
-    checkbox_value => 'yes',
-    unchecked_value => 'no',
-    label => 'Create Local Account',
-    default => pf::Authentication::Source::SMSSource->meta->get_attribute('create_local_account')->default,
-    tags => {
-        after_element => \&help,
-        help => 'Create a local account on the PacketFence system based on the phone number provided.',
-    },
-);
-
-has_field 'local_account_logins' => (
-    type => 'PosInteger',
-    label => 'Amount of logins for the local account',
-    default => pf::Authentication::Source::SMSSource->meta->get_attribute('local_account_logins')->default,
-    tags => {
-        after_element => \&help_list,
-        help => 'The amount of times, the local account can be used after its created. 0 means infinite.'
-    },
-);
-
 
 =head1 METHODS
 
@@ -108,4 +86,5 @@ USA.
 =cut
 
 __PACKAGE__->meta->make_immutable;
+
 1;
