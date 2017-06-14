@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"bitbucket.org/oeufdure/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/RoaringBitmap/roaring"
 	netadv "github.com/fdurand/go-netadv"
 	dhcp "github.com/krolaw/dhcp4"

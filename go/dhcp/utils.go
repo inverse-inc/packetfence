@@ -9,7 +9,7 @@ import (
 	"net"
 	"time"
 
-	"bitbucket.org/oeufdure/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/coreos/etcd/client"
 )
 

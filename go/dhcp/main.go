@@ -13,7 +13,7 @@ import (
 	"strconv"
 	"time"
 
-	"bitbucket.org/oeufdure/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/RoaringBitmap/roaring"
 	"github.com/coreos/etcd/client"
 	"github.com/coreos/go-systemd/daemon"
