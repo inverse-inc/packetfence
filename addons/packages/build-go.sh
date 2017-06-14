@@ -86,7 +86,7 @@ if build_mode; then
   make pfhttpd
   mv pfhttpd $BINDST/
   make go_dhcpd
-  mv dhcp $BINDST/
+  mv go_dhcpd $BINDST/
 elif test_mode; then
   PFCONFIG_TESTING=y $GOPATH/bin/govendor test ./...  
 fi
