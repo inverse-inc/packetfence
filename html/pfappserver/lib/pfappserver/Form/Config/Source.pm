@@ -242,11 +242,24 @@ sub render_list_definition {
     return \@fields;
 }
 
+
+=head2 build_rule_label
+
+build the label of rule
+
+=cut
+
 sub build_rule_label {
     my ($field) = @_;
     my $id = $field->field("id")->value // "New";
     return "Rule - $id";
 }
+
+=head2 build_render_list_rules
+
+build the rules to show in the block
+
+=cut
 
 sub build_render_list_rules {
     my ($block) = @_;
@@ -258,6 +271,12 @@ sub build_render_list_rules {
 
     return [];
 }
+
+=head2 accordion_heading_content
+
+accordion heading content
+
+=cut
 
 sub accordion_heading_content {
     my ($field) = @_;
@@ -320,7 +339,7 @@ sub get_source {
 
 =head2 getSourceArgs
 
-get the source args
+get the args to build a source
 
 =cut
 
@@ -351,8 +370,6 @@ sub operators {
     return @operators;
 }
 
-
-
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2017 Inverse inc.
@@ -377,4 +394,5 @@ USA.
 =cut
 
 __PACKAGE__->meta->make_immutable;
+
 1;
