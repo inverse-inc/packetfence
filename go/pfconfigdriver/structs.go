@@ -139,12 +139,14 @@ type configStruct struct {
 var Config configStruct
 
 type PfNetwork struct {
+	StructConfig
 	PfconfigMethod string `val:"keys"`
 	PfconfigNS     string `val:"config::Network"`
 	Keys           []string
 }
 
 type NetworkConf struct {
+	StructConfig
 	PfconfigMethod       string `val:"hash_element"`
 	PfconfigNS           string `val:"config::Network"`
 	PfconfigHashNS       string `val:"-"`
@@ -166,12 +168,14 @@ type NetworkConf struct {
 }
 
 type PfRoles struct {
+	StructConfig
 	PfconfigMethod string `val:"keys"`
 	PfconfigNS     string `val:"config::Roles"`
 	Keys           []string
 }
 
 type RolesConf struct {
+	StructConfig
 	PfconfigMethod string `val:"hash_element"`
 	PfconfigNS     string `val:"config::Roles"`
 	PfconfigHashNS string `val:"-"`
@@ -180,6 +184,7 @@ type RolesConf struct {
 }
 
 type PfconfigDatabase struct {
+	StructConfig
 	PfconfigMethod string `val:"hash_element"`
 	PfconfigNS     string `val:"config::Pf"`
 	PfconfigHashNS string `val:"database"`
@@ -191,6 +196,7 @@ type PfconfigDatabase struct {
 }
 
 type NetInterface struct {
+	StructConfig
 	PfconfigMethod string `val:"hash_element"`
 	PfconfigNS     string `val:"-"`
 	PfconfigHashNS string `val:"-"`
