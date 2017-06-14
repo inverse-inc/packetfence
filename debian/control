@@ -138,7 +138,7 @@ Depends: ${misc:Depends}, vlan,
 # golang build
  golang-1.7-go,
  etcd-server,
- etct-client,
+ etcd-client,
 # Distribution specific
  ${packetfence:dist}
 Description: PacketFence network registration / worm mitigation system
