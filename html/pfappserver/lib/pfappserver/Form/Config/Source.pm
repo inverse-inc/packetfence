@@ -2,11 +2,11 @@ package pfappserver::Form::Config::Source;
 
 =head1 NAME
 
-pfappserver::Form::Config::Source - Web form for an admin role
+pfappserver::Form::Config::Source - Base Web form for auth sources
 
 =head1 DESCRIPTION
 
-Form definition to create or update an admin role
+Base Form definition to create or update auth sources
 
 =cut
 
