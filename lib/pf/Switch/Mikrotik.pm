@@ -18,7 +18,6 @@ Should work on CAPsMAN enabled APs, tested on v6.18
 use strict;
 use warnings;
 
-use Net::SSH2;
 use POSIX;
 use Try::Tiny;
 
@@ -320,6 +319,7 @@ sub deauthenticateMacSSH {
     }
 
     eval {
+        require Net::SSH2;
         $ssh = Net::SSH2->new();
         $ssh->connect($send_disconnect_to);
         $ssh->auth_password($self->{_cliUser},$self->{_cliPwd});

@@ -45,7 +45,6 @@ use pf::node qw(node_attributes);
 use pf::util::radius qw(perform_coa perform_disconnect);
 use Try::Tiny;
 use pf::util;
-use Net::SSH2;
 
 sub supportsWiredMacAuth { return $TRUE; }
 sub supportsRadiusVoip { return $TRUE; }
@@ -230,6 +229,7 @@ sub _connectSSH {
     
     my $ssh;
     eval {
+        require Net::SSH2;
         $ssh = Net::SSH2->new();
         $ssh->connect($self->{_ip}, 22 ) or die "Cannot connect $!"  ;
         $ssh->auth_password($self->{_cliUser},$self->{_cliPwd}) or die "Cannot authenticate" ;
