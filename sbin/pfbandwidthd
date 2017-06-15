@@ -25,7 +25,7 @@ use NetPacket::Ethernet;
 use NetPacket::IP;
 use IO::Select;
 use Socket;
-use Systemd::Daemon();
+use Systemd::Daemon qw{ -soft -notify };
 
 BEGIN {
     # log4perl init

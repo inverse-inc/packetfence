@@ -22,7 +22,7 @@ use Net::Pcap 0.16;
 use Pod::Usage;
 use POSIX qw(:signal_h pause :sys_wait_h SIG_BLOCK SIG_UNBLOCK);
 use Fcntl qw(:flock);
-use Systemd::Daemon();
+use Systemd::Daemon qw{ -soft -notify };
 
 BEGIN {
     # log4perl init

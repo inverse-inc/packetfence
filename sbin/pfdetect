@@ -45,7 +45,7 @@ use pf::factory::detect::parser;
 use pf::client;
 use pfconfig::cached_hash;
 use pf::CHI::Request;
-use Systemd::Daemon();
+use Systemd::Daemon qw{ -soft -notify };
 
 # initialization
 # --------------

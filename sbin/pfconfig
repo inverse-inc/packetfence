@@ -49,7 +49,7 @@ use pf::Sereal qw($ENCODER);
 use Errno qw(EINTR EAGAIN);
 use bytes;
 use pf::util::networking qw(send_data_with_length);
-use Systemd::Daemon();
+use Systemd::Daemon qw{ -soft -notify };
 our $RUNNING = 1;
 
 ## All pfconfig objects implementing TO_JSON must be imported here
