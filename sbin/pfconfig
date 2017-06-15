@@ -49,7 +49,7 @@ use pf::Sereal qw($ENCODER);
 use Errno qw(EINTR EAGAIN);
 use bytes;
 use pf::util::networking qw(send_data_with_length);
-use Systemd::Daemon qw{ -soft -notify };
+use Systemd::Daemon qw{ -soft };
 our $RUNNING = 1;
 
 ## All pfconfig objects implementing TO_JSON must be imported here
@@ -138,7 +138,7 @@ our %DISPATCH = (
     'sleep'              => \&server_sleep,
 );
 
-&Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
+#&Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
 # Used to set the current prefered encoding
 my $encoding;
 
@@ -188,7 +188,7 @@ $logger->info("Stop running\n");
 
 END {
     if (!$args{h} && $FILE_LOCK ) {
-        &Systemd::Daemon::notify( STOPPING => 1 );
+        Systemd::Daemon::notify( STOPPING => 1 );
         deletepid($PROGRAM_NAME, $PID_FILE);
     }
 }

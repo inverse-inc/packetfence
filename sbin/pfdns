@@ -26,7 +26,7 @@ use Try::Tiny;
 use Net::DNS::Nameserver;
 use NetAddr::IP;
 use Net::DNS::Resolver;
-use Systemd::Daemon qw{ -soft -notify };
+use Systemd::Daemon qw{ -soft };
 
 BEGIN {
     # log4perl init

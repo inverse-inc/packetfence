@@ -24,7 +24,7 @@ use Pod::Usage;
 use Fcntl qw(:flock);
 use Scalar::Util qw(blessed);
 use Time::HiRes qw(usleep);
-use Systemd::Daemon qw{ -soft -notify };
+use Systemd::Daemon qw{ -soft };
 
 #pf::log must always be initilized first
 BEGIN {
