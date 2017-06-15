@@ -326,6 +326,7 @@ sub get_tasks_count {
     if ($tasks_count == 0) {
         $tasks_count = -1;
     }
+    return $tasks_count;
 }
 
 =head2 is_parent_alive
