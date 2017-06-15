@@ -23,6 +23,7 @@ New Features
 Enhancements
 ++++++++++++
 
+* Use the attributes returned by a radius use source as attributes to compute the rules (PR #2369)
 * caddy based services now support systemd notifications.
 * Only display readonly actions in readonly mode (PR #2384)
 * Journald total file size is now capped at 1Gb (PR #2389)
