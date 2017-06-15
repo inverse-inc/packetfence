@@ -21,16 +21,20 @@
       <td 
         class="hidden-phone sort-handle" 
         data-sortable-text="[% item.id %]" 
-        data-base-id="[% id %]" 
+        data-base-id="items"
         data-sortable-item="#[% item.id %]" 
         data-sortable-scope="[% id %]" data-sortable-parent="#[% id %] tbody"
       >[% loop.count %]
-        <input type="hidden" name="items.[% loop.index | html %].id" value="[% item.id | html %]"/>
       </td>
       [% ELSE %]
       <td class="hidden-phone"></td>
       [% END %]
-      <td><a href="[% c.pf_hash_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id | html %]</a></td>
+      <td>
+        <a href="[% c.pf_hash_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id | html %]</a>
+        [% IF sortable %]
+        <input type="hidden" name="items.[% loop.index %].id" value="[% item.id %]"/>
+        [% END %]
+       </td>
       <td class="hidden-phone">[% item.description | html%]</td>
       <td>[% item.type | html %]</td>
       <td>
