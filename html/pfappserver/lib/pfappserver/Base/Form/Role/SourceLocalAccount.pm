@@ -26,7 +26,7 @@ has_field 'create_local_account' => (
     default_method => \&default_from_attribute,
     tags => {
         after_element => \&help,
-        help => 'Create a local account on the PacketFence system based on the phone number provided.',
+        help => 'Create a local account on the PacketFence system based on the username provided.',
     },
 );
 
