@@ -118,7 +118,7 @@ our $PARENT_PID = $$;
 
 sub start {
     run_all_winbindd();
-    &Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
+    Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
     while($running) {
         pause;
     }
@@ -131,7 +131,7 @@ cleanup();
 END {
     if ( !$args{h} && $HAS_LOCK ) {
         unless($IS_CHILD) {
-            &Systemd::Daemon::notify( STOPPING => 1 );
+            Systemd::Daemon::notify( STOPPING => 1 );
             deletepid();
             $logger->info("stopping winbindd-wrapper");
         }

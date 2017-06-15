@@ -138,7 +138,7 @@ our %DISPATCH = (
     'sleep'              => \&server_sleep,
 );
 
-#&Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
+#Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
 # Used to set the current prefered encoding
 my $encoding;
 

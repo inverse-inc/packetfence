@@ -155,7 +155,7 @@ foreach my $pcap (@devs) {
 
 # Change user to pf
 dropprivs("pf", "pf");
-&Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
+Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
 
 while ($RUNNING) {
     my @select_set = $read_set->can_read;
@@ -285,7 +285,7 @@ sub dropprivs {
 
 sub normal_sighandler {
     $RUNNING = 0;
-    &Systemd::Daemon::notify( STOPPING => 1 );
+    Systemd::Daemon::notify( STOPPING => 1 );
     deletepid("pfbandwidthd");
     if ( threads->self->tid() == 0 ) {
         $logger->logdie(

@@ -136,7 +136,7 @@ my $net_addr;
 
 # start dhcp monitor
 if ( isenabled( $Config{'network'}{'dhcpdetector'} ) ) {
-    &Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
+    Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
     start();
     cleanup();
 }
@@ -144,7 +144,7 @@ if ( isenabled( $Config{'network'}{'dhcpdetector'} ) ) {
 END {
     if (!$args{h} && $HAS_LOCK) {
         unless ($IS_CHILD) {
-            &Systemd::Daemon::notify( STOPPING => 1 );
+            Systemd::Daemon::notify( STOPPING => 1 );
             deletepid();
             $logger->info("stopping pfdhcplistener");
         }

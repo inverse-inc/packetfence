@@ -218,7 +218,7 @@ sub add_new_threads_to_list {
 
 # main program - read trap lines and addTrapLineToQueue($trapLine) {{{1
 
-&Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
+Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
 my $currentTrapLine = undef;
 my $completeTrapLine;
 my $inMultiLineTrap = 0;
@@ -2113,7 +2113,7 @@ sub add_to_switch_locker {
 END {
     if ( ( !$man ) && ( !$help ) ) {
         $logger->info("stopping pfsetvlan");
-        &Systemd::Daemon::notify( STOPPING => 1 );
+        Systemd::Daemon::notify( STOPPING => 1 );
         deletepid();
         foreach my $t (@completeThreadList) {
             $t->detach;

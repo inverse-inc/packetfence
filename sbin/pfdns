@@ -191,7 +191,7 @@ my $ns = new Net::DNS::Nameserver(
 daemonize($PROGRAM_NAME) if ($daemonize);
 our $PARENT_PID = $$;
 $started_successfully = 1;
-&Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
+Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
 
 sub _run_worker {
     my ($id) = @_;
@@ -204,7 +204,7 @@ sub _run_worker {
 END {
     if ( !$args{h} ) {
         if(!$IS_CHILD && $started_successfully) {
-            &Systemd::Daemon::notify( STOPPING => 1 );
+            Systemd::Daemon::notify( STOPPING => 1 );
             deletepid("pfdns");
             $logger->info("stopping pfdns");
         }

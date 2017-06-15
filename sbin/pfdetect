@@ -98,7 +98,7 @@ my $IS_CHILD = 0;
 my $running = 1;
 
 sub start_detectors {
-    &Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
+    Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
     foreach my $id (keys %ConfigDetect) {
         next unless isenabled($ConfigDetect{$id}{status});
         run_detector($id);
@@ -203,7 +203,7 @@ while($running){
 
 
 END {
-    &Systemd::Daemon::notify( STOPPING => 1 );
+    Systemd::Daemon::notify( STOPPING => 1 );
     deletepid();
 }
 
