@@ -204,9 +204,9 @@ sub _run_worker {
 END {
     if ( !$args{h} ) {
         if(!$IS_CHILD && $started_successfully) {
+            &Systemd::Daemon::notify( STOPPING => 1 );
             deletepid("pfdns");
             $logger->info("stopping pfdns");
-            &Systemd::Daemon::notify( STOPPING => 1 );
         }
     }
 }

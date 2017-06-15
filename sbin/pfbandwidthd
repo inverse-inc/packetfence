@@ -285,11 +285,11 @@ sub dropprivs {
 
 sub normal_sighandler {
     $RUNNING = 0;
+    &Systemd::Daemon::notify( STOPPING => 1 );
     deletepid("pfbandwidthd");
     if ( threads->self->tid() == 0 ) {
         $logger->logdie(
             "pfbandwidthd: caught SIG" . $_[0] . " - terminating" );
-            &Systemd::Daemon::notify( STOPPING => 1 );
     }
 }
 

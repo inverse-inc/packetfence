@@ -187,8 +187,8 @@ while($RUNNING) {
 $logger->info("Stop running\n");
 
 END {
-    &Systemd::Daemon::notify( STOPPING => 1 );
     if (!$args{h} && $FILE_LOCK ) {
+        &Systemd::Daemon::notify( STOPPING => 1 );
         deletepid($PROGRAM_NAME, $PID_FILE);
     }
 }

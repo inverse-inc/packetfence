@@ -158,9 +158,9 @@ start();
 cleanup();
 
 END {
-    &Systemd::Daemon::notify( STOPPING => 1 );
     if ( !$args{h} && $HAS_LOCK ) {
         unless($IS_CHILD) {
+            &Systemd::Daemon::notify( STOPPING => 1 );
             deletepid();
             $logger->info("stopping pfmon");
         }

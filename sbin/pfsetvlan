@@ -2111,9 +2111,9 @@ sub add_to_switch_locker {
 }
 
 END {
-    &Systemd::Daemon::notify( STOPPING => 1 );
     if ( ( !$man ) && ( !$help ) ) {
         $logger->info("stopping pfsetvlan");
+        &Systemd::Daemon::notify( STOPPING => 1 );
         deletepid();
         foreach my $t (@completeThreadList) {
             $t->detach;
