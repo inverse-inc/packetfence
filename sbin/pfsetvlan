@@ -45,7 +45,7 @@ use Getopt::Long;
 use Net::SMTP;
 use Pod::Usage;
 use POSIX;
-use Systemd::Daemon qw{ -soft -notify };
+use Systemd::Daemon();
 
 use constant {
     PFCMD_FILE => INSTALL_DIR . "/bin/pfcmd"

@@ -23,7 +23,7 @@ use File::Basename qw(basename);
 use POSIX qw(:signal_h pause :sys_wait_h SIG_BLOCK SIG_UNBLOCK);
 use Pod::Usage;
 use Fcntl qw(:flock);
-use Systemd::Daemon qw{ -soft -notify };
+use Systemd::Daemon();
 
 #pf::log must always be initilized first
 BEGIN {
