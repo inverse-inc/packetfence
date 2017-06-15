@@ -80,7 +80,7 @@ sub handler {
     # Trace the user in the apache log
     $r->user($req->param("username"));
 
-    my ($return, $message, $source_id) = &pf::web::web_user_authenticate($portalSession,$req->param("username"),$req->param("password"));
+    my ($return, $message, $source_id, $extra) = &pf::web::web_user_authenticate($portalSession,$req->param("username"),$req->param("password"));
     if ($return) {
         $logger->info("Authentification success for wispr client");
         $stash = {
@@ -110,7 +110,7 @@ sub handler {
         $params->{connection_type} = $locationlog_entry->{'connection_type'};
         $params->{SSID} = $locationlog_entry->{'ssid'};
     }
-    my $matched = pf::authentication::match2($source_id, $params);
+    my $matched = pf::authentication::match2($source_id, $params, $extra);
     if ($matched) {
         my $values = $matched->{values};
         my $role = $values->{$Actions::SET_ROLE};

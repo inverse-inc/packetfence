@@ -158,7 +158,7 @@ Returns the actions of the first matched rule.
 =cut
 
 sub match {
-    my ($self, $params, $action) = @_;
+    my ($self, $params, $action, $extra) = @_;
 
     my $common_attributes = $self->common_attributes();
     my $available_attributes = $self->available_attributes();
@@ -209,7 +209,7 @@ sub match {
 
         # We always check if at least the returned value is defined. That means the username
         # has been found in the source.
-        if (defined $self->match_in_subclass($params, $rule, \@own_conditions, \@matching_conditions)) {
+        if (defined $self->match_in_subclass($params, $rule, \@own_conditions, \@matching_conditions, $extra)) {
           # We compare the matched conditions with how many we had
           if ($rule->match eq $Rules::ANY &&
               scalar @matching_conditions > 0) {

@@ -65,7 +65,7 @@ sub authenticate {
         $pid = $self->request_fields->{$self->pid_field};
 
         get_logger->info("Validating e-mail for user $pid");
-        my ($return, $message, $source_id) = pf::authentication::authenticate({username => $pid, password => '', rule_class => $Rules::AUTH}, $self->source);
+        my ($return, $message, $source_id, $extra) = pf::authentication::authenticate({username => $pid, password => '', rule_class => $Rules::AUTH}, $self->source);
         if(defined($return) && $return == 1){
             pf::auth_log::record_auth($source_id, $self->current_mac, $pid, $pf::auth_log::COMPLETED);
         }

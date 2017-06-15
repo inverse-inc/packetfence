@@ -257,7 +257,7 @@ sub web_user_authenticate {
     }
 
     # validate login and password
-    my ($return, $message, $source_id) = pf::authentication::authenticate( { 'username' => $username, 'password' => $password, 'rule_class' => $Rules::AUTH }, @sources);
+    my ($return, $message, $source_id, $extra) = pf::authentication::authenticate( { 'username' => $username, 'password' => $password, 'rule_class' => $Rules::AUTH }, @sources);
 
     if (defined($return) && $return == 1) {
         # save login into session
