@@ -179,11 +179,11 @@ authenticate {
 		packetfence     # increment the StatsD counter
 		# If there is already an NT-Password populated in the control, we'll try it
 		# In the event it fails, it will fallback to an ntlm_auth call below
-		if(&control:NT-Password) {
+		if(&control:NT-Password && &control:NT-Password != "") {
 			mschap_local {
 				reject = 2
 			}
-			if (reject) {
+			if (reject || fail) {
 				packetfence-mschap-authenticate
 			}
 		}
