@@ -18,6 +18,8 @@ Version X.Y.Z released on XXXX-YY-ZZ
 New Features
 ++++++++++++
 
+* Added the support for authenticating users through OpenID Connect (PR #2394)
+
 Enhancements
 ++++++++++++
 
