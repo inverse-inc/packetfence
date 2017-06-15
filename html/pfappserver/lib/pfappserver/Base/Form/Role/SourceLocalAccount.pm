@@ -44,6 +44,12 @@ has_block 'local_account' => (
     render_list => [qw(create_local_account local_account_logins)],
 );
 
+=head2 default_from_attribute
+
+Gets the default value for a field for the source attribute.
+
+=cut
+
 sub default_from_attribute {
     my ($field) = @_;
     my $source_class = $field->form->source_class;
