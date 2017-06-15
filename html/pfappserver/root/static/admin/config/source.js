@@ -113,7 +113,6 @@ SourceView.prototype.testSource = function(e) {
 
 SourceView.prototype.sortItems = function(e) {
     var form = $(e.target).closest('form');
-    console.log(e);
     this.items.post({
         url: form.attr('action'),
         data: form.serialize(),
