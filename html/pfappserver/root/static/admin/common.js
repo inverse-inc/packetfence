@@ -789,6 +789,7 @@ $(function () { // DOM ready
                     var element = $(e);
                     dynamic_list_update_all_attributes(element, base_id, i);
                 });
+                wrapper.trigger('dynamic-list.ordered');
             }
         });
     });
