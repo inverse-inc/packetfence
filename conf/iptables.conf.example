@@ -162,7 +162,7 @@
 :forward-internal-vlan-if - [0:0]
 %%filter_forward_vlan%%
 
-:forward-internal-isol_vlan-if - [0:0]
+:forward-internal-isolvlan-if - [0:0]
 %%filter_forward_isol_vlan%%
 
 :forward-internal-inline-if - [0:0]
