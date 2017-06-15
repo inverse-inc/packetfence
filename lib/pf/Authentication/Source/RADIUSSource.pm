@@ -190,7 +190,7 @@ sub match_in_subclass {
                 push(@{ $matching_conditions }, $condition);
             }
         }
-        if defined($extra->{attributes}) {
+        if (defined($extra)) {
             for my $attribute (@{ $extra->{attributes}} ) {
                 if ($condition->{'attribute'} eq $attribute->{'Name'} ) {
                     if ( $condition->matches($condition->{'attribute'}, $attribute->{'Value'}) ) {
