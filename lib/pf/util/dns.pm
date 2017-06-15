@@ -32,14 +32,15 @@ Returns 2 values
 =cut
 
 sub matches_passthrough {
-    my ($domain) = @_;
-
+    my ($domain,$zone) = @_;
     # undef domains are not passthroughs
     return ($FALSE, []) unless(defined($domain));
 
     # Check for non-wildcard passthroughs
-    if(exists($passthroughs{normal}{$domain})) {
-        return ($TRUE, $passthroughs{normal}{$domain});
+    my $normal = '$'.$zone.'{normal}{$domain}';
+    $normal = eval($normal);
+    if(defined($normal)) {
+        return ($TRUE, $normal);
     }
 
     # check if its a sub-domain of a wildcard domain
@@ -48,44 +49,10 @@ sub matches_passthrough {
     for (my $i=$last_element; $i>0; $i--) {
         my @sub_parts = @parts[$i..$last_element];
         my $domain = join('.', @sub_parts);
-        if(exists($passthroughs{wildcard}{$domain})) {
-            return ($TRUE, $passthroughs{wildcard}{$domain});
-        }
-    }
-
-    # Fallback to not a passthrough
-    return ($FALSE, []);
-}
-
-=head2 matches_isolation_passthrough
-
-Whether or not a domain matches a configured DNS isolation passthrough
-
-Returns 2 values
-- Whether or not it matched
-- List of ports that should be opened for this domain
-
-=cut
-
-sub matches_isolation_passthrough {
-    my ($domain) = @_;
-
-    # undef domains are not passthroughs
-    return ($FALSE, []) unless(defined($domain));
-
-    # Check for non-wildcard passthroughs
-    if(exists($isolation_passthroughs{normal}{$domain})) {
-        return ($TRUE, $isolation_passthroughs{normal}{$domain});
-    }
-
-    # check if its a sub-domain of a wildcard domain
-    my @parts = split(/\./, $domain);
-    my $last_element = scalar(@parts)-1;
-    for (my $i=$last_element; $i>0; $i--) {
-        my @sub_parts = @parts[$i..$last_element];
-        my $domain = join('.', @sub_parts);
-        if(exists($isolation_passthroughs{wildcard}{$domain})) {
-            return ($TRUE, $isolation_passthroughs{wildcard}{$domain});
+        my $wildcard = '$'.$zone.'{wildcard}{$domain}';
+        $wildcard = eval($wildcard);
+        if(defined($wildcard)) {
+            return ($TRUE, $wildcard);
         }
     }
 

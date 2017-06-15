@@ -330,7 +330,7 @@ sub regzone {
     my ($rcode, @ans, @auth, @add);
 
     $logger->trace("Requested Domain: ".$qname);
-    my $results = regzone_non_filtered($qname, $qclass, $qtype, $peerhost, $query, $conn);
+    my $results = non_filtered($qname, $qclass, $qtype, $peerhost, $query, $conn, "passthroughs");
     if ($results) {
         my @answer = ($results->{rcode}, $results->{ans}, \@auth, \@add, { aa => 1 });
         $logger->trace(sub { use Data::Dumper; "Response : ".Dumper(\@answer) });
@@ -427,17 +427,17 @@ sub format_query_to_ip_port {
     return @pairs;
 }
 
-=head2 regzone_non_filtered
+=head2 non_filtered
 
-Non filtered registration zone answered
+Non filtered registration/isolation zone answered
 
 =cut
 
-sub regzone_non_filtered {
-    my ($qname, $qclass, $qtype, $peerhost, $query, $conn) = @_;
-    my ($matches_passthrough, $ports) = pf::util::dns::matches_passthrough($qname);
+sub non_filtered {
+    my ($qname, $qclass, $qtype, $peerhost, $query, $conn,$zone) = @_;
+    my ($matches_passthrough, $ports) = pf::util::dns::matches_passthrough($qname,$zone);
     #Exit early if it does not match
-    return unless($qtype eq 'A' && isenabled($Config{fencing}{passthrough}) && $matches_passthrough);
+    return unless($qtype eq 'A' && (isenabled($Config{fencing}{passthrough}) || isenabled($Config{fencing}{isolation_passthrough}) ) && $matches_passthrough);
     my @ans;
     my %results = (
         ans   => \@ans,
@@ -457,41 +457,11 @@ sub regzone_non_filtered {
             $logger->warn("Unresolved passthrough domain $qname");
         }
     }
-    $IPSET_CACHE->add_pairs(\@ip_port_pairs);
-    return \%results;
-}
-
-=head2 isolzone_non_filtered
-
-Non filtered isolation zone answered
-
-=cut
-
-sub isolzone_non_filtered {
-    my ($qname, $qclass, $qtype, $peerhost, $query, $conn) = @_;
-    my ($matches_passthrough, $ports) = pf::util::dns::matches_isolation_passthrough($qname);
-    #Exit early if it does not match
-    return unless($qtype eq 'A' && isenabled($Config{fencing}{isolation_passthrough}) && $matches_passthrough);
-    my @ans;
-    my %results = (
-        ans   => \@ans,
-        rcode => "NXDOMAIN",
-    );
-    my ($ttl, $rdata);
-    my $res = Net::DNS::Resolver->new;
-    my $query_non_filtered = resolve_with_cache("A", $qname);
-    my @ip_port_pairs;
-    if ($query_non_filtered) {
-        push @ip_port_pairs, format_query_to_ip_port($query_non_filtered, $HTTP_PORT, $HTTPS_PORT);
-        push @ans, $query_non_filtered->answer;
-        if (@ans) {
-            $results{rcode} = "NOERROR";
-        }
-        else {
-            $logger->warn("Unresolved passthrough domain $qname");
-        }
+    if ($zone eq "passthroughs") {
+        $IPSET_CACHE->add_pairs(\@ip_port_pairs);
+    } else {
+        $IPSET_ISOL_CACHE->add_pairs(\@ip_port_pairs);
     }
-    $IPSET_ISOL_CACHE->add_pairs(\@ip_port_pairs);
     return \%results;
 }
 
@@ -507,7 +477,7 @@ sub isolzone {
     my $_EXIT_CODE_EXISTS = "1";
 
     $logger->trace("Requested Domain: ".$qname);
-    my $results = isolzone_non_filtered($qname, $qclass, $qtype, $peerhost, $query, $conn);
+    my $results = non_filtered($qname, $qclass, $qtype, $peerhost, $query, $conn, "isolation_passthroughs");
     if ($results) {
         my @answer = ($results->{rcode}, $results->{ans}, \@auth, \@add, { aa => 1 });
         $logger->trace(sub { use Data::Dumper; "Response : ".Dumper(\@answer) });
