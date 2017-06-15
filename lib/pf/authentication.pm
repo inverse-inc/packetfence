@@ -219,9 +219,9 @@ sub authenticate {
     my $username = $params->{'username'};
     my $password = $params->{'password'};
 
-    # If no source(s) provided, all (except 'exclusive' ones) configured sources are used
+    # If no source(s) provided, all 'internal' configured sources are used
     unless (@sources) {
-        @sources = grep { $_->class ne 'exclusive'  } @authentication_sources;
+        @sources = @{pf::authentication::getInternalAuthenticationSources()};
     }
 
     # If a rule class is defined, we filter out authentication sources rules that doesn't match it
