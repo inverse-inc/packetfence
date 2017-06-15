@@ -15,18 +15,7 @@ pfconfig::namespaces::resource::isolation_passthroughs
 use strict;
 use warnings;
 
-use base 'pfconfig::namespaces::resource';
-
-=head2 init
-
-Initialize the object
-
-=cut
-
-sub init {
-    my ($self) = @_;
-    $self->{config}         = $self->{cache}->get_cache('config::Pf');
-}
+use base 'pfconfig::namespaces::resource::passthroughs';
 
 =head2 build
 
@@ -75,39 +64,6 @@ sub build {
 
     return \%passthroughs;
 }
-
-=head2 _new_passthrough
-
-Extract the domain and port from a passthrough configuration
-
-Expects the following:
-- example.com
-- example.com:25
-- example.com:tcp:25
-- example.com:udp:25
-
-=cut
-
-sub _new_passthrough {
-    my ($self, $passthrough) = @_;
-
-    if($passthrough =~ /(.*?):(udp:|tcp:)?([0-9]+)/) {
-        my $domain = $1;
-        # NOTE: proto contains the ':' at the end
-        my $proto = $2;
-        my $port = $3;
-        if($proto) {
-            return ($domain, [$proto.$port]);
-        }
-        else {
-            return ($domain, ["udp:$port", "tcp:$port"]);
-        }
-    }
-    else {
-        return ($passthrough, ['tcp:80', 'tcp:443']);
-    }
-}
-
 
 =head1 AUTHOR
 
