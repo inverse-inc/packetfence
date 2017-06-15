@@ -40,6 +40,7 @@ var SourceView = function(options) {
 
     options.parent.on('dynamic-list.add', 'div[id*="\\.actions\\."]', $.proxy(this.addAction, this));
     options.parent.on('dynamic-list.add', 'div[id*="\\.conditions\\."]', $.proxy(this.addCondition, this));
+    options.parent.on('dynamic-list.ordered', id + ' #internal-sources tbody', $.proxy(this.sortItems, this));
 };
 
 SourceView.prototype = (function(){
@@ -108,6 +109,19 @@ SourceView.prototype.testSource = function(e) {
             errorSibling: form
         });
     }
+};
+
+SourceView.prototype.sortItems = function(e) {
+    var form = $(e.target).closest('form');
+    console.log(e);
+    this.items.post({
+        url: form.attr('action'),
+        data: form.serialize(),
+        success: function(data, textStatus, jqXHR) {
+            showSuccess(form, data.status_msg);
+        },
+        errorSibling: form
+    });
 };
 
 SourceView.prototype.updateItem = function(e) {

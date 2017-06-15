@@ -1,6 +1,9 @@
 [% MACRO source_listing(id, heading, items, sortable) BLOCK %]
 [% IF items.size %]
 <h4>[% l(heading) %]</h4>
+[% IF sortable %]
+<form class="form-horizontal" method="post" action="[% c.uri_for(c.controller.action_for('sort_items')) %]">
+[% END %]
 <table id="[% id %]" class="table sources" >
   <thead>
     <tr>
@@ -21,7 +24,9 @@
         data-base-id="[% id %]" 
         data-sortable-item="#[% item.id %]" 
         data-sortable-scope="[% id %]" data-sortable-parent="#[% id %] tbody"
-      >[% loop.count %]</td>
+      >[% loop.count %]
+        <input type="hidden" name="items.[% loop.index | html %].id" value="[% item.id | html %]"/>
+      </td>
       [% ELSE %]
       <td class="hidden-phone"></td>
       [% END %]
@@ -39,6 +44,10 @@
     <tr><td colspan="3"></td><td class="hidden-phone" colspan="2"></td></tr>
   </tfoot>
 </table>
+[% IF sortable %]
+</form>
+[% END %]
+
 [% END %]
 [% END %]
 
