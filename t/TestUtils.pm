@@ -26,7 +26,6 @@ BEGIN {
         @cli_tests @compile_tests @dao_tests @integration_tests @quality_tests @quality_failing_tests @unit_tests
         use_test_db
         get_all_perl_binaries get_all_perl_cgi get_all_perl_modules
-        get_all_php
         get_networkdevices_modules get_networkdevices_classes
     );
 }
@@ -182,26 +181,6 @@ sub get_all_perl_modules {
             && $File::Find::name !~ /^.*addons\/legacy\/.*\.pm\z/s
             && push(@list, $File::Find::name);
         }}, '/usr/local/pf/lib/pf', '/usr/local/pf/addons', '/usr/local/pf/html/pfappserver/lib'
-    );
-
-    return @list;
-}
-
-=head2 get_all_php
-
-Return all the files ending with .php or .inc under F</usr/local/pf/html>
-
-=cut
-
-sub get_all_php {
-
-    my @list;
-
-    # find2perl  /usr/local/pf/html -name "*.php" -o -name "*.inc"
-    File::Find::find({
-        wanted => sub {
-           /^.*\.php\z/s || /^.*\.inc\z/s && push(@list, $File::Find::name);
-        }}, '/usr/local/pf/html'
     );
 
     return @list;
