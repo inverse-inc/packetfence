@@ -28,6 +28,8 @@ Enhancements
 * caddy based services now support systemd notifications.
 * Only display readonly actions in readonly mode (PR #2384)
 * Journald total file size is now capped at 1Gb (PR #2389)
+* Allow sources to be cloned (PR #2395)
+* Visually split Administration and Authentication rules when viewing sources (PR #2395)
 
 Bug Fixes
 +++++++++
