@@ -109,6 +109,21 @@ Don't forget to edit the `/usr/local/pf/conf/currently-at` file to match the new
 
   cat /usr/local/pf/conf/pf-release > /usr/local/pf/conf/currently-at
 
+Upgrading from a version prior to 7.2.0
+---------------------------------------
+
+Changes to authentication sources codebase
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Any custom authentication sources forms and templates would need to be copied to the new location.
+
+Templates
+/usr/local/pf/html/pfappserver/root/authentication/source/type/ -> /usr/local/pf/html/pfappserver/root/config/source/type/
+
+Forms
+/usr/local/pf/html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source ->
+/usr/local/pf/html/pfappserver/lib/pfappserver/Form/Config/Source
+
 Upgrading from a version prior to 7.1.0
 ---------------------------------------
 
