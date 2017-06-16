@@ -2,7 +2,7 @@ package pfappserver::Base::Form::Role::SourceLocalAccount;
 
 =head1 NAME
 
-pfappserver::Base::Form::Role::SourceLocalAccount - Role for
+pfappserver::Base::Form::Role::SourceLocalAccount - Role for Local Accounts
 
 =cut
 
