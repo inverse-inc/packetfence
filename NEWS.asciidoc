@@ -19,6 +19,7 @@ New Features
 ++++++++++++
 
 * Added the support for authenticating users through OpenID Connect (PR #2394)
+* Added passthroughs for devices in violation state (isolation network) (PR #2328)
 
 Enhancements
 ++++++++++++
