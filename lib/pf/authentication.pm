@@ -72,6 +72,7 @@ BEGIN {
             getAuthenticationSource
             getAllAuthenticationSources
             deleteAuthenticationSource
+            getAuthenticationClassByType
             %guest_self_registration
        );
 }
@@ -397,6 +398,21 @@ sub match2 {
     }
 
     return undef;
+}
+
+=item getAuthenticationClassByType
+
+Get the authentication class by it's type
+
+=cut
+
+sub getAuthenticationClassByType {
+    my ($type) = @_;
+    $type = lc($type);
+    if (!exists $TYPE_TO_SOURCE{$type}) {
+        return undef;
+    }
+    return $TYPE_TO_SOURCE{$type}->meta->find_attribute_by_name('class')->default;
 }
 
 =back

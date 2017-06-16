@@ -117,8 +117,12 @@ sub CopySection {
 
 sub ResortSections {
     my ($self,@sections) = @_;
+    # If there is nothing to resort return true
+    if (@sections == 0 ) {
+        return 1;
+    }
     my $result;
-    if (all { $self->SectionExists($_) } @sections ) {
+    if ( all { $self->SectionExists($_) } @sections ) {
         my $first_section = $sections[0];
         my $first_index = first_index { $_ eq $first_section } $self->Sections;
         my %temp;

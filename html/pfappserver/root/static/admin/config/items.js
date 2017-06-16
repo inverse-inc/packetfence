@@ -178,6 +178,7 @@ ItemView.prototype.deleteItem = function(e) {
         },
         errorSibling: table
     });
+    return false;
 };
 
 ItemView.prototype.list = function() {

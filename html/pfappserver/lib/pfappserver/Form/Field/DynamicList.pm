@@ -147,8 +147,10 @@ sub append_add_button {
     my $append_controls = $self->do_append_controls($button_text);
     $self->result->_pop_result;
     $self->_pop_field;
+    my $label =  $self->do_label ? $self->do_render_label(undef, undef,  ['control-label']) : '';
     return <<"EOS";
     <div class="control-group $cg_hidden" id="$control_group_id" >
+        $label
         <div id="$template_id" class="hidden">$content</div>
         <div class="controls">$append_controls</div>
     </div>
