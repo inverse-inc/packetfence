@@ -87,12 +87,12 @@
               [%- END %]
             </ul>
             <ul class="nav nav-header pull-right">
-              <li class="dropdown" data-toggle="tooltip" title="[% l('Perform checkup') %]">
-                <a href="" id="checkup_dropdown_toggle" class="dropdown-toggle" data-toggle="dropdown">
-                  <i class="icon-wrench"></i>
-                </a>
-                <ul class="dropdown-menu" id="checkup_dropdown">
-                  <li class="disabled"><div class="text-center"><i class="icon-spin icon-circle-o-notch"></i></div></li>
+              <li class="dropdown" data-toggle="tooltip" title="[% l('Perform tasks') %]">
+                <a href="" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-wrench"></i> <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                  <li class="disabled"><a href="#" disabled><b>[% l('Click a task to run/re-run') %]</b></a></li>
+                  <li id="checkup_task"><a href="" id="checkup_task_toggle">[% l('Perform checkup') %]</a></li>
+                  <li id="fixpermissions_task"><a href="" id="fixpermissions_task_toggle">[% l('Fix permissions') %]</a></li>
                 </ul>
               </li>
             </ul>
