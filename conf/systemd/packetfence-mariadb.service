@@ -7,6 +7,11 @@ Wants=packetfence-config.service
 Conflicts=mysql.service mariadb.service
 
 [Service]
+Type=notify
+# Setting this to true can break replication and the Type=notify settings
+# See also bind-address mysqld option.
+PrivateNetwork=false
+
 StartLimitBurst=3
 StartLimitInterval=60
 Type=simple
