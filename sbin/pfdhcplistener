@@ -98,6 +98,8 @@ my $pcap;
 my $net_type;
 my $process;
 my $interface;
+my $is_clustered = $FALSE;
+my $holds_vip = $FALSE;
 
 my $rate_limit_hash = {};
 my $rate_limit_cache = CHI->new( driver => 'Memory', datastore => $rate_limit_hash );
@@ -108,6 +110,8 @@ sub reload_config {
     }
     elsif ( pf::cluster::is_vip_running($interface) ) { 
         $process = $TRUE;
+        $is_clustered = $TRUE;
+        $holds_vip = $TRUE;
     }
     elsif ( !$pf::cluster::cluster_enabled ) { 
         $process = $TRUE;
@@ -223,6 +227,10 @@ sub process_pkt {
         eval {
             my $l2 = NetPacket::Ethernet->decode($pkt);
 
+            if ( $is_clustered && ! $holds_vip ) { 
+                $logger->trace("Skipping broadcast request since we don't hold the cluster's VIP.");
+                return if $l2->{'dest_mac'} eq 'ffffffffff';
+            }
             # Skip frames that has a VLAN tag to avoid processing frames more than
             # once when pfdhcplistener listens on both a vlan interface and its parent
             #
@@ -248,6 +256,7 @@ sub process_pkt {
             }
 
             my $l3 = $l2->{type} eq ETH_TYPE_IP ? NetPacket::IP->decode($l2->{'data'}) : NetPacket::IPv6->decode($l2->{'data'});
+
             my $l4 = NetPacket::UDP->decode($l3->{'data'});
             my %args = (
                 src_mac => clean_mac($l2->{'src_mac'}),
