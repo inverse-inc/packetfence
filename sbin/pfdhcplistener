@@ -224,6 +224,10 @@ sub process_pkt {
         eval {
             my $l2 = NetPacket::Ethernet->decode($pkt);
 
+            # ignore broadcasts unless this is the VIP in clustered mode
+            if ( $is_clustered && ! $holds_vip ) { 
+                return if $l2->{'dest_mac'} eq 'ffffffffff';
+            }
             # Skip frames that has a VLAN tag to avoid processing frames more than
             # once when pfdhcplistener listens on both a vlan interface and its parent
             #
@@ -250,10 +254,6 @@ sub process_pkt {
 
             my $l3 = $l2->{type} eq ETH_TYPE_IP ? NetPacket::IP->decode($l2->{'data'}) : NetPacket::IPv6->decode($l2->{'data'});
 
-            # ignore broadcasts unless this is the VIP in clustered mode
-            if ( $is_clustered && ! $holds_vip ) { 
-                return if $l3->{'dest_ip'} eq '255.255.255.255';
-            }
             my $l4 = NetPacket::UDP->decode($l3->{'data'});
             my %args = (
                 src_mac => clean_mac($l2->{'src_mac'}),
@@ -266,7 +266,7 @@ sub process_pkt {
                 interface_vlan => $interface_vlan,
                 net_type => $net_type,
                 inline_sub_connection_type => $inline_sub_connection_type,
-            );cket::IP
+            );
 
             my $statsd_interface = $interface;
             $statsd_interface =~ s/\./_/g;
