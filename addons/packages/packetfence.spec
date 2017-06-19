@@ -811,6 +811,7 @@ fi
 
 %exclude                /usr/lib/systemd/system/packetfence-config.service
 %attr(0644, root, root) /usr/lib/systemd/system/packetfence-*.service
+%attr(0644, root, root) /usr/lib/systemd/journald.conf.d/01-packetfence.conf
 
 %dir %attr(0750, root,root) /etc/systemd/system/packetfence*target.wants
 %dir %attr(0750,root,root) %{_sysconfdir}/sudoers.d
