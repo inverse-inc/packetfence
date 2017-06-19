@@ -217,7 +217,7 @@ sub process_pkt {
             my $l2 = NetPacket::Ethernet->decode($pkt);
 
             if ( ! $process_broadcast ) { 
-                if ( $l2->{'dest_mac'} eq 'ffffffffff' ) { 
+                if ( $l2->{'dest_mac'} eq 'ffffffffffff' ) { 
                     $logger->trace("Skipping broadcast request.");
                     return;
                 } 
