@@ -87,6 +87,18 @@ has_field 'server_name' =>
              help => 'This server\'s name (account name) in your Active Directory. Use \'%h\' to automatically use this server hostname' },
   );
 
+has_field 'sticky_dc' => (
+    type        => 'Text',
+    label       => 'Sticky DC',
+    default     => '*',
+    required    => 1,
+    message     => { required => 'Please specify a DC to connect to. Use \'*\' to connect to any available DC' },
+    tags       => {
+        after_element   => \&help,
+        help            => 'This is used to specify a sticky domain controller to connect to. If not specified, default \'*\' will be used to connect to any available domain controller',
+    },
+);
+
 has_field 'dns_name' =>
   (
    type => 'Text',
@@ -191,7 +203,7 @@ has_field 'ntlm_cache_on_connection' =>
 
 has_block definition =>
   (
-   render_list => [ qw(workgroup dns_name server_name ad_server dns_servers bind_dn bind_pass ou registration) ],
+   render_list => [ qw(workgroup dns_name server_name sticky_dc ad_server dns_servers bind_dn bind_pass ou registration) ],
   );
 
 has_block ntlm_cache =>
