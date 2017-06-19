@@ -606,7 +606,7 @@ sub is_config_documented {
                     );
                 }
             } elsif ( $type eq "multi" || $type eq "toggle" ) {
-                my @selectedOptions = split( /\s*,\s*/, $cached_pf_config->{_file_cfg}{$group}{$item} );
+                my @selectedOptions = split( /\s*,\s*/, $cached_pf_config->{_file_cfg}{$group}{$item} // '' );
                 my @availableOptions = @{$doc->{'options'}};
                 foreach my $currentSelectedOption (@selectedOptions) {
                     if ( grep(/^$currentSelectedOption$/, @availableOptions) == 0 ) {
