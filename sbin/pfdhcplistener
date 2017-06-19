@@ -97,6 +97,8 @@ my $pcap;
 my $net_type;
 my $process;
 my $interface;
+my $is_clustered = $FALSE;
+my $holds_vip = $FALSE;
 
 my $rate_limit_hash = {};
 my $rate_limit_cache = CHI->new( driver => 'Memory', datastore => $rate_limit_hash );
@@ -107,6 +109,8 @@ sub reload_config {
     }
     elsif ( pf::cluster::is_vip_running($interface) ) { 
         $process = $TRUE;
+        $is_clustered = $TRUE;
+        $holds_vip = $TRUE;
     }
     elsif ( !$pf::cluster::cluster_enabled ) { 
         $process = $TRUE;
@@ -245,6 +249,11 @@ sub process_pkt {
             }
 
             my $l3 = $l2->{type} eq ETH_TYPE_IP ? NetPacket::IP->decode($l2->{'data'}) : NetPacket::IPv6->decode($l2->{'data'});
+
+            # ignore broadcasts unless this is the VIP in clustered mode
+            if ( $is_clustered && ! $holds_vip ) { 
+                return if $l3->{'dest_ip'} eq '255.255.255.255';
+            }
             my $l4 = NetPacket::UDP->decode($l3->{'data'});
             my %args = (
                 src_mac => clean_mac($l2->{'src_mac'}),
@@ -257,7 +266,7 @@ sub process_pkt {
                 interface_vlan => $interface_vlan,
                 net_type => $net_type,
                 inline_sub_connection_type => $inline_sub_connection_type,
-            );
+            );cket::IP
 
             my $statsd_interface = $interface;
             $statsd_interface =~ s/\./_/g;
