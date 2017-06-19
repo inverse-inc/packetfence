@@ -140,23 +140,6 @@ our %DEFAULT_VALUE_MAKERS = (
     TINYINT => \&make_int_default_value,
 );
 
-=begin
-
-          'TYPE_NAME' => 'BIGINT',
-          'TYPE_NAME' => 'CHAR',
-          'TYPE_NAME' => 'DATETIME',
-          'TYPE_NAME' => 'ENUM',
-          'TYPE_NAME' => 'INT',
-          'TYPE_NAME' => 'LONGBLOB',
-          'TYPE_NAME' => 'SMALLINT',
-          'TYPE_NAME' => 'TEXT',
-          'TYPE_NAME' => 'TIMESTAMP',
-          'TYPE_NAME' => 'TINYINT',
-          'TYPE_NAME' => 'VARCHAR',
-
-=cut
-
-
 =head2 make_default_value
 
 Make Default Value for a column
