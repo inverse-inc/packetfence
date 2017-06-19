@@ -224,7 +224,6 @@ sub process_pkt {
         eval {
             my $l2 = NetPacket::Ethernet->decode($pkt);
 
-            # ignore broadcasts unless this is the VIP in clustered mode
             if ( $is_clustered && ! $holds_vip ) { 
                 $logger->trace("Skipping broadcast request since we don't hold the cluster's VIP.");
                 return if $l2->{'dest_mac'} eq 'ffffffffff';
