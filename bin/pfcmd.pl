@@ -20,6 +20,9 @@ use lib qw(/usr/local/pf/lib);
 $> = 0;
 $< = 0;
 
+# To ensure group permissions are properly added
+umask(0007);
+
 use pf::cmd::pf;
 exit pf::cmd::pf->new({args => \@ARGV})->run();
 
@@ -51,4 +54,3 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
-
