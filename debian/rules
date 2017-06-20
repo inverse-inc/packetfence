@@ -285,10 +285,12 @@ binary-arch: build install
 	dh_makeshlibs
 	dh_installdeb
 	dh_shlibdeps
-	dh_gencontrol -- '-Vpacketfence:dist=libscalar-list-utils-perl (>= 1.41-1),libfile-fcntllock-perl,libjson-xs-perl,libmoo-perl,libnet-dns-perl,python-twisted-bin,python-twisted-core,libconfig-inifiles-perl'
-ifneq (,$(filter yes,$(wheezy) $(precise)))
-	dh_gencontrol -- '-Vpacketfence:dist=libscalar-list-utils-perl (>= 1.42),apache2.2-common,libjson-xs-perl (>= 3),libmoo-perl (=1.004002-1),libnet-dns-perl (=0.66-3),freeradius-utils (>=3.0),python-twisted-bin (<=13.0), python-twisted-core (<=13.0),libconfig-inifiles-perl (>= 2.88)'
+ifeq ($(jessie),yes)
+	dh_gencontrol -- '-Vpacketfence:dist=openssl-blacklist,openssl-blacklist-extra,libapache2-mod-proxy-html,apache2-mpm-prefork'
 endif
+#ifeq ($(stretch),yes)
+#	dh_gencontrol -- '-Vpacketfence:dist='
+#endif
 	dh_md5sums
 	dh_builddeb
 
