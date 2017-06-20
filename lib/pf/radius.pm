@@ -343,6 +343,9 @@ normalize username
 
 sub normalize_username {
     my ($username, $radius_request) = @_;
+    if (isdisabled($Config{advanced}{normalize_radius_machine_auth_username})) {
+        return $username;
+    }
     my $tls_username = $radius_request->{'TLS-Client-Cert-Common-Name'} // '';
     if ($username eq $tls_username ) {
        my $radius_username = $radius_request->{'User-Name'};
