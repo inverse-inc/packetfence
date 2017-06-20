@@ -16,7 +16,7 @@ The pf::Switch::Fortinet::FortiGate  module implements an object oriented interf
 
 =head1 BUGS AND LIMITATIONS
 
-No doing deauthentication in web auth
+Not doing deauthentication in web auth
 
 =cut
 
@@ -38,7 +38,7 @@ use base ('pf::Switch::Fortinet');
 
 =cut
 
-sub description { 'FortiGate Firewall with web auth + 802.1x' }
+sub description { 'FortiGate Firewall with web auth + 802.1X' }
 
 sub supportsExternalPortal { return $TRUE; }
 sub supportsWebFormRegistration { return $TRUE }
@@ -163,7 +163,7 @@ sub getAcceptForm {
 
 =item deauthenticateMacDefault
 
-Overrides base method to send Acct-Session-Id withing the RADIUS disconnect request
+Overrides base method to send Acct-Session-Id within the RADIUS disconnect request
 
 =cut
 
