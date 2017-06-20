@@ -4890,10 +4890,10 @@ Secure SSID
 
 The final step is to enable SNMP Agent and SNMP Traps on the controller. This is done under the following tab in the administrative UI: *Advanced -> SNMP*.
 
-Fortigate
-~~~~~~~~~
+Fortinet FortiGate
+~~~~~~~~~~~~~~~~~~
 
-This section shows how to configure a 802.1x SSID on a Fortigate 50E running on FortiOS 5.4.
+This section shows how to configure a 802.1X SSID on a Fortigate 50E running on FortiOS 5.4.
 
 You will need to have the CLI access on the Fortigate to do the configuration.
 
@@ -4916,7 +4916,7 @@ RADIUS
  FGT50E (1) # end
  FGT50E (packetfence) # end
 
-802.1x SSID
+802.1X SSID
 ^^^^^^^^^^^
 
  FGT50E #config wireless-controller vap
