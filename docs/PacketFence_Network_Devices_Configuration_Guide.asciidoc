@@ -5015,6 +5015,23 @@ You now need to apply one of your policies to ports. To do so, go to 'Switch->Sw
 
 image::docs/images/Meraki-switch-port.png[scaledwidth="100%",alt="Switch Ports"]
 
+RADSEC
+++++++
+
+It is possible to use RADSEC between Meraki and PacketFence in order to perform RADIUS over TCP and encrypted using TLS. Before performing the steps outlined in this section, make sure you have a working SSID using normal unencrypted RADIUS by following the steps in the sections above
+
+Then, in order to enable RADSEC, go in your SSID configuration and under 'RADIUS proxy', select 'Use Meraki proxy' and save the settings.
+
+After saving, check the RADSEC checkbox and save your settings.
+
+Now, on your PacketFence server, you must add the Meraki CA root to the trusted Certificate Authorities of FreeRADIUS when performing RADSEC. You should download the Meraki CA certificate from here http://changeme.com/meraki-root.crt and append it to the content of /usr/local/pf/raddb/certs/ca.pem on your PacketFence server.
+
+Next, restart radiusd to reload the CA certificates using:
+
+  # /usr/local/pf/bin/pfcmd service radiusd restart
+
+NOTE: RADSEC is done over port 2083 so make sure your server is available via a public IP address for this port and allows connections from your Meraki cloud controller. Refer to the Meraki documentation for details.
+
 Mikrotik
 ~~~~~~~~
 
