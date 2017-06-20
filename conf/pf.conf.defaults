@@ -826,6 +826,11 @@ source_to_send_sms_when_creating_users=
 #
 # Ability to manage all active devices from a same switch port
 multihost=disabled
+#
+# advanced.normalize_radius_machine_auth_username
+#
+# Normalize the radius machine auth username
+normalize_radius_machine_auth_username=disabled
 
 [omapi]
 #
