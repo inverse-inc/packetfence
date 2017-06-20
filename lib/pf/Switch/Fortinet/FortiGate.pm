@@ -10,11 +10,13 @@ The pf::Switch::Fortinet::FortiGate  module implements an object oriented interf
 
 =head1 STATUS
 
+802.1x tested with FortiOS 5.4.
+
 =cut
 
 =head1 BUGS AND LIMITATIONS
 
-No doing deauthentication since this is a web form released switch
+No doing deauthentication in web auth
 
 =cut
 
@@ -28,6 +30,7 @@ use LWP::UserAgent;
 use HTTP::Request::Common;
 use pf::log;
 use pf::constants;
+use pf::accounting qw(node_accounting_dynauth_attr);
 
 use base ('pf::Switch::Fortinet');
 
@@ -35,13 +38,13 @@ use base ('pf::Switch::Fortinet');
 
 =cut
 
-sub description { 'FortiGate Firewall with web auth' }
+sub description { 'FortiGate Firewall with web auth + 802.1x' }
 
 sub supportsExternalPortal { return $TRUE; }
 sub supportsWebFormRegistration { return $TRUE }
 sub supportsWirelessMacAuth { return $TRUE; }
 sub supportsWiredMacAuth { return $TRUE; }
-
+sub supportsWirelessDot1x { return $TRUE; }
 
 =item getIfIndexByNasPortId
 
@@ -158,15 +161,39 @@ sub getAcceptForm {
     return $html_form;
 }
 
-=head2 deauthenticateMacDefault
+=item deauthenticateMacDefault
 
-Just log since there is no way to deauthenticate
+Overrides base method to send Acct-Session-Id withing the RADIUS disconnect request
 
 =cut
 
 sub deauthenticateMacDefault {
-    get_logger->info("No doing deauthentication since this is a web form released switch.");
+    my ( $self, $mac, $is_dot1x ) = @_;
+    my $logger = $self->logger;
+
+    if ( !$self->isProductionMode() ) {
+        $logger->info("not in production mode... we won't perform deauthentication");
+        return 1;
+    }
+
+    #Fetching the acct-session-id
+    my $dynauth = node_accounting_dynauth_attr($mac);
+
+    $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
+    return $self->radiusDisconnect(
+        $mac, { 'Acct-Session-Id' => $dynauth->{'acctsessionid'}, 'User-Name' => $dynauth->{'username'} },
+    );
 }
+
+#=head2 deauthenticateMacDefault
+#
+#Just log since there is no way to deauthenticate
+#
+#=cut
+#
+#sub deauthenticateMacDefault {
+#    get_logger->info("No doing deauthentication since this is a web form released switch.");
+#}
 
 =head2 getVersion
 
