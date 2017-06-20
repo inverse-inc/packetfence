@@ -10,7 +10,7 @@ The pf::Switch::Fortinet::FortiGate  module implements an object oriented interf
 
 =head1 STATUS
 
-802.1x tested with FortiOS 5.4.
+802.1X tested with FortiOS 5.4.
 
 =cut
 
