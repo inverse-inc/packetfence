@@ -987,7 +987,7 @@ msgstr "Votre abonnement a été annulé."
 
 # pf::web::constants (Locales)
 msgid "de_DE"
-msgstr "de_DE"
+msgstr "Deutsch"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
@@ -996,28 +996,28 @@ msgstr "n'a pas la permission de sponsoriser un utilisateur"
 
 # pf::web::constants (Locales)
 msgid "en_US"
-msgstr "en_US"
+msgstr "English"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
 # lib/pf/web/release.pm
 msgid "error: max re-enables reached"
-msgstr "Limite de réactivation atteinte"
+msgstr "Réactivation maximale atteinte !"
 
 # lib/pf/web/release.pm
 msgid "error: not found in the database"
-msgstr "Non trouvé dans la base de donnée"
+msgstr "Votre ordinateur n´a pas été trouvé dans la base de donnée de PacketFence. Veuillez redémarrer pour résoudre ce problème."
 
 # pf::web::constants (Locales)
 msgid "es_ES"
-msgstr "es_ES"
+msgstr "Español"
 
 # pf::web::constants (Locales)
 msgid "fr_CA"
-msgstr "fr_CA"
+msgstr "Français (CA)"
 
 # pf::web::constants (Locales)
 msgid "fr_FR"
-msgstr "fr_FR"
+msgstr "Français"
 
 # pf::web::constants (Locales)
 msgid "he_IL"
@@ -1025,28 +1025,28 @@ msgstr "he_IL"
 
 # html/captive-portal/templates/layout.html
 msgid "help: provide info"
-msgstr "Informations fournies"
+msgstr "Si vous avez des questions par rapport à cette page, veuillez contacter votre équipe informatique et leur fournir les informations suivantes : "
 
 # pf::web::constants (Locales)
 msgid "it_IT"
-msgstr "it_IT"
+msgstr "Italiano"
 
 # pf::web::constants (Locales)
 msgid "nl_NL"
-msgstr "nl_NL"
+msgstr "Dutch"
 
 # pf::web::constants (Locales)
 msgid "pl_PL"
-msgstr "pl_PL"
+msgstr "Polski"
 
 # pf::web::constants (Locales)
 msgid "pt_BR"
-msgstr "pt_BR"
+msgstr "Português"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Blackhole.pm
 msgid "register: not allowed to register"
-msgstr "Pas autorisé a enregistrer"
+msgstr "Vous n'êtes pas autorisé à vous enregistrer sur ce réseau."
 
 # html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module.pm
 msgid "release: enabling network"
@@ -1054,7 +1054,7 @@ msgstr "Activation de l'acces réseau"
 
 # lib/pf/web/release.pm
 msgid "release: reopen browser"
-msgstr "Réouvrir le navigateur"
+msgstr "Vous devrez probablement fermer votre navigateur afin que votre accès Internet fonctionne. Si vous êtes branché dans un téléphone, vous devrez redémarrer votre ordinateur afin que votre accès Internet fonctionne."
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
 msgid "requested guest access to your network."
@@ -1064,9 +1064,9 @@ msgstr "a demandé un accès invité a votre réseau."
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
 # html/captive-portal/templates/scan-in-progress.html
 msgid "scan: scan in progress"
-msgstr "Scan en cours"
+msgstr "Votre système est en cours d'analyse"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
 # lib/pf/web.pm
 msgid "system scan in progress"
-msgstr "Scan systhème en cours"
+msgstr "Analyse de votre système en cours - ce processus prendra approximativement %s secondes."

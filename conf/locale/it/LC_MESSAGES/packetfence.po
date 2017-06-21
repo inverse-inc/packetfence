@@ -985,7 +985,7 @@ msgstr "Il tuo abbonamento è stato annullato."
 
 # pf::web::constants (Locales)
 msgid "de_DE"
-msgstr ""
+msgstr "Deutsch"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
@@ -994,28 +994,28 @@ msgstr ""
 
 # pf::web::constants (Locales)
 msgid "en_US"
-msgstr ""
+msgstr "English"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
 # lib/pf/web/release.pm
 msgid "error: max re-enables reached"
-msgstr ""
+msgstr "Hai raggiunto il numero massimo di riattivazioni della rete!"
 
 # lib/pf/web/release.pm
 msgid "error: not found in the database"
-msgstr ""
+msgstr "Il tuo computer non e' stato trovato nel database di Packetfence. Riavvialo per risolvere il problema."
 
 # pf::web::constants (Locales)
 msgid "es_ES"
-msgstr ""
+msgstr "Español"
 
 # pf::web::constants (Locales)
 msgid "fr_CA"
-msgstr "fr_CA"
+msgstr "Français (CA)"
 
 # pf::web::constants (Locales)
 msgid "fr_FR"
-msgstr ""
+msgstr "Français"
 
 # pf::web::constants (Locales)
 msgid "he_IL"
@@ -1023,23 +1023,23 @@ msgstr "he_IL"
 
 # html/captive-portal/templates/layout.html
 msgid "help: provide info"
-msgstr ""
+msgstr "Se hai domande su questa pagina contatta l'amministratore di rete. Per favore fornisci le seguenti informazioni: "
 
 # pf::web::constants (Locales)
 msgid "it_IT"
-msgstr ""
+msgstr "Italiano"
 
 # pf::web::constants (Locales)
 msgid "nl_NL"
-msgstr ""
+msgstr "Dutch"
 
 # pf::web::constants (Locales)
 msgid "pl_PL"
-msgstr ""
+msgstr "Polski"
 
 # pf::web::constants (Locales)
 msgid "pt_BR"
-msgstr ""
+msgstr "Português"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Blackhole.pm
@@ -1052,7 +1052,7 @@ msgstr ""
 
 # lib/pf/web/release.pm
 msgid "release: reopen browser"
-msgstr ""
+msgstr "Potrebbe essere necessario riaprire il browser per accedere a Internet. Se sei collegato al telefono, sarà necessario riavviare il computer per accedere a Internet."
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
 msgid "requested guest access to your network."
@@ -1062,9 +1062,9 @@ msgstr "Richiesta di accesso guest alla rete."
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
 # html/captive-portal/templates/scan-in-progress.html
 msgid "scan: scan in progress"
-msgstr ""
+msgstr "E' in corso la scansione del tuo dispositivo"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
 # lib/pf/web.pm
 msgid "system scan in progress"
-msgstr ""
+msgstr "E' in corso la scansione del tuo dispositivo. Il processo impiegherà circa %s secondi."

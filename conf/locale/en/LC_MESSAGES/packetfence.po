@@ -867,7 +867,7 @@ msgstr ""
 
 # pf::web::constants (Locales)
 msgid "de_DE"
-msgstr ""
+msgstr "Deutsch"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
 msgid "does not have permission to sponsor a user"
@@ -875,28 +875,28 @@ msgstr ""
 
 # pf::web::constants (Locales)
 msgid "en_US"
-msgstr ""
+msgstr "English"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
 # lib/pf/web/release.pm
 msgid "error: max re-enables reached"
-msgstr ""
+msgstr "Maximum re-enables reached!"
 
 # lib/pf/web/release.pm
 msgid "error: not found in the database"
-msgstr ""
+msgstr "Your computer was not found in the PacketFence database. Please reboot to solve this issue."
 
 # pf::web::constants (Locales)
 msgid "es_ES"
-msgstr ""
+msgstr "Español"
 
 # pf::web::constants (Locales)
 msgid "fr_CA"
-msgstr ""
+msgstr "Français (CA)"
 
 # pf::web::constants (Locales)
 msgid "fr_FR"
-msgstr ""
+msgstr "Français"
 
 # pf::web::constants (Locales)
 msgid "he_IL"
@@ -904,35 +904,35 @@ msgstr ""
 
 # html/captive-portal/templates/layout.html
 msgid "help: provide info"
-msgstr ""
+msgstr "If you have questions about this page, contact your local support staff for assistance. Please provide the following information: "
 
 # pf::web::constants (Locales)
 msgid "it_IT"
-msgstr ""
+msgstr "Italiano"
 
 # pf::web::constants (Locales)
 msgid "nl_NL"
-msgstr ""
+msgstr "Dutch"
 
 # pf::web::constants (Locales)
 msgid "pl_PL"
-msgstr ""
+msgstr "Polski"
 
 # pf::web::constants (Locales)
 msgid "pt_BR"
-msgstr ""
+msgstr "Português"
 
 # html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Blackhole.pm
 msgid "register: not allowed to register"
-msgstr ""
+msgstr "You are not allowed to register on this network."
 
 # html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module.pm
 msgid "release: enabling network"
-msgstr ""
+msgstr "Enabling network access."
 
 # lib/pf/web/release.pm
 msgid "release: reopen browser"
-msgstr ""
+msgstr "You may have to re-open your browser to get Internet access. If you are plugged into a telephone, you will need to restart your computer to get Internet access."
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
 msgid "requested guest access to your network."
@@ -942,10 +942,10 @@ msgstr ""
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
 # html/captive-portal/templates/scan-in-progress.html
 msgid "scan: scan in progress"
-msgstr ""
+msgstr "Your system is being scanned"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
 # lib/pf/web.pm
 msgid "system scan in progress"
-msgstr ""
+msgstr "Your system is being scanned - this process will take approximately %s seconds."
 

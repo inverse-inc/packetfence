@@ -983,7 +983,7 @@ msgstr ""
 
 # pf::web::constants (Locales)
 msgid "de_DE"
-msgstr ""
+msgstr "Deutsch"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
@@ -992,28 +992,28 @@ msgstr ""
 
 # pf::web::constants (Locales)
 msgid "en_US"
-msgstr ""
+msgstr "English"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
 # lib/pf/web/release.pm
 msgid "error: max re-enables reached"
-msgstr ""
+msgstr "Osiągnięto maksymalną liczbę ponownych włączeń!"
 
 # lib/pf/web/release.pm
 msgid "error: not found in the database"
-msgstr ""
+msgstr "Twój komputer nie został znaleziony w bazie danych PacketFence. Proszę przeładować komputer, aby usunąć ten problem."
 
 # pf::web::constants (Locales)
 msgid "es_ES"
-msgstr ""
+msgstr "Español"
 
 # pf::web::constants (Locales)
 msgid "fr_CA"
-msgstr ""
+msgstr "Français (CA)"
 
 # pf::web::constants (Locales)
 msgid "fr_FR"
-msgstr ""
+msgstr "Français"
 
 # pf::web::constants (Locales)
 msgid "he_IL"
@@ -1021,23 +1021,23 @@ msgstr ""
 
 # html/captive-portal/templates/layout.html
 msgid "help: provide info"
-msgstr ""
+msgstr "Jeśli masz pytania dotyczące tej strony, skontaktuj sie z lokalnym administratorem w sprawie pomocy. Proszę podać następujące informacje:"
 
 # pf::web::constants (Locales)
 msgid "it_IT"
-msgstr ""
+msgstr "Italiano"
 
 # pf::web::constants (Locales)
 msgid "nl_NL"
-msgstr ""
+msgstr "Dutch"
 
 # pf::web::constants (Locales)
 msgid "pl_PL"
-msgstr ""
+msgstr "Polski"
 
 # pf::web::constants (Locales)
 msgid "pt_BR"
-msgstr ""
+msgstr "Português"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Blackhole.pm
@@ -1050,7 +1050,7 @@ msgstr ""
 
 # lib/pf/web/release.pm
 msgid "release: reopen browser"
-msgstr ""
+msgstr "Aby uzyskać dostęp do Internetu, może być niezbędne ponowne uruchomienie przeglądarki. Jeśli jesteś właczony do telefonu, będziesz musiał przeładować komputer, aby uzyskać dostęp do Internetu."
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
 msgid "requested guest access to your network."
@@ -1060,9 +1060,9 @@ msgstr ""
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
 # html/captive-portal/templates/scan-in-progress.html
 msgid "scan: scan in progress"
-msgstr ""
+msgstr "Twój system jest skanowany"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
 # lib/pf/web.pm
 msgid "system scan in progress"
-msgstr ""
+msgstr "Twój system jest skanowany - ten proces zajmie około %s sekund."
