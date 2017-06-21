@@ -20,6 +20,9 @@ New Features
 
 * Added the support for authenticating users through OpenID Connect (PR #2394)
 * Added passthroughs for devices in violation state (isolation network) (PR #2328)
+* Added ability to report a device lost or stolen in self-service portal (PR #2337)
+* Added ability to change a local account password in self-service portal (PR #2337)
+* Improved overall user experience of self-service portal (PR #2337)
 
 Enhancements
 ++++++++++++
