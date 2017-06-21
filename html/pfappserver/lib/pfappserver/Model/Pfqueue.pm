@@ -24,6 +24,11 @@ has stats => (
     handles => [qw(counters miss_counters queue_counts)],
 );
 
+sub ACCEPT_CONTEXT {
+    my ( $self, $c, @args ) = @_;
+    return $self->new(@args);
+}
+
 =head1 METHODS
 
 =head1 COPYRIGHT
