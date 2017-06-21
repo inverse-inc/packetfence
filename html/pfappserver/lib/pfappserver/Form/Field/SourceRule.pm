@@ -40,7 +40,11 @@ has_field 'match' => (
     type            => 'Select',
     localize_labels => 1,
     label           => 'Matches',
-    options         => [{value => $Rules::ANY, label => 'any'}, {value => $Rules::ALL, label => 'all'},],
+    options         => [
+        {value => $Rules::ALL, label => 'all'},
+        {value => $Rules::ANY, label => 'any'},
+    ],
+    default         => $Rules::ALL,
     element_class   => ['input-mini'],
 );
 
