@@ -28,6 +28,7 @@ our %RULE_OPS = (
     match_not => sub { $_[0] !~ $_[1] ? 1 : 0  },
 );
 
+
 =head1 SUBROUTINES
 
 =over
@@ -94,18 +95,16 @@ execute WMI command on the remote device
 
 sub runWmi {
     my ($self, $rules, $rule) = @_;
-
+    my $logger = $self->logger;
     my $request = {};
     $request->{'Username'} = $rules->{'_domain'} .'/'. $rules->{'_username'} .'%'. $rules->{'_password'};
     $request->{'Host'} = $rules->{'_scanIp'};
     $request->{'Query'} = $rule->{'request'};
     $request->{'Namespace'} = $rule->{'namespace'};
     $request->{'NameSpace'} = $rule->{'namespace'}; #this is to fix an issue in the lib WMIClient
-    my ($rc, $ret_string) = wmiclient($request);
-    if ($rc) {
-        return ($rc, $self->parseResult($ret_string));
-    }
-    return ($rc, $ret_string);
+    my $ret_string = wmitest($rules->{'_domain'}, $rules->{'_username'},$rules->{'_password'}, $rules->{'_scanIp'}, $rule->{'namespace'}, $rule->{'request'});
+    my $rc = 1;
+    return ($rc, $self->parseResult($ret_string));
 }
 
 =item parseResult
@@ -124,18 +123,21 @@ sub parseResult {
     $logger->trace( sub { "The WMI string to parse '$string' " });
     $string =~ s/\r\n/\n/g;
 
-    my ($class, $header, @answers) = split('\n', $string);
+    my $header = shift(@{$string});
     if (!defined ($header)) {
         $logger->error("No WMI header given in string '$string'");
         return [];
     }
-    my @entries = split(/\|/, $header);
+    $logger->warn($header);
+    my @entries = @{$header};
     my @result;
-    foreach my $answer (@answers) {
+    foreach my $answer (@{$string}) {
         my %response;
-        @response{@entries} = split(/\|/,$answer);
+        @response{@entries} = @{$answer};
         push @result, \%response;
     }
+    use Data::Dumper;
+    $logger->warn(Dumper @result);
     return \@result;
 }
 
@@ -216,6 +218,110 @@ sub logger {
     my ($proto) = @_;
     return get_logger( ref($proto) || $proto );
 }
+
+use Inline (Python => Config => directory => '/usr/local/pf/var',
+                                untaint => 1,
+           );
+
+use Inline Python  => <<'END_OF_PYTHON_CODE';
+
+from impacket import version, ntlm
+from impacket.dcerpc.v5 import transport, dcomrt
+from impacket.dcerpc.v5.dtypes import NULL
+from impacket.dcerpc.v5.dcom import wmi
+from impacket.dcerpc.v5.dcomrt import DCOMConnection
+import argparse
+import sys
+import os
+
+s = []
+
+def wmitest(domain, username, password, address, namespace, sql):
+    import cmd
+
+    class WMIQUERY(cmd.Cmd):
+        def __init__(self, iWbemServices):
+            cmd.Cmd.__init__(self)
+            self.iWbemServices = iWbemServices
+            self.prompt = 'WQL> '
+            self.intro = '[!] Press help for extra shell commands'
+
+        def do_help(self, line):
+            print """
+     lcd {path}                 - changes the current local directory to {path}
+     exit                       - terminates the server process (and this session)
+     describe {class}           - describes class
+     ! {cmd}                    - executes a local shell cmd
+     """ 
+
+        def do_shell(self, s):
+            os.system(s)
+
+        def printReply(self, iEnum):
+            global s
+            printHeader = True
+            while True:
+                try:
+                    pEnum = iEnum.Next(0xffffffff,1)[0]
+                    record = pEnum.getProperties()
+                    if printHeader is True:
+                        element = []
+                        for col in record:
+                            element.append(col)
+                        s.append(element)
+                    printHeader = False
+                    elem = [] 
+                    for key in record:
+                        elem.append(record[key]['value'])
+                    s.append(elem)
+                except Exception, e:
+                    #import traceback
+                    #print traceback.print_exc()
+                    if str(e).find('S_FALSE') < 0:
+                        raise
+                    else:
+                        break
+            iEnum.RemRelease()
+
+        def default(self, line):
+            line = line.strip('\n')
+            if line[-1:] == ';':
+                line = line[:-1]
+            try:
+                iEnumWbemClassObject = self.iWbemServices.ExecQuery(line.strip('\n'))
+                self.printReply(iEnumWbemClassObject)
+                iEnumWbemClassObject.RemRelease()
+            except Exception, e:
+                print str(e)
+         
+        def emptyline(self):
+            pass
+
+        def do_exit(self, line):
+            return True
+
+
+    lmhash = ''
+    nthash = ''
+    if namespace == '':
+        namespace = '//>/root/cimv2'
+
+    dcom = DCOMConnection(address, username, password, domain, lmhash, nthash, oxidResolver = True)
+
+    iInterface = dcom.CoCreateInstanceEx(wmi.CLSID_WbemLevel1Login,wmi.IID_IWbemLevel1Login)
+    iWbemLevel1Login = wmi.IWbemLevel1Login(iInterface)
+    iWbemServices= iWbemLevel1Login.NTLMLogin(namespace, NULL, NULL)
+    iWbemLevel1Login.RemRelease()
+
+    shell = WMIQUERY(iWbemServices)
+    shell.onecmd(sql)
+
+    iWbemServices.RemRelease()
+    dcom.disconnect()
+    return s
+
+
+END_OF_PYTHON_CODE
 
 =back
 
