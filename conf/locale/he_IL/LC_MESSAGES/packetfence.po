@@ -979,7 +979,7 @@ msgstr ""
 
 # pf::web::constants (Locales)
 msgid "de_DE"
-msgstr ""
+msgstr "גרמנית"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
@@ -988,20 +988,20 @@ msgstr ""
 
 # pf::web::constants (Locales)
 msgid "en_US"
-msgstr ""
+msgstr "אנגלית"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
 # lib/pf/web/release.pm
 msgid "error: max re-enables reached"
-msgstr ""
+msgstr "הגעת למקסימום הפעלות-מחדש!"
 
 # lib/pf/web/release.pm
 msgid "error: not found in the database"
-msgstr ""
+msgstr "המחשב שלך לא נמצא במסד הנתונים של PacketFence. נא להפעיל מחדש את המחשב כדי לפתור בעיה זו."
 
 # pf::web::constants (Locales)
 msgid "es_ES"
-msgstr ""
+msgstr "ספרדית"
 
 # pf::web::constants (Locales)
 msgid "fr_CA"
@@ -1017,15 +1017,15 @@ msgstr ""
 
 # html/captive-portal/templates/layout.html
 msgid "help: provide info"
-msgstr ""
+msgstr "אם יש לך שאלות בקשר לדף זה, צור קשר עם איש התמיכה לסיוע. בבקשה ספק לו את הפרטים הבאים:"
 
 # pf::web::constants (Locales)
 msgid "it_IT"
-msgstr ""
+msgstr "איטלית"
 
 # pf::web::constants (Locales)
 msgid "nl_NL"
-msgstr ""
+msgstr "הולנדית"
 
 # pf::web::constants (Locales)
 msgid "pl_PL"
@@ -1033,7 +1033,7 @@ msgstr ""
 
 # pf::web::constants (Locales)
 msgid "pt_BR"
-msgstr ""
+msgstr "פורטוגזית"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Blackhole.pm
@@ -1046,7 +1046,7 @@ msgstr ""
 
 # lib/pf/web/release.pm
 msgid "release: reopen browser"
-msgstr ""
+msgstr "אתה יכול לפתוח מחדש את הדפדפן שלך על מנת לגשת לאינטרנט. אם אתה אם אתה מחובר דרך טלפון, עליך להפעיל מחדש את המחשב."
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
 msgid "requested guest access to your network."
@@ -1056,9 +1056,9 @@ msgstr ""
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
 # html/captive-portal/templates/scan-in-progress.html
 msgid "scan: scan in progress"
-msgstr ""
+msgstr "המחשב שלך נסרק"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
 # lib/pf/web.pm
 msgid "system scan in progress"
-msgstr ""
+msgstr "המחשב שלך נסרק  - תהליך זה יקח בערך %s שניות."
