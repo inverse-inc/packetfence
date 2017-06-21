@@ -1,36 +1,17 @@
-package pf::constants::violation;
+package captiveportal::Controller::LostStolen;
+use Moose;
+
+BEGIN { extends 'captiveportal::PacketFence::Controller::LostStolen'; }
 
 =head1 NAME
 
-pf::constants::violation - constants for violation
-
-=cut
+captiveportal::Controller::LostStolen - LostStolen Controller for captiveportal
 
 =head1 DESCRIPTION
 
-pf::constants::violation
+[enter your description here]
 
 =cut
-
-use strict;
-use warnings;
-use base qw(Exporter);
-use Readonly;
-use pf::constants;
-use pf::constants::role qw($ISOLATION_ROLE $MAC_DETECTION_ROLE $VOICE_ROLE $INLINE_ROLE);
-
-our @EXPORT_OK = qw($MAX_VID $LOST_OR_STOLEN %NON_WHITELISTABLE_ROLES);
-
-Readonly our $MAX_VID => 2000000000;
-
-Readonly our $LOST_OR_STOLEN => '1300005';
-
-Readonly our %NON_WHITELISTABLE_ROLES => (
-    $ISOLATION_ROLE     => $TRUE,
-    $MAC_DETECTION_ROLE => $TRUE,
-    $VOICE_ROLE         => $TRUE,
-    $INLINE_ROLE        => $TRUE,
-);
 
 =head1 AUTHOR
 
@@ -42,7 +23,7 @@ Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and::or
+This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
@@ -59,6 +40,6 @@ USA.
 
 =cut
 
+__PACKAGE__->meta->make_immutable;
+
 1;
-
-

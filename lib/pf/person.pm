@@ -157,7 +157,7 @@ sub person_db_prepare {
             WHERE pid=? ]);
 
     $person_statements->{'person_nodes_sql'} = get_db_handle()->prepare(
-        qq[ SELECT mac, pid, regdate, unregdate, lastskip, status, user_agent, computername, device_class
+        qq[ SELECT mac, pid, regdate, unregdate, lastskip, status, user_agent, computername, device_class, time_balance, bandwidth_balance
             FROM node
             WHERE pid = ? ]);
 
@@ -186,7 +186,6 @@ sub person_db_prepare {
             GROUP BY pid
             HAVING count(node.mac)=0;
             ]);
-
 
     $person_db_prepared = 1;
 }

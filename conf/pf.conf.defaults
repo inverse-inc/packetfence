@@ -170,6 +170,11 @@ status=disabled
 #
 # The role to assign to devices registered from the specific portal. If none is specified, the role of the registrant is used.
 role=
+#
+# device_registration.allowed_devices
+#
+# List of allowed devices to be registered via the device registration page.
+allowed_devices= 
 
 [guests_admin_registration]
 #

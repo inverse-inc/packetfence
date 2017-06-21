@@ -54,6 +54,7 @@ $inuit-enable-btn--small:                true;
 @import "node_modules/inuit-flag/objects.flag";
 $inuit-enable-layout--right:             true;
 $inuit-enable-layout--center:            true;
+$inuit-enable-layout--middle:            true;
 $inuit-enable-layout--auto:              true;
 $inuit-enable-layout--tiny:              true;
 @import "node_modules/inuit-layout/objects.layout";
@@ -104,3 +105,7 @@ $inuit-enable-responsive-paddings--none:  true;
 @import "trumps.flag";
 @import "trumps.media";
 //@import "trumps.dev";
+
+.hide {
+  display: none;
+}

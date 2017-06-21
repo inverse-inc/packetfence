@@ -83,6 +83,14 @@ sub field_list {
                 #   if $field->{element_attr}->{placeholder};
                 last;
             };
+            $type eq 'fingerbank_select' && do {
+                $field->{type} = 'FingerbankSelect';
+                $field->{multiple} = 1;
+                $field->{element_class} = ['chzn-deselect'];
+                $field->{element_attr} = {'data-placeholder' => 'Click to add an OS'};
+                $field->{fingerbank_model} = 'fingerbank::Model::Device';
+                last;
+            };
             $type eq 'merged_list' && do {
                 delete $field->{element_attr}->{placeholder};
                 $field->{tags}->{before_element} = \&defaults_list;

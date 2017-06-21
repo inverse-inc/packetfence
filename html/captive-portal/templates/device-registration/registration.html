@@ -7,6 +7,13 @@
 
 <form name="registration" method="post" action="/device-registration">
 
+[% IF status_msg_error.defined %]
+<div class="media media--error u-p u-mb">
+  <div class="media__img">[% flashIcon(level='error') %]</div>
+  <p class="media__body">[% i18n(status_msg_error) %]</p>
+</div>
+[% END %]
+
   <div class="layout layout--center">
     <div class="layout__item u-2/3 u-1/1-palm">
 
@@ -39,23 +46,5 @@
     </div>
   </div>
 </form>
-<div class="layout layout--center">
-  <div class="layout__item u-mt u-2/3 u-1/1-palm">
-    <a href="/status" class="btn btn--full btn--light">
-      <div class="flag">
-        <div class="flag__img">[% svgIcon(id='ic_account_circle_black_24px',size='small') %]</div>
-        <p class="flag__body">[% i18n("Manage registered devices") %]</p>
-      </div>
-    </a>
-  </div>
-</div>
-<div class="layout layout--center">
-  <div class="layout__item u-mt u-2/3 u-1/1-palm">
-    <a href="/device-registration/logout" class="btn btn--full btn--light">
-      <div class="flag">
-        <div class="flag__img">[% svgIcon(id='ic_close_black_24px',size='small') %]</div>
-        <p class="flag__body">[% i18n("Logout") %]</p>
-      </div>
-    </a>
-  </div>
-</div>
+
+[% INCLUDE status/menu.html %]

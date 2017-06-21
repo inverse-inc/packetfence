@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 7.1.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-06-13 14:13-0400\n"
+"PO-Revision-Date: 2017-06-14 14:37-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -1225,6 +1225,7 @@ msgstr ""
 msgid "Click to add a role"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Pf.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 msgid "Click to add an OS"
@@ -3431,6 +3432,10 @@ msgstr ""
 
 # conf/documentation.conf (guests_admin_registration.access_duration_choices)
 msgid "List of all the choices offered in the access duration action of an authentication source."
+msgstr ""
+
+# conf/documentation.conf (device_registration.allowed_devices)
+msgid "List of allowed devices to be registered via the device registration page. If none are specified, ALL devices will be allowed."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SMS.pm
@@ -9113,6 +9118,10 @@ msgstr ""
 # conf/documentation.conf
 msgid "device_registration"
 msgstr "Device registration"
+
+# conf/documentation.conf
+msgid "device_registration.allowed_devices"
+msgstr "Allowed devices"
 
 # conf/documentation.conf
 msgid "device_registration.role"
