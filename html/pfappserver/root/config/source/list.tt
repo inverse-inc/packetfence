@@ -30,7 +30,7 @@
       <td class="hidden-phone"></td>
       [% END %]
       <td>
-        <a href="[% c.pf_hash_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id | html %]</a>
+        <a href="[% c.pf_hash_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id | html %]</a>&nbsp<i class="icon icon-[% item.type | html | lower %]"></i>
         [% IF sortable %]
         <input type="hidden" name="items.[% loop.index %].id" value="[% item.id %]"/>
         [% END %]
