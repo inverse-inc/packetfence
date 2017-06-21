@@ -108,7 +108,7 @@ var NodeView = function(options) {
 
     this.proxyFor(body, 'section.loaded', '#section', function(e) {
         /* Disable checked columns from import tab since they are required */
-        $('form[nodes] .columns :checked').attr('disabled', 'disabled');
+        $('form[name="nodes"] .columns :checked').attr('disabled', 'disabled');
     });
     this.proxyFor(body, 'saved_search.loaded', 'form[name="advancedNodeSearch"] [name$=".name"]', this.changeSearchFieldKeep);
 
