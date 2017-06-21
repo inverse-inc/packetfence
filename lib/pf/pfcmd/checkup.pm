@@ -1117,6 +1117,17 @@ sub valid_certs {
         return;
     }
 
+    my $haproxy_crt = "$install_dir/conf/ssl/server.pem";
+
+    eval {
+        if(cert_has_expired($haproxy_crt)){
+            add_problem($WARN, "The certificate used by haproxy ($haproxy_crt) has expired.\nRegenerate a new self-signed certificate or update your current certificate.");
+        }
+    };
+    if($@){
+        add_problem($WARN, "Cannot open the following certificate $haproxy_crt")
+    }
+
 
     my $httpd_conf = read_file("$generated_conf_dir/ssl-certificates.conf");
 
