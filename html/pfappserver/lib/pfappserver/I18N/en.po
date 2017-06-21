@@ -8916,6 +8916,14 @@ msgstr "Status URI only on production network"
 msgid "captive_portal.wispr_redirection"
 msgstr "WISPr redirection capabilities"
 
+# conf/documentation.conf
+msgid "captive_portal.rate_limiting"
+msgstr "Rate limiting"
+
+# conf/documentation.conf
+msgid "captive_portal.rate_limiting_threshold"
+msgstr "Rate limiting threshold"
+
 # html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
 msgid "cell_phone"

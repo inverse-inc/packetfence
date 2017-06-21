@@ -1,0 +1,10 @@
+HTTP/1.0 429 Too Many Requests
+Cache-Control: no-cache
+Connection: close
+Content-Type: text/html
+
+<html><body><h1>Too Many Requests</h1>
+You have sent too many requests to this server. Try closing any web intensive background application and try again.
+</body></html>
+
+
