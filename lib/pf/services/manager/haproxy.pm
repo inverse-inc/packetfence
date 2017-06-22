@@ -158,9 +158,15 @@ frontend portal-http-$cluster_ip
         http-request set-header Host %[var(req.host)] if host_exist
         http-request lua.select
         acl action var(req.action) -m found
+EOT
+            if($rate_limiting) {
+            $tags{'http'} .= <<"EOT";
         acl unflag_abuser src_clr_gpc0 --
         http-request allow if action unflag_abuser
         http-request deny if { src_get_gpc0 gt 0 }
+EOT
+            }
+            $tags{'http'} .= <<"EOT";
         reqadd X-Forwarded-Proto:\\ http
         use_backend %[var(req.action)]
         default_backend $cluster_ip-backend
@@ -175,9 +181,15 @@ frontend portal-https-$cluster_ip
         http-request set-header Host %[var(req.host)] if host_exist
         http-request lua.select
         acl action var(req.action) -m found
+EOT
+            if($rate_limiting) {
+            $tags{'http'} .= <<"EOT";
         acl unflag_abuser src_clr_gpc0 --
         http-request allow if action unflag_abuser
         http-request deny if { src_get_gpc0 gt 0 }
+EOT
+            }
+            $tags{'http'} .= <<"EOT";
         reqadd X-Forwarded-Proto:\\ https
         use_backend %[var(req.action)]
         default_backend $cluster_ip-backend
