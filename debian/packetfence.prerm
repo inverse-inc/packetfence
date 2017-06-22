@@ -44,6 +44,7 @@ case "$1" in
             fi
         fi
         if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ]; then
+            systemctl stop packetfence-httpd.admin
             systemctl set-default multi-user.target
             systemctl isolate multi-user.target
         fi
