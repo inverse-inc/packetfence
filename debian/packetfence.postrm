@@ -27,28 +27,33 @@ fi
 if $(dpkg-distribution --is_precise) ; then
     DIST=precise
 fi
+if $(dpkg-distribution --is_stretch) ; then
+    DIST=stretch
+fi
 
 case "$1" in
     upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
     ;;
 
     remove)
-        if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
+        if [ ${DIST} == "wheezy" ] || [ ${DIST} == "precise" ]; then
             if [ -x /etc/init.d/packetfence ]; then
                 invoke-rc.d packetfence stop
             fi
         fi
-        if [ ${DIST} = "jessie" ] ; then
-            systemctl set-default multi-user.target
-            systemctl isolate multi-user.target
+        if [ ${DIST} == "jessie" ] || [ ${DIST} == "stretch" ]; then
+            systemctl stop packetfence
         fi
-        if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
+        if [ ${DIST} == "wheezy" ] || [ ${DIST} == "precise" ]; then
             # removing init scripts
             if [ -e /etc/lsb-release ]; then
                 update-rc.d -f packetfence remove > /dev/null 2>&1
             else
                 update-rc.d packetfence remove > /dev/null 2>&1
             fi
+        fi
+        if [ ${DIST} == "jessie" ] || [ ${DIST} == "stretch" ]; then
+            systemctl disable packetfence
         fi
     ;;
     purge)

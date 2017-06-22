@@ -27,13 +27,16 @@ fi
 if $(dpkg-distribution --is_precise) ; then
     DIST=precise
 fi
+if $(dpkg-distribution --is_stretch) ; then
+    DIST=stretch
+fi
 
 case "$1" in
     upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
     ;;
 
     remove)
-        if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
+        if [ ${DIST} == "wheezy" ] || [ ${DIST} == "precise" ]; then
         #Stop packetfence-redis-cache
             if [ -x /etc/init.d/packetfence-redis-cache ]; then
                 invoke-rc.d packetfence-redis-cache stop
@@ -45,8 +48,7 @@ case "$1" in
                 update-rc.d packetfence-redis-cache remove > /dev/null 2>&1
             fi
         fi
-        if [ ${DIST} = "jessie" ] ; then
-            set +e
+        if [ ${DIST} == "jessie" ] || [ ${DIST} == "stretch" ]; then
             systemctl stop packetfence-redis-cache
             systemctl disable packetfence-redis-cache
             set -e

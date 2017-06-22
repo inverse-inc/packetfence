@@ -25,13 +25,16 @@ fi
 if $(dpkg-distribution --is_precise) ; then
     DIST=precise
 fi
+if $(dpkg-distribution --is_stretch) ; then
+    DIST=stretch
+fi
 
 case "$1" in
     upgrade|deconfigure)
     ;;
 
     remove)
-        if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
+        if [ ${DIST} == "wheezy" ] || [ ${DIST} == "precise" ]; then
             if [ -x "/etc/init.d/packetfence" ]; then
                 if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
                     invoke-rc.d packetfence stop || exit $?
@@ -40,9 +43,8 @@ case "$1" in
                 fi
             fi
         fi
-        if [ ${DIST} = "jessie" ] ; then
-            systemctl set-default multi-user.target
-            systemctl isolate multi-user.target
+        if [ ${DIST} == "jessie" ] || [ ${DIST} == "stretch" ]; then
+            systemctl stop packetfence
         fi
     ;;
 

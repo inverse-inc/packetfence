@@ -26,13 +26,16 @@ fi
 if $(dpkg-distribution --is_precise) ; then
     DIST=precise
 fi
+if $(dpkg-distribution --is_stretch) ; then
+    DIST=stretch
+fi
 
 case "$1" in
     configure)
-        if [ ${DIST} = "jessie" ] ; then
+        if [ ${DIST} == "jessie" ] || [ ${DIST} == "stretch" ]; then
             systemctl enable packetfence-remote-arp-sensor
         fi
-        if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
+        if [ ${DIST} == "wheezy" ] || [ ${DIST} == "precise" ]; then
             update-rc.d packetfence-remote-arp-sensor defaults 60 || exit 0
         fi
     ;;

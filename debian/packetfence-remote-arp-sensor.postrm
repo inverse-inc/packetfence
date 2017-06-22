@@ -27,6 +27,9 @@ fi
 if $(dpkg-distribution --is_precise) ; then
     DIST=precise
 fi
+if $(dpkg-distribution --is_stretch) ; then
+    DIST=stretch
+fi
 
 case "$1" in
     upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
@@ -36,10 +39,10 @@ case "$1" in
     ;;
     purge)
         export PACKETFENCE=/usr/local/pf
-        if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
+        if [ ${DIST} == "wheezy" ] || [ ${DIST} == "precise" ]; then
             update-rc.d packetfence-remote-arp-sensor remove >/dev/null || exit 0
         fi
-        if [ ${DIST} = "jessie" ] ; then
+        if [ ${DIST} == "jessie" ] || [ ${DIST} == "stretch" ]; then
             systemctl disable packetfence-remote-arp-sensor
         fi
         rm /etc/init.d/packetfence-remote-arp-sensor

@@ -26,15 +26,20 @@ fi
 if $(dpkg-distribution --is_precise) ; then
     DIST=precise
 fi
+if $(dpkg-distribution --is_stretch) ; then
+    DIST=stretch
+fi
+
+
 
 case "$1" in
     configure)
 	chown pf.pf /usr/local/pf/conf/pfconfig.conf
 	/sbin/ldconfig
-        if [ ${DIST} = "jessie" ] ; then
+        if [ ${DIST} == "jessie" ] || [ ${DIST} == "stretch" ]; then
 	    systemctl enable packetfence-config
         fi
-        if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
+        if [ ${DIST} == "wheezy" ] || [ ${DIST} == "precise" ]; then
             update-rc.d packetfence-config defaults 60 || exit 0
         fi
     ;;
