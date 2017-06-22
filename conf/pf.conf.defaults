@@ -743,6 +743,17 @@ detection_mecanism_urls = http://www.gstatic.com/generate_204,http://clients3.go
 #
 # Enable or disable WISPr redirection capabilities on the captive-portal
 wispr_redirection = enabled
+#
+# captive_portal.rate_limiting
+#
+# Temporarily deny access to a user that performs too many requests on the captive portal on invalid URLs
+rate_limiting = enabled
+#
+# captive_portal.rate_limiting_threshold
+#
+# Amount of requests on invalid URLs after which the rate limiting will kick in for this device
+rate_limiting_threshold = 24
+
 
 [advanced]
 #

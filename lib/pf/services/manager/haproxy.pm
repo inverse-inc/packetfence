@@ -30,6 +30,7 @@ use pf::file_paths qw(
     $install_dir
     $conf_dir
     $var_dir
+    $captiveportal_templates_path
 );
 use pf::log;
 use pf::util;
@@ -144,6 +145,9 @@ EOT
 EOT
             }
 
+            my $rate_limiting = isenabled($Config{captive_portal}{rate_limiting});
+            my $rate_limiting_threshold = $Config{captive_portal}{rate_limiting_threshold};
+
             $tags{'http'} .= <<"EOT";
 frontend portal-http-$cluster_ip
         bind $cluster_ip:80
@@ -154,9 +158,15 @@ frontend portal-http-$cluster_ip
         http-request set-header Host %[var(req.host)] if host_exist
         http-request lua.select
         acl action var(req.action) -m found
+EOT
+            if($rate_limiting) {
+            $tags{'http'} .= <<"EOT";
         acl unflag_abuser src_clr_gpc0 --
         http-request allow if action unflag_abuser
         http-request deny if { src_get_gpc0 gt 0 }
+EOT
+            }
+            $tags{'http'} .= <<"EOT";
         reqadd X-Forwarded-Proto:\\ http
         use_backend %[var(req.action)]
         default_backend $cluster_ip-backend
@@ -171,9 +181,15 @@ frontend portal-https-$cluster_ip
         http-request set-header Host %[var(req.host)] if host_exist
         http-request lua.select
         acl action var(req.action) -m found
+EOT
+            if($rate_limiting) {
+            $tags{'http'} .= <<"EOT";
         acl unflag_abuser src_clr_gpc0 --
         http-request allow if action unflag_abuser
         http-request deny if { src_get_gpc0 gt 0 }
+EOT
+            }
+            $tags{'http'} .= <<"EOT";
         reqadd X-Forwarded-Proto:\\ https
         use_backend %[var(req.action)]
         default_backend $cluster_ip-backend
@@ -183,12 +199,18 @@ backend $cluster_ip-backend
         balance source
         option httpclose
         option forwardfor
+EOT
+            if($rate_limiting) {
+            $tags{'http'} .= <<"EOT";
         acl status_501 status 501
-        acl abuse  src_http_req_rate(portal-http-$cluster_ip) ge 20
+        acl abuse  src_http_req_rate(portal-http-$cluster_ip) ge $rate_limiting_threshold
         acl flag_abuser src_inc_gpc0(portal-http-$cluster_ip) --
-        acl abuse  src_http_req_rate(portal-https-$cluster_ip) ge 20
+        acl abuse  src_http_req_rate(portal-https-$cluster_ip) ge $rate_limiting_threshold
         acl flag_abuser src_inc_gpc0(portal-https-$cluster_ip) --
         http-response deny if abuse status_501 flag_abuser
+EOT
+            }
+            $tags{'http'} .= <<"EOT";
 $backend_ip_config
 EOT
 
@@ -236,6 +258,7 @@ EOT
         }
     }
 
+    $tags{captiveportal_templates_path} = $captiveportal_templates_path;
     parse_template( \%tags, "$conf_dir/haproxy.conf", "$generated_conf_dir/haproxy.conf" );
 
     my $fqdn = $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'};
