@@ -24,10 +24,13 @@ our @EXPORT_OK = qw(
     $STATUS_UNREGISTERED
     $STATUS_PENDING
     %ALLOW_STATUS
+    $NODE_DISCOVERED_TRIGGER_DELAY
 );
 Readonly::Scalar our $STATUS_REGISTERED => 'reg';
 Readonly::Scalar our $STATUS_UNREGISTERED => 'unreg';
 Readonly::Scalar our $STATUS_PENDING => 'pending';
+Readonly::Scalar our $NODE_DISCOVERED_TRIGGER_DELAY => 10000;
+
 Readonly::Hash our %ALLOW_STATUS => (
     $STATUS_REGISTERED   => 1,
     $STATUS_UNREGISTERED => 1,

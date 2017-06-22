@@ -32,6 +32,7 @@ use pf::constants::node qw(
     $STATUS_UNREGISTERED
     $STATUS_PENDING
     %ALLOW_STATUS
+    $NODE_DISCOVERED_TRIGGER_DELAY
 );
 use pf::config qw(
     %Config
@@ -40,8 +41,6 @@ use pf::config qw(
 use constant NODE => 'node';
 
 # Delay in millisecond to wait for triggering internal::node_discovered after discovering a node 
-Readonly::Scalar our $NODE_DISCOVERED_TRIGGER_DELAY => 10000;
-
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
