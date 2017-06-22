@@ -15,8 +15,6 @@ Pre-Depends:  ca-certificates,
  dhcp3-server | isc-dhcp-server, ca-certificates, winbind,
  packetfence-pfcmd-suid (>= ${source:Version}), packetfence-config (>= ${source:Version}), packetfence-ntlm-wrapper (>= ${source:Version}), packetfence-doc (>= ${source:Version}),
  fingerbank (>= 3.1.0), packetfence-redis-cache (>= ${source:Version}), packetfence-golang-daemon (>= ${source:Version}),
-# wmi
- libnet-wmiclient-perl, libwmiclient1, wmi-client,
 Breaks: libdata-alias-perl
 Depends: ${misc:Depends}, vlan,
  openssl, openssl-blacklist, openssl-blacklist-extra,
@@ -137,6 +135,8 @@ Depends: ${misc:Depends}, vlan,
  dpkg-distribution,
 # golang build
  golang-1.7-go,
+# wmi and nthash cache
+ python-impacket, libinline-python-perl,
 # Distribution specific
  ${packetfence:dist}
 Description: PacketFence network registration / worm mitigation system

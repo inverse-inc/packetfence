@@ -282,8 +282,8 @@ Requires: samba >= 4
 Requires: perl(Linux::Distribution)
 # configuration-wizard
 Requires: vconfig
-# wmi
-Requires: wmi, perl(Net::WMIClient)
+# wmi nthash cache
+Requires: python-impacket, perl(Inline::Python)
 # SAML
 Requires: lasso-perl 
 # Captive Portal Dynamic Routing
