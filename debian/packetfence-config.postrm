@@ -37,10 +37,6 @@ case "$1" in
 
     remove)
 
-        if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ]; then
-            systemctl disable packetfence-config
-            set -e
-        fi
         if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
             if [ -x /etc/init.d/packetfence-config ]; then
                 invoke-rc.d packetfence-config stop

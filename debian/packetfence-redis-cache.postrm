@@ -48,10 +48,6 @@ case "$1" in
                 update-rc.d packetfence-redis-cache remove > /dev/null 2>&1
             fi
         fi
-        if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ]; then
-            systemctl disable packetfence-redis-cache
-            set -e
-        fi
     ;;
     purge)
     ;;
