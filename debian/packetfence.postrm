@@ -36,15 +36,15 @@ case "$1" in
     ;;
 
     remove)
-        if [ ${DIST} == "wheezy" ] || [ ${DIST} == "precise" ]; then
+        if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
             if [ -x /etc/init.d/packetfence ]; then
                 invoke-rc.d packetfence stop
             fi
         fi
-        if [ ${DIST} == "jessie" ] || [ ${DIST} == "stretch" ]; then
+        if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ]; then
             systemctl stop packetfence
         fi
-        if [ ${DIST} == "wheezy" ] || [ ${DIST} == "precise" ]; then
+        if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
             # removing init scripts
             if [ -e /etc/lsb-release ]; then
                 update-rc.d -f packetfence remove > /dev/null 2>&1
@@ -52,7 +52,7 @@ case "$1" in
                 update-rc.d packetfence remove > /dev/null 2>&1
             fi
         fi
-        if [ ${DIST} == "jessie" ] || [ ${DIST} == "stretch" ]; then
+        if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ]; then
             systemctl disable packetfence
         fi
     ;;

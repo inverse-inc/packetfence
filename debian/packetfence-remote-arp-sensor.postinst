@@ -32,10 +32,10 @@ fi
 
 case "$1" in
     configure)
-        if [ ${DIST} == "jessie" ] || [ ${DIST} == "stretch" ]; then
+        if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ]; then
             systemctl enable packetfence-remote-arp-sensor
         fi
-        if [ ${DIST} == "wheezy" ] || [ ${DIST} == "precise" ]; then
+        if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
             update-rc.d packetfence-remote-arp-sensor defaults 60 || exit 0
         fi
     ;;

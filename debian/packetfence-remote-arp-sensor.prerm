@@ -34,7 +34,7 @@ case "$1" in
     ;;
 
     remove)
-        if [ ${DIST} == "wheezy" ] || [ ${DIST} == "precise" ]; then
+        if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
             if [ -x "/etc/init.d/packetfence-remote-arp-sensor" ]; then
                 if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
                     invoke-rc.d packetfence-remote-arp-sensor stop || exit $?
@@ -43,7 +43,7 @@ case "$1" in
                 fi
             fi
         fi
-        if [ ${DIST} == "jessie" ] || [ ${DIST} == "stretch" ]; then
+        if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ]; then
             systemctl stop packetfence-remote-arp-sensor
         fi
     ;;

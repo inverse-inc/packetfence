@@ -117,7 +117,7 @@ case "$1" in
                     update-rc.d $service remove > /dev/null 2>&1
                 fi
             fi
-            if [ ${DIST} == "jessie" ] || [ ${DIST} == "stretch" ]; then
+            if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ]; then
                 if [ -e "/lib/systemd/system/"$service".service" ] ; then
                     systemctl stop $service
                     systemctl disable $service
@@ -139,7 +139,7 @@ case "$1" in
         #removing old cache
         rm -rf /usr/local/pf/var/cache/
         # Start packetfence web administration
-        if [ `systemctl get-default` == "packetfence-cluster.target" ]; then
+        if [ `systemctl get-default` = "packetfence-cluster.target" ]; then
 	    echo "This is an upgrade on a clustered system. We don't change the default systemd target."
         else
             echo "Setting packetfence.target as the default systemd target."

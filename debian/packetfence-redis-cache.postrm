@@ -36,7 +36,7 @@ case "$1" in
     ;;
 
     remove)
-        if [ ${DIST} == "wheezy" ] || [ ${DIST} == "precise" ]; then
+        if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
         #Stop packetfence-redis-cache
             if [ -x /etc/init.d/packetfence-redis-cache ]; then
                 invoke-rc.d packetfence-redis-cache stop
@@ -48,7 +48,7 @@ case "$1" in
                 update-rc.d packetfence-redis-cache remove > /dev/null 2>&1
             fi
         fi
-        if [ ${DIST} == "jessie" ] || [ ${DIST} == "stretch" ]; then
+        if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ]; then
             systemctl stop packetfence-redis-cache
             systemctl disable packetfence-redis-cache
             set -e
