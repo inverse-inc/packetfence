@@ -18,6 +18,8 @@ use strict;
 use warnings;
 
 use pf::error qw(is_error);
+use pf::api::queue;
+use pf::constants::node qw($NODE_DISCOVERED_TRIGGER_DELAY);
 use base qw(pf::dal::_node);
 
 our @LOCATION_LOG_GETTERS = qw(
@@ -89,6 +91,22 @@ pre_save
 sub pre_save {
     my ($self) = @_;
     return $self->_update_category_ids;
+}
+
+=head2 save
+
+save
+
+=cut
+
+sub save {
+    my ($self) = @_;
+    my $status = $self->SUPER::save;
+    if ($status == $STATUS::CREATED) {
+        my $apiclient = pf::api::queue->new(queue => 'general');
+        $apiclient->notify_delayed($NODE_DISCOVERED_TRIGGER_DELAY, "trigger_violation", mac => $self->mac, type => "internal", tid => "node_discovered");
+    }
+    return $status;
 }
 
 =head2 _update_category_ids
