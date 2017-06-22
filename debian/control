@@ -142,6 +142,8 @@ Depends: ${misc:Depends}, vlan,
  libnet-syslog-perl,
 # for packaging
  dpkg-distribution,
+# wmi and nthash cache
+ python-impacket, libinline-python-perl,
 # Distribution specific
  ${packetfence:dist}
 Description: PacketFence network registration / worm mitigation system

@@ -17,7 +17,6 @@ use warnings;
 
 use pf::constants;
 use pf::log;
-use Net::WMIClient qw(wmiclient);
 use Config::IniFiles;
 use pf::api::jsonrpcclient;
 
@@ -95,16 +94,8 @@ execute WMI command on the remote device
 
 sub runWmi {
     my ($self, $rules, $rule) = @_;
-    my $logger = $self->logger;
-    my $request = {};
-    $request->{'Username'} = $rules->{'_domain'} .'/'. $rules->{'_username'} .'%'. $rules->{'_password'};
-    $request->{'Host'} = $rules->{'_scanIp'};
-    $request->{'Query'} = $rule->{'request'};
-    $request->{'Namespace'} = $rule->{'namespace'};
-    $request->{'NameSpace'} = $rule->{'namespace'}; #this is to fix an issue in the lib WMIClient
     my $ret_string = wmitest($rules->{'_domain'}, $rules->{'_username'},$rules->{'_password'}, $rules->{'_scanIp'}, $rule->{'namespace'}, $rule->{'request'});
-    my $rc = 1;
-    return ($rc, $self->parseResult($ret_string));
+    return ($TRUE, $self->parseResult($ret_string));
 }
 
 =item parseResult
@@ -128,16 +119,12 @@ sub parseResult {
         $logger->error("No WMI header given in string '$string'");
         return [];
     }
-    $logger->warn($header);
-    my @entries = @{$header};
     my @result;
     foreach my $answer (@{$string}) {
         my %response;
-        @response{@entries} = @{$answer};
+        @response{@{$header}} = @{$answer};
         push @result, \%response;
     }
-    use Data::Dumper;
-    $logger->warn(Dumper @result);
     return \@result;
 }
 
@@ -221,6 +208,7 @@ sub logger {
 
 use Inline (Python => Config => directory => '/usr/local/pf/var',
                                 untaint => 1,
+                                no_untaint_warn => 1,
            );
 
 use Inline Python  => <<'END_OF_PYTHON_CODE';
@@ -230,7 +218,6 @@ from impacket.dcerpc.v5 import transport, dcomrt
 from impacket.dcerpc.v5.dtypes import NULL
 from impacket.dcerpc.v5.dcom import wmi
 from impacket.dcerpc.v5.dcomrt import DCOMConnection
-import argparse
 import sys
 import os
 
@@ -243,16 +230,6 @@ def wmitest(domain, username, password, address, namespace, sql):
         def __init__(self, iWbemServices):
             cmd.Cmd.__init__(self)
             self.iWbemServices = iWbemServices
-            self.prompt = 'WQL> '
-            self.intro = '[!] Press help for extra shell commands'
-
-        def do_help(self, line):
-            print """
-     lcd {path}                 - changes the current local directory to {path}
-     exit                       - terminates the server process (and this session)
-     describe {class}           - describes class
-     ! {cmd}                    - executes a local shell cmd
-     """ 
 
         def do_shell(self, s):
             os.system(s)
