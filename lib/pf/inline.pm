@@ -17,6 +17,7 @@ use warnings;
 use pf::log;
 
 use pf::constants;
+use pf::constants::role;
 use pf::config qw(
     $IPTABLES_MARK_UNREG
     $IPTABLES_MARK_REG
@@ -141,9 +142,17 @@ sub fetchMarkForNode {
         return $IPTABLES_MARK_UNREG;
     }
 
+    # Check node status
     my $n_status = $node_info->{'status'};
     if ($n_status eq $pf::node::STATUS_UNREGISTERED || $n_status eq $pf::node::STATUS_PENDING) {
         $logger->debug("is of status $n_status; needs to be firewalled");
+        return $IPTABLES_MARK_UNREG;
+    }
+
+    # Check node role
+    my $n_role = $node_info->{'category'};
+    if ( $n_role eq $pf::constants::role::REJECT_ROLE ) {
+        $logger->debug("is of role '$pf::constants::role::REJECT_ROLE'; needs to be firewalled");
         return $IPTABLES_MARK_UNREG;
     }
 
