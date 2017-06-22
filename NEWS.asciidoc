@@ -35,6 +35,7 @@ Enhancements
 * Visually split Administration and Authentication rules when viewing sources (PR #2395)
 * Ability to run "fixpermissions" from the web admin GUI (PR #2398)
 * Add sd_notify support to most of the sbin/ daemons (PR #2387)
+* Allowed haproxy captive portal rate-limiting to be configurable (PR #2422)
 
 Bug Fixes
 +++++++++
