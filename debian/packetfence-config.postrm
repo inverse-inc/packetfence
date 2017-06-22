@@ -38,7 +38,6 @@ case "$1" in
     remove)
 
         if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ]; then
-            systemctl stop packetfence-config
             systemctl disable packetfence-config
             set -e
         fi
