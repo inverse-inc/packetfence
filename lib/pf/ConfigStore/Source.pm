@@ -90,7 +90,7 @@ sub cleanupAfterRead {
         $rule->{actions} = [delete @$rule{@action_keys}];
         my @conditions_keys = nsort grep {/^condition\d+$/} keys %$rule;
         $rule->{conditions} = [delete @$rule{@conditions_keys}];
-        push $item->{"${class}_rules"}, $rule;
+        push @{$item->{"${class}_rules"}}, $rule;
     }
 }
 
