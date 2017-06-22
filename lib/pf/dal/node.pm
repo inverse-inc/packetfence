@@ -122,6 +122,24 @@ sub _update_category_ids {
     return $STATUS::OK;
 }
 
+=head2 _insert_data
+
+_insert_data
+
+=cut
+
+sub _insert_data {
+    my ($self) = @_;
+    my ($status, $data) = $self->SUPER::_insert_data;
+    if (is_error($status)) {
+        return $status, $data;
+    }
+    if ($data->{detect_date} eq '0000-00-00 00:00:00') {
+       $data->{detect_date} = \['NOW()'];
+    }
+    return $status, $data;
+}
+
 =head2 update_last_seen
 
 update_last_seen
