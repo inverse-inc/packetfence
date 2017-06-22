@@ -52,8 +52,8 @@ sub matches {
             $time_v = int(sprintf("%d%02d", $vhour, $vmin));
         }
         elsif ($attribute eq 'current_date') {
-            my ($year, $mon, $day) = $value =~ m/(\d{4})-(\d{,2})-(\d{,2})/;
-            my ($vyear, $vmon, $vday) = $v =~ m/(\d{4})-(\d{,2})-(\d{,2})/;
+            my ($year, $mon, $day) = $value =~ m/(\d{4})-(\d{1,2})-(\d{1,2})/;
+            my ($vyear, $vmon, $vday) = $v =~ m/(\d{4})-(\d{1,2})-(\d{1,2})/;
             $time = int(sprintf("%d%02d%02d", $year, $mon, $day));
             $time_v = int(sprintf("%d%02d%02d", $vyear, $vmon, $vday));
         }
