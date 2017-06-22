@@ -289,7 +289,7 @@ ifeq ($(jessie),yes)
 	dh_gencontrol -- '-Vpacketfence:dist=openssl-blacklist,openssl-blacklist-extra,libapache2-mod-proxy-html,apache2-mpm-prefork'
 endif
 ifeq ($(stretch),yes)
-	dh_gencontrol -- '-Vpacketfence:dist='
+	dh_gencontrol -- '-Vpacketfence:dist=libclass-xsaccessor-perl'
 endif
 	dh_md5sums
 	dh_builddeb
