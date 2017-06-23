@@ -280,7 +280,45 @@ A method to be able to import switches from a CSV
 
 =cut
 
-sub import_from_csv :Local :Args(1) :AdminRole('SWITCHES_CREATE') {
+sub import_from_csv :Local :Args(0) :AdminRole('SWITCHES_CREATE') {
+    my ( $self, $c, $import_file ) = @_;
+    
+    my $conf_file = "conf/testswitch.conf";
+
+    my $file = "testswitch.csv";
+    #my $file = $import_file;
+    open(my $data, '<', $file) or die "Could not open '$file' $!\n";
+
+    my $skip1 = 0;
+    my %seen;
+    while (my $line = <$data>) {
+        chomp $line;
+
+        unless($skip1) {
+        $skip1 = 1;
+        next;
+        }
+
+        my @fields = split "," , $line;
+        my $hostname = $fields[0];
+        $hostname =~ s/[^a-zA-Z0-9 _-]//g;
+        $hostname =~ tr/\r\n//d;
+
+        my $switch_ip = $fields[1];
+        # Don't want to process them twice...
+        if(exists $seen{$switch_ip}) {
+            next;
+        }
+    
+        my $switch_group = $fields[2];
+
+        open(my $fh, '>>', $conf_file) or die "Cound not open '$conf_file' $!\n";
+        print $fh "[$fields[1]]\n";
+        print $fh "description=" . $hostname . "\n";
+        print $fh "group=" . $switch_group . "\n";
+        print $fh "\n";
+        close $fh;
+    }
 
 
 }
