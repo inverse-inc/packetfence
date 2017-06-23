@@ -486,7 +486,7 @@ sub send_email {
     my $msg = MIME::Lite::TT->new(
         From        =>  $info{'from'},
         To          =>  $info{'contact_info'},
-        Cc          =>  $info{'cc'},
+        Bcc         =>  $info{'bcc'},
         Subject     =>  encode("MIME-Header", $info{'subject'}),
         Template    =>  "emails-$template.html",
         TmplOptions =>  \%TmplOptions,

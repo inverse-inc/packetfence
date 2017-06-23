@@ -397,7 +397,7 @@ sub preview_emails :Chained('object') :PathPart('preview/emails') :Args() :Admin
     my $msg = MIME::Lite::TT->new(
         From        =>  $info{'from'},
         To          =>  $info{'contact_info'},
-        Cc          =>  $info{'cc'},
+        Bcc         =>  $info{'bcc'},
         Subject     =>  encode("MIME-Header", $info{'subject'}),
         Template    =>  $template,
         TmplOptions =>  \%TmplOptions,

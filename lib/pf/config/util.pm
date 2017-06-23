@@ -195,7 +195,7 @@ sub send_email {
     my $msg = MIME::Lite::TT->new(
         From        =>  $data->{'from'},
         To          =>  $email,
-        Cc          =>  $data->{'cc'} || '',
+        Bcc         =>  $data->{'bcc'} || '',
         Subject     =>  $subject,
         Template    =>  "emails-$template.html",
         TmplOptions =>  \%TmplOptions,

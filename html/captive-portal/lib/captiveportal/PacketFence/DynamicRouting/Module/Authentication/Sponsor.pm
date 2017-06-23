@@ -169,7 +169,7 @@ sub do_sponsor_registration {
 
     get_logger->info( "Adding guest person " . $pid );
 
-    $info{'cc'} = $source->{sponsorship_cc};
+    $info{'bcc'} = $source->{sponsorship_bcc};
     $info{'activation_domain'} = $source->{activation_domain} if (defined($source->{activation_domain}));
     $info{'activation_timeout'} = normalize_time($source->{email_activation_timeout});
     # fetch more info for the activation email
