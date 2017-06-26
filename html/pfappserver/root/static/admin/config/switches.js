@@ -50,6 +50,10 @@ var SwitchView = function(options) {
     var read = $.proxy(this.readSwitch, this);
     options.parent.on('click', '#switches [href$="/read"], #switches [href$="/clone"], .createSwitch', read);
 
+    // Close modal on import
+    var importcsv = $.proxy(this.importSwitch, this);
+    options.parent.on('click', 'form[name="modalSwitchImport"]', importcsv);
+
     // Save the modifications from the modal
     var update = $.proxy(this.updateSwitch, this);
     options.parent.on('submit', 'form[name="modalSwitch"]', update);

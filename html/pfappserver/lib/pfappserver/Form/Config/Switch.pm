@@ -507,10 +507,6 @@ has_field importcsv =>
   (
     type => 'Upload',
     label => 'CSV file',
-    tags => {
-        after_element => \&help_list,
-        help => 'Select a CSV file that contains your switch list with the following information in order: description, IP or MAC, switch group.'
-    },
   );
 
 has_field 'delimiter' =>

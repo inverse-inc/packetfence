@@ -282,14 +282,14 @@ A method to be able to import switches from a CSV
 =cut
 
 sub import :Local :Args(0) :AdminRole('SWITCHES_CREATE') {
-    my ( $self, $c, $import_file ) = @_;
+    my ( $self, $c ) = @_;
     
     $c->stash->{template} = 'config/switch/index.tt';
 
     my $conf_file = "conf/testswitch.conf";
 
-    my $file = "testswitch.csv";
-    #my $file = $import_file;
+    my $file = $c->stash->{form}->field('importcsv')->value();
+    #my $file = "testswitch.csv";
     open(my $data, '<', $file) or die "Could not open '$file' $!\n";
 
     my $skip1 = 0;

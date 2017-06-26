@@ -5,7 +5,7 @@
         <form autocomplete="off" name="modalSwitchImport" class="form-horizontal form-condensed" action="[% c.uri_for(c.controller.action_for('import')) %]" method="post">
           <div class="modal-header">
             <a class="close" data-dismiss="modal">&times;</a>
-            <h3>Import switches from CSV</h3>
+            <h3>[% l('Import switches from CSV') %] [% doc('_import_from_csv') | none %]</h3>
           </div>
         
           <div class="modal-body">

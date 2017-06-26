@@ -701,8 +701,7 @@ Import from CSV
 ^^^^^^^^^^^^^^^
 From PacketFence 7.2 and onwards, you have the possibility to import switches from a CSV.
 
-Guidelines
-
+This tool allow you to import switches form a CSV file. The following information in this particular order are necessary to use this tool: "description, IP or MAC, switch group". Each line which has all three will create an entry in the switch configuration file. You MUST create switches group before.
 
 Working modes
 ^^^^^^^^^^^^^
