@@ -27,7 +27,10 @@ use Test::More tests => 32;
 use pf::error qw(is_success is_error);
 use pf::db;
 use pf::dal::node;
-
+{
+    no warnings 'redefine';
+    *pf::api::queue::notify = sub {};
+}
 my $dbh  = eval {
     db_connect();
 };
