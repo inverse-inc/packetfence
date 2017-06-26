@@ -33,6 +33,7 @@ __PACKAGE__->config(
         list   => { AdminRole => 'SWITCHES_READ' },
         create => { AdminRole => 'SWITCHES_CREATE' },
         clone  => { AdminRole => 'SWITCHES_CREATE' },
+        import => { AdminRole => 'SWITCHES_CREATE' },
         update => { AdminRole => 'SWITCHES_UPDATE' },
         remove => { AdminRole => 'SWITCHES_DELETE' },
     },
@@ -274,15 +275,17 @@ sub invalidate_cache :Chained('object') :PathPart('invalidate_cache') :Args(0) {
     $c->response->status(200);
 }
 
-=head1 import_from_csv
+=head1 import
 
 A method to be able to import switches from a CSV
 
 =cut
 
-sub import_from_csv :Local :Args(0) :AdminRole('SWITCHES_CREATE') {
+sub import :Local :Args(0) :AdminRole('SWITCHES_CREATE') {
     my ( $self, $c, $import_file ) = @_;
     
+    $c->stash->{template} = 'config/switch/index.tt';
+
     my $conf_file = "conf/testswitch.conf";
 
     my $file = "testswitch.csv";
@@ -319,9 +322,8 @@ sub import_from_csv :Local :Args(0) :AdminRole('SWITCHES_CREATE') {
         print $fh "\n";
         close $fh;
     }
-
-
 }
+
 
 =head1 COPYRIGHT
 
