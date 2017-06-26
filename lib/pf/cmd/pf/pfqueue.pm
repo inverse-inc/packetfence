@@ -10,10 +10,11 @@ pf::cmd::pf::pfqueue
 
   Commands:
 
-   clear <queue>    | clear a queue
-   list             | list all queues
-   stats            | show stats of pfqueue
-   count <queue>    | show the queue count
+   clear <queue>          | clear a queue
+   clear_expired_counters | clear a queue
+   count <queue>          | show the queue count
+   list                   | list all queues
+   stats                  | show stats of pfqueue
 
 =head1 DESCRIPTION
 
@@ -25,7 +26,7 @@ use strict;
 use warnings;
 use pf::constants;
 use pf::constants::exit_code qw($EXIT_SUCCESS);
-use pf::constants::pfqueue qw($PFQUEUE_COUNTER);
+use pf::constants::pfqueue qw($PFQUEUE_COUNTER $PFQUEUE_EXPIRED_COUNTER);
 use pf::config::pfqueue;
 use pf::util::pfqueue qw(consumer_redis_client);
 use pf::pfqueue::stats;
@@ -111,6 +112,20 @@ sub action_count {
     my ($queue) = $self->action_args;
     print $self->stats->queue_count($queue),"\n";
     return $EXIT_SUCCESS;
+}
+
+=head2 action_clear_expired_counters
+
+clear expired counters
+
+=cut
+
+sub action_clear_expired_counters {
+    my ($self) = @_;
+    my $redis = consumer_redis_client();
+    $redis->del($PFQUEUE_EXPIRED_COUNTER);
+    return $EXIT_SUCCESS;
+    return ;
 }
 
 =head1 AUTHOR
