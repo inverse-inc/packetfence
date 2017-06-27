@@ -663,7 +663,7 @@ sub shouldAutoRegister {
             return $role;
         }
     }
-    if (isenabled $args->{'profile'}->{'_autoregister'}) { 
+    if (isenabled($args->{'profile'}->{'_autoregister'}) && $args->{node_info}->{status} ne $pf::node::STATUS_PENDING) {
         $logger->debug("Autoregistration set on profile " . $args->{'profile'}->getName() );
         return $TRUE;
     }
