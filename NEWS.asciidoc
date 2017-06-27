@@ -45,6 +45,7 @@ Bug Fixes
 * journald: limit logfile size #2380
 * Limit the amount of tasks a worker processes to avoid memory from growing
 * REJECT role isn't honored in inline and some web-auth (#2383)
+* Sponsor authentication CC address is now BCC to help preserve privacy (#2267)
 
 Version 7.1.0 released on 2017-06-01
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
