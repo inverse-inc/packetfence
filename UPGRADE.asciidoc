@@ -112,6 +112,14 @@ Don't forget to edit the `/usr/local/pf/conf/currently-at` file to match the new
 Upgrading from a version prior to 7.2.0
 ---------------------------------------
 
+Change to sponsor CC address
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The CC address for sponsors is now BCC. In order to adjust the configuration, execute the following:
+
+  cd /usr/local/pf
+  sed -i "s/sponsorship_cc/sponsorship_bcc/g" conf/authentication.conf
+
 Changes to authentication sources codebase
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
