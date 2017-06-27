@@ -112,6 +112,18 @@ Don't forget to edit the `/usr/local/pf/conf/currently-at` file to match the new
 Upgrading from a version prior to 7.2.0
 ---------------------------------------
 
+Ability to «pin» a domain DC
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+PacketFence is now able to instruct Samba to «pin» a DC for authentication or use all of them.
+You should instruct Samba to connect to all domain controllers by adding the following to each of your domains in domain.conf:
+
+  sticky_dc=*
+  
+And then regenerate the domain configuration:
+
+  /usr/local/pf/bin/pfcmd generatedomainconfig
+
 Change to sponsor CC address
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
