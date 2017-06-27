@@ -379,8 +379,8 @@ sub modify_actions {
         @{$password}{@ACTION_FIELDS}, $pid
     );
     my $rows = $query->rows;
-    $logger->info("pid $pid modified") if $rows;
-    return ($rows);
+    $logger->info("pid $pid modified") if $rows == 1;
+    return ($rows == -1 ? 0 : 1);
 }
 
 
