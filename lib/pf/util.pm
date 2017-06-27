@@ -1166,7 +1166,7 @@ sub send_email {
     my $msg = MIME::Lite::TT->new(
         From        =>  $from,
         To          =>  $to,
-        Cc          =>  $info{'cc'},
+        Bcc         =>  $info{'bcc'},
         Subject     =>  encode("MIME-Header", $subject),
         'Content-Type' => 'text/html; charset="UTF-8"',
         Template    =>  "emails-$template.html",

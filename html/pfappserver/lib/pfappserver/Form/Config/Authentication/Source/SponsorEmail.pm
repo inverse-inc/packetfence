@@ -72,13 +72,13 @@ has_field 'activation_domain' =>
     },
   );
 
-has_field 'sponsorship_cc' => (
+has_field 'sponsorship_bcc' => (
     type        => 'Text',
-    label       => 'Sponsorship CC',
+    label       => 'Sponsorship BCC',
     required    => 0,
     tags        => {
         after_element   => \&help,
-        help            => "Sponsors requesting access and access confirmation emails are CC'ed to this address. Multiple destinations can be comma separated.",
+        help            => "Sponsors requesting access and access confirmation emails are BCC'ed to this address. Multiple destinations can be comma separated.",
     },
 );
 
