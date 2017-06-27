@@ -507,6 +507,7 @@ has_field importcsv =>
   (
     type => 'Upload',
     label => 'CSV file',
+    required => 1,
   );
 
 has_field 'delimiter' =>

@@ -275,26 +275,25 @@ sub invalidate_cache :Chained('object') :PathPart('invalidate_cache') :Args(0) {
     $c->response->status(200);
 }
 
-=head1 import
+=head1 import_csv
 
 A method to be able to import switches from a CSV
 
 =cut
 
-sub import :Local :Args(0) :AdminRole('SWITCHES_CREATE') {
+sub import_csv :Local :Args(0) :AdminRole('SWITCHES_CREATE') {
     my ( $self, $c ) = @_;
     
     $c->stash->{template} = 'config/switch/index.tt';
 
-    my $conf_file = "conf/testswitch.conf";
+    my $conf_file = "/usr/local/pf/conf/testswitch.conf";
 
-    my $file = $c->stash->{form}->field('importcsv')->value();
-    #my $file = "testswitch.csv";
-    open(my $data, '<', $file) or die "Could not open '$file' $!\n";
+    my $upload = $c->req->upload('importcsv');
+    my $file = $upload->fh;
 
     my $skip1 = 0;
     my %seen;
-    while (my $line = <$data>) {
+    while (my $line = <$file>) {
         chomp $line;
 
         unless($skip1) {

@@ -50,9 +50,9 @@ var SwitchView = function(options) {
     var read = $.proxy(this.readSwitch, this);
     options.parent.on('click', '#switches [href$="/read"], #switches [href$="/clone"], .createSwitch', read);
 
-    // Close modal on import
-    var importcsv = $.proxy(this.importSwitch, this);
-    options.parent.on('click', 'form[name="modalSwitchImport"]', importcsv);
+    // Close modal on import from csv
+    var import_csv = $.proxy(this.importSwitch, this);
+    options.parent.on('submit', 'form[name="modalSwitchImport"]', import_csv);
 
     // Save the modifications from the modal
     var update = $.proxy(this.updateSwitch, this);
@@ -224,6 +224,39 @@ SwitchView.prototype.updateSwitch = function(e) {
 
     var that = this;
     var form = $(e.target);
+    var btn = form.find('.btn-primary');
+    var modal = form.closest('.modal');
+    var valid = isFormValid(form);
+    if (valid) {
+        var modal_body = modal.find('.modal-body').first();
+        resetAlert(modal_body);
+        btn.button('loading');
+        form.find('tr.hidden :input').attr('disabled', 'disabled');
+        this.switches.post({
+            url: form.attr('action'),
+            data: form.serialize(),
+            always: function() {
+                // Restore hidden/template rows
+                form.find('tr.hidden :input').removeAttr('disabled');
+                btn.button('reset');
+            },
+            success: function(data) {
+                modal.modal('toggle');
+                showSuccess(that.parent.find('.table.items').first(), data.status_msg);
+                that.refreshTable();
+            },
+            errorSibling: modal_body.children().first()
+        });
+    }
+};
+
+SwitchView.prototype.importSwitch = function(e) {
+    //return true;
+    e.preventDefault();
+
+    var that = this;
+    var form = $(e.target);
+    var iform = $("#iframe_form");
     var btn = form.find('.btn-primary');
     var modal = form.closest('.modal');
     var valid = isFormValid(form);
