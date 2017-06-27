@@ -44,6 +44,7 @@ Bug Fixes
 * TLS certificates and keys will no longer be overwritten (#2366)
 * journald: limit logfile size #2380
 * Limit the amount of tasks a worker processes to avoid memory from growing
+* REJECT role isn't honored in inline and some web-auth (#2383)
 
 Version 7.1.0 released on 2017-06-01
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
