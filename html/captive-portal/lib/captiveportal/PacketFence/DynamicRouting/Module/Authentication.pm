@@ -311,7 +311,7 @@ sub update_person_from_fields {
     
     # we assume we use 'username' field as the PID when using 'reuseDot1x' feature
     if ( isenabled($self->app->profile->reuseDot1xCredentials) ) {
-        $options{pid} //= "username";
+        $options{pid} //= $self->username;
     }
     elsif (ref($self) eq 'captiveportal::DynamicRouting::Module::Authentication::Password') {
         $options{pid} //= $self->username;
