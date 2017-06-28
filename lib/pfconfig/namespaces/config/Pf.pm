@@ -31,6 +31,12 @@ use pf::file_paths qw(
 use pf::util;
 use List::MoreUtils qw(uniq);
 
+our %ALERTING_PORTS = (
+    none => 25,
+    ssl => 465,
+    starttls => 587,
+);
+
 use base 'pfconfig::namespaces::config';
 
 # need to override it since it imports data from pf.conf.defaults
@@ -133,8 +139,11 @@ sub build_child {
         $Config{omapi}{key_base64}=~ s/\R//g;   # getting rid of any carriage return
     }
 
-    return \%Config;
+    if ($Config{alerting}{port} == 0) {
+        $Config{alerting}{port} = $ALERTING_PORTS{$Config{alerting}{encryption}} // 25;
+    }
 
+    return \%Config;
 }
 
 =head1 AUTHOR
