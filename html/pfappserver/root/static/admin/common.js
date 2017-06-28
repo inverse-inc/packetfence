@@ -105,6 +105,32 @@ function updateCondition(attribute) {
     }
 }
 
+/* Update a rule condition input field depending on the type of the selected attribute */
+function updateSoureRuleCondition(attribute, keep) {
+    var type = attribute.find(':selected').attr('data-type');
+    var operator = attribute.next();
+
+    if (type != operator.attr('data-type')) {
+        // Disable fields to be replaced
+        var value = operator.next();
+        var op_id = "#" + escapeJqueryId(operator.attr("id"));
+        operator.attr('disabled', 1);
+        value.attr('disabled', 1);
+
+        // Replace operator field
+        var operator_template = $('#' + type + '_operator');
+        changeInputFromTemplate(operator, operator_template, keep);
+
+        // Replace value field
+        var value_template = $('#' + type + '_value');
+        changeInputFromTemplate(value, value_template, keep);
+
+        // Remember the data type
+        $(op_id).attr('data-type', type);
+
+    }
+}
+
 
 function escapeJqueryId( myid ) {
     return myid.replace( /(:|\.|\[|\]|,|=|\\)/g, "\\$1" );
