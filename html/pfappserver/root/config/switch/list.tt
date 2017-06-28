@@ -32,7 +32,7 @@
               [% END %]
               [% pagination(c.controller.action_for(action), page_num, page_count, {}) | none %]</th>
                 <div class="btn-group pull-right">
-                  <button class="btn btn-primary"><a href="#modalSwitchImport" data-toggle="modal">[% l('Import from CSV') %]</a></button>
+                  <button id="importSwitchCsv" class="btn btn-primary"><a href="#modalSwitchImport" data-toggle="modal">[% l('Import from CSV') %]</a></button>
                 </div>
           </tr>
           <tr>

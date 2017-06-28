@@ -252,35 +252,21 @@ SwitchView.prototype.updateSwitch = function(e) {
 
 SwitchView.prototype.importSwitch = function(e) {
     //return true;
-    e.preventDefault();
 
     var that = this;
     var form = $(e.target);
     var iform = $("#iframe_form");
     var btn = form.find('.btn-primary');
     var modal = form.closest('.modal');
-    var valid = isFormValid(form);
-    if (valid) {
-        var modal_body = modal.find('.modal-body').first();
-        resetAlert(modal_body);
-        btn.button('loading');
-        form.find('tr.hidden :input').attr('disabled', 'disabled');
-        this.switches.post({
-            url: form.attr('action'),
-            data: form.serialize(),
-            always: function() {
-                // Restore hidden/template rows
-                form.find('tr.hidden :input').removeAttr('disabled');
-                btn.button('reset');
-            },
-            success: function(data) {
-                modal.modal('toggle');
-                showSuccess(that.parent.find('.table.items').first(), data.status_msg);
-                that.refreshTable();
-            },
-            errorSibling: modal_body.children().first()
-        });
-    }
+    btn.button('loading');
+    iform.one('load', function(event) {
+            btn.button('reset');
+            var body = $(this).contents().find('body');
+            var text = body.find('textarea').val();
+            modal.modal('hide');
+            showPermanentSuccess($('#importSwitchCsv'), text);
+    });
+
 };
 
 SwitchView.prototype.addToGroup = function(e) {

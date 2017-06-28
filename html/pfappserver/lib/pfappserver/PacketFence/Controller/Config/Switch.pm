@@ -283,32 +283,40 @@ A method to be able to import switches from a CSV
 
 sub import_csv :Local :Args(0) :AdminRole('SWITCHES_CREATE') {
     my ( $self, $c ) = @_;
-    
+   
     $c->stash->{template} = 'config/switch/index.tt';
 
     my $conf_file = "/usr/local/pf/conf/testswitch.conf";
 
     my $upload = $c->req->upload('importcsv');
     my $file = $upload->fh;
+    my $model = $c->model("Config::Switch");
 
-    my $skip1 = 0;
+    my ( $skip, $skip1, $switches ) = 0;
     my %seen;
     while (my $line = <$file>) {
         chomp $line;
 
         unless($skip1) {
-        $skip1 = 1;
-        next;
+            $skip1 = 1;
+            next;
         }
 
         my @fields = split "," , $line;
+        if (@fields < 3) {
+            $skip++;
+            next;
+        }
+
         my $hostname = $fields[0];
         $hostname =~ s/[^a-zA-Z0-9 _-]//g;
         $hostname =~ tr/\r\n//d;
 
         my $switch_ip = $fields[1];
         # Don't want to process them twice...
-        if(exists $seen{$switch_ip}) {
+        my ( $status, $msg ) = $model->hasId($switch_ip);
+        if(is_success($status)) {
+            $skip++;
             next;
         }
     
@@ -320,7 +328,9 @@ sub import_csv :Local :Args(0) :AdminRole('SWITCHES_CREATE') {
         print $fh "group=" . $switch_group . "\n";
         print $fh "\n";
         close $fh;
+        $switches++;
     }
+    $c->stash( status_msg => "$switches switches have been imported and $skip switches have benn skipped." );
 }
 
 
