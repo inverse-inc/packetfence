@@ -52,7 +52,7 @@ SourceView.prototype = (function(){
 SourceView.prototype.addCondition = function(e) {
     e.stopPropagation();
     var condition = $(e.target);
-    updateAction(condition.find('select[name*="\\.conditions\\."][name$=".attribute"]'), true);
+    updateSoureRuleCondition(condition.find('select[name*="\\.conditions\\."][name$=".attribute"]'), true);
     return false;
 };
 
@@ -74,7 +74,7 @@ SourceView.prototype.loadSource = function(e) {
     var formName = this.items.formName;
     $('#action_templates').find('option').removeAttr('id');
     $('form[name="'+ formName + '"] select[name*="\\.conditions\\."][name$=".attribute"]:not(.disabled)').each(function() {
-        updateCondition($(this));
+        updateSoureRuleCondition($(this), true);
     });
     $('form[name="'+ formName + '"] select[name*="\\.actions\\."][name$=".type"]:not(.disabled)').each(function() {
         updateAction($(this), true);
@@ -86,7 +86,7 @@ SourceView.prototype.changeAction = function(e) {
 };
 
 SourceView.prototype.changeCondition = function(e) {
-    updateCondition($(e.target), false);
+    updateSoureRuleCondition($(e.target), false);
 };
 
 SourceView.prototype.testSource = function(e) {
