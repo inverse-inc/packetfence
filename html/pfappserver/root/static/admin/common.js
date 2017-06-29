@@ -1187,7 +1187,6 @@ FingerbankSearch.prototype.model_stripped = function() {
 FingerbankSearch.prototype.search = function(query, process) {
   var that = this;
   var path = this.model_stripped();
-  console.log(path);
   $.ajax({
       type: 'POST',
       url: '/config/fingerbank/'+path+'/typeahead_search',
@@ -1239,7 +1238,6 @@ FingerbankSearch.setup = function() {
           e.preventDefault();
           var id;
           var display;
-          console.log(search);
           $.each(search.results, function(){
             if(this.display == search.typeahead_field.val()){
               id = this.id;

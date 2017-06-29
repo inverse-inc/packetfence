@@ -296,7 +296,6 @@ $(function() { // DOM ready
       var trigger_amount = $('#accounting_widget_amount').val();    
       var trigger_unit = $('#accounting_widget_unit').find(':selected').val();    
       var trigger_window = $('#accounting_widget_window').find(':selected').val();    
-      console.log(trigger_direction+trigger_amount+trigger_unit+trigger_window);
       var tid = trigger_direction+trigger_amount+trigger_unit+trigger_window;
       var trigger = "accounting::"+tid;
       violationsView.append_trigger(trigger, violationsView.prettify_accounting("accounting",tid));
@@ -321,7 +320,6 @@ $(function() { // DOM ready
         event.preventDefault();
         $('#editTrigger .control-group select').not('#trigger_type').not('.trigger_widget_select').appendTo('#viewTriggers');
         violationsView.recompute_triggers();
-        console.log($('#trigger').val());
         $('[name="violation"]').submit();
         return false;
     });
@@ -404,7 +402,6 @@ ViolationsView.prototype.prettify_accounting = function(type, value) {
     var amount = results[2];
     var unit = results[3];
     var timeframe = results[4];
-    console.log(results);
     pretty = "";
 
     if(direction == "TOT") pretty += "Total traffic over "+amount+" "+unit+" ";
