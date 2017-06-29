@@ -48,6 +48,8 @@ thread_concurrency = [% thread_concurrency %]
 # binary logging is required for replication
 log-bin=mysql-bin
 binlog-format=row
+expire_logs_days=2
+max_binlog_size=13107200
 
 # required unique id between 1 and 2^32 - 1
 # defaults to 1 if master-host is not set
