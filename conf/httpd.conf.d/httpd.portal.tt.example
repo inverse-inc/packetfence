@@ -326,6 +326,7 @@ NameVirtualHost [% vhost %]:443
      PerlTransHandler pf::web::dispatcher::custom
      [% IF captive_portal.secure_redirect %]
      RewriteEngine On
+     RewriteCond %{REQUEST_URI} !^/access.* [NC]
      RewriteCond %{HTTP:X-Forwarded-Proto} !=https
      RewriteCond %{HTTP:X-Forwarded-For-PacketFence} =""
      RewriteCond %{HTTPS} !=on
