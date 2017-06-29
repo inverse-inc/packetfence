@@ -251,8 +251,6 @@ SwitchView.prototype.updateSwitch = function(e) {
 };
 
 SwitchView.prototype.importSwitch = function(e) {
-    //return true;
-
     var that = this;
     var form = $(e.target);
     var iform = $("#iframe_form");
@@ -264,7 +262,7 @@ SwitchView.prototype.importSwitch = function(e) {
             var body = $(this).contents().find('body');
             var text = body.find('textarea').val();
             modal.modal('hide');
-            showPermanentSuccess($('#importSwitchCsv'), text);
+            showPermanentSuccess($('#switches'), text);
     });
 
 };

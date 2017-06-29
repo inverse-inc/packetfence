@@ -284,7 +284,6 @@ A method to be able to import switches from a CSV
 sub import_csv :Local :Args(0) :AdminRole('SWITCHES_CREATE') {
     my ( $self, $c ) = @_;
    
-    $c->stash->{template} = 'config/switch/index.tt';
 
     my $upload = $c->req->upload('importcsv');
     my $file = $upload->fh;
