@@ -16,6 +16,7 @@ use HTML::FormHandler::Moose;
 extends 'HTML::FormHandler::Field::Compound';
 
 use pf::Authentication::constants;
+use pf::util qw(validate_date);
 
 
 # Form select options
@@ -94,6 +95,45 @@ sub condition_control {
     return qq{<div class="unwell unwell-horizontal">
           <p><i class="icon-filter icon-large"></i>$text<br/>
           <a $attrs class="btn" >$button_text</a></p></div>};
+}
+
+=head2 validate
+
+Validate the following constraints :
+
+ - An access duration and an unregistration date cannot be both defined
+ - Rule class authentication must have a role and an access duration or an unregistration date
+ - Cannot have multiple actions of the type
+
+=cut
+
+sub validate {
+    my ($self) = @_;
+    my $actions = $self->field("actions");
+    my %typesCount;
+    my $class = $self->rule_class;
+    for my $action ($actions->fields) {
+        my $type = $action->field('type')->value;
+        if (exists $typesCount{$type}) {
+            $action->add_error("You can't have more than one action of the same type.");
+        }
+        if ($type eq $Actions::SET_UNREG_DATE) {
+            if (!validate_date($action->field("value")->value)) {
+                $actions->add_error("Unregistration date must not exceed 2038-01-18.");
+            }
+        }
+        $typesCount{$type}++;
+    }
+
+    if ($class eq 'authentication') {
+        unless ($typesCount{$Actions::SET_ROLE}) {
+            $actions->add_error("You must set a role.");
+        }
+
+        if ($typesCount{$Actions::SET_UNREG_DATE} && $typesCount{$Actions::SET_ACCESS_DURATION}) {
+            $actions->add_error("You must set an access duration or an unregistration date.");
+        }
+    }
 }
 
 =head1 COPYRIGHT
