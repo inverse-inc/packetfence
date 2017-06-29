@@ -286,11 +286,10 @@ sub import_csv :Local :Args(0) :AdminRole('SWITCHES_CREATE') {
    
     $c->stash->{template} = 'config/switch/index.tt';
 
-    my $conf_file = "/usr/local/pf/conf/testswitch.conf";
-
     my $upload = $c->req->upload('importcsv');
     my $file = $upload->fh;
     my $model = $c->model("Config::Switch");
+    my $model_group = $c->model("Config::SwitchGroup");
 
     my ( $skip, $skip1, $switches ) = 0;
     my %seen;
@@ -315,21 +314,27 @@ sub import_csv :Local :Args(0) :AdminRole('SWITCHES_CREATE') {
         my $switch_ip = $fields[1];
         # Don't want to process them twice...
         my ( $status, $msg ) = $model->hasId($switch_ip);
-        if(is_success($status)) {
+        if (is_success($status)) {
             $skip++;
             next;
         }
     
         my $switch_group = $fields[2];
+        ( $status, $msg ) = $model_group->hasId($switch_group);
+        if (is_error($status)) {
+            $skip++;
+            next;
+        }
 
-        open(my $fh, '>>', $conf_file) or die "Cound not open '$conf_file' $!\n";
-        print $fh "[$fields[1]]\n";
-        print $fh "description=" . $hostname . "\n";
-        print $fh "group=" . $switch_group . "\n";
-        print $fh "\n";
-        close $fh;
+        my $assignements = {
+            description => $hostname,
+            group => $switch_group,
+        };
+
+        $model->create($switch_ip, $assignements);
         $switches++;
     }
+    $model->commit();
     $c->stash( status_msg => "$switches switches have been imported and $skip switches have benn skipped." );
 }
 
