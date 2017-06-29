@@ -86,7 +86,7 @@ sub release {
     # One last check for the violations
     return unless($self->handle_violations());
 
-    return $self->app->redirect("/access") unless($self->app->request->path eq "access");
+    return $self->app->redirect("http://" . $self->app->request->header("host") . "/access") unless($self->app->request->path eq "access");
 
     get_logger->info("Releasing device");
 
