@@ -102,7 +102,7 @@ inflate the value from the config store
 sub inflate {
     my ($self, $value) = @_;
     my %condition;
-    @condition{qw(attribute operator value)} = split /\s*,\s*/, $value;
+    @condition{qw(attribute operator value)} = split /\s*,\s*/, $value, 3;
     return \%condition;
 }
 
