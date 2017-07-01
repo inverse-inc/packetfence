@@ -130,8 +130,12 @@ sub validate {
             $actions->add_error("You must set a role.");
         }
 
-        if ($typesCount{$Actions::SET_UNREG_DATE} && $typesCount{$Actions::SET_ACCESS_DURATION}) {
+        if (!$typesCount{$Actions::SET_UNREG_DATE} && !$typesCount{$Actions::SET_ACCESS_DURATION}) {
             $actions->add_error("You must set an access duration or an unregistration date.");
+        }
+
+        if ($typesCount{$Actions::SET_UNREG_DATE} && $typesCount{$Actions::SET_ACCESS_DURATION}) {
+            $actions->add_error("You must set an access duration or an unregistration date not both.");
         }
     }
 }
