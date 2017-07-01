@@ -11,7 +11,7 @@ pf::cmd::pf::pfqueue
   Commands:
 
    clear <queue>          | clear a queue
-   clear_expired_counters | clear a queue
+   clear_expired_counters | clear expired tasks counters
    count <queue>          | show the queue count
    list                   | list all queues
    stats                  | show stats of pfqueue
