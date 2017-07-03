@@ -20,7 +20,6 @@ use warnings;
 use File::Basename;
 use POSIX::2008;
 use Net::MAC::Vendor;
-use Net::SMTP;
 use File::Path qw(make_path remove_tree);
 use POSIX();
 use File::Spec::Functions;
