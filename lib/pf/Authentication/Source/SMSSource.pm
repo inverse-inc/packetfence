@@ -11,7 +11,6 @@ pf::Authentication::Source::SMSSource
 use pf::constants qw($TRUE $FALSE);
 use pf::Authentication::constants;
 use pf::sms_carrier;
-use pf::config qw(%Config $fqdn);
 use pf::log;
 use pf::constants qw($TRUE $FALSE);
 
@@ -113,31 +112,14 @@ Sends an SMS via email
 
 sub sendSMS {
     my ($self, $info) = @_;
+    require pf::config::util;
     my $email = sprintf($info->{activation}{'carrier_email_pattern'}, $info->{'to'});
-    my $smtpserver = $Config{'alerting'}{'smtpserver'};
-    my $from = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
-    my $logger = get_logger();
     my $msg = MIME::Lite->new(
-        From        =>  $from,
         To          =>  $email,
         Subject     =>  "Network Activation",
-        Data        =>  $info->{message},
+        Data        =>  $info->{message} . "\n",
     );
-    my $result = $FALSE;
-    eval {
-      $msg->send('smtp', $smtpserver, Timeout => 20);
-      $result = $msg->last_send_successful();
-      $logger->info("Email sent to $email (Network Activation)");
-    };
-    if ($@) {
-      my $msg = "Can't send email to $email: $@";
-      $msg =~ s/\n//g;
-      $logger->error($msg);
-    }
-    else {
-       $result = $result ? $TRUE : $FALSE;
-    }
-    return $result;
+    return pf::config::util::send_mime_lite($msg);
 }
 
 =head1 AUTHOR
