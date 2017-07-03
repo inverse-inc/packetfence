@@ -65,6 +65,11 @@ if $programname contains "httpd_webservices_err" then -/usr/local/pf/logs/httpd.
 if $programname contains "httpd_webservices" then -/usr/local/pf/logs/httpd.webservices.access
 & stop
 
+if $programname contains "httpd_aaa_err" then -/usr/local/pf/logs/httpd.aaa.error
+& stop
+if $programname contains "httpd_aaa" then -/usr/local/pf/logs/httpd.aaa.access
+& stop
+
 if $syslogtag contains "packetfence" then -/usr/local/pf/logs/packetfence.log
 & stop
 if $syslogtag contains "httpd_admin_err" then -/usr/local/pf/logs/httpd.admin.error
