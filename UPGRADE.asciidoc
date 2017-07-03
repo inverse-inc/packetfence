@@ -162,7 +162,7 @@ Add default values to new auth source parameters
 Fix the Ubiquiti typo
 ^^^^^^^^^^^^^^^^^^^^^
 
-In order to use the new Ubiquiti switch module renamed, run the following command:
+In order to use the Ubiquiti switch module that has been renamed, run the following command:
 
     sed -i.bak "s/Ubiquity/Ubiquiti/g" /usr/local/pf/conf/switches.conf
 
