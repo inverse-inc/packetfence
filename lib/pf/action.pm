@@ -296,31 +296,30 @@ sub action_email_admin {
 sub action_email_user {
     my ($mac, $vid, $notes) = @_;
     my $node_info = node_attributes($mac);
-    my $person = person_view($node_info->{pid});
+    my $person    = person_view( $node_info->{pid} );
 
-    if(defined($person->{email}) && $person->{email}){
+    if (defined($person->{email}) && $person->{email}) {
         my %message;
-
         require pf::lookup::node;
         my $class_info  = class_view($vid);
         my $description = $class_info->{'description'};
 
-        my $additionnal_message = join('<br/>', split('\n',$pf::violation_config::Violation_Config{$vid}{user_mail_message}));
-
-        pf::util::send_email(
-            $Config{'alerting'}{'smtpserver'},
-            $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn, $person->{email},
+        my $additionnal_message = join('<br/>', split('\n', $pf::violation_config::Violation_Config{$vid}{user_mail_message}));
+        my $to = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
+        pf::config::util::send_email(
+            'violation-triggered',
+            $to,
             "$description detection on $mac",
-            "violation-triggered",
-            description => $description,
-            hostname => $node_info->{computername},
-            os => $node_info->{device_type},
-            mac => $mac,
-            additionnal_message => $additionnal_message,
+            {
+                description         => $description,
+                hostname            => $node_info->{computername},
+                os                  => $node_info->{device_type},
+                mac                 => $mac,
+                additionnal_message => $additionnal_message,
+            }
         );
-
     }
-    else{
+    else {
         get_logger->warn("Cannot send violation email for $vid as node we don't have the e-mail address of $node_info->{pid}");
     }
 }
