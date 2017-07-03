@@ -36,6 +36,7 @@ use Try::Tiny;
 use MIME::Lite;
 use Encode qw(encode);
 use pf::util;
+use pf::config::util qw();
 use pf::Connection::ProfileFactory;
 use pf::web::guest::constants;
 use pf::constants::Connection::Profile qw($DEFAULT_PROFILE);
@@ -460,51 +461,15 @@ sub send_email {
         $info{'activation_uri'} = "https://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
             ."$WEB::URL_EMAIL_ACTIVATION_LINK/$type/$activation_code";
     }
-
     # Hash merge. Note that on key collisions the result of view_by_code() will win
     %info = (%info, %{view_by_code($type, $activation_code)});
-
-    my $import_succesfull = try { require MIME::Lite::TT; };
-    if (!$import_succesfull) {
-        $logger->error(
-            "Could not send email because I couldn't load a module. ".
-            "Are you sure you have MIME::Lite::TT installed?"
-        );
-        return $FALSE;
-    }
     
-    require pf::web;
-
     my %TmplOptions = (
         INCLUDE_PATH    => [ map { $_ . "/emails/" } @{$profile->{_template_paths}} ],
-        ENCODING        => 'utf8',
     );
-
-    my %vars = (%info, i18n => \&pf::web::i18n, i18n_format => \&pf::web::i18n_format);
 
     utf8::decode($info{'subject'});
-    my $msg = MIME::Lite::TT->new(
-        From        =>  $info{'from'},
-        To          =>  $info{'contact_info'},
-        Bcc         =>  $info{'bcc'},
-        Subject     =>  encode("MIME-Header", $info{'subject'}),
-        Template    =>  "emails-$template.html",
-        TmplOptions =>  \%TmplOptions,
-        TmplParams  =>  \%vars,
-        TmplUpgrade =>  1,
-    );
-    $msg->attr("Content-Type" => "text/html; charset=UTF-8;");
-
-    my $result = 0;
-    try {
-      $msg->send('smtp', $smtpserver, Timeout => 20);
-      $result = $msg->last_send_successful();
-      $logger->info("Email sent to ".$info{'contact_info'}." (".$info{'subject'}.")");
-    }
-    catch {
-      $logger->error("Can't send email to ".$info{'contact_info'}.": $!");
-    };
-
+    my $result = pf::config::util::send_email($template, $info{'contact_info'}, $info{'subject'}, \%info, \%TmplOptions);
     setlocale(POSIX::LC_MESSAGES, $user_locale);
     return $result;
 }
