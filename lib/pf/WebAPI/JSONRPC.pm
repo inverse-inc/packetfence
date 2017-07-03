@@ -34,7 +34,6 @@ our $JSONRPC_ERROR_CODE_PARSE_ERROR     = -32700;
 our %ALLOW_CONTENT_TYPE = (
     'application/json-rpc'    => undef,
     'application/jsonrequest' => undef,
-    'application/json' => undef,
 );
 
 our $CONTENT_TYPE = 'application/json-rpc';
