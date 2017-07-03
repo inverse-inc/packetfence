@@ -39,6 +39,8 @@ use pf::constants::config qw($TIME_MODIFIER_RE);
 use File::Basename;
 use Net::MAC::Vendor;
 use Net::SMTP;
+use MIME::Lite;
+use MIME::Lite::TT;
 use POSIX();
 use File::Spec::Functions;
 use File::Slurp qw(read_dir);
@@ -68,6 +70,7 @@ BEGIN {
     filter_authentication_sources
     get_realm_authentication_source
     get_captive_portal_uri
+    get_send_email_config
   );
 }
 
@@ -472,6 +475,37 @@ sub get_captive_portal_uri {
     $captive_portal_uri .= "://" . $Config{'general'}{'hostname'} . "." . $Config{'general'}{'domain'};
 
     return $captive_portal_uri;
+}
+
+=head2 get_send_email_config
+
+get the configuration for sending email
+
+=cut
+
+sub get_send_email_config {
+    my $config = $Config{alerting};
+    my %args;
+    if ($config->{encryption} eq 'ssl') {
+        $args{SSL} = 1;
+    } elsif ($config->{encryption} eq 'starttls') {
+        $args{StartTLS} = 1;
+    }
+    unless ($args{From}) {
+        $args{From} = $config->{fromaddr};
+    }
+    my $hostname = $config->{smtpserver};
+    my $username = $config->{username};
+    my $password = $config->{password};
+    if (defined $username && length($username) &&
+        defined $password && length($password)) {
+        $args{AuthUser} = $username;
+        $args{AuthPass} = $password;
+    }
+    $args{Hello} = $fqdn;
+    $args{Timeout} = $config->{timeout};
+    $args{Port} = $config->{port};
+    return \%args;
 }
 
 =head1 AUTHOR
