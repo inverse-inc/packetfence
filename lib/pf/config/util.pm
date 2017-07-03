@@ -35,6 +35,7 @@ use pf::config qw(
     $HTTPS
     $HTTP
 );
+use IO::Socket::SSL qw(SSL_VERIFY_NONE);
 use pf::constants::config qw($TIME_MODIFIER_RE);
 use File::Basename;
 use Net::MAC::Vendor;
@@ -71,6 +72,7 @@ BEGIN {
     get_realm_authentication_source
     get_captive_portal_uri
     get_send_email_config
+    send_mime_lite
   );
 }
 
@@ -138,34 +140,17 @@ sub ip2device {
 =cut
 
 sub pfmailer {
-    my (%data)     = @_;
-    my $logger     = get_logger();
-    my $smtpserver = untaint_chain($Config{'alerting'}{'smtpserver'});
+    my (%data) = @_;
     my @to = split( /\s*,\s*/, $Config{'alerting'}{'emailaddr'} );
-    my $from = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
     my $host_prefix = $cluster_enabled ? " ($host_id)" : '';
-    my $subject
-        = $Config{'alerting'}{'subjectprefix'} . $host_prefix . " " . $data{'subject'};
     my $date = POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
-    my $smtp = Net::SMTP->new( $smtpserver, Hello => $fqdn );
-
-    if ( defined $smtp ) {
-        $smtp->mail($from);
-        $smtp->to(@to);
-        $smtp->data();
-        $smtp->datasend("From: $from\n");
-        $smtp->datasend( "To: " . join( ",", @to ) . "\n" );
-        $smtp->datasend("Subject: $subject ($date)\n");
-        $smtp->datasend("\n");
-        $smtp->datasend( $data{'message'} );
-        $smtp->dataend();
-        $smtp->quit;
-        $logger->info(
-            "email regarding '$subject' sent to " . join( ",", @to ) );
-    } else {
-        $logger->error("can not connect to SMTP server $smtpserver!");
-    }
-    return 1;
+    my $subject = $Config{'alerting'}{'subjectprefix'} . $host_prefix . " " . $data{'subject'} . " ($date)";
+    my $msg = MIME::Lite->new(
+        To      => \@to,
+        Subject => $subject,
+        Data    => $data{message} . "\n",
+    );
+    return send_mime_lite($msg);
 }
 
 =head2 send_email - Send an email using a template
@@ -173,50 +158,44 @@ sub pfmailer {
 =cut
 
 sub send_email {
-    my ($template, $email, $subject, $data) = @_;
+    my ($template, $email, $subject, $data, $tmpoptions) = @_;
     my $logger = get_logger();
-
-    my $smtpserver = $Config{'alerting'}{'smtpserver'};
-    $data->{'from'} = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn unless ($data->{'from'});
 
     try {
         require MIME::Lite::TT;
-    } catch {
-        $logger->error("Could not send email because I couldn't load a module. ".
-                       "Are you sure you have MIME::Lite::TT installed?");
+    }
+    catch {
+        $logger->error(
+                "Could not send email because I couldn't load a module. "
+              . "Are you sure you have MIME::Lite::TT installed?" );
         return $FALSE;
     };
 
     require pf::web;
 
     my %TmplOptions = (
-        INCLUDE_PATH    => "$html_dir/captive-portal/templates/emails/",
-        ENCODING        => 'utf8',
+        INCLUDE_PATH => "$html_dir/captive-portal/templates/emails/",
+        ENCODING     => 'utf8',
+        %{$tmpoptions // {}},
     );
-    my %vars = (%$data, i18n => \&pf::web::i18n, i18n_format => \&pf::web::i18n_format);
+    my %vars = (
+        %$data,
+        i18n        => \&pf::web::i18n,
+        i18n_format => \&pf::web::i18n_format
+    );
     utf8::decode($subject);
     my $msg = MIME::Lite::TT->new(
-        From        =>  $data->{'from'},
-        To          =>  $email,
-        Bcc         =>  $data->{'bcc'} || '',
-        Subject     =>  $subject,
-        Template    =>  "emails-$template.html",
-        TmplOptions =>  \%TmplOptions,
-        TmplParams  =>  \%vars,
-        TmplUpgrade =>  1,
+        To          => $email,
+        Bcc         => $data->{'bcc'} || '',
+        Subject     => $subject,
+        Template    => "emails-$template.html",
+        TmplOptions => \%TmplOptions,
+        TmplParams  => \%vars,
+        TmplUpgrade => 1,
+        ( $data->{'from'} ? ( From => $data->{'from'} ) : () ),
     );
-    $msg->attr("Content-Type" => "text/html; charset=UTF-8;");
-
-    my $result = 0;
-    try {
-      $msg->send('smtp', $smtpserver, Timeout => 20);
-      $result = $msg->last_send_successful();
-      $logger->info("Email sent to $email ($subject)");
-    } catch {
-      $logger->error("Can't send email to $email: $@");
-    };
-
-    return $result;
+    $msg->attr( "Content-Type" => "text/html; charset=UTF-8;" );
+    return send_mime_lite($msg);
 }
 
 
@@ -491,10 +470,10 @@ sub get_send_email_config {
     } elsif ($config->{encryption} eq 'starttls') {
         $args{StartTLS} = 1;
     }
-    unless ($args{From}) {
-        $args{From} = $config->{fromaddr};
+    $args{From} = $config->{fromaddr};
+    if (isdisabled($config->{verify_ssl})) {
+        $args{SSL_verify_mode} = SSL_VERIFY_NONE;
     }
-    my $hostname = $config->{smtpserver};
     my $username = $config->{username};
     my $password = $config->{password};
     if (defined $username && length($username) &&
@@ -502,6 +481,7 @@ sub get_send_email_config {
         $args{AuthUser} = $username;
         $args{AuthPass} = $password;
     }
+    $args{Hostname} = $config->{smtpserver};
     $args{Hello} = $fqdn;
     $args{Timeout} = $config->{timeout};
     $args{Port} = $config->{port};
@@ -527,7 +507,7 @@ sub send_mime_lite {
     if ($@) {
         my $msg = "Can't send email to $@";
         $msg =~ s/\n//g;
-        $logger->error($msg);
+        get_logger->error($msg);
     }
     else {
         $result = $result ? $TRUE : $FALSE;
@@ -558,6 +538,7 @@ sub send_by_pf_setting {
               for $self->get($field);
         }
     }
+    my $hostname = $args{Hostname};
     Carp::croak "send_by_pf_setting: nobody to send to for host '$hostname'?!\n"
       unless @hdr_to;
 
@@ -574,7 +555,7 @@ sub send_by_pf_setting {
     my $smtp = MIME::Lite::SMTP->new( $hostname, %opts )
       or Carp::croak "SMTP Failed to connect to mail server: $!\n";
 
-    if ($starttls) {
+    if ($args{StartTLS}) {
         $smtp->starttls;
     }
 
