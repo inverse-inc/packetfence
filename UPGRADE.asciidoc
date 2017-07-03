@@ -159,6 +159,13 @@ Add default values to new auth source parameters
 
     /usr/local/pf/addons/upgrade/to-7.1-authentication-conf.pl
 
+Fix the Ubiquiti typo
+^^^^^^^^^^^^^^^^^^^^^
+
+In order to use the Ubiquiti switch module that has been renamed, run the following command:
+
+    sed -i.bak "s/Ubiquity/Ubiquiti/g" /usr/local/pf/conf/switches.conf
+
 Instagram source changes
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
