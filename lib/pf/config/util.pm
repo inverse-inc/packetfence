@@ -508,6 +508,118 @@ sub get_send_email_config {
     return \%args;
 }
 
+=head2 send_mime_lite
+
+Submit a mime lite object using the current alerting settings
+
+=cut
+
+sub send_mime_lite {
+    my ($mime) = @_;
+    my $result = $FALSE;
+    eval {
+        $mime->send(
+            'sub',
+            \&send_by_pf_setting,
+        );
+        $result = $mime->last_send_successful();
+    };
+    if ($@) {
+        my $msg = "Can't send email to $@";
+        $msg =~ s/\n//g;
+        $logger->error($msg);
+    }
+    else {
+        $result = $result ? $TRUE : $FALSE;
+    }
+    return $result;
+}
+
+=head2 send_by_pf_setting
+
+Handles the logic of sending an email of a MIME::Lite object
+Using the configuration of from pf.conf
+
+=cut
+
+sub send_by_pf_setting {
+    my ( $self, %args ) = @_;
+    my $config = get_send_email_config();
+    %args = (%$config, %args);
+
+    # We may need the "From:" and "To:" headers to pass to the
+    # SMTP mailer also.
+    $self->{last_send_successful} = 0;
+
+    my @hdr_to = MIME::Lite::extract_only_addrs( scalar $self->get('To') );
+    if ($MIME::Lite::AUTO_CC) {
+        foreach my $field (qw(Cc Bcc)) {
+            push @hdr_to, MIME::Lite::extract_only_addrs($_)
+              for $self->get($field);
+        }
+    }
+    Carp::croak "send_by_pf_setting: nobody to send to for host '$hostname'?!\n"
+      unless @hdr_to;
+
+    $args{To} ||= \@hdr_to;
+    $args{From} ||=
+      MIME::Lite::extract_only_addrs( scalar $self->get('Return-Path') );
+    $args{From} ||= MIME::Lite::extract_only_addrs( scalar $self->get('From') );
+
+    # Create SMTP client.
+    # MIME::Lite::SMTP is just a wrapper giving a print method
+    # to the SMTP object.
+
+    my %opts = %args;
+    my $smtp = MIME::Lite::SMTP->new( $hostname, %opts )
+      or Carp::croak "SMTP Failed to connect to mail server: $!\n";
+
+    if ($starttls) {
+        $smtp->starttls;
+    }
+
+    # Possibly authenticate
+    if (    defined $args{AuthUser}
+        and defined $args{AuthPass}
+        and !$args{NoAuth} )
+    {
+        if ( $smtp->supports( 'AUTH', 500, ["Command unknown: 'AUTH'"] ) ) {
+            $smtp->auth( $args{AuthUser}, $args{AuthPass} )
+              or die "SMTP auth() command failed: $!\n" . $smtp->message . "\n";
+        }
+        else {
+            die "SMTP auth() command not supported on $hostname\n";
+        }
+    }
+
+    # Send the mail command
+    %opts = MIME::Lite::__opts( \%args, @MIME::Lite::_mail_opts );
+    $smtp->mail( $args{From}, %opts ? \%opts : () )
+      or die "SMTP mail() command failed: $!\n" . $smtp->message . "\n";
+
+    # Send the recipients command
+    %opts = MIME::Lite::__opts( \%args, @MIME::Lite::_recip_opts );
+    $smtp->recipient( @{ $args{To} }, %opts ? \%opts : () )
+      or die "SMTP recipient() command failed: $!\n" . $smtp->message . "\n";
+
+    # Send the data
+    $smtp->data()
+      or die "SMTP data() command failed: $!\n" . $smtp->message . "\n";
+    $self->print_for_smtp($smtp);
+
+    # Finish the mail
+    $smtp->dataend()
+      or Carp::croak "Net::CMD (Net::SMTP) DATAEND command failed.\n"
+      . "Last server message was:"
+      . $smtp->message
+      . "This probably represents a problem with newline encoding ";
+
+    # terminate the session
+    $smtp->quit;
+
+    return $self->{last_send_successful} = 1;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
