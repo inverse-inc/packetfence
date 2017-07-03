@@ -125,7 +125,6 @@ sub action_clear_expired_counters {
     my $redis = consumer_redis_client();
     $redis->del($PFQUEUE_EXPIRED_COUNTER);
     return $EXIT_SUCCESS;
-    return ;
 }
 
 =head1 AUTHOR
