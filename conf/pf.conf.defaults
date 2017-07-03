@@ -236,6 +236,11 @@ password=
 #
 #
 verify_ssl=enabled
+#
+# alerting.timeout
+#
+#
+timeout=20
 
 [ports]
 #
