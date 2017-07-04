@@ -495,12 +495,13 @@ Submit a mime lite object using the current alerting settings
 =cut
 
 sub send_mime_lite {
-    my ($mime) = @_;
+    my ($mime, @args) = @_;
     my $result = $FALSE;
     eval {
         $mime->send(
             'sub',
             \&send_by_pf_setting,
+            @args
         );
         $result = $mime->last_send_successful();
     };
