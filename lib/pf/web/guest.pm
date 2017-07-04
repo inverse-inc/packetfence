@@ -115,7 +115,7 @@ sub send_template_email {
     my ($template, $subject, $info) = @_;
     utf8::decode($subject);
     my %data = %$info;
-    $data{from} = $pf::web::guest::EMAIL_FROM;
+    $data{from} ||= $pf::web::guest::EMAIL_FROM;
     return pf::config::util::send_email($template, $info->{email}, $subject, \%data);
 }
 
