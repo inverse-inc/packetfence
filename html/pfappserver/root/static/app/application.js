@@ -79,9 +79,9 @@ function getStatusMsg(jqXHR) {
     return status_msg;
 }
 
-function resetAlert(parent) {
-    parent.children('.alert').clearQueue().remove();
-    parent.children('.error').removeClass('error');
+function resetAlert(p) {
+    p.find('.alert').clearQueue().remove();
+    p.find('.error').removeClass('error');
 }
 
 
