@@ -131,13 +131,13 @@ SourceView.prototype.updateItem = function(e) {
     var btn = form.find('.btn-primary');
     var valid = isFormValid(form);
     if (valid) {
-        var table = $(this.items.id);
         btn.button('loading');
-        form.find('tr.hidden :input').attr('disabled', 'disabled');
+        resetAlert($('#section'));
         this.items.post({
             url: form.attr('action'),
             data: form.serialize(),
             always: function() {
+                $("body,html").animate({scrollTop:0}, 'fast');
                 btn.button('reset');
             },
             success: function(data, textStatus, jqXHR) {
