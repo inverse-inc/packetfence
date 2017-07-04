@@ -1127,8 +1127,8 @@ fi
                         /usr/local/pf/html/captive-portal/content/packetfence-windows-agent.exe
 %dir                    /usr/local/pf/html/captive-portal/content/images
                         /usr/local/pf/html/captive-portal/content/images/*
-%dir			/usr/local/pf/html/common/scss/
-                        /usr/local/pf/html/common/scss/*.scss
+%dir			        /usr/local/pf/html/common/scss/
+%config(noreplace)      /usr/local/pf/html/common/scss/*.scss
 %dir                    /usr/local/pf/html/captive-portal/lib
      
                         /usr/local/pf/html/captive-portal/lib/*
