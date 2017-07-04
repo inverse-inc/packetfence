@@ -134,41 +134,6 @@ sub reached_retry_limit {
     return $retries > $max;
 }
 
-=head2 process_user_agent
-
-Process the user agent
-
-=cut
-
-sub process_user_agent {
-    my ( $self ) = @_;
-    my $user_agent    = $self->current_user_agent;
-    my $logger        = get_logger();
-    my $mac           = $self->current_mac;
-    unless ($user_agent) {
-        $logger->warn("has no user agent");
-        return;
-    }
-
-    # caching useragents, if it's the same don't bother triggering violations
-    my $cached_useragent = $self->user_agent_cache->get($mac);
-
-    # Cache hit
-    return
-      if ( defined($cached_useragent) && $user_agent eq $cached_useragent );
-
-    # Caching and updating node's info
-    $logger->debug("adding user-agent to cache");
-    $self->user_agent_cache->set( $mac, $user_agent, $USER_AGENT_CACHE_EXPIRATION);
-
-    # Recording useragent
-    $logger->info("Updating node user_agent with useragent: '$user_agent'");
-    node_modify( $mac, ( 'user_agent' => $user_agent ) );
-
-    # updates the node_useragent information and fires relevant violations triggers
-    return pf::useragent::process_useragent( $mac, $user_agent );
-}
-
 =head2 process_fingerbank
 
 Fingerbank processing
@@ -252,7 +217,6 @@ Processing that needs to occur before we execute the application
 sub preprocessing {
     my ($self) = @_;
     my $timer = pf::StatsD::Timer->new({sample_rate => 0.05, level => 6});
-    $self->process_user_agent();
     $self->process_destination_url();
     $self->process_fingerbank();
 }

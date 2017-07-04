@@ -1386,23 +1386,31 @@ sub fingerbank_info {
         return $info;
     }
 
-    my $device_info = $cache->compute_with_undef('fingerbank_info::DeviceHierarchy-'.$node_info->{device_type}, sub {
-        my $info = {};
+    my $device_info = {};
+    my $cache_key = 'fingerbank_info::DeviceHierarchy-'.$node_info->{device_type};
+    eval {
+        $device_info = $cache->compute_with_undef($cache_key, sub {
+            my $info = {};
 
-        my $device_id = pf::fingerbank::device_name_to_device_id($node_info->{device_type});
-        if(defined($device_id)) {
-            my $device = fingerbank::Model::Device->read($device_id, $TRUE);
-            $info->{device_hierarchy_names} = [$device->{name}, map {$_->{name}} @{$device->{parents}}];
-            $info->{device_hierarchy_ids} = [$device->{id}, map {$_->{id}} @{$device->{parents}}];
-            $info->{device_fq} = join('/',reverse(@{$info->{device_hierarchy_names}}));
-            $info->{mobile} = $device->{mobile};
-        }
-        return $info;
-    });
-    $info->{score} = $node_info->{device_score};
-    $info->{version} = $node_info->{device_version};
+            my $device_id = pf::fingerbank::device_name_to_device_id($node_info->{device_type});
+            if(defined($device_id)) {
+                my $device = fingerbank::Model::Device->read($device_id, $TRUE);
+                $info->{device_hierarchy_names} = [$device->{name}, map {$_->{name}} @{$device->{parents}}];
+                $info->{device_hierarchy_ids} = [$device->{id}, map {$_->{id}} @{$device->{parents}}];
+                $info->{device_fq} = join('/',reverse(@{$info->{device_hierarchy_names}}));
+                $info->{mobile} = $device->{mobile};
+            }
+            return $info;
+        });
+        $info->{score} = $node_info->{device_score};
+        $info->{version} = $node_info->{device_version};
 
-    $info ={ (%$info, %$device_info) };
+        $info ={ (%$info, %$device_info) };
+    };
+    if($@) {
+        get_logger->error("Unable to compute Fingerbank device information for $mac. Device profiling rules relying on it will not work. ($@)");
+        $cache->remove($cache_key);
+    }
 
     return $info;
 }
