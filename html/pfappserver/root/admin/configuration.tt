@@ -93,7 +93,6 @@
               [% pf_section_entry( 'domains', 'Domains', subsections.domains) | none %]
               [%- END %]
               [%- IF can_access("USERS_SOURCES_READ") %]
-              [% list_entry( 'Config::Authentication', 'index', 'Authentication Sources Old') | none %]
               [% list_entry( 'Config::Source', 'index', 'Authentication Sources') | none %]
               [%- END %]
               [%- IF can_access("SWITCHES_READ") %]
