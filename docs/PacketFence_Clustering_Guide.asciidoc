@@ -299,13 +299,20 @@ Now, you will need to integrate your 2 other nodes in your cluster.
 Webservices configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-NOTE: If you access https://PF_HOSTNAME:1443, you will still be redirected to the configurator. In order to gain access to the full administration interface, open https://PF_HOSTNAME:1443/admin
+On the first server, configure your webservices username and password by adding the following in `pf.conf`:
 
-First, set the webservices user and password on the master node in 'Configuration/Integration/Web Services'. There should be a sync error you can safely ignore as the other servers of your cluster aren't joined yet.
+  [webservices]
+  user=packet
+  pass=fence
 
-And restart httpd.webservices on the first server:
+While you can set the username and password to any value, make sure to keep it safe as you will need it while initializing the cluster below.
 
+And reload the config, then restart httpd.webservices on the first server:
+
+  # /usr/local/pf/bin/pfcmd configreload hard
   # /usr/local/pf/bin/pfcmd service httpd.webservices restart
+
+NOTE: The reload will complain about the unavailability of the database, which you can safely ignore.
 
 Sync the nodes
 ^^^^^^^^^^^^^^
