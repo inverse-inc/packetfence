@@ -106,8 +106,8 @@ sub registerNode : Private {
     if ( is_allowed($mac) && valid_mac($mac) ) {
         my ($node) = node_view($mac);
         if( $node && $node->{status} ne $pf::node::STATUS_UNREGISTERED ) {
-            $c->stash( status_msg_error => ["%s is already registered or pending to be registered. Please verify MAC address if correct contact your network administrator", $mac]);
-            $c->detach('index');
+            $c->stash( status_msg => ["%s is already registered or pending to be registered. Please verify MAC address if correct contact your network administrator", $mac]);
+            $c->detach('Controller::Status', 'index');
         } else {
             my $session = $c->user_session;
             my $source_id = $session->{source_id};
