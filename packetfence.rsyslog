@@ -25,7 +25,7 @@ if $syslogtag contains "acct" and $syslogfacility-text == "local2" then -/usr/lo
 if $syslogtag contains "cli" and $syslogfacility-text == "local3" then -/usr/local/pf/logs/radius-cli.log
 & stop
 
-if $syslogtag contains "eduroam" and $syslogfacility-text == "local4" then -/usr/local/pf/logs/radius-eduroam.log
+if $syslogtag contains "eduroam"  then -/usr/local/pf/logs/radius-eduroam.log
 & stop
 
 if $syslogtag contains "load_balancer" and $syslogfacility-text == "local5" then -/usr/local/pf/logs/radius-load_balancer.log
