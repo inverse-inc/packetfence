@@ -13,10 +13,10 @@ $EscapeControlCharactersOnReceive off
 if $syslogtag contains "auth" and $syslogfacility-text == "local1" then -/usr/local/pf/logs/radius.log
 & stop
 
-if $programname contains "radius" and $syslogfacility-text == "local6" then -/usr/local/pf/logs/radius.log
+if $programname contains "radius" and $syslogfacility-text == "local1" then -/usr/local/pf/logs/radius.log
 & stop
 
-if $programname contains "radius" and $syslogfacility-text == "local7" then -/usr/local/pf/logs/radius-acct.log
+if $programname contains "radius" and $syslogfacility-text == "local2" then -/usr/local/pf/logs/radius-acct.log
 & stop
 
 if $syslogtag contains "acct" and $syslogfacility-text == "local2" then -/usr/local/pf/logs/radius-acct.log
