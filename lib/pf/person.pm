@@ -118,7 +118,7 @@ sub person_db_prepare {
                    count(n.mac) as nodes,
                    t.password, t.valid_from as 'valid_from', t.expiration as 'expiration',
                    t.access_duration as 'access_duration', t.access_level as 'access_level',
-                   t.sponsor as 'can_sponsor', t.unregdate as 'unregdate',
+                   t.sponsor as 'can_sponsor', t.unregdate as 'unregdate', t.login_remaining as 'login_remaining',
                    nc.name as 'category'
             FROM person p
             LEFT JOIN node n ON p.pid = n.pid
