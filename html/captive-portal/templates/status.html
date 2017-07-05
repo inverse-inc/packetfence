@@ -98,6 +98,11 @@ $(document).ready(function() {
   <div class="media__img">[% flashIcon(level='notice') %]</div>
   <p class="media__body">[% i18n(status_msg) %]</p>
 </div>
+[% ELSIF status_msg_error.defined %]
+<div class="media media--notice u-p u-mb">
+  <div class="media__img">[% flashIcon(level='error') %]</div>
+  <p class="media__body">[% i18n(status_msg_error) %]</p>
+</div>
 [% END %]
 
 [%- IF nodes.size > 0 %]
