@@ -301,7 +301,7 @@ On the first server, configure your webservices username and password by adding 
   user=packet
   pass=fence
 
-You can set the username and password to any value you wish, make sure you keep closeby for usage below.
+While you can set the username and password to any value, make sure to keep it safe as you will need it while initializing the cluster below.
 
 And reload the config, then restart httpd.webservices on the first server:
 
