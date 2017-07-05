@@ -10487,11 +10487,11 @@ msgstr "httpd path"
 
 # conf/documentation.conf
 msgid "services.httpd_collector"
-msgstr ""
+msgstr "httpd collector"
 
 # conf/documentation.conf
 msgid "services.httpd_dispatcher"
-msgstr ""
+msgstr "httpd dispatcher"
 
 # conf/documentation.conf
 msgid "services.httpd_graphite"
@@ -10499,7 +10499,7 @@ msgstr "httpd.graphite"
 
 # conf/documentation.conf
 msgid "services.httpd_parking"
-msgstr ""
+msgstr "httpd parking"
 
 # conf/documentation.conf
 msgid "services.httpd_portal"
@@ -10575,7 +10575,7 @@ msgstr "pfsetvlan"
 
 # conf/documentation.conf
 msgid "services.pfsso"
-msgstr ""
+msgstr "pfsso"
 
 # conf/documentation.conf
 msgid "services.radiusd"
@@ -10611,11 +10611,11 @@ msgstr "redis_queue"
 
 # conf/documentation.conf
 msgid "services.routes"
-msgstr ""
+msgstr "routes"
 
 # conf/documentation.conf
 msgid "services.routes_binary"
-msgstr ""
+msgstr "routes path"
 
 # conf/documentation.conf
 msgid "services.snmptrapd"
