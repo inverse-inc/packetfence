@@ -290,6 +290,10 @@ You should now have service using the first server on the IP addresses defined i
 Step 4: Integrating the two other nodes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+NOTE: If you reboot any of the nodes you're joining, you will need to stop all the PacketFence services (/usr/local/pf/bin/pfcmd service pf stop) and restart the steps from here.
+
+NOTE: If you reboot the management node, you will need to stop packetfence-mariadb (systemctl stop packetfence-mariadb) and start it with the new cluster option so the servers can join (/usr/local/pf/sbin/pf-mariadb --force-new-cluster)
+
 Now, you will need to integrate your 2 other nodes in your cluster.
 
 Webservices configuration
