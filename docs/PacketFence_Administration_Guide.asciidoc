@@ -4297,7 +4297,7 @@ When dealing with a large database, the database backup and maintenance script (
 
 This is fixed easily by using Percona XtraBackup which can complete a full database backup without locking your tables.
 
-The installation instructions below are made for CentOS 6 but adjusting them to CentOS 7 or Debian should only be a matter of installing the proper packages for your MySQL/MariaDB version.
+The installation instructions below are made for CentOS 7 but adjusting them to Debian should only be a matter of installing the proper packages for your MySQL/MariaDB version.
 
 First install the Percona repository:
 
@@ -4309,9 +4309,7 @@ Make sure to disable the newly installed repository not to interfere with future
 
 Next, install Percona XtraBackup by manually specifying the Percona repository:
 
-  # yum install percona-xtrabackup-20 --enablerepo=percona-release-`uname -m`
-
-NOTE: A more recent version of Percona XtraBackup can be used but only if you are running a recent version of MySQL.
+  # yum install percona-xtrabackup --enablerepo=percona-release-`uname -m`
 
 Once this is done, grant the proper rights to the `pf` user (or the one you configured in pf.conf):
 
@@ -4490,12 +4488,12 @@ We will now stop MySQL, move the existing data directory and replace it by the d
 
 NOTE: On Debian the service will be called `mysql` and on CentOS 7 `mariadb`. Make sure you adjust the commands above to your environment.
 
-  # service mysqld stop
+  # service packetfence-mariadb stop
   # mv /var/lib/mysql /var/lib/mysql.bak
   # mkdir /var/lib/mysql
   # mv * /var/lib/mysql
   # chown -R mysql: /var/lib/mysql
-  # service mysqld start
+  # service packetfence-mariadb start
 
 Should the service fail to start, make sure you look into the MySQL error logs.
 
