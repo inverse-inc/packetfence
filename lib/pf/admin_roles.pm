@@ -50,7 +50,7 @@ our %ADMIN_GROUP_ACTIONS = (
 );
 
 # Actions allowed in readonly mode
-our %ADMIN_IN_READONLY = map { $_ => 1 } qw(SERVICES REPORTS), (grep { /_READ/ } @ADMIN_ACTIONS);
+our %ADMIN_IN_READONLY = map { $_ => 1 } (grep { /_READ/ || !/^(NODES|SWITCHES|VIOLATIONS|WRIX|USERS)_(CREATE|DELETE|UPDATE|CREATE_MULTIPLE)$/ } @ADMIN_ACTIONS);
 
 sub _filter_actions {
     if (db_check_readonly()) {
