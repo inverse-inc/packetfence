@@ -170,32 +170,11 @@ LoadPlugin tail
       Type "counter"
       Instance "Error"
     </Match>
-  </File>
-  <File "/usr/local/pf/logs/pfqueue.log">
-    Instance "pfqueue"
-    <Match>
-      Regex ".*Use of uninitialized value.*"
-      DSType "CounterInc"
-      Type "counter"
-      Instance "Uninitialized value"
-    </Match>
     <Match>
       Regex ".*Invalid task id.*"
       DSType "CounterInc"
       Type "counter"
       Instance "InvalidTaskID"
-    </Match>
-    <Match>
-      Regex ".*database query failed.*"
-      DSType "CounterInc"
-      Type "counter"
-      Instance "Query Failed"
-    </Match>
-    <Match>
-      Regex ".*ERROR.*"
-      DSType "CounterInc"
-      Type "counter"
-      Instance "Error"
     </Match>
   </File>
   <File "/usr/local/pf/logs/pfmon.log">
