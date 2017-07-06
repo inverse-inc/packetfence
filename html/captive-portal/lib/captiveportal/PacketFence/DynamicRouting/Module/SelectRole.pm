@@ -2,11 +2,11 @@ package captiveportal::PacketFence::DynamicRouting::Module::SelectRole;
 
 =head1 NAME
 
-DynamicRouting::Module::Message
+DynamicRouting::Module::SelectRole
 
 =head1 DESCRIPTION
 
-Module to show a message to the user
+Module to select a new role for the device being registered
 
 =cut
 
@@ -21,7 +21,7 @@ has 'admin_role' => (is => 'rw', required => 1);
 
 =head2 execute_child
 
-Display the message to the user and handle the continue if applicable
+Select a new role for the device being registered
 
 =cut
 
