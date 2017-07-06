@@ -38,6 +38,7 @@ Enhancements
 * Allowed haproxy captive portal rate-limiting to be configurable (PR #2422)
 * Use the regular samba mechanisms to locate and select DCs (PR #2410)
 * New pfcmd command pfcmd pfqueue clear_expired_counters to clear the expired task counters (PR #2433)
+* Allow to disable the captive portal haproxy abuse access lists (#2418)
 
 Bug Fixes
 +++++++++
