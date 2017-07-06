@@ -52,6 +52,10 @@ Bug Fixes
 * Use plain HTTP for network access detection page (#2393)
 * Fixes leftover httpd processes when restarting (#2439)
 * Fixed an issue where DHCP broadcast were treated more than once in clustered mode (PR #2413) (#2408)
+* User login remaining isn't displayed correctly in admin interface (#2450)
+* Pfqueue counters show a count of 0 although queue is full (#2420)
+* node_discovered is triggered when node hasn't been created in DB (#2436)
+* Detect date was not being populated when nodes were discovered via radius (#2424)
 
 Version 7.1.0 released on 2017-06-01
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
