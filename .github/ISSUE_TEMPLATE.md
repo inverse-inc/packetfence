@@ -1,6 +1,7 @@
 Please note
 -----------
 Github issues are for reporting/tracking DEVELOPMENT ISSUES. For anything related to getting help in running PacketFence, or anything else not related to DEVELOPMENT, please use the mailing-list (https://lists.sourceforge.net/lists/listinfo/packetfence-users).
+
 Any issues not related to DEVELOPMENT - WILL BE CLOSED -
 
 How to properly file an issue
