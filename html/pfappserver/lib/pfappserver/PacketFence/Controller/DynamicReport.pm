@@ -41,8 +41,6 @@ sub search :Local :AdminRole('REPORTS') {
     my $form = $self->getForm($c);
     $form->process(params => $c->request->params);
 
-    use Data::Dumper;
-    $c->log->info(Dumper($form->value));
     my $search = $form->value;
 
     $c->stash->{template} = "dynamicreport/search.tt";
