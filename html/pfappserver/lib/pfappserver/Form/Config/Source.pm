@@ -392,6 +392,31 @@ sub operators {
     return @operators;
 }
 
+=head2 validate
+
+validate
+
+=cut
+
+sub validate {
+    my ($self) = @_;
+    my %rule_names;
+    foreach my $class (@{$self->source_class->available_rule_classes}) {
+        my $field_name = "${class}_rules";
+        my $rules = $self->field($field_name);
+        foreach my $rule ($rules->fields) {
+            my $id = $rule->field("id");
+            my $value = $id->value;
+            if (exists $rule_names{$value}) {
+                $id->add_error("Rule with id '$value' already exists");
+            } else {
+                $rule_names{$value}++;
+            }
+        }
+    }
+    return ;
+}
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2017 Inverse inc.
