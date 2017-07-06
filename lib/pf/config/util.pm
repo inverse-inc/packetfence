@@ -588,6 +588,7 @@ sub send_by_pf_setting {
     $smtp->data()
       or die "SMTP data() command failed: $!\n" . $smtp->message . "\n";
     $self->print_for_smtp($smtp);
+    $smtp->datasend("\n");
 
     # Finish the mail
     $smtp->dataend()
