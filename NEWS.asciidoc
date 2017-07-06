@@ -51,6 +51,7 @@ Bug Fixes
 * Sponsor authentication CC address is now BCC to help preserve privacy (#2267)
 * Use plain HTTP for network access detection page (#2393)
 * Fixes leftover httpd processes when restarting (#2439)
+* Fixed an issue where DHCP broadcast were treated more than once in clustered mode (PR #2413) (#2408)
 
 Version 7.1.0 released on 2017-06-01
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
