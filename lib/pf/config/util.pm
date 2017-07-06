@@ -506,7 +506,8 @@ sub send_mime_lite {
         $result = $mime->last_send_successful();
     };
     if ($@) {
-        my $msg = "Can't send email to $@";
+        my $to = $mime->{_extracted_to};
+        my $msg = "Can't send email to '$to' :'$@'";
         $msg =~ s/\n//g;
         get_logger->error($msg);
     }
@@ -547,6 +548,7 @@ sub send_by_pf_setting {
     $args{From} ||=
       MIME::Lite::extract_only_addrs( scalar $self->get('Return-Path') );
     $args{From} ||= MIME::Lite::extract_only_addrs( scalar $self->get('From') );
+    $self->{_extracted_to} = join(",", @{$args{To}});
 
     # Create SMTP client.
     # MIME::Lite::SMTP is just a wrapper giving a print method
