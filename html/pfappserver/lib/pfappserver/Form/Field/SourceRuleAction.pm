@@ -32,6 +32,7 @@ has_field 'type' => (
 has_field 'value' => (
     type           => 'Text',
     do_label       => 0,
+    required       => 1,
     widget_wrapper => 'None',
 );
 
