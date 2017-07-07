@@ -317,7 +317,8 @@ Requires: perl(Net::UDP)
 Requires: %{real_name}-config = %{version}
 Requires: %{real_name}-pfcmd-suid = %{version}
 Requires: haproxy >= 1.6, keepalived >= 1.2
-Requires: fingerbank >= 3.1.1
+# CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
+Requires: fingerbank >= 3.1.1, fingerbank < 4.0.0
 Requires: perl(File::Tempdir)
 
 %description -n %{real_name}
