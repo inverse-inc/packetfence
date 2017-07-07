@@ -16,7 +16,7 @@
         
           <div class="modal-footer">
             <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
-            [% IF can_access("SWITCHES_CREATE") %]<button id="import_csv_btn" type="submit" class="btn btn-primary" data-loading-text="[% l('Import') %]"><a href"[% c.uri_for(c.controller('Switch').action_for('import_csv')) %]">[% l('Import') %]</a></button>[% END %]
+            [% IF can_access("SWITCHES_CREATE") %]<button type="submit" id="import_csv_btn" class="btn btn-primary" data-loading-text="[% l('Importing') %]">[% l('Import') %]</button>[% END %]
           </div>
         </form>
       </div>
