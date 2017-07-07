@@ -122,6 +122,8 @@ You should instruct Samba to connect to all domain controllers by adding the fol
   
 And then regenerate the domain configuration:
 
+  /usr/local/pf/bin/pfcmd fixpermissions
+  /usr/local/pf/bin/pfcmd configreload hard
   /usr/local/pf/bin/pfcmd generatedomainconfig
 
 Change to sponsor CC address
