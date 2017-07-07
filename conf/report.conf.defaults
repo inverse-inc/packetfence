@@ -1,6 +1,9 @@
 [authentications]
 type=builtin
 description= All Authentications
+long_description=<<EOT
+All the authentications (RADIUS, portal) that have occured on the server.
+EOT
 # The table to search from
 base_table=auth_log
 # The columns to select
@@ -55,6 +58,9 @@ base_conditions_operator=all
 [ip4log-history]
 type=builtin
 description=IPv4 History
+long_description=<<EOT
+IP address history of the devices on the network (1 week is kept by default)
+EOT
 # The table to search from
 base_table=ip4log_history
 # The columns to select
@@ -68,6 +74,9 @@ base_conditions_operator=all
 [ip4log-archive]
 type=builtin
 description=IPv4 Archive
+long_description=<<EOT
+IP address archive of the devices on your network when enabled (see Maintenance section)
+EOT
 # The table to search from
 base_table=ip4log_archive
 # The columns to select
