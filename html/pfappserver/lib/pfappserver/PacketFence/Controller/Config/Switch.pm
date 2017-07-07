@@ -290,7 +290,9 @@ sub import_csv :Local :Args(0) :AdminRole('SWITCHES_CREATE') {
     my $model = $c->model("Config::Switch");
     my $model_group = $c->model("Config::SwitchGroup");
 
-    my ( $skip, $skip1, $switches ) = 0;
+    my $skip = 0;
+    my $skip1 = 0;
+    my $switches = 0;
     my %seen;
     while (my $line = <$file>) {
         chomp $line;
