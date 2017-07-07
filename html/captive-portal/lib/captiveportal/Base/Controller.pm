@@ -21,7 +21,6 @@ use pf::enforcement qw(reevaluate_access);
 use pf::ip4log;
 use pf::node
   qw(node_attributes node_modify node_register node_view is_max_reg_nodes_reached);
-use pf::useragent;
 use pf::util;
 use pf::violation qw(violation_count);
 use pf::web::constants;

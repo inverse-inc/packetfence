@@ -13,7 +13,6 @@ use pf::util;
 use pf::Portal::Session;
 use pf::web;
 use pf::node;
-use pf::useragent;
 use pf::violation;
 use pf::class;
 use Cache::FileCache;
