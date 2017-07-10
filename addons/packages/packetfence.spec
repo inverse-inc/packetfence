@@ -273,6 +273,7 @@ Requires: perl(File::Touch)
 Requires: perl(POSIX::AtFork)
 Requires: perl(Hash::Merge)
 Requires: perl(IO::Socket::INET6)
+Requires: perl(IO::Socket::SSL) >= 2.049
 Requires: perl(IO::Interface)
 Requires: perl(Time::Period) >= 1.25
 Requires: perl(Time::Piece)
