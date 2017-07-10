@@ -699,9 +699,9 @@ are manually made to this file `/usr/local/pf/bin/pfcmd configreload`.
 
 Import from CSV
 ^^^^^^^^^^^^^^^
-From PacketFence 7.2 and onwards, you have the possibility to import switches from a CSV.
+From PacketFence 7.2 and onwards, you have the possibility to import switches from a CSV file.
 
-This tool allow you to import switches form a CSV file. The following information in this particular order are necessary to use this tool: "description, IP or MAC, switch group". Each line which has all three will create an entry in the switch configuration file. You MUST create switches group before.
+To use this functionality, follow those guidelines. The following information in this particular order are necessary: "description, IP or MAC, switch group". Each line which has all three will create an entry in the switch list. If an entry with one provided IP/MAC already exist it will not be added. You MUST create switches group before.
 
 Working modes
 ^^^^^^^^^^^^^
