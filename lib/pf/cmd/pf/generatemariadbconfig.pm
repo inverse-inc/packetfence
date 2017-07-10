@@ -71,7 +71,9 @@ sub _run {
         );
     }
 
-    $tt->process("$conf_dir/mariadb/mariadb.conf.tt", \%vars, "$install_dir/var/conf/mariadb.conf") or die $tt->error();
+    my $maria_conf = "$install_dir/var/conf/mariadb.conf";
+    $tt->process("$conf_dir/mariadb/mariadb.conf.tt", \%vars, $maria_conf) or die $tt->error();
+    chmod 0644, $maria_conf;
     
     my $db_update_path = "$install_dir/var/run/db-update";
     $tt->process("$conf_dir/mariadb/db-update.tt", \%vars, $db_update_path) or die $tt->error();
