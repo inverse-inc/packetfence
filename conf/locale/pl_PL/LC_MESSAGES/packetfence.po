@@ -20,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: pl_PL\n"
-"Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && (n%100<12 || n%100>=14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
+"Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && (n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
 
 # html/captive-portal/templates/pki_provider/packetfence_local.html
 # html/captive-portal/templates/pki_provider/packetfence_pki.html
@@ -983,7 +983,7 @@ msgstr ""
 
 # pf::web::constants (Locales)
 msgid "de_DE"
-msgstr "Deutsch"
+msgstr ""
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
@@ -992,28 +992,28 @@ msgstr ""
 
 # pf::web::constants (Locales)
 msgid "en_US"
-msgstr "English"
+msgstr ""
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
 # lib/pf/web/release.pm
 msgid "error: max re-enables reached"
-msgstr "Osiągnięto maksymalną liczbę ponownych włączeń!"
+msgstr ""
 
 # lib/pf/web/release.pm
 msgid "error: not found in the database"
-msgstr "Twój komputer nie został znaleziony w bazie danych PacketFence. Proszę przeładować komputer, aby usunąć ten problem."
+msgstr ""
 
 # pf::web::constants (Locales)
 msgid "es_ES"
-msgstr "Español"
+msgstr ""
 
 # pf::web::constants (Locales)
 msgid "fr_CA"
-msgstr "Français (CA)"
+msgstr ""
 
 # pf::web::constants (Locales)
 msgid "fr_FR"
-msgstr "Français"
+msgstr ""
 
 # pf::web::constants (Locales)
 msgid "he_IL"
@@ -1021,23 +1021,23 @@ msgstr ""
 
 # html/captive-portal/templates/layout.html
 msgid "help: provide info"
-msgstr "Jeśli masz pytania dotyczące tej strony, skontaktuj sie z lokalnym administratorem w sprawie pomocy. Proszę podać następujące informacje:"
+msgstr ""
 
 # pf::web::constants (Locales)
 msgid "it_IT"
-msgstr "Italiano"
+msgstr ""
 
 # pf::web::constants (Locales)
 msgid "nl_NL"
-msgstr "Dutch"
+msgstr ""
 
 # pf::web::constants (Locales)
 msgid "pl_PL"
-msgstr "Polski"
+msgstr ""
 
 # pf::web::constants (Locales)
 msgid "pt_BR"
-msgstr "Português"
+msgstr ""
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Blackhole.pm
@@ -1050,7 +1050,7 @@ msgstr ""
 
 # lib/pf/web/release.pm
 msgid "release: reopen browser"
-msgstr "Aby uzyskać dostęp do Internetu, może być niezbędne ponowne uruchomienie przeglądarki. Jeśli jesteś właczony do telefonu, będziesz musiał przeładować komputer, aby uzyskać dostęp do Internetu."
+msgstr ""
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
 msgid "requested guest access to your network."
@@ -1060,9 +1060,9 @@ msgstr ""
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
 # html/captive-portal/templates/scan-in-progress.html
 msgid "scan: scan in progress"
-msgstr "Twój system jest skanowany"
+msgstr ""
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
 # lib/pf/web.pm
 msgid "system scan in progress"
-msgstr "Twój system jest skanowany - ten proces zajmie około %s sekund."
+msgstr ""

@@ -146,6 +146,18 @@ Forms
 /usr/local/pf/html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source ->
 /usr/local/pf/html/pfappserver/lib/pfappserver/Form/Config/Source
 
+
+Database schema update (All linux distributions)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Changes have been made to the database schema. You will need to update it accordingly.
+An SQL upgrade script has been provided to upgrade the database from the 7.1 schema to 7.2.
+
+To upgrade the database schema, run the following command:
+
+  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-7.1.0-7.2.0.sql
+
+
 Upgrading from a version prior to 7.1.0
 ---------------------------------------
 
