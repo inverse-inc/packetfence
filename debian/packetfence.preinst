@@ -58,8 +58,8 @@ case "$1" in
         fi
 
         # prevent conflicting mariadb service from starting 
-        /usr/bin/systemctl mask mariadb
-        /usr/bin/systemctl stop mariadb
+        /bin/systemctl mask mariadb
+        /bin/systemctl stop mariadb
         # journald 
         /usr/bin/install -d -g systemd-journal /var/log/journal
         /usr/bin/setfacl -R -nm g:adm:rx,d:g:adm:rx /var/log/journal
@@ -138,8 +138,8 @@ case "$1" in
 
 
         # prevent conflicting mariadb service from starting 
-        /usr/bin/systemctl mask mariadb
-        /usr/bin/systemctl stop mariadb
+        /bin/systemctl mask mariadb
+        /bin/systemctl stop mariadb
 
         usermod pf -a -G fingerbank,winbindd_priv
         systemctl disable packetfence-redis-cache
