@@ -185,16 +185,6 @@ sub deauthenticateMacDefault {
     );
 }
 
-#=head2 deauthenticateMacDefault
-#
-#Just log since there is no way to deauthenticate
-#
-#=cut
-#
-#sub deauthenticateMacDefault {
-#    get_logger->info("No doing deauthentication since this is a web form released switch.");
-#}
-
 =head2 getVersion
 
 return a constant since there is no api for this
