@@ -1,9 +1,3 @@
-packetfence (7.2.0-2) unstable; urgency=low
-
-  * Fix a GID permission issue with MariaDB
-
- -- Inverse <info@inverse.ca>  Tue, 11 Jul 2017 12:00:00 -0400
-
 packetfence (7.2.0) unstable; urgency=low
 
   * Version 7.2.0
