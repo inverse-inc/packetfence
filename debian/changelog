@@ -1,4 +1,4 @@
-packetfence (7.2.0-1) unstable; urgency=low
+packetfence (7.2.0-2) unstable; urgency=low
 
   * Fix a GID permission issue with MariaDB
 
