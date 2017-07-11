@@ -1307,6 +1307,9 @@ fi
 %exclude                /usr/local/pf/addons/pfconfig/pfconfig.init
 
 %changelog
+* Tue Jul 11 2017 Inverse <info@inverse.ca> - 7.2.0-2
+- Fix a GID permissions issue with MariaDB
+
 * Mon Jul 10 2017 Inverse <info@inverse.ca> - 7.2.0-1
 - New release 7.2.0
 
