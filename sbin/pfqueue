@@ -37,7 +37,7 @@ BEGIN {
 use pf::file_paths qw($var_dir);;
 use pf::util;
 use pf::constants qw($TRUE $FALSE);
-use pf::constants::pfqueue qw($PFQUEUE_WEIGHTS $PFQUEUE_MAX_TASKS_DEFAULT);
+use pf::constants::pfqueue qw($PFQUEUE_WEIGHTS $PFQUEUE_MAX_TASKS_DEFAULT $PFQUEUE_TASK_JITTER_DEFAULT);
 use pf::config::pfqueue;
 use pf::services::util;
 use pf::db;
@@ -326,9 +326,20 @@ sub _run_task {
 
 sub get_tasks_count {
     my $tasks_count = $ConfigPfqueue{pfqueue}{max_tasks} // $PFQUEUE_MAX_TASKS_DEFAULT;
-    if ($tasks_count == 0) {
-        $tasks_count = -1;
+    if ($tasks_count <= 0) {
+        return -1;
     }
+    my $task_jitter = $ConfigPfqueue{pfqueue}{task_jitter} // $PFQUEUE_TASK_JITTER_DEFAULT;
+    #The jitter cannot be greater than 25% of the max task
+    if ($task_jitter > $tasks_count / 4) {
+        $task_jitter = int($tasks_count / 4);
+    }
+    if ($task_jitter > 0 ) {
+        # find a random number between -task_jitter to +task_jitter
+        my $jitter = int(rand(2*$task_jitter + 1)) - $task_jitter;
+        $tasks_count += $task_jitter;
+    }
+
     return $tasks_count;
 }
 
