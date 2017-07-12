@@ -137,8 +137,8 @@ sub fork_launch_mysql {
         my $sockdir = "/var/run/mysqld";
         mkdir $sockdir;
         chown $uid, $gid, $sockdir;
-        setuid($uid);
         setgid($gid);
+        setuid($uid);
 
         $SIG{CHLD} = "DEFAULT";
         $IS_CHILD = 1;
