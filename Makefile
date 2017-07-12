@@ -15,10 +15,12 @@ pdf: $(patsubst %.asciidoc,%.pdf,$(notdir $(wildcard docs/PacketFence_*.asciidoc
 		-d book \
 		-o docs/docbook/$(notdir $<).docbook \
 		$<
-	 fop \
+	xsltproc \
+		-o $<.fo \
+		docs/docbook/xsl/packetfence-fo.xsl docs/docbook/$(notdir $<).docbook
+	fop \
 		-c docs/fonts/fop-config.xml \
-		-xsl docs/docbook/xsl/packetfence-fo.xsl \
-		-xml docs/docbook/$(notdir $<).docbook \
+		$<.fo \
 		-pdf docs/$@
 
 html: $(patsubst %.asciidoc,%.html,$(notdir $(wildcard docs/PacketFence_*.asciidoc)))
@@ -55,7 +57,7 @@ conf/ssl/server.crt: | conf/ssl/server.crt
 	-out /usr/local/pf/conf/ssl/server.crt \
 	-key /usr/local/pf/conf/ssl/server.key \
 	-config /usr/local/pf/conf/openssl.cnf
-	
+
 conf/ssl/server.key: | conf/ssl/server.key
 	openssl genrsa -out /usr/local/pf/conf/ssl/server.key 2048
 

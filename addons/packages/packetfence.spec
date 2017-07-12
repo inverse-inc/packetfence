@@ -401,12 +401,13 @@ done
     asciidoc -a docinfo2 -b docbook -d book \
         -o docs/docbook/$GUIDE.docbook \
         docs/$GUIDE.asciidoc
+    xsltproc -o docs/docbook/$GUIDE.fo \
+        docs/docbook/xsl/packetfence-fo.xsl \
+        docs/docbook/$GUIDE.docbook
     fop -c docs/fonts/fop-config.xml \
-        -xml docs/docbook/$GUIDE.docbook \
-        -xsl docs/docbook/xsl/packetfence-fo.xsl \
+        docs/docbook/$GUIDE.fo \
         -pdf docs/$GUIDE.pdf
     done
-    
 %endif
 
 # Build the HTML doc for pfappserver
