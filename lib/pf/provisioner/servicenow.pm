@@ -91,7 +91,7 @@ sub does_mac_exist{
     if ($curl_info == 200){
         my $info = decode_json($response_body);
         my $cmdb = $info->{cmdb_ci};
-        if (defined($cmdb) && $cmdb !eq 0) {
+        if (defined($cmdb) && $cmdb ne "0") {
             return $cmdb;
         } else {
             return "MAC not found in the database";
@@ -102,7 +102,7 @@ sub does_mac_exist{
         eval {
             $info = decode_json($response_body);
         };
-        if (defined($info) && $info->{cmdb_ci} == 0){
+        if (defined($info) && $info->{cmdb_ci} eq "0"){
             $logger->info("The device $mac wasn't found in servicenow");
             return 0;
         }
@@ -122,7 +122,7 @@ sub validate_agent_installed{
     my $logger = $self->logger;
 
     my $curl = WWW::Curl::Easy->new;
-    my $url = 'https://' . $self->host . $self->talbe_for_agent . '?JSONv2&sysparm_sys_id='.$cmdb);
+    my $url = 'https://' . $self->host . $self->talbe_for_agent . '?JSONv2&sysparm_sys_id=' . $cmdb;
 
     my $user_pass_base_64 = encode_base64("$self->{username}:$self->{password}", "");
 
@@ -160,7 +160,7 @@ sub validate_agent_installed{
         }
     }
     else{
-        $logger->error("There was an error validating $mac with ServiceNow. Got HTTP code $curl_info");
+        $logger->error("There was an error validating with ServiceNow. Got HTTP code $curl_info");
         return $pf::provisioner::COMMUNICATION_FAILED;
     }
 }
@@ -171,7 +171,7 @@ sub authorize {
     my $ip = pf::ip4log::mac2ip($mac);
     $logger->info("Validating if $mac is compliant in servicenow");
     my $mac_exist = $self->does_mac_exist($mac);
-    if ($mac_exist !eq 0) {
+    if ($mac_exist ne "0") {
         $self->validate_agent_installed($mac_exist);
         return 1, "The agent is properly installed for this MAC address";
     } else {
