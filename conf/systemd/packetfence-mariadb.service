@@ -14,7 +14,6 @@ PrivateNetwork=false
 
 StartLimitBurst=3
 StartLimitInterval=60
-Type=simple
 Slice=packetfence-base.slice
 
 ExecStartPre=/usr/local/pf/bin/pfcmd generatemariadbconfig
