@@ -60,6 +60,22 @@ This is the table where the MAC are stored on your ServiceNow instance
 
 has table_for_mac => (is => 'rw');
 
+=head2 table_for_agent
+
+This is the table where the agent are stored on your ServiceNow instance
+
+=cut
+
+has table_for_agent => (is => 'rw');
+
+=head2 protocol
+
+Protocol to connect to the web API
+
+=cut
+
+has protocol => (is => 'rw', default => sub { "https" } );
+
 
 =head2 does_mac_exist
 
@@ -72,7 +88,7 @@ sub does_mac_exist{
     my $logger = $self->logger;
 
     my $curl = WWW::Curl::Easy->new;
-    my $url = 'https://' . $self->host . $self->talbe_for_mac . '?JSONv2&sysparm_query=mac_address='.$mac;
+    my $url = $self->protocol.'://'.$self->host.$self->table_for_mac.'?JSONv2&sysparm_query=mac_address='.$mac;
 
     my $user_pass_base_64 = encode_base64("$self->{username}:$self->{password}", "");
 
@@ -94,7 +110,8 @@ sub does_mac_exist{
         if (defined($cmdb) && $cmdb ne "0") {
             return $cmdb;
         } else {
-            return "MAC not found in the database";
+            $logger->error("MAC not found in the database");
+            return 0;
         }
     }
     elsif ($curl_info == 404){
@@ -103,7 +120,7 @@ sub does_mac_exist{
             $info = decode_json($response_body);
         };
         if (defined($info) && $info->{cmdb_ci} eq "0"){
-            $logger->info("The device $mac wasn't found in servicenow");
+            $logger->error("The device $mac wasn't found in servicenow");
             return 0;
         }
         else{
@@ -122,7 +139,7 @@ sub validate_agent_installed{
     my $logger = $self->logger;
 
     my $curl = WWW::Curl::Easy->new;
-    my $url = 'https://' . $self->host . $self->talbe_for_agent . '?JSONv2&sysparm_sys_id=' . $cmdb;
+    my $url = $self->protocol.'://'.$self->host.$self->table_for_agent.'?JSONv2&sysparm_sys_id='.$cmdb;
 
     my $user_pass_base_64 = encode_base64("$self->{username}:$self->{password}", "");
 
@@ -140,10 +157,11 @@ sub validate_agent_installed{
     if ($curl_info == 200) {
         my $info = decode_json($response_body);
         my $installed_agent = $info->{install_status};
-        if (defined($installed_agent) && $installed_agent eq 1) {
+        if (defined($installed_agent) && $installed_agent eq "1") {
             return 1;
         } else {
-            return 0, "The agent was not found on the device, moving it to isolation";
+            $logger->error("The agent was not found on the device, moving it to isolation");
+            return 0;
         }
     } elsif ($curl_info == 404){
         my $info;
@@ -151,7 +169,7 @@ sub validate_agent_installed{
             $info = decode_json($response_body);
         };
         if (defined($info) && $info->{sysparm_sys_id} == 0){
-            $logger->info("The agent wasn't found on the device in ServiceNow");
+            $logger->error("The agent wasn't found on the device in ServiceNow");
             return 0;
         }
         else{
@@ -173,7 +191,7 @@ sub authorize {
     my $mac_exist = $self->does_mac_exist($mac);
     if ($mac_exist ne "0") {
         $self->validate_agent_installed($mac_exist);
-        return 1, "The agent is properly installed for this MAC address";
+        return 1;
     } else {
         return 0;
     }

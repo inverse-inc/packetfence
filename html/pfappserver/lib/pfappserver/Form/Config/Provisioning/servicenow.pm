@@ -32,9 +32,21 @@ has_field table_for_mac => (
     required => 1,
 );
 
+has_field table_for_agent => (
+    type => 'Text',
+    required => 1,
+);
+
+has_field 'protocol' =>
+  (
+   type => 'Select',
+   options => [{ label => 'http', value => 'http' }, { label => 'https' , value => 'https' }],
+   default => 'https',
+  );
+
 has_block definition =>
   (
-   render_list => [ qw(id type description category oses username password host table_for_mac) ],
+   render_list => [ qw(id type description category oses username password protocol host table_for_mac table_for_agent) ],
   );
 
 =head1 COPYRIGHT
