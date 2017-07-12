@@ -11,6 +11,20 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
+Version X.Y.Z released on 2017-
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+Enhancements
+++++++++++++
+
+Bug Fixes
++++++++++
+
+* Move the syslog parser from the section Compliance to Integration in the menu of the WebAdmin (#2467)
+
 
 Version 7.2.0 released on 2017-07-10
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
