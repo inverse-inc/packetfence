@@ -2036,6 +2036,11 @@ You must first define your RADIUS server and point it to PacketFence:
   snmp-server community public ro view Default 
   snmp-server community private rw view Default 
 
+SNMP configuration for the Cisco SG300:
+
+  snmp-server community public ro view DefaultSuper
+  snmp-server community private rw view DefaultSuper
+
 MAC Authentication
 ++++++++++++++++++
 
