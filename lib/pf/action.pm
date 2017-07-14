@@ -195,6 +195,19 @@ sub action_api {
     return;
 }
 
+our %ACTIONS = (
+    $REEVALUATE_ACCESS    => \&action_reevaluate_access,
+    $EMAIL_ADMIN          => \&action_email_admin,
+    $EMAIL_USER           => \&action_email_user,
+    $LOG                  => \&action_log,
+    $EXTERNAL             => \&action_api,
+    $CLOSE                => \&action_close,
+    $ROLE                 => \&action_role,
+    $UNREG                => \&action_unreg,
+    $ENFORCE_PROVISIONING => \&action_enforce_provisioning,
+    $AUTOREG              => \&action_autoregister,
+);
+
 sub action_execute {
     my ($mac, $vid, $notes) = @_;
     my $logger = get_logger();
@@ -205,32 +218,16 @@ sub action_execute {
     foreach my $row (@actions) {
         my $action = lc $row->{'action'};
         $logger->info("executing action '$action' on class $vid");
-        if ( $action eq $REEVALUATE_ACCESS ) {
-            $leave_open = 1;
-            action_reevaluate_access( $mac, $vid );
-        } elsif ( $action eq $EMAIL_ADMIN ) {
-            action_email_admin( $mac, $vid, $notes );
-        } elsif ( $action eq $EMAIL_USER ) {
-            action_email_user( $mac, $vid, $notes );
-        } elsif ( $action eq $LOG ) {
-            action_log( $mac, $vid );
-        } elsif ( $action eq $EXTERNAL ) {
-            action_api( $mac, $vid );
-        } elsif ( $action eq $CLOSE ) {
-            action_close( $mac, $vid );
-        } elsif ( $action eq $ROLE ) {
-            action_role( $mac, $vid );
-        } elsif ( $action eq $UNREG ) {
-            action_unreg( $mac, $vid );
-        } elsif ( $action eq $ENFORCE_PROVISIONING ) {
-            action_enforce_provisioning( $mac, $vid, $notes );
-        } elsif ( $action eq $AUTOREG ) {
-            action_autoregister($mac, $vid);
-        } else {
+        if (!exists $ACTIONS{$action}) {
             $logger->error( "unknown action '$action' for class $vid", 1 );
+            next;
         }
+        if ($action eq $REEVALUATE_ACCESS) {
+            $leave_open = 1;
+        }
+        $ACTIONS{$action}->($mac, $vid, $notes);
     }
-    if ( !$leave_open && !( ($vid eq $POST_SCAN_VID) || ($vid eq $PRE_SCAN_VID) ) ) {
+    if (!$leave_open && !($vid eq $POST_SCAN_VID || $vid eq $PRE_SCAN_VID)) {
         $logger->info("this is a non-reevaluate-access violation, closing violation entry now");
         require pf::violation;
         pf::violation::violation_force_close( $mac, $vid );
