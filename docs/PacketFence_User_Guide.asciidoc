@@ -372,7 +372,9 @@ Testing without eapol_test
 
 If you need to test it with a real environnement, start by making sure all your configuration are fine. Make sure your PacketFence server is joined to the domain and also that the CA and RADIUS certificate are correct.
 
+Now you will need to configure your 802.1x supplicant to do EAP-TLS, using a certificate with the attribute "ExtendedKeyUsage: clientAuth" and make sure this certificate is sign by the same CA as your RADIUS certificate server.
 
+From there connect to your secure SSID with EAP-TLS and see how PacketFence is responding to the authentication. If it does not work go ahead and take a look at the `Auditing` tab in PacketFence which should tell you what is failing.
 
 
 Debugging
