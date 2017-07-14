@@ -196,20 +196,22 @@ $(document).ready(function() {
 
 <div class="layout layout--center">
   <div class="layout__item u-mt u-2/3 u-1/1-palm">
+    [% IF isDeviceRegEnable %]
     <a href="/device-registration" class="btn btn--full btn--light">
       <div class="flag">
         <div class="flag__img">[% svgIcon(id='ic_add_circle_black_24px',size='small') %]</div>
         <p class="flag__body">[% i18n("Register another device") %]</p>
       </div>
     </a>
-[%- IF hasLocalAccount %]
+    [% END %]
+    [%- IF hasLocalAccount %]
     <a href="/status/reset_password" class="btn btn--full btn--light">
       <div class="flag">
         <div class="flag__img">[% svgIcon(id='ic_person_black_24px',size='small') %]</div>
         <p class="flag__body">[% i18n("Change my password") %]</p>
       </div>
     </a>
-[% END %]
+    [% END %]
     <a href="/status/logout" class="btn btn--full btn--light">
       <div class="flag">
         <div class="flag__img">[% svgIcon(id='ic_close_black_24px',size='small') %]</div>
