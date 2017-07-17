@@ -23,11 +23,13 @@ sub for_module {'captiveportal::PacketFence::DynamicRouting::Module::SelectRole'
 has_field 'admin_role' =>
   (
    type => 'Select',
+   multiple => 1,
    label => 'Admin role',
    options_method => \&options_admin_role,
-   element_class => ['chzn-select'],
+   element_class => ['chzn-deselect'],
+   element_attr => {'data-placeholder' => 'Click to add a role'},
    tags => { after_element => \&help,
-             help => 'Which role should have access to this module to select the role' },
+             help => 'Which roles should have access to this module to select the role' },
   );
 
 has_field 'template' =>
@@ -38,8 +40,20 @@ has_field 'template' =>
              help => 'The template to use' },
   );
 
+has_field 'list_role' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   label => 'Role List',
+   options_method => \&options_admin_role,
+   element_class => ['chzn-deselect'],
+   element_attr => {'data-placeholder' => 'Click to add a role'},
+   tags => { after_element => \&help,
+             help => 'Which roles can be select' },
+  );
+
 sub child_definition {
-    return qw(admin_role template);
+    return qw(admin_role list_role template);
 }
 
 sub BUILD {

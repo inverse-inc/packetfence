@@ -13,11 +13,14 @@ Module to select a new role for the device being registered
 use Moose;
 extends 'captiveportal::DynamicRouting::Module';
 
+use List::MoreUtils qw(any);
 use pf::nodecategory;
 
 has 'template' => (is => 'rw', default => sub {'select-role.html'});
 
 has 'admin_role' => (is => 'rw', required => 1);
+
+has 'list_role' => (is => 'rw', required => 1);
 
 =head2 execute_child
 
@@ -27,15 +30,17 @@ Select a new role for the device being registered
 
 sub execute_child {
     my ($self) = @_;
-    if($self->new_node_info->{category} eq $self->admin_role) {
+    my @roles = split(' ',$self->admin_role);
+    if(any { $_ eq $self->new_node_info->{category}} @roles) {
         if(my $new_role = $self->app->request->param('new_role')) {
             $self->new_node_info->{category} = $new_role;
             $self->done();
         }
         else {
+            my @allowed_roles = split(' ',$self->list_role);
             $self->render($self->template, {
                 title => $self->description,
-                roles => [ grep { $_ ne $self->admin_role } map { $_->{name} } nodecategory_view_all() ], 
+                roles => [ grep { $_ ne $self->admin_role } @allowed_roles ],
             });
         }
     }
