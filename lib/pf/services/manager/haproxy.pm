@@ -104,7 +104,7 @@ EOT
         next unless $cfg;
         my $i = 0;
         if ($interface eq $management_network->tag('int')) {
-            $tags{'active_active_ip'} = pf::cluster::management_cluster_ip() || $cfg->{'ip'};
+            $tags{'active_active_ip'} = pf::cluster::management_cluster_ip() || $cfg->{'vip'} || $cfg->{'ip'};
             my @mysql_backend = map { $_->{management_ip} } pf::cluster::mysql_servers();
             push @mysql_backend, $cfg->{'ip'} if !@mysql_backend;
             foreach my $mysql_back (@mysql_backend) {
@@ -120,7 +120,7 @@ EOT
                 }
             $i++;
             }
-            my $cluster_ip = pf::cluster::cluster_ip($interface) || $cfg->{'ip'};
+            my $cluster_ip = pf::cluster::cluster_ip($interface) || $cfg->{'vip'} || $cfg->{'ip'};
             my @backend_ip = values %{pf::cluster::members_ips($interface)};
             push @backend_ip, '127.0.0.1' if !@backend_ip;
             my $backend_ip_config = '';
@@ -133,7 +133,7 @@ EOT
 
         }
         if ($cfg->{'type'} =~ /internal/ || $cfg->{'type'} =~ /portal/) {
-            my $cluster_ip = pf::cluster::cluster_ip($interface) || $cfg->{'ip'};
+            my $cluster_ip = pf::cluster::cluster_ip($interface) || $cfg->{'vip'} || $cfg->{'ip'};
             push @portal_ip, $cluster_ip;
             my @backend_ip = values %{pf::cluster::members_ips($interface)};
             push @backend_ip, '127.0.0.1' if !@backend_ip;
