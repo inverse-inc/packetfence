@@ -1046,7 +1046,7 @@ sub normalize_time {
     } else {
         my ( $num, $modifier ) = $date =~ /^(\d+)($pf::constants::config::TIME_MODIFIER_RE)/ or return (0);
 
-        if ( $modifier eq "s" ) { return ($num);
+        if ( $modifier eq "s" ) { return ($num * 1);
         } elsif ( $modifier eq "m" ) { return ( $num * 60 );
         } elsif ( $modifier eq "h" ) { return ( $num * 60 * 60 );
         } elsif ( $modifier eq "D" ) { return ( $num * 24 * 60 * 60 );
