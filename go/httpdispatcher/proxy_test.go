@@ -59,8 +59,8 @@ func TestSimpleNotImplemented(t *testing.T) {
 }
 
 func TestSimpleProxy(t *testing.T) {
-	req := httptest.NewRequest("GET", "http://www.padl.com", bytes.NewBuffer([]byte("")))
-	req.Host = "www.padl.com"
+	req := httptest.NewRequest("GET", "http://example.com", bytes.NewBuffer([]byte("")))
+	req.Host = "example.com"
 	recorder := httptest.NewRecorder()
 	testproxy.ServeHTTP(recorder, req)
 	if recorder.Code != 200 {
