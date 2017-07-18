@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -29,6 +30,7 @@ type FirewallSSOInt interface {
 	MatchesNetwork(ctx context.Context, info map[string]string) bool
 	ShouldCacheUpdates(ctx context.Context) bool
 	GetCacheTimeout(ctx context.Context) int
+	FormatUsername(ctx context.Context, info map[string]string) string
 	GetLoadedAt() time.Time
 	SetLoadedAt(time.Time)
 }
@@ -111,6 +113,30 @@ func (fw *FirewallSSO) InfoToTemplateCtx(ctx context.Context, info map[string]st
 	templateCtx["Timeout"] = strconv.Itoa(timeout)
 
 	return templateCtx
+}
+
+func (fw *FirewallSSO) FormatUsername(ctx context.Context, info map[string]string) string {
+	if fw.UsernameFormat == "" {
+		return info["username"]
+	}
+
+	username := fw.UsernameFormat
+	// TODO: replace with precompile regexp
+	usernameRe := regexp.MustCompile(`\$username`)
+	username = usernameRe.ReplaceAllString(username, info["stripped_username"])
+
+	if info["realm"] == "" {
+		log.LoggerWContext(ctx).Debug("No realm for user, using default realm")
+		info["realm"] = fw.DefaultRealm
+	}
+
+	realmRe := regexp.MustCompile(`\$realm`)
+	username = realmRe.ReplaceAllString(username, info["realm"])
+
+	pf_usernameRe := regexp.MustCompile(`\$pf_username`)
+	username = pf_usernameRe.ReplaceAllString(username, info["username"])
+
+	return username
 }
 
 // Start method that will be called on every SSO called via ExecuteStart

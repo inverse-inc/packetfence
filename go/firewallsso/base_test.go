@@ -2,10 +2,11 @@ package firewallsso
 
 import (
 	"context"
+	"testing"
+
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/util"
-	"testing"
 )
 
 var ctx = log.LoggerNewContext(context.Background())
@@ -253,4 +254,48 @@ func TestGetCacheTimeout(t *testing.T) {
 		t.Errorf("Cache timeout is invalid. Expected %d and got %d", expected, fw.GetCacheTimeout(ctx))
 	}
 
+}
+
+func TestFormatUsername(t *testing.T) {
+	factory := NewFactory(ctx)
+
+	// Firewall that wants to format it $realm\$username
+	fw, err := factory.Instantiate(ctx, "testfw")
+	util.CheckTestError(t, err)
+
+	// Test it while having all the infos
+	username := fw.FormatUsername(ctx, map[string]string{
+		"username":          "bobby@example.com",
+		"stripped_username": "bobby",
+		"realm":             "example.com",
+	})
+
+	if username != "example.com\\bobby" {
+		t.Errorf("Unexpected username out of the formatting %s", username)
+	}
+
+	// Test missing the realm
+	username = fw.FormatUsername(ctx, map[string]string{
+		"username":          "bobby@example.com",
+		"stripped_username": "bobby",
+	})
+
+	if username != "pouet\\bobby" {
+		t.Errorf("Unexpected username out of the formatting %s", username)
+	}
+
+	// Firewall that wants the format $pf_username
+	fw, err = factory.Instantiate(ctx, "testfw2")
+	util.CheckTestError(t, err)
+
+	// Test it while having all the infos
+	username = fw.FormatUsername(ctx, map[string]string{
+		"username":          "bobby@example.com",
+		"stripped_username": "bobby",
+		"realm":             "example.com",
+	})
+
+	if username != "bobby@example.com" {
+		t.Errorf("Unexpected username out of the formatting %s", username)
+	}
 }

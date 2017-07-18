@@ -100,7 +100,7 @@ has_field 'username_format' =>
    label => 'Username format',
    default => '$pf_username',
    tags => { after_element => \&help,
-             help => 'Defines how to format the username that is sent to your firewall. $username represents the username and $realm represents the realm of your user if applicable. $pf_username represents the unstripped username as it is stored in the PacketFence database.' },
+             help => 'Defines how to format the username that is sent to your firewall. $username represents the username and $realm represents the realm of your user if applicable. $pf_username represents the unstripped username as it is stored in the PacketFence database. If left empty, it will use the username as stored in PacketFence (value of $pf_username).' },
   );
 
 has_field 'default_realm' =>
