@@ -6,6 +6,7 @@ use warnings;
 use File::Copy;
 use File::Spec::Functions;
 use Template;
+use List::MoreUtils qw(any);
 
 BEGIN {
     use lib "/usr/local/pf/lib";
@@ -157,6 +158,7 @@ sub generate_specific_configurations {
             MAIL_BIN            => $mail_bin,
             SERVICE_BIN         => $service_bin,
             WINBINDD_PID        => $winbindd_pid,
+            ACTIVE_ACTIVE       => (any { $_ eq 'active-active' } @configurations),
         };
         $tt->process($template_file, $vars, $destination_file) or die $tt->error();
     }
