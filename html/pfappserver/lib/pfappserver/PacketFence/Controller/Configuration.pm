@@ -77,6 +77,7 @@ our %ALLOWED_SECTIONS = (
     integration => undef,
     database => undef,
     database_advanced => undef,
+    node_import => undef,
 );
 
 =head2 index
