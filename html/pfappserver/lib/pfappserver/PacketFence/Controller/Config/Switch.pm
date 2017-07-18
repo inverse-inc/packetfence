@@ -284,7 +284,7 @@ A method to be able to import switches from a CSV
 sub import_csv :Local :Args(0) :AdminRole('SWITCHES_CREATE') {
     my ( $self, $c ) = @_;
    
-
+    my $logger = pf::log->get_logger();
     my $upload = $c->req->upload('importcsv');
     my $file = $upload->fh;
     my $model = $c->model("Config::Switch");
@@ -305,6 +305,7 @@ sub import_csv :Local :Args(0) :AdminRole('SWITCHES_CREATE') {
         my @fields = split "," , $line;
         if (@fields < 3) {
             $skip++;
+            $logger->warn("This entry has been skipped because this line: $line contains more fields than required");
             next;
         }
 
@@ -317,6 +318,7 @@ sub import_csv :Local :Args(0) :AdminRole('SWITCHES_CREATE') {
         my ( $status, $msg ) = $model->hasId($switch_ip);
         if (is_success($status)) {
             $skip++;
+            $logger->warn("This entry has been skipped because this IP: $switch_ip is existing in the switch configuration file.");
             next;
         }
     
@@ -324,6 +326,7 @@ sub import_csv :Local :Args(0) :AdminRole('SWITCHES_CREATE') {
         ( $status, $msg ) = $model_group->hasId($switch_group);
         if (is_error($status)) {
             $skip++;
+            $logger->warn("This entry has been skipped because the switch group: $switch_group does not exist in the switch configutaion.");
             next;
         }
 
