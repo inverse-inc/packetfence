@@ -115,9 +115,20 @@ sub does_mac_exist{
         }
     }
     elsif ($curl_info == 404){
-        $logger->error("The URL used for the ServiceNow API seems invalid. Validate the configuration.");
-        return $pf::provisioner::COMMUNICATION_FAILED;
-    } else {
+        my $info;
+        eval {
+            $info = decode_json($response_body);
+        };
+        if (defined($info) && $info->{records}[0]->{cmdb_ci} eq "0"){
+            $logger->error("The device $mac wasn't found in servicenow");
+            return 0;
+        }
+        else{
+            $logger->error("The URL used for the ServiceNow API seems invalid. Validate the configuration.");
+            return $pf::provisioner::COMMUNICATION_FAILED;
+        }
+    }
+    else{
         $logger->error("There was an error validating $mac with ServiceNow. Got HTTP code $curl_info");
         return $pf::provisioner::COMMUNICATION_FAILED;
     }
@@ -153,9 +164,20 @@ sub validate_agent_installed{
             return 0;
         }
     } elsif ($curl_info == 404){
-        $logger->error("The URL used for the ServiceNow API seems invalid. Validate the configuration.");
-        return $pf::provisioner::COMMUNICATION_FAILED;
-    } else {
+        my $info;
+        eval {
+            $info = decode_json($response_body);
+        };
+        if (defined($info) && $info->{records}[0]->{sysparm_sys_id} == 0){
+            $logger->error("The agent wasn't found on the device in ServiceNow");
+            return 0;
+        }
+        else{
+            $logger->error("The URL used for the ServiceNow API seems invalid. Validate the configuration.");
+            return $pf::provisioner::COMMUNICATION_FAILED;
+        }
+    }
+    else{
         $logger->error("There was an error validating with ServiceNow. Got HTTP code $curl_info");
         return $pf::provisioner::COMMUNICATION_FAILED;
     }
