@@ -1,0 +1,171 @@
+#!/bin/sh
+#
+# mkrequest -- make client certificate request and RSA key
+# Copyright (c) Jarkko Turkulainen 2003. All rights reserved.
+# See the file COPYRIGHT for licensing information.
+#
+# Usage: $0 -ip|-dns|-email name [challenge]
+#
+# Required parameters (one of these):
+# -ip name	Use subjectAltName IP Address (example: -ip 1.2.3.4)
+# -dns name	Use subjectAltName FQDN (-dns gw.nowhere.com)
+# -email name	Use subjectAltName UFQDN (-email noone@nowhere.com)
+#
+# Optional parameter is the request challenge password, used for
+# self-revocation and if SCEP server supports it, for automatic enrolling.
+#
+#######################################################################
+#
+# EDIT THE PARAMETERS BELOW IF YOU NEED
+#
+
+# Prefix - key will be named as PREFIX.key and request PREFIX.csr
+PREFIX=local
+
+#
+# Additional DN components. Add if your company policy requires them.
+# commonName is assigned automatically from the subjectAltName, or if your
+# CA requires the use of unstructuredName as a DN, you must fill in
+# the relevant attributes below.
+#
+# countryName (example: FI)
+COUNTRY=
+#
+# stateOrProvinceName (example: Uusimaa)
+STATE=
+#
+# localityName (example: Helsinki)
+LOCALITY=
+#
+# organizationName (example: klake.org)
+ORGANIZATION=
+#
+# organizationalUnitName (example: Sales)
+ORGANIZATIONAL_UNIT=
+#
+# Some CAs may require you to use Cisco-style subject.
+# OpenBSD isakmpd don't care about the subject, only that matter is the
+# subjectAltName extension. If the CA won't honor that, the certificate
+# is useless for isakmpd.
+#
+UNSTRUCTURED_NAME=
+UNSTRUCTURED_ADDRESS=
+SERIAL_NUMBER=
+
+
+# RSA key length, minimum of 1024 recommended.
+KEYBITS=1024
+
+#
+# NO NEED FOR EDITING BELOW THIS LINE
+#
+#######################################################################
+
+
+if [ ! "$2" ]; then
+	echo "Usage: $0 -ip|-dns|-email name [challenge]"
+	exit 1
+fi
+case $1 in
+	-ip)
+		NAME=CERTIP
+		PARAMETER=$2
+		EXT=x509v3_IPAddr
+		;;
+	-dns)
+		NAME=CERTNAME
+		PARAMETER=$2
+		EXT=x509v3_DNS
+		;;
+	-email)
+		NAME=CERTEMAIL
+		PARAMETER=$2
+		EXT=x509v3_Email
+		;;
+	*)
+		echo "Illegal subjectAltName extension $1"
+		echo "Usage: $0 -ip|-dns|-email name [keybits]"
+		exit 1
+		;;
+esac
+
+if [ ! "$PREFIX" ]; then
+	PREFIX=$PARAMETER
+fi
+
+if [ "$3" ]; then
+	PASSWORD=$3
+fi
+
+if [ ! "$UNSTRUCTURED_NAME" ]; then
+	if [ "$UNSTRUCTURED_ADDRESS" -o "$SERIAL_NUMBER" ]; then
+		echo "unstructuredName is required"
+		exit 1;
+	fi
+fi
+
+# Generate key and request
+openssl genrsa -out $PREFIX.key $KEYBITS
+chmod 600 $PREFIX.key
+
+CONFIG=.$$client.cnf
+cat << _EOF_ > $CONFIG
+[ req ]
+prompt = no
+distinguished_name = req_distinguished_name
+_EOF_
+if [ "$PASSWORD" ]; then
+	cat << _EOF_ >> $CONFIG
+attributes=req_attributes
+[ req_attributes ]
+challengePassword=$PASSWORD
+_EOF_
+fi
+echo "[ req_distinguished_name ]" >> $CONFIG
+if [ "$COUNTRY" ]; then
+	echo "C=$COUNTRY" >> $CONFIG
+fi
+if [ "$STATE" ]; then
+	echo "ST=$STATE" >> $CONFIG
+fi
+if [ "$LOCALITY" ]; then
+	echo "L=$LOCALITY" >> $CONFIG
+fi
+if [ "$ORGANIZATION" ]; then
+	echo "O=$ORGANIZATION" >> $CONFIG
+fi
+if [ "$ORGANIZATIONAL_UNIT" ]; then
+	echo "OU=$ORGANIZATIONAL_UNIT" >> $CONFIG
+fi
+if [ ! "$UNSTRUCTURED_NAME" ]; then
+	echo "CN=$PARAMETER" >> $CONFIG
+else
+	echo "unstructuredName=$UNSTRUCTURED_NAME" >> $CONFIG
+	if [ "$UNSTRUCTURED_ADDRESS" ]; then
+		echo "unstructuredAddress=$UNSTRUCTURED_ADDRESS" >> $CONFIG
+	fi
+	if [ "$SERIAL_NUMBER" ]; then
+		echo "serialNumber=$SERIAL_NUMBER" >> $CONFIG
+	fi
+fi
+cat << _EOF_ >> $CONFIG
+[x509v3_IPAddr]
+subjectAltName=critical,IP:$PARAMETER
+[x509v3_DNS]
+subjectAltName=critical,DNS:$PARAMETER
+[x509v3_Email]
+subjectAltName=critical,email:$PARAMETER
+_EOF_
+
+# Make request
+openssl req -new -key $PREFIX.key -out $PREFIX.csr -config $CONFIG \
+	-reqexts $EXT
+
+# Make a self-signed certificate from request subject
+# Normally, this is done from the sscep
+# openssl req -x509 -new -key $PREFIX.key -out $PREFIX-selfsigned.crt \
+#	-config $CONFIG -extensions $EXT >/dev/null 2>&1
+
+# Remove config file
+rm -rf $CONFIG
+
