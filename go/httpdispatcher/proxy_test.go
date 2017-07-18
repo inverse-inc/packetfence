@@ -15,7 +15,7 @@ var ctx = context.Background()
 
 func TestMain(m *testing.M) {
 	passThrough = newProxyPassthrough(ctx)
-	rgx, _ := regexp.Compile("www.padl.com")
+	rgx, _ := regexp.Compile("example.com")
 	passThrough.proxypassthrough = append(passThrough.proxypassthrough, rgx)
 	rgx, _ = regexp.Compile("www.gstatic.com/generate_204")
 	passThrough.detectionmechanisms = append(passThrough.detectionmechanisms, rgx)
