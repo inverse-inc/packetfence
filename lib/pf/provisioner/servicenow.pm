@@ -106,7 +106,7 @@ sub does_mac_exist{
 
     if ($curl_info == 200){
         my $info = decode_json($response_body);
-        my $cmdb = $info->{cmdb_ci};
+        my $cmdb = $info->{records}[0]->{cmdb_ci};
         if (defined($cmdb) && $cmdb ne "0") {
             return $cmdb;
         } else {
@@ -119,7 +119,7 @@ sub does_mac_exist{
         eval {
             $info = decode_json($response_body);
         };
-        if (defined($info) && $info->{cmdb_ci} eq "0"){
+        if (defined($info) && $info->{records}[0]->{cmdb_ci} eq "0"){
             $logger->error("The device $mac wasn't found in servicenow");
             return 0;
         }
@@ -156,7 +156,7 @@ sub validate_agent_installed{
 
     if ($curl_info == 200) {
         my $info = decode_json($response_body);
-        my $installed_agent = $info->{install_status};
+        my $installed_agent = $info->{records}[0]->{install_status};
         if (defined($installed_agent) && $installed_agent eq "1") {
             return 1;
         } else {
@@ -168,7 +168,7 @@ sub validate_agent_installed{
         eval {
             $info = decode_json($response_body);
         };
-        if (defined($info) && $info->{sysparm_sys_id} == 0){
+        if (defined($info) && $info->{records}[0]->{sysparm_sys_id} == 0){
             $logger->error("The agent wasn't found on the device in ServiceNow");
             return 0;
         }
