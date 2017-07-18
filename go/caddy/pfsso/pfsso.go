@@ -5,19 +5,20 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/inverse-inc/packetfence/go/log"
-	"github.com/inverse-inc/packetfence/go/statsd"
-	"github.com/inverse-inc/packetfence/go/caddy/caddy"
-	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
-	"github.com/inverse-inc/packetfence/go/firewallsso"
-	"github.com/inverse-inc/packetfence/go/panichandler"
-	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"github.com/julienschmidt/httprouter"
-	"github.com/patrickmn/go-cache"
 	"io"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/inverse-inc/packetfence/go/caddy/caddy"
+	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
+	"github.com/inverse-inc/packetfence/go/firewallsso"
+	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/packetfence/go/panichandler"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/statsd"
+	"github.com/julienschmidt/httprouter"
+	"github.com/patrickmn/go-cache"
 )
 
 // Register the plugin in caddy
@@ -130,7 +131,7 @@ func (h PfssoHandler) spawnSso(ctx context.Context, firewall firewallsso.Firewal
 
 // Add the info in the request to the log context
 func (h PfssoHandler) addInfoToContext(ctx context.Context, info map[string]string) context.Context {
-	return log.AddToLogContext(ctx, "ip", info["ip"], "mac", info["mac"], "role", info["role"])
+	return log.AddToLogContext(ctx, "username", info["username"], "ip", info["ip"], "mac", info["mac"], "role", info["role"])
 }
 
 // Handle an update action for pfsso

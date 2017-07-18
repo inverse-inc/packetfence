@@ -4,15 +4,16 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"github.com/inverse-inc/packetfence/go/log"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
-	log15 "github.com/inconshreveable/log15"
-	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"layeh.com/radius"
 	"net"
 	"net/http"
 	"strconv"
 	"time"
+
+	log15 "github.com/inconshreveable/log15"
+	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
+	"layeh.com/radius"
 )
 
 // Basic interface that all FirewallSSO must implement
@@ -225,8 +226,8 @@ func ExecuteStart(ctx context.Context, fw FirewallSSOInt, info map[string]string
 // Execute an SSO Stop request on the specified firewall
 // Makes sure to call FirewallSSO.Start and to validate the network if necessary
 func ExecuteStop(ctx context.Context, fw FirewallSSOInt, info map[string]string) (bool, error) {
-	ctx = log.AddToLogContext(ctx, "ip", info["ip"], "mac", info["mac"], "firewall-id", fw.GetFirewallSSO(ctx).PfconfigHashNS)
-	log.LoggerWContext(ctx).Info("Processing SSO Start")
+	ctx = log.AddToLogContext(ctx, "firewall-id", fw.GetFirewallSSO(ctx).PfconfigHashNS)
+	log.LoggerWContext(ctx).Info("Processing SSO Stop")
 
 	if !fw.MatchesNetwork(ctx, info) {
 		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO for IP %s since it doesn't match any configured network", info["ip"]))
