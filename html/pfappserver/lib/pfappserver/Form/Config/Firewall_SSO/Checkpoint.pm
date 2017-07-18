@@ -61,7 +61,7 @@ has_field 'categories' =>
 
 has_block 'definition' =>
   (
-   render_list => [ qw(id type password port categories networks cache_updates cache_timeout) ],
+   render_list => [ qw(id type password port categories networks cache_updates cache_timeout username_format default_realm) ],
   );
 
 =head2 Methods

@@ -41,9 +41,11 @@ type FirewallSSO struct {
 	PfconfigHashNS string `val:"-"`
 	RoleBasedFirewallSSO
 	pfconfigdriver.TypedConfig
-	Networks     []*FirewallSSONetwork `json:"networks"`
-	CacheUpdates string                `json:"cache_updates"`
-	CacheTimeout string                `json:"cache_timeout"`
+	Networks       []*FirewallSSONetwork `json:"networks"`
+	CacheUpdates   string                `json:"cache_updates"`
+	CacheTimeout   string                `json:"cache_timeout"`
+	UsernameFormat string                `json:"username_format"`
+	DefaultRealm   string                `json:"default_realm"`
 }
 
 // Builds all networks, meant to be called after the data is loaded into the struct attributes
