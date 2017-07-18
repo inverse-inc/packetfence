@@ -168,8 +168,10 @@ sub authorize {
     $logger->info("Validating if $mac is compliant in servicenow");
     my $mac_exist = $self->does_mac_exist($mac);
     if ($mac_exist ne "0") {
-        $self->validate_agent_installed($mac_exist);
-        return 1;
+        my $agent_install = $self->validate_agent_installed($mac_exist);
+        if ($agent_install ne "0") {
+            return 1;
+        }
     } else {
         return 0;
     }
