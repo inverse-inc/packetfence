@@ -16,8 +16,10 @@ SET @PREV_MINOR_VERSION = 2;
 SET @PREV_SUBMINOR_VERSION = 0;
 
 --
--- Remove the node_useragent table
+-- Remove the node_useragent table and its associated trigger
 --
+
+DROP TRIGGER node_useragent_delete_trigger;
 
 DROP TABLE node_useragent;
 
