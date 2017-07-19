@@ -88,7 +88,7 @@ fi
 # Is the database running on the current server and should we be running a backup ?
 if [ $SHOULD_BACKUP -eq 1 ] && { [ -f /var/run/mysqld/mysqld.pid ] || [ -f /var/run/mariadb/mariadb.pid ] || [ -f /var/lib/mysql/`hostname`.pid ]; }; then
 
-    /usr/local/pf/addons/database-cleaner.pl --table=radacct --date-field=acctupdatetime --older-than="1 WEEK" --additionnal-condition="acctstoptime IS NOT NULL" --update --update-field=acctstoptime
+    /usr/local/pf/addons/database-cleaner.pl --table=radacct --date-field=acctupdatetime --older-than="1 WEEK" --update --update-field=acctstoptime
 
     /usr/local/pf/addons/database-cleaner.pl --table=radacct --date-field=acctstarttime --older-than="1 WEEK" --additionnal-condition="acctstoptime IS NOT NULL"
     
