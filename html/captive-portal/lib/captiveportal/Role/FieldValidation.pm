@@ -66,7 +66,11 @@ sub validate_form {
     }
     my $form = $self->form($self->request_fields);
     if($form->has_errors){
-        $self->app->flash->{error} = "An error occured while processing the request.";
+        my @messages;
+        for my $field ($form->error_fields) {
+            push @messages, map{ $field->label . ": " . $_ } @{$field->errors}; 
+        }
+        $self->app->flash->{error} = [ "The following errors prevented the request to be fulfilled : %s", join(', ', @messages) ];
         return 0;
     }
     return 1;
