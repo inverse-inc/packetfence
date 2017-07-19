@@ -26,7 +26,6 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file} = $pf_doc_file;
-    $self->{child_resources} = [ 'config::PfDefault' ];
 }
 
 sub build_child {
