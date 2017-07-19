@@ -148,7 +148,7 @@ sub field_list {
                 my @timezones = DateTime::TimeZone->all_names();
                 my @matched_options = map { m/^.+\/.+$/g } @timezones;
                 my @options = map { { value => $_, label => $_ } } @matched_options;
-                $field->{option} = \@options;
+                $field->{options} = \@options;
                 last;
             };
             $type eq 'toggle' && do {
