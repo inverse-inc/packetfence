@@ -87,6 +87,15 @@ sub cleanupAfterRead {
                 # No custom value, use default value
                 $data->{$key} = [split( /\s*,\s*/, $defaults->{$key})];
             }
+        } elsif ( $type eq 'timezone' ) {
+            my $value = $data->{$key};
+            if ($value) {
+                $data->{$key} = [split( /\s*,\s*/, $value)];
+            }
+            elsif ($defaults->{$key}) {
+                # No custom value, use default value
+                $data->{$key} = [split( /\s*,\s*/, $defaults->{$key})];
+            }
         } elsif ( $type eq 'merged_list' ) {
             my $value = $data->{$key};
             if ($value ne $defaults->{$key}) {

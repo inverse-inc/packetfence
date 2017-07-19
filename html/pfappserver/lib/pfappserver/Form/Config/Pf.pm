@@ -141,6 +141,16 @@ sub field_list {
                 $field->{options} = \@options;
                 last;
             };
+            $type eq 'timezone' && do {
+                $field->{type} = 'Select';
+                $field->{element_class} = ['chzn-deselect', 'input'];
+                $field->{element_attr} = {'data-placeholder' => 'Select a timezone'};
+                my @timezones = DateTime::TimeZone->all_names();
+                my @matched_options = map { m/^.+\/.+$/g } @timezones;
+                my @options = map { { value => $_, label => $_ } } @matched_options;
+                $field->{option} = \@options;
+                last;
+            };
             $type eq 'toggle' && do {
                 if ($doc_section->{options}->[0] eq 'enabled' ||
                     $doc_section->{options}->[0] eq 'yes') {
