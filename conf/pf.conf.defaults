@@ -304,7 +304,7 @@ thread_concurrency=8
 # database_advanced.max_connections
 #
 # The max_connections MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.
-max_connections=500
+max_connections=1000
 #
 # database_advanced.table_cache
 #
