@@ -97,10 +97,3 @@
   [% INCLUDE 'dynamicreport/search.tt' %]
 </div>
 
-<script>
-$(function() { // DOM ready
-    var nodes = new Nodes();
-    var view = new NodeView({ nodes: nodes, parent: $('#section') });
-});
-
-</script>
