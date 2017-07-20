@@ -9,6 +9,7 @@ searches=string:Process Name:auth_log.process_name,string:MAC Address:auth_log.m
 date_field=attempted_at
 base_conditions_operator=any
 person_fields=Owner
+node_fields=MAC Address
 
 [SMS-Registration]
 type=builtin

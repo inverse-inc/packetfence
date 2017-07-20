@@ -31,8 +31,9 @@ has 'columns', (is => 'rw', isa => 'ArrayRef[Str]');
 
 has 'date_field', (is => 'rw', isa => 'Str');
 
-# Accept an array or a string because setting this attribute is done via a string that is expanded into an array
 has 'person_fields', (is => 'rw', isa => 'ArrayRef[Str]');
+
+has 'node_fields', (is => 'rw', isa => 'ArrayRef[Str]');
 
 # empty since no queries are prepared upfront
 sub Report_db_prepare {}
@@ -197,6 +198,17 @@ Check if a field is part of the person fields
 sub is_person_field {
     my ($self, $field) = @_;
     return any { $_ eq $field } @{$self->person_fields};
+}
+
+=head2 is_node_field
+
+Check if a field is part of the node fields
+
+=cut
+
+sub is_node_field {
+    my ($self, $field) = @_;
+    return any { $_ eq $field } @{$self->node_fields};
 }
 
 1;

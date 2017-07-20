@@ -17,7 +17,9 @@
     <tr>
       [% FOREACH key IN item.keys %]
         [% IF report.is_person_field(key) %]
-        <td><a href="[% c.uri_for(c.controller("User").action_for('view'), [ item.Owner ]) %]">[% item.Owner %]</a></td>
+        <td><a href="[% c.uri_for(c.controller("User").action_for('view'), [ item.$key ]) %]">[% item.$key %]</a></td>
+        [% ELSIF report.is_node_field(key) %]
+        <td><a href="[% c.uri_for(c.controller("Node").action_for('view'), [ item.$key ]) %]">[% item.$key %]</a></td>
         [% ELSE %]
         <td>[% item.$key %]</td>
         [% END %]
