@@ -6,7 +6,7 @@ Wants=packetfence-redis-cache.service
 [Service]
 Type=notify
 StartLimitBurst=3
-StartLimitInterval=60
+StartLimitInterval=10
 PIDFile=/usr/local/pf/var/run/pfconfig.pid
 ExecStart=/usr/local/pf/sbin/pfconfig 
 User=pf

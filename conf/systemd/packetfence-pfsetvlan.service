@@ -8,7 +8,7 @@ Wants=packetfence-base.target packetfence-config.service packetfence-iptables.se
 [Service]
 Type=notify
 StartLimitBurst=3
-StartLimitInterval=60
+StartLimitInterval=10
 PIDFile=/usr/local/pf/var/run/pfsetvlan.pid
 ExecStart=/usr/local/pf/sbin/pfsetvlan
 Slice=packetfence.slice

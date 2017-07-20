@@ -5,7 +5,7 @@ After=packetfence-config.service
 
 [Service]
 StartLimitBurst=3
-StartLimitInterval=60
+StartLimitInterval=10
 Type=oneshot
 RemainAfterExit=yes
 ExecStart=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::routes' -e 'pf::services::manager::routes->new()->_start()'

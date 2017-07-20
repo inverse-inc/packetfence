@@ -5,7 +5,7 @@ Wants=packetfence-carbon-relay.service packetfence-iptables.service packetfence-
 
 [Service]
 StartLimitBurst=3
-StartLimitInterval=60
+StartLimitInterval=10
 Type=simple
 PIDFile=/usr/local/pf/var/run/statsd.pid
 ExecStartPre=/usr/local/pf/bin/pfcmd service statsd generateconfig

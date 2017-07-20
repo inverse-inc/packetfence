@@ -5,7 +5,7 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
 
 [Service]
 StartLimitBurst=3
-StartLimitInterval=60
+StartLimitInterval=10
 Type=simple
 User=pf
 PIDFile=/usr/local/pf/var/run/carbon-cache.pid

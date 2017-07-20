@@ -7,7 +7,7 @@ Before=packetfence-httpd.portal.service
 
 [Service]
 StartLimitBurst=3
-StartLimitInterval=60
+StartLimitInterval=10
 Type=notify
 PIDFile=/usr/local/pf/var/run/dhcpd.pid
 ExecStartPre=/usr/local/pf/bin/pfcmd service dhcpd generateconfig

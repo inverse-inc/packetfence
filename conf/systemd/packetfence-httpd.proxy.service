@@ -7,7 +7,7 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
 
 [Service]
 StartLimitBurst=3
-StartLimitInterval=60
+StartLimitInterval=10
 Type=notify
 PIDFile=/usr/local/pf/var/run/httpd.proxy.pid
 ExecStartPre=/usr/local/pf/bin/pfcmd service httpd.proxy generateconfig

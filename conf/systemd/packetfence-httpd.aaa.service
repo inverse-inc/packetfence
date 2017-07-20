@@ -8,7 +8,7 @@ Before=packetfence-radiusd-auth.service packetfence-radiusd-acct.service packetf
 
 [Service]
 StartLimitBurst=3
-StartLimitInterval=60
+StartLimitInterval=10
 Type=notify
 PIDFile=/usr/local/pf/var/run/httpd.aaa.pid
 ExecStartPre=/usr/local/pf/bin/pfcmd service httpd.aaa generateconfig

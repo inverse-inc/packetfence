@@ -5,7 +5,7 @@ Wants=packetfence-config.service
 
 [Service]
 StartLimitBurst=3
-StartLimitInterval=60
+StartLimitInterval=10
 PIDFile=/usr/local/pf/var/run/haproxy.pid
 ExecStartPre=/usr/local/pf/bin/pfcmd service haproxy generateconfig
 ExecStart=/usr/sbin/haproxy-systemd-wrapper -f /usr/local/pf/var/conf/haproxy.conf -p /usr/local/pf/var/run/haproxy.pid

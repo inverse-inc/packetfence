@@ -5,7 +5,7 @@ Wants=packetfence.target packetfence-iptables.service
 
 [Service]
 StartLimitBurst=3
-StartLimitInterval=60
+StartLimitInterval=10
 Type=forking
 KillMode=process
 PIDFile=/usr/local/pf/var/run/keepalived.pid

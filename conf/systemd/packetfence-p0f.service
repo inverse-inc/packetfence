@@ -5,7 +5,7 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
 
 [Service]
 StartLimitBurst=3
-StartLimitInterval=60
+StartLimitInterval=10
 Type=simple
 PIDFile=/usr/local/pf/var/run/p0f.pid
 ExecStart=/usr/local/pf/sbin/p0f-wrapper

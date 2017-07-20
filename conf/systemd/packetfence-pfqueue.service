@@ -8,7 +8,7 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
 [Service]
 Type=notify
 StartLimitBurst=3
-StartLimitInterval=60
+StartLimitInterval=10
 PIDFile=/usr/local/pf/var/run/pfqueue.pid
 ExecStartPre=/usr/local/pf/bin/pfcmd service pfqueue generateconfig
 ExecStart=/usr/local/pf/sbin/pfqueue

@@ -6,7 +6,7 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
 [Service]
 Type=notify
 StartLimitBurst=3
-StartLimitInterval=60
+StartLimitInterval=10
 PIDFile=/usr/local/pf/var/run/pfbandwidthd.pid
 ExecStart=/usr/local/pf/sbin/pfbandwidthd
 Restart=on-failure

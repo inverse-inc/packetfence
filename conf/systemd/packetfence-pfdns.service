@@ -7,7 +7,7 @@ Before=packetfence-httpd.portal.service
 [Service]
 Type=notify
 StartLimitBurst=3
-StartLimitInterval=60
+StartLimitInterval=10
 PIDFile=/usr/local/pf/var/run/pfdns.pid
 ExecStart=/usr/local/pf/sbin/pfdns
 Restart=on-failure
