@@ -93,7 +93,7 @@ sub release {
     $self->app->reset_session;
 
     unless($self->handle_web_form_release){
-        reevaluate_access( $self->current_mac, 'manage_register' );
+        reevaluate_access( $self->current_mac, 'manage_register', force => 1 );
         return $self->render("release.html", $self->_release_args());
     }
 }
@@ -148,7 +148,7 @@ sub unknown_state {
 
                 get_logger->info("Reevaluating access of device.");
 
-                reevaluate_access( $self->current_mac, 'manage_register' );
+                reevaluate_access( $self->current_mac, 'manage_register', force => 1 );
             }
 
             return $self->app->error("Your network should be enabled within a minute or two. If it is not reboot your computer.");
