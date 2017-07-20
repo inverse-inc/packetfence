@@ -137,3 +137,9 @@ CHECK PROCESS packetfence-winbind-[% domain %] MATCHING "/chroots/[% domain %] /
 [% END %]
 
 [% END %]
+
+check program monitoring-mysql-connections with path /usr/local/pf/addons/monit/monitoring-scripts/monitor_mysql_connections.pl
+    group OS
+    every 30 cycles    # every minute (if 1 cycle is 2 seconds)
+    if status != 0 then alert
+
