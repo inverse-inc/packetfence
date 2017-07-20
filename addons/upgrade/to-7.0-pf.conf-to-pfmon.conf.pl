@@ -20,6 +20,10 @@ use pf::file_paths qw($pfmon_config_file $pf_config_file);
 use Data::Dumper;
 use pf::ConfigStore::Pfmon;
 
+use pf::util;
+
+run_as_pf();
+
 my $ini = pf::IniFiles->new(-file => $pf_config_file);
 
 if (!$ini->SectionExists('maintenance')) {

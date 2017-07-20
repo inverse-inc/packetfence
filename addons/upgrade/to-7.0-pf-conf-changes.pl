@@ -20,6 +20,9 @@ use lib '/usr/local/pf/lib';
 
 use pf::file_paths qw($pf_config_file);
 use pf::IniFiles;
+use pf::util;
+
+run_as_pf();
 
 my $config = pf::IniFiles->new(-file => $pf_config_file) or die $!;
 
