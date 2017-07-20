@@ -64,6 +64,9 @@ Hotspot support (Web Auth Enforcement)::
   PacketFence can also be configured as hotspot, if you have a manageable device that supports an external captive portal (like
 Cisco WLC or Aruba IAP).
 
+RADIUS support (RADIUS Enforcement)::
+  PacketFence can act as RADIUS only server, without having a registration, isolation, portal interface. 
+
 Voice over IP (VoIP) support::
   Also called IP Telephony (IPT), VoIP is fully supported (even in heterogeneous environments) for multiple switch vendors (Cisco, Avaya, HP and many more).
 
