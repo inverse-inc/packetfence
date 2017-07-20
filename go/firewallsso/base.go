@@ -266,6 +266,9 @@ func ExecuteStop(ctx context.Context, fw FirewallSSOInt, info map[string]string)
 		return false, nil
 	}
 
+	// We change the username with the way it is expected given the format of this firewall
+	info["username"] = fw.FormatUsername(ctx, info)
+
 	parentResult, err := fw.GetFirewallSSO(ctx).Stop(ctx, info)
 
 	if err != nil {
