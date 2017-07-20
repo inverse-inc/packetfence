@@ -27,6 +27,8 @@ date_field=expiration
 # Display only the sms registration
 base_conditions=activation.type:=:sms
 base_conditions_operator=all
+person_fields=Owner
+node_fields=MAC Address
 
 [Email-Registration]
 type=builtin
@@ -40,6 +42,8 @@ date_field=expiration
 # Display only the email registration
 base_conditions=activation.type:=:guest
 base_conditions_operator=all
+person_fields=Owner
+node_fields=MAC Address
 
 [Sponsor-Registration]
 type=builtin
@@ -53,6 +57,8 @@ date_field=expiration
 # Display only the sponsor registration
 base_conditions=activation.type:=:sponsor
 base_conditions_operator=all
+person_fields=Owner
+node_fields=MAC Address
 
 [ip4log-history]
 type=builtin
@@ -66,6 +72,7 @@ date_field=start_time
 # Display only the sponsor registration
 #base_conditions=activation.type:=:sponsor
 base_conditions_operator=all
+node_fields=MAC Address
 
 [ip4log-archive]
 type=builtin
@@ -79,4 +86,5 @@ date_field=start_time
 # Display only the sponsor registration
 #base_conditions=activation.type:=:sponsor
 base_conditions_operator=all
+node_fields=MAC Address
 
