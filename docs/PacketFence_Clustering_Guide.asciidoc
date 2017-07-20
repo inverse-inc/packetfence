@@ -705,8 +705,6 @@ Once this is done, restart pfmon on all nodes using:
 
   # /usr/local/pf/bin/pfcmd service pfmon restart
 
-NOTE: It is normal that pfmon will refuse to start on nodes B and C. Nonetheless you should execute the command on them to make sure you catch any stale process.
-
 Upgrading node C
 ^^^^^^^^^^^^^^^^
 
@@ -908,6 +906,4 @@ In order to do, so go in 'Configuration->Maintenance' and set 'Cluster Check Int
 Once this is done, restart pfmon on all nodes using:
 
   # /usr/local/pf/bin/pfcmd service pfmon restart
-
-NOTE: It is normal that pfmon will refuse to start on nodes B and C. Nonetheless you should execute the command on them to make sure you catch any stale process.
 
