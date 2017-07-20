@@ -17,6 +17,12 @@ import (
 	"layeh.com/radius"
 )
 
+var usernameFormatRegexps = map[string]*regexp.Regexp{
+	"stripped_username": regexp.MustCompile(`\$username`),
+	"realm":             regexp.MustCompile(`\$realm`),
+	"username":          regexp.MustCompile(`\$pf_username`),
+}
+
 // Basic interface that all FirewallSSO must implement
 type FirewallSSOInt interface {
 	init(ctx context.Context) error
@@ -121,20 +127,15 @@ func (fw *FirewallSSO) FormatUsername(ctx context.Context, info map[string]strin
 	}
 
 	username := fw.UsernameFormat
-	// TODO: replace with precompile regexp
-	usernameRe := regexp.MustCompile(`\$username`)
-	username = usernameRe.ReplaceAllString(username, info["stripped_username"])
 
 	if info["realm"] == "" {
 		log.LoggerWContext(ctx).Debug("No realm for user, using default realm")
 		info["realm"] = fw.DefaultRealm
 	}
 
-	realmRe := regexp.MustCompile(`\$realm`)
-	username = realmRe.ReplaceAllString(username, info["realm"])
-
-	pf_usernameRe := regexp.MustCompile(`\$pf_username`)
-	username = pf_usernameRe.ReplaceAllString(username, info["username"])
+	for key, re := range usernameFormatRegexps {
+		username = re.ReplaceAllString(username, info[key])
+	}
 
 	return username
 }
