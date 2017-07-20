@@ -468,6 +468,14 @@ If you leave the cluster in auto-recovery mode without electing a master manuall
 
 Should you decide to elect a new master and cause a split-brain for crash recovery purpose, you will have to wipe the data on all the servers that are part of one side of the split brain. This should be done once all the servers have re-gained communication.
 
+Full recovery
++++++++++++++
+
+If you want to perform a full recovery which can be necessary after experiencing an issue with Galera cluster, you must stop the node you wish to keep the data from and start it with the `--force-new-cluster` option. If this is not the case, you can continue onto the next step
+
+  # systemctl stop packetfence-mariadb
+  # /usr/local/pf/sbin/pf-mariadb --force-new-cluster
+
 On each of the discarded servers
 ++++++++++++++++++++++++++++++++
 
@@ -482,6 +490,7 @@ On each of the servers you want to discard the data from, you must destroy all t
 
 You should then see `/var/lib/mysql` be populated again with the data and once MySQL becomes available again on the server, it means the sync has completed. In case of issues, look in the MySQL log file (`/var/lib/mysql/PF_HOSTNAME.err`)
 
+NOTE: If you were performing a full recovery, you should now break the `--force-new-cluster` command and start packetfence-mariadb normally. (`systemctl start packetfence-mariadb`)
 
 Putting a node in maintenance
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
