@@ -907,3 +907,29 @@ Once this is done, restart pfmon on all nodes using:
 
   # /usr/local/pf/bin/pfcmd service pfmon restart
 
+MariaDB Galera cluster troubleshooting
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Maximum connections reached
++++++++++++++++++++++++++++
+
+In the event that one of the 3 servers reaches the maximum amount of connections (defaults to 1000), this will dead-lock the Galera cluster synchronization. In order to resolve this, you should first increase database_advanced.max_connections, then stop packetfence-mariadb on all 3 servers, and follow the steps in the section 'Recovering from a split brain' of this document. Note that you can use any of the database servers as your source of truth.
+
+Investigating further
+^^^^^^^^^^^^^^^^^^^^^
+
+The limit of 1000 connections is fairly high already so if you reached the maximum number of connections, this might indicate an issue with your database cluster. If this issue happens often, you should monitor the active connections and their associated queries to find out what is using up your connections.
+
+You can monitor the active TCP connections to MySQL using this command and then investigate the processes that are connected to it (last column):
+
+  # netstat -anlp | grep 3306
+
+You can have an overview of all the current connections using the following MySQL query:
+
+  mysql> select * from information_schema.processlist;
+
+And if you would like to see only the connections with an active query:
+
+  mysql> select * from information_schema.processlist where Command!='Sleep';
+
+
