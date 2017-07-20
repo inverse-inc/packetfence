@@ -51,7 +51,7 @@ sub do_sso {
 
     $logger->info("Sending a firewall SSO '$postdata{method}' request for MAC '$mac' and IP '$postdata{ip}'");
 
-    my $username = $$node->{pid};
+    my $username = $node->{pid};
     my ($stripped_username, $realm) = pf::util::strip_username($username);
 
     pf::api::jsonrestclient->new(
