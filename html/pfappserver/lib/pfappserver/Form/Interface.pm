@@ -63,7 +63,7 @@ has_field 'dns' =>
   (
    type => 'IPAddresses',
    label => 'DNS',
-   wrapper_attr => { 'style' => 'display: none' },
+   wrapper_attr => { 'class' => 'hide' },
    tags => { after_element => \&help,
              help => 'The primary DNS server of your network.' },
   );
