@@ -59,7 +59,7 @@ sub cleanupAfterRead {
         my $type = $doc->{type} || "text";
         my $subtype = $doc->{subtype};
         # Value should always be defined for toggles (checkbox and select) and times (duration)
-        if ($type eq "toggle" || $type eq "time") {
+        if ($type eq "toggle" || $type eq "time" || $type eq "timezone" ) {
             $data->{$key} = $Default_Config{$section}{$key} unless ($data->{$key});
         } elsif ($type eq "date") {
             my $time = str2time($data->{$key} || $Default_Config{$section}{$key});
@@ -87,16 +87,7 @@ sub cleanupAfterRead {
                 # No custom value, use default value
                 $data->{$key} = [split( /\s*,\s*/, $defaults->{$key})];
             }
-        } elsif ( $type eq 'timezone' ) {
-            my $value = $data->{$key};
-            if ($value) {
-                $data->{$key} = [split( /\s*,\s*/, $value)];
-            }
-            elsif ($defaults->{$key}) {
-                # No custom value, use default value
-                $data->{$key} = [split( /\s*,\s*/, $defaults->{$key})];
-            }
-        } elsif ( $type eq 'merged_list' ) {
+         } elsif ( $type eq 'merged_list' ) {
             my $value = $data->{$key};
             if ($value ne $defaults->{$key}) {
                 $data->{$key} = join("\n", split( /\s*,\s*/, $value));

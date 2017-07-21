@@ -19,7 +19,7 @@ dhcpservers=127.0.0.1
 #
 # System's timezone in string format. Supported list:
 # http://www.php.net/manual/en/timezones.php
-timezone=
+timezone=America/Montreal
 
 [network]
 #

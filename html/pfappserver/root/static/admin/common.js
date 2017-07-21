@@ -257,7 +257,7 @@ function doUpdateSection(ajax_data) {
                         $(this).timepicker({ defaultTime: defaultTime, showSeconds: false, showMeridian: false });
                     });
                     section.find('.chzn-select:visible').chosen();
-                    section.find('.chzn-deselect:visible').chosen({allow_single_deselect: true,search_contains: true});
+                    section.find('.chzn-deselect:visible').chosen({allow_single_deselect: true, search_contains: true});
                     section.find('.switch').bootstrapSwitch();
                     if (typeof Clipboard !== 'undefined' && Clipboard.isSupported())
                         section.find('.clipboard .icon-clipboard').tooltip({ title: _('Copy') });
