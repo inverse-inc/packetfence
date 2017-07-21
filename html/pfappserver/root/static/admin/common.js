@@ -1075,10 +1075,10 @@ $(function () { // DOM ready
         $('#section').find('.sidenav-section').each(function() {
             if (this.id && sidenav.find('#' + this.id).length > 0)
                 // Section is already there; show it
-                sidenav.find('#' + this.id).show();
+                sidenav.find('#' + this.id).removeClass('hide');
             else {
                 // Append section
-                $(this).detach().appendTo(sidenav).show();
+                $(this).detach().appendTo(sidenav).removeClass('hide');
             }
         });
     });
@@ -1244,8 +1244,11 @@ FingerbankSearch.setup = function() {
               display = this.display;
             }
           });
-          if(search.add_action) {
-            eval(search.add_action + "(search,id,display)");
+          if (search.add_action) {
+            if (search.add_action == 'violationsView.add_fingerbank_trigger')
+              violationsView.add_fingerbank_trigger(search, id, display);
+            else
+              console.warn("Unhandled add-action \"" + search.add_action + "\"");
           }
           else {
             if(display !== undefined) {

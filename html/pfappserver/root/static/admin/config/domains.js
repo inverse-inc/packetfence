@@ -47,8 +47,8 @@ DomainView.prototype.constructor = ItemView;
 DomainView.prototype.showWait = function(title) {
   var that = this;
   $('#modalDomainWait h3').html(title); 
-  $('#modalDomainWait').modal('show');
   $('#domainProgressBar').css('width', '1%');
+  $('#modalDomainWait').modal('show');
 };
 
 DomainView.prototype.updateAndJoinDomain = function(e) {

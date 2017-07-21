@@ -26,6 +26,9 @@ $sidenavSubsectionColor:        darken($navbarInverseText, 30%);
  */
 .sidenav-fluid {
   @include grid-fluid($fluidGridColumnWidth + $fluidGridGutterWidth, 0);
+  .row-fluid [class*="span"].hide {
+    display: none;
+  }
 }
 
 /**
