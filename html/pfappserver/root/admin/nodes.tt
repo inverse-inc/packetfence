@@ -330,7 +330,7 @@
                 </ul>
                 <div class="tab-pane active" id="simple">
                   <form id="simpleNodeSearch" method="POST" name="simpleNodeSearch" class="form-inline" action="[% c.uri_for(c.controller('Node').action_for('simple_search')) %]">
-                  <table style="width:100%">
+                  <table class="table table-condensed unbordered">
                     <tbody>
                       <tr class="row-fluid">
                         <td colspan="2" >
@@ -367,7 +367,7 @@
                 </div>
                 <div class="tab-pane" id="advanced">
                   <form id="advancedSearch" name="advancedNodeSearch" method="POST" class="form-inline" action="[% c.uri_for(c.controller('Node').action_for('advanced_search')) %]">
-                  <table id="advancedSearchConditions" class="table-dynamic">
+                  <table id="advancedSearchConditions" class="table table-condensed table-dynamic unbordered">
                     <thead data-no-remove="yes">
                         <tr>
                           <th colspan="2" class="pull-left">
