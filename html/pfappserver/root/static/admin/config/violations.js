@@ -8,9 +8,11 @@ $(function() { // DOM ready
         modal.empty();
         modal.append(data);
         modal.find('.switch').bootstrapSwitch();
-        modal.find('.chzn-select').chosen({width: ''});
+        modal.find('.chzn-select').chosen({inherit_select_classes: true, width: ''});
         modal.find('.chzn-deselect').chosen({allow_single_deselect: true, width: ''});
         modal.one('shown', function() {
+            var data = modal.find('.event_triggers').first()[0];
+            violationsView.event_triggers = JSON.parse(data.textContent || data.innerHTML);
             $('#actions').trigger('change');
         });
         $('.trigger option').each(function(elem){
@@ -243,7 +245,7 @@ $(function() { // DOM ready
         var jthis = $(event.target);
         jthis.closest('.control-group').remove();
         if(!$('#viewTriggers').find('select').length){
-          $('#noTrigger').show();
+          $('#noTrigger').removeClass('hide');
         }
         violationsView.recompute_triggers();
         return false;
@@ -257,7 +259,7 @@ $(function() { // DOM ready
           $('#editedTrigger').html(ViolationsView.add_combined_trigger_form());
           violationsView.previous_trigger_options = $('#editedTrigger .triggerButtons').html();
           $('#editedTrigger .triggerButtons').html('<a href="#backEditTrigger" class="pull-left btn btn-default"><i class="icon  icon-chevron-left"></i></a>');
-          $('#editedTrigger .chzn-select').chosen({width: ''});
+          $('#editedTrigger .chzn-select').chosen({inherit_select_classes: true, width: ''});
           $('#editTrigger').slideDown();
         });
         
@@ -286,7 +288,7 @@ $(function() { // DOM ready
         $('#editTrigger').slideUp(function(){
           var triggers = jthis.closest('.control-group');
           if(triggers.find("select option:selected").length){
-            $('#noTrigger').hide();
+            $('#noTrigger').addClass('hide');
             triggers.find('.triggerButtons').html(violationsView.previous_trigger_options);
             triggers.appendTo('#viewTriggers');
           }

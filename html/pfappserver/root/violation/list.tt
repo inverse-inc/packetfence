@@ -31,7 +31,7 @@
             <th>[% l('Id') %]</th>
             <th>[% l('Description') %]</th>
             <th class="hidden-phone">[% l('Actions') %]</th>
-            <th class="hidden-phone">[% l('Target Role') %]</th>
+            <th class="no-wrap hidden-phone">[% l('Target Role') %]</th>
             <th>[% l('Action') %]</th><th></th>
           </tr>
         </thead>
@@ -51,7 +51,7 @@
               <span class="label label-info">[% l("${action}_action") %]</span>
               [%- END %]</td>
             <td class="hidden-phone">[% violation.vlan | html %]</td>
-            <td style="white-space: nowrap;">
+            <td class="no-wrap">
               [%- IF can_access("VIOLATIONS_CREATE") %]
               <a class="btn btn-mini" href="[% c.uri_for(c.controller('Violation').action_for('clone'), [ violation.id ]) %]#modalViolation">[% l('Clone') %]</a>
               [%- END %]

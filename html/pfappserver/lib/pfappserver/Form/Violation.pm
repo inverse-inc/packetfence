@@ -77,9 +77,8 @@ has_field 'vclose' =>
   (
    type => 'Select',
    label => 'Violation to close',
-   element_class => ['chzn-deselect'],
+   element_class => ['chzn-deselect hide'],
    element_attr => {'data-placeholder' => 'Select a violation'},
-   wrapper_attr => {style => 'display: none'},
    tags => { after_element => \&help,
              help => 'When selecting the <strong>close</strong> action, triggering the violation will close this violation. This is an experimental workflow for Mobile Device Management (MDM).' },
   );
@@ -88,9 +87,8 @@ has_field 'target_category' =>
    type => 'Select',
    label => 'Set role',
    options_method => \&options_roles,
-   element_class => ['chzn-deselect'],
+   element_class => ['chzn-deselect hide'],
    element_attr => {'data-placeholder' => 'Select a role'},
-   wrapper_attr => {style => 'display: none'},
    tags => { after_element => \&help,
              help => 'When selecting the <strong>role</strong> action, triggering the violation will change the node to this role.' },
   );
