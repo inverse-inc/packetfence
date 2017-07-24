@@ -8,6 +8,7 @@
     "clipboard": "latest",
     "bootstrap-switch": "1.9.0",
     "bootstrap-datepicker": "1.6.x",
+    "chosen": "v1.7.0",
     "jquery": "latest",
     "jquery-ui": "latest"
   },

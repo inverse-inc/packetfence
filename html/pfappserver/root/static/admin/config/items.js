@@ -109,8 +109,8 @@ ItemView.prototype.readItem = function(e) {
         },
         success: function(data) {
             modal.append(data);
-            modal.find('.chzn-select').chosen();
-            modal.find('.chzn-deselect').chosen({allow_single_deselect: true});
+            modal.find('.chzn-select').chosen({width: ''});
+            modal.find('.chzn-deselect').chosen({allow_single_deselect: true, width: ''});
             modal.one('shown', function() {
                 modal.find(':input:visible').first().focus();
             });

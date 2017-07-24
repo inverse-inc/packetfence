@@ -154,8 +154,8 @@ NodeView.prototype.readNode = function(e) {
 NodeView.prototype.showNode = function(e) {
     var that = this;
     var modal = $("#modalNode");
-    modal.find('.chzn-select').chosen();
-    modal.find('.chzn-deselect').chosen({allow_single_deselect: true});
+    modal.find('.chzn-select').chosen({width: ''});
+    modal.find('.chzn-deselect').chosen({allow_single_deselect: true, width: ''});
     modal.find('.timepicker-default').each(function() {
         // Keep the placeholder visible if the input has no value
         var $this = $(this);

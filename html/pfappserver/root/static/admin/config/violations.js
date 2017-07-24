@@ -8,8 +8,8 @@ $(function() { // DOM ready
         modal.empty();
         modal.append(data);
         modal.find('.switch').bootstrapSwitch();
-        modal.find('.chzn-select').chosen();
-        modal.find('.chzn-deselect').chosen();
+        modal.find('.chzn-select').chosen({width: ''});
+        modal.find('.chzn-deselect').chosen({allow_single_deselect: true, width: ''});
         modal.one('shown', function() {
             $('#actions').trigger('change');
         });
@@ -19,7 +19,7 @@ $(function() { // DOM ready
           if(infos[0].toLowerCase() == "accounting") {
             var new_value = violationsView.prettify_accounting(infos[0], infos[1]);
             jthis.html(new_value);
-            jthis.closest('select').trigger("liszt:updated");
+            jthis.closest('select').trigger("chosen:updated");
           }
         });
         modal.modal('show');
@@ -233,7 +233,7 @@ $(function() { // DOM ready
           $('#editedTrigger').html(ViolationsView.add_combined_trigger_form());
           violationsView.previous_trigger_options = $('#editedTrigger .triggerButtons').html();
           $('#editedTrigger .triggerButtons').html('<a href="#backEditTrigger" class="pull-left btn btn-default"><i class="icon  icon-chevron-left"></i></a>');
-          $('#editedTrigger .chzn-select').chosen();
+          $('#editedTrigger .chzn-select').chosen({width: ''});
           $('#editTrigger').slideDown();
         });
         
@@ -446,7 +446,7 @@ ViolationsView.prototype.append_trigger = function(value,value_pretty){
   });
   if (last)
       select.append('<option value="' + value + '" selected="selected">' + value_pretty + '</option>');
-  select.trigger("liszt:updated");
+  select.trigger("chosen:updated");
 
 };
 

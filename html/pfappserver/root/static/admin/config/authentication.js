@@ -217,7 +217,7 @@ $(function() { // DOM ready
                         $(this).empty();
                         $(this).html(data);
                         $(this).fadeIn('fast', function() {
-                            $('.chzn-select').chosen();
+                            $('.chzn-select').chosen({width: ''});
                         });
                     });
                 });

@@ -165,8 +165,8 @@ function changeInputFromTemplate(oldInput, template, keep_value) {
  * Initialize the rendering widgets of some elements
  */
 function initWidgets(elements) {
-    elements.filter('.chzn-select').chosen();
-    elements.filter('.chzn-deselect').chosen({allow_single_deselect: true});
+    elements.filter('.chzn-select').chosen({width: ''});
+    elements.filter('.chzn-deselect').chosen({allow_single_deselect: true, width: ''});
     elements.filter('.timepicker-default').each(function() {
         // Keep the placeholder visible if the input has no value
         var defaultTime = $(this).val().length? 'value' : false;
@@ -1250,7 +1250,7 @@ FingerbankSearch.setup = function() {
           else {
             if(display !== undefined) {
                 search.add_to.append('<option selected="selected" value="'+id+'">'+display+'</option>');
-                search.add_to.trigger("liszt:updated");
+                search.add_to.trigger("chosen:updated");
             }
           }
           search.typeahead_field.val('');

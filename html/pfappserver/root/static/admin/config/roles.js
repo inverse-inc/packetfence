@@ -50,8 +50,8 @@
                 modal.append(data);
                 modal.one('shown', function() {
                     $('#name').focus();
-                    $('.chzn-select').chosen();
-                    $('.chzn-deselect').chosen({allow_single_deselect: true});
+                    $('.chzn-select').chosen({width: ''});
+                    $('.chzn-deselect').chosen({allow_single_deselect: true, width: ''});
                 });
                 modal.modal({ shown: true });
             })
