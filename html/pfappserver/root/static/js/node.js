@@ -166,7 +166,8 @@ NodeView.prototype.showNode = function(e) {
             e.stopPropagation();
         });
     });
-    modal.find('.datepicker').datepicker({ autoclose: true });
+    modal.find('.input-date').datepicker({ autoclose: true });
+
     modal.find('[data-toggle="tooltip"]').tooltip({placement: 'right'}).click(function(e) {
         e.preventDefault();
         return false;
