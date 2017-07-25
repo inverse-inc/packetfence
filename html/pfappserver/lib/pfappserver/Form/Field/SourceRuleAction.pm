@@ -84,6 +84,10 @@ deflate to be saved into the config store
 
 sub deflate {
     my ($self, $value) = @_;
+    if(ref(@{$value}{value}) eq 'ARRAY' ) {
+        my $list = join(',', @{@{$value}{value}});
+        return @{$value}{type}."=".$list;
+    }
     return join("=", @{$value}{qw(type value)});
 }
 
