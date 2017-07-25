@@ -7,6 +7,10 @@ $pf-box-width--small: $inuit-base-line-height * 2;
 
 .#{$inuit-box-namespace}box {
   position: relative;
+
+  img {
+    max-width: 100%;
+  }
 }
 
 .#{$inuit-box-namespace}box--large-height {
