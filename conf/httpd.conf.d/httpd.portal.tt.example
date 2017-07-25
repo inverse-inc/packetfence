@@ -238,7 +238,7 @@ NameVirtualHost [% vhost %]:443
      ServerName   [% server_name %]
      DocumentRoot [% install_dir %]/html/captive-portal/lib
      ErrorLog "| /usr/bin/logger -thttpd_portal_err -plocal5.err"
-     CustomLog "| /usr/bin/logger -thttpd_portal -plocal5.info"  loadbalanced_combined
+     CustomLog "| /usr/bin/logger -thttpd_portal -plocal5.info"  loadbalanced_combined env=!is_collectd
      Include [% var_dir %]/conf/captive-portal-common
      AllowEncodedSlashes on
      Alias       /static [% install_dir %]/html/captive-portal/root/static
@@ -319,7 +319,7 @@ NameVirtualHost [% vhost %]:443
      ServerName   [% server_name %]
      DocumentRoot [% install_dir%]/html/captive-portal/lib
      ErrorLog "| /usr/bin/logger -thttpd_portal_err-plocal5.err"
-     CustomLog "| /usr/bin/logger -thttpd_portal -plocal5.info"  loadbalanced_combined
+     CustomLog "| /usr/bin/logger -thttpd_portal -plocal5.info"  loadbalanced_combined env=!is_collectd
      Include [% var_dir %]/conf/captive-portal-common
      AllowEncodedSlashes on
      Alias       /static [% install_dir %]/html/captive-portal/root/static
@@ -404,7 +404,7 @@ NameVirtualHost [% vhost %]:443
         ServerName   [% server_name %]
         DocumentRoot [% install_dir%]/html/captive-portal/lib
         ErrorLog "| /usr/bin/logger -thttpd_portal_err -plocal5.err"
-        CustomLog "| /usr/bin/logger -thttpd_portal -plocal5.info"  loadbalanced_combined
+        CustomLog "| /usr/bin/logger -thttpd_portal -plocal5.info"  loadbalanced_combined env=!is_collectd
 
         <Location  /modstatus >
             SetHandler server-status

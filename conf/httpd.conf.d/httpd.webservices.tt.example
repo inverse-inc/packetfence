@@ -194,7 +194,7 @@ Listen [% vhost %]:[% port %]
     ServerName [% server_name %]
     DocumentRoot [% install_dir %]/html/pfappserver/lib
     ErrorLog "| /usr/bin/logger -t[% name | replace('\.', '_') %]_err -plocal5.err"  
-    CustomLog "| /usr/bin/logger -t[% name | replace('\.', '_') %] -plocal5.info" combined
+    CustomLog "| /usr/bin/logger -t[% name | replace('\.', '_') %] -plocal5.info" combined env=!is_collectd
     SSLEngine on
     Include [% var_dir %]/conf/ssl-certificates.conf
     <Location / >
@@ -215,7 +215,7 @@ Listen 127.0.0.1:[% port %]
     ServerName [% server_name %]
     DocumentRoot [% install_dir %]/html/pfappserver/lib
     ErrorLog "| /usr/bin/logger -t[% name | replace('\.', '_') %]_err -plocal5.err"  
-    CustomLog "| /usr/bin/logger -t[% name | replace('\.', '_') %] -plocal5.info" combined
+    CustomLog "| /usr/bin/logger -t[% name | replace('\.', '_') %] -plocal5.info" combined env=!is_collectd
     SetHandler modperl
     PerlResponseHandler pf::WebAPI
     <Location / >
