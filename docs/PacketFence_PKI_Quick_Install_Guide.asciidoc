@@ -218,7 +218,7 @@ Fill out the following fields that will be used to generate the certificate prof
 * Validity: Number of validity days, i.e. 2y = 730
 * Key type, size and digest: we recommend using the following: RSA, 2048, sha1
 * Key Usage: Optional 
-* Extended Key Usage: "clienthAuth"
+* Extended Key Usage: "clientAuth"
 
 Information about Key Usage and Extended Key Usage is available from RFC5280, parts 4.2.1.3 and 4.2.1.12.
 
@@ -308,14 +308,14 @@ Using the PKI generated certificates requires editing the radius EAP configurati
 
 Edit the /usr/local/pf/conf/radiusd/eap.conf file and replace the following lines with references to your new certificates in the 'tls' configuration block:
 
- private_key_file = %%install_dir%%/conf/ssl/server.key
- certificate_file = %%install_dir%%/conf/ssl/server.pem
+ private_key_file = [% install_dir %]/conf/ssl/server.key
+ certificate_file = [% install_dir %]/conf/ssl/server.pem
 
 E.g.
 
- private_key_file = %%install_dir%%/conf/ssl/tls_certs/YourCert.key
- certificate_file = %%install_dir%%/conf/ssl/tls_certs/YourCert.pem
- CA_file = %%install_dir%%/conf/ssl/tls_certs/YourCA.pem
+ private_key_file = [% install_dir %]/conf/ssl/tls_certs/YourCert.key
+ certificate_file = [% install_dir %]/conf/ssl/tls_certs/YourCert.pem
+ ca_file = [% install_dir %]/conf/ssl/tls_certs/YourCA.pem
 
 
 Certificate revocation checks also have to be configured using OCSP in the same block.
