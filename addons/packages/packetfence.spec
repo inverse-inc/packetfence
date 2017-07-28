@@ -736,10 +736,11 @@ rm -rf /usr/local/pf/var/cache/
 /bin/systemctl enable packetfence-mariadb
 /bin/systemctl enable packetfence-redis-cache
 /bin/systemctl enable packetfence-config
-/bin/systemctl enable packetfence-iptables
+/bin/systemctl disable packetfence-iptables
 /bin/systemctl enable packetfence-routes
 /bin/systemctl isolate packetfence-base
 /bin/systemctl enable packetfence-httpd.admin
+/bin/systemctl enable packetfence-iptables
 
 /usr/local/pf/bin/pfcmd configreload
 /bin/systemctl start packetfence-httpd.admin
