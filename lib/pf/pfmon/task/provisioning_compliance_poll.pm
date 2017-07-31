@@ -28,7 +28,7 @@ sub run {
     foreach my $id (@{pf::ConfigStore::Provisioning->new->readAllIds}) {
         my $provisioner = pf::factory::provisioner->new($id);
         if($provisioner->supportsPolling){
-            $provisioner->pollAndEnforce($self->interal);
+            $provisioner->pollAndEnforce($self->interval);
         }
     }
 }
