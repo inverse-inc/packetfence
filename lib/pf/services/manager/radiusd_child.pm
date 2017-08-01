@@ -554,6 +554,47 @@ EOT
 EOT
                 $i++;
             }
+            $tags{'realm'};
+            my @realms;
+            foreach my $realm ( split(',', $eduroam_authentication_source[0]{'realm'}) ) {
+                 push (@realms, "Realm == \"$realm\"");
+            }
+            if (@realms) {
+                $tags{'realm'} .= 'if ( ';
+                $tags{'realm'} .=  join(' || ', @realms);
+                $tags{'realm'} .= ' ) {'."\n";
+                $tags{'realm'} .= <<"EOT";
+                update control {
+                    Proxy-To-Realm := "packetfence.cluster"
+                }
+            } else {
+                update control {
+                    Load-Balance-Key := "%{Calling-Station-Id}"
+                    Proxy-To-Realm := "eduroam.cluster"
+                }
+            }
+EOT
+            } else {
+$tags{'realm'} = << "EOT";
+                    update control {
+                        Load-Balance-Key := "%{Calling-Station-Id}"
+                        Proxy-To-Realm := "eduroam.cluster"
+                    }
+EOT
+            }
+            $tags{'reject_realm'} = '';
+            my @reject_realms;
+            foreach my $reject_realm ( split(',', $eduroam_authentication_source[0]{'reject_realm'}) ) {
+                 push (@reject_realms, "Realm == \"$reject_realm\"");
+            }
+            if (@reject_realms) {
+                $tags{'reject_realm'} .= 'if ( ';
+                $tags{'reject_realm'} .=  join(' || ', @reject_realms);
+                $tags{'reject_realm'} .= ' ) {'."\n";
+                $tags{'reject_realm'} .= <<"EOT";
+                reject
+            }
+EOT
             parse_template( \%tags, "$conf_dir/radiusd/eduroam-cluster", "$install_dir/raddb/sites-enabled/eduroam-cluster" );
         } else {
             unlink($install_dir."/raddb/sites-enabled/eduroam-cluster");

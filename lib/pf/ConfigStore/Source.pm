@@ -102,6 +102,7 @@ sub cleanupBeforeCommit {
     if ($item->{type} eq 'SMS') {
         $self->flatten_list($item, 'sms_carriers');
     }
+    $self->flatten_list($type, qw(realm reject_realm));
 }
 
 before rewriteConfig => sub {
@@ -109,6 +110,17 @@ before rewriteConfig => sub {
     my $config = $self->cachedConfig;
     $config->ReorderByGroup();
 };
+
+=head2 cleanupAfterRead
+
+Clean up switch data
+
+=cut
+
+sub cleanupAfterRead {
+    my ($self, $id, $type) = @_;
+    $self->expand_list($type, qw(realm reject_realm));
+}
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 

@@ -58,6 +58,10 @@ sub build_child {
             next;
         }
 
+        foreach my $key ( keys %cfg ) {
+            $self->cleanup_after_read( $key, $cfg{$key} );
+        }
+
         # Keep aside the source type
         my $type = $cfg{$source_id}{"type"};
         delete $cfg{$source_id}{type};
@@ -164,6 +168,10 @@ sub newAuthenticationSource {
     return $source;
 }
 
+sub cleanup_after_read {
+    my ( $self, $id, $data ) = @_;
+    $self->expand_list( $data, qw(realm reject_realm) );
+}
 
 =head1 AUTHOR
 
