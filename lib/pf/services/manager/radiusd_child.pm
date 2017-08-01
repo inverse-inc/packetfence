@@ -554,7 +554,7 @@ EOT
 EOT
                 $i++;
             }
-            $tags{'realm'};
+            $tags{'realm'} = '';
             my @realms;
             foreach my $realm ( split(',', $eduroam_authentication_source[0]{'realm'}) ) {
                  push (@realms, "Realm == \"$realm\"");
