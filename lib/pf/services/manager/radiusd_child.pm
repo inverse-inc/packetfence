@@ -297,7 +297,7 @@ sub generate_radiusd_eduroamconf {
             $tags{'listen'} .= << "EOT";
 listen {
     ipaddr = $ip
-    port =  $eduroam_authentication_source[0]{'auth_listening_port'};
+    port =  $eduroam_authentication_source[0]{'auth_listening_port'}
     type = auth
     virtual_server = eduroam
 }
@@ -309,7 +309,7 @@ EOT
                 $tags{'listen'} .= <<"EOT";
 listen {
     ipaddr = $ip
-    port =  $eduroam_authentication_source[0]{'auth_listening_port'};
+    port =  $eduroam_authentication_source[0]{'auth_listening_port'}
     type = auth
     virtual_server = eduroam
 }
