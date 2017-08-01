@@ -20,6 +20,8 @@ New Features
 Enhancements
 ++++++++++++
 
+* Display vlan in locationlog view
+
 Bug Fixes
 +++++++++
 
