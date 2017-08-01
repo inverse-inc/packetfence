@@ -24,9 +24,10 @@
       [% IF item.ssid %] 
         <span class="badge badge-info"><i class="icon-signal"></i> [% item.ssid | html %]</span>
       [% ELSE %]
-        [% IF item.port.length %]<span class="badge badge-info">[% l('port') %] [% item.port | html %] [% IF item.ifDesc.length %]([% item.ifDesc | html %])[% END %]</span> [% END %]
+        [% IF item.port.length %]<span class="badge badge-info">[% l('port') %]: [% item.port | html %] [% IF item.ifDesc.length %]([% item.ifDesc | html %])[% END %]</span> [% END %]
       [% END %]
-      [% IF item.role.length %]<span class="badge badge-info">role [% item.role | html %]</span>[% END %]
+      [% IF item.role.length %]<span class="badge badge-info">[% l('role') %]: [% item.role | html %]</span>[% END %]
+      [% IF item.vlan.length %]<span class="badge badge-info">[% l('vlan') %]: [% item.vlan | html %]</span>[% END %]
     </td>
     <td>[% item.switch_mac %]</td>
     <td>[% l(item.connection_type) %]</td>
