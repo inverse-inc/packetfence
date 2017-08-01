@@ -595,6 +595,7 @@ EOT
                 reject
             }
 EOT
+            }
             parse_template( \%tags, "$conf_dir/radiusd/eduroam-cluster", "$install_dir/raddb/sites-enabled/eduroam-cluster" );
         } else {
             unlink($install_dir."/raddb/sites-enabled/eduroam-cluster");
