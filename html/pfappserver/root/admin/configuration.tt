@@ -177,7 +177,9 @@
               [%- IF can_access("CONFIGURATION_MAIN_READ") %]
               [% pf_section_entry( 'guests_admin_registration', 'Access Duration') | none %]
               [%- END %]
-              [% pf_section_entry( 'device_registration', 'Device Registration') | none %]
+              [%- IF can_access("DEVICE_REGISTRATION_READ") %]
+              [% list_entry('Config::DeviceRegistration', 'index', 'Device Registration') | none %]
+              [%- END %]
             </ul>
           </div>
           <div class="sidenav sidenav-section sidenav-inverse span3 offset1"
