@@ -15,6 +15,7 @@ authorize {
 
 	# Add in PacketFence specific configuration
 	update {
+		&request:Realm !* ANY
 		&request:FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
 		&control:PacketFence-RPC-Server = ${rpc_host}
 		&control:PacketFence-RPC-Port = ${rpc_port}

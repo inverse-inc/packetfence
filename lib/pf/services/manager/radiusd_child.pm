@@ -458,6 +458,16 @@ EOT
     }
 
     parse_template( \%tags, "$conf_dir/radiusd/proxy.conf.inc", "$install_dir/raddb/proxy.conf.inc" );
+
+    %tags = '';
+    foreach my $realm ( sort keys %pf::config::ConfigRealm ) {
+        $tags{'config'} .= <<"EOT";
+realm $realm {
+nostrip
+}
+EOT
+    }
+    parse_template( \%tags, "$conf_dir/radiusd/proxy.conf.loadbalancer", "$install_dir/raddb/proxy.conf.loadbalancer" );
 }
 
 =head2 generate_radiusd_cluster
