@@ -554,16 +554,16 @@ EOT
 EOT
                 $i++;
             }
-            $tags{'realm'} = '';
+            $tags{'local_realm'} = '';
             my @realms;
-            foreach my $realm ( split(',', $eduroam_authentication_source[0]{'realm'}) ) {
+            foreach my $realm ( split(',', $eduroam_authentication_source[0]{'local_realm'}) ) {
                  push (@realms, "Realm == \"$realm\"");
             }
             if (@realms) {
-                $tags{'realm'} .= 'if ( ';
-                $tags{'realm'} .=  join(' || ', @realms);
-                $tags{'realm'} .= ' ) {'."\n";
-                $tags{'realm'} .= <<"EOT";
+                $tags{'local_realm'} .= 'if ( ';
+                $tags{'local_realm'} .=  join(' || ', @realms);
+                $tags{'local_realm'} .= ' ) {'."\n";
+                $tags{'local_realm'} .= <<"EOT";
                 update control {
                     Proxy-To-Realm := "packetfence.cluster"
                 }
@@ -575,7 +575,7 @@ EOT
             }
 EOT
             } else {
-$tags{'realm'} = << "EOT";
+$tags{'local_realm'} = << "EOT";
                     update control {
                         Load-Balance-Key := "%{Calling-Station-Id}"
                         Proxy-To-Realm := "eduroam.cluster"

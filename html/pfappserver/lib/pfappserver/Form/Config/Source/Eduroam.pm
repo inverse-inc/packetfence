@@ -72,11 +72,11 @@ has_field 'auth_listening_port' => (
 );
 
 
-has_field 'realm' =>
+has_field 'local_realm' =>
   (
    type => 'Select',
    multiple => 1,
-   label => 'Realms',
+   label => 'Local Realms',
    options_method => \&options_realm,
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'Click to add a realm'},

@@ -28,7 +28,7 @@ server eduroam.cluster {
 
         authorize {
             %%reject_realm%%
-            %%realm%%
+            %%local_realm%%
             if(!NAS-IP-Address){
                     update request {
                             NAS-IP-Address := "%{Packet-Src-IP-Address}"
@@ -40,7 +40,7 @@ server eduroam.cluster {
         authenticate {
         }
         accounting {
-            %%realm%%
+            %%local_realm%%
             if(!NAS-IP-Address){
                     update request {
                             NAS-IP-Address := "%{Packet-Src-IP-Address}"

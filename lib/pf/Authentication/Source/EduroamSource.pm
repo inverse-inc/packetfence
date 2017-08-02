@@ -22,7 +22,7 @@ has 'server1_address'       => (isa => 'Str', is => 'rw');
 has 'server2_address'       => (isa => 'Str', is => 'rw');
 has 'radius_secret'         => (isa => 'Str', is => 'rw');
 has 'auth_listening_port'   => (isa => 'Maybe[Int]', is => 'rw', default => '11812');
-has 'realm'                 => (isa => 'ArrayRef[Str]', is => 'rw');
+has 'local_realm'           => (isa => 'ArrayRef[Str]', is => 'rw');
 has 'reject_realm'          => (isa => 'ArrayRef[Str]', is => 'rw');
 
 =head2 available_rule_classes
