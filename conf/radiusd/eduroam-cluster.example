@@ -27,6 +27,8 @@ server eduroam.cluster {
         }
 
         authorize {
+            suffix
+            ntdomain
             %%reject_realm%%
             %%local_realm%%
             if(!NAS-IP-Address){
