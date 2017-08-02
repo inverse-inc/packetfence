@@ -40,7 +40,9 @@ server eduroam.cluster {
         authenticate {
         }
         accounting {
-            %%local_realm%%
+            update control {
+                    Proxy-To-Realm := "packetfence"
+            }
             if(!NAS-IP-Address){
                     update request {
                             NAS-IP-Address := "%{Packet-Src-IP-Address}"

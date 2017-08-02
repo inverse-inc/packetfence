@@ -565,7 +565,7 @@ EOT
                 $tags{'local_realm'} .= ' ) {'."\n";
                 $tags{'local_realm'} .= <<"EOT";
                 update control {
-                    Proxy-To-Realm := "packetfence.cluster"
+                    Proxy-To-Realm := "packetfence"
                 }
             } else {
                 update control {
