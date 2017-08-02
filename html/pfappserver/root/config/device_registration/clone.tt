@@ -1,0 +1,2 @@
+[% INCLUDE config/device_registration/view.tt %]
+
