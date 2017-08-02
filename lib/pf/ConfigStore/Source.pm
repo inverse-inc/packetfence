@@ -102,7 +102,9 @@ sub cleanupBeforeCommit {
     if ($item->{type} eq 'SMS') {
         $self->flatten_list($item, 'sms_carriers');
     }
-    $self->flatten_list($type, qw(local_realm reject_realm));
+    if ($item->{type} eq 'Eduroam') {
+        $self->flatten_list($item, qw(local_realm reject_realm));
+    }
 }
 
 before rewriteConfig => sub {
