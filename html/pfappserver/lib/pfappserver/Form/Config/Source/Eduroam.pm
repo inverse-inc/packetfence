@@ -104,6 +104,25 @@ sub options_realm {
     return @roles;
 }
 
+=head2 getSourceArgs
+
+get the args to build a source
+
+=cut
+
+sub getSourceArgs {
+    my ($self) = @_;
+    my $args = $self->SUPER::getSourceArgs();
+    if (ref($args->{'local_realm'}) ne "ARRAY") {
+        $args->{'local_realm'} = [$args->{'local_realm'}];
+    }
+    if (ref($args->{'reject_realm'}) ne "ARRAY") {
+        $args->{'reject_realm'} = [$args->{'reject_realm'}];
+    }
+    return $args;
+}
+
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
