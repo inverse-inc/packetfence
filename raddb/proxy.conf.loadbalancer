@@ -1,0 +1,12 @@
+# Don't strip anything in the load balancer
+
+realm default {
+nostrip
+}
+realm local {
+nostrip
+}
+realm null {
+nostrip
+}
+
