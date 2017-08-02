@@ -72,19 +72,6 @@ has_field 'auth_listening_port' => (
 );
 
 
-has_field 'local_realm' =>
-  (
-   type => 'Select',
-   multiple => 1,
-   label => 'Local Realms',
-   options_method => \&options_realm,
-   element_class => ['chzn-deselect'],
-   element_attr => {'data-placeholder' => 'Click to add a realm'},
-   tags => { after_element => \&help,
-             help => 'Realms that will authenticate locally' },
-   default => '',
-  );
-
 has_field 'reject_realm' =>
   (
    type => 'Select',
@@ -94,7 +81,20 @@ has_field 'reject_realm' =>
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'Click to add a realm'},
    tags => { after_element => \&help,
-             help => 'Realms that will rejected' },
+             help => 'Realms that will be rejected' },
+   default => '',
+  );
+
+has_field 'local_realm' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   label => 'Local Realms',
+   options_method => \&options_realm,
+   element_class => ['chzn-deselect'],
+   element_attr => {'data-placeholder' => 'Click to add a realm'},
+   tags => { after_element => \&help,
+             help => 'Realms that will be authenticate locally' },
    default => '',
   );
 
