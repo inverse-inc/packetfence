@@ -14,7 +14,7 @@
     CALL form.field('id').type_attr('hidden');
     CALL form.field('id').do_label(0);
   END -%]
-    [% INCLUDE "config/device_registration/create.tt" %]
+    [% INCLUDE "config/deviceregistration/create.tt" %]
 
   </div><!--modal-body-->
 

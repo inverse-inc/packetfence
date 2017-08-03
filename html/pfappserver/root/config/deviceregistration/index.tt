@@ -21,7 +21,7 @@
         </div>
 
         <div class="card-block">
-          [% INCLUDE config/device_registration/list.tt %]
+          [% INCLUDE config/deviceregistration/list.tt %]
         </div>
 
       [%- IF can_access("DEVICE_REGISTRATION_CREATE") %]
