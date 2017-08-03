@@ -291,7 +291,7 @@ accounting {
 	#  Filter attributes from the accounting response.
 	attr_filter.accounting_response
     
-	packetfence
+	rest
 }
 
 
@@ -314,6 +314,7 @@ post-auth {
 
 	# Add in PacketFence configuration
 	update {
+		&request:Realm[0] !* ANY
 		&request:FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
 		&control:PacketFence-RPC-Server = ${rpc_host}
 		&control:PacketFence-RPC-Port = ${rpc_port}
@@ -334,7 +335,7 @@ post-auth {
 	#	&reply: += &session-state:
 	#}
 
-	packetfence
+	rest
 	if (updated || ok || noop) {
 		request-timing
 		-sql
