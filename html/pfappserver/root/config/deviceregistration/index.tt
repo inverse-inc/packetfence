@@ -17,7 +17,7 @@
 
       <div class="card">
         <div class="card-title">
-      <h2>[% l('Device Registration') %] [% doc('_device_registration') | none %]</h2>
+      <h2>[% l('Device Registration') %] [% doc('_devices_registration') | none %]</h2>
         </div>
 
         <div class="card-block">

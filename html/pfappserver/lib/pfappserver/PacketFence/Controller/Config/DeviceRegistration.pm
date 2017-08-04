@@ -74,24 +74,6 @@ before [qw(remove)] => sub {
 
 };
 
-before [qw(clone view _processCreatePost update)] => sub {
-    my ($self, $c, @args) = @_;
-    my $model = $self->getModel($c);
-    my $itemKey = $model->itemKey;
-    my $item = $c->stash->{$itemKey};
-    my $form = $c->action->{form};
-    $c->stash->{current_form} = "${form}::${item}";
-};
-
-sub create_type : Path('create') : Args(1) {
-    my ($self, $c, $type) = @_;
-    my $model = $self->getModel($c);
-    my $itemKey = $model->itemKey;
-    $c->forward('create');
-}
-
-
-
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2017 Inverse inc.
