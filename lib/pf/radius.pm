@@ -245,6 +245,7 @@ sub authorize {
         $args->{'autoreg'} = 1;
         %autoreg_node_defaults = $role_obj->getNodeInfoForAutoReg($args);
         $node_obj->merge(\%autoreg_node_defaults);
+        $args->{'node_info'} = merge($args->{'node_info'}, \%autoreg_node_defaults);
         $logger->debug("[$mac] auto-registering node");
         # automatic registration
         $info{autoreg} = 1;
