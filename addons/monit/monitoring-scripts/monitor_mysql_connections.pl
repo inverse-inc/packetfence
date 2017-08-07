@@ -25,7 +25,7 @@ if(my $dbh = db_connect()) {
     print "Alert threshold is: $threshold \n";
     print "Active connections: $count \n";
 
-    if($count > $threshold) {
+    if(($count - 1) > $threshold) {
         die "Too many connections to the database: $count. Consider raising the connections limit or investigate the high amount of connections. \n"
     }
 }
