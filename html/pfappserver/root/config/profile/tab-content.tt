@@ -115,7 +115,7 @@
             <label class="control-label" for="device_registration">[% l('Device registration') %]</label>
             <div class="controls">
               [% form.field('device_registration').render | none %]
-              <div id="deviceRegistrationEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('device_registration').index > 1 %]">
+              <div id="deviceRegistrationEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('devices_registration').index > 1 %]">
                 <p>
                   <i class="icon-cog icon-large"></i>
                   [%- IF form.isa('pfappserver::Form::Portal::Profile::Default') -%]

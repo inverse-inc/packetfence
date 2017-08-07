@@ -22,6 +22,7 @@ use pf::authentication;
 use pf::ConfigStore::Provisioning;
 use pf::ConfigStore::BillingTiers;
 use pf::ConfigStore::Scan;
+use pf::ConfigStore::DeviceRegistration;
 use pf::web::constants;
 use pf::constants::Connection::Profile;
 use pfappserver::Form::Field::Duration;
@@ -392,6 +393,33 @@ has_field 'scans.contains' =>
     widget_wrapper => 'DynamicTableRow',
   );
 
+=head2 device_registration
+
+Collection Device registration profiles for the profile
+
+=cut
+
+has_field 'devices_registration' =>
+  (
+    'type' => 'DynamicTable',
+    'sortable' => 1,
+    'do_label' => 0,
+  );
+
+=head2 devices_registration.contains
+
+The definition for Device registration Sources field
+
+=cut
+
+has_field 'devices_registration.contains' =>
+  (
+    type => 'Select',
+    options_method => \&options_device_registration,
+    widget_wrapper => 'DynamicTableRow',
+  );
+
+
 =head2 preregistration
 
 Controls whether or not this connection profile is used for preregistration
@@ -458,6 +486,17 @@ Returns the list of scan to be displayed
 sub options_scan {
     return  map { { value => $_, label => $_ } } @{pf::ConfigStore::Scan->new->readAllIds};
 }
+
+=head2 options_device_registration
+
+Returns the list of device_registration profile to be displayed
+
+=cut
+
+sub options_device_registration {
+    return  map { { value => $_, label => $_ } } @{pf::ConfigStore::DeviceRegistration->new->readAllIds};
+}
+
 
 =head2 options_root_module
 

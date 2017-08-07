@@ -18,7 +18,7 @@ has roles => ( is => 'rw' );
 has_field 'id' =>
   (
    type => 'Text',
-   label => 'Provisioning ID',
+   label => 'Device Registration ID',
    required => 1,
    messages => { required => 'Please specify the ID of the Device Registration entry.' },
    apply => [ pfappserver::Base::Form::id_validator('device registration ID') ]
