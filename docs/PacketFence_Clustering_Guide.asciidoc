@@ -14,10 +14,10 @@ This guide has been created to give a quick start to install active/active clust
 Assumptions
 -----------
 * You have at least three (3) installed PacketFence (v7+) servers
-* Servers are running RHEL / CentOS 7 / Debian Jessie
-* Servers have identical copies for network interfaces
-* Servers network interfaces are on the same layer 2 network
-* Servers hostnames must be resolvable via DNS resolution or be in the hostfile (`/etc/hosts`) of each server.
+* The servers are running one of RHEL / CentOS 7 / Debian Jessie
+* The servers have identical identifiers for network interfaces (e.g. eth0)
+* The servers network interfaces are on the same layer 2 network
+* The servers hostnames must be resolvable via DNS resolution or be in the hostfile (`/etc/hosts`) of each server.
 
 NOTE: Appended to this guide is a glossary on specialized terms used in this document.
 
