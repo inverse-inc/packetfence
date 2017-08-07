@@ -3,17 +3,14 @@
 [%ELSE%]
 [% SET action_uri = c.req.uri %]
 [%END%]
-<form name="modalDeviceRegistration" class="form-horizontal form-condensed" action="[% action_uri %]" method="post">
+<form name="modalItem" class="form-horizontal form-condensed" action="[% action_uri %]" method="post">
   <div class="modal-header">
     <a class="close" data-dismiss="modal">&times;</a>
     <h3>[% IF item.id.defined %]<i>[% l('Device Registration Entry') %]</i> [% item.id %][% ELSE %][% l('New Device Registration Entry') %][% END %]</h3>
   </div>
 
   <div class="modal-body">
-  [%- IF item.id.defined;
-    CALL form.field('id').type_attr('hidden');
-    CALL form.field('id').do_label(0);
-  END -%]
+    [% form.block('definition').render | none %]
 
   </div><!--modal-body-->
 

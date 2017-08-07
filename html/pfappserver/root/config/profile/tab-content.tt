@@ -111,3 +111,20 @@
               </div>
             </div>
           </div>
+          <div class="control-group">
+            <label class="control-label" for="device_registration">[% l('Device registration') %]</label>
+            <div class="controls">
+              [% form.field('device_registration').render | none %]
+              <div id="deviceRegistrationEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('device_registration').index > 1 %]">
+                <p>
+                  <i class="icon-cog icon-large"></i>
+                  [%- IF form.isa('pfappserver::Form::Portal::Profile::Default') -%]
+                  [% l('No device registration profile specified.') %]
+                  [%- ELSE -%]
+                  [% l('With no device registration profile specified, the device registration will not be accessible.') %]
+                  [%- END -%]<br/>
+                  <a href="#add">[% l('Add a Device Registration profile.') %]</a>
+                </p>
+              </div>
+            </div>
+          </div>

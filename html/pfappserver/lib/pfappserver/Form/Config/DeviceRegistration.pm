@@ -54,6 +54,11 @@ has_field 'allowed_devices' =>
    fingerbank_model => "fingerbank::Model::Device",
   );
 
+has_block definition =>
+  (
+   render_list => [ qw(id description role allowed_devices) ],
+  );
+
 =head2 options_roles
 
 =cut

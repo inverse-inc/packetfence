@@ -1,7 +1,7 @@
-      <div class="modal modal-large fade hide" id="modalDeviceRegistration">
+      <div class="modal modal-large fade hide" id="modalItem">
       </div>
 
-      <div class="modal fade hide" id="deleteItem">
+      <div class="modal fade hide" id="deleteDeviceRegistration">
         <div class="modal-header">
           <a class="close" data-dismiss="modal">&times;</a>
           <h3><i>[% l('Delete Device Registration Entry') %]</i> <span></span></h3>
@@ -26,7 +26,7 @@
 
       [%- IF can_access("DEVICE_REGISTRATION_CREATE") %]
         <div class="form-actions">
-          <a id="createDeviceRegistration" class="btn" href="[% c.pf_hash_for(c.controller('Config::DeviceRegistration').action_for('create')) %]">[% l('Add device registration') %]</a>
+          <a class="btn createItem" href="[% c.pf_hash_for(c.controller('Config::DeviceRegistration').action_for('create')) %]">[% l('Add device registration') %]</a>
         </div>
       [%- END %]
       </div>

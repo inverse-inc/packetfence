@@ -54,7 +54,7 @@ sub index : Path : Args(0) {
     if (view($pid)) {
         $c->stash->{hasLocalAccount} = $TRUE;
     }
-    if (isenabled( $Config{'device_registration'}{'status'} ) ) {
+    if (defined( $c->profile{'device_registration'} ) ) {
         $c->stash->{isDeviceRegEnable} = $TRUE;
     }
     $c->stash(
