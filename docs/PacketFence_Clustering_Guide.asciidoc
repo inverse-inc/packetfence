@@ -14,15 +14,15 @@ This guide has been created to give a quick start to install active/active clust
 Assumptions
 -----------
 * You have at least three (3) installed PacketFence (v7+) servers
-* Servers are running RHEL / CentOS 7
-* Servers have identical copies for network interfaces
-* Servers network interfaces are on the same layer 2 network
-* Servers hostnames must be resolvable via DNS resolution or be in the hostfile (`/etc/hosts`) of each server.
+* The servers are running one of RHEL / CentOS 7 / Debian Jessie
+* The servers have identical identifiers for network interfaces (e.g. eth0)
+* The servers network interfaces are on the same layer 2 network
+* The servers hostnames must be resolvable via DNS resolution or be in the hostfile (`/etc/hosts`) of each server.
 
 NOTE: Appended to this guide is a glossary on specialized terms used in this document.
 
-Installation on CentOS 7
-------------------------
+Installation
+------------
 
 Step 1: Install the replicated database
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -36,12 +36,21 @@ Installing packages
 
 First, you will need to install Percona Xtrabackup for the synchronization to work correctly.
 
+On RHEL / CentOS 7:
+
   # yum install http://www.percona.com/downloads/percona-release/redhat/0.1-3/percona-release-0.1-3.noarch.rpm
 
 Disable Percona repositories, so that installing software from that repository requires explicit action.
 
   # sed -i 's/enabled = 1/enabled = 0/g' /etc/yum.repos.d/percona-release.repo
   # yum install percona-xtrabackup socat --enablerepo=percona-release-x86_64
+
+On Debian:
+
+  # wget https://repo.percona.com/apt/percona-release_0.1-4.$(lsb_release -sc)_all.deb
+  # dpkg -i percona-release_0.1-4.$(lsb_release -sc)_all.deb
+  # apt-get update
+  # apt-get -y install percona-xtrabackup-24
 
 If you use the `/usr/local/pf/addons/database-backup-and-maintenance.sh` script, this will have enabled the Percona Xtrabackup mode. In order for the backups to still work correctly, you should configure your installation as described in section '15.3.6. Using Percona XtraBackup' of the Administration guide.
 
@@ -67,10 +76,10 @@ Then, you will need to create a user for the database replication that PacketFen
   # mysql -u root -p
 
     mysql> CREATE USER 'pfcluster'@'%' IDENTIFIED BY 'aMuchMoreSecurePassword';
-    mysql> GRANT RELOAD, LOCK TABLES, REPLICATION CLIENT, SUPER ON *.* TO 'pfcluster'@'%';
+    mysql> GRANT PROCESS, RELOAD, LOCK TABLES, REPLICATION CLIENT, SUPER ON *.* TO 'pfcluster'@'%';
 
     mysql> CREATE USER 'pfcluster'@'localhost' IDENTIFIED BY 'aMuchMoreSecurePassword';
-    mysql> GRANT RELOAD, LOCK TABLES, REPLICATION CLIENT, SUPER ON *.* TO 'pfcluster'@'localhost';
+    mysql> GRANT PROCESS, RELOAD, LOCK TABLES, REPLICATION CLIENT, SUPER ON *.* TO 'pfcluster'@'localhost';
 
     mysql> FLUSH PRIVILEGES;
 
