@@ -35,6 +35,7 @@ has 'added_joins' => (is => 'rw', default => sub { {} } );
 sub search {
     my ($self, $params) = @_;
     my $logger = get_logger();
+    delete $self->{online_date_search_clause};
     my $builder = $self->make_builder;
     $self->setup_query($builder, $params);
     my $results = $self->do_query($builder, $params);
@@ -94,6 +95,9 @@ sub add_searches {
     $builder->where('(');
     $builder->where( { table => 'r2', name => 'radacctid' }, 'IS NULL')->where('AND')
     ->where( { table => 'locationlog2', name => 'id' }, 'IS NULL');
+    if ($self->{online_date_search_clause}) {
+        $builder->where('AND')->where(@{$self->{online_date_search_clause}});
+    }
     $builder->where(')');
 }
 
@@ -530,7 +534,7 @@ sub add_joins {
         my $online_date = $params->{online_date};
         my $start = $online_date->{start};
         my $end = $online_date->{end};
-        $builder->where(\"node.mac", 'IN', \"select DISTINCT callingstationid from radacct where acctstarttime >= '$start 00:00:00' and acctstoptime <= '$end 23:59:59'");
+        $self->{online_date_search_clause} = [\"node.mac", 'IN', \"select DISTINCT callingstationid from radacct where acctstarttime >= '$start 00:00:00' and acctstoptime <= '$end 23:59:59'"];
     }
 }
 
