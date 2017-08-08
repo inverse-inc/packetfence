@@ -1041,7 +1041,7 @@ sub dynamic_register_node : Public :AllowedAsAction(mac, $mac, username, $userna
         connection_type => $node_info->{'last_connection_type'},
         SSID => $node_info->{'last_ssid'},
         stripped_user_name => $stripped_user,
-        Realm => $node_info->{'realm'},
+        realm => $node_info->{'realm'},
     };
 
     my $source;
