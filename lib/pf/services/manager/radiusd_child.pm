@@ -567,7 +567,7 @@ EOT
             }
             $tags{'local_realm'} = '';
             my @realms;
-            foreach my $realm ( split(',', $eduroam_authentication_source[0]{'local_realm'}) ) {
+            foreach my $realm ( @{$eduroam_authentication_source[0]{'local_realm'}} ) {
                  push (@realms, "Realm == \"$realm\"");
             }
             if (@realms) {
@@ -595,7 +595,7 @@ EOT
             }
             $tags{'reject_realm'} = '';
             my @reject_realms;
-            foreach my $reject_realm ( split(',', $eduroam_authentication_source[0]{'reject_realm'}) ) {
+            foreach my $reject_realm ( @{$eduroam_authentication_source[0]{'reject_realm'}} ) {
                  push (@reject_realms, "Realm == \"$reject_realm\"");
             }
             if (@reject_realms) {
