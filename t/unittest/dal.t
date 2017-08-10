@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 32;
+use Test::More tests => 37;
 
 use pf::error qw(is_success is_error);
 use pf::db;
@@ -155,13 +155,27 @@ is($status, $STATUS::CREATED, "$test_mac was successfully created");
 
 is($status, $STATUS::OK, "$test_mac was successfully updated");
 
-my $data = {"computername" => "computer", voip => "no"};
+is($node->category, undef, "Undefined role");
+
+is($node->bypass_role, undef, "Undefined bypass_role");
+
+my $data = {"computername" => "computer", voip => "no", category => "gaming", bypass_role => "guest"};
 
 $node->merge($data);
 
 is($node->voip, $data->{voip}, "Test pf::dal->merge voip");
 
 is($node->computername, $data->{computername}, "Test pf::dal->merge computername");
+
+is($node->category, $data->{category}, "Test pf::dal::node->merge category");
+
+$node->save;
+
+$node = pf::dal::node->find({mac => $test_mac});
+
+is($node->category, $data->{category}, "Test saving category");
+
+is($node->bypass_role, $data->{bypass_role}, "Test saving bypass_role");
 
 pf::dal::node->remove_by_id({mac => $test_mac});
 
