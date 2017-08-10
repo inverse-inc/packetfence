@@ -108,7 +108,7 @@ sub _fields_line_expanded {
     );
 }
 
-__PACKAGE__->meta->make_immutable;
+#__PACKAGE__->meta->make_immutable;
 
 =head1 AUTHOR
 

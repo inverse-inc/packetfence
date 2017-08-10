@@ -51,7 +51,7 @@ sub _fields_expanded {
     return qw(categories);
 }
 
-__PACKAGE__->meta->make_immutable;
+#__PACKAGE__->meta->make_immutable;
 
 =head1 AUTHOR
 

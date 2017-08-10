@@ -22,7 +22,7 @@ extends 'pfappserver::Base::Model::Fingerbank';
 has '+fingerbankModel' => ( default => 'fingerbank::Model::DHCP_Vendor');
 
 
-__PACKAGE__->meta->make_immutable;
+#__PACKAGE__->meta->make_immutable;
 
 =head1 COPYRIGHT
 

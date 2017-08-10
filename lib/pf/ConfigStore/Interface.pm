@@ -33,7 +33,7 @@ sub pfconfigNamespace {'config::Pf'};
 
 sub _buildCachedConfig { pf::ConfigStore::Pf->new->cachedConfig() }
 
-__PACKAGE__->meta->make_immutable;
+#__PACKAGE__->meta->make_immutable;
 
 =back
 

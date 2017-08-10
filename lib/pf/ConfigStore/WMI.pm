@@ -52,7 +52,7 @@ sub _fields_expanded {
     return qw(actions);
 }
 
-__PACKAGE__->meta->make_immutable;
+#__PACKAGE__->meta->make_immutable;
 
 =head1 AUTHOR
 

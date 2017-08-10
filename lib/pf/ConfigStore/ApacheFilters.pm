@@ -22,7 +22,7 @@ sub configFile { $apache_filters_config_file };
 
 sub pfconfigNamespace {'config::ApacheFilters'}
 
-__PACKAGE__->meta->make_immutable;
+#__PACKAGE__->meta->make_immutable;
 
 =head1 AUTHOR
 

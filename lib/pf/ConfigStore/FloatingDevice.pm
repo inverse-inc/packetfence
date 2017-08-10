@@ -23,7 +23,7 @@ sub configFile { $floating_devices_config_file }
 
 sub pfconfigNamespace {'config::FloatingDevices'}
 
-__PACKAGE__->meta->make_immutable;
+#__PACKAGE__->meta->make_immutable;
 
 =head1 COPYRIGHT
 

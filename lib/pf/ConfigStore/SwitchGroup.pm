@@ -24,7 +24,7 @@ sub group { 'group' };
 
 sub globalConfigStore { pf::ConfigStore::Switch->new }
 
-__PACKAGE__->meta->make_immutable;
+#__PACKAGE__->meta->make_immutable;
 
 =head1 COPYRIGHT
 

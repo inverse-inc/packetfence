@@ -23,7 +23,7 @@ sub configFile { $pki_provider_config_file }
 sub pfconfigNamespace { 'config::PKI_Provider' }
 
 
-__PACKAGE__->meta->make_immutable;
+#__PACKAGE__->meta->make_immutable;
 
 =head1 COPYRIGHT
 

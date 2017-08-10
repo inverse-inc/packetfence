@@ -35,7 +35,7 @@ has 'sql_strings'  => ( is => 'rw', isa => 'HashRef', lazy_build => 1 );
 has 'table' => ( is => 'rw', isa => 'Str', default => 'chi_cache' );
 has 'key_prefix' => ( is => 'rw', isa => 'Str', builder => '_build_key_prefix', lazy => 1);
 
-__PACKAGE__->meta->make_immutable;
+#__PACKAGE__->meta->make_immutable;
 
 sub BUILD {
     my ( $self, $args ) = @_;

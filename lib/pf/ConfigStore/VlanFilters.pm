@@ -21,7 +21,7 @@ sub configFile { $vlan_filters_config_file };
 
 sub pfconfigNamespace {'config::VlanFilters'}
 
-__PACKAGE__->meta->make_immutable;
+#__PACKAGE__->meta->make_immutable;
 
 =head1 AUTHOR
 

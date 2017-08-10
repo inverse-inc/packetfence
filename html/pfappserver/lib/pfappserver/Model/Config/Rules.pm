@@ -31,7 +31,7 @@ has '+itemsKey' => (default => 'rules');
 
 sub _buildConfigStore { return pf::ConfigStore::Authentication->new;}
 
-__PACKAGE__->meta->make_immutable;
+#__PACKAGE__->meta->make_immutable;
 
 
 =back

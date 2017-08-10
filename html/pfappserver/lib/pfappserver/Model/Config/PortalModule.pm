@@ -48,7 +48,7 @@ sub remove {
     return $self->SUPER::remove($id);
 }
 
-__PACKAGE__->meta->make_immutable;
+#__PACKAGE__->meta->make_immutable;
 
 =head1 COPYRIGHT
 

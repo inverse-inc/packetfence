@@ -100,7 +100,7 @@ before rewriteConfig => sub {
     $config->ReorderByGroup();
 };
 
-__PACKAGE__->meta->make_immutable;
+#__PACKAGE__->meta->make_immutable;
 
 =head1 COPYRIGHT
 

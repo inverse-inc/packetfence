@@ -22,7 +22,7 @@ sub configFile { $dns_filters_config_file };
 
 sub pfconfigNamespace {'config::DNS_Filters'}
 
-__PACKAGE__->meta->make_immutable;
+#__PACKAGE__->meta->make_immutable;
 
 =head1 AUTHOR
 

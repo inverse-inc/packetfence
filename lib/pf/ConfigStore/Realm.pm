@@ -73,7 +73,7 @@ sub join_options {
     return join("\n",@$options);
 }
 
-__PACKAGE__->meta->make_immutable;
+#__PACKAGE__->meta->make_immutable;
 
 =head1 AUTHOR
 

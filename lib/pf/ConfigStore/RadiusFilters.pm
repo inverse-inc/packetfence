@@ -22,7 +22,7 @@ sub configFile { $radius_filters_config_file };
 
 sub pfconfigNamespace {'config::RadiusFilters'}
 
-__PACKAGE__->meta->make_immutable;
+#__PACKAGE__->meta->make_immutable;
 
 =head1 AUTHOR
 

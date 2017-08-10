@@ -283,7 +283,7 @@ sub ACCEPT_CONTEXT {
     return $self->new(  { scope => $c->stash->{scope} || 'Upstream', %args } );
 }
 
-__PACKAGE__->meta->make_immutable;
+#__PACKAGE__->meta->make_immutable;
 
 =head1 COPYRIGHT
 

@@ -24,7 +24,7 @@ has '+fingerbankModel' => ( default => 'fingerbank::Model::MAC_Vendor');
 has '+search_fields' => ( default => sub { [qw(name mac) ] } );
 
 
-__PACKAGE__->meta->make_immutable;
+#__PACKAGE__->meta->make_immutable;
 
 =head1 COPYRIGHT
 

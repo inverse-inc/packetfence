@@ -23,7 +23,7 @@ sub configFile { $dhcp_filters_config_file };
 
 sub pfconfigNamespace {'config::DhcpFilters'}
 
-__PACKAGE__->meta->make_immutable;
+#__PACKAGE__->meta->make_immutable;
 
 =head1 AUTHOR
 

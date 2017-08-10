@@ -69,7 +69,7 @@ sub update_db_name {
     return ($self->config_file->RewriteConfig(), undef);
 }
 
-__PACKAGE__->meta->make_immutable;
+#__PACKAGE__->meta->make_immutable;
 
 
 =head1 COPYRIGHT

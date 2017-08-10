@@ -28,7 +28,7 @@ extends 'pfappserver::Base::Model::Config';
 
 sub _buildConfigStore { pf::ConfigStore::Interface->new; }
 
-__PACKAGE__->meta->make_immutable;
+#__PACKAGE__->meta->make_immutable;
 
 
 =back

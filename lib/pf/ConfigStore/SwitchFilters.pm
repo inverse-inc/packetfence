@@ -21,7 +21,7 @@ sub configFile { $switch_filters_config_file };
 
 sub pfconfigNamespace {'config::SwitchFilters'}
 
-__PACKAGE__->meta->make_immutable;
+#__PACKAGE__->meta->make_immutable;
 
 =head1 AUTHOR
 

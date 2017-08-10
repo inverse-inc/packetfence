@@ -52,6 +52,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable(inline_constructor => 0);
+#__PACKAGE__->meta->make_immutable(inline_constructor => 0);
 
 1;

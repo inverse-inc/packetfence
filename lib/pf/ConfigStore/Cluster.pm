@@ -23,7 +23,7 @@ sub configFile { $cluster_config_file };
 
 sub pfconfigNamespace {'config::Cluster'}
 
-__PACKAGE__->meta->make_immutable;
+#__PACKAGE__->meta->make_immutable;
 
 =head1 AUTHOR
 

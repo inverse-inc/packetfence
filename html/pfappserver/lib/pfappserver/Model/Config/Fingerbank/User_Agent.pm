@@ -22,7 +22,7 @@ extends 'pfappserver::Base::Model::Fingerbank';
 has '+fingerbankModel' => ( default => 'fingerbank::Model::User_Agent');
 
 
-__PACKAGE__->meta->make_immutable;
+#__PACKAGE__->meta->make_immutable;
 
 =head1 COPYRIGHT
 

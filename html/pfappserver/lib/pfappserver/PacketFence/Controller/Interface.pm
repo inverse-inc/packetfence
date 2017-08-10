@@ -396,6 +396,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+#__PACKAGE__->meta->make_immutable;
 
 1;

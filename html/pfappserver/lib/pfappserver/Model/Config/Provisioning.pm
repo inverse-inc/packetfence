@@ -33,7 +33,7 @@ buld the config store
 sub _buildConfigStore { pf::ConfigStore::Provisioning->new }
 
 
-__PACKAGE__->meta->make_immutable;
+#__PACKAGE__->meta->make_immutable;
 
 =back
 

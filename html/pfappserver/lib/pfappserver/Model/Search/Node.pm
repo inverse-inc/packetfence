@@ -580,7 +580,7 @@ sub add_limit {
     $builder->limit($limit + 1, $offset);
 }
 
-__PACKAGE__->meta->make_immutable;
+#__PACKAGE__->meta->make_immutable;
 
 
 =head1 COPYRIGHT

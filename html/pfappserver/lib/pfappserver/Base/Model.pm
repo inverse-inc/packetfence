@@ -53,7 +53,7 @@ sub ACCEPT_CONTEXT {
 }
 
 
-__PACKAGE__->meta->make_immutable;
+#__PACKAGE__->meta->make_immutable;
 
 =head1 COPYRIGHT
 

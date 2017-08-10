@@ -282,6 +282,6 @@ sub templateIncludePath {
     return $profile->{_template_paths};
 }
 
-__PACKAGE__->meta->make_immutable;
+#__PACKAGE__->meta->make_immutable;
 
 1;
