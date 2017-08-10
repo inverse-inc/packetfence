@@ -58,7 +58,6 @@ use pf::radius::constants;
 use List::Util qw(first);
 use pf::util::statsd qw(called);
 use pf::StatsD::Timer;
-use Hash::Merge qw (merge);
 use pf::accounting;
 use pf::cluster;
 use pf::api::queue;
@@ -245,7 +244,6 @@ sub authorize {
         $args->{'autoreg'} = 1;
         %autoreg_node_defaults = $role_obj->getNodeInfoForAutoReg($args);
         $node_obj->merge(\%autoreg_node_defaults);
-        $args->{'node_info'} = merge($args->{'node_info'}, \%autoreg_node_defaults);
         $logger->debug("[$mac] auto-registering node");
         # automatic registration
         $info{autoreg} = 1;
