@@ -18,9 +18,9 @@ has roles => ( is => 'rw' );
 has_field 'id' =>
   (
    type => 'Text',
-   label => 'Device Registration ID',
+   label => 'Profile Name',
    required => 1,
-   messages => { required => 'Please specify the ID of the Device Registration entry.' },
+   messages => { required => 'Please specify an name of the Device Registration entry.' },
    apply => [ pfappserver::Base::Form::id_validator('device registration ID') ]
   );
 
@@ -50,7 +50,7 @@ has_field 'allowed_devices' =>
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'Click to add an OS'},
    tags => { after_element => \&help,
-             help => 'List of OS which will be allowed to register via the self service portal.' },
+             help => 'List of OS which will be allowed to be register via the self service portal.' },
    fingerbank_model => "fingerbank::Model::Device",
   );
 

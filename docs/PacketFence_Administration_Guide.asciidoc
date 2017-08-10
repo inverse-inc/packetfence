@@ -1859,7 +1859,7 @@ This URL is accessible from within the network, in any VLAN that can reach the P
 
 As from PacketFence 7.3 and onwards you need to create a device registration profile and associate it with the connection profile.
 
-This will allow you to configure who is able to register which type of device. For instance a person connection from the public WiFi can only register Android but a person from the intern network can register Windows and Mac.
+This will allow you to configure who is able to register which type of device. For instance a person connecting from the public WiFi can only register an Android device but a person from the internal network can register Windows and MacOS computers.
 
 NOTE: A 'portal' interface type is required to use this feature. A 'portal' interface type can be added to any network interface using the web admin GUI.
 
