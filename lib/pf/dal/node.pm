@@ -50,8 +50,6 @@ our @COLUMN_NAMES = (
     'nr.name|bypass_role',
 );
 
-our @MERGE_FIELD = (@pf::dal::_node::FIELD_NAMES, qw(category bypass_role));
-
 =head2 find_from_tables
 
 Join the node_category table information in the node results
@@ -72,16 +70,6 @@ sub find_columns {
     [@COLUMN_NAMES]
 }
  
-=head2 merge_fields
-
-merge_fields
-
-=cut
-
-sub merge_fields {
-    [@MERGE_FIELD]
-}
-
 =head2 pre_save
 
 pre_save
@@ -208,6 +196,22 @@ sub _load_locationlog {
     @{$self}{@LOCATION_LOG_GETTERS} = @{$row}{@LOCATION_LOG_GETTERS};
 
     return $STATUS::OK;
+}
+
+=head2 merge
+
+merge fields into object
+
+=cut
+
+sub merge {
+    my ($self, $vals) = @_;
+    return unless defined $vals && ref($vals) eq 'HASH';
+    while (my ($k, $v) each %$vals) {
+        next if $k ~= /^__/;
+        $self->{$k} = $v;
+    }
+    return ;
 }
 
 =head1 AUTHOR
