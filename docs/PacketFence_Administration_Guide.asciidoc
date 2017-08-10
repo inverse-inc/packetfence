@@ -1851,21 +1851,15 @@ PacketFence allows users to extend their access before it has ended. In order to
 Devices Registration
 ~~~~~~~~~~~~~~~~~~~~
 
-Users have the possibility to register their devices (Microsoft XBOX/XBOX360, Nintendo DS/Wii, Sony PlayStation and so on) right from a special portal page. When accessing this page, users will be prompted to login as if they were registering themselves. Once logged in, the portal will ask them to enter the device MAC address that will then be matched against a predefined list of authorized MAC OUI. The device will be registered with the user's id and can be assigned into a specific category for easier management.
+Users have the possibility to register their devices right from a special portal page. When accessing this page, users will be prompted to login as if they were registering themselves. Once logged in, the portal will ask them to enter the device MAC address that will then be matched against the Fingerbank database to match authorized devices list. The device will be registered with the user's id and can be assigned into a specific category for easier management.
 
 Here's how to configure the whole thing.
 The portal page can be accessed by the following URL: https://YOUR_PORTAL_HOSTNAME/device-registration
 This URL is accessible from within the network, in any VLAN that can reach the PacketFence server.
 
-The following can be configured by editing the pf.conf file:
+These parameters can also be configured from the *Configuration -> -> Advanced Access Configuration -> Device Registration* section. As from PacketFence 7.3 and onwards you need to create a device registration profile and associate it with the connection profile.
 
-   [registration]
-   device_registration = enabled
-   device_registration_role = gaming
-
-Make sure the role exists in PacketFence otherwise you will encounter registration errors. Moreover, make sure the role mapping for your particular equipment is done.
-
-These parameters can also be configured from the *Configuration -> -> Advanced Access Configuration -> Device Registration* section.
+This will allow you to configure who is able to register which type of device. For instance a person connection from the public WiFi can only register Android but a person from the intern network can register Windows and Mac.
 
 NOTE: A 'portal' interface type is required to use this feature. A 'portal' interface type can be added to any network interface using the web admin GUI.
 
