@@ -1853,11 +1853,11 @@ Devices Registration
 
 Users have the possibility to register their devices right from a special portal page. When accessing this page, users will be prompted to login as if they were registering themselves. Once logged in, the portal will ask them to enter the device MAC address that will then be matched against the Fingerbank database to match authorized devices list. The device will be registered with the user's id and can be assigned into a specific category for easier management.
 
-Here's how to configure the whole thing.
+The section *Configuration -> -> Advanced Access Configuration -> Device Registration* is where to configure it.
 The portal page can be accessed by the following URL: https://YOUR_PORTAL_HOSTNAME/device-registration
 This URL is accessible from within the network, in any VLAN that can reach the PacketFence server.
 
-These parameters can also be configured from the *Configuration -> -> Advanced Access Configuration -> Device Registration* section. As from PacketFence 7.3 and onwards you need to create a device registration profile and associate it with the connection profile.
+As from PacketFence 7.3 and onwards you need to create a device registration profile and associate it with the connection profile.
 
 This will allow you to configure who is able to register which type of device. For instance a person connection from the public WiFi can only register Android but a person from the intern network can register Windows and Mac.
 
