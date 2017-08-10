@@ -207,8 +207,8 @@ merge fields into object
 sub merge {
     my ($self, $vals) = @_;
     return unless defined $vals && ref($vals) eq 'HASH';
-    while (my ($k, $v) each %$vals) {
-        next if $k ~= /^__/;
+    while (my ($k, $v) = each %$vals) {
+        next if $k =~ /^__/;
         $self->{$k} = $v;
     }
     return ;
