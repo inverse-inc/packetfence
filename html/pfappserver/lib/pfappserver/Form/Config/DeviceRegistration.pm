@@ -30,7 +30,7 @@ has_field 'description' =>
    messages => { required => 'Please specify the Description of the Device Registration entry.' },
   );
 
-has_field 'role' =>
+has_field 'category' =>
   (
    type => 'Select',
    multiple => 1,
@@ -56,7 +56,7 @@ has_field 'allowed_devices' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id description role allowed_devices) ],
+   render_list => [ qw(id description category allowed_devices) ],
   );
 
 =head2 options_roles
@@ -69,6 +69,17 @@ sub options_roles {
     return @roles;
 }
 
+=head2 ACCEPT_CONTEXT
+
+To automatically add the context to the Form
+
+=cut
+
+sub ACCEPT_CONTEXT {
+    my ($self, $c, @args) = @_;
+    my ($status, $roles) = $c->model('Config::Roles')->listFromDB();
+    return $self->SUPER::ACCEPT_CONTEXT($c, roles => $roles, @args);
+}
 
 =head1 COPYRIGHT
 

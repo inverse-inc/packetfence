@@ -53,7 +53,7 @@ sub cleanupBeforeCommit {
 =cut
 
 sub _fields_expanded {
-    return qw(role allowed_devices);
+    return qw(category allowed_devices);
 }
 
 =head1 AUTHOR
