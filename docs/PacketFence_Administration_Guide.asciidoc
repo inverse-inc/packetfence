@@ -2774,6 +2774,15 @@ Admin Access
 
 You can manage which access you give to PacketFence administrators. To do that go through 'Configuration->System Configuration->Admin Access'. Then go to your source which authenticate administrator and create an 'administration' rule and assign the wanted Admin role. This functionality allows you to have a granular control on which section of the admin interface is available to whom.
 
+Built-in roles
+^^^^^^^^^^^^^^
+
+ * ALL: Provides the user with all the admin roles without any exception.
+ * ALL_PF_ONLY: Provides the user with all the admin roles related to the PacketFence deployment (excludes switch login rights).
+ * Node Manager: Provides the user the ability to manage the nodes.
+ * User Manager: Provides the user the ability to manage other users.
+ * Violation Manager: Provides the user the ability to manage the violations (trigger, open, close) for the nodes.
+
 Regex Syslog Parser
 ~~~~~~~~~~~~~~~~~~~
 
@@ -4013,6 +4022,8 @@ Switch login access
 PacketFence is able to act as an authentication and authorization service on the port 1815 for granting command-line interface (CLI) access to switches.
 PacketFence currently supports Cisco switches and these must be configured using the following guide: http://www.cisco.com/c/en/us/support/docs/security-vpn/remote-authentication-dial-user-service-radius/116291-configure-freeradius-00.html
 From the PacketFence's web admin interface, you must configure an Admin Access role (Configuration->Network Configuration->Admin access) that contains the action 'Switches CLI - Read' or 'Switches CLI - Write' and assign this role to an internal user or in an Administration rule in an internal source.
+
+NOTE: Any user that has the 'ALL' administrative role will be able to login into your switches. If you want to provide all PacketFence administrative access to some users without allowing them to login into the switches, then apply the 'ALL_PF_ONLY' administrative role which will contains all the necessary PacketFence roles without the switch login.
 
 DHCP Option 82
 ~~~~~~~~~~~~~~
