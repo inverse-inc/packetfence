@@ -56,11 +56,24 @@ sub parseLineFromRule {
     if (exists $data{mac}) {
         $data{mac} = clean_mac($data{mac});
     }
+    return $success, \%data;
+}
+
+
+=head2 ipMacTranslation
+
+ipMacTranslation
+
+=cut
+
+sub ipMacTranslation {
+    my ($self, $rule, $data) = @_;
+    my $success = 1;
     if (isenabled($rule->{ip_mac_translation}) ) {
-        if (exists $data{ip} && !exists $data{mac}) {
-            my $mac = pf::ip4log::ip2mac($data{ip});
+        if (exists $data->{ip} && !exists $data->{mac}) {
+            my $mac = pf::ip4log::ip2mac($data->{ip});
             if ($mac) {
-                $data{mac} = $mac;
+                $data->{mac} = $mac;
             }
             else {
                 my $logger = get_logger();
@@ -68,10 +81,10 @@ sub parseLineFromRule {
                 $success = 0;
             }
         }
-        elsif (exists $data{mac} && !exists $data{ip}) {
-            my $ip = pf::ip4log::mac2ip($data{mac});
+        elsif (exists $data->{mac} && !exists $data->{ip}) {
+            my $ip = pf::ip4log::mac2ip($data->{mac});
             if ($ip) {
-                $data{ip} = $ip;
+                $data->{ip} = $ip;
             }
             else {
                 my $logger = get_logger();
@@ -80,7 +93,7 @@ sub parseLineFromRule {
             }
         }
     }
-    return $success, \%data;
+    return $success;
 }
 
 =head2 sendActions
@@ -158,13 +171,19 @@ sub matchLine {
         $logger->trace( sub { "Pfdetect Regex $id checking rule $rule_name" });
         my $rule = clone($r);
         my ($success, $data) = $self->parseLineFromRule($rule, $line);
-        if ($success == 0 && !$include_ip2mac_failures) {
+        if ($success == 0) {
             next;
         }
         $logger->trace( sub { "Pfdetect Regex $id rule $rule_name matched" });
+        $success = $self->ipMacTranslation($r, $data);
+        if ($success == 0 && !$include_ip2mac_failures) {
+            $logger->error("Pfdetect Regex $id rule $rule_name error with ip <=> mac translations");
+            next;
+        }
         my %match = (
             rule => $rule,
             actions => [],
+            success => $success,
         );
         push @matches, \%match;
         foreach my $action (@{$rule->{actions} // []}) {
