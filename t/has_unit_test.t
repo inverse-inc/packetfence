@@ -25,7 +25,6 @@ use File::Spec::Functions;
 # pf core libs
 use lib '/usr/local/pf/lib';
 use Test::More;
-use Test::NoWarnings;
 
 for my $module ( pf->modules ) {
     my $test = "${module}.t";
