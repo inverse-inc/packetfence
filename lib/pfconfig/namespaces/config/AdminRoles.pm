@@ -42,6 +42,7 @@ sub build_child {
     }
     $ADMIN_ROLES{NONE}{ACTIONS} = {};
     $ADMIN_ROLES{ALL}{ACTIONS} = { map { $_ => undef } @pf::constants::admin_roles::ADMIN_ACTIONS };
+    $ADMIN_ROLES{ALL_PF_ONLY}{ACTIONS} = { map { $_ => undef } grep {$_ !~ /^SWITCH_LOGIN_/} @pf::constants::admin_roles::ADMIN_ACTIONS };
 
     foreach my $key ( keys %ADMIN_ROLES ) {
         $self->cleanup_after_read( $key, $ADMIN_ROLES{$key} );
