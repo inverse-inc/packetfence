@@ -62,6 +62,7 @@ sub new {
             '_format'      => 'csv',
             '_oses'        => undef,
             '_categories'  => undef,
+            '_verify_hostname' => 'enabled',
     }, $class;
 
     foreach my $value ( keys %data ) {
@@ -91,8 +92,9 @@ sub startScan {
     my $nessus_clientpolicy = $self->{_nessus_clientpolicy};
     my $scanner_name        = $self->{_scannername};
     my $format              = $self->{_format};
+    my $verify_hostname     = isenabled($self->{_verify_hostname}) ? 1 : 0;
 
-    my $nessus = Net::Nessus::REST->new(url => 'https://'.$host.':'.$port);
+    my $nessus = Net::Nessus::REST->new(url => 'https://'.$host.':'.$port, ssl_opts => { verify_hostname => $verify_hostname });
     $nessus->create_session(username => $user, password => $pass);
 
     # Verify nessus policy ID on the server, nessus remote scanner id, set scan name and launch the scan
