@@ -3401,7 +3401,7 @@ get the IfIndex from a trap
 
 sub getIfIndexFromTrap {
     my ($self, $variables) = @_;
-    my @indexes = $self->findTrapVarWithBase($variables,".1.3.6.1.2.1.2.2.1.1.");
+    my @indexes = $self->findTrapVarWithBase($variables,".1.3.6.1.2.1.2.2.1.1");
     return undef unless @indexes;
     return undef unless $indexes[0][1] =~ /(INTEGER|Gauge32): (\d+)/;
     return $2;
