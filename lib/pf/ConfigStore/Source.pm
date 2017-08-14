@@ -92,6 +92,16 @@ sub cleanupAfterRead {
         $rule->{conditions} = [delete @$rule{@conditions_keys}];
         push @{$item->{"${class}_rules"}}, $rule;
     }
+    if ($item->{type} eq 'SMS') {
+        $self->expand_list($item, 'sms_carriers');
+    }
+}
+
+sub cleanupBeforeCommit {
+    my ($self, $id, $item) = @_;
+    if ($item->{type} eq 'SMS') {
+        $self->flatten_list($item, 'sms_carriers');
+    }
 }
 
 before rewriteConfig => sub {
