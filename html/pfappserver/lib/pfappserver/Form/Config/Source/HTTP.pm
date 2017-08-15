@@ -73,6 +73,43 @@ has_field 'authorization_url' =>
    tags => { after_element => \&help,
              help => 'Note : The URL is always prefixed by a slash (/)' },
   );
+has_field 'stripped_user_name' =>
+  (
+   type            => 'Toggle',
+   checkbox_value  => 'yes',
+   unchecked_value => 'no',
+   default         => 'yes',
+   label           => 'Use stripped username ',
+   tags => { after_element => \&help,
+             help => 'Use stripped username returned by RADIUS to test the following rules.' },
+  );
+
+has_field 'realm' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   label => 'Associated Realms',
+   options_method => \&options_realm,
+   element_class => ['chzn-deselect'],
+   element_attr => {'data-placeholder' => 'Click to add a realm'},
+   tags => { after_element => \&help,
+             help => 'Realms that will be associated with this source' },
+   default => '',
+  );
+
+=head2 options_realm
+
+retrive the realms
+
+=cut
+
+sub options_realm {
+    my ($self) = @_;
+    my @roles = map { $_ => $_ } sort keys %pf::config::ConfigRealm;
+    return @roles;
+}
+
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2017 Inverse inc.

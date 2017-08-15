@@ -383,35 +383,16 @@ sub portal_hosts {
     return @hosts;
 }
 
-=head2 get_realm_authentication_source
-
-Get a source for a specific username and realm
-Will look it up in the realm configuration
-
-=cut
 
 sub get_realm_authentication_source {
-    my ( $username, $realm ) = @_;
+    my ( $username, $realm, $sources ) = @_;
 
     $realm = "null" unless ( defined($realm) );
     $realm = lc $realm;
 
-    my $realm_authentication_source;
+    my @sources = grep { defined $_->realm && grep( /^$realm$/, @{$_->realm} ) } @{$sources};
 
-    if ( exists $ConfigRealm{$realm} ) {
-        if ( my $source = $ConfigRealm{$realm}{source} ) {
-            get_logger->info("Found authentication source '$source' for realm '$realm'");
-            $realm_authentication_source = pf::authentication::getAuthenticationSource($source);
-        }
-    }
-    elsif ( exists $ConfigRealm{default} && $realm ne "null" ) {
-        if ( my $source = $ConfigRealm{default}{source} ) {
-            get_logger->info("Found authentication source '$source' for realm '$realm' through the default realm");
-            $realm_authentication_source = pf::authentication::getAuthenticationSource($source);
-        }
-    }
-
-    return $realm_authentication_source;
+    return \@sources;
 
 }
 
@@ -426,7 +407,7 @@ sub filter_authentication_sources {
 
     return @$sources unless ( defined($username) || defined($realm) );
 
-    my $realm_authentication_source = get_realm_authentication_source($username, $realm);
+    my $realm_authentication_source = get_realm_authentication_source($username, $realm, $sources);
 
     return @$sources unless ( defined($realm_authentication_source) && defined($realm_authentication_source->{id}) && $realm_authentication_source->{id} ne "" );
 

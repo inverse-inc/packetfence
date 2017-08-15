@@ -46,23 +46,33 @@ sub check_password {
 
   my $internal_sources = pf::authentication::getInternalAuthenticationSources();
   my ($stripped_username,$realm) = strip_username($self->_user);
-  my $realm_source = get_realm_authentication_source($stripped_username, $realm);
-  if($realm_source && any {$_->id eq $realm_source->id} @{$internal_sources}){
-    get_logger->info("Found realm source ".$realm_source->id." for user $stripped_username in realm $realm. Using it as the only source.");
-    $internal_sources = [$realm_source];
-  }
-  $self->{_user} = isenabled($realm_source->{'stripped_user_name'}) ? $stripped_username : $self->{_user};
-  my ($result, $message, $source_id, $extra) = pf::authentication::authenticate( { 'username' => $self->_user, 'password' => $password, 'rule_class' => $Rules::ADMIN }, @{$internal_sources});
+  my $realm_source = get_realm_authentication_source($stripped_username, $realm, $internal_sources);
 
-  if ($result) {
-      my $value = pf::authentication::match($source_id, { username => $self->_user, 'rule_class' => $Rules::ADMIN }, $Actions::SET_ACCESS_LEVEL, undef, $extra);
-      $self->_roles([split /\s*,\s*/,$value]) if defined $value;
-      if ($result == $LOGIN_CHALLENGE ) {
-            $self->_challenge($message);
+  my $user = $self->{_user};
+  if (ref($realm_source) eq 'ARRAY') {
+    foreach my $source (@{$realm_source}) {
+      get_logger->info("Found realm source ".$source->id." for user $stripped_username in realm $realm. Using it as the only source.");
+      $user = isenabled($source->{'stripped_user_name'}) ? $stripped_username : $self->{_user};
+      my ($result, $message, $source_id, $extra) = pf::authentication::authenticate( { 'username' => $user, 'password' => $password, 'rule_class' => $Rules::ADMIN }, $source);
+      if ($result) {
+          my $value = pf::authentication::match($source_id, { username => $user, 'rule_class' => $Rules::ADMIN }, $Actions::SET_ACCESS_LEVEL, undef, $extra);
+          $self->_roles([split /\s*,\s*/,$value]) if defined $value;
+          if ($result == $LOGIN_CHALLENGE ) {
+                $self->_challenge($message);
+          }
+          return (defined $value && all{ $_ ne 'NONE'} @{$self->_roles});
       }
-      return (defined $value && all{ $_ ne 'NONE'} @{$self->_roles});
+    }
   }
-
+  my ($result, $message, $source_id, $extra) = pf::authentication::authenticate( { 'username' => $self->_user, 'password' => $password, 'rule_class' => $Rules::ADMIN }, @{$internal_sources});
+  if ($result) {
+    my $value = pf::authentication::match($source_id, { username => $self->_user, 'rule_class' => $Rules::ADMIN }, $Actions::SET_ACCESS_LEVEL, undef, $extra);
+    $self->_roles([split /\s*,\s*/,$value]) if defined $value;
+    if ($result == $LOGIN_CHALLENGE ) {
+      $self->_challenge($message);
+    }
+    return (defined $value && all{ $_ ne 'NONE'} @{$self->_roles});
+  }
   return $FALSE;
 }
 

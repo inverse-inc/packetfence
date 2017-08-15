@@ -8,3 +8,4 @@
 [% form.field('password').render | none %]
 [% form.field('authentication_url').render | none %]
 [% form.field('authorization_url').render | none %]
+[% form.field('realm').render | none %]

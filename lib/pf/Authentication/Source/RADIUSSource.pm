@@ -30,6 +30,7 @@ has 'port' => (isa => 'Maybe[Int]', is => 'rw', default => 1812);
 has 'timeout' => (isa => 'Maybe[Int]', is => 'rw', default => 1);
 has 'secret' => (isa => 'Str', is => 'rw', required => 1);
 has 'stripped_user_name' => (isa => 'Str', is => 'rw', default => 'yes');
+has 'realm' => (isa => 'ArrayRef[Str]', is => 'rw');
 
 =head2 dynamic_routing_module
 

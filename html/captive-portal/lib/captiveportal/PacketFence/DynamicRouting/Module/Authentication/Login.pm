@@ -155,10 +155,10 @@ sub authenticate {
         get_logger->info("Reusing 802.1x credentials with username '$username' and realm '$realm'");
 
         # Fetch appropriate source to use with 'reuseDot1xCredentials' feature
-        my $source = pf::config::util::get_realm_authentication_source($username, $realm);
+        my $source = pf::config::util::get_realm_authentication_source($username, $realm, @sources);
         
         # No source found for specified realm
-        unless ( defined($source) ) {
+        unless ( ref($source) eq 'ARRAY' ) {
             get_logger->error("Unable to find an authentication source for the specified realm '$realm' while using reuseDot1xCredentials");
             $self->app->flash->{error} = "Cannot find a valid authentication source for '" . $node_info->{'last_dot1x_username'} . "'";
 
@@ -176,7 +176,8 @@ sub authenticate {
             realm => $node_info->{'realm'},
         };
         my $source_id;
-        my $role = pf::authentication::match($source->id, $params, $Actions::SET_ROLE, \$source_id);
+        my $role;
+        $role = pf::authentication::match([@{$source}], $params, $Actions::SET_ROLE, \$source_id);
 
         if ( defined($role) ) {
             $self->source(pf::authentication::getAuthenticationSource($source_id));

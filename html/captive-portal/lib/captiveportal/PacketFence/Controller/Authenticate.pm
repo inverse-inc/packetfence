@@ -157,13 +157,10 @@ sub getSources : Private {
         }
     }
 
-    my $realm_source = get_realm_authentication_source($stripped_username, $realm);
-    if( $realm_source && any { $_ eq $realm_source} @sources ){
+    my $realm_source = get_realm_authentication_source($stripped_username, $realm, @sources);
+    if (ref($realm_source) eq 'ARRAY') {
         $c->log->info("Realm source is part of the connection profile sources. Using it as the only auth source.");
         return ($realm_source);
-    }
-    elsif ( $realm_source ) {
-        $c->log->info("Realm source ".$realm_source->id." is configured in the realm $realm but is not in the connection profile. Ignoring it and using the connection profile sources.");
     }
     return @sources;
 }
