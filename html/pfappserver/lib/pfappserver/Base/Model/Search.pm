@@ -107,7 +107,7 @@ add joins to the sql builder
 
 sub add_joins {}
 
-#__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =back
 
