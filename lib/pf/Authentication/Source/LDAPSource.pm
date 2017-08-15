@@ -61,6 +61,7 @@ has 'stripped_user_name' => (isa => 'Str', is => 'rw', default => 'yes');
 has '_cached_connection' => (is => 'rw');
 has 'cache_match' => ( isa => 'Bool', is => 'rw', default => 0 );
 has 'email_attribute' => (isa => 'Maybe[Str]', is => 'rw', default => 'mail');
+has 'realm' => (isa => 'ArrayRef[Str]', is => 'rw');
 
 our $logger = get_logger();
 
