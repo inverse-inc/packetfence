@@ -61,6 +61,8 @@ var NodeView = function(options) {
 
     this.proxyFor(body, 'submit', 'form[name="advancedNodeSearch"]', this.submitSearch);
 
+    this.proxyFor(body, 'reset', 'form[name="advancedNodeSearch"]', this.resetAdvancedSearch);
+
     this.proxyFor(body, 'change', 'form[name="advancedNodeSearch"] [name$=".name"]', this.changeSearchField);
 
     this.proxyFor(body, 'change', 'form[name="advancedNodeSearch"] [name$=".op"]', this.changeOpField);
@@ -726,3 +728,8 @@ NodeView.prototype.searchSwitch = function(query, process) {
         }
     });
 }
+
+NodeView.prototype.resetAdvancedSearch = function(e) {
+    $('#advancedSearchConditions').find('tbody').children(':not(.hidden)').find('[href="#delete"]').click();
+    $('#advancedSearchConditionsEmpty [href="#add"]').click();
+};
