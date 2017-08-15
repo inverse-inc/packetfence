@@ -173,6 +173,11 @@ sub cleanup_after_read {
     $self->expand_list( $data, qw(local_realm reject_realm) );
 }
 
+sub cleanup_after_read {
+    my ( $self, $id, $data ) = @_;
+    $self->expand_list( $data, qw(realm) );
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

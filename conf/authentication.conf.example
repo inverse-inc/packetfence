@@ -1,6 +1,7 @@
 [local]
 description=Local Users
 type=SQL
+realm=null
 
 [file1]
 description=Legacy Source
