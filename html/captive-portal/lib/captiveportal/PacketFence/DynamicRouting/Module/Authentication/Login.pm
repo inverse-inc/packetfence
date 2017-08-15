@@ -159,7 +159,11 @@ sub authenticate {
         
         # No source found for specified realm
         unless ( defined($source) ) {
-            get_logger->warn("Unable to find an authentication source for the specified realm '$realm' while using reuseDot1xCredentials. Continue with the sources defined on the connexion profile");
+            get_logger->error("Unable to find an authentication source for the specified realm '$realm' while using reuseDot1xCredentials");
+            $self->app->flash->{error} = "Cannot find a valid authentication source for '" . $node_info->{'last_dot1x_username'} . "'";
+
+            $self->prompt_fields();
+            return;
         }
 
         # Trying to match credentials with the source
@@ -171,12 +175,7 @@ sub authenticate {
             rule_class => 'authentication',
         };
         my $source_id;
-        my $role;
-        if (defined($source)) {
-            $role = pf::authentication::match($source->id, $params, $Actions::SET_ROLE, \$source_id);
-        } else {
-            $role = pf::authentication::match([@sources], $params, $Actions::SET_ROLE, \$source_id);
-        }
+        my $role = pf::authentication::match($source->id, $params, $Actions::SET_ROLE, \$source_id);
 
         if ( defined($role) ) {
             $self->source(pf::authentication::getAuthenticationSource($source_id));
