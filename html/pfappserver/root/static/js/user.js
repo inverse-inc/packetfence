@@ -63,6 +63,8 @@ var UserView = function(options) {
 
     this.proxyFor($('body'), 'submit', 'form[name="advancedUserSearch"]', this.submitSearch);
 
+    this.proxyFor($('body'), 'reset', 'form[name="advancedUserSearch"]', this.resetAdvancedUserSearch);
+
     this.proxyClick($('body'), '#modalUser [href$="/delete"]', this.deleteUser);
     
     this.proxyClick($('body'), '#modalUser [href$="/unassignNodes"]', this.unassignUserNodes);
@@ -634,4 +636,9 @@ UserView.prototype.submitSearch = function(e) {
         });
     });
     return false;
+};
+
+UserView.prototype.resetAdvancedUserSearch = function(e) {
+    $('#advancedUserSearchConditions').find('tbody').children(':not(.hidden)').find('[href="#delete"]').click();
+    $('#advancedUserSearchConditionsEmpty [href="#add"]').click();
 };
