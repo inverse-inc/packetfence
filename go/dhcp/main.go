@@ -209,6 +209,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 					node = x.(NodeInfo)
 				} else {
 					node = NodeInformation(p.CHAddr())
+					NodeCache.Set(p.CHAddr().String(), node, 3*time.Second)
 				}
 
 				var category string
