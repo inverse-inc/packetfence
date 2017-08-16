@@ -67,7 +67,7 @@ has_field 'passcode' =>
 has_field 'server_certificate_path' =>
  (
   type => 'Path',
-  required => 1,
+  required_when => { 'eap_type' => 25 },
   label => 'RADIUS server certificate path',
   tags => { after_element => \&help,
             help => 'The path to the RADIUS server certificate' },       
