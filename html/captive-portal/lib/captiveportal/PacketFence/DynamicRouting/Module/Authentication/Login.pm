@@ -124,10 +124,10 @@ sub authenticate {
 
     my ($stripped_username, $realm) = strip_username($username);
 
-    my @sources = filter_authentication_sources($self->sources, $stripped_username, $realm);
-    get_logger->info("Authenticating user using sources : ", join(',', (map {$_->id} @sources)));
+    my $sources = filter_authentication_sources($self->sources, $stripped_username, $realm);
+    get_logger->info("Authenticating user using sources : ", join(',', (map {$_->id} @{$sources})));
 
-    unless(@sources){
+    unless(@{$sources}){
         get_logger->info("No sources found for $username");
         $self->app->flash->{error} = "No authentication source found for this username";
         $self->prompt_fields();
@@ -136,7 +136,7 @@ sub authenticate {
 
     # If all sources use the stripped username, we strip it
     # Otherwise, we leave it as is
-    my $use_stripped = all { isenabled($_->{stripped_user_name}) } @sources;
+    my $use_stripped = all { isenabled($_->{stripped_user_name}) } @{$sources};
     if($use_stripped){
         $username = $stripped_username;
     }
@@ -155,7 +155,7 @@ sub authenticate {
         get_logger->info("Reusing 802.1x credentials with username '$username' and realm '$realm'");
 
         # Fetch appropriate source to use with 'reuseDot1xCredentials' feature
-        my $source = pf::config::util::get_realm_authentication_source($username, $realm, @sources);
+        my $source = pf::config::util::get_realm_authentication_source($username, $realm, \@{$sources});
         
         # No source found for specified realm
         unless ( ref($source) eq 'ARRAY' ) {
