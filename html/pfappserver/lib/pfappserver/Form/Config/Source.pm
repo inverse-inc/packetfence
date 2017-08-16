@@ -374,6 +374,9 @@ sub getSourceArgs {
             }
         }
     }
+    if (ref($args->{'realm'}) ne "ARRAY") {
+        $args->{'realm'} = [$args->{'realm'}];
+    }
     return $args;
 }
 
