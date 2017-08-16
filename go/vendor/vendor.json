@@ -57,6 +57,12 @@
 			"revisionTime": "2017-01-10T07:11:07Z"
 		},
 		{
+			"checksumSHA1": "A3dgvLcUyiMw566IDcxEg8YzDlo=",
+			"path": "github.com/erikdubbelboer/gspt",
+			"revision": "1413420207d2f210b0a7839ba51178e0781d437f",
+			"revisionTime": "2016-11-24T03:32:27Z"
+		},
+		{
 			"checksumSHA1": "VdXZPcDRHK1T7XjBu2KW8Mb8S6w=",
 			"path": "github.com/flynn/go-shlex",
 			"revision": "3f9db97f856818214da2e1057f8ad84803971cff",

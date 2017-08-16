@@ -15,6 +15,7 @@ import (
 
 	"github.com/xenolf/lego/acme"
 
+	"github.com/erikdubbelboer/gspt"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	// plug in the HTTP server type
 	_ "github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp"
@@ -27,6 +28,7 @@ import (
 	_ "github.com/inverse-inc/packetfence/go/caddy/pfsso"
 	_ "github.com/inverse-inc/packetfence/go/caddy/requestlimit"
 	_ "github.com/inverse-inc/packetfence/go/caddy/statsd"
+	pflog "github.com/inverse-inc/packetfence/go/log"
 )
 
 func init() {
@@ -47,6 +49,7 @@ func init() {
 	flag.StringVar(&serverType, "type", "http", "Type of server to run")
 	flag.BoolVar(&version, "version", false, "Show version")
 	flag.BoolVar(&validate, "validate", false, "Parse the Caddyfile but do not start the server")
+	flag.StringVar(&psName, "process-name", "pfhttpd", "Name of the process as shown by ps")
 
 	caddy.RegisterCaddyfileLoader("flag", caddy.LoaderFunc(confLoader))
 	caddy.SetDefaultCaddyfileLoader("default", caddy.LoaderFunc(defaultLoader))
@@ -55,6 +58,8 @@ func init() {
 // Run is Caddy's main() function.
 func Run() {
 	flag.Parse()
+	gspt.SetProcTitle(psName)
+	pflog.ProcessName = psName
 
 	caddy.AppName = appName
 	caddy.AppVersion = appVersion
@@ -248,6 +253,7 @@ var (
 	cpu        string
 	logfile    string
 	revoke     string
+	psName     string
 	version    bool
 	plugins    bool
 	validate   bool
