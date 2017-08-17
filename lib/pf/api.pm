@@ -45,6 +45,7 @@ use pf::CHI;
 use pf::metadefender();
 use pf::services();
 use pf::firewallsso();
+use pf::pfqueue::stats();
 
 use List::MoreUtils qw(uniq);
 use List::Util qw(pairmap);
@@ -1542,6 +1543,17 @@ sub cache_user_ntlm {
     pf::log::get_logger->error("Couldn't cache user: '$msg'") unless($result);
 
     return $result;
+}
+
+=head2 queue_stats
+
+queue_stats
+
+=cut
+
+sub queue_stats : Public {
+    my ($class) = @_;
+    return pf::pfqueue::stats->new->stats_data;
 }
 
 =head1 AUTHOR
