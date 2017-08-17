@@ -15,7 +15,7 @@ use Moose;
 
 extends 'pfappserver::Base::Model::SavedSearch';
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head2 Methods
 
@@ -136,7 +136,7 @@ sub _expand_query {
     return $saved_search;
 }
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =back
 

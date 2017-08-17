@@ -25,7 +25,7 @@ sub importConfigFile { $pfmon_default_config_file }
 sub pfconfigNamespace { 'config::Pfmon' }
 
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
 

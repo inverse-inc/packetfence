@@ -283,7 +283,7 @@ sub ACCEPT_CONTEXT {
     return $self->new(  { scope => $c->stash->{scope} || 'Upstream', %args } );
 }
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
 
