@@ -519,6 +519,7 @@ has_field 'delimiter' =>
    [
     { value => 'comma', label => 'Comma' },
     { value => 'semicolon', label => 'Semicolon' },
+    { value => 'colon', label => 'Colon' },
     { value => 'tab', label => 'Tab' },
    ],
   );

@@ -288,32 +288,43 @@ sub import_csv :Local :Args(0) :AdminRole('SWITCHES_CREATE') {
     my $upload = $c->req->upload('importcsv');
     my $file = $upload->fh;
     my $model = $c->model("Config::Switch");
+    my $delimiter = $c->req->param('delimiter');
     my $model_group = $c->model("Config::SwitchGroup");
+
+    # Map delimiter to its actual character
+    if ($delimiter eq 'comma') {
+        $delimiter = ',';
+    } elsif ($delimiter eq 'semicolon') {
+        $delimiter = ';';
+    } elsif ($delimiter eq 'colon') {
+        $delimiter = ':';
+    } elsif ($delimiter eq 'tab') {
+        $delimiter = "\t";
+    }
 
     my $skip = 0;
     my $skip1 = 0;
     my $switches = 0;
     my %seen;
-    while (my $line = <$file>) {
-        chomp $line;
+    my $csv = Text::CSV->new({ binary => 1, sep_char => $delimiter });
+    while (my $fields = $csv->getline($file)) {
 
         unless($skip1) {
             $skip1 = 1;
             next;
         }
 
-        my @fields = split "," , $line;
-        if (@fields < 3) {
+        if (@$fields < 3) {
             $skip++;
-            $logger->warn("This entry has been skipped because this line: $line contains more fields than required");
+            $logger->warn("This entry has been skipped because this line: @$fields[$_] contains more fields than required");
             next;
         }
 
-        my $hostname = $fields[0];
+        my $hostname = @$fields[0];
         $hostname =~ s/[^a-zA-Z0-9 _-]//g;
         $hostname =~ tr/\r\n//d;
 
-        my $switch_ip = $fields[1];
+        my $switch_ip = @$fields[1];
         # Don't want to process them twice...
         my ( $status, $msg ) = $model->hasId($switch_ip);
         if (is_success($status)) {
@@ -322,7 +333,7 @@ sub import_csv :Local :Args(0) :AdminRole('SWITCHES_CREATE') {
             next;
         }
     
-        my $switch_group = $fields[2];
+        my $switch_group = @$fields[2];
         ( $status, $msg ) = $model_group->hasId($switch_group);
         if (is_error($status)) {
             $skip++;
@@ -338,8 +349,12 @@ sub import_csv :Local :Args(0) :AdminRole('SWITCHES_CREATE') {
         $model->create($switch_ip, $assignements);
         $switches++;
     }
+    unless ($csv->eof) {
+        $logger->warn("Problem with CSV file importation: " . $csv->error_diag());
+        $c->stash( status_msg => $c->loc("Problem with importation: [_1]" , $csv->error_diag()));
+    }
     $model->commit();
-    $c->stash( status_msg => "$switches switches have been imported and $skip switches have benn skipped." );
+    $c->stash( status_msg => $c->loc("[_1] switches have benn imported, [_2] switches have been skipped", $switches, $skip));
 }
 
 
