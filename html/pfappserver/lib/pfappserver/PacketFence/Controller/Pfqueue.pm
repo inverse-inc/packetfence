@@ -69,6 +69,10 @@ sub counters :Args {
     });
 }
 
+sub cluster :Local : Args(0) {
+    my ($self, $c) = @_;
+}
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2017 Inverse inc.

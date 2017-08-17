@@ -1,0 +1,7 @@
+<div class="card">
+  <h2 class="card-title">[% l('Cluster') %]</h2>
+
+  <div class="card-block">
+  </div>
+
+</div>
