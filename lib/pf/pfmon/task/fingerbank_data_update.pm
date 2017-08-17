@@ -24,6 +24,8 @@ use pf::log;
 use Moose;
 extends qw(pf::pfmon::task);
 
+our $MYSQL_ACTION = 'update-mysql-db';
+
 =head2 run
 
 Update all the Fingerbank data from the API
@@ -33,8 +35,8 @@ Update all the Fingerbank data from the API
 sub run {
 
     if(fingerbank::Config::is_api_key_configured){
-        my $apiclient = pf::client::getClient();
         foreach my $action (keys(%pf::fingerbank::ACTION_MAP)){
+            next if $action eq $MYSQL_ACTION;
             if(defined($pf::fingerbank::ACTION_MAP_CONDITION{$action})){
                 unless($pf::fingerbank::ACTION_MAP_CONDITION{$action}->()){
                     get_logger->debug("Not executing $action because its condition returned false");
@@ -47,9 +49,11 @@ sub run {
                 get_logger->info("Successfully executed action $action");
             }
             else {
-                get_logger->error("Couldn't execute action $action : ".$status_msg);
+                get_logger->error("Couldn't execute action $action : ". ($status_msg // "Unknown Error"));
             }
         }
+        my $apiclient = pf::client::getClient();
+        $apiclient->notify('fingerbank_update_component', action => $MYSQL_ACTION, email_admin => $FALSE, fork_to_queue => $TRUE);
     }
     else {
         get_logger->debug("Can't update fingerbank data since there is no API key configured");
