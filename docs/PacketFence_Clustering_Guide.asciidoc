@@ -52,8 +52,6 @@ On Debian:
   # apt-get update
   # apt-get -y install percona-xtrabackup-24
 
-If you use the `/usr/local/pf/addons/database-backup-and-maintenance.sh` script, this will have enabled the Percona Xtrabackup mode. In order for the backups to still work correctly, you should configure your installation as described in section '15.3.6. Using Percona XtraBackup' of the Administration guide.
-
 Configuring Galera
 ^^^^^^^^^^^^^^^^^^
 
