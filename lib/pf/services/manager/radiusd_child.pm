@@ -566,7 +566,7 @@ EOT
 EOT
                 $i++;
             }
-            delete $tags{'local_realm'};
+            $tags{'local_realm'} = '';
             my @realms;
             foreach my $realm ( @{$eduroam_authentication_source[0]{'local_realm'}} ) {
                  push (@realms, "Realm == \"$realm\"");
@@ -594,7 +594,7 @@ $tags{'local_realm'} = << "EOT";
                     }
 EOT
             }
-            delete $tags{'reject_realm'};
+            $tags{'reject_realm'} = '';
             my @reject_realms;
             foreach my $reject_realm ( @{$eduroam_authentication_source[0]{'reject_realm'}} ) {
                  push (@reject_realms, "Realm == \"$reject_realm\"");
