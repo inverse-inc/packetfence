@@ -307,8 +307,9 @@ sub import_csv :Local :Args(0) :AdminRole('SWITCHES_CREATE') {
     my $switches = 0;
     my %seen;
     my $csv = Text::CSV->new({ binary => 1, sep_char => $delimiter });
+    my $line_count = 0;
     while (my $fields = $csv->getline($file)) {
-
+        $line_count++;
         unless($skip1) {
             $skip1 = 1;
             next;
@@ -316,7 +317,7 @@ sub import_csv :Local :Args(0) :AdminRole('SWITCHES_CREATE') {
 
         if (@$fields < 3) {
             $skip++;
-            $logger->warn("This entry has been skipped because this line: @$fields[$_] contains more fields than required");
+            $logger->warn("This entry has been skipped because this line: $line_count contains more fields than required");
             next;
         }
 
@@ -354,7 +355,7 @@ sub import_csv :Local :Args(0) :AdminRole('SWITCHES_CREATE') {
         $c->stash( status_msg => $c->loc("Problem with importation: [_1]" , $csv->error_diag()));
     }
     $model->commit();
-    $c->stash( status_msg => $c->loc("[_1] switches have benn imported, [_2] switches have been skipped", $switches, $skip));
+    $c->stash( status_msg => $c->loc("[_1] switches have been imported, [_2] switches have been skipped", $switches, $skip));
 }
 
 
