@@ -215,32 +215,6 @@ sub _connect {
 }
 
 
-=head2 match
-
-    Overrided to add caching to avoid a hit to the database
-
-=cut
-
-our @KEYS_FOR_MATCHING = qw(
-    SSID connection_type rule_class username
-);
-
-sub match {
-    my ($self, $params) = @_;
-    my $timer_stat_prefix = called() . "." .  $self->{'id'};
-    my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}"});
-    if($self->is_match_cacheable) {
-        my $result = $self->cache->compute_with_undef([$self->id, @{$params}{@KEYS_FOR_MATCHING}], sub {
-                $pf::StatsD::statsd->increment(called() . "." . $self->id. ".cache_miss.count" );
-                my $result =   $self->SUPER::match($params);
-                return $result;
-            });
-        return $result;
-    }
-    my $result = $self->SUPER::match($params);
-    return $result;
-}
-
 =head2 cache
 
     get the cache object
@@ -251,28 +225,33 @@ sub cache {
     return pf::CHI->new( namespace => 'ldap_auth');
 }
 
-=head2 is_match_cacheable
 
-Checks to see if the match can be cached
+=head2 match_in_subclass
+
+match_in_subclass
 
 =cut
 
-sub is_match_cacheable {
-    my ($self) = @_;
-    #First check to see caching is disabled to see if we can exit quickly
-    return 0 unless $self->cache_match;
-    #Check rules for timed based operations return false first one found
-    foreach my $rule (@{$self->{rules}}) {
-        foreach my $condition (@{$rule->{conditions}}) {
-            my $op = $condition->{operator};
-            return 0 if $op eq $Conditions::IS_BEFORE || $op eq $Conditions::IS_AFTER;
-        }
+sub match_in_subclass {
+    my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
+    my $filter = $self->ldap_filter_for_conditions($own_conditions, $rule->match, $self->{'usernameattribute'}, $params);
+    my $id = $self->id;
+    if (! defined($filter)) {
+        $logger->error("[$id] Missing parameters to construct LDAP filter");
+        $pf::StatsD::statsd->increment(called() . "." . $id . ".error.count" );
+        return undef;
     }
-    return $self->cache_match;
+    my $rule_id = $rule->id;
+    $logger->debug("[$id $rule_id] Searching for $filter, from $self->{'basedn'}, with scope $self->{'scope'}");
+    if ($self->cache_match) {
+        return $self->cache->compute_with_undef("$id:$rule_id:$filter", sub {
+            return $self->_match_in_subclass($filter, $params, $rule, $own_conditions, $matching_conditions);
+        });
+    }
+    return $self->_match_in_subclass($filter, $params, $rule, $own_conditions, $matching_conditions);
 }
 
-
-=head2 match_in_subclass
+=head2 _match_in_subclass
 
 C<$params> are the parameters gathered at authentication (username, SSID, connection type, etc).
 
@@ -284,8 +263,8 @@ Conditions that match are added to C<$matching_conditions>.
 
 =cut
 
-sub match_in_subclass {
-    my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
+sub _match_in_subclass {
+    my ($self, $filter, $params, $rule, $own_conditions, $matching_conditions) = @_;
     my $timer_stat_prefix = called() . "." .  $self->{'id'};
     my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}",  level => 6});
 
@@ -296,13 +275,6 @@ sub match_in_subclass {
     my ( $connection, $LDAPServer, $LDAPServerPort ) = @$cached_connection;
 
 
-    my $filter = $self->ldap_filter_for_conditions($own_conditions, $rule->match, $self->{'usernameattribute'}, $params);
-    if (! defined($filter)) {
-        $logger->error("[$self->{'id'}] Missing parameters to construct LDAP filter");
-        $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".error.count" );
-        return undef;
-    }
-    $logger->debug("[$self->{'id'} $rule->{'id'}] Searching for $filter, from $self->{'basedn'}, with scope $self->{'scope'}");
 
     my @attributes = map { $_->{'attribute'} } @{$own_conditions};
     my $result = do {
