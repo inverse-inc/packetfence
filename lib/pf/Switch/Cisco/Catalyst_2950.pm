@@ -1125,7 +1125,7 @@ sub getPhonesLLDPAtIfIndex {
                 );
                 next if (!defined($portIdResult));
                 if ($portIdResult->{"$oid_lldpRemPortId.$CISCO::DEFAULT_LLDP_REMTIMEMARK.$lldpPort.$lldpRemIndex"}
-                        =~ /^0x([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})$/i) {
+                        =~ /^(?:0x)?([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})(?::..)?$/i) {
                     push @phones, lc("$1:$2:$3:$4:$5:$6");
                 }
             }
