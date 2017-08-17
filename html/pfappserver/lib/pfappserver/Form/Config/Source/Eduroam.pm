@@ -113,11 +113,11 @@ get the args to build a source
 sub getSourceArgs {
     my ($self) = @_;
     my $args = $self->SUPER::getSourceArgs();
-    if (ref($args->{'local_realm'}) ne "ARRAY") {
-        $args->{'local_realm'} = [$args->{'local_realm'}];
-    }
-    if (ref($args->{'reject_realm'}) ne "ARRAY") {
-        $args->{'reject_realm'} = [$args->{'reject_realm'}];
+    for my $r (qw(local_realm reject_realm)) {
+        $args->{$r} //= [];
+        if (ref($args->{$r}) ne "ARRAY" ) {
+            $args->{$r} = [$args->{$r}];
+        }
     }
     return $args;
 }
