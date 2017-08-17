@@ -69,7 +69,7 @@ type PfConfFencing struct {
 	Whitelist             string   `json:"whitelist"`
 	ProxyPassthroughs     []string `json:"proxy_passthroughs"`
 	Passthroughs          []string `json:"passthroughs"`
-	Redirtimer            string   `json:"redirtimer"`
+	Redirtimer            int      `json:"redirtimer"`
 	WaitForRedirect       string   `json:"wait_for_redirect"`
 	Passthrough           string   `json:"passthrough"`
 }
