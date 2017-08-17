@@ -3,9 +3,10 @@ package firewallsso
 import (
 	"context"
 	"fmt"
-	"github.com/inverse-inc/packetfence/go/log"
-	"layeh.com/radius"
 	"net"
+
+	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/julsemaan/radius"
 )
 
 type FortiGate struct {
