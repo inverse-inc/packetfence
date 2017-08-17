@@ -198,9 +198,9 @@ sub authenticate {
 
         # validate login and password
         my ( $return, $message, $source_id, $extra ) =
-          pf::authentication::authenticate( { 'username' => $username, 'password' => $password, 'rule_class' => $Rules::AUTH }, @sources );
+          pf::authentication::authenticate( { 'username' => $username, 'password' => $password, 'rule_class' => $Rules::AUTH }, @{$sources} );
         if (!defined $return || $return == $LOGIN_FAILURE) {
-            pf::auth_log::record_auth(join(',',map { $_->id } @sources), $self->current_mac, $username, $pf::auth_log::FAILED);
+            pf::auth_log::record_auth(join(',',map { $_->id } @{$sources}), $self->current_mac, $username, $pf::auth_log::FAILED);
             $self->app->flash->{error} = $message;
             $self->prompt_fields();
             return;
