@@ -64,6 +64,9 @@ Hotspot support (Web Auth Enforcement)::
   PacketFence can also be configured as hotspot, if you have a manageable device that supports an external captive portal (like
 Cisco WLC or Aruba IAP).
 
+RADIUS support (RADIUS Enforcement)::
+  PacketFence can be used as a RADIUS server without having registration, isolation, portal features in the case only RADIUS authentication for network equipment is what matter.
+
 Voice over IP (VoIP) support::
   Also called IP Telephony (IPT), VoIP is fully supported (even in heterogeneous environments) for multiple switch vendors (Cisco, Avaya, HP and many more).
 
@@ -455,6 +458,16 @@ An example:
   SSID::GuestAccess,MAC::00:11:22:33:44:55
 
 This will trigger all the nodes that connects to the _GuestAccess_ SSID to use inline enforcement mode (PacketFence will return a void VLAN or the `inlineVlan` if defined in switch configuration) and the MAC address `00:11:22:33:44:55` client if it connects on another SSID.
+
+Technical introduction to RADIUS enforcement
+--------------------------------------------
+
+Introduction
+~~~~~~~~~~~~
+
+The concept of having a RADIUS enforcement is to not use registration and isolation, nor the portal. Everything here is for RADIUS authentication only. By default the management interface will be the RADIUS interface. If needed, it is possible to add another one via 'Network Configuration->Networks->Interfaces' adding an `Other` type of interface and the additionnal daemon `RADIUS`.
+
+Every time a device will try to authenticate, the matching production VLAN will be assigned, depending on the rules in 'Policies and Access Control->Authentication Sources'.
 
 
 Configuration
