@@ -42,6 +42,12 @@ sub loadViolationsIntoDb {
         $logger->error("Can't connect to db");
         return;
     }
+
+    if (db_readonly_mode()) {
+        print STDERR "Cannot reload violations when the database is in read only mode\n";
+        return;
+    }
+
     while(my ($violation,$data) = each %Violation_Config) {
         # parse grace, try to understand trailing signs, and convert back to seconds
         my @time_values = (qw(grace delay_by));
