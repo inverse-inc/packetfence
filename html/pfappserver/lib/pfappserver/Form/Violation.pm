@@ -228,7 +228,7 @@ For violations other than the default, add placeholders with values from default
 sub update_fields {
     my $self = shift;
 
-    unless ($self->{init_object} && $self->init_object->{id} eq 'defaults') {
+    unless ($self->{init_object} && defined $self->init_object->{id} && $self->init_object->{id} eq 'defaults') {
         if ($self->placeholders) {
             foreach my $field ($self->fields) {
                 if ($self->placeholders->{$field->name} && length $self->placeholders->{$field->name}) {
