@@ -6,7 +6,6 @@ use strict;
 use warnings;
 
 use pf::db;
-use Data::Dumper;
 
 if(my $dbh = db_connect()) {
     my $sth = $dbh->prepare("select * from information_schema.processlist;");
