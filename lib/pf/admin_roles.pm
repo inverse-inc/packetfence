@@ -20,7 +20,7 @@ use List::MoreUtils qw(any all uniq);
 use pfconfig::cached_hash;
 use pf::constants;
 use pf::db qw(db_check_readonly);
-use pf::constants::admin_roles qw(@ADMIN_ACTIONS);
+use pf::constants::admin_roles qw(@ADMIN_ACTIONS %ADMIN_NOT_IN_READONLY);
 use DateTime::Format::Strptime;
 
 our @EXPORT = qw(admin_can admin_can_do_any admin_can_do_any_in_group %ADMIN_ROLES admin_allowed_options admin_allowed_options_all check_allowed_unreg_date);
@@ -49,12 +49,9 @@ our %ADMIN_GROUP_ACTIONS = (
       ],
 );
 
-# Actions allowed in readonly mode
-our %ADMIN_IN_READONLY = map { $_ => 1 } (grep { /_READ/ || !/^(NODES|SWITCHES|VIOLATIONS|WRIX|USERS)_(CREATE|DELETE|UPDATE|CREATE_MULTIPLE)$/ } @ADMIN_ACTIONS);
-
 sub _filter_actions {
     if (db_check_readonly()) {
-        return grep { exists $ADMIN_IN_READONLY{$_} } @_;
+        return grep { !exists $ADMIN_NOT_IN_READONLY{$_} } @_;
     }
     return @_;
 }
