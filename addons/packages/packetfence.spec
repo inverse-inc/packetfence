@@ -289,6 +289,8 @@ Requires: wmi, perl(Net::WMIClient)
 Requires: lasso-perl 
 # Captive Portal Dynamic Routing
 Requires: perl(Graph)
+#Timezone
+Requires: perl(DateTime::TimeZone)
 
 # for dashboard
 Requires: python-django, python-django-tagging, pyparsing
