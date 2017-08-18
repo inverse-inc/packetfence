@@ -17,6 +17,8 @@ Version X.Y.Z released on 2017-
 New Features
 ++++++++++++
 
+* Added a RADIUS only mode to PacketFence.
+
 Enhancements
 ++++++++++++
 
