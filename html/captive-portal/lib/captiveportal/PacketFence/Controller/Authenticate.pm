@@ -104,11 +104,11 @@ sub authenticationLogin : Private {
     my ($stripped_username, $realm) = strip_username($username);
     my $password = $request->param("password");
 
-    my @sources = $self->getSources($c, $username, $realm);
+    my $sources = $self->getSources($c, $username, $realm);
 
     # If all sources use the stripped username, we strip it
     # Otherwise, we leave it as is
-    my $use_stripped = all { isenabled($_->{stripped_user_name}) } @sources;
+    my $use_stripped = all { isenabled($_->{stripped_user_name}) } @{$sources};
     if($use_stripped){
         $username = $stripped_username;
     }
@@ -157,12 +157,12 @@ sub getSources : Private {
         }
     }
 
-    my $realm_source = get_realm_authentication_source($stripped_username, $realm, @sources);
+    my $realm_source = get_realm_authentication_source($stripped_username, $realm, \@sources);
     if (ref($realm_source) eq 'ARRAY') {
         $c->log->info("Realm source is part of the connection profile sources. Using it as the only auth source.");
         return ($realm_source);
     }
-    return @sources;
+    return \@sources;
 }
 
 sub _clean_username {
