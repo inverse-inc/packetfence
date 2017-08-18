@@ -161,7 +161,15 @@ Populates the radius_nas table with switches in switches.conf.
 # First, we aim at reduced complexity. I prefer to dump and reload than to deal with merging config vs db changes.
 sub freeradius_populate_nas_config {
     my $logger = get_logger();
-    return unless db_ping;
+    unless(db_ping()){
+        $logger->error("Can't connect to db");
+        return;
+    }
+
+    if (db_readonly_mode()) {
+        print STDERR "Cannot reload radius nas table when the database is in read only mode\n";
+        return;
+    }
     my ($switch_config,$timestamp) = @_;
     my %skip = (default => undef, '127.0.0.1' => undef );
     my $radiusSecret;
