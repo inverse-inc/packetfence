@@ -9,7 +9,7 @@
           <h3><i>[% l('Delete Violation') %]</i> <span></span></h3>
         </div>
         <div class="modal-body">
-          <p>[% l('Really delete this violation?') %]</p>
+          <p>[% l('Deleting this violation will close all triggered violations associated with this violation.') %]</p>
         </div>
         <div class="modal-footer">
           <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
