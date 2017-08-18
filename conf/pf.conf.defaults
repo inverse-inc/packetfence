@@ -17,8 +17,7 @@ dhcpservers=127.0.0.1
 #
 # general.timezone
 #
-# System's timezone in string format. Supported list:
-# http://www.php.net/manual/en/timezones.php
+#System's timezone in string format. List generated from Perl library DataTime::TimeZone
 timezone=America/Montreal
 
 [network]
