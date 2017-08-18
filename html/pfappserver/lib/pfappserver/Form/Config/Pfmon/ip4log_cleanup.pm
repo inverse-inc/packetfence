@@ -30,7 +30,7 @@ has_field 'rotate' => (
     unchecked_value => 'disabled',
     default_method => \&default_field_method,
     tags => { after_element => \&help,
-             help => 'Enable or disable ip4log rotation (moving ip4log_history records to ip4log_archive)<br>If disabled, this task will delete from the iplog_history table rather than the iplog_archive using the iplog rotation window, interval, batch and timeout parameters.' },
+             help => 'Enable or disable ip4log rotation (moving ip4log_history records to ip4log_archive)<br>If disabled, this task will delete from the ip4log_history table rather than the ip4log_archive.' },
 );
 
 has_field 'rotate_batch' => (

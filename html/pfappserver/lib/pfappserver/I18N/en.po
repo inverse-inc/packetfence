@@ -2527,11 +2527,11 @@ msgid "Enable or disable WISPr redirection capabilities on the captive-portal"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Pfmon/ip4log_cleanup.pm
-msgid "Enable or disable ip4log rotation (moving ip4log_history records to ip4log_archive)<br>If disabled, this task will delete from the iplog_history table rather than the iplog_archive using the iplog rotation window, interval, batch and timeout parameters."
+msgid "Enable or disable ip4log rotation (moving ip4log_history records to ip4log_archive)<br>If disabled, this task will delete from the ip4log_history table rather than the ip4log_archive."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Pfmon/ip6log_cleanup.pm
-msgid "Enable or disable ip6log rotation (moving ip6log_history records to ip6log_archive)<br>If disabled, this task will delete from the iplog_history table rather than the iplog_archive using the iplog rotation window, interval, batch and timeout parameters."
+msgid "Enable or disable ip6log rotation (moving ip6log_history records to ip6log_archive)<br>If disabled, this task will delete from the ip6log_history table rather than the ip6log_archive."
 msgstr ""
 
 # conf/documentation.conf (captive_portal.network_detection)
