@@ -15,7 +15,11 @@ Create the list of conditions for the filter engine based on the triggers of a v
 
 use strict;
 use warnings;
-use Module::Pluggable search_path => 'pf::condition', sub_name => '_modules' , require => 1;
+use Module::Pluggable
+  search_path => 'pf::condition',
+  sub_name    => '_modules',
+  inner       => 0,
+  require     => 1;
 use List::MoreUtils qw(any);
 use pf::constants;
 

@@ -15,7 +15,11 @@ pf::factory::pfmon::task
 use strict;
 use warnings;
 use List::MoreUtils qw(any);
-use Module::Pluggable search_path => 'pf::pfmon::task', sub_name => 'modules' , require => 1;
+use Module::Pluggable
+  search_path => 'pf::pfmon::task',
+  sub_name    => 'modules',
+  inner       => 0,
+  require     => 1;
 
 use pf::config::pfmon qw(%ConfigPfmon);
 

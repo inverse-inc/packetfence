@@ -30,6 +30,7 @@ use Module::Pluggable
   'search_path' => [qw(pf::Authentication::Source)],
   'sub_name'    => 'sources',
   'require'     => 1,
+  'inner'       => 0,
   ;
 
 use Clone qw(clone);

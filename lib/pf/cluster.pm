@@ -43,6 +43,7 @@ use Module::Pluggable
   'search_path' => [qw(pf::ConfigStore)],
   'sub_name'    => '_all_stores',
   'require'     => 1,
+  'inner'       => 0,
   ;
 
 

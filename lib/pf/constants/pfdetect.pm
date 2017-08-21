@@ -15,7 +15,11 @@ pf::constants::pfdetect
 use strict;
 use warnings;
 
-use Module::Pluggable search_path => 'pf::detect::parser', sub_name => '_modules' , require => 1;
+use Module::Pluggable
+  search_path => 'pf::detect::parser',
+  sub_name    => '_modules',
+  inner       => 0,
+  require     => 1;
 
 sub modules {
   my ($class) = @_;

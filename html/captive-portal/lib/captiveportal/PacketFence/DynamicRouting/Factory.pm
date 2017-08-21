@@ -16,7 +16,11 @@ use strict;
 use warnings;
 use Moose;
 
-use Module::Pluggable search_path => 'captiveportal::DynamicRouting::Module', sub_name => 'modules' , require => 1;
+use Module::Pluggable
+  search_path => 'captiveportal::DynamicRouting::Module',
+  sub_name    => 'modules',
+  inner       => 0,
+  require     => 1;
 use pfconfig::cached_hash;
 use pf::constants;
 use pf::util;
