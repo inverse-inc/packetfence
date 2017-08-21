@@ -391,7 +391,7 @@ sub get_realm_authentication_source {
     $realm = lc $realm;
 
     my @sources = grep { defined $_->realm && grep( /^$realm$/, @{$_->realm} ) } @{$sources};
-
+    @sources = (@sources, grep { defined $_->realm && !grep( defined($_), @{$_->realm} ) } @{$sources} ) if ($realm ne "null");
     return \@sources;
 
 }
@@ -410,6 +410,8 @@ sub filter_authentication_sources {
     my $realm_authentication_source = get_realm_authentication_source($username, $realm, \@$sources);
 
     return @$sources unless ( ref($realm_authentication_source) eq 'ARRAY');
+
+    $realm = "null" unless ( defined($realm) );
 
     get_logger->info("Found authentication source(s) : '", join(',', (map {$_->id} @{$realm_authentication_source})) . "' for realm '$realm'");
 
