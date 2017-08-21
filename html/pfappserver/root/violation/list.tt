@@ -10,6 +10,7 @@
         </div>
         <div class="modal-body">
           <p>[% l('Deleting this violation will close all triggered violations associated with this violation.') %]</p>
+          <p>[% l('Do you wish to continue?') %]</p>
         </div>
         <div class="modal-footer">
           <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
@@ -23,7 +24,7 @@
         </div>
         <div class="card-block">
       [% IF items.size -%]
-      <table class="table">
+      <table class="table" id="violations">
         <thead>
           <tr>
             <th></th>
@@ -38,9 +39,11 @@
           [% FOREACH violation IN items %]
           <tr[% IF violation.enabled == 'N' %] class="muted"[% END %]>
             <td>
-                [% IF violation.id != 'defaults' %]
-                <div class="switch switch-mini"><input type="checkbox" id="[% violation.id | html %]" name="[% violation.id | html %]"[% IF violation.enabled != 'N' %] checked="checked"[% END %]/></div>
-                [% END %]
+              [% IF violation.id != 'defaults' %]
+                <div class="switch switch-mini" data-href="[% c.uri_for(c.controller.action_for('toggle'),[violation.id], 'enabled' ) %]">
+                    <input type="checkbox" id="[% violation.id | html %]" name="[% violation.id | html %]"[% IF violation.enabled != 'N' %] checked="checked"[% END %]/>
+                </div>
+              [% END %]
             </td>
             <td><a href="[% c.uri_for(c.controller('Violation').action_for('view'), [ violation.id ]) %]#modalViolation">[% violation.id | html %]</a></td>
             <td>[% violation.desc | html %]</td>
