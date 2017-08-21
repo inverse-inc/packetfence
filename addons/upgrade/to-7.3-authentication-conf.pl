@@ -37,12 +37,13 @@ for my $section ( $inirealm->Sections() ) {
             if (my $previous = $iniauth->val($authsection, 'realm')) {
                 $iniauth->setval($authsection, 'realm', lc($section).",$previous");
             } else {
-                $iniauth->setval($authsection, 'realm', lc($section));
+                $iniauth->newval($authsection, 'realm', lc($section));
             }
         }
     }
     $inirealm->delval($section, 'source');
 }
+$iniauth->newval('local', 'realm', 'null');
 $inirealm->RewriteConfig();
 $iniauth->RewriteConfig();
 
