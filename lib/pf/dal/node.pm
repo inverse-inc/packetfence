@@ -78,6 +78,8 @@ pre_save
 
 sub pre_save {
     my ($self) = @_;
+    my $voip = $self->voip;
+    $self->{voip} = 'no' if !defined ($voip) || $voip ne 'yes';
     return $self->_update_category_ids;
 }
 
