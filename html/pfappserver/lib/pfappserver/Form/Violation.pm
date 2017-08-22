@@ -50,7 +50,9 @@ has_field 'desc' =>
   (
    type => 'Text',
    label => 'Description',
-   required => 1,
+   required_when => {
+    id => sub { $_[0] ne 'defaults' }
+   },
    element_class => ['input-large'],
    messages => { required => 'Please specify a brief description of the violation.' },
   );
@@ -362,12 +364,7 @@ Validate the ID is numeric and doesn't exceed 2000000000 (max int(11) is 2147483
 sub validate_id {
     my ($self, $field) = @_;
     my $val = $field->value;
-
-    # Check the violation ID being a number
-    unless ($val =~ m/^(defaults|\d+)$/) {
-        $field->add_error('The violation ID must be a positive integer.');
-        return;
-    }
+    return if $val eq 'defaults';
 
     if($val <= 0 || $val > $MAX_VID) {
         $field->add_error('The violation ID should be between 1 and 2000000000');
@@ -399,4 +396,5 @@ USA.
 =cut
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+
 1;
