@@ -26,7 +26,9 @@
               [%- IF can_access("SERVICES") %]
               <li class="nav-header">[% l('Queue') %]</li>
               <li><a href="#pfqueue">[% l('Local Queue') %]</a></li>
+              [% IF cluster_enabled %]
               <li><a href="#pfqueue/cluster">[% l('Cluster Queue') %]</a></li>
+              [%- END %]
               [%- END %]
               <!-- <li class="nav-header">[% l('System') %]</li>
               <li><a href="#">[% l('Server') %]</a></li>
