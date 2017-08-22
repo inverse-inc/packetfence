@@ -264,6 +264,30 @@ function init() {
         return false;
     });
 
+    $('#section').on('click', '[data-restart-admin]', function() {
+        var that = $(this);
+        var href = that.attr('data-restart-admin');
+        var section = $('#section');
+        var modal = $('#confirmRestart');
+        modal.find(".btn-primary").one('click', function(e) {
+            $.ajax(href)
+                .done(function(data, textStatus, jqXHR) {
+                    /*If the status is accepted then wait for 60 seconds to refresh the page */
+                    if (jqXHR.status == 202) {
+                        delayedRefresh(5);
+                    } else {
+                        $(window).hashchange();
+                    }
+                })
+                .fail(function(jqXHR) {
+                    var status_msg = getStatusMsg(jqXHR);
+                    showPermanentError($("#section .table"), status_msg);
+                });
+        });
+        modal.modal('show');
+        return false;
+    });
+
     /* Hash change handler */
     var href =  $('.sidebar-nav .nav-list a').first().attr('href');
     if (href) {
