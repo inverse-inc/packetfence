@@ -8,7 +8,7 @@ pfconfig::namespaces::config::DeviceRegistration
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::config::Switch
+pfconfig::namespaces::config::DeviceRegistration
 
 This module creates the configuration hash associated to device_registration.conf
 

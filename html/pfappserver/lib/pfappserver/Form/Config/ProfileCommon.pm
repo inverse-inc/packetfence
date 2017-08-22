@@ -399,20 +399,20 @@ Collection Device registration profiles for the profile
 
 =cut
 
-has_field 'devices_registration' =>
+has_field 'device_registration' =>
   (
     'type' => 'DynamicTable',
     'sortable' => 1,
     'do_label' => 0,
   );
 
-=head2 devices_registration.contains
+=head2 device_registration.contains
 
 The definition for Device registration Sources field
 
 =cut
 
-has_field 'devices_registration.contains' =>
+has_field 'device_registration.contains' =>
   (
     type => 'Select',
     options_method => \&options_device_registration,

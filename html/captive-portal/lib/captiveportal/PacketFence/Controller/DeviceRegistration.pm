@@ -2,7 +2,7 @@ package captiveportal::PacketFence::Controller::DeviceRegistration;;
 use Moose;
 use namespace::autoclean;
 use pf::Authentication::constants;
-use pf::config qw(%Config);
+use pf::config qw(%ConfigDeviceRegistration);
 use pf::constants;
 use pf::log;
 use pf::node;
@@ -30,8 +30,9 @@ Catalyst Controller.
 
 sub auto : Private {
     my ( $self, $c ) = @_;
-    if (isdisabled( $Config{'device_registration'}{'status'} ) )
-    {
+    if (defined( $c->profile->{'_device_registration'} ) ) {
+        $c->stash->{isDeviceRegEnable} = $TRUE;
+    } else {
         $self->showError($c,"Device registration module is not enabled" );
         $c->detach;
     }
@@ -116,7 +117,7 @@ sub registerNode : Private {
             $c->stash->{device_mac} = $mac;
             # Get role for device registration
             my $role =
-              $Config{'device_registration'}{'role'};
+              $ConfigDeviceRegistration{'category'};
             if ($role) {
                 $logger->debug("Device registration role is $role (from pf.conf)");
             } else {
@@ -213,7 +214,7 @@ sub is_allowed {
     my ($mac) = @_;
     $mac =~ s/O/0/i;
     my $logger = get_logger();
-    my @oses = @{$Config{'device_registration'}{'allowed_devices'}};
+    my @oses = $ConfigDeviceRegistration{'allowed_devices'};
 
     # If no oses are defined then it will allow every devices to be registered
     return $TRUE if @oses == 0;

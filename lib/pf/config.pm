@@ -139,6 +139,8 @@ our (
     %ConfigReport,
 #Roles
     %ConfigRoles,
+#device_Registration.conf
+    %ConfigDeviceRegistration,
 );
 
 BEGIN {
@@ -197,6 +199,7 @@ BEGIN {
         %ConfigSwitchesList
         %ConfigReport
         %ConfigRoles
+        %ConfigDeviceRegistration
     );
 }
 
@@ -280,6 +283,8 @@ tie %ConfigSwitchesList, 'pfconfig::cached_hash', 'resource::switches_list';
 tie %ConfigReport, 'pfconfig::cached_hash', 'config::Report';
 
 tie %ConfigRoles, 'pfconfig::cached_hash', 'config::Roles';
+
+tie %ConfigDeviceRegistration, 'pfconfig::cached_hash', 'config::DeviceRegistration';
 
 $thread = 0;
 

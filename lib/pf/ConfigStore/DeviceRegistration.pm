@@ -24,7 +24,7 @@ sub pfconfigNamespace {'config::DeviceRegistration'}
 
 =head2 cleanupAfterRead
 
-Clean up switch data
+Clean up data
 
 =cut
 
