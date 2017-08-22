@@ -60,6 +60,7 @@ BEGIN {
 use pf::config qw(
     $WIRED
     $NO_VOIP
+    $VOIP
 );
 use pf::db;
 use pf::node;
@@ -164,7 +165,7 @@ sub locationlog_db_prepare {
         FROM locationlog
             LEFT JOIN node USING (mac)
         WHERE switch = ? AND port = ?
-            AND (node.voip = '' OR node.voip = 'no')
+            AND node.voip != 'yes'
             AND end_time = 0
         ORDER BY start_time desc
     ]);
@@ -210,7 +211,7 @@ sub locationlog_db_prepare {
         UPDATE locationlog
             INNER JOIN node USING (mac)
         SET end_time = now()
-        WHERE switch = ? AND port = ? AND (node.voip = 'no' or node.voip = '') AND end_time = 0
+        WHERE switch = ? AND port = ? AND node.voip != 'yes' AND end_time = 0
     ]);
 
     $locationlog_statements->{'locationlog_update_end_switchport_only_VoIP_sql'} = get_db_handle()->prepare(qq[
@@ -407,6 +408,7 @@ sub locationlog_synchronize {
     my $timer = pf::StatsD::Timer->new({ sample_rate => 0.2 });
     my ( $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc) = @_;
     
+    $voip_status = $NO_VOIP if !defined $voip_status || $voip_status != $VOIP; #Set the default voip status
     my $logger = get_logger();
     $logger->trace(sub {"sync locationlog with ifDesc " . ($ifDesc // "undef")});
     $logger->trace("locationlog_synchronize called");
