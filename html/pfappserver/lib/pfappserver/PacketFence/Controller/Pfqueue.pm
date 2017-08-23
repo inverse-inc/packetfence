@@ -18,6 +18,7 @@ use Moose;
 use Readonly;
 use URI::Escape::XS qw(uri_escape uri_unescape);
 use namespace::autoclean;
+use pf::cluster;
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
@@ -28,11 +29,8 @@ BEGIN { extends 'pfappserver::Base::Controller'; }
 sub index :Path : Args(0) {
     my ($self, $c) = @_;
     my $model = $c->model('Pfqueue');
-    my $counters = [ map { $_->{count} > 0 ? $_ : () } @{$model->counters} ];
     $c->stash({
-        counters => $counters,
-        miss_counters => $model->miss_counters,
-        queue_counts => $model->queue_counts,
+        stats => $model->stats,
     });
     $c->forward('graphs');
 }
@@ -71,6 +69,9 @@ sub counters :Args {
 
 sub cluster :Local : Args(0) {
     my ($self, $c) = @_;
+    $c->stash({
+        servers => pf::cluster::queue_stats(),
+    });
 }
 
 =head1 COPYRIGHT
