@@ -69,8 +69,9 @@ func Serve(conn ServeConn, handler Handler, jobs chan job) error {
 				continue
 			}
 		}
-
-		jobe := job{req, reqType, options, handler, addr}
+		var dhcprequest dhcp.Packet
+		dhcprequest = append([]byte(nil), req...)
+		jobe := job{dhcprequest, reqType, options, handler, addr}
 		go func() {
 			jobs <- jobe
 		}()
