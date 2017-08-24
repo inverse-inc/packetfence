@@ -41,6 +41,9 @@ var ctx = context.Background()
 var Capi *client.Config
 
 func main() {
+	// Default http timeout
+	http.DefaultClient.Timeout = 10 * time.Second
+
 	// Initialize etcd config
 	Capi = etcdInit()
 
@@ -165,7 +168,7 @@ func (h *Interface) run(jobs chan job) {
 				for _, v := range h.network {
 					var statistiques roaring.Statistics
 					statistiques = v.dhcpHandler.available.Stats()
-					stats[v.network.String()] = Stats{EthernetName: Request.(ApiReq).NetInterface, Net: v.network.String(), Free: int(statistiques.RunContainerValues) + 1}
+					stats[v.network.String()] = Stats{EthernetName: Request.(ApiReq).NetInterface, Net: v.network.String(), Free: int(statistiques.RunContainerValues) + 1, Category: v.dhcpHandler.role}
 				}
 				outchannel <- stats
 			}
@@ -213,7 +216,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 				}
 
 				var category string
-				var nodeinfo = node.Result[0]
+				var nodeinfo = node
 				// Undefined role then use the registration one
 				if nodeinfo.Category == "" || nodeinfo.Status == "unreg" {
 					category = "registration"

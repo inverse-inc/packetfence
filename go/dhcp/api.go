@@ -25,6 +25,7 @@ type Stats struct {
 	EthernetName string `json:"Interface"`
 	Net          string `json:"Network"`
 	Free         int    `json:"Free"`
+	Category     string `json:"Category"`
 }
 
 type ApiReq struct {
