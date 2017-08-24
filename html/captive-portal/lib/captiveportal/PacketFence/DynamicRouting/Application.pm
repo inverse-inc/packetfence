@@ -20,7 +20,6 @@ use pf::log;
 use Locale::gettext qw(gettext ngettext);
 use captiveportal::Base::I18N;
 use pf::node;
-use pf::useragent;
 use pf::util;
 use pf::config::util;
 use List::MoreUtils qw(any);
@@ -75,19 +74,6 @@ sub BUILD {
     }
     $self->hashed_params($hashed);
 };
-
-=head2 user_agent_cache
-
-The User agent cache
-TODO : migrate this to CHI ?
-
-=cut
-
-sub user_agent_cache {
-    my ($self) = @_;
-    $self->cache_cache->{user_agent_cache} //= new Cache::FileCache( { 'namespace' => 'CaptivePortal_UserAgents' } );
-    return $self->cache_cache->{user_agent_cache};
-}
 
 =head2 lost_devices_cache
 

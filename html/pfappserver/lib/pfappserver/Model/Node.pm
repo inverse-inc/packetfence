@@ -34,7 +34,6 @@ use pf::log;
 use pf::node;
 use pf::person;
 use pf::enforcement qw(reevaluate_access);
-use pf::useragent qw(node_useragent_view);
 use pf::util;
 use pf::config::util;
 use pf::violation;

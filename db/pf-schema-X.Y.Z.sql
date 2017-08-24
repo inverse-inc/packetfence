@@ -180,33 +180,6 @@ CREATE TABLE node (
 ) ENGINE=InnoDB;
 
 --
--- Table structure for table `node_useragent`
---
-
-CREATE TABLE `node_useragent` (
-  mac varchar(17) NOT NULL,
-  os varchar(255) DEFAULT NULL,
-  browser varchar(255) DEFAULT NULL,
-  device enum('no','yes') NOT NULL DEFAULT 'no',
-  device_name varchar(255) DEFAULT NULL,
-  mobile enum('no','yes') NOT NULL DEFAULT 'no',
-  PRIMARY KEY (mac)
-) ENGINE=InnoDB;
-
---
--- Trigger to delete the node_useragent associated with a mac when deleting this mac from the node table
---
-
-DROP TRIGGER IF EXISTS node_useragent_delete_trigger;
-DELIMITER /
-CREATE TRIGGER node_useragent_delete_trigger AFTER DELETE ON node
-FOR EACH ROW
-BEGIN
-  DELETE FROM node_useragent WHERE mac = OLD.mac;
-END /
-DELIMITER ;
-
---
 -- Table structure for table `action`
 --
 
