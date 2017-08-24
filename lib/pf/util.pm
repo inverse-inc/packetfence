@@ -1353,16 +1353,6 @@ sub ping {
     return $p->ping($host);
 }
 
-=head2 running_as
-
-Returns the user which the current process is running as
-
-=cut
-
-sub running_as {
-    return $ENV{LOGNAME} || $ENV{USER} || getpwuid($<);
-}
-
 =head2 run_as_pf
 
 Sets the UID and GID of the currently running process to pf
@@ -1370,10 +1360,11 @@ Sets the UID and GID of the currently running process to pf
 =cut
 
 sub run_as_pf {
-    # Early return if we're already running as pf
-    return $TRUE if(running_as eq "pf");
-
     my (undef, undef,$uid,$gid) = getpwnam('pf');
+    
+    # Early return if we're already running as pf
+    return $TRUE if($uid == $<);
+
     unless(setgid($gid)) {
         my $msg = "Cannot switch process user to pf. setgid to $gid has failed";
         print STDERR $msg . "\n";
