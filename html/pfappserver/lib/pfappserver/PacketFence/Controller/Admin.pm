@@ -348,6 +348,10 @@ sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
 
     $c->stash->{subsections} = $c->forward('Controller::Configuration', 'all_subsections');
 
+    # Remove some CSP restrictions to accomodate ACE (the text editor used for portal profiles files):
+    #  - Allows loading resources via the data scheme (eg Base64 encoded images);
+    #  - Allows use of inline source elements (eg style attribute)
+    $c->stash->{csp_headers} = { img => 'data:', style => "'unsafe-inline'" };
 }
 
 =head2 help

@@ -131,7 +131,7 @@ sub loadCustomStatic {
 
 =head2 csp_server_headers
 
-Returns host specific CSP headers
+Return CSP (Content-Security-Policy) headers
 
 =cut
 

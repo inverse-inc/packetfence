@@ -334,13 +334,23 @@ sub generate_doc_url {
 
 =head2 csp_server_headers
 
-Returns host specific CSP headers for portal
+Return CSP (Content-Security-Policy) headers
 
 =cut
 
 sub csp_server_headers {
     my ($c) = @_;
-    $c->response->header('Content-Security-Policy' => "default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self'; style-src 'self'; font-src 'self';");
+
+    # Allow context-specific directive values (script-src, img-src and style-src)
+    my $headers = $c->stash->{csp_headers} || {};
+    $c->response->header
+      ('Content-Security-Policy' =>
+       sprintf("default-src 'none'; script-src 'self'%s; connect-src 'self'; img-src 'self'%s; style-src 'self'%s; font-src 'self';",
+               $headers->{script}? ' ' . $headers->{script} : '',
+               $headers->{img}   ? ' ' . $headers->{img}    : '',
+               $headers->{style} ? ' ' . $headers->{style}  : ''
+              )
+      );
 }
 
 # Logging
