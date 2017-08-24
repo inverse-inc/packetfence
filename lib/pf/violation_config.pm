@@ -44,7 +44,9 @@ sub loadViolationsIntoDb {
     }
 
     if (db_readonly_mode()) {
-        print STDERR "Cannot reload violations when the database is in read only mode\n";
+        my $msg = "Cannot reload violations when the database is in read only mode\n";
+        print STDERR $msg;
+        $logger->error($msg);
         return;
     }
 
