@@ -167,7 +167,9 @@ sub freeradius_populate_nas_config {
     }
 
     if (db_readonly_mode()) {
-        print STDERR "Cannot reload radius nas table when the database is in read only mode\n";
+        my $msg = "Cannot reload the RADIUS clients table when the database is in read only mode\n";
+        print STDERR $msg;
+        $logger->error($msg);
         return;
     }
     my ($switch_config,$timestamp) = @_;
