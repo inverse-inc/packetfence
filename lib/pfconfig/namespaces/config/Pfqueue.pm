@@ -27,6 +27,7 @@ use pf::constants::pfqueue qw(
     $PFQUEUE_WORKERS_DEFAULT
     $PFQUEUE_WEIGHT_DEFAULT
     $PFQUEUE_MAX_TASKS_DEFAULT
+    $PFQUEUE_TASK_JITTER_DEFAULT
     $PFQUEUE_DELAYED_QUEUE_BATCH_DEFAULT
     $PFQUEUE_DELAYED_QUEUE_WORKERS_DEFAULT
     $PFQUEUE_DELAYED_QUEUE_SLEEP_DEFAULT
@@ -48,6 +49,7 @@ sub build_child {
     if (!defined($max_tasks) || $max_tasks <= 0) {
         $tmp_cfg{pfqueue}{max_tasks} = $PFQUEUE_MAX_TASKS_DEFAULT;
     }
+    $tmp_cfg{pfqueue}{task_jitter} //= $PFQUEUE_TASK_JITTER_DEFAULT;
     foreach my $queue_section ( $self->GroupMembers('queue') ) {
         my $queue = $queue_section;
         $queue =~ s/^queue //;

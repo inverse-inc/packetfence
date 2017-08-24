@@ -16,6 +16,15 @@ workers=8
 # stay alive forever
 #
 max_tasks=2000
+#
+# To avoid workers exiting at the same time
+# Workers will die after
+# max_tasks +- (a number from 0 to task_jitter)
+# A task jitter less than or equal to 0 will disable it
+# Also a task jitter cannot be more than 25% of the max_tasks
+# If it is greater than max_tasks * 0.25 then it will be set to max_tasks / 4
+#
+task_jitter=100
 
 #
 #Connection details of the queue consumer
