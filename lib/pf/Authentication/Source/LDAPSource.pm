@@ -83,8 +83,7 @@ sub available_attributes {
   my $self = shift;
 
   my $super_attributes = $self->SUPER::available_attributes;
-  my @attributes = @{$Config{advanced}->{ldap_attributes}};
-  my @ldap_attributes = map { { value => $_, type => $Conditions::LDAP_ATTRIBUTE } } @attributes;
+  my @ldap_attributes = $self->ldap_attributes;
 
   # We check if our username attribute is present, if not we add it.
   if (not grep {$_->{value} eq $self->{'usernameattribute'} } @ldap_attributes ) {
@@ -92,6 +91,17 @@ sub available_attributes {
   }
 
   return [@$super_attributes, sort { $a->{value} cmp $b->{value} } @ldap_attributes];
+}
+
+=head2 ldap_attributes
+
+get the ldap attributes
+
+=cut
+
+sub ldap_attributes {
+    my ($self) = @_;
+    return map { { value => $_, type => $Conditions::LDAP_ATTRIBUTE } } @{$Config{advanced}->{ldap_attributes}};
 }
 
 =head2 authenticate
