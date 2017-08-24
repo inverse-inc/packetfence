@@ -32,7 +32,7 @@ sub build {
     my %ConfigDomain = %{$self->{domains}};
     my %domain_dns_servers;
     foreach my $key ( keys %ConfigDomain ) {
-        $domain_dns_servers{$ConfigDomain{$key}->{dns_name}} = $ConfigDomain{$key}->{dns_servers} if (isenabled($ConfigDomain{$key}->{registration}));
+        $domain_dns_servers{$ConfigDomain{$key}->{dns_name}} = [ split(/\s*,\s*/, $ConfigDomain{$key}->{dns_servers}) ] if (isenabled($ConfigDomain{$key}->{registration}));
     }
     return \%domain_dns_servers;
 }
