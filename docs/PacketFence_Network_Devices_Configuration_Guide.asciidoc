@@ -4460,6 +4460,15 @@ image::docs/images/aruba-wlc-roles.png[scaledwidth="80%",alt="Aruba wireless con
 
 Check the box `External Portal Enforcement`, in the Roles section, choose `Role by Switch Role`, as the registration role, enter your default role: `packetfence-portal` and choose the policy matching roles, for instance guest: `internet-only`.
 
+CLI authentication
+++++++++++++++++++
+
+In order to enable CLI login on the Aruba controller via the PacketFence server, you need to point management authentication to the RADIUS server you created while configuring the SSIDs in the previous sections above.
+
+aaa authentication mgmt
+  default-role read-only
+  enable
+  server-group PacketFence
 
 Aruba Controller 200
 ^^^^^^^^^^^^^^^^^^^^
