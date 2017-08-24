@@ -16,6 +16,9 @@ use lib '/usr/local/pf/lib';
 
 use pf::nodecategory;
 use pf::ConfigStore::Roles;
+use pf::util;
+
+run_as_pf();
 
 my @roles = nodecategory_view_all();
 

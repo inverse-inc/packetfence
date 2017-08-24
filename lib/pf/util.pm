@@ -22,7 +22,7 @@ use POSIX::2008;
 use Net::MAC::Vendor;
 use Net::SMTP;
 use File::Path qw(make_path remove_tree);
-use POSIX();
+use POSIX qw(setuid setgid);
 use File::Spec::Functions;
 use File::Slurp qw(read_dir);
 use List::MoreUtils qw(all any);
@@ -89,6 +89,7 @@ BEGIN {
         pf_chown
         user_chown
         ping
+        run_as_pf
     );
 }
 
@@ -1352,6 +1353,34 @@ sub ping {
     return $p->ping($host);
 }
 
+=head2 run_as_pf
+
+Sets the UID and GID of the currently running process to pf
+
+=cut
+
+sub run_as_pf {
+    my (undef, undef,$uid,$gid) = getpwnam('pf');
+    
+    # Early return if we're already running as pf
+    return $TRUE if($uid == $<);
+
+    unless(setgid($gid)) {
+        my $msg = "Cannot switch process user to pf. setgid to $gid has failed";
+        print STDERR $msg . "\n";
+        get_logger->error($msg);
+        return $FALSE;
+    }
+    
+    unless(setuid($uid)) {
+        my $msg = "Cannot switch process user to pf. setuid to $uid has failed";
+        print STDERR $msg . "\n";
+        get_logger->error($msg);
+        return $FALSE;
+    }
+
+    return $TRUE;
+}
 
 =back
 

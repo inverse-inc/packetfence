@@ -25,6 +25,9 @@ use pf::file_paths qw($provisioning_config_file $scan_config_file);
 use fingerbank::Constant;
 use Data::Dumper;
 use Switch;
+use pf::util;
+
+run_as_pf();
 
 sub id_from_name {
     my ($os) = @_;

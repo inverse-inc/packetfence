@@ -17,6 +17,9 @@ use warnings;
 use lib qw(/usr/local/pf/lib);
 use pf::IniFiles;
 use pf::file_paths qw($pfdetect_config_file);
+use pf::util;
+
+run_as_pf();
 
 exit 0 unless -e $pfdetect_config_file;
 my $ini = pf::IniFiles->new(-file => $pfdetect_config_file, -allowempty => 1);
