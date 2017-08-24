@@ -372,7 +372,7 @@ sub regzone {
         my @ip_port_pairs;
         foreach my $key ( keys %domain_dns_servers ) {
             if ($qname =~ /(.*)_msdcs.$key/i) {
-                my $resolver = new Net::DNS::Resolver(nameservers => [$domain_dns_servers{$key}]);
+                my $resolver = new Net::DNS::Resolver(nameservers => $domain_dns_servers{$key});
                 my $reply = $resolver->search($qname, $qtype);
                 next if !defined($reply);
                 my @answers = $reply->answer;
