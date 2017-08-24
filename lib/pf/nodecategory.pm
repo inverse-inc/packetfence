@@ -114,7 +114,9 @@ sub nodecategory_populate_from_config {
     }
 
     if (db_readonly_mode()) {
-        print STDERR "Cannot reload roles when the database is in read only mode\n";
+        my $msg = "Cannot reload roles when the database is in read only mode\n";
+        print STDERR $msg;
+        $logger->error($msg);
         return;
     }
     while(my ($id, $role) = each(%$config)) {
