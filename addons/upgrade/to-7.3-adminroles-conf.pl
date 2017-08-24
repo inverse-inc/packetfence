@@ -18,6 +18,9 @@ use lib qw(/usr/local/pf/lib);
 use pf::IniFiles;
 use pf::file_paths qw($admin_roles_config_file);
 use List::MoreUtils qw(any);
+use pf::util;
+
+run_as_pf();
 
 exit 0 unless -e $admin_roles_config_file;
 my $ini = pf::IniFiles->new(-file => $admin_roles_config_file, -allowempty => 1);
