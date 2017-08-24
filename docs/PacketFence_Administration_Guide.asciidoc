@@ -2735,6 +2735,8 @@ The following attributes are available to define your report (the ones that have
 * `order_fields` : Comma delimited fields for the ordering of the report. The field should be prefixed of `-` if the sort should be made in descending order for the field (ex: `-node.regdate,locationlog.start_time,+iplog.start_time`).
 * `base_conditions` : Comma delimited conditions that should be applied to the report. This can be used to filter the report without using the search in the administration interface to provide the proper unsearched view. Conditions should match the following format : `field:operator:value` (ex: `auth_log.source:=:sms,auth_log.status:!=:completed`).
 * `base_conditions_operator` : Whether the base conditions should be matched using an all or any logic. Accepted values are `all` and `any`.
+* `person_fields` : The fields in your report that represent a user in the PacketFence database. Field values in this field will be clickable and will allow to view/modify the values of the user in question. The fields must be listed with the name they have in the report header without any quotes and are comma delimited.
+* `node_fields` : The fields in your report that represent a node in the PacketFence database. Field values in this field will be clickable and will allow to view/modify the values of the node in question. The fields must be listed with the name they have in the report header without any quotes and are comma delimited.
 * `searches` : Comma delimited searches that should be available on the report. Should match the following format `type:Display Name:field` (ex: `string:Username:auth_log.pid`). 
 [options="compact"]
 ** `type` defines the type of the search, the only one currently supported is `string`.
@@ -2756,6 +2758,8 @@ View of the auth_log table:
   columns=auth_log.*
   # The date field that should be used for date ranges
   date_field=attempted_at
+  # The mac field is a node in the database
+  node_fields=mac
   # Allow searching on the PID displayed as Username
   searches=string:Username:auth_log.pid
 
@@ -2779,6 +2783,10 @@ View of the opened violations:
   # filter on open locationlog entries or null locationlog entries via the end_date field
   base_conditions_operator=any
   base_conditions=locationlog.end_time:=:0000-00-00,locationlog.end_time:IS:
+  # The MAC Address field represents a node
+  node_fields=MAC Address
+  # The Username field represents a user
+  person_fields=Username
 
 In the example above, you can see that the violation table is 'left joined' to the class, node and locationlog tables. Using that strategy we make sure all the violations are listed even on deleted nodes. Then, base conditions are added to filter out outdated locationlog entries as well as include devices without locationlog entries. Removing those conditions would lead to duplicate entries being shown since the report would reflect all the historical locationlog entries.
 

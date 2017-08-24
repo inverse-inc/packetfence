@@ -37,7 +37,7 @@ function init() {
     /* Reload section when changing date */
     $('body').on('changeDate', '.input-daterange input', function(event) {
         var dp = $(this).parent().data('datepicker');
-        if (!dp.dates) {
+        if (!dp || !dp.dates) {
             return;
         }
         var start = dp.dates[0];

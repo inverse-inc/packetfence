@@ -45,7 +45,7 @@ var NodeView = function(options) {
 
     var read = $.proxy(this.readNode, this);
     var body = $('body');
-    options.parent.on('click', '#nodes [href*="node"][href$="/read"]', read);
+    options.parent.on('click', '[href*="node"][href$="/read"]', read);
 
     this.proxyClick(body, '.node [href*="node"][href$="/read"]', this.readNode);
 

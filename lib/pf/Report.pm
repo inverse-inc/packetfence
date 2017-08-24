@@ -5,6 +5,7 @@ use SQL::Abstract::More;
 use pf::db;
 use pf::log;
 use Tie::IxHash;
+use List::MoreUtils qw(any);
 
 use constant REPORT => 'Report';
 
@@ -29,6 +30,10 @@ has 'base_table', (is => 'rw', isa => 'Str');
 has 'columns', (is => 'rw', isa => 'ArrayRef[Str]');
 
 has 'date_field', (is => 'rw', isa => 'Str');
+
+has 'person_fields', (is => 'rw', isa => 'ArrayRef[Str]');
+
+has 'node_fields', (is => 'rw', isa => 'ArrayRef[Str]');
 
 # empty since no queries are prepared upfront
 sub Report_db_prepare {}
@@ -182,6 +187,28 @@ sub _db_data {
     }
     $sth->finish();
     return (@array);
+}
+
+=head2 is_person_field
+
+Check if a field is part of the person fields
+
+=cut
+
+sub is_person_field {
+    my ($self, $field) = @_;
+    return any { $_ eq $field } @{$self->person_fields};
+}
+
+=head2 is_node_field
+
+Check if a field is part of the node fields
+
+=cut
+
+sub is_node_field {
+    my ($self, $field) = @_;
+    return any { $_ eq $field } @{$self->node_fields};
 }
 
 1;
