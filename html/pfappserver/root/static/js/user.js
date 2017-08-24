@@ -61,9 +61,11 @@ var UserView = function(options) {
 
     this.proxyFor($('body'), 'submit', 'form[name="simpleUserSearch"]', this.submitSearch);
 
+    this.proxyFor($('body'), 'click', '#simpleUserSearchResetBtn', this.resetSimpleSearch);
+
     this.proxyFor($('body'), 'submit', 'form[name="advancedUserSearch"]', this.submitSearch);
 
-    this.proxyFor($('body'), 'reset', 'form[name="advancedUserSearch"]', this.resetAdvancedUserSearch);
+    this.proxyFor($('body'), 'click', '#advancedUserSearchResetBtn', this.resetAdvancedUserSearch);
 
     this.proxyClick($('body'), '#modalUser [href$="/delete"]', this.deleteUser);
     
@@ -639,6 +641,16 @@ UserView.prototype.submitSearch = function(e) {
 };
 
 UserView.prototype.resetAdvancedUserSearch = function(e) {
-    $('#advancedUserSearchConditions').find('tbody').children(':not(.hidden)').find('[href="#delete"]').click();
-    $('#advancedUserSearchConditionsEmpty [href="#add"]').click();
+    var form = $('form[name="advancedUserSearch"]');
+    form.find('#advancedUserSearchConditions').find('tbody').children(':not(.hidden)').find('[href="#delete"]').click();
+    form.find('#advancedUserSearchConditionsEmpty [href="#add"]').click();
+    form[0].reset();
+    form.submit();
+};
+
+UserView.prototype.resetSimpleSearch = function(e) {
+    console.log('resetSimpleSearch');
+    var form = $('#simpleUserSearch');
+    form[0].reset();
+    form.submit();
 };
