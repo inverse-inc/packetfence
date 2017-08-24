@@ -23,6 +23,7 @@ Enhancements
 ++++++++++++
 
 * Display vlan in locationlog view
+* Add a task count jitter to reduce the chance that pfqueue workers exit at the same time.
 
 Bug Fixes
 +++++++++
