@@ -1,7 +1,7 @@
 <div class="card-title">
 <h2>[% IF report.description ; report.description ; ELSE ; report.id ; END %]</h2>
 [% IF report.long_description %]
-<p>[% report.long_description.replace('\n', '<br>') | none %]</p>
+<p>[% l(report.long_description.replace('\n', '<br>')) | none %]</p>
 [% END %]
 </div>
 

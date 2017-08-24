@@ -10954,3 +10954,14 @@ msgstr ""
 msgid "{percent}% of {total_size}"
 msgstr ""
 
+# conf/reports.conf.defaults
+msgid "All the authentications (RADIUS, portal) that have occured on the server."
+msgstr ""
+
+# conf/reports.conf.defaults
+msgid "IP address history of the devices on the network (1 week is kept by default)"
+msgstr ""
+
+# conf/reports.conf.defaults
+msgid "IP address archive of the devices on your network when enabled (see Maintenance section)"
+msgstr ""
