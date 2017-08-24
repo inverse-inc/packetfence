@@ -289,8 +289,8 @@ sub _update_section {
             if ( $param_exists ) {
                 #If value is defined the update or add to section
                 #Only set the value if not equal to the default value otherwise delete it
-                if ((defined $default_value && $default_value eq $value) ||
-                    (defined $imported_value && $imported_value eq $value)) {
+                if ((defined $default_value && $default_value eq $value) &&
+                    (!defined $imported_value || $imported_value eq $value)) {
                     $config->delval($section, $param);
                 } else {
                     $config->setval($section, $param, $value);
