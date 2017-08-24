@@ -73,4 +73,5 @@ RadiusAuditLogView.prototype.resetSearch = function(e) {
     form.find('select[name="per_page"]').val('25');
     form.find('select[name="all_or_any"]').val('all');
     $('#searchConditions').find('tbody').children(':not(.hidden)').find('[href="#delete"]').click();
+    form.submit();
 };
