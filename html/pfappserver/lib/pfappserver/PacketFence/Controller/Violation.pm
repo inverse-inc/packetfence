@@ -129,7 +129,7 @@ sub toggle : Chained('object') :PathPart('toggle') :Args(1) {
     $c->stash(
         status_msg => $status_msg,
         current_view => 'JSON',
-    ); # TODO: localize error message
+    );
 }
 
 sub prettify_trigger {
