@@ -18,6 +18,12 @@ pfhttpd-race:
 	cd - && \
 	mv caddy/caddy/caddy/caddy pfhttpd-race
 
+go_dhcpd:
+	cd dhcp && \
+	go build && \
+	cd - && \
+	mv dhcp/dhcp go_dhcpd
+
 .PHONY: clean-caddy-src
 
 clean-caddy-src:

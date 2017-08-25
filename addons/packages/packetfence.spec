@@ -324,6 +324,9 @@ Requires: haproxy >= 1.6, keepalived >= 1.2
 Requires: fingerbank >= 3.1.1, fingerbank < 4.0.0
 Requires: perl(File::Tempdir)
 
+# etcd
+Requires: etcd >= 3.1
+
 %description -n %{real_name}
 
 PacketFence is an open source network access control (NAC) system. 
@@ -485,6 +488,8 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-snmptrapd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-snmptrapd.service
 %{__install} -D -m0644 conf/systemd/packetfence-statsd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-statsd.service
 %{__install} -D -m0644 conf/systemd/packetfence-winbindd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-winbindd.service
+%{__install} -D -m0644 conf/systemd/packetfence-etcd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-etcd.service
+%{__install} -D -m0644 conf/systemd/packetfence-go_dhcpd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-go_dhcpd.service
 
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons/AD
@@ -864,6 +869,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/pfupdate
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/maintenance
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/node
+%attr(0755, pf, pf)     /usr/local/pf/bin/go_dhcpd
 %attr(0755, pf, pf)     /usr/local/pf/bin/mysql_fingerbank_import.sh
 %doc                    /usr/local/pf/ChangeLog
                         /usr/local/pf/conf/*.example
@@ -886,6 +892,8 @@ fi
                         /usr/local/pf/conf/dns_filters.conf.example
 %config                 /usr/local/pf/conf/dns_filters.conf.defaults
 %config                 /usr/local/pf/conf/documentation.conf
+%config(noreplace)      /usr/local/pf/conf/etcd.conf.yml
+                        /usr/local/pf/conf/etcd.conf.yml.example
 %config(noreplace)      /usr/local/pf/conf/firewall_sso.conf
                         /usr/local/pf/conf/firewall_sso.conf.example
 %config(noreplace)      /usr/local/pf/conf/redis_cache.conf

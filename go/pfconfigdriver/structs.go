@@ -137,3 +137,71 @@ type configStruct struct {
 }
 
 var Config configStruct
+
+type PfNetwork struct {
+	StructConfig
+	PfconfigMethod string `val:"keys"`
+	PfconfigNS     string `val:"config::Network"`
+	Keys           []string
+}
+
+type NetworkConf struct {
+	StructConfig
+	PfconfigMethod       string `val:"hash_element"`
+	PfconfigNS           string `val:"config::Network"`
+	PfconfigHashNS       string `val:"-"`
+	Dns                  string `json:"dns"`
+	DhcpStart            string `json:"dhcp_start"`
+	Gateway              string `json:"gateway"`
+	DomainName           string `json:"domain-name"`
+	NatEnabled           string `json:"nat_enabled"`
+	DhcpMaxLeaseTime     string `json:"dhcp_max_lease_time"`
+	Named                string `json:"named"`
+	FakeMacEnabled       string `json:"fake_mac_enabled"`
+	Dhcpd                string `json:"dhcpd"`
+	DhcpEnd              string `json:"dhcp_end"`
+	Type                 string `json:"type"`
+	Netmask              string `json:"netmask"`
+	DhcpDefaultLeaseTime string `json:"dhcp_default_lease_time"`
+	NextHop              string `json:"next_hop"`
+	SplitNetwork         string `json:"split_network"`
+}
+
+type PfRoles struct {
+	StructConfig
+	PfconfigMethod string `val:"keys"`
+	PfconfigNS     string `val:"config::Roles"`
+	Keys           []string
+}
+
+type RolesConf struct {
+	StructConfig
+	PfconfigMethod string `val:"hash_element"`
+	PfconfigNS     string `val:"config::Roles"`
+	PfconfigHashNS string `val:"-"`
+	Notes          string `json:"notes"`
+	MaxNodesPerPid string `json:"max_nodes_per_pid"`
+}
+
+type PfconfigDatabase struct {
+	StructConfig
+	PfconfigMethod string `val:"hash_element"`
+	PfconfigNS     string `val:"config::Pf"`
+	PfconfigHashNS string `val:"database"`
+	DBUser         string `json:"user"`
+	DBPassword     string `json:"pass"`
+	DBHost         string `json:"host"`
+	DBName         string `json:"db"`
+	DBPort         string `json:"port"`
+}
+
+type NetInterface struct {
+	StructConfig
+	PfconfigMethod string `val:"hash_element"`
+	PfconfigNS     string `val:"-"`
+	PfconfigHashNS string `val:"-"`
+	Ip             string `json:"ip"`
+	Type           string `json:"type"`
+	Enforcement    string `json:"enforcement"`
+	Mask           string `json:"mask"`
+}
