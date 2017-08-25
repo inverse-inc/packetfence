@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/RoaringBitmap/roaring"
 	netadv "github.com/fdurand/go-netadv"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	dhcp "github.com/krolaw/dhcp4"
 	cache "github.com/patrickmn/go-cache"
 )
@@ -150,17 +150,19 @@ func (d *Interfaces) readConfig() {
 							DHCPNet.network.Mask = subnet.Mask
 							DHCPScope.ip = append([]byte(nil), ip...)
 
-							// First ip available for endpoint
-							inc(ip)
-							DHCPScope.start = append([]byte(nil), ip...)
 							var seconds int
 
 							if Role == "registration" {
 								// lease duration need to be low in registration role
 								seconds, _ = strconv.Atoi("30")
+								// Use the first ip define in networks.conf
+								ip = append([]byte(nil), net.ParseIP(ConfNet.DhcpStart)...)
 							} else {
 								seconds, _ = strconv.Atoi(ConfNet.DhcpDefaultLeaseTime)
+								inc(ip)
 							}
+							// First ip available for endpoint
+							DHCPScope.start = append([]byte(nil), ip...)
 							DHCPScope.leaseDuration = time.Duration(seconds) * time.Second
 							var ips net.IP
 
