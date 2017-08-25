@@ -182,14 +182,17 @@ module.exports = function(grunt) {
     };
     grunt.log.subhead('Copying JavaScript files');
     var js = [
-      '<%= bower %>/jquery/dist/jquery.min.{js,map}'
+      ['<%= bower %>/jquery/dist/jquery.min.{js,map}'],
+      ['<%= bower %>/ace-builds/src-min-noconflict/*.js', 'ace']
     ];
     for (var j = 0; j < js.length; j++) {
-      var files = grunt.file.expand(grunt.template.process(js[j], {data: options}));
+      var js_src = js[j][0];
+      var js_dst = js[j][1] || '';
+      var files = grunt.file.expand(grunt.template.process(js_src, {data: options}));
       for (var i = 0; i < files.length; i++) {
         var src = files[i];
         var paths = src.split('/');
-        var dest = options.js_dest + paths[paths.length - 1];
+        var dest = options.js_dest + js_dst + '/' + paths[paths.length - 1];
         grunt.file.copy(src, dest);
         grunt.log.writeln(">> ".green + src + " => " + dest.cyan);
       }

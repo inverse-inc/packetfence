@@ -2,6 +2,7 @@
   "name": "pfappserver",
   "private": true,
   "devDependencies": {
+    "ace-builds": "latest",
     "bootstrap-sass": "v2.3.2.2",
     "font-awesome": "latest",
     "flowtype": "latest",
