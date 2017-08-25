@@ -351,7 +351,7 @@ sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
     # Remove some CSP restrictions to accomodate ACE (the text editor used for portal profiles files):
     #  - Allows loading resources via the data scheme (eg Base64 encoded images);
     #  - Allows use of inline source elements (eg style attribute)
-    $c->stash->{csp_headers} = { img => 'data:', style => "'unsafe-inline'" };
+    $c->stash->{csp_headers} = { img => 'data:', style => "'unsafe-inline'", worker => 'blob:' };
 }
 
 =head2 help

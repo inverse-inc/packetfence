@@ -341,12 +341,13 @@ Return CSP (Content-Security-Policy) headers
 sub csp_server_headers {
     my ($c) = @_;
 
-    # Allow context-specific directive values (script-src, img-src and style-src)
+    # Allow context-specific directive values (script-src, worker-src, img-src and style-src)
     my $headers = $c->stash->{csp_headers} || {};
     $c->response->header
       ('Content-Security-Policy' =>
-       sprintf("default-src 'none'; script-src 'self'%s; connect-src 'self'; img-src 'self'%s; style-src 'self'%s; font-src 'self';",
+       sprintf("default-src 'none'; script-src 'self'%s; worker-src 'self'%s; connect-src 'self'; img-src 'self'%s; style-src 'self'%s; font-src 'self';",
                $headers->{script}? ' ' . $headers->{script} : '',
+               $headers->{worker}? ' ' . $headers->{worker} : '',
                $headers->{img}   ? ' ' . $headers->{img}    : '',
                $headers->{style} ? ' ' . $headers->{style}  : ''
               )
