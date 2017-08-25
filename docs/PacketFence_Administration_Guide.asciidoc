@@ -2848,9 +2848,9 @@ Action -
 
 Content-Security-Policy (CSP)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Content Security Policy is a security policy enforced to a compliant browser that tells the browser what can be accessed from a generated web page. The default policy is pushed for both the portal and the admin interface and enforces that everything the browser executes comes from within PacketFence, with the exeption of the configured network detection host that is by default Inverse IP address. 
+The Content-Security-Policy HTTP response header tells modern browsers what can be accessed from a generated web page. The default policy is pushed for both the captive portal and the admin interfaces and enforces that everything the browser executes comes from within PacketFence, with the exeption of the configured network detection host that is by default Inverse IP address.
 
-If, for some reason the portal is modified with content that needs to be accessed from PacketFence generated web pages, CSP can be deactivated through "System Configuration->Main Configuration->Advanced->CSP security headers" 
+If, for some reason the portal is modified with content that needs to be accessed from PacketFence generated web pages, CSP can be deactivated through *Configuration -> System Configuration -> Main Configuration -> Advanced -> CSP Security Headers*.
 
 Suricata example:
 -----------------
