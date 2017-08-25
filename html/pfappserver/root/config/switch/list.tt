@@ -31,6 +31,7 @@
                 </form>
               [% END %]
               [% pagination(c.controller.action_for(action), page_num, page_count, {}) | none %]</th>
+              <div class="help-block clearfix"><a href="#modalSwitchImport" id="importSwitchCsv" class="btn pull-right" data-toggle="modal">[% l('Import from CSV') %]</a></div>
           </tr>
           <tr>
             <th>[% l('Identifier') %]</th>

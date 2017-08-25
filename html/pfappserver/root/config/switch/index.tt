@@ -1,6 +1,26 @@
       <div class="modal modal-large fade hide" id="modalSwitch">
       </div>
 
+      <div class="modal modal-large fade hide" id="modalSwitchImport">
+        <iframe class="hidden" src="about:blank" id="iframe_form" name="iframe_form"></iframe>
+        <form autocomplete="off" name="modalSwitchImport" class="form-horizontal form-condensed" action="[% c.uri_for(c.controller.action_for('import_csv')) %]" enctype="multipart/form-data" method="post" target="iframe_form">
+          <div class="modal-header">
+            <a class="close" data-dismiss="modal">&times;</a>
+            <h3>[% l('Import switches from CSV') %] [% doc('_import_from_csv') | none %]</h3>
+          </div>
+        
+          <div class="modal-body">
+            [% current_form_instance.field('importcsv').render | none %]
+            [% current_form_instance.field('delimiter').render | none %]
+          </div><!--modal-body-->
+        
+          <div class="modal-footer">
+            <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
+            [% IF can_access("SWITCHES_CREATE") %]<button type="submit" id="import_csv_btn" class="btn btn-primary" data-loading-text="[% l('Importing') %]">[% l('Import') %]</button>[% END %]
+          </div>
+        </form>
+      </div>
+
       <div class="modal fade hide" id="deleteSwitch">
         <div class="modal-header">
           <a class="close" data-dismiss="modal">&times;</a>

@@ -502,6 +502,28 @@ has_field coaPort =>
     },
   );
 
+#import from CSV
+has_field importcsv =>
+  (
+    type => 'Upload',
+    label => 'CSV file',
+    required => 1,
+  );
+
+has_field 'delimiter' =>
+  (
+   type => 'Select',
+   label => 'Column Delimiter',
+   required => 1,
+   options =>
+   [
+    { value => 'comma', label => 'Comma' },
+    { value => 'semicolon', label => 'Semicolon' },
+    { value => 'colon', label => 'Colon' },
+    { value => 'tab', label => 'Tab' },
+   ],
+  );
+
 =head1 METHODS
 
 =head2 options_inlineTrigger
