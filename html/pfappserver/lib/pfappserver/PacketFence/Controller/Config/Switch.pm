@@ -88,6 +88,7 @@ sub after_list {
     my @switches;
     my $groupsModel = $c->model("Config::SwitchGroup");
     my $groupPrefix = $groupsModel->configStore->group;
+    my $cs = $c->model('Config::Switch')->configStore;
     foreach my $switch (@{$c->stash->{items}}) {
         next if($switch->{id} =~ /^$groupPrefix /);
         my $id = $switch->{id};
@@ -97,10 +98,11 @@ sub after_list {
                 $switch->{floatingdevice} = pop @$floatingdevice;
             }
         }
-        my $cs = $c->model('Config::Switch')->configStore;
-        $switch->{type} = $cs->fullConfigRaw($id)->{type};
+        my $fullConfig = $cs->fullConfigRaw($id);
+        $switch->{type} = $fullConfig->{type};
         $switch->{group} ||= $cs->topLevelGroup;
-        $switch->{mode} = $cs->fullConfigRaw($id)->{mode};
+        $switch->{mode} = $fullConfig->{mode};
+        $switch->{description} //= $fullConfig->{description};
         push @switches, $switch;
     }
     $c->stash->{switch_groups} = [ sort @{$groupsModel->readAllIds} ];
