@@ -915,9 +915,6 @@ sub node_modify {
        # once the category conversion is complete, I delete the category entry to avoid complicating things
        delete $existing->{'category'} if defined($existing->{'category'});
     }
-    # If we are in inline mode then reevaluate the ipset session to clean old info
-    my $node_info = node_view($mac);
-    pf::ipset::iptables_update_set($mac, $old_role_id, $new_role_id) if (defined($node_info->{'last_connection_type'}) && $node_info->{'last_connection_type'} eq $connection_type_to_str{$INLINE});
 
     # Autoregistration handling
     if (defined($data{'autoreg'})) {  $existing->{autoreg} = $data{'autoreg'}; }
