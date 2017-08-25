@@ -1,5 +1,5 @@
 [%  jsFiles = [
-        'app/ace/ace'
+        'js/vendor/ace/ace',
         'app/client/fineuploader',
         'app/client/jquery-plugin',
         'app/pf-bootstrap-swap-class',
