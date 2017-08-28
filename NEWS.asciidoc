@@ -32,6 +32,8 @@ Bug Fixes
 +++++++++
 
 * Move the syslog parser from the section Compliance to Integration in the menu of the WebAdmin (#2467)
+* pfsso now logs in packetfence.log (#2553) (PR #2557)
+* httpd.dispatcher now logs in httpd.dispatcher.log (PR #2557)
 
 
 Version 7.2.0 released on 2017-07-10
