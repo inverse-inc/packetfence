@@ -59,8 +59,9 @@ sub generateConfig {
     my %tags;
     $tags{'template'} = "$conf_dir/keepalived.conf";
     $tags{'emailaddr'} = $Config{'alerting'}{'emailaddr'};
-    $tags{'fromaddr'} = $Config{'alerting'}{'fromaddr'} || 'root@localhost';
+    $tags{'fromaddr'} = $Config{'alerting'}{'fromaddr'} || "keepalived\@$host_id";
     $tags{'smtpserver'} = $Config{'alerting'}{'smtpserver'};
+    $tags{'router_id'} = "PacketFence-$host_id";
 
     $tags{'vrrp'} = '';
     $tags{'mysql_backend'} = '';
