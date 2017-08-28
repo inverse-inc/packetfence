@@ -237,7 +237,7 @@ sub getLanguages :Private {
     # 1. Check if a language is specified in the URL
     if ( defined($c->request->param('lang')) ) {
         my $user_chosen_language = $c->request->param('lang');
-        $user_chosen_language =~ s/^(\w{2})(_\w{2})?/lc($1) . uc($2)/e;
+        $user_chosen_language =~ s/^(\w{2})(_\w{2})?/lc($1) . uc($2 // "")/e;
         if (grep(/^$user_chosen_language$/, @authorized_locales)) {
             $lang = $user_chosen_language;
             # Store the language in the session
