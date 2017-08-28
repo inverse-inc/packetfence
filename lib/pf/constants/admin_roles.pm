@@ -16,7 +16,7 @@ use strict;
 use warnings;
 use base qw(Exporter);
 
-our @EXPORT_OK = qw(@ADMIN_ACTIONS);
+our @EXPORT_OK = qw(@ADMIN_ACTIONS %ADMIN_NOT_IN_READONLY);
 
 our @ADMIN_ACTIONS = qw(
     ADMIN_ROLES_CREATE
@@ -163,6 +163,10 @@ our @ADMIN_ACTIONS = qw(
     PFMON_READ
     PFMON_UPDATE
 );
+
+# Actions not allowed in readonly mode
+# Any actions that will update the database is not allowed
+our %ADMIN_NOT_IN_READONLY = map { $_ => 1} grep { !/_READ$/ && /^(NODES_|SWITCHES_|VIOLATIONS_|WRIX_|USERS_|USERS_ROLES_)/ && !/^USERS_SOURCES_/ && $_ ne 'USERS_READ_SPONSORED' } @ADMIN_ACTIONS ;
 
 =head1 AUTHOR
 

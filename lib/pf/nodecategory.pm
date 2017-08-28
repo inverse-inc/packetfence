@@ -106,6 +106,19 @@ It will simply do an upsert of all the roles in the configuration
 
 sub nodecategory_populate_from_config {
     my ($config) = @_;
+    my $logger = get_logger;
+
+    unless(db_ping()){
+        $logger->error("Can't connect to db");
+        return;
+    }
+
+    if (db_readonly_mode()) {
+        my $msg = "Cannot reload roles when the database is in read only mode\n";
+        print STDERR $msg;
+        $logger->error($msg);
+        return;
+    }
     while(my ($id, $role) = each(%$config)) {
         nodecategory_upsert($id, %$role);
     }
