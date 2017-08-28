@@ -1,0 +1,23 @@
+[% IF item %]
+  <table class="table table-condensed table-striped">
+    <tbody>
+      [% FOREACH column IN columns %]
+      <tr>
+        <td>[% l(headings.$column) %]</td>
+        [% IF column == "switch_id" %]
+          [% SET switch_id = item.$column%]
+        <td>
+          [% switch_id %][% IF switch_config.exists(switch_id) %] ([% switch_config.item(switch_id).description %])[%END%]
+        </td>
+        [% ELSE %]
+        <td>[% item.$column %]</td>
+        [% END %]
+      </tr>
+      [% END %]
+    </tbody>
+  </table>
+[% ELSE %]
+  <div id="noResult" class="unwell">
+    <i class="icon-legal icon-large"></i><p>[% l('No Option 82 information found') %]</p>
+  </div>
+[% END %]
