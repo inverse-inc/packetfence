@@ -13,7 +13,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
-	"layeh.com/radius"
+	"github.com/julsemaan/radius"
 )
 
 // Basic interface that all FirewallSSO must implement

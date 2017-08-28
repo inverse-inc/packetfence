@@ -135,6 +135,12 @@
 			"revisionTime": "2017-01-04T18:58:16Z"
 		},
 		{
+			"checksumSHA1": "qJhU+MVX3URBh+wvxxCSdr+vF/A=",
+			"path": "github.com/julsemaan/radius",
+			"revision": "7f249f14f3f94118647303f07cf4956048170a0b",
+			"revisionTime": "2017-08-17T16:00:25Z"
+		},
+		{
 			"checksumSHA1": "eOXF2PEvYLMeD8DSzLZJWbjYzco=",
 			"path": "github.com/kr/pretty",
 			"revision": "cfb55aafdaf3ec08f0db22699ab822c50091b1c4",
@@ -235,6 +241,12 @@
 			"path": "github.com/mattn/go-colorable",
 			"revision": "d228849504861217f796da67fae4f6e347643f15",
 			"revisionTime": "2016-11-03T16:00:40Z"
+		},
+		{
+			"checksumSHA1": "U6lX43KDDlNOn+Z0Yyww+ZzHfFo=",
+			"path": "github.com/mattn/go-isatty",
+			"revision": "fc9e8d8ef48496124e79ae0df75490096eccf6fe",
+			"revisionTime": "2017-03-22T23:44:13Z"
 		},
 		{
 			"checksumSHA1": "LXLhlGmijKhFLJo3crWjhA9tuMk=",
@@ -451,12 +463,6 @@
 			"path": "gopkg.in/yaml.v2",
 			"revision": "a3f3340b5840cee44f372bddb5880fcbc419b46a",
 			"revisionTime": "2017-02-08T14:18:51Z"
-		},
-		{
-			"checksumSHA1": "s7O2cNvVNkPwgHs4+rfyDscl9Xw=",
-			"path": "layeh.com/radius",
-			"revision": "8ecfc6afafd1730084ea411c01b3618b093a1ccc",
-			"revisionTime": "2016-12-24T16:50:42Z"
 		}
 	],
 	"rootPath": "github.com/inverse-inc/packetfence/go"
