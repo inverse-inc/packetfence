@@ -43,6 +43,7 @@ use pf::services::util;
 use pf::filter_engine::profile;
 use pf::factory::condition::profile;
 use pfconfig::cached_scalar;
+use pf::db;
 use pf::access_filter::radius;
 use pf::access_filter::dhcp;
 use pf::access_filter::dns;
@@ -248,6 +249,7 @@ creates a new child to run a task
 
 sub runtask {
     my ($task) = @_;
+    db_disconnect();
     my $pid = fork();
     if ($pid) {
         $CHILDREN{$pid} = $task;

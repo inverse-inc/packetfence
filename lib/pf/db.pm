@@ -53,21 +53,13 @@ BEGIN {
 
 sub CLONE {
     if($DBH) {
-        $DBH = undef;
-        $LAST_CONNECT = 0;
-    }
-}
-
-sub AT_FORK_CHILD {
-    if ($DBH) {
         $DBH->{InactiveDestroy} = 1;
-        $DBH->disconnect;
         undef $DBH;
         $LAST_CONNECT = 0;
     }
 }
 
-POSIX::AtFork->add_to_child(\&AT_FORK_CHILD);
+POSIX::AtFork->add_to_child(\&CLONE);
 
 END {
     $DBH->disconnect if $DBH;

@@ -254,6 +254,7 @@ creates a new child to run a task
 
 sub run_task {
     my ($task) = @_;
+    db_disconnect();
     my $pid = fork();
     if ($pid) {
         $CHILDREN{$pid} = $task;
