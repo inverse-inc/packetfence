@@ -28,30 +28,6 @@ extends 'pf::pki_provider';
 
 use pf::log;
 
-=head2 host
-
-The host of the SCEP PKI service
-
-=cut
-
-has host => ( is => 'rw', default => "127.0.0.1" );
-
-=head2 port
-
-The port of the SCEP PKI service
-
-=cut
-
-has port => ( is => 'rw', default => 8080 );
-
-=head2 proto
-
-The proto of the SCEP PKI service
-
-=cut
-
-has proto => ( is => 'rw', default => "http" );
-
 =head2 url
 
 The URL of the SCEP PKI service
@@ -68,13 +44,13 @@ The URI of the Certificate Revocation List
 
 has crlURI => ( is => 'ro' );
 
-=head2 password
+=head2 challenge_password
 
 The password to connect to the SCEP PKI service
 
 =cut
 
-has password => ( is => 'rw' );
+has challenge_password => ( is => 'rw' );
 
 =head2 custom_subject
 
@@ -100,7 +76,7 @@ attributes          = req_attributes
 req_extensions      = req_extensions
 
 [ req_attributes ]
-challengePassword   = [% password %]
+challengePassword   = [% challenge_password %]
 
 [ req_extensions ]
 extendedKeyUsage = 1.3.6.1.5.5.7.3.2
@@ -137,7 +113,7 @@ sub module_description { 'Fedora Dogtag PKI' }
 =head2 get_bundle
 
 Get the certificate from the SCEP PKI service
-sscep enroll -c AD2008-0 -e AD2008-1 -k local.key -r local.csr -l cert.crt -S sha256 -u 'http://10.0.0.16/certsrv/mscep/' -d
+sscep enroll -c AD2008-0 -e AD2008-1 -k local.key -r local.csr -l cert.crt -S sha1 -u 'http://10.0.0.16/certsrv/mscep/' -d
 
 =cut
 
@@ -149,7 +125,7 @@ sub get_bundle {
     my $ca = $self->get_ca($path, $args);
     my $request  = $self->make_request($path, $args);
     my $cert_path = "$path/cert";
-    system("sscep", "enroll", "-c", $ca->[0], "-k",$request->{key}, '-r', $request->{csr}, "-u",$self->url, '-S', 'sha256', '-l', $cert_path);
+    system("sscep", "enroll", "-c", $ca, "-k",$request->{key}, '-r', $request->{csr}, "-u",$self->url, '-S', 'sha1', '-l', $cert_path);
     my $cert = eval {
         read_file ($cert_path)
     };
@@ -164,10 +140,9 @@ sscep getca  -u http://10.0.0.16/certsrv/mscep/ -c tempdir/ca-prefix
 
 sub get_ca {
     my ($self,$temp_dir, $args) = @_;
-    my $ca_base = "${temp_dir}/ca";
-    system("sscep", "getca", "-u", $self->url, "-c", $ca_base);
-    return ["$ca_base-0", "$ca_base-1", "$ca_base-2"];
-
+    my $ca_file = "${temp_dir}/ca.pem";
+    system("sscep", "getca", "-u", $self->url, "-c", $ca_file);
+    return "$ca_file";
 }
 
 =head2 make_request
@@ -184,7 +159,7 @@ sub make_request {
     my $tt = Template->new();
     my $client_conf;
     my %vars = (
-        password     => $self->password,
+        challenge_password     => $self->challenge_password,
         crlURI       => $self->crlURI,
         country      => ( $self->country // '' ),
         state        => ( $self->state // '' ),
