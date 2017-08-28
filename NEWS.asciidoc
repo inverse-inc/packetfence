@@ -28,6 +28,7 @@ Enhancements
 * Add a task count jitter to reduce the chance that pfqueue workers exit at the same time.
 * Updated ACE text editor to version 1.2.8
 * Allow the ability reset the search forms for nodes and users (PR #2555)
+* Allow saving configuration files in readonly mode except violation, switches, role (#2464) (PR #2566)
 
 Bug Fixes
 +++++++++
