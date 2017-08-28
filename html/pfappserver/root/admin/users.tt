@@ -79,6 +79,7 @@
                     <br/>
                   <input type="text" name="filter" placeholder="[% l('Search...') %]">
                     <div class="btn-group pull-right">
+                      <button type="button" id="simpleUserSearchResetBtn" class="btn btn-primary"><i class="icon-refresh icon-white"></i> [% l('Reset Search') %]</button>
                       <button class="btn btn-primary"><i class="icon-search icon-white"></i> [% l('Search') %]</button>
                       <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a>
                       <ul class="dropdown-menu">
@@ -230,6 +231,7 @@
                         </td>
                         <td>
                           <div class="btn-group pull-right">
+                            <button type="button" id="advancedUserSearchResetBtn" class="btn btn-primary"><i class="icon-refresh icon-white"></i> [% l('Reset Search') %]</button>
                             <button class="btn btn-primary"><i class="icon-search icon-white"></i> [% l('Search') %]</button>
                             <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a>
                             <ul class="dropdown-menu">

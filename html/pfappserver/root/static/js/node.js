@@ -59,7 +59,11 @@ var NodeView = function(options) {
 
     this.proxyFor(body, 'change', 'form[name="simpleNodeSearch"] [name$=".op"]', this.changeOpField);
 
+    this.proxyFor(body, 'click', '#simpleNodeSearchResetBtn', this.resetSimpleSearch);
+
     this.proxyFor(body, 'submit', 'form[name="advancedNodeSearch"]', this.submitSearch);
+
+    this.proxyFor(body, 'click', '#advancedNodeSearchResetBtn', this.resetAdvancedSearch);
 
     this.proxyFor(body, 'change', 'form[name="advancedNodeSearch"] [name$=".name"]', this.changeSearchField);
 
@@ -726,3 +730,17 @@ NodeView.prototype.searchSwitch = function(query, process) {
         }
     });
 }
+
+NodeView.prototype.resetAdvancedSearch = function(e) {
+    var form = $('form[name="advancedNodeSearch"]');
+    form.find('#advancedSearchConditions').find('tbody').children(':not(.hidden)').find('[href="#delete"]').click();
+    form.find('#advancedSearchConditionsEmpty [href="#add"]').click();
+    form[0].reset();
+    form.submit();
+};
+
+NodeView.prototype.resetSimpleSearch = function(e) {
+    var form = $('#simpleNodeSearch');
+    form[0].reset();
+    form.submit();
+};
