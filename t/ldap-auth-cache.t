@@ -133,7 +133,7 @@ unless ($pid) {
         }
     );
     close($reader);
-    $writer->write("\n");
+    $writer->write("done\n");
     close($writer);
     $listener->Bind;
     exit 0;
@@ -157,7 +157,9 @@ use Test::NoWarnings;
 use pf::authentication;
 use pf::Authentication::constants;
 
-my $source = getAuthenticationSource('LDAP');
+my $source = getAuthenticationSource('LDAP0');
+
+$source->cache->clear;
 
 #my $ldap = Net::LDAP->new( 'localhost', port => 33389 ) or die "$@";
 
@@ -168,6 +170,7 @@ my $params = { username => 'bob'};
 is(0,SHM::getCount(),"No search was done");
 
 my @action = pf::authentication::match([$source], $params, $Actions::SET_ROLE);
+
 is(SHM::getCount(),1,"The search was done the first time");
 
 @action = pf::authentication::match([$source], $params, $Actions::SET_ROLE);
