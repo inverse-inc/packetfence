@@ -136,3 +136,12 @@ if $programname == "pfdetect" then -/usr/local/pf/logs/pfdetect.log
 if $programname == "pfbandwidthd" then -/usr/local/pf/logs/pfbandwidthd.log
 & stop
 
+# PFSSO
+if $programname == "pfsso" then -/usr/local/pf/logs/packetfence.log
+& stop
+
+if $programname == "httpd.dispatcher" then -/usr/local/pf/logs/httpd.dispatcher.log
+& stop
+
+if $programname == "pfhttpd" then -/usr/local/pf/logs/packetfence.log
+& stop
