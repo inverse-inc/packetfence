@@ -589,7 +589,7 @@ status=enabled
 # interval
 #
 # At which interval to run the switch_cache_lldpLocalPort_description pfmon task
-interval=1D
+interval=12h
 #
 # delay
 #
