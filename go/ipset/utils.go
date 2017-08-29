@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net"
 	"net/http"
 
@@ -47,9 +48,10 @@ func detectMembers() []net.IP {
 
 func updateClusterL2(Ip string, Mac string, Network string, Type string, Catid string) {
 	for _, member := range detectMembers() {
-		_, err := http.Get("http://" + member.String() + ":22223/ipsetlayer2/" + Type + "/" + Catid + "/" + Ip + "/" + Mac + "/1")
-		if err == nil {
-
+		_, err := http.Get("http://" + member.String() + ":22223/ipsetlayer2/" + Network + "/" + Type + "/" + Catid + "/" + Ip + "/" + Mac + "/1")
+		fmt.Println(member.String())
+		if err != nil {
+			fmt.Println("Not able to contact " + member.String())
 		}
 		spew.Dump(member)
 	}
@@ -57,9 +59,9 @@ func updateClusterL2(Ip string, Mac string, Network string, Type string, Catid s
 
 func updateClusterL3(Ip string, Network string, Type string, Catid string) {
 	for _, member := range detectMembers() {
-		_, err := http.Get("http://" + member.String() + ":22223/ipsetlayer3/" + Type + "/" + Catid + "/" + Ip + "/1")
-		if err == nil {
-
+		_, err := http.Get("http://" + member.String() + ":22223/ipsetlayer3/" + Network + "/" + Type + "/" + Catid + "/" + Ip + "/1")
+		if err != nil {
+			fmt.Println("Not able to contact " + member.String())
 		}
 		spew.Dump(member)
 	}
