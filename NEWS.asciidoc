@@ -40,7 +40,7 @@ Bug Fixes
 * Fix incorrect inline sub type detection
 * Fix ipset update with the incorrect ip address (the old one)
 * Fix missing confirm prompt when restarting all services via the admin interface (#2365) (PR #2571)
-
+* Fix the database has gone away error in services (#2580) (PR #2585)
 
 Version 7.2.0 released on 2017-07-10
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
