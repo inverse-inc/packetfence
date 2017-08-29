@@ -500,7 +500,7 @@ sub send_mime_lite {
     eval {
         $mime->send(
             'sub',
-            \&send_by_pf_setting,
+            \&send_using_smtp_callback,
             @args
         );
         $result = $mime->last_send_successful();
@@ -517,14 +517,14 @@ sub send_mime_lite {
     return $result;
 }
 
-=head2 send_by_pf_setting
+=head2 send_using_smtp_callback
 
 Handles the logic of sending an email of a MIME::Lite object
 Using the configuration of from pf.conf
 
 =cut
 
-sub send_by_pf_setting {
+sub send_using_smtp_callback {
     my ( $self, %args ) = @_;
     my $config = get_send_email_config();
     %args = (%$config, %args);
@@ -541,7 +541,7 @@ sub send_by_pf_setting {
         }
     }
     my $hostname = $args{Hostname};
-    Carp::croak "send_by_pf_setting: nobody to send to for host '$hostname'?!\n"
+    Carp::croak "send_using_smtp_callback: nobody to send to for host '$hostname'?!\n"
       unless @hdr_to;
 
     $args{To} ||= \@hdr_to;
