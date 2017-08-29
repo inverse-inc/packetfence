@@ -1123,7 +1123,7 @@ sub cert_expires_in {
     my $expiration = str2time($cert->notAfter);
 
     $delay = normalize_time($delay) if $delay;
-    $delay = $delay + time // time;
+    $delay = ( $delay ) ? $delay + time : time;
 
     return $delay > $expiration;
 }
