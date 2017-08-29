@@ -22,6 +22,7 @@ use pf::class qw(class_merge);
 use pf::db;
 use pfconfig::cached_hash;
 use pf::util;
+use pf::dal::class;
 
 our (%Violation_Config);
 
@@ -84,6 +85,7 @@ sub loadViolationsIntoDb {
             $data->{'actions'},
         );
     }
+    pf::dal::class->remove_classes_not_defined([keys %Violation_Config]);
 }
 
 =head1 AUTHOR

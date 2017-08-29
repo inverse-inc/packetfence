@@ -157,6 +157,30 @@ $(function() { // DOM ready
 
     });
 
+    $('body').on('switch-change', '#violations .switch', function(event, value) {
+        event.preventDefault();
+        var t = $(event.target);
+        if (t.attr('processing')) {
+            return;
+        }
+        t.attr('processing','processing');
+        var href = t.attr('data-href');
+        var toggle = value.value ? 'yes' : 'no';
+        href = href.replace(/enabled$/, toggle);
+        $.ajax({
+            type: 'POST',
+            url: href,
+            data: ''
+        }).always(function() {
+            t.attr('processing', null);
+        }).done(function(data) {
+            showSuccess($('#section h2'), data.status_msg);
+        }).fail(function(jqXHR) {
+            var status_msg = getStatusMsg(jqXHR);
+            showError($('#section h2'), status_msg);
+        });
+    });
+
 
     /* Modal Editor: save a violation */
     $('body').on('submit', 'form[name="violation"]', function(event) {
