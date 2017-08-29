@@ -29,12 +29,13 @@ use pf::file_paths qw(
     $log_dir
 );
 use pf::util;
+use pf::constants::config qw($DEFAULT_SMTP_PORT $DEFAULT_SMTP_PORT_SSL $DEFAULT_SMTP_PORT_TLS);
 use List::MoreUtils qw(uniq);
 
 our %ALERTING_PORTS = (
-    none => 25,
-    ssl => 465,
-    starttls => 587,
+    none => $DEFAULT_SMTP_PORT,
+    ssl => $DEFAULT_SMTP_PORT_SSL,
+    starttls => $DEFAULT_SMTP_PORT_TLS,
 );
 
 use base 'pfconfig::namespaces::config';
@@ -140,7 +141,7 @@ sub build_child {
     }
 
     if ($Config{alerting}{port} == 0) {
-        $Config{alerting}{port} = $ALERTING_PORTS{$Config{alerting}{encryption}} // 25;
+        $Config{alerting}{port} = $ALERTING_PORTS{$Config{alerting}{encryption}} // $DEFAULT_SMTP_PORT;
     }
 
     return \%Config;
