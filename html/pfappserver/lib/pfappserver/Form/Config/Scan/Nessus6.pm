@@ -69,7 +69,7 @@ has_field 'verify_hostname' =>
    type => 'Toggle',
    label => 'Verify Hostname',
    tags => { after_element => \&help,
-             help => 'Name of the scanner to use on the nessus server' },
+             help => 'Verify hostname of server' },
    checkbox_value  => 'enabled',
    unchecked_value => 'disabled',
    default => 'enabled',
