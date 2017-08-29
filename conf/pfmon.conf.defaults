@@ -568,3 +568,40 @@ interval=10m
 #
 # Whether or not a switch range should be expanded to process each of its IPs
 process_switchranges=disabled
+
+[certificates_check]
+#
+# type
+#
+# The type of task to perform
+type=certificates_check
+#
+# description
+#
+# The description of task to perform
+description=Check for SSL certificates validity
+#
+# status
+#
+# If the task switch_cache_lldpLocalPort_description is enabled
+status=enabled
+#
+# interval
+#
+# At which interval to run the switch_cache_lldpLocalPort_description pfmon task
+interval=1D
+#
+# delay
+#
+# Minimum gap before certificate expiration date (will the certificate expires in ...)
+delay=30D
+#
+# httpd_certificate
+#
+# SSL certificate used by HTTPd instance(s)
+httpd_certificate=/usr/local/pf/conf/ssl/server.pem
+#
+# radiusd_certificate
+#
+# SSL certificate used by RADIUSd instance(s)
+radiusd_certificate=/usr/local/pf/raddb/certs/server.crt
