@@ -17,6 +17,7 @@ use warnings;
 
 use Moose;
 
+use pf::config::util qw(pfmailer);
 use pf::constants qw($TRUE $FALSE);
 use pf::log;
 use pf::util qw(isenabled);
@@ -83,6 +84,7 @@ sub alert {
             $message = "SSL certificate '$cert' is about to expire soon (less than '" . $self->delay . "'). This should be taken care.";
         }
         $logger->warn($message);
+        pf::config::util::pfmailer(('subject' => "SSL certificate expiration", 'message' => $message));
     }
 }
 
