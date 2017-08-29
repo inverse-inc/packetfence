@@ -5,7 +5,6 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
@@ -32,8 +31,6 @@ func detectMembers() []net.IP {
 			addrs, _ := netInterface.Addrs()
 			for _, UnicastAddr := range addrs {
 				IPE, _, _ := net.ParseCIDR(UnicastAddr.String())
-				// spew.Dump(net.ParseCIDR(UnicastAddr.String()))
-				// spew.Dump(IP)
 				if IP.Equal(IPE) {
 					present = true
 				}
@@ -49,11 +46,10 @@ func detectMembers() []net.IP {
 func updateClusterL2(Ip string, Mac string, Network string, Type string, Catid string) {
 	for _, member := range detectMembers() {
 		_, err := http.Get("http://" + member.String() + ":22223/ipsetlayer2/" + Network + "/" + Type + "/" + Catid + "/" + Ip + "/" + Mac + "/1")
-		fmt.Println(member.String())
+		fmt.Println("Updated " + member.String())
 		if err != nil {
 			fmt.Println("Not able to contact " + member.String())
 		}
-		spew.Dump(member)
 	}
 }
 
@@ -63,6 +59,5 @@ func updateClusterL3(Ip string, Network string, Type string, Catid string) {
 		if err != nil {
 			fmt.Println("Not able to contact " + member.String())
 		}
-		spew.Dump(member)
 	}
 }
