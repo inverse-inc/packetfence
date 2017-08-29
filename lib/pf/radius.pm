@@ -123,6 +123,8 @@ sub authorize {
 
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
 
+    $user_name = normalize_username($user_name, $radius_request);
+
     if (!$mac) {
         return [$RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Mac is empty")];
     }
@@ -330,6 +332,27 @@ AUDIT:
     $args->{'time'} = time;
     push @$RAD_REPLY_REF, $self->_addRadiusAudit($args);
     return $RAD_REPLY_REF;
+}
+
+=item normalize_username
+
+normalize username
+
+=cut
+
+sub normalize_username {
+    my ($username, $radius_request) = @_;
+    if (isdisabled($Config{advanced}{normalize_radius_machine_auth_username})) {
+        return $username;
+    }
+    my $tls_username = $radius_request->{'TLS-Client-Cert-Common-Name'} // '';
+    if ($username eq $tls_username ) {
+       my $radius_username = $radius_request->{'User-Name'};
+       if ( "host/$tls_username" =~ /\Q$radius_username\E/i ) {
+            $username = $radius_username;
+       }
+    }
+    return $username;
 }
 
 =item accounting
