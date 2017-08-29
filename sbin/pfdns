@@ -43,6 +43,7 @@ use pf::config qw(
     is_type_inline
 );
 use pf::util;
+use pf::db;
 use pf::services::util;
 use pf::CHI;
 use pf::ConfigStore::Interface;
@@ -166,6 +167,7 @@ sub start_workers {
 
 sub run_worker {
     my ($id) = @_;
+    db_disconnect();
     my $pid = fork();
     if($pid) {
         $CHILDREN{$pid} = $id;
