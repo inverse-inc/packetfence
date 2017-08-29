@@ -12,7 +12,7 @@ Web form for certificates_check pfmon task
 
 use HTML::FormHandler::Moose;
 
-use pfappserver::Form::Config::Pfmon qw(default_field_method batch_help_text timeout_help_text window_help_text);
+use pfappserver::Form::Config::Pfmon qw(default_field_method);
 
 extends 'pfappserver::Form::Config::Pfmon';
 with 'pfappserver::Base::Form::Role::Help';
