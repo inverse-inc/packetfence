@@ -452,6 +452,26 @@ sub call_server {
     return $apiclient->call(@args);
 }
 
+=head2 queue_stats
+
+Get queue stats for the cluster
+
+=cut
+
+sub queue_stats {
+    require pf::api::jsonrpcclient;
+    my @stats;
+    foreach my $server (enabled_servers()) {
+        my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $server->{management_ip});
+        my %s = (
+            %$server,
+            stats  => $apiclient->call('queue_stats')
+        );
+        push @stats, \%s;
+    }
+    return \@stats;
+}
+
 =head2 increment_config_version
 
 =cut
