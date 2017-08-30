@@ -465,17 +465,18 @@ get the configuration for sending email
 sub get_send_email_config {
     my $config = $Config{alerting};
     my %args;
-    if ($config->{encryption} eq 'ssl') {
+    my $encryption = $config->{smtp_encryption};
+    if ($encryption eq 'ssl') {
         $args{SSL} = 1;
-    } elsif ($config->{encryption} eq 'starttls') {
+    } elsif ($encryption eq 'starttls') {
         $args{StartTLS} = 1;
     }
     $args{From} = $config->{fromaddr};
-    if (isdisabled($config->{verify_ssl})) {
+    if (isdisabled($config->{smtp_verifyssl})) {
         $args{SSL_verify_mode} = SSL_VERIFY_NONE;
     }
-    my $username = $config->{username};
-    my $password = $config->{password};
+    my $username = $config->{smtp_username};
+    my $password = $config->{smtp_password};
     if (defined $username && length($username) &&
         defined $password && length($password)) {
         $args{AuthUser} = $username;
@@ -483,8 +484,8 @@ sub get_send_email_config {
     }
     $args{Hostname} = $config->{smtpserver};
     $args{Hello} = $fqdn;
-    $args{Timeout} = $config->{timeout};
-    $args{Port} = $config->{port};
+    $args{Timeout} = $config->{smtp_timeout};
+    $args{Port} = $config->{smtp_port};
     return \%args;
 }
 

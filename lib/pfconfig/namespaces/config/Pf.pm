@@ -140,8 +140,8 @@ sub build_child {
         $Config{omapi}{key_base64}=~ s/\R//g;   # getting rid of any carriage return
     }
 
-    if ($Config{alerting}{port} == 0) {
-        $Config{alerting}{port} = $ALERTING_PORTS{$Config{alerting}{encryption}} // $DEFAULT_SMTP_PORT;
+    if (($Config{alerting}{smtp_port} // 0) == 0) {
+        $Config{alerting}{smtp_port} = $ALERTING_PORTS{$Config{alerting}{smtp_encryption}} // $DEFAULT_SMTP_PORT;
     }
 
     return \%Config;

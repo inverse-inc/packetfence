@@ -215,36 +215,37 @@ smtpserver=localhost
 #PacketFence-related message.
 subjectprefix=PF Alert:
 #
-# alerting.encryption
+# alerting.smtp_encryption
 #
-encryption=none
+# Encryption style when connecting to the SMTP server.
+smtp_encryption=none
 #
-# alerting.port
+# alerting.smtp_port
 #
 # The port of the SMTP server.
 # If the port is set to 0 then port is calculated by the encryption type.
 # none:25, ssl:465, starttls:587
-port=0
+smtp_port=0
 #
-# alerting.username
+# alerting.smtp_username
 #
 # The username used to connect to the SMTP server
-username=
+smtp_username=
 #
-# alerting.password
+# alerting.smtp_password
 #
 # The password used to connect to the SMTP server
-password=
+smtp_password=
 #
-# alerting.verify_ssl
+# alerting.smtp_verify_ssl
 #
 # Verify SSL connection
-verify_ssl=enabled
+smtp_verifyssl=enabled
 #
-# alerting.timeout
+# alerting.smtp_timeout
 #
 # The timeout in seconds for sending an email
-timeout=20
+smtp_timeout=20
 
 [ports]
 #
