@@ -488,6 +488,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-snmptrapd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-snmptrapd.service
 %{__install} -D -m0644 conf/systemd/packetfence-statsd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-statsd.service
 %{__install} -D -m0644 conf/systemd/packetfence-winbindd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-winbindd.service
+%{__install} -D -m0644 conf/systemd/packetfence-go_ipset.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-go_ipset.service
 
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons/AD
@@ -867,6 +868,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/pfupdate
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/maintenance
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/node
+%attr(0755, pf, pf)     /usr/local/pf/bin/go_ipset
 %attr(0755, pf, pf)     /usr/local/pf/bin/mysql_fingerbank_import.sh
 %doc                    /usr/local/pf/ChangeLog
                         /usr/local/pf/conf/*.example

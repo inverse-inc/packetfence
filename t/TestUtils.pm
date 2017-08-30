@@ -102,6 +102,7 @@ and return all the normal files under
 =cut
 
 my @excluded_binaries = qw(
+   /usr/local/pf/bin/go_ipset
    /usr/local/pf/bin/pfcmd
    /usr/local/pf/bin/pfhttpd
    /usr/local/pf/sbin/pfdns

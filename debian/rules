@@ -233,6 +233,7 @@ endif
 	dh_installinit --name=packetfence-snmptrapd
 	dh_installinit --name=packetfence-statsd
 	dh_installinit --name=packetfence-winbindd
+	dh_installinit --name=packetfence-go_ipset
 
 	dh_installcron
 #	dh_installinfo
