@@ -269,7 +269,7 @@ sub update {
     if ($previous_node_ref->{status} ne $node_ref->{status}) {
         # Status was modified
         if ($node_ref->{status} eq $pf::node::STATUS_REGISTERED) {
-            $result = pf::node::node_register($mac, $node_ref->{pid}, %{$node_ref});
+            ( $result, $status_msg ) = pf::node::node_register($mac, $node_ref->{pid}, %{$node_ref});
         }
         elsif ($node_ref->{status} eq $pf::node::STATUS_UNREGISTERED) {
             $result = node_deregister($mac, %{$node_ref});
