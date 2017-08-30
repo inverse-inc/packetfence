@@ -20,14 +20,14 @@ has_field 'id' =>
    type => 'Text',
    label => 'Profile Name',
    required => 1,
-   messages => { required => 'Please specify an name of the Device Registration entry.' },
+   messages => { required => 'Please specify a name of the Device Registration entry.' },
    apply => [ pfappserver::Base::Form::id_validator('device registration ID') ]
   );
 
 has_field 'description' =>
   (
    type => 'Text',
-   messages => { required => 'Please specify the Description of the Device Registration entry.' },
+   messages => { required => 'Please specify the description of the Device Registration entry.' },
   );
 
 has_field 'category' =>

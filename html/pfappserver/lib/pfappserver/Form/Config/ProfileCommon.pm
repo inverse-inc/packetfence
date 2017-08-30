@@ -395,28 +395,14 @@ has_field 'scans.contains' =>
 
 =head2 device_registration
 
-Collection Device registration profiles for the profile
+The definition for Device registration Sources field
 
 =cut
 
 has_field 'device_registration' =>
   (
-    'type' => 'DynamicTable',
-    'sortable' => 1,
-    'do_label' => 0,
-  );
-
-=head2 device_registration.contains
-
-The definition for Device registration Sources field
-
-=cut
-
-has_field 'device_registration.contains' =>
-  (
     type => 'Select',
     options_method => \&options_device_registration,
-    widget_wrapper => 'DynamicTableRow',
   );
 
 
@@ -494,7 +480,7 @@ Returns the list of device_registration profile to be displayed
 =cut
 
 sub options_device_registration {
-    return  map { { value => $_, label => $_ } } @{pf::ConfigStore::DeviceRegistration->new->readAllIds};
+    return  map { { value => $_, label => $_ } } '',@{pf::ConfigStore::DeviceRegistration->new->readAllIds};
 }
 
 
