@@ -38,7 +38,7 @@ sub run {
 
     my @lldp_detection_switches = ();
     foreach my $switch_entry ( keys \%pf::SwitchFactory::SwitchConfig ) {
-        next if ( ($switch_entry eq "default") || ($switch_entry eq "127.0.0.1") );
+        next if ( ($switch_entry !~ /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/) || ($switch_entry eq "127.0.0.1") );
         push @lldp_detection_switches, $switch_entry if isenabled($pf::SwitchFactory::SwitchConfig{$switch_entry}{VoIPLLDPDetect});
     }
 
