@@ -235,8 +235,8 @@ Billing
 
 Your new manager want to make a `pay-to-use` access for Wi-Fi. The idea here will be to use billing. To do the following you will need to go through `Advanced Access Configuration->Billing Tiers` under the tab Configuration. Click `Add billing tier` and create the needed `Billing  Tiers`. This will be the different payement available for your customers, for instance you want them to pay for 1 hour or 1 day. 
 
-image::docs/images/billing-tier-hourly.png[scaledwidth="100%",alt="Billing Tier example hourly"]
-image::docs/images/billing-tier-daily.png[scaledwidth="100%",alt="Billing Tier example daily"]
+image::docs/images/billingtier_hourly.png[scaledwidth="100%",alt="Billing Tier example hourly"]
+image::docs/images/billingtier_daily.png[scaledwidth="100%",alt="Billing Tier example daily"]
 
 You now need to add the payement provider you want to use, to do so go through `Policies and Access Control->Sources` and select `Add source`, Billing and your provider. To configure the provider you need please follow: https://packetfence.org/doc/PacketFence_Administration_Guide.html#_billing_engine section `12.2.1.Configuring a billing source` and follow the instructions macthing your provider.
 
