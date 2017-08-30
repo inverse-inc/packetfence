@@ -169,6 +169,7 @@ sub connectWrite {
                 ]
             );
        }
+       # We no longer check the $result here since it is always false even when the call succeeds.
     }
     return 1;
 }
