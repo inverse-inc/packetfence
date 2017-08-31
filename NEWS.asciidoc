@@ -31,6 +31,7 @@ Enhancements
 * Allow the ability reset the search forms for nodes and users (PR #2555)
 * Allow saving configuration files in readonly mode except violation, switches, role (#2464) (PR #2566)
 * Added parameter to have extended descriptions in the custom reports
+* Add support for SSL and StartTLS for sending mail
 
 Bug Fixes
 +++++++++
