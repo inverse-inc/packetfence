@@ -75,7 +75,7 @@ sub generateConfig {
         $tags{'vrrp'} .= <<"EOT";
 vrrp_instance $cfg->{'ip'} {
   virtual_router_id $Config{'active_active'}{'virtual_router_id'}
-  advert_int 1
+  advert_int 5
   priority $priority
   state MASTER
   interface $interface
