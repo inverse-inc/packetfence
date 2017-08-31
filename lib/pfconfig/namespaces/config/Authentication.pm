@@ -170,12 +170,7 @@ sub newAuthenticationSource {
 
 sub cleanup_after_read {
     my ( $self, $id, $data ) = @_;
-    $self->expand_list( $data, qw(local_realm reject_realm) );
-}
-
-sub cleanup_after_read {
-    my ( $self, $id, $data ) = @_;
-    $self->expand_list( $data, qw(realm) );
+    $self->expand_list( $data, qw(realm local_realm reject_realm) );
 }
 
 =head1 AUTHOR
