@@ -1409,7 +1409,8 @@ Cleans up any inconsistency in the info attributes
 
 sub _cleanup_attributes {
     my ($info) = @_;
-    $info->{voip} ||= $NO_VOIP;
+    my $voip = $info->{voip};
+    $info->{voip} = $NO_VOIP if !defined ($voip) || $voip ne $VOIP;
     $info->{'status'} = _cleanup_status_value($info->{'status'});
 }
 
