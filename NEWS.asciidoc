@@ -44,6 +44,7 @@ Bug Fixes
 * Fix the database has gone away error in services (#2580) (PR #2585)
 * Fixes violation definition sync when removing a violation from the config
 * Fixes incorrect Connection-Type when using EAP-TTLS (#2582)
+* Fix voip logic to reduce the chance of duplicate locationlog entries (#2527)
 
 Version 7.2.0 released on 2017-07-10
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
