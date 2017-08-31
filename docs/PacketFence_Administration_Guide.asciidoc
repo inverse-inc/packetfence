@@ -1706,6 +1706,8 @@ Where :
 * *Currency* is the currency that will be used in the transactions.
 * *Test mode* should be activated if you are using a sandbox account.
 
+NOTE: If they aren't already enabled, you will need to enable passthroughs so that users can reach the domains of this provider. Refer to the 'Passthroughs' section of this document for details
+
 Stripe
 ++++++
 
@@ -1732,6 +1734,8 @@ Where :
 * *Style* is whether you are doing a one-time charge or subscription based billing (recurring). See section 'Subscription based registration' below for details on how to configure it.
 * *Currency* is the currency that will be used in the transactions.
 * *Test mode* should be activated if you are using the test key and secret account.
+
+NOTE: If they aren't already enabled, you will need to enable passthroughs so that users can reach the domains of this provider. Refer to the 'Passthroughs' section of this document for details
 
 Authorize.net
 +++++++++++++
@@ -1765,6 +1769,8 @@ Where :
 * *MD5 hash* the one you configured in your Authorize.net account.
 * *Currency* is the currency that will be used in the transactions.
 * *Test mode* should be activated if you are using a sandbox account.
+
+NOTE: If they aren't already enabled, you will need to enable passthroughs so that users can reach the domains of this provider. Refer to the 'Passthroughs' section of this document for details
 
 Mirapay
 +++++++
