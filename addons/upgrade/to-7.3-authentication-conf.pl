@@ -17,6 +17,7 @@ use warnings;
 use lib qw(/usr/local/pf/lib);
 use pf::IniFiles;
 use pf::file_paths qw($authentication_config_file $realm_config_file);
+use pf::authentication;
 
 exit 0 unless -e $realm_config_file;
 exit 0 unless -e $authentication_config_file;
@@ -43,7 +44,17 @@ for my $section ( $inirealm->Sections() ) {
     }
     $inirealm->delval($section, 'source');
 }
-$iniauth->newval('local', 'realm', 'null');
+
+for my $authsection ( $iniauth->Sections() ) {
+    next if $authsection =~ / /;
+    my $source_def = pf::authentication::getAuthenticationSource($authsection);
+    if ($source_def->class eq 'internal') {
+         if (!defined($iniauth->val( $authsection, 'realm')) || $iniauth->val( $authsection, 'realm') eq '') {
+             $iniauth->setval( $authsection, 'realm', 'null');
+         }
+    }
+}
+
 $inirealm->RewriteConfig();
 $iniauth->RewriteConfig();
 
