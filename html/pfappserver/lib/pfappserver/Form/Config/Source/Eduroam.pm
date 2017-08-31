@@ -15,6 +15,8 @@ Form definition to create or update an Eduroam authentication source.
 use strict;
 use warnings;
 
+use pf::config qw( %Config );
+
 use HTML::FormHandler::Moose;
 
 extends 'pfappserver::Form::Config::Source';
@@ -68,6 +70,57 @@ has_field 'auth_listening_port' => (
     },
     default         => pf::Authentication::Source::EduroamSource->meta->get_attribute('auth_listening_port')->default,
 );
+
+
+has_field 'reject_realm' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   label => 'Reject Realms',
+   options_method => \&options_realm,
+   element_class => ['chzn-deselect'],
+   element_attr => {'data-placeholder' => 'Click to add a realm'},
+   tags => { after_element => \&help,
+             help => 'Realms that will be rejected' },
+   default => '',
+  );
+
+has_field 'local_realm' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   label => 'Local Realms',
+   options_method => \&options_realm,
+   element_class => ['chzn-deselect'],
+   element_attr => {'data-placeholder' => 'Click to add a realm'},
+   tags => { after_element => \&help,
+             help => 'Realms that will be authenticate locally' },
+   default => '',
+  );
+
+sub options_realm {
+    my $self = shift;
+    my @roles = map { $_ => $_ } sort keys %pf::config::ConfigRealm;
+    return @roles;
+}
+
+=head2 getSourceArgs
+
+get the args to build a source
+
+=cut
+
+sub getSourceArgs {
+    my ($self) = @_;
+    my $args = $self->SUPER::getSourceArgs();
+    for my $r (qw(local_realm reject_realm)) {
+        $args->{$r} //= [];
+        if (ref($args->{$r}) ne "ARRAY" ) {
+            $args->{$r} = [$args->{$r}];
+        }
+    }
+    return $args;
+}
 
 
 =head1 AUTHOR

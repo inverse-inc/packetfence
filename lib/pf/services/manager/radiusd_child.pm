@@ -195,6 +195,7 @@ sub generate_radiusd_mainconf {
     $tags{'rpc_proto'} = $Config{webservices}{proto} || "http";
 
     parse_template( \%tags, "$conf_dir/radiusd/radiusd.conf", "$install_dir/raddb/radiusd.conf" );
+    parse_template( \%tags, "$conf_dir/radiusd/radiusd_loadbalancer.conf", "$install_dir/raddb/radiusd_loadbalancer.conf" );
 }
 
 sub generate_radiusd_restconf {
@@ -426,6 +427,17 @@ EOT
     }
 
     parse_template( \%tags, "$conf_dir/radiusd/proxy.conf.inc", "$install_dir/raddb/proxy.conf.inc" );
+
+    undef %tags;
+
+    foreach my $realm ( sort keys %pf::config::ConfigRealm ) {
+        $tags{'config'} .= <<"EOT";
+realm $realm {
+nostrip
+}
+EOT
+    }
+    parse_template( \%tags, "$conf_dir/radiusd/proxy.conf.loadbalancer", "$install_dir/raddb/proxy.conf.loadbalancer" );
 }
 
 =head2 generate_radiusd_cluster
@@ -522,6 +534,48 @@ EOT
         home_server =  eduroam$i.cluster
 EOT
                 $i++;
+            }
+            $tags{'local_realm'} = '';
+            my @realms;
+            foreach my $realm ( @{$eduroam_authentication_source[0]{'local_realm'}} ) {
+                 push (@realms, "Realm == \"$realm\"");
+            }
+            if (@realms) {
+                $tags{'local_realm'} .= 'if ( ';
+                $tags{'local_realm'} .=  join(' || ', @realms);
+                $tags{'local_realm'} .= ' ) {'."\n";
+                $tags{'local_realm'} .= <<"EOT";
+                update control {
+                    Proxy-To-Realm := "packetfence"
+                }
+            } else {
+                update control {
+                    Load-Balance-Key := "%{Calling-Station-Id}"
+                    Proxy-To-Realm := "eduroam.cluster"
+                }
+            }
+EOT
+            } else {
+$tags{'local_realm'} = << "EOT";
+                    update control {
+                        Load-Balance-Key := "%{Calling-Station-Id}"
+                        Proxy-To-Realm := "eduroam.cluster"
+                    }
+EOT
+            }
+            $tags{'reject_realm'} = '';
+            my @reject_realms;
+            foreach my $reject_realm ( @{$eduroam_authentication_source[0]{'reject_realm'}} ) {
+                 push (@reject_realms, "Realm == \"$reject_realm\"");
+            }
+            if (@reject_realms) {
+                $tags{'reject_realm'} .= 'if ( ';
+                $tags{'reject_realm'} .=  join(' || ', @reject_realms);
+                $tags{'reject_realm'} .= ' ) {'."\n";
+                $tags{'reject_realm'} .= <<"EOT";
+                reject
+            }
+EOT
             }
             parse_template( \%tags, "$conf_dir/radiusd/eduroam-cluster", "$install_dir/raddb/sites-enabled/eduroam-cluster" );
         } else {

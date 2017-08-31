@@ -102,6 +102,9 @@ sub cleanupBeforeCommit {
     if ($item->{type} eq 'SMS') {
         $self->flatten_list($item, 'sms_carriers');
     }
+    if ($item->{type} eq 'Eduroam') {
+        $self->flatten_list($item, qw(local_realm reject_realm));
+    }
 }
 
 before rewriteConfig => sub {
@@ -109,6 +112,7 @@ before rewriteConfig => sub {
     my $config = $self->cachedConfig;
     $config->ReorderByGroup();
 };
+
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
