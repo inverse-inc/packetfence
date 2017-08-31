@@ -41,6 +41,7 @@ our %TRIGGER_TYPE_TO_CONDITION_TYPE = (
     'mac'               => {type => 'regex',         key  => 'mac'},
     'mac_vendor'        => {type => 'equals',        key  => 'mac_vendor_id'},
     'nessus'            => {type => 'equals',        key  => 'last_nessus_id',          event => $TRUE},
+    'nessus6'           => {type => 'equals',        key  => 'last_nessus6_id',         event => $TRUE},
     'openvas'           => {type => 'equals',        key  => 'last_openvas_id',         event => $TRUE},
     'metadefender'      => {type => 'equals',        key  => 'last_metadefender_id',    event => $TRUE},
     'provisioner'       => {type => 'equals',        key  => 'last_provisioner_id',     event => $TRUE},
