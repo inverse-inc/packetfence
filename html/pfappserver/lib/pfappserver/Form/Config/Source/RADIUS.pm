@@ -21,6 +21,8 @@ has_field 'host' =>
    label => 'Host',
    element_class => ['input-small'],
    element_attr => {'placeholder' => '127.0.0.1'},
+   default => '127.0.0.1',
+   required => 1,
   );
 has_field 'port' =>
   (
@@ -28,6 +30,8 @@ has_field 'port' =>
    label => 'Port',
    element_class => ['input-mini'],
    element_attr => {'placeholder' => '1812'},
+   default => 1812,
+   required => 1,
   );
 has_field 'secret' =>
   (
@@ -41,8 +45,10 @@ has_field 'timeout' =>
   (
    type => 'PosInteger',
    label => 'Timeout',
+   required => 1,
    element_class => ['input-mini'],
    element_attr => {'placeholder' => '1'},
+   default => 1,
   );
 has_field 'stripped_user_name' =>
   (
