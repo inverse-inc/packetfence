@@ -596,12 +596,7 @@ interval=12h
 # Minimum gap before certificate expiration date (will the certificate expires in ...)
 delay=30D
 #
-# httpd_certificate
+# certificates
 #
-# SSL certificate used by HTTPd instance(s)
-httpd_certificate=/usr/local/pf/conf/ssl/server.pem
-#
-# radiusd_certificate
-#
-# SSL certificate used by RADIUSd instance(s)
-radiusd_certificate=/usr/local/pf/raddb/certs/server.crt
+# SSL certificate(s) to be monitored
+certificates=/usr/local/pf/conf/ssl/server.pem,/usr/local/pf/raddb/certs/server.crt

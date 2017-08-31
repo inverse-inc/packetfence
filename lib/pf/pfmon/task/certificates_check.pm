@@ -24,9 +24,8 @@ use pf::util qw(isenabled);
 extends qw(pf::pfmon::task);
 
 
-has 'delay'                 => ( is => 'rw', default => "30D" );
-has 'httpd_certificate'     => ( is => 'rw', default => "/usr/local/pf/conf/ssl/server.pem" );
-has 'radiusd_certificate'   => ( is => 'rw', default => "/usr/local/pf/raddb/certs/server.crt" );
+has 'delay'         => ( is => 'rw', default => "30D" );
+has 'certificates'  => ( isa => 'Maybe[Str]', is => 'rw', default => "/usr/local/pf/conf/ssl/server.pem,/usr/local/pf/raddb/certs/server.crt" );
 
 
 =head2 run
@@ -38,23 +37,14 @@ Check for SSL certificates expiration and alert
 sub run {
     my ( $self ) = @_;
 
+    my @certs = split(/\s*,\s*/, $self->{'certificates'});
     my %problematic_certs = ();
+    my ($expires_soon, $expired);
 
-    my ($expires_soon, $expired, @certs);
-
-    # Check for HTTPd SSL certificate
-    if ( $self->httpd_certificate ) {
-        if ( pf::util::cert_expires_in($self->httpd_certificate, $self->delay) ) {
-            $problematic_certs{$self->httpd_certificate}{'expires_soon'} = $TRUE;
-            $problematic_certs{$self->httpd_certificate}{'expired'} = ( pf::util::cert_expires_in($self->httpd_certificate) ) ? $TRUE : $FALSE;
-        }
-    }
-
-    # Check for RADIUSd SSL certificate
-    if ( $self->radiusd_certificate ) {
-        if ( pf::util::cert_expires_in($self->radiusd_certificate, $self->delay) ) {
-            $problematic_certs{$self->radiusd_certificate}{'expires_soon'} = $TRUE;
-            $problematic_certs{$self->radiusd_certificate}{'expired'} = ( pf::util::cert_expires_in($self->radiusd_certificate) ) ? $TRUE : $FALSE;
+    foreach my $cert ( @certs ) {
+        if ( pf::util::cert_expires_in($cert, $self->delay) ) {
+            $problematic_certs{$cert}{'expires_soon'} = $TRUE;
+            $problematic_certs{$cert}{'expired'} = ( pf::util::cert_expires_in($cert) ) ? $TRUE : $FALSE;
         }
     }
 

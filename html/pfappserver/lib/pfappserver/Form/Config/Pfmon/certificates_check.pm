@@ -27,26 +27,17 @@ has_field 'delay' => (
     },
 );
 
-has_field 'httpd_certificate' => (
+has_field 'certificates' => (
     type            => 'Text',
     default_method  => \&default_field_method,
     tags => { 
         after_element   => \&help,
-        help            => "SSL certificate used by HTTPd instance(s)",
-    },
-);
-
-has_field 'radiusd_certificate' => (
-    type            => 'Text',
-    default_method  => \&default_field_method,
-    tags => { 
-        after_element   => \&help,
-        help            => "SSL certificate used by RADIUSd instance(s)",
+        help            => "SSL certificate(s) to monitor. Comma-delimited list",
     },
 );
 
 has_block definition => (
-    render_list => [qw(type status interval delay httpd_certificate radiusd_certificate)],
+    render_list => [qw(type status interval delay certificates)],
 );
 
 
