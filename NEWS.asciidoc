@@ -35,6 +35,7 @@ Enhancements
 * Allow to ignore self signed cert errors for nessus 6 (PR #2568)
 * Allow violations to be triggered by nessus 6 scanner (PR #2568)
 * Improved device registration to be able to create profiles, this allow you to associate device registration profile by connection profile
+* Allow to specify the format of the username that is being sent in firewall SSO (PR #2499)
 
 Bug Fixes
 +++++++++
