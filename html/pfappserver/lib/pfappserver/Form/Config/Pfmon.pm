@@ -71,7 +71,7 @@ sub batch_help_text { "Amount of items that will be processed in each batch of t
 
 sub timeout_help_text { "Maximum amount of time this task can run." }
 
-sub window_help_text { "Like a building window but not at all like it" }
+sub window_help_text { "Window to apply the job to. In the case of a deletion, setting this to 7 days would delete affected data older than 7 days." }
 
 =head1 COPYRIGHT
 
