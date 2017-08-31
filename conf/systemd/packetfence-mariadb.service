@@ -8,6 +8,7 @@ Conflicts=mysql.service mariadb.service
 
 [Service]
 Type=notify
+NotifyAccess=all
 # Setting this to true can break replication and the Type=notify settings
 # See also bind-address mysqld option.
 PrivateNetwork=false
