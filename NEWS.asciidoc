@@ -36,6 +36,7 @@ Enhancements
 * Allow violations to be triggered by nessus 6 scanner (PR #2568)
 * Improved device registration to be able to create profiles, this allow you to associate device registration profile by connection profile
 * Allow to specify the format of the username that is being sent in firewall SSO (PR #2499)
+* Monitor SSL certificates expiration and alert if they are expired (PR #2444)
 
 Bug Fixes
 +++++++++
