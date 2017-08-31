@@ -46,8 +46,10 @@ case "$1" in
             fi
         fi
         if [ ${DIST} = "jessie" ] ; then
+            set +e
             systemctl stop packetfence-redis-cache
             systemctl disable packetfence-redis-cache
+            set -e
         fi
     ;;
     purge)
