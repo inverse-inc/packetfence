@@ -464,17 +464,46 @@ sub db_readonly_mode {
     $sth->finish;
     my $readonly = $row->[0];
 
-    # check if the wsrep_ready status is ON
-    $sth = $dbh->prepare_cached('show status like "wsrep_ready";');
-    return 0 unless $sth->execute;
-    $row = $sth->fetch;
-    $sth->finish;
-    # If there is no wsrep_ready row, then we're not in read only because we don't use wsrep
-    # If its there and not set to ON, then we're in read only
-    my $wsrep_ready = (!defined($row) || $row->[1] eq "ON");
+    my $wsrep_healthy = db_wsrep_healthy();
 
     # If the read_only flag is set or wsrep isn't ready, we are in read only
-    return $readonly || !$wsrep_ready;
+    return $readonly || !$wsrep_healthy;
+}
+
+=head2 db_wsrep_healthy
+
+check if the wsrep_ready status is ON if there is a wsrep_provider_name
+
+=cut
+
+sub db_wsrep_healthy {
+    my $logger = get_logger();
+    my $dbh = eval {
+        db_connect()
+    };
+    return 0 unless $dbh;
+
+    my $sth = $dbh->prepare_cached('show status like "wsrep_provider_name";');
+    return 0 unless $sth->execute;
+    my $row = $sth->fetch;
+    $sth->finish;
+
+    if(defined($row) && $row->[1] ne "") {
+        $logger->debug("There is a wsrep provider, checking the wsrep_ready flag");
+        # check if the wsrep_ready status is ON
+        $sth = $dbh->prepare_cached('show status like "wsrep_ready";');
+        return 0 unless $sth->execute;
+        $row = $sth->fetch;
+        $sth->finish;
+        # If there is no wsrep_ready row, then we're not in read only because we don't use wsrep
+        # If its there and not set to ON, then we're in read only
+        my $wsrep_ready = (defined($row) && $row->[1] eq "ON");
+    }
+    # wsrep isn't enabled
+    else {
+        $logger->debug("No wsrep provider so considering wsrep as healthy");
+        return 1;
+    }
 }
 
 =item db_check_readonly
