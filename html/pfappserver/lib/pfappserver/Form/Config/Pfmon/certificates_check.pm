@@ -28,7 +28,7 @@ has_field 'delay' => (
 );
 
 has_field 'certificates' => (
-    type            => 'Text',
+    type            => 'TextArea',
     default_method  => \&default_field_method,
     tags => { 
         after_element   => \&help,
