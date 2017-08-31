@@ -1120,7 +1120,7 @@ sub valid_certs {
     my $haproxy_crt = "$install_dir/conf/ssl/server.pem";
 
     eval {
-        if(cert_has_expired($haproxy_crt)){
+        if(pf::util::cert_expires_in($haproxy_crt)){
             add_problem($WARN, "The certificate used by haproxy ($haproxy_crt) has expired.\nRegenerate a new self-signed certificate or update your current certificate.");
         }
     };
@@ -1141,7 +1141,7 @@ sub valid_certs {
     }
 
     eval {
-        if(cert_has_expired($httpd_crt)){
+        if(pf::util::cert_expires_in($httpd_crt)){
             add_problem($WARN, "The certificate used by Apache ($httpd_crt) has expired.\nRegenerate a new self-signed certificate or update your current certificate.");
         }
     };
@@ -1164,7 +1164,7 @@ sub valid_certs {
         }
 
         eval {
-            if(cert_has_expired($radius_crt)){
+            if(pf::util::cert_expires_in($radius_crt)){
                 add_problem($WARN, "The certificate used by FreeRADIUS ($radius_crt) has expired.\n" .
                          "Regenerate a new self-signed certificate or update your current certificate.");
             }
@@ -1299,20 +1299,6 @@ sub valid_fingerbank_device_id {
     else {
         return $TRUE;
     }
-}
-
-=item cert_has_expired
-
-Will validate that a certificate has not expired
-
-=cut
-
-sub cert_has_expired {
-    my ($path) = @_;
-    return undef if !defined $path;
-    my $cert = Crypt::OpenSSL::X509->new_from_file($path);
-    my $expiration = str2time($cert->notAfter);
-    return time > $expiration;
 }
 
 =back

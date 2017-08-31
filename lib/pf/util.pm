@@ -41,6 +41,8 @@ use Digest::MD5;
 use Time::HiRes qw(stat time);
 use Fcntl qw(:DEFAULT);
 use Net::Ping;
+use Crypt::OpenSSL::X509;
+use Date::Parse;
 
 our ( %local_mac );
 
@@ -1104,6 +1106,26 @@ sub cert_is_self_signed {
     my $cert = Crypt::OpenSSL::X509->new_from_file($path);
     my $self_signed = $cert->is_selfsigned;
     return $self_signed;
+}
+
+=item cert_expires_in
+
+Returns either true or false if the given certificate is about to expire in a given delay
+
+Use current time if no delay is given
+
+=cut
+
+sub cert_expires_in {
+    my ($path, $delay) = @_;
+    return undef if !defined $path;
+    my $cert = Crypt::OpenSSL::X509->new_from_file($path);
+    my $expiration = str2time($cert->notAfter);
+
+    $delay = normalize_time($delay) if $delay;
+    $delay = ( $delay ) ? $delay + time : time;
+
+    return $delay > $expiration;
 }
 
 =item strip_username
