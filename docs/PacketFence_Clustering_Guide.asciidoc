@@ -71,6 +71,8 @@ Then, secure your installation
 
 Then, you will need to create a user for the database replication that PacketFence will use. You can use any username/password combination. After creating the user, keep its information close-by for usage in the configuration.
 
+CAUTION: This user should *NOT* have a password that contains spaces
+
   # mysql -u root -p
 
     mysql> CREATE USER 'pfcluster'@'%' IDENTIFIED BY 'aMuchMoreSecurePassword';
