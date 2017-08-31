@@ -113,35 +113,23 @@ sub authenticationLogin : Private {
         $username = $stripped_username;
     }
 
-    if(isenabled($profile->reuseDot1xCredentials)) {
-        my $mac       = $portalSession->clientMac;
-        my $node_info = node_view($mac);
-        my $username = $node_info->{'last_dot1x_username'};
-        if ($username =~ /^(.*)@/ || $username =~ /^[^\/]+\/(.*)$/ ) {
-            $username = $1;
+    # validate login and password
+    ( $return, $message, $source_id, $extra ) =
+      pf::authentication::authenticate( { 'username' => $username, 'password' => $password, 'rule_class' => $Rules::AUTH }, @sources );
+    if ( defined($return) && $return == 1 ) {
+        pf::auth_log::record_auth($source_id, $portalSession->clientMac, $username, $pf::auth_log::COMPLETED);
+        # save login into session
+        $c->user_session->{username} = $username // $default_pid;
+        $c->user_session->{source_id} = $source_id;
+        $c->user_session->{source_match} = $source_id;
+        if(!person_exist($username)){
+            person_add($username);
         }
-        $c->user_session->{username} = $username;
-        $c->user_session->{source_id} = $sources[0]->id;
-        $c->user_session->{source_match} = \@sources;
+        # Logging USER/IP/MAC of the just-authenticated user
+        $logger->info("Successfully authenticated ".$username."/".$portalSession->clientIP->normalizedIP."/".$portalSession->clientMac);
     } else {
-        # validate login and password
-        ( $return, $message, $source_id, $extra ) =
-          pf::authentication::authenticate( { 'username' => $username, 'password' => $password, 'rule_class' => $Rules::AUTH }, @sources );
-        if ( defined($return) && $return == 1 ) {
-            pf::auth_log::record_auth($source_id, $portalSession->clientMac, $username, $pf::auth_log::COMPLETED);
-            # save login into session
-            $c->user_session->{username} = $username // $default_pid;
-            $c->user_session->{source_id} = $source_id;
-            $c->user_session->{source_match} = $source_id;
-            if(!person_exist($username)){
-                person_add($username);
-            }
-            # Logging USER/IP/MAC of the just-authenticated user
-            $logger->info("Successfully authenticated ".$username."/".$portalSession->clientIP->normalizedIP."/".$portalSession->clientMac);
-        } else {
-            pf::auth_log::record_auth(join(',',map { $_->id } @sources), $portalSession->clientMac, $username, $pf::auth_log::FAILED);
-            $c->error($message);
-        }
+        pf::auth_log::record_auth(join(',',map { $_->id } @sources), $portalSession->clientMac, $username, $pf::auth_log::FAILED);
+        $c->error($message);
     }
 }
 
