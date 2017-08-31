@@ -113,6 +113,13 @@ Don't forget to edit the `/usr/local/pf/conf/currently-at` file to match the new
 Upgrading from a version prior to X.Y.Z
 ---------------------------------------
 
+Device Registration
+^^^^^^^^^^^^^^^^^^^
+
+You will need to remove anything related to [device_registration] in the conf/pf.conf file.
+
+
+
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
 
 

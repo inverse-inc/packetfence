@@ -34,6 +34,7 @@ Enhancements
 * Add support for SSL and StartTLS for sending mail (PR #2446)
 * Allow to ignore self signed cert errors for nessus 6 (PR #2568)
 * Allow violations to be triggered by nessus 6 scanner (PR #2568)
+* Improved device registration to be able to create profiles, this allow you to associate device registration profile by connection profile
 
 Bug Fixes
 +++++++++
