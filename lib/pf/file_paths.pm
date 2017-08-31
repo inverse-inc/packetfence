@@ -56,6 +56,7 @@ our (
     $ui_config_file, $floating_devices_file, $log_config_file,
     @stored_config_files, @log_files,
     $provisioning_config_file,
+    $device_registration_config_file,
     $admin_roles_config_file,
     $wrix_config_file,
     $firewall_sso_config_file,
@@ -126,6 +127,7 @@ BEGIN {
         $ui_config_file $floating_devices_file $log_config_file
         @stored_config_files @log_files
         $provisioning_config_file
+        $device_registration_config_file
         $admin_roles_config_file
         $wrix_config_file
         @stored_config_files
@@ -206,6 +208,7 @@ $chi_config_file    = catfile($conf_dir, "chi.conf");
 $chi_defaults_config_file = catfile($conf_dir, "chi.conf.defaults");
 $log_config_file    = catfile($conf_dir, "log.conf");
 $provisioning_config_file = catfile($conf_dir, 'provisioning.conf');
+$device_registration_config_file = catfile($conf_dir,"device_registration.conf");
 $pki_provider_config_file  = catfile($conf_dir,"pki_provider.conf");
 
 $network_config_file    = catfile($conf_dir, "networks.conf");
@@ -291,6 +294,7 @@ $captiveportal_default_profile_templates_path = catdir ($captiveportal_profile_t
     $chi_config_file,$allowed_device_oui_file,$allowed_device_types_file,
     $chi_defaults_config_file,
     $ui_config_file,$provisioning_config_file,$oauth_ip_file,$log_config_file,
+    $device_registration_config_file,
     $admin_roles_config_file,$wrix_config_file,$apache_filters_config_file,
     $vlan_filters_config_file,$vlan_filters_config_default_file,$firewall_sso_config_file,$scan_config_file,
     $wmi_config_file,$pfdetect_config_file,$pfqueue_config_file,

@@ -10,7 +10,6 @@ use pf::web;
 use pf::violation qw(violation_view_open);
 use pf::constants::violation qw($LOST_OR_STOLEN);
 use pf::password qw(view);
-use pf::config qw(%Config);
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -54,7 +53,7 @@ sub index : Path : Args(0) {
     if (view($pid)) {
         $c->stash->{hasLocalAccount} = $TRUE;
     }
-    if (isenabled( $Config{'device_registration'}{'status'} ) ) {
+    if (defined( $c->profile->{'_device_registration'} ) ) {
         $c->stash->{isDeviceRegEnable} = $TRUE;
     }
     $c->stash(

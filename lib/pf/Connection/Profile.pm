@@ -268,6 +268,11 @@ sub getProvisioners {
     return $self->{'_provisioners'};
 }
 
+sub getDeviceRegistration {
+    my ($self) = @_;
+    return $self->{'_device_registration'};
+}
+
 =item getSourcesAsObjects
 
 Returns the authentication sources objects for the current connection profile.

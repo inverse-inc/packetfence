@@ -2,7 +2,7 @@ package captiveportal::PacketFence::Controller::DeviceRegistration;;
 use Moose;
 use namespace::autoclean;
 use pf::Authentication::constants;
-use pf::config qw(%Config);
+use pf::config qw(%ConfigDeviceRegistration);
 use pf::constants;
 use pf::log;
 use pf::node;
@@ -30,8 +30,9 @@ Catalyst Controller.
 
 sub auto : Private {
     my ( $self, $c ) = @_;
-    if (isdisabled( $Config{'device_registration'}{'status'} ) )
-    {
+    if (defined( $c->profile->{'_device_registration'} ) ) {
+        $c->stash->{isDeviceRegEnable} = $TRUE;
+    } else {
         $self->showError($c,"Device registration module is not enabled" );
         $c->detach;
     }
@@ -103,7 +104,8 @@ sub landing : Local : Args(0) {
 sub registerNode : Private {
     my ( $self, $c, $pid, $mac, $type ) = @_;
     my $logger = $c->log;
-    if ( is_allowed($mac) && valid_mac($mac) ) {
+    my $device_reg_profile = $c->profile->{'_device_registration'};
+    if ( is_allowed($mac, $device_reg_profile) && valid_mac($mac) ) {
         my ($node) = node_view($mac);
         if( $node && $node->{status} ne $pf::node::STATUS_UNREGISTERED ) {
             $c->stash( status_msg_error => ["%s is already registered or pending to be registered. Please verify MAC address if correct contact your network administrator", $mac]);
@@ -116,7 +118,7 @@ sub registerNode : Private {
             $c->stash->{device_mac} = $mac;
             # Get role for device registration
             my $role =
-              $Config{'device_registration'}{'role'};
+              $ConfigDeviceRegistration{$device_reg_profile}{'category'};
             if ($role) {
                 $logger->debug("Device registration role is $role (from pf.conf)");
             } else {
@@ -210,10 +212,10 @@ Verify
 =cut 
 
 sub is_allowed {
-    my ($mac) = @_;
+    my ($mac, $device_reg_profile) = @_;
     $mac =~ s/O/0/i;
     my $logger = get_logger();
-    my @oses = @{$Config{'device_registration'}{'allowed_devices'}};
+    my @oses = $ConfigDeviceRegistration{$device_reg_profile}{'allowed_devices'};
 
     # If no oses are defined then it will allow every devices to be registered
     return $TRUE if @oses == 0;
