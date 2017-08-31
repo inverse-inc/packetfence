@@ -497,7 +497,7 @@ sub db_wsrep_healthy {
         $sth->finish;
         # If there is no wsrep_ready row, then we're not in read only because we don't use wsrep
         # If its there and not set to ON, then we're in read only
-        my $wsrep_ready = (defined($row) && $row->[1] eq "ON");
+        return (defined($row) && $row->[1] eq "ON");
     }
     # wsrep isn't enabled
     else {
