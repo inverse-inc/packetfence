@@ -43,6 +43,8 @@ server eduroam.cluster {
         }
         accounting {
             update control {
+                    # It does not make sense to send accounting data to Eduroam
+                    # so we keep it locally.
                     Proxy-To-Realm := "packetfence"
             }
             if(!NAS-IP-Address){
