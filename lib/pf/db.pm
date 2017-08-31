@@ -40,6 +40,7 @@ use constant PREPARED_VAR      => '_db_prepared'; # prepare flag with <modulenam
 use constant PREPARE_PF_PREFIX => 'pf::';         # prefix to access exported _prepare(d) variables
 
 our $MYSQL_READONLY_ERROR = 1290;
+our $WSREP_NOT_READY_ERROR = 1047;
 
 our ( $DBH, $LAST_CONNECT, $DB_Config, $NO_DIE_ON_DBH_ERROR );
 
@@ -151,7 +152,7 @@ db_handle_error
 
 sub db_handle_error {
     my ($err) = @_;
-    if ($err == $MYSQL_READONLY_ERROR) {
+    if ($err == $MYSQL_READONLY_ERROR || $err == $WSREP_NOT_READY_ERROR) {
         db_set_readonly_mode(1);
     }
     return ;
@@ -352,7 +353,10 @@ sub db_query_execute {
     }
     if ($done) {
         if (defined $dbi_err && $dbi_err == $MYSQL_READONLY_ERROR) {
-            $logger->warn("Database issue: attempting to update a readonly database");
+            $logger->warn("Database issue: attempting to update a readonly database (read_only is ON)");
+        }
+        elsif (defined $dbi_err && $dbi_err == $WSREP_NOT_READY_ERROR) {
+            $logger->warn("Database issue: attempting to update a database that is not ready for writes (wsrep_ready is OFF)");
         }
         else {
             $logger->error("Database issue: Failed with a non-repeatable error with query $query");
@@ -452,11 +456,25 @@ sub db_readonly_mode {
         db_connect()
     };
     return 0 unless $dbh;
+
+    # check if the read_only flag is set
     my $sth = $dbh->prepare_cached('SELECT @@global.read_only;');
     return 0 unless $sth->execute;
     my $row = $sth->fetch;
     $sth->finish;
-    return $row->[0];
+    my $readonly = $row->[0];
+
+    # check if the wsrep_ready status is ON
+    $sth = $dbh->prepare_cached('show status like "wsrep_ready";');
+    return 0 unless $sth->execute;
+    $row = $sth->fetch;
+    $sth->finish;
+    # If there is no wsrep_ready row, then we're not in read only because we don't use wsrep
+    # If its there and not set to ON, then we're in read only
+    my $wsrep_ready = (!defined($row) || $row->[1] eq "ON");
+
+    # If the read_only flag is set or wsrep isn't ready, we are in read only
+    return $readonly || !$wsrep_ready;
 }
 
 =item db_check_readonly
