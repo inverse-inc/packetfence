@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 37;
+use Test::More tests => 38;
 
 use pf::error qw(is_success is_error);
 use pf::db;
@@ -83,7 +83,9 @@ is($node->sessionid, $new_session, "Changes were saved into database");
 
 $node->voip("bob");
 
-ok(is_error($node->save), "Cannot save invalid enum value into the database");
+ok(is_success($node->save), "Save with an invalid voip");
+
+is($node->voip, "no", "After saving a node with invalid voip is set to node");
 
 $node->voip("yes");
 
