@@ -160,7 +160,6 @@
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/System.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Configuration.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Configurator.pm
-/usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/UserAgents.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Wrix.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/DB.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Graph.pm
