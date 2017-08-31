@@ -20,7 +20,6 @@ use warnings;
 use File::Basename;
 use POSIX::2008;
 use Net::MAC::Vendor;
-use Net::SMTP;
 use File::Path qw(make_path remove_tree);
 use POSIX qw(setuid setgid);
 use File::Spec::Functions;
@@ -1140,50 +1139,6 @@ sub strip_username {
         return ($2,$1);
     }
     return $username;
-}
-
-sub send_email {
-    my ($smtp_server, $from, $to, $subject, $template, %info) = @_;
-    my $logger = get_logger();
-
-    my $user_info = pf::person::person_view($to);
-    setlocale(POSIX::LC_MESSAGES, $user_info->{lang});
-    
-    use Locale::gettext qw(bindtextdomain textdomain bind_textdomain_codeset);
-    bindtextdomain( "packetfence", "$conf_dir/locale" );
-    bind_textdomain_codeset( "packetfence", "utf-8" );
-    textdomain("packetfence");
-
-    require pf::web;
-
-    my %TmplOptions = (
-        INCLUDE_PATH    => "$html_dir/captive-portal/templates/emails/",
-        ENCODING        => 'utf8',
-    );
-
-    my %vars = (%info, i18n => \&pf::web::i18n, i18n_format => \&pf::web::i18n_format);
-
-    utf8::decode($subject);
-    my $msg = MIME::Lite::TT->new(
-        From        =>  $from,
-        To          =>  $to,
-        Bcc         =>  $info{'bcc'},
-        Subject     =>  encode("MIME-Header", $subject),
-        'Content-Type' => 'text/html; charset="UTF-8"',
-        Template    =>  "emails-$template.html",
-        TmplOptions =>  \%TmplOptions,
-        TmplParams  =>  \%vars,
-    );
-
-    my $result = 0;
-    try {
-      $msg->send('smtp', $smtp_server, Timeout => 20);
-      $result = $msg->last_send_successful();
-      $logger->info("Email sent to ".$to." (".$subject.")");
-    }
-    catch {
-      $logger->error("Can't send email to ".$to.": $!");
-    };
 }
 
 sub generate_session_id {

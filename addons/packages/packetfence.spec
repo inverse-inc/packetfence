@@ -139,6 +139,8 @@ Requires: ipset, sudo
 Requires: perl(File::Which), perl(NetAddr::IP)
 Requires: perl(Net::LDAP)
 Requires: perl(Net::IP)
+Requires: perl-libnet >= 3.10
+Requires: perl(Socket) >= 2.016
 Requires: perl(Digest::HMAC_MD5)
 # TODO: we should depend on perl modules not perl-libwww-perl package
 # find out what they are and specify them as perl(...::...) instead of perl-libwww-perl
@@ -271,6 +273,7 @@ Requires: perl(File::Touch)
 Requires: perl(POSIX::AtFork)
 Requires: perl(Hash::Merge)
 Requires: perl(IO::Socket::INET6)
+Requires: perl(IO::Socket::SSL) >= 2.049
 Requires: perl(IO::Interface)
 Requires: perl(Time::Period) >= 1.25
 Requires: perl(Time::Piece)

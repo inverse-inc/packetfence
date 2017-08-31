@@ -16,7 +16,6 @@ use strict;
 use warnings;
 use base 'pf::task';
 use POSIX;
-use Net::SMTP;
 use pf::util qw(untaint_chain);
 use pf::log;
 use pf::config;

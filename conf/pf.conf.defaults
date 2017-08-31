@@ -213,6 +213,38 @@ smtpserver=localhost
 #Subject prefix for email notifications of rogue DHCP servers, violations with an action of "email", or any other
 #PacketFence-related message.
 subjectprefix=PF Alert:
+#
+# alerting.smtp_encryption
+#
+# Encryption style when connecting to the SMTP server.
+smtp_encryption=none
+#
+# alerting.smtp_port
+#
+# The port of the SMTP server.
+# If the port is set to 0 then port is calculated by the encryption type.
+# none:25, ssl:465, starttls:587
+smtp_port=0
+#
+# alerting.smtp_username
+#
+# The username used to connect to the SMTP server
+smtp_username=
+#
+# alerting.smtp_password
+#
+# The password used to connect to the SMTP server
+smtp_password=
+#
+# alerting.smtp_verify_ssl
+#
+# Verify SSL connection
+smtp_verifyssl=enabled
+#
+# alerting.smtp_timeout
+#
+# The timeout in seconds for sending an email
+smtp_timeout=20
 
 [ports]
 #

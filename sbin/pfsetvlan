@@ -42,7 +42,6 @@ use Data::Dumper;
 use File::Basename qw(basename);
 use File::Tail;
 use Getopt::Long;
-use Net::SMTP;
 use Pod::Usage;
 use POSIX;
 use Systemd::Daemon qw{ -soft };
