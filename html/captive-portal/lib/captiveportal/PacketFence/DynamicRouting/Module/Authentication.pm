@@ -217,6 +217,7 @@ sub auth_source_params {
         mac => $self->current_mac,
         connection_type => $locationlog_entry->{'connection_type'},
         SSID => $locationlog_entry->{'ssid'},
+        realm => $locationlog_entry->{'realm'},
         %{$self->auth_source_params_child()},
     }
 }

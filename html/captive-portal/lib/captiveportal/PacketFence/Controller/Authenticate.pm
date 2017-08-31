@@ -56,6 +56,7 @@ sub setupMatchParams : Private {
     if ($locationlog_entry) {
         $params->{connection_type} = $locationlog_entry->{'connection_type'};
         $params->{SSID}            = $locationlog_entry->{'ssid'};
+        $params->{realm}           = $locationlog_entry->{'realm'};
     }
     $c->stash->{matchParams} = $params;
 }

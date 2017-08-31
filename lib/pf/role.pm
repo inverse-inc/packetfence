@@ -428,6 +428,7 @@ sub getRegisteredRole {
                 stripped_user_name => $stripped_user,
                 rule_class => 'authentication',
                 radius_request => $args->{radius_request},
+                realm => $args->{realm},
             };
             my $matched = pf::authentication::match2([@sources], $params);
             $source = $matched->{source_id};
@@ -573,6 +574,7 @@ sub getNodeInfoForAutoReg {
             SSID => $args->{'ssid'},
             stripped_user_name => $stripped_user,
             radius_request => $args->{radius_request},
+            realm => $args->{realm},
         };
 
         my $matched = pf::authentication::match2([@sources], $params);

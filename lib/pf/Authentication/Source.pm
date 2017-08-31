@@ -96,6 +96,7 @@ sub common_attributes {
           { value => 'connection_type', type => $Conditions::CONNECTION },
           { value => 'computer_name', type => $Conditions::SUBSTRING },
           { value => "mac", type => $Conditions::SUBSTRING },
+          { value => "realm", type => $Conditions::SUBSTRING },
          ];
 }
 

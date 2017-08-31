@@ -173,6 +173,7 @@ sub authenticate {
             SSID => $node_info->{'last_ssid'},
             stripped_user_name => $username,
             rule_class => 'authentication',
+            realm => $node_info->{'realm'},
         };
         my $source_id;
         my $role = pf::authentication::match($source->id, $params, $Actions::SET_ROLE, \$source_id);
