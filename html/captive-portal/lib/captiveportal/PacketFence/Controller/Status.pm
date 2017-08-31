@@ -64,7 +64,7 @@ sub index : Path : Args(0) {
     );
 }
 
-sub is_lost_stolen : Path : Args(1) {
+sub is_lost_stolen {
     my ( $mac ) = @_;
    
     my @violations = violation_view_open($mac);
