@@ -79,6 +79,7 @@ vrrp_instance $cfg->{'ip'} {
   priority $priority
   state MASTER
   interface $interface
+  preempt_delay 30
   virtual_ipaddress {
     $cluster_ip dev $interface
   }
