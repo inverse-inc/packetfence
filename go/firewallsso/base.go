@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -15,6 +16,12 @@ import (
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"github.com/julsemaan/radius"
 )
+
+var usernameFormatRegexps = map[string]*regexp.Regexp{
+	"stripped_username": regexp.MustCompile(`\$username`),
+	"realm":             regexp.MustCompile(`\$realm`),
+	"username":          regexp.MustCompile(`\$pf_username`),
+}
 
 // Basic interface that all FirewallSSO must implement
 type FirewallSSOInt interface {
@@ -29,6 +36,7 @@ type FirewallSSOInt interface {
 	MatchesNetwork(ctx context.Context, info map[string]string) bool
 	ShouldCacheUpdates(ctx context.Context) bool
 	GetCacheTimeout(ctx context.Context) int
+	FormatUsername(ctx context.Context, info map[string]string) string
 	GetLoadedAt() time.Time
 	SetLoadedAt(time.Time)
 }
@@ -41,9 +49,11 @@ type FirewallSSO struct {
 	PfconfigHashNS string `val:"-"`
 	RoleBasedFirewallSSO
 	pfconfigdriver.TypedConfig
-	Networks     []*FirewallSSONetwork `json:"networks"`
-	CacheUpdates string                `json:"cache_updates"`
-	CacheTimeout string                `json:"cache_timeout"`
+	Networks       []*FirewallSSONetwork `json:"networks"`
+	CacheUpdates   string                `json:"cache_updates"`
+	CacheTimeout   string                `json:"cache_timeout"`
+	UsernameFormat string                `json:"username_format"`
+	DefaultRealm   string                `json:"default_realm"`
 }
 
 // Builds all networks, meant to be called after the data is loaded into the struct attributes
@@ -109,6 +119,25 @@ func (fw *FirewallSSO) InfoToTemplateCtx(ctx context.Context, info map[string]st
 	templateCtx["Timeout"] = strconv.Itoa(timeout)
 
 	return templateCtx
+}
+
+func (fw *FirewallSSO) FormatUsername(ctx context.Context, info map[string]string) string {
+	if fw.UsernameFormat == "" {
+		return info["username"]
+	}
+
+	username := fw.UsernameFormat
+
+	if info["realm"] == "" {
+		log.LoggerWContext(ctx).Debug("No realm for user, using default realm")
+		info["realm"] = fw.DefaultRealm
+	}
+
+	for key, re := range usernameFormatRegexps {
+		username = re.ReplaceAllString(username, info[key])
+	}
+
+	return username
 }
 
 // Start method that will be called on every SSO called via ExecuteStart
@@ -213,6 +242,9 @@ func ExecuteStart(ctx context.Context, fw FirewallSSOInt, info map[string]string
 		return false, nil
 	}
 
+	// We change the username with the way it is expected given the format of this firewall
+	info["username"] = fw.FormatUsername(ctx, info)
+
 	parentResult, err := fw.GetFirewallSSO(ctx).Start(ctx, info, timeout)
 
 	if err != nil {
@@ -233,6 +265,9 @@ func ExecuteStop(ctx context.Context, fw FirewallSSOInt, info map[string]string)
 		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO for IP %s since it doesn't match any configured network", info["ip"]))
 		return false, nil
 	}
+
+	// We change the username with the way it is expected given the format of this firewall
+	info["username"] = fw.FormatUsername(ctx, info)
 
 	parentResult, err := fw.GetFirewallSSO(ctx).Stop(ctx, info)
 

@@ -98,6 +98,11 @@ func (h PfssoHandler) parseSsoRequest(ctx context.Context, body io.Reader) (map[
 		return nil, 0, err
 	}
 
+	if info["stripped_username"] == "" {
+		log.LoggerWContext(ctx).Warn("No stripped_username set in the request, using the username as the stripped_username and no realm")
+		info["stripped_username"] = info["username"]
+	}
+
 	return info, int(timeout), nil
 }
 

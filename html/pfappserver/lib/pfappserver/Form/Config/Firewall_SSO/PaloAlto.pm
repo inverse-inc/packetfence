@@ -79,7 +79,7 @@ has_field 'vsys' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type vsys transport port password categories networks cache_updates cache_timeout) ],
+   render_list => [ qw(id type vsys transport port password categories networks cache_updates cache_timeout username_format default_realm) ],
   );
 
 

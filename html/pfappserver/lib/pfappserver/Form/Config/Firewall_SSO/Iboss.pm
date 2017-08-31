@@ -71,7 +71,7 @@ has_field 'categories' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type password port nac_name categories networks cache_updates cache_timeout) ],
+   render_list => [ qw(id type password port nac_name categories networks cache_updates cache_timeout username_format default_realm) ],
   );
 
 
