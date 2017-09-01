@@ -263,8 +263,6 @@ sub match_condition {
 
 sub search_attributes {
     my ($self,$username) = @_;
-    my $realm;
-    ($username,$realm) = strip_username($username) if isenabled($self->{'stripped_user_name'});
     return $self->search_attributes_in_subclass($username);
 }
 

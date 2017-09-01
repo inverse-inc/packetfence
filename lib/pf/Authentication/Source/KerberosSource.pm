@@ -17,12 +17,11 @@ use Authen::Krb5::Simple;
 
 use Moose;
 extends 'pf::Authentication::Source';
+with qw(pf::Authentication::InternalRole);
 
 has '+type' => ( default => 'Kerberos' );
 has 'host' => (isa => 'Str', is => 'rw', required => 1);
 has 'authenticate_realm' => (isa => 'Str', is => 'rw', required => 1);
-has 'stripped_user_name' => (isa => 'Str', is => 'rw', default => 'yes');
-has 'realms' => (isa => 'ArrayRef[Str]', is => 'rw');
 
 =head2 dynamic_routing_module
 
