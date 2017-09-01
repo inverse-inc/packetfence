@@ -463,11 +463,10 @@ sub db_readonly_mode {
     my $row = $sth->fetch;
     $sth->finish;
     my $readonly = $row->[0];
-
-    my $wsrep_healthy = db_wsrep_healthy();
-
-    # If the read_only flag is set or wsrep isn't ready, we are in read only
-    return $readonly || !$wsrep_healthy;
+    # If readonly no need to check wsrep health
+    return 1 if $readonly;
+    # If wsrep is not healthly then it is in readonly mode
+    return !db_wsrep_healthy();
 }
 
 =head2 db_wsrep_healthy
