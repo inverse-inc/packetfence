@@ -970,6 +970,8 @@ fi
                         /usr/local/pf/conf/radiusd/packetfence-cluster.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/proxy.conf.inc
                         /usr/local/pf/conf/radiusd/proxy.conf.inc.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/proxy.conf.loadbalancer
+                        /usr/local/pf/conf/radiusd/proxy.conf.loadbalancer.example
 %config(noreplace)	/usr/local/pf/conf/radiusd/eap.conf
                         /usr/local/pf/conf/radiusd/eap.conf.example
 %config(noreplace)	/usr/local/pf/conf/radiusd/radiusd.conf
@@ -998,6 +1000,8 @@ fi
                         /usr/local/pf/conf/radiusd/eduroam-cluster.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/eduroam.conf
                         /usr/local/pf/conf/radiusd/eduroam.conf.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/radiusd_loadbalancer.conf
+                        /usr/local/pf/conf/radiusd/radiusd_loadbalancer.conf.example
 %config(noreplace)      /usr/local/pf/conf/realm.conf
                         /usr/local/pf/conf/realm.conf.example
 %config                 /usr/local/pf/conf/realm.conf.defaults
