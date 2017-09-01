@@ -42,16 +42,6 @@ has_field 'timeout' =>
    element_class => ['input-mini'],
    element_attr => {'placeholder' => '1'},
   );
-has_field 'stripped_user_name' =>
-  (
-   type            => 'Toggle',
-   checkbox_value  => 'yes',
-   unchecked_value => 'no',
-   default         => 'yes',
-   label           => 'Use stripped username ',
-   tags => { after_element => \&help,
-             help => 'Use stripped username returned by RADIUS to test the following rules.' },
-  );
 
 =head1 COPYRIGHT
 
