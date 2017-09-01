@@ -175,22 +175,15 @@ Test the connection to the database for a specific host using the replication cr
 
 sub test_db {
     my ($host) = @_;
-    eval {
-        local $SIG{ALRM} = sub {die "Timeout connecting to MySQL for host $host\n";};
-        alarm($MYSQL_CONNECT_TIMEOUT);
-        my $mydbh = DBI->connect( "dbi:mysql:dbname=mysql;host=$host;port=3306",
-            $Config{active_active}{galera_replication_username}, $Config{active_active}{galera_replication_password}, { RaiseError => 0, PrintError => 0, mysql_auto_reconnect => 1 } );
-        alarm(0);
-        # make sure we have a database handle
-        if ($mydbh) {
-            return 1;
-        }
-        else {
-            return 0;
-        }
-    };
-    # we left the eval so that means we died
-    return 0;
+    my $mydbh = DBI->connect( "dbi:mysql:dbname=mysql;host=$host;port=3306;mysql_connect_timeout=$MYSQL_CONNECT_TIMEOUT",
+        $Config{active_active}{galera_replication_username}, $Config{active_active}{galera_replication_password}, { RaiseError => 0, PrintError => 0, mysql_auto_reconnect => 1 } );
+    # make sure we have a database handle
+    if ($mydbh) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
 }
 
 =head2 db_available
