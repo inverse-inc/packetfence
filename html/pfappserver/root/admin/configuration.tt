@@ -78,8 +78,7 @@
               </li>
             </ul>
           </div>
-          <div class="sidenav sidenav-section span3 offset1"
-               style="display: none"
+          <div class="sidenav sidenav-section span3 offset1 hide"
                data-category="policy">
             <ul class="nav nav-header">
               <li>[% l('Policies and Access Control') %]</li>
@@ -103,8 +102,7 @@
               [%- END %]
             </ul>
           </div>
-          <div class="sidenav sidenav-section sidenav-inverse span3 offset1"
-               style="display: none"
+          <div class="sidenav sidenav-section sidenav-inverse span3 offset1 hide"
                data-category="compliance">
             <ul class="nav nav-header">
               <li>[% l('Compliance') %]</li>
@@ -122,8 +120,7 @@
               [%- END %]
             </ul>
           </div>
-          <div class="sidenav sidenav-section sidenav-inverse span3 offset1"
-               style="display: none"
+          <div class="sidenav sidenav-section sidenav-inverse span3 offset1 hide"
                data-category="integration">
             <ul class="nav nav-header">
               <li>[% l('Integration') %]</li>
@@ -148,8 +145,7 @@
               [%- END %]
             </ul>
           </div>
-          <div class="sidenav sidenav-section sidenav-inverse span3 offset1"
-               style="display: none"
+          <div class="sidenav sidenav-section sidenav-inverse span3 offset1 hide"
                data-category="portal_config">
             <ul class="nav nav-header">
               <li>[% l('Advanced Access Configuration') %]</li>
@@ -182,8 +178,7 @@
               [%- END %]
             </ul>
           </div>
-          <div class="sidenav sidenav-section sidenav-inverse span3 offset1"
-               style="display: none"
+          <div class="sidenav sidenav-section sidenav-inverse span3 offset1 hide"
                data-category="network_conf">
             <ul class="nav nav-header">
               <li>[% l('Network Configuration') %]</li>
@@ -203,8 +198,7 @@
               [%- END %]
             </ul>
           </div>
-          <div class="sidenav sidenav-section sidenav-inverse span3 offset1"
-               style="display: none"
+          <div class="sidenav sidenav-section sidenav-inverse span3 offset1 hide"
                data-category="system">
             <ul class="nav nav-header">
               <li>[% l('System Configuration') %]</li>

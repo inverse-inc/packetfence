@@ -2,7 +2,7 @@
   <div class="modal-body">
     <h3>The server is currently connecting to your Active directory</h3>
     <div class="progress progress-info">
-      <div id="domainProgressBar" class="bar" style="width:1%"></div>
+      <div id="domainProgressBar" class="bar"></div>
     </div>
   </div><!--modal-body-->
 </div>

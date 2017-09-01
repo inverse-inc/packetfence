@@ -793,6 +793,12 @@ rate_limiting_threshold = 24
 # Language choice for the communication with administrators
 language=en_US
 #
+# advanced.csp_security_headers
+#
+# Enforce Content-Security-Policy (CSP) HTTP response header in captive portal and admin interfaces
+#
+csp_security_headers = enabled
+#
 # advanced.sso_on_access_reevaluation
 #
 # Trigger Single-Sign-On (Firewall SSO) on access reevaluation

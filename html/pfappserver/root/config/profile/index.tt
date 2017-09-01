@@ -38,7 +38,7 @@
         <th>[% l('Description') %]</th>
         <th></th>
       </tr>
-      <tr style="font-weight: normal">
+      <tr>
         <td class="hidden-phone"></td>
         <td><a href="[% c.pf_hash_for(c.controller('Config::Profile').action_for('view'), ['default']) %]">[% l('default') %]</a></td>
         <td>[% l('Default Profile') %]</td>

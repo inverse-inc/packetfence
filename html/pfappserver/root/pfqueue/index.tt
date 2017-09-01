@@ -3,5 +3,4 @@
 <h2 class="card-title">[% l('Queue') %]</h2>
 
 [% show_stats(stats, 1) | none %]
-
 </div>

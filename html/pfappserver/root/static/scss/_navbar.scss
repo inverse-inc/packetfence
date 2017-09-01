@@ -8,6 +8,9 @@ $navbarErrorHeight: 32px;
 .navbar .brand {
   margin-left: 0;
   padding: floor(($navbarHeight - 30)/2) 20px;
+  img {
+    height: 32px;
+  }
 }
 
 /**

@@ -149,6 +149,11 @@ NodeView.prototype.readNode = function(e) {
         success: function(data) {
             $('body').append(data);
             var modal = $("#modalNode");
+            /* Ability to track submitted button (multihost feature) */
+            modal.find("form button[type=submit]").click(function() {
+                $(this, $(this).parents("form")).removeAttr("clicked");
+                $(this).attr("clicked", "true");
+            });
             modal.modal({ show: true });
         },
         errorSibling: section.find('h2').first()

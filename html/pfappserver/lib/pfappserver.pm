@@ -332,6 +332,28 @@ sub generate_doc_url {
     return pf::web::util::generate_doc_url($section, $guide);
 }
 
+=head2 csp_server_headers
+
+Return CSP (Content-Security-Policy) headers
+
+=cut
+
+sub csp_server_headers {
+    my ($c) = @_;
+
+    # Allow context-specific directive values (script-src, worker-src, img-src and style-src)
+    my $headers = $c->stash->{csp_headers} || {};
+    $c->response->header
+      ('Content-Security-Policy' =>
+       sprintf("default-src 'none'; script-src 'self'%s; worker-src 'self'%s; connect-src 'self'; img-src 'self'%s; style-src 'self'%s; font-src 'self';",
+               $headers->{script}? ' ' . $headers->{script} : '',
+               $headers->{worker}? ' ' . $headers->{worker} : '',
+               $headers->{img}   ? ' ' . $headers->{img}    : '',
+               $headers->{style} ? ' ' . $headers->{style}  : ''
+              )
+      );
+}
+
 # Logging
 __PACKAGE__->log(Log::Log4perl::Catalyst->new(INSTALL_DIR . '/conf/log.conf.d/httpd.admin.conf',watch_delay => 5 * 60));
 

@@ -7,7 +7,6 @@
         <th>[% l('Queue') %]</th>
         <th width="30%">[% l('Count') %]</th>
       </tr>
-
     </thead>
 
     [% FOREACH counter IN stats.queue_counts %]
@@ -22,8 +21,8 @@
   [% IF show_graphs %]
   <div>
     <h5>[% queue_counts_graph.description %]</h5>
-    <span style="float: left; width: [% queue_counts_graph.width %]px;">
-      <img src="[% queue_counts_graph.url %]" style="height: [% queue_counts_graph.height %]px; width: [% queue_counts_graph.width %]px;">
+    <span class="graph graph-2c">
+      <img src="[% queue_counts_graph.url %]" height="[% queue_counts_graph.height %]" width="[% queue_counts_graph.width %]">
     </span>
   </div>
   [% END %]

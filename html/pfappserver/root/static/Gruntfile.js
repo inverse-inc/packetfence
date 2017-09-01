@@ -49,7 +49,7 @@ module.exports = function(grunt) {
       'bower_components/clipboard/dist/clipboard.js',
     ],
     'js/vendor/raphael.min.js': [
-      'app/raphael/raphael-min.js',
+      'bower_components/raphael/raphael.min.js',
       'app/raphael/g.raphael-min.js',
       'app/raphael/g.bar-min.js',
       'app/raphael/g.dot-min.js',

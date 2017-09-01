@@ -324,7 +324,11 @@ Attempt to render a view, if needed.
 
 sub end : ActionClass('RenderView') {
     my ( $self, $c ) = @_;
-
+    
+    if (isenabled($Config{'advanced'}{'csp_security_headers'})) {
+        $c->csp_server_headers();
+    }
+    
     # We save the user session
     $c->_save_user_session();
 

@@ -1,3 +1,5 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
+
 var graphs = {
     charts: {},
     resize_timeout: null
@@ -397,6 +399,11 @@ function graphDotData(holder, ylabels, xlabels, series) {
 
 function drawGraphs(id) {
     var _graphs = {};
+
+    /* Load charts from document JSON */
+    var charts = document.getElementById('graphs.charts');
+    $.extend(window.graphs.charts, JSON.parse(charts.textContent || charts.innerHTML));
+
     if (id)
         _graphs[id] = graphs.charts[id];
     else

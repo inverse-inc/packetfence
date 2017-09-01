@@ -1,8 +1,10 @@
+/* -*- Mode: javascript; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+
 /**
  * PacketFence Javascript Library
  *
  * @author      Inverse inc. <info@inverse.ca>
- * @copyright   2005-2015 Inverse inc.
+ * @copyright   2005-2017 Inverse inc.
  * @license     http://opensource.org/licenses/gpl-2.0.php      GPL
  */
 
@@ -163,3 +165,20 @@ function getPortalUrl(url) {
     return url;
   }
 }
+
+
+$(function() {
+  'use strict';
+
+  /**
+    Will record the destination URL on the server if the browser has a javascript interpreter
+    This prevents the destination URL from being computed from an API call.
+  */
+  var wanted_destination_url = getQueryParams()["destination_url"];
+  if (wanted_destination_url){
+    $.post(
+      "/record_destination_url",
+      { destination_url: wanted_destination_url }
+    );
+  }
+});

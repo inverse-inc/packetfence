@@ -1,4 +1,4 @@
-              <form id="search" name="search" method="POST" class="form-inline" style="margin-bottom: 0px" action="[% c.uri_for(c.controller.action_for('search')) %]">
+              <form id="search" name="search" method="POST" class="form-inline" action="[% c.uri_for(c.controller.action_for('search')) %]">
                 <input type="hidden" name="by">
                 <input type="hidden" name="direction">
                 <div>
@@ -15,7 +15,7 @@
                       [% l('Match [_1] of the following conditions:', [match_options]) | none%]
               </div>
                 <br/>
-              <table class="table-dynamic" id="searches">
+              <table class="table table-condensed table-dynamic unbordered" id="searches">
                 <tbody>
                   <tr class="hidden dynamic-row">
                     <td>
@@ -128,7 +128,7 @@
                 </tbody>
                 <tfoot id="searchesFooter">
                   <tr>
-                    <td colspan="2" style="padding-top: 1em">
+                    <td colspan="2">
                       <div class="btn-group pull-right">
                         <button class="btn btn-primary" type="submit"><i class="icon-search icon-white"></i> [% l('Search') %]</button>
                       </div>
@@ -137,21 +137,3 @@
                 </tfoot>
               </table>
       </form>
-    <script>
-    $('#searchesEmpty').on('click','[href="#add"]', function(event) {
-        $('#searchesFooter').removeClass('hidden');
-        $('#all_or_any').removeClass('hidden');
-        $('#searches').trigger('addrow');
-        $('#searchesEmpty').addClass('hidden');
-        return false;
-    });
-    $('#searches').on('admin.deleted','tbody', function(event) {
-        var that = $(this);
-        var rows = that.children(':not(.hidden)');
-        if(rows.length == 0 ) {
-            $('#searchesFooter').addClass('hidden');
-            $('#all_or_any').addClass('hidden');
-        }
-        return false;
-    });
-    </script>

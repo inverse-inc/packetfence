@@ -11,7 +11,8 @@
     "bootstrap-datepicker": "1.6.x",
     "chosen": "v1.7.0",
     "jquery": "latest",
-    "jquery-ui": "latest"
+    "jquery-ui": "latest",
+    "raphael": "2.x"
   },
   "resolutions": {
     "jquery": "3.x"

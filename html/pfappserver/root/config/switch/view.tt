@@ -167,8 +167,3 @@
   </div>
 
 </form>
-<script>
-    $('input[type="password"][pfpass="1"]').each(function(i,e){
-        e.readonly = 0;
-    });
-</script>
