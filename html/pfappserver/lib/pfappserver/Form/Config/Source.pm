@@ -156,7 +156,7 @@ our %EXCLUDE = (
     create_local_account => 1,
     local_account_logins => 1,
     stripped_user_name => 1,
-    realm => 1,
+    realms => 1,
     (map { ("${_}_rules"  => 1) } @Rules::CLASSES),
     (map { ("${_}_action" => 1) } keys %ACTION_FIELD_OPTIONS),
     (map { ("${_}_operator" => 1, "${_}_value" => 1) } @Conditions::TYPES),
