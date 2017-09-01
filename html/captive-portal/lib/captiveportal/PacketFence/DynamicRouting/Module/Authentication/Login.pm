@@ -176,8 +176,7 @@ sub authenticate {
             realm => $node_info->{'realm'},
         };
         my $source_id;
-        my $role;
-        $role = pf::authentication::match([@{$source}], $params, $Actions::SET_ROLE, \$source_id);
+        my $role = pf::authentication::match([@{$source}], $params, $Actions::SET_ROLE, \$source_id);
 
         if ( defined($role) ) {
             $self->source(pf::authentication::getAuthenticationSource($source_id));

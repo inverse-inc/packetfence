@@ -51,7 +51,7 @@ sub check_password {
   my $user = $self->{_user};
   if (ref($realm_source) eq 'ARRAY') {
     foreach my $source (@{$realm_source}) {
-      get_logger->info("Found realm source ".$source->id." for user $stripped_username in realm $realm. Using it as the only source.");
+      get_logger->info("Found a realm source ".$source->id." for user $stripped_username in realm $realm.");
       $user = isenabled($source->{'stripped_user_name'}) ? $stripped_username : $self->{_user};
       my ($result, $message, $source_id, $extra) = pf::authentication::authenticate( { 'username' => $user, 'password' => $password, 'rule_class' => $Rules::ADMIN }, $source);
       if ($result) {

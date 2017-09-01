@@ -32,7 +32,7 @@ for my $section ( $inirealm->Sections() ) {
     next if $section =~ / /;
     next unless $inirealm->exists( $section, 'source' );
     my $source = $inirealm->val( $section, 'source' );
-    
+
     for my $authsection ( $iniauth->Sections() ) {
         if ($authsection eq $source) {
             if (my $previous = $iniauth->val($authsection, 'realm')) {
@@ -48,6 +48,12 @@ for my $section ( $inirealm->Sections() ) {
 for my $authsection ( $iniauth->Sections() ) {
     next if $authsection =~ / /;
     my $source_def = pf::authentication::getAuthenticationSource($authsection);
+    if ( defined($iniauth->val($authsection, 'type')) && $iniauth->val($authsection, 'type') eq 'Kerberos') {
+        if (defined($iniauth->val( $authsection, 'realm'))) {
+            $iniauth->newval($authsection, 'authenticate_realm', $iniauth->val( $authsection, 'realm'));
+            $iniauth->setval($authsection, 'realm', 'null');
+        }
+    }
     if ($source_def->class eq 'internal') {
          if (!defined($iniauth->val( $authsection, 'realm')) || $iniauth->val( $authsection, 'realm') eq '') {
              $iniauth->setval( $authsection, 'realm', 'null');

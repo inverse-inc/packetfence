@@ -7,6 +7,7 @@ realm=null
 description=Legacy Source
 path=/usr/local/pf/conf/admin.conf
 type=Htpasswd
+realm=null
 
 [file1 rule admins]
 description=All admins

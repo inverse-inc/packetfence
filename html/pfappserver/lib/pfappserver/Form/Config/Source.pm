@@ -52,6 +52,19 @@ has_field 'description' =>
    default => '',
   );
 
+has_field 'realm' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   label => 'Associated Realms',
+   options_method => \&options_realm,
+   element_class => ['chzn-deselect'],
+   element_attr => {'data-placeholder' => 'Click to add a realm'},
+   tags => { after_element => \&help,
+             help => 'Realms that will be associated with this source' },
+   default => '',
+  );
+
 has_field "${Rules::AUTH}_rules" =>
   (
    type => 'DynamicList',
@@ -421,6 +434,18 @@ sub validate {
         }
     }
     return ;
+}
+
+=head2 options_realm
+
+retrive the realms
+
+=cut
+
+sub options_realm {
+    my ($self) = @_;
+    my @roles = map { $_ => $_ } sort keys %pf::config::ConfigRealm;
+    return @roles;
 }
 
 =head1 COPYRIGHT
