@@ -95,6 +95,7 @@ $HAS_LOCK = 1;
 our $running = 1;
 our $TASKS;
 our @delay_queues;
+our @weighted_queues;
 
 # standard signals and daemonize
 daemonize($PROGRAM_NAME) if ($daemonize);
@@ -153,11 +154,11 @@ sub register_tasks {
     }
     if (@weights) {
         @weights = sort { $a->{weight} <=> $b->{weight} } @weights;
-        my $weighted_queues = distribute_queues(\@weights);
+        @weighted_queues = distribute_queues(\@weights);
         my $consumer = get_consumer('worker');
         my $redis = $consumer->redis;
         $redis->del($PFQUEUE_WEIGHTS);
-        $redis->lpush($PFQUEUE_WEIGHTS, @$weighted_queues);
+        $redis->lpush($PFQUEUE_WEIGHTS, @weighted_queues);
         my $workers = $ConfigPfqueue{pfqueue}{workers};
         for (1 .. $workers) {
             register_task("worker", \&process_multiple_queues, {} );
@@ -365,17 +366,33 @@ sub process_multiple_queues {
     my $redis = $consumer->redis;
     my @queues;
     $redis->multi(sub{});
-    $redis->lrange($PFQUEUE_WEIGHTS, 0, -1);
+    $redis->lrange($PFQUEUE_WEIGHTS, 0, -1, sub {});
     $redis->rpoplpush($PFQUEUE_WEIGHTS, $PFQUEUE_WEIGHTS, sub {});
     $redis->exec(sub{
         my ($replies, $error) = @_;
-        return if defined $error;
+        if (defined $error) {
+            $logger->error($error);
+            return;
+        }
         my ($lrange_reply, $lrange_error) =  @{$replies->[0]};
-        return if $lrange_error;
+        if (defined $lrange_error) {
+            $logger->error($lrange_error);
+            return;
+        }
         @queues = map { $_->[0] } @$lrange_reply;
     });
     $redis->wait_all_responses();
-    $consumer->process_next_job(\@queues);
+    if (@queues) {
+        $consumer->process_next_job(\@queues);
+    } else {
+        $logger->warn("The queue weights were deleted from redis repopulating");
+        # Repopulate the queue weights only once
+        $redis->watch($PFQUEUE_WEIGHTS);
+        $redis->multi(sub{});
+        $redis->lpush($PFQUEUE_WEIGHTS, @weighted_queues, sub {});
+        $redis->exec(sub {});
+        $redis->wait_all_responses();
+    }
 }
 
 =head2 process_queue
@@ -534,7 +551,7 @@ sub distribute_queues {
             }
         }
     }
-    return \@distribution;
+    return @distribution;
 }
 
 =head1 AUTHOR
