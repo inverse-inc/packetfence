@@ -350,6 +350,17 @@ sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
 
 }
 
+=head2 time_offset
+
+time_offset
+
+=cut
+
+sub time_offset :Chained('object') :PathPart('time_offset') :Args(0) {
+    my ( $self, $c ) = @_;
+    return ;
+}
+
 =head2 help
 
 =cut
