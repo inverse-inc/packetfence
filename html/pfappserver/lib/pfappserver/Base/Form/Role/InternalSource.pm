@@ -31,7 +31,7 @@ has_field 'stripped_user_name' => (
         help          => 'Use stripped username to test the  rules.'
     },
 );
-has_field 'realm' => (
+has_field 'realms' => (
     type           => 'Select',
     multiple       => 1,
     label          => 'Associated Realms',
@@ -46,7 +46,7 @@ has_field 'realm' => (
 );
 
 has_block internal_sources => (
-    render_list => [qw(stripped_user_name realm)],
+    render_list => [qw(stripped_user_name realms)],
 );
 
 =head2 options_realm

@@ -35,10 +35,10 @@ for my $section ( $inirealm->Sections() ) {
 
     for my $authsection ( $iniauth->Sections() ) {
         if ($authsection eq $source) {
-            if (my $previous = $iniauth->val($authsection, 'realm')) {
-                $iniauth->setval($authsection, 'realm', lc($section).",$previous");
+            if (my $previous = $iniauth->val($authsection, 'realms')) {
+                $iniauth->setval($authsection, 'realms', lc($section).",$previous");
             } else {
-                $iniauth->newval($authsection, 'realm', lc($section));
+                $iniauth->newval($authsection, 'realms', lc($section));
             }
         }
     }
@@ -49,14 +49,14 @@ for my $authsection ( $iniauth->Sections() ) {
     next if $authsection =~ / /;
     my $source_def = pf::authentication::getAuthenticationSource($authsection);
     if ( defined($iniauth->val($authsection, 'type')) && $iniauth->val($authsection, 'type') eq 'Kerberos') {
-        if (defined($iniauth->val( $authsection, 'realm'))) {
+        if (defined($iniauth->val( $authsection, 'realms'))) {
             $iniauth->newval($authsection, 'authenticate_realm', $iniauth->val( $authsection, 'realm'));
-            $iniauth->setval($authsection, 'realm', 'null');
+            $iniauth->setval($authsection, 'realms', 'null');
         }
     }
     if ($source_def->class eq 'internal') {
-         if (!defined($iniauth->val( $authsection, 'realm')) || $iniauth->val( $authsection, 'realm') eq '') {
-             $iniauth->setval( $authsection, 'realm', 'null');
+         if (!defined($iniauth->val( $authsection, 'realms')) || $iniauth->val( $authsection, 'realms') eq '') {
+             $iniauth->setval( $authsection, 'realms', 'null');
          }
     }
 }

@@ -95,7 +95,7 @@ sub cleanupAfterRead {
     if ($item->{type} eq 'SMS') {
         $self->expand_list($item, 'sms_carriers');
     }
-    $self->expand_list($item, qw(realm));
+    $self->expand_list($item, qw(realms));
 }
 
 sub cleanupBeforeCommit {
@@ -106,7 +106,7 @@ sub cleanupBeforeCommit {
     if ($item->{type} eq 'Eduroam') {
         $self->flatten_list($item, qw(local_realm reject_realm));
     }
-    $self->flatten_list($item, qw(realm));
+    $self->flatten_list($item, qw(realms));
 }
 
 before rewriteConfig => sub {

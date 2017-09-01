@@ -395,8 +395,8 @@ sub get_realm_authentication_source {
     $realm = 'null' unless ( defined($realm) );
     $realm = lc $realm;
 
-    my @sources = grep { defined $_->realm && grep( /^$realm$/, @{$_->realm} ) } @{$sources};
-    @sources = (@sources, grep { defined $_->realm && ($_->realm eq '') && !grep( defined($_), @{$_->realm} ) } @{$sources} );
+    my @sources = grep { defined $_->realms && grep( /^$realm$/, @{$_->realms} ) } @{$sources};
+    @sources = (@sources, grep { defined $_->realms && ($_->realms eq '') && !grep( defined($_), @{$_->realms} ) } @{$sources} );
     return \@sources;
 
 }

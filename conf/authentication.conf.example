@@ -1,13 +1,13 @@
 [local]
 description=Local Users
 type=SQL
-realm=null
+realms=null
 
 [file1]
 description=Legacy Source
 path=/usr/local/pf/conf/admin.conf
 type=Htpasswd
-realm=null
+realms=null
 
 [file1 rule admins]
 description=All admins
