@@ -38,6 +38,7 @@ Enhancements
 * Allow to specify the format of the username that is being sent in firewall SSO (PR #2499)
 * Monitor SSL certificates expiration and alert if they are expired (PR #2444)
 * Content Security Policy (CSP) enforced through the browser for Admin and Portal interfaces. Can be disabled through Advanced System Configuration. (PR #2336)
+* Logging into the status page when reuse dot1x is enabled is no longer broken (#2542) (PR #2598)
 
 Bug Fixes
 +++++++++
