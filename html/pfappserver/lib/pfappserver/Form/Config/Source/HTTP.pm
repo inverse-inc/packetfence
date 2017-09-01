@@ -13,7 +13,7 @@ Form definition to create or update a HTTP user source.
 use HTML::FormHandler::Moose;
 use pf::Authentication::Source::HTTPSource;
 extends 'pfappserver::Form::Config::Source';
-with 'pfappserver::Base::Form::Role::Help';
+with 'pfappserver::Base::Form::Role::Help', 'pfappserver::Base::Form::Role::InternalSource';
 
 # Form fields
 has_field 'host' =>
@@ -72,16 +72,6 @@ has_field 'authorization_url' =>
    required => 1,
    tags => { after_element => \&help,
              help => 'Note : The URL is always prefixed by a slash (/)' },
-  );
-has_field 'stripped_user_name' =>
-  (
-   type            => 'Toggle',
-   checkbox_value  => 'yes',
-   unchecked_value => 'no',
-   default         => 'yes',
-   label           => 'Use stripped username ',
-   tags => { after_element => \&help,
-             help => 'Use stripped username to test the following rules.' },
   );
 
 =head1 COPYRIGHT

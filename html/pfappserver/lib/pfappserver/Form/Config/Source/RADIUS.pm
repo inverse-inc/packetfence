@@ -12,7 +12,7 @@ Form definition to create or update a RADIUS user source.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Source';
-with 'pfappserver::Base::Form::Role::Help';
+with 'pfappserver::Base::Form::Role::Help', 'pfappserver::Base::Form::Role::InternalSource';
 
 # Form fields
 has_field 'host' =>
@@ -49,16 +49,6 @@ has_field 'timeout' =>
    element_class => ['input-mini'],
    element_attr => {'placeholder' => '1'},
    default => 1,
-  );
-has_field 'stripped_user_name' =>
-  (
-   type            => 'Toggle',
-   checkbox_value  => 'yes',
-   unchecked_value => 'no',
-   default         => 'yes',
-   label           => 'Use stripped username ',
-   tags => { after_element => \&help,
-             help => 'Use stripped username returned by RADIUS to test the following rules.' },
   );
 
 =head1 COPYRIGHT
