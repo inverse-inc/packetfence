@@ -325,7 +325,7 @@ Attempt to render a view, if needed.
 sub end : ActionClass('RenderView') {
     my ( $self, $c ) = @_;
     
-    if($Config{'advanced'}{'csp_security_headers'} eq 'enabled'){
+    if (isenabled($Config{'advanced'}{'csp_security_headers'})) {
         $c->csp_server_headers();
     }
     
