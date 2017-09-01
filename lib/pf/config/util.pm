@@ -383,6 +383,11 @@ sub portal_hosts {
     return @hosts;
 }
 
+=head2 get_realm_authentication_source
+
+Get a source for a specific realm
+
+=cut
 
 sub get_realm_authentication_source {
     my ( $username, $realm, $sources ) = @_;
