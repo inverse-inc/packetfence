@@ -392,11 +392,11 @@ Get a source for a specific realm
 sub get_realm_authentication_source {
     my ( $username, $realm, $sources ) = @_;
 
-    $realm = "null" unless ( defined($realm) );
+    $realm = 'null' unless ( defined($realm) );
     $realm = lc $realm;
 
     my @sources = grep { defined $_->realm && grep( /^$realm$/, @{$_->realm} ) } @{$sources};
-    @sources = (@sources, grep { defined $_->realm && !grep( defined($_), @{$_->realm} ) } @{$sources} ) if ($realm ne "null");
+    @sources = (@sources, grep { defined $_->realm && ($_->realm eq '') && !grep( defined($_), @{$_->realm} ) } @{$sources} );
     return \@sources;
 
 }
