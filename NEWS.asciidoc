@@ -97,6 +97,7 @@ Bug Fixes
 * Fixed leftover httpd processes when restarting (#2439)
 * Mariadb binary logs files are now properly rotated (#2440)
 * Fixed scss settings and colors being wiped on each upgrade (#2317)
+* pfdns: catch all the dns traffic in the registration network (#2381)
 
 Version 7.1.0 released on 2017-06-01
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
