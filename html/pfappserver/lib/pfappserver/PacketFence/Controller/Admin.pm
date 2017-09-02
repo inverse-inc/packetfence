@@ -25,6 +25,8 @@ use pf::cluster;
 use pf::authentication;
 use pf::Authentication::constants qw($LOGIN_CHALLENGE);
 use pf::util;
+use pf::config qw(%Config);
+use DateTime;
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
@@ -356,8 +358,25 @@ time_offset
 
 =cut
 
-sub time_offset :Chained('object') :PathPart('time_offset') :Args(0) {
-    my ( $self, $c ) = @_;
+
+sub time_offset :Chained('object') :PathPart('time_offset') :Args(1) {
+    my ( $self, $c, $time_spec) = @_;
+    $c->stash->{current_view} = 'JSON';
+    my $seconds = normalize_time($time_spec);
+    my $end_date = DateTime->now(time_zone => $Config{general}{timezone});
+    my $start_date = $end_date->clone->subtract(seconds => $seconds);
+    $c->stash(
+        time_offset => {
+            start => {
+                time => $start_date->hms,
+                date => $start_date->ymd,
+            },
+            end => {
+                time => $end_date->hms,
+                date => $end_date->ymd,
+            },
+        },
+    );
     return ;
 }
 
