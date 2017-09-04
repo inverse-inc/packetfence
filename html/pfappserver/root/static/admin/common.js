@@ -544,7 +544,7 @@ $(function () { // DOM ready
         return true;
     });
 
-    $('#section').on('click', 'a[data-toggle="date-picker"]', function(event) {
+    $('body').on('click', 'a[data-toggle="date-picker"]', function(event) {
         event.preventDefault();
         var a = $(event.currentTarget);
         $.ajax({
