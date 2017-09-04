@@ -375,12 +375,19 @@
                             <div class="input-daterange controls"
                                  data-date-format="yyyy-mm-dd">
                                 <label class="control-label input-medium text-left">[% l('Online Between:') %]</label>
-                                <input type="text" class="input-date input-small" name="online_date.start"
+                                <input id="online_date_start" type="text" class="input-date input-small" name="online_date.start"
                                        data-date-format="yyyy-mm-dd" />
                                 <i class="icon-arrow-right"></i>
-                                <input type="text" class="input-date input-small" name="online_date.end"
+                                <input id="online_date_end" type="text" class="input-date input-small" name="online_date.end"
                                        data-date-format="yyyy-mm-dd" />
-                                <a href="#last0day">[% l('Today') %]</a> | <a href="#last7days">[% l('7 days') %]</a> | <a href="#last30days">[% l('30 days') %]</a> | <a href="#last60days">[% l('60 days') %]</a>
+                                <a data-toggle="date-picker" data-start-date="#online_date_start" data-end-date="#online_date_end"
+                                   href="[% c.uri_for(c.controller('Admin').action_for('time_offset'),'0D') %]">[% l('Today') %]</a> |
+                                <a data-toggle="date-picker" data-start-date="#online_date_start" data-end-date="#online_date_end"
+                                   href="[% c.uri_for(c.controller('Admin').action_for('time_offset'),'7D') %]">[% l('7 days') %]</a> |
+                                <a data-toggle="date-picker" data-start-date="#online_date_start" data-end-date="#online_date_end"
+                                   href="[% c.uri_for(c.controller('Admin').action_for('time_offset'),'30D') %]">[% l('30 days') %]</a> |
+                                <a data-toggle="date-picker" data-start-date="#online_date_start" data-end-date="#online_date_end"
+                                   href="[% c.uri_for(c.controller('Admin').action_for('time_offset'),'60D') %]">[% l('60 days') %]</a>
                             </div>
                           </div>
                           </th>
@@ -391,12 +398,19 @@
                             <div class="input-daterange controls"
                                  data-date-format="yyyy-mm-dd">
                               <label class="control-label input-medium text-left">[% l('Detected Between:') %]</label>
-                              <input type="text" class="input-small" name="start"
+                              <input id="start_date" type="text" class="input-small" name="start"
                                      data-date-format="yyyy-mm-dd" />
                               <i class="icon-arrow-right"></i>
-                              <input type="text" class="input-small" name="end"
+                              <input id="end_date" type="text" class="input-small" name="end"
                                      data-date-format="yyyy-mm-dd" />
-                              <a href="#last0day">[% l('Today') %]</a> | <a href="#last7days">[% l('7 days') %]</a> | <a href="#last30days">[% l('30 days') %]</a> | <a href="#last60days">[% l('60 days') %]</a>
+                                <a data-toggle="date-picker" data-start-date="#start_date" data-end-date="#end_date"
+                                   href="[% c.uri_for(c.controller('Admin').action_for('time_offset'),'0D') %]">[% l('Today') %]</a> |
+                                <a data-toggle="date-picker" data-start-date="#start_date" data-end-date="#end_date"
+                                   href="[% c.uri_for(c.controller('Admin').action_for('time_offset'),'7D') %]">[% l('7 days') %]</a> |
+                                <a data-toggle="date-picker" data-start-date="#start_date" data-end-date="#end_date"
+                                   href="[% c.uri_for(c.controller('Admin').action_for('time_offset'),'30D') %]">[% l('30 days') %]</a> |
+                                <a data-toggle="date-picker" data-start-date="#start_date" data-end-date="#end_date"
+                                   href="[% c.uri_for(c.controller('Admin').action_for('time_offset'),'60D') %]">[% l('60 days') %]</a>
                             </div>
                           </div>
                           </th>
