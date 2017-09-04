@@ -42,6 +42,9 @@ function init() {
         }
         var start = dp.dates[0];
         var end = dp.dates[1];
+        if (!start || !end) {
+            return;
+        }
         var startDate = [start.getUTCFullYear(), (start.getUTCMonth() + 1), start.getUTCDate()].join('-');
         var endDate = [end.getUTCFullYear(), (end.getUTCMonth() + 1), end.getUTCDate()].join('-');
         var graph = $('.piegraph a.active, .sidenav-section .nav-list .active a').last().attr('href').substr(1);
