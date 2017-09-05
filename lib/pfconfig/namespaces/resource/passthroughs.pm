@@ -98,7 +98,7 @@ sub _new_passthrough {
     my ($self, $passthrough) = @_;
 
     if($passthrough =~ /(.*?):(udp:|tcp:)?([0-9]+)/) {
-        my $domain = $1;
+        my $domain = lc($1);
         # NOTE: proto contains the ':' at the end
         my $proto = $2;
         my $port = $3;
