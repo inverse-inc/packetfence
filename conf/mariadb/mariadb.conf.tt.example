@@ -46,7 +46,7 @@ thread_concurrency = [% thread_concurrency %]
 [% IF cluster_enabled %]
 # Replication Master Server (default)
 # binary logging is required for replication
-log-bin=mysql-bin
+#log-bin=mysql-bin
 binlog-format=row
 expire_logs_days=2
 max_binlog_size=13107200
