@@ -32,9 +32,10 @@ Returns 2 values
 =cut
 
 sub matches_passthrough {
-    my ($domain,$zone) = @_;
+    my ($domain, $zone) = @_;
     # undef domains are not passthroughs
     return ($FALSE, []) unless(defined($domain));
+    $domain = lc($domain);
 
     # Check for non-wildcard passthroughs
     my $normal = '$'.$zone.'{normal}{$domain}';
