@@ -1,4 +1,4 @@
-### pfsetvlan logger ###
+### rlm_perl logger ###
 log4perl.rootLogger = INFO, RLM_PERL
 
 ### Categories ###
@@ -15,4 +15,4 @@ log4perl.appender.RLM_PERL.layout.ConversionPattern     = %d{MMM dd HH:mm:ss} %X
 log4perl.appender.RLM_PERL.umask                        = 0002
 log4perl.appender.RLM_PERL.user                         = pf
 log4perl.appender.RLM_PERL.group                        = pf
-log4perl.appender.PFSETVALN.binmode                      = utf8
+log4perl.appender.RLM_PERL.binmode                      = utf8
