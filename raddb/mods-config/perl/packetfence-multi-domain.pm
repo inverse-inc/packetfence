@@ -59,9 +59,9 @@ sub authorize {
     my $realm;
     my $user_name = $RAD_REQUEST{'TLS-Client-Cert-Common-Name'} || $RAD_REQUEST{'User-Name'};
     if ($user_name =~ /^host\/([0-9a-zA-Z-]+)\.(.*)$/) {
-        $realm = $ConfigRealm{lc($2)};
+        $realm = $ConfigRealm{lc($2)} // '';
     } else {
-        $realm = $ConfigRealm{$RAD_REQUEST{"Realm"}};
+        $realm = $ConfigRealm{$RAD_REQUEST{"Realm"}} if defined $RAD_REQUEST{"Realm"};
     }
 
     #use Data::Dumper;
