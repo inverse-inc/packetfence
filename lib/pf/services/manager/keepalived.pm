@@ -94,7 +94,7 @@ EOT
     haproxy
   }
   authentication {
-    auth_type AH
+    auth_type PASS
     auth_pass $Config{'active_active'}{'password'}
   }
   smtp_alert
