@@ -21,7 +21,7 @@ use POSIX;
 my $max = POSIX::sysconf( &POSIX::_POSIX_OPEN_MAX );
 
 POSIX::close( $_ ) for 3 .. $max;
-my @args = ('-i', '-p', 'local5.err');
+my @args = ('-i', '-p', 'local5.notice');
 
 my $name = $0;
 
