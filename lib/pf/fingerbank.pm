@@ -28,7 +28,8 @@ use fingerbank::Constant qw($UPSTREAM_SCHEMA $MYSQL_DB_TYPE);
 use pf::cluster;
 use pf::constants;
 use pf::constants::fingerbank qw($RATE_LIMIT);
-use pf::error qw(is_success);
+use pf::error qw(is_success is_error);
+use pf::dal::node;
 
 use pf::client;
 use pf::error qw(is_error);
@@ -124,13 +125,18 @@ sub process {
             # Processing the device class based on it's parents
             my ( $class, $parents ) = _parse_parents($query_result);
 
-            # Updating the node device type based on the result
-            node_modify( $mac, (
-                'device_type'   => $query_result->{'device'}{'name'},
-                'device_class'  => $class,
-                'device_version' => $query_result->{'version'},
-                'device_score' => $query_result->{'score'},
-            ) );
+            my ($status_code, $node_obj) = pf::dal::node->find_or_create({"mac" => $mac});
+            if (is_error($status_code)) {
+                $node_obj = pf::dal::node->new({"mac" => $mac});
+            }
+            $node_obj->device_type($query_result->{'device'}{'name'});
+            $node_obj->device_class($class);
+            $node_obj->device_version($query_result->{'version'});
+            $node_obj->device_score($query_result->{'score'});
+            $status_code = $node_obj->save();
+            if (is_error($status_code)) {
+                $logger->error("Error updating $mac for fingerbank attributes");
+            }
 
             _trigger_violations($query_args, $query_result, $parents);
 
