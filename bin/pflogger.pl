@@ -17,9 +17,10 @@ use warnings;
 use lib qw(/usr/local/pf/lib);
 use POSIX;
 
-# Close all open file descriptors other than STDIN, STDOUT, and STDERR
 my $max = POSIX::sysconf( &POSIX::_POSIX_OPEN_MAX );
 
+# Close all open file descriptors other than STDIN, STDOUT, and STDERR
+# To avoid resource leaking
 POSIX::close( $_ ) for 3 .. $max;
 my @args;
 
