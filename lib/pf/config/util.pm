@@ -410,11 +410,11 @@ Filter a given list of authentication sources based on a username / realm
 sub filter_authentication_sources {
     my ( $sources, $username, $realm ) = @_;
 
-    return @$sources unless ( defined($username) || defined($realm) );
+    return $sources unless ( defined($username) || defined($realm) );
 
-    my $realm_authentication_source = get_realm_authentication_source($username, $realm, \@$sources);
+    my $realm_authentication_source = get_realm_authentication_source($username, $realm, $sources);
 
-    return @$sources unless ( ref($realm_authentication_source) eq 'ARRAY');
+    return $sources unless ( ref($realm_authentication_source) eq 'ARRAY');
 
     $realm = "null" unless ( defined($realm) );
 
