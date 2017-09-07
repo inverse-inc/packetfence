@@ -48,6 +48,9 @@
           <li [% IF controller_namespace == 'Config::SwitchGroup' %]class="active" [% END %]>
             <a href="[% c.pf_hash_for(c.controller('Config::SwitchGroup').action_for('index'),[]) %]">[% l('Switch Groups') %]</a>
           </li>
+          <li class="pull-right">
+              <div class="help-block clearfix"><a href="#modalSwitchImport" id="importSwitchCsv" class="btn pull-right" data-toggle="modal">[% l('Import from CSV') %]</a></div>
+          </li>
         </ul>
       </div>
       [% INCLUDE config/switch/list.tt %]
