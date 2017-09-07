@@ -21,7 +21,7 @@ use POSIX;
 my $max = POSIX::sysconf( &POSIX::_POSIX_OPEN_MAX );
 
 POSIX::close( $_ ) for 3 .. $max;
-my @args = ('-i', '-p', 'local5.notice');
+my @args;
 
 my $name = $0;
 
@@ -29,7 +29,7 @@ if ($name =~ m#/usr/local/pf/bin/pflogger-(.*)#) {
     push @args, '-t', $1;
 }
 
-exec('/usr/bin/logger', @args);
+exec('/usr/bin/systemd-cat', @args);
 
 =head1 AUTHOR
 
