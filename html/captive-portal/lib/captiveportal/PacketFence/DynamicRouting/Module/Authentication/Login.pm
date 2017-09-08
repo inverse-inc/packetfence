@@ -124,10 +124,10 @@ sub authenticate {
 
     my ($stripped_username, $realm) = strip_username($username);
 
-    my @sources = filter_authentication_sources($self->sources, $stripped_username, $realm);
-    get_logger->info("Authenticating user using sources : ", join(',', (map {$_->id} @sources)));
+    my $sources = filter_authentication_sources($self->sources, $stripped_username, $realm);
+    get_logger->info("Authenticating user using sources : ", join(',', (map {$_->id} @{$sources})));
 
-    unless(@sources){
+    unless(@{$sources}){
         get_logger->info("No sources found for $username");
         $self->app->flash->{error} = "No authentication source found for this username";
         $self->prompt_fields();
@@ -136,7 +136,7 @@ sub authenticate {
 
     # If all sources use the stripped username, we strip it
     # Otherwise, we leave it as is
-    my $use_stripped = all { isenabled($_->{stripped_user_name}) } @sources;
+    my $use_stripped = all { isenabled($_->{stripped_user_name}) } @{$sources};
     if($use_stripped){
         $username = $stripped_username;
     }
@@ -155,10 +155,10 @@ sub authenticate {
         get_logger->info("Reusing 802.1x credentials with username '$username' and realm '$realm'");
 
         # Fetch appropriate source to use with 'reuseDot1xCredentials' feature
-        my $source = pf::config::util::get_realm_authentication_source($username, $realm);
+        my $source = pf::config::util::get_realm_authentication_source($username, $realm, \@{$sources});
         
         # No source found for specified realm
-        unless ( defined($source) ) {
+        unless ( ref($source) eq 'ARRAY' ) {
             get_logger->error("Unable to find an authentication source for the specified realm '$realm' while using reuseDot1xCredentials");
             $self->app->flash->{error} = "Cannot find a valid authentication source for '" . $node_info->{'last_dot1x_username'} . "'";
 
@@ -176,7 +176,7 @@ sub authenticate {
             realm => $node_info->{'realm'},
         };
         my $source_id;
-        my $role = pf::authentication::match($source->id, $params, $Actions::SET_ROLE, \$source_id);
+        my $role = pf::authentication::match([@{$source}], $params, $Actions::SET_ROLE, \$source_id);
 
         if ( defined($role) ) {
             $self->source(pf::authentication::getAuthenticationSource($source_id));
@@ -197,9 +197,9 @@ sub authenticate {
 
         # validate login and password
         my ( $return, $message, $source_id, $extra ) =
-          pf::authentication::authenticate( { 'username' => $username, 'password' => $password, 'rule_class' => $Rules::AUTH }, @sources );
+          pf::authentication::authenticate( { 'username' => $username, 'password' => $password, 'rule_class' => $Rules::AUTH }, @{$sources} );
         if (!defined $return || $return == $LOGIN_FAILURE) {
-            pf::auth_log::record_auth(join(',',map { $_->id } @sources), $self->current_mac, $username, $pf::auth_log::FAILED);
+            pf::auth_log::record_auth(join(',',map { $_->id } @{$sources}), $self->current_mac, $username, $pf::auth_log::FAILED);
             $self->app->flash->{error} = $message;
             $self->prompt_fields();
             return;

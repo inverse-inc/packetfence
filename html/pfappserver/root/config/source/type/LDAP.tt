@@ -21,4 +21,3 @@
     </div>
   </div>
 </div>
-[% form.field('stripped_user_name').render | none %]

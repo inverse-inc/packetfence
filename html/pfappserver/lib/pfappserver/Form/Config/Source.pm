@@ -118,6 +118,11 @@ has_block local_account =>
     render_list => [],
   );
 
+has_block internal_sources =>
+  (
+    render_list => [],
+  );
+
 
 has_block action_templates => (
     attr => {
@@ -150,6 +155,8 @@ our %EXCLUDE = (
     local_account => 1,
     create_local_account => 1,
     local_account_logins => 1,
+    stripped_user_name => 1,
+    realms => 1,
     (map { ("${_}_rules"  => 1) } @Rules::CLASSES),
     (map { ("${_}_action" => 1) } keys %ACTION_FIELD_OPTIONS),
     (map { ("${_}_operator" => 1, "${_}_value" => 1) } @Conditions::TYPES),
@@ -372,6 +379,12 @@ sub getSourceArgs {
             if (ref $value eq 'HASH') {
                 $args->{$name} = $field->duration_deflate($value);
             }
+        }
+    }
+    for my $r (qw(realms)) {
+        $args->{$r} //= [];
+        if (ref($args->{$r}) ne "ARRAY" ) {
+            $args->{$r} = [$args->{$r}];
         }
     }
     return $args;

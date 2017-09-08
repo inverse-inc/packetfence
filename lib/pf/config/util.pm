@@ -385,33 +385,19 @@ sub portal_hosts {
 
 =head2 get_realm_authentication_source
 
-Get a source for a specific username and realm
-Will look it up in the realm configuration
+Get a source for a specific realm
 
 =cut
 
 sub get_realm_authentication_source {
-    my ( $username, $realm ) = @_;
+    my ( $username, $realm, $sources ) = @_;
 
-    $realm = "null" unless ( defined($realm) );
+    $realm = 'null' unless ( defined($realm) );
     $realm = lc $realm;
 
-    my $realm_authentication_source;
-
-    if ( exists $ConfigRealm{$realm} ) {
-        if ( my $source = $ConfigRealm{$realm}{source} ) {
-            get_logger->info("Found authentication source '$source' for realm '$realm'");
-            $realm_authentication_source = pf::authentication::getAuthenticationSource($source);
-        }
-    }
-    elsif ( exists $ConfigRealm{default} && $realm ne "null" ) {
-        if ( my $source = $ConfigRealm{default}{source} ) {
-            get_logger->info("Found authentication source '$source' for realm '$realm' through the default realm");
-            $realm_authentication_source = pf::authentication::getAuthenticationSource($source);
-        }
-    }
-
-    return $realm_authentication_source;
+    my @sources = grep { defined $_->realms && grep( /^$realm$/, @{$_->realms} ) } @{$sources};
+    @sources = (@sources, grep { defined $_->realms && ($_->realms eq '') && !grep( defined($_), @{$_->realms} ) } @{$sources} );
+    return \@sources;
 
 }
 
@@ -424,23 +410,17 @@ Filter a given list of authentication sources based on a username / realm
 sub filter_authentication_sources {
     my ( $sources, $username, $realm ) = @_;
 
-    return @$sources unless ( defined($username) || defined($realm) );
+    return $sources unless ( defined($username) || defined($realm) );
 
-    my $realm_authentication_source = get_realm_authentication_source($username, $realm);
+    my $realm_authentication_source = get_realm_authentication_source($username, $realm, $sources);
 
-    return @$sources unless ( defined($realm_authentication_source) && defined($realm_authentication_source->{id}) && $realm_authentication_source->{id} ne "" );
+    return $sources unless ( ref($realm_authentication_source) eq 'ARRAY');
 
-    get_logger->info("Found authentication source '" . $realm_authentication_source->{id} . "' for realm '$realm'");
-    
-    if ( any { $_ eq $realm_authentication_source} @$sources ) {
-        get_logger->info("Realm '$realm' authentication source '" . $realm_authentication_source->{id} . "' is part of the available connection profile authentication sources. Using it as the only authentication source.");
-        return ($realm_authentication_source);
-    }
-    else {
-        get_logger->info("Realm '$realm' authentication source '" . $realm_authentication_source->{id} . "' is not configured in the connection profile. Ignoring it and using the connection profile authentication sources");
-    }
+    $realm = "null" unless ( defined($realm) );
 
-    return @$sources;
+    get_logger->info("Found authentication source(s) : '", join(',', (map {$_->id} @{$realm_authentication_source})) . "' for realm '$realm'");
+
+    return $realm_authentication_source;
 }
 
 =head2 get_captive_portal_uri

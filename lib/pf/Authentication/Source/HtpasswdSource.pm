@@ -19,10 +19,10 @@ use Apache::Htpasswd;
 
 use Moose;
 extends 'pf::Authentication::Source';
+with qw(pf::Authentication::InternalRole);
 
 has '+type' => (default => 'Htpasswd');
 has 'path' => (isa => 'Str', is => 'rw', required => 1);
-has 'stripped_user_name' => (isa => 'Str', is => 'rw', default => 'yes');
 
 =head1 METHODS
 

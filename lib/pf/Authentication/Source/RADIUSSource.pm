@@ -23,13 +23,13 @@ Authen::Radius->load_dictionary("/usr/share/freeradius/dictionary");
 
 use Moose;
 extends 'pf::Authentication::Source';
+with qw(pf::Authentication::InternalRole);
 
 has '+type' => ( default => 'RADIUS' );
 has 'host' => (isa => 'Maybe[Str]', is => 'rw', default => '127.0.0.1');
 has 'port' => (isa => 'Maybe[Int]', is => 'rw', default => 1812);
 has 'timeout' => (isa => 'Maybe[Int]', is => 'rw', default => 1);
 has 'secret' => (isa => 'Str', is => 'rw', required => 1);
-has 'stripped_user_name' => (isa => 'Str', is => 'rw', default => 'yes');
 
 =head2 dynamic_routing_module
 

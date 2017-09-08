@@ -13,7 +13,7 @@ Form definition to create or update a LDAP user source.
 use pf::Authentication::Source::LDAPSource;
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Source';
-with 'pfappserver::Base::Form::Role::Help';
+with 'pfappserver::Base::Form::Role::Help', 'pfappserver::Base::Form::Role::InternalSource';
 
 our $META = pf::Authentication::Source::LDAPSource->meta;
 
@@ -107,18 +107,6 @@ has_field 'password' =>
    # Default value needed for creating dummy source
    default => '',
   );
-has_field 'stripped_user_name' =>
-  (
-   type            => 'Toggle',
-   checkbox_value  => 'yes',
-   unchecked_value => 'no',
-   default         => 'yes',
-   label           => 'Use stripped username ',
-   tags => { after_element => \&help,
-             help => 'Use stripped username returned by RADIUS to test the following rules.' },
-   default => $META->get_attribute('stripped_user_name')->default,
-  );
-
 has_field 'cache_match',
   (
    type => 'Toggle',

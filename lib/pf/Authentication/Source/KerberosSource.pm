@@ -17,11 +17,11 @@ use Authen::Krb5::Simple;
 
 use Moose;
 extends 'pf::Authentication::Source';
+with qw(pf::Authentication::InternalRole);
 
 has '+type' => ( default => 'Kerberos' );
 has 'host' => (isa => 'Str', is => 'rw', required => 1);
-has 'realm' => (isa => 'Str', is => 'rw', required => 1);
-has 'stripped_user_name' => (isa => 'Str', is => 'rw', default => 'yes');
+has 'authenticate_realm' => (isa => 'Str', is => 'rw', required => 1);
 
 =head2 dynamic_routing_module
 
@@ -48,7 +48,7 @@ sub authenticate {
 
   my ( $self, $username, $password ) = @_;
 
-  my $kerberos = Authen::Krb5::Simple->new( realm => $self->{'realm'} );
+  my $kerberos = Authen::Krb5::Simple->new( realm => $self->{'authenticate_realm'} );
 
   if ($kerberos->authenticate($username, $password)) {
     return ($TRUE, $AUTH_SUCCESS_MSG);

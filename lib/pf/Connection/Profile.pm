@@ -555,7 +555,7 @@ Return a list of authentication sources for the given connection profile filtere
 
 sub getFilteredAuthenticationSources {
     my ($self, $username, $realm) = @_;
-    return filter_authentication_sources([ $self->getInternalSources, $self->getExclusiveSources ], $username, $realm);
+    return @{filter_authentication_sources([ $self->getInternalSources, $self->getExclusiveSources ], $username, $realm) // []};
 }
 
 =item getRootModuleId

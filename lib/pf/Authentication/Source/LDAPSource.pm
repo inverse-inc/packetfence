@@ -27,6 +27,7 @@ use pf::util::statsd qw(called);
 
 use Moose;
 extends 'pf::Authentication::Source';
+with qw(pf::Authentication::InternalRole);
 
 # available encryption
 use constant {
@@ -57,7 +58,6 @@ has 'password' => (isa => 'Maybe[Str]', is => 'rw');
 has 'encryption' => (isa => 'Str', is => 'rw', required => 1);
 has 'scope' => (isa => 'Str', is => 'rw', required => 1);
 has 'usernameattribute' => (isa => 'Str', is => 'rw', required => 1);
-has 'stripped_user_name' => (isa => 'Str', is => 'rw', default => 'yes');
 has '_cached_connection' => (is => 'rw');
 has 'cache_match' => ( isa => 'Bool', is => 'rw', default => 0 );
 has 'email_attribute' => (isa => 'Maybe[Str]', is => 'rw', default => 'mail');
