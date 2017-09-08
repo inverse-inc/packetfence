@@ -25,6 +25,8 @@ use pf::cluster;
 use pf::authentication;
 use pf::Authentication::constants qw($LOGIN_CHALLENGE);
 use pf::util;
+use pf::config qw(%Config);
+use DateTime;
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
@@ -352,6 +354,49 @@ sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
     #  - Allows loading resources via the data scheme (eg Base64 encoded images);
     #  - Allows use of inline source elements (eg style attribute)
     $c->stash->{csp_headers} = { img => 'data:', style => "'unsafe-inline'", worker => 'blob:' };
+}
+
+=head2 time_offset
+
+Returns a json structure that represents the time offset of the server time
+
+    {
+      "time_offset" : {
+        "start" : {
+          "time" : "11:00",
+          "date" : "2017-09-01"
+        },
+        "end" : {
+          "time" : "12:00",
+          "date" : "2017-09-01"
+        }
+      }
+    }
+
+It expects a normalize_time timespec to calculate the server time
+
+=cut
+
+
+sub time_offset :Chained('object') :PathPart('time_offset') :Args(1) {
+    my ( $self, $c, $time_spec) = @_;
+    $c->stash->{current_view} = 'JSON';
+    my $seconds = normalize_time($time_spec) // 0;
+    my $end_date = DateTime->now(time_zone => $Config{general}{timezone});
+    my $start_date = $end_date->clone->subtract(seconds => $seconds);
+    $c->stash(
+        time_offset => {
+            start => {
+                time => $start_date->hms,
+                date => $start_date->ymd,
+            },
+            end => {
+                time => $end_date->hms,
+                date => $end_date->ymd,
+            },
+        },
+    );
+    return ;
 }
 
 =head2 help

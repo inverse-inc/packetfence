@@ -544,6 +544,40 @@ $(function () { // DOM ready
         return true;
     });
 
+    $('body').on('click', 'a[data-toggle="date-picker"]', function(event) {
+        event.preventDefault();
+        var a = $(event.currentTarget);
+        $.ajax({
+            url : a.attr('href'),
+            type : 'POST'
+        }).done(function(data){
+            var start_date_id = a.attr("data-start-date");
+            var start_time_id = a.attr("data-start-time");
+            var end_date_id = a.attr("data-end-date");
+            var end_time_id = a.attr("data-end-time");
+            var time_offset = data.time_offset;
+            var start = time_offset.start;
+            var end = time_offset.end;
+            if (start_date_id) {
+                var start_date_input = $(start_date_id);
+                start_date_input.datepicker("setDate", start.date);
+            }
+            if (start_time_id) {
+                var start_time_input = $(start_time_id);
+                start_time_input.timepicker("setTime", start.time);
+            }
+            if (end_date_id) {
+                var end_date_input = $(end_date_id);
+                end_date_input.datepicker("setDate", end.date);
+            }
+            if (end_time_id) {
+                var end_time_input = $(end_time_id);
+                end_time_input.timepicker("setTime", end.time);
+            }
+        });
+        return false;
+    });
+
     /* Register events for animation of sidebar tooltips */
     $('.sidenav-category').on('mouseenter', '[data-category]', function(event) {
         var $this = $(this);
