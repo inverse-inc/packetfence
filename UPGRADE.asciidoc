@@ -119,6 +119,13 @@ Device Registration
 You will need to remove anything related to [device_registration] in the conf/pf.conf file.
 
 
+Changes to `authentication.conf` and `domain.conf` regarding realms and source matching
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You have to run the following script to change the configuration:
+
+  addons/upgrade/to-7.3-authentication-conf.pl
+
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
 
