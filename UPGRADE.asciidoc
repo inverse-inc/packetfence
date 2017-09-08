@@ -118,13 +118,21 @@ Device Registration
 
 You will need to remove anything related to [device_registration] in the conf/pf.conf file.
 
-
 Changes to `authentication.conf` and `domain.conf` regarding realms and source matching
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 You have to run the following script to change the configuration:
 
   addons/upgrade/to-7.3-authentication-conf.pl
+
+MariaDB database read-only mode
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+There was, in some cases, an issue where the database cluster was put in a read-only mode which then prevent it to comes back gracefully.
+
+A modification have been made to now use the wsrep_ready state of the DB as a read only indicator. Therefore, PacketFence will stop putting the DB in read only on quorum + primary loss of MariaDB and trust wsrep_ready instead
+
+Ensure you merge changes in the galera section of `conf/mariadb/mariadb.conf.tt.rpmnew` into `conf/mariadb/mariadb.conf.tt`
 
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
