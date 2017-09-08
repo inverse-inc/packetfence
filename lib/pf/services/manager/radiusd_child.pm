@@ -18,8 +18,7 @@ The first manager will create the config for all radiusd processes through the g
 use strict;
 use warnings;
 
-use List::MoreUtils qw(any);
-use List::Util qw(uniq);
+use List::MoreUtils qw(any uniq);
 use Moo;
 use NetAddr::IP;
 use Template;
