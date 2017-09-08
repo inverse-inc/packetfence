@@ -55,6 +55,8 @@ Bug Fixes
 * Fix voip logic to reduce the chance of duplicate locationlog entries (#2527)
 * Fixed SNMP connection issues on Extricom controllers
 * Fixes segfaults when logging in the multithread environments (#2603)
+* reuseDot1x: Security concern (#2536)
+* We need a realm admin_local by default (#2529)
 
 Version 7.2.0 released on 2017-07-10
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
