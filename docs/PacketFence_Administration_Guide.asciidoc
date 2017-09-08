@@ -908,7 +908,7 @@ This section presents the FreeRADIUS configuration steps. In some occasions, a R
 Option 1: Authentication against Active Directory (AD)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-CAUTION: If you are using an Active/Active or Active/Passive cluster, please follow the instructions under 'Option 1b' since the instructions below do not currently work in a cluster.
+NOTE: If you are using an Active/Active cluster, each member of the cluster must be joined separately. Please follow the instructions in the PacketFence Clustering Guide.
 
 Go in the Administration interface under *Configuration -> Policies and Access Control -> Domains -> Active Directory Domains*.
 
