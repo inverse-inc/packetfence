@@ -19,6 +19,7 @@ use strict;
 use warnings;
 
 use List::MoreUtils qw(any);
+use List::Util qw(uniq);
 use Moo;
 use NetAddr::IP;
 use Template;
@@ -228,7 +229,7 @@ sub generate_radiusd_authconf {
         }
     }
 
-    $tags{'listen_ips'} = \@listen_ips;
+    $tags{'listen_ips'} = [uniq @listen_ips];
     $tags{'pid_file'} = "$var_dir/run/radiusd.pid";
     $tags{'socket_file'} = "$var_dir/run/radiusd.sock";
     $tt->process("$conf_dir/radiusd/auth.conf", \%tags, "$install_dir/raddb/auth.conf") or die $tt->error();
