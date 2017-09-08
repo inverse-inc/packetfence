@@ -39,6 +39,12 @@ Enhancements
 * Monitor SSL certificates expiration and alert if they are expired (PR #2444)
 * Content Security Policy (CSP) enforced through the browser for Admin and Portal interfaces. Can be disabled through Advanced System Configuration. (PR #2336)
 * Logging into the status page when reuse dot1x is enabled is no longer broken (#2542) (PR #2598)
+* LDAP source caching is now caching the rule match rather that the whole source match (PR #2560)
+* The admin GUI startup time has been decreased (#2545)
+* New and improved documentation for Debian clustering
+* Show DHCP Option82 data in the node view (#2396)
+* Fortigate 50E 802.1x support
+* Adds the ability to normalize the computer authentication username when using EAP-TLS (PR #2414)
 
 Bug Fixes
 +++++++++
@@ -57,6 +63,7 @@ Bug Fixes
 * Fixes segfaults when logging in the multithread environments (#2603)
 * reuseDot1x: Security concern (#2536)
 * We need a realm admin_local by default (#2529)
+* Use the system time instead of browser time when using preset time values (#2559)
 
 Version 7.2.0 released on 2017-07-10
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
