@@ -64,6 +64,7 @@ Bug Fixes
 * reuseDot1x: Security concern (#2536)
 * We need a realm admin_local by default (#2529)
 * Use the system time instead of browser time when using preset time values (#2559)
+* Trust the wsrep_ready flag of MariaDB Galera cluster for read only detection as putting the DB in read-only can result in occasional de-synchronization between members. (#2593) (PR #2594)
 
 Version 7.2.0 released on 2017-07-10
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
