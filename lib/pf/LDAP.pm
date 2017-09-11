@@ -30,9 +30,9 @@ use constant {
     TLS => "starttls",
 };
 
-our $DEFAULT_READ_TIMEOUT = 120;
+our $DEFAULT_READ_TIMEOUT = 10;
 
-our $DEFAULT_WRITE_TIMEOUT = 120;
+our $DEFAULT_WRITE_TIMEOUT = 5;
 
 our $CHI_CACHE = CHI->new(driver => 'RawMemory', datastore => {});
 
