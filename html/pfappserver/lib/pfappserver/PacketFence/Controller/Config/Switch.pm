@@ -186,6 +186,7 @@ Usage: /config/switch/
 sub index :Path :Args(0) {
     my ($self, $c) = @_;
     $c->stash->{action} = 'list';
+    $c->stash->{import_form} = $c->form('Config::SwitchImport');
     $c->forward('list');
 }
 

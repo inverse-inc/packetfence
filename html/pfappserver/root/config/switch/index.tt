@@ -10,8 +10,8 @@
           </div>
         
           <div class="modal-body">
-            [% current_form_instance.field('importcsv').render | none %]
-            [% current_form_instance.field('delimiter').render | none %]
+            [% import_form.field('importcsv').render | none %]
+            [% import_form.field('delimiter').render | none %]
           </div><!--modal-body-->
         
           <div class="modal-footer">
