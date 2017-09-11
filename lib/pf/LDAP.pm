@@ -23,6 +23,7 @@ use Net::LDAP;
 use Net::LDAPS;
 use POSIX::AtFork;
 use Socket qw(SOL_SOCKET SO_RCVTIMEO SO_SNDTIMEO);
+use pf::Authentication::constants qw($DEFAULT_LDAP_READ_TIMEOUT $DEFAULT_LDAP_WRITE_TIMEOUT);
 # available encryption
 use constant {
     NONE => "none",
@@ -102,6 +103,8 @@ Create the connection for connecting to LDAP
 sub compute_connection {
     my ($class, $server, $args, $credentials) = @_;
     my $encryption = delete $args->{encryption};
+    my $read_timeout = delete $args->{read_timeout} // $DEFAULT_LDAP_READ_TIMEOUT;
+    my $write_timeout = delete $args->{write_timeout} // $DEFAULT_LDAP_WRITE_TIMEOUT;
     my $logger = get_logger();
     my $ldap;
     if ( $encryption eq SSL ) {
@@ -125,8 +128,8 @@ sub compute_connection {
         }
     }
     my $socket = $ldap->{net_ldap_socket};
-    set_read_timeout($socket, $DEFAULT_READ_TIMEOUT);
-    set_write_timeout($socket, $DEFAULT_WRITE_TIMEOUT);
+    set_read_timeout($socket, $read_timeout);
+    set_write_timeout($socket, $write_timeout);
     return $class->bind($ldap, $credentials);
 }
 
