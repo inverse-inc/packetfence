@@ -22,12 +22,17 @@ Log::Any::Adapter->set('Log4perl');
 use Net::LDAP;
 use Net::LDAPS;
 use POSIX::AtFork;
+use Socket qw(SOL_SOCKET SO_RCVTIMEO SO_SNDTIMEO);
 # available encryption
 use constant {
     NONE => "none",
     SSL => "ssl",
     TLS => "starttls",
 };
+
+our $DEFAULT_READ_TIMEOUT = 120;
+
+our $DEFAULT_WRITE_TIMEOUT = 120;
 
 our $CHI_CACHE = CHI->new(driver => 'RawMemory', datastore => {});
 
@@ -119,7 +124,46 @@ sub compute_connection {
             return undef;
         }
     }
+    my $socket = $ldap->{net_ldap_socket};
+    set_read_timeout($socket, $DEFAULT_READ_TIMEOUT);
+    set_write_timeout($socket, $DEFAULT_WRITE_TIMEOUT);
     return $class->bind($ldap, $credentials);
+}
+
+=head2 set_read_timeout
+
+set read timeout for a socket
+
+=cut
+
+sub set_read_timeout {
+    my ($socket, $timeout) = @_;
+    return set_socket_timeout($socket, SO_RCVTIMEO, $timeout);
+}
+
+=head2 set_write_timeout
+
+set write timeout for a socket
+
+=cut
+
+sub set_write_timeout {
+    my ($socket, $timeout) = @_;
+    return set_socket_timeout($socket, SO_SNDTIMEO, $timeout);
+}
+
+=head2 set_socket_timeout
+
+set a timeout for a socket
+
+=cut
+
+sub set_socket_timeout {
+    my ($socket, $type, $timeout) = @_;
+    my $seconds  = int($timeout);
+    my $useconds = int( 1_000_000 * ( $timeout - $seconds ) );
+    $timeout  = pack( 'l!l!', $seconds, $useconds );
+    $socket->setsockopt( SOL_SOCKET, $type, $timeout )
 }
 
 =head2 CLONE
@@ -162,4 +206,3 @@ USA.
 =cut
 
 1;
-
