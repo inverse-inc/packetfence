@@ -16,6 +16,7 @@ use strict;
 use warnings;
 
 use Moose::Role;
+use pf::util qw(isenabled strip_username);
 
 has 'stripped_user_name' => (isa => 'Str', is => 'rw', default => 'yes');
 has 'realms' => (isa => 'ArrayRef[Str]', is => 'rw');
