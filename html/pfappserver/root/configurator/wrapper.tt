@@ -41,10 +41,10 @@
       <div class="navbar-inner">
         <div class="row-fluid">
           <a class="brand visible-phone" href="#">
-            <img src="[% c.uri_for('/static/img/packetfence.white.small.svg') %]" style="height: 32px"/>
+            <img src="[% c.uri_for('/static/img/packetfence.white.small.svg') %]"/>
           </a>
           <a class="brand span3 hidden-phone" href="#">
-            <img src="[% c.uri_for('/static/img/packetfence.white.svg') %]" style="height: 32px"/>
+            <img src="[% c.uri_for('/static/img/packetfence.white.svg') %]"/>
           </a>
           <ul class="nav nav-header pull-right">
             <li><a>[% l('Configuration Wizard') %]</a></li>
@@ -57,18 +57,19 @@
     <!-- Javascript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script type="text/javascript">
-    var labels = {
+    <script id="labels" type="text/json">
+    {
         "Cannot Load Content": "[% l('Cannot Load Content') | js %]"
-    };
+    }
     </script>
     <script type="text/javascript" src="[% c.uri_for('/static/js/vendor/jquery.min.js') %]"></script>
+    <script type="text/javascript" src="[% c.uri_for('/static/js/vendor/jquery-ui.min.js') %]"></script>
     <script type="text/javascript" src="[% c.uri_for('/static/js/vendor/jquery-extra.min.js') %]"></script>
     <script type="text/javascript" src="[% c.uri_for('/static/js/vendor/bootstrap.min.js') %]"></script>
+    <script type="text/javascript" src="[% c.uri_for('/static/js/pfappserver.js') %]"></script>
 [% FOREACH js = jsFiles -%]
     <script type="text/javascript" src="[% c.uri_for("/static/${js}.js") %]" charset="UTF-8"></script>
 [% END -%]
-    <script type="text/javascript" src="[% c.uri_for('/static/js/pfappserver.js') %]"></script>
     <script src="[% c.uri_for('/static/configurator/common.js') %]"></script>
 
   </body>
