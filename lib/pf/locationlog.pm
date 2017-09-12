@@ -408,7 +408,7 @@ sub locationlog_synchronize {
     my $timer = pf::StatsD::Timer->new({ sample_rate => 0.2 });
     my ( $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc) = @_;
     
-    $voip_status = $NO_VOIP if !defined $voip_status || $voip_status != $VOIP; #Set the default voip status
+    $voip_status = $NO_VOIP if !defined $voip_status || $voip_status eq $VOIP; #Set the default voip status
     my $logger = get_logger();
     $logger->trace(sub {"sync locationlog with ifDesc " . ($ifDesc // "undef")});
     $logger->trace("locationlog_synchronize called");
