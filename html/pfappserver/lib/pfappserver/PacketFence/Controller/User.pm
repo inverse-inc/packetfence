@@ -205,8 +205,11 @@ sub nodes :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
         $c->stash->{nodes} = $result;
     } else {
         $c->response->status($status);
-        $c->stash->{status_msg} = $result;
-        $c->stash->{current_view} = 'JSON';
+        $c->stash(
+            status_msg => $result,
+            current_view => 'JSON',
+            nodes => [],
+        )
     }
     return ;
 }
