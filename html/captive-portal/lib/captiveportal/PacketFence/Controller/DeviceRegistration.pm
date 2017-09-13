@@ -215,15 +215,15 @@ sub is_allowed {
     my ($mac, $device_reg_profile) = @_;
     $mac =~ s/O/0/i;
     my $logger = get_logger();
-    my @oses = $ConfigDeviceRegistration{$device_reg_profile}{'allowed_devices'};
+    my $oses = $ConfigDeviceRegistration{$device_reg_profile}{'allowed_devices'};
 
     # If no oses are defined then it will allow every devices to be registered
-    return $TRUE if @oses == 0;
+    return $TRUE if @$oses == 0;
 
     # Verify if the device is existing in the table node and if it's device_type is allowed
     my $node = node_view($mac);
     my $device_type = $node->{device_type};
-    for my $id (@oses) {
+    for my $id (@$oses) {
         my $endpoint = fingerbank::Model::Endpoint->new(name => $device_type, version => undef, score => undef);
         if ( defined($device_type) && $endpoint->is_a_by_id($id)) {
             $logger->debug("The devices type ".$device_type." is authorized to be registered via the device-registration module");
@@ -242,16 +242,15 @@ sub is_allowed {
         my $device_name = $result->name;
         my $endpoint = fingerbank::Model::Endpoint->new(name => $device_name, version => undef, score => undef);
 
-        for my $id (@oses) {
+        for my $id (@$oses) {
             if ($endpoint->is_a_by_id($id)) {
                 $logger->debug("The devices type ".$device_name." is authorized to be registered via the device-registration module");
                 return $TRUE;
             }
         }
-    } else {
-        $logger->debug("Cannot find a matching device name for this device id ".$device_id." .");
-        return $FALSE;
     }
+    $logger->debug("Cannot find a matching device name for this device id ".$device_id." .");
+    return $FALSE;
 }
 
 =head2 logout
