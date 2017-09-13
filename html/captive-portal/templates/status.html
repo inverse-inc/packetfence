@@ -3,7 +3,6 @@
 {
   [% IF node.expiration %]"expiration": [% node.expiration %],[% END %]
   [% IF node.time_balance %]]"time_balance": [% node.time_balance %],[% END %]
-  "url": "[% URL_STATUS %]"
 }
 </script>
 <script type="text/javascript" src="/content/status.js"></script>
@@ -36,7 +35,7 @@
 [%- END %]
 
 [%- IF billing %]
-  <a href="[% URL_STATUS_BILLING %]" class="btn btn--full btn--light u-mt">
+  <a href="/status/billing" class="btn btn--full btn--light u-mt">
     <div class="flag">
       <div class="flag__img">[% svgIcon(id='ic_credit_card_black_24px',size='small') %]</div>
       <p class="flag__body">[% i18n("Extend your access") %]</p>

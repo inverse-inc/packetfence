@@ -22,17 +22,17 @@ $(function() {
           var secs = Math.round(ts.value/1000);
           if (secs >= 0) {
             // No more time
-            window.location = vars.url + "?ts=" + ts.value;
+            window.location = "/status?ts=" + ts.value;
             return;
           }
           if (secs > -60 || secs % 60 == 0) {
             // Countdown bellow 1 minute or on a minute; verify network access
             $.ajax({
-              url: vars.url + "?ts=" + ts.value,
+              url: "/status?ts=" + ts.value,
             })
               .done(function() {
                 if (paused) {
-                  window.location = vars.url + "?ts=" + ts.value;
+                  window.location = "/status?ts=" + ts.value;
                   return;
                 }
                 $("#expiration").html(ts.toString());
@@ -56,7 +56,7 @@ $(function() {
 
     $('#popup a[target="_new"]').on("click", function(event) {
       event.stopPropagation();
-      var newwindow = window.open(vars.url, "status_popup", "height=220,width=300");
+      var newwindow = window.open("/status", "status_popup", "height=220,width=300");
       if (window.focus) { newwindow.focus() }
       return false;
     });
