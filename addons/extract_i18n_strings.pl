@@ -360,7 +360,7 @@ sub extract_modules {
       id
       client_secret
       host
-      realm
+      authenticate_realm
       secret
       basedn
       encryption
