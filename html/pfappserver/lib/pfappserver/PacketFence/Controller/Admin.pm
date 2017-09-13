@@ -339,6 +339,10 @@ sub users :Chained('object') :PathPart('users') :Args(0) :AdminRoleAny('USERS_RE
         saved_searches => $saved_searches,
         saved_search_form => $c->form("SavedSearch")
     );
+
+    # Remove some CSP restrictions to accomodate Chosen (the select-on-steroid widget):
+    #  - Allows use of inline source elements (eg style attribute)
+    $c->stash->{csp_headers} = { style => "'unsafe-inline'" };
 }
 
 =head2 configuration
