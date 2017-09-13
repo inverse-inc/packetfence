@@ -115,7 +115,7 @@ sub build_child {
         $Config{$group}{$item} = normalize_time( $Config{$group}{$item} ) if ( $Config{$group}{$item} );
     }
 
-    foreach my $val ("fencing.passthroughs", "fencing.isolation_passthroughs", "device_registration.allowed_devices") {
+    foreach my $val ("fencing.passthroughs", "fencing.isolation_passthroughs") {
         my ( $group, $item ) = split( /\./, $val );
         $Config{$group}{$item} = [ split( /\s*,\s*/, $Config{$group}{$item}  // '' ) ];
     }
