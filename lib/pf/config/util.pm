@@ -451,7 +451,7 @@ sub get_send_email_config {
     } elsif ($encryption eq 'starttls') {
         $args{StartTLS} = 1;
     }
-    $args{From} = $config->{fromaddr};
+    $args{From} = $config->{fromaddr} || 'root@' . $fqdn;
     if (isdisabled($config->{smtp_verifyssl})) {
         $args{SSL_verify_mode} = SSL_VERIFY_NONE;
     }
@@ -530,6 +530,10 @@ sub send_using_smtp_callback {
       MIME::Lite::extract_only_addrs( scalar $self->get('Return-Path') );
     $args{From} ||= MIME::Lite::extract_only_addrs( scalar $self->get('From') );
     $self->{_extracted_to} = join(",", @{$args{To}});
+
+    if (!(scalar $self->get('From')) && $args{From}) {
+        $self->add(From => $args{From} );
+    }
 
     # Create SMTP client.
     # MIME::Lite::SMTP is just a wrapper giving a print method
