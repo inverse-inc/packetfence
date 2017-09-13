@@ -249,6 +249,10 @@ sub networks :Chained('object') :PathPart('networks') :Args(0) {
         $c->stash->{interfaces} = $interfaces_ref;
         $c->stash->{seen_networks} = $c->model('Interface')->map_interface_to_networks($c->stash->{interfaces});
     }
+
+    # Remove some CSP restrictions to accomodate Chosen (the select-on-steroid widget):
+    #  - Allows use of inline source elements (eg style attribute)
+    $c->stash->{csp_headers} = { style => "'unsafe-inline'" };
 }
 
 =head2 database
