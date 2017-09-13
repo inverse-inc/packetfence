@@ -1,19 +1,4 @@
-<script type="text/javascript">
-  $(document).ready(function() {
-    $('form').on('submit', function(e) {
-      var $form = $(this);
-      if ($form.data('submitted') === true) {
-        e.preventDefault();
-      }
-      else {
-        $form.data('submitted', true);
-        $form.find('.btn').addClass('btn--disabled');
-      }
-    });
-  });
-</script>
-
-<form name="network" action="/violation/release" method="post" target="_top">
+<form name="network" class="form--single_submit" action="/violation/release" method="post" target="_top">
   <input type="hidden" name="violation_id" value="[% violation_id %]" />
 
   <div class="layout layout--center u-palm-p">

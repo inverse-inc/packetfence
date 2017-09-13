@@ -77,8 +77,6 @@ sub scan_status : Private {
     my ( $self, $c, $scan_start_time ) = @_;
     my $portalSession = $c->portalSession;
 
-    my $refresh_timer = 10;    # page will refresh each 10 seconds
-
     $c->stash(
         title => "scan: scan in progress",
         template    => 'scan-in-progress.html',
@@ -87,7 +85,6 @@ sub scan_status : Private {
             'scan in progress contact support if too long',
             $scan_start_time
         ],
-        refresh_timer => $refresh_timer,
     );
 }
 

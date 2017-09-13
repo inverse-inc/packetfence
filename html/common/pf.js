@@ -106,7 +106,6 @@ function initWebNotifications(){
       // This allows to use Notification.permission with Chrome/Safari
       if (Notification.permission !== status) {
         Notification.permission = status;
-        console.log(Notification.status);
       }
     });
   }

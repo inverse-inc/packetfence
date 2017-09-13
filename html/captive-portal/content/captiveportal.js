@@ -20,6 +20,17 @@ $(function() {
       }
     });
 
+    $('.form--single_submit').on('submit', function(e) {
+      var $form = $(this);
+      if ($form.data('submitted') === true) {
+        e.preventDefault();
+      }
+      else {
+        $form.data('submitted', true);
+        $form.find('[type="submit"].btn').addClass('btn--disabled');
+      }
+    });
+
     // Show overlapping box with id defined from the data-box-show attribute
     $('.js-box-show').on('click', function(event) {
       var boxId = $(this).attr('data-box-show');

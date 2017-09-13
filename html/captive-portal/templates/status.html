@@ -1,61 +1,12 @@
-
 <script type="text/javascript" src="/content/countdown.min.js"></script>
-<script type="text/javascript">
-var paused = false;
-
-$(document).ready(function() {
-  [%- IF node.expiration %]
-  // Initialization of the countdown
-  $("#expiration").html(countdown([% node.expiration %] * 1000,
-                                  null,
-                                  countdown.DAYS|countdown.HOURS|countdown.MINUTES,
-                                  2).toString());
-  // Timer to update the countdown
-  var timerId = countdown(
-    [% node.expiration %] * 1000,
-    function(ts) {
-      var secs = Math.round(ts.value/1000);
-      if (secs >= 0) {
-        // No more time
-        window.location = "[% URL_STATUS %]?ts=" + ts.value;
-        return;
-      }
-      if (secs > -60 || secs % 60 == 0) {
-        // Countdown bellow 1 minute or on a minute; verify network access
-        $.ajax({
-          url: "[% URL_STATUS %]?ts=" + ts.value,
-        })
-        .done(function() {
-          if (paused) {
-            window.location = "[% URL_STATUS %]?ts=" + ts.value;
-            return;
-          }
-          $("#expiration").html(ts.toString());
-        })
-        .fail(function() {
-          paused = true;
-          $("#expiration").parent().hide();
-          $("#pause").show();
-        });
-      }
-    },
-    countdown.DAYS|countdown.HOURS|countdown.MINUTES|countdown.SECONDS,
-    2);
-  [%- ELSIF node.time_balance %]
-  $("#timeleft").html(countdown(new Date().getTime() + [% node.time_balance %] * 1000,
-                                null,
-                                countdown.DAYS|countdown.HOURS|countdown.MINUTES,
-                                2).toString());
-  [%- END %]
-  $('#popup a[target="_new"]').on("click", function(event) {
-    event.stopPropagation();
-    var newwindow = window.open("[% URL_STATUS %]", "status_popup", "height=220,width=300");
-    if (window.focus) { newwindow.focus() }
-    return false;
-  });
-});
+<script id="variables" type="text/json">
+{
+  [% IF node.expiration %]"expiration": [% node.expiration %],[% END %]
+  [% IF node.time_balance %]]"time_balance": [% node.time_balance %],[% END %]
+  "url": "[% URL_STATUS %]"
+}
 </script>
-
+<script type="text/javascript" src="/content/status.js"></script>
 
 [% IF txt_auth_error.defined %]
 <div class="media media--error u-p u-mb">

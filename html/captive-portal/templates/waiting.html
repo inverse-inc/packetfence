@@ -1,19 +1,4 @@
-<script type="text/javascript">
-var txt_ie = "[% i18n("Some versions of Internet Explorer may take a while before redirection occur.") | html %]";
-var txt_web_notification = "[% i18n("Network access has been granted") %]"
-
-// once the page is loaded
-$(document).ready(function() {
-    setInterval(function(){
-      $.ajax({
-        url : getPortalUrl('/sponsor/check'),
-        method : 'POST',
-      }).done(function(){
-        window.location = getPortalUrl("/signup");
-      });
-    }, 5000)
-});
-</script>
+<script type="text/javascript" src="/content/waiting.js"></script>
 
 <div class="layout--center">
   <h2>[% i18n("Registration pending") %]</h2>
