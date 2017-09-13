@@ -162,11 +162,31 @@ function changeInputFromTemplate(oldInput, template, keep_value) {
 }
 
 /*
+ * Checks if element has a modal as a parent
+ */
+function has_parent_modal() {
+    return $(this).parents('.modal').length > 0;
+}
+
+/*
+ * Checks if element does not have a modal as a parent
+ */
+function has_no_parent_modal() {
+    return $(this).parents('.modal').length === 0;
+}
+
+/*
  * Initialize the rendering widgets of some elements
  */
 function initWidgets(elements) {
-    elements.filter('.chzn-select').chosen({width: ''});
-    elements.filter('.chzn-deselect').chosen({allow_single_deselect: true, width: ''});
+    var chzn_select = elements.filter('.chzn-select');
+    // Chosen select must have a zero width in modal
+    chzn_select.filter(has_parent_modal).chosen({width:''});
+    chzn_select.filter(has_no_parent_modal).chosen({});
+    var chzn_deselect = elements.filter('.chzn-deselect');
+    // Chosen deselect must have a zero width in modal
+    chzn_select.filter(has_parent_modal).chosen({allow_single_deselect: true, width:''});
+    chzn_select.filter(has_no_parent_modal).chosen({allow_single_deselect: true});
     elements.filter('.timepicker-default').each(function() {
         // Keep the placeholder visible if the input has no value
         var defaultTime = $(this).val().length? 'value' : false;
