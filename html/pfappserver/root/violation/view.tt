@@ -1,4 +1,6 @@
-<script class="event_triggers" type="text/json" src="[% c.uri_for(c.controller.action_for('event_triggers')) %]"></script>
+<script class="event_triggers" type="text/json">
+  [% json_event_triggers | none %]
+</script>
 
 [% UNLESS action_uri%]
 [% SET action_uri = c.req.uri %]
