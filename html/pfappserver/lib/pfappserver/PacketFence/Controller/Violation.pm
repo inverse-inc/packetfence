@@ -207,7 +207,7 @@ after view => sub {
             ($c->stash->{splitted_triggers}, $c->stash->{pretty_triggers}) =
                 $self->parse_triggers($c->stash->{item}->{trigger});
             $c->stash->{trigger_map} = $pf::constants::trigger::TRIGGER_MAP;
-            $c->stash->{json_event_triggers} = encode_json([ map { ($pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE{$_}{event}) ? $_ : () } keys %pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE ]);
+#            $c->stash->{json_event_triggers} = encode_json([ map { ($pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE{$_}{event}) ? $_ : () } keys %pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE ]);
             $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$c->stash->{id}]);
         } else {
             $c->stash->{action_uri} = $c->uri_for($self->action_for('create'));
@@ -222,11 +222,18 @@ after view => sub {
 after [qw(create clone)] => sub {
     my ($self, $c) = @_;
     $c->stash->{trigger_map} = $pf::constants::trigger::TRIGGER_MAP;
-    $c->stash->{json_event_triggers} = encode_json([ map { ($pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE{$_}{event}) ? $_ : () } keys %pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE ]);
+#    $c->stash->{json_event_triggers} = encode_json([ map { ($pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE{$_}{event}) ? $_ : () } keys %pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE ]);
     if (!(is_success($c->response->status) && $c->request->method eq 'POST' )) {
         $c->stash->{template} = 'violation/view.tt';
     }
 };
+
+sub event_triggers : Local {
+    my ($self, $c) = @_;
+    my $response = $c->response;
+    $response->content_type("text/json");
+    $response->body(encode_json([ map { ($pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE{$_}{event}) ? $_ : () } keys %pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE ]));
+}
 
 =head2 after list
 
