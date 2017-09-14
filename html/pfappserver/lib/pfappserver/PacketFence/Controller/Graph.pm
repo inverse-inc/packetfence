@@ -540,11 +540,6 @@ sub logstate :Local :AdminRole('REPORTS') {
                 'columns' => 2
                },
                {
-                'description' => $c->loc('Logs Tracking pfqueue.log'),
-                'target' => '*.tail-pfqueue.counter*',
-                'columns' => 2
-               },
-               {
                 'description' => $c->loc('Logs Tracking pfmon.log'),
                 'target' => '*.tail-pfmon.counter*',
                 'columns' => 2
