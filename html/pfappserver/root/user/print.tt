@@ -13,7 +13,7 @@
           <button class="close" data-dismiss="alert">&times;</button>
           <h4>[% l('Warning!') %]</h4>
           <p>[% l('Unless specified otherwise, each account will be printed on a single page with the acceptable user policy.') %]</p>
-          <p><a class="btn btn-warning" onClick="window.print()">[% l('Print') %]</a></p>
+          <p><button type="button" class="btn btn-warning" id="print_user">[% l('Print') %]</button></p>
         </div>
         </div>
       [% FOREACH user IN users %]

@@ -12,3 +12,6 @@
       });
     }
   });
+  $('#print_user').on('click', function() {
+    window.print();
+  });
