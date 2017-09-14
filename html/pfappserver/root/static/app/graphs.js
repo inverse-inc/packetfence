@@ -402,6 +402,9 @@ function drawGraphs(id) {
 
     /* Load charts from document JSON */
     var charts = document.getElementById('graphs.charts');
+    if (!charts) {
+        return;
+    }
     $.extend(window.graphs.charts, JSON.parse(charts.textContent || charts.innerHTML));
 
     if (id)
