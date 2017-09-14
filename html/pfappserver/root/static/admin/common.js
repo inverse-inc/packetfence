@@ -1135,6 +1135,10 @@ $(function () { // DOM ready
                 $(this).detach().appendTo(sidenav).removeClass('hide');
             }
         });
+
+        $('[data-pf-toggle="password"]').on('mouseenter focus', function(event) {
+            event.currentTarget.removeAttribute('readonly');
+        });
     });
 
     /* Update extended duration widget when changing parameters of the duration */
