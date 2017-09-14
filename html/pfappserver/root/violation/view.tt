@@ -99,7 +99,7 @@
                     <option value="[% trigger %]">[% trigger_map.$category.$trigger %]</option>
                   [% END %]
                   </select>
-                  <button onclick="javascript:void(0)" class="btn add_trigger_part">[% l('Add') %]</button>
+                  <button type="button" class="btn add_trigger_part">[% l('Add') %]</button>
                 </div>
               </div>
             [% END %]
@@ -173,7 +173,7 @@
                 </div>
               </div>
               <div class="controls">
-                <button onclick="javascript:void(0)" class="btn add_accounting_trigger">[% l('Add') %]</button>
+                <button type="button" class="btn add_accounting_trigger">[% l('Add') %]</button>
               </div>
             </div>
 
