@@ -1,0 +1,62 @@
+h3, .aup {
+  display: none;
+}
+
+.print-with-aup {
+  float:right;
+  position:relative;
+  right:20px;
+  top:5px;
+  display:inline-block;
+}
+
+.row-fluid .offset2:first-child {
+  margin-left: 0;
+}
+.row-fluid .span8 {
+  width: auto;
+}
+hr {
+  border: 0;
+  border-bottom: 1px dashed #000;
+}
+h1, #navbar, .alert, .print-menu {
+  display: none;
+}
+h3, .aup {
+  display: block;
+}
+dd.aup {
+  font-size: 9pt;
+  line-height: 9pt;
+}
+.dl-horizontal dt {
+  float: none;
+  text-align: left;
+  width: auto;
+}
+.dl-horizontal dd {
+  margin-left: 0;
+}
+.page-break {
+  display:block;
+  page-break-before:always;
+}
+.ignore {
+  display:none !important;
+  page-break-before:auto !important;
+}
+.spacer {
+  display:block;
+  height:0.5in;
+}
+@page {
+  margin:0 !important;
+}
+body {
+  margin-left: 1.5in;
+  margin-right: 1.5in;
+}
+.title-underline {
+  border-bottom:3px dotted black;
+}
