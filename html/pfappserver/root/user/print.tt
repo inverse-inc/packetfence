@@ -1,3 +1,4 @@
+[% jsFiles = ['admin/user-print'] %]
 <script type="text/css" media="print" src="static/css/user_print.css"></script>
 <div class="container-fluid">
   <div class="row-fluid">
@@ -43,7 +44,4 @@
     </div><!--/span-->
   </div><!--/row-->
 </div><!--/.fluid-container-->
-
-<script type="text/javascript" src="/static/app/jquery.js"></script>
-<script type="text/javascript" src="/static/admin/user-print.js"></script>
 
