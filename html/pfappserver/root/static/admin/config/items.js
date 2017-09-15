@@ -98,7 +98,7 @@ ItemView.prototype.readItem = function(e) {
     section.loader();
     section.fadeTo('fast', 0.5);
     modal.empty();
-    $('.chzn-drop').remove(); // fixes a chzn bug with optgroups
+    $('.chosen-drop').remove(); // fixes a chzn bug with optgroups
     this.items.get({
         url: $(target).attr('href'),
         always: function() {
