@@ -153,7 +153,7 @@ function changeInputFromTemplate(oldInput, template, keep_value) {
         }
     }
     newInput.insertBefore(oldInput);
-    oldInput.next(".chzn-container").remove();
+    oldInput.next(".chosen-container").remove();
 
     // Remove previous field
     oldInput.remove();
