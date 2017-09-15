@@ -139,7 +139,14 @@ sub findFirstTemplate {
 
 sub findViolationTemplate {
     my ($self, $template, $langs) = @_;
-    my @subTemplates  = ((map {"violations/${template}.${_}.html"} @$langs), "violations/$template.html");
+    my @new_langs;
+    for my $lang (@$langs) {
+        push @new_langs, $lang;
+        if ($lang =~ /^(..)_(..)/) {
+            push @new_langs, lc($1);
+        }
+    }
+    my @subTemplates  = ((map {"violations/${template}.${_}.html"} @new_langs), "violations/$template.html");
     return $self->findFirstTemplate(\@subTemplates);
 }
 
