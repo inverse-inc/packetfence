@@ -304,6 +304,18 @@ List of mandatory fields for this source
 
 sub mandatoryFields {}
 
+
+=head2 realmIsAllowed
+
+checks if realm is allowed
+
+=cut
+
+sub realmIsAllowed {
+    my ($self, $realm) = @_;
+    return $FALSE;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
