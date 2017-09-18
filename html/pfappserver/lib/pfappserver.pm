@@ -345,9 +345,8 @@ sub csp_server_headers {
     my $headers = $c->stash->{csp_headers} || {};
     $c->response->header
       ('Content-Security-Policy' =>
-       sprintf("default-src 'none'; script-src 'self'%s; worker-src 'self'%s; connect-src 'self'; img-src 'self'%s; style-src 'self'%s; font-src 'self';frame-src 'self'",
+       sprintf("default-src 'none'; script-src 'self'%s; connect-src 'self'; img-src 'self'%s; style-src 'self'%s; font-src 'self'; child-src 'self'; frame-src 'self'",
                $headers->{script}? ' ' . $headers->{script} : '',
-               $headers->{worker}? ' ' . $headers->{worker} : '',
                $headers->{img}   ? ' ' . $headers->{img}    : '',
                $headers->{style} ? ' ' . $headers->{style}  : ''
               )
