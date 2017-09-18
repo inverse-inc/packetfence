@@ -46,6 +46,7 @@ sub check_password {
 
   my $internal_sources = pf::authentication::getInternalAuthenticationSources();
   my ($stripped_username,$realm) = strip_username($self->_user);
+  $realm //= 'null';
   my $realm_source = get_realm_authentication_source($stripped_username, $realm, $internal_sources);
 
   my $user = $self->{_user};
