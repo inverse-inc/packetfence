@@ -136,6 +136,7 @@ sub login :Local :Args(0) {
             }
         };
         if ($@) {
+            $c->log->error($@);
             $c->response->status(HTTP_INTERNAL_SERVER_ERROR);
             $c->stash->{status_msg} = $c->loc("Unexpected error. See server-side logs for details.");
         }
