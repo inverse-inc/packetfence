@@ -385,8 +385,7 @@ sub portal_hosts {
 
 =head2 get_realm_authentication_source
 
-Get a source for a specific realm
-Fetch the sources that match the realm and the source that the realm is empty (default)
+Find sources for a specific realm
 
 =cut
 
