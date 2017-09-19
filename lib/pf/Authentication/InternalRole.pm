@@ -49,7 +49,7 @@ sub realmIsAllowed {
     return $TRUE if !defined $realms || @$realms == 0;
     $realm //= 'null';
     $realm = lc($realm);
-    return ( any { $_ =~ /^$realm$/i } @$realms ) ? $TRUE : $FALSE;
+    return ( any { $_ =~ /^\Q$realm\E$/i } @$realms ) ? $TRUE : $FALSE;
 }
 
 =head1 AUTHOR
