@@ -385,20 +385,13 @@ sub portal_hosts {
 
 =head2 get_realm_authentication_source
 
-Get a source for a specific realm
+Find sources for a specific realm
 
 =cut
 
 sub get_realm_authentication_source {
     my ( $username, $realm, $sources ) = @_;
-
-    $realm = 'null' unless ( defined($realm) );
-    $realm = lc $realm;
-
-    my @sources = grep { defined $_->realms && grep( /^$realm$/, @{$_->realms} ) } @{$sources};
-    @sources = (@sources, grep { defined $_->realms && ($_->realms eq '') && !grep( defined($_), @{$_->realms} ) } @{$sources} );
-    return \@sources;
-
+    return [grep { $_->realmIsAllowed($realm) } @{$sources}];
 }
 
 =head2 filter_authentication_sources
