@@ -56,7 +56,7 @@ Readonly my $FW_PREROUTING_INT_INLINE => 'prerouting-int-inline-if';
 Readonly my $FW_POSTROUTING_INT_INLINE => 'postrouting-int-inline-if';
 
 my $ipset_client = pf::api::jsonrestclient->new(
-                proto   => "http",
+                proto   => "https",
                 host    => "localhost",
                 port    => $pf::constants::api::GO_IPSET_PORT,
             );

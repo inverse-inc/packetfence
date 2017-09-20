@@ -50,7 +50,7 @@ func detectMembers() []net.IP {
 
 func updateClusterL2(Ip string, Mac string, Network string, Type string, Catid string) {
 	for _, member := range detectMembers() {
-		_, err := http.Post("https://"+member.String()+":22223/ipsetmarklayer2/"+Network+"/"+Type+"/"+Catid+"/"+Ip+"/"+Mac+"/1", "application/json", body)
+		err := post("http://"+member.String()+":22223/ipsetmarklayer2/"+Network+"/"+Type+"/"+Catid+"/"+Ip+"/"+Mac+"/1", body)
 		fmt.Println("Updated " + member.String())
 		if err != nil {
 			fmt.Println("Not able to contact " + member.String())
@@ -60,7 +60,7 @@ func updateClusterL2(Ip string, Mac string, Network string, Type string, Catid s
 
 func updateClusterL3(Ip string, Network string, Type string, Catid string) {
 	for _, member := range detectMembers() {
-		_, err := http.Post("https://"+member.String()+":22223/ipsetmarklayer3/"+Network+"/"+Type+"/"+Catid+"/"+Ip+"/1", "application/json", body)
+		err := post("http://"+member.String()+":22223/ipsetmarklayer3/"+Network+"/"+Type+"/"+Catid+"/"+Ip+"/1", body)
 		if err != nil {
 			fmt.Println("Not able to contact " + member.String())
 		}
@@ -69,7 +69,7 @@ func updateClusterL3(Ip string, Network string, Type string, Catid string) {
 
 func updateClusterUnmarkMac(Mac string) {
 	for _, member := range detectMembers() {
-		_, err := http.Post("https://"+member.String()+":22223/ipsetunmarkmac/"+Mac+"/1", "application/json", body)
+		err := post("http://"+member.String()+":22223/ipsetunmarkmac/"+Mac+"/1", body)
 		if err != nil {
 			fmt.Println("Not able to contact " + member.String())
 		}
@@ -79,7 +79,7 @@ func updateClusterUnmarkMac(Mac string) {
 func updateClusterUnmarkIp(Ip string) {
 	for _, member := range detectMembers() {
 
-		_, err := http.Post("https://"+member.String()+":22223/ipsetunmarkip/"+Ip+"/1", "application/json", body)
+		err := post("http://"+member.String()+":22223/ipsetunmarkip/"+Ip+"/1", body)
 		if err != nil {
 			fmt.Println("Not able to contact " + member.String())
 		}
@@ -88,7 +88,7 @@ func updateClusterUnmarkIp(Ip string) {
 
 func updateClusterMarkIpL3(Ip string, Network string, Catid string) {
 	for _, member := range detectMembers() {
-		_, err := http.Post("https://"+member.String()+":22223/ipsetmarkiplayer3/"+Network+"/"+Catid+"/"+Ip+"/1", "application/json", body)
+		err := post("https://"+member.String()+":22223/ipsetmarkiplayer3/"+Network+"/"+Catid+"/"+Ip+"/1", body)
 		if err != nil {
 			fmt.Println("Not able to contact " + member.String())
 		}
@@ -96,7 +96,7 @@ func updateClusterMarkIpL3(Ip string, Network string, Catid string) {
 }
 func updateClusterMarkIpL2(Ip string, Network string, Catid string) {
 	for _, member := range detectMembers() {
-		_, err := http.Post("https://"+member.String()+":22223/ipsetmarkiplayer2/"+Network+"/"+Catid+"/"+Ip+"/1", "application/json", body)
+		err := post("https://"+member.String()+":22223/ipsetmarkiplayer2/"+Network+"/"+Catid+"/"+Ip+"/1", body)
 		if err != nil {
 			fmt.Println("Not able to contact " + member.String())
 		}
@@ -119,4 +119,24 @@ func mac2ip(Mac string) []string {
 		}
 	}
 	return Ips
+}
+
+// readWebservicesConfig read pfconfig webservices configuration
+func readWebservicesConfig() pfconfigdriver.PfConfWebservices {
+	var webservices pfconfigdriver.PfConfWebservices
+	webservices.PfconfigNS = "config::Pf"
+	webservices.PfconfigMethod = "hash_element"
+	webservices.PfconfigHashNS = "webservices"
+
+	pfconfigdriver.FetchDecodeSocket(ctx, &webservices)
+	return webservices
+}
+
+func post(url string, body io.Reader) error {
+	req, err := http.NewRequest("Post", url, body)
+	req.SetBasicAuth(webservices.User, webservices.Pass)
+	req.Header.Set("Content-Type", "application/json")
+	cli := &http.Client{}
+	_, err = cli.Do(req)
+	return err
 }

@@ -93,6 +93,19 @@ type PfConfCaptivePortal struct {
 	WisprRedirection             string   `json:"wispr_redirection"`
 }
 
+type PfConfWebservices struct {
+	StructConfig
+	PfconfigMethod string `val:"hash_element"`
+	PfconfigNS     string `val:"config::Pf"`
+	PfconfigHashNS string `val:"webservices"`
+	Pass           string `json:"pass"`
+	Proto          string `json:"proto"`
+	User           string `json:"user"`
+	Port           string `json:"port"`
+	AAAPort        string `json:"aaa_port"`
+	Host           string `json:"host"`
+}
+
 type ManagementNetwork struct {
 	StructConfig
 	PfconfigMethod string `val:"element"`
@@ -143,6 +156,7 @@ type configStruct struct {
 		General       PfConfGeneral
 		Fencing       PfConfFencing
 		CaptivePortal PfConfCaptivePortal
+		Webservices   PfConfWebservices
 	}
 }
 
