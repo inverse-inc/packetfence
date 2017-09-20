@@ -50,7 +50,7 @@ func detectMembers() []net.IP {
 
 func updateClusterL2(Ip string, Mac string, Network string, Type string, Catid string) {
 	for _, member := range detectMembers() {
-		err := post("http://"+member.String()+":22223/ipsetmarklayer2/"+Network+"/"+Type+"/"+Catid+"/"+Ip+"/"+Mac+"/1", body)
+		err := post("https://"+member.String()+":22223/ipsetmarklayer2/"+Network+"/"+Type+"/"+Catid+"/"+Ip+"/"+Mac+"/1", body)
 		fmt.Println("Updated " + member.String())
 		if err != nil {
 			fmt.Println("Not able to contact " + member.String())
@@ -60,7 +60,7 @@ func updateClusterL2(Ip string, Mac string, Network string, Type string, Catid s
 
 func updateClusterL3(Ip string, Network string, Type string, Catid string) {
 	for _, member := range detectMembers() {
-		err := post("http://"+member.String()+":22223/ipsetmarklayer3/"+Network+"/"+Type+"/"+Catid+"/"+Ip+"/1", body)
+		err := post("https://"+member.String()+":22223/ipsetmarklayer3/"+Network+"/"+Type+"/"+Catid+"/"+Ip+"/1", body)
 		if err != nil {
 			fmt.Println("Not able to contact " + member.String())
 		}
@@ -69,7 +69,7 @@ func updateClusterL3(Ip string, Network string, Type string, Catid string) {
 
 func updateClusterUnmarkMac(Mac string) {
 	for _, member := range detectMembers() {
-		err := post("http://"+member.String()+":22223/ipsetunmarkmac/"+Mac+"/1", body)
+		err := post("https://"+member.String()+":22223/ipsetunmarkmac/"+Mac+"/1", body)
 		if err != nil {
 			fmt.Println("Not able to contact " + member.String())
 		}
@@ -79,7 +79,7 @@ func updateClusterUnmarkMac(Mac string) {
 func updateClusterUnmarkIp(Ip string) {
 	for _, member := range detectMembers() {
 
-		err := post("http://"+member.String()+":22223/ipsetunmarkip/"+Ip+"/1", body)
+		err := post("https://"+member.String()+":22223/ipsetunmarkip/"+Ip+"/1", body)
 		if err != nil {
 			fmt.Println("Not able to contact " + member.String())
 		}
