@@ -196,7 +196,7 @@ sub floating_devices :Local {
 sub authentication :Local {
     my ($self, $c) = @_;
 
-    $c->go('Controller::Authentication', 'index');
+    $c->go('Controller::Config::Source', 'index');
 }
 
 =head2 users
