@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
 	"io"
 	"net"
@@ -133,10 +134,13 @@ func readWebservicesConfig() pfconfigdriver.PfConfWebservices {
 }
 
 func post(url string, body io.Reader) error {
-	req, err := http.NewRequest("Post", url, body)
+	req, err := http.NewRequest("POST", url, body)
 	req.SetBasicAuth(webservices.User, webservices.Pass)
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
 	req.Header.Set("Content-Type", "application/json")
-	cli := &http.Client{}
+	cli := &http.Client{Transport: tr}
 	_, err = cli.Do(req)
 	return err
 }

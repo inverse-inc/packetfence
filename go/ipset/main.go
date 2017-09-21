@@ -7,12 +7,17 @@ import (
 	"time"
 
 	"github.com/coreos/go-systemd/daemon"
+	"github.com/goji/httpauth"
 	"github.com/gorilla/mux"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
 var ctx = context.Background()
+var webservices pfconfigdriver.PfConfWebservices
 
 func main() {
+	webservices = readWebservicesConfig()
+
 	// Default http timeout
 	http.DefaultClient.Timeout = 10 * time.Second
 
@@ -23,7 +28,7 @@ func main() {
 	router.HandleFunc("/ipsetunmarkip/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{local:[0-1]}", handleUnmarkIp).Methods("POST")
 	router.HandleFunc("/ipsetmarkiplayer2/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{catid:[0-9]+}/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{local:[0-1]}", handleMarkIpL2).Methods("POST")
 	router.HandleFunc("/ipsetmarkiplayer3/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{catid:[0-9]+}/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{local:[0-1]}", handleMarkIpL3).Methods("POST")
-
+	http.Handle("/", httpauth.SimpleBasicAuth(webservices.User, webservices.Pass)(router))
 	// Api
 	cfg := &tls.Config{
 		MinVersion:               tls.VersionTLS12,
@@ -52,13 +57,15 @@ func main() {
 			return
 		}
 		for {
-			_, err := http.Get("https://127.0.0.1:22223")
+			req, err := http.NewRequest("GET", "https://127.0.0.1:22223", nil)
+			req.SetBasicAuth(webservices.User, webservices.Pass)
+			cli := &http.Client{}
+			_, err = cli.Do(req)
 			if err == nil {
 				daemon.SdNotify(false, "WATCHDOG=1")
 			}
 			time.Sleep(interval / 3)
 		}
 	}()
-	srv.ListenAndServeTLS("tls.crt", "tls.key")
-
+	srv.ListenAndServeTLS("/usr/local/pf/conf/ssl/server.crt", "/usr/local/pf/conf/ssl/server.key")
 }
