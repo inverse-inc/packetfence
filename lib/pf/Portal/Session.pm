@@ -110,14 +110,16 @@ sub _initialize {
         }
     );
 
-    $self->{_dummy_session} = (defined($mac) && $self->{_client_mac} eq $DUMMY_MAC);
-
     # Don't assign $mac if the dummy MAC was used for restoring the session
     $self->{'_client_mac'} = ((defined($mac) && $mac ne $DUMMY_MAC) ? $mac : undef) || $self->session->param("_client_mac") || $self->_restoreFromSession("_client_mac",sub {
             return $self->getClientMac;
         }
     );
-    $self->session->param("_client_mac",$self->{'_client_mac'});
+
+    my $client_mac = $self->{_client_mac};
+    $self->{_dummy_session} = (defined($client_mac) && $client_mac eq $DUMMY_MAC);
+
+    $self->session->param("_client_mac", $client_mac);
 
     $self->{'_guest_node_mac'} = undef;
     $self->{'_profile'} = $self->_restoreFromSession("_profile", sub {
