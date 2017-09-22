@@ -44,11 +44,13 @@ our $WSREP_NOT_READY_ERROR = 1047;
 
 our ( $DBH, $LAST_CONNECT, $DB_Config, $NO_DIE_ON_DBH_ERROR );
 
+our $MAX_STATEMENT_TIME = 0.0;
+
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
     @ISA    = qw(Exporter);
-    @EXPORT = qw(db_data db_connect db_disconnect get_db_handle db_query_execute db_ping db_cancel_current_query db_now db_readonly_mode db_check_readonly $MYSQL_READONLY_ERROR);
+    @EXPORT = qw(db_data db_connect db_disconnect get_db_handle db_query_execute db_ping db_cancel_current_query db_now db_readonly_mode db_check_readonly db_set_max_statement_timeout $MYSQL_READONLY_ERROR);
 
 }
 
@@ -111,7 +113,8 @@ sub db_connect {
 
     # TODO database prepared statements are disabled by default in dbd::mysql
     # we should test with them, see http://search.cpan.org/~capttofu/DBD-mysql-4.013/lib/DBD/mysql.pm#DESCRIPTION
-    $mydbh = DBI->connect( "dbi:mysql:dbname=$db;host=$host;port=$port;mysql_client_found_rows=0",
+    my $max_statement_time = db_get_max_statement_timeout();
+    $mydbh = DBI->connect( "dbi:mysql:dbname=$db;host=$host;port=$port;mysql_client_found_rows=0;mysql_init_command=SET SESSION max_statement_time=$max_statement_time",
         $user, $pass, { RaiseError => 0, PrintError => 0, mysql_auto_reconnect => 1 } );
 
     # make sure we have a database handle
@@ -167,6 +170,7 @@ sub db_disconnect {
         my $logger = get_logger();
         $logger->debug("disconnecting db");
         $DBH->disconnect();
+        $DBH = undef;
         $LAST_CONNECT = 0;
     }
 }
@@ -515,6 +519,30 @@ sub db_check_readonly {
     my ($self) = @_;
     my $mode = $CHI_READONLY->compute("inreadonly", {expires_in => '5'}, \&db_readonly_mode);
     return $mode;
+}
+
+=item db_set_max_statement_timeout
+
+Set the max statement timeout
+
+In order to take effect must be set before connecting to the database
+
+=cut
+
+sub db_set_max_statement_timeout {
+    my ($timeout) = @_;
+    $timeout //= 0.0;
+    $MAX_STATEMENT_TIME = $timeout + 0.0;
+}
+
+=head2 db_get_max_statement_timeout
+
+Get the max statement timeout
+
+=cut
+
+sub db_get_max_statement_timeout {
+    return $MAX_STATEMENT_TIME + 0.0 ;
 }
 
 =back
