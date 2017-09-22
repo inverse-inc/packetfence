@@ -145,3 +145,7 @@ if $programname == "httpd.dispatcher" then -/usr/local/pf/logs/httpd.dispatcher.
 
 if $programname == "pfhttpd" then -/usr/local/pf/logs/packetfence.log
 & stop
+
+# MARIADB
+if $syslogtag contains "mysqld" then -/usr/local/pf/logs/mariadb_error.log
+& stop
