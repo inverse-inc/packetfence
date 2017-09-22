@@ -483,6 +483,25 @@ Primary keys
 
 sub primary_keys { [] }
 
+=head2 remove_by_search
+
+remove_by_search
+
+=cut
+
+sub remove_by_search {
+    my ($self, $where, $extra) = @_;
+    my $sqla = $self->get_sql_abstract;
+    my ($sql, @bind) = $sqla->delete(
+        -from => $self->table,
+        -where => $where,
+        %{$extra // {}}
+    );
+    my ($status, $sth) = $self->db_execute($sql, @bind);
+    return $status, undef if is_error($status);
+    return $status, $sth->rows;
+}
+
 =head2 remove
 
 Remove row from the database
@@ -492,15 +511,9 @@ Remove row from the database
 sub remove {
     my ($self) = @_;
     return $STATUS::PRECONDITION_FAILED unless $self->__from_table;
-    my $sqla = $self->get_sql_abstract;
-    my ($sql, @bind) = $sqla->delete(
-        -from => $self->table,
-        -where => $self->primary_keys_where_clause,
-    );
-    my ($status, $sth) = $self->db_execute($sql, @bind);
+    my ($status, $count) = $self->remove_by_search($self->primary_keys_where_clause);
     return $status if is_error($status);
-    my $rows = $sth->rows;
-    if ($rows) {
+    if ($count) {
         $self->__from_table(0);
         return $STATUS::OK;
     }
@@ -516,14 +529,9 @@ Remove row from the database
 sub remove_by_id {
     my ($self, $ids) = @_;
     my $where = $self->build_primary_keys_where_clause($ids);
-    my $sqla = $self->get_sql_abstract;
-    my ($sql, @bind) = $sqla->delete(
-        -from => $self->table,
-        -where => $where,
-    );
-    my ($status, $sth) = $self->db_execute($sql, @bind);
+    my ($status, $count) = $self->remove_by_search($where);
     return $status if is_error($status);
-    if ($sth->rows) {
+    if ($count) {
         return $STATUS::OK;
     }
     return $STATUS::NOT_FOUND;
