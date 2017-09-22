@@ -55,7 +55,7 @@ sub build {
         @{$self->{config}->{fencing}->{passthroughs} // []},
         map{
             ($_->isa("pf::Authentication::Source::OAuthSource") || $_->isa("pf::Authentication::Source::BillingSource") )
-                ? split(/\s*,\s*/, $_->{domains})
+                ? split(/\s*,\s*/, $_->{domains} // '')
                 : () 
         } @{$self->{authentication_sources} // []},
     );
