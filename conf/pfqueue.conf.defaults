@@ -98,3 +98,16 @@ weight=2
 # The number of dedicated workers for queue
 #
 workers=0
+
+#
+# priority queue configuration
+#
+[queue priority]
+#
+# The weight of queue among shared workers
+#
+weight=8
+#
+# The number of dedicated workers for queue
+#
+workers=2
