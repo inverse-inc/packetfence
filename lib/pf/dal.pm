@@ -166,6 +166,26 @@ sub search {
     return $STATUS::OK, pf::dal::iterator->new({sth => $sth, class => $class});
 }
 
+=head2 count
+
+Get the count of the table
+
+=cut
+
+sub count {
+    my ($proto) = @_;
+    my $sqla = $proto->get_sql_abstract;
+    my($stmt, @bind) = $sqla->select(
+        -columns => ['COUNT(*)|count'],
+        -from    => $proto->table,
+    );
+    my ($status, $sth) = $proto->db_execute($stmt, @bind);
+    return $status, undef if is_error($status);
+    my $row = $sth->fetchrow_hashref;
+    $sth->finish;
+    return $status, $row->{count};
+}
+
 =head2 save
 
 Save the pf::dal object in the database
