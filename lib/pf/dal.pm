@@ -499,7 +499,9 @@ sub remove_by_search {
     );
     my ($status, $sth) = $self->db_execute($sql, @bind);
     return $status, undef if is_error($status);
-    return $status, $sth->rows;
+    my $rows = $sth->rows;
+    $sth->finish;
+    return $status, $rows;
 }
 
 =head2 remove
