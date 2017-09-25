@@ -64,7 +64,7 @@ Bug Fixes
 * Fix voip logic to reduce the chance of duplicate locationlog entries (#2527)
 * Fixed SNMP connection issues on Extricom controllers
 * Fixes segfaults when logging in the multithread environments (#2603)
-* reuseDot1x: Security concern (#2536)
+* reuseDot1x: Changed the way authentication sources are matched with realms regarding a security concern(#2536)
 * We need a realm admin_local by default (#2529)
 * Use the system time instead of browser time when using preset time values (#2559)
 * Trust the wsrep_ready flag of MariaDB Galera cluster for read only detection as putting the DB in read-only can result in occasional de-synchronization between members. (#2593) (PR #2594)
