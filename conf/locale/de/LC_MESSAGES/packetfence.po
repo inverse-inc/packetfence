@@ -17,8 +17,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-06-02 11:44+0000\n"
-"Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
+"PO-Revision-Date: 2017-09-23 18:05+0000\n"
+"Last-Translator: Hendrik\n"
 "Language-Team: German (http://www.transifex.com/inverse/packetfence/language/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -32,7 +32,7 @@ msgstr ""
 msgid ""
 "A random certificate password has been generated for you. Please note it as "
 "it will be necessary to complete the process."
-msgstr "Es wurde ein zufälliges Zertifikatspasswort für Sie generiert. Bitte notieren Sie es sich, da es notwendig ist, um den Prozeß zu beenden."
+msgstr "Es wurde ein zufälliges Zertifikatspasswort für Sie generiert. Bitte notieren Sie es sich, da es notwendig ist, um den Prozess zu beenden."
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_confirmed.html
 msgid "Access Authorized"
@@ -179,7 +179,7 @@ msgstr "Kosten"
 # html/captive-
 # portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
 msgid "Could not find unregistration date for this activation code."
-msgstr ""
+msgstr "Konnte das Deregistrierungsdatum für diesen Code nicht finden."
 
 # html/captive-portal/templates/account.html
 msgid "Created account %s"
@@ -505,15 +505,15 @@ msgstr "Spitzname"
 # html/captive-
 # portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
 msgid "No active sponsor source for this Connection Profile."
-msgstr ""
+msgstr "Keine aktiven Sponsorenquellen für dieses Verbindungsprofil."
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Node/Manager.pm
 msgid "Not allowed to deregister $mac"
-msgstr ""
+msgstr "Sie dürfen $mac nicht deregistrieren"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Node/Manager.pm
 msgid "Not logged in or node ID $mac is not known"
-msgstr ""
+msgstr "Nicht angemeldet oder das Endgerät $mac ist unbekannt"
 
 # pf::person::FIELDS
 msgid "Notes"
@@ -747,7 +747,7 @@ msgstr "Vielen Dank für Ihr Verständnis"
 msgid ""
 "The activation code provided is invalid. Reasons could be: it never existed,"
 " it was already used or has expired."
-msgstr ""
+msgstr "Der angegebene Aktivierungscode ist ungültig. Es existierte vielleicht nie, wurde bereits benutzt, oder ist verfallen."
 
 # html/captive-portal/templates/emails/emails-
 # billing_stripe_customer.subscription.deleted.html
@@ -992,7 +992,7 @@ msgstr "de_DE"
 # html/captive-
 # portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
 msgid "does not have permission to sponsor a user"
-msgstr ""
+msgstr "Hat keine Berechtigung, den Nutzer zu sponsern"
 
 # pf::web::constants (Locales)
 msgid "en_US"
@@ -1001,7 +1001,7 @@ msgstr "en_US"
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
 # lib/pf/web/release.pm
 msgid "error: max re-enables reached"
-msgstr ""
+msgstr "Maximale Anzahl an Aktivierungsversuchen wurde erreicht!"
 
 # lib/pf/web/release.pm
 msgid "error: not found in the database"
@@ -1025,7 +1025,7 @@ msgstr "he_IL"
 
 # html/captive-portal/templates/layout.html
 msgid "help: provide info"
-msgstr ""
+msgstr "Wenn Sie Fragen zu dieser Seite haben, wenden Sie sich an Ihren Systemadministrator für Unterstützung. Bitte stellen Sie folgende Informationen zur Verfügung:"
 
 # pf::web::constants (Locales)
 msgid "it_IT"
@@ -1046,15 +1046,15 @@ msgstr "pt_BR"
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Blackhole.pm
 msgid "register: not allowed to register"
-msgstr ""
+msgstr "Sie haben keine Berechtigung sich in diesem Netzwerk zu registrieren."
 
 # html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module.pm
 msgid "release: enabling network"
-msgstr ""
+msgstr "Zugriff auf das Netzwerk wird aktiviert."
 
 # lib/pf/web/release.pm
 msgid "release: reopen browser"
-msgstr ""
+msgstr "Sie müssen möglicherweise Ihren Browser schließen und erneut öffnen."
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
 msgid "requested guest access to your network."
@@ -1064,9 +1064,9 @@ msgstr "fragte Gastzugriff auf Ihr Netzwerk an."
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
 # html/captive-portal/templates/scan-in-progress.html
 msgid "scan: scan in progress"
-msgstr ""
+msgstr "Ihr System wird gerade auf Schwachstellen untersucht"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
 # lib/pf/web.pm
 msgid "system scan in progress"
-msgstr ""
+msgstr "Das System wird gerade auf Schwachstellen untersucht"
