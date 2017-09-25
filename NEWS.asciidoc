@@ -20,10 +20,12 @@ New Features
 * Added a RADIUS only mode to PacketFence.
 * Added the possibility to import switches from a CSV file.
 * Add a cluster wide view of pfqueue statistics (#2195) (PR #2573)
+* Added the possibility of importing switches from a CSV file. (PR #2480)
 
 Enhancements
 ++++++++++++
 
+* Redirect template for violation (PR #2400)
 * Display vlan in locationlog view
 * Allow the timezone to be selected.
 * Add a task count jitter to reduce the chance that pfqueue workers exit at the same time.
@@ -45,6 +47,7 @@ Enhancements
 * Show DHCP Option82 data in the node view (#2396)
 * Fortigate 50E 802.1x support
 * Adds the ability to normalize the computer authentication username when using EAP-TLS (PR #2414)
+* Custom reports columns representing a node or a user can now be configured to be clickable for details on the object in question (#PR 2508)
 
 Bug Fixes
 +++++++++
@@ -65,6 +68,9 @@ Bug Fixes
 * We need a realm admin_local by default (#2529)
 * Use the system time instead of browser time when using preset time values (#2559)
 * Trust the wsrep_ready flag of MariaDB Galera cluster for read only detection as putting the DB in read-only can result in occasional de-synchronization between members. (#2593) (PR #2594)
+* SSL certificates expiration monitoring (#2444)
+* Run the configreload as the pf user when done through pfcmd (PR #2510)
+* Run the 6.0+ upgrade scripts as the pf user to prevent permissions issues after running them (PR #2509)
 
 Version 7.2.0 released on 2017-07-10
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
