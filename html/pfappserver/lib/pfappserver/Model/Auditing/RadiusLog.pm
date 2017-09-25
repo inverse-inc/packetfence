@@ -19,6 +19,7 @@ use pf::radius_audit_log;
 use pf::error qw(is_error is_success);
 use SQL::Abstract::More;
 use POSIX qw(ceil);
+use pf::dal::radius_audit_log;
 
 =head1 METHODS
 
@@ -52,35 +53,27 @@ sub search {
     $params->{page_num} ||= 1;
     $params->{per_page} ||= 25;
     my $sqla = SQL::Abstract::More->new;
-    my @where_options = $self->_build_where($params);
-    my @additional_options = ($self->_build_limit($params),$self->_build_order_by($params));
-    my $table = $self->table;
-    my ($sql, @bind) = $sqla->select(
-        -from => $table,
-        @where_options,
-        @additional_options
-    );
-    my @items =  radius_audit_log_custom($sql, @bind);
-    foreach my $item (@items) {
+    my $where = $self->_build_where($params);
+    my %extra_options = ($self->_build_limit($params),$self->_build_order_by($params));
+    my ($status, $iter) = pf::dal::radius_audit_log->search($where, \%extra_options);
+    if (is_error($status)) {
+        return ($status, "Error searching in radius_audit_log");
+    }
+    $iter->class(undef);
+    my $items = $iter->get_all_items;
+    foreach my $item (@$items) {
         _unescape_item($item);
     }
-    ($sql, @bind) = $sqla->select(
-        -from => $table,
-        -columns => [qw(count(*)|count)],
-        @where_options,
-    );
-    my @count =  radius_audit_log_custom($sql, @bind);
-    my %results;
-    my $count = 0;
-    if($count[0]) {
-        $count = $count[0]->{count};
-    }
+    ($status, my $count) = pf::dal::radius_audit_log->count($where);
+    return ($status, "Error searching in radius_audit_log");
     my $per_page = $params->{per_page};
-    $results{items} = \@items;
-    $results{count} = $count;
-    $results{page_count} = ceil( $count / $per_page );
-    $results{per_page} = $per_page;
-    $results{page_num} = $params->{page_num};
+    my %results = (
+        items => $items,
+        count => $count,
+        page_count => ceil( $count / $per_page ),
+        per_page => $per_page,
+        page_num => $params->{page_num},
+    );
     return ($STATUS::OK,\%results);
 }
 
@@ -103,7 +96,7 @@ sub _build_where {
         $where{$relational_op} =  \@clauses;
     }
     $self->_add_date_range($params, \%where);
-    return -where => \%where;
+    return \%where;
 }
 
 sub _add_date_range {
