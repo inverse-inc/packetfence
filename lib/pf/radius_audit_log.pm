@@ -145,7 +145,7 @@ Add a radius_audit_log entry
 
 sub radius_audit_log_add {
     my %data = @_;
-    my $item = pf::dal::radius_audit_log->new(%data);
+    my $item = pf::dal::radius_audit_log->new(\%data);
     my $status = $item->insert;
     return (is_success($status));
 }
@@ -191,7 +191,7 @@ sub radius_audit_log_view_all {
         -limit => $limit,
     });
     return if is_error($status);
-    my $items = pf::dal::radius_audit_log->get_all_items();
+    my $items = $iter->get_all_items();
     return @$items;
 }
 
