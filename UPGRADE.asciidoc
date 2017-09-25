@@ -110,7 +110,7 @@ Don't forget to edit the `/usr/local/pf/conf/currently-at` file to match the new
   cat /usr/local/pf/conf/pf-release > /usr/local/pf/conf/currently-at
   
 
-Upgrading from a version prior to X.Y.Z
+Upgrading from a version prior to 7.3.0
 ---------------------------------------
 
 Device Registration
@@ -136,6 +136,18 @@ Ensure you merge changes in the galera section of `conf/mariadb/mariadb.conf.tt.
 
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
+
+
+Database schema update (All linux distributions)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Changes have been made to the database schema. You will need to update it accordingly.
+An SQL upgrade script has been provided to upgrade the database from the 7.1 schema to 7.2.
+
+To upgrade the database schema, run the following command:
+
+  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-7.2.0-7.3.0.sql
+
 
 
 Upgrading from a version prior to 7.2.0
