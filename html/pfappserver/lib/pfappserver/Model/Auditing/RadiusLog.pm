@@ -65,7 +65,9 @@ sub search {
         _unescape_item($item);
     }
     ($status, my $count) = pf::dal::radius_audit_log->count($where);
-    return ($status, "Error searching in radius_audit_log");
+    if (is_error($status)) {
+        return ($status, "Error searching in radius_audit_log");
+    }
     my $per_page = $params->{per_page};
     my %results = (
         items => $items,
@@ -80,7 +82,7 @@ sub search {
 sub _unescape_item {
     my ($item) = @_;
     foreach my $key (keys %$item) {
-        next if exists $pf::radius_audit_log::RADIUS_FIELDS{$key};
+        next if exists $pf::radius_audit_log::RADIUS_FIELDS{$key} || !defined $item->{$key};
         $item->{$key} =~ s/=([a-fA-F0-9]{2})/chr(hex($1))/ge;
     }
 }
