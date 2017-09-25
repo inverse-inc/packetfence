@@ -36,7 +36,7 @@ BEGIN {
 
 use pf::log;
 use pf::db;
-use pf::error qw(is_success);
+use pf::error qw(is_success is_error);
 use pf::dal::radius_audit_log;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
