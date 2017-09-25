@@ -29,21 +29,13 @@ BEGIN {
         radius_audit_log_view
         radius_audit_log_count_all
         radius_audit_log_view_all
-        radius_audit_log_custom
         radius_audit_log_cleanup
     );
 }
 
 use pf::log;
-use pf::db;
 use pf::error qw(is_success is_error);
 use pf::dal::radius_audit_log;
-
-# The next two variables and the _prepare sub are required for database handling magic (see pf::db)
-our $radius_audit_log_db_prepared = 0;
-# in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
-# the hash if required
-our $radius_audit_log_statements = {};
 
 our $logger = get_logger();
 
@@ -242,18 +234,6 @@ sub radius_audit_log_cleanup {
     }
     $logger->info( "deleted $rows_deleted entries from radius_audit_log after cleanup ($start_time $end_time) ");
     return;
-}
-
-=head2 @entries = radius_audit_log_custom($sql, @args)
-
-Custom sql query for radius audit log
-
-=cut
-
-sub radius_audit_log_custom {
-    my ($sql, @args) = @_;
-    $radius_audit_log_statements->{'radius_audit_log_custom_sql'} = $sql;
-    return db_data(RADIUS_AUDIT_LOG, $radius_audit_log_statements, 'radius_audit_log_custom_sql', @args);
 }
 
 =head1 AUTHOR
