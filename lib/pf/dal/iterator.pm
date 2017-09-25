@@ -48,7 +48,7 @@ sub next_item {
         return undef;
     }
     my $class = $self->class;
-    return defined $class : $class->new_from_table($row) : $row;
+    return defined $class ? $class->new_from_table($row) : $row;
 }
 
 =head2 get_all_items
@@ -61,7 +61,6 @@ sub get_all_items {
     my ($self) = @_;
     my $sth = $self->sth;
     return undef unless defined $sth;
-    my $sth = $self->sth;
     my $items = $sth->fetchall_arrayref({});
     $sth->finish;
     $self->sth(undef);
