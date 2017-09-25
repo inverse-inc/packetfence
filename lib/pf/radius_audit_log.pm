@@ -233,7 +233,7 @@ sub radius_audit_log_cleanup {
         -limit => $batch,
     };
     while (1) {
-        my ($status, $rows) = pf::dal::radius_audit_log->delete_search($where, $extra);
+        my ($status, $rows) = pf::dal::radius_audit_log->remove_by_search($where, $extra);
         $end_time = time;
         $rows_deleted += $rows if $rows > 0;
         $logger->trace( sub { "deleted $rows_deleted entries from radius_audit_log during radius_audit_log cleanup ($start_time $end_time) "; }
