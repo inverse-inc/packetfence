@@ -16,6 +16,7 @@ use warnings;
 use Moose;
 use namespace::autoclean;
 use pf::dhcp_option82;
+use pf::dal::dhcp_option82;
 use pf::error qw(is_error is_success);
 use SQL::Abstract::More;
 use POSIX qw(ceil);
@@ -51,32 +52,26 @@ sub search {
     $params->{page_num} ||= 1;
     $params->{per_page} ||= 25;
     my $sqla = SQL::Abstract::More->new;
-    my @where_options = $self->_build_where($params);
-    my @additional_options = ($self->_build_limit($params),$self->_build_order_by($params));
-    my $table = $self->table;
-    my ($sql, @bind) = $sqla->select(
-        -from => $table,
-        @where_options,
-        @additional_options
-    );
-    my @items =  dhcp_option82_custom($sql, @bind);
-    ($sql, @bind) = $sqla->select(
-        -from => $table,
-        -columns => [qw(count(*)|count)],
-        @where_options,
-    );
-    my @count =  dhcp_option82_custom($sql, @bind);
-    my %results;
-    my $count = 0;
-    if($count[0]) {
-        $count = $count[0]->{count};
+    my $where = $self->_build_where($params);
+    my %extra_options = ($self->_build_limit($params),$self->_build_order_by($params));
+    my ($status, $iter) = pf::dal::dhcp_option82->search($where, \%extra_options);
+    if (is_error($status)) {
+        return ($status, "Error searching in dhcp_option82");
+    }
+    $iter->class(undef);
+    my $items = $iter->get_all_items;
+    ($status, my $count) = pf::dal::dhcp_option82->count($where);
+    if (is_error($status)) {
+        return ($status, "Error searching in dhcp_option82");
     }
     my $per_page = $params->{per_page};
-    $results{items} = \@items;
-    $results{count} = $count;
-    $results{page_count} = ceil( $count / $per_page );
-    $results{per_page} = $per_page;
-    $results{page_num} = $params->{page_num};
+    my %results = (
+        items => $items,
+        count => $count,
+        page_count => ceil( $count / $per_page ),
+        per_page => $per_page,
+        page_num => $params->{page_num},
+    );
     return ($STATUS::OK,\%results);
 }
 
@@ -90,7 +85,7 @@ sub _build_where {
         my $relational_op = $all_or_any eq "any" ? "-or" : "-and";
         $where{$relational_op} =  \@clauses;
     }
-    return -where => \%where;
+    return \%where;
 }
 
 sub _build_limit {
