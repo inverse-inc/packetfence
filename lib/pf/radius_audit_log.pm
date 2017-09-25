@@ -36,6 +36,8 @@ BEGIN {
 
 use pf::log;
 use pf::db;
+use pf::error qw(is_success);
+use pf::dal::radius_audit_log;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $radius_audit_log_db_prepared = 0;
@@ -128,41 +130,7 @@ our @SWITCH_FIELDS = qw(
     ssid
 );
 
-our $FIELD_LIST = join(", ",@FIELDS);
-
-our $INSERT_LIST = join(", ", ("?") x @FIELDS);
-
 =head1 SUBROUTINES
-
-=head2 radius_audit_log_db_prepare()
-
-Prepare the sql statements for radius_audit_log table
-
-=cut
-
-sub radius_audit_log_db_prepare {
-    $logger->debug("Preparing pf::radius_audit_log database queries");
-    my $dbh = get_db_handle();
-
-    $radius_audit_log_statements->{'radius_audit_log_add_sql'} = $dbh->prepare(
-        qq[ INSERT INTO radius_audit_log ( $FIELD_LIST ) VALUES ( $INSERT_LIST ) ]);
-
-    $radius_audit_log_statements->{'radius_audit_log_view_sql'} = $dbh->prepare(
-        qq[ SELECT id, created_at, $FIELD_LIST FROM radius_audit_log WHERE id = ? ]);
-
-    $radius_audit_log_statements->{'radius_audit_log_view_all_sql'} = $dbh->prepare(
-        qq[ SELECT id, created_at, $FIELD_LIST FROM radius_audit_log ORDER BY id LIMIT ?, ? ]);
-
-    $radius_audit_log_statements->{'radius_audit_log_count_all_sql'} = $dbh->prepare( qq[ SELECT count(*) as count FROM radius_audit_log ]);
-
-    $radius_audit_log_statements->{'radius_audit_log_delete_sql'} = $dbh->prepare(qq[ delete from radius_audit_log where pid=? ]);
-
-    $radius_audit_log_statements->{'radius_audit_log_cleanup_sql'} = $dbh->prepare(
-        qq [ delete from radius_audit_log where created_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?]);
-
-    $radius_audit_log_db_prepared = 1;
-}
-
 
 =head2 $success = radius_audit_log_delete($id)
 
@@ -172,9 +140,8 @@ Delete a radius_audit_log entry
 
 sub radius_audit_log_delete {
     my ($id) = @_;
-    db_query_execute(RADIUS_AUDIT_LOG, $radius_audit_log_statements, 'radius_audit_log_delete_sql', $id) || return (0);
-    $logger->info("radius_audit_log $id deleted");
-    return (1);
+    my $status = pf::dal::radius_audit_log->remove_by_id({id => $id});
+    return (is_success($status));
 }
 
 
@@ -186,8 +153,9 @@ Add a radius_audit_log entry
 
 sub radius_audit_log_add {
     my %data = @_;
-    db_query_execute(RADIUS_AUDIT_LOG, $radius_audit_log_statements, 'radius_audit_log_add_sql', @data{@FIELDS}) || return (0);
-    return (1);
+    my $item = pf::dal::radius_audit_log->new(%data);
+    my $status = $item->insert;
+    return (is_success($status));
 }
 
 =head2 $entry = radius_audit_log_view($id)
@@ -198,12 +166,11 @@ View a radius_audit_log entry by it's id
 
 sub radius_audit_log_view {
     my ($id) = @_;
-    my $query  = db_query_execute(RADIUS_AUDIT_LOG, $radius_audit_log_statements, 'radius_audit_log_view_sql', $id)
-        || return (0);
-    my $ref = $query->fetchrow_hashref();
-    # just get one row and finish
-    $query->finish();
-    return ($ref);
+    my ($status, $item) = pf::dal::radius_audit_log->find({id=>$id});
+    if (is_error($status)) {
+        return (0);
+    }
+    return ($item);
 }
 
 =head2 $count = radius_audit_log_count_all()
@@ -213,10 +180,8 @@ Count all the entries radius_audit_log
 =cut
 
 sub radius_audit_log_count_all {
-    my $query = db_query_execute(RADIUS_AUDIT_LOG, $radius_audit_log_statements, 'radius_audit_log_count_all_sql');
-    my @row = $query->fetchrow_array;
-    $query->finish;
-    return $row[0];
+    my ($status, $count) = pf::dal::radius_audit_log->count;
+    return $count;
 }
 
 =head2 @entries = radius_audit_log_view_all($offset, $limit)
@@ -229,37 +194,54 @@ sub radius_audit_log_view_all {
     my ($offset, $limit) = @_;
     $offset //= 0;
     $limit  //= 25;
-
-    return db_data(RADIUS_AUDIT_LOG, $radius_audit_log_statements, 'radius_audit_log_view_all_sql', $offset, $limit);
+    my ($status, $iter) = pf::dal::radius_audit_log->search({}, {
+        -offset => $offset,
+        -limit => $limit,
+    });
+    return if is_error($status);
+    my $items = pf::dal::radius_audit_log->get_all_items();
+    return @$items;
 }
 
+=head2 radius_audit_log_cleanup($expire_seconds, $batch, $time_limit)
+
+Cleans up the radius_audit_log_cleanup table
+
+=cut
+
 sub radius_audit_log_cleanup {
-    my $timer = pf::StatsD::Timer->new({sample_rate => 0.2});
-    my ($expire_seconds, $batch, $time_limit) = @_;
+    my $timer = pf::StatsD::Timer->new( { sample_rate => 0.2 } );
+    my ( $expire_seconds, $batch, $time_limit ) = @_;
     my $logger = get_logger();
-    $logger->debug(sub { "calling radius_audit_log_cleanup with time=$expire_seconds batch=$batch timelimit=$time_limit" });
-    
-    if($expire_seconds eq "0") {
+    $logger->debug( sub { "calling radius_audit_log_cleanup with time=$expire_seconds batch=$batch timelimit=$time_limit"; });
+
+    if ( $expire_seconds eq "0" ) {
         $logger->debug("Not deleting because the window is 0");
         return;
     }
 
-    my $now = db_now();
+    my $now        = db_now();
     my $start_time = time;
     my $end_time;
     my $rows_deleted = 0;
+    my $where = {
+        created_at => {
+            "<" => \[ 'DATE_SUB(?, INTERVAL ? SECOND)', $now, $expire_seconds ]
+        },
+    };
+    my $extra = {
+        -limit => $batch,
+    };
     while (1) {
-        my $query = db_query_execute(RADIUS_AUDIT_LOG, $radius_audit_log_statements, 'radius_audit_log_cleanup_sql', $now, $expire_seconds, $batch)
-        || return (0);
-        my $rows = $query->rows;
-        $query->finish;
+        my ($status, $rows) = pf::dal::radius_audit_log->delete_search($where, $extra);
         $end_time = time;
-        $rows_deleted+=$rows if $rows > 0;
-        $logger->trace( sub { "deleted $rows_deleted entries from radius_audit_log during radius_audit_log cleanup ($start_time $end_time) " });
-        last if $rows <= 0 || (( $end_time - $start_time) > $time_limit );
+        $rows_deleted += $rows if $rows > 0;
+        $logger->trace( sub { "deleted $rows_deleted entries from radius_audit_log during radius_audit_log cleanup ($start_time $end_time) "; }
+        );
+        last if $rows <= 0 || ( ( $end_time - $start_time ) > $time_limit );
     }
-    $logger->trace( "deleted $rows_deleted entries from radius_audit_log during radius_audit_log cleanup ($start_time $end_time) " );
-    return (0);
+    $logger->info( "deleted $rows_deleted entries from radius_audit_log after cleanup ($start_time $end_time) ");
+    return;
 }
 
 =head2 @entries = radius_audit_log_custom($sql, @args)
