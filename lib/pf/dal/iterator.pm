@@ -40,10 +40,34 @@ Get the next item from the iterator
 sub next_item {
     my ($self) = @_;
     my $sth = $self->sth;
+    return undef unless defined $sth;
     my $row = $sth->fetchrow_hashref;
-    return undef unless defined $row;
+    unless (defined $row) {
+        $sth->finish;
+        $self->sth(undef);
+        return undef;
+    }
     my $class = $self->class;
-    return $class->new_from_table($row);
+    return defined $class : $class->new_from_table($row) : $row;
+}
+
+=head2 get_all_items
+
+Get all the items for the iterator
+
+=cut
+
+sub get_all_items {
+    my ($self) = @_;
+    my $sth = $self->sth;
+    return undef unless defined $sth;
+    my $sth = $self->sth;
+    my $items = $sth->fetchall_arrayref({});
+    $sth->finish;
+    $self->sth(undef);
+    my $class = $self->class;
+    return $items unless defined $class;
+    return [map {$class->new_from_table($_)} @$items];
 }
 
 =head2 DESTROY
@@ -54,7 +78,10 @@ Cleanup after iterator goes out of scope
 
 sub DESTROY {
     my ($self) = @_;
-    $self->sth->finish;
+    my $sth = $self->sth;
+    if ($sth) {
+        $sth->finish;
+    }
 }
  
 =head1 AUTHOR
