@@ -173,11 +173,13 @@ Get the count of the table
 =cut
 
 sub count {
-    my ($proto) = @_;
+    my ($proto, $where, $extra) = @_;
     my $sqla = $proto->get_sql_abstract;
     my($stmt, @bind) = $sqla->select(
         -columns => ['COUNT(*)|count'],
         -from    => $proto->table,
+        -where   => $where // {},
+        %{$extra // {}},
     );
     my ($status, $sth) = $proto->db_execute($stmt, @bind);
     return $status, undef if is_error($status);
