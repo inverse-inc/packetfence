@@ -18,7 +18,6 @@ New Features
 ++++++++++++
 
 * Added a RADIUS only mode to PacketFence.
-* Added the possibility to import switches from a CSV file.
 * Add a cluster wide view of pfqueue statistics (#2195) (PR #2573)
 * Added the possibility of importing switches from a CSV file. (PR #2480)
 
