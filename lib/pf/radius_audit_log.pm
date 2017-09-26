@@ -36,6 +36,7 @@ BEGIN {
 use pf::log;
 use pf::error qw(is_success is_error);
 use pf::dal::radius_audit_log;
+use pf::db;
 
 our $logger = get_logger();
 
