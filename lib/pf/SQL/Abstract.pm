@@ -14,6 +14,7 @@ pf::SQL::Abstract
 
 use strict;
 use warnings;
+use SQL::Abstract::Plugin::InsertMulti;
 use parent qw(SQL::Abstract::More);
 use MRO::Compat;
 use mro 'c3'; # implements next::method
