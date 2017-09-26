@@ -14,8 +14,10 @@ pf::pfmon::task::cleanup_chi_database_cache
 
 use strict;
 use warnings;
-use pf::db;
 use pf::log;
+use pf::db;
+use pf::dal::chi_cache;
+use pf::error qw(is_error);
 use Moose;
 extends qw(pf::pfmon::task);
 
@@ -39,13 +41,20 @@ sub run {
     my $start_time = time;
     my $end_time;
     my $rows_deleted = 0;
-    my $dbh = get_db_handle();
-
-    my $sth = $dbh->prepare_cached("DELETE from chi_cache where ? > expires_at LIMIT ?");
+    my $now        = db_now();
+    my $where = {
+        expires_at  => {
+            "<=" => $now,
+        },
+    };
+    my $extra = {
+        -limit => $batch,
+    };
     while (1) {
-        my $rows = $sth->execute(time, $batch);
-        unless($rows) {
-            $logger->error("Issue executing statement: ". $sth->errstr);
+        my ($status, $rows) = pf::dal::chi_cache->remove_by_search($where, $extra);
+        if (is_error($status)) {
+            $logger->error("Error running cleanup");
+            last;
         }
         $rows_deleted += $rows if $rows > 0;
         $logger->debug("Deleted '$rows_deleted' entries from the CHI database cache");
