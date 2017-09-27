@@ -551,10 +551,10 @@ Checks if item exists
 =cut
 
 sub does_exists {
-    my ($self, $ids) = @_;
-    my $where = $self->build_primary_keys_where_clause($ids);
+    my ($proto, $ids) = @_;
+    my $where = $proto->build_primary_keys_where_clause($ids);
     my $sqla = $proto->get_sql_abstract;
-    my($stmt, @bind) = $sqla->select(
+    my($sql, @bind) = $sqla->select(
         -columns => [\1],
         -from    => $proto->table,
         -where   => $where,
