@@ -541,6 +541,30 @@ sub remove_by_id {
     return $STATUS::NOT_FOUND;
 }
 
+
+=head2 does_exists
+
+Checks if item exists
+
+=cut
+
+sub does_exists {
+    my ($self, $ids) = @_;
+    my $where = $self->build_primary_keys_where_clause($ids);
+    my $sqla = $proto->get_sql_abstract;
+    my($stmt, @bind) = $sqla->select(
+        -columns => [\1],
+        -from    => $proto->table,
+        -where   => $where,
+        -limit   => 1,
+    );
+    my ($status, $sth) = $proto->db_execute($sql, @bind);
+    if ($sth->rows) {
+        return $STATUS::OK;
+    }
+    return $STATUS::NOT_FOUND;
+}
+
 =head2 build_primary_keys_where_clause
 
 =cut
