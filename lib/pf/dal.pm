@@ -28,6 +28,8 @@ use Class::XSAccessor {
     accessors => [qw(__from_table __old_data)],
 };
 
+our $CURRENT_TENANT = 0;
+
 =head2 new
 
 Create a new pf::dal object
@@ -677,6 +679,11 @@ sub merge {
         $self->{$field} = $vals->{$field};
     }
     return ;
+}
+
+sub set_tentant {
+    my ($class, $tentant_id) = @_;
+    $CURRENT_TENANT = $tentant_id;
 }
 
 =head1 AUTHOR
