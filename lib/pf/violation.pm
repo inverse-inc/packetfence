@@ -145,8 +145,6 @@ sub violation_db_prepare {
     my $logger = get_logger();
     $logger->debug("Preparing pf::violation database queries");
 
-    $violation_statements->{'violation_desc_sql'} = get_db_handle()->prepare(qq [ desc violation ]);
-
     $violation_statements->{'violation_add_sql'} = get_db_handle()->prepare(
         qq [ insert into violation(mac,vid,start_date,release_date,status,ticket_ref,notes) values(?,?,?,?,?,?,?) ]);
 
@@ -237,12 +235,6 @@ sub violation_db_prepare {
 
     $violation_db_prepared = 1;
     return 1;
-}
-
-#
-#
-sub violation_desc {
-    return db_data(VIOLATION, $violation_statements, 'violation_desc_sql');
 }
 
 #
