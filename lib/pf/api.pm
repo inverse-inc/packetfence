@@ -353,7 +353,7 @@ ReAssignVlan_in_queue is use to localy use ReAssignVlan function in pfqueue to g
 
 sub ReAssignVlan_in_queue : Public {
     my ($class, %postdata )  = @_;
-    my $client = pf::api::queue->new(queue => 'general');
+    my $client = pf::api::queue->new(queue => 'priority');
     $client->notify( 'ReAssignVlan', %postdata );
 }
 
@@ -388,7 +388,7 @@ desAssociate is use to localy use desAssociate function in pfqueue to get rid of
 
 sub desAssociate_in_queue : Public {
     my ($class, %postdata )  = @_;
-    my $client = pf::api::queue->new(queue => 'general');
+    my $client = pf::api::queue->new(queue => 'priority');
     $client->notify( 'desAssociate', %postdata );
 }
 
