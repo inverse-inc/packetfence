@@ -59,7 +59,6 @@ BEGIN {
         node_view
         node_count_all
         node_view_all
-        node_view_with_fingerprint
         node_view_reg_pid
         node_modify
         node_register
@@ -248,32 +247,6 @@ sub node_db_prepare {
        FROM locationlog
        WHERE mac = ? AND end_time = 0
     SQL
-
-    # DEPRECATED see node_view_with_fingerprint()'s POD
-    $node_statements->{'node_view_with_fingerprint_sql'} = get_db_handle()->prepare(
-        qq[
-        SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status,
-            IF(ISNULL(nc.name), '', nc.name) as category,
-            IF(ISNULL(nr.name), '', nr.name) as bypass_role ,
-            node.detect_date, node.regdate, node.unregdate, node.lastskip,
-            node.user_agent, node.computername, device_class AS dhcp_fingerprint,
-            node.last_arp, node.last_dhcp,
-            locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan,
-            IF(ISNULL(locationlog.connection_type), '', locationlog.connection_type) as last_connection_type,
-            locationlog.dot1x_username as last_dot1x_username, locationlog.ssid as last_ssid,
-            locationlog.stripped_user_name as stripped_user_name, locationlog.realm as realm,
-            locationlog.role as last_role,
-            COUNT(DISTINCT violation.id) as nbopenviolations,
-            node.notes
-        FROM node
-            LEFT JOIN node_category as nr on node.bypass_role_id = nr.category_id
-            LEFT JOIN node_category as nc on node.category_id = nc.category_id
-            LEFT JOIN violation ON node.mac=violation.mac AND violation.status = 'open'
-            LEFT JOIN locationlog ON node.mac=locationlog.mac AND end_time = 0
-        GROUP BY node.mac
-        HAVING node.mac=?
-    ]
-    );
 
     # This guy here is not in a prepared statement yet, have a look in node_view_all to see why
     $node_statements->{'node_view_all_sql'} = qq[
@@ -836,27 +809,6 @@ sub node_view_all {
     import pf::pfcmd::report;
     my @data = translate_connection_type(db_data(NODE, $node_statements, 'node_view_all_sql_custom'));
     return @data;
-}
-
-=item node_view_with_fingerprint
-
-DEPRECATED: This has been kept in case of regressions in the new
-node_attributes_with_fingerprint code.  This code will disappear in 2013.
-
-=cut
-
-sub node_view_with_fingerprint {
-    my $timer = pf::StatsD::Timer->new({level => 6});
-    my ($mac) = @_;
-    my $logger = get_logger();
-
-    $logger->warn("DEPRECATED! You should migrate the caller to the faster node_attributes_with_fingerprint");
-    my $query = db_query_execute(NODE, $node_statements, 'node_view_with_fingerprint_sql', $mac) || return (0);
-    my $ref = $query->fetchrow_hashref();
-
-    # just get one row and finish
-    $query->finish();
-    return ($ref);
 }
 
 sub node_modify {
