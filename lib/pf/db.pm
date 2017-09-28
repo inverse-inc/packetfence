@@ -170,7 +170,6 @@ sub db_disconnect {
         my $logger = get_logger();
         $logger->debug("disconnecting db");
         $DBH->disconnect();
-        $DBH = undef;
         $LAST_CONNECT = 0;
     }
 }
@@ -532,7 +531,12 @@ In order to take effect must be set before connecting to the database
 sub db_set_max_statement_timeout {
     my ($timeout) = @_;
     $timeout //= 0.0;
-    $MAX_STATEMENT_TIME = $timeout + 0.0;
+    $timeout += 0.0;
+    if ($MAX_STATEMENT_TIME != $timeout) {
+        db_disconnect();
+        $DBH = undef;
+        $MAX_STATEMENT_TIME = $timeout;
+    }
 }
 
 =head2 db_get_max_statement_timeout
