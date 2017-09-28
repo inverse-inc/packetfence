@@ -21,6 +21,8 @@ New Features
 Enhancements
 ++++++++++++
 
+* Create a priority queue
+* Move ReAssignVlan and desAssociate api calls to the priority queue
 
 Bug Fixes
 +++++++++
