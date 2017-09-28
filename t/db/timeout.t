@@ -35,9 +35,12 @@ my $dbh  = eval {
     db_connect();
 };
 
+
+my $sql = "SELECT SLEEP(2) as sleep;";
+
 BAIL_OUT("Cannot connect to dbh") unless $dbh;
 
-my $sth = $dbh->prepare("SELECT SLEEP(2) as sleep;");
+my $sth = $dbh->prepare($sql);
 
 $sth->execute();
 
@@ -47,13 +50,11 @@ is($row->{sleep}, 0, "Sleep did not timeout");
 
 $sth->finish;
 
-db_disconnect();
-
 db_set_max_statement_timeout(1);
 
 $dbh = db_connect();
 
-$sth = $dbh->prepare("SELECT SLEEP(2) as sleep;");
+$sth = $dbh->prepare($sql);
 
 $sth->execute();
 
