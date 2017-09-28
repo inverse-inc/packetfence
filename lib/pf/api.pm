@@ -268,7 +268,7 @@ sub unreg_node_for_pid : Public:AllowedAsAction(pid, $pid) {
         pf::node::node_deregister($node_info->{'mac'});
     }
 
-    return 1;
+    return scalar(@node_infos);
 }
 
 sub synchronize_locationlog : Public {
