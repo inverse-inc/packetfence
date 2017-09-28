@@ -260,15 +260,17 @@ sub unreg_node_for_pid : Public:AllowedAsAction(pid, $pid) {
     my @require = qw(pid);
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
+    my $pid = $postdata{'pid'};
 
-    my @node_infos =  pf::node::node_view_reg_pid($postdata{'pid'});
-    $logger->info("Unregistering ".scalar(@node_infos)." node(s) for ".$postdata{'pid'});
+    my @node_infos = pf::node::node_view_reg_pid($pid);
+    my $count = scalar(@node_infos);
+    $logger->info("Unregistering $count node(s) for $pid");
 
     foreach my $node_info ( @node_infos ) {
         pf::node::node_deregister($node_info->{'mac'});
     }
 
-    return scalar(@node_infos);
+    return $count;
 }
 
 sub synchronize_locationlog : Public {
