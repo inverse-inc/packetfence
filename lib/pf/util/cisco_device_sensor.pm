@@ -821,7 +821,7 @@ sub _dhcp_vendor {
 
 sub _computer_name {
     my ($value) = @_;
-    return {'computer_name' => $value};
+    return {'computername' => $value};
 }
 
 sub _user_agent {

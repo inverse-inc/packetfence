@@ -28,6 +28,7 @@ use pf::util::radius qw(perform_coa);
 use pf::node qw(node_attributes);
 use pf::util::cisco_device_sensor;
 use Hash::Merge qw (merge);
+use pf::client;
 
 # CAPABILITIES
 # special features
@@ -1824,8 +1825,9 @@ sub acctVoipDetect {
             my $role_obj = new pf::role::custom();
             my %autoreg_node_defaults = $role_obj->getNodeInfoForAutoReg($decoded);
             $node_attributes = merge($node_attributes, \%autoreg_node_defaults);
-            $self->{api_client}->notify('modify_node', %{$node_attributes} );
-            $self->{api_client}->notify('reevaluate_access', %{$decoded} ) if ( $node_attributes->{'voip'} eq 'no');
+            my $apiclient = pf::client::getClient;
+            $apiclient->notify('modify_node', %{$node_attributes} );
+            $apiclient->notify('reevaluate_access', %{$decoded} ) if ( $node_attributes->{'voip'} eq 'no');
          }
      }
     return;
@@ -1839,9 +1841,10 @@ Extract fingerprint information from radius accounting attributes.
 
 sub acctFingerprint {
     my ( $self, $decoded) = @_;
-    if ($decoded->{dhcp_tlv} || $decoded->{http_tlv}) {
-        $self->{api_client}->notify('modify_node', %{$decoded} );
-        $self->{api_client}->notify('fingerbank_process', \%{$decoded} );
+    if ($decoded->{'dhcp-option'} || $decoded->{http_tlv}) {
+        my $apiclient = pf::client::getClient;
+        $apiclient->notify('modify_node', %{$decoded} );
+        $apiclient->notify('fingerbank_process', \%{$decoded} );
      }
     return;
 }
