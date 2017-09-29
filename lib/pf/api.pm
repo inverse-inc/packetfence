@@ -1360,15 +1360,6 @@ sub handle_accounting_metadata : Public {
             pf::log::get_logger->debug("Not handling iplog update because we're not configured to do so on accounting packets.");
         }
     }
-    if ($RAD_REQUEST{'Acct-Status-Type'} == $ACCOUNTING::STOP || $RAD_REQUEST{'Acct-Status-Type'} == $ACCOUNTING::INTERIM_UPDATE ) {
-        my $radius = new pf::radius::custom();
-        eval {
-            $return = $radius->accounting(\%RAD_REQUEST);
-        };
-        if ($@) {
-            $logger->error("radius accounting failed with error: $@");
-        }
-    }
     return $return;
 }
 
