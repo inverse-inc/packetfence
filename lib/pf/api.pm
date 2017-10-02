@@ -1350,7 +1350,7 @@ sub handle_accounting_metadata : Public {
         $client->notify("radius_update_locationlog", %RAD_REQUEST);
     }
 
-    if ($RAD_REQUEST{'Acct-Status-Type'} == $ACCOUNTING::STOP){
+    if ($RAD_REQUEST{'Acct-Status-Type'} != $ACCOUNTING::STOP){
         # Tracking IP address.
         if(pf::util::isenabled($pf::config::Config{advanced}{update_iplog_with_accounting})){
             $logger->info("Updating iplog from accounting request");
