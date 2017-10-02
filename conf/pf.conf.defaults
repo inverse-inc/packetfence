@@ -796,6 +796,11 @@ sso_on_access_reevaluation=disabled
 #
 # Trigger Single-Sign-On (Firewall SSO) on accounting
 sso_on_accounting=disabled
+# advanced.sso_on_dhcp
+#
+# Trigger Single-Sign-On (Firewall SSO) on dhcp
+sso_on_dhcp=enabled
+#
 #
 # advanced.record_accounting_in_sql
 #
