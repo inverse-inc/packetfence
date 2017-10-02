@@ -23,7 +23,7 @@ use pf::log;
 use Readonly;
 use pf::StatsD::Timer;
 use pf::util::statsd qw(called);
-use pf::error qw(is_success);
+use pf::error qw(is_success is_error);
 use pf::constants::parking qw($PARKING_VID);
 use CHI::Memoize qw(memoized);
 use pf::dal::node;
@@ -378,30 +378,17 @@ sub node_db_prepare {
     return 1;
 }
 
-=item _node_exist
-
-The real implemntation of _node_exist
-
-=cut
-
-sub _node_exist {
-    my ($mac) = @_;
-    my $query = db_query_execute(NODE, $node_statements, 'node_exist_sql', $mac) || return (0);
-    my ($val) = $query->fetchrow_array();
-    $query->finish();
-    return ($val);
-}
-
 #
 # return mac if the node exists
 #
 sub node_exist {
     my ($mac) = @_;
     $mac = clean_mac($mac);
-    if ($mac) {
-        return pf::node::_node_exist($mac);
+    unless ($mac) {
+        return (0);
     }
-    return (0);
+    my $status = pf::dal::node->does_exists({mac => $mac});
+    return (is_success($status));
 }
 
 #
