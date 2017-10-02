@@ -35,7 +35,7 @@ sub view {
     my $item = radius_audit_log_view($id);
     return ($STATUS::NOT_FOUND,["Item [_1] not found", $id]) unless defined $item;
     _unescape_item($item);
-    return ($STATUS::OK,$item);
+    return ($STATUS::OK, $item);
 }
 
 sub view_entries {
@@ -45,7 +45,7 @@ sub view_entries {
     my $offset = $page_number - 1;
     $offset = 0 if $offset < 0;
     my @items = radius_audit_log_view_all($offset, $items_per_page);
-    return ($STATUS::OK,\@items);
+    return ($STATUS::OK, \@items);
 }
 
 sub search {
@@ -59,8 +59,7 @@ sub search {
     if (is_error($status)) {
         return ($status, "Error searching in radius_audit_log");
     }
-    $iter->class(undef);
-    my $items = $iter->get_all_items;
+    my $items = $iter->get_all_items(undef);
     foreach my $item (@$items) {
         _unescape_item($item);
     }
@@ -76,7 +75,7 @@ sub search {
         per_page => $per_page,
         page_num => $params->{page_num},
     );
-    return ($STATUS::OK,\%results);
+    return ($STATUS::OK, \%results);
 }
 
 sub _unescape_item {
