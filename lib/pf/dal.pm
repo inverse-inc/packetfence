@@ -245,6 +245,27 @@ sub update {
     return $STATUS::NOT_FOUND;
 }
 
+=head2 update_items
+
+update items
+
+=cut
+
+sub update_items {
+    my ($self, $set, $where) = @_;
+    my $sqla          = $self->get_sql_abstract;
+    my ($stmt, @bind) = $sqla->update(
+        -table => $self->table,
+        -set   => $set,
+        -where => $where,
+    );
+    my ($status, $sth) = $self->db_execute($stmt, @bind);
+    return $status, undef if is_error($status);
+
+    my $rows = $sth->rows;
+    return $STATUS::OK, $rows;
+}
+
 =head2 insert
 
 Insert the pf::dal object
