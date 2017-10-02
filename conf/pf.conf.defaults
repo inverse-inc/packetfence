@@ -792,6 +792,11 @@ portal_csp_security_headers=enabled
 # Trigger Single-Sign-On (Firewall SSO) on access reevaluation
 sso_on_access_reevaluation=disabled
 #
+# advanced.sso_on_accounting
+#
+# Trigger Single-Sign-On (Firewall SSO) on accounting
+sso_on_accounting=disabled
+#
 # advanced.record_accounting_in_sql
 #
 # Record the accounting data in the SQL tables.

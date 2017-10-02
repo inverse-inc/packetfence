@@ -1360,7 +1360,31 @@ sub handle_accounting_metadata : Public {
             pf::log::get_logger->debug("Not handling iplog update because we're not configured to do so on accounting packets.");
         }
     }
+    $client->notify("firewallsso_accounting", %RAD_REQUEST);
+
     return $return;
+}
+
+
+sub firewallsso_accounting : Public {
+    my ($class, %RAD_REQUEST) = @_;
+    my $logger = pf::log::get_logger();
+
+    if ($RAD_REQUEST{'Calling-Station-Id'} && $RAD_REQUEST{'Framed-IP-Address'} && isenabled($pf::config::Config{advanced}{sso_on_accounting})) {
+        my $mac = pf::util::clean_mac($RAD_REQUEST{'Calling-Station-Id'});
+        my $node = node_attributes($mac);
+        my $ip = $RAD_REQUEST{'Framed-IP-Address'};
+        if($ip){
+            my $firewallsso_method = ( $node->{status} eq $pf::node::STATUS_REGISTERED ) ? "Update" : "Stop";
+            $firewallsso_method = ($RAD_REQUEST{'Acct-Status-Type'} == $ACCOUNTING::STOP) ? "Stop" : "Update";
+
+            my $client = pf::client::getClient();
+            $client->notify( 'firewallsso', (method => $firewallsso_method, mac => $mac, ip => $ip, timeout => "30") );
+        }
+        else {
+            $logger->error("Can't do SSO for $mac because can't find its IP address");
+        }
+    }
 }
 
 =head2 services_status
