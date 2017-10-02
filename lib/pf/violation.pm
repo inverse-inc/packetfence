@@ -393,7 +393,6 @@ sub violation_count_all {
     # Hack! Because of the nature of the query built here (we cannot prepare it), we construct it as a string
     # and pf::db will recognize it and prepare it as such
     $violation_statements->{'violation_count_all_sql_custom'} = $violation_count_all_sql;
-    #$logger->debug($node_count_all_sql);
 
     return db_data(VIOLATION, $violation_statements, 'violation_count_all_sql_custom');
 }
