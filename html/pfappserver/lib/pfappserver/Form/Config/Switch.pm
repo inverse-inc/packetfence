@@ -165,7 +165,7 @@ has_field 'VoIPAccountingDetect' =>
    label => 'VoIPAccountingDetect',
    default => undef,
    tags => { after_element => \&help,
-             help => 'Detect VoIP with the radius attributes contain in accounting'},
+             help => 'Detect VoIP with the radius attributes contained in accounting'},
   );
 
 has_field 'RadiusFingerprint' =>
@@ -174,7 +174,7 @@ has_field 'RadiusFingerprint' =>
    label => 'RadiusFingerprint',
    default => undef,
    tags => { after_element => \&help,
-             help => 'Enable fingerprinting with radius attributes contain in accounting'},
+             help => 'Enable fingerprinting with radius attributes contained in accounting'},
   );
 
 

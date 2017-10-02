@@ -1820,14 +1820,14 @@ sub acctVoipDetect {
 
     if ($decoded->{'isPhone'}) {
         my $node_attributes = node_attributes($decoded->{mac});
-        if ( $node_attributes->{'voip'} eq 'no') {
+        if ( $node_attributes->{'voip'} eq $NO) {
             require pf::role;
             my $role_obj = new pf::role::custom();
             my %autoreg_node_defaults = $role_obj->getNodeInfoForAutoReg($decoded);
             $node_attributes = merge($node_attributes, \%autoreg_node_defaults);
             my $apiclient = pf::client::getClient;
             $apiclient->notify('modify_node', %{$node_attributes} );
-            $apiclient->notify('reevaluate_access', %{$decoded} ) if ( $node_attributes->{'voip'} eq 'no');
+            $apiclient->notify('reevaluate_access', %{$decoded} ) if ( $node_attributes->{'voip'} eq $NO);
          }
      }
     return;
