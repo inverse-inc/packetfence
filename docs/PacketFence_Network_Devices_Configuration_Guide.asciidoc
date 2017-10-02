@@ -1995,6 +1995,44 @@ On uplink interfaces:
  ip dhcp snooping trust
  
 
+Device Sensor
++++++++++++++
+
+Device sensor is a way to be able to receive some informations about the device in the radius accounting packet.
+(Like DHCP, CDP, LLDP, HTTP informations)
+In order to enable Device Sensor feature, you need to add the following parameters.
+
+ radius server packetfence
+ address ipv4 192.168.1.5 auth-port 1812 acct-port 1813
+  key useStrongerSecret
+
+ aaa group server radius packetfence
+  server name packetfence
+ !
+ aaa accounting update newinfo
+ aaa accounting identity default start-stop group packetfence
+ !
+ !
+ device-sensor filter-list dhcp list dhcp-list
+  option name host-name
+  option name parameter-request-list
+  option name class-identifier
+ !
+ device-sensor filter-list lldp list lldp-list
+  tlv name system-description
+ !
+ device-sensor filter-list cdp list cdp-list
+  tlv name version-type
+  tlv name platform-type
+ !
+ device-sensor filter-list dhcp list lldp-list
+ device-sensor filter-spec dhcp include list dhcp-list
+ device-sensor filter-spec lldp include list lldp-list
+ device-sensor filter-spec cdp include list cdp-list
+ device-sensor notify all-changes
+
+This configuration will send send informations about DHCP, LLDP, CDP of the device threw the accounting packet.
+
 Router ISR 1800 Series 
 ++++++++++++++++++++++
 
@@ -4866,6 +4904,16 @@ In the event the WLC ignores the RADIUS replies from PacketFence (you receive mu
 
 * RADIUS secret is properly configured in PacketFence and the WLC controller.
 * The SSL certificate used by PacketFence is not expired.
+
+Device Sensor
++++++++++++++
+
+Device sensor is a way to be able to receive some informations about the device in the radius accounting packet.
+(Like DHCP, HTTP informations)
+In order to enable Device Sensor feature, you need to enable the following parameters.
+
+image::docs/images/wlc-device-sensor.png[scaledwidth="100%",alt="Device Sensor"]
+
 
 D-Link
 ~~~~~~
