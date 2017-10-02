@@ -43,8 +43,7 @@ sub next_item {
     return undef unless defined $sth;
     my $row = $sth->fetchrow_hashref;
     unless (defined $row) {
-        $sth->finish;
-        $self->sth(undef);
+        $self->finish;
         return undef;
     }
     my $class = $self->class;
@@ -62,11 +61,27 @@ sub get_all_items {
     my $sth = $self->sth;
     return undef unless defined $sth;
     my $items = $sth->fetchall_arrayref({});
-    $sth->finish;
-    $self->sth(undef);
+    $self->finish;
     my $class = $self->class;
     return $items unless defined $class;
     return [map {$class->new_from_table($_)} @$items];
+}
+
+=head2 finish
+
+finish
+
+=cut
+
+sub finish {
+    my ($self) = @_;
+    my $sth = $self->sth;
+    if (!defined $sth) {
+        return;
+    }
+    $sth->finish;
+    $self->sth(undef);
+    return ;
 }
 
 =head2 DESTROY
@@ -77,10 +92,7 @@ Cleanup after iterator goes out of scope
 
 sub DESTROY {
     my ($self) = @_;
-    my $sth = $self->sth;
-    if ($sth) {
-        $sth->finish;
-    }
+    $self->finish;
 }
  
 =head1 AUTHOR
