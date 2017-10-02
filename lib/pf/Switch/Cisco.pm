@@ -25,6 +25,10 @@ use pf::constants::role qw($MAC_DETECTION_ROLE);
 use pf::Switch::constants;
 use pf::util;
 use pf::util::radius qw(perform_coa);
+use pf::node qw(node_attributes);
+use pf::util::cisco_device_sensor;
+use Hash::Merge qw (merge);
+use pf::client;
 
 # CAPABILITIES
 # special features
@@ -1785,6 +1789,64 @@ sub cmnMacChangedNotificationTrapNormalizer {
         $trapHashRef->{'trapType'} = 'unknown';
     }
     return $trapHashRef;
+}
+
+=item acctProfiling
+
+Extract information from radius attributes
+
+=cut
+
+sub acctProfiling {
+    my ( $self, $radius_request) = @_;
+    my $decoded = decode_avpair($radius_request);
+    if (isenabled($self->{_VoIPAccountingDetect})) {
+        $self->acctVoipDetect($decoded);
+     }
+    if (isenabled($self->{_RadiusFingerprint})) {
+        $self->acctFingerprint($decoded);
+     }
+}
+
+=item acctVoipDetect
+
+Extract the cdp/lldp capabilitie from the radius accounting attribute.
+
+=cut
+
+sub acctVoipDetect {
+    my ( $self, $decoded) = @_;
+    $decoded->{'reason'} = 'node_modify';
+
+    if ($decoded->{'isPhone'}) {
+        my $node_attributes = node_attributes($decoded->{mac});
+        if ( $node_attributes->{'voip'} eq $NO) {
+            require pf::role;
+            my $role_obj = new pf::role::custom();
+            my %autoreg_node_defaults = $role_obj->getNodeInfoForAutoReg($decoded);
+            $node_attributes = merge($node_attributes, \%autoreg_node_defaults);
+            my $apiclient = pf::client::getClient;
+            $apiclient->notify('modify_node', %{$node_attributes} );
+            $apiclient->notify('reevaluate_access', %{$decoded} ) if ( $node_attributes->{'voip'} eq $NO);
+         }
+     }
+    return;
+}
+
+=item acctFingerprint
+
+Extract fingerprint information from radius accounting attributes.
+
+=cut
+
+sub acctFingerprint {
+    my ( $self, $decoded) = @_;
+    if ($decoded->{'dhcp-option'} || $decoded->{http_tlv}) {
+        my $apiclient = pf::client::getClient;
+        $apiclient->notify('modify_node', %{$decoded} );
+        $apiclient->notify('fingerbank_process', \%{$decoded} );
+     }
+    return;
 }
 
 =back

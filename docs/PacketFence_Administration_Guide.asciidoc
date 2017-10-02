@@ -4072,6 +4072,22 @@ Trigger a violation when discovering a node
 
 PacketFence is able to trigger a violation when a node is discovered on your network. It will send the trigger internal::node_discovered which is already part of violation 1300004. You can enable this violation with the default values and it will send a short report for every new device discovered by PacketFence. You can also execute any typical violation actions on during this process.
 
+Device Sensor for Cisco hardware
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Device Sensor is a way to receive information about the device connected on a switch/WLC.
+With this feature PacketFence receive the DHCP/LLDP/CDP/HTTP information in the accounting packet.
+In order to enable you need to configure the switch/WLC and you have to enable it on the PacketFence side too.
+
+To do that go in the Switch configuration and in the Radius Tab enable RadiusFingerprint.
+
+image::docs/images/radius_fingerprint.png[scaledwidth="100%",alt="Radius Fingerprint"]
+
+Since PacketFence receive information about LLDP and CDP, it's possible to detect that the device connected is VoIP capable.
+In order to update the information in PacketFence, go in the Switch configuration and in the Definition Tab, enable VoIPAccountingDetect.
+
+image::docs/images/VoIPAccountingDetection.png[scaledwidth="100%",alt="VoIP Accounting Detection"]
+
 Best Practices
 --------------
 

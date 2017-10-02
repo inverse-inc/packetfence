@@ -3613,6 +3613,17 @@ sub remove_switch_from_cache {
     }
 }
 
+=item acctProfiling
+
+Device profiling by accounting attributes.
+
+=cut
+
+sub acctProfiling {
+    my ( $class, $radius_request) = @_;
+    return;
+}
+
 =back
 
 =head1 AUTHOR
