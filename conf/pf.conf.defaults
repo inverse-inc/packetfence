@@ -341,7 +341,7 @@ dhcpd_binary=/usr/sbin/dhcpd
 # services.go_ipset
 #
 # Should go_ipset be managed by PacketFence?
-go_ipset=disabled
+go_ipset=enabled
 #
 # services.go_ipset_binary
 #
