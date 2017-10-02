@@ -373,7 +373,7 @@ sub violation_count_all {
     my ( $id, %params ) = @_;
     my $logger = get_logger();
 
-    # Hack! we prepare the statement here so that $node_count_all_sql is pre-filled
+    # Hack! we prepare the statement here so that $violation_count_all_sql is pre-filled
     violation_db_prepare() if (!$violation_db_prepared);
     my $violation_count_all_sql = $violation_statements->{'violation_count_all_sql'};
 
