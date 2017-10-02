@@ -691,54 +691,45 @@ sub node_count_all {
     # Hack! we prepare the statement here so that $node_count_all_sql is pre-filled
     node_db_prepare() if (!$node_db_prepared);
     my $node_count_all_sql = $node_statements->{'node_count_all_sql'};
-
+    my @conditions;
+    my @where = ();
     if ( defined( $params{'where'} ) ) {
-        my @where = ();
-        if ( $params{'where'}{'type'} ) {
-            if ( $params{'where'}{'type'} eq 'pid' ) {
-                push(@where, "node.pid = " . get_db_handle()->quote($params{'where'}{'value'}));
+        my $where = $params{'where'};
+        if ( $where->{'type'} ) {
+            if ( $where->{'type'} eq 'pid' ) {
+                push @conditions, {pid => $where->{'value'}};
             }
-            elsif ( $params{'where'}{'type'} eq 'category' ) {
-                my $cat_id = nodecategory_lookup($params{'where'}{'value'});
+            elsif ( $where->{'type'} eq 'category' ) {
+                my $cat_id = nodecategory_lookup($where->{'value'});
                 if (!defined($cat_id)) {
                     # lets be nice and issue a warning if the category doesn't exist
-                    $logger->warn("there was a problem looking up category ".$params{'where'}{'value'});
+                    $logger->warn("there was a problem looking up category " . $where->{'value'});
                     # put cat_id to 0 so it'll return 0 results (achieving the count ok)
                     $cat_id = 0;
                 }
-                push(@where, "category_id = " . $cat_id);
+                push @conditions, {category_id => $cat_id};
             }
-            elsif ( $params{'where'}{'type'} eq 'status') {
-                push(@where, "node.status = " . get_db_handle()->quote($params{'where'}{'value'}));
+            elsif ( $where->{'type'} eq 'status') {
+                push @conditions, {status => $where->{'value'}};
             }
-            elsif ( $params{'where'}{'type'} eq 'any' ) {
-                if (exists($params{'where'}{'like'})) {
-                    my $like = get_db_handle->quote('%' . $params{'where'}{'like'} . '%');
-                    my $where_any .= "(mac LIKE $like"
-                                   . " OR computername LIKE $like"
-                                   . " OR pid LIKE $like)";
-                    push(@where, $where_any);
+            elsif ( $where->{'type'} eq 'any' ) {
+                if (exists($where->{'like'})) {
+                    my $like = '%' . $where->{'like'} . '%';
+                    my $like_op = {'-like' => $like};
+                    push @conditions, [ -or => [{mac => $like_op}, { computername => $like_op  }, { pid => $like_op}]];
                 }
             }
         }
-        if ( ref($params{'where'}{'between'}) ) {
-            push(@where, sprintf '%s BETWEEN %s AND %s',
-                 $params{'where'}{'between'}->[0],
-                 get_db_handle()->quote($params{'where'}{'between'}->[1]),
-                 get_db_handle()->quote($params{'where'}{'between'}->[2]));
+        if ( ref($where->{'between'}) ) {
+            my $between = $where->{'between'};
+            push(@conditions, {$between->[0] => {-between => [@{$between}[1, 2]]}});
         }
-        if (@where) {
-            $node_count_all_sql .= ' WHERE ' . join(' AND ', @where);
+        if (@conditions) {
+            @where = (-and => \@conditions);
         }
     }
-
-    # Hack! Because of the nature of the query built here (we cannot prepare it), we construct it as a string
-    # and pf::db will recognize it and prepare it as such
-    $node_statements->{'node_count_all_sql_custom'} = $node_count_all_sql;
-    #$logger->debug($node_count_all_sql);
-
-    my @data =  db_data(NODE, $node_statements, 'node_count_all_sql_custom');
-    return @data;
+    my ($status, $count) = pf::dal::node->count(\@where);
+    return {nb => $count};
 }
 
 sub node_custom_search {
