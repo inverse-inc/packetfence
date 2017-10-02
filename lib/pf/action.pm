@@ -95,8 +95,7 @@ sub action_exist {
     if (is_error($status)) {
         return (0);
     }
-    $iter->class(undef);
-    my $items = $iter->get_all_items;
+    my $items = $iter->get_all_items(undef);
     return (scalar @$items);
 }
 
@@ -127,8 +126,7 @@ sub action_view_all {
     if (is_error($status)) {
         return;
     }
-    $iter->class(undef);
-    my $items = $iter->get_all_items;
+    my $items = $iter->get_all_items(undef);
     return @$items;
 }
 
