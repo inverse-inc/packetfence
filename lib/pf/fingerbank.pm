@@ -25,12 +25,14 @@ use fingerbank::Model::Endpoint;
 use fingerbank::Util;
 use pf::cluster;
 use pf::constants;
+use SQL::Abstract::More;
 use pf::constants::fingerbank qw($RATE_LIMIT);
 
 use pf::client;
 use pf::error qw(is_error);
 use pf::CHI;
 use pf::log;
+use pf::db;
 use pf::node qw(node_modify);
 use pf::StatsD::Timer;
 
@@ -108,10 +110,10 @@ sub process {
             my ( $class, $parents ) = _parse_parents($query_result);
 
             # Updating the node device type based on the result
-            node_modify( $mac, (
+            update_node($mac, {
                 'device_type'   => $query_result->{'device'}{'name'},
                 'device_class'  => $class,
-            ) );
+            });
 
             _trigger_violations($query_args, $query_result, $parents);
 
@@ -120,6 +122,33 @@ sub process {
         return $result;
     }, {expires_in => $RATE_LIMIT});
     return $result;
+}
+
+=head2 update_node
+
+update node using SQL::Abstract::More
+
+=cut
+
+sub update_node {
+    my ($mac, $values) = @_;
+    my $logger = pf::log::get_logger();
+    $values //= {};
+    if (keys %$values == 0) {
+        $logger->debug("Nothing to update");
+        return;
+    }
+    my $sqla = SQL::Abstract::More->new;
+    my ($sql, @bind) = $sqla->update('node', $values, {mac => $mac});
+    my $dbh = get_db_handle();
+    my $sth = $dbh->prepare($sql);
+    unless ($sth) {
+        $logger->error("Cannot prepare sql $sql : " . $dbh->errstr);
+        return;
+    }
+    unless ($sth->execute(@bind)) {
+        $logger->error("Cannot update node $mac : " . $sth->errstr);
+    }
 }
 
 =head2 _query
