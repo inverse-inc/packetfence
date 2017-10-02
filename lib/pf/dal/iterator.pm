@@ -46,7 +46,7 @@ sub next_item {
         $self->finish;
         return undef;
     }
-    my $class = $self->class;
+    my $class = @_ > 1 ? @_[1] : $self->class;
     return defined $class ? $class->new_from_table($row) : $row;
 }
 
@@ -62,7 +62,7 @@ sub get_all_items {
     return undef unless defined $sth;
     my $items = $sth->fetchall_arrayref({});
     $self->finish;
-    my $class = $self->class;
+    my $class = @_ > 1 ? @_[1] : $self->class;
     return $items unless defined $class;
     return [map {$class->new_from_table($_)} @$items];
 }
