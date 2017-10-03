@@ -1153,10 +1153,6 @@ EOT
             $i++
         }
         parse_template( \%tags, "$conf_dir/radiusd/packetfence-remote", "$install_dir/raddb/sites-enabled/packetfence-remote" );
-    } else {
-        my $file = $install_dir."/raddb/sites-enabled/packetfence-remote";
-        unlink($file);
-    }
         %tags = ();
         $tags{'template'} = "$conf_dir/radiusd/remote.conf";
         $tags{'virt_ip'} = pf::cluster::management_cluster_ip();
@@ -1164,7 +1160,12 @@ EOT
         $tags{'socket_file'} = "$var_dir/run/radiusd-remote.sock";
         $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
         parse_template( \%tags, $tags{'template'}, "$install_dir/raddb/remote.conf");
-
+    } else {
+        my $file = $install_dir."/raddb/sites-enabled/packetfence-remote";
+        unlink($file);
+        $file = $install_dir."/raddb/remote.conf";
+        unlink($file);
+    }
 }
 
 =head1 AUTHOR
