@@ -93,11 +93,40 @@ sub save {
     my ($self) = @_;
     my $status = $self->SUPER::save;
     if ($status == $STATUS::CREATED) {
-        my $apiclient = pf::api::queue->new(queue => 'general');
-        $apiclient->notify_delayed($NODE_DISCOVERED_TRIGGER_DELAY, "trigger_violation", mac => $self->mac, type => "internal", tid => "node_discovered");
+        $self->_post_create($self);
     }
     return $status;
 }
+
+=head2 create
+
+create
+
+=cut
+
+sub create {
+    my ($self, @args) = @_;
+    my $status = $self->SUPER::create(@args);
+    if (is_success($status)) {
+        $self->_post_create(@args);
+    }
+    return $status;
+}
+
+
+=head2 _post_create
+
+_post_create
+
+=cut
+
+sub _post_create {
+    my ($self, $args) = @_;
+    my $apiclient = pf::api::queue->new(queue => 'general');
+    $apiclient->notify_delayed($NODE_DISCOVERED_TRIGGER_DELAY, "trigger_violation", mac => $args->{mac}, type => "internal", tid => "node_discovered");
+    return ;
+}
+
 
 =head2 _update_category_ids
 
