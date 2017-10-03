@@ -1,8 +1,8 @@
-package pfappserver::Form::Config::PortalModule::RoleInStone;
+package pfappserver::Form::Config::PortalModule::FixedRole;
 
 =head1 NAME
 
-pfappserver::Form::Config::PortalModule:RoleInStone
+pfappserver::Form::Config::PortalModule:FixedRole
 
 =head1 DESCRIPTION
 
@@ -16,8 +16,8 @@ with 'pfappserver::Base::Form::Role::Help';
 
 use pf::nodecategory;
 
-use captiveportal::DynamicRouting::Module::RoleInStone;
-sub for_module {'captiveportal::PacketFence::DynamicRouting::Module::RoleInStone'}
+use captiveportal::DynamicRouting::Module::FixedRole;
+sub for_module {'captiveportal::PacketFence::DynamicRouting::Module::FixedRole'}
 ## Definition
 
 has_field 'stone_roles' =>
@@ -25,7 +25,7 @@ has_field 'stone_roles' =>
    type => 'Select',
    multiple => 1,
    label => 'Roles',
-   options_method => \&options_admin_role,
+   options_method => \&options_stone_role,
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'Click to add a role'},
    tags => { after_element => \&help,
@@ -36,7 +36,7 @@ sub child_definition {
     return qw(stone_roles);
 }
 
-sub options_admin_role {
+sub options_stone_role {
     my $self = shift;
     my @roles = map { $_->{name} => $_->{name} } nodecategory_view_all();
     return @roles;

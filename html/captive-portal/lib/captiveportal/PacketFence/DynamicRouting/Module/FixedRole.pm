@@ -1,8 +1,8 @@
-package captiveportal::PacketFence::DynamicRouting::Module::RoleInStone;
+package captiveportal::PacketFence::DynamicRouting::Module::FixedRole;
 
 =head1 NAME
 
-DynamicRouting::Module::RoleInStone
+DynamicRouting::Module::FixedRole
 
 =head1 DESCRIPTION
 

@@ -1,11 +1,11 @@
-package captiveportal::DynamicRouting::Module::RoleInStone;
+package captiveportal::DynamicRouting::Module::FixedRole;
 use Moose;
 
-BEGIN { extends 'captiveportal::PacketFence::DynamicRouting::Module::RoleInStone'; }
+BEGIN { extends 'captiveportal::PacketFence::DynamicRouting::Module::FixedRole'; }
 
 =head1 NAME
 
-captiveportal::DynamicRouting::Module::RoleInStone - RoleInStone Controller for captiveportal
+captiveportal::DynamicRouting::Module::FixedRole - FixedRole Controller for captiveportal
 
 =head1 DESCRIPTION
 
