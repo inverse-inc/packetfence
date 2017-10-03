@@ -375,23 +375,8 @@ sub node_add {
         return (0);
     }
 
-    my $statement = db_query_execute( NODE, $node_statements, 'node_add_sql', $mac,
-        $data{pid},              $data{category_id}, $data{status},      $data{voip},
-        $data{bypass_vlan},      $data{bypass_role_id}, $data{detect_date}, $data{regdate},
-        $data{unregdate},        $data{lastskip},    $data{user_agent},  $data{computername},
-        $data{dhcp_fingerprint}, $data{last_arp},    $data{last_dhcp},   $data{notes},
-        $data{autoreg},          $data{sessionid}
-    );
-
-    my $apiclient = pf::api::queue->new(queue => 'general');
-    $apiclient->notify_delayed($NODE_DISCOVERED_TRIGGER_DELAY, "trigger_violation", mac => $mac, type => "internal", tid => "node_discovered");
-
-    if ($statement) {
-        return ($statement->rows == 1 ? 1 : 0);
-    }
-    else {
-        return (0);
-    }
+    my $status = pf::dal::node->create(\%data);
+    return (is_success($status) ? 1 : 0);
 }
 
 #
