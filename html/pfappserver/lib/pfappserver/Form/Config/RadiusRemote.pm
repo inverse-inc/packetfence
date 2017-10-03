@@ -24,7 +24,7 @@ has_field 'id' =>
   );
 has_field 'password' =>
   (
-   type => 'Password',
+   type => 'ObfuscatedText',
    label => 'Secret or Key',
    required => 1,
    messages => { required => 'You must specify the password or the key' },
