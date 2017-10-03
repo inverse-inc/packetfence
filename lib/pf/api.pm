@@ -1379,29 +1379,28 @@ sub firewallsso_accounting : Public {
         my $mac = pf::util::clean_mac($RAD_REQUEST{'Calling-Station-Id'});
         my $node = pf::node::node_attributes($mac);
         my $ip = $RAD_REQUEST{'Framed-IP-Address'};
-        if($ip){
-            my $firewallsso_method = "Stop";
-            my $timeout = '3600'; #Default to 1 hour
+        my $firewallsso_method = "Stop";
+        my $timeout = '3600'; #Default to 1 hour
+        my $client = pf::client::getClient();
 
-            if ($node->{status} eq $pf::node::STATUS_REGISTERED) {
-                $firewallsso_method = "Update";
-                if ($node->{unregdate} ne '0000-00-00 00:00:00') {
-                    my $time = DateTime::Format::MySQL->parse_datetime($node->{unregdate});
-                    $time->set_time_zone("local");
-                    my $now = DateTime->now(time_zone => "local");
-                    $timeout = $time->epoch - $now->epoch;
-                }
+        if ($node->{status} eq $pf::node::STATUS_REGISTERED) {
+            $firewallsso_method = "Update";
+            if ($node->{unregdate} ne '0000-00-00 00:00:00') {
+                my $time = DateTime::Format::MySQL->parse_datetime($node->{unregdate});
+                $time->set_time_zone("local");
+                my $now = DateTime->now(time_zone => "local");
+                $timeout = $time->epoch - $now->epoch;
             }
-
-            $firewallsso_method = ($RAD_REQUEST{'Acct-Status-Type'} == $ACCOUNTING::STOP) ? "Stop" : "Update";
-
-            my $client = pf::client::getClient();
-            $logger->warn("Firewall SSO Notify");
-            $client->notify( 'firewallsso', (method => $firewallsso_method, mac => $mac, ip => $ip, timeout => $timeout) );
+            my $oldip  = pf::ip4log::mac2ip($mac);
+            if ( $oldip && $oldip ne $ip ) {
+                $client->notify( 'firewallsso', (method => 'Stop', mac => $mac, ip => $oldip, timeout => undef) );
+            }
         }
-        else {
-            $logger->error("Can't do SSO for $mac because can't find its IP address");
-        }
+
+        $firewallsso_method = ($RAD_REQUEST{'Acct-Status-Type'} == $ACCOUNTING::STOP) ? "Stop" : "Update";
+
+        $logger->warn("Firewall SSO Notify");
+        $client->notify( 'firewallsso', (method => $firewallsso_method, mac => $mac, ip => $ip, timeout => $timeout) );
     }
 }
 
