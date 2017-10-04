@@ -3613,6 +3613,20 @@ sub remove_switch_from_cache {
     }
 }
 
+=item isMacInAddressTableAtIfIndex
+
+isMacInAddressTableAtIfIndex
+
+=cut
+
+sub isMacInAddressTableAtIfIndex {
+    my ($self) = @_;
+    my $logger = $self->logger;
+    $logger->warn("isMacInAddressTableAtIfIndex is not supported or implemented for this switch");
+
+    return 0;
+}
+
 =back
 
 =head1 AUTHOR
