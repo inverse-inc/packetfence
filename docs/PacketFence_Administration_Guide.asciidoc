@@ -80,7 +80,7 @@ Registration::
   PacketFence supports an optional registration mechanism similar to "captive portal" solutions. Contrary to most captive portal solutions, PacketFence remembers users who previously registered and will automatically give them access without another authentication. Of course, this is configurable. An Acceptable Use Policy can be specified such that users cannot enable network access without first accepting it.
 
 Detection of abnormal network activities::
-  Abnormal network activities (computer virus, worms, spyware, traffic denied by establishment policy, etc.) can be detected using local and remote http://www.snort.org/[Snort] or http://suricata-ids.org/[Suricata] sensors. Beyond simple detection, PacketFence layers its own alerting and suppression mechanism on each alert type. A set of configurable actions for each violation is available to administrators.
+  Abnormal network activities (computer virus, worms, spyware, traffic denied by establishment policy, etc.) can be detected using remote http://www.snort.org/[Snort] or http://suricata-ids.org/[Suricata] sensors. Beyond simple detection, PacketFence layers its own alerting and suppression mechanism on each alert type. A set of configurable actions for each violation is available to administrators.
 
 Proactive vulnerability scans::
   Either http://www.nessus.org/nessus/[Nessus] , http://www.openvas.org[OpenVAS] or WMI vulnerability scans can be performed upon registration, scheduled or on an ad-hoc basis. PacketFence correlates the scan engine vulnerability ID's of each scan to the violation configuration, returning content specific web pages about which vulnerability the host may have.
@@ -125,18 +125,13 @@ System Requirements
 Assumptions
 ~~~~~~~~~~~
 
-PacketFence reuses many components in an infrastructure. Thus, it requires the following ones:
+PacketFence reuses many components in an infrastructure. Thus, it will install the following ones:
 
 [options="compact"]
 * Database server (MySQL or MariaDB)
 * Web server (Apache)
 * DHCP server (ISC DHCP)
 * RADIUS server (FreeRADIUS)
-
-Depending on your setup you may have to install additional components like:
-
-[options="compact"]
-* NIDS (Snort/Suricata)
 
 In this guide, we assume that all those components are running on the same server (i.e., "localhost" or "127.0.0.1") that PacketFence will be installed on.
 
@@ -159,9 +154,9 @@ Operating System Requirements
 PacketFence supports the following operating systems on the x86_64 architectures: 
 
 [options="compact"]
-* Red Hat Enterprise Linux 6.x and 7.x Server
-* Community ENTerprise Operating System (CentOS) 6.x and 7.x
-* Debian 7.0 (Wheezy) and 8.0 (Jessie)
+* Red Hat Enterprise Linux 7.x Server
+* Community ENTerprise Operating System (CentOS) 7.x
+* Debian 8.0 (Jessie)
 
 Make sure that you can install additional packages from your standard distribution. For example, if you are using Red Hat Enterprise Linux, you have to be subscribed to the Red Hat Network before continuing with the PacketFence software installation.
 
@@ -176,7 +171,6 @@ PacketFence takes care of handling the operation of the following services:
 * Web server (httpd)
 * DHCP server (dhcpd)
 * FreeRADIUS server (radiusd)
-* Snort/Suricata Network IDS (snort/suricata)
 * Firewall (iptables)
 
 *Make sure that all the other services are automatically started by your operating system!*
@@ -222,15 +216,6 @@ Explicitly instruct NetworkManager to never interact with your DNS configuration
   echo "[main]
   dns=none" > /etc/NetworkManager/conf.d/99-no-dns.conf
   service NetworkManager restart
-
-RHEL 6.x
-^^^^^^^^
-
-NOTE: These are extra steps are required for RHEL 6 systems only, excluding derivatives such as CentOS or Scientific Linux.
-
-RedHat Enterprise Linux users need to take an additional setup step. If you are not using the RHN Subscription Management from RedHat you need to enable the optional channel by running the following as root:
-
-  subscription-manager repos --enable rhel-6-server-optional-rpms
 
 RHEL 7.x
 ^^^^^^^^
@@ -282,14 +267,6 @@ Once installed, the Web-based configuration interface will automatically be star
 Debian
 ^^^^^^
 
-For Debian 7:
-
-In order to use the repository, create a file named `/etc/apt/sources.list.d/packetfence.list`:
-
-   echo 'deb http://inverse.ca/downloads/PacketFence/debian wheezy wheezy' > /etc/apt/sources.list.d/packetfence.list
-
-For Debian 8:
-
 In order to use the repository, create a file named `/etc/apt/sources.list.d/packetfence.list`:
 
    echo 'deb http://inverse.ca/downloads/PacketFence/debian jessie jessie' > /etc/apt/sources.list.d/packetfence.list
@@ -310,7 +287,8 @@ Prior configuring PacketFence, you must chose an appropriate enforcement mode to
 [options="compact"]
 * Inline
 * Out-of-band
-* Hybrid
+* Web Auth
+* Radius
 
 It is also possible to combine enforcement modes. For example, you could use the out-of-band mode on your wired switches, while using the inline mode on your old WiFi access points.
 
@@ -975,181 +953,15 @@ You should now have the following realm configuration
 
 image::docs/images/domain-realms-index.png[scaledwidth="100%",alt="Realms"]
 
-Option 1b: Authentication against Active Directory (AD) in a cluster
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Samba / Kerberos / Winbind
-++++++++++++++++++++++++++
-
-Install Samba. You can either use the sources or use the package for your OS. For RHEL/CentOS, do:
-
-----
-yum install samba krb5-workstation
-----
-
-For Debian and Ubuntu, do:
-
-----
-apt-get install samba winbind krb5-user
-----
-
-NOTE: If you have Windows 7 PCs in your network, you need to use Samba version 3.5.0 (or greater).
- 
-When done with the Samba install, modify your `/etc/hosts` in order to add the FQDN of your Active Directory servers. Then, you need to modify `/etc/krb5.conf`. Here is an example for the `DOMAIN.NET` domain for CentOS/RHEL:
-
-----
-[logging]
- default = FILE:/var/log/krb5libs.log
- kdc = FILE:/var/log/krb5kdc.log
- admin_server = FILE:/var/log/kadmind.log
-
-[libdefaults]
- default_realm = DOMAIN.NET
- dns_lookup_realm = false
- dns_lookup_kdc = false
- ticket_lifetime = 24h
- forwardable = yes
-
-[realms]
- DOMAIN.NET = {
-  kdc = adserver.domain.net:88
-  admin_server = adserver.domain.net:749
-  default_domain = domain.net
- }
-[domain_realm]
- .domain.net = DOMAIN.NET
- domain.net = DOMAIN.NET
-
-[appdefaults]
- pam = {
-   debug = false
-   ticket_lifetime = 36000
-   renew_lifetime = 36000
-   forwardable = true
-   krb4_convert = false
- }
-----
-
-For Debian and Ubuntu:
-
-----
-  [logging]
-  default = FILE:/var/log/krb5libs.log
-  kdc = FILE:/var/log/krb5kdc.log
-  admin_server = FILE:/var/log/kadmind.log
-  [libdefaults]
-  default_realm = DOMAIN.NET
-  ticket_lifetime = 24h
-  forwardable = yes
-  [appdefaults]
-  pam = {
-  debug = false
-  ticket_lifetime = 36000
-  renew_lifetime = 36000
-  forwardable = true
-  krb4_convert = false
-  }
-----
-
-Next, edit `/etc/samba/smb.conf`. Again, here is an example for our `DOMAIN.NET` for CentOS/RHEL:
-
-----
-  [global]
-  workgroup = DOMAIN
-  server string = %h
-  security = ads
-  passdb backend = tdbsam
-  realm = DOMAIN.NET
-  encrypt passwords = yes
-  winbind use default domain = yes
-  client NTLMv2 auth = yes
-  preferred master = no
-  domain master = no
-  local master = no
-  load printers = no
-  log level = 1 winbind:5 auth:3
-  winbind max clients = 750
-  winbind max domain connections = 15
-  machine password timeout = 0
-----
-
-For Debian and Ubuntu:
-
-----
- [global]
-  workgroup = DOMAIN
-  server string = Samba Server Version %v
-  security = ads
-  realm = DOMAIN.NET
-  password server = 192.168.1.1
-  domain master = no
-  local master = no
-  preferred master = no
-  winbind separator = +
-  winbind enum users = yes
-  winbind enum groups = yes
-  winbind use default domain = yes
-  winbind nested groups = yes
-  winbind refresh tickets = yes
-  template homedir = /home/%D/%U
-  template shell = /bin/bash
-  client use spnego = yes
-  client ntlmv2 auth = yes
-  encrypt passwords = yes
-  restrict anonymous = 2
-  log file = /var/log/samba/log.%m
-  max log size = 50
-  machine password timeout = 0
-----
-
-Issue a `kinit` and `klist` in order to get and verify the Kerberos token:
-
-  # kinit administrator
-  # klist
-
-After that, you need to start samba, and join the machine to the domain:
-
-  # service smb start
-  # chkconfig --level 345 smb on
-  # net ads join -U administrator
-
-Note that for Debian and Ubuntu you will probably have this error:
-
-  # kinit succeeded but ads_sasl_spnego_krb5_bind failed: Invalid credentials
-  # Join to domain is not valid: Invalid credentials
-
-For CentOS/RHEL:
-
-  # usermod -a -G wbpriv pf
-
-Finally, start `winbind`, and test the setup using `ntlm_auth` and `radtest`:
-
-  # service winbind start
-  # chkconfig --level 345 winbind on
-
-For Debian and Ubuntu:
-
-  # usermod -a -G winbindd_priv pf
-  # ntlm_auth --username myDomainUser
-  # radtest -t mschap -x myDomainUser myDomainPassword localhost:18120 12 testing123
-    Sending Access-Request of id 108 to 127.0.0.1 port 18120
-        User-Name = "myDomainUser"
-        NAS-IP-Address = 10.0.0.1
-        NAS-Port = 12
-        Message-Authenticator = 0x00000000000000000000000000000000
-        MS-CHAP-Challenge = 0x79d62c9da4e55104
-        MS-CHAP-Response = 0x000100000000000000000000000000000000000000000000000091c843b420f0dec4228ed2f26bff07d5e49ad9a2974229e5
-    rad_recv: Access-Accept packet from host 127.0.0.1 port 18120, id=108, length=20
-
-
-Option 2: Local Authentication
+Option 1: Local Authentication
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Add your user's entries at the end of the `/usr/local/pf/raddb/users` file with the following format:
 
   username Cleartext-Password := "password"
 
-Option 3: EAP authentication against OpenLDAP
+Option 2: EAP authentication against OpenLDAP
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To authenticate 802.1X connection against OpenLDAP you need to define the LDAP connection in `/usr/local/pf/raddb/modules/ldap` and
@@ -1200,7 +1012,7 @@ authorize {
 
 
 
-Option 4: EAP Guest Authentication on email, sponsor and SMS registration
+Option 3: EAP Guest Authentication on email, sponsor and SMS registration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This section will allow local credentials created during guest registration to be used in 802.1X EAP-PEAP connections.
@@ -1245,7 +1057,7 @@ For example, if you would want to deactivate this feature for accounts created v
 
 NOTE: For this feature to work, the users' passwords must be stored in clear text in the database. This is configurable via `advanced.hash_passwords`.
 
-Option 5: EAP Local user Authentication
+Option 4: EAP Local user Authentication
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The goal here is to use the local user to authenticate 802.1X device.
@@ -1904,182 +1716,10 @@ eduroam allows students, researchers and staff from participating institutions t
 _____________________
 
 
-PacketFence supports integration with eduroam and allows participating institutions to authenticate both locally visiting users from other institutions as well as allowing other institutions to authenticate local users.
+Since the version 6.4.0 PacketFence supports integration with eduroam and allows participating institutions to authenticate both locally visiting users from other institutions as well as allowing other institutions to authenticate local users.
 
 
-In order for PacketFence to allow eduroam authentication, the FreeRADIUS configuration of PacketFence must be modified to allow the eduroam servers to connect to it as clients as well as to proxy RADIUS authentication requests for users from outside institutions. 
-
-
-First, modify the /usr/local/pf/raddb/clients.conf file to allow the eduroam servers to connect to your PacketFence server. Add the eduroam servers as clients and make sure to add the proper RADIUS secret. Set a shortname to refer to these clients as you will later need it to exclude them from some parts of the PacketFence configuration.
-
-clients.conf example:
-
-----
-client tlrs1.eduroam.us {
-        secret = useStrongerSecret
-        shortname = tlrs1
-}
-
-client tlrs2.eduroam.us {
-        secret = useStrongerSecret
-        shortname = tlrs2
-}
-----
-
-
-
-Secondly, modify the list of domains and proxy servers in /usr/local/pf/raddb/proxy.conf. You will need to define each of your domains as well as the DEFAULT domain. The DEFAULT realm will apply to any client that attempts to authenticate with a realm that is not otherwise defined in proxy.conf and will be proxied to the eduroam servers.
-
-Define one or more home servers (servers to which eduroam requests should be proxied).
-
-proxy.conf example:
-
-    home_server tlrs1.eduroam.us {
-            type = auth
-            ipaddr = 257.128.1.1
-            port = 1812
-            secret = useStrongerSecret
-            require_message_authenticator = yes
-    }
-
-Define a pool of servers to group your eduroam home servers together.
-
-proxy.conf example:
-
-    home_server_pool eduroam {
-            type = fail-over
-            home_server = tlrs1.eduroam.us
-            home_server = tlrs2.eduroam.us
-    }
-
-Define realms to select which requests should be proxied to the eduroam server pool.
-There should be one realm for each of your domains, and possibly one more per domain if 
-you intend to allow usernames of the DOMAIN\user form. 
-
-The REALM is set based on the domain found by the suffix or ntdomain modules 
-( see raddb/modules/realm ).
-The suffix or ntdomain modules try to find a domain either with an @domain or suffix\username.
-
-* If none is found, the REALM is NULL.
-* If a domain is found, FreeRADIUS tries to match one of the REALMS defined in this file.
-* If the domain is either example.edu or EXAMPLE FreeRADIUS sets the corresponding REALM,
-i.e. example.edu or EXAMPLE. 
-* If the REALM does not match either (and it isn't NULL), that means there was a domain
-other than EXAMPLE or example.edu and we assume it is meant to be proxied to eduroam.
-FreeRADIUS sets the DEFAULT realm (which is proxied to the eduroam authentication pool).
-
-The REALM determines where the request is sent to. If the REALM authenticates locally
-the requests are processed entirely by FreeRADIUS. If the REALM sets a different 
-home server pool, the requests are proxied to the servers defined within that pool. 
-
-proxy.conf example:
-
-----
-# This realm is for requests which don't have an explicit realm
-# prefix or suffix.  User names like "bob" will match this one.
-# No authentication server is defined, thus the authentication is 
-# done locally.
-realm NULL {
-}
-
-# This realm is for ntdomain users who might use the domain like 
-# this "EXAMPLE\username".
-# No authentication server is defined, thus the authentication is 
-# done locally.
-realm EXAMPLE {
-}
-
-# This realm is for suffix users who use the domain like this: 
-# "username@example.edu".
-# No authentication server is defined, thus the authentication is 
-# done locally.
-realm example.edu {
-}
-
-# This realm is for ALL OTHER requests. Meaning in this context, 
-# eduroam. The auth_pool is set to the eduroam pool and so the 
-# requests will be proxied.
-realm DEFAULT {
-    auth_pool  = eduroam
-    nostrip
-}
-----
-
-Thirdly, you must configure the packetfence FreeRADIUS virtual servers to treat the requests properly.
-
-In /usr/local/pf/raddb/sites-enabled/packetfence, modify the authorize section like this:
-
-raddb/sites-enabled/packetfence example:
-
-----
-authorize {
-        # pay attention to the order of the modules. It matters.
-        ntdomain
-        suffix
-        preprocess
-        
-        # uncomment this section if you want to block eduroam users from 
-        # you other SSIDs. The attribute name ( Called-Station-Id ) may 
-        # differ based on your controller
-        #if ( Called-Station-Id !~ /eduroam$/i) {
-        #    update control {
-        #        Proxy-To-Realm := local
-        #    }
-        #}
-        
-        eap {
-                ok = return
-        }
-        
-        
-        files
-        expiration
-        logintime
-        packetfence
-}
-----
-
-In /usr/local/pf/raddb/sites-enabled/packetfence-tunnel, modify the post-auth section like this.
-If you omit this change the request will be sent to PacketFence where it will be failed since the
-eduroam servers are not part of your configured switches.
-
-raddb/sites-enabled/packetfence-tunnel example:
-
-----
-post-auth {
-        exec
-        
-        # we skip packetfence when the request is coming from the eduroam servers
-        if ( "%{client:shortname}" != "tlrs1" && \
-             "%{client:shortname}" != "tlrs2"    ) {
-                packetfence
-        }
-        
-        Post-Auth-Type REJECT {
-                attr_filter.access_reject
-        }
-}
-----
-
-
-Finally, make sure that the realms module is configured this way ( see /usr/local/pf/raddb/modules/realm ): 
-
-raddb/modules/realm example:
-
-----
-# 'username@realm'
-realm suffix {
-        format = suffix
-        delimiter = "@"
-}
-
-#  'domain\user'
-realm ntdomain {
-        format = prefix
-        delimiter = "\\"
-        ignore_null = yes 
-}
-----
+In order for PacketFence to allow eduroam authentication, you need to configure an exclusive Eduroam source in Configuration->Authentication Sources and restart FreeRADIUS.
 
 Fingerbank integration
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -3067,11 +2707,7 @@ NOTE: To benefit the OPSWAT Metadefender Cloud integration, Suricata needs to be
 Configuration
 +++++++++++++
 
-Depending on whether or not Suricata is running on the PacketFence server, configuration is different.
-
-When running locally, PacketFence provides a basic `suricata.yaml` that can be modified to suit different needs. The file is located in `/usr/local/pf/conf`.
-
-In the case that Suricata is running on a separate server, Suricata configuration will have to be handled separately, which is not the purpose of the present guide.
+You will need to follow the configuration below related to the Suricata configuration (Syslog).
 
 OPSWAT Metadefender Cloud
 +++++++++++++++++++++++++
@@ -3635,30 +3271,6 @@ Grace period
 ++++++++++++
 
 When using such violation feature, setting the grace period is really important.  You don't want to put it too low (ie. A user re-enable his network, and get caught after 1 bytes is transmitted!) or too high.  We recommend that you set the grace period to one interval window.
-
-Oinkmaster
-~~~~~~~~~~
-
-Oinkmaster is a perl script that enables the possibility to update the different snort rules very easily. It is simple to use, and install. This section will show you how to implement Oinkmaster to work with PacketFence and Snort.
-
-Please visit http://oinkmaster.sourceforge.net/download.shtml to download oinkmaster. A sample oinkmaster configuration file is provided at `/usr/local/pf/addons/snort/oinkmaster.conf`.
-
-Configuration
-^^^^^^^^^^^^^
-
-Here are the steps to make Oinkmaster work. We will assume that you already downloaded the newest oinkmaster archive:
-
-. Untar the freshly downloaded Oinkmaster
-. Copy the required perl scripts into `/usr/local/pf/oinkmaster`. You need to copy over `contrib` and `oinkmaster.pl`
-. Copy the `oinkmaster.conf` provided by PacketFence (see the section above) in `/usr/local/pf/conf`
-. Modify the configuration to suit your own needs. Currently, the configuration file is set to fetch the bleeding rules.
-
-Rules update
-^^^^^^^^^^^^
-
-In order to get periodic updates for PacketFence Snort rules, we simply need to create a `crontab` entry with the right information. The example below shows a `crontab` entry to fetch the updates daily at 23:00 PM:
-
-  0 23 * * * (cd /usr/local/pf; perl oinkmaster/oinkmaster.pl -C conf/oinkmaster.conf -o conf/snort/)
 
 Guests Management
 ~~~~~~~~~~~~~~~~~
