@@ -130,13 +130,11 @@ Find the pf::dal object by it's primaries keys
 sub find {
     my ($proto, $ids) = @_;
     my $where = $proto->build_primary_keys_where_clause($ids);
-    my $sqla = $proto->get_sql_abstract;
-    my ($sql, @bind) = $sqla->select(
+    my ($status, $sth) = $proto->do_select(
         -columns => $proto->find_columns,
         -from => $proto->find_from_tables,
         -where => $where,
     );
-    my ($status, $sth) = $proto->db_execute($sql, @bind);
     return $status, undef if is_error($status);
     my $row = $sth->fetchrow_hashref;
     $sth->finish;
@@ -155,16 +153,14 @@ Search for pf::dal using SQL::Abstract::More syntax
 
 sub search {
     my ($proto, $where, $extra) = @_;
-    my $class = ref($proto) || $proto;
-    my $sqla = $proto->get_sql_abstract;
-    my($stmt, @bind) = $sqla->select(
+    my ($status, $sth) = $proto->do_select(
         -columns => $proto->field_names,
         -from    => $proto->table,
         -where   => $where // {},
         %{$extra // {}},
     );
-    my ($status, $sth) = $proto->db_execute($stmt, @bind);
     return $status, undef if is_error($status);
+    my $class = ref($proto) || $proto;
     return $STATUS::OK, pf::dal::iterator->new({sth => $sth, class => $class});
 }
 
@@ -176,14 +172,12 @@ Get the count of the table
 
 sub count {
     my ($proto, $where, $extra) = @_;
-    my $sqla = $proto->get_sql_abstract;
-    my($stmt, @bind) = $sqla->select(
+    my ($status, $sth) = $proto->do_select(
         -columns => ['COUNT(*)|count'],
         -from    => $proto->table,
         -where   => $where // {},
         %{$extra // {}},
     );
-    my ($status, $sth) = $proto->db_execute($stmt, @bind);
     return $status, undef if is_error($status);
     my $row = $sth->fetchrow_hashref;
     $sth->finish;
@@ -228,13 +222,11 @@ sub update {
     if (keys %$update_data == 0 ) {
        return $STATUS::OK;
     }
-    my $sqla          = $self->get_sql_abstract;
-    my ($stmt, @bind) = $sqla->update(
+    ($status, my $sth) = $self->do_update(
         -table => $self->table,
         -set   => $update_data,
         -where => $where,
     );
-    ($status, my $sth) = $self->db_execute($stmt, @bind);
     return $status if is_error($status);
 
     my $rows = $sth->rows;
@@ -252,14 +244,12 @@ update items
 =cut
 
 sub update_items {
-    my ($self, $set, $where) = @_;
-    my $sqla          = $self->get_sql_abstract;
-    my ($stmt, @bind) = $sqla->update(
-        -table => $self->table,
+    my ($proto, $set, $where) = @_;
+    my ($status, $sth) = $proto->do_update(
+        -table => $proto->table,
         -set   => $set,
         -where => $where,
     );
-    my ($status, $sth) = $self->db_execute($stmt, @bind);
     return $status, undef if is_error($status);
 
     my $rows = $sth->rows;
@@ -284,12 +274,10 @@ sub insert {
     if (keys %$insert_data == 0 ) {
        return $STATUS::BAD_REQUEST;
     }
-    my $sqla          = $self->get_sql_abstract;
-    my ($stmt, @bind) = $sqla->insert(
+    my ($status, $sth) = $self->do_insert(
         -into => $self->table,
         -values   => $insert_data,
     );
-    my ($status, $sth) = $self->db_execute($stmt, @bind);
     return $status if is_error($status);
 
     my $rows = $sth->rows;
@@ -330,13 +318,11 @@ sub upsert {
     }
     ($status, my $on_conflict) = $self->_on_conflict_data;
     return $status if is_error($status);
-    my $sqla          = $self->get_sql_abstract;
-    my ($stmt, @bind) = $sqla->upsert(
+    ($status, my $sth) = $self->do_upsert(
         -into => $self->table,
         -values   => $insert_data,
         -on_conflict => $on_conflict,
     );
-    ($status, my $sth) = $self->db_execute($stmt, @bind);
     return $status if is_error($status);
     my $rows = $sth->rows;
     $self->_save_old_data();
@@ -515,14 +501,13 @@ remove_by_search
 =cut
 
 sub remove_by_search {
-    my ($self, $where, $extra) = @_;
-    my $sqla = $self->get_sql_abstract;
-    my ($sql, @bind) = $sqla->delete(
-        -from => $self->table,
+    my ($proto, $where, $extra) = @_;
+    my $sqla = $proto->get_sql_abstract;
+    my ($status, $sth) = $proto->do_delete(
+        -from => $proto->table,
         -where => $where,
         %{$extra // {}}
     );
-    my ($status, $sth) = $self->db_execute($sql, @bind);
     return $status, undef if is_error($status);
     my $rows = $sth->rows;
     $sth->finish;
@@ -574,14 +559,12 @@ Checks if item exists
 sub does_exists {
     my ($proto, $ids) = @_;
     my $where = $proto->build_primary_keys_where_clause($ids);
-    my $sqla = $proto->get_sql_abstract;
-    my($sql, @bind) = $sqla->select(
+    my ($status, $sth) = $proto->do_select(
         -columns => [\1],
         -from    => $proto->table,
         -where   => $where,
         -limit   => 1,
     );
-    my ($status, $sth) = $proto->db_execute($sql, @bind);
     if ($sth->rows) {
         return $STATUS::OK;
     }
@@ -653,13 +636,11 @@ finds a table record or creates it
 sub find_or_create {
     my ($proto, $args) = @_;
     my $obj = $proto->new($args);
-    my $sqla = $proto->get_sql_abstract;
-    my ($sql, @bind) = $sqla->select(
+    my ($status, $sth) = $proto->do_select(
         -columns => $proto->find_columns,
         -from => $proto->find_from_tables,
         -where => $obj->primary_keys_where_clause,
     );
-    my ($status, $sth) = $proto->db_execute($sql, @bind);
     if (is_success($status)) {
         my $row = $sth->fetchrow_hashref;
         $sth->finish;
@@ -705,6 +686,71 @@ sub merge {
 sub set_tentant {
     my ($class, $tentant_id) = @_;
     $CURRENT_TENANT = $tentant_id;
+}
+
+=head2 do_select
+
+Wrap call to pf::SQL::Abstract->select and db_execute
+
+=cut
+
+sub do_select {
+    my ($proto, @args) = @_;
+    my $sqla = $proto->get_sql_abstract;
+    my ($sql, @bind) = $sqla->select(@args);
+    return $proto->db_execute($sql, @bind);
+}
+
+=head2 do_insert
+
+Wrap call to pf::SQL::Abstract->insert and db_execute
+
+=cut
+
+sub do_insert {
+    my ($proto, @args) = @_;
+    my $sqla          = $proto->get_sql_abstract;
+    my ($stmt, @bind) = $sqla->insert(@args);
+    return $proto->db_execute($stmt, @bind);
+}
+
+=head2 do_upsert
+
+Wrap call to pf::SQL::Abstract->upsert and db_execute
+
+=cut
+
+sub do_upsert {
+    my ($proto, @args) = @_;
+    my $sqla          = $proto->get_sql_abstract;
+    my ($stmt, @bind) = $sqla->upsert(@args);
+    return $proto->db_execute($stmt, @bind);
+}
+
+=head2 do_update
+
+Wrap call to pf::SQL::Abstract->update and db_execute
+
+=cut
+
+sub do_update {
+    my ($proto, @args) = @_;
+    my $sqla          = $proto->get_sql_abstract;
+    my ($stmt, @bind) = $sqla->update(@args);
+    return $proto->db_execute($stmt, @bind);
+}
+
+=head2 do_delete
+
+Wrap call to pf::SQL::Abstract->delete and db_execute
+
+=cut
+
+sub do_delete {
+    my ($proto, @args) = @_;
+    my $sqla          = $proto->get_sql_abstract;
+    my ($stmt, @bind) = $sqla->delete(@args);
+    return $proto->db_execute($stmt, @bind);
 }
 
 =head1 AUTHOR
