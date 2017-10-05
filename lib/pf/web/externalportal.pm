@@ -24,7 +24,7 @@ use Hash::Merge qw(merge);
 use UNIVERSAL::require;
 
 use pf::config qw(
-    $WIRELESS_MAC_AUTH
+    $WEBAUTH
 );
 use pf::ip4log;
 use pf::log;
@@ -164,7 +164,7 @@ sub handle {
     pf::ip4log::open($params{'client_ip'}, $params{'client_mac'}, 3600);
 
     # Updating locationlog if required
-    $switch->synchronize_locationlog("0", "0", $params{'client_mac'}, 0, $WIRELESS_MAC_AUTH, undef, $params{'client_mac'}, $params{'ssid'}) if ( $params{'synchronize_locationlog'} );
+    $switch->synchronize_locationlog("0", "0", $params{'client_mac'}, 0, $WEBAUTH, undef, $params{'client_mac'}, $params{'ssid'}) if ( $params{'synchronize_locationlog'} );
 
     my $portalSession = $self->_setup_session($req, $params{'client_mac'}, $params{'client_ip'}, $params{'redirect_url'}, $params{'grant_url'});
 

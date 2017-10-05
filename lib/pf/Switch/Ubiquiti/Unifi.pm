@@ -124,6 +124,8 @@ sub _deauthenticateMacWithHTTP {
 
     my $command = ($node_info->{status} eq $STATUS_UNREGISTERED || violation_count_reevaluate_access($mac)) ? "unauthorize-guest" : "authorize-guest";
 
+    $command = "kick-sta" if ($node_info->{last_connection_type} ne "Web-Auth");
+
     my $ua = LWP::UserAgent->new();
     $ua->cookie_jar({ file => "$var_dir/run/.ubiquiti.cookies.txt" });
     $ua->ssl_opts(verify_hostname => 0);
