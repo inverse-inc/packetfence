@@ -590,7 +590,7 @@ EOT
         $tags{'pid_file'} = "$var_dir/run/radiusd-load_balancer.pid";
         $tags{'socket_file'} = "$var_dir/run/radiusd-load_balancer.sock";
 
-        foreach my $interface ( @radius_ints ) {
+        foreach my $interface ( uniq @radius_ints ) {
 
             my $cluster_ip = pf::cluster::cluster_ip($interface->{Tint});
             $tags{'listen'} .= <<"EOT";
