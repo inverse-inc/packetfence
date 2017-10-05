@@ -28,6 +28,10 @@ use pf::file_paths qw($var_dir);
 use pf::constants;
 use pf::util;
 use pf::node;
+use pf::config qw(
+    $MAC
+    $SSID
+);
 
 # The port to reach the Unifi controller API
 our $UNIFI_API_PORT = "8443";
