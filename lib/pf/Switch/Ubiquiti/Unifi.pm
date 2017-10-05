@@ -41,6 +41,11 @@ sub description { 'Unifi Controller' }
 # CAPABILITIES
 # access technology supported
 sub supportsExternalPortal { return $TRUE; }
+sub supportsWirelessDot1x { return $TRUE; }
+sub supportsWirelessMacAuth { return $TRUE; }
+# inline capabilities
+sub inlineCapabilities { return ($MAC,$SSID); }
+
 
 =head2 synchronize_locationlog
 
