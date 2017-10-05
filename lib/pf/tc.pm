@@ -22,13 +22,24 @@ use Readonly;
 use pf::config qw(
     @internal_nets
     $management_network
+    %ConfigNetworks
 );
+use pf::file_paths qw($generated_conf_dir $conf_dir);
+use pf::nodecategory;
+use pf::iptables;
+use pf::util;
+
+my $logger = get_logger();
+
+my @roles = pf::nodecategory::nodecategory_view_all;
 
 my @ints = split(',', pf::iptables::get_network_snat_interface());
 my @listen_interfaces = map {$_->tag("int")} @internal_nets, $management_network;
 
 my @interfaces = keys %{{map {($_ => 1)} (@ints, @listen_interfaces)}};
-$i = 1;
+my $i = 1;
+my %tags;
+
 foreach my $int ( @interfaces) {
     foreach my $network ( keys %ConfigNetworks ) {
         $logger->warn("tc qdisc del dev $int root");
@@ -39,6 +50,8 @@ foreach my $int ( @interfaces) {
         }
     }
 }
+
+parse_template( \%tags, "$conf_dir/tc.conf", "$generated_conf_dir/tc.conf" );
 
 =back
 
