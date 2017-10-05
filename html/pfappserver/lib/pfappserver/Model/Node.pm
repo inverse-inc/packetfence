@@ -79,32 +79,6 @@ sub field_names {
     return [qw(mac detect_date regdate unregdate computername pid last_ip status device_class category)];
 }
 
-=head2 search
-
-Used to perform a simple search
-
-=cut
-
-sub search {
-    my ( $self, %params ) = @_;
-
-    my $logger = get_logger();
-    my ($status, $status_msg);
-
-    my @nodes;
-    eval {
-        @nodes = node_view_all(undef, %params);
-        @nodes = grep { keys %$_ ? $_ : undef } @nodes;
-    };
-    if ($@) {
-        $status_msg = "Can't fetch nodes from database.";
-        $logger->error($status_msg);
-        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
-    }
-
-    return ($STATUS::OK, \@nodes);
-}
-
 =head2 view
 
 From pf::lookup::node::lookup_node()
