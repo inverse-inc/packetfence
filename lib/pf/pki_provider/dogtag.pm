@@ -113,7 +113,7 @@ sub module_description { 'Fedora Dogtag PKI' }
 =head2 get_bundle
 
 Get the certificate from the SCEP PKI service
-sscep enroll -c AD2008-0 -e AD2008-1 -k local.key -r local.csr -l cert.crt -S sha1 -u 'http://10.0.0.16/certsrv/mscep/' -d
+sscep enroll -c AD2008-0 -e AD2008-1 -k local.key -r local.csr -l cert.crt -S sha1 -u 'http://dogtag2.inverse.local:8080/ca/cgi-bin/pkiclient.exe' -d
 
 =cut
 
@@ -134,7 +134,7 @@ sub get_bundle {
 
 =head2 get_ca
 
-sscep getca  -u http://10.0.0.16/certsrv/mscep/ -c tempdir/ca-prefix
+sscep getca  -u http://dogtag2.inverse.local:8080/ca/cgi-bin/pkiclient.exe -c tempdir/ca
 
 =cut
 
