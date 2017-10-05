@@ -20,9 +20,20 @@ Next, copy the files contained in this directory to the following directories:
 
 /var/lib/pki/pki-tomcat/ca/profiles/ca/caRADIUSServerCert.cfg
 /var/lib/pki/pki-tomcat/ca/profiles/ca/caRADIUSClientCert.cfg
+/var/lib/pki/pki-tomcat/ca/profiles/ca/caRouterCert.cfg
 /etc/pki/pki-tomcat/ca/CS.cfg
 
 and reboot for good measure.
 
 This will create two certificate profiles for RADIUS servers and clients, and will disable the ip based authentication for scep enrollment.
 You will have to configure iptables rules to ensure that only the PacketFence server is allowed to connect to the CA service running on ports 8443 and 8080 which is left as an exercise to the reader.
+
+Once you have configured the CA on Dogtag, get a copy of the CA cert on the PacketFence server: 
+
+(example)
+# sscep getca -u http://dogtag.inverse.local:8080/ca/cgi-bin/pkiclient.exe -c /usr/local/pf/raddb/certs/dogtag_ca.pem
+
+This will allow you to configure the Dogtag PKI provider in PacketFence.
+
+You will also need to get a RADIUS server cert signed by the CA. 
+That can be accomplished from the dogtag GUI where you will have to paste the CSR and then sign it with the CA.
