@@ -241,18 +241,19 @@ sub generate_mangle_postrouting_rules {
     my $rules = '';
 
     my @roles = pf::nodecategory::nodecategory_view_all;
-
+    my $i = 1;
     foreach my $network ( keys %ConfigNetworks ) {
         next if ( !pf::config::is_network_type_inline($network) );
         foreach my $role ( @roles ) {
             if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL3_ID$role->{'category_id'}_$network src -j CLASSIFY --set-class 1:$role->{'category_id'}\n";
-                $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL3_ID$role->{'category_id'}_$network dst -j CLASSIFY --set-class 1:$role->{'category_id'}\n";
+                $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL3_ID$role->{'category_id'}_$network src -j CLASSIFY --set-class $i:$role->{'category_id'}\n";
+                $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL3_ID$role->{'category_id'}_$network dst -j CLASSIFY --set-class $i:$role->{'category_id'}\n";
             } else {
-                $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL2_ID$role->{'category_id'}_$network src -j CLASSIFY --set-class 1:$role->{'category_id'}\n";
-                $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL2_ID$role->{'category_id'}_$network dst -j CLASSIFY --set-class 1:$role->{'category_id'}\n";
+                $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL2_ID$role->{'category_id'}_$network src -j CLASSIFY --set-class $i:$role->{'category_id'}\n";
+                $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL2_ID$role->{'category_id'}_$network dst -j CLASSIFY --set-class $i:$role->{'category_id'}\n";
             }
         }
+        $i++;
     }
 
     return $rules;
