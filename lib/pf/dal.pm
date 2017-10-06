@@ -244,11 +244,13 @@ update items
 =cut
 
 sub update_items {
-    my ($proto, $set, $where) = @_;
+    my ($proto, $set, $where, $extra) = @_;
+    $extra //= {};
     my ($status, $sth) = $proto->do_update(
         -table => $proto->table,
         -set   => $set,
         -where => $where,
+        %$extra
     );
     return $status, undef if is_error($status);
 
@@ -783,6 +785,35 @@ sub do_delete {
     my ($stmt, @bind) = $sqla->delete(@args);
     return $proto->db_execute($stmt, @bind);
 }
+
+=head2 batch_remove
+
+Batch remove rows
+
+=cut
+
+sub batch_remove {
+    my ($proto, $where, $batch, $time_limit) = @_;
+    my $logger = get_logger();
+    $logger->debug("calling batch_cleanup with batch=$batch timelimit=$time_limit");
+    my $start_time = time;
+    my $end_time;
+    my $rows_deleted = 0;
+    my $extra = {
+        -limit => $batch,
+    };
+    my $table = $proto->table;
+    while (1) {
+        my ($status, $rows) = $proto->remove_by_search($where, $extra);
+        $end_time = time;
+        $rows_deleted+=$rows if $rows > 0;
+        $logger->trace( sub { "deleted $rows_deleted entries from $table for batch_delete ($start_time $end_time) " });
+        last if $rows <= 0 || (( $end_time - $start_time) > $time_limit );
+    }
+    $logger->info("deleted $rows_deleted entries from $table for batch_delete ($start_time $end_time) ");
+    return $STATUS::OK, $rows_deleted;
+}
+
 
 =head1 AUTHOR
 
