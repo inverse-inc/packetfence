@@ -29,6 +29,7 @@ use pf::violation_config;
 use pf::provisioner;
 use pf::constants;
 use pf::dal::action;
+use pf::error qw(is_error is_success);
 
 use constant ACTION => 'action';
 
