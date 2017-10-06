@@ -33,13 +33,10 @@ has_field 'description' =>
 has_field 'category' =>
   (
    type => 'Select',
-   multiple => 1,
-   label => 'Roles',
+   label => 'Role',
    options_method => \&options_roles,
-   element_class => ['chzn-deselect'],
-   element_attr => {'data-placeholder' => 'Click to add a role'},
    tags => { after_element => \&help,
-             help => 'Nodes with the selected roles will be affected' },
+             help => 'The role to assign to devices registered from the specific portal. If none is specified, the role of the registrant is used.' },
   );
 
 has_field 'allowed_devices' =>
@@ -66,7 +63,7 @@ has_block definition =>
 sub options_roles {
     my $self = shift;
     my @roles = map { $_->{name} => $_->{name} } @{$self->form->roles} if ($self->form->roles);
-    return @roles;
+    return ('' => '', @roles);
 }
 
 =head2 ACCEPT_CONTEXT

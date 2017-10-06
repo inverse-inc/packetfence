@@ -42,7 +42,7 @@ sub build_child {
 
 sub cleanup_after_read {
     my ( $self, $id, $data ) = @_;
-    $self->expand_list( $data, qw(category allowed_devices) );
+    $self->expand_list( $data, qw(allowed_devices) );
 }
 
 =head1 AUTHOR
