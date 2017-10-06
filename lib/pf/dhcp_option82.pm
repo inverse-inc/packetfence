@@ -171,7 +171,7 @@ sub dhcp_option82_cleanup {
     my ($expire_seconds, $batch, $time_limit) = @_;
     my $logger = get_logger();
     $logger->debug(sub { "calling dhcp_option82_cleanup with time=$expire_seconds batch=$batch timelimit=$time_limit" });
-    my $now = db_now();
+    my $now = pf::dal->now();
     my $start_time = time;
     my $end_time;
     my $rows_deleted = 0;

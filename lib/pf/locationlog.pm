@@ -63,6 +63,7 @@ use pf::config qw(
     $VOIP
 );
 use pf::db;
+use pf::dal;
 use pf::node;
 use pf::util;
 use pf::config::util;
@@ -511,7 +512,7 @@ sub locationlog_cleanup {
         return;
     }
 
-    my $now = db_now();
+    my $now = pf::dal->now();
     my $start_time = time;
     my $end_time;
     my $rows_deleted = 0;

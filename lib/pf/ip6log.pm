@@ -25,6 +25,7 @@ use pf::config qw(
     %Config
 );
 use pf::constants;
+use pf::dal;
 use pf::db;
 use pf::log;
 use pf::node qw(node_add_simple node_exist);
@@ -732,7 +733,7 @@ sub rotate {
     my $logger = pf::log::get_logger();
 
     $logger->debug("Calling rotate with window='$window_seconds' seconds, batch='$batch', timelimit='$time_limit'");
-    my $now = pf::db::db_now();
+    my $now = pf::dal->now();
     my $start_time = time;
     my $end_time;
     my $rows_rotated = 0;
@@ -805,7 +806,7 @@ sub _cleanup {
         return;
     }
 
-    my $now = pf::db::db_now();
+    my $now = pf::dal->now();
     my $start_time = time;
     my $end_time;
     my $rows_deleted = 0;
