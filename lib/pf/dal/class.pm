@@ -19,24 +19,6 @@ use warnings;
 
 use base qw(pf::dal::_class);
 
-=head2 remove_classes_not_defined
-
-remove classes not defined
-
-=cut
-
-sub remove_classes_not_defined {
-    my ($self, $ids) = @_;
-    my $sqla = $self->get_sql_abstract;
-    my ($sql, @bind) = $sqla->delete(
-        -from => $self->table,
-        -where => { vid => { -not_in => $ids } },
-    );
-    my ($status, $sth) = $self->db_execute($sql, @bind);
-    $sth->finish;
-    return $status;
-}
- 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
