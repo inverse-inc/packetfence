@@ -670,6 +670,23 @@ sub to_hash {
     return \%hash;
 }
 
+=head2 now
+
+now
+
+=cut
+
+sub now {
+    my ($proto) = @_;
+    my ($status, $sth) = $proto->db_execute("SELECT NOW();");
+    if (is_error($status)) {
+        return undef;
+    }
+    my ($date) = $sth->fetchrow_array();
+    $sth->finish;
+    return $date;
+}
+
 =head2 merge_fields
 
 An array ref of the fields to merge
