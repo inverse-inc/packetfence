@@ -19,9 +19,6 @@ pfcmd <command> [options]
   fingerbank                  | Fingerbank related commands
   floatingnetworkdeviceconfig | query/modify floating network devices configuration parameters
   help                        | show help for pfcmd commands
-  ifoctetshistorymac          | accounting history
-  ifoctetshistoryswitch       | accounting history
-  ifoctetshistoryuser         | accounting history
   import                      | bulk import of information into the database
   ipmachistory                | IP/MAC history
   locationhistorymac          | Switch/Port history
