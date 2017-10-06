@@ -59,7 +59,10 @@ func main() {
 		for {
 			req, err := http.NewRequest("GET", "https://127.0.0.1:22223", nil)
 			req.SetBasicAuth(webservices.User, webservices.Pass)
-			cli := &http.Client{}
+			tr := &http.Transport{
+				TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+			}
+			cli := &http.Client{Transport: tr}
 			_, err = cli.Do(req)
 			if err == nil {
 				daemon.SdNotify(false, "WATCHDOG=1")
