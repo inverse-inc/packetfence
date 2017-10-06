@@ -32,6 +32,7 @@ use pf::constants;
 use pf::constants::scan qw($SEVERITY_HOLE $SEVERITY_WARNING $SEVERITY_INFO $STATUS_CLOSED $STATUS_NEW $STATUS_STARTED);
 use pf::config;
 use pf::dal::scan;
+use pf::error qw(is_error is_success);
 use pf::ip4log;
 use pf::scan::nessus;
 use pf::scan::openvas;
