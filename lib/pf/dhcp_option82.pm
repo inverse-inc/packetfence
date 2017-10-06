@@ -35,6 +35,7 @@ BEGIN {
 
 use pf::log;
 use pf::dal::dhcp_option82;
+use pf::error qw(is_error is_success);
 
 our $logger = get_logger();
 
