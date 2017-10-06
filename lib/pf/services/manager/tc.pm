@@ -15,7 +15,7 @@ Service manager for managing the traffic shaping
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths qw($generated_conf_dir $conf_dir);
+use pf::file_paths qw($install_dir);
 
 use pf::log;
 use pf::util;
@@ -25,6 +25,8 @@ use pf::config qw(
     $management_network
     %ConfigNetworks
 );
+use pf::nodecategory;
+use pf::iptables;
 
 use IPC::Cmd qw[can_run run];
 use pf::constants qw($TRUE $FALSE);
@@ -119,7 +121,7 @@ sub isAlive {
     my $result;
     $pid = $self->pid;
     my $route_exist = '';
-    my $full_path = can_run('tc')
+    my $full_path = can_run('tc');
 
     my @ints = split(',', pf::iptables::get_network_snat_interface());
     my @listen_interfaces = map {$_->tag("int")} @internal_nets, $management_network;
@@ -183,7 +185,7 @@ sub manageTrafficShaping {
 
         my $i = 1;
         my %tags;
-        my $full_path = can_run('tc')
+        my $full_path = can_run('tc');
         foreach my $int ( @interfaces) {
             my $cmd_remove = "sudo $full_path qdisc del dev $int root";
             print $fh $cmd_remove."\n";
