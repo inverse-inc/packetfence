@@ -658,6 +658,17 @@ sub find_or_create {
     return $status, $obj;
 }
 
+=head2 to_hash_fields
+
+to_hash_fields
+
+=cut
+
+sub to_hash_fields {
+    my ($self) = @_;
+    return $self->field_names;
+}
+
 =head2 to_hash
 
 Convert the object to a hash
@@ -667,7 +678,7 @@ Convert the object to a hash
 sub to_hash {
     my ($self) = @_;
     my %hash;
-    my $fields = $self->field_names;
+    my $fields = $self->to_hash_fields;
     @hash{@$fields} = @{$self}{@$fields};
     return \%hash;
 }
@@ -716,9 +727,9 @@ sub merge {
     return ;
 }
 
-sub set_tentant {
-    my ($class, $tentant_id) = @_;
-    $CURRENT_TENANT = $tentant_id;
+sub set_tenant {
+    my ($class, $tenant_id) = @_;
+    $CURRENT_TENANT = $tenant_id;
 }
 
 =head2 do_select
