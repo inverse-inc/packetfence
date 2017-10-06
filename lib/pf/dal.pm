@@ -656,6 +656,20 @@ sub find_or_create {
     return $status, $obj;
 }
 
+=head2 to_hash
+
+Convert the object to a hash
+
+=cut
+
+sub to_hash {
+    my ($self) = @_;
+    my %hash;
+    my $fields = $self->field_names;
+    @hash{@$fields} = @{$self}{@$fields};
+    return \%hash;
+}
+
 =head2 merge_fields
 
 An array ref of the fields to merge
