@@ -662,7 +662,7 @@ An array ref of the fields to merge
 
 =cut
 
-sub merged_fields {
+sub merge_fields {
     my ($self) = @_;
     return $self->field_names;
 }
