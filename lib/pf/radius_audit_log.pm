@@ -213,7 +213,7 @@ sub radius_audit_log_cleanup {
         return;
     }
 
-    my $now        = db_now();
+    my $now        = pf::dal->now();
     my $start_time = time;
     my $end_time;
     my $rows_deleted = 0;

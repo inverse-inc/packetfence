@@ -15,7 +15,6 @@ pf::pfmon::task::cleanup_chi_database_cache
 use strict;
 use warnings;
 use pf::log;
-use pf::db;
 use pf::dal::chi_cache;
 use pf::error qw(is_error);
 use Moose;
@@ -41,7 +40,7 @@ sub run {
     my $start_time = time;
     my $end_time;
     my $rows_deleted = 0;
-    my $now        = db_now();
+    my $now        = pf::dal->now();
     my $where = {
         expires_at  => {
             "<=" => $now,
