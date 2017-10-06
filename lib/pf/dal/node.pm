@@ -170,7 +170,7 @@ sub _insert_data {
         return $status, $data;
     }
     if ($data->{detect_date} eq '0000-00-00 00:00:00') {
-       $data->{detect_date} = \['NOW()'];
+       $data->{detect_date} = $self->now;
     }
     return $status, $data;
 }
