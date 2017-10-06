@@ -241,6 +241,16 @@ sub merge {
     return ;
 }
 
+=head2 to_hash_fields
+
+to_hash_fields
+
+=cut
+
+sub to_hash_fields {
+    return [@pf::dal::_node::FIELD_NAMES, qw(category bypass_role), @LOCATION_LOG_GETTERS];
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
