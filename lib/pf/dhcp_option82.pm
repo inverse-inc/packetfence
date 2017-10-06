@@ -171,28 +171,21 @@ sub dhcp_option82_cleanup {
     my ($expire_seconds, $batch, $time_limit) = @_;
     my $logger = get_logger();
     $logger->debug(sub { "calling dhcp_option82_cleanup with time=$expire_seconds batch=$batch timelimit=$time_limit" });
-    my $now = pf::dal->now();
-    my $start_time = time;
-    my $end_time;
-    my $rows_deleted = 0;
-    my $where = {
-        created_at => {
-            "<" => \[ 'DATE_SUB(?, INTERVAL ? SECOND)', $now, $expire_seconds ]
-        },
-    };
-    my $extra = {
-        -limit => $batch,
-    };
-    while (1) {
-        my ($status, $rows) = pf::dal::dhcp_option82->remove_by_search($where, $extra);
-        $end_time = time;
-        $rows_deleted += $rows if $rows > 0;
-        $logger->trace( sub { "deleted $rows_deleted entries from dhcp_option82 during cleanup ($start_time $end_time) "; }
-        );
-        last if $rows <= 0 || ( ( $end_time - $start_time ) > $time_limit );
+    if ($expire_seconds eq "0") {
+        $logger->debug("Not deleting because the window is 0");
+        return;
     }
-    $logger->trace( "deleted $rows_deleted entries from dhcp_option82 after cleanup ($start_time $end_time) " );
-    return (0);
+    my $now = pf::dal->now();
+    my ($status, $rows_deleted) = pf::dal::dhcp_option82->batch_delete(
+        {
+            created_at => {
+                "<" => \[ 'DATE_SUB(?, INTERVAL ? SECOND)', $now, $expire_seconds ]
+            },
+        },
+        $batch,
+        $time_limit
+    );
+    return ($rows_deleted);
 }
 
 =head1 AUTHOR
