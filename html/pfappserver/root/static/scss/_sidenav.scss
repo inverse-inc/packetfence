@@ -72,7 +72,7 @@ $sidenavSubsectionColor:        darken($navbarInverseText, 30%);
       background: transparent !important;
     }
     // The line
-    &:not(:last-child)::before {
+    &:not(:last-child):not(.sidenav-subsection--last)::before {
       content: '';
       position: absolute;
       background: $sidenavSubsectionColor;
