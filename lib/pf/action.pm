@@ -118,7 +118,7 @@ sub action_view {
     if (is_error($status)) {
         return (0);
     }
-    return ($item);
+    return ($item->to_hash());
 }
 
 sub action_view_all {
@@ -148,7 +148,7 @@ sub action_delete_all {
         return (undef);
     }
     $logger->debug("all actions ($rows) for class $vid deleted");
-    return ($rows);
+    return (1);
 }
 
 # TODO what is that? Isn't it dangerous?
