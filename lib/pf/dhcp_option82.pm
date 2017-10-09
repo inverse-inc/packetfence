@@ -133,7 +133,7 @@ sub dhcp_option82_view {
     if (is_error($status)) {
         return (0);
     }
-    return ($item);
+    return ($item->to_hash());
 }
 
 =head2 $count = dhcp_option82_count_all()
