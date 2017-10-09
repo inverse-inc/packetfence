@@ -192,7 +192,7 @@ sub action_execute {
     my ($mac, $vid, $notes) = @_;
     my $logger = get_logger();
     my $leave_open = 0;
-    my @actions = class_view_actions($vid);
+    my @actions = action_view_all($vid);
     # Sort the actions in reverse order in order to always finish with the autoreg action
     @actions = sort { $b->{action} cmp $a->{action} } @actions;
     foreach my $row (@actions) {
