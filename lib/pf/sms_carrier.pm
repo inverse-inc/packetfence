@@ -70,7 +70,7 @@ sub sms_carrier_view {
     if (is_error($status)) {
         return (0);
     }
-    return ($item);
+    return ($item->to_hash());
 }
 
 =head1 AUTHOR

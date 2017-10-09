@@ -163,7 +163,7 @@ sub radius_audit_log_view {
     if (is_error($status)) {
         return (0);
     }
-    return ($item);
+    return ($item->to_hash());
 }
 
 =head2 $count = radius_audit_log_count_all()
