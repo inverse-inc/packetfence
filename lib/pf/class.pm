@@ -30,7 +30,6 @@ BEGIN {
 }
 
 use pf::action;
-use pf::db;
 use pf::dal::class;
 use pf::error qw(is_error is_success);
 
