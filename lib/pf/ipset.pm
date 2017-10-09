@@ -21,7 +21,6 @@ use pf::log;
 use Readonly;
 use NetAddr::IP;
 
-#use pf::class qw(class_view_all class_trappable);
 use pf::config qw(
     %connection_type_to_str
     %Config
