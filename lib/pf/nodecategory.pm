@@ -142,7 +142,7 @@ sub nodecategory_view {
     if (is_error($status)) {
         return (0);
     }
-    return ($obj);
+    return ($obj->to_hash());
 }
 
 =item nodecategory_view_by_name - view a node category by name. Returns an hashref
