@@ -80,6 +80,13 @@ sub _defaults {
     return {};
 }
 
+
+our %MYSQL_ERROR_TO_STATUS_CODES = (
+    1062 => $STATUS::CONFLICT, #ER_DUP_ENTRY
+    1169 => $STATUS::CONFLICT, #ER_DUP_UNIQUE
+    1021 => $STATUS::INSUFFICIENT_STORAGE, #ER_DISK_FULL
+);
+
 =head2 db_execute
 
 Execute the sql query with it's bind parameters
@@ -90,6 +97,7 @@ sub db_execute {
     my ($self, $sql, @params) = @_;
     my $attempts = 3;
     my $logger = $self->logger;
+    my $status = $STATUS::INTERNAL_SERVER_ERROR;
     while ($attempts) {
         my $dbh = $self->get_dbh;
         unless ($dbh) {
@@ -102,6 +110,9 @@ sub db_execute {
             my $err = $dbh->err;
             my $errstr = $dbh->errstr;
             pf::db::db_handle_error($err);
+            if (exists $MYSQL_ERROR_TO_STATUS_CODES{$err}) {
+                $status = $MYSQL_ERROR_TO_STATUS_CODES{$err};
+            }
             if ($err < 2000) {
                 if ($err == $MYSQL_READONLY_ERROR) {
                     $logger->warn("Attempting to update a readonly database");
@@ -118,7 +129,7 @@ sub db_execute {
     } continue {
         $attempts--;
     }
-    return $STATUS::INTERNAL_SERVER_ERROR, undef;
+    return $status, undef;
 }
 
 =head2 find
@@ -129,12 +140,8 @@ Find the pf::dal object by it's primaries keys
 
 sub find {
     my ($proto, $ids) = @_;
-    my $where = $proto->build_primary_keys_where_clause($ids);
-    my ($status, $sth) = $proto->do_select(
-        -columns => $proto->find_columns,
-        -from => $proto->find_from_tables,
-        -where => $where,
-    );
+    my $select_args = $proto->find_select_args($ids);
+    my ($status, $sth) = $proto->do_select(%$select_args);
     return $status, undef if is_error($status);
     my $row = $sth->fetchrow_hashref;
     $sth->finish;
@@ -143,6 +150,23 @@ sub find {
     }
     my $dal = $proto->new_from_table($row);
     return $STATUS::OK, $dal;
+}
+
+=head2 find_select_args
+
+find_select_args
+
+=cut
+
+sub find_select_args {
+    my ($proto, $ids, @args) = @_;
+    my $where = $proto->build_primary_keys_where_clause($ids);
+    my %select_args = (
+        -columns => $proto->find_columns,
+        -from => $proto->find_from_tables,
+        -where => $where,
+    );
+    return \%select_args;
 }
 
 =head2 search
