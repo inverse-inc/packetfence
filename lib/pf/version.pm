@@ -42,7 +42,7 @@ sub version_check_db {
         return undef;
     }
 
-    my $row = $iterator->next_item;
+    my $row = $iterator->next;
     unless ( $row ) {
         $logger->error("Can't get any result from DB while trying to check for database schema version");
         return undef;
@@ -69,7 +69,7 @@ sub version_get_last_db_version {
     if (is_error($status)) {
         return undef;
     }
-    my $row = $iterator->next_item;
+    my $row = $iterator->next;
     unless ( $row ) {
         $logger->error("Can't get any result from DB while trying to check for database schema version");
         return undef;

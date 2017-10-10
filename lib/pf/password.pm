@@ -109,7 +109,7 @@ sub view_email {
     if (is_error($status)) {
         return (0);
     }
-    return $iter->next_item(undef);
+    return $iter->next(undef);
 }
 
 
@@ -336,7 +336,7 @@ sub validate_password {
         }
     );
 
-    my $temppass_record = $iter->next_item(undef);
+    my $temppass_record = $iter->next(undef);
     $iter->finish;
 
     if ( !defined($temppass_record) || ref($temppass_record) ne 'HASH' ) {

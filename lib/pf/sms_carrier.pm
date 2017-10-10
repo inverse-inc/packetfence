@@ -55,7 +55,7 @@ sub sms_carrier_view_all {
         );
     }
     return [] if is_error($status);
-    my $val = $iter->get_all_items(undef);
+    my $val = $iter->all(undef);
 
     return $val;
 }

@@ -31,13 +31,13 @@ sub new {
     return bless $self, $class;
 }
 
-=head2 next_item
+=head2 next
 
 Get the next item from the iterator
 
 =cut
 
-sub next_item {
+sub next {
     my ($self) = @_;
     my $sth = $self->sth;
     return undef unless defined $sth;
@@ -50,13 +50,13 @@ sub next_item {
     return defined $class ? $class->new_from_table($row) : $row;
 }
 
-=head2 get_all_items
+=head2 all
 
 Get all the items for the iterator
 
 =cut
 
-sub get_all_items {
+sub all {
     my ($self) = @_;
     my $sth = $self->sth;
     return undef unless defined $sth;

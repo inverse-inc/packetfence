@@ -60,7 +60,7 @@ sub class_view_all {
     if (is_error($status)) {
         return;
     }
-    return @{ $item->get_all_items(undef) // []};
+    return @{ $item->all(undef) // []};
 }
 
 sub class_add {

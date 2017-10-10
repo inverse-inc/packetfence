@@ -59,7 +59,7 @@ sub search {
     if (is_error($status)) {
         return ($status, "Error searching in radius_audit_log");
     }
-    my $items = $iter->get_all_items(undef);
+    my $items = $iter->all(undef);
     foreach my $item (@$items) {
         _unescape_item($item);
     }

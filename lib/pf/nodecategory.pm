@@ -47,6 +47,7 @@ BEGIN {
 use pf::version;
 use pf::config;
 use pf::dal::node_category;
+use pf::db;
 use pf::error qw(is_error is_success);
 use pf::util;
 
@@ -155,7 +156,7 @@ sub nodecategory_view_by_name {
     if (is_error($status)) {
         return (0);
     }
-    return ($iter->next_item());
+    return ($iter->next(undef));
 }
 
 =item nodecategory_add - add a node category
