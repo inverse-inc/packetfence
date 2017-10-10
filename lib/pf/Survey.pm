@@ -34,6 +34,11 @@ our %FIELD_MAP = (
     },
 );
 
+# Fields that are forbidden in surveys as they are used internally
+our %FORBIDDEN_FIELDS = (
+    id => 1,
+);
+
 sub table_name {
     my ($self) = @_;
     return $TABLE_PREFIX . $self->id;
@@ -51,8 +56,6 @@ sub insert_or_update_field {
     my ($self, $field_id, $config_field, $db_field) = @_;
     my $logger = get_logger();
     my $table_name = $self->table_name;
-
-    print Dumper($config_field, $db_field);
 
     my $wants_type = $FIELD_MAP{$config_field->{type}}{type};
     
@@ -108,7 +111,7 @@ sub reload_from_config {
                 $logger->info("Created table $table_name");
             }
             else {
-                $logger->info("Failed to create table $table_name, survey $survey_id will not work properly");
+                $logger->error("Failed to create table $table_name, survey $survey_id will not work properly");
                 next;
             }
         }
@@ -116,10 +119,15 @@ sub reload_from_config {
         my $db_fields = { map { $_->{Field} => $_ } @desc }; 
 
         while(my ($field_id, $field_config) = each(%{$survey->fields})) {
-            $survey->insert_or_update_field($field_id, $field_config, $db_fields->{$field_id});
-        }
+            if(exists($FORBIDDEN_FIELDS{$field_id})) {
+                $logger->warn("Will not create/update field $field_id as it is part of the internal fields of the surveys");
+                next;
+            }
 
-        use Data::Dumper ; print Dumper(\@desc);
+            unless($survey->insert_or_update_field($field_id, $field_config, $db_fields->{$field_id})) {
+                $logger->error("Failed to create/update field $field_id in table $table_name");
+            }
+        }
     }
 }
 
