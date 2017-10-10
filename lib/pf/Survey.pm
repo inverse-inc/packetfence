@@ -17,8 +17,10 @@ has 'fields', (is => 'rw', isa => 'HashRef');
 # empty since no queries are prepared upfront
 sub Survey_db_prepare {}
 
+# The prefix of the survey tables
 our $TABLE_PREFIX = "survey_";
 
+# Fields definition for supported field types
 our %FIELD_MAP = (
     "Select" => {
         type => "varchar(255)",
@@ -39,10 +41,22 @@ our %FORBIDDEN_FIELDS = (
     id => 1,
 );
 
+=head2 table_name
+
+The table name for a survey object
+
+=cut
+
 sub table_name {
     my ($self) = @_;
     return $TABLE_PREFIX . $self->id;
 }
+
+=head2 create_table
+
+Create the base structure of a survey table (without its fields)
+
+=cut
 
 sub create_table {
     my ($self) = @_;
@@ -52,7 +66,19 @@ sub create_table {
     return (@result && $result[0] == $FALSE) ? $FALSE : $TRUE;
 }
 
-sub insert_or_update_field {
+=head2 create_or_update_field
+
+Create or update a survey field in the database
+
+Will make sure
+- The field exists
+- The field has the proper type based on FIELD_MAP
+
+If a field has an unknown type, this will die
+
+=cut
+
+sub create_or_update_field {
     my ($self, $field_id, $config_field, $db_field) = @_;
     my $logger = get_logger();
     my $table_name = $self->table_name;
@@ -82,6 +108,17 @@ sub insert_or_update_field {
         return (@result && $result[0] == $FALSE) ? $FALSE : $TRUE;
     }
 }
+
+=head2 reload_from_config
+
+Reload the survey tables schema based on the configuration
+
+Will make sure:
+- All the survey tables exist
+- All the survey tables have the right fields
+- All the survey tables fields have the right type
+
+=cut
 
 sub reload_from_config {
     my ($config) = @_;
@@ -124,12 +161,18 @@ sub reload_from_config {
                 next;
             }
 
-            unless($survey->insert_or_update_field($field_id, $field_config, $db_fields->{$field_id})) {
+            unless($survey->create_or_update_field($field_id, $field_config, $db_fields->{$field_id})) {
                 $logger->error("Failed to create/update field $field_id in table $table_name");
             }
         }
     }
 }
+
+=head2 _db_data
+
+Execute a query through pf::db
+
+=cut
 
 sub _db_data {
     my ($class, $from_module, $module_statements_ref, $query, @params) = @_;
