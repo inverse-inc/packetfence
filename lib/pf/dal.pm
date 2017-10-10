@@ -758,16 +758,27 @@ sub set_tenant {
     $CURRENT_TENANT = $tenant_id;
 }
 
+=head2 select
+
+Wrap select pf::SQL::Abstract->select
+
+=cut
+
+sub select {
+    my ($proto, @args) = @_;
+    my $sqla = $proto->get_sql_abstract;
+    return $sqla->select(@args);
+}
+
 =head2 do_select
 
-Wrap call to pf::SQL::Abstract->select and db_execute
+Wrap call to select and db_execute
 
 =cut
 
 sub do_select {
     my ($proto, @args) = @_;
-    my $sqla = $proto->get_sql_abstract;
-    my ($sql, @bind) = $sqla->select(@args);
+    my ($sql, @bind) = $proto->select(@args);
     return $proto->db_execute($sql, @bind);
 }
 
