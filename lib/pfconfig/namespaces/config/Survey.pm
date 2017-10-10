@@ -47,10 +47,8 @@ sub build_child {
 
     for my $survey (@surveys) {
         $cfg->{$survey} = $tmp_cfg{$survey};
-        $cfg->{$survey}->{fields} = [ map { $_ =~ /^$survey field/ ? $tmp_cfg{$_} : () } @{$self->{ordered_sections}} ];
+        $cfg->{$survey}->{fields} = { map { $_ =~ /^$survey field (.+)/ ? ($1 => $tmp_cfg{$_}) : () } @{$self->{ordered_sections}} };
     }
-
-    use Data::Dumper; print Dumper($cfg);
 
     return $cfg;
 }
