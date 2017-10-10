@@ -71,6 +71,7 @@ our (
     $pfcmd_binary,
     $report_config_file, $report_default_config_file,
     $realm_config_file, $realm_default_config_file,
+    $survey_config_file,
     $cluster_config_file,
     $server_cert, $server_key, $server_pem,
     $radius_server_key, $radius_server_cert, $radius_ca_cert,
@@ -143,6 +144,7 @@ BEGIN {
         $pfcmd_binary
         $report_config_file $report_default_config_file
         $realm_config_file $realm_default_config_file
+        $survey_config_file
         $cluster_config_file
         $server_cert $server_key $server_pem
         $radius_server_cert $radius_server_key $radius_ca_cert
@@ -239,6 +241,7 @@ $report_default_config_file = catfile($conf_dir,"report.conf.defaults");
 $pfqueue_default_config_file =  catfile($conf_dir,"pfqueue.conf.defaults");
 $realm_config_file = catfile($conf_dir,"realm.conf");
 $realm_default_config_file = catfile($conf_dir,"realm.conf.defaults");
+$survey_config_file = catfile($conf_dir,"survey.conf");
 $cluster_config_file = catfile($conf_dir,"cluster.conf");
 $server_key = catfile($conf_dir,"ssl/server.key");
 $server_cert = catfile($conf_dir,"ssl/server.crt");
