@@ -15,9 +15,10 @@ pf::ConfigStore::Survey
 use strict;
 use warnings;
 use Moo;
+use pf::Survey;
+use pf::config qw(%ConfigSurvey);
 use pf::file_paths qw(
     $survey_config_file
-    $survey_default_config_file
 );
 extends 'pf::ConfigStore';
 
@@ -25,29 +26,18 @@ sub configFile { $survey_config_file }
 
 sub pfconfigNamespace {'config::Survey'}
 
-=head2 cleanupAfterRead
+=item commit
 
-Clean up Survey data
-
-=cut
-
-sub cleanupAfterRead {
-    my ($self, $id, $profile) = @_;
-    $self->expand_list($profile, $self->_fields_expanded);
-    # This can be an array if it's fresh out of the file. We make it separated by newlines so it works fine the frontend
-    if(ref($profile->{options}) eq 'ARRAY'){
-        $profile->{options} = $self->join_options($profile->{options});
-    }
-}
-
-=head2 cleanupBeforeCommit
-
-Clean data before update or creating
+Sync the survey tables schema after saving
 
 =cut
 
-sub cleanupBeforeCommit {
-    my ($self, $id, $survey) = @_;
+sub commit {
+    my ($self) = @_;
+    my ($result, $error) = $self->SUPER::commit();
+    pf::log::get_logger->info("commiting via Survey configstore");
+    pf::Survey::reload_from_config( \%pf::config::ConfigSurvey );
+    return ($result, $error);
 }
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};

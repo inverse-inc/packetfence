@@ -924,6 +924,9 @@ sub configreload {
     require pf::nodecategory;
     pf::nodecategory::nodecategory_populate_from_config( \%pf::config::ConfigRoles );
 
+    require pf::Survey;
+    pf::Survey::reload_from_config( \%pf::config::ConfigSurvey );
+
     return ;
 }
 
