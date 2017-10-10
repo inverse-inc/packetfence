@@ -119,7 +119,7 @@ sub db_execute {
                 if ($err == $MYSQL_READONLY_ERROR) {
                     $logger->warn("Attempting to update a readonly database");
                 } else {
-                    $logger->error("Database query failed with non retryable error: $errstr (errno: $err) [$sql]");
+                    $logger->error("Database query failed with non retryable error: $errstr (errno: $err) [$sql]{". join(", ", map { defined $_ ?  $_ : "NULL" } @params)  . "}");
                 }
                 last;
             }
