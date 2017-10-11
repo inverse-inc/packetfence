@@ -16,7 +16,7 @@ use warnings;
 use Log::Log4perl;
 
 use pf::config;
-use pf::util;
+use pf::util qw (%Config);
 use pf::log();
 
 use pf::node;
@@ -49,8 +49,12 @@ sub getVlanFromPool {
 
     return $pool_args->{'vlan'} if $self->rangeValidator($args->{'vlan'});
     my $range = Number::Range->new($args->{'vlan'});
-
-    my $vlan = $self->getRoundRobin($args, $range);
+    my $vlan;
+    if ($Config{advanced}{vlan_pool_technique} eq "username_hash") {
+        $vlan = $self->getVlanByUsername($args, $range);
+    } else {
+        $vlan = $self->getRoundRobin($args, $range);
+    }
     return $vlan;
 }
 
