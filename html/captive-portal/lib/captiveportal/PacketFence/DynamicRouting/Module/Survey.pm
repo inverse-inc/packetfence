@@ -22,6 +22,7 @@ use pf::log;
 use pf::factory::survey;
 use captiveportal::Form::Survey;
 use pf::locationlog;
+use pf::person qw(person_view);
 
 has 'survey_id' => (is => 'rw', isa => 'Str');
 
@@ -131,8 +132,9 @@ sub prompt_fields {
 
 sub execute_child {
     my ($self) = @_;
-    if($self->app->request->method eq "POST") {
-        if($self->survey->insert_or_update_response($self->merged_fields, { node => $self->node_info, ip => $self->current_ip })) {
+    # If there is no fields to prompt or we're handling a form POST
+    if(!@{$self->survey->fields_order} || $self->app->request->method eq "POST") {
+        if($self->survey->insert_or_update_response($self->merged_fields, { node => $self->node_info, ip => $self->current_ip, person => person_view($self->username) })) {
             $self->done();
         }
         else {
