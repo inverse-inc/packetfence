@@ -62,6 +62,8 @@ sub loadViolationsIntoDb {
             }
         }
 
+        $violation = 0 if ($violation eq "defaults");
+
         # be careful of the way parameters are passed, whitelists, actions are expected at the end
         class_merge(
             $violation,
