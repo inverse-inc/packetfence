@@ -3,6 +3,7 @@ package pf::Survey;
 use constant SURVEY => 'Survey';
 
 use Moose;
+use SQL::Abstract::More;
 use pf::db;
 use pf::log;
 use Tie::IxHash;
@@ -165,6 +166,39 @@ sub reload_from_config {
                 $logger->error("Failed to create/update field $field_id in table $table_name");
             }
         }
+    }
+}
+
+=head2 insert_or_update_response
+
+Inserts or updates a survey response using a hashref and an optional response ID (id column of the survey table)
+
+=cut
+
+sub insert_or_update_response {
+    my ($self, $response, $response_id) = @_;
+    get_logger->debug("Attempting to insert or update survey response");
+    
+    my $sqla = SQL::Abstract::More->new();
+
+    if(defined($response_id)) {
+        get_logger->info("Updating existing survey response $response_id");
+        my ($sql, @params) = $sqla->update(
+            -table => $self->table_name,
+            -set => $response,
+            -where => {id => {"=" => $response_id}},
+        );
+        my @result = $self->_db_data(SURVEY, {'survey_update_sql' => $sql}, 'survey_update_sql', @params);
+        return (@result && $result[0] == $FALSE) ? $FALSE : $TRUE;
+    }
+    else {
+        get_logger->info("Creating new survey response");
+        my ($sql, @params) = $sqla->insert(
+            -into => $self->table_name,
+            -values => $response,
+        );
+        my @result = $self->_db_data(SURVEY, {'survey_insert_sql' => $sql}, 'survey_insert_sql', @params);
+        return (@result && $result[0] == $FALSE) ? $FALSE : $TRUE;
     }
 }
 

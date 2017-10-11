@@ -131,7 +131,13 @@ sub prompt_fields {
 sub execute_child {
     my ($self) = @_;
     if($self->app->request->method eq "POST") {
-        $self->prompt_fields();
+        use pf::log ; use Data::Dumper ; get_logger->info(Dumper($self->merged_fields));
+        if($self->survey->insert_or_update_response($self->merged_fields)) {
+            $self->app->error("Great success");
+        }
+        else {
+            $self->app->error("Failed to record your response. Please try again later.");
+        }
     }
     else {
         $self->prompt_fields();
