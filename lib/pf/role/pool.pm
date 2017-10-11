@@ -122,6 +122,25 @@ sub getRoundRobin {
     }
 }
 
+
+=head2 getVlanByUsername
+
+Return the vlan id based on a hash of the username
+
+=cut
+
+sub getVlanByUsername {
+    my ( $self, $args, $range ) = @_;
+
+    my $index = unpack( "%16C*", $args->{'node_info'}->{'pid'} ) + length($args->{'node_info'}->{'pid'});
+
+    my $vlan_count = $range->size;
+    my @array = $range->range;
+    my $new_vlan = ($index + 1) % $vlan_count;
+    return ($array[$new_vlan]);
+
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
