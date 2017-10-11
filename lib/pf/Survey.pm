@@ -13,7 +13,9 @@ has 'id', (is => 'rw', isa => 'Str');
 
 has 'description', (is => 'rw', isa => 'Str');
 
-has 'fields', (is => 'rw', isa => 'HashRef');
+has 'fields', (is => 'rw', isa => 'HashRef', default => sub { {} });
+
+has 'data_fields', (is => 'rw', isa => 'HashRef', default => sub { {} });
 
 # empty since no queries are prepared upfront
 sub Survey_db_prepare {}
@@ -75,7 +77,7 @@ Will make sure
 - The field exists
 - The field has the proper type based on FIELD_MAP
 
-If a field has an unknown type, this will die
+If a field has an unknown type, it will make it a varchar(255)
 
 =cut
 
@@ -84,10 +86,10 @@ sub create_or_update_field {
     my $logger = get_logger();
     my $table_name = $self->table_name;
 
-    my $wants_type = $FIELD_MAP{$config_field->{type}}{type};
+    my $wants_type = defined($config_field->{type}) ? $FIELD_MAP{$config_field->{type}}{type} : undef;
     
     unless(defined($wants_type)) {
-        die "Unknown field type $config_field->{type} \n";
+        $wants_type = "varchar(255)";
     }
 
     if(defined($db_field)) {
@@ -156,7 +158,8 @@ sub reload_from_config {
 
         my $db_fields = { map { $_->{Field} => $_ } @desc }; 
 
-        while(my ($field_id, $field_config) = each(%{$survey->fields})) {
+        my %merge = ( %{$survey->fields}, %{$survey->data_fields} );
+        while(my ($field_id, $field_config) = each(%merge)) {
             if(exists($FORBIDDEN_FIELDS{$field_id})) {
                 $logger->warn("Will not create/update field $field_id as it is part of the internal fields of the surveys");
                 next;
@@ -173,10 +176,12 @@ sub reload_from_config {
 
 Inserts or updates a survey response using a hashref and an optional response ID (id column of the survey table)
 
+$args is the contextual data around the node and connection for population of the data_fields.
+
 =cut
 
 sub insert_or_update_response {
-    my ($self, $response, $response_id) = @_;
+    my ($self, $response, $args, $response_id) = @_;
     get_logger->debug("Attempting to insert or update survey response");
 
     for my $field (keys(%$response)) {
@@ -185,6 +190,27 @@ sub insert_or_update_response {
             delete $response->{$field};
         }
     }
+
+    if(defined($args)) {
+        get_logger->debug("Contextual arguments have been supplied, populating data fields from it");
+
+
+        while(my ($field, $config) = each(%{$self->data_fields})) {
+            next unless(defined($config->{query}));
+
+            my @query = split(/\./, $config->{query});
+            my $result = $args;
+
+            # dig into the hash structure to get the query attribute
+            for my $query_part (@query) {
+                $result = $result->{$query_part};
+            }
+            
+            $response->{$field} = $result;
+        }
+    }
+
+    use Data::Dumper ; print Dumper($response);
     
     my $sqla = SQL::Abstract::More->new();
 
