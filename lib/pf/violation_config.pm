@@ -51,6 +51,7 @@ sub loadViolationsIntoDb {
         return;
     }
 
+    my @keys;
     while(my ($violation,$data) = each %Violation_Config) {
         # parse grace, try to understand trailing signs, and convert back to seconds
         my @time_values = (qw(grace delay_by));
@@ -86,8 +87,9 @@ sub loadViolationsIntoDb {
             $data->{'whitelisted_roles'} || '',
             $data->{'actions'},
         );
+        push @keys, $violation;
     }
-    pf::dal::class->remove_classes_not_defined([keys %Violation_Config]);
+    pf::dal::class->remove_classes_not_defined(\@keys);
 }
 
 =head1 AUTHOR
