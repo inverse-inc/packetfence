@@ -121,6 +121,7 @@ sub prompt_fields {
     $args //= {};
     $self->render($self->template, {
         previous_request => $self->app->request->parameters(),
+        fields_order => $self->survey->fields_order,
         fields => $self->merged_fields,
         form => $self->form,
         title => defined($self->survey) ? $self->survey->description : "Survey",
@@ -131,9 +132,8 @@ sub prompt_fields {
 sub execute_child {
     my ($self) = @_;
     if($self->app->request->method eq "POST") {
-        use pf::log ; use Data::Dumper ; get_logger->info(Dumper($self->merged_fields));
-        if($self->survey->insert_or_update_response($self->merged_fields)) {
-            $self->app->error("Great success");
+        if($self->survey->insert_or_update_response($self->merged_fields, { node => $self->node_info })) {
+            $self->done();
         }
         else {
             $self->app->error("Failed to record your response. Please try again later.");

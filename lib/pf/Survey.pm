@@ -13,6 +13,7 @@ has 'id', (is => 'rw', isa => 'Str');
 
 has 'description', (is => 'rw', isa => 'Str');
 
+has 'fields_order' => (is => 'rw', isa => 'ArrayRef', default => sub { [] });
 has 'fields', (is => 'rw', isa => 'HashRef', default => sub { {} });
 
 has 'data_fields', (is => 'rw', isa => 'HashRef', default => sub { {} });

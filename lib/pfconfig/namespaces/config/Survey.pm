@@ -47,7 +47,8 @@ sub build_child {
 
     for my $survey (@surveys) {
         $cfg->{$survey} = $tmp_cfg{$survey};
-        $cfg->{$survey}->{fields} = { map { $_ =~ /^$survey field (.+)/ ? ($1 => $tmp_cfg{$_}) : () } @{$self->{ordered_sections}} };
+        my $ordered = $cfg->{$survey}->{fields_order} = [ map { $_ =~ /^$survey field (.+)/ ? ($1) : () } @{$self->{ordered_sections}} ];
+        $cfg->{$survey}->{fields} = { map { $_ => $tmp_cfg{"$survey field $_"} } @$ordered };
         $cfg->{$survey}->{data_fields} = { map { $_ =~ /^$survey data (.+)/ ? ($1 => $tmp_cfg{$_}) : () } @{$self->{ordered_sections}} };
     }
 
