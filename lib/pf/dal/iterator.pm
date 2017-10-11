@@ -47,7 +47,7 @@ sub next {
         return undef;
     }
     my $class = @_ > 1 ? $_[1] : $self->class;
-    return defined $class ? $class->new_from_table($row) : $row;
+    return defined $class ? $class->new_from_row($row) : $row;
 }
 
 =head2 all
@@ -64,7 +64,7 @@ sub all {
     $self->finish;
     my $class = @_ > 1 ? $_[1] : $self->class;
     return $items unless defined $class;
-    return [map {$class->new_from_table($_)} @$items];
+    return [map {$class->new_from_row($_)} @$items];
 }
 
 =head2 finish
