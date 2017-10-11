@@ -561,11 +561,7 @@ sub node_add_simple {
     my %tmp   = (
         'pid'         => 'default',
         'detect_date' => $date,
-        'regdate'     => 0,
-        'unregdate'   => 0,
-        'last_skip'   => 0,
         'status'      => 'unreg',
-        'last_dhcp'   => 0,
         'voip'        => 'no',
     );
     if ( !node_add( $mac, %tmp ) ) {
