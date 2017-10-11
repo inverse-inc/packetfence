@@ -44,13 +44,13 @@ sub new {
     return bless \%data, $class;
 }
 
-=head2 new_from_table
+=head2 new_from_row
 
 Create a new pf::dal object marking it that it came from the database
 
 =cut
 
-sub new_from_table {
+sub new_from_row {
     my ($proto, $args) = @_;
     my $class = ref($proto) || $proto;
     my %data = %{$args // {}};
@@ -150,7 +150,7 @@ sub find {
     unless ($row) {
         return $STATUS::NOT_FOUND, undef;
     }
-    my $dal = $proto->new_from_table($row);
+    my $dal = $proto->new_from_row($row);
     return $STATUS::OK, $dal;
 }
 
@@ -673,7 +673,7 @@ sub find_or_create {
         my $row = $sth->fetchrow_hashref;
         $sth->finish;
         if ($row) {
-            my $obj = $proto->new_from_table($row);
+            my $obj = $proto->new_from_row($row);
             return $STATUS::OK, $obj;
         }
     }
