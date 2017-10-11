@@ -11,6 +11,8 @@ use pf::constants qw($TRUE $FALSE);
 
 has 'id', (is => 'rw', isa => 'Str');
 
+has 'table', (is => 'rw', isa => 'Str');
+
 has 'description', (is => 'rw', isa => 'Str');
 
 has 'fields_order' => (is => 'rw', isa => 'ArrayRef', default => sub { [] });
@@ -53,7 +55,7 @@ The table name for a survey object
 
 sub table_name {
     my ($self) = @_;
-    return $TABLE_PREFIX . $self->id;
+    return $TABLE_PREFIX . (defined($self->table) ? $self->table : $self->id);
 }
 
 =head2 create_table
