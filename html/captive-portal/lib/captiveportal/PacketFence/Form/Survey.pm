@@ -64,8 +64,6 @@ sub field_list {
 
         $options->{label} = $field_config->{label};
 
-        #$options->{required} = isenabled($field_config->{required});
-
         push @fields, "fields[$field_id]" => $options;
     }
     return \@fields;
