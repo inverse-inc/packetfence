@@ -158,6 +158,12 @@ sub reload_from_config {
                 next;
             }
         }
+        
+        @desc = pf::Survey->_db_data(SURVEY, {'table_desc_sql' => "DESC $table_name"}, 'table_desc_sql');
+        if($desc[0] == $FALSE) {
+            $logger->error("Unable to get table description even after creating it. Bailing out.");
+            return $FALSE;
+        }
 
         my $db_fields = { map { $_->{Field} => $_ } @desc }; 
 
