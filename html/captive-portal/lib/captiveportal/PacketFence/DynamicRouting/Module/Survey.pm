@@ -132,7 +132,7 @@ sub prompt_fields {
 sub execute_child {
     my ($self) = @_;
     if($self->app->request->method eq "POST") {
-        if($self->survey->insert_or_update_response($self->merged_fields, { node => $self->node_info })) {
+        if($self->survey->insert_or_update_response($self->merged_fields, { node => $self->node_info, ip => $self->current_ip })) {
             $self->done();
         }
         else {

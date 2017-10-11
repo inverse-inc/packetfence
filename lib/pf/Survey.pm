@@ -195,7 +195,6 @@ sub insert_or_update_response {
     if(defined($args)) {
         get_logger->debug("Contextual arguments have been supplied, populating data fields from it");
 
-
         while(my ($field, $config) = each(%{$self->data_fields})) {
             next unless(defined($config->{query}));
 
@@ -207,6 +206,8 @@ sub insert_or_update_response {
                 $result = $result->{$query_part};
             }
             
+            get_logger->debug("Setting survey data '$result' to field '$field'");
+
             $response->{$field} = $result;
         }
     }
