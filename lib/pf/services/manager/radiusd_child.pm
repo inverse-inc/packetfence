@@ -648,6 +648,7 @@ EOT
         foreach my $radius_back (@radius_backend) {
             $tags{'config'} .= <<"EOT";
 client $radius_back {
+        ipaddr = $radius_back
         secret = $local_secret
         shortname = pf
 }
