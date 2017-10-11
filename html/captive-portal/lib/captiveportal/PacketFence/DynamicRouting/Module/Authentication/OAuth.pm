@@ -174,6 +174,8 @@ sub handle_callback {
         
         pf::auth_log::record_completed_oauth($self->source->id, $self->current_mac, $pid, $pf::auth_log::COMPLETED);
 
+        $self->update_person_from_fields();
+
         $self->done();
     }
     else {

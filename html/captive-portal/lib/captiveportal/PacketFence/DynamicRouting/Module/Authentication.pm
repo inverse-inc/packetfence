@@ -318,7 +318,7 @@ sub update_person_from_fields {
     elsif (ref($self) eq 'captiveportal::DynamicRouting::Module::Authentication::Password') {
         $options{pid} //= $self->username;
     } else {
-        $options{pid} //= $self->request_fields->{$self->pid_field};
+        $options{pid} //= $self->request_fields->{$self->pid_field} // $self->username;
     }
 
     # not sure we should set the portal + source here...
