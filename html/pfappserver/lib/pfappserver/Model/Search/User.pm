@@ -16,7 +16,6 @@ use strict;
 use warnings;
 use Moose;
 use pf::log;
-use pf::person qw(person_custom_search);
 use HTTP::Status qw(is_success :constants);
 use pf::util qw(calc_page_count);
 use pf::dal::person;
