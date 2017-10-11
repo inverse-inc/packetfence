@@ -91,8 +91,7 @@ sub execute_child {
     }
     elsif($self->app->request->path eq "oauth2/go" && $self->app->request->method eq "POST"){
         if(!$self->with_aup || $self->request_fields->{aup}){
-            pf::auth_log::record_oauth_attempt($self->source->id, $self->current_mac);
-            $self->app->redirect($self->get_client->authorize);
+            $self->redirect_to_provider();
         }
         else {
             $self->app->flash->{error} = "You must accept the terms and conditions";
@@ -100,8 +99,27 @@ sub execute_child {
         }
     }
     else {
-        $self->landing();
+        # If there is an AUP, then we must display the form
+        if($self->with_aup) {
+            $self->landing();
+        }
+        else {
+            get_logger->debug("No AUP, proceeding directly to provider");
+            $self->redirect_to_provider();
+        }
     }
+}
+
+=head2 redirect_to_provider
+
+Redirects to the OAuth provider and registers the attempt in the authlog
+
+=cut
+
+sub redirect_to_provider {
+    my ($self) = @_;
+    pf::auth_log::record_oauth_attempt($self->source->id, $self->current_mac);
+    $self->app->redirect($self->get_client->authorize);
 }
 
 =head2 get_token
