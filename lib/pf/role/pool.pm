@@ -44,13 +44,13 @@ sub new {
 }
 
 sub getVlanFromPool {
-    my ($self, $pool_args) = @_;
+    my ($self, $args) = @_;
     my $logger =  pf::log::get_logger();
 
-    return $pool_args->{'vlan'} if $self->rangeValidator($pool_args->{'vlan'});
-    my $range = Number::Range->new($pool_args->{'vlan'});
+    return $pool_args->{'vlan'} if $self->rangeValidator($args->{'vlan'});
+    my $range = Number::Range->new($args->{'vlan'});
 
-    my $vlan = $self->getRoundRobin($pool_args->{'mac'}, $pool_args->{'user_role'}, $range);
+    my $vlan = $self->getRoundRobin($args, $range);
     return $vlan;
 }
 
@@ -89,16 +89,16 @@ Else get the last registered device vlan and add + 1 (+1 in the range)
 =cut
 
 sub getRoundRobin {
-    my ($self, $mac, $role, $range) = @_;
+    my ($self, $args, $range) = @_;
     my $logger =  pf::log::get_logger();
 
     my $vlan_count = $range->size;
-    my $node_info_complete = node_view($mac);
+    my $node_info_complete = node_view($args->{'mac'});
     if ( defined($node_info_complete->{'last_vlan'}) && $range->inrange($node_info_complete->{'last_vlan'}) ) {
         $logger->debug("NODE LAST VLAN ".$node_info_complete->{'last_vlan'});
         return ($node_info_complete->{'last_vlan'});
     }
-    my $last_reg_mac = node_last_reg_non_inline_on_category($mac, $role);
+    my $last_reg_mac = node_last_reg_non_inline_on_category($args->{'mac'}, $args->{'user_role'});
     my @array = $range->range;
 
     if (defined($last_reg_mac) && $last_reg_mac ne '') {
