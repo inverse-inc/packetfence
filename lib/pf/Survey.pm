@@ -178,6 +178,13 @@ Inserts or updates a survey response using a hashref and an optional response ID
 sub insert_or_update_response {
     my ($self, $response, $response_id) = @_;
     get_logger->debug("Attempting to insert or update survey response");
+
+    for my $field (keys(%$response)) {
+        unless(exists($self->fields->{$field})) {
+            get_logger->warn("Ignoring survey field '$field' since its not part of this survey configuration");
+            delete $response->{$field};
+        }
+    }
     
     my $sqla = SQL::Abstract::More->new();
 
