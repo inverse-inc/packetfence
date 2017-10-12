@@ -1383,11 +1383,11 @@ Putting the survey on the portal
 
 In order for your survey to be available on the portal, you will have to configure a portal module for it. In order to do so, go in 'Configuration->Advanced Access Configuration->Portal Modules' and create a new Survey portal module with the following settings:
 
-## screenshot survey portal module
+image::docs/images/survey-portal-module.png[scaledwidth="100%",alt="Survey portal module configuration"]
 
 Then either add your survey to another portal module (Choice, Chained or Root) or create a Root portal module dedicated to the survey:
 
-## screenshot survey root portal module
+image::docs/images/survey-root-portal-module.png[scaledwidth="100%",alt="Survey root portal module configuration"]
 
 Once that is configured, make sure you have the right Root portal module on the applicable connection profile in 'Policies and Access Control->Connection Profiles->Name of the profile->Root Portal Module'.
 
