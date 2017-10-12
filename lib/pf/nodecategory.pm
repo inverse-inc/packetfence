@@ -130,7 +130,7 @@ sub nodecategory_view_all {
     if (is_error($status)) {
         return;
     }
-    return @{$iter->get_all_items() // []};
+    return @{$iter->all() // []};
 }
 
 =item nodecategory_view - view a node category, returns an hashref
