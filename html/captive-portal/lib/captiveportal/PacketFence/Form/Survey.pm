@@ -43,7 +43,7 @@ sub field_list {
         if($type eq "Select") {
             $options = {
                 type => $type,
-                options => [ map { my @a = split(/\|/, $_) ; {value => $a[0], label => $a[1]} } @{$field_config->{choices}} ],
+                options => [ map { my @a = split(/\|/, $_) ; {value => $a[0], label => $a[1]} } ('', @{$field_config->{choices}}) ],
             };
         } elsif ($type eq "Scale") {
             $options = {
