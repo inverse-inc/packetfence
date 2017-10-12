@@ -49,6 +49,7 @@ BEGIN {
 use pf::config qw($ACCOUNTING_POLICY_BANDWIDTH);
 use pf::constants::trigger qw($TRIGGER_TYPE_ACCOUNTING);
 use pf::dal::inline_accounting;
+use pf::error qw(is_error is_success);
 use pf::dal::node;
 use pf::violation;
 use pf::config::violation;

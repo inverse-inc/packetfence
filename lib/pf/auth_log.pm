@@ -27,6 +27,7 @@ BEGIN {
 
 use pf::dal;
 use pf::dal::auth_log;
+use pf::error qw(is_error is_success);
 use pf::log;
 
 =head2 invalidate_previous

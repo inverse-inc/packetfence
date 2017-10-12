@@ -19,6 +19,7 @@ use pf::log;
 use HTTP::Status qw(is_success :constants);
 use pf::util qw(calc_page_count);
 use pf::dal::person;
+use pf::error qw(is_error is_success);
 use SQL::Abstract::More;
 use pf::admin_roles;
 use POSIX qw(ceil);
