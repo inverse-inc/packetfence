@@ -40,6 +40,17 @@ sub commit {
     return ($result, $error);
 }
 
+=head2 surveyIds
+
+Returns a list of the surveys in the configuration
+
+=cut
+
+sub surveyIds {
+    my ($self) = @_;
+    return [ map { $_ !~ /[ ]+/ ? $_ : () } @{$self->readAllIds} ];
+}
+
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 AUTHOR
