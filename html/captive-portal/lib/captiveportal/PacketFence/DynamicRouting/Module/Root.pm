@@ -335,7 +335,8 @@ sub show_preregistration_account {
         $self->render("account.html", {account => $account, title => "Account created"});
     }
     else {
-        $self->app->error("Cannot find any created account.");
+        get_logger->warn("No created account found. Continuing normal portal flow");
+        $self->SUPER::execute_child();
     }
 }
 
