@@ -34,6 +34,17 @@ has 'request_fields' => (is => 'rw', traits => ['Hash'], builder => '_build_requ
 
 has 'template' => ('is' => 'rw', default => sub {'survey.html'});
 
+sub continuous_survey_id {
+    my ($self, $set) = @_;
+    my $key = $self->survey->table_name . "-continuous-survey-id";
+    if(defined($set)) {
+        $self->app->session->{$key} = $set;
+    }
+    else {
+        return $self->app->session->{$key};
+    }
+}
+
 =head2 allowed_urls
 
 The URLs that are allowed
@@ -134,7 +145,16 @@ sub execute_child {
     my ($self) = @_;
     # If there is no fields to prompt or we're handling a form POST
     if(!@{$self->survey->fields_order} || $self->app->request->method eq "POST") {
-        if($self->survey->insert_or_update_response($self->merged_fields, { node => $self->node_info, ip => $self->current_ip, person => person_view($self->username) })) {
+        if(my $id = $self->survey->insert_or_update_response($self->merged_fields, { 
+                    node => $self->node_info, 
+                    ip => $self->current_ip, 
+                    person => person_view($self->username), 
+                    profile => $self->app->profile,
+                    survey => $self->survey,
+                }, $self->continuous_survey_id)) {
+            # Set the continious survey ID if its not already set
+            $self->continuous_survey_id($id) unless(defined($self->continuous_survey_id()));
+
             $self->done();
         }
         else {

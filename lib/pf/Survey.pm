@@ -187,6 +187,8 @@ Inserts or updates a survey response using a hashref and an optional response ID
 
 $args is the contextual data around the node and connection for population of the data_fields.
 
+Returns the inserted ID or the ID of the existing response if it applies
+
 =cut
 
 sub insert_or_update_response {
@@ -232,7 +234,7 @@ sub insert_or_update_response {
             -where => {id => {"=" => $response_id}},
         );
         my @result = $self->_db_data(SURVEY, {'survey_update_sql' => $sql}, 'survey_update_sql', @params);
-        return (@result && $result[0] == $FALSE) ? $FALSE : $TRUE;
+        return (@result && $result[0] == $FALSE) ? $FALSE : $response_id;
     }
     else {
         get_logger->info("Creating new survey response");
@@ -241,7 +243,7 @@ sub insert_or_update_response {
             -values => $response,
         );
         my @result = $self->_db_data(SURVEY, {'survey_insert_sql' => $sql}, 'survey_insert_sql', @params);
-        return (@result && $result[0] == $FALSE) ? $FALSE : $TRUE;
+        return (@result && $result[0] == $FALSE) ? $FALSE : pf::db::get_db_handle()->last_insert_id(undef, undef, undef, undef);
     }
 }
 
