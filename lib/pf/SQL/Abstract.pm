@@ -86,17 +86,17 @@ sub upsert {
             push @bind, $self->_bindtype($k, $v);
           }
           else {                          # literal SQL with bind
-            my ($sql, @bind) = @$v;
+            my ($sql, @b) = @$v;
             $self->_assert_bindval_matches_bindtype(@bind);
             push @set, "$label = $sql";
-            push @bind, @bind;
+            push @bind, @b;
           }
         },
         ARRAYREFREF => sub { # literal SQL with bind
-          my ($sql, @bind) = @${$v};
-          $self->_assert_bindval_matches_bindtype(@bind);
+          my ($sql, @b) = @${$v};
+          $self->_assert_bindval_matches_bindtype(@b);
           push @set, "$label = $sql";
-          push @bind, @bind;
+          push @bind, @b;
         },
         SCALARREF => sub {  # literal SQL without bind
           push @set, "$label = $$v";
