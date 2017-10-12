@@ -192,7 +192,7 @@ sub radius_audit_log_view_all {
         -limit => $limit,
     });
     return if is_error($status);
-    my $items = $iter->get_all_items();
+    my $items = $iter->all();
     return @$items;
 }
 
