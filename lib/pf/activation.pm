@@ -100,6 +100,8 @@ use pf::util;
 use pf::web::constants;
 # TODO this dependency is unfortunate, ideally it wouldn't be in that direction
 use pf::log;
+use pf::dal::activation;
+use pf::error qw(is_error is_success);
 
 
 =head1 SUBROUTINES
