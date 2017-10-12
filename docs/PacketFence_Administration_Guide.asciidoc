@@ -1281,6 +1281,129 @@ The configuration is simple, you have a role which is the 'Admin role' the one a
 
 For instance; techs are in the AD group tech support and get the role 'tech support' while registering, let's put 'tech support' as the 'Admin role'. They are allowed to register new devices with the roles 'default', 'voice' and 'guest'. Every time someone with the role 'tech support' will try to register a device on a connection profile where this portal module is active, then the crew memeber will be asked to choose which role to assign to this device.
 
+Portal surveys
+~~~~~~~~~~~~~~
+
+PacketFence has the ability to perform surveys via the captive portal and store the results in dedicated tables in the database.
+
+Setup
+^^^^^
+
+In order for the survey tables to be created automatically based on the definition of your surveys, you must grant create and alter rights to the database user defined in pf.conf. By default this user is 'pf'. On your database, connect to the MySQL CLI as root and execute the following:
+
+  mysql> GRANT CREATE,ALTER ON pf.* TO 'pf'@'%';
+  mysql> GRANT CREATE,ALTER ON pf.* TO 'pf'@'localhost';
+
+Configuring your survey
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Next, you will have to configure your survey in `/usr/local/pf/conf/survey.conf`. Here is an example of a survey:
+
+
+  [survey1]
+  description=Mustard Turkey Sandwich Brothers
+  
+  [survey1 field gender]
+  label=What is your gender?
+  type=Select
+  choices=<<EOT
+  M|Male
+  F|Female
+  EOT
+  required=yes
+  
+  [survey1 field firstname]
+  label=What is your firstname?
+  type=Text
+  required=yes
+  
+  [survey1 field lastname]
+  label=What is your lastname?
+  type=Text
+  required=yes
+  
+  [survey1 field sandwich_quality]
+  label=On a scale of 1 to 5, how good was your sandwich today?
+  type=Scale
+  minimum=1
+  maximum=5
+  required=yes
+  
+  [survey1 field prefered_sandwich]
+  label=What is your prefered sandwich?
+  type=Select
+  choices= <<EOT
+  Classic|Classic
+  Extra Turkey|Sandwich with extra turkey
+  Extra Mustard|Sandwich with extra mustard
+  EOT
+  required=yes
+  
+  [survey1 field comments]
+  label=Enter any additionnal comments here
+  type=TextArea
+  required=no
+  
+  [survey1 data ssid]
+  query=node.last_ssid
+  
+  [survey1 data ip]
+  query=ip
+
+NOTE: Make sure you reload the configuration after setting it up by doing `/usr/local/pf/bin/pfcmd configreload hard`
+
+In the example above, some of the data is being collected via fields on the captive portal directly (ex: `survey1 field firstname`) and some are collected via contextual data (ex: `survey1 data ssid`).
+
+Fields are defined the following way:
+
+ * *label*: The label/question that goes with the field which will be displayed on the portal
+ * *table*: The table in which the survey data should be stored. If its not defined, it will use the ID of the survey. Tables are always prefixed with `survey_` even when this attribute is set.
+ * *type*: The type of input that should be displayed to the user. The following types are available:
+ ** *Select*: makes the user select a choice in a pre-defined list
+ ** *Text*: a simple small text input
+ ** *TextArea*: a bigger text input
+ ** *Scale*: a numeric scale. The `minimum` and `maximum` attributes control the range of numbers the user can select
+ ** *Checkbox*: a simple checkbox
+ ** *Email*: a text field with email validation (only validates the format)
+ * *required*: Whether or not the field is mandatory in the survey
+
+Data fields are defined using a query and has access to node and person informations. Here are a few examples:
+
+ * `node.last_ssid`: The SSID the device is connected to, if applicable
+ * `node.device_class`: The Fingerbank device class
+ * `node.last_switch`: The switch/controller/access point the device is connected to
+ * You can get all the available node fields by executing the following command: `perl -I/usr/local/pf/lib -Mpf::node -MData::Dumper -e 'print Dumper(node_view("00:11:22:33:44:55"))'`
+ * `person.source`: If there was authentication done in the portal, this will provide the source that was used
+ * `person.email`: If there was authentication done in the portal, this will provide the email that was used
+ * You can get all the available person fields by executing the following command: `perl -I/usr/local/pf/lib -Mpf::person -MData::Dumper -e 'print Dumper(person_view("admin"))'`
+ * `ip`: The IP address of the client
+
+Putting the survey on the portal
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In order for your survey to be available on the portal, you will have to configure a portal module for it. In order to do so, go in 'Configuration->Advanced Access Configuration->Portal Modules' and create a new Survey portal module with the following settings:
+
+## screenshot survey portal module
+
+Then either add your survey to another portal module (Choice, Chained or Root) or create a Root portal module dedicated to the survey:
+
+## screenshot survey root portal module
+
+Once that is configured, make sure you have the right Root portal module on the applicable connection profile in 'Policies and Access Control->Connection Profiles->Name of the profile->Root Portal Module'.
+
+Exploring the collected data
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+All the data that is collected in the example survey will be stored in a table named `survey_survey1`. You can create 'Custom Reports' on your survey tables via `/usr/local/pf/conf/report.conf`. Here is an example for the survey created above:
+
+  [survey1]
+  description=My first survey report
+  base_table=survey_survey1
+  columns=firstname as "Firstname", lastname as "Lastname", prefered_sandwich as "Prefered Sandwich", gender as "Gender"
+
+NOTE: Make sure you reload the configuration after setting it up by doing `/usr/local/pf/bin/pfcmd configreload hard`
+
+Refer to the 'Custom Reports' section of this document for advanced configuration.
 
 Debugging
 ---------
