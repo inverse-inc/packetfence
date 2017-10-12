@@ -184,10 +184,11 @@ sub _build_order_by {
     $by //= 'person.pid';
     $direction //= 'ASC';
     $direction = uc($direction);
-    if ($direction ne 'ASC' && $direction ne 'DESC') {
-        $direction = 'ASC';
+    my $prefix = '';
+    if ($direction eq 'DESC') {
+        $prefix = '-';
     }
-    $search_info->{-order_by} = ["$by $direction"];
+    $search_info->{-order_by} = ["${prefix}$by"];
 }
 
 =head2 _build_clause
