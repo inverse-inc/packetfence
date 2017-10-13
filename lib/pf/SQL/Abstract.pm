@@ -68,13 +68,13 @@ sub upsert {
     @old_args = @_;
   }
   # Create a regular insert
-  my ($sql, @bind) = $self->insert(@old_args);
+  my ($sql, @all_bind) = $self->insert(@old_args);
 
   if ($on_conflict && keys %$on_conflict > 0) {
     my (@set);
     puke "Unsupported data type specified to \$sql->upsert"
       unless ref $on_conflict eq 'HASH';
-    #Copied from SQL::Abstract update
+    #Copied from SQL::Abstract::More::_overridden_update
     for my $k (sort keys %$on_conflict) {
       my $v = $on_conflict->{$k};
       my $r = ref $v;
@@ -82,22 +82,23 @@ sub upsert {
 
       $self->_SWITCH_refkind($v, {
         ARRAYREF => sub {
-          if ($self->{array_datatypes}) { # array datatype
+          if ($self->{array_datatypes}
+              || $self->is_bind_value_with_type($v)) {
             push @set, "$label = ?";
-            push @bind, $self->_bindtype($k, $v);
+            push @all_bind, $self->_bindtype($k, $v);
           }
           else {                          # literal SQL with bind
-            my ($sql, @b) = @$v;
+            my ($sql, @bind) = @$v;
             $self->_assert_bindval_matches_bindtype(@bind);
             push @set, "$label = $sql";
-            push @bind, @b;
+            push @all_bind, @bind;
           }
         },
         ARRAYREFREF => sub { # literal SQL with bind
-          my ($sql, @b) = @${$v};
-          $self->_assert_bindval_matches_bindtype(@b);
+          my ($sql, @bind) = @${$v};
+          $self->_assert_bindval_matches_bindtype(@bind);
           push @set, "$label = $sql";
-          push @bind, @b;
+          push @all_bind, @bind;
         },
         SCALARREF => sub {  # literal SQL without bind
           push @set, "$label = $$v";
@@ -112,18 +113,18 @@ sub upsert {
           my ($sql, @extra_bind) = $self->_where_unary_op ($1, $arg);
 
           push @set, "$label = $sql";
-          push @bind, @extra_bind;
+          push @all_bind, @extra_bind;
         },
         SCALAR_or_UNDEF => sub {
           push @set, "$label = ?";
-          push @bind, $self->_bindtype($k, $v);
+          push @all_bind, $self->_bindtype($k, $v);
         },
       });
     }
     $sql .= " ON DUPLICATE KEY UPDATE " . join( ', ', @set);
   }
 
-  return ($sql, @bind);
+  return ($sql, @all_bind);
 }
 
 
