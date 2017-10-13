@@ -57,6 +57,8 @@ sub field_list {
                     }
                 },
             };
+        } elsif ($type eq "Checkbox") {
+            $options->{checkbox_value} = "Y";
         }
 
         # Set the type unless its been set before

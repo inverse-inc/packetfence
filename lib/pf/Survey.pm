@@ -40,6 +40,10 @@ our %FIELD_MAP = (
     "Scale" => {
         type => "int(1)",
     },
+    "Checkbox" => {
+        type => "varchar(1)",
+        default => "N",
+    },
 );
 
 # Fields that are forbidden in surveys as they are used internally
@@ -95,16 +99,23 @@ sub create_or_update_field {
         $wants_type = "varchar(255)";
     }
 
+    my $wants_default = defined($config_field->{type}) ? $FIELD_MAP{$config_field->{type}}{default} : undef;
+
+    unless(defined($wants_default)) {
+        $wants_default = "NULL";
+    }
+
     if(defined($db_field)) {
         $logger->debug("Field $field_id already exists in $table_name");
         my $schema_type = $db_field->{Type};
-        if($wants_type eq $schema_type) {
-            $logger->debug("Field $field_id has the right type in $table_name. Leaving untouched");
+        my $schema_default = $db_field->{Default} // "NULL";
+        if($wants_type eq $schema_type && $wants_default eq $schema_default) {
+            $logger->debug("Field $field_id has the right structure in $table_name. Leaving untouched");
             return $TRUE;
         }
         else {
             $logger->info("Modifying the type of field $field_id in $table_name from $schema_type to $wants_type");
-            my @result = pf::Survey->_db_data(SURVEY, {'field_alter_sql' => "ALTER TABLE $table_name MODIFY $field_id $wants_type"}, 'field_alter_sql');
+            my @result = pf::Survey->_db_data(SURVEY, {'field_alter_sql' => "ALTER TABLE $table_name MODIFY $field_id $wants_type DEFAULT ?"}, 'field_alter_sql', $wants_default);
             return (@result && $result[0] == $FALSE) ? $FALSE : $TRUE;
         }
     }
@@ -198,6 +209,10 @@ sub insert_or_update_response {
     for my $field (keys(%$response)) {
         unless(exists($self->fields->{$field})) {
             get_logger->warn("Ignoring survey field '$field' since its not part of this survey configuration");
+            delete $response->{$field};
+        }
+        unless(defined($response->{$field})) {
+            get_logger->debug("Ignoring survey field '$field' because its empty. Will use the default value of the column");
             delete $response->{$field};
         }
     }
