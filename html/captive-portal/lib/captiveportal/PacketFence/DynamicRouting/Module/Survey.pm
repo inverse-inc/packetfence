@@ -116,7 +116,7 @@ Merge the required fields with the values provided in the request
 sub merged_fields {
     my ($self) = @_;
     tie my %merged, 'Tie::IxHash';
-    foreach my $field (@{$self->required_fields}){
+    foreach my $field (@{$self->survey->fields_order}){
         $merged{$field} = $self->request_fields->{$field};
     }
     return \%merged;
