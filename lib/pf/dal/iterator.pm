@@ -67,6 +67,20 @@ sub all {
     return [map {$class->new_from_row($_)} @$items];
 }
 
+=head2 rows
+
+rows
+
+=cut
+
+sub rows {
+    my ($self) = @_;
+    my $sth = $self->sth;
+    return undef if !defined $sth;
+    return $sth->rows;
+}
+
+
 =head2 finish
 
 finish
