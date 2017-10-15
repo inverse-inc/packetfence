@@ -141,7 +141,7 @@ sub find_unverified_code {
             expiration => { ">=" => \['NOW()']}
         },
         {
-            -from => pf::dal::acivation->find_from_tables(),
+            -from => pf::dal::activation->find_from_tables(),
             -columns => pf::dal::activation->find_columns,
         }
     );
@@ -169,7 +169,7 @@ sub view_by_code {
             activation_code => $activation_code,
         },
         {
-            -from => pf::dal::acivation->find_from_tables(),
+            -from => pf::dal::activation->find_from_tables(),
             -columns => pf::dal::activation->find_columns,
         }
     );
@@ -198,7 +198,7 @@ sub view_by_code_mac {
             mac => $mac,
         },
         {
-            -from => pf::dal::acivation->find_from_tables(),
+            -from => pf::dal::activation->find_from_tables(),
             -columns => pf::dal::activation->find_columns,
         }
     );
@@ -539,7 +539,7 @@ sub find_unverified_code_by_mac {
             activation_code => $activation_code,
         },
         {
-            -from => pf::dal::acivation->find_from_tables(),
+            -from => pf::dal::activation->find_from_tables(),
             -columns => pf::dal::activation->find_columns,
         }
     );
@@ -592,7 +592,7 @@ sub activation_has_entry {
             expiration => { ">=" => \['NOW()']},
         },
         {
-            -from => pf::dal::acivation->find_from_tables(),
+            -from => pf::dal::activation->find_from_tables(),
             -columns => [\1]
         }
     );
