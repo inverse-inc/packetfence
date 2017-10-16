@@ -22,24 +22,26 @@ use pf::log;
 has_field 'id' =>
   (
    type => 'Text',
-   label => 'TrafficShaping Name',
+   label => 'Role',
    required => 1,
-   messages => { required => 'Please specify the name of the traffic_shaping entry' },
+   messages => { required => 'The role to apply traffic shaping' },
   );
-has_field 'param1' =>
+has_field 'upload' =>
   (
    type => 'Text',
    required => 1,
-   messages => { required => 'Parameter 1 is required.' },
+   messages => { required => 'Upload is required.' },
   );
-has_field 'param2' =>
+has_field 'download' =>
   (
    type => 'Text',
+   required => 1,
+   messages => { required => 'Download is required.' },
   );
 
 has_block  definition =>
   (
-    render_list => [qw(param1 param2)],
+    render_list => [qw(upload download)],
   );
 
 =head1 COPYRIGHT
