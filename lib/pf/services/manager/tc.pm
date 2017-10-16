@@ -31,6 +31,8 @@ use pf::iptables;
 use IPC::Cmd qw[can_run run];
 use pf::constants qw($TRUE $FALSE);
 
+tie our %ConfigTrafficShaping, 'pfconfig::cached_hash', "config::TrafficShaping";
+
 extends 'pf::services::manager';
 
 has '+name' => (default => sub { 'tc' } );
@@ -131,7 +133,7 @@ sub isAlive {
     foreach my $int ( @interfaces) {
 
         my $shaping_exist = "dev $int parent";
-        return (defined($pid) && $TRUE) if defined(pf_run("sudo $full_path -p qdisc| grep ".$shaping_exist))
+        return (defined($pid) && $TRUE) if (pf_run("sudo $full_path -p qdisc| grep -q '".$shaping_exist."'"))
     }
     return (defined($pid) && $FALSE);
 }
@@ -195,12 +197,14 @@ sub manageTrafficShaping {
                 $cmd = untaint_chain($cmd);
                 my @out = pf_run($cmd);
                 foreach my $role ( @roles ) {
-                    $cmd = "sudo $full_path class add dev $int parent $i:0 classid $i:$role->{'category_id'} htb rate 1mbit ceil 1mbit";
-                    $cmd = untaint_chain($cmd);
-                    @out = pf_run($cmd);
-                    $cmd = "sudo $full_path  qdisc add dev $int parent $i:$role->{'category_id'} sfq";
-                    $cmd = untaint_chain($cmd);
-                    @out = pf_run($cmd);
+                    if ($ConfigTrafficShaping{$role->{'name'}}->{'download'} && $ConfigTrafficShaping{$role->{'name'}}->{'upload'}) {
+                        $cmd = "sudo $full_path class add dev $int parent $i:0 classid $i:$role->{'category_id'} htb rate $ConfigTrafficShaping{$role->{'name'}}->{'upload'}bps ceil $ConfigTrafficShaping{$role->{'name'}}->{'download'}bps";
+                        $cmd = untaint_chain($cmd);
+                        @out = pf_run($cmd);
+                        $cmd = "sudo $full_path  qdisc add dev $int parent $i:$role->{'category_id'} sfq";
+                        $cmd = untaint_chain($cmd);
+                        @out = pf_run($cmd);
+                     }
                 }
             }
         }
