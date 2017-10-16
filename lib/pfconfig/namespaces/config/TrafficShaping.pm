@@ -19,6 +19,7 @@ use warnings;
 
 use pfconfig::namespaces::config;
 use pf::file_paths qw($traffic_shaping_config_file);
+use pf::util;
 
 use base 'pfconfig::namespaces::config';
 
@@ -33,6 +34,11 @@ sub build_child {
     my %tmp_cfg = %{ $self->{cfg} };
 
     $self->cleanup_whitespaces( \%tmp_cfg );
+    for my $data (values %tmp_cfg) {
+        for my $c (qw(upload download)) {
+            $data->{$c} = unpretty_bandwidth($data->{$c});
+        }
+    }
 
     return \%tmp_cfg;
 }
