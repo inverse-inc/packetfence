@@ -479,6 +479,10 @@ sub all_subsections : Private {
                     action_args => ['inline'],
                     name => 'Inline', 
                 },
+                trafficshaping => {
+                    controller => 'Controller::Config::TrafficShaping',
+                    name => 'Inline Traffic Shaping',
+                },
                 fencing => {
                     controller => 'Controller::Configuration',
                     action => 'section',
