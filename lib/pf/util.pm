@@ -743,7 +743,7 @@ sub pretty_bandwidth {
     my @units = ("Bytes", "KB", "MB", "GB", "TB", "PB");
     my $x;
 
-    for ($x=0; $bytes>=800 && $x<scalar(@units); $x++ ) {
+    for ($x=0; $bytes>=800 && $x < scalar(@units); $x++ ) {
         $bytes /= 1024;
     }
     my $rounded = sprintf("%.2f",$bytes);
