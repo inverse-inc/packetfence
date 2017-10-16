@@ -21,8 +21,3 @@
 
       [% INCLUDE config/trafficshaping/list.tt %]
 
-      [%- IF can_access("TRAFFIC_SHAPING_CREATE") %]
-      <div class="form-actions">
-        <a class="btn createItem" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add traffic_shaping entry') %]</a>
-      </div>
-      [%- END %]

@@ -19,18 +19,16 @@ use pfappserver::Form::Config::Switch;
 BEGIN {
     extends 'pfappserver::Base::Controller';
     with 'pfappserver::Base::Controller::Crud::Config';
-    with 'pfappserver::Base::Controller::Crud::Config::Clone';
 }
 
 __PACKAGE__->config(
     action => {
         # Reconfigure the object action from pfappserver::Base::Controller::Crud
-        object => { Chained => '/', PathPart => 'config/traffic_shaping', CaptureArgs => 1 },
+        object => { Chained => '/', PathPart => 'config/trafficshaping', CaptureArgs => 1 },
         # Configure access rights
         view   => { AdminRole => 'TRAFFIC_SHAPING_READ' },
         list   => { AdminRole => 'TRAFFIC_SHAPING_READ' },
         create => { AdminRole => 'TRAFFIC_SHAPING_CREATE' },
-        clone  => { AdminRole => 'TRAFFIC_SHAPING_CREATE' },
         update => { AdminRole => 'TRAFFIC_SHAPING_UPDATE' },
         remove => { AdminRole => 'TRAFFIC_SHAPING_DELETE' },
     },
@@ -44,15 +42,59 @@ __PACKAGE__->config(
 
 =head2 index
 
-Usage: /config/traffic_shaping
+Usage: /config/trafficshaping
 
 =cut
 
 sub index :Path :Args(0) {
     my ($self, $c) = @_;
-
     $c->forward('list');
 }
+
+
+=head2 before list
+
+/config/trafficshaping/list
+
+=cut
+
+before list => sub {
+    my ($self, $c) = @_;
+    my $cs = $c->model('Config::TrafficShaping');
+    my ($status, $ids) = $cs->readAllIds;
+    my %have = map { $_ => undef} @$ids;
+    ($status, my $roles) = $c->model('Config::Roles')->listFromDB;
+    my @roles_to_show = grep { !exists $have{$_->{name}} } @$roles;
+    $c->stash(
+       roles => \@roles_to_show
+    );
+
+    return ;
+};
+
+
+=head2 create_type
+
+/config/trafficshaping/create/$role
+
+=cut
+
+sub create_type : Path('create') : Args(1) {
+    my ($self, $c, $role) = @_;
+    my ($status, $msg) = $c->model('Config::Roles')->hasId($role);
+    if (is_error($status)) {
+        $c->response->status($status);
+        $c->stash->{status_msg} = $msg;
+        $c->stash->{current_view} = 'JSON';
+        $c->detach();
+    }
+    else {
+        my $model = $self->getModel($c);
+        my $itemKey = $model->itemKey;
+        $c->stash->{$itemKey}{id} = $role;
+        $c->forward('create');
+    }
+};
 
 =head1 COPYRIGHT
 
