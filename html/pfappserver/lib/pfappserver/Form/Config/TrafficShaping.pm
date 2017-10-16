@@ -18,6 +18,9 @@ with 'pfappserver::Base::Form::Role::Help';
 
 use pf::log;
 
+my $BANDWIDTH_CHECK = qr/\d+(KB|MB|GB|TB|PB)?/;
+my $BANDWIDTH_CHECK_FAIL_MSG = "Bandwidth must be in the following format 'nXY' where XY is one of the following KB,MB,GB,TB,PB";
+
 ## Definition
 has_field 'id' =>
   (
@@ -31,12 +34,18 @@ has_field 'upload' =>
    type => 'Text',
    required => 1,
    messages => { required => 'Upload is required.' },
+   apply => [ { check => $BANDWIDTH_CHECK, message => $BANDWIDTH_CHECK_FAIL_MSG } ],
+   tags => { after_element => \&help,
+             help => $BANDWIDTH_CHECK_FAIL_MSG },
   );
 has_field 'download' =>
   (
    type => 'Text',
    required => 1,
    messages => { required => 'Download is required.' },
+   apply => [ { check => $BANDWIDTH_CHECK, message => $BANDWIDTH_CHECK_FAIL_MSG } ],
+   tags => { after_element => \&help,
+             help => $BANDWIDTH_CHECK_FAIL_MSG },
   );
 
 has_block  definition =>
