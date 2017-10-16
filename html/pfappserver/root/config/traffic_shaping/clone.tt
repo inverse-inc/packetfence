@@ -1,1 +1,0 @@
-[% INCLUDE config/traffic_shaping/view.tt %]

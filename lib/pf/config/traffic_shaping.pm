@@ -16,7 +16,7 @@ use strict;
 use warnings;
 use pfconfig::cached_hash;
 
-tie our %ConfigTrafficShaping, 'pfconfig::cached_hash', 'config::PfItemConfig';
+tie our %ConfigTrafficShaping, 'pfconfig::cached_hash', 'config::TrafficShaping';
 
 BEGIN {
     use Exporter ();

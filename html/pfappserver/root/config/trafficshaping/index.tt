@@ -19,7 +19,7 @@
 
       <p>[% l('TrafficShaping of how to add configuration file in httpd.admin.') %]</p>
 
-      [% INCLUDE config/traffic_shaping/list.tt %]
+      [% INCLUDE config/trafficshaping/list.tt %]
 
       [%- IF can_access("TRAFFIC_SHAPING_CREATE") %]
       <div class="form-actions">

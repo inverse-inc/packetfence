@@ -218,7 +218,7 @@
               [% list_entry('Config::AdminRoles', 'index', 'Admin Access') | none %]
               [%- END %]
               [%- IF can_access("TRAFFIC_SHAPING_READ") %]
-              [% list_entry('Config::TrafficShaping', 'index', 'PfItemConfig Entries') %]
+              [% list_entry('Config::TrafficShaping', 'index', 'TrafficShaping Entries') %]
               [%- END %]
             </ul>
           </div><!--/span-->

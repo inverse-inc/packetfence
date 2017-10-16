@@ -36,7 +36,7 @@ __PACKAGE__->config(
     },
     action_args => {
         # Setting the global model and form for all actions
-        '*' => { model => "Config::TrafficShaping", form => "Config::PfItemConfig" },
+        '*' => { model => "Config::TrafficShaping", form => "Config::TrafficShaping" },
     },
 );
 
