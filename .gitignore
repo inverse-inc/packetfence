@@ -49,6 +49,7 @@ raddb/sites-available/packetfence-tunnel
 raddb/proxy.conf.loadbalancer
 raddb/radiusd_loadbalancer.conf
 conf/adminroles.conf
+conf/device_registration.conf
 conf/pki_provider.conf
 conf/authentication.conf
 conf/floating_network_device.conf
@@ -75,6 +76,8 @@ conf/radiusd/packetfence-cli
 conf/radiusd/packetfence-cluster
 conf/radiusd/packetfence-tunnel
 conf/radiusd/proxy.conf.inc
+conf/radiusd/proxy.conf.loadbalancer
+conf/radiusd/radiusd_loadbalancer.conf
 conf/radiusd/radiusd.conf
 conf/radiusd/rest.conf
 conf/radiusd/sql.conf
