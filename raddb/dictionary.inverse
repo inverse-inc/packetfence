@@ -49,5 +49,6 @@ ATTRIBUTE       PacketFence-Radius-Ip                 33       string
 ATTRIBUTE       PacketFence-NTCacheHash               34       string
 ATTRIBUTE       PacketFence-NTLMv2-Only               35       string
 
+ATTRIBUTE       PacketFence-reply-insert              28       string
 END-VENDOR      Inverse
 
