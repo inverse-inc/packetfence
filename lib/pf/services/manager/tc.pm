@@ -197,8 +197,17 @@ sub manageTrafficShaping {
                 $cmd = untaint_chain($cmd);
                 my @out = pf_run($cmd);
                 foreach my $role ( @roles ) {
+                    my $upload;
+                    my $download;
                     if ($ConfigTrafficShaping{$role->{'name'}}->{'download'} && $ConfigTrafficShaping{$role->{'name'}}->{'upload'}) {
-                        $cmd = "sudo $full_path class add dev $int parent $i:0 classid $i:$role->{'category_id'} htb rate $ConfigTrafficShaping{$role->{'name'}}->{'upload'}bps ceil $ConfigTrafficShaping{$role->{'name'}}->{'download'}bps";
+                        $upload = $ConfigTrafficShaping{$role->{'name'}}->{'upload'};
+                        $download = $ConfigTrafficShaping{$role->{'name'}}->{'download'};
+                    } elsif ($ConfigTrafficShaping{'default'}->{'download'} && $ConfigTrafficShaping{'default'}->{'upload'}) {
+                        $upload = $ConfigTrafficShaping{'default'}->{'upload'};
+                        $download = $ConfigTrafficShaping{'default'}->{'download'};
+                    }
+                    if ($upload && $download) {
+                        $cmd = "sudo $full_path class add dev $int parent $i:0 classid $i:$role->{'category_id'} htb rate ".$upload."bps ceil ".$download."bps";
                         $cmd = untaint_chain($cmd);
                         @out = pf_run($cmd);
                         $cmd = "sudo $full_path  qdisc add dev $int parent $i:$role->{'category_id'} sfq";
@@ -218,7 +227,7 @@ sub isManaged {
     my $route_exist = '';
 
     foreach my $network ( keys %ConfigNetworks ) {
-        return $TRUE if pf::config::is_network_type_inline($network);
+        return $TRUE if (pf::config::is_network_type_inline($network) && && $self->SUPER::isManaged();
     }
     return $FALSE;
 }
