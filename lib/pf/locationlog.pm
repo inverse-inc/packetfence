@@ -563,7 +563,7 @@ sub locationlog_last_entry_mac {
        -where => {
            mac => $mac,
        },
-        -order_by => { -desc => 'start_time' },
+       -order_by => { -desc => 'start_time' },
        -limit => 1,
    });
 }
