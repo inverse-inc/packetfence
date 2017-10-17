@@ -29,6 +29,7 @@ use pf::dal;
 use pf::dal::ip4log;
 use pf::dal::ip4log_archive;
 use pf::dal::ip4log_history;
+use pf::error qw(is_error is_success);
 use pf::log;
 use pf::node qw(node_add_simple node_exist);
 use pf::OMAPI;
