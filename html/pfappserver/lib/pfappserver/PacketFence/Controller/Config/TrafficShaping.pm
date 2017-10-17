@@ -29,6 +29,8 @@ __PACKAGE__->config(
         view   => { AdminRole => 'TRAFFIC_SHAPING_READ' },
         list   => { AdminRole => 'TRAFFIC_SHAPING_READ' },
         create => { AdminRole => 'TRAFFIC_SHAPING_CREATE' },
+        create_type => { AdminRole => 'TRAFFIC_SHAPING_CREATE' },
+        create_or_update => { AdminRole => 'TRAFFIC_SHAPING_CREATE' },
         update => { AdminRole => 'TRAFFIC_SHAPING_UPDATE' },
         remove => { AdminRole => 'TRAFFIC_SHAPING_DELETE' },
     },
@@ -94,7 +96,32 @@ sub create_type : Path('create') : Args(1) {
         $c->stash->{$itemKey}{id} = $role;
         $c->forward('create');
     }
-};
+}
+
+=head2 create_or_update
+
+/config/trafficshaping/create_or_update/$role
+
+=cut
+
+sub create_or_update : Local : Args(1) {
+    my ($self, $c, $role) = @_;
+    my ($status, $msg) = $c->model('Config::Roles')->hasId($role);
+    if (is_error($status)) {
+        $c->response->status($status);
+        $c->stash->{status_msg} = $msg;
+        $c->stash->{current_view} = 'JSON';
+        $c->detach();
+        return;
+    }
+    my $model = $self->getModel($c);
+    ($status, $msg) =  $model->hasId($role);
+    if (is_success($status)) {
+        $c->go('view', [$role], []);
+    } else {
+        $c->forward('create_type', [$role]);
+    }
+}
 
 =head1 COPYRIGHT
 

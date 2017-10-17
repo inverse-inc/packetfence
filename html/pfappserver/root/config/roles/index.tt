@@ -1,5 +1,6 @@
-<div class="modal fade hide" id="modalRole">
-      </div>
+<div class="modal fade hide" id="modalRole"> </div>
+<div class="modal modal-large fade hide" id="modalItem"> </div>
+
 
       <div class="card">
         <h2 class="card-title">[% l('Roles') %] [% doc('_roles_management') | none %]</h2>
@@ -26,6 +27,9 @@
             <td><a href="[% c.uri_for(c.controller.action_for('view'), [ role.id ]) %]#modalRole">[% role.id | html %]</a></td>
             <td class="hidden-phone">[% role.notes | html %]</td>
             <td class="hidden-phone">[% role.max_nodes_per_pid | html %]</td>
+            <td>
+                <a class="btn createItem" href="[% c.uri_for(c.controller('Config::TrafficShaping').action_for('create_or_update'), role.id) %]">[% l('Traffic Shaping') %]</a>
+            </td>
           </tr>
           [% END -%]
         </tbody>
