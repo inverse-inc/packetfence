@@ -178,11 +178,11 @@ Search for pf::dal using SQL::Abstract::More syntax
 =cut
 
 sub search {
-    my ($proto, $args) = @_;
+    my ($proto, @args) = @_;
     my ($status, $sth) = $proto->do_select(
         -columns => $proto->field_names,
         -from    => $proto->table,
-        %{$args // {}},
+        @args
     );
     return $status, undef if is_error($status);
     my $class = ref($proto) || $proto;
@@ -196,10 +196,10 @@ Get the count of the table
 =cut
 
 sub count {
-    my ($proto, $args) = @_;
+    my ($proto, @args) = @_;
     my ($status, $sth) = $proto->do_select(
         -from    => $proto->table,
-        %{$args // {}},
+        @args,
         -columns => ['COUNT(*)|count'],
     );
     return $status, undef if is_error($status);
@@ -268,10 +268,10 @@ update items
 =cut
 
 sub update_items {
-    my ($proto, $args) = @_;
+    my ($proto, @args) = @_;
     my ($status, $sth) = $proto->do_update(
         -table => $proto->table,
-        %{$args // {}}
+        @args,
     );
     return $status, undef if is_error($status);
 
@@ -524,10 +524,10 @@ remove_items
 =cut
 
 sub remove_items {
-    my ($proto, $args) = @_;
+    my ($proto, @args) = @_;
     my ($status, $sth) = $proto->do_delete(
         -from => $proto->table,
-        %{$args // {}}
+        @args,
     );
     return $status, undef if is_error($status);
     my $rows = $sth->rows;
