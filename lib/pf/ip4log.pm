@@ -471,7 +471,7 @@ Not meant to be used outside of this class.
 
 sub _exists {
     my ( $ip ) = @_;
-    return (is_success(pf::dal::ip4log->does_exists({ip => $ip})));
+    return (is_success(pf::dal::ip4log->exists({ip => $ip})));
 }
 
 =head2 open
@@ -595,7 +595,7 @@ sub rotate {
             $rows_inserted = $sth->rows;
             $sth->finish;
             if ($rows_inserted > 0 ) {
-                my ($status, $rows) = pf::dal::ip4log_history->remove_by_search(\%rotate_search);
+                my ($status, $rows) = pf::dal::ip4log_history->remove_items(\%rotate_search);
                 $rows_deleted = $rows // 0;
                 $logger->debug("Deleted '$rows_deleted' entries from ip4log_history while rotating");
             } else {

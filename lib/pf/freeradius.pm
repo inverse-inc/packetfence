@@ -70,7 +70,7 @@ Prepares all the SQL statements related to this module
 sub _delete_expired {
     my ($timestamp) = @_;
     my $logger = get_logger();
-    my ($status, $rows) = pf::dal::radius_nas->remove_by_search(
+    my ($status, $rows) = pf::dal::radius_nas->remove_items(
         {
             -where => {
                 config_timestamp => {"!=" => $timestamp},

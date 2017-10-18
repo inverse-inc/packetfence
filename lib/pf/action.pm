@@ -157,7 +157,7 @@ sub action_delete {
 
 sub action_delete_all {
     my ($vid) = @_;
-    my ($status, $rows) = pf::dal::action->remove_by_search(
+    my ($status, $rows) = pf::dal::action->remove_items(
         {
             -where => {
                 vid => $vid

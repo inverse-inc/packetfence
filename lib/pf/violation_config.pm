@@ -94,7 +94,7 @@ sub loadViolationsIntoDb {
 
 sub remove_deleted_violations {
     my ($ids) = @_;
-    my ($status, $rows) = pf::dal::class->remove_by_search(
+    my ($status, $rows) = pf::dal::class->remove_items(
         {
             -where => {
                 vid => { -not_in => $ids }

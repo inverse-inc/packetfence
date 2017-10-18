@@ -108,7 +108,7 @@ sub node_exist {
     unless ($mac) {
         return (0);
     }
-    my $status = pf::dal::node->does_exists({mac => $mac});
+    my $status = pf::dal::node->exists({mac => $mac});
     return (is_success($status));
 }
 
