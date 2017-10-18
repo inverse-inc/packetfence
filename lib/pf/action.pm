@@ -92,7 +92,15 @@ our $logger = get_logger();
 
 sub action_exist {
     my ($vid, $action) = @_;
-    my ($status, $iter) = pf::dal::action->search({vid => $vid, action => $action}, {-columns => [\1]});
+    my ($status, $iter) = pf::dal::action->search(
+        {
+            -where => {
+                vid => $vid,
+                action => $action
+            }, 
+            -columns => [\1]
+        }
+    );
     if (is_error($status)) {
         return (0);
     }
@@ -123,7 +131,13 @@ sub action_view {
 
 sub action_view_all {
     my ($vid) = @_;
-    my ($status, $iter) = pf::dal::action->search({vid => $vid});
+    my ($status, $iter) = pf::dal::action->search(
+        {
+            -where => {
+                vid => $vid
+            }
+        },
+    );
     if (is_error($status)) {
         return;
     }
@@ -143,7 +157,13 @@ sub action_delete {
 
 sub action_delete_all {
     my ($vid) = @_;
-    my ($status, $rows) = pf::dal::action->remove_by_search({vid => $vid});
+    my ($status, $rows) = pf::dal::action->remove_by_search(
+        {
+            -where => {
+                vid => $vid
+            }
+        }
+    );
     if (is_error($status)) {
         return (undef);
     }

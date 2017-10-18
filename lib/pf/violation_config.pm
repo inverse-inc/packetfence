@@ -96,7 +96,9 @@ sub remove_deleted_violations {
     my ($ids) = @_;
     my ($status, $rows) = pf::dal::class->remove_by_search(
         {
-            vid => { -not_in => $ids }
+            -where => {
+                vid => { -not_in => $ids }
+            },
         }
     );
 }

@@ -135,12 +135,12 @@ sub find_unverified_code {
     my ($type, $activation_code) = @_;
     my ($status, $iter) = pf::dal::activation->search(
         {
-            type => $type,
-            activation_code => $activation_code,
-            status => $UNVERIFIED,
-            expiration => { ">=" => \['NOW()']}
-        },
-        {
+            -where => {
+                type => $type,
+                activation_code => $activation_code,
+                status => $UNVERIFIED,
+                expiration => { ">=" => \['NOW()']}
+            },
             -from => pf::dal::activation->find_from_tables(),
             -columns => pf::dal::activation->find_columns,
         }
@@ -165,10 +165,10 @@ sub view_by_code {
     my ($type, $activation_code) = @_;
     my ($status, $iter) = pf::dal::activation->search(
         {
-            type => $type,
-            activation_code => $activation_code,
-        },
-        {
+            -where => {
+                type => $type,
+                activation_code => $activation_code,
+            },
             -from => pf::dal::activation->find_from_tables(),
             -columns => pf::dal::activation->find_columns,
         }
@@ -193,11 +193,11 @@ sub view_by_code_mac {
     my ($type, $code, $mac) = @_;
     my ($status, $iter) = pf::dal::activation->search(
         {
-            type => $type,
-            activation_code => $code,
-            mac => $mac,
-        },
-        {
+            -where => {
+                type => $type,
+                activation_code => $code,
+                mac => $mac,
+            },
             -from => pf::dal::activation->find_from_tables(),
             -columns => pf::dal::activation->find_columns,
         }
@@ -249,10 +249,12 @@ sub modify_status {
     my ($code_id, $new_status) = @_;
     my ($status, $rows) = pf::dal::activation->update_items(
         {
-            status => $new_status,,
-        },
-        {
-            code_id => $code_id,
+            -set => {
+                status => $new_status,,
+            },
+            -where => {
+                code_id => $code_id,
+            }
         }
     );
 
@@ -268,16 +270,18 @@ invalidate all unverified activation codes for a given mac and contact_info
 sub invalidate_codes {
     my ($mac, $pid, $contact_info) = @_;
     my $logger = get_logger();
-    my %set = (
-        status => $INVALIDATED,
+    my %args = (
+        -set => {
+            status => $INVALIDATED,
+        },
+        -where => {
+            status => $UNVERIFIED,
+            pid => $pid,
+            contact_info => $contact_info,
+            mac => $mac ? $mac : undef
+        }
     );
-    my %where = (
-        status => $UNVERIFIED,
-        pid => $pid,
-        contact_info => $contact_info,
-        mac => $mac ? $mac : undef
-    );
-    my ($status, $rows) = pf::dal::activation->update_items(\%set, \%where);
+    my ($status, $rows) = pf::dal::activation->update_items(\%args);
 
     return $rows;
 }
@@ -296,12 +300,14 @@ sub invalidate_codes_for_mac {
     }
     my ($status, $rows) = pf::dal::activation->update_items(
         {
-            status => $INVALIDATED
-        },
-        {
-            type => $type,
-            mac => $mac,
-            status => $UNVERIFIED
+            -set => {
+                status => $INVALIDATED
+            },
+            -where => {
+                type => $type,
+                mac => $mac,
+                status => $UNVERIFIED
+            }
         }
     );
     return $rows;
@@ -532,13 +538,13 @@ sub find_unverified_code_by_mac {
     my ($type, $activation_code, $mac) = @_;
     my ($status, $iter) = pf::dal::activation->search(
         {
-            mac => $mac,
-            type => $type,
-            status => $UNVERIFIED,
-            expiration => { ">=" => \['NOW()']},
-            activation_code => $activation_code,
-        },
-        {
+            -where => {
+                mac => $mac,
+                type => $type,
+                status => $UNVERIFIED,
+                expiration => { ">=" => \['NOW()']},
+                activation_code => $activation_code,
+            },
             -from => pf::dal::activation->find_from_tables(),
             -columns => pf::dal::activation->find_columns,
         }
@@ -586,14 +592,15 @@ sub activation_has_entry {
     my ($mac,$type) = @_;
     my ($status, $iter) = pf::dal::activation->search(
         {
-            mac => $mac,
-            type => $type,
-            status => $UNVERIFIED,
-            expiration => { ">=" => \['NOW()']},
-        },
-        {
+            -where => {
+                mac => $mac,
+                type => $type,
+                status => $UNVERIFIED,
+                expiration => { ">=" => \['NOW()']},
+            },
             -from => pf::dal::activation->find_from_tables(),
-            -columns => [\1]
+            -columns => [\1],
+            -limit => 1,
         }
     );
     if (is_error($status)) {
@@ -648,11 +655,13 @@ sub set_unregdate {
     get_logger->debug("Setting unregdate $unregdate for activation code $activation_code");
     my ($status, $rows) = pf::dal::activation->update_items(
         {
-            unregdate => $unregdate
-        },
-        {
-            type => $type,
-            activation_code => $activation_code
+            -set => {
+                unregdate => $unregdate
+            },
+            -where => {
+                type => $type,
+                activation_code => $activation_code
+            }
         }
     );
     return $rows;

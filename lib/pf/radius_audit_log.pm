@@ -187,10 +187,12 @@ sub radius_audit_log_view_all {
     my ($offset, $limit) = @_;
     $offset //= 0;
     $limit  //= 25;
-    my ($status, $iter) = pf::dal::radius_audit_log->search({}, {
-        -offset => $offset,
-        -limit => $limit,
-    });
+    my ($status, $iter) = pf::dal::radius_audit_log->search(
+        {
+            -offset => $offset,
+            -limit => $limit,
+        }
+    );
     return if is_error($status);
     my $items = $iter->all();
     return @$items;
@@ -212,28 +214,16 @@ sub radius_audit_log_cleanup {
         $logger->debug("Not deleting because the window is 0");
         return;
     }
-
     my $now        = pf::dal->now();
-    my $start_time = time;
-    my $end_time;
-    my $rows_deleted = 0;
-    my $where = {
-        created_at => {
-            "<" => \[ 'DATE_SUB(?, INTERVAL ? SECOND)', $now, $expire_seconds ]
+    my %search = (
+        -where => {
+            created_at => {
+                "<" => \[ 'DATE_SUB(?, INTERVAL ? SECOND)', $now, $expire_seconds ]
+            },
         },
-    };
-    my $extra = {
         -limit => $batch,
-    };
-    while (1) {
-        my ($status, $rows) = pf::dal::radius_audit_log->remove_by_search($where, $extra);
-        $end_time = time;
-        $rows_deleted += $rows if $rows > 0;
-        $logger->trace( sub { "deleted $rows_deleted entries from radius_audit_log during radius_audit_log cleanup ($start_time $end_time) "; }
-        );
-        last if $rows <= 0 || ( ( $end_time - $start_time ) > $time_limit );
-    }
-    $logger->info( "deleted $rows_deleted entries from radius_audit_log after cleanup ($start_time $end_time) ");
+    );
+    pf::dal::radius_audit_log->batch_remove(\%search, $time_limit);
     return;
 }
 

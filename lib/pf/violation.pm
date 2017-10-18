@@ -179,11 +179,11 @@ sub violation_grace {
 #        qq [ select unix_timestamp(start_date)+grace_period-unix_timestamp(now()) from violation v left join class c on v.vid=c.vid where mac=? and v.vid=? and status="closed" order by start_date desc ]);
     my ($status, $iter) = pf::dal::violation->search(
         {
-            'status' => "closed",
-            'violation.vid' => $vid,
-            'mac' => $mac,
-        },
-        {
+            -where => {
+                'status' => "closed",
+                'violation.vid' => $vid,
+                'mac' => $mac,
+            },
             -columns => ['unix_timestamp(start_date)+grace_period-unix_timestamp(now())|grace'],
             -from => [-join => qw(violation =>{violation.vid=class.vid} class)],
             -order_by => "-start_date",
@@ -196,10 +196,14 @@ sub violation_grace {
 sub violation_count {
     my ($mac) = @_;
 #        qq [ select count(*) from violation where mac=? and status="open" ]);
-    my ($status, $count) = pf::dal::violation->count({
-        mac => $mac,
-        status => "open",
-    });
+    my ($status, $count) = pf::dal::violation->count(
+        {
+            -where => {
+                mac => $mac,
+                status => "open",
+            }
+        }
+    );
 
     return ($count);
 }
@@ -209,12 +213,12 @@ sub violation_count_reevaluate_access {
 #       qq [ select count(*) from violation, action where violation.vid=action.vid and action.action='reevaluate_access' and mac=? and status="open" ]);
     my ($status, $count) = pf::dal::violation->count(
         {
-            mac => $mac,
-            status => "open",
-            'action.action' => 'reevaluate_access',
-            'violation.vid' => { -ident => 'action.vid'},
-        },
-        {
+            -where => {
+                mac => $mac,
+                status => "open",
+                'action.action' => 'reevaluate_access',
+                'violation.vid' => { -ident => 'action.vid'},
+            },
             -from => [qw(violation action)],
         }
     );
@@ -225,10 +229,14 @@ sub violation_count_reevaluate_access {
 sub violation_count_vid {
     my ( $mac, $vid ) = @_;
 #        qq [ select count(*) from violation where mac=? and vid=? ]);
-    my ($status, $count) = pf::dal::violation->count({
-        mac => $mac,
-        vid => $vid,
-    });
+    my ($status, $count) = pf::dal::violation->count(
+        {
+            -where => {
+                mac => $mac,
+                vid => $vid,
+            }
+        }
+    );
 
     return ($count);
 }
@@ -236,11 +244,15 @@ sub violation_count_vid {
 sub violation_count_open_vid {
     my ( $mac, $vid ) = @_;
 #        qq [ select count(*) from violation where mac=? and vid=? and status="open" ]);
-    my ($status, $count) = pf::dal::violation->count({
-        mac => $mac,
-        vid => $vid,
-        status => "open",
-    });
+    my ($status, $count) = pf::dal::violation->count(
+        {
+            -where => {
+                mac => $mac,
+                vid => $vid,
+                status => "open",
+            }
+        }
+    );
 
     return ($count);
 }
@@ -726,13 +738,15 @@ sub violation_close {
         my $grace = $class_info->{'grace_period'};
         my ($status, $rows) = pf::dal::violation->update_items(
             {
-                release_date => '\NOW()',
-                status => 'closed',
-            },
-            {
-                mac => $mac,
-                vid => $vid,
-                status => { "!=" => "closed"},
+                -set => {
+                    release_date => '\NOW()',
+                    status => 'closed',
+                },
+                -where => {
+                    mac => $mac,
+                    vid => $vid,
+                    status => { "!=" => "closed"},
+                }
             }
         );
         $logger->info("violation $vid closed for $mac");
@@ -752,13 +766,15 @@ sub violation_force_close {
     my $should_run_actions = violation_exist_open($mac, $vid);
     my ($status, $rows) = pf::dal::violation->update_items(
         {
-            release_date => '\NOW()',
-            status => 'closed',
-        },
-        {
-            mac => $mac,
-            vid => $vid,
-            status => { "!=" => "closed"},
+            -set => {
+                release_date => '\NOW()',
+                status => 'closed',
+            },
+            -where => {
+                mac => $mac,
+                vid => $vid,
+                status => { "!=" => "closed"},
+            }
         }
     );
     $logger->info("violation $vid force-closed for $mac");
@@ -879,10 +895,10 @@ sub violation_maintenance {
     while(1) {
         my ($status, $iter) = pf::dal::violation->search(
             {
-                status => ["open", "delayed"],
-                release_date => [-and => {"!=" => 0}, {"<=" => \'NOW()'}],
-            },
-            {
+                -where => {
+                    status => ["open", "delayed"],
+                    release_date => [-and => {"!=" => 0}, {"<=" => \'NOW()'}],
+                },
                -limit => $batch,
                -columns => [qw(id mac vid notes status)],
             }
@@ -977,8 +993,7 @@ _db_item
 
 sub _db_item {
     my ($args) = @_;
-    my $where = delete $args->{'-where'};
-    my ($status, $iter) = pf::dal::violation->search($where, $args);
+    my ($status, $iter) = pf::dal::violation->search($args);
     if (is_error($status)) {
         return (0);
     }
@@ -993,8 +1008,7 @@ _db_data
 
 sub _db_data {
     my ($args) = @_;
-    my $where = delete $args->{'-where'};
-    my ($status, $iter) = pf::dal::violation->search($where, $args);
+    my ($status, $iter) = pf::dal::violation->search($args);
     if (is_error($status)) {
         return;
     }

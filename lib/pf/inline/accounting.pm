@@ -72,10 +72,10 @@ sub inline_accounting_update_session_for_ip {
 
     my ( $status, $iter ) = pf::dal::inline_accounting->search(
         {
-            status => $ACTIVE,
-            ip     => $ip
-        },
-        {
+            -where => {
+                status => $ACTIVE,
+                ip     => $ip
+            },
             -columns => [qw(firstseen)],
         }
     );
@@ -89,13 +89,15 @@ sub inline_accounting_update_session_for_ip {
     if (defined($active_session)) {
         ($status, my $rows) = pf::dal::inline_accounting->update_items(
             {
-                inbytes      => \[ 'inbytes + ?',      $inbytes ],
-                outbytes     => \[ 'outbytes + ?',     $outbytes ],
-                lastmodified => \[ 'FROM_UNIXTIME(?)', $lastmodified ],
-            },
-            {
-                ip     => $ip,
-                status => $ACTIVE,
+                -set => {
+                    inbytes      => \[ 'inbytes + ?',      $inbytes ],
+                    outbytes     => \[ 'outbytes + ?',     $outbytes ],
+                    lastmodified => \[ 'FROM_UNIXTIME(?)', $lastmodified ],
+                },
+                -where => {
+                    ip     => $ip,
+                    status => $ACTIVE,
+                }
             }
         );
     }
@@ -132,10 +134,10 @@ sub inline_accounting_maintenance {
         # Extract nodes with no more bandwidth left (considering also active sessions)
         my ($status, $iter) = pf::dal::inline_accounting->search(
             {
-                'n.status' => $pf::node::STATUS_REGISTERED,
-                'n.bandwidth_balance' => [ 0, { "<" => \'a.outbytes + a.inbytes' } ],
-            },
-            {
+                -where => {
+                    'n.status' => $pf::node::STATUS_REGISTERED,
+                    'n.bandwidth_balance' => [ 0, { "<" => \'a.outbytes + a.inbytes' } ],
+                },
                 -columns => [-distinct => qw(n.mac i.ip n.bandwidth_balance), 'COALESCE((a.outbytes+a.inbytes),0)|bandwidth_consumed'],
                 -from => [-join => 'node|n', '<=>{n.mac=i.mac}', 'ip4log|i', "=>{i.ip=a.ip,a.status='ACTIVE'}", 'inline_accounting|a'],
                 -for => 'UPDATE',
@@ -149,11 +151,13 @@ sub inline_accounting_maintenance {
                 if (violation_trigger( { 'mac' => $mac, 'tid' => $ACCOUNTING_POLICY_BANDWIDTH, 'type' => $TRIGGER_TYPE_ACCOUNTING } )) {
                     pf::dal::inline_accounting->update_items(
                         {
-                            status => $INACTIVE
-                        },
-                        {
-                            status => $ACTIVE,
-                            ip => $ip,
+                            -set => {
+                                status => $INACTIVE
+                            },
+                            -where => {
+                                status => $ACTIVE,
+                                ip => $ip,
+                            }
                         }
                     );
                 }
@@ -170,11 +174,13 @@ sub inline_accounting_maintenance {
     # Stop counters of active network sessions that have exceeded the timeout
     ($status, $rows) = pf::dal::inline_accounting->update_items(
         {
-            status => $INACTIVE
-        },
-        {
-            status => $ACTIVE,
-            lastmodified => { "<" => \['NOW() - INTERVAL ? SECOND', $accounting_session_timeout]}
+            -set => {
+                status => $INACTIVE
+            },
+            -where => {
+                status => $ACTIVE,
+                lastmodified => { "<" => \['NOW() - INTERVAL ? SECOND', $accounting_session_timeout]}
+            }
         }
     );
     if (is_success($status) && $rows > 0) {
@@ -184,11 +190,13 @@ sub inline_accounting_maintenance {
     # Stop counters of active network sessions that have spanned a new day
     ($status, $rows) = pf::dal::inline_accounting->update_items(
         {
-            status => $INACTIVE
-        },
-        {
-            status => $ACTIVE,
-            -and => \'DAY(lastmodified) != DAY(firstseen)',
+            -set => {
+                status => $INACTIVE
+            },
+            -where => {
+                status => $ACTIVE,
+                -and => \'DAY(lastmodified) != DAY(firstseen)',
+            }
         }
     );
     if (is_success($status) && $rows > 0) {
@@ -208,10 +216,12 @@ sub inline_accounting_maintenance {
 
     ($status, $rows) = pf::dal::node->update_items(
         {
-            bandwidth_balance => \["bandwidth_balance - COALESCE(($subsql), ?)", @subbind, 0],
-        },
-        {
-            bandwidth_balance => { ">" => 0 },
+            -set => {
+                bandwidth_balance => \["bandwidth_balance - COALESCE(($subsql), ?)", @subbind, 0],
+            },
+            -where => {
+                bandwidth_balance => { ">" => 0 },
+            }
         }
     );
 
@@ -222,10 +232,12 @@ sub inline_accounting_maintenance {
     # UPDATE inline_accounting: Mark INACTIVE entries as ANALYZED
     ($status, $rows) = pf::dal::inline_accounting->update_items(
         {
-            status => $ANALYZED
-        },
-        {
-            status => $INACTIVE
+            -set => {
+                status => $ANALYZED
+            },
+            -where => {
+                status => $INACTIVE
+            }
         }
     );
     if (is_success($status) && $rows > 0) {
