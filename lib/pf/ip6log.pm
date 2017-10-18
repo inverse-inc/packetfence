@@ -254,13 +254,13 @@ sub _view_by_ip {
 
     my ($status, $iter) = pf::dal::ip6log->search(
         {
-            ip => $ip,
-            -or => [
-                end_time => 0,
-                \'(end_time + INTERVAL 30 SECOND) > NOW()'
-            ],
-        },
-        {
+            -where => {
+                ip => $ip,
+                -or => [
+                    end_time => 0,
+                    \'(end_time + INTERVAL 30 SECOND) > NOW()'
+                ],
+            },
             -order_by => '-start_time',
             -limit => 1,
             -columns => [qw(mac ip type start_time end_time)],
@@ -291,13 +291,13 @@ sub _view_by_mac {
 
     my ($status, $iter) = pf::dal::ip6log->search(
         {
-            mac => $mac,
-            -or => [
-                end_time => 0,
-                \'(end_time + INTERVAL 30 SECOND) > NOW()'
-            ],
-        },
-        {
+            -where => {
+                mac => $mac,
+                -or => [
+                    end_time => 0,
+                    \'(end_time + INTERVAL 30 SECOND) > NOW()'
+                ],
+            },
             -order_by => '-start_time',
             -limit => 1,
             -columns => [qw(mac ip type start_time end_time)],
@@ -341,8 +341,7 @@ sub list_open {
 
 sub _db_list {
     my ($args) = @_;
-    my $where = delete $args->{'-where'};
-    my ($status, $iter) = pf::dal::ip6log->search($where, $args);
+    my ($status, $iter) = pf::dal::ip6log->search($args);
 
     if (is_error($status)) {
         return;
@@ -493,11 +492,14 @@ sub close {
 
     my ($status, $rows) = pf::dal::ip6log->update_items(
         {
-            end_time => \'NOW()',
-        },
-        {
-            ip => $ip,
+            -set => {
+                end_time => \'NOW()',
+            },
+            -where => {
+                ip => $ip,
+            }
         }
+
     );
 
     return ($rows);
@@ -531,6 +533,11 @@ sub rotate {
         -limit => $batch,
     );
 
+    my %rotate_search = (
+        -where => $where,    
+        -limit => $batch,
+    );
+
     my $sql = "INSERT INTO ip6log_archive $subsql;";
 
     while (1) {
@@ -541,12 +548,7 @@ sub rotate {
             $rows_inserted = $sth->rows;
             $sth->finish;
             if ($rows_inserted > 0 ) {
-                my ($status, $rows) = pf::dal::ip6log_history->remove_by_search(
-                    $where,
-                    {
-                        -limit => $batch,
-                    },
-                );
+                my ($status, $rows) = pf::dal::ip6log_history->remove_by_search(\%rotate_search);
                 $rows_deleted = $rows // 0;
                 $logger->debug("Deleted '$rows_deleted' entries from ip6log_history while rotating");
             } else {
@@ -607,11 +609,13 @@ sub _cleanup {
 
     my ($status, $rows) = $dal->batch_remove(
         {
-            end_time => {
-                "<" => \[ 'DATE_SUB(?, INTERVAL ? SECOND)', $now, $window_seconds ]
+            -where => {
+                end_time => {
+                    "<" => \[ 'DATE_SUB(?, INTERVAL ? SECOND)', $now, $window_seconds ]
+                }
             },
+            -limit => $batch,
         },
-        $batch,
         $time_limit
     );
     return ($rows);

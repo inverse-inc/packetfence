@@ -117,7 +117,15 @@ sub node_exist {
 #
 sub node_pid {
     my ($pid, $category_id) = @_;
-    my ($status, $count) = pf::dal::node->count({status => $STATUS_REGISTERED, pid => $pid, category_id => $category_id});
+    my ($status, $count) = pf::dal::node->count(
+        {
+            -where => {
+                status => $STATUS_REGISTERED,
+                pid => $pid,
+                category_id => $category_id
+            }
+        }
+    );
     if (is_error($status)) {
         return (0);
     }
@@ -129,7 +137,14 @@ sub node_pid {
 #
 sub node_view_reg_pid {
     my ($pid) = @_;
-    my ($status, $iter) = pf::dal::node->search({pid => $pid, status => $STATUS_REGISTERED}, {-columns => [qw(mac)]});
+    my ($status, $iter) = pf::dal::node->search(
+        {
+            -where => {
+                pid => $pid, status => $STATUS_REGISTERED
+            },
+            -columns => [qw(mac)]
+        }
+    );
     my $items = $iter->all(undef);
     if ($items) {
         return @$items;
@@ -373,7 +388,11 @@ sub node_count_all {
             @where = (-and => \@conditions);
         }
     }
-    my ($status, $count) = pf::dal::node->count(\@where);
+    my ($status, $count) = pf::dal::node->count(
+        {
+            -where => \@where
+        }
+    );
     return {nb => $count};
 }
 
@@ -524,7 +543,6 @@ sub node_view_all {
     require pf::pfcmd::report;
     import pf::pfcmd::report;
     my ($status, $iter) = pf::dal::node->search(
-        {},
         $extra
     );
     if (is_error($status)) {
@@ -703,10 +721,10 @@ sub nodes_maintenance {
     $logger->debug("nodes_maintenance called");
     my ( $status, $iter ) = pf::dal::node->search(
         {
-            status    => { "!=" => "unreg" },
-            unregdate => [-and => { "!=" => 0 }, { "<"  => \['NOW()'] } ]
-        },
-        {
+            -where => {
+                status    => { "!=" => "unreg" },
+                unregdate => [-and => { "!=" => 0 }, { "<"  => \['NOW()'] } ]
+            },
             -columns => ['mac']
         }
     );
@@ -735,8 +753,8 @@ Since trap violations stay open, this has the intended effect of getting all MAC
 
 sub nodes_registered_not_violators {
     my ($status, $iter) = pf::dal::node->search(
-        { 'node.status' => "reg" },
         {
+            -where => { 'node.status' => "reg" },
             -columns  => [qw(node.mac node.category_id)],
             -group_by => 'node.mac',
             -having => 'count(violation.mac)=0',
@@ -758,14 +776,14 @@ Get the nodes that should be deleted based on the last_seen column
 sub node_expire_lastseen {
     my ($time) = @_;
     my ( $status, $iter ) = pf::dal::node->search(
-        [
-            -and => [
+        {
+            -where => {
                 status    => "unreg",
                 last_seen => { "!=" => "0000-00-00 00:00:00" },
-                \['unix_timestamp(last_seen) < (unix_timestamp(now()) - ?)', $time],
-            ]
-        ],
-        {
+                -and => [
+                    \['unix_timestamp(last_seen) < (unix_timestamp(now()) - ?)', $time],
+                ]
+            },
             -columns => ['mac']
         }
     );
@@ -784,14 +802,14 @@ Get the nodes that should be unregistered based on the last_seen column
 sub node_unreg_lastseen {
     my ($time) = @_;
     my ( $status, $iter ) = pf::dal::node->search(
-        [
-            -and => [
+        {
+            -where => {
                 status    => { "!=" => "unreg"},
                 last_seen => { "!=" => "0000-00-00 00:00:00" },
-                \['unix_timestamp(last_seen) < (unix_timestamp(now()) - ?)', $time],
-            ]
-        ],
-        {
+                -and => [
+                    \['unix_timestamp(last_seen) < (unix_timestamp(now()) - ?)', $time],
+                ]
+            },
             -columns => ['mac']
         }
     );
@@ -857,9 +875,16 @@ sub node_update_bandwidth {
     $mac = clean_mac($mac);
     $logger->logdie("Invalid MAC address") unless (valid_mac($mac));
     $logger->logdie("Invalid number of bytes") unless ($bytes =~ m/^\d+$/);
-    my ($status, $rows) = pf::dal::node->update_items({
-        bandwidth_balance => \['COALESCE(bandwidth_balance, 0) + ?', $bytes],
-    }, {mac => $mac});
+    my ($status, $rows) = pf::dal::node->update_items(
+        {
+            -set => {
+                bandwidth_balance => \['COALESCE(bandwidth_balance, 0) + ?', $bytes],
+            }, 
+            -where => {
+                mac => $mac
+            }
+        }
+    );
 
     if (is_error($status)) {
         return (undef);
@@ -874,7 +899,14 @@ sub node_update_bandwidth {
 
 sub node_search {
     my ($mac) = @_;
-    my ($status, $iter) = pf::dal::node->search({mac => {-like => "${mac}%"}}, {-columns => ['mac']});
+    my ($status, $iter) = pf::dal::node->search(
+        {
+            -where => {
+                mac => {-like => "${mac}%"}
+            }, 
+            -columns => ['mac']
+        }
+    );
     if (is_error($status)) {
         return;
     }
@@ -893,7 +925,15 @@ in: mac address
 
 sub is_node_voip {
     my ($mac) = @_;
-    my ($status, $iter) = pf::dal::node->search({mac => $mac, voip => $VOIP}, {-columns => [\1]});
+    my ($status, $iter) = pf::dal::node->search(
+        {
+            -where => {
+                mac => $mac,
+                voip => $VOIP
+            },
+            -columns => [\1]
+        }
+    );
     if (is_error($status)) {
         return $FALSE;
     }
@@ -916,7 +956,15 @@ sub is_node_registered {
     my ($mac) = @_;
     my $logger = get_logger();
     $logger->trace("Asked whether node $mac is registered or not");
-    my ($status, $iter) = pf::dal::node->search({mac => $mac, status => $STATUS_REGISTERED}, {-columns => [\1]});
+    my ($status, $iter) = pf::dal::node->search(
+        {
+            -where => {
+                mac    => $mac,
+                status => $STATUS_REGISTERED
+            },
+            -columns => [\1]
+        }
+    );
     if (is_error($status)) {
         return $FALSE;
     }
@@ -1100,7 +1148,16 @@ sub node_update_last_seen {
     my ($mac) = @_;
     $mac = clean_mac($mac);
     if ($mac) {
-        my ($status, $rows) = pf::dal::node->update_items({last_seen => \['NOW()'] }, {mac => $mac});
+        my ($status, $rows) = pf::dal::node->update_items(
+            {
+                -set => {
+                    last_seen => \['NOW()']
+                }, 
+                -where => {
+                    mac => $mac
+                }
+            }
+        );
     }
 }
 
@@ -1123,10 +1180,10 @@ sub check_multihost {
     unless ( defined $location_info && ($location_info->{'switch_id'} ne "") && ($location_info->{'switch_port'} ne "") && ($location_info->{'connection_type'} ne "") ) {
         my ($status, $iter) = pf::dal::locationlog->search(
             {
-                mac => $mac,
-                end_time => 0,
-            },
-            {
+                -where => {-where => 
+                    mac => $mac,
+                    end_time => 0,
+                },
                 -limit => 1,
             }
         );

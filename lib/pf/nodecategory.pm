@@ -126,7 +126,7 @@ sub nodecategory_upsert {
 =cut
 
 sub nodecategory_view_all {
-    my ($status, $iter) = pf::dal::node_category->search();
+    my ($status, $iter) = pf::dal::node_category->search({});
     if (is_error($status)) {
         return;
     }
@@ -152,7 +152,13 @@ sub nodecategory_view {
 
 sub nodecategory_view_by_name {
     my ($name) = @_;
-    my ($status, $iter) = pf::dal::node_category->search({name => $name});
+    my ($status, $iter) = pf::dal::node_category->search(
+        {
+            -where => {
+                name => $name,
+            }
+        }
+    );
     if (is_error($status)) {
         return (0);
     }

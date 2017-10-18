@@ -103,7 +103,13 @@ sub person_delete {
         $logger->error("delete of non-existent person '$pid' failed");
         return 0;
     }
-    my ($status, $count) = pf::dal::node->count({pid => $pid});
+    my ($status, $count) = pf::dal::node->count(
+        {
+            -where => {
+                pid => $pid
+            }
+        }
+    );
     if ( $count ) {
         $logger->error("person $pid has $count node(s) registered in its name. Person deletion prohibited");
         return 0;
@@ -152,9 +158,9 @@ sub person_view_simple {
     my ($pid) = @_;
     my ($status, $iter) = pf::dal::person->search(
         {
-            pid => $pid,
-        },
-        {
+            -where => {
+                pid => $pid,
+            },
             -columns => \@FIELDS,
         }
     );
@@ -182,19 +188,24 @@ sub person_count_all {
             }
         }
     }
-    my ($status, $count) = pf::dal::person->count($where);
+    my ($status, $count) = pf::dal::person->count(
+        {
+            -where => $where
+        }
+    );
     return {nb => $count};
 }
 
 sub person_view_all {
     my ( %params ) = @_;
     my $logger = get_logger();
-    my %extra  = (
+    my %where;
+    my %search  = (
             -from => pf::dal::person->find_from_tables(),
+            -where => \%where,
             -columns => pf::dal::person->find_columns,
             -group_by => 'person.vid',
     );
-    my %where;
 
     if ( defined( $params{'where'} ) ) {
         if ( $params{'where'}{'type'} eq 'pid' ) {
@@ -210,16 +221,13 @@ sub person_view_all {
     }
 
     if ( defined( $params{'orderby'} ) ) {
-        $extra{'-order_by'} = $params{'orderby'};
+        $search{'-order_by'} = $params{'orderby'};
     }
     if ( defined( $params{'limit'} ) ) {
-        $extra{'-limit'} = $params{'limit'};
+        $search{'-limit'} = $params{'limit'};
     }
 
-    my ($status, $iter) = pf::dal::person->search(
-        \%where,
-        \%extra
-    );
+    my ($status, $iter) = pf::dal::person->search(\%search);
 
     if (is_error($status)) {
         return;
@@ -262,9 +270,9 @@ sub person_nodes {
     my ($pid) = @_;
     my ($status, $iter) = pf::dal::node->search(
         {
-            pid => $pid,
-        },
-        {
+            -where => {
+                pid => $pid,
+            },
             -columns => [qw(mac pid regdate unregdate lastskip status user_agent computername device_class time_balance bandwidth_balance)]
         }
     );
@@ -279,9 +287,9 @@ sub person_violations {
     my ($pid) = @_;
     my ($status, $iter) = pf::dal::violation->search(
         {
-            pid => $pid,
-        },
-        {
+            -where => {
+                pid => $pid,
+            },
             -from => [-join => qw(violation =>{violation.mac=node.mac} node =>{violation.vid=class.vid} class)],
             -order_by => '-start_date',
         }
@@ -301,7 +309,6 @@ Get all the persons who are not the owner of at least one node.
 
 sub persons_without_nodes {
     my ($status, $iter) = pf::dal::person->search(
-        {},
         {
             -from => [-join => qw(person =>{node.pid=person.pid} node)],
             -columns => ['person.pid'],

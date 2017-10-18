@@ -53,13 +53,17 @@ sub search {
     $params->{per_page} ||= 25;
     my $sqla = SQL::Abstract::More->new;
     my $where = $self->_build_where($params);
-    my %extra_options = ($self->_build_limit($params),$self->_build_order_by($params));
-    my ($status, $iter) = pf::dal::dhcp_option82->search($where, \%extra_options);
+    my %search = (
+        -where => $where,
+        $self->_build_limit($params),
+        $self->_build_order_by($params)
+    );
+    my ($status, $iter) = pf::dal::dhcp_option82->search(%search);
     if (is_error($status)) {
         return ($status, "Error searching in dhcp_option82");
     }
     my $items = $iter->all(undef);
-    ($status, my $count) = pf::dal::dhcp_option82->count($where);
+    ($status, my $count) = pf::dal::dhcp_option82->count({-where => $where});
     if (is_error($status)) {
         return ($status, "Error searching in dhcp_option82");
     }

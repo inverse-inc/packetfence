@@ -34,26 +34,17 @@ BEGIN {
 
 sub sms_carrier_view_all {
     my $source = shift;
-    my ($status, $iter);
     # Check if a SMS authentication source is defined; if so, use the carriers list
     # from this source
+    my %search = (
+            -columns => [qw(id name)]
+    );
     if ($source) {
-        ($status, $iter) = pf::dal::sms_carrier->search(
-            {
-                id => $source->{'sms_carriers'},
-            },
-            {
-                -columns => [qw(id name)]
-            }
-        );
+        $search{-where} = {
+            id => $source->{'sms_carriers'}
+        };
     }
-    else {
-        ($status, $iter) = pf::dal::sms_carrier->search({},
-            {
-                -columns => [qw(id name)]
-            }
-        );
-    }
+    my ($status, $iter) = pf::dal::sms_carrier->search(\%search);
     return [] if is_error($status);
     my $val = $iter->all(undef);
 

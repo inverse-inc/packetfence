@@ -34,9 +34,11 @@ Checks the version of database schema
 sub version_check_db {
     my $current_pf_minor_version = version_get_current();
     $current_pf_minor_version =~ s/(\.\d+).*$/$1/; # Keeping only the major/minor part (i.e: X.Y.Z -> X.Y)
-    my ($status, $iterator) = pf::dal::pf_version->search({
-        version => {'LIKE' => "${current_pf_minor_version}.%" },
-    });
+    my ($status, $iterator) = pf::dal::pf_version->search(
+        -where => {
+            version => {'LIKE' => "${current_pf_minor_version}.%" },
+        }
+    );
 
     if (is_error($status)) {
         return undef;
@@ -59,7 +61,6 @@ Get the last schema version in the datbase
 
 sub version_get_last_db_version {
     my ($status, $iterator) = pf::dal::pf_version->search(
-        {},
         {
             -limit => 1,
             -order_by => '-id'

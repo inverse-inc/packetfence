@@ -99,9 +99,9 @@ sub view_email {
     my ($email) = @_;
     my ($status, $iter) = pf::dal::password->search(
         {
-            'email' => $email,
-        },
-        {
+            -where => {
+                'email' => $email,
+            },
             -from => pf::dal::password->find_from_tables(),
             -columns => pf::dal::password->find_columns
         }
@@ -301,9 +301,11 @@ sub modify_actions {
     my %actions;
     $actions{@ACTION_FIELDS} = @{$password}{@ACTION_FIELDS};
     my ($status, $rows) = pf::dal::password->update_items(
-        \%actions,
         {
-            pid => $pid
+            -set => \%actions,
+            -where => {
+                pid => $pid
+            }
         }
     );
     return $rows;
@@ -328,9 +330,9 @@ sub validate_password {
     my $logger = get_logger();
     my ($status, $iter) = pf::dal::password->search(
         {
-            pid => $pid,
-        },
-        {
+            -where => {
+                pid => $pid,
+            },
             -columns => [qw(pid password UNIX_TIMESTAMP(valid_from)|valid_from), 'UNIX_TIMESTAMP(DATE_FORMAT(expiration,"%Y-%m-%d 23:59:59"))|expiration', qw(access_duration category)],
             -limit => 1,
         }
@@ -506,10 +508,12 @@ sub reset_password {
     }
     my ($status, $rows) = pf::dal::password->update_items(
         {
-            password => $password,
-        },
-        {
-            pid => $pid,
+            -set => {
+                password => $password,
+            },
+            -where => {
+                pid => $pid,
+            }
         }
     );
 
@@ -545,11 +549,13 @@ sub consume_login {
     }
     my ($status, $rows) = pf::dal::password->update_items(
         {
-            login_remaining => \'login_remaining - 1'
-        },
-        {
-            pid => $pid,
-            login_remaining => {">" => 0},
+            -set => {
+                login_remaining => \'login_remaining - 1'
+            },
+            -where => {
+                pid => $pid,
+                login_remaining => {">" => 0},
+            }
         }
     );
     if (is_error($status)) {

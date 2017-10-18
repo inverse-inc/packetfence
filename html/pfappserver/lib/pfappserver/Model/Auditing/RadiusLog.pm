@@ -54,8 +54,12 @@ sub search {
     $params->{per_page} ||= 25;
     my $sqla = SQL::Abstract::More->new;
     my $where = $self->_build_where($params);
-    my %extra_options = ($self->_build_limit($params),$self->_build_order_by($params));
-    my ($status, $iter) = pf::dal::radius_audit_log->search($where, \%extra_options);
+    my %search = (
+        -where => $where,
+        $self->_build_limit($params),
+        $self->_build_order_by($params)
+    );
+    my ($status, $iter) = pf::dal::radius_audit_log->search(\%search);
     if (is_error($status)) {
         return ($status, "Error searching in radius_audit_log");
     }
@@ -63,7 +67,7 @@ sub search {
     foreach my $item (@$items) {
         _unescape_item($item);
     }
-    ($status, my $count) = pf::dal::radius_audit_log->count($where);
+    ($status, my $count) = pf::dal::radius_audit_log->count({-where => $where});
     if (is_error($status)) {
         return ($status, "Error searching in radius_audit_log");
     }

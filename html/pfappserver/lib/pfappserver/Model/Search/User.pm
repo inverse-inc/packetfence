@@ -84,16 +84,18 @@ sub search {
     $self->_build_where($c, $params, $search_info);
     $self->_build_limit($c, $params, $search_info);
     $self->_build_order_by($c, $params, $search_info);
-    my $where = delete $search_info->{'-where'};
     my ($status, $iter) = pf::dal::person->search(
-        $where,
         $search_info
     );
     if (is_error($status)) {
         return ($status, undef);
     }
     my $items = $iter->all(undef);
-    ($status, my $count) = pf::dal::person->count($where);
+    ($status, my $count) = pf::dal::person->count(
+        {
+            -where => $search_info->{-where},
+        }
+    );
     if (is_error($status)) {
         return ($status, undef);
     }

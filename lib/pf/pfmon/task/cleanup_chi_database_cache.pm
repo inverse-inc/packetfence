@@ -36,30 +36,16 @@ sub run {
     my ($self) = @_;
     my $batch = $self->batch;
     my $time_limit = $self->timeout;
-
-    my $start_time = time;
-    my $end_time;
-    my $rows_deleted = 0;
     my $now        = pf::dal->now();
-    my $where = {
-        expires_at  => {
-            "<=" => $now,
+    my %search = (
+        -where => {
+            expires_at  => {
+                "<=" => $now,
+            },
         },
-    };
-    my $extra = {
         -limit => $batch,
-    };
-    while (1) {
-        my ($status, $rows) = pf::dal::chi_cache->remove_by_search($where, $extra);
-        if (is_error($status)) {
-            $logger->error("Error running cleanup");
-            last;
-        }
-        $rows_deleted += $rows if $rows > 0;
-        $logger->debug("Deleted '$rows_deleted' entries from the CHI database cache");
-        $end_time = time;
-        last if $rows <= 0 || ( ( $end_time - $start_time ) > $time_limit );
-    }
+    );
+    pf::dal::chi_cache->batch_remove(\%search, $time_limit);
 
     $logger->debug("Done expiring database CHI cache");
 }

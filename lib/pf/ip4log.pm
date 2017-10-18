@@ -307,13 +307,13 @@ sub _view_by_ip {
 
     my ($status, $iter) = pf::dal::ip4log->search(
         {
-            ip => $ip,
-            -or => [
-                end_time => 0,
-                \'(end_time + INTERVAL 30 SECOND) > NOW()'
-            ],
-        },
-        {
+            -where => {
+                ip => $ip,
+                -or => [
+                    end_time => 0,
+                    \'(end_time + INTERVAL 30 SECOND) > NOW()'
+                ],
+            },
             -order_by => '-start_time',
             -limit => 1,
             -columns => [qw(mac ip start_time end_time)],
@@ -344,13 +344,13 @@ sub _view_by_mac {
 
     my ($status, $iter) = pf::dal::ip4log->search(
         {
-            mac => $mac,
-            -or => [
-                end_time => 0,
-                \'(end_time + INTERVAL 30 SECOND) > NOW()'
-            ],
-        },
-        {
+            -where => {
+                mac => $mac,
+                -or => [
+                    end_time => 0,
+                    \'(end_time + INTERVAL 30 SECOND) > NOW()'
+                ],
+            },
             -order_by => '-start_time',
             -limit => 1,
             -columns => [qw(mac ip start_time end_time)],
@@ -395,8 +395,7 @@ sub list_open {
 
 sub _db_list {
     my ($args) = @_;
-    my $where = delete $args->{'-where'};
-    my ($status, $iter) = pf::dal::ip4log->search($where, $args);
+    my ($status, $iter) = pf::dal::ip4log->search($args);
 
     if (is_error($status)) {
         return;
@@ -547,10 +546,12 @@ sub close {
 
     my ($status, $rows) = pf::dal::ip4log->update_items(
         {
-            end_time => \'NOW()',
-        },
-        {
-            ip => $ip,
+            -set => {
+                end_time => \'NOW()',
+            },
+            -where => {
+                ip => $ip,
+            }
         }
     );
 
@@ -579,6 +580,11 @@ sub rotate {
         -limit => $batch,
     );
 
+    my %rotate_search = (
+        -where => $where,    
+        -limit => $batch,
+    );
+
     my $sql = "INSERT INTO ip4log_archive $subsql;";
 
     while (1) {
@@ -589,12 +595,7 @@ sub rotate {
             $rows_inserted = $sth->rows;
             $sth->finish;
             if ($rows_inserted > 0 ) {
-                my ($status, $rows) = pf::dal::ip4log_history->remove_by_search(
-                    $where,
-                    {
-                        -limit => $batch,
-                    },
-                );
+                my ($status, $rows) = pf::dal::ip4log_history->remove_by_search(\%rotate_search);
                 $rows_deleted = $rows // 0;
                 $logger->debug("Deleted '$rows_deleted' entries from ip4log_history while rotating");
             } else {

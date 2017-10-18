@@ -157,7 +157,7 @@ sub dhcp_option82_view_all {
     my ($offset, $limit) = @_;
     $offset //= 0;
     $limit  //= 25;
-    my ($status, $iter) = pf::dal::dhcp_option82->search({}, {
+    my ($status, $iter) = pf::dal::dhcp_option82->search({
         -offset => $offset,
         -limit => $limit,
     });
@@ -176,13 +176,15 @@ sub dhcp_option82_cleanup {
         return;
     }
     my $now = pf::dal->now();
-    my ($status, $rows_deleted) = pf::dal::dhcp_option82->batch_delete(
+    my ($status, $rows_deleted) = pf::dal::dhcp_option82->batch_remove(
         {
-            created_at => {
-                "<" => \[ 'DATE_SUB(?, INTERVAL ? SECOND)', $now, $expire_seconds ]
+            -where => {
+                created_at => {
+                    "<" => \[ 'DATE_SUB(?, INTERVAL ? SECOND)', $now, $expire_seconds ]
+                },
             },
+            -limit => $batch,
         },
-        $batch,
         $time_limit
     );
     return ($rows_deleted);

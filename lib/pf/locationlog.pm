@@ -272,11 +272,13 @@ sub locationlog_update_end {
         $logger->info("locationlog_update_end called without mac");
         my ($status, $rows) = pf::dal::locationlog->update_items(
             {
-                end_time => \'NOW()',
-            },
-            {
-                port => $ifIndex,
-                switch => $switch,
+                -set => {
+                    end_time => \'NOW()',
+                },
+                -where => {
+                    port => $ifIndex,
+                    switch => $switch,
+                }
             }
         );
     }
@@ -287,15 +289,15 @@ sub locationlog_update_end_switchport_no_VoIP {
     my ( $switch, $ifIndex ) = @_;
     my ($status, $rows) = pf::dal::locationlog->update_items(
         {
-            end_time => \'NOW()',
-        },
-        {
-            switch => $switch,
-            port => $ifIndex,
-            'node.voip' => {"!=" => "yes"},
-            end_time => 0,
-        },
-        {
+            -set => {
+                end_time => \'NOW()',
+            },
+            -where => {
+                switch => $switch,
+                port => $ifIndex,
+                'node.voip' => {"!=" => "yes"},
+                end_time => 0,
+            },
             -table => [-join => qw(locationlog {locationlog.mac=node.mac} node)],
         }
     );
@@ -307,15 +309,15 @@ sub locationlog_update_end_switchport_only_VoIP {
 
     my ($status, $rows) = pf::dal::locationlog->update_items(
         {
-            end_time => \'NOW()',
-        },
-        {
-            switch => $switch,
-            port => $ifIndex,
-            'node.voip' => "yes",
-            end_time => 0,
-        },
-        {
+            -set => {
+                end_time => \'NOW()',
+            },
+            -where => {
+                switch => $switch,
+                port => $ifIndex,
+                'node.voip' => "yes",
+                end_time => 0,
+            },
             -table => [-join => qw(locationlog {locationlog.mac=node.mac} node)],
         }
     );
@@ -326,11 +328,13 @@ sub locationlog_update_end_mac {
     my ($mac) = @_;
     my ($status, $rows) = pf::dal::locationlog->update_items(
         {
-            end_time => \'NOW()',
-        },
-        {
-            mac => $mac,
-            end_time => 0,
+            -set => {
+                end_time => \'NOW()',
+            },
+            -where => {
+                mac => $mac,
+                end_time => 0,
+            }
         }
     );
     return ($rows);
@@ -438,10 +442,12 @@ sub locationlog_synchronize {
 sub locationlog_close_all {
     my ($status, $rows) = pf::dal::locationlog->update_items(
         {
-            end_time => \'NOW()',
-        },
-        {
-            end_time => 0,
+            -set => {
+                end_time => \'NOW()',
+            },
+            -where => {
+                end_time => 0,
+            }
         }
     );
     return ($rows);
@@ -462,12 +468,14 @@ sub locationlog_cleanup {
 
     my ($status, $rows) = pf::dal::locationlog->batch_remove(
         {
-            end_time => {
-                 "<" => \[ 'DATE_SUB(?, INTERVAL ? SECOND)', $now, $expire_seconds ] ,
-                 "!=" => 0
+            -where => {
+                end_time => {
+                     "<" => \[ 'DATE_SUB(?, INTERVAL ? SECOND)', $now, $expire_seconds ] ,
+                     "!=" => 0
+                },
             },
+            -limit => $batch,
         },
-        $batch,
         $time_limit
     );
     return ($rows);
@@ -536,14 +544,16 @@ sub locationlog_get_session {
 }
 
 sub locationlog_set_session {
-   my ( $mac, $session_id ) = @_;
-   my ($status, $rows) = pf::dal::locationlog->update_items(
-       {
-           session_id => $session_id,
-       },
-       {
-           mac => $mac,
-           end_time => 0,
+    my ( $mac, $session_id ) = @_;
+    my ($status, $rows) = pf::dal::locationlog->update_items(
+        {
+           -set => {
+               session_id => $session_id,
+           },
+           -where => {
+               mac => $mac,
+               end_time => 0,
+           }
        }
    );
    return $rows;
@@ -569,11 +579,7 @@ sub locationlog_last_entry_mac {
 
 sub _db_item {
     my ($args) = @_;
-    my $where = delete $args->{'-where'};
-    my ($status, $iter) = pf::dal::locationlog->search(
-        $where,
-        $args,
-    );
+    my ($status, $iter) = pf::dal::locationlog->search($args);
 
     if (is_error($status)) {
         return (0);
@@ -583,11 +589,7 @@ sub _db_item {
 
 sub _db_list {
     my ($args) = @_;
-    my $where = delete $args->{'-where'};
-    my ($status, $iter) = pf::dal::locationlog->search(
-        $where,
-        $args,
-    );
+    my ($status, $iter) = pf::dal::locationlog->search($args);
     if (is_error($status)) {
         return;
     }
