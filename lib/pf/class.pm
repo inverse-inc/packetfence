@@ -35,7 +35,7 @@ use pf::error qw(is_error is_success);
 
 sub class_exist {
     my ($id) = @_;
-    my $status = pf::dal::class->does_exists({vid => $id});
+    my $status = pf::dal::class->exists({vid => $id});
     return (is_success($id));
 }
 

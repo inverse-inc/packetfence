@@ -86,7 +86,7 @@ foreach my $field (@FIELDS){
 #
 sub person_exist {
     my ($pid) = @_;
-    my $status = pf::dal::person->does_exists({pid => $pid});
+    my $status = pf::dal::person->exists({pid => $pid});
     return (is_success($status));
 }
 

@@ -209,7 +209,7 @@ sub nodecategory_modify {
 
 sub nodecategory_exist {
     my ($cat_id) = @_;
-    return (is_success(pf::dal::node_category->does_exists({category_id => $cat_id})));
+    return (is_success(pf::dal::node_category->exists({category_id => $cat_id})));
 }
 
 =item nodecategory_lookup - returns category_id from a category name if it exists, undef otherwise

@@ -517,13 +517,13 @@ Primary keys
 
 sub primary_keys { [] }
 
-=head2 remove_by_search
+=head2 remove_items
 
-remove_by_search
+remove_items
 
 =cut
 
-sub remove_by_search {
+sub remove_items {
     my ($proto, $args) = @_;
     my ($status, $sth) = $proto->do_delete(
         -from => $proto->table,
@@ -544,7 +544,7 @@ Remove row from the database
 sub remove {
     my ($self) = @_;
     return $STATUS::PRECONDITION_FAILED unless $self->__from_table;
-    my ($status, $count) = $self->remove_by_search(
+    my ($status, $count) = $self->remove_items(
         {
             -where => $self->primary_keys_where_clause
         }
@@ -566,7 +566,7 @@ Remove row from the database
 sub remove_by_id {
     my ($self, $ids) = @_;
     my $where = $self->build_primary_keys_where_clause($ids);
-    my ($status, $count) = $self->remove_by_search({-where => $where});
+    my ($status, $count) = $self->remove_items({-where => $where});
     return $status if is_error($status);
     if ($count) {
         return $STATUS::OK;
@@ -575,13 +575,13 @@ sub remove_by_id {
 }
 
 
-=head2 does_exists
+=head2 exists
 
 Checks if item exists
 
 =cut
 
-sub does_exists {
+sub exists {
     my ($proto, $ids) = @_;
     my $where = $proto->build_primary_keys_where_clause($ids);
     my ($status, $sth) = $proto->do_select(
@@ -858,7 +858,7 @@ sub batch_remove {
     my $rows_deleted = 0;
     my $table = $proto->table;
     while (1) {
-        my ($status, $rows) = $proto->remove_by_search($search);
+        my ($status, $rows) = $proto->remove_items($search);
         $end_time = time;
         $rows_deleted+=$rows if $rows > 0;
         $logger->trace( sub { "deleted $rows_deleted entries from $table for batch_delete ($start_time $end_time) " });
