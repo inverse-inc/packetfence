@@ -47,9 +47,6 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     @EXPORT = qw(
-        node_db_prepare
-        $node_db_prepared
-
         node_exist
         node_pid
         node_delete
@@ -339,7 +336,6 @@ sub node_count_all {
     my ( $id, %params ) = @_;
     my $logger = get_logger();
 
-    node_db_prepare() if (!$node_db_prepared);
     my @conditions;
     my @where = ();
     if ( defined( $params{'where'} ) ) {
