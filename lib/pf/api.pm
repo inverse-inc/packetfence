@@ -1579,6 +1579,40 @@ sub queue_stats : Public {
     return pf::pfqueue::stats->new->stats_data;
 }
 
+=head update_role_configuration
+
+Update the parameters of a role
+
+=cut
+
+sub update_role_configuration : Public :AllowedAsAction(role, $role) {
+    my ($class, %postdata )  = @_;
+    my @require = qw(role);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless pf::util::validate_argv(\@require,  \@found);
+
+    my $logger = pf::log::get_logger();
+    my $role = delete $postdata{'role'};
+
+    if ($postdata{'upload'} && $postdata{'download'}) {
+        my $tc_cs = pf::ConfigStore::TrafficShaping->new;
+        $tc_cs->update_or_create($role, {upload => $postdata{'upload'}, download => $postdata{'download'}});
+        $tc_cs->commit();
+        delete $postdata{'upload'};
+        delete $postdata{'download'};
+    }
+
+    my $hash_ref = {};
+    $hash_ref = \%postdata;
+
+    my $role_cs = pf::ConfigStore::Roles->new;
+    $role_cs->update_or_create($role, $hash_ref);
+
+    $role_cs->commit();
+    return "Change done";
+}
+
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
