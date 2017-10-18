@@ -36,6 +36,14 @@ my %params_for_upsert = (
   -on_conflict  => {type => HASHREF, optional => 1},
 );
 
+my %params_for_update = (
+  -table        => {type => SCALAR|SCALARREF|ARRAYREF},
+  -set          => {type => HASHREF},
+  -where        => {type => SCALAR|ARRAYREF|HASHREF, optional => 1},
+  -order_by     => {type => SCALAR|ARRAYREF|HASHREF, optional => 1},
+  -limit        => {type => SCALAR,                  optional => 1},
+);
+
 =head2 upsert
 
 Creates an mysql INSERT with an optional ON DUPLICATE KEY UPDATE parameters.
@@ -125,6 +133,34 @@ sub upsert {
   }
 
   return ($sql, @all_bind);
+}
+
+sub update {
+  my $self = shift;
+
+  my @old_API_args;
+  my %args;
+  if (&_called_with_named_args) {
+    %args = validate(@_, \%params_for_update);
+    if (ref $args{-table} eq 'ARRAY' && $args{-table}[0] eq '-join') {
+      my @join_args = @{$args{-table}};
+      shift @join_args;           # drop initial '-join'
+      my $join_info   = $self->join(@join_args);
+      $args{-table} = \($join_info->{sql});
+    }
+    @old_API_args = @args{qw/-table -set -where/};
+  }
+  else {
+    @old_API_args = @_;
+  }
+
+  # call clone of parent method
+  my ($sql, @bind) = $self->_overridden_update(@old_API_args);
+
+  # maybe need to handle additional args
+  $self->_handle_additional_args_for_update_delete(\%args, \$sql, \@bind);
+
+  return ($sql, @bind);
 }
 
 
