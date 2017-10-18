@@ -26,13 +26,13 @@ BEGIN {
     use Exporter ();
     our (@ISA, @EXPORT_OK);
     @ISA = qw(Exporter);
-    @EXPORT_OK = qw(scan_insert_sql scan_select_sql scan_update_status_sql);
 }
 
 use pf::constants;
 use pf::constants::scan qw($SEVERITY_HOLE $SEVERITY_WARNING $SEVERITY_INFO $STATUS_CLOSED $STATUS_NEW $STATUS_STARTED);
 use pf::config;
-use pf::db;
+use pf::dal::scan;
+use pf::error qw(is_error is_success);
 use pf::ip4log;
 use pf::scan::nessus;
 use pf::scan::openvas;
@@ -43,41 +43,6 @@ use pf::Connection::ProfileFactory;
 use pf::api::jsonrpcclient;
 use Text::CSV_XS;
 use List::MoreUtils qw(any);
-
-# DATABASE HANDLING
-use constant SCAN       => 'scan';
-our $scan_db_prepared   = 0;
-our $scan_statements    = {};
-
-sub scan_db_prepare {
-    my $logger = get_logger();
-
-    $logger->debug("Preparing database statements.");
-
-    $scan_statements->{'scan_insert_sql'} = get_db_handle()->prepare(qq[
-            INSERT INTO scan (
-                id, ip, mac, type, start_date, update_date, status, report_id
-            ) VALUES (
-                ?, ?, ?, ?, ?, ?, ?, ?
-            )
-    ]);
-
-    $scan_statements->{'scan_select_sql'} = get_db_handle()->prepare(qq[
-            SELECT id, ip, mac, type, start_date, update_date, status, report_id
-            FROM scan
-            WHERE id = ?
-    ]);
-
-    $scan_statements->{'scan_update_sql'} = get_db_handle()->prepare(qq[
-            UPDATE scan SET
-                status = ?, report_id =?
-            WHERE id = ?
-    ]);
-
-    $scan_db_prepared = 1;
-    return 1;
-}
-
 
 =head1 SUBROUTINES
 
@@ -203,13 +168,8 @@ Retrieve a scan object populated from the database using the scan id
 sub retrieve_scan {
     my ( $scan_id ) = @_;
     my $logger = get_logger();
-
-    my $query = db_query_execute(SCAN, $scan_statements, 'scan_select_sql', $scan_id) || return 0;
-    my $scan_infos = $query->fetchrow_hashref();
-    $query->finish();
-
-    if (!defined($scan_infos) || $scan_infos->{'id'} ne $scan_id) {
-        $logger->warn("Invalid scan object requested");
+    my ($status, $scan_infos) = pf::dal::scan->find({id => $scan_id});
+    if (is_error($status)) {
         return;
     }
 
@@ -270,9 +230,20 @@ sub run_scan {
         $scanner->{"_".$key}=$val;
     }
 
-    db_query_execute(SCAN, $scan_statements, 'scan_insert_sql',
-            $id, $host_ip, $host_mac, $type, $date, '0000-00-00 00:00:00', $STATUS_NEW, 'NULL'
-    ) || return 0;
+    my $status = pf::dal::scan->create({
+        id => $id,
+        ip => $host_ip,
+        mac => $host_ip,
+        type => $type,
+        start_date => $date,
+        update_date => '0000-00-00 00:00:00',
+        status => $STATUS_NEW,
+        report_id => 'NULL',
+    });
+
+    if (is_error($status)) {
+        return 0;
+    }
 
     # Instantiate the new scan object
     my $scan = $scanner;
@@ -309,11 +280,21 @@ Update the status and reportId of the scan in the database.
 sub statusReportSyncToDb {
     my ( $self ) = @_;
     my $logger = get_logger();
-
-    db_query_execute(SCAN, $scan_statements, 'scan_update_sql',
-        $self->{'_status'}, $self->{'_reportId'}, $self->{'_id'}
-    ) || return 0;
-    return $TRUE;
+    my ($status, $rows) = pf::dal::scan->update_items(
+        {
+            -set => {
+                status => $self->{_status},
+                report_id => $self->{_reportId},
+            },
+            -where => {
+                id => $self->{'_id'}
+            }
+        }
+    );
+    if (is_error($status)) {
+        return $FALSE;
+    }
+    return $rows ? $TRUE : $FALSE;
 }
 
 =item isNotExpired

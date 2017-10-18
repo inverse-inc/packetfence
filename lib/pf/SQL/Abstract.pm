@@ -14,6 +14,7 @@ pf::SQL::Abstract
 
 use strict;
 use warnings;
+use SQL::Abstract::Plugin::InsertMulti;
 use parent qw(SQL::Abstract::More);
 use MRO::Compat;
 use mro 'c3'; # implements next::method
@@ -33,6 +34,14 @@ my %params_for_upsert = (
   -into         => {type => SCALAR},
   -values       => {type => SCALAR|ARRAYREF|HASHREF},
   -on_conflict  => {type => HASHREF, optional => 1},
+);
+
+my %params_for_update = (
+  -table        => {type => SCALAR|SCALARREF|ARRAYREF},
+  -set          => {type => HASHREF},
+  -where        => {type => SCALAR|ARRAYREF|HASHREF, optional => 1},
+  -order_by     => {type => SCALAR|ARRAYREF|HASHREF, optional => 1},
+  -limit        => {type => SCALAR,                  optional => 1},
 );
 
 =head2 upsert
@@ -67,13 +76,13 @@ sub upsert {
     @old_args = @_;
   }
   # Create a regular insert
-  my ($sql, @bind) = $self->insert(@old_args);
+  my ($sql, @all_bind) = $self->insert(@old_args);
 
   if ($on_conflict && keys %$on_conflict > 0) {
     my (@set);
     puke "Unsupported data type specified to \$sql->upsert"
       unless ref $on_conflict eq 'HASH';
-    #Copied from SQL::Abstract update
+    #Copied from SQL::Abstract::More::_overridden_update
     for my $k (sort keys %$on_conflict) {
       my $v = $on_conflict->{$k};
       my $r = ref $v;
@@ -81,22 +90,23 @@ sub upsert {
 
       $self->_SWITCH_refkind($v, {
         ARRAYREF => sub {
-          if ($self->{array_datatypes}) { # array datatype
+          if ($self->{array_datatypes}
+              || $self->is_bind_value_with_type($v)) {
             push @set, "$label = ?";
-            push @bind, $self->_bindtype($k, $v);
+            push @all_bind, $self->_bindtype($k, $v);
           }
           else {                          # literal SQL with bind
-            my ($sql, @b) = @$v;
+            my ($sql, @bind) = @$v;
             $self->_assert_bindval_matches_bindtype(@bind);
             push @set, "$label = $sql";
-            push @bind, @b;
+            push @all_bind, @bind;
           }
         },
         ARRAYREFREF => sub { # literal SQL with bind
-          my ($sql, @b) = @${$v};
-          $self->_assert_bindval_matches_bindtype(@b);
+          my ($sql, @bind) = @${$v};
+          $self->_assert_bindval_matches_bindtype(@bind);
           push @set, "$label = $sql";
-          push @bind, @b;
+          push @all_bind, @bind;
         },
         SCALARREF => sub {  # literal SQL without bind
           push @set, "$label = $$v";
@@ -111,16 +121,44 @@ sub upsert {
           my ($sql, @extra_bind) = $self->_where_unary_op ($1, $arg);
 
           push @set, "$label = $sql";
-          push @bind, @extra_bind;
+          push @all_bind, @extra_bind;
         },
         SCALAR_or_UNDEF => sub {
           push @set, "$label = ?";
-          push @bind, $self->_bindtype($k, $v);
+          push @all_bind, $self->_bindtype($k, $v);
         },
       });
     }
     $sql .= " ON DUPLICATE KEY UPDATE " . join( ', ', @set);
   }
+
+  return ($sql, @all_bind);
+}
+
+sub update {
+  my $self = shift;
+
+  my @old_API_args;
+  my %args;
+  if (&_called_with_named_args) {
+    %args = validate(@_, \%params_for_update);
+    if (ref $args{-table} eq 'ARRAY' && $args{-table}[0] eq '-join') {
+      my @join_args = @{$args{-table}};
+      shift @join_args;           # drop initial '-join'
+      my $join_info   = $self->join(@join_args);
+      $args{-table} = \($join_info->{sql});
+    }
+    @old_API_args = @args{qw/-table -set -where/};
+  }
+  else {
+    @old_API_args = @_;
+  }
+
+  # call clone of parent method
+  my ($sql, @bind) = $self->_overridden_update(@old_API_args);
+
+  # maybe need to handle additional args
+  $self->_handle_additional_args_for_update_delete(\%args, \$sql, \@bind);
 
   return ($sql, @bind);
 }

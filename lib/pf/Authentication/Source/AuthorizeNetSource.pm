@@ -20,7 +20,6 @@ use pf::constants qw($FALSE $TRUE);
 use pf::Authentication::constants;
 use pf::util;
 use pf::log;
-use HTTP::Status qw(is_success);
 use WWW::Curl::Easy;
 use JSON::MaybeXS;
 use List::Util qw(first);

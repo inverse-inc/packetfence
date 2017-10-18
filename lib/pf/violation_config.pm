@@ -54,7 +54,7 @@ sub loadViolationsIntoDb {
     my @keys;
     while(my ($violation,$data) = each %Violation_Config) {
         # parse grace, try to understand trailing signs, and convert back to seconds
-        my @time_values = (qw(grace delay_by));
+        my @time_values = qw(grace delay_by);
         push (@time_values,'window') if (defined $data->{'window'} && $data->{'window'} ne "dynamic");
         foreach my $key (@time_values) {
             my $value = $data->{$key};
@@ -89,7 +89,18 @@ sub loadViolationsIntoDb {
         );
         push @keys, $violation;
     }
-    pf::dal::class->remove_classes_not_defined(\@keys);
+    remove_deleted_violations(\@keys);
+}
+
+sub remove_deleted_violations {
+    my ($ids) = @_;
+    my ($status, $rows) = pf::dal::class->remove_items(
+        {
+            -where => {
+                vid => { -not_in => $ids }
+            },
+        }
+    );
 }
 
 =head1 AUTHOR

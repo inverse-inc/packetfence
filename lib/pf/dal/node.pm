@@ -93,11 +93,40 @@ sub save {
     my ($self) = @_;
     my $status = $self->SUPER::save;
     if ($status == $STATUS::CREATED) {
-        my $apiclient = pf::api::queue->new(queue => 'general');
-        $apiclient->notify_delayed($NODE_DISCOVERED_TRIGGER_DELAY, "trigger_violation", mac => $self->mac, type => "internal", tid => "node_discovered");
+        $self->_post_create($self);
     }
     return $status;
 }
+
+=head2 create
+
+create
+
+=cut
+
+sub create {
+    my ($self, @args) = @_;
+    my $status = $self->SUPER::create(@args);
+    if (is_success($status)) {
+        $self->_post_create(@args);
+    }
+    return $status;
+}
+
+
+=head2 _post_create
+
+_post_create
+
+=cut
+
+sub _post_create {
+    my ($self, $args) = @_;
+    my $apiclient = pf::api::queue->new(queue => 'general');
+    $apiclient->notify_delayed($NODE_DISCOVERED_TRIGGER_DELAY, "trigger_violation", mac => $args->{mac}, type => "internal", tid => "node_discovered");
+    return ;
+}
+
 
 =head2 _update_category_ids
 
@@ -112,13 +141,11 @@ sub _update_category_ids {
     my @names;
     push @names, $category if defined $category;
     push @names, $bypass_role if defined $bypass_role;
-    my $sqla          = $self->get_sql_abstract;
-    my ($stmt, @bind) = $sqla->select(
+    my ($status, $sth) = $self->do_select(
         -columns => [qw(category_id name)],
         -from => 'node_category',
         -where   => {name => { -in => \@names}},
     );
-    my ($status, $sth) = $self->db_execute($stmt, @bind);
     return $status if is_error($status);
     my $lookup = $sth->fetchall_hashref('name');
     if (defined $bypass_role) {
@@ -143,7 +170,7 @@ sub _insert_data {
         return $status, $data;
     }
     if ($data->{detect_date} eq '0000-00-00 00:00:00') {
-       $data->{detect_date} = \['NOW()'];
+       $data->{detect_date} = $self->now;
     }
     return $status, $data;
 }
@@ -168,8 +195,7 @@ load the locationlog entries into the node object
 
 sub _load_locationlog {
     my ($self) = @_;
-    my $sqla = $self->get_sql_abstract;
-    my ($sql, @bind) = $sqla->select(
+    my ($status, $sth) = $self->do_select(
         -columns => [
             "locationlog.switch|last_switch",
             "locationlog.port|last_port",
@@ -188,7 +214,6 @@ sub _load_locationlog {
         -from => 'locationlog',
         -where => { mac => $self->mac, end_time => '0000-00-00 00:00:00'},
     );
-    my ($status, $sth) = $self->db_execute($sql, @bind);
     return $status, undef if is_error($status);
     my $row = $sth->fetchrow_hashref;
     $sth->finish;
@@ -214,6 +239,16 @@ sub merge {
         $self->{$k} = $v;
     }
     return ;
+}
+
+=head2 to_hash_fields
+
+to_hash_fields
+
+=cut
+
+sub to_hash_fields {
+    return [@pf::dal::_node::FIELD_NAMES, qw(category bypass_role), @LOCATION_LOG_GETTERS];
 }
 
 =head1 AUTHOR

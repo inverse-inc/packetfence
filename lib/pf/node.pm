@@ -23,10 +23,11 @@ use pf::log;
 use Readonly;
 use pf::StatsD::Timer;
 use pf::util::statsd qw(called);
-use pf::error qw(is_success);
+use pf::error qw(is_success is_error);
 use pf::constants::parking qw($PARKING_VID);
 use CHI::Memoize qw(memoized);
 use pf::dal::node;
+use pf::dal::locationlog;
 use pf::constants::node qw(
     $STATUS_REGISTERED
     $STATUS_UNREGISTERED
@@ -46,9 +47,6 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     @EXPORT = qw(
-        node_db_prepare
-        $node_db_prepared
-
         node_exist
         node_pid
         node_delete
@@ -59,21 +57,14 @@ BEGIN {
         node_view
         node_count_all
         node_view_all
-        node_view_with_fingerprint
         node_view_reg_pid
         node_modify
         node_register
         node_deregister
-        node_is_unregistered
         nodes_maintenance
-        nodes_unregistered
-        nodes_registered
-        nodes_registered_not_violators
-        nodes_active_unregistered
-        node_expire_lastarp
         node_cleanup
-        node_update_lastarp
         node_custom_search
+        nodes_registered_not_violators
         is_node_voip
         is_node_registered
         is_max_reg_nodes_reached
@@ -100,12 +91,6 @@ use pf::util;
 use pf::Connection::ProfileFactory;
 use pf::ipset;
 
-# The next two variables and the _prepare sub are required for database handling magic (see pf::db)
-our $node_db_prepared = 0;
-# in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
-# the hash if required
-our $node_statements = {};
-
 =head1 SUBROUTINES
 
 TODO: This list is incomlete
@@ -114,321 +99,17 @@ TODO: This list is incomlete
 
 =cut
 
-sub node_db_prepare {
-    my $logger = get_logger();
-    $logger->debug("Preparing pf::node database queries");
-
-    $node_statements->{'node_exist_sql'} = get_db_handle()->prepare(qq[ select mac from node where mac=? ]);
-
-    $node_statements->{'node_pid_sql'} = get_db_handle()->prepare( qq[
-        SELECT count(*)
-        FROM node
-        WHERE status = 'reg' AND pid = ? AND category_id = ?
-    ]);
-
-    $node_statements->{'node_add_sql'} = get_db_handle()->prepare(
-        qq[
-        INSERT INTO node (
-            mac, pid, category_id, status, voip, bypass_vlan, bypass_role_id,
-            detect_date, regdate, unregdate, lastskip,
-            user_agent, computername, dhcp_fingerprint,
-            last_arp, last_dhcp,
-            notes, autoreg, sessionid, last_seen
-        ) VALUES (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW()
-        )
-    ]
-    );
-
-    $node_statements->{'node_delete_sql'} = get_db_handle()->prepare(qq[ delete from node where mac=? ]);
-
-    $node_statements->{'node_modify_sql'} = get_db_handle()->prepare(
-        qq[
-        UPDATE node SET
-            mac=?, pid=?, category_id=?, status=?, voip=?, bypass_vlan=?, bypass_role_id=?,
-            detect_date=?, regdate=?, unregdate=?, lastskip=?, time_balance=?, bandwidth_balance=?,
-            user_agent=?, computername=?, dhcp_fingerprint=?, dhcp_vendor=?, dhcp6_fingerprint=?, dhcp6_enterprise=?, device_type=?, device_class=?, device_version=?, device_score=?,
-            last_arp=?, last_dhcp=?,
-            notes=?, autoreg=?, sessionid=?, machine_account=?
-        WHERE mac=?
-    ]
-    );
-
-    $node_statements->{'node_attributes_sql'} = get_db_handle()->prepare(
-        qq[
-        SELECT mac, pid, voip, status, bypass_vlan ,
-            IF(ISNULL(nc.name), '', nc.name) as category,
-            IF(ISNULL(nr.name), '', nr.name) as bypass_role,
-            detect_date, regdate, unregdate, lastskip, time_balance, bandwidth_balance,
-            user_agent, computername, dhcp_fingerprint, dhcp_vendor, dhcp6_fingerprint, dhcp6_enterprise, device_type, device_class, device_version, device_score,
-            last_arp, last_dhcp, last_seen,
-            node.notes, autoreg, sessionid, machine_account
-        FROM node
-            LEFT JOIN node_category as nr on node.bypass_role_id = nr.category_id
-            LEFT JOIN node_category as nc on node.category_id = nc.category_id
-        WHERE mac = ?
-    ]
-    );
-
-    $node_statements->{'node_attributes_with_fingerprint_sql'} = get_db_handle()->prepare(
-        qq[
-        SELECT mac, pid, voip, status, bypass_vlan,
-            IF(ISNULL(nc.name), '', nc.name) as category,
-            IF(ISNULL(nr.name), '', nr.name) as bypass_role ,
-            detect_date, regdate, unregdate, lastskip,
-            user_agent, computername, device_class AS dhcp_fingerprint,
-            last_arp, last_dhcp, last_seen,
-            node.notes, autoreg, sessionid, machine_account
-        FROM node
-            LEFT JOIN node_category as nr on node.bypass_role_id = nr.category_id
-            LEFT JOIN node_category as nc on node.category_id = nc.category_id
-        WHERE mac = ?
-    ]
-    );
-
-    # DEPRECATED see _node_view_old()
-    $node_statements->{'node_view_old_sql'} = get_db_handle()->prepare(
-        qq[
-        SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status,
-            IF(ISNULL(nc.name), '', nc.name) as category,
-            IF(ISNULL(nr.name), '', nr.name) as bypass_role ,
-            node.detect_date, node.regdate, node.unregdate, node.lastskip,
-            node.user_agent, node.computername, node.dhcp_fingerprint,
-            node.last_arp, node.last_dhcp,
-            locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan,
-            IF(ISNULL(locationlog.connection_type), '', locationlog.connection_type) as last_connection_type,
-            locationlog.dot1x_username as last_dot1x_username, locationlog.ssid as last_ssid,
-            locationlog.stripped_user_name as stripped_user_name, locationlog.realm as realm,
-            locationlog.role as last_role,
-            COUNT(DISTINCT violation.id) as nbopenviolations,
-            node.notes
-        FROM node
-            LEFT JOIN node_category as nr on node.bypass_role_id = nr.category_id
-            LEFT JOIN node_category as nc on node.category_id = nc.category_id
-            LEFT JOIN violation ON node.mac=violation.mac AND violation.status = 'open'
-            LEFT JOIN locationlog ON node.mac=locationlog.mac AND end_time = 0
-        GROUP BY node.mac
-        HAVING node.mac= ?
-    ]
-    );
-
-    $node_statements->{'node_view_sql'} = get_db_handle()->prepare(<<'    SQL');
-        SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status, node.category_id, node.bypass_role_id,
-            IF(ISNULL(nc.name), '', nc.name) as category,
-            IF(ISNULL(nr.name), '', nr.name) as bypass_role ,
-            node.detect_date, node.regdate, node.unregdate, node.lastskip, node.time_balance, node.bandwidth_balance,
-            node.user_agent, node.computername, node.dhcp_fingerprint, node.dhcp_vendor, node.dhcp6_fingerprint, node.dhcp6_enterprise, node.device_type, node.device_class, node.device_version, node.device_score,
-            node.last_arp, node.last_dhcp, node.last_seen,
-            node.notes, node.autoreg, node.sessionid, node.machine_account,
-            UNIX_TIMESTAMP(node.regdate) AS regdate_timestamp,
-            UNIX_TIMESTAMP(node.unregdate) AS unregdate_timestamp
-        FROM node
-            LEFT JOIN node_category as nr on node.bypass_role_id = nr.category_id
-            LEFT JOIN node_category as nc on node.category_id = nc.category_id
-        WHERE node.mac=?
-    SQL
-
-    $node_statements->{'node_view_reg_pid_sql'} = get_db_handle()->prepare(<<"    SQL");
-        SELECT node.mac
-        FROM node
-        WHERE node.pid=? AND node.status="$STATUS_REGISTERED";
-    SQL
-
-    $node_statements->{'node_last_locationlog_sql'} = get_db_handle()->prepare(<<'    SQL');
-       SELECT
-           locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan,
-           IF(ISNULL(locationlog.connection_type), '', locationlog.connection_type) as last_connection_type,
-           IF(ISNULL(locationlog.connection_sub_type), '', locationlog.connection_sub_type) as last_connection_sub_type,
-           locationlog.dot1x_username as last_dot1x_username, locationlog.ssid as last_ssid,
-           locationlog.stripped_user_name as stripped_user_name, locationlog.realm as realm,
-           locationlog.switch_mac as last_switch_mac,
-           locationlog.start_time as last_start_time, locationlog.role as last_role,
-           UNIX_TIMESTAMP(locationlog.start_time) as last_start_timestamp,
-           locationlog.ifDesc as last_ifDesc
-       FROM locationlog
-       WHERE mac = ? AND end_time = 0
-    SQL
-
-    # DEPRECATED see node_view_with_fingerprint()'s POD
-    $node_statements->{'node_view_with_fingerprint_sql'} = get_db_handle()->prepare(
-        qq[
-        SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status,
-            IF(ISNULL(nc.name), '', nc.name) as category,
-            IF(ISNULL(nr.name), '', nr.name) as bypass_role ,
-            node.detect_date, node.regdate, node.unregdate, node.lastskip,
-            node.user_agent, node.computername, device_class AS dhcp_fingerprint,
-            node.last_arp, node.last_dhcp,
-            locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan,
-            IF(ISNULL(locationlog.connection_type), '', locationlog.connection_type) as last_connection_type,
-            locationlog.dot1x_username as last_dot1x_username, locationlog.ssid as last_ssid,
-            locationlog.stripped_user_name as stripped_user_name, locationlog.realm as realm,
-            locationlog.role as last_role,
-            COUNT(DISTINCT violation.id) as nbopenviolations,
-            node.notes
-        FROM node
-            LEFT JOIN node_category as nr on node.bypass_role_id = nr.category_id
-            LEFT JOIN node_category as nc on node.category_id = nc.category_id
-            LEFT JOIN violation ON node.mac=violation.mac AND violation.status = 'open'
-            LEFT JOIN locationlog ON node.mac=locationlog.mac AND end_time = 0
-        GROUP BY node.mac
-        HAVING node.mac=?
-    ]
-    );
-
-    # This guy here is not in a prepared statement yet, have a look in node_view_all to see why
-    $node_statements->{'node_view_all_sql'} = qq[
-       SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status,
-            IF(ISNULL(nc.name), '', nc.name) as category,
-            IF(ISNULL(nr.name), '', nr.name) as bypass_role ,
-            IF(node.detect_date = '0000-00-00 00:00:00', '', node.detect_date) as detect_date,
-            IF(node.regdate = '0000-00-00 00:00:00', '', node.regdate) as regdate,
-            IF(node.unregdate = '0000-00-00 00:00:00', '', node.unregdate) as unregdate,
-            IF(node.lastskip = '0000-00-00 00:00:00', '', node.lastskip) as lastskip,
-            node.user_agent, node.computername, device_class AS dhcp_fingerprint,
-            node.last_arp, node.last_dhcp, node.last_seen,
-            locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan,
-            IF(ISNULL(locationlog.connection_type), '', locationlog.connection_type) as last_connection_type,
-            locationlog.dot1x_username as last_dot1x_username, locationlog.ssid as last_ssid,
-            locationlog.stripped_user_name as stripped_user_name, locationlog.realm as realm,
-            locationlog.switch_mac as last_switch_mac,
-            ip4log.ip as last_ip,
-            COUNT(DISTINCT violation.id) as nbopenviolations,
-            node.notes
-        FROM node
-            LEFT JOIN node_category as nr on node.bypass_role_id = nr.category_id
-            LEFT JOIN node_category as nc on node.category_id = nc.category_id
-            LEFT JOIN violation ON node.mac=violation.mac AND violation.status = 'open'
-            LEFT JOIN locationlog ON node.mac=locationlog.mac AND end_time = 0
-            LEFT JOIN ip4log ON node.mac=ip4log.mac AND (ip4log.end_time = '0000-00-00 00:00:00' OR ip4log.end_time > NOW())
-        GROUP BY node.mac
-    ];
-
-    # This guy here is special, have a look in node_count_all to see why
-    $node_statements->{'node_count_all_sql'} = qq[
-        SELECT count(*) as nb
-        FROM node
-    ];
-
-    $node_statements->{'node_expire_unreg_field_sql'} = get_db_handle()->prepare(
-        qq [ select mac from node where
-                ( status="reg" and unregdate != 0 and unregdate < now() ) or
-                ( status="pending" and unregdate != 0 and unregdate < now() ) ]);
-
-    $node_statements->{'node_expire_lastarp_sql'} = get_db_handle()->prepare(
-        qq [ select mac from node where unix_timestamp(last_arp) < (unix_timestamp(now()) - ?) and last_arp!=0 ]);
-
-    $node_statements->{'node_expire_lastseen_sql'} = get_db_handle()->prepare(
-        qq [ select mac from node where unix_timestamp(last_seen) < (unix_timestamp(now()) - ?) and last_seen!="0000-00-00 00:00:00" and status="$STATUS_UNREGISTERED" ]);
-
-    $node_statements->{'node_unreg_lastseen_sql'} = get_db_handle()->prepare(
-        qq [ select mac from node where unix_timestamp(last_seen) < (unix_timestamp(now()) - ?) and last_seen!="0000-00-00 00:00:00" and status="$STATUS_REGISTERED" ]);
-
-    $node_statements->{'node_is_unregistered_sql'} = get_db_handle()->prepare(
-        qq[
-        SELECT mac, pid, voip, bypass_vlan, status,
-            IF(ISNULL(nr.name), '', nr.name) as bypass_role ,
-            detect_date, regdate, unregdate, lastskip,
-            user_agent, computername, dhcp_fingerprint,
-            last_arp, last_dhcp,
-            node.notes
-        FROM node
-            LEFT JOIN node_category as nr on node.category_id = nr.category_id
-        WHERE status = "$STATUS_UNREGISTERED" AND mac = ?
-    ]
-    );
-
-    $node_statements->{'nodes_unregistered_sql'} = get_db_handle()->prepare(qq[
-        SELECT mac, pid, voip, bypass_vlan, status,
-            IF(ISNULL(nr.name), '', nr.name) as bypass_role ,
-            detect_date, regdate, unregdate, lastskip,
-            user_agent, computername, dhcp_fingerprint,
-            last_arp, last_dhcp,
-            node.notes
-        FROM node
-            LEFT JOIN node_category as nr on node.category_id = nr.category_id
-        WHERE status = "$STATUS_UNREGISTERED"
-    ]);
-
-    $node_statements->{'nodes_registered_sql'} = get_db_handle()->prepare(
-        qq[
-        SELECT mac, pid, voip, bypass_vlan, status,
-            IF(ISNULL(nr.name), '', nr.name) as bypass_role ,
-            detect_date, regdate, unregdate, lastskip,
-            user_agent, computername, dhcp_fingerprint,
-            last_arp, last_dhcp,
-            node.notes
-        FROM node
-            LEFT JOIN node_category as nr on node.category_id = nr.category_id
-        WHERE status = "$STATUS_REGISTERED"
-    ]
-    );
-
-    $node_statements->{'nodes_registered_not_violators_sql'} = get_db_handle()->prepare(qq[
-        SELECT node.mac, node.category_id FROM node
-            LEFT JOIN violation ON node.mac=violation.mac AND violation.status='open'
-        WHERE node.status='reg' GROUP BY node.mac HAVING count(violation.mac)=0
-    ]);
-
-    $node_statements->{'nodes_active_unregistered_sql'} = get_db_handle()->prepare(qq [
-        SELECT n.mac, n.pid, n.detect_date, n.regdate, n.unregdate, n.lastskip,
-            n.status, n.user_agent, n.computername, n.notes,
-            i.ip, i.start_time, i.end_time, n.last_arp
-        FROM node n LEFT JOIN ip4log i ON n.mac=i.mac
-        WHERE n.status = "unreg" AND (i.end_time = 0 OR i.end_time > now())
-    ]);
-
-    $node_statements->{'nodes_active_sql'} = get_db_handle()->prepare(qq [
-        SELECT n.mac, n.pid, n.detect_date, n.regdate, n.unregdate, n.lastskip,
-            n.status, n.user_agent, n.computername, n.notes, n.dhcp_fingerprint,
-            i.ip, i.start_time, i.end_time, n.last_arp
-        FROM node n, ip4log i
-        WHERE n.mac = i.mac AND (i.end_time = 0 OR i.end_time > now())
-    ]);
-
-    $node_statements->{'node_update_lastarp_sql'} = get_db_handle()->prepare(qq [ update node set last_arp=now() where mac=? ]);
-
-    $node_statements->{'node_search_sql'} = get_db_handle()->prepare(qq [ select mac from node where mac LIKE CONCAT(?,'%') ]);
-
-    $node_statements->{'node_last_reg_sql'} = get_db_handle()->prepare(qq [ select mac from node order by regdate DESC LIMIT 1,1 ]);
-
-    $node_statements->{'node_update_bandwidth_sql'} = get_db_handle()->prepare(qq[
-        UPDATE node SET bandwidth_balance = COALESCE(bandwidth_balance, 0) + ?
-        WHERE mac = ?
-    ]);
-
-    $node_statements->{'node_update_last_seen_sql'} = get_db_handle()->prepare(qq[
-        UPDATE node SET last_seen = NOW()
-        WHERE mac = ?
-    ]);
-
-    $node_db_prepared = 1;
-    return 1;
-}
-
-=item _node_exist
-
-The real implemntation of _node_exist
-
-=cut
-
-sub _node_exist {
-    my ($mac) = @_;
-    my $query = db_query_execute(NODE, $node_statements, 'node_exist_sql', $mac) || return (0);
-    my ($val) = $query->fetchrow_array();
-    $query->finish();
-    return ($val);
-}
-
 #
 # return mac if the node exists
 #
 sub node_exist {
     my ($mac) = @_;
     $mac = clean_mac($mac);
-    if ($mac) {
-        return pf::node::_node_exist($mac);
+    unless ($mac) {
+        return (0);
     }
-    return (0);
+    my $status = pf::dal::node->exists({mac => $mac});
+    return (is_success($status));
 }
 
 #
@@ -436,9 +117,18 @@ sub node_exist {
 #
 sub node_pid {
     my ($pid, $category_id) = @_;
-    my $query = db_query_execute(NODE, $node_statements, 'node_pid_sql', $pid, $category_id) || return (0);
-    my ($count) = $query->fetchrow_array();
-    $query->finish();
+    my ($status, $count) = pf::dal::node->count(
+        {
+            -where => {
+                status => $STATUS_REGISTERED,
+                pid => $pid,
+                category_id => $category_id
+            }
+        }
+    );
+    if (is_error($status)) {
+        return (0);
+    }
     return ($count);
 }
 
@@ -447,7 +137,19 @@ sub node_pid {
 #
 sub node_view_reg_pid {
     my ($pid) = @_;
-    return (db_data(NODE, $node_statements, 'node_view_reg_pid_sql', $pid));
+    my ($status, $iter) = pf::dal::node->search(
+        {
+            -where => {
+                pid => $pid, status => $STATUS_REGISTERED
+            },
+            -columns => [qw(mac)]
+        }
+    );
+    my $items = $iter->all(undef);
+    if ($items) {
+        return @$items;
+    }
+    return;
 }
 
 #
@@ -462,17 +164,20 @@ sub node_delete {
 
     if ( !node_exist($mac) ) {
         $logger->error("delete of non-existent node '$mac' failed");
-        return 0;
+        return (0);
     }
 
     require pf::locationlog;
     # TODO that limitation is arbitrary at best, we need to resolve that.
     if ( defined( pf::locationlog::locationlog_view_open_mac($mac) ) ) {
         $logger->warn("$mac has an open locationlog entry. Node deletion prohibited");
-        return 0;
+        return (0);
     }
 
-    db_query_execute(NODE, $node_statements, 'node_delete_sql', $mac) || return (0);
+    my $status = pf::dal::node->remove_by_id({mac => $mac});
+    if (is_error($status)) {
+        return (0);
+    }
     $logger->info("node $mac deleted");
     return (1);
 }
@@ -533,23 +238,8 @@ sub node_add {
         return (0);
     }
 
-    my $statement = db_query_execute( NODE, $node_statements, 'node_add_sql', $mac,
-        $data{pid},              $data{category_id}, $data{status},      $data{voip},
-        $data{bypass_vlan},      $data{bypass_role_id}, $data{detect_date}, $data{regdate},
-        $data{unregdate},        $data{lastskip},    $data{user_agent},  $data{computername},
-        $data{dhcp_fingerprint}, $data{last_arp},    $data{last_dhcp},   $data{notes},
-        $data{autoreg},          $data{sessionid}
-    );
-
-    my $apiclient = pf::api::queue->new(queue => 'general');
-    $apiclient->notify_delayed($NODE_DISCOVERED_TRIGGER_DELAY, "trigger_violation", mac => $mac, type => "internal", tid => "node_discovered");
-
-    if ($statement) {
-        return ($statement->rows == 1 ? 1 : 0);
-    }
-    else {
-        return (0);
-    }
+    my $status = pf::dal::node->create(\%data);
+    return (is_success($status) ? 1 : 0);
 }
 
 #
@@ -599,12 +289,11 @@ It's a simpler and faster version of node_view with fewer fields returned.
 sub node_attributes {
     my ($mac) = @_;
     $mac = clean_mac($mac);
-    my $query = db_query_execute(NODE, $node_statements, 'node_attributes_sql', $mac) || return (0);
-    my $ref = $query->fetchrow_hashref();
-
-    # just get one row and finish
-    $query->finish();
-    return ($ref);
+    my ($status, $obj) = pf::dal::node->find({mac => $mac});
+    if (is_error($status)) {
+        return (0);
+    }
+    return ($obj->to_hash);
 }
 
 =item node_attributes_with_fingerprint
@@ -619,39 +308,7 @@ fewer fields returned.
 
 sub node_attributes_with_fingerprint {
     my ($mac) = @_;
-
-    my $query = db_query_execute(NODE, $node_statements, 'node_attributes_with_fingerprint_sql', $mac) || return (0);
-    my $ref = $query->fetchrow_hashref();
-
-    # just get one row and finish
-    $query->finish();
-    return ($ref);
-}
-
-=item _node_view_old
-
-Returning lots of information about a given MAC address (node)
-
-DEPRECATED: This has been kept in case of regressions in the new node_view code.
-This code will disappear in 2013.
-
-=cut
-
-sub _node_view_old {
-    my ($mac) = @_;
-    $mac = clean_mac($mac);
-
-    # Uncomment to log callers
-    #my $logger = get_logger();
-    #my $caller = ( caller(1) )[3] || basename($0);
-    #$logger->trace("node_view called from $caller");
-
-    my $query = db_query_execute(NODE, $node_statements, 'node_view_old_sql', $mac) || return (0);
-    my $ref = $query->fetchrow_hashref();
-
-    # just get one row and finish
-    $query->finish();
-    return ($ref);
+    return node_attributes($mac);
 }
 
 =item _node_view
@@ -663,33 +320,12 @@ The real implementation of node_view
 sub _node_view {
     my ($mac) = @_;
     pf::log::logstacktrace("pf::node::node_view getting '$mac'");
-    # Uncomment to log callers
-    #my $logger = get_logger();
-    #my $caller = ( caller(1) )[3] || basename($0);
-    #$logger->trace("node_view called from $caller");
-
-    my $query = db_query_execute(NODE, $node_statements, 'node_view_sql', $mac) || return (0);
-    my $node_info_ref = $query->fetchrow_hashref();
-    $query->finish();
-
-    # if no node info returned we exit
-    if (!defined($node_info_ref)) {
-        return undef;
+    my ($status, $obj) = pf::dal::node->find({mac => $mac});
+    if (is_error($status)) {
+        return (0);
     }
-
-    $query = db_query_execute(NODE, $node_statements, 'node_last_locationlog_sql', $mac) || return (0);
-    my $locationlog_info_ref = $query->fetchrow_hashref();
-    $query->finish();
-
-    # merge hash references
-    # set locationlog info to empty hashref in case result from query was nothing
-    $locationlog_info_ref = {} if (!defined($locationlog_info_ref));
-    $node_info_ref = {
-        %$node_info_ref,
-        %$locationlog_info_ref,
-    };
-
-    return ($node_info_ref);
+    $obj->_load_locationlog;
+    return ($obj->to_hash());
 }
 
 =item node_view
@@ -715,65 +351,58 @@ sub node_count_all {
     my ( $id, %params ) = @_;
     my $logger = get_logger();
 
-    # Hack! we prepare the statement here so that $node_count_all_sql is pre-filled
-    node_db_prepare() if (!$node_db_prepared);
-    my $node_count_all_sql = $node_statements->{'node_count_all_sql'};
-
+    my @conditions;
+    my @where = ();
     if ( defined( $params{'where'} ) ) {
-        my @where = ();
-        if ( $params{'where'}{'type'} ) {
-            if ( $params{'where'}{'type'} eq 'pid' ) {
-                push(@where, "node.pid = " . get_db_handle()->quote($params{'where'}{'value'}));
+        my $where = $params{'where'};
+        if ( $where->{'type'} ) {
+            if ( $where->{'type'} eq 'pid' ) {
+                push @conditions, {pid => $where->{'value'}};
             }
-            elsif ( $params{'where'}{'type'} eq 'category' ) {
-                my $cat_id = nodecategory_lookup($params{'where'}{'value'});
+            elsif ( $where->{'type'} eq 'category' ) {
+                my $cat_id = nodecategory_lookup($where->{'value'});
                 if (!defined($cat_id)) {
                     # lets be nice and issue a warning if the category doesn't exist
-                    $logger->warn("there was a problem looking up category ".$params{'where'}{'value'});
+                    $logger->warn("there was a problem looking up category " . $where->{'value'});
                     # put cat_id to 0 so it'll return 0 results (achieving the count ok)
                     $cat_id = 0;
                 }
-                push(@where, "category_id = " . $cat_id);
+                push @conditions, {category_id => $cat_id};
             }
-            elsif ( $params{'where'}{'type'} eq 'status') {
-                push(@where, "node.status = " . get_db_handle()->quote($params{'where'}{'value'}));
+            elsif ( $where->{'type'} eq 'status') {
+                push @conditions, {status => $where->{'value'}};
             }
-            elsif ( $params{'where'}{'type'} eq 'any' ) {
-                if (exists($params{'where'}{'like'})) {
-                    my $like = get_db_handle->quote('%' . $params{'where'}{'like'} . '%');
-                    my $where_any .= "(mac LIKE $like"
-                                   . " OR computername LIKE $like"
-                                   . " OR pid LIKE $like)";
-                    push(@where, $where_any);
+            elsif ( $where->{'type'} eq 'any' ) {
+                if (exists($where->{'like'})) {
+                    my $like = '%' . $where->{'like'} . '%';
+                    my $like_op = {'-like' => $like};
+                    push @conditions, [ -or => [{mac => $like_op}, { computername => $like_op  }, { pid => $like_op}]];
                 }
             }
         }
-        if ( ref($params{'where'}{'between'}) ) {
-            push(@where, sprintf '%s BETWEEN %s AND %s',
-                 $params{'where'}{'between'}->[0],
-                 get_db_handle()->quote($params{'where'}{'between'}->[1]),
-                 get_db_handle()->quote($params{'where'}{'between'}->[2]));
+        if ( ref($where->{'between'}) ) {
+            my $between = $where->{'between'};
+            push(@conditions, {$between->[0] => {-between => [@{$between}[1, 2]]}});
         }
-        if (@where) {
-            $node_count_all_sql .= ' WHERE ' . join(' AND ', @where);
+        if (@conditions) {
+            @where = (-and => \@conditions);
         }
     }
-
-    # Hack! Because of the nature of the query built here (we cannot prepare it), we construct it as a string
-    # and pf::db will recognize it and prepare it as such
-    $node_statements->{'node_count_all_sql_custom'} = $node_count_all_sql;
-    #$logger->debug($node_count_all_sql);
-
-    my @data =  db_data(NODE, $node_statements, 'node_count_all_sql_custom');
-    return @data;
+    my ($status, $count) = pf::dal::node->count(
+        {
+            -where => \@where
+        }
+    );
+    return {nb => $count};
 }
 
 sub node_custom_search {
     my ($sql) = @_;
-    my $logger = get_logger();
-    $logger->debug($sql);
-    $node_statements->{'node_custom_search_sql_customer'} = $sql;
-    return db_data(NODE, $node_statements, 'node_custom_search_sql_customer');
+    my ($status, $sth) = pf::dal::node->db_execute($sql);
+    if (is_error($status)) {
+        return;
+    }
+    return @{$sth->fetchall_arrayref({}) // []};
 }
 
 =item * node_view_all - view all nodes based on several criteria
@@ -786,15 +415,95 @@ sub node_view_all {
     my $timer = pf::StatsD::Timer->new({level => 6});
     my ( $id, %params ) = @_;
     my $logger = get_logger();
+#      SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status,
+#           IF(ISNULL(nc.name), '', nc.name) as category,
+#           IF(ISNULL(nr.name), '', nr.name) as bypass_role ,
+#           IF(node.detect_date = '0000-00-00 00:00:00', '', node.detect_date) as detect_date,
+#           IF(node.regdate = '0000-00-00 00:00:00', '', node.regdate) as regdate,
+#           IF(node.unregdate = '0000-00-00 00:00:00', '', node.unregdate) as unregdate,
+#           IF(node.lastskip = '0000-00-00 00:00:00', '', node.lastskip) as lastskip,
+#           node.user_agent, node.computername, device_class AS dhcp_fingerprint,
+#           node.last_arp, node.last_dhcp, node.last_seen,
+#           locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan,
+#           IF(ISNULL(locationlog.connection_type), '', locationlog.connection_type) as last_connection_type,
+#           locationlog.dot1x_username as last_dot1x_username, locationlog.ssid as last_ssid,
+#           locationlog.stripped_user_name as stripped_user_name, locationlog.realm as realm,
+#           locationlog.switch_mac as last_switch_mac,
+#           ip4log.ip as last_ip,
+#           COUNT(DISTINCT violation.id) as nbopenviolations,
+#           node.notes
+#       FROM node
+#           LEFT JOIN node_category as nr on node.bypass_role_id = nr.category_id
+#           LEFT JOIN node_category as nc on node.category_id = nc.category_id
+#           LEFT JOIN violation ON node.mac=violation.mac AND violation.status = 'open'
+#           LEFT JOIN locationlog ON node.mac=locationlog.mac AND end_time = 0
+#           LEFT JOIN ip4log ON node.mac=ip4log.mac AND (ip4log.end_time = '0000-00-00 00:00:00' OR ip4log.end_time > NOW())
+#       GROUP BY node.mac
+    my $columns = [
+        qw(node.mac node.pid node.voip node.bypass_vlan node.status),
+        \"IF(ISNULL(nc.name), '', nc.name) as category",
+        \"IF(ISNULL(nr.name), '', nr.name) as bypass_role",
+        \"IF(node.detect_date = '0000-00-00 00:00:00', '', node.detect_date) as detect_date",
+        \"IF(node.regdate = '0000-00-00 00:00:00', '', node.regdate) as regdate",
+        \"IF(node.unregdate = '0000-00-00 00:00:00', '', node.unregdate) as unregdate",
+        \"IF(node.lastskip = '0000-00-00 00:00:00', '', node.lastskip) as lastskip",
+        qw(
+          node.user_agent node.computername device_class|dhcp_fingerprint
+          node.last_arp node.last_dhcp node.last_seen
+          locationlog.switch|last_switch locationlog.port|last_port locationlog.vlan|last_vlan),
+        \"IF(ISNULL(locationlog.connection_type), '', locationlog.connection_type) as last_connection_type",
+        qw(
+          locationlog.dot1x_username|last_dot1x_username locationlog.ssid|last_ssid
+          locationlog.stripped_user_name|stripped_user_name locationlog.realm|realm
+          locationlog.switch_mac|last_switch_mac
+          ip4log.ip|last_ip
+          ),
+        \"COUNT(DISTINCT violation.id) as nbopenviolations",
+        'node.notes'
+    ];
 
-    # Hack! we prepare the statement here so that $node_view_all_sql is pre-filled
-    node_db_prepare() if (!$node_db_prepared);
-    my $node_view_all_sql = $node_statements->{'node_view_all_sql'};
+    my $from = [-join => qw(
+        node 
+        =>{nr.category_id=node.bypass_role_id} node_category|nr
+        =>{node.category_id=nc.category_id} node_category|nc
+        ),
+        {
+            operator  => '=>',
+            condition => {
+                'node.mac' => { '=' => { -ident => '%2$s.mac' } },
+                '%2$s.status' => 'open',
+            },
+        },
+        'violation',
+        {
+            operator  => '=>',
+            condition => {
+                'node.mac' => { '=' => { -ident => '%2$s.mac' } },
+                '%2$s.end_time' => 0,
+            },
+        },
+        'locationlog',
+        {
+            operator  => '=>',
+            condition => {
+                'node.mac' => { '=' => { -ident => '%2$s.mac' } },
+                '%2$s.end_time' => ['0000-00-00 00:00:00', { ">", \'NOW()'}],
+            },
+        },
+        'ip4log'
+    ];
+
+    my $extra = {
+        -from => $from,
+        -columns => $columns,
+        -group_by => 'node.mac',
+    };
 
     if ( defined( $params{'where'} ) ) {
         if ( $params{'where'}{'type'} eq 'pid' ) {
-            $node_view_all_sql
-                .= " HAVING node.pid='" . $params{'where'}{'value'} . "'";
+            $extra->{-having} = {
+                'node.pid' => $params{'where'}{'value'}
+            };
         }
         elsif ( $params{'where'}{'type'} eq 'category' ) {
 
@@ -802,61 +511,46 @@ sub node_view_all {
                 # lets be nice and issue a warning if the category doesn't exist
                 $logger->warn("there was a problem looking up category ".$params{'where'}{'value'});
             }
-            $node_view_all_sql .= " HAVING category='" . $params{'where'}{'value'} . "'";
+            $extra->{-having} = {
+                'category' => $params{'where'}{'value'}
+            };
         }
         elsif ( $params{'where'}{'type'} eq 'any' ) {
             my $like = $params{'where'}{'like'};
             $like =~ s/^ *//;
             $like =~ s/ *$//;
             if (valid_mac($like) && !valid_ip($like)) {
-                my $mac = get_db_handle->quote(clean_mac($like));
-                $node_view_all_sql .= " HAVING node.mac = $mac";
+                my $mac = clean_mac($like);
+                $extra->{-having} = {
+                    'node.pid' => $params{'where'}{'value'}
+                };
             }
             else {
-                $like = get_db_handle->quote('%' . $params{'where'}{'like'} . '%');
-                $node_view_all_sql .= " HAVING node.mac LIKE $like"
-                  . " OR node.computername LIKE $like"
-                  . " OR node.pid LIKE $like"
-                  . " OR ip4log.ip LIKE $like";
+                $like = '%' . $params{'where'}{'like'} . '%';
+                $extra->{-having} = [ map { { $_ => { -like => $like} } } qw(node.mac node.computername node.pid ip4log.ip)  ];
             }
         }
     }
     if ( defined( $params{'orderby'} ) ) {
-        $node_view_all_sql .= " " . $params{'orderby'};
+        $extra->{-order_by} = $params{'orderby'},
     }
     if ( defined( $params{'limit'} ) ) {
-        $node_view_all_sql .= " " . $params{'limit'};
+        $extra->{-limit} = $params{'limit'};
+        $extra->{-offset} = $params{'offset'};
     }
 
-    # Hack! Because of the nature of the query built here (we cannot prepare it), we construct it as a string
-    # and pf::db will recognize it and prepare it as such
-    $node_statements->{'node_view_all_sql_custom'} = $node_view_all_sql;
 
     require pf::pfcmd::report;
     import pf::pfcmd::report;
-    my @data = translate_connection_type(db_data(NODE, $node_statements, 'node_view_all_sql_custom'));
+    my ($status, $iter) = pf::dal::node->search(
+        $extra
+    );
+    if (is_error($status)) {
+        return;
+    }
+    print $iter->rows,"\n";
+    my @data = translate_connection_type(@{$iter->all(undef) // []});
     return @data;
-}
-
-=item node_view_with_fingerprint
-
-DEPRECATED: This has been kept in case of regressions in the new
-node_attributes_with_fingerprint code.  This code will disappear in 2013.
-
-=cut
-
-sub node_view_with_fingerprint {
-    my $timer = pf::StatsD::Timer->new({level => 6});
-    my ($mac) = @_;
-    my $logger = get_logger();
-
-    $logger->warn("DEPRECATED! You should migrate the caller to the faster node_attributes_with_fingerprint");
-    my $query = db_query_execute(NODE, $node_statements, 'node_view_with_fingerprint_sql', $mac) || return (0);
-    my $ref = $query->fetchrow_hashref();
-
-    # just get one row and finish
-    $query->finish();
-    return ($ref);
 }
 
 sub node_modify {
@@ -864,99 +558,37 @@ sub node_modify {
     my ( $mac, %data ) = @_;
     my $logger = get_logger();
 
-
     # validation
     $mac = clean_mac($mac);
     if ( !valid_mac($mac) ) {
+        $logger->error("Invalid mac ($mac)");
+        return (0);
+    }
+    # Find or create the node
+    my ($status, $obj) = pf::dal::node->find_or_create({
+        mac => $mac
+    });
+
+    if (is_error($status)) {
         return (0);
     }
 
-    if ( !node_exist($mac) ) {
-        if ( node_add_simple($mac) ) {
-            $logger->info(
-                "modify of non-existent node $mac attempted - node added");
-        } else {
-            $logger->error(
-                "modify of non-existent node $mac attempted - node add failed"
-            );
+    # Fail if renaming mac
+    #
+    if (exists $data{mac} && defined $data{mac}) {
+        my $new_mac = clean_mac($data{mac});
+        if (defined $new_mac && $new_mac ne $mac) {
             return (0);
         }
     }
 
-    my $existing = node_attributes($mac);
-    # keep track of status
-    my $old_status = $existing->{status};
-    # special handling for category to category_id conversion
-    $existing->{'category_id'} = nodecategory_lookup($existing->{'category'});
-    $existing->{'bypass_role_id'} = nodecategory_lookup($existing->{'bypass_role'});
-    my $old_role_id = $existing->{'category_id'};
-    foreach my $item ( keys(%data) ) {
-        $existing->{$item} = $data{$item};
-    }
-
-    # category handling
-    # if category was updated, resolve it correctly
-    my $new_role_id = $old_role_id;
-    if (defined($data{'category'}) || defined($data{'category_id'})) {
-        $existing->{'category_id'} = _node_category_handling(%data);
-        if (defined($existing->{'category_id'}) && $existing->{'category_id'} == 0) {
-            $logger->error("Unable to modify node because specified category doesn't exist");
-        }
-        if ( defined($data{'category'}) && $data{'category'} ne '' ) {
-            $new_role_id = nodecategory_lookup($data{'category'});
-        } elsif (defined($data{'category_id'})) {
-            $new_role_id = $data{'category_id'};
-        }
-
-       # once the category conversion is complete, I delete the category entry to avoid complicating things
-       delete $existing->{'category'} if defined($existing->{'category'});
-    }
-
-    # Autoregistration handling
-    if (defined($data{'autoreg'})) {  $existing->{autoreg} = $data{'autoreg'}; }
-
-    _cleanup_attributes($existing);
-
-    my $new_mac    = clean_mac(lc( $existing->{'mac'} ));
-    my $new_status = $existing->{'status'};
-
-    if ( $mac ne $new_mac && node_exist($new_mac) ) {
-        $logger->error(
-            "modify of node $mac to $new_mac conflicts with existing node");
+    $obj->merge(\%data);
+    $status = $obj->save();
+    if (is_error($status)) {
+        $logger->error("Unable to modify node '" . $mac // 'undef' . "'");
         return (0);
     }
-
-    if (( $existing->{status} eq 'reg' )
-        && (   $existing->{regdate} eq '0000-00-00 00:00:00'
-            || $existing->{regdate} eq '' )
-        )
-    {
-        $existing->{regdate} = mysql_date();
-    }
-
-    my $sth = db_query_execute( NODE, $node_statements,
-        'node_modify_sql',              $new_mac,
-        $existing->{pid},               $existing->{category_id},
-        $existing->{status},            $existing->{voip},
-        $existing->{bypass_vlan},       $existing->{bypass_role_id},
-        $existing->{detect_date},       $existing->{regdate},
-        $existing->{unregdate},         $existing->{lastskip},
-        $existing->{time_balance},      $existing->{bandwidth_balance},
-        $existing->{user_agent},        $existing->{computername},
-        $existing->{dhcp_fingerprint},  $existing->{dhcp_vendor},
-        $existing->{dhcp6_fingerprint}, $existing->{dhcp6_enterprise},
-        $existing->{device_type},       $existing->{device_class},
-        $existing->{device_version},    $existing->{device_score},  
-        $existing->{last_arp},          $existing->{last_dhcp},
-        $existing->{notes},             $existing->{autoreg},
-        $existing->{sessionid},         $existing->{machine_account},
-        $mac
-    );
-    if($sth) {
-        return ( $sth->rows );
-    }
-    $logger->error("Unable to modify node '" . $mac // 'undef' . "'");
-    return undef;
+    return (1);
 }
 
 sub node_register {
@@ -1078,7 +710,7 @@ sub node_deregister {
 
 =item * nodes_maintenance - handling deregistration on node expiration and node grace
 
-called by pfmon daemon every 10 maintenance interval (usually each 10 minutes)
+called by pfmon daemon for the configured interval
 
 =cut
 
@@ -1087,13 +719,20 @@ sub nodes_maintenance {
     my $logger = get_logger();
 
     $logger->debug("nodes_maintenance called");
-
-    my $expire_unreg_query = db_query_execute(NODE, $node_statements, 'node_expire_unreg_field_sql') ;
-    unless ($expire_unreg_query ) {
+    my ( $status, $iter ) = pf::dal::node->search(
+        {
+            -where => {
+                status    => { "!=" => "unreg" },
+                unregdate => [-and => { "!=" => 0 }, { "<"  => \['NOW()'] } ]
+            },
+            -columns => ['mac']
+        }
+    );
+    if (is_error($status)) {
         return (0);
     }
 
-    while (my $row = $expire_unreg_query->fetchrow_hashref()) {
+    while (my $row = $iter->next(undef)) {
         my $currentMac = $row->{mac};
         node_deregister($currentMac);
         require pf::enforcement;
@@ -1105,25 +744,6 @@ sub nodes_maintenance {
     return (1);
 }
 
-# check to see is $mac is registered
-#
-sub node_is_unregistered {
-    my ($mac) = @_;
-
-    my $query = db_query_execute(NODE, $node_statements, 'node_is_unregistered_sql', $mac) || return (0);
-    my $ref = $query->fetchrow_hashref();
-    $query->finish();
-    return ($ref);
-}
-
-sub nodes_unregistered {
-    return db_data(NODE, $node_statements, 'nodes_unregistered_sql');
-}
-
-sub nodes_registered {
-    return db_data(NODE, $node_statements, 'nodes_registered_sql');
-}
-
 =item nodes_registered_not_violators
 
 Returns a list of MACs which are registered and don't have any open violation.
@@ -1132,16 +752,19 @@ Since trap violations stay open, this has the intended effect of getting all MAC
 =cut
 
 sub nodes_registered_not_violators {
-    return db_data(NODE, $node_statements, 'nodes_registered_not_violators_sql');
-}
-
-sub nodes_active_unregistered {
-    return db_data(NODE, $node_statements, 'nodes_active_unregistered_sql');
-}
-
-sub node_expire_lastarp {
-    my ($time) = @_;
-    return db_data(NODE, $node_statements, 'node_expire_lastarp_sql', $time);
+    my ($status, $iter) = pf::dal::node->search(
+        {
+            -where => { 'node.status' => "reg" },
+            -columns  => [qw(node.mac node.category_id)],
+            -group_by => 'node.mac',
+            -having => 'count(violation.mac)=0',
+            -from => [-join => 'node', "=>{node.mac=violation.mac,violation.status='open'}", "violation"],
+        }
+    );
+    if (is_error($status)) {
+        return;
+    }
+    return @{ $iter->all(undef) // []};
 }
 
 =item node_expire_lastseen
@@ -1152,7 +775,22 @@ Get the nodes that should be deleted based on the last_seen column
 
 sub node_expire_lastseen {
     my ($time) = @_;
-    return db_data(NODE, $node_statements, 'node_expire_lastseen_sql', $time);
+    my ( $status, $iter ) = pf::dal::node->search(
+        {
+            -where => {
+                status    => "unreg",
+                last_seen => { "!=" => "0000-00-00 00:00:00" },
+                -and => [
+                    \['unix_timestamp(last_seen) < (unix_timestamp(now()) - ?)', $time],
+                ]
+            },
+            -columns => ['mac']
+        }
+    );
+    if (is_error($status)) {
+        return;
+    }
+    return @{ $iter->all(undef) // []};
 }
 
 =item node_unreg_lastseen
@@ -1163,7 +801,22 @@ Get the nodes that should be unregistered based on the last_seen column
 
 sub node_unreg_lastseen {
     my ($time) = @_;
-    return db_data(NODE, $node_statements, 'node_unreg_lastseen_sql', $time);
+    my ( $status, $iter ) = pf::dal::node->search(
+        {
+            -where => {
+                status    => { "!=" => "unreg"},
+                last_seen => { "!=" => "0000-00-00 00:00:00" },
+                -and => [
+                    \['unix_timestamp(last_seen) < (unix_timestamp(now()) - ?)', $time],
+                ]
+            },
+            -columns => ['mac']
+        }
+    );
+    if (is_error($status)) {
+        return;
+    }
+    return @{ $iter->all(undef) // []};
 }
 
 =item node_cleanup
@@ -1207,12 +860,6 @@ sub node_cleanup {
     return (0);
 }
 
-sub node_update_lastarp {
-    my ($mac) = @_;
-    db_query_execute(NODE, $node_statements, 'node_update_lastarp_sql', $mac) || return (0);
-    return (1);
-}
-
 =item * node_update_bandwidth - update the bandwidth balance of a node
 
 Updates the bandwidth balance of a node and close the violations that use the bandwidth trigger.
@@ -1228,28 +875,44 @@ sub node_update_bandwidth {
     $mac = clean_mac($mac);
     $logger->logdie("Invalid MAC address") unless (valid_mac($mac));
     $logger->logdie("Invalid number of bytes") unless ($bytes =~ m/^\d+$/);
+    my ($status, $rows) = pf::dal::node->update_items(
+        {
+            -set => {
+                bandwidth_balance => \['COALESCE(bandwidth_balance, 0) + ?', $bytes],
+            }, 
+            -where => {
+                mac => $mac
+            }
+        }
+    );
 
-    # Upate node table
-    my $sth = db_query_execute(NODE, $node_statements, 'node_update_bandwidth_sql', $bytes, $mac);
-    unless ($sth) {
-        $logger->logdie(get_db_handle()->errstr);
+    if (is_error($status)) {
+        return (undef);
     }
-    elsif ($sth->rows == 1) {
-        # Close any existing violation related to bandwidth
+    if ($rows) {
         foreach my $vid (@BANDWIDTH_EXPIRED_VIOLATIONS){
             pf::violation::violation_force_close($mac, $vid);
         }
     }
-    return ($sth->rows);
+    return ($rows);
 }
 
 sub node_search {
     my ($mac) = @_;
-    my $query =  db_query_execute(NODE, $node_statements, 'node_search_sql', $mac) || return (0);
-    my ($val) = $query->fetchrow_array();
-    $query->finish();
-    return ($val);
-
+    my ($status, $iter) = pf::dal::node->search(
+        {
+            -where => {
+                mac => {-like => "${mac}%"}
+            }, 
+            -columns => ['mac']
+        }
+    );
+    if (is_error($status)) {
+        return;
+    }
+    my $items = $iter->sth->fetchall_arrayref;
+    $iter->finish();
+    return map { $_->[0] } @$items;
 }
 
 =item * is_node_voip
@@ -1262,16 +925,23 @@ in: mac address
 
 sub is_node_voip {
     my ($mac) = @_;
-    my $logger = get_logger();
-
-    $logger->trace("Asked whether node $mac is a VoIP Device or not");
-    my $node_info = node_attributes($mac);
-
-    if ($node_info->{'voip'} eq $VOIP) {
-        return $TRUE;
-    } else {
+    my ($status, $iter) = pf::dal::node->search(
+        {
+            -where => {
+                mac => $mac,
+                voip => $VOIP
+            },
+            -columns => [\1]
+        }
+    );
+    if (is_error($status)) {
         return $FALSE;
     }
+    my $items = $iter->all(undef);
+    if (!defined $items) {
+        return $FALSE;
+    }
+    return scalar @$items ? $TRUE : $FALSE; 
 }
 
 =item * is_node_registered
@@ -1285,15 +955,24 @@ in: mac address
 sub is_node_registered {
     my ($mac) = @_;
     my $logger = get_logger();
-
     $logger->trace("Asked whether node $mac is registered or not");
-    my $node_info = node_attributes($mac);
-
-    if ($node_info->{'status'} eq $STATUS_REGISTERED) {
-        return $TRUE;
-    } else {
+    my ($status, $iter) = pf::dal::node->search(
+        {
+            -where => {
+                mac    => $mac,
+                status => $STATUS_REGISTERED
+            },
+            -columns => [\1]
+        }
+    );
+    if (is_error($status)) {
         return $FALSE;
     }
+    my $items = $iter->all(undef);
+    if (!defined $items) {
+        return $FALSE;
+    }
+    return scalar @$items ? $TRUE : $FALSE; 
 }
 
 =item * node_category_handling - assigns category_id based on provided data
@@ -1383,20 +1062,6 @@ sub is_max_reg_nodes_reached {
     return $TRUE;
 }
 
-=item node_last_reg
-
-Return the last mac that has been registered.
-May sometimes be useful for customization.
-
-=cut
-
-sub node_last_reg {
-    my $query =  db_query_execute(NODE, $node_statements, 'node_last_reg_sql') || return (0);
-    my ($val) = $query->fetchrow_array();
-    $query->finish();
-    return ($val);
-}
-
 =item _cleanup_attributes
 
 Cleans up any inconsistency in the info attributes
@@ -1482,9 +1147,17 @@ Update the last_seen attribute of a node to now
 sub node_update_last_seen {
     my ($mac) = @_;
     $mac = clean_mac($mac);
-    if($mac) {
-        get_logger->debug("Updating last_seen for $mac");
-        db_query_execute(NODE, $node_statements, 'node_update_last_seen_sql', $mac);
+    if ($mac) {
+        my ($status, $rows) = pf::dal::node->update_items(
+            {
+                -set => {
+                    last_seen => \['NOW()']
+                }, 
+                -where => {
+                    mac => $mac
+                }
+            }
+        );
     }
 }
 
@@ -1505,12 +1178,23 @@ sub check_multihost {
 
     $mac = clean_mac($mac);
     unless ( defined $location_info && ($location_info->{'switch_id'} ne "") && ($location_info->{'switch_port'} ne "") && ($location_info->{'connection_type'} ne "") ) {
-        my $query = db_query_execute(NODE, $node_statements, 'node_last_locationlog_sql', $mac) || return (0);
-        my $locationlog_info_ref = $query->fetchrow_hashref();
-        $query->finish();
-        $location_info->{'switch_id'} = $locationlog_info_ref->{'last_switch'};
-        $location_info->{'switch_port'} = $locationlog_info_ref->{'last_port'};
-        $location_info->{'connection_type'} = $locationlog_info_ref->{'last_connection_type'};
+        my ($status, $iter) = pf::dal::locationlog->search(
+            {
+                -where => {-where => 
+                    mac => $mac,
+                    end_time => 0,
+                },
+                -limit => 1,
+            }
+        );
+        if (is_success($status)) {
+            my $locationlog_info_ref = $iter->next(undef);
+            if ($locationlog_info_ref) {
+                $location_info->{'switch_id'} = $locationlog_info_ref->{'switch'};
+                $location_info->{'switch_port'} = $locationlog_info_ref->{'port'};
+                $location_info->{'connection_type'} = $locationlog_info_ref->{'connection_type'} // '';
+            }
+        }
     }
 
     # There is no "multihost" capabilities for wireless or inline connections
