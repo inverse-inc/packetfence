@@ -778,8 +778,20 @@ Wrap call to select and db_execute
 
 sub do_select {
     my ($proto, @args) = @_;
+    @args = $proto->update_select(@args);
     my ($sql, @bind) = $proto->select(@args);
     return $proto->db_execute($sql, @bind);
+}
+
+=head2 update_select
+
+update_select
+
+=cut
+
+sub update_select {
+    my ($self, @args) = @_;
+    return @args;
 }
 
 =head2 do_insert
