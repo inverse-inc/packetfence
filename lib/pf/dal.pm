@@ -178,12 +178,11 @@ Search for pf::dal using SQL::Abstract::More syntax
 =cut
 
 sub search {
-    my ($proto, $where, $extra) = @_;
+    my ($proto, $args) = @_;
     my ($status, $sth) = $proto->do_select(
         -columns => $proto->field_names,
         -from    => $proto->table,
-        -where   => $where // {},
-        %{$extra // {}},
+        %{$args // {}},
     );
     return $status, undef if is_error($status);
     my $class = ref($proto) || $proto;
@@ -197,12 +196,11 @@ Get the count of the table
 =cut
 
 sub count {
-    my ($proto, $where, $extra) = @_;
+    my ($proto, $args) = @_;
     my ($status, $sth) = $proto->do_select(
-        -columns => ['COUNT(*)|count'],
         -from    => $proto->table,
-        -where   => $where // {},
-        %{$extra // {}},
+        %{$args // {}},
+        -columns => ['COUNT(*)|count'],
     );
     return $status, undef if is_error($status);
     my $row = $sth->fetchrow_hashref;
@@ -270,13 +268,10 @@ update items
 =cut
 
 sub update_items {
-    my ($proto, $set, $where, $extra) = @_;
-    $extra //= {};
+    my ($proto, $args) = @_;
     my ($status, $sth) = $proto->do_update(
         -table => $proto->table,
-        -set   => $set,
-        -where => $where,
-        %$extra
+        %{$args // {}}
     );
     return $status, undef if is_error($status);
 
@@ -529,12 +524,10 @@ remove_by_search
 =cut
 
 sub remove_by_search {
-    my ($proto, $where, $extra) = @_;
-    my $sqla = $proto->get_sql_abstract;
+    my ($proto, $args) = @_;
     my ($status, $sth) = $proto->do_delete(
         -from => $proto->table,
-        -where => $where,
-        %{$extra // {}}
+        %{$args // {}}
     );
     return $status, undef if is_error($status);
     my $rows = $sth->rows;
@@ -551,7 +544,11 @@ Remove row from the database
 sub remove {
     my ($self) = @_;
     return $STATUS::PRECONDITION_FAILED unless $self->__from_table;
-    my ($status, $count) = $self->remove_by_search($self->primary_keys_where_clause);
+    my ($status, $count) = $self->remove_by_search(
+        {
+            -where => $self->primary_keys_where_clause
+        }
+    );
     return $status if is_error($status);
     if ($count) {
         $self->__from_table(0);
@@ -569,7 +566,7 @@ Remove row from the database
 sub remove_by_id {
     my ($self, $ids) = @_;
     my $where = $self->build_primary_keys_where_clause($ids);
-    my ($status, $count) = $self->remove_by_search($where);
+    my ($status, $count) = $self->remove_by_search({-where => $where});
     return $status if is_error($status);
     if ($count) {
         return $STATUS::OK;
@@ -853,18 +850,15 @@ Batch remove rows
 =cut
 
 sub batch_remove {
-    my ($proto, $where, $batch, $time_limit) = @_;
+    my ($proto, $search, $time_limit) = @_;
     my $logger = get_logger();
-    $logger->debug("calling batch_cleanup with batch=$batch timelimit=$time_limit");
+    $logger->debug("calling batch_remove with timelimit=$time_limit");
     my $start_time = time;
     my $end_time;
     my $rows_deleted = 0;
-    my $extra = {
-        -limit => $batch,
-    };
     my $table = $proto->table;
     while (1) {
-        my ($status, $rows) = $proto->remove_by_search($where, $extra);
+        my ($status, $rows) = $proto->remove_by_search($search);
         $end_time = time;
         $rows_deleted+=$rows if $rows > 0;
         $logger->trace( sub { "deleted $rows_deleted entries from $table for batch_delete ($start_time $end_time) " });
