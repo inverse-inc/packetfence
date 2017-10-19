@@ -159,6 +159,8 @@ sub person_view_simple {
             pid => $pid,
         },
         -columns => \@FIELDS,
+        # Don't do the full join
+        -from => pf::dal::person->table,
     );
     if (is_error($status)) {
         return (0)
