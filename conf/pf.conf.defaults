@@ -895,7 +895,7 @@ normalize_radius_machine_auth_username=disabled
 #
 # advanced.vlan_pool_technique
 #
-# The algorithm used to calculate the vlan in a vlan pool.
+# The algorithm used to calculate the VLAN in a VLAN pool.
 vlan_pool_technique = username_hash
 
 [omapi]
