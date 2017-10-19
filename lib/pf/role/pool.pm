@@ -121,7 +121,7 @@ sub getRoundRobin {
         }
         return ($array[$new_vlan]);
     } else {
-        $logger->warn("Welcome to the workflow, you are the first registered node");
+        $logger->info("First device in the VLAN pool");
         return ($array[0]);
     }
 }
