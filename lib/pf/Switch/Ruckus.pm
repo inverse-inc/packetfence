@@ -140,8 +140,10 @@ sub deauthenticateMacDefault {
     my $dynauth = node_accounting_dynauth_attr($mac);
 
     $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
+    my $username = $dynauth->{'username'};
+    $username =~ s/://g;
     return $self->radiusDisconnect(
-        $mac, { 'User-Name' => $dynauth->{'username'} },
+        $mac, { 'User-Name' => $username },
     );
 }
 
