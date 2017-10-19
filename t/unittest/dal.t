@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 38;
+use Test::More tests => 39;
 
 use pf::error qw(is_success is_error);
 use pf::db;
@@ -180,6 +180,14 @@ is($node->category, $data->{category}, "Test saving category");
 is($node->bypass_role, $data->{bypass_role}, "Test saving bypass_role");
 
 pf::dal::node->remove_by_id({mac => $test_mac});
+
+is_deeply(
+    pf::dal::node->build_primary_keys_where_clause({mac => "00:00:00:00:00:00"}),
+    {
+        'node.mac' => '00:00:00:00:00:00',
+    },
+    "build_primary_keys_where_clause returns fullly qualified column names for searching",
+);
 
 =head1 AUTHOR
 

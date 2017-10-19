@@ -66,11 +66,6 @@ sub to_hash_fields {
     return [@pf::dal::_person::FIELD_NAMES, @PASSWORD_FIELDS, qw(can_sponsor nodes category)];
 }
 
-sub build_primary_keys_where_clause {
-    my ($self, $ids) = @_;
-    return { 'person.pid' => $ids->{pid}}
-}
-
 =head2 find_select_args
 
 find_select_args

@@ -51,17 +51,6 @@ sub find_from_tables {
     [-join => qw(password =>{password.category=node_category.category_id} node_category =>{password.pid=person.pid} person)],
 }
 
-=head2 build_primary_keys_where_clause
-
-build_primary_keys_where_clause
-
-=cut
-
-sub build_primary_keys_where_clause {
-    my ($self, $ids) = @_;
-    return {'password.pid' => $ids->{pid} };
-}
-
 =head2 to_hash_fields
 
 to_hash_fields

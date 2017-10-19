@@ -603,8 +603,10 @@ sub exists {
 sub build_primary_keys_where_clause {
     my ($self, $ids) = @_;
     my %where;
+    my $table = $self->table;
     my $keys = $self->primary_keys;
-    @where{@$keys} = @{$ids}{@$keys};
+    my @fullnames = map { "$table.$_"} @$keys;
+    @where{@fullnames} = @{$ids}{@$keys};
     return \%where;
 }
 

@@ -55,11 +55,6 @@ sub find_columns {
     [@COLUMN_NAMES]
 }
 
-sub build_primary_keys_where_clause {
-    my ($self, $ids) = @_;
-    return { 'class.vid' => $ids->{vid}}
-}
-
 =head2 to_hash_fields
 
 to_hash_fields
