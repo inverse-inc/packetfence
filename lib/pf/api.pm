@@ -66,6 +66,7 @@ use pf::dhcp::processor_v4();
 use pf::dhcp::processor_v6();
 use pf::util::dhcpv6();
 use pf::domain::ntlm_cache();
+use Hash::Merge qw (merge);
 
 use pf::constants::api;
 use DateTime::Format::MySQL;
@@ -1611,8 +1612,47 @@ sub update_role_configuration : Public :AllowedAsAction(role, $role) {
     $role_cs->update_or_create($role, $hash_ref);
 
     $role_cs->commit();
-    return "Change done";
+    return "Success";
 }
+
+=head2 role_detail
+
+return the detail of a role
+
+=cut
+
+sub role_detail : Public :AllowedAsAction(role, $role) {
+    my ($class, %postdata )  = @_;
+    my @require = qw(role);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless pf::util::validate_argv(\@require,  \@found);
+
+    my $logger = pf::log::get_logger();
+
+    my $role_cs = pf::ConfigStore::Roles->new;
+    my $tc_cs = pf::ConfigStore::TrafficShaping->new;
+
+    return merge($role_cs->read($postdata{'role'}), $tc_cs->read($postdata{'role'}));
+}
+
+=head2
+
+return the list of the roles
+
+=cut
+
+sub roles_list : Public {
+    my ($class, %postdata )  = @_;
+
+    my $role_cs = pf::ConfigStore::Roles->new;
+    my $roles = $role_cs->readAll("name");
+    my @role_list;
+    foreach my $role (@{$roles}) {
+        push @role_list, {'name' => $role->{'name'}};
+    }
+    return @role_list;
+}
+
 
 
 =head1 AUTHOR
