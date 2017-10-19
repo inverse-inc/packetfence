@@ -157,10 +157,10 @@ sub dhcp_option82_view_all {
     my ($offset, $limit) = @_;
     $offset //= 0;
     $limit  //= 25;
-    my ($status, $iter) = pf::dal::dhcp_option82->search({
+    my ($status, $iter) = pf::dal::dhcp_option82->search(
         -offset => $offset,
         -limit => $limit,
-    });
+    );
     return if is_error($status);
     my $items = $iter->all();
     return @$items;

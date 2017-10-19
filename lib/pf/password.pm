@@ -98,13 +98,11 @@ view the temporary password record associated to an email address, returns an ha
 sub view_email {
     my ($email) = @_;
     my ($status, $iter) = pf::dal::password->search(
-        {
-            -where => {
-                'email' => $email,
-            },
-            -from => pf::dal::password->find_from_tables(),
-            -columns => pf::dal::password->find_columns
-        }
+        -where => {
+            'email' => $email,
+        },
+        -from => pf::dal::password->find_from_tables(),
+        -columns => pf::dal::password->find_columns
     );
     if (is_error($status)) {
         return (0);
@@ -329,13 +327,11 @@ sub validate_password {
 
     my $logger = get_logger();
     my ($status, $iter) = pf::dal::password->search(
-        {
-            -where => {
-                pid => $pid,
-            },
-            -columns => [qw(pid password UNIX_TIMESTAMP(valid_from)|valid_from), 'UNIX_TIMESTAMP(DATE_FORMAT(expiration,"%Y-%m-%d 23:59:59"))|expiration', qw(access_duration category)],
-            -limit => 1,
-        }
+        -where => {
+            pid => $pid,
+        },
+        -columns => [qw(pid password UNIX_TIMESTAMP(valid_from)|valid_from), 'UNIX_TIMESTAMP(DATE_FORMAT(expiration,"%Y-%m-%d 23:59:59"))|expiration', qw(access_duration category)],
+        -limit => 1,
     );
 
     my $temppass_record = $iter->next(undef);

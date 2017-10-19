@@ -93,13 +93,11 @@ our $logger = get_logger();
 sub action_exist {
     my ($vid, $action) = @_;
     my ($status, $iter) = pf::dal::action->search(
-        {
-            -where => {
-                vid => $vid,
-                action => $action
-            }, 
-            -columns => [\1]
-        }
+        -where => {
+            vid => $vid,
+            action => $action
+        }, 
+        -columns => [\1]
     );
     if (is_error($status)) {
         return (0);
@@ -132,11 +130,9 @@ sub action_view {
 sub action_view_all {
     my ($vid) = @_;
     my ($status, $iter) = pf::dal::action->search(
-        {
-            -where => {
-                vid => $vid
-            }
-        },
+        -where => {
+            vid => $vid
+        }
     );
     if (is_error($status)) {
         return;

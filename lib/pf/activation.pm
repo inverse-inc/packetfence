@@ -134,16 +134,14 @@ find an unused pending activation record by doing a LIKE in the code, returns an
 sub find_unverified_code {
     my ($type, $activation_code) = @_;
     my ($status, $iter) = pf::dal::activation->search(
-        {
-            -where => {
-                type => $type,
-                activation_code => $activation_code,
-                status => $UNVERIFIED,
-                expiration => { ">=" => \['NOW()']}
-            },
-            -from => pf::dal::activation->find_from_tables(),
-            -columns => pf::dal::activation->find_columns,
-        }
+        -where => {
+            type => $type,
+            activation_code => $activation_code,
+            status => $UNVERIFIED,
+            expiration => { ">=" => \['NOW()']}
+        },
+        -from => pf::dal::activation->find_from_tables(),
+        -columns => pf::dal::activation->find_columns,
     );
     if (is_error($status)) {
         return undef;
@@ -164,14 +162,12 @@ view an pending  activation record by exact activation code (including hash form
 sub view_by_code {
     my ($type, $activation_code) = @_;
     my ($status, $iter) = pf::dal::activation->search(
-        {
-            -where => {
-                type => $type,
-                activation_code => $activation_code,
-            },
-            -from => pf::dal::activation->find_from_tables(),
-            -columns => pf::dal::activation->find_columns,
-        }
+        -where => {
+            type => $type,
+            activation_code => $activation_code,
+        },
+        -from => pf::dal::activation->find_from_tables(),
+        -columns => pf::dal::activation->find_columns,
     );
     if (is_error($status)) {
         return undef;
@@ -192,15 +188,13 @@ view_by_code_mac
 sub view_by_code_mac {
     my ($type, $code, $mac) = @_;
     my ($status, $iter) = pf::dal::activation->search(
-        {
-            -where => {
-                type => $type,
-                activation_code => $code,
-                mac => $mac,
-            },
-            -from => pf::dal::activation->find_from_tables(),
-            -columns => pf::dal::activation->find_columns,
-        }
+        -where => {
+            type => $type,
+            activation_code => $code,
+            mac => $mac,
+        },
+        -from => pf::dal::activation->find_from_tables(),
+        -columns => pf::dal::activation->find_columns,
     );
     if (is_error($status)) {
         return undef;
@@ -537,17 +531,15 @@ find_unverified_code_by_mac
 sub find_unverified_code_by_mac {
     my ($type, $activation_code, $mac) = @_;
     my ($status, $iter) = pf::dal::activation->search(
-        {
-            -where => {
-                mac => $mac,
-                type => $type,
-                status => $UNVERIFIED,
-                expiration => { ">=" => \['NOW()']},
-                activation_code => $activation_code,
-            },
-            -from => pf::dal::activation->find_from_tables(),
-            -columns => pf::dal::activation->find_columns,
-        }
+        -where => {
+            mac => $mac,
+            type => $type,
+            status => $UNVERIFIED,
+            expiration => { ">=" => \['NOW()']},
+            activation_code => $activation_code,
+        },
+        -from => pf::dal::activation->find_from_tables(),
+        -columns => pf::dal::activation->find_columns,
     );
     if (is_error($status)) {
         return undef;
@@ -591,17 +583,15 @@ sub set_status_verified_by_mac {
 sub activation_has_entry {
     my ($mac,$type) = @_;
     my ($status, $iter) = pf::dal::activation->search(
-        {
-            -where => {
-                mac => $mac,
-                type => $type,
-                status => $UNVERIFIED,
-                expiration => { ">=" => \['NOW()']},
-            },
-            -from => pf::dal::activation->find_from_tables(),
-            -columns => [\1],
-            -limit => 1,
-        }
+        -where => {
+            mac => $mac,
+            type => $type,
+            status => $UNVERIFIED,
+            expiration => { ">=" => \['NOW()']},
+        },
+        -from => pf::dal::activation->find_from_tables(),
+        -columns => [\1],
+        -limit => 1,
     );
     if (is_error($status)) {
         return undef;

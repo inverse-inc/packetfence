@@ -84,9 +84,7 @@ sub search {
     $self->_build_where($c, $params, $search_info);
     $self->_build_limit($c, $params, $search_info);
     $self->_build_order_by($c, $params, $search_info);
-    my ($status, $iter) = pf::dal::person->search(
-        $search_info
-    );
+    my ($status, $iter) = pf::dal::person->search(%$search_info);
     if (is_error($status)) {
         return ($status, undef);
     }

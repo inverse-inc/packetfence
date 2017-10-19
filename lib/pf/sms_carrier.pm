@@ -44,7 +44,7 @@ sub sms_carrier_view_all {
             id => $source->{'sms_carriers'}
         };
     }
-    my ($status, $iter) = pf::dal::sms_carrier->search(\%search);
+    my ($status, $iter) = pf::dal::sms_carrier->search(%search);
     return [] if is_error($status);
     my $val = $iter->all(undef);
 

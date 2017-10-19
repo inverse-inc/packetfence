@@ -188,10 +188,8 @@ sub radius_audit_log_view_all {
     $offset //= 0;
     $limit  //= 25;
     my ($status, $iter) = pf::dal::radius_audit_log->search(
-        {
-            -offset => $offset,
-            -limit => $limit,
-        }
+        -offset => $offset,
+        -limit => $limit,
     );
     return if is_error($status);
     my $items = $iter->all();

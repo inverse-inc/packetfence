@@ -581,7 +581,7 @@ sub locationlog_last_entry_mac {
 
 sub _db_item {
     my ($args) = @_;
-    my ($status, $iter) = pf::dal::locationlog->search($args);
+    my ($status, $iter) = pf::dal::locationlog->search(%$args);
 
     if (is_error($status)) {
         return (0);
@@ -591,7 +591,7 @@ sub _db_item {
 
 sub _db_list {
     my ($args) = @_;
-    my ($status, $iter) = pf::dal::locationlog->search($args);
+    my ($status, $iter) = pf::dal::locationlog->search(%$args);
     if (is_error($status)) {
         return;
     }

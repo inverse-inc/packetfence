@@ -253,18 +253,16 @@ sub _view_by_ip {
     $logger->debug("Viewing an 'ip6log' table entry for the following IP address '$ip'");
 
     my ($status, $iter) = pf::dal::ip6log->search(
-        {
-            -where => {
-                ip => $ip,
-                -or => [
-                    end_time => 0,
-                    \'(end_time + INTERVAL 30 SECOND) > NOW()'
-                ],
-            },
-            -order_by => '-start_time',
-            -limit => 1,
-            -columns => [qw(mac ip type start_time end_time)],
-        }
+        -where => {
+            ip => $ip,
+            -or => [
+                end_time => 0,
+                \'(end_time + INTERVAL 30 SECOND) > NOW()'
+            ],
+        },
+        -order_by => '-start_time',
+        -limit => 1,
+        -columns => [qw(mac ip type start_time end_time)],
     );
 
     if (is_error($status)) {
@@ -290,18 +288,16 @@ sub _view_by_mac {
     $logger->debug("Viewing an 'ip6log' table entry for the following MAC address '$mac'");
 
     my ($status, $iter) = pf::dal::ip6log->search(
-        {
-            -where => {
-                mac => $mac,
-                -or => [
-                    end_time => 0,
-                    \'(end_time + INTERVAL 30 SECOND) > NOW()'
-                ],
-            },
-            -order_by => '-start_time',
-            -limit => 1,
-            -columns => [qw(mac ip type start_time end_time)],
-        }
+        -where => {
+            mac => $mac,
+            -or => [
+                end_time => 0,
+                \'(end_time + INTERVAL 30 SECOND) > NOW()'
+            ],
+        },
+        -order_by => '-start_time',
+        -limit => 1,
+        -columns => [qw(mac ip type start_time end_time)],
     );
 
     if (is_error($status)) {
@@ -341,7 +337,7 @@ sub list_open {
 
 sub _db_list {
     my ($args) = @_;
-    my ($status, $iter) = pf::dal::ip6log->search($args);
+    my ($status, $iter) = pf::dal::ip6log->search(%$args);
 
     if (is_error($status)) {
         return;

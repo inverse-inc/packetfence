@@ -55,12 +55,10 @@ Find all saved search for a user with in a namespace
 sub savedsearch_for_pid_and_namespace {
     my ($pid, $namespace) = @_;
     my ($status, $iter) = pf::dal::savedsearch->search(
-        {
-            -where => {
-                pid => $pid,
-                namespace => $namespace,
-            },
-        }
+        -where => {
+            pid => $pid,
+            namespace => $namespace,
+        },
     );
     if (is_error($status)) {
         return;

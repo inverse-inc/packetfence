@@ -178,16 +178,14 @@ sub violation_grace {
     my ( $mac, $vid ) = @_;
 #        qq [ select unix_timestamp(start_date)+grace_period-unix_timestamp(now()) from violation v left join class c on v.vid=c.vid where mac=? and v.vid=? and status="closed" order by start_date desc ]);
     my ($status, $iter) = pf::dal::violation->search(
-        {
-            -where => {
-                'status' => "closed",
-                'violation.vid' => $vid,
-                'mac' => $mac,
-            },
-            -columns => ['unix_timestamp(start_date)+grace_period-unix_timestamp(now())|grace'],
-            -from => [-join => qw(violation =>{violation.vid=class.vid} class)],
-            -order_by => "-start_date",
-        }
+        -where => {
+            'status' => "closed",
+            'violation.vid' => $vid,
+            'mac' => $mac,
+        },
+        -columns => ['unix_timestamp(start_date)+grace_period-unix_timestamp(now())|grace'],
+        -from => [-join => qw(violation =>{violation.vid=class.vid} class)],
+        -order_by => "-start_date",
     );
     my $grace = $iter->next(undef);
     return ($grace ? $grace->{grace} : 0);
@@ -894,14 +892,12 @@ sub violation_maintenance {
     my $rows_processed = 0;
     while(1) {
         my ($status, $iter) = pf::dal::violation->search(
-            {
-                -where => {
-                    status => ["open", "delayed"],
-                    release_date => [-and => {"!=" => 0}, {"<=" => \'NOW()'}],
-                },
-               -limit => $batch,
-               -columns => [qw(id mac vid notes status)],
-            }
+            -where => {
+                status => ["open", "delayed"],
+                release_date => [-and => {"!=" => 0}, {"<=" => \'NOW()'}],
+            },
+           -limit => $batch,
+           -columns => [qw(id mac vid notes status)],
         );
         my $rows = $iter->sth->rows;
         my $client = pf::client::getClient();
@@ -993,7 +989,7 @@ _db_item
 
 sub _db_item {
     my ($args) = @_;
-    my ($status, $iter) = pf::dal::violation->search($args);
+    my ($status, $iter) = pf::dal::violation->search(%$args);
     if (is_error($status)) {
         return (0);
     }
@@ -1008,7 +1004,7 @@ _db_data
 
 sub _db_data {
     my ($args) = @_;
-    my ($status, $iter) = pf::dal::violation->search($args);
+    my ($status, $iter) = pf::dal::violation->search(%$args);
     if (is_error($status)) {
         return;
     }

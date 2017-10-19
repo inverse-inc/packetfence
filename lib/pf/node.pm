@@ -138,12 +138,11 @@ sub node_pid {
 sub node_view_reg_pid {
     my ($pid) = @_;
     my ($status, $iter) = pf::dal::node->search(
-        {
-            -where => {
-                pid => $pid, status => $STATUS_REGISTERED
-            },
-            -columns => [qw(mac)]
-        }
+        -where => {
+            pid => $pid,
+            status => $STATUS_REGISTERED
+        },
+        -columns => [qw(mac)]
     );
     my $items = $iter->all(undef);
     if ($items) {
@@ -542,9 +541,7 @@ sub node_view_all {
 
     require pf::pfcmd::report;
     import pf::pfcmd::report;
-    my ($status, $iter) = pf::dal::node->search(
-        $extra
-    );
+    my ($status, $iter) = pf::dal::node->search(%$extra);
     if (is_error($status)) {
         return;
     }
@@ -720,13 +717,11 @@ sub nodes_maintenance {
 
     $logger->debug("nodes_maintenance called");
     my ( $status, $iter ) = pf::dal::node->search(
-        {
-            -where => {
-                status    => { "!=" => "unreg" },
-                unregdate => [-and => { "!=" => 0 }, { "<"  => \['NOW()'] } ]
-            },
-            -columns => ['mac']
-        }
+        -where => {
+            status    => { "!=" => "unreg" },
+            unregdate => [-and => { "!=" => 0 }, { "<"  => \['NOW()'] } ]
+        },
+        -columns => ['mac']
     );
     if (is_error($status)) {
         return (0);
@@ -753,13 +748,13 @@ Since trap violations stay open, this has the intended effect of getting all MAC
 
 sub nodes_registered_not_violators {
     my ($status, $iter) = pf::dal::node->search(
-        {
-            -where => { 'node.status' => "reg" },
-            -columns  => [qw(node.mac node.category_id)],
-            -group_by => 'node.mac',
-            -having => 'count(violation.mac)=0',
-            -from => [-join => 'node', "=>{node.mac=violation.mac,violation.status='open'}", "violation"],
-        }
+        -where => {
+            'node.status' => "reg"
+        },
+        -columns  => [qw(node.mac node.category_id)],
+        -group_by => 'node.mac',
+        -having => 'count(violation.mac)=0',
+        -from => [-join => 'node', "=>{node.mac=violation.mac,violation.status='open'}", "violation"],
     );
     if (is_error($status)) {
         return;
@@ -776,16 +771,14 @@ Get the nodes that should be deleted based on the last_seen column
 sub node_expire_lastseen {
     my ($time) = @_;
     my ( $status, $iter ) = pf::dal::node->search(
-        {
-            -where => {
-                status    => "unreg",
-                last_seen => { "!=" => "0000-00-00 00:00:00" },
-                -and => [
-                    \['unix_timestamp(last_seen) < (unix_timestamp(now()) - ?)', $time],
-                ]
-            },
-            -columns => ['mac']
-        }
+        -where => {
+            status    => "unreg",
+            last_seen => { "!=" => "0000-00-00 00:00:00" },
+            -and => [
+                \['unix_timestamp(last_seen) < (unix_timestamp(now()) - ?)', $time],
+            ]
+        },
+        -columns => ['mac']
     );
     if (is_error($status)) {
         return;
@@ -802,16 +795,14 @@ Get the nodes that should be unregistered based on the last_seen column
 sub node_unreg_lastseen {
     my ($time) = @_;
     my ( $status, $iter ) = pf::dal::node->search(
-        {
-            -where => {
-                status    => { "!=" => "unreg"},
-                last_seen => { "!=" => "0000-00-00 00:00:00" },
-                -and => [
-                    \['unix_timestamp(last_seen) < (unix_timestamp(now()) - ?)', $time],
-                ]
-            },
-            -columns => ['mac']
-        }
+        -where => {
+            status    => { "!=" => "unreg"},
+            last_seen => { "!=" => "0000-00-00 00:00:00" },
+            -and => [
+                \['unix_timestamp(last_seen) < (unix_timestamp(now()) - ?)', $time],
+            ]
+        },
+        -columns => ['mac']
     );
     if (is_error($status)) {
         return;
@@ -900,12 +891,10 @@ sub node_update_bandwidth {
 sub node_search {
     my ($mac) = @_;
     my ($status, $iter) = pf::dal::node->search(
-        {
-            -where => {
-                mac => {-like => "${mac}%"}
-            }, 
-            -columns => ['mac']
-        }
+        -where => {
+            mac => {-like => "${mac}%"}
+        }, 
+        -columns => ['mac']
     );
     if (is_error($status)) {
         return;
@@ -926,13 +915,11 @@ in: mac address
 sub is_node_voip {
     my ($mac) = @_;
     my ($status, $iter) = pf::dal::node->search(
-        {
-            -where => {
-                mac => $mac,
-                voip => $VOIP
-            },
-            -columns => [\1]
-        }
+        -where => {
+            mac => $mac,
+            voip => $VOIP
+        },
+        -columns => [\1]
     );
     if (is_error($status)) {
         return $FALSE;
@@ -957,13 +944,11 @@ sub is_node_registered {
     my $logger = get_logger();
     $logger->trace("Asked whether node $mac is registered or not");
     my ($status, $iter) = pf::dal::node->search(
-        {
-            -where => {
-                mac    => $mac,
-                status => $STATUS_REGISTERED
-            },
-            -columns => [\1]
-        }
+        -where => {
+            mac    => $mac,
+            status => $STATUS_REGISTERED,
+        },
+        -columns => [\1],
     );
     if (is_error($status)) {
         return $FALSE;
@@ -1184,13 +1169,11 @@ sub check_multihost {
     $mac = clean_mac($mac);
     unless ( defined $location_info && ($location_info->{'switch_id'} ne "") && ($location_info->{'switch_port'} ne "") && ($location_info->{'connection_type'} ne "") ) {
         my ($status, $iter) = pf::dal::locationlog->search(
-            {
-                -where => {-where => 
-                    mac => $mac,
-                    end_time => 0,
-                },
-                -limit => 1,
-            }
+            -where => {-where => 
+                mac => $mac,
+                end_time => 0,
+            },
+            -limit => 1,
         );
         if (is_success($status)) {
             my $locationlog_info_ref = $iter->next(undef);

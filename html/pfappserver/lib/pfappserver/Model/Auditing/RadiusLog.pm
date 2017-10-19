@@ -59,7 +59,7 @@ sub search {
         $self->_build_limit($params),
         $self->_build_order_by($params)
     );
-    my ($status, $iter) = pf::dal::radius_audit_log->search(\%search);
+    my ($status, $iter) = pf::dal::radius_audit_log->search(%search);
     if (is_error($status)) {
         return ($status, "Error searching in radius_audit_log");
     }

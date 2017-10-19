@@ -157,12 +157,10 @@ sub person_view {
 sub person_view_simple {
     my ($pid) = @_;
     my ($status, $iter) = pf::dal::person->search(
-        {
-            -where => {
-                pid => $pid,
-            },
-            -columns => \@FIELDS,
-        }
+        -where => {
+            pid => $pid,
+        },
+        -columns => \@FIELDS,
     );
     if (is_error($status)) {
         return (0)
@@ -227,7 +225,7 @@ sub person_view_all {
         $search{'-limit'} = $params{'limit'};
     }
 
-    my ($status, $iter) = pf::dal::person->search(\%search);
+    my ($status, $iter) = pf::dal::person->search(%search);
 
     if (is_error($status)) {
         return;
@@ -269,12 +267,10 @@ sub person_modify {
 sub person_nodes {
     my ($pid) = @_;
     my ($status, $iter) = pf::dal::node->search(
-        {
-            -where => {
-                pid => $pid,
-            },
-            -columns => [qw(mac pid regdate unregdate lastskip status user_agent computername device_class time_balance bandwidth_balance)]
-        }
+        -where => {
+            pid => $pid,
+        },
+        -columns => [qw(mac pid regdate unregdate lastskip status user_agent computername device_class time_balance bandwidth_balance)]
     );
     if (is_error($status)) {
         return;
@@ -286,13 +282,11 @@ sub person_nodes {
 sub person_violations {
     my ($pid) = @_;
     my ($status, $iter) = pf::dal::violation->search(
-        {
-            -where => {
-                pid => $pid,
-            },
-            -from => [-join => qw(violation =>{violation.mac=node.mac} node =>{violation.vid=class.vid} class)],
-            -order_by => '-start_date',
-        }
+        -where => {
+            pid => $pid,
+        },
+        -from => [-join => qw(violation =>{violation.mac=node.mac} node =>{violation.vid=class.vid} class)],
+        -order_by => '-start_date',
     );
     if (is_error($status)) {
         return;
@@ -309,12 +303,10 @@ Get all the persons who are not the owner of at least one node.
 
 sub persons_without_nodes {
     my ($status, $iter) = pf::dal::person->search(
-        {
-            -from => [-join => qw(person =>{node.pid=person.pid} node)],
-            -columns => ['person.pid'],
-            -group_by => 'pid',
-            -having => 'count(node.mac)=0',
-        }
+        -from => [-join => qw(person =>{node.pid=person.pid} node)],
+        -columns => ['person.pid'],
+        -group_by => 'pid',
+        -having => 'count(node.mac)=0',
     );
     if (is_error($status)) {
         return;

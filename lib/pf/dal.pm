@@ -545,9 +545,7 @@ sub remove {
     my ($self) = @_;
     return $STATUS::PRECONDITION_FAILED unless $self->__from_table;
     my ($status, $count) = $self->remove_items(
-        {
-            -where => $self->primary_keys_where_clause
-        }
+        -where => $self->primary_keys_where_clause
     );
     return $status if is_error($status);
     if ($count) {
@@ -566,7 +564,9 @@ Remove row from the database
 sub remove_by_id {
     my ($self, $ids) = @_;
     my $where = $self->build_primary_keys_where_clause($ids);
-    my ($status, $count) = $self->remove_items({-where => $where});
+    my ($status, $count) = $self->remove_items(
+        -where => $where
+    );
     return $status if is_error($status);
     if ($count) {
         return $STATUS::OK;
@@ -858,7 +858,7 @@ sub batch_remove {
     my $rows_deleted = 0;
     my $table = $proto->table;
     while (1) {
-        my ($status, $rows) = $proto->remove_items($search);
+        my ($status, $rows) = $proto->remove_items(%$search);
         $end_time = time;
         $rows_deleted+=$rows if $rows > 0;
         $logger->trace( sub { "deleted $rows_deleted entries from $table for batch_delete ($start_time $end_time) " });

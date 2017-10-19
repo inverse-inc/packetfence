@@ -71,13 +71,11 @@ sub inline_accounting_update_session_for_ip {
     my $logger = get_logger();
 
     my ( $status, $iter ) = pf::dal::inline_accounting->search(
-        {
-            -where => {
-                status => $ACTIVE,
-                ip     => $ip
-            },
-            -columns => [qw(firstseen)],
-        }
+        -where => {
+            status => $ACTIVE,
+            ip     => $ip
+        },
+        -columns => [qw(firstseen)],
     );
 
     if ( is_error($status) ) {
@@ -133,15 +131,13 @@ sub inline_accounting_maintenance {
 
         # Extract nodes with no more bandwidth left (considering also active sessions)
         my ($status, $iter) = pf::dal::inline_accounting->search(
-            {
-                -where => {
-                    'n.status' => $pf::node::STATUS_REGISTERED,
-                    'n.bandwidth_balance' => [ 0, { "<" => \'a.outbytes + a.inbytes' } ],
-                },
-                -columns => [-distinct => qw(n.mac i.ip n.bandwidth_balance), 'COALESCE((a.outbytes+a.inbytes),0)|bandwidth_consumed'],
-                -from => [-join => 'node|n', '<=>{n.mac=i.mac}', 'ip4log|i', "=>{i.ip=a.ip,a.status='ACTIVE'}", 'inline_accounting|a'],
-                -for => 'UPDATE',
-            }
+            -where => {
+                'n.status' => $pf::node::STATUS_REGISTERED,
+                'n.bandwidth_balance' => [ 0, { "<" => \'a.outbytes + a.inbytes' } ],
+            },
+            -columns => [-distinct => qw(n.mac i.ip n.bandwidth_balance), 'COALESCE((a.outbytes+a.inbytes),0)|bandwidth_consumed'],
+            -from => [-join => 'node|n', '<=>{n.mac=i.mac}', 'ip4log|i', "=>{i.ip=a.ip,a.status='ACTIVE'}", 'inline_accounting|a'],
+            -for => 'UPDATE',
         );
         if (is_success($status)) {
             while (my $row = $iter->next(undef)) {
