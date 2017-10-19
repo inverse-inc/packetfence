@@ -37,17 +37,15 @@ use pf::log;
 sub invalidate_previous {
     my ($source, $mac) = @_;
     my ($status, $rows) = pf::dal::auth_log->update_items(
-        {
-            -set => {
-                completed_at => \'NOW()',
-                status => $INVALIDATED,
-            },
-            -where => {
-                process_name => process_name,
-                source => $source,
-                mac => $mac,
-                status => $INCOMPLETE,
-            },
+        -set => {
+            completed_at => \'NOW()',
+            status => $INVALIDATED,
+        },
+        -where => {
+            process_name => process_name,
+            source => $source,
+            mac => $mac,
+            status => $INCOMPLETE,
         },
     );
     return $rows;
@@ -69,20 +67,18 @@ sub record_oauth_attempt {
 sub record_completed_oauth {
     my ($source, $mac, $pid, $auth_status) = @_;
     my ($status, $rows) = pf::dal::auth_log->update_items(
-        {
-            -set => {
-                completed_at => \'NOW()',
-                status => $auth_status,
-                pid => $pid,
-            },
-            -where => {
-                process_name => process_name,
-                source => $source,
-                mac => $mac,
-            },
-            -limit => 1,
-            -order_by => '-attempted_at',
-        }
+        -set => {
+            completed_at => \'NOW()',
+            status => $auth_status,
+            pid => $pid,
+        },
+        -where => {
+            process_name => process_name,
+            source => $source,
+            mac => $mac,
+        },
+        -limit => 1,
+        -order_by => '-attempted_at',
     );
     return $rows;
 }
@@ -104,19 +100,17 @@ sub record_guest_attempt {
 sub record_completed_guest {
     my ($source, $mac, $auth_status) = @_;
     my ($status, $rows) = pf::dal::auth_log->update_items(
-        {
-            -set => {
-                completed_at => \'NOW()',
-                status => $auth_status,
-            },
-            -where => {
-                process_name => process_name,
-                source => $source,
-                mac => $mac,
-            },
-            -limit => 1,
-            -order_by => '-attempted_at',
-        }
+        -set => {
+            completed_at => \'NOW()',
+            status => $auth_status,
+        },
+        -where => {
+            process_name => process_name,
+            source => $source,
+            mac => $mac,
+        },
+        -limit => 1,
+        -order_by => '-attempted_at',
     );
     return $rows;
 }
@@ -138,18 +132,16 @@ sub record_auth {
 sub change_record_status {
     my ($source, $mac, $auth_status) = @_;
     my ($status, $rows) = pf::dal::auth_log->update_items(
-        {
-            -set => {
-                status => $auth_status,
-            },
-            -where => {
-                process_name => process_name,
-                source => $source,
-                mac => $mac,
-            },
-            -limit => 1,
-            -order_by => '-attempted_at',
-        }
+        -set => {
+            status => $auth_status,
+        },
+        -where => {
+            process_name => process_name,
+            source => $source,
+            mac => $mac,
+        },
+        -limit => 1,
+        -order_by => '-attempted_at',
     );
     return $rows;
 }

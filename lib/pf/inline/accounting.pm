@@ -86,16 +86,14 @@ sub inline_accounting_update_session_for_ip {
     $iter->finish;
     if (defined($active_session)) {
         ($status, my $rows) = pf::dal::inline_accounting->update_items(
-            {
-                -set => {
-                    inbytes      => \[ 'inbytes + ?',      $inbytes ],
-                    outbytes     => \[ 'outbytes + ?',     $outbytes ],
-                    lastmodified => \[ 'FROM_UNIXTIME(?)', $lastmodified ],
-                },
-                -where => {
-                    ip     => $ip,
-                    status => $ACTIVE,
-                }
+            -set => {
+                inbytes      => \[ 'inbytes + ?',      $inbytes ],
+                outbytes     => \[ 'outbytes + ?',     $outbytes ],
+                lastmodified => \[ 'FROM_UNIXTIME(?)', $lastmodified ],
+            },
+            -where => {
+                ip     => $ip,
+                status => $ACTIVE,
             }
         );
     }
@@ -146,14 +144,12 @@ sub inline_accounting_maintenance {
                 # Trigger violation for this node
                 if (violation_trigger( { 'mac' => $mac, 'tid' => $ACCOUNTING_POLICY_BANDWIDTH, 'type' => $TRIGGER_TYPE_ACCOUNTING } )) {
                     pf::dal::inline_accounting->update_items(
-                        {
-                            -set => {
-                                status => $INACTIVE
-                            },
-                            -where => {
-                                status => $ACTIVE,
-                                ip => $ip,
-                            }
+                        -set => {
+                            status => $INACTIVE
+                        },
+                        -where => {
+                            status => $ACTIVE,
+                            ip => $ip,
                         }
                     );
                 }
@@ -169,14 +165,12 @@ sub inline_accounting_maintenance {
 
     # Stop counters of active network sessions that have exceeded the timeout
     ($status, $rows) = pf::dal::inline_accounting->update_items(
-        {
-            -set => {
-                status => $INACTIVE
-            },
-            -where => {
-                status => $ACTIVE,
-                lastmodified => { "<" => \['NOW() - INTERVAL ? SECOND', $accounting_session_timeout]}
-            }
+        -set => {
+            status => $INACTIVE
+        },
+        -where => {
+            status => $ACTIVE,
+            lastmodified => { "<" => \['NOW() - INTERVAL ? SECOND', $accounting_session_timeout]}
         }
     );
     if (is_success($status) && $rows > 0) {
@@ -185,14 +179,12 @@ sub inline_accounting_maintenance {
 
     # Stop counters of active network sessions that have spanned a new day
     ($status, $rows) = pf::dal::inline_accounting->update_items(
-        {
-            -set => {
-                status => $INACTIVE
-            },
-            -where => {
-                status => $ACTIVE,
-                -and => \'DAY(lastmodified) != DAY(firstseen)',
-            }
+        -set => {
+            status => $INACTIVE
+        },
+        -where => {
+            status => $ACTIVE,
+            -and => \'DAY(lastmodified) != DAY(firstseen)',
         }
     );
     if (is_success($status) && $rows > 0) {
@@ -211,13 +203,11 @@ sub inline_accounting_maintenance {
     );
 
     ($status, $rows) = pf::dal::node->update_items(
-        {
-            -set => {
-                bandwidth_balance => \["bandwidth_balance - COALESCE(($subsql), ?)", @subbind, 0],
-            },
-            -where => {
-                bandwidth_balance => { ">" => 0 },
-            }
+        -set => {
+            bandwidth_balance => \["bandwidth_balance - COALESCE(($subsql), ?)", @subbind, 0],
+        },
+        -where => {
+            bandwidth_balance => { ">" => 0 },
         }
     );
 
@@ -227,13 +217,11 @@ sub inline_accounting_maintenance {
 
     # UPDATE inline_accounting: Mark INACTIVE entries as ANALYZED
     ($status, $rows) = pf::dal::inline_accounting->update_items(
-        {
-            -set => {
-                status => $ANALYZED
-            },
-            -where => {
-                status => $INACTIVE
-            }
+        -set => {
+            status => $ANALYZED
+        },
+        -where => {
+            status => $INACTIVE
         }
     );
     if (is_success($status) && $rows > 0) {

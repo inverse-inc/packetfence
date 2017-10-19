@@ -71,10 +71,8 @@ sub _delete_expired {
     my ($timestamp) = @_;
     my $logger = get_logger();
     my ($status, $rows) = pf::dal::radius_nas->remove_items(
-        {
-            -where => {
-                config_timestamp => {"!=" => $timestamp},
-            }
+        -where => {
+            config_timestamp => {"!=" => $timestamp},
         }
     );
     $logger->debug("emptying radius_nas table");

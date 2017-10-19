@@ -299,11 +299,9 @@ sub modify_actions {
     my %actions;
     $actions{@ACTION_FIELDS} = @{$password}{@ACTION_FIELDS};
     my ($status, $rows) = pf::dal::password->update_items(
-        {
-            -set => \%actions,
-            -where => {
-                pid => $pid
-            }
+        -set => \%actions,
+        -where => {
+            pid => $pid
         }
     );
     return $rows;
@@ -503,13 +501,11 @@ sub reset_password {
         $password = _hash_password( $password, ( algorithm => $Config{'advanced'}{'hash_passwords'} ));
     }
     my ($status, $rows) = pf::dal::password->update_items(
-        {
-            -set => {
-                password => $password,
-            },
-            -where => {
-                pid => $pid,
-            }
+        -set => {
+            password => $password,
+        },
+        -where => {
+            pid => $pid,
         }
     );
 
@@ -544,14 +540,12 @@ sub consume_login {
         return $FALSE;
     }
     my ($status, $rows) = pf::dal::password->update_items(
-        {
-            -set => {
-                login_remaining => \'login_remaining - 1'
-            },
-            -where => {
-                pid => $pid,
-                login_remaining => {">" => 0},
-            }
+        -set => {
+            login_remaining => \'login_remaining - 1'
+        },
+        -where => {
+            pid => $pid,
+            login_remaining => {">" => 0},
         }
     );
     if (is_error($status)) {

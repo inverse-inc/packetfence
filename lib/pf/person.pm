@@ -104,10 +104,8 @@ sub person_delete {
         return 0;
     }
     my ($status, $count) = pf::dal::node->count(
-        {
-            -where => {
-                pid => $pid
-            }
+        -where => {
+            pid => $pid
         }
     );
     if ( $count ) {
@@ -187,9 +185,7 @@ sub person_count_all {
         }
     }
     my ($status, $count) = pf::dal::person->count(
-        {
-            -where => $where
-        }
+        -where => $where
     );
     return {nb => $count};
 }

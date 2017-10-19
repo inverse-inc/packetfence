@@ -273,14 +273,12 @@ sub locationlog_update_end {
     } else {
         $logger->info("locationlog_update_end called without mac");
         my ($status, $rows) = pf::dal::locationlog->update_items(
-            {
-                -set => {
-                    end_time => \'NOW()',
-                },
-                -where => {
-                    port => $ifIndex,
-                    switch => $switch,
-                }
+            -set => {
+                end_time => \'NOW()',
+            },
+            -where => {
+                port => $ifIndex,
+                switch => $switch,
             }
         );
     }
@@ -290,18 +288,16 @@ sub locationlog_update_end {
 sub locationlog_update_end_switchport_no_VoIP {
     my ( $switch, $ifIndex ) = @_;
     my ($status, $rows) = pf::dal::locationlog->update_items(
-        {
-            -set => {
-                end_time => \'NOW()',
-            },
-            -where => {
-                switch => $switch,
-                port => $ifIndex,
-                'node.voip' => {"!=" => "yes"},
-                end_time => 0,
-            },
-            -table => [-join => qw(locationlog {locationlog.mac=node.mac} node)],
-        }
+        -set => {
+            end_time => \'NOW()',
+        },
+        -where => {
+            switch => $switch,
+            port => $ifIndex,
+            'node.voip' => {"!=" => "yes"},
+            end_time => 0,
+        },
+        -table => [-join => qw(locationlog {locationlog.mac=node.mac} node)],
     );
     return ($rows);
 }
@@ -310,18 +306,16 @@ sub locationlog_update_end_switchport_only_VoIP {
     my ( $switch, $ifIndex ) = @_;
 
     my ($status, $rows) = pf::dal::locationlog->update_items(
-        {
-            -set => {
-                end_time => \'NOW()',
-            },
-            -where => {
-                switch => $switch,
-                port => $ifIndex,
-                'node.voip' => "yes",
-                end_time => 0,
-            },
-            -table => [-join => qw(locationlog {locationlog.mac=node.mac} node)],
-        }
+        -set => {
+            end_time => \'NOW()',
+        },
+        -where => {
+            switch => $switch,
+            port => $ifIndex,
+            'node.voip' => "yes",
+            end_time => 0,
+        },
+        -table => [-join => qw(locationlog {locationlog.mac=node.mac} node)],
     );
     return ($rows);
 }
@@ -329,14 +323,12 @@ sub locationlog_update_end_switchport_only_VoIP {
 sub locationlog_update_end_mac {
     my ($mac) = @_;
     my ($status, $rows) = pf::dal::locationlog->update_items(
-        {
-            -set => {
-                end_time => \'NOW()',
-            },
-            -where => {
-                mac => $mac,
-                end_time => 0,
-            }
+        -set => {
+            end_time => \'NOW()',
+        },
+        -where => {
+            mac => $mac,
+            end_time => 0,
         }
     );
     return ($rows);
@@ -443,13 +435,11 @@ sub locationlog_synchronize {
 
 sub locationlog_close_all {
     my ($status, $rows) = pf::dal::locationlog->update_items(
-        {
-            -set => {
-                end_time => \'NOW()',
-            },
-            -where => {
-                end_time => 0,
-            }
+        -set => {
+            end_time => \'NOW()',
+        },
+        -where => {
+            end_time => 0,
         }
     );
     return ($rows);
@@ -548,14 +538,12 @@ sub locationlog_get_session {
 sub locationlog_set_session {
     my ( $mac, $session_id ) = @_;
     my ($status, $rows) = pf::dal::locationlog->update_items(
-        {
-           -set => {
-               session_id => $session_id,
-           },
-           -where => {
-               mac => $mac,
-               end_time => 0,
-           }
+       -set => {
+           session_id => $session_id,
+       },
+       -where => {
+           mac => $mac,
+           end_time => 0,
        }
    );
    return $rows;

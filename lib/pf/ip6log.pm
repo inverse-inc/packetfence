@@ -487,15 +487,12 @@ sub close {
     $logger->debug("Closing existing 'ip6log' table entry for IP address '$ip' as of now");
 
     my ($status, $rows) = pf::dal::ip6log->update_items(
-        {
-            -set => {
-                end_time => \'NOW()',
-            },
-            -where => {
-                ip => $ip,
-            }
+        -set => {
+            end_time => \'NOW()',
+        },
+        -where => {
+            ip => $ip,
         }
-
     );
 
     return ($rows);
@@ -544,7 +541,7 @@ sub rotate {
             $rows_inserted = $sth->rows;
             $sth->finish;
             if ($rows_inserted > 0 ) {
-                my ($status, $rows) = pf::dal::ip6log_history->remove_items(\%rotate_search);
+                my ($status, $rows) = pf::dal::ip6log_history->remove_items(%rotate_search);
                 $rows_deleted = $rows // 0;
                 $logger->debug("Deleted '$rows_deleted' entries from ip6log_history while rotating");
             } else {

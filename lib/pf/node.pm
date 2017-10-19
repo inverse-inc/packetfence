@@ -118,12 +118,10 @@ sub node_exist {
 sub node_pid {
     my ($pid, $category_id) = @_;
     my ($status, $count) = pf::dal::node->count(
-        {
-            -where => {
-                status => $STATUS_REGISTERED,
-                pid => $pid,
-                category_id => $category_id
-            }
+        -where => {
+            status => $STATUS_REGISTERED,
+            pid => $pid,
+            category_id => $category_id
         }
     );
     if (is_error($status)) {
@@ -388,9 +386,7 @@ sub node_count_all {
         }
     }
     my ($status, $count) = pf::dal::node->count(
-        {
-            -where => \@where
-        }
+        -where => \@where
     );
     return {nb => $count};
 }
@@ -867,13 +863,11 @@ sub node_update_bandwidth {
     $logger->logdie("Invalid MAC address") unless (valid_mac($mac));
     $logger->logdie("Invalid number of bytes") unless ($bytes =~ m/^\d+$/);
     my ($status, $rows) = pf::dal::node->update_items(
-        {
-            -set => {
-                bandwidth_balance => \['COALESCE(bandwidth_balance, 0) + ?', $bytes],
-            }, 
-            -where => {
-                mac => $mac
-            }
+        -set => {
+            bandwidth_balance => \['COALESCE(bandwidth_balance, 0) + ?', $bytes],
+        }, 
+        -where => {
+            mac => $mac
         }
     );
 
@@ -1139,13 +1133,11 @@ sub node_update_last_seen {
     $mac = clean_mac($mac);
     if ($mac) {
         my ($status, $rows) = pf::dal::node->update_items(
-            {
-                -set => {
-                    last_seen => \['NOW()']
-                }, 
-                -where => {
-                    mac => $mac
-                }
+            -set => {
+                last_seen => \['NOW()']
+            }, 
+            -where => {
+                mac => $mac
             }
         );
     }

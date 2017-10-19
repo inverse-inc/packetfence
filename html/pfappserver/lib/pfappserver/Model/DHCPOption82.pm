@@ -63,7 +63,7 @@ sub search {
         return ($status, "Error searching in dhcp_option82");
     }
     my $items = $iter->all(undef);
-    ($status, my $count) = pf::dal::dhcp_option82->count({-where => $where});
+    ($status, my $count) = pf::dal::dhcp_option82->count(-where => $where);
     if (is_error($status)) {
         return ($status, "Error searching in dhcp_option82");
     }

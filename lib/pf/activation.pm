@@ -242,13 +242,11 @@ update the status of a given pending activation record
 sub modify_status {
     my ($code_id, $new_status) = @_;
     my ($status, $rows) = pf::dal::activation->update_items(
-        {
-            -set => {
-                status => $new_status,,
-            },
-            -where => {
-                code_id => $code_id,
-            }
+        -set => {
+            status => $new_status,,
+        },
+        -where => {
+            code_id => $code_id,
         }
     );
 
@@ -275,7 +273,7 @@ sub invalidate_codes {
             mac => $mac ? $mac : undef
         }
     );
-    my ($status, $rows) = pf::dal::activation->update_items(\%args);
+    my ($status, $rows) = pf::dal::activation->update_items(%args);
 
     return $rows;
 }
@@ -293,15 +291,13 @@ sub invalidate_codes_for_mac {
         return undef;
     }
     my ($status, $rows) = pf::dal::activation->update_items(
-        {
-            -set => {
-                status => $INVALIDATED
-            },
-            -where => {
-                type => $type,
-                mac => $mac,
-                status => $UNVERIFIED
-            }
+        -set => {
+            status => $INVALIDATED
+        },
+        -where => {
+            type => $type,
+            mac => $mac,
+            status => $UNVERIFIED
         }
     );
     return $rows;
@@ -644,14 +640,12 @@ sub set_unregdate {
     my ($type, $activation_code, $unregdate) = @_;
     get_logger->debug("Setting unregdate $unregdate for activation code $activation_code");
     my ($status, $rows) = pf::dal::activation->update_items(
-        {
-            -set => {
-                unregdate => $unregdate
-            },
-            -where => {
-                type => $type,
-                activation_code => $activation_code
-            }
+        -set => {
+            unregdate => $unregdate
+        },
+        -where => {
+            type => $type,
+            activation_code => $activation_code
         }
     );
     return $rows;

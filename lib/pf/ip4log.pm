@@ -541,13 +541,11 @@ sub close {
     }
 
     my ($status, $rows) = pf::dal::ip4log->update_items(
-        {
-            -set => {
-                end_time => \'NOW()',
-            },
-            -where => {
-                ip => $ip,
-            }
+        -set => {
+            end_time => \'NOW()',
+        },
+        -where => {
+            ip => $ip,
         }
     );
 
@@ -591,7 +589,7 @@ sub rotate {
             $rows_inserted = $sth->rows;
             $sth->finish;
             if ($rows_inserted > 0 ) {
-                my ($status, $rows) = pf::dal::ip4log_history->remove_items(\%rotate_search);
+                my ($status, $rows) = pf::dal::ip4log_history->remove_items(%rotate_search);
                 $rows_deleted = $rows // 0;
                 $logger->debug("Deleted '$rows_deleted' entries from ip4log_history while rotating");
             } else {

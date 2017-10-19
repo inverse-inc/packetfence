@@ -281,14 +281,12 @@ sub statusReportSyncToDb {
     my ( $self ) = @_;
     my $logger = get_logger();
     my ($status, $rows) = pf::dal::scan->update_items(
-        {
-            -set => {
-                status => $self->{_status},
-                report_id => $self->{_reportId},
-            },
-            -where => {
-                id => $self->{'_id'}
-            }
+        -set => {
+            status => $self->{_status},
+            report_id => $self->{_reportId},
+        },
+        -where => {
+            id => $self->{'_id'}
         }
     );
     if (is_error($status)) {

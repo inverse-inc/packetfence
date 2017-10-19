@@ -90,9 +90,7 @@ sub search {
     }
     my $items = $iter->all(undef);
     ($status, my $count) = pf::dal::person->count(
-        {
-            -where => $search_info->{-where},
-        }
+        -where => $search_info->{-where},
     );
     if (is_error($status)) {
         return ($status, undef);

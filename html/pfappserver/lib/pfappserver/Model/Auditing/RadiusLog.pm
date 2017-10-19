@@ -67,7 +67,7 @@ sub search {
     foreach my $item (@$items) {
         _unescape_item($item);
     }
-    ($status, my $count) = pf::dal::radius_audit_log->count({-where => $where});
+    ($status, my $count) = pf::dal::radius_audit_log->count(-where => $where);
     if (is_error($status)) {
         return ($status, "Error searching in radius_audit_log");
     }

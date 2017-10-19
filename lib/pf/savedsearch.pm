@@ -156,11 +156,11 @@ checks if the name is taken
 
 sub savedsearch_name_taken {
     my ($savedsearch) = @_;
-    my ($status, $count) = pf::dal::savedsearch->count({
+    my ($status, $count) = pf::dal::savedsearch->count(
         pid => $savedsearch->{pid},
         namespace => $savedsearch->{namespace},
         name => $savedsearch->{name},
-    });
+    );
     return $count;
 }
 
