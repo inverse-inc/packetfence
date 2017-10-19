@@ -180,8 +180,8 @@ Search for pf::dal using SQL::Abstract::More syntax
 sub search {
     my ($proto, @args) = @_;
     my ($status, $sth) = $proto->do_select(
-        -columns => $proto->field_names,
-        -from    => $proto->table,
+        -columns => $proto->find_columns,
+        -from => $proto->find_from_tables,
         @args
     );
     return $status, undef if is_error($status);

@@ -140,8 +140,6 @@ sub find_unverified_code {
             status => $UNVERIFIED,
             expiration => { ">=" => \['NOW()']}
         },
-        -from => pf::dal::activation->find_from_tables(),
-        -columns => pf::dal::activation->find_columns,
     );
     if (is_error($status)) {
         return undef;
@@ -166,8 +164,6 @@ sub view_by_code {
             type => $type,
             activation_code => $activation_code,
         },
-        -from => pf::dal::activation->find_from_tables(),
-        -columns => pf::dal::activation->find_columns,
     );
     if (is_error($status)) {
         return undef;
@@ -193,8 +189,6 @@ sub view_by_code_mac {
             activation_code => $code,
             mac => $mac,
         },
-        -from => pf::dal::activation->find_from_tables(),
-        -columns => pf::dal::activation->find_columns,
     );
     if (is_error($status)) {
         return undef;
@@ -534,8 +528,6 @@ sub find_unverified_code_by_mac {
             expiration => { ">=" => \['NOW()']},
             activation_code => $activation_code,
         },
-        -from => pf::dal::activation->find_from_tables(),
-        -columns => pf::dal::activation->find_columns,
     );
     if (is_error($status)) {
         return undef;

@@ -101,8 +101,6 @@ sub view_email {
         -where => {
             'email' => $email,
         },
-        -from => pf::dal::password->find_from_tables(),
-        -columns => pf::dal::password->find_columns
     );
     if (is_error($status)) {
         return (0);

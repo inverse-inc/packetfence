@@ -195,9 +195,7 @@ sub person_view_all {
     my $logger = get_logger();
     my %where;
     my %search  = (
-            -from => pf::dal::person->find_from_tables(),
             -where => \%where,
-            -columns => pf::dal::person->find_columns,
             -group_by => 'person.vid',
     );
 

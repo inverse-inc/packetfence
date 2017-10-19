@@ -50,8 +50,6 @@ sub class_view {
 
 sub class_view_all {
     my ($status, $item) = pf::dal::class->search(
-        -from => pf::dal::class->find_from_tables(),
-        -columns => pf::dal::class->find_columns,
         -group_by => 'class.vid',
     );
     if (is_error($status)) {
