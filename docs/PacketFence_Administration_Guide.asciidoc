@@ -3866,40 +3866,13 @@ As you can see, the load is 1.25 and IOWait is peaking at 20% - this is not good
 
 PacketFence relies heavily on InnoDB, so you should increase the `buffer_pool` size from the default values.
 
-Shutdown PacketFence and MySQL
+Go in the administration GUI , in Configuration -> System Configuration -> Database -> Advanced and raise the value of "InnoDB buffer pool size".
 
-  # /etc/init.d/packetfence stop
-  Shutting down PacketFence...
-  [...]
-  # /etc/init.d/mysql stop
-  Stopping MySQL:                                            [  OK  ]
+Then restart packetfence-mariadb
 
-Edit `/etc/my.cnf` (or your local `my.cnf`):
+  # systemctl restart packetfence-mariadb
 
-  [mysqld]
-  # Set buffer pool size to 50-80% of your computer's memory
-  innodb_buffer_pool_size=800M
-  innodb_additional_mem_pool_size=20M
-  innodb_flush_log_at_trx_commit=2
-  innodb_file_per_table
-  # allow more connections
-  max_connections=700
-  # set cache size
-  key_buffer_size=900M
-  table_cache=300
-  query_cache_size=16M
-  # enable slow query log
-  log_slow_queries = ON
-
-Start up MySQL and PacketFence
-
-  # /etc/init.d/mysqld start
-  Starting MySQL:                                            [  OK  ]
-  # /etc/init.d/packetfence start
-  Starting PacketFence...
-  [...]
-
-Wait 10 minutes for PacketFence to initial the network map and re-check iostat and CPU
+Wait 10 minutes re-check iostat and CPU
 
 ----
 # uptime
