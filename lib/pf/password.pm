@@ -327,6 +327,8 @@ sub validate_password {
             pid => $pid,
         },
         -columns => [qw(pid password UNIX_TIMESTAMP(valid_from)|valid_from), 'UNIX_TIMESTAMP(DATE_FORMAT(expiration,"%Y-%m-%d 23:59:59"))|expiration', qw(access_duration category)],
+        #To avoid a join
+        -from => pf::dal::password->table,
         -limit => 1,
     );
 
