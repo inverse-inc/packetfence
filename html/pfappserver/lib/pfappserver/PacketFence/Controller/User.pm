@@ -27,6 +27,7 @@ use pfappserver::Form::User::Create::Import;
 use pf::admin_roles;
 use pf::authentication qw(getAuthenticationSource);
 use pf::config qw(%Config);
+use pf::sms_carrier qw(sms_carrier_view_all);
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 with 'pfappserver::Role::Controller::BulkActions';
