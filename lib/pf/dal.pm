@@ -886,6 +886,13 @@ sub do_select {
     return $proto->db_execute($sql, @bind);
 }
 
+our %SELECT_KEYS = map { $_ => 1 } qw(
+  -from -for -columns -union -union_all
+  -intersect -minus -except -group_by
+  -having -order_by -page_size -page_index
+  -limit -offset -for -want_details -where
+);
+
 =head2 update_select
 
 update_select
@@ -893,8 +900,14 @@ update_select
 =cut
 
 sub update_select {
-    my ($self, @args) = @_;
-    return @args;
+    my ($self, %args) = @_;
+    my %new_args;
+    while (my ($k, $v) = each %args) {
+        if (CORE::exists $SELECT_KEYS{$k}) {
+            $new_args{$k} = $v;
+        }
+    }
+    return %new_args;
 }
 
 =head2 do_insert
