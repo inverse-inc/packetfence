@@ -112,7 +112,7 @@ sub db_execute {
             my $err = $dbh->err;
             my $errstr = $dbh->errstr;
             pf::db::db_handle_error($err);
-            if (exists $MYSQL_ERROR_TO_STATUS_CODES{$err}) {
+            if (CORE::exists $MYSQL_ERROR_TO_STATUS_CODES{$err}) {
                 $status = $MYSQL_ERROR_TO_STATUS_CODES{$err};
             }
             if ($err < 2000) {
@@ -432,7 +432,7 @@ sub validate_field {
     }
     if ($self->is_enum($field) && defined $value) {
         my $meta = $self->get_meta;
-        unless (exists $meta->{$field} && exists $meta->{$field}{enums_values}{$value}) {
+        unless (CORE::exists $meta->{$field} && CORE::exists $meta->{$field}{enums_values}{$value}) {
             my $table = $self->table;
             $logger->error("Trying to save a invalid value in a non nullable field ${table}.${field}");
             return $STATUS::PRECONDITION_FAILED;
@@ -458,7 +458,7 @@ Checks to see if a field is enum
 sub is_enum {
     my ($self, $field, $value) = @_;
     my $meta = $self->get_meta;
-    if (exists $meta->{$field}) {
+    if (CORE::exists $meta->{$field}) {
         return $meta->{$field}{type} eq 'ENUM';
     }
     return 0;
@@ -473,7 +473,7 @@ Checks to see if a field is nullable
 sub is_nullable {
     my ($self, $field) = @_;
     my $meta = $self->get_meta;
-    if (exists $meta->{$field}) {
+    if (CORE::exists $meta->{$field}) {
         return $meta->{$field}{is_nullable};
     }
     return 0;
@@ -746,7 +746,7 @@ sub merge {
     my ($self, $vals) = @_;
     return unless defined $vals && ref($vals) eq 'HASH';
     foreach my $field ( @{$self->merge_fields} ) {
-        next unless exists $vals->{$field};
+        next unless CORE::exists $vals->{$field};
         $self->{$field} = $vals->{$field};
     }
     return ;
