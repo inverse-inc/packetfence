@@ -166,7 +166,7 @@ sub cleanup {
     my ($status, $rows_deleted) = pf::dal::auth_log->batch_remove(
         {
             -where => {
-                created_at => {
+                attempted_at => {
                     "<" => \[ 'DATE_SUB(?, INTERVAL ? SECOND)', $now, $expire_seconds ]
                 },
             },
