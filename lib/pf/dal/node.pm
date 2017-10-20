@@ -20,6 +20,7 @@ use warnings;
 use pf::error qw(is_error is_success);
 use pf::api::queue;
 use pf::constants::node qw($NODE_DISCOVERED_TRIGGER_DELAY);
+use pf::constants qw($ZERO_DATE);
 use base qw(pf::dal::_node);
 
 our @LOCATION_LOG_GETTERS = qw(
@@ -212,7 +213,7 @@ sub _load_locationlog {
             "UNIX_TIMESTAMP(`locationlog`.`start_time`)|last_start_timestamp",
           ],
         -from => 'locationlog',
-        -where => { mac => $self->mac, end_time => '0000-00-00 00:00:00'},
+        -where => { mac => $self->mac, end_time => $ZERO_DATE},
     );
     return $status, undef if is_error($status);
     my $row = $sth->fetchrow_hashref;

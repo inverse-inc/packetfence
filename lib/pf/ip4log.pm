@@ -259,7 +259,7 @@ sub _history_by {
 
     if ($start_time && $end_time) {
         $where->{start_time} = {"<" => \['from_unixtime(?)', $end_time]};
-        $where->{end_time} = [{">" => \['from_unixtime(?)', $start_time]}, 0];
+        $where->{end_time} = [{">" => \['from_unixtime(?)', $start_time]}, $ZERO_DATE];
     }
     if ( $params{'with_archive'} ) {
         push @{$select_args{-union_all}}, -union_all => [
@@ -309,7 +309,7 @@ sub _view_by_ip {
         -where => {
             ip => $ip,
             -or => [
-                end_time => 0,
+                end_time => $ZERO_DATE,
                 \'(end_time + INTERVAL 30 SECOND) > NOW()'
             ],
         },
@@ -344,7 +344,7 @@ sub _view_by_mac {
         -where => {
             mac => $mac,
             -or => [
-                end_time => 0,
+                end_time => $ZERO_DATE,
                 \'(end_time + INTERVAL 30 SECOND) > NOW()'
             ],
         },
@@ -382,7 +382,7 @@ sub list_open {
     return _db_list(
         {
             -where => {
-                end_time => [0, {">" => \'NOW()'}],
+                end_time => [$ZERO_DATE, {">" => \'NOW()'}],
             },
             -columns => [qw(mac ip type start_time end_time)],
         }
@@ -418,7 +418,7 @@ sub _list_open_by_ip {
             -where => {
                 ip => $ip,
                 -or => [
-                    end_time => 0,
+                    end_time => $ZERO_DATE,
                     \'end_time > NOW()'
                 ],
             },
@@ -447,7 +447,7 @@ sub _list_open_by_mac {
             -where => {
                 mac => $mac,
                 -or => [
-                    end_time => 0,
+                    end_time => $ZERO_DATE,
                     \'end_time > NOW()'
                 ],
             },

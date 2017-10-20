@@ -431,8 +431,8 @@ sub node_view_all {
 #           LEFT JOIN node_category as nr on node.bypass_role_id = nr.category_id
 #           LEFT JOIN node_category as nc on node.category_id = nc.category_id
 #           LEFT JOIN violation ON node.mac=violation.mac AND violation.status = 'open'
-#           LEFT JOIN locationlog ON node.mac=locationlog.mac AND end_time = 0
-#           LEFT JOIN ip4log ON node.mac=ip4log.mac AND (ip4log.end_time = '0000-00-00 00:00:00' OR ip4log.end_time > NOW())
+#           LEFT JOIN locationlog ON node.mac=locationlog.mac AND  = 0
+#           LEFT JOIN ip4log ON node.mac=ip4log.mac AND (ip4log. = '0000-00-00 00:00:00' OR ip4log.end_time > NOW())
 #       GROUP BY node.mac
     my $columns = [
         qw(node.mac node.pid node.voip node.bypass_vlan node.status),
@@ -474,7 +474,7 @@ sub node_view_all {
             operator  => '=>',
             condition => {
                 'node.mac' => { '=' => { -ident => '%2$s.mac' } },
-                '%2$s.end_time' => 0,
+                '%2$s.' => $ZERO_DATE,
             },
         },
         'locationlog',
@@ -482,7 +482,7 @@ sub node_view_all {
             operator  => '=>',
             condition => {
                 'node.mac' => { '=' => { -ident => '%2$s.mac' } },
-                '%2$s.end_time' => ['0000-00-00 00:00:00', { ">", \'NOW()'}],
+                '%2$s.' => ['0000-00-00 00:00:00', { ">", \'NOW()'}],
             },
         },
         'ip4log'
@@ -1163,7 +1163,7 @@ sub check_multihost {
         my ($status, $iter) = pf::dal::locationlog->search(
             -where => {-where => 
                 mac => $mac,
-                end_time => 0,
+                 => $ZERO_DATE,
             },
             -limit => 1,
         );

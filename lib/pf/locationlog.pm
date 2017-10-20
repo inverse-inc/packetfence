@@ -71,6 +71,7 @@ use pf::error qw(is_error is_success);
 use pf::node;
 use pf::util;
 use pf::config::util;
+use pf::constants;
 
 =head1 DATA FORMAT
 
@@ -164,7 +165,7 @@ sub locationlog_history_switchport {
 sub locationlog_view_open {
     return _db_list({
         -where => {
-            end_time => 0,
+            end_time => $ZERO_DATE,
         },
         -order_by => { -desc => 'start_time' },
     });
@@ -177,7 +178,7 @@ sub locationlog_view_open_switchport {
             switch => $switch,
             port => $ifIndex,
             'node.voip' => $voip,
-            end_time => 0,
+            end_time => $ZERO_DATE,
         },
         -from => [-join => qw(locationlog =>{locationlog.mac=node.mac} node)],
         -order_by => { -desc => 'start_time' },
@@ -191,7 +192,7 @@ sub locationlog_view_open_switchport_no_VoIP {
             switch => $switch,
             port => $ifIndex,
             'node.voip' => { "!=" => "yes"},
-            end_time => 0,
+            end_time => $ZERO_DATE,
         },
         -from => [-join => qw(locationlog =>{locationlog.mac=node.mac} node)],
         -order_by => { -desc => 'start_time' },
@@ -205,7 +206,7 @@ sub locationlog_view_open_switchport_only_VoIP {
             switch => $switch,
             port => $ifIndex,
             'node.voip' => "yes",
-            end_time => 0,
+            end_time => $ZERO_DATE,
         },
         -from => [-join => qw(locationlog =>{locationlog.mac=node.mac} node)],
         -limit => 1,
@@ -219,7 +220,7 @@ sub locationlog_view_open_mac {
     return _db_item({
         -where => {
             mac => $mac,
-            end_time => 0,
+            end_time => $ZERO_DATE,
         },
         -limit => 1,
         -order_by => { -desc => 'start_time' },
@@ -295,7 +296,7 @@ sub locationlog_update_end_switchport_no_VoIP {
             switch => $switch,
             port => $ifIndex,
             'node.voip' => {"!=" => "yes"},
-            end_time => 0,
+            end_time => $ZERO_DATE,
         },
         -table => [-join => qw(locationlog {locationlog.mac=node.mac} node)],
     );
@@ -313,7 +314,7 @@ sub locationlog_update_end_switchport_only_VoIP {
             switch => $switch,
             port => $ifIndex,
             'node.voip' => "yes",
-            end_time => 0,
+            end_time => $ZERO_DATE,
         },
         -table => [-join => qw(locationlog {locationlog.mac=node.mac} node)],
     );
@@ -328,7 +329,7 @@ sub locationlog_update_end_mac {
         },
         -where => {
             mac => $mac,
-            end_time => 0,
+            end_time => $ZERO_DATE,
         }
     );
     return ($rows);
@@ -439,7 +440,7 @@ sub locationlog_close_all {
             end_time => \'NOW()',
         },
         -where => {
-            end_time => 0,
+            end_time => $ZERO_DATE,
         }
     );
     return ($rows);
@@ -463,7 +464,7 @@ sub locationlog_cleanup {
             -where => {
                 end_time => {
                      "<" => \[ 'DATE_SUB(?, INTERVAL ? SECOND)', $now, $expire_seconds ] ,
-                     "!=" => 0
+                     "!=" => $ZERO_DATE,
                 },
             },
             -limit => $batch,
@@ -528,7 +529,7 @@ sub locationlog_get_session {
     return _db_item({
         -where => {
             session_id => $session_id,
-            end_time => 0,
+            end_time => $ZERO_DATE,
         },
         -order_by => { -desc => 'start_time' },
         -limit => 1,
@@ -543,7 +544,7 @@ sub locationlog_set_session {
        },
        -where => {
            mac => $mac,
-           end_time => 0,
+           end_time => $ZERO_DATE,
        }
    );
    return $rows;

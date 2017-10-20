@@ -108,6 +108,7 @@ use pf::class qw(class_view);
 use pf::constants qw(
     $TRUE
     $FALSE
+    $ZERO_DATE
 );
 use pf::enforcement;
 use pf::db;
@@ -882,7 +883,7 @@ sub violation_maintenance {
         my ($status, $iter) = pf::dal::violation->search(
             -where => {
                 status => ["open", "delayed"],
-                release_date => [-and => {"!=" => 0}, {"<=" => \'NOW()'}],
+                release_date => [-and => {"!=" => $ZERO_DATE}, {"<=" => \'NOW()'}],
             },
            -limit => $batch,
            -columns => [qw(id mac vid notes status)],

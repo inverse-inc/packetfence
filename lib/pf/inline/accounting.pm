@@ -53,6 +53,9 @@ use pf::error qw(is_error is_success);
 use pf::dal::node;
 use pf::violation;
 use pf::config::violation;
+use pf::constants qw(
+    $ZERO_DATE
+);
 
 =head1 SUBROUTINES
 
@@ -198,7 +201,7 @@ sub inline_accounting_maintenance {
             'a.ip' => {-ident => 'i.ip'},
             'a.mac' => {-ident => 'i.mac'},
             'a.status' => $INACTIVE,
-            'i.end_time' => 0,
+            'i.end_time' => $ZERO_DATE,
         },
     );
 
