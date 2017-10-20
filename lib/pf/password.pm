@@ -84,7 +84,7 @@ sub view {
         pid => $pid
     });
     if (is_error($status)) {
-        return (0);
+        return (undef);
     }
     return ($item->to_hash());
 }
