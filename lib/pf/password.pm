@@ -103,7 +103,7 @@ sub view_email {
         },
     );
     if (is_error($status)) {
-        return (0);
+        return (undef);
     }
     return $iter->next(undef);
 }
