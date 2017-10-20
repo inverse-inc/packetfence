@@ -651,11 +651,13 @@ sub _cleanup {
 
     my ($status, $rows) = $dal->batch_remove(
         {
-            end_time => {
-                "<" => \[ 'DATE_SUB(?, INTERVAL ? SECOND)', $now, $window_seconds ]
+            -where => {
+                end_time => {
+                    "<" => \[ 'DATE_SUB(?, INTERVAL ? SECOND)', $now, $window_seconds ]
+                },
             },
+            -limit => $batch,
         },
-        $batch,
         $time_limit
     );
     return ($rows);
