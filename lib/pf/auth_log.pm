@@ -78,7 +78,7 @@ sub record_completed_oauth {
             mac => $mac,
         },
         -limit => 1,
-        -order_by => '-attempted_at',
+        -order_by => 'attempted_at',
     );
     return $rows;
 }
@@ -110,7 +110,7 @@ sub record_completed_guest {
             mac => $mac,
         },
         -limit => 1,
-        -order_by => '-attempted_at',
+        -order_by => 'attempted_at',
     );
     return $rows;
 }
@@ -141,7 +141,7 @@ sub change_record_status {
             mac => $mac,
         },
         -limit => 1,
-        -order_by => '-attempted_at',
+        -order_by => 'attempted_at',
     );
     return $rows;
 }
