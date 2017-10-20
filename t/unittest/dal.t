@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 39;
+use Test::More tests => 41;
 
 use pf::error qw(is_success is_error);
 use pf::db;
@@ -175,9 +175,37 @@ $node->save;
 
 $node = pf::dal::node->find({mac => $test_mac});
 
+
 is($node->category, $data->{category}, "Test saving category");
 
 is($node->bypass_role, $data->{bypass_role}, "Test saving bypass_role");
+
+{
+    ($status, my $iter) = pf::dal::node->search(
+        -where => {
+            mac => $test_mac
+        }
+    );
+
+    $node = $iter->next;
+
+    isa_ok($node, "pf::dal::node");
+}
+
+{
+
+    ($status, my $iter) = pf::dal::node->search(
+        -where => {
+            mac => $test_mac
+        },
+        -with_class => undef,
+    );
+
+    $node = $iter->next;
+
+    is(ref $node, "HASH", "Check if return row is a simple hash");
+
+}
 
 pf::dal::node->remove_by_id({mac => $test_mac});
 
