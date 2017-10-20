@@ -101,7 +101,7 @@ sub _build_limit {
 
 sub _build_order_by {
     my ($self, $params) = @_;
-    return -order_by => [qw(-created_at)];
+    return -order_by => { -desc => 'created_at' };
 }
 
 our %OP_MAP = (

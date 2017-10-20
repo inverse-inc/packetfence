@@ -284,7 +284,7 @@ sub person_violations {
             pid => $pid,
         },
         -from => [-join => qw(violation =>{violation.mac=node.mac} node =>{violation.vid=class.vid} class)],
-        -order_by => '-start_date',
+        -order_by => {-desc => 'start_date'},
     );
     if (is_error($status)) {
         return;

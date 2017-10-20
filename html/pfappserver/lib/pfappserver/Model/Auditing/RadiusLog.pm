@@ -128,7 +128,7 @@ sub _build_limit {
 
 sub _build_order_by {
     my ($self, $params) = @_;
-    return -order_by => [qw(-id)];
+    return -order_by => {-desc => 'id'},
 }
 
 our %OP_MAP = (

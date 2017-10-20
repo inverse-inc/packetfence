@@ -185,7 +185,7 @@ sub violation_grace {
         },
         -columns => ['unix_timestamp(start_date)+grace_period-unix_timestamp(now())|grace'],
         -from => [-join => qw(violation =>{violation.vid=class.vid} class)],
-        -order_by => "-start_date",
+        -order_by => {-desc => "start_date"},
     );
     my $grace = $iter->next(undef);
     return ($grace ? $grace->{grace} : 0);
@@ -306,7 +306,7 @@ sub violation_view_top {
         },
         -columns => [qw(id mac violation.vid start_date release_date status ticket_ref notes)],
         -from => [-join => qw(violation {violation.vid=class.vid} class)],
-        -order_by => 'priority',
+        -order_by => {-asc => 'priority'},
         -limit => 1,
     });
 }
@@ -320,7 +320,7 @@ sub violation_view_open {
             mac => $mac,
         },
         -columns => [qw(id mac vid start_date release_date status ticket_ref notes)],
-        -order_by => '-start_date',
+        -order_by => { -desc => 'start_date' },
     });
 }
 
@@ -334,7 +334,7 @@ sub violation_view_open_desc {
         },
         -columns => [qw(v.id v.start_date c.description v.vid v.status)],
         -from => [-join => qw(violation <=>{violation.vid=class.vid} class)],
-        -order_by => '-start_date',
+        -order_by => { -desc => 'start_date' },
     });
 }
 
@@ -368,7 +368,7 @@ sub violation_view_desc {
         },
         -columns => [qw(v.id v.start_date c.description v.vid v.status)],
         -from => [-join => qw(violation <=>{violation.vid=class.vid} class)],
-        -order_by => '-start_date',
+        -order_by => {-desc => 'start_date'},
     });
 }
 
@@ -818,7 +818,7 @@ sub violation_view_last_closed {
             vid => $vid,
             status => "closed",
         },
-        -order_by => '-release_date',
+        -order_by => {-desc => 'release_date'} ,
         -columns => [qw(mac vid release_date)],
     });
 }

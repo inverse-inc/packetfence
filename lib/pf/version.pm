@@ -62,7 +62,7 @@ Get the last schema version in the datbase
 sub version_get_last_db_version {
     my ($status, $iterator) = pf::dal::pf_version->search(
         -limit => 1,
-        -order_by => '-id'
+        -order_by => {-desc => 'id'},
     );
 
     if (is_error($status)) {

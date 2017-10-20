@@ -243,7 +243,7 @@ sub _history_by {
                 -columns => \@columns,
                 -where => $where,
             ],
-            -order_by => '-start_time',
+            -order_by => { -desc => 'start_time' },
             -limit => $limit,
     );
 
@@ -313,7 +313,7 @@ sub _view_by_ip {
                 \'(end_time + INTERVAL 30 SECOND) > NOW()'
             ],
         },
-        -order_by => '-start_time',
+        -order_by => { -desc => 'start_time' },
         -limit => 1,
         -columns => [qw(mac ip start_time end_time)],
     );
@@ -348,7 +348,7 @@ sub _view_by_mac {
                 \'(end_time + INTERVAL 30 SECOND) > NOW()'
             ],
         },
-        -order_by => '-start_time',
+        -order_by => { -desc => 'start_time' },
         -limit => 1,
         -columns => [qw(mac ip start_time end_time)],
     );
@@ -422,7 +422,7 @@ sub _list_open_by_ip {
                     \'end_time > NOW()'
                 ],
             },
-            -order_by => '-start_time',
+            -order_by => { -desc => 'start_time' },
             -columns => [qw(mac ip type start_time end_time)],
         }
     );
@@ -451,7 +451,7 @@ sub _list_open_by_mac {
                     \'end_time > NOW()'
                 ],
             },
-            -order_by => '-start_time',
+            -order_by => { -desc => 'start_time' },
             -columns => [qw(mac ip type start_time end_time)],
         }
     );

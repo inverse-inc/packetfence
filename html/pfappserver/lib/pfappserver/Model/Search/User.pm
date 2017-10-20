@@ -179,13 +179,12 @@ sub _build_order_by {
     my ($self, $c, $params, $search_info) = @_;
     my ($by, $direction) = @$params{qw(by direction)};
     $by //= 'person.pid';
-    $direction //= 'ASC';
-    $direction = uc($direction);
-    my $prefix = '';
-    if ($direction eq 'DESC') {
-        $prefix = '-';
+    $direction //= 'asc';
+    $direction = lc($direction);
+    if ($direction ne 'desc') {
+        $direction = 'asc';
     }
-    $search_info->{-order_by} = ["${prefix}$by"];
+    $search_info->{-order_by} = { "-$direction" => $by };
 }
 
 =head2 _build_clause
