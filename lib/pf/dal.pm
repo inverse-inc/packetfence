@@ -178,14 +178,17 @@ Search for pf::dal using SQL::Abstract::More syntax
 =cut
 
 sub search {
-    my ($proto, @args) = @_;
+    my ($proto, %args) = @_;
+    my $class = ref($proto) || $proto;
+    if ( exists $args{-with_class}) {
+        $class = delete $args{-with_class};
+    }
     my ($status, $sth) = $proto->do_select(
         -columns => $proto->find_columns,
         -from => $proto->find_from_tables,
-        @args
+        %args
     );
     return $status, undef if is_error($status);
-    my $class = ref($proto) || $proto;
     return $STATUS::OK, pf::dal::iterator->new({sth => $sth, class => $class});
 }
 
