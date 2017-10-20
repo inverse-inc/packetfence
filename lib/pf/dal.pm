@@ -254,6 +254,7 @@ sub update {
     return $status if is_error($status);
 
     my $rows = $sth->rows;
+    $sth->finish;
     if ($rows) {
         $self->_save_old_data();
         return $STATUS::OK;
@@ -590,7 +591,12 @@ sub exists {
         -where   => $where,
         -limit   => 1,
     );
-    if ($sth->rows) {
+    if (is_error($status)) {
+        return $status;
+    }
+    my $rows = $sth->rows;
+    $sth->finish;
+    if ($rows) {
         return $STATUS::OK;
     }
     return $STATUS::NOT_FOUND;
