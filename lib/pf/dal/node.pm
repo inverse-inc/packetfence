@@ -17,7 +17,7 @@ pf::dal implementation for the table node
 use strict;
 use warnings;
 
-use pf::error qw(is_error);
+use pf::error qw(is_error is_success);
 use pf::api::queue;
 use pf::constants::node qw($NODE_DISCOVERED_TRIGGER_DELAY);
 use base qw(pf::dal::_node);
