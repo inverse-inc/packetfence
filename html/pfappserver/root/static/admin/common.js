@@ -652,9 +652,9 @@ $(function () { // DOM ready
         var index = target.children().length;
         dynamic_list_update_all_attributes(copy, base_id, index);
         target.append(copy.children());
-        target.children().last().trigger('dynamic-list.add');
         target_wrapper.removeClass('hidden');
         template_control_group.addClass('hidden');
+        target.children().last().trigger('dynamic-list.add');
         return false;
     });
 
