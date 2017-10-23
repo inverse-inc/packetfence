@@ -46,6 +46,7 @@ BEGIN {
 
 use pf::dal::person;
 use pf::dal::node;
+use pf::dal::violation;
 use pf::error qw(is_error is_success);
 use List::MoreUtils qw(any);
 
