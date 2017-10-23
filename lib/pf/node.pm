@@ -183,17 +183,17 @@ our %DEFAULT_NODE_VALUES = (
     'autoreg'          => 'no',
     'bypass_vlan'      => '',
     'computername'     => '',
-    'detect_date'      => '0000-00-00 00:00:00',
+    'detect_date'      => $ZERO_DATE,
     'dhcp_fingerprint' => '',
-    'last_arp'         => '0000-00-00 00:00:00',
-    'last_dhcp'        => '0000-00-00 00:00:00',
-    'lastskip'         => '0000-00-00 00:00:00',
+    'last_arp'         => $ZERO_DATE,
+    'last_dhcp'        => $ZERO_DATE,
+    'lastskip'         => $ZERO_DATE,
     'notes'            => '',
     'pid'              => $default_pid,
-    'regdate'          => '0000-00-00 00:00:00',
+    'regdate'          => $ZERO_DATE,
     'sessionid'        => '',
     'status'           => $STATUS_UNREGISTERED,
-    'unregdate'        => '0000-00-00 00:00:00',
+    'unregdate'        => $ZERO_DATE,
     'user_agent'       => '',
     'voip'             => 'no',
 );
@@ -413,10 +413,10 @@ sub node_view_all {
 #      SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status,
 #           IF(ISNULL(nc.name), '', nc.name) as category,
 #           IF(ISNULL(nr.name), '', nr.name) as bypass_role ,
-#           IF(node.detect_date = '0000-00-00 00:00:00', '', node.detect_date) as detect_date,
-#           IF(node.regdate = '0000-00-00 00:00:00', '', node.regdate) as regdate,
-#           IF(node.unregdate = '0000-00-00 00:00:00', '', node.unregdate) as unregdate,
-#           IF(node.lastskip = '0000-00-00 00:00:00', '', node.lastskip) as lastskip,
+#           IF(node.detect_date = $ZERO_DATE, '', node.detect_date) as detect_date,
+#           IF(node.regdate = $ZERO_DATE, '', node.regdate) as regdate,
+#           IF(node.unregdate = $ZERO_DATE, '', node.unregdate) as unregdate,
+#           IF(node.lastskip = $ZERO_DATE, '', node.lastskip) as lastskip,
 #           node.user_agent, node.computername, device_class AS dhcp_fingerprint,
 #           node.last_arp, node.last_dhcp, node.last_seen,
 #           locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan,
@@ -432,16 +432,16 @@ sub node_view_all {
 #           LEFT JOIN node_category as nc on node.category_id = nc.category_id
 #           LEFT JOIN violation ON node.mac=violation.mac AND violation.status = 'open'
 #           LEFT JOIN locationlog ON node.mac=locationlog.mac AND  = 0
-#           LEFT JOIN ip4log ON node.mac=ip4log.mac AND (ip4log. = '0000-00-00 00:00:00' OR ip4log.end_time > NOW())
+#           LEFT JOIN ip4log ON node.mac=ip4log.mac AND (ip4log. = $ZERO_DATE OR ip4log.end_time > NOW())
 #       GROUP BY node.mac
     my $columns = [
         qw(node.mac node.pid node.voip node.bypass_vlan node.status),
         \"IF(ISNULL(nc.name), '', nc.name) as category",
         \"IF(ISNULL(nr.name), '', nr.name) as bypass_role",
-        \"IF(node.detect_date = '0000-00-00 00:00:00', '', node.detect_date) as detect_date",
-        \"IF(node.regdate = '0000-00-00 00:00:00', '', node.regdate) as regdate",
-        \"IF(node.unregdate = '0000-00-00 00:00:00', '', node.unregdate) as unregdate",
-        \"IF(node.lastskip = '0000-00-00 00:00:00', '', node.lastskip) as lastskip",
+        \"IF(node.detect_date = '$ZERO_DATE', '', node.detect_date) as detect_date",
+        \"IF(node.regdate = '$ZERO_DATE', '', node.regdate) as regdate",
+        \"IF(node.unregdate = '$ZERO_DATE', '', node.unregdate) as unregdate",
+        \"IF(node.lastskip = '$ZERO_DATE', '', node.lastskip) as lastskip",
         qw(
           node.user_agent node.computername device_class|dhcp_fingerprint
           node.last_arp node.last_dhcp node.last_seen
@@ -482,7 +482,7 @@ sub node_view_all {
             operator  => '=>',
             condition => {
                 'node.mac' => { '=' => { -ident => '%2$s.mac' } },
-                '%2$s.' => ['0000-00-00 00:00:00', { ">", \'NOW()'}],
+                '%2$s.' => [$ZERO_DATE, { ">", \'NOW()'}],
             },
         },
         'ip4log'
@@ -677,9 +677,9 @@ sub node_deregister {
     $pf::StatsD::statsd->increment( called() . ".called" );
 
     $info{'status'}    = 'unreg';
-    $info{'regdate'}   = 0;
-    $info{'unregdate'} = 0;
-    $info{'lastskip'}  = 0;
+    $info{'regdate'}   = $ZERO_DATE;
+    $info{'unregdate'} = $ZERO_DATE;
+    $info{'lastskip'}  = $ZERO_DATE;
     $info{'autoreg'}   = 'no';
 
     my $profile = pf::Connection::ProfileFactory->instantiate($mac);
@@ -715,7 +715,7 @@ sub nodes_maintenance {
     my ( $status, $iter ) = pf::dal::node->search(
         -where => {
             status    => { "!=" => "unreg" },
-            unregdate => [-and => { "!=" => 0 }, { "<"  => \['NOW()'] } ]
+            unregdate => [-and => { "!=" => $ZERO_DATE }, { "<"  => \['NOW()'] } ]
         },
         -columns => ['mac']
     );
@@ -769,7 +769,7 @@ sub node_expire_lastseen {
     my ( $status, $iter ) = pf::dal::node->search(
         -where => {
             status    => "unreg",
-            last_seen => { "!=" => "0000-00-00 00:00:00" },
+            last_seen => { "!=" => $ZERO_DATE },
             -and => [
                 \['unix_timestamp(last_seen) < (unix_timestamp(now()) - ?)', $time],
             ]
@@ -793,7 +793,7 @@ sub node_unreg_lastseen {
     my ( $status, $iter ) = pf::dal::node->search(
         -where => {
             status    => { "!=" => "unreg"},
-            last_seen => { "!=" => "0000-00-00 00:00:00" },
+            last_seen => { "!=" => $ZERO_DATE },
             -and => [
                 \['unix_timestamp(last_seen) < (unix_timestamp(now()) - ?)', $time],
             ]

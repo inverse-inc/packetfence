@@ -224,7 +224,7 @@ sub _update_from_actions {
 
     _update_field_for_action(
         $data,$actions,'valid_from',
-        'valid_from', '0000-00-00 00:00:00'
+        'valid_from', $ZERO_DATE
     );
     _update_field_for_action(
         $data,$actions,'expiration',
@@ -240,7 +240,7 @@ sub _update_from_actions {
     );
     _update_field_for_action(
         $data,$actions,$Actions::SET_UNREG_DATE,
-        'unregdate',"0000-00-00 00:00:00"
+        'unregdate', $ZERO_DATE
     );
     _update_field_for_action(
         $data,$actions,$Actions::SET_ACCESS_DURATION,

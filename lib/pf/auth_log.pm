@@ -27,6 +27,7 @@ BEGIN {
 
 use pf::dal;
 use pf::dal::auth_log;
+use pf::constants qw($ZERO_DATE);
 use pf::error qw(is_error is_success);
 use pf::log;
 

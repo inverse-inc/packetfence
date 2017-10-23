@@ -236,7 +236,7 @@ sub run_scan {
         mac => $host_ip,
         type => $type,
         start_date => $date,
-        update_date => '0000-00-00 00:00:00',
+        update_date => $ZERO_DATE,
         status => $STATUS_NEW,
         report_id => 'NULL',
     });

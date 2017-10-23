@@ -167,7 +167,7 @@ sub violation_modify {
     if ($data{status} eq 'closed' && !$was_closed && $existing->{release_date} eq '') {
         $existing->{release_date} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time));
     } elsif ($data{status} eq 'open' && $was_closed) {
-        $existing->{release_date} = "";
+        $existing->{release_date} = $ZERO_DATE;
     }
 
     $status = $existing->save();
@@ -385,7 +385,7 @@ sub violation_add {
     #defaults
     $data{start_date} = mysql_date()
         if ( !defined $data{start_date} || !$data{start_date} );
-    $data{release_date} = 0 if ( !defined $data{release_date} );
+    $data{release_date} = $ZERO_DATE if ( !defined $data{release_date} );
     $data{status} = "open" if ( !defined $data{status} || !$data{status} );
     $data{notes}  = ""     if ( !defined $data{notes} );
     $data{ticket_ref} = "" if ( !defined $data{ticket_ref} );

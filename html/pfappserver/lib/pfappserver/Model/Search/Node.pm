@@ -19,6 +19,7 @@ use pfappserver::Base::Model::Search;
 use pf::log;
 use pf::util qw(calc_page_count clean_mac valid_mac);
 use pf::SearchBuilder;
+use pf::constants;
 use pf::SearchBuilder::Node;
 use pf::node qw(node_custom_search);
 use HTTP::Status qw(:constants);
@@ -107,11 +108,11 @@ sub make_builder {
         ->select(qw(
             mac pid voip bypass_vlan status category_id bypass_role_id
             user_agent computername last_arp last_dhcp notes),
-            L_("IF(lastskip = '0000-00-00 00:00:00', '', lastskip)", 'lastskip'),
-            L_("IF(detect_date = '0000-00-00 00:00:00', '', detect_date)", 'detect_date'),
-            L_("IF(regdate = '0000-00-00 00:00:00', '', regdate)", 'regdate'),
-            L_("IF(unregdate = '0000-00-00 00:00:00', '', unregdate)", 'unregdate'),
-            L_("IF(last_seen = '0000-00-00 00:00:00', '', last_seen)", 'last_seen'),
+            L_("IF(lastskip = '$ZERO_DATE', '', lastskip)", 'lastskip'),
+            L_("IF(detect_date = '$ZERO_DATE', '', detect_date)", 'detect_date'),
+            L_("IF(regdate = '$ZERO_DATE', '', regdate)", 'regdate'),
+            L_("IF(unregdate = '$ZERO_DATE', '', unregdate)", 'unregdate'),
+            L_("IF(last_seen = '$ZERO_DATE', '', last_seen)", 'last_seen'),
             L_("IFNULL(node_category.name, '')", 'category'),
             L_("IFNULL(node_category_bypass_role.name, '')", 'bypass_role'),
             L_("IFNULL(device_class, ' ')", 'device_class'),
@@ -202,7 +203,7 @@ sub make_builder {
                                'name'   => 'end_time',
                            },
                            '=',
-                           '0000-00-00 00:00:00'
+                           $ZERO_DATE
                         ],
                     ],
                 },
@@ -230,7 +231,7 @@ sub make_builder {
                                'name'   => 'end_time',
                            },
                            '=',
-                           '0000-00-00 00:00:00'
+                           $ZERO_DATE
                         ],
                         [ 'AND' ],
                         ['('],

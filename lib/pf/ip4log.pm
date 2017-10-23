@@ -506,7 +506,7 @@ sub open {
         mac => $mac,
         ip => $ip,
         start_time => \"NOW()",
-        end_time => '0000-00-00 00:00:00',
+        end_time => $ZERO_DATE,
     );
 
     if ($lease_length) {

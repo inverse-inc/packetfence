@@ -329,7 +329,7 @@ sub person_cleanup {
         my $password = pf::password::view($pid);
         if(defined($password)){
             my $expiration = $password->{expiration};
-            if ($expiration eq '0000-00-00 00:00:00' ) {
+            if ($expiration eq $ZERO_DATE) {
                 get_logger->debug("Not deleting $pid because the password is set not to expire");
                 next;
             }
