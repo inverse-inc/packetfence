@@ -140,7 +140,7 @@ sub violation_modify {
     return (0) if ( !$id );
     my ($status, $existing) = pf::dal::violation->find_or_create({
         %data,
-        id => $id,
+        vid => $id,
     });
 
     if (is_error($status)) {
