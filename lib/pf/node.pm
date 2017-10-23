@@ -1161,9 +1161,9 @@ sub check_multihost {
     $mac = clean_mac($mac);
     unless ( defined $location_info && ($location_info->{'switch_id'} ne "") && ($location_info->{'switch_port'} ne "") && ($location_info->{'connection_type'} ne "") ) {
         my ($status, $iter) = pf::dal::locationlog->search(
-            -where => {-where => 
+            -where => {
                 mac => $mac,
-                 => $ZERO_DATE,
+                end_time => $ZERO_DATE,
             },
             -limit => 1,
         );
