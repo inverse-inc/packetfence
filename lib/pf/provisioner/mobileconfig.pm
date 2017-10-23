@@ -220,7 +220,7 @@ sub sign_profile {
     if($self->cert_chain) {
         $smime->setPublicKey($self->cert_chain);
     }
-    return decode_base64($smime->signonly($content));
+    return decode_base64($smime->signonly_attached($content));
 }
 
 =head2 _build_profile_template
