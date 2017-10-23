@@ -33,13 +33,12 @@ our @COLUMN_NAMES = (
     (map {"person.$_|$_"} @pf::dal::_person::FIELD_NAMES),
     (map {"password.$_|$_"} @PASSWORD_FIELDS),
     'password.sponsor|can_sponsor',
-    'count(node.mac)|nodes',
     'node_category.name|category',
 );
 
 use Class::XSAccessor {
 # The getters for current location log entries
-    getters   => [@PASSWORD_FIELDS, qw(can_sponsor nodes)],
+    getters   => [@PASSWORD_FIELDS, qw(can_sponsor)],
 };
 
 =head2 find_from_tables
@@ -49,7 +48,7 @@ Join the node_category table information in the node results
 =cut
 
 sub find_from_tables {
-    [-join => qw(person =>{node.pid=person.pid} node =>{person.pid=password.pid} password =>{node_category.category_id=password.category} node_category)],
+    [-join => qw(person =>{person.pid=password.pid} password =>{node_category.category_id=password.category} node_category)],
 }
 
 =head2 find_columns
@@ -64,19 +63,6 @@ sub find_columns {
 
 sub to_hash_fields {
     return [@pf::dal::_person::FIELD_NAMES, @PASSWORD_FIELDS, qw(can_sponsor nodes category)];
-}
-
-=head2 find_select_args
-
-find_select_args
-
-=cut
-
-sub find_select_args {
-    my ($self, @args) = @_;
-    my $select_args = $self->SUPER::find_select_args(@args);
-    $select_args->{'-group_by'} = 'person.pid';
-    return $select_args;
 }
 
 =head1 AUTHOR
