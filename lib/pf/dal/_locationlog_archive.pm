@@ -28,6 +28,7 @@ our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
@@ -205,6 +206,28 @@ BEGIN {
     @PRIMARY_KEYS = qw(
         id
     );
+
+    @COLUMN_NAMES = qw(
+        locationlog_archive.id
+        locationlog_archive.mac
+        locationlog_archive.switch
+        locationlog_archive.port
+        locationlog_archive.vlan
+        locationlog_archive.role
+        locationlog_archive.connection_type
+        locationlog_archive.connection_sub_type
+        locationlog_archive.dot1x_username
+        locationlog_archive.ssid
+        locationlog_archive.start_time
+        locationlog_archive.end_time
+        locationlog_archive.switch_ip
+        locationlog_archive.switch_mac
+        locationlog_archive.stripped_user_name
+        locationlog_archive.realm
+        locationlog_archive.session_id
+        locationlog_archive.ifDesc
+    );
+
 }
 
 use Class::XSAccessor {
@@ -253,6 +276,16 @@ our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
     "SELECT * FROM `locationlog_archive` WHERE $where;";
 };
+
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
 
 =head2 _find_one_sql
 

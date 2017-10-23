@@ -652,17 +652,6 @@ sub find_from_tables {
     return $proto->table;
 }
 
-=head2 find_columns
-
-find_columns
-
-=cut
-
-sub find_columns {
-    my ($self) = @_;
-    return $self->field_names;
-}
-
 =head2 find_or_create
 
 finds a table record or creates it

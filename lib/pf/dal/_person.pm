@@ -28,6 +28,7 @@ our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
@@ -324,6 +325,41 @@ BEGIN {
     @PRIMARY_KEYS = qw(
         pid
     );
+
+    @COLUMN_NAMES = qw(
+        person.pid
+        person.firstname
+        person.lastname
+        person.email
+        person.telephone
+        person.company
+        person.address
+        person.notes
+        person.sponsor
+        person.anniversary
+        person.birthday
+        person.gender
+        person.lang
+        person.nickname
+        person.cell_phone
+        person.work_phone
+        person.title
+        person.building_number
+        person.apartment_number
+        person.room_number
+        person.custom_field_1
+        person.custom_field_2
+        person.custom_field_3
+        person.custom_field_4
+        person.custom_field_5
+        person.custom_field_6
+        person.custom_field_7
+        person.custom_field_8
+        person.custom_field_9
+        person.portal
+        person.source
+    );
+
 }
 
 use Class::XSAccessor {
@@ -372,6 +408,16 @@ our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
     "SELECT * FROM `person` WHERE $where;";
 };
+
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
 
 =head2 _find_one_sql
 

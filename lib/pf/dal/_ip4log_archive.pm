@@ -28,6 +28,7 @@ our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
@@ -88,6 +89,15 @@ BEGIN {
     @PRIMARY_KEYS = qw(
         id
     );
+
+    @COLUMN_NAMES = qw(
+        ip4log_archive.id
+        ip4log_archive.mac
+        ip4log_archive.ip
+        ip4log_archive.start_time
+        ip4log_archive.end_time
+    );
+
 }
 
 use Class::XSAccessor {
@@ -136,6 +146,16 @@ our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
     "SELECT * FROM `ip4log_archive` WHERE $where;";
 };
+
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
 
 =head2 _find_one_sql
 

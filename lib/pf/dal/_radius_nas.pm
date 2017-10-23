@@ -28,6 +28,7 @@ our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
@@ -160,6 +161,23 @@ BEGIN {
     @PRIMARY_KEYS = qw(
         nasname
     );
+
+    @COLUMN_NAMES = qw(
+        radius_nas.id
+        radius_nas.nasname
+        radius_nas.shortname
+        radius_nas.type
+        radius_nas.ports
+        radius_nas.secret
+        radius_nas.server
+        radius_nas.community
+        radius_nas.description
+        radius_nas.config_timestamp
+        radius_nas.start_ip
+        radius_nas.end_ip
+        radius_nas.range_length
+    );
+
 }
 
 use Class::XSAccessor {
@@ -208,6 +226,16 @@ our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
     "SELECT * FROM `radius_nas` WHERE $where;";
 };
+
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
 
 =head2 _find_one_sql
 

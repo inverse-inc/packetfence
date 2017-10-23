@@ -28,6 +28,7 @@ our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
@@ -93,6 +94,15 @@ BEGIN {
         tid_end
         type
     );
+
+    @COLUMN_NAMES = qw(
+        trigger.vid
+        trigger.tid_start
+        trigger.tid_end
+        trigger.type
+        trigger.whitelisted_categories
+    );
+
 }
 
 use Class::XSAccessor {
@@ -141,6 +151,16 @@ our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
     "SELECT * FROM `trigger` WHERE $where;";
 };
+
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
 
 =head2 _find_one_sql
 

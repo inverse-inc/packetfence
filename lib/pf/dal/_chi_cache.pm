@@ -28,6 +28,7 @@ our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
@@ -72,6 +73,13 @@ BEGIN {
     @PRIMARY_KEYS = qw(
         key
     );
+
+    @COLUMN_NAMES = qw(
+        chi_cache.key
+        chi_cache.value
+        chi_cache.expires_at
+    );
+
 }
 
 use Class::XSAccessor {
@@ -120,6 +128,16 @@ our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
     "SELECT * FROM `chi_cache` WHERE $where;";
 };
+
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
 
 =head2 _find_one_sql
 
