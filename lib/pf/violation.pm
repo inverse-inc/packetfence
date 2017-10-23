@@ -333,7 +333,7 @@ sub violation_view_open_desc {
             status => "open",
             mac => $mac,
         },
-        -columns => [qw(v.id v.start_date c.description v.vid v.status)],
+        -columns => [qw(id start_date c.description violation.vid status)],
         -from => [-join => qw(violation <=>{violation.vid=class.vid} class)],
         -order_by => { -desc => 'start_date' },
     });
@@ -367,7 +367,7 @@ sub violation_view_desc {
         -where => {
             mac => $mac,
         },
-        -columns => [qw(v.id v.start_date c.description v.vid v.status)],
+        -columns => [qw(id start_date class.description violation.vid status)],
         -from => [-join => qw(violation <=>{violation.vid=class.vid} class)],
         -order_by => {-desc => 'start_date'},
     });
