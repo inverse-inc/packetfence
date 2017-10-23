@@ -145,7 +145,7 @@ sub person_add {
 #
 sub person_view {
     my ($pid) = @_;
-    my ($status, $item) = pf::dal::person->find({id => $pid});
+    my ($status, $item) = pf::dal::person->find({pid => $pid});
     if (is_error($status)) {
         return (0)
     }
