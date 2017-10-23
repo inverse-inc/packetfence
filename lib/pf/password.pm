@@ -294,15 +294,19 @@ sub modify_actions {
     delete @{$password}{@ACTION_FIELDS};
     _update_from_actions( $password, $actions );
     my $pid   = $password->{pid};
-    my %actions;
-    $actions{@ACTION_FIELDS} = @{$password}{@ACTION_FIELDS};
+    my %new_actions;
+    @new_actions{@ACTION_FIELDS} = @{$password}{@ACTION_FIELDS};
     my ($status, $rows) = pf::dal::password->update_items(
-        -set => \%actions,
+        -set => \%new_actions,
         -where => {
             pid => $pid
         }
     );
-    return $rows;
+    if (is_error($status)) {
+        return $FALSE;
+    }
+
+    return $TRUE;
 }
 
 
