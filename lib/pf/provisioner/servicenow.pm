@@ -167,12 +167,12 @@ sub authorize {
     my $ip = pf::ip4log::mac2ip($mac);
     $logger->info("Validating if $mac is compliant in servicenow");
     my $mac_exist = $self->does_mac_exist($mac);
-    if ($mac_exist == $pf::provisioner::COMMUNICATION_FAILED){
+    if ($mac_exist eq $pf::provisioner::COMMUNICATION_FAILED){
         return $pf::provisioner::COMMUNICATION_FAILED;
     }
     if ($mac_exist ne "0") {
         my $agent_install = $self->validate_agent_installed($mac_exist);
-        if ($agent_install == $pf::provisioner::COMMUNICATION_FAILED){
+        if ($agent_install eq $pf::provisioner::COMMUNICATION_FAILED){
             return $pf::provisioner::COMMUNICATION_FAILED;
         }
         if ($agent_install ne "0") {
