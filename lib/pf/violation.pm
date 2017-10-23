@@ -729,7 +729,7 @@ sub violation_close {
         my $grace = $class_info->{'grace_period'};
         my ($status, $rows) = pf::dal::violation->update_items(
             -set => {
-                release_date => '\NOW()',
+                release_date => \'NOW()',
                 status => 'closed',
             },
             -where => {
