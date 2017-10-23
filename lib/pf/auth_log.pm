@@ -59,7 +59,7 @@ sub record_oauth_attempt {
         process_name => process_name,
         source => $source,
         mac => $mac,
-        attempted_at => '\NOW()',
+        attempted_at => \'NOW()',
         status => $INCOMPLETE,
     });
     return (is_success($status));
@@ -92,7 +92,7 @@ sub record_guest_attempt {
         source => $source,
         mac => $mac,
         pid => ($pid // ''),
-        attempted_at => '\NOW()',
+        attempted_at => \'NOW()',
         status => $INCOMPLETE,
     });
     return (is_success($status));

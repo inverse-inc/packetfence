@@ -255,7 +255,7 @@ sub locationlog_insert_start {
         stripped_user_name  => $stripped_user_name,
         realm               => $realm,
         ifDesc              => $ifDesc,
-        start_time          => '\NOW()',
+        start_time          => \'NOW()',
     );
     if ( defined($mac) ) {
         $values{mac} = lc($mac);

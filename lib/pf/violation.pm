@@ -755,7 +755,7 @@ sub violation_force_close {
     my $should_run_actions = violation_exist_open($mac, $vid);
     my ($status, $rows) = pf::dal::violation->update_items(
         -set => {
-            release_date => '\NOW()',
+            release_date => \'NOW()',
             status => 'closed',
         },
         -where => {
