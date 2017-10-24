@@ -211,6 +211,7 @@ sub node_add {
     if ( !valid_mac($mac) ) {
         return (0);
     }
+    $data{mac} = $mac;
 
     if ( node_exist($mac) ) {
         $logger->warn("attempt to add existing node $mac");
@@ -234,7 +235,6 @@ sub node_add {
         $logger->error("Unable to insert node because specified category doesn't exist");
         return (0);
     }
-
     my $status = pf::dal::node->create(\%data);
     return (is_success($status) ? 1 : 0);
 }
