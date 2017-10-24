@@ -3,6 +3,7 @@ package pf::Report;
 use Moose;
 use SQL::Abstract::More;
 use pf::dal;
+use pf::error qw(is_error is_success);
 use pf::log;
 use Tie::IxHash;
 use List::MoreUtils qw(any);
@@ -171,8 +172,11 @@ sub page_count {
 sub _db_data {
     my ($self, $sql, @params) = @_;
 
-    my ($status, $sth) = pf::dal->db_execute($sql, @params);
     my ( $ref, @array );
+    my ($status, $sth) = pf::dal->db_execute($sql, @params);
+    if (is_error($status)) {
+        return;
+    }
     # Going through data as array ref and putting it in ordered hash to respect the order of the select in the final report
     my $fields = $sth->{NAME};
     while ( $ref = $sth->fetchrow_arrayref() ) {
