@@ -569,7 +569,7 @@ sub rotate {
     };
 
     my ( $subsql, @bind ) = pf::dal::ip4log_history->select(
-        -columns => [qw(mac ip type start_time end_time)],
+        -columns => [qw(mac ip start_time end_time)],
         -where => $where,
         -limit => $batch,
         -from => pf::dal::ip4log_history->table,
