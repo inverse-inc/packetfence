@@ -122,6 +122,7 @@ sub authenticationLogin : Private {
         $c->user_session->{username} = $username // $default_pid;
         $c->user_session->{source_id} = $source_id;
         $c->user_session->{source_match} = $source_id;
+        $c->user_session->{extra} = $extra;
         if(!person_exist($username)){
             person_add($username);
         }

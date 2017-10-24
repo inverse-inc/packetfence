@@ -123,11 +123,11 @@ sub registerNode : Private {
                 $logger->debug("Device registration role is $role (from pf.conf)");
             } else {
                 # Use role of user
-                $role = pf::authentication::match( $source_id, $params , $Actions::SET_ROLE, undef, $c->session->{extra});
+                $role = pf::authentication::match( $source_id, $params , $Actions::SET_ROLE, undef, $c->user_session->{extra});
                 $logger->debug("Gaming devices role is $role (from username $pid)");
             }
 
-            my $unregdate = pf::authentication::match( $source_id, $params, $Actions::SET_UNREG_DATE, undef, $c->session->{extra});
+            my $unregdate = pf::authentication::match( $source_id, $params, $Actions::SET_UNREG_DATE, undef, $c->user_session->{extra});
             if ( defined $unregdate ) {
                 $logger->debug("Got unregdate $unregdate for username $pid");
                 $info{unregdate} = $unregdate;
