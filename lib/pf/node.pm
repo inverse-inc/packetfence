@@ -288,7 +288,7 @@ sub node_attributes {
     $mac = clean_mac($mac);
     my ($status, $obj) = pf::dal::node->find({mac => $mac});
     if (is_error($status)) {
-        return (0);
+        return (undef);
     }
     return ($obj->to_hash);
 }
@@ -319,7 +319,7 @@ sub _node_view {
     pf::log::logstacktrace("pf::node::node_view getting '$mac'");
     my ($status, $obj) = pf::dal::node->find({mac => $mac});
     if (is_error($status)) {
-        return (0);
+        return (undef);
     }
     $obj->_load_locationlog;
     return ($obj->to_hash());
