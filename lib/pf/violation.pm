@@ -887,7 +887,11 @@ sub violation_maintenance {
             },
            -limit => $batch,
            -columns => [qw(id mac vid notes status)],
+           -from => pf::dal::violation->table,
         );
+        if (is_error($status)) {
+            last;
+        }
         my $rows = $iter->sth->rows;
         my $client = pf::client::getClient();
         while (my $row = $iter->next(undef)) {
