@@ -371,7 +371,7 @@ sub violation_view_desc {
         -where => {
             mac => $mac,
         },
-        -columns => [qw(id start_date class.description violation.vid status)],
+        -columns => [qw(id start_date release_date class.description violation.vid status)],
         -from => [-join => qw(violation <=>{violation.vid=class.vid} class)],
         -order_by => {-desc => 'start_date'},
     });
