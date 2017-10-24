@@ -572,6 +572,7 @@ sub rotate {
         -columns => [qw(mac ip type start_time end_time)],
         -where => $where,
         -limit => $batch,
+        -from => pf::dal::ip4log_history->table,
     );
 
     my %rotate_search = (
