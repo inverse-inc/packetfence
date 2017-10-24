@@ -6,7 +6,9 @@ import (
 	"net"
 
 	"github.com/inverse-inc/packetfence/go/log"
-	"github.com/julsemaan/radius"
+	"layeh.com/radius"
+	"layeh.com/radius/rfc2865"
+	"layeh.com/radius/rfc2866"
 )
 
 type FortiGate struct {
@@ -20,7 +22,8 @@ type FortiGate struct {
 func (fw *FortiGate) Start(ctx context.Context, info map[string]string, timeout int) (bool, error) {
 	p := fw.startRadiusPacket(ctx, info, timeout)
 	client := fw.getRadiusClient(ctx)
-	_, err := client.Exchange(p, fw.PfconfigHashNS+":"+fw.Port)
+	// Use the background context since we don't want the lib to use our context
+	_, err := client.Exchange(context.Background(), p, fw.PfconfigHashNS+":"+fw.Port)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Couldn't SSO to the fortigate, got the following error: %s", err))
 		return false, err
@@ -32,12 +35,12 @@ func (fw *FortiGate) Start(ctx context.Context, info map[string]string, timeout 
 // Build the RADIUS packet for an SSO start
 func (fw *FortiGate) startRadiusPacket(ctx context.Context, info map[string]string, timeout int) *radius.Packet {
 	r := radius.New(radius.CodeAccountingRequest, []byte(fw.Password))
-	r.Set("Acct-Status-Type", uint32(1))
-	r.Set("User-Name", info["username"])
-	r.Set("Class", info["role"])
-	r.Set("Called-Station-Id", "00:11:22:33:44:55")
-	r.Set("Framed-IP-Address", net.ParseIP(info["ip"]))
-	r.Set("Calling-Station-Id", info["mac"])
+	rfc2866.AcctStatusType_Add(r, rfc2866.AcctStatusType(1))
+	rfc2865.UserName_AddString(r, info["username"])
+	rfc2865.Class_AddString(r, info["role"])
+	rfc2865.CalledStationID_AddString(r, "00:11:22:33:44:55")
+	rfc2865.FramedIPAddress_Add(r, net.ParseIP(info["ip"]))
+	rfc2865.CallingStationID_AddString(r, info["mac"])
 
 	return r
 }
@@ -47,7 +50,8 @@ func (fw *FortiGate) startRadiusPacket(ctx context.Context, info map[string]stri
 func (fw *FortiGate) Stop(ctx context.Context, info map[string]string) (bool, error) {
 	p := fw.stopRadiusPacket(ctx, info)
 	client := fw.getRadiusClient(ctx)
-	_, err := client.Exchange(p, fw.PfconfigHashNS+":"+fw.Port)
+	// Use the background context since we don't want the lib to use our context
+	_, err := client.Exchange(context.Background(), p, fw.PfconfigHashNS+":"+fw.Port)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Couldn't SSO to the fortigate, got the following error: %s", err))
 		return false, err
@@ -59,13 +63,13 @@ func (fw *FortiGate) Stop(ctx context.Context, info map[string]string) (bool, er
 // Build the RADIUS packet for an SSO stop
 func (fw *FortiGate) stopRadiusPacket(ctx context.Context, info map[string]string) *radius.Packet {
 	r := radius.New(radius.CodeAccountingRequest, []byte(fw.Password))
-	r.Set("Acct-Session-Id", "acct_pf-"+info["mac"])
-	r.Set("Acct-Status-Type", uint32(2))
-	r.Set("User-Name", info["username"])
-	r.Set("Class", info["role"])
-	r.Set("Called-Station-Id", "00:11:22:33:44:55")
-	r.Set("Framed-IP-Address", net.ParseIP(info["ip"]))
-	r.Set("Calling-Station-Id", info["mac"])
+	rfc2866.AcctSessionID_AddString(r, "acct_pf-"+info["mac"])
+	rfc2866.AcctStatusType_Add(r, rfc2866.AcctStatusType(2))
+	rfc2865.UserName_AddString(r, info["username"])
+	rfc2865.Class_AddString(r, info["role"])
+	rfc2865.CalledStationID_AddString(r, "00:11:22:33:44:55")
+	rfc2865.FramedIPAddress_Add(r, net.ParseIP(info["ip"]))
+	rfc2865.CallingStationID_AddString(r, info["mac"])
 
 	return r
 }
