@@ -559,6 +559,7 @@ sub node_modify {
     }
     # Find or create the node
     my ($status, $obj) = pf::dal::node->find_or_create({
+        %data,
         mac => $mac
     });
 
@@ -566,6 +567,9 @@ sub node_modify {
         return (0);
     }
 
+    if ($status == $STATUS::CREATED) {
+        return 1;
+    }
     # Fail if renaming mac
     #
     if (exists $data{mac} && defined $data{mac}) {
