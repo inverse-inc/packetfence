@@ -258,6 +258,7 @@ sub violation_exist {
         },
         -columns => [qw(id mac vid start_date release_date status ticket_ref notes)],
         -limit => 1,
+        -from => pf::dal::violation->table,
     });
 }
 
@@ -269,6 +270,7 @@ sub violation_exist_id {
         },
         -columns => [qw(id mac vid start_date release_date status ticket_ref notes)],
         -limit => 1,
+        -from => pf::dal::violation->table,
     });
 }
 
@@ -281,6 +283,7 @@ sub violation_exist_open {
             status => 'open',
         },
         -columns => [qw(id mac vid start_date release_date status ticket_ref notes)],
+        -from => pf::dal::violation->table,
         -limit => 1,
     });
 }
@@ -322,6 +325,7 @@ sub violation_view_open {
         },
         -columns => [qw(id mac vid start_date release_date status ticket_ref notes)],
         -order_by => { -desc => 'start_date' },
+        -from => pf::dal::violation->table,
     });
 }
 
@@ -801,6 +805,7 @@ sub violation_exist_acct {
                 "<=" => \'NOW()',
             },
         },
+        -from => pf::dal::violation->table,
         -columns => [qw(id)],
     });
 }
@@ -821,6 +826,7 @@ sub violation_view_last_closed {
         },
         -order_by => {-desc => 'release_date'} ,
         -columns => [qw(mac vid release_date)],
+        -from => pf::dal::violation->table,
     });
 }
 
