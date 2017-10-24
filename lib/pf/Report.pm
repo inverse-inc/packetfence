@@ -2,7 +2,7 @@ package pf::Report;
 
 use Moose;
 use SQL::Abstract::More;
-use pf::db;
+use pf::dal;
 use pf::log;
 use Tie::IxHash;
 use List::MoreUtils qw(any);
@@ -37,15 +37,13 @@ has 'person_fields', (is => 'rw', isa => 'ArrayRef[Str]');
 
 has 'node_fields', (is => 'rw', isa => 'ArrayRef[Str]');
 
-# empty since no queries are prepared upfront
-sub Report_db_prepare {}
-
 sub generate_sql_query {
     my ($self, %infos) = @_;
     my $logger = get_logger;
 
     my $sqla = SQL::Abstract::More->new();
     my $and = [];
+    $infos{search}{type} //= $self->base_conditions_operator;
 
     # Date range handling
     push @$and, $self->date_field => { ">", $infos{start_date}} if($infos{start_date});
@@ -157,34 +155,29 @@ sub query {
     my ($self, %infos) = @_;
     $self->ensure_default_infos(\%infos);
     my ($sql, $params) = $self->generate_sql_query(%infos);
-    my $print_params = join(", ", map { "'$_'" } @$params);
-    get_logger->debug("Executing query : $sql, with the following params : $print_params");
-    return $self->_db_data(REPORT, {'report_sql' => $sql}, 'report_sql', @$params);
+    get_logger->debug(sub { "Executing query : $sql, with the following params : " . join(", ", map { "'$_'" } @$params) });
+    return $self->_db_data($sql, @$params);
 }
 
 sub page_count {
     my ($self, %infos) = @_;
     $self->ensure_default_infos(\%infos);
     my ($sql, $params) = $self->generate_sql_query(%infos, count_only => 1);
-    my @results = $self->_db_data(REPORT, {'report_sql' => $sql}, 'report_sql', @$params);
+    my @results = $self->_db_data($sql, @$params);
     my $pages = $results[0]->{count} / $infos{per_page};
     return (($pages == int($pages)) ? $pages : int($pages + 1));
 }
 
 sub _db_data {
-    my ($self, $from_module, $module_statements_ref, $query, @params) = @_;
+    my ($self, $sql, @params) = @_;
 
-    my $sth = db_query_execute($from_module, $module_statements_ref, $query, @params) || return (0);
-
+    my ($status, $sth) = pf::dal->db_execute($sql, @params);
     my ( $ref, @array );
     # Going through data as array ref and putting it in ordered hash to respect the order of the select in the final report
     my $fields = $sth->{NAME};
-    my $fieldsLength = @$fields;
     while ( $ref = $sth->fetchrow_arrayref() ) {
         tie my %record, 'Tie::IxHash';
-        foreach my $i (0..($fieldsLength-1)) {
-            $record{$fields->[$i]} = $ref->[$i];
-        }
+        @record{@$fields} = @$ref;
         push( @array, \%record );
     }
     $sth->finish();
