@@ -28,7 +28,7 @@ use Class::XSAccessor {
     accessors => [qw(__from_table __old_data)],
 };
 
-our $CURRENT_TENANT = 0;
+our $CURRENT_TENANT = 1;
 
 =head2 new
 
@@ -859,6 +859,10 @@ sub merge {
 sub set_tenant {
     my ($class, $tenant_id) = @_;
     $CURRENT_TENANT = $tenant_id;
+}
+
+sub get_tenant {
+    $CURRENT_TENANT
 }
 
 =head2 select
