@@ -152,7 +152,7 @@ INSERT INTO `node_category` (name,notes) VALUES ("REJECT","Reject role (Used to 
 --
 
 CREATE TABLE node (
-  tenant_id int NOT NULL int(10) DEFAULT 1,
+  tenant_id int NOT NULL DEFAULT 1,
   mac varchar(17) NOT NULL,
   pid varchar(255) NOT NULL default "default",
   category_id int default NULL,
