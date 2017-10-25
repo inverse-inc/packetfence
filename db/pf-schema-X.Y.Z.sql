@@ -13,6 +13,19 @@ SET @SUBMINOR_VERSION = 9;
 SET @VERSION_INT = @MAJOR_VERSION << 16 | @MINOR_VERSION << 8 | @SUBMINOR_VERSION;
 
 --
+-- Table structure for table `tenant`
+--
+
+CREATE TABLE `tenant` (
+  id int NOT NULL AUTO_INCREMENT,
+  name VARCHAR(255) NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY tenant_name (`name`)
+);
+
+INSERT INTO `tenant` VALUES (1, 'default');
+
+--
 -- Table structure for table `class`
 --
 
@@ -139,6 +152,7 @@ INSERT INTO `node_category` (name,notes) VALUES ("REJECT","Reject role (Used to 
 --
 
 CREATE TABLE node (
+  tenant_id int NOT NULL int(10) DEFAULT 1,
   mac varchar(17) NOT NULL,
   pid varchar(255) NOT NULL default "default",
   category_id int default NULL,
@@ -176,7 +190,8 @@ CREATE TABLE node (
   KEY `node_dhcpfingerprint` (`dhcp_fingerprint`),
   KEY `node_last_seen` (`last_seen`),
   CONSTRAINT `0_57` FOREIGN KEY (`pid`) REFERENCES `person` (`pid`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `node_category_key` FOREIGN KEY (`category_id`) REFERENCES `node_category` (`category_id`)
+  CONSTRAINT `node_category_key` FOREIGN KEY (`category_id`) REFERENCES `node_category` (`category_id`),
+  CONSTRAINT `node_tenant_id` FOREIGN KEY(`tenant_id`) REFERENCES `tenant` (`id`)
 ) ENGINE=InnoDB;
 
 --
