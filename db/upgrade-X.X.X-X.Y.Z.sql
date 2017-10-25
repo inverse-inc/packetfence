@@ -48,5 +48,18 @@ DELIMITER ;
 call ValidateVersion;
 
 
+CREATE TABLE `tenant` (
+  id int NOT NULL AUTO_INCREMENT,
+  name VARCHAR(255) NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY tenant_name (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO `tenant` (id, name) VALUES (1, 'default');
+
+ALTER TABLE `node`
+    ADD COLUMN tenant_id int NOT NULL DEFAULT 1,
+    ADD CONSTRAINT `node_tenant_id` FOREIGN KEY(`tenant_id`) REFERENCES `tenant` (`id`);
+
 INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
 
