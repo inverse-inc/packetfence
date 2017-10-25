@@ -387,7 +387,9 @@ sub _insert_data {
     foreach my $field (@$fields) {
         my $new_value = $self->{$field};
         if (is_error($self->validate_field($field, $new_value))) {
-            return $STATUS::PRECONDITION_FAILED, undef;
+            my $table = $self->table;
+            $self->logger->error("Skipping invalid value (" . ($new_value // "NULL") .") in when inserting field ${table}.${field}");
+            next;
         }
         $data{$field} = $new_value;
     }
@@ -411,7 +413,9 @@ sub _update_data {
         next if (!defined $new_value && !defined $old_value);
         next if (defined $new_value && defined $old_value && $new_value eq $old_value);
         if (is_error($self->validate_field($field, $new_value))) {
-            return $STATUS::PRECONDITION_FAILED, undef;
+            my $table = $self->table;
+            $self->logger->error("Skipping invalid value (" . ($new_value // "NULL" ) . ") in when updating field ${table}.${field}");
+            next;
         }
         $data{$field} = $new_value;
     }
@@ -438,7 +442,7 @@ sub validate_field {
         my $meta = $self->get_meta;
         unless (CORE::exists $meta->{$field} && CORE::exists $meta->{$field}{enums_values}{$value}) {
             my $table = $self->table;
-            $logger->error("Trying to save a invalid value in a non nullable field ${table}.${field}");
+            $logger->error("Trying to save a invalid value ($value) in a non nullable field ${table}.${field}");
             return $STATUS::PRECONDITION_FAILED;
         }
     }
