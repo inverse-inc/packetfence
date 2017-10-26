@@ -118,6 +118,9 @@ sub get_table_info {
             my @cols;
             my $sth = $dbh->column_info($table->{TABLE_CAT}, $table->{TABLE_SCHEM}, $table->{TABLE_NAME}, undef);
             while (my $col = $sth->fetchrow_hashref()) {
+                if ($col->{COLUMN_NAME} eq 'tenant_id') {
+                    $table->{HAS_TENANT_ID} = 1;
+                }
                 add_additional_metadata_to_column($table, $col);
                 push @cols, $col;
             }
