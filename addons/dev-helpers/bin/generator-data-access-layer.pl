@@ -26,15 +26,14 @@ my $PF_DIR = '/usr/local/pf';
 our %OPTIONS = (
     dbpass => '',,
     dbuser => 'root',
+    schema => "$PF_DIR/db/pf-schema-X.Y.Z.sql",
 );
 
-GetOptions(\%OPTIONS, 'dbpass=s', 'dbuser=s');
+GetOptions(\%OPTIONS, 'dbpass=s', 'dbuser=s', 'schema=s');
 
 my $output_path = "$PF_DIR/lib/pf/dal";
 
-my $schema = "$PF_DIR/db/pf-schema-X.Y.Z.sql";
-
-my $db_name = "pf_generated_$$";
+my $db_name = "_pf_generated_$$";
 
 my $dbh = DBI->connect("DBI:mysql:host=localhost", $OPTIONS{dbuser}, $OPTIONS{dbpass}, {RaiseError => 1});
 
@@ -42,7 +41,15 @@ $dbh->do("DROP DATABASE IF EXISTS $db_name");
 
 $dbh->do("CREATE DATABASE $db_name");
 
+my $schema = $OPTIONS{schema};
+
 system("mysql -u$OPTIONS{dbuser} -p$OPTIONS{dbpass} $db_name < $schema");
+
+# Check if there was an error running the command
+if ($?) {
+    print "Problem Created the schema from $schema\n";
+    exit $?;
+}
 
 $dbh->do("USE $db_name");
 
@@ -86,7 +93,9 @@ for my $table (@$tables) {
     }
 }
 
-$dbh->do("DROP DATABASE IF EXISTS $db_name");
+END {
+    $dbh->do("DROP DATABASE IF EXISTS $db_name") if $dbh;
+}
 
 
 
