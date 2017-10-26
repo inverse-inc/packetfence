@@ -32,8 +32,6 @@ has_field 'id' =>
 has_field 'upload' =>
   (
    type => 'Text',
-   required => 1,
-   messages => { required => 'Upload is required.' },
    apply => [ { check => $BANDWIDTH_CHECK, message => $BANDWIDTH_CHECK_FAIL_MSG } ],
    tags => { after_element => \&help,
              help => $BANDWIDTH_CHECK_FAIL_MSG },
@@ -41,8 +39,6 @@ has_field 'upload' =>
 has_field 'download' =>
   (
    type => 'Text',
-   required => 1,
-   messages => { required => 'Download is required.' },
    apply => [ { check => $BANDWIDTH_CHECK, message => $BANDWIDTH_CHECK_FAIL_MSG } ],
    tags => { after_element => \&help,
              help => $BANDWIDTH_CHECK_FAIL_MSG },

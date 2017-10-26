@@ -1597,13 +1597,16 @@ sub update_role_configuration : Public :AllowedAsAction(role, $role) {
     my $logger = pf::log::get_logger();
     my $role = delete $postdata{'role'};
 
-    if ($postdata{'upload'} && $postdata{'download'}) {
-        my $tc_cs = pf::ConfigStore::TrafficShaping->new;
-        $tc_cs->update_or_create($role, {upload => $postdata{'upload'}, download => $postdata{'download'}});
-        $tc_cs->commit();
-        delete $postdata{'upload'};
-        delete $postdata{'download'};
+    my $tc_cs = pf::ConfigStore::TrafficShaping->new;
+    if ($postdata{'upload'} == 0 && $postdata{'download'} == 0) {
+        $tc_cs->remove($role);
     }
+    if ($postdata{'upload'} && $postdata{'download'}) {
+        $tc_cs->update_or_create($role, {upload => $postdata{'upload'}, download => $postdata{'download'}});
+    }
+    $tc_cs->commit();
+    delete $postdata{'upload'};
+    delete $postdata{'download'};
 
     my $hash_ref = {};
     $hash_ref = \%postdata;
@@ -1614,6 +1617,7 @@ sub update_role_configuration : Public :AllowedAsAction(role, $role) {
     $role_cs->commit();
     return "Success";
 }
+
 
 =head2 role_detail
 
