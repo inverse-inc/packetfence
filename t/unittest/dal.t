@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 41;
+use Test::More tests => 42;
 
 use pf::error qw(is_success is_error);
 use pf::db;
@@ -97,9 +97,15 @@ ok($node, "Reloading node from database");
 
 is($node->voip, "yes", "Changes were saved into database");
 
+my $old_status = $node->status;
+
 $node->status(undef);
 
-ok(is_error($node->save), "Cannot save a null value into the database");
+ok(is_success($node->save), "Skip a non-nullable field when saving into the database");
+
+$node = pf::dal::node->find({mac => $test_mac});
+
+is($old_status, $node->status, "non-nullable field is not modified");
 
 ok(is_success($node->remove), "Remove node in database");
 
