@@ -885,29 +885,137 @@ Wrap call to select and db_execute
 
 sub do_select {
     my ($proto, @args) = @_;
-    @args = $proto->update_select(@args);
+    @args = $proto->update_params_for_select(@args);
     my ($sql, @bind) = $proto->select(@args);
     return $proto->db_execute($sql, @bind);
 }
 
-our %SELECT_KEYS = map { $_ => 1 } qw(
-  -from -for -columns -union -union_all
-  -intersect -minus -except -group_by
-  -having -order_by -page_size -page_index
-  -limit -offset -for -want_details -where
+our %PARAMS_FOR_SELECT = (
+    -columns      => 1,
+    -from         => 1,
+    -where        => 1,
+    -union        => 1,
+    -union_all    => 1,
+    -intersect    => 1,
+    -minus        => 1,
+    -except       => 1,
+    -group_by     => 1,
+    -having       => 1,
+    -order_by     => 1,
+    -page_size    => 1,
+    -page_index   => 1,
+    -limit        => 1,
+    -offset       => 1,
+    -for          => 1,
+    -want_details => 1,
 );
 
-=head2 update_select
+our %PARAMS_FOR_INSERT = (
+    -into      => 1,
+    -values    => 1,
+    -returning => 1,
+);
 
-update_select
+our %PARAMS_FOR_UPDATE = (
+    -table    => 1,
+    -set      => 1,
+    -where    => 1,
+    -order_by => 1,
+    -limit    => 1,
+);
+
+our %PARAMS_FOR_DELETE = (
+    -from     => 1,
+    -where    => 1,
+    -order_by => 1,
+    -limit    => 1,
+);
+
+our %PARAMS_FOR_UPSERT = (
+  -into         => 1,
+  -values       => 1,
+  -on_conflict  => 1,
+);
+
+=head2 update_params_for_select
+
+update_params_for_select
 
 =cut
 
-sub update_select {
+sub update_params_for_select {
     my ($self, %args) = @_;
     my %new_args;
     while (my ($k, $v) = each %args) {
-        if (CORE::exists $SELECT_KEYS{$k}) {
+        if (CORE::exists $PARAMS_FOR_SELECT{$k}) {
+            $new_args{$k} = $v;
+        }
+    }
+    return %new_args;
+}
+
+=head2 update_params_for_update
+
+update_params_for_update
+
+=cut
+
+sub update_params_for_update {
+    my ($self, %args) = @_;
+    my %new_args;
+    while (my ($k, $v) = each %args) {
+        if (CORE::exists $PARAMS_FOR_UPDATE{$k}) {
+            $new_args{$k} = $v;
+        }
+    }
+    return %new_args;
+}
+
+=head2 update_params_for_insert
+
+update_params_for_insert
+
+=cut
+
+sub update_params_for_insert {
+    my ($self, %args) = @_;
+    my %new_args;
+    while (my ($k, $v) = each %args) {
+        if (CORE::exists $PARAMS_FOR_INSERT{$k}) {
+            $new_args{$k} = $v;
+        }
+    }
+    return %new_args;
+}
+
+=head2 update_params_for_delete
+
+update_params_for_delete
+
+=cut
+
+sub update_params_for_delete {
+    my ($self, %args) = @_;
+    my %new_args;
+    while (my ($k, $v) = each %args) {
+        if (CORE::exists $PARAMS_FOR_DELETE{$k}) {
+            $new_args{$k} = $v;
+        }
+    }
+    return %new_args;
+}
+
+=head2 update_params_for_upsert
+
+update_params_for_upsert
+
+=cut
+
+sub update_params_for_upsert {
+    my ($self, %args) = @_;
+    my %new_args;
+    while (my ($k, $v) = each %args) {
+        if (CORE::exists $PARAMS_FOR_UPSERT{$k}) {
             $new_args{$k} = $v;
         }
     }
@@ -923,6 +1031,7 @@ Wrap call to pf::SQL::Abstract->insert and db_execute
 sub do_insert {
     my ($proto, @args) = @_;
     my $sqla          = $proto->get_sql_abstract;
+    @args = $proto->update_params_for_insert(@args);
     my ($stmt, @bind) = $sqla->insert(@args);
     return $proto->db_execute($stmt, @bind);
 }
@@ -936,6 +1045,7 @@ Wrap call to pf::SQL::Abstract->upsert and db_execute
 sub do_upsert {
     my ($proto, @args) = @_;
     my $sqla          = $proto->get_sql_abstract;
+    @args = $proto->update_params_for_upsert(@args);
     my ($stmt, @bind) = $sqla->upsert(@args);
     return $proto->db_execute($stmt, @bind);
 }
@@ -949,6 +1059,7 @@ Wrap call to pf::SQL::Abstract->update and db_execute
 sub do_update {
     my ($proto, @args) = @_;
     my $sqla          = $proto->get_sql_abstract;
+    @args = $proto->update_params_for_update(@args);
     my ($stmt, @bind) = $sqla->update(@args);
     return $proto->db_execute($stmt, @bind);
 }
@@ -962,6 +1073,7 @@ Wrap call to pf::SQL::Abstract->delete and db_execute
 sub do_delete {
     my ($proto, @args) = @_;
     my $sqla          = $proto->get_sql_abstract;
+    @args = $proto->update_params_for_delete(@args);
     my ($stmt, @bind) = $sqla->delete(@args);
     return $proto->db_execute($stmt, @bind);
 }
