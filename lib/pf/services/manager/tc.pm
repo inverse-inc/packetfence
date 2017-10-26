@@ -24,6 +24,8 @@ use pf::config qw(
     @internal_nets
     $management_network
     %ConfigNetworks
+    %Config
+    is_type_inline
 );
 use pf::nodecategory;
 use pf::iptables;
@@ -129,13 +131,11 @@ sub isAlive {
     my @listen_interfaces = map {$_->tag("int")} @internal_nets, $management_network;
 
     my @interfaces = keys %{{map {($_ => 1)} (@ints, @listen_interfaces)}};
-
-    foreach my $int ( @interfaces) {
-
-        my $shaping_exist = "dev $int parent";
-        return (defined($pid) && $TRUE) if (pf_run("sudo $full_path -p qdisc| grep -q '".$shaping_exist."'"))
+    if (-f "$install_dir/var/tc_applied") {
+        return $TRUE;
+    } else {
+        return $FALSE;
     }
-    return (defined($pid) && $FALSE);
 }
 
 =head2 pid
@@ -175,49 +175,114 @@ sub manageTrafficShaping {
             }
             close $fh;
         }
+        if (-f "$install_dir/var/tc_applied") {
+           unlink("$install_dir/var/tc_applied");
+        }
     } else {
         open (my $fh, "+>$install_dir/var/traffic_shaping.bak");
+        my $iptables = pf::iptables->new();
+        my $indice = 100;
+        my $index = {};
+        my $indice2 = 1;
+        my $cmd;
+        my @out;
+
+        my $full_path = can_run('tc');
+        open (my $fa, "+>$install_dir/var/traffic_shaping.add");
+
+        my @ints = split(',', $iptables->get_network_snat_interface());
+        push @ints,  $management_network->tag("int");
+        foreach my $int (@ints) {
+            $index->{$int} = $indice;
+            $indice --;
+        }
+
+        foreach my $interface (@internal_nets) {
+            my $dev = $interface->tag("int");
+            my $enforcement_type = $Config{"interface $dev"}{'enforcement'};
+            if (is_type_inline($enforcement_type)) {
+                $index->{$dev} = $indice2;
+                $indice2 ++;
+            }
+        }
+
+        foreach my $key (keys %$index) {
+            $cmd = "sudo $full_path qdisc add dev $key root handle $index->{$key}:0 htb default 1";
+            print $fa $cmd."\n";
+            $cmd = untaint_chain($cmd);
+            @out = pf_run($cmd);
+            my $cmd_remove = "sudo $full_path qdisc del dev $key root";
+            print $fh $cmd_remove."\n";
+        }
 
         my @roles = pf::nodecategory::nodecategory_view_all;
 
-        my @ints = split(',', pf::iptables::get_network_snat_interface());
-        my @listen_interfaces = map {$_->tag("int")} @internal_nets, $management_network;
+        foreach my $network ( keys %ConfigNetworks ) {
 
-        my @interfaces = keys %{{map {($_ => 1)} (@ints, @listen_interfaces)}};
+            next if ( !pf::config::is_network_type_inline($network) );
+            my $dev;
+            my $gateway;
 
-        my $i = 1;
-        my %tags;
-        my $full_path = can_run('tc');
-        foreach my $int ( @interfaces) {
-            my $cmd_remove = "sudo $full_path qdisc del dev $int root";
-            print $fh $cmd_remove."\n";
-            foreach my $network ( keys %ConfigNetworks ) {
-                next if ( !pf::config::is_network_type_inline($network) );
-                my $cmd = "sudo $full_path qdisc add dev $int root handle $i:0 htb default 1";
-                $cmd = untaint_chain($cmd);
-                my @out = pf_run($cmd);
-                foreach my $role ( @roles ) {
-                    my $upload;
-                    my $download;
-                    if ($ConfigTrafficShaping{$role->{'name'}}->{'download'} && $ConfigTrafficShaping{$role->{'name'}}->{'upload'}) {
-                        $upload = $ConfigTrafficShaping{$role->{'name'}}->{'upload'};
-                        $download = $ConfigTrafficShaping{$role->{'name'}}->{'download'};
-                    } elsif ($ConfigTrafficShaping{'default'}->{'download'} && $ConfigTrafficShaping{'default'}->{'upload'}) {
-                        $upload = $ConfigTrafficShaping{'default'}->{'upload'};
-                        $download = $ConfigTrafficShaping{'default'}->{'download'};
+            foreach my $interface (@internal_nets) {
+                my $ip = $interface->tag("vip") || $interface->tag("ip");
+                my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
+                if ( $ConfigNetworks{$network}{'type'} eq $pf::config::NET_TYPE_INLINE_L3 ) {
+                    my $ip = new NetAddr::IP::Lite clean_ip($ConfigNetworks{$network}{'next_hop'});
+                    if ($net_addr->contains($ip)) {
+                        $dev = $interface->tag("int");
+                        $gateway = $ConfigNetworks{$network}{'next_hop'};
                     }
-                    if ($upload && $download) {
-                        $cmd = "sudo $full_path class add dev $int parent $i:0 classid $i:$role->{'category_id'} htb rate ".$upload."bps ceil ".$download."bps";
-                        $cmd = untaint_chain($cmd);
-                        @out = pf_run($cmd);
-                        $cmd = "sudo $full_path  qdisc add dev $int parent $i:$role->{'category_id'} sfq";
-                        $cmd = untaint_chain($cmd);
-                        @out = pf_run($cmd);
-                     }
+                } else {
+                    my $ip = new NetAddr::IP::Lite clean_ip($ConfigNetworks{$network}{'gateway'});
+                    if ($net_addr->contains($ip)) {
+                        $dev = $interface->tag("int");
+                        $gateway = $ConfigNetworks{$network}{'gateway'};
+                    }
+                }
+            }
+
+            my @interface_src = split(" ", pf_run("sudo ip route get 8.8.8.8 from $gateway"));
+            my $interface;
+            if ($interface_src[3] eq 'via') {
+                $interface =  $interface_src[6];
+            } else {
+                $interface = $interface_src[2];
+            }
+
+
+            foreach my $role ( @roles ) {
+                my $upload;
+                my $download;
+                if ($ConfigTrafficShaping{$role->{'name'}}->{'download'} && $ConfigTrafficShaping{$role->{'name'}}->{'upload'}) {
+                    $upload = $ConfigTrafficShaping{$role->{'name'}}->{'upload'};
+                    $download = $ConfigTrafficShaping{$role->{'name'}}->{'download'};
+                } elsif ($ConfigTrafficShaping{'default'}->{'download'} && $ConfigTrafficShaping{'default'}->{'upload'}) {
+                    $upload = $ConfigTrafficShaping{'default'}->{'upload'};
+                    $download = $ConfigTrafficShaping{'default'}->{'download'};
+                }
+                if ($upload && $download) {
+                    $cmd = "sudo $full_path class add dev $dev parent $index->{$dev}:0 classid $index->{$dev}:$role->{'category_id'} htb rate ".$upload."bps ceil ".$upload."bps";
+                    print $fa $cmd."\n";
+                    $cmd = untaint_chain($cmd);
+                    @out = pf_run($cmd);
+                    $cmd = "sudo $full_path qdisc add dev $dev parent $index->{$dev}:$role->{'category_id'} sfq";
+                    print $fa $cmd."\n";
+                    $cmd = untaint_chain($cmd);
+                    @out = pf_run($cmd);
+                    $cmd = "sudo $full_path class add dev $interface parent $index->{$interface}:0 classid $index->{$interface}:$role->{'category_id'} htb rate ".$download."bps ceil ".$download."bps";
+                    print $fa $cmd."\n";
+                    $cmd = untaint_chain($cmd);
+                    @out = pf_run($cmd);
+                    $cmd = "sudo $full_path qdisc add dev $interface parent $index->{$interface}:$role->{'category_id'} sfq";
+                    print $fa $cmd."\n";
+                    $cmd = untaint_chain($cmd);
+                    @out = pf_run($cmd);
                 }
             }
         }
+        close $fa;
         close $fh;
+        touch_file("$install_dir/var/tc_applied");
     }
 }
 
@@ -227,7 +292,7 @@ sub isManaged {
     my $route_exist = '';
 
     foreach my $network ( keys %ConfigNetworks ) {
-        return $TRUE if (pf::config::is_network_type_inline($network) && && $self->SUPER::isManaged();
+        return $TRUE if (pf::config::is_network_type_inline($network) && $self->SUPER::isManaged();
     }
     return $FALSE;
 }

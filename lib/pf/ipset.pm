@@ -34,6 +34,9 @@ use pf::config qw(
     $SELFREG_MODE_GOOGLE
     $SELFREG_MODE_FACEBOOK
     $INLINE
+    $management_network
+    @internal_nets
+    is_type_inline
 );
 use pf::node qw(nodes_registered_not_violators node_view node_deregister $STATUS_REGISTERED);
 use pf::nodecategory;
@@ -240,22 +243,68 @@ sub generate_mangle_postrouting_rules {
 
     my $rules = '';
 
-    my @roles = pf::nodecategory::nodecategory_view_all;
-    my $i = 1;
-    foreach my $network ( keys %ConfigNetworks ) {
-        next if ( !pf::config::is_network_type_inline($network) );
-        foreach my $role ( @roles ) {
-            if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL3_ID$role->{'category_id'}_$network src -j CLASSIFY --set-class $i:$role->{'category_id'}\n";
-                $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL3_ID$role->{'category_id'}_$network dst -j CLASSIFY --set-class $i:$role->{'category_id'}\n";
-            } else {
-                $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL2_ID$role->{'category_id'}_$network src -j CLASSIFY --set-class $i:$role->{'category_id'}\n";
-                $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL2_ID$role->{'category_id'}_$network dst -j CLASSIFY --set-class $i:$role->{'category_id'}\n";
-            }
-        }
-        $i++;
+    my $indice = 100;
+    my $index = {};
+    my $indice2 = 1;
+
+    my @ints = split(',', $self->get_network_snat_interface());
+    push @ints,  $management_network->tag("int");
+    foreach my $int (@ints) {
+        $index->{$int} = $indice;
+        $indice --;
     }
 
+    foreach my $interface (@internal_nets) {
+        my $dev = $interface->tag("int");
+        my $enforcement_type = $Config{"interface $dev"}{'enforcement'};
+        if (is_type_inline($enforcement_type)) {
+            $index->{$dev} = $indice2;
+            $indice2 ++;
+        }
+    }
+
+    my @roles = pf::nodecategory::nodecategory_view_all;
+
+    foreach my $network ( keys %ConfigNetworks ) {
+        next if ( !pf::config::is_network_type_inline($network) );
+        my $dev;
+        my $gateway;
+
+        foreach my $interface (@internal_nets) {
+            my $ip = $interface->tag("vip") || $interface->tag("ip");
+            my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
+            if ( $ConfigNetworks{$network}{'type'} eq $pf::config::NET_TYPE_INLINE_L3 ) {
+                my $ip = new NetAddr::IP::Lite clean_ip($ConfigNetworks{$network}{'next_hop'});
+                if ($net_addr->contains($ip)) {
+                    $dev = $interface->tag("int");
+                    $gateway = $ConfigNetworks{$network}{'next_hop'};
+                }
+            } else {
+                my $ip = new NetAddr::IP::Lite clean_ip($ConfigNetworks{$network}{'gateway'});
+                if ($net_addr->contains($ip)) {
+                    $dev = $interface->tag("int");
+                    $gateway = $ConfigNetworks{$network}{'gateway'};
+                }
+            }
+        }
+        my @interface_src = split(" ", pf_run("sudo ip route get 8.8.8.8 from $gateway"));
+        my $interface;
+        if ($interface_src[3] eq 'via') {
+            $interface =  $interface_src[6];
+        } else {
+            $interface = $interface_src[2];
+        }
+
+        foreach my $role ( @roles ) {
+            if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
+                $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL3_ID$role->{'category_id'}_$network src -j CLASSIFY --set-class $index->{$interface}:$role->{'category_id'}\n";
+                $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL3_ID$role->{'category_id'}_$network dst -j CLASSIFY --set-class $index->{$dev}:$role->{'category_id'}\n";
+            } else {
+                $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL2_ID$role->{'category_id'}_$network src -j CLASSIFY --set-class $index->{$interface}:$role->{'category_id'}\n";
+                $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL2_ID$role->{'category_id'}_$network dst -j CLASSIFY --set-class $index->{$dev}:$role->{'category_id'}\n";
+            }
+        }
+    }
     return $rules;
 }
 
