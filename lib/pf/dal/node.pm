@@ -108,10 +108,12 @@ sub _update_category_ids {
     my @names;
     push @names, $category if defined $category;
     push @names, $bypass_role if defined $bypass_role;
+    return $STATUS::OK unless @names;
     my ($status, $sth) = $self->do_select(
         -columns => [qw(category_id name)],
         -from => 'node_category',
         -where   => {name => { -in => \@names}},
+        -no_auto_tenant_id => 1,
     );
     return $status if is_error($status);
     my $lookup = $sth->fetchall_hashref('name');
