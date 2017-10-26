@@ -167,4 +167,34 @@ Get the meta data for [% TABLE_NAME %]
 sub get_meta {
     return \%FIELDS_META;
 }
+[%- IF HAS_TENANT_ID -%]
+
+
+=head2 update_select
+
+update_select
+
+=cut
+
+sub update_select {
+    my ($self, %args) = @_;
+    unless ($args{'-no_tenant_id'}) {
+        $args{-where} = {
+            -and => delete $args{-where},
+            tenant_id => $self->get_tenant,
+        };
+    }
+    return $self->SUPER::update_select(%args);
+}
+
+=head2 defaults
+
+=cut
+
+sub defaults {
+    my ($self) = @_;
+    return {%{$self->SUPER::defaults}, tenant_id => $self->get_tenant};
+}
+
+[%- END -%]
 [%- END -%]
