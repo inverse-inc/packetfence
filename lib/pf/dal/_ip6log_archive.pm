@@ -33,6 +33,7 @@ our @COLUMN_NAMES;
 BEGIN {
     @FIELD_NAMES = qw(
         id
+        tenant_id
         mac
         ip
         type
@@ -41,6 +42,7 @@ BEGIN {
     );
 
     %DEFAULTS = (
+        tenant_id => '1',
         mac => '',
         ip => '',
         type => undef,
@@ -49,6 +51,7 @@ BEGIN {
     );
 
     @INSERTABLE_FIELDS = qw(
+        tenant_id
         mac
         ip
         type
@@ -61,6 +64,12 @@ BEGIN {
             type => 'INT',
             is_auto_increment => 1,
             is_primary_key => 1,
+            is_nullable => 0,
+        },
+        tenant_id => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
             is_nullable => 0,
         },
         mac => {
@@ -101,6 +110,7 @@ BEGIN {
 
     @COLUMN_NAMES = qw(
         ip6log_archive.id
+        ip6log_archive.tenant_id
         ip6log_archive.mac
         ip6log_archive.ip
         ip6log_archive.type
@@ -206,6 +216,95 @@ Get the meta data for ip6log_archive
 sub get_meta {
     return \%FIELDS_META;
 }
+
+=head2 update_params_for_select
+
+Automatically add the current tenant_id to the where clause of the select statement
+
+=cut
+
+sub update_params_for_select {
+    my ($self, %args) = @_;
+    unless ($args{'-no_auto_tenant_id'}) {
+        my $where = {
+            tenant_id => $self->get_tenant,
+        };
+        my $old_where = delete $args{-where};
+        if (defined $old_where) {
+            $where->{-and} = $old_where;
+        }
+        $args{-where} = $old_where;
+    }
+    return $self->SUPER::update_params_for_select(%args);
+}
+
+=head2 update_params_for_update
+
+Automatically add the current tenant_id to the where clause of the update statement
+
+=cut
+
+sub update_params_for_update {
+    my ($self, %args) = @_;
+    unless ($args{'-no_auto_tenant_id'}) {
+        my $where = {
+            tenant_id => $self->get_tenant,
+        };
+        my $old_where = delete $args{-where};
+        if (defined $old_where) {
+            $where->{-and} = $old_where;
+        }
+        $args{-where} = $old_where;
+    }
+    return $self->SUPER::update_params_for_select(%args);
+}
+
+=head2 update_params_for_delete
+
+Automatically add the current tenant_id to the where clause of the delete statement
+
+=cut
+
+sub update_params_for_delete {
+    my ($self, %args) = @_;
+    unless ($args{'-no_auto_tenant_id'}) {
+        my $where = {
+            tenant_id => $self->get_tenant,
+        };
+        my $old_where = delete $args{-where};
+        if (defined $old_where) {
+            $where->{-and} = $old_where;
+        }
+        $args{-where} = $old_where;
+    }
+    return $self->SUPER::update_params_for_select(%args);
+}
+
+=head2 update_params_for_insert
+
+Automatically add the current tenant_id to the set clause of the insert statement
+
+=cut
+
+sub update_params_for_insert {
+    my ($self, %args) = @_;
+    unless ($args{'-no_auto_tenant_id'}) {
+        my $old_set = delete $args{-set} // {};
+        $old_set->{tenant_id} = $self->get_tenant;
+        $args{-set} = $old_set;
+    }
+    return $self->SUPER::update_params_for_insert(%args);
+}
+
+=head2 defaults
+
+=cut
+
+sub defaults {
+    my ($self) = @_;
+    return {%{$self->SUPER::defaults}, tenant_id => $self->get_tenant};
+}
+
  
 =head1 AUTHOR
 
