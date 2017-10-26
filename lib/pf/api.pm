@@ -1636,7 +1636,11 @@ sub role_detail : Public :AllowedAsAction(role, $role) {
     my $role_cs = pf::ConfigStore::Roles->new;
     my $tc_cs = pf::ConfigStore::TrafficShaping->new;
 
-    return merge($role_cs->read($postdata{'role'}), $tc_cs->read($postdata{'role'}));
+    if (defined($tc_cs->read($postdata{'role'}))) {
+        return merge($role_cs->read($postdata{'role'}), $tc_cs->read($postdata{'role'}));
+    } else {
+        return $role_cs->read($postdata{'role'});
+    }
 }
 
 =head2
@@ -1656,8 +1660,6 @@ sub roles_list : Public {
     }
     return @role_list;
 }
-
-
 
 =head1 AUTHOR
 
