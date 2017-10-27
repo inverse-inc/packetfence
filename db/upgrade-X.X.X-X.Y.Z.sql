@@ -57,9 +57,32 @@ CREATE TABLE `tenant` (
 
 INSERT INTO `tenant` (id, name) VALUES (1, 'default');
 
+ALTER TABLE `violation`
+    DROP FOREIGN KEY `0_60`;
+
+ALTER TABLE `userlog`
+    DROP FOREIGN KEY `userlog_ibfk_1`;
+
 ALTER TABLE `node`
+    DROP FOREIGN KEY `0_57`,
     ADD COLUMN tenant_id int NOT NULL DEFAULT 1,
+    DROP PRIMARY KEY,
+    ADD  PRIMARY KEY (`tenant_id`, `mac`),
     ADD CONSTRAINT `node_tenant_id` FOREIGN KEY(`tenant_id`) REFERENCES `tenant` (`id`);
+
+ALTER TABLE `person`
+    ADD COLUMN tenant_id int NOT NULL DEFAULT 1 FIRST,
+    DROP PRIMARY KEY,
+    ADD PRIMARY KEY (`tenant_id`, `pid`),
+    ADD CONSTRAINT `person_tenant_id` FOREIGN KEY (`tenant_id`) REFERENCES `tenant` (`id`);
+
+ALTER TABLE `violation`
+    ADD COLUMN tenant_id int NOT NULL DEFAULT 1,
+    ADD CONSTRAINT `violation_tenant_id_mac` FOREIGN KEY (`tenant_id`, `mac`) REFERENCES `node` (`tenant_id`,`mac`);
+
+ALTER TABLE `userlog`
+    ADD COLUMN tenant_id int NOT NULL DEFAULT 1,
+    ADD CONSTRAINT `userlog_tenant_id_mac` FOREIGN KEY (`tenant_id`, `mac`) REFERENCES `node` (`tenant_id`,`mac`);
 
 INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
 
