@@ -32,6 +32,7 @@ use pf::config qw(
     $MAC
     $SSID
 );
+use JSON::MaybeXS;
 
 # The port to reach the Unifi controller API
 our $UNIFI_API_PORT = "8443";
@@ -49,7 +50,6 @@ sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $TRUE; }
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
-
 
 =head2 synchronize_locationlog
 
@@ -131,6 +131,8 @@ sub _deauthenticateMacWithHTTP {
     my $username = $self->{_wsUser};
     my $password = $self->{_wsPwd};
 
+    my $site = 'default';
+
     my $command = ($node_info->{status} eq $STATUS_UNREGISTERED || violation_count_reevaluate_access($mac)) ? "unauthorize-guest" : "authorize-guest";
 
     $command = "kick-sta" if ($node_info->{last_connection_type} ne "Web-Auth");
@@ -150,7 +152,23 @@ sub _deauthenticateMacWithHTTP {
         return;
     }
 
-    $response = $ua->post("$base_url/api/s/default/cmd/stamgr", Content => '{"cmd":"'.$command.'", "mac":"'.$mac.'"}');
+    $response = $ua->get("$base_url/api/self/sites");
+
+    unless($response->is_success) {
+                $logger->error("Can't have the site list from the Unifi controller: ".$response->status_line);
+        return;
+    }
+
+    my $json_data = decode_json($response->decoded_content());
+
+    foreach my $entry (@{$json_data->{'data'}}) {
+        $response = $ua->get("$base_url/api/s/$entry->{'name'}/stat/sta/$mac");
+        if ($response->is_success) {
+            $site = $entry->{'name'};
+        }
+    }
+
+    $response = $ua->post("$base_url/api/s/$site/cmd/stamgr", Content => '{"cmd":"'.$command.'", "mac":"'.$mac.'"}');
     
     unless($response->is_success) {
         $logger->error("Can't send request on the Unifi controller: ".$response->status_line);
