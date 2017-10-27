@@ -5975,7 +5975,7 @@ Where :
 VLAN Enforcement
 ^^^^^^^^^^^^^^^^
 
-In order to configure VLAN enforcement on the Unifi controler, you need first to configure a RADIUS profile, then next a secure and an open Wireless network
+In order to configure VLAN enforcement on the Unifi controller, you need first to configure a RADIUS profile, then next an open and a secure Wireless network
 
 AAA Configuration
 +++++++++++++++++
@@ -6022,7 +6022,7 @@ Next connect on the controller via ssh and go in /usr/lib/unifi/data/sites/4j4ee
   wireless.5.hide_ssid=false
 
 You can see that PacketFence-Secure appear in 1 and 4 (2 radios).
-Complicate isn't it !, Fell free to ask the support directly in the administration interface there: https://community.ubnt.com/t5/UniFi-Wireless/Feature-request-disable-pmksa-caching/m-p/2112479#M257628
+Complicate isn't it !, feel free to ask the support directly in the administration interface there: https://community.ubnt.com/t5/UniFi-Wireless/Feature-request-disable-pmksa-caching/m-p/2112479#M257628
 
 Next you will need to create a secure profile:
 
