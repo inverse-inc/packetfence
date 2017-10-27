@@ -2,9 +2,9 @@
 Description=PacketFence Service
 
 [Service]
-ExecStartPre=/usr/local/pf/bin/pfcmd service pf start
+ExecStartPre=/bin/bash -c "/usr/local/pf/bin/pfcmd configreload hard ; /usr/local/pf/bin/pfcmd service pf start --ignore-checkup"
 ExecStopPost=/usr/local/pf/bin/pfcmd service pf stop
-ExecStart=/bin/bash -c "while true ; do echo 'Alive' ; sleep 1 ; done"
+ExecStart=/bin/bash -c "while true ; do echo 'Alive' ; sleep 60 ; /usr/local/pf/bin/pfcmd service pf start ; done"
 ExecStop=/bin/systemctl kill packetfence.service
 TimeoutStartSec=300s
 Restart=no
