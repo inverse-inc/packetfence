@@ -5991,10 +5991,13 @@ Secure SSID
 +++++++++++
 
 There is a particularity when you want to be able to deauthenticate a device when this one is connected on the secure SSID.
+
 By default pmksa caching is enable and it occur than even if you send a deauthentication order to the controller, you will not have any new radius request.
+
 To disable this cache you will need to create a file on the controller.
 
 First verify the site where your access point is managed, to do that, under the administration interface of the controller, select the appropriate "Current Site" then in the URI check the value just after site.
+
 (in my case the uri is https://192.168.1.6:8443/manage/site/4j4ee7x4/ so the site id is 4j4ee7x4)
 
 Next connect on the controller via ssh and go in /usr/lib/unifi/data/sites/4j4ee7x4 (replace 4j4ee7x4 by your site id) and create a file config.properties that contain:
@@ -6022,6 +6025,7 @@ Next connect on the controller via ssh and go in /usr/lib/unifi/data/sites/4j4ee
   wireless.5.hide_ssid=false
 
 You can see that PacketFence-Secure appear in 1 and 4 (2 radios).
+
 Complicate isn't it !, feel free to ask the support directly in the administration interface there: https://community.ubnt.com/t5/UniFi-Wireless/Feature-request-disable-pmksa-caching/m-p/2112479#M257628
 
 Next you will need to create a secure profile:
