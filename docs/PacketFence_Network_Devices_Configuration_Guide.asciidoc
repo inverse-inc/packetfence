@@ -5972,6 +5972,63 @@ Where :
 * *wsPwd* is the password that is associated to the wsUser. This is configured in the 'Web Services' tab of the switch.
 * *controllerIp* is the IP address of your Unifi controller. This is configured in the 'Definition' tab of the switch.
 
+VLAN Enforcement
+^^^^^^^^^^^^^^^^
+
+In order to configure VLAN enforcement on the Unifi controler, you need first to configure a RADIUS profile, then next a secure and an open Wireless network
+
+AAA Configuration
++++++++++++++++++
+
+image::docs/images/unifi-radius.png[scaledwidth="100%",alt="Unifi Radius Profile"]
+
+Open SSID
++++++++++
+
+image::docs/images/unifi-open.png[scaledwidth="100%",alt="Unifi Open SSID"]
+
+Secure SSID
++++++++++++
+
+There is a particularity when you want to be able to deauthenticate a device when this one is connected on the secure SSID.
+By default pmksa caching is enable and it occur than even if you send a deauthentication order to the controller, you will not have any new radius request.
+To disable this cache you will need to create a file on the controller.
+
+First verify the site where your access point is managed, to do that, under the administration interface of the controller, select the appropriate "Current Site" then in the URI check the value just after site.
+(in my case the uri is https://192.168.1.6:8443/manage/site/4j4ee7x4/ so the site id is 4j4ee7x4)
+
+Next connect on the controller via ssh and go in /usr/lib/unifi/data/sites/4j4ee7x4 (replace 4j4ee7x4 by your site id) and create a file config.properties that contain:
+
+ config.system_cfg.1=aaa.1.auth_cache=disabled
+ config.system_cfg.2=aaa.4.auth_cache=disabled
+
+1 and 4 are the profil id configured on the access point, to be sure to have the correct id, you can connect on the access point via ssh or via the debug terminal and do:
+
+  BZ.v3.9.3# cat /tmp/system.cfg | grep ssid
+  aaa.1.ssid=PacketFence-Secure
+  wireless.1.ssid=PacketFence-Secure
+  wireless.1.hide_ssid=false
+  aaa.2.ssid=PacketFence-Public
+  wireless.2.ssid=PacketFence-Public
+  wireless.2.hide_ssid=false
+  aaa.3.ssid=vport-802AA8863D5B
+  wireless.3.ssid=vport-802AA8863D5B
+  wireless.3.hide_ssid=true
+  aaa.4.ssid=PacketFence-Secure
+  wireless.4.ssid=PacketFence-Secure
+  wireless.4.hide_ssid=false
+  aaa.5.ssid=PacketFence-Public
+  wireless.5.ssid=PacketFence-Public
+  wireless.5.hide_ssid=false
+
+You can see that PacketFence-Secure appear in 1 and 4 (2 radios).
+Complicate isn't it !, Fell free to ask the support directly in the administration interface there: https://community.ubnt.com/t5/UniFi-Wireless/Feature-request-disable-pmksa-caching/m-p/2112479#M257628
+
+Next you will need to create a secure profile:
+
+image::docs/images/unifi-secure.png[scaledwidth="100%",alt="Unifi Secure SSID"]
+
+
 Xirrus
 ~~~~~~
 
