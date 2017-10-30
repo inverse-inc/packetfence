@@ -43,6 +43,16 @@ use Test::NoWarnings;
 
 my $test_mac = "ff:ff:ff:ff:ff:fe";
 
+is_deeply(
+    pf::dal::node->build_primary_keys_where_clause({mac => $test_mac}),
+    {
+        'node.mac' => $test_mac,
+        'node.tenant_id' => 1,
+    },
+    "build_primary_keys_where_clause returns fully qualified column names for searching",
+);
+
+
 pf::dal::node->remove_by_id({mac => $test_mac});
 
 my ($status, $node) = pf::dal::node->find({mac => $test_mac});
