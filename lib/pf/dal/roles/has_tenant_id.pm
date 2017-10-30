@@ -25,14 +25,15 @@ Automatically add the current tenant_id to the where clause of the select statem
 around update_params_for_select => sub {
     my ($orig, $self, %args) = @_;
     unless ($args{'-no_auto_tenant_id'}) {
+        my $name = $self->table . ".tenant_id";
         my $where = {
-            tenant_id => $self->get_tenant,
+            $name => $self->get_tenant,
         };
         my $old_where = delete $args{-where};
         if (defined $old_where) {
             $where->{-and} = $old_where;
         }
-        $args{-where} = $old_where;
+        $args{-where} = $where;
     }
     return $self->$orig(%args);
 };
@@ -46,14 +47,15 @@ Automatically add the current tenant_id to the where clause of the update statem
 around update_params_for_update => sub {
     my ($orig, $self, %args) = @_;
     unless ($args{'-no_auto_tenant_id'}) {
+        my $name = $self->table . ".tenant_id";
         my $where = {
-            tenant_id => $self->get_tenant,
+            $name => $self->get_tenant,
         };
         my $old_where = delete $args{-where};
         if (defined $old_where) {
             $where->{-and} = $old_where;
         }
-        $args{-where} = $old_where;
+        $args{-where} = $where;
     }
     return $self->$orig(%args);
 };
@@ -67,14 +69,15 @@ Automatically add the current tenant_id to the where clause of the delete statem
 around update_params_for_delete => sub {
     my ($orig, $self, %args) = @_;
     unless ($args{'-no_auto_tenant_id'}) {
+        my $name = $self->table . ".tenant_id";
         my $where = {
-            tenant_id => $self->get_tenant,
+            $name => $self->get_tenant,
         };
         my $old_where = delete $args{-where};
         if (defined $old_where) {
             $where->{-and} = $old_where;
         }
-        $args{-where} = $old_where;
+        $args{-where} = $where;
     }
     return $self->$orig(%args);
 };
