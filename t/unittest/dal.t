@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 45;
+use Test::More tests => 46;
 
 use pf::error qw(is_success is_error);
 use pf::db;
@@ -52,6 +52,35 @@ is_deeply(
     "build_primary_keys_where_clause returns fully qualified column names for searching",
 );
 
+is_deeply(
+    {
+        pf::dal::node->update_params_for_select(-where => {mac => $test_mac})
+    },
+    {
+        -where => {
+            'node.tenant_id' => 1,
+            -and => {
+                'mac' => $test_mac,
+            }
+        }
+    },
+    "update_params_for_update adds tenant_id"
+);
+
+is_deeply(
+    {
+        pf::dal::node->update_params_for_update(-where => {mac => $test_mac})
+    },
+    {
+        -where => {
+            'node.tenant_id' => 1,
+            -and => {
+                'mac' => $test_mac,
+            }
+        }
+    },
+    "update_params_for_update adds tenant_id"
+);
 
 pf::dal::node->remove_by_id({mac => $test_mac});
 
