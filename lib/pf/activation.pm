@@ -237,7 +237,7 @@ sub modify_status {
     my ($code_id, $new_status) = @_;
     my ($status, $rows) = pf::dal::activation->update_items(
         -set => {
-            status => $new_status,,
+            status => $new_status,
         },
         -where => {
             code_id => $code_id,
@@ -577,7 +577,6 @@ sub activation_has_entry {
             status => $UNVERIFIED,
             expiration => { ">=" => \['NOW()']},
         },
-        -from => pf::dal::activation->find_from_tables(),
         -columns => [\1],
         -limit => 1,
     );
