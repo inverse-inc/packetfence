@@ -21,6 +21,7 @@ use warnings;
 ### pf::dal::_dhcp_option82 is auto generated any change to this file will be lost
 ### Instead change in the pf::dal::dhcp_option82 module
 ###
+
 use base qw(pf::dal);
 
 our @FIELD_NAMES;
