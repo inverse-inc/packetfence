@@ -303,6 +303,10 @@ sub match {
             @sources = ($source);
         }
     }
+    my $allowed_actions;
+    if (defined $action && exists $Actions::ALLOWED_ACTIONS{$action}) {
+        $allowed_actions = $Actions::ALLOWED_ACTIONS{$action};
+    }
     $logger->info("Using sources ".join(', ', (map {$_->id} @sources))." for matching");
 
     foreach my $source (@sources) {
@@ -311,8 +315,7 @@ sub match {
             $logger->trace(sub {"Skipped " . $source->id });
             next;
         }
-        if (defined $action) {
-            my $allowed_actions = $Actions::ALLOWED_ACTIONS{$action};
+        if (defined $allowed_actions) {
 
             # Return the value only if the action matches
             my $found_action = first {exists $allowed_actions->{$_->type} && $allowed_actions->{$_->type}} @{$actions};
