@@ -21,6 +21,7 @@ use warnings;
 ### pf::dal::_tenant is auto generated any change to this file will be lost
 ### Instead change in the pf::dal::tenant module
 ###
+
 use base qw(pf::dal);
 
 our @FIELD_NAMES;

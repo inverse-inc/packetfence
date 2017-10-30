@@ -21,6 +21,7 @@ use warnings;
 ### pf::dal::_pf_version is auto generated any change to this file will be lost
 ### Instead change in the pf::dal::pf_version module
 ###
+
 use base qw(pf::dal);
 
 our @FIELD_NAMES;
