@@ -183,9 +183,10 @@ sub search {
     if ( exists $args{-with_class}) {
         $class = delete $args{-with_class};
     }
+    my $no_default_join = delete $args{-no_default_join};
     my ($status, $sth) = $proto->do_select(
         -columns => $proto->find_columns,
-        -from => $proto->find_from_tables,
+        -from => $no_default_join ? $proto->table : $proto->find_from_tables,
         %args
     );
     return $status, undef if is_error($status);
