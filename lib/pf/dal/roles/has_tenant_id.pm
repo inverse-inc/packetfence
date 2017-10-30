@@ -91,9 +91,29 @@ Automatically add the current tenant_id to the set clause of the insert statemen
 around update_params_for_insert => sub {
     my ($orig, $self, %args) = @_;
     unless ($args{'-no_auto_tenant_id'}) {
-        my $old_set = delete $args{-set} // {};
+        my $old_set = delete $args{'-values'} // {};
         $old_set->{tenant_id} = $self->get_tenant;
-        $args{-set} = $old_set;
+        $args{'-values'} = $old_set;
+    }
+    return $self->$orig(%args);
+};
+
+=head2 update_params_for_upsert
+
+Automatically add the current tenant_id to the set clause of the upsert statement
+
+=cut
+
+around update_params_for_upsert => sub {
+    my ($orig, $self, %args) = @_;
+    unless ($args{'-no_auto_tenant_id'}) {
+        my $tenant_id = $self->get_tenant;
+        my $old_set = delete $args{'-values'} // {};
+        $old_set->{tenant_id} = $tenant_id;
+        $args{'-values'} = $old_set;
+        my $old_conflict = delete $args{-on_conflict} // {};
+        $old_conflict->{tenant_id} = $tenant_id;
+        $args{'-on_conflict'} = $old_conflict;
     }
     return $self->$orig(%args);
 };
