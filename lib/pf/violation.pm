@@ -177,7 +177,6 @@ sub violation_modify {
 
 sub violation_grace {
     my ( $mac, $vid ) = @_;
-#        qq [ select unix_timestamp(start_date)+grace_period-unix_timestamp(now()) from violation v left join class c on v.vid=c.vid where mac=? and v.vid=? and status="closed" order by start_date desc ]);
     my ($status, $iter) = pf::dal::violation->search(
         -where => {
             'status' => "closed",
@@ -194,7 +193,6 @@ sub violation_grace {
 
 sub violation_count {
     my ($mac) = @_;
-#        qq [ select count(*) from violation where mac=? and status="open" ]);
     my ($status, $count) = pf::dal::violation->count(
         -where => {
             mac => $mac,
@@ -207,7 +205,6 @@ sub violation_count {
 
 sub violation_count_reevaluate_access {
     my ($mac) = @_;
-#       qq [ select count(*) from violation, action where violation.vid=action.vid and action.action='reevaluate_access' and mac=? and status="open" ]);
     my ($status, $count) = pf::dal::violation->count(
         -where => {
             mac => $mac,
@@ -223,7 +220,6 @@ sub violation_count_reevaluate_access {
 
 sub violation_count_vid {
     my ( $mac, $vid ) = @_;
-#        qq [ select count(*) from violation where mac=? and vid=? ]);
     my ($status, $count) = pf::dal::violation->count(
         -where => {
             mac => $mac,
@@ -236,7 +232,6 @@ sub violation_count_vid {
 
 sub violation_count_open_vid {
     my ( $mac, $vid ) = @_;
-#        qq [ select count(*) from violation where mac=? and vid=? and status="open" ]);
     my ($status, $count) = pf::dal::violation->count(
         -where => {
             mac => $mac,
@@ -290,7 +285,6 @@ sub violation_exist_open {
 
 sub violation_view {
     my ($id) = @_;
-#        qq [ select violation.id,violation.mac,node.computername,violation.vid,violation.start_date,violation.release_date,violation.status,violation.ticket_ref,violation.notes from violation,node where violation.mac=node.mac and violation.id=? order by start_date desc ]);
     return _db_data({
         -where => {
             'violation.mac' => {-ident => 'node.mac'},
@@ -317,7 +311,6 @@ sub violation_view_top {
 
 sub violation_view_open {
     my ($mac) = @_;
-#        qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where mac=? and status="open" order by start_date desc ]);
     return _db_data({
         -where => {
             status => "open",
@@ -331,7 +324,6 @@ sub violation_view_open {
 
 sub violation_view_open_desc {
     my ($mac) = @_;
-#        qq [ select v.id,v.start_date,c.description,v.vid,v.status from violation v inner join class c on v.vid=c.vid where v.mac=? and v.status="open" order by start_date desc ]);
     return _db_data({
         -where => {
             status => "open",
@@ -351,7 +343,6 @@ Since trap violations stay open, this has the intended effect of getting all MAC
 =cut
 
 sub violation_view_open_uniq {
-#        qq [ select mac from violation where status="open" group by mac ]);
     return _db_data({
         -where => {
             status => "open",
@@ -363,10 +354,6 @@ sub violation_view_open_uniq {
 
 sub violation_view_desc {
     my ($mac) = @_;
-#       SELECT v.id,v.start_date,v.release_date,c.description,v.vid,v.status
-#       FROM violation v
-#       INNER JOIN class c ON v.vid=c.vid
-#       WHERE v.mac=? order by start_date desc
     return _db_data({
         -where => {
             mac => $mac,
@@ -795,7 +782,6 @@ sub violation_exist_acct {
        $ceil = 0;
     }
     
-#        qq [ select id from violation where mac = ? AND vid = ? AND release_date >= ? AND release_date <= NOW()]);
     return _db_item({
         -where => {
             mac => $mac,
@@ -816,7 +802,6 @@ sub violation_exist_acct {
 
 sub violation_view_last_closed {
     my ( $mac, $vid ) = @_;
-#        qq [ select mac,vid,release_date from violation where mac = ? AND vid = ? AND status = "closed" ORDER BY release_date DESC LIMIT 1 ]);
 
     return _db_data({
         -where => {
