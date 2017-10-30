@@ -43,9 +43,9 @@
           [% IF item.link %]
           <td><a href="[% item.link %]">[% item.label | html %]</a></td>
           [% ELSE%]
-          <td>[% item.label | html %]</td>
+          <td>[% item.display | html %]</td>
           [% END %]
-          <td>[% i = loop.index %][% item.value | html %]</td>
+          <td>[% i = loop.index %][% item.display | html %]</td>
         </tr>
         [%- END %]
       </tbody>
