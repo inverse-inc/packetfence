@@ -43,6 +43,16 @@ use Test::NoWarnings;
 
 my $test_mac = "ff:ff:ff:ff:ff:fe";
 
+is_deeply(
+    pf::dal::node->build_primary_keys_where_clause({mac => $test_mac}),
+    {
+        'node.mac' => $test_mac,
+        'node.tenant_id' => 1,
+    },
+    "build_primary_keys_where_clause returns fully qualified column names for searching",
+);
+
+
 pf::dal::node->remove_by_id({mac => $test_mac});
 
 my ($status, $node) = pf::dal::node->find({mac => $test_mac});
@@ -214,14 +224,6 @@ is($node->bypass_role, $data->{bypass_role}, "Test saving bypass_role");
 }
 
 pf::dal::node->remove_by_id({mac => $test_mac});
-
-is_deeply(
-    pf::dal::node->build_primary_keys_where_clause({mac => "00:00:00:00:00:00"}),
-    {
-        'node.mac' => '00:00:00:00:00:00',
-    },
-    "build_primary_keys_where_clause returns fullly qualified column names for searching",
-);
 
 =head1 AUTHOR
 
