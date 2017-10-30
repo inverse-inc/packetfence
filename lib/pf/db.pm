@@ -113,8 +113,7 @@ sub is_old_connection_good {
         return 0;
     }
 
-    my $recently_connected = (defined($LAST_CONNECT) && $LAST_CONNECT && (time()-$LAST_CONNECT < 30));
-    if ($recently_connected) {
+    if (was_recently_connected()) {
         $logger->debug("not checking db handle, it has been less than 30 sec from last connection");
         return 1;
     }
@@ -127,6 +126,16 @@ sub is_old_connection_good {
     }
 
     return 0;
+}
+
+=head2 was_recently_connected
+
+was_recently_connected
+
+=cut
+
+sub was_recently_connected {
+    return defined($LAST_CONNECT) && $LAST_CONNECT && (time()-$LAST_CONNECT < 30);
 }
 
 =head2 on_connect
@@ -154,6 +163,7 @@ sub db_data_source_info {
     my ($self) = @_;
     my $config = db_config();
     my $dsn = "dbi:mysql:dbname=$config->{db};host=$config->{host};port=$config->{port};mysql_client_found_rows=1;mysql_multi_statements=1;mysql_compression=1";
+    get_logger->trace(sub {"connecting with $dsn"});
 
     return (
         $dsn,
