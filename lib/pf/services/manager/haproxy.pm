@@ -267,6 +267,7 @@ EOT
 
     # Add any activation domain in the authentication sources
     push @portal_hosts, map { $_->{activation_domain} ? $_->{activation_domain} : () } @{getAllAuthenticationSources()};
+    push @portal_hosts, @{$Config{captive_portal}->{other_domain_names}};
 
     # Escape special chars for lua matches
     @portal_hosts = map { $_ =~ s/([.-])/%$1/g ; $_ } @portal_hosts;

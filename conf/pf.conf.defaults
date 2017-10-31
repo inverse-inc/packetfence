@@ -795,6 +795,11 @@ rate_limiting = enabled
 #
 # Amount of requests on invalid URLs after which the rate limiting will kick in for this device
 rate_limiting_threshold = 24
+#
+# captive_portal.other_domain_names
+#
+# Other domain names under which the captive portal responds
+other_domain_names=
 
 
 [advanced]
