@@ -194,6 +194,7 @@ sub _load_locationlog {
           ],
         -from => 'locationlog',
         -where => { mac => $self->mac, end_time => $ZERO_DATE},
+        -no_auto_tenant_id => 1,
     );
     return $status, undef if is_error($status);
     my $row = $sth->fetchrow_hashref;
