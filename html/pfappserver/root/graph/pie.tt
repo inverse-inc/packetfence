@@ -2,7 +2,7 @@
 <div class="piegraph">
   <div class="card-block">
     <h2>[% title %]</h2>
-    <h6>[% range.start | html %] <i class="icon-arrow-right"></i> [% range.end | html %]</h6>
+    <h6>[% range.start %] <i class="icon-arrow-right"></i> [% range.end %]</h6>
   </div>
   <div class="card-block">
   [% IF options.size %]<i class="icon-bar-chart"></i>
@@ -20,10 +20,10 @@
 {
     "[% l(id) | css %]": {
       "type": "[% graphtype | css %]",
-      "labels": ["[% labels.join('","') | html %]"],
+      "labels": ["[% labels.join('","') | none %]"],
       "series": {
         [% FOREACH set IN series.keys -%]
-        "[% l(set) | css %]": [[% series.$set.join(",") | html %]][% UNLESS loop.last %],[% END %]
+        "[% l(set) | css %]": [[% series.$set.join(",") %]][% UNLESS loop.last %],[% END %]
         [%- END %]
       }
     }
@@ -41,11 +41,11 @@
         [% FOREACH item IN items -%]
         <tr id="[% item.label | css %]">
           [% IF item.link %]
-          <td><a href="[% item.link %]">[% item.label | html %]</a></td>
+          <td><a href="[% item.link %]">[% item.label %]</a></td>
           [% ELSE%]
-          <td>[% item.display | html %]</td>
+          <td>[% item.display %]</td>
           [% END %]
-          <td>[% i = loop.index %][% item.display | html %]</td>
+          <td>[% item.display %]</td>
         </tr>
         [%- END %]
       </tbody>
