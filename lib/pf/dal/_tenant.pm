@@ -35,14 +35,17 @@ BEGIN {
     @FIELD_NAMES = qw(
         id
         name
+        portal_domain_name
     );
 
     %DEFAULTS = (
         name => '',
+        portal_domain_name => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
         name
+        portal_domain_name
     );
 
     %FIELDS_META = (
@@ -58,6 +61,12 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
+        portal_domain_name => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
     );
 
     @PRIMARY_KEYS = qw(
@@ -67,6 +76,7 @@ BEGIN {
     @COLUMN_NAMES = qw(
         tenant.id
         tenant.name
+        tenant.portal_domain_name
     );
 
 }
