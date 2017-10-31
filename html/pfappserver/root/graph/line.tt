@@ -2,27 +2,27 @@
 <div class="linegraph">
   [% FOREACH counter IN counters %]
   <div id="[% counter.id | html %]" class="counter">
-    <h3>[% counter.count.nb | html %]</h3>
+    <h3>[% counter.count.nb %]</h3>
     <h6>[% l(counter.title) %]</h6>
   </div>
   [% END %]
   [% IF section == 'reports' -%]
   <div class="card-block">
-    <h2>[% title | html %]</h2>
-    <h6>[% range.start | html %] <i class="icon-arrow-right"></i> [% range.end | html %]</h6>
+    <h2>[% title %]</h2>
+    <h6>[% range.start %] <i class="icon-arrow-right"></i> [% range.end %]</h6>
   </div>
   [%- END %]
   <div class="card-block">
   [%- IF labels.size > 0 %]
-  <div id="[% l(id) | html %]" class="chart"></div>
+  <div id="[% l(id) %]" class="chart"></div>
   <script id="graphs.charts" type="text/json">
 {
     "[% l(id) | css %]": {
       "type": "[% graphtype | css %]",
-      "labels": ["[% labels.join('","') | html %]"],
+      "labels": ["[% labels.join('","') | none %]"],
       "series": {
         [% FOREACH set IN series.keys -%]
-        "[% l(set) | css %]": [[% series.$set.join(",") | html %]][% UNLESS loop.last %],[% END %]
+        "[% l(set) | css %]": [[% series.$set.join(",") %]][% UNLESS loop.last %],[% END %]
         [%- END %]
       }
     }
