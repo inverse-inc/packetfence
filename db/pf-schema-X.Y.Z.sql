@@ -21,7 +21,7 @@ CREATE TABLE `tenant` (
   name VARCHAR(255) NOT NULL,
   portal_domain_name VARCHAR(255),
   PRIMARY KEY (id),
-  UNIQUE KEY tenant_name (`name`)
+  UNIQUE KEY tenant_name (`name`),
   UNIQUE KEY tenant_portal_domain_name (`portal_domain_name`)
 );
 
