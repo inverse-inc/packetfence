@@ -23,13 +23,13 @@ use pf::log;
 use pf::error qw(is_error is_success);
 use pf::SQL::Abstract;
 use pf::dal::iterator;
-use pf::constants qw($TRUE $FALSE);
+use pf::constants qw($TRUE $FALSE $DEFAULT_TENANT_ID);
 
 use Class::XSAccessor {
     accessors => [qw(__from_table __old_data)],
 };
 
-our $CURRENT_TENANT = 1;
+our $CURRENT_TENANT = $DEFAULT_TENANT_ID;
 
 =head2 new
 

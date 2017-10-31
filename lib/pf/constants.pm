@@ -17,7 +17,7 @@ use Readonly;
 use base qw(Exporter);
 our @EXPORT = qw(
     $FALSE $TRUE $YES $NO $default_pid $admin_pid $YELLOW_COLOR $RED_COLOR $GREEN_COLOR
-    $HTTP $HTTPS $HTTP_PORT $HTTPS_PORT $ZERO_DATE
+    $HTTP $HTTPS $HTTP_PORT $HTTPS_PORT $ZERO_DATE $DEFAULT_TENANT_ID
 );
 
 # some global constants
@@ -42,6 +42,8 @@ Readonly::Scalar our $HTTPS_PORT => 443;
 
 Readonly::Scalar our $HTTP => "http";
 Readonly::Scalar our $HTTPS => "https";
+
+Readonly::Scalar our $DEFAULT_TENANT_ID => 1;
 
 =head1 AUTHOR
 
