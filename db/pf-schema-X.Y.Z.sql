@@ -22,6 +22,7 @@ CREATE TABLE `tenant` (
   portal_domain_name VARCHAR(255),
   PRIMARY KEY (id),
   UNIQUE KEY tenant_name (`name`)
+  UNIQUE KEY tenant_portal_domain_name (`portal_domain_name`)
 );
 
 INSERT INTO `tenant` VALUES (1, 'default', NULL);
