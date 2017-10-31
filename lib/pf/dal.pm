@@ -859,15 +859,44 @@ sub merge {
 
 sub set_tenant {
     my ($class, $tenant_id) = @_;
-    unless(defined($tenant_id)) {
+    if(!defined($tenant_id)) {
         get_logger->info("Undefined tenant ID specified, ignoring it and keeping current tenant");
         return $FALSE;
-    } else {
-        get_logger->debug("Setting current tenant ID to $tenant_id");
-        $CURRENT_TENANT = $tenant_id;
-        return $TRUE;
     }
+
+    my ($status, $count) = pf::dal->count(
+        -where => {
+            id => $tenant_id,
+        },
+        -from => 'tenant',
+    );
+
+    if (is_error($status)) {
+        get_logger->info("Problem looking up tenant ID ($tenant_id) in database");
+        return $FALSE;
+    }
+
+    if ($count == 0) {
+        get_logger->info("Invalid tenant ID ($tenant_id) specified, ignoring it and keeping current tenant");
+        return $FALSE;
+    }
+
+    get_logger->debug("Setting current tenant ID to $tenant_id");
+    $CURRENT_TENANT = $tenant_id;
+    return $TRUE;
 }
+
+=head2 table
+
+table
+
+=cut
+
+sub table {
+    my ($self) = @_;
+    return undef;
+}
+
 
 sub get_tenant {
     return $CURRENT_TENANT;
