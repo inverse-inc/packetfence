@@ -271,8 +271,11 @@ EOT
     push @portal_hosts, @{$Config{captive_portal}->{other_domain_names}};
     push @portal_hosts, map {$_->portal_domain_name ? $_->portal_domain_name : ()} @{pf::dal::tenant->search->all};
 
+
     # Escape special chars for lua matches
     @portal_hosts = map { $_ =~ s/([.-])/%$1/g ; $_ } @portal_hosts;
+    # Allow wildcards (the string starts with a '*')
+    @portal_hosts = map { $_ =~ s/^\*/.*$1/g ; $_ } @portal_hosts;
 
     my $vars = {
         portal_host => sub { return @portal_hosts },
