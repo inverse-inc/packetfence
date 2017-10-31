@@ -23,6 +23,7 @@ use pf::log;
 use pf::error qw(is_error is_success);
 use pf::SQL::Abstract;
 use pf::dal::iterator;
+use pf::constants qw($TRUE $FALSE);
 
 use Class::XSAccessor {
     accessors => [qw(__from_table __old_data)],
@@ -858,11 +859,18 @@ sub merge {
 
 sub set_tenant {
     my ($class, $tenant_id) = @_;
-    $CURRENT_TENANT = $tenant_id;
+    unless(defined($tenant_id)) {
+        get_logger->info("Undefined tenant ID specified, ignoring it and keeping current tenant");
+        return $FALSE;
+    } else {
+        get_logger->debug("Setting current tenant ID to $tenant_id");
+        $CURRENT_TENANT = $tenant_id;
+        return $TRUE;
+    }
 }
 
 sub get_tenant {
-    $CURRENT_TENANT
+    return $CURRENT_TENANT;
 }
 
 =head2 select
