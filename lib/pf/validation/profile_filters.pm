@@ -24,6 +24,8 @@ use pf::nodecategory qw(nodecategory_lookup);
 use NetAddr::IP;
 use Time::Period qw(inPeriod);
 use pf::condition_parser qw(parse_condition_string);
+use pf::dal::tenant;
+use pf::error;
 use Moo;
 
 our $PROFILE_FILTER_REGEX = qr/^(([^:]|::)+?):(.*)$/;
@@ -42,6 +44,7 @@ our %ALLOWED_TYPES = (
     'vlan' => 1,
     'connection_sub_type' => 1,
     'time' => 1,
+    'tenant' => 1,
     'advanced' => 1,
 );
 
@@ -53,6 +56,7 @@ our %TYPE_VALIDATOR = (
     'switch_port' => \&validate_switch_port,
     'node_role' => \&validate_node_role,
     'time' => \&validate_time,
+    'tenant' => \&validate_tenant,
     'advanced' => \&validate_advanced,
 );
 
@@ -179,6 +183,20 @@ sub validate_time {
     my ($self, $type, $value) = @_;
     if (inPeriod(1,$value) == -1 ) {
         return ($FALSE, "'$value' is an invalid $type spec");
+    }
+    return ($TRUE, undef);
+}
+
+=head2 validate_tenant
+
+Validate the node role value of a profile filter
+
+=cut
+
+sub validate_tenant {
+    my ($self, $type, $value) = @_;
+    if (pf::dal::tenant->exists({id => $value}) == $STATUS::NOT_FOUND) {
+        return ($FALSE, "'$value' is an invalid $type");
     }
     return ($TRUE, undef);
 }
