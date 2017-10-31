@@ -53,6 +53,21 @@ ok($person, "Get default person for $tenant_name");
 
 is($tenant->{id}, $person->{tenant_id}, "The default person has the tenant_id $tenant->{id}");
 
+END {
+    if ($tenant->{id}) {
+        pf::dal::person->remove_items(
+            -where => {
+                tenant_id => $tenant->{id},
+            }
+        );
+        pf::dal::tenant->remove_items(
+            -where => {
+                name => $tenant_name,
+            }
+        );
+    }
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
