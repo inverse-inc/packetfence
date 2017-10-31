@@ -29,6 +29,7 @@ use pf::error;
 use pf::parking;
 use pf::constants::parking qw($PARKING_VID);
 use pf::db;
+use pf::dal::tenant;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -55,6 +56,7 @@ captiveportal::PacketFence::Controller::Root - Root Controller for captiveportal
 sub auto : Private {
     my ( $self, $c ) = @_;
     $c->stash->{statsd_timer} = pf::StatsD::Timer->new({ 'stat' => 'captiveportal/' . $c->request->path, level => 6 });
+    $c->forward('setupTenant');
     $c->forward('setupLanguage');
     $c->forward('setupDynamicRouting');
     $c->forward('checkReadonly');
@@ -62,6 +64,22 @@ sub auto : Private {
     $c->forward('updateNodeLastSeen');
 
     return 1;
+}
+
+=head2 setupTenant
+
+Setup the current tenant
+
+=cut
+
+sub setupTenant :Private {
+    my ($self, $c) = @_;
+    my $hostname = $c->request->uri->host;
+    $c->log->trace("Trying to find tenant for hostname $hostname");
+    if(my $tenant = pf::dal::tenant->search(-where => { portal_domain_name => $hostname })->next()) {
+        $c->log->debug("Found tenant for portal domain name $hostname");
+        pf::dal->set_tenant($tenant->id);
+    }
 }
 
 =head2 updateNodeLastSeen
