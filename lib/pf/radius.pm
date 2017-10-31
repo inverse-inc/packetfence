@@ -65,6 +65,7 @@ use pf::access_filter::radius;
 use pf::registration;
 use pf::access_filter::switch;
 use pf::role::pool;
+use pf::dal;
 
 our $VERSION = 1.03;
 
@@ -121,6 +122,7 @@ sub authorize {
         goto AUDIT;
     }
 
+    pf::dal->set_tenant($switch->{_TenantId});
 
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
 
