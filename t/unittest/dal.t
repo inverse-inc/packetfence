@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 49;
+use Test::More tests => 50;
 
 use pf::error qw(is_success is_error);
 use pf::db;
