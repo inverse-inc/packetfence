@@ -67,6 +67,9 @@ sub tenant_view_by_name {
         -limit => 1,
         -with_class => undef,
     );
+    if (is_error($status)) {
+        return undef;
+    }
     my $item = $iter->next;
     return $item;
 }
