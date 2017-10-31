@@ -37,6 +37,7 @@ use pf::util;
 use pf::cluster;
 use Template;
 use pf::authentication;
+use pf::dal::tenant;
 
 extends 'pf::services::manager';
 
@@ -268,6 +269,7 @@ EOT
     # Add any activation domain in the authentication sources
     push @portal_hosts, map { $_->{activation_domain} ? $_->{activation_domain} : () } @{getAllAuthenticationSources()};
     push @portal_hosts, @{$Config{captive_portal}->{other_domain_names}};
+    push @portal_hosts, map {$_->portal_domain_name ? $_->portal_domain_name : ()} @{pf::dal::tenant->search->all};
 
     # Escape special chars for lua matches
     @portal_hosts = map { $_ =~ s/([.-])/%$1/g ; $_ } @portal_hosts;
