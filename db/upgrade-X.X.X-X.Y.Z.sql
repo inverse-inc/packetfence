@@ -51,11 +51,13 @@ call ValidateVersion;
 CREATE TABLE `tenant` (
   id int NOT NULL AUTO_INCREMENT,
   name VARCHAR(255) NOT NULL,
+  portal_domain_name VARCHAR(255),
   PRIMARY KEY (id),
   UNIQUE KEY tenant_name (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  UNIQUE KEY tenant_portal_domain_name (`portal_domain_name`)
+);
 
-INSERT INTO `tenant` (id, name) VALUES (1, 'default');
+INSERT INTO `tenant` (id, name) VALUES (1, 'default', NULL);
 
 ALTER TABLE `violation`
     DROP FOREIGN KEY `0_60`;
