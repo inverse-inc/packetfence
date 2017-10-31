@@ -40,12 +40,6 @@ use pf::error qw(is_error is_success);
 
 =over
 
-=item savedsearch_db_prepare
-
-Instantiate SQL statements to be prepared
-
-=cut
-
 =item savedsearch_for_pid_and_namespace
 
 Find all saved search for a user with in a namespace
@@ -157,9 +151,12 @@ checks if the name is taken
 sub savedsearch_name_taken {
     my ($savedsearch) = @_;
     my ($status, $count) = pf::dal::savedsearch->count(
-        pid => $savedsearch->{pid},
-        namespace => $savedsearch->{namespace},
-        name => $savedsearch->{name},
+        -where => {
+            pid => $savedsearch->{pid},
+            namespace => $savedsearch->{namespace},
+            name => $savedsearch->{name},
+        },
+        -limit => 1,
     );
     return $count;
 }
