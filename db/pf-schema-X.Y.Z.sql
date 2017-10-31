@@ -19,11 +19,12 @@ SET @VERSION_INT = @MAJOR_VERSION << 16 | @MINOR_VERSION << 8 | @SUBMINOR_VERSIO
 CREATE TABLE `tenant` (
   id int NOT NULL AUTO_INCREMENT,
   name VARCHAR(255) NOT NULL,
+  portal_domain_name VARCHAR(255),
   PRIMARY KEY (id),
   UNIQUE KEY tenant_name (`name`)
 );
 
-INSERT INTO `tenant` VALUES (1, 'default');
+INSERT INTO `tenant` VALUES (1, 'default', NULL);
 
 --
 -- Table structure for table `class`
