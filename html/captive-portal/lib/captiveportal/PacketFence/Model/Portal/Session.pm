@@ -28,6 +28,7 @@ use URI::Escape::XS qw(uri_escape uri_unescape);
 use HTML::Entities;
 use List::MoreUtils qw(any);
 use pf::constants::Portal::Session qw($DUMMY_MAC);
+use pf::dal::tenant;
 
 =head1 NAME
 
@@ -118,6 +119,8 @@ sub ACCEPT_CONTEXT {
     my $uri = $request->uri;
     my $options;
     my $mgmt_ip = $management_network->{'Tvip'} || $management_network->{'Tip'} if $management_network;
+
+    $self->setupTenant($c);
 
     if( $r->can('pnotes') && defined ( my $last_uri = $r->pnotes('last_uri') )) {
         $options = {
@@ -280,6 +283,22 @@ sub templateIncludePath {
     my ($self)  = @_;
     my $profile = $self->profile;
     return $profile->{_template_paths};
+}
+
+=head2 setupTenant
+
+Setup the current tenant
+
+=cut
+
+sub setupTenant {
+    my ($self, $c) = @_;
+    my $hostname = $c->request->uri->host;
+    $c->log->trace("Trying to find tenant for hostname $hostname");
+    if(my $tenant = pf::dal::tenant->search(-where => { portal_domain_name => $hostname })->next()) {
+        $c->log->debug("Found tenant for portal domain name $hostname");
+        pf::dal->set_tenant($tenant->id);
+    }
 }
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
