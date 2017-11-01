@@ -35,6 +35,7 @@ use pf::web::constants;
 use pf::web::util;
 use pf::constants;
 use pf::access_filter::switch;
+use pf::dal;
 
 # Some vendors don't support some charatcters in their redirect URL
 # This here below allows to map some URLs to a specific switch module
@@ -157,6 +158,8 @@ sub handle {
         $logger->error("Unable to instantiate switch object using switch_id '" . $params{'switch_id'} . "'");
         return $FALSE;
     }
+
+    pf::dal->set_tenant($switch->{_TenantId});
 
     pf::ip4log::open($params{'client_ip'}, $params{'client_mac'}, 3600);
 
