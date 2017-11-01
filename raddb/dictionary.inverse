@@ -40,6 +40,7 @@ ATTRIBUTE       PacketFence-Request-Time              24       integer
 ATTRIBUTE       PacketFence-NasName                   25       string
 ATTRIBUTE       PacketFence-Proxied-To                26       string
 ATTRIBUTE       PacketFence-Authorization-Status      27       string
+ATTRIBUTE       PacketFence-Tenant-Id                 28       integer
 
 END-VENDOR      Inverse
 
