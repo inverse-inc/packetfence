@@ -49,7 +49,7 @@ __PACKAGE__->config(
     }
 );
 
-our %DEFAULT_COLUMNS = map { $_ => 1 } qw/status mac computername pid last_ip device_class category online/;
+our %DEFAULT_COLUMNS = map { $_ => 1 } qw/status mac computername pid last_ip device_class category online tenant_name/;
 
 =head1 SUBROUTINES
 

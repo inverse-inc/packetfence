@@ -156,11 +156,13 @@ sub default_query {
             'locationlog.port|switch_port',
             'locationlog.ifDesc|switch_port_desc',
             'locationlog.ssid|last_ssid',
+            'tenant.name|tenant_name',
         ],
         -from => [
             -join =>
                 'node',
                 '=>{node.category_id=node_category.category_id}', 'node_category',
+                '=>{node.tenant_id=tenant.id}', 'tenant',
                 '=>{node.bypass_role_id=node_category_bypass_role.category_id}', 'node_category|node_category_bypass_role',
                 {
                     operator  => '=>',

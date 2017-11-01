@@ -84,6 +84,7 @@
         { name => 'computername', label => l('Computer Name') },
         { name => 'pid', label => l('Owner') },
         { name => 'last_ip', label => l('IP Address') },
+        { name => 'tenant_name', label => l('Tenant') },
         { name => 'device_class', label => l('Device class') },
         { name => 'device_type', label => l('Device type') },
         { name => 'category', label => l('Role') },
