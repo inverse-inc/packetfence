@@ -872,12 +872,12 @@ sub set_tenant {
     );
 
     if (is_error($status)) {
-        get_logger->info("Problem looking up tenant ID ($tenant_id) in database");
+        get_logger->error("Problem looking up tenant ID ($tenant_id) in database");
         return $FALSE;
     }
 
     if ($count == 0) {
-        get_logger->info("Invalid tenant ID ($tenant_id) specified, ignoring it and keeping current tenant");
+        get_logger->error("Invalid tenant ID ($tenant_id) specified, ignoring it and keeping current tenant");
         return $FALSE;
     }
 
