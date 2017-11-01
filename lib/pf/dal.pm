@@ -99,7 +99,7 @@ Execute the sql query with it's bind parameters
 =cut
 
 sub db_execute {
-    my ($self, $sql, @params) = @_;
+    my ($self, $sql, @bind) = @_;
     my $attempts = 3;
     my $logger = $self->logger;
     my $status = $STATUS::INTERNAL_SERVER_ERROR;
@@ -109,9 +109,9 @@ sub db_execute {
             $logger->error("Cannot connect to database retrying connection");
             next;
         }
-        $logger->trace(sub{"preparing statement query $sql with params (" . join(", ", map { defined $_ ? $_ : "(undef)"} @params) . ")"});
+        $logger->trace(sub{"preparing statement query $sql with bind (" . join(", ", map { defined $_ ? $_ : "(undef)"} @bind) . ")"});
         my $sth = $dbh->prepare_cached($sql);
-        unless ($sth && $sth->execute(@params)) {
+        unless ($sth && $sth->execute(@bind)) {
             my $err = $dbh->err;
             my $errstr = $dbh->errstr;
             pf::db::db_handle_error($err);
@@ -123,7 +123,7 @@ sub db_execute {
                     if ($ALLOWED_ERROR == $status) {
                         $logger->trace("Ignoring error $errstr (errno: $err)");
                     } else {
-                        $logger->error("Database query failed with non retryable error: $errstr (errno: $err) [$sql]{". join(", ", map { defined $_ ?  $_ : "NULL" } @params)  . "}");
+                        $logger->error("Database query failed with non retryable error: $errstr (errno: $err) [$sql]{". join(", ", map { defined $_ ?  $_ : "NULL" } @bind)  . "}");
                     }
                 }
                 last;
