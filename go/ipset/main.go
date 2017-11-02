@@ -28,6 +28,7 @@ func main() {
 	router.HandleFunc("/ipsetunmarkip/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{local:[0-1]}", handleUnmarkIp).Methods("POST")
 	router.HandleFunc("/ipsetmarkiplayer2/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{catid:[0-9]+}/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{local:[0-1]}", handleMarkIpL2).Methods("POST")
 	router.HandleFunc("/ipsetmarkiplayer3/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{catid:[0-9]+}/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{local:[0-1]}", handleMarkIpL3).Methods("POST")
+	router.HandleFunc("/ipsetpassthrough/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{port:(?:udp:tcp):[0-9]+}/{local:[0-1]}", handlePassthrough).Methods("POST")
 	http.Handle("/", httpauth.SimpleBasicAuth(webservices.User, webservices.Pass)(router))
 	// Api
 	cfg := &tls.Config{

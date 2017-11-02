@@ -16,6 +16,31 @@ type Info struct {
 	Ip     string `json:"IP"`
 }
 
+func handlePassthrough(res http.ResponseWriter, req *http.Request) {
+
+	vars := mux.Vars(req)
+	Ip := vars["ip"]
+	Port := vars["mac"]
+	Local := vars["local"]
+
+	ipset.Add("pfsession_passthrough", Ip, Port)
+	if Local == "0" {
+		updateClusterPassthrough(Ip, Port)
+	}
+	var result = map[string][]*Info{
+		"result": {
+			&Info{Ip: Ip, Status: "ACK"},
+		},
+	}
+
+	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	res.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(res).Encode(result); err != nil {
+		panic(err)
+	}
+
+}
+
 func handleLayer2(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	Ip := vars["ip"]

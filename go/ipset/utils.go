@@ -103,6 +103,17 @@ func updateClusterMarkIpL2(Ip string, Network string, Catid string) {
 		}
 	}
 }
+
+func updateClusterPassthrough(Ip string, Port string) {
+	for _, member := range detectMembers() {
+		err := post("https://"+member.String()+":22223/ipsetpassthrough/"+Ip+"/"+Port+"/1", body)
+		fmt.Println("Updated " + member.String())
+		if err != nil {
+			fmt.Println("Not able to contact " + member.String())
+		}
+	}
+}
+
 func mac2ip(Mac string) []string {
 	var all []ipset.IPSet
 	all, _ = ipset.ListAll()
