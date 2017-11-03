@@ -17,13 +17,12 @@ type Info struct {
 }
 
 func handlePassthrough(res http.ResponseWriter, req *http.Request) {
-
 	vars := mux.Vars(req)
 	Ip := vars["ip"]
-	Port := vars["mac"]
+	Port := vars["port"]
 	Local := vars["local"]
 
-	ipset.Add("pfsession_passthrough", Ip, Port)
+	ipset.Add("pfsession_passthrough", Ip+","+Port)
 	if Local == "0" {
 		updateClusterPassthrough(Ip, Port)
 	}
