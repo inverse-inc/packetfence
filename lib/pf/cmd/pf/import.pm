@@ -14,12 +14,6 @@ in pf.conf.
 Supported format:
 - nodes
 
-Nodes import format:
-<MAC>
-
-Node import automatically registers MACs with pid = 1 unless you configured
-otherwise in pf.conf.
-
 example:
   pfcmd import nodes /tmp/new-nodes.csv
 
