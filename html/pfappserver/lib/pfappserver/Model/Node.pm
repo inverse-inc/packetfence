@@ -392,7 +392,7 @@ sub importCSV {
             $data{'bypass_role_id'} = nodecategory_lookup($row->[$index{'bypass_role'}]);
         }
         my $category = $data{category};
-        $logger->info("Category " . $category // "'undef'");
+        $logger->info("Category " . ($category // "'undef'"));
         if ( (defined $category && !exists $allowed_roles->{$category} ) ) {
             $logger->warn("Ignored $mac since category $category is not allowed for user");
             $skipped++;
