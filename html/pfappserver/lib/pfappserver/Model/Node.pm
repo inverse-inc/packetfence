@@ -39,6 +39,7 @@ use pf::config::util;
 use pf::violation;
 use pf::SwitchFactory;
 use pf::Connection;
+use Text::CSV;
 
 =head1 METHODS
 
