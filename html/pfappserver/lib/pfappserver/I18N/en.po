@@ -10954,7 +10954,7 @@ msgstr "Redis Port"
 
 # pf::action (VIOLATION_ACTIONS)
 msgid "reevaluate_access_action"
-msgstr "Isolate device on violation"
+msgstr "Change network access on violation"
 
 # html/pfappserver/root/admin/nodes.tt
 # pfappserver::Model::Node (availableStatus)
