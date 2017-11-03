@@ -11594,3 +11594,63 @@ msgstr ""
 # html/pfappserver/root/config/profile/tab-content.tt
 msgid "Enter SSID"
 msgstr ""
+
+# pf::action (SYSLOG_PARSER_REGEX_VIOLATION_ACTIONS)
+msgid "add_person"
+msgstr "Create new user account"
+
+# pf::action (SYSLOG_PARSER_REGEX_VIOLATION_ACTIONS)
+msgid "close_violation"
+msgstr "Close violation"
+
+# pf::action (SYSLOG_PARSER_REGEX_VIOLATION_ACTIONS)
+msgid "deregister_node_ip"
+msgstr "Deregister node by IP"
+
+# pf::action (SYSLOG_PARSER_REGEX_VIOLATION_ACTIONS)
+msgid "dynamic_register_node"
+msgstr "Register node by MAC"
+
+# pf::action (SYSLOG_PARSER_REGEX_VIOLATION_ACTIONS)
+msgid "modify_node"
+msgstr "Modify node by MAC"
+
+# pf::action (SYSLOG_PARSER_REGEX_VIOLATION_ACTIONS)
+msgid "modify_person"
+msgstr "Modify existing user"
+
+# pf::action (SYSLOG_PARSER_REGEX_VIOLATION_ACTIONS)
+msgid "reevaluate_access"
+msgstr "Reevaluate access by MAC"
+
+# pf::action (SYSLOG_PARSER_REGEX_VIOLATION_ACTIONS)
+msgid "register_node"
+msgstr "Register a new node by PID"
+
+# pf::action (SYSLOG_PARSER_REGEX_VIOLATION_ACTIONS)
+msgid "register_node_ip"
+msgstr "Register node by IP"
+
+# pf::action (SYSLOG_PARSER_REGEX_VIOLATION_ACTIONS)
+msgid "release_all_violations"
+msgstr "Release all violations for node by MAC"
+
+# pf::action (SYSLOG_PARSER_REGEX_VIOLATION_ACTIONS)
+msgid "trigger_scan"
+msgstr "Launch a scan for the device"
+
+# pf::action (SYSLOG_PARSER_REGEX_VIOLATION_ACTIONS)
+msgid "trigger_violation"
+msgstr "Trigger a violation"
+
+# pf::action (SYSLOG_PARSER_REGEX_VIOLATION_ACTIONS)
+msgid "unreg_node_for_pid"
+msgstr "Deregister node by PID"
+
+# pf::action (SYSLOG_PARSER_REGEX_VIOLATION_ACTIONS)
+msgid "update_ip4log"
+msgstr "Update ip4log by IP and MAC"
+
+# pf::action (SYSLOG_PARSER_REGEX_VIOLATION_ACTIONS)
+msgid "update_ip6log"
+msgstr "Update ip6log by IP and MAC"
