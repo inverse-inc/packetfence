@@ -171,7 +171,6 @@ func (d *Interfaces) readConfig() {
 							}
 							// Decrement twice to have the last ip available for the scope
 							dec(ips)
-							dec(ips)
 							DHCPScope.leaseRange = dhcp.IPRange(ip, ips)
 
 							// Initialize roaring bitmap
