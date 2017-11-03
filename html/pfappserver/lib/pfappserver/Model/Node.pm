@@ -302,11 +302,11 @@ See pf::import::nodes
 =cut
 
 sub importCSV {
-    my ($self, $data, $user, $allowed_roles) = @_;
+    my ($self, $file, $data, $user, $allowed_roles) = @_;
     my $logger = get_logger();
     my ($status, $message);
-    my $filename = $data->{nodes_file}->filename;
-    my $tmpfilename = $data->{nodes_file}->tempname;
+    my $filename = $data->{nodes_file_display_name} // $file;
+    my $tmpfilename = $file;
     my $delimiter = $data->{delimiter};
     my $default_node_pid = $data->{default_pid};
     my $default_category_id = $data->{default_category_id};

@@ -201,7 +201,11 @@ sub create :Local : AdminRole('NODES_CREATE') {
                 $message = $form_import->field_errors;
             }
             else {
-                ($status, $message) = $c->model('Node')->importCSV($form_import->value, $c->user, \%allowed_roles);
+                my $filename = $form_import->value->{nodes_file}->tempname;
+                my $data = $form_import->value;
+                $data->{nodes_file_display_name} = $form_import->value->{nodes_file}->filename;
+
+                ($status, $message) = $c->model('Node')->importCSV($filename, $data, $c->user, \%allowed_roles);
                 if (is_success($status)) {
                     $message = $c->loc("[_1] nodes imported, [_2] skipped", $message->{count}, $message->{skipped});
                 }
