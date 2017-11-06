@@ -3525,7 +3525,7 @@ msgid ""
 "deleted.<br>This shouldn't be used if you are using port-security"
 msgstr "Combien de temps un périphérique enregistré peut être inactif sur le réseau avant d’être supprimé. <br/> Cette fonctionnalité ne devrait pas être utilisé avec du port-security"
 
-# conf/documentation.conf (fencing.redirtimer)
+# conf/documentation.conf (captive_portal.network_redirect_delay)
 msgid ""
 "How long to display the progress bar during trap release. Default value is "
 "based on VLAN enforcement techniques. Inline enforcement only users could "
@@ -10314,6 +10314,10 @@ msgid "captive_portal.network_detection_retry_delay"
 msgstr "Retry delay"
 
 # conf/documentation.conf
+msgid "captive_portal.network_redirect_delay"
+msgstr "Delais de redirection"
+
+# conf/documentation.conf
 msgid "captive_portal.rate_limiting"
 msgstr "Limite de débit"
 
@@ -10826,10 +10830,6 @@ msgstr "Proxy Passthroughs"
 # conf/documentation.conf
 msgid "fencing.range"
 msgstr "Plages d’adressage"
-
-# conf/documentation.conf
-msgid "fencing.redirtimer"
-msgstr "Delais de redirection"
 
 # conf/documentation.conf
 msgid "fencing.wait_for_redirect"

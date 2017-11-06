@@ -90,13 +90,6 @@ interfaceSNAT=
 tools/stinger.exe=http://download.nai.com/products/mcafee-avert/stng260.exe
 
 [fencing]
-#
-# fencing.redirtimer
-#
-# How long to display the progress bar during trap release. Default value is 
-# based on VLAN enforcement techniques. Inline enforcement only users could
-# lower the value.
-redirtimer=20s
 # 
 # fencing.wait_for_redirect
 #
@@ -711,6 +704,13 @@ network_detection_initial_delay = 5s
 #
 # This is the amount of time between network connectivity detection checks.
 network_detection_retry_delay = 2s
+#
+# captive_portal.network_redirect_delay
+#
+# How long to display the progress bar during trap release. Default value is 
+# based on VLAN enforcement techniques. Inline enforcement only users could
+# lower the value.
+network_redirect_delay = 20s
 #
 # captive_portal.image_path
 #

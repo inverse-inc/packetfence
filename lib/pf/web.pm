@@ -184,7 +184,7 @@ sub generate_release_page {
     my ( $portalSession, $r ) = @_;
 
     $portalSession->stash({
-        timer => $Config{'fencing'}{'redirtimer'},
+        timer => $Config{'captive_portal'}{'network_redirect_delay'},
         destination_url => $portalSession->getDestinationUrl(),
         initial_delay => $Config{'captive_portal'}{'network_detection_initial_delay'},
         retry_delay => $Config{'captive_portal'}{'network_detection_retry_delay'},
