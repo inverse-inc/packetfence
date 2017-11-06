@@ -42,6 +42,12 @@ use Role::Tiny::With;
 use pf::constants::exit_code qw($EXIT_SUCCESS);
 with 'pf::cmd::roles::show_parent_help';
 
+=head2 parseArgs
+
+Parse the arguments for this command
+
+=cut
+
 sub parseArgs {
     my ($self) = @_;
 
@@ -82,6 +88,12 @@ sub parseArgs {
 
     return 1;
 }
+
+=head2 _run
+
+Run the import
+
+=cut
 
 sub _run {
     my ($self) = @_;
