@@ -25,6 +25,28 @@ use pf::node qw(node_custom_search);
 use HTTP::Status qw(:constants);
 use pf::util qw(calc_page_count);
 
+our $DEFAULT_LIKE_FORMAT = '%%%s%%';
+
+our %LIKE_FORMAT = (
+    not_like    => $DEFAULT_LIKE_FORMAT,
+    like        => $DEFAULT_LIKE_FORMAT,
+    ends_with   => '%%%s',
+    starts_with => '%s%%',
+);
+
+our %OP_MAP = (
+    equal       => '=',
+    not_equal   => '!=',
+    not_like    => '-not_like',
+    like        => '-like',
+    ends_with   => '-like',
+    starts_with => '-like',
+    in          => '-in',
+    not_in      => '-not_in',
+    is_null     => '=',
+    is_not_null => '!=',
+);
+
 extends 'pfappserver::Base::Model::Search';
 
 has 'added_joins' => (is => 'rw', default => sub { {} } );
@@ -372,6 +394,83 @@ sub make_builder {
         );
 }
 
+sub default_query {
+    return (
+        -columns => [
+            (
+                map { "node.$_|$_" } qw(
+                    mac pid voip bypass_vlan
+                    status category_id bypass_role_id
+                    user_agent computername last_arp last_dhcp notes
+                )
+            ),
+            (
+                map { "IF($_='$ZERO_DATE','',$_)|$_" } qw(
+                    lastskip detect_date
+                    regdate unregdate last_seen
+                )
+            ),
+            "IFNULL(node_category.name, '')|category",
+            "IFNULL(node_category_bypass_role.name, '')|bypass_role",
+            (
+                map { "IFNULL($_,' ')|$_" } qw(
+                    device_class
+                    device_type
+                    device_version
+                ),
+            ),
+            'ip4log.ip|last_ip',
+            'locationlog.switch|switch_id',
+            'locationlog.switch_ip|switch_ip',
+            'locationlog.switch_mac|switch_mac',
+            'locationlog.port|switch_port',
+            'locationlog.ifDesc|switch_port_desc',
+            'locationlog.ssid|last_ssid',
+        ],
+        -from => [
+            -join =>
+                'node',
+                '=>{node.category_id=node_category.category_id}', 'node_category',
+                '=>{node.bypass_role_id=node_category_bypass_role.category_id}', 'node_category|node_category_bypass_role',
+                '=>{ip4log.mac=node.mac}', 'ip4log',
+                "=>{locationlog.mac=node.mac,locationlog.tenant_id=node.tenant_id,locationlog.end_time='$ZERO_DATE'}", 'locationlog',
+                {
+                    operator  => '=>',
+                    condition => {
+                        'node.mac' => { '=' => { -ident => '%2$s.mac' } },
+                        'node.tenant_id' => { '=' => { -ident => '%2$s.tenant_id' } },
+                        'locationlog2.end_time' => $ZERO_DATE,
+                        -or => [
+                            '%1$s.start_time' => { '<' => { -ident => '%2$s.start_time' } },
+                            '%1$s.start_time' => undef,
+                            -and => [
+                                '%1$s.start_time' => { '=' => { -ident => '%2$s.start_time' } },
+                                '%1$s.id' => { '<' => { -ident => '%2$s.id' } },
+                            ],
+                        ],
+                    },
+                },
+                'locationlog|locationlog2',
+                '=>{node.mac=radacct.callingstationid}', 'radacct',
+                {
+                    operator  => '=>',
+                    condition => {
+                        'node.mac' => { '=' => { -ident => '%2$s.callingstationid' } },
+                        -or => [
+                            '%1$s.acctstarttime' => { '<' => { -ident => '%2$s.acctstarttime' } },
+                            '%1$s.acctstarttime' => undef,
+                            -and => [
+                                '%1$s.acctstarttime' => { '=' => { -ident => '%2$s.acctstarttime' } },
+                                '%1$s.radacctid' => { '<' => { -ident => '%2$s.radacctid' } },
+                            ],
+                        ],
+                    },
+                },
+                'radacct|r2'
+        ],
+    );
+}
+
 my @VIOLATION_JOINS = (
     {
         'table' => 'violation',
@@ -475,6 +574,18 @@ my %COLUMN_MAP = (
         joins => \@VIOLATION_JOINS
     },
 );
+
+sub make_logical_op {
+    my ($all_or_any) = @_;
+    $all_or_any ||= 'all';
+    return lc($all_or_any) eq 'any' ? '-or' : '-and';
+}
+
+
+
+
+
+
 
 sub add_order_by {
     my ($self, $builder, $params) = @_;
@@ -580,6 +691,86 @@ sub add_limit {
     my $offset = (( $page_num - 1 ) * $limit);
     $builder->limit($limit + 1, $offset);
 }
+
+sub make_order_by {
+    my ($params) = @_;
+    my $direction = lc($params->{direction} // 'asc');
+    if ($direction ne 'desc') {
+        $direction = 'asc';
+    }
+    my $by = $params->{by};
+    return { "-$direction" => $by };
+}
+
+sub make_condition {
+    my ($search) = @_;
+    my ($value, $op, $name) = @{$search}{qw(value op name)};
+    unless (exists $OP_MAP{$op}) {
+        die "'$op' is not a supported search operation";
+    }
+    my $sql_op = $OP_MAP{$op};
+    return { $name => {$sql_op => escape_value($value, $op)} };
+}
+
+sub escape_value {
+    my ($value, $op) = @_;
+    if (is_like_op($op)) {
+        return escape_like($value, find_like_format($op));
+    }
+    if (is_null_op($op)) {
+        return undef;
+    }
+    return $value;
+}
+
+sub is_null_op {
+    my ($op) = @_;
+    return $op eq 'is_null' || $op eq 'is_not_null';
+}
+
+sub is_like_op {
+    my ($op) = @_;
+    return exists $LIKE_FORMAT{$op};
+}
+
+sub find_like_format {
+    my ($op) = @_;
+    return  exists $LIKE_FORMAT{$op} ? $LIKE_FORMAT{$op} : $DEFAULT_LIKE_FORMAT ;
+}
+
+sub escape_like {
+    my ($value, $format) = @_;
+    my $escaped = $value =~ s/([%_])/\\$1/g;
+    $value = sprintf($format, $value);
+    return $escaped ? \[q{? ESCAPE '\'}, $value] : $value;
+}
+
+sub make_limit {
+    my ($params) = @_;
+    my $page_num = $params->{page_num} || 1;
+    my $limit = $params->{per_page} || 25;
+    my $offset = 
+    return {
+        -limit => $limit,
+        -offset => (( $page_num - 1 ) * $limit)
+    };
+}
+
+sub make_date_range {
+    my ($column, $start, $end) = @_;
+    my @condtions; 
+    if ($start) {
+        push @condtions, {">=" => "$start 00:00"};
+    }
+    if ($end) {
+        push @condtions, {"<=" => "$end 23:59"};
+    }
+    if (@condtions) {
+        return {$column => [-all => @condtions]};
+    }
+    return;
+}
+
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
