@@ -8841,7 +8841,7 @@ msgstr "Ceci est le délais qui permets à un invité enregistré par email de s
 # conf/documentation.conf (captive_portal.image_path)
 msgid ""
 "This is the path where the gif is on the webserver to detect if the network "
-"accesshas been enabled."
+"access has been enabled."
 msgstr "Ceci est le chemin d’accès pour l’emplacement du gif sur le serveur. Cette option permet de détecter si l’accès réseau a été activé."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
@@ -10304,6 +10304,14 @@ msgstr "Détection réseau"
 # conf/documentation.conf
 msgid "captive_portal.network_detection_ip"
 msgstr "IP"
+
+# conf/documentation.conf
+msgid "captive_portal.network_detection_initial_delay"
+msgstr "Délai initial"
+
+# conf/documentation.conf
+msgid "captive_portal.network_detection_retry_delay"
+msgstr "Retry delay"
 
 # conf/documentation.conf
 msgid "captive_portal.rate_limiting"

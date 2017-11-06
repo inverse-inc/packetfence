@@ -9501,6 +9501,14 @@ msgid "captive_portal.network_detection_ip"
 msgstr "IP"
 
 # conf/documentation.conf
+msgid "captive_portal.network_detection_initial_delay"
+msgstr "Initial delay"
+
+# conf/documentation.conf
+msgid "captive_portal.network_detection_retry_delay"
+msgstr "Retry delay"
+
+# conf/documentation.conf
 msgid "captive_portal.rate_limiting"
 msgstr "Rate limiting"
 

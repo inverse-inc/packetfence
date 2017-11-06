@@ -213,8 +213,8 @@ sub _release_args {
     return {
         timer         => $Config{'fencing'}{'redirtimer'},
         destination_url  => $self->app->session->{destination_url},
-        initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_INITIAL_DELAY'},
-        retry_delay   => $CAPTIVE_PORTAL{'NET_DETECT_RETRY_DELAY'},
+        initial_delay => $Config{'captive_portal'}{'network_detection_initial_delay'},
+        retry_delay   => $Config{'captive_portal'}{'network_detection_retry_delay'},
         external_ip => $Config{'captive_portal'}{'network_detection_ip'},
         auto_redirect => $Config{'captive_portal'}{'network_detection'},
         image_path => $Config{'captive_portal'}{'image_path'},
