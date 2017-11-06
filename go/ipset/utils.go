@@ -114,6 +114,16 @@ func updateClusterPassthrough(Ip string, Port string) {
 	}
 }
 
+func updateClusterPassthroughIsol(Ip string, Port string) {
+	for _, member := range detectMembers() {
+		err := post("https://"+member.String()+":22223/ipsetpassthroughisolation/"+Ip+"/"+Port+"/1", body)
+		fmt.Println("Updated " + member.String())
+		if err != nil {
+			fmt.Println("Not able to contact " + member.String())
+		}
+	}
+}
+
 func mac2ip(Mac string) []string {
 	var all []ipset.IPSet
 	all, _ = ipset.ListAll()
