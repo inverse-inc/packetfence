@@ -21,9 +21,11 @@ use namespace::autoclean;
 use POSIX;
 use pf::config qw(%Config);
 use pf::util;
+use pf::violation;
 
 use pfappserver::Form::Node;
 use pfappserver::Form::Node::Create::Import;
+
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 with 'pfappserver::Role::Controller::BulkActions';
@@ -514,7 +516,10 @@ sub _triggerViolation {
 sub closeViolation :Path('close') :Args(1) :AdminRole('NODES_UPDATE') {
     my ($self, $c, $id) = @_;
     my ($status, $result) = $c->model('Node')->closeViolation($id);
-    $self->audit_current_action($c, status => $status, mac => $id);
+    my @violation = violation_view($id);
+    if (@violation) {
+        $self->audit_current_action($c, status => $status, mac => $violation[0]->{mac});
+    }
     $c->response->status($status);
     $c->stash->{status_msg} = $result;
     $c->stash->{current_view} = 'JSON';
@@ -527,7 +532,10 @@ sub closeViolation :Path('close') :Args(1) :AdminRole('NODES_UPDATE') {
 sub runViolation :Path('run') :Args(1) :AdminRole('NODES_UPDATE') {
     my ($self, $c, $id) = @_;
     my ($status, $result) = $c->model('Node')->runViolation($id);
-    $self->audit_current_action($c, status => $status, mac => $id);
+    my @violation = violation_view($id);
+    if (@violation) {
+        $self->audit_current_action($c, status => $status, mac => $violation[0]->{mac});
+    }
     $c->response->status($status);
     $c->stash->{status_msg} = $result;
     $c->stash->{current_view} = 'JSON';
