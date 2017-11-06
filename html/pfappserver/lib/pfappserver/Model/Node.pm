@@ -312,7 +312,6 @@ sub importCSV {
     my $default_node_pid = $data->{default_pid};
     my $default_category_id = $data->{default_category_id};
     my $default_voip = $data->{default_voip};
-    $allowed_roles //= {};
 
     $logger->debug("CSV file import nodes from $tmpfilename ($filename, \"$delimiter\")");
 
@@ -393,13 +392,13 @@ sub importCSV {
         }
         my $category = $data{category};
         $logger->info("Category " . ($category // "'undef'"));
-        if ( (defined $category && !exists $allowed_roles->{$category} ) ) {
+        if ( defined($allowed_roles) && (defined $category && !exists $allowed_roles->{$category} ) ) {
             $logger->warn("Ignored $mac since category $category is not allowed for user");
             $skipped++;
             next;
         }
         my $bypass_vlan = $data{bypass_vlan};
-        if ( (defined $bypass_vlan && !exists $allowed_roles->{$bypass_vlan} ) ) {
+        if ( defined($allowed_roles) && (defined $bypass_vlan && !exists $allowed_roles->{$bypass_vlan} ) ) {
             $logger->warn("Ignored $mac since bypass_vlan $bypass_vlan is not allowed for user");
             $skipped++;
             next;
