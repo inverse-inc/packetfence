@@ -582,11 +582,6 @@ sub make_logical_op {
 }
 
 
-
-
-
-
-
 sub add_order_by {
     my ($self, $builder, $params) = @_;
     my ($by, $direction) = @$params{qw(by direction)};
@@ -708,6 +703,9 @@ sub make_condition {
     unless (exists $OP_MAP{$op}) {
         die "'$op' is not a supported search operation";
     }
+    if (!is_null_op($op) && !defined ($value)) {
+        return;
+    }
     my $sql_op = $OP_MAP{$op};
     return { $name => {$sql_op => escape_value($value, $op)} };
 }
@@ -745,7 +743,7 @@ sub escape_like {
     return $escaped ? \[q{? ESCAPE '\'}, $value] : $value;
 }
 
-sub make_limit {
+sub make_limit_offset {
     my ($params) = @_;
     my $page_num = $params->{page_num} || 1;
     my $limit = $params->{per_page} || 25;
@@ -760,17 +758,80 @@ sub make_date_range {
     my ($column, $start, $end) = @_;
     my @condtions; 
     if ($start) {
-        push @condtions, {">=" => "$start 00:00"};
+        push @condtions, {">=" => "$start 00:00:00"};
     }
     if ($end) {
-        push @condtions, {"<=" => "$end 23:59"};
+        push @condtions, {"<=" => "$end 23:59:59"};
     }
     if (@condtions) {
-        return {$column => [-all => @condtions]};
+        return {$column => [-and => @condtions]};
     }
     return;
 }
 
+sub make_where {
+    my ($params) = @_;
+    my @all_conditions;
+    my @top_level_conditions = make_top_level_conditions($params);
+    my @conditions = make_conditions_from_searches($params->{searches} // []);
+    my $logical_op = make_logical_op($params->{all_or_any});
+    if (@top_level_conditions) {
+        @all_conditions = (-and => \@top_level_conditions );
+        if (@conditions) {
+            push @top_level_conditions, $logical_op => \@conditions;
+        }
+    }
+    elsif (@conditions) {
+        push @all_conditions, $logical_op => \@conditions;
+    }
+    return \@all_conditions;
+}
+
+sub make_top_level_conditions {
+    my ($params) = @_;
+    my @conditions = (
+        'r2.radacctid' => undef,
+        'locationlog2.id' => undef
+    );
+    if ($params->{online_date} ) {
+        push @conditions, make_online_date($params->{online_date});
+    }
+    push @conditions, make_date_range('detect_date', $params->{start}, $params->{end});
+    return @conditions;
+}
+
+sub make_online_date {
+    my ($date) = @_;
+    my $start = $date->{start};
+    my $end = $date->{end};
+    return {
+        "node.mac" => {
+            '-in',
+            \[
+"select DISTINCT callingstationid from radacct where acctstarttime >= ? AND acctstoptime <= ?",
+                "$start 00:00:00",
+                "$end 23:59:59"
+            ]
+        }
+    };
+}
+
+sub make_conditions_from_searches {
+    my ($searches) = @_;
+    return map { make_condition($_) } @{$searches // [] };
+}
+
+sub build_search {
+    my ($params) = @_;
+    my $order_by = make_order_by($params);
+    my $limit = make_limit_offset($params);
+    my $where = make_where($params);
+    return {
+        -where => $where,
+        -order_by => $order_by,
+        %$limit
+    };
+}
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 

@@ -25,11 +25,12 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 24;
+use Test::More tests => 29;
 
 #This test will running last
 use Test::NoWarnings;
 use pfappserver::Model::Search::Node;
+use pf::dal::node;
 
 my $DEFAULT_LIKE_FORMAT = '%%%s%%';
 
@@ -220,8 +221,8 @@ is_deeply(
     [
         {
             'regdate' => [
-                -all => { ">=" => '2017-12-12 00:00' },
-                { "<=" => '2017-12-12 23:59' }
+                -and => { ">=" => '2017-12-12 00:00:00' },
+                { "<=" => '2017-12-12 23:59:59' }
             ]
         }
     ],
@@ -233,8 +234,8 @@ is_deeply(
     [
         {
             'regdate' => [
-                -all =>
-                { "<=" => '2017-12-12 23:59' }
+                -and =>
+                { "<=" => '2017-12-12 23:59:59' }
             ]
         }
     ],
@@ -246,8 +247,8 @@ is_deeply(
     [
         {
             'regdate' => [
-                -all =>
-                { ">=" => '2017-12-12 00:00' }
+                -and =>
+                { ">=" => '2017-12-12 00:00:00' }
             ]
         }
     ],
@@ -267,7 +268,7 @@ is_deeply(
         -offset => 0,
         -limit => 25,
     },
-    pfappserver::Model::Search::Node::make_limit({
+    pfappserver::Model::Search::Node::make_limit_offset({
         page_num => 1,
         per_page => 25,
     }),
@@ -279,28 +280,228 @@ is_deeply(
         -offset => 25,
         -limit => 25,
     },
-    pfappserver::Model::Search::Node::make_limit({
+    pfappserver::Model::Search::Node::make_limit_offset({
         page_num => 2,
         per_page => 25,
     }),
     "Make offset 25, limit 25"
 );
 
-is('-and', pfappserver::Model::Search::Node::make_logical_op(undef), "undef to -and");
+my @MAKE_LOGICAL_OP_TESTS = (
+    {
+        'expected' => '-and',
+        'input' => undef,
+        'test_name' => 'undef to -and',
+    },
+    {
+        'expected' => '-or',
+        'input' => 'any',
+        'test_name' => 'any to -or',
+    },
+    {
+        'expected' => '-or',
+        'input' => 'Any',
+        'test_name' => 'any to -or',
+    },
+    {
+        'expected' => '-and',
+        'input' => 'all',
+        'test_name' => 'all to -and',
+    },
+    {
+        'expected' => '-and',
+        'input' => 'garabase',
+        'test_name' => 'invalid data defaults to -and',
+    },
+);
 
-is('-or', pfappserver::Model::Search::Node::make_logical_op('any'), "any to -or");
+sub test_in_out {
+    my ($tests, $method) = @_;
+    for my $t (@$tests) {
+        is($t->{expected}, $method->($t->{'input'}), $t->{test_name});
+    }
+}
 
-is('-or', pfappserver::Model::Search::Node::make_logical_op('Any'), "any to -or");
+test_in_out(\@MAKE_LOGICAL_OP_TESTS, \&pfappserver::Model::Search::Node::make_logical_op);
 
-is('-and', pfappserver::Model::Search::Node::make_logical_op('all'), "all to -and");
+$params = {
+    'direction'  => 'asc',
+    'all_or_any' => undef,
+    'per_page'   => '25',
+    'by'         => 'mac',
+    'searches'   => [
+        {
+            'value' => 'ff:ff:ff:ff:ff:ff',
+            'name'  => 'mac',
+            'op'    => 'equal'
+        }
+    ]
+};
 
-is('-and', pfappserver::Model::Search::Node::make_logical_op('garabase'), "invalid defaults to -and");
+is_deeply(
+    {
+        -where => [
+            -and => [
+                'r2.radacctid' => undef,
+                'locationlog2.id' => undef,
+                -and => [{mac => { "=" => "ff:ff:ff:ff:ff:ff"}}] 
+            ],
+        ],
+        -limit => 25,
+        -offset => 0,
+        -order_by => {-asc => 'mac'},
+    },
+    pfappserver::Model::Search::Node::build_search($params),
+    "Build a simple search"
 
-=head2 make_limit
+);
 
-make_limit
+is_deeply(
+    {
+        -where => [
+            -and => [
+                'r2.radacctid' => undef,
+                'locationlog2.id' => undef
+            ],
+        ],
+        -limit => 25,
+        -offset => 0,
+        -order_by => {-asc => 'mac'},
+    },
+    pfappserver::Model::Search::Node::build_search(
+    {
+        'all_or_any' => 'all',
+        'per_page'   => '25',
+        'by'         => 'mac',
+        'searches'   => [
+            {
+                'value' => undef,
+                'name'  => 'mac',
+                'op'    => 'equal'
+            }
+        ],
+        'end'         => undef,
+        'direction'   => 'asc',
+        'online_date' => undef,
+        'start'       => undef
+    }
+    ),
+    "Skip search with a null value and the operator is not null"
+);
 
-=cut
+
+is_deeply(
+    {
+        "node.mac" => {
+            '-in',
+            \[
+"select DISTINCT callingstationid from radacct where acctstarttime >= ? AND acctstoptime <= ?",
+                "2017-11-06 00:00:00",
+                "2017-11-06 23:59:59"
+            ]
+        }
+    },
+    pfappserver::Model::Search::Node::make_online_date(
+        {
+            'end'   => '2017-11-06',
+            'start' => '2017-11-06'
+        },
+    ),
+    "Search with an online date"
+);
+
+is_deeply(
+    {
+        -where => [
+            -and => [
+                    'r2.radacctid' => undef,
+                    'locationlog2.id' => undef ,
+                    {
+                        "node.mac" => {
+                            '-in',
+                            \[
+        "select DISTINCT callingstationid from radacct where acctstarttime >= ? AND acctstoptime <= ?",
+                                "2017-11-06 00:00:00",
+                                "2017-11-06 23:59:59"
+                            ]
+                        }
+                    }
+            ]
+        ],
+        -limit    => 25,
+        -offset   => 0,
+        -order_by => { -asc => 'mac' },
+    },
+    pfappserver::Model::Search::Node::build_search(
+        {
+            'all_or_any' => 'all',
+            'per_page'   => '25',
+            'by'         => 'mac',
+            'searches'   => [
+                {
+                    'value' => undef,
+                    'name'  => 'mac',
+                    'op'    => 'equal'
+                }
+            ],
+            'end'         => undef,
+            'direction'   => 'asc',
+            'online_date' => {
+                'end'   => '2017-11-06',
+                'start' => '2017-11-06'
+            },
+            'start' => undef
+        }
+    ),
+    "Search with an online date"
+);
+
+is_deeply(
+    {
+        -where => [
+            -and => [
+                    'r2.radacctid' => undef,
+                    'locationlog2.id' => undef ,
+                    {
+                        "node.mac" => {
+                            '-in',
+                            \[
+        "select DISTINCT callingstationid from radacct where acctstarttime >= ? AND acctstoptime <= ?",
+                                "2017-11-06 00:00:00",
+                                "2017-11-06 23:59:59"
+                            ]
+                        }
+                    },
+                    { detect_date => [-and => {">=" => "2017-11-05 00:00:00" }, {"<=" => "2017-11-05 23:59:59" }]},
+            ]
+        ],
+        -limit    => 25,
+        -offset   => 0,
+        -order_by => { -asc => 'mac' },
+    },
+    pfappserver::Model::Search::Node::build_search(
+        {
+            'all_or_any' => 'all',
+            'per_page'   => '25',
+            'by'         => 'mac',
+            'searches'   => [
+                {
+                    'value' => undef,
+                    'name'  => 'mac',
+                    'op'    => 'equal'
+                }
+            ],
+            'start'       => '2017-11-05',
+            'end'         => '2017-11-05',
+            'direction'   => 'asc',
+            'online_date' => {
+                'end'   => '2017-11-06',
+                'start' => '2017-11-06'
+            },
+        }
+    ),
+    "Search with an online date "
+);
 
 =head1 AUTHOR
 
