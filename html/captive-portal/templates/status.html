@@ -178,7 +178,7 @@ $(document).ready(function() {
           <div class="[ layout layout--middle ]">
             <div class="[ layout__item layout--center ] [ u-1/1 ]">
               <div class="[ u-mb u-mb--palm ]">[% i18n_format("The device %s will be disconnected and won't be able to be registered again.", n.mac) %]</div>
-              <a href="/node/manager/unreg/[% n.mac %]" class="[ btn btn--small btn--inverted btn--error ]">[% i18n("Declare as lost or stolen") %]</a>
+              <a href="/loststolen/[% n.mac %]" class="[ btn btn--small btn--inverted btn--error ]">[% i18n("Declare as lost or stolen") %]</a>
               <a href="#cancel" class="[ btn btn--small btn--inverted js-box-hide ]">[% i18n("Cancel") %]</a>
             </div>
           </div>
