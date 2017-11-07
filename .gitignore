@@ -181,3 +181,6 @@ html/captive-portal/content/node_modules/
 # ignore python config files
 *.pyc
 *.pyo
+
+# ignore ag configuration
+.agignore
