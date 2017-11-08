@@ -62,9 +62,7 @@ is_deeply(
     {
         -where => {
             'node.tenant_id' => 1,
-            -and => {
-                'mac' => $test_mac,
-            }
+            'mac' => $test_mac,
         }
     },
     "update_params_for_update adds tenant_id"
@@ -77,9 +75,7 @@ is_deeply(
     {
         -where => {
             'node.tenant_id' => 1,
-            -and => {
-                'mac' => $test_mac,
-            }
+            'mac' => $test_mac,
         }
     },
     "update_params_for_update adds tenant_id"
