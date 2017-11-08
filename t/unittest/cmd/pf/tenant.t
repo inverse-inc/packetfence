@@ -34,7 +34,8 @@ use pf::error qw(is_success);
 
 my $tenant_name = "test_$$";
 
-system("/usr/local/pf/bin/pfcmd tenant add $tenant_name");
+my $cmd = "perl -T -I/usr/local/pf/t -Msetup_test_config /usr/local/pf/bin/pfcmd.pl tenant add $tenant_name";
+system($cmd);
 
 is($?, 0, "Adding tenant $tenant_name via pfcmd succeeded");
 
@@ -53,7 +54,7 @@ is($tenant_name, $tenant->{name},  "$tenant_name was really added to the databas
 
 {
     local $? = $?;
-    system("/usr/local/pf/bin/pfcmd tenant add $tenant_name");
+    system($cmd);
     ok($? != 0, "Adding tenant $tenant_name twice via pfcmd failed");
 }
 
