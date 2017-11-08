@@ -1136,7 +1136,7 @@ sub send_email {
     my $logger = get_logger();
 
     my $user_info = pf::person::person_view($to);
-    setlocale(POSIX::LC_MESSAGES, $user_info->{lang});
+    POSIX::setlocale(POSIX::LC_MESSAGES, $user_info->{lang});
     
     use Locale::gettext qw(bindtextdomain textdomain bind_textdomain_codeset);
     bindtextdomain( "packetfence", "$conf_dir/locale" );
