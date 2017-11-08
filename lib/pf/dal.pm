@@ -886,6 +886,16 @@ sub set_tenant {
     return $TRUE;
 }
 
+=head2 reset_tenant
+
+reset_tenant
+
+=cut
+
+sub reset_tenant {
+    $CURRENT_TENANT = $DEFAULT_TENANT_ID;
+}
+
 =head2 table
 
 table
