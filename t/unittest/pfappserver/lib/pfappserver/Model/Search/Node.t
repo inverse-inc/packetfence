@@ -25,7 +25,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 29;
+use Test::More tests => 39;
 
 #This test will running last
 use Test::NoWarnings;
@@ -39,70 +39,6 @@ my @VIOLATION_JOINS = (
     'violation|violation_status',
     '=>{violation_status.vid=violation_status_class.vid}',
     'class|violation_status_class',
-);
-
-my %COLUMN_MAP = (
-    person_name => 'pid',
-    unknown => {
-        'table' => 'r1',
-        'name'  => 'acctstarttime',
-    },
-    online_offline => {
-        'table' => 'r1',
-        'name'  => 'acctstoptime',
-    },
-    category => {
-        table => 'node_category',
-        name  => 'name',
-    },
-    bypass_role => {
-        table => 'node_category_bypass_role',
-        name  => 'name',
-    },
-    switch_id   => {
-       table => 'locationlog',
-       name  => 'switch',
-    },
-    switch_ip   => {
-       table => 'locationlog',
-       name  => 'switch_ip',
-    },
-    switch_mac   => {
-       table => 'locationlog',
-       name  => 'switch_mac',
-    },
-    switch_port   => {
-       table => 'locationlog',
-       name  => 'port',
-    },
-    switch_port_desc   => {
-       table => 'locationlog',
-       name  => 'ifDesc',
-    },
-    ssid   => {
-       table => 'locationlog',
-       name  => 'ssid',
-    },
-    connection_type   => {
-       table => 'locationlog',
-       name  => 'connection_type',
-    },
-    last_ip   => {
-       table => 'ip4log',
-       name  => 'ip',
-    }, # BUG : retrieves the last IP address, no mather if a period range is defined
-    violation   => {
-        table => 'violation_status_class',
-        name  => 'description',
-        joins_id => 'violation_joins',
-        joins => \@VIOLATION_JOINS
-    },
-    violation_status   => {
-        table => 'violation_status',
-        name  => 'status',
-        joins_id => 'violation_joins',
-        joins => \@VIOLATION_JOINS
-    },
 );
 
 my $params = {
@@ -119,20 +55,20 @@ my $params = {
     ]
 };
 
-is_deeply( pfappserver::Model::Search::Node::make_order_by($params), { -asc => 'mac' }, "MAC ASC");
+is_deeply( pfappserver::Model::Search::Node->make_order_by($params), { -asc => 'mac' }, "MAC ASC");
 
-is_deeply( pfappserver::Model::Search::Node::make_order_by({by => 'mac'}), { -asc => 'mac' }, "MAC ASC default order");
+is_deeply( pfappserver::Model::Search::Node->make_order_by({by => 'mac'}), { -asc => 'mac' }, "MAC ASC default order");
 
-is_deeply( pfappserver::Model::Search::Node::make_order_by({direction => 'desc', by => 'mac'}), { -desc => 'mac' }, "MAC DESC");
+is_deeply( pfappserver::Model::Search::Node->make_order_by({direction => 'desc', by => 'mac'}), { -desc => 'mac' }, "MAC DESC");
 
-is_deeply( pfappserver::Model::Search::Node::make_order_by({direction => 'DESC', by => 'mac'}), { -desc => 'mac' }, "MAC DESC upper");
+is_deeply( pfappserver::Model::Search::Node->make_order_by({direction => 'DESC', by => 'mac'}), { -desc => 'mac' }, "MAC DESC upper");
 
-is_deeply( pfappserver::Model::Search::Node::make_order_by({direction => 'ASC', by => 'mac'}), { -asc => 'mac' }, "MAC ASC upper");
+is_deeply( pfappserver::Model::Search::Node->make_order_by({direction => 'ASC', by => 'mac'}), { -asc => 'mac' }, "MAC ASC upper");
 
-is_deeply( pfappserver::Model::Search::Node::make_order_by({direction => 'BAD', by => 'mac'}), { -asc => 'mac' }, "MAC ASC bad");
+is_deeply( pfappserver::Model::Search::Node->make_order_by({direction => 'BAD', by => 'mac'}), { -asc => 'mac' }, "MAC ASC bad");
 
 is_deeply(
-    pfappserver::Model::Search::Node::make_condition(
+    pfappserver::Model::Search::Node->make_condition(
         {
             'value' => 'ff:ff:ff:ff:ff:ff',
             'name' => 'mac',
@@ -144,7 +80,7 @@ is_deeply(
 );
 
 is_deeply(
-    pfappserver::Model::Search::Node::make_condition(
+    pfappserver::Model::Search::Node->make_condition(
         {
             'value' => 'ff:ff:ff:ff:ff:ff',
             'name' => 'mac',
@@ -156,7 +92,7 @@ is_deeply(
 );
 
 is_deeply(
-    pfappserver::Model::Search::Node::make_condition(
+    pfappserver::Model::Search::Node->make_condition(
         {
             'value' => 'ff:ff:ff:ff:ff:ff',
             'name' => 'mac',
@@ -168,7 +104,7 @@ is_deeply(
 );
 
 is_deeply(
-    pfappserver::Model::Search::Node::make_condition(
+    pfappserver::Model::Search::Node->make_condition(
         {
             'value' => 'ff:ff:ff:ff:ff:ff',
             'name' => 'mac',
@@ -180,7 +116,7 @@ is_deeply(
 );
 
 is_deeply(
-    pfappserver::Model::Search::Node::make_condition(
+    pfappserver::Model::Search::Node->make_condition(
         {
             'value' => 'ff:ff:ff:ff:ff:ff',
             'name' => 'mac',
@@ -192,7 +128,7 @@ is_deeply(
 );
 
 is_deeply(
-    pfappserver::Model::Search::Node::make_condition(
+    pfappserver::Model::Search::Node->make_condition(
         {
             'value' => 'bob%bob',
             'name' => 'mac',
@@ -226,7 +162,7 @@ is_deeply(
             ]
         }
     ],
-    [ pfappserver::Model::Search::Node::make_date_range( 'regdate', '2017-12-12', '2017-12-12' ) ],
+    [ pfappserver::Model::Search::Node->make_date_range( 'regdate', '2017-12-12', '2017-12-12' ) ],
     "regdate between 2017-12-12 2017-12-12"
 );
 
@@ -239,7 +175,7 @@ is_deeply(
             ]
         }
     ],
-    [ pfappserver::Model::Search::Node::make_date_range( 'regdate', undef, '2017-12-12' ) ],
+    [ pfappserver::Model::Search::Node->make_date_range( 'regdate', undef, '2017-12-12' ) ],
     "regdate less than 2017-12-12"
 );
 
@@ -252,13 +188,13 @@ is_deeply(
             ]
         }
     ],
-    [ pfappserver::Model::Search::Node::make_date_range( 'regdate', '2017-12-12', undef ) ],
+    [ pfappserver::Model::Search::Node->make_date_range( 'regdate', '2017-12-12', undef ) ],
     "regdate greater than 2017-12-12"
 );
 
 is_deeply(
     [ ],
-    [ pfappserver::Model::Search::Node::make_date_range( 'regdate', undef, undef ) ],
+    [ pfappserver::Model::Search::Node->make_date_range( 'regdate', undef, undef ) ],
     "regdate none"
 );
 
@@ -266,24 +202,28 @@ is_deeply(
 is_deeply(
     {
         -offset => 0,
-        -limit => 25,
+        -limit => 26,
     },
-    pfappserver::Model::Search::Node::make_limit_offset({
-        page_num => 1,
-        per_page => 25,
-    }),
+    {
+        pfappserver::Model::Search::Node->make_limit_offset({
+            page_num => 1,
+            per_page => 25,
+        }),
+    },
     "Make offset 0, limit 25"
 );
 
 is_deeply(
     {
         -offset => 25,
-        -limit => 25,
+        -limit => 26,
     },
-    pfappserver::Model::Search::Node::make_limit_offset({
-        page_num => 2,
-        per_page => 25,
-    }),
+    {
+        pfappserver::Model::Search::Node->make_limit_offset({
+            page_num => 2,
+            per_page => 25,
+        }),
+    },
     "Make offset 25, limit 25"
 );
 
@@ -322,7 +262,7 @@ sub test_in_out {
     }
 }
 
-test_in_out(\@MAKE_LOGICAL_OP_TESTS, \&pfappserver::Model::Search::Node::make_logical_op);
+test_in_out(\@MAKE_LOGICAL_OP_TESTS, sub { pfappserver::Model::Search::Node->make_logical_op(@_) });
 
 $params = {
     'direction'  => 'asc',
@@ -344,14 +284,16 @@ is_deeply(
             -and => [
                 'r2.radacctid' => undef,
                 'locationlog2.id' => undef,
-                -and => [{mac => { "=" => "ff:ff:ff:ff:ff:ff"}}] 
+                -and => [{'node.mac' => { "=" => "ff:ff:ff:ff:ff:ff"}}]
             ],
         ],
-        -limit => 25,
+        -limit => 26,
         -offset => 0,
         -order_by => {-asc => 'mac'},
     },
-    pfappserver::Model::Search::Node::build_search($params),
+    {
+        pfappserver::Model::Search::Node->build_additional_search_args($params),
+    },
     "Build a simple search"
 
 );
@@ -364,28 +306,30 @@ is_deeply(
                 'locationlog2.id' => undef
             ],
         ],
-        -limit => 25,
+        -limit => 26,
         -offset => 0,
         -order_by => {-asc => 'mac'},
     },
-    pfappserver::Model::Search::Node::build_search(
     {
-        'all_or_any' => 'all',
-        'per_page'   => '25',
-        'by'         => 'mac',
-        'searches'   => [
-            {
-                'value' => undef,
-                'name'  => 'mac',
-                'op'    => 'equal'
-            }
-        ],
-        'end'         => undef,
-        'direction'   => 'asc',
-        'online_date' => undef,
-        'start'       => undef
-    }
-    ),
+        pfappserver::Model::Search::Node->build_additional_search_args(
+        {
+            'all_or_any' => 'all',
+            'per_page'   => '25',
+            'by'         => 'mac',
+            'searches'   => [
+                {
+                    'value' => undef,
+                    'name'  => 'mac',
+                    'op'    => 'equal'
+                }
+            ],
+            'end'         => undef,
+            'direction'   => 'asc',
+            'online_date' => undef,
+            'start'       => undef
+        }
+        ),
+    },
     "Skip search with a null value and the operator is not null"
 );
 
@@ -401,7 +345,7 @@ is_deeply(
             ]
         }
     },
-    pfappserver::Model::Search::Node::make_online_date(
+    pfappserver::Model::Search::Node->make_online_date(
         {
             'end'   => '2017-11-06',
             'start' => '2017-11-06'
@@ -428,31 +372,33 @@ is_deeply(
                     }
             ]
         ],
-        -limit    => 25,
+        -limit    => 26,
         -offset   => 0,
         -order_by => { -asc => 'mac' },
     },
-    pfappserver::Model::Search::Node::build_search(
-        {
-            'all_or_any' => 'all',
-            'per_page'   => '25',
-            'by'         => 'mac',
-            'searches'   => [
-                {
-                    'value' => undef,
-                    'name'  => 'mac',
-                    'op'    => 'equal'
-                }
-            ],
-            'end'         => undef,
-            'direction'   => 'asc',
-            'online_date' => {
-                'end'   => '2017-11-06',
-                'start' => '2017-11-06'
-            },
-            'start' => undef
-        }
-    ),
+    {
+        pfappserver::Model::Search::Node->build_additional_search_args(
+            {
+                'all_or_any' => 'all',
+                'per_page'   => '25',
+                'by'         => 'mac',
+                'searches'   => [
+                    {
+                        'value' => undef,
+                        'name'  => 'mac',
+                        'op'    => 'equal'
+                    }
+                ],
+                'end'         => undef,
+                'direction'   => 'asc',
+                'online_date' => {
+                    'end'   => '2017-11-06',
+                    'start' => '2017-11-06'
+                },
+                'start' => undef
+            }
+        ),
+    },
     "Search with an online date"
 );
 
@@ -475,32 +421,284 @@ is_deeply(
                     { detect_date => [-and => {">=" => "2017-11-05 00:00:00" }, {"<=" => "2017-11-05 23:59:59" }]},
             ]
         ],
-        -limit    => 25,
+        -limit    => 26,
         -offset   => 0,
         -order_by => { -asc => 'mac' },
     },
-    pfappserver::Model::Search::Node::build_search(
-        {
-            'all_or_any' => 'all',
-            'per_page'   => '25',
-            'by'         => 'mac',
-            'searches'   => [
-                {
-                    'value' => undef,
-                    'name'  => 'mac',
-                    'op'    => 'equal'
-                }
-            ],
-            'start'       => '2017-11-05',
-            'end'         => '2017-11-05',
-            'direction'   => 'asc',
-            'online_date' => {
-                'end'   => '2017-11-06',
-                'start' => '2017-11-06'
-            },
-        }
-    ),
+    {
+        pfappserver::Model::Search::Node->build_additional_search_args(
+            {
+                'all_or_any' => 'all',
+                'per_page'   => '25',
+                'by'         => 'mac',
+                'searches'   => [
+                    {
+                        'value' => undef,
+                        'name'  => 'mac',
+                        'op'    => 'equal'
+                    }
+                ],
+                'start'       => '2017-11-05',
+                'end'         => '2017-11-05',
+                'direction'   => 'asc',
+                'online_date' => {
+                    'end'   => '2017-11-06',
+                    'start' => '2017-11-06'
+                },
+            }
+        ),
+    },
     "Search with an online date "
+);
+
+is_deeply(
+    {
+        -where => [
+            -and => [
+                    'r2.radacctid' => undef,
+                    'locationlog2.id' => undef ,
+                    -and => [
+                        {'locationlog.switch_ip' => {"=" => '1.1.1.1'}},
+                    ],
+            ]
+        ],
+        -limit    => 26,
+        -offset   => 0,
+        -order_by => { -asc => 'mac' },
+    },
+    {
+        pfappserver::Model::Search::Node->build_additional_search_args(
+            {
+                'all_or_any' => 'all',
+                'per_page'   => '25',
+                'by'         => 'mac',
+                'searches'   => [
+                    {
+                        'value' => '1.1.1.1',
+                        'name'  => 'switch_ip',
+                        'op'    => 'equal'
+                    }
+                ],
+                'direction'   => 'asc',
+            }
+        ),
+    },
+    "Search with an online date "
+);
+
+is_deeply(
+    {
+        -where => [
+            -and => [
+                'r2.radacctid'    => undef,
+                'locationlog2.id' => undef,
+                -and              => [
+                    {
+                        -and => [
+                            { 'r1.acctstarttime' => { "!=" => undef } },
+                            { 'r1.acctstoptime'  => { "="  => undef } }
+                        ]
+                    },
+                ],
+            ]
+        ],
+        -limit    => 26,
+        -offset   => 0,
+        -order_by => { -asc => 'mac' },
+    },
+    {
+        pfappserver::Model::Search::Node->build_additional_search_args(
+            {
+                'all_or_any' => 'all',
+                'per_page'   => '25',
+                'by'         => 'mac',
+                'searches'   => [
+                    {
+                        'value' => 'on',
+                        'name'  => 'online',
+                        'op'    => 'equal'
+                    }
+                ],
+                'direction'   => 'asc',
+            }
+        ),
+    },
+    "Search online = 'on' ",
+);
+
+is_deeply(
+    {
+        -where => [
+            -and => [
+                    'r2.radacctid' => undef,
+                    'locationlog2.id' => undef ,
+                    -and              => [
+                        {
+                            -and => [
+                                { 'r1.acctstarttime' => { "!=" => undef } },
+                                { 'r1.acctstoptime'  => { "!="  => undef } }
+                            ]
+                        },
+                    ],
+            ]
+        ],
+        -limit    => 26,
+        -offset   => 0,
+        -order_by => { -asc => 'mac' },
+    },
+    {
+        pfappserver::Model::Search::Node->build_additional_search_args(
+            {
+                'all_or_any' => 'all',
+                'per_page'   => '25',
+                'by'         => 'mac',
+                'searches'   => [
+                    {
+                        'value' => 'off',
+                        'name'  => 'online',
+                        'op'    => 'equal'
+                    }
+                ],
+                'direction'   => 'asc',
+            }
+        ),
+    },
+    "Search online = 'off' ",
+);
+
+is_deeply(
+    {
+        -where => [
+            -and => [
+                    'r2.radacctid' => undef,
+                    'locationlog2.id' => undef ,
+                    -and => [
+                        {'r1.acctstarttime' => {"=" => undef}},
+                    ],
+            ]
+        ],
+        -limit    => 26,
+        -offset   => 0,
+        -order_by => { -asc => 'mac' },
+    },
+    {
+        pfappserver::Model::Search::Node->build_additional_search_args(
+            {
+                'all_or_any' => 'all',
+                'per_page'   => '25',
+                'by'         => 'mac',
+                'searches'   => [
+                    {
+                        'value' => 'unknown',
+                        'name'  => 'online',
+                        'op'    => 'equal'
+                    }
+                ],
+                'direction'   => 'asc',
+            }
+        ),
+    },
+    "Search online == 'unknown' ",
+);
+
+is_deeply(
+    {
+        -where => [
+            -and => [
+                    'r2.radacctid' => undef,
+                    'locationlog2.id' => undef ,
+                    -and => [
+                        {'node.mac' => {"=" => 'ff:ff:ff:ff:ff:fe'}},
+                    ],
+            ]
+        ],
+        -limit    => 26,
+        -offset   => 0,
+        -order_by => { -asc => 'mac' },
+    },
+    {
+        pfappserver::Model::Search::Node->build_additional_search_args(
+            {
+                'all_or_any' => 'all',
+                'per_page'   => '25',
+                'by'         => 'mac',
+                'searches'   => [
+                    {
+                        'value' => 'FF:FF:FF:FF:FF:FE',
+                        'name'  => 'mac',
+                        'op'    => 'equal'
+                    }
+                ],
+                'direction'   => 'asc',
+            }
+        ),
+    },
+    "Search with an online date "
+);
+
+
+is_deeply(
+    [ ],
+    [
+        pfappserver::Model::Search::Node->make_additionial_joins([])
+    ],
+    "Test the additional joins based off queries"
+);
+
+is_deeply(
+    \@pfappserver::Model::Search::Node::VIOLATION_JOINS_SPECS,
+    [
+        pfappserver::Model::Search::Node->make_additionial_joins([
+            {
+                name => 'violation_status',
+                op => 'equal',
+                value => 'asas',
+            }
+        ])
+    ]
+    ,
+    "Test the additional joins based off queries"
+);
+
+is_deeply(
+    \@pfappserver::Model::Search::Node::VIOLATION_JOINS_SPECS,
+    [
+        pfappserver::Model::Search::Node->make_additionial_joins([
+            {
+                name => 'violation_status',
+                op => 'equal',
+                value => 'asas',
+            },
+            {
+                name => 'violation',
+                op => 'equal',
+                value => 'asas',
+            }
+        ])
+    ],
+    "Only add join once",
+);
+
+is_deeply(
+    [],
+    [
+        pfappserver::Model::Search::Node->make_additionial_columns([ ])
+    ],
+    "No additional columns if there are no searches",
+);
+
+is_deeply(
+    \@pfappserver::Model::Search::Node::VIOLATION_ADDITIONAL_COLUMNS,
+    [
+        pfappserver::Model::Search::Node->make_additionial_columns([
+            {
+                name => 'violation_status',
+                op => 'equal',
+                value => 'asas',
+            },
+        ]),
+    ],
+    "Find additional columns for violation status",
 );
 
 =head1 AUTHOR
