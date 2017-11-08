@@ -13,7 +13,7 @@
                 <li><a><label class="checkbox"><input type="checkbox" name="column" value="[% column | html %]"[% ' checked' IF c.session.nodecolumns.$column %]>[% title %]</label></a></li>
 [% END -%]
 
-[%- MACRO node_pagination(action, pageNumber, page_count, query, from_form, captures)  BLOCK -%]
+[%- MACRO node_pagination(action, pageNumber, query, from_form, captures)  BLOCK -%]
 [%
 # Number of pages to show before and after the middle page in the list
     pageWrap = 3;
@@ -117,7 +117,7 @@
                 [% END %]
               </ul>
             </form>
-            [% node_pagination(search_action, page_num, page_count, {by => by, direction => direction}, from_form) | none %]
+            [% node_pagination(search_action, page_num, {by => by, direction => direction}, from_form) | none %]
             <form id="items" method="POST">
               <table id="nodes" class="table table-condensed table-striped">
                 <thead>
@@ -165,7 +165,7 @@
                 </tbody>
               </table>
             </form>
-            [% node_pagination(search_action, page_num, page_count, {by => by, direction => direction}, from_form) | none %]
+            [% node_pagination(search_action, page_num, {by => by, direction => direction}, from_form) | none %]
       <div id="noResult" class="unwell[% ' hidden' IF items.size > 0 %]">
         <i class="icon-search icon-large"></i><p>[% l('No node found') %]</p>
       </div>
