@@ -28,7 +28,7 @@ use Apache2::Const -compile => 'OK';
 sub handler {
     my $r = shift;
     pf::CHI::Request::clear_all();
-    pf::dal->set_tenant($DEFAULT_TENANT_ID);
+    pf::dal->reset_tenant();
     return Apache2::Const::OK;
 }
 
