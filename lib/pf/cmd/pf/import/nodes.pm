@@ -97,6 +97,7 @@ sub _run {
             default_pid => $params->{"default-owner"},
             default_category_id => pf::nodecategory::nodecategory_view_by_name($params->{"default-role"})->{category_id},
             default_voip => $params->{"default-voip"},
+            default_unregdate => $params->{"default-unregdate"},
         },
     );
     

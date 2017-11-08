@@ -312,6 +312,7 @@ sub importCSV {
     my $default_node_pid = $data->{default_pid};
     my $default_category_id = $data->{default_category_id};
     my $default_voip = $data->{default_voip};
+    my $default_unregdate = $data->{default_unregdate};
 
     $logger->debug("CSV file import nodes from $tmpfilename ($filename, \"$delimiter\")");
 
@@ -380,7 +381,7 @@ sub importCSV {
            'pid'         => $pid,
            'category'    => $index{'category'}  ? $row->[$index{'category'}]  : undef,
            'category_id' => $index{'category'}  ? undef                       : $default_category_id,
-           'unregdate'   => $index{'unregdate'} ? $row->[$index{'unregdate'}] : undef,
+           'unregdate'   => $index{'unregdate'} ? $row->[$index{'unregdate'}] : $default_unregdate,
            'voip'        => $index{'voip'}      ? $row->[$index{'voip'}]      : $default_voip,
            'notes'       => $index{'notes'}     ? $row->[$index{'notes'}]     : undef,
           );
