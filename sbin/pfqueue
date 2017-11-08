@@ -45,6 +45,7 @@ use Config::IniFiles;
 use pf::SwitchFactory;
 use pf::pfqueue::consumer::redis;
 use pf::api;
+use pf::dal;
 use pf::client;
 use pf::CHI::Request;
 pf::client::setClient("pf::api::can_fork");
@@ -305,6 +306,7 @@ sub _run_task {
     while (worker_should_run()) {
         $consumer = get_consumer($id) unless $consumer;
         pf::CHI::Request::clear_all();
+        pf::dal->reset_tenant();
         pf::log::reset_log_context();
         eval {
             #reload all cached configs before running the task
