@@ -159,7 +159,7 @@ sub handle {
         return $FALSE;
     }
 
-    pf::dal->set_tenant($switch->{_TenantId});
+    $switch->setCurrentTenant();
 
     pf::ip4log::open($params{'client_ip'}, $params{'client_mac'}, 3600);
 
