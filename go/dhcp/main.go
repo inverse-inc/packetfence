@@ -273,12 +273,25 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 			}
 
 			// Search for the next available ip in the pool
+
 			if i.HasNext() {
 				element := i.Next()
 				free = int(element)
+				// Ping the ip address
+				// ping := fastping.NewPinger()
+				// ra, err := net.ResolveIPAddr("ip4:icmp", dhcp.IPAdd(handler.start, free).String())
+				// if err != nil {
+				// 	fmt.Println("Not able to resolve ip address to ping")
+				// }
+				// ping.AddIPAddr(ra)
+				// ping.OnRecv = func(addr *net.IPAddr, rtt time.Duration) {
+				// 	handler.available.Remove(element)
+				//
+				// }
 				handler.available.Remove(element)
 				handler.hwcache.Set(p.CHAddr().String(), free, handler.leaseDuration+(time.Duration(15)*time.Second))
 			} else {
+				fmt.Println("No space left in the pool")
 				return answer
 			}
 
@@ -352,6 +365,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 						GlobalIpCache.Set(reqIP.String(), p.CHAddr().String(), leaseDuration+(time.Duration(15)*time.Second))
 						GlobalMacCache.Set(p.CHAddr().String(), reqIP.String(), leaseDuration+(time.Duration(15)*time.Second))
 						// Update the cache
+						fmt.Println("DHCP ACK: " + p.CHAddr().String() + " " + reqIP.String())
 						handler.hwcache.Set(p.CHAddr().String(), index, leaseDuration+(time.Duration(15)*time.Second))
 						return answer
 					}
