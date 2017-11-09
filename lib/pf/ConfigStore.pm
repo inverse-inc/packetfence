@@ -530,8 +530,31 @@ sub commitCluster {
 sub search {
     my ($self, $field, $value, $idKey) = @_;
     return unless defined $field && defined $value;
-    return grep { exists $_->{$field} && defined $_->{$field} && $_->{$field} eq $value  } @{$self->readAll($idKey)};
+    return $self->filter($field, sub { $_[0] eq $value }, $idKey);
+}
 
+=head2 search_like
+
+search_like
+
+=cut
+
+sub search_like {
+    my ($self, $field, $re, $idKey) = @_;
+    return unless defined $field && defined $re;
+    return $self->filter($field, sub { $_[0] =~ $re }, $idKey);
+}
+
+=head2 filter
+
+filter
+
+=cut
+
+sub filter {
+    my ($self, $field, $filter, $idKey) = @_;
+    return unless defined $field && defined $filter;
+    return grep { exists $_->{$field} && defined $_->{$field} && $filter->($_->{$field}) } @{$self->readAll($idKey)};
 }
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
