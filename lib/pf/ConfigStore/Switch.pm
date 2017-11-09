@@ -103,11 +103,33 @@ Clean data before update or creating
 
 sub cleanupBeforeCommit {
     my ( $self, $id, $switch ) = @_;
+    $self->_normalizeUplink($switch);
+    $self->_normalizeInlineTrigger($switch);
+    $self->_removeParentValues($id, $switch);
+}
 
+=head2 _normalizeUplink
+
+_normalizeUplink
+
+=cut
+
+sub _normalizeUplink {
+    my ($self, $switch) = @_;
     if ( $switch->{uplink_dynamic} ) {
         $switch->{uplink}         = 'dynamic';
         $switch->{uplink_dynamic} = undef;
     }
+}
+
+=head2 _normalizeInlineTrigger
+
+_normalizeInlineTrigger
+
+=cut
+
+sub _normalizeInlineTrigger {
+    my ($self, $switch) = @_;
     if ( exists $switch->{inlineTrigger} ) {
 
         # Build string definition for inline triggers (see pf::role::isInlineTrigger)
@@ -119,9 +141,21 @@ sub cleanupBeforeCommit {
         @triggers = ('always::1') if $has_always;
         $switch->{inlineTrigger} = join( ',', @triggers );
     }
+    return ;
+}
 
-    my $parent_config = $self->fullConfigRaw($switch->{$self->parentAttribute} ? $self->_formatGroup($switch->{$self->parentAttribute}) : $self->topLevelGroup);
-    if($id ne $self->topLevelGroup) {
+=head2 _removeParentValues
+
+_removeParentValues
+
+=cut
+
+sub _removeParentValues {
+    my ($self, $id, $switch) = @_;
+    my $parentAttribute = $self->parentAttribute;
+    my $topLevelGroup = $self->topLevelGroup;
+    my $parent_config = $self->fullConfigRaw($switch->{$parentAttribute} ? $self->_formatGroup($switch->{$parentAttribute}) : $topLevelGroup);
+    if($id ne $topLevelGroup) {
         # Put the elements to undef if they are the same as in the inheritance
         while (my ($key, $value) = each %$switch){
             if(defined($value) && defined($parent_config->{$key}) && $value eq $parent_config->{$key}){
@@ -129,7 +163,6 @@ sub cleanupBeforeCommit {
             }
         }
     }
-
 }
 
 
