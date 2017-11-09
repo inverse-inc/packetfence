@@ -60,6 +60,8 @@ use pf::db;
 use pf::violation;
 use pf::util;
 use pf::CHI;
+use pf::dal::radacct_log;
+use pf::dal::radacct;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $accounting_db_prepared = 0;
@@ -555,10 +557,15 @@ sub node_accounting_monthly_bw {
 
 sub node_accounting_yearly_bw {
     my ($mac) = @_;
-    my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_bandwidth_yearly_sql', $mac);
-    my $ref = $query->fetchrow_hashref();
-    $query->finish();
-    return ($ref);
+    return _db_item (
+        -columns => [
+            'SUM(radacct_log.acctinputoctets)|acctinput',
+            'SUM(radacct_log.acctoutputoctets)|acctoutput',
+            'SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)|accttotal'
+        ],
+        -from => [-join => 'radacct_log', '=>{radacct_log.acctuniqueid=radacct.acctuniqueid}', 'radacct'],
+        -where => [-and => [\"YEAR(timestamp) = YEAR(CURRENT_DATE())", {callingstationid => $mac}]],
+    );
 }
 
 =item node_accounting_daily_time - view connected time today for a node, returns an array of hashrefs
@@ -603,10 +610,11 @@ sub node_accounting_monthly_time {
 
 sub node_accounting_yearly_time {
     my ($mac) = @_;
-    my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_sessiontime_yearly_sql', $mac);
-    my $ref = $query->fetchrow_hashref();
-    $query->finish();
-    return ($ref);
+    return _db_item (
+        -columns => ['SUM(FORMAT((radacct_log.acctsessiontime/60),2))|accttotaltime'],
+        -from => [-join => 'radacct_log', '=>{radacct_log.acctuniqueid=radacct.acctuniqueid}', 'radacct'],
+        -where => [-and => [\"YEAR(timestamp) = YEAR(CURRENT_DATE())", {callingstationid => $mac}]],
+    );
 }
 
 =item node_acct_maintenance_bw_inbound - get mac that downloaded more bandwidth than they should
@@ -686,6 +694,25 @@ sub _translate_bw {
 sub cache {
     my ($class) = @_;
     return pf::CHI->new(namespace => "accounting");
+}
+
+=head2 _db_item
+
+_db_item
+
+=cut
+
+sub _db_item {
+    my (@args) = @_;
+    my ($status, $iter) = pf::dal::radacct->search(
+        @args,
+        -with_class => undef,
+        -no_auto_tenant_id => 1,
+    );
+    if (is_error($status)) {
+        return undef;
+    }
+    return $iter->next;
 }
 
 =back
