@@ -73,6 +73,7 @@ BEGIN {
     get_captive_portal_uri
     get_send_email_config
     send_mime_lite
+    is_inline_configured
   );
 }
 
@@ -231,6 +232,10 @@ sub get_routed_registration_nets {
         push @nets, $interface->desc();
     }
     return (@nets);
+}
+
+sub is_inline_configured {
+    return scalar @inline_nets;
 }
 
 sub get_inline_nets {
