@@ -17,6 +17,7 @@ use base qw(pf::cmd);
 use Role::Tiny::With;
 use pf::constants qw($TRUE $FALSE);
 use pf::constants::exit_code qw($EXIT_SUCCESS);
+use pf::file_paths qw($install_dir);
 with 'pf::cmd::roles::show_parent_help';
 
 =head2 parseArgs
@@ -84,7 +85,7 @@ Run the import
 
 sub _run {
     my ($self) = @_;
-    use lib 'html/pfappserver/lib';
+    use lib "$install_dir/html/pfappserver/lib";
     require pfappserver::Model::Node;
     require pf::nodecategory;
     
