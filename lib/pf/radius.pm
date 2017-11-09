@@ -122,7 +122,7 @@ sub authorize {
         goto AUDIT;
     }
 
-    pf::dal->set_tenant($switch->{_TenantId});
+    $switch->setCurrentTenant();
 
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
 
