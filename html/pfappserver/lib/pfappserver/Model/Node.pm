@@ -411,6 +411,7 @@ sub importCSV {
         else {
             $logger->debug("Modify already registered MAC $mac ($pid)");
             $result = node_modify($mac, %data);
+            node_update_last_seen($mac);
         }
         if ($result) {
             $count++;
