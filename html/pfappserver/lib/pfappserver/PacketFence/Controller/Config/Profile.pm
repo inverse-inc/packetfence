@@ -32,6 +32,7 @@ use pf::Connection::ProfileFactory;
 use captiveportal::DynamicRouting::Application;
 use pf::config qw(%connection_type %ConfigSwitchesGroup);
 use pf::constants qw($TRUE $FALSE);
+use pf::locationlog qw(locationlog_unique_ssids);
 use pf::util;
 use pf::file_paths qw(
     $captiveportal_profile_templates_path
@@ -125,11 +126,13 @@ Append additional data after the view
 after view => sub {
     my ($self, $c) = @_;
     my ($status, $roles) = $c->model('Config::Roles')->listFromDB;
+    my @ssids = locationlog_unique_ssids();
     $c->stash({
         connection_types => [ keys %connection_type ],
         connection_sub_types => [ sort keys %RADIUS_EAP_TYPE_2_VALUES ],
         node_roles => $roles,
         switch_groups => [ keys %ConfigSwitchesGroup ],
+        ssids => [ @ssids ],
     });
 };
 

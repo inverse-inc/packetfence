@@ -12393,3 +12393,15 @@ msgid ""
 "IP address archive of the devices on your network when enabled (see "
 "Maintenance section)"
 msgstr "Archive les adresses IPs des appareils sur le réseau quand qu'activé (voir la section Maintenance)"
+
+# html/pfappserver/root/config/profile/tab-content.tt
+msgid "Choose SSID"
+msgstr ""
+
+# html/pfappserver/root/config/profile/tab-content.tt
+msgid "Enter new SSID"
+msgstr ""
+
+# html/pfappserver/root/config/profile/tab-content.tt
+msgid "Enter SSID"
+msgstr ""

@@ -54,6 +54,8 @@ BEGIN {
         locationlog_set_session
         locationlog_get_session
         locationlog_last_entry_mac
+        
+        locationlog_unique_ssids
     );
 }
 
@@ -241,6 +243,9 @@ sub locationlog_db_prepare {
         FROM locationlog
         WHERE mac = ?
         ORDER BY start_time DESC LIMIT 1 ]);
+        
+    $locationlog_statements->{'locationlog_unique_ssids_sql'} = get_db_handle()->prepare(
+        qq [ SELECT DISTINCT `ssid` FROM `locationlog` WHERE `ssid` != '' AND `ssid` IS NOT NULL ORDER BY `ssid` ASC]);
 
     $locationlog_db_prepared = 1;
 }
@@ -605,6 +610,16 @@ sub locationlog_last_entry_mac {
     # just get one row and finish
     $query->finish();
     return ($ref);
+}
+
+=item locationlog_unique_ssids
+
+Return a list of unique SSIDs that have been seen.
+
+=cut
+
+sub locationlog_unique_ssids {
+    return db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_unique_ssids_sql');
 }
 
 =back

@@ -224,21 +224,20 @@ function initReadPage(element) {
         select.find("option:selected").removeAttr("selected");
         var options = select.find('option[value!=""]');
         // Select the next option that was not yet selected
-        try {
-            options.each(function(index,element) {
-                var selector = '[value="' + element.value + '"]';
-                if(selected_options.filter(selector).length === 0) {
-                    $(element).attr("selected", "selected");
-                    throw "";
-                }
-            });
-        }
-        catch(e) {}
+        options.each(function(index,element) {
+            var selector = '[value="' + element.value + '"]';
+            if(selected_options.filter(selector).length === 0) {
+                $(element).attr("selected", "selected");
+                return false;
+            }
+        });
+        
         // If all options have been added, remove the add button
         var rows = row.siblings(':not(.hidden)').addBack();
         if (rows.length == options.length) {
             rows.find('[href="#add"]').addClass('hidden');
         }
+        select.trigger('change');
     });
     // When selecting an exclusive source, remove all other sources
     $('#sources').on('change', 'select', function(event) {
@@ -266,9 +265,10 @@ function initReadPage(element) {
     $('select[name$=".type"]:not(:disabled)').each(function(i,e){
         updateFilterMatchInput($(e),true);
     });
+    $('#filter select[name$=".type"]').trigger('change');
 }
 
-function updateFilterMatchInput(type_input, keep) {
+function updateFilterMatchInput(type_input, keep_value) {
     var match_input = type_input.next();
     var type_value = type_input.val();
     var match_input_template_id = '#' + type_value + "_filter_match";
@@ -277,8 +277,18 @@ function updateFilterMatchInput(type_input, keep) {
         match_input_template = $('#default_filter_match');
     }
     if ( match_input_template.length ) {
-        changeInputFromTemplate(match_input, match_input_template, keep);
-        if (type_value == "switch") {
+        changeInputFromTemplate(match_input, match_input_template, keep_value);
+        if(type_value == "ssid") {
+            $(type_input.next()).on('change', function(event){
+                /* Replace SELECT with INPUT */
+                select_element = $(event.currentTarget);
+                select_element.replaceWith('<input type="text" id="'+select_element.attr('id')+'" name="'+select_element.attr('name')+'" value="'+select_element.val()+'" data-required="'+(select_element.attr('required')||'0')+'" placeholder="'+select_element.attr('placeholder')+'">');
+                if(select_element.val() == '') {
+                    type_input.next().focus();
+                }
+            });
+        }
+        if(type_value == "switch") {
             type_input.next().typeahead({
                 source: searchSwitchesGenerator($('#section h2')),
                 minLength: 2,
