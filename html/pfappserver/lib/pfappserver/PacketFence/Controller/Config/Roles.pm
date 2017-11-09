@@ -13,6 +13,7 @@ Controller for Roles configuration.
 use HTTP::Status qw(:constants is_error is_success);
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
+use pf::config::util qw(is_inline_configured);
 
 
 BEGIN {
@@ -82,6 +83,11 @@ sub index :Path :Args(0) {
 
     $c->forward('list');
 }
+
+before list => sub {
+    my ($self, $c) = @_;
+    $c->stash->{is_inline_configured} = is_inline_configured();
+};
 
 =head1 COPYRIGHT
 

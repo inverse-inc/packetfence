@@ -28,7 +28,9 @@
             <td class="hidden-phone">[% role.notes | html %]</td>
             <td class="hidden-phone">[% role.max_nodes_per_pid | html %]</td>
             <td>
+                [% IF is_inline_configured && can_access("TRAFFIC_SHAPING_CREATE") %]
                 <a class="btn createItem" href="[% c.uri_for(c.controller('Config::TrafficShaping').action_for('create_or_update'), role.id) %]">[% l('Traffic Shaping') %]</a>
+                [% END %]
             </td>
           </tr>
           [% END -%]
