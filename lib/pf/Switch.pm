@@ -41,6 +41,7 @@ use Errno qw(EINTR);
 use pf::file_paths qw(
     $control_dir
 );
+use pf::dal;
 use pf::locationlog;
 use pf::node;
 use pf::cluster;
@@ -3626,6 +3627,11 @@ sub isMacInAddressTableAtIfIndex {
     $logger->warn("isMacInAddressTableAtIfIndex is not supported or implemented for this switch");
 
     return 0;
+}
+
+sub setCurrentTenant {
+    my ($self) = @_;
+    pf::dal->set_tenant($self->{_TenantId});
 }
 
 =back
