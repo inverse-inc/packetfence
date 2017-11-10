@@ -252,6 +252,31 @@ function initReadPage(element) {
     });
     $('#filter').on('change', 'select[name$=".type"]', function(event) {
         var type_input = $(event.currentTarget);
+        var type_value = type_input.val();
+        if(type_value == 'ssid') {
+            var match_input = type_input.next('select');
+            if(match_input.length > 0) {
+                var match_value = match_input.val();
+                if($('datalist[id="ssids"]').length < 1){
+                    var datalist_element = $('<datalist id="ssids"/>');
+                    $(match_input).find('option').each(function(){
+                        datalist_element.append($(this));
+                    });
+                    $('body').append(datalist_element);
+                }
+                var input_element = $('<input type="text" id="'+match_input.attr('id')+'" name="'+match_input.attr('name')+'" value="'+(match_value||'')+'" data-required="'+(match_input.attr('required')||'0')+'" placeholder="'+match_input.attr('placeholder')+'" class="input-medium" list="ssids">');
+                $.each($._data(match_input.get(0), 'events'), function() {
+                    $.each(this, function() {
+                        $(input_element).bind(this.type, this.handler);
+                    });
+                });
+                match_input.parent().append(input_element);
+                $(match_input).remove();
+            }else{
+                type_input.next().attr('list', 'ssids');
+            }
+            return;
+        }
         updateFilterMatchInput(type_input,false);
     });
     $('[id$="Empty"]').on('click', '[href="#add"]', function(event) {
@@ -270,6 +295,7 @@ function initReadPage(element) {
 
 function updateFilterMatchInput(type_input, keep_value) {
     var match_input = type_input.next();
+    var match_value = match_input.val();
     var type_value = type_input.val();
     var match_input_template_id = '#' + type_value + "_filter_match";
     var match_input_template = $(match_input_template_id);
@@ -278,16 +304,6 @@ function updateFilterMatchInput(type_input, keep_value) {
     }
     if ( match_input_template.length ) {
         changeInputFromTemplate(match_input, match_input_template, keep_value);
-        if(type_value == "ssid") {
-            $(type_input.next()).on('change', function(event){
-                /* Replace SELECT with INPUT */
-                select_element = $(event.currentTarget);
-                select_element.replaceWith('<input type="text" id="'+select_element.attr('id')+'" name="'+select_element.attr('name')+'" value="'+select_element.val()+'" data-required="'+(select_element.attr('required')||'0')+'" placeholder="'+select_element.attr('placeholder')+'">');
-                if(select_element.val() == '') {
-                    type_input.next().focus();
-                }
-            });
-        }
         if(type_value == "switch") {
             type_input.next().typeahead({
                 source: searchSwitchesGenerator($('#section h2')),

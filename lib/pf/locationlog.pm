@@ -619,7 +619,7 @@ Return a list of unique SSIDs that have been seen.
 =cut
 
 sub locationlog_unique_ssids {
-    return db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_unique_ssids_sql');
+    return map { $_->{ssid} } db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_unique_ssids_sql');
 }
 
 =back

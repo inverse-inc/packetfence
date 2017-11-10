@@ -22,12 +22,10 @@
        [% END %]
      </select>
      [% IF ssids.size %]
-     <select name="ssid_filter_match" id="ssid_filter_match" data-required="require" placeholder="[% l('Enter SSID') %]">
-        <option value="" disabled selected style="display:none;">--- [% l('Choose SSID') %] ---</option> [% #initial placeholder, removed after 1st selection %]
+     <select name="ssid_filter_match" id="ssid_filter_match" data-required="required" placeholder="[% l('Enter SSID') %]">
         [% FOREACH ssid IN ssids %]
-            <option value="[% ssid.ssid %]">[% ssid.ssid %]</option>
+            <option value="[% ssid %]">[% ssid %]</option>
         [% END %]
-            <option value="">--- [% l('Enter new SSID') %] ---</option>
      </select>
      [% END %]
   </div>
