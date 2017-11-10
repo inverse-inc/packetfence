@@ -120,6 +120,10 @@ foreach my $network ( keys %ConfigNetworks ) {
         if ( pf::config::is_network_type_inline($network) ) {
             my $inline_obj = NetAddr::IP->new( $network, $ConfigNetworks{$network}{'netmask'} );
             push @routed_inline_nets_named, $inline_obj;
+            if (defined($ConfigNetworks{$network}{'reg_network'}) && $ConfigNetworks{$network}{'reg_network'} ne "") {
+                $inline_obj = NetAddr::IP->new( $ConfigNetworks{$network}{'reg_network'} );
+                push @routed_inline_nets_named, $inline_obj;
+            }
         } elsif ( pf::config::is_network_type_vlan_isol($network) ) {
             my $isolation_obj = NetAddr::IP->new( $network, $ConfigNetworks{$network}{'netmask'} );
             push @routed_isolation_nets_named, $isolation_obj;

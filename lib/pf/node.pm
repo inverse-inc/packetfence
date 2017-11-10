@@ -1073,6 +1073,12 @@ sub node_deregister {
         return (0);
     }
 
+    pf::api::jsonrestclient->new(
+        proto   => "http",
+        host    => "localhost",
+        port    => $pf::constants::api::GO_DHCP_PORT,
+    )->call("/releaseip/".$mac,{});
+
     return (1);
 }
 

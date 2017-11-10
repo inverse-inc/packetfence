@@ -103,6 +103,7 @@ InterfaceView.prototype.readInterface = function(e) {
             modal.find('[name="fake_mac_enabled"]').closest('.control-group').hide();
             modal.find('[name="nat_enabled"]').closest('.control-group').hide();
             modal.find('[name="split_network"]').closest('.control-group').hide();
+            modal.find('[name="reg_network"]').closest('.control-group').hide();
             modal.modal({ shown: true });
             modal.one('shown', function() {
                 modal.find(':input:visible').first().focus();
@@ -126,6 +127,7 @@ InterfaceView.prototype.typeChanged = function(e) {
             var vip = modal.find('[name="vip"]').closest('.control-group');
             var nat = modal.find('[name="nat_enabled"]').closest('.control-group');
             var split = modal.find('[name="split_network"]').closest('.control-group');
+            var reg_net = modal.find('[name="reg_network"]').closest('.control-group');
 
             switch ( type.val() ) {
                 case 'inlinel2': 
@@ -140,6 +142,8 @@ InterfaceView.prototype.typeChanged = function(e) {
                     nat.find(':input').removeAttr('disabled');
                     split.show('fast');
                     split.find(':input').removeAttr('disabled');
+                    reg_net.show('fast');
+                    reg_net.find(':input').removeAttr('disabled');
                     $(".info_inline").show('fast');
                     if (modal.find('[name="nat_enabled"]').is(":checked")) {
                         $(".info_routed").hide('fast');
@@ -166,6 +170,8 @@ InterfaceView.prototype.typeChanged = function(e) {
                     nat.find(':input').attr('disabled','disabled');
                     split.hide('fast');
                     split.find(':input').attr('disabled','disabled');
+                    reg_net.show('fast');
+                    reg_net.find(':input').attr('disabled','disabled');
                     $(".info_inline").hide('fast');
                     $(".info_routed").hide('fast');
                     break;
@@ -182,6 +188,8 @@ InterfaceView.prototype.typeChanged = function(e) {
                     nat.find(':input').attr('disabled','disabled');
                     split.hide('fast');
                     split.find(':input').attr('disabled','disabled');
+                    reg_net.show('fast');
+                    reg_net.find(':input').attr('disabled','disabled');
                     $(".info_inline").hide('fast');
                     $(".info_routed").hide('fast');
                     break;
@@ -197,6 +205,8 @@ InterfaceView.prototype.typeChanged = function(e) {
                     nat.find(':input').attr('disabled','disabled');
                     split.hide('fast');
                     split.find(':input').attr('disabled','disabled');
+                    reg_net.show('fast');
+                    reg_net.find(':input').attr('disabled','disabled');
                     $(".info_inline").hide('fast');
                     $(".info_routed").hide('fast');
                     break;
@@ -214,6 +224,8 @@ InterfaceView.prototype.typeChanged = function(e) {
                     nat.find(':input').attr('disabled','disabled');
                     split.hide('fast');
                     split.find(':input').attr('disabled','disabled');
+                    reg_net.show('fast');
+                    reg_net.find(':input').attr('disabled','disabled');
                     $(".info_inline").hide('fast');
                     $(".info_routed").hide('fast');
                     break;
@@ -229,6 +241,8 @@ InterfaceView.prototype.typeChanged = function(e) {
                     nat.find(':input').attr('disabled','disabled');
                     split.hide('fast');
                     split.find(':input').attr('disabled','disabled');
+                    reg_net.show('fast');
+                    reg_net.find(':input').attr('disabled','disabled');
                     $(".info_inline").hide('fast');
                     $(".info_routed").hide('fast');
             }
@@ -259,6 +273,8 @@ InterfaceView.prototype.typeChanged = function(e) {
                     nat.find(':input').attr('disabled','disabled');
                     split.hide('fast');
                     split.find(':input').attr('disabled','disabled');
+                    reg_net.show('fast');
+                    reg_net.find(':input').attr('disabled','disabled');
             }
         }
     }

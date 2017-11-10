@@ -131,6 +131,7 @@ func (d *Interfaces) readConfig() {
 						for _, subnet := range smallnet {
 							var DHCPNet Network
 							var DHCPScope DHCPHandler
+							var NetWork *net.IPNet
 							var lastrole bool
 							if len(Roles) == 1 {
 								lastrole = true
@@ -140,14 +141,21 @@ func (d *Interfaces) readConfig() {
 							}
 							DHCPScope.role = Role
 							DHCPNet.splittednet = true
+
 							var ip net.IP
-							ip = append([]byte(nil), subnet.IP...)
+							if (Role == "registration") && (ConfNet.RegNetwork != "") {
+								IP, NetWork, _ = net.ParseCIDR(ConfNet.RegNetwork)
+							} else {
+								NetWork = subnet
+							}
+
+							ip = append([]byte(nil), NetWork.IP...)
 
 							// First ip available in the scope (packetfence ip)
 							inc(ip)
-							DHCPNet.network.IP = append([]byte(nil), subnet.IP...)
+							DHCPNet.network.IP = append([]byte(nil), NetWork.IP...)
 
-							DHCPNet.network.Mask = subnet.Mask
+							DHCPNet.network.Mask = NetWork.Mask
 							DHCPScope.ip = append([]byte(nil), ip...)
 
 							var seconds int
@@ -156,7 +164,11 @@ func (d *Interfaces) readConfig() {
 								// lease duration need to be low in registration role
 								seconds, _ = strconv.Atoi("30")
 								// Use the first ip define in networks.conf
-								ip = append([]byte(nil), net.ParseIP(ConfNet.DhcpStart)...)
+								if ConfNet.RegNetwork != "" {
+									ip = append([]byte(nil), IP...)
+								} else {
+									ip = append([]byte(nil), net.ParseIP(ConfNet.DhcpStart)...)
+								}
 							} else {
 								seconds, _ = strconv.Atoi(ConfNet.DhcpDefaultLeaseTime)
 								inc(ip)
@@ -166,7 +178,7 @@ func (d *Interfaces) readConfig() {
 							DHCPScope.leaseDuration = time.Duration(seconds) * time.Second
 							var ips net.IP
 
-							for ipe := net.IPv4(subnet.IP[0], subnet.IP[1], subnet.IP[2], subnet.IP[3]); subnet.Contains(ipe); inc(ipe) {
+							for ipe := net.IPv4(NetWork.IP[0], NetWork.IP[1], NetWork.IP[2], NetWork.IP[3]); NetWork.Contains(ipe); inc(ipe) {
 								ips = append([]byte(nil), ipe...)
 							}
 							// Decrement twice to have the last ip available for the scope
@@ -201,6 +213,7 @@ func (d *Interfaces) readConfig() {
 							}
 							DHCPNet.dhcpHandler = DHCPScope
 							ethIf.network = append(ethIf.network, DHCPNet)
+
 							if lastrole == true {
 								break
 							}

@@ -128,6 +128,7 @@ func main() {
 	router.HandleFunc("/stats/{int:.*}", handleStats).Methods("GET")
 	router.HandleFunc("/options/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}/{options:.*}", handleOverrideOptions).Methods("POST")
 	router.HandleFunc("/removeoptions/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", handleRemoveOptions).Methods("GET")
+	router.HandleFunc("/releaseip/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", handleReleaseIP).Methods("POST")
 
 	// Api
 	l, err := net.Listen("tcp", ":22222")
@@ -280,8 +281,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 				// Ping the ip address
 				pingreply := Ping(dhcp.IPAdd(handler.start, free).String(), 1)
 				if pingreply {
-					fmt.Println("Ip address already in use")
-					handler.available.Remove(element)
+					fmt.Println("Ip " + dhcp.IPAdd(handler.start, free).String() + " already in use")
 					goto retry
 				}
 				handler.available.Remove(element)

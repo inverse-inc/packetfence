@@ -92,21 +92,24 @@ func initiaLease(dhcpHandler *DHCPHandler) {
 	}
 }
 
-func InterfaceScopeFromMac(MAC string) (string, string) {
-	var NetInterface string
+func InterfaceScopeFromMac(MAC string) string {
 	var NetWork string
 	if index, found := GlobalMacCache.Get(MAC); found {
 		for _, v := range DHCPConfig.intsNet {
 			v := v
 			for network := range v.network {
 				if v.network[network].network.Contains(net.ParseIP(index.(string))) {
-					NetInterface = v.Name
 					NetWork = v.network[network].network.String()
+					if x, found := v.network[network].dhcpHandler.hwcache.Get(MAC); found {
+						v.network[network].dhcpHandler.hwcache.Replace(MAC, x.(int), 3*time.Second)
+						v.network[network].dhcpHandler.available.Add(uint32(x.(int)))
+						fmt.Println(MAC + " removed")
+					}
 				}
 			}
 		}
 	}
-	return NetInterface, NetWork
+	return NetWork
 }
 
 // etcdInit initiate the connection to etcd

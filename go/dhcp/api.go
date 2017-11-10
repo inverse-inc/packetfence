@@ -128,6 +128,23 @@ func handleStats(res http.ResponseWriter, req *http.Request) {
 // 	spew.Dump(NetWork)
 // }
 
+func handleReleaseIP(res http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
+	_ = InterfaceScopeFromMac(vars["mac"])
+
+	var result = map[string][]*Info{
+		"result": {
+			&Info{Mac: vars["mac"], Status: "ACK"},
+		},
+	}
+
+	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	res.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(res).Encode(result); err != nil {
+		panic(err)
+	}
+}
+
 func handleOverrideOptions(res http.ResponseWriter, req *http.Request) {
 
 	vars := mux.Vars(req)

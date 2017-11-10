@@ -106,6 +106,13 @@ has_field 'split_network' => (
     label => 'Split network by role',
 );
 
+has_field 'reg_network' =>
+  (
+   type => 'Text',
+   label => 'Registration IP Address CIDR format',
+  );
+
+
 =head2 options_type
 
 =cut

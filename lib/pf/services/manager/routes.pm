@@ -224,13 +224,20 @@ sub manageStaticRoute {
                     if ( $net{'dhcpd'} eq 'enabled' ) {
                         if (isenabled($net{'split_network'})) {
                             my @categories = nodecategory_view_all();
-                            push @categories, {'category_id' => '0', 'notes' => 'registration',  'max_nodes_per_pid' => '0', 'name' => 'registration'  };
                             my $count = @categories;
                             my $len = $current_network->masklen;
                             my $cidr = (ceil(log($count)/log(2)) + $len);
                             if ($cidr > 30) {
                                 $logger->error("Can't split network");
                                 return;
+                            }
+                            if ($net{'reg_network'}) {
+                                my $cmd = "sudo $full_path addr del ".$net{'reg_network'}." dev $interface";
+                                $cmd = untaint_chain($cmd);
+                                print $fh $cmd."\n";
+                                my @out = pf_run($cmd);
+                                $cmd = "sudo $full_path addr add ".$net{'reg_network'}." dev $interface";
+                                @out = pf_run($cmd);
                             }
                             my @sub_net = $current_network->split($cidr);
                             foreach my $net (@sub_net) {
