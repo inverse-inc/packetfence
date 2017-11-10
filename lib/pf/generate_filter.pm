@@ -19,6 +19,7 @@ use Exporter qw(import);
 
 our @EXPORT_OK = qw(
     generate_filter
+    filter_with_offset_limit
 );
 
 our %FILTER_GENERATORS = (
@@ -74,6 +75,21 @@ sub generate_like_filter {
         my $h = shift;
         defined $h && exists $h->{$field_name} && defined $h->{$field_name} && $h->{$field_name} =~ /\Q$value\E/
     };
+}
+
+sub filter_with_offset_limit {
+    my ($filter, $offset, $limit, $values) = @_;
+    my @matches;
+    my $found = 0;
+    for my $v (@$values) {
+        next unless $filter->($v);
+        if ($found >= $offset) {
+           push @matches, $v;
+           last if $limit == @matches;
+        }
+        $found++;
+    }
+    return \@matches;
 }
 
 =head1 AUTHOR

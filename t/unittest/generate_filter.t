@@ -24,8 +24,8 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 21;
-use pf::generate_filter qw(generate_filter);
+use Test::More tests => 28;
+use pf::generate_filter qw(generate_filter filter_with_offset_limit);
 
 #This test will running last
 use Test::NoWarnings;
@@ -60,6 +60,59 @@ ok ($like_filter->({"param1" => "value1"}), "like filter succeeds");
 ok (!$like_filter->({"param1" => "aalue2"}), "like filter should fail");
 ok (!$like_filter->({"param2" => "value1"}), "like filter should fail");
 ok (!$like_filter->(undef), "like filter should fail");
+
+$filter = generate_filter("not_equal", "p", "a");
+
+is_deeply(
+    [],
+    filter_with_offset_limit($filter, 10 , 25, []),
+    "Empty list",
+);
+
+
+our @alphabets = map { { p => $_ } } ("a".."z", "A".."Z");
+
+is_deeply(
+    filter_with_offset_limit($filter, 0 , 25, \@alphabets),
+    [map { { p => $_ } } ("b".."z") ],
+    "Not a",
+);
+
+$filter = generate_filter("not_equal", "p", "b");
+
+is_deeply(
+    filter_with_offset_limit($filter, 0 , 25, \@alphabets),
+    [map { { p => $_ } } ("a", ("c".."z")) ],
+    "Not b",
+);
+
+is_deeply(
+    filter_with_offset_limit($filter, 1 , 25, \@alphabets),
+    [map { { p => $_ } } (("c".."z"), "A") ],
+    "Not b offset 1",
+);
+
+$filter = generate_filter("equal", "p", "z");
+
+is_deeply(
+    filter_with_offset_limit($filter, 0 , 25, \@alphabets),
+    [ { p => "z" } ],
+    "Just match z",
+);
+
+is_deeply(
+    filter_with_offset_limit($filter, 1 , 25, \@alphabets),
+    [  ],
+    "Just match z skip first match",
+);
+
+$filter = generate_filter("equal", "p", "a");
+
+is_deeply(
+    filter_with_offset_limit($filter, 0 , 25, \@alphabets),
+    [ {p => "a"} ],
+    "Just match z skip first match",
+);
 
 =head1 AUTHOR
 
