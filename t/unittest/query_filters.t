@@ -25,64 +25,11 @@ BEGIN {
 }
 
 use Test::More tests => 21;
+use pf::generate_filter qw(generate_filter);
 
 #This test will running last
 use Test::NoWarnings;
 
-our %FILTER_GENERATORS = (
-    equal => \&generate_equal_filter,
-    not_equal => \&generate_not_equal_filter,
-    starts_with => \&generate_starts_with_filter,
-    ends_with => \&generate_ends_with_filter,
-    like => \&generate_like_filter,
-);
-
-sub generate_filter {
-    my ($op, $field_name, $value) = @_;
-    if (exists $FILTER_GENERATORS{$op}) {
-        return $FILTER_GENERATORS{$op}->($op, $field_name, $value);
-    }
-}
-
-sub generate_equal_filter {
-    my ($op, $field_name, $value) = @_;
-    return sub {
-        my $h = shift;
-        defined $h && exists $h->{$field_name} && defined $h->{$field_name} && $h->{$field_name} eq $value            
-    };
-}
-
-sub generate_not_equal_filter {
-    my ($op, $field_name, $value) = @_;
-    return sub {
-        my $h = shift;
-        defined $h && exists $h->{$field_name} && defined $h->{$field_name} && $h->{$field_name} ne $value
-    };
-}
-
-sub generate_starts_with_filter {
-    my ($op, $field_name, $value) = @_;
-    return sub {
-        my $h = shift;
-        defined $h && exists $h->{$field_name} && defined $h->{$field_name} && $h->{$field_name} =~ /^\Q$value\E/
-    };
-}
-
-sub generate_ends_with_filter {
-    my ($op, $field_name, $value) = @_;
-    return sub {
-        my $h = shift;
-        defined $h && exists $h->{$field_name} && defined $h->{$field_name} && $h->{$field_name} =~ /\Q$value\E$/
-    };
-}
-
-sub generate_like_filter {
-    my ($op, $field_name, $value) = @_;
-    return sub {
-        my $h = shift;
-        defined $h && exists $h->{$field_name} && defined $h->{$field_name} && $h->{$field_name} =~ /\Q$value\E/
-    };
-}
 my $filter = generate_filter("equal", "param1", "value1");
 ok ($filter->({"param1" => "value1"}), "equal filter succeeds");
 ok (!$filter->({"param1" => "value2"}), "equal filter should fail");
