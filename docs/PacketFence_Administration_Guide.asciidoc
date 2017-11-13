@@ -1152,38 +1152,38 @@ To authenticate 802.1X connection against OpenLDAP you need to define the LDAP c
 be sure that the user password is define as a NTHASH or as clear text.
 
 ----
-	ldap openldap {
-		server = "ldap.acme.com"
-		identity = "uid=admin,dc=acme,dc=com"
-		password = "password"
-		basedn = "dc=district,dc=acme,dc=com"
-		filter = "(uid=%{mschap:User-Name})"
-		ldap_connections_number = 5
-		timeout = 4
-		timelimit = 3
-		net_timeout = 1
-		tls {
-		}
-		dictionary_mapping = ${confdir}/ldap.attrmap
-		edir_account_policy_check = no
+  ldap openldap {
+    server = "ldap.acme.com"
+    identity = "uid=admin,dc=acme,dc=com"
+    password = "password"
+    basedn = "dc=district,dc=acme,dc=com"
+    filter = "(uid=%{mschap:User-Name})"
+    ldap_connections_number = 5
+    timeout = 4
+    timelimit = 3
+    net_timeout = 1
+    tls {
+    }
+    dictionary_mapping = ${confdir}/ldap.attrmap
+    edir_account_policy_check = no
 
-		keepalive {
-			# LDAP_OPT_X_KEEPALIVE_IDLE
-			idle = 60
+    keepalive {
+      # LDAP_OPT_X_KEEPALIVE_IDLE
+      idle = 60
 
-			# LDAP_OPT_X_KEEPALIVE_PROBES
-			probes = 3
+      # LDAP_OPT_X_KEEPALIVE_PROBES
+      probes = 3
 
-			# LDAP_OPT_X_KEEPALIVE_INTERVAL
-			interval = 3
-		}
-	}
+      # LDAP_OPT_X_KEEPALIVE_INTERVAL
+      interval = 3
+    }
+  }
 ----
 
 Next in `/usr/local/pf/raddb/sites-available/packetfence-tunnel` add in the authorize section:
 
 ----
-authorize {	
+authorize { 
         suffix
         ntdomain
         eap {
@@ -2862,7 +2862,7 @@ The first step is to create the syslog regex parser and then create the violatio
 Syslog regex parser configuration:
 ----------------------------------
 
-To create the syslog regex parser you will need to go to *Configuration -> Compliance -> Syslog Parsers -> Add a Syslog Parser -> regex*
+To create the syslog regex parser you will need to go to *Configuration -> Integration -> Syslog Parsers -> Add a Syslog Parser -> regex*
 
 Here is the configuration of the syslog regex parser:
 
@@ -2941,7 +2941,7 @@ The first step is to create the syslog regex parser and then create the violatio
 Syslog regex parser configuration:
 ----------------------------------
 
-To create the syslog regex parser you will need to go to *Configuration -> Compliance -> Syslog Parsers -> Add a Syslog Parser -> regex*
+To create the syslog regex parser you will need to go to *Configuration -> Integration -> Syslog Parsers -> Add a Syslog Parser -> regex*
 
 Here is the configuration of the syslog regex parser:
 
@@ -3082,7 +3082,7 @@ Along with the OPSWAT API key for Metadefender Cloud (they call it 'License Key'
 
 Assuming that all the steps for Suricata MD5 extraction have been followed, here's what to do next.
 
-On PacketFence, under Configuration->Compliance->OPSWAT Metadefender, enter your 'Licence Key'.
+On PacketFence, under Configuration->Integration->OPSWAT Metadefender, enter your 'Licence Key'.
 
 On the Suricata server (syslog-ng is preferred due to easier and more powerful configuration. If not installed, it might be an idea):
 
@@ -3126,7 +3126,7 @@ At this point, Suricata should be able to extract MD5 checksum of downloaded fil
 
 A configuration of a new 'syslog parser' as well as some violations are the only remaining steps to make full usage of the OPSWAT Metadefender Cloud integration.
 
-Configuration of a new 'syslog parser' (Configuration->Compliance->Syslog Parsers) should use the followings:
+Configuration of a new 'syslog parser' (Configuration->Integration->Syslog Parsers) should use the followings:
 
   Type: suricata_md5
   Alert pipe: the previously created alert pipe (FIFO) which is, in this case, /usr/local/pf/var/suricata_files
