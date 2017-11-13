@@ -32,7 +32,7 @@ our %FILTER_GENERATORS = (
 
 sub generate_filter {
     my ($op, $field_name, $value) = @_;
-    if (exists $FILTER_GENERATORS{$op}) {
+    if (exists $FILTER_GENERATORS{$op} && defined $value) {
         return $FILTER_GENERATORS{$op}->($op, $field_name, $value);
     }
     return undef;
