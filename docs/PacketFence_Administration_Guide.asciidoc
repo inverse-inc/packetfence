@@ -1337,7 +1337,7 @@ In order to prompt fields without authentication, you can use the Null source wi
 
 PacketFence already comes with a Null source pre-configured. If you haven't modified it or deleted it, you can use it for this example. Otherwise, go in 'Configuration -> Policies and Access Control -> Sources' and create a new Null source with a catchall rule that assigns a role and access duration.
 
-Then go in 'Configuration ->  -> Advanced Access Configuration -> Portal Modules' and click 'Add Portal Module' and select 'Authentication -> Null'. Set the 'Identifier' to `prompt_fields` and configure the module with the 'Mandatory fields' you want and uncheck 'Require AUP' so that the user doesn't have to accept the AUP before submitting these fields.
+Then go in 'Configuration -> Advanced Access Configuration -> Portal Modules' and click 'Add Portal Module' and select 'Authentication -> Null'. Set the 'Identifier' to `prompt_fields` and configure the module with the 'Mandatory fields' you want and uncheck 'Require AUP' so that the user doesn't have to accept the AUP before submitting these fields.
 
 image::docs/images/portal-modules/prompt_fields.png[scaledwidth="100%",alt="Prompt fields module"]
 
