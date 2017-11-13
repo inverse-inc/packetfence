@@ -35,6 +35,7 @@ sub generate_filter {
     if (exists $FILTER_GENERATORS{$op}) {
         return $FILTER_GENERATORS{$op}->($op, $field_name, $value);
     }
+    return undef;
 }
 
 sub generate_equal_filter {
