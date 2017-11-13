@@ -98,8 +98,8 @@ sub search {
     my ($self, $query) = @_;
     my ($status, $ids) = $self->readAllIds;
     my ($pageNum, $perPage) = @{$query}{qw(page_num per_page)};
-    $pageNum = 1 unless defined $pageNum;
-    $perPage = 25 unless defined $perPage;
+    $pageNum //= 1;
+    $perPage //= 25;
     my $start        = ($pageNum - 1) * 25;
     my $end          = $start + $perPage - 1;
     my $searchEntry  = $query->{searches}->[0];
@@ -112,7 +112,7 @@ sub search {
     my $idKey = $self->idKey;
     my $itemsKey = $self->itemsKey;
     foreach my $id (@$ids) {
-        next unless defined( $item = $self->configStore->read($id, $idKey) );
+        next unless defined ($item = $self->configStore->read($id, $idKey));
         if ( $self->$searchMethod( $searchEntry, $item ) ) {
             if ($start <= $found_count && $found_count <= $end) {
                 push @items, $item;
