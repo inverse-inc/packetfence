@@ -24,6 +24,7 @@ use pf::api::jsonrpcclient;
 use pf::cluster;
 use pf::constants;
 use pf::CHI;
+use pf::generate_filter qw(filter_with_offset_limit);
 
 =head1 FIELDS
 
@@ -558,7 +559,7 @@ sub search_like {
 
 =head2 filter
 
-filter
+$self->filter($method, $idKey = undef)
 
 =cut
 
@@ -566,6 +567,18 @@ sub filter {
     my ($self, $filter, $idKey) = @_;
     return unless defined $filter;
     return grep {my $i = $_; $filter->($i) } @{$self->readAll($idKey)};
+}
+
+=head2 filter_offset_limit
+
+$self->filter_offset_limit($method, $offset, $limit, $idKey = undef);
+
+=cut
+
+sub filter_offset_limit {
+    my ($self, $filter, $offset, $limit, $idKey) = @_;
+    return unless defined $filter;
+    return filter_with_offset_limit($filter, $offset, $limit, $self->readAll($idKey));
 }
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
