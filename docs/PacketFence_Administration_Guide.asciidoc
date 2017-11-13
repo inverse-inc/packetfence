@@ -1324,7 +1324,7 @@ This section will contain the following examples:
 Creating a custom root module
 +++++++++++++++++++++++++++++
 
-First, create a custom root module for our examples in order to not affect the default policy. In order to do so, go in 'Configuration -> Advanced Access Configuration -> Advanced Access Configuration -> Portal Modules', then click 'Add Portal Module' and select the type 'Root'. Give it the identifier `my_first_root_module` and the description `My first root module`, then hit save.
+First, create a custom root module for our examples in order to not affect the default policy. In order to do so, go in 'Configuration ->  Advanced Access Configuration -> Portal Modules', then click 'Add Portal Module' and select the type 'Root'. Give it the identifier `my_first_root_module` and the description `My first root module`, then hit save.
 
 Next, head to 'Configuration -> Policies and Access Control -> Connection Profiles', select the connection profile you use (most probably `default`) and then under 'Root Portal Module', assign `My first root module` then save your profile. If you were to access the captive portal now, an error would display since the Root module we configured doesn't contain anything.
 
@@ -1337,7 +1337,7 @@ In order to prompt fields without authentication, you can use the Null source wi
 
 PacketFence already comes with a Null source pre-configured. If you haven't modified it or deleted it, you can use it for this example. Otherwise, go in 'Configuration -> Policies and Access Control -> Sources' and create a new Null source with a catchall rule that assigns a role and access duration.
 
-Then go in 'Configuration -> Advanced Access Configuration -> Advanced Access Configuration -> Portal Modules' and click 'Add Portal Module' and select 'Authentication -> Null'. Set the 'Identifier' to `prompt_fields` and configure the module with the 'Mandatory fields' you want and uncheck 'Require AUP' so that the user doesn't have to accept the AUP before submitting these fields.
+Then go in 'Configuration ->  -> Advanced Access Configuration -> Portal Modules' and click 'Add Portal Module' and select 'Authentication -> Null'. Set the 'Identifier' to `prompt_fields` and configure the module with the 'Mandatory fields' you want and uncheck 'Require AUP' so that the user doesn't have to accept the AUP before submitting these fields.
 
 image::docs/images/portal-modules/prompt_fields.png[scaledwidth="100%",alt="Prompt fields module"]
 
@@ -3742,7 +3742,7 @@ Active Directory Integration
 Deleted Account
 ^^^^^^^^^^^^^^^
 
-Create the script `unreg_node_deleted_account.ps1` on the Windows Server with the following content. Make sure to change `@IP_PACKETFENCE` to the IP address of your PacketFence server. You'll also need to change the username and password as they must match the credentials defined in the Web admin interface under *Configuration -> Advanced Access Configuration -> Web Services*.
+Create the script `unreg_node_deleted_account.ps1` on the Windows Server with the following content. Make sure to change `@IP_PACKETFENCE` to the IP address of your PacketFence server. You'll also need to change the username and password as they must match the credentials defined in the Web admin interface under *Configuration -> Integration -> Web Services*.
 
 ----
 #########################################################################################
@@ -3817,7 +3817,7 @@ Validate with Ok and give the account who will run this task. (Usually _DOMAIN\A
 Disabled Account
 ^^^^^^^^^^^^^^^^
 
-Create the script `unreg_node_disabled_account.ps1` on the Windows Server with the following content. Make sure to change `@IP_PACKETFENCE` to the IP address of your PacketFence server. You'll also need to change the username and password as they must match the credentials defined in the Web admin interface under *Configuration -> Advanced Access Configuration -> Web Services*.
+Create the script `unreg_node_disabled_account.ps1` on the Windows Server with the following content. Make sure to change `@IP_PACKETFENCE` to the IP address of your PacketFence server. You'll also need to change the username and password as they must match the credentials defined in the Web admin interface under *Configuration -> Integration -> Web Services*.
 
 ----
 ##########################################################################################
@@ -3893,7 +3893,7 @@ Validate with Ok and give the account who will run this task. (Usually _DOMAIN\A
 Locked Account
 ^^^^^^^^^^^^^^
 
-Create the script `unreg_node_locked_account.ps1` on the Windows Server with the following content. Make sure to change `@IP_PACKETFENCE` to the IP address of your PacketFence server. You'll also need to change the username and password as they must match the credentials defined in the Web admin interface under *Configuration -> Advanced Access Configuration -> Web Services*.
+Create the script `unreg_node_locked_account.ps1` on the Windows Server with the following content. Make sure to change `@IP_PACKETFENCE` to the IP address of your PacketFence server. You'll also need to change the username and password as they must match the credentials defined in the Web admin interface under *Configuration -> Integration -> Web Services*.
 
 ----
 #########################################################################################
