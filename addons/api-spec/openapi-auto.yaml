@@ -1,0 +1,642 @@
+openapi: 3.0.0
+  
+info:
+  title: PacketFence API
+  description: An API to access the PacketFence resources. Lets make the PacketFence API great again!
+  version: 0.0.1
+    
+servers:
+  - url: http://localhost:9090/api/v1
+    description: Local API server
+      
+paths:
+  /login:
+    post:
+      summary: Login into the API and obtain a token
+      security:
+        - none: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+          
+  /tenants_onboarding:
+    post:
+      summary: Allows to onboard a tenant and configure a remote access point using an onboarding token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: User friendly name of the tenant
+                domain_name:
+                  type: string
+                  description: A valid domain name that will be used for the tenant portal domain name and as the 802.1x realm
+                token:
+                  type: string
+                  description: The user token that allows to find the proper AP that the tenant is configuring
+                ssids:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      security:
+                        description: The security type of the SSID. Valid types "WPA2-Personnal", "WPA2-Enterprise", "MAC-Authentication"
+                        type: string
+                      name:
+                        description: The name of the SSID
+                        type: string
+      responses:
+        '201':
+          $ref: "#/components/responses/Created"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '409':
+          $ref: "#/components/responses/Duplicate"
+        '422':
+          $ref: "#/components/responses/UnprocessableEntity"
+
+      
+  /tenants/{tenant_id}:
+    get:
+      summary: Allows to get a tenant by its ID
+      responses:
+        '200':
+          description: Tenant successfully created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tenant"
+
+  /users:
+    get:
+      summary: Returns a list of users
+      description: The list of user will be limited to 100 and a cursor will be returned for iterating on other users. Iteration is only needed if the hasMore key has a true value
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsersList"
+    post:
+      summary: Creates a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        '201':
+          $ref: "#/components/responses/Created"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '409':
+          $ref: "#/components/responses/Duplicate"
+        '422':
+          $ref: "#/components/responses/UnprocessableEntity"
+
+  /users/{user_id}:
+    get:
+      summary: Returns a specific user by its ID
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: The user ID to fetch
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A specific user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  item:
+                    $ref: "#/components/schemas/UserWithLinks"
+    put:
+      summary: Allows to update a whole user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        '200':
+          $ref: "#/components/responses/Message"    
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '422':
+          $ref: "#/components/responses/UnprocessableEntity"
+    patch:
+      summary: Allows to update parts of a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        '200':
+          $ref: "#/components/responses/Message"    
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '422':
+          $ref: "#/components/responses/UnprocessableEntity"
+    delete:
+      summary: Allows to delete a user
+      responses:
+        '204':
+          description: Deleted user
+  
+  /users/{user_id}/nodes:
+    get:
+      summary: Allows to get the nodes of a user
+      responses:
+        '200':
+          description: List of the user's nodes
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NodesList"
+          
+  /users/{user_id}/password:
+    get:
+      summary: Get the password entry for a user
+      responses:
+        '200':
+          description: The password entry for a specific user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  item:
+                    $ref: "#/components/schemas/Password"
+    post:
+      summary: Create a password entry for a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Password"
+      responses:
+        '201':
+          $ref: "#/components/responses/Created"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '409':
+          $ref: "#/components/responses/Duplicate"
+        '422':
+          $ref: "#/components/responses/UnprocessableEntity"
+    put:
+      summary: Allows to update the whole password entry for a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Password"
+      responses:
+        '200':
+          $ref: "#/components/responses/Message"    
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '422':
+          $ref: "#/components/responses/UnprocessableEntity"
+    patch:
+      summary: Allows to update parts of a password entry of a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Password"
+      responses:
+        '200':
+          $ref: "#/components/responses/Message"    
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '422':
+          $ref: "#/components/responses/UnprocessableEntity"
+    delete:
+      summary: Allows to delete a password entry for a user
+      responses:
+        '204':
+          description: Deleted password entry
+  
+  /config/connection_profiles:
+    get:
+      summary: Get all the connection profiles
+      responses:
+        '200':
+          description: A list of connection profiles
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConnectionProfilesList"
+    post:
+      summary: Creates a connection profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConnectionProfile"
+      responses:
+        '201':
+          $ref: "#/components/responses/Created"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '409':
+          $ref: "#/components/responses/Duplicate"
+        '422':
+          $ref: "#/components/responses/UnprocessableEntity"
+  /config/connection_profiles/{connection_profile_id}:
+    get:
+      summary: Returns a specific connection profile by its ID
+      parameters:
+        - name: connection_profile_id
+          in: path
+          required: true
+          description: The connection profile ID to fetch
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A specific connection profile
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  item:
+                    $ref: "#/components/schemas/ConnectionProfile"
+    put:
+      summary: Allows to update a whole connection profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConnectionProfile"
+      responses:
+        '200':
+          $ref: "#/components/responses/Message"    
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '422':
+          $ref: "#/components/responses/UnprocessableEntity"
+    patch:
+      summary: Allows to update parts of a connection profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConnectionProfile"
+      responses:
+        '200':
+          $ref: "#/components/responses/Message"    
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '422':
+          $ref: "#/components/responses/UnprocessableEntity"
+    delete:
+      summary: Allows to delete a connection profile
+      responses:
+        '204':
+          description: Deleted connection profile
+
+
+security:
+  - bearerAuth: []
+   
+
+      
+
+components:
+
+
+  schemas:
+
+
+# components/schemas/person.yaml 
+    UsersList:
+      allOf:
+        - $ref: "#/components/schemas/Iterable" 
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/UserWithLinks"     
+    User:
+      type: object
+      properties:
+        pid:
+          type: string
+          description: The username.
+        email:
+          type: string
+          description: The email of the user.
+        firstname:
+          type: string
+          description: The first name of the user.
+        lastname:
+          type: string
+          description: The last name of the user.
+    UserWithLinks:
+      allOf:
+        - $ref: "#/components/schemas/User"
+        - type: object
+          properties:
+            nodes_url:
+              type: string
+              description: link to the nodes of this user
+            password_url:
+              type: string
+              description: link to the password (local account) of this user. If there is none, the value will be empty.
+              
+
+# components/schemas/node.yaml 
+    NodesList:
+      allOf:
+        - $ref: "#/components/schemas/Iterable" 
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/Node" 
+    Node:
+      type: object
+      properties:
+        mac:
+          type: string
+          description: The MAC address of the device
+        
+
+# components/schemas/base.yaml 
+    Message:
+      type: object
+      properties:
+        message:
+          description: A meaninful user readable message about what happened
+          type: string
+          
+    ErrorsWithMessage:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: array
+          items:
+            type: object
+          
+    Iterable:
+      type: object
+      properties:
+        cursor:
+          type: string
+        hasMore:
+          type: boolean
+          
+
+# components/schemas/tenant.yaml 
+    
+    Tenant:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The unique numeric identifier of the tenant
+        name:
+          type: string
+          description: The user friendly name of the tenant
+        portal_domain_name:
+          type: string
+          description: The portal domain name for this tenant. Any request on the portal using this domain name will be scoped to this tenant.
+        domain_name:
+          type: string
+          description: The domain name of this tenant as used in 802.1x connections for the realm. For example, in the username tommy@example.com, example.com is the domain name.
+      
+    TenantsList:
+      allOf:
+        - $ref: "#/components/schemas/Iterable" 
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/Tenant" 
+        
+
+# components/schemas/password.yaml 
+    Password:
+      type: object
+      properties:
+        pid:
+          type: string
+          description: The username of the local account
+        password:
+          type: string
+          description: The password of the local account. When encrypted, it is prefixed by the encryption type surrounded by brackets. For example "{ntlm}iosnuiofsauionsfdioun"
+        valid_from:
+          type: string
+          description: The date at which the password becomes valid
+        expiration:
+          type: string
+          description: The date at which the password expires (becomes invalid)
+        access_duration:
+          type: string
+          description: The access duration that should be given to a node when this account is used is used to register a device
+        access_level:
+          type: string
+          description: The administrative access level that should be given to the user when he logs into the administration interface
+        category:
+          type: string
+          description: The role that should be given to a node when this account is used to register a device
+        sponsor:
+          type: boolean
+          description: Whether or not this account can be used to sponsor other users via a SponsorEmail source
+        unregdate:
+          type: string
+          description: The unregistration date that should be given to a node when this account is used to register a device
+        login_remaining:
+          type: integer
+          description: The amount of logins that the user has remaining. When null, the user has unlimited logins
+                
+
+# components/schemas/config/connection_profile.yaml 
+    ConnectionProfile:
+      type: object
+      properties:
+        access_registration_when_registered:
+          type: string
+          description: Whether or not the registration portal should be accessible when the device is already registered (like when renewing billing) values(enabled|disabled)
+        always_use_redirecturl:
+          type: string
+          description: Whether or not the redirect url (redirecturl) should be forced when the user is released from the portal
+        autoregister:
+          type: string
+          description: Whether or not the devices using this profile should be auto-registered values(enabled|disabled)
+        billing_tiers:
+          type: string
+          description: Comma delimited list of billing tiers identifiers
+        block_interval:
+          type: integer
+          description: The amount of time a device is blocked after reaching the login_attempt_limit or the sms_pin_retry_limit
+        description:
+          type: string
+          description: The user friendly description of the connection profile
+        device_registration:
+          type: string
+          description: The device registration policy to apply on this connection profile
+        dot1x_recompute_role_from_portal:
+          type: string
+          description: When enabled, PacketFence will not use the role initialy computed on the portal but will use the dot1x username to recompute the role. values(enabled|disabled)
+        filter:
+          type: string
+          description: Comma delimited list of filters to apply for this profile.  For example, "ssid:Test-SSID,connection_type:Wireless-802.11-NoEAP"
+        login_attempt_limit:
+          type: integer
+          description: The amount of invalid login attempts on the portal before the device is temporarily blacklisted from using the portal.
+        logo:
+          type: string
+          description: The portal path to the logo for this profile. If the logo is in "html/captive-portal/content", then the path should start with "/content", if its in "html/common", then the path should start with "/common"
+        id:
+          type: string
+          description: The identifier of the connection profile
+        preregistration:
+          type: string
+          description: Whether or not pre-registration should be enabled on this connection profile. values(enabled|disabled)
+        provisioners:
+          type: string
+          description: Comma delimited list of provisioner identifiers to apply on this connection profile.
+        redirecturl:
+          type: string
+          description: URL to redirect the user when he is being released from the captive-portal
+        reuse_dot1x_credentials:
+          type: string
+          description: Whether or not the 802.1x credentials should be used as as an SSO login on the captive portal.
+        root_module:
+          type: string
+          description: The root portal module identifier to use.
+        scans:
+          type: string
+          description: Comma delimited list of scan identifiers to use on this profile.
+        sms_pin_retry_limit:
+          type: integer
+          description: The amount of times a user can retry an SMS PIN.
+        sms_request_limit:
+          type: integer
+          description: The amount of time a user can attempt to register via SMS. Use it to prevent users from spamming other people using the captive portal.
+        sources:
+          type: string
+          description: Comma delimited list of authentication sources to use on this connection profile.
+        
+    ConnectionProfilesList:
+      allOf:
+        - $ref: "#/components/schemas/Iterable" 
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/ConnectionProfile" 
+                
+
+  responses:
+
+
+# components/responses/base.yaml 
+    Created:
+      description: A response that contains the location of a created resource
+      headers:
+        Location: 
+          schema:
+            type: string
+          description: The location of the created resource
+    Message:
+      description: A response that contains a simple message
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Message"
+    ErrorsWithMessage:
+      description: A response that contains a message along with explanatory error messages tied to fields
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorsWithMessage"
+    BadRequest:
+      description: Bad Request. One of the submitted parameters has an invalid format
+      content: 
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Message"
+    Unauthorized:
+      description: Unauthorized access because of invalid credentials
+      content: 
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Message"
+    Forbidden:
+      description: Forbidden access to the resource because of insufficient access rights
+      content: 
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Message"
+    Duplicate:
+      description: An attempt to add a duplicate entry was stopped. Entry already exists and should be modified instead of created.
+      content: 
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Message"
+    UnprocessableEntity:
+      description: Request cannot be processed because the resource has failed validation after the modification.
+      content: 
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorsWithMessage"
+
+  securitySchemes:
+
+
+# components/securitySchemes/bearerAuth.yaml 
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

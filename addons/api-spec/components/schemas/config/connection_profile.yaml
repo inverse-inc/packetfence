@@ -1,0 +1,78 @@
+ConnectionProfile:
+  type: object
+  properties:
+    access_registration_when_registered:
+      type: string
+      description: Whether or not the registration portal should be accessible when the device is already registered (like when renewing billing) values(enabled|disabled)
+    always_use_redirecturl:
+      type: string
+      description: Whether or not the redirect url (redirecturl) should be forced when the user is released from the portal
+    autoregister:
+      type: string
+      description: Whether or not the devices using this profile should be auto-registered values(enabled|disabled)
+    billing_tiers:
+      type: string
+      description: Comma delimited list of billing tiers identifiers
+    block_interval:
+      type: integer
+      description: The amount of time a device is blocked after reaching the login_attempt_limit or the sms_pin_retry_limit
+    description:
+      type: string
+      description: The user friendly description of the connection profile
+    device_registration:
+      type: string
+      description: The device registration policy to apply on this connection profile
+    dot1x_recompute_role_from_portal:
+      type: string
+      description: When enabled, PacketFence will not use the role initialy computed on the portal but will use the dot1x username to recompute the role. values(enabled|disabled)
+    filter:
+      type: string
+      description: Comma delimited list of filters to apply for this profile.  For example, "ssid:Test-SSID,connection_type:Wireless-802.11-NoEAP"
+    login_attempt_limit:
+      type: integer
+      description: The amount of invalid login attempts on the portal before the device is temporarily blacklisted from using the portal.
+    logo:
+      type: string
+      description: The portal path to the logo for this profile. If the logo is in "html/captive-portal/content", then the path should start with "/content", if its in "html/common", then the path should start with "/common"
+    id:
+      type: string
+      description: The identifier of the connection profile
+    preregistration:
+      type: string
+      description: Whether or not pre-registration should be enabled on this connection profile. values(enabled|disabled)
+    provisioners:
+      type: string
+      description: Comma delimited list of provisioner identifiers to apply on this connection profile.
+    redirecturl:
+      type: string
+      description: URL to redirect the user when he is being released from the captive-portal
+    reuse_dot1x_credentials:
+      type: string
+      description: Whether or not the 802.1x credentials should be used as as an SSO login on the captive portal.
+    root_module:
+      type: string
+      description: The root portal module identifier to use.
+    scans:
+      type: string
+      description: Comma delimited list of scan identifiers to use on this profile.
+    sms_pin_retry_limit:
+      type: integer
+      description: The amount of times a user can retry an SMS PIN.
+    sms_request_limit:
+      type: integer
+      description: The amount of time a user can attempt to register via SMS. Use it to prevent users from spamming other people using the captive portal.
+    sources:
+      type: string
+      description: Comma delimited list of authentication sources to use on this connection profile.
+    
+ConnectionProfilesList:
+  allOf:
+    - $ref: "#/components/schemas/Iterable" 
+    - type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ConnectionProfile" 
+            
+
