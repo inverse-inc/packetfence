@@ -1,0 +1,84 @@
+/config/connection_profiles:
+  get:
+    summary: Get all the connection profiles
+    responses:
+      '200':
+        description: A list of connection profiles
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConnectionProfilesList"
+  post:
+    summary: Creates a connection profile
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ConnectionProfile"
+    responses:
+      '201':
+        $ref: "#/components/responses/Created"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '409':
+        $ref: "#/components/responses/Duplicate"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+/config/connection_profiles/{connection_profile_id}:
+  get:
+    summary: Returns a specific connection profile by its ID
+    parameters:
+      - name: connection_profile_id
+        in: path
+        required: true
+        description: The connection profile ID to fetch
+        schema:
+          type: string
+    responses:
+      '200':
+        description: A specific connection profile
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                item:
+                  $ref: "#/components/schemas/ConnectionProfile"
+  put:
+    summary: Allows to update a whole connection profile
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ConnectionProfile"
+    responses:
+      '200':
+        $ref: "#/components/responses/Message"    
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+  patch:
+    summary: Allows to update parts of a connection profile
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ConnectionProfile"
+    responses:
+      '200':
+        $ref: "#/components/responses/Message"    
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+  delete:
+    summary: Allows to delete a connection profile
+    responses:
+      '204':
+        description: Deleted connection profile
+
+

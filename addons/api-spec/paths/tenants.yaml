@@ -1,0 +1,52 @@
+/tenants_onboarding:
+  post:
+    summary: Allows to onboard a tenant and configure a remote access point using an onboarding token
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: User friendly name of the tenant
+              domain_name:
+                type: string
+                description: A valid domain name that will be used for the tenant portal domain name and as the 802.1x realm
+              token:
+                type: string
+                description: The user token that allows to find the proper AP that the tenant is configuring
+              ssids:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    security:
+                      description: The security type of the SSID. Valid types "WPA2-Personnal", "WPA2-Enterprise", "MAC-Authentication"
+                      type: string
+                    name:
+                      description: The name of the SSID
+                      type: string
+    responses:
+      '201':
+        $ref: "#/components/responses/Created"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '409':
+        $ref: "#/components/responses/Duplicate"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+
+    
+/tenants/{tenant_id}:
+  get:
+    summary: Allows to get a tenant by its ID
+    responses:
+      '200':
+        description: Tenant successfully created
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Tenant"
+

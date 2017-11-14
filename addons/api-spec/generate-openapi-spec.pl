@@ -25,8 +25,9 @@ sub append_to_spec {
     my $content = read_file($file);
     # prefix all lines with the indent level times 2 spaces
     my $indented_content = indent_content($content, $indent_level * 2);
-    $spec .= "\n# $file \n";
+    $spec .= "\n# beginning of: $file \n";
     $spec .= "$indented_content\n";
+    $spec .= "\n# end of: $file \n";
 
     return $spec;
 }
@@ -54,4 +55,18 @@ EOT
     }
 
 }
+
+$spec .= <<EOT;
+
+paths:
+
+EOT
+
+my @objects = dir_yaml_files("paths/");
+
+foreach my $object (@objects) {
+    $spec = append_to_spec($spec, $object, 1)
+}
+
+
 print $spec;

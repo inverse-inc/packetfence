@@ -1,0 +1,12 @@
+/users/{user_id}/nodes:
+  get:
+    summary: Allows to get the nodes of a user
+    responses:
+      '200':
+        description: List of the user's nodes
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NodesList"
+        
+
