@@ -1,0 +1,51 @@
+Created:
+  description: A response that contains the location of a created resource
+  headers:
+    Location: 
+      schema:
+        type: string
+      description: The location of the created resource
+Message:
+  description: A response that contains a simple message
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/Message"
+ErrorsWithMessage:
+  description: A response that contains a message along with explanatory error messages tied to fields
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ErrorsWithMessage"
+BadRequest:
+  description: Bad Request. One of the submitted parameters has an invalid format
+  content: 
+    application/json:
+      schema:
+        $ref: "#/components/schemas/Message"
+Unauthorized:
+  description: Unauthorized access because of invalid credentials
+  content: 
+    application/json:
+      schema:
+        $ref: "#/components/schemas/Message"
+Forbidden:
+  description: Forbidden access to the resource because of insufficient access rights
+  content: 
+    application/json:
+      schema:
+        $ref: "#/components/schemas/Message"
+Duplicate:
+  description: An attempt to add a duplicate entry was stopped. Entry already exists and should be modified instead of created.
+  content: 
+    application/json:
+      schema:
+        $ref: "#/components/schemas/Message"
+UnprocessableEntity:
+  description: Request cannot be processed because the resource has failed validation after the modification.
+  content: 
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ErrorsWithMessage"
+
+
