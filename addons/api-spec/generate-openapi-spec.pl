@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use File::Find;
-use File::Slurp qw(read_file);
+use File::Slurp qw(read_file write_file);
 use Data::Dumper;
 
 sub dir_yaml_files {
@@ -32,7 +32,7 @@ sub append_to_spec {
     return $spec;
 }
 
-my $spec = read_file("openapi.yaml");
+my $spec = read_file("openapi-base.yaml");
 
 $spec .= <<EOT;
 
@@ -68,5 +68,6 @@ foreach my $object (@objects) {
     $spec = append_to_spec($spec, $object, 1)
 }
 
+write_file("openapi.yaml", $spec);
 
 print $spec;
