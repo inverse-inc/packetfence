@@ -157,7 +157,7 @@ sub node_view_reg_pid {
 #
 sub node_delete {
     my $timer = pf::StatsD::Timer->new({level => 6});
-    my ($mac) = @_;
+    my ($mac, $tenant_id) = @_;
     my $logger = get_logger();
 
     $mac = clean_mac($mac);
@@ -173,8 +173,17 @@ sub node_delete {
         $logger->warn("$mac has an open locationlog entry. Node deletion prohibited");
         return (0);
     }
+    my %options = (
+        -where => {
+            mac => $mac,
+        }
+    );
+    if (defined $tenant_id) {
+        $options{-where}{tenant_id} = $tenant_id;
+        $options{-no_auto_tenant_id} = 1;
+    }
 
-    my $status = pf::dal::node->remove_by_id({mac => $mac});
+    my ($status, $count) = pf::dal::node->remove_items(%options);
     if (is_error($status)) {
         return (0);
     }
@@ -792,7 +801,8 @@ sub node_expire_lastseen {
                 \['unix_timestamp(last_seen) < (unix_timestamp(now()) - ?)', $time],
             ]
         },
-        -columns => ['mac']
+        -columns => ['mac', 'tenant_id'],
+        -no_auto_tenant_id => 1,
     );
     if (is_error($status)) {
         return;
@@ -816,7 +826,8 @@ sub node_unreg_lastseen {
                 \['unix_timestamp(last_seen) < (unix_timestamp(now()) - ?)', $time],
             ]
         },
-        -columns => ['mac']
+        -columns => ['mac', 'tenant_id'],
+        -no_auto_tenant_id => 1,
     );
     if (is_error($status)) {
         return;
@@ -839,10 +850,11 @@ sub node_cleanup {
     if($delete_time ne "0") {
         foreach my $row ( node_expire_lastseen($delete_time) ) {
             my $mac = $row->{'mac'};
+            my $tenant_id = $row->{'tenant_id'};
             require pf::locationlog;
-            if (pf::locationlog::locationlog_update_end_mac($mac)) {
+            if (pf::locationlog::locationlog_update_end_mac($mac, $tenant_id)) {
                 $logger->info("mac $mac not seen for $delete_time seconds, deleting");
-               node_delete($mac);
+               node_delete($mac, $tenant_id);
             }
         }
     }
@@ -851,9 +863,12 @@ sub node_cleanup {
     }
 
     if($unreg_time ne "0") {
+        local $pf::dal::CURRENT_TENANT = $pf::dal::CURRENT_TENANT;
         foreach my $row ( node_unreg_lastseen($unreg_time) ) {
             my $mac = $row->{'mac'};
+            my $tenant_id = $row->{'tenant_id'};
             $logger->info("mac $mac not seen for $unreg_time seconds, unregistering");
+            pf::dal->set_tenant($tenant_id);
             node_deregister($mac);
             # not reevaluating access since the node is be inactive
         }
