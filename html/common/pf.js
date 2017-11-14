@@ -129,6 +129,10 @@ function canWebNotifications(){
 */
 function showWebNotification(message, icon){
   if (canWebNotifications()){
-    var notification = new Notification(message, {icon:icon});
+    try {
+      var notification = new Notification(message, {icon:icon});
+    } catch(err) {
+      console.log("Error while creating notification...", err);
+    }
   }  
 }
