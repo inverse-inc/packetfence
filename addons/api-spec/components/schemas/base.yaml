@@ -1,0 +1,26 @@
+Message:
+  type: object
+  properties:
+    message:
+      description: A meaninful user readable message about what happened
+      type: string
+      
+ErrorsWithMessage:
+  type: object
+  properties:
+    message:
+      type: string
+    errors:
+      type: array
+      items:
+        type: object
+      
+Iterable:
+  type: object
+  properties:
+    cursor:
+      type: string
+    hasMore:
+      type: boolean
+      
+
