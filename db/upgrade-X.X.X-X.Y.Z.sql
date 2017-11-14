@@ -57,7 +57,7 @@ CREATE TABLE `tenant` (
   UNIQUE KEY tenant_portal_domain_name (`portal_domain_name`)
 );
 
-INSERT INTO `tenant` (id, name) VALUES (1, 'default', NULL);
+INSERT INTO `tenant` (id, name, portal_domain_name) VALUES (1, 'default', NULL);
 
 ALTER TABLE `violation`
     DROP FOREIGN KEY `0_60`;
