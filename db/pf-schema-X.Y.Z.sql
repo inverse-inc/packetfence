@@ -309,7 +309,7 @@ DELIMITER /
 CREATE TRIGGER ip6log_insert_in_ip6log_history_before_update_trigger BEFORE UPDATE ON ip6log
 FOR EACH ROW
 BEGIN
-  INSERT INTO ip6log_history SET ip = OLD.ip, mac = OLD.mac, type = OLD.type, start_time = OLD.start_time, end_time = CASE
+  INSERT INTO ip6log_history SET tenant_id = OLD.tenant_id, ip = OLD.ip, mac = OLD.mac, type = OLD.type, start_time = OLD.start_time, end_time = CASE
     WHEN OLD.end_time = '0000-00-00 00:00:00' THEN NOW()
     WHEN OLD.end_time > NOW() THEN NOW()
     ELSE OLD.end_time
@@ -448,7 +448,7 @@ DELIMITER /
 CREATE TRIGGER password_delete_trigger AFTER DELETE ON person
 FOR EACH ROW
 BEGIN
-  DELETE FROM `password` WHERE pid = OLD.pid;
+  DELETE FROM `password` WHERE pid = OLD.pid AND tenant_id = OLD.tenant_id;
 END /
 DELIMITER ;
 
@@ -657,7 +657,8 @@ CREATE PROCEDURE acct_start (
     IN p_servicetype varchar(32),
     IN p_framedprotocol varchar(32),
     IN p_framedipaddress varchar(15),
-    IN p_acctstatustype varchar(25)
+    IN p_acctstatustype varchar(25),
+    IN p_tenant_id int
 )
 BEGIN
 
@@ -686,7 +687,7 @@ INSERT INTO radacct
             connectinfo_start,  connectinfo_stop,   acctinputoctets, 
             acctoutputoctets,   calledstationid,    callingstationid, 
             acctterminatecause, servicetype,        framedprotocol, 
-            framedipaddress
+            framedipaddress, tenant_id
            ) 
 VALUES 
     (
@@ -697,16 +698,16 @@ VALUES
     p_connectinfo_start, p_connectinfo_stop, p_acctinputoctets,
     p_acctoutputoctets, p_calledstationid, p_callingstationid,
     p_acctterminatecause, p_servicetype, p_framedprotocol,
-    p_framedipaddress
+    p_framedipaddress, p_tenant_id
     );
 
 
   INSERT INTO radacct_log
    (acctsessionid, username, nasipaddress,
-    timestamp, acctstatustype, acctinputoctets, acctoutputoctets, acctsessiontime, acctuniqueid)
+    timestamp, acctstatustype, acctinputoctets, acctoutputoctets, acctsessiontime, acctuniqueid, tenant_id)
   VALUES
    (p_acctsessionid, p_username, p_nasipaddress,
-    p_acctstarttime, p_acctstatustype, p_acctinputoctets, p_acctoutputoctets, p_acctsessiontime, p_acctuniqueid);
+    p_acctstarttime, p_acctstatustype, p_acctinputoctets, p_acctoutputoctets, p_acctsessiontime, p_acctuniqueid, p_tenant_id);
 END /
 DELIMITER ;
 
@@ -734,7 +735,8 @@ CREATE PROCEDURE acct_stop (
   IN p_servicetype varchar(32),
   IN p_framedprotocol varchar(32),
   IN p_acctterminatecause varchar(12),
-  IN p_acctstatustype varchar(25)
+  IN p_acctstatustype varchar(25),
+  IN p_tenant_id int
 )
 BEGIN
   DECLARE Previous_Input_Octets bigint(20);
@@ -763,7 +765,7 @@ BEGIN
             connectinfo_stop,  acctinputoctets, 
             acctoutputoctets,   calledstationid,    callingstationid, 
             servicetype,        framedprotocol,     acctterminatecause,
-            framedipaddress
+            framedipaddress,    tenant_id
            ) 
     VALUES 
         (
@@ -774,7 +776,7 @@ BEGIN
             p_connectinfo_stop,     p_acctinputoctets,
             p_acctoutputoctets,     p_calledstationid,  p_callingstationid,
             p_servicetype,          p_framedprotocol,   p_acctterminatecause,
-            p_framedipaddress
+            p_framedipaddress,      p_tenant_id
         );
   ELSE 
     # Update record with new traffic
@@ -792,11 +794,11 @@ BEGIN
   # Create new record in the log table
   INSERT INTO radacct_log
    (acctsessionid, username, nasipaddress,
-    timestamp, acctstatustype, acctinputoctets, acctoutputoctets, acctsessiontime, acctuniqueid)
+    timestamp, acctstatustype, acctinputoctets, acctoutputoctets, acctsessiontime, acctuniqueid, tenant_id)
   VALUES
    (p_acctsessionid, p_username, p_nasipaddress,
     p_timestamp, p_acctstatustype, (p_acctinputoctets - Previous_Input_Octets), (p_acctoutputoctets - Previous_Output_Octets),
-    (p_acctsessiontime - Previous_Session_Time), p_acctuniqueid);
+    (p_acctsessiontime - Previous_Session_Time), p_acctuniqueid, p_tenant_id);
 END /
 DELIMITER ;
 
@@ -823,7 +825,8 @@ CREATE PROCEDURE acct_update(
   IN p_callingstationid varchar(50),
   IN p_servicetype varchar(32),
   IN p_framedprotocol varchar(32),
-  IN p_acctstatustype varchar(25)
+  IN p_acctstatustype varchar(25),
+  IN p_tenant_id
 )
 BEGIN
   DECLARE Previous_Input_Octets bigint(20);
@@ -905,7 +908,7 @@ BEGIN
               connectinfo_start,acctinputoctets,
               acctoutputoctets,calledstationid,callingstationid,
               servicetype,framedprotocol,
-              framedipaddress
+              framedipaddress, tenant_id
              )
       VALUES
           (
@@ -916,7 +919,7 @@ BEGIN
               p_connectinfo_start,p_acctinputoctets,
               p_acctoutputoctets,p_calledstationid,p_callingstationid,
               p_servicetype,p_framedprotocol,
-              p_framedipaddress
+              p_framedipaddress, p_tenant_id
           );
      END IF;
    END IF;
@@ -925,11 +928,11 @@ BEGIN
   # Create new record in the log table
   INSERT INTO radacct_log
    (acctsessionid, username, nasipaddress,
-    timestamp, acctstatustype, acctinputoctets, acctoutputoctets, acctsessiontime, acctuniqueid)
+    timestamp, acctstatustype, acctinputoctets, acctoutputoctets, acctsessiontime, acctuniqueid, tenant_id)
   VALUES
    (p_acctsessionid, p_username, p_nasipaddress,
     p_timestamp, p_acctstatustype, (p_acctinputoctets - Previous_Input_Octets), (p_acctoutputoctets - Previous_Output_Octets),
-    (p_acctsessiontime - Previous_Session_Time), p_acctuniqueid);
+    (p_acctsessiontime - Previous_Session_Time), p_acctuniqueid, p_tenant_id);
 END /
 DELIMITER ;
 
