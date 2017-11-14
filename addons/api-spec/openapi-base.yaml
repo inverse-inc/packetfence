@@ -1,0 +1,16 @@
+openapi: 3.0.0
+  
+info:
+  title: PacketFence API
+  description: An API to access the PacketFence resources. Lets make the PacketFence API great again!
+  version: 0.0.1
+    
+servers:
+  - url: http://localhost:9090/api/v1
+    description: Local API server
+      
+security:
+  - bearerAuth: []
+   
+
+      
