@@ -292,7 +292,7 @@ sub isManaged {
     my $route_exist = '';
 
     foreach my $network ( keys %ConfigNetworks ) {
-        return $TRUE if (pf::config::is_network_type_inline($network) && $self->SUPER::isManaged();
+        return $TRUE if pf::config::is_network_type_inline($network) && $self->SUPER::isManaged();
     }
     return $FALSE;
 }
