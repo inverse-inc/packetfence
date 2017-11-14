@@ -190,3 +190,10 @@ html/common/node_modules/
 
 # ignore ag configuration
 .agignore
+
+# ignore bash + ssh of pf user
+.ssh/
+.bash_history
+
+# ignore pf-maint patches
+.patches/
