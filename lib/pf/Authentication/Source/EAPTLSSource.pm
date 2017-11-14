@@ -20,6 +20,7 @@ use pf::Authentication::constants;
 use List::Util qw(first);
 
 extends 'pf::Authentication::Source';
+with qw(pf::Authentication::InternalRole);
 
 has '+class' => (default => 'internal');
 has '+type' => (default => 'EAPTLS');
@@ -41,6 +42,12 @@ sub available_attributes {
       TLS-Client-Cert-Common-Name
       TLS-Client-Cert-Filename
       TLS-Client-Cert-Subject-Alt-Name-Email
+      TLS-Client-Cert-X509v3-Extended-Key-Usage
+      TLS-Cert-Serial
+      TLS-Cert-Expiration
+      TLS-Cert-Issuer
+      TLS-Cert-Subject
+      TLS-Cert-Common-Name
       username
     );
     return [@$super_attributes, @own_attributes];
