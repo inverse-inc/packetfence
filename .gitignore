@@ -46,6 +46,8 @@ raddb/load_balancer.conf
 raddb/clients.conf.inc
 raddb/sites-available/packetfence
 raddb/sites-available/packetfence-tunnel
+raddb/proxy.conf.loadbalancer
+raddb/radiusd_loadbalancer.conf
 conf/adminroles.conf
 conf/pki_provider.conf
 conf/authentication.conf
