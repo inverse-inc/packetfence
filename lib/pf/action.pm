@@ -26,6 +26,8 @@ use pf::node;
 use pf::person;
 use pf::util;
 use pf::violation_config;
+use pf::config qw(access_duration);
+
 use pf::provisioner;
 use pf::constants;
 
@@ -353,7 +355,7 @@ sub action_reevaluate_access {
 sub action_autoregister {
     my ($mac, $vid) = @_;
     my $logger = get_logger();
-
+    my $unregdate = access_duration($pf::violation_config::Violation_Config{$vid}{access_duration});
     my ( $status, $status_msg );
 
     if(pf::node::is_node_registered($mac)){
@@ -361,7 +363,7 @@ sub action_autoregister {
     }
     else {
         require pf::role::custom;
-        ( $status, $status_msg ) = pf::node::node_register($mac, "default");
+        ( $status, $status_msg ) = pf::node::node_register($mac, "default", "unregdate"=>$unregdate);
         if(!$status){
             $logger->error("auto-registration of node $mac failed");
             return;

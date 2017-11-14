@@ -13,8 +13,13 @@ Form definition to create or update a violation.
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
+with 'pfappserver::Base::Form::Role::AllowedOptions';
 
 use HTTP::Status qw(:constants is_success);
+use List::MoreUtils qw(uniq);
+use pf::config qw(%Config);
+use pf::web::util;
+use pf::admin_roles;
 
 use pf::action;
 use pf::log;
@@ -198,6 +203,18 @@ has_field 'external_command' =>
    element_class => ['input-large'],
    messages => { required => 'Please specify the command you want to execute.' },
   );
+has_field 'access_duration' =>
+  (
+   type => 'Select',
+   label => 'Access Duration',
+   localize_labels => 1,
+   options_method => \&options_durations,
+   default_method => sub { $Config{'guests_admin_registration'}{'default_access_duration'} },
+   element_class => ['chzn-select', 'input-xxlarge'],
+   element_attr => {'data-placeholder' => 'Click to add a duration'},
+   tags => { after_element => \&help,
+             help => 'Specify the access duration for the new registered node.' },
+  );
 
 =head2 around has_errors
 
@@ -318,6 +335,34 @@ sub options_template {
     my @templates = map { $_ => "$_.html" } @{$self->form->templates} if ($self->form->templates);
 
     return @templates;
+}
+
+=head2 options_durations
+
+Populate the access duration select field with the available values defined
+in the pf.conf configuration file.
+
+=cut
+
+sub options_durations {
+    my $self = shift;
+    my @options_values = $self->form->_get_allowed_options('allowed_access_durations');
+    my $durations;
+    if(@options_values) {
+        $durations = pf::web::util::get_translated_time_hash(
+            \@options_values,
+            $self->form->ctx->languages()->[0]
+        );
+    } else {
+        my $default_choices = $Config{'guests_admin_registration'}{'access_duration_choices'};
+        my @choices = uniq admin_allowed_options_all([$self->form->ctx->user->roles],'allowed_access_durations'), split (/\s*,\s*/, $default_choices);
+        $durations = pf::web::util::get_translated_time_hash(
+            \@choices,
+            $self->form->ctx->languages()->[0]
+        );
+    }
+    my @options = map { $durations->{$_}[0] => $durations->{$_}[1] } sort { $a <=> $b } keys %$durations;
+    return \@options;
 }
 
 =head2 validate

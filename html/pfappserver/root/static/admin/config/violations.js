@@ -156,6 +156,12 @@ $(function() { // DOM ready
         else
             command_group.fadeIn('fast');
 
+        // Show/hide the user_mail_message field if 'email_user' is add/remove
+        command_group = $('#access_duration').closest('.control-group');
+        if ($.inArray('autoreg', actions) < 0)
+            command_group.fadeOut('fast');
+        else
+            command_group.fadeIn('fast');
 
     });
 
