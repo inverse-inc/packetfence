@@ -57,6 +57,23 @@ func init() {
 	}
 }
 
+type TokenBackend interface {
+	AdminRolesForToken(token string) []string
+}
+
+type TokenAuthorizationMiddleware struct {
+	tokenBackend TokenBackend
+}
+
+func (tam *TokenAuthorizationMiddleware) AdminRolesForToken(token string) map[string]bool {
+	roles := tam.tokenBackend.AdminRolesForToken(token)
+	rolesMap := make(map[string]bool)
+	for _, role := range roles {
+		rolesMap[role] = true
+	}
+	return rolesMap
+}
+
 // Checks whether or not that request is authorized based on the path and method
 // It will extract the token out of the Authorization header and call the appropriate method
 func BearerRequestIsAuthorized(ctx context.Context, r *http.Request) (bool, error) {
