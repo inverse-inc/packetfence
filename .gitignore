@@ -182,6 +182,7 @@ logs/
 var/
 raddb/sites-enabled/
 html/captive-portal/content/node_modules/
+html/common/node_modules/
 
 # ignore python config files
 *.pyc
