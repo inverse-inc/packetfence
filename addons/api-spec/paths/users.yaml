@@ -1,0 +1,86 @@
+/users:
+  get:
+    summary: Returns a list of users
+    description: The list of user will be limited to 100 and a cursor will be returned for iterating on other users. Iteration is only needed if the hasMore key has a true value
+    responses:
+      '200':
+        description: List of users
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UsersList"
+  post:
+    summary: Creates a user
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/User"
+    responses:
+      '201':
+        $ref: "#/components/responses/Created"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '409':
+        $ref: "#/components/responses/Duplicate"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+
+/users/{user_id}:
+  get:
+    summary: Returns a specific user by its ID
+    parameters:
+      - name: user_id
+        in: path
+        required: true
+        description: The user ID to fetch
+        schema:
+          type: string
+    responses:
+      '200':
+        description: A specific user
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                item:
+                  $ref: "#/components/schemas/UserWithLinks"
+  put:
+    summary: Allows to update a whole user
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/User"
+    responses:
+      '200':
+        $ref: "#/components/responses/Message"    
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+  patch:
+    summary: Allows to update parts of a user
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/User"
+    responses:
+      '200':
+        $ref: "#/components/responses/Message"    
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+  delete:
+    summary: Allows to delete a user
+    responses:
+      '204':
+        description: Deleted user
+
+
