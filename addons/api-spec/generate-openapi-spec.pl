@@ -70,7 +70,7 @@ foreach my $object (@objects) {
 
 $spec = join("\n", map { $_ !~ /^\s*$/ ? $_ : () } split("\n", $spec));
 
-print $spec;
-
 write_file("openapi.yaml", $spec);
+
+system("js-yaml openapi.yaml > openapi.json");
 
