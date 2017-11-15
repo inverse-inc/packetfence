@@ -36,6 +36,20 @@ my $spec = read_file("openapi-base.yaml");
 
 $spec .= <<EOT;
 
+paths:
+
+EOT
+
+my @objects = dir_yaml_files("paths/");
+
+foreach my $object (@objects) {
+    $spec = append_to_spec($spec, $object, 1)
+}
+
+$spec = join("\n", map { $_ !~ /^\s*$/ ? $_ : () } split("\n", $spec));
+
+$spec .= <<EOT;
+
 components:
 
 EOT
@@ -55,20 +69,6 @@ EOT
     }
 
 }
-
-$spec .= <<EOT;
-
-paths:
-
-EOT
-
-my @objects = dir_yaml_files("paths/");
-
-foreach my $object (@objects) {
-    $spec = append_to_spec($spec, $object, 1)
-}
-
-$spec = join("\n", map { $_ !~ /^\s*$/ ? $_ : () } split("\n", $spec));
 
 write_file("openapi.yaml", $spec);
 
