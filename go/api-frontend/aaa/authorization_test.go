@@ -10,7 +10,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/log"
 )
 
-func TestIsAuthorized(t *testing.T) {
+func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 	ctx := log.LoggerNewContext(context.Background())
 
 	m := NewTokenAuthorizationMiddleware(NewMemTokenBackend(1 * time.Second))
@@ -137,7 +137,7 @@ func TestAdminRolesForToken(t *testing.T) {
 
 }
 
-func TestBearerRequestIsAuthorized(t *testing.T) {
+func TestTokenAuthorizationMiddlewareBearerRequestIsAuthorized(t *testing.T) {
 	ctx := log.LoggerNewContext(context.Background())
 
 	backend := NewMemTokenBackend(1 * time.Second)
