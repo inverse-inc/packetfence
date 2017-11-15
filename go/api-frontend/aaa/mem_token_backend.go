@@ -21,16 +21,32 @@ func (mtb *MemTokenBackend) TokenIsValid(token string) bool {
 	return found
 }
 
-func (mtb *MemTokenBackend) AdminRolesForToken(token string) []string {
+func (mtb *MemTokenBackend) tokenInfoForToken(token string) *TokenInfo {
 	o, found := mtb.store.Get(token)
 	if found {
-		return o.([]string)
+		return o.(*TokenInfo)
+	} else {
+		return nil
+	}
+}
+
+func (mtb *MemTokenBackend) TenantIdForToken(token string) int {
+	if ti := mtb.tokenInfoForToken(token); ti != nil {
+		return ti.tenantId
+	} else {
+		return -1
+	}
+}
+
+func (mtb *MemTokenBackend) AdminRolesForToken(token string) []string {
+	if ti := mtb.tokenInfoForToken(token); ti != nil {
+		return ti.adminRoles
 	} else {
 		return []string{}
 	}
 }
 
-func (mtb *MemTokenBackend) StoreAdminRolesForToken(token string, roles []string) error {
-	mtb.store.SetDefault(token, roles)
+func (mtb *MemTokenBackend) StoreTokenInfo(token string, ti *TokenInfo) error {
+	mtb.store.SetDefault(token, ti)
 	return nil
 }

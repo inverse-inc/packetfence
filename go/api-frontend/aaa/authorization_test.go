@@ -127,7 +127,9 @@ func TestAdminRolesForToken(t *testing.T) {
 		t.Error("Got some roles for an existant token", spew.Sdump(roles))
 	}
 
-	backend.StoreAdminRolesForToken(token, []string{"SYSTEM_READ"})
+	backend.StoreTokenInfo(token, &TokenInfo{
+		adminRoles: []string{"SYSTEM_READ"},
+	})
 
 	roles = m.AdminRolesForToken(token)
 
@@ -156,7 +158,9 @@ func TestTokenAuthorizationMiddlewareBearerRequestIsAuthorized(t *testing.T) {
 	}
 
 	// Test valid token with valid role
-	backend.StoreAdminRolesForToken(token, []string{"USERS_READ"})
+	backend.StoreTokenInfo(token, &TokenInfo{
+		adminRoles: []string{"USERS_READ"},
+	})
 
 	res, err = m.BearerRequestIsAuthorized(ctx, req)
 
