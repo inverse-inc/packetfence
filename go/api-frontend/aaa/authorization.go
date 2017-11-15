@@ -1,4 +1,4 @@
-package apifrontend
+package aaa
 
 import (
 	"context"
@@ -55,10 +55,6 @@ func init() {
 	for k, v := range adminRolesPathMap {
 		pathAdminRolesMap[v] = k
 	}
-}
-
-type TokenBackend interface {
-	AdminRolesForToken(token string) []string
 }
 
 type TokenAuthorizationMiddleware struct {
