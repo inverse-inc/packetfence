@@ -6,7 +6,7 @@ info:
   version: 0.0.1
     
 servers:
-  - url: http://localhost:9090/api/v1
+  - url: http://localhost:9999/api/v1
       
 security:
   - bearerAuth: []
