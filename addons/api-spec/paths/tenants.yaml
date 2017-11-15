@@ -39,7 +39,7 @@
         $ref: "#/components/responses/UnprocessableEntity"
 
     
-/tenants/{tenant_id}:
+'/tenants/{tenant_id}':
   get:
     summary: Allows to get a tenant by its ID
     responses:

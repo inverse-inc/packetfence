@@ -68,6 +68,9 @@ foreach my $object (@objects) {
     $spec = append_to_spec($spec, $object, 1)
 }
 
-write_file("openapi.yaml", $spec);
+$spec = join("\n", map { $_ !~ /^\s*$/ ? $_ : () } split("\n", $spec));
 
 print $spec;
+
+write_file("openapi.yaml", $spec);
+
