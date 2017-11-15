@@ -1,4 +1,4 @@
-package apifrontend
+package aaa
 
 import (
 	"context"
@@ -109,4 +109,8 @@ func TestIsAuthorized(t *testing.T) {
 	if res {
 		t.Error("Request was authorized although it should haven't gone through, error:", err)
 	}
+}
+
+func TestAdminRolesForToken(t *testing.T) {
+
 }
