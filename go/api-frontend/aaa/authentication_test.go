@@ -23,7 +23,8 @@ func TestTokenAuthenticationMiddlewareIsAuthenticated(t *testing.T) {
 	}
 
 	// Test valid token
-	backend.StoreAdminRolesForToken(token, []string{})
+	backend.StoreTokenInfo(token, &TokenInfo{})
+
 	res, _ = tam.IsAuthenticated(ctx, token)
 
 	if !res {
