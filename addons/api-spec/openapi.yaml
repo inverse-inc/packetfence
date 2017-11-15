@@ -1,26 +1,15 @@
 openapi: 3.0.0
-  
 info:
   title: PacketFence API
   description: An API to access the PacketFence resources. Lets make the PacketFence API great again!
   version: 0.0.1
-    
 servers:
   - url: http://localhost:9090/api/v1
     description: Local API server
-      
 security:
   - bearerAuth: []
-   
-
-      
-
 components:
-
-
   schemas:
-
-
 # beginning of: components/schemas/person.yaml 
     UsersList:
       allOf:
@@ -57,10 +46,7 @@ components:
             password_url:
               type: string
               description: link to the password (local account) of this user. If there is none, the value will be empty.
-              
-
 # end of: components/schemas/person.yaml 
-
 # beginning of: components/schemas/node.yaml 
     NodesList:
       allOf:
@@ -77,10 +63,7 @@ components:
         mac:
           type: string
           description: The MAC address of the device
-        
-
 # end of: components/schemas/node.yaml 
-
 # beginning of: components/schemas/base.yaml 
     Message:
       type: object
@@ -88,7 +71,6 @@ components:
         message:
           description: A meaninful user readable message about what happened
           type: string
-          
     ErrorsWithMessage:
       type: object
       properties:
@@ -98,7 +80,6 @@ components:
           type: array
           items:
             type: object
-          
     Iterable:
       type: object
       properties:
@@ -106,12 +87,8 @@ components:
           type: string
         hasMore:
           type: boolean
-          
-
 # end of: components/schemas/base.yaml 
-
 # beginning of: components/schemas/tenant.yaml 
-    
     Tenant:
       type: object
       properties:
@@ -127,7 +104,6 @@ components:
         domain_name:
           type: string
           description: The domain name of this tenant as used in 802.1x connections for the realm. For example, in the username tommy@example.com, example.com is the domain name.
-      
     TenantsList:
       allOf:
         - $ref: "#/components/schemas/Iterable" 
@@ -137,10 +113,7 @@ components:
               type: array
               items:
                 $ref: "#/components/schemas/Tenant" 
-        
-
 # end of: components/schemas/tenant.yaml 
-
 # beginning of: components/schemas/password.yaml 
     Password:
       type: object
@@ -175,10 +148,7 @@ components:
         login_remaining:
           type: integer
           description: The amount of logins that the user has remaining. When null, the user has unlimited logins
-                
-
 # end of: components/schemas/password.yaml 
-
 # beginning of: components/schemas/config/connection_profile.yaml 
     ConnectionProfile:
       type: object
@@ -246,7 +216,6 @@ components:
         sources:
           type: string
           description: Comma delimited list of authentication sources to use on this connection profile.
-        
     ConnectionProfilesList:
       allOf:
         - $ref: "#/components/schemas/Iterable" 
@@ -256,13 +225,8 @@ components:
               type: array
               items:
                 $ref: "#/components/schemas/ConnectionProfile" 
-                
-
 # end of: components/schemas/config/connection_profile.yaml 
-
   responses:
-
-
 # beginning of: components/responses/base.yaml 
     Created:
       description: A response that contains the location of a created resource
@@ -313,23 +277,15 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/ErrorsWithMessage"
-
 # end of: components/responses/base.yaml 
-
   securitySchemes:
-
-
 # beginning of: components/securitySchemes/bearerAuth.yaml 
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
-
 # end of: components/securitySchemes/bearerAuth.yaml 
-
 paths:
-
-
 # beginning of: paths/tenants.yaml 
   /tenants_onboarding:
     post:
@@ -370,9 +326,7 @@ paths:
           $ref: "#/components/responses/Duplicate"
         '422':
           $ref: "#/components/responses/UnprocessableEntity"
-  
-      
-  /tenants/{tenant_id}:
+  '/tenants/{tenant_id}':
     get:
       summary: Allows to get a tenant by its ID
       responses:
@@ -382,9 +336,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Tenant"
-
 # end of: paths/tenants.yaml 
-
 # beginning of: paths/login.yaml 
   /login:
     post:
@@ -416,10 +368,7 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         '403':
           $ref: "#/components/responses/Forbidden"
-          
-
 # end of: paths/login.yaml 
-
 # beginning of: paths/users.yaml 
   /users:
     get:
@@ -449,8 +398,7 @@ paths:
           $ref: "#/components/responses/Duplicate"
         '422':
           $ref: "#/components/responses/UnprocessableEntity"
-  
-  /users/{user_id}:
+  '/users/{user_id}':
     get:
       summary: Returns a specific user by its ID
       parameters:
@@ -505,11 +453,9 @@ paths:
       responses:
         '204':
           description: Deleted user
-
 # end of: paths/users.yaml 
-
 # beginning of: paths/users/nodes.yaml 
-  /users/{user_id}/nodes:
+  '/users/{user_id}/nodes':
     get:
       summary: Allows to get the nodes of a user
       responses:
@@ -519,12 +465,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/NodesList"
-          
-
 # end of: paths/users/nodes.yaml 
-
 # beginning of: paths/users/password.yaml 
-  /users/{user_id}/password:
+  '/users/{user_id}/password':
     get:
       summary: Get the password entry for a user
       responses:
@@ -589,9 +532,7 @@ paths:
       responses:
         '204':
           description: Deleted password entry
-
 # end of: paths/users/password.yaml 
-
 # beginning of: paths/config/connection_profiles.yaml 
   /config/connection_profiles:
     get:
@@ -620,7 +561,7 @@ paths:
           $ref: "#/components/responses/Duplicate"
         '422':
           $ref: "#/components/responses/UnprocessableEntity"
-  /config/connection_profiles/{connection_profile_id}:
+  '/config/connection_profiles/{connection_profile_id}':
     get:
       summary: Returns a specific connection profile by its ID
       parameters:
@@ -675,5 +616,4 @@ paths:
       responses:
         '204':
           description: Deleted connection profile
-
 # end of: paths/config/connection_profiles.yaml 

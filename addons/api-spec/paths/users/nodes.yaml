@@ -1,4 +1,4 @@
-/users/{user_id}/nodes:
+'/users/{user_id}/nodes':
   get:
     summary: Allows to get the nodes of a user
     responses:

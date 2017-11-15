@@ -27,7 +27,7 @@
       '422':
         $ref: "#/components/responses/UnprocessableEntity"
 
-/users/{user_id}:
+'/users/{user_id}':
   get:
     summary: Returns a specific user by its ID
     parameters:
