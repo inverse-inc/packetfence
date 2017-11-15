@@ -25,7 +25,7 @@
         $ref: "#/components/responses/Duplicate"
       '422':
         $ref: "#/components/responses/UnprocessableEntity"
-/config/connection_profiles/{connection_profile_id}:
+'/config/connection_profiles/{connection_profile_id}':
   get:
     summary: Returns a specific connection profile by its ID
     parameters:
