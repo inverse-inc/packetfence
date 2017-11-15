@@ -32,7 +32,11 @@
                   },
                   "domain_name": {
                     "type": "string",
-                    "description": "A valid domain name that will be used for the tenant portal domain name and as the 802.1x realm"
+                    "description": "A valid domain name that will be used as the 802.1x realm"
+                  },
+                  "portal_domain_name": {
+                    "type": "string",
+                    "description": "A valid domain name that will be used for the tenant portal domain name"
                   },
                   "token": {
                     "type": "string",
