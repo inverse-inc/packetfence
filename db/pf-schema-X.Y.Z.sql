@@ -826,7 +826,7 @@ CREATE PROCEDURE acct_update(
   IN p_servicetype varchar(32),
   IN p_framedprotocol varchar(32),
   IN p_acctstatustype varchar(25),
-  IN p_tenant_id
+  IN p_tenant_id int
 )
 BEGIN
   DECLARE Previous_Input_Octets bigint(20);
