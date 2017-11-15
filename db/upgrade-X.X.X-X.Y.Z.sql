@@ -2,6 +2,19 @@
 -- PacketFence SQL schema upgrade from X.X.X to X.Y.Z
 --
 
+--
+-- Table structure for table `api_users`
+--
+
+CREATE TABLE `api_users` (
+  `username` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `valid_from` datetime NOT NULL DEFAULT "0000-00-00 00:00:00",
+  `expiration` datetime NOT NULL,
+  `access_level` varchar(255) DEFAULT 'NONE',
+  PRIMARY KEY (pid)
+) ENGINE=InnoDB;
+
 
 --
 -- Setting the major/minor/sub-minor version of the DB
