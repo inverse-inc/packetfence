@@ -3,6 +3,7 @@ package apiaaa
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -72,6 +73,8 @@ func buildApiAAAHandler(ctx context.Context) (ApiAAAHandler, error) {
 		))
 	}
 
+	apiAAA.authorization = aaa.NewTokenAuthorizationMiddleware(tokenBackend)
+
 	router := httprouter.New()
 	router.POST("/api/v1/login", apiAAA.handleLogin)
 
@@ -116,6 +119,38 @@ func (h ApiAAAHandler) handleLogin(w http.ResponseWriter, r *http.Request, p htt
 	}
 }
 
+func (h ApiAAAHandler) HandleAAA(w http.ResponseWriter, r *http.Request) bool {
+	ctx := r.Context()
+	auth, err := h.authentication.BearerRequestIsAuthorized(ctx, r)
+
+	if !auth {
+		w.WriteHeader(http.StatusForbidden)
+
+		if err == nil {
+			err = errors.New("Invalid token. Login again using /api/v1/login")
+		}
+
+		res, _ := json.Marshal(map[string]string{
+			"message": err.Error(),
+		})
+		fmt.Fprintf(w, string(res))
+		return false
+	}
+
+	auth, err = h.authorization.BearerRequestIsAuthorized(ctx, r)
+
+	if auth {
+		return true
+	} else {
+		w.WriteHeader(http.StatusForbidden)
+		res, _ := json.Marshal(map[string]string{
+			"message": err.Error(),
+		})
+		fmt.Fprintf(w, string(res))
+		return false
+	}
+}
+
 func (h ApiAAAHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 	ctx := r.Context()
 
@@ -127,7 +162,12 @@ func (h ApiAAAHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, e
 		// TODO change me and wrap actions into something that handles server errors
 		return 0, nil
 	} else {
-		return h.Next.ServeHTTP(w, r)
+		if h.HandleAAA(w, r) {
+			return h.Next.ServeHTTP(w, r)
+		} else {
+			// TODO change me and wrap actions into something that handles server errors
+			return 0, nil
+		}
 	}
 
 }

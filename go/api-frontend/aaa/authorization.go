@@ -11,7 +11,8 @@ import (
 	"github.com/inverse-inc/packetfence/go/log"
 )
 
-var configApiPrefix = "/config"
+var apiPrefix = "/api/v1"
+var configApiPrefix = apiPrefix + "/config"
 
 var adminRolesPathMap = map[string]string{
 	"ADMIN_ROLES":         configApiPrefix + "/admin_roles",
@@ -37,8 +38,8 @@ var adminRolesPathMap = map[string]string{
 	"PFMON":               configApiPrefix + "/maintenance_tasks",
 	"DEVICE_REGISTRATION": configApiPrefix + "/device_registration_policies",
 
-	"NODES": "/endpoints",
-	"USERS": "/users",
+	"NODES": apiPrefix + "/endpoints",
+	"USERS": apiPrefix + "/users",
 }
 
 // Gets built dynamically in the init and is the reverse of adminRolesPathMap
