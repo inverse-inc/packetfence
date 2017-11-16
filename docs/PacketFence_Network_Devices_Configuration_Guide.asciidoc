@@ -3717,6 +3717,7 @@ M Series
 ^^^^^^^^
 
 PacketFence supports the Netgear M series in wired 802.1X and MAC authentication bypass without VoIP.
+On the PacketFence side you need to disable EAP MD5 support (Configuration -> System config -> Authentication Methods)
 
 Switch configuration
 ++++++++++++++++++++
