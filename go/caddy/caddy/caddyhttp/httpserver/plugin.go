@@ -473,6 +473,7 @@ var directives = []string{
 	"logger",
 	"statsd",
 	"pfconfigpool",
+	"api-aaa",
 
 	// PacketFence service implementations
 	"pfsso",
