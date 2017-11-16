@@ -18,37 +18,12 @@ use base qw(Exporter);
 
 our @EXPORT_OK = qw(@ADMIN_ACTIONS %ADMIN_NOT_IN_READONLY);
 
-our $CONFIG_API_PREFIX = "/config/";
-
-our %ADMIN_ACTIONS_URL_MAP = (
-    ADMIN_ROLES => "$CONFIG_API_PREFIX/admin_roles",
-    FINGERBANK => "$CONFIG_API_PREFIX/fingerbank",
-    FIREWALL_SSO => "$CONFIG_API_PREFIX/firewalls_sso",
-    FLOATING_DEVICES => "$CONFIG_API_PREFIX/floating_devices",
-    INTERFACES => "$CONFIG_API_PREFIX/interfaces",
-    CONNECTION_PROFILES => "$CONFIG_API_PREFIX/connection_profiles",
-    PROVISIONING => "$CONFIG_API_PREFIX/provisioners",
-    SWITCHES => "$CONFIG_API_PREFIX/switches",
-    USERS_ROLES => "$CONFIG_API_PREFIX/roles",
-    USERS_SOURCES => "$CONFIG_API_PREFIX/authentication_sources",
-    VIOLATIONS => "$CONFIG_API_PREFIX/violations",
-    REALM => "$CONFIG_API_PREFIX/realms",
-    DOMAIN => "$CONFIG_API_PREFIX/domains",
-    SCAN => "$CONFIG_API_PREFIX/scans",
-    WMI => "$CONFIG_API_PREFIX/wmi",
-    WRIX => "$CONFIG_API_PREFIX/wrix",
-    PKI_PROVIDER => "$CONFIG_API_PREFIX/pki_providers",
-    PFDETECT => "$CONFIG_API_PREFIX/syslog_parsers",
-    BILLING_TIER => "$CONFIG_API_PREFIX/billing_tiers",
-    PORTAL_MODULE => "$CONFIG_API_PREFIX/portal_modules",
-    PFMON => "$CONFIG_API_PREFIX/maintenance_tasks",
-    DEVICE_REGISTARATION => "$CONFIG_API_PREFIX/device_registration_policies",
-    
-    NODES => "/endpoints",
-    USERS => "/users",
-);
-
 our @ADMIN_ACTIONS = qw(
+    SYSTEM_READ
+    SYSTEM_CREATE
+    SYSTEM_UPDATE
+    SYSTEM_DELETE
+
     ADMIN_ROLES_CREATE
     ADMIN_ROLES_DELETE
     ADMIN_ROLES_READ
