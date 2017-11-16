@@ -2,6 +2,7 @@ package aaa
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"testing"
 	"time"
@@ -196,7 +197,7 @@ func TestTokenAuthorizationMiddlewareBearerRequestIsAuthorized(t *testing.T) {
 
 	// Test inexistant token
 	req, _ := http.NewRequest("GET", "/users", nil)
-	addBearerTokenToTestRequest(req, token)
+	addBearerTokenToTestRequest(req, token, 0)
 
 	res, err := m.BearerRequestIsAuthorized(ctx, req)
 
@@ -217,6 +218,54 @@ func TestTokenAuthorizationMiddlewareBearerRequestIsAuthorized(t *testing.T) {
 		t.Error("Authenticated request has failed instead of succeeding", err)
 	}
 
+	// Test valid token with scoped tenant ID without X-PacketFence-Tenant-Id header
+	backend.StoreTokenInfo(token, &TokenInfo{
+		AdminRoles: map[string]bool{
+			"USERS_READ": true,
+		},
+		TenantId: 1,
+	})
+
+	addBearerTokenToTestRequest(req, token, 1)
+
+	res, err = m.BearerRequestIsAuthorized(ctx, req)
+
+	if !res {
+		t.Error("Authenticated request has failed instead of succeeding", err)
+	}
+
+	// Test valid token with scoped tenant ID with X-PacketFence-Tenant-Id header
+	backend.StoreTokenInfo(token, &TokenInfo{
+		AdminRoles: map[string]bool{
+			"USERS_READ": true,
+		},
+		TenantId: 0,
+	})
+
+	addBearerTokenToTestRequest(req, token, 1)
+
+	res, err = m.BearerRequestIsAuthorized(ctx, req)
+
+	if !res {
+		t.Error("Authenticated request has failed instead of succeeding", err)
+	}
+
+	// Test valid token with wrong scoped X-PacketFence-Tenant-Id
+	backend.StoreTokenInfo(token, &TokenInfo{
+		AdminRoles: map[string]bool{
+			"USERS_READ": true,
+		},
+		TenantId: 1,
+	})
+
+	addBearerTokenToTestRequest(req, token, 2)
+
+	res, err = m.BearerRequestIsAuthorized(ctx, req)
+
+	if res {
+		t.Error("Unauthenticated request has succeeded instead of failing", err)
+	}
+
 	// Test valid token with invalid role
 	req, _ = http.NewRequest("POST", "/users", nil)
 
@@ -228,6 +277,10 @@ func TestTokenAuthorizationMiddlewareBearerRequestIsAuthorized(t *testing.T) {
 
 }
 
-func addBearerTokenToTestRequest(r *http.Request, token string) {
+func addBearerTokenToTestRequest(r *http.Request, token string, tenantId int) {
 	r.Header.Set("Authorization", "Bearer "+token)
+
+	if tenantId != 0 {
+		r.Header.Set("X-PacketFence-Tenant-Id", fmt.Sprintf("%d", tenantId))
+	}
 }

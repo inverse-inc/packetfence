@@ -77,9 +77,16 @@ func (tam *TokenAuthorizationMiddleware) BearerRequestIsAuthorized(ctx context.C
 
 	xptid := r.Header.Get("X-PacketFence-Tenant-Id")
 
+	tokenInfo := tam.tokenBackend.TokenInfoForToken(token)
+
+	if tokenInfo == nil {
+		return false, errors.New("Invalid token info")
+	}
+
 	var tenantId int
 	if xptid == "" {
-		log.LoggerWContext(ctx).Debug("Empty X-PacketFence-Tenant-Id, defaulting to 0")
+		log.LoggerWContext(ctx).Debug("Empty X-PacketFence-Tenant-Id, defaulting to token tenant ID")
+		tenantId = tokenInfo.TenantId
 	} else {
 		var err error
 		tenantId, err = strconv.Atoi(xptid)
@@ -90,7 +97,7 @@ func (tam *TokenAuthorizationMiddleware) BearerRequestIsAuthorized(ctx context.C
 		}
 	}
 
-	return tam.IsAuthorized(ctx, r.Method, r.URL.Path, tenantId, tam.tokenBackend.TokenInfoForToken(token))
+	return tam.IsAuthorized(ctx, r.Method, r.URL.Path, tenantId, tokenInfo)
 }
 
 // Checks whether or not that request is authorized based on the path and method
