@@ -8,6 +8,7 @@ import (
 
 type TokenAuthenticationMiddleware struct {
 	tokenBackend TokenBackend
+	authBackends AuthenticationBackend
 }
 
 func NewTokenAuthenticationMiddleware(tb TokenBackend) *TokenAuthenticationMiddleware {
