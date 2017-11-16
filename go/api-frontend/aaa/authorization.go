@@ -68,26 +68,22 @@ func NewTokenAuthorizationMiddleware(tb TokenBackend) *TokenAuthorizationMiddlew
 	}
 }
 
-func (tam *TokenAuthorizationMiddleware) AdminRolesForToken(token string) map[string]bool {
-	roles := tam.tokenBackend.AdminRolesForToken(token)
-	rolesMap := make(map[string]bool)
-	for _, role := range roles {
-		rolesMap[role] = true
-	}
-	return rolesMap
-}
-
 // Checks whether or not that request is authorized based on the path and method
 // It will extract the token out of the Authorization header and call the appropriate method
 func (tam *TokenAuthorizationMiddleware) BearerRequestIsAuthorized(ctx context.Context, r *http.Request) (bool, error) {
 	authHeader := r.Header.Get("Authorization")
 	token := strings.TrimPrefix(authHeader, "Bearer ")
-	adminRoles := tam.AdminRolesForToken(token)
-	return tam.IsAuthorized(ctx, r.Method, r.URL.Path, adminRoles)
+	return tam.IsAuthorized(ctx, r.Method, r.URL.Path, tam.tokenBackend.TokenInfoForToken(token))
 }
 
 // Checks whether or not that request is authorized based on the path and method
-func (tam *TokenAuthorizationMiddleware) IsAuthorized(ctx context.Context, method, path string, roles map[string]bool) (bool, error) {
+func (tam *TokenAuthorizationMiddleware) IsAuthorized(ctx context.Context, method, path string, tokenInfo *TokenInfo) (bool, error) {
+	if tokenInfo == nil {
+		return false, errors.New("Invalid token info")
+	}
+
+	roles := tokenInfo.AdminRoles
+
 	baseAdminRole := pathAdminRolesMap[path]
 
 	if baseAdminRole == "" {

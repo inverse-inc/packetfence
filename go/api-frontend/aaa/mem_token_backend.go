@@ -21,7 +21,7 @@ func (mtb *MemTokenBackend) TokenIsValid(token string) bool {
 	return found
 }
 
-func (mtb *MemTokenBackend) tokenInfoForToken(token string) *TokenInfo {
+func (mtb *MemTokenBackend) TokenInfoForToken(token string) *TokenInfo {
 	o, found := mtb.store.Get(token)
 	if found {
 		return o.(*TokenInfo)
@@ -31,18 +31,18 @@ func (mtb *MemTokenBackend) tokenInfoForToken(token string) *TokenInfo {
 }
 
 func (mtb *MemTokenBackend) TenantIdForToken(token string) int {
-	if ti := mtb.tokenInfoForToken(token); ti != nil {
-		return ti.tenantId
+	if ti := mtb.TokenInfoForToken(token); ti != nil {
+		return ti.TenantId
 	} else {
 		return -1
 	}
 }
 
-func (mtb *MemTokenBackend) AdminRolesForToken(token string) []string {
-	if ti := mtb.tokenInfoForToken(token); ti != nil {
-		return ti.adminRoles
+func (mtb *MemTokenBackend) AdminRolesForToken(token string) map[string]bool {
+	if ti := mtb.TokenInfoForToken(token); ti != nil {
+		return ti.AdminRoles
 	} else {
-		return []string{}
+		return make(map[string]bool)
 	}
 }
 

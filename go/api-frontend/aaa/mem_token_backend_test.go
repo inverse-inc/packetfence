@@ -28,8 +28,11 @@ func TestMemTokenBackend(t *testing.T) {
 	}
 
 	b.StoreTokenInfo(token, &TokenInfo{
-		adminRoles: []string{"USERS_READ", "SYSTEM_READ"},
-		tenantId:   1,
+		AdminRoles: map[string]bool{
+			"USERS_READ":  true,
+			"SYSTEM_READ": true,
+		},
+		TenantId: 1,
 	})
 
 	if !b.TokenIsValid(token) {
