@@ -8,6 +8,11 @@ type TokenBackend interface {
 	TokenIsValid(token string) bool
 }
 
+const (
+	AccessAllTenants = 0
+	AccessNoTenants  = -1
+)
+
 type TokenInfo struct {
 	AdminRoles map[string]bool
 	TenantId   int

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/inverse-inc/packetfence/go/log"
@@ -73,17 +74,65 @@ func NewTokenAuthorizationMiddleware(tb TokenBackend) *TokenAuthorizationMiddlew
 func (tam *TokenAuthorizationMiddleware) BearerRequestIsAuthorized(ctx context.Context, r *http.Request) (bool, error) {
 	authHeader := r.Header.Get("Authorization")
 	token := strings.TrimPrefix(authHeader, "Bearer ")
-	return tam.IsAuthorized(ctx, r.Method, r.URL.Path, tam.tokenBackend.TokenInfoForToken(token))
+
+	xptid := r.Header.Get("X-PacketFence-Tenant-Id")
+
+	var tenantId int
+	if xptid == "" {
+		log.LoggerWContext(ctx).Debug("Empty X-PacketFence-Tenant-Id, defaulting to 0")
+	} else {
+		var err error
+		tenantId, err = strconv.Atoi(xptid)
+		if err != nil {
+			msg := fmt.Sprintf("Impossible to parse X-PacketFence-Tenant-Id %s into a valid number, error: %s", xptid, err)
+			log.LoggerWContext(ctx).Warn(msg)
+			return false, errors.New(msg)
+		}
+	}
+
+	return tam.IsAuthorized(ctx, r.Method, r.URL.Path, tenantId, tam.tokenBackend.TokenInfoForToken(token))
 }
 
 // Checks whether or not that request is authorized based on the path and method
-func (tam *TokenAuthorizationMiddleware) IsAuthorized(ctx context.Context, method, path string, tokenInfo *TokenInfo) (bool, error) {
+func (tam *TokenAuthorizationMiddleware) IsAuthorized(ctx context.Context, method, path string, tenantId int, tokenInfo *TokenInfo) (bool, error) {
 	if tokenInfo == nil {
 		return false, errors.New("Invalid token info")
 	}
 
-	roles := tokenInfo.AdminRoles
+	authAdminRoles, err := tam.isAuthorizedAdminRoles(ctx, method, path, tokenInfo.AdminRoles)
+	if !authAdminRoles || err != nil {
+		return authAdminRoles, err
+	}
 
+	authTenant, err := tam.isAuthorizedTenantId(ctx, tenantId, tokenInfo.TenantId)
+	if !authTenant || err != nil {
+		return authTenant, err
+	}
+
+	// If we're here, then we passed all the tests above and we're good to go
+	return true, nil
+}
+
+func (tam *TokenAuthorizationMiddleware) isAuthorizedTenantId(ctx context.Context, requestTenantId, tokenTenantId int) (bool, error) {
+	// Token doesn't have access to any tenant
+	if tokenTenantId == AccessNoTenants {
+		return false, errors.New("Token is prohibited from accessing data from any tenant")
+	} else if tokenTenantId == AccessAllTenants {
+		return true, nil
+	} else if requestTenantId == tokenTenantId {
+		return true, nil
+	} else {
+		return false, errors.New(
+			fmt.Sprintf(
+				"Token is not allowed to access this tenant %d and only has access to tenant %d",
+				requestTenantId,
+				tokenTenantId,
+			),
+		)
+	}
+}
+
+func (tam *TokenAuthorizationMiddleware) isAuthorizedAdminRoles(ctx context.Context, method, path string, roles map[string]bool) (bool, error) {
 	baseAdminRole := pathAdminRolesMap[path]
 
 	if baseAdminRole == "" {
