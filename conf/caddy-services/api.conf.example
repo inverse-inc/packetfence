@@ -1,0 +1,12 @@
+localhost:9999 {
+  pfconfigpool
+  logger {
+    level INFO
+  }
+  statsd {
+    proto udp
+    prefix api
+  }
+  api-aaa
+}
+
