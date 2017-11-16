@@ -17,6 +17,7 @@ type TokenAuthenticationMiddleware struct {
 func NewTokenAuthenticationMiddleware(tb TokenBackend) *TokenAuthenticationMiddleware {
 	return &TokenAuthenticationMiddleware{
 		tokenBackend: tb,
+		authBackends: []AuthenticationBackend{},
 	}
 }
 

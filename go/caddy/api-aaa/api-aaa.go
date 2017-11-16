@@ -59,11 +59,6 @@ func buildApiAAAHandler(ctx context.Context) (ApiAAAHandler, error) {
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Webservices)
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.AdminRoles)
 
-	router := httprouter.New()
-	router.POST("/api/v1/login", apiAAA.handleLogin)
-
-	apiAAA.router = router
-
 	tokenBackend := aaa.NewMemTokenBackend(1 * time.Hour)
 	apiAAA.authentication = aaa.NewTokenAuthenticationMiddleware(tokenBackend)
 
@@ -76,6 +71,11 @@ func buildApiAAAHandler(ctx context.Context) (ApiAAAHandler, error) {
 			pfconfigdriver.Config.AdminRoles.Element["ALL"].Actions,
 		))
 	}
+
+	router := httprouter.New()
+	router.POST("/api/v1/login", apiAAA.handleLogin)
+
+	apiAAA.router = router
 
 	return apiAAA, nil
 }
@@ -103,15 +103,15 @@ func (h ApiAAAHandler) handleLogin(w http.ResponseWriter, r *http.Request, p htt
 
 	if auth {
 		w.WriteHeader(http.StatusOK)
-		res, _ := json.Marshal(struct {
-			token string
-		}{token: token})
+		res, _ := json.Marshal(map[string]string{
+			"token": token,
+		})
 		fmt.Fprintf(w, string(res))
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)
-		res, _ := json.Marshal(struct {
-			message string
-		}{message: err.Error()})
+		res, _ := json.Marshal(map[string]string{
+			"message": err.Error(),
+		})
 		fmt.Fprintf(w, string(res))
 	}
 }
