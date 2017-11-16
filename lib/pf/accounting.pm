@@ -542,7 +542,7 @@ sub node_accounting_view {
 =cut
 
 sub node_accounting_view_all {
-    return _translate_bw(_db_data(
+    return _translate_bw(_db_items(
         -columns => [
             "CONCAT(SUBSTRING(callingstationid,1,2),':',SUBSTRING(callingstationid,3,2),':',SUBSTRING(callingstationid,5,2),':',SUBSTRING(callingstationid,7,2),':',SUBSTRING(callingstationid,9,2),':',SUBSTRING(callingstationid,11,2))|mac",
             "username",
@@ -713,7 +713,7 @@ our %INTERVAL_TO_METHOD = (
 sub node_acct_maintenance_bw_inbound {
     my ($interval, $releaseDate, $bytes) = @_;
     my $method = $INTERVAL_TO_METHOD{$interval};
-    return _db_data (
+    return _db_items (
         -columns => ['radacct.callingstationid' , 'SUM(radacct_log.acctinputoctets)|acctinput'],
         -from => [-join => 'radacct_log', '<={radacct_log.acctuniqueid=radacct.acctuniqueid}', 'radacct'],
         -group_by => 'radacct.callingstationid',
@@ -736,7 +736,7 @@ sub node_acct_maintenance_bw_inbound {
 sub node_acct_maintenance_bw_outbound {
     my ($interval, $releaseDate, $bytes) = @_;
     my $method = $INTERVAL_TO_METHOD{$interval};
-    return _db_data(
+    return _db_items(
         -columns => [
             'radacct.callingstationid',
             'SUM(radacct_log.acctoutputoctets)|acctoutput'
@@ -765,7 +765,7 @@ sub node_acct_maintenance_bw_outbound {
 sub node_acct_maintenance_bw_total {
     my ($interval, $releaseDate, $bytes) = @_;
     my $method = $INTERVAL_TO_METHOD{$interval};
-    return _db_data(
+    return _db_items(
         -columns => [
             'radacct.callingstationid',
             'SUM(radacct_log.acctinputoctets)|acctinput',
@@ -795,7 +795,7 @@ sub node_acct_maintenance_bw_total {
 
 sub node_acct_maintenance_bw_inbound_exists {
     my ($releaseDate, $bytes, $mac) = @_;
-    return _db_data(
+    return _db_items(
         -columns => [
             'radacct.callingstationid',
             'SUM(radacct_log.acctinputoctets)|acctinput',
@@ -824,7 +824,7 @@ sub node_acct_maintenance_bw_inbound_exists {
 
 sub node_acct_maintenance_bw_outbound_exists {
     my ($releaseDate, $bytes, $mac) = @_;
-    return _db_data(
+    return _db_items(
         -columns => [
             'radacct.callingstationid',
             'SUM(radacct_log.acctoutputoctets)|acctoutput',
@@ -853,7 +853,7 @@ sub node_acct_maintenance_bw_outbound_exists {
 
 sub node_acct_maintenance_bw_total_exists {
     my ($releaseDate, $bytes, $mac) = @_;
-    return _db_data(
+    return _db_items(
         -columns => [
             'radacct.callingstationid',
             'SUM(radacct_log.acctinputoctets)|acctinput',
@@ -917,11 +917,11 @@ sub _db_item {
     return $iter->next;
 }
 
-=item _db_data
+=item _db_items
 
 =cut
 
-sub _db_data {
+sub _db_items {
     my (@args) = @_;
     my ($status, $iter) = pf::dal::radacct->search(
         @args,
