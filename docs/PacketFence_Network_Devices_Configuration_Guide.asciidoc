@@ -3716,7 +3716,7 @@ Each user-facing, PacketFence-managed port should be configured like:
 M Series
 ^^^^^^^^
 
-PacketFence supports the Netgear M series in wired 802.1x and MAC authentication bypass without VoIP.
+PacketFence supports the Netgear M series in wired 802.1X and MAC authentication bypass without VoIP.
 
 Switch configuration
 ++++++++++++++++++++
