@@ -2,12 +2,13 @@ package pfconfigdriver
 
 import (
 	"context"
-	"github.com/davecgh/go-spew/spew"
-	"github.com/inverse-inc/packetfence/go/log"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"os"
 	"os/exec"
 	"testing"
+
+	"github.com/davecgh/go-spew/spew"
+	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
 
 var ctx = log.LoggerNewContext(context.Background())
@@ -167,6 +168,23 @@ func TestArrayElements(t *testing.T) {
 			t.Errorf("Wrong value at position %d. Got %s instead of %s", i, li.Element[i], intName)
 		}
 	}
+}
+
+func TestDecodeInElement(t *testing.T) {
+	var ar AdminRoles
+
+	FetchDecodeSocket(ctx, &ar)
+
+	val, found := ar.Element["ALL"]
+
+	if !found {
+		t.Error("Cannot find the decoded element")
+	}
+
+	if len(val.Actions) == 0 {
+		t.Error("Actions are empty when they shouldn't be")
+	}
+
 }
 
 // fetches resource::fqdn requesting Sereal encoding for the reply

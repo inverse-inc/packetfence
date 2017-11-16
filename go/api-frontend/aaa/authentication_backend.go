@@ -16,15 +16,10 @@ type MemAuthenticationBackend struct {
 	sem        *sync.RWMutex
 }
 
-func NewMemAuthenticationBackend(validUsers map[string]string, adminRoles []string) *MemAuthenticationBackend {
-	adminRolesMap := make(map[string]bool)
-	for _, r := range adminRoles {
-		adminRolesMap[r] = true
-	}
-
+func NewMemAuthenticationBackend(validUsers map[string]string, adminRoles map[string]bool) *MemAuthenticationBackend {
 	return &MemAuthenticationBackend{
 		validUsers: validUsers,
-		adminRoles: adminRolesMap,
+		adminRoles: adminRoles,
 		sem:        &sync.RWMutex{},
 	}
 }
