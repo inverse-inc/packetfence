@@ -3,7 +3,7 @@ package aaa
 import "testing"
 
 func TestMemAuthenticationBackend(t *testing.T) {
-	mab := NewMemAuthenticationBackend(map[string]string{"bob": "garauge"}, []string{"SYSTEM_READ"})
+	mab := NewMemAuthenticationBackend(map[string]string{"bob": "garauge"}, map[string]bool{"SYSTEM_READ": true})
 
 	if mab.validUsers["bob"] != "garauge" {
 		t.Error("User wasn't set properly in constructor")

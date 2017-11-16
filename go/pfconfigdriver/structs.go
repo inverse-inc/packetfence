@@ -106,6 +106,19 @@ type PfConfWebservices struct {
 	Host           string `json:"host"`
 }
 
+type PfConfWebservices struct {
+	StructConfig
+	PfconfigMethod string `val:"hash_element"`
+	PfconfigNS     string `val:"config::Pf"`
+	PfconfigHashNS string `val:"webservices"`
+	User           string `json:"user"`
+	Pass           string `json:"pass"`
+	Host           string `json:"host"`
+	Proto          string `json:"proto"`
+	Port           string `json:"port"`
+	AAAPort        string `json:"aaa_port"`
+}
+
 type ManagementNetwork struct {
 	StructConfig
 	PfconfigMethod string `val:"element"`
@@ -119,6 +132,19 @@ type ManagementNetwork struct {
 func (mn *ManagementNetwork) GetNetIP(ctx context.Context) (net.IP, *net.IPNet, error) {
 	ip, ipnet, err := net.ParseCIDR(mn.Ip + "/" + mn.Mask)
 	return ip, ipnet, err
+}
+
+type AdminRole struct {
+	Description string          `json:"description"`
+	Actions     map[string]bool `json:"ACTIONS"`
+}
+
+type AdminRoles struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"config::AdminRoles"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 map[string]AdminRole
 }
 
 // Used when fetching the sections from a pfconfig HASH namespace
@@ -159,6 +185,7 @@ type configStruct struct {
 		Webservices   PfConfWebservices
 		Database      PfconfigDatabase
 	}
+	AdminRoles AdminRoles
 }
 
 var Config configStruct
