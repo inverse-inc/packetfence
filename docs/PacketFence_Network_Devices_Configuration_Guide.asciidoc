@@ -3716,49 +3716,40 @@ Each user-facing, PacketFence-managed port should be configured like:
 M Series
 ^^^^^^^^
 
-PacketFence supports the Netgear M series in wired MAC authentication without VoIP.
+PacketFence supports the Netgear M series in wired 802.1x and MAC authentication bypass without VoIP.
 
 Switch configuration
 ++++++++++++++++++++
 
----
-
-radius server host auth 192.168.1.5
-radius server key auth 192.168.1.5 (then press enter and input your secret)
-radius server primary 192.168.1.5
-radius server host acct 192.168.1.5
-radius server key acct 192.168.1.5 (then press enter and input your secret)
+ radius server host auth 192.168.1.5
+ radius server key auth 192.168.1.5 (then press enter and input your secret)
+ radius server primary 192.168.1.5
+ radius server host acct 192.168.1.5
+ radius server key acct 192.168.1.5 (then press enter and input your secret)
 
 
-aaa session-id unique
-dot1x system-auth-control
-aaa authentication dot1x default radius
-authorization network radius
-radius accounting mode
+ aaa session-id unique
+ dot1x system-auth-control
+ aaa authentication dot1x default radius
+ authorization network radius
+ radius accounting mode
 
----
 
 On your uplinks
 +++++++++++++++
 
----
 
-dot1x port-control force-authorized
+ dot1x port-control force-authorized
 
----
 
-On your interfaces
-++++++++++++++++++
+On your interfaces for 802.1x with MAC Authentication
++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
----
-
-interface 0/x
-dot1x port-control mac-based
-dot1x timeout guest-vlan-period 1
-dot1x mac-auth-bypass
-exit
-
----
+ interface 0/x
+ dot1x port-control mac-based
+ dot1x timeout guest-vlan-period 1
+ dot1x mac-auth-bypass
+ exit
 
 Nortel
 ~~~~~~

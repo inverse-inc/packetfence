@@ -17,6 +17,7 @@ use pf::constants;
 
 use base ('pf::Switch::Netgear');
 
+sub supportsWiredDot1x { return $TRUE; }
 sub supportsWiredMacAuth { return $TRUE }
 sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
 sub description { return 'Netgear M series' }
