@@ -27,10 +27,18 @@ func TestDbAuthenticationBackend(t *testing.T) {
 		TenantId:    1,
 	})
 
-	auth, _, err := dab.Authenticate(ctx, "bob", "garauge")
+	auth, ti, err := dab.Authenticate(ctx, "bob", "garauge")
 
 	if !auth {
 		t.Error("Auth failed for a valid user", err)
+	}
+
+	if len(ti.AdminRoles) != 4 {
+		t.Error("Wrong count of admin roles for user")
+	}
+
+	if ti.TenantId != 1 {
+		t.Error("Wrong tenant ID for user")
 	}
 
 	if err != nil {
@@ -47,10 +55,14 @@ func TestDbAuthenticationBackend(t *testing.T) {
 		TenantId:    1,
 	})
 
-	auth, _, err = dab.Authenticate(ctx, "bob", "garauge")
+	auth, ti, err = dab.Authenticate(ctx, "bob", "garauge")
 
 	if auth {
 		t.Error("Auth succeeded for an invalid user", err)
+	}
+
+	if ti != nil {
+		t.Error("Got a token info although auth failed")
 	}
 
 	if err == nil {
@@ -67,10 +79,14 @@ func TestDbAuthenticationBackend(t *testing.T) {
 		TenantId:    1,
 	})
 
-	auth, _, err = dab.Authenticate(ctx, "bob", "garauge")
+	auth, ti, err = dab.Authenticate(ctx, "bob", "garauge")
 
 	if auth {
 		t.Error("Auth succeeded for an invalid user", err)
+	}
+
+	if ti != nil {
+		t.Error("Got a token info although auth failed")
 	}
 
 	if err == nil {
@@ -93,6 +109,10 @@ func TestDbAuthenticationBackend(t *testing.T) {
 		t.Error("Auth succeeded for an invalid user", err)
 	}
 
+	if ti != nil {
+		t.Error("Got a token info although auth failed")
+	}
+
 	if err == nil {
 		t.Error("No error was returned when the auth failed")
 	}
@@ -102,6 +122,10 @@ func TestDbAuthenticationBackend(t *testing.T) {
 
 	if auth {
 		t.Error("Auth succeeded for an invalid user", err)
+	}
+
+	if ti != nil {
+		t.Error("Got a token info although auth failed")
 	}
 
 	if err == nil {

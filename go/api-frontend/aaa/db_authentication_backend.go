@@ -75,7 +75,7 @@ func (dab *DbAuthenticationBackend) Authenticate(ctx context.Context, username, 
 		if err := bcrypt.CompareHashAndPassword([]byte(apiUser.Password), []byte(password)); err != nil {
 			return false, nil, errors.New("Invalid username/password combination")
 		} else {
-			return true, nil, nil
+			return true, dab.buildTokenInfo(ctx, &apiUser), nil
 		}
 	}
 
