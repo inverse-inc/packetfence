@@ -23,7 +23,6 @@ use pf::util;
 use pf::config qw(
     @internal_nets
     $management_network
-    %ConfigNetworks
     %Config
     is_type_inline
 );
@@ -34,6 +33,8 @@ use IPC::Cmd qw[can_run run];
 use pf::constants qw($TRUE $FALSE);
 
 tie our %ConfigTrafficShaping, 'pfconfig::cached_hash', "config::TrafficShaping";
+
+tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config";
 
 extends 'pf::services::manager';
 
@@ -217,29 +218,12 @@ sub manageTrafficShaping {
 
         my @roles = pf::nodecategory::nodecategory_view_all;
 
-        foreach my $network ( keys %ConfigNetworks ) {
+        foreach my $network ( keys %NetworkConfig ) {
 
             next if ( !pf::config::is_network_type_inline($network) );
-            my $dev;
-            my $gateway;
+            my $dev = $NetworkConfig{$network}{'interface'}{'Tint'};
 
-            foreach my $interface (@internal_nets) {
-                my $ip = $interface->tag("vip") || $interface->tag("ip");
-                my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
-                if ( $ConfigNetworks{$network}{'type'} eq $pf::config::NET_TYPE_INLINE_L3 ) {
-                    my $ip = new NetAddr::IP::Lite clean_ip($ConfigNetworks{$network}{'next_hop'});
-                    if ($net_addr->contains($ip)) {
-                        $dev = $interface->tag("int");
-                        $gateway = $ConfigNetworks{$network}{'next_hop'};
-                    }
-                } else {
-                    my $ip = new NetAddr::IP::Lite clean_ip($ConfigNetworks{$network}{'gateway'});
-                    if ($net_addr->contains($ip)) {
-                        $dev = $interface->tag("int");
-                        $gateway = $ConfigNetworks{$network}{'gateway'};
-                    }
-                }
-            }
+            my $gateway = (defined $NetworkConfig{$network}{'next_hop'} ? $NetworkConfig{$network}{'next_hop'} : $NetworkConfig{$network}{'gateway'});
 
             my @interface_src = split(" ", pf_run("sudo ip route get 8.8.8.8 from $gateway"));
             my $interface;
@@ -291,7 +275,7 @@ sub isManaged {
 
     my $route_exist = '';
 
-    foreach my $network ( keys %ConfigNetworks ) {
+    foreach my $network ( keys %NetworkConfig ) {
         return $TRUE if pf::config::is_network_type_inline($network) && $self->SUPER::isManaged();
     }
     return $FALSE;

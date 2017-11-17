@@ -62,6 +62,7 @@ my $ipset_client = pf::api::jsonrestclient->new(
                 host    => "localhost",
                 port    => $pf::constants::api::GO_IPSET_PORT,
             );
+tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config";
 
 =head1 SUBROUTINES
 
@@ -265,28 +266,13 @@ sub generate_mangle_postrouting_rules {
 
     my @roles = pf::nodecategory::nodecategory_view_all;
 
-    foreach my $network ( keys %ConfigNetworks ) {
-        next if ( !pf::config::is_network_type_inline($network) );
-        my $dev;
-        my $gateway;
+    foreach my $network ( keys %NetworkConfig ) {
 
-        foreach my $interface (@internal_nets) {
-            my $ip = $interface->tag("vip") || $interface->tag("ip");
-            my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
-            if ( $ConfigNetworks{$network}{'type'} eq $pf::config::NET_TYPE_INLINE_L3 ) {
-                my $ip = new NetAddr::IP::Lite clean_ip($ConfigNetworks{$network}{'next_hop'});
-                if ($net_addr->contains($ip)) {
-                    $dev = $interface->tag("int");
-                    $gateway = $ConfigNetworks{$network}{'next_hop'};
-                }
-            } else {
-                my $ip = new NetAddr::IP::Lite clean_ip($ConfigNetworks{$network}{'gateway'});
-                if ($net_addr->contains($ip)) {
-                    $dev = $interface->tag("int");
-                    $gateway = $ConfigNetworks{$network}{'gateway'};
-                }
-            }
-        }
+        next if ( !pf::config::is_network_type_inline($network) );
+        my $dev = $NetworkConfig{$network}{'interface'}{'Tint'};
+
+        my $gateway = (defined $NetworkConfig{$network}{'next_hop'} ? $NetworkConfig{$network}{'next_hop'} : $NetworkConfig{$network}{'gateway'});
+
         my @interface_src = split(" ", pf_run("sudo ip route get 8.8.8.8 from $gateway"));
         my $interface;
         if ($interface_src[3] eq 'via') {
