@@ -15,10 +15,12 @@ use strict;
 use warnings;
 use Moo;
 use Template;
+use NetAddr::IP;
 
 use pf::cluster;
 use pf::config qw(
     %Config
+    %ConfigNetworks
 );
 
 use pf::file_paths qw(
@@ -59,6 +61,15 @@ sub generateConfig {
 EOT
     }
 
+    foreach my $network ( keys %ConfigNetworks ) {
+        # We skip non-inline networks/interfaces
+        next if ( !pf::config::is_network_type_inline($network) );
+        my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
+        my $cidr = $net_addr->cidr();
+        $tags{'inline'} .= <<"EOT";
+    proxy $cidr . $ConfigNetworks{$network}{'dns'}
+EOT
+    }
     $tt->process("$conf_dir/Corefile", \%tags, "$install_dir/bin/Corefile") or die $tt->error();
 }
 

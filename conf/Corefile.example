@@ -9,6 +9,9 @@
     }
     # Anything not handled by pfdns will be resolved normally
 [% domain %]
+[% inline %]
+
+    # Default to system resolv.conf file
     proxy . /etc/resolv.conf
     log stdout
     errors
