@@ -2,41 +2,20 @@ package aaa
 
 import (
 	"context"
-	"database/sql"
-	"fmt"
 	"testing"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/log"
-	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
-
-func buildDbConn(ctx context.Context) *sql.DB {
-
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Database)
-
-	dbConfig := pfconfigdriver.Config.PfConf.Database
-	proto := "tcp"
-
-	if dbConfig.Host == "localhost" {
-		proto = "unix"
-	}
-
-	uri := fmt.Sprintf("%s:%s@%s(%s)/%s?parseTime=true", dbConfig.User, dbConfig.Pass, proto, dbConfig.Host, dbConfig.Db)
-
-	db, err := sql.Open("mysql", uri)
-
-	if err != nil {
-		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error while connecting to DB: %s", err))
-	}
-
-	return db
-}
 
 func TestDbAuthenticationBackend(t *testing.T) {
 	ctx := log.LoggerNewContext(context.Background())
-	dab := NewDbAuthenticationBackend(ctx, buildDbConn(ctx), "api_users")
+	db, err := db.DbFromConfig(ctx)
+	sharedutils.CheckError(err)
+	dab := NewDbAuthenticationBackend(ctx, db, "api_users")
 
 	// Test valid user
 	dab.SetUser(ctx, &ApiUser{
@@ -133,7 +112,9 @@ func TestDbAuthenticationBackend(t *testing.T) {
 
 func TestDbAuthenticationBackendBuildTokenInfo(t *testing.T) {
 	ctx := log.LoggerNewContext(context.Background())
-	dab := NewDbAuthenticationBackend(ctx, buildDbConn(ctx), "api_users")
+	db, err := db.DbFromConfig(ctx)
+	sharedutils.CheckError(err)
+	dab := NewDbAuthenticationBackend(ctx, db, "api_users")
 
 	// An admin role with a default tenant
 	ti := dab.buildTokenInfo(ctx, &ApiUser{
