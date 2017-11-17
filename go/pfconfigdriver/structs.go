@@ -119,6 +119,18 @@ type PfConfWebservices struct {
 	AAAPort        string `json:"aaa_port"`
 }
 
+type PfConfDatabase struct {
+	StructConfig
+	PfconfigMethod string `val:"hash_element"`
+	PfconfigNS     string `val:"config::Pf"`
+	PfconfigHashNS string `val:"database"`
+	User           string `json:"user"`
+	Pass           string `json:"pass"`
+	Host           string `json:"host"`
+	Port           string `json:"port"`
+	Db             string `json:"db"`
+}
+
 type ManagementNetwork struct {
 	StructConfig
 	PfconfigMethod string `val:"element"`
@@ -183,7 +195,7 @@ type configStruct struct {
 		Fencing       PfConfFencing
 		CaptivePortal PfConfCaptivePortal
 		Webservices   PfConfWebservices
-		Database      PfconfigDatabase
+		Database      PfConfDatabase
 	}
 	AdminRoles AdminRoles
 }

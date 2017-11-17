@@ -12,6 +12,7 @@ CREATE TABLE `api_users` (
   `valid_from` datetime NOT NULL DEFAULT "0000-00-00 00:00:00",
   `expiration` datetime NOT NULL,
   `access_level` varchar(255) DEFAULT 'NONE',
+  `tenant_id` int DEFAULT 0,
   PRIMARY KEY (pid)
 ) ENGINE=InnoDB;
 
