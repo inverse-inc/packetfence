@@ -19,7 +19,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 	var err error
 
 	// Test a valid GET
-	res, err = m.IsAuthorized(ctx, "GET", "/config/violations", 0, &TokenInfo{
+	res, err = m.IsAuthorized(ctx, "GET", "/api/v1/config/violations", 0, &TokenInfo{
 		AdminRoles: map[string]bool{
 			"VIOLATIONS_READ": true,
 		},
@@ -30,7 +30,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 	}
 
 	// Test a valid POST
-	res, err = m.IsAuthorized(ctx, "POST", "/config/violations", 0, &TokenInfo{
+	res, err = m.IsAuthorized(ctx, "POST", "/api/v1/config/violations", 0, &TokenInfo{
 		AdminRoles: map[string]bool{
 			"VIOLATIONS_CREATE": true,
 		},
@@ -41,7 +41,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 	}
 
 	// Test a valid PUT
-	res, err = m.IsAuthorized(ctx, "PUT", "/config/violations", 0, &TokenInfo{
+	res, err = m.IsAuthorized(ctx, "PUT", "/api/v1/config/violations", 0, &TokenInfo{
 		AdminRoles: map[string]bool{
 			"VIOLATIONS_UPDATE": true,
 		},
@@ -52,7 +52,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 	}
 
 	// Test a valid PATCH
-	res, err = m.IsAuthorized(ctx, "PATCH", "/config/violations", 0, &TokenInfo{
+	res, err = m.IsAuthorized(ctx, "PATCH", "/api/v1/config/violations", 0, &TokenInfo{
 		AdminRoles: map[string]bool{
 			"VIOLATIONS_UPDATE": true,
 		},
@@ -63,7 +63,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 	}
 
 	// Test a valid DELETE
-	res, err = m.IsAuthorized(ctx, "DELETE", "/config/violations", 0, &TokenInfo{
+	res, err = m.IsAuthorized(ctx, "DELETE", "/api/v1/config/violations", 0, &TokenInfo{
 		AdminRoles: map[string]bool{
 			"VIOLATIONS_DELETE": true,
 		},
@@ -74,7 +74,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 	}
 
 	// Test an invalid GET
-	res, err = m.IsAuthorized(ctx, "GET", "/config/violations", 0, &TokenInfo{
+	res, err = m.IsAuthorized(ctx, "GET", "/api/v1/config/violations", 0, &TokenInfo{
 		AdminRoles: map[string]bool{
 			"SYSTEM_READ": true,
 		},
@@ -85,7 +85,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 	}
 
 	// Test an invalid POST
-	res, err = m.IsAuthorized(ctx, "POST", "/config/violations", 0, &TokenInfo{
+	res, err = m.IsAuthorized(ctx, "POST", "/api/v1/config/violations", 0, &TokenInfo{
 		AdminRoles: map[string]bool{
 			"SYSTEM_READ": true,
 		},
@@ -96,7 +96,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 	}
 
 	// Test an invalid PUT
-	res, err = m.IsAuthorized(ctx, "PUT", "/config/violations", 0, &TokenInfo{
+	res, err = m.IsAuthorized(ctx, "PUT", "/api/v1/config/violations", 0, &TokenInfo{
 		AdminRoles: map[string]bool{
 			"SYSTEM_READ": true,
 		},
@@ -107,7 +107,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 	}
 
 	// Test an invalid PATCH
-	res, err = m.IsAuthorized(ctx, "PATCH", "/config/violations", 0, &TokenInfo{
+	res, err = m.IsAuthorized(ctx, "PATCH", "/api/v1/config/violations", 0, &TokenInfo{
 		AdminRoles: map[string]bool{
 			"SYSTEM_READ": true,
 		},
@@ -118,7 +118,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 	}
 
 	// Test an invalid DELETE
-	res, err = m.IsAuthorized(ctx, "DELETE", "/config/violations", 0, &TokenInfo{
+	res, err = m.IsAuthorized(ctx, "DELETE", "/api/v1/config/violations", 0, &TokenInfo{
 		AdminRoles: map[string]bool{
 			"SYSTEM_READ": true,
 		},
@@ -129,7 +129,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 	}
 
 	// Test empty roles
-	res, err = m.IsAuthorized(ctx, "GET", "/config/violations", 0, &TokenInfo{
+	res, err = m.IsAuthorized(ctx, "GET", "/api/v1/config/violations", 0, &TokenInfo{
 		AdminRoles: map[string]bool{},
 	})
 
@@ -138,7 +138,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 	}
 
 	// Test valid universal tenant ID
-	res, err = m.IsAuthorized(ctx, "DELETE", "/config/violations", 1, &TokenInfo{
+	res, err = m.IsAuthorized(ctx, "DELETE", "/api/v1/config/violations", 1, &TokenInfo{
 		AdminRoles: map[string]bool{
 			"VIOLATIONS_DELETE": true,
 		},
@@ -150,7 +150,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 	}
 
 	// Test valid scoped tenant ID
-	res, err = m.IsAuthorized(ctx, "DELETE", "/config/violations", 1, &TokenInfo{
+	res, err = m.IsAuthorized(ctx, "DELETE", "/api/v1/config/violations", 1, &TokenInfo{
 		AdminRoles: map[string]bool{
 			"VIOLATIONS_DELETE": true,
 		},
@@ -162,7 +162,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 	}
 
 	// Test invalid scoped tenant ID
-	res, err = m.IsAuthorized(ctx, "DELETE", "/config/violations", 1, &TokenInfo{
+	res, err = m.IsAuthorized(ctx, "DELETE", "/api/v1/config/violations", 1, &TokenInfo{
 		AdminRoles: map[string]bool{
 			"VIOLATIONS_DELETE": true,
 		},
@@ -174,7 +174,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 	}
 
 	// Test invalid scoped tenant ID
-	res, err = m.IsAuthorized(ctx, "DELETE", "/config/violations", 1, &TokenInfo{
+	res, err = m.IsAuthorized(ctx, "DELETE", "/api/v1/config/violations", 1, &TokenInfo{
 		AdminRoles: map[string]bool{
 			"VIOLATIONS_DELETE": true,
 		},
@@ -196,7 +196,7 @@ func TestTokenAuthorizationMiddlewareBearerRequestIsAuthorized(t *testing.T) {
 	token := "wow-such-beauty-token"
 
 	// Test inexistant token
-	req, _ := http.NewRequest("GET", "/users", nil)
+	req, _ := http.NewRequest("GET", "/api/v1/users", nil)
 	addBearerTokenToTestRequest(req, token, 0)
 
 	res, err := m.BearerRequestIsAuthorized(ctx, req)
@@ -267,7 +267,7 @@ func TestTokenAuthorizationMiddlewareBearerRequestIsAuthorized(t *testing.T) {
 	}
 
 	// Test valid token with invalid role
-	req, _ = http.NewRequest("POST", "/users", nil)
+	req, _ = http.NewRequest("POST", "/api/v1/users", nil)
 
 	res, err = m.BearerRequestIsAuthorized(ctx, req)
 
