@@ -1,12 +1,13 @@
 package aaa
 
 import (
+	"context"
 	"errors"
 	"sync"
 )
 
 type AuthenticationBackend interface {
-	Authenticate(username, password string) (bool, *TokenInfo, error)
+	Authenticate(ctx context.Context, username, password string) (bool, *TokenInfo, error)
 }
 
 type MemAuthenticationBackend struct {
@@ -36,7 +37,7 @@ func (mab *MemAuthenticationBackend) RemoveUser(username, password string) {
 	delete(mab.validUsers, username)
 }
 
-func (mab *MemAuthenticationBackend) Authenticate(username, password string) (bool, *TokenInfo, error) {
+func (mab *MemAuthenticationBackend) Authenticate(ctx context.Context, username, password string) (bool, *TokenInfo, error) {
 	mab.sem.RLock()
 	defer mab.sem.RUnlock()
 
