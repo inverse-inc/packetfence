@@ -11,9 +11,11 @@ import (
 	"github.com/inverse-inc/packetfence/go/api-frontend/aaa"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
+	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"github.com/inverse-inc/packetfence/go/statsd"
 	"github.com/julienschmidt/httprouter"
 )
@@ -72,6 +74,11 @@ func buildApiAAAHandler(ctx context.Context) (ApiAAAHandler, error) {
 			pfconfigdriver.Config.AdminRoles.Element["ALL"].Actions,
 		))
 	}
+
+	db, err := db.DbFromConfig(ctx)
+	sharedutils.CheckError(err)
+
+	apiAAA.authentication.AddAuthenticationBackend(aaa.NewDbAuthenticationBackend(ctx, db, "api_users"))
 
 	apiAAA.authorization = aaa.NewTokenAuthorizationMiddleware(tokenBackend)
 
