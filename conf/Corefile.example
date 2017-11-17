@@ -1,5 +1,7 @@
 .:54 {
 [% domain %]
+
+proxy . /etc/resolv.conf
 }
 
 # all other domains are subject to interception
