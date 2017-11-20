@@ -235,6 +235,23 @@ sub cache {
     return pf::CHI->new( namespace => 'ldap_auth');
 }
 
+=head2 match_rule
+
+match_rule
+
+=cut
+
+sub match_rule {
+    my ($self, $rule, $params, $extra) = @_;
+    if ($self->cache_match) {
+        my $id = $self->{id};
+        return $self->cache->compute_with_undef([$id, $rule->{id}, $params, $extra], sub {
+            $pf::StatsD::statsd->increment("pf::Authentication::Source::LDAPSource::match_rule.${id}.cache_miss.count" );
+            return $self->SUPER::match_rule($rule, $params, $extra);
+        });
+    }
+    return $self->SUPER::match_rule($rule, $params, $extra);
+}
 
 =head2 match_in_subclass
 
@@ -253,11 +270,6 @@ sub match_in_subclass {
     }
     my $rule_id = $rule->id;
     $logger->debug("[$id $rule_id] Searching for $filter, from $self->{'basedn'}, with scope $self->{'scope'}");
-    if ($self->cache_match) {
-        return $self->cache->compute_with_undef("$id:$rule_id:$filter", sub {
-            return $self->_match_in_subclass($filter, $params, $rule, $own_conditions, $matching_conditions);
-        });
-    }
     return $self->_match_in_subclass($filter, $params, $rule, $own_conditions, $matching_conditions);
 }
 
@@ -339,6 +351,7 @@ sub _match_in_subclass {
             # - posixGroup         => memberUid (uid)
             my $dn_search = escape_filter_value($dn);
             $filter = "(|(member=${dn_search})(uniqueMember=${dn_search})(memberUid=${attribute}))";
+            $logger->debug("[$self->{'id'} $rule->{'id'}] Searching is_member filter $filter");
             $result = $connection->search
               (
                base => $value,
