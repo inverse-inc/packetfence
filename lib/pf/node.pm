@@ -1445,6 +1445,11 @@ sub fingerbank_info {
                 $info->{device_fq} = join('/',reverse(@{$info->{device_hierarchy_names}}));
                 $info->{mobile} = $device->{mobile};
             }
+            else {
+                get_logger->warn("Impossible to find device information for $node_info->{device_type}");
+                $info->{device_hierarchy_names} = [];
+                $info->{device_hierarchy_ids} = [];
+            }
             return $info;
         });
         $info->{score} = $node_info->{device_score};
