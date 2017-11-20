@@ -1,0 +1,33 @@
+ApiUsersList:
+  allOf:
+    - $ref: "#/components/schemas/Iterable" 
+    - type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ApiUser" 
+ApiUser:
+  type: object
+  properties:
+    username:
+      type: string
+      description: The username of the API user
+    password:
+      type: string
+      description: The BCRYPT encrypted password of the user
+    valid_from:
+      type: string
+      description: The date from which the account becomes valid
+    expiration:
+      type: string
+      description: The date at which the account becomes invalid
+    access_level:
+      type: string
+      description: Comma delimited list of admin roles (as defined in adminroles.conf)
+    tenant_id:
+      type: integer
+      description: The tenant ID this API user has access to. When set to 0, the API user has access to all tenants.
+    
+
+

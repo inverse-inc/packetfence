@@ -16,6 +16,324 @@
     }
   ],
   "paths": {
+    "/api_users": {
+      "get": {
+        "summary": "Returns a list of api_users",
+        "description": "The list of user will be limited to 100 and a cursor will be returned for iterating on other users. Iteration is only needed if the hasMore key has a true value",
+        "responses": {
+          "200": {
+            "description": "List of API users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiUsersList"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Creates a user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/Created"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/components/responses/Duplicate"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        }
+      }
+    },
+    "/api_users/{user_id}": {
+      "get": {
+        "summary": "Returns a specific API user by its ID",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "description": "The user ID to fetch",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A specific user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "item": {
+                      "$ref": "#/components/schemas/ApiUser"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Allows to update a whole user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Message"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Allows to update parts of a user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiUser"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Message"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Allows to delete a user",
+        "responses": {
+          "204": {
+            "description": "Deleted user"
+          }
+        }
+      }
+    },
+    "/config/connection_profiles": {
+      "get": {
+        "summary": "Get all the connection profiles",
+        "responses": {
+          "200": {
+            "description": "A list of connection profiles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConnectionProfilesList"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Creates a connection profile",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConnectionProfile"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/Created"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/components/responses/Duplicate"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        }
+      }
+    },
+    "/config/connection_profiles/{connection_profile_id}": {
+      "get": {
+        "summary": "Returns a specific connection profile by its ID",
+        "parameters": [
+          {
+            "name": "connection_profile_id",
+            "in": "path",
+            "required": true,
+            "description": "The connection profile ID to fetch",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A specific connection profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "item": {
+                      "$ref": "#/components/schemas/ConnectionProfile"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Allows to update a whole connection profile",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConnectionProfile"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Message"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Allows to update parts of a connection profile",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConnectionProfile"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Message"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Allows to delete a connection profile",
+        "responses": {
+          "204": {
+            "description": "Deleted connection profile"
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "summary": "Login into the API and obtain a token",
+        "security": [
+          {
+            "none": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
     "/tenants_onboarding": {
       "post": {
         "summary": "Allows to onboard a tenant and configure a remote access point using an onboarding token",
@@ -92,57 +410,6 @@
                 }
               }
             }
-          }
-        }
-      }
-    },
-    "/login": {
-      "post": {
-        "summary": "Login into the API and obtain a token",
-        "security": [
-          {
-            "none": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "username": {
-                    "type": "string"
-                  },
-                  "password": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Login successful",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "token": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
           }
         }
       }
@@ -402,144 +669,11 @@
           }
         }
       }
-    },
-    "/config/connection_profiles": {
-      "get": {
-        "summary": "Get all the connection profiles",
-        "responses": {
-          "200": {
-            "description": "A list of connection profiles",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ConnectionProfilesList"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "summary": "Creates a connection profile",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ConnectionProfile"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "$ref": "#/components/responses/Created"
-          },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "409": {
-            "$ref": "#/components/responses/Duplicate"
-          },
-          "422": {
-            "$ref": "#/components/responses/UnprocessableEntity"
-          }
-        }
-      }
-    },
-    "/config/connection_profiles/{connection_profile_id}": {
-      "get": {
-        "summary": "Returns a specific connection profile by its ID",
-        "parameters": [
-          {
-            "name": "connection_profile_id",
-            "in": "path",
-            "required": true,
-            "description": "The connection profile ID to fetch",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A specific connection profile",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "item": {
-                      "$ref": "#/components/schemas/ConnectionProfile"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "summary": "Allows to update a whole connection profile",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ConnectionProfile"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "$ref": "#/components/responses/Message"
-          },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "422": {
-            "$ref": "#/components/responses/UnprocessableEntity"
-          }
-        }
-      },
-      "patch": {
-        "summary": "Allows to update parts of a connection profile",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ConnectionProfile"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "$ref": "#/components/responses/Message"
-          },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "422": {
-            "$ref": "#/components/responses/UnprocessableEntity"
-          }
-        }
-      },
-      "delete": {
-        "summary": "Allows to delete a connection profile",
-        "responses": {
-          "204": {
-            "description": "Deleted connection profile"
-          }
-        }
-      }
     }
   },
   "components": {
     "schemas": {
-      "UsersList": {
+      "ApiUsersList": {
         "allOf": [
           {
             "$ref": "#/components/schemas/Iterable"
@@ -550,78 +684,39 @@
               "items": {
                 "type": "array",
                 "items": {
-                  "$ref": "#/components/schemas/UserWithLinks"
+                  "$ref": "#/components/schemas/ApiUser"
                 }
               }
             }
           }
         ]
       },
-      "User": {
+      "ApiUser": {
         "type": "object",
         "properties": {
-          "pid": {
+          "username": {
             "type": "string",
-            "description": "The username."
+            "description": "The username of the API user"
           },
-          "email": {
+          "password": {
             "type": "string",
-            "description": "The email of the user."
+            "description": "The BCRYPT encrypted password of the user"
           },
-          "firstname": {
+          "valid_from": {
             "type": "string",
-            "description": "The first name of the user."
+            "description": "The date from which the account becomes valid"
           },
-          "lastname": {
+          "expiration": {
             "type": "string",
-            "description": "The last name of the user."
-          }
-        }
-      },
-      "UserWithLinks": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/User"
+            "description": "The date at which the account becomes invalid"
           },
-          {
-            "type": "object",
-            "properties": {
-              "nodes_url": {
-                "type": "string",
-                "description": "link to the nodes of this user"
-              },
-              "password_url": {
-                "type": "string",
-                "description": "link to the password (local account) of this user. If there is none, the value will be empty."
-              }
-            }
-          }
-        ]
-      },
-      "NodesList": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Iterable"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "items": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/Node"
-                }
-              }
-            }
-          }
-        ]
-      },
-      "Node": {
-        "type": "object",
-        "properties": {
-          "mac": {
+          "access_level": {
             "type": "string",
-            "description": "The MAC address of the device"
+            "description": "Comma delimited list of admin roles (as defined in adminroles.conf)"
+          },
+          "tenant_id": {
+            "type": "integer",
+            "description": "The tenant ID this API user has access to. When set to 0, the API user has access to all tenants."
           }
         }
       },
@@ -656,90 +751,6 @@
           },
           "hasMore": {
             "type": "boolean"
-          }
-        }
-      },
-      "Tenant": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "description": "The unique numeric identifier of the tenant"
-          },
-          "name": {
-            "type": "string",
-            "description": "The user friendly name of the tenant"
-          },
-          "portal_domain_name": {
-            "type": "string",
-            "description": "The portal domain name for this tenant. Any request on the portal using this domain name will be scoped to this tenant."
-          },
-          "domain_name": {
-            "type": "string",
-            "description": "The domain name of this tenant as used in 802.1x connections for the realm. For example, in the username tommy@example.com, example.com is the domain name."
-          }
-        }
-      },
-      "TenantsList": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Iterable"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "items": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/Tenant"
-                }
-              }
-            }
-          }
-        ]
-      },
-      "Password": {
-        "type": "object",
-        "properties": {
-          "pid": {
-            "type": "string",
-            "description": "The username of the local account"
-          },
-          "password": {
-            "type": "string",
-            "description": "The password of the local account. When encrypted, it is prefixed by the encryption type surrounded by brackets. For example \"{ntlm}iosnuiofsauionsfdioun\""
-          },
-          "valid_from": {
-            "type": "string",
-            "description": "The date at which the password becomes valid"
-          },
-          "expiration": {
-            "type": "string",
-            "description": "The date at which the password expires (becomes invalid)"
-          },
-          "access_duration": {
-            "type": "string",
-            "description": "The access duration that should be given to a node when this account is used is used to register a device"
-          },
-          "access_level": {
-            "type": "string",
-            "description": "The administrative access level that should be given to the user when he logs into the administration interface"
-          },
-          "category": {
-            "type": "string",
-            "description": "The role that should be given to a node when this account is used to register a device"
-          },
-          "sponsor": {
-            "type": "boolean",
-            "description": "Whether or not this account can be used to sponsor other users via a SponsorEmail source"
-          },
-          "unregdate": {
-            "type": "string",
-            "description": "The unregistration date that should be given to a node when this account is used to register a device"
-          },
-          "login_remaining": {
-            "type": "integer",
-            "description": "The amount of logins that the user has remaining. When null, the user has unlimited logins"
           }
         }
       },
@@ -844,6 +855,176 @@
                 "type": "array",
                 "items": {
                   "$ref": "#/components/schemas/ConnectionProfile"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "NodesList": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Iterable"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Node"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Node": {
+        "type": "object",
+        "properties": {
+          "mac": {
+            "type": "string",
+            "description": "The MAC address of the device"
+          }
+        }
+      },
+      "Password": {
+        "type": "object",
+        "properties": {
+          "pid": {
+            "type": "string",
+            "description": "The username of the local account"
+          },
+          "password": {
+            "type": "string",
+            "description": "The password of the local account. When encrypted, it is prefixed by the encryption type surrounded by brackets. For example \"{ntlm}iosnuiofsauionsfdioun\""
+          },
+          "valid_from": {
+            "type": "string",
+            "description": "The date at which the password becomes valid"
+          },
+          "expiration": {
+            "type": "string",
+            "description": "The date at which the password expires (becomes invalid)"
+          },
+          "access_duration": {
+            "type": "string",
+            "description": "The access duration that should be given to a node when this account is used is used to register a device"
+          },
+          "access_level": {
+            "type": "string",
+            "description": "The administrative access level that should be given to the user when he logs into the administration interface"
+          },
+          "category": {
+            "type": "string",
+            "description": "The role that should be given to a node when this account is used to register a device"
+          },
+          "sponsor": {
+            "type": "boolean",
+            "description": "Whether or not this account can be used to sponsor other users via a SponsorEmail source"
+          },
+          "unregdate": {
+            "type": "string",
+            "description": "The unregistration date that should be given to a node when this account is used to register a device"
+          },
+          "login_remaining": {
+            "type": "integer",
+            "description": "The amount of logins that the user has remaining. When null, the user has unlimited logins"
+          }
+        }
+      },
+      "UsersList": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Iterable"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/UserWithLinks"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "pid": {
+            "type": "string",
+            "description": "The username."
+          },
+          "email": {
+            "type": "string",
+            "description": "The email of the user."
+          },
+          "firstname": {
+            "type": "string",
+            "description": "The first name of the user."
+          },
+          "lastname": {
+            "type": "string",
+            "description": "The last name of the user."
+          }
+        }
+      },
+      "UserWithLinks": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/User"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "nodes_url": {
+                "type": "string",
+                "description": "link to the nodes of this user"
+              },
+              "password_url": {
+                "type": "string",
+                "description": "link to the password (local account) of this user. If there is none, the value will be empty."
+              }
+            }
+          }
+        ]
+      },
+      "Tenant": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "The unique numeric identifier of the tenant"
+          },
+          "name": {
+            "type": "string",
+            "description": "The user friendly name of the tenant"
+          },
+          "portal_domain_name": {
+            "type": "string",
+            "description": "The portal domain name for this tenant. Any request on the portal using this domain name will be scoped to this tenant."
+          },
+          "domain_name": {
+            "type": "string",
+            "description": "The domain name of this tenant as used in 802.1x connections for the realm. For example, in the username tommy@example.com, example.com is the domain name."
+          }
+        }
+      },
+      "TenantsList": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Iterable"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Tenant"
                 }
               }
             }

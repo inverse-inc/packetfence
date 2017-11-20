@@ -11,7 +11,7 @@ sub dir_yaml_files {
     my ($dir) = @_;
     my @files;
     find({ wanted => sub { push @files, $_ if $_ =~ /\.yaml$/ }, follow => 1, no_chdir => 1}, $dir);
-    return @files;
+    return sort @files;
 }
 
 sub indent_content {
