@@ -57,6 +57,7 @@ use pf::constants::config qw($ACCT_TIME_MODIFIER_RE);
 use pf::constants::trigger qw($TRIGGER_TYPE_ACCOUNTING);
 use pf::config::violation;
 use pf::db;
+use pf::error qw(is_error);
 use pf::violation;
 use pf::util;
 use pf::CHI;
