@@ -35,12 +35,21 @@ sub get {
         $results = {};
     }
     else {
-        my %hash = %$item;
-        delete @hash{qw(__from_table __old_data)};
-        $results = { item => \%hash};
+        $results = { item => $item->to_hash() };
     }
     return $c->render(json => $results);
 }
+
+sub create {
+    my ($c) = @_;
+    my $req = $c->req;
+    my $res = $c->res;
+    my $data = $req->json;
+    my $status = pf::dal::person->create($data);
+    $res->code($status);
+    return $c->render(json => {});
+}
+
 
 =head1 AUTHOR
 
