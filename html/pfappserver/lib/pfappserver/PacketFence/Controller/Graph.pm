@@ -907,6 +907,141 @@ sub osclassbandwidth :Local :AdminRole('REPORTS') {
     $self->_add_links($c, 'dhcp_fingerprint', 'equal', 'label');
 }
 
+=head2 topauthenticationfailures_by_mac
+
+Radius AAA errors by mac for a specific period.
+
+Defined as a report.
+
+=cut
+
+sub topauthenticationfailures_by_mac :Local :AdminRole('REPORTS') {
+    my ( $self, $c, $start, $end ) = @_;
+    $self->_saveRange($c, $REPORTS, $start, $end);
+    $self->_graphPie($c, $c->loc('Top Authentication Failures'), $REPORTS,
+                     { fields => { label => 'mac',
+                                   count => 'count',
+                                   value => 'count' },
+                     });
+    $self->_add_links($c, 'mac', 'equal', 'label');
+}
+
+=head2 topauthenticationfailures_by_ssid
+
+Radius AAA errors by ssid for a specific period.
+
+Defined as a report.
+
+=cut
+
+sub topauthenticationfailures_by_ssid :Local :AdminRole('REPORTS') {
+    my ( $self, $c, $start, $end ) = @_;
+    $self->_saveRange($c, $REPORTS, $start, $end);
+    $self->_graphPie($c, $c->loc('Top Authentication Failures'), $REPORTS,
+                     { fields => { label => 'ssid',
+                                   count => 'count',
+                                   value => 'count' },
+                     });
+    $self->_add_links($c, 'ssid', 'equal', 'label');
+}
+
+=head2 topauthenticationfailures_by_username
+
+Radius AAA errors by username for a specific period.
+
+Defined as a report.
+
+=cut
+
+sub topauthenticationfailures_by_username :Local :AdminRole('REPORTS') {
+    my ( $self, $c, $start, $end ) = @_;
+    $self->_saveRange($c, $REPORTS, $start, $end);
+    $self->_graphPie($c, $c->loc('Top Authentication Failures'), $REPORTS,
+                     { fields => { label => 'user_name',
+                                   count => 'count',
+                                   value => 'count' },
+                     });
+    $self->_add_links($c, 'user_name', 'equal', 'label');
+}
+
+=head2 topauthenticationsuccesses_by_mac
+
+Radius AAA successes by mac for a specific period.
+
+Defined as a report.
+
+=cut
+
+sub topauthenticationsuccesses_by_mac :Local :AdminRole('REPORTS') {
+    my ( $self, $c, $start, $end ) = @_;
+    $self->_saveRange($c, $REPORTS, $start, $end);
+    $self->_graphPie($c, $c->loc('Top Authentication Successes'), $REPORTS,
+                     { fields => { label => 'mac',
+                                   count => 'count',
+                                   value => 'count' },
+                     });
+    $self->_add_links($c, 'mac', 'equal', 'label');
+}
+
+=head2 topauthenticationsuccesses_by_ssid
+
+Radius AAA successes by ssid for a specific period.
+
+Defined as a report.
+
+=cut
+
+sub topauthenticationsuccesses_by_ssid :Local :AdminRole('REPORTS') {
+    my ( $self, $c, $start, $end ) = @_;
+    $self->_saveRange($c, $REPORTS, $start, $end);
+    $self->_graphPie($c, $c->loc('Top Authentication Successes'), $REPORTS,
+                     { fields => { label => 'ssid',
+                                   count => 'count',
+                                   value => 'count' },
+                     });
+    $self->_add_links($c, 'ssid', 'equal', 'label');
+}
+
+=head2 topauthenticationsuccesses_by_username
+
+Radius AAA successes by username for a specific period.
+
+Defined as a report.
+
+=cut
+
+sub topauthenticationsuccesses_by_username :Local :AdminRole('REPORTS') {
+    my ( $self, $c, $start, $end ) = @_;
+    $self->_saveRange($c, $REPORTS, $start, $end);
+    $self->_graphPie($c, $c->loc('Top Authentication Successes'), $REPORTS,
+                     { fields => { label => 'user_name',
+                                   count => 'count',
+                                   value => 'count' },
+                     });
+    $self->_add_links($c, 'user_name', 'equal', 'label');
+}
+
+=head2 topauthenticationsuccesses_by_computername
+
+Radius AAA successes by computername for a specific period.
+
+Defined as a report.
+
+=cut
+
+sub topauthenticationsuccesses_by_computername :Local :AdminRole('REPORTS') {
+    my ( $self, $c, $start, $end ) = @_;
+    $self->_saveRange($c, $REPORTS, $start, $end);
+    $self->_graphPie($c, $c->loc('Top Authentication Successes'), $REPORTS,
+                     { fields => { label => 'computer_name',
+                                   count => 'count',
+                                   value => 'count' },
+                     });
+    $self->_add_links($c, 'computer_name', 'equal', 'label');
+}
+
+
+
 sub _generate_hosts {
     my @hosts;
     if (@cluster_hosts) {
@@ -929,7 +1064,7 @@ sub _generate_timeout_group {
         push @group_members,
                          "removeBelowValue(diffSeries(stats.counters.$host.freeradius__main__authenticate.count.count,stats.timers.$host.ntlm_auth.time.count),0)"
 ;
-    }
+    } 
 
     return 'aliasSub(aliasByNode( group(' . join( ', ', @group_members ) . ') ,2), "^(\w+)", "\1 timeouts"  ) ';
 }
