@@ -10,3 +10,19 @@ localhost:9999 {
   api-aaa
 }
 
+###
+# The configuration below allows to use this server as a proxy
+0.0.0.0:9990 {
+  pfconfigpool
+  logger {
+    level INFO
+  }
+  statsd {
+    proto udp
+    prefix api-proxy
+  }
+
+  api-aaa
+  forwardproxy
+}
+
