@@ -961,7 +961,7 @@ sub topauthenticationfailures_by_username :Local :AdminRole('REPORTS') {
                                    count => 'count',
                                    value => 'count' },
                      });
-    $self->_add_links($c, 'user_name', 'equal', 'label');
+    $self->_add_links($c, 'person_name', 'equal', 'label');
 }
 
 =head2 topauthenticationsuccesses_by_mac
@@ -1018,7 +1018,7 @@ sub topauthenticationsuccesses_by_username :Local :AdminRole('REPORTS') {
                                    count => 'count',
                                    value => 'count' },
                      });
-    $self->_add_links($c, 'user_name', 'equal', 'label');
+    $self->_add_links($c, 'person_name', 'equal', 'label');
 }
 
 =head2 topauthenticationsuccesses_by_computername
@@ -1037,7 +1037,7 @@ sub topauthenticationsuccesses_by_computername :Local :AdminRole('REPORTS') {
                                    count => 'count',
                                    value => 'count' },
                      });
-    $self->_add_links($c, 'computer_name', 'equal', 'label');
+    $self->_add_links($c, 'computername', 'equal', 'label');
 }
 
 
