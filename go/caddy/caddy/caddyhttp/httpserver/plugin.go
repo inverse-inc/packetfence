@@ -430,6 +430,14 @@ var directives = []string{
 	"realip", // github.com/captncraig/caddy-realip
 	"git",    // github.com/abiosoft/caddy-git
 
+	// PacketFence plugins
+	"logger",
+	"statsd",
+	"pfconfigpool",
+
+	// AAA for the API
+	"api-aaa",
+
 	// directives that add middleware to the stack
 	"locale", // github.com/simia-tech/caddy-locale
 	"log",
@@ -469,13 +477,8 @@ var directives = []string{
 	"mailout",   // github.com/SchumacherFM/mailout
 	"awslambda", // github.com/coopernurse/caddy-awslambda
 
-	// PacketFence plugins
-	"logger",
-	"statsd",
-	"pfconfigpool",
-	"api-aaa",
-
 	// PacketFence service implementations
+	"forwardproxy",
 	"pfsso",
 	"httpdispatcher",
 }
