@@ -1,16 +1,16 @@
-package pf::dal::_api_users;
+package pf::dal::_api_user;
 
 =head1 NAME
 
-pf::dal::_api_users - pf::dal implementation for the table api_users
+pf::dal::_api_user - pf::dal implementation for the table api_user
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_api_users
+pf::dal::_api_user
 
-pf::dal implementation for the table api_users
+pf::dal implementation for the table api_user
 
 =cut
 
@@ -18,8 +18,8 @@ use strict;
 use warnings;
 
 ###
-### pf::dal::_api_users is auto generated any change to this file will be lost
-### Instead change in the pf::dal::api_users module
+### pf::dal::_api_user is auto generated any change to this file will be lost
+### Instead change in the pf::dal::api_user module
 ###
 use base qw(pf::dal);
 
@@ -107,7 +107,7 @@ use Class::XSAccessor {
 
 =head2 _defaults
 
-The default values of api_users
+The default values of api_user
 
 =cut
 
@@ -117,7 +117,7 @@ sub _defaults {
 
 =head2 field_names
 
-Field names of api_users
+Field names of api_user
 
 =cut
 
@@ -127,7 +127,7 @@ sub field_names {
 
 =head2 primary_keys
 
-The primary keys of api_users
+The primary keys of api_user
 
 =cut
 
@@ -141,16 +141,16 @@ The table name
 
 =cut
 
-sub table { "api_users" }
+sub table { "api_user" }
 
 our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
-    "SELECT * FROM `api_users` WHERE $where;";
+    "SELECT * FROM `api_user` WHERE $where;";
 };
 
 =head2 _find_one_sql
 
-The precalculated sql to find a single row api_users
+The precalculated sql to find a single row api_user
 
 =cut
 
@@ -160,7 +160,7 @@ sub _find_one_sql {
 
 =head2 _updateable_fields
 
-The updateable fields for api_users
+The updateable fields for api_user
 
 =cut
 
@@ -170,7 +170,7 @@ sub _updateable_fields {
 
 =head2 _insertable_fields
 
-The insertable fields for api_users
+The insertable fields for api_user
 
 =cut
 
@@ -180,7 +180,7 @@ sub _insertable_fields {
 
 =head2 get_meta
 
-Get the meta data for api_users
+Get the meta data for api_user
 
 =cut
 
