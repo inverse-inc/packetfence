@@ -3,10 +3,10 @@
 --
 
 --
--- Table structure for table `api_users`
+-- Table structure for table `api_user`
 --
 
-CREATE TABLE `api_users` (
+CREATE TABLE `api_user` (
   `username` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
   `valid_from` datetime NOT NULL DEFAULT "0000-00-00 00:00:00",

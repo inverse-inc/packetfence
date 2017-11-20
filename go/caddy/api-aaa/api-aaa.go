@@ -78,7 +78,7 @@ func buildApiAAAHandler(ctx context.Context) (ApiAAAHandler, error) {
 	db, err := db.DbFromConfig(ctx)
 	sharedutils.CheckError(err)
 
-	apiAAA.authentication.AddAuthenticationBackend(aaa.NewDbAuthenticationBackend(ctx, db, "api_users"))
+	apiAAA.authentication.AddAuthenticationBackend(aaa.NewDbAuthenticationBackend(ctx, db, "api_user"))
 
 	apiAAA.authorization = aaa.NewTokenAuthorizationMiddleware(tokenBackend)
 

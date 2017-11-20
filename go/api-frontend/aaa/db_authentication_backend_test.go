@@ -15,7 +15,7 @@ func TestDbAuthenticationBackend(t *testing.T) {
 	ctx := log.LoggerNewContext(context.Background())
 	db, err := db.DbFromConfig(ctx)
 	sharedutils.CheckError(err)
-	dab := NewDbAuthenticationBackend(ctx, db, "api_users")
+	dab := NewDbAuthenticationBackend(ctx, db, "api_user")
 
 	// Test valid user
 	dab.SetUser(ctx, &ApiUser{
@@ -138,7 +138,7 @@ func TestDbAuthenticationBackendBuildTokenInfo(t *testing.T) {
 	ctx := log.LoggerNewContext(context.Background())
 	db, err := db.DbFromConfig(ctx)
 	sharedutils.CheckError(err)
-	dab := NewDbAuthenticationBackend(ctx, db, "api_users")
+	dab := NewDbAuthenticationBackend(ctx, db, "api_user")
 
 	// An admin role with a default tenant
 	ti := dab.buildTokenInfo(ctx, &ApiUser{
