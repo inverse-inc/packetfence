@@ -1114,6 +1114,7 @@ CREATE TABLE radius_audit_log (
   KEY `created_at` (created_at),
   KEY `mac` (mac),
   KEY `ip` (ip),
+  KEY `auth_status` (auth_status, created_at)
   KEY `user_name` (user_name)
 ) ENGINE=InnoDB;
 
