@@ -221,7 +221,7 @@ sub manageTrafficShaping {
         foreach my $network ( keys %NetworkConfig ) {
 
             next if ( !pf::config::is_network_type_inline($network) );
-            my $dev = $NetworkConfig{$network}{'interface'}{'Tint'};
+            my $dev = $NetworkConfig{$network}{'interface'}{'int'};
 
             my $gateway = (defined $NetworkConfig{$network}{'next_hop'} ? $NetworkConfig{$network}{'next_hop'} : $NetworkConfig{$network}{'gateway'});
 
