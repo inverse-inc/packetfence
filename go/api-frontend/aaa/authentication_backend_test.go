@@ -1,8 +1,14 @@
 package aaa
 
-import "testing"
+import (
+	"context"
+	"testing"
+
+	"github.com/inverse-inc/packetfence/go/log"
+)
 
 func TestMemAuthenticationBackend(t *testing.T) {
+	ctx := log.LoggerNewContext(context.Background())
 	mab := NewMemAuthenticationBackend(map[string]string{"bob": "garauge"}, map[string]bool{"SYSTEM_READ": true})
 
 	if mab.validUsers["bob"] != "garauge" {
@@ -16,7 +22,7 @@ func TestMemAuthenticationBackend(t *testing.T) {
 	}
 
 	// Valid user that was in the constructor
-	auth, tokenInfo, err := mab.Authenticate("bob", "garauge")
+	auth, tokenInfo, err := mab.Authenticate(ctx, "bob", "garauge")
 
 	if !auth {
 		t.Error("User was unauthenticated although it presented valid credentials. error:", err)
@@ -35,7 +41,7 @@ func TestMemAuthenticationBackend(t *testing.T) {
 	}
 
 	// Valid user that was added
-	auth, tokenInfo, err = mab.Authenticate("sylvie", "mannequine")
+	auth, tokenInfo, err = mab.Authenticate(ctx, "sylvie", "mannequine")
 
 	if !auth {
 		t.Error("User was unauthenticated although it presented valid credentials. error:", err)
@@ -54,7 +60,7 @@ func TestMemAuthenticationBackend(t *testing.T) {
 	}
 
 	// Invalid password
-	auth, tokenInfo, err = mab.Authenticate("sylvie", "badpwd")
+	auth, tokenInfo, err = mab.Authenticate(ctx, "sylvie", "badpwd")
 
 	if auth {
 		t.Error("User was authenticated although the password is invalid", err)
@@ -69,7 +75,7 @@ func TestMemAuthenticationBackend(t *testing.T) {
 	}
 
 	// Invalid user
-	auth, tokenInfo, err = mab.Authenticate("baduser", "badpwd")
+	auth, tokenInfo, err = mab.Authenticate(ctx, "baduser", "badpwd")
 
 	if auth {
 		t.Error("User was authenticated although the user is invalid", err)
