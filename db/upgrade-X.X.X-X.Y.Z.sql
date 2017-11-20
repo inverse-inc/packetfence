@@ -13,7 +13,7 @@ CREATE TABLE `api_users` (
   `expiration` datetime NOT NULL,
   `access_level` varchar(255) DEFAULT 'NONE',
   `tenant_id` int DEFAULT 0,
-  PRIMARY KEY (pid)
+  PRIMARY KEY (username)
 ) ENGINE=InnoDB;
 
 
