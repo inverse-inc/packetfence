@@ -49,3 +49,16 @@ call ValidateVersion;
 
 
 INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
+
+
+
+
+
+
+---
+--- https://github.com/inverse-inc/packetfence/pull/2785
+--- 
+ALTER TABLE `radius_audit_log` ADD KEY (`auth_status`, `created_at`);
+
+
+
