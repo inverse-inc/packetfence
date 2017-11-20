@@ -27,6 +27,7 @@ sub startup {
     my ($self) = @_;
     my $r = $self->routes;
     $r->get('/users')->to('users#list');
+    $r->post('/users')->to('users#create');
     $r->get('/users/:user_id')->to("users#get");
 
     $r->any(sub {
