@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 7;
+use Test::More tests => 12;
 use Test::Mojo;
 
 #This test will running last
@@ -39,6 +39,11 @@ $t->get_ok('/users/admin')->status_is(200)->json_is('/item/pid' => 'admin') ;
 
 $t->get_ok('/users/NoSuchUser')->status_is(404);
 
+$t->get_ok('/users/admin')->status_is(200)->json_is('/item/pid' => 'admin') ;
+
+my $test_pid = "test_pid_$$";
+
+$t->post_ok('/users' => json => { pid => $test_pid })->status_is(201);
 
 =head1 AUTHOR
 
