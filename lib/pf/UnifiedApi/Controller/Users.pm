@@ -1,38 +1,45 @@
-package pf::UnifiedApi;
+package pf::UnifiedApi::Controller::Users;
 
 =head1 NAME
 
-pf::UnifiedApi - The base of the mojo app
+pf::UnifiedApi::Controller::User -
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::UnifiedApi
+pf::UnifiedApi::Controller::User
 
 =cut
 
 use strict;
 use warnings;
-use Mojo::Base 'Mojolicious';
-use pf::dal::person;
+use Mojo::Base 'Mojolicious::Controller';
 
-=head2 startup
 
-Setting up routes
+sub list {
+    my ($c) = @_;
+    $c->render(json => { items => [], hasMore => \0});
+}
 
-=cut
-
-sub startup {
-    my ($self) = @_;
-    my $r = $self->routes;
-    $r->get('/users')->to('users#list');
-    $r->get('/users/:user_id')->to("users#get");
-
-    $r->any(sub {
-        my ($c) = @_;
-        return $c->render(json => { message => "", errors => [] });
+sub get {
+    my ($c) = @_;
+    my $res = $c->res;
+    my $user_id = $c->stash('user_id');
+    my ($status, $item) = pf::dal::person->find({
+        pid => $user_id,
     });
+    $res->code($status);
+    my $results;
+    if ($res->is_error) {
+        $results = {};
+    }
+    else {
+        my %hash = %$item;
+        delete @hash{qw(__from_table __old_data)};
+        $results = { item => \%hash};
+    }
+    return $c->render(json => $results);
 }
 
 =head1 AUTHOR
