@@ -119,6 +119,7 @@ Requires: perl(Data::Phrasebook), perl(Data::Phrasebook::Loader::YAML)
 Requires: perl(DBI)
 Requires: perl(Rose::DB)
 Requires: perl(Rose::DB::Object)
+Requires: perl(Mojolicious)
 Requires: perl(File::Tail)
 Requires: perl(IPC::Cmd)
 Requires: perl(IPTables::ChainMgr)
@@ -441,6 +442,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence.target $RPM_BUILD_ROOT/etc/systemd/system/packetfence.target
 %{__install} -D -m0644 conf/systemd/packetfence-base.target $RPM_BUILD_ROOT/etc/systemd/system/packetfence-base.target
 %{__install} -D -m0644 conf/systemd/packetfence-cluster.target $RPM_BUILD_ROOT/etc/systemd/system/packetfence-cluster.target
+
 %{__install} -d $RPM_BUILD_ROOT/etc/systemd/system/packetfence-base.target.wants
 %{__install} -d $RPM_BUILD_ROOT/etc/systemd/system/packetfence.target.wants
 %{__install} -d $RPM_BUILD_ROOT/etc/systemd/system/packetfence-cluster.target.wants
@@ -489,6 +491,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-snmptrapd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-snmptrapd.service
 %{__install} -D -m0644 conf/systemd/packetfence-statsd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-statsd.service
 %{__install} -D -m0644 conf/systemd/packetfence-winbindd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-winbindd.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfunified-api.service $RPM_BUILD_ROOT/usr/lib/systemd/packetfence-pfunified-api.service
 
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons/AD
