@@ -18,6 +18,7 @@ use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
 use pf::dal::person;
 
 has dal => 'pf::dal::person';
+has id_key => 'user_id';
 
 =head1 AUTHOR
 
