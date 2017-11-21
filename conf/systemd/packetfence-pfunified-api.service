@@ -1,0 +1,15 @@
+[Unit]
+Description=PacketFence Unified API
+After=packetfence-base.target
+Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
+
+[Service]
+Type=simple
+PIDFile=/usr/local/pf/var/run/pfunified_api.pid
+ExecStart=/usr/local/pf/sbin/pfunified_api prefork -m production -l http://*:8080 --pid-file /usr/local/pf/var/run/pfunified_api.pid
+Slice=packetfence.slice
+Restart=on-failure
+KillMode=process
+
+[Install]
+WantedBy=packetfence.target
