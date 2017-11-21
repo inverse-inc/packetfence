@@ -1,37 +1,32 @@
-package pf::UnifiedApi;
+package pf::UnifiedApi::Plugin::Crud;
 
 =head1 NAME
 
-pf::UnifiedApi - The base of the mojo app
+pf::UnifiedApi::Plugin::Crud -
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::UnifiedApi
+pf::UnifiedApi::Plugins::Crud
 
 =cut
 
-use strict;
-use warnings;
-use Mojo::Base 'Mojolicious';
-use pf::dal::person;
+use Mojo::Base 'Mojolicious::Plugin';
 
-=head2 startup
-
-Setting up routes
-
-=cut
-
-sub startup {
-    my ($self) = @_;
-    $self->plugin('pf::UnifiedApi::Plugin::Crud', {controller => 'users', id_key => "user_id", path => "/users"});
-    my $r = $self->routes;
-
-    $r->any(sub {
-        my ($c) = @_;
-        return $c->render(json => { message => "", errors => [] });
-    });
+sub register {
+    my ($self, $app, $config) = @_;
+    my $controller = $config->{controller};
+    my $path = $config->{path} // "/$controller";
+    my $id_key = $config->{id_key} // 'id';
+    my $r = $app->routes;
+    $r->get($path)->to("$controller#list");
+    $r->post($path)->to("$controller#create");
+    my $item_path = "$path/:$id_key";
+    $r->get($item_path)->to("$controller#get");
+    $r->delete($item_path)->to("$controller#remove");
+    $r->patch($item_path)->to("$controller#update");
+    $r->put($item_path)->to("$controller#update");
 }
 
 =head1 AUTHOR
