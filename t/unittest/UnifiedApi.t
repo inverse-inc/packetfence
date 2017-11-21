@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 12;
+use Test::More tests => 22;
 use Test::Mojo;
 
 #This test will running last
@@ -35,15 +35,40 @@ use_ok ("pf::UnifiedApi");
 
 my $t = Test::Mojo->new('pf::UnifiedApi');
 
-$t->get_ok('/users/admin')->status_is(200)->json_is('/item/pid' => 'admin') ;
+$t->get_ok('/users/admin')
+  ->status_is(200)
+  ->json_is('/item/pid' => 'admin') ;
 
-$t->get_ok('/users/NoSuchUser')->status_is(404);
+$t->get_ok('/users/NoSuchUser')
+  ->status_is(404);
 
-$t->get_ok('/users/admin')->status_is(200)->json_is('/item/pid' => 'admin') ;
+$t->get_ok('/users/admin')
+  ->status_is(200)
+  ->json_is('/item/pid' => 'admin') ;
 
 my $test_pid = "test_pid_$$";
 
-$t->post_ok('/users' => json => { pid => $test_pid })->status_is(201);
+$t->post_ok('/users' => json => { pid => $test_pid })
+  ->status_is(201);
+
+my $notes = "notes for $test_pid";
+
+$t->put_ok("/users/$test_pid" => json => { notes => "$notes" })
+  ->status_is(200);
+
+$t->get_ok("/users/$test_pid")
+  ->status_is(200)
+  ->json_is('/item/pid' => $test_pid)
+  ->json_is('/item/notes' => $notes);
+
+#$t->patch_ok("/users/$test_pid" => json => { notes => "$notes" })
+#  ->status_is(200);
+
+$t->delete_ok("/users/$test_pid")
+  ->status_is(200);
+
+$t->delete_ok("/users/$test_pid")
+  ->status_is(404);
 
 =head1 AUTHOR
 
