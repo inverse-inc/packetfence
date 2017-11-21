@@ -203,7 +203,8 @@ func (d *Interfaces) readConfig() {
 							var options = make(map[dhcp.OptionCode][]byte)
 
 							options[dhcp.OptionSubnetMask] = []byte(DHCPNet.network.Mask)
-							options[dhcp.OptionDomainNameServer] = []byte(net.ParseIP(ConfNet.Dns).To4())
+							options[dhcp.OptionDomainNameServer] = ShuffleDNS(ConfNet)
+							// options[dhcp.OptionDomainNameServer] = []byte(net.ParseIP(ConfNet.Dns).To4())
 							options[dhcp.OptionRouter] = []byte(DHCPScope.ip.To4())
 							options[dhcp.OptionDomainName] = []byte(ConfNet.DomainName)
 							DHCPScope.options = options
