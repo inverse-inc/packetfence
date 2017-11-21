@@ -67,7 +67,7 @@ components:
 
 EOT
 
-for my $type (("schemas", "responses", "securitySchemes")) {
+for my $type (("schemas", "responses", "securitySchemes", "parameters")) {
 
     my @objects = dir_yaml_files("components/$type/");
 

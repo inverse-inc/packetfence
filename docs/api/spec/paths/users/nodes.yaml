@@ -1,6 +1,8 @@
 '/users/{user_id}/nodes':
   get:
     summary: Allows to get the nodes of a user
+    parameters:
+      - $ref: '#/components/parameters/cursor'
     responses:
       '200':
         description: List of the user's nodes
