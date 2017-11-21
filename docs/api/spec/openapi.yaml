@@ -188,10 +188,14 @@ components:
       type: object
     Iterable:
       properties:
-        cursor:
+        nextCursor:
+          description: The cursor to access the data after the one returned in the
+            response
           type: string
-        hasMore:
-          type: boolean
+        previousCursor:
+          description: The cursor to access the data before the one returned in the
+            response
+          type: string
       type: object
     Message:
       properties:

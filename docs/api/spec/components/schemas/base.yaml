@@ -18,9 +18,10 @@ ErrorsWithMessage:
 Iterable:
   type: object
   properties:
-    cursor:
+    previousCursor:
+      description: The cursor to access the data before the one returned in the response
       type: string
-    hasMore:
-      type: boolean
-      
+    nextCursor:
+      description: The cursor to access the data after the one returned in the response
+      type: string
 
