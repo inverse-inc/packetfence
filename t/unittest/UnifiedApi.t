@@ -24,14 +24,13 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 22;
+use Test::More tests => 25;
 use Test::Mojo;
 
 #This test will running last
 use Test::NoWarnings;
-
-#This is the first test
-use_ok ("pf::UnifiedApi");
+use pf::dal;
+use pf::dal::tenant;
 
 my $t = Test::Mojo->new('pf::UnifiedApi');
 
@@ -69,6 +68,28 @@ $t->delete_ok("/users/$test_pid")
 
 $t->delete_ok("/users/$test_pid")
   ->status_is(404);
+
+my $unused_tenant_id = get_unused_tenant_id();
+
+$t->get_ok('/users/admin' => {'X-PacketFence-Tenant-Id' => $unused_tenant_id})
+  ->status_is(404);
+
+$t->get_ok('/users/admin' => {'X-PacketFence-Tenant-Id' => 1})
+  ->status_is(200);
+
+sub get_unused_tenant_id {
+    my $old_tentant_id = pf::dal->get_tenant;
+
+    my ($status, $iter) = pf::dal::tenant->search(
+        -columns => ["MAX(id)|max_id"],
+        -group_by => 'id',
+        -with_class => undef,
+    );
+
+    my $data = $iter->next;
+
+    return $data->{max_id} + $$ + int(rand($$));
+}
 
 =head1 AUTHOR
 
