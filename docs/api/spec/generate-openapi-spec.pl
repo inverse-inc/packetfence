@@ -6,6 +6,7 @@ use warnings;
 use File::Find;
 use File::Slurp qw(read_file write_file);
 use Data::Dumper;
+use YAML::XS;
 
 sub dir_yaml_files {
     my ($dir) = @_;
@@ -30,6 +31,18 @@ sub append_to_spec {
     $spec .= "\n# end of: $file \n";
 
     return $spec;
+}
+
+sub common_parameter {
+    my ($yaml_spec, $parameter) = @_;
+    for my $path (keys(%{$yaml_spec->{paths}})) {
+        for my $method (keys(%{$yaml_spec->{paths}->{$path}})) {
+            unless(defined($yaml_spec->{paths}->{$path}->{$method}->{parameters})) {
+                $yaml_spec->{paths}->{$path}->{$method}->{parameters} = [];
+            }
+            push @{$yaml_spec->{paths}->{$path}->{$method}->{parameters}}, $parameter;
+        }
+    }
 }
 
 my $spec = read_file("openapi-base.yaml");
@@ -70,7 +83,19 @@ EOT
 
 }
 
-write_file("openapi.yaml", $spec);
+my $yaml_spec = YAML::XS::Load($spec);
+
+common_parameter($yaml_spec, {
+    'required' => 1,
+    'in' => 'header',
+    'name' => 'X-PacketFence-Tenant-Id',
+    'schema' => {
+                  'type' => 'string'
+                },
+    'description' => 'The tenant ID to use for this request'
+});
+
+YAML::XS::DumpFile("openapi.yaml", $yaml_spec);
 
 system("js-yaml openapi.yaml > openapi.json");
 
