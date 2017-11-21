@@ -299,7 +299,11 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 			var GlobalOptions dhcp.Options
 			var options = make(map[dhcp.OptionCode][]byte)
 			for key, value := range handler.options {
-				options[key] = value
+				if key == dhcp.OptionDomainNameServer || key == dhcp.OptionRouter {
+					options[key] = ShuffleIP(value)
+				} else {
+					options[key] = value
+				}
 			}
 			GlobalOptions = options
 			leaseDuration := handler.leaseDuration
@@ -339,7 +343,11 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 						var GlobalOptions dhcp.Options
 						var options = make(map[dhcp.OptionCode][]byte)
 						for key, value := range handler.options {
-							options[key] = value
+							if key == dhcp.OptionDomainNameServer || key == dhcp.OptionRouter {
+								options[key] = ShuffleIP(value)
+							} else {
+								options[key] = value
+							}
 						}
 						GlobalOptions = options
 						leaseDuration := handler.leaseDuration

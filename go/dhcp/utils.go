@@ -6,7 +6,9 @@ import (
 	"encoding/binary"
 	"fmt"
 	"log"
+	"math/rand"
 	"net"
+	"strings"
 	"time"
 
 	"github.com/coreos/etcd/client"
@@ -234,4 +236,72 @@ func NodeInformation(target net.HardwareAddr) (r NodeInfo) {
 
 	Node = NodeInfo{Mac: Mac, Status: Status, Category: Category}
 	return Node
+}
+
+func ShuffleDNS(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
+	if ConfNet.ClusterIPs != "" {
+		return Shuffle(ConfNet.ClusterIPs)
+	}
+	if ConfNet.Dnsvip != "" {
+		return []byte(net.ParseIP(ConfNet.Dnsvip).To4())
+	} else {
+		return []byte(net.ParseIP(ConfNet.Dns).To4())
+	}
+	return r
+}
+
+func ShuffleGateway(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
+	if ConfNet.NextHop != "" {
+		return []byte(net.ParseIP(ConfNet.NextHop).To4())
+	} else if ConfNet.ClusterIPs != "" {
+		return Shuffle(ConfNet.ClusterIPs)
+	} else {
+		return []byte(net.ParseIP(ConfNet.Gateway).To4())
+	}
+}
+
+func Shuffle(addresses string) (r []byte) {
+	var array []net.IP
+	for _, adresse := range strings.Split(addresses, ",") {
+		array = append(array, net.ParseIP(adresse).To4())
+	}
+
+	slice := make([]byte, 0, len(array))
+
+	random := rand.New(rand.NewSource(time.Now().UnixNano()))
+	for i := len(array) - 1; i > 0; i-- {
+		j := random.Intn(i + 1)
+		array[i], array[j] = array[j], array[i]
+	}
+	for _, element := range array {
+		elem := []byte(element)
+		slice = append(slice, elem...)
+	}
+	return slice
+}
+
+func ShuffleNetIP(array []net.IP) (r []byte) {
+
+	slice := make([]byte, 0, len(array))
+
+	random := rand.New(rand.NewSource(time.Now().UnixNano()))
+	for i := len(array) - 1; i > 0; i-- {
+		j := random.Intn(i + 1)
+		array[i], array[j] = array[j], array[i]
+	}
+	for _, element := range array {
+		elem := []byte(element)
+		slice = append(slice, elem...)
+	}
+	return slice
+}
+
+func ShuffleIP(a []byte) (r []byte) {
+
+	var array []net.IP
+	for len(a) != 0 {
+		array = append(array, net.IPv4(a[0], a[1], a[2], a[3]).To4())
+		_, a = a[0], a[4:]
+	}
+	return ShuffleNetIP(array)
 }

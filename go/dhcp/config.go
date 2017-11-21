@@ -101,10 +101,11 @@ func (d *Interfaces) readConfig() {
 			ethIf.layer2 = append(ethIf.layer2, NetIP)
 
 			for _, key := range keyConfNet.Keys {
-				var ConfNet pfconfigdriver.NetworkConf
+				var ConfNet pfconfigdriver.RessourseNetworkConf
 				ConfNet.PfconfigHashNS = key
 
 				pfconfigdriver.FetchDecodeSocket(ctx, &ConfNet)
+
 				if (NetIP.Contains(net.ParseIP(ConfNet.DhcpStart)) && NetIP.Contains(net.ParseIP(ConfNet.DhcpEnd))) || NetIP.Contains(net.ParseIP(ConfNet.NextHop)) {
 					// NetIP.Contains(net.ParseIP(ConfNet.Dns)) &&
 					// IP per role
@@ -220,7 +221,6 @@ func (d *Interfaces) readConfig() {
 						}
 
 					} else {
-						//Need to find a way to be able to change values dynamically
 						var DHCPNet Network
 						var DHCPScope DHCPHandler
 						DHCPNet.splittednet = false
@@ -252,8 +252,10 @@ func (d *Interfaces) readConfig() {
 						var options = make(map[dhcp.OptionCode][]byte)
 
 						options[dhcp.OptionSubnetMask] = []byte(net.ParseIP(ConfNet.Netmask).To4())
-						options[dhcp.OptionDomainNameServer] = []byte(net.ParseIP(ConfNet.Dns).To4())
-						options[dhcp.OptionRouter] = []byte(net.ParseIP(ConfNet.Gateway).To4())
+						options[dhcp.OptionDomainNameServer] = ShuffleDNS(ConfNet)
+						// options[dhcp.OptionDomainNameServer] = []byte(net.ParseIP(ConfNet.Dns).To4())
+						// options[dhcp.OptionRouter] = []byte(net.ParseIP(ConfNet.Gateway).To4())
+						options[dhcp.OptionRouter] = ShuffleGateway(ConfNet)
 						options[dhcp.OptionDomainName] = []byte(ConfNet.DomainName)
 						DHCPScope.options = options
 						if len(ConfNet.NextHop) > 0 {

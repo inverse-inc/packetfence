@@ -47,7 +47,7 @@ sub init {
         'interfaces::monitor_int',             'interfaces::management_network',
         'interfaces::portal_ints',             'interfaces::inline_nets',
         'interfaces::routed_isolation_nets',   'interfaces::routed_registration_nets',
-        'interfaces::radius_ints',
+        'interfaces::radius_ints',             'resource::network_config',
     ];
     if($host_id){
         @{$self->{child_resources}} = map { "$_($host_id)" } @{$self->{child_resources}}; 

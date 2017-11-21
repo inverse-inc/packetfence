@@ -25,7 +25,7 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file} = $cluster_config_file;
-    $self->{child_resources} = ['config::Pf', 'resource::cluster_servers', 'resource::cluster_hosts'];
+    $self->{child_resources} = ['config::Pf', 'resource::cluster_servers', 'resource::cluster_hosts', 'resource::network_config'];
 }
 
 sub build_child {

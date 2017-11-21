@@ -29,7 +29,8 @@ sub init {
     my ($self) = @_;
     $self->{file}            = $network_config_file;
     $self->{child_resources} = [
-        'interfaces'
+        'interfaces',
+        'resource::network_config'
     ];
 }
 
