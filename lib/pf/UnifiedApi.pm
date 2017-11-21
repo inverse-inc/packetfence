@@ -30,6 +30,8 @@ sub startup {
     $r->post('/users')->to('users#create');
     $r->get('/users/:user_id')->to("users#get");
     $r->delete('/users/:user_id')->to("users#remove");
+    $r->patch('/users/:user_id')->to("users#update");
+    $r->put('/users/:user_id')->to("users#update");
 
     $r->any(sub {
         my ($c) = @_;
