@@ -15,7 +15,7 @@ pf::UnifiedApi
 use strict;
 use warnings;
 use Mojo::Base 'Mojolicious';
-use pf::dal::person;
+use pf::dal;
 
 =head2 startup
 
@@ -25,6 +25,7 @@ Setting up routes
 
 sub startup {
     my ($self) = @_;
+    $self->hook(before_dispatch => \&set_tenant_id);
     $self->plugin('pf::UnifiedApi::Plugin::Crud', {controller => 'users', id_key => "user_id", path => "/users"});
     my $r = $self->routes;
 
@@ -32,6 +33,19 @@ sub startup {
         my ($c) = @_;
         return $c->render(json => { message => "", errors => [] });
     });
+}
+
+sub set_tenant_id {
+    my ($c) = @_;
+    my $tenant_id = $c->req->headers->header('X-PacketFence-Tenant-Id');
+    if (defined $tenant_id) {
+        unless (pf::dal->set_tenant($tenant_id)) {
+            $c->res->code(404);
+            $c->render(json => {});
+        }
+    } else {
+        pf::dal->reset_tenant();
+    }
 }
 
 =head1 AUTHOR
