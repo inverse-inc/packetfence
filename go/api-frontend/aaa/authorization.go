@@ -88,6 +88,7 @@ func (tam *TokenAuthorizationMiddleware) BearerRequestIsAuthorized(ctx context.C
 	if xptid == "" {
 		log.LoggerWContext(ctx).Debug("Empty X-PacketFence-Tenant-Id, defaulting to token tenant ID")
 		tenantId = tokenInfo.TenantId
+		r.Header.Set("X-PacketFence-Tenant-Id", strconv.Itoa(tenantId))
 	} else {
 		var err error
 		tenantId, err = strconv.Atoi(xptid)

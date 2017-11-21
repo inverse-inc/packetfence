@@ -234,6 +234,10 @@ func TestTokenAuthorizationMiddlewareBearerRequestIsAuthorized(t *testing.T) {
 		t.Error("Authenticated request has failed instead of succeeding", err)
 	}
 
+	if req.Header.Get("X-PacketFence-Tenant-Id") != "1" {
+		t.Error("Request without X-PacketFence-Tenant-Id didn't get the header set to the token tenant ID")
+	}
+
 	// Test valid token with scoped tenant ID with X-PacketFence-Tenant-Id header
 	backend.StoreTokenInfo(token, &TokenInfo{
 		AdminRoles: map[string]bool{
