@@ -17,6 +17,7 @@ use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller';
 
 has 'dal';
+has 'id_key';
 
 sub list {
     my ($self) = @_;
@@ -26,10 +27,7 @@ sub list {
 sub get {
     my ($self) = @_;
     my $res = $self->res;
-    my $user_id = $self->stash('user_id');
-    my ($status, $item) = $self->dal->find({
-        pid => $user_id,
-    });
+    my ($status, $item) = $self->dal->find($self->build_item_lookup);
     $res->code($status);
     my $results;
     if ($res->is_error) {
@@ -39,6 +37,15 @@ sub get {
         $results = { item => $item->to_hash() };
     }
     return $self->render(json => $results);
+}
+
+sub build_item_lookup {
+    my ($self) = @_;
+    my $id_key = $self->id_key;
+    my $id = $self->stash($id_key);
+    return {
+        pid => $id
+    };
 }
 
 sub create {
@@ -54,10 +61,7 @@ sub create {
 sub remove {
     my ($self) = @_;
     my $res = $self->res;
-    my $user_id = $self->stash('user_id');
-    my $status = $self->dal->remove_by_id({
-        pid => $user_id,
-    });
+    my $status = $self->dal->remove_by_id($self->build_item_lookup);
     $res->code($status);
     return $self->render(json => {});
 }
@@ -72,12 +76,9 @@ sub update {
     my ($self) = @_;
     my $req = $self->req;
     my $res = $self->res;
-    my $user_id = $self->stash('user_id');
     my $data = $req->json;
     my ($status, $count) = $self->dal->update_items(
-        -where => {
-            pid => $user_id,
-        },
+        -where => $self->build_item_lookup,
         -set => {
             %$data,
         },
