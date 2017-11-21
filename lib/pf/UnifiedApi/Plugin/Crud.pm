@@ -13,20 +13,23 @@ pf::UnifiedApi::Plugins::Crud
 =cut
 
 use Mojo::Base 'Mojolicious::Plugin';
+use Mojo::Util qw(camelize);
 
 sub register {
     my ($self, $app, $config) = @_;
     my $controller = $config->{controller};
+    my $name_prefix = $config->{name} // camelize($controller);
     my $path = $config->{path} // "/$controller";
     my $id_key = $config->{id_key} // 'id';
-    my $r = $app->routes;
-    $r->get($path)->to("$controller#list");
-    $r->post($path)->to("$controller#create");
-    my $item_path = "$path/:$id_key";
-    $r->get($item_path)->to("$controller#get");
-    $r->delete($item_path)->to("$controller#remove");
-    $r->patch($item_path)->to("$controller#update");
-    $r->put($item_path)->to("$controller#update");
+    my $routes = $app->routes;
+    my $r = $routes->any($path)->name($name_prefix);
+    $r->get()->to("$controller#list")->name("$name_prefix.list");
+    $r->post()->to("$controller#create")->name("$name_prefix.create");
+    my $item_path = "/:$id_key";
+    $r->get($item_path)->to("$controller#get")->name("$name_prefix.get");
+    $r->delete($item_path)->to("$controller#remove")->name("$name_prefix.remove");
+    $r->patch($item_path)->to("$controller#update")->name("$name_prefix.update");
+    $r->put($item_path)->to("$controller#update")->name("$name_prefix.replace");
 }
 
 =head1 AUTHOR
