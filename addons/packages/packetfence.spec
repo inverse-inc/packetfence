@@ -452,6 +452,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-collectd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-collectd.service
 %{__install} -D -m0644 conf/systemd/packetfence-config.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-config.service
 %{__install} -D -m0644 conf/systemd/packetfence-dhcpd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-dhcpd.service
+%{__install} -D -m0644 conf/systemd/packetfence-go_dns.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-go_dns.service
 %{__install} -D -m0644 conf/systemd/packetfence-haproxy.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-haproxy.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.aaa.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.aaa.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.admin.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.admin.service
