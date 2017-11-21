@@ -29,6 +29,7 @@ sub startup {
     $r->get('/users')->to('users#list');
     $r->post('/users')->to('users#create');
     $r->get('/users/:user_id')->to("users#get");
+    $r->delete('/users/:user_id')->to("users#remove");
 
     $r->any(sub {
         my ($c) = @_;
