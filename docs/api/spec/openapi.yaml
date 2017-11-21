@@ -373,7 +373,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: '#/components/schemas/ApiUser'
         required: true
       responses:
         '201':
@@ -437,7 +437,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: '#/components/schemas/ApiUser'
         required: true
       responses:
         '200':
