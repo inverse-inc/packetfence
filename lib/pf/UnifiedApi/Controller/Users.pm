@@ -14,7 +14,7 @@ pf::UnifiedApi::Controller::User
 
 use strict;
 use warnings;
-use Mojo::Base 'Mojolicious::Controller';
+use Mojo::Base 'pf::UnifiedApi::Controller';
 
 
 sub list {
