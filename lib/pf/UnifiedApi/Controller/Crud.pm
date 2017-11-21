@@ -18,6 +18,7 @@ use Mojo::Base 'pf::UnifiedApi::Controller';
 
 has 'dal';
 has 'id_key';
+has 'resource_id' => 'id';
 
 sub list {
     my ($self) = @_;
@@ -44,7 +45,7 @@ sub build_item_lookup {
     my $id_key = $self->id_key;
     my $id = $self->stash($id_key);
     return {
-        pid => $id
+        $self->resource_id => $id
     };
 }
 
