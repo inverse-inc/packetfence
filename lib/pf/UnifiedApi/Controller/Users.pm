@@ -19,6 +19,7 @@ use pf::dal::person;
 
 has dal => 'pf::dal::person';
 has id_key => 'user_id';
+has resource_id => 'pid';
 
 =head1 AUTHOR
 
