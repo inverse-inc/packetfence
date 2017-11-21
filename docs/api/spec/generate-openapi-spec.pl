@@ -86,13 +86,13 @@ EOT
 my $yaml_spec = YAML::XS::Load($spec);
 
 common_parameter($yaml_spec, {
-    'required' => 1,
+    'required' => 0,
     'in' => 'header',
     'name' => 'X-PacketFence-Tenant-Id',
     'schema' => {
                   'type' => 'string'
                 },
-    'description' => 'The tenant ID to use for this request'
+    'description' => 'The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.'
 });
 
 YAML::XS::DumpFile("openapi.yaml", $yaml_spec);
