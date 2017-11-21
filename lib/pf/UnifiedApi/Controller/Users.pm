@@ -14,83 +14,10 @@ pf::UnifiedApi::Controller::User
 
 use strict;
 use warnings;
-use Mojo::Base 'pf::UnifiedApi::Controller';
+use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
+use pf::dal::person;
 
-
-sub list {
-    my ($self) = @_;
-    $self->render(json => { items => [], hasMore => \0});
-}
-
-sub get {
-    my ($self) = @_;
-    my $res = $self->res;
-    my $user_id = $self->stash('user_id');
-    my ($status, $item) = pf::dal::person->find({
-        pid => $user_id,
-    });
-    $res->code($status);
-    my $results;
-    if ($res->is_error) {
-        $results = {};
-    }
-    else {
-        $results = { item => $item->to_hash() };
-    }
-    return $self->render(json => $results);
-}
-
-sub create {
-    my ($self) = @_;
-    my $req = $self->req;
-    my $res = $self->res;
-    my $data = $req->json;
-    my $status = pf::dal::person->create($data);
-    $res->code($status);
-    return $self->render(json => {});
-}
-
-sub remove {
-    my ($self) = @_;
-    my $res = $self->res;
-    my $user_id = $self->stash('user_id');
-    my $status = pf::dal::person->remove_by_id({
-        pid => $user_id,
-    });
-    $res->code($status);
-    return $self->render(json => {});
-}
-
-=head2 update
-
-update
-
-=cut
-
-sub update {
-    my ($self) = @_;
-    my $req = $self->req;
-    my $res = $self->res;
-    my $user_id = $self->stash('user_id');
-    my $data = $req->json;
-    my ($status, $count) = pf::dal::person->update_items(
-        -where => {
-            pid => $user_id,
-        },
-        -set => {
-            %$data,
-        },
-        -limit => 1,
-    );
-    if ($count == 0) {
-        $status = 404;
-    }
-    $res->code($status);
-    if ($res->is_error) {
-
-    }
-    return $self->render(json => {});
-}
+has dal => 'pf::dal::person';
 
 =head1 AUTHOR
 
