@@ -1,7 +1,9 @@
 /users:
   get:
     summary: Returns a list of users
-    description: The list of user will be limited to 100 and a cursor will be returned for iterating on other users. Iteration is only needed if the hasMore key has a true value
+    description: The list of user will be limited to 100 and a cursor will be returned for iterating on other users. Iteration is only needed if the nextCursor is not an empty value.
+    parameters:
+      - $ref: '#/components/parameters/cursor'
     responses:
       '200':
         description: List of users

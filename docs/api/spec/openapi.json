@@ -1,5 +1,16 @@
 {
   "components": {
+    "parameters": {
+      "cursor": {
+        "description": "The cursor pointer to fetch the data (value should be taken from previousCursor and nextCursor)",
+        "in": "query",
+        "name": "cursor",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
     "responses": {
       "BadRequest": {
         "content": {
@@ -462,8 +473,11 @@
   "paths": {
     "/api_users": {
       "get": {
-        "description": "The list of user will be limited to 100 and a cursor will be returned for iterating on other users. Iteration is only needed if the hasMore key has a true value",
+        "description": "The list of user will be limited to 100 and a cursor will be returned for iterating on other users. Iteration is only needed if the nextCursor is not an empty value.",
         "parameters": [
+          {
+            "$ref": "#/components/parameters/cursor"
+          },
           {
             "description": "The tenant ID to use for this request",
             "in": "header",
@@ -661,6 +675,9 @@
     "/config/connection_profiles": {
       "get": {
         "parameters": [
+          {
+            "$ref": "#/components/parameters/cursor"
+          },
           {
             "description": "The tenant ID to use for this request",
             "in": "header",
@@ -917,9 +934,13 @@
         "summary": "Login into the API and obtain a token"
       }
     },
-    "/tenants/{tenant_id}": {
+    "/tenants": {
       "get": {
+        "description": "The list of tenants will be limited to 100 and a cursor will be returned for iterating on other tenants. Iteration is only needed if the nextCursor is not an empty value.",
         "parameters": [
+          {
+            "$ref": "#/components/parameters/cursor"
+          },
           {
             "description": "The tenant ID to use for this request",
             "in": "header",
@@ -935,14 +956,183 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Tenant"
+                  "$ref": "#/components/schemas/TenantsList"
                 }
               }
             },
-            "description": "Tenant successfully created"
+            "description": "List of tenants"
           }
         },
-        "summary": "Allows to get a tenant by its ID"
+        "summary": "Returns a list of tenants"
+      },
+      "post": {
+        "parameters": [
+          {
+            "description": "The tenant ID to use for this request",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 1,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Tenant"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/Created"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/components/responses/Duplicate"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        },
+        "summary": "Creates a tenant"
+      }
+    },
+    "/tenants/{tenant_id}": {
+      "delete": {
+        "parameters": [
+          {
+            "description": "The tenant ID to use for this request",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 1,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted tenant"
+          }
+        },
+        "summary": "Allows to delete a tenant"
+      },
+      "get": {
+        "parameters": [
+          {
+            "description": "The tenant ID to fetch",
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "The tenant ID to use for this request",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 1,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "item": {
+                      "$ref": "#/components/schemas/Tenant"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "A specific tenant"
+          }
+        },
+        "summary": "Returns a specific tenant by its ID"
+      },
+      "patch": {
+        "parameters": [
+          {
+            "description": "The tenant ID to use for this request",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 1,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Tenant"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Message"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        },
+        "summary": "Allows to update parts of a tenant"
+      },
+      "put": {
+        "parameters": [
+          {
+            "description": "The tenant ID to use for this request",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 1,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Tenant"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Message"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        },
+        "summary": "Allows to update a whole tenant"
       }
     },
     "/tenants_onboarding": {
@@ -1021,8 +1211,11 @@
     },
     "/users": {
       "get": {
-        "description": "The list of user will be limited to 100 and a cursor will be returned for iterating on other users. Iteration is only needed if the hasMore key has a true value",
+        "description": "The list of user will be limited to 100 and a cursor will be returned for iterating on other users. Iteration is only needed if the nextCursor is not an empty value.",
         "parameters": [
+          {
+            "$ref": "#/components/parameters/cursor"
+          },
           {
             "description": "The tenant ID to use for this request",
             "in": "header",
@@ -1220,6 +1413,9 @@
     "/users/{user_id}/nodes": {
       "get": {
         "parameters": [
+          {
+            "$ref": "#/components/parameters/cursor"
+          },
           {
             "description": "The tenant ID to use for this request",
             "in": "header",
