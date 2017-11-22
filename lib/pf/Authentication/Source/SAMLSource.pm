@@ -22,10 +22,6 @@ use pf::util;
 use Moose;
 extends 'pf::Authentication::Source';
 
-BEGIN {
-    Lasso::init();
-}
-
 has '+type' => ( default => 'SAML' );
 has 'authorization_source_id' => ( is => 'rw', required => 1 );
 
