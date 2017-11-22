@@ -32,13 +32,12 @@ sub startup {
     $self->hook(before_dispatch => \&set_tenant_id);
     $self->plugin('pf::UnifiedApi::Plugin::RestCrud');
     $self->setup_api_v1_routes();
-
 }
 
 sub setup_api_v1_routes {
     my ($self) = @_;
     my $r = $self->routes;
-    my $api_v1_route = $r->any("/api/v1");
+    my $api_v1_route = $r->any("/api/v1")->name("api.v1");
     foreach my $route (@API_V1_ROUTES) {
         $api_v1_route->rest_routes($route);
     }
