@@ -466,6 +466,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.proxy.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.proxy.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.webservices.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.webservices.service
 %{__install} -D -m0644 conf/systemd/packetfence-iptables.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-iptables.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfunified-api.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfunified-api.service
 %{__install} -D -m0644 conf/systemd/packetfence-keepalived.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-keepalived.service
 %{__install} -D -m0644 conf/systemd/packetfence-mariadb.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-mariadb.service
 %{__install} -D -m0644 conf/systemd/packetfence-p0f.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-p0f.service
@@ -1253,6 +1254,8 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfbandwidthd
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcplistener
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfdns
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfunified-api
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pf-mariadb
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfmon
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfqueue
