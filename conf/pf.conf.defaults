@@ -413,6 +413,11 @@ httpd_portal=enabled
 # Should httpd.parking be started?
 httpd_parking=enabled
 #
+# services.pfunified_api
+#
+# Should pfunified_api be started?
+pfunified_api=enabled
+#
 # services.httpd_webservices
 #
 # Should httpd.webservices be started?
