@@ -311,10 +311,21 @@ sub insert {
     my $rows = $sth->rows;
     if ($rows) {
         $self->_save_old_data();
+        $self->after_create_hook();
         return $STATUS::CREATED;
     }
     return $STATUS::BAD_REQUEST;
 }
+
+=head2 after_create_hook
+
+Action after you create a new dal object
+
+=cut
+
+sub after_create_hook {
+}
+
 
 =head2 _save_old_data
 
@@ -354,7 +365,11 @@ sub upsert {
     return $status if is_error($status);
     my $rows = $sth->rows;
     $self->_save_old_data();
-    return $rows == 1 ? $STATUS::CREATED : $STATUS::OK;
+    if ($rows == 1) {
+        $status = $STATUS::CREATED;
+        $self->after_create_hook();
+    }
+    return $status;
 }
 
 =head2 _on_conflict_data
