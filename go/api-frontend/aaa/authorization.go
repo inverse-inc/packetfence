@@ -85,7 +85,8 @@ func (tam *TokenAuthorizationMiddleware) BearerRequestIsAuthorized(ctx context.C
 	}
 
 	var tenantId int
-	if xptid == "" {
+	// Only set the X-PacketFence-Tenant-Id if the token is emitted for a particular tenant
+	if xptid == "" && tokenInfo.TenantId != AccessAllTenants {
 		log.LoggerWContext(ctx).Debug("Empty X-PacketFence-Tenant-Id, defaulting to token tenant ID")
 		tenantId = tokenInfo.TenantId
 		r.Header.Set("X-PacketFence-Tenant-Id", strconv.Itoa(tenantId))
