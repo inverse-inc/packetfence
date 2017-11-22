@@ -26,7 +26,7 @@ BEGIN {
 use pf::UnifiedApi::Plugin::RestCrud;
 use Mojolicious;
 
-use Test::More tests => 8;
+use Test::More tests => 10;
 
 #This test will running last
 use Test::NoWarnings;
@@ -39,10 +39,10 @@ $app->plugin('pf::UnifiedApi::Plugin::RestCrud');#, {controller => "users", id_k
 
 my $routes = $app->routes;
 
-$routes->rest_routes({controller => 'users', id_key => "user_id"});
+$routes->rest_routes({controller => 'users', id_key => "user_id" , resource_verbs => [qw(run walk)]});
 
 ok($routes->find("Users"), "The top level Route Users created");
-foreach my $name (qw(list create get remove update replace)) {
+foreach my $name (qw(list create get remove update replace run walk)) {
     ok($routes->find("Users.$name"), "Route Users.$name create");
 }
 
