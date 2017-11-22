@@ -454,6 +454,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence.slice $RPM_BUILD_ROOT/etc/systemd/system/packetfence.slice
 %{__install} -D -m0644 conf/systemd/packetfence-base.slice $RPM_BUILD_ROOT/etc/systemd/system/packetfence-base.slice
 # systemd services
+%{__install} -D -m0644 conf/systemd/packetfence-api-frontend.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-api-frontend.service
 %{__install} -D -m0644 conf/systemd/packetfence-config.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-config.service
 %{__install} -D -m0644 conf/systemd/packetfence-haproxy.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-haproxy.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.aaa.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.aaa.service
