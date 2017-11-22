@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 38;
+use Test::More tests => 39;
 use Test::Mojo;
 
 #This test will running last
@@ -76,7 +76,8 @@ $t->delete_ok("/api/v1/users/$test_pid")
 my $unused_tenant_id = get_unused_tenant_id();
 
 $t->get_ok('/api/v1/users/admin' => {'X-PacketFence-Tenant-Id' => $unused_tenant_id})
-  ->status_is(404);
+  ->status_is(404)
+  ->json_like('/message' => qr/\Q$unused_tenant_id\E/);
 
 $t->get_ok('/api/v1/users/admin' => {'X-PacketFence-Tenant-Id' => 1})
   ->status_is(200);
