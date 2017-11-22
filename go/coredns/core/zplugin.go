@@ -4,6 +4,7 @@ package core
 
 import (
 	// Include all plugins.
+	_ "github.com/inverse-inc/packetfence/go/caddy/caddy/startupshutdown"
 	_ "github.com/inverse-inc/packetfence/go/coredns/plugin/auto"
 	_ "github.com/inverse-inc/packetfence/go/coredns/plugin/autopath"
 	_ "github.com/inverse-inc/packetfence/go/coredns/plugin/bind"
@@ -33,5 +34,4 @@ import (
 	_ "github.com/inverse-inc/packetfence/go/coredns/plugin/tls"
 	_ "github.com/inverse-inc/packetfence/go/coredns/plugin/trace"
 	_ "github.com/inverse-inc/packetfence/go/coredns/plugin/whoami"
-	_ "github.com/inverse-inc/packetfence/go/caddy/caddy/startupshutdown"
 )

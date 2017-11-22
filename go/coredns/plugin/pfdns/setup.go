@@ -5,9 +5,9 @@ import (
 	"net"
 	"strings"
 
+	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/coredns/core/dnsserver"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
-	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 )
 
 func init() {

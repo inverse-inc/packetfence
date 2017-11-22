@@ -15,10 +15,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
 	"github.com/inverse-inc/packetfence/go/coredns/request"
-	"github.com/davecgh/go-spew/spew"
-
+	//Import mysql driver
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/miekg/dns"
@@ -37,7 +37,6 @@ type pfdns struct {
 	BhIP              net.IP
 	BhCname           string
 	Next              plugin.Handler
-	mutex             sync.Mutex
 	Webservices       pfconfigdriver.PfConfWebservices
 	FqdnPort          map[*regexp.Regexp][]string
 	FqdnIsolationPort map[*regexp.Regexp][]string
@@ -45,6 +44,7 @@ type pfdns struct {
 	Network           map[*net.IPNet]net.IP
 }
 
+// Ports array
 type Ports struct {
 	Port map[int]string
 }
@@ -162,7 +162,7 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 			}
 		}
 
-		var status string = "unreg"
+		var status = "unreg"
 		err = pf.Nodedb.QueryRow(mac).Scan(&status)
 		if err != nil {
 			fmt.Printf("ERROR pfdns database query returned %s\n", err)
@@ -339,13 +339,13 @@ func (pf *pfdns) detectVIP() error {
 
 func (pf *pfdns) DomainPassthroughInit() error {
 	var ctx = context.Background()
-	var keyConfDns pfconfigdriver.PfconfigKeys
-	keyConfDns.PfconfigNS = "resource::domain_dns_servers"
+	var keyConfDNS pfconfigdriver.PfconfigKeys
+	keyConfDNS.PfconfigNS = "resource::domain_dns_servers"
 
 	pf.FqdnDomainPort = make(map[*regexp.Regexp][]string)
-	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfDns)
+	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfDNS)
 
-	for _, v := range keyConfDns.Keys {
+	for _, v := range keyConfDNS.Keys {
 		// .*_msdcs.
 		rgx, _ := regexp.Compile(".*(_msdcs|_sites)." + v)
 		pf.FqdnDomainPort[rgx] = []string{"udp:88", "udp:123", "udp:135", "135", "udp:137", "udp:138", "139", "udp:389", "udp:445", "445", "udp:464", "464", "tcp:1025", "49155", "49156", "49172"}

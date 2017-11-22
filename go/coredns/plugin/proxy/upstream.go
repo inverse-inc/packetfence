@@ -6,11 +6,11 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyfile"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin/pkg/dnsutil"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin/pkg/healthcheck"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin/pkg/tls"
-	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyfile"
 	"github.com/miekg/dns"
 )
 
