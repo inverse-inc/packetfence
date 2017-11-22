@@ -12,7 +12,6 @@ import (
 	"net/http"
 	"os"
 	"regexp"
-	"sync"
 	"time"
 
 	"github.com/davecgh/go-spew/spew"
