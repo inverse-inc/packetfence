@@ -503,6 +503,19 @@ BEGIN
 END /
 DELIMITER ;
 
+--
+-- Table structure for table `api_user`
+--
+
+CREATE TABLE `api_user` (
+  `username` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `valid_from` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `expiration` datetime NOT NULL,
+  `access_level` varchar(255) DEFAULT 'NONE',
+  `tenant_id` int(11) DEFAULT '0',
+  PRIMARY KEY (`username`)
+) ENGINE=InnoDB;
 
 INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
 
