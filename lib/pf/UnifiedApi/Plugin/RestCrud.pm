@@ -35,6 +35,9 @@ sub register_rest_routes {
     $r->delete($item_path)->to("$controller#remove")->name("$name_prefix.remove");
     $r->patch($item_path)->to("$controller#update")->name("$name_prefix.update");
     $r->put($item_path)->to("$controller#update")->name("$name_prefix.replace");
+    for my $verb (@{$config->{resource_verbs}// [] }) {
+        $r->post("$item_path/$verb")->to("$controller#$verb")->name("$name_prefix.$verb");
+    }
 }
 
 =head1 AUTHOR
