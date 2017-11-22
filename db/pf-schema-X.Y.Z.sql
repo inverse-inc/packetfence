@@ -1219,20 +1219,6 @@ CREATE TABLE `chi_cache` (
 );
 
 --
--- Table structure for table `api_user`
---
-
-CREATE TABLE `api_user` (
-  `username` varchar(255) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `valid_from` datetime NOT NULL DEFAULT "0000-00-00 00:00:00",
-  `expiration` datetime NOT NULL,
-  `access_level` varchar(255) DEFAULT 'NONE',
-  `tenant_id` int DEFAULT NULL,
-  PRIMARY KEY (username)
-) ENGINE=InnoDB;
-
---
 -- Updating to current version
 --
 
