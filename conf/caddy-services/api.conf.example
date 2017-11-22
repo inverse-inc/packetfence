@@ -1,4 +1,4 @@
-localhost:9999 {
+0.0.0.0:9999 {
   pfconfigpool
   logger {
     level INFO
