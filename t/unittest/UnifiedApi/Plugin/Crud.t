@@ -23,7 +23,7 @@ BEGIN {
     #Module for overriding configuration paths
     use setup_test_config;
 }
-use pf::UnifiedApi::Plugin::Crud;
+use pf::UnifiedApi::Plugin::RestCrud;
 use Mojolicious;
 
 use Test::More tests => 8;
@@ -31,13 +31,15 @@ use Test::More tests => 8;
 #This test will running last
 use Test::NoWarnings;
 
-my $crud = pf::UnifiedApi::Plugin::Crud->new;
+my $crud = pf::UnifiedApi::Plugin::RestCrud->new;
 
 my $app = Mojolicious->new;
 
-$app->plugin('pf::UnifiedApi::Plugin::Crud', {controller => "users", id_key => 'user_id'});
+$app->plugin('pf::UnifiedApi::Plugin::RestCrud');#, {controller => "users", id_key => 'user_id'});
 
 my $routes = $app->routes;
+
+$routes->rest_routes({controller => 'users', id_key => "user_id"});
 
 ok($routes->find("Users"), "The top level Route Users created");
 foreach my $name (qw(list create get remove update replace)) {
