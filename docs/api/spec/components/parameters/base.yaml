@@ -1,0 +1,7 @@
+cursor:
+  in: query
+  name: cursor
+  required: false
+  schema:
+    type: string
+  description: The cursor pointer to fetch the data (value should be taken from previousCursor and nextCursor)
