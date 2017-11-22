@@ -38,47 +38,47 @@ use pf::tenant qw(
 
 my $t = Test::Mojo->new('pf::UnifiedApi');
 
-$t->get_ok('/users/admin')
+$t->get_ok('/api/v1/users/admin')
   ->status_is(200)
   ->json_is('/item/pid' => 'admin') ;
 
-$t->get_ok('/users/NoSuchUser')
+$t->get_ok('/api/v1/users/NoSuchUser')
   ->status_is(404);
 
-$t->get_ok('/users/admin')
+$t->get_ok('/api/v1/users/admin')
   ->status_is(200)
   ->json_is('/item/pid' => 'admin') ;
 
 my $test_pid = "test_pid_$$";
 
-$t->post_ok('/users' => json => { pid => $test_pid })
+$t->post_ok('/api/v1/users' => json => { pid => $test_pid })
   ->status_is(201);
 
 my $notes = "notes for $test_pid";
 
-$t->put_ok("/users/$test_pid" => json => { notes => "$notes" })
+$t->put_ok("/api/v1/users/$test_pid" => json => { notes => "$notes" })
   ->status_is(200);
 
-$t->get_ok("/users/$test_pid")
+$t->get_ok("/api/v1/users/$test_pid")
   ->status_is(200)
   ->json_is('/item/pid' => $test_pid)
   ->json_is('/item/notes' => $notes);
 
-#$t->patch_ok("/users/$test_pid" => json => { notes => "$notes" })
+#$t->patch_ok("/api/v1/users/$test_pid" => json => { notes => "$notes" })
 #  ->status_is(200);
 
-$t->delete_ok("/users/$test_pid")
+$t->delete_ok("/api/v1/users/$test_pid")
   ->status_is(200);
 
-$t->delete_ok("/users/$test_pid")
+$t->delete_ok("/api/v1/users/$test_pid")
   ->status_is(404);
 
 my $unused_tenant_id = get_unused_tenant_id();
 
-$t->get_ok('/users/admin' => {'X-PacketFence-Tenant-Id' => $unused_tenant_id})
+$t->get_ok('/api/v1/users/admin' => {'X-PacketFence-Tenant-Id' => $unused_tenant_id})
   ->status_is(404);
 
-$t->get_ok('/users/admin' => {'X-PacketFence-Tenant-Id' => 1})
+$t->get_ok('/api/v1/users/admin' => {'X-PacketFence-Tenant-Id' => 1})
   ->status_is(200);
 
 my $tenant_name = "test_tenant_$$";
@@ -93,24 +93,24 @@ my $tenant_id = $tenant->{id};
 
 my $headers = {'X-PacketFence-Tenant-Id' => $tenant_id};
 
-$t->get_ok('/users/default' => $headers)
+$t->get_ok('/api/v1/users/default' => $headers)
   ->status_is(200)
   ->json_is('/item/tenant_id' => $tenant_id);
 
 $notes = "notes $tenant_id";
 
-$t->post_ok('/users' => $headers => json => { pid => $test_pid })
+$t->post_ok('/api/v1/users' => $headers => json => { pid => $test_pid })
   ->status_is(201);
 
-$t->put_ok("/users/$test_pid" => $headers => json => { notes => $notes })
+$t->put_ok("/api/v1/users/$test_pid" => $headers => json => { notes => $notes })
   ->status_is(200);
 
-$t->get_ok("/users/$test_pid" => $headers)
+$t->get_ok("/api/v1/users/$test_pid" => $headers)
   ->status_is(200)
   ->json_is('/item/pid' => $test_pid)
   ->json_is('/item/notes' => $notes);
 
-$t->delete_ok("/users/$test_pid" => $headers)
+$t->delete_ok("/api/v1/users/$test_pid" => $headers)
   ->status_is(200);
 
 sub get_unused_tenant_id {
