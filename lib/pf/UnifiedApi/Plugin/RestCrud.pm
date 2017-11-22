@@ -17,11 +17,16 @@ use Mojo::Util qw(camelize);
 
 sub register {
     my ($self, $app, $config) = @_;
+    my $routes = $app->routes;
+    $routes->add_shortcut( rest_routes => \&register_rest_routes);
+}
+
+sub register_rest_routes {
+    my ($routes, $config) = @_;
     my $controller = $config->{controller};
     my $name_prefix = $config->{name} // camelize($controller);
     my $path = $config->{path} // "/$controller";
     my $id_key = $config->{id_key} // 'id';
-    my $routes = $app->routes;
     my $r = $routes->any($path)->name($name_prefix);
     $r->get()->to("$controller#list")->name("$name_prefix.list");
     $r->post()->to("$controller#create")->name("$name_prefix.create");

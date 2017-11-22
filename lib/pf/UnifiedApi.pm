@@ -23,15 +23,28 @@ Setting up routes
 
 =cut
 
+our @API_V1_ROUTES = (
+    {controller => 'users', id_key => "user_id", path => "/users"}
+);
+
 sub startup {
     my ($self) = @_;
     $self->hook(before_dispatch => \&set_tenant_id);
-    $self->plugin('pf::UnifiedApi::Plugin::RestCrud', {controller => 'users', id_key => "user_id", path => "/api/v1/users"});
-    my $r = $self->routes;
+    $self->plugin('pf::UnifiedApi::Plugin::RestCrud');
+    $self->setup_api_v1_routes();
 
+}
+
+sub setup_api_v1_routes {
+    my ($self) = @_;
+    my $r = $self->routes;
+    my $api_v1_route = $r->any("/api/v1");
+    foreach my $route (@API_V1_ROUTES) {
+        $api_v1_route->rest_routes($route);
+    }
     $r->any(sub {
         my ($c) = @_;
-        return $c->render(json => { message => "", errors => [] });
+        return $c->render(json => { message => "Unknown path", errors => [] }, status => 404);
     });
 }
 
