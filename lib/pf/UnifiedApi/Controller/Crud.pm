@@ -22,7 +22,41 @@ has 'resource_id' => 'id';
 
 sub list {
     my ($self) = @_;
-    $self->render(json => { items => [], hasMore => \0});
+    my $number_of_results = $self->list_number_of_results;
+    my $limit = $number_of_results + 1;
+    my $cursor = $self->list_cursor();
+    my ($status, $iter) = $self->dal->search(
+        -limit => $limit,
+        -offset => $cursor,
+        -with_class => undef,
+    );
+    my $items = $iter->all;
+    my $prevCursor = $cursor - $number_of_results;
+    my %results = (
+        items => $items,
+    );
+    if (@$items == $limit) {
+        pop @$items;
+        $results{nextCursor} = $cursor + $number_of_results
+    }
+    if ($prevCursor >= 0 ) {
+        $results{prevCursor} = $prevCursor;
+    }
+    $self->render(json => \%results, status => $status);
+}
+
+sub list_cursor {
+    my ($self) = @_;
+    my $cursor = $self->req->param('cursor') // 0;
+    $cursor += 0;
+    if ($cursor < 0) {
+        $cursor = 0;
+    }
+    return $cursor;
+}
+
+sub list_number_of_results {
+    return 100;
 }
 
 sub get {
