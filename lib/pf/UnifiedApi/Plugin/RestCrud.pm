@@ -1,14 +1,14 @@
-package pf::UnifiedApi::Plugin::Crud;
+package pf::UnifiedApi::Plugin::RestCrud;
 
 =head1 NAME
 
-pf::UnifiedApi::Plugin::Crud -
+pf::UnifiedApi::Plugin::RestCrud -
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::UnifiedApi::Plugins::Crud
+pf::UnifiedApi::Plugins::RestCrud
 
 =cut
 
