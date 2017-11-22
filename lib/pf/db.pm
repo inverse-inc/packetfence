@@ -111,7 +111,7 @@ sub db_connect {
 
     # TODO database prepared statements are disabled by default in dbd::mysql
     # we should test with them, see http://search.cpan.org/~capttofu/DBD-mysql-4.013/lib/DBD/mysql.pm#DESCRIPTION
-    $mydbh = DBI->connect( "dbi:mysql:dbname=$db;host=$host;port=$port;mysql_client_found_rows=0",
+    $mydbh = DBI->connect( "dbi:mysql:dbname=$db;host=$host;port=$port;mysql_client_found_rows=0;mysql_multi_statements=1;mysql_compression=1",
         $user, $pass, { RaiseError => 0, PrintError => 0, mysql_auto_reconnect => 1 } );
 
     # make sure we have a database handle
