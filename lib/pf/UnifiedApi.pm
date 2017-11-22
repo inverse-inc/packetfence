@@ -26,7 +26,7 @@ Setting up routes
 sub startup {
     my ($self) = @_;
     $self->hook(before_dispatch => \&set_tenant_id);
-    $self->plugin('pf::UnifiedApi::Plugin::RestCrud', {controller => 'users', id_key => "user_id", path => "/users"});
+    $self->plugin('pf::UnifiedApi::Plugin::RestCrud', {controller => 'users', id_key => "user_id", path => "/api/v1/users"});
     my $r = $self->routes;
 
     $r->any(sub {
