@@ -558,6 +558,7 @@ rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/archives
 rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/docbook
 rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/fonts
 rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/images
+rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/api
 cp -r html $RPM_BUILD_ROOT/usr/local/pf/
 cp -r lib $RPM_BUILD_ROOT/usr/local/pf/
 cp -r go $RPM_BUILD_ROOT/usr/local/pf/
