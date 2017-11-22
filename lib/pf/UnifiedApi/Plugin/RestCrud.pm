@@ -25,6 +25,10 @@ sub register_rest_routes {
     my ($routes, $config) = @_;
     my $controller = $config->{controller};
     my $name_prefix = $config->{name} // camelize($controller);
+    my $parent_name = $routes->name;
+    if ($parent_name) {
+        $name_prefix = "$parent_name.$name_prefix";
+    }
     my $path = $config->{path} // "/$controller";
     my $id_key = $config->{id_key} // 'id';
     my $r = $routes->any($path)->name($name_prefix);
