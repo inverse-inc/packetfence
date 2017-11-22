@@ -492,7 +492,6 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-snmptrapd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-snmptrapd.service
 %{__install} -D -m0644 conf/systemd/packetfence-statsd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-statsd.service
 %{__install} -D -m0644 conf/systemd/packetfence-winbindd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-winbindd.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfunified-api.service $RPM_BUILD_ROOT/usr/lib/systemd/packetfence-pfunified-api.service
 
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons/AD
@@ -1252,7 +1251,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcplistener
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdns
-%attr(0755, pf, pf)     /usr/local/pf/sbin/pfunified-api
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfunified_api
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pf-mariadb
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfmon
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfqueue
