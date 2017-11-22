@@ -600,7 +600,7 @@ go_dns=disabled
 # services.go_dns_binary
 #
 # Location of the go_dns binary.
-go_dns_binary=/usr/local/pf/bin/coredns
+go_dns_binary=/usr/local/pf/bin/go_dns
 
 [snmp_traps]
 #
