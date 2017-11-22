@@ -26,7 +26,7 @@ BEGIN {
 use pf::UnifiedApi::Plugin::RestCrud;
 use Mojolicious;
 
-use Test::More tests => 10;
+use Test::More tests => 18;
 
 #This test will running last
 use Test::NoWarnings;
@@ -44,6 +44,13 @@ $routes->rest_routes({controller => 'users', id_key => "user_id" , resource_verb
 ok($routes->find("Users"), "The top level Route Users created");
 foreach my $name (qw(list create get remove update replace run walk)) {
     ok($routes->find("Users.$name"), "Route Users.$name create");
+}
+
+my $r = $routes->any("/api")->name("api");
+
+$r->rest_routes({controller => 'users', id_key => "user_id" , resource_verbs => [qw(run walk)]});
+foreach my $name (qw(list create get remove update replace run walk)) {
+    ok($r->find("api.Users.$name"), "Route api.Users.$name create");
 }
 
 =head1 AUTHOR
