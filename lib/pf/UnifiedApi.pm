@@ -52,8 +52,7 @@ sub set_tenant_id {
     my $tenant_id = $c->req->headers->header('X-PacketFence-Tenant-Id');
     if (defined $tenant_id) {
         unless (pf::dal->set_tenant($tenant_id)) {
-            $c->res->code(404);
-            $c->render(json => {});
+            $c->render(json => { message => "Invalid tenant id provided $tenant_id"}, status => 404);
         }
     } else {
         pf::dal->reset_tenant();
