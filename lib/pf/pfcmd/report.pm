@@ -386,7 +386,7 @@ sub report_db_prepare {
             AND `mac` IS NOT NULL
         GROUP BY 1
         ORDER BY `percent` DESC
-        LIMIT 100;
+        LIMIT 25;
     ]);
 
     $report_statements->{'report_topauthenticationfailures_by_ssid_sql'} = get_db_handle()->prepare(qq[
@@ -407,7 +407,7 @@ sub report_db_prepare {
             AND `ssid` IS NOT NULL
         GROUP BY 1
         ORDER BY `percent` DESC
-        LIMIT 100;
+        LIMIT 25;
     ]);
 
     $report_statements->{'report_topauthenticationfailures_by_username_sql'} = get_db_handle()->prepare(qq[
@@ -428,7 +428,7 @@ sub report_db_prepare {
             AND `user_name` IS NOT NULL
         GROUP BY 1
         ORDER BY `percent` DESC
-        LIMIT 100;
+        LIMIT 25;
     ]);
 
     $report_statements->{'report_topauthenticationsuccesses_by_mac_sql'} = get_db_handle()->prepare(qq[
@@ -449,7 +449,7 @@ sub report_db_prepare {
             AND `mac` IS NOT NULL
         GROUP BY 1
         ORDER BY `percent` DESC
-        LIMIT 100;
+        LIMIT 25;
     ]);
 
     $report_statements->{'report_topauthenticationsuccesses_by_ssid_sql'} = get_db_handle()->prepare(qq[
@@ -470,7 +470,7 @@ sub report_db_prepare {
             AND `ssid` IS NOT NULL
         GROUP BY 1
         ORDER BY `percent` DESC
-        LIMIT 100;
+        LIMIT 25;
     ]);
 
     $report_statements->{'report_topauthenticationsuccesses_by_username_sql'} = get_db_handle()->prepare(qq[
@@ -491,7 +491,7 @@ sub report_db_prepare {
             AND `user_name` IS NOT NULL
         GROUP BY 1
         ORDER BY `percent` DESC
-        LIMIT 100;
+        LIMIT 25;
     ]);
 
     $report_statements->{'report_topauthenticationsuccesses_by_computername_sql'} = get_db_handle()->prepare(qq[
@@ -512,7 +512,7 @@ sub report_db_prepare {
             AND `computer_name` IS NOT NULL
         GROUP BY 1
         ORDER BY `percent` DESC
-        LIMIT 100;
+        LIMIT 25;
     ]);
 
     $report_db_prepared = 1;
