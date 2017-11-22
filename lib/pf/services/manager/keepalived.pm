@@ -84,6 +84,15 @@ vrrp_instance $cfg->{'ip'} {
     $cluster_ip dev $interface
   }
 EOT
+        if (isenabled($Config{'active_active'}{'vrrp_unicast'})) {
+        my $active_members = join("\n", grep( {$_ ne $cfg->{'ip'}} values %{pf::cluster::members_ips($interface)}));
+        $tags{'vrrp'} .= << "EOT";
+unicast_src_ip $cfg->{'ip'}
+unicast_peer {
+$active_members
+}
+EOT
+        }
         $tags{'vrrp'} .= "  notify_master \"$install_dir/bin/cluster/pfupdate --mode=master\"\n";
         $tags{'vrrp'} .= "  notify_backup \"$install_dir/bin/cluster/pfupdate --mode=slave\"\n";
         $tags{'vrrp'} .= "  notify_fault \"$install_dir/bin/cluster/pfupdate --mode=slave\"\n";
