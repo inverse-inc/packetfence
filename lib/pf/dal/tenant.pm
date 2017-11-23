@@ -18,6 +18,17 @@ use strict;
 use warnings;
 
 use base qw(pf::dal::_tenant);
+use pf::dal::person;
+
+sub after_create_hook {
+    my ($self) = @_;
+    my $status = pf::dal::person->create({
+        pid => "default",
+        notes => "Default User for tenant $self->{name}",
+        tenant_id => $self->{id},
+        -no_auto_tenant_id => 1,
+    });
+}
  
 =head1 AUTHOR
 
