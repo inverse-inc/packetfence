@@ -1,3 +1,5 @@
+#!/usr/bin/perl
+
 =head1 NAME
 
 pf::tenant_code
@@ -31,14 +33,14 @@ open(my $fh, ">", $pf::file_paths::switches_config_file);
 use pf::ConfigStore::Switch;
 use pf::dal::tenant_code;
 use pf::tenant_code;
-use Test::More tests => 6;
+use Test::More tests => 7;
 
 #This test will running last
 use Test::NoWarnings;
 
 my $status;
 
-# First clear out the codes and tenants
+# First clear out the codes
 pf::dal::tenant_code->remove_items();
 
 my $test_code = "192168";
