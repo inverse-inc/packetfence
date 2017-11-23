@@ -27,6 +27,7 @@ use URI::Escape::XS qw(uri_escape);
 use pf::constants;
 use pf::error qw(is_error is_success);
 use pf::log;
+use pf::node;
 use pf::util qw(isenabled);
 
 
@@ -170,13 +171,26 @@ sub get_device_information {
 
 Detects whether it is an Apple computer or an Apple Mobile device.
 
-NOT YET IMPLEMENTED
-
 =cut
 
 sub detect_device_type {
     my ( $self, $mac ) = @_;
     my $logger = get_logger;
+
+    my $fingerbank_info = pf::node::fingerbank_info($mac);
+    $fingerbank_info = $fingerbank_info->{'device_fq'};
+
+    my $device_type;
+    if ( $fingerbank_info =~ /iPod|iPhone|iPad/ ) {
+        $device_type = $JAMF_MOBILEDEVICES_INVENTORY;
+    }
+    elsif ( $fingerbank_info =~ /Macintosh/ ) {
+        $device_type = $JAMF_COMPUTERS_INVENTORY;
+    }
+
+    $logger->info("Detected a '$device_type' for MAC address '$mac' based of Fingerbank reply '$fingerbank_info'") if defined $device_type;
+
+    return $device_type;
 }
 
 
