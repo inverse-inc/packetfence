@@ -47,7 +47,7 @@ $(function() {
       //create the form and attach to the document
       var transactionForm = document.createElement("form");
       transactionForm.setAttribute("method", "post");
-      transactionForm.setAttribute("action", "/billing/vars.id/verify");
+      transactionForm.setAttribute("action", "/billing/" . vars.id . "/verify");
       document.body.appendChild(transactionForm);
 
       //create form "input" elements corresponding to each parameter
