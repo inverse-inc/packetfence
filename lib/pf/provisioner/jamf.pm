@@ -237,7 +237,7 @@ sub parse_device_information {
 
     my $json = decode_json($device_information);
 
-    if ( $device_type eq $JAMF_COMPUTER_INVENTORY ) {
+    if ( $device_type eq $JAMF_COMPUTERS_INVENTORY ) {
         return $json->{'computer'}{'general'}{'remote_management'}{'managed'};
     }
     elsif ( $device_type eq $JAMF_MOBILEDEVICES_INVENTORY ) {
