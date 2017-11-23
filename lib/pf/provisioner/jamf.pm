@@ -18,13 +18,18 @@ use warnings;
 use Moo;
 extends 'pf::provisioner';
 
+use HTTP::Request::Common;
+use JSON::MaybeXS qw(decode_json);
+use LWP::UserAgent;
+use Readonly;
+
 use pf::error qw(is_error is_success);
 use pf::constants;
 use pf::log;
 
-use JSON::MaybeXS qw(decode_json);
-use LWP::UserAgent;
-use HTTP::Request::Common;
+
+Readonly our $JAMF_COMPUTERS_INVENTORY => 'computers';
+Readonly our $JAMF_MOBILEDEVICES_INVENTORY => 'mobiledevices';
 
 
 =head1 Atrributes
@@ -138,11 +143,11 @@ sub get_device_information {
     }
     unless ( is_success($status) ) {
         if ( is_enabled($self->query_computers) ) {
-            $device_type = 'computers';
+            $device_type = $JAMF_COMPUTERS_INVENTORY;
             ( $status, $device_information ) = $self->execute_request($mac, $device_type);
         }
         if ( (is_enabled($self->query_mobiledevices)) && (!is_success($status)) ) {
-            $device_type = 'mobiledevices';
+            $device_type = $JAMF_MOBILEDEVICES_INVENTORY;
             ( $status, $device_information ) = $self->execute_request($mac, $device_type);
         }
     }
@@ -224,10 +229,10 @@ sub parse_device_information {
 
     my $json = decode_json($device_information);
 
-    if ( $device_type eq 'computers' ) {
+    if ( $device_type eq $JAMF_COMPUTER_INVENTORY ) {
         return $json->{'computer'}{'general'}{'remote_management'}{'managed'};
     }
-    elsif ( $device_type eq 'mobiledevices' ) {
+    elsif ( $device_type eq $JAMF_MOBILEDEVICES_INVENTORY ) {
         return $json->{'mobile_device'}{'general'}{'managed'};
     }
 }
