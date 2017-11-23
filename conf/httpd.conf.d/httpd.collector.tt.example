@@ -49,7 +49,9 @@
   <IfModule !mod_setenvif.c>
     LoadModule setenvif_module /usr/lib/apache2/modules/mod_setenvif.so
   </IfModule>
-
+  <IfModule !mod_systemd.c>
+    LoadModule systemd_module     /usr/lib/apache2/modules/mod_systemd.so
+  </IfModule>
 </IfDefine>
 
 #RHEL Specific
@@ -101,6 +103,9 @@
   <IfModule !mod_setenvif.c>
     LoadModule setenvif_module modules/mod_setenvif.so
   </IfModule>
+  <IfModule !mod_systemd.c>
+    LoadModule systemd_module   modules/mod_systemd.so
+  </IfModule>
 </IfDefine>
 
 PerlSwitches -I[% install_dir %]/lib
@@ -130,7 +135,7 @@ MaxSpareServers  10
 HostnameLookups  off
 MaxRequestsPerChild  1000
 
-ErrorLog  [% install_dir %]/logs/[% name %].error
+ErrorLog "| /usr/bin/logger -thttpd_collector_err -plocal5.err"
 
 User pf
 Group pf
@@ -150,7 +155,7 @@ Listen [% vhost %]:[% port %]
 <VirtualHost [% vhost %]:[% port %] >
     ServerName [% server_name %]
     DocumentRoot [% install_dir %]/html/pfappserver/lib
-    ErrorLog [% install_dir %]/logs/[% name %].error
+    ErrorLog "| /usr/bin/logger -thttpd_collector_err -plocal5.err"
     <Location /mse/ >
         SetHandler modperl
         PerlResponseHandler pf::WebAPI::MSEHandler

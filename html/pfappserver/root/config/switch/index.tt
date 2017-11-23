@@ -1,6 +1,26 @@
       <div class="modal modal-large fade hide" id="modalSwitch">
       </div>
 
+      <div class="modal modal-large fade hide" id="modalSwitchImport">
+        <iframe class="hidden" src="about:blank" id="iframe_form" name="iframe_form"></iframe>
+        <form autocomplete="off" name="modalSwitchImport" class="form-horizontal form-condensed" action="[% c.uri_for(c.controller.action_for('import_csv')) %]" enctype="multipart/form-data" method="post" target="iframe_form">
+          <div class="modal-header">
+            <a class="close" data-dismiss="modal">&times;</a>
+            <h3>[% l('Import switches from CSV') %] [% doc('_import_from_csv') | none %]</h3>
+          </div>
+        
+          <div class="modal-body">
+            [% import_form.field('importcsv').render | none %]
+            [% import_form.field('delimiter').render | none %]
+          </div><!--modal-body-->
+        
+          <div class="modal-footer">
+            <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
+            [% IF can_access("SWITCHES_CREATE") %]<button type="submit" id="import_csv_btn" class="btn btn-primary" data-loading-text="[% l('Importing') %]">[% l('Import') %]</button>[% END %]
+          </div>
+        </form>
+      </div>
+
       <div class="modal fade hide" id="deleteSwitch">
         <div class="modal-header">
           <a class="close" data-dismiss="modal">&times;</a>
@@ -14,7 +34,12 @@
           <a href="#" class="btn btn-primary btn-danger"><i class="icon-trash"></i> [% l('Delete') %]</a>
         </div>
       </div>
-      
+
+      <div class="card">
+        <div class="card-title">
+          <h2>[% l('Switches') %] [% doc('_network_devices_definition_switches_conf') | none %]</h2>
+        </div>
+        <div class="card-block">
       <div class="tab-content">
         <ul class="nav nav-tabs">
           <li [% IF controller_namespace == 'Config::Switch' %]class="active" [% END %]>
@@ -22,6 +47,9 @@
           </li>
           <li [% IF controller_namespace == 'Config::SwitchGroup' %]class="active" [% END %]>
             <a href="[% c.pf_hash_for(c.controller('Config::SwitchGroup').action_for('index'),[]) %]">[% l('Switch Groups') %]</a>
+          </li>
+          <li class="pull-right">
+              <div class="help-block clearfix"><a href="#modalSwitchImport" id="importSwitchCsv" class="btn pull-right" data-toggle="modal">[% l('Import from CSV') %]</a></div>
           </li>
         </ul>
       </div>
@@ -32,7 +60,7 @@
 
         [% IF controller_namespace == 'Config::Switch' %]
           <div class="btn-group">
-            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">[% l('Add switch to group') %] <span class="caret"></span></a>
+            <a class="btn dropdown-toggle" data-toggle="dropdown">[% l('Add switch to group') %] <span class="caret"></span></a>
             <ul class="dropdown-menu">
               [% FOREACH group IN switch_groups %]
               <li><a class="createSwitch" href="[% c.uri_for(c.controller.action_for('create_in_group'), group) %]">[% group %]</a></li>
@@ -46,3 +74,5 @@
         [% END %]
       </div>
       [%- END %]
+        </div>
+      </div>

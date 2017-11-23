@@ -69,10 +69,10 @@ Validates that there is no cycle in the portal module before saving it.
 sub validate_modules {
     my ($self, $field) = @_;
     require captiveportal::DynamicRouting::Application;
-    require pf::Portal::ProfileFactory;
+    require pf::Connection::ProfileFactory;
     require captiveportal::DynamicRouting::Factory;
     my $current_module_id = $self->field('id')->value;
-    my $app = captiveportal::DynamicRouting::Application->new(user_session => {}, session => {}, profile => pf::Portal::ProfileFactory->instantiate("00:11:22:33:44:55"), request => $self->ctx->request, root_module_id => undef);
+    my $app = captiveportal::DynamicRouting::Application->new(user_session => {}, session => {}, profile => pf::Connection::ProfileFactory->instantiate("00:11:22:33:44:55"), request => $self->ctx->request, root_module_id => undef);
     my $factory = captiveportal::DynamicRouting::Factory->new(application => $app);
 
     # Setting the new modules list in pfconfig proxied hash since we haven't commited yet...

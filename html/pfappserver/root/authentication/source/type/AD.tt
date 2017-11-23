@@ -12,9 +12,12 @@
 [% form.field('binddn').render | none %]
 [% form.field('cache_match').render | none %]
         <div class="control-group">
-          <label class="control-label">[% l('Password') %] <i class="icon-exclamation-sign"></i></label>
+          <label class="control-label">[% l('Password') %] <i class="icon-required"></i></label>
           <div class="controls">
+            <div class="input-append">
             [% form.field('password').render_element | none %]
+            <button class="btn" type="button"><i class="icon-eye"></i></button>
+            </div>
             <a class="btn" id="testSource" href="[% c.uri_for(c.controller('Config::Authentication::Source').action_for('test'), [source.type]) %]">[% l('Test') %]</a>
           </div>
         </div>

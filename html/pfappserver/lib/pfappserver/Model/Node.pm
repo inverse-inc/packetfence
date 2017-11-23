@@ -34,10 +34,11 @@ use pf::log;
 use pf::node;
 use pf::person;
 use pf::enforcement qw(reevaluate_access);
-use pf::useragent qw(node_useragent_view);
 use pf::util;
 use pf::config::util;
 use pf::violation;
+use pf::SwitchFactory;
+use pf::Connection;
 
 =head1 METHODS
 
@@ -199,6 +200,9 @@ sub view {
 
         $node->{fingerbank_info} = pf::node::fingerbank_info($mac);
 
+        # Check for multihost
+        $node->{'multihost'} = [pf::node::check_multihost($mac, {'switch_id' => $node->{'last_switch'}, 'switch_port' => $node->{'last_port'}, 'connection_type' => $node->{'last_connection_type'}})];
+
         #    my $node_accounting = node_accounting_view($mac);
         #    if (defined($node_accounting->{'mac'})) {
         #        my $daily_bw = node_accounting_daily_bw($mac);
@@ -261,20 +265,17 @@ sub update {
     my $previous_node_ref;
 
     $previous_node_ref = node_view($mac);
+    $node_ref->{pid} ||= $default_pid;
     if ($previous_node_ref->{status} ne $node_ref->{status}) {
         # Status was modified
-        my $option;
         if ($node_ref->{status} eq $pf::node::STATUS_REGISTERED) {
-            $option = "register";
-            ( $result, $status_msg ) = pf::node::node_register($mac, $previous_node_ref->{pid}, %{$node_ref});
+            ( $result, $status_msg ) = pf::node::node_register($mac, $node_ref->{pid}, %{$node_ref});
         }
         elsif ($node_ref->{status} eq $pf::node::STATUS_UNREGISTERED) {
-            $option = "deregister";
             $result = node_deregister($mac, %{$node_ref});
         }
     }
     unless (defined $result) {
-        $node_ref->{pid} ||= $default_pid;
         $result = node_modify($mac, %{$node_ref});
     }
     if ($result) {
@@ -466,6 +467,41 @@ sub reevaluate {
     return ($status, $status_msg);
 }
 
+=head2 restartSwitchport
+
+Restart the switchport for a MAC address.
+
+=cut
+
+sub restartSwitchport {
+    my ($self, $mac) = @_;
+    my $logger = get_logger();
+    my ($status, $status_msg) = ($STATUS::OK);
+
+    my $locationlog = locationlog_view_open_mac($mac);
+    unless($locationlog) {
+        return ($STATUS::INTERNAL_SERVER_ERROR, "Unable to find node location.");
+    }
+
+    my $connection = pf::Connection->new;
+    $connection->backwardCompatibleToAttributes($locationlog->{connection_type});
+    unless($connection->transport eq "Wired") {
+        return ($STATUS::INTERNAL_SERVER_ERROR, "Trying to restart the port of a non-wired connection");
+    }
+
+    my $switch = pf::SwitchFactory->instantiate($locationlog->{switch});
+    unless($switch) {
+        return ($STATUS::INTERNAL_SERVER_ERROR, "Unable to instantiate switch ".$locationlog->{switch});
+    }
+
+    unless($switch->bouncePort($locationlog->{port})) {
+        $status = $STATUS::INTERNAL_SERVER_ERROR;
+        $status_msg = "Couldn't restart port.";
+    }
+
+    return ($status, $status_msg);
+}
+
 =head2 availableStatus
 
 =cut
@@ -501,7 +537,10 @@ sub violations {
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
-    return ($STATUS::OK, \@violations);
+    # Check for multihost
+    my @multihost = pf::node::check_multihost($mac);
+
+    return ($STATUS::OK, { 'violations' => \@violations, 'multihost' => \@multihost });
 }
 
 =head2 addViolation
@@ -823,6 +862,22 @@ sub bulkApplyBypassRole {
     return ($STATUS::OK, ["Bypass Role was changed for [_1] node(s)", $count]);
 }
 
+=head2 bulkRestartSwitchport
+
+Restart the switchport for a list of MAC addresses
+
+=cut
+
+sub bulkRestartSwitchport {
+    my ($self, @macs) = @_;
+    my $count = 0;
+    foreach my $mac (@macs) {
+        my ($status, undef) = $self->restartSwitchport($mac);
+        $count ++ if(is_success($status));
+    }
+    return ($STATUS::OK, ["Switchport was restarted for [_1] node(s)", $count]);
+}
+
 =head2 bulkReevaluateAccess
 
 =cut
@@ -865,6 +920,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

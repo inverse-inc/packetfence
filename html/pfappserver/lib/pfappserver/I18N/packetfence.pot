@@ -152,10 +152,6 @@ msgstr ""
 msgid "general.logo"
 msgstr ""
 
-#: conf/pf.conf.defaults:20
-msgid "general.dnsservers"
-msgstr ""
-
 #: conf/pf.conf.defaults:25
 msgid "general.dhcpservers"
 msgstr ""

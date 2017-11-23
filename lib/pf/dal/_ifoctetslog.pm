@@ -98,8 +98,8 @@ BEGIN {
 
     @PRIMARY_KEYS = qw(
         switch
-        read_time
         port
+        read_time
     );
 }
 

@@ -24,7 +24,9 @@ use pf::pfcmd::checkup;
 use pf::cluster;
 use pf::authentication;
 use pf::Authentication::constants qw($LOGIN_CHALLENGE);
-use pf::db;
+use pf::util;
+use pf::config qw(%Config);
+use DateTime;
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
@@ -66,7 +68,6 @@ sub auto :Private {
         $c->detach('challenge');
         return 0;
     }
-    $c->stash->{readonly_mode} = db_check_readonly();
 
     return 1;
 }
@@ -112,13 +113,16 @@ sub login :Local :Args(0) {
                     # Don't send a standard 302 redirect code; return the redirection URL in the JSON payload
                     # and perform the redirection on the client side
                     $c->response->status(HTTP_ACCEPTED);
+                    my $uri;
                     if ($challenge) {
-                        $c->stash->{success} = $c->uri_for($self->action_for('challenge'))->as_string;
+                        $uri = $c->uri_for($self->action_for('challenge'))->as_string;
                     } elsif ($req->params->{'redirect_url'}) {
-                        $c->stash->{success} = $req->params->{'redirect_url'};
-                    } else {
-                        $c->stash->{success} = $c->uri_for($self->action_for('index'))->as_string;
+                        $uri = $req->params->{'redirect_url'};
                     }
+                    if (!defined $uri || $uri !~ /^http/i) {
+                        $uri = $c->uri_for($self->action_for('index'))->as_string;
+                    }
+                    $c->stash->{success} = $uri;
                 } else {
                     $c->response->status(HTTP_UNAUTHORIZED);
                     $c->stash->{status_msg} = $c->loc("You don't have the rights to perform this action.");
@@ -132,6 +136,7 @@ sub login :Local :Args(0) {
             }
         };
         if ($@) {
+            $c->log->error($@);
             $c->response->status(HTTP_INTERNAL_SERVER_ERROR);
             $c->stash->{status_msg} = $c->loc("Unexpected error. See server-side logs for details.");
         }
@@ -199,6 +204,29 @@ sub logout :Local :Args(0) {
     $c->stash->{'status_msg'} = $c->loc("You have been logged out.");
 }
 
+our @ROLES_TO_ACTIONS = (
+    {
+        roles => [qw(SERVICES)],
+        action => 'status',
+    },
+    {
+        roles => [qw(REPORTS)],
+        action => 'reports',
+    },
+    {
+        roles => [qw(AUDITING_READ)],
+        action => 'auditing',
+    },
+    {
+        roles => [qw(NODES_READ)],
+        action => 'nodes',
+    },
+    {
+        roles => [qw(USERS_READ USERS_READ_SPONSORED)],
+        action => 'users',
+    },
+);
+
 =head2 index
 
 =cut
@@ -207,17 +235,19 @@ sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
     my @roles = $c->user->roles();
     my $action;
-    if (admin_can_do_any(\@roles,qw(SERVICES REPORTS))) {
-        $action = 'status';
-    } elsif( admin_can_do_any(\@roles,qw(USERS_READ USERS_READ_SPONSORED))) {
-        $action = 'users';
-    } elsif( admin_can_do_any(\@roles,qw(NODES_READ))) {
-        $action = 'nodes';
-    } elsif( admin_can_do_any_in_group(\@roles, 'CONFIGURATION_GROUP_READ' ) ) {
-        $action = 'configuration';
-    } else {
-        $action = 'logout';
-        $c->log->error("A role action is not properly defined");
+    for my $roles_to_action (@ROLES_TO_ACTIONS) {
+        if (admin_can_do_any(\@roles, @{$roles_to_action->{roles}})) {
+            $action = $roles_to_action->{action};
+            last;
+        }
+    }
+    unless ($action) {
+        if (admin_can_do_any_in_group(\@roles, 'CONFIGURATION_GROUP_READ')) {
+            $action = 'configuration';
+        } else {
+            $action = 'logout';
+            $c->log->error("A role action is not properly defined");
+        }
     }
     $c->response->redirect($c->uri_for($c->controller->action_for($action)));
 }
@@ -260,83 +290,6 @@ sub reports :Chained('object') :PathPart('reports') :Args(0) :AdminRole('REPORTS
 
 sub auditing :Chained('object') :PathPart('auditing') :Args(0) :AdminRole('AUDITING_READ') {
     my ( $self, $c ) = @_;
-    $c->forward('auditing_radius_log');
-}
-
-=head2 auditing_radius_log
-
-=cut
-
-sub auditing_radius_log :Chained('object') :PathPart('auditing/radius_log') :Args(0) :AdminRole('AUDITING_READ') {
-    my ( $self, $c ) = @_;
-    my $id = $c->user->id;
-    my ($status, $saved_searches) = $c->model("SavedSearch::RadiusLog")->read_all($id);
-    (undef, my $roles) = $c->model('Roles')->list();
-    my $sg = pf::ConfigStore::SwitchGroup->new;
-
-    my $switch_groups = [
-    map {
-        local $_ = $_;
-            my $id = $_;
-            {id => $id, members => [$sg->members($id, 'id')]}
-         } @{$sg->readAllIds}];
-    my $switches_list = pf::ConfigStore::Switch->new->readAll("Id");
-    my @switches_filtered = grep { !defined $_->{group} && $_->{Id} !~ /^group(.*)/ && $_->{Id} !~ m/\// && $_->{Id} ne 'default' } @$switches_list;
-    my $switches = [
-    map {
-        local $_ = $_;
-        my $id = $_->{Id};
-        {id => $id}
-        } @switches_filtered];
-    my $sources = getAllAuthenticationSources();
-    my $profiles = pf::ConfigStore::Profile->new->readAll("Id");
-    my $domains = pf::ConfigStore::Domain->new->readAll("Id");
-    my $realms = pf::ConfigStore::Realm->new->readAll("Id");
-    $c->stash({
-        template => 'admin/auditing_radius_log.tt',
-        saved_searches => $saved_searches,
-        saved_search_form => $c->form("SavedSearch"),
-        switch_groups => $switch_groups,
-        switches => $switches,
-        roles => $roles,
-        sources => $sources,
-        profiles => $profiles,
-        domains => $domains,
-        realms => $realms,
-    });
-}
-
-=head2 auditing_option82
-
-=cut
-
-sub auditing_option82 :Chained('object') :PathPart('auditing/option82') :Args(0) :AdminRole('AUDITING_READ') {
-    my ( $self, $c ) = @_;
-    my $id = $c->user->id;
-    my ($status, $saved_searches) = $c->model("SavedSearch::DHCPOption82")->read_all($id);
-    my $sg = pf::ConfigStore::SwitchGroup->new;
-
-    my $switch_groups = [
-    map {
-        local $_ = $_;
-            my $id = $_;
-            {id => $id, members => [$sg->members($id, 'id')]}
-         } @{$sg->readAllIds}];
-    my $switches_list = pf::ConfigStore::Switch->new->readAll("Id");
-    my @switches_filtered = grep { !defined $_->{group} && $_->{Id} !~ /^group(.*)/ && $_->{Id} !~ m/\// && $_->{Id} ne 'default' } @$switches_list;
-    my $switches = [
-    map {
-        local $_ = $_;
-        my $id = $_->{Id};
-        {id => $id}
-        } @switches_filtered];
-
-    $c->stash({
-        saved_searches => $saved_searches,
-        saved_search_form => $c->form("SavedSearch"),
-        switch_groups => $switch_groups,
-        switches => $switches,
-    });
 }
 
 =head2 nodes
@@ -356,7 +309,7 @@ sub nodes :Chained('object') :PathPart('nodes') :Args(0) :AdminRole('NODES_READ'
 
     my $id = $c->user->id;
     my ($status, $saved_searches) = $c->model("SavedSearch::Node")->read_all($id);
-    (undef, my $roles) = $c->model('Roles')->list();
+    (undef, my $roles) = $c->model('Config::Roles')->listFromDB();
     my $switches_list = pf::ConfigStore::Switch->new->readAll("Id");
     my @switches_filtered = grep { !defined $_->{group} && $_->{Id} !~ /^group(.*)/ && $_->{Id} ne 'default' } @$switches_list;
     my $switches = [
@@ -387,6 +340,10 @@ sub users :Chained('object') :PathPart('users') :Args(0) :AdminRoleAny('USERS_RE
         saved_searches => $saved_searches,
         saved_search_form => $c->form("SavedSearch")
     );
+
+    # Remove some CSP restrictions to accomodate Chosen (the select-on-steroid widget):
+    #  - Allows use of inline source elements (eg style attribute)
+    $c->stash->{csp_headers} = { style => "'unsafe-inline'" };
 }
 
 =head2 configuration
@@ -396,6 +353,63 @@ sub users :Chained('object') :PathPart('users') :Args(0) :AdminRoleAny('USERS_RE
 sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
     my ( $self, $c, $section ) = @_;
 
+    $c->stash->{subsections} = $c->forward('Controller::Configuration', 'all_subsections');
+
+    # Remove some CSP restrictions to accomodate ACE (the text editor used for portal profiles files):
+    #  - Allows loading resources via the data scheme (eg Base64 encoded images);
+    #  - Allows use of inline source elements (eg style attribute)
+    $c->stash->{csp_headers} = { img => 'data:', style => "'unsafe-inline'", script => 'blob:' };
+}
+
+=head2 time_offset
+
+Returns a json structure that represents the time offset of the server time
+
+    {
+      "time_offset" : {
+        "start" : {
+          "time" : "11:00",
+          "date" : "2017-09-01"
+        },
+        "end" : {
+          "time" : "12:00",
+          "date" : "2017-09-01"
+        }
+      }
+    }
+
+It expects a normalize_time timespec to calculate the server time
+
+=cut
+
+
+sub time_offset :Chained('object') :PathPart('time_offset') :Args(1) {
+    my ( $self, $c, $time_spec) = @_;
+    $c->stash->{current_view} = 'JSON';
+    my $seconds = normalize_time($time_spec) // 0;
+    my $end_date = DateTime->now(time_zone => $Config{general}{timezone});
+    my $start_date = $end_date->clone->subtract(seconds => $seconds);
+    $c->stash(
+        time_offset => {
+            start => {
+                time => $start_date->hms,
+                date => $start_date->ymd,
+            },
+            end => {
+                time => $end_date->hms,
+                date => $end_date->ymd,
+            },
+        },
+    );
+    return ;
+}
+
+=head2 help
+
+=cut
+
+sub help :Chained('object') :PathPart('help') :Args(0) {
+    my ( $self, $c ) = @_;
 }
 
 =head2 checkup
@@ -406,6 +420,17 @@ sub checkup :Chained('object') :PathPart('checkup') :Args(0) {
     my ( $self, $c ) = @_;
     my @problems = sanity_check();
     $c->stash->{items}->{problems} = \@problems;
+    $c->stash->{current_view} = 'JSON';
+}
+
+=head2 fixpermissions
+
+=cut
+
+sub fixpermissions :Chained('object') :PathPart('fixpermissions') :Args(0) {
+    my ( $self, $c ) = @_;
+    my @result = pf::util::fix_files_permissions();
+    $c->stash->{item}->{fixpermissions_result} = \@result;
     $c->stash->{current_view} = 'JSON';
 }
 
@@ -432,6 +457,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

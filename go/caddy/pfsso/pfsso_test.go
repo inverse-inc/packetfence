@@ -3,8 +3,8 @@ package pfsso
 import (
 	"bytes"
 	"context"
-	"github.com/fingerbank/processor/log"
-	"github.com/fingerbank/processor/sharedutils"
+	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"net/http/httptest"

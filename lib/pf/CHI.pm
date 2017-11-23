@@ -15,7 +15,12 @@ pf::CHI
 use strict;
 use warnings;
 use base qw(CHI);
-use Module::Pluggable search_path => ['CHI::Driver', 'pf::Role::CHI'], sub_name => '_preload_chi_drivers', require => 1, except => qr/(^CHI::Driver::.*Test|FastMmap)/;
+use Module::Pluggable
+  search_path => [ 'CHI::Driver', 'pf::Role::CHI' ],
+  sub_name    => '_preload_chi_drivers',
+  require     => 1,
+  inner       => 0,
+  except      => qr/(^CHI::Driver::.*Test|FastMmap)/;
 use Clone();
 use pf::file_paths qw(
     $chi_defaults_config_file
@@ -69,7 +74,7 @@ Hash::Merge::specify_behavior(
     'PF_CHI_MERGE'
 );
 
-our @CACHE_NAMESPACES = qw(configfilesdata configfiles httpd.admin httpd.portal pfdns switch.overlay ldap_auth omapi fingerbank firewall_sso switch metadefender accounting clustering person_lookup route_int gvwstate_quorum);
+our @CACHE_NAMESPACES = qw(configfilesdata configfiles httpd.admin httpd.portal pfdns switch.overlay ldap_auth omapi fingerbank firewall_sso switch metadefender accounting clustering person_lookup route_int provisioning switch_distributed);
 
 our $chi_default_config = pf::IniFiles->new( -file => $chi_defaults_config_file) or die "Cannot open $chi_defaults_config_file";
 
@@ -77,7 +82,6 @@ our $chi_config = pf::IniFiles->new( -file => $chi_config_file, -allowempty => 1
 
 our $pf_default_config = pf::IniFiles->new( -file => $pf_default_file) or die "Cannot open $pf_default_file";
 
-our $pf_config = pf::IniFiles->new( -file => $pf_config_file, -allowempty => 1, -import => $pf_default_config) or die "Cannot open $pf_config_file";
 
 our %DEFAULT_CONFIG = (
     'namespace' => {
@@ -171,6 +175,7 @@ sub setFileDriverParams {
 sub setDBIDriverParams {
     my ($storage, $dbi) = @_;
     $storage->{dbh} = sub {
+        my $pf_config = pf::IniFiles->new( -file => $pf_config_file, -allowempty => 1, -import => $pf_default_config) or die "Cannot open $pf_config_file";
         my ($db,$host,$port,$user,$pass) = @{sectionData($pf_config, "database")}{qw(db host port user pass)};
         return DBI->connect( "dbi:mysql:dbname=$db;host=$host;port=$port",
         $user, $pass, { RaiseError => 0, PrintError => 0 } );

@@ -31,7 +31,7 @@ sub build {
     # CAPTIVE-PORTAL RELATED
     # Captive Portal constants
     my %CAPTIVE_PORTAL = (
-        "NET_DETECT_INITIAL_DELAY"         => floor( $Config{'trapping'}{'redirtimer'} / 4 ),
+        "NET_DETECT_INITIAL_DELAY"         => floor( $Config{'fencing'}{'redirtimer'} / 4 ),
         "NET_DETECT_RETRY_DELAY"           => 2,
         "NET_DETECT_PENDING_INITIAL_DELAY" => 2 * 60,
         "NET_DETECT_PENDING_RETRY_DELAY"   => 30,

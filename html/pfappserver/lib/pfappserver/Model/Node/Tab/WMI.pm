@@ -34,7 +34,7 @@ sub process_view {
     my $host_ip = $node->{iplog}->{ip};
     my $scan_model = $c->model("Config::Scan");
     eval {
-        my $profile = pf::Portal::ProfileFactory->instantiate($mac);
+        my $profile = pf::Connection::ProfileFactory->instantiate($mac);
         foreach my $scan (split(/\s*,\s*/, $profile->{_scans})) {
             ($status, my $item) = $scan_model->read($scan);
             if (is_success($status)) {

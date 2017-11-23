@@ -8,7 +8,14 @@
           [% FOREACH column IN columns %]
           <tr>
             <td>[% l(headings.$column) %]</td>
+            [% IF column == "switch_id" %]
+              [% SET switch_id = item.$column%]
+            <td>
+              [% switch_id %][% IF switch_config.exists(switch_id) %] ([% switch_config.item(switch_id).description %])[%END%]
+            </td>
+            [% ELSE %]
             <td>[% item.$column %]</td>
+            [% END %]
           </tr>
           [% END %]
         </tbody>

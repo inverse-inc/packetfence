@@ -42,10 +42,9 @@ use Data::Dumper;
 use File::Basename qw(basename);
 use File::Tail;
 use Getopt::Long;
-use Net::SMTP;
 use Pod::Usage;
 use POSIX;
-
+use Systemd::Daemon qw{ -soft };
 
 use constant {
     PFCMD_FILE => INSTALL_DIR . "/bin/pfcmd"
@@ -85,7 +84,7 @@ use pf::config::util;
 use pf::services::util;
 use pf::violation;
 use pf::role::custom $ROLE_API_LEVEL;
-use pf::Portal::ProfileFactory;
+use pf::Connection::ProfileFactory;
 
 pf::SwitchFactory->preloadConfiguredModules();
 
@@ -187,8 +186,8 @@ foreach my $switch_id ( grep { $_ ne 'default' } keys %{ pf::SwitchFactory->conf
 }
 
 db_disconnect();
-add_new_threads_to_list( "signalHandlerThreadListQueued", $Config{'vlan'}{'nbtraphandlerthreads'} );
-add_new_threads_to_list( "signalHandlerTrapListQueued"  , $Config{'vlan'}{'nbtrapparserthreads'}  );
+add_new_threads_to_list( "signalHandlerThreadListQueued", $Config{'snmp_traps'}{'nbtraphandlerthreads'} );
+add_new_threads_to_list( "signalHandlerTrapListQueued"  , $Config{'snmp_traps'}{'nbtrapparserthreads'}  );
 db_connect();
 
 sub add_new_threads_to_list {
@@ -217,6 +216,8 @@ sub add_new_threads_to_list {
 # }}}1
 
 # main program - read trap lines and addTrapLineToQueue($trapLine) {{{1
+
+Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
 my $currentTrapLine = undef;
 my $completeTrapLine;
 my $inMultiLineTrap = 0;
@@ -947,6 +948,10 @@ sub handleTrap {
 
     # }}}2
 
+    # update last_seen of MAC address as some activity from it has been seen
+    node_update_last_seen($trapMac);
+
+
     # test if act on this trap {{{2
     my $switch = getSwitch($switch_id);
 
@@ -1112,7 +1117,7 @@ sub handleTrap {
                     && ( $locationlog[0]->{'mac'} ne '' ) )
                 {
                     if ( $locationlog[0]->{'mac'} =~ /^$mac$/i ) {
-                        my $role =  $role_obj->fetchRoleForNode({mac => $mac, node_info => node_attributes($mac), switch => $switch, ifIndex => $switch_port, connection_type => $WIRED_SNMP_TRAPS, profile => pf::Portal::ProfileFactory->instantiate($mac)});
+                        my $role =  $role_obj->fetchRoleForNode({mac => $mac, node_info => node_attributes($mac), switch => $switch, ifIndex => $switch_port, connection_type => $WIRED_SNMP_TRAPS, profile => pf::Connection::ProfileFactory->instantiate($mac)});
                         my $fetchedVlan = $role->{vlan} || $switch->getVlanByName($role->{role});
                         if (( $locationlog[0]->{'vlan'} == $vlan )
                             && ($vlan == $fetchedVlan)
@@ -1304,7 +1309,7 @@ sub handleTrap {
                 locationlog_update_end_mac($oldPC);
                 $logger->info("authorizing $trapMac (old entry $oldPC) at new location $switch_id ifIndex $switch_port");
                 my $role = $role_obj->fetchRoleForNode({
-                    mac => $trapMac, node_info => node_attributes($trapMac), switch => $switch, ifIndex => $switch_port, connection_type => $WIRED_SNMP_TRAPS, profile => pf::Portal::ProfileFactory->instantiate($trapMac)
+                    mac => $trapMac, node_info => node_attributes($trapMac), switch => $switch, ifIndex => $switch_port, connection_type => $WIRED_SNMP_TRAPS, profile => pf::Connection::ProfileFactory->instantiate($trapMac)
                 });
                 my $correctVlanForThisNode = $role->{vlan} || $switch->getVlanByName($role->{role});
                 $switch->authorizeMAC( $switch_port, $oldPC, $trapMac, $switch->getVlan($switch_port), $correctVlanForThisNode );
@@ -1332,7 +1337,7 @@ sub handleTrap {
                     }
                 }
                 my $role = $role_obj->fetchRoleForNode({
-                    mac => $trapMac, node_info => node_attributes($trapMac), switch => $switch, ifIndex => $switch_port, connection_type => $WIRED_SNMP_TRAPS, profile => pf::Portal::ProfileFactory->instantiate($trapMac)
+                    mac => $trapMac, node_info => node_attributes($trapMac), switch => $switch, ifIndex => $switch_port, connection_type => $WIRED_SNMP_TRAPS, profile => pf::Connection::ProfileFactory->instantiate($trapMac)
                 });
                 my $correctVlanForThisNode = $role->{vlan} || $switch->getVlanByName($role->{role});
                 if ( defined($old_mac_to_remove) ) {
@@ -1785,7 +1790,7 @@ sub normal_sighandler {
     my $logger     = get_logger('pfsetvlan');
     my $lockLogger = get_logger('pfsetvlan::locking');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
-    if (   ( isenabled( $Config{'vlan'}{'closelocationlogonstop'} ) )
+    if (   ( isenabled( $Config{'snmp_traps'}{'closelocationlogonstop'} ) )
         && ( threads->self->tid() == 0 ) )
     {
 
@@ -1857,7 +1862,7 @@ sub node_determine_and_set_into_VLAN {
 
     my $role_obj = new pf::role::custom();
 
-    my $role = $role_obj->fetchRoleForNode({ mac => $mac, node_info => node_attributes($mac), switch => $switch, ifIndex => $ifIndex, connection_type => $connection_type, profile => pf::Portal::ProfileFactory->instantiate($mac)});
+    my $role = $role_obj->fetchRoleForNode({ mac => $mac, node_info => node_attributes($mac), switch => $switch, ifIndex => $ifIndex, connection_type => $connection_type, profile => pf::Connection::ProfileFactory->instantiate($mac)});
     my $vlan = $role->{vlan} || $switch->getVlanByName($role->{role});
 
     $switch->setVlan(
@@ -1876,14 +1881,14 @@ sub perform_trap_limiting {
     my $logger = get_logger('pfsetvlan');
 
     # skipping if feature is disabled
-    return $FALSE if (isdisabled($Config{'vlan'}{'trap_limit'}));
+    return $FALSE if (isdisabled($Config{'snmp_traps'}{'trap_limit'}));
 
     # skipping if trapIfIndex is undef
     return $FALSE if (!defined($switchIfIndex));
 
     # Poking tied config files here instead of declaring them globally is arguably discutable on terms of performances
-    my $trapsLimitThreshold = $Config{'vlan'}{'trap_limit_threshold'};
-    my $trapsLimitAction = $Config{'vlan'}{'trap_limit_action'};
+    my $trapsLimitThreshold = $Config{'snmp_traps'}{'trap_limit_threshold'};
+    my $trapsLimitAction = $Config{'snmp_traps'}{'trap_limit_action'};
 
     my $switchId = $switch->{_id};
     my $cached_traps_switchIfIndex = $traps_switchIfIndex_cache->get($switchId.$switchIfIndex);
@@ -1924,7 +1929,7 @@ sub perform_trap_limiting {
     }
 
     $logger->warn(
-        "We received many traps (over $Config{'vlan'}{'trap_limit_threshold'}) in a minute "
+        "We received many traps (over $Config{'snmp_traps'}{'trap_limit_threshold'}) in a minute "
         . "from ifIndex $switchIfIndex of switch $switch->{_id}"
     );
 
@@ -2026,7 +2031,7 @@ sub handle_wireless_ips {
    my ($trapMac) = @_;
 
    # Return if wireless IPS feature is disabled
-   return if (isdisabled($Config{'trapping'}{'wireless_ips'}));
+   return if (isdisabled($Config{'fencing'}{'wireless_ips'}));
 
    # Grab the OUI part
    $trapMac =~ /^([0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}).*$/;
@@ -2036,7 +2041,7 @@ sub handle_wireless_ips {
    #compare the strings, and output the percentage of match
    my $match;
    my %matchingNodes;
-   my $threshold = $Config{'trapping'}{'wireless_ips_threshold'};
+   my $threshold = $Config{'fencing'}{'wireless_ips_threshold'};
 
    if (defined($nodes[0])) {
     foreach (@nodes) {
@@ -2107,6 +2112,7 @@ sub add_to_switch_locker {
 END {
     if ( ( !$man ) && ( !$help ) ) {
         $logger->info("stopping pfsetvlan");
+        Systemd::Daemon::notify( STOPPING => 1 );
         deletepid();
         foreach my $t (@completeThreadList) {
             $t->detach;

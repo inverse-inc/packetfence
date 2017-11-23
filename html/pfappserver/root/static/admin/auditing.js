@@ -1,32 +1,8 @@
-$(function() { // DOM ready
-});
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
 
 function init() {
     $('#section').on('section.loaded', function(event) {
-        $('#report_radius_audit_log .radiud_audit_log_datetimepicker a').click(function(event) {
-            event.preventDefault();
-            var a = event.currentTarget;
-            var timespec = a.hash.replace(/^#last/,"");
-            var amount = parseInt(/^\d+/.exec(timespec)[0]);
-            var type = /[^\d]+$/.exec(timespec)[0];
-            var milliseconds;
-            if(type === "mins") {
-                milliseconds = amount * 60 * 1000;
-            } else if( type === "hours" || type === "hour" ) {
-                milliseconds = amount * 60 * 60 * 1000;
-            }
-            var end_time = new Date();
-            var start_time = new Date(end_time.getTime() - milliseconds);
-            var start_date_input = $('#start_date');
-            var start_time_input = $('#start_time');
-            start_date_input.datepicker("setDate", start_time);
-            start_time_input.timepicker("setTime",start_time.toTimeString());
-            var end_date_input = $('#end_date');
-            var end_time_input = $('#end_time');
-            end_date_input.attr("value", "");
-            end_time_input.attr("value", "");
-            return false;
-        });
+        // Initialization common to both sections (RADIUS Audit Log & DHCP Option82)
         $('[id$="Empty"]').on('click', '[href="#add"]', function(event) {
             var match = /(.+)Empty/.exec(event.delegateTarget.id);
             var id = match[1];
@@ -36,17 +12,14 @@ function init() {
             return false;
         });
         var modal  = $("#savedSearch");
-        modal.on('shown', function(event) {
-            $(this).find(':input:first').focus();
-        });
         var saved_search_form = $("#savedSearchForm");
         var search_form = $('#search');
         saved_search_form.on('submit', function(event) {
             modal.modal('hide');
             var uri = new URI(search_form.attr('action'));
-            var query = uri.resource()
-                + "?"
-                + search_form.serialize();
+            var query = uri.resource() +
+                "?" +
+                search_form.serialize();
             query = query.replace(/^\//,'');
             saved_search_form
             .find('[name="query"]')
@@ -74,7 +47,8 @@ function init() {
             $(this).find(':input:first').focus();
         });
     });
+
     /* Initialize datepickers */
-    $(window).hashchange(pfOnHashChange(updateSection,'/radiuslog/'));
-    $(window).hashchange();
+  $(window).hashchange(pfOnHashChange(updateSection,'/auditing/radiuslog/'));
+  $(window).hashchange();
 }

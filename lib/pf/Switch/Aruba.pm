@@ -128,9 +128,6 @@ sub parseTrap {
         $trapHashRef->{'trapType'}    = 'dot11Deauthentication';
         $trapHashRef->{'trapMac'} = parse_mac_from_trap($1);
 
-    } elsif ( $trapString =~ /\.1\.3\.6\.1\.4\.1\.14823\.2\.3\.1\.11\.1\.1\.5\.0 = $SNMP::MAC_ADDRESS_FORMAT/ ) {
-        $trapHashRef->{'trapType'}    = 'wirelessIPS';
-        $trapHashRef->{'trapMac'} = parse_mac_from_trap($1);
     } else {
         $logger->debug("trap currently not handled");
         $trapHashRef->{'trapType'} = 'unknown';
@@ -556,16 +553,56 @@ sub parseExternalPortalRequest {
     my %params = ();
 
     %params = (
-        switch_id       => defined($req->param('switchip')) ? $req->param('switchip') : $req->param('apname'),
-        client_mac      => clean_mac($req->param('mac')),
-        client_ip       => $req->param('ip'),
-        ssid            => $req->param('essid'),
-        redirect_url    => $req->param('url'),
+        switch_id               => defined($req->param('switchip')) ? $req->param('switchip') : $req->param('apname'),
+        client_mac              => clean_mac($req->param('mac')),
+        client_ip               => $req->param('ip'),
+        ssid                    => $req->param('essid'),
+        redirect_url            => $req->param('url'),
+        synchronize_locationlog =>  $FALSE,
     );
 
     return \%params;
 }
 
+=item returnAuthorizeWrite
+
+Return radius attributes to allow write access
+
+=cut
+
+sub returnAuthorizeWrite {
+   my ($self, $args) = @_;
+   my $logger = $self->logger;
+   my $radius_reply_ref = {};
+   my $status;
+   $radius_reply_ref->{'Class'} = 'root';
+   $radius_reply_ref->{'Reply-Message'} = "Switch enable access granted by PacketFence";
+   $logger->info("User $args->{'user_name'} logged in $args->{'switch'}{'_id'} with write access");
+   my $filter = pf::access_filter::radius->new;
+   my $rule = $filter->test('returnAuthorizeWrite', $args);
+   ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+   return [$status, %$radius_reply_ref];
+}
+
+=item returnAuthorizeRead
+
+Return radius attributes to allow read access
+
+=cut
+
+sub returnAuthorizeRead {
+   my ($self, $args) = @_;
+   my $logger = $self->logger;
+   my $radius_reply_ref = {};
+   my $status;
+   $radius_reply_ref->{'Class'} = 'read-only';
+   $radius_reply_ref->{'Reply-Message'} = "Switch read access granted by PacketFence";
+   $logger->info("User $args->{'user_name'} logged in $args->{'switch'}{'_id'} with read access");
+   my $filter = pf::access_filter::radius->new;
+   my $rule = $filter->test('returnAuthorizeRead', $args);
+   ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+   return [$status, %$radius_reply_ref];
+}
 
 =item
 

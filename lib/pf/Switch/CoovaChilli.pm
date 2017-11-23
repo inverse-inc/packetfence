@@ -57,12 +57,13 @@ sub parseExternalPortalRequest {
     my %params = ();
 
     %params = (
-        switch_id       => $req->connection->remote_ip,
-        client_mac      => clean_mac($req->param('mac')),
-        client_ip       => $req->param('ip'),
-        ssid            => $req->param('ssid'),
-        redirect_url    => $req->param('userurl'),
-        status_code     => $req->param('res'),
+        switch_id               => $req->param('nasid'),
+        client_mac              => clean_mac($req->param('mac')),
+        client_ip               => $req->param('ip'),
+        ssid                    => $req->param('ssid'),
+        redirect_url            => $req->param('userurl'),
+        status_code             => $req->param('res'),
+        synchronize_locationlog => $TRUE,
     );
 
     return \%params;
@@ -81,12 +82,13 @@ sub getAcceptForm {
 
     $logger->debug("Generating web release HTML form");
 
-    my $uamip = $self->{_controllerIp};
+    my $uamip = $portalSession->param("ecwp-original-param-uamip");
+    my $uamport = $portalSession->param("ecwp-original-param-uamport");
     my $html_form = qq[
         <script type="text/javascript" src="/content/ChilliLibrary.js"></script>
         <script type="text/javascript">
             chilliController.host = "$uamip";
-            chilliController.port = "3990";
+            chilliController.port = "$uamport";
             function logon() {
                 chilliController.logon("$mac", "$mac");
             }

@@ -71,7 +71,7 @@ has_field 'categories' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type password port nac_name categories networks cache_updates cache_timeout) ],
+   render_list => [ qw(id type password port nac_name categories networks cache_updates cache_timeout username_format default_realm) ],
   );
 
 
@@ -86,7 +86,7 @@ has_block definition =>
 sub options_categories {
     my $self = shift;
 
-    my ($status, $result) = $self->form->ctx->model('Roles')->list();
+    my ($status, $result) = $self->form->ctx->model('Config::Roles')->listFromDB();
     my @roles = map { $_->{name} => $_->{name} } @{$result} if ($result);
     return ('' => '', @roles);
 }
@@ -120,5 +120,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

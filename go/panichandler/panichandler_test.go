@@ -2,7 +2,7 @@ package panichandler
 
 import (
 	"context"
-	"github.com/fingerbank/processor/sharedutils"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"

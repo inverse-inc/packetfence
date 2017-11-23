@@ -21,6 +21,8 @@ DB_USER=$(perl -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{user}
 DB_PWD=$(perl -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{pass}');
 DB_NAME=$(perl -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{db}');
 DB_HOST=$(perl -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{host}');
+REP_USER=$(perl -I/usr/local/pf/lib -Mpf::config -e 'print $pf::config::Config{active_active}{galera_replication_username}');
+REP_PWD=$(perl -I/usr/local/pf/lib -Mpf::config -e 'print $pf::config::Config{active_active}{galera_replication_password}');
 PF_DIRECTORY='/usr/local/pf/'
 BACKUP_DIRECTORY='/root/backup/'
 BACKUP_DB_FILENAME='packetfence-db-dump'
@@ -72,8 +74,21 @@ else
     echo "ERROR: There is not enough space in $BACKUP_DIRECTORY to safely backup files. Skipping the backup." > /usr/local/pf/var/backup_files.status
 fi 
 
-# Is the database run on the current server?
-if [ -f /var/run/mysqld/mysqld.pid ] || [ -f /var/run/mariadb/mariadb.pid ]; then
+SHOULD_BACKUP=1
+IS_CLUSTER=0
+# If we are using Galera cluster and that we're not the first server in the galera incomming addresses, we will not backup
+if [ -f /var/lib/mysql/grastate.dat ]; then
+    IS_CLUSTER=1
+    FIRST_SERVER=`mysql -u$REP_USER -p$REP_PWD -e 'show status like "wsrep_incoming_addresses";' | tail -1 | awk '{ print $2 }' | awk -F "," '{ print $1 }' | awk -F ":" '{ print $1 }'`
+    if ! ip a | grep $FIRST_SERVER > /dev/null; then
+        SHOULD_BACKUP=0
+    fi
+fi
+
+# Is the database running on the current server and should we be running a backup ?
+if [ $SHOULD_BACKUP -eq 1 ] && { [ -f /var/run/mysqld/mysqld.pid ] || [ -f /var/run/mariadb/mariadb.pid ] || [ -f /var/lib/mysql/`hostname`.pid ]; }; then
+
+    /usr/local/pf/addons/database-cleaner.pl --table=radacct --date-field=acctupdatetime --older-than="1 WEEK" --update --update-field=acctstoptime
 
     /usr/local/pf/addons/database-cleaner.pl --table=radacct --date-field=acctstarttime --older-than="1 WEEK" --additionnal-condition="acctstoptime IS NOT NULL"
     
@@ -90,10 +105,22 @@ if [ -f /var/run/mysqld/mysqld.pid ] || [ -f /var/run/mariadb/mariadb.pid ]; the
     BACKUPS_AVAILABLE_SPACE=`df --output=avail $BACKUP_DIRECTORY | awk 'NR == 2 { print $1  }'`
     MYSQL_USED_SPACE=`du -s /var/lib/mysql | awk '{ print $1 }'`
     if (( $BACKUPS_AVAILABLE_SPACE > (( $MYSQL_USED_SPACE /2 )) )); then 
+
+        if [ $IS_CLUSTER -eq 1 ]; then
+             echo "Temporarily stopping Galera cluster sync for DB backup"
+             mysql -u$REP_USER -p$REP_PWD -e 'set global wsrep_desync=ON;'
+        fi
+
         if [ $PERCONA_XTRABACKUP_INSTALLED -eq 1 ]; then
             find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-innobackup-*.xbstream.gz" -mtime +$NB_DAYS_TO_KEEP_DB -delete
             echo "----- Backup started on `date +%F_%Hh%M` -----" >> /usr/local/pf/logs/innobackup.log
-            innobackupex --user=$DB_USER --password=$DB_PWD  --no-timestamp --stream=xbstream  /tmp/ 2>> /usr/local/pf/logs/innobackup.log | gzip - > $BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-innobackup-`date +%F_%Hh%M`.xbstream.gz
+            INNO_TMP="/tmp/pf-innobackups"
+            mkdir -p $INNO_TMP
+            if [ $IS_CLUSTER -eq 1 ]; then
+                innobackupex --user=$REP_USER --password=$REP_PWD  --no-timestamp --stream=xbstream --tmpdir=$INNO_TMP $INNO_TMP 2>> /usr/local/pf/logs/innobackup.log | gzip - > $BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-innobackup-`date +%F_%Hh%M`.xbstream.gz
+            else
+                innobackupex --user=$DB_USER --password=$DB_PWD  --no-timestamp --stream=xbstream --tmpdir=$INNO_TMP $INNO_TMP 2>> /usr/local/pf/logs/innobackup.log | gzip - > $BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-innobackup-`date +%F_%Hh%M`.xbstream.gz
+            fi
             tail -1 /usr/local/pf/logs/innobackup.log | grep 'completed OK!'
             BACKUPRC=$?
             if (( $BACKUPRC > 0 )); then 
@@ -116,6 +143,12 @@ if [ -f /var/run/mysqld/mysqld.pid ] || [ -f /var/run/mariadb/mariadb.pid ]; the
                 echo "OK" > /usr/local/pf/var/backup_db.status
             fi
         fi
+        
+        if [ $IS_CLUSTER -eq 1 ]; then
+             echo "Reenabling Galera cluster sync"
+             mysql -u$REP_USER -p$REP_PWD -e 'set global wsrep_desync=OFF;'
+        fi
+
     else 
         echo "There is not enough space in $BACKUP_DIRECTORY to safely backup the database. Skipping backup." >&2
         echo "There is not enough space in $BACKUP_DIRECTORY to safely backup the database. Skipping backup." > /usr/local/pf/var/backup_db.status

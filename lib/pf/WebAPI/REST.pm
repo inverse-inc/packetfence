@@ -42,11 +42,12 @@ sub handler {
     my $content = $self->get_all_content($r);
     my $data = eval {decode_json $content };
     if ($@) {
-        get_logger->error($@);
+        my $error = $@;
+        get_logger->error($error);
         return $self->send_response(
             $r,
             Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE,
-            $self->make_error_object("Cannot parse request", $@),
+            $self->make_error_object("Cannot parse request", $error),
         );
     }
     my $ref_type = ref $data;
@@ -109,15 +110,16 @@ sub handler {
         }
     };
     if ($@) {
-        if(ref($@) eq "pf::api::error"){
-            return $self->send_response($r, $@->status, $@->response);
+        my $error = $@;
+        if(ref($error) eq "pf::api::error"){
+            return $self->send_response($r, $error->status, $error->response);
         }
         else {
-            get_logger->error($@);
+            get_logger->error($error);
             return $self->send_response(
                 $r,
                 Apache2::Const::HTTP_INTERNAL_SERVER_ERROR,
-                $self->make_error_object($@)
+                $self->make_error_object($error)
             );
         }
     }

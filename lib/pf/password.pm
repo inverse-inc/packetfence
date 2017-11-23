@@ -66,7 +66,7 @@ BEGIN {
     our ( @ISA, @EXPORT_OK );
     @ISA    = qw(Exporter);
     @EXPORT_OK = qw(
-        $AUTH_SUCCESS $AUTH_FAILED_INVALID $AUTH_FAILED_EXPIRED $AUTH_FAILED_NOT_YET_VALID $BCRYPT $PLAINTEXT $NTLM
+        $AUTH_SUCCESS $AUTH_FAILED_INVALID $AUTH_FAILED_EXPIRED $AUTH_FAILED_NOT_YET_VALID $BCRYPT $PLAINTEXT $NTLM view
     );
 }
 
@@ -309,7 +309,7 @@ sub _update_from_actions {
 
     _update_field_for_action(
         $data,$actions,'valid_from',
-        'valid_from',undef
+        'valid_from', '0000-00-00 00:00:00'
     );
     _update_field_for_action(
         $data,$actions,'expiration',
@@ -331,7 +331,14 @@ sub _update_from_actions {
         $data,$actions,$Actions::SET_ACCESS_DURATION,
         'access_duration',undef
     );
-
+    _update_field_for_action(
+        $data,$actions,$Actions::SET_TIME_BALANCE,
+        'time_balance',undef
+    );
+    _update_field_for_action(
+        $data,$actions,$Actions::SET_BANDWIDTH_BALANCE,
+        'bandwidth_balance',undef
+    );
     my @values = grep { $_->{type} eq $Actions::SET_ROLE } @{$actions};
     if (scalar @values > 0) {
         my $role_id = nodecategory_lookup( $values[0]->{value} );
@@ -379,8 +386,8 @@ sub modify_actions {
         @{$password}{@ACTION_FIELDS}, $pid
     );
     my $rows = $query->rows;
-    $logger->info("pid $pid modified") if $rows;
-    return ($rows);
+    $logger->info("pid $pid modified") if $rows == 1;
+    return ($rows == -1 ? 0 : 1);
 }
 
 

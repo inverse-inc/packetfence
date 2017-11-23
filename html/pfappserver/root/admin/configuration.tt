@@ -1,211 +1,234 @@
 [%  jsFiles = [
-        'app/jquery-ui',
-        'app/ace/ace'
-        'app/bootstrap-datepicker',
-        'app/bootstrap-timepicker',
+        'js/vendor/ace/ace',
         'app/client/fineuploader',
         'app/client/jquery-plugin',
-        'app/chosen.jquery.min',
-        'app/jquery.ba-hashchange',
         'app/pf-bootstrap-swap-class',
-        'admin/configuration',
+        'js/configuration',
         'admin/searches',
-        'admin/config/items',
-        'admin/config/interfaces',
-        'admin/config/switches',
-        'admin/config/floatingdevices',
-        'admin/config/fingerbank-devices',
-        'admin/config/fingerbank-settings',
-        'admin/config/domains',
-        'admin/config/authentication',
-        'admin/config/portal_profile',
-        'admin/config/pfdetect',
-        'admin/config/provisioners',
-        'admin/config/violations',
-        'admin/config/soh',
-        'admin/config/roles',
-        'admin/config/scan-wmi',
-        'admin/config/filters',
-        'admin/config/portal_modules',
         'js/interface',
-        'js/bootstrapSwitch',
         'js/tree.jquery',
         ]
      cssFiles = [
-        'app/bootstrap-datepicker',
-        'app/bootstrap-timepicker',
         'app/client/fineuploader',
-        'css/bootstrapSwitch',
         'css/jqtree',
         'admin/config/switches',
-        'admin/config/portal_modules',
         'admin/config/violations',
         ] -%]
 
-<style type="text/css">
-.row-fluid [class*="span"] {
-    display: inline-block;
-}
-/* fix inputs in tables */
-table input[type="text"] {
-    margin-bottom: 0px;
-}
-/* improve apparence of folders in files list */
-tr[data-swap] {
-    background-color: #fff;
-}
-tr[data-swap] > td {
-    border-left: 4px solid #ddd;
-    padding-left: 10px;
-    padding-right: 0;
-    margin-right: 0;
-}
-/* authentication sources tables */
-table.sources {
-    table-layout: fixed;
-}
-</style>
 [% MACRO list_entry(controller_name, action, description) BLOCK %]
               <li>
                 <a href="[%c.pf_hash_for(c.controller(controller_name).action_for(action),[]) %]">[% l(description || action || controller_name) %]</a>
               </li>
 [% END -%]
 
-[% MACRO pf_section_entry(section, description) BLOCK %]
-              <li>
+[% MACRO pf_section_entry(section, description, subsections) BLOCK %]
+              <li class="section">
                 <a href="[%c.pf_hash_for(c.controller('Configuration').action_for('section'),section) %]">[% l(description || section) %]</a>
+                <ul class="nav nav-list">
+                  [% FOREACH subsection IN subsections.keys %]
+                  <li class="sidenav-subsection"><a href="[%c.pf_hash_for(c.controller('Configuration').action_for(section),subsection) %]">[% subsections.$subsection.name %]</a></li>
+                  [% END %]
+                </ul>
               </li>
 [% END -%]
 
-    <div class="container-fluid">
-      <div class="row-fluid">
-        <div class="span2">
-          <div class="well sidebar-nav">
+      <div class="sidenav-fluid">
+        <div class="row-fluid">
+          <div class="sidenav sidenav-category span1">
+            <ul class="nav sidenav-icon-list">
+              <li data-category="policy">
+                <a href="#configuration/define_policy" data-toggle="tooltip" title="[% l('Policy') %]"><i class="icon-2x icon-id-card"></i></a>
+              </li>
+              <li data-category="compliance">
+                <a href="#configuration/compliance" data-toggle="tooltip" title="[% l('Compliance') %]"><i class="icon-2x icon-shield"></i></a>
+              </li>
+              <li data-category="integration">
+                <a href="#configuration/integration" data-toggle="tooltip" title="[% l('Integration') %] "><i class="icon-2x icon-puzzle-piece"></i></a>
+              </li>
+              <li data-category="portal_config">
+                <a href="#configuration/portal_config" data-toggle="tooltip" title="[% l('Advanced Access Configuration') %]"  ><i class="icon-2x icon-list-alt"></i></a>
+              </li>
+              <li data-category="network_conf">
+                <a href="#configuration/network_conf" data-toggle="tooltip" title="[% l('Network Configuration') %]"><i class="icon-2x icon-sliders"></i></a>
+              </li>
+              <li data-category="system">
+                <a href="#configuration/system_config" data-toggle="tooltip" title="[% l('System Config') %]"><i class="icon-2x icon-cogs"></i></a>
+              </li>
+            </ul>
+          </div>
+          <div class="sidenav sidenav-category-extend offset1 span3">
+            <ul class="nav sidenav-icon-list">
+              <li data-category="policy">
+                <div class="nav-header"><a href="#">[% l('Policies and Access Control') %]</a></div>
+              </li>
+              <li data-category="compliance">
+                <div class="nav-header"><a href="#">[% l('Compliance') %]</a></div>
+              </li>
+              <li data-category="integration">
+                <div class="nav-header"><a href="#">[% l('Integration') %]</a></div>
+              </li>
+              <li data-category="portal_config">
+                <div class="nav-header"><a href="#">[% l('Advanced Access Configuration') %]</a></div>
+              </li>
+              <li data-category="network_conf">
+                <div class="nav-header"><a href="#">[% l('Network Configuration') %]</a></div>
+              </li>
+              <li data-category="system">
+                <div class="nav-header"><a href="#">[% l('System Configuration') %]</a></div>
+              </li>
+            </ul>
+          </div>
+          <div class="sidenav sidenav-section span3 offset1 hide"
+               data-category="policy">
+            <ul class="nav nav-header">
+              <li>[% l('Policies and Access Control') %]</li>
+              <li class="divider-horizontal"></li>
+            </ul>
             <ul class="nav nav-list">
-              [%- IF can_access_any("CONFIGURATION_MAIN_READ","PORTAL_PROFILES_READ","PORTAL_MODULE_READ","ADMIN_ROLES_READ", "FILTERS_READ") -%]
-              <li class="nav-header">[% l('Main') %]</li>
-              [%- END %]
-              [%- IF can_access("CONFIGURATION_MAIN_READ") %]
-              [% pf_section_entry( 'general', 'General') | none %]
-              [% pf_section_entry( 'database', 'Database') | none %]
-              [% pf_section_entry( 'network', 'Network') | none %]
-              [% pf_section_entry( 'trapping', 'Trapping') | none %]
-              [% pf_section_entry( 'parking', 'Parking') | none %]
-              [% pf_section_entry( 'registration', 'Registration') | none %]
-              [% pf_section_entry( 'alerting', 'Alerting') | none %]
-              [% pf_section_entry( 'maintenance', 'Maintenance') | none %]
-              [% pf_section_entry( 'services', 'Services') | none %]
-              [% pf_section_entry( 'vlan', 'SNMP') | none %]
-              [% pf_section_entry( 'inline', 'Inline') | none %]
-              [% pf_section_entry( 'servicewatch', 'Service watch') | none %]
-              [% pf_section_entry( 'captive_portal', 'Captive portal') | none %]
-              [% pf_section_entry( 'advanced', 'Advanced') | none %]
-              [% pf_section_entry( 'omapi', 'OMAPI') | none %]
-              [% pf_section_entry( 'webservices', 'Web Services') | none %]
-              [% pf_section_entry( 'monitoring', 'Monitoring') | none %]
-              [% pf_section_entry( 'active_active', 'Clustering') | none %]
-              [% pf_section_entry( 'metadefender', 'Metadefender') | none %]
-              [%- END %]
-              [% IF can_access("MSE_READ") %]
-              [% pf_section_entry( 'mse_tab', 'Node MSE Tab') | none %]
-              [%- END %]
-              [%- IF can_access("PORTAL_MODULE_READ") %]
-              [% list_entry('Config::PortalModule', 'index', 'Portal Modules') | none %]
-              [%- END %]
-              [%- IF can_access("PORTAL_PROFILES_READ") %]
-              [% list_entry('Config::Profile', 'index', 'Portal Profiles') | none %]
-              [%- END %]
-              [%- IF can_access("ADMIN_ROLES_READ") %]
-              [% list_entry('Config::AdminRoles', 'index', 'Admin Access') | none %]
-              [%- END %]
-              [%- IF can_access("FILTERS_READ") %]
-              [% list_entry('Config::Filters', 'index', 'Filter engines') | none %]
-              [%- END %]
-              [%- IF can_access_any("INTERFACES_READ","SWITCHES_READ","FLOATING_DEVICES_READ","FIREWALL_SSO_READ") %]
-              <li class="nav-header">[% l('Network') %]<li>
-              [%- IF can_access("INTERFACES_READ") %]
-              [% pf_section_entry( 'interfaces', 'Interfaces and Networks') | none %]
-              [%- END %]
-              [%- IF can_access("SWITCHES_READ") %]
-              [% list_entry('Config::Switch', 'index', 'Switches') | none %]
-              [%- END %]
-              [%- IF can_access("FLOATING_DEVICES_READ") %]
-              [% list_entry('Config::FloatingDevice', 'index', 'Floating Device') | none %]
-              [%- END %]
-              [%- IF can_access("FIREWALL_SSO_READ") %]
-              [% list_entry('Config::Firewall_SSO', 'index', 'Firewall SSO') | none %]
-              [%- END %]
-              [%- END %]
-              [%- IF can_access("WRIX_READ") %]
-              [% list_entry('Config::Wrix', 'index', 'WRIX') | none %]
-              [%- END %]
-              [%- IF can_access_any("USERS_ROLES_READ","USERS_SOURCES_READ", "PROVISIONING_READ", "PKI_PROVIDER_READ", "BILLING_TIER_READ") %]
-              <li class="nav-header">[% l('Users') %]</li>
               [%- IF can_access("USERS_ROLES_READ") %]
-              [% pf_section_entry( 'roles', 'Roles') | none %]
+              [% list_entry( 'Config::Roles', 'index', 'Roles') | none %]
               [%- END %]
-              [%- IF can_access("CONFIGURATION_MAIN_READ") %]
-              [% pf_section_entry( 'guests_admin_registration', 'Access Duration') | none %]
+              [%- IF can_access("DOMAIN_READ","REALM_READ") %]
+              [% pf_section_entry( 'domains', 'Domains', subsections.domains) | none %]
               [%- END %]
               [%- IF can_access("USERS_SOURCES_READ") %]
-              [% list_entry('Config::Authentication', 'index', 'Sources') | none %]
+              [% list_entry( 'Config::Source', 'index', 'Authentication Sources') | none %]
               [%- END %]
-              [%- IF can_access("BILLING_TIER_READ") %]
-              [% list_entry('Config::BillingTiers', 'index', 'Billing Tiers') | none %]
+              [%- IF can_access("SWITCHES_READ") %]
+              [% list_entry( 'Config::Switch', 'index', 'Switches') | none %]
               [%- END %]
-              [%- IF can_access("PROVISIONING_READ") %]
-              [% list_entry('Config::Provisioning', 'index', 'Provisioners') | none %]
+              [%- IF can_access("CONNECTION_PROFILES_READ") %]
+              [% list_entry( 'Config::Profile', 'index', 'Connection Profiles') | none %]
               [%- END %]
-              [%- IF can_access("PKI_PROVIDER_READ") %]
-              [% list_entry('Config::PKI_Provider', 'index', 'PKI Providers') | none %]
+            </ul>
+          </div>
+          <div class="sidenav sidenav-section sidenav-inverse span3 offset1 hide"
+               data-category="compliance">
+            <ul class="nav nav-header">
+              <li>[% l('Compliance') %]</li>
+              <li class="divider-horizontal"></li>
+            </ul>
+            <ul class="nav nav-list">
+              [%- IF can_access("FINGERBANK_READ") %]
+              [% pf_section_entry( 'profiling', 'Fingerbank Profiling', subsections.profiling) | none %]
               [%- END %]
-              [%- END %]
-              [%- IF can_access_any("REALM_READ", "DOMAIN_READ") %]
-              <li class="nav-header">[% l('RADIUS') %]</li>
-              [% pf_section_entry( 'radius_authentication_methods', 'Authentication Methods') | none %]
-              [%- IF can_access("REALM_READ") %]
-              [% list_entry( 'Config::Realm', 'index', 'Realms') | none %]
-              [%- END %]
-              [%- IF can_access("DOMAIN_READ") %]
-              [% list_entry( 'Config::Domain', 'index', 'Domains') | none %]
-              [%- END %]
-              [%- END %]
-              [%- IF can_access_any("VIOLATIONS_READ","SOH_READ","SCAN_READ","WMI_READ") %]
-              <li class="nav-header">[% l('Compliance') %]</li>
-              [%- IF can_access("SCAN_READ") %]
-              [% list_entry('Config::Scan', 'index', 'Scan Engines') | none %]
-              [%- END %]
-              [%- IF can_access("PFDETECT_READ") %]
-              [% list_entry('Config::Pfdetect', 'index', 'Syslog Parsers') | none %]
-              [%- END %]
-              [%- IF can_access("WMI_READ") %]
-              [% list_entry('Config::WMI', 'index', 'WMI Rules') | none %]
+              [%- IF can_access("SCAN_READ","WMI_READ","CONFIGURATION_MAIN_READ") %]
+              [% pf_section_entry( 'scans', 'Scans', subsections.scans) | none %]
               [%- END %]
               [%- IF can_access("VIOLATIONS_READ") %]
               [% list_entry('Violation', 'index', 'Violations') | none %]
               [%- END %]
-              [%- IF can_access("SOH_READ") %]
-              [% pf_section_entry( 'soh', 'Statement of Health') | none %]
+            </ul>
+          </div>
+          <div class="sidenav sidenav-section sidenav-inverse span3 offset1 hide"
+               data-category="integration">
+            <ul class="nav nav-header">
+              <li>[% l('Integration') %]</li>
+              <li class="divider-horizontal"></li>
+            </ul>
+            <ul class="nav nav-list">
+              [%- IF can_access("FIREWALL_SSO_READ") %]
+              [% list_entry('Config::Firewall_SSO', 'index', 'Firewall SSO') | none %]
               [%- END %]
+              [% IF can_access("MSE_READ") %]
+              [% pf_section_entry( 'mse_tab', 'Cisco Mobility Sevices Engine') | none %]
               [%- END %]
-              [%- IF can_access("FINGERBANK_READ") %]
-              <li class="nav-header">[% l('Fingerbank') %]</li>
-              [% list_entry('Config::Fingerbank::Settings', 'index', 'Settings') | none %]
-              [% list_entry('Config::Fingerbank::Combination', 'index', 'Combinations') | none %]
-              [% list_entry('Config::Fingerbank::Device', 'index', 'Devices') | none %]
-              [% list_entry('Config::Fingerbank::DHCP_Fingerprint', 'index', 'DHCP Fingerprints') | none %]
-              [% list_entry('Config::Fingerbank::DHCP_Vendor', 'index', 'DHCP Vendors') | none %]
-              [% list_entry('Config::Fingerbank::DHCP6_Fingerprint', 'index', 'DHCPv6 Fingerprints') | none %]
-              [% list_entry('Config::Fingerbank::DHCP6_Enterprise', 'index', 'DHCPv6 Enterprises') | none %]
-              [% list_entry('Config::Fingerbank::MAC_Vendor', 'index', 'MAC Vendors') | none %]
-              [% list_entry('Config::Fingerbank::User_Agent', 'index', 'User Agents') | none %]
+              [%- IF can_access("CONFIGURATION_MAIN_READ") %]
+              [% pf_section_entry( 'metadefender', 'OPSWAT Metadefender') | none %]
+              [% pf_section_entry( 'webservices', 'Web Services') | none %]
+              [%- END %]
+              [%- IF can_access("PFDETECT_READ") %]
+              [% list_entry('Config::Pfdetect', 'index', 'Syslog Parsers') | none %]
+              [%- END %]
+              [%- IF can_access("WRIX_READ") %]
+              [% list_entry('Config::Wrix', 'index', 'WRIX') | none %]
               [%- END %]
             </ul>
-          </div><!--/.well -->
+          </div>
+          <div class="sidenav sidenav-section sidenav-inverse span3 offset1 hide"
+               data-category="portal_config">
+            <ul class="nav nav-header">
+              <li>[% l('Advanced Access Configuration') %]</li>
+              <li class="divider-horizontal"></li>
+            </ul>
+            <ul class="nav nav-list">
+              [%- IF can_access("CONFIGURATION_MAIN_READ") %]
+              [% pf_section_entry('captive_portal', 'Captive Portal') | none %]
+              [%- END %]
+              [%- IF can_access("FILTERS_READ") %]
+              [% list_entry('Config::Filters', 'index', 'Filter Engines') | none %]
+              [%- END %]
+              [%- IF can_access("BILLING_TIER_READ") %]
+              [% list_entry('Config::BillingTiers', 'index', 'Billing Tiers') | none %]
+              [%- END %]
+              [%- IF can_access("PKI_PROVIDER_READ") %]
+              [% list_entry('Config::PKI_Provider', 'index', 'PKI Providers') | none %]
+              [%- END %]
+              [%- IF can_access("PROVISIONING_READ") %]
+              [% list_entry('Config::Provisioning', 'index', 'Provisioners') | none %]
+              [%- END %]
+              [%- IF can_access("PORTAL_MODULE_READ") %]
+              [% list_entry('Config::PortalModule', 'index', 'Portal Modules') | none %]
+              [%- END %]
+              [%- IF can_access("CONFIGURATION_MAIN_READ") %]
+              [% pf_section_entry( 'guests_admin_registration', 'Access Duration') | none %]
+              [%- END %]
+              [%- IF can_access("DEVICE_REGISTRATION_READ") %]
+              [% list_entry('Config::DeviceRegistration', 'index', 'Device Registration') | none %]
+              [%- END %]
+            </ul>
+          </div>
+          <div class="sidenav sidenav-section sidenav-inverse span3 offset1 hide"
+               data-category="network_conf">
+            <ul class="nav nav-header">
+              <li>[% l('Network Configuration') %]</li>
+              <!-- <li class="nav-header">[% pf_section_entry('network_conf', 'Network Configuration') | none %]</li> -->
+              <li class="divider-horizontal"></li>
+            </ul>
+            <ul class="nav nav-list">
+              [%- IF can_access("INTERFACES_READ") %]
+              [% pf_section_entry( 'networks', 'Networks', subsections.networks) | none %]
+              [%- END %]
+              [%- IF can_access("CONFIGURATION_MAIN_READ") %]
+              [% pf_section_entry( 'omapi', 'OMAPI') | none %]
+              [% pf_section_entry( 'snmp_traps', 'SNMP') | none %]
+              [%- END %]
+              [%- IF can_access("FLOATING_DEVICES_READ") %]
+              [% list_entry('Config::FloatingDevice', 'index', 'Floating Device') | none %]
+              [%- END %]
+            </ul>
+          </div>
+          <div class="sidenav sidenav-section sidenav-inverse span3 offset1 hide"
+               data-category="system">
+            <ul class="nav nav-header">
+              <li>[% l('System Configuration') %]</li>
+              <!-- <li class="nav-header">[% pf_section_entry('system_config', 'System Configuration') | none %]</li> -->
+              <li class="divider-horizontal"></li>
+            </ul>
+            <ul class="nav nav-list">
+              [%- IF can_access("CONFIGURATION_MAIN_READ") %]
+              [%- IF can_access("PFMON_READ") %]
+              [% pf_section_entry( 'main', 'Main Configuration', subsections.main) | none %]
+              [%- END %]
+              [% pf_section_entry( 'database', 'Database', subsections.database) | none %]
+              [% pf_section_entry( 'active_active', 'Cluster') | none %]
+              [% pf_section_entry( 'radius_authentication_methods', 'Authentication Methods') | none %]
+              [% pf_section_entry( 'node_import', 'Node Import') | none %]
+              [%- END %]
+              [%- IF can_access("ADMIN_ROLES_READ") %]
+              [% list_entry('Config::AdminRoles', 'index', 'Admin Access') | none %]
+              [%- END %]
+            </ul>
+          </div><!--/span-->
+        </div><!--/.row-fluid-->
+      </div><!--/.sidenav-row-->
+
+      <div class="row-fluid">
+        <div class="container-fluid span14 offset4 span18-navbarcollapse">
+        <div id="section">
+          <div class="loader"><i class="icon"></i></div>
         </div><!--/span-->
-        <div class="loader"><p><img src="[% c.uri_for('/static/app/loader-48.gif') %]"></p></div>
-        <div id="section" class="span10">
-        </div><!--/span-->
-      </div><!--/row-->
-    </div><!--/.fluid-container-->
+        </div><!--/row-->
+      </div>
+    </div><!--/.container-fluid-->
 

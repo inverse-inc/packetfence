@@ -63,7 +63,7 @@ sub onboard :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') :AdminConfigurator {
 
             if (defined($c->req->header('accept')) && $c->req->header('accept') ne 'application/json'){
                 $c->req->method('GET'); # We need to change the request method since there's a filter  on it in the index part.
-                $c->go('index');
+                $c->go($c->controller('Configuration')->action_for('profiling'), ['general']);
             }
         }
     }
@@ -163,6 +163,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

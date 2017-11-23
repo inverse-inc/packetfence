@@ -30,6 +30,7 @@ use pf::constants::exit_code qw($EXIT_SUCCESS);
 use pf::config qw(
     %Config
     $management_network
+    $DISTRIB
 );
 use pf::util;
 
@@ -38,20 +39,20 @@ sub _run {
     my $tt = Template->new(ABSOLUTE => 1);
 
     my %vars = (
-        key_buffer_size => $Config{database}{key_buffer_size},
-        innodb_buffer_pool_size => $Config{database}{innodb_buffer_pool_size},
-        innodb_additional_mem_pool_size => $Config{database}{innodb_additional_mem_pool_size},
-        query_cache_size => $Config{database}{query_cache_size},
-        thread_concurrency => $Config{database}{thread_concurrency},
-        max_connections => $Config{database}{max_connections},
-        table_cache => $Config{database}{table_cache},
-        max_allowed_packet => $Config{database}{max_allowed_packet},
-        thread_cache_size => $Config{database}{thread_cache_size},
+        key_buffer_size => $Config{database_advanced}{key_buffer_size},
+        innodb_buffer_pool_size => $Config{database_advanced}{innodb_buffer_pool_size},
+        innodb_additional_mem_pool_size => $Config{database_advanced}{innodb_additional_mem_pool_size},
+        query_cache_size => $Config{database_advanced}{query_cache_size},
+        thread_concurrency => $Config{database_advanced}{thread_concurrency},
+        max_connections => $Config{database_advanced}{max_connections},
+        table_cache => $Config{database_advanced}{table_cache},
+        max_allowed_packet => $Config{database_advanced}{max_allowed_packet},
+        thread_cache_size => $Config{database_advanced}{thread_cache_size},
         server_ip => $management_network ? $management_network->{Tvip} // $management_network->{Tip} : "",
     );
 
     # Only generate cluster configuration if there is more than 1 enabled host in the cluster
-    if($cluster_enabled && scalar(pf::cluster::enabled_hosts()) > 1) {
+    if(isenabled($Config{active_active}{galera_replication}) && $cluster_enabled && scalar(pf::cluster::enabled_hosts()) > 1) {
         %vars = (
             %vars,
 
@@ -69,9 +70,16 @@ sub _run {
 
             db_config => $Config{database},
         );
+        if ($DISTRIB eq 'debian') {
+            $vars{'libgalera'} = '/usr/lib/galera/libgalera_smm.so';
+        } else {
+            $vars{'libgalera'} = '/usr/lib64/galera/libgalera_smm.so';
+        }
     }
 
-    $tt->process("$conf_dir/mariadb/mariadb.conf.tt", \%vars, "$install_dir/var/conf/mariadb.conf") or die $tt->error();
+    my $maria_conf = "$install_dir/var/conf/mariadb.conf";
+    $tt->process("$conf_dir/mariadb/mariadb.conf.tt", \%vars, $maria_conf) or die $tt->error();
+    chmod 0644, $maria_conf;
     
     my $db_update_path = "$install_dir/var/run/db-update";
     $tt->process("$conf_dir/mariadb/db-update.tt", \%vars, $db_update_path) or die $tt->error();

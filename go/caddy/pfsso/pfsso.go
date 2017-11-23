@@ -5,19 +5,20 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/fingerbank/processor/log"
-	"github.com/fingerbank/processor/statsd"
-	"github.com/inverse-inc/packetfence/go/caddy/caddy"
-	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
-	"github.com/inverse-inc/packetfence/go/firewallsso"
-	"github.com/inverse-inc/packetfence/go/panichandler"
-	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"github.com/julienschmidt/httprouter"
-	"github.com/patrickmn/go-cache"
 	"io"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/inverse-inc/packetfence/go/caddy/caddy"
+	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
+	"github.com/inverse-inc/packetfence/go/firewallsso"
+	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/packetfence/go/panichandler"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/statsd"
+	"github.com/julienschmidt/httprouter"
+	"github.com/patrickmn/go-cache"
 )
 
 // Register the plugin in caddy
@@ -97,6 +98,11 @@ func (h PfssoHandler) parseSsoRequest(ctx context.Context, body io.Reader) (map[
 		return nil, 0, err
 	}
 
+	if info["stripped_username"] == "" {
+		log.LoggerWContext(ctx).Warn("No stripped_username set in the request, using the username as the stripped_username and no realm")
+		info["stripped_username"] = info["username"]
+	}
+
 	return info, int(timeout), nil
 }
 
@@ -130,7 +136,7 @@ func (h PfssoHandler) spawnSso(ctx context.Context, firewall firewallsso.Firewal
 
 // Add the info in the request to the log context
 func (h PfssoHandler) addInfoToContext(ctx context.Context, info map[string]string) context.Context {
-	return log.AddToLogContext(ctx, "ip", info["ip"], "mac", info["mac"], "role", info["role"])
+	return log.AddToLogContext(ctx, "username", info["username"], "ip", info["ip"], "mac", info["mac"], "role", info["role"])
 }
 
 // Handle an update action for pfsso

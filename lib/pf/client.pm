@@ -15,7 +15,11 @@ use strict;
 use warnings;
 use pf::config;
 use List::MoreUtils qw(any);
-use Module::Pluggable search_path => 'pf::api', sub_name => 'modules', require => 1;
+use Module::Pluggable
+  search_path => 'pf::api',
+  sub_name    => 'modules',
+  inner       => 0,
+  require     => 1;
 use pf::cluster;
 use pf::constants::api;
 

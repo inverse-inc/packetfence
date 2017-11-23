@@ -4,9 +4,8 @@ After=packetfence-carbon-relay.service packetfence-iptables.service packetfence-
 Wants=packetfence-carbon-relay.service packetfence-iptables.service packetfence-base.target
 
 [Service]
-StandardOutput=syslog
 StartLimitBurst=3
-StartLimitInterval=60
+StartLimitInterval=10
 Type=simple
 PIDFile=/usr/local/pf/var/run/statsd.pid
 ExecStartPre=/usr/local/pf/bin/pfcmd service statsd generateconfig

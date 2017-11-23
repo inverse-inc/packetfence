@@ -1,0 +1,1 @@
+[% INCLUDE config/source/type/LDAP.tt %]

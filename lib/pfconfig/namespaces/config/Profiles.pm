@@ -27,7 +27,7 @@ use pf::file_paths qw(
 );
 use pf::util;
 use pfconfig::namespaces::resource::guest_self_registration;
-use pf::constants::Portal::Profile;
+use pf::constants::Connection::Profile;
 use pf::filter_engine::profile;
 use pf::factory::condition::profile;
 use List::MoreUtils qw(uniq);
@@ -77,7 +77,7 @@ sub build_child {
         $profile->{'description'} = ''
             if $profile_id ne 'default' && $profile->{'description'} eq $default_description;
         $profile->{block_interval} = normalize_time( $profile->{block_interval}
-                || $pf::constants::Portal::Profile::BLOCK_INTERVAL_DEFAULT_VALUE );
+                || $pf::constants::Connection::Profile::BLOCK_INTERVAL_DEFAULT_VALUE );
         foreach my $filter (@{$profile->{filter}}) {
             if ($filter =~ $pf::factory::condition::profile::PROFILE_FILTER_REGEX) {
                 push @uri_filters,$3 if $1 eq 'uri';

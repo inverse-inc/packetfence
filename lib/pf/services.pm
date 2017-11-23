@@ -17,7 +17,7 @@ Read the following configuration files: F<dhcpd_vlan.conf>,
 F<networks.conf>, F<violations.conf> and F<switches.conf>.
 
 Generate the following configuration files: F<dhcpd.conf>, F<named.conf>,
-F<snort.conf>, F<httpd.conf>, F<snmptrapd.conf>.
+F<httpd.conf>, F<snmptrapd.conf>.
 
 =cut
 
@@ -31,6 +31,7 @@ use Module::Pluggable
     'search_path' => [qw(pf::services::manager)],
     'sub_name'    => 'managers',
     'require'     => 1,
+    'inner'       => 0,
     'except' =>
     qr/^pf::services::manager::roles|^pf::services::manager::(pf|systemd|httpd|submanager|radiusd_child|redis)$/,
     ;

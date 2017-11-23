@@ -2,7 +2,7 @@ package captiveportal::PacketFence::Controller::Root;
 use Moose;
 use namespace::autoclean;
 use pf::web::constants;
-use pf::constants::Portal::Profile qw($PENDING_POLICY);
+use pf::constants::Connection::Profile qw($PENDING_POLICY);
 use URI::Escape::XS qw(uri_escape uri_unescape);
 use HTML::Entities;
 use pf::enforcement qw(reevaluate_access);
@@ -13,7 +13,6 @@ use pf::util;
 use pf::Portal::Session;
 use pf::web;
 use pf::node;
-use pf::useragent;
 use pf::violation;
 use pf::class;
 use Cache::FileCache;
@@ -55,12 +54,26 @@ captiveportal::PacketFence::Controller::Root - Root Controller for captiveportal
 
 sub auto : Private {
     my ( $self, $c ) = @_;
+    $c->stash->{statsd_timer} = pf::StatsD::Timer->new({ 'stat' => 'captiveportal/' . $c->request->path, level => 6 });
     $c->forward('setupLanguage');
     $c->forward('setupDynamicRouting');
     $c->forward('checkReadonly');
     $c->forward('checkForParking');
+    $c->forward('updateNodeLastSeen');
 
     return 1;
+}
+
+=head2 updateNodeLastSeen
+
+Update node.last_seen
+
+=cut
+
+sub updateNodeLastSeen :Private {
+    my ($self, $c) = @_;
+    # update last_seen of MAC address as some activity from it has been seen
+    node_update_last_seen($c->portalSession->clientMac);
 }
 
 =head2 checkForParking
@@ -120,7 +133,6 @@ index
 
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
-    my $timer = pf::StatsD::Timer->new({level => 6});
 
     $c->forward('dynamic_application');
 }
@@ -225,7 +237,7 @@ sub getLanguages :Private {
     # 1. Check if a language is specified in the URL
     if ( defined($c->request->param('lang')) ) {
         my $user_chosen_language = $c->request->param('lang');
-        $user_chosen_language =~ s/^(\w{2})(_\w{2})?/lc($1) . uc($2)/e;
+        $user_chosen_language =~ s/^(\w{2})(_\w{2})?/lc($1) . uc($2 \/\/ "")/e;
         if (grep(/^$user_chosen_language$/, @authorized_locales)) {
             $lang = $user_chosen_language;
             # Store the language in the session
@@ -263,6 +275,7 @@ sub getLanguages :Private {
     foreach my $browser_language (@$browser_languages) {
         $browser_language =~ s/^(\w{2})(_\w{2})?/lc($1) . uc($2 || "")/e;
         my $language = $1;
+        next unless(defined($language));
         if (grep(/^$language$/, @authorized_locales)) {
             $lang = $browser_language;
             my $match = first { /$language(.*)/ } @authorized_locales;
@@ -311,7 +324,11 @@ Attempt to render a view, if needed.
 
 sub end : ActionClass('RenderView') {
     my ( $self, $c ) = @_;
-
+    
+    if (isenabled($Config{'advanced'}{'portal_csp_security_headers'})) {
+        $c->csp_server_headers();
+    }
+    
     # We save the user session
     $c->_save_user_session();
 
@@ -334,6 +351,7 @@ sub end : ActionClass('RenderView') {
         $c->response->status(500);
         $c->clear_errors;
     }
+    $c->stash->{statsd_timer} = undef;
 }
 
 =head2 checkReadonly
@@ -378,6 +396,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

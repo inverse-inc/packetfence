@@ -14,7 +14,7 @@ use Moose;
 extends 'captiveportal::DynamicRouting::Module::Authentication';
 with 'captiveportal::Role::FieldValidation';
 
-use pf::activation;
+use pf::activation qw($SMS_ACTIVATION);
 use pf::log;
 use pf::constants;
 use pf::sms_carrier;
@@ -37,6 +37,26 @@ sub allowed_urls_auth_module {
     ];
 }
 
+=head2 _build_required_fields
+
+Build the required fields based on the PID field, the custom fields and the mandatory fields of the source
+Will remove the mobileprovider field from the required fields if there is only one choice available
+
+=cut
+
+sub _build_required_fields {
+    my ($self) = @_;
+    
+    my @fields = @{$self->SUPER::_build_required_fields()};
+    if(scalar(@{$self->carriers}) == 1) {
+        @fields = (grep {$_ ne 'mobileprovider' } @fields);
+        return \@fields;
+    }
+    else {
+        return \@fields;
+    }
+}
+
 =head2 execute_child
 
 Execute the module
@@ -46,13 +66,13 @@ Execute the module
 sub execute_child {
     my ($self) = @_;
 
-    if($self->app->request->param("no-pin")){
+    if ($self->app->request->param("no-pin")) {
         $self->no_pin();
     }
-    elsif($self->app->request->method eq "POST" && $self->app->request->path eq "activate/sms" && defined($self->app->request->param("pin"))){
+    elsif ($self->app->request->method eq "POST" && $self->app->request->path eq "activate/sms" && defined($self->app->request->param("pin"))){
         $self->validation();
     }
-    elsif(pf::activation::activation_has_entry($self->current_mac,'sms')){
+    elsif (pf::activation::activation_has_entry($self->current_mac, $SMS_ACTIVATION)) {
         $self->prompt_pin();
     }
     elsif($self->app->request->method eq "POST"){
@@ -77,9 +97,26 @@ sub no_pin {
     }
     else {
         get_logger->info("Invalidating codes for MAC address ".$self->current_mac);
-        pf::activation::invalidate_codes_for_mac($self->current_mac, "sms");
+        pf::activation::invalidate_codes_for_mac($self->current_mac, $SMS_ACTIVATION);
     }
     $self->redirect_root();
+}
+
+=head2 carriers
+
+The SMS carriers based on the source
+
+=cut
+
+sub carriers {
+    my ($self) = @_;
+    if ( $self->source->meta->get_attribute('sms_carriers') ) {
+        my @carriers = map { { label => $_->{name}, value => $_->{id} } } @{sms_carrier_view_all($self->source)};
+        return \@carriers;
+    }
+    else {
+        return [];
+    }
 }
 
 =head2 prompt_fields
@@ -92,9 +129,8 @@ sub prompt_fields {
     my ($self) = @_;
 
     if ( $self->source->meta->get_attribute('sms_carriers') ) {
-        my @carriers = map { { label => $_->{name}, value => $_->{id} } } @{sms_carrier_view_all($self->source)};
         $self->SUPER::prompt_fields({
-            sms_carriers => \@carriers, 
+            sms_carriers => $self->carriers, 
         });
     } else {
         $self->SUPER::prompt_fields();
@@ -123,7 +159,9 @@ sub validate_info {
 
     my $telephone = $self->request_fields->{telephone};
     my $pid = $self->request_fields->{$self->pid_field};
-    my $mobileprovider = $self->request_fields->{mobileprovider};
+    $pid =~ s/[\(\) \-]//g;
+    my @carriers = @{$self->carriers};
+    my $mobileprovider = (scalar(@carriers) == 1) ? $carriers[0]->{"value"} : $self->request_fields->{mobileprovider};
     
     if ($self->app->reached_retry_limit('sms_request_limit', $self->app->profile->{_sms_request_limit})) {
         $self->app->flash->{error} = $GUEST::ERRORS{$GUEST::ERROR_MAX_RETRIES};
@@ -157,16 +195,13 @@ Validate the provided PIN
 
 sub validate_pin {
     my ($self, $pin) = @_;
-
     get_logger->debug("Mobile phone number validation attempt");
-
-    if (my $record = pf::activation::validate_code($pin)) {
+    my $mac = $self->current_mac;
+    if (my $record = pf::activation::validate_code_with_mac($SMS_ACTIVATION, $pin, $mac)) {
         return ($TRUE, 0, $record);
     }
-    else {
-        pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED);
-        return ($FALSE, $GUEST::ERROR_INVALID_PIN);
-    }
+    pf::auth_log::change_record_status($self->source->id, $mac, $pf::auth_log::FAILED);
+    return ($FALSE, $GUEST::ERROR_INVALID_PIN);
 }
 
 =head2 validation
@@ -193,8 +228,9 @@ sub validation {
     my ($status, $reason, $record) = $self->validate_pin($pin);
     if($status){
         $self->username($record->{pid});
-        pf::activation::set_status_verified($pin);
-        pf::auth_log::record_completed_guest($self->source->id, $self->current_mac, $pf::auth_log::COMPLETED);
+        my $mac = $self->current_mac;
+        pf::activation::set_status_verified_by_mac($SMS_ACTIVATION, $pin, $mac);
+        pf::auth_log::record_completed_guest($self->source->id, $mac, $pf::auth_log::COMPLETED);
         $self->done();
     }
     else {
@@ -243,7 +279,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;
 

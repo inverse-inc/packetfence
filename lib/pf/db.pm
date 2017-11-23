@@ -40,6 +40,7 @@ use constant PREPARED_VAR      => '_db_prepared'; # prepare flag with <modulenam
 use constant PREPARE_PF_PREFIX => 'pf::';         # prefix to access exported _prepare(d) variables
 
 our $MYSQL_READONLY_ERROR = 1290;
+our $WSREP_NOT_READY_ERROR = 1047;
 
 our ( $DBH, $LAST_CONNECT, $DB_Config, $NO_DIE_ON_DBH_ERROR );
 
@@ -47,26 +48,19 @@ BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
     @ISA    = qw(Exporter);
-    @EXPORT = qw(db_data db_connect db_disconnect get_db_handle db_query_execute db_ping db_cancel_current_query db_now db_readonly_mode db_check_readonly);
+    @EXPORT = qw(db_data db_connect db_disconnect get_db_handle db_query_execute db_ping db_cancel_current_query db_now db_readonly_mode db_check_readonly $MYSQL_READONLY_ERROR);
 
 }
 
 sub CLONE {
     if($DBH) {
-        $DBH = undef;
-        $LAST_CONNECT = 0;
-    }
-}
-
-sub AT_FORK_CHILD {
-    if ($DBH) {
         $DBH->{InactiveDestroy} = 1;
-        $DBH = undef;
+        undef $DBH;
         $LAST_CONNECT = 0;
     }
 }
 
-POSIX::AtFork->add_to_child(\&AT_FORK_CHILD);
+POSIX::AtFork->add_to_child(\&CLONE);
 
 END {
     $DBH->disconnect if $DBH;
@@ -117,7 +111,7 @@ sub db_connect {
 
     # TODO database prepared statements are disabled by default in dbd::mysql
     # we should test with them, see http://search.cpan.org/~capttofu/DBD-mysql-4.013/lib/DBD/mysql.pm#DESCRIPTION
-    $mydbh = DBI->connect( "dbi:mysql:dbname=$db;host=$host;port=$port",
+    $mydbh = DBI->connect( "dbi:mysql:dbname=$db;host=$host;port=$port;mysql_client_found_rows=0",
         $user, $pass, { RaiseError => 0, PrintError => 0, mysql_auto_reconnect => 1 } );
 
     # make sure we have a database handle
@@ -158,7 +152,7 @@ db_handle_error
 
 sub db_handle_error {
     my ($err) = @_;
-    if ($err == $MYSQL_READONLY_ERROR) {
+    if ($err == $MYSQL_READONLY_ERROR || $err == $WSREP_NOT_READY_ERROR) {
         db_set_readonly_mode(1);
     }
     return ;
@@ -267,6 +261,7 @@ sub db_query_execute {
     my $attempts = 0;
     my $done = 0;
     my $db_statement;
+    my $dbi_err = 0;
     do {
         $logger->trace(sub {"attempt #$attempts to run query $query from module $from_module"});
 
@@ -317,14 +312,13 @@ sub db_query_execute {
         } else {
 
             # is it a DBI error?
-            my $dbi_err = $dbh->err;
+            $dbi_err = $dbh->err;
             if (defined($dbi_err)) {
                 $dbi_err = int($dbi_err);
                 my $dbi_errstr = $dbh->errstr;
                 db_handle_error($dbi_err);
                 # Do not retry server errors
                 if ($dbi_err < 2000) {
-
                     $logger->info("database query failed with: $dbi_errstr (errno: $dbi_err)");
                     $done = 2;
                 }
@@ -358,7 +352,15 @@ sub db_query_execute {
         return $db_statement;
     }
     if ($done) {
-        $logger->error("Database issue: Failed with a non-repeatable error with query $query");
+        if (defined $dbi_err && $dbi_err == $MYSQL_READONLY_ERROR) {
+            $logger->warn("Database issue: attempting to update a readonly database (read_only is ON)");
+        }
+        elsif (defined $dbi_err && $dbi_err == $WSREP_NOT_READY_ERROR) {
+            $logger->warn("Database issue: attempting to update a database that is not ready for writes (wsrep_ready is OFF)");
+        }
+        else {
+            $logger->error("Database issue: Failed with a non-repeatable error with query $query");
+        }
     } else {
         $logger->error("Database issue: We tried ". MAX_RETRIES ." times to serve query $query called from "
             .(caller(1))[3]." and we failed. Is the database running?");
@@ -450,12 +452,57 @@ db_readonly_mode
 =cut
 
 sub db_readonly_mode {
-    my $dbh = db_connect();
+    my $dbh = eval {
+        db_connect()
+    };
+    return 0 unless $dbh;
+
+    # check if the read_only flag is set
     my $sth = $dbh->prepare_cached('SELECT @@global.read_only;');
     return 0 unless $sth->execute;
     my $row = $sth->fetch;
     $sth->finish;
-    return $row->[0];
+    my $readonly = $row->[0];
+    # If readonly no need to check wsrep health
+    return 1 if $readonly;
+    # If wsrep is not healthly then it is in readonly mode
+    return !db_wsrep_healthy();
+}
+
+=head2 db_wsrep_healthy
+
+check if the wsrep_ready status is ON if there is a wsrep_provider_name
+
+=cut
+
+sub db_wsrep_healthy {
+    my $logger = get_logger();
+    my $dbh = eval {
+        db_connect()
+    };
+    return 0 unless $dbh;
+
+    my $sth = $dbh->prepare_cached('show status like "wsrep_provider_name";');
+    return 0 unless $sth->execute;
+    my $row = $sth->fetch;
+    $sth->finish;
+
+    if(defined($row) && $row->[1] ne "") {
+        $logger->debug("There is a wsrep provider, checking the wsrep_ready flag");
+        # check if the wsrep_ready status is ON
+        $sth = $dbh->prepare_cached('show status like "wsrep_ready";');
+        return 0 unless $sth->execute;
+        $row = $sth->fetch;
+        $sth->finish;
+        # If there is no wsrep_ready row, then we're not in read only because we don't use wsrep
+        # If its there and not set to ON, then we're in read only
+        return (defined($row) && $row->[1] eq "ON");
+    }
+    # wsrep isn't enabled
+    else {
+        $logger->debug("No wsrep provider so considering wsrep as healthy");
+        return 1;
+    }
 }
 
 =item db_check_readonly

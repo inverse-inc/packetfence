@@ -71,14 +71,18 @@ packetfence-eap-mac-policy {
 packetfence-audit-log-accept {
     if(&User-Name != "dummy") {
         request-timing
-        -sql
+        -sql {
+            fail = 1
+        }
     }
 }
 
 packetfence-audit-log-reject {
     if(&User-Name != "dummy") {
         request-timing
-        -sql_reject
+        -sql_reject {
+            fail = 1
+        }
     }
 }
 
@@ -101,6 +105,7 @@ packetfence-mschap-authenticate {
     }
 }
 
+
 packetfence-allied-gs950-mab {
     if ( &EAP-Type ) {
         if (&User-Name && (&User-Name =~ /^${policy.mac-addr-regexp}$/i)) {
@@ -118,5 +123,47 @@ packetfence-allied-gs950-mab {
         }
     }
     noop
+}
+
+packetfence-cache-ntlm-hit {
+  update control {
+    Cache-Status-Only = 'yes'
+  }
+  cache_ntlm
+  if (ok) {
+    cache_ntlm
+    update {
+      &request:Tmp-Integer-9 := "%{expr: 1 + %{&request:Tmp-Integer-9}}"
+    }
+    update control {
+      Cache-TTL = 0
+    }
+    cache_ntlm
+    update control {
+      #Default TTL to 5 minutes
+      Cache-TTL = 300
+    }
+    cache_ntlm
+  }
+  else {
+    update {
+      &request:Tmp-Integer-9 := 0
+    }
+    cache_ntlm
+  }
+}
+
+packetfence-control-ntlm-failure {
+  update control {
+    Cache-Status-Only = 'yes'
+  }
+  cache_ntlm
+  if (ok) {
+    cache_ntlm
+    # raise the value if you want to permit more ntlm_auth failure before rejecting the request
+    if (&request:Tmp-Integer-9 > 1) {
+      reject
+    }
+  }
 }
 

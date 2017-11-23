@@ -17,7 +17,7 @@ use warnings;
 use lib qw(/usr/local/pf/lib);
 use pf::node;
 use pf::SwitchFactory;
-use pf::Portal::ProfileFactory;
+use pf::Connection::ProfileFactory;
 use Data::Dumper;
 use Benchmark qw(timethis cmpthese);
 use CHI::Memoize qw(unmemoize);
@@ -41,7 +41,7 @@ sub bench_switch_factory {
 }
 
 sub bench_profile_factory {
-    bench_cache("pf::Portal::ProfileFactory::instantiate", sub { my $switch = pf::Portal::ProfileFactory->instantiate($mac)});
+    bench_cache("pf::Connection::ProfileFactory::instantiate", sub { my $switch = pf::Portal::ProfileFactory->instantiate($mac)});
 }
 
 sub bench_cache {

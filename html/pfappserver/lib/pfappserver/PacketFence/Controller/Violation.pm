@@ -53,6 +53,7 @@ __PACKAGE__->config(
         create => { AdminRole => 'VIOLATIONS_CREATE' },
         clone  => { AdminRole => 'VIOLATIONS_CREATE' },
         update => { AdminRole => 'VIOLATIONS_UPDATE' },
+        toggle => { AdminRole => 'VIOLATIONS_UPDATE' },
         remove => { AdminRole => 'VIOLATIONS_DELETE' },
     },
 );
@@ -76,7 +77,7 @@ sub begin :Private {
         $violations = $result;
     }
     my @roles = map {{ name => $_ }} @ROLES;
-    ($status, $result) = $c->model('Roles')->list();
+    ($status, $result) = $c->model('Config::Roles')->listFromDB();
     if (is_success($status)) {
         push(@roles, @$result);
     }
@@ -106,6 +107,29 @@ sub index :Path :Args(0) {
 
     $c->stash->{template} = 'violation/list.tt';
     $c->forward('list');
+}
+
+=head2 toggle
+
+toggle on or off the violation
+
+=cut
+sub toggle : Chained('object') :PathPart('toggle') :Args(1) {
+    my ($self, $c, $toggle) = @_;
+    my $stash = $c->stash;
+    my $item_id = $stash->{id};
+    my $enabled = $toggle eq 'yes' ? 'Y' : 'N';
+    my $model = $self->getModel($c);
+    my ($status,$status_msg) = $model->update(
+        $item_id,
+        {enabled => $enabled},
+    );
+    $self->audit_current_action($c, status => $status);
+    $c->response->status($status);
+    $c->stash(
+        status_msg => $status_msg,
+        current_view => 'JSON',
+    );
 }
 
 sub prettify_trigger {
@@ -255,6 +279,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

@@ -2,7 +2,7 @@ package pfappserver::Form::Field::ProfileFilter;
 
 =head1 NAME
 
-pfappserver::Form::Field::ProfileFilter - a filter for the portal profile
+pfappserver::Form::Field::ProfileFilter - a filter for the connection profile
 
 =head1 DESCRIPTION
 
@@ -115,5 +115,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

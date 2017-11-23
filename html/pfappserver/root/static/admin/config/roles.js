@@ -1,4 +1,6 @@
-    /* Show a Role */
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
+
+/* Show a Role */
     $('#section').on('click', '[href*="#modalRole"]', function(event) {
         var modal = $('#modalRole');
         var url = $(this).attr('href');
@@ -48,8 +50,8 @@
                 modal.append(data);
                 modal.one('shown', function() {
                     $('#name').focus();
-                    $('.chzn-select').chosen();
-                    $('.chzn-deselect').chosen({allow_single_deselect: true});
+                    $('.chzn-select').chosen({width: ''});
+                    $('.chzn-deselect').chosen({allow_single_deselect: true, width: ''});
                 });
                 modal.modal({ shown: true });
             })
@@ -58,41 +60,6 @@
                 var status_msg = getStatusMsg(jqXHR);
                 showError($('#section table'), status_msg);
             });
-
-        return false;
-    });
-
-    /* Delete a Role */
-    $('#section').on('click', '[href*="#deleteRole"]', function(event) {
-        var url = $(this).attr('href');
-        var row = $(this).closest('tr');
-        var name = row.find('td a[href*="#modalRole"]').html();
-        var modal = $('#deleteRole');
-        var confirm_link = modal.find('a.btn-primary').first();
-        modal.find('h3 span').html(name);
-        modal.modal({ show: true });
-        confirm_link.off('click');
-        confirm_link.click(function(e) {
-            e.preventDefault();
-            $.ajax(url)
-                .always(function() {
-                    modal.modal('hide');
-                })
-                .done(function(data) {
-                    row.remove();
-                    var table = $('#section table');
-                    if (table.find('tbody tr').length == 0) {
-                        // No more filters
-                        table.remove();
-                        $('#noRole').removeClass('hidden');
-                    }
-                })
-                .fail(function(jqXHR) {
-                    $("body,html").animate({scrollTop:0}, 'fast');
-                    var status_msg = getStatusMsg(jqXHR);
-                    showError($('#section table'), status_msg);
-                });
-        });
 
         return false;
     });

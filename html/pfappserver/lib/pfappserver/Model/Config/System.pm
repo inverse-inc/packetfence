@@ -146,9 +146,9 @@ sub start_mysqld_service {
         $logger->info($status_msg);
         return ($STATUS::OK, $status_msg);
     }
-    # Something wen't wrong
+    # Something went wrong
     else {
-        $status_msg = "Something wen't wrong while starting MySQL server";
+        $status_msg = "Something went wrong while starting MySQL server";
         $logger->warn($status_msg);
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
@@ -174,9 +174,9 @@ sub restart_pfconfig {
         $logger->info($status_msg);
         return ($STATUS::OK, $status_msg);
     }
-    # Something wen't wrong
+    # Something went wrong
     else {
-        $status_msg = "Something wen't wrong while restarting packetfence-config";
+        $status_msg = "Something went wrong while restarting packetfence-config";
         $logger->warn($status_msg);
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
@@ -369,9 +369,9 @@ sub writeNetworkConfigs {
         }
         my $cmd = "cat $var_dir$_interface_conf_file$interface | sudo tee $_network_conf_dir$_interfaces_conf_dir$_interface_conf_file$interface 2>&1";
         my $status = pf_run($cmd);
-        # Something wen't wrong
+        # Something went wrong
         if ( !(defined($status) ) ) {
-            $status_msg = "Something wen't wrong while writing the network interface file";
+            $status_msg = "Something went wrong while writing the network interface file";
             $logger->warn($status_msg);
             return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
         }
@@ -391,18 +391,18 @@ sub writeNetworkConfigs {
 
     my $cmd = "echo @content | sudo tee $_network_conf_dir$_network_conf_file";
     my $status = pf_run($cmd);
-    # Something wen't wrong
+    # Something went wrong
     if ( !(defined($status) ) ) {
-        $status_msg = "Something wen't wrong while writing the network file";
+        $status_msg = "Something went wrong while writing the network file";
         $logger->warn($status_msg);
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
     $cmd = "echo GATEWAY=$gateway | sudo tee -a $_network_conf_dir$_network_conf_file";
 
     $status = pf_run($cmd);
-    # Something wen't wrong
+    # Something went wrong
     if ( !(defined($status) ) ) {
-        $status_msg = "Something wen't wrong while writing the network file";
+        $status_msg = "Something went wrong while writing the network file";
         $logger->warn($status_msg);
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
@@ -472,9 +472,9 @@ sub writeNetworkConfigs {
         $logger->info($status_msg);
         return ($STATUS::OK, $status_msg);
     }
-    # Something wen't wrong
+    # Something went wrong
     else {
-        $status_msg = "Something wen't wrong while writing the network interface file";
+        $status_msg = "Something went wrong while writing the network interface file";
         $logger->warn($status_msg);
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
@@ -507,6 +507,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

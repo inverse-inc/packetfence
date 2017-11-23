@@ -309,10 +309,12 @@ sub stopService {
         $logger->error("failed to execute: $!\n");
     }
     elsif ( $? & 127 ) {
-        $logger->error("child died with signal %d, %s coredump\n", ( $? & 127 ), ( $? & 128 ) ? 'with' : 'without');
+        $logger->error(sprintf("child died with signal %d, %s coredump\n", 
+                ( $? & 127 ), 
+                (( $? & 128 ) ? 'with' : 'without')));
     }
     else {
-        $logger->info("child exited with value %d\n", $? >> 8);
+        $logger->info(sprintf("child exited with value %d\n", $? >> 8));
     }
 }
 

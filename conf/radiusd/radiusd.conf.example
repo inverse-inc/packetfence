@@ -75,7 +75,7 @@ run_dir = ${localstatedir}/run
 db_dir = ${raddbdir}
 
 rpc_user   = %%rpc_user%%
-rpc_pass   = %%rpc_pass%%
+rpc_pass   = "%%rpc_pass%%"
 rpc_port   = %%rpc_port%%
 rpc_host   = %%rpc_host%%
 rpc_proto  = %%rpc_proto%%
@@ -452,7 +452,7 @@ $INCLUDE clients.conf
 thread pool {
 	#  Number of servers to start initially --- should be a reasonable
 	#  ballpark figure.
-	start_servers = 5
+	start_servers = 0
 
 	#  Limit on the total number of servers running.
 	#

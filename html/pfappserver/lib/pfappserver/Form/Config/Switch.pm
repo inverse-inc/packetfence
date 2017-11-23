@@ -732,7 +732,7 @@ sub options_SNMPVersion {
 sub options_cliTransport {
     my $self = shift;
 
-    my @transports = map { $_ => $_ } qw/Telnet SSH Serial/;
+    my @transports = map { $_ => $_ } qw/Telnet SSH/;
 
     return ('' => '', @transports);
 }
@@ -840,5 +840,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

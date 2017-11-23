@@ -111,7 +111,7 @@ Now configure this new provisioner with the information you got above.
 
 Add the provisioner to the profile
 ++++++++++++++++++++++++++++++++++
-Now that you have created the provisioner, go in the 'Portal Profiles' menu on the left and select the default portal.
+Now that you have created the provisioner, go in the 'Connection Profiles' menu on the left and select the default portal.
 Click 'Add Provisioner' and select the new SEPM provisioner that was created earlier.
 
 image::docs/images/sepm-portal.png[scaledwidth="100%",alt="SEPM portal configuration"]

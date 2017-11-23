@@ -13,7 +13,6 @@ Model for a SAML source
 use pf::Authentication::constants;
 use pf::constants::authentication::messages;
 use pf::constants;
-use Lasso;
 use Template::AutoFilter;
 use File::Slurp qw(read_file write_file);
 use File::Temp qw(tempfile);
@@ -95,11 +94,16 @@ Create the Lasso server
 
 sub lasso_server {
     my ($self) = @_;
+
+    require pf::constants::saml;
+    require Lasso;
+    Lasso->import();
+
     Lasso::init();
     my ($fh, $sp_metadata_path) = tempfile();
     write_file($sp_metadata_path, $self->generate_sp_metadata());
     my $server = Lasso::Server->new($sp_metadata_path, $self->sp_key_path, undef, $self->sp_cert_path);
-    $server->add_provider(Lasso::Constants::PROVIDER_ROLE_IDP, $self->idp_metadata_path, $self->idp_cert_path, $self->idp_ca_cert_path);
+    $server->add_provider($pf::constants::saml::PROVIDER_ROLE_IDP, $self->idp_metadata_path, $self->idp_cert_path, $self->idp_ca_cert_path);
     return $server;
 }
 
@@ -111,6 +115,10 @@ Create the Lasso login
 
 sub lasso_login {
     my ($self) = @_;
+
+    require pf::constants::saml;
+    require Lasso;
+    Lasso->import();
     return Lasso::Login->new($self->lasso_server);
 }
 
@@ -122,16 +130,21 @@ Generate the Single-Sign-On URL that points to the Identity Provider
 
 sub sso_url {
     my ($self) = @_;
+
+    require pf::constants::saml;
+    require Lasso;
+    Lasso->import();
+
     my $url;
     eval {
         my $lassoLogin = $self->lasso_login;
 
-        $lassoLogin->init_authn_request($self->idp_entity_id, Lasso::Constants::HTTP_METHOD_REDIRECT);
-        $lassoLogin->request->NameIDPolicy->Format(Lasso::Constants::SAML2_NAME_IDENTIFIER_FORMAT_PERSISTENT);
+        $lassoLogin->init_authn_request($self->idp_entity_id, $pf::constants::saml::HTTP_METHOD_REDIRECT);
+        $lassoLogin->request->NameIDPolicy->Format($pf::constants::saml::SAML2_NAME_IDENTIFIER_FORMAT_PERSISTENT);
         $lassoLogin->request->NameIDPolicy->AllowCreate(1);
         $lassoLogin->request->ForceAuthn(0);
         $lassoLogin->request->IsPassive(0);
-        $lassoLogin->request->ProtocolBinding(Lasso::Constants::SAML2_METADATA_BINDING_ARTIFACT);
+        $lassoLogin->request->ProtocolBinding($pf::constants::saml::SAML2_METADATA_BINDING_ARTIFACT);
 
         $lassoLogin->build_authn_request_msg();
 
@@ -249,7 +262,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;
 
 # vim: set shiftwidth=4:

@@ -1,11 +1,13 @@
 [Unit]
-Description=PacketFence PFSSO Service
+Description=PacketFence HTTP Dispatcher
 Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
 After=packetfence-base.target packetfence-config.service packetfence-iptables.service
 Before=packetfence-httpd.portal.service
 
 [Service]
-ExecStart=/usr/local/pf/bin/pfhttpd -conf /usr/local/pf/conf/caddy-services/httpdispatcher.conf
+Type=notify
+LimitNOFILE=8192
+ExecStart=/usr/local/pf/bin/pfhttpd -conf /usr/local/pf/conf/caddy-services/httpdispatcher.conf -log-name httpd.dispatcher
 Restart=on-failure
 Slice=packetfence.slice
 

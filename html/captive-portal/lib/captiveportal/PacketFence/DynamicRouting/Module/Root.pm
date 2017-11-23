@@ -86,14 +86,14 @@ sub release {
     # One last check for the violations
     return unless($self->handle_violations());
 
-    return $self->app->redirect("/access") unless($self->app->request->path eq "access");
+    return $self->app->redirect("http://" . $self->app->request->header("host") . "/access") unless($self->app->request->path eq "access");
 
     get_logger->info("Releasing device");
 
     $self->app->reset_session;
 
     unless($self->handle_web_form_release){
-        reevaluate_access( $self->current_mac, 'manage_register' );
+        reevaluate_access( $self->current_mac, 'manage_register', force => 1 );
         return $self->render("release.html", $self->_release_args());
     }
 }
@@ -115,7 +115,7 @@ sub handle_web_form_release {
             $switch = pf::SwitchFactory->instantiate($last_switch_id);
         }
     }
-    my $session = new pf::Portal::Session()->session;
+    my $session = new pf::Portal::Session(client_mac => $self->current_mac)->session;
     if(defined($switch) && $switch && $switch->supportsWebFormRegistration && defined($session->param('is_external_portal')) && $session->param('is_external_portal')){
         get_logger->info("(" . $switch->{_id} . ") supports web form release. Will use this method to authenticate");
         $self->render('webFormRelease.html', {
@@ -148,7 +148,7 @@ sub unknown_state {
 
                 get_logger->info("Reevaluating access of device.");
 
-                reevaluate_access( $self->current_mac, 'manage_register' );
+                reevaluate_access( $self->current_mac, 'manage_register', force => 1 );
             }
 
             return $self->app->error("Your network should be enabled within a minute or two. If it is not reboot your computer.");
@@ -210,7 +210,7 @@ sub execute_child {
     # release_bypass is there for that. If it is set, it will keep the user in the portal
     my $node = node_view($self->current_mac);
     if($self->app->profile->canAccessRegistrationWhenRegistered() && $self->app->session->{release_bypass}) {
-        get_logger->info("Allowing user through portal even though he is registered as the release bypass is set and the portal profile is configured to let registered users use the registration module of the portal.");
+        get_logger->info("Allowing user through portal even though he is registered as the release bypass is set and the connection profile is configured to let registered users use the registration module of the portal.");
     }
     elsif(defined($node->{status}) && $node->{status} eq "reg"){
         return $self->unknown_state();
@@ -243,16 +243,38 @@ sub apply_new_node_info {
     # This way, if the role wasn't set during the portal process (like in provisioning agent re-install), then it will pick the role it had before
     if($self->node_info->{status} eq $pf::node::STATUS_PENDING) {
         unless($self->username){
-            $self->username($self->node_info->{pid});
+            if($self->new_node_info->{pid}){
+                $self->username($self->new_node_info->{pid});
+            }
+            else {
+                $self->username($default_pid);
+            }
         }
         $self->new_node_info->{category} = $self->node_info->{category};
         $self->new_node_info->{unregdate} = $self->node_info->{unregdate};
     }
+    # We take the role+unregdate from the computed node info. This way, if the role wasn't set during the portal process (like in provisioning agent re-install), then it will pick the role it had before
+    $self->new_node_info->{category} = $self->node_info->{category};
+    $self->new_node_info->{unregdate} = $self->node_info->{unregdate};
 
     my ( $status, $status_msg );
     ( $status, $status_msg ) = pf::node::node_register($self->current_mac, $self->username, %{$self->new_node_info()});
     if ($status) {
-        $self->app->flash->{notice} = [ "Role %s has been assigned to your device with unregistration date : %s", $self->new_node_info->{category}, $self->new_node_info->{unregdate} ];
+        $self->app->flash->{notice} = "";
+        my $notice = "";
+        if($self->new_node_info->{category}) {
+            $notice .= sprintf("Role %s has been assigned to your device", $self->new_node_info->{category});
+        }
+        if($self->new_node_info->{unregdate}) {
+            $notice .= sprintf(" with unregistration date : %s,", $self->new_node_info->{unregdate});
+        }
+        if ($self->new_node_info->{time_balance}) {
+            $notice .= sprintf(" with time balance : %s,", $self->new_node_info->{time_balance});
+        }
+        if ($self->new_node_info->{bandwidth_balance}) {
+            $notice .= sprintf(" with bandwidth balance : %s,", $self->new_node_info->{bandwidth_balance});
+        }
+        $self->app->flash->{notice} = [ $notice ];
         return $TRUE;
     }
     else {
@@ -313,7 +335,8 @@ sub show_preregistration_account {
         $self->render("account.html", {account => $account, title => "Account created"});
     }
     else {
-        $self->app->error("Cannot find any created account.");
+        get_logger->warn("No created account found. Continuing normal portal flow");
+        $self->SUPER::execute_child();
     }
 }
 
@@ -357,7 +380,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;
 

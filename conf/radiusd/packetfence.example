@@ -197,6 +197,8 @@ authenticate {
 #
 preacct {
 	preprocess
+	set_calling_station_id
+	rewrite_calling_station_id
 	rewrite_called_station_id
 
 	#
@@ -250,9 +252,6 @@ preacct {
 #  Accounting.  Log the accounting data.
 #
 accounting {
-	set_calling_station_id
-	rewrite_calling_station_id
-	rewrite_called_station_id
 	# Add in PacketFence specific configuration
 	update {
 		&request:FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"

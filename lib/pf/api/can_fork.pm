@@ -47,6 +47,7 @@ sub notify {
     my ($self, $method, @args) = @_;
     my $pid;
     if (pf::api->shouldFork($method)) {
+        db_disconnect();
         $pid = fork;
         unless (defined $pid) {
             $logger->error("Error fork $!");

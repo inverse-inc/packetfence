@@ -31,6 +31,8 @@ use pf::config;
 use pf::radius_audit_log;
 use pf::constants::admin_roles qw(@ADMIN_ACTIONS);
 use pf::dhcp_option82;
+use pf::factory::detect::parser;
+use pf::factory::scan;
 
 use constant {
     APP => 'html/pfappserver',
@@ -331,13 +333,12 @@ sub extract_modules {
     }
 
     const('pf::config', 'VALID_TRIGGER_TYPES', keys(%pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE));
-    const('pf::config', 'SoH Actions', \@pf::config::SOH_ACTIONS);
-    const('pf::config', 'SoH Classes', \@pf::config::SOH_CLASSES);
-    const('pf::config', 'SoH Status', \@pf::config::SOH_STATUS);
     const('pf::config', 'Inline triggers', [$pf::config::MAC, $pf::config::PORT, $pf::config::SSID, $pf::config::ALWAYS]);
     const('pf::config', 'Network types', [$pf::config::NET_TYPE_VLAN_REG, $pf::config::NET_TYPE_VLAN_ISOL, $pf::config::NET_TYPE_INLINE, 'management', 'other']);
     const('pf::radius_audit_log', 'RADIUS Audit Log', \@pf::radius_audit_log::FIELDS);
     const('pf::dhcp_option82', 'DHCP Option 82', [values %pf::dhcp_option82::HEADINGS]);
+    const('pf::factory::detect::parser', 'Detect Parsers', [map { /^pf::detect::parser::(.*)/;"pfdetect_type_$1"  } @pf::factory::detect::parser::MODULES]);
+    const('pf::factory::scan', 'Scans Engine', [map { /^pf::scan(.*)/; my $x = $1;  $x =~ s/(::)/_/g; "scan_type$x"  } @pf::factory::scan::MODULES]);
 
     my @values = map { "${_}_action" } @pf::action::VIOLATION_ACTIONS;
     const('pf::action', 'VIOLATION_ACTIONS', \@values);
@@ -359,7 +360,7 @@ sub extract_modules {
       id
       client_secret
       host
-      realm
+      authenticate_realm
       secret
       basedn
       encryption
@@ -384,6 +385,11 @@ sub extract_modules {
       md5_hash
       transaction_key
       api_login_id
+      shared_secret
+      merchant_id
+      terminal_id
+      shared_secret_direct
+      domains
     );
     foreach (@$types) {
         my $type = "pf::Authentication::Source::${_}Source";

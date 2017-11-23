@@ -45,6 +45,7 @@ use pf::factory::detect::parser;
 use pf::client;
 use pfconfig::cached_hash;
 use pf::CHI::Request;
+use Systemd::Daemon qw{ -soft };
 
 # initialization
 # --------------
@@ -97,6 +98,7 @@ my $IS_CHILD = 0;
 my $running = 1;
 
 sub start_detectors {
+    Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
     foreach my $id (keys %ConfigDetect) {
         next unless isenabled($ConfigDetect{$id}{status});
         run_detector($id);
@@ -111,6 +113,7 @@ creates a new child to run a task
 
 sub run_detector {
     my ($id) = @_;
+    db_disconnect();
     my $pid = fork();
     if ($pid) {
         $CHILDREN{$pid} = $id;
@@ -147,15 +150,16 @@ sub _run_detector {
         $logger->info("listening on $alert_pipe");
     }
 
-    my $client = pf::api::queue->new(queue => 'pfdetect');
+    my $client = $parser->getApiClient();
 
     while (<$alert_pipe_fh>) {
         last unless $running;
 
         my $line = $_;
+        chomp($line);
         $logger->info("alert received: '$line'");
         my $data = $parser->parse($line);
-        unless($data || $data eq '0') { # Getting '0' from the parser indicates "job's done" which mean, nothing more to do for that line
+        unless(defined $data) { # Error parsing line
             $logger->warn("unknown input: $line ");
             next;
         }
@@ -200,6 +204,7 @@ while($running){
 
 
 END {
+    Systemd::Daemon::notify( STOPPING => 1 );
     deletepid();
 }
 

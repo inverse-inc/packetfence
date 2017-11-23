@@ -40,6 +40,9 @@
   <IfModule !mod_mime.c>
     LoadModule mime_module /usr/lib/apache2/modules/mod_mime.so
   </IfModule>
+  <IfModule !mod_systemd.c>
+    LoadModule systemd_module     /usr/lib/apache2/modules/mod_systemd.so
+  </IfModule>
 </IfDefine>
 
 #RHEL specific
@@ -85,6 +88,9 @@
   <IfModule !mod_mime.c>
     LoadModule mime_module modules/mod_mime.so
   </IfModule>
+  <IfModule !mod_systemd.c>
+    LoadModule systemd_module   modules/mod_systemd.so
+  </IfModule>
 </IfDefine>
 
 [% IF apache_version == "2.4" %]
@@ -117,7 +123,10 @@ MaxSpareServers 1
 HostnameLookups off
 MaxRequestsPerChild 1000
 
-ErrorLog  [% install_dir %]/logs/[% name %].error
+Header set X-XSS-Protection "1; mode=block"
+Header always append X-Frame-Options SAMEORIGIN
+
+ErrorLog "| /usr/bin/logger -thttpd_graphite_err -plocal5.err"
 
 ServerAdmin [% server_admin %]
 
@@ -139,8 +148,8 @@ TraceEnable Off
   <VirtualHost [% vhost %]:[% port %] >
       ServerName [% server_name %]
       DocumentRoot  [% install_dir %]/html/pfappserver/lib
-      ErrorLog      [% install_dir %]/logs/[% name %].error
-      CustomLog   [% install_dir %]/logs/[% name %].access combined
+      ErrorLog "| /usr/bin/logger -thttpd_graphite_err -plocal5.err"
+      CustomLog  "| /usr/bin/logger -thttpd_graphite -plocal5.info" loadbalanced_combined
       WSGIScriptAlias  / [% install_dir %]/conf/httpd.conf.d/graphite-web.wsgi
       WSGIImportScript [% install_dir %]/conf/httpd.conf.d/graphite-web.wsgi process-group=%{GLOBAL} application-group=%{GLOBAL}
       Header           set Access-Control-Allow-Origin "*"

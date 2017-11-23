@@ -34,7 +34,6 @@ use pf::config qw(
     $PORT
 );
 use pf::log;
-use Net::SSH2;
 
 # CAPABILITIES
 # access technology supported
@@ -59,6 +58,7 @@ sub _connect {
     my $enable_user = "manager";
 
     eval {
+        require Net::SSH2;
         $ssh = Net::SSH2->new();
         $ssh->connect($self->{_ip}, 22 ) or die "Cannot connect $!"  ;
         $ssh->auth_password($self->{_cliUser},$self->{_cliPwd}) or die "Cannot authenticate" ;

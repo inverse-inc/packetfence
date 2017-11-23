@@ -327,7 +327,6 @@ post-auth {
 	}
 
 	attr_filter.packetfence_post_auth
-	linelog
 	#
 	#  Access-Reject packets are sent through the REJECT sub-section of the
 	#  post-auth section.
@@ -354,7 +353,6 @@ post-auth {
 
 		#  Remove reply message if the response contains an EAP-Message
 		remove_reply_message_if_eap
-		linelog
 	}
 }
 

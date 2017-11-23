@@ -42,7 +42,6 @@ case "$1" in
         chmod 0755 $PACKETFENCE/addons/*.pl
         chmod 0755 $PACKETFENCE/addons/*.sh
         chmod 0755 $PACKETFENCE/addons/upgrade/*.pl
-        chmod 0755 $PACKETFENCE/addons/snort/*.pl
         chmod 0755 $PACKETFENCE/addons/watchdog/*.sh
         chmod 0755 $PACKETFENCE/bin/*
         chmod 0755 $PACKETFENCE/sbin/*
@@ -81,13 +80,9 @@ case "$1" in
         done
 
         #Make ssl certificate
-        if [ ! -f /usr/local/pf/conf/ssl/server.crt ]; then
-            openssl req -x509 -new -nodes -days 3650 -batch\
-            -out /usr/local/pf/conf/ssl/server.crt\
-            -keyout /usr/local/pf/conf/ssl/server.key\
-            -nodes -config /usr/local/pf/conf/openssl.cnf
-            cat /usr/local/pf/conf/ssl/server.crt /usr/local/pf/conf/ssl/server.key > /usr/local/pf/conf/ssl/server.pem
-        fi
+        cd /usr/local/pf
+        make conf/ssl/server.pem
+
 
         # Create OMAPI key
         if [ ! -f /usr/local/pf/conf/pf_omapi_key ]; then
@@ -100,12 +95,12 @@ case "$1" in
         fi
 
 
-	if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
-	    echo "Building default RADIUS certificates..."
-	    cd /usr/local/pf/raddb/certs
-	    make
-	else
-	    echo "DH already exists, won't touch it!"
+	    if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
+	        echo "Building default RADIUS certificates..."
+	        cd /usr/local/pf/raddb/certs
+	        make
+	    else
+	        echo "DH already exists, won't touch it!"
         fi
 
         if [ ! -f /usr/local/pf/conf/pf.conf ]; then
@@ -116,10 +111,13 @@ case "$1" in
             echo "pf.conf already exists, won't touch it!"
         fi
 
+        echo "Restarting rsyslog"
+        systemctl restart rsyslog
+
         # managing services
         set +e
-        for service in apache2 snmptrapfmt bind9 freeradius apparmor isc-dhcp-server collectd haproxy carbon-cache keepalived redis-server smbd samba winbind nmbd; do
-            
+        for service in apache2 snmptrapfmt bind9 freeradius apparmor isc-dhcp-server collectd haproxy carbon-cache keepalived redis-server smbd samba winbind nmbd mysql; do
+
             if [ -e "/etc/init.d/"$service ] ; then
                 invoke-rc.d $service stop  > /dev/null 2>&1
                 if [ -e /etc/lsb-release ]; then
@@ -140,24 +138,39 @@ case "$1" in
 
 
         /sbin/ldconfig
+        # Enabling ip forwarding
+        echo "# ip forwarding enabled by packetfence" > /etc/sysctl.d/99-ip_forward.conf
+        echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.d/99-ip_forward.conf
+        sysctl -p /etc/sysctl.d/99-ip_forward.conf
+ 
         #Starting PacketFence.
         echo "Starting PacketFence Administration GUI..."
         #removing old cache
         rm -rf /usr/local/pf/var/cache/
         # Start packetfence web administration
-        if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
-            update-rc.d mysql defaults
-            update-rc.d packetfence defaults 60 || exit 0
-            invoke-rc.d packetfence-config restart
-            invoke-rc.d packetfence start httpd.admin
+        if [ `systemctl get-default` = "packetfence-cluster.target" ]; then
+	    echo "This is an upgrade on a clustered system. We don't change the default systemd target."
+        else
+            echo "Setting packetfence.target as the default systemd target."
+           /bin/systemctl set-default packetfence.target
         fi
-        if [ ${DIST} = "jessie" ] ; then
-            systemctl enable mysql
-            systemctl enable packetfence
-            systemctl restart packetfence-config
-            systemctl start packetfence@httpd.admin
-        fi
+        echo "Restarting journald to enable persistent logging"
+        /bin/systemctl restart systemd-journald
 
+        systemctl enable packetfence-mariadb
+        systemctl enable packetfence-redis-cache
+        systemctl enable packetfence-config
+        systemctl disable packetfence-iptables
+        systemctl enable packetfence-routes
+        systemctl enable packetfence-httpd.admin
+        systemctl daemon-reload
+        systemctl isolate packetfence-base.target
+
+        set +e
+        /usr/local/pf/bin/pfcmd configreload
+        set -e
+        /bin/systemctl start packetfence-httpd.admin
+        systemctl enable packetfence-iptables
         echo Installation complete
         echo "* Please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."
         echo "* Please stop your iptables service if you don't have access to configurator."

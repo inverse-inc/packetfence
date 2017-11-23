@@ -92,9 +92,11 @@ sub common_attributes {
   return [
           { value => 'SSID', type => $Conditions::SUBSTRING },
           { value => 'current_time', type => $Conditions::TIME },
+          { value => 'current_time_period', type => $Conditions::TIME_PERIOD },
           { value => 'connection_type', type => $Conditions::CONNECTION },
           { value => 'computer_name', type => $Conditions::SUBSTRING },
           { value => "mac", type => $Conditions::SUBSTRING },
+          { value => "realm", type => $Conditions::SUBSTRING },
          ];
 }
 
@@ -157,7 +159,7 @@ Returns the actions of the first matched rule.
 =cut
 
 sub match {
-    my ($self, $params, $action) = @_;
+    my ($self, $params, $action, $extra) = @_;
 
     my $common_attributes = $self->common_attributes();
     my $available_attributes = $self->available_attributes();
@@ -168,14 +170,16 @@ sub match {
     }
 
     # Add current date & time to the list of parameters
-    my ($sec,$min,$hour,$mday,$mon,$year) = localtime(time);
+    my $time = time;
+    my ($sec,$min,$hour,$mday,$mon,$year) = localtime($time);
     my $current_date = sprintf("%d-%02d-%02d", $year+1900, $mon+1, $mday);
     my $current_time = sprintf("%02d:%02d", $hour, $min);
     # Make a copy of the keys to allow caching of the parameters
     $params = {%$params};
-    $params->{current_date} = $current_date;
-    $params->{current_time} = $current_time;
     my $rule_class = $params->{'rule_class'} // '';
+    $params->{current_date} //= $current_date;
+    $params->{current_time} //= $current_time;
+    $params->{current_time_period} //= $time;
 
     my @matching_rules = ();
     $self->preMatchProcessing;
@@ -193,7 +197,7 @@ sub match {
                 # A condition on a common attribute
                 my $r = $self->match_condition($condition, $params);
 
-                if ($r == 1) {
+                if ($r) {
                     $logger->debug("Matched condition ".join(" ", ($condition->attribute, $condition->operator, $condition->value)));
                     push(@matching_conditions, $condition);
                 }
@@ -206,7 +210,7 @@ sub match {
 
         # We always check if at least the returned value is defined. That means the username
         # has been found in the source.
-        if (defined $self->match_in_subclass($params, $rule, \@own_conditions, \@matching_conditions)) {
+        if (defined $self->match_in_subclass($params, $rule, \@own_conditions, \@matching_conditions, $extra)) {
           # We compare the matched conditions with how many we had
           if ($rule->match eq $Rules::ANY &&
               scalar @matching_conditions > 0) {
@@ -259,8 +263,6 @@ sub match_condition {
 
 sub search_attributes {
     my ($self,$username) = @_;
-    my $realm;
-    ($username,$realm) = strip_username($username) if isenabled($self->{'stripped_user_name'});
     return $self->search_attributes_in_subclass($username);
 }
 
@@ -302,6 +304,18 @@ List of mandatory fields for this source
 
 sub mandatoryFields {}
 
+
+=head2 realmIsAllowed
+
+checks if realm is allowed
+
+=cut
+
+sub realmIsAllowed {
+    my ($self, $realm) = @_;
+    return $FALSE;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -329,7 +343,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;
 
 # vim: set shiftwidth=4:

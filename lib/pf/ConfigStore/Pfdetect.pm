@@ -50,6 +50,20 @@ sub _update_section {
     }
 }
 
+=head2 cleanupBeforeCommit
+
+cleanupBeforeCommit
+
+=cut
+
+sub cleanupBeforeCommit {
+    my ($self, $id, $data) = @_;
+    if ($data->{type} eq 'regex') {
+        delete $data->{loglines};
+    }
+    return ;
+}
+
 =head2 _Sections
 
 Just get the top level sections
@@ -85,7 +99,7 @@ sub cleanupAfterRead {
 }
 
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 AUTHOR
 

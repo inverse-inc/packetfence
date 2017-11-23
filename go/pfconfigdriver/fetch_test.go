@@ -3,8 +3,8 @@ package pfconfigdriver
 import (
 	"context"
 	"github.com/davecgh/go-spew/spew"
-	"github.com/fingerbank/processor/log"
-	"github.com/fingerbank/processor/sharedutils"
+	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"os"
 	"os/exec"
 	"testing"

@@ -41,7 +41,7 @@ has_field 'username' =>
 
 has_field 'password' =>
   (
-   type => 'Password',
+   type => 'ObfuscatedText',
    label => 'Password',
    required => 1,
    messages => { required => 'You must specify the password' },
@@ -158,7 +158,7 @@ sub options_type {
 sub options_categories {
     my $self = shift;
 
-    my ($status, $result) = $self->form->ctx->model('Roles')->list();
+    my ($status, $result) = $self->form->ctx->model('Config::Roles')->listFromDB();
     my @roles = map { $_->{name} => $_->{name} } @{$result} if ($result);
     return ('' => '', @roles);
 }
@@ -190,5 +190,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

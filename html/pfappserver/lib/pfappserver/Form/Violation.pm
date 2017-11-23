@@ -50,7 +50,9 @@ has_field 'desc' =>
   (
    type => 'Text',
    label => 'Description',
-   required => 1,
+   required_when => {
+    id => sub { $_[0] ne 'defaults' }
+   },
    element_class => ['input-large'],
    messages => { required => 'Please specify a brief description of the violation.' },
   );
@@ -75,9 +77,8 @@ has_field 'vclose' =>
   (
    type => 'Select',
    label => 'Violation to close',
-   element_class => ['chzn-deselect'],
+   element_class => ['chzn-deselect hide'],
    element_attr => {'data-placeholder' => 'Select a violation'},
-   wrapper_attr => {style => 'display: none'},
    tags => { after_element => \&help,
              help => 'When selecting the <strong>close</strong> action, triggering the violation will close this violation. This is an experimental workflow for Mobile Device Management (MDM).' },
   );
@@ -86,9 +87,8 @@ has_field 'target_category' =>
    type => 'Select',
    label => 'Set role',
    options_method => \&options_roles,
-   element_class => ['chzn-deselect'],
+   element_class => ['chzn-deselect hide'],
    element_attr => {'data-placeholder' => 'Select a role'},
-   wrapper_attr => {style => 'display: none'},
    tags => { after_element => \&help,
              help => 'When selecting the <strong>role</strong> action, triggering the violation will change the node to this role.' },
   );
@@ -165,7 +165,7 @@ has_field 'template' =>
    type => 'Select',
    label => 'Template',
    tags => { after_element => \&help,
-             help => 'HTML template the host will be redirected to while in violation. You can create new templates from the <em>Portal Profiles</em> configuration section.' }
+             help => 'HTML template the host will be redirected to while in violation. You can create new templates from the <em>Connection Profiles</em> configuration section.' }
   );
 has_field 'button_text' =>
   (
@@ -189,7 +189,7 @@ has_field 'redirect_url' =>
    type => 'Text',
    label => 'Redirection URL',
    tags => { after_element => \&help,
-             help => 'Destination URL where PacketFence will forward the device. By default it will use the Redirection URL from the portal profile configuration.' }
+             help => 'Destination URL where PacketFence will forward the device. By default it will use the Redirection URL from the connection profile configuration.' }
   );
 has_field 'external_command' =>
   (
@@ -228,7 +228,7 @@ For violations other than the default, add placeholders with values from default
 sub update_fields {
     my $self = shift;
 
-    unless ($self->{init_object} && $self->init_object->{id} eq 'defaults') {
+    unless ($self->{init_object} && defined $self->init_object->{id} && $self->init_object->{id} eq 'defaults') {
         if ($self->placeholders) {
             foreach my $field ($self->fields) {
                 if ($self->placeholders->{$field->name} && length $self->placeholders->{$field->name}) {
@@ -362,12 +362,7 @@ Validate the ID is numeric and doesn't exceed 2000000000 (max int(11) is 2147483
 sub validate_id {
     my ($self, $field) = @_;
     my $val = $field->value;
-
-    # Check the violation ID being a number
-    unless ($val =~ m/^(defaults|\d+)$/) {
-        $field->add_error('The violation ID must be a positive integer.');
-        return;
-    }
+    return if $val eq 'defaults';
 
     if($val <= 0 || $val > $MAX_VID) {
         $field->add_error('The violation ID should be between 1 and 2000000000');
@@ -398,5 +393,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+
 1;

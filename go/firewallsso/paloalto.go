@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/fingerbank/processor/log"
+	"github.com/inverse-inc/packetfence/go/log"
 	"log/syslog"
 	"net/url"
 	"text/template"

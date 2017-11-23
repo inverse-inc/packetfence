@@ -43,6 +43,17 @@ TODO: This list is incomplete
 
 =cut
 
+#
+# %TRAP_NORMALIZERS
+# A hash of cisco trap normalizers
+# Use the following convention when adding a normalizer
+# <nameOfTrapNotificationType>TrapNormalizer
+#
+
+our %TRAP_NORMALIZERS = (
+    '.1.3.6.1.4.1.11.2.14.12.4.0.1' => 'hpicfIntrusionTrapTrapNormalizer',
+);
+
 sub getVersion {
     my ($self)                = @_;
     my $oid_hpSwitchOsVersion = '1.3.6.1.4.1.11.2.14.11.5.1.1.3.0';
@@ -534,6 +545,77 @@ sub returnAuthorizeRead {
    my $rule = $filter->test('returnAuthorizeRead', $args);
    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
    return [$status, %$radius_reply_ref];
+}
+
+our $HUB_INTRUDER_PORT_OID = ".1.3.6.1.4.1.11.2.14.2.10.2.1.3.1.";
+
+=item hpicfIntrusionTrapTrapNormalizer
+
+The trap normalizer for hpicfIntrusionTrapTrapNormalizer traps
+
+    [
+        {
+            'notificationtype' => 'TRAP',
+            'version'          => 0,
+            'receivedfrom'     => 'UDP: [10.9.16.151]:161->[10.13.0.70]',
+            'switchIp'         => '10.9.16.151',
+            'errorstatus'      => 0,
+            'messageid'        => 0,
+            'community'        => 'c5dM_pub',
+            'transactionid'    => 4225,
+            'errorindex'       => 0,
+            'requestid'        => 0
+        },
+        [
+            [
+                '.1.3.6.1.2.1.1.3.0',
+                'Timeticks: (521829650) 60 days, 9:31:36.50', 67
+            ],
+            [ '.1.3.6.1.6.3.1.1.4.1.0', 'OID: .1.3.6.1.4.1.11.2.14.12.4.0.1', 6 ],
+            [ '.1.3.6.1.4.1.11.2.14.2.10.2.1.2.1.14', 'INTEGER: 1',  2 ],
+            [ '.1.3.6.1.4.1.11.2.14.2.10.2.1.3.1.14', 'INTEGER: 14', 2 ],
+            [
+                '.1.3.6.1.4.1.11.2.14.2.10.2.1.4.1.14',
+                'Hex-STRING: 00 21 B7 B0 29 B0 ',
+                4
+            ],
+            [ '.1.3.6.1.4.1.11.2.14.2.10.2.1.6.1.14', 'INTEGER: 1', 2 ],
+            [ '.1.3.6.1.4.1.11.2.14.2.10.2.1.7.1.14', 'INTEGER: 1', 2 ],
+            [ '.1.3.6.1.6.3.18.1.3.0',  'IpAddress: 10.9.16.151',         64 ],
+            [ '.1.3.6.1.6.3.18.1.4.0',  'STRING: "c5dM_pub"',             4 ],
+            [ '.1.3.6.1.6.3.1.1.4.3.0', 'OID: .1.3.6.1.4.1.11.2.14.12.4', 6 ]
+        ]
+    ];
+
+=cut
+
+sub hpicfIntrusionTrapTrapNormalizer {
+    my ($self, $trapInfo) = @_;
+    my ($pdu, $variables) = @$trapInfo;
+    my ($variable) = $self->findTrapVarWithBase($variables, $HUB_INTRUDER_PORT_OID);
+    $variable->[1] =~ /INTEGER: (\d+)/;
+    my $ifIndex = $1;
+    return {
+        trapType => 'secureMacAddrViolation',
+        trapIfIndex => $ifIndex,
+        trapVlan => $self->getVlan( $ifIndex ),
+        trapMac => $self->getMacFromTrapVariablesForOIDBase($variables, '.1.3.6.1.4.1.11.2.14.2.10.2.1.4.'),
+    }
+}
+
+
+=item _findTrapNormalizer
+
+Find the normalizer method for the trap for HP switches
+
+=cut
+
+sub _findTrapNormalizer {
+    my ($self, $snmpTrapOID, $pdu, $variables) = @_;
+    if (exists $TRAP_NORMALIZERS{$snmpTrapOID}) {
+        return $TRAP_NORMALIZERS{$snmpTrapOID};
+    }
+    return undef;
 }
 
 =back

@@ -43,6 +43,9 @@
   <IfModule !mod_rewrite.c>
     LoadModule rewrite_module /usr/lib/apache2/modules/mod_rewrite.so
   </IfModule>
+  <IfModule !mod_systemd.c>
+    LoadModule systemd_module     /usr/lib/apache2/modules/mod_systemd.so
+  </IfModule>
 </IfDefine>
 
 #RHEL specific
@@ -88,6 +91,9 @@
   <IfModule !mod_rewrite.c>
     LoadModule rewrite_module modules/mod_rewrite.so
   </IfModule>
+  <IfModule !mod_systemd.c>
+    LoadModule systemd_module modules/mod_systemd.so
+  </IfModule>
 </IfDefine>
 
 PidFile [% install_dir %]/var/run/[% name %].pid
@@ -123,11 +129,14 @@ DocumentRoot [% install_dir %]/html/parking
 
 DirectoryIndex index.html
 
-ErrorLog [% install_dir %]/logs/[% name %].error
+Header set X-XSS-Protection "1; mode=block"
+Header always append X-Frame-Options SAMEORIGIN
+
+ErrorLog "| /usr/bin/logger -thttpd_parking_err -plocal5.err"
 
 LogLevel warn
 
-CustomLog [% install_dir %]/logs/[% name %].access combined
+CustomLog  "| /usr/bin/logger -thttpd_parking -plocal5.info" combined
 
 ScriptAlias /cgi-bin/ [% install_dir %]/html/parking/cgi-bin/
 

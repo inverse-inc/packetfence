@@ -88,10 +88,11 @@ sub submit {
     $redis->multi(sub {});
     $redis->hmset($id, data => sereal_encode_with_object($ENCODER, [$task_type, $task_data]), expire => $expire_in, sub {});
     $redis->expire($id, $expire_in, sub {});
-    $redis->lpush($queue_name, $id, sub {});
     $redis->hincrby($PFQUEUE_COUNTER, $task_counter_id, 1, sub {});
+    $redis->lpush($queue_name, $id, sub {});
     $redis->exec(sub {});
     $redis->wait_all_responses();
+    return $id;
 }
 
 sub submit_delayed {
@@ -109,10 +110,11 @@ sub submit_delayed {
     $redis->multi(sub {});
     $redis->hmset($id, data => sereal_encode_with_object($ENCODER, [$task_type, $task_data]), expire => $expire_in, sub {});
     $redis->expire($id, $expire_in + int($delay / 1000), sub {});
-    $redis->zadd("Delayed:$queue", $time_milli, $id, sub {});
     $redis->hincrby($PFQUEUE_COUNTER, $task_counter_id, 1, sub {});
+    $redis->zadd("Delayed:$queue", $time_milli, $id, sub {});
     $redis->exec(sub {});
     $redis->wait_all_responses();
+    return $id;
 }
 
 

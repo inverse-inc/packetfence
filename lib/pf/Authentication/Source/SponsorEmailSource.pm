@@ -24,7 +24,7 @@ has '+class' => (default => 'external');
 has '+type' => (default => 'SponsorEmail');
 has 'allow_localdomain' => (isa => 'Str', is => 'rw', default => 'yes');
 has 'activation_domain' => (isa => 'Maybe[Str]', is => 'rw');
-has 'sponsorship_cc' => (isa => 'Maybe[Str]', is => 'rw');
+has 'sponsorship_bcc' => (isa => 'Maybe[Str]', is => 'rw');
 has 'email_activation_timeout' => (isa => 'Str', is => 'rw', default => '30m');
 
 =head2 dynamic_routing_module
@@ -140,7 +140,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;
 
 # vim: set shiftwidth=4:

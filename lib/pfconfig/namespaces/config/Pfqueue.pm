@@ -25,6 +25,9 @@ use pf::file_paths qw(
 use pf::util;
 use pf::constants::pfqueue qw(
     $PFQUEUE_WORKERS_DEFAULT
+    $PFQUEUE_WEIGHT_DEFAULT
+    $PFQUEUE_MAX_TASKS_DEFAULT
+    $PFQUEUE_TASK_JITTER_DEFAULT
     $PFQUEUE_DELAYED_QUEUE_BATCH_DEFAULT
     $PFQUEUE_DELAYED_QUEUE_WORKERS_DEFAULT
     $PFQUEUE_DELAYED_QUEUE_SLEEP_DEFAULT
@@ -42,19 +45,18 @@ sub init {
 sub build_child {
     my ($self) = @_;
     my %tmp_cfg = %{ $self->{cfg} };
+    my $max_tasks = $tmp_cfg{pfqueue}{max_tasks};
+    if (!defined($max_tasks) || $max_tasks <= 0) {
+        $tmp_cfg{pfqueue}{max_tasks} = $PFQUEUE_MAX_TASKS_DEFAULT;
+    }
+    $tmp_cfg{pfqueue}{task_jitter} //= $PFQUEUE_TASK_JITTER_DEFAULT;
     foreach my $queue_section ( $self->GroupMembers('queue') ) {
         my $queue = $queue_section;
         $queue =~ s/^queue //;
         my $data = delete $tmp_cfg{$queue_section};
         # Set defaults
         $data->{workers} //= $PFQUEUE_WORKERS_DEFAULT;
-        $data->{has_delayed_queue} = isenabled($data->{has_delayed_queue});
-        if($data->{has_delayed_queue}) {
-            $data->{delayed_queue_batch} //= $PFQUEUE_DELAYED_QUEUE_BATCH_DEFAULT;
-            $data->{delayed_queue_workers} //= $PFQUEUE_DELAYED_QUEUE_WORKERS_DEFAULT;
-            # Normalize to milliseconds
-            $data->{delayed_queue_sleep} = ($data->{delayed_queue_sleep} // $PFQUEUE_DELAYED_QUEUE_SLEEP_DEFAULT ) * 1000;
-        }
+        $data->{weight} //= $PFQUEUE_WEIGHT_DEFAULT;
         push @{$tmp_cfg{queues}},{ %$data, name => $queue };
     }
     my %redis_args;

@@ -10,11 +10,6 @@ domain=packetfence.org
 # Hostname of PacketFence system.  This is concatenated with the domain in Apache rewriting rules and therefore must be resolvable by clients.
 hostname=packetfence
 #
-# general.dnsservers
-#
-# Comma-delimited list of DNS servers.  Passthroughs are created to allow queries to these servers from even "trapped" nodes.
-dnsservers=127.0.0.1
-#
 # general.dhcpservers
 #
 # Comma-delimited list of DHCP servers.  Passthroughs are created to allow DHCP transactions from even "trapped" nodes.
@@ -22,8 +17,7 @@ dhcpservers=127.0.0.1
 #
 # general.timezone
 #
-# System's timezone in string format. Supported list:
-# http://www.php.net/manual/en/timezones.php
+#System's timezone in string format. List generated from Perl library DataTime::TimeZone
 timezone=America/Montreal
 
 [network]
@@ -95,110 +89,73 @@ interfaceSNAT=
 [proxies]
 tools/stinger.exe=http://download.nai.com/products/mcafee-avert/stng260.exe
 
-[trapping]
+[fencing]
 #
-# trapping.registration
-#
-# If enabled, nodes will be required to register on first network access.  Further registration options are configured in the 
-# registration section.
-registration=enabled
-#
-# trapping.redirtimer
+# fencing.redirtimer
 #
 # How long to display the progress bar during trap release. Default value is 
 # based on VLAN enforcement techniques. Inline enforcement only users could
 # lower the value.
 redirtimer=20s
 # 
-# trapping.wait_for_redirect
+# fencing.wait_for_redirect
 #
 # How many seconds should the WebAPI sleep before actually triggering the VLAN change.
 # This is meant to give the device enough time to fetch the redirection page before 
 # switching VLAN.
 wait_for_redirect = 1
 #
-# trapping.whitelist
+# fencing.whitelist
 #
 # Comma-delimited list of MAC addresses that are immune to isolation. In 
 # inline level 2 enforcement, the firewall is opened for them as if they were 
 # registered. This "feature" will probably be reworked in the future.
 whitelist=
 #
-# trapping.detection
-#
-# Enables snort-based worm detection.  If you don't have a span interface available, don't bother enabling it.  If you do, 
-# you'll most definately want this on.
-detection=disabled
-
-#
-# trapping.detection_engine
-#
-# Let you choose from our supported IDS: snort or suricata
-#
-detection_engine=snort
-#
-# trapping.range
+# fencing.range
 #
 # Comma-delimited list of address ranges/CIDR blocks that Snort/Suricata will monitor/detect/trap on.  Gateway, network, and 
 # broadcast addresses are ignored.
 range=
-
 #
-# trapping.wireless_ips
-#
-# Enable wids trapping detection
-wireless_ips=disabled
-
-#
-# Set the threshold for wids
-#
-wireless_ips_threshold=90
-
-#
-# trapping.passthrough
+# fencing.passthrough
 #
 # When enabled, pfdns will resolve the real IP addresses of passthroughs and add them in the ipset session to give access
 # to trapped devices. Don´t forget to enable ip_forward on your server.
 passthrough=disabled
 #
-# trapping.passthroughs
+# fencing.passthroughs
 #
 # Comma-delimited list of domains to be used as HTTP and HTTPS passthroughs to web sites.
 #
 passthroughs=
 #
-# trapping.proxy_passthroughs
+# fencing.proxy_passthroughs
 #
 # Comma-delimited list of domains to be use for apache passthrough
 proxy_passthroughs=crl.geotrust.com,ocsp.geotrust.com,crl.thawte.com,ocsp.thawte.com,crl.comodoca.com,ocsp.comodoca.com,crl.incommon.org,ocsp.incommon.org,crl.usertrust.com,ocsp.usertrust.com,mscrl.microsoft.com,crl.microsoft.com,ocsp.apple.com,ocsp.digicert.com,ocsp.entrust.com,srvintl-crl.verisign.com,ocsp.verisign.com,ctldl.windowsupdate.com,crl.globalsign.net,pki.google.com,www.microsoft.com,crl.godaddy.com,ocsp.godaddy.com,certificates.godaddy.com,crl.globalsign.com,secure.globalsign.com,cacerts.digicert.com,crt.comodoca.com,crl.incommon-rsa.org,crl.quovadisglobal.com,cert.incommon.org,crt.usertrust.com,crl.verisign.com,crl.starfieldtech.com,developer.apple.com,ts-crl.ws.symantec.com,certificates.intel.com
 #
-# trapping.interception_proxy
+# fencing.isolation_passthrough
+#
+# When enabled, pfdns will resolve the real IP addresses of passthroughs and add them in the ipset session to give access
+# to trapped devices. Don´t forget to enable ip_forward on your server.
+isolation_passthrough=disabled
+#
+# fencing.isolation_passthroughs
+#
+# Comma-delimited list of domains to be used as HTTP and HTTPS passthroughs to web sites.
+#
+isolation_passthroughs=
+#
+# fencing.interception_proxy
 #
 # When enabled, packetfence will intercept proxy request to somes specified port
 interception_proxy=disabled
 #
-# trapping.interception_proxy_port
+# fencing.interception_proxy_port
 #
 # Comma-delimited list of port used to intercept proxy traffic
 interception_proxy_port=8080,3128
-
-
-[registration]
-#
-# registration.button_text
-#
-#
-button_text=Register
-#
-# registration.device_registration
-#
-# Enable or Disable the ability to register a gaming device using the specific portal page designed to do it
-device_registration=disabled
-#
-# registration.device_registration_role
-#
-# The role to assign to gaming devices. If none is specified, the role of the registrant is used.
-device_registration_role=
 
 [guests_admin_registration]
 #
@@ -239,10 +196,37 @@ smtpserver=localhost
 #PacketFence-related message.
 subjectprefix=PF Alert:
 #
-# alerting.log
+# alerting.smtp_encryption
 #
-# Log file where "log" actions are sent.
-log=violation.log
+# Encryption style when connecting to the SMTP server.
+smtp_encryption=none
+#
+# alerting.smtp_port
+#
+# The port of the SMTP server.
+# If the port is set to 0 then port is calculated by the encryption type.
+# none:25, ssl:465, starttls:587
+smtp_port=0
+#
+# alerting.smtp_username
+#
+# The username used to connect to the SMTP server
+smtp_username=
+#
+# alerting.smtp_password
+#
+# The password used to connect to the SMTP server
+smtp_password=
+#
+# alerting.smtp_verify_ssl
+#
+# Verify SSL connection
+smtp_verifyssl=enabled
+#
+# alerting.smtp_timeout
+#
+# The timeout in seconds for sending an email
+smtp_timeout=20
 
 [ports]
 #
@@ -302,48 +286,50 @@ user=pf
 #
 # Password for the mysql database used by PacketFence. Changing this parameter after the initial configuration will *not* change it in the database it self, only in the configuration.
 pass=packet
+
+[database_advanced]
 #
-# database.key_buffer_size
+# database_advanced.key_buffer_size
 #
 # The key_buffer_size MySQL configuration attribute (in MB). Only change if you know what you are doing. Will only affect a locally running MySQL server.
 key_buffer_size=100
 #
-# database.innodb_buffer_pool_size
+# database_advanced.innodb_buffer_pool_size
 #
 # The innodb_buffer_pool_size MySQL configuration attribute (in MB). Only change if you know what you are doing. Will only affect a locally running MySQL server.
 innodb_buffer_pool_size=500
 #
-# database.innodb_additional_mem_pool_size
+# database_advanced.innodb_additional_mem_pool_size
 #
 # The innodb_additional_mem_pool_size MySQL configuration attribute (in MB). Only change if you know what you are doing. Will only affect a locally running MySQL server.
 innodb_additional_mem_pool_size=20
 #
-# database.query_cache_size
+# database_advanced.query_cache_size
 #
 # The query_cache_size MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.
 query_cache_size=0
 #
-# database.thread_concurrency
+# database_advanced.thread_concurrency
 #
 # The thread_concurrency MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.
 thread_concurrency=8
 #
-# database.max_connections
+# database_advanced.max_connections
 #
 # The max_connections MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.
-max_connections=500
+max_connections=1000
 #
-# database.table_cache
+# database_advanced.table_cache
 #
 # The table_cache MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.
 table_cache=300
 #
-# database.thread_cache_size
+# database_advanced.thread_cache_size
 #
 # The thread_cache_size MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.
 thread_cache_size=25
 #
-# database.max_allowed_packet
+# database_advanced.max_allowed_packet
 #
 # The max_allowed_packet MySQL configuration attribute (in MB). Only change if you know what you are doing. Will only affect a locally running MySQL server.
 max_allowed_packet=16
@@ -384,26 +370,6 @@ pffilter=enabled
 #
 # Should pfsso be managed by PacketFence?
 pfsso=enabled
-#
-# services.snort
-#
-# Should snort be managed by PacketFence?
-snort=enabled
-#
-# services.snort_binary
-#
-# Location of the snort binary. Only necessary to change if you are not running the RPMed version. 
-snort_binary=/usr/sbin/snort
-#
-# services.suricata
-#
-# Should suricata be managed by PacketFence?
-suricata=enabled
-#
-# services.suricata_binary
-# 
-# Location of the suricata binary.
-suricata_binary=/usr/bin/suricata
 #
 # services.radiusd
 #
@@ -528,6 +494,12 @@ redis_binary=/usr/bin/redis-server
 # Should pfdhcplistener be started?
 pfdhcplistener=enabled
 #
+# services.pfdhcplistener_packet_size
+#
+# Set the max size of DHCP packets
+# Do not change unless you know what you are doing
+pfdhcplistener_packet_size=576
+#
 # services.keepalived
 #
 # Should keepalived be started?
@@ -627,32 +599,31 @@ routes=enabled
 # location of the routes binary. only necessary to change if you are not running the rpmed version.
 routes_binary=/sbin/ip
 
-[vlan]
+[snmp_traps]
 #
-# vlan.closelocationlogonstop
+# snmp_traps.nbtraphandlerthreads
+#
+# Number of trap handler threads pfsetvlan should start
+nbtraphandlerthreads = 5
+#
+# snmp_traps.nbtrapparserthreads
+#
+# Number of trap parser threads pfsetvlan should start
+nbtrapparserthreads = 3
+#
+# snmp_traps.closelocationlogonstop
 #
 # Should open locationlog entries be closed when pfsetvlan is 
 # stopped
 closelocationlogonstop=disabled
 #
-#
-# vlan.nbtraphandlerthreads
-#
-# Number of trap handler threads pfsetvlan should start
-nbtraphandlerthreads = 5
-#
-# vlan.nbtrapparserthreads
-#
-# Number of trap parser threads pfsetvlan should start
-nbtrapparserthreads = 3
-#
-# vlan.bounce_duration
+# snmp_traps.bounce_duration
 #
 # Delay to wait between the shut / no-shut on a port. Some OS need a higher value than others.
 # Default should be reasonable for almost every OS but is too long for the usual proprietary OS.
 bounce_duration = 4s
 #
-# vlan.trap_limit
+# snmp_traps.trap_limit
 #
 # Controls whether or not the trap_limit feature is enabled. Trap limiting is
 # a way to limit the damage done by malicious users or misbehaving switch 
@@ -661,21 +632,40 @@ bounce_duration = 4s
 # parameters. Default is enabled.
 trap_limit = enabled
 #
-# vlan.trap_limit_threshold
+# snmp_traps.trap_limit_threshold
 #
 # Maximum number of SNMP traps that a switchport can send to PacketFence within
 # a minute without being flagged as DoS. Defaults to 100
 trap_limit_threshold = 100
 #
-# vlan.trap_limit_action
+# snmp_traps.trap_limit_action
 #
-# Action that PacketFence will take if the vlan.trap_limit_threshold is reached.
+# Action that PacketFence will take if the snmp_traps.trap_limit_threshold is reached.
 # Defaults to none. email will send an email every hour if the limit's still reached.
 # shut will shut the port on the switch and will also send an email even if email is not
 # specified.
 trap_limit_action = 
 
 [inline]
+# inline.accounting
+#
+# Should we handle accouting data for inline clients?
+# This controls inline accouting tasks in pfmon.
+accounting = disabled
+#
+# inline.layer3_accounting_session_timeout
+#
+# Accounting 'sessions' created by pfbandwidthd (level 3 traffic only) that haven't been updated for more than this
+# amount of seconds will be considered inactive.
+# This should be higher than the interval at which pfmon runs
+# Defaults to 300 - 5 minutes
+layer3_accounting_session_timeout = 300
+# inline.layer3_accounting_sync_interval
+#
+# Interval at which pfbandwidthd (level 3 traffic only) should dump collected information into the database.
+# This should be lower than the interval at which pfmon runs
+# Defaults to 41 seconds
+layer3_accounting_sync_interval = 41
 #
 # inline.ports_redirect
 #
@@ -694,45 +684,6 @@ should_reauth_on_vlan_change = disabled
 # inline.interfaceSNAT
 # Choose the interface(s) you want to use to enable snat (by default it´s the management interface)
 interfaceSNAT=
-
-# inline.accounting
-#
-# Should we handle accouting data for inline clients?
-# This controls inline accouting tasks in pfmon.
-accounting = disabled
-
-# inline.layer3_accounting_session_timeout
-#
-# Accounting 'sessions' created by pfbandwidthd (level 3 traffic only) that haven't been updated for more than this
-# amount of seconds will be considered inactive.
-# This should be higher than the interval at which pfmon runs
-# Defaults to 300 - 5 minutes
-layer3_accounting_session_timeout = 300
-
-# inline.layer3_accounting_sync_interval
-#
-# Interval at which pfbandwidthd (level 3 traffic only) should dump collected information into the database.
-# This should be lower than the interval at which pfmon runs
-# Defaults to 41 seconds
-layer3_accounting_sync_interval = 41
-
-[servicewatch]
-#
-# servicewatch.email
-#
-# Should pfcmd service pf watch send an email if services are not running?
-# You must make sure to call the watch command. Installing it in the cron is the
-# recommended approach:
-# */5 * * * * /usr/local/pf/bin/pfcmd service pf watch
-email=enabled
-#
-# servicewatch.restart
-#
-# Should pfcmd service pf watch restart PF if services are not running?
-# You must make sure to call the watch command. Installing it in the cron is the
-# recommended approach:
-# */5 * * * * /usr/local/pf/bin/pfcmd service pf watch
-restart=disabled
 
 [captive_portal]
 #
@@ -799,12 +750,23 @@ detection_mecanism_bypass = disabled
 #
 # Comma-delimited list of URLs known to be used by devices to detect the presence 
 # of a captive portal and trigger their captive portal mechanism.
-detection_mecanism_urls = http://www.gstatic.com/generate_204,http://clients3.google.com/generate_204,http://www.apple.com/library/test/success,http://connectivitycheck.android.com/generate_204,http://connectivitycheck.gstatic.com/generate_204,http://www.msftncsi.com/ncsi.txt,http://www.appleiphonecell.com,http://captive.apple.com,http://captive.roku.com/ok
+detection_mecanism_urls = http://www.gstatic.com/generate_204,http://clients3.google.com/generate_204,http://www.apple.com/library/test/success,http://connectivitycheck.android.com/generate_204,http://connectivitycheck.gstatic.com/generate_204,http://www.msftncsi.com/ncsi.txt,http://www.appleiphonecell.com,http://captive.apple.com,http://captive.roku.com/ok,http://detectportal.firefox.com/success.txt
 #
 # captive_portal.wispr_redirection
 #
 # Enable or disable WISPr redirection capabilities on the captive-portal
 wispr_redirection = enabled
+#
+# captive_portal.rate_limiting
+#
+# Temporarily deny access to a user that performs too many requests on the captive portal on invalid URLs
+rate_limiting = enabled
+#
+# captive_portal.rate_limiting_threshold
+#
+# Amount of requests on invalid URLs after which the rate limiting will kick in for this device
+rate_limiting_threshold = 24
+
 
 [advanced]
 #
@@ -813,10 +775,17 @@ wispr_redirection = enabled
 # Language choice for the communication with administrators
 language=en_US
 #
-# advanced.reevaluate_access_reasons
+# advanced.admin_csp_security_headers
 #
-# After which calls to pfcmd do we have to re-evaluate the state of a node and re-assign VLAN or change iptables rules
-reevaluate_access_reasons=node_modify,manage_register,manage_deregister,manage_vclose,manage_vopen,violation_modify,violation_add,violation_delete,redir.cgi,pfcmd_vlan,admin_modify
+# Enforce Content-Security-Policy (CSP) HTTP response header in the admin interface
+#
+admin_csp_security_headers=enabled
+#
+# advanced.portal_csp_security_headers
+#
+# Enforce Content-Security-Policy (CSP) HTTP response header in the captive portal interface
+#
+portal_csp_security_headers=enabled
 #
 # advanced.sso_on_access_reevaluation
 #
@@ -828,21 +797,6 @@ sso_on_access_reevaluation=disabled
 # Record the accounting data in the SQL tables.
 # Requires a restart of radiusd to be effective.
 record_accounting_in_sql=enabled
-#
-# advanced.pfcmd_error_color
-#
-# Color of the error text for pfcmd
-pfcmd_error_color=red
-#
-# advanced.pfcmd_warning_color
-#
-# Color of the warning text for pfcmd
-pfcmd_warning_color=yellow
-#
-# advanced.pfcmd_success_color
-#
-# Color of the success text for pfcmd
-pfcmd_success_color=green
 #
 # advanced.hash_passwords
 #
@@ -873,6 +827,11 @@ ntlm_redis_cache=disabled
 # List of LDAP attributes that can be used in the sources configuration
 ldap_attributes=uid,cn,department,displayName,distinguishedName,givenName,memberOf,sn,eduPersonPrimaryAffiliation,mail,postOfficeBox,description,groupMembership
 #
+# advanced.radius_attributes
+#
+# List of RADIUS attributes that can be used in the sources configuration
+radius_attributes=username,NAS-ID,Called-Station-Id,Calling-Station-Id
+#
 # advanced.pfdns_processes
 #
 # Amount of pfdns processes to start
@@ -899,16 +858,20 @@ locationlog_close_on_accounting_stop=enabled
 # Do not change unless you know what you are doing
 timing_stats_level=5
 #
-# advanced.pfdhcplistener_packet_size
-#
-# Set the max size of DHCP packets
-# Do not change unless you know what you are doing
-pfdhcplistener_packet_size=576
-#
 # advanced.source_to_send_sms_when_creating_users
 #
 # The source to use to send an SMS when creating a user
 source_to_send_sms_when_creating_users=
+#
+# advanced.multihost
+#
+# Ability to manage all active devices from a same switch port
+multihost=disabled
+#
+# advanced.normalize_radius_machine_auth_username
+#
+# Normalize the radius machine auth username
+normalize_radius_machine_auth_username=disabled
 
 [omapi]
 #
@@ -1021,209 +984,6 @@ port=9090
 # port to use for authentication
 aaa_port=7070
 
-[maintenance]
-#
-# maintenance.iplog_rotation
-#
-# Enable or disable iplog rotation (moving iplog_history records to iplog_archive)
-# If disabled, 'iplog_cleanup' will delete from the iplog_history table rather than the iplog_archive using the iplog rotation window, interval, batch and timeout parameters.
-iplog_rotation=disabled
-#
-# maintenance.iplog_rotation_window
-#
-# How long to keep iplog history entry before rotating it to iplog archive (or deleting it if rotation is disabled).
-iplog_rotation_window=1W
-#
-# maintenance.iplog_rotation_interval
-#
-# At which interval to run the iplog history rotation job (or deletion job if rotation is disabled).
-iplog_rotation_interval=60s
-#
-# maintenance.iplog_rotation_batch
-#
-# How many iplog history entries to rotate (or to delete if rotation is disabled) in one job.
-iplog_rotation_batch=100
-#
-# maintenance.iplog_rotation_timeout
-#
-# How long a iplog history rotation job (or deletion job if rotation is disabled) can take before being killed.
-iplog_rotation_timeout=10s
-#
-# maintenance.iplog_cleanup_window
-#
-# How long to keep a iplog_archive entry before deleting it
-iplog_cleanup_window=1M
-#
-# maintenance.iplog_cleanup_interval
-#
-# At which interval to run the iplog_archive cleanup job
-iplog_cleanup_interval=60s
-#
-# maintenance.iplog_cleanup_batch
-#
-# How many iplog_archive entries to clean up in one job
-iplog_cleanup_batch=100
-#
-# maintenance.iplog_cleanup_timeout
-#
-# How long a iplog_archive cleanup job can take before being killed
-iplog_cleanup_timeout=10s
-#
-# maintenance.locationlog_cleanup_window
-#
-# How long to keep a locationlog entry before deleting it
-locationlog_cleanup_window=1W
-#
-# maintenance.locationlog_cleanup_interval
-#
-# At which interval to run the locationlog cleanup job
-locationlog_cleanup_interval=60s
-#
-# maintenance.locationlog_cleanup_batch
-#
-# How many locationlog entries to clean up in one job
-locationlog_cleanup_batch=100
-#
-# maintenance.locationlog_cleanup_timeout
-#
-# How long a locationlog cleanup job can take before being killed
-locationlog_cleanup_timeout=10s
-#
-# maintenance.auth_log_cleanup_window
-#
-# How long to keep an auth_log entry before deleting it
-auth_log_cleanup_window=1W
-#
-# maintenance.auth_log_cleanup_interval
-#
-# At which interval to run the auth_log cleanup job
-auth_log_cleanup_interval=60s
-#
-# maintenance.auth_log_cleanup_batch
-#
-# How many auth_log entries to clean up in one job
-auth_log_cleanup_batch=100
-#
-# maintenance.auth_log_cleanup_timeout
-#
-# How long an auth_log cleanup job can take before being killed
-auth_log_cleanup_timeout=10s
-#
-# maintenance.radius_audit_log_cleanup_window
-#
-# How long to keep a radius_audit_log entry before deleting it
-radius_audit_log_cleanup_window=1D
-#
-# maintenance.radius_audit_log_cleanup_interval
-#
-# At which interval to run the radius_audit_log cleanup job
-radius_audit_log_cleanup_interval=60s
-#
-# maintenance.radius_audit_log_cleanup_batch
-#
-# How many radius_audit_log entries to clean up in one job
-radius_audit_log_cleanup_batch=100
-#
-# maintenance.radius_audit_log_cleanup_timeout
-#
-# How long a radius_audit_log cleanup job can take before being killed
-radius_audit_log_cleanup_timeout=10s
-#
-# maintenance.node_cleanup_window
-#
-# How long to keep a node entry before deleting it
-node_cleanup_window=0D
-#
-# maintenance.node_cleanup_interval
-#
-# node cleanup interval
-node_cleanup_interval=60s
-#
-# maintenance.person_cleanup
-#
-# Users that do not own any device will be deleted.
-# Locally created users will only be deleted when their account expires.
-person_cleanup=disabled
-#
-# maintenance.person_cleanup_interval
-#
-# person cleanup interval
-person_cleanup_interval=60s
-#
-# maintenance.nodes_maintenance_interval
-#
-# nodes maintenance interval
-nodes_maintenance_interval=60s
-#
-# maintenance.online_node_count_interval
-#
-# Interval at which PacketFence updates the online node count
-online_node_count_interval=15m
-#
-# maintenance.violation_maintenance_interval
-#
-# violation maintenance interval
-violation_maintenance_interval=60s
-#
-# maintenance.violation_maintenance_batch
-#
-# violation maintenance batch
-violation_maintenance_batch=1000
-#
-# maintenance.violation_maintenance_timeout
-#
-# violation maintenance timeout
-violation_maintenance_timeout=10s
-#
-# maintenance.inline_accounting_maintenance_interval
-#
-# inline accounting maintenance interval
-inline_accounting_maintenance_interval=60s
-#
-# maintenance.acct_maintenance_interval
-#
-# acct maintenance interval
-acct_maintenance_interval=60s
-#
-# maintenance.provisioning_compliance_poll_interval
-#
-# Interval at which PacketFence runs the polling enforcement on the provisioners
-provisioning_compliance_poll_interval=300s
-#
-# maintenance.fingerbank_data_update_interval
-#
-# Interval at which PacketFence updates the local Fingerbank data from the cloud API
-fingerbank_data_update_interval=1D
-#
-# maintenance.cluster_check_interval
-#
-# Interval at which PacketFence updates the local Fingerbank data from the cloud API
-cluster_check_interval=1m
-# maintenance.option82_query_interval
-#
-# Interval at which PacketFence will query compatible switches for DHCP Option 82 switch MAC address
-option82_query_interval=23h
-#
-# maintenance.populate_ntlm_redis_cache_interval
-#
-# Interval at which PacketFence populates the NTLM cache
-populate_ntlm_redis_cache_interval=0s
-#
-# maintenance.cleanup_chi_database_cache_interval
-#
-# Interval at which PacketFence cleans up the CHI database storage
-cleanup_chi_database_cache_interval=10s
-#
-# maintenance.cleanup_chi_database_cache_batch
-#
-# How many expired CHI database entries does pfmon batches
-cleanup_chi_database_cache_batch=1000
-#
-# maintenance.cleanup_chi_database_cache_timeout
-#
-# cleanup_chi_database_cache timeout
-cleanup_chi_database_cache_timeout=10s
-
 [active_active]
 #
 # active_active.password
@@ -1260,6 +1020,11 @@ auth_on_management=enabled
 # For example, if this is set to 5 minutes, then a resolution will be attempted when the members will be detected running a different version for more than 5 minutes.
 conflict_resolution_threshold=5m
 #
+# active_active.galera_replication
+#
+# Whether or not to activate galera cluster when using a cluster
+galera_replication=enabled
+#
 # active_active.galera_replication_username
 #
 # Defines the replication username to be used for the MariaDB Galera cluster replication
@@ -1270,34 +1035,34 @@ galera_replication_username=
 # Defines the replication password to be used for the MariaDB Galera cluster replication
 galera_replication_password=
 
-[monitoring]
+[graphite]
 #
-# monitoring.graphite_host
+# graphite.graphite_host
 #
 graphite_host=localhost
 
 #
-# monitoring.graphite_port
+# graphite.graphite_port
 #
 graphite_port=2013
 
 #
-# monitoring.db_port
+# graphite.db_port
 #
 db_port=
 
 #
-# monitoring.db_host
+# graphite.db_host
 #
 db_host=
 
 #
-# monitoring.db_user
+# graphite.db_user
 #
 db_user=
 
 #
-# monitoring.db_pass
+# graphite.db_pass
 #
 db_pass=
 

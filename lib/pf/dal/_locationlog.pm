@@ -48,6 +48,7 @@ BEGIN {
         stripped_user_name
         realm
         session_id
+        ifDesc
     );
 
     %DEFAULTS = (
@@ -67,6 +68,7 @@ BEGIN {
         stripped_user_name => undef,
         realm => undef,
         session_id => undef,
+        ifDesc => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -86,6 +88,7 @@ BEGIN {
         stripped_user_name
         realm
         session_id
+        ifDesc
     );
 
     %FIELDS_META = (
@@ -186,6 +189,12 @@ BEGIN {
             is_nullable => 1,
         },
         session_id => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        ifDesc => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,

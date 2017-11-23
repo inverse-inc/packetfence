@@ -1,0 +1,45 @@
+<div class="modal fade hide" id="modalRole">
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">[% l('Roles') %] [% doc('_roles_management') | none %]</h2>
+        <div class="card-block">
+      [% IF error %]<div class="alert alert-error">
+        <button class="close" data-dismiss="alert">&times;</button>
+        <strong>[% l('Error!') %]</strong> <span>[% error %]</span>
+      </div>[% END %]
+      <p class="p3">[% l('Define the roles which will apply to all devices on your network.') %]</p>
+
+      [% IF items.size -%]
+      <table class="table">
+        <thead>
+          <tr>
+            <th>[% l('Name') %]</th>
+            <th class="hidden-phone">[% l('Description') %]</th>
+            <th class="hidden-phone">[% l('Max nodes per user') %]</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          [% FOREACH role IN items %]
+          <tr>
+            <td><a href="[% c.uri_for(c.controller.action_for('view'), [ role.id ]) %]#modalRole">[% role.id | html %]</a></td>
+            <td class="hidden-phone">[% role.notes | html %]</td>
+            <td class="hidden-phone">[% role.max_nodes_per_pid | html %]</td>
+          </tr>
+          [% END -%]
+        </tbody>
+      </table>
+      [% END -%]
+
+      <div id="noRole" class="unwell[% ' hidden' IF items.size %]">
+        <i class="icon-briefcase icon-large"></i><p>[% l('No role defined') %]</p>
+      </div>
+      </div><!--/.card-block-->
+
+      [%- IF can_access("USERS_ROLES_CREATE") %]
+      <div class="form-actions">
+        <a id="createRole" class="btn" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add role') %]</a>
+      </div>
+      [%- END %]
+      </div>

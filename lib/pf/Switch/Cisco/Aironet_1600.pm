@@ -16,6 +16,7 @@ This modules extends pf::Switch::Cisco::Aironet
 use strict;
 use warnings;
 use Net::SNMP;
+use Try::Tiny;
 
 use pf::constants qw($TRUE);
 use pf::config qw(

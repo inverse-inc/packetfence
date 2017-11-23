@@ -62,7 +62,7 @@ function saveStep(href) {
         window.location.href = href;
     }
     else {
-        var form = $('form[name="admin"]');
+        var form = $('form[name="admin"] h3').first();
         btnError(adminPassword);
         resetAlert(form.parent());
         showError(form, 'Please verify your configuration.');

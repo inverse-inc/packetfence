@@ -23,7 +23,7 @@ pf::pftest::profile_filter
 use strict;
 use warnings;
 use base qw(pf::cmd);
-use pf::Portal::ProfileFactory;
+use pf::Connection::ProfileFactory;
 use pf::util qw(clean_mac);
 use pf::constants::exit_code qw($EXIT_SUCCESS);
 use pf::constants;
@@ -38,7 +38,7 @@ sub parseArgs {
 
 sub _run {
     my ($self) = @_;
-    my $profile = pf::Portal::ProfileFactory->instantiate($self->{mac}, $self->{params});
+    my $profile = pf::Connection::ProfileFactory->instantiate($self->{mac}, $self->{params});
     my $name = $profile->name;
     print "Found '$name' profile for $self->{mac} \n";
     return $EXIT_SUCCESS;

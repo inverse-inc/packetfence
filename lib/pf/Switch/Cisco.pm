@@ -1725,7 +1725,7 @@ sub cmnMacChangedNotificationTrapNormalizer {
         my $currentVlan = $vlansToTest[$vlanPos];
         my $result      = undef;
 
-        if (exists($vlans->{$currentVlan})) {
+        if (defined $currentVlan && exists($vlans->{$currentVlan})) {
 
             #issue correct SNMP query depending on SNMP version
             if ($self->{_SNMPVersion} eq '3') {

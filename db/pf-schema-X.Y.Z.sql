@@ -2,8 +2,8 @@
 -- Setting the major/minor/sub-minor version of the DB
 --
 
-SET @MAJOR_VERSION = 6;
-SET @MINOR_VERSION = 5;
+SET @MAJOR_VERSION = 7;
+SET @MINOR_VERSION = 3;
 SET @SUBMINOR_VERSION = 9;
 
 --
@@ -100,7 +100,8 @@ CREATE TABLE `node_category` (
   `name` varchar(255) NOT NULL,
   `max_nodes_per_pid` int default 0,
   `notes` varchar(255) default NULL,
-  PRIMARY KEY (`category_id`)
+  PRIMARY KEY (`category_id`),
+  UNIQUE KEY node_category_name (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -167,41 +168,16 @@ CREATE TABLE node (
   sessionid varchar(30) default NULL,
   machine_account varchar(255) default NULL,
   bypass_role_id int default NULL,
+  last_seen DATETIME NOT NULL DEFAULT "0000-00-00 00:00:00",
   PRIMARY KEY (mac),
   KEY pid (pid),
   KEY category_id (category_id),
   KEY `node_status` (`status`, `unregdate`),
   KEY `node_dhcpfingerprint` (`dhcp_fingerprint`),
+  KEY `node_last_seen` (`last_seen`),
   CONSTRAINT `0_57` FOREIGN KEY (`pid`) REFERENCES `person` (`pid`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `node_category_key` FOREIGN KEY (`category_id`) REFERENCES `node_category` (`category_id`)
 ) ENGINE=InnoDB;
-
---
--- Table structure for table `node_useragent`
---
-
-CREATE TABLE `node_useragent` (
-  mac varchar(17) NOT NULL,
-  os varchar(255) DEFAULT NULL,
-  browser varchar(255) DEFAULT NULL,
-  device enum('no','yes') NOT NULL DEFAULT 'no',
-  device_name varchar(255) DEFAULT NULL,
-  mobile enum('no','yes') NOT NULL DEFAULT 'no',
-  PRIMARY KEY (mac)
-) ENGINE=InnoDB;
-
---
--- Trigger to delete the node_useragent associated with a mac when deleting this mac from the node table
---
-
-DROP TRIGGER IF EXISTS node_useragent_delete_trigger;
-DELIMITER /
-CREATE TRIGGER node_useragent_delete_trigger AFTER DELETE ON node
-FOR EACH ROW
-BEGIN
-  DELETE FROM node_useragent WHERE mac = OLD.mac;
-END /
-DELIMITER ;
 
 --
 -- Table structure for table `action`
@@ -378,6 +354,7 @@ CREATE TABLE `locationlog` (
   `stripped_user_name` varchar (255) DEFAULT NULL,
   `realm`  varchar (255) DEFAULT NULL,
   `session_id` VARCHAR(255) DEFAULT NULL,
+  `ifDesc` VARCHAR(255) DEFAULT NULL,
   KEY `locationlog_view_mac` (`mac`, `end_time`),
   KEY `locationlog_end_time` ( `end_time`),
   KEY `locationlog_view_switchport` (`switch`,`port`,`end_time`,`vlan`)
@@ -401,6 +378,7 @@ CREATE TABLE `locationlog_archive` (
   `stripped_user_name` varchar (255) DEFAULT NULL,
   `realm`  varchar (255) DEFAULT NULL,
   `session_id` VARCHAR(255) DEFAULT NULL,
+  `ifDesc` VARCHAR(255) DEFAULT NULL,
   KEY `locationlog_archive_view_mac` (`mac`, `end_time`),
   KEY `locationlog_end_time` ( `end_time`),
   KEY `locationlog_view_switchport` (`switch`,`port`,`end_time`,`vlan`)
@@ -843,6 +821,8 @@ BEGIN
 
   DECLARE Opened_Sessions int(12);
   DECLARE Latest_acctstarttime datetime;
+  DECLARE cnt int(12);
+  DECLARE countmac int(12);
   SELECT count(acctuniqueid), max(acctstarttime)
   INTO Opened_Sessions, Latest_acctstarttime
   FROM radacct
@@ -858,43 +838,34 @@ BEGIN
         AND (acctstoptime IS NULL OR acctstoptime = 0);
   END IF;
 
-  # Collect traffic previous values in the update table
-  SELECT acctinputoctets, acctoutputoctets, acctsessiontime, acctupdatetime
-    INTO Previous_Input_Octets, Previous_Output_Octets, Previous_Session_Time, Previous_AcctUpdate_Time
+
+  # Detect if we receive in the same time a stop before the interim update
+  SELECT COUNT(*)
+  INTO cnt
+  FROM radacct
+  WHERE acctuniqueid = p_acctuniqueid
+  AND (acctstoptime = p_timestamp);
+
+  # If there is an old closed entry then update it
+  IF (cnt = 1) THEN
+    UPDATE radacct SET
+        framedipaddress = p_framedipaddress,
+        acctsessiontime = p_acctsessiontime,
+        acctinputoctets = p_acctinputoctets,
+        acctoutputoctets = p_acctoutputoctets,
+        acctupdatetime = p_timestamp
+    WHERE acctuniqueid = p_acctuniqueid
+    AND (acctstoptime = p_timestamp);
+  END IF;
+
+  #Detect if there is an radacct entry open
+  SELECT count(callingstationid), acctinputoctets, acctoutputoctets, acctsessiontime, acctupdatetime
+    INTO countmac, Previous_Input_Octets, Previous_Output_Octets, Previous_Session_Time, Previous_AcctUpdate_Time
     FROM radacct
-    WHERE acctuniqueid = p_acctuniqueid 
+    WHERE (acctuniqueid = p_acctuniqueid) 
     AND (acctstoptime IS NULL OR acctstoptime = 0) LIMIT 1;
 
-  IF (Previous_Session_Time IS NULL) THEN
-    # Set values to 0 when no previous records
-    SET Previous_Session_Time = 0;
-    SET Previous_Input_Octets = 0;
-    SET Previous_Output_Octets = 0;
-    SET Previous_AcctUpdate_Time = p_timestamp;
-    # If there is no open session for this, open one.
-    INSERT INTO radacct 
-           (
-            acctsessionid,      acctuniqueid,       username, 
-            realm,              nasipaddress,       nasportid, 
-            nasporttype,        acctstarttime,      
-            acctupdatetime,     acctsessiontime,    acctauthentic, 
-            connectinfo_start,  acctinputoctets, 
-            acctoutputoctets,   calledstationid,    callingstationid, 
-            servicetype,        framedprotocol, 
-            framedipaddress
-           ) 
-    VALUES 
-        (
-            p_acctsessionid,        p_acctuniqueid,     p_username,
-            p_realm,                p_nasipaddress,     p_nasportid,
-            p_nasporttype,          date_sub(p_timestamp, INTERVAL p_acctsessiontime SECOND ), 
-            p_timestamp,            p_acctsessiontime , p_acctauthentic,
-            p_connectinfo_start,    p_acctinputoctets,
-            p_acctoutputoctets,     p_calledstationid, p_callingstationid,
-            p_servicetype,          p_framedprotocol,
-            p_framedipaddress
-        );
-  ELSE 
+  IF (countmac = 1) THEN
     # Update record with new traffic
     UPDATE radacct SET
         framedipaddress = p_framedipaddress,
@@ -905,9 +876,40 @@ BEGIN
         acctinterval = timestampdiff( second, Previous_AcctUpdate_Time,  p_timestamp  )
     WHERE acctuniqueid = p_acctuniqueid 
     AND (acctstoptime IS NULL OR acctstoptime = 0);
+  ELSE
+    IF (cnt = 0) THEN
+      # If there is no open session for this, open one.
+      # Set values to 0 when no previous records
+      SET Previous_Session_Time = 0;
+      SET Previous_Input_Octets = 0;
+      SET Previous_Output_Octets = 0;
+      SET Previous_AcctUpdate_Time = p_timestamp;
+      INSERT INTO radacct
+             (
+              acctsessionid,acctuniqueid,username,
+              realm,nasipaddress,nasportid,
+              nasporttype,acctstarttime,
+              acctupdatetime,acctsessiontime,acctauthentic,
+              connectinfo_start,acctinputoctets,
+              acctoutputoctets,calledstationid,callingstationid,
+              servicetype,framedprotocol,
+              framedipaddress
+             )
+      VALUES
+          (
+              p_acctsessionid,p_acctuniqueid,p_username,
+              p_realm,p_nasipaddress,p_nasportid,
+              p_nasporttype,date_sub(p_timestamp, INTERVAL p_acctsessiontime SECOND ),
+              p_timestamp,p_acctsessiontime,p_acctauthentic,
+              p_connectinfo_start,p_acctinputoctets,
+              p_acctoutputoctets,p_calledstationid,p_callingstationid,
+              p_servicetype,p_framedprotocol,
+              p_framedipaddress
+          );
+     END IF;
+   END IF;
 
-  END IF;
-
+ 
   # Create new record in the log table
   INSERT INTO radacct_log
    (acctsessionid, username, nasipaddress,
@@ -918,58 +920,6 @@ BEGIN
     (p_acctsessiontime - Previous_Session_Time), p_acctuniqueid);
 END /
 DELIMITER ;
-
---
--- Statement of Health (SoH) related
---
--- The web interface allows you to create any number of named filters,
--- which are a collection of rules. A rule is a specific condition that
--- must be satisfied by the statement of health, e.g. "anti-virus is not
--- installed". The rules in a filter are ANDed together to determine if
--- the specified action is to be executed.
-
---
--- One entry per filter.
---
-
-CREATE TABLE soh_filters (
-  filter_id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  name varchar(32) NOT NULL UNIQUE,
-
-  -- If action is null, this filter won't do anything. Otherwise this
-  -- column may have any value; "accept" and "violation" are currently
-  -- recognised and acted upon.
-  action varchar(32),
-
-  -- If action = 'violation', then this column contains the vid of a
-  -- violation to trigger. (I wish I could write a constraint to
-  -- express this.)
-  vid int
-) ENGINE=InnoDB;
-
-INSERT INTO soh_filters (name) VALUES ('Default');
-
---
--- One entry for each rule in a filter.
---
-
-CREATE TABLE soh_filter_rules (
-  rule_id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
-
-  filter_id int NOT NULL,
-  FOREIGN KEY (filter_id) REFERENCES soh_filters (filter_id)
-      ON DELETE CASCADE,
-
-  -- Any valid health class, e.g. "antivirus"
-  class varchar(32) NOT NULL,
-
-  -- Must be 'is' or 'is not'
-  op varchar(16) NOT NULL,
-
-  -- May be 'ok', 'installed', 'enabled', 'disabled', 'uptodate',
-  -- 'microsoft' for now; more values may be used in future.
-  status varchar(16) NOT NULL
-) ENGINE=InnoDB;
 
 --
 -- Table structure for table `scan`

@@ -1,21 +1,21 @@
 [% jsFiles = ['configurator/fingerbank'] -%]
-    <div class="container">
+    <div class="container-fluid">
       [% INCLUDE configurator/tracker.inc %]
-      <div class="row">
-        <div class="span3">
+      <div class="row-fluid">
+        <div class="span4">
           <div class="page-header step">
             <h1>[% l('Step') %] [% step_index %]</h1>
           </div>
         </div>
-        <div class="span9">
+        <div class="span14">
           <div class="page-header">
             <h1>[% l('Fingerbank') %]
             <small>[% l('Fingerbank on-boarding') %]</small></h1>
           </div>
         </div>
       </div>
-      <div class="row">
-        <div class="span3">
+      <div class="row-fluid">
+        <div class="span4">
           <div class="well">
             <h3>[% l('Instructions') %]</H3>
             <p>[% l('On this page, you can configure Fingerbank which is used for device fingerprinting.') %]</p>
@@ -23,8 +23,10 @@
             <p>[% l('Configuring your Fingerbank API key will allow for more accurate fingerprinting while using MySQL for the storage improves performance greatly in large scale deployments.') %]</p>
           </div>
         </div>
-        <div class="span9">
-          <form name="admin" class="form-horizontal">
+        <div class="span14">
+          <div class="card">
+            <form name="admin" class="form-horizontal">
+              <div class="card-block">
             <h3>[% l('API Onboarding') %]</h3>
             <p>[% l('Proceed here:') %] <a href="https://fingerbank.inverse.ca/users/register" target="_blank">https://fingerbank.inverse.ca/users/register</a></p>
 
@@ -35,9 +37,9 @@
               <div class="controls">
                 <input id="api_key" class="text" type="text" value="[% fingerbank_api_key %]"[% IF fingerbank_api_key %] disabled[% END %]>
                 <a id="configure_fingerbank_api_key" href="/config/fingerbank/settings/onboard" class="btn btn-primary"[% IF fingerbank_api_key %] disabled[% END %]>[% l('Get Aboard!') %]</a>
-                <span class="control-group[% IF fingerbank_api_key %] success[% END %]" style="display:inline-block">
+                <div class="control-group[% IF fingerbank_api_key %] success[% END %]">
                 [% IF fingerbank_api_key %]<span class="help-inline">[% l('Success!') %]</span>[% END %]
-                </span>
+                </div>
               </div>
             </div>
 
@@ -45,20 +47,17 @@
             <p>[% l('Configure MySQL as the Fingerbank backend. This will improve the performance of Fingerbank related components.') | none %]</p>
             <div class="control-group[% IF c.session.importing_fingerbank_mysql %] success[% END %]">
               <div class="controls">
-                <a id="configure_fingerbank_mysql" href="/config/fingerbank/db/initialize_mysql" class="btn btn-primary"[% IF c.session.importing_fingerbank_mysql %] disabled[% END %]>[% l('Activate MySQL as the Fingerbank backend.') %]</a>
+                <a id="configure_fingerbank_mysql" href="/config/fingerbank/db/initialize_mysql" class="btn btn-primary"[% IF c.session.importing_fingerbank_mysql %] disabled[% END %]>[% l('Activate MySQL') %]</a>
                 [% IF c.session.importing_fingerbank_mysql %]<span class="help-inline">[% l('Success!') %]</span>[% END %]
               </div>
             </div>
 
-            <fieldset>
-            <div class="form-actions">
-              <button type="submit" class="btn btn-primary pull-right" href="[% next_step %]">[% l('Continue') %] <i class="icon-circle-arrow-right icon-white"></i></button>
             </div>
-            </fieldset>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary pull-right" href="[% next_step %]">[% l('Continue') %] <i class="icon-arrow-circle-right icon-white"></i></button>
+            </div>
             </form>
+          </div>
         </div>
       </div>
-      <footer>
-        <p>&copy; Inverse 2017</p>
-      </footer>
     </div><!--/container-->

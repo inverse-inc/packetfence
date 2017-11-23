@@ -59,8 +59,9 @@ sub generateConfig {
     my %tags;
     $tags{'template'} = "$conf_dir/keepalived.conf";
     $tags{'emailaddr'} = $Config{'alerting'}{'emailaddr'};
-    $tags{'fromaddr'} = $Config{'alerting'}{'fromaddr'} || 'root@localhost';
+    $tags{'fromaddr'} = $Config{'alerting'}{'fromaddr'} || "keepalived\@$host_id";
     $tags{'smtpserver'} = $Config{'alerting'}{'smtpserver'};
+    $tags{'router_id'} = "PacketFence-$host_id";
 
     $tags{'vrrp'} = '';
     $tags{'mysql_backend'} = '';
@@ -74,17 +75,15 @@ sub generateConfig {
         $tags{'vrrp'} .= <<"EOT";
 vrrp_instance $cfg->{'ip'} {
   virtual_router_id $Config{'active_active'}{'virtual_router_id'}
-  advert_int 1
+  advert_int 5
   priority $priority
   state MASTER
   interface $interface
+  preempt_delay 30
   virtual_ipaddress {
     $cluster_ip dev $interface
   }
 EOT
-        if(defined($cfg->{type}) && $cfg->{type} =~ /management/){
-            $tags{'vrrp'} .= "  notify \"$install_dir/bin/cluster/management_update\"\n";
-        }
         $tags{'vrrp'} .= "  notify_master \"$install_dir/bin/cluster/pfupdate --mode=master\"\n";
         $tags{'vrrp'} .= "  notify_backup \"$install_dir/bin/cluster/pfupdate --mode=slave\"\n";
         $tags{'vrrp'} .= "  notify_fault \"$install_dir/bin/cluster/pfupdate --mode=slave\"\n";
@@ -94,7 +93,7 @@ EOT
     haproxy
   }
   authentication {
-    auth_type AH
+    auth_type PASS
     auth_pass $Config{'active_active'}{'password'}
   }
   smtp_alert

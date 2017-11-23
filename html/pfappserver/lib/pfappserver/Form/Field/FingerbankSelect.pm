@@ -20,6 +20,7 @@ use namespace::autoclean;
 use List::MoreUtils qw(any uniq);
 use pf::error qw(is_success);
 use pf::log;
+has '+deflate_value_method'=> ( default => sub { \&_deflate } );
 
 =head2 build_options
 
@@ -63,6 +64,12 @@ after 'value' => sub {
     $self->options(\@options);
 };
 
+sub _deflate {
+    my ($self, $value) = @_;
+    $value = [ uniq @$value ];
+    return $value;
+}
+
 
 =head1 COPYRIGHT
 
@@ -87,6 +94,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;
 

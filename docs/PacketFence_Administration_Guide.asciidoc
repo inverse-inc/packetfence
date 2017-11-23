@@ -64,6 +64,9 @@ Hotspot support (Web Auth Enforcement)::
   PacketFence can also be configured as hotspot, if you have a manageable device that supports an external captive portal (like
 Cisco WLC or Aruba IAP).
 
+RADIUS support (RADIUS Enforcement)::
+  PacketFence can be used as a RADIUS server without having registration, isolation, portal features in the case only RADIUS authentication for network equipment is what matter.
+
 Voice over IP (VoIP) support::
   Also called IP Telephony (IPT), VoIP is fully supported (even in heterogeneous environments) for multiple switch vendors (Cisco, Avaya, HP and many more).
 
@@ -291,7 +294,7 @@ Once the repository is defined, you can install PacketFence with all its
 dependencies, and the required external services (Database
 server, DHCP server, RADIUS server) using:
 
-  sudo apt-key adv --keyserver keys.gnupg.net --recv-key 0x810273C4
+  sudo apt-key adv --keyserver keys.gnupg.net --recv-key 0xFE9E84327B18FF82B0378B6719CDA6A9810273C4
   sudo apt-get update
   sudo apt-get install packetfence
 
@@ -456,6 +459,16 @@ An example:
 
 This will trigger all the nodes that connects to the _GuestAccess_ SSID to use inline enforcement mode (PacketFence will return a void VLAN or the `inlineVlan` if defined in switch configuration) and the MAC address `00:11:22:33:44:55` client if it connects on another SSID.
 
+Technical introduction to RADIUS enforcement
+--------------------------------------------
+
+Introduction
+~~~~~~~~~~~~
+
+The concept of having a RADIUS enforcement is to not use registration and isolation, nor the portal. Everything here is for RADIUS authentication only. By default the management interface will be the RADIUS interface. If needed, it is possible to add another one via 'Network Configuration->Networks->Interfaces' adding an `Other` type of interface and the additionnal daemon `RADIUS`.
+
+Every time a device will try to authenticate, the matching production VLAN will be assigned, depending on the rules in 'Policies and Access Control->Authentication Sources'.
+
 
 Configuration
 -------------
@@ -471,7 +484,7 @@ The next key steps are important to understand how PacketFence works. In order t
 1. *roles* - a role in PacketFence will be eventually be mapped to a VLAN, an ACL or an external role. You must define the roles to use in your organization for network access
 2. *authentication* - once roles are defined, you must create an appropriate authentication source in PacketFence. That will allow PacketFence to compute the right role to be used for an endpoint, or the user using it
 3. *network devices* - once your roles and authentication sources are defined, you must add switches, WiFi controllers or APs to be managed by PacketFence. When doing so, you will configure how roles are being mapped to VLAN, ACLs or external roles
-4. *portal profiles* - at this point, you are almost ready to test. You will need to set which authentication sources are to be used on the default captive portal, or create an other one to suit your needs
+4. *connection profiles* - at this point, you are almost ready to test. You will need to set which authentication sources are to be used on the default captive portal, or create an other one to suit your needs
 5. test!
 
 NOTE: If you plan to use 802.1X - please see the _FreeRADIUS Configuration_ section below.
@@ -479,9 +492,9 @@ NOTE: If you plan to use 802.1X - please see the _FreeRADIUS Configuration_ sect
 Roles Management
 ~~~~~~~~~~~~~~~~
 
-Roles in PacketFence can be created from PacketFence administrative GUI - from the *Configuration -> Users -> Roles* section. From this interface, you can also limit the number of devices users belonging to certain roles can register.
+Roles in PacketFence can be created from PacketFence administrative GUI - from the *Configuration -> Policies and Access Control -> Roles* section. From this interface, you can also limit the number of devices users belonging to certain roles can register.
 
-Roles are dynamically computed by PacketFence, based on the rules (ie., a set of conditions and actions) from authentication sources, using a first-match wins algorithm. Roles are then matched to VLAN or internal roles or ACL on equipment from the *Configuration -> Network -> Switches* module.
+Roles are dynamically computed by PacketFence, based on the rules (ie., a set of conditions and actions) from authentication sources, using a first-match wins algorithm. Roles are then matched to VLAN or internal roles or ACL on equipment from the *Configuration -> Policies and Access Control -> Switches* module.
 
 Authentication
 ~~~~~~~~~~~~~~
@@ -501,6 +514,7 @@ PacketFence can authenticate users that register devices via the captive portal 
 * LDAP
 * LinkedIn (OAuth 2)
 * Null
+* OpenID Connect (OAuth 2)
 * Pinterest (OAuth 2)
 * RADIUS
 * SMS
@@ -508,7 +522,7 @@ PacketFence can authenticate users that register devices via the captive portal 
 * Twitter (OAuth 2)
 * Windows Live (OAuth 2)
 
-Moreover, PacketFence can also authenticate users defined in its own internal SQL database. Authentication sources can be created from PacketFence administrative GUI - from the *Configuration -> Users -> Sources* section. Alternatively (but not recommended), authentication sources, rules, conditions and actions can be configured from `conf/authentication.conf`.
+Moreover, PacketFence can also authenticate users defined in its own internal SQL database. Authentication sources can be created from PacketFence administrative GUI - from the *Configuration -> Policies and Access Control -> Sources* section. Alternatively (but not recommended), authentication sources, rules, conditions and actions can be configured from `conf/authentication.conf`.
 
 Each authentication sources you define will have a set of rules, conditions and actions.
 
@@ -516,14 +530,14 @@ Multiple authentication sources can be defined, and will be tested in the order 
 
 When no condition is defined, the rule will be considered as a catch-all. When a catch-all is defined, all actions will be applied for any users that match in the authentication source.
 
-Once a source is defined, it can be used from *Configuration -> Portal Profiles*. Each portal profile has a list of authentication sources to use.
+Once a source is defined, it can be used from *Configuration -> Policies and Access Control -> Connection Profiles*. Each connection profile has a list of authentication sources to use.
 
 Example
 ^^^^^^^
 
-Let's say we have two roles: guest and employee. First, we define them *Configuration -> Users -> Roles*.
+Let's say we have two roles: guest and employee. First, we define them *Configuration -> Policies and Access Control -> Roles*.
 
-Now, we want to authenticate employees using Active Directory (over LDAP), and guests using PacketFence's internal database - both using PacketFence's captive portal. From the *Configuration -> Users -> Sources*, we select *Add source -> AD*. We provide the following information:
+Now, we want to authenticate employees using Active Directory (over LDAP), and guests using PacketFence's internal database - both using PacketFence's captive portal. From the *Configuration -> Policies and Access Control -> Sources*, we select *Add source -> AD*. We provide the following information:
 
 [options="compact"]
 * *Name:* ad1
@@ -573,7 +587,7 @@ Then, we add a rule:
 
 NOTE: When a rule is defined as a catch-all, it will always match if the username attribute matches the queried one. This applies for Active Directory, LDAP and Apache htpasswd file sources. Kerberos and RADIUS will act as true catch-all, and accept everything.
 
-NOTE: If you want to use other LDAP attributes in your authentication source, add them in 'Configuration->Advanced->Custom LDAP attributes'. They will then be available in the rules you define.
+NOTE: If you want to use other LDAP attributes in your authentication source, add them in 'Configuration->System Configuration->Main Configuration->Advanced->Custom LDAP attributes'. They will then be available in the rules you define.
 
 External API authentication
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -633,7 +647,7 @@ First, transfer the Identity Provider metadata on the PacketFence server. In thi
 
 Then, transfer the certificate and CA certificate of the Identity provider on the server. In this example, they will be under the paths `/usr/local/pf/conf/ssl/idp.crt` and `/usr/local/pf/conf/ssl/idp-ca.crt`. If it is a self-signed certificate, then you will be able to use it as the CA in the PacketFence configuration.
 
-Then, to configure SAML in PacketFence, go in 'Configuration -> Sources' and then create a new Internal source of the type SAML and configure it.
+Then, to configure SAML in PacketFence, go in 'Configuration -> Policies and Access Control -> Sources' and then create a new Internal source of the type SAML and configure it.
 
 image::docs/images/saml-packetfence-config.png[scaledwidth="100%",alt="SAML PacketFence configuration"]
 
@@ -668,16 +682,16 @@ Passthroughs
 
 In order for your users to be able to access the Identity Provider login page, you will need to activate passthroughs and add the Identity Provider domain to the allowed passthroughs.
 
-To do so, go in 'Configuration -> Trapping', then check 'Passthrough' and add the Identity Provider domain name to the 'Passhtroughs' list.
+To do so, go in 'Configuration -> Network Configuration -> Networks -> Fencing', then check 'Passthrough' and add the Identity Provider domain name to the 'Passhtroughs' list.
 
-Next, restart iptables and pfdns to apply your new passthroughs. Also make sure `net.ipv4.ip_forward = 1` is configured in `/etc/sysctl.conf`.
+Next, restart iptables and pfdns to apply your new passthroughs. 
 
 Network Devices Definition (switches.conf)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This section applies only for VLAN enforcement. Users planning to do inline enforcement only can skip this section.
 
-PacketFence needs to know which switches, access points or controllers it manages, their type and configuration. All this information is stored in `/usr/local/pf/conf/switches.conf`. You can modify the configuration directly in the `switches.conf` file or you can do it from the Web Administration panel under *Configuration -> Network -> Switches* - which is now the preferred way.
+PacketFence needs to know which switches, access points or controllers it manages, their type and configuration. All this information is stored in `/usr/local/pf/conf/switches.conf`. You can modify the configuration directly in the `switches.conf` file or you can do it from the Web Administration panel under *Configuration -> Policies and Access Control -> Switches* - which is now the preferred way.
 
 The `/usr/local/pf/conf/switches.conf` configuration file contains a default section including:
 
@@ -695,6 +709,12 @@ and a switch section for each switch (managed by PacketFence) including:
 
 NOTE: `switches.conf` is loaded at startup. A reload is required when changes 
 are manually made to this file `/usr/local/pf/bin/pfcmd configreload`.
+
+Import from CSV
+^^^^^^^^^^^^^^^
+From PacketFence 7.3 and onwards, you have the possibility to import switches from a CSV file.
+
+The CSV must look like: "description, IP or MAC, switch group". The first line will be skipped. If an entry with one provided IP/MAC already exist it will not be added. You MUST create switches group before.
 
 Working modes
 ^^^^^^^^^^^^^
@@ -777,7 +797,7 @@ PacketFence needs sometimes to establish an interactive command-line session wit
   cliPwd = admin_pwd
   cliEnablePwd =
 
-It can also be done through the Web Administration Interface under *Configuration -> Switches*.
+It can also be done through the Web Administration Interface under *Configuration -> Policies and Access Control -> Switches*.
 
 Web Services Interface
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -788,7 +808,7 @@ PacketFence sometimes needs to establish a dialog with the Web Services capabili
   wsUser = admin
   wsPwd = admin_pwd
 
-It can also be done through the Web Administration Interface under *Configuration -> Switches*.
+It can also be done through the Web Administration Interface under *Configuration -> Policies and Access Control -> Switches*.
 
 Role-based enforcement support
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -807,38 +827,38 @@ And you assign it to the global `roles` parameter or the per-switch one. For exa
   engineeringRole=full-access
   salesRole=little-access
 
-would return the `full-access` role to the nodes categorized as admin or engineering and the role `little-access` to nodes categorized as sales. It can also be done through the Web Administration Interface under *Configuration -> Switches*.
+would return the `full-access` role to the nodes categorized as admin or engineering and the role `little-access` to nodes categorized as sales. It can also be done through the Web Administration Interface under *Configuration -> Policies and Access Control -> Switches*.
 
 
 CAUTION: Make sure that the roles are properly defined on the network devices prior to assigning roles!
 
-Portal Profiles
-~~~~~~~~~~~~~~~
+Connection Profiles
+~~~~~~~~~~~~~~~~~~~
 
-PacketFence comes with a default portal profile. The follow parameters are important to configure no matter if you use the default portal profile or create a new one:
+PacketFence comes with a default connection profile. The follow parameters are important to configure no matter if you use the default connection profile or create a new one:
 
-* Redirect URL under *Configuration -> Portal Profile -> Portal Name*
+* Redirect URL under *Configuration -> Policies and Access Control -> Connection Profile -> Profile Name*
 
 For some browsers, it is preferable to redirect the user to a specific URL instead of the URL the user originally intended to visit. For these browsers, the URL defined in `redirecturl` will be the one where the user will be redirected. Affected browsers are Firefox 3 and later.
 
-* IP under *Configuration -> Captive portal*
+* IP under *Configuration -> Advanced Access Configuration -> Captive portal*
 
 This IP is used as the web server who hosts the `common/network-access-detection.gif` which is used to detect if network access was enabled. It cannot be a domain name since it is used in registration or quarantine where DNS is black-holed. It is recommended that you allow your users to reach your PacketFence server and put your LAN's PacketFence IP. By default we will make this reach PacketFence's website as an easier and more accessible solution.
 
-In some cases, you may want to present a different captive portal (see below for the available customizations) according to the SSID, the VLAN, the switch IP/MAC or the URI the client connects to. To do so, PacketFence has the concept of portal profiles which gives you this possibility. 
+In some cases, you may want to present a different captive portal (see below for the available customizations) according to the SSID, the VLAN, the switch IP/MAC or the URI the client connects to. To do so, PacketFence has the concept of connection profiles which gives you this possibility. 
 
-When configured, portal profiles will override default values for which it is configured. When no values are configured in the profile, PacketFence will take its default ones (according to the "default" portal profile).
+When configured, connection profiles will override default values for which it is configured. When no values are configured in the profile, PacketFence will take its default ones (according to the "default" connection profile).
 
-Here are the different configuration parameters that can be set for each portal profiles. The only mandatory parameter is "filter", otherwise, PacketFence won't be able to correctly apply the portal profile. The parameters must be set in conf/profiles.conf:
+Here are the different configuration parameters that can be set for each connection profiles. The only mandatory parameter is "filter", otherwise, PacketFence won't be able to correctly apply the connection profile. The parameters must be set in conf/profiles.conf:
 
   [profilename1]
-  description = the description of your portal profile
+  description = the description of your connection profile
   filter = the name of the SSID for which you'd like to apply the profile, or the VLAN number
   sources = comma-separated list of authentications sources (IDs) to use
 
-Portal profiles should be managed from PacketFence's Web administrative GUI - from the *Configuration -> Portal Profiles* section. Adding a portal profile from that interface will correctly copy templates over - which can then be modified as you wish.
+Connection profiles should be managed from PacketFence's Web administrative GUI - from the *Configuration -> Policies and Access Control -> Connection Profiles* section. Adding a connection profile from that interface will correctly copy templates over - which can then be modified as you wish.
 
-* Filters under *Configuration -> Portal Profile -> Portal Name -> Filters*
+* Filters under *Configuration -> Policies and Access Control -> Connection Profile -> Profile Name -> Filters*
 
 PacketFence offers the following filters: Connection Type, Network, Node Role, Port, realm, SSID, Switch, Switch Port, URI, VLAN and Time period.
 
@@ -852,7 +872,7 @@ Example with the most common ones:
 
 CAUTION: Node role will take effect only with a 802.1X connection or if you use VLAN filters.
 
-* Advanced filter under *Configuration -> Portal Profile -> Portal Name -> Advanced Filter*
+* Advanced filter under *Configuration -> Policies and Access Control -> Connection Profile -> Profile Name -> Advanced Filter*
 
 Examples
 
@@ -876,7 +896,7 @@ Upon PacketFence installation, self-signed certificates will be created in `/usr
 Reuse 802.1X credentials
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-Under certain circumstances, for example to show an AUP after a successful 802.1X connection, it might be interesting to have the ability to use an "SSO emulation" in the sense that the user does not need to re-enter his credentials on the portal after having entered them during the 802.1X EAP process. The 'Reuse 802.1X credentials' portal profile option will address this purpose. The same username as the one used during the 802.1X connection will be used against the different portal profile authentication sources to recompute the role from the portal.
+Under certain circumstances, for example to show an AUP after a successful 802.1X connection, it might be interesting to have the ability to use an "SSO emulation" in the sense that the user does not need to re-enter his credentials on the portal after having entered them during the 802.1X EAP process. The 'Reuse 802.1X credentials' connection profile option will address this purpose. The same username as the one used during the 802.1X connection will be used against the different connection profile authentication sources to recompute the role from the portal.
 
 As a security precaution, this option will only reuse 802.1X credentials if there is an authentication source matching the provided realm. This means, if users use 802.1X credentials with a domain part (username@domain, domain\username), the domain part needs to be configured as a realm under the RADIUS section and an authentication source needs to be configured for that realm. If users do not use 802.1X credentials with a domain part, only the NULL realm will be match IF an authentication source is configured for it.
 
@@ -888,16 +908,9 @@ This section presents the FreeRADIUS configuration steps. In some occasions, a R
 Option 1: Authentication against Active Directory (AD)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-CAUTION: If you are using an Active/Active or Active/Passive cluster, please follow the instructions under 'Option 1b' since the instructions below do not currently work in a cluster.
+NOTE: If you are using an Active/Active cluster, each member of the cluster must be joined separately. Please follow the instructions in the PacketFence Clustering Guide.
 
-In order to have domain authentication working properly, you need to enable IP forwarding on your server. To do it permanently, look in the `/etc/sysctl.conf`, and set the following line:
-
-  # Controls IP packet forwarding
-  net.ipv4.ip_forward = 1
-
-Now execute `sysctl -p` to apply the configuration
-
-Next, go in the Administration interface under *Configuration -> Domains*.
+Go in the Administration interface under *Configuration -> Policies and Access Control -> Domains -> Active Directory Domains*.
 
 NOTE: If you can't access this section and you have previously configured your server to bind to a domain externally to PacketFence, make sure you run `/usr/local/pf/addons/AD/migrate.pl`
 
@@ -924,12 +937,12 @@ Troubleshooting
 
 * You can test the authentication process using the following command `chroot /chroots/<mydomain> ntlm_auth --username=administrator`
 
-NOTE: Under certain conditions, the test join may show as unsuccessful in the Administration interface but the authentication process will still work properly. Try the test above before doing any additional troubleshooting
+NOTE: Under certain conditions, the test join may show as unsuccessful in the Administration interface but the authentication process will still work properly. Try the test above before doing any additional troubleshooting. Also try reloading the page in the GUI since in some case the browser side of the ajax call may time out while the join actually succeeds.
 
 Default domain configuration
 ++++++++++++++++++++++++++++
 
-You should now define the domain you want to use as the default one by creating the following realm in *Configuration -> Realms*
+You should now define the domain you want to use as the default one by creating the following realm in *Configuration -> Policies and Access Control -> Domains -> REALMS*
 
 image::docs/images/domain-default-realm.png[scaledwidth="100%",alt="Adding the default realm"]
 
@@ -938,9 +951,9 @@ Next, restart PacketFence in *Status -> Services*
 Multiple domains authentication
 +++++++++++++++++++++++++++++++
 
-First configure your domains in *Configuration -> Domains*.
+First configure your domains in *Configuration -> Policies and Access Control -> Domains -> Active Directory Domains*.
 
-Once they are configured, go in *Configuration -> Realms*.
+Once they are configured, go in *Configuration -> Policies and Access Control -> Domains -> REALMS*.
 
 Create a new realm that matches the DNS name of your domain *AND* one that matches your workgroup. In the case of this example, it will be DOMAIN.NET and DOMAIN.
 
@@ -1244,7 +1257,23 @@ Restart the radiusd service in order to apply the change.
 
 /usr/local/pf/bin/pfcmd service radiusd restart
 
-CAUTION: You will need to disable password hashing in the database for local authentication to work. In the administration interface, go in 'Configuration -> Advanced' and set 'Database passwords hashing method' to `plaintext` or `ntlm`. Don't use `bcrypt`.
+CAUTION: You will need to disable password hashing in the database for local authentication to work. In the administration interface, go in 'Configuration -> System Configuration -> Main Configuration ->Advanced' and set 'Database passwords hashing method' to `plaintext` or `ntlm`. Don't use `bcrypt`.
+
+Limit brute force EAP authentication
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This section will allow you to limit a brute force attack and prevent the locking of Active Directory accounts.
+
+Edit `/usr/local/pf/conf/radiusd/packetfence-tunnel`
+
+----
+# Uncomment the following lines to enable this feature
+packetfence-control-ntlm-failure
+packetfence-cache-ntlm-hit
+----
+
+By default it will reject for 5 minutes a device that has been rejected twice in the last 5 minutes.
+Fell free to change the default values in `raddb/policy.d/packetfence` and in `raddb/mods-enabled/cache_ntlm`
 
 Tests
 ^^^^^
@@ -1266,7 +1295,7 @@ Portal Modules
 
 The PacketFence captive portal flow is highly customizable. This section will cover the 'Portal Modules' which are used to define the behavior of the captive portal.
 
-NOTE: When upgrading from a version that doesn't have the portal modules, the PacketFence Portal Modules configuration already comes with defaults that will fit most cases and offers the same behavior as previous versions of PacketFence. Meaning, all the available Portal Profile sources are used for authentication, then the available provisioners will be used.
+NOTE: When upgrading from a version that doesn't have the portal modules, the PacketFence Portal Modules configuration already comes with defaults that will fit most cases and offers the same behavior as previous versions of PacketFence. Meaning, all the available Connection Profile sources are used for authentication, then the available provisioners will be used.
 
 First, a brief description of the available Portal Modules: 
 
@@ -1295,9 +1324,9 @@ This section will contain the following examples:
 Creating a custom root module
 +++++++++++++++++++++++++++++
 
-First, create a custom root module for our examples in order to not affect the default policy. In order to do so, go in 'Configuration -> Portal Modules', then click 'Add Portal Module' and select the type 'Root'. Give it the identifier `my_first_root_module` and the description `My first root module`, then hit save.
+First, create a custom root module for our examples in order to not affect the default policy. In order to do so, go in 'Configuration -> Advanced Access Configuration -> Advanced Access Configuration -> Portal Modules', then click 'Add Portal Module' and select the type 'Root'. Give it the identifier `my_first_root_module` and the description `My first root module`, then hit save.
 
-Next, head to 'Configuration -> Portal Profiles', select the portal profile you use (most probably `default`) and then under 'Root Portal Module', assign `My first root module` then save your profile. If you were to access the captive portal now, an error would display since the Root module we configured doesn't contain anything.
+Next, head to 'Configuration -> Policies and Access Control -> Connection Profiles', select the connection profile you use (most probably `default`) and then under 'Root Portal Module', assign `My first root module` then save your profile. If you were to access the captive portal now, an error would display since the Root module we configured doesn't contain anything.
 
 You could add some of the pre-configured modules to the new Root module you created and that would make the error disappear.
 
@@ -1306,9 +1335,9 @@ Prompting for fields without authentication
 
 In order to prompt fields without authentication, you can use the Null source with the Null Portal Module.
 
-PacketFence already comes with a Null source pre-configured. If you haven't modified it or deleted it, you can use it for this example. Otherwise, go in 'Configuration -> Sources' and create a new Null source with a catchall rule that assigns a role and access duration.
+PacketFence already comes with a Null source pre-configured. If you haven't modified it or deleted it, you can use it for this example. Otherwise, go in 'Configuration -> Policies and Access Control -> Sources' and create a new Null source with a catchall rule that assigns a role and access duration.
 
-Then go in 'Configuration -> Portal Modules' and click 'Add Portal Module' and select 'Authentication -> Null'. Set the 'Identifier' to `prompt_fields` and configure the module with the 'Mandatory fields' you want and uncheck 'Require AUP' so that the user doesn't have to accept the AUP before submitting these fields.
+Then go in 'Configuration -> Advanced Access Configuration -> Advanced Access Configuration -> Portal Modules' and click 'Add Portal Module' and select 'Authentication -> Null'. Set the 'Identifier' to `prompt_fields` and configure the module with the 'Mandatory fields' you want and uncheck 'Require AUP' so that the user doesn't have to accept the AUP before submitting these fields.
 
 image::docs/images/portal-modules/prompt_fields.png[scaledwidth="100%",alt="Prompt fields module"]
 
@@ -1323,7 +1352,7 @@ You can also add additional mandatory fields to the default policies that are al
 
 This example will make the `default_guest_policy` require the user to enter a first name, last name and address so that guests have to enter these three information before registering.
 
-Go in 'Configuration -> Portal Modules' and click the `default_guest_policy`. Add `firstname`, `lastname` and `address` to the 'Mandatory fields' and save.
+Go in 'Configuration -> Advanced Access Configuration -> Portal Modules' and click the `default_guest_policy`. Add `firstname`, `lastname` and `address` to the 'Mandatory fields' and save.
 
 Next, add the `default_guest_policy` to `my_first_root_module` (removing any previous modules). Now when visiting the portal, selecting any of the guest sources will require you to enter both the mandatory fields of the source (ex: phone + mobile provider)  and the mandatory fields you defined in the `default_guest_policy`.
 
@@ -1336,11 +1365,11 @@ The portal modules allow you to chain two or more modules together in order to m
 
 This example will allow you to configure a 'Chained' module that will require the user to login via any configured OAuth source (Github, Google+, ...)  and then validate his phone number using SMS registration.
 
-For the OAuth login we will use the `default_oauth_policy`, so just make sure you have an OAuth source configured correctly and available in your Portal Profile.
+For the OAuth login we will use the `default_oauth_policy`, so just make sure you have an OAuth source configured correctly and available in your Connection Profile.
 
 Then, we will create a module that will contain the definition of our SMS registration.
 
-Go in 'Configuration -> Portal Modules' then click 'Add Portal Module' and select 'Authentication -> SMS'.
+Go in 'Configuration -> Advanced Access Configuration -> Portal Modules' then click 'Add Portal Module' and select 'Authentication -> SMS'.
 
 Configure the portal module so that it uses the `sms` source and uncheck the 'Require AUP' option since the user will have already accepted the AUP when registering using OAuth.
 
@@ -1357,13 +1386,13 @@ Mixing login and Secure SSID on-boarding on the portal
 
 This example will guide you through configuring a portal flow that will allow for devices to access an open SSID using an LDAP username/password but also give the choice to configure the Secure SSID directly from the portal.
 
-First, we need to configure the provisioners for the Secure SSID onboarding. Refer to section _Apple and Android Wireless Provisioning_ of this guide to configure your provisioners and add them to the portal profile.
+First, we need to configure the provisioners for the Secure SSID onboarding. Refer to section _Apple and Android Wireless Provisioning_ of this guide to configure your provisioners and add them to the connection profile.
 
 Create a provisioner of the type `Deny` and add it with your other provisioners (putting any other provisioner before it). This will make sure that if there is no match on the other provisioners, it will not allow the device through.
 
-Also in the portal profile add your LDAP source to the available sources so its the only one available.
+Also in the connection profile add your LDAP source to the available sources so its the only one available.
 
-Next, create a 'Provisioning' portal module by going in 'Configuration -> Portal Modules'. Set the 'Identifier' to `secure_boarding` and the description to `Board Secure SSID`. Also uncheck 'Skippable' so the user is forced to board the SSID should it choose this option.
+Next, create a 'Provisioning' portal module by going in 'Configuration -> Advanced Access Configuration -> Portal Modules'. Set the 'Identifier' to `secure_boarding` and the description to `Board Secure SSID`. Also uncheck 'Skippable' so the user is forced to board the SSID should it choose this option.
 
 Then, still in the Portal Modules, create a 'Choice' module. Set the 'Identifier' to `login_or_boarding` and description to 'Login or Boarding'. Add `secure_boarding` and `default_login_policy` to the 'Modules' field and save.
 
@@ -1376,7 +1405,7 @@ Displaying a message to the user after the registration
 
 Using the 'Message' module you can display a custom message to the user. You can also customize the template to display in order to display a fully custom page.
 
-Go in 'Configuration -> Portal Modules', then click 'Add Portal Module' and select 'Message'. Set the 'Identifier' to `hello_world` and the description to `Hello World`.
+Go in 'Configuration -> Advanced Access Configuration -> Portal Modules', then click 'Add Portal Module' and select 'Message'. Set the 'Identifier' to `hello_world` and the description to `Hello World`.
 
 Then put the following in the 'Message' field
 
@@ -1385,7 +1414,7 @@ Then put the following in the 'Message' field
 
 image::docs/images/portal-modules/hello_world.png[scaledwidth="100%",alt="Hello World"]
 
-Next, add `default_registration_policy` and `hello_world` in the 'Modules' of `my_first_root_module` (removing any previous modules) and save it. Now when visiting the portal, you should have to authenticate using the sources defined in your portal profile and you will then see the hello world message.
+Next, add `default_registration_policy` and `hello_world` in the 'Modules' of `my_first_root_module` (removing any previous modules) and save it. Now when visiting the portal, you should have to authenticate using the sources defined in your connection profile and you will then see the hello world message.
 
 image::docs/images/portal-modules/hello_world-my_first_root_module.png[scaledwidth="100%",alt="Hello World in my_first_root_module"]
 
@@ -1400,11 +1429,11 @@ The example script is located in `addons/example_external_auth/token.php` and a 
 
 Once you have the script installed and working on URL: `http://YOUR_PORTAL_HOSTNAME:10000/token.php`, you can configure what you need on the PacketFence side.
 
-Go in 'Configuration -> Portal Modules', then click 'Add Portal Module' and select 'URL'. Set the 'Identifier' to `token_system`, the 'Description' to `Token system` and the 'URL' to `http://YOUR_PORTAL_HOSTNAME:10000/token.php`.
+Go in 'Configuration -> Advanced Access Configuration -> Portal Modules', then click 'Add Portal Module' and select 'URL'. Set the 'Identifier' to `token_system`, the 'Description' to `Token system` and the 'URL' to `http://YOUR_PORTAL_HOSTNAME:10000/token.php`.
 
 image::docs/images/portal-modules/token_system.png[scaledwidth="100%",alt="Token system"]
 
-Next, add `default_registration_policy` and `token_system` in the 'Modules' of `my_first_root_module` (removing any previous modules) and save it. Now when visiting the portal, you should have to authenticate using the sources defined in your portal profile and then you will be redirected to example token system. Clicking the continue link on that system will bring you back to the portal and complete the registration process.
+Next, add `default_registration_policy` and `token_system` in the 'Modules' of `my_first_root_module` (removing any previous modules) and save it. Now when visiting the portal, you should have to authenticate using the sources defined in your connection profile and then you will be redirected to example token system. Clicking the continue link on that system will bring you back to the portal and complete the registration process.
 
 Authentication Choice module (advanced)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1415,7 +1444,7 @@ All the sources that are defined in the 'Sources' field will be available for us
 
 You can also define which mandatory fields you want to prompt for these authentication choices. Although you can still configure them on any 'Authentication Choice' module, they will only be shown if they are applicable to the source. 
 
-In addition to the manual selection above you can dynamically select sources part of the Portal Profile based on their object attribute (Object Class, Authentication type, Authentication Class).
+In addition to the manual selection above you can dynamically select sources part of the Connection Profile based on their object attribute (Object Class, Authentication type, Authentication Class).
 
 NOTE: You can find all the authentication objects in `lib/pf/Authentication/Source`
 
@@ -1546,27 +1575,43 @@ In order to override a default parameter, define it and set it in `pf.conf`.
 
 All these parameters are also accessible through the web-based administration interface under the Configuration tab. It is highly recommended that you use the web-based administration interface of PacketFence for any configuration changes.
 
-Apple and Android Wireless Provisioning
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Apple, Android and Windows Wireless Provisioning
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Apple devices such as iPhones, iPads, iPods and Mac OS X (10.7+) support wireless profile importation using a special XML file format (mobileconfig). Android is also able to support this feature by importing the wireless profile with the Android PacketFence Agent. In fact, installing such file on your Apple device will automatically configure the wireless settings for a given SSID. This feature is often used when the SSID is hidden, and you want to ease the configuration steps on the mobile device (because it is often painful to configure manually). In PacketFence, we are going further, we generate the profile according to the administrator's preference and we pre-populate the file with the user's credentials (without the password). The user simply needs to install its generated file and he will be able to use the new SSID.
 
+The Windows agent will import and apply the provisioned profile so that the user only needs to enter his username and password.
+
 Configure the feature
 ^^^^^^^^^^^^^^^^^^^^^
+NOTE: If EAP-TLS provisioning is desired, you have to configure a PKI before going any further. Two guides exists to assist you: 'PacketFence PKI Quick Install Guide', which covers PacketFence's implementation, or 'PacketFence MSPKI Quick Install Guide' which covers Microsoft's.
 
-First of all, you need to configure the SSID that your devices will use after they go though the authentication process.
+First of all, you need to configure the SSID that your devices will use after they go through the authentication process.
 
-In order to do that, in the administration interface, go in 'Configuration/Provisioners'. Then select the 'android' provisioner. Enter the SSID and save.
+In the administration interface, go in 'Advanced Access Configuration -> Provisioners'. Then select 'android' / 'ios' / 'Windows' provisioner. Enter the SSID information and roles for which the provisioner applies. Repeat for all desired provisioners. Note that the default RADIUS certificate path is `/usr/local/pf/raddb/certs/server.crt`.
 
-Now do the same thing for the iOS provisioner.
+After, you simply need to add the 'Android', 'iOS' and 'Windows' provisioners to your 'Connection Profile' configuration.
 
-After, you simply need to add the 'Android' and 'iOS' provisioners to your 'Portal Profile' configuration.
+Android specificities
++++++++++++++++++++++
 
-For Android, you must allow passthroughs in your `pf.conf` configuration file:
+For Android provisioning support, you must activate and adjust the passthroughs. You might need to adapt them depending on your geolocality.
+NOTE: Please refer to the 'Passthroughs' section of this guide if needed.
 
-  [trapping]
-  passthrough=enabled
-  passthroughs=*.ggpht.com,*.googleusercontent.com,android.clients.google.com,*.googleapis.com,*.android.clients.google.com,*.gvt1.com
+In the administation inferface, go in 'Network Configuration -> Fencing'. Activate 'Passthrough' and make sure the following passthrough are present:
+
+  *.ggpht.com,*.googleusercontent.com,android.clients.google.com,*.googleapis.com,*.android.clients.google.com,*.gvt1.com,*.l.google.com,play.google.com,*.gstatic.com
+
+Then run the following commands so that passthroughs become effective:  
+
+  /usr/local/pf/bin/pfcmd configreload hard
+  /usr/local/pf/bin/pfcmd service iptables restart
+  /usr/local/pf/bin/pfcmd service pfdns restart
+
+iOS specificities
++++++++++++++++++
+
+Mac OS X/iOS require the provisioning profile to be signed if you want to remove the `untrusted` warning when installing the profile. For more information, please refer to the PKI guides referred earlier in 'Configure the feature' above.
 
 Profile generation
 ^^^^^^^^^^^^^^^^^^
@@ -1645,7 +1690,7 @@ CAUTION: The certificate will *NOT* be the same if you use a sandbox account or 
 
 *Configuring PacketFence*
 
-Now, in the PacketFence administration interface, go in 'Configuration->Sources' and create a new source of type 'Billing -> Paypal'.
+Now, in the PacketFence administration interface, go in 'Configuration->Policies and Access Control->Sources' and create a new source of type 'Billing -> Paypal'.
 
 image::docs/images/billing/paypal-packetfence-configuration.png[scaledwidth="100%",alt="Paypal PacketFence configuration"]
 
@@ -1660,6 +1705,8 @@ Where :
 * *Paypal cert file* is the path to the Paypal certificate (/usr/local/pf/conf/ssl/paypal.pem in this example).
 * *Currency* is the currency that will be used in the transactions.
 * *Test mode* should be activated if you are using a sandbox account.
+
+NOTE: If they aren't already enabled, you will need to enable passthroughs so that users can reach the domains of this provider. Refer to the 'Passthroughs' section of this document for details
 
 Stripe
 ++++++
@@ -1676,7 +1723,7 @@ image::docs/images/billing/stripe-api-keys.png[scaledwidth="100%",alt="Stripe AP
 
 *Configuring PacketFence*
 
-Now, in the PacketFence administration interface, go in 'Configuration->Sources' and create a new source of type 'Billing -> Stripe'
+Now, in the PacketFence administration interface, go in 'Configuration->Policies and Access Control->Sources' and create a new source of type 'Billing -> Stripe'
 
 image::docs/images/billing/stripe-packetfence-configuration.png[scaledwidth="100%",alt="Stripe PacketFence configuration"]
 
@@ -1687,6 +1734,8 @@ Where :
 * *Style* is whether you are doing a one-time charge or subscription based billing (recurring). See section 'Subscription based registration' below for details on how to configure it.
 * *Currency* is the currency that will be used in the transactions.
 * *Test mode* should be activated if you are using the test key and secret account.
+
+NOTE: If they aren't already enabled, you will need to enable passthroughs so that users can reach the domains of this provider. Refer to the 'Passthroughs' section of this document for details
 
 Authorize.net
 +++++++++++++
@@ -1709,7 +1758,7 @@ image::docs/images/billing/authorize-md5-hash.png[scaledwidth="100%",alt="Stripe
 
 *PacketFence configuration*
 
-Next in the PacketFence administration interface, go in 'Configuration->Sources' and create a new source of type 'Billing->AuthorizeNet'.
+Next in the PacketFence administration interface, go in 'Configuration->Policies and Access Control->Sources' and create a new source of type 'Billing->AuthorizeNet'.
 
 image::docs/images/billing/authorize-packetfence-config.png[scaledwidth="100%",alt="Stripe PacketFence configuration"]
 
@@ -1721,6 +1770,8 @@ Where :
 * *Currency* is the currency that will be used in the transactions.
 * *Test mode* should be activated if you are using a sandbox account.
 
+NOTE: If they aren't already enabled, you will need to enable passthroughs so that users can reach the domains of this provider. Refer to the 'Passthroughs' section of this document for details
+
 Mirapay
 +++++++
 
@@ -1731,7 +1782,7 @@ Adding billing tiers
 
 Once you have configured one or more billing source, you need to define billing tiers which will define the price and target authentication rules for the user.
 
-In the PacketFence administration interface, go in 'Configuration->Billing tiers'
+In the PacketFence administration interface, go in 'Configuration->Advanced Access Configuration->Billing tiers'
 
 Then click 'Add billing tier' and configure it.
 
@@ -1747,7 +1798,7 @@ Where :
 * *Role* is the target role the user should be in.
 * *Use time balance* defines if the access duration should be computed on real-time access duration meaning if the user buys 24 hours of access he can use the network for 24 hours in different time blocks. This requires a valid RADIUS accounting configuration.
 
-NOTE: If don't want to use all the billing tiers that are defined, you can specify the ones that should be active in the 'Portal profile'.
+NOTE: If don't want to use all the billing tiers that are defined, you can specify the ones that should be active in the 'Connection profile'.
 
 Subscription based registration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1820,26 +1871,20 @@ Now every time a user unsubscribes from a plan, PacketFence will be notified and
 Extending access before it ends
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-PacketFence allows users to extend their access before it has ended. In order to do so, you need to enable 'Allow access to registration portal when registered' accessible via the 'Captive Portal' tab of the 'Portal Profiles'. Once this is activated, the users can reach https://YOUR_PORTAL_IP/status and select 'Extend your access' in order to be able to access the billing section after they have registered.
+PacketFence allows users to extend their access before it has ended. In order to do so, you need to enable 'Allow access to registration portal when registered' accessible via the 'Captive Portal' tab of the 'Connection Profiles'. Once this is activated, the users can reach https://YOUR_PORTAL_IP/status and select 'Extend your access' in order to be able to access the billing section after they have registered.
 
 Devices Registration
 ~~~~~~~~~~~~~~~~~~~~
 
-Users have the possibility to register their devices (Microsoft XBOX/XBOX360, Nintendo DS/Wii, Sony PlayStation and so on) right from a special portal page. When accessing this page, users will be prompted to login as if they were registering themselves. Once logged in, the portal will ask them to enter the device MAC address that will then be matched against a predefined list of authorized MAC OUI. The device will be registered with the user's id and can be assigned into a specific category for easier management.
+Users have the possibility to register their devices right from a special portal page. When accessing this page, users will be prompted to login as if they were registering themselves. Once logged in, the portal will ask them to enter the device MAC address that will then be matched against the Fingerbank database to match authorized devices list. The device will be registered with the user's id and can be assigned into a specific category for easier management.
 
-Here's how to configure the whole thing.
+The section *Configuration -> -> Advanced Access Configuration -> Device Registration* is where to configure it.
 The portal page can be accessed by the following URL: https://YOUR_PORTAL_HOSTNAME/device-registration
 This URL is accessible from within the network, in any VLAN that can reach the PacketFence server.
 
-The following can be configured by editing the pf.conf file:
+As from PacketFence 7.3 and onwards you need to create a device registration profile and associate it with the connection profile.
 
-   [registration]
-   device_registration = enabled
-   device_registration_role = gaming
-
-Make sure the role exists in PacketFence otherwise you will encounter registration errors. Moreover, make sure the role mapping for your particular equipment is done.
-
-These parameters can also be configured from the *Configuration -> Registration* section.
+This will allow you to configure who is able to register which type of device. For instance a person connecting from the public WiFi can only register an Android device but a person from the internal network can register Windows and MacOS computers.
 
 NOTE: A 'portal' interface type is required to use this feature. A 'portal' interface type can be added to any network interface using the web admin GUI.
 
@@ -1864,6 +1909,7 @@ In order for PacketFence to allow eduroam authentication, the FreeRADIUS configu
 First, modify the /usr/local/pf/raddb/clients.conf file to allow the eduroam servers to connect to your PacketFence server. Add the eduroam servers as clients and make sure to add the proper RADIUS secret. Set a shortname to refer to these clients as you will later need it to exclude them from some parts of the PacketFence configuration.
 
 clients.conf example:
+
 ----
 client tlrs1.eduroam.us {
         secret = useStrongerSecret
@@ -1923,6 +1969,7 @@ the requests are processed entirely by FreeRADIUS. If the REALM sets a different
 home server pool, the requests are proxied to the servers defined within that pool. 
 
 proxy.conf example:
+
 ----
 # This realm is for requests which don't have an explicit realm
 # prefix or suffix.  User names like "bob" will match this one.
@@ -1959,6 +2006,7 @@ Thirdly, you must configure the packetfence FreeRADIUS virtual servers to treat 
 In /usr/local/pf/raddb/sites-enabled/packetfence, modify the authorize section like this:
 
 raddb/sites-enabled/packetfence example:
+
 ----
 authorize {
         # pay attention to the order of the modules. It matters.
@@ -1992,6 +2040,7 @@ If you omit this change the request will be sent to PacketFence where it will be
 eduroam servers are not part of your configured switches.
 
 raddb/sites-enabled/packetfence-tunnel example:
+
 ----
 post-auth {
         exec
@@ -2012,6 +2061,7 @@ post-auth {
 Finally, make sure that the realms module is configured this way ( see /usr/local/pf/raddb/modules/realm ): 
 
 raddb/modules/realm example:
+
 ----
 # 'username@realm'
 realm suffix {
@@ -2111,7 +2161,7 @@ As we mentioned earlier, each floating network device has to be identified. Ther
 
 [options="compact"]
 * by editing `conf/floating_network_device.conf`
-* through the Web GUI, in *Configuration -> Network -> Floating devices*
+* through the Web GUI, in *Configuration -> Network Configuration -> Floating Device*
 
 Here are the settings that are available:
 
@@ -2131,19 +2181,14 @@ OAuth2 Authentication
 
 NOTE: OAuth2 authentication does not work with Webauth enforcement
 
-The captive portal of PacketFence allows a guest/user to register using his Google, Facebook, LinkedIn, Windows Live, Twitter, Instagram, Pinterest or Github account.
+NOTE: OAuth2 authentication will fail by design when previewed through "Connection Profiles"  
+
+The captive portal of PacketFence allows a guest/user to register using his Google, Facebook, LinkedIn, Windows Live, Twitter, Instagram, Pinterest, OpenID Connect or Github account.
 
 For each providers, we maintain an allowed domain list to punch holes into the firewall so the user can hit the provider login page.
 This list is available in each OAuth2 authentication source.
 
-In order to have oauth2 working properly, you need to enable IP forwarding on your servers. To do it permanently, look in the `/etc/sysctl.conf`, and set the following line:
-
-  # Controls IP packet forwarding
-  net.ipv4.ip_forward = 1
-
-Save the file, and issue a `sysctl -p` to update the OS config.
-
-You must also enable the passthrough option in your PacketFence configuration (trapping.passthrough in pf.conf).
+You must enable the passthrough option in your PacketFence configuration (fencing.passthrough in pf.conf).
 
 Google
 ^^^^^^
@@ -2154,9 +2199,9 @@ You can keep the default configuration, modify the App ID & App Secret (Given by
 
 Also, add the following Authorized domains : *.google.com, *.google.ca, *.google.fr, *.gstatic.com,googleapis.com,accounts.youtube.com (Make sure that you have the google domain from your country like Canada => *.google.ca, France => *.google.fr, etc...)
 
-Once you have your client id, and API key, you need to configure the OAuth2 provider. This can be done by adding a Google OAuth2 authentication source from *Configuration -> Sources*.
+Once you have your client id, and API key, you need to configure the OAuth2 provider. This can be done by adding a Google OAuth2 authentication source from *Configuration -> Policies and Access Control -> Sources*.
 
-Moreover, don't forget to add Google as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
+Moreover, don't forget to add Google as a registration mode from your connection profile definition, available from *Configuration -> Policies and Access Control -> Connection Profiles and Pages*.
 
 Facebook
 ^^^^^^^^
@@ -2169,9 +2214,9 @@ You can keep the default configuration, modify the App ID & App Secret (Given by
 
 Also, add the following Authorized domains : *.facebook.com, *.fbcdn.net, *.akamaihd.net (May change)
 
-Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Facebook OAuth2 authentication source from *Configuration -> Sources*.
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Facebook OAuth2 authentication source from *Configuration -> Policies and Access Control -> Sources*.
 
-Moreover, don't forget to add Facebook as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
+Moreover, don't forget to add Facebook as a registration mode from your connection profile definition, available from *Configuration -> Policies and Access Control -> Connection Profiles and Pages*.
 
 CAUTION: By allowing OAuth through Facebook, you will give Facebook access to the users while they are sitting in the registration VLAN.
 
@@ -2182,9 +2227,9 @@ https://YOUR_PORTAL_HOSTNAME/oauth2/callback
 
 Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
 
-Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a GitHub OAuth2 authentication source from *Configuration -> Sources*.
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a GitHub OAuth2 authentication source from *Configuration -> Policies and Access Control -> Sources*.
 
-Moreover, don't forget to add GitHub as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
+Moreover, don't forget to add GitHub as a registration mode from your connection profile definition, available from *Configuration -> Policies and Access Control -> Connection Profiles and Pages*.
 
 Instagram
 ^^^^^^^^^
@@ -2193,9 +2238,9 @@ https://YOUR_PORTAL_HOSTNAME/oauth2/callback
 
 Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
 
-Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Instagram OAuth2 authentication source from *Configuration -> Sources*.
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Instagram OAuth2 authentication source from *Configuration -> Policies and Access Control -> Sources*.
 
-Moreover, don't forget to add Instagram as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
+Moreover, don't forget to add Instagram as a registration mode from your connection profile definition, available from *Configuration -> Policies and Access Control -> Connection Profiles and Pages*.
 
 LinkedIn
 ^^^^^^^^
@@ -2204,11 +2249,25 @@ https://YOUR_PORTAL_HOSTNAME/oauth2/callback
 
 Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
 
-Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a LinkedIn OAuth2 authentication source from *Configuration -> Sources*.
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a LinkedIn OAuth2 authentication source from *Configuration -> Policies and Access Control -> Sources*.
 
-Moreover, don't forget to add LinkedIn as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
+Moreover, don't forget to add LinkedIn as a registration mode from your connection profile definition, available from *Configuration -> Policies and Access Control -> Connection Profiles and Pages*.
 
 Also, LinkedIn requires a 'state' parameter for the authorization URL. If you modify it, make sure to add it at the end of your URL.
+
+OpenID Connect
+^^^^^^^^^^^^^^
+Using OpenID Connect is a bit different than other OAuth2 sources. The reason behind that is because you will setup your own OpenID Connect source or depend on a provider for it. Configuration like token path, authorize path or API URL are specific to your setup. For more information on how to create your own or get a host please visit: http://openid.net/connect/. 
+
+When you create your App, make sure you specify the following as the Callback URL, https://YOUR_PORTAL_HOSTNAME/oauth2/callback. 
+
+Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
+
+OpenID connect have different ways to be configured, make sure to create a client ID and a client secret to work with PacketFence.
+
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding an OpenID OAuth2 authentication source from *Configuration -> Policies and Access Control -> Sources*.
+
+Moreover, don't forget to add OpenID as a registration mode from your connection profile definition, available from *Configuration -> Policies and Access Control -> Connection Profiles and Pages*.
 
 Pinterest
 ^^^^^^^^^
@@ -2217,9 +2276,9 @@ https://YOUR_PORTAL_HOSTNAME/oauth2/callback
 
 Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
 
-Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Pinterest OAuth2 authentication source from *Configuration -> Sources*.
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Pinterest OAuth2 authentication source from *Configuration -> Policies and Access Control -> Sources*.
 
-Moreover, don't forget to add Pinterest as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
+Moreover, don't forget to add Pinterest as a registration mode from your connection profile definition, available from *Configuration -> Policies and Access Control -> Connection Profiles and Pages*.
 
 Twitter
 ^^^^^^^
@@ -2228,9 +2287,9 @@ https://YOUR_PORTAL_HOSTNAME/oauth2/callback
 
 Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
 
-Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Twitter OAuth2 authentication source from *Configuration -> Sources*.
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Twitter OAuth2 authentication source from *Configuration -> Policies and Access Control -> Sources*.
 
-Moreover, don't forget to add Twitter as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
+Moreover, don't forget to add Twitter as a registration mode from your connection profile definition, available from *Configuration -> Policies and Access Control -> Connection Profiles and Pages*.
 
 Windows Live
 ^^^^^^^^^^^^
@@ -2239,9 +2298,9 @@ https://YOUR_PORTAL_HOSTNAME/oauth2/callback
 
 Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
 
-Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a WindowsLive OAuth2 authentication source from *Configuration -> Sources*.
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a WindowsLive OAuth2 authentication source from *Configuration -> Policies and Access Control -> Sources*.
 
-Moreover, don't forget to add WindowsLive as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
+Moreover, don't forget to add WindowsLive as a registration mode from your connection profile definition, available from *Configuration -> Policies and Access Control -> Connection Profiles and Pages*.
 
 
 Passthroughs
@@ -2254,16 +2313,16 @@ There are two solutions for passthroughs - one using DNS resolution and iptables
 Note that non-HTTP (including HTTPS) protocols cannot use the mod_proxy approach.
 You can use one of them or both but for if a domain is configured in both, DNS passthroughs have a higher priority.
 
-In order to use the passthroughs feature in PacketFence, you need to enable it from the GUI in *Configuration->Trapping*, enable *Passthrough* and then save.
+In order to use the passthroughs feature in PacketFence, you need to enable it from the GUI in *Configuration->Network Configuration->Networks->Fencing*, enable *Passthrough* and then save.
 
 DNS passthroughs
 ^^^^^^^^^^^^^^^^
 
+NOTE: In active-active cluster, `pfdns` needs to listen on VIP only. *Configuration->System Configuration->Cluster->pfdns on VIP only*
+
 If you just enabled the passthroughs, you should restart the iptables services after configuring the parameter (`/usr/local/pf/bin/pfcmd service iptables restart`).
 
-Once done, add `net.ipv4.ip_forward=1` in `/etc/sysctl.conf` and reload it using `sysctl -p`. This enables packet routing in the kernel.
-
-Then add passthroughs in *Configuration->Trapping->Passthroughs*. They can be of the following format:
+Then add passthroughs in *Configuration->Network Configuration->Networks->Fencing->Passthroughs*. They can be of the following format:
 
  * *example.com*: opens ports 80 and 443 in TCP for example.com
  * *example.com:1812*: opens the port 1812 in TCP and UDP for example.com
@@ -2280,7 +2339,7 @@ At the same time, it will add the entry to a special ipset which will allow acce
 mod_proxy passthroughs
 ^^^^^^^^^^^^^^^^^^^^^^
 
-The proxy passthroughs can be configured in *Configuration->Trapping->Proxy Passthroughs*.
+The proxy passthroughs can be configured in *Configuration->Network Configuration->Networks->Fencing->Proxy Passthroughs*.
 Add a new FQDN (can also be a wildcard domain like *.google.com). Port specific passthroughs cannot be used as these only apply to port 80 in TCP.
 Then for this FQDN, pfdns will still answer with the IP address of the captive portal and when a device hits the captive portal, PacketFence will detect that this FQDN has a passthrough configured in PacketFence and will forward the traffic to mod_proxy.
 
@@ -2360,7 +2419,7 @@ Proxy Interception
 
 PacketFence enables you to intercept proxy requests and forward them to the captive portal. It only works one layer-2 networks  because PacketFence must be the default gateway.
 In order to use the Proxy Interception feature, you need to enable it from the GUI in
-*Configuration -> Trapping* and check *Proxy Interception*.
+*Configuration -> Network Configuration -> Networks -> Fencing* and check *Proxy Interception*.
 
 Add the port you want to intercept (like 8080 or 3128) and add a new entry in the `/etc/hosts` file to resolve the fully qualified domain name (fqdn) of the captive portal to the IP address of the registration interface. This modification is mandatory in order for Apache to receives the proxy requests.
 
@@ -2470,67 +2529,6 @@ For example, for the VLAN 20 remote registration network:
 If your edge switches support 'vlan-isolation' you can also apply the ACL
 there.  This has the advantage of preventing machines in isolation from
 attempting to attack each other.
-
-Statement of Health (SoH)
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The Statement of Health (SoH) is product that has been developed by Microsoft. In the Microsoft world, this is named Network Access Protection or NAP. On Windows versions from XP SP2 to Windows 7, there is a NAP service installed that can relay health information (Anti-Virus update status, Windows Update status, etc) to a RADIUS Server or a DHCP server. The section below explains you how to do SoH policies with PacketFence.
- 
-Installation
-^^^^^^^^^^^^
-
-By default, we turn SoH off. To enable its support, simply uncomment the following lines in `/usr/local/pf/conf/radiusd/eap.conf`.
-
-  soh=yes
-  soh-virtual-server = "soh-server"
-
-Restart the RADIUS service afterward.
-
-On the client side, to enable SoH for EAP, do the following (Windows 7 example):
-
-----
-sc config napagent start=auto
-sc start napagent
-
-:: Wired 802.1X
-sc config dot3svc start=auto depend=napagent
-sc start dot3svc
-
-netsh nap client show config
-
-:: get the "ID" value for the "EAP Quarantine Enforcement Client"
-netsh nap client set enforce id=$ID admin=enable
-----
-
-The last step is to select the "Enforce Network Access Protection" checkbox under the EAP profile settings. Those steps can be easily configured using GPOs.
-
-Configuration of SoH policy
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-In order to enforce a SoH policy, we need to create it first. This is done using the *Configuration -> Compliance -> Statement of Health* module.
-
-Policy example
-^^^^^^^^^^^^^^
-
-Let's walk through an example situation. Suppose you want to display a remediation page to clients that do not have an anti-virus enabled.
-
-The three broad steps are: create a violation class for the condition, then create an SoH filter to trigger the violation when "anti-virus is disabled", and finally, reload the violations.
-
-First, create the proper violation either via the Admin UI, or by editing the `conf/violations.conf` files:
-
-  [4000001]
-  desc=No anti-virus enabled
-  url=/remediation.php?template=noantivirus
-  actions=reevaluate_access,email,log
-  enabled=Y
-
-NOTE: You may also want to set other attributes such as auto_enable, grace, etc.
-
-When done with the violation, visit the Web Administration under *Configuration -> Compliance -> Statement of Health* and (edit the filter named *Default*, or) use the *Add a filter* button to create a filter named *antivirus*. Click on *antivirus* in the filter list, and select *Trigger violation* in the action drop-down. Enter the vid of the violation you created above in the input box that appears.
-
-Next, click on *Add a condition*, and select *Anti-virus*, *is*, and *disabled* in the drop-down boxes that appear. Click on the *Save filters* button. Finally, reload the violations either by restarting PacketFence or using the `pfcmd reload violations` command.
-
-The last step is to create a new remediation template called `noantivirus.php` on the filesystem in the `html/captive-portal/violations` folder. Edit it to include the text you want to display to the users.
 
 VLAN Filter Definition
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -2689,7 +2687,7 @@ This enforcement mode used by itself can be bypassed by the device by using a di
 
 The first can be prevented using an ACL on your routing equipment, the second can be prevented by combining DNS enforcement with Single-Sign-On on your network equipment. Please see the Firewall Single-Sign-On documentation for details on how to accomplish this.
 
-In order to configure DNS enforcement, you first need to go in 'Configuration -> Interfaces' then select one of your interfaces and set it in DNS enforcement mode.
+In order to configure DNS enforcement, you first need to go in 'Configuration -> Network Configuration -> Networks -> Interfaces' then select one of your interfaces and set it in DNS enforcement mode.
 
 After, you need to configure a routed network for this interface by clicking 'Add routed network'. See the 'Routed Networks' section of this document for details on how to configure it.
 
@@ -2704,9 +2702,9 @@ In the event that you are managing a large registration network with devices tha
 
 Using the parking feature, you can make these devices have a longer lease and hit an extremely lightweight captive portal so that the amount of resources they consume is minimal. In that captive portal, they will see a message explaining that they haven't registered their device for a certain amount of time, and will let them leave the *parked* state by pressing a link. 
 
-The *parked* vs *unparked* state is controlled through violation `1300003` which gets triggered according to the `parking.threshold` setting ('Configuration->Parking').
+The *parked* vs *unparked* state is controlled through violation `1300003` which gets triggered according to the `parking.threshold` setting ('Configuration->Network Configuration->Networks->Device Parking').
 
-So, in order to activate the parking, go in 'Configuration->Parking' and set the threshold to a certain amount of seconds. A suggested value would be `21600` which is 6 hours. This means that if a device stays in your registration network for more than 6 hours in a row, it will trigger violation `1300003` and place that device into the *parked* state.
+So, in order to activate the parking, go in 'Configuration->Network Configuration->Networks->Device Parking' and set the threshold to a certain amount of seconds. A suggested value would be `21600` which is 6 hours. This means that if a device stays in your registration network for more than 6 hours in a row, it will trigger violation `1300003` and place that device into the *parked* state.
 
 In that same section, you can define the lease length of the user when he is in the *parked* state.
 
@@ -2723,7 +2721,7 @@ Here are the main settings:
 * The amount of time a user can *unpark* their device is controlled through the 'Remediation -> Max enable' setting.
 * The amount of grace time between two parking violations is controlled by the 'Remediation -> Grace' setting. This means, once a user release himself from the *parked* state, he will have at least this amount of time to register before the parking triggers again.
 * The destination role (thus VLAN) of the user is controlled by 'Advanced -> Role'. You should leave the user in the registration role, but should you want to dedicate a role for parking, you can set it there.
-* The `Template` attribute will only be used when the user is on the normal PacketFence portal and not the one dedicated for parking. If you want the user to access the non-parking portal, disable 'Show parking portal' in 'Configuration -> Parking'
+* The `Template` attribute will only be used when the user is on the normal PacketFence portal and not the one dedicated for parking. If you want the user to access the non-parking portal, disable 'Show parking portal' in 'Configuration -> Network Configuration -> Networks -> Device Parking'
 
 Custom reports
 ~~~~~~~~~~~~~~
@@ -2743,6 +2741,8 @@ The following attributes are available to define your report (the ones that have
 * `order_fields` : Comma delimited fields for the ordering of the report. The field should be prefixed of `-` if the sort should be made in descending order for the field (ex: `-node.regdate,locationlog.start_time,+iplog.start_time`).
 * `base_conditions` : Comma delimited conditions that should be applied to the report. This can be used to filter the report without using the search in the administration interface to provide the proper unsearched view. Conditions should match the following format : `field:operator:value` (ex: `auth_log.source:=:sms,auth_log.status:!=:completed`).
 * `base_conditions_operator` : Whether the base conditions should be matched using an all or any logic. Accepted values are `all` and `any`.
+* `person_fields` : The fields in your report that represent a user in the PacketFence database. Field values in this field will be clickable and will allow to view/modify the values of the user in question. The fields must be listed with the name they have in the report header without any quotes and are comma delimited.
+* `node_fields` : The fields in your report that represent a node in the PacketFence database. Field values in this field will be clickable and will allow to view/modify the values of the node in question. The fields must be listed with the name they have in the report header without any quotes and are comma delimited.
 * `searches` : Comma delimited searches that should be available on the report. Should match the following format `type:Display Name:field` (ex: `string:Username:auth_log.pid`). 
 [options="compact"]
 ** `type` defines the type of the search, the only one currently supported is `string`.
@@ -2764,6 +2764,8 @@ View of the auth_log table:
   columns=auth_log.*
   # The date field that should be used for date ranges
   date_field=attempted_at
+  # The mac field is a node in the database
+  node_fields=mac
   # Allow searching on the PID displayed as Username
   searches=string:Username:auth_log.pid
 
@@ -2787,8 +2789,254 @@ View of the opened violations:
   # filter on open locationlog entries or null locationlog entries via the end_date field
   base_conditions_operator=any
   base_conditions=locationlog.end_time:=:0000-00-00,locationlog.end_time:IS:
+  # The MAC Address field represents a node
+  node_fields=MAC Address
+  # The Username field represents a user
+  person_fields=Username
 
 In the example above, you can see that the violation table is 'left joined' to the class, node and locationlog tables. Using that strategy we make sure all the violations are listed even on deleted nodes. Then, base conditions are added to filter out outdated locationlog entries as well as include devices without locationlog entries. Removing those conditions would lead to duplicate entries being shown since the report would reflect all the historical locationlog entries.
+
+Admin Access
+~~~~~~~~~~~~
+
+You can manage which access you give to PacketFence administrators. To do that go through 'Configuration->System Configuration->Admin Access'. Then go to your source which authenticate administrator and create an 'administration' rule and assign the wanted Admin role. This functionality allows you to have a granular control on which section of the admin interface is available to whom.
+
+Built-in roles
+^^^^^^^^^^^^^^
+
+ * ALL: Provides the user with all the admin roles without any exception.
+ * ALL_PF_ONLY: Provides the user with all the admin roles related to the PacketFence deployment (excludes switch login rights).
+ * Node Manager: Provides the user the ability to manage the nodes.
+ * User Manager: Provides the user the ability to manage other users.
+ * Violation Manager: Provides the user the ability to manage the violations (trigger, open, close) for the nodes.
+
+Regex Syslog Parser
+~~~~~~~~~~~~~~~~~~~
+
+You are now able to create syslog parser using regex. This will allow you complex filters and rules to work on data receive via syslog.
+
+Configuring a Regex Syslog Parser
+
+- Enabled - You can enable/disable the parser from running
+- Alert Pipe - A previously created alert pipe (FIFO)
+- Rules - The list of rules that defines how to match log file entries and what action(s) to take when matching
+
+Regex Syslog Parser Rule
+
+- Name - The name of the rule
+- Regex - The regex to match against a log entry. The regex may have http://perldoc.perl.org/perlre.html#(%3f'NAME'pattern[named captures] which can be used for parameter replacement start a '$'.
+- Actions - A list of actions to take when the regex matches
+- IP to MAC - Perform automatic translation of IPs to MACs and the other way around
+- Last if matches - Stop processing the other rules if this rule matched
+
+Defining Actions
+
+An action have two parts
+
+- method - The name of the action you want to take
+- parameter list - The list of parameters you want to provide to the method. Each parameter is seperated by a comma. The parameters that are to be replaced by a named capture.
+
+Example Action
+
+Regex - 
+
+    mac\s*:\s*(?&lt;mac&gt;[a-zA-Z0-9]{2}(:[a-zA-Z0-9]{2}){5}), notes\s*:\s*(?&lt;notes&gt;.*)
+
+Action - 
+
+    modify_node:  mac, $mac, notes, $notes
+
+Content-Security-Policy (CSP)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The Content-Security-Policy HTTP response header tells modern browsers what can be accessed from a generated web page. The default policy is pushed for both the captive portal and the admin interfaces and enforces that everything the browser executes comes from within PacketFence, with the exception of the configured network detection host that is by default the Inverse IP address.
+
+If, for some reason the portal is modified with content that needs to be accessed from PacketFence generated web pages, CSP can be deactivated through *Configuration -> System Configuration -> Main Configuration -> Advanced -> CSP Security Headers*.
+
+Suricata example:
+-----------------
+
+PacketFence already contains a syslog parser for Suricata. This is an example to raise a violation from a syslog alert on the Suricata SID.
+
+The first step is to create the syslog regex parser and then create the violation.
+
+Syslog regex parser configuration:
+----------------------------------
+
+To create the syslog regex parser you will need to go to *Configuration -> Compliance -> Syslog Parsers -> Add a Syslog Parser -> regex*
+
+Here is the configuration of the syslog regex parser:
+
+    Detector *: Suricata
+    Enabled: checked
+    Alert pipe: /usr/local/pf/var/suricata (To create the fifo file, do: mkfifo /usr/local/pf/var/suricata)
+
+    Rules:
+    
+    Rule - New:
+    
+    Name *: ET P2P Kaaza Media desktop p2pnetworking.exe
+    Regex *: (?<date>\d{2}\/\d{2}\/\d{4}-\d{2}:\d{2}:\d{2}.*?)  \[\*\*\] \[\d+:(?<sid>\d+):\d+\] (?<message>.*?) \[\*\*\].* (?<srcip>\d{1,3}(\.\d{1,3}){3}):(?<srcport>\d+) -> (?<ip>\d{1,3}(\.\d{1,3}){3}):(?<port>\d+)
+    Action: trigger_violation mac, $mac, tid, $sid, type, detect
+    Last if match: unchecked
+    IP to MAC: checked
+
+Save the regex rule.
+
+You can directly test your rule. In the previous example the parser expect a syslog string like this:
+
+    02/26/2017-14:29:00.524309  [**] [1:2000340:10] ET P2P Kaaza Media desktop p2pnetworking.exe Activity [**] [Classification: Potential Corporate Privacy Violation] [Priority: 1] {UDP} 173.194.7.75:443 -> 1.2.3.4:46742
+
+In order to have a correct match in the rule, you will need to have a valid iplog entry in the database. Put the string in the test box and then click on the 'RUN TEST' button, you should get:
+
+    Click to see actions for - 02/26/2017-14:29:00.524309 [**] [1:2000340:10] ET P2P Kaaza Media desktop p2pnetworking.exe Activity [**] [Classification: Potential Corporate Privacy Violation] [Priority: 1] {UDP} 173.194.7.75:443 -> 1.2.3.4:46742
+ 
+    - ET P2P Kaaza Media desktop p2pnetworking.exe : trigger_violation('mac', '00:11:22:33:44:55', 'tid', '2000340', 'type', 'detect')
+
+We can see that PacketFence will execute the violation on the MAC address 00:11:22:33:44:55.
+
+Violation creation:
+-------------------
+
+Now you will need to create the violation with the trigger id '2000340' in order to isolate the device. In order to do so, go to *Configuration -> Compliance -> Violation -> ADD VIOLATION*
+
+Definition:
+
+    Enabled: ON
+    Identifier: 1500001
+    Description: ET P2P Kaaza Media
+    Action: Reevaluate Access Action; Log message
+    Priority: 1
+
+Triggers:
+
+* Click on the + button
+* Look for 'detect' in the dropdown list
+* Add the trigger ID: 2000340 and click the ADD button
+* Click on the '<' button next to 'Select Some Options'
+
+Remediation:
+
+    Auto Enable: checked
+    Max Enables: 2
+    Grace: 5 minutes
+    Template: p2p.html
+
+Click on the SAVE button.
+
+Now you will need to restart the pfqueue and the pfdetect services.
+
+    /usr/local/pf/bin/pfcmd service pfqueue restart
+    
+    /usr/local/pf/bin/pfcmd service pfdetect restart 
+
+Make sure that you have your pipe file otherwise the process won't start.
+
+StreamScan CDS example:
+-----------------------
+
+This is an example to raise a violation from a syslog alert on a StreamScan alert ID.
+
+The first step is to create the syslog regex parser and then create the violation.
+
+Syslog regex parser configuration:
+----------------------------------
+
+To create the syslog regex parser you will need to go to *Configuration -> Compliance -> Syslog Parsers -> Add a Syslog Parser -> regex*
+
+Here is the configuration of the syslog regex parser:
+
+    Detector *: StreamScan
+    Enabled: checked
+    Alert pipe: /usr/local/pf/var/cds
+
+    Rules:
+    
+    Rule - New:
+    
+    Name *: ET TROJAN
+    Regex *:  CDS\[(?<cds_id>\d+)\].*?type=(?<type>[^ ]*).*?threat="(?<threat>.*?)" direction=(?<direction>[^ ]+) sourceip=(?<sourceip>\d+(\.\d+){3}) sourceport=(?<sourceport>\d+) destip=(?<ip>\d+(\.\d+){3}) destport=(?<destport>\d+) app=(?<app>[^ ]*) timestamp=(?<timestamp>[^ ]*) sid=(?<sid>\d+)
+    Action: trigger_violation mac, $mac, tid, $sid, type, detect
+    Last if match: unchecked
+    IP to MAC: checked
+
+Save the regex rule.
+
+You can directly test your rule. In the previous example the parser expect a syslog string like this:
+
+    Apr 24 16:50:41 ubuntu CDS[13423]: type=alert threat="ET TROJAN Likely Zbot Generic Post to gate.php no accept headers" direction=outgoing sourceip=192.168.254.194 sourceport=53252 destip=5.175.143.42 destport=80 app=HTTP timestamp=2017-04-24_16-50-41.832096 sid=2022985
+
+In order to have a correct match in the rule, you will need to have a valid iplog entry in the database. Put the string in the test box and then click on the 'RUN TEST' button, you should get:
+
+    Results
+
+    Click to see actions for - Apr 24 16:50:41 ubuntu CDS[13423]: type=alert threat="ET TROJAN Likely Zbot Generic Post to gate.php no accept headers" direction=outgoing sourceip=192.168.254.194 sourceport=53252 destip=5.175.143.42 destport=80 app=HTTP timestamp=2017-04-24_16-50-41.832096 sid=2022985
+    - violation : trigger_violation('mac', '00:11:22:33:44:55', 'tid', '2022985', 'type', 'detect')
+
+We can see that PacketFence will execute the violation on the MAC address 00:11:22:33:44:55.
+
+Violation creation:
+-------------------
+
+Now you will need to create the violation with the trigger id '2000340' in order to isolate the device. In order to do so, go to *Configuration -> Compliance -> Violation -> ADD VIOLATION*
+
+Definition:
+
+    Enabled: ON
+    Identifier: 2022985
+    Description: ET Trojan
+    Action: Reevaluate Access Action; Log message
+    Priority: 1
+
+Triggers:
+
+* Click on the + button
+* Look for 'detect' in the dropdown list
+* Add the trigger ID: 2022985 and click the ADD button
+* Click on the '<' button next to 'Select Some Options'
+
+Remediation:
+
+    Auto Enable: checked
+    Max Enables: 2
+    Grace: 5 minutes
+    Template: generic.html
+
+Click on the SAVE button.
+
+Now you will need to restart the pfqueue and the pfdetect services.
+
+    /usr/local/pf/bin/pfcmd service pfqueue restart
+    
+    /usr/local/pf/bin/pfcmd service pfdetect restart 
+
+Make sure that you have your pipe file otherwise the process won't start.
+
+Rsyslog configuration
+---------------------
+
+You will need to create a rsyslog configuration to forward all the syslog messages sent by StreamScan to the pipe file /usr/local/pf/var/cds
+
+    mkfifo /usr/local/pf/var/cds
+
+First you need to enable the syslog under the rsyslog configuration file located at /etc/rsyslog.conf, uncomment the two parameters:
+
+    # Provides UDP syslog reception
+    $ModLoad imudp
+    $UDPServerRun 514
+
+Then create the forwarding configuration:
+
+    vim /etc/rsyslog.d/cds.conf
+
+Put the follow configuration in it where the IP 1.2.3.4 is your syslog source server:
+
+    if ($fromhost-ip=='172.20.20.181') then /usr/local/pf/var/cds
+    &~
+
+Restart rsyslog to apply the configuration
+
+    service rsyslog restart
+
 
 Optional components
 -------------------
@@ -2799,21 +3047,6 @@ Blocking malicious activities with violations
 Policy violations allow you to restrict client system access based on violations of certain policies. For example, if you do not allow P2P type traffic on your network, and you are running the appropriate software to detect it and trigger a violation for a given client, PacketFence will give that client a "blocked" page which can be customized to your wishes.
 
 In order to be able to block malicious activities, installation and configuration of a PacketFence compatible IDS is required. PacketFence currently support Snort, Suricata and Security Onion.
-
-Snort
-^^^^^
-
-Installation
-++++++++++++
-
-The installation procedure is quite simple for SNORT. We maintain a working version on the PacketFence repository. To install it, simply run the following command:
-
-  yum install snort
-
-Configuration
-+++++++++++++
-
-PacketFence provides a basic `snort.conf` template that you may need to edit depending of the Snort version. The file is located in `/usr/local/pf/conf`. It is rarely necessary to change anything in that file to make Snort work and trap alerts. DO NOT edit the `snort.conf` located in `/usr/local/pf/var/conf`, all the modification will be destroyed on each PacketFence restart.
 
 Suricata
 ^^^^^^^^
@@ -2849,7 +3082,7 @@ Along with the OPSWAT API key for Metadefender Cloud (they call it 'License Key'
 
 Assuming that all the steps for Suricata MD5 extraction have been followed, here's what to do next.
 
-On PacketFence, under Configuration->Metadefender, enter your 'Licence Key'.
+On PacketFence, under Configuration->Compliance->OPSWAT Metadefender, enter your 'Licence Key'.
 
 On the Suricata server (syslog-ng is preferred due to easier and more powerful configuration. If not installed, it might be an idea):
 
@@ -2893,7 +3126,7 @@ At this point, Suricata should be able to extract MD5 checksum of downloaded fil
 
 A configuration of a new 'syslog parser' as well as some violations are the only remaining steps to make full usage of the OPSWAT Metadefender Cloud integration.
 
-Configuration of a new 'syslog parser' (Configuration->Syslog Parsers) should use the followings:
+Configuration of a new 'syslog parser' (Configuration->Compliance->Syslog Parsers) should use the followings:
 
   Type: suricata_md5
   Alert pipe: the previously created alert pipe (FIFO) which is, in this case, /usr/local/pf/var/suricata_files
@@ -3057,7 +3290,7 @@ Violations
 
 In order to make PacketFence react to the Snort alerts, you need to explicitly tell the software to do so. Otherwise, the alerts will be discarded. This is quite simple to accomplish. In fact, you need to create a violation and add the Snort alert SID in the trigger section of a Violation. 
 
-PacketFence violations are configured in 'Configuration->Violations'
+PacketFence violations are configured in 'Configuration->Compliance->Violations'
 
 The example below will guide you to create a violation that will isolate device that have generated Peer-to-peer traffic and that are using Mac OSX or have a malware and are using Microsoft Windows
 
@@ -3078,7 +3311,7 @@ Where :
 ** `Send email to owner` will email the violation details to the owner of the device. Will only work if the person has it's email field populated. 
 ** `Send email to admin` will email the violation details to the address specified in `[alerting].emailaddr`, using `[alerting].smtpserver`. Multiple `emailaddr` can be separated by comma.
 ** `Reevaluate access` will place the device in the destination VLAN configured in the violation. It opens a violation and leaves it open. If it is not there, the violation is opened and then automatically closed.
-** `Log message` will log the violation in the log file defined in `[alerting].log`.
+** `Log message` will log the violation in the log file violation.log.
 ** `External command` will execute a command on the operating system when this violation is raised.
 ** `Close a violation` will close an existing violation for this device when this one is raised.
 ** `Set role` will modify the role of the device.
@@ -3120,7 +3353,7 @@ Where :
 * `Dynamic Window` will only works for accounting violations. The violation will be opened according to the time you set in the accounting violation (ie. You have an accounting violation for 10GB/month. If you bust the bandwidth after 3 days, the violation will open and the release date will be set for the last day of the current month). 
 * `Window` is the amount of time before a violation will be closed automatically. Instead of allowing people to reactivate the network, you may want to open a violation for a defined amount of time instead.
 * `Delay by` is the delay before triggering the violation.
-* `Template` is the HTML template the host will be redirected to while in violation. You can create new templates from the Portal Profiles configuration section.
+* `Template` is the HTML template the host will be redirected to while in violation. You can create new templates from the Connection Profiles configuration section.
 * `Button text` is the text of the button that is used when the user is releasing the violation directly from the captive portal.
 
 Advanced
@@ -3171,10 +3404,10 @@ In order for the compliance checks to correctly work with PacketFence (communica
 Scanner Definition
 ++++++++++++++++++
 
-First go in Configuration and Scanner Definition:
-image::docs/images/scan_definition.png[alt="Scanner definition"]
+First go in Configuration and Scanner Definition: 'Configuration->Compliance->Scans Engines'
 
 Then add a scan:
+
 image::docs/images/scan_type.png[alt="Scanner add"]
 
 There are common parameters for each scan engines:
@@ -3210,7 +3443,7 @@ Specific to WMI:
   Username: A username from Active Directory that is allowed to connect to wmi
   Domain: Domain of the Active Directory
   Password: Password of the account
-  WMI Rules: Ordered list of WMI rules you defined in Configuration -> WMI Rules Definition
+  WMI Rules: Ordered list of WMI rules you defined in Configuration -> Compliance -> Scans -> WMI Rules
 
 WMI Rules Definition
 ++++++++++++++++++++
@@ -3334,11 +3567,11 @@ Where `violationId` is either the ID of the Nessus plugin or the OID of the Open
 
 NOTE: Violations will trigger if the plugin is higher than a low severity vulnerability.
 
-Assign Scan definition to portal profiles
-+++++++++++++++++++++++++++++++++++++++++
+Assign Scan definition to connection profiles
++++++++++++++++++++++++++++++++++++++++++++++
 
-The last step is to assign one or more scanner you configured to one or more portal profiles.
-Go in Configuration -> Portal Profiles -> Edit a Portal -> Add Scan
+The last step is to assign one or more scanner you configured to one or more connection profiles.
+Go in Configuration -> Policies and Access Control -> Connection Profiles -> Edit a Profile -> Add Scan
 
 Hosting Nessus / OpenVAS remotely
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -3442,7 +3675,7 @@ Usage
 Guest self-registration
 +++++++++++++++++++++++
 
-Self-registration is enabled by default. It is part of the captive portal profile and can be accessed on the registration page by clicking the *Sign up* link.
+Self-registration is enabled by default. It is part of the connection profile and can be accessed on the registration page by clicking the *Sign up* link.
 
 image::docs/images/screenshot-captive-portal.png[alt="Captive portal screenshot"]
 
@@ -3463,31 +3696,8 @@ NOTE: A 'portal' interface type is required to use this feature. A 'portal' inte
 Configuration
 ^^^^^^^^^^^^^
 
-Guest self-registration
-+++++++++++++++++++++++
-
-It is possible to modify the default values of the guest self-registration feature by editing `/usr/local/pf/conf/pf.conf`.
-
-Default values are located in `/usr/local/pf/conf/pf.conf.defaults` and documentation for every settings is available in `/usr/local/pf/conf/documentation.conf`.
-
-  [guests_self_registration]
-  guest_pid=email
-  preregistration=disabled
-
-These parameters can also be configured from the *Configuration -> Self Registration* section of the Web admin interface.
-
-Available registration modes are defined on a per-portal-profile basis. These are configurable from *Configuration -> Portal Profiles*. To disable the self-registration feature, simply remove all self-registration sources from the portal profile definition. Notice however that if your default portal profile has no source, it will use all authentication sources.
-
-CAUTION: A valid MTA configured in PacketFence is needed to correctly relay emails related to the guest module. If _localhost_ is used as smtpserver, make sure that a MTA is installed and configured on the server.
-
-NOTE: A 'portal' interface type is required to use this feature. A 'portal' interface type can be added to any network interface using the web admin GUI.
-
-Self-registered guests are added under the users tab of the PacketFence Web administration interface.
-
-Managed guests
-++++++++++++++
-
-It is possible to modify the default values of the guests created from the Web admin interface by editing `/usr/local/pf/conf/pf.conf`.
+Access Duration
++++++++++++++++
 
 Default values are located in `/usr/local/pf/conf/pf.conf.defaults` and documentation for every settings is available in `/usr/local/pf/conf/documentations.conf`.
 
@@ -3508,8 +3718,7 @@ Let's explain the meaning of each parameter:
 * `OPERATOR`: either + or -. The duration following the operator is added or subtracted from the base duration.
 * `DATE_UNIT`: a character corresponding to the units of the extended duration. Limited to date units (D (days), W (weeks), M (months), or Y (years)).
 
-These parameters can also be configured from the *Configuration -> Admin Registration* section of the Web admin interface.
-
+These parameters should be configured from the *Configuration -> Advanced Access Configuration -> Access Duration* section of the Web admin interface.
 
 From the Users page of the PacketFence Web admin interface, it is possible to set the access duration of users, change their password and more.
 
@@ -3521,19 +3730,19 @@ To minimally configure guest pre-registration, you must make sure that the follo
   [guests_self_registration]
   preregistration=enabled
 
-This parameter can also be configured from the *Configuration -> Self Registration* section.
+This parameter should be configured from the *Configuration -> Policies and Access Control -> Connection Profiles -> Profile Name* section.
 
 Finally, it is advised that you read the whole guest self-registration section since pre-registration is simply a twist of the self-registration process.
 
 CAUTION: A valid MTA configured in PacketFence is needed to correctly relay emails related to the guest module. If _localhost_ is used as smtpserver, make sure that a MTA is installed and configured on the server.
 
 Active Directory Integration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Deleted Account
 ^^^^^^^^^^^^^^^
 
-Create the script `unreg_node_deleted_account.ps1` on the Windows Server with the following content. Make sure to change `@IP_PACKETFENCE` to the IP address of your PacketFence server. You'll also need to change the username and password as they must match the credentials defined in the Web admin interface under *Configuration -> Web Services*.
+Create the script `unreg_node_deleted_account.ps1` on the Windows Server with the following content. Make sure to change `@IP_PACKETFENCE` to the IP address of your PacketFence server. You'll also need to change the username and password as they must match the credentials defined in the Web admin interface under *Configuration -> Advanced Access Configuration -> Web Services*.
 
 ----
 #########################################################################################
@@ -3606,9 +3815,9 @@ At the bottom, select in the list "Run a new instance in parallel" in order to u
 Validate with Ok and give the account who will run this task. (Usually _DOMAIN\Administrator_)
 
 Disabled Account
-^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^
 
-Create the script `unreg_node_disabled_account.ps1` on the Windows Server with the following content. Make sure to change `@IP_PACKETFENCE` to the IP address of your PacketFence server. You'll also need to change the username and password as they must match the credentials defined in the Web admin interface under *Configuration -> Web Services*.
+Create the script `unreg_node_disabled_account.ps1` on the Windows Server with the following content. Make sure to change `@IP_PACKETFENCE` to the IP address of your PacketFence server. You'll also need to change the username and password as they must match the credentials defined in the Web admin interface under *Configuration -> Advanced Access Configuration -> Web Services*.
 
 ----
 ##########################################################################################
@@ -3684,7 +3893,7 @@ Validate with Ok and give the account who will run this task. (Usually _DOMAIN\A
 Locked Account
 ^^^^^^^^^^^^^^
 
-Create the script `unreg_node_locked_account.ps1` on the Windows Server with the following content. Make sure to change `@IP_PACKETFENCE` to the IP address of your PacketFence server. You'll also need to change the username and password as they must match the credentials defined in the Web admin interface under *Configuration -> Web Services*.
+Create the script `unreg_node_locked_account.ps1` on the Windows Server with the following content. Make sure to change `@IP_PACKETFENCE` to the IP address of your PacketFence server. You'll also need to change the username and password as they must match the credentials defined in the Web admin interface under *Configuration -> Advanced Access Configuration -> Web Services*.
 
 ----
 #########################################################################################
@@ -3785,18 +3994,21 @@ CentOS 6 and 7 servers
 ++++++++++++++++++++++
 
 For CentOS 6:
+
 ----
 # for x86_64
 # wget http://inverse.ca/downloads/PacketFence/CentOS6/extra/x86_64/RPMS/udp-reflector-1.0-6.1.x86_64.rpm
 ----
 
 For CentOS 7:
+
 ----
 # for x86_64
 # wget http://inverse.ca/downloads/PacketFence/CentOS7/extra/x86_64/RPMS/udp-reflector-1.0-6.1.x86_64.rpm
 ----
 
 Now install the sensor:
+
 ----
 # rpm -i udp-reflector-*.rpm
 ----
@@ -3811,6 +4023,7 @@ First make sure you have the following packages installed:
 * gcc-c++
 
 Get the source code of the sensor:
+
 ----
 # mkdir -p ~/udp-reflector && cd ~/udp-reflector
 # wget http://inverse.ca/downloads/PacketFence/udp-reflector/udp_reflector.cpp
@@ -3829,6 +4042,7 @@ Place the following line in `/etc/rc.local`
 ----
 
 Start the sensor:
+
 ----
 # /usr/local/bin/udp_reflector -s pcap0:67 -d 192.168.1.5:767 -b 25000 &
 ----
@@ -3840,13 +4054,15 @@ Switch login access
 
 PacketFence is able to act as an authentication and authorization service on the port 1815 for granting command-line interface (CLI) access to switches.
 PacketFence currently supports Cisco switches and these must be configured using the following guide: http://www.cisco.com/c/en/us/support/docs/security-vpn/remote-authentication-dial-user-service-radius/116291-configure-freeradius-00.html
-From the PacketFence's web admin interface, you must configure an Admin Access role (Configuration->Admin access) that contains the action 'Switches CLI - Read' or 'Switches CLI - Write' and assign this role to an internal user or in an Administration rule in an internal source.
+From the PacketFence's web admin interface, you must configure an Admin Access role (Configuration->Network Configuration->Admin access) that contains the action 'Switches CLI - Read' or 'Switches CLI - Write' and assign this role to an internal user or in an Administration rule in an internal source.
+
+NOTE: Any user that has the 'ALL' administrative role will be able to login into your switches. If you want to provide all PacketFence administrative access to some users without allowing them to login into the switches, then apply the 'ALL_PF_ONLY' administrative role which will contains all the necessary PacketFence roles without the switch login.
 
 DHCP Option 82
 ~~~~~~~~~~~~~~
 
 PacketFence is able to locate a device on the network even if the switch port is not managed by PacketFence.
-To use this feature you need to add all the switches in PacketFence and enable SNMP read (switch and PacketFence side) and enable DHCP option 82 in Configuration -> Network.
+To use this feature you need to add all the switches in PacketFence and enable SNMP read (switch and PacketFence side) and enable DHCP option 82 in Configuration -> Network Configuration -> Networks -> Network.
 Once enabled, restart the pfdhcplistener and pfmon services.
 pfmon will query via SNMP all the switches to create a map (MAC <-> switch)
 pfdhcplistener will parse the DHCP Option 82 and will use the map to resolve the MAC to the switch and will update the locationlog of the device.
@@ -3855,6 +4071,45 @@ Trigger a violation when discovering a node
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 PacketFence is able to trigger a violation when a node is discovered on your network. It will send the trigger internal::node_discovered which is already part of violation 1300004. You can enable this violation with the default values and it will send a short report for every new device discovered by PacketFence. You can also execute any typical violation actions on during this process.
+
+Best Practices
+--------------
+
+RHEL7 systemd early swapoff bug mitigation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A https://bugzilla.redhat.com/show_bug.cgi?id=1031158[known bug] is still present in systemd-219-30.el7_3.7.x86_64 shipped with CentOS. (Debian fixed it in 228-3).
+
+The bug arises because not all swap aliases are registered, which results in an incorrect dependence tree which results in swapoff being called way too early at shutdown.
+
+
+Workaround
+++++++++++
+
+ * Obtain the list of swap items that should be considered by systemd for it to enforce a correct ordering:
+
+----
+#grep swap /var/log/dmesg |grep "dead -> active"
+----
+
+In our example, that gave the following output:
+
+```
+[    1.995413] systemd[1]: dev-dm\x2d1.swap changed dead -> active
+[    1.995495] systemd[1]: dev-cl-swap.swap changed dead -> active
+[    1.995550] systemd[1]: dev-disk-by\x2did-dm\x2dname\x2dcl\x2dswap.swap changed dead -> active
+[    1.995616] systemd[1]: dev-disk-by\x2did-dm\x2duuid\x2dLVM\x2dXOAK7DHxMdmQCrNdwWE3Pt836Q9pHYSGyrO9ycCGeIYavzbamVWNKMaVUMLf1NWZ.swap changed dead -> active
+[    1.995678] systemd[1]: dev-disk-by\x2duuid-6509e6e1\x2daf2d\x2d4d23\x2d9ebd\x2da9aa8801e658.swap changed dead -> active
+```
+
+ * Create /etc/systemd/system/swap.target and fill it with all swap aliases obtained from the previous command:
+
+```
+[Unit]
+Description=Swap
+Documentation=man:systemd.special(7)
+After=dev-disk-by\x2duuid-6509e6e1\x2daf2d\x2d4d23\x2d9ebd\x2da9aa8801e658.swap dev-dm1.swap dev-disk-by\x2did-dm\x2duuid\x2dLVM\x2dXOAK7DHxMdmQCrNdwWE3Pt836Q9pHYSGyrO9ycCGeIYavzbamVWNKMaVUMLf1NWZ.swap dev-disk-by\x2did-dm\x2dname\x2dcl\x2dswap.swap dev-cl-swap.swap dev-dm\x2d1.swap
+```
 
 Operating System Best Practices
 -------------------------------
@@ -3875,7 +4130,7 @@ Performance optimization
 NTLM authentication caching
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-NOTE: This section assumes that you already have an Active Directory domain configuration both in 'Configuration->Domains' and 'Configuration->Sources'. If you don't, you need to first configure those. Refer to the appropriate sections of this guide for details on how to configure those two components.
+NOTE: This section assumes that you already have an Active Directory domain configuration both in 'Configuration->Policies and Access Control->Domains->Active Directory Domains' and 'Configuration->Policies and Access Control->Sources'. If you don't, you need to first configure those. Refer to the appropriate sections of this guide for details on how to configure those two components.
 
 CAUTION: The cache requires minimally Windows Server 2008. Older versions will not work.
 
@@ -3903,9 +4158,9 @@ apt-get install python-impacket
 PacketFence configuration
 +++++++++++++++++++++++++
 
-First of all, you will need to enable the NTLM caching globally by enabling 'NTLM Redis cache' in 'Configuration->Advanced'. You then need to restart radiusd.
+First of all, you will need to enable the NTLM caching globally by enabling 'NTLM Redis cache' in 'Configuration->System Configuration->Main Configuration->Advanced'. You then need to restart radiusd.
 
-Once that is done, you need to configure PacketFence to start caching the credentials. In order to do so, go in 'Configuration->Domains' and select the domain you want to cache the credentials for. 
+Once that is done, you need to configure PacketFence to start caching the credentials. In order to do so, go in 'Configuration->Policies and Access Control->Domains->Active Directory Domains' and select the domain you want to cache the credentials for. 
 
 Next, go in the 'NTLM cache' tab and:
 
@@ -3921,13 +4176,13 @@ image::docs/images/domain-ntlm-cache-2.png[scaledwidth="100%",alt="Domain NTLM c
 
 Once done, click 'Save' to commit your changes.
 
-After that, you will need to enable the `redis_ntlm_cache` service which is used by PacketFence to store the cached credentials. In order to do so, go in 'Configuration->Services' and enable 'redis_ntlm_cache' and save the changes.
+After that, you will need to enable the `redis_ntlm_cache` service which is used by PacketFence to store the cached credentials. In order to do so, go in Configuration->Main Configuration->Services' and enable 'redis_ntlm_cache' and save the changes.
 
 Next, start the service via pfcmd:
 
   /usr/local/pf/bin/pfcmd service redis_ntlm_cache start
 
-If you chose to enable 'NTLM cache background job' in one of your domains, you will need to enable the pfmon job that will periodically cache the credentials. This can be configured in 'Configuration->Maintenance->NTLM cache job interval'. It is advised to set this to half the expiration of the credentials you have set in the domain configuration. This will ensure you have an optimal cache hit. Once done, restart the `pfmon` service.
+If you chose to enable 'NTLM cache background job' in one of your domains, you will need to enable the pfmon job that will periodically cache the credentials. This can be configured in 'Configuration->System Configuration->Main Configuration->Maintenance->populate_ntlm_redis_cache'. It is advised to set the interval of this task to half the expiration of the credentials you have set in the domain configuration. This will ensure you have an optimal cache hit. Once done, restart the `pfmon` service.
 
 Active Directory configuration
 ++++++++++++++++++++++++++++++
@@ -3945,12 +4200,12 @@ Because of that, it is possible to limit the number of SNMP traps coming in from
 
 Here's the default config for the SNMP traps limit feature. As you can see, by default, PacketFence will log the abnormal activity after 100 traps from the same switch port in a minute. These configurations are in the `conf/pf.conf` file:
 
-  [vlan]
+  [snmp_traps]
   trap_limit = enabled
   trap_limit_threshold = 100
   trap_limit_action = 
 
-Alternatively, you can configure these parameters from the PacketFence Web administrative GUI, in the *Configuration -> SNMP* section.
+Alternatively, you can configure these parameters from the PacketFence Web administrative GUI, in the *Configuration -> Network Configuration -> SNMP* section.
 
 MySQL optimizations
 ~~~~~~~~~~~~~~~~~~~
@@ -4016,7 +4271,7 @@ Edit `/etc/my.cnf` (or your local `my.cnf`):
   # set cache size
   key_buffer_size=900M
   table_cache=300
-  query_cache_size=256M
+  query_cache_size=16M
   # enable slow query log
   log_slow_queries = ON
 
@@ -4086,7 +4341,7 @@ When dealing with a large database, the database backup and maintenance script (
 
 This is fixed easily by using Percona XtraBackup which can complete a full database backup without locking your tables.
 
-The installation instructions below are made for CentOS 6 but adjusting them to CentOS 7 or Debian should only be a matter of installing the proper packages for your MySQL/MariaDB version.
+The installation instructions below are made for CentOS 7 but adjusting them to Debian should only be a matter of installing the proper packages for your MySQL/MariaDB version.
 
 First install the Percona repository:
 
@@ -4098,9 +4353,7 @@ Make sure to disable the newly installed repository not to interfere with future
 
 Next, install Percona XtraBackup by manually specifying the Percona repository:
 
-  # yum install percona-xtrabackup-20 --enablerepo=percona-release-`uname -m`
-
-NOTE: A more recent version of Percona XtraBackup can be used but only if you are running a recent version of MySQL.
+  # yum install percona-xtrabackup --enablerepo=percona-release-`uname -m`
 
 Once this is done, grant the proper rights to the `pf` user (or the one you configured in pf.conf):
 
@@ -4183,6 +4436,30 @@ Apply the proper user rights and restore your database from your backup
 
 Start packetfence and make sure your stats are still there and being collected properly. Then remove the backup you made `rm -fr /usr/local/pf/var/graphite.bak/`.
 
+Troubleshooting
+~~~~~~~~~~~~~~~
+
+This section will address specific problems and known solutions.
+
+"Internet Explorer cannot display the webpage"
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Problem: Internet Explorer 8-10 may raise an "Internet Explorer cannot display the webpage" error while attempting to access PacketFence administration interface because TLSv1.2 is not activated but required since PacketFence 7.
+
+Solution:
+
+ * PacketFence administration interface is not started:
+
+  # cd /usr/local/pf
+  # bin/pfcmd service httpd.admin start
+  
+ 
+ * It is strongly advised that you update your browser to Internet Explorer 11 or download an alternative.
+
+
+ * TLSv1.2 needs to be activated manually in Internet Explorer 8-10. 
+
+  Within Internet Explorer: click Tools, Internet Options, Advanced and make sure that TLS v1.2 is enabled under the security section. Retry.
+
 include::includes/additional-info.asciidoc[]
 
 include::includes/commercial-support.asciidoc[]
@@ -4255,12 +4532,12 @@ We will now stop MySQL, move the existing data directory and replace it by the d
 
 NOTE: On Debian the service will be called `mysql` and on CentOS 7 `mariadb`. Make sure you adjust the commands above to your environment.
 
-  # service mysqld stop
+  # service packetfence-mariadb stop
   # mv /var/lib/mysql /var/lib/mysql.bak
   # mkdir /var/lib/mysql
   # mv * /var/lib/mysql
   # chown -R mysql: /var/lib/mysql
-  # service mysqld start
+  # service packetfence-mariadb start
 
 Should the service fail to start, make sure you look into the MySQL error logs.
 

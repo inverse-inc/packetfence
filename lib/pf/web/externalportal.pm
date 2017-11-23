@@ -34,11 +34,13 @@ use pf::util;
 use pf::web::constants;
 use pf::web::util;
 use pf::constants;
+use pf::access_filter::switch;
 
 # Some vendors don't support some charatcters in their redirect URL
 # This here below allows to map some URLs to a specific switch module
 Readonly our $SWITCH_REWRITE_MAP => {
     'RuckusSmartZone' => 'Ruckus::SmartZone',
+    'guest' => 'Ubiquiti::Unifi',
 };
 
 =head1 SUBROUTINES
@@ -68,29 +70,48 @@ sub handle {
     my ( $self, $r ) = @_;
     my $logger = get_logger;
 
+    my $switch_type;
+
     my $req = Apache2::Request->new($r);
     my $uri = $r->uri;
 
-    # Discarding non external portal requests
-    unless ( $uri =~ /$WEB::EXTERNAL_PORTAL_URL/o ) {
-        $logger->debug("Tested URI '$uri' against external portal mechanism and does not appear to be one.");
-        return $FALSE;
+    my $params = $req->param;
+    my $headers_in = $r->headers_in();
+
+
+    my $args = {
+        uri => $uri,
+        (defined $params ? (params => { %$params }) : ()),
+        (defined $headers_in ? (headers => { %$headers_in }) : ()),
+    };
+
+    my $filter = pf::access_filter::switch->new;
+    my $type_switch = $filter->filter('external_portal', $args);
+
+    if (!$type_switch) {
+        # Discarding non external portal requests
+        unless ( $uri =~ /$WEB::EXTERNAL_PORTAL_URL/o ) {
+            $logger->debug("Tested URI '$uri' against external portal mechanism and does not appear to be one.");
+            return $FALSE;
+        }
+
+        # Parsing external portal URL information for switch handling
+        # URI will usually be in the form (/Switch::Type/sid424242), where:
+        # - Switch::Type will be the switch type to instantiate (mandatory)
+        # - sid424242 is the optional PacketFence session ID to track the session when working by session ID and not by URI parameters
+        $logger->info("URI '$uri' is detected as an external captive portal URI");
+        $uri =~ /\/([^\/]*)/;
+        $switch_type = $1;
+        if(exists($SWITCH_REWRITE_MAP->{$switch_type})) {
+            my $new_switch_type = $SWITCH_REWRITE_MAP->{$switch_type};
+            $logger->debug("Rewriting switch type $switch_type to $new_switch_type");
+            $switch_type = $new_switch_type;
+        }
+        $switch_type = "pf::Switch::$switch_type";
+    } else {
+        $switch_type = "pf::Switch::$type_switch";
     }
 
-    # Parsing external portal URL information for switch handling
-    # URI will usually be in the form (/Switch::Type/sid424242), where:
-    # - Switch::Type will be the switch type to instantiate (mandatory)
-    # - sid424242 is the optional PacketFence session ID to track the session when working by session ID and not by URI parameters
-    $logger->info("URI '$uri' is detected as an external captive portal URI");
-    $uri =~ /\/([^\/]*)/;
-    my $switch_type = $1;
-    if(exists($SWITCH_REWRITE_MAP->{$switch_type})) {
-        my $new_switch_type = $SWITCH_REWRITE_MAP->{$switch_type};
-        $logger->debug("Rewriting switch type $switch_type to $new_switch_type");
-        $switch_type = $new_switch_type;
-    }
-
-    $switch_type = "pf::Switch::$switch_type";
     if ( !(eval "$switch_type->require()") ) {
         $logger->error("Cannot load perl module for switch type '$switch_type'. Either switch type is unknown or switch type perl module have compilation errors. " .
         "See the following message for details: $@");
@@ -100,14 +121,15 @@ sub handle {
     return $FALSE unless $switch_type->supportsExternalPortal;
 
     my %params = (
-        session_id      => undef,   # External portal session ID when working by session ID flow
-        switch_id       => undef,   # Switch ID
-        client_mac      => undef,   # Client (endpoint) MAC address
-        client_ip       => undef,   # Client (endpoint) IP address
-        ssid            => undef,   # SSID connecting to
-        redirect_url    => undef,   # Redirect URL
-        grant_url       => undef,   # Grant URL
-        status_code     => undef,   # Status code
+        session_id              => undef,   # External portal session ID when working by session ID flow
+        switch_id               => undef,   # Switch ID
+        client_mac              => undef,   # Client (endpoint) MAC address
+        client_ip               => undef,   # Client (endpoint) IP address
+        ssid                    => undef,   # SSID connecting to
+        redirect_url            => undef,   # Redirect URL
+        grant_url               => undef,   # Grant URL
+        status_code             => undef,   # Status code
+        synchronize_locationlog => undef,   # Should we synchronize locationlog
     );
 
     my $switch_params = $switch_type->parseExternalPortalRequest($r, $req);
@@ -138,8 +160,8 @@ sub handle {
 
     pf::ip4log::open($params{'client_ip'}, $params{'client_mac'}, 3600);
 
-    # Updating locationlog unless there is a session ID parameter, which means a locationlog entry was already opened on session creation
-    $switch->synchronize_locationlog("0", "0", $params{'client_mac'}, 0, $WIRELESS_MAC_AUTH, undef, $params{'client_mac'}, $params{'ssid'}) unless ( defined($params{'session_id'}) );
+    # Updating locationlog if required
+    $switch->synchronize_locationlog("0", "0", $params{'client_mac'}, 0, $WIRELESS_MAC_AUTH, undef, $params{'client_mac'}, $params{'ssid'}) if ( $params{'synchronize_locationlog'} );
 
     my $portalSession = $self->_setup_session($req, $params{'client_mac'}, $params{'client_ip'}, $params{'redirect_url'}, $params{'grant_url'});
 

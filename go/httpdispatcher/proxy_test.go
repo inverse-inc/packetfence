@@ -15,7 +15,7 @@ var ctx = context.Background()
 
 func TestMain(m *testing.M) {
 	passThrough = newProxyPassthrough(ctx)
-	rgx, _ := regexp.Compile("www.padl.com")
+	rgx, _ := regexp.Compile("example.com")
 	passThrough.proxypassthrough = append(passThrough.proxypassthrough, rgx)
 	rgx, _ = regexp.Compile("www.gstatic.com/generate_204")
 	passThrough.detectionmechanisms = append(passThrough.detectionmechanisms, rgx)
@@ -59,8 +59,8 @@ func TestSimpleNotImplemented(t *testing.T) {
 }
 
 func TestSimpleProxy(t *testing.T) {
-	req := httptest.NewRequest("GET", "http://www.padl.com", bytes.NewBuffer([]byte("")))
-	req.Host = "www.padl.com"
+	req := httptest.NewRequest("GET", "http://example.com", bytes.NewBuffer([]byte("")))
+	req.Host = "example.com"
 	recorder := httptest.NewRecorder()
 	testproxy.ServeHTTP(recorder, req)
 	if recorder.Code != 200 {

@@ -1,21 +1,21 @@
 [% jsFiles = ['configurator/admin'] -%]
-    <div class="container">
+    <div class="container-fluid">
       [% INCLUDE configurator/tracker.inc %]
-      <div class="row">
-        <div class="span3">
+      <div class="row-fluid">
+        <div class="span4">
           <div class="page-header step">
             <h1>[% l('Step') %] [% step_index %]</h1>
           </div>
         </div>
-        <div class="span9">
+        <div class="span14">
           <div class="page-header">
             <h1>[% l('Administration') %]
             <small>[% l('Access to the administration interface') %]</small></h1>
           </div>
         </div>
       </div>
-      <div class="row">
-        <div class="span3">
+      <div class="row-fluid">
+        <div class="span4">
           <div class="well">
             <h3>[% l('Instructions') %]</H3>
             <p>[% l('On this page, you need to modify the default admin user password that will be used to access the web administrative interface of PacketFence.') %]</p>
@@ -23,8 +23,10 @@
             <p>[% l('Please note that if you do not change the password, the default one is <em>admin</em>.') %]</p>
           </div>
         </div>
-        <div class="span9">
-          <form name="admin" class="form-horizontal">
+        <div class="span14">
+          <div class="card">
+            <form name="admin" class="form-horizontal">
+              <div class="card-block">
             <h3>[% l('Administrator') %]</h3>
             <div class="control-group">
               <label class="control-label" for="admin_user">[% l('Username') %]</label>
@@ -50,15 +52,12 @@
               </div>
             </div>
 
-            <fieldset>
-            <div class="form-actions">
-              <button type="submit" class="btn btn-primary pull-right" href="[% next_step %]">[% l('Continue') %] <i class="icon-circle-arrow-right icon-white"></i></button>
             </div>
-            </fieldset>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary pull-right" href="[% next_step %]">[% l('Continue') %] <i class="icon-arrow-circle-right icon-white"></i></button>
+            </div>
             </form>
+          </div>
         </div>
       </div>
-      <footer>
-        <p>&copy; Inverse 2017</p>
-      </footer>
     </div><!--/container-->

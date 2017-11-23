@@ -186,6 +186,7 @@ Usage: /config/domain/update_rejoin/:domainId
 
 sub update_rejoin :Local :Args(1) {
     my ($self, $c, $domain) = @_;
+    $c->stash->{id} = $domain;
     $c->forward('update');
     $c->forward('rejoin');
 }
@@ -213,6 +214,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

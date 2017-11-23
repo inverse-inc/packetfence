@@ -64,6 +64,17 @@ has_field 'scannername' =>
              help => 'Name of the scanner to use on the nessus server' },
   );
 
+has_field 'verify_hostname' =>
+  (
+   type => 'Toggle',
+   label => 'Verify Hostname',
+   tags => { after_element => \&help,
+             help => 'Verify hostname of server' },
+   checkbox_value  => 'enabled',
+   unchecked_value => 'disabled',
+   default => 'enabled',
+  );
+
 =over
 
 =back
@@ -91,5 +102,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

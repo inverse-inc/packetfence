@@ -30,6 +30,7 @@ BEGIN {
         savedsearch_delete
         savedsearch_count
         savedsearch_add
+        savedsearch_name_taken
     );
 
 }
@@ -65,6 +66,10 @@ sub savedsearch_db_prepare {
 
     $savedsearch_statements->{'savedsearch_count_sql'} = $dbh->prepare(
         qq[ select count(*) from savedsearch where]
+    );
+
+    $savedsearch_statements->{'savedsearch_name_taken_sql'} = $dbh->prepare(
+        qq[ select count(*) as `taken` from `savedsearch` where `pid` = ? && `namespace` = ? && `name` = ?]
     );
 
     $savedsearch_statements->{'savedsearch_view_sql'} = $dbh->prepare(
@@ -195,6 +200,18 @@ adds a saved searche
 sub savedsearch_add {
     my ($savedsearch) = @_;
     return _savedsearch_add(@{$savedsearch}{qw(pid namespace name query in_dashboard)});
+}
+
+=item savedsearch_name_taken
+
+checks if the name is taken
+
+=cut
+
+sub savedsearch_name_taken {
+    my ($savedsearch) = @_;
+    my $sth = db_query_execute(USERPREF, $savedsearch_statements, "savedsearch_name_taken_sql", @{$savedsearch}{qw(pid namespace name)} );
+    return ($sth->fetchrow_array)[0];
 }
 
 =back

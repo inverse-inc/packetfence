@@ -1,30 +1,33 @@
 [% INCLUDE "admin/reports-header.tt" %]
 <div class="piegraph">
-  <h2>[% title %]</h2>
-  <h6>[% range.start | html %] <i class="icon-arrow-right"></i> [% range.end | html %]</h6>
+  <div class="card-block">
+    <h2>[% title %]</h2>
+    <h6>[% range.start %] <i class="icon-arrow-right"></i> [% range.end %]</h6>
+  </div>
+  <div class="card-block">
   [% IF options.size %]<i class="icon-bar-chart"></i>
   [% FOREACH o IN options -%]
   <a href="[% c.pf_hash_for(c.action, o) %]"[% IF option == o %] class="active"[% END %]>[% l(o) %]</a>
   [% UNLESS loop.last %] |[% END -%]
   [% END -%]
   [% END -%]
-</div>
-<hr/>
 
 [%- IF labels.size > 0 %]
 <div class="row-fluid">
   <div class="span8">
     <div id="[% l(id) | css %]" class="chart"></div>
-    <script type="text/javascript">
-graphs.charts['[% l(id) | css %]'] = {
-    type: '[% graphtype | html %]',
-    labels: ['[% labels.join("','") | html %]'],
-    series: {
-    [% FOREACH set IN series.keys -%]
-      '[% l(set) | css %]' : [[% series.$set.join(',') | html %]][% UNLESS loop.last %],[% END %]
-    [%- END %]
+    <script id="graphs.charts" type="text/json">
+{
+    "[% l(id) | css %]": {
+      "type": "[% graphtype | css %]",
+      "labels": ["[% labels.join('","') | none %]"],
+      "series": {
+        [% FOREACH set IN series.keys -%]
+        "[% l(set) | css %]": [[% series.$set.join(",") %]][% UNLESS loop.last %],[% END %]
+        [%- END %]
+      }
     }
-};
+}
     </script>
   </div>
   <div class="span4">
@@ -38,11 +41,11 @@ graphs.charts['[% l(id) | css %]'] = {
         [% FOREACH item IN items -%]
         <tr id="[% item.label | css %]">
           [% IF item.link %]
-          <td><a href="[% item.link %]">[% item.label | html %]</a></td>
+          <td><a href="[% item.link %]">[% item.label %]</a></td>
           [% ELSE%]
-          <td>[% item.label | html %]</td>
+          <td>[% item.display %]</td>
           [% END %]
-          <td>[% i = loop.index %][% item.value | html %]</td>
+          <td>[% item.display %]</td>
         </tr>
         [%- END %]
       </tbody>
@@ -56,3 +59,4 @@ graphs.charts['[% l(id) | css %]'] = {
   [% l("There's not enough data to generate this graph. Is PacketFence in production?") %]
 </div>
 [%- END %]
+</div>

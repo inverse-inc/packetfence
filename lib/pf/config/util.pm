@@ -35,10 +35,13 @@ use pf::config qw(
     $HTTPS
     $HTTP
 );
+use IO::Socket::SSL qw(SSL_VERIFY_NONE);
 use pf::constants::config qw($TIME_MODIFIER_RE);
 use File::Basename;
 use Net::MAC::Vendor;
 use Net::SMTP;
+use MIME::Lite;
+use MIME::Lite::TT;
 use POSIX();
 use File::Spec::Functions;
 use File::Slurp qw(read_dir);
@@ -68,6 +71,8 @@ BEGIN {
     filter_authentication_sources
     get_realm_authentication_source
     get_captive_portal_uri
+    get_send_email_config
+    send_mime_lite
   );
 }
 
@@ -97,7 +102,7 @@ sub whitelisted_mac {
     return (0) if ( !valid_mac($mac) );
     $mac = clean_mac($mac);
     foreach
-        my $whitelist ( split( /\s*,\s*/, $Config{'trapping'}{'whitelist'} ) )
+        my $whitelist ( split( /\s*,\s*/, $Config{'fencing'}{'whitelist'} ) )
     {
         if ( $mac eq clean_mac($whitelist) ) {
             $logger->info("$mac is whitelisted, skipping");
@@ -135,34 +140,17 @@ sub ip2device {
 =cut
 
 sub pfmailer {
-    my (%data)     = @_;
-    my $logger     = get_logger();
-    my $smtpserver = untaint_chain($Config{'alerting'}{'smtpserver'});
+    my (%data) = @_;
     my @to = split( /\s*,\s*/, $Config{'alerting'}{'emailaddr'} );
-    my $from = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
     my $host_prefix = $cluster_enabled ? " ($host_id)" : '';
-    my $subject
-        = $Config{'alerting'}{'subjectprefix'} . $host_prefix . " " . $data{'subject'};
     my $date = POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
-    my $smtp = Net::SMTP->new( $smtpserver, Hello => $fqdn );
-
-    if ( defined $smtp ) {
-        $smtp->mail($from);
-        $smtp->to(@to);
-        $smtp->data();
-        $smtp->datasend("From: $from\n");
-        $smtp->datasend( "To: " . join( ",", @to ) . "\n" );
-        $smtp->datasend("Subject: $subject ($date)\n");
-        $smtp->datasend("\n");
-        $smtp->datasend( $data{'message'} );
-        $smtp->dataend();
-        $smtp->quit;
-        $logger->info(
-            "email regarding '$subject' sent to " . join( ",", @to ) );
-    } else {
-        $logger->error("can not connect to SMTP server $smtpserver!");
-    }
-    return 1;
+    my $subject = $Config{'alerting'}{'subjectprefix'} . $host_prefix . " " . $data{'subject'} . " ($date)";
+    my $msg = MIME::Lite->new(
+        To      => \@to,
+        Subject => $subject,
+        Data    => $data{message} . "\n",
+    );
+    return send_mime_lite($msg);
 }
 
 =head2 send_email - Send an email using a template
@@ -170,50 +158,44 @@ sub pfmailer {
 =cut
 
 sub send_email {
-    my ($template, $email, $subject, $data) = @_;
+    my ($template, $email, $subject, $data, $tmpoptions) = @_;
     my $logger = get_logger();
-
-    my $smtpserver = $Config{'alerting'}{'smtpserver'};
-    $data->{'from'} = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn unless ($data->{'from'});
 
     try {
         require MIME::Lite::TT;
-    } catch {
-        $logger->error("Could not send email because I couldn't load a module. ".
-                       "Are you sure you have MIME::Lite::TT installed?");
+    }
+    catch {
+        $logger->error(
+                "Could not send email because I couldn't load a module. "
+              . "Are you sure you have MIME::Lite::TT installed?" );
         return $FALSE;
     };
 
     require pf::web;
 
     my %TmplOptions = (
-        INCLUDE_PATH    => "$html_dir/captive-portal/templates/emails/",
-        ENCODING        => 'utf8',
+        INCLUDE_PATH => "$html_dir/captive-portal/templates/emails/",
+        ENCODING     => 'utf8',
+        %{$tmpoptions // {}},
     );
-    my %vars = (%$data, i18n => \&pf::web::i18n, i18n_format => \&pf::web::i18n_format);
+    my %vars = (
+        %$data,
+        i18n        => \&pf::web::i18n,
+        i18n_format => \&pf::web::i18n_format
+    );
     utf8::decode($subject);
     my $msg = MIME::Lite::TT->new(
-        From        =>  $data->{'from'},
-        To          =>  $email,
-        Cc          =>  $data->{'cc'} || '',
-        Subject     =>  $subject,
-        Template    =>  "emails-$template.html",
-        TmplOptions =>  \%TmplOptions,
-        TmplParams  =>  \%vars,
-        TmplUpgrade =>  1,
+        To          => $email,
+        Bcc         => $data->{'bcc'} || '',
+        Subject     => $subject,
+        Template    => "emails-$template.html",
+        TmplOptions => \%TmplOptions,
+        TmplParams  => \%vars,
+        TmplUpgrade => 1,
+        ( $data->{'from'} ? ( From => $data->{'from'} ) : () ),
     );
-    $msg->attr("Content-Type" => "text/html; charset=UTF-8;");
-
-    my $result = 0;
-    try {
-      $msg->send('smtp', $smtpserver, Timeout => 20);
-      $result = $msg->last_send_successful();
-      $logger->info("Email sent to $email ($subject)");
-    } catch {
-      $logger->error("Can't send email to $email: $@");
-    };
-
-    return $result;
+    $msg->attr( "Content-Type" => "text/html; charset=UTF-8;" );
+    return send_mime_lite($msg);
 }
 
 
@@ -403,34 +385,13 @@ sub portal_hosts {
 
 =head2 get_realm_authentication_source
 
-Get a source for a specific username and realm
-Will look it up in the realm configuration
+Find sources for a specific realm
 
 =cut
 
 sub get_realm_authentication_source {
-    my ( $username, $realm ) = @_;
-
-    $realm = "null" unless ( defined($realm) );
-    $realm = lc $realm;
-
-    my $realm_authentication_source;
-
-    if ( exists $ConfigRealm{$realm} ) {
-        if ( my $source = $ConfigRealm{$realm}{source} ) {
-            get_logger->info("Found authentication source '$source' for realm '$realm'");
-            $realm_authentication_source = pf::authentication::getAuthenticationSource($source);
-        }
-    }
-    elsif ( exists $ConfigRealm{default} && $realm ne "null" ) {
-        if ( my $source = $ConfigRealm{default}{source} ) {
-            get_logger->info("Found authentication source '$source' for realm '$realm' through the default realm");
-            $realm_authentication_source = pf::authentication::getAuthenticationSource($source);
-        }
-    }
-
-    return $realm_authentication_source;
-
+    my ( $username, $realm, $sources ) = @_;
+    return [grep { $_->realmIsAllowed($realm) } @{$sources}];
 }
 
 =head2 filter_authentication_sources
@@ -442,23 +403,17 @@ Filter a given list of authentication sources based on a username / realm
 sub filter_authentication_sources {
     my ( $sources, $username, $realm ) = @_;
 
-    return @$sources unless ( defined($username) || defined($realm) );
+    return $sources unless ( defined($username) || defined($realm) );
 
-    my $realm_authentication_source = get_realm_authentication_source($username, $realm);
+    my $realm_authentication_source = get_realm_authentication_source($username, $realm, $sources);
 
-    return @$sources unless ( defined($realm_authentication_source) && defined($realm_authentication_source->{id}) && $realm_authentication_source->{id} ne "" );
+    return $sources unless ( ref($realm_authentication_source) eq 'ARRAY');
 
-    get_logger->info("Found authentication source '" . $realm_authentication_source->{id} . "' for realm '$realm'");
-    
-    if ( any { $_ eq $realm_authentication_source} @$sources ) {
-        get_logger->info("Realm '$realm' authentication source '" . $realm_authentication_source->{id} . "' is part of the available portal profile authentication sources. Using it as the only authentication source.");
-        return ($realm_authentication_source);
-    }
-    else {
-        get_logger->info("Realm '$realm' authentication source '" . $realm_authentication_source->{id} . "' is not configured in the portal profile. Ignoring it and using the portal profile authentication sources");
-    }
+    $realm = "null" unless ( defined($realm) );
 
-    return @$sources;
+    get_logger->info("Found authentication source(s) : '", join(',', (map {$_->id} @{$realm_authentication_source})) . "' for realm '$realm'");
+
+    return $realm_authentication_source;
 }
 
 =head2 get_captive_portal_uri
@@ -472,6 +427,160 @@ sub get_captive_portal_uri {
     $captive_portal_uri .= "://" . $Config{'general'}{'hostname'} . "." . $Config{'general'}{'domain'};
 
     return $captive_portal_uri;
+}
+
+=head2 get_send_email_config
+
+get the configuration for sending email
+
+=cut
+
+sub get_send_email_config {
+    my $config = $Config{alerting};
+    my %args;
+    my $encryption = $config->{smtp_encryption};
+    if ($encryption eq 'ssl') {
+        $args{SSL} = 1;
+    } elsif ($encryption eq 'starttls') {
+        $args{StartTLS} = 1;
+    }
+    $args{From} = $config->{fromaddr} || 'root@' . $fqdn;
+    if (isdisabled($config->{smtp_verifyssl})) {
+        $args{SSL_verify_mode} = SSL_VERIFY_NONE;
+    }
+    my $username = $config->{smtp_username};
+    my $password = $config->{smtp_password};
+    if (defined $username && length($username) &&
+        defined $password && length($password)) {
+        $args{AuthUser} = $username;
+        $args{AuthPass} = $password;
+    }
+    $args{Hostname} = $config->{smtpserver};
+    $args{Hello} = $fqdn;
+    $args{Timeout} = $config->{smtp_timeout};
+    $args{Port} = $config->{smtp_port};
+    return \%args;
+}
+
+=head2 send_mime_lite
+
+Submit a mime lite object using the current alerting settings
+
+=cut
+
+sub send_mime_lite {
+    my ($mime, @args) = @_;
+    my $result = $FALSE;
+    eval {
+        $mime->send(
+            'sub',
+            \&send_using_smtp_callback,
+            @args
+        );
+        $result = $mime->last_send_successful();
+    };
+    if ($@) {
+        my $to = $mime->{_extracted_to};
+        my $msg = "Can't send email to '$to' :'$@'";
+        $msg =~ s/\n//g;
+        get_logger->error($msg);
+    }
+    else {
+        $result = $result ? $TRUE : $FALSE;
+    }
+    return $result;
+}
+
+=head2 send_using_smtp_callback
+
+Handles the logic of sending an email of a MIME::Lite object
+Using the configuration of from pf.conf
+
+=cut
+
+sub send_using_smtp_callback {
+    my ( $self, %args ) = @_;
+    my $config = get_send_email_config();
+    %args = (%$config, %args);
+
+    # We may need the "From:" and "To:" headers to pass to the
+    # SMTP mailer also.
+    $self->{last_send_successful} = 0;
+
+    my @hdr_to = MIME::Lite::extract_only_addrs( scalar $self->get('To') );
+    if ($MIME::Lite::AUTO_CC) {
+        foreach my $field (qw(Cc Bcc)) {
+            push @hdr_to, MIME::Lite::extract_only_addrs($_)
+              for $self->get($field);
+        }
+    }
+    my $hostname = $args{Hostname};
+    Carp::croak "send_using_smtp_callback: nobody to send to for host '$hostname'?!\n"
+      unless @hdr_to;
+
+    $args{To} ||= \@hdr_to;
+    $args{From} ||=
+      MIME::Lite::extract_only_addrs( scalar $self->get('Return-Path') );
+    $args{From} ||= MIME::Lite::extract_only_addrs( scalar $self->get('From') );
+    $self->{_extracted_to} = join(",", @{$args{To}});
+
+    if (!(scalar $self->get('From')) && $args{From}) {
+        $self->add(From => $args{From} );
+    }
+
+    # Create SMTP client.
+    # MIME::Lite::SMTP is just a wrapper giving a print method
+    # to the SMTP object.
+
+    my %opts = %args;
+    my $smtp = MIME::Lite::SMTP->new( $hostname, %opts )
+      or Carp::croak "SMTP Failed to connect to mail server: $!\n";
+
+    if ($args{StartTLS}) {
+        $smtp->starttls;
+    }
+
+    # Possibly authenticate
+    if (    defined $args{AuthUser}
+        and defined $args{AuthPass}
+        and !$args{NoAuth} )
+    {
+        if ( $smtp->supports( 'AUTH', 500, ["Command unknown: 'AUTH'"] ) ) {
+            $smtp->auth( $args{AuthUser}, $args{AuthPass} )
+              or die "SMTP auth() command failed: $!\n" . $smtp->message . "\n";
+        }
+        else {
+            die "SMTP auth() command not supported on $hostname\n";
+        }
+    }
+
+    # Send the mail command
+    %opts = MIME::Lite::__opts( \%args, @MIME::Lite::_mail_opts );
+    $smtp->mail( $args{From}, %opts ? \%opts : () )
+      or die "SMTP mail() command failed: $!\n" . $smtp->message . "\n";
+
+    # Send the recipients command
+    %opts = MIME::Lite::__opts( \%args, @MIME::Lite::_recip_opts );
+    $smtp->recipient( @{ $args{To} }, %opts ? \%opts : () )
+      or die "SMTP recipient() command failed: $!\n" . $smtp->message . "\n";
+
+    # Send the data
+    $smtp->data()
+      or die "SMTP data() command failed: $!\n" . $smtp->message . "\n";
+    $self->print_for_smtp($smtp);
+    $smtp->datasend("\n");
+
+    # Finish the mail
+    $smtp->dataend()
+      or Carp::croak "Net::CMD (Net::SMTP) DATAEND command failed.\n"
+      . "Last server message was:"
+      . $smtp->message
+      . "This probably represents a problem with newline encoding ";
+
+    # terminate the session
+    $smtp->quit;
+
+    return $self->{last_send_successful} = 1;
 }
 
 =head1 AUTHOR

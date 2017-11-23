@@ -118,7 +118,7 @@ sub person_db_prepare {
                    count(n.mac) as nodes,
                    t.password, t.valid_from as 'valid_from', t.expiration as 'expiration',
                    t.access_duration as 'access_duration', t.access_level as 'access_level',
-                   t.sponsor as 'can_sponsor', t.unregdate as 'unregdate',
+                   t.sponsor as 'can_sponsor', t.unregdate as 'unregdate', t.login_remaining as 'login_remaining',
                    nc.name as 'category'
             FROM person p
             LEFT JOIN node n ON p.pid = n.pid
@@ -157,7 +157,7 @@ sub person_db_prepare {
             WHERE pid=? ]);
 
     $person_statements->{'person_nodes_sql'} = get_db_handle()->prepare(
-        qq[ SELECT mac, pid, regdate, unregdate, lastskip, status, user_agent, computername, device_class
+        qq[ SELECT mac, pid, regdate, unregdate, lastskip, status, user_agent, computername, device_class, time_balance, bandwidth_balance
             FROM node
             WHERE pid = ? ]);
 
@@ -186,7 +186,6 @@ sub person_db_prepare {
             GROUP BY pid
             HAVING count(node.mac)=0;
             ]);
-
 
     $person_db_prepared = 1;
 }

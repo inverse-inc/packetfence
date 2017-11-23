@@ -87,16 +87,16 @@ Replace `accountName` by your real account/instance name at MobileIron.
 * IOS devices: `https://m.mobileiron.net/accountName/c/d/ios.html`
 * Windows: `https://m.mobileiron.net/accountName/EnrollmentServer/Discovery.svc`
 
-Add the provisioner to the portal profile
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Add the provisioner to the connection profile
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 In order for the provisioner to be used by your captive portal you need to add it in its configuration.
-Go in 'Portal Profiles', then select the portal you want to modify and add 'mobileiron' as a provisioner.
+Go in 'Connection Profiles', then select the portal you want to modify and add 'mobileiron' as a provisioner.
 
 image::docs/images/mobile-iron-portal.png[scaledwidth="100%",alt="MobileIron portal"]
 
 Step 5: Add the necessary passthroughs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Next, still in the PacketFence administration console, go in 'Trapping' in the left menu, then scroll then to 'Passthroughs'.
+Next, still in the PacketFence administration console, go in 'Fencing' in the left menu, then scroll then to 'Passthroughs'.
 
 Check the 'Passthrough' box above the field and add the following domains to the passthrough list.
 

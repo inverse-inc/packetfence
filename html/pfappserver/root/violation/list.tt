@@ -9,7 +9,8 @@
           <h3><i>[% l('Delete Violation') %]</i> <span></span></h3>
         </div>
         <div class="modal-body">
-          <p>[% l('Really delete this violation?') %]</p>
+          <p>[% l('Deleting this violation will remove all triggered violations associated with this violation.') %]</p>
+          <p>[% l('Do you wish to continue?') %]</p>
         </div>
         <div class="modal-footer">
           <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
@@ -17,28 +18,40 @@
         </div>
       </div>
 
-      <h2>[% l('Violations')  %]</h2>
+      <div class="card">
+        <div class="card-title">
+          <h2>[% l('Violations') %] [% doc('_violations') | none %]</h2>
+        </div>
+        <div class="card-block">
       [% IF items.size -%]
-      <table class="table">
+      <table class="table" id="violations">
         <thead>
           <tr>
+            <th></th>
             <th>[% l('Id') %]</th>
             <th>[% l('Description') %]</th>
             <th class="hidden-phone">[% l('Actions') %]</th>
-            <th class="hidden-phone">[% l('Target Role') %]</th>
+            <th class="no-wrap hidden-phone">[% l('Target Role') %]</th>
             <th>[% l('Action') %]</th><th></th>
           </tr>
         </thead>
         <tbody>
           [% FOREACH violation IN items %]
           <tr[% IF violation.enabled == 'N' %] class="muted"[% END %]>
+            <td>
+              [% IF violation.id != 'defaults' %]
+                <div class="switch switch-mini" data-href="[% c.uri_for(c.controller.action_for('toggle'),[violation.id], 'enabled' ) %]">
+                    <input type="checkbox" id="[% violation.id | html %]" name="[% violation.id | html %]"[% IF violation.enabled != 'N' %] checked="checked"[% END %]/>
+                </div>
+              [% END %]
+            </td>
             <td><a href="[% c.uri_for(c.controller('Violation').action_for('view'), [ violation.id ]) %]#modalViolation">[% violation.id | html %]</a></td>
             <td>[% violation.desc | html %]</td>
             <td class="hidden-phone">[% FOREACH action IN violation.actions %]
               <span class="label label-info">[% l("${action}_action") %]</span>
               [%- END %]</td>
             <td class="hidden-phone">[% violation.vlan | html %]</td>
-            <td style="white-space: nowrap;">
+            <td class="no-wrap">
               [%- IF can_access("VIOLATIONS_CREATE") %]
               <a class="btn btn-mini" href="[% c.uri_for(c.controller('Violation').action_for('clone'), [ violation.id ]) %]#modalViolation">[% l('Clone') %]</a>
               [%- END %]
@@ -47,8 +60,8 @@
               [%- END %]
               [% IF profiles.size > 1 %]
               <div class="btn-group">[% END %]
-                <a class="btn btn-mini[% ' disabled' UNLESS violation.template %]" target="_blank" href="[% c.uri_for(c.controller('Config::Profile').action_for('preview'), [profiles.0], 'violations', "$violation.template") %].html" ><i class="icon-eye-open"></i> [% l('Preview') %]</a>
-                [% IF profiles.size > 1 %]<a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
+                <a class="btn btn-mini[% ' disabled' UNLESS violation.template %]" target="_blank" href="[% c.uri_for(c.controller('Config::Profile').action_for('preview'), [profiles.0], 'violations', "$violation.template") %].html" ><i class="icon-eye"></i> [% l('Preview') %]</a>
+                [% IF profiles.size > 1 %]<a class="btn btn-mini dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a>
                 <ul class="dropdown-menu">
                   [% FOR profile IN profiles -%]
                   <li><a target="_blank" href="[% c.uri_for(c.controller('Config::Profile').action_for('preview'), [profile], 'violations', "$violation.template") %].html" >[% profile | html %]</a></li>[% END %]
@@ -64,9 +77,11 @@
       <div id="noViolation" class="unwell[% ' hidden' IF items.size > 0 %]">
         <i class="icon-legal icon-large"></i><p>[% l('No violation defined') %]</p>
       </div>
+      </div>
 
       [%- IF can_access("VIOLATIONS_CREATE") %]
       <div class="form-actions">
         <a id="createViolation" class="btn" href="[% c.uri_for(c.controller('Violation').action_for('create')) %]">[% l('Add violation') %]</a>
       </div>
       [%- END %]
+      </div>

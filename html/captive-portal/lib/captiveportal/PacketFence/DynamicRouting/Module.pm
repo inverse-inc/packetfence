@@ -71,6 +71,8 @@ sub available_actions {
         'set_unregdate',
         'set_access_duration',
         'no_action',
+        'set_time_balance',
+        'set_bandwidth_balance',
     ];
 }
 
@@ -209,7 +211,7 @@ The arguments that are used when releasing a device on the network
 sub _release_args {
     my ($self) = @_;
     return {
-        timer         => $Config{'trapping'}{'redirtimer'},
+        timer         => $Config{'fencing'}{'redirtimer'},
         destination_url  => $self->app->session->{destination_url},
         initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_INITIAL_DELAY'},
         retry_delay   => $CAPTIVE_PORTAL{'NET_DETECT_RETRY_DELAY'},
@@ -389,7 +391,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;
 

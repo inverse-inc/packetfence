@@ -30,6 +30,11 @@
                    <td class="node">
                       <a href="[% c.uri_for(c.controller('Node').action_for('view'), [ item.mac ]) %]">[% item.mac %]</a>
                    </td>
+                  [% ELSIF display_column == "switch_id" %]
+                  [% SET switch_id = item.$display_column%]
+                 <td>
+                    [% switch_id %][% IF switch_config.exists(switch_id) %] ([% switch_config.item(switch_id).description %])[%END%]
+                 </td>
                   [% ELSE %]
                  <td> [%item.$display_column %] </td>
                   [% END %]

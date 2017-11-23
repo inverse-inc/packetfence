@@ -42,7 +42,7 @@ has_field 'local_account_logins' => (
     default => pf::Authentication::Source::BillingSource->meta->get_attribute('local_account_logins')->default,
     tags => {
         after_element => \&help_list,
-        help => 'The amount of times, the local account can be used after its created. 0 means infinite.'
+        help => 'The amount of times, the local account can be used after it is created. 0 means infinite.'
     },
 );
 
@@ -50,6 +50,13 @@ has_field test_mode => (
     type => 'Checkbox',
     checkbox_value => '1',
     unchecked_value => '0',
+);
+
+has_field 'send_email_confirmation' => (
+   type => 'Toggle',
+   label => 'Send billing confirmation',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
 );
 
 =head2 options_currency

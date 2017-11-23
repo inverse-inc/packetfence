@@ -6,9 +6,9 @@
           <thead>
             <tr>
               <th></th>
-              <th>[% l('Logical name') %]</th>
-              <th>[% l('IP Address') %]</th>
-              <th class="hidden-phone">[% l('Netmask') %]</th>
+              <th class="span2">[% l('Logical name') %]</th>
+              <th class="span3">[% l('IP Address') %]</th>
+              <th class="span3 hidden-phone">[% l('Netmask') %]</th>
               <th class="hidden-phone">[% l('Type') %]</th>
               <th></th>
             </tr>
@@ -31,15 +31,17 @@
             <tr>
               <td><div class="switch switch-mini"><input type="checkbox" id="[% i | html %]" name="[% i | html %]"[% IF interfaces.$i.is_running %] checked="checked"[% END %]/></div></td>
               <td><a href="[% c.uri_for(c.controller('Interface').action_for('view'), [i]) %]">[% interfaces.$i.name | html %]</a>[% IF interfaces.$i.vlan %] <span class="label">vlan [% interfaces.$i.vlan | html %]</span>[% END %]</td>
-              <td>[% interfaces.$i.ipaddress | html %][% IF interfaces.$i.ipv6_address %]<br/>[% interfaces.$i.ipv6_address | html %][% END %]</td>
-              <td class="hidden-phone">[% interfaces.$i.netmask | html %][% IF interfaces.$i.ipv6_prefix %]<br/>[% interfaces.$i.ipv6_prefix | html %][% END %]</td>
+              <td class="cell-fluid"><span class="clipboard"><i class="icon-clipboard btn-icon" data-clipboard-text="[% interfaces.$i.ipaddress %]"></i> [% interfaces.$i.ipaddress | html %]</span>[% IF interfaces.$i.ipv6_address %]<br/><span class="clipboard"><i class="icon-clipboard btn-icon" data-clipboard-text="[% interfaces.$i.ipv6_address %]"></i> [% interfaces.$i.ipv6_address | html %]</span>[% END %]</td>
+              <td class="cell-fluid hidden-phone">[% interfaces.$i.netmask | html %][% IF interfaces.$i.ipv6_prefix %]<br/>[% interfaces.$i.ipv6_prefix | html %][% END %]</td>
               <td class="hidden-phone">[% IF interfaces.$i.type.match('management') %][% l('management') %][% ELSE %][% l(interfaces.$i.type) %][% END %]</td>
               <td>
+                <div class="text-right">
                 [% IF interfaces.$i.vlan -%]
                 [% IF can_access("INTERFACES_DELETE") %]<a class="btn btn-mini btn-danger" interface="[% i | html %]" href="[% c.uri_for(c.controller('Interface').action_for('delete'), [i]) %]">[% l('Delete') %]</a>[% END %]
                 [% ELSE -%]
-                [% IF can_access("INTERFACES_CREATE") %]<a class="btn btn-mini" data-toggle="modal" interface="[% i | html %]" href="[% c.uri_for(c.controller('Interface').action_for('create'), [i]) %]">[% l('Add VLAN') %]</a>[% END %]
+                [% IF can_access("INTERFACES_CREATE") %]<a class="btn btn-mini" interface="[% i | html %]" href="[% c.uri_for(c.controller('Interface').action_for('create'), [i]) %]">[% l('Add VLAN') %]</a>[% END %]
                 [% END -%]
+                </div>
               </td>
             </tr>
             [%- IF show_network && interfaces.$i.network %]

@@ -130,7 +130,7 @@ sub dynamic_tables {
     my ($self) = @_;
     my @fields;
     foreach my $field ($self->all_fields){
-        if($field->type eq "DynamicTable") {
+        if($field->type eq "DynamicTable" && $field->is_active) {
             push @fields, $field->name;
         }
     }
@@ -164,5 +164,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

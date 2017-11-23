@@ -26,7 +26,6 @@ BEGIN {
         @cli_tests @compile_tests @dao_tests @integration_tests @quality_tests @quality_failing_tests @unit_tests
         use_test_db
         get_all_perl_binaries get_all_perl_cgi get_all_perl_modules
-        get_all_php
         get_networkdevices_modules get_networkdevices_classes
     );
 }
@@ -38,7 +37,7 @@ our @cli_tests = qw(
 );
 
 our @compile_tests = qw(
-    pf.t pfconfig.t binaries.t pfappserver_libs.t captive-portal_libs.t
+    pf.t pfappserver_libs.t captive-portal_libs.t template.t
 );
 
 our @dao_tests = qw(
@@ -60,7 +59,7 @@ our @quality_failing_tests = qw(
 our @unit_tests = qw(
     config.t enforcement.t floatingdevice.t hardware-snmp-objects.t import.t inline.t linux.t network-devices/cisco.t
     network-devices/roles.t network-devices/threecom.t network-devices/wireless.t nodecategory.t person.t pfsetvlan.t
-    Portal.t radius.t services.t SNMP.t soh.t SwitchFactory.t useragent.t util.t util-dhcp.t util-radius.t
+    Portal.t radius.t services.t SNMP.t SwitchFactory.t util.t util-dhcp.t util-radius.t
     role.t web.t
 );
 
@@ -182,26 +181,6 @@ sub get_all_perl_modules {
             && $File::Find::name !~ /^.*addons\/legacy\/.*\.pm\z/s
             && push(@list, $File::Find::name);
         }}, '/usr/local/pf/lib/pf', '/usr/local/pf/addons', '/usr/local/pf/html/pfappserver/lib'
-    );
-
-    return @list;
-}
-
-=head2 get_all_php
-
-Return all the files ending with .php or .inc under F</usr/local/pf/html>
-
-=cut
-
-sub get_all_php {
-
-    my @list;
-
-    # find2perl  /usr/local/pf/html -name "*.php" -o -name "*.inc"
-    File::Find::find({
-        wanted => sub {
-           /^.*\.php\z/s || /^.*\.inc\z/s && push(@list, $File::Find::name);
-        }}, '/usr/local/pf/html'
     );
 
     return @list;

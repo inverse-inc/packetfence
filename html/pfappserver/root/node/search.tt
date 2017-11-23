@@ -67,7 +67,7 @@
       <li><a href="[% c.uri_for(action, add_captures, params) %]">&rarr;</a></li>
     [% ELSE %]
       <li class="disabled"><span>&hellip;</span></li>
-      <li class="disabled"><a href="[% c.uri_for(action, add_captures, params) %]">&rarr;</a></li>
+      <li class="disabled"><span>&rarr;</span></li>
     [% END %]
   </ul>
 </div>
@@ -91,6 +91,7 @@
         { name => 'switch_ip', label => l('Switch IP Address') },
         { name => 'switch_mac', label => l('Switch MAC Address') },
         { name => 'switch_port', label => l('Switch Port') },
+        { name => 'switch_port_desc', label => l('Switch Port Description') },
         { name => 'switch_description', label => l('Switch description') },
         { name => 'last_ssid', label => l('SSID') },
         { name => 'bypass_vlan', label => l('Bypass VLAN') },
@@ -99,14 +100,14 @@
         { name => 'voip', label => l('VoIP') },
     ]
 
-%]
+        %]
             <h2>
               [% l('Results') %]
             </h2>
             [% INCLUDE admin/bulk_actions.inc id="node_bulk_actions" bulk_type='node'%]
-            <div class="btn-group hidden-phone">
-              <form id="columns" action="[% c.uri_for(search_action,1,per_page) %]" method="POST">
-              <a class="btn btn-link btn-small dropdown-toggle" data-toggle="dropdown" href="#">
+            <form id="columns" action="[% c.uri_for(search_action,1,per_page) %]" method="POST"
+                  class="btn-group hidden-phone">
+              <a class="btn btn-link btn-small dropdown-toggle" data-toggle="dropdown">
                 <i class="icon-columns"></i> [% l('Columns') %]
                 <i class="icon-angle-down"></i>
               </a>
@@ -115,8 +116,7 @@
                     [% column_checkbox( column.name , column.label) | none %]
                 [% END %]
               </ul>
-              </form>
-            </div>
+            </form>
             [% node_pagination(search_action, page_num, page_count, {by => by, direction => direction}, from_form) | none %]
             <form id="items" method="POST">
               <table id="nodes" class="table table-condensed table-striped">
@@ -148,7 +148,7 @@
                             [% ELSIF name == "switch_description" %]
                             <td class="hidden-phone">[% switches.${node.switch_ip}.description | html %]</td>
                             [% ELSIF name == "last_ip" %]
-                            <td style="white-space: nowrap">[% IF node.last_ssid %]<i class="icon-signal"></i> [% END %][% node.last_ip | html %]</td>
+                            <td class="no-wrap">[% IF node.last_ssid %]<i class="icon-signal"></i> [% END %][% node.last_ip | html %]</td>
                             [% ELSIF name == "online" %]
                             <td><span class="label label-[% IF node.online == "on" %]success[% ELSIF node.online =="off" %]important[% ELSE %]info[% END %]">[% l(node.online) | html %]</span></td>
                             [% ELSE %]

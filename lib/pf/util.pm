@@ -20,9 +20,8 @@ use warnings;
 use File::Basename;
 use POSIX::2008;
 use Net::MAC::Vendor;
-use Net::SMTP;
 use File::Path qw(make_path remove_tree);
-use POSIX();
+use POSIX qw(setuid setgid);
 use File::Spec::Functions;
 use File::Slurp qw(read_dir);
 use List::MoreUtils qw(all any);
@@ -42,6 +41,8 @@ use Digest::MD5;
 use Time::HiRes qw(stat time);
 use Fcntl qw(:DEFAULT);
 use Net::Ping;
+use Crypt::OpenSSL::X509;
+use Date::Parse;
 
 our ( %local_mac );
 
@@ -89,6 +90,7 @@ BEGIN {
         pf_chown
         user_chown
         ping
+        run_as_pf
     );
 }
 
@@ -502,6 +504,16 @@ sub fix_file_permissions {
     pf_run('sudo /usr/local/pf/bin/pfcmd fixpermissions file "' . $file . '"');
 }
 
+=item fix_files_permissions
+
+Fix the files permissions
+
+=cut
+
+sub fix_files_permissions {
+    pf_run('sudo /usr/local/pf/bin/pfcmd fixpermissions');
+}
+
 sub parse_template {
     my ( $tags, $template, $destination, $comment_char ) = @_;
     my $logger = get_logger();
@@ -740,9 +752,21 @@ Returns the bandwidth in bytes depending of the incombing unit
 
 =cut
 
-sub unpretty_bandwidth {
-    my ($bw,$unit) = @_;
 
+sub unpretty_bandwidth {
+    my (@bw) = @_;
+    return undef if (!defined($bw[0]));
+    my ($bw,$unit);
+
+    if (!defined($bw[1])) {
+        if ($bw[0] =~ /(\d+)(\w+)/) {
+            $bw = $1;
+            $unit = $2;
+        }
+    } else {
+        $bw = $bw[0];
+        $unit = $bw[1];
+    }
     # Check what units we have, and multiple by 1024 exponent something
     if ($unit eq 'PB') {
         return $bw * 1024**5;
@@ -1017,13 +1041,14 @@ Months and years are approximate. Do not use for anything serious about time.
 
 sub normalize_time {
     my ($date) = @_;
+    return undef if (!defined($date));
     if ( $date =~ /^\d+$/ ) {
         return ($date);
 
     } else {
         my ( $num, $modifier ) = $date =~ /^(\d+)($pf::constants::config::TIME_MODIFIER_RE)/ or return (0);
 
-        if ( $modifier eq "s" ) { return ($num);
+        if ( $modifier eq "s" ) { return ($num * 1);
         } elsif ( $modifier eq "m" ) { return ( $num * 60 );
         } elsif ( $modifier eq "h" ) { return ( $num * 60 * 60 );
         } elsif ( $modifier eq "D" ) { return ( $num * 24 * 60 * 60 );
@@ -1083,6 +1108,26 @@ sub cert_is_self_signed {
     return $self_signed;
 }
 
+=item cert_expires_in
+
+Returns either true or false if the given certificate is about to expire in a given delay
+
+Use current time if no delay is given
+
+=cut
+
+sub cert_expires_in {
+    my ($path, $delay) = @_;
+    return undef if !defined $path;
+    my $cert = Crypt::OpenSSL::X509->new_from_file($path);
+    my $expiration = str2time($cert->notAfter);
+
+    $delay = normalize_time($delay) if $delay;
+    $delay = ( $delay ) ? $delay + time : time;
+
+    return $delay > $expiration;
+}
+
 =item strip_username
 
 Will strip a username matching pattern user@realm or \\realm\user
@@ -1116,50 +1161,6 @@ sub strip_username {
         return ($2,$1);
     }
     return $username;
-}
-
-sub send_email {
-    my ($smtp_server, $from, $to, $subject, $template, %info) = @_;
-    my $logger = get_logger();
-
-    my $user_info = pf::person::person_view($to);
-    setlocale(POSIX::LC_MESSAGES, $user_info->{lang});
-    
-    use Locale::gettext qw(bindtextdomain textdomain bind_textdomain_codeset);
-    bindtextdomain( "packetfence", "$conf_dir/locale" );
-    bind_textdomain_codeset( "packetfence", "utf-8" );
-    textdomain("packetfence");
-
-    require pf::web;
-
-    my %TmplOptions = (
-        INCLUDE_PATH    => "$html_dir/captive-portal/templates/emails/",
-        ENCODING        => 'utf8',
-    );
-
-    my %vars = (%info, i18n => \&pf::web::i18n, i18n_format => \&pf::web::i18n_format);
-
-    utf8::decode($subject);
-    my $msg = MIME::Lite::TT->new(
-        From        =>  $from,
-        To          =>  $to,
-        Cc          =>  $info{'cc'},
-        Subject     =>  encode("MIME-Header", $subject),
-        'Content-Type' => 'text/html; charset="UTF-8"',
-        Template    =>  "emails-$template.html",
-        TmplOptions =>  \%TmplOptions,
-        TmplParams  =>  \%vars,
-    );
-
-    my $result = 0;
-    try {
-      $msg->send('smtp', $smtp_server, Timeout => 20);
-      $result = $msg->last_send_successful();
-      $logger->info("Email sent to ".$to." (".$subject.")");
-    }
-    catch {
-      $logger->error("Can't send email to ".$to.": $!");
-    };
 }
 
 sub generate_session_id {
@@ -1265,21 +1266,33 @@ sub is_in_list {
 
 =item validate_date
 
-Validates a date to ensure it doesn't exceed 2038-01-18
+Check if a date is between 1970-01-01 and 2038-01-18
 
 =cut
 
 sub validate_date {
     my ($date) = @_;
-    my $t = Time::Piece->strptime($date, "%Y-%m-%d");
-    if(
-        $t->year > 2038
-        || $t->year == 2038 && $t->mon > 1
-        || $t->year == 2038 && $t->mon == 1 && $t->mday > 18
-    ) {
-        return $FALSE;
+    my $valid = $FALSE;
+
+    eval {
+        my $t = Time::Piece->strptime($date, "%Y-%m-%d");
+        if (
+            $t->year > 2038
+            || $t->year == 2038 && $t->mon > 1
+            || $t->year == 2038 && $t->mon == 1 && $t->mday > 18
+            || $t->year < 1970
+           ) {
+            $valid = $FALSE;
+        }
+        else {
+            $valid = $TRUE;
+        }
+    };
+    if ($@) {
+        $valid = $FALSE;
     }
-    return $TRUE;
+
+    return $valid;
 }
 
 =item clean_locale
@@ -1315,6 +1328,35 @@ sub ping {
     my ($host) = @_;
     my $p = Net::Ping->new("icmp");
     return $p->ping($host);
+}
+
+=head2 run_as_pf
+
+Sets the UID and GID of the currently running process to pf
+
+=cut
+
+sub run_as_pf {
+    my (undef, undef,$uid,$gid) = getpwnam('pf');
+    
+    # Early return if we're already running as pf
+    return $TRUE if($uid == $<);
+
+    unless(setgid($gid)) {
+        my $msg = "Cannot switch process user to pf. setgid to $gid has failed";
+        print STDERR $msg . "\n";
+        get_logger->error($msg);
+        return $FALSE;
+    }
+    
+    unless(setuid($uid)) {
+        my $msg = "Cannot switch process user to pf. setuid to $uid has failed";
+        print STDERR $msg . "\n";
+        get_logger->error($msg);
+        return $FALSE;
+    }
+
+    return $TRUE;
 }
 
 =back

@@ -5,9 +5,9 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
 Before=packetfence-httpd.portal.service
 
 [Service]
-StandardOutput=syslog
+Type=notify
 StartLimitBurst=3
-StartLimitInterval=60
+StartLimitInterval=10
 PIDFile=/usr/local/pf/var/run/pfdns.pid
 ExecStart=/usr/local/pf/sbin/pfdns
 Restart=on-failure

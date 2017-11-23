@@ -1,3 +1,5 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
+
 $(function() { // DOM ready
     var switches = new Switches();
     var view = new SwitchView({ switches: switches, parent: $('#section') });
@@ -47,6 +49,10 @@ var SwitchView = function(options) {
     // Display the switch in a modal
     var read = $.proxy(this.readSwitch, this);
     options.parent.on('click', '#switches [href$="/read"], #switches [href$="/clone"], .createSwitch', read);
+
+    // Close modal on import from csv
+    var import_csv = $.proxy(this.importSwitch, this);
+    options.parent.on('submit', 'form[name="modalSwitchImport"]', import_csv);
 
     // Save the modifications from the modal
     var update = $.proxy(this.updateSwitch, this);
@@ -111,7 +117,8 @@ var SwitchView = function(options) {
     // pagination search
     options.parent.on('click', '#switches [href*="/switch/search"]', $.proxy(this.searchPagination, this));
 
-
+    // invalidate cache
+    options.parent.on('click', '#invalidate_cache', $.proxy(this.invalidateCache, this));
 };
 
 SwitchView.prototype.readSwitch = function(e) {
@@ -134,8 +141,8 @@ SwitchView.prototype.readSwitch = function(e) {
         },
         success: function(data) {
             modal.append(data);
-            modal.find('.chzn-select').chosen();
-            modal.find('.chzn-deselect').chosen({allow_single_deselect: true});
+            modal.find('.chzn-select').chosen({width: ''});
+            modal.find('.chzn-deselect').chosen({allow_single_deselect: true, width: ''});
             modal.one('shown', function() {
                 var checkbox;
                 modal.find(':input:visible').first().focus();
@@ -243,6 +250,23 @@ SwitchView.prototype.updateSwitch = function(e) {
     }
 };
 
+SwitchView.prototype.importSwitch = function(e) {
+    var that = this;
+    var form = $(e.target);
+    var iform = $("#iframe_form");
+    var btn = form.find('.btn-primary');
+    var modal = form.closest('.modal');
+    btn.button('loading');
+    iform.one('load', function(event) {
+            btn.button('reset');
+            var body = $(this).contents().find('body');
+            var text = body.find('textarea').val();
+            modal.modal('hide');
+            showPermanentSuccess($('#switches'), text);
+    });
+
+};
+
 SwitchView.prototype.addToGroup = function(e) {
     e.preventDefault();
 
@@ -260,9 +284,9 @@ SwitchView.prototype.addToGroup = function(e) {
             });
             showSuccess($('#modalSwitch .modal-body').children().first(), data.status_msg);
         },
-        errorSibling: $('#modalSwitch .modal-body').children().first(),
+        errorSibling: $('#modalSwitch .modal-body').children().first()
     });
-}
+};
 
 SwitchView.prototype.removeGroup = function(e) {
     e.preventDefault();
@@ -273,7 +297,7 @@ SwitchView.prototype.removeGroup = function(e) {
         url: a.attr('href'),
         success: function(data) {
             a.closest('.switchGroupMember').remove();
-            if ($('.switchGroupMember').size() == 0){
+            if ($('.switchGroupMember').size() === 0) {
               $('#switchMembersEmpty').closest('tr').removeClass('hidden');
             }
             showSuccess($('#modalSwitch .modal-body').children().first(), data.status_msg);
@@ -300,7 +324,7 @@ SwitchView.prototype.refreshPage = function() {
     var formId = pagination.attr('data-from-form') || '#search';
     var form = $(formId);
     var link = pagination.find('li.disabled a[href]').first();
-    if(form.length == 0) {
+    if (form.length === 0) {
         form = $('#search');
     }
     var columns = $('#columns');
@@ -333,7 +357,7 @@ SwitchView.prototype.refreshTable = function() {
     var formId = pagination.attr('data-from-form') || '#search';
     var form = $(formId);
     var link = pagination.find('li.disabled a[href]').first();
-    if(form.length == 0) {
+    if(form.length === 0) {
         form = $('#search');
     }
     var columns = $('#columns');
@@ -478,6 +502,22 @@ SwitchView.prototype.deleteConfirm = function(e) {
     return false;
 };
 
+SwitchView.prototype.invalidateCache = function(e) {
+    e.preventDefault();
+
+    var modal = $('#modalSwitch');
+    var modal_body = modal.find('.modal-body');
+    var link = $(e.target);
+    var url = link.attr('href');
+    this.switches.get({
+        url: url,
+        success: function(data) {
+            showSuccess(modal_body.children().first(), data.status_msg);
+        },
+        errorSibling: modal_body.children().first()
+    });
+};
+
 SwitchView.prototype.searchSwitch = function(query, process){
     this.switches.post({
         url: '/config/switch/search',
@@ -494,11 +534,11 @@ SwitchView.prototype.searchSwitch = function(query, process){
             });
             var input = $('#modalSwitch #newMember');
             var control = input.closest('.control-group');
-            if (results.length == 0)
+            if (results.length === 0)
                 control.addClass('error');
             else
                 control.removeClass('error');
             process(results);
         }
     });
-}
+};

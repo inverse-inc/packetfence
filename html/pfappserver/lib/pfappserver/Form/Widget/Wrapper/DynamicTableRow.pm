@@ -23,7 +23,7 @@ around wrap_field => sub {
     my $extra = "<td>";
     $extra ="<td class=\"sort-handle\">" . ($self->name + 1) . "</td>\n<td>" if $self->parent->sortable ;
     return "<tr${class}>${extra}" . $rendered_widget .
-         '</td><td class="action"><a class="btn-icon" href="#delete"><i class="icon-minus-sign"></i></a><a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a></td></tr>';
+         '</td><td class="action"><a class="btn-icon" href="#delete"><i class="icon-minus-circle"></i></a><a class="btn-icon" href="#add"><i class="icon-plus-circle"></i></a></td></tr>';
 };
 
 use namespace::autoclean;

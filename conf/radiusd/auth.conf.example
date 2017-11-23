@@ -1,5 +1,5 @@
 
-pidfile = %%pid_file%%
+pidfile = [% pid_file %]
 
 $INCLUDE radiusd.conf
 
@@ -10,11 +10,44 @@ listen {
     virtual_server = packetfence
 }
 
-%%listen%%
+[% FOREACH ip IN listen_ips %]
+listen {
+        ipaddr = [% ip %]
+        port = 0
+        type = auth
+        virtual_server = packetfence
+}
+
+listen {
+        ipaddr = [% ip %]
+        port = 2083
+        type = auth+acct
+        proto = tcp
+        virtual_server = packetfence
+
+        limit {
+              max_connections = 16
+              lifetime = 0
+              idle_timeout = 30
+        }
+
+        tls {
+                private_key_file = /usr/local/pf/raddb/certs/server.key
+                certificate_file = /usr/local/pf/raddb/certs/server.crt
+                ca_file = /usr/local/pf/raddb/certs/ca.pem
+                dh_file = ${certdir}/dh
+                fragment_size = 8192
+                ca_path = ${cadir}
+                cipher_list = "DEFAULT"
+                require_client_cert = yes
+        }
+}
+
+[% END %]
 
 listen {
     type = control
-    socket = %%socket_file%%
+    socket = [% socket_file %]
     mode = rw
 }
 
@@ -30,7 +63,7 @@ log {
 	#  The command-line option "-X" over-rides this option, and forces
 	#  logging to go to stdout.
 	#
-	destination = files
+	destination = syslog
 
 	#
 	#  Highlight important messages sent to stderr and stdout.
@@ -93,7 +126,7 @@ log {
 	#  The exact values permitted here are OS-dependent.  You probably
 	#  don't want to change this.
 	#
-	syslog_facility = daemon
+	syslog_facility = local1
 
 	#  Log the full User-Name attribute, as it was found in the request.
 	#

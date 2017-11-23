@@ -1,3 +1,5 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
+
 "use strict";
 
 /*
@@ -92,8 +94,8 @@ InterfaceView.prototype.readInterface = function(e) {
         success: function(data) {
             modal.append(data);
             modal.find('.switch').bootstrapSwitch();
-            modal.find('.chzn-select').chosen();
-            modal.find('.chzn-deselect').chosen({allow_single_deselect: true});
+            modal.find('.chzn-select').chosen({width: ''});
+            modal.find('.chzn-deselect').chosen({allow_single_deselect: true, width: ''});
             modal.find('[name="dns"]').closest('.control-group').hide();
             modal.find('[name="dhcpd_enabled"]').closest('.control-group').hide();
             modal.find('[name="high_availability"]').closest('.control-group').hide();

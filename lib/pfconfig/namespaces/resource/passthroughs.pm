@@ -52,12 +52,12 @@ sub build {
     my ($self) = @_;
 
     my @all_passthroughs = (
-        @{$self->{config}->{trapping}->{passthroughs}}, 
+        @{$self->{config}->{fencing}->{passthroughs} // []},
         map{
-            $_->isa("pf::Authentication::Source::OAuthSource") 
-                ? split(/\s*,\s*/, $_->{domains})
+            ($_->isa("pf::Authentication::Source::OAuthSource") || $_->isa("pf::Authentication::Source::BillingSource") )
+                ? split(/\s*,\s*/, $_->{domains} // '')
                 : () 
-        } @{$self->{authentication_sources}},
+        } @{$self->{authentication_sources} // []},
     );
 
     my %passthroughs = (
@@ -98,7 +98,7 @@ sub _new_passthrough {
     my ($self, $passthrough) = @_;
 
     if($passthrough =~ /(.*?):(udp:|tcp:)?([0-9]+)/) {
-        my $domain = $1;
+        my $domain = lc($1);
         # NOTE: proto contains the ':' at the end
         my $proto = $2;
         my $port = $3;

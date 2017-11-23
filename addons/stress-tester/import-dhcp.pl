@@ -23,7 +23,7 @@ while ( my $row = $csv->getline( $fh ) ) {
     my $mac = $row->[2];
     my $ip = $row->[3];
     print "Processing $mac/$ip \n";
-    pf::api->update_iplog(mac => $mac, ip => $ip);
+    pf::api->update_ip4log(mac => $mac, ip => $ip);
 }
 
 

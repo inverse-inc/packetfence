@@ -13,34 +13,36 @@
     </div>
   </div>
 
-    <div class="container">
+    <div class="container-fluid">
       [% INCLUDE configurator/tracker.inc %]
-      <div class="row">
-        <div class="span3">
+      <div class="row-fluid">
+        <div class="span4">
           <div class="page-header step">
             <h1>[% l('Step') %] [% step_index %]</h1>
           </div>
         </div>
-        <div class="span9">
+        <div class="span14">
           <div class="page-header">
             <h1>[% l('Start the services') %]
             <small>[% l('Secure your network') %]</small></h1>
           </div>
         </div>
       </div>
-      <div class="row">
-        <div class="span3">
+      <div class="row-fluid">
+        <div class="span4">
           <div class="well">
             <h3>[% l('Instructions') %]</h3>
             <p>[% l('The last step of this configuration wizard is to start the PacketFence daemons.') %]</p>
           </div>
         </div>
-        <div id="services" class="span9">
+        <div id="services" class="span14">
         [% UNLESS completed -%]
         <div class="alert alert-warning">
           <strong>[% l('Warning!') %]</strong> <span>[% l('You must complete all steps in order to start the services.') %]</span>
         </div>
         [% END -%]
+        <div class="card">
+          <div class="card-block">
           <table class="table">
             <thead>
               <tr>
@@ -59,21 +61,18 @@
               [%- END %]
             </tbody>
           </table>
+          </div>
           <form class="form-horizontal">
-            <fieldset>
             <div class="form-actions">
               <button type="submit" class="btn btn-primary pull-right[% UNLESS completed %] disabled[% END %]" href="[% next_step %]">[% l('Start PacketFence') %]</button>
             </div>
-            </fieldset>
           </form>
-          <div id="serviceErrors" class="alert alert-danger"[% UNLESS error %] style="display: none;"[% END %]>
+          <div id="serviceErrors" class="alert alert-danger[% UNLESS error %] hide[% END %]">
             <button class="close" data-dismiss="alert">&times;</button>
             <strong>[% l('Console Output') %]</strong>
             <pre>[% error %]</pre>
           </div>
+          </div>
         </div>
       </div>
-      <footer>
-        <p>&copy; Inverse 2017</p>
-      </footer>
     </div><!--/container-->

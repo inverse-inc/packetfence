@@ -75,16 +75,6 @@ sub supportsWebFormRegistration {
     return $self->{_deauthMethod} eq $SNMP::HTTP;
 }
 
-#
-# %TRAP_NORMALIZERS
-# A hash of Ruckus trap normalizers
-# Use the following convention when adding a normalizer
-# <nameOfTrapNotificationType>TrapNormalizer
-#
-our %TRAP_NORMALIZERS = (
-    '1.3.6.1.4.1.25053.2.2.1.4' => 'ruckusZDEventRogueAPTrapTrapNormalizer'
-);
-
 =item getVersion
 
 obtain image version information from switch
@@ -123,14 +113,9 @@ sub parseTrap {
     my $trapHashRef;
     my $logger = $self->logger;
 
-    # Handle WIPS Trap
-    if ( $trapString =~ /\.1\.3\.6\.1\.4\.1\.25053\.2\.2\.2\.20 = STRING: \"([a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2})/ ) {
-        $trapHashRef->{'trapType'}    = 'wirelessIPS';
-        $trapHashRef->{'trapMac'} = clean_mac($1);
-    } else {
-        $logger->debug("trap currently not handled.  TrapString was: $trapString");
-        $trapHashRef->{'trapType'} = 'unknown';
-    }
+    $logger->debug("trap currently not handled.  TrapString was: $trapString");
+    $trapHashRef->{'trapType'} = 'unknown';
+
     return $trapHashRef;
 }
 
@@ -197,11 +182,12 @@ sub parseExternalPortalRequest {
     my %params = ();
 
     %params = (
-        switch_id       => $req->param('sip'),
-        client_mac      => clean_mac($req->param('client_mac')),
-        client_ip       => defined($req->param('uip')) ? $req->param('uip') : undef,
-        ssid            => $req->param('ssid'),
-        redirect_url    => $req->param('url'),
+        switch_id               => $req->param('sip'),
+        client_mac              => clean_mac($req->param('client_mac')),
+        client_ip               => defined($req->param('uip')) ? $req->param('uip') : undef,
+        ssid                    => $req->param('ssid'),
+        redirect_url            => $req->param('url'),
+        synchronize_locationlog => $FALSE,
     );
 
     return \%params;
@@ -237,39 +223,6 @@ sub getAcceptForm {
 
     $logger->debug("Generated the following html form : ".$html_form);
     return $html_form;
-}
-
-=item _findTrapNormalizer
-
-Find the normalizer method for the trap for Ruckus switches
-
-=cut
-
-sub _findTrapNormalizer {
-    my ($self, $snmpTrapOID, $pdu, $variables) = @_;
-    if (exists $TRAP_NORMALIZERS{$snmpTrapOID}) {
-        return $TRAP_NORMALIZERS{$snmpTrapOID};
-    }
-    return undef;
-}
-
-
-=item ruckusZDEventRogueAPTrapTrapNormalizer
-
-Trap normalizer for the ruckusZDEventRogueAPTrap
-
-=cut
-
-sub ruckusZDEventRogueAPTrapTrapNormalizer {
-    my ($self, $snmpTrapOID, $pdu, $variables) = @_;
-    my $ruckusZDEventRogueMacAddr_oid = ".1.3.6.1.4.1.25053.2.2.2.20";
-    my ($variable) = $self->findTrapVarWithBase($variables, $ruckusZDEventRogueMacAddr_oid);
-    return undef unless $variable;
-    return undef unless $variable->[1] =~ /STRING: \"([a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2})/;
-    return {
-        trapType => 'wirelessIPS',
-        trapMac => clean_mac($1),
-    };
 }
 
 =back

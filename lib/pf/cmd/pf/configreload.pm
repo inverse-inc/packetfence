@@ -23,6 +23,7 @@ pf::cmd::pf::configreload
 use strict;
 use warnings;
 use pf::constants::exit_code qw($EXIT_SUCCESS);
+use pf::util;
 
 use base qw(pf::base::cmd::action_cmd);
 
@@ -41,6 +42,7 @@ sub action_hard {
 
 sub configreload {
     my ($self,$force)  = @_;
+    run_as_pf();
     require pf::config;
     pf::config::configreload($force);
     return $EXIT_SUCCESS;

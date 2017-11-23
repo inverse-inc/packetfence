@@ -65,8 +65,6 @@ BEGIN {
         report_statics_active
         report_unknownprints_all
         report_unknownprints_active
-        report_unknownuseragents_all
-        report_unknownuseragents_active
 
         translate_connection_type
     );
@@ -95,26 +93,26 @@ sub report_db_prepare {
     my $logger = get_logger();
 
     $report_statements->{'report_inactive_all_sql'} = get_db_handle()->prepare(
-        qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,device_type as os from node n where n.mac not in (select i.mac from iplog i where i.end_time=0 or i.end_time > now()) ]);
+        qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,device_type as os from node n where n.mac not in (select i.mac from ip4log i where i.end_time=0 or i.end_time > now()) ]);
 
     $report_statements->{'report_active_all_sql'} = get_db_handle()->prepare(
-        qq [ select n.mac,ip,start_time,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,device_type as os from (node n,iplog i) where i.mac=n.mac and (i.end_time=0 or i.end_time > now()) ]);
+        qq [ select n.mac,ip,start_time,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,device_type as os from (node n,ip4log i) where i.mac=n.mac and (i.end_time=0 or i.end_time > now()) ]);
 
     $report_statements->{'report_unregistered_all_sql'} = get_db_handle()->prepare(
         qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,device_type as os FROM node n where n.status='unreg' ]);
 
     $report_statements->{'report_unregistered_active_sql'} = get_db_handle()->prepare(
-        qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,device_type as os FROM (node n,iplog i) where n.status='unreg' and i.mac=n.mac and (i.end_time=0 or i.end_time > now()) ]);
+        qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,device_type as os FROM (node n,ip4log i) where n.status='unreg' and i.mac=n.mac and (i.end_time=0 or i.end_time > now()) ]);
 
     $report_statements->{'report_registered_all_sql'} = get_db_handle()->prepare(
         qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,device_type as os FROM node n where n.status='reg' ]);
 
     $report_statements->{'report_registered_active_sql'} = get_db_handle()->prepare(
-        qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,device_type as os FROM (node n,iplog i) where n.status='reg' and i.mac=n.mac and (i.end_time=0 or i.end_time > now()) ]);
+        qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,device_type as os FROM (node n,ip4log i) where n.status='reg' and i.mac=n.mac and (i.end_time=0 or i.end_time > now()) ]);
 
     $report_statements->{'report_os_sql'} = get_db_handle()->prepare(qq[
         SELECT device_type as description, n.dhcp_fingerprint, COUNT(DISTINCT n.mac) AS count, ROUND(COUNT(DISTINCT n.mac)/(SELECT COUNT(*) FROM node)*100,1) AS percent
-        FROM (node n, iplog i)
+        FROM (node n, ip4log i)
         WHERE n.mac = i.mac AND i.start_time BETWEEN ? AND ?
         GROUP BY device_type
         ORDER BY percent desc
@@ -122,7 +120,7 @@ sub report_db_prepare {
 
     $report_statements->{'report_os_active_sql'} = get_db_handle()->prepare(qq[
         SELECT device_type as description, n.dhcp_fingerprint, count(*) as count, ROUND(COUNT(*)/(SELECT COUNT(*) FROM node)*100,1) AS percent
-        FROM (node n, iplog i)
+        FROM (node n, ip4log i)
         WHERE n.mac = i.mac AND (i.end_time = 0 or i.end_time > now())
         GROUP BY device_type
         ORDER BY percent desc
@@ -139,47 +137,31 @@ sub report_db_prepare {
         qq [ select device_class as description,count(*) as count,ROUND(COUNT(*)/(SELECT COUNT(*) FROM node)*100,1) as percent from node n group by device_class order by percent desc ]);
 
     $report_statements->{'report_osclass_active_sql'} = get_db_handle()->prepare(
-        qq [ select device_class as description,count(*) as count,ROUND(COUNT(*)/(SELECT COUNT(*) FROM node,iplog where node.mac=iplog.mac and (iplog.end_time=0 or iplog.end_time > now()))*100,1) as percent from (node n,iplog i) where n.mac=i.mac and (i.end_time=0 or i.end_time > now()) group by device_class order by percent desc ]);
+        qq [ select device_class as description,count(*) as count,ROUND(COUNT(*)/(SELECT COUNT(*) FROM node,ip4log where node.mac=ip4log.mac and (ip4log.end_time=0 or ip4log.end_time > now()))*100,1) as percent from (node n,ip4log i) where n.mac=i.mac and (i.end_time=0 or i.end_time > now()) group by device_class order by percent desc ]);
 
     $report_statements->{'report_unknownprints_all_sql'} = get_db_handle()->prepare(
         qq [SELECT mac,dhcp_fingerprint,computername,user_agent FROM node WHERE device_type IS NULL and dhcp_fingerprint!=0 ORDER BY dhcp_fingerprint, mac ]);
 
     $report_statements->{'report_unknownprints_active_sql'} = get_db_handle()->prepare(
-        qq [SELECT node.mac,dhcp_fingerprint,computername,user_agent FROM node,iplog WHERE device_type IS NULL and dhcp_fingerprint!=0 and node.mac=iplog.mac and (iplog.end_time=0 or iplog.end_time > now()) ORDER BY dhcp_fingerprint, mac]);
+        qq [SELECT node.mac,dhcp_fingerprint,computername,user_agent FROM node,ip4log WHERE device_type IS NULL and dhcp_fingerprint!=0 and node.mac=ip4log.mac and (ip4log.end_time=0 or ip4log.end_time > now()) ORDER BY dhcp_fingerprint, mac]);
 
     $report_statements->{'report_statics_sql'} = get_db_handle()->prepare(qq[
         SELECT *
-        FROM node, iplog
-        WHERE (dhcp_fingerprint = "" OR dhcp_fingerprint IS NULL) AND node.mac = iplog.mac AND iplog.end_time BETWEEN ? AND ?
+        FROM node, ip4log
+        WHERE (dhcp_fingerprint = "" OR dhcp_fingerprint IS NULL) AND node.mac = ip4log.mac AND ip4log.end_time BETWEEN ? AND ?
     ]);
 
     $report_statements->{'report_statics_all_sql'} = get_db_handle()->prepare(
         qq [SELECT * FROM node WHERE dhcp_fingerprint="" OR dhcp_fingerprint IS NULL]);
 
     $report_statements->{'report_statics_active_sql'} = get_db_handle()->prepare(
-        qq [SELECT * FROM node,iplog WHERE (dhcp_fingerprint="" OR dhcp_fingerprint IS NULL) AND node.mac=iplog.mac and (iplog.end_time=0 or iplog.end_time > now()) ]);
+        qq [SELECT * FROM node,ip4log WHERE (dhcp_fingerprint="" OR dhcp_fingerprint IS NULL) AND node.mac=ip4log.mac and (ip4log.end_time=0 or ip4log.end_time > now()) ]);
 
     $report_statements->{'report_openviolations_all_sql'} = get_db_handle()->prepare(
         qq [SELECT n.pid as owner, n.mac as mac, v.status as status, v.start_date as start_date, c.description as violation from violation v LEFT JOIN node n ON v.mac=n.mac LEFT JOIN class c on c.vid=v.vid WHERE v.status="open" order by n.pid ]);
 
     $report_statements->{'report_openviolations_active_sql'} = get_db_handle()->prepare(
-        qq [SELECT n.pid as owner, n.mac as mac, v.status as status, v.start_date as start_date, c.description as violation from (violation v, iplog i) LEFT JOIN node n ON v.mac=n.mac LEFT JOIN class c on c.vid=v.vid WHERE v.status="open" and n.mac=i.mac and (i.end_time=0 or i.end_time > now()) order by n.pid ]);
-
-    $report_statements->{'report_unknownuseragents_all_sql'} = get_db_handle()->prepare(qq[
-        SELECT n.user_agent, nu.browser, nu.os, n.computername, device_type as description, n.dhcp_fingerprint
-        FROM node as n
-            JOIN node_useragent AS nu USING (mac)
-        WHERE (nu.browser IS NULL OR nu.os IS NULL) AND n.user_agent != ''
-    ]);
-
-    $report_statements->{'report_unknownuseragents_active_sql'} = get_db_handle()->prepare(qq[
-        SELECT n.user_agent, nu.browser, nu.os, n.computername, device_type as description, n.dhcp_fingerprint
-        FROM node as n
-            JOIN node_useragent AS nu USING (mac)
-            LEFT JOIN iplog USING (mac)
-        WHERE (nu.browser IS NULL OR nu.os IS NULL) AND n.user_agent != ''
-            AND (iplog.end_time=0 OR iplog.end_time > now())
-    ]);
+        qq [SELECT n.pid as owner, n.mac as mac, v.status as status, v.start_date as start_date, c.description as violation from (violation v, ip4log i) LEFT JOIN node n ON v.mac=n.mac LEFT JOIN class c on c.vid=v.vid WHERE v.status="open" and n.mac=i.mac and (i.end_time=0 or i.end_time > now()) order by n.pid ]);
 
     $report_statements->{'report_connectiontype_sql'} = get_db_handle()->prepare(qq[
         SELECT connection_type, connection_type as connection_type_orig, COUNT(DISTINCT mac) AS connections,
@@ -211,12 +193,12 @@ sub report_db_prepare {
         SELECT connection_type,count(*) as connections,
             ROUND(COUNT(*)/
                 (SELECT COUNT(*) FROM locationlog INNER JOIN node ON node.mac=locationlog.mac
-                    INNER JOIN iplog ON node.mac=iplog.mac
-                    WHERE iplog.end_time = 0 OR iplog.end_time > now() AND locationlog.end_time = 0
+                    INNER JOIN ip4log ON node.mac=ip4log.mac
+                    WHERE ip4log.end_time = 0 OR ip4log.end_time > now() AND locationlog.end_time = 0
                 )*100,1
             ) AS percent
-        FROM locationlog INNER JOIN node ON node.mac=locationlog.mac INNER JOIN iplog ON node.mac=iplog.mac
-        WHERE iplog.end_time = 0 OR iplog.end_time > now() AND locationlog.end_time = 0
+        FROM locationlog INNER JOIN node ON node.mac=locationlog.mac INNER JOIN ip4log ON node.mac=ip4log.mac
+        WHERE ip4log.end_time = 0 OR ip4log.end_time > now() AND locationlog.end_time = 0
         GROUP BY connection_type
     ]);
 
@@ -236,13 +218,13 @@ sub report_db_prepare {
         SELECT connection_type, count(*) as connections,
             ROUND( COUNT(*) /
                 (SELECT COUNT(*) FROM locationlog
-                    INNER JOIN node ON node.mac=locationlog.mac INNER JOIN iplog ON node.mac=iplog.mac
-                    WHERE node.status = "reg" AND (iplog.end_time =0 OR iplog.end_time > now())
+                    INNER JOIN node ON node.mac=locationlog.mac INNER JOIN ip4log ON node.mac=ip4log.mac
+                    WHERE node.status = "reg" AND (ip4log.end_time =0 OR ip4log.end_time > now())
                         AND locationlog.end_time = 0
                 )*100,1
             ) AS percent
-        FROM locationlog INNER JOIN node ON node.mac=locationlog.mac INNER JOIN iplog ON node.mac=iplog.mac
-        WHERE node.status = "reg" AND (iplog.end_time = 0 OR iplog.end_time > now()) AND locationlog.end_time = 0
+        FROM locationlog INNER JOIN node ON node.mac=locationlog.mac INNER JOIN ip4log ON node.mac=ip4log.mac
+        WHERE node.status = "reg" AND (ip4log.end_time = 0 OR ip4log.end_time > now()) AND locationlog.end_time = 0
         GROUP BY connection_type
     ]);
 
@@ -251,13 +233,13 @@ sub report_db_prepare {
            (SELECT COUNT(DISTINCT locationlog.mac)
                 FROM locationlog
                     INNER JOIN node ON node.mac = locationlog.mac AND locationlog.end_time = 0
-                    INNER JOIN iplog ON node.mac = iplog.mac
-                WHERE ssid != "" AND iplog.start_time BETWEEN ? AND ?
+                    INNER JOIN ip4log ON node.mac = ip4log.mac
+                WHERE ssid != "" AND ip4log.start_time BETWEEN ? AND ?
            )*100,1) AS percent
        FROM locationlog
            INNER JOIN node ON node.mac = locationlog.mac AND locationlog.end_time = 0
-           INNER JOIN iplog ON node.mac = iplog.mac
-       WHERE ssid != "" AND iplog.end_time BETWEEN ? AND ?
+           INNER JOIN ip4log ON node.mac = ip4log.mac
+       WHERE ssid != "" AND ip4log.end_time BETWEEN ? AND ?
        GROUP BY ssid
        ORDER BY nodes
     ]);
@@ -281,13 +263,13 @@ sub report_db_prepare {
            (SELECT COUNT(*)
                 FROM locationlog
                     INNER JOIN node ON node.mac=locationlog.mac AND locationlog.end_time = 0
-                    INNER JOIN iplog ON node.mac=iplog.mac
-                WHERE ssid != "" AND (iplog.end_time=0 OR iplog.end_time > now())
+                    INNER JOIN ip4log ON node.mac=ip4log.mac
+                WHERE ssid != "" AND (ip4log.end_time=0 OR ip4log.end_time > now())
            )*100,1) as percent
        FROM locationlog
            INNER JOIN node ON node.mac=locationlog.mac AND locationlog.end_time = 0
-           INNER JOIN iplog ON node.mac=iplog.mac
-       WHERE ssid != "" AND (iplog.end_time=0 OR iplog.end_time > now())
+           INNER JOIN ip4log ON node.mac=ip4log.mac
+       WHERE ssid != "" AND (ip4log.end_time=0 OR ip4log.end_time > now())
        GROUP BY ssid
        ORDER BY nodes
     ]);
@@ -621,14 +603,6 @@ sub report_unknownprints_active {
         $datum->{'vendor'} = oui_to_vendor( $datum->{'mac'} );
     }
     return (@data);
-}
-
-sub report_unknownuseragents_all {
-    return db_data(REPORT, $report_statements, 'report_unknownuseragents_all_sql');
-}
-
-sub report_unknownuseragents_active {
-    return db_data(REPORT, $report_statements, 'report_unknownuseragents_active_sql');
 }
 
 sub report_connectiontype {

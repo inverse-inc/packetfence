@@ -58,7 +58,6 @@ use pf::enforcement qw(reevaluate_access);
 use pf::ip4log;
 use pf::node qw(node_attributes node_modify node_register node_view is_max_reg_nodes_reached);
 use pf::person qw(person_nodes);
-use pf::useragent;
 use pf::util;
 use pf::violation qw(violation_count);
 use pf::web::constants;
@@ -185,7 +184,7 @@ sub generate_release_page {
     my ( $portalSession, $r ) = @_;
 
     $portalSession->stash({
-        timer => $Config{'trapping'}{'redirtimer'},
+        timer => $Config{'fencing'}{'redirtimer'},
         destination_url => $portalSession->getDestinationUrl(),
         initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_INITIAL_DELAY'},
         retry_delay => $CAPTIVE_PORTAL{'NET_DETECT_RETRY_DELAY'},
@@ -257,7 +256,7 @@ sub web_user_authenticate {
     }
 
     # validate login and password
-    my ($return, $message, $source_id) = pf::authentication::authenticate( { 'username' => $username, 'password' => $password, 'rule_class' => $Rules::AUTH }, @sources);
+    my ($return, $message, $source_id, $extra) = pf::authentication::authenticate( { 'username' => $username, 'password' => $password, 'rule_class' => $Rules::AUTH }, @sources);
 
     if (defined($return) && $return == 1) {
         # save login into session

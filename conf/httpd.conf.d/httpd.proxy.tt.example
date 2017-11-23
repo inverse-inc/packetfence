@@ -46,6 +46,12 @@
   <IfModule !mod_headers.c>
     LoadModule headers_module /usr/lib/apache2/modules/mod_headers.so
   </IfModule>
+  <IfModule !mod_systemd.c>
+    LoadModule systemd_module     /usr/lib/apache2/modules/mod_systemd.so
+  </IfModule>
+  <IfModule !mod_proxy_connect.c>
+   LoadModule proxy_connect_module /usr/lib/apache2/modules/mod_proxy_connect.so
+  </IfModule>
 </IfDefine>
 
 #RHEL specific
@@ -94,6 +100,12 @@
   <IfModule !mod_headers.c>
     LoadModule headers_module modules/mod_headers.so
   </IfModule>
+  <IfModule !mod_systemd.c>
+    LoadModule systemd_module modules/mod_systemd.so
+  </IfModule>
+  <IfModule !mod_proxy_connect.c>
+   LoadModule proxy_connect_module modules/mod_proxy_connect.so
+  </IfModule>
 </IfDefine>
 
 [% IF apache_version == "2.4" %]
@@ -135,18 +147,17 @@ SSLRandomSeed connect file:/dev/urandom 1024
 [% IF apache_version == "2.4" %]
 SSLSessionCache shmcb:[% install_dir %]/var/ssl_acache(512000)
 Mutex file:[% install_dir %]/var/ssl_mutex ssl-cache
-SSLProtocol All -SSLv2 -SSLv3
-SSLCipherSuite EECDH+AES:EDH+AES:-SHA1:EECDH+RC4:EDH+RC4:RC4-SHA:EECDH+AES256:EDH+AES256:AES256-SHA:!aNULL:!eNULL:!EXP:!LOW:!MD5
-[% ELSE %]
-SSLSessionCache  shm:[% install_dir %]/var/ssl_acache(512000)
-SSLMutex  file:[% install_dir %]/var/ssl_mutex
-SSLProtocol All -SSLv2 -SSLv3
-SSLCipherSuite ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA
+# apache 2.4.6 | modern profile | OpenSSL 1.0.1e | https://mozilla.github.io/server-side-tls/ssl-config-generator/?server=apache-2.4.6&openssl=1.0.1e&hsts=no&profile=modern
+#Oldest compatible clients: Firefox 27, Chrome 30, IE 11 on Windows 7, Edge, Opera 17, Safari 9, Android 5.0, and Java 8
+SSLProtocol             all -SSLv3 -TLSv1 -TLSv1.1
+SSLCipherSuite          ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256
+SSLHonorCipherOrder     on
+SSLCompression          off
 [% END %]
 
 SSLHonorCipherOrder  on
 
-ErrorLog  [% install_dir %]/logs/[% name %].error
+ErrorLog "| /usr/bin/logger -thttpd_proxy_err -plocal5.err"  
 
 ServerAdmin [% server_admin %]
 
@@ -175,8 +186,8 @@ Listen 127.0.0.1:[% port %]
     ProxyPreserveHost on
     ProxyVia off
     LogLevel error
-    ErrorLog [% install_dir %]/logs/[% name %].error
-    CustomLog [% install_dir %]/logs/[% name %].access combined
+    ErrorLog "| /usr/bin/logger -thttpd_proxy_err -plocal5.err"  
+    CustomLog "| /usr/bin/logger -thttpd_proxy -plocal5.info"  combined
 </VirtualHost>
 
 [% FOREACH vhost IN vhosts %]
@@ -197,8 +208,8 @@ Listen [% vhost %]:[% proxy_port %]
     ProxyPreserveHost On
     AllowCONNECT 444 443
     ProxyVia full
-    ErrorLog [% install_dir %]/logs/[% name %].error
-    CustomLog [% install_dir %]/logs/[% name %].access combined
+    ErrorLog "| /usr/bin/logger -thttpd_proxy_err -plocal5.err"  
+    CustomLog "| /usr/bin/logger -thttpd_proxy -plocal5.info"  combined
 </VirtualHost>
 
 [% END %]

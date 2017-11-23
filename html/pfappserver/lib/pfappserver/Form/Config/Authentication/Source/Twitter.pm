@@ -71,7 +71,7 @@ has_field 'redirect_url' =>
    element_attr => {'placeholder' => pf::Authentication::Source::TwitterSource->meta->get_attribute('redirect_url')->default,},
    element_class => ['input-xlarge'],
    tags => { after_element => \&help,
-             help => 'The hostname must be the one of your captive portal.' },
+             help => 'The hostname must match your hostname and domain parameters set in System Configuration > Main Configuration > General Configuration.' },
   );
 has_field 'domains' =>
   (
@@ -82,7 +82,7 @@ has_field 'domains' =>
    element_attr => {'placeholder' => pf::Authentication::Source::TwitterSource->meta->get_attribute('domains')->default},
    element_class => ['input-xlarge'],
    tags => { after_element => \&help,
-             help => 'Comma separated list of domains that will be resolve with the correct IP addresses.' },
+             help => 'Comma-separated list of domains that will be resolved with the correct IP addresses.' },
   );
 
 =head1 COPYRIGHT
@@ -108,5 +108,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

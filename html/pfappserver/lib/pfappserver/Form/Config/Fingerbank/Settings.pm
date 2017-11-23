@@ -49,8 +49,13 @@ sub field_list {
                 $field->{type}            = 'Toggle';
                 $field->{checkbox_value}  = 'enabled';
                 $field->{unchecked_value} = 'disabled';
-            } else {
+            } 
+            elsif ($type eq 'numeric') {
+                $field->{type} = 'PosInteger';
+            }
+            else {
                 $field->{type} = 'Text';
+                $field->{element_class} = ['input-xxlarge'];
             }
 
             push ( @$list, $field_name => $field );
@@ -83,5 +88,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

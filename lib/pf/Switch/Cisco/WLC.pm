@@ -585,7 +585,7 @@ sub parseRequest {
             $session_id =$1;
         }
     }
-    return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, $session_id);
+    return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, $session_id, $nas_port_id);
 }
 
 =item parseExternalPortalRequest
@@ -622,11 +622,12 @@ sub parseExternalPortalRequest {
     }
 
     %params = (
-        session_id      => $session_id,
-        switch_id       => $switch_id,
-        client_mac      => $client_mac,
-        client_ip       => $client_ip,
-        redirect_url    => $redirect_url,
+        session_id              => $session_id,
+        switch_id               => $switch_id,
+        client_mac              => $client_mac,
+        client_ip               => $client_ip,
+        redirect_url            => $redirect_url,
+        synchronize_locationlog => $FALSE,
     );
 
     return \%params;

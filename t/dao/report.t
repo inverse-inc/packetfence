@@ -55,8 +55,6 @@ my @methods = qw(
     report_statics_active
     report_unknownprints_all
     report_unknownprints_active
-    report_unknownuseragents_all
-    report_unknownuseragents_active
     report_connectiontype_all
     report_connectiontype_active
     report_connectiontypereg_all

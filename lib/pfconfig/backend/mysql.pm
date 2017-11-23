@@ -25,8 +25,8 @@ use pf::Sereal qw($DECODER $ENCODER);
 use base 'pfconfig::backend';
 
 sub init {
-
-    # abstact
+    my ($self) = @_;
+    $self->{should_clear} = 0;
 }
 
 =head2 _get_db
@@ -37,8 +37,10 @@ Get a connection to the database
 
 sub _get_db {
     my ($self) = @_;
-    return $self->{_db} if (defined $self->{_db});
+    return $self->{_db} if (defined $self->{_db} && $self->{_db}->ping);
     my $logger = get_logger;
+    $logger->info("Connecting to MySQL database");
+    
     my $cfg    = pfconfig::config->new->section('mysql');
     my $db;
     eval {
@@ -112,7 +114,15 @@ sub get {
 
     if($self->db_readonly_mode) {
         $logger->error("Not gathering data from backend since its in read-only mode.");
+        # Signal that we should clear the backend when we recover a read/write connection
+        # This is done since outside of this backend, the process could load a different version of what is in the DB which will cause issues when we go out of read-only
+        $self->{should_clear} = 1;
         return undef;
+    }
+    elsif($self->{should_clear}) {
+        $logger->info("Signaled to clear the backend. Clearing now.");
+        $self->{should_clear} = 0;
+        $self->clear();
     }
 
     my $statement = $db->prepare( "SELECT value FROM keyed WHERE id=" . $db->quote($key) );

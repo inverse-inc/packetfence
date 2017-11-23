@@ -24,7 +24,7 @@ sub for_module {'captiveportal::PacketFence::DynamicRouting::Module::Authenticat
 
 sub child_definition {
     my ($self) = @_;
-    return qw(source_id custom_fields template);
+    return ($self->source_fields, qw(custom_fields template));
 }
 
 =over
@@ -54,5 +54,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

@@ -47,11 +47,6 @@ table .category-header {
 .table .btn-group, .table-condensed select {
     vertical-align: top;
 }
-.loader {
-    position: fixed;
-    left: 50%;
-    margin-top: 10px;
-}
 .unwell {
     color: #ccc;
     font-size: 24px;
@@ -76,62 +71,6 @@ table .category-header {
 .unwell-horizontal p {
     font-size: 16px;
     line-height: 24px;
-}
-/* sortable tables and lists */
-.sort-handle {
-    color: #ccc;
-    text-align: center;
-    font-weight: bold;
-    width: 20px;
-}
-
-.dynamic-list-sortable > .controls {
-    clear: both;
-}
-
-span.sort-handle {
-    display: inline-block;
-}
-
-span.sort-handle:hover {
-    background-image: url('/static/app/grab.png');
-}
-
-td.sort-handle {
-    text-align: center;
-    vertical-align: middle;
-}
-li:hover .sort-handle,
-tr:hover .sort-handle {
-    background-image: url('/static/app/grab.png');
-    background-repeat: no-repeat;
-    n0background-color: #eee;
-    background-position: center center;
-    text-indent: -99999px;
-    cursor: move;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    user-select: none;
-}
-.drag-row {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    color: #000;
-    font-size: 12px;
-    padding: 4px 30px;
-    opacity: 0.7;
-    filter: alpha(opacity=70);
-    z-index: 1200;
-}
-
-li.drop-row,
-.drop-row td {
-    border-top: 1px solid #333;
-}
-
-.drop-dynamic-row,
-.drop-dynamic-row td {
-    border-top: 1px solid #333;
 }
 
 /* fineuploader */

@@ -9,6 +9,12 @@
 			"revisionTime": "2017-02-13T16:13:28Z"
 		},
 		{
+			"checksumSHA1": "+Zz+leZHHC9C0rx8DoRuffSRPso=",
+			"path": "github.com/coreos/go-systemd/daemon",
+			"revision": "1f9909e51b2dab2487c26d64c8f2e7e580e4c9f5",
+			"revisionTime": "2017-03-24T09:58:19Z"
+		},
+		{
 			"checksumSHA1": "dvabztWVQX8f6oMLRyv4dLH+TGY=",
 			"path": "github.com/davecgh/go-spew/spew",
 			"revision": "346938d642f2ec3594ed81d874461961cd0faa76",
@@ -51,30 +57,6 @@
 			"revisionTime": "2017-01-10T07:11:07Z"
 		},
 		{
-			"checksumSHA1": "OJQzKm2ltgYJMwE1zTchVVYt5bc=",
-			"path": "github.com/fingerbank/processor/log",
-			"revision": "45480a6fc353ea30f06ecc5456d7bfd7a43406a9",
-			"revisionTime": "2017-02-23T12:45:34Z"
-		},
-		{
-			"checksumSHA1": "URR5kTIbZ1ZRGkJBidR3tAcEm94=",
-			"path": "github.com/fingerbank/processor/requesthistory",
-			"revision": "45480a6fc353ea30f06ecc5456d7bfd7a43406a9",
-			"revisionTime": "2017-02-23T12:45:34Z"
-		},
-		{
-			"checksumSHA1": "YNyW9rOf7PWUr4Mh4P0/xUKEn/8=",
-			"path": "github.com/fingerbank/processor/sharedutils",
-			"revision": "45480a6fc353ea30f06ecc5456d7bfd7a43406a9",
-			"revisionTime": "2017-02-23T12:45:34Z"
-		},
-		{
-			"checksumSHA1": "eQ6f14nO0LUNcKG5QOgbHIHwvSg=",
-			"path": "github.com/fingerbank/processor/statsd",
-			"revision": "45480a6fc353ea30f06ecc5456d7bfd7a43406a9",
-			"revisionTime": "2017-02-23T12:45:34Z"
-		},
-		{
 			"checksumSHA1": "VdXZPcDRHK1T7XjBu2KW8Mb8S6w=",
 			"path": "github.com/flynn/go-shlex",
 			"revision": "3f9db97f856818214da2e1057f8ad84803971cff",
@@ -91,6 +73,18 @@
 			"path": "github.com/google/uuid",
 			"revision": "064e2069ce9c359c118179501254f67d7d37ba24",
 			"revisionTime": "2016-11-28T19:12:14Z"
+		},
+		{
+			"checksumSHA1": "ZVzABul4nD/fzyYnbe+5bsJ4nBg=",
+			"path": "github.com/gorilla/rpc/v2",
+			"revision": "22c016f3df3febe0c1f6727598b6389507e03a18",
+			"revisionTime": "2016-09-23T22:06:01Z"
+		},
+		{
+			"checksumSHA1": "7yTdbVbA4b9KQbkkbdIU7OL2ivM=",
+			"path": "github.com/gorilla/rpc/v2/json2",
+			"revision": "22c016f3df3febe0c1f6727598b6389507e03a18",
+			"revisionTime": "2016-09-23T22:06:01Z"
 		},
 		{
 			"checksumSHA1": "++qMWbJ7ptiXehuLTFtEDGGnwpM=",
@@ -139,6 +133,12 @@
 			"path": "github.com/julienschmidt/httprouter",
 			"revision": "8a45e95fc75cb77048068a62daed98cc22fdac7c",
 			"revisionTime": "2017-01-04T18:58:16Z"
+		},
+		{
+			"checksumSHA1": "qJhU+MVX3URBh+wvxxCSdr+vF/A=",
+			"path": "github.com/julsemaan/radius",
+			"revision": "7f249f14f3f94118647303f07cf4956048170a0b",
+			"revisionTime": "2017-08-17T16:00:25Z"
 		},
 		{
 			"checksumSHA1": "eOXF2PEvYLMeD8DSzLZJWbjYzco=",
@@ -241,6 +241,12 @@
 			"path": "github.com/mattn/go-colorable",
 			"revision": "d228849504861217f796da67fae4f6e347643f15",
 			"revisionTime": "2016-11-03T16:00:40Z"
+		},
+		{
+			"checksumSHA1": "U6lX43KDDlNOn+Z0Yyww+ZzHfFo=",
+			"path": "github.com/mattn/go-isatty",
+			"revision": "fc9e8d8ef48496124e79ae0df75490096eccf6fe",
+			"revisionTime": "2017-03-22T23:44:13Z"
 		},
 		{
 			"checksumSHA1": "LXLhlGmijKhFLJo3crWjhA9tuMk=",
@@ -399,6 +405,30 @@
 			"revisionTime": "2017-01-26T11:54:58Z"
 		},
 		{
+			"checksumSHA1": "faFDXp++cLjLBlvsr+izZ+go1WU=",
+			"path": "golang.org/x/text/secure/bidirule",
+			"revision": "5a42fa2464759cbb7ee0af9de00b54d69f09a29c",
+			"revisionTime": "2016-10-16T16:34:30Z"
+		},
+		{
+			"checksumSHA1": "ziMb9+ANGRJSSIuxYdRbA+cDRBQ=",
+			"path": "golang.org/x/text/transform",
+			"revision": "5a42fa2464759cbb7ee0af9de00b54d69f09a29c",
+			"revisionTime": "2016-10-16T16:34:30Z"
+		},
+		{
+			"checksumSHA1": "VoN1N+QSzZGXJuTX2mVH7fAUXNM=",
+			"path": "golang.org/x/text/unicode/bidi",
+			"revision": "5a42fa2464759cbb7ee0af9de00b54d69f09a29c",
+			"revisionTime": "2016-10-16T16:34:30Z"
+		},
+		{
+			"checksumSHA1": "Aj3JSVO324FCjEAGm4ZwmC79bbo=",
+			"path": "golang.org/x/text/unicode/norm",
+			"revision": "5a42fa2464759cbb7ee0af9de00b54d69f09a29c",
+			"revisionTime": "2016-10-16T16:34:30Z"
+		},
+		{
 			"checksumSHA1": "o5Skl9YjZqmvEEqWie3f3oY0Kow=",
 			"path": "gopkg.in/alexcesaro/statsd.v2",
 			"revision": "7fea3f0d2fab1ad973e641e51dba45443a311a90",
@@ -433,12 +463,6 @@
 			"path": "gopkg.in/yaml.v2",
 			"revision": "a3f3340b5840cee44f372bddb5880fcbc419b46a",
 			"revisionTime": "2017-02-08T14:18:51Z"
-		},
-		{
-			"checksumSHA1": "s7O2cNvVNkPwgHs4+rfyDscl9Xw=",
-			"path": "layeh.com/radius",
-			"revision": "8ecfc6afafd1730084ea411c01b3618b093a1ccc",
-			"revisionTime": "2016-12-24T16:50:42Z"
 		}
 	],
 	"rootPath": "github.com/inverse-inc/packetfence/go"

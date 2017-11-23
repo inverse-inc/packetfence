@@ -157,7 +157,6 @@ sub writeAuthenticationConfigFile {
     };
     $logger->error("Failed with : $@") if $@;
     unless($result) {
-        $cached_authentication_config->Rollback();
         $logger->error("Error writing authentication configuration");
         die "Error writing authentication configuration\n";
     }
@@ -167,7 +166,7 @@ sub writeAuthenticationConfigFile {
 
 }
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 AUTHOR
 

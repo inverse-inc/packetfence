@@ -35,6 +35,7 @@ has 'added_joins' => (is => 'rw', default => sub { {} } );
 sub search {
     my ($self, $params) = @_;
     my $logger = get_logger();
+    delete $self->{online_date_search_clause};
     my $builder = $self->make_builder;
     $self->setup_query($builder, $params);
     my $results = $self->do_query($builder, $params);
@@ -83,11 +84,21 @@ sub add_searches {
     }
     if (@searches) {
         $builder->where('(');
-        $builder->where($all_or_any)->where(@$_) for @searches;
+        my $search = shift @searches;
+        $builder->where(@$search);
+        for $search (@searches) {
+            $builder->where($all_or_any)->where(@$search);
+        }
         $builder->where(')');
         $builder->where('AND');
     }
-    $builder->where( { table => 'r2', name => 'radacctid' }, 'IS NULL' );
+    $builder->where('(');
+    $builder->where( { table => 'r2', name => 'radacctid' }, 'IS NULL')->where('AND')
+    ->where( { table => 'locationlog2', name => 'id' }, 'IS NULL');
+    if ($self->{online_date_search_clause}) {
+        $builder->where('AND')->where(@{$self->{online_date_search_clause}});
+    }
+    $builder->where(')');
 }
 
 sub make_builder {
@@ -100,6 +111,7 @@ sub make_builder {
             L_("IF(detect_date = '0000-00-00 00:00:00', '', detect_date)", 'detect_date'),
             L_("IF(regdate = '0000-00-00 00:00:00', '', regdate)", 'regdate'),
             L_("IF(unregdate = '0000-00-00 00:00:00', '', unregdate)", 'unregdate'),
+            L_("IF(last_seen = '0000-00-00 00:00:00', '', last_seen)", 'last_seen'),
             L_("IFNULL(node_category.name, '')", 'category'),
             L_("IFNULL(node_category_bypass_role.name, '')", 'bypass_role'),
             L_("IFNULL(device_class, ' ')", 'device_class'),
@@ -111,6 +123,7 @@ sub make_builder {
             { table => 'locationlog', name => 'switch_ip', as => 'switch_ip' },
             { table => 'locationlog', name => 'switch_mac', as => 'switch_mac' },
             { table => 'locationlog', name => 'port', as => 'switch_port' },
+            { table => 'locationlog', name => 'ifDesc', as => 'switch_port_desc' },
             { table => 'locationlog', name => 'ssid', as => 'last_ssid' },
         )->from('node',
                 {
@@ -191,6 +204,82 @@ sub make_builder {
                            '=',
                            '0000-00-00 00:00:00'
                         ],
+                    ],
+                },
+                {
+                    'table' => 'locationlog',
+                    'as' => 'locationlog2',
+                    'join'  => 'LEFT',
+                    'on'    =>
+                    [
+                        [
+                            {
+                                'table' => 'node',
+                                'name'  => 'mac',
+                            },
+                            '=',
+                            {
+                                'table' => 'locationlog2',
+                                'name'  => 'mac',
+                            },
+                        ],
+                        [ 'AND' ],
+                        [
+                           {
+                               'table'  => 'locationlog2',
+                               'name'   => 'end_time',
+                           },
+                           '=',
+                           '0000-00-00 00:00:00'
+                        ],
+                        [ 'AND' ],
+                        ['('],
+                        [
+                            {
+                                'table' => 'locationlog',
+                                'name'  => 'start_time',
+                            },
+                            '<',
+                            {
+                                'table' => 'locationlog2',
+                                'name'  => 'start_time',
+                            },
+                        ],
+                        ['OR'],
+                        ['('],
+                        [
+                            {
+                                'table' => 'locationlog',
+                                'name'  => 'start_time',
+                            },
+                            '=',
+                            {
+                                'table' => 'locationlog2',
+                                'name'  => 'start_time',
+                            },
+                        ],
+                        ['AND'],
+                        [
+                            {
+                                'table' => 'locationlog',
+                                'name'  => 'id',
+                            },
+                            '<',
+                            {
+                                'table' => 'locationlog2',
+                                'name'  => 'id',
+                            },
+                        ],
+                        [')'],
+                        ['OR'],
+                        [
+                            {
+                                'table' => 'locationlog',
+                                'name'  => 'start_time',
+                            },
+                            'IS NULL',
+                        ],
+                        [')'],
                     ],
                 },
                 {
@@ -356,6 +445,10 @@ my %COLUMN_MAP = (
        table => 'locationlog',
        name  => 'port',
     },
+    switch_port_desc   => {
+       table => 'locationlog',
+       name  => 'ifDesc',
+    },
     ssid   => {
        table => 'locationlog',
        name  => 'ssid',
@@ -441,7 +534,7 @@ sub add_joins {
         my $online_date = $params->{online_date};
         my $start = $online_date->{start};
         my $end = $online_date->{end};
-        $builder->where(\"node.mac", 'IN', \"select DISTINCT callingstationid from radacct where acctstarttime >= '$start 00:00:00' and acctstoptime <= '$end 23:59:59'");
+        $self->{online_date_search_clause} = [\"node.mac", 'IN', \"select DISTINCT callingstationid from radacct where acctstarttime >= '$start 00:00:00' and acctstoptime <= '$end 23:59:59'"];
     }
 }
 
@@ -487,7 +580,7 @@ sub add_limit {
     $builder->limit($limit + 1, $offset);
 }
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 
 =head1 COPYRIGHT

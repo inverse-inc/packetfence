@@ -16,7 +16,7 @@ use warnings;
 use Moo;
 use pf::cluster;
 use pf::constants;
-use pf::config qw($management_network);
+use pf::config qw($management_network %Config);
 use pf::file_paths qw(
     $install_dir
     $generated_conf_dir
@@ -31,22 +31,25 @@ extends 'pf::services::manager';
 
 has '+name' => (default => sub { 'snmptrapd' } );
 
-my $management_ip = '';
-
-if (ref($management_network)) {
-    if ( $pf::cluster::cluster_enabled ) {
-        $management_ip = pf::cluster::management_cluster_ip();
-    } else {
-        $management_ip = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
-    }
-
-    $management_ip .= ':162';
-}
-
 sub _cmdLine {
     my $self = shift;
     $self->executable
-        . " -f -n -c $generated_conf_dir/snmptrapd.conf -C -A -Lf $install_dir/logs/snmptrapd.log -p $install_dir/var/run/snmptrapd.pid -On $management_ip";
+        . " -f -n -c $generated_conf_dir/snmptrapd.conf -C -A -Lf $install_dir/logs/snmptrapd.log -p $install_dir/var/run/snmptrapd.pid -On " . getManagementIp();
+}
+
+sub getManagementIp {
+    my $management_ip = '';
+
+    if (ref($management_network)) {
+        if ( $pf::cluster::cluster_enabled ) {
+            $management_ip = pf::cluster::management_cluster_ip();
+        } else {
+            $management_ip = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+        }
+
+        $management_ip .= ':162';
+    }
+    return $management_ip;
 }
 
 =head2 generateConfig
@@ -63,6 +66,15 @@ sub generateConfig {
     my %tags;
     $tags{'authLines'} = '';
     $tags{'userLines'} = '';
+    $tags{'snmpTrapdAddr'} = '';
+    $tags{'perlaction'} = '';
+    my $management_ip = getManagementIp();
+    if ($management_ip) {
+        $tags{'snmpTrapdAddr'} = "snmpTrapdAddr $management_ip";
+    }
+    if (isdisabled($Config{services}{pfsetvlan})) {
+        $tags{perlaction} = "perl do \"/usr/local/pf/lib/pf/snmptrapd.pm\";\n";
+    }
 
     foreach my $user_key ( sort keys %$snmpv3_users ) {
         $tags{'userLines'} .= "createUser " . $snmpv3_users->{$user_key} . "\n";

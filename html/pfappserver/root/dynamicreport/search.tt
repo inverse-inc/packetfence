@@ -1,5 +1,6 @@
-
-
+[% IF items.size == 0 %]
+<h3>[% l('No data found') %]</h3>
+[% ELSE %]
 <table id="dynamicReport" class="table table-condensed table-striped items">
   <thead>
     <tr>
@@ -12,20 +13,23 @@
     </tr>
   </thead>
   
-  [% IF items.size == 0 %]
-  <tr><td><h4>No data to display</h4></td></tr>
-  [% ELSE %]
     [% FOREACH item IN items %]
     <tr>
       [% FOREACH key IN item.keys %]
-      <td>[% item.$key %]</td>
+        [% IF report.is_person_field(key) %]
+        <td><a href="[% c.uri_for(c.controller("User").action_for('view'), [ item.$key ]) %]">[% item.$key %]</a></td>
+        [% ELSIF report.is_node_field(key) %]
+        <td><a href="[% c.uri_for(c.controller("Node").action_for('view'), [ item.$key ]) %]">[% item.$key %]</a></td>
+        [% ELSE %]
+        <td>[% item.$key %]</td>
+        [% END %]
       [% END %]
     </tr>
     [% END %]
-  [% END %]
   <tfoot>
     <tr>
     <th colspan="[% items.0.keys.size %]">[% pagination(c.controller.action_for("search"), page_num, page_count,{direction => direction, by => by }, '#reportSearch') | none %]</th>
     </tr>
   </tfoot>
 </table>
+[% END %]

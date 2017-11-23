@@ -1,15 +1,23 @@
-<div id="systemstate" class="row-fluid">
+<div id="systemstate">
 
   <div class="navbar">
     <div class="navbar-inner">
       <div class=" container">
         <div class="nav-collapse collapse navbar-responsive-collapse">
-
-          <form class="navbar-search pull-left input-daterange datepicker" action="">
-            <input type="text" class="search-query input-small" name="start" value="[% c.session.dashboard.start | html %]" data-date-format="yyyy-mm-dd" />
-            <i class="icon-arrow-right"></i>
-            <input type="text" class="search-query input-small" name="end" value="[% c.session.dashboard.end | html %]" data-date-format="yyyy-mm-dd" date-datestart="[% c.session.dashboard_start | html %]" />
-          </form>
+          <div class="pull-left">
+            <form class="form-horizontal navbar-search input-daterange"
+                  data-date-format="yyyy-mm-dd">
+              <input type="text" class="input-small" name="start"
+                     value="[% c.session.dashboard.start | html %]"
+                     data-date-format="yyyy-mm-dd" />
+              <i class="icon-arrow-right"></i>
+              <input type="text" class="input-small" name="end"
+                     value="[% c.session.dashboard.end | html %]"
+                     data-date-format="yyyy-mm-dd"
+                     date-datestart="[% c.session.dashboard_start | html %]" />
+              <a id="changeDate" class="btn-icon btn-icon-primary" href="#"><i class="icon-refresh"></i></a>
+            </form>
+          </div>
         </div>
 
         <ul class="nav pull-right">
@@ -24,11 +32,13 @@
     </div>
   </div>
 
+  <div class="card-block">
   [% FOREACH graph IN graphs %]
-  <span style="float: left;">
+  <span class="graph graph-[% graph.columns %]c">
     <h4>[% graph.description %]</h4>
-    <img src="[% graph.url %]" style="height: [% graph.height %]px; width: [% graph.width %]px;">
+    <img src="[% graph.url %]" height="[% graph.height %]" width="[% graph.width %]">
   </span>
   [%- END %]
+  </div>
   
 </div>

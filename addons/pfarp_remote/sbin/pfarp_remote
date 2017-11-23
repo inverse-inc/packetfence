@@ -205,7 +205,7 @@ sub soap_send {
             'ip' => $srcip,
         );
 
-        my $result = $soap->update_iplog(%data);
+        my $result = $soap->update_ip4log(%data);
         if ($result->fault) {
           syslog("warning", "arp could not be added");
         } else {

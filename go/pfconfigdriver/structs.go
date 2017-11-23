@@ -48,17 +48,16 @@ type PfConfGeneral struct {
 	PfconfigNS     string `val:"config::Pf"`
 	PfconfigHashNS string `val:"general"`
 	Domain         string `json:"domain"`
-	DNS_Servers    string `json:"dnsservers"`
 	Timezone       string `json:"timezone"`
 	Hostname       string `json:"hostname"`
 	DHCP_Servers   string `json:"dhcpservers"`
 }
 
-type PfConfTrapping struct {
+type PfConfFencing struct {
 	StructConfig
 	PfconfigMethod        string   `val:"hash_element"`
 	PfconfigNS            string   `val:"config::Pf"`
-	PfconfigHashNS        string   `val:"trapping"`
+	PfconfigHashNS        string   `val:"fencing"`
 	WirelessIpsThreshold  string   `json:"wireless_ips_threshold"`
 	InterceptionProxy     string   `json:"interception_proxy"`
 	Detection             string   `json:"detection"`
@@ -70,7 +69,7 @@ type PfConfTrapping struct {
 	Whitelist             string   `json:"whitelist"`
 	ProxyPassthroughs     []string `json:"proxy_passthroughs"`
 	Passthroughs          []string `json:"passthroughs"`
-	Redirtimer            string   `json:"redirtimer"`
+	Redirtimer            int      `json:"redirtimer"`
 	WaitForRedirect       string   `json:"wait_for_redirect"`
 	Passthrough           string   `json:"passthrough"`
 }
@@ -132,7 +131,7 @@ type configStruct struct {
 	}
 	PfConf struct {
 		General       PfConfGeneral
-		Trapping      PfConfTrapping
+		Fencing       PfConfFencing
 		CaptivePortal PfConfCaptivePortal
 	}
 }

@@ -18,7 +18,7 @@ The first manager will create the config for all radiusd processes through the g
 use strict;
 use warnings;
 
-use List::MoreUtils qw(any);
+use List::MoreUtils qw(any uniq);
 use Moo;
 use NetAddr::IP;
 use Template;
@@ -94,16 +94,16 @@ sub _generateConfig {
     my ($self,$quick) = @_;
     my $tt = Template->new(ABSOLUTE => 1);
     $self->generate_radiusd_mainconf();
-    $self->generate_radiusd_authconf();
-    $self->generate_radiusd_acctconf();
+    $self->generate_radiusd_authconf($tt);
+    $self->generate_radiusd_acctconf($tt);
     $self->generate_radiusd_eapconf($tt);
     $self->generate_radiusd_restconf();
     $self->generate_radiusd_sqlconf();
     $self->generate_radiusd_sitesconf();
     $self->generate_radiusd_proxy();
-    $self->generate_radiusd_cluster();
-    $self->generate_radiusd_cliconf();
-    $self->generate_radiusd_eduroamconf();
+    $self->generate_radiusd_cluster($tt);
+    $self->generate_radiusd_cliconf($tt);
+    $self->generate_radiusd_eduroamconf($tt);
 }
 
 
@@ -195,6 +195,7 @@ sub generate_radiusd_mainconf {
     $tags{'rpc_proto'} = $Config{webservices}{proto} || "http";
 
     parse_template( \%tags, "$conf_dir/radiusd/radiusd.conf", "$install_dir/raddb/radiusd.conf" );
+    parse_template( \%tags, "$conf_dir/radiusd/radiusd_loadbalancer.conf", "$install_dir/raddb/radiusd_loadbalancer.conf" );
 }
 
 sub generate_radiusd_restconf {
@@ -213,76 +214,45 @@ sub generate_radiusd_restconf {
 }
 
 sub generate_radiusd_authconf {
-    my ($self) = @_;
+    my ($self, $tt) = @_;
     my %tags;
-    $tags{'template'}    = "$conf_dir/radiusd/auth.conf";
+    my @listen_ips;
     if ($cluster_enabled) {
         my $ip = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+        push @listen_ips, $ip;
 
-$tags{'listen'} .= <<"EOT";
-listen {
-        ipaddr = $ip
-        port = 0
-        type = auth
-        virtual_server = packetfence
-}
-
-EOT
     } else {
         foreach my $interface ( @radius_ints ) {
             my $ip = defined($interface->tag('vip')) ? $interface->tag('vip') : $interface->tag('ip');
-
-$tags{'listen'} .= <<"EOT";
-listen {
-        ipaddr = $ip
-        port = 0
-        type = auth
-        virtual_server = packetfence
-}
-
-EOT
+            push @listen_ips, $ip;
         }
     }
 
+    $tags{'listen_ips'} = [uniq @listen_ips];
     $tags{'pid_file'} = "$var_dir/run/radiusd.pid";
     $tags{'socket_file'} = "$var_dir/run/radiusd.sock";
-    parse_template( \%tags, $tags{template}, "$install_dir/raddb/auth.conf" );
+    $tt->process("$conf_dir/radiusd/auth.conf", \%tags, "$install_dir/raddb/auth.conf") or die $tt->error();
 }
 
 sub generate_radiusd_acctconf {
-    my ($self) = @_;
+    my ($self, $tt) = @_;
     my %tags;
-    $tags{'template'}    = "$conf_dir/radiusd/acct.conf";
+    my @listen_ips;
     if ($cluster_enabled) {
         my $ip = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+        push @listen_ips, $ip;
 
-$tags{'listen'} .= <<"EOT";
-listen {
-        ipaddr = $ip
-        port = 0
-        type = acct
-        virtual_server = packetfence
-}
-
-EOT
     } else {
         foreach my $interface ( @radius_ints ) {
             my $ip = defined($interface->tag('vip')) ? $interface->tag('vip') : $interface->tag('ip');
-$tags{'listen'} .= <<"EOT";
-listen {
-        ipaddr = $ip
-        port = 0
-        type = acct
-        virtual_server = packetfence
-}
-
-EOT
+            push @listen_ips, $ip;
         }
     }
 
+    $tags{'listen_ips'} = [uniq @listen_ips];
     $tags{'pid_file'} = "$var_dir/run/radiusd-acct.pid";
     $tags{'socket_file'} = "$var_dir/run/radiusd-acct.sock";
-    parse_template( \%tags, $tags{template}, "$install_dir/raddb/acct.conf" );
+    $tt->process("$conf_dir/radiusd/acct.conf", \%tags, "$install_dir/raddb/acct.conf") or die $tt->error();
 }
 
 sub generate_radiusd_eduroamconf {
@@ -297,7 +267,7 @@ sub generate_radiusd_eduroamconf {
             $tags{'listen'} .= << "EOT";
 listen {
     ipaddr = $ip
-    port =  $eduroam_authentication_source[0]{'auth_listening_port'};
+    port =  $eduroam_authentication_source[0]{'auth_listening_port'}
     type = auth
     virtual_server = eduroam
 }
@@ -309,7 +279,7 @@ EOT
                 $tags{'listen'} .= <<"EOT";
 listen {
     ipaddr = $ip
-    port =  $eduroam_authentication_source[0]{'auth_listening_port'};
+    port =  $eduroam_authentication_source[0]{'auth_listening_port'}
     type = auth
     virtual_server = eduroam
 }
@@ -457,6 +427,17 @@ EOT
     }
 
     parse_template( \%tags, "$conf_dir/radiusd/proxy.conf.inc", "$install_dir/raddb/proxy.conf.inc" );
+
+    undef %tags;
+
+    foreach my $realm ( sort keys %pf::config::ConfigRealm ) {
+        $tags{'config'} .= <<"EOT";
+realm $realm {
+nostrip
+}
+EOT
+    }
+    parse_template( \%tags, "$conf_dir/radiusd/proxy.conf.loadbalancer", "$install_dir/raddb/proxy.conf.loadbalancer" );
 }
 
 =head2 generate_radiusd_cluster
@@ -554,6 +535,48 @@ EOT
 EOT
                 $i++;
             }
+            $tags{'local_realm'} = '';
+            my @realms;
+            foreach my $realm ( @{$eduroam_authentication_source[0]{'local_realm'}} ) {
+                 push (@realms, "Realm == \"$realm\"");
+            }
+            if (@realms) {
+                $tags{'local_realm'} .= 'if ( ';
+                $tags{'local_realm'} .=  join(' || ', @realms);
+                $tags{'local_realm'} .= ' ) {'."\n";
+                $tags{'local_realm'} .= <<"EOT";
+                update control {
+                    Proxy-To-Realm := "packetfence"
+                }
+            } else {
+                update control {
+                    Load-Balance-Key := "%{Calling-Station-Id}"
+                    Proxy-To-Realm := "eduroam.cluster"
+                }
+            }
+EOT
+            } else {
+$tags{'local_realm'} = << "EOT";
+                    update control {
+                        Load-Balance-Key := "%{Calling-Station-Id}"
+                        Proxy-To-Realm := "eduroam.cluster"
+                    }
+EOT
+            }
+            $tags{'reject_realm'} = '';
+            my @reject_realms;
+            foreach my $reject_realm ( @{$eduroam_authentication_source[0]{'reject_realm'}} ) {
+                 push (@reject_realms, "Realm == \"$reject_realm\"");
+            }
+            if (@reject_realms) {
+                $tags{'reject_realm'} .= 'if ( ';
+                $tags{'reject_realm'} .=  join(' || ', @reject_realms);
+                $tags{'reject_realm'} .= ' ) {'."\n";
+                $tags{'reject_realm'} .= <<"EOT";
+                reject
+            }
+EOT
+            }
             parse_template( \%tags, "$conf_dir/radiusd/eduroam-cluster", "$install_dir/raddb/sites-enabled/eduroam-cluster" );
         } else {
             unlink($install_dir."/raddb/sites-enabled/eduroam-cluster");
@@ -567,7 +590,7 @@ EOT
         $tags{'pid_file'} = "$var_dir/run/radiusd-load_balancer.pid";
         $tags{'socket_file'} = "$var_dir/run/radiusd-load_balancer.sock";
 
-        foreach my $interface ( @radius_ints ) {
+        foreach my $interface ( uniq @radius_ints ) {
 
             my $cluster_ip = pf::cluster::cluster_ip($interface->{Tint});
             $tags{'listen'} .= <<"EOT";
@@ -599,18 +622,21 @@ EOT
         # Eduroam integration
         if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
             my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
-            my $ipaddr = $tags{'virt_ip'};
             my $listening_port = $eduroam_authentication_source[0]{'auth_listening_port'};
             $tags{'eduroam'} = <<"EOT";
 # Eduroam integration
-
+EOT
+            foreach my $interface ( @radius_ints ) {
+                my $cluster_ip = pf::cluster::cluster_ip($interface->{Tint});
+                $tags{'eduroam'} .= <<"EOT";
 listen {
-        ipaddr = $ipaddr
+        ipaddr = $cluster_ip
         port = $listening_port
         type = auth
         virtual_server = eduroam.cluster
 }
 EOT
+            }
         } else {
             $tags{'eduroam'} = "# Eduroam integration is not configured";
         }
@@ -622,6 +648,7 @@ EOT
         foreach my $radius_back (@radius_backend) {
             $tags{'config'} .= <<"EOT";
 client $radius_back {
+        ipaddr = $radius_back
         secret = $local_secret
         shortname = pf
 }

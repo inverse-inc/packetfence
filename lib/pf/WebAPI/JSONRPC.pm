@@ -46,13 +46,16 @@ sub handler {
     use bytes;
     my ($self, $r) = @_;
     my $content = $self->get_all_content($r);
+    my $content_type = $r->headers_in->{'Content-Type'} || $CONTENT_TYPE;
     my $data = eval {decode_json $content };
     if ($@) {
-        get_logger->error($@);
+        my $error = $@;
+        get_logger->error($error);
         return $self->send_response(
             $r,
             Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE,
-            $self->make_error_object(undef, $JSONRPC_ERROR_CODE_PARSE_ERROR, "Cannot parse request\n", $@),
+            $self->make_error_object(undef, $JSONRPC_ERROR_CODE_PARSE_ERROR, "Cannot parse request\n", $error),
+            $content_type,
         );
     }
     my $ref_type = ref $data;
@@ -62,6 +65,7 @@ sub handler {
             $r,
             Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE,
             $self->make_error_object(undef, $JSONRPC_ERROR_CODE_INVALID_REQUEST, "Invalid request\n"),
+            $content_type,
         );
     }
 
@@ -72,6 +76,7 @@ sub handler {
             $r,
             Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE,
             $self->make_error_object(undef, $JSONRPC_ERROR_CODE_INVALID_REQUEST, "Invalid request, no method defined\n"),
+            $content_type,
         );
     }
     my $dispatch_to = $self->dispatch_to;
@@ -83,6 +88,7 @@ sub handler {
             $r,
             Apache2::Const::HTTP_NOT_FOUND,
             $self->make_error_object(undef, $JSONRPC_ERROR_CODE_NOT_FOUND, "Method '$method' not found\n"),
+            $content_type,
         );
     }
     my @args;
@@ -105,14 +111,16 @@ sub handler {
             }
         };
         if ($@) {
-            get_logger->error($@);
+            my $error = $@;
+            get_logger->error($error);
             return $self->send_response(
                 $r,
                 Apache2::Const::HTTP_INTERNAL_SERVER_ERROR,
-                $self->make_error_object($id, $JSONRPC_ERROR_CODE_GENERIC_ERROR, $@)
+                $self->make_error_object($id, $JSONRPC_ERROR_CODE_GENERIC_ERROR, $error),
+                $content_type,
             );
         }
-        return $self->send_response($r, Apache2::Const::HTTP_OK, $object);
+        return $self->send_response($r, Apache2::Const::HTTP_OK, $object, $content_type);
     }
     # Notify message defer until later
     $r->push_handlers(
@@ -121,14 +129,14 @@ sub handler {
             $logger->error($@) if $@;
         }
     );
-    $r->content_type($CONTENT_TYPE);
+    $r->content_type($content_type);
     return Apache2::Const::HTTP_NO_CONTENT;
 }
 
 sub send_response {
-    my ($self, $r, $status, $object) = @_;
+    my ($self, $r, $status, $object, $content_type) = @_;
     $r->custom_response($status, '');
-    $r->content_type($CONTENT_TYPE);
+    $r->content_type($content_type // $CONTENT_TYPE);
     $r->status($status);
     my $response_content = encode_json($object);
     $r->print($response_content);

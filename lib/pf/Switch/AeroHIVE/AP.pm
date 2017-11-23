@@ -120,13 +120,14 @@ sub parseExternalPortalRequest {
     my %params = ();
 
     %params = (
-        switch_id       => $req->param('RADIUS-NAS-IP'),
-        client_mac      => clean_mac($req->param('Calling-Station-Id')),
-        client_ip       => $req->param('STA-IP'),
-        ssid            => $req->param('ssid'),
-        redirect_url    => $req->param('destination_url'),
-        grant_url       => $req->param('url'),
-        status_code     => '200',
+        switch_id               => $req->param('RADIUS-NAS-IP'),
+        client_mac              => clean_mac($req->param('Calling-Station-Id')),
+        client_ip               => $req->param('STA-IP'),
+        ssid                    => $req->param('ssid'),
+        redirect_url            => defined($req->param('destination_url')),
+        grant_url               => $req->param('url'),
+        status_code             => '200',
+        synchronize_locationlog => $TRUE,
     );
 
     return \%params;

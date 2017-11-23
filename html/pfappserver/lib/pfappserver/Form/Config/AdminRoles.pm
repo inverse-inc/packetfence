@@ -124,7 +124,7 @@ sub options_actions {
     my %groups;
     my @options;
     foreach my $role (@ADMIN_ACTIONS) {
-        $role =~ m/^(.+?)(_(WRITE|READ|CREATE|UPDATE|DELETE|SET_ROLE|SET_ACCESS_DURATION|SET_UNREG_DATE|SET_ACCESS_LEVEL|MARK_AS_SPONSOR|CREATE_MULTIPLE|READ_SPONSORED))?$/;
+        $role =~ m/^(.+?)(_(WRITE|READ|CREATE|UPDATE|DELETE|SET_ROLE|SET_ACCESS_DURATION|SET_UNREG_DATE|SET_ACCESS_LEVEL|SET_TIME_BALANCE|SET_BANDWIDTH_BALANCE|MARK_AS_SPONSOR|CREATE_MULTIPLE|READ_SPONSORED))?$/;
         $groups{$1} = [] unless $groups{$1};
         push(@{$groups{$1}}, { value => $role, label => $self->_localize($role) })
     }
@@ -176,7 +176,7 @@ To automatically add the context to the Form
 
 sub ACCEPT_CONTEXT {
     my ($class, $c, @args) = @_;
-    my ($status, $roles) = $c->model('Roles')->list();
+    my ($status, $roles) = $c->model('Config::Roles')->listFromDB();
     return $class->SUPER::ACCEPT_CONTEXT($c, roles => $roles, @args);
 }
 
@@ -204,5 +204,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

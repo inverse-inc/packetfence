@@ -1,3 +1,5 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
+
 $(function() { // DOM ready
     var items = new Items();
     var view = new ItemView({ items: items, parent: $('#section') });
@@ -6,14 +8,16 @@ $(function() { // DOM ready
 /*
  * The Items class defines the operations available from the controller.
  */
-var Items = function() {
-};
+function Items() {
+}
 
 Items.prototype.id = "#items";
 
 Items.prototype.formName = "modalItem";
 
 Items.prototype.modalId = "#modalItem";
+
+Items.prototype.createSelector = ".createItem";
 
 Items.prototype.get = function(options) {
     $.ajax({
@@ -44,10 +48,10 @@ Items.prototype.post = function(options) {
 /*
  * The ItemView class defines the DOM operations from the Web interface.
  */
-var ItemView = function(options) {
+function ItemView(options) {
     var that = this;
     this.parent = options.parent;
-    var items = options.items
+    var items = options.items;
     this.items = items;
     this.disableToggle = false;
     var id = items.id;
@@ -57,7 +61,7 @@ var ItemView = function(options) {
     var read = $.proxy(this.readItem, this);
     options.parent.on('click', id + ' .item [href$="/read"]', read);
     options.parent.on('click', id + ' [href$="/clone"]', read);
-    options.parent.on('click', '.createItem', read);
+    options.parent.on('click', items.createSelector, read);
 
     // Save the modifications from the modal
     var update = $.proxy(this.updateItem, this);
@@ -80,9 +84,7 @@ var ItemView = function(options) {
 
     var search_next = $.proxy(this.searchNext, this);
     options.parent.on('click', id + ' [href*="/search"]', search_next);
-
-};
-
+}
 
 ItemView.prototype.readItem = function(e) {
     e.preventDefault();
@@ -90,22 +92,25 @@ ItemView.prototype.readItem = function(e) {
     var that = this;
     var modal = $(this.items.modalId);
     var section = $('#section');
-    var loader = section.prev('.loader');
-    loader.show();
+    var target = e.target;
+    if (target.nodeName != 'A')
+        target = target.parentNode;
+    section.loader();
     section.fadeTo('fast', 0.5);
     modal.empty();
-    $('.chzn-drop').remove(); // fixes a chzn bug with optgroups
+    $('.chosen-drop').remove(); // fixes a chzn bug with optgroups
     this.items.get({
-        url: $(e.target).attr('href'),
+        url: $(target).attr('href'),
         always: function() {
-            loader.hide();
             section.stop();
-            section.fadeTo('fast', 1.0);
+            section.fadeTo('fast', 1.0, function() {
+                section.loader('hide');
+            });
         },
         success: function(data) {
             modal.append(data);
-            modal.find('.chzn-select').chosen();
-            modal.find('.chzn-deselect').chosen({allow_single_deselect: true});
+            modal.find('.chzn-select').chosen({width: ''});
+            modal.find('.chzn-deselect').chosen({allow_single_deselect: true, width: ''});
             modal.one('shown', function() {
                 modal.find(':input:visible').first().focus();
             });
@@ -173,6 +178,7 @@ ItemView.prototype.deleteItem = function(e) {
         },
         errorSibling: table
     });
+    return false;
 };
 
 ItemView.prototype.list = function() {
@@ -214,7 +220,7 @@ ItemView.prototype.search = function(e) {
     e.preventDefault();
     var form = $(e.target);
     var url = form.attr('action');
-    this.searchRefresh(url,form);
+    this.searchRefresh(url, form);
     return false;
 };
 
@@ -230,7 +236,7 @@ ItemView.prototype.searchNext = function(e) {
 ItemView.prototype.searchRefresh = function(search_url,form) {
     var table = $(this.items.id);
     var that = this;
-    table.fadeTo('fast',0.5,function() {
+    table.fadeTo('fast', 0.5, function() {
         that.items.post({
             url: search_url,
             data: form.serialize(),

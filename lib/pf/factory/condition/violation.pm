@@ -15,7 +15,11 @@ Create the list of conditions for the filter engine based on the triggers of a v
 
 use strict;
 use warnings;
-use Module::Pluggable search_path => 'pf::condition', sub_name => '_modules' , require => 1;
+use Module::Pluggable
+  search_path => 'pf::condition',
+  sub_name    => '_modules',
+  inner       => 0,
+  require     => 1;
 use List::MoreUtils qw(any);
 use pf::constants;
 
@@ -37,10 +41,10 @@ our %TRIGGER_TYPE_TO_CONDITION_TYPE = (
     'mac'               => {type => 'regex',         key  => 'mac'},
     'mac_vendor'        => {type => 'equals',        key  => 'mac_vendor_id'},
     'nessus'            => {type => 'equals',        key  => 'last_nessus_id',          event => $TRUE},
+    'nessus6'           => {type => 'equals',        key  => 'last_nessus6_id',         event => $TRUE},
     'openvas'           => {type => 'equals',        key  => 'last_openvas_id',         event => $TRUE},
     'metadefender'      => {type => 'equals',        key  => 'last_metadefender_id',    event => $TRUE},
     'provisioner'       => {type => 'equals',        key  => 'last_provisioner_id',     event => $TRUE},
-    'soh'               => {type => 'equals',        key  => 'last_soh_id',             event => $TRUE},
     'suricata_event'    => {type => 'starts_with',   key  => 'last_suricata_event',     event => $TRUE},
     'suricata_md5'      => {type => 'equals',        key  => 'last_suricata_md5',       event => $TRUE},
     'useragent'         => {type => 'equals',        key  => 'user_agent_id'},

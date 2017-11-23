@@ -42,13 +42,23 @@ has_field 'create_local_account' => (
     },
 );
 
+has_field 'pin_code_length' => (
+    type => 'PosInteger',
+    label => 'PIN Code Length',
+    default => pf::Authentication::Source::SMSSource->meta->get_attribute('pin_code_length')->default,
+    tags => {
+        after_element => \&help,
+        help => 'The length of the PIN code to be sent over sms',
+    },
+);
+
 has_field 'local_account_logins' => (
     type => 'PosInteger',
     label => 'Amount of logins for the local account',
     default => pf::Authentication::Source::SMSSource->meta->get_attribute('local_account_logins')->default,
     tags => {
         after_element => \&help_list,
-        help => 'The amount of times, the local account can be used after its created. 0 means infinite.'
+        help => 'The amount of times, the local account can be used after it is created. 0 means infinite.'
     },
 );
 
@@ -107,5 +117,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

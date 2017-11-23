@@ -2,20 +2,21 @@
 
 check filesystem rootfs with path /
     group OS
+    every 450 cycles    # every 15 minutes (if 1 cycle is 2 seconds)
     if space usage > 90% then alert
     if inode usage > 75% then alert
 
 check program monitoring-update with path /usr/local/pf/addons/monit/monitoring-scripts/update.sh
     group OS
-    every 1800 cycles
+    every 1800 cycles   # every 1 hour (if 1 cycle is 2 seconds)
     if status != 0 then alert
 
 check program monitoring-check with path /usr/local/pf/addons/monit/monitoring-scripts/run-all.sh
     group OS
-    every 300 cycles
+    every 300 cycles    # every 10 minutes (if 1 cycle is 2 seconds)
     if status != 0 then alert
 
 check program monitoring-immunizing-oom with path /usr/local/pf/addons/monit/monitoring-scripts/oom_immunize_pid_names_from_list.sh
     group OS
-    every 450 cycles
+    every 450 cycles    # every 15 minutes (if 1 cycle is 2 seconds)
     if status != 0 then alert

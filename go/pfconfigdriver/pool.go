@@ -2,10 +2,11 @@ package pfconfigdriver
 
 import (
 	"context"
-	"github.com/fingerbank/processor/log"
 	"reflect"
 	"sync"
 	"time"
+
+	"github.com/inverse-inc/packetfence/go/log"
 )
 
 var PfconfigPool Pool
@@ -37,7 +38,7 @@ type Refreshable interface {
 func NewPool() Pool {
 	p := Pool{}
 	p.lock = &sync.RWMutex{}
-	p.RefreshLockTimeout = time.Duration(1 * time.Second)
+	p.RefreshLockTimeout = time.Duration(100 * time.Millisecond)
 	return p
 }
 
@@ -122,19 +123,12 @@ func (p *Pool) acquireWriteLock(ctx context.Context) bool {
 	go func() {
 		time.Sleep(p.RefreshLockTimeout)
 		timeoutChan <- 1
-		timeoutChan <- 1
 	}()
 
 	lockChan := make(chan int, 1)
 	go func() {
 		p.lock.Lock()
-		select {
-		// We acquired the lock after a timeout so we release it, its useless and the main goroutine has moved on
-		case <-timeoutChan:
-			p.lock.Unlock()
-		default:
-			lockChan <- 1
-		}
+		lockChan <- 1
 	}()
 
 	select {
@@ -143,6 +137,7 @@ func (p *Pool) acquireWriteLock(ctx context.Context) bool {
 		return true
 	case <-timeoutChan:
 		log.LoggerWContext(ctx).Error("Couldn't acquire lock for pfconfig pool")
+		p.lock.Unlock()
 		return false
 	}
 
@@ -150,15 +145,16 @@ func (p *Pool) acquireWriteLock(ctx context.Context) bool {
 
 // Refresh all the structs and resources of the pool using the RW lock
 // An attempt to get the RW lock will be done for up to RefreshLockTimeout
-func (p *Pool) Refresh(ctx context.Context) {
+func (p *Pool) Refresh(ctx context.Context) bool {
 	log.LoggerWContext(ctx).Debug("Refreshing pfconfig pool")
 
 	if !p.acquireWriteLock(ctx) {
-		return
+		return false
 	}
 	defer p.lock.Unlock()
 
 	p.refreshStructs(ctx)
 	p.refreshRefreshables(ctx)
 	log.LoggerWContext(ctx).Debug("Finished refresh of pfconfig pool")
+	return true
 }

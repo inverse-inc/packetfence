@@ -22,6 +22,7 @@ use Net::Pcap 0.16;
 use Pod::Usage;
 use POSIX qw(:signal_h pause :sys_wait_h SIG_BLOCK SIG_UNBLOCK);
 use Fcntl qw(:flock);
+use Systemd::Daemon qw{ -soft };
 
 BEGIN {
     # log4perl init
@@ -95,27 +96,21 @@ my $interface_ip;
 my $interface_vlan;
 my $pcap;
 my $net_type;
-my $process;
+my $process_broadcast;
 my $interface;
 
 my $rate_limit_hash = {};
 my $rate_limit_cache = CHI->new( driver => 'Memory', datastore => $rate_limit_hash );
 
 sub reload_config {
-    if ( $net_type eq "internal" ) { 
-        $process = $TRUE;
-    }
-    elsif ( pf::cluster::is_vip_running($interface) ) { 
-        $process = $TRUE;
-    }
-    elsif ( !$pf::cluster::cluster_enabled ) { 
-        $process = $TRUE;
-    }
-    else { 
-        $process = $FALSE;
-    }
+    # reload the defaults every time
+    $process_broadcast = $TRUE;
 
-    $logger->info("Reload configuration on $interface with status $process");
+    # We do not process broadcast on the node which does not hold the VIP
+    if ( $pf::cluster::cluster_enabled && ! pf::cluster::is_vip_running($interface) ) { 
+        $process_broadcast = $FALSE;
+    }
+    $logger->info("Reload configuration on $interface");
 }
 
 my $pidfile = "${var_dir}/run/$PROGRAM_NAME.pid";
@@ -135,6 +130,7 @@ my $net_addr;
 
 # start dhcp monitor
 if ( isenabled( $Config{'network'}{'dhcpdetector'} ) ) {
+    Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
     start();
     cleanup();
 }
@@ -142,6 +138,7 @@ if ( isenabled( $Config{'network'}{'dhcpdetector'} ) ) {
 END {
     if (!$args{h} && $HAS_LOCK) {
         unless ($IS_CHILD) {
+            Systemd::Daemon::notify( STOPPING => 1 );
             deletepid();
             $logger->info("stopping pfdhcplistener");
         }
@@ -198,7 +195,7 @@ sub setup_pcap {
     # updating process name so we know what interface we are listening on
     # WARNING: the format is expected by watchdog in pf::services. Don't change lightly.
     $PROGRAM_NAME = basename($PROGRAM_NAME) . ": listening on $interface";
-    $pcap = Net::Pcap::pcap_open_live( $interface, $Config{advanced}{pfdhcplistener_packet_size}, 1, $TIMEOUT, \$err );
+    $pcap = Net::Pcap::pcap_open_live( $interface, $Config{services}{pfdhcplistener_packet_size}, 1, $TIMEOUT, \$err );
 
     if (!defined($pcap)) {
         $logger->logdie("Unable to initiate packet capture. Is $interface an actual network interface?");
@@ -216,10 +213,15 @@ sub setup_pcap {
 
 sub process_pkt {
     my ( $user_data, $hdr, $pkt ) = @_;
-    if ($process){
         eval {
             my $l2 = NetPacket::Ethernet->decode($pkt);
 
+            if ( ! $process_broadcast ) { 
+                if ( $l2->{'dest_mac'} eq 'ffffffffffff' ) { 
+                    $logger->trace("Skipping broadcast request.");
+                    return;
+                } 
+            }       
             # Skip frames that has a VLAN tag to avoid processing frames more than
             # once when pfdhcplistener listens on both a vlan interface and its parent
             #
@@ -233,7 +235,7 @@ sub process_pkt {
             # a tagged frame and return the 'inner' ether_type of the frame.
             #
             # For this reason we check to see if $l2->{tpid} is set
-            if ( defined $l2->{tpid} ) {
+            if ( defined $l2->{tpid} && $net_type ne "monitor" ) {
                 $logger->trace("Skipping VLAN packets since it is probably addressed to another interface (offload decapsulated tagged packet).");
                 return;
             }
@@ -309,7 +311,7 @@ sub process_pkt {
 
                 if ($is_inline_vlan) {
                     my $ip = new NetAddr::IP::Lite clean_ip($l3->{'src_ip'});
-                    if ($net_addr->contains($ip)) {
+                    if ($net_addr->contains($ip) || ($ip->addr eq '0.0.0.0')) {
                         $args{inline_sub_connection_type} = $NET_TYPE_INLINE_L2;
                     } else {
                         $args{inline_sub_connection_type} = $NET_TYPE_INLINE_L3;
@@ -362,7 +364,7 @@ sub process_pkt {
         if($@) {
             $logger->error("Error processing packet: $@");
         }
-    }
+    
     #reload all cached configs after each iteration
     pf::CHI::Request::clear_all();
     #Only perform stats when in debug mode
@@ -480,7 +482,8 @@ waits for signals
 
 sub waitforit {
     while ($running) {
-        pause;
+        #  Only pause if their are no registered tasks
+        pause unless @REGISTERED_TASKS;
         runtasks();
     }
 }

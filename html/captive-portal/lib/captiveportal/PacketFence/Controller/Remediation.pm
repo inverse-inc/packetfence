@@ -77,17 +77,14 @@ sub scan_status : Private {
     my ( $self, $c, $scan_start_time ) = @_;
     my $portalSession = $c->portalSession;
 
-    my $refresh_timer = 10;    # page will refresh each 10 seconds
-
     $c->stash(
         title => "scan: scan in progress",
         template    => 'scan-in-progress.html',
-        timer         => $Config{'trapping'}{'redirtimer'},
+        timer         => $Config{'fencing'}{'redirtimer'},
         txt_message => [
             'scan in progress contact support if too long',
             $scan_start_time
         ],
-        refresh_timer => $refresh_timer,
     );
 }
 
@@ -128,6 +125,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

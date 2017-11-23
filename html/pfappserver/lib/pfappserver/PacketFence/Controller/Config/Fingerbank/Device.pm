@@ -35,7 +35,7 @@ __PACKAGE__->config(
 
 sub index: Path :Args(0) {
     my ($self, $c) = @_;
-    $c->go('Config::Fingerbank::Device::Upstream' => 'index');
+    $c->visit('Config::Fingerbank::Device::Upstream' => 'index');
 }
 
 
@@ -102,6 +102,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

@@ -1,0 +1,23 @@
+[% PROCESS pfqueue/stats.inc %]
+<div class="card">
+
+[% IF servers.size > 0 %]
+
+
+  <h1 class="card-title">[% l('Cluster') %]</h2>
+
+  [% FOREACH server IN servers %]
+  <h2 class="card-title">[% server.management_ip %] [% l('Queue') %]</h2>
+  [% show_stats(server.stats, 1) | none %]
+  [% END %]
+
+[% ELSE %]
+  <div class="card-block">
+    <div class="unwell">
+     <p> <i class="icon-group icon-large"></i>
+       [% l('No Stats for the cluster.') %]
+     </p>
+    </div>
+  </div>
+[% END %]
+</div>

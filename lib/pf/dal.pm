@@ -101,7 +101,11 @@ sub db_execute {
             my $errstr = $dbh->errstr;
             pf::db::db_handle_error($err);
             if ($err < 2000) {
-                $logger->error("database query failed with non retryable error: $errstr (errno: $err)");
+                if ($err == $MYSQL_READONLY_ERROR) {
+                    $logger->warn("Attempting to update a readonly database");
+                } else {
+                    $logger->error("Database query failed with non retryable error: $errstr (errno: $err) [$sql]");
+                }
                 last;
             }
             # retry client errors
@@ -122,16 +126,22 @@ Find the pf::dal object by it's primaries keys
 =cut
 
 sub find {
-    my ($proto, @ids) = @_;
-    my $sql = $proto->_find_one_sql;
-    my ($status, $sth) = $proto->db_execute($sql, @ids);
+    my ($proto, $ids) = @_;
+    my $where = $proto->build_primary_keys_where_clause($ids);
+    my $sqla = $proto->get_sql_abstract;
+    my ($sql, @bind) = $sqla->select(
+        -columns => $proto->find_columns,
+        -from => $proto->find_from_tables,
+        -where => $where,
+    );
+    my ($status, $sth) = $proto->db_execute($sql, @bind);
     return $status, undef if is_error($status);
     my $row = $sth->fetchrow_hashref;
+    $sth->finish;
     unless ($row) {
         return $STATUS::NOT_FOUND, undef;
     }
     my $dal = $proto->new_from_table($row);
-    $sth->finish;
     return $STATUS::OK, $dal;
 }
 
@@ -518,7 +528,7 @@ get the sql abstract object
 =cut
 
 sub get_sql_abstract {
-    return pf::SQL::Abstract->new(quote_char => '`');
+    return pf::SQL::Abstract->new(quote_char => '`', name_sep => '.');
 }
 
 =head2 create
@@ -533,6 +543,28 @@ sub create {
     return $obj->insert;
 }
 
+=head2 find_from_tables
+
+find_from_tables
+
+=cut
+
+sub find_from_tables {
+    my ($proto) = @_;
+    return $proto->table;
+}
+
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    my ($self) = @_;
+    return $self->field_names;
+}
+
 =head2 find_or_create
 
 finds a table record or creates it
@@ -544,8 +576,8 @@ sub find_or_create {
     my $obj = $proto->new($args);
     my $sqla = $proto->get_sql_abstract;
     my ($sql, @bind) = $sqla->select(
-        -columns => $proto->field_names,
-        -from => $proto->table,
+        -columns => $proto->find_columns,
+        -from => $proto->find_from_tables,
         -where => $obj->primary_keys_where_clause,
     );
     my ($status, $sth) = $proto->db_execute($sql, @bind);
@@ -564,13 +596,40 @@ sub find_or_create {
     return $status, $obj;
 }
 
+=head2 merge_fields
+
+An array ref of the fields to merge
+
+=cut
+
+sub merged_fields {
+    my ($self) = @_;
+    return $self->field_names;
+}
+
+=head2 merge
+
+merge fields into object
+
+=cut
+
+sub merge {
+    my ($self, $vals) = @_;
+    return unless defined $vals && ref($vals) eq 'HASH';
+    foreach my $field ( @{$self->merge_fields} ) {
+        next unless exists $vals->{$field};
+        $self->{$field} = $vals->{$field};
+    }
+    return ;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 

@@ -113,8 +113,8 @@ sub _handler {
     }
 
     # Billing hooks
-    if ($r->uri =~ m#/hook/billing#) {
-        $logger->trace("Found the hook");
+    if ($uri =~ m#/hook/billing#) {
+        $logger->debug("URI '$uri' (URL: $url) is a billing request");
         $r->handler('modperl');
         $r->set_handlers( PerlResponseHandler => ['pf::web::billinghook'] );
         return Apache2::Const::DECLINED;
@@ -124,7 +124,7 @@ sub _handler {
     # We don't want to continue in the dispatcher if the requested URI is supposed to reach the captive-portal (Catalyst)
     # - Captive-portal itself
     # - Violation pages
-    # - Portal profile filters are handled by Catalyst
+    # - Connection profile filters are handled by Catalyst
     # See L<pf::web::constants::CAPTIVE_PORTAL_RESOURCES>
     if ( $uri =~ /$WEB::CAPTIVE_PORTAL_RESOURCES/o ) {
         $logger->debug("URI '$uri' (URL: $url) is properly handled and should now continue to the captive-portal / Catalyst");

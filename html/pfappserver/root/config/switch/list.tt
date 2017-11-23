@@ -25,8 +25,8 @@
                       <option value="like" [% "selected='selected'" IF op_value == "like" %]>[% l('matches') %]</option>
                     </select>
                     <input name="searches.0.value" type="text" placeholder="[% l('String...') %]" value="[%form.field('searches.0.value').value%]"/>
-                    <button type="submit" class="btn btn-primary"><i class="icon-search icon-white"></i></button>
-                    <button type="reset" class="btn btn-primary">&times;</button>
+                    <button type="submit" class="btn-icon btn-icon-primary"><i class="icon-search"></i></button>
+                    <button type="reset" class="btn-icon btn-icon-circle"><i class="icon-close"></i></button>
                   </div>
                 </form>
               [% END %]
@@ -55,10 +55,12 @@
             <td class="hidden-phone">[% switch.type %]</td>
             <td class="hidden-phone">[% l(switch.mode) %]</td>
             <td>
-              [%- IF can_access("SWITCHES_CREATE") %]
-              <a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('clone'), [ switch.id ]) %]">[% l('Clone') %]</a>
-              [%- END %]
-              [% IF switch.id != 'default' && can_access("SWITCHES_DELETE") %]<a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller.action_for('remove'), [ switch.id ]) %]">[% l('Delete') %]</a>[% END %]
+              <div class="text-right">
+                [%- IF can_access("SWITCHES_CREATE") %]
+                <a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('clone'), [ switch.id ]) %]">[% l('Clone') %]</a>
+                [%- END %]
+                [% IF switch.id != 'default' && can_access("SWITCHES_DELETE") %]<a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller.action_for('remove'), [ switch.id ]) %]">[% l('Delete') %]</a>[% END %]
+              </div>
             </td>
           </tr>
           [% END -%]

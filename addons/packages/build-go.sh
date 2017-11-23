@@ -5,6 +5,7 @@ PATH="/usr/local/go/bin:$PATH"
 MODE="$1"
 PFSRC="$2"
 BINDST="$3"
+DEBPATH="$4"
 
 function usage {
   echo "----------------------------------------------------------------------------"
@@ -48,7 +49,15 @@ fi
 
 set -x
 
-export GOPATH=`mktemp -d`
+
+if [ -z "$DEBPATH" ]; then
+    export GOPATH=`mktemp -d`
+else
+    export GOPATH=`mktemp -d -p $DEBPATH`
+fi
+
+export GOPATH
+
 export GOBIN="$GOPATH/bin"
 
 # Exit hook to cleanup the tmp GOPATH when exiting
@@ -61,7 +70,8 @@ cd "$GOPATH"
 GOPATHPF="$GOPATH/src/github.com/inverse-inc/packetfence"
 mkdir -p $GOPATHPF
 
-find $PFSRC -maxdepth 1 -type d ! -name 'logs' ! -name 'var' ! -name 'pf' -exec cp -a {} "$GOPATHPF/" \;
+
+find $PFSRC -maxdepth 1 -type d ! -path '*/debian' ! -path '*/logs' ! -path '*/var' ! -path '*/docs' ! -path '*/t' ! -path '*/db' ! -path '*/addons' ! -path '*/.tx' -exec cp -a {} "$GOPATHPF/" \;
 
 cd "$GOPATHPF"
 
@@ -78,4 +88,3 @@ if build_mode; then
 elif test_mode; then
   PFCONFIG_TESTING=y $GOPATH/bin/govendor test ./...  
 fi
-

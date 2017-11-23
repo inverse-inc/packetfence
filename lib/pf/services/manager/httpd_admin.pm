@@ -67,7 +67,10 @@ sub vhosts {
 
 sub additionalVars {
     my ($self) = @_;
-    return (preview_ip => $self->portal_preview_ip);
+    return (
+        preview_ip   => $self->portal_preview_ip,
+        graphite_url => "localhost:9000"
+    );
 }
 
 =head2 portal_preview_ip
@@ -78,6 +81,9 @@ The creates the portal preview ip addresss
 
 sub portal_preview_ip {
     my ($self) = @_;
+    if (!$cluster_enabled) {
+        return "127.0.0.1";
+    }
     my  @ints = uniq (@internal_nets, @portal_ints);
     return $ints[0]->{Tvip} ? $ints[0]->{Tvip} : $ints[0]->{Tip};
 }

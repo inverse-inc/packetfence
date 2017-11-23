@@ -64,7 +64,7 @@ sub parse {
     $data->{'mac'} = $mac;  # Adding processed MAC address to the data hash to avoid having to processing it again later on
 
     # We do the process async using API rather than going through pfdetect since it requires external resources evaluation that may take some time
-    my $apiclient = pf::api::queue->new;
+    my $apiclient = $self->getApiClient();
     $apiclient->notify('trigger_violation', ( 'mac' => $data->{mac}, 'tid' => $data->{md5}, 'type' => 'suricata_md5' ));   # Process Suricata MD5 based violations
     $apiclient->notify('metadefender_process', $data);  # Process Metadefender MD5 hash lookup
 

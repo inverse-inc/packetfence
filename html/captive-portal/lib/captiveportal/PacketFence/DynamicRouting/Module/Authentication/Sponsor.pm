@@ -21,9 +21,12 @@ use Date::Format qw(time2str);
 use pf::Authentication::constants;
 use pf::activation;
 use pf::web::guest;
+use pf::auth_log;
 use pf::util qw(normalize_time);
 
 has '+source' => (isa => 'pf::Authentication::Source::SponsorEmailSource');
+
+has 'forced_sponsor' => ('is' => 'rw');
 
 =head2 allowed_urls_auth_module
 
@@ -35,6 +38,26 @@ sub allowed_urls_auth_module {
     return [
         '/sponsor/check',
     ];
+}
+
+=head2 _build_required_fields
+
+Build the required fields based on the PID field, the custom fields and the mandatory fields of the source
+Will remove the sponsor field from the required fields if there is a forced sponsor
+
+=cut
+
+sub _build_required_fields {
+    my ($self) = @_;
+    
+    my @fields = @{$self->SUPER::_build_required_fields()};
+    if($self->forced_sponsor) {
+        @fields = (grep {$_ ne 'sponsor'  } @fields);
+        return \@fields;
+    }
+    else {
+        return \@fields;
+    }
 }
 
 =head2 before done
@@ -63,6 +86,7 @@ sub execute_child {
         $self->do_sponsor_registration();
     }
     elsif(pf::activation::activation_has_entry($self->current_mac,'sponsor')){
+        $self->check_session_activation();
         $self->waiting_room();
     }
     elsif($self->session->{sponsor_activated}){
@@ -70,6 +94,22 @@ sub execute_child {
     }
     else{
         $self->prompt_fields();
+    }
+}
+
+=head2 check_session_activation
+
+If the activation entry cannot be restored from the session, it will redirect to signup after invalidating any previous codes
+
+=cut
+
+sub check_session_activation {
+    my ($self) = @_;
+    unless($self->session->{activation_code}){
+        get_logger->error("Cannot restore activation code from user session.");
+        pf::activation::invalidate_codes_for_mac($self->current_mac, "sponsor");
+        $self->app->redirect("/signup");
+        $self->detach();
     }
 }
 
@@ -81,13 +121,10 @@ Check if the access has been approved
 
 sub check_activation {
     my ($self) = @_;
-    unless($self->session->{activation_code}){
-        get_logger->error("Cannot restore activation code from user session.");
-        pf::activation::invalidate_codes_for_mac($self->current_mac, "sponsor");
-        $self->app->redirect("/signup");
-        return;
-    }
-    my $record = pf::activation::view_by_code($self->session->{activation_code});
+    
+    $self->check_session_activation();
+
+    my $record = pf::activation::view_by_code($pf::activation::SPONSOR_ACTIVATION, $self->session->{activation_code});
     if($record->{status} eq "verified"){
         get_logger->info("Activation record has been validated.");
         $self->session->{sponsor_activated} = $TRUE;
@@ -124,21 +161,25 @@ sub do_sponsor_registration {
         return;
     }
 
-    return unless($self->_validate_sponsor($self->request_fields->{sponsor}));
+    my $sponsor = $self->forced_sponsor || $self->request_fields->{sponsor};
+    return unless($self->_validate_sponsor($sponsor));
 
     # form valid, adding person (using modify in case person already exists)
     my $note = 'sponsored confirmation Date of arrival: ' . time2str("%Y-%m-%d %H:%M:%S", time);
 
     get_logger->info( "Adding guest person " . $pid );
 
-    $info{'cc'} = $source->{sponsorship_cc};
+    $info{'bcc'} = $source->{sponsorship_bcc};
     $info{'activation_domain'} = $source->{activation_domain} if (defined($source->{activation_domain}));
     $info{'activation_timeout'} = normalize_time($source->{email_activation_timeout});
     # fetch more info for the activation email
     # this is meant to be overridden in pf::web::custom with customer specific needs
-    foreach my $key (qw(firstname lastname telephone company sponsor)) {
+    foreach my $key (qw(firstname lastname telephone company)) {
         $info{$key} = $self->request_fields->{$key};
     }
+
+    $info{'sponsor'} = $sponsor;
+
     $info{'subject'} = $self->app->i18n_format("%s: Guest access request", $Config{'general'}{'domain'});
 
     # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
@@ -233,7 +274,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;
 

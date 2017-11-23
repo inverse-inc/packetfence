@@ -40,7 +40,7 @@ has 'with_aup' => ('is' => 'rw', default => sub {1});
 
 has 'aup_template' => (is => 'rw', default => sub {'aup_text.html'});
 
-has '+actions' => (default => sub {{"role_from_source" => [], "unregdate_from_source" => []}});
+has '+actions' => (default => sub {{"role_from_source" => [], "unregdate_from_source" => [], "time_balance_from_source" => [], "bandwidth_balance_from_source" => []}});
 
 has 'signup_template' => ('is' => 'rw', default => sub {'signin.html'});
 
@@ -60,6 +60,8 @@ sub available_actions {
         @{$self->SUPER::available_actions()},
         'unregdate_from_source',
         'role_from_source',
+        'time_balance_from_source',
+        'bandwidth_balance_from_source',
     ];
 }
 
@@ -135,8 +137,7 @@ sub execute_actions {
 
     $self->SUPER::execute_actions();
 
-    unless(defined($self->new_node_info->{category}) && defined($self->new_node_info->{unregdate})){
-        get_logger->warn("Cannot find unregdate (".$self->new_node_info->{unregdate}.") or role(".$self->new_node_info->{unregdate}.") for user.");
+    unless(defined($self->new_node_info->{category}) && ( defined($self->new_node_info->{time_balance}) || defined($self->new_node_info->{bandwidth_balance}) || defined($self->new_node_info->{unregdate}))){
         $self->app->flash->{error} = "You do not have permission to register a device with this username";
 
         # Make sure the current source is not remembered since it failed...
@@ -216,6 +217,7 @@ sub auth_source_params {
         mac => $self->current_mac,
         connection_type => $locationlog_entry->{'connection_type'},
         SSID => $locationlog_entry->{'ssid'},
+        realm => $locationlog_entry->{'realm'},
         %{$self->auth_source_params_child()},
     }
 }
@@ -252,7 +254,7 @@ sub create_local_account {
 
     # We create a "password" (also known as a user account) using the pid
     # with different parameters coming from the authentication source (ie.: expiration date)
-    $actions = $actions // pf::authentication::match( $self->source->id, $auth_params );
+    $actions = $actions // pf::authentication::match( $self->source->id, $auth_params, undef, $self->session->{extra} );
 
     my $login_amount = ($self->source->local_account_logins eq $LOCAL_ACCOUNT_UNLIMITED_LOGINS) ? undef : $self->source->local_account_logins;
     $password = pf::password::generate($self->app->session->{username}, $actions, $password, $login_amount);
@@ -311,7 +313,7 @@ sub update_person_from_fields {
     
     # we assume we use 'username' field as the PID when using 'reuseDot1x' feature
     if ( isenabled($self->app->profile->reuseDot1xCredentials) ) {
-        $options{pid} //= "username";
+        $options{pid} //= $self->username;
     }
     elsif (ref($self) eq 'captiveportal::DynamicRouting::Module::Authentication::Password') {
         $options{pid} //= $self->username;
@@ -350,7 +352,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;
 

@@ -1,4 +1,4 @@
-<div id="portal_profile_index">
+<div id="connection_profile_index">
 [% profiles = form.field('items') %]
 <div class="modal fade hide" id="deleteProfile">
   <div class="modal-header">
@@ -13,7 +13,11 @@
   </div>
 </div><!-- deleteProfile -->
 
-<h2>[% l('Portal Profiles and Pages')  %]</h2>
+<div class="card">
+  <div class="card-title">
+    <h2>[% l('Connection Profiles and Pages') %] [% doc('_connection_profiles') | none %]</h2>
+  </div>
+  <div class="card-block">
 [% IF error %]<div class="alert alert-error">
   <button class="close" data-dismiss="alert">&times;</button>
   <strong>[% l('Error!') %]</strong> <span>[% error %]</span>
@@ -34,11 +38,15 @@
         <th>[% l('Description') %]</th>
         <th></th>
       </tr>
-      <tr style="font-weight: normal">
+      <tr>
         <td class="hidden-phone"></td>
         <td><a href="[% c.pf_hash_for(c.controller('Config::Profile').action_for('view'), ['default']) %]">[% l('default') %]</a></td>
         <td>[% l('Default Profile') %]</td>
-        <td><a class="btn btn-mini" href="/portal_preview/captive-portal?PORTAL=default" target="_blank">[% l('Preview') %]</a></td>
+        <td>
+          <div class="text-right">
+            <a class="btn btn-mini" href="/portal_preview/captive-portal?PORTAL=default" target="_blank">[% l('Preview') %]</a>
+          </div>
+        </td>
       </tr>
     </thead>
     <tbody>
@@ -55,7 +63,11 @@
             <a href="[% c.pf_hash_for(c.controller('Config::Profile').action_for('view'), [ profile_id ]) %]">[% profile_id | html %]</a>
         </td>
         <td>[% profile.field('description').value %]</td>
-        <td>[% IF can_access("PORTAL_PROFILES_DELETE") %]<a class="btn btn-mini btn-danger call-modal" data-modal="deleteProfile" data-modal-content="[% profile_id | html %]"  href="[% c.uri_for(c.controller('Config::Profile').action_for('remove'), [ profile_id ]) %]">[% l('Delete') %]</a>[% END %] <a class="btn btn-mini" href="/portal_preview/captive-portal?PORTAL=[% profile_id %]" target="_blank">[% l('Preview') %]</a></td>
+        <td>
+          <div class="text-right">
+            [% IF can_access("CONNECTION_PROFILES_DELETE") %]<a class="btn btn-mini btn-danger call-modal" data-modal="deleteProfile" data-modal-content="[% profile_id | html %]"  href="[% c.uri_for(c.controller('Config::Profile').action_for('remove'), [ profile_id ]) %]">[% l('Delete') %]</a>[% END %] <a class="btn btn-mini" href="/portal_preview/captive-portal?PORTAL=[% profile_id %]" target="_blank">[% l('Preview') %]</a>
+          </div>
+        </td>
       </tr>
       [% END %]
       [% END -%]
@@ -63,10 +75,12 @@
     </tbody>
   </table>
 </form>
+</div>
 
-[%- IF can_access("PORTAL_PROFILES_CREATE") %]
+[%- IF can_access("CONNECTION_PROFILES_CREATE") %]
   <div class="form-actions">
     <a id="createProfile" class="btn" href="[% c.pf_hash_for(c.controller('Config::Profile').action_for('create')) %]">[% l('Add profile') %]</a>
   </div>
 </div>
 [%- END %]
+</div>

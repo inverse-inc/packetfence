@@ -43,7 +43,6 @@ sub daemonize {
         or $logger->logdie("Can't open /dev/null: $!");
     open STDERR, '>', '/dev/null'
         or $logger->logdie("Can't open /dev/null: $!");
-    tie_std_outputs();
     my ($login,$pass,$uid,$gid) = getpwnam('pf')
         or die "pf not in passwd file";
     defined( my $pid = fork ) or $logger->logdie("$service could not fork: $!");
@@ -102,9 +101,9 @@ sub createpid {
 }
 
 sub deletepid {
-    my ($pname) = @_;
+    my ($pname, $pidfile) = @_;
     $pname = basename($0) if ( !$pname );
-    my $pidfile = $var_dir . "/run/$pname.pid";
+    $pidfile //= $var_dir . "/run/$pname.pid";
     unlink($pidfile) || return (-1);
     return (1);
 }

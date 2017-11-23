@@ -34,7 +34,6 @@ use pf::config qw(
     %Doc_Config
     $INLINE_API_LEVEL
     $ROLE_API_LEVEL
-    $SOH_API_LEVEL
     $RADIUS_API_LEVEL
     $ROLES_API_LEVEL
     %Profiles_Config
@@ -141,12 +140,6 @@ sub sanity_check {
         freeradius();
     }
 
-    if ( isenabled($Config{'trapping'}{'detection'}) ) {
-        ids();
-
-        #TODO Suricata check
-    }
-
     billing();
 
     database();
@@ -163,7 +156,7 @@ sub sanity_check {
     permissions();
     violations();
     switches();
-    portal_profiles();
+    connection_profiles();
     guests();
     vlan_filter_rules();
     apache_filter_rules();
@@ -182,7 +175,9 @@ sub service_exists {
 
     foreach my $service (@services) {
         my $exe = ( $Config{'services'}{"${service}_binary"} || "$install_dir/sbin/$service" );
-        if ($service =~ /httpd\.(.*)/) {
+        if ($service =~ /^(pfsso|httpd\.dispatcher)$/) {
+            $exe = "$bin_dir/pfhttpd";
+        } elsif ($service =~ /httpd\.(.*)/) {
             $exe = ( $Config{'services'}{"httpd_binary"} || "$install_dir/sbin/$service" );
         } elsif ($service =~ /redis_(.*)/) {
             $exe = ( $Config{'services'}{"redis_binary"} || "$install_dir/sbin/$service" );
@@ -316,45 +311,6 @@ sub fingerbank {
     }
 }
 
-=item ids
-
-Validation related to the Snort/Suricata IDS usage
-
-=cut
-
-sub ids {
-
-    # make sure a monitor device is present if trapping.detection is enabled
-    if ( !$monitor_int ) {
-        add_problem( $WARN,
-            "monitor interface not defined, please disable trapping.detection " .
-            "or set an interface type=...,monitor in pf.conf"
-        );
-    }
-
-    # make sure named pipe 'alert' is present if trapping.detection is enabled
-    my $alertpipe = "$install_dir/var/alert";
-    if ( !-p $alertpipe ) {
-        if ( !POSIX::mkfifo( $alertpipe, oct(666) ) ) {
-            add_problem( $WARN, "IDS alert pipe ($alertpipe) does not exist and unable to create it" );
-        }
-    }
-
-    # make sure trapping.detection_engine=snort|suricata
-    if ( $Config{'trapping'}{'detection_engine'} ne 'snort' && $Config{'trapping'}{'detection_engine'} ne 'suricata' ) {
-        add_problem( $WARN,
-            "Detection Engine (trapping.detection_engine) needs to be either snort or suricata."
-        );
-    }
-
-    if ( $Config{'trapping'}{'detection_engine'} eq "snort" && !-x $Config{'services'}{'snort_binary'} ) {
-        add_problem( $WARN, "snort binary is not executable / does not exist!" );
-    }
-    elsif ( $Config{'trapping'}{'detection_engine'} eq "suricata" && !-x $Config{'services'}{'suricata_binary'} ) {
-        add_problem( $WARN, "suricata binary is not executable / does not exist!" );
-    }
-
-}
 
 =item omapi
 
@@ -629,6 +585,7 @@ sub is_config_documented {
     #i.e. make sure that pf.conf contains everything defined in
     #documentation.conf
     foreach my $section ( keys %Doc_Config) {
+        next unless $section =~ /\./;
         my ( $group, $item ) = split( /\./, $section );
         my $doc = $Doc_Config{$section};
         my $type = $doc->{'type'};
@@ -649,7 +606,7 @@ sub is_config_documented {
                     );
                 }
             } elsif ( $type eq "multi" || $type eq "toggle" ) {
-                my @selectedOptions = split( /\s*,\s*/, $cached_pf_config->{_file_cfg}{$group}{$item} );
+                my @selectedOptions = split( /\s*,\s*/, $cached_pf_config->{_file_cfg}{$group}{$item} // '' );
                 my @availableOptions = @{$doc->{'options'}};
                 foreach my $currentSelectedOption (@selectedOptions) {
                     if ( grep(/^$currentSelectedOption$/, @availableOptions) == 0 ) {
@@ -703,7 +660,6 @@ sub extensions {
     my @extensions = (
         { 'name' => 'Inline', 'module' => 'pf::inline::custom', 'api' => $INLINE_API_LEVEL, },
         { 'name' => 'Role', 'module' => 'pf::role::custom', 'api' => $ROLE_API_LEVEL, },
-        { 'name' => 'SoH', 'module' => 'pf::soh::custom', 'api' => $SOH_API_LEVEL, },
         { 'name' => 'RADIUS', 'module' => 'pf::radius::custom', 'api' => $RADIUS_API_LEVEL, },
         { 'name' => 'Roles', 'module' => 'pf::roles::custom', 'api' => $ROLES_API_LEVEL, },
     );
@@ -977,7 +933,7 @@ Validation related to the billing engine feature.
 sub billing {
     # validate each profile has at least a billing tier if it has one or more billing source
     foreach my $profile_id (keys %Profiles_Config){
-        my $profile = pf::Portal::ProfileFactory->_from_profile($profile_id);
+        my $profile = pf::Connection::ProfileFactory->_from_profile($profile_id);
         if($profile->getBillingSources() > 0 && @{$profile->getBillingTiers()} == 0){
             add_problem($WARN, "Profile $profile_id has billing sources configured but no billing tiers.");
         }
@@ -1015,44 +971,44 @@ sub guests {
     }
 }
 
-=item portal_profiles
+=item connection_profiles
 
-Make sure that portal profiles, if defined, have a filter and no unsupported parameters.
+Make sure that connection profiles, if defined, have a filter and no unsupported parameters.
 
 Make sure only one external authentication source is selected for each type.
 
 =cut
 
 # TODO: We might want to check if specified auth module(s) are valid... to do so, we'll have to separate the auth thing from the extension check.
-sub portal_profiles {
+sub connection_profiles {
 
     my $profile_params = qr/(?:locale |filter|logo|guest_self_reg|guest_modes|template_path|
         billing_tiers|description|sources|redirecturl|always_use_redirecturl|
-        nbregpages|allowed_devices|allow_android_devices|
+        allowed_devices|allow_android_devices|
         reuse_dot1x_credentials|provisioners|filter_match_style|sms_pin_retry_limit|
-        sms_request_limit|login_attempt_limit|block_interval|dot1x_recompute_role_from_portal|scan|root_module|preregistration|autoregister|access_registration_when_registered)/x;
+        sms_request_limit|login_attempt_limit|block_interval|dot1x_recompute_role_from_portal|scan|root_module|preregistration|autoregister|access_registration_when_registered|device_registration)/x;
     my $validator = pf::validation::profile_filters->new;
 
-    foreach my $portal_profile ( keys %Profiles_Config ) {
-        my $data = $Profiles_Config{$portal_profile};
+    foreach my $connection_profile ( keys %Profiles_Config ) {
+        my $data = $Profiles_Config{$connection_profile};
         # Checks for the non default profiles
-        if ($portal_profile ne 'default' ) {
-            add_problem( $WARN, "template directory '$install_dir/html/captive-portal/profile-templates/$portal_profile' for profile $portal_profile does not exist using default templates" )
-                if (!-d "$install_dir/html/captive-portal/profile-templates/$portal_profile");
+        if ($connection_profile ne 'default' ) {
+            add_problem( $WARN, "template directory '$install_dir/html/captive-portal/profile-templates/$connection_profile' for profile $connection_profile does not exist using default templates" )
+                if (!-d "$install_dir/html/captive-portal/profile-templates/$connection_profile");
 
-            add_problem ( $WARN, "missing filter parameter for profile $portal_profile" )
+            add_problem ( $WARN, "missing filter parameter for profile $connection_profile" )
                 if (!defined($data->{'filter'}) );
         }
 
 
         foreach my $key ( keys %$data ) {
-            add_problem( $WARN, "invalid parameter $key for profile $portal_profile" )
+            add_problem( $WARN, "invalid parameter $key for profile $connection_profile" )
                 if ( $key !~ /$profile_params/ );
             if ($key eq 'filter') {
                 foreach my $filter (@{$data->{filter}}) {
                     my ($rc, $message) = $validator->validate($filter);
                     unless ($rc) {
-                        add_problem( $WARN, "Filter '$filter' is invalid for profile '$portal_profile': $message ");
+                        add_problem( $WARN, "Filter '$filter' is invalid for profile '$connection_profile': $message ");
                     }
                 }
             }
@@ -1064,7 +1020,7 @@ sub portal_profiles {
             my $type = $source->{'type'};
             $external{$type} = 0 unless (defined $external{$type});
             $external{$type}++;
-            add_problem ( $WARN, "many authentication sources of type $type are selected for profile $portal_profile" )
+            add_problem ( $WARN, "many authentication sources of type $type are selected for profile $connection_profile" )
               if ($external{$type} > 1);
         }
     }
@@ -1094,7 +1050,7 @@ sub vlan_filter_rules {
             add_problem ( $WARN, "Missing operator attribute in $rule vlan filter rule")
                 if (!defined($ConfigVlanFilters{$rule}->{'operator'}));
             add_problem ( $WARN, "Missing value attribute in $rule vlan filter rule")
-                if (!defined($ConfigVlanFilters{$rule}->{'value'}));
+                if (!defined($ConfigVlanFilters{$rule}->{'value'}) && $ConfigVlanFilters{$rule}->{'operator'} ne 'defined' && $ConfigVlanFilters{$rule}->{'operator'} ne 'not_defined');
         }
     }
 }
@@ -1161,6 +1117,17 @@ sub valid_certs {
         return;
     }
 
+    my $haproxy_crt = "$install_dir/conf/ssl/server.pem";
+
+    eval {
+        if(pf::util::cert_expires_in($haproxy_crt)){
+            add_problem($WARN, "The certificate used by haproxy ($haproxy_crt) has expired.\nRegenerate a new self-signed certificate or update your current certificate.");
+        }
+    };
+    if($@){
+        add_problem($WARN, "Cannot open the following certificate $haproxy_crt")
+    }
+
 
     my $httpd_conf = read_file("$generated_conf_dir/ssl-certificates.conf");
 
@@ -1174,7 +1141,7 @@ sub valid_certs {
     }
 
     eval {
-        if(cert_has_expired($httpd_crt)){
+        if(pf::util::cert_expires_in($httpd_crt)){
             add_problem($WARN, "The certificate used by Apache ($httpd_crt) has expired.\nRegenerate a new self-signed certificate or update your current certificate.");
         }
     };
@@ -1197,7 +1164,7 @@ sub valid_certs {
         }
 
         eval {
-            if(cert_has_expired($radius_crt)){
+            if(pf::util::cert_expires_in($radius_crt)){
                 add_problem($WARN, "The certificate used by FreeRADIUS ($radius_crt) has expired.\n" .
                          "Regenerate a new self-signed certificate or update your current certificate.");
             }
@@ -1214,7 +1181,7 @@ sub valid_certs {
 
 sub portal_modules {
     require pf::ConfigStore::PortalModule;
-    require pf::Portal::ProfileFactory;
+    require pf::Connection::ProfileFactory;
     require captiveportal::DynamicRouting::Application;
     require captiveportal::DynamicRouting::Factory;
 
@@ -1279,6 +1246,7 @@ sub cluster {
     require pf::cluster;
     require pf::ConfigStore::Interface;
     require pfconfig::namespaces::config::Cluster;
+    require List::MoreUtils;
 
     unless($pf::cluster::cluster_enabled){
         return;
@@ -1290,8 +1258,12 @@ sub cluster {
 
     my $cluster_config = pfconfig::namespaces::config::Cluster->new;
     $cluster_config->build();
-    
+
     unshift @servers, $cluster_config->{_CLUSTER};
+
+    unless(List::MoreUtils::any { $_->{host} eq $pf::cluster::host_id} @servers) {
+        add_problem($FATAL, "current host ($pf::cluster::host_id) is missing from the cluster.conf file");
+    }
 
     # Check each member configuration
     foreach my $server (@servers){
@@ -1327,20 +1299,6 @@ sub valid_fingerbank_device_id {
     else {
         return $TRUE;
     }
-}
-
-=item cert_has_expired
-
-Will validate that a certificate has not expired
-
-=cut
-
-sub cert_has_expired {
-    my ($path) = @_;
-    return undef if !defined $path;
-    my $cert = Crypt::OpenSSL::X509->new_from_file($path);
-    my $expiration = str2time($cert->notAfter);
-    return time > $expiration;
 }
 
 =back

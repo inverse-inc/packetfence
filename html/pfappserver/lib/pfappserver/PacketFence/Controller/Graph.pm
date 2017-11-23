@@ -296,12 +296,6 @@ sub _buildGraphiteURL :Private {
       ? $management_network->tag('vip')
       : $management_network->tag('ip');
 
-    my $options =
-      {
-       graphite_host => $c->req->uri->host,
-       graphite_port => '9000'
-      };
-
     if (!$width) {
         $width = 1170;
     }
@@ -342,9 +336,7 @@ sub _buildGraphiteURL :Private {
     $params->{hideAxes} = 'false';
     $params->{colorList} = '#1f77b4,#ff7f0e,#2ca02c,#d62728,#9467bd,#8c564b,#e377c2,#7f7f7f,#bcbd22,#17becf';
 
-    my $url = sprintf('http://%s:%s/render?%s',
-                      $options->{graphite_host},
-                      $options->{graphite_port},
+    my $url = sprintf('./metrics/render?%s',
                       join('&', map { $_ . '=' . uri_escape($params->{$_}) }
                           grep { $_ ne "target" } grep { $_ ne "description" } keys(%$params))); # we don't map the target here. It can be an arrayref
 
@@ -519,21 +511,6 @@ sub systemstate :Local :AdminRole('REPORTS') {
                 'target' => 'aliasByNode(*.conntrack.percent-used,0)',
                 'columns' => 2
                },
-               {
-                'description' => $c->loc('DRBD Stats'),
-                'target' => 'aliasByNode(*.*.drbd_resource-{unacknowledged,pending,oos},0,2)',
-                'columns' => 2
-               },
-               {
-                'description' => $c->loc('DRBD Network'),
-                'target' => 'aliasByNode(*.*.drbd_resource-{network_recv,network_send},0,2)',
-                'columns' => 2
-               },
-               {
-                'description' => $c->loc('DRBD Disk read/write'),
-                'target' => 'aliasByNode(*.*.drbd_resource-{disk_read,disk_write},0,2)',
-                'columns' => 2
-               },
               ];
 
     foreach my $graph (@$graphs) {
@@ -560,11 +537,6 @@ sub logstate :Local :AdminRole('REPORTS') {
                {
                 'description' => $c->loc('Logs Tracking packetfence.log'),
                 'target' => '*.tail-PacketFence.counter*',
-                'columns' => 2
-               },
-               {
-                'description' => $c->loc('Logs Tracking pfqueue.log'),
-                'target' => '*.tail-pfqueue.counter*',
                 'columns' => 2
                },
                {
@@ -603,7 +575,11 @@ sub logstate :Local :AdminRole('REPORTS') {
 sub reports :Local :AdminRole('REPORTS') {
     my ($self, $c, $start, $end) = @_;
 
-    $c->stash->{dynamic_reports} = { map { $_ => $ConfigReport{$_}->{description} } keys(%ConfigReport) };
+    my @builtin_report_ids = sort { $ConfigReport{$a}->{description} cmp $ConfigReport{$b}->{description} } map { $ConfigReport{$_}->{type} eq "builtin" ? $_ : () } keys %ConfigReport;
+    my @custom_report_ids = sort { $ConfigReport{$a}->{description} cmp $ConfigReport{$b}->{description} } map { $ConfigReport{$_}->{type} ne "builtin" ? $_ : () } keys %ConfigReport;
+    $c->stash->{builtin_report_ids} = \@builtin_report_ids;
+    $c->stash->{custom_report_ids} = \@custom_report_ids;
+    $c->stash->{dynamic_reports} = \%ConfigReport;
 
     $self->_saveRange($c, $REPORTS, $start, $end);
 
@@ -936,7 +912,7 @@ sub _generate_hosts {
     if (@cluster_hosts) {
         @hosts = @cluster_hosts;
     }
-    elsif ($Config{'monitoring'}{'graphite_hosts'}) {
+    elsif ($Config{'graphite'}{'graphite_hosts'}) {
 
     }
     else {
@@ -982,6 +958,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

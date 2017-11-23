@@ -2,7 +2,7 @@ package pfconfigdriver
 
 import (
 	"fmt"
-	"github.com/fingerbank/processor/sharedutils"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"testing"
 	"time"
 )

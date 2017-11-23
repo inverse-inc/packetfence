@@ -1,23 +1,22 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
+
 function init() {
     $('#section').on('section.loaded', function(event) {
-        /* Initialize datepickers */
-        $('.navbar').find('.datepicker').datepicker({ autoclose: true });
-
         /* Set the end date of the range datepickers to today */
         var today = new Date();
-        $('.datepicker').find('input').each(function() { $(this).data('datepicker').setEndDate(today) });
+        $(this).find('.input-daterange input').each(function() {
+            $(this).datepicker('setEndDate', today);
+        });
 
         /* Register clicks on pre-defined periods */
         $('#reports .nav a').click(function(event) {
             event.preventDefault();
-            var dp = $('.datepicker').data('datepicker');
+            var dp = $(this).closest('.container').find('.input-daterange').data('datepicker');
             var dates = $(this).attr('href').substr(1).split('/');
             dp.pickers[0].element.val(dates[0]);
             dp.pickers[1].element.val(dates[1]);
             dp.pickers[0].update();
             dp.pickers[1].update();
-            dp.pickers[0].element.trigger({ type: 'changeDate', date: dp.pickers[0].date });
-            dp.pickers[1].element.trigger({ type: 'changeDate', date: dp.pickers[1].date });
         });
 
         $('[id$="Empty"]').on('click', '[href="#add"]', function(event) {
@@ -37,15 +36,19 @@ function init() {
 
     /* Reload section when changing date */
     $('body').on('changeDate', '.input-daterange input', function(event) {
-        var dp = $(this).closest('.datepicker').data('datepicker');
-        if (!dp.dates) {
+        var dp = $(this).parent().data('datepicker');
+        if (!dp || !dp.dates) {
             return;
         }
         var start = dp.dates[0];
-        var startDate = [start.getUTCFullYear(), (start.getUTCMonth() + 1), start.getUTCDate()].join('-');
         var end = dp.dates[1];
+        if (!start || !end) {
+            return;
+        }
+        var startDate = [start.getUTCFullYear(), (start.getUTCMonth() + 1), start.getUTCDate()].join('-');
         var endDate = [end.getUTCFullYear(), (end.getUTCMonth() + 1), end.getUTCDate()].join('-');
-        var graph = $('.piegraph a.active, .sidebar-nav .nav-list .active a').last().attr('href').substr(1);
+        var graph = $('.piegraph a.active, .sidenav-section .nav-list .active a').last().attr('href').substr(1);
+        $(this).datepicker('hide');
         location.hash = [graph, startDate, endDate].join('/');
     });
 

@@ -84,6 +84,7 @@ Readonly::Scalar our $HIGHER => 'higher';
 Readonly::Scalar our $HIGHER_OR_EQUALS => 'higher or equals';
 Readonly::Scalar our $IS_BEFORE => 'is before';
 Readonly::Scalar our $IS => 'is';
+Readonly::Scalar our $IN_TIME_PERIOD => 'in_time_period';
 Readonly::Scalar our $IS_NOT => 'is not';
 Readonly::Scalar our $IS_AFTER => 'is after';
 Readonly::Scalar our $IS_MEMBER => 'is member of';
@@ -98,8 +99,19 @@ Readonly::Scalar our $SUBSTRING => 'substring';
 Readonly::Scalar our $NUMBER => 'number';
 Readonly::Scalar our $DATE => 'date';
 Readonly::Scalar our $TIME => 'time';
+Readonly::Scalar our $TIME_PERIOD => 'time_period';
 Readonly::Scalar our $CONNECTION => 'connection';
 Readonly::Scalar our $LDAP_ATTRIBUTE => 'ldapattribute';
+
+Readonly::Array our @TYPES => (
+    $SUBSTRING,
+    $NUMBER,
+    $DATE,
+    $TIME,
+    $TIME_PERIOD,
+    $CONNECTION,
+    $LDAP_ATTRIBUTE,
+);
 
 =item OPERATORS
 
@@ -113,6 +125,7 @@ Readonly::Hash our %OPERATORS =>
    $NUMBER => [$LOWER, $LOWER_OR_EQUALS, $EQUALS, $HIGHER, $HIGHER_OR_EQUALS],
    $DATE => [$IS_BEFORE, $IS, $IS_AFTER],
    $TIME => [$IS_BEFORE, $IS_AFTER],
+   $TIME_PERIOD => [$IN_TIME_PERIOD],
    $CONNECTION => [$IS, $IS_NOT],
    $LDAP_ATTRIBUTE => [$STARTS, $EQUALS, $NOT_EQUALS, $CONTAINS, $ENDS, $MATCHES, $IS_MEMBER],
   );
@@ -129,7 +142,7 @@ Constants related to actions rules.
 
 package Actions;
 
-=item MARK_AS_SPONSORS, SET_ACCESS_LEVEL, SET_ROLE, SET_ACCESS_DURATION, SET_UNREG_DATE
+=item MARK_AS_SPONSORS, SET_ACCESS_LEVEL, SET_ROLE, SET_ACCESS_DURATION, SET_UNREG_DATE SET_TIME_BALANCE, SET_BANDWIDTH_BALANCE
 
 Available actions
 
@@ -140,6 +153,8 @@ Readonly::Scalar our $SET_ACCESS_LEVEL => "set_access_level";
 Readonly::Scalar our $SET_ROLE => "set_role";
 Readonly::Scalar our $SET_ACCESS_DURATION => "set_access_duration";
 Readonly::Scalar our $SET_UNREG_DATE => "set_unreg_date";
+Readonly::Scalar our $SET_TIME_BALANCE => "set_time_balance";
+Readonly::Scalar our $SET_BANDWIDTH_BALANCE => "set_bandwidth_balance";
 
 =item ACTIONS
 
@@ -148,17 +163,19 @@ List of available actions
 =cut
 
 Readonly::Hash our %ACTIONS => (
-    $Rules::AUTH    => [ $SET_ROLE, $SET_ACCESS_DURATION, $SET_UNREG_DATE ],
+    $Rules::AUTH    => [ $SET_ROLE, $SET_ACCESS_DURATION, $SET_UNREG_DATE, $SET_TIME_BALANCE, $SET_BANDWIDTH_BALANCE ],
     $Rules::ADMIN   => [ $SET_ACCESS_LEVEL, $MARK_AS_SPONSOR ],
 );
 
 Readonly::Hash our %ACTION_CLASS_TO_TYPE => (
-    $SET_ROLE            => $Rules::AUTH,
-    $SET_UNREG_DATE      => $Rules::AUTH,
-    $SET_ACCESS_DURATION => $Rules::AUTH,
+    $SET_ROLE              => $Rules::AUTH,
+    $SET_UNREG_DATE        => $Rules::AUTH,
+    $SET_ACCESS_DURATION   => $Rules::AUTH,
+    $SET_TIME_BALANCE      => $Rules::AUTH,
+    $SET_BANDWIDTH_BALANCE => $Rules::AUTH,
 
-    $SET_ACCESS_LEVEL    => $Rules::ADMIN,
-    $MARK_AS_SPONSOR     => $Rules::ADMIN,
+    $SET_ACCESS_LEVEL      => $Rules::ADMIN,
+    $MARK_AS_SPONSOR       => $Rules::ADMIN,
 );
 
 Readonly::Hash our %ALLOWED_ACTIONS => (
@@ -168,7 +185,9 @@ Readonly::Hash our %ALLOWED_ACTIONS => (
     $SET_UNREG_DATE   => {
         $SET_UNREG_DATE      => 1,
         $SET_ACCESS_DURATION => 1,
-    }
+    },
+    $SET_TIME_BALANCE => {$SET_TIME_BALANCE => 1},
+    $SET_BANDWIDTH_BALANCE => {$SET_BANDWIDTH_BALANCE => 1},
 );
 
 Readonly::Hash our %MAPPED_ACTIONS => (

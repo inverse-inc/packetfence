@@ -6,7 +6,7 @@ pfappserver::Form::Config::Profile
 
 =head1 DESCRIPTION
 
-Portal profile.
+Connection profile.
 
 =cut
 
@@ -128,5 +128,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

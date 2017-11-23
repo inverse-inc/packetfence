@@ -34,7 +34,6 @@ has '+launcher' => ( default => sub {"routes"} );
 
 has 'runningServices' => (is => 'rw', default => sub { 0 } );
 
-
 =head2 start
 
 start routes
@@ -44,26 +43,64 @@ start routes
 sub startService {
     my ($self) = @_;
     manageStaticRoute(1);
-    open(my $fh, '>>'.$self->pidFile);
-    print $fh "-1";
-    close($fh);
     return 1;
 }
 
 
+=head2 start
+
+Wrapper around systemctl. systemctl should in turn call the actuall _start.
+
+=cut
+
+sub start {
+    my ($self,$quick) = @_;
+    system('sudo systemctl start packetfence-routes');
+    return $? == 0;
+}
+
+=head2 _start
+
+start the service (called from systemd)
+
+=cut
+
+sub _start {
+    my ($self) = @_;
+    my $result = 0;
+    unless ( $self->isAlive() ) {
+        $result = $self->startService();
+    }
+    return $result;
+}
+
 =head2 stop
 
-stop routes
+Wrapper around systemctl. systemctl should in turn call the actual _stop.
 
 =cut
 
 sub stop {
     my ($self) = @_;
-    my $count = $self->runningServices;
-    manageStaticRoute();
-    unlink $self->pidFile;
+    system('sudo systemctl stop packetfence-routes');
     return 1;
 }
+
+=head2 _stop
+
+stop routes (called from systemd)
+
+=cut
+
+sub _stop {
+    my ($self) = @_;
+    my $logger = get_logger();
+    if ( $self->isAlive() ) {
+        manageStaticRoute();
+    }
+    return 1;
+}
+
 
 =head2 isAlive
 

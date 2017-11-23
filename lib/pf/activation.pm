@@ -36,6 +36,10 @@ use Try::Tiny;
 use MIME::Lite;
 use Encode qw(encode);
 use pf::util;
+use pf::config::util qw();
+use pf::Connection::ProfileFactory;
+use pf::web::guest::constants;
+use pf::constants::Connection::Profile qw($DEFAULT_PROFILE);
 
 =head1 CONSTANTS
 
@@ -64,18 +68,14 @@ Readonly::Scalar our $EXPIRATION => 31*24*60*60; # defaults to 31 days
 
 =cut
 
-# Default hash format version
-Readonly::Scalar our $HASH_FORMAT => 1;
-# Hash formats
-Readonly::Scalar our $SIMPLE_MD5 => 1;
-
 =head2 Email activation types
 
 
 =cut
 
 Readonly our $SPONSOR_ACTIVATION => 'sponsor';
-Readonly our $GUEST_ACTIVATION => 'guest';
+Readonly our $GUEST_ACTIVATION   => 'guest';
+Readonly our $SMS_ACTIVATION     => 'sms';
 
 
 BEGIN {
@@ -86,7 +86,7 @@ BEGIN {
     @EXPORT_OK = qw(
         view_by_code
         $UNVERIFIED $EXPIRED $VERIFIED $INVALIDATED
-        $SPONSOR_ACTIVATION $GUEST_ACTIVATION
+        $SPONSOR_ACTIVATION $GUEST_ACTIVATION $SMS_ACTIVATION
     );
 }
 
@@ -100,7 +100,6 @@ use pf::db;
 use pf::util;
 use pf::web::constants;
 # TODO this dependency is unfortunate, ideally it wouldn't be in that direction
-use pf::web::guest;
 use pf::log;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
@@ -128,19 +127,25 @@ sub activation_db_prepare {
     $activation_statements->{'activation_find_unverified_code_sql'} = get_db_handle()->prepare(qq[
         SELECT code_id, pid, mac, contact_info, activation_code, expiration, status, type, portal, email_pattern as carrier_email_pattern, unregdate
         FROM activation LEFT JOIN sms_carrier ON carrier_id=sms_carrier.id
-        WHERE activation_code = ? AND status = ? AND expiration >= NOW()
+        WHERE type = ? AND activation_code = ? AND status = ? AND expiration >= NOW()
     ]);
 
-    $activation_statements->{'activation_find_code_sql'} = get_db_handle()->prepare(qq[
+    $activation_statements->{'activation_find_unverified_code_type_mac_sql'} = get_db_handle()->prepare(qq[
         SELECT code_id, pid, mac, contact_info, activation_code, expiration, status, type, portal, email_pattern as carrier_email_pattern, unregdate
         FROM activation LEFT JOIN sms_carrier ON carrier_id=sms_carrier.id
-        WHERE activation_code LIKE ?
+        WHERE mac = ? AND type = ? AND activation_code = ? AND status = ? AND expiration >= NOW()
     ]);
 
     $activation_statements->{'activation_view_by_code_sql'} = get_db_handle()->prepare(qq[
         SELECT code_id, pid, mac, contact_info, activation_code, expiration, status, type, portal, email_pattern as carrier_email_pattern, unregdate
         FROM activation LEFT JOIN sms_carrier ON carrier_id=sms_carrier.id
-        WHERE activation_code = ?
+        WHERE type = ? AND activation_code = ?
+    ]);
+
+    $activation_statements->{'activation_view_by_code_mac_sql'} = get_db_handle()->prepare(qq[
+        SELECT code_id, pid, mac, contact_info, activation_code, expiration, status, type, portal, email_pattern as carrier_email_pattern, unregdate
+        FROM activation LEFT JOIN sms_carrier ON carrier_id=sms_carrier.id
+        WHERE type = ? AND activation_code = ? AND mac = ?
     ]);
 
     $activation_statements->{'activation_add_sql'} = get_db_handle()->prepare(qq[
@@ -174,7 +179,7 @@ sub activation_db_prepare {
     );
 
     $activation_statements->{'activation_set_unregdate_sql'} = get_db_handle()->prepare(
-        qq [ UPDATE activation set unregdate = ? where activation_code = ? ]
+        qq [ UPDATE activation set unregdate = ? where type = ? AND activation_code = ? ]
     );
 
     $activation_db_prepared = 1;
@@ -196,23 +201,6 @@ sub view {
     return ($ref);
 }
 
-=head2 find_code
-
-view an pending activation record by activation code without hash-format. Returns an hashref
-
-=cut
-
-sub find_code {
-    my ($activation_code) = @_;
-    my $query = db_query_execute(ACTIVATION, $activation_statements,
-        'activation_find_code_sql', '%'.$activation_code);
-    my $ref = $query->fetchrow_hashref();
-
-    # just get one row and finish
-    $query->finish();
-    return ($ref);
-}
-
 =head2 find_unverified_code
 
 find an unused pending activation record by doing a LIKE in the code, returns an hashref
@@ -220,10 +208,10 @@ find an unused pending activation record by doing a LIKE in the code, returns an
 =cut
 
 sub find_unverified_code {
-    my ($activation_code) = @_;
+    my ($type, $activation_code) = @_;
     my $query = db_query_execute(ACTIVATION, $activation_statements,
         'activation_find_unverified_code_sql',
-        "${HASH_FORMAT}:${activation_code}", $UNVERIFIED
+        $type, $activation_code, $UNVERIFIED
     );
     my $ref = $query->fetchrow_hashref();
 
@@ -239,11 +227,27 @@ view an pending  activation record by exact activation code (including hash form
 =cut
 
 sub view_by_code {
-    my ($activation_code) = @_;
+    my ($type, $activation_code) = @_;
     my $query = db_query_execute(ACTIVATION, $activation_statements,
-        'activation_view_by_code_sql', $activation_code);
+        'activation_view_by_code_sql', $type, $activation_code);
     my $ref = $query->fetchrow_hashref();
 
+    # just get one row and finish
+    $query->finish();
+    return ($ref);
+}
+
+=head2 view_by_code_mac
+
+view_by_code_mac
+
+=cut
+
+sub view_by_code_mac {
+    my ($type, $code, $mac) = @_;
+    my $query = db_query_execute(ACTIVATION, $activation_statements,
+        'activation_view_by_code_mac_sql',$type , $code, $mac);
+    my $ref = $query->fetchrow_hashref();
     # just get one row and finish
     $query->finish();
     return ($ref);
@@ -343,17 +347,16 @@ Returns the activation code
 =cut
 
 sub create {
-    my $args = shift;
-    my ($mac, $pid, $pending_addr, $type, $portal, $provider_id, $timeout);
-    (
-        $mac          = $args->{'mac'},
-        $pid          = $args->{'pid'},
-        $pending_addr = $args->{'pending'},
-        $type         = $args->{'type'},
-        $portal       = $args->{'portal'},
-        $provider_id  = $args->{'provider_id'},
-        $timeout      = $args->{'timeout'}
-    );
+    my ($args) = @_;
+    my $mac          = $args->{'mac'};
+    my $pid          = $args->{'pid'};
+    my $pending_addr = $args->{'pending'};
+    my $type         = $args->{'type'};
+    my $portal       = $args->{'portal'};
+    my $provider_id  = $args->{'provider_id'};
+    my $timeout      = $args->{'timeout'};
+    my $code_length  = $args->{'code_length'};
+    my $no_unique    = $args->{'no_unique'};
 
     my $logger = get_logger();
 
@@ -372,6 +375,9 @@ sub create {
         'type' => $type,
         'portal' => $portal,
         'carrier_id' => $provider_id,
+        'code_length' => $code_length,
+        'no_unique' => $no_unique,
+        'style'    => $args->{style},
     );
 
     # caculate activation code expiration
@@ -403,49 +409,30 @@ generate proper activation code. Created to encapsulate flexible hash types.
 sub _generate_activation_code {
     my (%data) = @_;
     my $logger = get_logger();
-
-    if ($HASH_FORMAT == $SIMPLE_MD5) {
-        my $code;
-        do {
-            # generating something not so easy to guess (and hopefully not in rainbowtables)
-            my $hash = md5_hex(
+    my $code;
+    my $code_length = $data{'code_length'} // 0;
+    my $no_unique = $data{'no_unique'};
+    my $type = $data{'type'};
+    my $style = $data{'style'} // 'md5';
+    do {
+        # generating something not so easy to guess (and hopefully not in rainbowtables)
+        if ($style eq 'digits') {
+            $code = int(rand(9999999999)) + 1;
+        } else {
+            $code = md5_hex(
                 join("|",
                     time + int(rand(10)),
                     grep {defined $_} @data{qw(expiration mac pid contact_info)})
             );
-            # - taking out a couple of hex (avoids overflow in step below)
-            # then keeping first 8
-            if($data{'type'} eq 'sms') {
-                $code = "$SIMPLE_MD5:". substr($hash, 0, 8);
-            } else {
-                $code = "$SIMPLE_MD5:". $hash;
-            }
-            # make sure the generated code is unique
-            $code = undef if (view_by_code($code));
-        } while (!defined($code));
+        }
+        if ($code_length > 0) {
+            $code = substr($code, 0, $code_length);
+        }
+        # make sure the generated code is unique
+        $code = undef if (!$no_unique && view_by_code($type, $code));
+    } while (!defined($code));
 
-        return $code;
-    } else {
-        $logger->warn("Hash format unknown, couldn't generate activation code");
-    }
-}
-
-=head2 _unpack_activation_code
-
-grab the hash-format and the activation hash out of the activation code
-
-Returns a list of: hash version, hash
-
-=cut
-
-sub _unpack_activation_code {
-    my ($activation_code) = @_;
-
-    if ($activation_code =~ /^(\d+):(\w+)$/) {
-        return ($1, $2);
-    }
-    # return undef on failure
-    return;
+    return $code;
 }
 
 =head2 send_email
@@ -457,6 +444,7 @@ Send an email with the activation code
 sub send_email {
     my ($type, $activation_code, $template, %info) = @_;
     my $logger = get_logger();
+    my $profile = pf::Connection::ProfileFactory->_from_profile($info{portal}) // pf::Connection::ProfileFactory->_from_profile($DEFAULT_PROFILE);
 
     my $user_locale = clean_locale(setlocale(POSIX::LC_MESSAGES));
     if ($type eq $SPONSOR_ACTIVATION) {
@@ -466,59 +454,22 @@ sub send_email {
     my $smtpserver = $Config{'alerting'}{'smtpserver'};
     $info{'from'} = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
     $info{'currentdate'} = POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
-    my ($hash_version, $hash) = _unpack_activation_code($activation_code);
 
     if (defined($info{'activation_domain'})) {
-        $info{'activation_uri'} = "https://". $info{'activation_domain'} . "$WEB::URL_EMAIL_ACTIVATION_LINK/$hash";
+        $info{'activation_uri'} = "https://". $info{'activation_domain'} . "$WEB::URL_EMAIL_ACTIVATION_LINK/$type/$activation_code";
     } else {
         $info{'activation_uri'} = "https://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
-            ."$WEB::URL_EMAIL_ACTIVATION_LINK/$hash";
+            ."$WEB::URL_EMAIL_ACTIVATION_LINK/$type/$activation_code";
     }
-
     # Hash merge. Note that on key collisions the result of view_by_code() will win
-    %info = (%info, %{view_by_code($activation_code)});
-
-    my $import_succesfull = try { require MIME::Lite::TT; };
-    if (!$import_succesfull) {
-        $logger->error(
-            "Could not send email because I couldn't load a module. ".
-            "Are you sure you have MIME::Lite::TT installed?"
-        );
-        return $FALSE;
-    }
+    %info = (%info, %{view_by_code($type, $activation_code)});
     
-    require pf::web;
-
     my %TmplOptions = (
-        INCLUDE_PATH    => "$html_dir/captive-portal/templates/emails/",
-        ENCODING        => 'utf8',
+        INCLUDE_PATH    => [ map { $_ . "/emails/" } @{$profile->{_template_paths}} ],
     );
-
-    my %vars = (%info, i18n => \&pf::web::i18n, i18n_format => \&pf::web::i18n_format);
 
     utf8::decode($info{'subject'});
-    my $msg = MIME::Lite::TT->new(
-        From        =>  $info{'from'},
-        To          =>  $info{'contact_info'},
-        Cc          =>  $info{'cc'},
-        Subject     =>  encode("MIME-Header", $info{'subject'}),
-        Template    =>  "emails-$template.html",
-        TmplOptions =>  \%TmplOptions,
-        TmplParams  =>  \%vars,
-        TmplUpgrade =>  1,
-    );
-    $msg->attr("Content-Type" => "text/html; charset=UTF-8;");
-
-    my $result = 0;
-    try {
-      $msg->send('smtp', $smtpserver, Timeout => 20);
-      $result = $msg->last_send_successful();
-      $logger->info("Email sent to ".$info{'contact_info'}." (".$info{'subject'}.")");
-    }
-    catch {
-      $logger->error("Can't send email to ".$info{'contact_info'}.": $!");
-    };
-
+    my $result = pf::config::util::send_email($template, $info{'contact_info'}, $info{'subject'}, \%info, \%TmplOptions);
     setlocale(POSIX::LC_MESSAGES, $user_locale);
     return $result;
 }
@@ -536,6 +487,8 @@ sub create_and_send_activation_code {
         timeout => $info{'activation_timeout'}
     );
 
+    $info{portal} = $portal;
+
     my $activation_code = create(\%args);
     if (defined($activation_code)) {
       unless (send_email($type, $activation_code, $template, %info)) {
@@ -548,26 +501,74 @@ sub create_and_send_activation_code {
 
 # returns the validated activation record hashref or undef
 sub validate_code {
-    my ($activation_code) = @_;
+    my ($type, $activation_code) = @_;
     my $logger = get_logger();
 
-    my $activation_record = find_unverified_code($activation_code);
+    my $activation_record = find_unverified_code($type, $activation_code);
     if (!defined($activation_record) || ref($activation_record eq 'HASH')) {
         $logger->info("Unable to retrieve pending activation entry based on activation code: $activation_code");
         return;
     }
 
     # Force a solid match.
-    my ($hash_version, $hash) = _unpack_activation_code($activation_record->{'activation_code'});
-    if ($activation_code ne $hash) {
-        $logger->info("Activation code is not exactly the same as the one on record. $activation_code != $hash");
+    my $code = $activation_record->{'activation_code'};
+    if ($activation_code ne $code) {
+        $logger->info("Activation code is not exactly the same as the one on record. $activation_code != $code");
         return;
     }
 
     # At this point, code is validated: return the activation record
-    $logger->info(($activation_record->{mac}?"[$activation_record->{mac}]":"[unknown]") . " Activation code sent to email $activation_record->{contact_info} from $activation_record->{pid} successfully verified. "
-                . " for activation type: $activation_record->{type}");
+    $logger->info( "["
+          . ( $activation_record->{mac} ? $activation_record->{mac} : "unknown" )
+          . "] Activation code sent to email $activation_record->{contact_info} from $activation_record->{pid} successfully verified.  for activation type: $activation_record->{type}"
+    );
     return $activation_record;
+}
+
+=head2 validate_code_with_mac
+
+validate_code_with_mac
+
+=cut
+
+sub validate_code_with_mac {
+    my ($type, $activation_code, $mac) = @_;
+    my $logger = get_logger();
+
+    my $activation_record = find_unverified_code_by_mac($type, $activation_code, $mac);
+    if (!defined($activation_record) || ref($activation_record eq 'HASH')) {
+        $logger->info("Unable to retrieve pending activation entry based on activation code: $activation_code");
+        return;
+    }
+
+    # Force a solid match.
+    my $code = $activation_record->{'activation_code'};
+    if ($activation_code ne $code) {
+        $logger->info("Activation code is not exactly the same as the one on record. $activation_code != $code");
+        return;
+    }
+
+    # At this point, code is validated: return the activation record
+    $logger->info("[$activation_record->{mac}] Activation code sent to email $activation_record->{contact_info} from $activation_record->{pid} successfully verified. for activation type: $activation_record->{type}");
+    return $activation_record;
+}
+
+=head2 find_unverified_code_by_mac
+
+find_unverified_code_by_mac
+
+=cut
+
+sub find_unverified_code_by_mac {
+    my ($type, $activation_code, $mac) = @_;
+    my $query = db_query_execute(ACTIVATION, $activation_statements,
+        'activation_find_unverified_code_type_mac_sql',
+        $mac, $type, $activation_code, $UNVERIFIED
+    );
+    my $ref = $query->fetchrow_hashref();
+    # just get one row and finish
+    $query->finish();
+    return $ref;
 }
 
 =head2 set_status_verified
@@ -577,10 +578,24 @@ Change the status of a given pending activation code to VERIFIED which means it 
 =cut
 
 sub set_status_verified {
-    my ($activation_code) = @_;
+    my ($type, $activation_code) = @_;
     my $logger = get_logger();
 
-    my $activation_record = find_code($activation_code);
+    my $activation_record = view_by_code($type, $activation_code);
+    modify_status($activation_record->{'code_id'}, $VERIFIED);
+}
+
+=head2 set_status_verified_by_mac
+
+Change the status of a given pending activation code to VERIFIED which means it can't be used anymore using the mac
+
+=cut
+
+sub set_status_verified_by_mac {
+    my ($type, $activation_code, $mac) = @_;
+    my $logger = get_logger();
+
+    my $activation_record = view_by_code_mac($type, $activation_code, $mac);
     modify_status($activation_record->{'code_id'}, $VERIFIED);
 }
 
@@ -603,9 +618,6 @@ sub sms_activation_create_send {
     my ($mac, $pid, $phone_number, $portal, $provider_id, $authentication_source) = @_;
     my $logger = get_logger();
 
-    # Strip non-digits
-    $phone_number =~ s/\D//g;
-
     my ( $success, $err ) = ( $TRUE, 0 );
     my %args = (
         mac         => $mac,
@@ -613,60 +625,21 @@ sub sms_activation_create_send {
         pending     => $phone_number,
         type        => "sms",
         portal      => $portal,
-        provider_id => $provider_id
+        provider_id => $provider_id,
+        code_length => $authentication_source->pin_code_length,
+        no_unique   => 1,
+        style       => 'digits',
     );
 
     my $activation_code = create(\%args);
     if (defined($activation_code)) {
-        unless ($authentication_source->sendActivationSMS($activation_code)) {
+        unless ($authentication_source->sendActivationSMS($activation_code, $mac)) {
             ($success, $err) = ($FALSE, $GUEST::ERRORS{$GUEST::ERROR_CONFIRMATION_SMS});
             invalidate_codes($args{'mac'}, $args{'pid'}, $args{'pending'});
         }
     }
 
     return ($success, $err, $activation_code);
-}
-
-=head2 send_sms -
-
-Send SMS with activation code
-
-=cut
-
-sub send_sms {
-    my ($activation_code) = @_;
-    my $logger = get_logger();
-
-    my %info;
-    my $smtpserver = $Config{'alerting'}{'smtpserver'};
-    $info{'from'} = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
-    $info{'currentdate'} = POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
-    my ($hash_version, $pin) = _unpack_activation_code($activation_code);
-
-    # Hash merge. Note that on key collisions the result of view_by_code() will win
-    %info = (%info, %{view_by_code($activation_code)});
-
-    my $email = sprintf($info{'carrier_email_pattern'}, $info{'contact_info'});
-    my $msg = MIME::Lite->new(
-        From        =>  $info{'from'},
-        To          =>  $email,
-        Subject     =>  "Network Activation",
-        Data        =>  "PIN: $pin"
-    );
-
-    my $result = 0;
-    eval {
-      $msg->send('smtp', $smtpserver, Timeout => 20);
-      $result = $msg->last_send_successful();
-      $logger->info("Email sent to $email (Network Activation)");
-    };
-    if ($@) {
-      my $msg = "Can't send email to $email: $@";
-      $msg =~ s/\n//g;
-      $logger->error($msg);
-    }
-
-    return $result;
 }
 
 =head2 set_unregdate
@@ -676,11 +649,11 @@ Set the unregdate that should be assigned to the node once the activation record
 =cut
 
 sub set_unregdate {
-    my ($activation_code, $unregdate) = @_;
+    my ($type, $activation_code, $unregdate) = @_;
     get_logger->debug("Setting unregdate $unregdate for activation code $activation_code");
 
     return(db_query_execute(ACTIVATION, $activation_statements,
-        'activation_set_unregdate_sql', $unregdate, $activation_code));
+        'activation_set_unregdate_sql', $unregdate, $type, $activation_code));
 }
 
 # TODO: add an expire / cleanup sub

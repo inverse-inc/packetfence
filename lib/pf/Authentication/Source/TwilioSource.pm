@@ -17,6 +17,7 @@ use Moose;
 use WWW::Twilio::API;
 
 extends 'pf::Authentication::Source';
+with qw(pf::Authentication::CreateLocalAccountRole pf::Authentication::SMSRole);
 
 has '+type'                     => (default => 'Twilio');
 has '+class'                    => (isa => 'Str', is => 'ro', default => 'external');
@@ -24,7 +25,6 @@ has '+dynamic_routing_module'   => (is => 'rw', default => 'Authentication::SMS'
 has 'account_sid'               => (isa => 'Str', is => 'rw');
 has 'auth_token'                => (isa => 'Str', is => 'rw');
 has 'twilio_phone_number'       => (isa => 'Str', is => 'rw', default => '+15555551234');
-
 
 =head2 available_rule_classes
 
@@ -86,22 +86,6 @@ sub match_in_subclass {
 }
 
 
-=head2 sendActivationSMS
-
-Send the Activation SMS
-
-=cut
-
-sub sendActivationSMS {
-    my ( $self, $activation_code ) = @_;
-
-    my ($hash_version, $pin) = pf::activation::_unpack_activation_code($activation_code);
-    my $activation = pf::activation::view_by_code($activation_code);
-    my $phone_number = $activation->{'contact_info'};
-
-    return $self->sendSMS({to=> $phone_number, message => "PIN: $pin", activation => $activation});
-}
-
 =head2 sendSMS
 
 Interact with Twilio API to send an SMS
@@ -162,7 +146,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;
 
 # vim: set shiftwidth=4:

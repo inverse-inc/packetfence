@@ -28,16 +28,6 @@ has 'redis' => (is => 'rw', lazy => 1, builder => 1);
 
 has 'redis_args' => (is => 'rw', default => sub { {} });
 
-has 'queue_name' => (is => 'rw');
-
-has 'delay_queue' => (is => 'rw');
-
-has 'submit_queue' => (is => 'rw');
-
-has 'batch' => (is => 'rw');
-
-has 'batch_sleep' => (is => 'rw');
-
 #
 # This lua script gets all the job id from a zset with a timestamp less the one passed
 # Then push all the job ids the work queue
@@ -69,6 +59,14 @@ sub BUILDARGS {
     return $args;
 }
 
+=head2 _empty
+
+_empty
+
+=cut
+
+sub _empty { }
+
 =head2 process_next_job
 
 Process the next job in the queue
@@ -76,39 +74,60 @@ Process the next job in the queue
 =cut
 
 sub process_next_job {
-    my ($self) = @_;
+    my ($self, $queues) = @_;
     my $redis = $self->redis;
-    my $queue_name = $self->queue_name;
+    if (ref ($queues) ne 'ARRAY') {
+        $queues = [$queues];
+    }
     my $logger = get_logger();
-    my ($queue, $task_id) = $redis->brpop($queue_name, 1);
-    if ($queue) {
-        my $data = $redis->hget($task_id, 'data');
-        my $task_counter_id = _get_task_counter_id_from_task_id($task_id);
-        if($data) {
-            local $@;
-            eval {
-                sereal_decode_with_object($DECODER, $data, my $item);
-                if (ref ($item) eq 'ARRAY' ) {
-                    my $type = $item->[0];
-                    my $args = $item->[1];
-                    eval {
-                        "pf::task::$type"->doTask($args);
-                    };
-                    die $@ if $@;
-                } else {
-                    $logger->error("Invalid object stored in queue");
-                }
-            };
-            if ($@) {
-                $logger->error($@);
-            }
-        } else {
-            $redis->hincrby($PFQUEUE_EXPIRED_COUNTER, $task_counter_id, 1, sub { });
-            $logger->error("Invalid task id $task_id provided");
+    my ($queue, $task_id);
+    if (@$queues == 1) {
+        # Use the faster nonblocking rpop first if there is nothing there use the blocking version
+        ($task_id) = $redis->rpop(@$queues);
+    }
+    unless (defined $task_id) {
+        # Block for a second
+        ($queue, $task_id) = $redis->brpop(@$queues, 1);
+        unless (defined $queue) {
+            return;
         }
-        $redis->hincrby($PFQUEUE_COUNTER, $task_counter_id, -1, sub { });
-        $redis->del($task_id, sub {});
-        $redis->wait_all_responses();
+    }
+    my $task_counter_id = _get_task_counter_id_from_task_id($task_id);
+    my $data;
+    $redis->multi(\&_empty);
+    $redis->hincrby($PFQUEUE_COUNTER, $task_counter_id, -1, \&_empty);
+    $redis->hget($task_id, 'data', \&_empty);
+    $redis->del($task_id, \&_empty);
+    $redis->exec(sub {
+        my ($replies, $error) = @_;
+        return if defined $error;
+        # Get the second reply which gets the data from the task hash
+        my ($hget_reply, $hget_error) = @{$replies->[1]};
+        return if defined $hget_error;
+        $data = $hget_reply;
+    });
+    $redis->wait_all_responses();
+    if ($data) {
+        local $@;
+        eval {
+            sereal_decode_with_object($DECODER, $data, my $item);
+            if (ref($item) eq 'ARRAY') {
+                my $type = $item->[0];
+                my $args = $item->[1];
+                eval {
+                    "pf::task::$type"->doTask($args);
+                };
+                die $@ if $@;
+            } else {
+                $logger->error("Invalid object stored in queue");
+            }
+        };
+        if ($@) {
+            $logger->error($@);
+        }
+    } else {
+        $redis->hincrby($PFQUEUE_EXPIRED_COUNTER, $task_counter_id, 1);
+        $logger->error("Invalid task id $task_id provided");
     }
 }
 
@@ -142,16 +161,16 @@ Process delayed jobs
 =cut
 
 sub process_delayed_jobs {
-    my ($self) = @_;
+    my ($self, $params) = @_;
     my $redis = $self->redis;
 
     #Getting the current time from the redis service
     my ($seconds, $micro) = $redis->time;
     die "error getting time from the redis service" unless defined $seconds && defined $micro;
     my $time_milli = $seconds * 1000 + int($micro / 1000);
-    $redis->evalsha($LUA_DELAY_JOBS_MOVE_SHA1, 2, $self->delay_queue, $self->submit_queue, $time_milli, $self->batch);
+    $redis->evalsha($LUA_DELAY_JOBS_MOVE_SHA1, 2, $params->{delay_queue}, $params->{submit_queue}, $time_milli, $params->{batch});
     # Sleep for 10 milliseconds
-    usleep($self->batch_sleep);
+    usleep($params->{batch_usleep});
 }
 
 =head2 on_connect

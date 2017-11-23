@@ -344,7 +344,7 @@ Members:
 ----
 
 You can see that PacketFence created 3 new ipset sessions based on the inline network ip
-and on the role id defined in Roles section (Configuration -> Roles, to see the id of each role).
+and on the role id defined in Roles section (Configuration -> Policies and Access Control -> Roles, to see the id of each role).
 
 So when a device will register on the captive portal, PacketFence will add the device in the
 corresponding ipset session (role id, network).

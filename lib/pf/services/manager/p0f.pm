@@ -28,23 +28,18 @@ has '+name' => ( default => sub {'p0f'} );
 has '+optional' => ( default => sub {1} );
 
 sub _cmdLine {
-    my ($self)           = @_;
+    my ($self) = @_;
     my $FingerbankConfig = fingerbank::Config::get_config;
-    my $p0f_map          = $FingerbankConfig->{tcp_fingerprinting}{p0f_map_path};
-    my $p0f_sock         = $FingerbankConfig->{tcp_fingerprinting}{p0f_socket_path};
-    my $name             = $self->name;
+    my $p0f_map = $FingerbankConfig->{tcp_fingerprinting}{p0f_map_path};
+    my $p0f_sock = $FingerbankConfig->{tcp_fingerprinting}{p0f_socket_path};
+    my $pid_file = $self->pidFile;
+    my $name = $self->name;
     my $p0f_cmdline;
-    if (@ha_ints) {
-        my @ha_ips;
-        foreach my $ha_int (@ha_ints) {
-            push( @ha_ips, $ha_int->{Tip} );
-        }
-        my @tmp_bpf_filter = map {"not ( host $_ and port 7788 )"} @ha_ips;
-        my $p0f_bpf_filter = join( " and ", @tmp_bpf_filter );
-        $p0f_cmdline = $self->executable . " -i any -p -f $p0f_map -s $p0f_sock  $p0f_bpf_filter ";
-    }
-    else {
-        $p0f_cmdline = $self->executable . " -i any -p -f $p0f_map -s $p0f_sock ";
+    if ($cluster_enabled) {
+        my $p0f_bpf_filter = bpf_filter();
+        $p0f_cmdline= $self->executable . " -i any -p -f $p0f_map -s $p0f_sock" . " '$p0f_bpf_filter' ";
+    } else {
+        $p0f_cmdline= $self->executable . " -i any -p -f $p0f_map -s $p0f_sock" . " 'not ( (net 127) or (host 0:0:0:0:0:0:0:1) )' ";
     }
     return $p0f_cmdline;
 }

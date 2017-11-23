@@ -54,10 +54,9 @@ use pf::config::util;
 use pf::role::custom $ROLE_API_LEVEL;
 use pf::client;
 use pf::cluster;
-use pf::firewallsso;
 use pf::constants::dhcp qw($DEFAULT_LEASE_LENGTH);
 use pf::ip4log;
-use pf::Portal::ProfileFactory;
+use pf::Connection::ProfileFactory;
 
 use Readonly;
 
@@ -80,12 +79,6 @@ sub reevaluate_access {
     # Untaint MAC
     $mac = clean_mac($mac);
 
-    # function must be in advanced.reevaluate_access_reasons list otherwise bail out
-    if ( none { $_ eq $function } split( /\s*,\s*/, $Config{'advanced'}{'reevaluate_access_reasons'} ) ) {
-        $logger->info("access re-evaluation requested but denied by configuration");
-        return $FALSE;
-    }
-
     $logger->info("re-evaluating access ($function called)");
     $opts{'force'} = '1' if ($function eq 'admin_modify');
 
@@ -93,13 +86,9 @@ sub reevaluate_access {
         my $node = node_attributes($mac);
         my $ip = pf::ip4log::mac2ip($mac);
         if($ip){
-            my $firewallsso = pf::firewallsso->new;
-            if($node->{status} eq $STATUS_REGISTERED){
-                $firewallsso->do_sso('Update', $mac, $ip, $DEFAULT_LEASE_LENGTH);
-            }
-            else {
-                $firewallsso->do_sso('Stop', $mac, $ip, $DEFAULT_LEASE_LENGTH);
-            }
+            my $firewallsso_method = ( $node->{status} eq $STATUS_REGISTERED ) ? "Update" : "Stop";
+            my $client = pf::client::getClient();
+            $client->notify( 'firewallsso', (method => $firewallsso_method, mac => $mac, ip => $ip, timeout => $DEFAULT_LEASE_LENGTH) );
         }
         else {
             $logger->error("Can't do SSO for $mac because can't find its IP address");
@@ -163,7 +152,7 @@ sub _vlan_reevaluation {
             $cluster_deauth = 1;
         }
         else {
-            $client = pf::api::queue->new(queue => 'general');
+            $client = pf::api::queue->new(queue => 'priority');
             $cluster_deauth = 0;
         }
         my %data = (
@@ -242,7 +231,7 @@ sub _should_we_reassign_vlan {
         user_name => $user_name,
         ssid => $ssid,
         node_info => pf::node::node_attributes($mac),
-        profile => pf::Portal::ProfileFactory->instantiate($mac),
+        profile => pf::Connection::ProfileFactory->instantiate($mac),
     };
 
     my $newRole = $role_obj->fetchRoleForNode( $args );
@@ -263,14 +252,21 @@ sub _should_we_reassign_vlan {
             }
         }
     }
-    if (defined($role)) {
-        if ($role ne $newRole->{role}) {
-            $logger->info(
-                "Reassignment required (current Role = $role but should be in Role $newRole->{role})"
-            );
-            return $TRUE;
-        }
+
+    # If the role in the locationlog is not defined and the new one is, then we reevaluate access
+    if (!defined($role) && defined($newRole->{role})) {
+        $logger->info(
+            "Reassignment required (current Role is undefined and should be in Role $newRole->{role})"
+        );
+        return $TRUE;
     }
+    elsif ($role ne $newRole->{role}) {
+        $logger->info(
+            "Reassignment required (current Role = $role but should be in Role $newRole->{role})"
+        );
+        return $TRUE;
+    }
+
     $logger->debug("No reassignment required.");
     return $FALSE;
 }

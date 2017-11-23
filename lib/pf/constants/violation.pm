@@ -19,9 +19,11 @@ use Readonly;
 use pf::constants;
 use pf::constants::role qw($ISOLATION_ROLE $MAC_DETECTION_ROLE $VOICE_ROLE $INLINE_ROLE);
 
-our @EXPORT_OK = qw($MAX_VID %NON_WHITELISTABLE_ROLES);
+our @EXPORT_OK = qw($MAX_VID $LOST_OR_STOLEN %NON_WHITELISTABLE_ROLES);
 
 Readonly our $MAX_VID => 2000000000;
+
+Readonly our $LOST_OR_STOLEN => '1300005';
 
 Readonly our %NON_WHITELISTABLE_ROLES => (
     $ISOLATION_ROLE     => $TRUE,

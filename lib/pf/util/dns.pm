@@ -19,6 +19,7 @@ use pf::constants;
 use pfconfig::cached_hash;
 
 tie our %passthroughs, 'pfconfig::cached_hash', 'resource::passthroughs';
+tie our %isolation_passthroughs, 'pfconfig::cached_hash', 'resource::isolation_passthroughs';
 
 =head2 matches_passthrough
 
@@ -31,14 +32,16 @@ Returns 2 values
 =cut
 
 sub matches_passthrough {
-    my ($domain) = @_;
-
+    my ($domain, $zone) = @_;
     # undef domains are not passthroughs
     return ($FALSE, []) unless(defined($domain));
+    $domain = lc($domain);
 
     # Check for non-wildcard passthroughs
-    if(exists($passthroughs{normal}{$domain})) {
-        return ($TRUE, $passthroughs{normal}{$domain});
+    my $normal = '$'.$zone.'{normal}{$domain}';
+    $normal = eval($normal);
+    if(defined($normal)) {
+        return ($TRUE, $normal);
     }
 
     # check if its a sub-domain of a wildcard domain
@@ -47,8 +50,10 @@ sub matches_passthrough {
     for (my $i=$last_element; $i>0; $i--) {
         my @sub_parts = @parts[$i..$last_element];
         my $domain = join('.', @sub_parts);
-        if(exists($passthroughs{wildcard}{$domain})) {
-            return ($TRUE, $passthroughs{wildcard}{$domain});
+        my $wildcard = '$'.$zone.'{wildcard}{$domain}';
+        $wildcard = eval($wildcard);
+        if(defined($wildcard)) {
+            return ($TRUE, $wildcard);
         }
     }
 

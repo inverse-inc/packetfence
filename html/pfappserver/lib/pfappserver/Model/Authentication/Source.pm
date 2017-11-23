@@ -100,7 +100,7 @@ sub delete {
         }
     }
     else {
-        return ($STATUS::FORBIDDEN, "The source is used by portal profiles.");
+        return ($STATUS::FORBIDDEN, "The source is used by connection profiles.");
     }
 
     return ($STATUS::OK, "The user source was successfully deleted.");
@@ -172,6 +172,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

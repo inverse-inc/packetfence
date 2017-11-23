@@ -20,16 +20,19 @@ use Readonly;
 
 # Internal libs
 use pf::constants;
+use pf::constants::IP qw($IPV6);
 use pf::db();
 use pf::ip6log();
 use pf::log();
 use pf::util::dhcpv6();
+use pf::util::IP();
 use pf::StatsD::Timer();
 
 use Moose;
 extends 'pf::dhcp::processor';
 
 
+# DHCPv6 message types
 Readonly::Hash my %DHCPV6_MESSAGE_TYPES => (
     1   => 'SOLICIT',
     2   => 'ADVERTISE',
@@ -43,6 +46,8 @@ Readonly::Hash my %DHCPV6_MESSAGE_TYPES => (
 );
 my %DHCPV6_MESSAGE_TYPES_REVERSED = reverse %DHCPV6_MESSAGE_TYPES;
 
+# DHCPv6 message types <-> processors mapping
+# Reference to %DHCPV6_MESSAGE_TYPES
 Readonly::Hash my %MESSAGE_TYPE_PROCESSORS => (
     $DHCPV6_MESSAGE_TYPES{'1'}  => 'processDHCPv6Solicit',
     $DHCPV6_MESSAGE_TYPES{'2'}  => 'processDHCPv6Advertise',
@@ -53,6 +58,7 @@ Readonly::Hash my %MESSAGE_TYPE_PROCESSORS => (
     $DHCPV6_MESSAGE_TYPES{'8'}  => 'processDHCPv6Release',
 );
 
+# DHCPv6 option types
 Readonly::Hash my %DHCPV6_OPTION_TYPES => (
     1   => 'CLIENTID',
     2   => 'SERVERID',
@@ -65,15 +71,22 @@ Readonly::Hash my %DHCPV6_OPTION_TYPES => (
     39  => 'FQDN',
 );
 
+# DHCPv6 option processing attributes
+# Reference to %DHCPV6_OPTION_TYPES
+# Always requires a 'type' (data, container, ip)
+# - data: generic data
+# - ip: IP address data
+# - container: data container (used for recursive options processing)
+# Requires 'attributes' to map data wanted
 Readonly::Hash my %OPTION_TYPE_ATTRIBUTES => (
     $DHCPV6_OPTION_TYPES{'1'}   => {
-        type        => 'id',
+        type        => 'data',
         attributes  => {
             addr    => 'client_mac',
         },
     },
     $DHCPV6_OPTION_TYPES{'2'}   => {
-        type        => 'id',
+        type        => 'data',
         attributes  => {
             addr    => 'server_mac',
         },
@@ -96,32 +109,39 @@ Readonly::Hash my %OPTION_TYPE_ATTRIBUTES => (
         },
     },
     $DHCPV6_OPTION_TYPES{'6'}   => {
-        type        => 'id',
+        type        => 'data',
         attributes  => {
             requested_options   => 'ipv6_requested_options',
         },
     },
     $DHCPV6_OPTION_TYPES{'13'}  => {
-        type        => 'id',
+        type        => 'data',
         attributes  => {
             status_code     => 'status_code',
             status_message  => 'status_message',
         },
     },
     $DHCPV6_OPTION_TYPES{'16'}   => {
-        type        => 'id',
+        type        => 'data',
         attributes  => {
             enterprise_number   => 'ipv6_enterprise_number',
             data                => 'ipv6_vendor',
         },
     },
     $DHCPV6_OPTION_TYPES{'39'}   => {
-        type        => 'id',
+        type        => 'data',
         attributes  => {
             fqdn    => 'client_hostname',
         },
     },
 );
+
+
+=head2 process_packet
+
+Process the packet with the appropriate processor according to the packet message type
+
+=cut
 
 sub process_packet {
     my ( $self, $udp_payload ) = @_;
@@ -144,7 +164,7 @@ sub process_packet {
     }
 
     my $message_type = $DHCPV6_MESSAGE_TYPES{$dhcpv6->{msg_type}};
-    my $packet_processor = $MESSAGE_TYPE_PROCESSORS{$message_type};
+    my $packet_processor = $MESSAGE_TYPE_PROCESSORS{$message_type} if defined($message_type);
 
     unless ( defined($message_type) && defined($packet_processor) ) {
         $logger->warn("Got a DHCPv6 packet of type '$dhcpv6->{msg_type}'. Do not process it");
@@ -154,6 +174,12 @@ sub process_packet {
     $self->$packet_processor($dhcpv6);
 }
 
+
+=head2 _process_options
+
+Process packet options using mapping hashes according to packet message type and options
+
+=cut
 
 sub _process_options {
     my ( $options, $option_attributes, $recursive_attributes ) = @_;
@@ -198,6 +224,48 @@ sub _process_options {
     }
 
     return $option_attributes;
+}
+
+
+=head2 preProcessIPTasks
+
+Prepare arguments for 'processIPTasks'
+
+=cut
+
+sub preProcessIPTasks {
+    my $timer = pf::StatsD::Timer->new({level => 6});
+    my ( $self, $iptasks_arguments ) = @_;
+    my $logger = pf::log::get_logger();
+
+    $iptasks_arguments->{'ip'} = pf::util::IP::detect($iptasks_arguments->{'ip'})->normalizedIP;
+    my $ip  = $iptasks_arguments->{'ip'};
+    my $mac = $iptasks_arguments->{'mac'};
+
+    # Sanitize input
+    unless ( pf::util::valid_mac($mac) || pf::util::IP::is_ipv6($ip) ) {
+        $logger->error("invalid MAC or IP: $mac $ip");
+        return;
+    }
+
+    # Add IP version to arguments
+    $iptasks_arguments->{'ipversion'} = $IPV6;
+    
+    # Get previous (old) mappings
+    $iptasks_arguments->{'oldip'}  = pf::ip6log::_mac2ip_sql($mac);
+    $iptasks_arguments->{'oldmac'} = pf::ip6log::_ip2mac_sql($ip);
+}
+
+
+=head2 checkForParking
+
+=cut
+
+sub checkForParking {
+    my ( $self ) = @_;
+    my $logger = pf::log::get_logger();
+
+    $logger->debug("Parking not implemented for IPv6");
 }
 
 
@@ -335,11 +403,10 @@ sub processDHCPv6Reply {
 
     my $attributes = _process_options($dhcpv6->{options});
 
-    # Handling ip6log update
+    # Handling IP tasks
     if ( $attributes->{'ip'} && $attributes->{'client_mac'} ) {
         foreach my $ip ( @{$attributes->{'ip'}} ) {
-            my $ipv6 = pf::util::IP::detect($ip->{'client_ip'})->normalizedIP;
-            pf::ip6log::open($ipv6, $attributes->{'client_mac'}, $ip->{'type'}, $ip->{'lease_length'});
+            $self->processIPTasks( (client_mac => $attributes->{'client_mac'}, client_ip => $ip->{'client_ip'}, lease_length => $ip->{'lease_length'}, ip_type => $ip->{'type'}) );
         }
         
     }
@@ -395,6 +462,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

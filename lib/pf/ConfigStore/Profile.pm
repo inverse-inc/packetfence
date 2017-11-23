@@ -77,7 +77,7 @@ sub _fields_expanded {
     return qw(sources filter locale allowed_devices provisioners billing_tiers scans);
 }
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
 

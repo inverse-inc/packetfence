@@ -44,11 +44,11 @@ has_field 'domains' =>
    element_attr => {'placeholder' => pf::Authentication::Source::AuthorizeNetSource->meta->get_attribute('domains')->default},
    element_class => ['input-xlarge'],
    tags => { after_element => \&help,
-             help => 'Comma separated list of domains that will be resolve with the correct IP addresses.' },
+             help => 'Comma-separated list of domains that will be resolved with the correct IP addresses.' },
   );
 
 has_block definition => (
-    render_list => [qw(api_login_id transaction_key md5_hash domains currency test_mode create_local_account local_account_logins)]
+    render_list => [qw(api_login_id transaction_key md5_hash domains currency test_mode create_local_account local_account_logins send_email_confirmation)]
 );
 
 =head1 AUTHOR

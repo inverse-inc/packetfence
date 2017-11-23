@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use TestUtils qw(get_all_perl_binaries get_all_perl_cgi get_all_perl_modules get_all_php);
+use TestUtils qw(get_all_perl_binaries get_all_perl_cgi get_all_perl_modules);
 
 my @files;
 
@@ -28,7 +28,6 @@ my @files;
 push(@files, TestUtils::get_all_perl_binaries());
 push(@files, TestUtils::get_all_perl_cgi());
 push(@files, grep {!m#addons/sourcefire/#}  TestUtils::get_all_perl_modules());
-push(@files, TestUtils::get_all_php());
 
 # all files + no warnings
 plan tests => scalar @files * 1 + 1;

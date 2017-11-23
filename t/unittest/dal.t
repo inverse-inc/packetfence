@@ -22,12 +22,15 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 30;
+use Test::More tests => 38;
 
 use pf::error qw(is_success is_error);
 use pf::db;
 use pf::dal::node;
-
+{
+    no warnings 'redefine';
+    *pf::api::queue::notify = sub {};
+}
 my $dbh  = eval {
     db_connect();
 };
@@ -42,7 +45,7 @@ my $test_mac = "ff:ff:ff:ff:ff:fe";
 
 pf::dal::node->remove_by_id({mac => $test_mac});
 
-my ($status, $node) = pf::dal::node->find($test_mac);
+my ($status, $node) = pf::dal::node->find({mac => $test_mac});
 
 is ($status , $STATUS::NOT_FOUND, "Node does not exists");
 
@@ -58,7 +61,7 @@ ok(is_success($node->save), "Saving $test_mac into the database");
 
 ok($node->__from_table, "New node is in the database");
 
-$node = pf::dal::node->find($test_mac);
+$node = pf::dal::node->find({mac => $test_mac});
 
 ok($node, "Found node in database");
 
@@ -72,7 +75,7 @@ is_deeply($node_data, {sessionid => $new_session}, "Only saving values that chan
 
 ok(is_success($node->save), "Saving changes into the database");
 
-$node = pf::dal::node->find($test_mac);
+$node = pf::dal::node->find({mac => $test_mac});
 
 ok($node, "Reloading node from database");
 
@@ -80,13 +83,15 @@ is($node->sessionid, $new_session, "Changes were saved into database");
 
 $node->voip("bob");
 
-ok(is_error($node->save), "Cannot save invalid enum value into the database");
+ok(is_success($node->save), "Save with an invalid voip");
+
+is($node->voip, "no", "After saving a node with invalid voip is set to node");
 
 $node->voip("yes");
 
 ok(is_success($node->save), "Save valid data into the database");
 
-$node = pf::dal::node->find($test_mac);
+$node = pf::dal::node->find({mac => $test_mac});
 
 ok($node, "Reloading node from database");
 
@@ -98,7 +103,7 @@ ok(is_error($node->save), "Cannot save a null value into the database");
 
 ok(is_success($node->remove), "Remove node in database");
 
-$node = pf::dal::node->find($test_mac);
+$node = pf::dal::node->find({mac => $test_mac});
 
 is ($node, undef, "Node does not exists");
 
@@ -112,7 +117,7 @@ $node->voip("yes");
 
 ok(is_success($node->save), "Saving node after being deleted from under us");
 
-$node = pf::dal::node->find($test_mac);
+$node = pf::dal::node->find({mac => $test_mac});
 
 ok($node, "Saving after being deleted");
 
@@ -124,9 +129,9 @@ $node = pf::dal::node->new({ mac => $test_mac});
 
 ok(is_success($node->save), "new node saved with default values");
 
-$node = pf::dal::node->find($test_mac);
+$node = pf::dal::node->find({mac => $test_mac});
 
-my $node2 = pf::dal::node->find($test_mac);
+my $node2 = pf::dal::node->find({mac => $test_mac});
 
 $node->computername("zams-computer");
 
@@ -136,7 +141,7 @@ ok(is_success($node->save), "Save node with computername = zams-computer");
 
 ok(is_success($node2->save), "Save node2 with voip = yes");
 
-$node = pf::dal::node->find($test_mac);
+$node = pf::dal::node->find({mac => $test_mac});
 
 is($node->voip, "yes", "Saving different values do not conflict");
 
@@ -152,6 +157,28 @@ is($status, $STATUS::CREATED, "$test_mac was successfully created");
 
 is($status, $STATUS::OK, "$test_mac was successfully updated");
 
+is($node->category, undef, "Undefined role");
+
+is($node->bypass_role, undef, "Undefined bypass_role");
+
+my $data = {"computername" => "computer", voip => "no", category => "gaming", bypass_role => "guest"};
+
+$node->merge($data);
+
+is($node->voip, $data->{voip}, "Test pf::dal->merge voip");
+
+is($node->computername, $data->{computername}, "Test pf::dal->merge computername");
+
+is($node->category, $data->{category}, "Test pf::dal::node->merge category");
+
+$node->save;
+
+$node = pf::dal::node->find({mac => $test_mac});
+
+is($node->category, $data->{category}, "Test saving category");
+
+is($node->bypass_role, $data->{bypass_role}, "Test saving bypass_role");
+
 pf::dal::node->remove_by_id({mac => $test_mac});
 
 =head1 AUTHOR
@@ -160,7 +187,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 

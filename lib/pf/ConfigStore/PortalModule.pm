@@ -21,6 +21,8 @@ use pf::file_paths qw(
 );
 extends 'pf::ConfigStore';
 
+use pf::log;
+
 sub configFile { $portal_modules_config_file};
 
 sub importConfigFile { $portal_modules_default_config_file }
@@ -42,6 +44,9 @@ sub cleanupAfterRead {
     if($object->{type} eq "Message" && ref($object->{message}) eq 'ARRAY'){
         $object->{message} = join("\n", @{$object->{message}});
     }
+
+    # Multiple sources are stored in this special field to the admin forms can display it differently
+    $object->{multi_source_ids} = $object->{source_id}; 
 }
 
 =head2 cleanupBeforeCommit
@@ -52,6 +57,15 @@ Clean data before update or creating
 
 sub cleanupBeforeCommit {
     my ($self, $id, $object) = @_;
+    
+    # portal_modules.conf always stores sources in source_id whether they are multiple or single, so we take multi_source_ids and put it in source_id
+    if (defined($object->{multi_source_ids}) && scalar(@{$object->{multi_source_ids}}) > 0) {
+        get_logger->debug("Multiple sources were defined for this object, taking the content of multi_source_ids to put it in source_id");
+        $object->{source_id} = delete $object->{multi_source_ids};
+    } else {
+        delete $object->{multi_source_ids};
+    }
+
     $self->flatten_list($object, $self->_fields_expanded);
     $self->join_lines($object, $self->_fields_line_expanded);
 }
@@ -64,6 +78,7 @@ sub _fields_expanded {
     return qw(
     modules
     source_id
+    multi_source_ids
     custom_fields
     actions
     );
@@ -93,7 +108,7 @@ sub _fields_line_expanded {
     );
 }
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 AUTHOR
 

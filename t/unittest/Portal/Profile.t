@@ -22,11 +22,11 @@ BEGIN {
     use lib qw(/usr/local/pf/t);
     #Module for overriding configuration paths
     use setup_test_config;
-    use_ok("pf::Portal::ProfileFactory");
+    use_ok("pf::Connection::ProfileFactory");
 }
 
 
-my $profile = pf::Portal::ProfileFactory->instantiate("00:00:00:00:00:00", {});
+my $profile = pf::Connection::ProfileFactory->instantiate("00:00:00:00:00:00", {});
 
 is($profile->findScan("00:00:00:00:00:00", {device_type => "Microsoft Windows Kernel 6.0", category => "guest"})->{_id}, "test1",
     "Matching scan properly when OS + category match");

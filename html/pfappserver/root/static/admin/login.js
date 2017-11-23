@@ -1,9 +1,11 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
+
 function init() {
     /* Perform authentication using AJAX */
     $('form[name="login"]').submit(function(event) {
         event.stopPropagation();
         var form = $(this),
-            form_control = form.children('.control-group').first(),
+            form_control = form.find('.control-group').first(),
             btn = form.find('[type="submit"]'),
             username = form.find('#username'),
             password = form.find('#password'),
@@ -37,7 +39,7 @@ function init() {
             }).fail(function(jqXHR) {
                 btn.button('reset');
                 var obj = $.parseJSON(jqXHR.responseText);
-                resetAlert(form.parent());
+                resetAlert(form.find('.card-block').first());
                 showError(form_control, obj.status_msg);
             });
         }

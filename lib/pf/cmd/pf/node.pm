@@ -7,6 +7,8 @@ pf::cmd::pf::node add documentation
 
  pfcmd node <add|count|view|edit|delete> mac [assignments]
 
+When using edit, you can specify the --reevaluate-access flag so that the network access of the device is adjusted if PacketFence has a location entry for the device.
+
 manipulate node entries
 
 examples:
@@ -35,6 +37,7 @@ use pf::util;
 use pf::log;
 use pf::constants;
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
+use pf::enforcement;
 my $pid_re = qr{(?:
     ( [a-zA-Z0-9\-\_\.\@\/\:\+\!,]+ )                               # unquoted allowed
     |                                                               # OR
@@ -234,9 +237,16 @@ sub action_edit {
         return $EXIT_FAILURE;
     }
     my ($result) = node_modify($mac,%{$self->{params}});
-    return $EXIT_SUCCESS if $result == 1;
-    print STDOUT "Unable to modify node '$mac'\n";
-    return $EXIT_FAILURE;
+    unless ($result == 1) {
+        print STDOUT "Unable to modify node '$mac'\n";
+        return $EXIT_FAILURE;
+    }
+
+    if ($self->{reevaluate_access}) {
+        pf::enforcement::reevaluate_access($mac, "admin_modify");
+    }
+
+    return $EXIT_SUCCESS;
 }
 
 =head2 parse_edit
@@ -298,7 +308,9 @@ sub _parse_attributes {
     for my $attribute (@attributes) {
         if($attribute =~ /^([a-zA-Z0-9_-]+)=(.*)$/ ) {
             $params{$1} = $2;
-        } else {
+        } elsif ($self->{action} eq "edit" && $attribute eq "--reevaluate-access") {
+            $self->{reevaluate_access} = $TRUE;   
+        }else {
             print STDERR "$attribute is badily formatted\n";
             return 0;
         }

@@ -1,3 +1,5 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
+
 $(function() { // DOM ready
     var items = new FloatingDevices();
     var view = new FloatingDeviceView({ items: items, parent: $('#section') });
@@ -16,6 +18,8 @@ FloatingDevices.prototype.id  = '#floatingdevices';
 FloatingDevices.prototype.formName  = 'modalFloatingDevice';
 
 FloatingDevices.prototype.modalId   = '#modalFloatingDevice';
+
+FloatingDevices.prototype.createSelector = ".createFloatingDevice";
 
 /*
  * The FloatingDeviceView class defines the DOM operations from the Web interface.
@@ -39,7 +43,7 @@ var FloatingDeviceView = function(options) {
 };
 
 FloatingDeviceView.prototype = (function(){
-    function F(){};
+    function F(){}
     F.prototype = ItemView.prototype;
     return new F();
 })();

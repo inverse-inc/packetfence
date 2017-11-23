@@ -8,7 +8,7 @@ pfappserver::Base::Controller::Crud::Config::Pagination add documentation
 
 =head1 DESCRIPTION
 
-PortalProfile
+ConnectionProfile
 
 =cut
 

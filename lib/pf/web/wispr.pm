@@ -80,7 +80,7 @@ sub handler {
     # Trace the user in the apache log
     $r->user($req->param("username"));
 
-    my ($return, $message, $source_id) = &pf::web::web_user_authenticate($portalSession,$req->param("username"),$req->param("password"));
+    my ($return, $message, $source_id, $extra) = &pf::web::web_user_authenticate($portalSession,$req->param("username"),$req->param("password"));
     if ($return) {
         $logger->info("Authentification success for wispr client");
         $stash = {
@@ -109,8 +109,9 @@ sub handler {
     if ($locationlog_entry) {
         $params->{connection_type} = $locationlog_entry->{'connection_type'};
         $params->{SSID} = $locationlog_entry->{'ssid'};
+        $params->{realm} = $locationlog_entry->{'realm'};
     }
-    my $matched = pf::authentication::match2($source_id, $params);
+    my $matched = pf::authentication::match2($source_id, $params, $extra);
     if ($matched) {
         my $values = $matched->{values};
         my $role = $values->{$Actions::SET_ROLE};
@@ -127,7 +128,10 @@ sub handler {
             %info = (%info, (unregdate => $unregdate));
         }
     }
-
+    my $time_balance = &pf::authentication::match($source_id, $params, $Actions::SET_TIME_BALANCE);
+    my $bandwidth_balance = &pf::authentication::match($source_id, $params, $Actions::SET_BANDWIDTH_BALANCE);
+    $info{'time_balance'} = pf::util::normalize_time($time_balance) if (defined($time_balance));
+    $info{'bandwidth_balance'} = pf::util::unpretty_bandwidth($bandwidth_balance) if (defined($bandwidth_balance));
     $r->pnotes->{info}=\%info;
     $template->process( "response_wispr.tt", $stash, \$response ) || $logger->error($template->error());
     $r->content_type('text/xml');

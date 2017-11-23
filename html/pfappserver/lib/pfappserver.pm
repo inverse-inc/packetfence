@@ -43,6 +43,7 @@ BEGIN {
 }
 use pf::CHI;
 use pf::CHI::Request;
+use pf::web::util;
 use pf::SwitchFactory;
 pf::SwitchFactory->preloadAllModules();
 
@@ -68,7 +69,7 @@ __PACKAGE__->config(
     },
     # Disable deprecated behavior needed by old applications
     disable_component_resolution_regex_fallback => 1,
-    'static' => {
+    'Plugin::Static::Simple' => {
         mime_types => {
             woff => 'font/woff'
         },
@@ -99,7 +100,7 @@ __PACKAGE__->config(
 
     'View::JSON' => {
        # TODO to discuss: always add to exposed stash or use a standard 'resultset' instead?
-       expose_stash    => [ qw(status status_msg error interfaces networks switches config services success items) ], # defaults to everything
+       expose_stash    => [ qw(status status_msg error interfaces networks switches config services success items time_offset) ], # defaults to everything
     },
 
     'View::HTML' => {
@@ -292,8 +293,7 @@ sub pf_localize {
     unless ($ref_type) {
         @args = ($msg);
     } else {
-        my $text = shift @$msg;
-        @args = ($text,$msg);
+        @args = @$msg;
     }
     return $c->localize(@args);
 }
@@ -308,6 +308,49 @@ Checks to see if the user is allowed in admin
 sub user_allowed_in_admin {
     my ($c) = @_;
     return $c->user_in_realm('admin') || $c->user_in_realm('proxy') || $c->authenticate({}, 'proxy');
+}
+
+=head2 generate_doc_link
+
+Generate the HTML link to a section of documentation
+
+=cut
+
+sub generate_doc_link {
+    my ($c, $section, $guide) = @_;
+    return pf::web::util::generate_doc_link($section, $guide);
+}
+
+=head2 generate_doc_url
+
+Generate the URL to a section of documentation
+
+=cut
+
+sub generate_doc_url {
+    my ($c, $section, $guide) = @_;
+    return pf::web::util::generate_doc_url($section, $guide);
+}
+
+=head2 csp_server_headers
+
+Return CSP (Content-Security-Policy) headers
+
+=cut
+
+sub csp_server_headers {
+    my ($c) = @_;
+
+    # Allow context-specific directive values (script-src, worker-src, img-src and style-src)
+    my $headers = $c->stash->{csp_headers} || {};
+    $c->response->header
+      ('Content-Security-Policy' =>
+       sprintf("default-src 'none'; script-src 'self'%s; connect-src 'self'; img-src 'self'%s; style-src 'self'%s; font-src 'self'; child-src 'self'; frame-src 'self'",
+               $headers->{script}? ' ' . $headers->{script} : '',
+               $headers->{img}   ? ' ' . $headers->{img}    : '',
+               $headers->{style} ? ' ' . $headers->{style}  : ''
+              )
+      );
 }
 
 # Logging

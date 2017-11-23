@@ -15,7 +15,6 @@ pf::detect::parser::regex
 use strict;
 use warnings;
 use pf::log;
-use pf::api::queue;
 use pf::util qw(isenabled clean_mac);
 use Clone qw(clone);
 use Moo;
@@ -51,26 +50,50 @@ parse the Line using the rule
 
 sub parseLineFromRule {
     my ($self, $rule, $line) = @_;
-    return undef unless $line =~ $rule->{regex};
+    return 0, undef unless $line =~ $rule->{regex};
     my %data = %+;
+    my $success = 1;
     if (exists $data{mac}) {
         $data{mac} = clean_mac($data{mac});
     }
+    return $success, \%data;
+}
+
+
+=head2 ipMacTranslation
+
+ipMacTranslation
+
+=cut
+
+sub ipMacTranslation {
+    my ($self, $rule, $data) = @_;
+    my $success = 1;
     if (isenabled($rule->{ip_mac_translation}) ) {
-        if (exists $data{ip} && !exists $data{mac}) {
-            my $mac = pf::ip4log::ip2mac($data{ip});
+        if (exists $data->{ip} && !exists $data->{mac}) {
+            my $mac = pf::ip4log::ip2mac($data->{ip});
             if ($mac) {
-                $data{mac} = $mac;
+                $data->{mac} = $mac;
+            }
+            else {
+                my $logger = get_logger();
+                $logger->error("Parser id " . $self->id . " : Failed performing ip2mac translation skipping rule $rule->{name}");
+                $success = 0;
             }
         }
-        elsif (exists $data{mac} && !exists $data{ip}) {
-            my $ip = pf::ip4log::mac2ip($data{mac});
+        elsif (exists $data->{mac} && !exists $data->{ip}) {
+            my $ip = pf::ip4log::mac2ip($data->{mac});
             if ($ip) {
-                $data{ip} = $ip;
+                $data->{ip} = $ip;
+            }
+            else {
+                my $logger = get_logger();
+                $logger->error("Parser id " . $self->id . " : Failed performing mac2ip translation skipping rule $rule->{name}");
+                $success = 0;
             }
         }
     }
-    return \%data;
+    return $success;
 }
 
 =head2 sendActions
@@ -111,17 +134,6 @@ sub prepAction {
     return [$action, $params];
 }
 
-=head2 getApiClient
-
-get the api client
-
-=cut
-
-sub getApiClient {
-    my ($self) = @_;
-    return pf::api::queue->new(queue => 'pfdetect');
-}
-
 =head2 evalParams
 
 eval parameters
@@ -130,12 +142,11 @@ eval parameters
 
 sub evalParams {
     my ($self, $action_params, $args) = @_;
-    my @params = split(/\s*,\s*/, $action_params);
+    my @params = split(/\s*[,=]\s*/, $action_params);
     my @return;
     foreach my $param (@params) {
         $param =~ s/\$([A-Za-z0-9_]+)/$args->{$1} \/\/ '' /ge;
-        my @param_unit = split(/\s*=\s*/, $param);
-        push @return, @param_unit;
+        push @return, $param;
     }
     return \@return;
 }
@@ -148,7 +159,7 @@ match line
 =cut
 
 sub matchLine {
-    my ($self, $line) = @_;
+    my ($self, $line, $include_ip2mac_failures) = @_;
     my @actions;
     my @rules;
     my @matches;
@@ -159,12 +170,20 @@ sub matchLine {
         my $rule_name = $r->{name};
         $logger->trace( sub { "Pfdetect Regex $id checking rule $rule_name" });
         my $rule = clone($r);
-        my $data = $self->parseLineFromRule($rule, $line);
-        next unless defined $data;
+        my ($success, $data) = $self->parseLineFromRule($rule, $line);
+        if ($success == 0) {
+            next;
+        }
         $logger->trace( sub { "Pfdetect Regex $id rule $rule_name matched" });
+        $success = $self->ipMacTranslation($r, $data);
+        if ($success == 0 && !$include_ip2mac_failures) {
+            $logger->error("Pfdetect Regex $id rule $rule_name error with ip <=> mac translations");
+            next;
+        }
         my %match = (
             rule => $rule,
             actions => [],
+            success => $success,
         );
         push @matches, \%match;
         foreach my $action (@{$rule->{actions} // []}) {
@@ -193,7 +212,7 @@ sub dryRun {
     for my $line (@lines) {
         my %run = (
             line => $line,
-            matches => $self->matchLine($line),
+            matches => $self->matchLine($line, 1),
         );
         push @runs, \%run;
     }

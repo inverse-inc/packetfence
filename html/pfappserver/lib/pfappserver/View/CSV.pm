@@ -52,6 +52,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable(inline_constructor => 0);
+__PACKAGE__->meta->make_immutable(inline_constructor => 0) unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

@@ -26,22 +26,21 @@ use pf::util::statsd qw(called);
 use pf::error qw(is_success);
 use pf::constants::parking qw($PARKING_VID);
 use CHI::Memoize qw(memoized);
+use pf::dal::node;
+use pf::constants::node qw(
+    $STATUS_REGISTERED
+    $STATUS_UNREGISTERED
+    $STATUS_PENDING
+    %ALLOW_STATUS
+    $NODE_DISCOVERED_TRIGGER_DELAY
+);
+use pf::config qw(
+    %Config
+);
 
 use constant NODE => 'node';
 
-# Node status constants
-#FIXME port all hard-coded strings to these constants
-Readonly::Scalar our $STATUS_REGISTERED => 'reg';
-Readonly::Scalar our $STATUS_UNREGISTERED => 'unreg';
-Readonly::Scalar our $STATUS_PENDING => 'pending';
-Readonly::Hash our %ALLOW_STATUS => (
-    $STATUS_REGISTERED   => 1,
-    $STATUS_UNREGISTERED => 1,
-    $STATUS_PENDING      => 1,
-);
 # Delay in millisecond to wait for triggering internal::node_discovered after discovering a node 
-Readonly::Scalar our $NODE_DISCOVERED_TRIGGER_DELAY => 10000;
-
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
@@ -81,6 +80,8 @@ BEGIN {
         node_search
         $STATUS_REGISTERED
         node_last_reg
+        node_defaults
+        node_update_last_seen
     );
 }
 
@@ -96,7 +97,7 @@ use pf::db;
 use pf::nodecategory;
 use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID);
 use pf::util;
-use pf::Portal::ProfileFactory;
+use pf::Connection::ProfileFactory;
 use pf::ipset;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
@@ -132,9 +133,9 @@ sub node_db_prepare {
             detect_date, regdate, unregdate, lastskip,
             user_agent, computername, dhcp_fingerprint,
             last_arp, last_dhcp,
-            notes, autoreg, sessionid
+            notes, autoreg, sessionid, last_seen
         ) VALUES (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW()
         )
     ]
     );
@@ -160,7 +161,7 @@ sub node_db_prepare {
             IF(ISNULL(nr.name), '', nr.name) as bypass_role,
             detect_date, regdate, unregdate, lastskip, time_balance, bandwidth_balance,
             user_agent, computername, dhcp_fingerprint, dhcp_vendor, dhcp6_fingerprint, dhcp6_enterprise, device_type, device_class, device_version, device_score,
-            last_arp, last_dhcp,
+            last_arp, last_dhcp, last_seen,
             node.notes, autoreg, sessionid, machine_account
         FROM node
             LEFT JOIN node_category as nr on node.bypass_role_id = nr.category_id
@@ -176,7 +177,7 @@ sub node_db_prepare {
             IF(ISNULL(nr.name), '', nr.name) as bypass_role ,
             detect_date, regdate, unregdate, lastskip,
             user_agent, computername, device_class AS dhcp_fingerprint,
-            last_arp, last_dhcp,
+            last_arp, last_dhcp, last_seen,
             node.notes, autoreg, sessionid, machine_account
         FROM node
             LEFT JOIN node_category as nr on node.bypass_role_id = nr.category_id
@@ -217,7 +218,7 @@ sub node_db_prepare {
             IF(ISNULL(nr.name), '', nr.name) as bypass_role ,
             node.detect_date, node.regdate, node.unregdate, node.lastskip, node.time_balance, node.bandwidth_balance,
             node.user_agent, node.computername, node.dhcp_fingerprint, node.dhcp_vendor, node.dhcp6_fingerprint, node.dhcp6_enterprise, node.device_type, node.device_class, node.device_version, node.device_score,
-            node.last_arp, node.last_dhcp,
+            node.last_arp, node.last_dhcp, node.last_seen,
             node.notes, node.autoreg, node.sessionid, node.machine_account,
             UNIX_TIMESTAMP(node.regdate) AS regdate_timestamp,
             UNIX_TIMESTAMP(node.unregdate) AS unregdate_timestamp
@@ -242,7 +243,8 @@ sub node_db_prepare {
            locationlog.stripped_user_name as stripped_user_name, locationlog.realm as realm,
            locationlog.switch_mac as last_switch_mac,
            locationlog.start_time as last_start_time, locationlog.role as last_role,
-           UNIX_TIMESTAMP(locationlog.start_time) as last_start_timestamp
+           UNIX_TIMESTAMP(locationlog.start_time) as last_start_timestamp,
+           locationlog.ifDesc as last_ifDesc
        FROM locationlog
        WHERE mac = ? AND end_time = 0
     SQL
@@ -283,13 +285,13 @@ sub node_db_prepare {
             IF(node.unregdate = '0000-00-00 00:00:00', '', node.unregdate) as unregdate,
             IF(node.lastskip = '0000-00-00 00:00:00', '', node.lastskip) as lastskip,
             node.user_agent, node.computername, device_class AS dhcp_fingerprint,
-            node.last_arp, node.last_dhcp,
+            node.last_arp, node.last_dhcp, node.last_seen,
             locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan,
             IF(ISNULL(locationlog.connection_type), '', locationlog.connection_type) as last_connection_type,
             locationlog.dot1x_username as last_dot1x_username, locationlog.ssid as last_ssid,
             locationlog.stripped_user_name as stripped_user_name, locationlog.realm as realm,
             locationlog.switch_mac as last_switch_mac,
-            iplog.ip as last_ip,
+            ip4log.ip as last_ip,
             COUNT(DISTINCT violation.id) as nbopenviolations,
             node.notes
         FROM node
@@ -297,7 +299,7 @@ sub node_db_prepare {
             LEFT JOIN node_category as nc on node.category_id = nc.category_id
             LEFT JOIN violation ON node.mac=violation.mac AND violation.status = 'open'
             LEFT JOIN locationlog ON node.mac=locationlog.mac AND end_time = 0
-            LEFT JOIN iplog ON node.mac=iplog.mac AND (iplog.end_time = '0000-00-00 00:00:00' OR iplog.end_time > NOW())
+            LEFT JOIN ip4log ON node.mac=ip4log.mac AND (ip4log.end_time = '0000-00-00 00:00:00' OR ip4log.end_time > NOW())
         GROUP BY node.mac
     ];
 
@@ -315,8 +317,11 @@ sub node_db_prepare {
     $node_statements->{'node_expire_lastarp_sql'} = get_db_handle()->prepare(
         qq [ select mac from node where unix_timestamp(last_arp) < (unix_timestamp(now()) - ?) and last_arp!=0 ]);
 
-    $node_statements->{'node_expire_lastdhcp_sql'} = get_db_handle()->prepare(
-        qq [ select mac from node where unix_timestamp(last_dhcp) < (unix_timestamp(now()) - ?) and last_dhcp !=0 and status="$STATUS_UNREGISTERED" ]);
+    $node_statements->{'node_expire_lastseen_sql'} = get_db_handle()->prepare(
+        qq [ select mac from node where unix_timestamp(last_seen) < (unix_timestamp(now()) - ?) and last_seen!="0000-00-00 00:00:00" and status="$STATUS_UNREGISTERED" ]);
+
+    $node_statements->{'node_unreg_lastseen_sql'} = get_db_handle()->prepare(
+        qq [ select mac from node where unix_timestamp(last_seen) < (unix_timestamp(now()) - ?) and last_seen!="0000-00-00 00:00:00" and status="$STATUS_REGISTERED" ]);
 
     $node_statements->{'node_is_unregistered_sql'} = get_db_handle()->prepare(
         qq[
@@ -368,7 +373,7 @@ sub node_db_prepare {
         SELECT n.mac, n.pid, n.detect_date, n.regdate, n.unregdate, n.lastskip,
             n.status, n.user_agent, n.computername, n.notes,
             i.ip, i.start_time, i.end_time, n.last_arp
-        FROM node n LEFT JOIN iplog i ON n.mac=i.mac
+        FROM node n LEFT JOIN ip4log i ON n.mac=i.mac
         WHERE n.status = "unreg" AND (i.end_time = 0 OR i.end_time > now())
     ]);
 
@@ -376,7 +381,7 @@ sub node_db_prepare {
         SELECT n.mac, n.pid, n.detect_date, n.regdate, n.unregdate, n.lastskip,
             n.status, n.user_agent, n.computername, n.notes, n.dhcp_fingerprint,
             i.ip, i.start_time, i.end_time, n.last_arp
-        FROM node n, iplog i
+        FROM node n, ip4log i
         WHERE n.mac = i.mac AND (i.end_time = 0 OR i.end_time > now())
     ]);
 
@@ -388,6 +393,11 @@ sub node_db_prepare {
 
     $node_statements->{'node_update_bandwidth_sql'} = get_db_handle()->prepare(qq[
         UPDATE node SET bandwidth_balance = COALESCE(bandwidth_balance, 0) + ?
+        WHERE mac = ?
+    ]);
+
+    $node_statements->{'node_update_last_seen_sql'} = get_db_handle()->prepare(qq[
+        UPDATE node SET last_seen = NOW()
         WHERE mac = ?
     ]);
 
@@ -551,11 +561,7 @@ sub node_add_simple {
     my %tmp   = (
         'pid'         => 'default',
         'detect_date' => $date,
-        'regdate'     => 0,
-        'unregdate'   => 0,
-        'last_skip'   => 0,
         'status'      => 'unreg',
-        'last_dhcp'   => 0,
         'voip'        => 'no',
     );
     if ( !node_add( $mac, %tmp ) ) {
@@ -811,7 +817,7 @@ sub node_view_all {
                 $node_view_all_sql .= " HAVING node.mac LIKE $like"
                   . " OR node.computername LIKE $like"
                   . " OR node.pid LIKE $like"
-                  . " OR iplog.ip LIKE $like";
+                  . " OR ip4log.ip LIKE $like";
             }
         }
     }
@@ -905,9 +911,6 @@ sub node_modify {
        # once the category conversion is complete, I delete the category entry to avoid complicating things
        delete $existing->{'category'} if defined($existing->{'category'});
     }
-    # If we are in inline mode then reevaluate the ipset session to clean old info
-    my $node_info = node_view($mac);
-    pf::ipset::iptables_update_set($mac, $old_role_id, $new_role_id) if (defined($node_info->{'last_connection_type'}) && $node_info->{'last_connection_type'} eq $connection_type_to_str{$INLINE});
 
     # Autoregistration handling
     if (defined($data{'autoreg'})) {  $existing->{autoreg} = $data{'autoreg'}; }
@@ -1025,7 +1028,7 @@ sub node_register {
     require pf::violation;
     pf::violation::violation_force_close($mac, $PARKING_VID);
 
-    my $profile = pf::Portal::ProfileFactory->instantiate($mac);
+    my $profile = pf::Connection::ProfileFactory->instantiate($mac);
     my $scan = $profile->findScan($mac);
     if (defined($scan)) {
         # triggering a violation used to communicate the scan to the user
@@ -1054,7 +1057,7 @@ sub node_deregister {
     $info{'lastskip'}  = 0;
     $info{'autoreg'}   = 'no';
 
-    my $profile = pf::Portal::ProfileFactory->instantiate($mac);
+    my $profile = pf::Connection::ProfileFactory->instantiate($mac);
     if(my $provisioner = $profile->findProvisioner($mac)){
         if(my $pki_provider = $provisioner->getPkiProvider() ){
             if(isenabled($pki_provider->revoke_on_unregistration)){
@@ -1141,30 +1144,66 @@ sub node_expire_lastarp {
     return db_data(NODE, $node_statements, 'node_expire_lastarp_sql', $time);
 }
 
-sub node_expire_lastdhcp {
+=item node_expire_lastseen
+
+Get the nodes that should be deleted based on the last_seen column 
+
+=cut
+
+sub node_expire_lastseen {
     my ($time) = @_;
-    return db_data(NODE, $node_statements, 'node_expire_lastdhcp_sql', $time);
+    return db_data(NODE, $node_statements, 'node_expire_lastseen_sql', $time);
 }
+
+=item node_unreg_lastseen
+
+Get the nodes that should be unregistered based on the last_seen column 
+
+=cut
+
+sub node_unreg_lastseen {
+    my ($time) = @_;
+    return db_data(NODE, $node_statements, 'node_unreg_lastseen_sql', $time);
+}
+
+=item node_cleanup
+
+Cleanup nodes that should be deleted or unregistered based on the maintenance parameters
+
+=cut
 
 sub node_cleanup {
     my $timer = pf::StatsD::Timer->new;
-    my ($time) = @_;
+    my ($delete_time, $unreg_time) = @_;
     my $logger = get_logger();
-    $logger->debug("calling node_cleanup with time=$time");
+    $logger->debug("calling node_cleanup with delete_time=$delete_time unreg_time=$unreg_time");
     
-    if($time eq "0") {
-        $logger->debug("Not deleting because the window is 0");
-        return;
-    }
-
-    foreach my $rowVlan ( node_expire_lastdhcp($time) ) {
-        my $mac = $rowVlan->{'mac'};
-        require pf::locationlog;
-        if (pf::locationlog::locationlog_update_end_mac($mac)) {
-            $logger->info("mac $mac not seen for $time seconds, deleting");
-           node_delete($mac);
+    if($delete_time ne "0") {
+        foreach my $row ( node_expire_lastseen($delete_time) ) {
+            my $mac = $row->{'mac'};
+            require pf::locationlog;
+            if (pf::locationlog::locationlog_update_end_mac($mac)) {
+                $logger->info("mac $mac not seen for $delete_time seconds, deleting");
+               node_delete($mac);
+            }
         }
     }
+    else {
+        $logger->debug("Not deleting because the window is 0");
+    }
+
+    if($unreg_time ne "0") {
+        foreach my $row ( node_unreg_lastseen($unreg_time) ) {
+            my $mac = $row->{'mac'};
+            $logger->info("mac $mac not seen for $unreg_time seconds, unregistering");
+            node_deregister($mac);
+            # not reevaluating access since the node is be inactive
+        }
+    }
+    else {
+        $logger->debug("Not unregistering because the window is 0");
+    }
+
     return (0);
 }
 
@@ -1366,7 +1405,8 @@ Cleans up any inconsistency in the info attributes
 
 sub _cleanup_attributes {
     my ($info) = @_;
-    $info->{voip} ||= $NO_VOIP;
+    my $voip = $info->{voip};
+    $info->{voip} = $NO_VOIP if !defined ($voip) || $voip ne $VOIP;
     $info->{'status'} = _cleanup_status_value($info->{'status'});
 }
 
@@ -1391,26 +1431,114 @@ sub fingerbank_info {
         return $info;
     }
 
-    my $device_info = $cache->compute_with_undef('fingerbank_info::DeviceHierarchy-'.$node_info->{device_type}, sub {
-        my $info = {};
+    my $device_info = {};
+    my $cache_key = 'fingerbank_info::DeviceHierarchy-'.$node_info->{device_type};
+    eval {
+        $device_info = $cache->compute_with_undef($cache_key, sub {
+            my $info = {};
 
-        my $device_id = pf::fingerbank::device_name_to_device_id($node_info->{device_type});
-        if(defined($device_id)) {
-            my $device = fingerbank::Model::Device->read($device_id, $TRUE);
-            $info->{device_hierarchy_names} = [$device->{name}, map {$_->{name}} @{$device->{parents}}];
-            $info->{device_hierarchy_ids} = [$device->{id}, map {$_->{id}} @{$device->{parents}}];
-            $info->{device_fq} = join('/',reverse(@{$info->{device_hierarchy_names}}));
-            $info->{mobile} = $device->{mobile};
-        }
-        return $info;
-    });
-    $info->{score} = $node_info->{device_score};
-    $info->{version} = $node_info->{device_version};
+            my $device_id = pf::fingerbank::device_name_to_device_id($node_info->{device_type});
+            if(defined($device_id)) {
+                my $device = fingerbank::Model::Device->read($device_id, $TRUE);
+                $info->{device_hierarchy_names} = [$device->{name}, map {$_->{name}} @{$device->{parents}}];
+                $info->{device_hierarchy_ids} = [$device->{id}, map {$_->{id}} @{$device->{parents}}];
+                $info->{device_fq} = join('/',reverse(@{$info->{device_hierarchy_names}}));
+                $info->{mobile} = $device->{mobile};
+            }
+            else {
+                get_logger->warn("Impossible to find device information for $node_info->{device_type}");
+                $info->{device_hierarchy_names} = [];
+                $info->{device_hierarchy_ids} = [];
+            }
+            return $info;
+        });
+        $info->{score} = $node_info->{device_score};
+        $info->{version} = $node_info->{device_version};
 
-    $info ={ (%$info, %$device_info) };
+        $info ={ (%$info, %$device_info) };
+    };
+    if($@) {
+        get_logger->error("Unable to compute Fingerbank device information for $mac. Device profiling rules relying on it will not work. ($@)");
+        $cache->remove($cache_key);
+    }
 
     return $info;
 }
+
+=item node_defaults
+
+create the node defaults
+
+=cut
+
+sub node_defaults {
+    my ($mac) = @_;
+    my $node_info = pf::dal::node->_defaults;
+    $node_info->{mac} = $mac;
+    return $node_info;
+}
+
+=item node_update_last_seen 
+
+Update the last_seen attribute of a node to now
+
+=cut
+
+sub node_update_last_seen {
+    my ($mac) = @_;
+    $mac = clean_mac($mac);
+    if($mac) {
+        get_logger->debug("Updating last_seen for $mac");
+        db_query_execute(NODE, $node_statements, 'node_update_last_seen_sql', $mac);
+    }
+}
+
+
+=item check_multihost
+
+Verify, based on open location log for a MAC, if there's more than one endpoint on a switchport.
+
+location_info is an optionnal hashref containing switch ID, switch port and connection type. If provided, there is no need to look them up.
+
+=cut
+
+sub check_multihost {
+    my ( $mac, $location_info ) = @_;
+    my $logger = get_logger();
+
+    return unless isenabled($Config{'advanced'}{'multihost'});
+
+    $mac = clean_mac($mac);
+    unless ( defined $location_info && ($location_info->{'switch_id'} ne "") && ($location_info->{'switch_port'} ne "") && ($location_info->{'connection_type'} ne "") ) {
+        my $query = db_query_execute(NODE, $node_statements, 'node_last_locationlog_sql', $mac) || return (0);
+        my $locationlog_info_ref = $query->fetchrow_hashref();
+        $query->finish();
+        $location_info->{'switch_id'} = $locationlog_info_ref->{'last_switch'};
+        $location_info->{'switch_port'} = $locationlog_info_ref->{'last_port'};
+        $location_info->{'connection_type'} = $locationlog_info_ref->{'last_connection_type'};
+    }
+
+    # There is no "multihost" capabilities for wireless or inline connections
+    if ( ($location_info->{'connection_type'} =~ /^Wireless/)  || ($location_info->{'connection_type'} =~ /^Inline/) ) {
+        $logger->debug("Not looking up multihost presence with MAC '$mac' since it is a '$location_info->{'connection_type'}' connection");
+        return;
+    }
+
+    $logger->debug("Looking up multihost presence on switch ID '$location_info->{'switch_id'}', switch port '$location_info->{'switch_port'}' (with MAC '$mac')");
+
+    my @locationlog = pf::locationlog::locationlog_view_open_switchport_no_VoIP($location_info->{'switch_id'}, $location_info->{'switch_port'});
+
+    return unless scalar @locationlog > 1;
+
+    my @mac;
+    $logger->info("Found '" . scalar @locationlog . "' active devices on switch ID '$location_info->{'switch_id'}', switch port '$location_info->{'switch_port'}' (with MAC '$mac')");
+    for my $entry ( @locationlog ) {
+        push @mac, $entry->{'mac'};
+    }
+
+    return @mac;
+}
+
 
 =back
 

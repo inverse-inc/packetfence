@@ -58,7 +58,7 @@ my $server_name = <STDIN>;
 chomp($server_name);
 
 my $cs = pf::ConfigStore::Domain->new;
-$cs->update_or_create($WORKGROUP, {workgroup => $WORKGROUP, dns_name => $REALM, dns_server => $NAMESERVER, ad_server => $SERVER, bind_dn => $user, bind_pass => $password, server_name => $server_name});
+$cs->update_or_create($WORKGROUP, {workgroup => $WORKGROUP, dns_name => $REALM, dns_servers => $NAMESERVER, ad_server => $SERVER, bind_dn => $user, bind_pass => $password, server_name => $server_name});
 $cs->commit();
 
 print "Configuring realm : '$REALM' \n";

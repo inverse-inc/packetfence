@@ -27,10 +27,9 @@ use pf::ConfigStore::Interface();
 use pf::ConfigStore::Pf();
 use pf::ip4log();
 use pf::fingerbank;
-use pf::Portal::ProfileFactory();
+use pf::Connection::ProfileFactory();
 use pf::radius::custom();
 use pf::violation();
-use pf::soh::custom();
 use pf::util();
 use pf::node();
 use pf::locationlog();
@@ -43,9 +42,10 @@ use fingerbank::DB;
 use File::Slurp;
 use pf::file_paths qw($captiveportal_profile_templates_path);
 use pf::CHI;
-use pf::access_filter::dhcp;
 use pf::metadefender();
 use pf::services();
+use pf::firewallsso();
+use pf::pfqueue::stats();
 
 use List::MoreUtils qw(uniq);
 use List::Util qw(pairmap);
@@ -83,7 +83,7 @@ sub event_add : Public {
     }
     my $srcmac = pf::ip4log::ip2mac($srcip) if defined $srcip;
     # If trapping range is defined then check
-    my $range = $pf::config::Config{'trapping'}{'range'};
+    my $range = $pf::config::Config{'fencing'}{'range'};
     if (defined ($range) && $range ne '') {
         my $dstmac = pf::ip4log::ip2mac($dstip) if defined $dstip;
         my ($source_net_ip, $dest_net_ip);
@@ -167,21 +167,6 @@ sub radius_update_locationlog : Public {
     return $return;
 }
 
-sub soh_authorize : Public {
-    my ($class, %radius_request) = @_;
-    my $logger = pf::log::get_logger();
-
-    my $soh = pf::soh::custom->new();
-    my $return;
-    eval {
-      $return = $soh->authorize(\%radius_request);
-    };
-    if ($@) {
-      $logger->error("soh authorize failed with error: $@");
-    }
-    return $return;
-}
-
 =head2 radius_switch_access
 
 Return RADIUS attributes to allow switch's CLI access
@@ -203,7 +188,14 @@ sub radius_switch_access : Public {
     return $return;
 }
 
-sub update_iplog : Public :AllowedAsAction(mac, $mac, ip, $ip) {
+
+=head2 update_ip4log
+
+Update ip4log based on provided IP addresses and MAC addresses
+
+=cut
+
+sub update_ip4log : Public :AllowedAsAction(mac, $mac, ip, $ip) {
     my ($class, %postdata) = @_;
     my @require = qw(mac ip);
     my @found = grep {exists $postdata{$_}} @require;
@@ -216,17 +208,50 @@ sub update_iplog : Public :AllowedAsAction(mac, $mac, ip, $ip) {
 
     if ( $postdata{'oldmac'} && $postdata{'oldmac'} ne $postdata{'mac'} ) {
         $logger->info(
-            "oldmac ($postdata{'oldmac'}) and newmac ($postdata{'mac'}) are different for $postdata{'ip'} - closing iplog entry"
+            "oldmac ($postdata{'oldmac'}) and newmac ($postdata{'mac'}) are different for $postdata{'ip'} - closing ip4log entry"
         );
         pf::ip4log::close($postdata{'ip'});
     } elsif ($postdata{'oldip'} && $postdata{'oldip'} ne $postdata{'ip'}) {
         $logger->info(
-            "oldip ($postdata{'oldip'}) and newip ($postdata{'ip'}) are different for $postdata{'mac'} - closing iplog entry"
+            "oldip ($postdata{'oldip'}) and newip ($postdata{'ip'}) are different for $postdata{'mac'} - closing ip4log entry"
         );
         pf::ip4log::close($postdata{'oldip'});
     }
 
     return (pf::ip4log::open($postdata{'ip'}, $postdata{'mac'}, $postdata{'lease_length'}));
+}
+
+
+=head2 update_ip6log
+
+Update ip6log based on provided IP addresses and MAC addresses
+
+=cut
+
+sub update_ip6log : Public :AllowedAsAction(mac, $mac, ip, $ip) {
+    my ($class, %postdata) = @_;
+    my @require = qw(mac ip);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless pf::util::validate_argv(\@require,  \@found);
+
+    my $logger = pf::log::get_logger();
+
+    $postdata{'oldip'}  = pf::ip6log::mac2ip($postdata{'mac'}) if (!defined($postdata{'oldip'}));
+    $postdata{'oldmac'} = pf::ip6log::ip2mac($postdata{'ip'}) if (!defined($postdata{'oldmac'}));
+
+    if ( $postdata{'oldmac'} && $postdata{'oldmac'} ne $postdata{'mac'} ) {
+        $logger->info(
+            "oldmac ($postdata{'oldmac'}) and newmac ($postdata{'mac'}) are different for $postdata{'ip'} - closing ip6log entry"
+        );
+        pf::ip6log::close($postdata{'ip'});
+    } elsif ($postdata{'oldip'} && $postdata{'oldip'} ne $postdata{'ip'}) {
+        $logger->info(
+            "oldip ($postdata{'oldip'}) and newip ($postdata{'ip'}) are different for $postdata{'mac'} - closing ip6log entry"
+        );
+        pf::ip6log::close($postdata{'oldip'});
+    }
+
+    return (pf::ip6log::open($postdata{'ip'}, $postdata{'mac'}, $postdata{'ip_type'}, $postdata{'lease_length'}));
 }
 
 sub unreg_node_for_pid : Public:AllowedAsAction(pid, $pid) {
@@ -235,15 +260,17 @@ sub unreg_node_for_pid : Public:AllowedAsAction(pid, $pid) {
     my @require = qw(pid);
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
+    my $pid = $postdata{'pid'};
 
-    my @node_infos =  pf::node::node_view_reg_pid($postdata{'pid'});
-    $logger->info("Unregistering ".scalar(@node_infos)." node(s) for ".$postdata{'pid'});
+    my @node_infos = pf::node::node_view_reg_pid($pid);
+    my $count = scalar(@node_infos);
+    $logger->info("Unregistering $count node(s) for $pid");
 
     foreach my $node_info ( @node_infos ) {
         pf::node::node_deregister($node_info->{'mac'});
     }
 
-    return 1;
+    return $count;
 }
 
 sub synchronize_locationlog : Public {
@@ -275,29 +302,12 @@ sub ipset_node_update : Public {
 }
 
 sub firewallsso : Public {
-    my ($class, %postdata) = @_;
+    my ( $class, %postdata ) = @_;
     my @require = qw(method mac ip timeout);
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
 
-    my $logger = pf::log::get_logger();
-
-    my $node = pf::node::node_attributes($postdata{mac});
-
-    pf::api::jsonrestclient->new(
-        proto => "http", 
-        host => "localhost", 
-        port => $pf::constants::api::PFSSO_PORT,
-    )->call("/pfsso/".lc($postdata{method}), {
-        ip => $postdata{ip}, 
-        mac => pf::util::clean_mac($postdata{mac}),
-        # All values must be string for pfsso
-        timeout => $postdata{timeout}."",
-        role => $node->{category},
-        username => $node->{pid},
-    });
-
-    return $pf::config::TRUE;
+    return pf::firewallsso::do_sso(%postdata);
 }
 
 sub ReAssignVlan : Public : Fork {
@@ -319,7 +329,7 @@ sub ReAssignVlan : Public : Fork {
         return;
     }
 
-    sleep $pf::config::Config{'trapping'}{'wait_for_redirect'};
+    sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};
 
     # SNMP traps connections need to be handled specially to account for port-security etc.
     if ( ($postdata{'connection_type'} & $pf::config::WIRED_SNMP_TRAPS) == $pf::config::WIRED_SNMP_TRAPS ) {
@@ -343,7 +353,7 @@ ReAssignVlan_in_queue is use to localy use ReAssignVlan function in pfqueue to g
 
 sub ReAssignVlan_in_queue : Public {
     my ($class, %postdata )  = @_;
-    my $client = pf::api::queue->new(queue => 'general');
+    my $client = pf::api::queue->new(queue => 'priority');
     $client->notify( 'ReAssignVlan', %postdata );
 }
 
@@ -364,7 +374,7 @@ sub desAssociate : Public : Fork {
     my ($switchdeauthMethod, $deauthTechniques) = $switch->deauthTechniques($switch->{'_deauthMethod'});
 
     # sleep long enough to give the device enough time to fetch the redirection page.
-    sleep $pf::config::Config{'trapping'}{'wait_for_redirect'};
+    sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};
 
     $logger->info("[$postdata{'mac'}] DesAssociating mac on switch (".$switch->{'_id'}.")");
     $switch->$deauthTechniques($postdata{'mac'});
@@ -378,7 +388,7 @@ desAssociate is use to localy use desAssociate function in pfqueue to get rid of
 
 sub desAssociate_in_queue : Public {
     my ($class, %postdata )  = @_;
-    my $client = pf::api::queue->new(queue => 'general');
+    my $client = pf::api::queue->new(queue => 'priority');
     $client->notify( 'desAssociate', %postdata );
 }
 
@@ -449,7 +459,7 @@ sub _node_determine_and_set_into_VLAN {
         switch => $switch,
         ifIndex => $ifIndex,
         connection_type => $connection_type,
-        profile => pf::Portal::ProfileFactory->instantiate($mac),
+        profile => pf::Connection::ProfileFactory->instantiate($mac),
     };
 
     my $role = $role_obj->fetchRoleForNode($args);
@@ -730,7 +740,7 @@ sub expire_cluster : Public {
 
     my @failed;
     foreach my $server (pf::cluster::enabled_servers()){
-        next if($host_id eq $server->{host});
+        next if($pf::cluster::host_id eq $server->{host});
         my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $server->{management_ip});
         my %data = (
             namespace => $postdata{namespace},
@@ -748,7 +758,7 @@ sub expire_cluster : Public {
 
         %data = (
             conf_file => $postdata{conf_file},
-            server => $host_id,
+            server => $pf::cluster::host_id,
         );
 
         eval {
@@ -939,7 +949,7 @@ sub trigger_scan :Public :Fork :AllowedAsAction($ip, mac, $mac, net_type, TYPE) 
     # post_registration (production vlan)
     # We sleep until (we hope) the device has had time issue an ACK.
     if (pf::util::is_prod_interface($postdata{'net_type'})) {
-        my $profile = pf::Portal::ProfileFactory->instantiate($postdata{'mac'});
+        my $profile = pf::Connection::ProfileFactory->instantiate($postdata{'mac'});
         my $scanner = $profile->findScan($postdata{'mac'});
         if (defined($scanner) && pf::util::isenabled($scanner->{'_post_registration'})) {
             pf::violation::violation_add( $postdata{'mac'}, $pf::constants::scan::POST_SCAN_VID );
@@ -948,11 +958,11 @@ sub trigger_scan :Public :Fork :AllowedAsAction($ip, mac, $mac, net_type, TYPE) 
         # get violation id
         my $vid = $top_violation->{'vid'};
         return if not defined $vid;
-        sleep $pf::config::Config{'trapping'}{'wait_for_redirect'};
+        sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};
         pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($vid eq $pf::constants::scan::POST_SCAN_VID);
     }
     else {
-        my $profile = pf::Portal::ProfileFactory->instantiate($postdata{'mac'});
+        my $profile = pf::Connection::ProfileFactory->instantiate($postdata{'mac'});
         my $scanner = $profile->findScan($postdata{'mac'});
         # pre_registration
         if (defined($scanner) && pf::util::isenabled($scanner->{'_pre_registration'})) {
@@ -961,7 +971,7 @@ sub trigger_scan :Public :Fork :AllowedAsAction($ip, mac, $mac, net_type, TYPE) 
         my $top_violation = pf::violation::violation_view_top($postdata{'mac'});
         my $vid = $top_violation->{'vid'};
         return if not defined $vid;
-        sleep $pf::config::Config{'trapping'}{'wait_for_redirect'};
+        sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};
         pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($vid eq $pf::constants::scan::PRE_SCAN_VID || $vid eq $pf::constants::scan::SCAN_VID);
     }
     return;
@@ -1023,7 +1033,7 @@ sub dynamic_register_node : Public :AllowedAsAction(mac, $mac, username, $userna
     return unless pf::util::validate_argv(\@require,  \@found);
 
     my $logger = pf::log::get_logger();
-    my $profile = pf::Portal::ProfileFactory->instantiate($postdata{'mac'});
+    my $profile = pf::Connection::ProfileFactory->instantiate($postdata{'mac'});
     my $node_info = pf::node::node_view($postdata{'mac'});
     # We try this although the realm is not mandatory in case it proves to be useful in the future
     my @sources = $profile->getFilteredAuthenticationSources($postdata{'username'}, $postdata{'realm'});
@@ -1034,6 +1044,7 @@ sub dynamic_register_node : Public :AllowedAsAction(mac, $mac, username, $userna
         connection_type => $node_info->{'last_connection_type'},
         SSID => $node_info->{'last_ssid'},
         stripped_user_name => $stripped_user,
+        realm => $node_info->{'realm'},
     };
 
     my $source;
@@ -1045,6 +1056,8 @@ sub dynamic_register_node : Public :AllowedAsAction(mac, $mac, username, $userna
     my $values = $matched->{values};
     my $role = $values->{$Actions::SET_ROLE};
     my $unregdate = $values->{$Actions::SET_UNREG_DATE};
+    my $time_balance =  $values->{$Actions::SET_TIME_BALANCE};
+    my $bandwidth_balance =  $values->{$Actions::SET_BANDWIDTH_BALANCE};
     if (defined $unregdate) {
         my %info = (
             'unregdate' => $unregdate,
@@ -1058,6 +1071,12 @@ sub dynamic_register_node : Public :AllowedAsAction(mac, $mac, username, $userna
         if (defined $role) {
             %info = (%info, (category => $role));
         }
+        if (defined $time_balance) {
+            %info = (%info, (time_balance => pf::util::normalize_time($time_balance)));
+        }
+        if (defined $bandwidth_balance) {
+            %info = (%info, (bandwidth_balance => pf::util::unpretty_bandwidth($bandwidth_balance)));
+        }
         pf::node::node_register($postdata{'mac'}, $postdata{'username'}, %info);
         pf::enforcement::reevaluate_access( $postdata{'mac'}, 'manage_register' );
     }
@@ -1069,13 +1088,7 @@ sub dynamic_register_node : Public :AllowedAsAction(mac, $mac, username, $userna
 
 sub fingerbank_process : Public {
     my ( $class, $args ) = @_;
-    my $filter = pf::access_filter::dhcp->new;
-    my $rule = $filter->filter('DhcpFingerbank', $args);
-    if (!$rule) {
-        delete $args->{'computer_name'};
-        return (pf::fingerbank::process($args));
-    }
-    return undef;
+    pf::fingerbank::process($args);
 }
 
 =head2 fingerbank_update_component
@@ -1258,7 +1271,7 @@ sub radius_rest_authorize :Public :RestPath(/radius/rest/authorize) {
 
     my $return;
 
-    if ($remapped_radius_request{'Calling-Station-Id'}) {
+    if (pf::util::valid_mac($remapped_radius_request{'Calling-Station-Id'})) {
         $return = $class->radius_authorize(%remapped_radius_request);
     } else {
         $return = $class->radius_switch_access(%remapped_radius_request);
@@ -1306,6 +1319,14 @@ sub radius_rest_accounting :Public :RestPath(/radius/rest/accounting) {
 
     my $return = $class->handle_accounting_metadata(%remapped_radius_request);
 
+    my $radius = new pf::radius::custom();
+    eval {
+        $return = $radius->accounting(\%remapped_radius_request);
+    };
+    if ($@) {
+        $logger->error("radius accounting failed with error: $@");
+    }
+
     # This will die with the proper code if it is a deny
     $return = pf::radius::rest::format_response($return);
 
@@ -1329,23 +1350,14 @@ sub handle_accounting_metadata : Public {
         $client->notify("radius_update_locationlog", %RAD_REQUEST);
     }
 
-    if ($RAD_REQUEST{'Acct-Status-Type'} == $ACCOUNTING::STOP){
+    if ($RAD_REQUEST{'Acct-Status-Type'} != $ACCOUNTING::STOP){
         # Tracking IP address.
         if(pf::util::isenabled($pf::config::Config{advanced}{update_iplog_with_accounting})){
             $logger->info("Updating iplog from accounting request");
-            $client->notify("update_iplog", mac => $mac, ip => $RAD_REQUEST{'Framed-IP-Address'}) if ($RAD_REQUEST{'Framed-IP-Address'} );
+            $client->notify("update_ip4log", mac => $mac, ip => $RAD_REQUEST{'Framed-IP-Address'}) if ($RAD_REQUEST{'Framed-IP-Address'} );
         }
         else {
             pf::log::get_logger->debug("Not handling iplog update because we're not configured to do so on accounting packets.");
-        }
-    }
-    if ($RAD_REQUEST{'Acct-Status-Type'} == $ACCOUNTING::STOP || $RAD_REQUEST{'Acct-Status-Type'} == $ACCOUNTING::INTERIM_UPDATE ) {
-        my $radius = new pf::radius::custom();
-        eval {
-            $return = $radius->accounting(\%RAD_REQUEST);
-        };
-        if ($@) {
-            $logger->error("radius accounting failed with error: $@");
         }
     }
     return $return;
@@ -1525,6 +1537,17 @@ sub cache_user_ntlm {
     pf::log::get_logger->error("Couldn't cache user: '$msg'") unless($result);
 
     return $result;
+}
+
+=head2 queue_stats
+
+queue_stats
+
+=cut
+
+sub queue_stats : Public {
+    my ($class) = @_;
+    return pf::pfqueue::stats->new->stats_data;
 }
 
 =head1 AUTHOR

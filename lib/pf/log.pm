@@ -32,7 +32,7 @@ sub import {
             Log::Log4perl->init_and_watch("$log_conf_dir/${service}.conf",5 * 60);
             Log::Log4perl::MDC->put( 'proc', $service );
         } else {
-            Log::Log4perl->init($log_config_file);
+            Log::Log4perl->init_and_watch($log_config_file, 5 * 60);
             my $proc = basename($0);
             $proc =~ /^(.*)$/;
             $proc = $1;

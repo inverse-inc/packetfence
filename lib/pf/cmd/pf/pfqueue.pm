@@ -10,10 +10,11 @@ pf::cmd::pf::pfqueue
 
   Commands:
 
-   clear <queue>    | clear a queue
-   list             | list all queues
-   stats            | show stats of pfqueue
-   count <queue>    | show the queue count
+   clear <queue>          | clear a queue
+   clear_expired_counters | clear expired tasks counters
+   count <queue>          | show the queue count
+   list                   | list all queues
+   stats                  | show stats of pfqueue
 
 =head1 DESCRIPTION
 
@@ -25,16 +26,18 @@ use strict;
 use warnings;
 use pf::constants;
 use pf::constants::exit_code qw($EXIT_SUCCESS);
-use pf::constants::pfqueue qw($PFQUEUE_COUNTER);
+use pf::constants::pfqueue qw($PFQUEUE_COUNTER $PFQUEUE_EXPIRED_COUNTER);
 use pf::config::pfqueue;
 use pf::util::pfqueue qw(consumer_redis_client);
 use pf::pfqueue::stats;
 use base qw(pf::base::cmd::action_cmd);
 
-our @STATS_FIELDS = qw(name queue count);
+our @STATS_FIELDS = qw(queue name count);
 our @COUNT_FIELDS = qw(name count);
-our $STATS_FORMAT = "  %-20s %-10s %-20s\n";
-our $COUNT_FORMAT = "  %-20s %-10s\n";
+our $STATS_HEADING_FORMAT = "| %-20s | %-30s | %-10s |\n";
+our $STATS_FORMAT = "| %-20s | %-30s | % 10d |\n";
+our $COUNT_HEADING_FORMAT = "| %-20s | %-10s |\n";
+our $COUNT_FORMAT = "| %-20s | % 10d |\n";
 
 sub stats {
     return pf::pfqueue::stats->new;
@@ -77,20 +80,27 @@ Stats all the queue
 sub action_stats {
     my ($self) = @_;
     my $stats = $self->stats;
-    $self->_print_counters("Queue Counts\n", $COUNT_FORMAT, \@COUNT_FIELDS, $stats->queue_counts);
-    $self->_print_counters("Outstanding Task Counters\n", $STATS_FORMAT, \@STATS_FIELDS, $stats->counters);
-    $self->_print_counters("Expired Task Counters\n", $STATS_FORMAT, \@STATS_FIELDS, $stats->miss_counters);
+    $self->_print_counters("Queue Counts\n", $COUNT_HEADING_FORMAT, $COUNT_FORMAT, \@COUNT_FIELDS, $stats->queue_counts);
+    $self->_print_counters("Outstanding Task Counters\n", $STATS_HEADING_FORMAT, $STATS_FORMAT, \@STATS_FIELDS, $stats->counters);
+    $self->_print_counters("Expired Task Counters\n", $STATS_HEADING_FORMAT, $STATS_FORMAT, \@STATS_FIELDS, $stats->miss_counters);
     print "\n";
     return $EXIT_SUCCESS;
 }
 
 sub _print_counters {
-    my ($self, $title, $format, $fields, $counters) = @_;
+    my ($self, $title, $heading_format, $format, $fields, $counters) = @_;
+    return if @$counters == 0;
     print "\n$title\n";
-    print sprintf($format, @$fields);
+    my $heading = sprintf($heading_format, @$fields);
+    my $delimter = $heading;
+    $delimter =~ s/./-/g;
+    print $delimter;
+    print $heading;
+    print $delimter;
     foreach my $counter (@$counters) {
         print sprintf($format, @{$counter}{@$fields});
     }
+    print $delimter;
 }
 
 =head2 action_count
@@ -101,6 +111,19 @@ sub action_count {
     my ($self) = @_;
     my ($queue) = $self->action_args;
     print $self->stats->queue_count($queue),"\n";
+    return $EXIT_SUCCESS;
+}
+
+=head2 action_clear_expired_counters
+
+clear expired counters
+
+=cut
+
+sub action_clear_expired_counters {
+    my ($self) = @_;
+    my $redis = consumer_redis_client();
+    $redis->del($PFQUEUE_EXPIRED_COUNTER);
     return $EXIT_SUCCESS;
 }
 

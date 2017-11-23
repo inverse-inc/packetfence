@@ -1,90 +1,11 @@
-
 <script type="text/javascript" src="/content/countdown.min.js"></script>
-<script type="text/javascript">
-var paused = false;
-
-$(document).ready(function() {
-  [%- IF showLogin %]
-  // Don't propagate mouse clicks on disabled buttons and links
-  $('.btn').on('click', function(event) {
-    if ($(this).hasClass('disabled')) {
-      event.stopPropagation();
-      return false;
-    }
-  });
-
-  // Toggle the disable state of the buttons and links when the user
-  // accepts or refuses the AUP
-  $("input[name='aup_signed']").each(function() {
-    $(this).on('change', function(event) {
-      var accepted = this.checked;
-      $('.btn').each(function() {
-        if (accepted)
-          $(this).removeClass('disabled');
-        else
-          $(this).addClass('disabled');
-      });
-    });
-  });
-  [% END %]
-
-  [%- IF node.expiration %]
-  // Initialization of the countdown
-  $("#expiration").html(countdown([% node.expiration %] * 1000,
-                                  null,
-                                  countdown.DAYS|countdown.HOURS|countdown.MINUTES,
-                                  2).toString());
-  // Timer to update the countdown
-  var timerId = countdown(
-    [% node.expiration %] * 1000,
-    function(ts) {
-      var secs = Math.round(ts.value/1000);
-      if (secs >= 0) {
-        // No more time
-        window.location = "[% URL_STATUS %]?ts=" + ts.value;
-        return;
-      }
-      if (secs > -60 || secs % 60 == 0) {
-        // Countdown bellow 1 minute or on a minute; verify network access
-        $.ajax({
-          url: "[% URL_STATUS %]?ts=" + ts.value,
-        })
-        .done(function() {
-          if (paused) {
-            window.location = "[% URL_STATUS %]?ts=" + ts.value;
-            return;
-          }
-          $("#expiration").html(ts.toString());
-        })
-        .fail(function() {
-          paused = true;
-          $("#expiration").parent().hide();
-          $("#pause").show();
-        });
-      }
-    },
-    countdown.DAYS|countdown.HOURS|countdown.MINUTES|countdown.SECONDS,
-    2);
-  [%- ELSIF node.time_balance %]
-  $("#timeleft").html(countdown(new Date().getTime() + [% node.time_balance %] * 1000,
-                                null,
-                                countdown.DAYS|countdown.HOURS|countdown.MINUTES,
-                                2).toString());
-  [%- END %]
-  $('#popup a[target="_new"]').on("click", function(event) {
-    event.stopPropagation();
-    var newwindow = window.open("[% URL_STATUS %]", "status_popup", "height=220,width=300");
-    if (window.focus) { newwindow.focus() }
-    return false;
-  });
-});
+<script id="variables" type="text/json">
+{
+  [% IF node.expiration %]"expiration": [% node.expiration %],[% END %]
+  [% IF node.time_balance %]]"time_balance": [% node.time_balance %],[% END %]
+}
 </script>
-
-
-[%# Welcome text %]
-<div class="layout--center">
-  <h2>[% i18n("Your Network Access Status") %]</h2>
-</div>
+<script type="text/javascript" src="/content/status.js"></script>
 
 [% IF txt_auth_error.defined %]
 <div class="media media--error u-p u-mb">
@@ -92,17 +13,6 @@ $(document).ready(function() {
   <p class="media__body">[% i18n(txt_auth_error) %]</p>
 </div>
 [% END %]
-
-<div class="media media--notice u-p u-mb">
-  <div class="media__img">[% flashIcon(level='notice') %]</div>
-  <p class="media__body">
-    [%- IF node.status == 'reg' %]
-    [%   i18n_format("Your device is registered to <strong>%s</strong>", node.pid) | none %]
-    [%- ELSE %]
-    [%   i18n("Your current device is not registered on our network.") %]
-    [%- END %]
-  </p>
-</div>
 
 [%- IF node.expiration %]
 <div class="media media--notice u-p u-mb">
@@ -124,87 +34,134 @@ $(document).ready(function() {
 </div>
 [%- END %]
 
-[% IF showLogin %]
-<form name="login" method="post" action="/status/login">
-
-  <div class="layout--center">
-    <h5>[% i18n("Login to manage registered devices") %]</h5>
-  </div>
-
-  [%# AUP %]
-  <div class="box box--large-height box--tint">
-    [% INCLUDE aup_text.html %]
-  </div>
-  <div class="layout--center input-checkbox-container u-p">
-    <input id="aup" name="aup_signed" type="checkbox" />
-    <label for="aup">[% i18n("I accept the terms") %]</label>
-  </div>
-
-  <div class="layout layout--center">
-    <div class="layout__item u-2/3 u-1/1-palm">
-
-      [%# User / Pass %]
-      <div class="input-container">
-        <label for="username">[% i18n("Username") %]</label>
-        <input class="field" name="username" id="username" type="text" value="[% username %]" />
-      </div>
-      <div class="input-container">
-        <label for="password">[% i18n("Password") %]</label>
-        <input class="field" name="password" id="password" type="password" />
-      </div>
-
-      [%# submit %]
-      <button type="submit" name="submit" class="btn btn--full btn--accent u-mt">
-        <div class="flag">
-          <div class="flag__img">[% svgIcon(id='ic_done_black_24px',size='small') %]</div>
-          <p class="flag__body layout--left">[% i18n("Login") %]</p>
-        </div>
-      </button>
-
-      [%- IF billing %]
-      <a href="[% URL_STATUS_BILLING %]" class="btn btn--full btn--light u-mt">
-        <div class="flag">
-          <div class="flag__img">[% svgIcon(id='ic_credit_card_black_24px',size='small') %]</div>
-          <p class="flag__body">[% i18n("Extend your access") %]</p>
-        </div>
-      </a>
-      [%- END %]
-
+[%- IF billing %]
+  <a href="/status/billing" class="btn btn--full btn--light u-mt">
+    <div class="flag">
+      <div class="flag__img">[% svgIcon(id='ic_credit_card_black_24px',size='small') %]</div>
+      <p class="flag__body">[% i18n("Extend your access") %]</p>
     </div>
-  </div>
-</form>
-[% ELSIF nodes.size > 0 %]
-  <table class="table table--rows table--compact">
-    <caption>[% i18n("Your registered devices") %]</caption>
-    <thead>
-      <tr>
-        <th>[% i18n("MAC Address") %]</th>
-        <th class="hidden-popup">[% i18n("OS Type") %]</th>
-        <th class="hidden-popup">[% i18n("Registration Date") %]</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
+  </a>
+[%- END %]
+
+[% IF status_msg.defined %]
+<div class="media media--notice u-p u-mb">
+  <div class="media__img">[% flashIcon(level='notice') %]</div>
+  <p class="media__body">[% i18n(status_msg) %]</p>
+</div>
+[% ELSIF status_msg_error.defined %]
+<div class="media media--error u-p u-mb">
+  <div class="media__img">[% flashIcon(level='error') %]</div>
+  <p class="media__body">[% i18n(status_msg_error) %]</p>
+</div>
+[% END %]
+
+[%- IF nodes.size > 0 %]
+    <h3>[% i18n("Your registered devices") %]</h3>
       [%- FOREACH n IN nodes %]
-      [% NEXT IF n.status != 'reg' %]
-      <tr>
-        <td>[% n.mac %]</td>
-        <td class="hidden-popup">[% n.dhcp_fingerprint %]</td>
-        <td class="hidden-popup">[% n.regdate IF n.regdate != '0000-00-00 00:00:00' %]</td>
-        <td style="text-align: right"><a href="/node/manager/unreg/[% n.mac %]" class="btn btn--small">[% i18n("Unregister") %]</a></td>
-      </tr>
+      [% IF n.mac == node.mac AND node.status == 'reg' %]
+      <div class="[ box box--highlight ][ frame frame--raised ] u-mt--">
+        <div class="[ layout layout--middle ]">
+          <div class="layout__item [ u-1/2 u-1/1-lap u-1/1-palm ]">
+            <ul class="list-bare">
+              [% IF node.device_class %]<li>[% i18n("OS Type ") %]<b>[% node.device_class %]</b></li>[% END %]
+              [% IF node.computername %]<li>[% i18n("Computer name ") %]<b>[% node.computername %]</b></li>[% END %]
+              [% IF node.bandwidth_balance %]<li>[% i18n("Bandwidth balance ") %]<b>[% node.bandwidth_balance %]</b></li>[% END %]
+              <li>[% i18n("MAC") %] <b>[% node.mac %]</b></li>
+              [% IF node.regdate != '0000-00-00 00:00:00' %]<li>[% i18n("Registered on") %] <b>[% node.regdate %]</b></li>[% END %]
+            </ul>
+          </div><div class="layout__item layout--right [ u-1/2 u-1/1-lap u-1/1-palm ]">
+              <div>[% i18n("This is your current device.") %]</div>
+          </div>
+        </div>
+      </div>
+      [% END %]
+
+      [% NEXT IF n.status != 'reg' OR n.mac == node.mac %]
+      [% IF n.lostOrStolen %]
+      <div class="[ box box--overlook ][ frame ] u-mt--">
+        <div class="[ layout layout--middle ]">
+          <div class="layout__item [ u-1/2 u-1/1-lap u-1/1-palm ]">
+            <ul class="list-bare">
+              [% IF n.device_class %]<li>[% i18n("OS Type ") %]<b>[% n.device_class %]</b></li>[% END %]
+              [% IF n.computername %]<li>[% i18n("Computer name ") %]<b>[% n.computername %]</b></li>[% END %]
+              [% IF n.bandwidth_balance %]<li>[% i18n("Bandwidth balance ") %]<b>[% n.bandwidth_balance %]</b></li>[% END %]
+              [% IF n.time_balance %]<li>[% i18n("Time balance ") %]<b>[% n.time_balance %]</b></li>[% END %]
+              <li>[% i18n("MAC") %] <b>[% n.mac %]</b></li>
+              [% IF n.regdate != '0000-00-00 00:00:00' %]<li>[% i18n("Registered on") %] <b>[% n.regdate %]</b></li>[% END %]
+            </ul>
+          </div><div class="layout__item layout--right [ u-1/2 u-1/1-lap u-1/1-palm ]">
+              <div>[% i18n("This device is declared as lost or stolen.") %]</div>
+          </div>
+        </div>
+      </div>
+      [% ELSE %]
+      <div class="[ box ][ frame frame--raised ] u-mt--">
+        <div class="[ layout layout--middle ]">
+          <div class="layout__item [ u-1/2 u-1/1-lap u-1/1-palm ]">
+            <ul class="list-bare">
+                [% IF n.device_class %]<li>[% i18n("OS Type ") %]<b>[% n.device_class %]</b></li>[% END %]
+                [% IF n.computername %]<li>[% i18n("Computer name ") %]<b>[% n.computername %]</b></li>[% END %]
+                [% IF n.bandwidth_balance %]<li>[% i18n("Bandwidth balance ") %]<b>[% n.bandwidth_balance %]</b></li>[% END %]
+                [% IF n.time_balance %]<li>[% i18n("Time balance ") %]<b>[% n.time_balance %]</b></li>[% END %]
+                <li>[% i18n("MAC") %] <b>[% n.mac %]</b></li>
+                [% IF n.regdate != '0000-00-00 00:00:00' %]<li>[% i18n("Registered on") %] <b>[% n.regdate %]</b></li>[% END %]
+            </ul>
+          </div><div class="layout__item layout--right [ u-1/2 u-1/1-lap u-1/1-palm ]">
+            <a href="/node/manager/unreg/[% n.mac %]"
+               data-box-show="confirmUnregister[% n.mac.remove('\W+') %]"
+               class="[ btn btn--small js-box-show ] u-mb--desk">[% i18n("Unregister") %]</a>
+            <a href="/loststolen/[% n.mac %]"
+               data-box-show="confirmLostStolen[% n.mac.remove('\W+') %]"
+               class="[ btn btn--small btn--light js-box-show ]">[% i18n("Declare as lost or stolen") %]</a>
+          </div>
+        </div>
+        <div id="confirmUnregister[% n.mac.remove('\W+') %]" class="[ box box--small box--inverted box--overlap ] hide">
+          <div class="[ layout layout--middle ]">
+            <div class="[ layout__item layout--center ] [ u-1/1 ]">
+              <div class="[ u-mb u-mb--palm ]">[% i18n_format("Really unregister %s? The device will be immediately disconnected from the network.", n.mac) %]</div>
+              <a href="/node/manager/unreg/[% n.mac %]" class="[ btn btn--small btn--inverted btn--error ]">[% i18n("Unregister") %]</a>
+              <a href="#cancel" class="[ btn btn--small btn--inverted js-box-hide ]">[% i18n("Cancel") %]</a>
+            </div>
+          </div>
+        </div>
+        <div id="confirmLostStolen[% n.mac.remove('\W+') %]" class="[ box box--small box--inverted box--overlap ] hide">
+          <div class="[ layout layout--middle ]">
+            <div class="[ layout__item layout--center ] [ u-1/1 ]">
+              <div class="[ u-mb u-mb--palm ]">[% i18n_format("The device %s will be disconnected and won't be able to be registered again.", n.mac) %]</div>
+              <a href="/loststolen/[% n.mac %]" class="[ btn btn--small btn--inverted btn--error ]">[% i18n("Declare as lost or stolen") %]</a>
+              <a href="#cancel" class="[ btn btn--small btn--inverted js-box-hide ]">[% i18n("Cancel") %]</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      [% END %]
+
       [%- END %]
-    </tbody>
-  </table>
 [%- ELSE %]
 <div class="media media--notice u-p u-mb">
   <div class="media__img">[% flashIcon(level='notice') %]</div>
   <p class="media__body">[% i18n("You have no registered devices.") %]</p>
 </div>
-[% END %]
-[% UNLESS showLogin %]
+[%- END %]
+
 <div class="layout layout--center">
-  <div class="layout__item u-2/3 u-1/1-palm">
+  <div class="layout__item u-mt u-2/3 u-1/1-palm">
+    [% IF isDeviceRegEnable %]
+    <a href="/device-registration" class="btn btn--full btn--light">
+      <div class="flag">
+        <div class="flag__img">[% svgIcon(id='ic_add_circle_black_24px',size='small') %]</div>
+        <p class="flag__body">[% i18n("Register another device") %]</p>
+      </div>
+    </a>
+    [% END %]
+    [%- IF hasLocalAccount %]
+    <a href="/status/reset_password" class="btn btn--full btn--light">
+      <div class="flag">
+        <div class="flag__img">[% svgIcon(id='ic_person_black_24px',size='small') %]</div>
+        <p class="flag__body">[% i18n("Change my password") %]</p>
+      </div>
+    </a>
+    [% END %]
     <a href="/status/logout" class="btn btn--full btn--light">
       <div class="flag">
         <div class="flag__img">[% svgIcon(id='ic_close_black_24px',size='small') %]</div>
@@ -213,5 +170,3 @@ $(document).ready(function() {
     </a>
   </div>
 </div>
-[% END %]
-

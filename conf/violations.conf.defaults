@@ -142,12 +142,6 @@ trigger=internal::hostname_change
 actions=log
 enabled=Y
 
-[1100020]
-desc=Wireless IPS
-trigger=internal::1100020
-actions=email_admin,log
-enabled=Y
-
 #
 #  1200000 - 120099 Reserved for required administration violations
 #
@@ -256,6 +250,16 @@ desc=Node discovered
 template=bandwidth_expiration
 auto_enable=N
 enabled=N
+
+[1300005]
+priority=1
+actions=email_user,email_admin,log,reevaluate_access
+desc=Lost or Stolen
+enabled=Y
+template=banned_devices
+auto_enable=N
+user_mail_message=Your device [% mac %] as been declared as lost or stolen. Please contact your system administrator to be able to use this device again on the network.
+grace=0
 
 #
 # 1400000 - 1499999 Reserved for local violations

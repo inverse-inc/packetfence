@@ -2,6 +2,7 @@
 
 check file syslog with path /var/log/messages
     group DRBD
+    every 450 cycles    # every 15 minutes (if 1 cycle is 2 seconds)
     ignore content = "monit"
     if match "lost: " then alert
     if match "Process pause detected for" then alert
@@ -10,6 +11,7 @@ check file syslog with path /var/log/messages
 
 check file drbd with path /proc/drbd
     group DRBD
+    every 450 cycles    # every 15 minutes (if 1 cycle is 2 seconds)
     if match "Inconsistent" then alert  
     if match "Unknown" then alert
     if match "StandAlone" then alert
@@ -17,4 +19,5 @@ check file drbd with path /proc/drbd
 
 check filesystem drbdfs with path /dev/drbd0
     group DRBD
+    every 450 cycles    # every 15 minutes (if 1 cycle is 2 seconds)
     if space usage > 80 % then alert

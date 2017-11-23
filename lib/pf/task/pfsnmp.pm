@@ -32,11 +32,11 @@ use pf::constants qw($TRUE $FALSE);
 use pf::violation;
 use pf::node;
 use pf::util;
-use pf::Portal::ProfileFactory;
-use Cache::FileCache;
-our $traps_switchIfIndex_cache = new Cache::FileCache( {'namespace'=>'pfSetVlan_TrapsLimitSwitchIfIndex'} );
-# Initialize a new cache for the actions taken if the traps limit has been reached
-our $traps_email_cache = new Cache::FileCache( {'namespace'=>'pfSetVlan_TrapsLimitEmail'} );
+use pf::config::util;
+use pf::Connection::ProfileFactory;
+use pf::pfqueue::producer::redis;
+use pf::Redis;
+use pf::rate_limiter;
 
 my %switch_locker;
 
@@ -50,9 +50,8 @@ my $logger = get_logger();
 
 sub doTask {
     my $timer = pf::StatsD::Timer->new;
-    my ($self, $args) = @_;
-    my ($trapInfo, $variables) = @$args;
-    my $switch_id = $trapInfo->{switchIp};
+    my ($self, $trap) = @_;
+    my $switch_id = $trap->{switchId};
     unless (defined $switch_id) {
         $logger->error("No switch found in trap");
         return;
@@ -64,22 +63,12 @@ sub doTask {
         return;
     }
 
-    my $trap = $switch->normalizeTrap($args);
-    unless ($trap) {
-        $logger->error("Unable to normalize trap sent from $switch_id ");
+    my $lock = $self->lockSwitch($switch, $trap);
+
+    unless ($lock) {
+        $logger->debug("cannot get a lock on the switch $switch_id");
         return;
     }
-    
-    # Set default values
-    for my $key (qw(trapVlan trapOperation trapMac trapSSID trapClientUserName trapIfIndex trapConnectionType)) {
-        $trap->{$key} //= '';
-    }
-
-    unless ($switch->handleTrap($trap)) {
-        $logger->error("Skipping general trap handling for $switch_id");
-        return;
-    }
-
     return $self->handleTrap($switch, $trap);
 }
 
@@ -88,7 +77,6 @@ our %TRAP_HANDLERS = (
     mac                           => \&handleMacTrap,
     down                          => \&handleDownTrap,
     roaming                       => \&handleRoamingTrap,
-    wirelessIPS                   => \&handleWirelessIPS,
     dot11Deauthentication         => \&handleDot11DeauthenticationTrap,
     secureMacAddrViolation        => \&handleSecureMacAddrViolationTrap,
 );
@@ -104,15 +92,11 @@ sub handleTrap {
     my ($self, $switch, $trap) = @_;
     my $trapType = $trap->{trapType};
     my $switch_id = $switch->{_id};
-    if ($trapType eq 'unknown') {
-        $logger->debug("ignoring unknown trap for switch_id");
-        return;
-    }
-
     my $trapMac = $trap->{trapMac};
+    Log::Log4perl::MDC->put('mac', $trapMac);
     if ( defined($trapMac) && $switch->isFakeMac($trapMac) ) {
         $logger->info("MAC $trapMac is a fake MAC. Stop $trapType handling");
-        return;
+        goto CLEANUP;
     }
 
     my $role_obj = new pf::role::custom();
@@ -120,12 +104,12 @@ sub handleTrap {
     my $weActOnThisTrap = $role_obj->doWeActOnThisTrap($switch, $switch_port, $trapType);
     if ($weActOnThisTrap == 0 ) {
         $logger->info("doWeActOnThisTrap returns false. Stop $trapType handling");
-        return;
+        goto CLEANUP;
     }
 
     unless (exists $TRAP_HANDLERS{$trapType}) {
         $logger->error("There is no handling for $trapType");
-        return;
+        goto CLEANUP;
     }
 
     eval {
@@ -134,6 +118,9 @@ sub handleTrap {
     if($@) {
         $logger->error("Error occured while handling trap : $@");
     }
+
+CLEANUP:
+    removeKillSignal($switch, $trap);
     $switch->disconnectRead();
     $switch->disconnectWrite();
     return;
@@ -203,9 +190,18 @@ sub handleUpTrap {
     my @macArray = ();
     my $secureMacAddrHashRef;
     my $nbAttempts = 0;
-
-    #Rework retry logic blocking logic
-    @macArray = $switch->_getMacAtIfIndex($switch_port);
+    my $killKey = makeKillKey($switch, $trap);
+    my $redis = pf::Redis->new;
+    do {
+        sleep( $switch->{_macSearchesSleepInterval} ) unless ( $nbAttempts == 0 );
+        my $kill = $redis->get($killKey);
+        if (defined $kill && $kill == 1) {
+            $logger->info("Up trap processing stopped because we recieved the kill signal for $switch_id $switch_port");
+            return;
+        }
+        @macArray = $switch->_getMacAtIfIndex($switch_port);
+        $nbAttempts++;
+    } while(($nbAttempts < $switch->{_macSearchesMaxNb}) && ((time-$start) < 120) && (scalar(@macArray) == 0));
 
     if (scalar(@macArray) == 0) {
         if ($nbAttempts >= $switch->{_macSearchesMaxNb}) {
@@ -390,10 +386,10 @@ sub handleMacTrap {
                 my $role = $role_obj->fetchRoleForNode({
                         mac             => $mac,
                         node_info       => node_attributes($mac),
-                        swicth          => $switch,
+                        switch          => $switch,
                         ifIndex         => $switch_port,
                         connection_type => $WIRED_SNMP_TRAPS,
-                        profile         => pf::Portal::ProfileFactory->instantiate($mac)});
+                        profile         => pf::Connection::ProfileFactory->instantiate($mac)});
                 my $fetchedVlan = $role->{vlan} || $switch->getVlanByName($role->{role});
                 if (   ($locationlog[0]->{'vlan'} == $vlan)
                     && ($vlan == $fetchedVlan))
@@ -637,7 +633,7 @@ sub handleSecureMacAddrViolationTrap {
                     switch          => $switch,
                     ifIndex         => $switch_port,
                     connection_type => $WIRED_SNMP_TRAPS,
-                    profile         => pf::Portal::ProfileFactory->instantiate($trapMac)});
+                    profile         => pf::Connection::ProfileFactory->instantiate($trapMac)});
             my $correctVlanForThisNode = $role->{vlan} || $switch->getVlanByName($role->{role});
             $switch->authorizeMAC($switch_port, $oldPC, $trapMac, $switch->getVlan($switch_port),
                 $correctVlanForThisNode);
@@ -666,7 +662,7 @@ sub handleSecureMacAddrViolationTrap {
                     switch          => $switch,
                     ifIndex         => $switch_port,
                     connection_type => $WIRED_SNMP_TRAPS,
-                    profile         => pf::Portal::ProfileFactory->instantiate($trapMac)});
+                    profile         => pf::Connection::ProfileFactory->instantiate($trapMac)});
             my $correctVlanForThisNode = $role->{vlan} || $switch->getVlanByName($role->{role});
             if (defined($old_mac_to_remove)) {
                 $logger->info(
@@ -686,61 +682,6 @@ sub handleSecureMacAddrViolationTrap {
         }
     }
 
-}
-
-=head2 handleWirelessIPS
-
-handle a wirelessIPS trap for a switch
-
-=cut
-
-sub handleWirelessIPS {
-    return if (isdisabled($Config{'trapping'}{'wireless_ips'}));
-    my ($self, $switch, $trap) = @_;
-    my $trapMac = clean_mac($trap->{trapMac});
-
-    # Grab the OUI part
-    $trapMac =~ /^([0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}).*$/;
-    my $mac   = $1;
-    my @nodes = node_search($mac);
-    unless($nodes[0]) {
-        $logger->info("WIPS: Cannot find a valid match for $trapMac in the database, do nothing");
-        return;
-    }
-
-    #compare the strings, and output the percentage of match
-    my $match;
-    my %matchingNodes;
-    my $threshold = $Config{'trapping'}{'wireless_ips_threshold'};
-
-    foreach (@nodes) {
-        for (my $i = 8 ; $i <= length($trapMac) ; $i++) {
-            $match = substr($trapMac, 1, $i);
-
-            if ($_ !~ /$match/) {
-                my $percent = ($i / 16) * 100;
-                my $rounded = floor(floor($percent) / 5) * 5;
-                if ($rounded >= $threshold) {
-                    $matchingNodes{$_} = $rounded;
-                }
-                else {
-                    $logger->info(
-"WIPS: Found a valid MAC $_ , but the reliability is below the configured threshold, do nothing"
-                    );
-                }
-                last;
-            }
-        }
-    }
-
-    #TODO
-    #For each matching nodes, fire an internal WIDS violation
-    foreach my $keys (keys %matchingNodes) {
-        $logger->info("We will isolate $keys, threshold is $matchingNodes{$keys} percent");
-        violation_trigger({'mac' => $keys, 'tid' => $WIPS_VID, 'type' => 'INTERNAL'});
-    }
-
-    return;
 }
 
 =head2 do_port_security
@@ -868,7 +809,7 @@ sub node_determine_and_set_into_VLAN {
 
     my $role_obj = new pf::role::custom();
 
-    my $role = $role_obj->fetchRoleForNode({ mac => $mac, node_info => node_attributes($mac), switch => $switch, ifIndex => $ifIndex, connection_type => $connection_type, profile => pf::Portal::ProfileFactory->instantiate($mac)});
+    my $role = $role_obj->fetchRoleForNode({ mac => $mac, node_info => node_attributes($mac), switch => $switch, ifIndex => $ifIndex, connection_type => $connection_type, profile => pf::Connection::ProfileFactory->instantiate($mac)});
     my $vlan = $role->{vlan} || $switch->getVlanByName($role->{role});
 
     $switch->setVlan(
@@ -879,68 +820,67 @@ sub node_determine_and_set_into_VLAN {
     );
 }
 
-# sub perform_trap_limiting {{{1
-sub perform_trap_limiting {
-    # skipping if feature is disabled
-    return $FALSE if (isdisabled($Config{'vlan'}{'trap_limit'}));
+=head2 lockSwitch
 
-    my ( $switch, $switchIfIndex ) = @_;
-    # skipping if trapIfIndex is undef
-    return $FALSE if (!defined($switchIfIndex));
+lockSwitch
 
-    # Poking tied config files here instead of declaring them globally is arguably discutable on terms of performances
-    my $trapsLimitThreshold = $Config{'vlan'}{'trap_limit_threshold'};
-    my $trapsLimitAction = $Config{'vlan'}{'trap_limit_action'};
+=cut
 
-    my $switchId = $switch->{_id};
-    my $cached_traps_switchIfIndex = $traps_switchIfIndex_cache->get($switchId.$switchIfIndex);
-
-    # TODO: Use CHI and the append method
-    # Using Cache::Cache with the set method may cause the cache to never expire.
-    # Each time the cache is set, the expire is renewed and the cache may never expire completly.
-    # The new unified caching interface (CHI) provide an append method which solve the problem but CHI is
-    # currently not packaged.
-
-    # FileCache is threads safe
-    $traps_switchIfIndex_cache->set($switchId.$switchIfIndex, ++$cached_traps_switchIfIndex, "1 minute");
-
-    if ( !defined($cached_traps_switchIfIndex) || ($cached_traps_switchIfIndex < $trapsLimitThreshold) ) {
-        $logger->trace("Traps limit per switchIfIndex cache reached $cached_traps_switchIfIndex");
-        return $FALSE;
-    }
-
-    if ( is_in_list('email', $trapsLimitAction) || is_in_list('shut', $trapsLimitAction) ) {
-        my %email;
-
-        $email{'subject'} = "Too many traps coming from switch $switchId";
-        $email{'message'} = "Too many SNMP traps were received from a switchport according to the threshold.\n\n";
-        $email{'message'} .= "Switch: $switchId\n";
-        $email{'message'} .= "ifIndex: $switchIfIndex\n";
-        $email{'message'} .= "Threshold: maximum $trapsLimitThreshold SNMP traps per 1 minute.\n";
-
-        if ( is_in_list('shut', $trapsLimitAction) ) {
-            $email{'message'} .= "Action: PacketFence SHUTTED THE PORT";
-            $switch->setAdminStatus($switchIfIndex, $SNMP::DOWN);
-        }
-
-        my $cached_traps_email = $traps_email_cache->get($switchId.$switchIfIndex);
-        if ( !defined($cached_traps_email) || $cached_traps_email < 1 ) {
-            $traps_email_cache->set($switchId.$switchIfIndex, ++$cached_traps_email, "1 hour");
-            pfmailer(%email);
+sub lockSwitch {
+    my ($self, $switch, $trap) = @_;
+    my $lock = $switch->getExclusiveLockForScope("ifindex:" . $trap->{trapIfIndex}, 1);
+    unless ($lock) {
+        # If IfIndex switch combo is being worked on requeue trap
+        $self->requeueTrap($trap);
+        $logger->debug("requeuing trap for $switch->{_id} : $trap->{trapIfIndex}");
+        # If there is a down trap coming in then signal the up trap to stop
+        if ($trap->{trapType} eq 'down') {
+            my $redis = pf::Redis->new;
+            my $key = makeKillKey($switch, $trap);
+            $redis->set($key, 1);
         }
     }
-
-    $logger->warn(
-        "We received many traps (over $Config{'vlan'}{'trap_limit_threshold'}) in a minute "
-        . "from ifIndex $switchIfIndex of switch $switch->{_id}"
-    );
-
-    # if there's no action configured then let's continue parsing the trap
-    return $FALSE if ( isempty($trapsLimitAction) );
-
-    return $TRUE;
+    return $lock;
 }
 
+=head2 makeKillKey
+
+makeKillKey
+
+=cut
+
+sub makeKillKey {
+    my ($switch, $trap) = @_;
+    my $key = "Kill:$switch->{_id}:$trap->{trapIfIndex}";
+    return $key;
+}
+
+=head2 removeKillSignal
+
+removeKillSignal
+
+=cut
+
+sub removeKillSignal {
+    my ($switch, $trap) = @_;
+    my $redis = pf::Redis->new();
+    my $killKey = makeKillKey($switch, $trap);
+    $redis->del($killKey);
+    return ;
+}
+
+=head2 requeueTrap
+
+requeueTrap
+
+=cut
+
+sub requeueTrap {
+    my ($self, $args) = @_;
+    my $client = pf::pfqueue::producer::redis->new();
+    $client->submit("pfsnmp", "pfsnmp", $args);
+    return ;
+}
 
 =head1 AUTHOR
 
@@ -948,7 +888,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 

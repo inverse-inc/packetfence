@@ -32,6 +32,7 @@
             [% form.field('category_id').render | none %]
             [% form.field('regdate').render | none %]
             [% form.field('unregdate').render | none %]
+            [% form.field('last_seen').render | none %]
             <div class="control-group">
               <label class="control-label">[% l('Access Time Balance') %]</label>
               <div class="controls">[% form.field('time_balance').render_element | none %] [% l('seconds') %]</div>
@@ -95,7 +96,14 @@
                     [% IF item.role.length %]<span class="badge badge-info">role [% item.role | html %]</span>[% END %]
                   [% END %]
                 </span>
-                  [%- IF node.last_port.length && !node.last_ssid %] <span class="badge badge-info">port [% node.last_port | html %]</span>[% END %]
+                  [%- IF node.last_port.length && !node.last_ssid %]
+                    <span class="badge badge-info">
+                      port [% node.last_port | html %]
+                      [% IF node.last_ifDesc.length %]
+                        ([% node.last_ifDesc | html %])
+                      [% END %]
+                    </span>
+                  [% END %]
                   [%- IF node.last_role.length %] <span class="badge badge-info">role [% node.last_role | html %]</span>[% END %]
                   <span class="label">On [% node.last_start_time | html %]</span></div>
             </div>
@@ -127,6 +135,7 @@
               [% form.field('dhcp6_fingerprint').render | none %]
               [% form.field('dhcp6_enterprise').render | none %]
               [% form.field('user_agent').render | none %]
+              <input type="hidden" name="multihost" value="no">
             </div><!--tab-pane-->
             
             <div class="tab-pane fade" id="nodeIpLog">
@@ -197,8 +206,11 @@
         </div><!--modal-body-->
 
         <div class="modal-footer">
+          [% IF node.multihost.size %]<p>[% l('This node is wired to a switchport on which other active devices were detected.') %]<br/>[% l('Therefore, you can apply change to ALL of those devices.') %]</p>[% END %]
           [% IF can_access("NODES_UPDATE") && !form.readonly %]<a href="[% c.uri_for(c.controller('Node').action_for('reevaluate_access'), [ node.mac ]) %]" id="reevaluateNode" class="btn btn-warning pull-left"> [% l('Reevaluate access') %]</a>[% END %]
+          [% IF can_access("NODES_UPDATE") && !form.readonly %]<a href="[% c.uri_for(c.controller('Node').action_for('restart_switchport'), [ node.mac ]) %]" id="restartSwitchport" class="btn btn-danger pull-left"> [% l('Restart Switchport') %]</a>[% END %]
           <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
+          [% IF node.multihost.size %][% IF can_access("NODES_UPDATE") && !form.readonly %]<button type="submit" data-multihost="yes" class="btn btn-primary" data-loading-text="[% l('Saving (All Devices)') %]">[% l('Save (All Devices)') %]</button>[% END %][% END %]
           [% IF can_access("NODES_UPDATE") && !form.readonly %]<button type="submit" class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>[% END %]
         </div><!--modal-footer-->
 

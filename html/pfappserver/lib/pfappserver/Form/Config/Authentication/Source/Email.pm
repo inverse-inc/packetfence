@@ -57,7 +57,7 @@ has_field 'local_account_logins' => (
     default => pf::Authentication::Source::EmailSource->meta->get_attribute('local_account_logins')->default,
     tags => {
         after_element => \&help_list,
-        help => 'The amount of times, the local account can be used after its created. 0 means infinite.'
+        help => 'The amount of times, the local account can be used after it is created. 0 means infinite.'
     },
 );
 
@@ -68,7 +68,7 @@ has_field 'activation_domain' =>
    required => 0,
     tags => {
         after_element => \&help,
-        help => 'Set this value if you want to change the hostname in the validation link.',
+        help => 'Set this value if you want to change the hostname in the validation link. Changing this requires to restart haproxy.',
     },
   );
 
@@ -95,5 +95,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

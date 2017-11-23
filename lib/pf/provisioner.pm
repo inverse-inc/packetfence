@@ -22,6 +22,7 @@ use Readonly;
 use pf::log;
 use pf::factory::pki_provider;
 use List::MoreUtils qw(any);
+use pf::CHI;
 
 =head1 Constants
 
@@ -208,6 +209,18 @@ sub getPkiProvider {
     return undef unless $pki_provider_id;
     return pf::factory::pki_provider->new($pki_provider_id);
 }
+
+=head2 cache
+
+Get the provisioning cache
+
+=cut
+
+sub cache {
+    my ($self) = @_;
+    return pf::CHI->new(namespace => 'provisioning');
+}
+
 
 =head1 AUTHOR
 

@@ -49,7 +49,7 @@ sub next {
 
 =head2 get_provisioner
 
-Get the provisioner from the session or the portal profile
+Get the provisioner from the session or the connection profile
 
 =cut
 
@@ -159,7 +159,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;
 

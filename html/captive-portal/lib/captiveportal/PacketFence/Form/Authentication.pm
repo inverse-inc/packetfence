@@ -28,6 +28,8 @@ has 'source' => (is => 'rw');
 my %skip = (
     email => 1,
     telephone => 1,
+    birthday => 1,
+    gender => 1,
     map { $_ => 1 } @pf::person::NON_PROMPTABLE_FIELDS,
 );
 foreach my $field (@pf::person::FIELDS){
@@ -52,6 +54,10 @@ has_field 'fields[mobileprovider]' => (type => "Select", label => "Mobile provid
 has_field 'fields[aup]' => (type => 'AUP', id => 'aup', validate_method => \&check_aup);
 
 has_field 'fields[email_instructions]' => (type => 'Display', set_html => 'render_email_instructions');
+
+has_field 'fields[birthday]' => (type => 'Date', label => 'Date Of Birth');
+
+has_field 'fields[gender]' => (type => 'Select', widget => 'RadioGroup', label => 'Gender', options => [{ value => 'm', label => 'Male'}, { value => 'f', label => 'Female'} ]);
 
 =head2 render_email_instructions
 
@@ -162,6 +168,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

@@ -10,7 +10,13 @@
           <option value="[% access_duration %]"> [% access_duration %] </option>
        [% END %]
      </select>
-     <input data-required="1" id="set_unregdate_action_match" name="set_unregdate_action_match" value="" class="datepicker input-small" data-date-format="yyyy-mm-dd" placeholder="yyyy-mm-dd" type="text">
+     <select name="set_time_balance_action_match" id="set_time_balance_action_match" data-required="required">
+       [% FOREACH access_duration IN access_durations %]
+          <option value="[% access_duration %]"> [% access_duration %] </option>
+       [% END %]
+     </select>
+     <input data-required="1" id="set_unregdate_action_match" name="set_unregdate_action_match" value="" class="input-date input-small" data-date-format="yyyy-mm-dd" placeholder="yyyy-mm-dd" type="text">
+     <input data-required="1" id="set_bandwidth_balance_action_match" name="set_bandwidth_balance_action_match" value="" class="text input-small" type="text">
   </div>
 
 <ul class="breadcrumb">
@@ -23,8 +29,13 @@
 [%ELSE%]
 [% SET action_uri = c.req.uri %]
 [%END%]
+
 <form name="formItem" class="form-horizontal form-condensed" action="[% action_uri %]" method="post">
-  <h3>[% IF item.id.defined %]<i>[% l(item.type) %]</i> [% item.id | html %][% ELSE %][% l('New portal module') %][% END %]</h3>
+  <div class="card">
+    <div class="card-title">
+      <h2>[% IF item.id.defined %]<i>[% l(item.type) %]</i> [% item.id | html %][% ELSE %][% l('New portal module') %][% END %]</h2>
+    </div>
+    <div class="card-block">
 
   <div>
   [%- IF item.id.defined;
@@ -43,7 +54,7 @@
         <div id="[% field %]Empty" class="unwell unwell-horizontal[% ' hidden' IF form.field(field).index > 1 %]">
           <p>
             <i class="icon-cog icon-large"></i>
-            [% l('No ' _ field _ ' selected') %]
+            [% l('No ' _ l(field) _ ' selected') %]
             <a href="#add">[% l('Add one.') %]</a>
           </p>
           <p>[% form.field(field).tags.when_empty %]</p>
@@ -66,13 +77,14 @@
     [% form.block('multi_source_definition').render | none %]
   </div>
   [% END %]
+  </div>
 
   [%- IF can_access("PORTAL_MODULE_UPDATE") %]
-  <div class="form-actions">
+  <div class="card-actions form-actions">
     <button type="submit" class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>
     [% IF source.id %]<button type="reset" class="btn">[% l('Reset') %]</button>[% END %]
   </div>
   [%- END %]
-
+</div>
 </form>
 

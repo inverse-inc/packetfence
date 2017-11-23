@@ -1140,18 +1140,6 @@ eap {
 		#
 		virtual_server = "packetfence-tunnel"
 
-		# This option enables support for MS-SoH
-		# see doc/SoH.txt for more info.
-		# It is disabled by default.
-		#
-	#	soh = yes
-
-		#
-		# The SoH reply will be turned into a request which
-		# can be sent to a specific virtual server:
-		#
-	#	soh_virtual_server = "packetfence-soh"
-
 		#
 		# Unlike EAP-TLS, PEAP does not require a client certificate.
 		# However, you can require one by setting the following

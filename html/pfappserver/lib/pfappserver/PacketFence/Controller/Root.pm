@@ -15,7 +15,9 @@ use warnings;
 
 use Moose;
 use namespace::autoclean;
-
+use pf::db;
+use pf::config qw(%Config);
+use pf::util;
 BEGIN { extends 'Catalyst::Controller' }
 
 #
@@ -28,6 +30,19 @@ __PACKAGE__->config(namespace => '');
 =head1 METHODS
 
 =over
+
+
+=head2 auto
+
+auto
+
+=cut
+
+sub auto :Private {
+    my ( $self, $c ) = @_;
+    $c->stash->{readonly_mode} = db_check_readonly();
+    return 1;
+}
 
 =item index
 
@@ -70,6 +85,11 @@ Attempt to render a view, if needed.
 
 sub end : ActionClass('RenderView') {
     my ( $self, $c ) = @_;
+     
+    if (isenabled($Config{'advanced'}{'admin_csp_security_headers'})) {
+        $c->csp_server_headers();
+    }
+  
     if (defined($c->req->header('accept')) && $c->req->header('accept') eq 'application/json'){
         $c->stash->{current_view} = 'JSON';
     }
@@ -115,6 +135,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

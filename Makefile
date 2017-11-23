@@ -15,10 +15,12 @@ pdf: $(patsubst %.asciidoc,%.pdf,$(notdir $(wildcard docs/PacketFence_*.asciidoc
 		-d book \
 		-o docs/docbook/$(notdir $<).docbook \
 		$<
-	 fop \
+	xsltproc \
+		-o $<.fo \
+		docs/docbook/xsl/packetfence-fo.xsl docs/docbook/$(notdir $<).docbook
+	fop \
 		-c docs/fonts/fop-config.xml \
-		-xsl docs/docbook/xsl/packetfence-fo.xsl \
-		-xml docs/docbook/$(notdir $<).docbook \
+		$<.fo \
 		-pdf docs/$@
 
 html: $(patsubst %.asciidoc,%.html,$(notdir $(wildcard docs/PacketFence_*.asciidoc)))
@@ -29,6 +31,12 @@ html: $(patsubst %.asciidoc,%.html,$(notdir $(wildcard docs/PacketFence_*.asciid
 		-n \
 		$<
 
+html/pfappserver/root/static/doc:
+	make html
+	mkdir -p docs/html/docs/images/
+	cp -a docs/images/* docs/html/docs/images/
+	mv docs/html html/pfappserver/root/static/doc
+
 pfcmd.help:
 	/usr/local/pf/bin/pfcmd help > docs/pfcmd.help
 
@@ -38,13 +46,20 @@ configurations:
 	find -type f -name '*.example' -print0 | while read -d $$'\0' file; do cp -n $$file "$$(dirname $$file)/$$(basename $$file .example)"; done
 	touch /usr/local/pf/conf/pf.conf
 
-.PHONY: ssl-certs
+# server certs and keys
+# the | in the prerequisites ensure the target is not created if it already exists
+# see https://www.gnu.org/software/make/manual/make.html#Prerequisite-Types
+conf/ssl/server.pem: | conf/ssl/server.key conf/ssl/server.crt conf/ssl/server.pem 
+	cat conf/ssl/server.crt conf/ssl/server.key > conf/ssl/server.pem
 
-conf/ssl/server.crt:
-	openssl req -x509 -new -nodes -days 365 -batch \
+conf/ssl/server.crt: | conf/ssl/server.crt
+	openssl req -new -x509 -days 365 \
 	-out /usr/local/pf/conf/ssl/server.crt \
-	-keyout /usr/local/pf/conf/ssl/server.key \
-	-nodes -config /usr/local/pf/conf/openssl.cnf
+	-key /usr/local/pf/conf/ssl/server.key \
+	-config /usr/local/pf/conf/openssl.cnf
+
+conf/ssl/server.key: | conf/ssl/server.key
+	openssl genrsa -out /usr/local/pf/conf/ssl/server.key 2048
 
 conf/pf_omapi_key:
 	/usr/bin/openssl rand -base64 -out /usr/local/pf/conf/pf_omapi_key 32
@@ -79,7 +94,7 @@ raddb/certs/server.crt:
 raddb/sites-enabled:
 	mkdir raddb/sites-enabled
 	cd raddb/sites-enabled;\
-	for f in packetfence packetfence-soh packetfence-tunnel dynamic-clients;\
+	for f in packetfence packetfence-tunnel dynamic-clients;\
 		do ln -s ../sites-available/$$f $$f;\
 	done
 
@@ -113,4 +128,4 @@ fingerbank:
 pf-dal:
 	perl /usr/local/pf/addons/dev-helpers/bin/generator-data-access-layer.pl
 
-devel: configurations conf/ssl/server.crt conf/pf_omapi_key conf/local_secret bin/pfcmd raddb/certs/server.crt sudo translation mysql-schema raddb/sites-enabled fingerbank chown_pf permissions bin/ntlm_auth_wrapper
+devel: configurations conf/ssl/server.crt conf/pf_omapi_key conf/local_secret bin/pfcmd raddb/certs/server.crt sudo translation mysql-schema raddb/sites-enabled fingerbank chown_pf permissions bin/ntlm_auth_wrapper html/pfappserver/root/static/doc

@@ -89,11 +89,15 @@ If enabled then do ip to mac and mac to ip translation
 
 has_field 'ip_mac_translation' => (
     type            => 'Toggle',
-    label           => 'IP <=> MAC',
+    label           => 'IP <i class="icon-exchange"></i> MAC',
     default         => 'enabled',
     checkbox_value  => 'enabled',
     unchecked_value => 'disabled',
-    tags => { after_element => \&help, help => 'Perform automatic translation of IPs to MACs and the other way around'},
+    tags => {
+        after_element => \&help,
+        help => 'Perform automatic translation of IPs to MACs and the other way around',
+        label_no_filter => 1
+    },
 );
 
 =head2 validate

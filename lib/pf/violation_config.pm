@@ -22,6 +22,7 @@ use pf::class qw(class_merge);
 use pf::db;
 use pfconfig::cached_hash;
 use pf::util;
+use pf::dal::class;
 
 our (%Violation_Config);
 
@@ -42,6 +43,15 @@ sub loadViolationsIntoDb {
         $logger->error("Can't connect to db");
         return;
     }
+
+    if (db_readonly_mode()) {
+        my $msg = "Cannot reload violations when the database is in read only mode\n";
+        print STDERR $msg;
+        $logger->error($msg);
+        return;
+    }
+
+    my @keys;
     while(my ($violation,$data) = each %Violation_Config) {
         # parse grace, try to understand trailing signs, and convert back to seconds
         my @time_values = (qw(grace delay_by));
@@ -52,6 +62,8 @@ sub loadViolationsIntoDb {
                 $data->{$key} = normalize_time($value);
             }
         }
+
+        $violation = 0 if ($violation eq "defaults");
 
         # be careful of the way parameters are passed, whitelists, actions are expected at the end
         class_merge(
@@ -75,7 +87,9 @@ sub loadViolationsIntoDb {
             $data->{'whitelisted_roles'} || '',
             $data->{'actions'},
         );
+        push @keys, $violation;
     }
+    pf::dal::class->remove_classes_not_defined(\@keys);
 }
 
 =head1 AUTHOR

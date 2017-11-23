@@ -1,3 +1,5 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
+
 "use strict";
 
 /*
@@ -43,7 +45,7 @@ var NodeView = function(options) {
 
     var read = $.proxy(this.readNode, this);
     var body = $('body');
-    options.parent.on('click', '#nodes [href*="node"][href$="/read"]', read);
+    options.parent.on('click', '[href*="node"][href$="/read"]', read);
 
     this.proxyClick(body, '.node [href*="node"][href$="/read"]', this.readNode);
 
@@ -57,7 +59,11 @@ var NodeView = function(options) {
 
     this.proxyFor(body, 'change', 'form[name="simpleNodeSearch"] [name$=".op"]', this.changeOpField);
 
+    this.proxyFor(body, 'click', '#simpleNodeSearchResetBtn', this.resetSimpleSearch);
+
     this.proxyFor(body, 'submit', 'form[name="advancedNodeSearch"]', this.submitSearch);
+
+    this.proxyFor(body, 'click', '#advancedNodeSearchResetBtn', this.resetAdvancedSearch);
 
     this.proxyFor(body, 'change', 'form[name="advancedNodeSearch"] [name$=".name"]', this.changeSearchField);
 
@@ -78,6 +84,8 @@ var NodeView = function(options) {
     this.proxyClick(body, '#modalNode [href*="/run/"]', this.runViolation);
 
     this.proxyClick(body, '#modalNode #reevaluateNode', this.reevaluateAccess);
+    
+    this.proxyClick(body, '#modalNode #restartSwitchport', this.restartSwitchport);
 
     this.proxyClick(body, '#modalNode #addViolation', this.triggerViolation);
 
@@ -104,7 +112,7 @@ var NodeView = function(options) {
 
     this.proxyFor(body, 'section.loaded', '#section', function(e) {
         /* Disable checked columns from import tab since they are required */
-        $('form["nodes"] .columns :checked').attr('disabled', 'disabled');
+        $('form[name="nodes"] .columns :checked').attr('disabled', 'disabled');
     });
     this.proxyFor(body, 'saved_search.loaded', 'form[name="advancedNodeSearch"] [name$=".name"]', this.changeSearchFieldKeep);
 
@@ -128,19 +136,24 @@ NodeView.prototype.readNode = function(e) {
 
     var that = this;
     var section = $('#section');
-    var loader = section.prev('.loader');
-    loader.show();
+    section.loader();
     section.fadeTo('fast', 0.5);
     this.nodes.get({
         url: $(e.target).attr('href'),
         always: function() {
-            loader.hide();
             section.stop();
-            section.fadeTo('fast', 1.0);
+            section.fadeTo('fast', 1.0, function() {
+                section.loader('hide');
+            });
         },
         success: function(data) {
             $('body').append(data);
             var modal = $("#modalNode");
+            /* Ability to track submitted button (multihost feature) */
+            modal.find("form button[type=submit]").click(function() {
+                $(this, $(this).parents("form")).removeAttr("clicked");
+                $(this).attr("clicked", "true");
+            });
             modal.modal({ show: true });
         },
         errorSibling: section.find('h2').first()
@@ -150,8 +163,8 @@ NodeView.prototype.readNode = function(e) {
 NodeView.prototype.showNode = function(e) {
     var that = this;
     var modal = $("#modalNode");
-    modal.find('.chzn-select').chosen();
-    modal.find('.chzn-deselect').chosen({allow_single_deselect: true});
+    modal.find('.chzn-select').chosen({width: ''});
+    modal.find('.chzn-deselect').chosen({allow_single_deselect: true, width: ''});
     modal.find('.timepicker-default').each(function() {
         // Keep the placeholder visible if the input has no value
         var $this = $(this);
@@ -162,7 +175,8 @@ NodeView.prototype.showNode = function(e) {
             e.stopPropagation();
         });
     });
-    modal.find('.datepicker').datepicker({ autoclose: true });
+    modal.find('.input-date').datepicker({ autoclose: true });
+
     modal.find('[data-toggle="tooltip"]').tooltip({placement: 'right'}).click(function(e) {
         e.preventDefault();
         return false;
@@ -296,6 +310,14 @@ NodeView.prototype.updateNode = function(e) {
     var form = modal.find('form').first();
     var btn = form.find('[type="submit"]').first();
     var valid = isFormValid(form);
+
+    var submitted_button = form.find("button[type=submit][clicked=true]");
+    if (submitted_button.attr("data-multihost")) {
+        form.find('[name="multihost"]').val("yes");
+    } else {
+        form.find('[name="multihost"]').val("no");
+    }
+
     if (valid) {
         resetAlert(modal_body);
         btn.button('loading');
@@ -411,6 +433,22 @@ NodeView.prototype.reevaluateAccess = function(e){
     });
 }
 
+NodeView.prototype.restartSwitchport = function(e){
+    e.preventDefault();
+    
+    var modal = $('#modalNode');
+    var modal_body = modal.find('.modal-body');
+    var link = $(e.target);
+    var url = link.attr('href');
+    this.nodes.get({
+        url: url,
+        success: function(data) {
+            showSuccess(modal_body.children().first(), data.status_msg);
+        },
+        errorSibling: modal_body.children().first()
+    });
+}
+
 NodeView.prototype.reorderSearch = function(e) {
     e.preventDefault();
     var that = this;
@@ -418,23 +456,23 @@ NodeView.prototype.reorderSearch = function(e) {
     var pagination = $('.pagination').first();
     var formId = pagination.attr('data-from-form') || '#search';
     var form = $(formId);
-    if(form.length == 0) {
+    if (form.length == 0) {
         form = $('#search');
     }
     var columns = $('#columns');
     var href = link.attr("href");
     var section = $('#section');
     var status_container = $("#section").find('h2').first();
-    var loader = section.prev('.loader');
-    loader.show();
+    section.loader();
     section.fadeTo('fast', 0.5);
     section.fadeTo('fast', 0.5, function() {
         that.nodes.post({
             url: href,
             data: form.serialize() + "&" + columns.serialize(),
             always: function() {
-                loader.hide();
-                section.fadeTo('fast', 1.0);
+                section.fadeTo('fast', 1.0, function() {
+                    section.loader('hide');
+                });
             },
             success: function(data) {
                 section.html(data);
@@ -454,23 +492,22 @@ NodeView.prototype.searchPagination = function(e) {
     var pagination = link.closest('.pagination');
     var formId = pagination.attr('data-from-form') || '#search';
     var form = $(formId);
-    if(form.length == 0) {
+    if (form.length == 0) {
         form = $('#search');
     }
     var columns = $('#columns');
     var href = link.attr("href");
     var section = $('#section');
     var status_container = $("#section").find('h2').first();
-    var loader = section.prev('.loader');
-    loader.show();
-    section.fadeTo('fast', 0.5);
+    section.loader();
     section.fadeTo('fast', 0.5, function() {
         that.nodes.post({
             url: href,
             data: form.serialize() + "&" + columns.serialize(),
             always: function() {
-                loader.hide();
-                section.fadeTo('fast', 1.0);
+                section.fadeTo('fast', 1.0, function() {
+                    section.loader('hide');
+                });
             },
             success: function(data) {
                 section.html(data);
@@ -491,7 +528,7 @@ NodeView.prototype.refreshPage = function() {
     var formId = pagination.attr('data-from-form') || '#search';
     var form = $(formId);
     var link = pagination.find('li.disabled a').first();
-    if(form.length == 0) {
+    if (form.length == 0) {
         form = $('#search');
     }
     var columns = $('#columns');
@@ -500,20 +537,20 @@ NodeView.prototype.refreshPage = function() {
     var refresh_section = $(section_id);
     var section = $('#section');
     var status_container = section.find('h2').first();
-    var loader = section.prev('.loader');
     var form_data = form.serialize();
     if (columns.length == 0) {
         form_data += "&" + columns.serialize();
     }
-    loader.show();
+    section.loader();
     section.fadeTo('fast', 0.5);
     section.fadeTo('fast', 0.5, function() {
         that.nodes.post({
             url: href,
             data: form_data,
             always: function() {
-                loader.hide();
-                section.fadeTo('fast', 1.0);
+                section.fadeTo('fast', 1.0, function() {
+                    section.loader('hide');
+                });
             },
             success: function(data) {
                 refresh_section.html(data);
@@ -534,15 +571,15 @@ NodeView.prototype.submitSearch = function(e) {
     var columns = $('#columns');
     $("body,html").animate({scrollTop:0}, 'fast');
     var status_container = $("#section").find('h2').first();
-    var loader = section.prev('.loader');
-    loader.show();
+    section.loader();
     section.fadeTo('fast', 0.5, function() {
         that.nodes.post({
             url: href,
             data: form.serialize() + "&" + columns.serialize(),
             always: function() {
-                loader.hide();
-                section.fadeTo('fast', 1.0);
+                section.fadeTo('fast', 1.0, function() {
+                    section.loader('hide');
+                });
             },
             success: function(data) {
                 section.html(data);
@@ -574,15 +611,19 @@ NodeView.prototype.submitItems = function(e) {
     var that = this;
     var target = $(e.currentTarget);
     var section = $('#section');
-    var loader = section.prev('.loader');
     var status_container = section.find('h2').first();
     var items = $("#items").serialize();
     if (items.length) {
-        loader.show();
+        section.loader();
         section.fadeTo('fast', 0.5, function() {
             that.nodes.post({
                 url: target.attr("data-target"),
                 data: items,
+                always: function() {
+                    section.fadeTo('fast', 1.0, function() {
+                        section.loader('hide');
+                    });
+                },
                 success: function(data) {
                     $("#section").one('section.loaded', function() {
                         showSuccess($("#section").find('h2').first(), data.status_msg);
@@ -694,3 +735,17 @@ NodeView.prototype.searchSwitch = function(query, process) {
         }
     });
 }
+
+NodeView.prototype.resetAdvancedSearch = function(e) {
+    var form = $('form[name="advancedNodeSearch"]');
+    form.find('#advancedSearchConditions').find('tbody').children(':not(.hidden)').find('[href="#delete"]').click();
+    form.find('#advancedSearchConditionsEmpty [href="#add"]').click();
+    form[0].reset();
+    form.submit();
+};
+
+NodeView.prototype.resetSimpleSearch = function(e) {
+    var form = $('#simpleNodeSearch');
+    form[0].reset();
+    form.submit();
+};

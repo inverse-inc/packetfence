@@ -29,7 +29,7 @@ sub init {
 sub build {
     my ($self) = @_;
     my @ranges;
-    foreach my $range (split(',',$self->{config}{'trapping'}{'range'})) {
+    foreach my $range (split(',',$self->{config}{'fencing'}{'range'})) {
         my $network = NetAddr::IP->new($range);
         push @ranges,$network;
     }

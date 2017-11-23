@@ -1,3 +1,4 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
 
 var filtersView;
 $(function() { // DOM ready
@@ -15,35 +16,39 @@ var FiltersView = function(options) {
   // Revert the modifications
   var revert = $.proxy(this.revert, this);
   options.parent.on('click', '#filtersRevert', revert);
+
+  var load = $.proxy(this.setupEditor, this);
+  options.parent.on('section.loaded', load);
 };
 
-FiltersView.prototype.setupEditor = function(){
-  this.editor = ace.edit("editor");
-  this.editor.setTheme("ace/theme/monokai");
-  this.editor.getSession().setMode("ace/mode/perl");
+FiltersView.prototype.setupEditor = function() {
+  if ($('#editor').length) {
+    this.editor = ace.edit("editor");
+    this.editor.setTheme("ace/theme/monokai");
+    this.editor.getSession().setMode("ace/mode/perl");
 
-  this.disableButtons();
-  
-  this.initialValue = this.editor.getValue();
-}
+    this.disableButtons();
+
+    this.initialValue = this.editor.getValue();
+  }
+};
 
 FiltersView.prototype.revert = function(e){
   this.editor.setValue(this.initialValue, -1);
   this.disableButtons();
-}
+};
 
 FiltersView.prototype.disableButtons = function() {
   $('#filtersForm .btn').addClass('disabled');
   
   this.enableButtonsProxy = $.proxy(this.enableButtons, this);
   this.editor.on("change",this.enableButtonsProxy);
-
-}
+};
 
 FiltersView.prototype.enableButtons = function() {
   $('#filtersForm .btn').removeClass('disabled');
   this.editor.removeEventListener("change",this.enableButtonsProxy);
-}
+};
 
 FiltersView.prototype.update = function(e){
   var that = this;
@@ -66,4 +71,4 @@ FiltersView.prototype.update = function(e){
   });
 
   return false;
-}
+};

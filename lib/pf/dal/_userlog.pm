@@ -79,8 +79,8 @@ BEGIN {
     );
 
     @PRIMARY_KEYS = qw(
-        start_time
         mac
+        start_time
     );
 }
 

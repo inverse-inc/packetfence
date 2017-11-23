@@ -1,76 +1,12 @@
-
-<div class="controls">
-    <span class="pull-right"><a data-toggle="collapse" href="#pfdetect-regex-help">[% l('Help') %]</a></span>
-    <div id="pfdetect-regex-help" class="collapse">
-
-<h4> The Regex Syslog Parser</h4>
-
-<p>
-Is a flexible and powerful tool for defining actions based of log file entries in PacketFence.
-</p>
-
-<h5> Configuring a Regex Syslog Parser</h5>
-<ul>
-    <li>Enabled - You can enable/disable the parser from running</li>
-    <li>Alert Pipe - A previously created alert pipe (FIFO)</li>
-    <li>
-        Rules - The list of rules that defines how to match log file entries and what action(s) to take when matching.
-    </li>
-</ul>
-
-<h5> Regex Syslog Parser Rule </h5>
-
-    <ul>
-
-        <li>Name - The name of the rule</li>
-
-        <li>Regex - The perl regex to match against a log entry.<br/> The regex may have <a href="http://perldoc.perl.org/perlre.html#(%3f'NAME'pattern)">named captures</a> which can be used for parameter replacement start a '$'</li>
-
-        <li>Actions - A list of actions to take when the regex matches</li>
-
-        <li>IP <=> MAC - Perform automatic translation of IPs to MACs and the other way around</li>
-
-        <li>Last if matches - Stop processing the other rules if this rule matched</li>
-
-    </ul>
-
-
-<h5> Defining Actions</h5>
-
-<p>
-    An action have two parts
-</p>
-
-<ul>
- <li>method - The name of the action you want to take.</il>
- <li>parameter list - The list of parameters you want to provide to the method.
-  Each parameter is seperated by a comma. The parameters that are to be replaced by a named capture
-  </li>
-</ul>
-
-
-<h5>Example Action</h5>
-
-<ul>
-    <li>
-    Regex -  mac\s*:\s*(?&lt;mac&gt;[a-zA-Z0-9]{2}(:[a-zA-Z0-9]{2}){5}), notes\s*:\s*(?&lt;notes&gt;.*)
-    </li>
-
-    <li>Action - modify_node :  mac, $mac, notes, $notes</li>
-</ul>
-
-    </div>
-</div>
-
 [% form.block('definition').render | none %]
 <hr/>
 <div class="control-group">
-    <div id="test-regex" class="controls" >
-        <textarea class="input-xxlarge" name="loglines" rows="3" placeholder="[% l('Test log entries...') %]"></textarea>
-    </div>
-    <div class="controls">
-        <button data-loading-text="[% l('Testing...') %]" data-test-action=[% c.uri_for(c.controller.action_for('test_regex_parser'))%] id="test-regex-btn" type="button" class="btn " data-toggle="collapse">[% l('Run Test') %]</button>
-    </div>
-    <div id="test-regex-results">
-    </div>
+  <div id="test-regex" class="controls" >
+    <textarea class="input-xxlarge" name="loglines" rows="3" placeholder="[% l('Test log entries...') %]"></textarea>
+  </div>
+  <div class="controls">
+    <button data-loading-text="[% l('Testing...') %]" data-test-action=[% c.uri_for(c.controller.action_for('test_regex_parser'))%] id="test-regex-btn" type="button" class="btn btn-warning" data-toggle="collapse">[% l('Run Test') %]</button>
+  </div>
+  <div id="test-regex-results">
+  </div>
 </div>

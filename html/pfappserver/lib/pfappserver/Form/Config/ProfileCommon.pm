@@ -22,8 +22,9 @@ use pf::authentication;
 use pf::ConfigStore::Provisioning;
 use pf::ConfigStore::BillingTiers;
 use pf::ConfigStore::Scan;
+use pf::ConfigStore::DeviceRegistration;
 use pf::web::constants;
-use pf::constants::Portal::Profile;
+use pf::constants::Connection::Profile;
 use pfappserver::Form::Field::Duration;
 with 'pfappserver::Base::Form::Role::Help';
 
@@ -48,7 +49,7 @@ The captival portal block
 
 has_block 'captive_portal' =>
   (
-    render_list => [qw(logo redirecturl always_use_redirecturl nbregpages block_interval sms_pin_retry_limit sms_request_limit login_attempt_limit access_registration_when_registered)],
+    render_list => [qw(logo redirecturl always_use_redirecturl block_interval sms_pin_retry_limit sms_request_limit login_attempt_limit access_registration_when_registered)],
   );
 
 =head1 Fields
@@ -164,7 +165,7 @@ has_field 'always_use_redirecturl' =>
 
 =head2 preregistration
 
-Controls whether or not this portal profile is used for preregistration
+Controls whether or not this connection profile is used for preregistration
 
 =cut
 
@@ -175,13 +176,13 @@ has_field 'preregistration' =>
    checkbox_value => 'enabled',
    unchecked_value => 'disabled',
    tags => { after_element => \&help,
-             help => 'This activates preregistration on the portal profile. Meaning, instead of applying the access to the currently connected device, it displays a local account that is created while registering. Note that activating this disables the on-site registration on this portal profile. Also, make sure the sources on the portal profile have "Create local account" enabled.' },
+             help => 'This activates preregistration on the connection profile. Meaning, instead of applying the access to the currently connected device, it displays a local account that is created while registering. Note that activating this disables the on-site registration on this connection profile. Also, make sure the sources on the connection profile have "Create local account" enabled.' },
   );
 
 
 =head2 autoregister
 
-Controls whether or not this portal profile will autoregister users
+Controls whether or not this connection profile will autoregister users
 
 =cut
 
@@ -303,18 +304,6 @@ has_field 'dot1x_recompute_role_from_portal' =>
              help => 'When enabled, PacketFence will not use the role initialy computed on the portal but will use the dot1x username to recompute the role.' },
   );
 
-
-=head2 nbregpages
-
-=cut
-
-has_field 'nbregpages' =>
-  (
-    type => 'PosInteger',
-    label => 'Number of Registration Pages',
-    default => 0,
-  );
-
 =head2 block_interval
 
 The amount of time a user is blocked after reaching the defined limit for login, sms request and sms pin retry
@@ -326,7 +315,7 @@ has_field 'block_interval' =>
     type => 'Duration',
     label => 'Block Interval',
     #Use the inflate method from pfappserver::Form::Field::Duration
-    default => pfappserver::Form::Field::Duration->duration_inflate($pf::constants::Portal::Profile::BLOCK_INTERVAL_DEFAULT_VALUE),
+    default => pfappserver::Form::Field::Duration->duration_inflate($pf::constants::Connection::Profile::BLOCK_INTERVAL_DEFAULT_VALUE),
     tags => { after_element => \&help,
              help => 'The amount of time a user is blocked after reaching the defined limit for login, sms request and sms pin retry.' },
   );
@@ -404,9 +393,22 @@ has_field 'scans.contains' =>
     widget_wrapper => 'DynamicTableRow',
   );
 
+=head2 device_registration
+
+The definition for Device registration Sources field
+
+=cut
+
+has_field 'device_registration' =>
+  (
+    type => 'Select',
+    options_method => \&options_device_registration,
+  );
+
+
 =head2 preregistration
 
-Controls whether or not this portal profile is used for preregistration
+Controls whether or not this connection profile is used for preregistration
 
 =cut
 
@@ -470,6 +472,17 @@ Returns the list of scan to be displayed
 sub options_scan {
     return  map { { value => $_, label => $_ } } @{pf::ConfigStore::Scan->new->readAllIds};
 }
+
+=head2 options_device_registration
+
+Returns the list of device_registration profile to be displayed
+
+=cut
+
+sub options_device_registration {
+    return  map { { value => $_, label => $_ } } '',@{pf::ConfigStore::DeviceRegistration->new->readAllIds};
+}
+
 
 =head2 options_root_module
 

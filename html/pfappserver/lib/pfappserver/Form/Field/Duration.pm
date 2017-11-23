@@ -57,12 +57,9 @@ has_field 'interval' =>
 has_field 'unit' =>
   (
    type => 'Select',
-   widget => 'ButtonGroup',
    do_label => 0,
    localize_labels => 1,
    tags => { no_errors => 1 },
-   wrapper_class => ['btn-group'],
-   wrapper_attr => {'data-toggle' => 'buttons-radio'},
    options_method => \&options_unit,
    apply => [ { check => $TIME_MODIFIER_RE } ],
   );
@@ -209,5 +206,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

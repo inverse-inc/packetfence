@@ -1,82 +1,45 @@
-[%  jsFiles = [
-        'app/jquery-ui',
-        'app/bootstrap-datepicker',
-        'app/bootstrap-timepicker',
-        'app/chosen.jquery.min',
-        'app/jquery.ba-hashchange',
-        'app/raphael/raphael-min',
-        'app/raphael/g.raphael-min',
-        'app/raphael/g.bar-min',
-        'app/raphael/g.dot-min',
-        'app/raphael/g.line-min',
-        'app/raphael/g.pie-min',
-        'app/graphs',
-        'app/uri',
-        'admin/searches',
-        'js/bootstrapSwitch',
-        'admin/config/items',
-        'js/node',
-        'js/user',
-        'admin/nodes',
-        'admin/option82'
-        ]
-     cssFiles = [
-        'app/bootstrap-timepicker',
-        'admin/reports'
-        ] 
--%]
-<style type="text/css">
-form {
-    margin-bottom: 0px;
-}
-</style>
-    [% INCLUDE admin/saved_search.inc savedSearchController="SavedSearch::DHCPOption82" method="POST" %] 
-    <div class="container-fluid">
-      <div class="row-fluid">
-        <div class="tab-content"> 
-            <ul class="nav nav-tabs">
-                <li><a href="[% c.uri_for(c.controller('Admin').action_for('auditing_radius_log')) %]">[% l('RADIUS Audit Log') %]</a></li>
-                <li class="active"><a href="[% c.uri_for(c.controller('Admin').action_for('auditing_option82')) %]">[% l('DHCP Option 82') %]</a></li>
+            <ul class="nav nav-header">
+              <li>[% l('Option82') %]</li>
+              <li class="divider-horizontal"></li>
             </ul>
-        </div>
-      </div>
-      <div class="row-fluid">
-        <div class="span2">
-          <div class="sidebar-nav well">
             <ul class="nav nav-list">
-              <li class="nav-header">[% l('Option82') %]</li>
-              <li class="divider"></li>
-              <li class="" id="accordion-SwithGroup">
-                <a data-toggle="collapse" data-parent="#accordion-SwithGroup" href="#collapseSwitchGroup" class="collapsed">
+              <li id="accordion-SwithGroup">
+                <a data-toggle="collapse" href="#collapseOption82SwitchGroup" class="collapsed">
                     [% l('Switch Groups')%]
                 <i class="icon-chevron-up pull-right"></i></a>
-                <ul id="collapseSwitchGroup" class="collapse">
-                  <a data-toggle="collapse" data-parent="#collapseSwitchGroup" href="#collapseSwitchGroupDefault" class="collapsed">Default<i class="icon-chevron-up pull-right"></i></a>
-                    <li id="collapseSwitchGroupDefault" class="collapse">
-                      <ul>[% FOREACH switch IN switches %]
-                      <li><a href="#" data-toggle="pf-search-form" data-parent="#collapseSwitchGroupDefault" data-target="#search" data-form-target="#search">[% switch.id %]</a>
+                <ul id="collapseOption82SwitchGroup" class="nav nav-list collapse">
+                  <li class="sidenav-subsection[% UNLESS switch_groups.size %] sidenav-subsection--last[% END %]">
+                    <a data-toggle="collapse" data-parent="#collapseOption82SwitchGroup" href="#collapseOption82SwitchGroupDefault" class="collapsed">Default<i class="icon-chevron-up pull-right"></i></a>
+                  </li>
+                  <li id="collapseOption82SwitchGroupDefault" class="collapse">
+                    <ul>
+                      [% FOREACH switch IN switches %]
+                      <li class="sidenav-subsection-extend"><a href="#" data-toggle="pf-search-form" data-parent="#collapseOption82SwitchGroupDefault" data-target="#search" data-form-target="#search">[% switch.id %]</a>
                         <form>
                           <input type="hidden" name="searches.0.name" value="switch_id"/>
-                          <input type="hidden" name="searches.0.op" value="is"/>
+                          <input type="hidden" name="searches.0.op" value="equal"/>
                           <input type="hidden" name="searches.0.value" value="[% switch.id %]"/>
                         </form>
-                        </li>
-                      [% END %]</ul>
-                    </li>
-                  [% FOREACH switch_group IN switch_groups %]
-                    <a data-toggle="collapse" data-parent="#collapseSwitchGroup" href="#collapse_[% switch_group.id %]" class="collapsed">[% switch_group.id %]<i class="icon-chevron-up pull-right"></i></a>
-                    <li id="collapse_[% switch_group.id %]" class="collapse">
-                      <ul>[% FOREACH member IN switch_group.members %]
-                        <li><a href="#" data-toggle="pf-search-form" data-parent="#collapse_[% switch_group.id %]"data-target="#search" data-form-target="#search">[% member.id %]</a>
-                          <form>
-                            <input type="hidden" name="searches.0.name" value="switch_id"/>
-                            <input type="hidden" name="searches.0.op" value="is"/>
-                            <input type="hidden" name="searches.0.value" value="[% member.id %]"/>
-                          </form>
-                        </li>
+                      </li>
                       [% END %]
-                      </ul>
-                    </li>
+                    </ul>
+                  </li>
+                  [% FOREACH switch_group IN switch_groups %]
+                  <li class="sidenav-subsection[% IF loop.last %] sidenav-subsection--last[% END %]">
+                    <a data-toggle="collapse" data-parent="#collapseOption82SwitchGroup" href="#collapse_[% switch_group.id %]" class="collapsed">[% switch_group.id %]<i class="icon-chevron-up pull-right"></i></a>
+                  </li>
+                  <li id="collapse_[% switch_group.id %]" class="collapse">
+                    <ul>[% FOREACH member IN switch_group.members %]
+                      <li class="sidenav-subsection-extend"><a href="#" data-toggle="pf-search-form" data-parent="#collapse_[% switch_group.id %]"data-target="#search" data-form-target="#search">[% member.id %]</a>
+                        <form>
+                          <input type="hidden" name="searches.0.name" value="switch_id"/>
+                          <input type="hidden" name="searches.0.op" value="equal"/>
+                          <input type="hidden" name="searches.0.value" value="[% member.id %]"/>
+                        </form>
+                      </li>
+                      [% END %]
+                    </ul>
+                  </li>
                   [% END %]
                 </ul>
               </li>
@@ -84,7 +47,7 @@ form {
               [%FOR ss IN saved_searches%]
                 [% form = ss.form %]
               <li>
-                <a href="#" data-toggle="pf-search-form" data-target="#search" data-form-target="#search" >[% ss.name %] <span class="saved_search_trash pull-right" data-href="[% c.uri_for(c.controller('SavedSearch::DHCPOption82').action_for('remove'),[ss.id])  %]"><i class="icon-trash"></i></span></a>
+                <a href="#" data-toggle="pf-search-form" data-target="#search" data-form-target="#search" ><span class="saved_search_trash pull-right" data-href="[% c.uri_for(c.controller('SavedSearch::DHCPOption82').action_for('remove'),[ss.id])  %]"><i class="icon-trash"></i></span>[% ss.name %]</a>
                 <form>
                   [%FOREACH input IN form.keys.sort%]
                   <input type="hidden" name="[%input | html %]" value="[%form.$input | html%]"/>
@@ -93,11 +56,3 @@ form {
               </li>
               [%END%]
             </ul>
-          </div><!--/.well -->
-        </div><!--/span-->
-        <div class="span10">
-          <div id="section">
-          </div>
-        </div><!--/span-->
-      </div><!--/row-->
-    </div><!--/.fluid-container-->

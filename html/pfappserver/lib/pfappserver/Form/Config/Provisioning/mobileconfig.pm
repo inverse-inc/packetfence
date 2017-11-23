@@ -67,6 +67,7 @@ has_field 'passcode' =>
 has_field 'server_certificate_path' =>
  (
   type => 'Path',
+  required_when => { 'eap_type' => 25 },
   label => 'RADIUS server certificate path',
   tags => { after_element => \&help,
             help => 'The path to the RADIUS server certificate' },       
@@ -181,5 +182,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

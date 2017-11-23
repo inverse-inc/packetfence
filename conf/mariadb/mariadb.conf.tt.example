@@ -45,9 +45,10 @@ thread_concurrency = [% thread_concurrency %]
 
 [% IF cluster_enabled %]
 # Replication Master Server (default)
-# binary logging is required for replication
-log-bin=mysql-bin
+#log-bin=mysql-bin
 binlog-format=row
+expire_logs_days=2
+max_binlog_size=13107200
 
 # required unique id between 1 and 2^32 - 1
 # defaults to 1 if master-host is not set
@@ -141,7 +142,7 @@ max_connections=[% max_connections %]
 [galera]
 # Mandatory settings
 wsrep_on=ON
-wsrep_provider=/usr/lib64/galera/libgalera_smm.so
+wsrep_provider=[% libgalera %]
 default_storage_engine=InnoDB
 innodb_autoinc_lock_mode=2
 wsrep_cluster_name=pfcluster
@@ -151,8 +152,11 @@ wsrep_node_address="[% server_ip %]"
 wsrep_on=ON 
 wsrep_sst_method = xtrabackup
 wsrep_sst_auth = "[% replication_user %]:[% replication_password %]"
-wsrep_notify_cmd=/usr/local/pf/var/run/db-update
-wsrep_provider_options='pc.npvo=true'
+# Uncomment the line below so that the database goes into read_only mode when its not a primary view or there is only 1 member left in your cluster
+# This was known to cause issues with rapid cluster state changes, see #2593 for details
+#wsrep_notify_cmd=/usr/local/pf/var/run/db-update
+wsrep_provider_options=''
+wsrep_dirty_reads=ON
 #
 # Optional setting
 wsrep_slave_threads=1

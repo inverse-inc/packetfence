@@ -204,7 +204,7 @@ sub violation_db_prepare {
     ]);
 
     $violation_statements->{'violation_view_all_active_sql'} = get_db_handle()->prepare(
-        qq [ select v.mac,v.vid,v.start_date,v.release_date,v.status,v.ticket_ref,v.notes,i.ip,i.start_time,i.end_time from violation v left join iplog i on v.mac=i.mac where v.status="open" and i.end_time=0 group by v.mac]);
+        qq [ select v.mac,v.vid,v.start_date,v.release_date,v.status,v.ticket_ref,v.notes,i.ip,i.start_time,i.end_time from violation v left join ip4log i on v.mac=i.mac where v.status="open" and i.end_time=0 group by v.mac]);
 
     $violation_statements->{'violation_delete_sql'} = get_db_handle()->prepare(qq [ delete from violation where id=? ]);
 

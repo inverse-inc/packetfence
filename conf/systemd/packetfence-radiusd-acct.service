@@ -8,11 +8,13 @@ Wants=packetfence-base.target packetfence-config.service packetfence-iptables.se
 After=packetfence-base.target packetfence-config.service packetfence-iptables.service 
 
 [Service]
-StandardOutput=syslog
+Type=notify
+WatchdogSec=10
 StartLimitBurst=3
-StartLimitInterval=60
+StartLimitInterval=10
 PIDFile=/usr/local/pf/var/run/radiusd-acct.pid
 ExecStartPre=/usr/local/pf/bin/pfcmd service radiusd generateconfig
+ExecStartPre=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n acct -Cxm -lstdout 
 ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n acct -fm 
 Restart=on-failure
 Slice=packetfence.slice

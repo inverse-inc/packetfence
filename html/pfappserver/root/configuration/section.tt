@@ -1,21 +1,25 @@
- <h3>[% l(section) %]</h3>
+<div class="card">
+  <div class="card-title">
+    <h2>[% l(section) %] [% IF doc_anchor ; doc(doc_anchor) | none ; END %]</h2>
 
 [% IF section == "maintenance" %]
 <div class="alert alert-warning">
     <strong>[% l('Note: ') %]</strong>[% l('Modifying any of theses values requires to restart \'pfmon\' service to be effective.') %]
 </div>
 [% END %]
+  </div>
 
   <form name="section" class="form-horizontal" action="[% c.uri_for(c.action,section) %]" method="POST">
-
+    <div class="card-block">
 [% FOREACH field IN form.fields %]
   [% form.field(field.name).render | none %]
 [% END %]
-
+    </div>
     [%- IF can_access("CONFIGURATION_MAIN_UPDATE") %]
-    <div class="form-actions">
-      <button type="submit" class="btn btn-primary">[% l('Save') %]</button>
+    <div class="card-actions form-actions">
+      <button type="submit" class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>
       <button type="reset" class="btn">[% l('Reset') %]</button>
     </div>
     [%- END %]
   </form>
+</div>

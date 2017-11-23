@@ -20,7 +20,6 @@ use pf::log;
 use Locale::gettext qw(gettext ngettext);
 use captiveportal::Base::I18N;
 use pf::node;
-use pf::useragent;
 use pf::util;
 use pf::config::util;
 use List::MoreUtils qw(any);
@@ -43,7 +42,7 @@ has 'request' => (is => 'ro', required => 1);
 
 has 'hashed_params' => (is => 'rw');
 
-has 'profile' => (is => 'rw', required => 1, isa => "pf::Portal::Profile");
+has 'profile' => (is => 'rw', required => 1, isa => "pf::Connection::Profile");
 
 has 'template_output' => (is => 'rw');
 
@@ -75,19 +74,6 @@ sub BUILD {
     }
     $self->hashed_params($hashed);
 };
-
-=head2 user_agent_cache
-
-The User agent cache
-TODO : migrate this to CHI ?
-
-=cut
-
-sub user_agent_cache {
-    my ($self) = @_;
-    $self->cache_cache->{user_agent_cache} //= new Cache::FileCache( { 'namespace' => 'CaptivePortal_UserAgents' } );
-    return $self->cache_cache->{user_agent_cache};
-}
 
 =head2 lost_devices_cache
 
@@ -132,41 +118,6 @@ sub reached_retry_limit {
     $retries++;
     $cache->set($retry_key,$retries,$self->profile->{_block_interval});
     return $retries > $max;
-}
-
-=head2 process_user_agent
-
-Process the user agent
-
-=cut
-
-sub process_user_agent {
-    my ( $self ) = @_;
-    my $user_agent    = $self->current_user_agent;
-    my $logger        = get_logger();
-    my $mac           = $self->current_mac;
-    unless ($user_agent) {
-        $logger->warn("has no user agent");
-        return;
-    }
-
-    # caching useragents, if it's the same don't bother triggering violations
-    my $cached_useragent = $self->user_agent_cache->get($mac);
-
-    # Cache hit
-    return
-      if ( defined($cached_useragent) && $user_agent eq $cached_useragent );
-
-    # Caching and updating node's info
-    $logger->debug("adding user-agent to cache");
-    $self->user_agent_cache->set( $mac, $user_agent, $USER_AGENT_CACHE_EXPIRATION);
-
-    # Recording useragent
-    $logger->info("Updating node user_agent with useragent: '$user_agent'");
-    node_modify( $mac, ( 'user_agent' => $user_agent ) );
-
-    # updates the node_useragent information and fires relevant violations triggers
-    return pf::useragent::process_useragent( $mac, $user_agent );
 }
 
 =head2 process_fingerbank
@@ -252,7 +203,6 @@ Processing that needs to occur before we execute the application
 sub preprocessing {
     my ($self) = @_;
     my $timer = pf::StatsD::Timer->new({sample_rate => 0.05, level => 6});
-    $self->process_user_agent();
     $self->process_destination_url();
     $self->process_fingerbank();
 }
@@ -325,7 +275,7 @@ sub process_destination_url {
     my ($self) = @_;
     my $url = $self->session->{user_destination_url};
 
-    # Return portal profile's redirection URL if destination_url is not set or if redirection URL is forced
+    # Return connection profile's redirection URL if destination_url is not set or if redirection URL is forced
     if (!defined($url) || !$url || isenabled($self->profile->forceRedirectURL)) {
         $url = $self->profile->getRedirectURL;
     }
@@ -336,15 +286,15 @@ sub process_destination_url {
     };
     if($@) {
         get_logger->info("Invalid destination_url $url. Replacing with profile defined one.");
-        return $self->profile->getRedirectURL;
+        $url = $self->profile->getRedirectURL;
     }
 
 
     my @portal_hosts = portal_hosts();
-    # if the destination URL points to the portal, we put the default URL of the portal profile
+    # if the destination URL points to the portal, we put the default URL of the connection profile
     if ( any { $_ eq $host } @portal_hosts) {
         get_logger->info("Replacing destination URL since it points to the captive portal");
-        return $self->profile->getRedirectURL;
+        $url = $self->profile->getRedirectURL;
     }
 
     $url = decode_entities(uri_unescape($url));
@@ -593,7 +543,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;
 

@@ -23,6 +23,7 @@ use File::Basename qw(basename);
 use POSIX qw(:signal_h pause :sys_wait_h SIG_BLOCK SIG_UNBLOCK);
 use Pod::Usage;
 use Fcntl qw(:flock);
+use Systemd::Daemon qw{ -soft };
 
 #pf::log must always be initilized first
 BEGIN {
@@ -42,6 +43,7 @@ use pf::services::util;
 use pf::filter_engine::profile;
 use pf::factory::condition::profile;
 use pfconfig::cached_scalar;
+use pf::db;
 use pf::access_filter::radius;
 use pf::access_filter::dhcp;
 use pf::access_filter::dns;
@@ -126,6 +128,7 @@ cleanup();
 END {
     if (!$args{h} && $HAS_LOCK) {
         unless ($IS_CHILD) {
+            Systemd::Daemon::notify( STOPPING => 1 );
             deletepid();
             $logger->info("stopping pffilter");
         }
@@ -144,6 +147,7 @@ start
 
 sub start {
     registertasks();
+    Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
     runtasks();
     waitforit();
 }
@@ -245,6 +249,7 @@ creates a new child to run a task
 
 sub runtask {
     my ($task) = @_;
+    db_disconnect();
     my $pid = fork();
     if ($pid) {
         $CHILDREN{$pid} = $task;
@@ -412,7 +417,8 @@ waits for signals
 
 sub waitforit {
     while ($running) {
-        pause;
+        #  Only pause if their are no registered tasks
+        pause unless @REGISTERED_TASKS;
         runtasks();
     }
 }

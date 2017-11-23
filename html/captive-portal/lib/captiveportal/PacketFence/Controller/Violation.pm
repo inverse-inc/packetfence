@@ -3,6 +3,7 @@ use Moose;
 use namespace::autoclean;
 use pf::violation;
 use pf::class;
+use pf::config qw(%Config);
 use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID $PRE_SCAN_VID);
 use pf::log;
 use pf::web;
@@ -59,6 +60,7 @@ sub index : Path : Args(0) {
                     template => "scan.html",
                     txt_message => "system scan in progress",
                     title => "scan: scan in progress",
+                    timer => $Config{'fencing'}{'redirtimer'},
                 );
                 $c->detach();
             }
@@ -75,6 +77,7 @@ sub index : Path : Args(0) {
             'title'        => 'violation: quarantine established',
             'template'     => 'remediation.html',
             'sub_template' => $subTemplate,
+            'redirect_url' => $class->{'redirect_url'},
             map { $_ => $node_info->{$_} }
               qw(dhcp_fingerprint last_switch last_port
               last_vlan last_connection_type last_ssid username)
@@ -88,7 +91,7 @@ sub index : Path : Args(0) {
 
 =head2 getSubTemplate
 
-Get the subtemplate in the right portal profile
+Get the subtemplate in the right connection profile
 
 =cut
 
@@ -156,6 +159,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

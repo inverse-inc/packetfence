@@ -22,7 +22,8 @@ has 'server1_address'       => (isa => 'Str', is => 'rw');
 has 'server2_address'       => (isa => 'Str', is => 'rw');
 has 'radius_secret'         => (isa => 'Str', is => 'rw');
 has 'auth_listening_port'   => (isa => 'Maybe[Int]', is => 'rw', default => '11812');
-
+has 'local_realm'           => (isa => 'ArrayRef[Str]', is => 'rw');
+has 'reject_realm'          => (isa => 'ArrayRef[Str]', is => 'rw');
 
 =head2 available_rule_classes
 
@@ -112,7 +113,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;
 
 # vim: set shiftwidth=4:

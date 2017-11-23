@@ -18,7 +18,7 @@ has_field username => (
 );
 
 has_field password => (
-    type => 'Password',
+    type => 'ObfuscatedText',
     required => 1,
 );
 
@@ -80,5 +80,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

@@ -66,8 +66,9 @@ sub handler {
             $response = [$MSGPACKRPC_RESPONSE,$msgid,undef,\@results];
         };
         if($@) {
-            $logger->error($@);
-            $self->_set_error($r,$msgid,Apache2::Const::SERVER_ERROR,$@);
+            my $error = $@;
+            $logger->error($error);
+            $self->_set_error($r,$msgid,Apache2::Const::SERVER_ERROR,$error);
             return Apache2::Const::OK;
         }
         my $content = Data::MessagePack->pack($response);

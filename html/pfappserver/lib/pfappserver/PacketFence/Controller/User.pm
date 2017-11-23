@@ -18,7 +18,7 @@ use Moose;
 use namespace::autoclean;
 use POSIX;
 use SQL::Abstract::More;
-
+use JSON::MaybeXS;
 use pfappserver::Form::User;
 use pfappserver::Form::User::Create;
 use pfappserver::Form::User::Create::Single;
@@ -205,8 +205,11 @@ sub nodes :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
         $c->stash->{nodes} = $result;
     } else {
         $c->response->status($status);
-        $c->stash->{status_msg} = $result;
-        $c->stash->{current_view} = 'JSON';
+        $c->stash(
+            status_msg => $result,
+            current_view => 'JSON',
+            nodes => [],
+        )
     }
     return ;
 }
@@ -247,7 +250,7 @@ sub create :Local :AdminRoleAny('USERS_CREATE') :AdminRoleAny('USERS_CREATE_MULI
     my ($type, %data, @options);
     my ($status, $result, $message);
 
-    ($status, $result) = $c->model('Roles')->list();
+    ($status, $result) = $c->model('Config::Roles')->listFromDB();
     if (is_success($status)) {
         @roles = map { $_->{name} => $_->{name} } @$result;
     }
@@ -343,7 +346,8 @@ sub create :Local :AdminRoleAny('USERS_CREATE') :AdminRoleAny('USERS_CREATE_MULI
         }
         else {
             $c->stash->{status_msg} = $message; # TODO: localize error message
-            $c->stash->{current_view} = 'JSON';
+            $c->stash->{template} = 'user/create_error.tt';
+            $c->stash->{error_information} = encode_json({status_msg => $message, status => $status});
         }
     }
     else {
@@ -417,7 +421,7 @@ sub advanced_search :Local :Args() :AdminRoleAny(USERS_READ) :AdminRoleAny(USERS
         $c->stash(current_view => 'JSON') if ($c->request->params->{'json'});
     }
     my ( $roles, $violations );
-    (undef, $roles) = $c->model('Roles')->list();
+    (undef, $roles) = $c->model('Config::Roles')->listFromDB();
     (undef, $violations) = $c->model('Config::Violations')->readAll();
     $c->stash(
         status_msg => $status_msg,
@@ -548,6 +552,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

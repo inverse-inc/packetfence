@@ -118,12 +118,15 @@ cp /etc/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-CENTOS $RPM_BUILD_ROOT%{_sysconfdir}
 rm -rf $RPM_BUILD_ROOT
 
 %files -n %{real_name}
-%defattr(0755, root, root)
+%defattr(0644, root, root)
 %config /etc/yum.repos.d/packetfence.repo
 /etc/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-CENTOS
 
 
 %changelog
+* Wed Apr 12 2017 Inverse inc. <info@inverse.ca> - 1.2-7
+- Permission fix. 
+
 * Thu Jan 05 2017 Inverse inc. <info@inverse.ca> - 1.2-6
 - Merged changes from the build system for dynamic versioning
 - Added GPG key

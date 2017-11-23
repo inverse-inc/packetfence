@@ -81,8 +81,8 @@
                     [% trigger.field('value').render_element | none %]
                   </td>
                   <td class="action">
-                    <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
-                    <a class="btn-icon" href="#delete"><i class="icon-minus-sign"></i></a>
+                    <a class="btn-icon" href="#add"><i class="icon-plus-circle"></i></a>
+                    <a class="btn-icon" href="#delete"><i class="icon-minus-circle"></i></a>
                   </td>
                 </tr>
                 [% END -%]
@@ -161,13 +161,9 @@
   </div><!--modal-body-->
 
   <div class="modal-footer">
+    [% IF can_access("SWITCHES_UPDATE") %]<a href="[% c.uri_for(c.controller('Config::Switch').action_for('invalidate_cache'), [ item.id ]) %]" id="invalidate_cache" class="btn btn-danger pull-left"> [% l('Invalidate cache') %]</a>[% END %]
     <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
     [% IF can_access("SWITCHES_UPDATE") %]<button class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>[% END %]
   </div>
 
 </form>
-<script>
-    $('input[type="password"][pfpass="1"]').each(function(i,e){
-        e.readonly = 0;
-    });
-</script>

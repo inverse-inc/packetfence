@@ -65,7 +65,7 @@ sub handleAnswerInRule {
         $logger->info(evalParam($rule->{'log'},$args)) if defined($rule->{'log'});
         while (1) {
             if (defined($rule->{"answer$i"}) && $rule->{"answer$i"} ne '') {
-                my @answer = $rule->{"answer$i"} =~ /([a-zA-Z_-]*)\s*=>\s*(.*)/;
+                my @answer = $rule->{"answer$i"} =~ /([.0-9a-zA-Z_-]*)\s*=>\s*(.*)/;
                 $args->{'session_id'} = setSession($args) if ($answer[1] =~ /\$session_id/);
                 evalAnswer(\@answer,$args,\$radius_reply);
             } else {
@@ -145,7 +145,7 @@ sub evalParam {
     my ($answer, $args) = @_;
     $answer = _random($answer) if rangeValidator($answer);
     $answer =~ s/\$([a-zA-Z_0-9]+)/$args->{$1} \/\/ ''/ge;
-    $answer =~ s/\${([a-zA-Z0-9_\-]+(?:\.[a-zA-Z0-9_\-]+)*)}/&_replaceParamsDeep($1,$args)/ge;
+    $answer =~ s/\$\{([a-zA-Z0-9_\-]+(?:\.[a-zA-Z0-9_\-]+)*)\}/&_replaceParamsDeep($1,$args)/ge;
     return $answer;
 }
 

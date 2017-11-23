@@ -6,17 +6,21 @@
 [% heading = l('New Source')  %]
 [%END%]
 <ul class="breadcrumb">
-  <li><a href="[% c.pf_hash_for(c.controller('Config::Authentication').action_for('index')) %]">[% l('User Sources') %]</a> <span class="divider"><i class="icon-chevron-right"></i></span></li>
+  <li><a href="[% c.pf_hash_for(c.controller('Config::Authentication').action_for('index')) %]">[% l('Authentication Sources') %]</a> <span class="divider"><i class="icon-chevron-right"></i></span></li>
   <li class="active">[% heading | html %]</li>
 </ul>
 
-<h3>[% heading | html %] <small>[% source.type | html %]</small></h3>
+<div class="card">
+<div class="card-title">
+<h3><i class="icon-2x icon-[% source.type | html | lower %]"></i>&nbsp[% heading | html %] <small>[% source.type | html %]</small></i></h3>
+</div>
 
     [% IF message %]<div class="alert alert-success">
       <button class="close" data-dismiss="alert">&times;</button>
       <strong>[% l('Success!') %]</strong> [% message %]
     </div>[% END -%]
 
+  <div class="card-block">
     <form name="source" class="form-horizontal" method="post" action="[% action_uri %]">
         [% form.field('id').render | none %]
         [% form.field('description').render | none %]
@@ -32,3 +36,5 @@
         </div>
         [%- END %]
       </form>
+  </div>
+</div>

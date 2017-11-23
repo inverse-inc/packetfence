@@ -205,8 +205,8 @@ sub _build_clause {
         unless exists $OP_MAP{$op};
     my $sql_op = $OP_MAP{$op};
     if($sql_op eq 'LIKE' || $sql_op eq 'NOT LIKE') {
-        #escaping the % and _ charcaters
-        my $escaped = $value =~ s/([%_])/\\$1/g;
+        #escaping the % and _ \ charcaters
+        my $escaped = $value =~ s/([%_\\])/\\$1/g;
         if($op eq 'like' || $op eq 'not_like') {
             $value = "\%$value\%";
         } elsif ($op eq 'starts_with') {
@@ -215,7 +215,7 @@ sub _build_clause {
             $value = "\%$value";
         }
         if ($escaped) {
-            return { $name => { like => \[q{? ESCAPE '\'}, $value] } };
+            return { $name => { like => \[q{? ESCAPE '\\\\'}, $value] } };
         }
     }
     return {$name => {$sql_op => $value}};
@@ -235,7 +235,7 @@ sub fixup_name {
     return $name;
 }
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
 

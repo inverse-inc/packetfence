@@ -26,6 +26,7 @@ use pf::Connection;
 use pf::constants;
 use pf::constants::trigger qw($TRIGGER_TYPE_ACCOUNTING);
 use pf::constants::role qw($VOICE_ROLE);
+use pf::error qw(is_error);
 use pf::config qw(
     $ROLE_API_LEVEL
     $WIRELESS
@@ -34,6 +35,7 @@ use pf::config qw(
     %Config
     %ConfigDomain
     $ACCOUNTING_POLICY_TIME
+    $ACCOUNTING_POLICY_BANDWIDTH
     $WIRED
     $WIRED_MAC_AUTH
     $WIRED_802_1X
@@ -41,6 +43,7 @@ use pf::config qw(
     $WIRELESS_MAC_AUTH
     $WIRELESS_802_1X
 );
+use pf::client;
 use pf::locationlog;
 use pf::node;
 use pf::Switch;
@@ -55,11 +58,12 @@ use pf::radius::constants;
 use List::Util qw(first);
 use pf::util::statsd qw(called);
 use pf::StatsD::Timer;
-use Hash::Merge qw (merge);
 use pf::accounting;
 use pf::cluster;
 use pf::api::queue;
 use pf::access_filter::radius;
+use pf::registration;
+use pf::access_filter::switch;
 
 our $VERSION = 1.03;
 
@@ -97,6 +101,7 @@ sub authorize {
     my $timer = pf::StatsD::Timer->new();
     my ($self, $radius_request) = @_;
     my $logger = $self->logger;
+    my ($do_auto_reg, %autoreg_node_defaults);;
     my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $self->_parseRequest($radius_request);
     my $RAD_REPLY_REF;
 
@@ -116,7 +121,9 @@ sub authorize {
     }
 
 
-    my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id) = $switch->parseRequest($radius_request);
+    my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
+
+    $user_name = normalize_username($user_name, $radius_request);
 
     if (!$mac) {
         return [$RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Mac is empty")];
@@ -150,6 +157,7 @@ sub authorize {
         eap_type => $eap_type // '',
         mac => $mac,
         ifIndex => $port,
+        ifDesc => $ifDesc,
         user_name => $user_name,
         nas_port_id => $nas_port_type // '',
         session_id => $session_id,
@@ -170,20 +178,22 @@ sub authorize {
         . "switch_mac => ".( defined($switch_mac) ? "($switch_mac)" : "(Unknown)" ).", mac => [$mac], port => $port, username => \"$user_name\""
         . ( defined $ssid ? ", ssid => $ssid" : '' ) );
 
-    #add node if necessary
-    if ( !node_exist($mac) ) {
-        $logger->info("does not yet exist in database. Adding it now");
-        node_add_simple($mac);
+    my ($status_code, $node_obj) = pf::dal::node->find_or_create({"mac" => $mac});
+    if (is_error($status_code)) {
+        $node_obj = pf::dal::node->new({"mac" => $mac});
     }
+    $node_obj->_load_locationlog;
+    # update last_seen of MAC address as some activity from it has been seen
+    $node_obj->update_last_seen();
 
     # Handling machine auth detection
     if ( defined($user_name) && $user_name =~ /^host\// ) {
         $logger->info("is doing machine auth with account '$user_name'.");
-        node_modify($mac, ('machine_account' => $user_name));
+        $node_obj->machine_account($user_name);
     }
 
     if (defined($session_id)) {
-         node_modify($mac, ('sessionid' => $session_id));
+        $node_obj->sessionid($session_id);
     }
 
     my $switch_id =  $switch->{_id};
@@ -194,15 +204,14 @@ sub authorize {
         $RAD_REPLY_REF = $self->_switchUnsupportedReply($args);
         goto CLEANUP;
     }
+    my %info;
 
 
     my $role_obj = new pf::role::custom();
 
-    # Vlan Filter
-    my $node_info = node_view($mac);
     $args->{'ssid'} = $ssid;
-    $args->{'node_info'} = $node_info;
-    $args->{'fingerbank_info'} = pf::node::fingerbank_info($mac, $node_info);
+    $args->{'node_info'} = $node_obj;
+    $args->{'fingerbank_info'} = pf::node::fingerbank_info($mac, $node_obj);
     my $result = $role_obj->filterVlan('IsPhone',$args);
     # determine if we need to perform automatic registration
     # either the switch detects that this is a phone or we take the result from the vlan filters
@@ -219,28 +228,31 @@ sub authorize {
 
     $options->{'last_connection_sub_type'} = $args->{'connection_sub_type'} if (defined( $args->{'connection_sub_type'}));
     $options->{'last_connection_type'} = connection_type_to_str($args->{'connection_type'}) if (defined( $args->{'connection_type'}));
-    $options->{'last_switch'}          = $args->{'switch'}->{_id} if (defined($args->{'switch'}->{_id}));
+    $options->{'last_switch'}          = $switch_id;
     $options->{'last_port'}            = $args->{'switch'}->{switch_port} if (defined($args->{'switch'}->{switch_port}));
     $options->{'last_vlan'}            = $args->{'vlan'} if (defined($args->{'vlan'}));
     $options->{'last_ssid'}            = $args->{'ssid'} if (defined($args->{'ssid'}));
     $options->{'last_dot1x_username'}  = $args->{'user_name'} if (defined($args->{'user_name'}));
     $options->{'realm'}                = $args->{'realm'} if (defined($args->{'realm'}));
 
-    my $profile = pf::Portal::ProfileFactory->instantiate($args->{'mac'},$options);
+    my $profile = pf::Connection::ProfileFactory->instantiate($args->{'mac'},$options);
     $args->{'profile'} = $profile; 
     
     $args->{'autoreg'} = 0;
     # should we auto-register? let's ask the VLAN object
     my ( $status, $status_msg );
-    if ($role_obj->shouldAutoRegister($args)) {
+    $do_auto_reg = $role_obj->shouldAutoRegister($args);
+    if ($do_auto_reg) {
         $args->{'autoreg'} = 1;
-        # automatic registration
-        my %autoreg_node_defaults = $role_obj->getNodeInfoForAutoReg($args);
-        $args->{'node_info'} = merge($args->{'node_info'}, \%autoreg_node_defaults);
+        %autoreg_node_defaults = $role_obj->getNodeInfoForAutoReg($args);
+        $node_obj->merge(\%autoreg_node_defaults);
         $logger->debug("[$mac] auto-registering node");
-        ( $status, $status_msg ) = pf::node::node_register($mac, $autoreg_node_defaults{'pid'}, %autoreg_node_defaults);
-        if (!$status) {
-            $logger->error("auto-registration of node failed");
+        # automatic registration
+        $info{autoreg} = 1;
+        ($status, $status_msg) = pf::registration::setup_node_for_registration($node_obj, \%info);
+        if (is_error($status)) {
+            $logger->error("auto-registration of node failed $status_msg");
+            $do_auto_reg = 0;
         }
     }
 
@@ -266,9 +278,10 @@ sub authorize {
     my $role = $role_obj->fetchRoleForNode($args);
     my $vlan = $switch->getVlanByName($role->{role}) if (isenabled($switch->{_VlanMap}));
     $vlan = $role->{vlan} || $vlan || 0;
-
     $args->{'node_info'}{'source'} = $role->{'source'} if (defined($role->{'source'}) && $role->{'source'} ne '');
     $args->{'node_info'}{'portal'} = $role->{'portal'} if (defined($role->{'portal'}) && $role->{'portal'} ne '');
+    $info{source} = $args->{node_info}{source};
+    $info{portal} = $args->{node_info}{portal};
 
     $args->{'vlan'} = $vlan;
     $args->{'wasInline'} = $role->{wasInline};
@@ -277,23 +290,40 @@ sub authorize {
     #closes old locationlog entries and create a new one if required
     #TODO: Better deal with INLINE RADIUS
     $switch->synchronize_locationlog($port, $vlan, $mac,
-        $args->{'isPhone'} ? $VOIP : $NO_VOIP, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $args->{'user_role'}
+        $args->{'isPhone'} ? $VOIP : $NO_VOIP, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $args->{'user_role'}, $ifDesc
     ) if ( (!$role->{wasInline}) && ($vlan ne "-1") );
 
     # does the switch support Dynamic VLAN Assignment, bypass if using Inline
     if (!$switch->supportsRadiusDynamicVlanAssignment() && !$role->{wasInline}) {
         $logger->info(
             "Switch doesn't support Dynamic VLAN assignment. " .
-            "Setting VLAN with SNMP on (" . $switch->{_id} . ") ifIndex $port to $vlan"
+            "Setting VLAN with SNMP on ($switch_id) ifIndex $port to $vlan"
         );
         # WARNING: passing empty switch-lock for now
         # When the _setVlan of a switch who can't do RADIUS VLAN assignment uses the lock we will need to re-evaluate
         $switch->_setVlan( $port, $vlan, undef, {} );
     }
 
+    my $filter = pf::access_filter::switch->new;
+    my $switch_params = $filter->filter('radius_authorize', $args);
+
+    if (defined($switch_params)) {
+        foreach my $key (keys %{$switch_params}) {
+            $switch->{$key} = $switch_params->{$key};
+        }
+    }
+
     $RAD_REPLY_REF = $switch->returnRadiusAccessAccept($args);
 
 CLEANUP:
+    $status = $node_obj->save;
+    if (is_error($status)) {
+        $logger->error("Cannot save $mac error ($status)");
+    }
+    if ($do_auto_reg) {
+        pf::registration::finalize_node_registration($node_obj);
+    }
+
     # cleanup
     $switch->disconnectRead();
     $switch->disconnectWrite();
@@ -302,6 +332,27 @@ AUDIT:
     $args->{'time'} = time;
     push @$RAD_REPLY_REF, $self->_addRadiusAudit($args);
     return $RAD_REPLY_REF;
+}
+
+=item normalize_username
+
+normalize username
+
+=cut
+
+sub normalize_username {
+    my ($username, $radius_request) = @_;
+    if (isdisabled($Config{advanced}{normalize_radius_machine_auth_username})) {
+        return $username;
+    }
+    my $tls_username = $radius_request->{'TLS-Client-Cert-Common-Name'} // '';
+    if ($username eq $tls_username ) {
+       my $radius_username = $radius_request->{'User-Name'};
+       if ( "host/$tls_username" =~ /\Q$radius_username\E/i ) {
+            $username = $radius_username;
+       }
+    }
+    return $username;
 }
 
 =item accounting
@@ -327,6 +378,9 @@ sub accounting {
     }
 
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id) = $switch->parseRequest($radius_request);
+
+    # update last_seen of MAC address as some activity from it has been seen
+    node_update_last_seen($mac);
 
     my $isStart   = $radius_request->{'Acct-Status-Type'}  == $ACCOUNTING::START;
     my $isStop   = $radius_request->{'Acct-Status-Type'}  == $ACCOUNTING::STOP;
@@ -355,9 +409,12 @@ sub accounting {
         # On accounting stop/update, check the usage duration of the node
         if ($mac && $user_name) {
             my $session_time = int ($radius_request->{'Acct-Session-Time'} // 0);
-            if ($session_time > 0) {
+            my $output_octets = int ($radius_request->{'Acct-Output-Octets'} // 0);
+            my $input_octets = int ($radius_request->{'Acct-Input-Octets'} // 0);
+            if ($session_time > 0 || $input_octets > 0 || $output_octets > 0) {
                 my $node_attributes = node_attributes($mac);
-                if (defined $node_attributes->{'time_balance'}) {
+                my $apiclient = pf::client::getClient;
+                if (defined $node_attributes->{'time_balance'} && $session_time > 0) {
                     my $time_balance = $node_attributes->{'time_balance'} - $session_time;
                     $time_balance = 0 if ($time_balance < 0);
                     # Only update the node table on a Stop
@@ -369,7 +426,32 @@ sub accounting {
                     }
                     if ($time_balance == 0) {
                         # Trigger violation
-                        violation_trigger( { 'mac' => $mac, 'tid' => $ACCOUNTING_POLICY_TIME, 'type' => $TRIGGER_TYPE_ACCOUNTING } );
+                        my %violation_data = (
+                            'mac'   => $mac,
+                            'tid'   => $ACCOUNTING_POLICY_TIME,
+                            'type'  => $TRIGGER_TYPE_ACCOUNTING ,
+                        );
+                        $apiclient->notify('trigger_violation', %violation_data );
+                    }
+                }
+                if (defined $node_attributes->{'bandwidth_balance'} && (  $input_octets > 0 || $output_octets > 0)) {
+                    my $total_octets = $output_octets + $input_octets;
+                    my $bandwidth_balance = $node_attributes->{'bandwidth_balance'} - $total_octets;
+                    $bandwidth_balance = 0 if ($bandwidth_balance < 0);
+                    if ($isStop && node_modify($mac, ('bandwidth_balance' => $bandwidth_balance))) {
+                        $logger->info("Session stopped: data was $total_octets octets ($bandwidth_balance octets left)");
+                    }
+                    elsif ($isUpdate) {
+                        $logger->info("Session status: data is $total_octets octets ($bandwidth_balance octets left)");
+                    }
+                    if ($bandwidth_balance == 0) {
+                        # Trigger violation
+                        my %violation_data = (
+                            'mac'   => $mac,
+                            'tid'   => $ACCOUNTING_POLICY_BANDWIDTH,
+                            'type'  => $TRIGGER_TYPE_ACCOUNTING ,
+                        );
+                        $apiclient->notify('trigger_violation', %violation_data );
                     }
                 }
             }
@@ -404,7 +486,7 @@ sub update_locationlog_accounting {
     }
 
     if ($switch->supportsRoamingAccounting()) {
-        my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id) = $switch->parseRequest($radius_request);
+        my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
         my $locationlog_mac = locationlog_last_entry_mac($mac);
         if (defined($locationlog_mac) && ref($locationlog_mac) eq 'HASH') {
             my $connection_type = str_to_connection_type($locationlog_mac->{connection_type});
@@ -417,7 +499,7 @@ sub update_locationlog_accounting {
             my $vlan;
             $vlan = $radius_request->{'Tunnel-Private-Group-ID'} if ( (defined( $radius_request->{'Tunnel-Type'}) && $radius_request->{'Tunnel-Type'} eq '13') && (defined($radius_request->{'Tunnel-Medium-Type'}) && $radius_request->{'Tunnel-Medium-Type'} eq '6') );
             $port = $switch->getIfIndexByNasPortId($nas_port_id) || $self->_translateNasPortToIfIndex($connection_type, $switch, $port);
-            $switch->synchronize_locationlog($port, $vlan, $mac, undef, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $locationlog_mac->{role});
+            $switch->synchronize_locationlog($port, $vlan, $mac, undef, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $locationlog_mac->{role}, $ifDesc);
             return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Update locationlog from accounting ok") ];
         }
     }
@@ -501,7 +583,7 @@ sub _authorizeVoip {
             ('Reply-Message' => "Server reported: VoIP authorization over RADIUS not supported for this network device")
         ];
     }
-    $args->{'switch'}->synchronize_locationlog($args->{'ifIndex'}, $args->{'switch'}->getVlanByName($VOICE_ROLE), $args->{'mac'}, $VOIP, $args->{'connection_type'}, $args->{'connection_sub_type'}, $args->{'user_name'}, $args->{'ssid'}, undef, undef, $VOICE_ROLE);
+    $args->{'switch'}->synchronize_locationlog($args->{'ifIndex'}, $args->{'switch'}->getVlanByName($VOICE_ROLE), $args->{'mac'}, $VOIP, $args->{'connection_type'}, $args->{'connection_sub_type'}, $args->{'user_name'}, $args->{'ssid'}, undef, undef, $VOICE_ROLE, $args->{ifDesc});
 
     my %RAD_REPLY = $args->{'switch'}->getVoipVsa();
     $args->{'switch'}->disconnectRead();
@@ -710,9 +792,9 @@ sub switch_access {
         radius_request => $radius_request,
     };
 
-    my ( $return, $message, $source_id ) = pf::authentication::authenticate( { 'username' =>  $radius_request->{'User-Name'}, 'password' =>  $radius_request->{'User-Password'}, 'rule_class' => $Rules::ADMIN }, @{pf::authentication::getInternalAuthenticationSources()} );
+    my ( $return, $message, $source_id, $extra ) = pf::authentication::authenticate( { 'username' =>  $radius_request->{'User-Name'}, 'password' =>  $radius_request->{'User-Password'}, 'rule_class' => $Rules::ADMIN }, @{pf::authentication::getInternalAuthenticationSources()} );
     if ( defined($return) && $return == $TRUE ) {
-        my $matched = pf::authentication::match2($source_id, { username => $radius_request->{'User-Name'}, 'rule_class' => $Rules::ADMIN });
+        my $matched = pf::authentication::match2($source_id, { username => $radius_request->{'User-Name'}, 'rule_class' => $Rules::ADMIN }, $extra);
         my $value = $matched->{values}{$Actions::SET_ACCESS_LEVEL} if $matched;
         if ($value) {
             my @values = split(',', $value);

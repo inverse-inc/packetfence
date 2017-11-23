@@ -1,23 +1,6 @@
-/* bootstrap.css fix for larger top navbar */
-body {
-    padding-top: 60px;
-}
-.navbar .brand {
-    padding: 11px 20px 11px;
-}
-/* bootstrap.css fix to remove padding surrounding sidebar */
-.sidebar-nav {
-    padding: 9px 0;
-}
 /* bootstrap.css fix to show dropdown menus in modals */
 .dropdown-menu {
     z-index: 2050;
-}
-/* bootstrap.css fix to restore 2.0.4 apparence */
-h6 {
-  font-size: 11px;
-  color: #999999;
-  text-transform: uppercase;
 }
 a.active {
     color: #333;
@@ -50,23 +33,6 @@ form .uneditable {
     line-height: 18px;
     padding-top: 5px;
     margin-bottom: 5px;
-}
-/* icon-only links */
-.btn-icon {
-    float: right;
-    color: #000000;
-    text-shadow: 0 1px 0 #ffffff;
-    opacity: 0.2;
-    filter: alpha(opacity=20);
-    font-size: 17px;
-    margin-left: 3px;
-    vertical-align: middle;
-}
-.btn-icon:hover {
-    color: #000000;
-    text-decoration: none;
-    opacity: 0.4;
-    filter: alpha(opacity=40);
 }
 /* datepicker + timepicker fix to limit the bottom margin */
 .modal .datepicker,
@@ -103,5 +69,13 @@ form .uneditable {
 }
 .nav li a:hover, .nav li a:focus {
     text-decoration: none;
-    background-color: #eeeeee;
+}
+
+.input-append.input-prepend select {
+    vertical-align: top;
+}
+
+.input-prepend .chzn-choices .search-choice,
+.input-append .chzn-choices .search-choice {
+    font-size : 14px;
 }

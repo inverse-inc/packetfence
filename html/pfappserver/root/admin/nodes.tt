@@ -19,13 +19,14 @@
     <option value="switch_ip">[% l('Source Switch IP') %]</option>
     <option value="switch_mac">[% l('Source Switch MAC') %]</option>
     <option value="switch_port">[% l('Source Switch Port') %]</option>
+    <option value="switch_port_desc">[% l('Source Switch Port Description') %]</option>
     <option value="ssid">[% l('SSID') %]</option>
     <option value="user_agent">[% l('User Agent') %]</option>
     <option value="violation">[% l('Violation Name') %]</option>
     <option value="violation_status">[% l('Violation Status') %]</option>
     <option value="voip">[% l('VoIP') %]</option>
   </select>
-  <select name="searches.0.op"[% ' disabled="disabled"' IF disabled %] class="span2" >
+  <select name="searches.0.op"[% ' disabled="disabled"' IF disabled %] class="span3" >
     <option value="equal">[% l('is') %]</option>
     <option value="not_equal">[% l('is not') %]</option>
     <option value="starts_with">[% l('starts with') %]</option>
@@ -35,50 +36,24 @@
   <input name="searches.0.value"[% ' disabled="disabled"' IF disabled %] type="text" class="span6" placeholder="[% l('String...') %]">
   </div>
 [% END -%]
-[%  jsFiles = [
-        'app/jquery-ui',
-        'app/bootstrap-datepicker',
-        'app/bootstrap-timepicker',
-        'app/chosen.jquery.min',
-        'app/jquery.ba-hashchange',
-        'app/raphael/raphael-min',
-        'app/raphael/g.raphael-min',
-        'app/raphael/g.bar-min',
-        'app/raphael/g.dot-min',
-        'app/raphael/g.line-min',
-        'app/raphael/g.pie-min',
+  [%  jsFiles = [
+        'js/vendor/raphael.min',
         'app/graphs',
-        'app/uri',
         'admin/nodes',
         'admin/searches',
-        'js/bootstrapSwitch',
         'js/node',
         'js/user',
         ]
      cssFiles = [
-        'app/bootstrap-datepicker',
-        'app/bootstrap-timepicker',
-        'css/bootstrapSwitch',
         ] -%]
 
-<style type="text/css">
-form {
-    margin-bottom: 0px;
-}
-.bootstrap-timepicker table {
-    width: 160px;
-}
-.table-dynamic .action {
-    width: 36px;
-}
-</style>
     [% roles_options = BLOCK %]
         [% FOREACH role IN roles %]
         <option value="[% role.name %]">[% role.name %]</option>
         [% END %]
     [% END %]
     <div class="hidden" id="node_templates">
-      <select id="default_op" name="default_op" class="span2" >
+      <select id="default_op" name="default_op" class="span3" >
         <option value="equal">[% l('is') %]</option>
         <option value="not_equal">[% l('is not') %]</option>
         <option value="starts_with">[% l('starts with') %]</option>
@@ -88,7 +63,7 @@ form {
 
       <input id="default_value" name="default_value" type="text" class="span6" placeholder="[% l('String...') %]">
 
-      <select id="violation_status_op" name="" class="span2" >
+      <select id="violation_status_op" name="" class="span3" >
         <option value="equal">[% l('is') %]</option>
       </select>
 
@@ -103,7 +78,7 @@ form {
         <option value="pending">[% l('pending') %]</option>
       </select>
 
-      <select id="status_op" name="" class="span2" >
+      <select id="status_op" name="" class="span3" >
         <option value="equal">[% l('is') %]</option>
         <option value="not_equal">[% l('is not') %]</option>
       </select>
@@ -113,21 +88,21 @@ form {
         <option value="no">[% l('no') %]</option>
       </select>
 
-      <select id="voip_op" name="" class="span2" >
+      <select id="voip_op" name="" class="span3" >
         <option value="equal">[% l('is') %]</option>
         <option value="not_equal">[% l('is not') %]</option>
       </select>
 
       [% FOREACH role_field IN ['category', 'bypass_role', 'bypass_vlan'] %]
-        <select id="[% role_field %]_value" class="span2" >
+        <select id="[% role_field %]_value" class="span6" >
           [% roles_options | none %]
         </select>
 
-        <select id="[% role_field %]_value_equal_op" class="span2" >
+        <select id="[% role_field %]_value_equal_op" class="span6" >
           [% roles_options | none %]
         </select>
 
-        <select id="[% role_field %]_value_not_equal_op" class="span2" >
+        <select id="[% role_field %]_value_not_equal_op" class="span6" >
           [% roles_options | none %]
         </select>
 
@@ -144,7 +119,7 @@ form {
         <input id="switch_id_value_[% op %]_op" type="text" class="span6" placeholder="[% l('String...') %]">
       [% END %]
 
-      <select id="online_op" name="online_op" class="span2" >
+      <select id="online_op" name="online_op" class="span3" >
         <option value="equal">[% l('is') %]</option>
       </select>
 
@@ -156,12 +131,14 @@ form {
     </div>
 
     [% INCLUDE admin/saved_search.inc savedSearchController="SavedSearch::Node" method="POST" %] 
-    <div class="container-fluid">
+    <div class="sidenav-fluid">
       <div class="row-fluid">
-        <div class="span2">
-          <div class="sidebar-nav well">
+        <div class="sidenav sidenav-section span3">
+            <ul class="nav nav-header">
+              <li>[% l('Nodes') %]</li>
+              <div class="divider-horizontal"></div>
+            </ul>
             <ul class="nav nav-list">
-              <li class="nav-header">[% l('Nodes') %]</li>
               [%- IF can_access("NODES_READ") -%]
               <li class="active"><a href="#">[% l('Search') %]</a></li>
               [%- END -%]
@@ -204,37 +181,39 @@ form {
                 </form>
               </li>
               <li class="divider"></li>
-              <li class="" id="accordion-SwithGroup">
-                <a data-toggle="collapse" data-parent="#accordion-SwithGroup" href="#collapseSwitchGroup" class="collapsed">
-                    [% l('Switch Groups')%]
-                <i class="icon-chevron-up pull-right"></i></a>
-                <ul id="collapseSwitchGroup" class="collapse">
-                  <a data-toggle="collapse" data-parent="#collapseSwitchGroup" href="#collapseSwitchGroupDefault" class="collapsed">Default<i class="icon-chevron-up pull-right"></i></a>
-                    <li id="collapseSwitchGroupDefault" class="collapse">
-                      <ul>[% FOREACH switch IN switches %]
-                      <li><a href="#" data-toggle="pf-search-form" data-parent="#collapseSwitchGroupDefault" data-target="advanced">[% switch.id %]</a>
+              <li id="accordion-SwithGroup">
+                <a data-toggle="collapse" data-parent="#accordion-SwithGroup" href="#collapseSwitchGroup" class="collapsed">[% l('Switch Groups') %] <i class="icon-chevron-up pull-right"></i></a>
+                <ul id="collapseSwitchGroup" class="nav nav-list collapse">
+                  <li class="sidenav-subsection[% UNLESS switch_groups.size %] sidenav-subsection--last[% END %]">
+                    <a data-toggle="collapse" data-parent="#collapseSwitchGroup" href="#collapseSwitchGroupDefault" class="collapsed">[% l('Default') %]<i class="icon-chevron-up pull-right"></i></a>
+                  </li>
+                  <li id="collapseSwitchGroupDefault" class="collapse">
+                    <ul>[% FOREACH switch IN switches %]
+                      <li class="sidenav-subsection-extend"><a href="#" data-toggle="pf-search-form" data-parent="#collapseSwitchGroupDefault" data-target="advanced">[% switch.id %]</a>
                         <form>
                           <input type="hidden" name="searches.0.name" value="switch_id"/>
                           <input type="hidden" name="searches.0.op" value="is"/>
                           <input type="hidden" name="searches.0.value" value="[% switch.id %]"/>
                         </form>
-                        </li>
+                      </li>
                       [% END %]</ul>
-                    </li>
+                  </li>
                   [% FOREACH switch_group IN switch_groups %]
+                  <li class="sidenav-subsection[% IF loop.last %] sidenav-subsection--last[% END %]">
                     <a data-toggle="collapse" data-parent="#collapseSwitchGroup" href="#collapse_[% switch_group.id %]" class="collapsed">[% switch_group.id %]<i class="icon-chevron-up pull-right"></i></a>
-                    <li id="collapse_[% switch_group.id %]" class="collapse">
-                      <ul>[% FOREACH member IN switch_group.members %]
-                        <li><a href="#" data-toggle="pf-search-form" data-parent="#collapse_[% switch_group.id %]"data-target="advanced">[% member.id %]</a>
-                          <form>
-                            <input type="hidden" name="searches.0.name" value="switch_id"/>
-                            <input type="hidden" name="searches.0.op" value="is"/>
-                            <input type="hidden" name="searches.0.value" value="[% member.id %]"/>
-                          </form>
-                        </li>
+                  </li>
+                  <li id="collapse_[% switch_group.id %]" class="collapse">
+                    <ul>[% FOREACH member IN switch_group.members %]
+                      <li><a href="#" data-toggle="pf-search-form" data-parent="#collapse_[% switch_group.id %]"data-target="advanced">[% member.id %]</a>
+                        <form>
+                          <input type="hidden" name="searches.0.name" value="switch_id"/>
+                          <input type="hidden" name="searches.0.op" value="is"/>
+                          <input type="hidden" name="searches.0.value" value="[% member.id %]"/>
+                        </form>
+                      </li>
                       [% END %]
-                      </ul>
-                    </li>
+                    </ul>
+                  </li>
                   [% END %]
                 </ul>
               </li>
@@ -243,9 +222,9 @@ form {
                 <a data-toggle="collapse" data-parent="#accordion-Role" href="#collapseRole" class="collapsed">
                   [% l('Roles') %]
                 <i class="icon-chevron-up pull-right"></i></a>
-                <ul id="collapseRole" class="collapse">
+                <ul id="collapseRole" class="nav nav-list collapse">
                   [% FOREACH role IN roles %]
-                    <li>
+                    <li class="sidenav-subsection">
                       <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseRole">[% role.name %]</a>
                         <form>
                           <input type="hidden" name="searches.0.name" value="category"/>
@@ -261,8 +240,8 @@ form {
                 <a data-toggle="collapse" data-parent="#accordion-OS" href="#collapseOS" class="collapsed">
                    [% l('OS') %]
                 <i class="icon-chevron-up pull-right"></i></a>
-                <ul id="collapseOS" class="collapse">
-                  <li>
+                <ul id="collapseOS" class="nav nav-list collapse">
+                  <li class="sidenav-subsection">
                     <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseOS">Windows</a>
                       <form>
                         <input type="hidden" name="searches.0.name" value="device_class"/>
@@ -270,7 +249,7 @@ form {
                         <input type="hidden" name="searches.0.value" value="Windows"/>
                       </form>
                   </li>
-                  <li>
+                  <li class="sidenav-subsection">
                     <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseOS">Linux</a>
                       <form>
                         <input type="hidden" name="searches.0.name" value="device_class"/>
@@ -278,12 +257,36 @@ form {
                         <input type="hidden" name="searches.0.value" value="Linux"/>
                       </form>
                   </li>
-                  <li>
+                  <li class="sidenav-subsection">
                     <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseOS">MacOS</a>
                       <form>
                         <input type="hidden" name="searches.0.name" value="device_class"/>
                         <input type="hidden" name="searches.0.op" value="is"/>
                         <input type="hidden" name="searches.0.value" value="Macintosh"/>
+                      </form>
+                  </li>
+                  <li class="sidenav-subsection">
+                    <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseOS">Smartphones/PDAs/Tablets</a>
+                      <form>
+                        <input type="hidden" name="searches.0.name" value="device_class"/>
+                        <input type="hidden" name="searches.0.op" value="is"/>
+                        <input type="hidden" name="searches.0.value" value="Smartphones/PDAs/Tablets"/>
+                      </form>
+                  </li>
+                  <li class="sidenav-subsection">
+                    <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseOS">Gaming Consoles</a>
+                      <form>
+                        <input type="hidden" name="searches.0.name" value="device_class"/>
+                        <input type="hidden" name="searches.0.op" value="is"/>
+                        <input type="hidden" name="searches.0.value" value="Gaming Consoles"/>
+                      </form>
+                  </li>
+                  <li class="sidenav-subsection">
+                    <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseOS">VoIP Phones/Adapters</a>
+                      <form>
+                        <input type="hidden" name="searches.0.name" value="device_class"/>
+                        <input type="hidden" name="searches.0.op" value="is"/>
+                        <input type="hidden" name="searches.0.value" value="VoIP Phones/Adapters"/>
                       </form>
                   </li>
                 </ul>
@@ -301,7 +304,7 @@ form {
                     formTarget = '#simpleNodeSearch';
                 END%]
               <li>
-                <a href="#" data-toggle="pf-search-form" data-target="[% tab | html %]" [% IF formTarget %] data-form-target="[% formTarget %]"  [% END %]   >[% ss.name %] <span class="saved_search_trash pull-right" data-href="[% c.uri_for(c.controller('SavedSearch::Node').action_for('remove'),[ss.id])  %]"><i class="icon-trash"></i></span></a>
+                <a href="#" data-toggle="pf-search-form" data-target="[% tab | html %]" [% IF formTarget %] data-form-target="[% formTarget %]"[% END %]><span class="saved_search_trash pull-right" data-href="[% c.uri_for(c.controller('SavedSearch::Node').action_for('remove'),[ss.id])  %]"><i class="icon-trash"></i></span>[% ss.name %] </a>
                 <form>
                   [%FOREACH input IN form.keys.sort%]
                   <input type="hidden" name="[%input | html %]" value="[%form.$input | html%]"/>
@@ -311,19 +314,23 @@ form {
               [%END%]
               [%- END -%]
             </ul>
-          </div><!--/.well -->
         </div><!--/span-->
         <form id="search" action="[% c.uri_for(c.controller('Node').action_for('search')) %]"></form>
-        <div class="span10">
+      </div><!--/.row-fluid-->
+    </div><!--/.sidenav-fluid-->
+    <div class="row-fluid">
+      <div class="container-fluid offset3 span15 span18-navbarcollapse">
+        <div class="card">
+          <div class="card-title">
             <div class="tabbable">
               <div class="tab-content">
                 <ul class="nav nav-tabs">
                   <li class="active"><a href="#simple" data-toggle="tab">[% l('Simple') %]</a></li>
                   <li><a href="#advanced" data-toggle="tab">[% l('Advanced') %]</a></li>
                 </ul>
-                <div class="tab-pane active well" id="simple">
+                <div class="tab-pane active" id="simple">
                   <form id="simpleNodeSearch" method="POST" name="simpleNodeSearch" class="form-inline" action="[% c.uri_for(c.controller('Node').action_for('simple_search')) %]">
-                  <table style="width:100%">
+                  <table class="table table-condensed unbordered">
                     <tbody>
                       <tr class="row-fluid">
                         <td colspan="2" >
@@ -344,9 +351,10 @@ form {
                         </td>
                         <td>
                           <div class="btn-group pull-right">
+                            <button id="simpleNodeSearchResetBtn" type="button" class="btn btn-primary"><i class="icon-refresh icon-white"></i> [% l('Reset Search') %]</button>
                             <button type="submit" class="btn btn-primary"><i class="icon-search icon-white"></i> [% l('Search') %]</button>
-                            <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="icon-chevron-up"></span></a>
-                            <ul class="dropdown-menu up" role="menu">
+                            <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><span class="icon-chevron-up"></span></a>
+                            <ul class="dropdown-menu" role="menu">
                               <li><a href="#" data-export-url="[% c.uri_for(c.controller('Node').action_for('search')) %]" data-export-form="#simpleNodeSearch" class="exportCSVBtn">[% l('Export to CSV') %]</a></li>
                               <li><a href="#" id="simpleSavedSearchBtn">[% l('Save as...') %]</a></li>
                             </ul>
@@ -357,29 +365,29 @@ form {
                   </table>
                   </form>
                 </div>
-                <div class="tab-pane well" id="advanced">
+                <div class="tab-pane" id="advanced">
                   <form id="advancedSearch" name="advancedNodeSearch" method="POST" class="form-inline" action="[% c.uri_for(c.controller('Node').action_for('advanced_search')) %]">
-                  <br/>
-                  <table id="advancedSearchConditions" class="table-dynamic">
+                  <table id="advancedSearchConditions" class="table table-condensed table-dynamic unbordered">
                     <thead data-no-remove="yes">
-                        <tr>
-                        <th colspan="2" class="pull-left">
-                          <div class="control-group">
-                            <div class="controls">
-                            [% INCLUDE per_page_select.tt %]
-                            </div>
-                          </div>
-                        </th>
-                        </tr>
                         <tr>
                           <th colspan="2" class="pull-left">
                           <div class="control-group">
-                            <div class="input-daterange datepicker controls">
+                            <div class="input-daterange controls"
+                                 data-date-format="yyyy-mm-dd">
                                 <label class="control-label input-medium text-left">[% l('Online Between:') %]</label>
-                                <input type="text" class="input-small" name="online_date.start" data-date-format="yyyy-mm-dd" />
+                                <input id="online_date_start" type="text" class="input-date input-small" name="online_date.start"
+                                       data-date-format="yyyy-mm-dd" />
                                 <i class="icon-arrow-right"></i>
-                                <input type="text" class="input-small" name="online_date.end" data-date-format="yyyy-mm-dd" />
-                                <a href="#last0day">[% l('Today') %]</a> | <a href="#last7days">[% l('7 days') %]</a> | <a href="#last30days">[% l('30 days') %]</a> | <a href="#last60days">[% l('60 days') %]</a>
+                                <input id="online_date_end" type="text" class="input-date input-small" name="online_date.end"
+                                       data-date-format="yyyy-mm-dd" />
+                                <a data-toggle="date-picker" data-start-date="#online_date_start" data-end-date="#online_date_end"
+                                   href="[% c.uri_for(c.controller('Admin').action_for('time_offset'),'0D') %]">[% l('Today') %]</a> |
+                                <a data-toggle="date-picker" data-start-date="#online_date_start" data-end-date="#online_date_end"
+                                   href="[% c.uri_for(c.controller('Admin').action_for('time_offset'),'7D') %]">[% l('7 days') %]</a> |
+                                <a data-toggle="date-picker" data-start-date="#online_date_start" data-end-date="#online_date_end"
+                                   href="[% c.uri_for(c.controller('Admin').action_for('time_offset'),'30D') %]">[% l('30 days') %]</a> |
+                                <a data-toggle="date-picker" data-start-date="#online_date_start" data-end-date="#online_date_end"
+                                   href="[% c.uri_for(c.controller('Admin').action_for('time_offset'),'60D') %]">[% l('60 days') %]</a>
                             </div>
                           </div>
                           </th>
@@ -387,12 +395,22 @@ form {
                         <tr>
                           <th colspan="2" class="pull-left">
                           <div class="control-group">
-                            <div class="input-daterange datepicker controls">
+                            <div class="input-daterange controls"
+                                 data-date-format="yyyy-mm-dd">
                               <label class="control-label input-medium text-left">[% l('Detected Between:') %]</label>
-                              <input type="text" class="input-small" name="start" data-date-format="yyyy-mm-dd" />
+                              <input id="start_date" type="text" class="input-small" name="start"
+                                     data-date-format="yyyy-mm-dd" />
                               <i class="icon-arrow-right"></i>
-                              <input type="text" class="input-small" name="end" data-date-format="yyyy-mm-dd" />
-                              <a href="#last0day">[% l('Today') %]</a> | <a href="#last7days">[% l('7 days') %]</a> | <a href="#last30days">[% l('30 days') %]</a> | <a href="#last60days">[% l('60 days') %]</a>
+                              <input id="end_date" type="text" class="input-small" name="end"
+                                     data-date-format="yyyy-mm-dd" />
+                                <a data-toggle="date-picker" data-start-date="#start_date" data-end-date="#end_date"
+                                   href="[% c.uri_for(c.controller('Admin').action_for('time_offset'),'0D') %]">[% l('Today') %]</a> |
+                                <a data-toggle="date-picker" data-start-date="#start_date" data-end-date="#end_date"
+                                   href="[% c.uri_for(c.controller('Admin').action_for('time_offset'),'7D') %]">[% l('7 days') %]</a> |
+                                <a data-toggle="date-picker" data-start-date="#start_date" data-end-date="#end_date"
+                                   href="[% c.uri_for(c.controller('Admin').action_for('time_offset'),'30D') %]">[% l('30 days') %]</a> |
+                                <a data-toggle="date-picker" data-start-date="#start_date" data-end-date="#end_date"
+                                   href="[% c.uri_for(c.controller('Admin').action_for('time_offset'),'60D') %]">[% l('60 days') %]</a>
                             </div>
                           </div>
                           </th>
@@ -415,12 +433,12 @@ form {
                       <tr class="hidden dynamic-row">
                         <td>
                          <div class="control-group">
-                         [% PROCESS search_options disabled=1 %]
+                           [% PROCESS search_options disabled=1 %]
                          </div>
                         </td>
                         <td class="action">
-                          <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
-                          <a class="btn-icon" href="#delete"><i class="icon-minus-sign"></i></a>
+                          <a class="btn-icon" href="#add"><i class="icon-plus-circle"></i></a>
+                          <a class="btn-icon" href="#delete"><i class="icon-minus-circle"></i></a>
                         </td>
                       </tr>
                       <tr class="dynamic-row">
@@ -430,8 +448,8 @@ form {
                          </div>
                         </td>
                         <td class="action">
-                          <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
-                          <a class="btn-icon" href="#delete"><i class="icon-minus-sign"></i></a>
+                          <a class="btn-icon" href="#add"><i class="icon-plus-circle"></i></a>
+                          <a class="btn-icon" href="#delete"><i class="icon-minus-circle"></i></a>
                         </td>
                       </tr>
                     </tbody>
@@ -449,11 +467,22 @@ form {
                         </td>
                       </tr>
                       <tr>
-                        <td colspan="2" style="padding-top: 1em">
+                        <td>&nbsp;</td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <div class="control-group">
+                            <div class="controls">
+                            [% INCLUDE per_page_select.tt %]
+                            </div>
+                          </div>
+                        </td>
+                        <td>
                           <div class="btn-group pull-right">
+                            <button id="advancedNodeSearchResetBtn" type="button" class="btn btn-primary"><i class="icon-refresh icon-white"></i> [% l('Reset Search') %]</button>
                             <button class="btn btn-primary"><i class="icon-search icon-white"></i> [% l('Search') %]</button>
-                            <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="icon-chevron-up"></span></a>
-                            <ul class="dropdown-menu up">
+                            <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><span class="icon-chevron-up"></span></a>
+                            <ul class="dropdown-menu">
                               <li><a id="advancedSavedSearchBtn" >[% l('Save as...') %]</a></li>
                               <li><a href="#" data-export-url="[% c.uri_for(c.controller('Node').action_for('search')) %]" data-export-form="#advancedSearch" class="exportCSVBtn">[% l('Export to CSV') %]</a></li>
                             </ul>
@@ -465,9 +494,10 @@ form {
                 </div>
               </div>
             </div>
-          </form>
-          <div class="loader span12"><p><img src="[% c.uri_for('/static/app/loader-48.gif') %]"></p></div>
-          <div class="row-fluid nodes" id="section">
+            </form>
+          </div>
+
+          <div class="nodes card-block" id="section">
           </div>
         </div><!--/span-->
       </div><!--/row-->

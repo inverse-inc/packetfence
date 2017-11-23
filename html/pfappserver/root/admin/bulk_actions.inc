@@ -1,5 +1,5 @@
 <div id="[%id%]" class="btn-group">
-  <a id="bulk_actions" class="btn btn-link btn-small dropdown-toggle" data-toggle="dropdown" href="#">
+  <a id="bulk_actions" class="btn btn-link btn-small dropdown-toggle" data-toggle="dropdown">
     <i class="icon-cog"></i> [% l('Action') %]
     <i class="icon-angle-down"></i>
   </a>
@@ -9,6 +9,7 @@
     <li class="disabled"><a class="bulk_action" data-target="[% c.uri_for(c.controller.action_for('bulk_deregister'))  %]">[% l('Deregister') %]</a></li>
     [% IF bulk_type == 'node' %]
     <li class="disabled"><a class="bulk_action" data-target="[% c.uri_for(c.controller.action_for('bulk_reevaluate_access'))  %]">[% l('Reevaluate access') %]</a></li>
+    <li class="disabled"><a class="bulk_action" data-target="[% c.uri_for(c.controller.action_for('bulk_restart_switchport'))  %]">[% l('Restart Switchport') %]</a></li>
     [% END %]
     [% IF bulk_type == 'user' %]
     <li class="disabled"><a class="bulk_action" data-target="[% c.uri_for(c.controller.action_for('bulk_delete'))  %]">[% l('Delete') %]</a></li>

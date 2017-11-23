@@ -3,6 +3,7 @@
 /usr/local/pf/conf/apache_filters.conf
 /usr/local/pf/conf/authentication.conf
 /usr/local/pf/conf/profiles.conf
+/usr/local/pf/conf/device_registration.conf
 /usr/local/pf/conf/dhcp_fingerprints.conf
 /usr/local/pf/conf/dhcp_filters.conf
 /usr/local/pf/conf/dns_filters.conf
@@ -37,9 +38,6 @@
 /usr/local/pf/conf/pfdetect.conf
 /usr/local/pf/conf/suricata_categories.txt
 /usr/local/pf/conf/scan.conf
-/usr/local/pf/conf/snort/classification.config
-/usr/local/pf/conf/snort/local.rules
-/usr/local/pf/conf/snort/reference.config
 /usr/local/pf/conf/switches.conf
 /usr/local/pf/conf/dhcpd.conf
 /usr/local/pf/conf/haproxy.conf
@@ -63,6 +61,8 @@
 /usr/local/pf/conf/radiusd/radiusd.conf
 /usr/local/pf/conf/radiusd/sql.conf
 /usr/local/pf/conf/radiusd/proxy.conf.inc
+/usr/local/pf/conf/radiusd/proxy.conf.loadbalancer
+/usr/local/pf/conf/radiusd/radiusd_loadbalancer.conf
 /usr/local/pf/conf/radiusd/packetfence
 /usr/local/pf/conf/radiusd/packetfence-tunnel
 /usr/local/pf/conf/radiusd/acct.conf
@@ -73,9 +73,8 @@
 /usr/local/pf/conf/radiusd/eduroam
 /usr/local/pf/conf/radiusd/eduroam-cluster
 /usr/local/pf/conf/radiusd/eduroam.conf
+/usr/local/pf/conf/switch_filters.conf
 /usr/local/pf/conf/snmptrapd.conf
-/usr/local/pf/conf/snort.conf
-/usr/local/pf/conf/snort.conf.pre_snort-2.8
 /usr/local/pf/conf/ui.conf
 /usr/local/pf/conf/ui.conf.es_ES
 /usr/local/pf/conf/ui-global.conf
@@ -93,6 +92,7 @@
 /usr/local/pf/conf/monitoring/types.db
 /usr/local/pf/html/captive-portal/captiveportal.conf
 /usr/local/pf/html/common/styles.css
+/usr/local/pf/html/common/styles.css.map
 /usr/local/pf/html/common/styles-dark.css
 /usr/local/pf/html/common/Gruntfile.js
 /usr/local/pf/html/common/package.json
@@ -163,18 +163,15 @@
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/System.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Configuration.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Configurator.pm
-/usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/UserAgents.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Wrix.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/DB.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Graph.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Interface.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Node.pm
-/usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Roles.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Root.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/SavedSearch/Node.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/SavedSearch/User.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Service.pm
-/usr/local/pf/html/pfappserver/lib/pfappserver/Controller/SoH.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/User.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Violation.pm
 /usr/local/pf/lib/pf/floatingdevice/custom.pm
@@ -183,7 +180,6 @@
 /usr/local/pf/lib/pf/lookup/person.pm
 /usr/local/pf/lib/pf/radius/custom.pm
 /usr/local/pf/lib/pf/roles/custom.pm
-/usr/local/pf/lib/pf/soh/custom.pm
 /usr/local/pf/lib/pf/role/custom.pm
 /usr/local/pf/lib/pf/web/custom.pm
 /usr/local/pf/raddb/clients.conf
@@ -237,7 +233,6 @@
 /usr/local/pf/raddb/mods-available/replicate
 /usr/local/pf/raddb/mods-available/smbpasswd
 /usr/local/pf/raddb/mods-available/smsotp
-/usr/local/pf/raddb/mods-available/soh
 /usr/local/pf/raddb/mods-available/sometimes
 /usr/local/pf/raddb/mods-available/sqlcounter
 /usr/local/pf/raddb/mods-available/sqlippool
@@ -265,10 +260,8 @@
 /usr/local/pf/raddb/sites-available/example
 /usr/local/pf/raddb/sites-available/inner-tunnel
 /usr/local/pf/raddb/sites-available/originate-coa
-/usr/local/pf/raddb/sites-available/packetfence-soh
 /usr/local/pf/raddb/sites-available/proxy-inner-tunnel
 /usr/local/pf/raddb/sites-available/robust-proxy-accounting
-/usr/local/pf/raddb/sites-available/soh
 /usr/local/pf/raddb/sites-available/status
 /usr/local/pf/raddb/sites-available/tls
 /usr/local/pf/raddb/sites-available/virtual.example.com

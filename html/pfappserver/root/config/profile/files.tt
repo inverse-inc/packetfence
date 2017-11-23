@@ -1,6 +1,3 @@
-<style type="text/css">
-td a.btn { margin-left: 5px; }
-</style>
 [%- MACRO display_directory(entry,dirs) BLOCK -%]
     [% name = entry.name %]
     [% paths = name.split('/') %]
@@ -8,16 +5,17 @@ td a.btn { margin-left: 5px; }
     [% dir_id = "profile_dir_" _ dirs.join("_") _ "_" _ loop.count %]
         <tr>
           <td>
-            <a data-toggle="collapse" data-parent="false" data-target="#[% dir_id | html %]"><i data-swap="icon-folder-[%IF entry.hidden %]open[%ELSE%]close[% END %]" class="icon-folder-[%IF entry.hidden %]close[%ELSE%]open[% END %]"></i> [% name %]</a>
+            <a data-toggle="collapse" data-parent="false" data-target="#[% dir_id | html %]"><i data-swap="icon-folder-[%IF entry.hidden %]open[%ELSE%]close[% END %]" class="icon-folder[%IF entry.hidden %][%ELSE%]-open[% END %]"></i> [% name %]</a>
           </td>
           <td></td>
           <td>
-            [%- IF can_access("PORTAL_PROFILES_UPDATE") %]
+            [%- IF can_access("CONNECTION_PROFILES_UPDATE") %]
             <a class="btn btn-small pull-right" data-toggle="modal" data-target="#newFileModal" href="[% c.uri_for(c.controller('Config::Profile').action_for('new_file'),[id], paths) %]" ><i class="icon-plus"></i> [% l('New') %]</a>
             [% uploader_id = "uploader_" _ dir_id %]
             <div id="[% uploader_id | html %]" class="pull-right"></div>
-            <script type="text/javascript">
-                    $('#[% uploader_id %]').fineUploader({
+            <script class="[% uploader_id | html %]" type="text/json">
+                    {
+                         id: '[% uploader_id | html %]',
                          request: {
                            endpoint: '[% c.uri_for(c.controller('Config::Profile').action_for('upload'),[id],paths) %]',
                            paramsInBody : true
@@ -40,9 +38,7 @@ td a.btn { margin-left: 5px; }
                            '<ul class="qq-upload-list pull-right"></ul>' +
                            '</div>',
                          multiple: false
-                    }).on('complete', function(id, fileName, responseJSON) {
-                         $(window).hashchange();
-                    });
+                    }
             </script>
             [%- END %]
           </td>
@@ -64,7 +60,7 @@ td a.btn { margin-left: 5px; }
     %]
     <tr>
       <td>
-        [%- IF entry.editable && can_access("PORTAL_PROFILES_UPDATE") %]
+        [%- IF entry.editable && can_access("CONNECTION_PROFILES_UPDATE") %]
           <a href="[% c.pf_hash_for(c.controller('Config::Profile').action_for('edit'),[id], paths) %]" ><i class="icon-file"></i> [% name | html %]</a>
         [%- ELSE %]
             <i class="icon-file"></i> [% name | html %]
@@ -74,11 +70,11 @@ td a.btn { margin-left: 5px; }
       <td>
         <div class="btn-group pull-right">
         [%- IF entry.previewable %]
-            <a class="btn btn-small" target="_blank" href="[% c.uri_for(c.controller('Config::Profile').action_for('preview'), [ id ], paths) %]"  title="[% l('Preview') %]"> <i class="icon-eye-open icon-border"></i></a>
+            <a class="btn btn-small" target="_blank" href="[% c.uri_for(c.controller('Config::Profile').action_for('preview'), [ id ], paths) %]"  title="[% l('Preview') %]"> <i class="icon-eye icon-border"></i></a>
         [%- ELSE %]
-            <a class="btn btn-small disabled"><i class="icon-eye-close icon-border"></i></a>
+            <a class="btn btn-small disabled"><i class="icon-eye-slash icon-border"></i></a>
         [%- END %]
-        [%- IF can_access("PORTAL_PROFILES_UPDATE") %]
+        [%- IF can_access("CONNECTION_PROFILES_UPDATE") %]
         <a class="btn btn-small" data-toggle="modal" data-target="#copyModal" href="[% c.uri_for(c.controller('Config::Profile').action_for('copy_file'), [ id ], paths ) %]" title="[% l('Copy') %]"> <i class="icon-copy icon-border"></i></a>
         [%- IF entry.delete_or_revert == 'revert' %]
             <a class="btn btn-small [% IF entry.delete_or_revert_disabled %] disabled[% END %]" data-toggle="modal" data-target="#revertModal" data-content="[% name | html %]"  data-href-background="[% c.uri_for(c.controller('Config::Profile').action_for("revert_file"), [ id ], paths ) %]" title="[% l('Revert') %]"> <i class="icon-refresh icon-border"></i></a>
@@ -115,7 +111,7 @@ td a.btn { margin-left: 5px; }
 [%- END -%]
 
 <h2></h2>
-<div id="portal_profile_files">
+<div id="connection_profile_files">
   <div class="modal fade hide" id="newFileModal">
     <div class="modal-header">
       <h3><i>[% l('New File') %]</i></h3>
@@ -180,7 +176,7 @@ td a.btn { margin-left: 5px; }
   
   <ul class="breadcrumb">
     <li>
-      <a href="[% c.pf_hash_for(c.controller('Config::Profile').action_for('index')) %]" >Portal Profiles and Pages</a>
+      <a href="[% c.pf_hash_for(c.controller('Config::Profile').action_for('index')) %]" >Connection Profiles and Pages</a>
       <span class="divider"><i class="icon-chevron-right"></i></span>
     </li>
     <li>
@@ -189,6 +185,8 @@ td a.btn { margin-left: 5px; }
     </li>
     <li class="active">[% l('Files') %]</li>
   </ul>
+  <div class="card">
+  <div class="card-block">
   <div class="tab-content">
     <a class="btn btn-info pull-right" href="/portal_preview/captive-portal?PORTAL=[% id %]" target="_blank">[% l('Preview') %]</a>
     <ul class="nav nav-tabs">
@@ -211,4 +209,6 @@ td a.btn { margin-left: 5px; }
 
     </div><!-- #files pane -->
   </div><!-- .tab-content -->
-</div><!-- #portal_profile_files -->
+  </div><!-- card-block -->
+  </div><!-- card -->
+</div><!-- #connection_profile_files -->

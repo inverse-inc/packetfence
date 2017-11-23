@@ -19,7 +19,8 @@ use base qw(Exporter);
 use List::MoreUtils qw(any all uniq);
 use pfconfig::cached_hash;
 use pf::constants;
-use pf::constants::admin_roles qw(@ADMIN_ACTIONS);
+use pf::db qw(db_check_readonly);
+use pf::constants::admin_roles qw(@ADMIN_ACTIONS %ADMIN_NOT_IN_READONLY);
 use DateTime::Format::Strptime;
 
 our @EXPORT = qw(admin_can admin_can_do_any admin_can_do_any_in_group %ADMIN_ROLES admin_allowed_options admin_allowed_options_all check_allowed_unreg_date);
@@ -28,36 +29,46 @@ tie %ADMIN_ROLES, 'pfconfig::cached_hash', 'config::AdminRoles';
 
 our %ADMIN_GROUP_ACTIONS = (
     CONFIGURATION_GROUP_READ => [
-        qw( CONFIGURATION_MAIN_READ PORTAL_PROFILES_READ
+        qw( CONFIGURATION_MAIN_READ CONNECTION_PROFILES_READ
           ADMIN_ROLES_READ  INTERFACES_READ SWITCHES_READ FLOATING_DEVICES_READ
-          USERS_ROLES_READ  USERS_SOURCES_READ VIOLATIONS_READ SOH_READ
-          FINGERPRINTS_READ USERAGENTS_READ MAC_READ DOMAIN_READ
+          USERS_ROLES_READ  USERS_SOURCES_READ VIOLATIONS_READ
+          FINGERPRINTS_READ MAC_READ DOMAIN_READ
           FINGERBANK_READ FIREWALL_SSO_READ REALM_READ SCAN_READ
           WMI_READ PKI_PROVIDER_READ WRIX_READ FILTERS_READ PORTAL_MODULE_READ
+          DEVICE_REGISTRATION_READ
           )
       ],
     LOGIN_GROUP => [
         qw( SERVICES REPORTS USERS_READ NODES_READ CONFIGURATION_MAIN_READ
-          PORTAL_PROFILES_READ PROVISIONING_READ ADMIN_ROLES_READ INTERFACES_READ
+          CONNECTION_PROFILES_READ PROVISIONING_READ ADMIN_ROLES_READ INTERFACES_READ
           SWITCHES_READ FLOATING_DEVICES_READ USERS_ROLES_READ USERS_SOURCES_READ
-          VIOLATIONS_READ SOH_READ FINGERPRINTS_READ USERAGENTS_READ MAC_READ
+          VIOLATIONS_READ FINGERPRINTS_READ MAC_READ
           FINGERBANK_READ FIREWALL_SSO_READ REALM_READ DOMAIN_READ SCAN_READ
           WMI_READ PKI_PROVIDER_READ WRIX_READ FILTERS_READ PORTAL_MODULE_READ
-          USERS_READ_SPONSORED
+          USERS_READ_SPONSORED AUDITING_READ DEVICE_REGISTRATION_READ
           )
       ],
 );
 
+sub _filter_actions {
+    if (db_check_readonly()) {
+        return grep { !exists $ADMIN_NOT_IN_READONLY{$_} } @_;
+    }
+    return @_;
+}
+
 sub admin_can_do_any_in_group {
-    my ($roles,$group) = @_;
-    my $actions = $ADMIN_GROUP_ACTIONS{$group} if exists $ADMIN_GROUP_ACTIONS{$group};
-    return ref $actions eq 'ARRAY' && admin_can_do_any($roles,@$actions);
+    my ($roles, $group) = @_;
+    my @actions = @{$ADMIN_GROUP_ACTIONS{$group}} if exists $ADMIN_GROUP_ACTIONS{$group};
+    return admin_can_do_any($roles, @actions);
 }
 
 sub admin_can {
     my ($roles, @actions) = @_;
 
     return 0 if any {$_ eq 'NONE'} @$roles;
+    @actions = _filter_actions(@actions);
+    return 0 if @actions == 0;
     return any {
         my $role = $_;
         exists $ADMIN_ROLES{$role} && all { exists $ADMIN_ROLES{$role}{ACTIONS}{$_} } @actions
@@ -68,6 +79,8 @@ sub admin_can_do_any {
     my ($roles, @actions) = @_;
 
     return 0 if any {$_ eq 'NONE'} @$roles;
+    @actions = _filter_actions(@actions);
+    return 0 if @actions == 0;
     return any {
         my $role = $_;
         exists $ADMIN_ROLES{$role} && any { exists $ADMIN_ROLES{$role}{ACTIONS}{$_} } @actions

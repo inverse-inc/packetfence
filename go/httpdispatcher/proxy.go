@@ -3,6 +3,7 @@ package httpdispatcher
 import (
 	"context"
 	"fmt"
+	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -11,7 +12,7 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/fingerbank/processor/log"
+	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
@@ -116,9 +117,9 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 <head><title>302 Moved Temporarily</title></head>
 <body>
 	<h1>Moved</h1>
-		<p>The document has moved <a href=\"{{.PortalURL.String}}\">here</a>.</p>
-		<!--<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-			<WISPAccessGatewayParam xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"http://www.wballiance.net/wispr/wispr_2_0.xsd\">
+		<p>The document has moved <a href="{{.PortalURL.String}}">here</a>.</p>
+		<!--<?xml version="1.0" encoding="UTF-8"?>
+			<WISPAccessGatewayParam xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.wballiance.net/wispr/wispr_2_0.xsd">
 				<Redirect>
 					<MessageType>100</MessageType>
 					<ResponseCode>0</ResponseCode>
@@ -127,7 +128,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					<VersionHigh>2.0</VersionHigh>
 					<AccessLocation>CDATA[[isocc=,cc=,ac=,network=PacketFence,]]</AccessLocation>
 					<LocationName>CDATA[[PacketFence]]</LocationName>
-					<LoginURL>{{.WisprUrl.String}}</LoginURL>
+					<LoginURL>{{.WisprURL.String}}</LoginURL>
 				</Redirect>
 			</WISPAccessGatewayParam>-->
 	</body>
@@ -147,6 +148,21 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Scheme: "http",
 		Host:   host,
 	})
+
+	// Uses most defaults of http.DefaultTransport with more aggressive timeouts
+	rp.Transport = &http.Transport{
+		Proxy: http.ProxyFromEnvironment,
+		DialContext: (&net.Dialer{
+			Timeout:   2 * time.Second,
+			KeepAlive: 2 * time.Second,
+			DualStack: true,
+		}).DialContext,
+		MaxIdleConns:          100,
+		IdleConnTimeout:       90 * time.Second,
+		TLSHandshakeTimeout:   2 * time.Second,
+		ExpectContinueTimeout: 1 * time.Second,
+	}
+
 	t := time.Now()
 
 	// Pass the context in the request
@@ -162,14 +178,14 @@ func (p *Proxy) Configure(ctx context.Context, port string) {
 }
 
 func (p *passthrough) readConfig(ctx context.Context) {
-	trapping := pfconfigdriver.Config.PfConf.Trapping
+	fencing := pfconfigdriver.Config.PfConf.Fencing
 	general := pfconfigdriver.Config.PfConf.General
 	portal := pfconfigdriver.Config.PfConf.CaptivePortal
 
 	var scheme string
 
 	p.proxypassthrough = make([]*regexp.Regexp, 0)
-	for _, v := range trapping.ProxyPassthroughs {
+	for _, v := range fencing.ProxyPassthroughs {
 		p.addFqdnToList(ctx, v)
 	}
 

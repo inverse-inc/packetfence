@@ -6,10 +6,9 @@ Wants=packetfence-base.target packetfence-config.service packetfence-iptables.se
 After=packetfence-base.target packetfence-config.service packetfence-iptables.service packetfence-carbon-cache.service
 
 [Service]
-StandardOutput=syslog
 StartLimitBurst=3
-StartLimitInterval=60
-Type=simple
+StartLimitInterval=10
+Type=notify
 PIDFile=/usr/local/pf/var/run/httpd.graphite.pid
 ExecStartPre=/usr/local/pf/bin/pfcmd service httpd.graphite generateconfig
 ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.graphite -DFOREGROUND  -Drhel
@@ -20,6 +19,8 @@ ExecStop=/bin/kill -WINCH ${MAINPID}
 # graceful stop. Normally, Systemd sends SIGTERM signal right after the
 # ExecStop, which would kill httpd. We are sending useless SIGCONT here to give
 # httpd time to finish.
+TimeoutStopSec=60
+KillMode=mixed
 KillSignal=SIGCONT
 PrivateTmp=true
 Restart=on-failure

@@ -24,6 +24,7 @@ use IO::Interface::Simple;
 use pf::log;
 use Readonly;
 use NetAddr::IP;
+use pf::constants;
 
 BEGIN {
     use Exporter ();
@@ -72,10 +73,12 @@ Readonly my $FW_TABLE_FILTER => 'filter';
 Readonly my $FW_TABLE_MANGLE => 'mangle';
 Readonly my $FW_TABLE_NAT => 'nat';
 Readonly my $FW_FILTER_INPUT_INT_VLAN => 'input-internal-vlan-if';
+Readonly my $FW_FILTER_INPUT_INT_ISOL_VLAN => 'input-internal-isol_vlan-if';
 Readonly my $FW_FILTER_INPUT_INT_INLINE => 'input-internal-inline-if';
 Readonly my $FW_FILTER_INPUT_INT_HA => 'input-highavailability-if';
 Readonly my $FW_FILTER_FORWARD_INT_INLINE => 'forward-internal-inline-if';
 Readonly my $FW_FILTER_FORWARD_INT_VLAN => 'forward-internal-vlan-if';
+Readonly my $FW_FILTER_FORWARD_INT_ISOL_VLAN => 'forward-internal-isolvlan-if';
 Readonly my $FW_PREROUTING_INT_INLINE => 'prerouting-int-inline-if';
 Readonly my $FW_POSTROUTING_INT_INLINE => 'postrouting-int-inline-if';
 Readonly my $FW_POSTROUTING_INT_INLINE_ROUTED => 'postrouting-inline-routed';
@@ -116,6 +119,7 @@ sub iptables_generate {
         'input_inter_inline_rules' => '', 'nat_prerouting_vlan' => '',
         'routed_postrouting_inline' => '','input_inter_vlan_if' => '',
         'domain_postrouting' => '','mangle_postrouting_inline' => '',
+        'filter_forward_isol_vlan' => '', 'input_inter_isol_vlan_if' => '',
     );
 
     # global substitution variables
@@ -163,11 +167,11 @@ sub iptables_generate {
     $self->generate_interception_rules(\$tags{'nat_if_src_to_chain'},\$tags{'nat_prerouting_vlan'},\$tags{'input_inter_vlan_if'} );
 
     # OAuth
-    my $passthrough_enabled = isenabled($Config{'trapping'}{'passthrough'});
+    my $passthrough_enabled = (isenabled($Config{'fencing'}{'passthrough'}) || isenabled($Config{'fencing'}{'isolation_passthrough'}));
 
     if ($passthrough_enabled) {
         generate_passthrough_rules(
-            $passthrough_enabled,\$tags{'filter_forward_vlan'},\$tags{'nat_postrouting_vlan'}
+            $passthrough_enabled,\$tags{'filter_forward_vlan'},\$tags{'nat_postrouting_vlan'},\$tags{'filter_forward_isol_vlan'}
         );
     }
 
@@ -199,7 +203,8 @@ sub generate_filter_if_src_to_chain {
     my $logger = get_logger();
     my $rules = '';
 
-    my $passthrough_enabled = isenabled($Config{'trapping'}{'passthrough'});
+    my $passthrough_enabled = (isenabled($Config{'fencing'}{'passthrough'}) || isenabled($Config{'fencing'}{'isolation_passthrough'}));
+    my $isolation_passthrough_enabled = isenabled($Config{'fencing'}{'isolation_passthrough'});
 
     # internal interfaces handling
     foreach my $interface (@internal_nets) {
@@ -213,16 +218,35 @@ sub generate_filter_if_src_to_chain {
             if ($dev =~ m/(\w+):\d+/) {
                 $dev = $1;
             }
+            my $type = $pf::config::NET_TYPE_VLAN_REG;
+            my $chain = $FW_FILTER_INPUT_INT_VLAN;
+            foreach my $network ( keys %ConfigNetworks ) {
+                # We skip non-inline networks/interfaces
+                next if ( pf::config::is_network_type_inline($network) );
+                if ( $ConfigNetworks{$network}{'type'} eq $pf::config::NET_TYPE_VLAN_ISOL ) {
+                    my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
+                    my $ip_test = new NetAddr::IP::Lite clean_ip($ip);
+                    if ($net_addr->contains($ip_test)) {
+                        $chain = $FW_FILTER_INPUT_INT_ISOL_VLAN;
+                        $type = $pf::config::NET_TYPE_VLAN_ISOL;
+                    }
+                }
+            }
             $rules .= "-A INPUT --in-interface $dev -d 224.0.0.0/8 -j ACCEPT\n";
             $rules .= "-A INPUT --in-interface $dev -p vrrp -j ACCEPT\n";
-            $rules .= "-A INPUT --in-interface $dev --protocol tcp --match tcp --dport 647\n" if ($pf::cluster_enabled);
-            $rules .= "-A INPUT --in-interface $dev -d ".$cluster_ip." --jump $FW_FILTER_INPUT_INT_VLAN\n" if ($cluster_enabled);
-            $rules .= "-A INPUT --in-interface $dev -d " . $interface->tag("vip") . " --jump $FW_FILTER_INPUT_INT_VLAN\n" if $interface->tag("vip");
-            $rules .= "-A INPUT --in-interface $dev -d " . $interface->tag("ip") . " --jump $FW_FILTER_INPUT_INT_VLAN\n";
-            $rules .= "-A INPUT --in-interface $dev -d 255.255.255.255 --jump $FW_FILTER_INPUT_INT_VLAN\n";
-            if ($passthrough_enabled) {
+            $rules .= "# DHCP Sync\n";
+            $rules .= "-A INPUT --in-interface $dev --protocol tcp --match tcp --dport 647 -j ACCEPT\n" if ($pf::cluster_enabled);
+            $rules .= "-A INPUT --in-interface $dev -d ".$cluster_ip." --jump $chain\n" if ($cluster_enabled);
+            $rules .= "-A INPUT --in-interface $dev -d " . $interface->tag("vip") . " --jump $chain\n" if $interface->tag("vip");
+            $rules .= "-A INPUT --in-interface $dev -d " . $interface->tag("ip") . " --jump $chain\n";
+            $rules .= "-A INPUT --in-interface $dev -d 255.255.255.255 --jump $chain\n";
+            if ($passthrough_enabled && ($type eq $pf::config::NET_TYPE_VLAN_REG)) {
                 $rules .= "-A FORWARD --in-interface $dev --jump $FW_FILTER_FORWARD_INT_VLAN\n";
                 $rules .= "-A FORWARD --out-interface $dev --jump $FW_FILTER_FORWARD_INT_VLAN\n";
+            }
+            if ($isolation_passthrough_enabled && ($type eq $pf::config::NET_TYPE_VLAN_ISOL)) { 
+                $rules .= "-A FORWARD --in-interface $dev --jump $FW_FILTER_FORWARD_INT_ISOL_VLAN\n";
+                $rules .= "-A FORWARD --out-interface $dev --jump $FW_FILTER_FORWARD_INT_ISOL_VLAN\n";
             }
 
         # inline enforcement
@@ -230,7 +254,8 @@ sub generate_filter_if_src_to_chain {
             my $mgmt_ip = (defined($management_network->tag('vip'))) ? $management_network->tag('vip') : $management_network->tag('ip');
             $rules .= "-A INPUT --in-interface $dev -d 224.0.0.0/8 -j ACCEPT\n";
             $rules .= "-A INPUT --in-interface $dev -p vrrp -j ACCEPT\n";
-            $rules .= "-A INPUT --in-interface $dev --protocol tcp --match tcp --dport 647\n" if ($cluster_enabled);
+            $rules .= "# DHCP Sync\n";
+            $rules .= "-A INPUT --in-interface $dev --protocol tcp --match tcp --dport 647 -j ACCEPT\n" if ($cluster_enabled);
             $rules .= "-A INPUT --in-interface $dev -d ".$cluster_ip." --jump $FW_FILTER_INPUT_INT_INLINE\n" if ($cluster_enabled);
             $rules .= "-A INPUT --in-interface $dev -d $ip --jump $FW_FILTER_INPUT_INT_INLINE\n";
             $rules .= "-A INPUT --in-interface $dev -d 255.255.255.255 --jump $FW_FILTER_INPUT_INT_INLINE\n";
@@ -324,9 +349,9 @@ sub generate_inline_rules {
             . "--jump DNAT --to $gateway\n";
         $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_ISOLATION "
             . "--jump DNAT --to $gateway\n";
-        if (defined($Config{'trapping'}{'interception_proxy_port'}) && isenabled($Config{'trapping'}{'interception_proxy'})) {
+        if (defined($Config{'fencing'}{'interception_proxy_port'}) && isenabled($Config{'fencing'}{'interception_proxy'})) {
             $logger->info("Adding Proxy interception rules");
-            foreach my $intercept_port ( split(',', $Config{'trapping'}{'interception_proxy_port'} ) ) {
+            foreach my $intercept_port ( split(',', $Config{'fencing'}{'interception_proxy_port'} ) ) {
                 my $rule = "--protocol tcp --destination-port $intercept_port -s $network/$ConfigNetworks{$network}{'netmask'}";
                 $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_UNREG "
                         . "--jump DNAT --to $gateway\n";
@@ -336,9 +361,9 @@ sub generate_inline_rules {
         }
     }
 
-    if (defined($Config{'trapping'}{'interception_proxy_port'}) && isenabled($Config{'trapping'}{'interception_proxy'})) {
+    if (defined($Config{'fencing'}{'interception_proxy_port'}) && isenabled($Config{'fencing'}{'interception_proxy'})) {
         $logger->info("Adding Proxy interception rules");
-        foreach my $intercept_port ( split(',', $Config{'trapping'}{'interception_proxy_port'} ) ) {
+        foreach my $intercept_port ( split(',', $Config{'fencing'}{'interception_proxy_port'} ) ) {
             $$input_filtering_ref .= "-A $FW_FILTER_INPUT_INT_INLINE --protocol tcp --match tcp --dport $intercept_port "
                     . " --match mark --mark 0x$IPTABLES_MARK_UNREG  --jump ACCEPT\n";
             $$input_filtering_ref .= "-A $FW_FILTER_INPUT_INT_INLINE --protocol tcp --match tcp --dport $intercept_port "
@@ -356,24 +381,16 @@ sub generate_inline_rules {
     $$routed_postrouting_inline .= "-A $FW_POSTROUTING_INT_INLINE_ROUTED --jump ACCEPT\n";
 
     $logger->info("building firewall to accept registered users through inline interface");
-    my $passthrough_enabled = isenabled($Config{'trapping'}{'passthrough'});
+    my $passthrough_enabled = (isenabled($Config{'fencing'}{'passthrough'}) || isenabled($Config{'fencing'}{'isolation_passthrough'}));
 
     if ($passthrough_enabled) {
         $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_UNREG -m set --match-set pfsession_passthrough dst,dst --jump ACCEPT\n";
+        $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_ISOLATION -m set --match-set pfsession_isol_passthrough dst,dst --jump ACCEPT\n";
     }
 
 
     $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_REG --jump ACCEPT\n";
-    if (!isenabled($Config{'trapping'}{'registration'})) {
-        $logger->info(
-            "trapping.registration is disabled, adding rule so we accept unregistered users through inline interface"
-        );
-        $$filter_rules_ref .=
-            "-A $FW_FILTER_FORWARD_INT_INLINE "
-            . "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump ACCEPT\n"
-        ;
     }
-}
 
 =item generate_passthrough_rules
 
@@ -382,7 +399,7 @@ Creating the proper firewall rules to allow Google/Facebook OAuth2 and passthrou
 =cut
 
 sub generate_passthrough_rules {
-    my ($passthrough,$forward_rules_ref,$nat_rules_ref) = @_;
+    my ($passthrough,$forward_rules_ref,$nat_rules_ref,$forward_isol_rules_ref) = @_;
     my $logger = get_logger();
 
     $logger->info("Adding Forward rules to allow connections to the OAuth2 Providers and passthrough.");
@@ -391,6 +408,8 @@ sub generate_passthrough_rules {
     if ($passthrough) {
         $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -m set --match-set pfsession_passthrough dst,dst --jump ACCEPT\n";
         $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -m set --match-set pfsession_passthrough src,src --jump ACCEPT\n";
+        $$forward_isol_rules_ref .= "-A $FW_FILTER_FORWARD_INT_ISOL_VLAN -m set --match-set pfsession_isol_passthrough dst,dst --jump ACCEPT\n";
+        $$forward_isol_rules_ref .= "-A $FW_FILTER_FORWARD_INT_ISOL_VLAN -m set --match-set pfsession_isol_passthrough src,src --jump ACCEPT\n";
     }
 
     # add passthroughs required by the provisionings
@@ -514,11 +533,13 @@ sub generate_nat_redirect_rules {
     my $rules = '';
 
     # Exclude the OAuth from the DNAT
-    my $passthrough_enabled = isenabled($Config{'trapping'}{'passthrough'});
+    my $passthrough_enabled = (isenabled($Config{'fencing'}{'passthrough'}) || isenabled($Config{'fencing'}{'isolation_passthrough'}));
 
     if ($passthrough_enabled) {
          $rules .= "-A $FW_PREROUTING_INT_INLINE -m set --match-set pfsession_passthrough dst,dst ".
                "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump ACCEPT\n";
+         $rules .= "-A $FW_PREROUTING_INT_INLINE -m set --match-set pfsession_isol_passthrough dst,dst ".
+               "--match mark --mark 0x$IPTABLES_MARK_ISOLATION --jump ACCEPT\n";
     }
 
     # Now, do your magic
@@ -538,12 +559,6 @@ sub generate_nat_redirect_rules {
                         $gateway = $ConfigNetworks{$test_network}{'gateway'};
                     }
                 }
-            }
-            # Destination NAT to the portal on the UNREG mark if trapping.registration is enabled
-            if ( isenabled( $Config{'trapping'}{'registration'} ) ) {
-                $rules .=
-                    "-A $FW_PREROUTING_INT_INLINE --protocol $protocol --destination-port $port -s $network/$ConfigNetworks{$network}{'netmask'} " .
-                    "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump DNAT --to $gateway\n";
             }
 
             # Destination NAT to the portal on the ISOLATION mark
@@ -668,29 +683,33 @@ sub generate_interception_rules {
         if ($enforcement_type eq $IF_ENFORCEMENT_VLAN) {
             # send everything from vlan interfaces to the vlan chain
             $$nat_if_src_to_chain .= "-A PREROUTING --in-interface $dev --jump $FW_PREROUTING_INT_VLAN\n";
-            if (defined($Config{'trapping'}{'interception_proxy_port'}) && isenabled($Config{'trapping'}{'interception_proxy'})) {
-                foreach my $network ( keys %ConfigNetworks ) {
-                    next if (pf::config::is_network_type_inline($network));
-                    my %net = %{$ConfigNetworks{$network}};
-                    my $ip;
-                    if (defined($net{'next_hop'})) {
-                        $ip = new NetAddr::IP::Lite clean_ip($net{'next_hop'});
-                    } else {
-                        $ip = new NetAddr::IP::Lite clean_ip($net{'gateway'});
-                    }
-                    if ($net_addr->contains($ip)) {
-                        foreach my $intercept_port ( split( ',', $Config{'trapping'}{'interception_proxy_port'} ) ) {
-                            my $destination = $Config{"interface $dev"}{'vip'} || $Config{"interface $dev"}{'ip'};
+            foreach my $network ( keys %ConfigNetworks ) {
+                next if (pf::config::is_network_type_inline($network));
+                my %net = %{$ConfigNetworks{$network}};
+                my $ip;
+                if (defined($net{'next_hop'})) {
+                    $ip = new NetAddr::IP::Lite clean_ip($net{'next_hop'});
+                } else {
+                    $ip = new NetAddr::IP::Lite clean_ip($net{'gateway'});
+                }
+                if ($net_addr->contains($ip)) {
+                    my $destination = $Config{"interface $dev"}{'vip'} || $Config{"interface $dev"}{'ip'};
+                    if (defined($Config{'fencing'}{'interception_proxy_port'}) && isenabled($Config{'fencing'}{'interception_proxy'})) {
+                        foreach my $intercept_port ( split( ',', $Config{'fencing'}{'interception_proxy_port'} ) ) {
                             my $rule = "--protocol tcp --destination-port $intercept_port -s $network/$ConfigNetworks{$network}{'netmask'}";
                             $$nat_prerouting_vlan .= "-A $FW_PREROUTING_INT_VLAN $rule --jump DNAT --to $destination\n";
                         }
                     }
+                    my $rule = "--protocol udp --destination-port 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
+                    $$nat_prerouting_vlan .= "-A $FW_PREROUTING_INT_VLAN $rule --jump DNAT --to $destination\n";
+                    $rule = "--protocol tcp --destination-port 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
+                    $$nat_prerouting_vlan .= "-A $FW_PREROUTING_INT_VLAN $rule --jump DNAT --to $destination\n";
                 }
             }
         }
     }
-    if (defined($Config{'trapping'}{'interception_proxy_port'}) && isenabled($Config{'trapping'}{'interception_proxy'})) {
-        foreach my $intercept_port ( split( ',', $Config{'trapping'}{'interception_proxy_port'} ) ) {
+    if (defined($Config{'fencing'}{'interception_proxy_port'}) && isenabled($Config{'fencing'}{'interception_proxy'})) {
+        foreach my $intercept_port ( split( ',', $Config{'fencing'}{'interception_proxy_port'} ) ) {
             my $rule = "--protocol tcp --destination-port $intercept_port";
             $$input_inter_vlan_if .= "-A $FW_FILTER_INPUT_INT_VLAN $rule --jump ACCEPT\n";
         }
@@ -699,6 +718,7 @@ sub generate_interception_rules {
 
 sub generate_provisioning_passthroughs {
     my $logger = get_logger();
+    $logger->debug("Installing passthroughs for provisioning");
     foreach my $config (tied(%ConfigProvisioning)->search(type => 'sepm')) {
         $logger->info("Adding passthrough for Symantec Endpoint Manager");
         my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{'host'},8014 2>&1");
@@ -711,20 +731,30 @@ sub generate_provisioning_passthroughs {
         my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{boarding_host},$config->{boarding_port} 2>&1");
         my @lines  = pf_run($cmd);
         # Allow http communication with the MobileIron server
-        $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{boarding_host},80 2>&1");
+        $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{boarding_host},$HTTP_PORT 2>&1");
         @lines  = pf_run($cmd);
         # Allow https communication with the MobileIron server
-        $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{boarding_host},443 2>&1");
+        $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{boarding_host},$HTTPS_PORT 2>&1");
         @lines  = pf_run($cmd);
     }
 
     foreach my $config (tied(%ConfigProvisioning)->search(type => 'opswat')) {
         $logger->info("Adding passthrough for OPSWAT");
-        # Allow http communication with the MobileIron server
-        my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},80 2>&1");
+        # Allow http communication with the OSPWAT server
+        my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTP_PORT 2>&1");
         my @lines  = pf_run($cmd);
-        # Allow https communication with the MobileIron server
-        $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},443 2>&1");
+        # Allow https communication with the OPSWAT server
+        $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTPS_PORT 2>&1");
+        @lines  = pf_run($cmd);
+    }
+
+    foreach my $config (tied(%ConfigProvisioning)->search(type => 'sentinelone')) {
+        $logger->info("Adding passthrough for SentinelOne");
+        # Allow http communication with the SentinelOne server
+        my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTP_PORT 2>&1");
+        my @lines  = pf_run($cmd);
+        # Allow https communication with the SentinelOne server
+        $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},$HTTPS_PORT 2>&1");
         @lines  = pf_run($cmd);
     }
 

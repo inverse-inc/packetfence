@@ -34,7 +34,7 @@
 
 # By default Redis does not run as a daemon. Use 'yes' if you need it.
 # Note that Redis will write a pid file in /var/run/redis.pid when daemonized.
-daemonize yes
+daemonize no
 
 # When running daemonized, Redis writes a pid file in /var/run/redis.pid by
 # default. You can specify a custom pid file location here.
@@ -100,17 +100,17 @@ loglevel notice
 # Specify the log file name. Also the empty string can be used to force
 # Redis to log on the standard output. Note that if you use standard
 # output for logging but daemonize, logs will be sent to /dev/null
-logfile %%install_dir%%/logs/%%name%%.log
+#logfile %%install_dir%%/logs/%%name%%.log
 
 # To enable logging to the system logger, just set 'syslog-enabled' to yes,
 # and optionally update the other syslog parameters to suit your needs.
-# syslog-enabled no
+syslog-enabled yes
 
 # Specify the syslog identity.
-# syslog-ident redis
+syslog-ident redis-queue
 
 # Specify the syslog facility. Must be USER or between LOCAL0-LOCAL7.
-# syslog-facility local0
+syslog-facility local5
 
 # Set the number of databases. The default database is DB 0, you can select
 # a different one on a per-connection basis using SELECT <dbid> where

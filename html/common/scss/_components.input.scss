@@ -26,6 +26,15 @@
     cursor: pointer;
     display: block;
     vertical-align: middle;
+
+    &.radio {
+      padding: quarter($spacing-unit) 0;
+      input[type="radio"] {
+        display: inline-block;
+        margin: 0 halve($spacing-unit);
+        width: auto;
+      }
+    }
   }
 
   input, select {

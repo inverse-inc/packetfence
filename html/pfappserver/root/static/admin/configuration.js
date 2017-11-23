@@ -1,3 +1,5 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
+
 function init() {
 
     /* Save a section */
@@ -5,14 +7,17 @@ function init() {
         var form = $(this);
         var url = form.attr('action');
         var valid = isFormValid(form);
+        var btn = form.find('.btn-primary');
 
         if (valid) {
+            btn.button('loading');
             $.ajax({
                 type: 'POST',
                 url: url,
                 data: form.serialize()
             })
             .always(function() {
+                btn.button('reset');
                 $("body,html").animate({scrollTop:0}, 'fast');
                 resetAlert($('#section'));
             })
@@ -37,6 +42,8 @@ function init() {
             var a = $(input).siblings('a[value="' + value  +  '"]');
             a.attr('default-value','yes');
         });
+        /* Load the first tab on section click */
+        $('#tabView').find('[data-toggle="tab"]').first().tab('show');
 
     });
 
@@ -45,8 +52,21 @@ function init() {
         return true;
     });
 
-    var href =  $('.sidebar-nav .nav-list a').first().attr('href');
-    if(href) {
+    /* Show the tab content */
+    $('#section').on('show', '[href="#newTabView"]', function(e) {
+        var btn = $(e.target);
+        var name = btn.attr("href");
+        var target = $(name);
+        var url = btn.attr("data-href");
+        target.load(url, function() {
+            target.find('.switch').bootstrapSwitch();
+        });
+        return true;
+    });
+    
+    /* Automatically load first category */
+    var href =  $('.sidenav-category a').first().attr('href');
+    if (href) {
         href = href.replace(/^.*#/,"/");
     } else {
         href = "/configuration";
@@ -57,5 +77,4 @@ function init() {
 
     activateNavLink();
 }
-
 

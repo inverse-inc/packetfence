@@ -74,7 +74,7 @@ sub build_update_subfields {{
        },
        'DatePicker' =>
        {
-        element_class =>  ['datepicker', 'input-small'],
+        element_class =>  ['input-date', 'input-small'],
         element_attr => { 'data-date-format' => 'yyyy-mm-dd',
                           placeholder => 'yyyy-mm-dd' },
        },
@@ -105,7 +105,7 @@ sub update_field {
 
     if ($field->required) {
         $field->set_element_attr('data-required' => 'required');
-        $field->tags->{label_after} = ' <i class="icon-exclamation-sign"></i>';
+        $field->tags->{label_after} = ' <i class="icon-required"></i>';
     }
     if ($field->type eq 'PosInteger') {
         $field->type_attr($field->html5_type_attr);
@@ -195,7 +195,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;
 

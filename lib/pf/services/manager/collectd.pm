@@ -53,8 +53,8 @@ sub generateCollectd {
         = defined( $management_network->tag('vip') )
         ? $management_network->tag('vip')
         : $management_network->tag('ip');
-    $tags{'graphite_host'} = "$Config{'monitoring'}{'graphite_host'}";
-    $tags{'graphite_port'} = "$Config{'monitoring'}{'graphite_port'}";
+    $tags{'graphite_host'} = "$Config{'graphite'}{'graphite_host'}";
+    $tags{'graphite_port'} = "$Config{'graphite'}{'graphite_port'}";
     $tags{'hostname'}      = hostname;
     $tags{'db_host'}       = "$Config{'database'}{'host'}";
     $tags{'db_username'}   = "$Config{'database'}{'user'}";

@@ -52,7 +52,6 @@ BEGIN {
     use_ok('pf::scan');
     use_ok('pf::switchlocation');
     use_ok('pf::trigger');
-    use_ok('pf::useragent');
     use_ok('pf::violation');
     use_ok('pf::pfcmd::dashboard');
     use_ok('pf::pfcmd::graph');
@@ -74,7 +73,6 @@ my @data_modules = qw(
     pf::scan
     pf::switchlocation
     pf::trigger
-    pf::useragent
     pf::violation
     pf::pfcmd::dashboard
     pf::pfcmd::graph

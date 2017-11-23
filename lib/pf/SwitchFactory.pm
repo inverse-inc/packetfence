@@ -42,6 +42,7 @@ tie %SwitchTypesConfigured, 'pfconfig::cached_hash', 'resource::SwitchTypesConfi
 use Module::Pluggable
   search_path => [qw(pf::Switch)],
   'require' => 1,
+  inner       => 0,
   sub_name    => '_all_modules';
 
 use Module::Pluggable

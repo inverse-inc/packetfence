@@ -46,6 +46,10 @@ sub build_child {
 
     my %cfg = %{ $self->{cfg} };
 
+    foreach my $key ( keys %cfg ) {
+        $self->cleanup_after_read( $key, $cfg{$key} );
+    }
+
     my @authentication_sources = ();
     my %authentication_lookup  = ();
     my %authentication_config_hash = ();
@@ -164,6 +168,10 @@ sub newAuthenticationSource {
     return $source;
 }
 
+sub cleanup_after_read {
+    my ( $self, $id, $data ) = @_;
+    $self->expand_list( $data, qw(realms local_realm reject_realm) );
+}
 
 =head1 AUTHOR
 

@@ -19,6 +19,7 @@ use pf::log;
 use pf::IniFiles;
 use pf::file_paths qw($pf_default_file);
 use pf::authentication;
+use pf::web::util;
 
 has 'section' => ( is => 'ro' );
 
@@ -41,10 +42,12 @@ sub field_list {
         my $doc_section = $Doc_Config{$doc_section_name};
         my $defaults = $Default_Config{$section};
         $doc_section->{description} =~ s/\n//sg;
+        my $doc_anchor = $doc_section->{guide_anchor};
+        my $doc_anchor_html = defined($doc_anchor) ? " " . pf::web::util::generate_doc_link($doc_anchor) . " " : '';
         my $field =
           { element_attr => { 'placeholder' => $defaults->{$name} },
             tags => { after_element => \&help, # role method, defined in Base::Form::Role::Help
-                      help => $doc_section->{description} },
+                      help => $doc_section->{description} . $doc_anchor_html },
             id => $name,
             label => $doc_section_name,
             type => 'Text',
@@ -78,6 +81,14 @@ sub field_list {
                 # the value to the default value when no value is defined (see pf::ConfigStore::Pf::cleanupAfterRead)
                 # $field->{element_attr}->{placeholder} = join("\n",split( /\s*,\s*/, $field->{element_attr}->{placeholder} ))
                 #   if $field->{element_attr}->{placeholder};
+                last;
+            };
+            $type eq 'fingerbank_select' && do {
+                $field->{type} = 'FingerbankSelect';
+                $field->{multiple} = 1;
+                $field->{element_class} = ['chzn-deselect'];
+                $field->{element_attr} = {'data-placeholder' => 'Click to add an OS'};
+                $field->{fingerbank_model} = 'fingerbank::Model::Device';
                 last;
             };
             $type eq 'merged_list' && do {
@@ -125,8 +136,18 @@ sub field_list {
                 $field->{type} = 'Select';
                 $field->{element_class} = ['chzn-deselect', 'input'];
                 $field->{element_attr} = {'data-placeholder' => 'Select a role'};
-                my $roles = $self->ctx->model('Roles')->list();
+                my $roles = $self->ctx->model('Config::Roles')->listFromDB();
                 my @options = ({ value => '', label => ''}, map { { value => $_->{name}, label => $_->{name} } } @$roles);
+                $field->{options} = \@options;
+                last;
+            };
+            $type eq 'timezone' && do {
+                $field->{type} = 'Select';
+                $field->{element_class} = ['chzn-deselect'];
+                $field->{element_attr} = {'data-placeholder' => 'Select a timezone'};
+                my @timezones = DateTime::TimeZone->all_names();
+                my @matched_options = map { m/^.+\/.+$/g } @timezones;
+                my @options = ({ value => '', label => ''}, map { { value => $_, label => $_ } } @matched_options);
                 $field->{options} = \@options;
                 last;
             };
@@ -266,5 +287,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

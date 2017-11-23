@@ -59,7 +59,7 @@ sub cleanupAfterRead {
         my $type = $doc->{type} || "text";
         my $subtype = $doc->{subtype};
         # Value should always be defined for toggles (checkbox and select) and times (duration)
-        if ($type eq "toggle" || $type eq "time") {
+        if ($type eq "toggle" || $type eq "time" || $type eq "timezone" ) {
             $data->{$key} = $Default_Config{$section}{$key} unless ($data->{$key});
         } elsif ($type eq "date") {
             my $time = str2time($data->{$key} || $Default_Config{$section}{$key});
@@ -69,7 +69,7 @@ sub cleanupAfterRead {
             my $value = $data->{$key};
             my @values = split( /\s*,\s*/, $value ) if $value;
             $data->{$key} = \@values;
-        } elsif ($type eq 'list') {
+        } elsif ( $type eq 'list' ) {
             my $value = $data->{$key};
             if ($value) {
                 $data->{$key} = join("\n", split( /\s*,\s*/, $value));
@@ -78,7 +78,16 @@ sub cleanupAfterRead {
                 # No custom value, use default value
                 $data->{$key} = join("\n", split( /\s*,\s*/, $defaults->{$key}));
             }
-        } elsif ( $type eq 'merged_list' ) {
+        } elsif ( $type eq 'fingerbank_select' ) {
+            my $value = $data->{$key};
+            if ($value) {
+                $data->{$key} = [split( /\s*,\s*/, $value)];
+            }
+            elsif ($defaults->{$key}) {
+                # No custom value, use default value
+                $data->{$key} = [split( /\s*,\s*/, $defaults->{$key})];
+            }
+         } elsif ( $type eq 'merged_list' ) {
             my $value = $data->{$key};
             if ($value ne $defaults->{$key}) {
                 $data->{$key} = join("\n", split( /\s*,\s*/, $value));
@@ -107,7 +116,7 @@ sub cleanupBeforeCommit {
         if (exists $Doc_Config{$doc_section} ) {
             my $doc = $Doc_Config{$doc_section};
             my $type = $doc->{type} || "text";
-            if($type eq 'list' || $type eq 'merged_list' ) {
+            if($type eq 'list' || $type eq 'merged_list' || $type eq 'fingerbank_select') {
                 my $value = $assignment->{$key};
                 $assignment->{$key} = join(",",split( /\v+/, $value )) if $value;
             }
@@ -126,7 +135,7 @@ sub commit {
     return ( $result, $error );
 }
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
 

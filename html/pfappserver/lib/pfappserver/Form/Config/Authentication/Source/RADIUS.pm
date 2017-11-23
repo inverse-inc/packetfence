@@ -31,7 +31,7 @@ has_field 'port' =>
   );
 has_field 'secret' =>
   (
-   type => 'Password',
+   type => 'ObfuscatedText',
    label => 'Secret',
    required => 1,
   );
@@ -41,16 +41,6 @@ has_field 'timeout' =>
    label => 'Timeout',
    element_class => ['input-mini'],
    element_attr => {'placeholder' => '1'},
-  );
-has_field 'stripped_user_name' =>
-  (
-   type            => 'Toggle',
-   checkbox_value  => 'yes',
-   unchecked_value => 'no',
-   default         => 'yes',
-   label           => 'Use stripped username ',
-   tags => { after_element => \&help,
-             help => 'Use stripped username returned by RADIUS to test the following rules.' },
   );
 
 =head1 COPYRIGHT
@@ -76,5 +66,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

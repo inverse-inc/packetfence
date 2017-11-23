@@ -42,18 +42,12 @@ Catalyst Controller.
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
     my $request = $c->request;
-    my $code    = $request->param('code');
-    my $logger  = $c->log;
-    if ( defined $code ) {
-        $c->forward( 'code', [$code] );
-    } else {
-        $self->showError($c,"An activation code is required");
-        $c->detach;
-    }
+    $self->showError($c,"An type and activation code is required");
+    $c->detach;
 }
 
-sub code : Path : Args(1) {
-    my ( $self, $c, $code ) = @_;
+sub code : Path : Args(2) {
+    my ( $self, $c, $type, $code ) = @_;
     my $portalSession = $c->portalSession;
     my $profile       = $c->profile;
     my $node_mac;
@@ -61,15 +55,12 @@ sub code : Path : Args(1) {
     my $logger  = $c->log;
 
     # validate code
-    my $activation_record = pf::activation::validate_code($code);
+    my $activation_record = pf::activation::validate_code($type, $code);
     if (  !defined($activation_record)
         || ref($activation_record) ne 'HASH'
         || !defined( $activation_record->{'type'} ) ) {
 
-        $self->showError($c,
-                "The activation code provided is invalid."
-              . " Reasons could be: it never existed, it was already used or has expired."
-        );
+        $self->showError($c,"The activation code provided is invalid. Reasons could be: it never existed, it was already used or has expired.");
         $c->detach;
     }
 
@@ -87,7 +78,7 @@ sub code : Path : Args(1) {
         if($unregdate) {
             get_logger->info("Extending duration to $unregdate");
             node_modify($node_mac, unregdate => $unregdate);
-            pf::activation::set_status_verified($code);
+            pf::activation::set_status_verified($GUEST_ACTIVATION, $code);
             $c->stash(
                 title => "Access granted",
                 template => "activation/email.html",
@@ -212,11 +203,11 @@ sub doSponsorRegistration : Private {
 
             # username
             $info{'pid'} = $pid;
-            $info{'cc'} = $source->{sponsorship_cc};
+            $info{'bcc'} = $source->{sponsorship_bcc};
 
             # we create a password using the actions from the sponsor authentication source;
             # NOTE: When sponsoring a network access, the new user will be created (in the password table) using
-            # the actions of the sponsor authentication source of the portal profile on which the *sponsor* has landed.
+            # the actions of the sponsor authentication source of the connection profile on which the *sponsor* has landed.
             my $actions = pf::authentication::match( $source->{id}, { username => $pid, user_email => $pid } );
             $info{'password'} =
               pf::password::generate( $pid, $actions );
@@ -225,7 +216,7 @@ sub doSponsorRegistration : Private {
                 \%info );
         }
 
-        pf::activation::set_status_verified($code);
+        pf::activation::set_status_verified($SPONSOR_ACTIVATION, $code);
 
         # send to a success page
         $c->stash(
@@ -237,7 +228,7 @@ sub doSponsorRegistration : Private {
         $logger->warn( "No active sponsor source for profile "
               . $profile->getName
         );
-        $self->showError("No active sponsor source for this Portal Profile.");
+        $self->showError("No active sponsor source for this Connection Profile.");
     }
 }
 
@@ -268,7 +259,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;
 

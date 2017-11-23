@@ -56,6 +56,7 @@ our (
     $ui_config_file, $floating_devices_file, $log_config_file,
     @stored_config_files, @log_files,
     $provisioning_config_file,
+    $device_registration_config_file,
     $admin_roles_config_file,
     $wrix_config_file,
     $firewall_sso_config_file,
@@ -68,7 +69,7 @@ our (
     $log_conf_dir,
     $vlan_filters_config_file, $vlan_filters_config_default_file,
     $pfcmd_binary,
-    $report_config_file,
+    $report_config_file, $report_default_config_file,
     $realm_config_file, $realm_default_config_file,
     $cluster_config_file,
     $server_cert, $server_key, $server_pem,
@@ -82,8 +83,11 @@ our (
     $radius_filters_config_file,
     $billing_tiers_config_file,
     $dhcp_filters_config_file,
+    $roles_config_file,
+    $roles_default_config_file,
     $dns_filters_config_file, $dns_filters_default_config_file,
     $admin_audit_log,
+    $violation_log,
     $portal_modules_config_file, $portal_modules_default_config_file,
     $captiveportal_templates_path,
     $captiveportal_profile_templates_path,
@@ -92,6 +96,8 @@ our (
     $pffilter_socket_path,
     $control_dir,
     $switch_control_dir,
+    $pfmon_config_file, $pfmon_default_config_file,
+    $switch_filters_config_file,
 );
 
 BEGIN {
@@ -121,6 +127,7 @@ BEGIN {
         $ui_config_file $floating_devices_file $log_config_file
         @stored_config_files @log_files
         $provisioning_config_file
+        $device_registration_config_file
         $admin_roles_config_file
         $wrix_config_file
         @stored_config_files
@@ -134,7 +141,7 @@ BEGIN {
         $log_conf_dir
         $vlan_filters_config_file $vlan_filters_config_default_file
         $pfcmd_binary
-        $report_config_file
+        $report_config_file $report_default_config_file
         $realm_config_file $realm_default_config_file
         $cluster_config_file
         $server_cert $server_key $server_pem
@@ -148,8 +155,11 @@ BEGIN {
         $radius_filters_config_file
         $billing_tiers_config_file
         $dhcp_filters_config_file
+        $roles_config_file
+        $roles_default_config_file
         $dns_filters_config_file $dns_filters_default_config_file
         $admin_audit_log
+        $violation_log
         $portal_modules_config_file $portal_modules_default_config_file
         $captiveportal_templates_path
         $captiveportal_profile_templates_path
@@ -158,6 +168,8 @@ BEGIN {
         $pffilter_socket_path
         $control_dir
         $switch_control_dir
+        $pfmon_config_file $pfmon_default_config_file
+        $switch_filters_config_file
     );
 }
 
@@ -196,6 +208,7 @@ $chi_config_file    = catfile($conf_dir, "chi.conf");
 $chi_defaults_config_file = catfile($conf_dir, "chi.conf.defaults");
 $log_config_file    = catfile($conf_dir, "log.conf");
 $provisioning_config_file = catfile($conf_dir, 'provisioning.conf');
+$device_registration_config_file = catfile($conf_dir,"device_registration.conf");
 $pki_provider_config_file  = catfile($conf_dir,"pki_provider.conf");
 
 $network_config_file    = catfile($conf_dir, "networks.conf");
@@ -222,6 +235,7 @@ $firewall_sso_config_file =  catfile($conf_dir,"firewall_sso.conf");
 $pfdetect_config_file =  catfile($conf_dir,"pfdetect.conf");
 $pfqueue_config_file =  catfile($conf_dir,"pfqueue.conf");
 $report_config_file = catfile($conf_dir,"report.conf");
+$report_default_config_file = catfile($conf_dir,"report.conf.defaults");
 $pfqueue_default_config_file =  catfile($conf_dir,"pfqueue.conf.defaults");
 $realm_config_file = catfile($conf_dir,"realm.conf");
 $realm_default_config_file = catfile($conf_dir,"realm.conf.defaults");
@@ -239,11 +253,17 @@ $wmi_config_file = catfile($conf_dir,"wmi.conf");
 $radius_filters_config_file = catfile($conf_dir,"radius_filters.conf");
 $billing_tiers_config_file = catfile($conf_dir,"billing_tiers.conf");
 $dhcp_filters_config_file = catfile($conf_dir,"dhcp_filters.conf");
+$roles_config_file = catfile($conf_dir,"roles.conf");
+$roles_default_config_file = catfile($conf_dir,"roles.conf.defaults");
 $dns_filters_config_file = catfile($conf_dir,"dns_filters.conf");
 $dns_filters_default_config_file = catfile($conf_dir,"dns_filters.conf.defaults");
 $admin_audit_log = catfile($log_dir, "httpd.admin.audit.log");
+$violation_log = catfile($log_dir, "violation.log");
 $portal_modules_config_file = catfile($conf_dir,"portal_modules.conf");
 $portal_modules_default_config_file = catfile($conf_dir,"portal_modules.conf.defaults");
+$pfmon_config_file = catfile($conf_dir,"pfmon.conf");
+$pfmon_default_config_file = catfile($conf_dir,"pfmon.conf.defaults");
+$switch_filters_config_file = catfile($conf_dir,"switch_filters.conf"); 
 
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
@@ -274,13 +294,17 @@ $captiveportal_default_profile_templates_path = catdir ($captiveportal_profile_t
     $chi_config_file,$allowed_device_oui_file,$allowed_device_types_file,
     $chi_defaults_config_file,
     $ui_config_file,$provisioning_config_file,$oauth_ip_file,$log_config_file,
+    $device_registration_config_file,
     $admin_roles_config_file,$wrix_config_file,$apache_filters_config_file,
     $vlan_filters_config_file,$vlan_filters_config_default_file,$firewall_sso_config_file,$scan_config_file,
     $wmi_config_file,$pfdetect_config_file,$pfqueue_config_file,
     $pki_provider_config_file,
     $radius_filters_config_file,
     $dhcp_filters_config_file,
+    $roles_config_file,
     $dns_filters_config_file,
+    $pfmon_config_file,
+    $switch_filters_config_file,
 );
 
 $pffilter_socket_path = catfile($var_dir, "run/pffilter.sock");

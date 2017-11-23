@@ -20,11 +20,11 @@
                   <td>[% rule.field('class').value %]</td>
                   <td>[% rule.field('description').value %]</td>
                   <td class="action">
-                    <a class="btn-icon" href="#delete"><i class="icon-minus-sign"></i></a>
+                    <a class="btn-icon" href="#delete"><i class="icon-minus-circle"></i></a>
                   </td>
                 </tr>
                 [% END %]
-                <tr><td colspan="4"><!-- allow dnd to the bottom of the table --></td></tr>
+                <tr><td colspan="5"><!-- allow dnd to the bottom of the table --></td></tr>
               </tbody>
             </table>
             [% END %]

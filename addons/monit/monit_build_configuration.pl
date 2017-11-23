@@ -6,6 +6,7 @@ use warnings;
 use File::Copy;
 use File::Spec::Functions;
 use Template;
+use List::MoreUtils qw(any);
 
 BEGIN {
     use lib "/usr/local/pf/lib";
@@ -34,7 +35,7 @@ my $MONIT_PATH  = ( $OS eq "rhel" ) ? "/etc/monit.d" : "/etc/monit/conf.d";
 
 
 if ( $#ARGV eq "-1" ) {
-    print "Usage: ./monit_configuration_builder.pl 'email(s)' 'subject' 'configurations'\n\n";
+    print "Usage: ./monit_configuration_builder.pl 'email(s)' 'subject' 'configurations' 'mailserver'\n\n";
     print "email(s): List of alerting email address(es) (comma-separated if more than one)\n";
     print "subject: Identifier for email alerts\n";
     print "configurations: List of configuration to generate (comma-separated if more than one)\n";
@@ -44,13 +45,15 @@ if ( $#ARGV eq "-1" ) {
     print "  - active-active: Will add some checks for active-active clustering related services\n";
     print "  - os-winbind: Will add a check for the operating system winbindd process. Use it when the winbind/samba configuration is made outside PacketFence\n";
     print "  - os-checks: Will add some OS best-practices checks\n";
+    print "mailserver: IP or resolvable FQDN of the mail server to use to send alerts (optional)\n";
     die "\n";
 }
 
-my ( $emails, $subject_identifier, $configurations ) = @ARGV;
+my ( $emails, $subject_identifier, $configurations, $mailserver ) = @ARGV;
 die "No alerting email address(es) specified\n" if !defined $emails;
 die "No alerting subject specified\n" if !defined $subject_identifier;
 die "No configuration(s) specified\n" if !defined $configurations;
+$mailserver = "localhost" if !defined $mailserver;
 
 
 my @emails = split(/\,/, $emails);
@@ -76,12 +79,11 @@ Will also take care of backing up existing file (.bak) before overwritting
 =cut
 
 sub generate_monit_configurations {
-    my $syslog_engine = ( $OS eq "rhel" ) ? "syslog" : "rsyslog";
-
     my $vars = {
         MONIT_LOG_FILE      => $MONIT_LOG_FILE,
         EMAILS              => \@emails,
         SUBJECT_IDENTIFIER  => $subject_identifier,
+        MAILSERVER          => $mailserver,
     };
     my $tt = Template->new(ABSOLUTE => 1);
     my $template_file;
@@ -97,11 +99,11 @@ sub generate_monit_configurations {
         print "Generating '$backup_file' (BACKED UP FILE)\n";
     }
     $tt->process($template_file, $vars, $destination_file) or die $tt->error();
-    print "\n/!\\ -> Applied Monit configuration. You might want to restart Monit for the change to take place\n\n";
+    print "\n/!\\ -> Applied 'Monit' configuration. You might want to restart it for the change to take place\n\n";
 
     # Syslog configuration
     $template_file = catfile($MONIT_CONF_TEMPLATES_PATH, "syslog_monit" . $TEMPLATE_FILE_EXTENSION);
-    $destination_file = "/etc/$syslog_engine.d/monit.conf";
+    $destination_file = "/etc/rsyslog.d/monit.conf";
     print "Generating '$destination_file'\n";
     if ( -e $destination_file ) {
         my $backup_file = catfile($MONIT_PATH, "syslog_monit" . $CONF_FILE_EXTENSION . $BACKUP_FILE_EXTENSION);
@@ -110,7 +112,8 @@ sub generate_monit_configurations {
     }
     $tt->process($template_file, $vars, $destination_file) or die $tt->error();
     unlink "$MONIT_PATH/logging"; # Remove default Monit logging configuration file
-    print "\n/!\\ -> Applied $syslog_engine configuration. You might want to restart $syslog_engine for the change to take place\n\n";
+    system("/bin/systemctl restart rsyslog");
+    print "\n/!\\ -> Applied 'rsyslog' configuration and restarted it for the new configuration to take place.\n\n";
 }
 
 
@@ -150,10 +153,12 @@ sub generate_specific_configurations {
             FREERADIUS_BIN      => $freeradius_bin,
             EMAILS              => \@emails,
             SUBJECT_IDENTIFIER  => $subject_identifier,
+            MAILSERVER          => $mailserver,
             DOMAINS             => $domains,
             MAIL_BIN            => $mail_bin,
             SERVICE_BIN         => $service_bin,
             WINBINDD_PID        => $winbindd_pid,
+            ACTIVE_ACTIVE       => (any { $_ eq 'active-active' } @configurations),
         };
         $tt->process($template_file, $vars, $destination_file) or die $tt->error();
     }

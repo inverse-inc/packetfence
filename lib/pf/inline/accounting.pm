@@ -96,7 +96,7 @@ sub accounting_db_prepare {
     $accounting_statements->{'accounting_select_node_bandwidth_balance_sql'} =
       get_db_handle()->prepare(qq[
         SELECT DISTINCT n.mac, i.ip, n.bandwidth_balance, COALESCE((a.outbytes + a.inbytes), 0) as bandwidth_consumed
-        FROM node n, iplog i
+        FROM node n, ip4log i
         LEFT JOIN $accounting_table a ON i.ip = a.ip AND a.status = $ACTIVE
         WHERE n.mac = i.mac
           AND n.status = "$pf::node::STATUS_REGISTERED"
@@ -110,7 +110,7 @@ sub accounting_db_prepare {
         UPDATE node n SET n.bandwidth_balance = n.bandwidth_balance -
           COALESCE(
             (SELECT SUM(a.outbytes+a.inbytes)
-             FROM $accounting_table a, iplog i
+             FROM $accounting_table a, ip4log i
              WHERE a.ip = i.ip
                AND i.end_time = 0
                AND i.mac = n.mac

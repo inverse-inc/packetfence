@@ -1,4 +1,9 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
 $(function () {
+    /* Load localized labels */
+    var labels = document.getElementById('labels');
+    window.labels = JSON.parse(labels.textContent || labels.innerHTML);
+
     /* Activate toggle buttons */
     $('body').on(
         {'mouseenter': function(event) {
@@ -54,7 +59,7 @@ $(function () {
     $('body').on('blur', 'input[data-required]', function() {
         isFormInputEmpty($(this));
     });
-    $('body').on('changeDate', 'input.datepicker[data-required]', function() {
+    $('body').on('changeDate', '.input-date[data-required]', function() {
         isFormInputEmpty($(this));
     });
 
@@ -79,9 +84,9 @@ function getStatusMsg(jqXHR) {
     return status_msg;
 }
 
-function resetAlert(parent) {
-    parent.children('.alert').clearQueue().remove();
-    parent.children('.error').removeClass('error');
+function resetAlert(p) {
+    p.find('.alert').clearQueue().remove();
+    p.find('.error').removeClass('error');
 }
 
 
@@ -125,7 +130,16 @@ function showError(sibling, msg, permanent, time) {
         var form = sibling.closest('form');
         $.each(msg, function(name, error) {
             var input = form.find('[name="' + name + '"]');
-            var control = input.closest('.control-group');
+            var control;
+            if (input.length) {
+                control = input.closest('.control-group');
+            } else {
+                control = form.find('[id="' + name + '"].control-group:not(.hidden)');
+            }
+            if (!control.length) {
+                var label = form.find('.control-group:not(.hidden) > label[for="' + name + '"].control-label');
+                control = label.closest('.control-group');
+            }
             control.addClass('error');
             showTab(control, input);
             showCollapse(input);
@@ -153,13 +167,13 @@ function isFormInputEmpty(input) {
     var value;
 
     if (input.attr('data-toggle') == 'buttons-radio')
-        value = input.find('.active').length == 0? null : 1;
+        value = input.find('.active').length === 0? null : 1;
     else
         value = input.val();
 
-    if (value == null
-        || typeof value == 'string' && $.trim(value).length == 0
-        || value.length == 0) {
+    if (value === null ||
+        typeof value == 'string' && $.trim(value).length === 0 ||
+        value.length === 0) {
         control.addClass('error');
         empty = true;
 

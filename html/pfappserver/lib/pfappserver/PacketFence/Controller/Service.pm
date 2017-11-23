@@ -55,6 +55,7 @@ sub service :Chained('/') :PathPart('service') :CaptureArgs(1) {
 sub status :Chained('service') :PathPart('') :Args(0) :AdminRole('SERVICES') {
     my ($self, $c) = @_;
     $self->_process_model_results($c, $c->stash->{model}->status);
+    $c->stash->{'server_hostname'}  = $c->model('Admin')->server_hostname();
 }
 
 =head2 cluster_status
@@ -213,6 +214,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

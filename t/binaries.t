@@ -12,7 +12,15 @@ Compile check on perl binaries
 use strict;
 use warnings;
 
+
+our $jobs;
+
+BEGIN {
+    $jobs = $ENV{'PF_SMOKE_TEST_JOBS'} || 6;
+}
+
 use Test::More;
+use Test::ParallelSubtest max_parallel => $jobs;
 use Test::NoWarnings;
 
 BEGIN {
@@ -32,9 +40,12 @@ plan tests => scalar @binaries * 1 + 1;
 foreach my $current_binary (@binaries) {
     my $flags = '-I/usr/local/pf/t -Mtest_paths';
     if ($current_binary =~ m#/usr/local/pf/bin/pfcmd\.pl#) {
-        $flags = '-T';
+        $flags .= ' -T';
     }
-    is( system("/usr/bin/perl $flags -c $current_binary 2>&1"), 0, "$current_binary compiles" );
+    bg_subtest "$current_binary" => sub {
+        plan tests => 1;
+        is( system("/usr/bin/perl $flags -c $current_binary 2>&1"), 0, "$current_binary compiles" );
+    };
 }
 
 =head1 AUTHOR

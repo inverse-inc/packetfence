@@ -29,6 +29,7 @@ Readonly::Scalar our $FIREWALL_TYPES => [
     "Iboss",
     "PaloAlto",
     "WatchGuard",
+    "JSONRPC",
 ];
 
 =head1 AUTHOR

@@ -3,10 +3,11 @@ package firewallsso
 import (
 	"context"
 	"fmt"
-	"github.com/fingerbank/processor/log"
-	"github.com/fingerbank/processor/sharedutils"
-	"layeh.com/radius"
 	"net"
+
+	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
+	"github.com/julsemaan/radius"
 )
 
 type WatchGuard struct {

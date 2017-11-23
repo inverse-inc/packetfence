@@ -14,6 +14,7 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Authentication::Source';
 with 'pfappserver::Base::Form::Role::Help';
 
+use pfappserver::Form::Field::Duration;
 use pf::Authentication::Source::SponsorEmailSource;
 
 # Form fields
@@ -56,7 +57,7 @@ has_field 'local_account_logins' => (
     default => pf::Authentication::Source::SponsorEmailSource->meta->get_attribute('local_account_logins')->default,
     tags => {
         after_element => \&help_list,
-        help => 'The amount of times, the local account can be used after its created. 0 means infinite.'
+        help => 'The amount of times, the local account can be used after it is created. 0 means infinite.'
     },
 );
 
@@ -67,17 +68,17 @@ has_field 'activation_domain' =>
    required => 0,
     tags => {
         after_element => \&help,
-        help => 'Set this value if you want to change the hostname in the validation link.',
+        help => 'Set this value if you want to change the hostname in the validation link. Changing this requires to restart haproxy.',
     },
   );
 
-has_field 'sponsorship_cc' => (
+has_field 'sponsorship_bcc' => (
     type        => 'Text',
-    label       => 'Sponsorship CC',
+    label       => 'Sponsorship BCC',
     required    => 0,
     tags        => {
         after_element   => \&help,
-        help            => "Sponsors requesting access and access confirmation emails are CC'ed to this address. Multiple destinations can be comma separated.",
+        help            => "Sponsors requesting access and access confirmation emails are BCC'ed to this address. Multiple destinations can be comma separated.",
     },
 );
 
@@ -104,5 +105,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

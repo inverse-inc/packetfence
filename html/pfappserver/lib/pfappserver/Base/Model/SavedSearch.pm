@@ -15,7 +15,7 @@ use Moose;
 
 extends 'pfappserver::Base::Model::SavedSearch';
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head2 Methods
 
@@ -53,6 +53,9 @@ Create a new saved search
 sub create {
     my ($self,$id,$saved_search) = @_;
     $saved_search->{namespace} = $self->namespace;
+    if (savedsearch_name_taken($saved_search)) {
+        return ($STATUS::INTERNAL_SERVER_ERROR, "name is already taken");
+    }
     if( savedsearch_add($saved_search) ) {
         return ($STATUS::OK,"");
     } else {
@@ -133,7 +136,7 @@ sub _expand_query {
     return $saved_search;
 }
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =back
 

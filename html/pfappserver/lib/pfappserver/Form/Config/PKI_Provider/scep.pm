@@ -53,7 +53,7 @@ has_field 'username' =>
 
 has_field 'password' =>
   (
-   type => 'Password',
+   type => 'ObfuscatedText',
    tags => { after_element => \&help,
              help => 'Password for the username filled in above'},
   );
@@ -120,9 +120,19 @@ has_field 'cn_attribute' =>
              help => 'Defines what attribute of the node to use as the common name during the certificate generation.' },
   );
 
+has_field 'cn_format' => (
+    type    => 'Text',
+    label   => 'Common Name Format',
+    default => '%s',
+    tags    => {
+        after_element   => \&help,
+        help            => 'Defines how the common name will be formated. %s will expand to the defined Common Name Attribute value',
+    },
+);
+
 has_block definition =>
   (
-    render_list => [qw(type url username password country state locality organization organizational_unit cn_attribute ca_cert_path server_cert_path)],
+    render_list => [qw(type url username password country state locality organization organizational_unit cn_attribute cn_format ca_cert_path server_cert_path)],
   );
 
 =head1 COPYRIGHT
@@ -148,5 +158,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

@@ -27,6 +27,7 @@ use pf::util::statsd qw(called);
 
 use Moose;
 extends 'pf::Authentication::Source';
+with qw(pf::Authentication::InternalRole);
 
 # available encryption
 use constant {
@@ -57,7 +58,6 @@ has 'password' => (isa => 'Maybe[Str]', is => 'rw');
 has 'encryption' => (isa => 'Str', is => 'rw', required => 1);
 has 'scope' => (isa => 'Str', is => 'rw', required => 1);
 has 'usernameattribute' => (isa => 'Str', is => 'rw', required => 1);
-has 'stripped_user_name' => (isa => 'Str', is => 'rw', default => 'yes');
 has '_cached_connection' => (is => 'rw');
 has 'cache_match' => ( isa => 'Bool', is => 'rw', default => 0 );
 has 'email_attribute' => (isa => 'Maybe[Str]', is => 'rw', default => 'mail');
@@ -83,8 +83,7 @@ sub available_attributes {
   my $self = shift;
 
   my $super_attributes = $self->SUPER::available_attributes;
-  my @attributes = @{$Config{advanced}->{ldap_attributes}};
-  my @ldap_attributes = map { { value => $_, type => $Conditions::LDAP_ATTRIBUTE } } @attributes;
+  my @ldap_attributes = $self->ldap_attributes;
 
   # We check if our username attribute is present, if not we add it.
   if (not grep {$_->{value} eq $self->{'usernameattribute'} } @ldap_attributes ) {
@@ -92,6 +91,17 @@ sub available_attributes {
   }
 
   return [@$super_attributes, sort { $a->{value} cmp $b->{value} } @ldap_attributes];
+}
+
+=head2 ldap_attributes
+
+get the ldap attributes
+
+=cut
+
+sub ldap_attributes {
+    my ($self) = @_;
+    return map { { value => $_, type => $Conditions::LDAP_ATTRIBUTE } } @{$Config{advanced}->{ldap_attributes}};
 }
 
 =head2 authenticate
@@ -170,7 +180,7 @@ sub _connect {
   my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}", level => 7});
   my $connection;
   my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
+  my ($LDAPServer, $LDAPServerPort);
   my @LDAPServers = split(/\s*,\s*/, $self->{'host'});
   # uncomment the next line if you want the servers to be tried in random order
   # to spread out the connections amongst a set of servers
@@ -181,11 +191,12 @@ sub _connect {
   }
 
   TRYSERVER:
-  foreach my $LDAPServer ( @LDAPServers ) {
+  foreach my $s (@LDAPServers) {
+    $LDAPServer = $s;
+    $LDAPServerPort = undef;
     # check to see if the hostname includes a port (e.g. server:port)
-    my $LDAPServerPort;
-    if ( $LDAPServer =~ /:/ ) {
-        $LDAPServerPort = ( split(/:/,$LDAPServer) )[-1];
+    if ($LDAPServer =~ /:/) {
+        $LDAPServerPort = (split(/:/, $LDAPServer))[-1];
     }
     $LDAPServerPort //=  $self->{'port'} ;
     $connection = pf::LDAP->new(
@@ -210,35 +221,9 @@ sub _connect {
     $logger->error("[$self->{'id'}] Unable to connect to any LDAP server");
     $pf::StatsD::statsd->increment("${timer_stat_prefix}.error.count" );
   }
-  return undef;
+  return (undef, $LDAPServer, $LDAPServerPort);
 }
 
-
-=head2 match
-
-    Overrided to add caching to avoid a hit to the database
-
-=cut
-
-our @KEYS_FOR_MATCHING = qw(
-    SSID connection_type rule_class username
-);
-
-sub match {
-    my ($self, $params) = @_;
-    my $timer_stat_prefix = called() . "." .  $self->{'id'};
-    my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}"});
-    if($self->is_match_cacheable) {
-        my $result = $self->cache->compute_with_undef([$self->id, @{$params}{@KEYS_FOR_MATCHING}], sub {
-                $pf::StatsD::statsd->increment(called() . "." . $self->id. ".cache_miss.count" );
-                my $result =   $self->SUPER::match($params);
-                return $result;
-            });
-        return $result;
-    }
-    my $result = $self->SUPER::match($params);
-    return $result;
-}
 
 =head2 cache
 
@@ -250,28 +235,33 @@ sub cache {
     return pf::CHI->new( namespace => 'ldap_auth');
 }
 
-=head2 is_match_cacheable
 
-Checks to see if the match can be cached
+=head2 match_in_subclass
+
+match_in_subclass
 
 =cut
 
-sub is_match_cacheable {
-    my ($self) = @_;
-    #First check to see caching is disabled to see if we can exit quickly
-    return 0 unless $self->cache_match;
-    #Check rules for timed based operations return false first one found
-    foreach my $rule (@{$self->{rules}}) {
-        foreach my $condition (@{$rule->{conditions}}) {
-            my $op = $condition->{operator};
-            return 0 if $op eq $Conditions::IS_BEFORE || $op eq $Conditions::IS_AFTER;
-        }
+sub match_in_subclass {
+    my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
+    my $filter = $self->ldap_filter_for_conditions($own_conditions, $rule->match, $self->{'usernameattribute'}, $params);
+    my $id = $self->id;
+    if (! defined($filter)) {
+        $logger->error("[$id] Missing parameters to construct LDAP filter");
+        $pf::StatsD::statsd->increment(called() . "." . $id . ".error.count" );
+        return undef;
     }
-    return $self->cache_match;
+    my $rule_id = $rule->id;
+    $logger->debug("[$id $rule_id] Searching for $filter, from $self->{'basedn'}, with scope $self->{'scope'}");
+    if ($self->cache_match) {
+        return $self->cache->compute_with_undef("$id:$rule_id:$filter", sub {
+            return $self->_match_in_subclass($filter, $params, $rule, $own_conditions, $matching_conditions);
+        });
+    }
+    return $self->_match_in_subclass($filter, $params, $rule, $own_conditions, $matching_conditions);
 }
 
-
-=head2 match_in_subclass
+=head2 _match_in_subclass
 
 C<$params> are the parameters gathered at authentication (username, SSID, connection type, etc).
 
@@ -283,8 +273,8 @@ Conditions that match are added to C<$matching_conditions>.
 
 =cut
 
-sub match_in_subclass {
-    my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
+sub _match_in_subclass {
+    my ($self, $filter, $params, $rule, $own_conditions, $matching_conditions) = @_;
     my $timer_stat_prefix = called() . "." .  $self->{'id'};
     my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}",  level => 6});
 
@@ -295,13 +285,6 @@ sub match_in_subclass {
     my ( $connection, $LDAPServer, $LDAPServerPort ) = @$cached_connection;
 
 
-    my $filter = $self->ldap_filter_for_conditions($own_conditions, $rule->match, $self->{'usernameattribute'}, $params);
-    if (! defined($filter)) {
-        $logger->error("[$self->{'id'}] Missing parameters to construct LDAP filter");
-        $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".error.count" );
-        return undef;
-    }
-    $logger->debug("[$self->{'id'} $rule->{'id'}] Searching for $filter, from $self->{'basedn'}, with scope $self->{'scope'}");
 
     my @attributes = map { $_->{'attribute'} } @{$own_conditions};
     my $result = do {
@@ -406,24 +389,26 @@ sub test {
 
   # Connect
   my ( $connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
+  my $id = $self->{id};
 
-  if (! defined($connection)) {
-    $logger->warn("[$self->{'id'}] Unable to connect to any LDAP server");
-    return ($FALSE, "Can't connect to server or bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
+  if (!defined($connection)) {
+    my $binddn = $self->{'binddn'} // '';
+    $logger->warn("[$id] Unable to connect to any LDAP server");
+    return ($FALSE, "Can't connect to server or bind with '$binddn' on $LDAPServer:$LDAPServerPort");
   }
-
+  my $base = $self->{basedn};
   # Search
   my $filter = "($self->{'usernameattribute'}=packetfence)";
   my $result = $connection->search(
-    base => $self->{'basedn'},
+    base => $base,
     filter => $filter,
     scope => $self->{'scope'},
     attrs => ['dn'],
-    sizelimit => 1
+    sizelimit => 1,
   );
 
   if ($result->is_error) {
-      $logger->warn("[$self->{'id'}] Unable to execute search $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort: ".$result->error);
+      $logger->warn("[$id] Unable to execute search $filter from '$base' on $LDAPServer:$LDAPServerPort: " . ($result->error // '' ));
       return ($FALSE, 'Wrong base DN or username attribute');
   }
 
@@ -514,14 +499,17 @@ sub search_attributes_in_subclass {
                   base => $self->{'basedn'},
                   filter => "($self->{'usernameattribute'}=$username)"
     );
+    if ($searchresult->is_error()) {
+      $logger->error("Unable to locate user '$username'");
+      return ($FALSE, $COMMUNICATION_ERROR_MSG);
+    }
+    if ($searchresult->count == 0) {
+      $logger->error("Unable to locate user '$username'");
+      return ($FALSE, $COMMUNICATION_ERROR_MSG);
+    }
     my $entry = $searchresult->entry();
 
-    if (!$entry) {
-        $logger->warn("Unable to locate user '$username'");
-    }
-    else {
-         $logger->info("User: '$username' found in the directory");
-    }
+    $logger->info("User: '$username' found in the directory");
 
     my $info = {};
     foreach my $attrs (keys %ATTRIBUTES_MAP){
@@ -592,7 +580,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;
 
 # vim: set shiftwidth=4:

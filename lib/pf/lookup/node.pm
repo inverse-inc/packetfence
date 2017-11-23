@@ -27,7 +27,6 @@ use pf::config;
 use pf::ip4log;
 use pf::locationlog;
 use pf::node;
-use pf::useragent qw(node_useragent_view);
 use pf::util;
 
 sub lookup_node {
@@ -41,23 +40,23 @@ sub lookup_node {
         $return .= "MAC Address    : $mac\n";
 
         # fetch IP and DHCP information
-        my $node_iplog_info = pf::ip4log::view($mac);
-        if (defined($node_iplog_info->{'ip'})) {
+        my $node_ip4log_info = pf::ip4log::view($mac);
+        if (defined($node_ip4log_info->{'ip'})) {
 
-            $return .= "IP Address     : ".$node_iplog_info->{'ip'}." (active)\n";
-            $return .= "IP Info        : IP active since " . $node_iplog_info->{'start_time'};
-            if ($node_iplog_info->{'end_time'} ne '0000-00-00 00:00:00') {
-                $return .= " and DHCP lease valid until ".$node_iplog_info->{'end_time'};
+            $return .= "IP Address     : ".$node_ip4log_info->{'ip'}." (active)\n";
+            $return .= "IP Info        : IP active since " . $node_ip4log_info->{'start_time'};
+            if ($node_ip4log_info->{'end_time'} ne '0000-00-00 00:00:00') {
+                $return .= " and DHCP lease valid until ".$node_ip4log_info->{'end_time'};
             }
             $return .= "\n";
             
         } else {
-            my @node_iplog_history_info = pf::ip4log::get_history($mac);
-            if (ref($node_iplog_history_info[0]) eq 'HASH' && defined($node_iplog_history_info[0]->{'ip'})) {
-                my $latest_iplog = $node_iplog_history_info[0];
-                $return .= "IP Address     : ".$latest_iplog->{'ip'}." (inactive)\n";
-                $return .= "IP Info        : IP was last seen active between " . $latest_iplog->{'start_time'} .
-                           " and ". $latest_iplog->{'end_time'} . "\n";
+            my @node_ip4log_history_info = pf::ip4log::get_history($mac);
+            if (ref($node_ip4log_history_info[0]) eq 'HASH' && defined($node_ip4log_history_info[0]->{'ip'})) {
+                my $latest_ip4log = $node_ip4log_history_info[0];
+                $return .= "IP Address     : ".$latest_ip4log->{'ip'}." (inactive)\n";
+                $return .= "IP Info        : IP was last seen active between " . $latest_ip4log->{'start_time'} .
+                           " and ". $latest_ip4log->{'end_time'} . "\n";
             } else {
                 $return .= "IP Address     : Unknown\n";
                 $return .= "IP Info        : No IP information available\n";
@@ -93,16 +92,20 @@ sub lookup_node {
         my $voip = $node_info->{'voip'};
         $return .= "VoIP           : $voip\n" if ($voip);
 
-        $return .= "\nNODE USER-AGENT INFORMATION\n";
-        $return .= "Raw User-Agent : " . $node_info->{'user_agent'} . "\n" if ( $node_info->{'user_agent'} );
-        my $node_useragent = node_useragent_view($mac);
-        if (defined($node_useragent->{'mac'})) {
-            $return .= "Browser        : " . $node_useragent->{'browser'} . "\n" if ( $node_useragent->{'browser'} );
-            $return .= "OS             : " . $node_useragent->{'os'} . "\n" if ( $node_useragent->{'os'} );
-            $return .= "Is a device?   : " . $node_useragent->{'device'} . "\n" if ( $node_useragent->{'device'} );
-            $return .= "Device name    : " . $node_useragent->{'device_name'} . "\n" 
-                if ( $node_useragent->{'device_name'} );
-            $return .= "Is a mobile?   : " . $node_useragent->{'mobile'} . "\n" if ( $node_useragent->{'mobile'} );
+        if($node_info->{device_type}) {
+            $return .= "\n";
+            $return .= "DEVICE PROFILING INFORMATION\n";
+            my $fingerbank_info = pf::node::fingerbank_info($mac, $node_info);
+            if($fingerbank_info) {
+                $return .= "Device: ".$fingerbank_info->{device_fq}."\n"; 
+                $return .= "Device version: ".$fingerbank_info->{version}."\n"; 
+                $return .= "Device profiling confidence level: ".$fingerbank_info->{score}."\n";
+                $return .= "\n";
+            }
+            else {
+                $return .= "Unable to find device profiling informations\n";
+                $return .= "\n";
+            }
         }
 
         $return .= "DHCP Info      : Last DHCP request at ".$node_info->{'last_dhcp'}."\n";
@@ -113,11 +116,12 @@ sub lookup_node {
             # assignments using ternary operator: if exist assign otherwise unknown
             my $port = defined($last_locationlog_entry[0]->{'port'}) ? 
                 $last_locationlog_entry[0]->{'port'} : "UNKNOWN";
+            my $ifDesc = $last_locationlog_entry[0]->{'ifDesc'};
             my $vlan = defined($last_locationlog_entry[0]->{'vlan'}) ? 
                 $last_locationlog_entry[0]->{'vlan'} : "UNKNOWN";
             my $switch = defined($last_locationlog_entry[0]->{'switch'}) ? 
                 $last_locationlog_entry[0]->{'switch'} : "UNKNOWN";
-            $return .= "Location       : port $port (vlan $vlan) on switch $switch\n";
+            $return .= "Location       : port $port".(defined($ifDesc) ? "($ifDesc)" : '' )." (vlan $vlan) on switch $switch\n";
 
             my $con_type = defined($last_locationlog_entry[0]->{'connection_type'}) ?
                 $last_locationlog_entry[0]->{'connection_type'} : "UNKNOWN";

@@ -1,12 +1,12 @@
 =head1 NAME
 
-Test for the pf::Portal::ProfileFactory
+Test for the pf::Connection::ProfileFactory
 
 =cut
 
 =head1 DESCRIPTION
 
-Test for the pf::Portal::ProfileFactory
+Test for the pf::Connection::ProfileFactory
 
 =cut
 
@@ -15,81 +15,86 @@ use warnings;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 18;
+use Test::More tests => 20;
 
 BEGIN {
     #include test libs
     use lib qw(/usr/local/pf/t);
     #Module for overriding configuration paths
     use setup_test_config;
-    use_ok("pf::Portal::ProfileFactory");
+    use_ok("pf::Connection::ProfileFactory");
+    use_ok("pf::dal::node");
 }
 
 
 #This test will running last
 use Test::NoWarnings;
 
-my $profile = pf::Portal::ProfileFactory->instantiate("00:00:00:00:00:00", {});
+my $profile = pf::Connection::ProfileFactory->instantiate("00:00:00:00:00:00", {});
 
 is($profile->getName, "default");
 
-$profile = pf::Portal::ProfileFactory->instantiate("00:00:00:00:00:00", { last_ip => '192.168.2.1'});
+$profile = pf::Connection::ProfileFactory->instantiate("00:00:00:00:00:00", { last_ip => '192.168.2.1'});
 
 is($profile->getName, "network");
 
-$profile = pf::Portal::ProfileFactory->instantiate("00:00:00:00:00:00", { last_switch => '192.168.1.1'});
+$profile = pf::Connection::ProfileFactory->instantiate("00:00:00:00:00:00", { last_switch => '192.168.1.1'});
 
 is($profile->getName, "switch");
 
-$profile = pf::Portal::ProfileFactory->instantiate("00:00:00:00:00:00", { last_switch => '192.168.1.3', last_port => 1});
+$profile = pf::Connection::ProfileFactory->instantiate("00:00:00:00:00:00", { last_switch => '192.168.1.3', last_port => 1});
 
 is($profile->getName, "switch_port");
 
-$profile = pf::Portal::ProfileFactory->instantiate("00:00:00:00:00:00", { last_connection_type => 'wired'});
+$profile = pf::Connection::ProfileFactory->instantiate("00:00:00:00:00:00", { last_connection_type => 'wired'});
 
 is($profile->getName, "connection_type");
 
-$profile = pf::Portal::ProfileFactory->instantiate("00:00:00:00:00:00", { last_ssid => 'SSID'});
+$profile = pf::Connection::ProfileFactory->instantiate("00:00:00:00:00:00", { last_ssid => 'SSID'});
 
 is($profile->getName, "ssid");
 
-$profile = pf::Portal::ProfileFactory->instantiate("00:00:00:00:00:00", { last_port => '2'});
+$profile = pf::Connection::ProfileFactory->instantiate("00:00:00:00:00:00", { last_port => '2'});
 
 is($profile->getName, "port");
 
-$profile = pf::Portal::ProfileFactory->instantiate("00:00:00:00:00:00", { category => 'bob'});
+$profile = pf::Connection::ProfileFactory->instantiate("00:00:00:00:00:00", { category => 'bob'});
 
 is($profile->getName, "node_role");
 
-$profile = pf::Portal::ProfileFactory->instantiate("00:00:00:00:00:00", { last_vlan => 5});
+$profile = pf::Connection::ProfileFactory->instantiate("00:00:00:00:00:00", { last_vlan => 5});
 
 is($profile->getName, "vlan");
 
-$profile = pf::Portal::ProfileFactory->instantiate("00:00:00:00:00:00", { realm => 'magic'});
+$profile = pf::Connection::ProfileFactory->instantiate("00:00:00:00:00:00", { realm => 'magic'});
 
 is($profile->getName, "realm");
 
-$profile = pf::Portal::ProfileFactory->instantiate("00:00:00:00:00:00", { last_uri => 'captivate'});
+$profile = pf::Connection::ProfileFactory->instantiate("00:00:00:00:00:00", { last_uri => 'captivate'});
 
 is($profile->getName, "uri");
 
-$profile = pf::Portal::ProfileFactory->instantiate("00:00:00:00:00:00", { last_ssid => 'ANYORALL', last_connection_type => 'simple' });
+$profile = pf::Connection::ProfileFactory->instantiate("00:00:00:00:00:00", { last_ssid => 'ANYORALL', last_connection_type => 'simple' });
 
 is($profile->getName, "all");
 
-$profile = pf::Portal::ProfileFactory->instantiate("00:00:00:00:00:00", { last_ssid => 'ANYORALL'});
+$profile = pf::Connection::ProfileFactory->instantiate("00:00:00:00:00:00", { last_ssid => 'ANYORALL'});
 
 is($profile->getName, "any");
 
-$profile = pf::Portal::ProfileFactory->instantiate("00:00:00:00:00:00", { last_ssid => 'ANY'});
+$profile = pf::Connection::ProfileFactory->instantiate("00:00:00:00:00:00", { last_ssid => 'ANY'});
 
 is($profile->getName, "any");
 
-$profile = pf::Portal::ProfileFactory->instantiate("00:00:00:00:00:00", { last_switch => '192.168.1.4'});
+$profile = pf::Connection::ProfileFactory->instantiate("00:00:00:00:00:00", { last_switch => '192.168.1.4'});
 
 is($profile->getName, "switches");
 
-$profile = pf::Portal::ProfileFactory->instantiate("00:00:00:00:00:00", { last_switch => '192.168.1.5'});
+$profile = pf::Connection::ProfileFactory->instantiate("00:00:00:00:00:00", { last_switch => '192.168.1.5'});
+
+is($profile->getName, "switches");
+
+$profile = pf::Connection::ProfileFactory->instantiate(pf::dal::node->new({ last_switch => '192.168.1.5'}), {});
 
 is($profile->getName, "switches");
 

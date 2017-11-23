@@ -7,10 +7,14 @@ Wants=packetfence-config.service
 Conflicts=mysql.service mariadb.service
 
 [Service]
-StandardOutput=syslog
+Type=notify
+NotifyAccess=all
+# Setting this to true can break replication and the Type=notify settings
+# See also bind-address mysqld option.
+PrivateNetwork=false
+
 StartLimitBurst=3
-StartLimitInterval=60
-Type=simple
+StartLimitInterval=10
 Slice=packetfence-base.slice
 
 ExecStartPre=/usr/local/pf/bin/pfcmd generatemariadbconfig
@@ -24,6 +28,10 @@ TimeoutSec=300
 
 # Place temp files in a secure directory, not /tmp
 PrivateTmp=true
+
+# Avoid downscaling max_connections on the MySQL instance (214)
+# See https://github.com/inverse-inc/packetfence/issues/2502
+LimitNOFILE=4096
 
 [Install]
 WantedBy=packetfence-base.target

@@ -44,6 +44,7 @@
 -A input-management-if --protocol udp --match udp --dport 1813 --jump ACCEPT
 -A input-management-if --protocol tcp --match tcp --dport 1815 --jump ACCEPT
 -A input-management-if --protocol udp --match udp --dport 1815 --jump ACCEPT
+-A input-management-if --protocol tcp --match tcp --dport 2083 --jump ACCEPT
 # RADIUS (eduroam virtual-server)
 %%eduroam_radius_virtualserver%%
 # SNMP Traps
@@ -79,10 +80,10 @@
 -A input-radius-if --protocol udp --match udp --dport 1813 --jump ACCEPT
 -A input-radius-if --protocol tcp --match tcp --dport 1815 --jump ACCEPT
 -A input-radius-if --protocol udp --match udp --dport 1815 --jump ACCEPT
+-A input-radius-if --protocol tcp --match tcp --dport 2083 --jump ACCEPT
 %%eduroam_radius_listening%%
 
 :input-internal-vlan-if - [0:0]
--A input-internal-vlan-if -m set --match-set portal_deny src --jump REJECT
 # DNS
 -A input-internal-vlan-if --protocol tcp --match tcp --dport 53  --jump ACCEPT
 -A input-internal-vlan-if --protocol udp --match udp --dport 53  --jump ACCEPT
@@ -97,8 +98,23 @@
 -A input-internal-vlan-if --protocol tcp --match tcp --dport 5252 --jump ACCEPT
 %%input_inter_vlan_if%%
 
+
+:input-internal-isol_vlan-if - [0:0]
+# DNS
+-A input-internal-isol_vlan-if --protocol tcp --match tcp --dport 53  --jump ACCEPT
+-A input-internal-isol_vlan-if --protocol udp --match udp --dport 53  --jump ACCEPT
+# DHCP
+-A input-internal-isol_vlan-if --protocol udp --match udp --dport 67  --jump ACCEPT
+-A input-internal-isol_vlan-if --protocol tcp --match tcp --dport 67  --jump ACCEPT
+# HTTP (captive-portal) 
+-A input-internal-isol_vlan-if --protocol tcp --match tcp --dport 80  --jump ACCEPT
+-A input-internal-isol_vlan-if --protocol tcp --match tcp --dport 443 --jump ACCEPT
+-A input-internal-isol_vlan-if --protocol tcp --match tcp --dport 647 --jump ACCEPT
+# HTTP (parking portal)
+-A input-internal-isol_vlan-if --protocol tcp --match tcp --dport 5252 --jump ACCEPT
+%%input_inter_isol_vlan_if%%
+
 :input-internal-inline-if - [0:0]
--A input-internal-inline-if -m set --match-set portal_deny src --jump REJECT
 # DHCP
 -A input-internal-inline-if --protocol udp --match udp --dport 67  --jump ACCEPT
 -A input-internal-inline-if --protocol tcp --match tcp --dport 67  --jump ACCEPT
@@ -127,6 +143,7 @@
 #Galera cluster
 -A input-highavailability-if --protocol tcp --match tcp --dport 4444 --jump ACCEPT
 -A input-highavailability-if --protocol tcp --match tcp --dport 4567 --jump ACCEPT
+-A input-highavailability-if --protocol tcp --match tcp --dport 4568 --jump ACCEPT
 #PacketFence MariaDB Quorum server
 -A input-highavailability-if --protocol tcp --match tcp --dport 7890 --jump ACCEPT
 -A input-highavailability-if --protocol tcp --match tcp --dport 7891 --jump ACCEPT
@@ -146,6 +163,9 @@
 :FORWARD DROP [0:0]
 :forward-internal-vlan-if - [0:0]
 %%filter_forward_vlan%%
+
+:forward-internal-isolvlan-if - [0:0]
+%%filter_forward_isol_vlan%%
 
 :forward-internal-inline-if - [0:0]
 %%filter_forward_inline%%

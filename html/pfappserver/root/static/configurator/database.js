@@ -1,3 +1,5 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
+
 function registerExits() {
     $('#tracker a, .form-actions button').click(function(event) {
         var href = $(this).attr('href');
@@ -210,7 +212,7 @@ function saveStep(href) {
         });
     }
     else {
-        var form = $('form[name="database"]');
+        var form = $('form[name="database"] h3').first();
         resetAlert(form.parent());
         showError(form, 'Please verify your configuration.');
         $("body,html").animate({scrollTop:0}, 'fast');

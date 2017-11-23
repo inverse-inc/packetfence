@@ -19,7 +19,7 @@ use pf::util;
 use pf::config::util;
 use pf::locationlog qw(locationlog_synchronize);
 use NetAddr::IP;
-use pf::Portal::ProfileFactory;
+use pf::Connection::ProfileFactory;
 use File::Spec::Functions qw(catdir);
 use pf::activation qw(view_by_code);
 use pf::web::constants;
@@ -27,6 +27,7 @@ use URI::URL;
 use URI::Escape::XS qw(uri_escape uri_unescape);
 use HTML::Entities;
 use List::MoreUtils qw(any);
+use pf::constants::Portal::Session qw($DUMMY_MAC);
 
 =head1 NAME
 
@@ -124,12 +125,12 @@ sub ACCEPT_CONTEXT {
             'in_uri_portal' => 1,
         };
     } elsif ( $c->action && $c->controller->isa('captiveportal::Controller::Activate::Email') && $c->action->name eq 'code' ) {
-        my $code = $c->request->arguments->[0];
-        my $data = view_by_code("1:".$code);
+        my ($type, $code) = @{$c->request->arguments}[0,1];
+        my $data = view_by_code($type, $code);
         $options = {
             'portal' => $data->{portal},
         };
-    } elsif ( $forwardedFor && $mgmt_ip && ( $forwardedFor =~  $mgmt_ip) ) {
+    } elsif ( $forwardedFor && ( $forwardedFor =~  '127.0.0.1') ) {
         if (defined($request->param('PORTAL'))) {
             $options = {
                 'portal' => $request->param('PORTAL'),
@@ -246,14 +247,24 @@ sub _build_profile {
     my ($self) = @_;
     my $options =  $self->options;
     $options->{'last_ip'} = $self->clientIP->normalizedIP;
-    return pf::Portal::ProfileFactory->instantiate( $self->clientMac, $options );
+    return pf::Connection::ProfileFactory->instantiate( $self->clientMac, $options );
 }
 
 sub _build_dispatcherSession {
     my ($self) = @_;
-    my $session = new pf::Portal::Session()->session;
-    my %session_data;
     my $logger = get_logger();
+
+    # Restore with a dummy MAC since we don't care about what contains the session if it can't be restored from the session ID
+    my $portal_session = new pf::Portal::Session(client_mac => $DUMMY_MAC);
+
+    if($portal_session->{_dummy_session}) {
+        $logger->debug("Ignoring dispatcher session as it wasn't restored from a valid session ID");
+        return {};
+    }
+
+    my $session = $portal_session->session;
+
+    my %session_data;
     foreach my $key ($session->param) {
         my $value = $session->param($key);
         $logger->debug( sub { "Adding session parameter from dispatcher session to Catalyst session : $key : " . ($value // 'undef') });
@@ -271,6 +282,6 @@ sub templateIncludePath {
     return $profile->{_template_paths};
 }
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

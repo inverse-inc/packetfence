@@ -1,4 +1,5 @@
 package pf::log::trapper;
+
 =head1 NAME
 
 pf::log::trapper
@@ -28,17 +29,38 @@ sub TIEHANDLE {
     bless [Log::Log4perl->get_logger(),$level], $class;
 }
 
+
+=head2 PRINT
+
+Print the to logger
+
+=cut
+
 sub PRINT {
     my $self = shift;
     local $Log::Log4perl::caller_depth = $Log::Log4perl::caller_depth + 1;
     $self->[0]->log($self->[1],@_);
 }
 
+=head2 PRINTF
+
+Implements printf for the TIE::Handle
+
+=cut
+
 sub PRINTF {
     my $self = shift;
     my $buf = sprintf(@_);
     $self->PRINT($buf);
 }
+
+=head2 FILENO
+
+Return undef to avoid Cache::BDB from failing sometimes
+
+=cut
+
+sub FILENO { undef }
 
 =head2 CLOSE
 

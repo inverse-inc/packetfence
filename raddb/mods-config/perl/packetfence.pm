@@ -37,6 +37,7 @@ use warnings;
 use lib '/usr/local/pf/lib/';
 
 #use pf::config; # TODO: See note1
+use pf::log (service => 'rlm_perl');
 use pf::radius::constants;
 use pf::radius::soapclient;
 use pf::radius::rpc;
