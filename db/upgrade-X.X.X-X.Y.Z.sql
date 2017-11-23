@@ -517,5 +517,17 @@ CREATE TABLE `api_user` (
   PRIMARY KEY (`username`)
 ) ENGINE=InnoDB;
 
+--
+-- Table structure for table `tenant_code`
+--
+
+CREATE TABLE `tenant_code` (
+  `code` varchar(255) NOT NULL,
+  `tenant_id` int(11) NOT NULL,
+  `switch_ip` varchar(15) NOT NULL,
+  PRIMARY KEY (`code`)
+) ENGINE=InnoDB;
+
+
 INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
 
