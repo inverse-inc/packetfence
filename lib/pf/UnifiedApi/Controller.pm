@@ -16,6 +16,13 @@ use strict;
 use warnings;
 use Mojo::Base 'Mojolicious::Controller';
 
+sub render_error {
+    my ($self, $code, $msg, $errors) = @_;
+    $errors //= [];
+    my $data = {message => $msg, errors => $errors};
+    $self->render(json => $data, status => $code);
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

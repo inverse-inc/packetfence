@@ -18,22 +18,46 @@ use warnings;
 use lib '/usr/local/pf/lib';
 
 BEGIN {
-    #include test libs
     use lib qw(/usr/local/pf/t);
-    #Module for overriding configuration paths
+    use File::Spec::Functions qw(catfile catdir rel2abs);
+    use File::Basename qw(dirname);
+    use test_paths_serial;
     use setup_test_config;
+    my $test_dir = rel2abs(dirname($INC{'setup_test_config.pm'})) if exists $INC{'setup_test_config.pm'};
+    $test_dir ||= catdir($pf::file_paths::install_dir,'t');
+    $pf::file_paths::switches_config_file = catfile($test_dir,'data/switches.conf.tmp');
 }
 
-use Test::More tests => 3;
+open(my $fh, ">", $pf::file_paths::switches_config_file);
+
+use Test::More tests => 7;
 
 #This test will running last
 use Test::NoWarnings;
 use Test::Mojo;
 
+use pf::dal::tenant_code;
+
 my $t = Test::Mojo->new('pf::UnifiedApi');
 
+# First clear out the codes
+pf::dal::tenant_code->remove_items();
+
+my $test_code = "192168";
+my $test_tenant_name = "bob-garauge";
+my $test_switch_ip = "192.168.5.3";
+
+# Onboard with an existing tenant
+# Create a test code
+my ($status,$code) = pf::dal::tenant_code->find_or_create({ code => $test_code, switch_ip => $test_switch_ip });
+is($status, $STATUS::CREATED, "$test_code was successfully created");
+
+# When missing token, we should get a 422
 $t->post_ok('/api/v1/tenants_onboarding' => json => {  })
-  ->status_is(201);
+  ->status_is(422);
+
+$t->post_ok('/api/v1/tenants_onboarding' => json => { token => $test_code, name => $test_tenant_name })
+  ->status_is(201)->header_like(Location => qr/^\/api\/v1\/tenants\//);
 
 =head1 AUTHOR
 

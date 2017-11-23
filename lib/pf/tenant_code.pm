@@ -62,6 +62,8 @@ sub onboard {
         $logger->error("Impossible to perform tenant switch modification for $tenant_code->{switch_ip}. Error was: $msg");
         return $FALSE;
     }
+
+    return $TRUE;
 }
 
 1;

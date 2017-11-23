@@ -16,16 +16,32 @@ use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller';
 
+use pf::tenant_code;
+
 sub onboard {
     my ($self) = @_;
     my $data = $self->req->json;
-    $self->res->headers->add(Location => $self->build_location);
-    $self->render(json => $data, status => 201);
-}
+    my $ssids = delete $data->{ssids};
+    my $token = delete $data->{token};
 
-sub build_location {
-    my ($self) = @_;
-    return "";
+    if(!$token) {
+        return $self->render_error(422, "Missing token.");
+    }
+
+    if(!$data->{name}) {
+        return $self->render_error(422, "Missing tenant name.");
+    }
+
+    my $result = pf::tenant_code->onboard($token, $data);
+
+    if($result) {
+        my $tenant = pf::dal::tenant->search(-where => { name => $data->{name}})->next;
+        $self->res->headers->add(Location => "/api/v1/tenants/".$tenant->id);
+        $self->render(json => $data, status => 201);
+    }
+    else {
+        $self->render_error(422, "Couldn't perform onboarding of tenant. Check server-side logs for details.");
+    }
 }
 
 =head1 AUTHOR
