@@ -121,9 +121,6 @@ sub check_telephone_form {
         if ( $field->value !~ /^(\+?[0-9]+[0-9-\.\*\(\)\ ]+[0-9]+)$/ ) {
             $field->add_error($self->app->i18n("Enter a valid telephone number"));
             $self->app->flash->{error} = $self->app->i18n("Telephone number is not valid");
-        }else{
-            $field->add_error($self->app->i18n_format("Good: %s", $field->value));
-            $self->app->flash->{error} = $self->app->i18n_format("Good: %s", $field->value);            
         }
     }
 }
