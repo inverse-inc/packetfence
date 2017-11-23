@@ -1,3 +1,5 @@
+#!/usr/bin/perl
+
 =head1 NAME
 
 dal
@@ -22,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 50;
+use Test::More tests => 53;
 
 use pf::error qw(is_success is_error);
 use pf::db;
@@ -303,6 +305,17 @@ pf::dal::node->remove_by_id({mac => $test_mac});
     pf::dal::node->remove_by_id({mac => $test_mac});
     pf::dal::tenant->remove_by_id({id => $t_id});
     pf::dal::person->remove_by_id({pid => 'default'});
+}
+
+{
+    local $pf::dal::CURRENT_TENANT = 2;
+    my $node = pf::dal::node->new({mac => $test_mac});
+    is($node->{tenant_id}, pf::dal->get_tenant, "Current tenant is added");
+    $node = pf::dal::node->new({mac => $test_mac, -no_auto_tenant_id => 1});
+    is($node->{tenant_id}, $pf::dal::DEFAULT_TENANT_ID, "Default tenant is added");
+    my $test_tenant_id = $$;
+    $node = pf::dal::node->new({mac => $test_mac, tenant_id => $test_tenant_id, -no_auto_tenant_id => 1});
+    is($node->{tenant_id}, $test_tenant_id, "Default tenant is not set use the one provided");
 }
 
 =head1 AUTHOR
