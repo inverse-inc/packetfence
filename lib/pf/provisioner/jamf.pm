@@ -24,8 +24,8 @@ use LWP::UserAgent;
 use Readonly;
 use URI::Escape::XS qw(uri_escape);
 
-use pf::error qw(is_error is_success);
 use pf::constants;
+use pf::error qw(is_error is_success);
 use pf::log;
 use pf::util qw(isenabled);
 
@@ -201,7 +201,7 @@ sub execute_request {
     if ( $response->is_success ) {
         $logger->info("Successfully queried JAMF API for '$realm' with MAC address '$mac'");
     } else {
-        $logger->info("Failure while querying JAMF API for '$realm' with MAC address '$mac'. Return code: '$response->status_line'");
+        $logger->info("Failure while querying JAMF API for '$realm' with MAC address '$mac'. Return code: '" . $response->status_line . "'");
     }
 
     return ( $response->code, $response->decoded_content );
