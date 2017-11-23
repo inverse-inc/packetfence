@@ -523,7 +523,6 @@ CREATE TABLE `api_user` (
 
 CREATE TABLE `tenant_code` (
   `code` varchar(255) NOT NULL,
-  `tenant_id` int(11) NOT NULL,
   `switch_ip` varchar(15) NOT NULL,
   PRIMARY KEY (`code`)
 ) ENGINE=InnoDB;
