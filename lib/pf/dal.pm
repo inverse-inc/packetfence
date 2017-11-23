@@ -365,6 +365,7 @@ sub insert {
     my ($status, $sth) = $self->do_insert(
         -into => $self->table,
         -values   => $insert_data,
+        -no_auto_tenant_id => $self->{-no_auto_tenant_id},
     );
     return $status if is_error($status);
 
