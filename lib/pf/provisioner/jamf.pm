@@ -22,10 +22,12 @@ use HTTP::Request::Common;
 use JSON::MaybeXS qw(decode_json);
 use LWP::UserAgent;
 use Readonly;
+use URI::Escape::XS qw(uri_escape);
 
 use pf::error qw(is_error is_success);
 use pf::constants;
 use pf::log;
+use pf::util qw(isenabled);
 
 
 Readonly our $JAMF_COMPUTERS_INVENTORY => 'computers';
@@ -113,7 +115,7 @@ sub authorize {
 
     my ( $status, $device_type, $device_information ) = $self->get_device_information($mac);
 
-    unless ( is_sucess($status) ) {
+    unless ( is_success($status) ) {
         $logger->info("Unable to complete a JAMF query for MAC address '$mac'");
         return $FALSE;
     }
@@ -145,16 +147,16 @@ sub get_device_information {
     # - Query only "computers" JAMF realm
     # - Query only "mobiledevices" JAMF realm
     my ( $status, $device_type, $device_information ) = 0;    # Initiating "status" to 0 not to trigger a success clause
-    if ( is_enabled($self->device_type_detection) ) {
+    if ( isenabled($self->device_type_detection) ) {
         $device_type = $self->detect_device_type($mac);
         ( $status, $device_information ) = $self->execute_request($mac, $device_type) if defined $device_type;
     }
     unless ( is_success($status) ) {
-        if ( is_enabled($self->query_computers) ) {
+        if ( isenabled($self->query_computers) ) {
             $device_type = $JAMF_COMPUTERS_INVENTORY;
             ( $status, $device_information ) = $self->execute_request($mac, $device_type);
         }
-        if ( (is_enabled($self->query_mobiledevices)) && (!is_success($status)) ) {
+        if ( (isenabled($self->query_mobiledevices)) && (!is_success($status)) ) {
             $device_type = $JAMF_MOBILEDEVICES_INVENTORY;
             ( $status, $device_information ) = $self->execute_request($mac, $device_type);
         }
@@ -189,7 +191,7 @@ sub execute_request {
     my $logger = get_logger;
 
     my $ua = LWP::UserAgent->new();
-    my $request = $self->build_request($mac, $realm);
+    my $request = GET $self->build_request_uri($mac, $realm);
     $request->authorization_basic($self->api_username, $self->api_password);
     $request->header( 'content-type' => 'application/json' );
     $request->header( 'Accept'       => 'application/json' );
@@ -206,24 +208,22 @@ sub execute_request {
 }
 
 
-=head2 build_request
+=head2 build_request_uri
 
-Build the request to be executed base of the MAC address and the JAMF realm
+Build the request URI to be executed base of the MAC address and the JAMF realm
 
 =cut
 
-sub build_request {
+sub build_request_uri {
     my ( $self, $mac, $realm ) = @_;
     my $logger = get_logger;
 
-    my $method = 'GET';
     my $escaped_mac_address = uri_escape($mac);
     my $uri = $self->protocol . "://" . $self->host . "/JSSResource/" . $realm . "/macaddress/" . $escaped_mac_address;
 
-    my $request = "$method '$uri'";
-    $logger->debug("Request to query: '$request'");
+    $logger->debug("Request to query: '$uri'");
 
-    return $request;
+    return $uri;
 }
 
 
