@@ -362,10 +362,34 @@ sub insert {
     my $rows = $sth->rows;
     if ($rows) {
         $self->_save_old_data();
+        $self->update_auto_increment_field($sth);
         $self->after_create_hook();
         return $STATUS::CREATED;
     }
     return $STATUS::BAD_REQUEST;
+}
+
+sub update_auto_increment_field {
+    my ($self, $sth) = @_;
+    my $id = $sth->{Database}->{mysql_insertid};
+    if ($id) {
+        my $field = $self->find_auto_increment_field();
+        if ($field) {
+            $self->{$field} = $id;
+        }
+    }
+}
+
+=head2 find_auto_increment_field
+
+=cut
+
+sub find_auto_increment_field {
+    my ($self) = @_;
+    while( my ($k, $v) = each %{$self->get_meta}) {
+       return $k if $v->{is_auto_increment};
+    }
+    return undef;
 }
 
 =head2 after_create_hook
@@ -418,6 +442,7 @@ sub upsert {
     $self->_save_old_data();
     if ($rows == 1) {
         $status = $STATUS::CREATED;
+        $self->update_auto_increment_field($sth);
         $self->after_create_hook();
     }
     return $status;
