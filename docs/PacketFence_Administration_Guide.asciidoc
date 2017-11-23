@@ -1308,6 +1308,7 @@ First, a brief description of the available Portal Modules:
 ** Billing: Allows to define a module based on one or more billing sources
 ** Choice: Allows to define a module based on multiple sources and modules with advanced filtering options. See the section _Authentication Choice module_ below for a detailed explanation.
 ** Login: Allows you to define a username/password based module with multiple internal sources (Active Directory, LDAP, ...)
+** SelectRole: Allows to define a module to override the role given when registering a device. For instance: an admin user is trying to register a device using the normal registration process, with this module the admin can choose which role to apply to the device while registering it. It will bypass authentication rules.
 ** Other modules: The other modules are all based on the source type they are assigned to, they allow to select the source, the AUP acceptance, and mandatory fields if applicable.
 
 Examples 
@@ -1454,6 +1455,16 @@ NOTE: You can find all the authentication objects in `lib/pf/Authentication/Sour
 * Sources by Auth Class: Allows you to filter our sources using the `class` attribute of the Authentication object.
 
 You can see the 'default_guest_policy' and 'default_oauth_policy' for examples of this module.
+
+SelectRole:
+^^^^^^^^^^^
+
+The SelectRole module allows to define specific roles manually when registering a device. This is useful if for instance you ask your technical crew to register new devices.
+
+The configuration is simple, you have a role which is the 'Admin role' the one allowed to select the role while registering a new device and the 'Role List' which is the list of roles that can be chosen from while registering a device.
+
+For instance; techs are in the AD group tech support and get the role 'tech support' while registering, let's put 'tech support' as the 'Admin role'. They are allowed to register new devices with the roles 'default', 'voice' and 'guest'. Every time someone with the role 'tech support' will try to register a device on a connection profile where this portal module is active, then the crew memeber will be asked to choose which role to assign to this device.
+
 
 Debugging
 ---------
