@@ -17,6 +17,7 @@ Version X.Y.Z released on xxxx-xx-xx
 New Features
 ++++++++++++
 
+* New portal module to keep the previous role if this role is in a list.
 
 Enhancements
 ++++++++++++
