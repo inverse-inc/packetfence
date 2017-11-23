@@ -36,19 +36,6 @@ tenant_add
 sub tenant_add {
     my ($data) = @_;
     my $status = pf::dal::tenant->create($data);
-    if (is_error($status)) {
-        return $FALSE;
-    }
-    my $name = $data->{name};
-    my $tenant = tenant_view_by_name($name);
-    unless (defined $tenant) {
-        return $FALSE;
-    }
-    local $pf::dal::CURRENT_TENANT = $tenant->{id};
-    $status = pf::dal::person->create({
-        pid => "default",
-        notes => "Default User for tenant $name",
-    });
     return is_success($status);
 }
 
