@@ -116,7 +116,9 @@ around update_params_for_upsert => sub {
 around new => sub {
     my ($orig, $proto, $args) = @_;
     $args //= {};
-    $args->{tenant_id} = $proto->get_tenant;
+    unless ($args->{'-no_auto_tenant_id'}) {
+        $args->{tenant_id} = $proto->get_tenant;
+    }
     return $proto->$orig($args);
 };
 
