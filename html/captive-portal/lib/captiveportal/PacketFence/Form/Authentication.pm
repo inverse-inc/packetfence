@@ -45,7 +45,7 @@ has_field 'fields[password]' => (type => 'Password', label => 'Password');
 
 has_field 'fields[email]' => (type => "Email", label => "Email");
 
-has_field 'fields[telephone]' => (type => "Text", label => "Telephone", html5_type_attr => "tel");
+has_field 'fields[telephone]' => (type => "Text", label => "Telephone", html5_type_attr => "tel", validate_method => \&check_telephone);
 
 has_field 'fields[sponsor]' => (type => "Email", label => "Sponsor Email");
 
@@ -109,6 +109,35 @@ sub check_aup {
     $self->form->check_aup_form($self);
     return ;
 }
+
+=head2 check_telephone_form
+
+Check telephone form
+
+=cut
+
+sub check_telephone_form {
+    my ($self, $field) = @_;
+    if($self->app->request->method eq "POST"){
+        if ( $field->value !~ /^([0-9]+[0-9-\.]+[0-9]+)$/ ) {
+            $field->add_error("Enter a valid telephone <em>number</em>");
+            $self->app->flash->{error} = "Telephone number is not valid";
+        }
+    }
+}
+
+=head2 check_telephone
+
+Check that the telephone is valid
+
+=cut
+
+sub check_telephone {
+    my ($self) = @_;
+    $self->form->check_telephone_form($self);
+    return ;
+}
+
 
 =head2 get_field
 
