@@ -119,6 +119,14 @@ sub authorize {
     }
 
     my $result = $self->parse_device_information($device_type, $device_information);
+
+    if ( $result eq $TRUE ) {
+        $logger->info("MAC address '$mac' seems to be managed by JAMF");
+        return $TRUE;
+    } else {
+        $logger->info("MAC address '$mac' does not seems to be managed by JAMF");
+        return $FALSE;
+    }
 }
 
 
