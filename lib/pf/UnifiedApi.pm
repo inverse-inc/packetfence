@@ -41,6 +41,7 @@ sub setup_api_v1_routes {
     foreach my $route (@API_V1_ROUTES) {
         $api_v1_route->rest_routes($route);
     }
+    $api_v1_route->post("/tenants_onboarding")->to("tenants_onboarding#onboard")->name("api.v1.TenantsOnboarding.onboard");
     $r->any(sub {
         my ($c) = @_;
         return $c->render(json => { message => "Unknown path", errors => [] }, status => 404);
