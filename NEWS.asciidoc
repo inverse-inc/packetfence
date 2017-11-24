@@ -31,6 +31,7 @@ Enhancements
 * Improve configuration of the captive portal timer bar (via the captive_portal section of pf.conf) (#383) (PR #2762)
 * (AD Powershell scripts) Enforce use of TLS in the powershell scripts which is required with the last versions of PF (PR #2788)
 * (AD Powershell scripts) Cycle through all the possible Active Directory usernames formats in PacketFence (PR #2788)
+* Removed old authentication code sources (Fixes #2610)
 
 Bug Fixes
 +++++++++
