@@ -27,6 +27,7 @@ our @API_V1_ROUTES = (
     {controller => 'users', id_key => "user_id", path => "/users"},
     {controller => 'tenants', id_key => "tenant_id", path => "/tenants"},
     {controller => 'api_users', id_key => "user_id", path => "/api_users"},
+    {controller => 'tenants_onboarding', path => "/tenants_onboarding", collection_v2a => {post => 'onboard'} , resource_v2a => {}},
 );
 
 sub startup {
@@ -43,7 +44,6 @@ sub setup_api_v1_routes {
     foreach my $route (@API_V1_ROUTES) {
         $api_v1_route->rest_routes($route);
     }
-    $api_v1_route->post("/tenants_onboarding")->to("tenants_onboarding#onboard")->name("api.v1.TenantsOnboarding.onboard");
     $r->any(sub {
         my ($c) = @_;
         return $c->render(json => { message => "Unknown path", errors => [] }, status => 404);
