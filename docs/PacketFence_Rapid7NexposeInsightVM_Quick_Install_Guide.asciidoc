@@ -114,16 +114,17 @@ WARNING: If you are using a PacketFence cluster, you will need to do these steps
 
 * Restart the 'rsyslog' service
 ** Run this command:
-----
-service rsyslog restart
-----
+  
+  service rsyslog restart
 
 At this point Packetfence must be able to get the Nexpose audits results.
 
 TIP: You can see if the Nexpose server is sending to the right server by minitoring both sides traffic, with a 'tcpdump -i any dst host YOUR_PACKETFENCE_SERVERI' on your Rapid7 Nexpose server and 'tcpdump -i any port 514' on the PacketFence server.
 
-Get PacketFence to be able to configure what acvtion need to be taken
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Get PacketFence to be able to configure what action need to be taken
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Let's give PacketFence the Nexpose parser it needs to detect Nexpose events ::
 * Logon to PacketFence Server with a browser on the PacketFenceGUI 
 ** _https://YOUR_PACKETFENCE_SERVER_IP:1443_
 
@@ -131,18 +132,54 @@ Get PacketFence to be able to configure what acvtion need to be taken
 * On the drop list 'ADD SYSLOG PARSER', take 'Nexpose'
 * As Detector, put the name of your choice for this parser.
 * In Alert pipe, put the 'absolute' path to our nexpose pipe
-----
-/usr/local/pf/var/run/nexpose_pipe
-----
+
+  /usr/local/pf/var/run/nexpose_pipe
+
 * Click on 'SAVE'.
 
-Once done, we need to restart the good services
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Once done, we need to restart the good services ::
 * Restart the 'pfdetect' and the 'pfqueue' service.
 ----
 /usr/local/pf/pfcmd service pfdetect restart
 /usr/local/pf/pfcmd service pfqueue restart
 ----
+
+Now that PacketFence got the datas to process, lets tell it what to do with it ::
+* In the PacketFence GUI, go to *Configuration -> Compliance -> Violations*
+* Go down on the page to the end of the section and note the last violation ID XXXXXXX
+* Click on *ADD VIOLATION*
+
+|===
+|*Definition*
+|*Enable*: Set it to *ON* 
+
+*Identifier*: Use the previously noted violation ID and add 1 to it. (But you can use what ever you want.)
+
+*Action*: This is where you put what you want PacketFence to do, in this case.
+|===
+
+
+|===
+|*Triggers*
+|Click on the plus *(+)*, on the right side of the page.
+
+On the seconde line, choose the appropriate trigger between "*nexpose_event_contains*" or "*nexpose_event_start_with*"
+
+Choose "nexpose_event_contains" if you know, for exemple, the "*Common Vulnerabilities and Exposures*" you want to take action on.
+
+| For "*nexpose_event_contains*": You can put there the CVE or the vlnerability name you are looking for.
+
+For "*nexpose_event_start_with*": Put there the full vulnerability name you can find in the Nexpose report, on the Nexpose GUI
+
+| Click on *ADD*, then *SAVE*
+
+INFO: You can only have one trigger, for one violation.
+
+|===
+
+
+For more info on violation actions, go to the _PacketFence Administration Guide_, in _Blocking malicious activities with violations_ 
+
 
 
 
