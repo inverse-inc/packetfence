@@ -29,8 +29,8 @@ has_field transaction_key => (
     required => 1,
 );
 
-has_field md5_hash => (
-    label => 'MD5 hash',
+has_field public_client_key => (
+    label => 'Public Client Key',
     type => 'Text',
     required => 1,
 );
@@ -48,7 +48,7 @@ has_field 'domains' =>
   );
 
 has_block definition => (
-    render_list => [qw(api_login_id transaction_key md5_hash domains currency test_mode create_local_account local_account_logins send_email_confirmation)]
+    render_list => [qw(api_login_id transaction_key public_client_key domains currency test_mode create_local_account local_account_logins send_email_confirmation)]
 );
 
 =head1 AUTHOR

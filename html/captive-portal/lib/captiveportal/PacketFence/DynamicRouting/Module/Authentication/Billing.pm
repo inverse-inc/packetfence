@@ -342,6 +342,7 @@ sub confirm {
         %{$data},
         billing => $billing,
         tier => $self->session->{tier},
+        request_fields => $self->session->{request_fields},
         title => "Tier confirmation",
     });
 }
