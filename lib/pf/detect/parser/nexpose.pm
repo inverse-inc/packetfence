@@ -33,7 +33,7 @@ sub parse {
             alerttype   => $4,
             descr       => $5,
         };
-        return { date => $data->{date}, srcip => $data->{serverip}, dstip => $data->{deviceip}, events => { nexpos_event => $data->{descr} } };
+        return { date => $data->{date}, srcip => $data->{serverip}, dstip => $data->{deviceip}, events => { nexpose_event => $data->{descr} } };
     }
 }
 
