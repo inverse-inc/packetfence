@@ -35,12 +35,13 @@ sub register_rest_routes {
     $r->get()->to("$controller#list")->name("$name_prefix.list");
     $r->post()->to("$controller#create")->name("$name_prefix.create");
     my $item_path = "/:$id_key";
-    $r->get($item_path)->to("$controller#get")->name("$name_prefix.get");
-    $r->delete($item_path)->to("$controller#remove")->name("$name_prefix.remove");
-    $r->patch($item_path)->to("$controller#update")->name("$name_prefix.update");
-    $r->put($item_path)->to("$controller#update")->name("$name_prefix.replace");
+    my $resource_route = $r->any($item_path);
+    $resource_route->get()->to("$controller#get")->name("$name_prefix.get");
+    $resource_route->delete()->to("$controller#remove")->name("$name_prefix.remove");
+    $resource_route->patch()->to("$controller#update")->name("$name_prefix.update");
+    $resource_route->put()->to("$controller#update")->name("$name_prefix.replace");
     for my $verb (@{$config->{resource_verbs}// [] }) {
-        $r->post("$item_path/$verb")->to("$controller#$verb")->name("$name_prefix.$verb");
+        $resource_route->post("/$verb")->to("$controller#$verb")->name("$name_prefix.$verb");
     }
 }
 
