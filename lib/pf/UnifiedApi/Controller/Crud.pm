@@ -180,6 +180,11 @@ sub update_data {
     return $self->req->json;
 }
 
+sub replace {
+    my ($self) = @_;
+    return $self->update;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
