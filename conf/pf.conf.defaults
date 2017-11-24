@@ -998,7 +998,7 @@ virtual_router_id=50
 #
 # active_active.vrrp_unicast
 #
-# Trun keepalived in unicast mode instead of multicast
+# Enable keepalived in unicast mode instead of multicast
 vrrp_unicast=disabled
 #
 # active_active.dns_on_vip_only
