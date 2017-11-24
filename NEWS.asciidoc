@@ -24,6 +24,7 @@ Enhancements
 
 * Create a priority queue
 * Move ReAssignVlan and desAssociate api calls to the priority queue
+* Add Connection Profile SSID filter suggestions based on all the previous SSIDs that have been seen in the locationlog (#2758) (PR #2771).
 * (AD Powershell scripts) Enforce use of TLS in the powershell scripts which is required with the last versions of PF (PR #2788)
 * (AD Powershell scripts) Cycle through all the possible Active Directory usernames formats in PacketFence (PR #2788)
 
