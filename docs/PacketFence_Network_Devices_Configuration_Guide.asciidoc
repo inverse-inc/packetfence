@@ -698,9 +698,9 @@ image::docs/images/allied-telesis-gs950/port-control-MAB.png[scaledwidth="100%",
 Go in Security->Port Access Control, select the port you want to enable MAB on, and ensure you set:
 
 [options="compact"]
-* Authentication Mode: MAC Based
+* Authentication Mode: 802.1X
 * Port Control: Auto
-* Supplicant Mode: Single
+* Supplicant Mode: Multiple
 * VLAN Assignment: Enabled
 
 image::docs/images/allied-telesis-gs950/port-control-802.1x.png[scaledwidth="100%",alt="802.1x configuration"]
