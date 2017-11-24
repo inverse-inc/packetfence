@@ -62,25 +62,34 @@ sub list_number_of_results {
 
 sub get {
     my ($self) = @_;
-    my $res = $self->res;
-    my ($status, $item) = $self->dal->find($self->build_item_lookup);
-    $res->code($status);
-    my $results;
-    if ($res->is_error) {
-        $results = {};
+    return $self->render_get(
+        $self->do_get($self->get_lookup_info)
+    );
+}
+
+sub get_lookup_info {
+    my ($self) = @_;
+    $self->build_item_lookup;
+}
+
+sub render_get {
+    my ($self, $status, $item) = @_;
+    if (is_error($status)) {
+        return $self->render_error($status, "Unable to get resource");
     }
-    else {
-        $results = { item => $item->to_hash() };
-    }
-    return $self->render(json => $results);
+    return $self->render(json => { item => $item}, status => $status);
+}
+
+sub do_get {
+    my ($self, $data) = @_;
+    my ($status, $item) = $self->dal->find($data);
+    return ($status, is_error($status) ? undef : $item->to_hash());
 }
 
 sub build_item_lookup {
     my ($self) = @_;
-    my $id_key = $self->id_key;
-    my $id = $self->stash($id_key);
     return {
-        $self->resource_id => $id
+        $self->resource_id => $self->stash($self->id_key)
     };
 }
 
@@ -120,10 +129,22 @@ sub do_create {
 
 sub remove {
     my ($self) = @_;
-    my $res = $self->res;
-    my $status = $self->dal->remove_by_id($self->build_item_lookup);
-    $res->code($status);
-    return $self->render(json => {});
+    return $self->render_remove(
+        $self->do_remove()
+    );
+}
+
+sub render_remove {
+    my ($self, $status) = @_;
+    if (is_error($status)) {
+        return $self->render_error($status, "Unable to remove resource");
+    }
+    return $self->render(json => {}, status => $status);
+}
+
+sub do_remove {
+    my ($self) = @_;
+    return $self->dal->remove_by_id($self->build_item_lookup);
 }
 
 =head2 update
@@ -136,7 +157,7 @@ sub update {
     my ($self) = @_;
     my $req = $self->req;
     my $res = $self->res;
-    my $data = $req->json;
+    my $data = $self->update_data;
     my ($status, $count) = $self->dal->update_items(
         -where => $self->build_item_lookup,
         -set => {
@@ -152,6 +173,11 @@ sub update {
 
     }
     return $self->render(json => {});
+}
+
+sub update_data {
+    my ($self) = @_;
+    return $self->req->json;
 }
 
 =head1 AUTHOR
