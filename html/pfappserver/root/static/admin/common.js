@@ -911,6 +911,8 @@ $(function () { // DOM ready
                 tbody.children(':not(.hidden)').find('[href="#delete"]').removeClass('hidden');
             }
             row_new.trigger('admin.added');
+            /* Trigger SELECT change event to inherit additional triggers */ 
+            row_new.find('select[name$=".type"]').trigger('change');
         }
         return false;
     });

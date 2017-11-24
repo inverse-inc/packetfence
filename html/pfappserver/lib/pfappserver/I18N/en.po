@@ -11574,3 +11574,15 @@ msgstr ""
 # conf/reports.conf.defaults
 msgid "IP address archive of the devices on your network when enabled (see Maintenance section)"
 msgstr ""
+
+# html/pfappserver/root/config/profile/tab-content.tt
+msgid "Choose SSID"
+msgstr ""
+
+# html/pfappserver/root/config/profile/tab-content.tt
+msgid "Enter new SSID"
+msgstr ""
+
+# html/pfappserver/root/config/profile/tab-content.tt
+msgid "Enter SSID"
+msgstr ""
