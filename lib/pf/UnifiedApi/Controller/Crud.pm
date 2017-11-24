@@ -15,6 +15,7 @@ pf::UnifiedApi::Controller::Crud
 use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller';
+use pf::error qw(is_error);
 
 has 'dal';
 has 'id_key';
@@ -85,12 +86,36 @@ sub build_item_lookup {
 
 sub create {
     my ($self) = @_;
-    my $req = $self->req;
-    my $res = $self->res;
-    my $data = $req->json;
-    my $status = $self->dal->create($data);
-    $res->code($status);
-    return $self->render(json => {});
+    return $self->render_create(
+        $self->do_create($self->make_create_data())
+    );
+}
+
+sub render_create {
+    my ($self, $status, $obj) = @_;
+    if (is_error($status)) {
+        return $self->render_error($status, "Unable to create resource");
+    }
+    $self->res->headers->location($self->make_location_url($obj));
+    return $self->render(json => {}, status => $status);
+}
+
+sub make_location_url {
+    my ($self, $obj) = @_;
+    my $url = $self->url_for;
+    my $id = $obj->{$self->resource_id};
+    return "$url/$id";
+}
+
+sub make_create_data {
+    my ($self) = @_;
+    return $self->req->json;
+}
+
+sub do_create {
+    my ($self, $data) = @_;
+    my $obj = $self->dal->new($data);
+    return ($obj->insert, $obj);
 }
 
 sub remove {
