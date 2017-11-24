@@ -18,6 +18,7 @@ New Features
 ++++++++++++
 
 * New portal module to keep the previous role if this role is in a list (PR #2490).
+* Added portal module for selecting a role for the device being registered on the portal (PR #2471).
 
 Enhancements
 ++++++++++++
