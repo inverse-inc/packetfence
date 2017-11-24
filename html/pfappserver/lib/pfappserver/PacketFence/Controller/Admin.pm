@@ -316,7 +316,8 @@ sub nodes :Chained('object') :PathPart('nodes') :Args(0) :AdminRole('NODES_READ'
     map {
         local $_ = $_;
         my $id = $_->{Id};
-        {id => $id} 
+        my $description = $_->{description};
+        {id => $id, description => $description} 
         } @switches_filtered];
 
     $c->stash(
