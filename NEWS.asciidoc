@@ -33,6 +33,7 @@ Enhancements
 * (AD Powershell scripts) Cycle through all the possible Active Directory usernames formats in PacketFence (PR #2788)
 * Removed old authentication code sources (Fixes #2610)
 * Added rule description in listing (Fixes #2619)
+* Improved documentation (PR #2774 fixes #2773)
 
 Bug Fixes
 +++++++++
