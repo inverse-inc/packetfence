@@ -43,7 +43,7 @@ Readonly::Scalar our $TRIGGER_TYPE_OPENVAS => 'openvas';
 Readonly::Scalar our $TRIGGER_TYPE_METADEFENDER => 'metadefender';
 Readonly::Scalar our $TRIGGER_TYPE_OS => 'os';
 Readonly::Scalar our $TRIGGER_TYPE_SURICATA_EVENT => 'suricata_event';
-Readonly::Scalar our $TRIGGER_TYPE_NEXPOSE_EVENT => 'nexpose_event';
+Readonly::Scalar our $TRIGGER_TYPE_NEXPOSE_EVENT_STARTS_WITH => 'nexpose_event_starts_with';
 Readonly::Scalar our $TRIGGER_TYPE_USERAGENT => 'useragent';
 Readonly::Scalar our $TRIGGER_TYPE_VENDORMAC => 'vendormac';
 Readonly::Scalar our $TRIGGER_TYPE_PROVISIONER => 'provisioner';
@@ -81,7 +81,7 @@ Readonly::Scalar our $TRIGGER_MAP => {
     $TRIGGER_ID_PROVISIONER => "Check status",
   },
   $TRIGGER_TYPE_SURICATA_EVENT => $SURICATA_CATEGORIES,
-  $TRIGGER_TYPE_NEXPOSE_EVENT => $NEXPOSE_CATEGORIES,
+  $TRIGGER_TYPE_NEXPOSE_EVENT_STARTS_WITH => $NEXPOSE_CATEGORIES,
   $TRIGGER_TYPE_METADEFENDER => $pf::metadefender::METADEFENDER_RESULT_IDS,
   $TRIGGER_TYPE_SWITCH => \%ConfigSwitchesList,
   $TRIGGER_TYPE_SWITCH_GROUP => \%ConfigSwitchesGroup,

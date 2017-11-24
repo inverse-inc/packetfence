@@ -45,12 +45,13 @@ our %TRIGGER_TYPE_TO_CONDITION_TYPE = (
     'openvas'           => {type => 'equals',        key  => 'last_openvas_id',         event => $TRUE},
     'metadefender'      => {type => 'equals',        key  => 'last_metadefender_id',    event => $TRUE},
     'provisioner'       => {type => 'equals',        key  => 'last_provisioner_id',     event => $TRUE},
-    'nexpose_event'     => {type => 'starts_with',   key  => 'last_nexpose_event',      event => $TRUE},
     'suricata_event'    => {type => 'starts_with',   key  => 'last_suricata_event',     event => $TRUE},
     'suricata_md5'      => {type => 'equals',        key  => 'last_suricata_md5',       event => $TRUE},
     'useragent'         => {type => 'equals',        key  => 'user_agent_id'},
     'switch'            => {type => 'equals',        key  => 'last_switch'},
     'switch_group'      => {type => 'switch_group',  key  => 'last_switch'},
+    'nexpose_event_contains'     => {type => 'matches',       key  => 'last_nexpose_event',      event => $TRUE},
+    'nexpose_event_starts_with'  => {type => 'starts_with',   key  => 'last_nexpose_event',      event => $TRUE},
 );
 
 sub modules {
