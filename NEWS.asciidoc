@@ -36,6 +36,7 @@ Enhancements
 
 Bug Fixes
 +++++++++
+* Move add delete buttons to the left to avoid the being cutoff (Fixes #2678)
 
 Version 7.3.0 released on 2017-09-25
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
