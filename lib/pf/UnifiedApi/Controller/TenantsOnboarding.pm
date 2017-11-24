@@ -37,7 +37,7 @@ sub onboard {
     if($result) {
         my $tenant = pf::dal::tenant->search(-where => { name => $data->{name}})->next;
         $self->res->headers->add(Location => "/api/v1/tenants/".$tenant->id);
-        $self->render(json => $data, status => 201);
+        $self->render(json => {message => "Onboarded tenant successfully"}, status => 201);
     }
     else {
         $self->render_error(422, "Couldn't perform onboarding of tenant. Check server-side logs for details.");
