@@ -21,27 +21,102 @@ sub register {
     $routes->add_shortcut( rest_routes => \&register_rest_routes);
 }
 
+
+
 sub register_rest_routes {
     my ($routes, $config) = @_;
+
+    my $options = munge_options($routes, $config);
+    unless (defined $options) {
+        return;
+    }
+    my $name_prefix = $options->{name_prefix};
+    my $r = $routes->any($options->{path})->name($name_prefix);
+    register_collection_routes($r, $options);
+    if (keys %{$options->{resource_v2a}}) {
+        my $item_path = "/:$options->{id_key}";
+        register_resource_routes($r->any($item_path)->name("$name_prefix.resource"), $options);
+    }
+}
+
+sub munge_options {
+    my ($route, $config) = @_;
     my $controller = $config->{controller};
+    return undef unless defined $controller;
     my $name_prefix = $config->{name} // camelize($controller);
-    my $parent_name = $routes->name;
+    my $parent_name = $route->name;
     if ($parent_name) {
         $name_prefix = "$parent_name.$name_prefix";
     }
-    my $path = $config->{path} // "/$controller";
-    my $id_key = $config->{id_key} // 'id';
-    my $r = $routes->any($path)->name($name_prefix);
-    $r->get()->to("$controller#list")->name("$name_prefix.list");
-    $r->post()->to("$controller#create")->name("$name_prefix.create");
-    my $item_path = "/:$id_key";
-    my $resource_route = $r->any($item_path);
-    $resource_route->get()->to("$controller#get")->name("$name_prefix.get");
-    $resource_route->delete()->to("$controller#remove")->name("$name_prefix.remove");
-    $resource_route->patch()->to("$controller#update")->name("$name_prefix.update");
-    $resource_route->put()->to("$controller#update")->name("$name_prefix.replace");
-    for my $verb (@{$config->{resource_verbs}// [] }) {
-        $resource_route->post("/$verb")->to("$controller#$verb")->name("$name_prefix.$verb");
+    return {
+        controller => $controller,
+        name_prefix => $name_prefix,
+        path => $config->{path} // "/$controller",
+        id_key => $config->{id_key} // 'id',
+        collection_v2a => get_collection_verb_to_actions($config),
+        resource_v2a => get_resource_verb_to_actions($config),
+        resource_verbs => $config->{resource_verbs} // [],
+    };
+}
+
+our %ALLOWED_VERBS = (
+    GET => 1,
+    POST => 1,
+    DELETE => 1,
+    PUT => 1,
+    PATCH => 1,
+    OPTIONS => 1,
+);
+
+our %DEFAULT_COLLECTION_VERBS_TO_ACTIONS = (
+    GET => 'list',
+    POST => 'create',
+);
+
+sub get_collection_verb_to_actions {
+    my ($config) = @_;
+    return verb_to_actions(
+        $config->{collection_v2a} // {%DEFAULT_COLLECTION_VERBS_TO_ACTIONS}
+    );
+}
+
+sub verb_to_actions {
+    my ($temp) = @_;
+    my %filtered;
+    my %v2a;
+    while (my ($v, $a) = each %$temp) {
+        $v = uc($v);
+        next unless exists $ALLOWED_VERBS{$v};
+        $v2a{$v} = $a;
+    }
+    return \%v2a;
+}
+
+sub get_resource_verb_to_actions {
+    my ($config) = @_;
+    return verb_to_actions(
+        $config->{resource_v2a} // {get => 'get', 'delete' => 'remove', 'patch' => 'update', put => 'replace'}
+    );
+}
+
+sub register_collection_routes {
+    my ($r, $options) = @_;
+    register_verb_and_actions($r, $options->{controller}, $options->{name_prefix}, $options->{collection_v2a});
+}
+
+sub register_verb_and_actions {
+    my ($r, $controller, $name_prefix, $verbs_to_action) = @_;
+    while (my ($v,$a) = each %$verbs_to_action) {
+        $r->any([$v])->to("$controller#$a")->name("$name_prefix.$a");
+    }
+}
+
+sub register_resource_routes {
+    my ($r, $options) = @_;
+    my ($controller, $name_prefix) = @{$options}{qw(controller name_prefix)};
+    register_verb_and_actions($r, $controller, $name_prefix, $options->{resource_v2a});
+    for my $verb (@{$options->{resource_verbs} }) {
+        $r->post("/$verb")->to("$controller#$verb")->name("$name_prefix.$verb");
     }
 }
 
