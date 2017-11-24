@@ -1,0 +1,139 @@
+Rapid7 InsightVM Nexpose:Quick Integration Guide
+------------------------------------------------
+:doctype: book
+:toc: left
+
+include::includes/global-attributes.asciidoc[]
+
+About this Guide
+----------------
+
+This guide has been created in order to demonstrate the PacketFence capabilities on-site with an existing or potential customer. 
+It can also provide guidelines to setup a proof of concept for a potential PacketFence deployment using Rapid7 InsightVM Nexpose to provide informations about devices compliances before and during network access.
+
+Assumptions
+-----------
+* You have a configured PacketFence server environment with working test equipment.
+* You have a Centos7 server ready and updated, We will use it at the R7 InsightVM server.
+* You have created an account at https://www.rapid7.com/ and downloaded the InsightVM binaries.
+* You have, at least, a trial available licence.
+
+installation
+------------
+
+Step 1: Rapid7 Insight configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+How to configure R7 InsightVM Nexpose Server to send data to the PacketFence server in a way it can understatnd and process it.
+
+WARNING: Disable the firewalld service, the iptables services, the SELinux services, and ... others IDS services.
+
+Application installation
+^^^^^^^^^^^^^^^^^^^^^^^^
+* Install the InsighVM application 
+** https://insightvm.help.rapid7.com/docs/installing-in-linux-environments#section-installing-in-red-hat
+
+* Run the application 
+** https://insightvm.help.rapid7.com/docs/running-the-application#section-managing-the-application-in-linux
+
+* Logon to the server 
+** 'https://'YourRapid7ServerIP:3780'
+
+First Scan creation
+^^^^^^^^^^^^^^^^^^^
+* Create a new site by clicking the "Create" -> "Site" 
+* After naming the new site, create the New Assets: "Site configuration" -> "Assets"
+* In Include, create the list of assets you want to audit:
+
+*INFO* 
+:===
+What you will write:What 10.0.0.0/24:10.0.0.1-10.0.0.254
+10.0.0.1-10.0.0.254:10.0.0.1-10.0.0.254
+:===
+
+* In Exclude, put all the asset you want to exclude fromthe previous ranges.
+* In the upper Menu, select Templates and define the scope of the audit you want.
+* In the Menu, select Engines and define the Engine, depending on the licence and scope you have.
+
+How to sent Syslogs to PacketFence
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+* On the left, create a new alert.
+* In the Menu, select now Alerts,
+:===
+"Enable": Must be checked. 
+"Alert Name": Rsyslog to PacketFence or else.
+"Maximum Alerts to send": blank (none)
+"Scan events": Check all.
+"Vulnerability Events": 'Any severity' ; Check as well "Confirmed", "Unconfirmed", "Potential"
+"Notification Method": Select 'Syslog message'
+"Syslog Server": "PacketFence cluster VIP or server IP for a standalone"  
+:===
+* In the Menu, select now Schedule, and define the schedules of your audits.
+
+IMPORTANT: *Go on the upper right and click on #"SAVE"# to avoid any losts configuration.* 
+
+
+Step 2: PacketFence configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+"What need to be done on the PacketFence Server to understand and take action about terminals containing threadts"
+
+Get PacketFence ready to welcome Nexpose Syslogs
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+WARNING: If you are using a PacketFence cluster, you will need to do thoses steps in all your PacketFence servers.
+
+* Logon to PacketFence Server with a _ssh_ terminal.
+* Create the fifo pipe file that PacketFence will use to get datas from Nexpose
+----
+mkfifo /usr/local/pf/var/run/nexpose_pipe
+----
+
+* Create a new file named /etc/rsyslog.d/nexpose-log.conf.
+----
+# rsyslog conf for Rapid7 Nexpose server logs reception
+if $programname == 'Nexpose' then /usr/local/pf/var/run/nexpose_pipe
+& ~
+----
+
+* Modifie /etc/rsyslog.conf to accept syslogs on 'udp 514'
+** Uncomment the two lines:
+----
+$ModLoad imudp
+$UDPServerRun 514
+----
+
+* Restart the 'rsyslog' service
+** Run this command:
+----
+service rsyslog restart
+----
+
+At this point Packetfence must be able to get the Nexpose audits results.
+
+TIP: You can see if the Nexpose server is sending to the right server by minitoring both sides traffic, with a 'tcpdump -i any dst host YOUR_PACKETFENCE_SERVERI' on your Rapid7 Nexpose server and 'tcpdump -i any port 514' on the PacketFence server.
+
+Get PacketFence to be able to configure what acvtion need to be taken
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+* Logon to PacketFence Server with a browser on the PacketFenceGUI 
+** 'https://YOUR_PACKETFENCE_SERVER_IP:1443'
+
+* Go to *Configuration -> Integration -> Syslog parsers*
+* On the drop list 'ADD SYSLOG PARSER', take 'Nexpose'
+* As Detector, put the name of your choice for this parser.
+* In Alert pipe, put the 'absolute' path to our nexpose pipe
+----
+/usr/local/pf/var/run/nexpose_pipe
+----
+* Click on 'SAVE'.
+
+Once done, we need to restart the good services
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+* Restart the 'pfdetect' and the 'pfqueue' service.
+----
+/usr/local/pf/pfcmd service pfdetect restart
+/usr/local/pf/pfcmd service pfqueue restart
+----
+
+
+
