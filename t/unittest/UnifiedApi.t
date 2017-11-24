@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 46;
+use Test::More tests => 48;
 use Test::Mojo;
 
 #This test will running last
@@ -64,8 +64,8 @@ $t->get_ok("/api/v1/users/$test_pid")
   ->json_is('/item/pid' => $test_pid)
   ->json_is('/item/notes' => $notes);
 
-#$t->patch_ok("/api/v1/users/$test_pid" => json => { notes => "$notes" })
-#  ->status_is(200);
+$t->patch_ok("/api/v1/users/$test_pid" => json => { notes => $notes })
+  ->status_is(200);
 
 $t->delete_ok("/api/v1/users/$test_pid")
   ->status_is(200);
