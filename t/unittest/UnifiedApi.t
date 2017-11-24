@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 39;
+use Test::More tests => 46;
 use Test::Mojo;
 
 #This test will running last
@@ -83,14 +83,22 @@ $t->get_ok('/api/v1/users/admin' => {'X-PacketFence-Tenant-Id' => 1})
   ->status_is(200);
 
 my $tenant_name = "test_tenant_$$";
-my $results = tenant_add({
-    name => $tenant_name
-});
 
-my $tenant = tenant_view_by_name($tenant_name);
+$t->post_ok('/api/v1/tenants' => json => { name => "default" })
+   ->status_is(409);
+
+$t->post_ok('/api/v1/tenants' => json => { name => $tenant_name })
+  ->status_is(201)
+  ->header_like('Location' => qr#^/api/v1/tenants/#);
+
+my $location = $t->tx->res->headers->location;
+
+$t->get_ok($location)
+  ->status_is(200);
+
+my $tenant = $t->tx->res->json->{item};
 
 my $tenant_id = $tenant->{id};
-
 
 my $headers = {'X-PacketFence-Tenant-Id' => $tenant_id};
 
