@@ -24,6 +24,8 @@ Enhancements
 
 * Create a priority queue
 * Move ReAssignVlan and desAssociate api calls to the priority queue
+* (AD Powershell scripts) Enforce use of TLS in the powershell scripts which is required with the last versions of PF
+* (AD Powershell scripts) Cycle through all the possible Active Directory usernames formats in PacketFence
 
 Bug Fixes
 +++++++++
