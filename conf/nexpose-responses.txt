@@ -1,4 +1,3 @@
-
 2007 Microsoft
 2007 Office
 3Com 8760
@@ -2101,7 +2100,6 @@ NAT-PMP Malicious
 Navigational Target
 NetBIOS NBSTAT
 NetBus backdoor
-.netrc files
 Netscape/Sun iPlanet
 Netscreen device
 Net-SNMP Trap
@@ -2502,7 +2500,6 @@ Remotely Exploitable
 Reverse Clickjacking
 Reverse Proxy
 'rexec' Remote
-.rhosts files
 RHSA
 'rlogin' Remote
 robots.txt Files
@@ -4415,7 +4412,7 @@ USN-1892-1 ubuntu-release-upgrader
 USN-1893-1 Subversion
 USN-1894-1 curl
 USN-1895-1 libvirt
-USN-1896-1 Module:Signature
+USN-1896-1 ModuleSignature
 USN-1897-1 PyMongo
 USN-1898-1 OpenSSL
 USN-1899-1 Linux
@@ -4809,7 +4806,7 @@ USN-2288-1 Linux
 USN-2289-1 Linux
 USN-2290-1 Linux
 USN-2291-1 MySQL
-USN-2292-1 LWP:Protocol:https
+USN-2292-1 LWPProtocolhttps
 USN-2293-1 CUPS
 USN-2294-1 Libtasn1
 USN-2295-1 Firefox
@@ -5119,7 +5116,7 @@ USN-2588-1 Linux
 USN-2589-1 Linux
 USN-2590-1 Linux
 USN-2591-1 curl
-USN-2592-1 XML:LibXML
+USN-2592-1 XMLLibXML
 USN-2593-1 Dnsmasq
 USN-2594-1 ClamAV
 USN-2595-1 ppp
@@ -5136,7 +5133,7 @@ USN-2602-1 Firefox
 USN-2603-1 Thunderbird
 USN-2604-1 Libtasn1
 USN-2605-1 ICU
-USN-2607-1 Module:Signature
+USN-2607-1 ModuleSignature
 USN-2608-1 QEMU
 USN-2609-1 Apport
 USN-2610-1 Oxide
