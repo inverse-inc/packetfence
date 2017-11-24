@@ -69,26 +69,28 @@ type PfConfFencing struct {
 	Whitelist             string   `json:"whitelist"`
 	ProxyPassthroughs     []string `json:"proxy_passthroughs"`
 	Passthroughs          []string `json:"passthroughs"`
-	Redirtimer            int      `json:"redirtimer"`
 	WaitForRedirect       string   `json:"wait_for_redirect"`
 	Passthrough           string   `json:"passthrough"`
 }
 
 type PfConfCaptivePortal struct {
 	StructConfig
-	PfconfigMethod          string   `val:"hash_element"`
-	PfconfigNS              string   `val:"config::Pf"`
-	PfconfigHashNS          string   `val:"captive_portal"`
-	DetectionMecanismBypass string   `json:"detection_mecanism_bypass"`
-	DetectionMecanismUrls   []string `json:"detection_mecanism_urls"`
-	NetworkDetection        string   `json:"network_detection"`
-	NetworkDetectionIP      string   `json:"network_detection_ip"`
-	ImagePath               string   `json:"image_path"`
-	LoadbalancersIP         string   `json:"loadbalancers_ip"`
-	RequestTimeout          string   `json:"request_timeout"`
-	SecureRedirect          string   `json:"secure_redirect"`
-	StatusOnlyOnProduction  string   `json:"status_only_on_production"`
-	WisprRedirection        string   `json:"wispr_redirection"`
+	PfconfigMethod               string   `val:"hash_element"`
+	PfconfigNS                   string   `val:"config::Pf"`
+	PfconfigHashNS               string   `val:"captive_portal"`
+	DetectionMecanismBypass      string   `json:"detection_mecanism_bypass"`
+	DetectionMecanismUrls        []string `json:"detection_mecanism_urls"`
+	NetworkDetection             string   `json:"network_detection"`
+	NetworkDetectionIP           string   `json:"network_detection_ip"`
+	NetworkDetectionInitialDelay string   `json:"network_detection_initial_delay"`
+	NetworkDetectionRetryDelay   string   `json:"network_detection_retry_delay"`
+	NetworkRedirectDelay         int      `json:"network_redirect_delay"`
+	ImagePath                    string   `json:"image_path"`
+	LoadbalancersIP              string   `json:"loadbalancers_ip"`
+	RequestTimeout               string   `json:"request_timeout"`
+	SecureRedirect               string   `json:"secure_redirect"`
+	StatusOnlyOnProduction       string   `json:"status_only_on_production"`
+	WisprRedirection             string   `json:"wispr_redirection"`
 }
 
 type ManagementNetwork struct {

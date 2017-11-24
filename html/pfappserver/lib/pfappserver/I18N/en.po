@@ -3283,7 +3283,7 @@ msgstr ""
 msgid "How long can an unregistered node be inactive on the network before being deleted.<br>This shouldn't be used if you are using port-security"
 msgstr ""
 
-# conf/documentation.conf (fencing.redirtimer)
+# conf/documentation.conf (captive_portal.network_redirect_delay)
 msgid "How long to display the progress bar during trap release. Default value is based on VLAN enforcement techniques. Inline enforcement only users could lower the value."
 msgstr ""
 
@@ -9501,6 +9501,18 @@ msgid "captive_portal.network_detection_ip"
 msgstr "IP"
 
 # conf/documentation.conf
+msgid "captive_portal.network_detection_initial_delay"
+msgstr "Initial delay"
+
+# conf/documentation.conf
+msgid "captive_portal.network_detection_retry_delay"
+msgstr "Retry delay"
+
+# conf/documentation.conf
+msgid "captive_portal.network_redirect_delay"
+msgstr "Redirection delay"
+
+# conf/documentation.conf
 msgid "captive_portal.rate_limiting"
 msgstr "Rate limiting"
 
@@ -10003,10 +10015,6 @@ msgstr "Proxy Passthroughs"
 # conf/documentation.conf
 msgid "fencing.range"
 msgstr "Addresses ranges"
-
-# conf/documentation.conf
-msgid "fencing.redirtimer"
-msgstr "Redirection delay"
 
 # conf/documentation.conf
 msgid "fencing.wait_for_redirect"

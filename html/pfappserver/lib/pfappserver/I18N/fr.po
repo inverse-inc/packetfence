@@ -3525,7 +3525,7 @@ msgid ""
 "deleted.<br>This shouldn't be used if you are using port-security"
 msgstr "Combien de temps un périphérique enregistré peut être inactif sur le réseau avant d’être supprimé. <br/> Cette fonctionnalité ne devrait pas être utilisé avec du port-security"
 
-# conf/documentation.conf (fencing.redirtimer)
+# conf/documentation.conf (captive_portal.network_redirect_delay)
 msgid ""
 "How long to display the progress bar during trap release. Default value is "
 "based on VLAN enforcement techniques. Inline enforcement only users could "
@@ -8841,7 +8841,7 @@ msgstr "Ceci est le délais qui permets à un invité enregistré par email de s
 # conf/documentation.conf (captive_portal.image_path)
 msgid ""
 "This is the path where the gif is on the webserver to detect if the network "
-"accesshas been enabled."
+"access has been enabled."
 msgstr "Ceci est le chemin d’accès pour l’emplacement du gif sur le serveur. Cette option permet de détecter si l’accès réseau a été activé."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
@@ -10306,6 +10306,18 @@ msgid "captive_portal.network_detection_ip"
 msgstr "IP"
 
 # conf/documentation.conf
+msgid "captive_portal.network_detection_initial_delay"
+msgstr "Délai initial"
+
+# conf/documentation.conf
+msgid "captive_portal.network_detection_retry_delay"
+msgstr "Retry delay"
+
+# conf/documentation.conf
+msgid "captive_portal.network_redirect_delay"
+msgstr "Delais de redirection"
+
+# conf/documentation.conf
 msgid "captive_portal.rate_limiting"
 msgstr "Limite de débit"
 
@@ -10818,10 +10830,6 @@ msgstr "Proxy Passthroughs"
 # conf/documentation.conf
 msgid "fencing.range"
 msgstr "Plages d’adressage"
-
-# conf/documentation.conf
-msgid "fencing.redirtimer"
-msgstr "Delais de redirection"
 
 # conf/documentation.conf
 msgid "fencing.wait_for_redirect"
