@@ -56,7 +56,7 @@ Source: http://www.packetfence.org/downloads/PacketFence/src/%{real_name}-%{vers
 %global logfiles packetfence.log snmptrapd.log pfdetect pfmon
 %global logdir /usr/local/pf/logs
 
-BuildRequires: gettext, httpd
+BuildRequires: gettext, httpd, ipset-devel, pkgconfig
 BuildRequires: perl(Parse::RecDescent)
 # Required to build documentation
 # See docs/docbook/README.asciidoc for more info about installing requirements.
@@ -135,7 +135,7 @@ requires: perl(Const::Fast)
 # Perl core modules but still explicitly defined just in case distro's core perl get stripped
 Requires: perl(Time::HiRes)
 # Required for inline mode.
-Requires: ipset, sudo, ipset-devel
+Requires: ipset, sudo
 Requires: perl(File::Which), perl(NetAddr::IP)
 Requires: perl(Net::LDAP)
 Requires: perl(Net::IP)
