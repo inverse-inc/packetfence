@@ -69,6 +69,12 @@
 			"revisionTime": "2016-10-29T20:57:26Z"
 		},
 		{
+			"checksumSHA1": "e+GyxNE5hA8Q6usX+penCPjeeJo=",
+			"path": "github.com/diegoguarnieri/go-conntrack/conntrack",
+			"revision": "9abb0707ff3199f9ab5a44b5a5ea588c41979476",
+			"revisionTime": "2016-12-08T18:04:11Z"
+		},
+		{
 			"checksumSHA1": "Mrmbqq23BIzwocC3m1wk479o35s=",
 			"path": "github.com/dsnet/compress",
 			"revision": "b9aab3c6a04eef14c56384b4ad065e7b73438862",
@@ -111,6 +117,12 @@
 			"revisionTime": "2017-05-19T17:43:07Z"
 		},
 		{
+			"checksumSHA1": "71AC/NWQAF6kQ6pKPwg4CqKnr4c=",
+			"path": "github.com/fdurand/go-ipset",
+			"revision": "1ca9a3170b97027181908a20927a2f4a0e7020c1",
+			"revisionTime": "2017-11-27T18:22:32Z"
+		},
+		{
 			"checksumSHA1": "VdXZPcDRHK1T7XjBu2KW8Mb8S6w=",
 			"path": "github.com/flynn/go-shlex",
 			"revision": "3f9db97f856818214da2e1057f8ad84803971cff",
@@ -139,6 +151,12 @@
 			"path": "github.com/golang/snappy",
 			"revision": "7db9049039a047d955fe8c19b83c8ff5abd765c7",
 			"revisionTime": "2017-01-19T01:47:23Z"
+		},
+		{
+			"checksumSHA1": "gC4yFu+0Iqb71rzQZVbGSKqsK6U=",
+			"path": "github.com/goji/httpauth",
+			"revision": "2da839ab0f4df05a6db5eb277995589dadbd4fb9",
+			"revisionTime": "2016-06-01T13:53:02Z"
 		},
 		{
 			"checksumSHA1": "UP2wONSE346WHWwT20G1Xedd6ZI=",

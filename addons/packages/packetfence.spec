@@ -56,7 +56,7 @@ Source: http://www.packetfence.org/downloads/PacketFence/src/%{real_name}-%{vers
 %global logfiles packetfence.log snmptrapd.log pfdetect pfmon
 %global logdir /usr/local/pf/logs
 
-BuildRequires: gettext, httpd
+BuildRequires: gettext, httpd, ipset-devel, pkgconfig
 BuildRequires: perl(Parse::RecDescent)
 # Required to build documentation
 # See docs/docbook/README.asciidoc for more info about installing requirements.
@@ -493,6 +493,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-winbindd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-winbindd.service
 %{__install} -D -m0644 conf/systemd/packetfence-etcd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-etcd.service
 %{__install} -D -m0644 conf/systemd/packetfence-go_dhcpd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-go_dhcpd.service
+%{__install} -D -m0644 conf/systemd/packetfence-go_ipset.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-go_ipset.service
 
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons/AD
@@ -873,6 +874,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/maintenance
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/node
 %attr(0755, pf, pf)     /usr/local/pf/bin/go_dhcpd
+%attr(0755, pf, pf)     /usr/local/pf/bin/go_ipset
 %attr(0755, pf, pf)     /usr/local/pf/bin/mysql_fingerbank_import.sh
 %doc                    /usr/local/pf/ChangeLog
                         /usr/local/pf/conf/*.example

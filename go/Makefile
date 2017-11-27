@@ -24,6 +24,12 @@ go_dhcpd:
 	cd - && \
 	mv dhcp/dhcp go_dhcpd
 
+go_ipset:
+	cd ipset && \
+	go build && \
+	cd - && \
+	mv ipset/ipset go_ipset
+
 .PHONY: clean-caddy-src
 
 clean-caddy-src:

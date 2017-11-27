@@ -1,31 +1,38 @@
-package pf::constants::api;
-
+package pf::services::manager::go_ipset;
 =head1 NAME
 
-pf::constants::api - constants for the API
+pf::services::manager::go_ipset
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::constants::api
+pf::services::manager::go_ipset
 
 =cut
 
 use strict;
 use warnings;
+use Moo;
+use pf::cluster;
+use pf::config qw(
+    %Config
+);
+use pf::util;
 
-use Readonly;
+extends 'pf::services::manager';
 
-Readonly our $DEFAULT_CLIENT => "pf::api::jsonrpcclient";
+has '+name' => ( default => sub { 'go_ipset' } );
 
-our $PFSSO_PORT = 8777;
-our $GO_DHCP_PORT = 22222;
-our $GO_IPSET_PORT = 22223;
+sub isManaged {
+    my ($self) = @_;
+    return  $self->SUPER::isManaged();
+}
 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
+
 
 =head1 COPYRIGHT
 
@@ -33,7 +40,7 @@ Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and::or
+This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
@@ -51,4 +58,3 @@ USA.
 =cut
 
 1;
-

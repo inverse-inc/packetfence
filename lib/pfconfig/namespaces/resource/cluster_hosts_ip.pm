@@ -1,27 +1,38 @@
-package pf::constants::api;
+package pfconfig::namespaces::resource::cluster_hosts_ip;
 
 =head1 NAME
 
-pf::constants::api - constants for the API
+pfconfig::namespaces::resource::cluster_hosts_ip
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::constants::api
+pfconfig::namespaces::resource::cluster_host_ip
 
 =cut
 
 use strict;
 use warnings;
 
-use Readonly;
+use base 'pfconfig::namespaces::resource';
+use pfconfig::namespaces::config::Cluster;
 
-Readonly our $DEFAULT_CLIENT => "pf::api::jsonrpcclient";
+sub init {
+    my ($self) = @_;
 
-our $PFSSO_PORT = 8777;
-our $GO_DHCP_PORT = 22222;
-our $GO_IPSET_PORT = 22223;
+    $self->{cluster_resource} = pfconfig::namespaces::config::Cluster->new($self->{cache});
+}
+
+sub build {
+    my ($self) = @_;
+    $self->{cluster_resource}->build();
+
+    my %cluster_hosts = map { $_->{host} => { "ip" => $_->{management_ip} } } @{$self->{cluster_resource}->{_servers}};
+
+    return \%cluster_hosts;
+}
+
 
 =head1 AUTHOR
 
@@ -33,7 +44,7 @@ Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and::or
+This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
@@ -52,3 +63,6 @@ USA.
 
 1;
 
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:

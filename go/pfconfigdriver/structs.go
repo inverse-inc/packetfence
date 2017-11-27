@@ -147,6 +147,14 @@ type ListenInts struct {
 	Element        []string
 }
 
+type PfClusterIp struct {
+	StructConfig
+	PfconfigMethod string `val:"hash_element"`
+	PfconfigNS     string `val:"resource::cluster_hosts_ip"`
+	PfconfigHashNS string `val:"-"`
+	Ip             string `json:"ip"`
+}
+
 type configStruct struct {
 	Interfaces struct {
 		ListenInts        ListenInts
