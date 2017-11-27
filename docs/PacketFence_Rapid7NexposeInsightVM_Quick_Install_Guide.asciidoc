@@ -17,14 +17,15 @@ include::includes/global-attributes.asciidoc[]
 About this Guide
 ----------------
 
-This guide has been created in order to help the configuration of Rapid7 InsighVM Nexpose and PacketFence, to provide informations and actions about devices compliances before and during network access.
+This guide has been created in order to help you with the configuration of Rapid7 InsighVM Nexpose and PacketFence, to provide information and actions about devices compliance before and during network access.
+
 
 Assumptions
 -----------
 * You have a configured PacketFence server environment with working test equipment.
-* You have a Centos7 server, ready and updated, we will use it as the 'Rapid7 InsightVM' server.
+* You have a Centos 7 server, ready and updated, we will use it as the 'Rapid7 InsightVM' server.
 * You have created an account at https://www.rapid7.com/[Rapid7] and downloaded the https://www.rapid7.com/products/insightvm/[InsightVM] binaries.
-* You have, at least, a trial available licence.
+* You have, at least, a trial licence.
 
 Installation
 ------------
@@ -34,7 +35,7 @@ Step 1: Rapid7 Insight Configuration
 
 How to configure Rapid7 InsightVM Nexpose Server to send data to the PacketFence server in a way it can understand and process it.
 
-WARNING: Disable the firewalld service, the iptables services, the SELinux services, and ... others IDS services.
+WARNING: Disable the firewalld service, the iptables services, SELinux, and ... others filtering services.
 
 Application Installation
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -61,8 +62,8 @@ What you will write:What Nexpose will understand
 * In the upper *Menu*, select *Templates* and define the scope of the audit you want.
 * In the *Menu*, select *Engines* and define the engine, depending on the licence and scope you have.
 
-How to sent Syslogs to PacketFence
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Sending syslog information to PacketFenc
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 * On the left, create a new alert.
 * In the *Menu*, select now *Alerts*
 
@@ -85,18 +86,18 @@ How to sent Syslogs to PacketFence
 In the *Menu*, select now *Schedule*, and define the schedules of your audits.
 
 
-Step 2: PacketFence configuration
+Step 2: PacketFence Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-"What need to be done on the PacketFence Server to understand and take action about endpoints containing threats"
+"What needs to be done on the PacketFence Server to understand and take action about endpoints containing threats"
 
-Get PacketFence ready to welcome Nexpose Syslogs
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PacketFence changes to handle Nexpose syslog information
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-WARNING: If you are using a PacketFence cluster, you will need to do these steps in all your PacketFence servers.
+WARNING: If you are using a PacketFence cluster, you will need to do these steps on all your PacketFence servers.
 
 * Logon to PacketFence Server with a _ssh_ terminal.
-* Create the fifo pipe file that PacketFence will use to get datas from Nexpose
+* Create the fifo pipe file that PacketFence will use to get data from Nexpose
  
  mkfifo /usr/local/pf/var/run/nexpose_pipe
 
@@ -106,7 +107,7 @@ WARNING: If you are using a PacketFence cluster, you will need to do these steps
  if $programname == 'Nexpose' then /usr/local/pf/var/run/nexpose_pipe
  & ~
 
-* Modify /etc/rsyslog.conf to accept syslogs on 'udp 514'
+* Modify /etc/rsyslog.conf to accept syslogs data on 'udp 514'
 ** Uncomment the two lines:
 
  $ModLoad imudp
@@ -117,15 +118,15 @@ WARNING: If you are using a PacketFence cluster, you will need to do these steps
   
   service rsyslog restart
 
-At this point Packetfence must be able to get the Nexpose audits results.
+At this point PacketFence must be able to get the Nexpose audit results.
 
-TIP: You can see if the Nexpose server is sending to the right server by minitoring both sides traffic, with a 'tcpdump -i any dst host YOUR_PACKETFENCE_SERVERI' on your Rapid7 Nexpose server and 'tcpdump -i any port 514' on the PacketFence server.
+TIP: You can see if the Nexpose server is sending to the right server by monitoring both sides traffic, with a 'tcpdump -i any dst host YOUR_PACKETFENCE_SERVERI' on your Rapid7 Nexpose server and 'tcpdump -i any port 514' on the PacketFence server.
 
-Get PacketFence to be able to configure what action need to be taken
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Integrating with PacketFence violation system
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Let's give PacketFence the Nexpose parser it needs to detect Nexpose events ::
-* Logon to PacketFence Server with a browser on the PacketFenceGUI 
+* Logon to PacketFence server with a browser on the PacketFence admin interface. 
 ** _https://YOUR_PACKETFENCE_SERVER_IP:1443_
 
 * Go to *Configuration -> Integration -> Syslog parsers*
@@ -144,7 +145,7 @@ Once done, we need to restart the good services ::
 /usr/local/pf/pfcmd service pfqueue restart
 ----
 
-Now that PacketFence got the datas to process, lets tell it what to do with it ::
+Now that PacketFence is properly configured to receive information from Nexpose, lets configure it to perform some actionsi ::
 * In the PacketFence GUI, go to *Configuration -> Compliance -> Violations*
 * Go down on the page to the end of the section and note the last violation ID XXXXXXX
 * Click on *ADD VIOLATION*
@@ -153,7 +154,7 @@ Now that PacketFence got the datas to process, lets tell it what to do with it :
 |*Definition*
 |*Enable*: Set it to *ON* 
 
-*Identifier*: Use the previously noted violation ID and add 1 to it. (But you can use what ever you want.)
+*Identifier*: Use the previously noted violation ID and add 1 to it. (But you can use whatever you want.)
 
 *Action*: This is where you put what you want PacketFence to do, in this case.
 |===
@@ -163,9 +164,9 @@ Now that PacketFence got the datas to process, lets tell it what to do with it :
 |*Triggers*
 |Click on the plus *(+)*, on the right side of the page.
 
-On the seconde line, choose the appropriate trigger between "*nexpose_event_contains*" or "*nexpose_event_start_with*"
+On the second line, choose the appropriate trigger between "*nexpose_event_contains*" or "*nexpose_event_start_with*"
 
-Choose "nexpose_event_contains" if you know, for exemple, the "*Common Vulnerabilities and Exposures*" you want to take action on.
+Choose "nexpose_event_contains" if you know, for example, the "*Common Vulnerabilities and Exposures*" you want to take action on.
 
 | For "*nexpose_event_contains*": You can put there the CVE or the vlnerability name you are looking for.
 
