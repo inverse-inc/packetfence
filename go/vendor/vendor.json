@@ -3,46 +3,22 @@
 	"ignore": "test",
 	"package": [
 		{
-			"checksumSHA1": "NX4v3cbkXAJxFlrncqT9yEUBuoA=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/PuerkitoBio/purell",
-			"path": "github.com/PuerkitoBio/purell",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "/jQPcsccvsC9GVM9pV6fESxWOUk=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/PuerkitoBio/urlesc",
-			"path": "github.com/PuerkitoBio/urlesc",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "50/2Bv2EHsoyhrd7ddZKIFMIkoo=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/Shopify/sarama",
+			"checksumSHA1": "AYKFKI83fRBx++X5z9t7+oM8Uyk=",
 			"path": "github.com/Shopify/sarama",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "a709f2d5ca2082723bb8007b9e45a0690c083b6a",
+			"revisionTime": "2017-11-27T14:06:21Z"
 		},
 		{
-			"checksumSHA1": "B6ZUzckOOwd699eDnJIPqDiWB0I=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/apache/thrift/lib/go/thrift",
+			"checksumSHA1": "FlbciMVEDOIua4DgIdVR1xZfkgc=",
 			"path": "github.com/apache/thrift/lib/go/thrift",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "NCiuP2GF1WDY7N3kH5d6NO/cQoY=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/asaskevich/govalidator",
-			"path": "github.com/asaskevich/govalidator",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "20e16bc6a41c6faead040aed7f3c00b9d2e7f842",
+			"revisionTime": "2017-11-19T03:37:54Z"
 		},
 		{
 			"checksumSHA1": "spyv5/YFBjYyZLZa1U2LBfDR8PM=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/beorn7/perks/quantile",
 			"path": "github.com/beorn7/perks/quantile",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9",
+			"revisionTime": "2016-08-04T10:47:26Z"
 		},
 		{
 			"checksumSHA1": "GHH5wruDzHbcIB1NcM+un+sPCfg=",
@@ -51,46 +27,40 @@
 			"revisionTime": "2017-02-13T16:13:28Z"
 		},
 		{
-			"checksumSHA1": "rqmhhAKJMYGv8DGOcfOJ0obxBto=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/coreos/etcd/client",
+			"checksumSHA1": "JDComCcjgkS9/bIox0NGLTC/jIo=",
 			"path": "github.com/coreos/etcd/client",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "5fbb4590fd5bcfd48e9bce58800ebf75660e4ce4",
+			"revisionTime": "2017-11-27T08:11:35Z"
 		},
 		{
 			"checksumSHA1": "mKIXx1kDwmVmdIpZ3pJtRBuUKso=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/coreos/etcd/pkg/pathutil",
 			"path": "github.com/coreos/etcd/pkg/pathutil",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "5fbb4590fd5bcfd48e9bce58800ebf75660e4ce4",
+			"revisionTime": "2017-11-27T08:11:35Z"
 		},
 		{
-			"checksumSHA1": "in4X4M2FFl6+eAXgxdxxSOZi1Vw=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/coreos/etcd/pkg/srv",
+			"checksumSHA1": "z+C4BtPa8wbOUKW5dmHyhNnTulg=",
 			"path": "github.com/coreos/etcd/pkg/srv",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "5fbb4590fd5bcfd48e9bce58800ebf75660e4ce4",
+			"revisionTime": "2017-11-27T08:11:35Z"
 		},
 		{
-			"checksumSHA1": "gx1gJIMU6T0UNQ0bPZ/drQ8cpCI=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/coreos/etcd/pkg/types",
+			"checksumSHA1": "fqju8lgR+3vLJLAEPxhV6P7JAHY=",
 			"path": "github.com/coreos/etcd/pkg/types",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "5fbb4590fd5bcfd48e9bce58800ebf75660e4ce4",
+			"revisionTime": "2017-11-27T08:11:35Z"
 		},
 		{
-			"checksumSHA1": "fMKAZAMKz/1TgLGuq/EB/+BeNhE=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/coreos/etcd/version",
+			"checksumSHA1": "sp2FkEyaIGiQFOEZCTDkBZgyHOs=",
 			"path": "github.com/coreos/etcd/version",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "5fbb4590fd5bcfd48e9bce58800ebf75660e4ce4",
+			"revisionTime": "2017-11-27T08:11:35Z"
 		},
 		{
-			"checksumSHA1": "butr+Orbf1fd1hcLqNXYwUDAjcI=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/coreos/go-semver/semver",
+			"checksumSHA1": "97BsbXOiZ8+Kr+LIuZkQFtSj7H4=",
 			"path": "github.com/coreos/go-semver/semver",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "1817cd4bea52af76542157eeabd74b057d1a199e",
+			"revisionTime": "2017-06-13T09:22:38Z"
 		},
 		{
 			"checksumSHA1": "+Zz+leZHHC9C0rx8DoRuffSRPso=",
@@ -106,24 +76,9 @@
 		},
 		{
 			"checksumSHA1": "NJ+mjEgf5/x6f+x8+IrQQcD7vko=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/dnstap/golang-dnstap",
 			"path": "github.com/dnstap/golang-dnstap",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "f1wARLDzsF/JoyN01yoxXEwFIp8=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/docker/distribution/digest",
-			"path": "github.com/docker/distribution/digest",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "Afja02fDYNayq+FvrfyAgPBtW6Y=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/docker/distribution/reference",
-			"path": "github.com/docker/distribution/reference",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "2cf77a2b5e11ac8d0ba3892772ac8e1f7b528344",
+			"revisionTime": "2017-08-29T15:17:10Z"
 		},
 		{
 			"checksumSHA1": "Mrmbqq23BIzwocC3m1wk479o35s=",
@@ -162,53 +117,28 @@
 			"revisionTime": "2017-01-10T07:11:07Z"
 		},
 		{
-			"checksumSHA1": "8fXg+lhLl7v3t7QHY0qh6MrTScc=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/eapache/go-resiliency/breaker",
+			"checksumSHA1": "y2Kh4iPlgCPXSGTCcFpzePYdzzg=",
 			"path": "github.com/eapache/go-resiliency/breaker",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "b1fe83b5b03f624450823b751b662259ffc6af70",
+			"revisionTime": "2017-06-07T16:36:15Z"
 		},
 		{
 			"checksumSHA1": "WHl96RVZlOOdF4Lb1OOadMpw8ls=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/eapache/go-xerial-snappy",
 			"path": "github.com/eapache/go-xerial-snappy",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "bb955e01b9346ac19dc29eb16586c90ded99a98c",
+			"revisionTime": "2016-06-09T14:24:08Z"
 		},
 		{
-			"checksumSHA1": "AEGF/lRMFJukJAnRqdCVQ/0I+BY=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/eapache/queue",
+			"checksumSHA1": "oCCs6kDanizatplM5e/hX76busE=",
 			"path": "github.com/eapache/queue",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "FOEA61bm2kxmfkjiyBIb9rsiRs4=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/emicklei/go-restful",
-			"path": "github.com/emicklei/go-restful",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "/D9Xi0GGJyB5DVLsjn3jVmaDIkI=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/emicklei/go-restful-swagger12",
-			"path": "github.com/emicklei/go-restful-swagger12",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "3xWz4fZ9xW+CfADpYoPFcZCYJ4E=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/emicklei/go-restful/log",
-			"path": "github.com/emicklei/go-restful/log",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "44cc805cf13205b55f69e14bcb69867d1ae92f98",
+			"revisionTime": "2016-08-05T00:47:13Z"
 		},
 		{
 			"checksumSHA1": "NZcyknZamOypEcEMc/88+ceOmOs=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/farsightsec/golang-framestream",
 			"path": "github.com/farsightsec/golang-framestream",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "dec85654e8b8cf6712870afb14ee53d1c98cd5e2",
+			"revisionTime": "2017-06-19T23:58:42Z"
 		},
 		{
 			"checksumSHA1": "VdXZPcDRHK1T7XjBu2KW8Mb8S6w=",
@@ -217,74 +147,10 @@
 			"revisionTime": "2015-05-15T14:53:56Z"
 		},
 		{
-			"checksumSHA1": "ImX1uv6O09ggFeBPUJJ2nu7MPSA=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/ghodss/yaml",
-			"path": "github.com/ghodss/yaml",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
 			"checksumSHA1": "KxX/Drph+byPXBFIXaCZaCOAnrU=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/go-logfmt/logfmt",
 			"path": "github.com/go-logfmt/logfmt",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "OwxeZNizPZT7YriySSR4haPHcRg=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/go-openapi/analysis",
-			"path": "github.com/go-openapi/analysis",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "AAX5tBzDR6WdqmgEZ6swh+jivjA=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/go-openapi/errors",
-			"path": "github.com/go-openapi/errors",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "6dTGC5A1Y1xnv+JSi9z8S6JfnH0=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/go-openapi/jsonpointer",
-			"path": "github.com/go-openapi/jsonpointer",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "YMNc0I/ifBw9TsnF13NTpIN9yu4=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/go-openapi/jsonreference",
-			"path": "github.com/go-openapi/jsonreference",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "/hacePhgdYrW1/+C4wox/Led2eo=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/go-openapi/loads",
-			"path": "github.com/go-openapi/loads",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "pjXINRZU/YKPRQLtxC349kDoU/s=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/go-openapi/spec",
-			"path": "github.com/go-openapi/spec",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "xHVTrBvLaOyskMstWa+HzaxPOiQ=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/go-openapi/strfmt",
-			"path": "github.com/go-openapi/strfmt",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "Wz6dE9E9ZwCK4oWRr5lNazhgMY0=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/go-openapi/swag",
-			"path": "github.com/go-openapi/swag",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "390ab7935ee28ec6b286364bba9b4dd6410cb3d5",
+			"revisionTime": "2016-11-15T14:25:13Z"
 		},
 		{
 			"checksumSHA1": "QD6LqgLz2JMxXqns8TaxtK9AuHs=",
@@ -299,32 +165,16 @@
 			"revisionTime": "2016-05-14T03:44:11Z"
 		},
 		{
-			"checksumSHA1": "6ZxSmrIx3Jd15aou16oG0HPylP4=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/gogo/protobuf/proto",
+			"checksumSHA1": "wn2shNJMwRZpvuvkf1s7h0wvqHI=",
 			"path": "github.com/gogo/protobuf/proto",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "HPVQZu059/Rfw2bAWM538bVTcUc=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/gogo/protobuf/sortkeys",
-			"path": "github.com/gogo/protobuf/sortkeys",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "HmbftipkadrLlCfzzVQ+iFHbl6g=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/golang/glog",
-			"path": "github.com/golang/glog",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "971cbfd2e72b513a28c74af7462aee0800248d69",
+			"revisionTime": "2017-11-23T12:57:29Z"
 		},
 		{
 			"checksumSHA1": "yqF125xVSkmfLpIVGrLlfE05IUk=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/golang/protobuf/proto",
 			"path": "github.com/golang/protobuf/proto",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "1e59b77b52bf8e4b449a57e6f79f21226d571845",
+			"revisionTime": "2017-11-13T18:07:20Z"
 		},
 		{
 			"checksumSHA1": "VfkiItDBFFkZluaAMAzJipDXNBY=",
@@ -333,11 +183,10 @@
 			"revisionTime": "2017-11-13T18:07:20Z"
 		},
 		{
-			"checksumSHA1": "CUN+8uU3mWzv9JNB2RXTefAuBb4=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/golang/protobuf/ptypes/any",
+			"checksumSHA1": "UB9scpDxeFjQe5tEthuR4zCLRu4=",
 			"path": "github.com/golang/protobuf/ptypes/any",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "1e59b77b52bf8e4b449a57e6f79f21226d571845",
+			"revisionTime": "2017-11-13T18:07:20Z"
 		},
 		{
 			"checksumSHA1": "hUjAj0dheFVDl84BAnSWj9qy2iY=",
@@ -353,17 +202,9 @@
 		},
 		{
 			"checksumSHA1": "p/8vSviYF91gFflhrt5vkyksroo=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/golang/snappy",
 			"path": "github.com/golang/snappy",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "PFtXkXPO7pwRtykVUUXtc07wc7U=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/google/gofuzz",
-			"path": "github.com/google/gofuzz",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "553a641470496b2327abcac10b36396bd98e45c9",
+			"revisionTime": "2017-02-15T23:32:05Z"
 		},
 		{
 			"checksumSHA1": "UP2wONSE346WHWwT20G1Xedd6ZI=",
@@ -391,10 +232,9 @@
 		},
 		{
 			"checksumSHA1": "CVIUjJ9BOwdRbxfteYqJ3ANpnBk=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc",
 			"path": "github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "01f8541d537215b2867e2745a1eb85c58c7c6b81",
+			"revisionTime": "2017-11-05T06:02:00Z"
 		},
 		{
 			"checksumSHA1": "pUPzsy2MLooiC5+5Bsjl9j3/qcs=",
@@ -415,20 +255,6 @@
 			"revisionTime": "2016-08-13T22:13:03Z"
 		},
 		{
-			"checksumSHA1": "K6exl2ouL7d8cR2i378EzZOdRVI=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/howeyc/gopass",
-			"path": "github.com/howeyc/gopass",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "qFc5hUAQClCrIDATYcsAeEUqySM=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/imdario/mergo",
-			"path": "github.com/imdario/mergo",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
 			"checksumSHA1": "mrmfY0cVu7jvgoIuTRaR8yVVh/M=",
 			"path": "github.com/inconshreveable/log15",
 			"revision": "46a701a619de90c65a78c04d1a58bf02585e9701",
@@ -447,13 +273,6 @@
 			"revisionTime": "2014-04-01T20:37:05Z"
 		},
 		{
-			"checksumSHA1": "a8Ge6pE7oxux9ZMZVAlyEeGzCng=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/juju/ratelimit",
-			"path": "github.com/juju/ratelimit",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
 			"checksumSHA1": "Y3U6on66N0BszKXYvb2Q+qpG6f4=",
 			"path": "github.com/julienschmidt/httprouter",
 			"revision": "8a45e95fc75cb77048068a62daed98cc22fdac7c",
@@ -464,13 +283,6 @@
 			"path": "github.com/julsemaan/radius",
 			"revision": "7f249f14f3f94118647303f07cf4956048170a0b",
 			"revisionTime": "2017-08-17T16:00:25Z"
-		},
-		{
-			"checksumSHA1": "abKzFXAn0KDr5U+JON1ZgJ2lUtU=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/kr/logfmt",
-			"path": "github.com/kr/logfmt",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
 		},
 		{
 			"checksumSHA1": "eOXF2PEvYLMeD8DSzLZJWbjYzco=",
@@ -569,27 +381,6 @@
 			"revisionTime": "2017-02-10T11:35:44Z"
 		},
 		{
-			"checksumSHA1": "T8soMJArSZrYnhmdpAnq1bVxQ6Q=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/mailru/easyjson/buffer",
-			"path": "github.com/mailru/easyjson/buffer",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "Xw5HIdQ2vlr5wkKl+8ANM9xp5Zs=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/mailru/easyjson/jlexer",
-			"path": "github.com/mailru/easyjson/jlexer",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "tMeVsfYgDW9K0spDZkOBlvZYssw=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/mailru/easyjson/jwriter",
-			"path": "github.com/mailru/easyjson/jwriter",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
 			"checksumSHA1": "I4njd26dG5hxFT2nawuByM4pxzY=",
 			"path": "github.com/mattn/go-colorable",
 			"revision": "d228849504861217f796da67fae4f6e347643f15",
@@ -602,11 +393,10 @@
 			"revisionTime": "2017-03-22T23:44:13Z"
 		},
 		{
-			"checksumSHA1": "aodj/cITRyuaZSh84DDhrZjh76U=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/matttproud/golang_protobuf_extensions/pbutil",
+			"checksumSHA1": "bKMZjd2wPw13VwoE7mBeSv5djFA=",
 			"path": "github.com/matttproud/golang_protobuf_extensions/pbutil",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "c12348ce28de40eed0136aa2b644d0ee0650e56c",
+			"revisionTime": "2016-04-24T11:30:07Z"
 		},
 		{
 			"checksumSHA1": "LXLhlGmijKhFLJo3crWjhA9tuMk=",
@@ -621,11 +411,10 @@
 			"revisionTime": "2017-02-13T20:16:50Z"
 		},
 		{
-			"checksumSHA1": "EHjhpHipgm+XGccrRAms9AW3Ewk=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/mitchellh/mapstructure",
-			"path": "github.com/mitchellh/mapstructure",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"checksumSHA1": "AYjG78HsyaohvBTuzCgdxU48dFE=",
+			"path": "github.com/miekg/dns/internal/socket",
+			"revision": "5ec0c6d20f3f8097491941eccff7d1ea28d5eba9",
+			"revisionTime": "2017-11-27T11:17:45Z"
 		},
 		{
 			"checksumSHA1": "A6nZdZ1/lTOVINhIndyw2ZWN9JU=",
@@ -664,53 +453,34 @@
 			"revisionTime": "2017-06-22T12:40:52Z"
 		},
 		{
-			"checksumSHA1": "N+a8z9+g8MnuPN0aItiVP2CVFQs=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/opentracing/opentracing-go",
+			"checksumSHA1": "hpXnjCM/a0edhWUb2+and0mnPyY=",
 			"path": "github.com/opentracing/opentracing-go",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "1361b9cd60be79c4c3a7fa9841b3c132e40066a7",
+			"revisionTime": "2017-10-03T13:35:19Z"
 		},
 		{
-			"checksumSHA1": "XPOyfxsryU1pByZESwduVu9OEQU=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/opentracing/opentracing-go/ext",
+			"checksumSHA1": "uhDxBvLEqRAMZKgpTZ8MFuLIIM8=",
 			"path": "github.com/opentracing/opentracing-go/ext",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "1361b9cd60be79c4c3a7fa9841b3c132e40066a7",
+			"revisionTime": "2017-10-03T13:35:19Z"
 		},
 		{
-			"checksumSHA1": "+rbKrafLHDnrQFgeWawo9tfZhV4=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/opentracing/opentracing-go/log",
+			"checksumSHA1": "tnkdNJbJxNKuPZMWapP1xhKIIGw=",
 			"path": "github.com/opentracing/opentracing-go/log",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "1361b9cd60be79c4c3a7fa9841b3c132e40066a7",
+			"revisionTime": "2017-10-03T13:35:19Z"
 		},
 		{
-			"checksumSHA1": "UGgZesjodNko/1ycTpqZdV/RYj8=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/openzipkin/zipkin-go-opentracing",
+			"checksumSHA1": "1Jg7bElYonMgw+f6Y0xEITkKd6U=",
 			"path": "github.com/openzipkin/zipkin-go-opentracing",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "1HybJ2ha9Zd7AtN6VfoHxueG+NE=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/openzipkin/zipkin-go-opentracing/_thrift/gen-go/scribe",
-			"path": "github.com/openzipkin/zipkin-go-opentracing/_thrift/gen-go/scribe",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "EzGbZPnkLSxskuXj/1kqlaIQwzA=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/openzipkin/zipkin-go-opentracing/_thrift/gen-go/zipkincore",
-			"path": "github.com/openzipkin/zipkin-go-opentracing/_thrift/gen-go/zipkincore",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "c64eef160e31f1028ad4aa4dac7c04f215d72e0d",
+			"revisionTime": "2017-11-22T12:15:29Z"
 		},
 		{
 			"checksumSHA1": "kC4Y7lGVaheJmjEz8CqQx3yhCAg=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/openzipkin/zipkin-go-opentracing/flag",
 			"path": "github.com/openzipkin/zipkin-go-opentracing/flag",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "c64eef160e31f1028ad4aa4dac7c04f215d72e0d",
+			"revisionTime": "2017-11-22T12:15:29Z"
 		},
 		{
 			"checksumSHA1": "9HvnOB704ky9APS8MocN3LEyFJw=",
@@ -726,17 +496,15 @@
 		},
 		{
 			"checksumSHA1": "m3lmlz7IZi6slwHco8wFdHNld28=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/openzipkin/zipkin-go-opentracing/types",
 			"path": "github.com/openzipkin/zipkin-go-opentracing/types",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "c64eef160e31f1028ad4aa4dac7c04f215d72e0d",
+			"revisionTime": "2017-11-22T12:15:29Z"
 		},
 		{
-			"checksumSHA1": "Ox2GnG2JgQVorrkqVg8iEVnubXc=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/openzipkin/zipkin-go-opentracing/wire",
+			"checksumSHA1": "1Ycu6+1VLEi31PkDQsdGBdIJoKQ=",
 			"path": "github.com/openzipkin/zipkin-go-opentracing/wire",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "c64eef160e31f1028ad4aa4dac7c04f215d72e0d",
+			"revisionTime": "2017-11-22T12:15:29Z"
 		},
 		{
 			"checksumSHA1": "8z32QKTSDusa4QQyunKE4kyYXZ8=",
@@ -745,74 +513,64 @@
 			"revisionTime": "2016-11-25T23:48:19Z"
 		},
 		{
-			"checksumSHA1": "BMjSRH5mPFsBz4Z1r9f/MzwVlXA=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/pierrec/lz4",
+			"checksumSHA1": "FGg99nQ56Fo3radSCuU1AeEUJug=",
 			"path": "github.com/pierrec/lz4",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "08c27939df1bd95e881e2c2367a749964ad1fceb",
+			"revisionTime": "2017-08-28T19:29:35Z"
 		},
 		{
-			"checksumSHA1": "IT4sX58d+e8osXHV5U6YCSdB/uE=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/pierrec/xxHash/xxHash32",
+			"checksumSHA1": "zPWRjzsPeXCoqmidIcJtHbvrvRs=",
 			"path": "github.com/pierrec/xxHash/xxHash32",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "a0006b13c722f7f12368c00a3d3c2ae8a999a0c6",
+			"revisionTime": "2017-07-14T08:24:55Z"
 		},
 		{
-			"checksumSHA1": "KkB+77Ziom7N6RzSbyUwYGrmDeU=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/prometheus/client_golang/prometheus",
+			"checksumSHA1": "hu0MsbTdFzZxNRyAxe2HmTFFFak=",
 			"path": "github.com/prometheus/client_golang/prometheus",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "1cdba8fdde81f444626530cce66e138d2f68ae1c",
+			"revisionTime": "2017-11-20T17:45:06Z"
 		},
 		{
 			"checksumSHA1": "DvwvOlPNAgRntBzt3b3OSRMS2N4=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/prometheus/client_model/go",
 			"path": "github.com/prometheus/client_model/go",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "99fa1f4be8e564e8a6b613da7fa6f46c9edafc6c",
+			"revisionTime": "2017-11-17T10:05:41Z"
 		},
 		{
 			"checksumSHA1": "xfnn0THnqNwjwimeTClsxahYrIo=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/prometheus/common/expfmt",
 			"path": "github.com/prometheus/common/expfmt",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "2e54d0b93cba2fd133edc32211dcc32c06ef72ca",
+			"revisionTime": "2017-11-17T16:30:51Z"
 		},
 		{
 			"checksumSHA1": "GWlM3d2vPYyNATtTFgftS10/A9w=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/prometheus/common/internal/bitbucket.org/ww/goautoneg",
 			"path": "github.com/prometheus/common/internal/bitbucket.org/ww/goautoneg",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "2e54d0b93cba2fd133edc32211dcc32c06ef72ca",
+			"revisionTime": "2017-11-17T16:30:51Z"
 		},
 		{
-			"checksumSHA1": "3VoqH7TFfzA6Ds0zFzIbKCUvBmw=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/prometheus/common/model",
+			"checksumSHA1": "YU+/K48IMawQnToO4ETE6a+hhj4=",
 			"path": "github.com/prometheus/common/model",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "2e54d0b93cba2fd133edc32211dcc32c06ef72ca",
+			"revisionTime": "2017-11-17T16:30:51Z"
 		},
 		{
-			"checksumSHA1": "ihxJIjxtbEYdQKwA0D0nRipj95I=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/prometheus/procfs",
+			"checksumSHA1": "pW1yt1G1J9jnQMCxr1TDI7LQr3s=",
 			"path": "github.com/prometheus/procfs",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "a6e9df898b1336106c743392c48ee0b71f5c4efa",
+			"revisionTime": "2017-10-17T21:40:25Z"
 		},
 		{
 			"checksumSHA1": "xCiFAAwVTrjsfZT1BIJQ3DgeNCY=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/prometheus/procfs/xfs",
 			"path": "github.com/prometheus/procfs/xfs",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "a6e9df898b1336106c743392c48ee0b71f5c4efa",
+			"revisionTime": "2017-10-17T21:40:25Z"
 		},
 		{
 			"checksumSHA1": "KAzbLjI9MzW2tjfcAsK75lVRp6I=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/rcrowley/go-metrics",
 			"path": "github.com/rcrowley/go-metrics",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "1f30fe9094a513ce4c700b9a54458bbb0c96996c",
+			"revisionTime": "2016-11-28T21:05:44Z"
 		},
 		{
 			"checksumSHA1": "c7jHQZk5ZEsFR9EXsWJXkszPBZA=",
@@ -827,18 +585,10 @@
 			"revisionTime": "2016-09-18T04:11:01Z"
 		},
 		{
-			"checksumSHA1": "STxYqRb4gnlSr3mRpT+Igfdz/kM=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/spf13/pflag",
-			"path": "github.com/spf13/pflag",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "0FCBLTqGOxgifAKfS0360iLTZR4=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/github.com/ugorji/go/codec",
+			"checksumSHA1": "2yyXRvz9xOzGmwMn04ztgVy5fI4=",
 			"path": "github.com/ugorji/go/codec",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "84cb69a8af8316eed8cf4a3c9368a56977850062",
+			"revisionTime": "2017-11-22T10:28:28Z"
 		},
 		{
 			"checksumSHA1": "bd03a9yO9N5nVkVLD9m1vsWOXwA=",
@@ -907,23 +657,16 @@
 			"revisionTime": "2017-02-08T20:51:15Z"
 		},
 		{
-			"checksumSHA1": "nqWNlnMmVpt628zzvyo6Yv2CX5Q=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/golang.org/x/crypto/ssh/terminal",
-			"path": "golang.org/x/crypto/ssh/terminal",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
 			"checksumSHA1": "GtamqiJoL7PGHsN454AoffBFMa8=",
 			"path": "golang.org/x/net/context",
 			"revision": "c73622c77280266305273cb545f54516ced95b93",
 			"revisionTime": "2017-06-11T01:16:46Z"
 		},
 		{
-			"checksumSHA1": "LC+mzxnIrUS9Kr4s7shpY+A9J2o=",
+			"checksumSHA1": "t6G5aYyxWPwD88vl1U4+f9J27LY=",
 			"path": "golang.org/x/net/http2",
-			"revision": "61557ac0112b576429a0df080e1c2cef5dfbb642",
-			"revisionTime": "2017-01-26T11:54:58Z"
+			"revision": "c7086645de248775cbf2373cf5ca4d2fa664b8c1",
+			"revisionTime": "2017-11-10T09:49:23Z"
 		},
 		{
 			"checksumSHA1": "G3e2/HrQjRy2Ml9lfX0e3AGRWWE=",
@@ -962,17 +705,10 @@
 			"revisionTime": "2017-06-11T01:16:46Z"
 		},
 		{
-			"checksumSHA1": "Sypcm+UJjiKcT7P7kSp87nVuDtI=",
+			"checksumSHA1": "2ncnCWXu6MhDubZJYmyFNBYsrXE=",
 			"path": "golang.org/x/sys/unix",
 			"revision": "6faef541c73732f438fb660a212750a9ba9f9362",
 			"revisionTime": "2017-06-30T11:05:18Z"
-		},
-		{
-			"checksumSHA1": "gVfCD++7aVcdKF2spv6XkEM/wYw=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/golang.org/x/sys/windows",
-			"path": "golang.org/x/sys/windows",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
 		},
 		{
 			"checksumSHA1": "faFDXp++cLjLBlvsr+izZ+go1WU=",
@@ -999,192 +735,142 @@
 			"revisionTime": "2016-10-16T16:34:30Z"
 		},
 		{
-			"checksumSHA1": "mfeW9NCKg58o6w5bbXPvpixpIw0=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/golang.org/x/text/width",
-			"path": "golang.org/x/text/width",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "AvVpgwhxhJgjoSledwDtYrEKVE4=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/google.golang.org/genproto/googleapis/rpc/status",
+			"checksumSHA1": "Tc3BU26zThLzcyqbVtiSEp7EpU8=",
 			"path": "google.golang.org/genproto/googleapis/rpc/status",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "7f0da29060c682909f650ad8ed4e515bd74fa12a",
+			"revisionTime": "2017-11-23T00:06:38Z"
 		},
 		{
-			"checksumSHA1": "IC53D5nFVUPGAotDgR9kEIM8Yi8=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/google.golang.org/grpc",
+			"checksumSHA1": "cFB5vPcBxMV0TZzVcwonZHUt13w=",
 			"path": "google.golang.org/grpc",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "10873b30bf245efc365a957b425da2e15f47a560",
+			"revisionTime": "2017-11-22T21:59:20Z"
 		},
 		{
 			"checksumSHA1": "rbTWD4bqUpDwyuLPqzHwJZYlBbQ=",
 			"path": "google.golang.org/grpc/balancer",
-			"revision": "6253aa9397d3f97c06b2c67e2b2965b558b3705f",
-			"revisionTime": "2017-11-20T21:49:49Z"
+			"revision": "10873b30bf245efc365a957b425da2e15f47a560",
+			"revisionTime": "2017-11-22T21:59:20Z"
 		},
 		{
 			"checksumSHA1": "L/Rj4jU8ZLOcLvMOD6XuwCoDeFY=",
 			"path": "google.golang.org/grpc/balancer/roundrobin",
-			"revision": "6253aa9397d3f97c06b2c67e2b2965b558b3705f",
-			"revisionTime": "2017-11-20T21:49:49Z"
+			"revision": "10873b30bf245efc365a957b425da2e15f47a560",
+			"revisionTime": "2017-11-22T21:59:20Z"
 		},
 		{
-			"checksumSHA1": "/eTpFgjvMq5Bc9hYnw5fzKG4B6I=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/google.golang.org/grpc/codes",
+			"checksumSHA1": "m5QNRsnKMZ/3p4V/LDLknFInkGs=",
 			"path": "google.golang.org/grpc/codes",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "10873b30bf245efc365a957b425da2e15f47a560",
+			"revisionTime": "2017-11-22T21:59:20Z"
 		},
 		{
 			"checksumSHA1": "XH2WYcDNwVO47zYShREJjcYXm0Y=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/google.golang.org/grpc/connectivity",
 			"path": "google.golang.org/grpc/connectivity",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "10873b30bf245efc365a957b425da2e15f47a560",
+			"revisionTime": "2017-11-22T21:59:20Z"
 		},
 		{
-			"checksumSHA1": "5ylThBvJnIcyWhL17AC9+Sdbw2E=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/google.golang.org/grpc/credentials",
+			"checksumSHA1": "4DnDX81AOSyVP3UJ5tQmlNcG1MI=",
 			"path": "google.golang.org/grpc/credentials",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "10873b30bf245efc365a957b425da2e15f47a560",
+			"revisionTime": "2017-11-22T21:59:20Z"
 		},
 		{
 			"checksumSHA1": "9DImIDqmAMPO24loHJ77UVJTDxQ=",
 			"path": "google.golang.org/grpc/encoding",
-			"revision": "6253aa9397d3f97c06b2c67e2b2965b558b3705f",
-			"revisionTime": "2017-11-20T21:49:49Z"
-		},
-		{
-			"checksumSHA1": "2NbY9kmMweE4VUsruRsvmViVnNg=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/google.golang.org/grpc/grpclb/grpc_lb_v1",
-			"path": "google.golang.org/grpc/grpclb/grpc_lb_v1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "10873b30bf245efc365a957b425da2e15f47a560",
+			"revisionTime": "2017-11-22T21:59:20Z"
 		},
 		{
 			"checksumSHA1": "H7SuPUqbPcdbNqgl+k3ohuwMAwE=",
 			"path": "google.golang.org/grpc/grpclb/grpc_lb_v1/messages",
-			"revision": "6253aa9397d3f97c06b2c67e2b2965b558b3705f",
-			"revisionTime": "2017-11-20T21:49:49Z"
+			"revision": "10873b30bf245efc365a957b425da2e15f47a560",
+			"revisionTime": "2017-11-22T21:59:20Z"
 		},
 		{
-			"checksumSHA1": "QwfauZF1BCsZb73maxHQtF5y2ro=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/google.golang.org/grpc/grpclog",
+			"checksumSHA1": "ntHev01vgZgeIh5VFRmbLx/BSTo=",
 			"path": "google.golang.org/grpc/grpclog",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "10873b30bf245efc365a957b425da2e15f47a560",
+			"revisionTime": "2017-11-22T21:59:20Z"
 		},
 		{
-			"checksumSHA1": "U9vDe05/tQrvFBojOQX8Xk12W9I=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/google.golang.org/grpc/internal",
+			"checksumSHA1": "Qvf3zdmRCSsiM/VoBv0qB/naHtU=",
 			"path": "google.golang.org/grpc/internal",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "10873b30bf245efc365a957b425da2e15f47a560",
+			"revisionTime": "2017-11-22T21:59:20Z"
 		},
 		{
 			"checksumSHA1": "hcuHgKp8W0wIzoCnNfKI8NUss5o=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/google.golang.org/grpc/keepalive",
 			"path": "google.golang.org/grpc/keepalive",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "10873b30bf245efc365a957b425da2e15f47a560",
+			"revisionTime": "2017-11-22T21:59:20Z"
 		},
 		{
-			"checksumSHA1": "N++Ur11m6Dq3j14/Hc2Kqmxroag=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/google.golang.org/grpc/metadata",
+			"checksumSHA1": "KeUmTZV+2X46C49cKyjp+xM7fvw=",
 			"path": "google.golang.org/grpc/metadata",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "10873b30bf245efc365a957b425da2e15f47a560",
+			"revisionTime": "2017-11-22T21:59:20Z"
 		},
 		{
-			"checksumSHA1": "Zzb7Xsc3tbTJzrcZbSPyye+yxmw=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/google.golang.org/grpc/naming",
+			"checksumSHA1": "dgwdT20kXe4ZbXBOFbTwVQt8rmA=",
 			"path": "google.golang.org/grpc/naming",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "10873b30bf245efc365a957b425da2e15f47a560",
+			"revisionTime": "2017-11-22T21:59:20Z"
 		},
 		{
 			"checksumSHA1": "n5EgDdBqFMa2KQFhtl+FF/4gIFo=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/google.golang.org/grpc/peer",
 			"path": "google.golang.org/grpc/peer",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "10873b30bf245efc365a957b425da2e15f47a560",
+			"revisionTime": "2017-11-22T21:59:20Z"
 		},
 		{
 			"checksumSHA1": "H7VyP18nJ9MmoB5r9+I7EKVEeVM=",
 			"path": "google.golang.org/grpc/resolver",
-			"revision": "6253aa9397d3f97c06b2c67e2b2965b558b3705f",
-			"revisionTime": "2017-11-20T21:49:49Z"
+			"revision": "10873b30bf245efc365a957b425da2e15f47a560",
+			"revisionTime": "2017-11-22T21:59:20Z"
 		},
 		{
 			"checksumSHA1": "WpWF+bDzObsHf+bjoGpb/abeFxo=",
 			"path": "google.golang.org/grpc/resolver/dns",
-			"revision": "6253aa9397d3f97c06b2c67e2b2965b558b3705f",
-			"revisionTime": "2017-11-20T21:49:49Z"
+			"revision": "10873b30bf245efc365a957b425da2e15f47a560",
+			"revisionTime": "2017-11-22T21:59:20Z"
 		},
 		{
 			"checksumSHA1": "zs9M4xE8Lyg4wvuYvR00XoBxmuw=",
 			"path": "google.golang.org/grpc/resolver/passthrough",
-			"revision": "6253aa9397d3f97c06b2c67e2b2965b558b3705f",
-			"revisionTime": "2017-11-20T21:49:49Z"
+			"revision": "10873b30bf245efc365a957b425da2e15f47a560",
+			"revisionTime": "2017-11-22T21:59:20Z"
 		},
 		{
-			"checksumSHA1": "ZY8Tq61fGK1stTuvwK5WoqcU8j8=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/google.golang.org/grpc/stats",
+			"checksumSHA1": "G9lgXNi7qClo5sM2s6TbTHLFR3g=",
 			"path": "google.golang.org/grpc/stats",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "10873b30bf245efc365a957b425da2e15f47a560",
+			"revisionTime": "2017-11-22T21:59:20Z"
 		},
 		{
-			"checksumSHA1": "DIv9qbApAoh2cF2G3Br24lVPqUI=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/google.golang.org/grpc/status",
+			"checksumSHA1": "3Dwz4RLstDHMPyDA7BUsYe+JP4w=",
 			"path": "google.golang.org/grpc/status",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "10873b30bf245efc365a957b425da2e15f47a560",
+			"revisionTime": "2017-11-22T21:59:20Z"
 		},
 		{
-			"checksumSHA1": "aixGx/Kd0cj9ZlZHacpHe3XgMQ4=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/google.golang.org/grpc/tap",
+			"checksumSHA1": "qvArRhlrww5WvRmbyMF2mUfbJew=",
 			"path": "google.golang.org/grpc/tap",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "10873b30bf245efc365a957b425da2e15f47a560",
+			"revisionTime": "2017-11-22T21:59:20Z"
 		},
 		{
-			"checksumSHA1": "o0hnTIGkLqrdf3nUisZuzdyEXCE=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/google.golang.org/grpc/transport",
+			"checksumSHA1": "cp2boGt5b7B2G7mIkI4my6r6JdE=",
 			"path": "google.golang.org/grpc/transport",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
+			"revision": "10873b30bf245efc365a957b425da2e15f47a560",
+			"revisionTime": "2017-11-22T21:59:20Z"
 		},
 		{
 			"checksumSHA1": "o5Skl9YjZqmvEEqWie3f3oY0Kow=",
 			"path": "gopkg.in/alexcesaro/statsd.v2",
 			"revision": "7fea3f0d2fab1ad973e641e51dba45443a311a90",
 			"revisionTime": "2016-03-20T18:21:10Z"
-		},
-		{
-			"checksumSHA1": "6f8MEU31llHM1sLM/GGH4/Qxu0A=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/gopkg.in/inf.v0",
-			"path": "gopkg.in/inf.v0",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "YsB2DChSV9HxdzHaKATllAUKWSI=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/gopkg.in/mgo.v2/bson",
-			"path": "gopkg.in/mgo.v2/bson",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "XQsrqoNT1U0KzLxOFcAZVvqhLfk=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/gopkg.in/mgo.v2/internal/json",
-			"path": "gopkg.in/mgo.v2/internal/json",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
 		},
 		{
 			"checksumSHA1": "Glsug+ZroyZo2Ucr8VZJFYatmjQ=",
@@ -1215,839 +901,6 @@
 			"path": "gopkg.in/yaml.v2",
 			"revision": "a3f3340b5840cee44f372bddb5880fcbc419b46a",
 			"revisionTime": "2017-02-08T14:18:51Z"
-		},
-		{
-			"checksumSHA1": "tyJ8yrI3lC+JdiVumOFFugx0264=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/api/equality",
-			"path": "k8s.io/apimachinery/pkg/api/equality",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "9Zj/HZTQTW8j2n2mcVKGA875rpo=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/api/errors",
-			"path": "k8s.io/apimachinery/pkg/api/errors",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "BZodNLB6C8ejUfasrsvzgtC4oUg=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/api/meta",
-			"path": "k8s.io/apimachinery/pkg/api/meta",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "QqnlOlmLEchB3EtUc3c46eGngUA=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/api/resource",
-			"path": "k8s.io/apimachinery/pkg/api/resource",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "5r+YL8wEiqHvTfobtSoSZiBAt4g=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/apimachinery",
-			"path": "k8s.io/apimachinery/pkg/apimachinery",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "tPC515EQgzbJOROOlFX/TUNZFg0=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/apimachinery/announced",
-			"path": "k8s.io/apimachinery/pkg/apimachinery/announced",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "hS1o8vHE6Y0IsH77wJjd2Jve87Q=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/apimachinery/registered",
-			"path": "k8s.io/apimachinery/pkg/apimachinery/registered",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "RrwPUbyprtkpsQODF1/BwbVtS8c=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/apis/meta/v1",
-			"path": "k8s.io/apimachinery/pkg/apis/meta/v1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "IBV+C3zZos33DmeigUJTk/BvC4E=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/apis/meta/v1/unstructured",
-			"path": "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "9Y/vpuS/uAh9Q70eu49ut9HK6s4=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/apis/meta/v1alpha1",
-			"path": "k8s.io/apimachinery/pkg/apis/meta/v1alpha1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "FO6DXFv4jjIqq98S4v0ke9fQSRk=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/conversion",
-			"path": "k8s.io/apimachinery/pkg/conversion",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "Cn/QaiTl+Yioenr4/XvdacapSwg=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/conversion/queryparams",
-			"path": "k8s.io/apimachinery/pkg/conversion/queryparams",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "MBt70H+S0JbCHaXkdDjCSY8bR+c=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/conversion/unstructured",
-			"path": "k8s.io/apimachinery/pkg/conversion/unstructured",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "ntWCLzy4srxUZ2YRTLcDU1TJd2I=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/fields",
-			"path": "k8s.io/apimachinery/pkg/fields",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "7QvUwGY3z4qW5rpDszLmxL/Xj9g=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/labels",
-			"path": "k8s.io/apimachinery/pkg/labels",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "Miw1lcQ2E+AGd7AYOFIHO3+fYww=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/openapi",
-			"path": "k8s.io/apimachinery/pkg/openapi",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "l2K44V84AJTWq4X/fVFPFTbTSF0=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/runtime",
-			"path": "k8s.io/apimachinery/pkg/runtime",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "r/9XGSppO8GWoOdsiaivB0A6PYM=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/runtime/schema",
-			"path": "k8s.io/apimachinery/pkg/runtime/schema",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "W/a6NmGictdzYqK6PPET6FDjOMA=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/runtime/serializer",
-			"path": "k8s.io/apimachinery/pkg/runtime/serializer",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "IH3EK4OQLsAcgdDJBP2/RXvc3so=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/runtime/serializer/json",
-			"path": "k8s.io/apimachinery/pkg/runtime/serializer/json",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "g/JPGsv/XKWPaTqxWpb5kK9OSY0=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/runtime/serializer/protobuf",
-			"path": "k8s.io/apimachinery/pkg/runtime/serializer/protobuf",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "1mJpK3ITRgqeDeyy1DbGr6WZvuA=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/runtime/serializer/recognizer",
-			"path": "k8s.io/apimachinery/pkg/runtime/serializer/recognizer",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "OQbrLkl+e5SGHCXUp248MNHPUbA=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/runtime/serializer/streaming",
-			"path": "k8s.io/apimachinery/pkg/runtime/serializer/streaming",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "j9TnXv5vWARYi+dEQaJsiq9aNvs=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/runtime/serializer/versioning",
-			"path": "k8s.io/apimachinery/pkg/runtime/serializer/versioning",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "f7yWRd6DjlxINbFru0y2INrjmKE=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/selection",
-			"path": "k8s.io/apimachinery/pkg/selection",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "fJG2oyXJMDa3Ocizs3zI8B9Skiw=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/types",
-			"path": "k8s.io/apimachinery/pkg/types",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "O9/UbncQTi5DxuckDfLVhJALjz4=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/util/cache",
-			"path": "k8s.io/apimachinery/pkg/util/cache",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "3PuZGGbG10nRokIZkcCz8NCOPOY=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/util/clock",
-			"path": "k8s.io/apimachinery/pkg/util/clock",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "7heWWwfBBQRgPSSQ40xudcIfS9o=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/util/diff",
-			"path": "k8s.io/apimachinery/pkg/util/diff",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "QJBvzXcMRCebScbasdgkuCeX45U=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/util/errors",
-			"path": "k8s.io/apimachinery/pkg/util/errors",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "AJkaEjb8BwpA28yuV3sDCBXU27Y=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/util/framer",
-			"path": "k8s.io/apimachinery/pkg/util/framer",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "jfOySk/zLRaEERws6wMQftj+G1A=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/util/intstr",
-			"path": "k8s.io/apimachinery/pkg/util/intstr",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "jv2WuEwq8Lap4Te9EiaDsRcg2Vk=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/util/json",
-			"path": "k8s.io/apimachinery/pkg/util/json",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "JrNYZWRvwT5Mbo+jKfYQ8bXmb9M=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/util/net",
-			"path": "k8s.io/apimachinery/pkg/util/net",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "oQ/zG1DGWEFH+7YdhkJz9p/8SCc=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/util/rand",
-			"path": "k8s.io/apimachinery/pkg/util/rand",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "O4AeWEwGL4K0gffhQdsb1DUIF7I=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/util/runtime",
-			"path": "k8s.io/apimachinery/pkg/util/runtime",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "lcIoSJOwJL5VezuuAaEZ3/wvgO4=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/util/sets",
-			"path": "k8s.io/apimachinery/pkg/util/sets",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "/xfWcJuMbCdT6YPsVwHHJwtK1Gc=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/util/validation",
-			"path": "k8s.io/apimachinery/pkg/util/validation",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "yqQVeb2wcQUVa0H5L5wF9T9UhAY=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/util/validation/field",
-			"path": "k8s.io/apimachinery/pkg/util/validation/field",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "nKCYXkp430RHeMqmnUSxdyyLCRs=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/util/wait",
-			"path": "k8s.io/apimachinery/pkg/util/wait",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "Nc0wO1Y9gEKsv2LYN/fAnr43anA=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/util/yaml",
-			"path": "k8s.io/apimachinery/pkg/util/yaml",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "H/O38y3BIEKgfFzNP8BHzXZ1Xx0=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/version",
-			"path": "k8s.io/apimachinery/pkg/version",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "mE8V0g3OteuJ5DsapDfUTiHIYMI=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/pkg/watch",
-			"path": "k8s.io/apimachinery/pkg/watch",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "uQunvnsICiowJl3Rs46eT2OtFqg=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/apimachinery/third_party/forked/golang/reflect",
-			"path": "k8s.io/apimachinery/third_party/forked/golang/reflect",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "QXbF4CFmplEeBNrcWfl33Nw03vk=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/discovery",
-			"path": "k8s.io/client-go/discovery",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "aWKvebQwXAfumRSrzA1p/DH3yfA=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/kubernetes",
-			"path": "k8s.io/client-go/kubernetes",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "x39szgxLXIrk6e4exlDr4YLRFYs=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/kubernetes/scheme",
-			"path": "k8s.io/client-go/kubernetes/scheme",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "iCzIof0kVuV01cEbmDCYMELyUf0=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/kubernetes/typed/admissionregistration/v1alpha1",
-			"path": "k8s.io/client-go/kubernetes/typed/admissionregistration/v1alpha1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "CwSiXrymRNynLQxBCBb/FCmm/rM=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/kubernetes/typed/apps/v1beta1",
-			"path": "k8s.io/client-go/kubernetes/typed/apps/v1beta1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "7ilj6CPjuICGgYmqpa1F+5M+E7A=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/kubernetes/typed/authentication/v1",
-			"path": "k8s.io/client-go/kubernetes/typed/authentication/v1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "3hO+uFbK9t4/CQCczS5rRjnHzPQ=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/kubernetes/typed/authentication/v1beta1",
-			"path": "k8s.io/client-go/kubernetes/typed/authentication/v1beta1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "uQlq3ZTfM/R3AM0tvTLFi8hRupo=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/kubernetes/typed/authorization/v1",
-			"path": "k8s.io/client-go/kubernetes/typed/authorization/v1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "JCUqqpNwxqkagBf3biZyEQ7Tu0M=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/kubernetes/typed/authorization/v1beta1",
-			"path": "k8s.io/client-go/kubernetes/typed/authorization/v1beta1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "tdK/LnEfaj+37jucmQoNDZ13VZQ=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/kubernetes/typed/autoscaling/v1",
-			"path": "k8s.io/client-go/kubernetes/typed/autoscaling/v1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "CRKIKI3/GC/oQ6rPTSLSRHOlcoY=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/kubernetes/typed/autoscaling/v2alpha1",
-			"path": "k8s.io/client-go/kubernetes/typed/autoscaling/v2alpha1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "tqXFvbCi+JQD+OMCLoCurInHvFI=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/kubernetes/typed/batch/v1",
-			"path": "k8s.io/client-go/kubernetes/typed/batch/v1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "G2WrnFWX7hUEpNPHTMd9KPUDeUU=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/kubernetes/typed/batch/v2alpha1",
-			"path": "k8s.io/client-go/kubernetes/typed/batch/v2alpha1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "kGfTfSacIFfEHb+Zj4eiUDgsuAQ=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/kubernetes/typed/certificates/v1beta1",
-			"path": "k8s.io/client-go/kubernetes/typed/certificates/v1beta1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "wv4ic+sQR0ZU8i4MsxFCPxQHW58=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/kubernetes/typed/core/v1",
-			"path": "k8s.io/client-go/kubernetes/typed/core/v1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "K3e74dtUWO970oG0Cn1yU7bEcDM=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/kubernetes/typed/extensions/v1beta1",
-			"path": "k8s.io/client-go/kubernetes/typed/extensions/v1beta1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "5GSnvahuonep4TdCZGoUAjChA9Q=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/kubernetes/typed/networking/v1",
-			"path": "k8s.io/client-go/kubernetes/typed/networking/v1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "0NM1NcYVlf5Mfw/JuPOz3u07Qsg=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/kubernetes/typed/policy/v1beta1",
-			"path": "k8s.io/client-go/kubernetes/typed/policy/v1beta1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "xuqGjBhFcAx9jDsuqEMNqGJMJh8=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/kubernetes/typed/rbac/v1alpha1",
-			"path": "k8s.io/client-go/kubernetes/typed/rbac/v1alpha1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "1IVx+evyh0iNNX1gxJYBa5cBADc=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/kubernetes/typed/rbac/v1beta1",
-			"path": "k8s.io/client-go/kubernetes/typed/rbac/v1beta1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "UQdsiBJVqtmKZ4TCmuWX9Hb4e6c=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/kubernetes/typed/settings/v1alpha1",
-			"path": "k8s.io/client-go/kubernetes/typed/settings/v1alpha1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "rKgKEotFfvn+QHPPUHMmaiT04Xo=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/kubernetes/typed/storage/v1",
-			"path": "k8s.io/client-go/kubernetes/typed/storage/v1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "pIeGtmWnhRyo9QsJyA98ECx9t50=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/kubernetes/typed/storage/v1beta1",
-			"path": "k8s.io/client-go/kubernetes/typed/storage/v1beta1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "Oytc8d4HFzyoj3thFxP3EPXP/tw=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/api",
-			"path": "k8s.io/client-go/pkg/api",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "usQ+O3T0M/Hgl1xL+RKl1ywz0HY=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/api/v1",
-			"path": "k8s.io/client-go/pkg/api/v1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "uxKN2j8UvFsniw+M5jxuSnKKnDY=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/api/v1/ref",
-			"path": "k8s.io/client-go/pkg/api/v1/ref",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "lWNXmlEpm7FTJTeTjLFKgh+s6Rs=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/apis/admissionregistration",
-			"path": "k8s.io/client-go/pkg/apis/admissionregistration",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "G0pkV/uiJmvei5b4vP3JbXHmk1w=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/apis/admissionregistration/v1alpha1",
-			"path": "k8s.io/client-go/pkg/apis/admissionregistration/v1alpha1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "FxzCARvEPxSMjerBJHDnSRo+5nw=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/apis/apps",
-			"path": "k8s.io/client-go/pkg/apis/apps",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "1qyu+RVIadbjYNEiPetQ28qQC9I=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/apis/apps/v1beta1",
-			"path": "k8s.io/client-go/pkg/apis/apps/v1beta1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "r2FYS8ugdf6QWV8tVI5l5K3I8t4=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/apis/authentication",
-			"path": "k8s.io/client-go/pkg/apis/authentication",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "/8H0XjCdePGQ5IYpl4lA7b1MLvo=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/apis/authentication/v1",
-			"path": "k8s.io/client-go/pkg/apis/authentication/v1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "c/cGpFapUNk/RNx6T/LOLNluVz4=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/apis/authentication/v1beta1",
-			"path": "k8s.io/client-go/pkg/apis/authentication/v1beta1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "X9fY9m9DeqXA8zRBKZkO9MC8Hpo=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/apis/authorization",
-			"path": "k8s.io/client-go/pkg/apis/authorization",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "gvceFpDnuUPFwWj017YIG0QwPqc=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/apis/authorization/v1",
-			"path": "k8s.io/client-go/pkg/apis/authorization/v1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "U0gIXlL5lZC9YCmwEPxFxmWRg64=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/apis/authorization/v1beta1",
-			"path": "k8s.io/client-go/pkg/apis/authorization/v1beta1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "K8pjUILj/Kqk22oItf3Ch6tAkr4=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/apis/autoscaling",
-			"path": "k8s.io/client-go/pkg/apis/autoscaling",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "JeKQPz3XbeT8jV9BsImBEt7yKX8=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/apis/autoscaling/v1",
-			"path": "k8s.io/client-go/pkg/apis/autoscaling/v1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "GGGeJM9jprWtlBmJY6iCuasjjLc=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/apis/autoscaling/v2alpha1",
-			"path": "k8s.io/client-go/pkg/apis/autoscaling/v2alpha1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "TiAQIMM8dGa3Xz4C0+lyksK9PWA=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/apis/batch",
-			"path": "k8s.io/client-go/pkg/apis/batch",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "7sqil1b7ckIicUaTfISPENzfk+k=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/apis/batch/v1",
-			"path": "k8s.io/client-go/pkg/apis/batch/v1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "heVY8VyZJZYA3VAq3PgZRzvjN4k=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/apis/batch/v2alpha1",
-			"path": "k8s.io/client-go/pkg/apis/batch/v2alpha1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "qhrvFoSHN5QxIgwQS+qF909+Wfo=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/apis/certificates",
-			"path": "k8s.io/client-go/pkg/apis/certificates",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "IBiF8D3UE7q6vapdayGWdhCv/BQ=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/apis/certificates/v1beta1",
-			"path": "k8s.io/client-go/pkg/apis/certificates/v1beta1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "f/LV4KRG1VFJjmkbnDwjiA2kgxY=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/apis/extensions",
-			"path": "k8s.io/client-go/pkg/apis/extensions",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "oeAbTXu82bMBiLSU+pLzbfK7hC8=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/apis/extensions/v1beta1",
-			"path": "k8s.io/client-go/pkg/apis/extensions/v1beta1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "1922UuTEXYjC4tXGOnrQFVC5Sd0=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/apis/networking",
-			"path": "k8s.io/client-go/pkg/apis/networking",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "HN8NYZxxhL+FmRUu193u5Mop+pM=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/apis/networking/v1",
-			"path": "k8s.io/client-go/pkg/apis/networking/v1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "TNbBkuU1JNmCHn+54RsI0CeUx6E=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/apis/policy",
-			"path": "k8s.io/client-go/pkg/apis/policy",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "v+iJ6+srDDluAK8GQmh9x6JA7so=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/apis/policy/v1beta1",
-			"path": "k8s.io/client-go/pkg/apis/policy/v1beta1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "qbwiIW+u48UPu87FIfUork8Eh2E=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/apis/rbac",
-			"path": "k8s.io/client-go/pkg/apis/rbac",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "mOCT5tYYFR/7iyKWAmJay4kpMyc=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/apis/rbac/v1alpha1",
-			"path": "k8s.io/client-go/pkg/apis/rbac/v1alpha1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "l5177wDZEucl7LtzT0qPjyk6F7w=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/apis/rbac/v1beta1",
-			"path": "k8s.io/client-go/pkg/apis/rbac/v1beta1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "XNswxrBb4PhLYve2ZTDT3vrq56o=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/apis/settings",
-			"path": "k8s.io/client-go/pkg/apis/settings",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "7EOsYH6IBplCQ7eKhqsJ5NOOY68=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/apis/settings/v1alpha1",
-			"path": "k8s.io/client-go/pkg/apis/settings/v1alpha1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "5hTZybdpUiv9yC02yErfQpEVhF0=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/apis/storage",
-			"path": "k8s.io/client-go/pkg/apis/storage",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "3IryuLEKICg9pzBrQMO6trRTkis=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/apis/storage/v1",
-			"path": "k8s.io/client-go/pkg/apis/storage/v1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "iUcv2ZV/GEttoQD3uDlR5Q9SVWM=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/apis/storage/v1beta1",
-			"path": "k8s.io/client-go/pkg/apis/storage/v1beta1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "6RgBkbX4PUzEgnSOpOVqx7gfTFw=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/util",
-			"path": "k8s.io/client-go/pkg/util",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "VASoMEqFm/sWHy9heK6zHNodPwE=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/util/parsers",
-			"path": "k8s.io/client-go/pkg/util/parsers",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "HJmT0uIvaFoJWYxiWO7HfyX/JuQ=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/pkg/version",
-			"path": "k8s.io/client-go/pkg/version",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "ytclg61RaQ/OPACSd+XQoV/Ls5k=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/rest",
-			"path": "k8s.io/client-go/rest",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "Ejrgdt9O/vF8EAXzuUF+KiP3q4M=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/rest/watch",
-			"path": "k8s.io/client-go/rest/watch",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "1ckiORH3dJD8v3R8tLEZ/5wttAk=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/tools/auth",
-			"path": "k8s.io/client-go/tools/auth",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "3iMsq85ahJeteRzg+St9qig1j1Q=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/tools/cache",
-			"path": "k8s.io/client-go/tools/cache",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "tFEvWFeH+v5MXsLpnd57slYkt/E=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/tools/clientcmd",
-			"path": "k8s.io/client-go/tools/clientcmd",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "G2SBUQdB7nH2ij4nhX/JbW0sH4E=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/tools/clientcmd/api",
-			"path": "k8s.io/client-go/tools/clientcmd/api",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "e13IQ1Gppt/nnvoj8mGsG3z0B0M=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/tools/clientcmd/api/latest",
-			"path": "k8s.io/client-go/tools/clientcmd/api/latest",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "MXnVfWznpFkkZsXBZUw966kGIbo=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/tools/clientcmd/api/v1",
-			"path": "k8s.io/client-go/tools/clientcmd/api/v1",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "5dVKgj481QQAFpPUQ6UJr/aqYk8=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/tools/metrics",
-			"path": "k8s.io/client-go/tools/metrics",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "Ob38ZSR7KVKsqiNlLAU6zvtUCBc=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/transport",
-			"path": "k8s.io/client-go/transport",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "dbQeKcjt3eDo+QZ6vcc4nS2u0UA=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/util/cert",
-			"path": "k8s.io/client-go/util/cert",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "tkLvW7FEYZrzfG4yplNT+Pod1gY=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/util/flowcontrol",
-			"path": "k8s.io/client-go/util/flowcontrol",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "jP91eRmXcfaEo/NU7Lk1coovunQ=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/util/homedir",
-			"path": "k8s.io/client-go/util/homedir",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
-		},
-		{
-			"checksumSHA1": "QJl9pdigFGmNYbCVgFxuBnG9gfY=",
-			"origin": "github.com/inverse-inc/packetfence/go/coredns/vendor/k8s.io/client-go/util/integer",
-			"path": "k8s.io/client-go/util/integer",
-			"revision": "1a7686dbe5a01176738f727cf166cd9e2f97fe44",
-			"revisionTime": "2017-11-22T14:56:22Z"
 		}
 	],
 	"rootPath": "github.com/inverse-inc/packetfence/go"
