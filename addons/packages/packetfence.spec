@@ -135,7 +135,7 @@ requires: perl(Const::Fast)
 # Perl core modules but still explicitly defined just in case distro's core perl get stripped
 Requires: perl(Time::HiRes)
 # Required for inline mode.
-Requires: ipset, sudo
+Requires: ipset, sudo, ipset-devel
 Requires: perl(File::Which), perl(NetAddr::IP)
 Requires: perl(Net::LDAP)
 Requires: perl(Net::IP)
