@@ -116,14 +116,6 @@ type ManagementNetwork struct {
 	Int            string `json:"int"`
 }
 
-type PfClusterIp struct {
-	StructConfig
-	PfconfigMethod string `val:"hash_element"`
-	PfconfigNS     string `val:"resource::cluster_hosts_ip"`
-	PfconfigHashNS string `val:"-"`
-	Ip             string `json:"ip"`
-}
-
 func (mn *ManagementNetwork) GetNetIP(ctx context.Context) (net.IP, *net.IPNet, error) {
 	ip, ipnet, err := net.ParseCIDR(mn.Ip + "/" + mn.Mask)
 	return ip, ipnet, err
