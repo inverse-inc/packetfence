@@ -21,6 +21,12 @@
 			"revisionTime": "2016-10-29T20:57:26Z"
 		},
 		{
+			"checksumSHA1": "e+GyxNE5hA8Q6usX+penCPjeeJo=",
+			"path": "github.com/diegoguarnieri/go-conntrack/conntrack",
+			"revision": "9abb0707ff3199f9ab5a44b5a5ea588c41979476",
+			"revisionTime": "2016-12-08T18:04:11Z"
+		},
+		{
 			"checksumSHA1": "Mrmbqq23BIzwocC3m1wk479o35s=",
 			"path": "github.com/dsnet/compress",
 			"revision": "b9aab3c6a04eef14c56384b4ad065e7b73438862",
@@ -75,10 +81,22 @@
 			"revisionTime": "2016-05-14T03:44:11Z"
 		},
 		{
+			"checksumSHA1": "gC4yFu+0Iqb71rzQZVbGSKqsK6U=",
+			"path": "github.com/goji/httpauth",
+			"revision": "2da839ab0f4df05a6db5eb277995589dadbd4fb9",
+			"revisionTime": "2016-06-01T13:53:02Z"
+		},
+		{
 			"checksumSHA1": "UP2wONSE346WHWwT20G1Xedd6ZI=",
 			"path": "github.com/google/uuid",
 			"revision": "064e2069ce9c359c118179501254f67d7d37ba24",
 			"revisionTime": "2016-11-28T19:12:14Z"
+		},
+		{
+			"checksumSHA1": "F5dR3/i70EhSIMZfeIV+H8/PtvM=",
+			"path": "github.com/gorilla/mux",
+			"revision": "392c28fe23e1c45ddba891b0320b3b5df220beea",
+			"revisionTime": "2017-01-18T13:43:44Z"
 		},
 		{
 			"checksumSHA1": "ZVzABul4nD/fzyYnbe+5bsJ4nBg=",
