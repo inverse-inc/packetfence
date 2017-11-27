@@ -7,13 +7,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/inverse-inc/packetfence/go/log"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"io"
 	"net"
 	"os"
 	"reflect"
 	"time"
+
+	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 	//"github.com/davecgh/go-spew/spew"
 )
 
@@ -236,6 +237,7 @@ func FetchDecodeSocket(ctx context.Context, o PfconfigObject) error {
 	query := createQuery(ctx, o)
 
 	jsonResponse := FetchSocket(ctx, query.GetPayload())
+
 	if query.method == "keys" {
 		if cs, ok := o.(*PfconfigKeys); ok {
 			decodeInterface(ctx, query.encoding, jsonResponse, &cs.Keys)

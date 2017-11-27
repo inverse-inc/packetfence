@@ -93,6 +93,19 @@ type PfConfCaptivePortal struct {
 	WisprRedirection             string   `json:"wispr_redirection"`
 }
 
+type PfConfWebservices struct {
+	StructConfig
+	PfconfigMethod string `val:"hash_element"`
+	PfconfigNS     string `val:"config::Pf"`
+	PfconfigHashNS string `val:"webservices"`
+	Pass           string `json:"pass"`
+	Proto          string `json:"proto"`
+	User           string `json:"user"`
+	Port           string `json:"port"`
+	AAAPort        string `json:"aaa_port"`
+	Host           string `json:"host"`
+}
+
 type ManagementNetwork struct {
 	StructConfig
 	PfconfigMethod string `val:"element"`
@@ -101,6 +114,14 @@ type ManagementNetwork struct {
 	Vip            string `json:"vip"`
 	Mask           string `json:"mask"`
 	Int            string `json:"int"`
+}
+
+type PfClusterIp struct {
+	StructConfig
+	PfconfigMethod string `val:"hash_element"`
+	PfconfigNS     string `val:"resource::cluster_hosts_ip"`
+	PfconfigHashNS string `val:"-"`
+	Ip             string `json:"ip"`
 }
 
 func (mn *ManagementNetwork) GetNetIP(ctx context.Context) (net.IP, *net.IPNet, error) {
@@ -135,6 +156,7 @@ type configStruct struct {
 		General       PfConfGeneral
 		Fencing       PfConfFencing
 		CaptivePortal PfConfCaptivePortal
+		Webservices   PfConfWebservices
 	}
 }
 
@@ -167,6 +189,40 @@ type NetworkConf struct {
 	DhcpDefaultLeaseTime string `json:"dhcp_default_lease_time"`
 	NextHop              string `json:"next_hop"`
 	SplitNetwork         string `json:"split_network"`
+	RegNetwork           string `json:"reg_network"`
+}
+
+type Interface struct {
+	InterfaceName string `json:"int"`
+	Mask          string `json:"mask"`
+	Ip            string `json:"ip"`
+	Cidr          string `json:"cidr"`
+}
+
+type RessourseNetworkConf struct {
+	StructConfig
+	PfconfigMethod       string    `val:"hash_element"`
+	PfconfigNS           string    `val:"resource::network_config"`
+	PfconfigHashNS       string    `val:"-"`
+	Dns                  string    `json:"dns"`
+	DhcpStart            string    `json:"dhcp_start"`
+	Gateway              string    `json:"gateway"`
+	DomainName           string    `json:"domain-name"`
+	NatEnabled           string    `json:"nat_enabled"`
+	DhcpMaxLeaseTime     string    `json:"dhcp_max_lease_time"`
+	Named                string    `json:"named"`
+	FakeMacEnabled       string    `json:"fake_mac_enabled"`
+	Dhcpd                string    `json:"dhcpd"`
+	DhcpEnd              string    `json:"dhcp_end"`
+	Type                 string    `json:"type"`
+	Netmask              string    `json:"netmask"`
+	DhcpDefaultLeaseTime string    `json:"dhcp_default_lease_time"`
+	NextHop              string    `json:"next_hop"`
+	SplitNetwork         string    `json:"split_network"`
+	RegNetwork           string    `json:"reg_network"`
+	Dnsvip               string    `json:"dns_vip"`
+	ClusterIPs           string    `json:"cluster_ips"`
+	Interface            Interface `json:"interface"`
 }
 
 type PfRoles struct {
@@ -206,4 +262,22 @@ type NetInterface struct {
 	Type           string `json:"type"`
 	Enforcement    string `json:"enforcement"`
 	Mask           string `json:"mask"`
+}
+
+type PassthroughsConf struct {
+	StructConfig
+	PfconfigMethod string `val:"hash_element"`
+	PfconfigNS     string `val:"resource::passthroughs"`
+	PfconfigArray  string `val:"_"`
+	Wildcard       map[string][]string
+	Normal         map[string][]string
+}
+
+type PassthroughsIsolationConf struct {
+	StructConfig
+	PfconfigMethod string `val:"hash_element"`
+	PfconfigNS     string `val:"resource::isolation_passthroughs"`
+	PfconfigArray  string `val:"_"`
+	Wildcard       map[string][]string
+	Normal         map[string][]string
 }
