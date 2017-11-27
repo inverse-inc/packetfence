@@ -89,6 +89,8 @@ if build_mode; then
   mv go_dhcpd $BINDST/
   make go_ipset
   mv go_ipset $BINDST/
+  make go_dns
+  mv go_dns $BINDST/
 elif test_mode; then
   PFCONFIG_TESTING=y $GOPATH/bin/govendor test ./...  
 fi

@@ -455,6 +455,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-collectd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-collectd.service
 %{__install} -D -m0644 conf/systemd/packetfence-config.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-config.service
 %{__install} -D -m0644 conf/systemd/packetfence-dhcpd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-dhcpd.service
+%{__install} -D -m0644 conf/systemd/packetfence-go_dns.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-go_dns.service
 %{__install} -D -m0644 conf/systemd/packetfence-haproxy.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-haproxy.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.aaa.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.aaa.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.admin.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.admin.service
@@ -864,6 +865,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/addons/watchdog/*.sh
 %dir                    /usr/local/pf/bin
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfhttpd
+%attr(0755, pf, pf)     /usr/local/pf/bin/go_dns
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd.pl
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd_vlan
 %attr(0755, pf, pf)     /usr/local/pf/bin/pftest
@@ -888,6 +890,7 @@ fi
                         /usr/local/pf/conf/caddy-services/*.conf.example
 %config(noreplace)      /usr/local/pf/conf/chi.conf
 %config                 /usr/local/pf/conf/chi.conf.defaults
+%config(noreplace)      /usr/local/pf/conf/Corefile
 %config(noreplace)      /usr/local/pf/conf/portal_modules.conf
 %config                 /usr/local/pf/conf/portal_modules.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/device_registration.conf

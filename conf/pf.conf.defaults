@@ -621,6 +621,16 @@ routes=enabled
 # location of the routes binary. only necessary to change if you are not running the rpmed version.
 routes_binary=/sbin/ip
 
+# services.go_dns
+#
+# Should go_dns be managed by PacketFence?
+go_dns=disabled
+#
+# services.go_dns_binary
+#
+# Location of the go_dns binary.
+go_dns_binary=/usr/local/pf/bin/go_dns
+
 [snmp_traps]
 #
 # snmp_traps.nbtraphandlerthreads

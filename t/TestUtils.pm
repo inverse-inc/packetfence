@@ -110,6 +110,7 @@ my @excluded_binaries = qw(
    /usr/local/pf/bin/ntlm_auth_wrapper
    /usr/local/pf/bin/mysql_fingerbank_import.sh
    /usr/local/pf/addons/sourcefire/pfdetect.pl
+   /usr/local/pf/bin/go_dns
 );
 my %exclusions = map { $_ => 1 } @excluded_binaries;
 

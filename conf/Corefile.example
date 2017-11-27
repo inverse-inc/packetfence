@@ -1,0 +1,20 @@
+.:54 {
+[% domain %]
+
+proxy . /etc/resolv.conf
+}
+
+# all other domains are subject to interception
+:53 {
+    pfdns {
+        enforcement true
+    }
+    # Anything not handled by pfdns will be resolved normally
+[% domain %]
+[% inline %]
+
+    # Default to system resolv.conf file
+    proxy . /etc/resolv.conf
+    log stdout
+    errors
+}

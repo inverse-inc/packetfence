@@ -346,21 +346,6 @@ sub generate_inline_rules {
             }
         }
 
-        my $rule = "--protocol udp --destination-port 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
-        $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_UNREG "
-            . "--jump DNAT --to $gateway\n";
-        $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_ISOLATION "
-            . "--jump DNAT --to $gateway\n";
-
-        if (isenabled($ConfigNetworks{$network}{'split_network'}) && defined($ConfigNetworks{$network}{'reg_network'}) && $ConfigNetworks{$network}{'reg_network'} ne '') {
-            $rule = "--protocol udp --destination-port 53 -s $ConfigNetworks{$network}{'reg_network'}";
-            $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_UNREG "
-                . "--jump DNAT --to $gateway\n";
-            $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_ISOLATION "
-                . "--jump DNAT --to $gateway\n";
-
-        }
-
         if (defined($Config{'fencing'}{'interception_proxy_port'}) && isenabled($Config{'fencing'}{'interception_proxy'})) {
             $logger->info("Adding Proxy interception rules");
             foreach my $intercept_port ( split(',', $Config{'fencing'}{'interception_proxy_port'} ) ) {
