@@ -18,7 +18,7 @@ pfhttpd-race:
 	cd - && \
 	mv caddy/caddy/caddy/caddy pfhttpd-race
 
-go_dhcpd:
+go_ipset:
 	cd ipset && \
 	go build && \
 	cd - && \
