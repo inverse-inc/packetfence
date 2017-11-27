@@ -13,8 +13,6 @@ Module to manage Juniper (Trapeze) controllers
 use strict;
 use warnings;
 
-use Log::Log4perl;
-use Net::Appliance::Session;
 use POSIX;
 
 use base ('pf::Switch::Trapeze');
@@ -25,7 +23,10 @@ use pf::Switch::constants;
 use pf::util;
 use pf::constants;
 
-#sub supportsRoleBasedEnforcement { return $TRUE; }
+sub supportsRoleBasedEnforcement { return $TRUE; }
+sub supportsWirelessDot1x { return $TRUE; }
+# sub supportsWirelessMacAuth { return $TRUE; }
+
 =head1 STATUS
 
 =head1 BUGS AND LIMITATIONS
@@ -44,7 +45,6 @@ sub returnRadiusAccessAccept {
     my $logger = $self->logger();
 
     my $radius_reply_ref = {};
-    use Data::Dumper;
 
     # should this node be kicked out?
     my $kick = $self->handleRadiusDeny($args);
@@ -83,7 +83,6 @@ sub returnRadiusAccessAccept {
                 %$radius_reply_ref,
                 $self->returnRoleAttributes($role),
             };
-            $logger->info('role answer' . Dumper($radius_reply_ref));
             $logger->info(
                 "(".$self->{'_id'}.") Added role $role to the returned RADIUS Access-Accept"
             );
@@ -107,15 +106,11 @@ sub returnRadiusAccessAccept {
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Francois Gaudreault <fgaudreault@inverse.ca>
-
-Regis Balzard <rbalzard@inverse.ca>
+Inverse inc. info@inverse.ca
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010,2011 Inverse inc.
+Copyright (C) 2008-2017 Inverse inc.
 
 =head1 LICENSE
 
