@@ -19,24 +19,6 @@
           <i class="icon-refresh"></i> [% l('Update Fingerbank DB') %]
         </a>
       </li>
-      <li>
-        <a class="updates_section_status_msg"
-           href="[% c.uri_for(c.controller('Config::Fingerbank::DB').action_for('initialize_mysql')) %]">
-          <i class="icon-refresh"></i> [% l('Initialize MySQL database') %]
-        </a>
-      </li>
-      <li>
-        <a class="updates_section_status_msg"
-           href="[% c.uri_for(c.controller('Config::Fingerbank::DB').action_for('update_redis_db')) %]">
-          <i class="icon-refresh"></i> [% l('Update Redis DB') %]
-        </a>
-      </li>
-      <li>
-        <a class="updates_section_status_msg"
-           href="[% c.uri_for(c.controller('Config::Fingerbank::DB').action_for('update_p0f_map')) %]">
-          <i class="icon-refresh"></i> [% l('Update Fingebank p0f map') %]
-        </a>
-      </li>
       [% END %]
     </ul>
   </div>
