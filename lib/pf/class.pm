@@ -29,7 +29,7 @@ BEGIN {
         class_view       class_view_all
         class_trappable  class_view_actions
         class_add        class_delete
-        class_merge
+        class_merge      class_next_vid
     );
 }
 
@@ -70,6 +70,9 @@ sub class_db_prepare {
     $class_statements->{'class_trappable_sql'} = get_db_handle()->prepare(
         qq [select c.vid,c.description,c.auto_enable,c.max_enables,c.grace_period,c.window,c.vclose,c.priority,c.template,c.max_enable_url,c.redirect_url,c.button_text,c.enabled,c.vlan,c.target_category,c.delay_by,c.external_command from class c left join action a on c.vid=a.vid where a.action="trap" ]);
 
+    $class_statements->{'class_next_vid'} = get_db_handle()->prepare(
+        qq [SELECT MAX(`vid`)+1 `auto_increment_id` FROM `class`]);
+
     $class_db_prepared = 1;
 }
 
@@ -98,6 +101,11 @@ sub class_view_all {
 
 sub class_trappable {
     return db_data(CLASS, $class_statements, 'class_trappable_sql');
+}
+
+sub class_next_vid {
+    my @row = db_data(CLASS, $class_statements, 'class_next_vid');
+    return $row[0]->{'auto_increment_id'};
 }
 
 sub class_view_actions {
