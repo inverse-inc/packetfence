@@ -8,7 +8,6 @@ Before=packetfence-httpd.portal.service
 StartLimitBurst=3
 StartLimitInterval=60
 Type=notify
-WatchdogSec=30s
 ExecStartPre=/usr/local/pf/bin/pfcmd service go_dns generateconfig
 ExecStart=/usr/local/pf/bin/go_dns
 Restart=on-failure
