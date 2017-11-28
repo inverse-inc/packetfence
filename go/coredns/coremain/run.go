@@ -18,6 +18,7 @@ import (
 
 	// Plug in CoreDNS
 	_ "github.com/inverse-inc/packetfence/go/coredns/core"
+	"github.com/coreos/go-systemd/daemon"
 )
 
 func init() {
@@ -95,6 +96,14 @@ func Run() {
 	if err != nil {
 		mustLogFatal(err)
 	}
+	daemon.SdNotify(true, "RELOADING=1")
+	defer func() {
+		// notify systemd that startup is complete
+		_, err := daemon.SdNotify(true, "READY=1")
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Error sending systemd ready notification %s", err.Error())
+		}
+	}()
 
 	logVersion()
 	if !dnsserver.Quiet {
