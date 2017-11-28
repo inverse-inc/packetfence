@@ -21,7 +21,7 @@ use pf::LDAP;
 use List::Util;
 use Net::LDAP::Util qw(escape_filter_value);
 use pf::config qw(%Config);
-use List::MoreUtils qw(uniq);
+use List::MoreUtils qw(uniq any);
 use pf::StatsD::Timer;
 use pf::util::statsd qw(called);
 
@@ -243,15 +243,51 @@ match_rule
 
 sub match_rule {
     my ($self, $rule, $params, $extra) = @_;
-    if ($self->cache_match) {
-        my $id = $self->{id};
-        return $self->cache->compute_with_undef([$id, $rule->{id}, $params, $extra], sub {
-            $pf::StatsD::statsd->increment("pf::Authentication::Source::LDAPSource::match_rule.${id}.cache_miss.count" );
+    if ($self->is_rule_cacheable($rule)) {
+        return $self->cache->compute_with_undef($self->rule_cache_key, sub {
+            $pf::StatsD::statsd->increment("pf::Authentication::Source::LDAPSource::match_rule.$self->{id}.cache_miss.count" );
             return $self->SUPER::match_rule($rule, $params, $extra);
         });
     }
     return $self->SUPER::match_rule($rule, $params, $extra);
 }
+
+our %NON_CACHEABLE_OPS = (
+   $Conditions::IS_BEFORE => 1, 
+   $Conditions::IS_AFTER => 1, 
+   $Conditions::IN_TIME_PERIOD => 1, 
+);
+
+
+=head2 is_rule_cacheable
+
+is_rule_cacheable
+
+=cut
+
+sub is_rule_cacheable {
+    my ($self, $rule) = @_;
+    if (!defined ($rule) && !$self->cache_match) {
+        return $FALSE;
+    }
+    return (any { exists $NON_CACHEABLE_OPS{$_->{operator} // ''}  } @{$rule->conditions}) ? $FALSE : $TRUE;
+}
+
+
+=head2 rule_cache_key
+
+rule_cache_key
+
+=cut
+
+sub rule_cache_key {
+    my ($self, $rule, $params, $extra) = @_;
+    my %temp = %{$params // {}};
+    delete @temp{qw(current_date current_time current_time_period)};
+    return [$self->{id}, $rule->{id}, \%temp, $extra];
+}
+
+
 
 =head2 match_in_subclass
 
