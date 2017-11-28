@@ -84,7 +84,7 @@ type PfConfCaptivePortal struct {
 	NetworkDetectionIP           string   `json:"network_detection_ip"`
 	NetworkDetectionInitialDelay string   `json:"network_detection_initial_delay"`
 	NetworkDetectionRetryDelay   string   `json:"network_detection_retry_delay"`
-	NetworkRedirectDelay         int      `json:"network_redirect_delay"`
+	NetworkRedirectDelay         string   `json:"network_redirect_delay"`
 	ImagePath                    string   `json:"image_path"`
 	LoadbalancersIP              string   `json:"loadbalancers_ip"`
 	RequestTimeout               string   `json:"request_timeout"`
