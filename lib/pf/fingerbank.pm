@@ -36,45 +36,22 @@ use pf::CHI;
 use pf::log;
 use pf::node qw(node_modify);
 use pf::StatsD::Timer;
+use fingerbank::Config;
 
 our @fingerbank_based_violation_triggers = ('Device', 'DHCP_Fingerprint', 'DHCP_Vendor', 'MAC_Vendor', 'User_Agent');
 
 our %ACTION_MAP = (
-    "update-p0f-map" => sub { 
-        pf::fingerbank::_update_fingerbank_component("p0f map", sub{
-            my ($status, $status_msg) = fingerbank::Config::update_p0f_map();
-            return ($status, $status_msg);
-        });
-    },
     "update-upstream-db" => sub {
         pf::fingerbank::_update_fingerbank_component("Upstream database", sub{
             my ($status, $status_msg) = fingerbank::DB::update_upstream();
             return ($status, $status_msg);
         });
     },
-    "update-redis-db" => sub {
-        pf::fingerbank::_update_fingerbank_component("Redis combination map", sub{
-            my ($status, $status_msg) = fingerbank::Redis::update_from_api();
-            return ($status, $status_msg);
-        });
-    },
-    "update-mysql-db" => sub {
-        pf::fingerbank::_update_fingerbank_component("MySQL incremental", sub{
-            my ($status, $status_msg) = fingerbank::DB_Factory->instantiate(type => $MYSQL_DB_TYPE, schema => $UPSTREAM_SCHEMA)->update_from_incrementals();
-            return ($status, $status_msg);
-        });
-    },
 );
 
 our %ACTION_MAP_CONDITION = (
-    "update-redis-db" => sub {
-        return fingerbank::Util::is_enabled(fingerbank::Config::get_config('query', 'use_redis'));
-    },
     "update-upstream-db" => sub {
-        return fingerbank::Util::is_disabled(fingerbank::Config::get_config('mysql', 'state'));
-    },
-    "update-mysql-db" => sub {
-        return fingerbank::Util::is_enabled(fingerbank::Config::get_config('mysql', 'state'));
+        return $TRUE;
     },
 );
 
@@ -89,56 +66,64 @@ $fingerbank::Config::CACHE = cache();
 
 sub process {
     my $timer = pf::StatsD::Timer->new();
-    my ( $query_args ) = @_;
+    my ( $mac ) = @_;
     my $logger = pf::log::get_logger;
 
     my $cache = cache();
     # Rate limit the fingerbank requests based on the partial query params (the ones that are passed)
-    my $result = $cache->compute_with_undef("fingerbank::process-partial-query-".encode_json($query_args),  sub {
-        if($query_args->{mac}){
-            my $node_info = pf::node::node_view($query_args->{mac});
-            if($node_info){
-                my @base_params = qw(dhcp_fingerprint dhcp_vendor dhcp6_fingerprint dhcp6_enterprise);
-                foreach my $param (@base_params){
-                    $query_args->{$param} = $query_args->{$param} // $node_info->{$param} || '';
-                }
-                # ip is a special case as it's not in the node_info
-                unless(defined($query_args->{ip})){
-                    my $ip = pf::ip4log::mac2ip($query_args->{mac});
-                    $query_args->{ip} = $ip unless $ip eq 0;
-                }
-            }
-        }
+    # Querying for a resultset
+    my $query_args = endpoint_attributes($mac);
+    my $query_result = _query($query_args);
 
-        my $mac = $query_args->{'mac'};
+    unless(defined($query_result)) {
+        $logger->warn("Unable to perform a Fingerbank lookup for device with MAC address '$mac'");
+        return "unknown";
+    }
 
-        my $result = $cache->compute_with_undef("fingerbank::process-full-query-".encode_json($query_args), sub {
-            # Querying for a resultset
-            my $query_result = _query($query_args);
+    # Processing the device class based on it's parents
+    my ( $class, $parents ) = _parse_parents($query_result);
 
-            unless(defined($query_result)) {
-                $logger->warn("Unable to perform a Fingerbank lookup for device with MAC address '$mac'");
-                return "unknown";
-            }
+    # Updating the node device type based on the result
+    node_modify( $mac, (
+        'device_type'   => $query_result->{'device'}{'name'},
+        'device_class'  => $class,
+        'device_version' => $query_result->{'version'},
+        'device_score' => $query_result->{'score'},
+    ) );
 
-            # Processing the device class based on it's parents
-            my ( $class, $parents ) = _parse_parents($query_result);
+    _trigger_violations($query_args, $query_result, $parents);
 
-            # Updating the node device type based on the result
-            node_modify( $mac, (
-                'device_type'   => $query_result->{'device'}{'name'},
-                'device_class'  => $class,
-                'device_version' => $query_result->{'version'},
-                'device_score' => $query_result->{'score'},
-            ) );
+    return $query_result->{'device'}{'name'};
+}
 
-            _trigger_violations($query_args, $query_result, $parents);
+=head2 endpoint_attributes
 
-            return $query_result->{'device'}{'name'};
-        }, {expires_in => $RATE_LIMIT});
-        return $result;
-    }, {expires_in => $RATE_LIMIT});
-    return $result;
+Given a MAC address, collect all the latest known data profiling attributes.
+
+Currently done via a call to the Fingerbank collector
+
+=cut
+
+sub endpoint_attributes {
+    my ($mac) = @_;
+
+    # TODO: move the core of talking to the collector into the perl lib
+    my $ua = LWP::UserAgent->new;
+    $ua->timeout(1);
+    
+    my $url = URI->new("http://127.0.0.1:8080/endpoint_data/".$mac);
+
+    my $req = HTTP::Request->new(GET => $url->as_string);
+    $req->header(Authorization => "Token ".fingerbank::Config::get_config->{'upstream'}{'api_key'});
+
+    my $res = $ua->request($req);
+    if ($res->is_success) {
+        return decode_json($res->decoded_content);
+    }
+    else {
+        get_logger->error("Error while communicating with the Fingerbank collector. ".$res->status_line);
+        return undef;
+    }
 }
 
 =head2 _query
