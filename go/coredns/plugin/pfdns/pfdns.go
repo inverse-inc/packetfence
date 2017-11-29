@@ -227,7 +227,9 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 		rr.(*dns.A).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeA, Class: state.QClass()}
 		for k, v := range pf.Network {
 			if k.Contains(net.ParseIP(state.IP())) {
-				rr.(*dns.A).A = v
+				returnedIP := append([]byte(nil), v.To4()...)
+				rr.(*dns.A).A = returnedIP
+				break
 			} else {
 				rr.(*dns.A).A = pf.RedirectIP.To4()
 			}
@@ -235,7 +237,15 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 	case 2:
 		rr = new(dns.AAAA)
 		rr.(*dns.AAAA).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeAAAA, Class: state.QClass()}
-		rr.(*dns.AAAA).AAAA = pf.RedirectIP.To16()
+		for k, v := range pf.Network {
+			if k.Contains(net.ParseIP(state.IP())) {
+				returnedIP := append([]byte(nil), v.To16()...)
+				rr.(*dns.AAAA).AAAA = returnedIP
+				break
+			} else {
+				rr.(*dns.AAAA).AAAA = pf.RedirectIP.To16()
+			}
+		}
 	}
 
 	a.Answer = []dns.RR{rr}
