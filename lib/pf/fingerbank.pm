@@ -70,9 +70,15 @@ sub process {
     my $logger = pf::log::get_logger;
 
     my $cache = cache();
-    # Rate limit the fingerbank requests based on the partial query params (the ones that are passed)
     # Querying for a resultset
     my $query_args = endpoint_attributes($mac);
+    $query_args->{mac} = $mac;
+
+    unless(defined($query_args)) {
+        $logger->error("Unable to fetch query arguments for Fingerbank query. Aborting.");
+        return undef;
+    }
+
     my $query_result = _query($query_args);
 
     unless(defined($query_result)) {
@@ -82,14 +88,10 @@ sub process {
 
     # Processing the device class based on it's parents
     my ( $class, $parents ) = _parse_parents($query_result);
+    $query_result->{device_class} = $class;
+    $query_result->{parents} = $parents;
 
-    # Updating the node device type based on the result
-    node_modify( $mac, (
-        'device_type'   => $query_result->{'device'}{'name'},
-        'device_class'  => $class,
-        'device_version' => $query_result->{'version'},
-        'device_score' => $query_result->{'score'},
-    ) );
+    record_result($mac, $query_args, $query_result);
 
     _trigger_violations($query_args, $query_result, $parents);
 
@@ -124,6 +126,30 @@ sub endpoint_attributes {
         get_logger->error("Error while communicating with the Fingerbank collector. ".$res->status_line);
         return undef;
     }
+}
+
+=head2 record_result
+
+Given a MAC address, the endpoint attributes (from the collector) and the Fingerbank result, record the necessary attributes in the database.
+
+=cut
+
+sub record_result {
+    my ($mac, $attributes, $query_result) = @_;
+
+    my %attr_map = (
+        most_accurate_user_agent => "user_agent",
+        map { $_ => $_ } qw(dhcp_fingerprint dhcp_vendor dhcp6_fingerprint dhcp6_enterprise),
+    );
+
+    node_modify( $mac, (
+        'device_type'   => $query_result->{'device'}{'name'},
+        'device_class'  => $query_result->{device_class},
+        'device_version' => $query_result->{'version'},
+        'device_score' => $query_result->{'score'},
+        map { $attr_map{$_} => $attributes->{$_} } keys(%attr_map),
+    ) );
+
 }
 
 =head2 _query

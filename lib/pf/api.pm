@@ -1088,8 +1088,8 @@ sub dynamic_register_node : Public :AllowedAsAction(mac, $mac, username, $userna
 =cut
 
 sub fingerbank_process : Public {
-    my ( $class, $args ) = @_;
-    pf::fingerbank::process($args);
+    my ( $class, $mac ) = @_;
+    pf::fingerbank::process($mac);
 }
 
 =head2 fingerbank_update_component

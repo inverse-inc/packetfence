@@ -192,8 +192,7 @@ sub processFingerbank {
     # If there is a match, we override Fingerbank call
     my $dhcp_filter_rule = $self->filterEngine->filter('Fingerbank', $fingerbank_args);
     unless ( $dhcp_filter_rule ) {
-        $self->apiClient->notify('fingerbank_process', $fingerbank_args);
-        pf::node::node_modify($fingerbank_args->{'mac'}, %{$fingerbank_args});
+        $self->apiClient->notify('fingerbank_process', $fingerbank_args->{mac});
     }
 }
 
