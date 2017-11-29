@@ -107,11 +107,12 @@ is_old_connection_good
 =cut
 
 sub is_old_connection_good {
-    my ($mydbh) = @_;
+    my ($dbh) = @_;
     my $logger = get_logger();
-    if (!defined $mydbh) {
+    if (!defined $dbh) {
         return 0;
     }
+
     my $recently_connected = (defined($LAST_CONNECT) && $LAST_CONNECT && (time()-$LAST_CONNECT < 30));
     if ($recently_connected) {
         $logger->debug("not checking db handle, it has been less than 30 sec from last connection");
@@ -119,7 +120,7 @@ sub is_old_connection_good {
     }
 
     $logger->debug("checking handle");
-    if ( $mydbh->ping() ) {
+    if ( $dbh->ping() ) {
         $LAST_CONNECT = time();
         $logger->debug("we are currently connected");
         return 1;
@@ -136,12 +137,12 @@ on_connect
 =cut
 
 sub on_connect {
-    my ($mydbh) = @_;
+    my ($dbh) = @_;
     $LAST_CONNECT = time();
-    if (my $sql = init_command()) {
-        $mydbh->do($sql);
+    if (my $sql = init_command($dbh)) {
+        $dbh->do($sql);
     }
-    return $mydbh;
+    return $dbh;
 }
 
 =head2 db_data_source_info
@@ -169,11 +170,21 @@ init_command
 =cut
 
 sub init_command {
+    my ($dbh) = @_;
     my $sql = '';
-    if (my $to = db_get_max_statement_timeout()) {
-        $sql .= "SET SESSION max_statement_time=$to";
+    if (my $new_timeout = db_get_max_statement_timeout()) {
+        my ($name, $current_timeout) = $dbh->selectrow_array("SHOW VARIABLES WHERE Variable_name in ('max_statement_time', 'max_execution_time')");
+        if ($name) {
+            $sql .= "SET SESSION $name=" . convert_timeout($current_timeout, $new_timeout);
+        }
     }
     return $sql;
+}
+
+sub convert_timeout {
+    my ($current_timeout, $new_timeout) = @_;
+    $new_timeout = int($new_timeout * 1000) if $current_timeout =~ /^\d+$/;#If the current value is a pure integer then convert timeout to millisecond
+    return $new_timeout;
 }
 
 =head2 db_config

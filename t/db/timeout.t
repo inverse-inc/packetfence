@@ -27,7 +27,7 @@ BEGIN {
 }
 
 use pf::db;
-use Test::More tests => 3;                      # last test to print
+use Test::More tests => 5;                      # last test to print
 
 use Test::NoWarnings;
 
@@ -63,6 +63,10 @@ $row = $sth->fetchrow_hashref;
 is($row->{sleep}, 1, "Sleep did timeout");
 
 $sth->finish;
+
+is(pf::db::convert_timeout("0.0", 1.0), 1.0, "Return float");
+
+is(pf::db::convert_timeout("0", 1.0), 1000, "Return integer");
 
 =head1 AUTHOR
 
