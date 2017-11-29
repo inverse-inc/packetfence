@@ -129,14 +129,10 @@ Fingerbank processing
 sub process_fingerbank {
     my ( $self ) = @_;
 
-    my %fingerbank_query_args = (
-        user_agent          => $self->current_user_agent,
-        mac                 => $self->current_mac,
-        ip                  => $self->root_module->current_ip,
-    );
+    # TODO: inform collector about the new user agent
 
     my $client = pf::api::queue->new(queue => 'general');
-    $client->notify('fingerbank_process', \%fingerbank_query_args);
+    $client->notify('fingerbank_process', $self->current_mac);
 }
 
 =head2 current_module_id
