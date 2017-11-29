@@ -32,7 +32,7 @@ sub onboard {
         return $self->render_error(422, "Missing tenant name.");
     }
 
-    my $result = pf::tenant_code->onboard($token, $data);
+    my $result = pf::tenant_code->onboard($token, $data, $ssids);
 
     if($result) {
         my $tenant = pf::dal::tenant->search(-where => { name => $data->{name}})->next;
