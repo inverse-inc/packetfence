@@ -254,7 +254,7 @@ sub ip2mac {
     }
 
     # We first query OMAPI since it is the fastest way and more reliable source of info in most cases
-    if ( isenabled($Config{omapi}{ip2mac_lookup}) ) {
+    if ( isenabled($Config{omapi}{ip2mac_lookup}) && isenabled($Config{'services'}{'dhcpd'}) ) {
         $logger->debug("Trying to match MAC address to IP '$ip' using OMAPI");
         $mac = _ip2mac_omapi($ip);
         $logger->debug("Matched IP '$ip' to MAC address '$mac' using OMAPI") if $mac;
@@ -323,7 +323,7 @@ sub mac2ip {
     my $ip;
 
     # We first query OMAPI since it is the fastest way and more reliable source of info in most cases
-    if ( isenabled($Config{omapi}{mac2ip_lookup}) ) {
+    if ( isenabled($Config{omapi}{mac2ip_lookup}) && isenabled($Config{'services'}{'dhcpd'}) ) {
         $logger->debug("Trying to match IP address to MAC '$mac' using OMAPI");
         $ip = _mac2ip_omapi($mac);
         $logger->debug("Matched MAC '$mac' to IP address '$ip' using OMAPI") if $ip;
