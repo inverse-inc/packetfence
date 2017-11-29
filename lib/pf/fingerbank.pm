@@ -37,6 +37,7 @@ use pf::log;
 use pf::node qw(node_modify);
 use pf::StatsD::Timer;
 use fingerbank::Config;
+use fingerbank::Collector;
 
 our @fingerbank_based_violation_triggers = ('Device', 'DHCP_Fingerprint', 'DHCP_Vendor', 'MAC_Vendor', 'User_Agent');
 
@@ -110,13 +111,10 @@ sub endpoint_attributes {
     my ($mac) = @_;
 
     # TODO: move the core of talking to the collector into the perl lib
-    my $ua = LWP::UserAgent->new;
-    $ua->timeout(1);
+    my $collector = fingerbank::Collector->new_from_config;
+    my $ua = $collector->get_lwp_client();
     
-    my $url = URI->new("http://127.0.0.1:8080/endpoint_data/".$mac);
-
-    my $req = HTTP::Request->new(GET => $url->as_string);
-    $req->header(Authorization => "Token ".fingerbank::Config::get_config->{'upstream'}{'api_key'});
+    my $req = $collector->build_request("GET", "/endpoint_data/$mac");
 
     my $res = $ua->request($req);
     if ($res->is_success) {
@@ -150,6 +148,31 @@ sub record_result {
         map { $attr_map{$_} => $attributes->{$_} } keys(%attr_map),
     ) );
 
+}
+
+=head2 update_collector_endpoint_data
+
+Updates the endpoint data in the collector for a specific MAC address
+
+=cut
+
+sub update_collector_endpoint_data {
+    my ($mac, $data) = @_;
+
+    my $collector = fingerbank::Collector->new_from_config;
+    my $ua = $collector->get_lwp_client();
+    
+    my $req = $collector->build_request("PATCH", "/endpoint_data/$mac");
+    $req->content(encode_json($data));
+
+    my $res = $ua->request($req);
+    if ($res->is_success) {
+        return decode_json($res->decoded_content);
+    }
+    else {
+        get_logger->error("Error while communicating with the Fingerbank collector. ".$res->status_line);
+        return undef;
+    }
 }
 
 =head2 _query
