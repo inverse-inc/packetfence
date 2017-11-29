@@ -20,9 +20,10 @@ use pf::dal::tenant;
 use pf::dal::tenant_code;
 use pf::log;
 use pf::ConfigStore::Switch;
+use pf::lede_config;
 
 sub onboard {
-    my ($proto, $code, $tenant_info) = @_;
+    my ($proto, $code, $tenant_info, $ssids) = @_;
     my $logger = get_logger;
 
     my $status;
@@ -58,8 +59,15 @@ sub onboard {
     $cs->update_or_create($tenant_code->{switch_ip}, {TenantId => $tenant->{id}});
     my ($result, $msg) = $cs->commit();
 
-    if(!$result) {
+    unless($result) {
         $logger->error("Impossible to perform tenant switch modification for $tenant_code->{switch_ip}. Error was: $msg");
+        return $FALSE;
+    }
+
+    $result = pf::lede_config::reconfigure($tenant_code->{switch_ip}, $ssids);
+
+    unless($result) {
+        $logger->error("Error while reconfiguring LEDE");
         return $FALSE;
     }
 
