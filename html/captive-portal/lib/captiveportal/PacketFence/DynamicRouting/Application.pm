@@ -129,7 +129,13 @@ Fingerbank processing
 sub process_fingerbank {
     my ( $self ) = @_;
 
-    # TODO: inform collector about the new user agent
+    my $attributes = pf::fingerbank::endpoint_attributes($self->current_mac);
+    if($attributes->{most_accurate_user_agent} ne $self->current_user_agent) {
+        pf::fingerbank::update_collector_endpoint_data($self->current_mac, {
+            most_accurate_user_agent => $self->current_user_agent,
+            user_agents => {$self->current_user_agent => $TRUE},
+        });
+    }
 
     my $client = pf::api::queue->new(queue => 'general');
     $client->notify('fingerbank_process', $self->current_mac);
