@@ -9,7 +9,7 @@ StartLimitBurst=3
 StartLimitInterval=60
 Type=notify
 ExecStartPre=/usr/local/pf/bin/pfcmd service go_dns generateconfig
-ExecStart=/usr/local/pf/bin/go_dns
+ExecStart=/usr/local/pf/bin/go_dns -conf=/usr/local/pf/var/conf/Corefile 
 Restart=on-failure
 Slice=packetfence.slice
 

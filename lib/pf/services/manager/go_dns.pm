@@ -27,6 +27,7 @@ use pf::file_paths qw(
     $conf_dir
     $install_dir
     $var_dir
+    $generated_conf_dir
 );
 
 use pf::util;
@@ -70,7 +71,7 @@ EOT
     proxy $cidr . $ConfigNetworks{$network}{'dns'}
 EOT
     }
-    $tt->process("$conf_dir/Corefile", \%tags, "$install_dir/bin/Corefile") or die $tt->error();
+    $tt->process("$conf_dir/Corefile", \%tags, "$generated_conf_dir/Corefile") or die $tt->error();
 }
 
 =head1 AUTHOR
