@@ -14,7 +14,6 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
 	"github.com/inverse-inc/packetfence/go/coredns/request"
 	//Import mysql driver
@@ -141,7 +140,6 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 
 		// Domain bypass
 		for k, v := range pf.FqdnDomainPort {
-			spew.Dump(state.QName())
 			if k.MatchString(state.QName()) {
 				answer, _ := pf.LocalResolver(state)
 				for _, ans := range answer.Answer {
@@ -324,12 +322,12 @@ func (pf *pfdns) detectVIP() error {
 					Index := NetIndex
 					pf.Network[&Index] = VIP
 				}
-				// if ConfNet.RegNetwork != "" {
-				// 	IP2, NetIP2, _ := net.ParseCIDR(ConfNet.RegNetwork)
-				// 	if NetIP.Contains(IP2) {
-				// 		pf.Network[NetIP2] = VIP
-				// 	}
-				// }
+				if ConfNet.RegNetwork != "" {
+					IP2, NetIP2, _ := net.ParseCIDR(ConfNet.RegNetwork)
+					if NetIP.Contains(IP2) {
+						pf.Network[NetIP2] = VIP
+					}
+				}
 			}
 		}
 	}
