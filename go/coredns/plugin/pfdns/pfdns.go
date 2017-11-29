@@ -324,12 +324,12 @@ func (pf *pfdns) detectVIP() error {
 					Index := NetIndex
 					pf.Network[&Index] = VIP
 				}
-				// if ConfNet.RegNetwork != "" {
-				// 	IP2, NetIP2, _ := net.ParseCIDR(ConfNet.RegNetwork)
-				// 	if NetIP.Contains(IP2) {
-				// 		pf.Network[NetIP2] = VIP
-				// 	}
-				// }
+				if ConfNet.RegNetwork != "" {
+					IP2, NetIP2, _ := net.ParseCIDR(ConfNet.RegNetwork)
+					if NetIP.Contains(IP2) {
+						pf.Network[NetIP2] = VIP
+					}
+				}
 			}
 		}
 	}
