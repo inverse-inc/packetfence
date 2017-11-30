@@ -3,10 +3,13 @@ package main
 import (
 	"context"
 	"crypto/tls"
+	"database/sql"
+	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/coreos/go-systemd/daemon"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/goji/httpauth"
 	"github.com/gorilla/mux"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -14,12 +17,32 @@ import (
 
 var ctx = context.Background()
 var webservices pfconfigdriver.PfConfWebservices
+var IPSET = &pfIPSET{}
+var database *sql.DB
 
 func main() {
 	webservices = readWebservicesConfig()
 
+	// // Read DB config
+	// configDatabase := readDBConfig()
+	// spew.Dump(configDatabase)
+	// connectDB(configDatabase, database)
+
 	// Default http timeout
 	http.DefaultClient.Timeout = 10 * time.Second
+
+	IPSET.detectType()
+
+	configDatabase := readDBConfig()
+	connectDB(configDatabase, database)
+
+	// Reload the set from the database each minutes
+	go func() {
+		// Read DB config
+		initIPSet()
+		fmt.Println("Reload")
+		time.Sleep(time.Duration(60) * time.Second)
+	}()
 
 	router := mux.NewRouter()
 	router.HandleFunc("/ipsetmarklayer3/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{type:[a-zA-Z]+}/{catid:[0-9]+}/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{local:[0-1]}", handleLayer3).Methods("POST")
