@@ -162,7 +162,7 @@ db_data_source_info
 sub db_data_source_info {
     my ($self) = @_;
     my $config = db_config();
-    my $dsn = "dbi:mysql:dbname=$config->{db};host=$config->{host};port=$config->{port};mysql_client_found_rows=1;mysql_multi_statements=1;mysql_compression=1";
+    my $dsn = "dbi:mysql:dbname=$config->{db};host=$config->{host};port=$config->{port};mysql_client_found_rows=1";
     get_logger->trace(sub {"connecting with $dsn"});
 
     return (
