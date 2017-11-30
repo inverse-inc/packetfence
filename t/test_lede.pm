@@ -18,6 +18,7 @@ use Mojo::Base 'Mojolicious';
 use POSIX;
 
 has 'signal_fh';
+has 'pid';
 
 sub startup {
     my ($self) = @_;
@@ -29,6 +30,7 @@ sub startup {
     });
     my $fh = $self->signal_fh();
     print $fh "\n"; 
+    close($fh);
 }
 
 
@@ -41,9 +43,10 @@ sub start_lede {
     if ($pid) {
         close($w);
         my $got = <$r>;
+        close($r);
     } else {
         close($r);
-        test_lede->new(signal_fh => $w)->start('daemon', '-l', "http://127.0.0.1:5150");
+        test_lede->new(signal_fh => $w)->start('daemon', '-l', "http://127.0.0.1:5150?reuse=1");
     }
 }
 
