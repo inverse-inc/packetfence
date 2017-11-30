@@ -13,22 +13,22 @@ import (
 type Info struct {
 	Status string `json:"status"`
 	Mac    string `json:"MAC"`
-	Ip     string `json:"IP"`
+	IP     string `json:"IP"`
 }
 
 func handlePassthrough(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
-	Ip := vars["ip"]
+	IP := vars["ip"]
 	Port := vars["port"]
 	Local := vars["local"]
 
-	ipset.Add("pfsession_passthrough", Ip+","+Port)
+	ipset.Add("pfsession_passthrough", IP+","+Port)
 	if Local == "0" {
-		updateClusterPassthrough(Ip, Port)
+		updateClusterPassthrough(IP, Port)
 	}
 	var result = map[string][]*Info{
 		"result": {
-			&Info{Ip: Ip, Status: "ACK"},
+			&Info{IP: IP, Status: "ACK"},
 		},
 	}
 
@@ -42,17 +42,17 @@ func handlePassthrough(res http.ResponseWriter, req *http.Request) {
 
 func handleIsolationPassthrough(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
-	Ip := vars["ip"]
+	IP := vars["ip"]
 	Port := vars["port"]
 	Local := vars["local"]
 
-	ipset.Add("pfsession_isol_passthrough", Ip+","+Port)
+	ipset.Add("pfsession_isol_passthrough", IP+","+Port)
 	if Local == "0" {
-		updateClusterPassthroughIsol(Ip, Port)
+		updateClusterPassthroughIsol(IP, Port)
 	}
 	var result = map[string][]*Info{
 		"result": {
-			&Info{Ip: Ip, Status: "ACK"},
+			&Info{IP: IP, Status: "ACK"},
 		},
 	}
 
@@ -66,7 +66,7 @@ func handleIsolationPassthrough(res http.ResponseWriter, req *http.Request) {
 
 func handleLayer2(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
-	Ip := vars["ip"]
+	IP := vars["ip"]
 	Mac := vars["mac"]
 	Network := vars["network"]
 	Type := vars["type"]
@@ -74,11 +74,11 @@ func handleLayer2(res http.ResponseWriter, req *http.Request) {
 	Local := vars["local"]
 
 	// Update locally
-	IPSEThandleLayer2(Ip, Mac, Network, Type, Catid)
+	IPSEThandleLayer2(IP, Mac, Network, Type, Catid)
 
 	// Do we have to update the other members of the cluster
 	if Local == "0" {
-		updateClusterL2(Ip, Mac, Network, Type, Catid)
+		updateClusterL2(IP, Mac, Network, Type, Catid)
 	}
 	var result = map[string][]*Info{
 		"result": {
@@ -93,16 +93,16 @@ func handleLayer2(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func IPSEThandleLayer2(Ip string, Mac string, Network string, Type string, Catid string) {
+func IPSEThandleLayer2(IP string, Mac string, Network string, Type string, Catid string) {
 	var all []ipset.IPSet
 	all, _ = ipset.ListAll()
 
 	for _, v := range all {
 		// Delete all entries with the new ip address
-		r := ipset.Test(v.Name, Ip)
+		r := ipset.Test(v.Name, IP)
 		if r == nil {
-			ipset.Del(v.Name, Ip)
-			fmt.Println("Removed " + Ip + " from " + v.Name)
+			ipset.Del(v.Name, IP)
+			fmt.Println("Removed " + IP + " from " + v.Name)
 		}
 		// Delete all entries with old ip addresses
 		Ips := mac2ip(Mac)
@@ -115,54 +115,54 @@ func IPSEThandleLayer2(Ip string, Mac string, Network string, Type string, Catid
 		}
 	}
 	// Add to the new ipset session
-	ipset.Add("pfsession_"+Type+"_"+Network, Ip+","+Mac)
-	fmt.Println("Added " + Ip + " " + Mac + " to pfsession_" + Type + "_" + Network)
+	ipset.Add("pfsession_"+Type+"_"+Network, IP+","+Mac)
+	fmt.Println("Added " + IP + " " + Mac + " to pfsession_" + Type + "_" + Network)
 	if Type == "Reg" {
 		// Add to the ip ipset session
-		ipset.Add("PF-iL2_ID"+Catid+"_"+Network, Ip)
-		fmt.Println("Added " + Ip + " to PF-iL2_ID" + Catid + "_" + Network)
+		ipset.Add("PF-iL2_ID"+Catid+"_"+Network, IP)
+		fmt.Println("Added " + IP + " to PF-iL2_ID" + Catid + "_" + Network)
 	}
 }
 
 func handleMarkIpL2(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
-	Ip := vars["ip"]
+	IP := vars["ip"]
 	Network := vars["network"]
 	Catid := vars["catid"]
 	Local := vars["local"]
 
 	// Update locally
-	IPSEThandleMarkIpL2(Ip, Network, Catid)
+	IPSEThandleMarkIpL2(IP, Network, Catid)
 
 	// Do we have to update the other members of the cluster
 	if Local == "0" {
-		updateClusterMarkIpL3(Ip, Network, Catid)
+		updateClusterMarkIpL3(IP, Network, Catid)
 	}
 	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	res.WriteHeader(http.StatusOK)
 }
 
-func IPSEThandleMarkIpL2(Ip string, Network string, Catid string) {
-	ipset.Add("PF-iL2_ID"+Catid+"_"+Network, Ip)
+func IPSEThandleMarkIpL2(IP string, Network string, Catid string) {
+	ipset.Add("PF-iL2_ID"+Catid+"_"+Network, IP)
 }
 
 func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
-	Ip := vars["ip"]
+	IP := vars["ip"]
 	Network := vars["network"]
 	Catid := vars["catid"]
 	Local := vars["local"]
 
 	// Update locally
-	IPSEThandleMarkIpL3(Ip, Network, Catid)
+	IPSEThandleMarkIpL3(IP, Network, Catid)
 
 	// Do we have to update the other members of the cluster
 	if Local == "0" {
-		updateClusterMarkIpL3(Ip, Network, Catid)
+		updateClusterMarkIpL3(IP, Network, Catid)
 	}
 	var result = map[string][]*Info{
 		"result": {
-			&Info{Ip: Ip, Status: "ACK"},
+			&Info{IP: IP, Status: "ACK"},
 		},
 	}
 
@@ -173,29 +173,29 @@ func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func IPSEThandleMarkIpL3(Ip string, Network string, Catid string) {
-	ipset.Add("PF-iL3_ID"+Catid+"_"+Network, Ip)
+func IPSEThandleMarkIpL3(IP string, Network string, Catid string) {
+	ipset.Add("PF-iL3_ID"+Catid+"_"+Network, IP)
 }
 
 func handleLayer3(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
-	Ip := vars["ip"]
+	IP := vars["ip"]
 	Network := vars["network"]
 	Type := vars["type"]
 	Catid := vars["catid"]
 	Local := vars["local"]
 
 	// Update locally
-	IPSEThandleLayer3(Ip, Network, Type, Catid)
+	IPSEThandleLayer3(IP, Network, Type, Catid)
 
 	// Do we have to update the other members of the cluster
 	if Local == "0" {
-		updateClusterL3(Ip, Network, Type, Catid)
+		updateClusterL3(IP, Network, Type, Catid)
 	}
 
 	var result = map[string][]*Info{
 		"result": {
-			&Info{Ip: Ip, Status: "ACK"},
+			&Info{IP: IP, Status: "ACK"},
 		},
 	}
 
@@ -206,26 +206,25 @@ func handleLayer3(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func IPSEThandleLayer3(Ip string, Network string, Type string, Catid string) {
+func IPSEThandleLayer3(IP string, Network string, Type string, Catid string) {
 	var all []ipset.IPSet
 	all, _ = ipset.ListAll()
 	// Delete all entries with the new ip address
 	for _, v := range all {
-		r := ipset.Test(v.Name, Ip)
+		r := ipset.Test(v.Name, IP)
 		if r == nil {
-			ipset.Del(v.Name, Ip)
-			fmt.Println("Removed " + Ip + " from " + v.Name)
+			ipset.Del(v.Name, IP)
+			fmt.Println("Removed " + IP + " from " + v.Name)
 		}
 	}
 	// Add to the new ipset session
-	ipset.Add("pfsession_"+Type+"_"+Network, Ip)
-	fmt.Println("Added " + Ip + " to pfsession_" + Type + "_" + Network)
+	ipset.Add("pfsession_"+Type+"_"+Network, IP)
+	fmt.Println("Added " + IP + " to pfsession_" + Type + "_" + Network)
 	if Type == "Reg" {
 		// Add to the ip ipset session
-		ipset.Add("PF-iL3_ID"+Catid+"_"+Network, Ip)
-		fmt.Println("Added " + Ip + " to PF-iL3_ID" + Catid + "_" + Network)
+		ipset.Add("PF-iL3_ID"+Catid+"_"+Network, IP)
+		fmt.Println("Added " + IP + " to PF-iL3_ID" + Catid + "_" + Network)
 	}
-
 }
 
 func handleUnmarkMac(res http.ResponseWriter, req *http.Request) {
@@ -267,28 +266,28 @@ func handleUnmarkMac(res http.ResponseWriter, req *http.Request) {
 
 func handleUnmarkIp(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
-	Ip := vars["ip"]
+	IP := vars["ip"]
 	Local := vars["local"]
 
 	var all []ipset.IPSet
 	all, _ = ipset.ListAll()
 
 	for _, v := range all {
-		r := ipset.Test(v.Name, Ip)
+		r := ipset.Test(v.Name, IP)
 		if r == nil {
-			ipset.Del(v.Name, Ip)
+			ipset.Del(v.Name, IP)
 			conn, _ := conntrack.New()
-			conn.DeleteConnectionBySrcIp(Ip)
-			fmt.Println("Removed " + Ip + " from " + v.Name)
+			conn.DeleteConnectionBySrcIp(IP)
+			fmt.Println("Removed " + IP + " from " + v.Name)
 		}
 	}
 	// Do we have to update the other members of the cluster
 	if Local == "0" {
-		updateClusterUnmarkIp(Ip)
+		updateClusterUnmarkIp(IP)
 	}
 	var result = map[string][]*Info{
 		"result": {
-			&Info{Ip: Ip, Status: "ACK"},
+			&Info{IP: IP, Status: "ACK"},
 		},
 	}
 
