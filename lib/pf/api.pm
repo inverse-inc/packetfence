@@ -1127,18 +1127,6 @@ sub fingerbank_update_component : Public : Fork {
     return ($status, $status_msg);
 }
 
-=head2 fingerbank_submit_unmatched
-
-=cut
-
-sub fingerbank_submit_unmatched : Public {
-    my ( $class ) = @_;
-
-    my ( $status, $status_msg ) = fingerbank::DB::submit_unknown;
-
-    pf::config::util::pfmailer(( subject => 'Fingerbank - Submit unknown/unmatched fingerprints status', message => $status_msg ));
-}
-
 =head2 throw
 
 Method throw for testing purposes
