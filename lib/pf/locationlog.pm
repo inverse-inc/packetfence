@@ -594,13 +594,13 @@ Return a list of unique SSIDs that have been seen.
 =cut
 
 sub locationlog_unique_ssids {
-    return map { $_->{ssid} } _db_list(
+    return map { $_->{ssid} } _db_list({
         -columns => [ -distinct => 'ssid' ],
         -where   => {
             ssid => { "!=" => [ -and => "", undef ] },
         },
         -order_by => 'ssid',
-    );
+    });
 }
 
 =back
