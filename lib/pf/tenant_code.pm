@@ -55,6 +55,9 @@ sub onboard {
 
     }
 
+    # Add the portal domain name to all SSIDs
+    map { $_->{domain} = $tenant->{portal_domain_name} } @$ssids;
+
     my $cs  = pf::ConfigStore::Switch->new;
     $cs->update_or_create($tenant_code->{switch_ip}, {TenantId => $tenant->{id}});
     my ($result, $msg) = $cs->commit();
