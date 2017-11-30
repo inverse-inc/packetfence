@@ -11,7 +11,7 @@ sub reconfigure {
     my $data = encode_json({ssids => $ssids_config});
 
     my $ua = LWP::UserAgent->new;
-    my $res = $ua->post("http://$ip:5150/configure", Content => $data, "Content-Type" => "application/json");
+    my $res = $ua->post(lede_uri($ip, 5150), Content => $data, "Content-Type" => "application/json");
 
     if($res->is_success) {
         return $TRUE;
@@ -20,6 +20,12 @@ sub reconfigure {
         get_logger->error("Error while performing configuration of LEDE. ".$res->status_line);
         return $FALSE;
     }
+}
+
+sub lede_uri {
+    my ($ip, $port) = @_;
+    $port ||= 5150;
+    return "http://$ip:$port/configure";
 }
 
 1;
