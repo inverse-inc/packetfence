@@ -17,6 +17,7 @@ import (
 
 var ctx = context.Background()
 var webservices pfconfigdriver.PfConfWebservices
+
 var IPSET = &pfIPSET{}
 var database *sql.DB
 
@@ -41,7 +42,7 @@ func main() {
 		// Read DB config
 		initIPSet()
 		fmt.Println("Reload")
-		time.Sleep(time.Duration(60) * time.Second)
+		time.Sleep(60 * time.Second)
 	}()
 
 	router := mux.NewRouter()
