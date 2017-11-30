@@ -73,6 +73,27 @@ func handleLayer2(res http.ResponseWriter, req *http.Request) {
 	Catid := vars["catid"]
 	Local := vars["local"]
 
+	// Update locally
+	IPSEThandleLayer2(Ip, Mac, Network, Type, Catid)
+
+	// Do we have to update the other members of the cluster
+	if Local == "0" {
+		updateClusterL2(Ip, Mac, Network, Type, Catid)
+	}
+	var result = map[string][]*Info{
+		"result": {
+			&Info{Mac: Mac, Status: "ACK"},
+		},
+	}
+
+	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	res.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(res).Encode(result); err != nil {
+		panic(err)
+	}
+}
+
+func IPSEThandleLayer2(Ip string, Mac string, Network string, Type string, Catid string) {
 	var all []ipset.IPSet
 	all, _ = ipset.ListAll()
 
@@ -101,21 +122,6 @@ func handleLayer2(res http.ResponseWriter, req *http.Request) {
 		ipset.Add("PF-iL2_ID"+Catid+"_"+Network, Ip)
 		fmt.Println("Added " + Ip + " to PF-iL2_ID" + Catid + "_" + Network)
 	}
-	// Do we have to update the other members of the cluster
-	if Local == "0" {
-		updateClusterL2(Ip, Mac, Network, Type, Catid)
-	}
-	var result = map[string][]*Info{
-		"result": {
-			&Info{Mac: Mac, Status: "ACK"},
-		},
-	}
-
-	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	res.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(res).Encode(result); err != nil {
-		panic(err)
-	}
 }
 
 func handleMarkIpL2(res http.ResponseWriter, req *http.Request) {
@@ -124,13 +130,20 @@ func handleMarkIpL2(res http.ResponseWriter, req *http.Request) {
 	Network := vars["network"]
 	Catid := vars["catid"]
 	Local := vars["local"]
-	ipset.Add("PF-iL2_ID"+Catid+"_"+Network, Ip)
+
+	// Update locally
+	IPSEThandleMarkIpL2(Ip, Network, Catid)
+
 	// Do we have to update the other members of the cluster
 	if Local == "0" {
 		updateClusterMarkIpL3(Ip, Network, Catid)
 	}
 	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	res.WriteHeader(http.StatusOK)
+}
+
+func IPSEThandleMarkIpL2(Ip string, Network string, Catid string) {
+	ipset.Add("PF-iL2_ID"+Catid+"_"+Network, Ip)
 }
 
 func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
@@ -140,7 +153,9 @@ func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
 	Catid := vars["catid"]
 	Local := vars["local"]
 
-	ipset.Add("PF-iL3_ID"+Catid+"_"+Network, Ip)
+	// Update locally
+	IPSEThandleMarkIpL3(Ip, Network, Catid)
+
 	// Do we have to update the other members of the cluster
 	if Local == "0" {
 		updateClusterMarkIpL3(Ip, Network, Catid)
@@ -158,6 +173,10 @@ func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
+func IPSEThandleMarkIpL3(Ip string, Network string, Catid string) {
+	ipset.Add("PF-iL3_ID"+Catid+"_"+Network, Ip)
+}
+
 func handleLayer3(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	Ip := vars["ip"]
@@ -166,6 +185,28 @@ func handleLayer3(res http.ResponseWriter, req *http.Request) {
 	Catid := vars["catid"]
 	Local := vars["local"]
 
+	// Update locally
+	IPSEThandleLayer3(Ip, Network, Type, Catid)
+
+	// Do we have to update the other members of the cluster
+	if Local == "0" {
+		updateClusterL3(Ip, Network, Type, Catid)
+	}
+
+	var result = map[string][]*Info{
+		"result": {
+			&Info{Ip: Ip, Status: "ACK"},
+		},
+	}
+
+	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	res.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(res).Encode(result); err != nil {
+		panic(err)
+	}
+}
+
+func IPSEThandleLayer3(Ip string, Network string, Type string, Catid string) {
 	var all []ipset.IPSet
 	all, _ = ipset.ListAll()
 	// Delete all entries with the new ip address
@@ -184,22 +225,7 @@ func handleLayer3(res http.ResponseWriter, req *http.Request) {
 		ipset.Add("PF-iL3_ID"+Catid+"_"+Network, Ip)
 		fmt.Println("Added " + Ip + " to PF-iL3_ID" + Catid + "_" + Network)
 	}
-	// Do we have to update the other members of the cluster
-	if Local == "0" {
-		updateClusterL3(Ip, Network, Type, Catid)
-	}
 
-	var result = map[string][]*Info{
-		"result": {
-			&Info{Ip: Ip, Status: "ACK"},
-		},
-	}
-
-	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	res.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(res).Encode(result); err != nil {
-		panic(err)
-	}
 }
 
 func handleUnmarkMac(res http.ResponseWriter, req *http.Request) {
