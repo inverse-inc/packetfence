@@ -40,9 +40,11 @@ func main() {
 	// Reload the set from the database each minutes
 	go func() {
 		// Read DB config
-		initIPSet()
-		fmt.Println("Reload")
-		time.Sleep(60 * time.Second)
+		for {
+			initIPSet()
+			fmt.Println("Reload")
+			time.Sleep(60 * time.Second)
+		}
 	}()
 
 	router := mux.NewRouter()
