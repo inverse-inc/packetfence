@@ -37,22 +37,6 @@ sub update_upstream_db :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') {
     $c->stash->{status_msg} = $c->loc("Successfully dispatched update request for Fingerbank upstream DB. An email will follow for status");
 }
 
-=head2 submit
-
-Allow submission of "unknown" and "unmatched" fingerprints to upstream Fingerbank project
-
-=cut
-
-sub submit :Local :Args(0) :AdminRole('FINGERBANK_READ') {
-    my ( $self, $c ) = @_;
-
-    $c->stash->{current_view} = 'JSON';
-
-    pf::cluster::notify_each_server('fingerbank_submit_unmatched');
-
-    $c->stash->{status_msg} = $c->loc("Successfully dispatched submit request for unknown/unmatched fingerprints to Fingerbank. An email will follow for status");
-}
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
