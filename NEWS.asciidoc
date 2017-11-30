@@ -24,6 +24,7 @@ New Features
 Enhancements
 ++++++++++++
 
+* Enhanced English i18n strings in admin CMS violation actions.
 * Create a priority queue
 * Move ReAssignVlan and desAssociate api calls to the priority queue
 * Add Connection Profile SSID filter suggestions based on all the previous SSIDs that have been seen in the locationlog (#2758) (PR #2771).
