@@ -33,6 +33,8 @@ use pf::ConfigStore::Switch;
 use pf::dal::tenant_code;
 use pf::tenant_code;
 use Test::More tests => 7;
+use test_lede;
+test_lede::start_lede();
 
 #This test will running last
 use Test::NoWarnings;
@@ -44,7 +46,7 @@ pf::dal::tenant_code->remove_items();
 
 my $test_code = "192168";
 my $test_tenant_name = "bob-garauge";
-my $test_switch_ip = "192.168.5.3";
+my $test_switch_ip = "127.0.0.1";
 
 my $switch_cs = pf::ConfigStore::Switch->new;
 
