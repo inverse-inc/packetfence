@@ -34,6 +34,8 @@ use Test::More tests => 7;
 #This test will running last
 use Test::NoWarnings;
 use Test::Mojo;
+use test_lede;
+test_lede::start_lede();
 
 use pf::dal::tenant_code;
 
@@ -44,7 +46,7 @@ pf::dal::tenant_code->remove_items();
 
 my $test_code = "192168";
 my $test_tenant_name = "bob-garauge";
-my $test_switch_ip = "192.168.5.3";
+my $test_switch_ip = "127.0.0.1";
 
 # Onboard with an existing tenant
 # Create a test code
@@ -56,7 +58,8 @@ $t->post_ok('/api/v1/tenants_onboarding' => json => {  })
   ->status_is(422);
 
 $t->post_ok('/api/v1/tenants_onboarding' => json => { token => $test_code, name => $test_tenant_name })
-  ->status_is(201)->header_like(Location => qr/^\/api\/v1\/tenants\//);
+  ->status_is(201)
+  ->header_like(Location => qr/^\/api\/v1\/tenants\//);
 
 =head1 AUTHOR
 
