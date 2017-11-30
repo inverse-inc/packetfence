@@ -112,9 +112,7 @@ sub db_execute {
             my $err = $dbh->err;
             my $errstr = $dbh->errstr;
             pf::db::db_handle_error($err);
-            if (CORE::exists $MYSQL_ERROR_TO_STATUS_CODES{$err}) {
-                $status = $MYSQL_ERROR_TO_STATUS_CODES{$err};
-            }
+            $status = mysql_error_to_status_code($err);
             if ($err < 2000) {
                 if ($err == $MYSQL_READONLY_ERROR) {
                     $logger->warn("Attempting to update a readonly database");
@@ -132,6 +130,13 @@ sub db_execute {
         $attempts--;
     }
     return $status, undef;
+}
+
+sub mysql_error_to_status_code {
+    my ($err) = @_;
+    return CORE::exists $MYSQL_ERROR_TO_STATUS_CODES{$err}
+      ? $MYSQL_ERROR_TO_STATUS_CODES{$err}
+      : $STATUS::INTERNAL_SERVER_ERROR;
 }
 
 =head2 find
@@ -224,7 +229,52 @@ sub save {
     if (is_error($status)) {
         return $status;
     }
-    return $self->upsert;
+
+    my $dbh  = $self->get_dbh;
+    unless ($dbh->begin_work) {
+        my $err = $dbh->err;
+        pf::db::db_handle_error($err);
+        return mysql_error_to_status_code($err);
+    }
+    eval {
+        $status = $self->create_or_update();
+    };
+
+    if ($@) {
+        $self->logger->info("Error saving : $@");
+    }
+
+    $status =  $self->commit_or_rollback($status, $dbh);
+    if ($status == $STATUS::CREATED) {
+        $self->_save_old_data();
+        $self->after_create_hook();
+    }
+    return $status;
+}
+
+sub create_or_update {
+    my ($self) = @_;
+    my $data = $self->_insert_data;
+    my $status = $self->create($data);
+    return $status == $STATUS::CONFLICT ? $self->update() : $status;
+}
+
+sub commit_or_rollback {
+    my ($self, $status, $dbh) = @_;
+    if (is_error($status)) {
+        if(!$dbh->rollback()) {
+            my $err = $dbh->err;
+            pf::db::db_handle_error($err);
+            $status = mysql_error_to_status_code($err);
+        }
+    } else {
+        if (!$dbh->commit) {
+            my $err = $dbh->err;
+            pf::db::db_handle_error($err);
+            $status = mysql_error_to_status_code($err);
+        }
+    }
+    return $status;
 }
 
 =head2 pre_save
