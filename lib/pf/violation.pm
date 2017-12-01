@@ -515,15 +515,6 @@ sub info_for_violation_engine {
             $device_id = $device->id
         }
     }
-    if(defined($device_id)){
-        $devices = $cache->compute("fingerbank::Model::Device_parents_$device_id", sub {
-            my (undef,$device) = fingerbank::Model::Device->read($device_id,1);
-            $devices = $device->{parents_ids};
-            push @$devices, $device->{id};
-            @$devices = map {$_.""} @$devices;
-            return $devices;
-        });
-    }
 
     my $attr_map = {
         dhcp_fingerprint => "fingerbank::Model::DHCP_Fingerprint",
@@ -546,7 +537,7 @@ sub info_for_violation_engine {
     });
 
     my $info = {
-      device_id => $devices,
+      device_id => $device_id,
       dhcp_fingerprint_id => $results->{dhcp_fingerprint},
       dhcp_vendor_id => $results->{dhcp_vendor},
       dhcp6_fingerprint_id => $results->{dhcp6_fingerprint},
