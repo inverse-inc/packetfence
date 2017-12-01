@@ -88,8 +88,8 @@ sub process {
     }
 
     # Processing the device class based on it's parents
-    my ( $class, $parents ) = _parse_parents($query_result);
-    $query_result->{device_class} = $class;
+    my ( $top_level_parent, $parents ) = _parse_parents($query_result);
+    $query_result->{device_class} = find_device_class($top_level_parent, $query_result->{'device'}{'name'});
     $query_result->{parents} = $parents;
 
     record_result($mac, $query_args, $query_result);
@@ -243,41 +243,29 @@ sub _parse_parents {
     return ( $class, \@parents );
 }
 
-=head2 is_a
+=head2 find_device_class
 
-Testing which "kind" of device a specific type is.
+Given a device, find its device class
 
-Currently handled "kind" of device (based on Fingerbank device classes):
-- Windows
-- Macintosh
-- Generic Android
-- Apple iPod, iPhone or iPad
+If the device is one of %fingerbank::Constant::PARENT_IDS, then that will be the device class.
+
+Otherwise, the top level parent will be the device class
 
 =cut
 
-sub is_a {
-    my ( $device_type ) = @_;
-    my $logger = pf::log::get_logger;
-
-    if ( !defined($device_type) || $device_type eq '' ) {
-        $logger->debug("Undefined / invalid device type passed");
-        return "unknown";
+sub find_device_class {
+    my ($top_level_parent, $device_name) = @_;
+    my $logger = get_logger;
+    while (my ($k, $other_device_id) = each(%fingerbank::Constant::PARENT_IDS)) {
+        $logger->trace("Checking if device $device_name is a $other_device_id");
+        if(fingerbank::Model::Device->is_a($device_name, $other_device_id)) {
+            my $other_device_name = fingerbank::Model::Device->read($other_device_id)->name; 
+            $logger->info("Device $device_name is a $other_device_name");
+            return $other_device_name;
+        }
     }
-
-    $logger->debug("Trying to determine the kind of device for '$device_type' device type");
-
-    my $endpoint = fingerbank::Model::Endpoint->new(name => $device_type, version => undef, score => undef);
-
-    return "Windows" if ( $endpoint->isWindows($device_type) );
-    # Macintosh / Mac OS
-    return "Macintosh" if ( $endpoint->isMacOS($device_type) );
-    # Android
-    return "Generic Android" if ( $endpoint->isAndroid($device_type) );
-    # Apple IOS
-    return "Apple iPod, iPhone or iPad" if ( $endpoint->isIOS($device_type) );
-
-    # Unknown (we were not able to match)
-    return "unknown";
+    $logger->debug("Device $device_name is not part of any special OS class, taking top level parent $top_level_parent");
+    return $top_level_parent;
 }
 
 sub sync_configuration {
