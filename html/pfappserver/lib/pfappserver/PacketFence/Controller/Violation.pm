@@ -143,7 +143,7 @@ sub prettify_trigger {
     my $pretty_value;
     if($type eq "device") {
         my ($status, $elem) = fingerbank::Model::Device->read($tid);
-        $pretty_value = $elem->{name} if(is_success($status));
+        $pretty_value = $elem->name if(is_success($status));
     }
     elsif($type eq "dhcp_fingerprint") {
         my ($status, $elem) = fingerbank::Model::DHCP_Fingerprint->read($tid);
