@@ -68,7 +68,7 @@ We record the completed sponsorship in the auth_log
 
 before 'done' => sub {
     my ($self) = @_;
-    pf::auth_log::record_completed_guest($self->source->id, $self->current_mac, $pf::auth_log::COMPLETED);
+    pf::auth_log::record_completed_guest($self->source->id, $self->current_mac, $pf::auth_log::COMPLETED, $self->app->profile->name);
 };
 
 =head2 execute_child

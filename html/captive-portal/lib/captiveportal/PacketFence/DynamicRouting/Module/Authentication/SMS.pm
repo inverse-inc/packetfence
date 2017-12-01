@@ -200,7 +200,7 @@ sub validate_pin {
     if (my $record = pf::activation::validate_code_with_mac($SMS_ACTIVATION, $pin, $mac)) {
         return ($TRUE, 0, $record);
     }
-    pf::auth_log::change_record_status($self->source->id, $mac, $pf::auth_log::FAILED);
+    pf::auth_log::change_record_status($self->source->id, $mac, $pf::auth_log::FAILED, $self->app->profile->name);
     return ($FALSE, $GUEST::ERROR_INVALID_PIN);
 }
 
@@ -230,7 +230,7 @@ sub validation {
         $self->username($record->{pid});
         my $mac = $self->current_mac;
         pf::activation::set_status_verified_by_mac($SMS_ACTIVATION, $pin, $mac);
-        pf::auth_log::record_completed_guest($self->source->id, $mac, $pf::auth_log::COMPLETED);
+        pf::auth_log::record_completed_guest($self->source->id, $mac, $pf::auth_log::COMPLETED, $self->app->profile->name);
         $self->done();
     }
     else {

@@ -89,7 +89,7 @@ sub do_email_registration {
     pf::auth_log::record_guest_attempt($source->id, $self->current_mac, $pid);
     if($self->app->preregistration) {
         # Mark the registration as completed as the email doesn't have to be validated
-        pf::auth_log::record_completed_guest($source->id, $self->current_mac, $pf::auth_log::COMPLETED);
+        pf::auth_log::record_completed_guest($source->id, $self->current_mac, $pf::auth_log::COMPLETED, $self->app->profile->name);
         $self->done();
     }
     else {

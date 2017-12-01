@@ -66,12 +66,13 @@ sub record_oauth_attempt {
 }
 
 sub record_completed_oauth {
-    my ($source, $mac, $pid, $auth_status) = @_;
+    my ($source, $mac, $pid, $auth_status, $profile) = @_;
     my ($status, $rows) = pf::dal::auth_log->update_items(
         -set => {
             completed_at => \'NOW()',
             status => $auth_status,
             pid => $pid,
+            profile => $profile,
         },
         -where => {
             process_name => process_name,
@@ -99,11 +100,12 @@ sub record_guest_attempt {
 }
 
 sub record_completed_guest {
-    my ($source, $mac, $auth_status) = @_;
+    my ($source, $mac, $auth_status, $profile) = @_;
     my ($status, $rows) = pf::dal::auth_log->update_items(
         -set => {
             completed_at => \'NOW()',
             status => $auth_status,
+            profile => $profile,
         },
         -where => {
             process_name => process_name,
@@ -117,7 +119,7 @@ sub record_completed_guest {
 }
 
 sub record_auth {
-    my ($source, $mac, $pid, $auth_status) = @_;
+    my ($source, $mac, $pid, $auth_status, $profile) = @_;
     my $status = pf::dal::auth_log->create({
         process_name => process_name,
         source => $source,
@@ -126,6 +128,7 @@ sub record_auth {
         attempted_at => \'NOW()',
         completed_at => \'NOW()',
         status => $auth_status,
+        profile => $profile,
     });
     return (is_success($status));
 }

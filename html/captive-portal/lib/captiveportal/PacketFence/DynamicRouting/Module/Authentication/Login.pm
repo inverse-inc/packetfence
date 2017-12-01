@@ -199,7 +199,7 @@ sub authenticate {
         my ( $return, $message, $source_id, $extra ) =
           pf::authentication::authenticate( { 'username' => $username, 'password' => $password, 'rule_class' => $Rules::AUTH }, @{$sources} );
         if (!defined $return || $return == $LOGIN_FAILURE) {
-            pf::auth_log::record_auth(join(',',map { $_->id } @{$sources}), $self->current_mac, $username, $pf::auth_log::FAILED);
+            pf::auth_log::record_auth(join(',',map { $_->id } @{$sources}), $self->current_mac, $username, $pf::auth_log::FAILED, $self->app->profile->name);
             $self->app->flash->{error} = $message;
             $self->prompt_fields();
             return;
@@ -218,7 +218,7 @@ sub authenticate {
                 }
             }
 
-            pf::auth_log::record_auth($source_id, $self->current_mac, $username, $pf::auth_log::COMPLETED);
+            pf::auth_log::record_auth($source_id, $self->current_mac, $username, $pf::auth_log::COMPLETED, $self->app->profile->name);
             # Logging USER/IP/MAC of the just-authenticated user
             get_logger->info("Successfully authenticated ".$username);
         } elsif ($return == $LOGIN_CHALLENGE) {
