@@ -45,24 +45,30 @@ has_field 'connection_timeout' =>
         'placeholder' => $META->get_attribute('connection_timeout')->default
     },
     default => $META->get_attribute('connection_timeout')->default,
+    tags => { after_element => \&help,
+             help => 'LDAP connection Timeout' },
   );
 has_field 'write_timeout' =>
   (
     type         => 'PosInteger',
-    label        => 'Socket write timeout',
+    label        => 'Request timeout',
     element_attr => {
         'placeholder' => $META->get_attribute('write_timeout')->default
     },
     default => $META->get_attribute('write_timeout')->default,
+    tags => { after_element => \&help,
+             help => 'LDAP request timeout' },
   );
 has_field 'read_timeout' =>
   (
     type         => 'PosInteger',
-    label        => 'Socket read timeout',
+    label        => 'Response timeout',
     element_attr => {
         'placeholder' => $META->get_attribute('read_timeout')->default
     },
     default => $META->get_attribute('read_timeout')->default,
+    tags => { after_element => \&help,
+             help => 'LDAP response timeout' },
   );
 has_field 'encryption' =>
   (
