@@ -14,8 +14,12 @@ use Moose;
 extends 'captiveportal::DynamicRouting::Module::Authentication';
 with 'captiveportal::Role::Routed';
 
+use LWP::UserAgent;
+use URI;
 use pf::util;
 use pf::auth_log;
+use pf::log;
+use JSON::MaybeXS;
 
 has '+source' => (isa => 'pf::Authentication::Source::SAMLSource');
 
@@ -60,7 +64,18 @@ Redirect the user to the SAML IDP
 sub redirect {
     my ($self) = @_;
     pf::auth_log::record_oauth_attempt($self->source->id, $self->current_mac);
-    $self->app->redirect($self->source->sso_url);
+
+    my $ua = LWP::UserAgent->new();
+    my $url = URI->new("http://localhost:9091/sso_url.cgi");
+    $url->query_form(source_id => $self->source->id);
+    my $res = $ua->get($url);
+    if($res->is_success) {
+        $self->app->redirect($res->decoded_content);
+    }
+    else {
+        get_logger->error("Unable to communicate will SAML CGI interface : ".$res->status_line);
+        $self->app->error("An error has occured. Please contact your local support staff.");
+    }
 }
 
 =head2 assertion
@@ -72,22 +87,33 @@ Handle the assertion that comes back from the IDP
 sub assertion {
     my ($self) = @_;
 
-    my ($username, $msg) = $self->source->handle_response($self->app->request->param("SAMLResponse"));
+    my $ua = LWP::UserAgent->new();
+    my $url = URI->new("http://localhost:9091/assertion.cgi");
+    my $res = $ua->post($url, {source_id => $self->source->id, SAMLResponse => $self->app->request->param("SAMLResponse")});
+    if($res->is_success) {
+        my $return = decode_json($res->decoded_content);
+        my $username = $return->{username};
+        my $msg = $return->{msg};
+        # We strip the username if the authorization source requires it.
+        if(isenabled($self->source->authorization_source->{stripped_user_name})){
+            ($username, undef) = strip_username($username);
+        }
 
-    # We strip the username if the authorization source requires it.
-    if(isenabled($self->source->authorization_source->{stripped_user_name})){
-        ($username, undef) = strip_username($username);
-    }
-
-    if($username){
-        pf::auth_log::record_completed_oauth($self->source->id, $self->current_mac, $username, $pf::auth_log::COMPLETED);
-        $self->username($username);
-        $self->done();
+        if($username){
+            pf::auth_log::record_completed_oauth($self->source->id, $self->current_mac, $username, $pf::auth_log::COMPLETED);
+            $self->username($username);
+            $self->done();
+        }
+        else {
+            $self->app->error($msg);
+            pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED);
+        }
     }
     else {
-        $self->app->error($msg);
-        pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED);
+        get_logger->error("Unable to communicate will SAML CGI interface : ".$res->status_line);
+        $self->app->error("An error has occured. Please contact your local support staff.");
     }
+
 }
 
 =head1 AUTHOR
