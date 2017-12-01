@@ -52,12 +52,14 @@ after 'value' => sub {
     my @options = map {
         my ($status, $result) = $self->fingerbank_model->read($_);
         if(is_success($status)){
+            my $value_field = $self->fingerbank_model->value_field;
             { 
                 value => $_,
-                label => $result->{$self->fingerbank_model->value_field},
+                label => $result->$value_field,
             }
         }
         else {
+            get_logger->error("Unable to read device $_");
             ();
         }
     } uniq(@base_ids, @{$self->result->value()});
