@@ -189,7 +189,11 @@
                   </li>
                   <li id="collapseSwitchGroupDefault" class="collapse">
                     <ul>[% FOREACH switch IN switches %]
-                      <li class="sidenav-subsection-extend"><a href="#" data-toggle="pf-search-form" data-parent="#collapseSwitchGroupDefault" data-target="advanced">[% switch.id %]</a>
+                      <li class="sidenav-subsection-extend">
+                        <a href="#" data-toggle="pf-search-form" data-parent="#collapseSwitchGroupDefault" data-target="advanced">
+                          <p class="sidenav-item">[% switch.id %]</p>
+                          [% IF switch.description %]<p class="sidenav-description">[% switch.description %]</p>[% END %]
+                        </a>
                         <form>
                           <input type="hidden" name="searches.0.name" value="switch_id"/>
                           <input type="hidden" name="searches.0.op" value="is"/>

@@ -80,7 +80,7 @@ sub scan_status : Private {
     $c->stash(
         title => "scan: scan in progress",
         template    => 'scan-in-progress.html',
-        timer         => $Config{'fencing'}{'redirtimer'},
+        timer         => $Config{'captive_portal'}{'network_redirect_delay'},
         txt_message => [
             'scan in progress contact support if too long',
             $scan_start_time

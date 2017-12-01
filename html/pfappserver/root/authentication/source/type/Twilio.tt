@@ -1,6 +1,0 @@
-[% form.field('account_sid').render | none %]
-[% form.field('auth_token').render | none %]
-[% form.field('twilio_phone_number').render | none %]
-[% form.field('pin_code_length').render | none %]
-[% form.field('create_local_account').render | none %]
-[% form.field('local_account_logins').render | none %]

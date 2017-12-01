@@ -106,6 +106,25 @@ packetfence-mschap-authenticate {
 }
 
 
+packetfence-allied-gs950-mab {
+    if ( &EAP-Type ) {
+        if (&User-Name && (&User-Name =~ /^${policy.mac-addr-regexp}$/i)) {
+            update {
+                &request:Tmp-String-1 := "%{tolower:%{1}%{2}%{3}%{4}%{5}%{6}}"
+            }
+            if  ( &Tmp-String-1 == "%{tolower:%{User-Name}}" ) {
+                update {
+                    &control:Cleartext-Password := &request:User-Name
+                    &request:Calling-Station-Id := &request:User-Name
+                    &request:NAS-Port-Type := "Ethernet"
+                }
+                updated
+            }
+        }
+    }
+    noop
+}
+
 packetfence-cache-ntlm-hit {
   update control {
     Cache-Status-Only = 'yes'
@@ -147,3 +166,4 @@ packetfence-control-ntlm-failure {
     }
   }
 }
+

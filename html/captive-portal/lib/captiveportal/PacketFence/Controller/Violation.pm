@@ -60,7 +60,7 @@ sub index : Path : Args(0) {
                     template => "scan.html",
                     txt_message => "system scan in progress",
                     title => "scan: scan in progress",
-                    timer => $Config{'fencing'}{'redirtimer'},
+                    timer => $Config{'captive_portal'}{'network_redirect_delay'},
                 );
                 $c->detach();
             }

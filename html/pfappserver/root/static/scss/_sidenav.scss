@@ -130,6 +130,15 @@ $sidenavSubsectionColor:        darken($navbarInverseText, 30%);
       top: $sidenavItemBulletSize;
     }
   }
+  p.sidenav-item {
+        margin-top:5px;
+        margin-bottom:0px;
+  }
+  p.sidenav-description {
+        margin-top:0px;
+        margin-bottom:5px;
+        font-style:italic;
+  }
 }
 
 .sidenav-category,

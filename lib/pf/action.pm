@@ -302,7 +302,7 @@ sub action_email_user {
         my $description = $class_info->{'description'};
 
         my $additionnal_message = join('<br/>', split('\n', $pf::violation_config::Violation_Config{$vid}{user_mail_message}));
-        my $to = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
+        my $to = $person->{email};
         pf::config::util::send_email(
             'violation-triggered',
             $to,

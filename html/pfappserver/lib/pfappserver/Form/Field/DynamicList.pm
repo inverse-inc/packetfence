@@ -82,7 +82,6 @@ sub child_options {
         do_wrapper  => 1,
         tags =>
         {
-            input_append => \&append_delete_button,
             input_prepend => \&prepend_sort_handle,
         }
     );
@@ -117,7 +116,8 @@ sub prepend_sort_handle {
     my $name = $field->name + 1;
     my $label = $field->label;
     my $target = escape_jquery_id($field->id);
-    my $content = qq{<span data-sortable-text="$label" data-base-id="$base_id" data-sortable-item="#$target" data-sortable-scope="$scope" data-sortable-parent="$target_id" class="sort-handle">$name</span>};
+    my $add_delete_button = get_add_delete_buttons($field);
+    my $content = qq{$add_delete_button</span> <span data-sortable-text="$label" data-base-id="$base_id" data-sortable-item="#$target" data-sortable-scope="$scope" data-sortable-parent="$target_id" class="sort-handle add-on">$name};
     return $content;
 }
 
@@ -239,15 +239,14 @@ sub target_wrapper {
     return '#' . escape_jquery_id($self->id);
 }
 
-=head2 append_delete_button
+=head2 get_add_delete_buttons
 
 Returns the delete button to be appended
 
 =cut
 
-sub append_delete_button {
+sub get_add_delete_buttons {
     my ($field) = @_;
-    my $target = escape_jquery_id($field->id);
     my $parent = $field->parent;
     my $add_attrs = $parent->add_button_attr;
     my $delete_attrs = $parent->delete_button_attr($field);

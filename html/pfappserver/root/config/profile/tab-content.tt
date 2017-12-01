@@ -21,6 +21,13 @@
           <option value="[% node_role.name %]"> [% node_role.name %] </option>
        [% END %]
      </select>
+     [% IF ssids.size %]
+     <select name="ssid_filter_match" id="ssid_filter_match" data-required="required" placeholder="[% l('Enter SSID') %]">
+        [% FOREACH ssid IN ssids %]
+            <option value="[% ssid %]">[% ssid %]</option>
+        [% END %]
+     </select>
+     [% END %]
   </div>
           [% IF item && item.id.defined %]
             [%  CALL form.field('id').set_element_attr('readonly','readonly') %]
