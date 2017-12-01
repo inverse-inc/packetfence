@@ -27,6 +27,8 @@ use pf::Authentication::constants qw($LOGIN_CHALLENGE);
 use pf::util;
 use pf::config qw(%Config);
 use DateTime;
+use fingerbank::Constant;
+use fingerbank::Model::Device;
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
@@ -326,6 +328,7 @@ sub nodes :Chained('object') :PathPart('nodes') :Args(0) :AdminRole('NODES_READ'
         roles => $roles,
         switch_groups => $switch_groups,
         switches => $switches,
+        mobile_oses => [ map { fingerbank::Model::Device->read($_)->name } values(%fingerbank::Constant::MOBILE_IDS) ],
     );
 }
 

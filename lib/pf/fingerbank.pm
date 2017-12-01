@@ -247,7 +247,7 @@ sub _parse_parents {
 
 Given a device, find its device class
 
-If the device is one of %fingerbank::Constant::PARENT_IDS, then that will be the device class.
+If the device is one of %fingerbank::Constant::DEVICE_CLASS_IDS, then that will be the device class.
 
 Otherwise, the top level parent will be the device class
 
@@ -256,7 +256,7 @@ Otherwise, the top level parent will be the device class
 sub find_device_class {
     my ($top_level_parent, $device_name) = @_;
     my $logger = get_logger;
-    while (my ($k, $other_device_id) = each(%fingerbank::Constant::PARENT_IDS)) {
+    while (my ($k, $other_device_id) = each(%fingerbank::Constant::DEVICE_CLASS_IDS)) {
         $logger->trace("Checking if device $device_name is a $other_device_id");
         if(fingerbank::Model::Device->is_a($device_name, $other_device_id)) {
             my $other_device_name = fingerbank::Model::Device->read($other_device_id)->name; 
