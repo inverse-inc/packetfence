@@ -61,7 +61,7 @@ func initiaLease(dhcpHandler *DHCPHandler) {
 	rows, err := database.Query("select ip,mac,end_time from ip4log where inet_aton(ip) between inet_aton(?) and inet_aton(?) and (end_time = 0 OR  end_time > NOW()) ORDER BY ip", dhcpHandler.start.String(), ipend.String())
 	if err != nil {
 		// Log here
-		// fmt.Println(err)
+		fmt.Println(err)
 		return
 	}
 	defer rows.Close()
@@ -247,7 +247,6 @@ func ShuffleDNS(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
 	} else {
 		return []byte(net.ParseIP(ConfNet.Dns).To4())
 	}
-	return r
 }
 
 func ShuffleGateway(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {

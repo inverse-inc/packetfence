@@ -320,7 +320,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 				}
 			}
 
-			answer.D = dhcp.ReplyPacket(p, dhcp.Offer, handler.ip, answer.IP, leaseDuration,
+			answer.D = dhcp.ReplyPacket(p, dhcp.Offer, handler.ip.To4(), answer.IP, leaseDuration,
 				GlobalOptions.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
 
 			return answer
@@ -363,7 +363,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 								GlobalOptions[key] = value
 							}
 						}
-						answer.D = dhcp.ReplyPacket(p, dhcp.ACK, handler.ip, reqIP, leaseDuration,
+						answer.D = dhcp.ReplyPacket(p, dhcp.ACK, handler.ip.To4(), reqIP, leaseDuration,
 							GlobalOptions.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
 						// Update Global Caches
 						GlobalIpCache.Set(reqIP.String(), p.CHAddr().String(), leaseDuration+(time.Duration(15)*time.Second))
@@ -375,7 +375,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 					}
 				}
 			}
-			answer.D = dhcp.ReplyPacket(p, dhcp.NAK, handler.ip, nil, 0, nil)
+			answer.D = dhcp.ReplyPacket(p, dhcp.NAK, handler.ip.To4(), nil, 0, nil)
 
 		case dhcp.Release, dhcp.Decline:
 
@@ -387,6 +387,6 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 		return answer
 	}
 	answer.Iface = h.intNet
-	answer.D = dhcp.ReplyPacket(p, dhcp.NAK, handler.ip, nil, 0, nil)
+	answer.D = dhcp.ReplyPacket(p, dhcp.NAK, handler.ip.To4(), nil, 0, nil)
 	return answer
 }

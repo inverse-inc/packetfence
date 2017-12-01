@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/RoaringBitmap/roaring"
+
 	netadv "github.com/fdurand/go-netadv"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	dhcp "github.com/krolaw/dhcp4"
@@ -144,20 +145,22 @@ func (d *Interfaces) readConfig() {
 							DHCPNet.splittednet = true
 
 							var ip net.IP
+
 							if (Role == "registration") && (ConfNet.RegNetwork != "") {
 								IP, NetWork, _ = net.ParseCIDR(ConfNet.RegNetwork)
 							} else {
 								NetWork = subnet
 							}
 
-							ip = append([]byte(nil), NetWork.IP...)
+							ip = []byte(NetWork.IP.To4())
 
 							// First ip available in the scope (packetfence ip)
 							inc(ip)
 							DHCPNet.network.IP = append([]byte(nil), NetWork.IP...)
 
 							DHCPNet.network.Mask = NetWork.Mask
-							DHCPScope.ip = append([]byte(nil), ip...)
+
+							DHCPScope.ip = net.ParseIP(ip.String())
 
 							var seconds int
 
@@ -204,7 +207,6 @@ func (d *Interfaces) readConfig() {
 
 							options[dhcp.OptionSubnetMask] = []byte(DHCPNet.network.Mask)
 							options[dhcp.OptionDomainNameServer] = ShuffleDNS(ConfNet)
-							// options[dhcp.OptionDomainNameServer] = []byte(net.ParseIP(ConfNet.Dns).To4())
 							options[dhcp.OptionRouter] = []byte(DHCPScope.ip.To4())
 							options[dhcp.OptionDomainName] = []byte(ConfNet.DomainName)
 							DHCPScope.options = options
@@ -254,8 +256,6 @@ func (d *Interfaces) readConfig() {
 
 						options[dhcp.OptionSubnetMask] = []byte(net.ParseIP(ConfNet.Netmask).To4())
 						options[dhcp.OptionDomainNameServer] = ShuffleDNS(ConfNet)
-						// options[dhcp.OptionDomainNameServer] = []byte(net.ParseIP(ConfNet.Dns).To4())
-						// options[dhcp.OptionRouter] = []byte(net.ParseIP(ConfNet.Gateway).To4())
 						options[dhcp.OptionRouter] = ShuffleGateway(ConfNet)
 						options[dhcp.OptionDomainName] = []byte(ConfNet.DomainName)
 						DHCPScope.options = options
