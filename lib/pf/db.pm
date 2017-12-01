@@ -44,11 +44,13 @@ our $WSREP_NOT_READY_ERROR = 1047;
 
 our ( $DBH, $LAST_CONNECT, $DB_Config, $NO_DIE_ON_DBH_ERROR );
 
+our $MAX_STATEMENT_TIME = 0.0;
+
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
     @ISA    = qw(Exporter);
-    @EXPORT = qw(db_data db_connect db_disconnect get_db_handle db_query_execute db_ping db_cancel_current_query db_now db_readonly_mode db_check_readonly $MYSQL_READONLY_ERROR);
+    @EXPORT = qw(db_data db_connect db_disconnect get_db_handle db_query_execute db_ping db_cancel_current_query db_now db_readonly_mode db_check_readonly db_set_max_statement_timeout $MYSQL_READONLY_ERROR);
 
 }
 
@@ -80,54 +82,119 @@ manages the list of database connection handler per thread
 =cut
 
 sub db_connect {
-    my ($mydbh) = @_;
+    if (is_old_connection_good($DBH)) {
+        return $DBH;
+    }
     my $logger = get_logger();
-    $mydbh = 0 if ( !defined $mydbh );
-    my $caller = ( caller(1) )[3] || basename($0);
-    $logger->debug("function $caller is calling db_connect");
+    $logger->debug("(Re)Connecting to MySQL (pid: $$)");
+    my ($dsn, $user, $pass) = db_data_source_info();
+    # make sure we have a database handle
+    if ( $DBH = DBI->connect($dsn, $user, $pass, { RaiseError => 0, PrintError => 0, mysql_auto_reconnect => 1 })) {
+        $logger->debug("connected");
+        return on_connect($DBH);
+    }
 
-    $mydbh = $DBH if ($DBH);
+    $logger->logcroak("unable to connect to database: " . $DBI::errstr) unless $NO_DIE_ON_DBH_ERROR;
+    $logger->error("unable to connect to database: " . $DBI::errstr);
+    $pf::StatsD::statsd->increment(called() . ".error.count" );
+    return ();
+}
+
+=head2 is_old_connection_good
+
+is_old_connection_good
+
+=cut
+
+sub is_old_connection_good {
+    my ($dbh) = @_;
+    my $logger = get_logger();
+    if (!defined $dbh) {
+        return 0;
+    }
 
     my $recently_connected = (defined($LAST_CONNECT) && $LAST_CONNECT && (time()-$LAST_CONNECT < 30));
-    if ($recently_connected && $mydbh) {
+    if ($recently_connected) {
         $logger->debug("not checking db handle, it has been less than 30 sec from last connection");
-        return $mydbh;
+        return 1;
     }
 
     $logger->debug("checking handle");
-    if ( $mydbh && $mydbh->ping() ) {
+    if ( $dbh->ping() ) {
         $LAST_CONNECT = time();
         $logger->debug("we are currently connected");
-        return $mydbh;
+        return 1;
     }
 
-    $logger->debug("(Re)Connecting to MySQL (pid: $$)");
+    return 0;
+}
 
-    my $host = $DB_Config->{'host'};
-    my $port = $DB_Config->{'port'};
-    my $user = $DB_Config->{'user'};
-    my $pass = $DB_Config->{'pass'};
-    my $db   = $DB_Config->{'db'};
 
-    # TODO database prepared statements are disabled by default in dbd::mysql
-    # we should test with them, see http://search.cpan.org/~capttofu/DBD-mysql-4.013/lib/DBD/mysql.pm#DESCRIPTION
-    $mydbh = DBI->connect( "dbi:mysql:dbname=$db;host=$host;port=$port;mysql_client_found_rows=0",
-        $user, $pass, { RaiseError => 0, PrintError => 0, mysql_auto_reconnect => 1 } );
+=head2 on_connect
 
-    # make sure we have a database handle
-    if ($mydbh) {
+on_connect
 
-        $logger->debug("connected");
-        $LAST_CONNECT = time();
-        $DBH = $mydbh;
-        return ($mydbh);
+=cut
 
-    } else {
-        $logger->logcroak("unable to connect to database: " . $DBI::errstr) unless $NO_DIE_ON_DBH_ERROR;
-        $logger->error("unable to connect to database: " . $DBI::errstr);
-        $pf::StatsD::statsd->increment(called() . ".error.count" );
-        return ();
+sub on_connect {
+    my ($dbh) = @_;
+    $LAST_CONNECT = time();
+    if (my $sql = init_command($dbh)) {
+        $dbh->do($sql);
     }
+    return $dbh;
+}
+
+=head2 db_data_source_info
+
+db_data_source_info
+
+=cut
+
+sub db_data_source_info {
+    my ($self) = @_;
+    my $config = db_config();
+    my $dsn = "dbi:mysql:dbname=$config->{db};host=$config->{host};port=$config->{port};mysql_client_found_rows=0";
+
+    return (
+        $dsn,
+        $config->{user},
+        $config->{pass},
+    );
+}
+
+=head2 init_command
+
+init_command
+
+=cut
+
+sub init_command {
+    my ($dbh) = @_;
+    my $sql = '';
+    if (my $new_timeout = db_get_max_statement_timeout()) {
+        my ($name, $current_timeout) = $dbh->selectrow_array("SHOW VARIABLES WHERE Variable_name in ('max_statement_time', 'max_execution_time')");
+        if ($name) {
+            $sql .= "SET SESSION $name=" . convert_timeout($current_timeout, $new_timeout);
+        }
+    }
+    return $sql;
+}
+
+sub convert_timeout {
+    my ($current_timeout, $new_timeout) = @_;
+    $new_timeout = int($new_timeout * 1000) if $current_timeout =~ /^\d+$/;#If the current value is a pure integer then convert timeout to millisecond
+    return $new_timeout;
+}
+
+=head2 db_config
+
+db config
+
+=cut
+
+sub db_config {
+    return {%$DB_Config};
 }
 
 =item * db_ping
@@ -515,6 +582,35 @@ sub db_check_readonly {
     my ($self) = @_;
     my $mode = $CHI_READONLY->compute("inreadonly", {expires_in => '5'}, \&db_readonly_mode);
     return $mode;
+}
+
+=item db_set_max_statement_timeout
+
+Set the max statement timeout
+
+In order to take effect must be set before connecting to the database
+
+=cut
+
+sub db_set_max_statement_timeout {
+    my ($timeout) = @_;
+    $timeout //= 0.0;
+    $timeout += 0.0;
+    if ($MAX_STATEMENT_TIME != $timeout) {
+        db_disconnect();
+        $DBH = undef;
+        $MAX_STATEMENT_TIME = $timeout;
+    }
+}
+
+=head2 db_get_max_statement_timeout
+
+Get the max statement timeout
+
+=cut
+
+sub db_get_max_statement_timeout {
+    return $MAX_STATEMENT_TIME + 0.0 ;
 }
 
 =back

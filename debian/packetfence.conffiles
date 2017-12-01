@@ -149,8 +149,6 @@
 /usr/local/pf/html/pfappserver/pfappserver.conf
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Admin.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/AdminRoles.pm
-/usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Authentication.pm
-/usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Authentication/Source.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Firewall_SSO.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/FloatingDevice.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Networks.pm

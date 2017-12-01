@@ -3283,7 +3283,7 @@ msgstr ""
 msgid "How long can an unregistered node be inactive on the network before being deleted.<br>This shouldn't be used if you are using port-security"
 msgstr ""
 
-# conf/documentation.conf (fencing.redirtimer)
+# conf/documentation.conf (captive_portal.network_redirect_delay)
 msgid "How long to display the progress bar during trap release. Default value is based on VLAN enforcement techniques. Inline enforcement only users could lower the value."
 msgstr ""
 
@@ -9435,7 +9435,7 @@ msgstr "Auto Registration"
 
 # pf::action (VIOLATION_ACTIONS)
 msgid "autoreg_action"
-msgstr "Register node"
+msgstr "Register node on violation"
 
 # pfappserver::Model::Node::Tab::MSE (MSE Tab)
 msgid "band"
@@ -9501,6 +9501,18 @@ msgid "captive_portal.network_detection_ip"
 msgstr "IP"
 
 # conf/documentation.conf
+msgid "captive_portal.network_detection_initial_delay"
+msgstr "Initial delay"
+
+# conf/documentation.conf
+msgid "captive_portal.network_detection_retry_delay"
+msgstr "Retry delay"
+
+# conf/documentation.conf
+msgid "captive_portal.network_redirect_delay"
+msgstr "Redirection delay"
+
+# conf/documentation.conf
 msgid "captive_portal.rate_limiting"
 msgstr "Rate limiting"
 
@@ -9531,7 +9543,7 @@ msgstr "cell phone"
 
 # pf::action (VIOLATION_ACTIONS)
 msgid "close_action"
-msgstr "Close a violation"
+msgstr "Close violation"
 
 # pf::Authentication::Source::ADSource (available_attributes)
 # pf::Authentication::Source::LDAPSource (available_attributes)
@@ -9843,11 +9855,11 @@ msgstr ""
 
 # pf::action (VIOLATION_ACTIONS)
 msgid "email_admin_action"
-msgstr ""
+msgstr "Email violation to administrator"
 
 # pf::action (VIOLATION_ACTIONS)
 msgid "email_user_action"
-msgstr ""
+msgstr "Email violation to user"
 
 # conf/documentation.conf (advanced.language options)
 msgid "en_US"
@@ -9950,7 +9962,7 @@ msgstr ""
 
 # pf::action (VIOLATION_ACTIONS)
 msgid "enforce_provisioning_action"
-msgstr ""
+msgstr "Evaluate provisioning policies on violation"
 
 # pf::Authentication::constants (Conditions)
 msgid "equals"
@@ -9966,7 +9978,7 @@ msgstr "Event Type"
 
 # pf::action (VIOLATION_ACTIONS)
 msgid "external_action"
-msgstr ""
+msgstr "Send violation to external"
 
 # conf/documentation.conf
 msgid "fencing"
@@ -10003,10 +10015,6 @@ msgstr "Proxy Passthroughs"
 # conf/documentation.conf
 msgid "fencing.range"
 msgstr "Addresses ranges"
-
-# conf/documentation.conf
-msgid "fencing.redirtimer"
-msgstr "Redirection delay"
 
 # conf/documentation.conf
 msgid "fencing.wait_for_redirect"
@@ -10312,7 +10320,7 @@ msgstr ""
 
 # pf::action (VIOLATION_ACTIONS)
 msgid "log_action"
-msgstr "Log message"
+msgstr "Log violation"
 
 # pf::Authentication::constants (Conditions)
 msgid "lower"
@@ -10954,7 +10962,7 @@ msgstr "Redis Port"
 
 # pf::action (VIOLATION_ACTIONS)
 msgid "reevaluate_access_action"
-msgstr "Reevaluate Access Action"
+msgstr "Change network access on violation"
 
 # html/pfappserver/root/admin/nodes.tt
 # pfappserver::Model::Node (availableStatus)
@@ -10976,7 +10984,7 @@ msgstr "Role"
 
 # pf::action (VIOLATION_ACTIONS)
 msgid "role_action"
-msgstr "Set role"
+msgstr "Assign role on violation"
 
 # html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
@@ -11421,7 +11429,7 @@ msgstr "unregistered"
 
 # pf::action (VIOLATION_ACTIONS)
 msgid "unreg_action"
-msgstr "Deregister node"
+msgstr "Deregister node on violation"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "upstream"
@@ -11573,4 +11581,16 @@ msgstr ""
 
 # conf/reports.conf.defaults
 msgid "IP address archive of the devices on your network when enabled (see Maintenance section)"
+msgstr ""
+
+# html/pfappserver/root/config/profile/tab-content.tt
+msgid "Choose SSID"
+msgstr ""
+
+# html/pfappserver/root/config/profile/tab-content.tt
+msgid "Enter new SSID"
+msgstr ""
+
+# html/pfappserver/root/config/profile/tab-content.tt
+msgid "Enter SSID"
 msgstr ""

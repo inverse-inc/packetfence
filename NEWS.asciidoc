@@ -17,15 +17,31 @@ Version X.Y.Z released on xxxx-xx-xx
 New Features
 ++++++++++++
 
+* New portal module to keep the previous role if this role is in a list (PR #2490).
+* Added portal module for selecting a role for the device being registered on the portal (PR #2471).
+* Added support for Allied Telesis GS950 switches (PR #1866)
 
 Enhancements
 ++++++++++++
 
+* Keepalived can be configured to detect its peers via unicast instead of multicast (PR #2794)
+* Suggest VID in Admin Violations -> Add Violation (#2804) (PR #2807)
+* Enhanced English i18n strings in admin CMS violation actions.
 * Create a priority queue
 * Move ReAssignVlan and desAssociate api calls to the priority queue
+* Add Connection Profile SSID filter suggestions based on all the previous SSIDs that have been seen in the locationlog (#2758) (PR #2771).
+* Adds a description to the switches in the Nodes side navigation (#2791) (PR #2795).
+* Improve configuration of the captive portal timer bar (via the captive_portal section of pf.conf) (#383) (PR #2762)
+* (AD Powershell scripts) Enforce use of TLS in the powershell scripts which is required with the last versions of PF (PR #2788)
+* (AD Powershell scripts) Cycle through all the possible Active Directory usernames formats in PacketFence (PR #2788)
+* Removed old authentication code sources (Fixes #2610)
+* Added rule description in listing (Fixes #2619)
+* Improved documentation (PR #2774 fixes #2773)
+* Set a timeout for database queries for the admin to avoid long running queries slowing the system. (#2630) (PR #2659)
 
 Bug Fixes
 +++++++++
+* Move add delete buttons to the left to avoid the being cutoff (Fixes #2678)
 
 Version 7.3.0 released on 2017-09-25
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

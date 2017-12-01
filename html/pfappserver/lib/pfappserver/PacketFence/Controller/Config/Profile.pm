@@ -32,6 +32,7 @@ use pf::Connection::ProfileFactory;
 use captiveportal::DynamicRouting::Application;
 use pf::config qw(%connection_type %ConfigSwitchesGroup);
 use pf::constants qw($TRUE $FALSE);
+use pf::locationlog qw(locationlog_unique_ssids);
 use pf::util;
 use pf::file_paths qw(
     $captiveportal_profile_templates_path
@@ -39,6 +40,7 @@ use pf::file_paths qw(
     $captiveportal_templates_path
 );
 use List::Util qw(any);
+use List::MoreUtils qw(uniq);
 use pf::constants::eap_type qw(%RADIUS_EAP_TYPE_2_VALUES);
 
 Readonly our %FILTER_FILES =>
@@ -125,11 +127,26 @@ Append additional data after the view
 after view => sub {
     my ($self, $c) = @_;
     my ($status, $roles) = $c->model('Config::Roles')->listFromDB;
+    # get list of ssids from database locationlog
+    my @ssids = locationlog_unique_ssids();
+    # get list of ssids from form fields
+    my $form_filter = $c->stash->{form}->field('filter');
+    if(defined $form_filter) {
+        foreach my $ssid (@{$form_filter->value//[]}) {
+            if(defined $ssid->{type} && $ssid->{type} eq "ssid" 
+                && defined $ssid->{match} && $ssid->{match} ne ""
+            ) {
+                push(@ssids, $ssid->{match});
+            }
+        }
+    }
+    my @unique_ssids = uniq( @ssids );
     $c->stash({
         connection_types => [ keys %connection_type ],
         connection_sub_types => [ sort keys %RADIUS_EAP_TYPE_2_VALUES ],
         node_roles => $roles,
         switch_groups => [ keys %ConfigSwitchesGroup ],
+        ssids => [ @unique_ssids ],
     });
 };
 

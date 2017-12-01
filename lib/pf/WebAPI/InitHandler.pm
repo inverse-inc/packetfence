@@ -60,8 +60,9 @@ sub post_config {
     my ($class, $conf_pool, $log_pool, $temp_pool, $s) = @_;
     pf::StatsD->closeStatsd;
     db_disconnect();
-    preloadSwitches();
+    $class->preloadSwitches();
     pf::CHI->clear_memoized_cache_objects;
+    $class->post_config_hook();
     return Apache2::Const::OK;
 }
 
@@ -75,6 +76,14 @@ sub preloadSwitches {
     my ($class) = @_;
     pf::SwitchFactory->preloadConfiguredModules();
 }
+
+=head2 post_config_hook
+
+post config hook allow child class to add additional actions
+
+=cut
+
+sub post_config_hook { }
 
 =head1 AUTHOR
 

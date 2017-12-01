@@ -23,6 +23,7 @@ use pf::action;
 use pf::log;
 use pf::constants::violation qw($MAX_VID %NON_WHITELISTABLE_ROLES);
 use pfappserver::Base::Form::Authentication::Action qw(options_durations); 
+use pf::class qw(class_next_vid);
 
 has '+field_name_space' => ( default => 'pfappserver::Form::Field' );
 has '+widget_name_space' => ( default => 'pfappserver::Form::Widget' );
@@ -46,6 +47,7 @@ has_field 'id' =>
   (
    type => 'Text',
    label => 'Identifier',
+   default_method => \&class_next_vid,
    messages => { required => 'Please specify an identifier for the violation.' },
    tags => { after_element => \&help,
              help => 'Use a number above 1500000 if you want to be able to delete this violation later.' },

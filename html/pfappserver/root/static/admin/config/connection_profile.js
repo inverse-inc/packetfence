@@ -224,21 +224,20 @@ function initReadPage(element) {
         select.find("option:selected").removeAttr("selected");
         var options = select.find('option[value!=""]');
         // Select the next option that was not yet selected
-        try {
-            options.each(function(index,element) {
-                var selector = '[value="' + element.value + '"]';
-                if(selected_options.filter(selector).length === 0) {
-                    $(element).attr("selected", "selected");
-                    throw "";
-                }
-            });
-        }
-        catch(e) {}
+        options.each(function(index,element) {
+            var selector = '[value="' + element.value + '"]';
+            if(selected_options.filter(selector).length === 0) {
+                $(element).attr("selected", "selected");
+                return false;
+            }
+        });
+        
         // If all options have been added, remove the add button
         var rows = row.siblings(':not(.hidden)').addBack();
         if (rows.length == options.length) {
             rows.find('[href="#add"]').addClass('hidden');
         }
+        select.trigger('change');
     });
     // When selecting an exclusive source, remove all other sources
     $('#sources').on('change', 'select', function(event) {
@@ -253,6 +252,31 @@ function initReadPage(element) {
     });
     $('#filter').on('change', 'select[name$=".type"]', function(event) {
         var type_input = $(event.currentTarget);
+        var type_value = type_input.val();
+        if(type_value == 'ssid') {
+            var match_input = type_input.next('select');
+            if(match_input.length > 0) {
+                var match_value = match_input.val();
+                if($('datalist[id="ssids"]').length < 1){
+                    var datalist_element = $('<datalist id="ssids"/>');
+                    $(match_input).find('option').each(function(){
+                        datalist_element.append($(this));
+                    });
+                    $('body').append(datalist_element);
+                }
+                var input_element = $('<input type="text" id="'+match_input.attr('id')+'" name="'+match_input.attr('name')+'" value="'+(match_value||'')+'" data-required="'+(match_input.attr('required')||'0')+'" placeholder="'+match_input.attr('placeholder')+'" class="input-medium" list="ssids">');
+                $.each($._data(match_input.get(0), 'events'), function() {
+                    $.each(this, function() {
+                        $(input_element).bind(this.type, this.handler);
+                    });
+                });
+                match_input.parent().append(input_element);
+                $(match_input).remove();
+            }else{
+                type_input.next().attr('list', 'ssids');
+            }
+            return;
+        }
         updateFilterMatchInput(type_input,false);
     });
     $('[id$="Empty"]').on('click', '[href="#add"]', function(event) {
@@ -266,10 +290,12 @@ function initReadPage(element) {
     $('select[name$=".type"]:not(:disabled)').each(function(i,e){
         updateFilterMatchInput($(e),true);
     });
+    $('#filter select[name$=".type"]').trigger('change');
 }
 
-function updateFilterMatchInput(type_input, keep) {
+function updateFilterMatchInput(type_input, keep_value) {
     var match_input = type_input.next();
+    var match_value = match_input.val();
     var type_value = type_input.val();
     var match_input_template_id = '#' + type_value + "_filter_match";
     var match_input_template = $(match_input_template_id);
@@ -277,8 +303,8 @@ function updateFilterMatchInput(type_input, keep) {
         match_input_template = $('#default_filter_match');
     }
     if ( match_input_template.length ) {
-        changeInputFromTemplate(match_input, match_input_template, keep);
-        if (type_value == "switch") {
+        changeInputFromTemplate(match_input, match_input_template, keep_value);
+        if(type_value == "switch") {
             type_input.next().typeahead({
                 source: searchSwitchesGenerator($('#section h2')),
                 minLength: 2,

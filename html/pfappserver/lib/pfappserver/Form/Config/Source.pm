@@ -268,8 +268,9 @@ build the label of rule
 
 sub build_rule_label {
     my ($field) = @_;
-    my $id = $field->field("id")->value // "New";
-    return "Rule - $id";
+    my $id = $field->field("id")->value  // "New";
+    my $desc = $field->field("description")->value  // "";
+    return "Rule - $id ( $desc )";
 }
 
 =head2 build_render_list_rules

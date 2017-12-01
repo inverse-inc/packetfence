@@ -124,7 +124,7 @@ Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
 =cut
 
 sub getVoipVsa {
-    return {};
+    return ();
 }
 
 =head2 parseTrap

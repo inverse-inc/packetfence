@@ -263,16 +263,16 @@ sub apply_new_node_info {
         $self->app->flash->{notice} = "";
         my $notice = "";
         if($self->new_node_info->{category}) {
-            $notice .= sprintf("Role %s has been assigned to your device", $self->new_node_info->{category});
+            $notice .= $self->app->i18n_format("Role %s has been assigned to your device", $self->new_node_info->{category});
         }
         if($self->new_node_info->{unregdate}) {
-            $notice .= sprintf(" with unregistration date : %s,", $self->new_node_info->{unregdate});
+            $notice .= $self->app->i18n_format(" with unregistration date : %s,", $self->new_node_info->{unregdate});
         }
         if ($self->new_node_info->{time_balance}) {
-            $notice .= sprintf(" with time balance : %s,", $self->new_node_info->{time_balance});
+            $notice .= $self->app->i18n_format(" with time balance : %s,", $self->new_node_info->{time_balance});
         }
         if ($self->new_node_info->{bandwidth_balance}) {
-            $notice .= sprintf(" with bandwidth balance : %s,", $self->new_node_info->{bandwidth_balance});
+            $notice .= $self->app->i18n_format(" with bandwidth balance : %s,", $self->new_node_info->{bandwidth_balance});
         }
         $self->app->flash->{notice} = [ $notice ];
         return $TRUE;
