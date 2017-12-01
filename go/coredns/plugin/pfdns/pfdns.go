@@ -430,6 +430,9 @@ func (pf *pfdns) DbInit() error {
 		return err
 	}
 
+	pf.Db.SetMaxIdleConns(0)
+	pf.Db.SetMaxOpenConns(500)
+
 	pf.IP4log, err = pf.Db.Prepare("Select MAC from ip4log where IP = ? ")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "pfdns: database ip4log prepared statement error: %s", err)
