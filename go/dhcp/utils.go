@@ -247,7 +247,6 @@ func ShuffleDNS(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
 	} else {
 		return []byte(net.ParseIP(ConfNet.Dns).To4())
 	}
-	return r
 }
 
 func ShuffleGateway(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
