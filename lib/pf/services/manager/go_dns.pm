@@ -40,8 +40,7 @@ tie our %domain_dns_servers, 'pfconfig::cached_hash', 'resource::domain_dns_serv
 
 sub isManaged {
     my ($self) = @_;
-    return 1;
-    return  isdisabled($Config{'services'}{'dns'}) && $self->SUPER::isManaged();
+    return  isdisabled($Config{'services'}{'pfdns'}) && $self->SUPER::isManaged();
 }
 
 =head2 generateConfig
