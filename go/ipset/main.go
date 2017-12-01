@@ -36,6 +36,8 @@ func main() {
 
 	configDatabase := readDBConfig()
 	connectDB(configDatabase, database)
+	database.SetMaxIdleConns(0)
+	database.SetMaxOpenConns(500)
 
 	// Reload the set from the database each minutes
 	go func() {
