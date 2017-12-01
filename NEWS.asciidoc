@@ -24,6 +24,7 @@ New Features
 Enhancements
 ++++++++++++
 
+* Suggest VID in Admin Violations -> Add Violation (#2804) (PR #2807)
 * Enhanced English i18n strings in admin CMS violation actions.
 * Create a priority queue
 * Move ReAssignVlan and desAssociate api calls to the priority queue
