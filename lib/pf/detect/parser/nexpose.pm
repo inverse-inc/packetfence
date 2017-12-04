@@ -24,7 +24,7 @@ sub parse {
 
     # Alert line example
     # Nov 13 11:38:09 172.20.120.70 Nexpose: 10.0.0.20 VULNERABILITY: OpenSSL SSL/TLS MITM vulnerability (CVE-2014-0224) (http-openssl-cve-2014-0224)
-    if ($line =~ /^(\w+ \d+ \d+:\d+:\d+) ([0-9.]+) \w+: ([0-9.]+) (\w+): (.*)/) {
+    if ($line =~ /^(\w+\s*\d+ \d+:\d+:\d+) ([0-9.]+) \w+: ([0-9.]+) (\w+): (.*)/) {
 
         my $data = {
             date        => $1,
