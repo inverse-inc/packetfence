@@ -80,7 +80,7 @@ our $started_successfully = 0;
 
 my @ip_addr;
 my $loadb_ip;
- @routed_inline_nets_named;
+my @routed_inline_nets_named;
 my @routed_isolation_nets_named;
 my @routed_registration_nets_named;
 my @routed_dns_enforcement_nets_named;
