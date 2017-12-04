@@ -103,8 +103,9 @@ sub class_merge {
 
 sub class_next_vid {
     my ($status, $iter) = pf::dal::class->search(
-        -columns => ['MAX(`vid`+1|auto_increment_id)'],
+        -columns => ['MAX(`vid`+1)|auto_increment_id'],
         -with_class => undef,
+        -from => 'class'
     );
     if (is_error($status)) {
         return undef;
