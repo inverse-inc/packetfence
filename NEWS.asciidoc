@@ -24,6 +24,7 @@ New Features
 Enhancements
 ++++++++++++
 
+* Can now configure read and write timeouts for LDAP connections (#2613) (PR #2614)
 * Keepalived can be configured to detect its peers via unicast instead of multicast (PR #2794)
 * Suggest VID in Admin Violations -> Add Violation (#2804) (PR #2807)
 * Enhanced English i18n strings in admin CMS violation actions.
