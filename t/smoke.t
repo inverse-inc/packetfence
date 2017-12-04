@@ -59,6 +59,8 @@ my @par_tests = (
     @TestUtils::config_store_test,
 );
 
+create_test_db();
+
 my $aggregator = TAP::Parser::Aggregator->new;
 $aggregator->start();
 $par_harness->aggregate_tests( $aggregator, @par_tests );
@@ -80,6 +82,10 @@ die(sprintf(
         $num_bad, scalar @parsers, $failed, $total
     )
 ) if $num_bad;
+
+sub create_test_db {
+    system("/usr/local/pf/t/db/setup_test_db.pl");
+}
 
 
 END {
