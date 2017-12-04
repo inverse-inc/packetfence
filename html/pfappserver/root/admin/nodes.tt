@@ -281,19 +281,19 @@
                       </form>
                   </li>
                   <li class="sidenav-subsection">
-                    <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseOS">Gaming Consoles</a>
+                    <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseOS">Gaming Console</a>
                       <form>
                         <input type="hidden" name="searches.0.name" value="device_class"/>
                         <input type="hidden" name="searches.0.op" value="is"/>
-                        <input type="hidden" name="searches.0.value" value="Gaming Consoles"/>
+                        <input type="hidden" name="searches.0.value" value="Gaming Console"/>
                       </form>
                   </li>
                   <li class="sidenav-subsection">
-                    <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseOS">VoIP Phones/Adapters</a>
+                    <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseOS">VoIP Device</a>
                       <form>
                         <input type="hidden" name="searches.0.name" value="device_class"/>
                         <input type="hidden" name="searches.0.op" value="is"/>
-                        <input type="hidden" name="searches.0.value" value="VoIP Phones/Adapters"/>
+                        <input type="hidden" name="searches.0.value" value="VoIP Device"/>
                       </form>
                   </li>
                 </ul>
