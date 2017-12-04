@@ -15,7 +15,6 @@ pf::pfmon::task::fingerbank_data_update
 use strict;
 use warnings;
 use fingerbank::Config;
-use fingerbank::Redis;
 use fingerbank::DB;
 use pf::fingerbank;
 use pf::constants qw($TRUE $FALSE);
