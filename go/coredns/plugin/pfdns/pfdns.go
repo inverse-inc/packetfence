@@ -17,6 +17,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
 	"github.com/inverse-inc/packetfence/go/coredns/request"
 	"github.com/packetfence/go/filter_client"
+	cache "github.com/patrickmn/go-cache"
 	//Import mysql driver
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -26,7 +27,6 @@ import (
 
 type pfdns struct {
 	RedirectIP        net.IP
-	Enforce           bool // whether DNS enforcement is enabled
 	Db                *sql.DB
 	IP4log            *sql.Stmt // prepared statement for ip4log queries
 	IP6log            *sql.Stmt // prepared statement for ip6log queries
@@ -42,12 +42,14 @@ type pfdns struct {
 	FqdnDomainPort    map[*regexp.Regexp][]string
 	Network           map[*net.IPNet]net.IP
 	NetworkType       map[*net.IPNet]string
+	DNSFilter         *cache.Cache
 }
 
 // Ports array
 type Ports struct {
 	Port map[int]string
 }
+
 type dbConf struct {
 	DBHost     string `json:"host"`
 	DBPort     string `json:"port"`
@@ -67,61 +69,37 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 
 	pffilter := filter_client.NewClient()
 
-	if pf.Enforce {
-		var ipVersion int
-		srcIP := state.IP()
-		bIP := net.ParseIP(srcIP)
-		if bIP.To4() == nil {
-			ipVersion = 6
-		} else {
-			ipVersion = 4
-		}
+	var ipVersion int
+	srcIP := state.IP()
+	bIP := net.ParseIP(srcIP)
+	if bIP.To4() == nil {
+		ipVersion = 6
+	} else {
+		ipVersion = 4
+	}
 
-		var mac string
-		if ipVersion == 4 {
-			err := pf.IP4log.QueryRow(srcIP).Scan(&mac)
-			if err != nil {
-				fmt.Printf("ERROR pfdns database query returned %s\n", err)
-			}
-		} else {
-			err := pf.IP6log.QueryRow(srcIP).Scan(&mac)
-			if err != nil {
-				fmt.Printf("ERROR pfdns database query returned %s\n", err)
-			}
-		}
-
-		var violation bool
-		err := pf.Violation.QueryRow(mac).Scan(&violation)
+	var mac string
+	if ipVersion == 4 {
+		err := pf.IP4log.QueryRow(srcIP).Scan(&mac)
 		if err != nil {
 			fmt.Printf("ERROR pfdns database query returned %s\n", err)
 		}
-
-		if violation {
-			// Passthrough bypass
-			for k, v := range pf.FqdnIsolationPort {
-				if k.MatchString(state.QName()) {
-					// if pf.checkPassthrough(ctx, state.QName()) {
-					answer, _ := pf.LocalResolver(state)
-					for _, ans := range answer.Answer {
-						switch ansb := ans.(type) {
-						case *dns.A:
-							for _, valeur := range v {
-								var body io.Reader
-								err := pf.post("https://127.0.0.1:22223/ipsetpassthroughisolation/"+ansb.A.String()+"/"+valeur+"/1", body)
-								if err != nil {
-									fmt.Println("Not able to contact localhost")
-								}
-							}
-						}
-					}
-					fmt.Println(mac + " isolation passthrough")
-					return pf.Next.ServeDNS(ctx, w, r)
-				}
-			}
+	} else {
+		err := pf.IP6log.QueryRow(srcIP).Scan(&mac)
+		if err != nil {
+			fmt.Printf("ERROR pfdns database query returned %s\n", err)
 		}
+	}
 
+	var violation bool
+	err := pf.Violation.QueryRow(mac).Scan(&violation)
+	if err != nil {
+		fmt.Printf("ERROR pfdns database query returned %s\n", err)
+	}
+
+	if violation {
 		// Passthrough bypass
-		for k, v := range pf.FqdnPort {
+		for k, v := range pf.FqdnIsolationPort {
 			if k.MatchString(state.QName()) {
 				// if pf.checkPassthrough(ctx, state.QName()) {
 				answer, _ := pf.LocalResolver(state)
@@ -130,50 +108,72 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 					case *dns.A:
 						for _, valeur := range v {
 							var body io.Reader
-							err := pf.post("https://127.0.0.1:22223/ipsetpassthrough/"+ansb.A.String()+"/"+valeur+"/1", body)
+							err := pf.post("https://127.0.0.1:22223/ipsetpassthroughisolation/"+ansb.A.String()+"/"+valeur+"/1", body)
 							if err != nil {
 								fmt.Println("Not able to contact localhost")
 							}
 						}
 					}
 				}
-				fmt.Println(mac + " passthrough")
+				fmt.Println(mac + " isolation passthrough")
 				return pf.Next.ServeDNS(ctx, w, r)
 			}
 		}
+	}
 
-		// Domain bypass
-		for k, v := range pf.FqdnDomainPort {
-			if k.MatchString(state.QName()) {
-				answer, _ := pf.LocalResolver(state)
-				for _, ans := range answer.Answer {
-					switch ansb := ans.(type) {
-					case *dns.A:
-						for _, valeur := range v {
-							var body io.Reader
-							err := pf.post("https://127.0.0.1:22223/ipsetpassthrough/"+ansb.A.String()+"/"+valeur+"/1", body)
-							if err != nil {
-								fmt.Println("Not able to contact localhost")
-							}
+	// Passthrough bypass
+	for k, v := range pf.FqdnPort {
+		if k.MatchString(state.QName()) {
+			// if pf.checkPassthrough(ctx, state.QName()) {
+			answer, _ := pf.LocalResolver(state)
+			for _, ans := range answer.Answer {
+				switch ansb := ans.(type) {
+				case *dns.A:
+					for _, valeur := range v {
+						var body io.Reader
+						err := pf.post("https://127.0.0.1:22223/ipsetpassthrough/"+ansb.A.String()+"/"+valeur+"/1", body)
+						if err != nil {
+							fmt.Println("Not able to contact localhost")
 						}
 					}
 				}
-				fmt.Println(mac + " Domain bypass")
-				return pf.Next.ServeDNS(ctx, w, r)
 			}
-		}
-
-		var status = "unreg"
-		err = pf.Nodedb.QueryRow(mac).Scan(&status)
-		if err != nil {
-			fmt.Printf("ERROR pfdns database query returned %s\n", err)
-		}
-
-		// Defer to the proxy middleware if the device is registered
-		if status == "reg" {
-			fmt.Println(mac + " serve dns")
+			fmt.Println(mac + " passthrough")
 			return pf.Next.ServeDNS(ctx, w, r)
 		}
+	}
+
+	// Domain bypass
+	for k, v := range pf.FqdnDomainPort {
+		if k.MatchString(state.QName()) {
+			answer, _ := pf.LocalResolver(state)
+			for _, ans := range answer.Answer {
+				switch ansb := ans.(type) {
+				case *dns.A:
+					for _, valeur := range v {
+						var body io.Reader
+						err := pf.post("https://127.0.0.1:22223/ipsetpassthrough/"+ansb.A.String()+"/"+valeur+"/1", body)
+						if err != nil {
+							fmt.Println("Not able to contact localhost")
+						}
+					}
+				}
+			}
+			fmt.Println(mac + " Domain bypass")
+			return pf.Next.ServeDNS(ctx, w, r)
+		}
+	}
+
+	var status = "unreg"
+	err = pf.Nodedb.QueryRow(mac).Scan(&status)
+	if err != nil {
+		fmt.Printf("ERROR pfdns database query returned %s\n", err)
+	}
+
+	// Defer to the proxy middleware if the device is registered
+	if status == "reg" {
+		fmt.Println(mac + " serve dns")
+		return pf.Next.ServeDNS(ctx, w, r)
 	}
 
 	// DNS Filter code
@@ -197,17 +197,35 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 		}
 
 		if k.Contains(net.ParseIP(state.IP())) {
-			info, err := pffilter.FilterDns(Type, map[string]interface{}{
-				"qname":    state.QName(),
-				"peerhost": state.RemoteAddr(),
-				"qtype":    state.QType(),
-			})
-			if err != nil {
-				break
+
+			answer, found := pf.DNSFilter.Get(state.QName())
+			if found && answer != "null" {
+				fmt.Println("Get answer from the cache for " + state.QName())
+				rr, _ = dns.NewRR(answer.(string))
+			} else {
+				info, err := pffilter.FilterDns(Type, map[string]interface{}{
+					"qname":    state.QName(),
+					"peerhost": state.RemoteAddr(),
+					"qtype":    state.QType(),
+				})
+				if err != nil {
+					pf.DNSFilter.Set(state.QName(), "null", cache.DefaultExpiration)
+					break
+				}
+				var answer string
+				for a, b := range info.(map[string]interface{}) {
+					if a == "answer" {
+						answer = b.(string)
+						break
+					}
+				}
+				fmt.Println("Get answer from pffilter for " + state.QName())
+				pf.DNSFilter.Set(state.QName(), answer, cache.DefaultExpiration)
+				rr, _ = dns.NewRR(answer)
 			}
-			rr, _ = dns.NewRR(info.(string))
+
 			a.Answer = []dns.RR{rr}
-			fmt.Println("DNS Filter matched for " + state.QName())
+			fmt.Println("DNS Filter matched for MAC " + mac + " IP " + srcIP + " Query " + state.QName())
 			state.SizeAndDo(a)
 			w.WriteMsg(a)
 			return 0, nil
@@ -242,7 +260,7 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 	}
 
 	a.Answer = []dns.RR{rr}
-	fmt.Println("return portal")
+	fmt.Println("Returned portal for MAC " + mac + " with IP " + srcIP)
 	state.SizeAndDo(a)
 	w.WriteMsg(a)
 
