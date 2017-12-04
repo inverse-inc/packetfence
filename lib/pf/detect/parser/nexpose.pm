@@ -35,6 +35,7 @@ sub parse {
         };
         return { date => $data->{date}, srcip => $data->{serverip}, dstip => $data->{deviceip}, events => { nexpose_event => $data->{descr} } } if $data->{alerttype} eq 'VULNERABILITY' ;
     }
+    return undef;
 }
 
 =head1 AUTHOR
