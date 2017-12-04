@@ -2,10 +2,12 @@ package pfdns
 
 import (
 	"net"
+	"time"
 
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/coredns/core/dnsserver"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
+	cache "github.com/patrickmn/go-cache"
 )
 
 func init() {
@@ -61,6 +63,11 @@ func setuppfdns(c *caddy.Controller) error {
 	if err := pf.detectType(); err != nil {
 		return c.Errf("pfdns: unable to initialize Network Type")
 	}
+
+	// Initialize dns filter cache
+	hwcache := cache.New(300*time.Second, 310*time.Second)
+
+	pf.DNSFilter = hwcache
 
 	dnsserver.GetConfig(c).AddPlugin(
 		func(next plugin.Handler) plugin.Handler {

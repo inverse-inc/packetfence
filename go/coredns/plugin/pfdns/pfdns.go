@@ -17,6 +17,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
 	"github.com/inverse-inc/packetfence/go/coredns/request"
 	"github.com/packetfence/go/filter_client"
+	cache "github.com/patrickmn/go-cache"
 	//Import mysql driver
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -41,6 +42,7 @@ type pfdns struct {
 	FqdnDomainPort    map[*regexp.Regexp][]string
 	Network           map[*net.IPNet]net.IP
 	NetworkType       map[*net.IPNet]string
+	DNSFilter         *cache.Cache
 }
 
 // Ports array
@@ -195,15 +197,25 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 		}
 
 		if k.Contains(net.ParseIP(state.IP())) {
-			info, err := pffilter.FilterDns(Type, map[string]interface{}{
-				"qname":    state.QName(),
-				"peerhost": state.RemoteAddr(),
-				"qtype":    state.QType(),
-			})
-			if err != nil {
-				break
+
+			answer, found := pf.DNSFilter.Get(state.QName())
+			if found && answer != "null" {
+				fmt.Println("Get answer from the cache for " + state.QName())
+				rr, _ = dns.NewRR(answer.(string))
+			} else {
+				info, err := pffilter.FilterDns(Type, map[string]interface{}{
+					"qname":    state.QName(),
+					"peerhost": state.RemoteAddr(),
+					"qtype":    state.QType(),
+				})
+				if err != nil {
+					pf.DNSFilter.Set(state.QName(), "null", cache.DefaultExpiration)
+					break
+				}
+				fmt.Println("Get answer from pffilter for " + state.QName())
+				pf.DNSFilter.Set(state.QName(), info.(string), cache.DefaultExpiration)
+				rr, _ = dns.NewRR(info.(string))
 			}
-			rr, _ = dns.NewRR(info.(string))
 			a.Answer = []dns.RR{rr}
 			fmt.Println("DNS Filter matched for MAC " + mac + " IP " + srcIP + " Query " + state.QName())
 			state.SizeAndDo(a)
