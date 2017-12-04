@@ -212,10 +212,18 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 					pf.DNSFilter.Set(state.QName(), "null", cache.DefaultExpiration)
 					break
 				}
+				var answer string
+				for a, b := range info.(map[string]interface{}) {
+					if a == "answer" {
+						answer = b.(string)
+						break
+					}
+				}
 				fmt.Println("Get answer from pffilter for " + state.QName())
-				pf.DNSFilter.Set(state.QName(), info.(string), cache.DefaultExpiration)
-				rr, _ = dns.NewRR(info.(string))
+				pf.DNSFilter.Set(state.QName(), answer, cache.DefaultExpiration)
+				rr, _ = dns.NewRR(answer)
 			}
+
 			a.Answer = []dns.RR{rr}
 			fmt.Println("DNS Filter matched for MAC " + mac + " IP " + srcIP + " Query " + state.QName())
 			state.SizeAndDo(a)
