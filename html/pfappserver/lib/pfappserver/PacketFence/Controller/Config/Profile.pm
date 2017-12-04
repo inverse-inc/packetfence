@@ -54,6 +54,7 @@ BEGIN {
     extends 'pfappserver::Base::Controller';
 }
 with 'pfappserver::Base::Controller::Crud::Config' => {excludes => [qw(object)]};
+with 'pfappserver::Base::Controller::Crud::Config::Clone';
 
 __PACKAGE__->config(
     # Reconfigure the models and forms for actions
@@ -66,6 +67,7 @@ __PACKAGE__->config(
         view   => { AdminRole => 'CONNECTION_PROFILES_READ' },
         list   => { AdminRole => 'CONNECTION_PROFILES_READ' },
         create => { AdminRole => 'CONNECTION_PROFILES_CREATE' },
+        clone  => { AdminRole => 'CONNECTION_PROFILES_CREATE' },
         update => { AdminRole => 'CONNECTION_PROFILES_UPDATE' },
         remove => { AdminRole => 'CONNECTION_PROFILES_DELETE' },
     },

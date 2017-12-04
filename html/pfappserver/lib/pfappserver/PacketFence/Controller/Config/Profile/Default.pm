@@ -39,6 +39,7 @@ __PACKAGE__->config(
         view   => { AdminRole => 'CONNECTION_PROFILES_READ' },
         list   => { AdminRole => 'CONNECTION_PROFILES_READ' },
         create => { AdminRole => 'CONNECTION_PROFILES_CREATE' },
+        clone  => { AdminRole => 'CONNECTION_PROFILES_CREATE' },
         update => { AdminRole => 'CONNECTION_PROFILES_UPDATE' },
     },
 );
