@@ -11,7 +11,7 @@ pf::Authentication::Source::LDAPSource
 use pf::log;
 use pf::constants qw($TRUE $FALSE);
 use pf::constants::authentication::messages;
-use pf::Authentication::constants;
+use pf::Authentication::constants qw($DEFAULT_LDAP_READ_TIMEOUT $DEFAULT_LDAP_WRITE_TIMEOUT);
 use pf::Authentication::Condition;
 use pf::CHI;
 use pf::util;
@@ -52,6 +52,8 @@ has '+type' => (default => 'LDAP');
 has 'host' => (isa => 'Maybe[Str]', is => 'rw', default => '127.0.0.1');
 has 'port' => (isa => 'Maybe[Int]', is => 'rw', default => 389);
 has 'connection_timeout' => ( isa     => 'Int', is => 'rw', default => 5 );
+has 'write_timeout' => (isa => 'Int', is => 'rw', default => $DEFAULT_LDAP_WRITE_TIMEOUT);
+has 'read_timeout' => (isa => 'Int', is => 'rw', default => $DEFAULT_LDAP_READ_TIMEOUT);
 has 'basedn' => (isa => 'Str', is => 'rw', required => 1);
 has 'binddn' => (isa => 'Maybe[Str]', is => 'rw');
 has 'password' => (isa => 'Maybe[Str]', is => 'rw');
@@ -203,6 +205,8 @@ sub _connect {
         $LDAPServer,
         port       => $LDAPServerPort,
         timeout    => $self->{'connection_timeout'},
+        write_timeout  => $self->{'write_timeout'},
+        read_timeout  => $self->{'read_timeout'},
         encryption => $self->{encryption},
         credentials => \@credentials,
     );

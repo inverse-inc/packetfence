@@ -10,7 +10,9 @@ Form definition to create or update a LDAP user source.
 
 =cut
 
-use pf::Authentication::Source::LDAPSource;
+BEGIN {
+    use pf::Authentication::Source::LDAPSource;
+}
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Source';
 with 'pfappserver::Base::Form::Role::Help', 'pfappserver::Base::Form::Role::InternalSource';
@@ -43,6 +45,30 @@ has_field 'connection_timeout' =>
         'placeholder' => $META->get_attribute('connection_timeout')->default
     },
     default => $META->get_attribute('connection_timeout')->default,
+    tags => { after_element => \&help,
+             help => 'LDAP connection Timeout' },
+  );
+has_field 'write_timeout' =>
+  (
+    type         => 'PosInteger',
+    label        => 'Request timeout',
+    element_attr => {
+        'placeholder' => $META->get_attribute('write_timeout')->default
+    },
+    default => $META->get_attribute('write_timeout')->default,
+    tags => { after_element => \&help,
+             help => 'LDAP request timeout' },
+  );
+has_field 'read_timeout' =>
+  (
+    type         => 'PosInteger',
+    label        => 'Response timeout',
+    element_attr => {
+        'placeholder' => $META->get_attribute('read_timeout')->default
+    },
+    default => $META->get_attribute('read_timeout')->default,
+    tags => { after_element => \&help,
+             help => 'LDAP response timeout' },
   );
 has_field 'encryption' =>
   (
