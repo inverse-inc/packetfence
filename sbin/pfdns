@@ -80,7 +80,7 @@ our $started_successfully = 0;
 
 my @ip_addr;
 my $loadb_ip;
-my @routed_inline_nets_named;
+ @routed_inline_nets_named;
 my @routed_isolation_nets_named;
 my @routed_registration_nets_named;
 my @routed_dns_enforcement_nets_named;
@@ -233,7 +233,6 @@ sub response_handler {
         conn => $conn,
     };
 
-    my $filter = pf::access_filter::dns->new;
     foreach my $network (@routed_registration_nets_named) {
         if ($network->contains($ip)) {
             return regzone($qname, $qclass, $qtype, $peerhost, $query, $conn, 'registration', $args);
@@ -242,7 +241,7 @@ sub response_handler {
     foreach my $network (@routed_isolation_nets_named) {
         if ($network->contains($ip)) {
            # Should be different for isolation network.
-           my @reply = $filter->filter('isolation', $args);
+           my @reply = filtered_results('isolation', $args);
            return @reply if (scalar(@reply) > 1);
            return  isolzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
         }
@@ -340,8 +339,7 @@ sub regzone {
     }
 
     if ($filter_type) {
-        my $filter = pf::access_filter::dns->new;
-        my @reply = $filter->filter($filter_type, $args);
+        my @reply = filtered_results($filter_type, $args);
         return @reply if @reply > 1;
     }
 
@@ -620,6 +618,26 @@ while($RUNNING){
     start_workers();
     pause unless @WORKERS;
 }
+
+=head2 filtered_results
+
+filtered_results
+
+=cut
+
+sub filtered_results {
+    my ($scope, @args) = @_;
+    my $filter = pf::access_filter::dns->new;
+    my $reply = $filter->filter($scope, @args);
+    if (!defined $reply) {
+        return undef;
+    }
+    my $rr = new Net::DNS::RR($reply->{answer});
+    my @ans;
+    push @ans, $rr;
+    return ($reply->{'rcode'},\@ans,[],[], {aa => 1});
+}
+
 
 cleanup();
 
