@@ -1,16 +1,4 @@
 
-# The above will ensure that the score is higher than 30 (included) which is the level at which Fingerbank uses informations that aren't easily spoofable for its decision.
-#
-# We could now create a filter that auto registers Android phones versions 4 and above that have a score of at least 30
-#
-[autoreg_android:android_by_name&version_4_plus&minimum_score]
-scope = AutoRegister
-role = default
-
-[info_for_autoreg_android:android_by_name&version_4_plus&minimum_score]
-scope = NodeInfoForAutoReg
-role = default
-
 # VLAN FILTERS configuration
 # ==========================
 #
@@ -360,3 +348,15 @@ role = default
 #filter = fingerbank_info.score
 #operator = greater_equals
 #value = 30
+## The above will ensure that the score is higher than 30 (included) which is the level at which Fingerbank uses informations that aren't easily spoofable for its decision.
+##
+## We could now create a filter that auto registers Android phones versions 4 and above that have a score of at least 30
+##
+#[autoreg_android:android_by_name&version_4_plus&minimum_score]
+#scope = AutoRegister
+#role = default
+#
+#[info_for_autoreg_android:android_by_name&version_4_plus&minimum_score]
+#scope = NodeInfoForAutoReg
+#role = default
+
