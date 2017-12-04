@@ -17,6 +17,13 @@ use warnings;
 use Mojo::Base 'Mojolicious';
 use pf::dal;
 
+has commands => sub {
+  my $commands = Mojolicious::Commands->new(app => shift);
+  Scalar::Util::weaken $commands->{app};
+  unshift @{$commands->namespaces}, 'pf::UnifiedApi::Command';
+  return $commands;
+};
+
 =head2 startup
 
 Setting up routes
