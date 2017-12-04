@@ -5,9 +5,7 @@
 use strict;
 use warnings;
 
-use Data::Dumper;
 use Time::HiRes qw(time);
-use File::Temp qw(tempfile);
 use Getopt::Long;
 
 my %options = ();
@@ -18,11 +16,9 @@ GetOptions (
   "username=s",
   "server=s",
   "port=s",
-  "secret=s", 
+  "secret=s",
   "nas-ip-address=s"
 ) || die("Invalid options");
-
-my ($fh, $filename) = tempfile();
 
 our $ACCT_DB = "test_acct2";
 
@@ -55,9 +51,7 @@ sub fake_request {
         Acct-Output-Octets = $output
         Acct-Terminate-Cause = User-Request
 EOF
-    print $fh $pod;
-    close($fh);
-    `export LD_LIBRARY_PATH=/usr/local/lib && export LD_RUN_PATH=/usr/local/lib && cat $filename | /usr/bin/radclient -x $server:$port acct $secret`;
+    exec("export LD_LIBRARY_PATH=/usr/local/lib && export LD_RUN_PATH=/usr/local/lib && printf '$pod' | /usr/bin/radclient -x $server:$port acct $secret");
 }
 
 fake_request($options{mac}, $options{username}, int(rand()*10000), int(rand()*10000), int(rand()*1000));
