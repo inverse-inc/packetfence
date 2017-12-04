@@ -15,11 +15,11 @@ pf::UnifiedApi::Controller::ApiUser
 use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
-use pf::dal::person;
+use pf::dal::api_user;
 
 has dal => 'pf::dal::api_user';
 has id_key => 'user_id';
-has resource_id => 'pid';
+has resource_id => 'username';
 
 =head1 AUTHOR
 
