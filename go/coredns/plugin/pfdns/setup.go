@@ -43,33 +43,6 @@ func setuppfdns(c *caddy.Controller) error {
 				if ip == nil {
 					return c.Errf("Invalid IP address '%s'", c.Val())
 				}
-			// case "blackhole":
-			// 	// The possible values are:
-			// 	// blackhole (using the defaults)
-			// 	// blackhole disabled (or false)
-			// 	// blackhole $CNAME $IP
-			// 	pf.BhIP = net.ParseIP("127.0.0.1")
-			// 	pf.BhCname = "localhost.localdomain."
-			// 	pf.Bh = true
-			//
-			// 	args := c.RemainingArgs()
-			// 	switch len(args) {
-			// 	case 1:
-			// 		if (strings.ToUpper(args[1]) == "DISABLED") || (strings.ToUpper(args[1]) == "FALSE") {
-			// 			pf.Bh = false
-			// 		} else {
-			// 			return c.Errf("pfdns: blackhole incorrect value type name or value type not supported: '%s'", args[1])
-			// 		}
-			// 	case 2:
-			// 		pf.BhCname = args[0]
-			// 		if pf.BhCname[len(pf.BhCname)-1] != '.' {
-			// 			return c.Errf("pfdns: blackhole domains must be dot terminated and fully qualified")
-			// 		}
-			// 		pf.BhIP = net.ParseIP(args[1])
-			// 		if pf.BhIP == nil {
-			// 			return plugin.Error("blackhole", c.Err("unparseable IP address argument"))
-			// 		}
-			// 	}
 			default:
 				return c.Errf("Unknown keyword '%s'", c.Val())
 			}
@@ -102,6 +75,10 @@ func setuppfdns(c *caddy.Controller) error {
 
 	if err := pf.DomainPassthroughInit(); err != nil {
 		return c.Errf("pfdns: unable to initialize domain passthrough")
+	}
+
+	if err := pf.detectType(); err != nil {
+		return c.Errf("pfdns: unable to initialize Network Type")
 	}
 
 	dnsserver.GetConfig(c).AddPlugin(
