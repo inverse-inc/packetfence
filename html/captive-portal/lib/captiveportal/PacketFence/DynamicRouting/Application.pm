@@ -129,14 +129,16 @@ Fingerbank processing
 sub process_fingerbank {
     my ( $self ) = @_;
 
-    my %fingerbank_query_args = (
-        user_agent          => $self->current_user_agent,
-        mac                 => $self->current_mac,
-        ip                  => $self->root_module->current_ip,
-    );
+    my $attributes = pf::fingerbank::endpoint_attributes($self->current_mac);
+    if($attributes->{most_accurate_user_agent} ne $self->current_user_agent) {
+        pf::fingerbank::update_collector_endpoint_data($self->current_mac, {
+            most_accurate_user_agent => $self->current_user_agent,
+            user_agents => {$self->current_user_agent => $TRUE},
+        });
+    }
 
     my $client = pf::api::queue->new(queue => 'general');
-    $client->notify('fingerbank_process', \%fingerbank_query_args);
+    $client->notify('fingerbank_process', $self->current_mac);
 }
 
 =head2 current_module_id

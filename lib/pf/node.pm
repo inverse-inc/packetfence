@@ -868,7 +868,6 @@ sub node_modify {
     my ( $mac, %data ) = @_;
     my $logger = get_logger();
 
-
     # validation
     $mac = clean_mac($mac);
     if ( !valid_mac($mac) ) {
@@ -1435,6 +1434,8 @@ sub fingerbank_info {
         return $info;
     }
 
+    $info->{device_name} = $node_info->{device_type};
+
     my $device_info = {};
     my $cache_key = 'fingerbank_info::DeviceHierarchy-'.$node_info->{device_type};
     eval {
@@ -1444,10 +1445,10 @@ sub fingerbank_info {
             my $device_id = pf::fingerbank::device_name_to_device_id($node_info->{device_type});
             if(defined($device_id)) {
                 my $device = fingerbank::Model::Device->read($device_id, $TRUE);
-                $info->{device_hierarchy_names} = [$device->{name}, map {$_->{name}} @{$device->{parents}}];
-                $info->{device_hierarchy_ids} = [$device->{id}, map {$_->{id}} @{$device->{parents}}];
+                $info->{device_hierarchy_names} = [$device->name, map {$_->name} @{$device->{parents}}];
+                $info->{device_hierarchy_ids} = [$device->id, map {$_->id} @{$device->{parents}}];
                 $info->{device_fq} = join('/',reverse(@{$info->{device_hierarchy_names}}));
-                $info->{mobile} = $device->{mobile};
+                $info->{mobile} = $device->mobile;
             }
             return $info;
         });
