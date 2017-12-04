@@ -14,9 +14,9 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
 	"github.com/inverse-inc/packetfence/go/coredns/request"
+	"github.com/packetfence/go/filter_client"
 	//Import mysql driver
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -41,6 +41,7 @@ type pfdns struct {
 	FqdnIsolationPort map[*regexp.Regexp][]string
 	FqdnDomainPort    map[*regexp.Regexp][]string
 	Network           map[*net.IPNet]net.IP
+	NetworkType       map[*net.IPNet]string
 }
 
 // Ports array
@@ -63,6 +64,8 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 	a.Compress = true
 	a.Authoritative = true
 	var rr dns.RR
+
+	pffilter := filter_client.NewClient()
 
 	if pf.Enforce {
 		var ipVersion int
@@ -141,7 +144,6 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 
 		// Domain bypass
 		for k, v := range pf.FqdnDomainPort {
-			spew.Dump(state.QName())
 			if k.MatchString(state.QName()) {
 				answer, _ := pf.LocalResolver(state)
 				for _, ans := range answer.Answer {
@@ -174,54 +176,43 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 		}
 	}
 
-	// Not allowed through enforcement, or not enforcing.
-	// We only handle A and AAAA requests, all others are subject to blackholing.
-	// if state.QType() != dns.TypeA && state.QType() != dns.TypeAAAA {
-	// 	// blackhole
-	// 	if pf.Bh {
-	// 		rr = new(dns.CNAME)
-	// 		rr.(*dns.CNAME).Hdr = dns.RR_Header{
-	// 			Name:   state.QName(),
-	// 			Rrtype: dns.TypeCNAME,
-	// 			Class:  state.QClass(),
-	// 		}
-	// 		rr.(*dns.CNAME).Target = pf.BhCname
-	//
-	// 		var ar dns.RR
-	// 		switch state.Family() {
-	// 		case 1: // ipv4
-	// 			ar = new(dns.A)
-	// 			ar.(*dns.A).Hdr = dns.RR_Header{
-	// 				Name:   pf.BhCname,
-	// 				Rrtype: dns.TypeA,
-	// 				Class:  state.QClass(),
-	// 			}
-	// 			ar.(*dns.A).A = pf.BhIP.To4()
-	// 		case 2: // ipv6
-	// 			ar = new(dns.AAAA)
-	// 			ar.(*dns.AAAA).Hdr = dns.RR_Header{
-	// 				Name:   pf.BhCname,
-	// 				Rrtype: dns.TypeAAAA,
-	// 				Class:  state.QClass(),
-	// 			}
-	// 			ar.(*dns.AAAA).AAAA = pf.BhIP.To16()
-	// 		}
-	//
-	// 		a.Answer = []dns.RR{rr}
-	// 		a.Extra = []dns.RR{ar}
-	//
-	// 		state.SizeAndDo(a)
-	// 		w.WriteMsg(a)
-	//
-	// 		return 0, nil
-	// 	}
-	//
-	// 	return pf.Next.ServeDNS(ctx, w, r)
-	//
-	// }
+	// DNS Filter code
+	var Type string
 
-	// Not blackholed, not allowed through due to DNS enforcement.
-	// Let's redirect to RedirectIP
+	for k, v := range pf.NetworkType {
+		switch v {
+		case "inlinel2":
+			Type = "inline"
+
+		case "inlinel3":
+			Type = "inline"
+
+		case "vlan-isolation":
+			Type = "isolation"
+
+		case "vlan-registration":
+			Type = "registration"
+		case "dnsenforcement":
+			Type = "dnsenforcement"
+		}
+
+		if k.Contains(net.ParseIP(state.IP())) {
+			info, err := pffilter.FilterDns(Type, map[string]interface{}{
+				"qname":    state.QName(),
+				"peerhost": state.RemoteAddr(),
+				"qtype":    state.QType(),
+			})
+			if err != nil {
+				break
+			}
+			rr, _ = dns.NewRR(info.(string))
+			a.Answer = []dns.RR{rr}
+			fmt.Println("DNS Filter matched for " + state.QName())
+			state.SizeAndDo(a)
+			w.WriteMsg(a)
+			return 0, nil
+		}
+	}
 
 	switch state.Family() {
 	case 1:
@@ -416,6 +407,60 @@ func (pf *pfdns) PassthrouthsIsolationInit() error {
 	for k, v := range wildcard.Normal {
 		rgx, _ := regexp.Compile(k)
 		pf.FqdnIsolationPort[rgx] = v
+	}
+	return nil
+}
+
+// detectType of each network
+func (pf *pfdns) detectType() error {
+	var ctx = context.Background()
+	var NetIndex net.IPNet
+	pf.NetworkType = make(map[*net.IPNet]string)
+
+	var interfaces pfconfigdriver.ListenInts
+	pfconfigdriver.FetchDecodeSocket(ctx, &interfaces)
+
+	var keyConfNet pfconfigdriver.PfconfigKeys
+	keyConfNet.PfconfigNS = "config::Network"
+	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfNet)
+
+	var keyConfCluster pfconfigdriver.NetInterface
+	keyConfCluster.PfconfigNS = "config::Pf(CLUSTER)"
+
+	for _, v := range interfaces.Element {
+
+		keyConfCluster.PfconfigHashNS = "interface " + v
+		pfconfigdriver.FetchDecodeSocket(ctx, &keyConfCluster)
+		// Nothing in keyConfCluster.Ip so we are not in cluster mode
+
+		eth, _ := net.InterfaceByName(v)
+		adresses, _ := eth.Addrs()
+		for _, adresse := range adresses {
+			var NetIP *net.IPNet
+			_, NetIP, _ = net.ParseCIDR(adresse.String())
+			a, b := NetIP.Mask.Size()
+			if a == b {
+				continue
+			}
+
+			for _, key := range keyConfNet.Keys {
+				var ConfNet pfconfigdriver.NetworkConf
+				ConfNet.PfconfigHashNS = key
+				pfconfigdriver.FetchDecodeSocket(ctx, &ConfNet)
+				if (NetIP.Contains(net.ParseIP(ConfNet.DhcpStart)) && NetIP.Contains(net.ParseIP(ConfNet.DhcpEnd))) || NetIP.Contains(net.ParseIP(ConfNet.NextHop)) {
+					NetIndex.Mask = net.IPMask(net.ParseIP(ConfNet.Netmask))
+					NetIndex.IP = net.ParseIP(key)
+					Index := NetIndex
+					pf.NetworkType[&Index] = ConfNet.Type
+				}
+				if ConfNet.RegNetwork != "" {
+					IP2, NetIP2, _ := net.ParseCIDR(ConfNet.RegNetwork)
+					if NetIP.Contains(IP2) {
+						pf.NetworkType[NetIP2] = ConfNet.Type
+					}
+				}
+			}
+		}
 	}
 	return nil
 }
