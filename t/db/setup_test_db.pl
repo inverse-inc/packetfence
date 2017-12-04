@@ -29,12 +29,16 @@ if ($config->{user} ne 'pf_smoke_tester') {
    die "Not using the standard testing user for db\n"; 
 }
 
+if ($config->{db} !~ /^pf_smoke_test/) {
+   die "Not using the standard database for testing \n";
+}
+
 my $dbh = test_db_connection($config) or die "Cannot connection to db with test user please run\nmysql -uroot -p < t/smoke_test.sql\n";
 my $db = $config->{db};
 
 $dbh->do("DROP DATABASE IF EXISTS $db;") or die "Cannot drop database $db\n";;
 $dbh->do("CREATE DATABASE $db;") or die "Cannot create database $db\n";
-system("mysql -u$config->{user} -p$config->{pass} $db < db/pf-schema-X.Y.Z.sql");
+system("mysql -u$config->{user} -p$config->{pass} $db < /usr/local/pf/db/pf-schema-X.Y.Z.sql");
 
 sub test_db_connection {
     my ($config) = @_;
