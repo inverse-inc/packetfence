@@ -12,7 +12,6 @@ pf::access_filter::dns
 
 use strict;
 use warnings;
-use Net::DNS;
 use pf::api::jsonrpcclient;
 use pf::log;
 
@@ -52,14 +51,12 @@ sub filterRule {
         if (defined($rule->{'action'}) && $rule->{'action'} ne '') {
             $self->dispatchAction($rule, $args);
         }
-        my $scope = $rule->{answer};
-        if (defined($rule->{'answer'}) && $rule->{'answer'} ne '') {
-            my $answer = $rule->{'answer'};
+        my $answer = $rule->{answer};
+        if (defined $answer && $answer ne '') {
+            my %results = %$rule;
             $answer =~ s/\$([a-zA-Z_]+)/$args->{$1} \/\/ ''/ge;
-            my $rr = new Net::DNS::RR($answer);
-            my @ans;
-            push @ans, $rr;
-            return ($rule->{'rcode'},\@ans,[],[], {aa => 1});
+            $results{answer} = $answer;
+            return \%results;
         }
     }
     return undef;
