@@ -49,6 +49,7 @@ BEGIN {
         $management_network->tag('vip', $Config{$section_name}{vip});
     }
 
+    `rm -fr /tmp/chi/*`;
 }
 
 =head1 AUTHOR
