@@ -46,6 +46,12 @@ BEGIN {
     `rm -fr /tmp/chi/*`;
 }
 
+=head2 new_db_config
+
+Override the database configuration
+
+=cut
+
 sub new_db_config {
     my ($config) = @_;
     my %new_config = (%{$config //{}}, %{$pf::db::DB_Config});

@@ -84,7 +84,11 @@ die(sprintf(
     )
 ) if $num_bad;
 
+=head2 create_test_db
 
+Create a test database
+
+=cut
 
 sub create_test_db {
     system($db_setup_script);
