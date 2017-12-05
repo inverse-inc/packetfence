@@ -120,6 +120,24 @@ after create => sub {
     }
 };
 
+after clone => sub {
+    my ($self, $c) = @_;
+    if (is_success($c->response->status) && $c->request->method eq 'POST') {
+        my $model = $self->getModel($c);
+        my $profile_dir = $self->_makeFilePath($c);
+        my $cloned_profile_dir = $self->_cloneFilePath($c);
+        pf_make_dir($profile_dir);
+        my($num_of_files_and_dirs, $num_of_dirs, $depth_traversed) = dircopy($cloned_profile_dir, $profile_dir);
+        $c->log->info("Copied $num_of_files_and_dirs files, $num_of_dirs directories, $depth_traversed deep with: $cloned_profile_dir to $profile_dir");
+        $c->response->location(
+            $c->pf_hash_for(
+                $c->controller('Config::Profile')->action_for('view'),
+                [$c->stash->{$model->idKey}]
+            )
+        );
+    }
+};
+
 =head2 after view
 
 Append additional data after the view
@@ -453,6 +471,17 @@ Make the file path for the current profile
 sub _makeFilePath {
     my ($self, $c, @pathparts) = @_;
     return catfile($captiveportal_profile_templates_path,$c->stash->{id}, @pathparts);
+}
+
+=head2 _cloneFilePath
+
+Clone the file path for the current profile, from the previous profile
+
+=cut
+
+sub _cloneFilePath {
+    my ($self, $c, @pathparts) = @_;
+    return catfile($captiveportal_profile_templates_path,$c->stash->{cloned_id}, @pathparts);
 }
 
 =head2 mergedPaths
