@@ -26,7 +26,7 @@ BEGIN {
 use pf::UnifiedApi::Plugin::RestCrud;
 use Mojolicious;
 
-use Test::More tests => 30;
+use Test::More tests => 31;
 
 #This test will running last
 use Test::NoWarnings;
@@ -49,7 +49,7 @@ foreach my $name (qw(list create get remove update replace run walk)) {
 my $r = $routes->any("/api")->name("api");
 
 $r->rest_routes({controller => 'users', id_key => "user_id" , resource_verbs => [qw(run walk)]});
-foreach my $name (qw(list create get remove update replace run walk)) {
+foreach my $name (qw(list create get remove update replace run walk resource)) {
     ok($r->find("api.Users.$name"), "Route api.Users.$name created");
 }
 
@@ -88,6 +88,7 @@ is_deeply(
         collection_v2a => {GET => 'list', 'POST' => 'create'},
         resource_v2a => {GET => 'get', 'DELETE' => 'remove', 'PATCH' => 'update', PUT => 'replace'},
         resource_verbs => [],
+        parent => undef,
     },
     "Expanded config"
 );
