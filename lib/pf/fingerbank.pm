@@ -38,6 +38,8 @@ use pf::node qw(node_modify);
 use pf::StatsD::Timer;
 use fingerbank::Config;
 use fingerbank::Collector;
+# Do not remove, even if its not explicitely used. When taking collector requests out of the cache, this must be imported.
+use URI::http;
 
 our @fingerbank_based_violation_triggers = ('Device', 'DHCP_Fingerprint', 'DHCP_Vendor', 'MAC_Vendor', 'User_Agent');
 
@@ -58,6 +60,9 @@ our %ACTION_MAP_CONDITION = (
 
 use fingerbank::Config;
 $fingerbank::Config::CACHE = cache();
+
+my $collector;
+my $collector_ua;
 
 =head1 METHODS
 
@@ -110,13 +115,14 @@ Currently done via a call to the Fingerbank collector
 sub endpoint_attributes {
     my ($mac) = @_;
 
-    # TODO: move the core of talking to the collector into the perl lib
-    my $collector = fingerbank::Collector->new_from_config;
-    my $ua = $collector->get_lwp_client();
+    $collector //= fingerbank::Collector->new_from_config;
+    $collector_ua //= $collector->get_lwp_client();
     
-    my $req = $collector->build_request("GET", "/endpoint_data/$mac");
+    my $req = cache()->compute("pf::fingerbank::endpoint_attributes::request::$mac", sub {
+        $collector->build_request("GET", "/endpoint_data/$mac");
+    });
 
-    my $res = $ua->request($req);
+    my $res = $collector_ua->request($req);
     if ($res->is_success) {
         return decode_json($res->decoded_content);
     }
@@ -159,13 +165,15 @@ Updates the endpoint data in the collector for a specific MAC address
 sub update_collector_endpoint_data {
     my ($mac, $data) = @_;
 
-    my $collector = fingerbank::Collector->new_from_config;
-    my $ua = $collector->get_lwp_client();
+    $collector //= fingerbank::Collector->new_from_config;
+    $collector_ua //= $collector->get_lwp_client();
     
-    my $req = $collector->build_request("PATCH", "/endpoint_data/$mac");
+    my $req = cache()->compute("pf::fingerbank::endpoint_attributes::request::$mac", sub {
+        $collector->build_request("PATCH", "/endpoint_data/$mac");
+    });
     $req->content(encode_json($data));
 
-    my $res = $ua->request($req);
+    my $res = $collector_ua->request($req);
     if ($res->is_success) {
         return decode_json($res->decoded_content);
     }
