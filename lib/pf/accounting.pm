@@ -57,9 +57,12 @@ use pf::constants::config qw($ACCT_TIME_MODIFIER_RE);
 use pf::constants::trigger qw($TRIGGER_TYPE_ACCOUNTING);
 use pf::config::violation;
 use pf::db;
+use pf::error qw(is_error);
 use pf::violation;
 use pf::util;
 use pf::CHI;
+use pf::dal::radacct_log;
+use pf::dal::radacct;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $accounting_db_prepared = 0;
@@ -455,10 +458,16 @@ sub node_accounting_current_sessionid {
     if(my $entry = pf::accounting->cache->get($mac)){
         return $entry->{'Acct-Session-Id'};
     }
-    my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_current_sessionid_sql', $mac) || return (0);
-    my ($val) = $query->fetchrow_array();
-    $query->finish();
-    return ($val);
+    my $entry = _db_item(
+        -columns => [qw(acctsessionid)],
+        -where => {
+            acctstoptime => undef,
+            callingstationid => $mac,
+        },
+        -limit => 1,
+        -order_by => {-desc => 'acctstarttime'},
+    );
+    return ($entry ? $entry->{acctsessionid} : undef);
 }
 
 =item dynauth_attr
@@ -472,10 +481,15 @@ sub node_accounting_dynauth_attr {
     if(my $entry = pf::accounting->cache->get($mac)){
         return {username => $entry->{'User-Name'}, acctsessionid => $entry->{'Acct-Session-Id'}};
     }
-    my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_dynauth_attr_sql', $mac) || return (0);
-    my $ref = $query->fetchrow_hashref();
-    $query->finish();
-    return ($ref);
+    return _db_item(
+        -columns => [qw(username acctsessionid)],
+        -where => {
+            acctstoptime => undef,
+            callingstationid => $mac,
+        },
+        -limit => 1,
+        -order_by => {-desc => 'acctstarttime'},
+    );
 }
 
 =item accounting_exist
@@ -486,10 +500,12 @@ Returns true if an accounting entry exists undef or 0 otherwise.
 
 sub node_accounting_exist {
     my ($mac) = @_;
-    my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_exist_sql', $mac) || return (0);
-    my ($val) = $query->fetchrow_hashref();
-    $query->finish();
-    return ($val);
+    my ($status, $count) = pf::dal::radacct->count(
+        -where => {
+            username => $mac,
+        }
+    );
+    return ($count);
 }
 
 =item node_accounting_view - view latest accounting entry for a node, returns an array of hashrefs
@@ -498,10 +514,28 @@ sub node_accounting_exist {
 
 sub node_accounting_view {
     my ($mac) = @_;
-    my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_view_sql', $mac);
-    my $ref = $query->fetchrow_hashref();
-    $query->finish();
-    return ($ref);
+    return _db_item(
+        -columns => [
+            "CONCAT(SUBSTRING(callingstationid,1,2),':',SUBSTRING(callingstationid,3,2),':',SUBSTRING(callingstationid,5,2),':',SUBSTRING(callingstationid,7,2),':',SUBSTRING(callingstationid,9,2),':',SUBSTRING(callingstationid,11,2))|mac",
+            "username",
+            "IF(ISNULL(acctstoptime),'connected','not connected')|status",
+            'acctstarttime',
+            'acctstoptime',
+            'FORMAT(acctsessiontime/60,2)|acctsessiontime',
+            'nasipaddress',
+            'nasportid',
+            'nasporttype',
+            'acctinputoctets|acctoutput',
+            'acctoutputoctets|acctinput',
+            '(acctinputoctets+acctoutputoctets)|accttotal',
+            "IF(ISNULL(acctstoptime),'',acctterminatecause)|acctterminatecause",
+      ],
+      -where => {
+        callingstationid => $mac,
+      },
+      -limit => 1,
+      -order_by => {-desc => 'acctstarttime'},
+    );
 }
 
 =item node_accounting_view_all - view all accounting entries, returns an hashref
@@ -509,7 +543,44 @@ sub node_accounting_view {
 =cut
 
 sub node_accounting_view_all {
-    return _translate_bw(db_data(ACCOUNTING, $accounting_statements, 'acct_view_all_sql'));
+    return _translate_bw(_db_items(
+        -columns => [
+            "CONCAT(SUBSTRING(callingstationid,1,2),':',SUBSTRING(callingstationid,3,2),':',SUBSTRING(callingstationid,5,2),':',SUBSTRING(callingstationid,7,2),':',SUBSTRING(callingstationid,9,2),':',SUBSTRING(callingstationid,11,2))|mac",
+            "username",
+            "IF(ISNULL(acctstoptime),'connected','not connected')|status",
+            'acctstarttime',
+            'acctstoptime',
+            'FORMAT(acctsessiontime/60,2)|acctsessiontime',
+            'nasipaddress',
+            'nasportid',
+            'nasporttype',
+            'acctinputoctets|acctoutput',
+            'acctoutputoctets|acctinput',
+            '(acctinputoctets+acctoutputoctets)|accttotal',
+            "IF(ISNULL(acctstoptime),'',acctterminatecause)|acctterminatecause",
+      ],
+      -from => \"(SELECT * FROM radacct ORDER BY acctstarttime DESC) AS tmp",
+      -group_by => 'callingstationid',
+      -order_by => [{-asc => 'status'}, {-desc => 'acctstarttime'}],
+    ));
+}
+
+=item _node_accounting_bw
+
+_node_accounting_bw
+
+=cut
+
+sub _node_accounting_bw {
+    return _db_item (
+        -columns => [
+            'SUM(radacct_log.acctinputoctets)|acctinput',
+            'SUM(radacct_log.acctoutputoctets)|acctoutput',
+            'SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)|accttotal'
+        ],
+        -from => [-join => 'radacct_log', '=>{radacct_log.acctuniqueid=radacct.acctuniqueid}', 'radacct'],
+        @_,
+    );
 }
 
 =item node_accounting_daily_bw - view bandwidth tranferred today for a node, returns an array of hashrefs
@@ -518,12 +589,13 @@ sub node_accounting_view_all {
 
 sub node_accounting_daily_bw {
     my ($mac) = @_;
-    my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_bandwidth_daily_sql', $mac);
-    my $ref = $query->fetchrow_hashref();
-    $query->finish();
-    return ($ref);
+    return _node_accounting_bw(
+        -where => {
+            callingstationid => $mac,
+            timestamp => { ">=" => \"CURRENT_DATE()" },
+        },
+    );
 }
-
 
 =item node_accounting_weekly_bw - view bandwidth tranferred this week for a node, returns an array of hashrefs
 
@@ -531,10 +603,9 @@ sub node_accounting_daily_bw {
 
 sub node_accounting_weekly_bw {
     my ($mac) = @_;
-    my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_bandwidth_weekly_sql', $mac);
-    my $ref = $query->fetchrow_hashref();
-    $query->finish();
-    return ($ref);
+    return _node_accounting_bw(
+        -where => [-and => [\"YEARWEEK(timestamp) = YEARWEEK(CURRENT_DATE())", {callingstationid => $mac}]],
+    );
 }
 
 =item node_accounting_monthly_bw - view bandwidth tranferred this month for a node, returns an array of hashrefs
@@ -543,10 +614,9 @@ sub node_accounting_weekly_bw {
 
 sub node_accounting_monthly_bw {
     my ($mac) = @_;
-    my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_bandwidth_monthly_sql', $mac);
-    my $ref = $query->fetchrow_hashref();
-    $query->finish();
-    return ($ref);
+    return _node_accounting_bw(
+        -where => [-and => [\"MONTH(timestamp) = MONTH(CURRENT_DATE())", {callingstationid => $mac}]],
+    );
 }
 
 =item node_accounting_yearly_bw - view bandwidth tranferred this year for a node, returns an array of hashrefs
@@ -555,10 +625,17 @@ sub node_accounting_monthly_bw {
 
 sub node_accounting_yearly_bw {
     my ($mac) = @_;
-    my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_bandwidth_yearly_sql', $mac);
-    my $ref = $query->fetchrow_hashref();
-    $query->finish();
-    return ($ref);
+    return _node_accounting_bw(
+        -where => [-and => [\"YEAR(timestamp) = YEAR(CURRENT_DATE())", {callingstationid => $mac}]],
+    );
+}
+
+sub _node_accounting_time {
+    return _db_item (
+        -columns => ['SUM(FORMAT((radacct_log.acctsessiontime/60),2))|accttotaltime'],
+        -from => [-join => 'radacct_log', '=>{radacct_log.acctuniqueid=radacct.acctuniqueid}', 'radacct'],
+        @_
+    );
 }
 
 =item node_accounting_daily_time - view connected time today for a node, returns an array of hashrefs
@@ -567,10 +644,12 @@ sub node_accounting_yearly_bw {
 
 sub node_accounting_daily_time {
     my ($mac) = @_;
-    my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_sessiontime_daily_sql', $mac);
-    my $ref = $query->fetchrow_hashref();
-    $query->finish();
-    return ($ref);
+    return _node_accounting_time(
+        -where => {
+            callingstationid => $mac,
+            timestamp => { ">=" => \"CURRENT_DATE()" },
+        },
+    );
 }
 
 =item node_accounting_weekly_time - view connected time this week for a node, returns an array of hashrefs
@@ -579,10 +658,14 @@ sub node_accounting_daily_time {
 
 sub node_accounting_weekly_time {
     my ($mac) = @_;
-    my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_sessiontime_weekly_sql', $mac);
-    my $ref = $query->fetchrow_hashref();
-    $query->finish();
-    return ($ref);
+    return _node_accounting_time(
+        -where => [
+            -and => [
+                {callingstationid => $mac},
+                \"YEARWEEK(timestamp) = YEARWEEK(CURRENT_DATE())",
+            ],
+        ],
+    );
 }
 
 =item node_accounting_monthly_time - view connected time this month for a node, returns an array of hashrefs
@@ -591,10 +674,14 @@ sub node_accounting_weekly_time {
 
 sub node_accounting_monthly_time {
     my ($mac) = @_;
-    my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_sessiontime_monthly_sql', $mac);
-    my $ref = $query->fetchrow_hashref();
-    $query->finish();
-    return ($ref);
+    return _node_accounting_time(
+        -where => [
+            -and => [
+                {callingstationid => $mac},
+                \"MONTH(timestamp) = MONTH(CURRENT_DATE())",
+            ],
+        ],
+    );
 }
 
 =item node_accounting_yearly_time - view connected time this year for a node, returns an array of hashrefs
@@ -603,20 +690,44 @@ sub node_accounting_monthly_time {
 
 sub node_accounting_yearly_time {
     my ($mac) = @_;
-    my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_sessiontime_yearly_sql', $mac);
-    my $ref = $query->fetchrow_hashref();
-    $query->finish();
-    return ($ref);
+    return _node_accounting_time(
+        -where => [
+            -and => [
+                {callingstationid => $mac},
+                \"YEAR(timestamp) = YEAR(CURRENT_DATE())",
+            ],
+        ],
+    );
 }
+
+our %INTERVAL_TO_METHOD = (
+    daily => 'DAY',
+    weekly => 'YEARWEEK',
+    monthly => 'MONTH',
+    yearly => 'YEAR',
+);
 
 =item node_acct_maintenance_bw_inbound - get mac that downloaded more bandwidth than they should
 
 =cut
 
 sub node_acct_maintenance_bw_inbound {
-    my ($interval,$releaseDate,$bytes) = @_;
-    my $query = "acct_maintenance_bw_" . $interval . "_inbound";
-    return db_data(ACCOUNTING, $accounting_statements, $query, $releaseDate, $bytes );
+    my ($interval, $releaseDate, $bytes) = @_;
+    my $method = $INTERVAL_TO_METHOD{$interval};
+    return _db_items (
+        -columns => ['radacct.callingstationid' , 'SUM(radacct_log.acctinputoctets)|acctinput'],
+        -from => [-join => 'radacct_log', '<={radacct_log.acctuniqueid=radacct.acctuniqueid}', 'radacct'],
+        -group_by => 'radacct.callingstationid',
+        -where => [
+            -and => [
+                \"${method}(timestamp) = ${method}(timestamp)",
+                {"timestamp" => {">=" => $releaseDate}},
+            ],
+        ],
+        -having  => {
+            acctinput => { ">=" => $bytes}
+        },
+    );
 }
 
 =item node_acct_maintenance_bw_outbound - get mac that uploaded more bandwidth than they should
@@ -624,10 +735,28 @@ sub node_acct_maintenance_bw_inbound {
 =cut
 
 sub node_acct_maintenance_bw_outbound {
-    my ($interval,$releaseDate,$bytes) = @_;
-    my $query = "acct_maintenance_bw_" . $interval . "_outbound";
-    return db_data(ACCOUNTING, $accounting_statements, $query, $releaseDate, $bytes );
-
+    my ($interval, $releaseDate, $bytes) = @_;
+    my $method = $INTERVAL_TO_METHOD{$interval};
+    return _db_items(
+        -columns => [
+            'radacct.callingstationid',
+            'SUM(radacct_log.acctoutputoctets)|acctoutput'
+        ],
+        -from => [
+            -join => 'radacct_log',
+            '<={radacct_log.acctuniqueid=radacct.acctuniqueid}', 'radacct'
+        ],
+        -group_by => 'radacct.callingstationid',
+        -where    => [
+            -and => [
+                \"${method}(timestamp) = ${method}(timestamp)",
+                { "timestamp" => { ">=" => $releaseDate } },
+            ],
+        ],
+        -having => {
+            acctoutput => { ">=" => $bytes },
+        },
+    );
 }
 
 =item node_acct_maintenance_bw_total - get mac that used more bandwidth (IN + OUT) than they should
@@ -635,9 +764,30 @@ sub node_acct_maintenance_bw_outbound {
 =cut
 
 sub node_acct_maintenance_bw_total {
-    my ($interval,$releaseDate,$bytes) = @_;
-    my $query = "acct_maintenance_bw_" . $interval . "_all";
-    return db_data(ACCOUNTING, $accounting_statements, $query, $releaseDate, $bytes );
+    my ($interval, $releaseDate, $bytes) = @_;
+    my $method = $INTERVAL_TO_METHOD{$interval};
+    return _db_items(
+        -columns => [
+            'radacct.callingstationid',
+            'SUM(radacct_log.acctinputoctets)|acctinput',
+            'SUM(radacct_log.acctoutputoctets)|acctoutput',
+            'SUM(radacct_log.acctinputoctets + radacct_log.acctoutputoctets)|accttotal',
+        ],
+        -from => [
+            -join => 'radacct_log',
+            '<={radacct_log.acctuniqueid=radacct.acctuniqueid}', 'radacct'
+        ],
+        -group_by => 'radacct.callingstationid',
+        -where    => [
+            -and => [
+                \"${method}(timestamp) = ${method}(timestamp)",
+                { "timestamp" => { ">=" => $releaseDate } },
+            ],
+        ],
+        -having => {
+            accttotal => { ">=" => $bytes },
+        },
+    );
 }
 
 =item node_acct_maintenance_bw_inbound_exists - check if the mac bust the bandwidth down limit
@@ -645,8 +795,28 @@ sub node_acct_maintenance_bw_total {
 =cut
 
 sub node_acct_maintenance_bw_inbound_exists {
-    my ($releaseDate,$bytes,$mac) = @_;
-    return db_data(ACCOUNTING, $accounting_statements, "acct_maintenance_bw_inbound_exists" , $releaseDate, $mac, $bytes );
+    my ($releaseDate, $bytes, $mac) = @_;
+    return _db_items(
+        -columns => [
+            'radacct.callingstationid',
+            'SUM(radacct_log.acctinputoctets)|acctinput',
+        ],
+        -group_by => 'radacct.callingstationid',
+        -from => [
+            -join => 'radacct_log',
+            '<={radacct_log.acctuniqueid=radacct.acctuniqueid}', 'radacct'
+        ],
+        -where => {
+            timestamp => {
+                ">=" => $releaseDate,
+                "<="=> \"NOW()",
+            },
+            'radacct.callingstationid' => $mac,
+        },
+        -having => {
+            acctinputoctets => { ">=" => $bytes},
+        },
+    );
 }
 
 =item node_acct_maintenance_bw_outbound_exists - check if the mac bust the bandwidth up limit
@@ -654,8 +824,28 @@ sub node_acct_maintenance_bw_inbound_exists {
 =cut
 
 sub node_acct_maintenance_bw_outbound_exists {
-    my ($releaseDate,$bytes,$mac) = @_;
-    return db_data(ACCOUNTING, $accounting_statements, "acct_maintenance_bw_outbound_exists" , $releaseDate, $mac, $bytes );
+    my ($releaseDate, $bytes, $mac) = @_;
+    return _db_items(
+        -columns => [
+            'radacct.callingstationid',
+            'SUM(radacct_log.acctoutputoctets)|acctoutput',
+        ],
+        -group_by => 'radacct.callingstationid',
+        -from => [
+            -join => 'radacct_log',
+            '<={radacct_log.acctuniqueid=radacct.acctuniqueid}', 'radacct'
+        ],
+        -where => {
+            timestamp => {
+                ">=" => $releaseDate,
+                "<="=> \"NOW()",
+            },
+            'radacct.callingstationid' => $mac,
+        },
+        -having => {
+            acctoutputoctets => { ">=" => $bytes},
+        },
+    );
 }
 
 =item node_acct_maintenance_bw_total_exists - check if the mac bust the bandwidth up-down limit
@@ -663,8 +853,30 @@ sub node_acct_maintenance_bw_outbound_exists {
 =cut
 
 sub node_acct_maintenance_bw_total_exists {
-    my ($releaseDate,$bytes,$mac) = @_;
-    return db_data(ACCOUNTING, $accounting_statements, "acct_maintenance_bw_all_exists" , $releaseDate, $mac, $bytes );
+    my ($releaseDate, $bytes, $mac) = @_;
+    return _db_items(
+        -columns => [
+            'radacct.callingstationid',
+            'SUM(radacct_log.acctinputoctets)|acctinput',
+            'SUM(radacct_log.acctoutputoctets)|acctoutput',
+            'SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)|accttotal',
+        ],
+        -group_by => 'radacct.callingstationid',
+        -from => [
+            -join => 'radacct_log',
+            '<={radacct_log.acctuniqueid=radacct.acctuniqueid}', 'radacct'
+        ],
+        -where => {
+            timestamp => {
+                ">=" => $releaseDate,
+                "<="=> \"NOW()",
+            },
+            'radacct.callingstationid' => $mac,
+        },
+        -having => {
+            accttotal => { ">=" => $bytes},
+        },
+    );
 }
 
 sub _translate_bw {
@@ -686,6 +898,40 @@ sub _translate_bw {
 sub cache {
     my ($class) = @_;
     return pf::CHI->new(namespace => "accounting");
+}
+
+=item _db_item
+
+_db_item
+
+=cut
+
+sub _db_item {
+    my (@args) = @_;
+    my ($status, $iter) = pf::dal::radacct->search(
+        @args,
+        -with_class => undef,
+    );
+    if (is_error($status)) {
+        return undef;
+    }
+    return $iter->next;
+}
+
+=item _db_items
+
+=cut
+
+sub _db_items {
+    my (@args) = @_;
+    my ($status, $iter) = pf::dal::radacct->search(
+        @args,
+        -with_class => undef,
+    );
+    if (is_error($status)) {
+        return;
+    }
+    return @{$iter->all(undef) // []};
 }
 
 =back

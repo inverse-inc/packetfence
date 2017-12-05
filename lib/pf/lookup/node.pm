@@ -24,6 +24,7 @@ use pf::accounting qw(
     node_accounting_daily_time node_accounting_weekly_time node_accounting_monthly_time node_accounting_yearly_time
 );
 use pf::config;
+use pf::constants qw($ZERO_DATE);
 use pf::ip4log;
 use pf::locationlog;
 use pf::node;
@@ -45,7 +46,7 @@ sub lookup_node {
 
             $return .= "IP Address     : ".$node_ip4log_info->{'ip'}." (active)\n";
             $return .= "IP Info        : IP active since " . $node_ip4log_info->{'start_time'};
-            if ($node_ip4log_info->{'end_time'} ne '0000-00-00 00:00:00') {
+            if ($node_ip4log_info->{'end_time'} ne $ZERO_DATE) {
                 $return .= " and DHCP lease valid until ".$node_ip4log_info->{'end_time'};
             }
             $return .= "\n";

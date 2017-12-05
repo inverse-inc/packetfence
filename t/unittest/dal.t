@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 38;
+use Test::More tests => 42;
 
 use pf::error qw(is_success is_error);
 use pf::db;
@@ -97,9 +97,15 @@ ok($node, "Reloading node from database");
 
 is($node->voip, "yes", "Changes were saved into database");
 
+my $old_status = $node->status;
+
 $node->status(undef);
 
-ok(is_error($node->save), "Cannot save a null value into the database");
+ok(is_success($node->save), "Skip a non-nullable field when saving into the database");
+
+$node = pf::dal::node->find({mac => $test_mac});
+
+is($old_status, $node->status, "non-nullable field is not modified");
 
 ok(is_success($node->remove), "Remove node in database");
 
@@ -175,11 +181,47 @@ $node->save;
 
 $node = pf::dal::node->find({mac => $test_mac});
 
+
 is($node->category, $data->{category}, "Test saving category");
 
 is($node->bypass_role, $data->{bypass_role}, "Test saving bypass_role");
 
+{
+    ($status, my $iter) = pf::dal::node->search(
+        -where => {
+            mac => $test_mac
+        }
+    );
+
+    $node = $iter->next;
+
+    isa_ok($node, "pf::dal::node");
+}
+
+{
+
+    ($status, my $iter) = pf::dal::node->search(
+        -where => {
+            mac => $test_mac
+        },
+        -with_class => undef,
+    );
+
+    $node = $iter->next;
+
+    is(ref $node, "HASH", "Check if return row is a simple hash");
+
+}
+
 pf::dal::node->remove_by_id({mac => $test_mac});
+
+is_deeply(
+    pf::dal::node->build_primary_keys_where_clause({mac => "00:00:00:00:00:00"}),
+    {
+        'node.mac' => '00:00:00:00:00:00',
+    },
+    "build_primary_keys_where_clause returns fullly qualified column names for searching",
+);
 
 =head1 AUTHOR
 

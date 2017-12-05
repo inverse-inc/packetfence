@@ -28,6 +28,7 @@ our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
@@ -323,6 +324,40 @@ BEGIN {
     @PRIMARY_KEYS = qw(
         mac
     );
+
+    @COLUMN_NAMES = qw(
+        node.mac
+        node.pid
+        node.category_id
+        node.detect_date
+        node.regdate
+        node.unregdate
+        node.lastskip
+        node.time_balance
+        node.bandwidth_balance
+        node.status
+        node.user_agent
+        node.computername
+        node.notes
+        node.last_arp
+        node.last_dhcp
+        node.dhcp_fingerprint
+        node.dhcp6_fingerprint
+        node.dhcp_vendor
+        node.dhcp6_enterprise
+        node.device_type
+        node.device_class
+        node.device_version
+        node.device_score
+        node.bypass_vlan
+        node.voip
+        node.autoreg
+        node.sessionid
+        node.machine_account
+        node.bypass_role_id
+        node.last_seen
+    );
+
 }
 
 use Class::XSAccessor {
@@ -371,6 +406,16 @@ our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
     "SELECT * FROM `node` WHERE $where;";
 };
+
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
 
 =head2 _find_one_sql
 

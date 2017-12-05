@@ -28,6 +28,7 @@ our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
@@ -79,6 +80,14 @@ BEGIN {
     @PRIMARY_KEYS = qw(
         category_id
     );
+
+    @COLUMN_NAMES = qw(
+        node_category.category_id
+        node_category.name
+        node_category.max_nodes_per_pid
+        node_category.notes
+    );
+
 }
 
 use Class::XSAccessor {
@@ -127,6 +136,16 @@ our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
     "SELECT * FROM `node_category` WHERE $where;";
 };
+
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
 
 =head2 _find_one_sql
 

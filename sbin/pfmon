@@ -45,7 +45,6 @@ use pf::auth_log;
 use pf::node;
 use pf::db;
 use pf::services;
-use pf::traplog;
 use pf::util;
 use pf::services::util;
 use pf::violation qw(violation_maintenance);

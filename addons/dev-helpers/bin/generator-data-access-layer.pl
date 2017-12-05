@@ -15,10 +15,36 @@ generator-data-access-layer.pl - Generate the stubs for the data access layer
 use strict;
 use warnings;
 use lib qw(/usr/local/pf/lib);
-use pf::db;
+use DBI;
 use Template;
 use Data::Dumper;
 use DateTime;
+use Getopt::Long;
+
+my $PF_DIR = '/usr/local/pf';
+
+our %OPTIONS = (
+    dbpass => '',,
+    dbuser => 'root',
+);
+
+GetOptions(\%OPTIONS, 'dbpass=s', 'dbuser=s');
+
+my $output_path = "$PF_DIR/lib/pf/dal";
+
+my $schema = "$PF_DIR/db/pf-schema-X.Y.Z.sql";
+
+my $db_name = "pf_generated_$$";
+
+my $dbh = DBI->connect("DBI:mysql:host=localhost", $OPTIONS{dbuser}, $OPTIONS{dbpass}, {RaiseError => 1});
+
+$dbh->do("DROP DATABASE IF EXISTS $db_name");
+
+$dbh->do("CREATE DATABASE $db_name");
+
+system("mysql -u$OPTIONS{dbuser} -p$OPTIONS{dbpass} $db_name < $schema");
+
+$dbh->do("USE $db_name");
 
 my $tables = [];
 
@@ -32,11 +58,9 @@ if (@ARGV) {
     push @$tables, @$infos;
 }
 
-my $output_path = "/usr/local/pf/lib/pf/dal";
-
 my $tt = Template->new({
-    OUTPUT_PATH  => '/usr/local/pf/lib/pf/dal/',
-    INCLUDE_PATH => '/usr/local/pf/addons/dev-helpers/templates',
+    OUTPUT_PATH  => "$PF_DIR/lib/pf/dal/",
+    INCLUDE_PATH => "$PF_DIR/addons/dev-helpers/templates",
 });
 
 my $now = DateTime->now;
@@ -62,6 +86,9 @@ for my $table (@$tables) {
     }
 }
 
+$dbh->do("DROP DATABASE IF EXISTS $db_name");
+
+
 
 =head2 get_table_info
 
@@ -71,7 +98,6 @@ Get the Table Info
 
 sub get_table_info {
     my ($table) = @_;
-    my $dbh = db_connect();
 
     ### Get a list of tables and views
     my $tablesth = $dbh->table_info(undef, undef, $table);

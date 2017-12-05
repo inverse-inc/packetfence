@@ -17,9 +17,10 @@ pf::dal implementation for the table node
 use strict;
 use warnings;
 
-use pf::error qw(is_error);
+use pf::error qw(is_error is_success);
 use pf::api::queue;
 use pf::constants::node qw($NODE_DISCOVERED_TRIGGER_DELAY);
+use pf::constants qw($ZERO_DATE);
 use base qw(pf::dal::_node);
 
 our @LOCATION_LOG_GETTERS = qw(
@@ -83,20 +84,15 @@ sub pre_save {
     return $self->_update_category_ids;
 }
 
-=head2 save
-
-save
+=head2 after_create_hook
 
 =cut
 
-sub save {
+sub after_create_hook {
     my ($self) = @_;
-    my $status = $self->SUPER::save;
-    if ($status == $STATUS::CREATED) {
-        my $apiclient = pf::api::queue->new(queue => 'general');
-        $apiclient->notify_delayed($NODE_DISCOVERED_TRIGGER_DELAY, "trigger_violation", mac => $self->mac, type => "internal", tid => "node_discovered");
-    }
-    return $status;
+    my $apiclient = pf::api::queue->new(queue => 'general');
+    $apiclient->notify_delayed($NODE_DISCOVERED_TRIGGER_DELAY, "trigger_violation", mac => $self->{mac}, type => "internal", tid => "node_discovered");
+    return ;
 }
 
 =head2 _update_category_ids
@@ -112,13 +108,11 @@ sub _update_category_ids {
     my @names;
     push @names, $category if defined $category;
     push @names, $bypass_role if defined $bypass_role;
-    my $sqla          = $self->get_sql_abstract;
-    my ($stmt, @bind) = $sqla->select(
+    my ($status, $sth) = $self->do_select(
         -columns => [qw(category_id name)],
         -from => 'node_category',
         -where   => {name => { -in => \@names}},
     );
-    my ($status, $sth) = $self->db_execute($stmt, @bind);
     return $status if is_error($status);
     my $lookup = $sth->fetchall_hashref('name');
     if (defined $bypass_role) {
@@ -143,7 +137,7 @@ sub _insert_data {
         return $status, $data;
     }
     if ($data->{detect_date} eq '0000-00-00 00:00:00') {
-       $data->{detect_date} = \['NOW()'];
+       $data->{detect_date} = $self->now;
     }
     return $status, $data;
 }
@@ -168,8 +162,7 @@ load the locationlog entries into the node object
 
 sub _load_locationlog {
     my ($self) = @_;
-    my $sqla = $self->get_sql_abstract;
-    my ($sql, @bind) = $sqla->select(
+    my ($status, $sth) = $self->do_select(
         -columns => [
             "locationlog.switch|last_switch",
             "locationlog.port|last_port",
@@ -186,9 +179,8 @@ sub _load_locationlog {
             "UNIX_TIMESTAMP(`locationlog`.`start_time`)|last_start_timestamp",
           ],
         -from => 'locationlog',
-        -where => { mac => $self->mac, end_time => '0000-00-00 00:00:00'},
+        -where => { mac => $self->mac, end_time => $ZERO_DATE},
     );
-    my ($status, $sth) = $self->db_execute($sql, @bind);
     return $status, undef if is_error($status);
     my $row = $sth->fetchrow_hashref;
     $sth->finish;
@@ -214,6 +206,16 @@ sub merge {
         $self->{$k} = $v;
     }
     return ;
+}
+
+=head2 to_hash_fields
+
+to_hash_fields
+
+=cut
+
+sub to_hash_fields {
+    return [@pf::dal::_node::FIELD_NAMES, qw(category bypass_role), @LOCATION_LOG_GETTERS];
 }
 
 =head1 AUTHOR

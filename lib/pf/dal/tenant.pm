@@ -1,23 +1,23 @@
-package pf::dal::ifoctetslog;
+package pf::dal::tenant;
 
 =head1 NAME
 
-pf::dal::ifoctetslog - pf::dal module to override for the table ifoctetslog
+pf::dal::tenant - pf::dal module to override for the table tenant
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::ifoctetslog
+pf::dal::tenant
 
-pf::dal implementation for the table ifoctetslog
+pf::dal implementation for the table tenant
 
 =cut
 
 use strict;
 use warnings;
 
-use base qw(pf::dal::_ifoctetslog);
+use base qw(pf::dal::_tenant);
  
 =head1 AUTHOR
 

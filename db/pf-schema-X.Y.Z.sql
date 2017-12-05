@@ -394,16 +394,6 @@ CREATE TABLE `userlog` (
   CONSTRAINT `userlog_ibfk_1` FOREIGN KEY (`mac`) REFERENCES `node` (`mac`) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
-CREATE TABLE `ifoctetslog` (
-  `switch` varchar(17) NOT NULL default '',
-  `port` varchar(8) NOT NULL default '',
-  `read_time` datetime NOT NULL default '0000-00-00 00:00:00',
-  `mac` varchar(17) default NULL,
-  `ifInOctets` bigint(20) unsigned NOT NULL default '0',
-  `ifOutOctets` bigint(20) unsigned NOT NULL default '0',
-  PRIMARY KEY  (`switch`,`port`,`read_time`)
-) ENGINE=InnoDB;
-
 --
 -- Table structure for table `password`
 --

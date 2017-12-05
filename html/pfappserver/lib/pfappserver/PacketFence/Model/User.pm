@@ -79,7 +79,7 @@ sub read {
             }
             if ($user->{unregdate}) {
                 # Formulate unregdate
-                $user->{unregdate} = '' if $user->{unregdate} eq '0000-00-00 00:00:00';
+                $user->{unregdate} = '' if $user->{unregdate} eq $ZERO_DATE;
                 $user->{unregdate} =~ s/ 00:00:00$//;
             }
             $self->_make_actions($user);

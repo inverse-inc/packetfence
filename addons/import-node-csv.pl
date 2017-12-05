@@ -32,6 +32,7 @@ use constant {
 use lib LIB_DIR;
 
 use pf::node;
+use pf::constants qw($ZERO_DATE);
 use pf::db;
 use pf::util;
 
@@ -89,7 +90,7 @@ while (my $row = $csv->getline($io)) {
             print "MAC: $mac\tCategory: $category\tPID: $pid\t - added to database\n";
             $macHash{'pid'} = $pid;
             $macHash{'category'} = $category;
-            $macHash{'unregdate'} = 0;
+            $macHash{'unregdate'} = $ZERO_DATE;
             node_add_simple($mac);
             node_modify( $mac, %macHash );
         } else {

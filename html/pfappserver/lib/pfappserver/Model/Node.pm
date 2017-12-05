@@ -79,56 +79,6 @@ sub field_names {
     return [qw(mac detect_date regdate unregdate computername pid last_ip status device_class category)];
 }
 
-=head2 countAll
-
-=cut
-
-sub countAll {
-    my ( $self, %params ) = @_;
-
-    my $logger = get_logger();
-    my ($status, $status_msg);
-
-    my $count;
-    eval {
-        my @result = node_count_all(undef, %params);
-        $count = pop @result;
-    };
-    if ($@) {
-        $status_msg = "Can't count nodes from database.";
-        $logger->error($status_msg);
-        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
-    }
-
-    return ($STATUS::OK, $count->{nb});
-}
-
-=head2 search
-
-Used to perform a simple search
-
-=cut
-
-sub search {
-    my ( $self, %params ) = @_;
-
-    my $logger = get_logger();
-    my ($status, $status_msg);
-
-    my @nodes;
-    eval {
-        @nodes = node_view_all(undef, %params);
-        @nodes = grep { keys %$_ ? $_ : undef } @nodes;
-    };
-    if ($@) {
-        $status_msg = "Can't fetch nodes from database.";
-        $logger->error($status_msg);
-        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
-    }
-
-    return ($STATUS::OK, \@nodes);
-}
-
 =head2 view
 
 From pf::lookup::node::lookup_node()
@@ -152,7 +102,7 @@ sub view {
             }
         }
         foreach (qw[detect_date regdate unregdate]) {
-            $node->{$_} = '' if exists $node->{$_} && $node->{$_} eq '0000-00-00 00:00:00';
+            $node->{$_} = '' if exists $node->{$_} && $node->{$_} eq $ZERO_DATE;
         }
 
         # Show 802.1X username only if connection is of type EAP
@@ -175,7 +125,7 @@ sub view {
 
         # Fetch IP address history
         my @iplog_history = pf::ip4log::get_history($mac);
-        map { $_->{end_time} = '' if ($_->{end_time} eq '0000-00-00 00:00:00') } @iplog_history;
+        map { $_->{end_time} = '' if ($_->{end_time} eq $ZERO_DATE) } @iplog_history;
         $node->{iplog}->{history} = \@iplog_history;
 
         if ($node->{iplog}->{'ip'}) {
@@ -187,7 +137,7 @@ sub view {
         }
 
         my @ip6log_history = pf::ip6log::get_history($mac);
-        map { $_->{end_time} = '' if ($_->{end_time} eq '0000-00-00 00:00:00') } @ip6log_history;
+        map { $_->{end_time} = '' if ($_->{end_time} eq $ZERO_DATE) } @ip6log_history;
         $node->{ip6log}->{history} = \@ip6log_history;
 
         if ($node->{ip6log}->{'ip'}) {
@@ -529,7 +479,7 @@ sub violations {
     my @violations;
     eval {
         @violations = violation_view_desc($mac);
-        map { $_->{release_date} = '' if ($_->{release_date} eq '0000-00-00 00:00:00') } @violations;
+        map { $_->{release_date} = '' if ($_->{release_date} eq $ZERO_DATE) } @violations;
     };
     if ($@) {
         $status_msg = "Can't fetch violations from database.";

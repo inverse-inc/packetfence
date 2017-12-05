@@ -1,16 +1,16 @@
-package pf::dal::_ifoctetslog;
+package pf::dal::_tenant;
 
 =head1 NAME
 
-pf::dal::_ifoctetslog - pf::dal implementation for the table ifoctetslog
+pf::dal::_tenant - pf::dal implementation for the table tenant
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::dal::_ifoctetslog
+pf::dal::_tenant
 
-pf::dal implementation for the table ifoctetslog
+pf::dal implementation for the table tenant
 
 =cut
 
@@ -18,8 +18,8 @@ use strict;
 use warnings;
 
 ###
-### pf::dal::_ifoctetslog is auto generated any change to this file will be lost
-### Instead change in the pf::dal::ifoctetslog module
+### pf::dal::_tenant is auto generated any change to this file will be lost
+### Instead change in the pf::dal::tenant module
 ###
 use base qw(pf::dal);
 
@@ -28,68 +28,31 @@ our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
-        switch
-        port
-        read_time
-        mac
-        ifInOctets
-        ifOutOctets
+        id
+        name
     );
 
     %DEFAULTS = (
-        switch => '',
-        port => '',
-        read_time => '0000-00-00 00:00:00',
-        mac => undef,
-        ifInOctets => '0',
-        ifOutOctets => '0',
+        name => '',
     );
 
     @INSERTABLE_FIELDS = qw(
-        switch
-        port
-        read_time
-        mac
-        ifInOctets
-        ifOutOctets
+        name
     );
 
     %FIELDS_META = (
-        switch => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
+        id => {
+            type => 'INT',
+            is_auto_increment => 1,
             is_primary_key => 1,
             is_nullable => 0,
         },
-        port => {
+        name => {
             type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 1,
-            is_nullable => 0,
-        },
-        read_time => {
-            type => 'DATETIME',
-            is_auto_increment => 0,
-            is_primary_key => 1,
-            is_nullable => 0,
-        },
-        mac => {
-            type => 'VARCHAR',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
-        },
-        ifInOctets => {
-            type => 'BIGINT',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
-        ifOutOctets => {
-            type => 'BIGINT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 0,
@@ -97,10 +60,14 @@ BEGIN {
     );
 
     @PRIMARY_KEYS = qw(
-        switch
-        port
-        read_time
+        id
     );
+
+    @COLUMN_NAMES = qw(
+        tenant.id
+        tenant.name
+    );
+
 }
 
 use Class::XSAccessor {
@@ -109,7 +76,7 @@ use Class::XSAccessor {
 
 =head2 _defaults
 
-The default values of ifoctetslog
+The default values of tenant
 
 =cut
 
@@ -119,7 +86,7 @@ sub _defaults {
 
 =head2 field_names
 
-Field names of ifoctetslog
+Field names of tenant
 
 =cut
 
@@ -129,7 +96,7 @@ sub field_names {
 
 =head2 primary_keys
 
-The primary keys of ifoctetslog
+The primary keys of tenant
 
 =cut
 
@@ -143,16 +110,26 @@ The table name
 
 =cut
 
-sub table { "ifoctetslog" }
+sub table { "tenant" }
 
 our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
-    "SELECT * FROM `ifoctetslog` WHERE $where;";
+    "SELECT * FROM `tenant` WHERE $where;";
 };
+
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
 
 =head2 _find_one_sql
 
-The precalculated sql to find a single row ifoctetslog
+The precalculated sql to find a single row tenant
 
 =cut
 
@@ -162,7 +139,7 @@ sub _find_one_sql {
 
 =head2 _updateable_fields
 
-The updateable fields for ifoctetslog
+The updateable fields for tenant
 
 =cut
 
@@ -172,7 +149,7 @@ sub _updateable_fields {
 
 =head2 _insertable_fields
 
-The insertable fields for ifoctetslog
+The insertable fields for tenant
 
 =cut
 
@@ -182,7 +159,7 @@ sub _insertable_fields {
 
 =head2 get_meta
 
-Get the meta data for ifoctetslog
+Get the meta data for tenant
 
 =cut
 

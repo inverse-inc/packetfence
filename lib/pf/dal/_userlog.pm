@@ -28,6 +28,7 @@ our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
@@ -82,6 +83,14 @@ BEGIN {
         mac
         start_time
     );
+
+    @COLUMN_NAMES = qw(
+        userlog.mac
+        userlog.pid
+        userlog.start_time
+        userlog.end_time
+    );
+
 }
 
 use Class::XSAccessor {
@@ -130,6 +139,16 @@ our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
     "SELECT * FROM `userlog` WHERE $where;";
 };
+
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
 
 =head2 _find_one_sql
 
