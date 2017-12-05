@@ -25,18 +25,33 @@ sub register {
 
 sub register_rest_routes {
     my ($routes, $config) = @_;
-
     my $options = munge_options($routes, $config);
     unless (defined $options) {
         return;
     }
+
+    if ($options->{parent}) {
+        return register_child_routes($routes, $options);
+    }
+
     my $name_prefix = $options->{name_prefix};
     my $r = $routes->any($options->{path})->name($name_prefix);
     register_collection_routes($r, $options);
     if (keys %{$options->{resource_v2a}}) {
         my $item_path = "/:$options->{id_key}";
-        register_resource_routes($r->any($item_path)->name("$name_prefix.resource"), $options);
+        register_resource_routes($r->under($item_path)->to("$options->{controller}#resource")->name("$name_prefix.resource"), $options);
     }
+}
+
+sub register_child_routes {
+    my ($route, $options) = @_;
+    my $name_prefix = delete $options->{parent};
+    my $parent_name = $route->name;
+    if ($parent_name) {
+        $name_prefix = "$parent_name.$name_prefix";
+    }
+    my $r = $route->find($name_prefix);
+    return $r->rest_routes( $options);
 }
 
 sub munge_options {
@@ -56,6 +71,7 @@ sub munge_options {
         collection_v2a => get_collection_verb_to_actions($config),
         resource_v2a => get_resource_verb_to_actions($config),
         resource_verbs => $config->{resource_verbs} // [],
+        parent => $config->{parent},
     };
 }
 
