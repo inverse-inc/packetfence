@@ -60,11 +60,21 @@ sub list_number_of_results {
     return 100;
 }
 
+sub resource {
+    my ($self) = @_;
+    my ($status, $item) = $self->do_get($self->get_lookup_info);
+    if (is_error($status)) {
+        $self->render_error($status, "Unable to get resource");
+        return 0;
+    }
+    $self->stash->{item} = $item;
+    $self->stash->{status} = $status;
+    return 1;
+}
+
 sub get {
     my ($self) = @_;
-    return $self->render_get(
-        $self->do_get($self->get_lookup_info)
-    );
+    return $self->render_get();
 }
 
 sub get_lookup_info {
@@ -73,11 +83,9 @@ sub get_lookup_info {
 }
 
 sub render_get {
-    my ($self, $status, $item) = @_;
-    if (is_error($status)) {
-        return $self->render_error($status, "Unable to get resource");
-    }
-    return $self->render(json => { item => $item}, status => $status);
+    my ($self) = @_;
+    my $stash = $self->stash;
+    return $self->render(json => { item => $stash->{item}, status => $stash->{status}});
 }
 
 sub do_get {
