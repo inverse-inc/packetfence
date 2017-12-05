@@ -33,7 +33,10 @@ if ($config->{db} !~ /^pf_smoke_test/) {
    die "Not using the standard database for testing \n";
 }
 
-my $dbh = test_db_connection($config) or die "Cannot connection to db with test user please run\nmysql -uroot -p < t/smoke_test.sql\n";
+my $dbh = test_db_connection($config) or die <<"EOS";
+Cannot connection to db with test user please run
+mysql -uroot -p < /usr/local/pf/t/db/smoke_test.sql;
+EOS
 my $db = $config->{db};
 
 $dbh->do("DROP DATABASE IF EXISTS $db;") or die "Cannot drop database $db\n";;
