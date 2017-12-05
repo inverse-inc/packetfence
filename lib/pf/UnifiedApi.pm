@@ -35,6 +35,7 @@ our @API_V1_ROUTES = (
     {controller => 'tenants', id_key => "tenant_id", path => "/tenants"},
     {controller => 'api_users', id_key => "user_id", path => "/api_users"},
     {controller => 'tenants_onboarding', path => "/tenants_onboarding", collection_v2a => {post => 'onboard'} , resource_v2a => {}},
+    {controller => 'users_nodes', path => "/nodes", collection_v2a => {get => 'list'} , resource_v2a => {}, parent => 'Users.resource'},
 );
 
 sub startup {
@@ -52,8 +53,6 @@ sub setup_api_v1_routes {
         $api_v1_route->rest_routes($route);
     }
     my $user_route = $api_v1_route->find('api.v1.Users.resource');
-    die "Cannot find route api.v1.Users.resource" unless $user_route;
-    $user_route->get("/nodes")->to("users_nodes#get")->name("api.v1.Users.resource.Nodes.get");
     $r->any(sub {
         my ($c) = @_;
         return $c->render(json => { message => "Unknown path", errors => [] }, status => 404);
