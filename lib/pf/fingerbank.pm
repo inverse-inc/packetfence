@@ -266,16 +266,19 @@ Otherwise, the top level parent will be the device class
 sub find_device_class {
     my ($top_level_parent, $device_name) = @_;
     my $logger = get_logger;
-    while (my ($k, $other_device_id) = each(%fingerbank::Constant::DEVICE_CLASS_IDS)) {
-        $logger->debug("Checking if device $device_name is a $other_device_id");
-        if(fingerbank::Model::Device->is_a($device_name, $other_device_id)) {
-            my $other_device_name = fingerbank::Model::Device->read($other_device_id)->name; 
-            $logger->info("Device $device_name is a $other_device_name");
-            return $other_device_name;
+    my $result = cache()->compute("pf::fingerbank::find_device_class($top_level_parent,$device_name)", sub {
+        while (my ($k, $other_device_id) = each(%fingerbank::Constant::DEVICE_CLASS_IDS)) {
+            $logger->debug("Checking if device $device_name is a $other_device_id");
+            if(fingerbank::Model::Device->is_a($device_name, $other_device_id)) {
+                my $other_device_name = fingerbank::Model::Device->read($other_device_id)->name; 
+                $logger->info("Device $device_name is a $other_device_name");
+                return $other_device_name;
+            }
         }
-    }
-    $logger->debug("Device $device_name is not part of any special OS class, taking top level parent $top_level_parent");
-    return $top_level_parent;
+        $logger->debug("Device $device_name is not part of any special OS class, taking top level parent $top_level_parent");
+        return $top_level_parent;
+    });
+    return $result;
 }
 
 sub sync_configuration {
