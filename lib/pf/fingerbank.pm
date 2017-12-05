@@ -38,6 +38,8 @@ use pf::node qw(node_modify);
 use pf::StatsD::Timer;
 use fingerbank::Config;
 use fingerbank::Collector;
+use POSIX::AtFork;
+
 # Do not remove, even if its not explicitely used. When taking collector requests out of the cache, this must be imported.
 use URI::http;
 
@@ -168,7 +170,7 @@ sub update_collector_endpoint_data {
     $collector //= fingerbank::Collector->new_from_config;
     $collector_ua //= $collector->get_lwp_client();
     
-    my $req = cache()->compute("pf::fingerbank::endpoint_attributes::request::$mac", sub {
+    my $req = cache()->compute("pf::fingerbank::update_collector_endpoint_data::request::$mac", sub {
         $collector->build_request("PATCH", "/endpoint_data/$mac");
     });
     $req->content(encode_json($data));
@@ -357,6 +359,19 @@ sub device_name_to_device_id {
     });
     return $id;
 }
+
+=head2 CLONE
+
+Clear the cache in a thread environment
+
+=cut
+
+sub CLONE {
+    $collector_ua = undef;
+    $collector = undef;
+}
+
+POSIX::AtFork->add_to_child(\&CLONE);
 
 =head1 AUTHOR
 
