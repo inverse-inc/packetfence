@@ -17,7 +17,7 @@ use warnings;
 use Mojo::Base qw(pf::UnifiedApi::Controller);
 use pf::person;
 
-sub get {
+sub list {
     my ($self) = @_;
     my $user_id = $self->stash->{user_id};
     $self->render(json => { items => [person_nodes($user_id)]});
