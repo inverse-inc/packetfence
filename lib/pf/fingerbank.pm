@@ -39,6 +39,8 @@ use pf::StatsD::Timer;
 use fingerbank::Config;
 use fingerbank::Collector;
 use POSIX::AtFork;
+use DateTime;
+use DateTime::Format::RFC3339;
 
 # Do not remove, even if its not explicitely used. When taking collector requests out of the cache, this must be imported.
 use URI::http;
@@ -78,32 +80,45 @@ sub process {
     my $logger = pf::log::get_logger;
 
     my $cache = cache();
+    my $cache_key = "pf::fingerbank::process($mac)";
+
+    my $process_timestamp = $cache->compute($cache_key, sub {
+        return DateTime->now(); 
+    });
+
     # Querying for a resultset
     my $query_args = endpoint_attributes($mac);
     $query_args->{mac} = $mac;
 
     unless(defined($query_args)) {
         $logger->error("Unable to fetch query arguments for Fingerbank query. Aborting.");
-        return undef;
+        return $FALSE;
     }
 
-    my $query_result = _query($query_args);
-
-    unless(defined($query_result)) {
-        $logger->warn("Unable to perform a Fingerbank lookup for device with MAC address '$mac'");
-        return "unknown";
+    if($query_args->{last_updated}->compare($process_timestamp) <= 0) {
+        $logger->info("No recent data found for $mac, will not trigger device profiling");
+        return $TRUE;
     }
+    else {
+        $cache->set($cache_key, DateTime->now());
 
-    # Processing the device class based on it's parents
-    my ( $top_level_parent, $parents ) = _parse_parents($query_result);
-    $query_result->{device_class} = find_device_class($top_level_parent, $query_result->{'device'}{'name'});
-    $query_result->{parents} = $parents;
+        my $query_result = _query($query_args);
 
-    record_result($mac, $query_args, $query_result);
+        unless(defined($query_result)) {
+            $logger->warn("Unable to perform a Fingerbank lookup for device with MAC address '$mac'");
+            return $FALSE;
+        }
 
-    _trigger_violations($query_args, $query_result, $parents);
+        # Processing the device class based on it's parents
+        my ( $top_level_parent, $parents ) = _parse_parents($query_result);
+        $query_result->{device_class} = find_device_class($top_level_parent, $query_result->{'device'}{'name'});
+        $query_result->{parents} = $parents;
 
-    return $query_result->{'device'}{'name'};
+        record_result($mac, $query_args, $query_result);
+
+        _trigger_violations($query_args, $query_result, $parents);
+        return $TRUE;
+    }
 }
 
 =head2 endpoint_attributes
@@ -126,7 +141,11 @@ sub endpoint_attributes {
 
     my $res = $collector_ua->request($req);
     if ($res->is_success) {
-        return decode_json($res->decoded_content);
+        my $data = decode_json($res->decoded_content);
+        # Change the last_updated into a DateTime
+        my $f = DateTime::Format::RFC3339->new();
+        $data->{last_updated} = $f->parse_datetime( $data->{last_updated} );
+        return $data;
     }
     else {
         get_logger->error("Error while communicating with the Fingerbank collector. ".$res->status_line);
