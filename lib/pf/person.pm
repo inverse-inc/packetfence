@@ -270,6 +270,7 @@ sub person_nodes {
         -columns => [qw(mac pid regdate unregdate lastskip status user_agent computername device_class time_balance bandwidth_balance)],
         #To avoid join
         -from => pf::dal::node->table,
+        -with_class => undef,
     );
     if (is_error($status)) {
         return;
