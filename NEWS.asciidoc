@@ -39,6 +39,7 @@ Enhancements
 * Added rule description in listing (Fixes #2619)
 * Improved documentation (PR #2774 fixes #2773)
 * Set a timeout for database queries for the admin to avoid long running queries slowing the system. (#2630) (PR #2659)
+* Documentation improvement about MySQL advanced parameters (#266)
 
 Bug Fixes
 +++++++++
