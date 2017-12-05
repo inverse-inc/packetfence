@@ -56,6 +56,9 @@ func main() {
 	configDatabase := readDBConfig()
 	connectDB(configDatabase, database)
 
+	database.SetMaxIdleConns(0)
+	database.SetMaxOpenConns(500)
+
 	VIP = make(map[string]bool)
 	VIPIp = make(map[string]net.IP)
 
@@ -204,7 +207,8 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 	for _, v := range h.network {
 
 		// Case of a l2 dhcp request
-		if v.dhcpHandler.layer2 && p.GIAddr().Equal(net.IPv4zero) {
+		// Network is L2 and (relais IP is null or
+		if v.dhcpHandler.layer2 && (p.GIAddr().Equal(net.IPv4zero) || v.network.Contains(p.CIAddr())) {
 
 			// Ip per role ?
 			if v.splittednet == true {
