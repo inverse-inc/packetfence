@@ -54,9 +54,11 @@ CREATE TABLE `tenant` (
   id int NOT NULL AUTO_INCREMENT,
   name VARCHAR(255) NOT NULL,
   portal_domain_name VARCHAR(255),
+  domain_name VARCHAR(255),
   PRIMARY KEY (id),
   UNIQUE KEY tenant_name (`name`),
-  UNIQUE KEY tenant_portal_domain_name (`portal_domain_name`)
+  UNIQUE KEY tenant_portal_domain_name (`portal_domain_name`),
+  UNIQUE KEY tenant_domain_name (`domain_name`)
 );
 
 ALTER TABLE `violation`
