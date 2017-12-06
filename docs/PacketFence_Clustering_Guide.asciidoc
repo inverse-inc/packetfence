@@ -379,7 +379,7 @@ Important variables:
   * 'wsrep_incoming_addresses': The current members of the cluster. All the nodes of your cluster should be listed there.
   * 'wsrep_local_state_comment': Current sync state of the cluster. A healthy state is 'Synced'. Refer to the Galera cluster documentation for the meaning of the other values this can have.
 
-In order for the cluster to be considered healthy, all nodes must be listed under `wsrep_incoming_addresses` and `wsrep_local_state_comment` must be `Synced`. Otherwise look in the MariaDB log (`/var/lib/mysql/PF_HOSTNAME.err`)
+In order for the cluster to be considered healthy, all nodes must be listed under `wsrep_incoming_addresses` and `wsrep_local_state_comment` must be `Synced`. Otherwise look in the MariaDB log (`/usr/local/pf/logs/mariadb_error.log`)
 
 Starting the first server normally
 ++++++++++++++++++++++++++++++++++
@@ -414,7 +414,7 @@ Understanding the Galera cluster synchronization
 
 The Galera cluster stack used by PacketFence resembles a lot to how a normal MariaDB Galera cluster behaves but it contains hooks to auto-correct some issues that can occur.
 
-NOTE: A lot of useful information is logged in the MariaDB log which can be found in `/var/lib/mysql/PF_HOSTNAME.err`
+NOTE: A lot of useful information is logged in the MariaDB log which can be found in `/usr/local/pf/logs/mariadb_error.log`
 
 Quorum behavior
 ~~~~~~~~~~~~~~~
@@ -497,7 +497,7 @@ On each of the servers you want to discard the data from, you must destroy all t
   rm -fr /var/lib/mysql/*
   systemctl start packetfence-mariadb
 
-You should then see `/var/lib/mysql` be populated again with the data and once MySQL becomes available again on the server, it means the sync has completed. In case of issues, look in the MySQL log file (`/var/lib/mysql/PF_HOSTNAME.err`)
+You should then see `/var/lib/mysql` be populated again with the data and once MySQL becomes available again on the server, it means the sync has completed. In case of issues, look in the MySQL log file (`/usr/local/pf/logs/mariadb_error.log`)
 
 NOTE: If you were performing a full recovery, you should now break the `--force-new-cluster` command and start packetfence-mariadb normally. (`systemctl start packetfence-mariadb`)
 
@@ -874,7 +874,7 @@ Now, stop packetfence-mariadb on node C, regenerate the MariaDB configuration an
  # /usr/local/pf/bin/pfcmd generatemariadbconfig
  # /usr/local/pf/sbin/pf-mariadb --force-new-cluster 
 
-You should validate that you are able to connect to the MySQL database even though it is in read-only mode using the MySQL command line. If its not, make sure you check the MySQL log (`/var/lib/mysql/PF_HOSTNAME.err`)
+You should validate that you are able to connect to the MySQL database even though it is in read-only mode using the MySQL command line. If its not, make sure you check the MySQL log (`/usr/local/pf/logs/mariadb_error.log`)
 
 Sync nodes A and B
 ++++++++++++++++++
@@ -885,7 +885,7 @@ On each of the servers you want to discard the data from, stop packetfence-maria
   # rm -fr /var/lib/mysql/*
   # systemctl start packetfence-mariadb
 
-Should there be any issues during the sync, make sure you look into the MySQL log (`/var/lib/mysql/PF_HOSTNAME.err`)
+Should there be any issues during the sync, make sure you look into the MySQL log (`/usr/local/pf/logs/mariadb_error.log`)
 
 Once both nodes have completely synced (try connecting to it using the MySQL command line), then you can break the cluster election command you have running on node C and start node C normally (using `systemctl start packetfence-mariadb`).
 

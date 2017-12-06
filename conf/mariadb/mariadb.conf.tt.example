@@ -161,3 +161,6 @@ wsrep_dirty_reads=ON
 # Optional setting
 wsrep_slave_threads=1
 [% END %]
+
+[mysqld_safe]
+syslog
