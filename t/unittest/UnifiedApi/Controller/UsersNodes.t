@@ -26,11 +26,13 @@ BEGIN {
 
 use Test::More tests => 4;
 use Test::Mojo;
+use pf::node;
 
 #This test will running last
 use Test::NoWarnings;
 
 my $t = Test::Mojo->new('pf::UnifiedApi');
+node_add("ff:ff:ff:ff:ff:fe");
 
 $t->get_ok('/api/v1/users/default/nodes' => json => {  })
   ->status_is(200)
