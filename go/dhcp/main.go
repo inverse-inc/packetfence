@@ -172,7 +172,7 @@ func (h *Interface) run(jobs chan job) {
 				for _, v := range h.network {
 					var statistiques roaring.Statistics
 					statistiques = v.dhcpHandler.available.Stats()
-					stats[v.network.String()] = Stats{EthernetName: Request.(ApiReq).NetInterface, Net: v.network.String(), Free: int(statistiques.RunContainerValues) + 1, Category: v.dhcpHandler.role}
+					stats[v.network.String()] = Stats{EthernetName: Request.(ApiReq).NetInterface, Net: v.network.String(), Free: int(statistiques.RunContainerValues), Category: v.dhcpHandler.role}
 				}
 				outchannel <- stats
 			}
