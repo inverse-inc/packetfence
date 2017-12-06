@@ -90,6 +90,8 @@ die(sprintf(
     )
 ) if $num_bad;
 
+print "\a";
+
 =head2 create_test_db
 
 Create a test database
@@ -106,7 +108,6 @@ mysql -uroot -p < /usr/local/pf/t/db/smoke_test.sql
 EOS
     }
 }
-
 
 END {
     foreach my $test_service (qw(pfconfig-test pfconfig-test-serial)) {
