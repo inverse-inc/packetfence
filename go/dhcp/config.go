@@ -154,11 +154,12 @@ func (d *Interfaces) readConfig() {
 
 							ip = []byte(NetWork.IP.To4())
 
-							// First ip available in the scope (packetfence ip)
-							inc(ip)
 							DHCPNet.network.IP = append([]byte(nil), NetWork.IP...)
 
 							DHCPNet.network.Mask = NetWork.Mask
+
+							// First ip available in the scope (packetfence ip)
+							inc(ip)
 
 							DHCPScope.ip = net.ParseIP(ip.String())
 
@@ -187,11 +188,14 @@ func (d *Interfaces) readConfig() {
 							}
 							// Decrement twice to have the last ip available for the scope
 							dec(ips)
+
 							DHCPScope.leaseRange = dhcp.IPRange(ip, ips)
 
 							// Initialize roaring bitmap
 							available := roaring.New()
+
 							available.AddRange(0, uint64(dhcp.IPRange(ip, ips)))
+
 							DHCPScope.available = available
 
 							// Initialize hardware cache
