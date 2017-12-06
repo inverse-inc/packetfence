@@ -89,6 +89,13 @@ our %DEFAULT_COLLECTION_VERBS_TO_ACTIONS = (
     POST => 'create',
 );
 
+our %DEFAULT_RESOURCE_VERBS_TO_ACTIONS = (
+    GET    => 'get',
+    DELETE => 'remove',
+    PATCH  => 'update',
+    PUT    => 'replace'
+);
+
 sub get_collection_verb_to_actions {
     my ($config) = @_;
     return verb_to_actions(
@@ -111,7 +118,7 @@ sub verb_to_actions {
 sub get_resource_verb_to_actions {
     my ($config) = @_;
     return verb_to_actions(
-        $config->{resource_v2a} // {get => 'get', 'delete' => 'remove', 'patch' => 'update', put => 'replace'}
+        $config->{resource_v2a} // {%DEFAULT_RESOURCE_VERBS_TO_ACTIONS}
     );
 }
 
