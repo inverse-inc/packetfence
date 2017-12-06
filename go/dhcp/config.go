@@ -154,11 +154,12 @@ func (d *Interfaces) readConfig() {
 
 							ip = []byte(NetWork.IP.To4())
 
-							// First ip available in the scope (packetfence ip)
-							inc(ip)
 							DHCPNet.network.IP = append([]byte(nil), NetWork.IP...)
 
 							DHCPNet.network.Mask = NetWork.Mask
+
+							// First ip available in the scope (packetfence ip)
+							inc(ip)
 
 							DHCPScope.ip = net.ParseIP(ip.String())
 
