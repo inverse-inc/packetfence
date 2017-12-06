@@ -14,7 +14,7 @@ pf::UnifiedApi::Controller::Crud
 
 use strict;
 use warnings;
-use Mojo::Base 'pf::UnifiedApi::Controller';
+use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use pf::error qw(is_error);
 
 has 'dal';
@@ -64,10 +64,9 @@ sub resource {
     my ($self) = @_;
     my ($status, $item) = $self->do_get($self->get_lookup_info);
     if (is_error($status)) {
-        $self->render_error($status, "Unable to get resource");
-        return 0;
+        return $self->render_error($status, "Unable to get resource");
     }
-    $self->stash->{item} = $item;
+    push @{$self->stash->{item}}, $item;
     $self->stash->{status} = $status;
     return 1;
 }
@@ -85,7 +84,7 @@ sub get_lookup_info {
 sub render_get {
     my ($self) = @_;
     my $stash = $self->stash;
-    return $self->render(json => { item => $stash->{item}, status => $stash->{status}});
+    return $self->render(json => { item => ${$stash->{item}}[-1], status => $stash->{status}});
 }
 
 sub do_get {
