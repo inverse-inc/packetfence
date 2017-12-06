@@ -24,23 +24,23 @@ sub onboard {
     my $ssids = delete $data->{ssids};
     my $token = delete $data->{token};
 
-    if(!$token) {
+    if (!$token) {
         return $self->render_error(422, "Missing token.");
     }
 
-    if(!$data->{name}) {
+    if (!$data->{name}) {
         return $self->render_error(422, "Missing tenant name.");
     }
 
     my $result = pf::tenant_code->onboard($token, $data, $ssids);
 
-    if($result) {
+    if ($result) {
         my $tenant = pf::dal::tenant->search(-where => { name => $data->{name}})->next;
         $self->res->headers->add(Location => "/api/v1/tenants/".$tenant->id);
         $self->render(json => {message => "Onboarded tenant successfully"}, status => 201);
     }
     else {
-        $self->render_error(422, "Couldn't perform onboarding of tenant. Check server-side logs for details.");
+        return $self->render_error(422, "Couldn't perform onboarding of tenant. Check server-side logs for details.");
     }
 }
 
