@@ -274,7 +274,7 @@ sub is_rule_cacheable {
     if (!defined ($rule) && !$self->cache_match) {
         return $FALSE;
     }
-    return (any { exists $NON_CACHEABLE_OPS{$_->{operator} // ''}  } @{$rule->conditions}) ? $FALSE : $TRUE;
+    return (any { exists $NON_CACHEABLE_OPS{$_->{operator} // ''}  } @{$rule->{'conditions'} // []}) ? $FALSE : $TRUE;
 }
 
 
