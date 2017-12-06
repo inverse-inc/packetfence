@@ -28,6 +28,7 @@ use TestUtils;
 `/usr/local/pf/t/pfconfig-test-serial`;
 
 my $JOBS = $ENV{'PF_SMOKE_TEST_JOBS'} ||  6;
+our $db_setup_script = "/usr/local/pf/t/db/setup_test_db.pl";
 
 my $formatter   = is_interactive() ? TAP::Formatter::Console->new({jobs => $JOBS}) : TAP::Formatter::File->new();
 my $ser_harness = TAP::Harness->new( { formatter => $formatter, jobs => 1 } );
@@ -59,6 +60,8 @@ my @par_tests = (
     @TestUtils::config_store_test,
 );
 
+create_test_db();
+
 my $aggregator = TAP::Parser::Aggregator->new;
 $aggregator->start();
 $par_harness->aggregate_tests( $aggregator, @par_tests );
@@ -80,6 +83,23 @@ die(sprintf(
         $num_bad, scalar @parsers, $failed, $total
     )
 ) if $num_bad;
+
+=head2 create_test_db
+
+Create a test database
+
+=cut
+
+sub create_test_db {
+    system($db_setup_script);
+    if ($?) {
+        die <<"EOS";
+$db_setup_script failed to setup the database
+Please create the test user
+mysql -uroot -p < /usr/local/pf/t/db/smoke_test.sql
+EOS
+    }
+}
 
 
 END {
