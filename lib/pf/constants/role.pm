@@ -70,7 +70,7 @@ Constant used in the pool code
 
 =cut
 
-Readonly::Scalar our $USERNAMEHASH  => 'userbane_hash';
+Readonly::Scalar our $USERNAMEHASH  => 'username_hash';
 
 =head1 AUTHOR
 

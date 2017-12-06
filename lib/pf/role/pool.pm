@@ -102,7 +102,7 @@ sub getRoundRobin {
     my $vlan_count = $range->size;
     my $node_info_complete = node_view($args->{'mac'});
     if ( defined($node_info_complete->{'last_vlan'}) && $range->inrange($node_info_complete->{'last_vlan'}) ) {
-        $logger->debug("iUsing the last VLAN that was assigned to the node: ".$node_info_complete->{'last_vlan'});
+        $logger->debug("Using the last VLAN that was assigned to the node: ".$node_info_complete->{'last_vlan'});
         return ($node_info_complete->{'last_vlan'});
     }
     my $last_reg_mac = node_last_reg_non_inline_on_category($args->{'mac'}, $args->{'user_role'});
@@ -111,7 +111,7 @@ sub getRoundRobin {
     if (defined($last_reg_mac) && $last_reg_mac ne '') {
         my $new_vlan;
         my $last_reg_mac_info = node_view($last_reg_mac);
-        $logger->debug("Last VLAN assigned to registered devide: ".$last_reg_mac_info->{'last_vlan'});
+        $logger->debug("Last VLAN assigned to registered device: ".$last_reg_mac_info->{'last_vlan'});
         if (defined($last_reg_mac_info->{'last_vlan'})) {
             my ( $index )= grep { $array[$_] =~ /^$last_reg_mac_info->{'last_vlan'}$/ } 0..$#array;
             if( 0 <= $index && $index <= $vlan_count) {
