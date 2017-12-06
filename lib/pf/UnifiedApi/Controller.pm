@@ -21,6 +21,12 @@ sub render_error {
     $errors //= [];
     my $data = {message => $msg, errors => $errors};
     $self->render(json => $data, status => $code);
+    return 0;
+}
+
+sub render_empty {
+    my ($self) = @_;
+    return $self->render(text => '', status => 204);
 }
 
 =head1 AUTHOR
