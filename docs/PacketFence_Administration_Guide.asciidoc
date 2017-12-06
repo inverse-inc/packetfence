@@ -478,7 +478,7 @@ Roles in PacketFence can be created from PacketFence administrative GUI - from t
 
 Roles are dynamically computed by PacketFence, based on the rules (ie., a set of conditions and actions) from authentication sources, using a first-match wins algorithm. Roles are then matched to VLAN or VLAN pool or internal roles or ACL on equipment from the *Configuration -> Policies and Access Control -> Switches* module.
 
-For the VLAN pool instead of defining a Vlan identifier you can set a value like that : 20..23,27..30 , it mean that the VLAN returned by PacketFence can be (inclusive)  20 to 23 and 27 to 30. There are two algorithms, one based on a hash of the username (default one) and the other one based on a round-robin (last registered device +1).
+For the VLAN pool instead of defining a VLAN identifier you can set a value like that : 20..23,27..30 , it means that the VLAN returned by PacketFence can be 20 to 23 and 27 to 30 (inclusively). There are two algorithms, one based on a hash of the username (default one) and the other one based on a round-robin (last registered device +1).
 
 Authentication
 ~~~~~~~~~~~~~~

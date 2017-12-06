@@ -18,6 +18,7 @@ use Log::Log4perl;
 use pf::config;
 use pf::util qw (%Config);
 use pf::log();
+use pf::constants::roles;
 
 use pf::node;
 
@@ -47,12 +48,14 @@ sub getVlanFromPool {
     my ($self, $args) = @_;
     my $logger =  pf::log::get_logger();
 
-    return $pool_args->{'vlan'} if $self->rangeValidator($args->{'vlan'});
+    return $args->{'vlan'} if $self->rangeValidator($args->{'vlan'});
     my $range = Number::Range->new($args->{'vlan'});
     my $vlan;
-    if ($Config{advanced}{vlan_pool_technique} eq "username_hash") {
+    if ($Config{advanced}{vlan_pool_technique} eq $USERNAMEHASH) {
+        $logger->trace("Use $USERNAMEHASH algorithm for VLAN pool");
         $vlan = $self->getVlanByUsername($args, $range);
     } else {
+        $logger->trace("Use round robin algorithm for VLAN pool");
         $vlan = $self->getRoundRobin($args, $range);
     }
     return $vlan;
@@ -99,7 +102,7 @@ sub getRoundRobin {
     my $vlan_count = $range->size;
     my $node_info_complete = node_view($args->{'mac'});
     if ( defined($node_info_complete->{'last_vlan'}) && $range->inrange($node_info_complete->{'last_vlan'}) ) {
-        $logger->debug("NODE LAST VLAN ".$node_info_complete->{'last_vlan'});
+        $logger->debug("iUsing the last VLAN that was assigned to the node: ".$node_info_complete->{'last_vlan'});
         return ($node_info_complete->{'last_vlan'});
     }
     my $last_reg_mac = node_last_reg_non_inline_on_category($args->{'mac'}, $args->{'user_role'});
@@ -108,7 +111,7 @@ sub getRoundRobin {
     if (defined($last_reg_mac) && $last_reg_mac ne '') {
         my $new_vlan;
         my $last_reg_mac_info = node_view($last_reg_mac);
-        $logger->debug("LAST VLAN FROM REG $last_reg_mac_info->{'last_vlan'}");
+        $logger->debug("Last VLAN assigned to registered devide: ".$last_reg_mac_info->{'last_vlan'});
         if (defined($last_reg_mac_info->{'last_vlan'})) {
             my ( $index )= grep { $array[$_] =~ /^$last_reg_mac_info->{'last_vlan'}$/ } 0..$#array;
             if( 0 <= $index && $index <= $vlan_count) {
@@ -119,9 +122,10 @@ sub getRoundRobin {
         } else {
             $new_vlan = 0;
         }
+        $logger->trace("Return VLAN ID: ".$array[$new_vlan]);
         return ($array[$new_vlan]);
     } else {
-        $logger->info("First device in the VLAN pool");
+        $logger->info("First device in the VLAN pool, returned VLAN ID: ".$array[0]);
         return ($array[0]);
     }
 }
@@ -135,12 +139,13 @@ Return the vlan id based on a hash of the username
 
 sub getVlanByUsername {
     my ( $self, $args, $range ) = @_;
-
+    my $logger = pf::log::get_logger();
     my $index = unpack( "%16C*", $args->{'node_info'}->{'pid'} ) + length($args->{'node_info'}->{'pid'});
 
     my $vlan_count = $range->size;
     my @array = $range->range;
     my $new_vlan = ($index + 1) % $vlan_count;
+    $logger->trace("Return VLAN ID: ".$array[$new_vlan]);
     return ($array[$new_vlan]);
 
 }

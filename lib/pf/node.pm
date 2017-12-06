@@ -1206,7 +1206,7 @@ sub check_multihost {
 
 =item node_last_reg_non_inline_on_category
 
-Return the last mac that has been register in a specific category
+Return the last mac that has been registerd in a specific category
 May be sometimes usefull for custom
 
 =cut
