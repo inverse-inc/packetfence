@@ -31,11 +31,40 @@ Setting up routes
 =cut
 
 our @API_V1_ROUTES = (
-    {controller => 'users', id_key => "user_id", path => "/users"},
-    {controller => 'tenants', id_key => "tenant_id", path => "/tenants"},
-    {controller => 'api_users', id_key => "user_id", path => "/api_users"},
-    {controller => 'tenants_onboarding', path => "/tenants_onboarding", collection_v2a => {post => 'onboard'} , resource_v2a => {}},
-    {controller => 'users_nodes', path => "/nodes", collection_v2a => {get => 'list'} , resource_v2a => {}, parent => 'Users.resource'},
+    { controller => 'users',     id_key => "user_id",   path => "/users" },
+    { controller => 'tenants',   id_key => "tenant_id", path => "/tenants" },
+    { controller => 'api_users', id_key => "user_id",   path => "/api_users" },
+    {
+        controller     => 'tenants_onboarding',
+        path           => "/tenants_onboarding",
+        collection_v2a => { post => 'onboard' },
+        resource_v2a   => {}
+    },
+    {
+        controller     => 'users_nodes',
+        path           => "/nodes",
+        collection_v2a => { get => 'list' },
+        resource_v2a   => {},
+        parent         => 'Users.resource'
+    },
+    {
+        controller     => 'users_password',
+        path           => "/password",
+        parent         => 'Users.resource',
+        resource_v2a   => {},
+        collection_v2a => {
+            'get'    => 'get',
+            'delete' => 'remove',
+            'patch'  => 'update',
+            'put'    => 'replace',
+            'post'   => 'create'
+        },
+    },
+    {
+        controller => 'config-connection_profiles',
+        id_key     => 'connection_profile_id',
+        path       => '/connection_profiles'
+    }
 );
 
 sub startup {
