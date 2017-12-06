@@ -80,6 +80,7 @@ Enhancements
 * Added a task count jitter to reduce the chance that pfqueue workers exit at the same time
 * Experimental support for Content Security Policy (CSP) has been added, but is disabled by default (PR #2336)
 * A violation can now redirect to a URL specified in a template (PR #2400)
+* Changed the path of mariadb error log file (PR #2652)
 
 Bug Fixes
 +++++++++
