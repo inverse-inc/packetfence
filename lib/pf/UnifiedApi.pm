@@ -63,7 +63,7 @@ our @API_V1_ROUTES = (
     {
         controller => 'config-connection_profiles',
         id_key     => 'connection_profile_id',
-        path       => '/connection_profiles'
+        path       => '/config/connection_profiles'
     }
 );
 
