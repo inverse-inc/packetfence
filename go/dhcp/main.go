@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"encoding/binary"
 	"fmt"
 	"log"
 
@@ -172,7 +173,21 @@ func (h *Interface) run(jobs chan job) {
 				for _, v := range h.network {
 					var statistiques roaring.Statistics
 					statistiques = v.dhcpHandler.available.Stats()
-					stats[v.network.String()] = Stats{EthernetName: Request.(ApiReq).NetInterface, Net: v.network.String(), Free: int(statistiques.RunContainerValues), Category: v.dhcpHandler.role}
+					var Options map[string]string
+					Options = make(map[string]string)
+					for option, value := range v.dhcpHandler.options {
+						Options[option.String()] = Tlv.Tlvlist[int(option)].Decode.String(value)
+					}
+					var Members map[string]string
+					Members = make(map[string]string)
+					members := v.dhcpHandler.hwcache.Items()
+					for i, item := range members {
+						result := make(net.IP, 4)
+						binary.BigEndian.PutUint32(result, binary.BigEndian.Uint32(v.dhcpHandler.start.To4())+uint32(item.Object.(int)))
+						Members[i] = result.String()
+					}
+
+					stats[v.network.String()] = Stats{EthernetName: Request.(ApiReq).NetInterface, Net: v.network.String(), Free: int(statistiques.RunContainerValues), Category: v.dhcpHandler.role, Options: Options, Members: Members}
 				}
 				outchannel <- stats
 			}

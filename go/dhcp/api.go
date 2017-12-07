@@ -20,12 +20,14 @@ type Node struct {
 	Ip  string `json:"IP"`
 }
 
-// Node struct
+// Stats struct
 type Stats struct {
-	EthernetName string `json:"Interface"`
-	Net          string `json:"Network"`
-	Free         int    `json:"Free"`
-	Category     string `json:"Category"`
+	EthernetName string            `json:"Interface"`
+	Net          string            `json:"Network"`
+	Free         int               `json:"Free"`
+	Category     string            `json:"Category"`
+	Options      map[string]string `json:"Options"`
+	Members      map[string]string `json:"Members"`
 }
 
 type ApiReq struct {
@@ -242,7 +244,6 @@ func decodeOptions(b string) (map[dhcp.OptionCode][]byte, bool) {
 		case "int":
 			Value = option.Value
 			dhcpOptions[option.Option] = []byte(Value.(string))
-
 		}
 	}
 	return dhcpOptions, true
