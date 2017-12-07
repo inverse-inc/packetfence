@@ -16,6 +16,11 @@ use strict;
 use warnings;
 use Mojo::Base 'Mojolicious::Controller';
 
+sub log {
+    my ($self) = @_;
+    return $self->app->log;
+}
+
 sub render_error {
     my ($self, $code, $msg, $errors) = @_;
     $errors //= [];
