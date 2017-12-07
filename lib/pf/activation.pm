@@ -316,6 +316,7 @@ sub create {
     my $timeout      = $args->{'timeout'};
     my $code_length  = $args->{'code_length'};
     my $no_unique    = $args->{'no_unique'};
+    my $source_id    = $args->{'source_id'};
 
     my $logger = get_logger();
 
@@ -337,6 +338,7 @@ sub create {
         'code_length' => $code_length,
         'no_unique' => $no_unique,
         'style'    => $args->{style},
+        'source_id' => $source_id,
     );
 
     # caculate activation code expiration
@@ -608,6 +610,7 @@ sub sms_activation_create_send {
         code_length => $authentication_source->pin_code_length,
         no_unique   => 1,
         style       => 'digits',
+        source_id   => $authentication_source->id,
     );
 
     my $activation_code = create(\%args);
