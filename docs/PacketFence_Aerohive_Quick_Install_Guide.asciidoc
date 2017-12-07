@@ -18,24 +18,24 @@ include::includes/global-attributes.asciidoc[]
 
 About this Guide
 ----------------
-This guide has been created in order to provide guidelines to deploye a Aeroive Wireless APs and the associated management in a PacketFence contexte, wether it is with a standalown server, a cluster or PacketFencZEN deployement.
+This guide has been created in order to provide guidelines to deploy a Aerohive Wireless APs and the associated management in a PacketFence context, whether it is with a standalone server, a cluster or PacketFencZEN deployxement.
 
-NOTE: AeroHIVE products are a bit different compared to the other vendors. They support either a local HiveManager (kind of wireless controller) or a cloud-based HVM. However, the configuration is the same for the local and the cloud-based controller. Note that all the config are made on the HVM and then pushed to the APs. The instructions are based on version {release_version} of the PacketFence.
+NOTE: Aerohive products are a bit different compared to the other vendors. They support either a local HiveManager (kind of wireless controller) or a cloud-based HVM. However, the configuration is the same for the local and the cloud-based controller. Note that all the config are made on the HVM and then pushed to the APs. The instructions are based on version {release_version} of the PacketFence.
 
 Assumptions
 -----------
-* You already have a PacketFence server(s) up and running, (Standalone, cluster or ZEN)
+* You already have a PacketFence server(s) up and running, (standalone, cluster or ZEN)
   ** If not, please refer to the https://packetfence.org/doc/PacketFence_Administration_Guide.html[PacketFence Administration Guide].
-* The network architecture is in order to give acces to the Aerohive Access Point, and have access to internet.
-* The VLANs are defined for registration, isolation and management networks.
- * From this doc, we will assume that the VLANs tags are define like following :
-  ** Registration VLAN ID 2, Subnet 192.168.2.0/24,
-  ** Isolation VLAN ID 3, Subnet 192.168.3.0/24,
-  ** Production VLAN ID 10, Subnet 172.16.1.0/24,
-* The VLans are spanned in the swtichs and switching L2 equipments, from the _Production Network_ to the PacketFenceServer(s)
-* The VLANs are allowed in the trunks.
-* Aerohive Access Point is loaded with HiveOS with version 6 or later;
-* HiveManager with version 6 or later.
+* The network architecture is in order to give acces to the Aerohive Access Point, and has access to internet
+* The VLANs are defined for registration, isolation and management networks
+ * From this documentation, we will assume that the VLANs tags are define like following :
+  ** Registration VLAN ID 2,sSubnet 192.168.2.0/24
+  ** Isolation VLAN ID 3, subnet 192.168.3.0/24
+  ** Production VLAN ID 10, subnet 172.16.1.0/24
+* The VLANs are spanned in the switches and switching L2 equipments, from the _Production Network_ to the PacketFence server(s)
+* The VLANs are allowed in the trunks
+* Aerohive Access Point is loaded with HiveOS with version 6 or later
+* HiveManager with version 6 or later
 
 '''
 
@@ -44,18 +44,18 @@ Quick Deployment
 Step 1: Set-Up the Aerohive APs and SSID
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Logon to your Hive Manager interface::
-For this example, we will assume that we are on the _Cloud_ https://myhive-auth.aerohive.com[MyHive.aerohove.com] solution.
+Logon to your HiveManager interface::
+For this example, we will assume that we are on the _Cloud_ https://myhive-auth.aerohive.com[MyHive.aerohove.com] solution
 * From _HiveManager_, Click on your *HiveManagerOnline Instances* _VHM-XXXXXX_
 * From _Network Configuration / 1-Choose Network Policy_, Click on *New*
 * Give a name to your Policy, and click *Create*
 * From _2-Configure Interfaces and User Access_, _SSID_, Click on *Choose* and Click on *New*
-* Give a SSID Profile Name, SSID Name, 
+* Give a SSID Profile Name, SSID Name 
 
-For a Open Mac Authentication based SSID::
-* Click on *New*.
- .  SSID Access Security: Open
- . Check the box Enable MAC authentication
+For an open SSID using MAC-based authentication::
+* Click on *New*
+ .  SSID Access Security: *Open*
+ . Check the box _Enable MAC authentication_
 * Click on *Save*
 
 image::docs/images/pfaerohive02.png[scaledwidth="100%",alt="AerohiveOpenSSIDconfig",align=right]
@@ -63,8 +63,8 @@ image::docs/images/pfaerohive02.png[scaledwidth="100%",alt="AerohiveOpenSSIDconf
 '''
 
 
-For a Secured based SSID::
-* Click on *New*.
+For a secure SSID using 802.1X::
+* Click on *New*
 
  SSID Access Security: *WPA/WPA2 802.1X (Enterprise)*
  Key Management; WPA2-(WPA2 enterprise)-802.1X
@@ -81,12 +81,12 @@ image::docs/images/pfaerohive04.png[scaledwidth="100%",alt="AerohiveSSID",align=
 
 Add the RADIUS parameters created before::
 * Under _Authentication_ click on *<RADIUS Setting>*, and click on *New*
-* From _RADIUS Name_, give the name of the PaketFence server, for example,
+* From _RADIUS Name_, give the name of the PaketFence server, for example
 
 image::docs/images/pfaerohive05.png[scaledwidth="100%",alt="AAA Radius config",align=right]
 
 * From _Add a New RADIUS Server_, in _IP Adresse/Domain Name_, put the PacketFence Server IP
-* Give the _Shared Secret_ and _Confirm_ it.
+* Give the _Shared Secret_ and _Confirm_ it
 * And Click on *Apply*
 
 image::docs/images/pfaerohive06.png[scaledwidth="100%",alt="AAA Radius config",align=right]
@@ -99,14 +99,14 @@ image::docs/images/pfaerohive06.png[scaledwidth="100%",alt="AAA Radius config",a
 '''
 
 
-We will create the default VLAN to be assign by the AP, when a new Terminal get in the SSID ::
-* Under _User Profile_, Click on *Add/Remove*,and Click on *New*, in the _Default_ section,
- ** You will need to greate one _User Profile_ for each VLANs used, for us, we will create 3 Users Profiles, Registration, Isolation and Production.
-* From Name, give the Name of a rules to Manage the VLANs with PacketFence (Registration ; Isolation ; Production).
-* From _Attribute Name_ , give the VLAN ID of the VLAN.
-* From Default VLan, Click on the (*+*) (New).
-* As a VLan ID, give the VLAN ID earlier Registration(2) , Isolation(3) or Production(10).
-* Click on *Save* and click on *Save* again on the _Configure interfaces and User Access_.
+We will create the default VLAN to be assign by the AP, when a new endpoint get in the SSID ::
+* Under _User Profile_, Click on *Add/Remove*,and Click on *New*, in the _Default_ section
+ ** You will need to create one _User Profile_ for each VLANs used, for us, we will create 3 Users Profiles, Registration, Isolation and Production
+* From name, give the name of a rule to manage the VLANs with PacketFence (Registration ; Isolation ; Production)
+* From _Attribute Name_, give the VLAN ID of the VLAN
+* From _Default VLan_, Click on the (*+*) (New)
+* As a VLan ID, give the VLAN ID earlier Registration(2) , Isolation(3) or Production(10)
+* Click on *Save* and click on *Save* again on the _Configure interfaces and User Access_
 
 image::docs/images/pfaerohive07.png[scaledwidth="100%",alt="User Profile creation",align=right]
 
@@ -114,22 +114,21 @@ image::docs/images/pfaerohive07.png[scaledwidth="100%",alt="User Profile creatio
 
 
 Create and add the other VLANs ::
-* Click on _Add/Remove_ in the _User Profile_ column.
-* Get back to the beginning of the VLAN creation task.
+* Follow the same procedure to create the others VLANs
 
 '''
 
 
-Once done with the VLans ::
-* From the _Choose User Profiles_, select the _Default_ tab and Click on you _Registration_ VLAN tag.
-* From the _Authentication_ tab, select the _Isolation_ and the _Production_ VLANs tag. 
+Once done with the VLANs configuration::
+* From the _Choose User Profiles_, select the _Default_ tab and click on you _Registration_ VLAN tag
+* From the _Authentication_ tab, select the _Isolation_ and the _Production_ VLANs tag
 * Click on *Save*
 
-For our example, here what is lookslike, with two SSIDs
+For our example, here is  what it looks like, with two SSIDs
 
 image::docs/images/pfaerohive08.png[scaledwidth="100%",alt="User Profile creation",align=right]
 
-Then, click on Continue, on top right of the page.
+Then, click on _Continue_, on top right of the page
 
 '''
 
@@ -148,61 +147,62 @@ Step 2: Configure Network and PacketFence
 Configuring Aerohive access point in PacketFence
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-We will nowneed to create a new switch, in PacketFence to be able to manage the terminals behind the Aerohive APs.
+We will now need to create a new switch, in PacketFence to be able to manage the endpoints behind the Aerohive APs
 
 Logon to your PacketFence interface::
 * From _Configuration / Policies and Access Control / Switches /_
-* On the line where there is the _default_, on the right, Click on _CLONE_.
+* On the line where there is the _default_, on the right, Click on _CLONE_
 
 
 image::docs/images/pfaerohive09.png[scaledwidth="100%",alt="New switch configuration",align=right]
+
 
 '''
 
 
 In _Definition_ ::
-* _IP Address/MAC Address/Range (CIDR)_, give the network adress of your _Production_ network,for us, it will be *172.16.1.0/24*
-* _Description_, give a description so you can quickly see what it is about,
-* From the _Type_ list, select *AeroHIVE AP*.
-
-NOTE: *TIP*: You can type directly the name you are looking forin the field
-
+* _IP Address/MAC Address/Range (CIDR)_, give the network address of your _Production_ network; For us, it will be *172.16.1.0/24*
+* _Description_, give a description so you can quickly see what it is about
+* From the _Type_ list, select *Aerohive AP*
 * From _Mode_ select *Production*
-* _Switch Group_ by defaultset to *None*.
+* _Switch Group_ by default set to *None*
 * _Deauthentication Method_ set to *RADIUS*
 * Click *SAVE*
 
 image::docs/images/pfaerohive10.png[scaledwidth="100%",alt="New switch configuration",align=right]
 
+
 '''
 
 
 In _Role_ ::
-* Set all VLans ID in each roles.
+* Set all VLans ID in each roles
 
 image::docs/images/pfaerohive11.png[scaledwidth="100%",alt="New switch configuration",align=right]
+
 
 '''
 
 
 In _RADIUS_ ::
-* Modify the secret passphrase previously sets in the AeroHive Hive Manager,
+* Modify the secret passphrase previously sets in the Aerohive HiveManager
 * Click on *SAVE*
 
-This end the PacketFence configuration.
+This ends the PacketFence configuration
 
 '''
 
 Web Auth Configuration
 ----------------------
 
-In this part we will describe the WebAuth configuration for Aerohive APs.
+In this part we will describe the WebAuth configuration for Aerohive APs
 
 
 Assumption :
 ~~~~~~~~~~~~
-We will use the same previous contexte, but we will have only one VLAN, the Production (11)
-Keep in mind that we will also use the natvite VLAN tag (1) as default one.
+
+In this part, the default VlAN must be the native VLAN.
+This way, the AP and the others networks equipments will be able to manage VLANs 
 
 
 '''
@@ -213,29 +213,26 @@ Step 1 : Configure the Wireless APs
 Create a new Captive Portal Profile::
 * From the HiveManager, go to *CONFIGURATION -> ADVANCED CONFIGURATION -> AUTHENTICATION -> Captive Web Portals*
 * Click on *New*
-* Give it a name,
+* Give it a name
 * _Registration Type_ must be *External Authentication*
-* Click on _Captive Web Portal Login Page Settings_ to deploye the configuration window.
-* _Login URL_ must be *http://YOUR_PACKETFENCE_SERVER_IP/AeroHIVE::AP*
+* Click on _Captive Web Portal Login Page Settings_ to deploy the configuration window
+* _Login URL_ must be *http://YOUR_PACKETFENCE_SERVER_IP/Aerohive::AP*
 * _Password Encryption_ : *No Encryption (Plaintext Password)*
 * Click on *Save*
 
 image::docs/images/pfaerohive14.png[scaledwidth="100%",alt="Captive Portal SSID configuration",align=right]
-
-NOTE: It is not recommended to use a unique SSID for other authentication methode (Mac Auth, 802.1x, ...)
 
 Create or modify an SSID to add the Captive Portal fonction::
 * From the HiveManager, go to *CONFIGURATION -> SSIDS -> Select your SSID.*
 * From _SSID Access Security_ , Check *Enable Captive Web Portal*
 * Click *Save*
 
-* From the HiveManager, go to *CONFIGURATION -> NETWORK POLICIES*, Select your policy,
-* From _Configure Interfaces and User Access_, you will now have a _CWP_ symbole under _Authentication_.
-* Under _User Profile_ , Click on *Add/Remove* and select the _default-profile_ (1) optionto have the native VLAN as default.
+* From the HiveManager, go to *CONFIGURATION -> NETWORK POLICIES*, Select your policy
+* From _Configure Interfaces and User Access_, you will now have a _CWP_ symbol under _Authentication_.
+* Under _User Profile_ , click on *Add/Remove* and select the _default-profile_ (1) option to have the native VLAN as default
 * Click on *Save*
 
 image::docs/images/pfaerohive12.png[scaledwidth="100%",alt="Captive Portal SSID configuration",align=right]
-
 
 
 '''
@@ -246,7 +243,7 @@ Push your configuration to your AP::
 * Select _update Devices_
 * From _HiveOS Number of devices running earlier versions of HiveOS_, select *Upgrade these devices to the latest version of HiveOS*
 * Click on _Update_
-* Wait untill the date and time apprears under _Update Status_
+* Wait until the date and time appears under _Update Status_
 
 
 
@@ -255,7 +252,7 @@ Step 2: Configure PacketFence
 
 Configure the _Production_ interface to send the _Portal_.
 * Go to *CONFIGURATION -> NETWORK CONFIGURATION -> Interfaces*
-* Under _LogicalName_, click on your interface name,
+* Under _Logical Name_, click on your interface name,
 * _Additionnal listening daemon(s)_, Add *portal*
 * Click on *SAVE*
 
