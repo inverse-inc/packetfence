@@ -15,7 +15,9 @@ pf::UnifiedApi::Controller::Crud
 use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
+use Mojo::JSON qw(decode_json);
 use pf::error qw(is_error);
+use pf::log;
 
 has 'dal';
 has 'id_key';
@@ -113,7 +115,7 @@ sub render_create {
         return $self->render_error($status, "Unable to create resource");
     }
     $self->res->headers->location($self->make_location_url($obj));
-    return $self->render(json => {}, status => $status);
+    return $self->render(text => '', status => $status);
 }
 
 sub make_location_url {
@@ -125,13 +127,52 @@ sub make_location_url {
 
 sub make_create_data {
     my ($self) = @_;
-    return $self->req->json;
+    return $self->parse_json;
+}
+
+sub parse_json {
+    my ($self) = @_;
+    my $json = eval {
+        decode_json($self->req->body)
+    };
+    if ($@) {
+        $self->log->error($@);
+        return (400, { message => $self->status_to_error_msg(400)});
+    }
+    return (200, $json);
 }
 
 sub do_create {
+    my ($self, $status, $data) = @_;
+    if (is_error($status)) {
+       return ($status, $data);
+    }
+    return $self->create_obj($data);
+}
+
+our $ERROR_400_MSG = "Bad Request. One of the submitted parameters has an invalid format";
+our $ERROR_409_MSG = "An attempt to add a duplicate entry was stopped. Entry already exists and should be modified instead of created.";
+our $ERROR_422_MSG = "Request cannot be processed because the resource has failed validation after the modification.";
+
+our %STATUS_TO_MSG = (
+    400 => $ERROR_400_MSG,
+    409 => $ERROR_409_MSG,
+    422 => $ERROR_422_MSG,
+);
+
+sub status_to_error_msg {
+    my ($self, $status) = @_;
+    return exists $STATUS_TO_MSG{$status} ? $STATUS_TO_MSG{$status} : "Server error";
+}
+
+sub create_obj {
     my ($self, $data) = @_;
     my $obj = $self->dal->new($data);
-    return ($obj->insert, $obj);
+    my $status = $obj->insert;
+    if (is_error($status)) {
+        return ($status, {message => $self->status_to_error_msg($status)});
+    }
+    return ($status, $obj);
 }
 
 sub remove {
