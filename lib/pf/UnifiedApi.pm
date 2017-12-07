@@ -16,12 +16,17 @@ use strict;
 use warnings;
 use Mojo::Base 'Mojolicious';
 use pf::dal;
+use pf::log;
 
 has commands => sub {
   my $commands = Mojolicious::Commands->new(app => shift);
   Scalar::Util::weaken $commands->{app};
   unshift @{$commands->namespaces}, 'pf::UnifiedApi::Command';
   return $commands;
+};
+
+has log => sub {
+    get_logger()
 };
 
 =head2 startup
