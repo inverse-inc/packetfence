@@ -86,7 +86,7 @@ func (s tlvSTimet) Value(a []byte) interface{} {
 	return a
 }
 func (s tlvSTimet) String(a []byte) string {
-	return "string"
+	return string(a)
 }
 
 var tlvZeroSize tlvZeroSizet

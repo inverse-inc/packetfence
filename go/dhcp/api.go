@@ -159,12 +159,40 @@ func handleOverrideOptions(res http.ResponseWriter, req *http.Request) {
 		panic(err)
 	}
 
-	// Insert iformation in etcd
+	// Insert information in etcd
 	_ = etcdInsert(vars["mac"], converttostring(body))
 
 	var result = map[string][]*Info{
 		"result": {
 			&Info{Mac: vars["mac"], Status: "ACK"},
+		},
+	}
+
+	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	res.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(res).Encode(result); err != nil {
+		panic(err)
+	}
+}
+
+func handleOverrideNetworkOptions(res http.ResponseWriter, req *http.Request) {
+
+	vars := mux.Vars(req)
+
+	body, err := ioutil.ReadAll(io.LimitReader(req.Body, 1048576))
+	if err != nil {
+		panic(err)
+	}
+	if err := req.Body.Close(); err != nil {
+		panic(err)
+	}
+
+	// Insert information in etcd
+	_ = etcdInsert(vars["network"], converttostring(body))
+
+	var result = map[string][]*Info{
+		"result": {
+			&Info{Mac: vars["network"], Status: "ACK"},
 		},
 	}
 
@@ -231,7 +259,6 @@ func decodeOptions(b string) (map[dhcp.OptionCode][]byte, bool) {
 	if err := json.Unmarshal(decodedValue, &options); err != nil {
 		return dhcpOptions, false
 	}
-
 	for _, option := range options {
 		var Value interface{}
 		switch option.Type {

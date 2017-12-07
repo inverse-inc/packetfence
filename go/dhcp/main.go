@@ -128,8 +128,9 @@ func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/help/", handleHelp).Methods("GET")
 	router.HandleFunc("/mac2ip/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", handleMac2Ip).Methods("GET")
-	router.HandleFunc("/ip2mac/{ip:(?:[0-9]{1,3}.){3}.(?:[0-9]{1,3})}", handleIP2Mac).Methods("GET")
+	router.HandleFunc("/ip2mac/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}", handleIP2Mac).Methods("GET")
 	router.HandleFunc("/stats/{int:.*}", handleStats).Methods("GET")
+	router.HandleFunc("/optionsnetwork/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{options:.*}", handleOverrideNetworkOptions).Methods("POST")
 	router.HandleFunc("/options/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}/{options:.*}", handleOverrideOptions).Methods("POST")
 	router.HandleFunc("/removeoptions/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", handleRemoveOptions).Methods("GET")
 	router.HandleFunc("/releaseip/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", handleReleaseIP).Methods("POST")
@@ -178,6 +179,15 @@ func (h *Interface) run(jobs chan job) {
 					for option, value := range v.dhcpHandler.options {
 						Options[option.String()] = Tlv.Tlvlist[int(option)].Decode.String(value)
 					}
+
+					// Add network options on the fly
+					x, err := decodeOptions(v.network.IP.String())
+					if err {
+						for key, value := range x {
+							Options[key.String()] = Tlv.Tlvlist[int(key)].Decode.String(value)
+						}
+					}
+
 					var Members map[string]string
 					Members = make(map[string]string)
 					members := v.dhcpHandler.hwcache.Items()
@@ -212,6 +222,8 @@ func (h *Interface) runUnicast(jobs chan job, ip net.IP) {
 func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options dhcp.Options) (answer Answer) {
 
 	var handler DHCPHandler
+	var NetScope net.IPNet
+
 	answer.MAC = p.CHAddr()
 	answer.SrcIP = h.Ipv4
 
@@ -246,6 +258,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 
 				if v.dhcpHandler.role == category {
 					handler = v.dhcpHandler
+					NetScope = v.network
 					answer.SrcIP = handler.ip
 					break
 				}
@@ -256,17 +269,20 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 					continue
 				}
 				handler = v.dhcpHandler
+				NetScope = v.network
 				break
 			}
 		}
 		// Case dhcprequest from an already assigned l3 ip address
 		if p.GIAddr().Equal(net.IPv4zero) && v.network.Contains(p.CIAddr()) {
 			handler = v.dhcpHandler
+			NetScope = v.network
 			break
 		}
 
 		if (!p.GIAddr().Equal(net.IPv4zero) && v.network.Contains(p.GIAddr())) || v.network.Contains(p.CIAddr()) {
 			handler = v.dhcpHandler
+			NetScope = v.network
 			break
 		}
 	}
@@ -326,8 +342,22 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 			}
 			GlobalOptions = options
 			leaseDuration := handler.leaseDuration
-			// Add options on the fly
-			x, err := decodeOptions(p.CHAddr().String())
+
+			// Add network options on the fly
+			x, err := decodeOptions(NetScope.IP.String())
+			if err {
+				for key, value := range x {
+					if key == dhcp.OptionIPAddressLeaseTime {
+						seconds, _ := strconv.Atoi(string(value))
+						leaseDuration = time.Duration(seconds) * time.Second
+						continue
+					}
+					GlobalOptions[key] = value
+				}
+			}
+
+			// Add device (mac) options on the fly
+			x, err = decodeOptions(p.CHAddr().String())
 			if err {
 				for key, value := range x {
 					if key == dhcp.OptionIPAddressLeaseTime {
@@ -370,8 +400,22 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 						}
 						GlobalOptions = options
 						leaseDuration := handler.leaseDuration
-						// Add options on the fly
-						x, err := decodeOptions(p.CHAddr().String())
+
+						// Add network options on the fly
+						x, err := decodeOptions(NetScope.IP.String())
+						if err {
+							for key, value := range x {
+								if key == dhcp.OptionIPAddressLeaseTime {
+									seconds, _ := strconv.Atoi(string(value))
+									leaseDuration = time.Duration(seconds) * time.Second
+									continue
+								}
+								GlobalOptions[key] = value
+							}
+						}
+
+						// Add devices options on the fly
+						x, err = decodeOptions(p.CHAddr().String())
 						if err {
 							for key, value := range x {
 								if key == dhcp.OptionIPAddressLeaseTime {
