@@ -13,10 +13,10 @@ sub run {
   my ($self, @args) = @_;
   Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
   eval {
-    $self->SUPER->run(@args);
+    $self->SUPER::run(@args);
   };
   if ($@) {
-
+      print STDERR $@;
   }
   Systemd::Daemon::notify( STOPPING => 1 );
 }
