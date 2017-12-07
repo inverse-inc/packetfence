@@ -23,32 +23,57 @@ BEGIN {
 use pf::db;
 use DBI;
 
-my $config = pf::db::db_config();
+my $config = check_config(pf::db::db_config());
+my $dbh = smoke_tester_db_connections($config);
+create_db($dbh, $config);
+apply_schema($config);
 
-if ($config->{user} ne 'pf_smoke_tester') {
-   die "Not using the standard testing user for db\n"; 
+sub check_config {
+    my ($config) = @_;
+    if ($config->{user} ne 'pf_smoke_tester') {
+       die "Not using the standard testing user for db\n";
+    }
+
+    if ($config->{db} !~ /^pf_smoke_test/) {
+       die "Not using the standard database for testing \n";
+    }
+    return $config;
 }
 
-if ($config->{db} !~ /^pf_smoke_test/) {
-   die "Not using the standard database for testing \n";
+
+sub apply_schema {
+    my ($config) = @_;
+    system("mysql -h$config->{host} -P$config->{port} -u$config->{user} -p$config->{pass} $config->{db} < /usr/local/pf/db/pf-schema-X.Y.Z.sql");
+    if ($?) {
+        die "Unable to apply schema\n";
+    }
 }
 
-my $dbh = test_db_connection($config) or die <<"EOS";
+sub smoke_tester_db_connections {
+    my ($config) = @_;
+    my $dsn = dsn_from_config($config);
+    my $dbh =
+      DBI->connect( $dsn, $config->{user}, $config->{pass},
+        { RaiseError => 0, PrintError => 0, mysql_auto_reconnect => 1 } )
+      or die <<EOS;
 Cannot connection to db with test user please run
 mysql -uroot -p < /usr/local/pf/t/db/smoke_test.sql;
 EOS
-my $db = $config->{db};
-
-$dbh->do("DROP DATABASE IF EXISTS $db;") or die "Cannot drop database $db\n";;
-$dbh->do("CREATE DATABASE $db;") or die "Cannot create database $db\n";
-system("mysql -u$config->{user} -p$config->{pass} $db < /usr/local/pf/db/pf-schema-X.Y.Z.sql");
-
-sub test_db_connection {
-    my ($config) = @_;
-    my $dsn = "dbi:mysql:;host=$config->{host};port=$config->{port};mysql_client_found_rows=0";
-    return  DBI->connect($dsn, $config->{user}, $config->{pass}, { RaiseError => 0, PrintError => 0, mysql_auto_reconnect => 1 }); 
+    return $dbh;
 }
 
+sub dsn_from_config {
+    my ($config) = @_;
+    return "dbi:mysql:;host=$config->{host};port=$config->{port};mysql_client_found_rows=0";
+}
+
+sub create_db {
+    my ($dbh, $config) = @_;
+    my $db = $config->{db};
+    $dbh->do("DROP DATABASE IF EXISTS $db;") or die "Cannot drop database $db\n";;
+    $dbh->do("CREATE DATABASE $db;") or die "Cannot create database $db\n";
+
+}
 
 
 =head1 AUTHOR
