@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 48;
+use Test::More tests => 50;
 use Test::Mojo;
 
 #This test will running last
@@ -53,6 +53,9 @@ my $test_pid = "test_pid_$$";
 
 $t->post_ok('/api/v1/users' => json => { pid => $test_pid })
   ->status_is(201);
+
+$t->post_ok('/api/v1/users' => {} => '{')
+  ->status_is(400);
 
 my $notes = "notes for $test_pid";
 
