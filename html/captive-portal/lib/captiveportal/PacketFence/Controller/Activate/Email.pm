@@ -79,6 +79,7 @@ sub code : Path : Args(2) {
             get_logger->info("Extending duration to $unregdate");
             node_modify($node_mac, unregdate => $unregdate);
             pf::activation::set_status_verified($GUEST_ACTIVATION, $code);
+            pf::auth_log::record_completed_guest($activation_record->{source_id}, $node_mac, $pf::auth_log::COMPLETED);
             $c->stash(
                 title => "Access granted",
                 template => "activation/email.html",
@@ -217,6 +218,7 @@ sub doSponsorRegistration : Private {
         }
 
         pf::activation::set_status_verified($SPONSOR_ACTIVATION, $code);
+        pf::auth_log::record_completed_guest($activation_record->{source_id}, $node_mac, $pf::auth_log::COMPLETED);
 
         # send to a success page
         $c->stash(
