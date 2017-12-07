@@ -43,6 +43,7 @@ BEGIN {
         status
         type
         portal
+        source_id
     );
 
     %DEFAULTS = (
@@ -56,6 +57,7 @@ BEGIN {
         status => undef,
         type => '',
         portal => undef,
+        source_id => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -69,6 +71,7 @@ BEGIN {
         status
         type
         portal
+        source_id
     );
 
     %FIELDS_META = (
@@ -138,6 +141,12 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        source_id => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
     );
 
     @PRIMARY_KEYS = qw(
@@ -156,6 +165,7 @@ BEGIN {
         activation.status
         activation.type
         activation.portal
+        activation.source_id
     );
 
 }
