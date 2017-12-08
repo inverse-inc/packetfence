@@ -130,6 +130,19 @@ around build_primary_keys_where_clause => sub {
     my ($orig, $self, $ids) = @_;
     return $self->$orig({%$ids, tenant_id => $self->get_tenant});
 };
+
+=head2 around _defaults
+
+Add tenant_id to the defaults
+
+=cut
+
+around _defaults => sub {
+    my ($orig, $self) = @_;
+    my $defaults = $self->$orig();
+    $defaults->{tenant_id} = $self->get_tenant;
+    return $defaults;
+};
  
 =head1 AUTHOR
 
