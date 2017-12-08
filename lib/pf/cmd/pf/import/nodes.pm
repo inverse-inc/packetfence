@@ -85,12 +85,11 @@ Run the import
 
 sub _run {
     my ($self) = @_;
-    use lib "$install_dir/html/pfappserver/lib";
-    require pfappserver::Model::Node;
     require pf::nodecategory;
+    require pf::import;
     
     my $params = $self->{params};
-    my ($status, $info) = pfappserver::Model::Node->importCSV(
+    my ($status, $info) = pf::import::nodes(
         $params->{filename},
         {
             columns => $params->{columns},
