@@ -44,8 +44,9 @@ type Options struct {
 }
 
 type Info struct {
-	Status string `json:"status"`
-	Mac    string `json:"MAC"`
+	Status  string `json:"status"`
+	Mac     string `json:"MAC,omitempty"`
+	Network string `json:"Network,omitempty"`
 }
 
 func handleIP2Mac(res http.ResponseWriter, req *http.Request) {
@@ -222,6 +223,31 @@ func handleRemoveOptions(res http.ResponseWriter, req *http.Request) {
 		result = map[string][]*Info{
 			"result": {
 				&Info{Mac: vars["mac"], Status: "NAK"},
+			},
+		}
+	}
+	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	res.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(res).Encode(result); err != nil {
+		panic(err)
+	}
+}
+
+func handleRemoveNetworkOptions(res http.ResponseWriter, req *http.Request) {
+
+	vars := mux.Vars(req)
+
+	var result = map[string][]*Info{
+		"result": {
+			&Info{Mac: vars["network"], Status: "ACK"},
+		},
+	}
+
+	err := etcdDel(vars["network"])
+	if !err {
+		result = map[string][]*Info{
+			"result": {
+				&Info{Mac: vars["network"], Status: "NAK"},
 			},
 		}
 	}

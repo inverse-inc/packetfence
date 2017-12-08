@@ -132,6 +132,7 @@ func main() {
 	router.HandleFunc("/stats/{int:.*}", handleStats).Methods("GET")
 	router.HandleFunc("/optionsnetwork/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{options:.*}", handleOverrideNetworkOptions).Methods("POST")
 	router.HandleFunc("/options/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}/{options:.*}", handleOverrideOptions).Methods("POST")
+	router.HandleFunc("/removeoptionsnetwork/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{options:.*}", handleRemoveNetworkOptions).Methods("POST")
 	router.HandleFunc("/removeoptions/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", handleRemoveOptions).Methods("GET")
 	router.HandleFunc("/releaseip/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", handleReleaseIP).Methods("POST")
 
