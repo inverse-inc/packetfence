@@ -1405,6 +1405,14 @@ NOTE: Make sure you reload the configuration after setting it up by doing `/usr/
 
 Refer to the 'Custom Reports' section of this document for advanced configuration.
 
+Cleaning up
+^^^^^^^^^^^
+
+When you are happy with the structure of your surveys, it is recommended to remove the `CREATE` and `ALTER` rights to the `pf` database user from a security perspective. In order to do so, execute the following commands. This step is optionnal and should only be done once the structure of your survey is set in stone.
+
+  mysql> REVOKE CREATE,ALTER ON pf.* FROM 'pf'@'%';
+  mysql> REVOKE CREATE,ALTER ON pf.* FROM 'pf'@'localhost';
+
 Debugging
 ---------
 
