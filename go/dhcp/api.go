@@ -20,12 +20,14 @@ type Node struct {
 	Ip  string `json:"IP"`
 }
 
-// Node struct
+// Stats struct
 type Stats struct {
-	EthernetName string `json:"Interface"`
-	Net          string `json:"Network"`
-	Free         int    `json:"Free"`
-	Category     string `json:"Category"`
+	EthernetName string            `json:"Interface"`
+	Net          string            `json:"Network"`
+	Free         int               `json:"Free"`
+	Category     string            `json:"Category"`
+	Options      map[string]string `json:"Options"`
+	Members      map[string]string `json:"Members"`
 }
 
 type ApiReq struct {
@@ -42,8 +44,9 @@ type Options struct {
 }
 
 type Info struct {
-	Status string `json:"status"`
-	Mac    string `json:"MAC"`
+	Status  string `json:"status"`
+	Mac     string `json:"MAC,omitempty"`
+	Network string `json:"Network,omitempty"`
 }
 
 func handleIP2Mac(res http.ResponseWriter, req *http.Request) {
@@ -157,12 +160,40 @@ func handleOverrideOptions(res http.ResponseWriter, req *http.Request) {
 		panic(err)
 	}
 
-	// Insert iformation in etcd
+	// Insert information in etcd
 	_ = etcdInsert(vars["mac"], converttostring(body))
 
 	var result = map[string][]*Info{
 		"result": {
 			&Info{Mac: vars["mac"], Status: "ACK"},
+		},
+	}
+
+	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	res.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(res).Encode(result); err != nil {
+		panic(err)
+	}
+}
+
+func handleOverrideNetworkOptions(res http.ResponseWriter, req *http.Request) {
+
+	vars := mux.Vars(req)
+
+	body, err := ioutil.ReadAll(io.LimitReader(req.Body, 1048576))
+	if err != nil {
+		panic(err)
+	}
+	if err := req.Body.Close(); err != nil {
+		panic(err)
+	}
+
+	// Insert information in etcd
+	_ = etcdInsert(vars["network"], converttostring(body))
+
+	var result = map[string][]*Info{
+		"result": {
+			&Info{Mac: vars["network"], Status: "ACK"},
 		},
 	}
 
@@ -202,6 +233,31 @@ func handleRemoveOptions(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
+func handleRemoveNetworkOptions(res http.ResponseWriter, req *http.Request) {
+
+	vars := mux.Vars(req)
+
+	var result = map[string][]*Info{
+		"result": {
+			&Info{Mac: vars["network"], Status: "ACK"},
+		},
+	}
+
+	err := etcdDel(vars["network"])
+	if !err {
+		result = map[string][]*Info{
+			"result": {
+				&Info{Mac: vars["network"], Status: "NAK"},
+			},
+		}
+	}
+	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	res.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(res).Encode(result); err != nil {
+		panic(err)
+	}
+}
+
 func converttostring(b []byte) string {
 	s := make([]string, len(b))
 	for i := range b {
@@ -229,7 +285,6 @@ func decodeOptions(b string) (map[dhcp.OptionCode][]byte, bool) {
 	if err := json.Unmarshal(decodedValue, &options); err != nil {
 		return dhcpOptions, false
 	}
-
 	for _, option := range options {
 		var Value interface{}
 		switch option.Type {
@@ -242,7 +297,6 @@ func decodeOptions(b string) (map[dhcp.OptionCode][]byte, bool) {
 		case "int":
 			Value = option.Value
 			dhcpOptions[option.Option] = []byte(Value.(string))
-
 		}
 	}
 	return dhcpOptions, true

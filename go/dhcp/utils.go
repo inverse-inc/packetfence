@@ -242,6 +242,10 @@ func ShuffleDNS(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
 	if ConfNet.ClusterIPs != "" {
 		return Shuffle(ConfNet.ClusterIPs)
 	}
+	// if ConfNet.SplitNetwork == "enabled" {
+	// 	return Shuffle(ConfNet.Dns)
+	// 	// return []byte(net.ParseIP(ConfNet.Dns).To4())
+	// }
 	if ConfNet.Dnsvip != "" {
 		return []byte(net.ParseIP(ConfNet.Dnsvip).To4())
 	} else {
