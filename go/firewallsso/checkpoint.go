@@ -35,7 +35,7 @@ func (fw *Checkpoint) Start(ctx context.Context, info map[string]string, timeout
 // Build the RADIUS packet for an SSO start
 func (fw *Checkpoint) startRadiusPacket(ctx context.Context, info map[string]string, timeout int) *radius.Packet {
 	r := radius.New(radius.CodeAccountingRequest, []byte(fw.Password))
-	rfc2866.AcctStatusType_Add(r, rfc2866.AcctStatusType(rfc2866.AcctStatusType_Value_Start))
+	rfc2866.AcctStatusType_Add(r, rfc2866.AcctStatusType_Value_Start)
 	rfc2866.AcctSessionID_AddString(r, "acct_pf-"+info["mac"])
 	rfc2865.UserName_AddString(r, info["username"])
 	rfc2865.SessionTimeout_Add(r, rfc2865.SessionTimeout(timeout))
