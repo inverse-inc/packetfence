@@ -51,8 +51,7 @@ sub BUILD {
 
 sub options_surveys {
     my $self = shift;
-    my @surveys = map { $_ => $_ } @{pf::ConfigStore::Survey->new->surveyIds};
-    unshift @surveys, ("" => "");
+    my @surveys = map { $_ => $_ } ( "", @{pf::ConfigStore::Survey->new->surveyIds} );
     return @surveys;
 }
 
