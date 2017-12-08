@@ -16,10 +16,21 @@ use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
 use pf::dal::api_user;
+use pf::error qw(is_error);
 
 has dal => 'pf::dal::api_user';
 has id_key => 'user_id';
 has resource_id => 'username';
+
+sub make_create_data {
+    my ($self) = @_;
+    my ($status, $data) = $self->SUPER::make_create_data();
+    if (is_error($status)) {
+        return ($status, $data);
+    }
+    $data->{'-no_auto_tenant_id'} = 1;
+    return ($status, $data);
+}
 
 =head1 AUTHOR
 
