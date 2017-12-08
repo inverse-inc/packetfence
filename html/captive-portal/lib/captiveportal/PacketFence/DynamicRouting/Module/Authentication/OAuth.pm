@@ -91,7 +91,7 @@ sub execute_child {
     }
     elsif($self->app->request->path eq "oauth2/go" && $self->app->request->method eq "POST"){
         if(!$self->with_aup || $self->request_fields->{aup}){
-            pf::auth_log::record_oauth_attempt($self->source->id, $self->current_mac);
+            pf::auth_log::record_oauth_attempt($self->source->id, $self->current_mac, $self->app->profile->name);
             $self->app->redirect($self->get_client->authorize);
         }
         else {

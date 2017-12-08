@@ -36,7 +36,7 @@ use pf::log;
 =cut
 
 sub invalidate_previous {
-    my ($source, $mac) = @_;
+    my ($source, $mac, $profile) = @_;
     my ($status, $rows) = pf::dal::auth_log->update_items(
         -set => {
             completed_at => \'NOW()',
@@ -47,20 +47,22 @@ sub invalidate_previous {
             source => $source,
             mac => $mac,
             status => $INCOMPLETE,
+            profile => $profile,
         },
     );
     return $rows;
 }
 
 sub record_oauth_attempt {
-    my ($source, $mac) = @_;
-    invalidate_previous($source, $mac);
+    my ($source, $mac, $profile) = @_;
+    invalidate_previous($source, $mac, $profile);
     my $status = pf::dal::auth_log->create({
         process_name => process_name,
         source => $source,
         mac => $mac,
         attempted_at => \'NOW()',
         status => $INCOMPLETE,
+        profile => $profile,
     });
     return (is_success($status));
 }
@@ -86,8 +88,8 @@ sub record_completed_oauth {
 }
 
 sub record_guest_attempt {
-    my ($source, $mac, $pid) = @_;
-    invalidate_previous($source, $mac);
+    my ($source, $mac, $pid, $profile) = @_;
+    invalidate_previous($source, $mac, $profile);
     my $status = pf::dal::auth_log->create({
         process_name => process_name,
         source => $source,
@@ -95,6 +97,7 @@ sub record_guest_attempt {
         pid => ($pid // ''),
         attempted_at => \'NOW()',
         status => $INCOMPLETE,
+        profile => $profile,
     });
     return (is_success($status));
 }

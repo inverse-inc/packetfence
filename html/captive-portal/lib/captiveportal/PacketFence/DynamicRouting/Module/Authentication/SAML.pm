@@ -59,7 +59,7 @@ Redirect the user to the SAML IDP
 
 sub redirect {
     my ($self) = @_;
-    pf::auth_log::record_oauth_attempt($self->source->id, $self->current_mac);
+    pf::auth_log::record_oauth_attempt($self->source->id, $self->current_mac, $self->app->profile->name);
     $self->app->redirect($self->source->sso_url);
 }
 

@@ -86,7 +86,7 @@ sub do_email_registration {
     $self->app->session->{email} = $email;
     $self->username($pid);
 
-    pf::auth_log::record_guest_attempt($source->id, $self->current_mac, $pid);
+    pf::auth_log::record_guest_attempt($source->id, $self->current_mac, $pid, $self->app->profile->name);
     #CUSTOM: remove me once the auth_log is properly closed on email activation
     pf::auth_log::record_completed_guest($source->id, $self->current_mac, $pf::auth_log::COMPLETED, $self->app->profile->name);
 
