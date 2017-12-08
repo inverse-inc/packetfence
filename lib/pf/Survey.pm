@@ -3,11 +3,12 @@ package pf::Survey;
 use constant SURVEY => 'Survey';
 
 use Moose;
-use SQL::Abstract::More;
+use pf::dal;
 use pf::db;
 use pf::log;
 use Tie::IxHash;
 use pf::constants qw($TRUE $FALSE);
+use pf::error qw(is_error);
 
 has 'id', (is => 'rw', isa => 'Str');
 
@@ -71,7 +72,7 @@ Create the base structure of a survey table (without its fields)
 sub create_table {
     my ($self) = @_;
     my $table_name = $self->table_name;
-    my @result = pf::Survey->_db_data(SURVEY, {'table_create_sql' => "CREATE TABLE $table_name(id int(11) PRIMARY KEY AUTO_INCREMENT)"}, 'table_create_sql');
+    my @result = pf::Survey->_db_data("CREATE TABLE $table_name(id int(11) PRIMARY KEY AUTO_INCREMENT)");
 
     return (@result && $result[0] == $FALSE) ? $FALSE : $TRUE;
 }
@@ -115,13 +116,13 @@ sub create_or_update_field {
         }
         else {
             $logger->info("Modifying the type of field $field_id in $table_name from $schema_type to $wants_type");
-            my @result = pf::Survey->_db_data(SURVEY, {'field_alter_sql' => "ALTER TABLE $table_name MODIFY $field_id $wants_type DEFAULT ?"}, 'field_alter_sql', $wants_default);
+            my @result = pf::Survey->_db_data("ALTER TABLE $table_name MODIFY $field_id $wants_type DEFAULT ?", $wants_default);
             return (@result && $result[0] == $FALSE) ? $FALSE : $TRUE;
         }
     }
     else {
         $logger->info("Field $field_id doesn't exist in $table_name, creating it");
-        my @result = pf::Survey->_db_data(SURVEY, {'field_create_sql' => "ALTER TABLE $table_name ADD $field_id $wants_type"}, 'field_create_sql');
+        my @result = pf::Survey->_db_data("ALTER TABLE $table_name ADD $field_id $wants_type");
         return (@result && $result[0] == $FALSE) ? $FALSE : $TRUE;
     }
 }
@@ -157,7 +158,7 @@ sub reload_from_config {
         require pf::factory::survey;
         my $survey = pf::factory::survey->new($survey_id);
         my $table_name = $survey->table_name;
-        my @desc = pf::Survey->_db_data(SURVEY, {'table_desc_sql' => "DESC $table_name"}, 'table_desc_sql');
+        my @desc = pf::Survey->_db_data("DESC $table_name");
 
         if($desc[0] == $FALSE) {
             $logger->info("Creating table $table_name");
@@ -170,7 +171,7 @@ sub reload_from_config {
             }
         }
         
-        @desc = pf::Survey->_db_data(SURVEY, {'table_desc_sql' => "DESC $table_name"}, 'table_desc_sql');
+        @desc = pf::Survey->_db_data("DESC $table_name");
         if($desc[0] == $FALSE) {
             $logger->error("Unable to get table description even after creating it. Bailing out.");
             return $FALSE;
@@ -237,7 +238,7 @@ sub insert_or_update_response {
         }
     }
 
-    my $sqla = SQL::Abstract::More->new();
+    my $sqla = pf::dal->get_sql_abstract();
 
     if(defined($response_id)) {
         get_logger->info("Updating existing survey response $response_id");
@@ -246,7 +247,7 @@ sub insert_or_update_response {
             -set => $response,
             -where => {id => {"=" => $response_id}},
         );
-        my @result = $self->_db_data(SURVEY, {'survey_update_sql' => $sql}, 'survey_update_sql', @params);
+        my @result = $self->_db_data($sql, @params);
         return (@result && $result[0] == $FALSE) ? $FALSE : $response_id;
     }
     else {
@@ -255,7 +256,7 @@ sub insert_or_update_response {
             -into => $self->table_name,
             -values => $response,
         );
-        my @result = $self->_db_data(SURVEY, {'survey_insert_sql' => $sql}, 'survey_insert_sql', @params);
+        my @result = $self->_db_data($sql, @params);
         return (@result && $result[0] == $FALSE) ? $FALSE : pf::db::get_db_handle()->last_insert_id(undef, undef, undef, undef);
     }
 }
@@ -267,9 +268,11 @@ Execute a query through pf::db
 =cut
 
 sub _db_data {
-    my ($class, $from_module, $module_statements_ref, $query, @params) = @_;
+    my ($class, $query, @params) = @_;
 
-    my $sth = db_query_execute($from_module, $module_statements_ref, $query, @params) || return ($FALSE);
+    get_logger->info("Query: $query");
+    my ($status, $sth) = pf::dal->db_execute($query, @params);
+    return $FALSE if(is_error($status));
 
     my ( $ref, @array );
     while ( $ref = $sth->fetchrow_hashref() ) {
