@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 57;
+use Test::More tests => 58;
 
 use pf::error qw(is_success is_error);
 use pf::db;
@@ -332,10 +332,12 @@ is_deeply(
     my $node = pf::dal::node->new({mac => $test_mac});
     is($node->{tenant_id}, pf::dal->get_tenant, "Current tenant is added");
     $node = pf::dal::node->new({mac => $test_mac, -no_auto_tenant_id => 1});
-    is($node->{tenant_id}, $pf::dal::DEFAULT_TENANT_ID, "Default tenant is added");
+    is($node->{tenant_id}, $pf::dal::CURRENT_TENANT, "Current tenant is added when none id provide");
     my $test_tenant_id = $$;
     $node = pf::dal::node->new({mac => $test_mac, tenant_id => $test_tenant_id, -no_auto_tenant_id => 1});
-    is($node->{tenant_id}, $test_tenant_id, "Default tenant is not set use the one provided");
+    is($node->{tenant_id}, $test_tenant_id, "Current tenant is not set use the one provided");
+    $node = pf::dal::node->new({mac => $test_mac, tenant_id => $test_tenant_id });
+    is($node->{tenant_id}, $pf::dal::CURRENT_TENANT, "Current tenant is set use even when one is provided");
 }
 
 =head1 AUTHOR
