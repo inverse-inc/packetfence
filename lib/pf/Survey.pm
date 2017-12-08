@@ -237,8 +237,6 @@ sub insert_or_update_response {
         }
     }
 
-    use Data::Dumper ; print Dumper($response);
-    
     my $sqla = SQL::Abstract::More->new();
 
     if(defined($response_id)) {
