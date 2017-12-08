@@ -41,7 +41,7 @@ func (fw *WatchGuard) Start(ctx context.Context, info map[string]string, timeout
 // Build the RADIUS packet for an SSO start
 func (fw *WatchGuard) startRadiusPacket(ctx context.Context, info map[string]string, timeout int) *radius.Packet {
 	r := radius.New(radius.CodeAccountingRequest, []byte(fw.Password))
-	rfc2866.AcctStatusType_Add(r, rfc2866.AcctStatusType(1))
+	rfc2866.AcctStatusType_Add(r, rfc2866.AcctStatusType(rfc2866.AcctStatusType_Value_Start))
 	rfc2865.UserName_AddString(r, info["username"])
 	rfc2865.FilterID_AddString(r, info["role"])
 	rfc2865.CalledStationID_AddString(r, "00:11:22:33:44:55")
@@ -75,7 +75,7 @@ func (fw *WatchGuard) Stop(ctx context.Context, info map[string]string) (bool, e
 func (fw *WatchGuard) stopRadiusPacket(ctx context.Context, info map[string]string) *radius.Packet {
 	r := radius.New(radius.CodeAccountingRequest, []byte(fw.Password))
 	rfc2866.AcctSessionID_AddString(r, "acct_pf-"+info["mac"])
-	rfc2866.AcctStatusType_Add(r, rfc2866.AcctStatusType(2))
+	rfc2866.AcctStatusType_Add(r, rfc2866.AcctStatusType(rfc2866.AcctStatusType_Value_Stop))
 	rfc2865.UserName_AddString(r, info["username"])
 	rfc2865.FilterID_AddString(r, info["role"])
 	rfc2865.CalledStationID_AddString(r, "00:11:22:33:44:55")
