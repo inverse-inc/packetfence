@@ -59,7 +59,7 @@ Redirect the user to the SAML IDP
 
 sub redirect {
     my ($self) = @_;
-    pf::auth_log::record_oauth_attempt($self->source->id, $self->current_mac);
+    pf::auth_log::record_oauth_attempt($self->source->id, $self->current_mac, $self->app->profile->name);
     $self->app->redirect($self->source->sso_url);
 }
 
@@ -80,13 +80,13 @@ sub assertion {
     }
 
     if($username){
-        pf::auth_log::record_completed_oauth($self->source->id, $self->current_mac, $username, $pf::auth_log::COMPLETED);
+        pf::auth_log::record_completed_oauth($self->source->id, $self->current_mac, $username, $pf::auth_log::COMPLETED, $self->app->profile->name);
         $self->username($username);
         $self->done();
     }
     else {
         $self->app->error($msg);
-        pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED);
+        pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED, $self->app->profile->name);
     }
 }
 

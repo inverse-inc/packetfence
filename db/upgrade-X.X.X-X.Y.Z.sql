@@ -49,4 +49,10 @@ call ValidateVersion;
 
 DROP TABLE IF EXISTS `ifoctetslog`;
 
+--
+-- Add a profile column to the auth_log
+--
+ALTER TABLE auth_log ADD column profile VARCHAR(255) DEFAULT NULL;
+
+
 INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));

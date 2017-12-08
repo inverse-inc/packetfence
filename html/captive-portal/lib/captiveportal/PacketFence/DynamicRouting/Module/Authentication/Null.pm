@@ -67,10 +67,10 @@ sub authenticate {
         get_logger->info("Validating e-mail for user $pid");
         my ($return, $message, $source_id, $extra) = pf::authentication::authenticate({username => $pid, password => '', rule_class => $Rules::AUTH}, $self->source);
         if(defined($return) && $return == 1){
-            pf::auth_log::record_auth($source_id, $self->current_mac, $pid, $pf::auth_log::COMPLETED);
+            pf::auth_log::record_auth($source_id, $self->current_mac, $pid, $pf::auth_log::COMPLETED, $self->app->profile->name);
         }
         else {
-            pf::auth_log::record_auth($self->source, $self->current_mac, $pid, $pf::auth_log::FAILED);
+            pf::auth_log::record_auth($self->source, $self->current_mac, $pid, $pf::auth_log::FAILED, $self->app->profile->name);
             $self->app->flash->{error} = $message;
             $self->prompt_fields();
             return;

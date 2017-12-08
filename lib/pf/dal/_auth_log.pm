@@ -40,6 +40,7 @@ BEGIN {
         attempted_at
         completed_at
         source
+        profile
     );
 
     %DEFAULTS = (
@@ -50,6 +51,7 @@ BEGIN {
         attempted_at => '',
         completed_at => undef,
         source => '',
+        profile => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -60,6 +62,7 @@ BEGIN {
         attempted_at
         completed_at
         source
+        profile
     );
 
     %FIELDS_META = (
@@ -111,6 +114,12 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
+        profile => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
     );
 
     @PRIMARY_KEYS = qw(
@@ -126,6 +135,7 @@ BEGIN {
         auth_log.attempted_at
         auth_log.completed_at
         auth_log.source
+        auth_log.profile
     );
 
 }

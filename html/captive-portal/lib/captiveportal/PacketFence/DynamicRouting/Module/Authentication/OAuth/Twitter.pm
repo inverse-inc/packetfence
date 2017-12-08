@@ -60,7 +60,7 @@ sub handle_callback {
 
     get_logger->info("OAuth2 successfull for username ".$self->username);
     
-    pf::auth_log::record_completed_oauth($self->source->type, $self->current_mac, $pid, $pf::auth_log::COMPLETED);
+    pf::auth_log::record_completed_oauth($self->source->type, $self->current_mac, $pid, $pf::auth_log::COMPLETED, $self->app->profile->name);
 
     $self->done();
 }

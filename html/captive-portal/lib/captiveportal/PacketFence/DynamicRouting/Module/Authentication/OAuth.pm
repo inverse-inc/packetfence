@@ -91,7 +91,7 @@ sub execute_child {
     }
     elsif($self->app->request->path eq "oauth2/go" && $self->app->request->method eq "POST"){
         if(!$self->with_aup || $self->request_fields->{aup}){
-            pf::auth_log::record_oauth_attempt($self->source->id, $self->current_mac);
+            pf::auth_log::record_oauth_attempt($self->source->id, $self->current_mac, $self->app->profile->name);
             $self->app->redirect($self->get_client->authorize);
         }
         else {
@@ -121,7 +121,7 @@ sub get_token {
     };
     if ($@) {
         get_logger->warn("OAuth2: failed to receive the token from the provider: $@");
-        pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED);
+        pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED, $self->app->profile->name);
         $self->app->flash->{error} = "OAuth2 Error: Failed to get the token";
         $self->landing();
         return;
@@ -154,14 +154,14 @@ sub handle_callback {
         get_logger->info("OAuth2 successfull for username ".$self->username);
         $self->source->lookup_from_provider_info($self->username, $info);
         
-        pf::auth_log::record_completed_oauth($self->source->id, $self->current_mac, $pid, $pf::auth_log::COMPLETED);
+        pf::auth_log::record_completed_oauth($self->source->id, $self->current_mac, $pid, $pf::auth_log::COMPLETED, $self->app->profile->name);
 
         $self->done();
     }
     else {
         get_logger->info("OAuth2: failed to validate the token, redireting to login page.");
         get_logger->debug(sub { use Data::Dumper; "OAuth2 failed response : ".Dumper($response) });
-        pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED);
+        pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED, $self->app->profile->name);
         $self->app->flash->{error} = "OAuth2 Error: Failed to validate the token, please retry";
         $self->landing();
         return;

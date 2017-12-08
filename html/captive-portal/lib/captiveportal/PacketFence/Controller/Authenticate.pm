@@ -117,7 +117,7 @@ sub authenticationLogin : Private {
     ( $return, $message, $source_id, $extra ) =
       pf::authentication::authenticate( { 'username' => $username, 'password' => $password, 'rule_class' => $Rules::AUTH }, @{$sources} );
     if ( defined($return) && $return == 1 ) {
-        pf::auth_log::record_auth($source_id, $portalSession->clientMac, $username, $pf::auth_log::COMPLETED);
+        pf::auth_log::record_auth($source_id, $portalSession->clientMac, $username, $pf::auth_log::COMPLETED, $profile->name);
         # save login into session
         $c->user_session->{username} = $username // $default_pid;
         $c->user_session->{source_id} = $source_id;
@@ -129,7 +129,7 @@ sub authenticationLogin : Private {
         # Logging USER/IP/MAC of the just-authenticated user
         $logger->info("Successfully authenticated ".$username."/".$portalSession->clientIP->normalizedIP."/".$portalSession->clientMac);
     } else {
-        pf::auth_log::record_auth(join(',',map { $_->id } @{$sources}), $portalSession->clientMac, $username, $pf::auth_log::FAILED);
+        pf::auth_log::record_auth(join(',',map { $_->id } @{$sources}), $portalSession->clientMac, $username, $pf::auth_log::FAILED, $profile->name);
         $c->error($message);
     }
 }
