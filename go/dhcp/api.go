@@ -193,7 +193,7 @@ func handleOverrideNetworkOptions(res http.ResponseWriter, req *http.Request) {
 
 	var result = map[string][]*Info{
 		"result": {
-			&Info{Mac: vars["network"], Status: "ACK"},
+			&Info{Network: vars["network"], Status: "ACK"},
 		},
 	}
 
@@ -239,7 +239,7 @@ func handleRemoveNetworkOptions(res http.ResponseWriter, req *http.Request) {
 
 	var result = map[string][]*Info{
 		"result": {
-			&Info{Mac: vars["network"], Status: "ACK"},
+			&Info{Network: vars["network"], Status: "ACK"},
 		},
 	}
 
@@ -247,7 +247,7 @@ func handleRemoveNetworkOptions(res http.ResponseWriter, req *http.Request) {
 	if !err {
 		result = map[string][]*Info{
 			"result": {
-				&Info{Mac: vars["network"], Status: "NAK"},
+				&Info{Network: vars["network"], Status: "NAK"},
 			},
 		}
 	}
