@@ -14,7 +14,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
-	"github.com/julsemaan/radius"
+	"layeh.com/radius"
 )
 
 var usernameFormatRegexps = map[string]*regexp.Regexp{
