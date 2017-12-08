@@ -4,9 +4,18 @@ use JSON::MaybeXS;
 use pf::log;
 use LWP::UserAgent;
 use pf::constants qw($TRUE $FALSE);
+use pf::SwitchFactory;
 
 sub reconfigure {
     my ($ip, $ssids_config) = @_;
+
+    my $switch = pf::SwitchFactory->instantiate($ip);
+
+    for my $config (@$ssids_config) {
+        $config->{radius} //= {};
+        $config->{radius}->{server} = "10.8.0.1";
+        $config->{radius}->{secret} = $switch->{_radiusSecret};
+    }
 
     my $data = encode_json({ssids => $ssids_config});
 
