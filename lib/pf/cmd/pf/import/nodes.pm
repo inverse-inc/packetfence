@@ -52,17 +52,17 @@ sub parseArgs {
         'delimiter'         => "comma",
     );
     foreach my $param ( @params ) {
-        my @data = split('=', $param);
-        if ( exists($params{$data[0]}) ) {
-            if ( length($data[1]) >= 1 ) {
-                $params{$data[0]} = $data[1];
+        my ($name, $val) = split('=', $param);
+        if ( exists($params{$name}) ) {
+            if ( length($val) >= 1 ) {
+                $params{$name} = $val;
             }
             else {
-                print STDERR "Invalid parameter value '$data[1]' for parameter '$data[0]'\n";
+                print STDERR "Invalid parameter value '$val' for parameter '$name'\n";
             }
         }
         else {
-            print STDERR "Unknown parameter '$data[0]'\n";
+            print STDERR "Unknown parameter '$name'\n";
         }
     }
 
