@@ -80,3 +80,20 @@ func TestApiAAAHandleAAA(t *testing.T) {
 	}
 
 }
+
+func TestApiAAAContentType(t *testing.T) {
+
+	req, _ := http.NewRequest(
+		"POST",
+		"/login",
+		bytes.NewBuffer([]byte(`{"username":"web", "password":"services"}`)),
+	)
+
+	recorder := httptest.NewRecorder()
+	apiAAA.ServeHTTP(recorder, req)
+
+	if recorder.Header().Get("Content-Type") != "application/json" {
+		t.Error("Wrong Content-Type for the request")
+	}
+
+}
