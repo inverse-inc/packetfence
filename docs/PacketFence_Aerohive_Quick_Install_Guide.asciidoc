@@ -18,17 +18,23 @@ include::includes/global-attributes.asciidoc[]
 
 About this Guide
 ----------------
-This guide has been created in order to provide guidelines to deploy a Aerohive Wireless APs and the associated management in a PacketFence context, whether it is with a standalone server, a cluster or PacketFencZEN deployxement.
+This guide has been created in order to provide guidelines to deploy a Aerohive Wireless APs and the associated management in a PacketFence context, whether it is with a standalone server, a cluster or PacketFenc ZEN deployxement.
 
-NOTE: Aerohive products are a bit different compared to the other vendors. They support either a local HiveManager (kind of wireless controller) or a cloud-based HVM. However, the configuration is the same for the local and the cloud-based controller. Note that all the config are made on the HVM and then pushed to the APs. The instructions are based on version {release_version} of the PacketFence.
+Aerohive products are a bit different compared to the other vendors.
+They support either a local HiveManager (kind of wireless controller) or a cloud-based HVM.
+However, the configuration is the same for the local and the cloud-based controller.
+Note that all the config are made on the HVM and then pushed to the APs.
+The instructions are based on version {release_version} of the PacketFence.
 
 Assumptions
 -----------
+
 * You already have a PacketFence server(s) up and running, (standalone, cluster or ZEN)
   ** If not, please refer to the https://packetfence.org/doc/PacketFence_Administration_Guide.html[PacketFence Administration Guide].
 * The network architecture is in order to give acces to the Aerohive Access Point, and has access to internet
 * The VLANs are defined for registration, isolation and management networks
  * From this documentation, we will assume that the VLANs tags are define like following :
+  ** PacketFence Management VLAN: 1 IP address: 192.168.1.5
   ** Registration VLAN ID 2,sSubnet 192.168.2.0/24
   ** Isolation VLAN ID 3, subnet 192.168.3.0/24
   ** Production VLAN ID 10, subnet 172.16.1.0/24
@@ -36,7 +42,8 @@ Assumptions
 * The VLANs are allowed in the trunks
 * Aerohive Access Point is loaded with HiveOS with version 6 or later
 * HiveManager with version 6 or later
-
+* WirelessAP : 172.16.1.1
+* Radius Secret; useStrongerSecret
 '''
 
 Quick Deployment
@@ -91,7 +98,7 @@ image::docs/images/pfaerohive05.png[scaledwidth="100%",alt="AAA Radius config",a
 
 image::docs/images/pfaerohive06.png[scaledwidth="100%",alt="AAA Radius config",align=right]
 
-* Deploye the _Optionnal Setting(not supported by RADIUS Proxy)_ section and * [x] check the _Permit Dynamic Change of Authorization Message (RFC 3576)_
+* Deploy the _Optionnal Setting(not supported by RADIUS Proxy)_ section and * [x] check the _Permit Dynamic Change of Authorization Message (RFC 3576)_
 * Click on *Save*
 :
 * Next to your _SSID Name_ Click on the *<RADIUS Setting>*, Click *OK*
@@ -141,8 +148,8 @@ Push your configuration to your AP::
 * Wait untill the date and time apprears under _Update Status_
 
 
-Step 2: Configure Network and PacketFence
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Step 2: Configure Network and Configure PacketFence
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Configuring Aerohive access point in PacketFence
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -201,7 +208,7 @@ In this part we will describe the WebAuth configuration for Aerohive APs
 Assumption :
 ~~~~~~~~~~~~
 
-In this part, the default VlAN must be the native VLAN.
+In this part, iit is recommended that the default VLAN must be the native VLAN.
 This way, the AP and the others networks equipments will be able to manage VLANs 
 
 
@@ -216,7 +223,7 @@ Create a new Captive Portal Profile::
 * Give it a name
 * _Registration Type_ must be *External Authentication*
 * Click on _Captive Web Portal Login Page Settings_ to deploy the configuration window
-* _Login URL_ must be *http://YOUR_PACKETFENCE_SERVER_IP/Aerohive::AP*
+* _Login URL_ must be *http://192.168.1.5/Aerohive::AP*
 * _Password Encryption_ : *No Encryption (Plaintext Password)*
 * Click on *Save*
 
@@ -262,7 +269,7 @@ image::docs/images/pfaerohive13.png[scaledwidth="100%",alt="Captive Portal SSID 
 
 '''
 
-Refs and Externals Informations
+References and Externals Informations
 -------------------------------
 
 Registering on HiveManager Connect ::
