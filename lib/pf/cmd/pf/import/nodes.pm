@@ -16,8 +16,9 @@ use warnings;
 use base qw(pf::cmd);
 use Role::Tiny::With;
 use pf::constants qw($TRUE $FALSE);
-use pf::constants::exit_code qw($EXIT_SUCCESS);
+use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
 use pf::file_paths qw($install_dir);
+use pf::error qw(is_success);
 with 'pf::cmd::roles::show_parent_help';
 
 =head2 parseArgs
@@ -102,7 +103,7 @@ sub _run {
     );
     
     print "Import process complete. Imported $info->{count} and skipped $info->{skipped}\n";
-    return $EXIT_SUCCESS;
+    return is_success($status) ? $EXIT_SUCCESS : $EXIT_FAILURE;
 }
 
 =head1 AUTHOR
