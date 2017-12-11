@@ -177,7 +177,7 @@ sub generate_mangle_rules {
 
     # mark all open violations
     # TODO performance: only those whose's last connection_type is inline?
-    my @macarray = violation_view_open_uniq();
+    my @macarray = pf::violation::violation_view_open_uniq();
     if ( $macarray[0] ) {
         foreach my $row (@macarray) {
             foreach my $network ( keys %ConfigNetworks ) {
