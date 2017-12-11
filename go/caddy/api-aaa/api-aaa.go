@@ -163,6 +163,9 @@ func (h ApiAAAHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, e
 
 	defer panichandler.Http(ctx, w)
 
+	// We always default to application/json
+	w.Header().Set("Content-Type", "application/json")
+
 	if handle, params, _ := h.router.Lookup(r.Method, r.URL.Path); handle != nil {
 		handle(w, r, params)
 
