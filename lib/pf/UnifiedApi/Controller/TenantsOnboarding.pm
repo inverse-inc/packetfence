@@ -22,17 +22,17 @@ sub onboard {
     my ($self) = @_;
     my $data = $self->req->json;
     my $ssids = delete $data->{ssids};
-    my $token = delete $data->{token};
+    my $code = delete $data->{device};
 
-    if (!$token) {
-        return $self->render_error(422, "Missing token.");
+    if (!$code) {
+        return $self->render_error(422, "Missing device code.");
     }
 
     if (!$data->{name}) {
         return $self->render_error(422, "Missing tenant name.");
     }
 
-    my $result = pf::tenant_code->onboard($token, $data, $ssids);
+    my $result = pf::tenant_code->onboard($code, $data, $ssids);
 
     if ($result) {
         my $tenant = pf::dal::tenant->search(-where => { name => $data->{name}})->next;
