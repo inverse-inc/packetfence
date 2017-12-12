@@ -316,6 +316,7 @@ sub render {
     get_logger->debug("Rendering $template");
 
     my $inner_content = $self->_render($template,$args);
+    my $profile = $self->profile;
 
     my $layout_args = {
         flash => $self->flash,
@@ -323,7 +324,8 @@ sub render {
         client_mac => $self->current_mac,
         client_ip => $self->current_ip,
         title => $self->title,
-        logo => $self->profile->getLogo
+        logo => $profile->getLogo,
+        profile => $profile,
     };
 
     $args->{layout} //= $TRUE;
