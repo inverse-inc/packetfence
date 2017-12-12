@@ -22,7 +22,7 @@ sub onboard {
     my ($self) = @_;
     my $data = $self->req->json;
     my $ssids = delete $data->{ssids};
-    my $code = delete $data->{device};
+    my $code = delete $data->{code};
 
     if (!$code) {
         return $self->render_error(422, "Missing device code.");
