@@ -44,9 +44,15 @@ sub build_child {
 
 sub cleanup_after_read {
     my ($self, $id, $data) = @_;
-    $self->expand_list($data, qw(category oses rules));
+    $self->expand_list($data, qw(categories oses wmi_rules));
     if(exists $data->{oses} && defined $data->{oses}) {
         $data->{oses} = ref($data->{oses}) eq 'ARRAY' ? $data->{oses} : [$data->{oses}];
+    }
+    if(exists $data->{categories} && defined $data->{categories}) {
+        $data->{categories} = ref($data->{categories}) eq 'ARRAY' ? $data->{categories} : [$data->{categories}];
+    }
+    if(exists $data->{wmi_rules} && defined $data->{wmi_rules}) {
+        $data->{wmi_rules} = ref($data->{wmi_rules}) eq 'ARRAY' ? $data->{wmi_rules} : [$data->{wmi_rules}];
     }
 }
 
