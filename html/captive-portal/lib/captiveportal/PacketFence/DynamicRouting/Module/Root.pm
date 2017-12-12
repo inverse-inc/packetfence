@@ -239,6 +239,8 @@ sub apply_new_node_info {
     my ($self) = @_;
     get_logger->debug(sub { use Data::Dumper; "Applying new node_info to user ".Dumper($self->new_node_info)});
 
+    my $node_view = node_view($self->current_mac);
+
     # When device is pending, we take the role+unregdate from the computed node info. 
     # This way, if the role wasn't set during the portal process (like in provisioning agent re-install), then it will pick the role it had before
     if($self->node_info->{status} eq $pf::node::STATUS_PENDING) {
@@ -247,6 +249,12 @@ sub apply_new_node_info {
         }
         $self->new_node_info->{category} = $self->node_info->{category};
         $self->new_node_info->{unregdate} = $self->node_info->{unregdate};
+    }
+
+    # We check if the username is the default PID. If it is and there is a non-default PID already on the node, we take it instead of the default PID
+    if($self->username eq $default_pid) {
+        get_logger->debug("Username is set to the default PID and there is already a PID set on the node (".$node_view->{pid}."). Keeping it instead of the default PID.");
+        $self->username($node_view->{pid});
     }
 
     my ( $status, $status_msg );
