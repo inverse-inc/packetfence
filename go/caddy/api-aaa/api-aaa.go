@@ -131,7 +131,7 @@ func (h ApiAAAHandler) HandleAAA(w http.ResponseWriter, r *http.Request) bool {
 	auth, err := h.authentication.BearerRequestIsAuthorized(ctx, r)
 
 	if !auth {
-		w.WriteHeader(http.StatusForbidden)
+		w.WriteHeader(http.StatusUnauthorized)
 
 		if err == nil {
 			err = errors.New("Invalid token. Login again using /api/v1/login")
