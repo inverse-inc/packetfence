@@ -16,7 +16,8 @@ use strict;
 use warnings;
 use Mojo::Base 'Mojolicious';
 use pf::dal;
-use pf::log;
+use pf::file_paths qw($log_conf_dir);
+use MojoX::Log::Log4perl;
 
 has commands => sub {
   my $commands = Mojolicious::Commands->new(app => shift);
@@ -26,7 +27,7 @@ has commands => sub {
 };
 
 has log => sub {
-    get_logger()
+    return MojoX::Log::Log4perl->new("$log_conf_dir/pfunified_api.conf",5 * 60);
 };
 
 =head2 startup
