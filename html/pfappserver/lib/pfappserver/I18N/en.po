@@ -10550,6 +10550,10 @@ msgid "profile.filter.switch_port"
 msgstr "Switch Port"
 
 # profile.filter (Portal Profile Filters)
+msgid "profile.filter.tenant"
+msgstr "Tenant"
+
+# profile.filter (Portal Profile Filters)
 msgid "profile.filter.time"
 msgstr "Time period"
 
