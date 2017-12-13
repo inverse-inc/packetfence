@@ -78,6 +78,12 @@ ALTER TABLE `person`
     ADD PRIMARY KEY (`tenant_id`, `pid`),
     ADD CONSTRAINT `person_tenant_id` FOREIGN KEY (`tenant_id`) REFERENCES `tenant` (`id`);
 
+ALTER TABLE `password`
+    ADD COLUMN tenant_id INT NOT NULL DEFAULT 1 FIRST,
+    DROP PRIMARY KEY,
+    ADD PRIMARY KEY (`tenant_id`, `pid`),
+    ADD CONSTRAINT `password_tenant_id` FOREIGN KEY (`tenant_id`) REFERENCES `tenant` (`id`);
+
 ALTER TABLE `node`
     ADD COLUMN tenant_id int NOT NULL DEFAULT 1 FIRST,
     DROP PRIMARY KEY,
