@@ -312,18 +312,9 @@ Logon to your PacketFence server ::
  
  [1:SSID]
  scope = radius_authorize
- param1 = ExternalPortalEnforcement => N
- param2 = VlanMap => Y
- 
- [status]
- filter = node_info.status
- operator = is
- value = reg
- 
- [2:!SSID&status]
- scope = radius_authorize
  param1 = ExternalPortalEnforcement => Y
-
+ param2 = VlanMap => N
+ 
 NOTE: The default configuration in the _Switch filters_ for _ExternalPortalEnforcement_ is set to *N*
 
 * Click on *SAVE*
