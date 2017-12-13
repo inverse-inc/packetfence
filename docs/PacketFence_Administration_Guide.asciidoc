@@ -2856,12 +2856,13 @@ If, for some reason the portal is modified with content that needs to be accesse
 Firewall SSO Integration
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-PacketFence is able to update some Firewalls based on device informations, like the IP address, the username connected on it. (Look for Integration guides to see how you can configure your Firewall with PacketFence)
-By default PacketFence use the dhcp traffic to trigger an update on the firewall but it's also possible to do it with the RADIUS Accounting traffic.
+PacketFence is able to update some firewall based on device informations, like the IP address, the username connected on it. (Look for Integration guides to see how you can configure your Firewall with PacketFence)
+By default PacketFence uses the DHCP traffic to trigger an update on the firewall but it's also possible to do it with the RADIUS Accounting traffic.
 
 In order to manage the way you want to update the Firewall, go in Configuration -> System Config -> Main Configuration -> Advanced,  then there is two choices,
 Trigger Single-Sign-On on dhcp and Trigger Single-Sign-On on accounting.
 
+You can use both methods at the same time but this will result in duplicate SSO requests if you receive the DHCP and accounting of the same device which can cause unexpected load on your firewall.
 
 Suricata example:
 -----------------
