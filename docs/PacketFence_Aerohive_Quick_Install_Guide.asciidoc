@@ -18,11 +18,11 @@ include::includes/global-attributes.asciidoc[]
 
 About this Guide
 ----------------
-This guide has been created in order to provide guidelines to deploy a Aerohive Wireless APs and the associated management in a PacketFence context, whether it is with a standalone server, a cluster or PacketFence ZEN deployement.
+This guide has been created in order to provide guidelines to deploy a Aerohive Wireless APs and the associated management in a PacketFence context, whether it is with a standalone server, a cluster or PacketFence ZEN deployment.
 
 Aerohive products are a bit different compared to the other vendors.
 They support either a local HiveManager (kind of wireless controller) or a Cloud-based HiveManager.
-However, the configuration is the same for the local and the Cloud-base controller.
+However, the configuration is the same for the local and the Cloud-based controller.
 Note that all the config are made on the HiveManager and then pushed to the APs.
 The instructions are based on version {release_version} of the PacketFence.
 
@@ -34,7 +34,7 @@ Assumptions
 
 * You already have a PacketFence server(s) up and running, (standalone, cluster or ZEN)
   ** If not, please refer to the https://packetfence.org/doc/PacketFence_Administration_Guide.html[PacketFence Administration Guide].
-* The network architecture is in order to give acces to the Aerohive Access Point, and has access to internet
+* The network architecture is in order to give acces to the Aerohive Access Point, and has access to Internet
 * The VLANs are defined for registration, isolation and management networks
  * From this documentation, we will assume that the VLANs tags are define like following :
   ** PacketFence Management VLAN: 1 IP address: 192.168.1.5
@@ -206,8 +206,8 @@ Web Auth Configuration
 In this part we will describe the WebAuth configuration for Aerohive APs
 
 
-Assumption :
-~~~~~~~~~~~~
+Assumptions :
+~~~~~~~~~~~~~
 
 In this part, it is recommended that the default VLAN must be the native VLAN.
 This way, the AP and the others networks equipments will be able to manage VLANs 
@@ -276,20 +276,15 @@ image::docs/images/pfaerohive13.png[scaledwidth="100%",alt="Captive Portal SSID 
 MAC Auth and Web Auth Configuration 
 -----------------------------------
 
-In this case we want to be able to enable a MAC Auth/802.1x and Web Auth SSID on the same wireless equipment.
-By default it's not possible to provide a MAC Auth/802.1x SSID and a Web Auth SSID with the same switch configuration, but by using the _Switch Filters_ it will be possible to do it.
-
-WARNING: it's advanced configuration, you need to understand what you do.
+In this case we want to be able to enable a MAC Auth/802.1X and Web Auth SSID on the same wireless equipment.
+By default it's not possible to provide a MAC Auth/802.1X SSID and a Web Auth SSID with the same switch configuration, but by using the _Switch Filters_ it will be possible to do it.
 
 
-Assumption :
-~~~~~~~~~~~~
+We will assume that we have an up and running SSID (_YourSecuredSSID_) already configured with Mac Auth/802.1X.
 
-We will assume that we have an up and running SSID (_YourSecuredSSID_) already configured with Mac Auth/802.1x.
-
-* From this documentation, we will assume that the VLANs tags are define like following :
+* From this documentation, we will assume that the VLANs tags are defined like following :
  ** PacketFence Management VLAN: 1 IP address: 192.168.1.5
- ** Registration VLAN ID 2,sSubnet 192.168.2.0/24
+ ** Registration VLAN ID 2,subnet 192.168.2.0/24
  ** Isolation VLAN ID 3, subnet 192.168.3.0/24
  ** Production VLAN ID 10, subnet 172.16.1.0/24
 
@@ -299,14 +294,14 @@ Our SSID will be named _YourOpenSSID_, assuming that we want to provide a public
 
 Step 1 : A new SSID 
 ~~~~~~~~~~~~~~~~~~~
-You should create a new SSID, has chown before, secured or opened, as you need, there is no particular point.
+You should create a new SSID, has explained before, secured or open, as you need,
 
 
-Step 2 : Set Filters in PacketFence
+Step 2 : Configure Filters in PacketFence
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Logon to your PacketFence server ::
-* Go to *CONFIGURATION -> ADVANCED ACCESS CONFIURATION -> Filter engines*
+* Go to *CONFIGURATION -> ADVANCED ACCESS CONFIURATION -> Filter Engines*
 * From the tab *Switch filters*, 
 * Go to the bottom of the configuration file and set the folllowing section.
 
@@ -334,11 +329,8 @@ NOTE: The default configuration in the _Switch filters_ for _ExternalPortalEnfor
 * Click on *SAVE*
 
 
-
-
-
-References and External Informations
--------------------------------------
+References and External Information
+-----------------------------------
 
 Registering on HiveManager Connect ::
  * https://www.youtube.com/watch?v=tznxKRzsAnw[Video registering for Connectand Onboarding Devices]
