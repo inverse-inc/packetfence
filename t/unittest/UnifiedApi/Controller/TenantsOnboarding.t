@@ -57,7 +57,7 @@ is($status, $STATUS::CREATED, "$test_code was successfully created");
 $t->post_ok('/api/v1/tenants_onboarding' => json => {  })
   ->status_is(422);
 
-$t->post_ok('/api/v1/tenants_onboarding' => json => { token => $test_code, name => $test_tenant_name })
+$t->post_ok('/api/v1/tenants_onboarding' => json => { code => $test_code, name => $test_tenant_name })
   ->status_is(201)
   ->header_like(Location => qr/^\/api\/v1\/tenants\//);
 
