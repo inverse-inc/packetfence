@@ -66,6 +66,7 @@ use pf::util::dhcpv6();
 use pf::domain::ntlm_cache();
 
 use pf::constants::api;
+use DateTime::Format::MySQL;
 
 sub event_add : Public {
     my ($class, %postdata) = @_;
@@ -1360,7 +1361,47 @@ sub handle_accounting_metadata : Public {
             pf::log::get_logger->debug("Not handling iplog update because we're not configured to do so on accounting packets.");
         }
     }
+    $client->notify("firewallsso_accounting", %RAD_REQUEST);
+
     return $return;
+}
+
+=head2 firewallsso_accounting
+
+Update the firewall sso based on radius accounting
+
+=cut
+
+sub firewallsso_accounting : Public {
+    my ($class, %RAD_REQUEST) = @_;
+    my $logger = pf::log::get_logger();
+    if ($RAD_REQUEST{'Calling-Station-Id'} && $RAD_REQUEST{'Framed-IP-Address'} && pf::util::isenabled($pf::config::Config{advanced}{sso_on_accounting})) {
+        my $mac = pf::util::clean_mac($RAD_REQUEST{'Calling-Station-Id'});
+        my $node = pf::node::node_attributes($mac);
+        my $ip = $RAD_REQUEST{'Framed-IP-Address'};
+        my $firewallsso_method = "Stop";
+        my $timeout = '3600'; #Default to 1 hour
+        my $client = pf::client::getClient();
+
+        if ($node->{status} eq $pf::node::STATUS_REGISTERED) {
+            $firewallsso_method = "Update";
+            if ($node->{unregdate} ne '0000-00-00 00:00:00') {
+                my $time = DateTime::Format::MySQL->parse_datetime($node->{unregdate});
+                $time->set_time_zone("local");
+                my $now = DateTime->now(time_zone => "local");
+                $timeout = $time->epoch - $now->epoch;
+            }
+            my $oldip  = pf::ip4log::mac2ip($mac);
+            if ( $oldip && $oldip ne $ip ) {
+                $client->notify( 'firewallsso', (method => 'Stop', mac => $mac, ip => $oldip, timeout => undef) );
+            }
+        }
+
+        $firewallsso_method = ($RAD_REQUEST{'Acct-Status-Type'} == $ACCOUNTING::STOP) ? "Stop" : "Update";
+
+        $logger->warn("Firewall SSO Notify");
+        $client->notify( 'firewallsso', (method => $firewallsso_method, mac => $mac, ip => $ip, timeout => $timeout) );
+    }
 }
 
 =head2 services_status
