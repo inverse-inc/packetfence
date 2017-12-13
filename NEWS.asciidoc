@@ -46,6 +46,7 @@ Bug Fixes
 +++++++++
 * Move add delete buttons to the left to avoid the being cutoff (Fixes #2678)
 * Fixes "Admin: Multiple 'Device Type' options in Nodes tab" (Fixes #2789)(PR #2793)
+* Configurator: when using a different DB name, the fingerbank.conf mysql section isn't updated (Fixes #2665)(PR #2787) 
 
 Version 7.3.0 released on 2017-09-25
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
