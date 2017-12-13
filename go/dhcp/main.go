@@ -177,6 +177,7 @@ func (h *Interface) run(jobs chan job) {
 					statistiques = v.dhcpHandler.available.Stats()
 					var Options map[string]string
 					Options = make(map[string]string)
+					Options["OptionIPAddressLeaseTime"] = v.dhcpHandler.leaseDuration.String()
 					for option, value := range v.dhcpHandler.options {
 						Options[option.String()] = Tlv.Tlvlist[int(option)].Decode.String(value)
 					}
