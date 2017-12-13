@@ -2852,6 +2852,17 @@ The Content-Security-Policy HTTP response header tells modern browsers what can 
 
 If, for some reason the portal is modified with content that needs to be accessed from PacketFence generated web pages, CSP can be deactivated through *Configuration -> System Configuration -> Main Configuration -> Advanced -> CSP Security Headers*.
 
+
+Firewall SSO Integration
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+PacketFence is able to update some Firewalls based on device informations, like the IP address, the username connected on it. (Look for Integration guides to see how you can configure your Firewall with PacketFence)
+By default PacketFence use the dhcp traffic to trigger an update on the firewall but it's also possible to do it with the RADIUS Accounting traffic.
+
+In order to manage the way you want to update the Firewall, go in Configuration -> System Config -> Main Configuration -> Advanced,  then there is two choices,
+Trigger Single-Sign-On on dhcp and Trigger Single-Sign-On on accounting.
+
+
 Suricata example:
 -----------------
 
