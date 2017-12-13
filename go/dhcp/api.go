@@ -28,6 +28,7 @@ type Stats struct {
 	Category     string            `json:"Category"`
 	Options      map[string]string `json:"Options"`
 	Members      map[string]string `json:"Members"`
+	Status       string            `json:"Status"`
 }
 
 type ApiReq struct {

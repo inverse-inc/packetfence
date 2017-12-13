@@ -132,7 +132,7 @@ func main() {
 	router.HandleFunc("/stats/{int:.*}", handleStats).Methods("GET")
 	router.HandleFunc("/optionsnetwork/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{options:.*}", handleOverrideNetworkOptions).Methods("POST")
 	router.HandleFunc("/options/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}/{options:.*}", handleOverrideOptions).Methods("POST")
-	router.HandleFunc("/removeoptionsnetwork/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{options:.*}", handleRemoveNetworkOptions).Methods("POST")
+	router.HandleFunc("/removeoptionsnetwork/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}", handleRemoveNetworkOptions).Methods("GET")
 	router.HandleFunc("/removeoptions/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", handleRemoveOptions).Methods("GET")
 	router.HandleFunc("/releaseip/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", handleReleaseIP).Methods("POST")
 
@@ -192,13 +192,23 @@ func (h *Interface) run(jobs chan job) {
 					var Members map[string]string
 					Members = make(map[string]string)
 					members := v.dhcpHandler.hwcache.Items()
+					var Status string
+					var Count int
+					Count = 0
 					for i, item := range members {
+						Count++
 						result := make(net.IP, 4)
 						binary.BigEndian.PutUint32(result, binary.BigEndian.Uint32(v.dhcpHandler.start.To4())+uint32(item.Object.(int)))
 						Members[i] = result.String()
 					}
 
-					stats[v.network.String()] = Stats{EthernetName: Request.(ApiReq).NetInterface, Net: v.network.String(), Free: int(statistiques.RunContainerValues), Category: v.dhcpHandler.role, Options: Options, Members: Members}
+					if Count == (v.dhcpHandler.leaseRange - int(statistiques.RunContainerValues)) {
+						Status = "Normal"
+					} else {
+						Status = "Calculated available IP " + string(v.dhcpHandler.leaseRange-Count) + " is different than what we have available in the pool " + string(statistiques.RunContainerValues)
+					}
+
+					stats[v.network.String()] = Stats{EthernetName: Request.(ApiReq).NetInterface, Net: v.network.String(), Free: int(statistiques.RunContainerValues), Category: v.dhcpHandler.role, Options: Options, Members: Members, Status: Status}
 				}
 				outchannel <- stats
 			}
@@ -294,11 +304,11 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 	// Do we have the vip ?
 
 	if VIP[h.Name] {
-		fmt.Println("Process " + msgType.String() + " packet for " + p.CHAddr().String())
+
 		switch msgType {
 
 		case dhcp.Discover:
-
+			fmt.Println(p.CHAddr().String() + " " + msgType.String())
 			var free int
 			i := handler.available.Iterator()
 
@@ -317,13 +327,13 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 				// Ping the ip address
 				pingreply := Ping(dhcp.IPAdd(handler.start, free).String(), 1)
 				if pingreply {
-					fmt.Println("Ip " + dhcp.IPAdd(handler.start, free).String() + " already in use")
+					fmt.Println(p.CHAddr().String() + " Ip " + dhcp.IPAdd(handler.start, free).String() + " already in use, trying next")
 					goto retry
 				}
 				handler.available.Remove(element)
 				handler.hwcache.Set(p.CHAddr().String(), free, handler.leaseDuration+(time.Duration(15)*time.Second))
 			} else {
-				fmt.Println("No space left in the pool")
+				fmt.Println(p.CHAddr().String() + " Nak No space left in the pool ")
 				return answer
 			}
 
@@ -369,7 +379,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 					GlobalOptions[key] = value
 				}
 			}
-
+			fmt.Println(p.CHAddr().String() + " Offer " + answer.IP.String())
 			answer.D = dhcp.ReplyPacket(p, dhcp.Offer, handler.ip.To4(), answer.IP, leaseDuration,
 				GlobalOptions.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
 
@@ -380,10 +390,13 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 			// if server, ok := options[dhcp.OptionServerIdentifier]; ok && (!net.IP(server).Equal(h.Ipv4) && !net.IP(server).Equal(handler.ip)) {
 			// 	return answer // Message not for this dhcp server
 			// }
+
 			reqIP := net.IP(options[dhcp.OptionRequestedIPAddress])
 			if reqIP == nil {
 				reqIP = net.IP(p.CIAddr())
 			}
+			fmt.Println(p.CHAddr().String() + " " + msgType.String() + " " + reqIP.String())
+
 			answer.IP = reqIP
 			answer.Iface = h.intNet
 
@@ -433,12 +446,14 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 						GlobalIpCache.Set(reqIP.String(), p.CHAddr().String(), leaseDuration+(time.Duration(15)*time.Second))
 						GlobalMacCache.Set(p.CHAddr().String(), reqIP.String(), leaseDuration+(time.Duration(15)*time.Second))
 						// Update the cache
-						fmt.Println("DHCP ACK: " + p.CHAddr().String() + " " + reqIP.String())
+						fmt.Println(p.CHAddr().String() + " Ack " + reqIP.String())
+
 						handler.hwcache.Set(p.CHAddr().String(), index, leaseDuration+(time.Duration(15)*time.Second))
 						return answer
 					}
 				}
 			}
+			fmt.Println(p.CHAddr().String() + " Nak")
 			answer.D = dhcp.ReplyPacket(p, dhcp.NAK, handler.ip.To4(), nil, 0, nil)
 
 		case dhcp.Release, dhcp.Decline:
@@ -451,6 +466,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 		return answer
 	}
 	answer.Iface = h.intNet
+	fmt.Println(p.CHAddr().String() + " Nak")
 	answer.D = dhcp.ReplyPacket(p, dhcp.NAK, handler.ip.To4(), nil, 0, nil)
 	return answer
 }
