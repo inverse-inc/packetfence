@@ -3024,6 +3024,95 @@ Add the following to the previous interfaces configuration.
 HP
 ~~
 
+HPE 1910 Serie
+^^^^^^^^^^^^^^
+
+The HP 1910 Serie is based on the 3Com OS and most of the configuration will be done in the GUI.
+
+VLAN creation::
+* Go to *Network*, *VLAN*,
+* Click on the _Create_ tab.
+* Create the VLANs.
+
+image::docs/images/hp1910_00.png[scaledwidth="100%",alt="VLANs Creation"]
+
+Configure PacketFence as a RADIUS server::
+* Go to *Authentication*, *RADIUS*,
+* Click on the _RADIUS Server_ tab,
+* From _Server Type_, select *Authentication Server*,
+* From _Primary Server_, give the *PacketFence IP address*,
+* Click *Apply*,
+
+image::docs/images/hp1910_01.png[scaledwidth="100%",alt="RADIUS configuration"]
+
+* Click on the _RADIUS Setup_ tab,
+* Check the box _Authentication Server Shared Key_,
+* Give the *shared key*,
+* From _Username Format_, select *without-domain*,
+* Click *Apply*,
+
+image::docs/images/hp1910_01.png[scaledwidth="100%",alt="Shared key Configuration"]
+
+Create a new authentication domain::
+* Go to *Authentication*, *AAA*,
+* Click on the _Domain Setup_ tab,
+
+WARNING: We will need to create a specific authentication domain and *not making it as the default domain*.
+
+
+image::docs/images/hp1910_01.png[scaledwidth="100%",alt="AAA Domain Creation"]
+
+
+Configure the 802.1X and authentication method::
+* Go to *Authentication*,
+* Click on the _802.1X_ tab,
+* Check the _Enable 802.1X_ box,
+* From _Authentication Method_, select *EAP*,
+
+image::docs/images/hp1910_01.png[scaledwidth="100%",alt="802.1X and EAP"]
+
+Configure the authentication domain::
+
+INFO: Even limited, there is a command line access.
+
+* Connect to the switch using ssh,
+* Give:
+
+ _cmdline-mode on
+
+* Password: *512900*
+* Give:
+
+ System-view
+ Mac-authentication domain YOUR_DOMAIN_NAME
+ Mac-authentication user-name-format mac-address with-hyphen
+
+* Change the _YOUR_DOMAIN_NAME_ with the one from your context.
+* Do not close your terminal, we will come back to this later.
+
+* On the GUI, go to *Authentication*, *802.1X*,
+* From _Port_, select the port your are connected to. *GigabitEthernet X/X/X*,
+* From _Port Control_, select *MAC Based*,
+* From _Max Number of Users_, give *2*,
+* Check the box _Enable Re-Authentication_,
+* Click on *Apply*,
+
+
+image::docs/images/hp1910_01.png[scaledwidth="100%",alt="802.1X Authentication"]
+
+Enable the MAC Authentication in SSH, as well::
+* Back on the SSH terminal,
+* Give:
+
+ Mac-authentication interface gX/X/X
+
+* Modify the interface name for your context.
+
+Congratulation, the configuration is done::
+
+
+
+
 E4800G and E5500G Switch series
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
