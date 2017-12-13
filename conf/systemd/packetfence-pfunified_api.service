@@ -10,6 +10,7 @@ ExecStart=/usr/local/pf/sbin/pfunified_api prefork -m production -l http://*:808
 Slice=packetfence.slice
 Restart=on-failure
 KillMode=process
+User=pf
 
 [Install]
 WantedBy=packetfence.target
