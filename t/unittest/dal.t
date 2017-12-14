@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 42;
+use Test::More tests => 44;
 
 use pf::error qw(is_success is_error);
 use pf::db;
@@ -222,6 +222,15 @@ is_deeply(
     },
     "build_primary_keys_where_clause returns fullly qualified column names for searching",
 );
+
+{
+    my $node = pf::dal::node->new({mac => $test_mac});
+    my $status = $node->create_or_update();
+    is($status, $STATUS::CREATED, "Node created");
+    $node = pf::dal::node->new({mac => $test_mac, status => 'reg'});
+    $status = $node->create_or_update();
+    is($status, $STATUS::OK, "Node updated");
+}
 
 =head1 AUTHOR
 
