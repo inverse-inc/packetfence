@@ -257,7 +257,7 @@ sub create_or_update {
     my ($self) = @_;
     my $data = $self->_insert_data;
     my $status = $self->create($data);
-    return $status == $STATUS::CONFLICT ? $self->update() : $status;
+    return $status == $STATUS::CONFLICT ? $self->update(1) : $status;
 }
 
 sub commit_or_rollback {
@@ -293,8 +293,8 @@ Update the pf::dal object
 =cut
 
 sub update {
-    my ($self) = @_;
-    return $STATUS::PRECONDITION_FAILED unless $self->__from_table;
+    my ($self, $from_table) = @_;
+    return $STATUS::PRECONDITION_FAILED unless $self->__from_table || $from_table;
     my $where         = $self->primary_keys_where_clause;
     my ($status, $update_data) = $self->_update_data;
     return $status if is_error($status);
