@@ -169,7 +169,7 @@ image::docs/images/pfaerohive09.png[scaledwidth="100%",alt="New switch configura
 
 
 In _Definition_ ::
-* _IP Address/MAC Address/Range (CIDR)_, give the network address of your _Production_ network; For us, it will be *172.16.1.1/24*
+* _IP Address/MAC Address/Range (CIDR)_, give the network address of your _Production_ network; For us, it will be *172.16.1.1*
 * _Description_, give a description so you can quickly see what it is about
 * From the _Type_ list, select *Aerohive AP*
 * From _Mode_ select *Production*
