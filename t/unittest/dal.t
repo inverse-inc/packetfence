@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 58;
+use Test::More tests => 60;
 
 use pf::error qw(is_success is_error);
 use pf::db;
@@ -325,6 +325,7 @@ is_deeply(
     pf::dal::node->remove_by_id({mac => $test_mac});
     pf::dal::tenant->remove_by_id({id => $t_id});
     pf::dal::person->remove_by_id({pid => 'default'});
+    pf::dal->reset_tenant();
 }
 
 {
@@ -338,6 +339,15 @@ is_deeply(
     is($node->{tenant_id}, $test_tenant_id, "Current tenant is not set use the one provided");
     $node = pf::dal::node->new({mac => $test_mac, tenant_id => $test_tenant_id });
     is($node->{tenant_id}, $pf::dal::CURRENT_TENANT, "Current tenant is set use even when one is provided");
+}
+
+{
+    my $node = pf::dal::node->new({mac => $test_mac});
+    my $status = $node->create_or_update();
+    is($status, $STATUS::CREATED, "Node created");
+    $node = pf::dal::node->new({mac => $test_mac, status => 'reg'});
+    $status = $node->create_or_update();
+    is($status, $STATUS::OK, "Node updated");
 }
 
 =head1 AUTHOR
