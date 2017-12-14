@@ -78,7 +78,7 @@ msgid "Address"
 msgstr ""
 
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
-msgid "After registering, you will be given temporary network access\".(defined($email_timeout) ? \" during $email_timeout\" : \"\").\". In order to complete your registration, you will need to click on the link emailed to you."
+msgid "After registering, you will be given temporary network access. In order to complete your registration, you will need to click on the link emailed to you."
 msgstr ""
 
 # html/captive-portal/templates/provisioner/sepm.html
