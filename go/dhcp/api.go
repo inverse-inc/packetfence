@@ -36,6 +36,7 @@ type ApiReq struct {
 	NetInterface string
 	NetWork      string
 	Mac          string
+	Role         string
 }
 
 type Options struct {
@@ -123,6 +124,30 @@ func handleInitiaLease(res http.ResponseWriter, req *http.Request) {
 
 	if _, ok := ControlIn[vars["int"]]; ok {
 		Request := ApiReq{Req: "initialease", NetInterface: vars["int"], NetWork: ""}
+		ControlIn[vars["int"]] <- Request
+
+		stat := <-ControlOut[vars["int"]]
+
+		outgoingJSON, error := json.Marshal(stat)
+
+		if error != nil {
+			http.Error(res, error.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		fmt.Fprint(res, string(outgoingJSON))
+		return
+	} else {
+		http.Error(res, "Not found", http.StatusInternalServerError)
+		return
+	}
+}
+
+func handleDebug(res http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
+
+	if _, ok := ControlIn[vars["int"]]; ok {
+		Request := ApiReq{Req: "debug", NetInterface: vars["int"], Role: vars["role"]}
 		ControlIn[vars["int"]] <- Request
 
 		stat := <-ControlOut[vars["int"]]

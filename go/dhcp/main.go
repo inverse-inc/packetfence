@@ -17,6 +17,7 @@ import (
 	"github.com/RoaringBitmap/roaring"
 	"github.com/coreos/etcd/client"
 	"github.com/coreos/go-systemd/daemon"
+	"github.com/davecgh/go-spew/spew"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -131,6 +132,7 @@ func main() {
 	router.HandleFunc("/ip2mac/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}", handleIP2Mac).Methods("GET")
 	router.HandleFunc("/stats/{int:.*}", handleStats).Methods("GET")
 	router.HandleFunc("/initialease/{int:.*}", handleInitiaLease).Methods("GET")
+	router.HandleFunc("/debug/{int:.*}/{role:(?:[^/]*)}", handleDebug).Methods("GET")
 	router.HandleFunc("/optionsnetwork/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{options:.*}", handleOverrideNetworkOptions).Methods("POST")
 	router.HandleFunc("/options/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}/{options:.*}", handleOverrideOptions).Methods("POST")
 	router.HandleFunc("/removeoptionsnetwork/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}", handleRemoveNetworkOptions).Methods("GET")
@@ -165,12 +167,12 @@ func (h *Interface) run(jobs chan job) {
 
 	// Communicate with the server that run on an interface
 	go func() {
-		stats := make(map[string]Stats)
 		inchannel := ControlIn[h.Name]
 		outchannel := ControlOut[h.Name]
 		for {
 
 			Request := <-inchannel
+			stats := make(map[string]Stats)
 			// Send back stats
 			if Request.(ApiReq).Req == "stats" {
 				for _, v := range h.network {
@@ -220,6 +222,17 @@ func (h *Interface) run(jobs chan job) {
 				for _, v := range h.network {
 					initiaLease(&v.dhcpHandler)
 					stats[v.network.String()] = Stats{EthernetName: Request.(ApiReq).NetInterface, Net: v.network.String(), Category: v.dhcpHandler.role, Status: "Init Lease success"}
+				}
+				outchannel <- stats
+			}
+			// Update the lease
+			if Request.(ApiReq).Req == "debug" {
+				for _, v := range h.network {
+					if Request.(ApiReq).Role == v.dhcpHandler.role {
+						spew.Dump(v.dhcpHandler.available.Stats())
+						fmt.Println(v.dhcpHandler.available.String())
+						stats[v.network.String()] = Stats{EthernetName: Request.(ApiReq).NetInterface, Net: v.network.String(), Category: v.dhcpHandler.role, Status: "Debug finished"}
+					}
 				}
 				outchannel <- stats
 			}
