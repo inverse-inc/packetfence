@@ -46,7 +46,7 @@ Assumptions
 * Aerohive Access Point is loaded with HiveOS with version 6 or later
 * HiveManager with version 6 or later
 * WirelessAP : 172.16.1.1
-* Radius Secret; useStrongerSecret
+* Radius Secret: useStrongerSecret
 
 '''
 
@@ -94,7 +94,7 @@ Add the RADIUS parameters created before::
 image::docs/images/pfaerohive05.png[scaledwidth="100%",alt="AAA Radius config",align=right]
 
 * From _Add a New RADIUS Server_, in _IP Adresse/Domain Name_, put the PacketFence Server IP
-* Give the _Shared Secret_ and _Confirm_ it
+* Give the _Shared Secret_ (*useStrongerSecret*) and _Confirm_ it
 * And Click on *Apply*
 
 image::docs/images/pfaerohive06.png[scaledwidth="100%",alt="AAA Radius config",align=right]
@@ -298,7 +298,7 @@ You should create a new SSID, has explained before, secured or open, as you need
 
 
 Step 2 : Configure Filters in PacketFence
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Logon to your PacketFence server ::
 * Go to *CONFIGURATION -> ADVANCED ACCESS CONFIURATION -> Filter Engines*
