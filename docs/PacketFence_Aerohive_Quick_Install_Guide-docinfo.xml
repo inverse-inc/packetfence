@@ -7,9 +7,9 @@
   <revision>
     <revnumber>1.1</revnumber>
     <date>2017-12-12</date>
-    <revremark>- Rebuid of the MAC Authentication doc.</revremark>
-    <revremark>- Aadding Web Authentication doc.</revremark>
-    <revremark>- Aadding Web Authentication with MAC Authentication doc.</revremark>
+    <revremark>- Rebuild of the MAC Authentication doc.</revremark>
+    <revremark>- Adding Web Authentication doc.</revremark>
+    <revremark>- Adding Web Authentication with MAC Authentication doc.</revremark>
   </revision>
 </revhistory>
 
