@@ -74,7 +74,7 @@ sub render_email_instructions {
         $email_timeout = $email_timeout / 60 . " minutes";
     }
     return 
-        "<div class='text-center'>".$self->app->i18n("After registering, you will be given temporary network access".(defined($email_timeout) ? " during $email_timeout" : "").". In order to complete your registration, you will need to click on the link emailed to you.")."</div>" .
+        "<div class='text-center'>".$self->app->i18n("After registering, you will be given temporary network access. In order to complete your registration, you will need to click on the link emailed to you.")."</div>" .
         "<input name='fields[email_instructions]' type='hidden' value='1'>";
 }
 

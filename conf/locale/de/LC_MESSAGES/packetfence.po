@@ -101,12 +101,8 @@ msgid "Address"
 msgstr "Adresse"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
-msgid ""
-"After registering, you will be given temporary network "
-"access\".(defined($email_timeout) ? \" during $email_timeout\" : \"\").\". "
-"In order to complete your registration, you will need to click on the link "
-"emailed to you."
-msgstr "Nach der Registrierung erhalten Sie\".(defined($email_timeout) ? \" für $email_timeout\" : \"\").\" vorübergehenden Zugang zum Netzwerk. Um Ihre Registrierung abzuschließen, müssen Sie auf den Link klicken, der Ihnen per E-Mail zugesandt wurde."
+msgid "After registering, you will be given temporary network access. In order to complete your registration, you will need to click on the link emailed to you."
+msgstr "Nach der Registrierung erhalten Sie. vorübergehenden Zugang zum Netzwerk. Um Ihre Registrierung abzuschließen, müssen Sie auf den Link klicken, der Ihnen per E-Mail zugesandt wurde."
 
 # html/captive-portal/templates/provisioner/sepm.html
 msgid "Alternate installer"
