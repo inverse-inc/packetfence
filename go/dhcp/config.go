@@ -203,7 +203,7 @@ func (d *Interfaces) readConfig() {
 							hwcache := cache.New(time.Duration(seconds)*time.Second, 20*time.Second)
 
 							hwcache.OnEvicted(func(nic string, pool interface{}) {
-								fmt.Println(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Removed from the pool " + DHCPScope.role)
+								fmt.Println(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Removed from the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
 								DHCPScope.available.Add(uint32(pool.(int)))
 							})
 
@@ -253,7 +253,7 @@ func (d *Interfaces) readConfig() {
 						hwcache := cache.New(time.Duration(seconds)*time.Second, 20*time.Second)
 
 						hwcache.OnEvicted(func(nic string, pool interface{}) {
-							fmt.Println(nic + " Removed from the pool ")
+							fmt.Println(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Removed from the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
 							DHCPScope.available.Add(uint32(pool.(int)))
 						})
 

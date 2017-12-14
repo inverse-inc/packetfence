@@ -130,6 +130,7 @@ func main() {
 	router.HandleFunc("/mac2ip/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", handleMac2Ip).Methods("GET")
 	router.HandleFunc("/ip2mac/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}", handleIP2Mac).Methods("GET")
 	router.HandleFunc("/stats/{int:.*}", handleStats).Methods("GET")
+	router.HandleFunc("/initialease/{int:.*}", handleInitiaLease).Methods("GET")
 	router.HandleFunc("/optionsnetwork/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{options:.*}", handleOverrideNetworkOptions).Methods("POST")
 	router.HandleFunc("/options/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}/{options:.*}", handleOverrideOptions).Methods("POST")
 	router.HandleFunc("/removeoptionsnetwork/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}", handleRemoveNetworkOptions).Methods("GET")
@@ -206,7 +207,7 @@ func (h *Interface) run(jobs chan job) {
 					if Count == (v.dhcpHandler.leaseRange - int(statistiques.RunContainerValues)) {
 						Status = "Normal"
 					} else {
-						Status = "Calculated available IP " + string(v.dhcpHandler.leaseRange-Count) + " is different than what we have available in the pool " + string(statistiques.RunContainerValues)
+						Status = "Calculated available IP " + strconv.Itoa(v.dhcpHandler.leaseRange-Count) + " is different than what we have available in the pool " + strconv.Itoa(int(statistiques.RunContainerValues))
 					}
 
 					stats[v.network.String()] = Stats{EthernetName: Request.(ApiReq).NetInterface, Net: v.network.String(), Free: int(statistiques.RunContainerValues), Category: v.dhcpHandler.role, Options: Options, Members: Members, Status: Status}
@@ -215,9 +216,12 @@ func (h *Interface) run(jobs chan job) {
 			}
 			// Update the lease
 			if Request.(ApiReq).Req == "initialease" {
+
 				for _, v := range h.network {
 					initiaLease(&v.dhcpHandler)
+					stats[v.network.String()] = Stats{EthernetName: Request.(ApiReq).NetInterface, Net: v.network.String(), Category: v.dhcpHandler.role, Status: "Init Lease success"}
 				}
+				outchannel <- stats
 			}
 		}
 	}()
