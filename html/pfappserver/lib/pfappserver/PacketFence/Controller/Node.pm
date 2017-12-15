@@ -242,6 +242,10 @@ Node controller dispatcher
 
 sub object :Chained('/') :PathPart('node') :CaptureArgs(1) {
     my ( $self, $c, $mac ) = @_;
+    my $tenant_id = $c->req->param('tenant_id');
+    if ($tenant_id) {
+        pf::dal->set_tenant($tenant_id);
+    }
 
     my ($status, $node_ref, $roles_ref);
 
@@ -257,7 +261,10 @@ sub object :Chained('/') :PathPart('node') :CaptureArgs(1) {
         $c->stash->{roles} = $roles_ref;
     }
 
-    $c->stash->{mac} = $mac;
+    $c->stash(
+        mac => $mac,
+        tenant_id => $tenant_id,
+    );
 }
 
 =head2 view
