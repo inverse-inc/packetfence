@@ -281,3 +281,39 @@ type PassthroughsIsolationConf struct {
 	Wildcard       map[string][]string
 	Normal         map[string][]string
 }
+
+type PfScan struct {
+	StructConfig
+	PfconfigMethod string `val:"keys"`
+	PfconfigNS     string `val:"config::Scan"`
+	Keys           []string
+}
+
+type ScanConf struct {
+	StructConfig
+	PfconfigMethod   string   `val:"hash_element"`
+	PfconfigNS       string   `val:"config::Scan"`
+	PfconfigHashNS   string   `val:"-"`
+	PostRegistration string   `json:"post_registration"`
+	PreRegistration  string   `json:"pre_registration"`
+	Password         string   `json:"password"`
+	Type             string   `json:"type"`
+	WMIRules         []string `json:"wmi_rules"`
+	Oses             []string `json:"oses"`
+	Categories       []string `json:"categories"`
+	Username         string   `json:"username"`
+	Domain           string   `json:"domain"`
+	Registration     string   `json:"registration"`
+	Duration         string   `json:"duration"`
+}
+
+type WmiRulesConf struct {
+	StructConfig
+	PfconfigMethod string `val:"hash_element"`
+	PfconfigNS     string `val:"config::Wmi"`
+	PfconfigHashNS string `val:"-"`
+	Namespace      string `json:"namespace"`
+	Request        string `json:"request"`
+	Action         string `json:"action"`
+	OnTab          string `json:"on_tab"`
+}

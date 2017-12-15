@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math"
 	"net"
 	"strconv"
@@ -199,9 +200,10 @@ func (d *Interfaces) readConfig() {
 							DHCPScope.available = available
 
 							// Initialize hardware cache
-							hwcache := cache.New(time.Duration(seconds)*time.Second, (time.Duration(seconds)*time.Second)+10*time.Second)
+							hwcache := cache.New(time.Duration(seconds)*time.Second, 20*time.Second)
 
 							hwcache.OnEvicted(func(nic string, pool interface{}) {
+								fmt.Println(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Removed from the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
 								DHCPScope.available.Add(uint32(pool.(int)))
 							})
 
@@ -248,9 +250,10 @@ func (d *Interfaces) readConfig() {
 						DHCPScope.available = available
 
 						// Initialize hardware cache
-						hwcache := cache.New(time.Duration(seconds)*time.Second, (time.Duration(seconds)*time.Second)+10*time.Second)
+						hwcache := cache.New(time.Duration(seconds)*time.Second, 20*time.Second)
 
 						hwcache.OnEvicted(func(nic string, pool interface{}) {
+							fmt.Println(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Removed from the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
 							DHCPScope.available.Add(uint32(pool.(int)))
 						})
 
