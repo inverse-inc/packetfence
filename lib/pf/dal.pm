@@ -255,8 +255,10 @@ sub save {
 
 sub create_or_update {
     my ($self) = @_;
-    my $data = $self->_insert_data;
-    my $status = $self->create($data);
+    my $status = do {
+        local $self->{__from_table} = undef;
+        $self->insert;
+    };
     return $status == $STATUS::CONFLICT ? $self->update(1) : $status;
 }
 
