@@ -373,9 +373,11 @@ sub insert {
     if ($rows) {
         $self->_save_old_data();
         $self->update_auto_increment_field($sth);
+        $sth->finish;
         $self->after_create_hook();
         return $STATUS::CREATED;
     }
+    $sth->finish;
     return $STATUS::BAD_REQUEST;
 }
 
