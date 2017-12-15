@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 6;
+use Test::More tests => 21;
 use pf::tenant qw(
     tenant_add
     tenant_view_by_name
@@ -32,37 +32,48 @@ use pf::error qw(is_error is_success);
 
 #This test will running last
 use Test::NoWarnings;
-my $tenant_name = "test_tenant_$$";
-my $results = tenant_add({
-    name => $tenant_name
-});
+our @created_tenants;
 
-ok($results, "tenant $tenant_name");
+for my $i (1..4) {
+    create_tenant("test_tenant_${$}_$i");
+}
 
-my $tenant = tenant_view_by_name($tenant_name);
+sub create_tenant {
+    my ($tenant_name) = @_;
+    my $results = tenant_add({
+        name => $tenant_name
+    });
 
-ok(defined $tenant, "Get tenant by $tenant_name");
+    ok($results, "tenant $tenant_name");
 
-is($tenant->{name}, $tenant_name, "Get tenant by $tenant_name");
+    my $tenant = tenant_view_by_name($tenant_name);
 
-pf::dal->set_tenant($tenant->{id});
+    ok(defined $tenant, "Get tenant by $tenant_name");
 
-my $person = person_view("default");
+    is($tenant->{name}, $tenant_name, "Get tenant by $tenant_name");
+    push @created_tenants, $tenant->{id};
 
-ok($person, "Get default person for $tenant_name");
+    pf::dal->set_tenant($tenant->{id});
 
-is($tenant->{id}, $person->{tenant_id}, "The default person has the tenant_id $tenant->{id}");
+    my $person = person_view("default");
+    my $person_tenant_id = $person ? $person->{tenant_id} : undef;
+
+    ok($person, "Get default person for $tenant_name");
+
+    is($tenant->{id}, $person_tenant_id, "The default person has the tenant_id $tenant->{id}");
+}
 
 END {
-    if ($tenant->{id}) {
+    foreach my $id (@created_tenants) {
+        next unless defined $id;
         pf::dal::person->remove_items(
             -where => {
-                tenant_id => $tenant->{id},
+                tenant_id => $id,
             }
         );
         pf::dal::tenant->remove_items(
             -where => {
-                name => $tenant_name,
+                id => $id,
             }
         );
     }
