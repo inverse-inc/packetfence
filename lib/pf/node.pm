@@ -744,7 +744,8 @@ sub nodes_maintenance {
             status    => { "!=" => "unreg" },
             unregdate => [-and => { "!=" => $ZERO_DATE }, { "<"  => \['NOW()'] } ]
         },
-        -columns => ['mac']
+        -columns => ['mac'],
+        -no_auto_tenant_id => 1,
     );
     if (is_error($status)) {
         return (0);
