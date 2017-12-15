@@ -387,6 +387,8 @@ sub update_auto_increment_field {
 
 sub find_auto_increment_field {
     my ($self) = @_;
+    #This is needed to reset the hash iterator
+    return undef unless scalar keys %{$self->get_meta};
     while( my ($k, $v) = each %{$self->get_meta}) {
        return $k if $v->{is_auto_increment};
     }
