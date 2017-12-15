@@ -131,6 +131,7 @@ sub default_query {
                     mac pid voip bypass_vlan
                     status category_id bypass_role_id
                     user_agent computername last_arp last_dhcp notes
+                    tenant_id
                 )
             ),
             (
@@ -168,16 +169,17 @@ sub default_query {
                     operator  => '=>',
                     condition => {
                         'ip4log.ip' => {
-                            "=" => \"( SELECT `ip` FROM `ip4log` WHERE `mac` = `node`.`mac` ORDER BY `start_time` DESC LIMIT 1 )",
+                            "=" => \"( SELECT `ip` FROM `ip4log` WHERE `mac` = `node`.`mac` AND `tenant_id` = `node`.`tenant_id`  ORDER BY `start_time` DESC LIMIT 1 )",
                         }
                     }
                 },
                 'ip4log',
-                "=>{locationlog.mac=node.mac,locationlog.end_time='$ZERO_DATE'}", 'locationlog',
+                "=>{locationlog.mac=node.mac,node.tenant_id=locationlog.tenant_id,locationlog.end_time='$ZERO_DATE'}", 'locationlog',
                 {
                     operator  => '=>',
                     condition => {
                         'node.mac' => { '=' => { -ident => '%2$s.mac' } },
+                        'node.tenant_id' => { '=' => { -ident => '%2$s.tenant_id' } },
                         'locationlog2.end_time' => $ZERO_DATE,
                         -or => [
                             '%1$s.start_time' => { '<' => { -ident => '%2$s.start_time' } },
@@ -190,11 +192,12 @@ sub default_query {
                     },
                 },
                 'locationlog|locationlog2',
-                '=>{node.mac=r1.callingstationid}', 'radacct|r1',
+                '=>{node.mac=r1.callingstationid,node.tenant_id=r1.tenant_id}', 'radacct|r1',
                 {
                     operator  => '=>',
                     condition => {
                         'node.mac' => { '=' => { -ident => '%2$s.callingstationid' } },
+                        'node.tenant_id' => { '=' => { -ident => '%2$s.tenant_id' } },
                         -or => [
                             '%1$s.acctstarttime' => { '<' => { -ident => '%2$s.acctstarttime' } },
                             '%1$s.acctstarttime' => undef,
