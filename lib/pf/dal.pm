@@ -372,7 +372,7 @@ sub insert {
 
 sub update_auto_increment_field {
     my ($self, $sth) = @_;
-    my $id = $sth->{Database}->{mysql_insertid};
+    my $id = $sth->{mysql_insertid};
     if ($id) {
         my $field = $self->find_auto_increment_field();
         if ($field) {
