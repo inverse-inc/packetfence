@@ -239,6 +239,7 @@ func (d *Interfaces) readConfig() {
 						if _, found := VIPIp[eth.Name]; found {
 							DHCPScope.vip = VIPIp[eth.Name]
 						}
+						DHCPScope.role = "none"
 						DHCPScope.start = net.ParseIP(ConfNet.DhcpStart)
 						seconds, _ := strconv.Atoi(ConfNet.DhcpDefaultLeaseTime)
 						DHCPScope.leaseDuration = time.Duration(seconds) * time.Second
@@ -246,6 +247,7 @@ func (d *Interfaces) readConfig() {
 
 						// Initialize roaring bitmap
 						available := roaring.New()
+
 						available.AddRange(0, uint64(dhcp.IPRange(net.ParseIP(ConfNet.DhcpStart), net.ParseIP(ConfNet.DhcpEnd))))
 						DHCPScope.available = available
 
