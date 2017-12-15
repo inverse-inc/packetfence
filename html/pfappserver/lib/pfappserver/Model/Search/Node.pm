@@ -207,6 +207,7 @@ sub default_query {
                 },
                 'radacct|r2'
         ],
+        -no_auto_tenant_id => 1,
     );
 }
 
