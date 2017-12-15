@@ -38,10 +38,10 @@
   <div class="controls pull-right">
   <select name="vid" id="vid" class="" data-placeholder="[% l('Select a violation') %]">
       [%- FOREACH violation IN violations %]
-      [% IF violation.desc %]<option value="[% violation.id | html %]">[% violation.desc | html %]</option>[% END %]
+      [% IF violation.desc %]<option trigger_url=[% c.uri_for(c.controller('Node').action_for('triggerViolation'), [mac] violation.id, {tenant_id => tenant_id})  %] value="[% violation.id | html %]">[% violation.desc | html %]</option>[% END %]
       [%- END -%]
   </select>
   [% IF multihost.size %]<a id="addViolation" class="btn btn-warning" href="[% c.uri_for(c.controller('Node').action_for('triggerViolation_multihost'), [mac]) %]">[% l('Trigger (All Devices)') %]</a>[% END %]
-  <a id="addViolation" class="btn btn-warning" href="[% c.uri_for(c.controller('Node').action_for('triggerViolation'), [mac]) %]">[% l('Trigger') %]</a>
+  <button type="button" id="addViolation" class="btn btn-warning">[% l('Trigger') %]</button>
 </div>
 [%- END %]
