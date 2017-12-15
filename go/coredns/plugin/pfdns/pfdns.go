@@ -16,7 +16,7 @@ import (
 
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
 	"github.com/inverse-inc/packetfence/go/coredns/request"
-	"github.com/packetfence/go/filter_client"
+	"github.com/inverse-inc/packetfence/go/filter_client"
 	cache "github.com/patrickmn/go-cache"
 	//Import mysql driver
 	_ "github.com/go-sql-driver/mysql"
