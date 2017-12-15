@@ -737,6 +737,7 @@ called by pfmon daemon for the configured interval
 sub nodes_maintenance {
     my $timer = pf::StatsD::Timer->new;
     my $logger = get_logger();
+    local $pf::dal::CURRENT_TENANT = $pf::dal::CURRENT_TENANT;
 
     $logger->debug("nodes_maintenance called");
     my ( $status, $iter ) = pf::dal::node->search(
@@ -744,15 +745,17 @@ sub nodes_maintenance {
             status    => { "!=" => "unreg" },
             unregdate => [-and => { "!=" => $ZERO_DATE }, { "<"  => \['NOW()'] } ]
         },
-        -columns => ['mac'],
+        -columns => ['mac', 'tenant_id'],
         -no_auto_tenant_id => 1,
+        -with_class => undef,
     );
     if (is_error($status)) {
         return (0);
     }
 
-    while (my $row = $iter->next(undef)) {
+    while (my $row = $iter->next()) {
         my $currentMac = $row->{mac};
+        pf::dal->set_tenant($row->{tenant_id});
         node_deregister($currentMac);
         require pf::enforcement;
         pf::enforcement::reevaluate_access( $currentMac, 'manage_deregister' );
