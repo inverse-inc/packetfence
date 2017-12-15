@@ -409,6 +409,8 @@ Keepalived secret
 
 It is highly recommended to modify the keepalived shared secret in your cluster to prevent attacks. From the PacketFence web administration interface, go in 'Configuration/System Configuration/Cluster' and change the 'Shared KEY'. Make sure you restart keepalived on all your servers using `/usr/local/pf/bin/pfcmd service keepalived restart`
 
+'''
+
 Understanding the Galera cluster synchronization
 ------------------------------------------------
 
@@ -518,6 +520,162 @@ In order to see the current maintenance state on a node:
 
   # /usr/local/pf/bin/cluster/maintenance
 
+'''
+
+Maintenance and Operation
+--------------------------
+
+Shutting down a PacketFence Active/Active cluster of tree nodes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In order to shutdown the cluster in a proper way, here is the steps you need to follow.
+We are here assuming that we are on a cluster of tree nodes, on Centos7.
+
+We will shutdown the nodes, one by one, starting by one of the "Slaves" and end with the "Master".
+
+Find the Master Server: ::
+* Type *ip a* on each nodes, and look for the one which hold the VIP (the /32 address).
+
+WARNING: *YOU TAKE THE RISK OF LOOSING SOME DATA IF YOU DO NOT IDENTIFY MASTER AND SLAVES NODES* 
+ 
+Shutdown the "Slaves": ::
+* Logon with an ssh terminal on the master and make a permanent ping on both slave.
+* On the first slave, execute: *shutdown -h now*.
+* Once the first slave down, do the same with the second slave.
+
+Shutdown the "Master": ::
+* On the master, execute: *shutdown -h now*.
+
+Bringing up a PacketFence Active/Active cluster of tree nodes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We want to bring up the cluster, as the same status it was before the shutdown, assuming we want to have the Master and the Slaves well synchronised.
+
+Therefore, we will do the _Shutting down_ procedure, but in reverse.
+
+We will start the nodes, from the Master to the Slaves.
+
+Bring up the "Old Master"
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Start the server, logon to the ssh terminal and make a first checkup of the services:
+PacketFence-Mariadb, type the command: ::
+----
+ systemctl status packetfence-mariadb
+----
+----
+ Loaded: loaded (/usr/lib/systemd/system/packetfence-mariadb.service; enabled; vendor preset: disabled)
+ Active: active (running) since ...
+----
+
+PacketFence-Config, type the command: ::
+----
+ systemctl status packetfence-config
+----
+----
+ Loaded: loaded (/usr/lib/systemd/system/packetfence-config.service; enabled; vendor preset: disabled)
+ Active: active (running) since ...
+----
+
+HA-Proxy, type the command: ::
+----
+ systemctl status packetfence-haproxy
+----
+----
+ Loaded: loaded (/usr/lib/systemd/system/packetfence-haproxy.service; enabled; vendor preset: disabled)
+  Active: active (running) since ...
+----
+
+The *Master* must now be ready.
+
+
+Bring up the "Slaves"
+^^^^^^^^^^^^^^^^^^^^^
+
+Start the first slave, logon to the ssh terminal.
+
+Check the PacketFence-Mariadb sync with the Master, type the command: ::
+----
+mysql -u root -p
+mysql> show status like 'wsrep%';
+----
+----
+MariaDB [(none)]> show status like "wsrep%";
++------------------------------+-------------------------------------------------------+
+| Variable_name                | Value                                                 |
++------------------------------+-------------------------------------------------------+
+...
+| wsrep_cluster_size           | 2                                                     |
+...
+| wsrep_connected              | ON                                                    |
+...
+| wsrep_evs_state              | OPERATIONAL                                           |
+...
+| wsrep_local_state_comment    | Synced                                                |
+...
++------------------------------+-------------------------------------------------------+
+----
+
+Start the second slave, logon on terminal and go with a *show status like 'wsrep%';* once again.
+
+* The values must have changed to:
+----
+MariaDB [(none)]> show status like "wsrep%";
++------------------------------+-------------------------------------------------------+
+| Variable_name                | Value                                                 |
++------------------------------+-------------------------------------------------------+
+...
+| wsrep_cluster_size           | 3                                                     |
+...
+| wsrep_evs_state              | OPERATIONAL                                           |
+...
+| wsrep_local_state_comment    | Synced                                                |
+...
++------------------------------+-------------------------------------------------------+
+----
+
+NOTE: The _wsrep_incoming_addresses_ will give you the IP addresses of the nodes synced.
+
+NOTE: The _wsrep_cluster_status_ will always be *Primary*, even on the slaves. 
+
+'''
+Backup procedure
+~~~~~~~~~~~~~~~~
+
+Automatic Backup files
+^^^^^^^^^^^^^^^^^^^^^^
+
+The PacketFence servers have a daily backup done, each nights (0:30AM).
+
+If you need to extrenalise those backups, they are in:
+
+----
+/root/backup
+----
+Files description: ::
+* packetfence-db-dump-DATE_00h30.sql.gz are the sql dump of your Mariadb database.
+* packetfence-files-dump-DATE_00h30.tgz are the dump of the PacketFence files.
+
+
+Manual backups
+^^^^^^^^^^^^^^
+
+In case you need to make a "manual" backup, you can type the following command:
+
+----
+/usr/local/pf/addons/database-backup-and-maintenance.sh
+----
+
+As the daily automatic backup, you will find the files in:
+
+----
+/root/backup/
+----
+
+Two files will be available, tagged with the Date and Hour of your backup.
+
+'''
+
 Advanced configuration
 ----------------------
 
@@ -528,8 +686,7 @@ NOTE: Removing a server from the cluster requires a restart of the PacketFence s
 
 First, you will need to stop PacketFence on your server and put it offline.
 
-  # systemctl stop packetfence
-  # shutdown -h 0
+  # shutdown -h now
 
 Then you need to remove all the configuration associated to the server from /usr/local/pf/conf/cluster.conf on one of the remaining nodes. 
 Configuration for a server is always prefixed by the server's hostname.
@@ -648,6 +805,8 @@ The following features are not supported when using active/active clustering.
 * Switches using SNMP based enforcement (port-security, link up/down, ...)
 * SNMP roaming with the Aerohive controller. (4.7+ includes support for accounting roaming)
 * Inline enforcement
+
+'''
 
 Appendix
 --------
