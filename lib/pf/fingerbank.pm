@@ -88,12 +88,13 @@ sub process {
 
     # Querying for a resultset
     my $query_args = endpoint_attributes($mac);
-    $query_args->{mac} = $mac;
 
     unless(defined($query_args)) {
         $logger->error("Unable to fetch query arguments for Fingerbank query. Aborting.");
         return $FALSE;
     }
+
+    $query_args->{mac} = $mac;
 
     if($query_args->{last_updated}->compare($process_timestamp) <= 0) {
         $logger->info("No recent data found for $mac, will not trigger device profiling");
