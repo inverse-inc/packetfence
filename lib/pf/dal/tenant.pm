@@ -19,6 +19,7 @@ use warnings;
 
 use base qw(pf::dal::_tenant);
 use pf::dal::person;
+use pf::error qw(is_error);
 
 sub after_create_hook {
     my ($self) = @_;
@@ -28,6 +29,9 @@ sub after_create_hook {
         tenant_id => $self->{id},
         -no_auto_tenant_id => 1,
     });
+    if (is_error($status)) {
+        $self->logger->error("Unable to create default user for the tenant");
+    }
 }
  
 =head1 AUTHOR
