@@ -63,6 +63,12 @@
 			"revisionTime": "2015-05-15T14:53:56Z"
 		},
 		{
+			"checksumSHA1": "rAnxK4LbUVYQh6VwXkq/89JaroY=",
+			"path": "github.com/go-sql-driver/mysql",
+			"revision": "cd4cb909ce1a31435164be29bf3682031f61539a",
+			"revisionTime": "2017-11-17T11:51:24Z"
+		},
+		{
 			"checksumSHA1": "2sj/DbXoXdnPAfjAEyhS0Jj5QL0=",
 			"path": "github.com/go-stack/stack",
 			"revision": "100eb0c0a9c5b306ca2fb4f165df21d80ada4b82",
@@ -303,6 +309,12 @@
 			"revisionTime": "2016-10-03T16:27:22Z"
 		},
 		{
+			"checksumSHA1": "zmC8/3V4ls53DJlNTKDZwPSC/dA=",
+			"path": "github.com/satori/go.uuid",
+			"revision": "5bf94b69c6b68ee1b541973bb8e1144db23a194b",
+			"revisionTime": "2017-03-21T23:07:31Z"
+		},
+		{
 			"checksumSHA1": "kbgJvKG3NRoqU91rYnXGnyR+8HQ=",
 			"path": "github.com/shurcooL/sanitized_anchor_name",
 			"revision": "1dba4b3954bc059efc3991ec364f9f9a35f597d2",
@@ -337,6 +349,18 @@
 			"path": "github.com/xenolf/lego/acme",
 			"revision": "be23e242c130084523a262cd51c60af1a640391c",
 			"revisionTime": "2017-02-11T06:53:49Z"
+		},
+		{
+			"checksumSHA1": "vE43s37+4CJ2CDU6TlOUOYE0K9c=",
+			"path": "golang.org/x/crypto/bcrypt",
+			"revision": "453249f01cfeb54c3d549ddb75ff152ca243f9d8",
+			"revisionTime": "2017-02-08T20:51:15Z"
+		},
+		{
+			"checksumSHA1": "JsJdKXhz87gWenMwBeejTOeNE7k=",
+			"path": "golang.org/x/crypto/blowfish",
+			"revision": "453249f01cfeb54c3d549ddb75ff152ca243f9d8",
+			"revisionTime": "2017-02-08T20:51:15Z"
 		},
 		{
 			"checksumSHA1": "C1KKOxFoW7/W/NFNpiXK+boguNo=",
