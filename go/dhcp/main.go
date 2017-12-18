@@ -476,7 +476,11 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 							handler.hwcache.Set(p.CHAddr().String(), index, leaseDuration+(time.Duration(15)*time.Second))
 							return answer
 						} else {
-							fmt.Println(p.CHAddr().String() + " Asked for an IP that hasnt been assigned by Offer " + dhcp.IPAdd(handler.start, index.(int)).String())
+							fmt.Println(p.CHAddr().String() + " Asked for an IP " + reqIP.String() + " that hasnt been assigned by Offer " + dhcp.IPAdd(handler.start, index.(int)).String())
+							// pingreply := Ping(reqIP.String(), 1)
+							// if pingreply {
+							// 	fmt.Println(p.CHAddr().String() + " Ip " + reqIP.String() + " already in use")
+							// }
 						}
 					}
 				}
