@@ -137,6 +137,8 @@ our (
     %ConfigSwitchesList,
 #Reports
     %ConfigReport,
+#Surveys
+    %ConfigSurvey,
 #Roles
     %ConfigRoles,
 #device_Registration.conf
@@ -198,6 +200,7 @@ BEGIN {
         %ConfigSwitchesGroup
         %ConfigSwitchesList
         %ConfigReport
+        %ConfigSurvey
         %ConfigRoles
         %ConfigDeviceRegistration
     );
@@ -281,6 +284,8 @@ tie %ConfigSwitchesGroup, 'pfconfig::cached_hash', 'resource::switches_group';
 tie %ConfigSwitchesList, 'pfconfig::cached_hash', 'resource::switches_list';
 
 tie %ConfigReport, 'pfconfig::cached_hash', 'config::Report';
+
+tie %ConfigSurvey, 'pfconfig::cached_hash', 'config::Survey';
 
 tie %ConfigRoles, 'pfconfig::cached_hash', 'config::Roles';
 
@@ -918,6 +923,9 @@ sub configreload {
     
     require pf::nodecategory;
     pf::nodecategory::nodecategory_populate_from_config( \%pf::config::ConfigRoles );
+
+    require pf::Survey;
+    pf::Survey::reload_from_config( \%pf::config::ConfigSurvey );
 
     return ;
 }

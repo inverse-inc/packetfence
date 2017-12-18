@@ -314,6 +314,10 @@ sub done {
         return;
     }
     $self->parent->next();
+
+    if(my $redirect = $self->app->request->param("done_redirect_to")) {
+        $self->app->redirect($redirect);
+    }
 }
 
 =head2 next
