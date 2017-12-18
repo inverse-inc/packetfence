@@ -225,7 +225,7 @@ func (h *Interface) run(jobs chan job) {
 				}
 				outchannel <- stats
 			}
-			// Update the lease
+
 			if Request.(ApiReq).Req == "debug" {
 				for _, v := range h.network {
 					if Request.(ApiReq).Role == v.dhcpHandler.role {
@@ -333,7 +333,8 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 			// Search in the cache if the mac address already get assigned
 			if x, found := handler.hwcache.Get(p.CHAddr().String()); found {
 				free = x.(int)
-				handler.hwcache.Set(p.CHAddr().String(), free, handler.leaseDuration+(time.Duration(15)*time.Second))
+				// 5 seconds to send a request
+				handler.hwcache.Set(p.CHAddr().String(), free, time.Duration(5)*time.Second)
 				goto reply
 			}
 
@@ -458,6 +459,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 								GlobalOptions[key] = value
 							}
 						}
+
 						answer.D = dhcp.ReplyPacket(p, dhcp.ACK, handler.ip.To4(), reqIP, leaseDuration,
 							GlobalOptions.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
 						// Update Global Caches

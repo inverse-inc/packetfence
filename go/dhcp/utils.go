@@ -58,7 +58,7 @@ func initiaLease(dhcpHandler *DHCPHandler) {
 	binary.BigEndian.PutUint32(a, endip)
 	ipend := net.IPv4(a[0], a[1], a[2], a[3])
 
-	rows, err := database.Query("select ip,mac,end_time from ip4log where inet_aton(ip) between inet_aton(?) and inet_aton(?) and (end_time = 0 OR  end_time > NOW()) ORDER BY ip", dhcpHandler.start.String(), ipend.String())
+	rows, err := database.Query("select ip,mac,end_time, MAX(CAST(start_time AS CHAR))  from ip4log where inet_aton(ip) between inet_aton(?) and inet_aton(?) and (end_time = 0 OR  end_time > NOW()) GROUP BY mac ORDER BY ip", dhcpHandler.start.String(), ipend.String())
 	if err != nil {
 		// Log here
 		fmt.Println(err)
@@ -66,12 +66,14 @@ func initiaLease(dhcpHandler *DHCPHandler) {
 	}
 	defer rows.Close()
 	var (
-		ipstr    string
-		mac      string
-		end_time time.Time
+		ipstr      string
+		mac        string
+		end_time   time.Time
+		start_time string
 	)
+
 	for rows.Next() {
-		err := rows.Scan(&ipstr, &mac, &end_time)
+		err := rows.Scan(&ipstr, &mac, &end_time, &start_time)
 		if err != nil {
 			// Log here
 			fmt.Println(err)
@@ -80,11 +82,17 @@ func initiaLease(dhcpHandler *DHCPHandler) {
 
 		// Calculate the leasetime from the date in the database
 		now := time.Now()
-		leaseDuration := end_time.Sub(now)
+		var leaseDuration time.Duration
+		if end_time.IsZero() {
+			leaseDuration = dhcpHandler.leaseDuration
+		} else {
+			leaseDuration = end_time.Sub(now)
+		}
 		ip := net.ParseIP(ipstr)
 
 		// Calculate the position for the roaring bitmap
 		position := uint32(binary.BigEndian.Uint32(ip.To4())) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
+
 		// Remove the position in the roaming bitmap
 		dhcpHandler.available.Remove(position)
 		// Add the mac in the cache
