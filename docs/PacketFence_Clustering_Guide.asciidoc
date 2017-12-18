@@ -525,41 +525,40 @@ In order to see the current maintenance state on a node:
 Maintenance and Operation
 --------------------------
 
-Shutting down a PacketFence Active/Active cluster of tree nodes
+Shutting down a PacketFence Active/Active cluster of three nodes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In order to shutdown the cluster in a proper way, here is the steps you need to follow.
-We are here assuming that we are on a cluster of tree nodes, on Centos7.
+As PacketFence cluster works in an active/active way, with statefull redundance, the order to stop the servers is not very important.
 
-We will shutdown the nodes, one by one, starting by one of the "Slaves" and end with the "Master".
+NODE: The important thing is to start the servers in the opposite order that you will stop them .
 
-Find the Master Server: ::
-* Type *ip a* on each nodes, and look for the one which hold the VIP (the /32 address).
+Ex::
+* Stop order: pf1 -> Pf2 -> Pf3
+* Start order: pf3 -> Pf2 -> Pf1
 
-WARNING: *YOU TAKE THE RISK OF LOOSING SOME DATA IF YOU DO NOT IDENTIFY MASTER AND SLAVES NODES* 
- 
-Shutdown the "Slaves": ::
-* Logon with an ssh terminal on the master and make a permanent ping on both slave.
-* On the first slave, execute: *shutdown -h now*.
-* Once the first slave down, do the same with the second slave.
+If you want to find an order, you can start by defining one, you can look to the cluster management tool.
+* Go to *STATUS -> OVERVIEW -> Cluster state*
 
-Shutdown the "Master": ::
-* On the master, execute: *shutdown -h now*.
+Shutdown the servers: ::
+* Logon to the first server with a SSH terminal
+* Type the following command: *shutdown -h now*
+* Logon to the next server, with a SSH terminal.
+* Type the following command: *ping IP_ADDRESS_OF_THE_FIRST_SERVER*
+* Once the server do not responce back, type the following command: *shutdown -h now*
+* Proceed the same way with the last server.
 
-Bringing up a PacketFence Active/Active cluster of tree nodes
+Bringing up a PacketFence Active/Active cluster of three nodes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-We want to bring up the cluster, as the same status it was before the shutdown, assuming we want to have the Master and the Slaves well synchronised.
+We want to bring up the cluster, as the same status it was before the shutdown.
 
 Therefore, we will do the _Shutting down_ procedure, but in reverse.
 
-We will start the nodes, from the Master to the Slaves.
+Bring up the "Last" server stopped
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Bring up the "Old Master"
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Start the server, logon to the ssh terminal and make a first checkup of the services:
-PacketFence-Mariadb, type the command: ::
+Start the server, logon to the SSH terminal and make a first checkup of the services:
+PacketFence-MariaDB, type the command: ::
 ----
  systemctl status packetfence-mariadb
 ----
@@ -586,15 +585,15 @@ HA-Proxy, type the command: ::
   Active: active (running) since ...
 ----
 
-The *Master* must now be ready.
+The server must now be ready.
 
 
-Bring up the "Slaves"
-^^^^^^^^^^^^^^^^^^^^^
+Bring up the next server
+^^^^^^^^^^^^^^^^^^^^^^^^
 
-Start the first slave, logon to the ssh terminal.
+Start the next server, logon to the SSH terminal.
 
-Check the PacketFence-Mariadb sync with the Master, type the command: ::
+Once prompted, check the PacketFence-Mariadb sync with the Master, type the command: ::
 ----
 mysql -u root -p
 mysql> show status like 'wsrep%';
@@ -653,7 +652,7 @@ If you need to extrenalise those backups, they are in:
 /root/backup
 ----
 Files description: ::
-* packetfence-db-dump-DATE_00h30.sql.gz are the sql dump of your Mariadb database.
+* packetfence-db-dump-innobackup-DATE_00h30.xbstream.gz are the sql dump of your Mariadb database.
 * packetfence-files-dump-DATE_00h30.tgz are the dump of the PacketFence files.
 
 
