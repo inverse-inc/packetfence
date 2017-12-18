@@ -75,9 +75,11 @@ our @API_V1_ROUTES = (
 
 sub startup {
     my ($self) = @_;
+    $self->routes->namespaces(['pf::UnifiedApi::Controller', 'pf::UnifiedApi']);
     $self->hook(before_dispatch => \&set_tenant_id);
     $self->plugin('pf::UnifiedApi::Plugin::RestCrud');
     $self->setup_api_v1_routes();
+    $self->custom_startup_hook();
 }
 
 sub setup_api_v1_routes {
@@ -96,7 +98,16 @@ sub setup_api_v1_routes {
 }
 
 sub api_v1_routes {
-    return @API_V1_ROUTES;
+    my ($self) = @_;
+    return @API_V1_ROUTES, $self->api_v1_custom_routes;
+}
+
+sub api_v1_custom_routes {
+
+}
+
+sub custom_startup_hook {
+
 }
 
 sub set_tenant_id {

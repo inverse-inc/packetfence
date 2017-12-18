@@ -36,7 +36,7 @@ use pf::tenant qw(
     tenant_view_by_name
 );
 
-my $t = Test::Mojo->new('pf::UnifiedApi');
+my $t = Test::Mojo->new('pf::UnifiedApi::custom');
 
 $t->get_ok('/api/v1/users/admin')
   ->status_is(200)
