@@ -200,7 +200,7 @@ func (d *Interfaces) readConfig() {
 							DHCPScope.available = available
 
 							// Initialize hardware cache
-							hwcache := cache.New(time.Duration(seconds)*time.Second, 20*time.Second)
+							hwcache := cache.New(time.Duration(seconds)*time.Second, 10*time.Second)
 
 							hwcache.OnEvicted(func(nic string, pool interface{}) {
 								fmt.Println(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Removed from the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
@@ -247,12 +247,11 @@ func (d *Interfaces) readConfig() {
 
 						// Initialize roaring bitmap
 						available := roaring.New()
-
 						available.AddRange(0, uint64(dhcp.IPRange(net.ParseIP(ConfNet.DhcpStart), net.ParseIP(ConfNet.DhcpEnd))))
 						DHCPScope.available = available
 
 						// Initialize hardware cache
-						hwcache := cache.New(time.Duration(seconds)*time.Second, 20*time.Second)
+						hwcache := cache.New(time.Duration(seconds)*time.Second, 10*time.Second)
 
 						hwcache.OnEvicted(func(nic string, pool interface{}) {
 							fmt.Println(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Removed from the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
