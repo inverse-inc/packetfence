@@ -23,6 +23,7 @@ func NewFactory(ctx context.Context) Factory {
 	f.typeRegistry["Checkpoint"] = reflect.TypeOf(&Checkpoint{}).Elem()
 	f.typeRegistry["WatchGuard"] = reflect.TypeOf(&WatchGuard{}).Elem()
 	f.typeRegistry["JSONRPC"] = reflect.TypeOf(&JSONRPC{}).Elem()
+	f.typeRegistry["JuniperSRX"] = reflect.TypeOf(&JuniperSRX{}).Elem()
 	return f
 }
 
