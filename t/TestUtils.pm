@@ -116,9 +116,7 @@ and return all the normal files under
 
 =cut
 
-my @excluded_binaries = qw(
-   /usr/local/pf/bin/pfdhcp
-   /usr/local/pf/bin/pfipset
+my %exclusions = map { $_ => 1 } qw(
    /usr/local/pf/bin/pfcmd
    /usr/local/pf/bin/pfhttpd
    /usr/local/pf/sbin/pfdns
@@ -126,8 +124,9 @@ my @excluded_binaries = qw(
    /usr/local/pf/bin/mysql_fingerbank_import.sh
    /usr/local/pf/addons/sourcefire/pfdetect.pl
    /usr/local/pf/bin/pfdns
+   /usr/local/pf/bin/pfdhcp
+   /usr/local/pf/bin/pfipset
 );
-my %exclusions = map { $_ => 1 } @excluded_binaries;
 
 sub get_all_perl_binaries {
 
@@ -147,8 +146,9 @@ sub get_all_perl_binaries {
     File::Find::find({
         wanted => sub {
             # add to list if it's a regular file
-            push(@list, $File::Find::name) if ((-f $File::Find::name) &&
-                not exists $exclusions{ $File::Find::name } );
+            my $name = $File::Find::name;
+            push(@list, $name) if ((-f $name) &&
+                (not exists $exclusions{ $name }) && $_ !~ /^\./ );
         }}, '/usr/local/pf/bin', '/usr/local/pf/sbin'
     );
 
