@@ -23,7 +23,7 @@ func (fw *JuniperSRX) Start(ctx context.Context, info map[string]string, timeout
 
 }
 
-// Send a start to the PaloAlto using the HTTP transport
+// Send a start to the JuniperSRX using the HTTP transport
 // Will return an error if it fails to get a valid reply from it
 func (fw *JuniperSRX) startHttp(ctx context.Context, info map[string]string, timeout int) (bool, error) {
 
