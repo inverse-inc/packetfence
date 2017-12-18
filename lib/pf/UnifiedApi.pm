@@ -84,14 +84,19 @@ sub setup_api_v1_routes {
     my ($self) = @_;
     my $r = $self->routes;
     my $api_v1_route = $r->any("/api/v1")->name("api.v1");
-    foreach my $route (@API_V1_ROUTES) {
+    foreach my $route ($self->api_v1_routes) {
         $api_v1_route->rest_routes($route);
     }
+
     my $user_route = $api_v1_route->find('api.v1.Users.resource');
     $r->any(sub {
         my ($c) = @_;
         return $c->render(json => { message => "Unknown path", errors => [] }, status => 404);
     });
+}
+
+sub api_v1_routes {
+    return @API_V1_ROUTES;
 }
 
 sub set_tenant_id {
