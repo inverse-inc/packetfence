@@ -532,12 +532,9 @@ As PacketFence cluster works in an active/active way, with statefull redundance,
 
 NODE: The important thing is to start the servers in the opposite order that you will stop them .
 
-Ex::
-* Stop order: pf1 -> Pf2 -> Pf3
-* Start order: pf3 -> Pf2 -> Pf1
-
-If you want to find an order, you can start by defining one, you can look to the cluster management tool.
-* Go to *STATUS -> OVERVIEW -> Cluster state*
+Example::
+* Stop order: pf1 -> pf2 -> pf3
+* Start order: pf3 -> pf2 -> pf1
 
 Shutdown the servers: ::
 * Logon to the first server with a SSH terminal
