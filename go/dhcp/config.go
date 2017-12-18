@@ -200,7 +200,7 @@ func (d *Interfaces) readConfig() {
 							DHCPScope.available = available
 
 							// Initialize hardware cache
-							hwcache := cache.New(time.Duration(seconds)*time.Second, 20*time.Second)
+							hwcache := cache.New(time.Duration(seconds)*time.Second, 10*time.Second)
 
 							hwcache.OnEvicted(func(nic string, pool interface{}) {
 								fmt.Println(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Removed from the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
@@ -239,6 +239,7 @@ func (d *Interfaces) readConfig() {
 						if _, found := VIPIp[eth.Name]; found {
 							DHCPScope.vip = VIPIp[eth.Name]
 						}
+						DHCPScope.role = "none"
 						DHCPScope.start = net.ParseIP(ConfNet.DhcpStart)
 						seconds, _ := strconv.Atoi(ConfNet.DhcpDefaultLeaseTime)
 						DHCPScope.leaseDuration = time.Duration(seconds) * time.Second
@@ -250,7 +251,7 @@ func (d *Interfaces) readConfig() {
 						DHCPScope.available = available
 
 						// Initialize hardware cache
-						hwcache := cache.New(time.Duration(seconds)*time.Second, 20*time.Second)
+						hwcache := cache.New(time.Duration(seconds)*time.Second, 10*time.Second)
 
 						hwcache.OnEvicted(func(nic string, pool interface{}) {
 							fmt.Println(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Removed from the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
