@@ -55,7 +55,7 @@ func (fw *JuniperSRX) Stop(ctx context.Context, info map[string]string) (bool, e
 // Returns an error if it fails to get a valid reply from the firewall
 func (fw *JuniperSRX) stopHttp(ctx context.Context, info map[string]string) (bool, error) {
 
-	req, err := http.NewRequest("GET", "https://"+fw.PfconfigHashNS+":"+fw.Port+"/rpc/request-userfw-local-auth-table-delete-user?user-name="+info["username"], nil)
+	req, err := http.NewRequest("GET", "https://"+fw.PfconfigHashNS+":"+fw.Port+"/rpc/request-userfw-local-auth-table-delete-ip?ip-address="+info["ip"], nil)
 	req.SetBasicAuth(fw.Username, fw.Password)
 	client := fw.getHttpClient(ctx)
 	resp, err := client.Do(req)
