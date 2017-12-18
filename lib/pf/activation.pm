@@ -164,6 +164,7 @@ sub view_by_code {
             type => $type,
             activation_code => $activation_code,
         },
+        -no_auto_tenant_id => 1,
     );
     if (is_error($status)) {
         return undef;
