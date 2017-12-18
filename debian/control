@@ -41,7 +41,6 @@ Depends: ${misc:Depends}, vlan,
  iproute,
  ipset,
  sudo,
- p0f (>=3.06),
  sscep,
 # process management
  procps,

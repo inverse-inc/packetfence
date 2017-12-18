@@ -208,7 +208,6 @@ endif
 	dh_installinit --name=packetfence-iptables
 	dh_installinit --name=packetfence-keepalived
 	dh_installinit --name=packetfence-mariadb
-	dh_installinit --name=packetfence-p0f
 	dh_installinit --name=packetfence-pfbandwidthd
 	dh_installinit --name=packetfence-pfdetect
 	dh_installinit --name=packetfence-pfdhcplistener
