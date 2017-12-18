@@ -133,6 +133,7 @@ sub ACCEPT_CONTEXT {
         $options = {
             'portal' => $data->{portal},
         };
+        pf::dal->set_tenant($data->{tenant_id});
     } elsif ( $forwardedFor && ( $forwardedFor =~  '127.0.0.1') ) {
         if (defined($request->param('PORTAL'))) {
             $options = {
