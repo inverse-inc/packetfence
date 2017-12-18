@@ -644,9 +644,9 @@ Backup procedure
 Automatic Backup files
 ^^^^^^^^^^^^^^^^^^^^^^
 
-The PacketFence servers have a daily backup done, each nights (0:30AM).
+The PacketFence servers have a daily backup done, each night (0:30AM).
 
-If you need to extrenalise those backups, they are in:
+If you need to externalize those backups, they are in:
 
 ----
 /root/backup
@@ -665,13 +665,13 @@ In case you need to make a "manual" backup, you can type the following command:
 /usr/local/pf/addons/database-backup-and-maintenance.sh
 ----
 
-As the daily automatic backup, you will find the files in:
+As the daily automatic backups, you will find the files in:
 
 ----
 /root/backup/
 ----
 
-Two files will be available, tagged with the Date and Hour of your backup.
+Two files will be available, tagged with the Date and Time of your backup.
 
 '''
 
