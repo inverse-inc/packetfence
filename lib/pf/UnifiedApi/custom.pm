@@ -1,25 +1,30 @@
-#!/usr/bin/perl
+package pf::UnifiedApi::custom;
 
 =head1 NAME
 
-pfunified_api
+pf::UnifiedApi::custom -
 
 =cut
 
 =head1 DESCRIPTION
 
-pfunified_api
+pf::UnifiedApi::custom
+
+Allow to add custom routes and setup to pfunified_api perl service
 
 =cut
 
 use strict;
 use warnings;
-use lib qw(/usr/local/pf/lib);
-use Mojolicious::Commands;
+use Mojo::Base qw(pf::UnifiedApi);
 
-# Start command line interface for application
-Mojolicious::Commands->start_app('pf::UnifiedApi::custom');
+sub api_v1_custom_routes {
 
+}
+
+sub custom_startup {
+
+}
 
 =head1 AUTHOR
 
@@ -47,4 +52,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
+
+1;
 
