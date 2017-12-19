@@ -19,8 +19,7 @@
           <div class="well">
             <h3>[% l('Instructions') %]</H3>
             <p>[% l('On this page, you can configure Fingerbank which is used for device fingerprinting.') %]</p>
-            <p>[% l('Note that these actions are optional and can be skipped.') %]</p>
-            <p>[% l('Configuring your Fingerbank API key will allow for more accurate fingerprinting while using MySQL for the storage improves performance greatly in large scale deployments.') %]</p>
+            <p>[% l('If you do not configure a Fingerbank API key, you will not have access to any device profiling capabilities in PacketFence') %]</p>
           </div>
         </div>
         <div class="span14">
@@ -28,7 +27,7 @@
             <form name="admin" class="form-horizontal">
               <div class="card-block">
             <h3>[% l('API Onboarding') %]</h3>
-            <p>[% l('Proceed here:') %] <a href="https://fingerbank.inverse.ca/users/register" target="_blank">https://fingerbank.inverse.ca/users/register</a></p>
+            <p>[% l('Proceed here:') %] <a href="https://api.fingerbank.org/users/register" target="_blank">https://api.fingerbank.org/users/register</a></p>
 
             <p>[% l('Once done, you will be issued an API key that you need to enter in the following field') %]</p>
 
@@ -43,18 +42,12 @@
               </div>
             </div>
 
-            <h3>[% l('Activate MySQL') %]</h3>
-            <p>[% l('Configure MySQL as the Fingerbank backend. This will improve the performance of Fingerbank related components.') | none %]</p>
-            <div class="control-group[% IF c.session.importing_fingerbank_mysql %] success[% END %]">
-              <div class="controls">
-                <a id="configure_fingerbank_mysql" href="/config/fingerbank/db/initialize_mysql" class="btn btn-primary"[% IF c.session.importing_fingerbank_mysql %] disabled[% END %]>[% l('Activate MySQL') %]</a>
-                [% IF c.session.importing_fingerbank_mysql %]<span class="help-inline">[% l('Success!') %]</span>[% END %]
-              </div>
-            </div>
-
             </div>
             <div class="form-actions">
-              <button type="submit" class="btn btn-primary pull-right" href="[% next_step %]">[% l('Continue') %] <i class="icon-arrow-circle-right icon-white"></i></button>
+              <button type="submit" data-msg-done="[% l('Continue') %]" class="btn [% IF fingerbank_api_key %]btn-primary[% ELSE %]btn-danger[% END %] pull-right" href="[% next_step %]">
+                [% IF fingerbank_api_key ; l('Continue') ; ELSE ; l('Continue without Fingerbank') ; END %]
+                <i class="icon-arrow-circle-right icon-white"></i>
+              </button>
             </div>
             </form>
           </div>

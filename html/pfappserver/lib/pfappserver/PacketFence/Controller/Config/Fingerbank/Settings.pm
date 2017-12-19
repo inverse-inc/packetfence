@@ -32,7 +32,7 @@ sub check_for_api_key :Private {
 
     if ( !fingerbank::Config::is_api_key_configured ) {
         $logger->warn("Fingerbank API key is not configured. Running with limited features");
-        my $status_msg = "It looks like Fingerbank API key is not configured. You may have forgot the onboard process. To fully beneficiate of Fingerbank, please proceed here: https://fingerbank.inverse.ca/onboard";
+        my $status_msg = "It looks like Fingerbank API key is not configured. You may have forgot the onboard process. To fully beneficiate of Fingerbank, please proceed here: https://api.fingerbank.org/onboard";
         $c->go('onboard');
     }
 }
@@ -107,10 +107,7 @@ sub index :Path :Args(0) :AdminRole('FINGERBANK_READ') {
 
             # TODO: Ugly hack to handle the fact that unchecked checkboxes are not being returned as a param by HTTP and needs
             # to be set as 'disabled'
-            ( !$params->{'upstream'}{'interrogate'} ) ? $params->{'upstream'}{'interrogate'} = 'disabled':();
             ( !$params->{'query'}{'record_unmatched'} ) ? $params->{'query'}{'record_unmatched'} = 'disabled':();
-            ( !$params->{'query'}{'use_tcp_fingerprinting'} ) ? $params->{'query'}{'use_tcp_fingerprinting'} = 'disabled':();
-            ( !$params->{'mysql'}{'state'} ) ? $params->{'mysql'}{'state'} = 'disabled':();
 
             ( $status, $status_msg ) = fingerbank::Config::write_config($params);
 
