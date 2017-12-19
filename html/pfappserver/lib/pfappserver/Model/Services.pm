@@ -98,20 +98,23 @@ sub status {
     my ($self) = @_;
     my $logger = get_logger();
     my @services;
-    foreach my $manager (grep { defined($_) && $_->isManaged } map {  pf::services::get_service_manager($_)  } @pf::services::ALL_SERVICES) {
+    foreach my $manager (grep { defined($_) } map {  pf::services::get_service_manager($_)  } @pf::services::ALL_SERVICES) {
+        my $is_managed = $manager->isManaged();
         my %info = (
             name   => $manager->name,
             status => $manager->status(1),
+            is_managed => $is_managed,
         );
         if ($manager->isa("pf::services::manager::submanager")) {
             foreach my $submanager ($manager->managers) {
-                push @{$info{managers}}, {name => $submanager->name, status => $submanager->status(1)};
+                push @{$info{managers}}, {name => $submanager->name, status => $submanager->status(1), is_managed => $is_managed};
             }
         }
         push @services, \%info;
     }
 
-    return ($STATUS::OK, { services => \@services}) if @services;
+    return ($STATUS::OK, { services => \@services})
+        if @services;
 
     return ($STATUS::INTERNAL_SERVER_ERROR, "Unidentified error see server side logs for details.");
 }
