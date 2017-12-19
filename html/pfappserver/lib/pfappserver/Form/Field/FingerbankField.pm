@@ -61,7 +61,7 @@ Inflate the value stored as an ID to the value
 sub fingerbank_inflate {
     my ($self, $value) = @_;
 
-    my ($status, $result) = $self->fingerbank_model->read($value);
+    my ($status, $result) = $self->fingerbank_model->read_hashref($value);
 
     if(is_success($status)) {
         my $value_field = $self->fingerbank_model->value_field;
