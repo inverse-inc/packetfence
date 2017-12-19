@@ -59,7 +59,7 @@ func main() {
 	webservices = readWebservicesConfig()
 
 	router := mux.NewRouter()
-	router.HandleFunc("/scanwmi/{scanname:(?:[^/]*)}/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}", scan).Methods("GET")
+	router.HandleFunc("/scanwmi/{scanname:(?:[^/]*)}/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}", scan).Methods("POST")
 	http.Handle("/", httpauth.SimpleBasicAuth(webservices.User, webservices.Pass)(router))
 	// Api
 	cfg := &tls.Config{
