@@ -17,7 +17,6 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 use namespace::autoclean;
 use pf::db;
-use fingerbank::Config;
 
 BEGIN {extends 'Catalyst::Controller'; }
 
@@ -72,7 +71,6 @@ sub assign :Path('assign') :Args(1) {
             $db_model->commit();
             my $pfconfig = $c->model('Config::Pfconfig');
             $pfconfig->update_mysql_credentials($pf_user, $pf_password);
-            fingerbank::Config::write_config({ mysql => { 'username' => $pf_user, 'password' => $pf_password, 'database' => $db . '_fingerbank' } });
             pf::db::db_disconnect();
         }
     }

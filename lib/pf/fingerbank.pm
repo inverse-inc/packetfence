@@ -24,7 +24,7 @@ use fingerbank::FilePath;
 use fingerbank::Model::Endpoint;
 use fingerbank::Util;
 use fingerbank::DB_Factory;
-use fingerbank::Constant qw($UPSTREAM_SCHEMA $MYSQL_DB_TYPE);
+use fingerbank::Constant qw($UPSTREAM_SCHEMA);
 use pf::cluster;
 use pf::constants;
 use pf::constants::fingerbank qw($RATE_LIMIT);
