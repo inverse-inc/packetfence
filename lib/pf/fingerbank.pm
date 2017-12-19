@@ -76,8 +76,10 @@ my $collector_ua;
 
 sub process {
     my $timer = pf::StatsD::Timer->new();
-    my ( $mac ) = @_;
+    my ( $mac, $force ) = @_;
     my $logger = pf::log::get_logger;
+
+    $force //= $FALSE;
 
     my $cache = cache();
     my $cache_key = "pf::fingerbank::process($mac)";
@@ -96,7 +98,7 @@ sub process {
 
     $query_args->{mac} = $mac;
 
-    if($query_args->{last_updated}->compare($process_timestamp) <= 0) {
+    if(!$force && $query_args->{last_updated}->compare($process_timestamp) <= 0) {
         $logger->info("No recent data found for $mac, will not trigger device profiling");
         return $TRUE;
     }

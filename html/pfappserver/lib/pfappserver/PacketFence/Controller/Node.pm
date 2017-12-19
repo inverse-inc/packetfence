@@ -415,6 +415,22 @@ sub reevaluate_access :Chained('object') :PathPart('reevaluate_access') :Args(0)
     $c->stash->{current_view} = 'JSON';
 }
 
+=head2 refresh_fingerbank_device
+
+Refresh the Fingerbank detected device
+
+=cut
+
+sub refresh_fingerbank_device :Chained('object') :PathPart('refresh_fingerbank_device') :Args(0) :AdminRole('NODES_UPDATE') {
+    my ( $self, $c ) = @_;
+
+    my ($status, $message) = $c->model('Node')->refresh_fingerbank_device($c->stash->{mac});
+    $self->audit_current_action($c, status => $status, mac => $c->stash->{mac});
+    $c->response->status($status);
+    $c->stash->{status_msg} = $message; # TODO: localize error message
+    $c->stash->{current_view} = 'JSON';
+}
+
 =head2 restart_switchport
 
 Restart the switchport for a device
