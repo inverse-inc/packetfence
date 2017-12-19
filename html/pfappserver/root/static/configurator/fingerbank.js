@@ -23,24 +23,9 @@ function initStep() {
         $('#api_key').attr('disabled', '');
         resetAlert(btn.closest('.control-group'));
         showSuccess(btn.closest('.control-group'), data.status_msg);
-    }).fail(function(jqXHR) {
-        var obj = $.parseJSON(jqXHR.responseText);
-        showError(btn.closest('.control-group'), obj.status_msg);
-    });
 
-    return false;
-  });
-  $('#configure_fingerbank_mysql').click(function(e) {
-    e.preventDefault();
-    var btn = $(e.target);
-    
-    $.ajax({
-        type: 'GET',
-        url: btn.attr('href'),
-    }).done(function(data) {
-        btn.addClass('disabled');
-        resetAlert(btn.closest('.control-group'));
-        showSuccess(btn.closest('.control-group'), data.status_msg);
+        var continueBtn = btn.closest('form').find('[type="submit"]');
+        continueBtn.removeClass("btn-danger").addClass("btn-primary").html(continueBtn.data("msg-done"));
     }).fail(function(jqXHR) {
         var obj = $.parseJSON(jqXHR.responseText);
         showError(btn.closest('.control-group'), obj.status_msg);
