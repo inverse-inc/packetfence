@@ -162,7 +162,15 @@ sub default_query {
                 'node',
                 '=>{node.category_id=node_category.category_id}', 'node_category',
                 '=>{node.bypass_role_id=node_category_bypass_role.category_id}', 'node_category|node_category_bypass_role',
-                '=>{ip4log.mac=node.mac}', 'ip4log',
+                {
+                    operator  => '=>',
+                    condition => {
+                        'ip4log.ip' => {
+                            "=" => \"( SELECT `ip` FROM `ip4log` WHERE `mac` = `node`.`mac` ORDER BY `start_time` DESC LIMIT 1 )",
+                        }
+                    }
+                },
+                'ip4log',
                 "=>{locationlog.mac=node.mac,locationlog.end_time='$ZERO_DATE'}", 'locationlog',
                 {
                     operator  => '=>',
