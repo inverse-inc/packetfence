@@ -208,6 +208,7 @@
         <div class="modal-footer">
           [% IF node.multihost.size %]<p>[% l('This node is wired to a switchport on which other active devices were detected.') %]<br/>[% l('Therefore, you can apply change to ALL of those devices.') %]</p>[% END %]
           [% IF can_access("NODES_UPDATE") && !form.readonly %]<a href="[% c.uri_for(c.controller('Node').action_for('reevaluate_access'), [ node.mac ]) %]" id="reevaluateNode" class="btn btn-warning pull-left"> [% l('Reevaluate access') %]</a>[% END %]
+          [% IF can_access("NODES_UPDATE") && !form.readonly %]<a href="[% c.uri_for(c.controller('Node').action_for('refresh_fingerbank_device'), [ node.mac ]) %]" id="refreshFingerbankDeviceNode" class="btn btn-warning pull-left"> [% l('Refresh device profiling') %]</a>[% END %]
           [% IF can_access("NODES_UPDATE") && !form.readonly %]<a href="[% c.uri_for(c.controller('Node').action_for('restart_switchport'), [ node.mac ]) %]" id="restartSwitchport" class="btn btn-danger pull-left"> [% l('Restart Switchport') %]</a>[% END %]
           <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
           [% IF node.multihost.size %][% IF can_access("NODES_UPDATE") && !form.readonly %]<button type="submit" data-multihost="yes" class="btn btn-primary" data-loading-text="[% l('Saving (All Devices)') %]">[% l('Save (All Devices)') %]</button>[% END %][% END %]
