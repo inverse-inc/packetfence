@@ -37,6 +37,8 @@ use pf::constants::node qw(
 );
 use pf::config qw(
     %Config
+    $INLINE
+    %connection_type_to_str
 );
 
 use constant NODE => 'node';
@@ -1218,7 +1220,7 @@ sub node_last_reg_non_inline_on_category {
             'node.mac'             => { '!=', $mac },
             'node_category.name'   => $category,
             'locationlog.end_time' => $ZERO_DATE,
-            'locationlog.connection_type' => { "!=" => 'Inline' },
+            'locationlog.connection_type' => { "!=" => $connection_type_to_str{$INLINE} },
         },
         -columns => [qw(node.mac)],
         -from    => [
