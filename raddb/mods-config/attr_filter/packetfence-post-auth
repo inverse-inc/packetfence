@@ -32,4 +32,5 @@ DEFAULT
     PacketFence-Computer-Name             !* ANY,
     PacketFence-Handled                   !* ANY,
     PacketFence-Request-Time              !* ANY,
-    PacketFence-Authorization-Status      !* ANY
+    PacketFence-Authorization-Status      !* ANY,
+    PacketFence-Tenant-Id                 !* ANY
