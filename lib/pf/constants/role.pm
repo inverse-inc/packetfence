@@ -30,6 +30,7 @@ our @EXPORT_OK = qw(
     $GUEST_ROLE
     $GAMING_ROLE
     $REJECT_ROLE
+    $USERNAMEHASH
 );
 
 =head2 ROLES
@@ -62,6 +63,14 @@ Readonly::Hash our %STANDARD_ROLES => (
     $GAMING_ROLE  => 1,
     $REJECT_ROLE  => 1,
 );
+
+=head2 POOL
+
+Constant used in the pool code
+
+=cut
+
+Readonly::Scalar our $USERNAMEHASH  => 'username_hash';
 
 =head1 AUTHOR
 

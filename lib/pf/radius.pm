@@ -64,6 +64,7 @@ use pf::api::queue;
 use pf::access_filter::radius;
 use pf::registration;
 use pf::access_filter::switch;
+use pf::role::pool;
 
 our $VERSION = 1.03;
 
@@ -276,16 +277,22 @@ sub authorize {
 
     # Fetch VLAN depending on node status
     my $role = $role_obj->fetchRoleForNode($args);
-    my $vlan = $switch->getVlanByName($role->{role}) if (isenabled($switch->{_VlanMap}));
-    $vlan = $role->{vlan} || $vlan || 0;
+    my $vlan;
     $args->{'node_info'}{'source'} = $role->{'source'} if (defined($role->{'source'}) && $role->{'source'} ne '');
     $args->{'node_info'}{'portal'} = $role->{'portal'} if (defined($role->{'portal'}) && $role->{'portal'} ne '');
     $info{source} = $args->{node_info}{source};
     $info{portal} = $args->{node_info}{portal};
-
-    $args->{'vlan'} = $vlan;
     $args->{'wasInline'} = $role->{wasInline};
     $args->{'user_role'} = $role->{role};
+
+    if (isenabled($switch->{_VlanMap})) {
+        $vlan = $switch->getVlanByName($role->{role}) if (isenabled($switch->{_VlanMap}));
+        $args->{'vlan'} = $vlan;
+        my $vlanpool = new pf::role::pool;
+        $vlan = $vlanpool->getVlanFromPool($args);
+    }
+    $vlan = $role->{vlan} || $vlan || 0;
+    $args->{'vlan'} = $vlan;
 
     #closes old locationlog entries and create a new one if required
     #TODO: Better deal with INLINE RADIUS
