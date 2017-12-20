@@ -283,7 +283,7 @@ sub match {
     my $timer = pf::StatsD::Timer->new();
     my ($source_id, $params, $action, $source_id_ref, $extra) = @_;
     my ($actions, @sources);
-    $logger->debug( sub { "Match called with parameters ".join(", ", map { "$_ => $params->{$_}" } keys %$params) });
+    $logger->debug( sub { "Match called with parameters " . join(", ", map { "$_ => " . ($params->{$_} // "undef") } keys %$params) });
     if( defined $action && !exists $Actions::ALLOWED_ACTIONS{$action}) {
         $logger->warn("Calling match with an invalid action of type '$action'");
         return undef;
@@ -320,7 +320,14 @@ sub match {
             # Return the value only if the action matches
             my $found_action = first {exists $allowed_actions->{$_->type} && $allowed_actions->{$_->type}} @{$actions};
             if (defined $found_action) {
-                $logger->debug( sub { "[" . $source->id . "] Returning '" . $found_action->value . "' for action $action for username " . $params->{'username'} });
+                $logger->debug(
+                    sub {
+                        "[" . $source->id . "] Returning '"
+                          . ( $found_action->value // "undef" )
+                          . "' for action '" . ( $action // "undef" )
+                          . "' for username " . ( $params->{'username'} // "undef" )
+                    }
+                );
                 $$source_id_ref = $source->id if defined $source_id_ref && ref $source_id_ref eq 'SCALAR';
                 my $value = $found_action->value;
                 my $type  = $found_action->type;
