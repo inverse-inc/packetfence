@@ -309,11 +309,15 @@ sub sync_configuration {
 
 sub sync_local_db {
     pf::cluster::sync_files([$fingerbank::FilePath::LOCAL_DB_FILE]);
-    pf::cluster::notify_each_server('chi_cache_clear', 'fingerbank');
+    clear_cache();
 }
 
 sub sync_upstream_db {
     pf::cluster::sync_files([$fingerbank::FilePath::UPSTREAM_DB_FILE], async => $TRUE);
+    clear_cache();
+}
+
+sub clear_cache {
     pf::cluster::notify_each_server('chi_cache_clear', 'fingerbank');
 }
 
