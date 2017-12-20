@@ -445,7 +445,8 @@ sub create_and_send_activation_code {
         pending => $pending_addr,
         type    => $type,
         portal  => $portal,
-        timeout => $info{'activation_timeout'}
+        timeout => $info{'activation_timeout'},
+        source_id => $info{source_id},
     );
 
     $info{portal} = $portal;
