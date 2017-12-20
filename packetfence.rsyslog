@@ -45,10 +45,6 @@ if $syslogtag contains "redis-ntlm-cache" then -/usr/local/pf/logs/redis_ntlm_ca
 if $syslogtag contains "pfdhcplistener" then -/usr/local/pf/logs/pfdhcplistener.log
 & stop
 
-# FINGERBANK
-if $syslogtag contains "fingerbank" then -/usr/local/pf/logs/fingerbank.log
-& stop
-
 # HTTPD services 
 if $syslogtag contains "httpd_parking_err" then -/usr/local/pf/logs/httpd.parking.error
 & stop
