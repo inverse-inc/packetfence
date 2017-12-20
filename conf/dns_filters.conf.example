@@ -11,7 +11,7 @@
 #
 # [1:packetfence]
 # scope = registration
-# answer = $qname 30 IN A 10.0.0.1
+# answer = 30 IN A 10.0.0.1
 # rcode = NOERROR
 #
 # It means that when pfdns receive a dns request for the dns name www.packetfence.org then it will answer the ip 10.0.0.1
