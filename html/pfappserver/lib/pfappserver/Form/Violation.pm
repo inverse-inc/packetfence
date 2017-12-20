@@ -22,7 +22,6 @@ use pf::admin_roles;
 use pf::action;
 use pf::log;
 use pf::constants::violation qw($MAX_VID %NON_WHITELISTABLE_ROLES);
-use pfappserver::Base::Form::Authentication::Action qw(options_durations); 
 use pf::class qw(class_next_vid);
 
 has '+field_name_space' => ( default => 'pfappserver::Form::Field' );
