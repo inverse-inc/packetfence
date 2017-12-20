@@ -21,6 +21,7 @@ New Features
 * Added portal module for selecting a role for the device being registered on the portal (PR #2471).
 * Added support for Allied Telesis GS950 switches (PR #1866)
 * Added ability to update the Firewall SSO on accounting packet (PR #2662)
+* Added a way to define a VLAN by role as a vlan pool using a VLAN range (PR #2675)
 
 Enhancements
 ++++++++++++
