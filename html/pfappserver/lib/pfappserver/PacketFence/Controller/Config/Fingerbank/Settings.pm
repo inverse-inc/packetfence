@@ -105,6 +105,13 @@ sub index :Path :Args(0) :AdminRole('FINGERBANK_READ') {
         } else {
             my $params = $form->value;
 
+            fingerbank::Config->read_config;
+
+            if($params->{upstream}->{api_key} ne $fingerbank::Config::Config{upstream}->{api_key}) {
+                $logger->info("API key has changed, flushing Fingerbank cache.");
+                pf::fingerbank::clear_cache();
+            }
+
             # TODO: Ugly hack to handle the fact that unchecked checkboxes are not being returned as a param by HTTP and needs
             # to be set as 'disabled'
             ( !$params->{'query'}{'record_unmatched'} ) ? $params->{'query'}{'record_unmatched'} = 'disabled':();
