@@ -11152,24 +11152,48 @@ msgid "upstream.api_key"
 msgstr "API Key"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "upstream.db_url"
-msgstr "DB URL"
+msgid "upstream.host"
+msgstr "Upstream API host"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "upstream.interrogate"
-msgstr "Interrogate upstream?"
+msgid "upstream.db_path"
+msgstr "Database API path"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "upstream.interrogate_url"
-msgstr "Upstream URL"
+msgid "upstream.port"
+msgstr "Upstream API port"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "upstream.use_https"
+msgstr "Upstream API HTTPS"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "upstream.sqlite_db_retention"
 msgstr "Retention of the upstream sqlite DB"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "upstream.submit_url"
-msgstr "Upstream Submit URL"
+msgid "collector.inactive_endpoints_expiration"
+msgstr "Inactive endpoints expiration"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "collector.arp_lookup"
+msgstr "ARP lookups by the collector"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "collector.query_cache_time"
+msgstr "Query cache time in the collector"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "collector.use_https"
+msgstr "Collector HTTPS"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "collector.host"
+msgstr "Collector host"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "collector.port"
+msgstr "Collector port"
 
 # pf::Authentication::Source::ADSource (available_attributes)
 msgid "userAccountControl"
