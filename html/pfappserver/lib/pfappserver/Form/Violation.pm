@@ -12,10 +12,13 @@ Form definition to create or update a violation.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
-with 'pfappserver::Base::Form::Role::Help';
+with 'pfappserver::Base::Form::Role::Help','pfappserver::Base::Form::Role::AllowedOptions';
 
 use HTTP::Status qw(:constants is_success);
-
+use List::MoreUtils qw(uniq);
+use pf::config qw(%Config);
+use pf::web::util;
+use pf::admin_roles;
 use pf::action;
 use pf::log;
 use pf::constants::violation qw($MAX_VID %NON_WHITELISTABLE_ROLES);
@@ -199,6 +202,18 @@ has_field 'external_command' =>
    label => 'External Command',
    element_class => ['input-large'],
    messages => { required => 'Please specify the command you want to execute.' },
+  );
+has_field 'access_duration' =>
+  (
+   type => 'Select',
+   label => 'Access Duration',
+   localize_labels => 1,
+   options_method => \&pfappserver::Base::Form::Authentication::Action::options_durations,
+   default_method => sub { $Config{'guests_admin_registration'}{'default_access_duration'} },
+   element_class => ['chzn-select', 'input-xxlarge'],
+   element_attr => {'data-placeholder' => 'Click to add a duration'},
+   tags => { after_element => \&help,
+             help => 'Specify the access duration for the new registered node.' },
   );
 
 =head2 around has_errors
