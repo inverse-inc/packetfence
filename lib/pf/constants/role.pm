@@ -33,6 +33,10 @@ our @EXPORT_OK = qw(
     $USERNAMEHASH
 );
 
+our %EXPORT_TAGS = (
+    all => \@EXPORT_OK,
+);
+
 =head2 ROLES
 
 Required roles for every switch. Those are reserved words for any additional custom role.
