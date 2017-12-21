@@ -1034,6 +1034,7 @@ CREATE TABLE activation (
   `status` varchar(60) default NULL,
   `type` varchar(60) NOT NULL,
   `portal` varchar(255) default NULL,
+  `source_id` varchar(255) default NULL,
   PRIMARY KEY (code_id),
   KEY `mac` (mac),
   KEY `identifier` (pid, mac),

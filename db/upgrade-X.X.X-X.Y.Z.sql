@@ -54,5 +54,7 @@ DROP TABLE IF EXISTS `ifoctetslog`;
 --
 ALTER TABLE auth_log ADD column profile VARCHAR(255) DEFAULT NULL;
 
+ALTER TABLE `activation`
+  ADD COLUMN `source_id` varchar(255) default NULL;
 
 INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));

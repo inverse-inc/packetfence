@@ -80,6 +80,7 @@ sub do_email_registration {
     $info{'telephone'} = $self->request_fields->{telephone};
     $info{'company'} = $self->request_fields->{company};
     $info{'subject'} = $self->app->i18n_format("%s: Email activation required", $Config{'general'}{'domain'});
+    $info{source_id} = $source->id;
     utf8::decode($info{'subject'});
 
     $self->session->{fields} = $self->request_fields;
