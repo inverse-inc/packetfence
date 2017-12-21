@@ -85,6 +85,8 @@ conf/redis_cache.conf
 conf/redis_queue.conf
 conf/redis_ntlm_cache.conf
 conf/realm.conf
+conf/survey.conf
+conf/traffic_shaping.conf
 conf/domain.conf
 conf/radius_filters.conf
 conf/switch_filters.conf
