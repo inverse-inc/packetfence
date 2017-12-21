@@ -52,6 +52,7 @@ Bug Fixes
 * Configurator: when using a different DB name, the fingerbank.conf mysql section isn't updated (Fixes #2665)(PR #2787) 
 * rlm_perl modules are now using syslog instead writing directly to the file (PR #2609)
 * Prevent a valid PID from being overwritten at the end of the portal registration if the new PID is default (#2825)
+* Auth log is not set to completed after email registration (#2648) (PR #2649)
 
 Version 7.3.0 released on 2017-09-25
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
