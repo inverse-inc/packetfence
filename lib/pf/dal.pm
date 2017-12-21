@@ -89,6 +89,8 @@ our %MYSQL_ERROR_TO_STATUS_CODES = (
     1969 => $STATUS::REQUEST_TIMEOUT, #ER_STATEMENT_TIMEOUT
 );
 
+our $ALLOWED_ERROR = 0;
+
 =head2 db_execute
 
 Execute the sql query with it's bind parameters
@@ -117,7 +119,11 @@ sub db_execute {
                 if ($err == $MYSQL_READONLY_ERROR) {
                     $logger->warn("Attempting to update a readonly database");
                 } else {
-                    $logger->error("Database query failed with non retryable error: $errstr (errno: $err) [$sql]{". join(", ", map { defined $_ ?  $_ : "NULL" } @params)  . "}");
+                    if ($ALLOWED_ERROR == $status) {
+                        $logger->trace("Ignoring error $errstr (errno: $err)");
+                    } else {
+                        $logger->error("Database query failed with non retryable error: $errstr (errno: $err) [$sql]{". join(", ", map { defined $_ ?  $_ : "NULL" } @params)  . "}");
+                    }
                 }
                 last;
             }
@@ -256,6 +262,7 @@ sub create_or_update {
     my ($self) = @_;
     my $status = do {
         local $self->{__from_table} = undef;
+        local $ALLOWED_ERROR = $STATUS::CONFLICT;
         $self->insert;
     };
     return $status == $STATUS::CONFLICT ? $self->update(1) : $status;
