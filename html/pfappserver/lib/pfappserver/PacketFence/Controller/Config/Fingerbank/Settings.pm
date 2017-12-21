@@ -16,6 +16,7 @@ use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 use pf::log;
 use fingerbank::Config;
+use fingerbank::API;
 use pf::fingerbank;
 
 use HTTP::Status qw(:constants is_error is_success);
@@ -126,6 +127,19 @@ sub index :Path :Args(0) :AdminRole('FINGERBANK_READ') {
 
     else {
         my $config = fingerbank::Config::get_config;
+        my $api = fingerbank::API->new_from_config;
+
+        $c->stash->{fingerbank_config} = $config;
+        $c->stash->{fingerbank_base_uri} = $api->build_uri("");
+
+        my ($status, $account_info) = $api->account_info();
+        if(is_success($status)) {
+            $c->stash->{account_info} = $account_info;
+        }
+        else {
+            $c->stash->{account_info_error} = $account_info;
+        }
+
         $form->process(init_object => $config);
         $c->stash->{form} = $form;
     }
