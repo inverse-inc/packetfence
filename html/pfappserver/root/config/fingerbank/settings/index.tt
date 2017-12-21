@@ -22,7 +22,7 @@
       </td>
     </tr>
     <tr>
-      <td><b>Hourly requests</b></td>
+      <td><b>Requests in the current hour</b></td>
       <td>[% account_info.timeframed_requests %]</td>
     </tr>
   </tbody>
