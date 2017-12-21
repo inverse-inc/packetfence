@@ -15,10 +15,10 @@ use warnings;
 
 use Log::Log4perl;
 
-use pf::config;
-use pf::util qw (%Config);
+use pf::config qw(%Config);
+use pf::util;
 use pf::log();
-use pf::constants::roles;
+use pf::constants::role qw(:all);
 
 use pf::node;
 
