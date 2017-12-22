@@ -31,6 +31,7 @@ use pf::constants::dhcp qw($DEFAULT_LEASE_LENGTH);
 use pf::constants::IP qw($IPV4 $IPV6);
 use pf::log;
 use pf::node;
+use pf::util;
 
 use Moose;
 
