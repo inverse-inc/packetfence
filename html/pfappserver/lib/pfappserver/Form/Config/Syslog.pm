@@ -42,6 +42,11 @@ has_field 'id' =>
    required => 1,
    messages => { required => 'Please specify the name of the syslog entry' },
   );
+has_field type => (
+    type => 'Hidden',
+    required => 1,
+    default_method => \&default_type,
+);
 has_field 'logs' =>
   (
    type => 'Select',
@@ -54,13 +59,21 @@ has_field 'logs' =>
    tags => { after_element => \&help,
              help => 'Logs' },
   );
+
 has_block  definition =>
   (
-    render_list => [qw(logs)],
+    render_list => [qw(type logs)],
   );
 
 sub options_logs {
     return map { { label => $_, value => $_ } } @logs;
+}
+
+sub default_type {
+    my ($self) = @_;
+    my $type = ref($self);
+    $type =~ s/^pfappserver::Form::Config::Syslog:://;
+    return $type;
 }
 
 =head1 COPYRIGHT

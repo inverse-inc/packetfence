@@ -35,6 +35,11 @@ has_field port => (
     required => 1,
 );
 
+has_block definition =>
+  (
+    render_list => [qw(type proto host port logs)],
+  );
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

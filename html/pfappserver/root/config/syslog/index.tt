@@ -23,6 +23,6 @@
 
       [%- IF can_access("SYSLOG_CREATE") %]
       <div class="form-actions">
-        <a class="btn createItem" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add syslog entry') %]</a>
+        <a class="btn createItem" href="[% c.uri_for(c.controller.action_for('create_type'), 'server') %]">[% l('Add syslog entry') %]</a>
       </div>
       [%- END %]
