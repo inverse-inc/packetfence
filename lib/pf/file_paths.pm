@@ -101,6 +101,7 @@ our (
     $traffic_shaping_config_file,
     $pf_admin_i18n_dir,
     $syslog_config_file,
+    $syslog_default_config_file,
 );
 
 BEGIN {
@@ -177,6 +178,7 @@ BEGIN {
         $traffic_shaping_config_file
         $pf_admin_i18n_dir
         $syslog_config_file
+        $syslog_default_config_file
     );
 }
 
@@ -217,7 +219,8 @@ $provisioning_config_file = catfile($conf_dir, 'provisioning.conf');
 $device_registration_config_file = catfile($conf_dir,"device_registration.conf");
 $pki_provider_config_file  = catfile($conf_dir,"pki_provider.conf");
 $traffic_shaping_config_file  = catfile($conf_dir,"traffic_shaping.conf");
-$syslog_config_file  = catfile($conf_dir,"syslog.conf");
+$syslog_config_file  = catfile($conf_dir, "syslog.conf");
+$syslog_default_config_file  = catfile($conf_dir, "syslog.conf.defaults");
 
 $network_config_file    = catfile($conf_dir, "networks.conf");
 $switches_config_file   = catfile($conf_dir, "switches.conf");
