@@ -12,6 +12,10 @@ $imjournalRatelimitBurst 0
 $EscapeControlCharactersOnReceive off
 
 [%- FOREACH item IN items %]
-if [% item.condition %] then [% item.action %]
+# [% item.name %]
+if [% item.condition %] then
+[%- FOREACH action IN item.actions %]
+  [% action -%]
+[%- END %]
 & stop
 [% END -%]

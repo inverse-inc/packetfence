@@ -102,6 +102,7 @@ our (
     $pf_admin_i18n_dir,
     $syslog_config_file,
     $syslog_default_config_file,
+    $rsyslog_packetfence_config_file,
 );
 
 BEGIN {
@@ -179,6 +180,7 @@ BEGIN {
         $pf_admin_i18n_dir
         $syslog_config_file
         $syslog_default_config_file
+        $rsyslog_packetfence_config_file
     );
 }
 
@@ -221,6 +223,7 @@ $pki_provider_config_file  = catfile($conf_dir,"pki_provider.conf");
 $traffic_shaping_config_file  = catfile($conf_dir,"traffic_shaping.conf");
 $syslog_config_file  = catfile($conf_dir, "syslog.conf");
 $syslog_default_config_file  = catfile($conf_dir, "syslog.conf.defaults");
+$rsyslog_packetfence_config_file  = "/etc/rsyslog.d/packetfence.conf";
 
 $network_config_file    = catfile($conf_dir, "networks.conf");
 $switches_config_file   = catfile($conf_dir, "switches.conf");

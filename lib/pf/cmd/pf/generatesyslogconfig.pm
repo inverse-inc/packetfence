@@ -16,231 +16,92 @@ use strict;
 use warnings;
 
 use base qw(pf::cmd);
-use pf::file_paths qw($syslog_config_file $syslog_default_config_file);
+use pf::file_paths qw($syslog_config_file $syslog_default_config_file $log_dir $rsyslog_packetfence_config_file);
 use pf::IniFiles;
 use Template;
 use pf::constants::exit_code qw($EXIT_SUCCESS);
+use pf::constants::syslog;
 
 
 sub items {
-    [
-        {
-            condition =>
-              '$syslogtag contains "auth" and $syslogfacility-text == "local1"',
-            action => '-/usr/local/pf/logs/radius.log'
-        },
-        {
-            condition =>
-'$programname contains "radius" and $syslogfacility-text == "local1"',
-            action => '-/usr/local/pf/logs/radius.log'
-        },
-        {
-            condition =>
-'$programname contains "radius" and $syslogfacility-text == "local2"',
-            action => '-/usr/local/pf/logs/radius-acct.log'
-        },
-        {
-            condition =>
-              '$syslogtag contains "acct" and $syslogfacility-text == "local2"',
-            action => '-/usr/local/pf/logs/radius-acct.log'
-        },
-        {
-            condition =>
-              '$syslogtag contains "cli" and $syslogfacility-text == "local3"',
-            action => '-/usr/local/pf/logs/radius-cli.log'
-        },
-        {
-            condition => '$syslogtag contains "eduroam" ',
-            action    => '-/usr/local/pf/logs/radius-eduroam.log'
-        },
-        {
-            condition =>
-'$syslogtag contains "load_balancer" and $syslogfacility-text == "local5"',
-            action => '-/usr/local/pf/logs/radius-load_balancer.log'
-        },
-        {
-            condition => '$syslogtag contains "redis-queue"',
-            action    => '-/usr/local/pf/logs/redis_queue.log'
-        },
-
-        {
-            condition => '$syslogtag contains "redis-cache"',
-            action    => '-/usr/local/pf/logs/redis_cache.log'
-        },
-
-        {
-            condition => '$syslogtag contains "redis-ntlm-cache"',
-            action    => '-/usr/local/pf/logs/redis_ntlm_cache.log'
-        },
-        {
-            condition => '$syslogtag contains "pfdhcplistener"',
-            action    => '-/usr/local/pf/logs/pfdhcplistener.log'
-        },
-        {
-            condition => '$syslogtag contains "fingerbank"',
-            action    => '-/usr/local/pf/logs/fingerbank.log'
-        },
-        {
-            condition => '$syslogtag contains "httpd_parking_err"',
-            action    => '-/usr/local/pf/logs/httpd.parking.error'
-        },
-
-        {
-            condition => '$syslogtag contains "httpd_parking"',
-            action    => '-/usr/local/pf/logs/httpd.parking.access'
-        },
-
-        {
-            condition => '$syslogtag contains "httpd_portal_err"',
-            action    => '-/usr/local/pf/logs/httpd.portal.error'
-        },
-
-        {
-            condition => '$syslogtag contains "httpd_portal"',
-            action    => '-/usr/local/pf/logs/httpd.portal.access'
-        },
-
-        {
-            condition => '$programname contains "httpd_webservices_err"',
-            action    => '-/usr/local/pf/logs/httpd.webservices.error'
-        },
-
-        {
-            condition => '$programname contains "httpd_webservices"',
-            action    => '-/usr/local/pf/logs/httpd.webservices.access'
-        },
-
-        {
-            condition => '$programname contains "httpd_aaa_err"',
-            action    => '-/usr/local/pf/logs/httpd.aaa.error'
-        },
-
-        {
-            condition => '$programname contains "httpd_aaa"',
-            action    => '-/usr/local/pf/logs/httpd.aaa.access'
-        },
-
-        {
-            condition => '$syslogtag contains "packetfence"',
-            action    => '-/usr/local/pf/logs/packetfence.log'
-        },
-
-        {
-            condition => '$syslogtag contains "httpd_admin_err"',
-            action    => '-/usr/local/pf/logs/httpd.admin.error'
-        },
-
-        {
-            condition => '$syslogtag contains "httpd_admin_access"',
-            action    => '-/usr/local/pf/logs/httpd.admin.access'
-        },
-
-        {
-            condition => '$syslogtag contains "httpd_admin"',
-            action    => '-/usr/local/pf/logs/httpd.admin.log'
-        },
-
-        {
-            condition => '$syslogtag contains "httpd_collector_err"',
-            action    => '-/usr/local/pf/logs/httpd.collector.error'
-        },
-
-        {
-            condition => '$syslogtag contains "httpd_collector"',
-            action    => '-/usr/local/pf/logs/httpd.collector.log'
-        },
-
-        {
-            condition => '$syslogtag contains "httpd_graphite_err"',
-            action    => '-/usr/local/pf/logs/httpd.graphite.error'
-        },
-
-        {
-            condition => '$syslogtag contains "httpd_graphite"',
-            action    => '-/usr/local/pf/logs/httpd.graphite.access'
-        },
-
-        {
-            condition => '$syslogtag contains "httpd_proxy_err"',
-            action    => '-/usr/local/pf/logs/httpd.proxy.error'
-        },
-
-        {
-            condition => '$syslogtag contains "httpd_proxy"',
-            action    => '-/usr/local/pf/logs/httpd.proxy.access'
-        },
-
-        {
-            condition => '$syslogtag contains "admin_catalyst"',
-            action    => '-/usr/local/pf/logs/httpd.admin.catalyst'
-        },
-
-        {
-            condition => '$syslogtag contains "portal_catalyst"',
-            action    => '-/usr/local/pf/logs/httpd.portal.catalyst'
-        },
-
-        # PFCONFIG
-        {
-            condition => '$programname == "pfconfig"',
-            action    => '-/usr/local/pf/logs/pfconfig.log'
-        },
-
-        # PFDNS
-        {
-            condition => '$programname == "pfdns"',
-            action    => '-/usr/local/pf/logs/pfdns.log'
-        },
-
-        # PFFILTER
-        {
-            condition => '$programname == "pffilter"',
-            action    => '-/usr/local/pf/logs/pffilter.log'
-        },
-
-        # PFMON
-        {
-            condition => '$programname == "pfmon"',
-            action    => '-/usr/local/pf/logs/pfmon.log'
-        },
-
-        # PFQUEUE
-        {
-            condition => '$programname == "pfqueue"',
-            action    => '-/usr/local/pf/logs/packetfence.log'
-        },
-
-        # PFSSO and all pfhttpd services
-        {
-            condition => '$programname == "pfhttpd"',
-            action    => '-/usr/local/pf/logs/packetfence.log'
-        },
-
-        # COLLECTD
-        {
-            condition => '$programname == "collectd"',
-            action    => '-/usr/local/pf/logs/collectd.log'
-        },
-
-        # PFDETECT
-        {
-            condition => '$programname == "pfdetect"',
-            action    => '-/usr/local/pf/logs/pfdetect.log'
-        },
-
-        # PFBANDWIDTHD
-        {
-            condition => '$programname == "pfbandwidthd"',
-            action    => '-/usr/local/pf/logs/pfbandwidthd.log'
-        },
-    ];
+    my ($self) = @_;
+    my @items;
+    my $actions = $self->actions;
+    foreach my $syslog_info (@pf::constants::syslog::SyslogInfo) {
+        my $name = $syslog_info->{name};
+        next unless exists $actions->{$name};
+        for my $condition (@{$syslog_info->{conditions}}) {
+            push @items, {actions => $actions->{$name}, condition => $condition, name => $name};
+        }
+    }
+    return \@items;
 }
+
+our %ACTION_GENERATORS = (
+    file => \&file_action,
+    server => \&server_action,
+);
+
+sub actions {
+    my $configfile = pf::IniFiles->new(
+        -file   => $syslog_config_file,
+        -import => pf::IniFiles->new(
+            -file       => $syslog_default_config_file,
+            -allowempty => 1
+        ),
+        -allowempty => 1
+    );
+
+    my %actions;
+
+    foreach my $section ( $configfile->Sections ) {
+        my $data = section_data( $configfile, $section );
+        my $logs = $data->{logs};
+        if ( !ref $logs ) {
+            $logs = [ split( /\s*,\s*/, $logs ) ];
+        }
+        my $type = $data->{type};
+        if (!exists $ACTION_GENERATORS{$type}) {
+            print "Unknown generator\n";
+            next;
+        }
+        my $action_generator = $ACTION_GENERATORS{$type};
+        foreach my $log (@$logs) {
+            push @{ $actions{$log} }, $action_generator->( $data, $log );
+        }
+    }
+    return \%actions;
+
+}
+
+
+sub file_action {
+    my ($data, $log) = @_;
+    return "-$log_dir/$log";
+}
+
+sub server_action {
+    my ($data, $log) = @_;
+    my $proto = $data->{proto} eq 'udp' ? '@' : '@@';
+    return "${proto}$data->{host}:$data->{port}";
+}
+
+sub section_data {
+    my ($config, $section) = @_;
+    my %data;
+    for my $name ($config->Parameters($section)) {
+        $data{$name} = $config->val($section, $name);
+    }
+    $data{id} = $section;
+    return \%data;
+}
+
 
 sub _run {
     my ($self) = @_;
     my $template = "/usr/local/pf/conf/rsyslog.conf.tt";
     my $tt = Template->new(ABSOLUTE => 1);
-    $tt->process($template, {items => $self->items}) || die $tt->error();
+    $tt->process($template, {items => $self->items}, $rsyslog_packetfence_config_file) || die $tt->error();
     return $EXIT_SUCCESS; 
 }
 
