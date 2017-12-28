@@ -67,3 +67,18 @@ func TestRandomBytes(t *testing.T) {
 		t.Error("RandomBytes didn't generate any random bytes")
 	}
 }
+
+func TestAllEquals(t *testing.T) {
+	if !AllEquals(1, 1, 1, 1) {
+		t.Error("AllEquals didn't detect equality correctly")
+	}
+	if AllEquals(1, 1, 1, 2) {
+		t.Error("AllEquals didn't detect equality correctly")
+	}
+	if AllEquals(2, 1, 1, 1) {
+		t.Error("AllEquals didn't detect equality correctly")
+	}
+	if AllEquals(1, 2, 3, 4) {
+		t.Error("AllEquals didn't detect equality correctly")
+	}
+}
