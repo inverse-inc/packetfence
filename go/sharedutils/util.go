@@ -1,15 +1,17 @@
 package sharedutils
 
 import (
+	"crypto/rand"
 	"errors"
 	"fmt"
-	"github.com/cevaris/ordered_map"
-	"github.com/kr/pretty"
 	"os"
 	"strconv"
 	"strings"
 	"testing"
 	"unicode"
+
+	"github.com/cevaris/ordered_map"
+	"github.com/kr/pretty"
 )
 
 func UcFirst(str string) string {
@@ -112,4 +114,10 @@ func EnvOrDefaultInt(name string, defaultVal int) int {
 	intVal, err := strconv.ParseInt(strVal, 10, 32)
 	CheckError(err)
 	return int(intVal)
+}
+
+func RandomBytes(length uint64) []byte {
+	rd := make([]byte, length)
+	rand.Read(rd)
+	return rd
 }

@@ -49,3 +49,21 @@ func TestTupleToOrderedMap(t *testing.T) {
 		t.Error("Expected nil and error when sending odd numbers of element to TupleToMap")
 	}
 }
+
+func TestRandomBytes(t *testing.T) {
+	length := uint64(1024)
+	rd := RandomBytes(length)
+
+	// There is 1 / 255^1024 chance they'll all be zeros
+	// If this test fails one day, make sure you go buy a loto ticket
+	allZeros := true
+	for _, b := range rd {
+		if b != 0 {
+			allZeros = false
+		}
+	}
+
+	if allZeros {
+		t.Error("RandomBytes didn't generate any random bytes")
+	}
+}
