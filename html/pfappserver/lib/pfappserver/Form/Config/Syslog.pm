@@ -15,6 +15,7 @@ use warnings;
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
+use pf::constants::syslog;
 
 use pf::log;
 
@@ -53,12 +54,16 @@ has_field 'logs' =>
    multiple => 1,
    label => 'Logs',
    options_method => \&options_logs,
-   default_method => sub {[ @logs] },
+   default_method => \&default_logs,
    element_class => [qw(chzn-select input-xxlarge)],
    element_attr => {'data-placeholder' => 'Click to add a log'},
    tags => { after_element => \&help,
              help => 'Logs' },
   );
+
+sub default_logs {
+    [ map { $_->{name} } @pf::constants::syslog::SyslogInfo ];
+}
 
 has_block  definition =>
   (
@@ -66,7 +71,7 @@ has_block  definition =>
   );
 
 sub options_logs {
-    return map { { label => $_, value => $_ } } @logs;
+    return map { { label => $_, value => $_ } } @{default_logs()};
 }
 
 sub default_type {
