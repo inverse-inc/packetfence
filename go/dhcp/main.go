@@ -348,6 +348,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 				pingreply := Ping(dhcp.IPAdd(handler.start, free).String(), 1)
 				if pingreply {
 					fmt.Println(p.CHAddr().String() + " Ip " + dhcp.IPAdd(handler.start, free).String() + " already in use, trying next")
+					// Added back in the pool since it's not the dhcp server who gave it
 					handler.available.Add(element)
 					goto retry
 				}
@@ -422,67 +423,92 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 			answer.IP = reqIP
 			answer.Iface = h.intNet
 
+			var Reply bool
+			var Index int
+			// Valid IP
 			if len(reqIP) == 4 && !reqIP.Equal(net.IPv4zero) {
+				// Requested IP is in the pool ?
 				if leaseNum := dhcp.IPRange(handler.start, reqIP) - 1; leaseNum >= 0 && leaseNum < handler.leaseRange {
+					// Requested IP is in the cache ?
 					if index, found := handler.hwcache.Get(p.CHAddr().String()); found {
+						// Requested IP is equal to what we have in the cache ?
 						if dhcp.IPAdd(handler.start, index.(int)).Equal(reqIP) {
-
-							var GlobalOptions dhcp.Options
-							var options = make(map[dhcp.OptionCode][]byte)
-							for key, value := range handler.options {
-								if key == dhcp.OptionDomainNameServer || key == dhcp.OptionRouter {
-									options[key] = ShuffleIP(value)
-								} else {
-									options[key] = value
-								}
-							}
-							GlobalOptions = options
-							leaseDuration := handler.leaseDuration
-
-							// Add network options on the fly
-							x, err := decodeOptions(NetScope.IP.String())
-							if err {
-								for key, value := range x {
-									if key == dhcp.OptionIPAddressLeaseTime {
-										seconds, _ := strconv.Atoi(string(value))
-										leaseDuration = time.Duration(seconds) * time.Second
-										continue
-									}
-									GlobalOptions[key] = value
-								}
-							}
-
-							// Add devices options on the fly
-							x, err = decodeOptions(p.CHAddr().String())
-							if err {
-								for key, value := range x {
-									if key == dhcp.OptionIPAddressLeaseTime {
-										seconds, _ := strconv.Atoi(string(value))
-										leaseDuration = time.Duration(seconds) * time.Second
-										continue
-									}
-									GlobalOptions[key] = value
-								}
-							}
-
-							answer.D = dhcp.ReplyPacket(p, dhcp.ACK, handler.ip.To4(), reqIP, leaseDuration,
-								GlobalOptions.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
-							// Update Global Caches
-							GlobalIpCache.Set(reqIP.String(), p.CHAddr().String(), leaseDuration+(time.Duration(15)*time.Second))
-							GlobalMacCache.Set(p.CHAddr().String(), reqIP.String(), leaseDuration+(time.Duration(15)*time.Second))
-							// Update the cache
-							fmt.Println(p.CHAddr().String() + " Ack " + reqIP.String())
-
-							handler.hwcache.Set(p.CHAddr().String(), index, leaseDuration+(time.Duration(15)*time.Second))
-							return answer
+							Reply = true
+							Index = index.(int)
+							// So remove the ip from the cache
 						} else {
-							fmt.Println(p.CHAddr().String() + " Asked for an IP " + reqIP.String() + " that hasnt been assigned by Offer " + dhcp.IPAdd(handler.start, index.(int)).String())
-							// pingreply := Ping(reqIP.String(), 1)
-							// if pingreply {
-							// 	fmt.Println(p.CHAddr().String() + " Ip " + reqIP.String() + " already in use")
-							// }
+							Reply = false
+							handler.hwcache.Delete(p.CHAddr().String())
+							// handler.available.Add(uint32(leaseNum))
+						}
+					} else {
+						pingreply := Ping(reqIP.String(), 1)
+						// Are we able to ping the IP ?
+						if pingreply {
+							fmt.Println(p.CHAddr().String() + " Ip " + reqIP.String() + " already in use, reply Nak")
+							Reply = false
+						} else {
+							Reply = true
+							handler.available.Remove(uint32(leaseNum))
+							Index = leaseNum
 						}
 					}
+				}
+				if Reply {
+
+					var GlobalOptions dhcp.Options
+					var options = make(map[dhcp.OptionCode][]byte)
+					for key, value := range handler.options {
+						if key == dhcp.OptionDomainNameServer || key == dhcp.OptionRouter {
+							options[key] = ShuffleIP(value)
+						} else {
+							options[key] = value
+						}
+					}
+					GlobalOptions = options
+					leaseDuration := handler.leaseDuration
+
+					// Add network options on the fly
+					x, err := decodeOptions(NetScope.IP.String())
+					if err {
+						for key, value := range x {
+							if key == dhcp.OptionIPAddressLeaseTime {
+								seconds, _ := strconv.Atoi(string(value))
+								leaseDuration = time.Duration(seconds) * time.Second
+								continue
+							}
+							GlobalOptions[key] = value
+						}
+					}
+
+					// Add devices options on the fly
+					x, err = decodeOptions(p.CHAddr().String())
+					if err {
+						for key, value := range x {
+							if key == dhcp.OptionIPAddressLeaseTime {
+								seconds, _ := strconv.Atoi(string(value))
+								leaseDuration = time.Duration(seconds) * time.Second
+								continue
+							}
+							GlobalOptions[key] = value
+						}
+					}
+
+					answer.D = dhcp.ReplyPacket(p, dhcp.ACK, handler.ip.To4(), reqIP, leaseDuration,
+						GlobalOptions.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
+					// Update Global Caches
+					GlobalIpCache.Set(reqIP.String(), p.CHAddr().String(), leaseDuration+(time.Duration(15)*time.Second))
+					GlobalMacCache.Set(p.CHAddr().String(), reqIP.String(), leaseDuration+(time.Duration(15)*time.Second))
+					// Update the cache
+					fmt.Println(p.CHAddr().String() + " Ack " + reqIP.String())
+					handler.hwcache.Set(p.CHAddr().String(), Index, leaseDuration+(time.Duration(15)*time.Second))
+					return answer
+				} else {
+					fmt.Println(p.CHAddr().String() + " Asked for an IP " + reqIP.String() + " that hasnt been assigned by Offer " + dhcp.IPAdd(handler.start, Index).String())
+					// pingreply := Ping(reqIP.String(), 1)
+					// if pingreply {
+					// 	fmt.Println(p.CHAddr().String() + " Ip " + reqIP.String() + " already in use")
+					// }
 				}
 			}
 			fmt.Println(p.CHAddr().String() + " Nak")
