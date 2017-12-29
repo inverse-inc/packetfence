@@ -23,6 +23,7 @@ type DHCPHandler struct {
 	leaseRange    int           // Number of IPs to distribute (starting from start)
 	leaseDuration time.Duration // Lease period
 	hwcache       *cache.Cache
+	xid           *cache.Cache
 	available     *roaring.Bitmap // RoaringBitmap to keep trak of available ip
 	layer2        bool
 	role          string
@@ -208,6 +209,11 @@ func (d *Interfaces) readConfig() {
 							})
 
 							DHCPScope.hwcache = hwcache
+
+							xid := cache.New(time.Duration(4)*time.Second, 2*time.Second)
+
+							DHCPScope.xid = xid
+
 							initiaLease(&DHCPScope)
 							var options = make(map[dhcp.OptionCode][]byte)
 
@@ -259,6 +265,11 @@ func (d *Interfaces) readConfig() {
 						})
 
 						DHCPScope.hwcache = hwcache
+
+						xid := cache.New(time.Duration(4)*time.Second, 2*time.Second)
+
+						DHCPScope.xid = xid
+
 						initiaLease(&DHCPScope)
 						var options = make(map[dhcp.OptionCode][]byte)
 

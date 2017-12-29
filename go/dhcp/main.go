@@ -349,6 +349,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 				free = int(element)
 				// Lock it
 				handler.hwcache.Set(p.CHAddr().String(), free, time.Duration(5)*time.Second)
+				handler.xid.Set(string(binary.BigEndian.Uint64(p.XId())), 0, time.Duration(5)*time.Second)
 				// Ping the ip address
 				pingreply := Ping(dhcp.IPAdd(handler.start, free).String(), 1)
 				if pingreply {
@@ -360,6 +361,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 				handler.available.Remove(element)
 				// 5 seconds to send a request
 				handler.hwcache.Set(p.CHAddr().String(), free, time.Duration(5)*time.Second)
+				handler.xid.Replace(string(binary.BigEndian.Uint32(p.XId())), 1, time.Duration(5)*time.Second)
 			} else {
 				fmt.Println(p.CHAddr().String() + " Nak No space left in the pool ")
 				return answer
@@ -444,7 +446,11 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 						} else {
 							Reply = false
 							fmt.Println(p.CHAddr().String() + " Asked for an IP " + reqIP.String() + " that hasnt been assigned by Offer " + dhcp.IPAdd(handler.start, index.(int)).String())
-							handler.hwcache.Delete(p.CHAddr().String())
+							if index, found = handler.xid.Get(string(binary.BigEndian.Uint32(p.XId()))); found {
+								if index.(int) == 1 {
+									handler.hwcache.Delete(p.CHAddr().String())
+								}
+							}
 						}
 					} else {
 						// Not in the cache so refuse
@@ -508,7 +514,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 			}
 
 		case dhcp.Release, dhcp.Decline:
-
+			fmt.Println(p.CHAddr().String() + " " + msgType.String())
 			if x, found := handler.hwcache.Get(p.CHAddr().String()); found {
 				handler.available.Add(uint32(x.(int)))
 				handler.hwcache.Delete(p.CHAddr().String())
