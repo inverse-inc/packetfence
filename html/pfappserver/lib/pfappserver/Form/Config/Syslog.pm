@@ -19,22 +19,6 @@ use pf::constants::syslog;
 
 use pf::log;
 
-our @logs = qw(
-  collectd fingerbank httpd.aaa.access
-  httpd.aaa.error httpd.admin httpd.admin.access
-  httpd.admin.catalyst httpd.admin.error httpd.collector
-  httpd.collector.error httpd.graphite.access httpd.graphite.error
-  httpd.parking.access httpd.parking.error httpd.portal.access
-  httpd.portal.catalyst httpd.portal.error httpd.proxy.access
-  httpd.proxy.error httpd.webservices.access httpd.webservices.error
-  packetfence pfbandwidthd pfconfig
-  pfdetect pfdhcplistener pfdns
-  pffilter pfmon radius
-  radius-acct radius-cli radius-eduroam
-  radius-load_balancer
-  redis_cache redis_ntlm_cache redis_queue
-);
-
 ## Definition
 has_field 'id' =>
   (
