@@ -535,7 +535,7 @@ cp -r addons/monit/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.pl $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.sh $RPM_BUILD_ROOT/usr/local/pf/addons/
 %{__install} -D packetfence.logrotate $RPM_BUILD_ROOT/etc/logrotate.d/packetfence
-%{__install} -D packetfence.rsyslog $RPM_BUILD_ROOT/etc/rsyslog.d/packetfence.conf
+%{__install} -D packetfence.rsyslog-drop-in.service $RPM_BUILD_ROOT/etc/systemd/system/rsyslog.service.d/packetfence.conf
 %{__install} -D packetfence.journald $RPM_BUILD_ROOT/usr/lib/systemd/journald.conf.d/01-packetfence.conf
 cp -r sbin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r conf $RPM_BUILD_ROOT/usr/local/pf/
