@@ -1013,6 +1013,7 @@ fi
 %config                 /usr/local/pf/conf/realm.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/radius_filters.conf
                         /usr/local/pf/conf/radius_filters.conf.example
+%config(noreplace)      /usr/local/pf/conf/rsyslog.conf.tt
 %config(noreplace)      /usr/local/pf/conf/billing_tiers.conf
                         /usr/local/pf/conf/billing_tiers.conf.example
 %config(noreplace)      /usr/local/pf/conf/domain.conf
@@ -1090,6 +1091,8 @@ fi
 %config(noreplace)      /usr/local/pf/conf/roles.conf
 %config                 /usr/local/pf/conf/roles.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/snmptrapd.conf
+%config(noreplace)      /usr/local/pf/conf/syslog.conf
+%config                 /usr/local/pf/conf/syslog.conf.defaults
 %config                 /usr/local/pf/conf/ui.conf
 %config                 /usr/local/pf/conf/ui.conf.es_ES
 %config(noreplace)      /usr/local/pf/conf/ui-global.conf
