@@ -334,7 +334,10 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 			if x, found := handler.hwcache.Get(p.CHAddr().String()); found {
 				free = x.(int)
 				// 5 seconds to send a request
-				handler.hwcache.Set(p.CHAddr().String(), free, time.Duration(5)*time.Second)
+				err := handler.hwcache.Replace(p.CHAddr().String(), free, time.Duration(5)*time.Second)
+				if err != nil {
+					return answer
+				}
 				goto reply
 			}
 
@@ -344,12 +347,14 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 				element := i.Next()
 				handler.available.Remove(element)
 				free = int(element)
+				// Lock it
+				handler.hwcache.Set(p.CHAddr().String(), free, time.Duration(5)*time.Second)
 				// Ping the ip address
 				pingreply := Ping(dhcp.IPAdd(handler.start, free).String(), 1)
 				if pingreply {
 					fmt.Println(p.CHAddr().String() + " Ip " + dhcp.IPAdd(handler.start, free).String() + " already in use, trying next")
 					// Added back in the pool since it's not the dhcp server who gave it
-					handler.available.Add(element)
+					handler.hwcache.Delete(p.CHAddr().String())
 					goto retry
 				}
 				handler.available.Remove(element)
@@ -438,20 +443,12 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 							// So remove the ip from the cache
 						} else {
 							Reply = false
+							fmt.Println(p.CHAddr().String() + " Asked for an IP " + reqIP.String() + " that hasnt been assigned by Offer " + dhcp.IPAdd(handler.start, index.(int)).String())
 							handler.hwcache.Delete(p.CHAddr().String())
-							// handler.available.Add(uint32(leaseNum))
 						}
 					} else {
-						pingreply := Ping(reqIP.String(), 1)
-						// Are we able to ping the IP ?
-						if pingreply {
-							fmt.Println(p.CHAddr().String() + " Ip " + reqIP.String() + " already in use, reply Nak")
-							Reply = false
-						} else {
-							Reply = true
-							handler.available.Remove(uint32(leaseNum))
-							Index = leaseNum
-						}
+						// Not in the cache so refuse
+						Reply = false
 					}
 				}
 				if Reply {
@@ -502,17 +499,13 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 					// Update the cache
 					fmt.Println(p.CHAddr().String() + " Ack " + reqIP.String())
 					handler.hwcache.Set(p.CHAddr().String(), Index, leaseDuration+(time.Duration(15)*time.Second))
-					return answer
+
 				} else {
-					fmt.Println(p.CHAddr().String() + " Asked for an IP " + reqIP.String() + " that hasnt been assigned by Offer " + dhcp.IPAdd(handler.start, Index).String())
-					// pingreply := Ping(reqIP.String(), 1)
-					// if pingreply {
-					// 	fmt.Println(p.CHAddr().String() + " Ip " + reqIP.String() + " already in use")
-					// }
+					fmt.Println(p.CHAddr().String() + " Nak")
+					answer.D = dhcp.ReplyPacket(p, dhcp.NAK, handler.ip.To4(), nil, 0, nil)
 				}
+				return answer
 			}
-			fmt.Println(p.CHAddr().String() + " Nak")
-			answer.D = dhcp.ReplyPacket(p, dhcp.NAK, handler.ip.To4(), nil, 0, nil)
 
 		case dhcp.Release, dhcp.Decline:
 
