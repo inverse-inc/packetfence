@@ -206,13 +206,13 @@ func (h *Interface) run(jobs chan job) {
 						Members[i] = result.String()
 					}
 
-					if Count == (v.dhcpHandler.leaseRange - int(statistiques.RunContainerValues)) {
+					if Count == (v.dhcpHandler.leaseRange - (int(statistiques.RunContainerValues) + int(statistiques.ArrayContainerValues))) {
 						Status = "Normal"
 					} else {
 						Status = "Calculated available IP " + strconv.Itoa(v.dhcpHandler.leaseRange-Count) + " is different than what we have available in the pool " + strconv.Itoa(int(statistiques.RunContainerValues))
 					}
 
-					stats[v.network.String()] = Stats{EthernetName: Request.(ApiReq).NetInterface, Net: v.network.String(), Free: int(statistiques.RunContainerValues), Category: v.dhcpHandler.role, Options: Options, Members: Members, Status: Status}
+					stats[v.network.String()] = Stats{EthernetName: Request.(ApiReq).NetInterface, Net: v.network.String(), Free: int(statistiques.RunContainerValues) + int(statistiques.ArrayContainerValues), Category: v.dhcpHandler.role, Options: Options, Members: Members, Status: Status}
 				}
 				outchannel <- stats
 			}
@@ -229,9 +229,11 @@ func (h *Interface) run(jobs chan job) {
 			if Request.(ApiReq).Req == "debug" {
 				for _, v := range h.network {
 					if Request.(ApiReq).Role == v.dhcpHandler.role {
+						var statistiques roaring.Statistics
+						statistiques = v.dhcpHandler.available.Stats()
 						spew.Dump(v.dhcpHandler.available.Stats())
 						fmt.Println(v.dhcpHandler.available.String())
-						stats[v.network.String()] = Stats{EthernetName: Request.(ApiReq).NetInterface, Net: v.network.String(), Category: v.dhcpHandler.role, Status: "Debug finished"}
+						stats[v.network.String()] = Stats{EthernetName: Request.(ApiReq).NetInterface, Net: v.network.String(), Free: int(statistiques.RunContainerValues) + int(statistiques.ArrayContainerValues), Category: v.dhcpHandler.role, Status: "Debug finished"}
 					}
 				}
 				outchannel <- stats
