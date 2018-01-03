@@ -15,6 +15,8 @@ import (
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
+const hexDigit = "0123456789abcdef"
+
 type NodeInfo struct {
 	Mac      string
 	Status   string
@@ -250,10 +252,10 @@ func ShuffleDNS(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
 	if ConfNet.ClusterIPs != "" {
 		return Shuffle(ConfNet.ClusterIPs)
 	}
-	// if ConfNet.SplitNetwork == "enabled" {
-	// 	return Shuffle(ConfNet.Dns)
-	// 	// return []byte(net.ParseIP(ConfNet.Dns).To4())
-	// }
+	if ConfNet.SplitNetwork == "enabled" {
+		return Shuffle(ConfNet.Dns)
+		// return []byte(net.ParseIP(ConfNet.Dns).To4())
+	}
 	if ConfNet.Dnsvip != "" {
 		return []byte(net.ParseIP(ConfNet.Dnsvip).To4())
 	} else {
@@ -315,4 +317,19 @@ func ShuffleIP(a []byte) (r []byte) {
 		_, a = a[0], a[4:]
 	}
 	return ShuffleNetIP(array)
+}
+
+func ByteToString(a []byte) string {
+	if len(a) == 0 {
+		return ""
+	}
+	buf := make([]byte, 0, len(a)*3-1)
+	for i, b := range a {
+		if i > 0 {
+			buf = append(buf, ':')
+		}
+		buf = append(buf, hexDigit[b>>4])
+		buf = append(buf, hexDigit[b&0xF])
+	}
+	return string(buf)
 }

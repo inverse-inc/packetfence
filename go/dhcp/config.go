@@ -23,6 +23,7 @@ type DHCPHandler struct {
 	leaseRange    int           // Number of IPs to distribute (starting from start)
 	leaseDuration time.Duration // Lease period
 	hwcache       *cache.Cache
+	xid           *cache.Cache
 	available     *roaring.Bitmap // RoaringBitmap to keep trak of available ip
 	layer2        bool
 	role          string
@@ -203,11 +204,16 @@ func (d *Interfaces) readConfig() {
 							hwcache := cache.New(time.Duration(seconds)*time.Second, 10*time.Second)
 
 							hwcache.OnEvicted(func(nic string, pool interface{}) {
-								fmt.Println(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Removed from the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
+								fmt.Println(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Added back in the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
 								DHCPScope.available.Add(uint32(pool.(int)))
 							})
 
 							DHCPScope.hwcache = hwcache
+
+							xid := cache.New(time.Duration(4)*time.Second, 2*time.Second)
+
+							DHCPScope.xid = xid
+
 							initiaLease(&DHCPScope)
 							var options = make(map[dhcp.OptionCode][]byte)
 
@@ -254,11 +260,16 @@ func (d *Interfaces) readConfig() {
 						hwcache := cache.New(time.Duration(seconds)*time.Second, 10*time.Second)
 
 						hwcache.OnEvicted(func(nic string, pool interface{}) {
-							fmt.Println(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Removed from the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
+							fmt.Println(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Added back in the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
 							DHCPScope.available.Add(uint32(pool.(int)))
 						})
 
 						DHCPScope.hwcache = hwcache
+
+						xid := cache.New(time.Duration(4)*time.Second, 2*time.Second)
+
+						DHCPScope.xid = xid
+
 						initiaLease(&DHCPScope)
 						var options = make(map[dhcp.OptionCode][]byte)
 
