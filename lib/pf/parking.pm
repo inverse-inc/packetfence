@@ -110,6 +110,7 @@ sub remove_parking_actions {
         pf::api::jsonrestclient->new(
             proto   => "http",
             host    => "localhost",
+            method  => "get",
             port    => $pf::constants::api::GO_DHCP_PORT,
         )->call("/removeoptions/".$mac,{}
         );

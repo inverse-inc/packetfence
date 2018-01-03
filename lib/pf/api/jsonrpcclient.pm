@@ -83,6 +83,15 @@ has port => (is => 'rw', default => sub {$Config{'webservices'}{'port'}} );
 
 has id => (is => 'rw', default => sub {0} );
 
+=head2 method
+
+  the method to use to send the request (Post/Get)
+  default Post
+
+=cut
+
+has method => (is => 'rw', default => sub {"post"} );
+
 use constant REQUEST => 0;
 use constant RESPONSE => 2;
 use constant NOTIFICATION => 2;
@@ -100,10 +109,13 @@ sub call {
     my ($self,$function,@args) = @_;
     my $response;
     my $curl = $self->curl($function);
-    my $request = $self->build_jsonrpc_request($function,\@args);
+    if ($self->method eq 'post') {
+        my $request = $self->build_jsonrpc_request($function,\@args);
+        $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
+        $curl->setopt(CURLOPT_POSTFIELDS, $request);
+    }
+
     my $response_body;
-    $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
-    $curl->setopt(CURLOPT_POSTFIELDS, $request);
     $curl->setopt(CURLOPT_WRITEDATA, \$response_body);
     $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0);
 
@@ -141,10 +153,13 @@ sub notify {
     my ($self,$function,@args) = @_;
     my $response;
     my $curl = $self->curl($function);
-    my $request = $self->build_jsonrpc_notification($function,\@args);
+    if ($self->method eq 'post') {
+        my $request = $self->build_jsonrpc_notification($function,\@args);
+        $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
+        $curl->setopt(CURLOPT_POSTFIELDS, $request);
+    }
+
     my $response_body;
-    $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
-    $curl->setopt(CURLOPT_POSTFIELDS, $request);
     $curl->setopt(CURLOPT_WRITEDATA, \$response_body);
 
     # Starts the actual request
