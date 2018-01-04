@@ -67,6 +67,7 @@ sub do_sso {
         username          => $username,
         stripped_username => $stripped_username,
         realm             => $realm,
+        status            => $node->{status},
     });
 
     return $TRUE;
