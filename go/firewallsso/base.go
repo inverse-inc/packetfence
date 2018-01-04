@@ -141,7 +141,7 @@ func (fw *FirewallSSO) FormatUsername(ctx context.Context, info map[string]strin
 	return username
 }
 
-func (fw *FirewallSSO) GetStatus(ctx context.Context, info map[string]string) bool {
+func (fw *FirewallSSO) CheckStatus(ctx context.Context, info map[string]string) bool {
 	if info["status"] == "reg" {
 		return true
 	} else {
@@ -240,7 +240,7 @@ func (fw *FirewallSSO) logger(ctx context.Context) log15.Logger {
 func ExecuteStart(ctx context.Context, fw FirewallSSOInt, info map[string]string, timeout int) (bool, error) {
 	ctx = log.AddToLogContext(ctx, "firewall-id", fw.GetFirewallSSO(ctx).PfconfigHashNS)
 
-	if fw.GetStatus(ctx, info) {
+	if fw.CheckStatus(ctx, info) {
 		log.LoggerWContext(ctx).Info("Processing SSO Start")
 		if !fw.MatchesRole(ctx, info) {
 			log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO for user device %s since it doesn't match the role", info["role"]))
