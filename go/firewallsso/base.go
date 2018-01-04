@@ -240,33 +240,31 @@ func (fw *FirewallSSO) logger(ctx context.Context) log15.Logger {
 func ExecuteStart(ctx context.Context, fw FirewallSSOInt, info map[string]string, timeout int) (bool, error) {
 	ctx = log.AddToLogContext(ctx, "firewall-id", fw.GetFirewallSSO(ctx).PfconfigHashNS)
 
-	if fw.CheckStatus(ctx, info) {
-		log.LoggerWContext(ctx).Info("Processing SSO Start")
-		if !fw.MatchesRole(ctx, info) {
-			log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO for user device %s since it doesn't match the role", info["role"]))
-			return false, nil
-		}
-
-		if !fw.MatchesNetwork(ctx, info) {
-			log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO for IP %s since it doesn't match any configured network", info["ip"]))
-			return false, nil
-		}
-
-		// We change the username with the way it is expected given the format of this firewall
-		info["username"] = fw.FormatUsername(ctx, info)
-
-		parentResult, err := fw.GetFirewallSSO(ctx).Start(ctx, info, timeout)
-
-		if err != nil {
-			return false, err
-		}
-
-		childResult, err := fw.Start(ctx, info, timeout)
-		return parentResult && childResult, err
-	} else {
+	if !fw.CheckStatus(ctx, info) {
+		return false, nil
+	}
+	log.LoggerWContext(ctx).Info("Processing SSO Start")
+	if !fw.MatchesRole(ctx, info) {
+		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO for user device %s since it doesn't match the role", info["role"]))
 		return false, nil
 	}
 
+	if !fw.MatchesNetwork(ctx, info) {
+		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO for IP %s since it doesn't match any configured network", info["ip"]))
+		return false, nil
+	}
+
+	// We change the username with the way it is expected given the format of this firewall
+	info["username"] = fw.FormatUsername(ctx, info)
+
+	parentResult, err := fw.GetFirewallSSO(ctx).Start(ctx, info, timeout)
+
+	if err != nil {
+		return false, err
+	}
+
+	childResult, err := fw.Start(ctx, info, timeout)
+	return parentResult && childResult, err
 }
 
 // Execute an SSO Stop request on the specified firewall
