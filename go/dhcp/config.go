@@ -172,6 +172,7 @@ func (d *Interfaces) readConfig() {
 								seconds, _ = strconv.Atoi("30")
 								// Use the first ip define in networks.conf
 								if ConfNet.RegNetwork != "" {
+									inc(IP)
 									ip = append([]byte(nil), IP...)
 								} else {
 									ip = append([]byte(nil), net.ParseIP(ConfNet.DhcpStart)...)
@@ -204,7 +205,7 @@ func (d *Interfaces) readConfig() {
 							hwcache := cache.New(time.Duration(seconds)*time.Second, 10*time.Second)
 
 							hwcache.OnEvicted(func(nic string, pool interface{}) {
-								fmt.Println(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Removed from the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
+								fmt.Println(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Added back in the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
 								DHCPScope.available.Add(uint32(pool.(int)))
 							})
 
@@ -260,7 +261,7 @@ func (d *Interfaces) readConfig() {
 						hwcache := cache.New(time.Duration(seconds)*time.Second, 10*time.Second)
 
 						hwcache.OnEvicted(func(nic string, pool interface{}) {
-							fmt.Println(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Removed from the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
+							fmt.Println(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Added back in the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
 							DHCPScope.available.Add(uint32(pool.(int)))
 						})
 

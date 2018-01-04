@@ -81,7 +81,7 @@ func main() {
 	// Queue value
 	var (
 		maxQueueSize = 100
-		maxWorkers   = 50
+		maxWorkers   = 100
 	)
 
 	ControlIn = make(map[string]chan interface{})
@@ -250,11 +250,11 @@ func (h *Interface) runUnicast(jobs chan job, ip net.IP) {
 	ListenAndServeIfUnicast(h.Name, h, jobs, ip)
 }
 
-func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options dhcp.Options) (answer Answer) {
+func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType) (answer Answer) {
 
 	var handler DHCPHandler
 	var NetScope net.IPNet
-
+	options := p.ParseOptions()
 	answer.MAC = p.CHAddr()
 	answer.SrcIP = h.Ipv4
 
@@ -427,6 +427,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options d
 			if reqIP == nil {
 				reqIP = net.IP(p.CIAddr())
 			}
+
 			fmt.Println(p.CHAddr().String() + " " + msgType.String() + " " + reqIP.String() + " xID " + ByteToString(p.XId()))
 
 			answer.IP = reqIP
