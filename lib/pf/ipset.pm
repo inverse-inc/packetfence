@@ -38,7 +38,6 @@ use pf::config qw(
 use pf::node qw(nodes_registered_not_violators node_view node_deregister $STATUS_REGISTERED);
 use pf::nodecategory;
 use pf::util;
-use pf::violation qw(violation_view_open_uniq violation_count);
 use pf::ip4log;
 use pf::authentication;
 use pf::constants::parking qw($PARKING_IPSET_NAME);
@@ -184,6 +183,7 @@ sub generate_mangle_rules {
 
     # mark all open violations
     # TODO performance: only those whose's last connection_type is inline?
+    require pf::violation;
     my @macarray = pf::violation::violation_view_open_uniq();
     if ( $macarray[0] ) {
         foreach my $row (@macarray) {
