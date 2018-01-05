@@ -33,7 +33,7 @@ sub parse {
             alerttype   => $4,
             descr       => $5,
         };
-        return { date => $data->{date}, srcip => $data->{serverip}, dstip => $data->{deviceip}, events => { nexpose_event => $data->{descr} } } if $data->{alerttype} eq 'VULNERABILITY' ;
+        return { date => $data->{date}, srcip => $data->{deviceip}, dstip => undef, events => { nexpose_event => $data->{descr} } } if $data->{alerttype} eq 'VULNERABILITY' ;
     }
     return undef;
 }
