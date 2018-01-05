@@ -80,11 +80,6 @@ if $syslogtag contains "httpd_collector_err" then -/usr/local/pf/logs/httpd.coll
 if $syslogtag contains "httpd_collector" then -/usr/local/pf/logs/httpd.collector.log
 & stop
 
-if $syslogtag contains "httpd_graphite_err" then -/usr/local/pf/logs/httpd.graphite.error
-& stop
-if $syslogtag contains "httpd_graphite" then -/usr/local/pf/logs/httpd.graphite.access
-& stop
-
 if $syslogtag contains "httpd_proxy_err" then -/usr/local/pf/logs/httpd.proxy.error
 & stop
 if $syslogtag contains "httpd_proxy" then -/usr/local/pf/logs/httpd.proxy.access
@@ -120,9 +115,6 @@ if $programname == "pfqueue" then -/usr/local/pf/logs/packetfence.log
 if $programname == "pfhttpd" then -/usr/local/pf/logs/packetfence.log
 & stop
 
-# COLLECTD
-if $programname == "collectd" then -/usr/local/pf/logs/collectd.log
-& stop
 
 # PFDETECT
 if $programname == "pfdetect" then -/usr/local/pf/logs/pfdetect.log

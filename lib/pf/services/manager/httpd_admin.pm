@@ -69,7 +69,7 @@ sub additionalVars {
     my ($self) = @_;
     return (
         preview_ip   => $self->portal_preview_ip,
-        graphite_url => "localhost:9000"
+        netdata_url => "localhost:19999"
     );
 }
 

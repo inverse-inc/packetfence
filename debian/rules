@@ -192,16 +192,11 @@ ifeq ($(jessie),yes)
 	dh_systemd_enable
 endif
 	dh_installinit --no-restart-on-upgrade
-	dh_installinit --name=packetfence-carbon-cache
-	dh_installinit --name=packetfence-carbon-relay
-	dh_installinit --name=packetfence-collectd
-	dh_installinit --name=packetfence-pfdns
 	dh_installinit --name=packetfence-haproxy
 	dh_installinit --name=packetfence-httpd.aaa
 	dh_installinit --name=packetfence-httpd.admin
 	dh_installinit --name=packetfence-httpd.collector
 	dh_installinit --name=packetfence-httpd.dispatcher
-	dh_installinit --name=packetfence-httpd.graphite
 	dh_installinit --name=packetfence-httpd.parking
 	dh_installinit --name=packetfence-httpd.portal
 	dh_installinit --name=packetfence-httpd.proxy
@@ -209,6 +204,7 @@ endif
 	dh_installinit --name=packetfence-iptables
 	dh_installinit --name=packetfence-keepalived
 	dh_installinit --name=packetfence-mariadb
+	dh_installinit --name=packetfence-netdata
 	dh_installinit --name=packetfence-pfbandwidthd
 	dh_installinit --name=packetfence-pfdetect
 	dh_installinit --name=packetfence-pfdhcplistener
@@ -228,7 +224,6 @@ endif
 	dh_installinit --name=packetfence-redis_queue
 	dh_installinit --name=packetfence-routes
 	dh_installinit --name=packetfence-snmptrapd
-	dh_installinit --name=packetfence-statsd
 	dh_installinit --name=packetfence-winbindd
 	dh_installinit --name=packetfence-etcd
 	dh_installinit --name=packetfence-pfdhcp

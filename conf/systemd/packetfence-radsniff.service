@@ -1,7 +1,5 @@
 [Unit]
 Description=PacketFence radsniff Service
-After=packetfence-collectd.service 
-Requires=packetfence-collectd.service
 Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
 After=packetfence-base.target packetfence-config.service packetfence-iptables.service
 
