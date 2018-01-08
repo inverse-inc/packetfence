@@ -24,7 +24,7 @@ has_field '+logo' => ( required => 1 );
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
