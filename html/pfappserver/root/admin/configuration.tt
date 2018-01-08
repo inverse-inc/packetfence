@@ -144,7 +144,7 @@
               [% list_entry('Config::Wrix', 'index', 'WRIX') | none %]
               [%- END %]
               [%- IF can_access("SYSLOG_READ") %]
-              [% list_entry('Config::Syslog', 'index', 'Syslog Config') | none %]
+              [% list_entry('Config::Syslog', 'index', 'Syslog Forwarding') | none %]
               [%- END %]
             </ul>
           </div>
