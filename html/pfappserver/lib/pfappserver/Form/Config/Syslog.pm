@@ -25,19 +25,21 @@ has_field 'id' =>
    type => 'Text',
    label => 'Syslog Name',
    required => 1,
-   messages => { required => 'Please specify the name of the syslog entry' },
+   messages => { required => 'Please specify the name of the Syslog entry' },
   );
+
 has_field type => (
     type => 'Hidden',
     required => 1,
     default_method => \&default_type,
 );
+
 has_field 'logs' =>
   (
    type => 'Select',
    multiple => 1,
    label => 'Logs',
-   options_method => \&options_logs,
+   options_method => \&available_log_options,
    default_method => \&default_logs,
    element_class => [qw(chzn-select input-xxlarge)],
    element_attr => {'data-placeholder' => 'Click to add a log'},
@@ -45,18 +47,36 @@ has_field 'logs' =>
              help => 'Logs' },
   );
 
-sub default_logs {
-    [ map { $_->{name} } @pf::constants::syslog::SyslogInfo ];
-}
-
 has_block  definition =>
   (
     render_list => [qw(type logs)],
   );
 
-sub options_logs {
+=head2 default_logs
+
+Return the default logs
+
+=cut
+
+sub default_logs {
+    [ map { $_->{name} } @pf::constants::syslog::SyslogInfo ];
+}
+
+=head2 available_log_options
+
+Return the list of available log options
+
+=cut
+
+sub available_log_options {
     return map { { label => $_, value => $_ } } @{default_logs()};
 }
+
+=head2 default_type
+
+Returns the default type of the Syslog forwarder
+
+=cut
 
 sub default_type {
     my ($self) = @_;
