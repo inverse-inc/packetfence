@@ -33,6 +33,7 @@
 /usr/local/pf/conf/realm.conf.defaults
 /usr/local/pf/conf/portal_modules.conf
 /usr/local/pf/conf/portal_modules.conf.defaults
+/usr/local/pf/conf/rsyslog.conf.tt
 /usr/local/pf/conf/redis_queue.conf
 /usr/local/pf/conf/redis_ntlm_cache.conf
 /usr/local/pf/conf/domain.conf
@@ -40,6 +41,8 @@
 /usr/local/pf/conf/suricata_categories.txt
 /usr/local/pf/conf/scan.conf
 /usr/local/pf/conf/switches.conf
+/usr/local/pf/conf/syslog.conf
+/usr/local/pf/conf/dhcpd.conf
 /usr/local/pf/conf/haproxy.conf
 /usr/local/pf/conf/cluster.conf
 /usr/local/pf/conf/httpd.conf.d/captive-portal-common.tt
