@@ -2,7 +2,7 @@ package pfappserver::Model::Config::Syslog;
 
 =head1 NAME
 
-pfappserver::Model::Config::Syslog add documentation
+pfappserver::Model::Config::Syslog
 
 =cut
 
@@ -18,7 +18,6 @@ use namespace::autoclean;
 use pf::ConfigStore::Syslog;
 
 extends 'pfappserver::Base::Model::Config';
-
 
 sub _buildConfigStore { pf::ConfigStore::Syslog->new }
 
