@@ -384,7 +384,7 @@ sub list_open {
             -where => {
                 end_time => [$ZERO_DATE, {">" => \'NOW()'}],
             },
-            -columns => [qw(mac ip type start_time end_time)],
+            -columns => [qw(mac ip start_time end_time)],
         }
     ) if !defined($search_by);;
 }
@@ -423,7 +423,7 @@ sub _list_open_by_ip {
                 ],
             },
             -order_by => { -desc => 'start_time' },
-            -columns => [qw(mac ip type start_time end_time)],
+            -columns => [qw(mac ip start_time end_time)],
         }
     );
 }
@@ -452,7 +452,7 @@ sub _list_open_by_mac {
                 ],
             },
             -order_by => { -desc => 'start_time' },
-            -columns => [qw(mac ip type start_time end_time)],
+            -columns => [qw(mac ip start_time end_time)],
         }
     );
 }
