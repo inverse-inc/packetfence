@@ -2,13 +2,13 @@ package pf::cmd::pf::generatesyslogconfig;
 
 =head1 NAME
 
-pf::cmd::pf::generatesyslogconfig -
-
-=cut
-
-=head1 DESCRIPTION
-
 pf::cmd::pf::generatesyslogconfig
+
+=head1 SYNOPSIS
+
+  pfcmd generatesyslogconfig
+
+Generates the syslog configuration
 
 =cut
 
