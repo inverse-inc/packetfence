@@ -12,7 +12,8 @@ BEGIN {
 our (
     @INVALID_DATES,
     @STRIP_FILENAME_FROM_EXCEPTIONS_TESTS,
-    @NORMALIZE_TIME_TESTS
+    @NORMALIZE_TIME_TESTS,
+    @EXPAND_CSV_TESTS
 );
 
 BEGIN {
@@ -111,13 +112,55 @@ BEGIN {
             msg => "normalizing years"
         },
     );
+
+    @EXPAND_CSV_TESTS = (
+        {
+            in  => '',
+            out => [],
+            msg => "empty string",
+        },
+        {
+            in  => [],
+            out => [],
+            msg => "empty array",
+        },
+        {
+            in  => undef,
+            out => [],
+            msg => "undef"
+        },
+        {
+            in  => "a,b,c",
+            out => [qw(a b c)],
+            msg => "simply list",
+        },
+        {
+            in  => [qw(a b c)],
+            out => [qw(a b c)],
+            msg => "simply array",
+        },
+        {
+            in  => "a , b , c",
+            out => [qw(a b c)],
+            msg => "simply list with spaces",
+        },
+        {
+            in  => [qw(a b ), "c,d"],
+            out => [qw(a b c d)],
+            msg => "list with in a list ",
+        },
+    );
 }
 
 use Test::More;
 use Test::NoWarnings;
 
 BEGIN {
-    plan tests => 41 + scalar @STRIP_FILENAME_FROM_EXCEPTIONS_TESTS + scalar @INVALID_DATES + scalar @NORMALIZE_TIME_TESTS;
+    plan tests => 41 +
+      scalar @STRIP_FILENAME_FROM_EXCEPTIONS_TESTS +
+      scalar @INVALID_DATES +
+      scalar @NORMALIZE_TIME_TESTS +
+      scalar @EXPAND_CSV_TESTS;
 }
 
 BEGIN {
@@ -211,10 +254,15 @@ ok(!is_in_list("sms","email"), "is_in_list negative");
 ok(!is_in_list("sms",""), "is_in_list empty list");
 ok(is_in_list("sms","sms, email"), "is_in_list positive with spaces");
 
-
 {
     for my $test (@NORMALIZE_TIME_TESTS) {
         is(normalize_time($test->{in}), $test->{out}, $test->{msg});
+    }
+}
+
+{
+    foreach my $test (@EXPAND_CSV_TESTS) {
+        is_deeply( [ expand_csv( $test->{in} ) ], $test->{out}, "expand_csv $test->{msg}" );
     }
 }
 
