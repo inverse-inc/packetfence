@@ -61,6 +61,19 @@ weight=4
 workers=1
 
 #
+# pfdhcplistener_external queue configuration
+#
+[queue pfdhcplistener_external]
+#
+# The weight of queue among shared workers
+#
+weight=4
+#
+# The number of dedicated workers for queue
+#
+workers=1
+
+#
 # pfdetect queue configuration
 #
 [queue pfdetect]
