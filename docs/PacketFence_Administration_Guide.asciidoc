@@ -204,7 +204,7 @@ On a Debian system, do:
   apt-get update
   apt-get upgrade
 
-Regarding SELinux or AppArmor, even if these features may be wanted by some organizations, PacketFence will not run properly if SELinux or AppArmor are enabled. You will need to explicitly disable SELinux in the `/etc/selinux/config` file and AppArmor with *update-rc.d -f apparmor stop*, *update-rc.d -f apparmor teardown* and *update-rc.d -f apparmor remove*. Regarding resolvconf, you can remove the symlink to that file and simply create the `/etc/resolv.conf` file with the content you want.
+Regarding SELinux or AppArmor, even if they may be wanted by some organizations, PacketFence will not work properly if SELinux or AppArmor are enabled. You will need to explicitly disable SELinux from the `/etc/selinux/config` file and reboot the machine. For AppArmor, you need to execute the following commands: *update-rc.d -f apparmor stop*, *update-rc.d -f apparmor teardown* and *update-rc.d -f apparmor remove*. Regarding resolvconf, you can remove the symlink to that file and simply create the `/etc/resolv.conf` file with the content you want.
 
 RedHat-based Systems
 ^^^^^^^^^^^^^^^^^^^^
