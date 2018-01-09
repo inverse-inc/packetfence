@@ -34,10 +34,10 @@ use base qw(pf::base::cmd::action_cmd);
 
 our @STATS_FIELDS = qw(queue name count);
 our @COUNT_FIELDS = qw(name count);
-our $STATS_HEADING_FORMAT = "| %-20s | %-30s | %-10s |\n";
-our $STATS_FORMAT = "| %-20s | %-30s | % 10d |\n";
-our $COUNT_HEADING_FORMAT = "| %-20s | %-10s |\n";
-our $COUNT_FORMAT = "| %-20s | % 10d |\n";
+our $STATS_HEADING_FORMAT = "| %-30s | %-30s | %-10s |\n";
+our $STATS_FORMAT = "| %-30s | %-30s | % 10d |\n";
+our $COUNT_HEADING_FORMAT = "| %-30s | %-10s |\n";
+our $COUNT_FORMAT = "| %-30s | % 10d |\n";
 
 sub stats {
     return pf::pfqueue::stats->new;
