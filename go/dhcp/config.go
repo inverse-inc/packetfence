@@ -172,6 +172,7 @@ func (d *Interfaces) readConfig() {
 								seconds, _ = strconv.Atoi("30")
 								// Use the first ip define in networks.conf
 								if ConfNet.RegNetwork != "" {
+									inc(IP)
 									ip = append([]byte(nil), IP...)
 								} else {
 									ip = append([]byte(nil), net.ParseIP(ConfNet.DhcpStart)...)

@@ -15,7 +15,7 @@ type Answer struct {
 }
 
 type Handler interface {
-	ServeDHCP(req dhcp.Packet, msgType dhcp.MessageType, options dhcp.Options) Answer
+	ServeDHCP(req dhcp.Packet, msgType dhcp.MessageType) Answer
 }
 
 // ServeConn is the bare minimum connection functions required by Serve()
@@ -60,6 +60,7 @@ func Serve(conn ServeConn, handler Handler, jobs chan job) error {
 			continue
 		}
 		options := req.ParseOptions()
+
 		var reqType dhcp.MessageType
 		if t := options[dhcp.OptionDHCPMessageType]; len(t) != 1 {
 			continue
@@ -71,7 +72,7 @@ func Serve(conn ServeConn, handler Handler, jobs chan job) error {
 		}
 		var dhcprequest dhcp.Packet
 		dhcprequest = append([]byte(nil), req...)
-		jobe := job{dhcprequest, reqType, options, handler, addr}
+		jobe := job{dhcprequest, reqType, handler, addr}
 		go func() {
 			jobs <- jobe
 		}()
