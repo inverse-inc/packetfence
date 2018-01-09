@@ -8,7 +8,7 @@ BEGIN {
     use lib qw(/usr/local/pf/t);
     use setup_test_config;
 }
-use Test::More tests => 50;
+use Test::More tests => 57;
 use Test::NoWarnings;
 
 BEGIN {
@@ -113,6 +113,48 @@ is(normalize_time("2W"), 2 * 7 * 24 * 60 * 60, "normalizing weeks");
 is(normalize_time("2M"), 2 * 30 * 24 * 60 * 60, "normalizing months");
 is(normalize_time("2Y"), 2 * 365 * 24 * 60 * 60, "normalizing years");
 
+{
+    my @IN_OUT = (
+        {
+            in  => '',
+            out => [],
+            msg => "empty string",
+        },
+        {
+            in  => [],
+            out => [],
+            msg => "empty array",
+        },
+        {
+            in  => undef,
+            out => [],
+            msg => "undef"
+        },
+        {
+            in  => "a,b,c",
+            out => [qw(a b c)],
+            msg => "simply list",
+        },
+        {
+            in  => [qw(a b c)],
+            out => [qw(a b c)],
+            msg => "simply array",
+        },
+        {
+            in  => "a , b , c",
+            out => [qw(a b c)],
+            msg => "simply list with spaces",
+        },
+        {
+            in  => [qw(a b ), "c,d"],
+            out => [qw(a b c d)],
+            msg => "list with in a list ",
+        },
+    );
+    foreach my $in_out (@IN_OUT) {
+        is_deeply( [ expand_csv( $in_out->{in} ) ], $in_out->{out}, "expand_csv $in_out->{msg}" );
+    }
+}
 
 
 # TODO add more tests, we should test:
