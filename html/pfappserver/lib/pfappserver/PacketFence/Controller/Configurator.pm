@@ -489,7 +489,7 @@ sub services :Chained('object') :PathPart('services') :Args(0) {
             $c->stash->{'admin_port'} = $c->model('PfConfigAdapter')->getWebAdminPort();
         }
 
-        my ($status, $services) = $c->model('Services')->status();
+        my ($status, $services) = $c->model('Services')->status(1);
         if ( is_success($status) ) {
             $c->log->info("successfully listed services");
             $c->stash($services);
@@ -508,7 +508,7 @@ sub services :Chained('object') :PathPart('services') :Args(0) {
             $c->model("Config::System")->restart_pfconfig();
             $c->detach(Service => 'pf_start');
         } else {
-            my ($HTTP_CODE, $services) = $c->model('Services')->status;
+            my ($HTTP_CODE, $services) = $c->model('Services')->status(1);
             if( all { $_->{status} ne '0' } @{ $services->{services} } ) {
                 $c->model('Configurator')->update_currently_at();
             }

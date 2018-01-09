@@ -95,11 +95,14 @@ configuration.
 =cut
 
 sub status {
-    my ($self) = @_;
+    my ($self, $just_managed) = @_;
     my $logger = get_logger();
     my @services;
     foreach my $manager (grep { defined($_) } map {  pf::services::get_service_manager($_)  } @pf::services::ALL_SERVICES) {
         my $is_managed = $manager->isManaged();
+        if ($just_managed && !$is_managed) {
+            next;
+        }
         my %info = (
             name   => $manager->name,
             status => $manager->status(1),
