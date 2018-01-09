@@ -146,12 +146,12 @@ The following provides a list of the minimum server hardware recommendations:
 * Intel or AMD CPU 3 GHz
 * 8 GB of RAM
 * 100 GB of disk space (RAID-1 recommended)
-* 1 Network card (2 recommended)
+* 1 network card (2 recommended)
 
 Operating System Requirements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PacketFence supports the following operating systems on the x86_64 architectures: 
+PacketFence supports the following operating systems on the x86_64 architecture: 
 
 [options="compact"]
 * Red Hat Enterprise Linux 7.x Server
@@ -206,7 +206,7 @@ On a Debian system, do:
 
 Regarding SELinux or AppArmor, even if these features may be wanted by some organizations, PacketFence will not run properly if SELinux or AppArmor are enabled. You will need to explicitly disable SELinux in the `/etc/selinux/config` file and AppArmor with *update-rc.d -f apparmor stop*, *update-rc.d -f apparmor teardown* and *update-rc.d -f apparmor remove*. Regarding resolvconf, you can remove the symlink to that file and simply create the `/etc/resolv.conf` file with the content you want.
 
-RedHat-based systems
+RedHat-based Systems
 ^^^^^^^^^^^^^^^^^^^^
 
 NOTE: Applies to CentOS and Scientific Linux but only the x86_64 architecture is supported.
@@ -256,7 +256,7 @@ In order to use the PacketFence repository :
   # yum localinstall http://packetfence.org/downloads/PacketFence/RHEL7/`uname -i`/RPMS/packetfence-release-1.2-6.el7.centos.noarch.rpm
 
 Once the repository is defined, you can install PacketFence with all its
-dependencies, and the required external services (Database
+dependencies, and the required external services (database
 server, DHCP server, RADIUS server) using:
 
   yum install perl
@@ -288,7 +288,7 @@ Prior configuring PacketFence, you must chose an appropriate enforcement mode to
 * Inline
 * Out-of-band
 * Web Auth
-* Radius
+* RADIUS
 
 It is also possible to combine enforcement modes. For example, you could use the out-of-band mode on your wired switches, while using the inline mode on your old WiFi access points.
 
@@ -447,7 +447,7 @@ Technical introduction to RADIUS enforcement
 Introduction
 ~~~~~~~~~~~~
 
-The concept of having a RADIUS enforcement is to not use registration and isolation, nor the portal. Everything here is for RADIUS authentication only. By default the management interface will be the RADIUS interface. If needed, it is possible to add another one via 'Network Configuration->Networks->Interfaces' adding an `Other` type of interface and the additionnal daemon `RADIUS`.
+The concept of having a RADIUS enforcement is to not use registration, isolation, nor the portal capabilities of PacketFence. Everything here is for RADIUS authentication only. By default the management interface will be the RADIUS interface. If needed, it is possible to add another interface via 'Network Configuration->Networks->Interfaces' adding an `Other` type of interface and the additionnal daemon `RADIUS`.
 
 Every time a device will try to authenticate, the matching production VLAN will be assigned, depending on the rules in 'Policies and Access Control->Authentication Sources'.
 
@@ -461,7 +461,7 @@ PacketFence provides a web-based administration interface for easy configuration
 
 Once PacketFence is started, the administration interface is available at: https://@ip_of_packetfence:1443/
 
-The next key steps are important to understand how PacketFence works. In order to get the solution working, you must first understand and configure the following aspects of the solution in this specific order:
+The next key steps are important to understand how PacketFence works. In order to get the solution working, you must first understand and configure the following elements of the solution in this specific order:
 
 1. *roles* - a role in PacketFence will be eventually be mapped to a VLAN, an ACL or an external role. You must define the roles to use in your organization for network access
 2. *authentication* - once roles are defined, you must create an appropriate authentication source in PacketFence. That will allow PacketFence to compute the right role to be used for an endpoint, or the user using it
