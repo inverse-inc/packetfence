@@ -95,6 +95,8 @@ Requires: freeradius >= 3.0.15-4, freeradius-mysql, freeradius-perl, freeradius-
 Requires: make
 Requires: net-tools
 Requires: sscep
+Requires: p0f
+Requires: rsyslog-gnutls
 Requires: net-snmp >= 5.3.2.2
 Requires: net-snmp-perl
 Requires: perl >= %{perl_version}
