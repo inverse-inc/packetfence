@@ -89,6 +89,11 @@ our $PROGRAM_NAME = $0 = "pfdhcplistener";
 
 my $logger = get_logger( $PROGRAM_NAME );
 
+our %NET_TYPES_FOR_EXTERNAL_QUEUE = (
+    'dhcp-listener' => 1,
+    'management' => 1,
+);
+
 
 my $is_inline_vlan;
 my $inline_sub_connection_type;
@@ -176,11 +181,6 @@ sub setup_global {
     $logger->info("DHCP detector on $interface enabled");
     return ;
 }
-
-our %NET_TYPES_FOR_EXTERNAL_QUEUE = (
-    'dhcp-listener' => 1,
-    'management' => 1,
-);
 
 =head2 which_send_queue
 
