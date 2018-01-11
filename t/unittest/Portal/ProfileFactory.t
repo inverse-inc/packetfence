@@ -24,6 +24,7 @@ BEGIN {
     use setup_test_config;
     use_ok("pf::Connection::ProfileFactory");
     use_ok("pf::dal::node");
+    use_ok("pf::ip4log");
 }
 
 
@@ -97,6 +98,11 @@ is($profile->getName, "switches");
 $profile = pf::Connection::ProfileFactory->instantiate(pf::dal::node->new({ last_switch => '192.168.1.5'}), {});
 
 is($profile->getName, "switches");
+
+# Test that missing last_ip parameter will be computed via a mac2ip
+pf::ip4log::open("192.168.2.1", "00:11:22:33:44:55", 5);
+$profile = pf::Connection::ProfileFactory->instantiate("00:11:22:33:44:55");
+is($profile->getName, "network");
 
 =head1 AUTHOR
 
