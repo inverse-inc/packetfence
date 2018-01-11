@@ -447,9 +447,9 @@ Technical introduction to RADIUS enforcement
 Introduction
 ~~~~~~~~~~~~
 
-The concept of having a RADIUS enforcement is to not use registration, isolation, nor the portal capabilities of PacketFence. Everything here is for RADIUS authentication only. By default the management interface will be the RADIUS interface. If needed, it is possible to add another interface via 'Network Configuration->Networks->Interfaces' adding an `Other` type of interface and the additionnal daemon `RADIUS`.
+The concept of having a RADIUS enforcement is to not use registration, isolation, nor the portal capabilities of PacketFence. Everything here is for RADIUS integration only. By default the management interface will be the RADIUS interface. If needed, it is possible to add an other interface from 'Configuration->Network Configuration->Networks->Interfaces'. When doing so, you must select `Other` as the type of interface. Moreover, you must select `radius` as an additionnal listening daemon.
 
-Every time a device will try to authenticate, the matching production VLAN will be assigned, depending on the rules in 'Policies and Access Control->Authentication Sources'.
+Using RADIUS enforcement, everytime a device connects to the network, a matching production VLAN will be assigned, depending on the rules in 'Configuration->Policies and Access Control->Authentication Sources'.
 
 
 Configuration
