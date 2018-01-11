@@ -1,3 +1,4 @@
+package pf::api::queue_cluster;
 
 =head1 NAME
 
