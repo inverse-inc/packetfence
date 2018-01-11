@@ -44,6 +44,7 @@ Enhancements
 * Set a timeout for database queries for the admin to avoid long running queries slowing the system. (#2630) (PR #2659)
 * Documentation improvement about MySQL advanced parameters (#266)
 * Enhanced English i18n strings in admin CMS integration syslog parser violation actions. (PR #2759)
+* Improved the haproxy HTTP process monitoring
 
 Bug Fixes
 +++++++++
