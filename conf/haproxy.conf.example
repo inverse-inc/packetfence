@@ -67,6 +67,10 @@ backend mysql
     timeout connect 3s
 %%mysql_backend%%
 
+frontend test-bind-process-2
+    bind localhost:1080
+    use_backend static
+
 backend proxy
     option httpclose
     option http_proxy
