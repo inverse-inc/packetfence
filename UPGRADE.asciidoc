@@ -114,8 +114,16 @@ Upgrading from a version prior to X.Y.Z
 ---------------------------------------
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
-  
 
+New LinkedIn domain list
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you use social login with LinkedIn OAuth2, you will need to adjust the list of domains that are passthroughs in the LinkedIn source.
+
+For all your LinkedIn sources, change the domains to:
+
+  www.linkedin.com,api.linkedin.com,*.licdn.comlatform.linkedin.com
+  
 Upgrading from a version prior to 7.3.0
 ---------------------------------------
 
