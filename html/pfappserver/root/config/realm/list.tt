@@ -2,6 +2,7 @@
         <thead>
           <tr>
             <th>[% l('Realm') %]</th>
+            <th>[% l('Domain') %]</th>
             <th></th>
           </tr>
         </thead>
@@ -9,6 +10,7 @@
           [% FOREACH item IN items %]
           <tr>
             <td class="item"><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id | html %]</a></td>
+            <td class="item">[% item.domain | html %]</td>
             <td>
               <div class="pull-right">
               [%- IF can_access("REALM_CREATE") %]
