@@ -32,6 +32,7 @@ CHECK PROCESS packetfence-haproxy MATCHING "haproxy-systemd-wrapper"
     start program = "/usr/local/pf/bin/pfcmd service haproxy start" with timeout 60 seconds
     stop program  = "/usr/local/pf/bin/pfcmd service haproxy stop"
     if 3 restarts within 10 cycles then alert
+    if failed host 127.0.0.1 port 1080 protocol http status 404 for 5 cycles then alert
     [% IF ACTIVE_ACTIVE %]if failed host 127.0.0.1 port 3306 protocol mysql for 5 cycles then alert[% END %]
 
 CHECK PROCESS packetfence-dhcpd MATCHING "dhcpd"
