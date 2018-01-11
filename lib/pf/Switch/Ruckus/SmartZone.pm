@@ -51,7 +51,9 @@ sub parseExternalPortalRequest {
         client_ip               => defined($req->param('uip')) ? $req->param('uip') : undef,
         ssid                    => $req->param('ssid'),
         redirect_url            => $req->param('url'),
-        switch_id               => $req->param('nbiIP'),
+        # Some versions of the SmartZone send the sip parameter, others the nbiIP parameter
+        # sip has precedence
+        switch_id               => defined($req->param('sip')) ? $req->param('sip') : $req->param('nbiIP'),
         synchronize_locationlog => $TRUE,
     );
 
