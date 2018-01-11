@@ -164,17 +164,21 @@ sub notify {
 
     # Starts the actual request
     my $curl_return_code = $curl->perform;
+    my $results = 0;
 
     # Looking at the results...
     if ( $curl_return_code == 0 ) {
         my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
         if($response_code != HTTP_NO_CONTENT) {
             get_logger->error( "An error occured while processing the JSONRPC request return code ($response_code)");
+        } else {
+            $results = 1;
         }
     } else {
         get_logger->error("An error occured while sending a JSONRPC request: $curl_return_code ".$curl->strerror($curl_return_code)." ".$curl->errbuf);
     }
-    return;
+
+    return $results;
 }
 
 =head2 curl
