@@ -1865,7 +1865,7 @@ Since the version 6.4.0 PacketFence supports integration with eduroam and allows
 
 In order for PacketFence to allow eduroam authentication, you need to configure an exclusive Eduroam source in Configuration->Authentication Sources and restart FreeRADIUS.
 
-Fingerbank integration
+Fingerbank Integration
 ~~~~~~~~~~~~~~~~~~~~~~
 
 Fingerbank, a great device profiling tool developed alongside of PacketFence, now integrates with it to power-up the feature set allowing a PacketFence administrator to easily trigger violations based on different device types, device parents, DHCP fingerprints, DHCP vendor IDs, MAC vendors and browser user agents.
@@ -2460,7 +2460,7 @@ by the value of _portalURL defined in the switch config):
 
 You can have a look in the file radius_filters.conf, there are some examples on how to use and define filters.
 
-DNS enforcement
+DNS Enforcement
 ~~~~~~~~~~~~~~~
 
 DNS enforcement allows you to control the network access of the device by using the pfdns service on PacketFence.
@@ -2483,7 +2483,7 @@ NOTE: If you are not using a routed network, you need to use Inline enforcement 
 
 Once this is done, you need to restart the dhcpd and pfdns services.
 
-Parked devices
+Parked Devices
 ~~~~~~~~~~~~~~
 
 In the event that you are managing a large registration network with devices that stay there (ex: Students that can't register in your environment), these devices consume precious resources and generate useless load on the captive portal and registration DHCP server.
