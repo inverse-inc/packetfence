@@ -49,6 +49,7 @@ use pf::metadefender();
 use pf::services();
 use pf::firewallsso();
 use pf::pfqueue::stats();
+use pf::pfqueue::producer::redis();
 
 use List::MoreUtils qw(uniq);
 use List::Util qw(pairmap);

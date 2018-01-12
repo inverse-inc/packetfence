@@ -15,8 +15,6 @@ pf::api::queue_cluster
 use strict;
 use warnings;
 use pf::cluster qw($cluster_enabled);
-use pf::api::jsonrpcclient;
-use pf::pfqueue::producer::redis;
 use Moo;
 use List::Util qw(shuffle);
 use CHI;
@@ -53,6 +51,7 @@ Build the local client
 
 sub _build_local_client {
     my ($self) = @_;
+    require pf::pfqueue::producer::redis;
     return pf::pfqueue::producer::redis->new;
 }
 
@@ -183,6 +182,7 @@ do_jsonrpc_notify
 
 sub do_jsonrpc_notify {
     my ($self, $server, $method, @args) = @_;
+    require pf::api::jsonrpcclient;
     my $apiclient = pf::api::jsonrpcclient->new(host => $server->{management_ip}, proto => 'https');
     my $results = $apiclient->notify($method, @args);
     unless ($results) {
