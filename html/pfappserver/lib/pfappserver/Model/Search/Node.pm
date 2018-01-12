@@ -79,8 +79,8 @@ sub build_base_search_args {
     my ($self, $params) = @_;
     my $searches = $params->{searches};
     my %args = $self->default_query;
-    push @{$args{'-columns'}}, $self->make_additionial_joins($searches);
-    push @{$args{'-from'}}, $self->make_additionial_columns($searches);
+    push @{$args{'-from'}}, $self->make_additionial_joins($searches);
+    push @{$args{'-columns'}}, $self->make_additionial_columns($searches);
     return %args;
 }
 
