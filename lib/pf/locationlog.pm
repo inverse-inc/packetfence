@@ -125,7 +125,7 @@ sub locationlog_history_mac {
         $where->{end_time} = { ">" => \['from_unixtime(?)', $start_time] };
     }
 
-    return translate_connection_type(_db_item({
+    return translate_connection_type(_db_list({
         -columns => [
             qw(mac switch switch_ip switch_mac port vlan role connection_type connection_sub_type dot1x_username ssid start_time end_time stripped_user_name realm ifDesc
               UNIX_TIMESTAMP(start_time)|start_timestamp
