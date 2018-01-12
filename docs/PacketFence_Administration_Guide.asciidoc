@@ -65,7 +65,7 @@ Hotspot support (Web Auth Enforcement)::
 Cisco WLC or Aruba IAP).
 
 RADIUS support (RADIUS Enforcement)::
-  PacketFence can be used as a RADIUS server without having registration, isolation, portal features in the case only RADIUS authentication for network equipment is what matter.
+  PacketFence can be used as a RADIUS server without having registration, isolation, portal features in the case only RADIUS authentication is what matters. This can be particularly useful if you only want to do MAC authentication or 802.1X with your current VLAN or ACL.
 
 Voice over IP (VoIP) support::
   Also called IP Telephony (IPT), VoIP is fully supported (even in heterogeneous environments) for multiple switch vendors (Cisco, Avaya, HP and many more).
@@ -187,7 +187,7 @@ Install your distribution with minimal installation and no additional packages. 
 
 On RedHat-based systems
 [options="compact"]
-* Disable Firewall
+* Disable firewall
 * Disable SELinux
 
 On Debian
@@ -286,9 +286,9 @@ Prior configuring PacketFence, you must chose an appropriate enforcement mode to
 
 [options="compact"]
 * Inline
-* Out-of-band
-* Web Auth
-* RADIUS
+* Out-of-band using SNMP or RADIUS
+* Hostpot-style (or Web Auth)
+* RADIUS only
 
 It is also possible to combine enforcement modes. For example, you could use the out-of-band mode on your wired switches, while using the inline mode on your old WiFi access points.
 
