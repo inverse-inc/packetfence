@@ -83,6 +83,22 @@ has port => (is => 'rw', default => sub {$Config{'webservices'}{'port'}} );
 
 has id => (is => 'rw', default => sub {0} );
 
+=head2 connect_timeout_ms
+
+Curl connection timeout in milli seconds
+
+=cut
+
+has connect_timeout_ms => (is => 'rw', default => sub {0}) ;
+
+=head2 timeout_ms
+
+Curl transfer timeout in milli seconds
+
+=cut
+
+has timeout_ms => (is => 'rw', default => sub {0} ) ;
+
 use constant REQUEST => 0;
 use constant RESPONSE => 2;
 use constant NOTIFICATION => 2;
@@ -177,6 +193,8 @@ sub curl {
     $curl->setopt(CURLOPT_NOSIGNAL, 1);
     $curl->setopt(CURLOPT_URL, $url);
     $curl->setopt(CURLOPT_HTTPHEADER, ['Content-Type: application/json-rpc',"Request: $function"]);
+    $curl->setopt(CURLOPT_CONNECTTIMEOUT_MS, $self->connect_timeout_ms // 0);
+    $curl->setopt(CURLOPT_TIMEOUT_MS, $self->timeout_ms // 0);
     if($self->proto eq 'https') {
         if($self->username && $self->password) {
             $curl->setopt(CURLOPT_USERNAME, $self->username);
