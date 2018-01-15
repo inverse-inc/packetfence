@@ -15,6 +15,7 @@ pf::api::queue_cluster
 use strict;
 use warnings;
 use pf::cluster qw($cluster_enabled);
+use pf::log;
 use Moo;
 use List::Util qw(shuffle);
 use CHI;
@@ -42,6 +43,26 @@ has local_client => (
     builder => 1,
     lazy => 1,
 );
+
+
+=head2 server_recheck_timeout
+
+server_recheck_timeout
+
+=cut
+
+has server_recheck_timeout => (
+    is => 'rw',
+    default => 60,
+);
+
+=head2 jsonrpc_args
+
+jsonrpc_args
+
+=cut
+
+has jsonrpc_args => (is => 'rw', default => sub { {} }) ;
 
 =head2 _build_local_client
 
@@ -82,6 +103,7 @@ local_notify
 
 sub local_notify {
     my ($self, $method, @args) = @_;
+    get_logger->debug("sending $method locally");
     $self->local_client->submit($self->queue, api => [$method, @args]);
     return;
 }
@@ -94,6 +116,7 @@ sub cluster_notify {
         }
 
         if ($self->server_notify($server, $method, @args)) {
+            get_logger->debug("sent $method to $server->{host}");
             last;
         }
     }
@@ -118,8 +141,8 @@ Mark server as down
 =cut
 
 sub mark_server_as_down {
-    my ($server) = @_;
-    $CHI_CACHE->set($server->{management_ip}, 1, {expires_in => 60});
+    my ($self, $server) = @_;
+    $CHI_CACHE->set($server->{management_ip}, 1, {expires_in => $self->server_recheck_timeout});
 }
 
 =head2 is_server_down
@@ -157,6 +180,7 @@ sub cluster_notify_delayed {
         }
 
         if ($self->server_notify_delayed($server, $delay, $method, @args)) {
+            get_logger->info("sent $method to $server->{host}");
             last;
         }
     }
@@ -182,17 +206,32 @@ do_jsonrpc_notify
 
 sub do_jsonrpc_notify {
     my ($self, $server, $method, @args) = @_;
-    require pf::api::jsonrpcclient;
-    my $apiclient = pf::api::jsonrpcclient->new(host => $server->{management_ip}, proto => 'https');
+    my $apiclient = $self->jsonrpcclient($server);
     my $results = $apiclient->notify($method, @args);
     unless ($results) {
-        pf::log::get_logger->error("Failed to call $method ");
-        mark_server_as_down($server);
+        my $dead_for = $self->server_recheck_timeout;
+        get_logger->error("Failed to send $method to $server->{host} marking as dead for $dead_for seconds");
+        $self->mark_server_as_down($server);
     }
 
     return $results;
 }
 
+=head2 jsonrpcclient
+
+jsonrpcclient
+
+=cut
+
+sub jsonrpcclient {
+    my ($self, $server) = @_;
+    require pf::api::jsonrpcclient;
+    return pf::api::jsonrpcclient->new(
+        host => $server->{management_ip},
+        proto => 'https',
+        %{$self->jsonrpc_args // {}},
+    );
+}
 
 =head2 local_notify_delayed
 
