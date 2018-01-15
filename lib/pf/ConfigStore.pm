@@ -476,8 +476,12 @@ sub commit {
         }
     }
     else {
-        $error //= "Unable to commit changes to file please run pfcmd fixpermissions and try again";
+        $error //= "Unable to commit changes to file please run '/usr/local/pf/bin/pfcmd fixpermissions' and try again";
         $self->rollback();
+    }
+
+    if($error) {
+        get_logger->error($error);
     }
 
     return ($result, $error);
