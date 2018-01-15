@@ -91,6 +91,7 @@ BEGIN {
         user_chown
         ping
         run_as_pf
+        expand_csv
     );
 }
 
@@ -939,6 +940,24 @@ sub trim_path {
     }
    return ((@parts == 0) ? '' : catdir(@parts));
 }
+
+
+=item expand_csv
+
+=cut
+
+sub expand_csv {
+    my ($list) = @_;
+    $list //= [];
+    my @expanded;
+    if (ref $list eq 'ARRAY') {
+        @expanded = @$list;
+    } else {
+        @expanded = $list;
+    }
+    return map {split(/\s*,\s*/, $_)} @expanded;
+}
+
 
 =item pf_chown
 
