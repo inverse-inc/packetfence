@@ -103,11 +103,22 @@ _update_category_ids
 
 sub _update_category_ids {
     my ($self) = @_;
+    my $old_data = $self->__old_data // {};
     my $category = $self->category;
+    my $old_category = $old_data->{category};
     my $bypass_role = $self->bypass_role;
+    my $old_bypass_role = $old_data->{bypass_role};
     my @names;
-    push @names, $category if defined $category;
-    push @names, $bypass_role if defined $bypass_role;
+    if (defined $category && (!defined $old_category || $old_category ne $category)) {
+        push @names, $category if defined $category ;
+    } else {
+        $category = undef;
+    }
+    if (defined $bypass_role && (!defined $old_bypass_role || $old_bypass_role ne $bypass_role)) {
+        push @names, $bypass_role if defined $bypass_role;
+    } else {
+        $bypass_role = undef;
+    }
     my ($status, $sth) = $self->do_select(
         -columns => [qw(category_id name)],
         -from => 'node_category',
@@ -118,6 +129,7 @@ sub _update_category_ids {
     if (defined $bypass_role) {
         $self->{bypass_role_id} = $lookup->{$bypass_role}{category_id};
     }
+
     if (defined $category) {
         $self->{category_id} = $lookup->{$category}{category_id};
     }

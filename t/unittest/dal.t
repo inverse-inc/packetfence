@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 44;
+use Test::More tests => 45;
 
 use pf::error qw(is_success is_error);
 use pf::db;
@@ -185,6 +185,8 @@ $node = pf::dal::node->find({mac => $test_mac});
 is($node->category, $data->{category}, "Test saving category");
 
 is($node->bypass_role, $data->{bypass_role}, "Test saving bypass_role");
+
+ok(is_success($node->save), "Saving twice with no update is allowed");
 
 {
     ($status, my $iter) = pf::dal::node->search(
