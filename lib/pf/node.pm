@@ -582,6 +582,11 @@ sub node_modify {
         }
     }
 
+    my $node_info = node_view($mac);
+    if (defined($data{'category_id'}) && defined($obj->{'category_id'}) && ($obj->{'category_id'} ne $data{'category_id'}) && ($obj->{'status'} eq $STATUS_REGISTERED) && defined($node_info->{'last_connection_type'}) && $node_info->{'last_connection_type'} eq $connection_type_to_str{$INLINE}) {
+        pf::ipset::iptables_update_set($mac, $obj->{'category_id'}, $data{'category_id'});
+    }
+
     $obj->merge(\%data);
     $status = $obj->save();
     if (is_error($status)) {
