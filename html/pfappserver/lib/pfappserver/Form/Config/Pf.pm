@@ -20,6 +20,12 @@ use pf::IniFiles;
 use pf::file_paths qw($pf_default_file);
 use pf::authentication;
 use pf::web::util;
+use List::MoreUtils qw(any);
+
+# For passthroughs validation
+use pf::util::dns;
+use pfconfig::namespaces::resource::passthroughs;
+use pfconfig::namespaces::resource::isolation_passthroughs;
 
 has 'section' => ( is => 'ro' );
 
@@ -235,11 +241,50 @@ sub field_list {
                     });
             }
         }
+        if (my $validate_method = $self->validator_for_field($doc_section_name)) {
+            $field->{validate_method} = $validate_method;
+        }
         push(@$list, $name => $field);
     }
     return $list;
 }
 
+=head2 validator_for_field
+
+Get the validator for a field
+
+=cut
+
+sub validator_for_field {
+    my ($self, $field) = @_;
+
+    return {
+        "fencing.passthroughs" => sub { validate_fqdn_not_in_passthroughs(@_, "passthroughs") },
+        "fencing.isolation_passthroughs" => sub { validate_fqdn_not_in_passthroughs(@_, "isolation_passthroughs") },
+    }->{$field};
+}
+
+
+=head2 validate_fqdn_not_in_passthroughs
+
+For a passthrough form field, this validates that the passthroughs it contains won't match the portal FQDN
+
+=cut
+
+sub validate_fqdn_not_in_passthroughs {
+    my (undef, $field, $module) = @_; 
+
+    my $cs = pf::ConfigStore::Pf->new;
+    my $general = $cs->read("general");
+    my $fqdn = $general->{hostname}.".".$general->{domain};
+
+    my $passthroughs = "pfconfig::namespaces::resource::$module"->_build([ split(/\r?\n/, $field->value) ]);
+    my ($res, undef) = pf::util::dns::_matches_passthrough($passthroughs, $fqdn);
+
+    if($res) {
+        $field->add_error("Passthroughs cannot contain the portal FQDN ($fqdn) or any wildcard for this domain");
+    }
+}
 
 =head2 get_sms_source_ids
 
