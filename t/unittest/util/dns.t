@@ -32,7 +32,7 @@ use_ok("pf::util::dns");
 
 my ($match, $ports);
 
-($match, $ports) = pf::util::dns::matches_passthrough();
+($match, $ports) = pf::util::dns::matches_passthrough(undef, 'passthroughs');
 is($match, $FALSE, "undef domain will not match passthroughs");
 
 ($match, $ports) = pf::util::dns::matches_passthrough("zammitcorp.com", 'passthroughs');
