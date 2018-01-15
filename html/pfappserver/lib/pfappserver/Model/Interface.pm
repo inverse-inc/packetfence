@@ -409,7 +409,7 @@ sub update {
 
     # Set type
     $interface_ref->{network} = $new_network;
-    my ($status, $status_msg) = $self->setType($interface, $interface_ref);
+    ($status, $status_msg) = $self->setType($interface, $interface_ref);
 
     if(is_error($status)) {
         return ($status, $status_msg);
@@ -484,7 +484,7 @@ sub setType {
     my $models = $self->{models};
 
     my $type = $interface_ref->{type} || 'none';
-    my ($status, $network_ref);
+    my ($status, $network_ref, $status_msg);
 
     # we ignore interface type 'Other' (it basically means unsupported in configurator)
     return if ( $type =~ /^other$/i );
@@ -545,7 +545,7 @@ sub setType {
     }
     $logger->debug("Committing changes to $interface interface");
     
-    my ($status, $status_msg) = $models->{network}->commit();
+    ($status, $status_msg) = $models->{network}->commit();
     if(is_error($status)) {
         return ($status, $status_msg);
     }
