@@ -349,7 +349,7 @@ sub process_pkt {
                 #  - there is no rate limiting configured
                 #  - there is no cache entry (packet wasn't seen in the last $rate_limiting seconds)
                 if(!defined($rate_limit_key) || $rate_limiting == 0 || !$rate_limit_cache->get($rate_limit_key)) {
-                    my $apiclient = pf::api::queue_cluster->new(queue => $send_queue);
+                    my $apiclient = api_client();
                     $apiclient->notify('process_dhcpv4', %args);
                     if(defined($rate_limit_key) && $rate_limiting != 0) {
                         $rate_limit_cache->set($rate_limit_key, 1, $rate_limiting);
@@ -366,7 +366,7 @@ sub process_pkt {
 
                 # TODO: Rate-limiting for IPv6 just as for IPv4
 
-                my $apiclient = pf::api::queue_cluster->new(queue => $send_queue);
+                my $apiclient = api_client();
                 $apiclient->notify('process_dhcpv6', MIME::Base64::encode($l4->{data}));
             }
 
@@ -390,6 +390,22 @@ sub process_pkt {
         Net::Pcap::pcap_stats($pcap,\%stats);
         return join(' ','pcap_stats',map { "$_ = $stats{$_}"  } keys %stats);
     });
+}
+
+=head2 api_client
+
+get the api client
+
+=cut
+
+sub api_client {
+    return pf::api::queue_cluster->new(
+        queue => $send_queue,
+        jsonrpc_args => {
+            connect_timeout_ms => 500,
+            timeout_ms => 500,
+        }
+    );
 }
 
 sub normal_sighandler {
