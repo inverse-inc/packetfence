@@ -79,6 +79,7 @@ sub create {
 
 sub delete {
     my ($self, $interface, $host) = @_;
+
     my $models = $self->{models};
     my $logger = get_logger();
 
@@ -121,12 +122,18 @@ sub delete {
 
     # Delete corresponding interface entry from pf.conf
     $models->{interface}->remove($interface);
-    $models->{interface}->commit();
+    ($status, $status_msg) = $models->{interface}->commit();
+    if(is_error($status)) {
+        return ($status, $status_msg);
+    }
 
     # Remove associated network entries
     @results = $self->_listInterfaces('all');
     if ($models->{network}->cleanupNetworks(\@results)) {
-        $models->{network}->commit();
+        ($status, $status_msg) = $models->{network}->commit();
+        if(is_error($status)) {
+            return ($status, $status_msg);
+        }
     }
 
     return ($STATUS::OK, ["Interface VLAN [_1] successfully deleted",$interface]);
@@ -402,7 +409,11 @@ sub update {
 
     # Set type
     $interface_ref->{network} = $new_network;
-    $self->setType($interface, $interface_ref);
+    my ($status, $status_msg) = $self->setType($interface, $interface_ref);
+
+    if(is_error($status)) {
+        return ($status, $status_msg);
+    }
 
     return ($STATUS::OK, ["Interface [_1] successfully edited",$interface]);
 }
@@ -533,8 +544,16 @@ sub setType {
         }
     }
     $logger->debug("Committing changes to $interface interface");
-    $models->{network}->commit();
-    $models->{interface}->commit();
+    
+    my ($status, $status_msg) = $models->{network}->commit();
+    if(is_error($status)) {
+        return ($status, $status_msg);
+    }
+
+    ($status, $status_msg) = $models->{interface}->commit();
+    if(is_error($status)) {
+        return ($status, $status_msg);
+    }
 }
 
 
