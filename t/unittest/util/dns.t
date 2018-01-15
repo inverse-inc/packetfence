@@ -22,7 +22,7 @@ BEGIN {
 }
 
 use Test::Deep;
-use Test::More tests => 29;
+use Test::More tests => 33;
 #This test will running last
 use Test::NoWarnings;
 use Socket;
@@ -86,6 +86,16 @@ cmp_deeply([], $ports, "ports for previous test are OK");
 ($match, $ports) = pf::util::dns::matches_passthrough("www.github.com", 'passthroughs');
 is($match, $TRUE, "valid wildcard passthrough domain that multiple ports will match wildcard passthroughs");
 cmp_deeply(['tcp:1234', 'tcp:80', 'tcp:443'], $ports, "ports for previous test are OK");
+
+# test isolation passthroughs
+
+($match, $ports) = pf::util::dns::matches_passthrough("www.github.com", 'isolation_passthroughs');
+is($match, $FALSE, "invalid passthrough shouldn't match");
+cmp_deeply([], $ports, "ports for previous test are OK");
+
+($match, $ports) = pf::util::dns::matches_passthrough("isolation.zammitcorp.com", 'isolation_passthroughs');
+is($match, $TRUE, "normal isolation passthrough should match");
+cmp_deeply(['tcp:80', 'tcp:443'], $ports, "ports for previous test are OK");
 
 =head1 AUTHOR
 
