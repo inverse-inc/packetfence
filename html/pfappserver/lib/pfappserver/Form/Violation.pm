@@ -11,6 +11,7 @@ Form definition to create or update a violation.
 =cut
 
 use HTML::FormHandler::Moose;
+use pfappserver::Base::Form::Authentication::Action;
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help','pfappserver::Base::Form::Role::AllowedOptions';
 
