@@ -183,10 +183,12 @@ function initWidgets(elements) {
     // Chosen select must have a zero width in modal
     chzn_select.filter(has_parent_modal).chosen({width:''});
     chzn_select.filter(has_no_parent_modal).chosen({});
+    fixChosenClipping(chzn_select);
     var chzn_deselect = elements.filter('.chzn-deselect');
     // Chosen deselect must have a zero width in modal
     chzn_select.filter(has_parent_modal).chosen({allow_single_deselect: true, width:''});
     chzn_select.filter(has_no_parent_modal).chosen({allow_single_deselect: true});
+    fixChosenClipping(chzn_deselect);
     elements.filter('.timepicker-default').each(function() {
         // Keep the placeholder visible if the input has no value
         var defaultTime = $(this).val().length? 'value' : false;
@@ -278,6 +280,7 @@ function doUpdateSection(ajax_data) {
                     });
                     section.find('.chzn-select:visible').chosen();
                     section.find('.chzn-deselect:visible').chosen({allow_single_deselect: true, search_contains: true});
+                    fixChosenClipping(section.find('.chzn-select:visible, .chzn-deselect:visible'));
                     section.find('.switch').bootstrapSwitch();
                     if (typeof Clipboard !== 'undefined' && Clipboard.isSupported())
                         section.find('.clipboard .icon-clipboard').tooltip({ title: _('Copy') });
