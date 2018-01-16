@@ -26,6 +26,7 @@ use pf::ConfigStore::DeviceRegistration;
 use pf::web::constants;
 use pf::constants::Connection::Profile;
 use pfappserver::Form::Field::Duration;
+use pfappserver::Base::Form;
 with 'pfappserver::Base::Form::Role::Help';
 
 =head1 BLOCKS
