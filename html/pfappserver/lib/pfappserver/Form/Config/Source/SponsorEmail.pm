@@ -15,6 +15,7 @@ extends 'pfappserver::Form::Config::Source';
 with 'pfappserver::Base::Form::Role::Help';
 with 'pfappserver::Base::Form::Role::SourceLocalAccount';
 
+use pfappserver::Form::Field::Duration;
 use pf::Authentication::Source::SponsorEmailSource;
 
 # Form fields
