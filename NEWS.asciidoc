@@ -45,6 +45,7 @@ Enhancements
 * Documentation improvement about MySQL advanced parameters (#266)
 * Enhanced English i18n strings in admin CMS integration syslog parser violation actions. (PR #2759)
 * Improved the haproxy HTTP process monitoring
+* Improved cluster maintenance script to perform necessary system changes to have the node in maintenance
 
 Bug Fixes
 +++++++++
