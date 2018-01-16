@@ -14,7 +14,7 @@
 
 [%- IF labels.size > 0 %]
 <div class="row-fluid">
-  <div class="span8">
+  <div class="span10">
     <div id="[% l(id) | css %]" class="chart"></div>
     <script id="graphs.charts" type="text/json">
 {
@@ -30,7 +30,7 @@
 }
     </script>
   </div>
-  <div class="span4">
+  <div class="span8">
     <table class="table table-bordered table-striped table-condensed">
       <thead>
         <tr>

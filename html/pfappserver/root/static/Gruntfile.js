@@ -47,7 +47,9 @@ module.exports = function(grunt) {
       'js/jquery.loader.js',
       'app/uri.js',
       'bower_components/clipboard/dist/clipboard.js',
-    ],
+    ]
+  };
+  var js_files_vendor_custom_minified = {
     'js/vendor/raphael.min.js': [
       'bower_components/raphael/raphael.min.js',
       'app/raphael/g.raphael-min.js',
@@ -146,6 +148,12 @@ module.exports = function(grunt) {
           compress: true,
         },
         files: js_files_vendor_custom
+      },
+      vendor_nocompress: {
+        options: {
+          compress: true,
+        },
+        files: js_files_vendor_custom_minified
       }
     },
     concat: {
@@ -212,5 +220,6 @@ module.exports = function(grunt) {
       }
     }
     grunt.task.run('uglify:vendor');
+    grunt.task.run('uglify:vendor_nocompress');
   });
 };
