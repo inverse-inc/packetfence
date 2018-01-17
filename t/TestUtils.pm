@@ -37,7 +37,7 @@ our @cli_tests = qw(
 );
 
 our @compile_tests = qw(
-    pf.t pfappserver_libs.t captive-portal_libs.t template.t
+    pf-slow.t pfappserver_libs-slow.t captive-portal_libs-slow.t template.t
 );
 
 our @dao_tests = qw(
