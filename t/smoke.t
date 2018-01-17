@@ -28,6 +28,7 @@ use TestUtils;
 `/usr/local/pf/t/pfconfig-test-serial`;
 
 my $JOBS = $ENV{'PF_SMOKE_TEST_JOBS'} ||  6;
+my $SLOW_TESTS = $ENV{'PF_SMOKE_SLOW_TESTS'};
 our $db_setup_script = "/usr/local/pf/t/db/setup_test_db.pl";
 
 my $formatter   = is_interactive() ? TAP::Formatter::Console->new({jobs => $JOBS}) : TAP::Formatter::File->new();
@@ -52,13 +53,18 @@ my @ser_tests = qw(
 # These tests just need to read pfconfig data so they can run in parallel
 #
 my @par_tests = (
-    @TestUtils::compile_tests,
     @TestUtils::unit_tests,
     TestUtils::get_all_unittests(),
     @TestUtils::cli_tests,
     @TestUtils::quality_tests,
     @TestUtils::config_store_test,
 );
+
+if ($SLOW_TESTS) {
+    unshift @ser_tests, TestUtils::get_compile_tests($SLOW_TESTS);
+} else {
+    unshift @par_tests, TestUtils::get_compile_tests($SLOW_TESTS);
+}
 
 create_test_db();
 

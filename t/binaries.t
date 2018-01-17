@@ -48,6 +48,8 @@ foreach my $current_binary (@binaries) {
     };
 }
 
+bg_subtest_wait();
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

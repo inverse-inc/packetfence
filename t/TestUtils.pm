@@ -37,6 +37,10 @@ our @cli_tests = qw(
 );
 
 our @compile_tests = qw(
+    pf.t pfappserver_libs.t captive-portal_libs.t template.t
+);
+
+our @slow_compile_tests = qw(
     pf-slow.t pfappserver_libs-slow.t captive-portal_libs-slow.t template.t
 );
 
@@ -70,6 +74,17 @@ our @unit_failing_tests = qw(
 our @config_store_test = qw(
     ConfigStore/Base.t ConfigStore/Group.t
 );
+
+=head2 get_compile_tests
+
+get_compile_tests
+
+=cut
+
+sub get_compile_tests {
+    my ($slow) = @_;
+    return $slow ? @slow_compile_tests : @compile_tests ;
+}
 
 =head2 use_test_db
 

@@ -49,6 +49,8 @@ foreach my $module ( @libs) {
     };
 }
 
+bg_subtest_wait();
+
 sub _readDirRecursive {
     my ($root_path,@subdir) = @_;
     my @files;

@@ -13,6 +13,7 @@ our $jobs;
 BEGIN {
     $jobs = $ENV{'PF_SMOKE_TEST_JOBS'} || 6;
 }
+
 use File::Slurp qw(read_dir);
 use File::Spec::Functions;
 use Test::More;
@@ -44,6 +45,8 @@ foreach my $module ( @libs) {
         use_ok($module);
     };
 }
+
+bg_subtest_wait();
 
 sub _readDirRecursive {
     my ($root_path,@subdir) = @_;
