@@ -14,9 +14,9 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/inverse-inc/packetfence/go/filter_client"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
 	"github.com/inverse-inc/packetfence/go/coredns/request"
-	"github.com/inverse-inc/packetfence/go/filter_client"
 	cache "github.com/patrickmn/go-cache"
 	//Import mysql driver
 	_ "github.com/go-sql-driver/mysql"
@@ -115,7 +115,7 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 						}
 					}
 				}
-				fmt.Println(mac + " isolation passthrough")
+				fmt.Println(srcIP + " : " + mac + " isolation passthrough")
 				return pf.Next.ServeDNS(ctx, w, r)
 			}
 		}
@@ -138,7 +138,7 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 					}
 				}
 			}
-			fmt.Println(mac + " passthrough")
+			fmt.Println(srcIP + " : " + mac + " passthrough")
 			return pf.Next.ServeDNS(ctx, w, r)
 		}
 	}
@@ -159,7 +159,7 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 					}
 				}
 			}
-			fmt.Println(mac + " Domain bypass")
+			fmt.Println(srcIP + ":" + mac + " Domain bypass")
 			return pf.Next.ServeDNS(ctx, w, r)
 		}
 	}
@@ -172,7 +172,7 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 
 	// Defer to the proxy middleware if the device is registered
 	if status == "reg" {
-		fmt.Println(mac + " serve dns")
+		fmt.Println(srcIP + " : " + mac + " serve dns")
 		return pf.Next.ServeDNS(ctx, w, r)
 	}
 
