@@ -17,7 +17,7 @@ use File::Slurp qw(read_dir);
 use File::Spec::Functions;
 use Test::More;
 use Test::ParallelSubtest max_parallel => $jobs;
-#use Test::NoWarnings;
+use Test::NoWarnings;
 
 BEGIN {
     use lib qw(/usr/local/pf/t);
