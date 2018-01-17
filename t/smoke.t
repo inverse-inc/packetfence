@@ -41,20 +41,18 @@ my $par_harness = TAP::Harness->new(
 #
 # These test modify pfconfig data so they run serialized
 #
-my @ser_tests = (
-    qw(
-        binaries.t 
-        pfconfig.t 
-        merged_list.t
-        CHI.t
-    ),
-    @TestUtils::compile_tests,
-) ;
+my @ser_tests = qw(
+    binaries.t 
+    pfconfig.t 
+    merged_list.t
+    CHI.t
+);
 
 #
 # These tests just need to read pfconfig data so they can run in parallel
 #
 my @par_tests = (
+    @TestUtils::compile_tests,
     @TestUtils::unit_tests,
     TestUtils::get_all_unittests(),
     @TestUtils::cli_tests,
