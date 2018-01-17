@@ -541,6 +541,22 @@ paths:
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
       summary: Allows to update a whole connection profile
+  /locationlog:
+    get:
+      description: The list of locationlog will be limited to 100 and a cursor will be returned
+        for iterating on other locationlogs. Iteration is only needed if the nextCursor is
+        not an empty value.
+      parameters:
+      - $ref: '#/components/parameters/cursor'
+      - *1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsersList'
+          description: List of locationlogs
+      summary: Returns a list of locationlogs
   /login:
     post:
       parameters:
