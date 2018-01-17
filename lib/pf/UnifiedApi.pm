@@ -40,6 +40,7 @@ our @API_V1_ROUTES = (
     { controller => 'users',     id_key => "user_id",   path => "/users" },
     { controller => 'tenants',   id_key => "tenant_id", path => "/tenants" },
     { controller => 'api_users', id_key => "user_id",   path => "/api_users" },
+    { controller => 'locationlog', id_key => "locationlog_id", path => "/locationlog" },
     {
         controller     => 'tenants_onboarding',
         path           => "/tenants_onboarding",
