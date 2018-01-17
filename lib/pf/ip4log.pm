@@ -568,7 +568,7 @@ sub rotate {
         },
     };
 
-    my ( $subsql, @bind ) = pf::dal::ip4log_history->select(
+    my ( $subsql, @insert_bind ) = pf::dal::ip4log_history->select(
         -columns => [qw(mac ip start_time end_time)],
         -where => $where,
         -limit => $batch,
@@ -580,13 +580,13 @@ sub rotate {
         -limit => $batch,
     );
 
-    my $sql = "INSERT INTO ip4log_archive $subsql;";
+    my $insert_sql = "INSERT INTO ip4log_archive (`mac`, `ip`, `start_time`, `end_time`) $subsql;";
 
     while (1) {
         my $query;
         my ( $rows_inserted, $rows_deleted );
         pf::db::db_transaction_execute( sub{
-            my ($status, $sth) = pf::dal::ip4log_archive->db_execute($sql, @bind);
+            my ($status, $sth) = pf::dal::ip4log_archive->db_execute($insert_sql, @insert_bind);
             $rows_inserted = $sth->rows;
             $sth->finish;
             if ($rows_inserted > 0 ) {
