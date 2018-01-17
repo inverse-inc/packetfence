@@ -190,7 +190,7 @@ func readDBConfig() pfconfigdriver.PfconfigDatabase {
 
 // initIPSet fetch the database to remove already assigned ip addresses
 func initIPSet() {
-	rows, err := database.Query("select n.mac, i.ip, n.category_id from node as n left join locationlog as l on n.mac=l.mac left join ip4log as i on n.mac=i.mac where l.connection_type = \"inline\" and n.status=\"reg\" and n.mac=i.mac and i.end_time > NOW()")
+	rows, err := database.Query("select distinct n.mac, i.ip, n.category_id from node as n left join locationlog as l on n.mac=l.mac left join ip4log as i on n.mac=i.mac where l.connection_type = \"inline\" and n.status=\"reg\" and n.mac=i.mac and i.end_time > NOW()")
 	if err != nil {
 		// Log here
 		fmt.Println(err)
