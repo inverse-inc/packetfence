@@ -174,9 +174,10 @@ sub duration :Local :Args(2) {
 =cut
 
 sub switches :Local {
-    my ($self, $c) = @_;
+    my ($self, $c, $name) = @_;
 
-    $c->go('Controller::Config::Switch', 'index');
+    $c->stash->{tab} = $name;
+    $c->forward('_handle_tab_view');
 }
 
 =head2 floating_devices
@@ -408,6 +409,20 @@ sub all_subsections : Private {
                 realm => { 
                     controller => 'Controller::Config::Realm',
                     name => 'REALMS',
+                },
+            );
+            return \%map;
+        }->(),
+
+        switches => sub {
+            tie my %map, 'Tie::IxHash', (
+                switch => {
+                    controller => 'Controller::Config::Switch',
+                    name => 'Switches',
+                },
+                switch_group => {
+                    controller => 'Controller::Config::SwitchGroup',
+                    name => 'Switch Groups',
                 },
             );
             return \%map;

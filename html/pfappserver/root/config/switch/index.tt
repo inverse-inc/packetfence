@@ -35,44 +35,29 @@
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-title">
-          <h2>[% l('Switches') %] [% doc('_network_devices_definition_switches_conf') | none %]</h2>
-        </div>
-        <div class="card-block">
-      <div class="tab-content">
-        <ul class="nav nav-tabs">
-          <li [% IF controller_namespace == 'Config::Switch' %]class="active" [% END %]>
-            <a href="[% c.pf_hash_for(c.controller('Config::Switch').action_for('index'),[]) %]">[% l('Switches') %]</a>
-          </li>
-          <li [% IF controller_namespace == 'Config::SwitchGroup' %]class="active" [% END %]>
-            <a href="[% c.pf_hash_for(c.controller('Config::SwitchGroup').action_for('index'),[]) %]">[% l('Switch Groups') %]</a>
-          </li>
-          <li class="pull-right">
-              <div class="help-block clearfix"><a href="#modalSwitchImport" id="importSwitchCsv" class="btn pull-right" data-toggle="modal">[% l('Import from CSV') %]</a></div>
-          </li>
-        </ul>
-      </div>
-      [% INCLUDE config/switch/list.tt %]
+     [% INCLUDE config/switch/list.tt %]
 
       [%- IF can_access("SWITCHES_CREATE") %]
       <div class="form-actions">
 
         [% IF controller_namespace == 'Config::Switch' %]
           <div class="btn-group">
-            <a class="btn dropdown-toggle" data-toggle="dropdown">[% l('Add switch to group') %] <span class="caret"></span></a>
+            <a class="btn dropdown-toggle" data-toggle="dropdown">[% l('Add switch') %] <span class="caret"></span></a>
             <ul class="dropdown-menu">
+              <li class="disabled"><a href="#">[% l('To group') %]</a></li>
               [% FOREACH group IN switch_groups %]
               <li><a class="createSwitch" href="[% c.uri_for(c.controller.action_for('create_in_group'), group) %]">[% group %]</a></li>
               [% #Add a separator after the default group %]
-              [% IF group == "default" %]<li role="separator" class="divider"></li>[% END %]
+              [% IF group == "default" && loop.count > 1 %]<li role="separator" class="divider"></li>[% END %]
               [% END %]
             </ul>
           </div>
         [% ELSE %]
           <a class="btn createSwitch" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add ' _ model_name) %]</a>
-        [% END %]
+          [% END %]
+
+          <a href="#modalSwitchImport" id="importSwitchCsv" class="btn" data-toggle="modal">[% l('Import from CSV') %]</a>
+
       </div>
       [%- END %]
         </div>
-      </div>

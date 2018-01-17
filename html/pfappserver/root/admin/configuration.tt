@@ -95,7 +95,7 @@
               [% list_entry( 'Config::Source', 'index', 'Authentication Sources') | none %]
               [%- END %]
               [%- IF can_access("SWITCHES_READ") %]
-              [% list_entry( 'Config::Switch', 'index', 'Switches') | none %]
+              [% pf_section_entry('switches', 'Network Devices', subsections.switches) | none %]
               [%- END %]
               [%- IF can_access("CONNECTION_PROFILES_READ") %]
               [% list_entry( 'Config::Profile', 'index', 'Connection Profiles') | none %]
