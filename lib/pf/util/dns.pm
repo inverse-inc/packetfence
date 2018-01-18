@@ -38,6 +38,14 @@ Returns 2 values
 
 sub matches_passthrough {
     my ($domain, $zone) = @_;
+    
+    unless(defined($zone)) {
+        die "Undefined passthrough zone provided\n";
+    }
+
+    unless(exists $ZONE_LOOKUP{$zone}) {
+        die "Invalid passthrough zone $zone\n";
+    }
 
     return _matches_passthrough($ZONE_LOOKUP{$zone}, $domain);
 }

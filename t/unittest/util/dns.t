@@ -22,7 +22,7 @@ BEGIN {
 }
 
 use Test::Deep;
-use Test::More tests => 33;
+use Test::More tests => 35;
 #This test will running last
 use Test::NoWarnings;
 use Socket;
@@ -34,6 +34,16 @@ my ($match, $ports);
 
 ($match, $ports) = pf::util::dns::matches_passthrough(undef, 'passthroughs');
 is($match, $FALSE, "undef domain will not match passthroughs");
+
+eval {
+    ($match, $ports) = pf::util::dns::matches_passthrough("zammitcorp.com", undef);
+};
+is($@, "Undefined passthrough zone provided\n", "undef zone will die with an error");
+
+eval {
+    ($match, $ports) = pf::util::dns::matches_passthrough("zammitcorp.com", "vidange");
+};
+is($@, "Invalid passthrough zone vidange\n", "undef zone will die with an error");
 
 ($match, $ports) = pf::util::dns::matches_passthrough("zammitcorp.com", 'passthroughs');
 is($match, $TRUE, "valid passthrough domain will match passthroughs");
