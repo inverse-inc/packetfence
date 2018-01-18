@@ -249,6 +249,11 @@ sub field_list {
     return $list;
 }
 
+our %FIELD_VALIDATORS = (
+    "fencing.passthroughs" => sub { validate_fqdn_not_in_passthroughs(@_, "passthroughs") },
+    "fencing.isolation_passthroughs" => sub { validate_fqdn_not_in_passthroughs(@_, "isolation_passthroughs") },
+);
+
 =head2 validator_for_field
 
 Get the validator for a field
@@ -258,10 +263,7 @@ Get the validator for a field
 sub validator_for_field {
     my ($self, $field) = @_;
 
-    return {
-        "fencing.passthroughs" => sub { validate_fqdn_not_in_passthroughs(@_, "passthroughs") },
-        "fencing.isolation_passthroughs" => sub { validate_fqdn_not_in_passthroughs(@_, "isolation_passthroughs") },
-    }->{$field};
+    return $FIELD_VALIDATORS{$field};
 }
 
 
