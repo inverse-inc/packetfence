@@ -21,6 +21,11 @@ use pfconfig::cached_hash;
 tie our %passthroughs, 'pfconfig::cached_hash', 'resource::passthroughs';
 tie our %isolation_passthroughs, 'pfconfig::cached_hash', 'resource::isolation_passthroughs';
 
+our %ZONE_LOOKUP = (
+    passthroughs => \%passthroughs,
+    isolation_passthroughs => \%isolation_passthroughs,
+);
+
 =head2 matches_passthrough
 
 Whether or not a domain matches a configured DNS passthrough
@@ -34,7 +39,7 @@ Returns 2 values
 sub matches_passthrough {
     my ($domain, $zone) = @_;
 
-    return _matches_passthrough(eval("\\%$zone"), $domain);
+    return _matches_passthrough($ZONE_LOOKUP{$zone}, $domain);
 }
 
 sub _matches_passthrough {
