@@ -126,7 +126,7 @@ sub deauthenticateMacWebservices {
         $logger->debug("Got the following response: ".$res->decoded_content);
     }
     else {
-        $logger->error("Failed to contact Ruckus for deauthentication");
+        $logger->error("Failed to contact Ruckus for deauthentication: " . $res->status_line);
     }
 }
 
