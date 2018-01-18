@@ -22,7 +22,7 @@ BEGIN {
 }
 
 use Test::Deep;
-use Test::More tests => 35;
+use Test::More tests => 37;
 #This test will running last
 use Test::NoWarnings;
 use Socket;
@@ -105,6 +105,10 @@ cmp_deeply([], $ports, "ports for previous test are OK");
 
 ($match, $ports) = pf::util::dns::matches_passthrough("isolation.zammitcorp.com", 'isolation_passthroughs');
 is($match, $TRUE, "normal isolation passthrough should match");
+cmp_deeply(['tcp:80', 'tcp:443'], $ports, "ports for previous test are OK");
+
+($match, $ports) = pf::util::dns::matches_passthrough("something.wild-isolation.zammitcorp.com", 'isolation_passthroughs');
+is($match, $TRUE, "wildcard isolation passthrough should match");
 cmp_deeply(['tcp:80', 'tcp:443'], $ports, "ports for previous test are OK");
 
 =head1 AUTHOR
