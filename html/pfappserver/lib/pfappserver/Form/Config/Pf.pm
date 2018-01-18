@@ -289,8 +289,6 @@ sub validate_fqdn_not_in_passthroughs {
     my $general = $cs->read("general");
     my $fencing = $cs->read("fencing");
 
-    use Data::Dumper ; get_logger->info(Dumper($field->form->params->{"hostname"}));
-
     my $params = $field->form->params;
     # Use the hostname + domain from the form if its there, otherwise, restore it from the ConfigStore
     my $hostname = $params->{hostname} // $general->{hostname};
