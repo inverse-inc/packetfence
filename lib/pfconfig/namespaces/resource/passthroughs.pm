@@ -60,11 +60,17 @@ sub build {
         } @{$self->{authentication_sources} // []},
     );
 
+    return $self->_build(\@all_passthroughs);
+}
+
+sub _build {
+    my ($self, $all_passthroughs) = @_;
+    
     my %passthroughs = (
         normal => {}, 
         wildcard => {},  
     );
-    foreach my $passthrough (@all_passthroughs) {
+    foreach my $passthrough (@$all_passthroughs) {
         my ($domain, $ports) = $self->_new_passthrough($passthrough);
         my $ns = "normal";
         if($domain =~ /\*\.(.*)/) {
