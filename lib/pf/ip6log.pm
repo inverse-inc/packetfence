@@ -532,7 +532,7 @@ sub rotate {
         -limit => $batch,
     );
 
-    my $sql = "INSERT INTO ip6log_archive $subsql;";
+    my $sql = "INSERT INTO ip6log_archive (mac, ip, type, start_time, end_time) $subsql;";
 
     while (1) {
         my $query;
