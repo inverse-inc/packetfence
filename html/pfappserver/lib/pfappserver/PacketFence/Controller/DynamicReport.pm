@@ -80,7 +80,8 @@ sub _search :AdminRole('REPORTS') {
 
     $c->stash->{searches} = $report->searches;
     $c->stash->{items} = \@items;
-    $c->stash->{page_count} = $report->page_count(%infos);
+    $c->stash->{items_count} = $report->items_count(%infos);
+    $c->stash->{page_count} = $report->page_count(%infos, items_count => $c->stash->{items_count});
 
     if ($c->request->param('export')) {
         $c->stash({

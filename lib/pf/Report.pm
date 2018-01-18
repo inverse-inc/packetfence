@@ -155,12 +155,36 @@ sub query {
     return $self->_db_data(REPORT, {'report_sql' => $sql}, 'report_sql', @$params);
 }
 
-sub page_count {
+=head2 items_count
+
+The the total amount of items for a report query
+
+=cut
+
+sub items_count {
     my ($self, %infos) = @_;
     $self->ensure_default_infos(\%infos);
     my ($sql, $params) = $self->generate_sql_query(%infos, count_only => 1);
     my @results = $self->_db_data(REPORT, {'report_sql' => $sql}, 'report_sql', @$params);
-    my $pages = $results[0]->{count} / $infos{per_page};
+    return $results[0]->{count}
+}
+
+=head2 page_count
+
+Get the amount of pages of a report based on the amount of items per page
+
+Supports passing a precomputed items_count, otherwise, it will compute the total number of items for the query
+
+=cut
+
+sub page_count {
+    my ($self, %infos) = @_;
+    $self->ensure_default_infos(\%infos);
+
+    # allow to pass a precomputed items count for improved efficiency
+    my $items_count = $infos{items_count} // $self->items_count(%infos);
+
+    my $pages = $items_count / $infos{per_page};
     return (($pages == int($pages)) ? $pages : int($pages + 1));
 }
 

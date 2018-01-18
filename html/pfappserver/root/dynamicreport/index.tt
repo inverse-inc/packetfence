@@ -17,6 +17,8 @@
 <div class="navbar">
   <div class="navbar-inner">
     <div class="container">
+      <p class="badge badge-info pull-right">[% items_count %] entries</p>
+
       <div class="nav-collapse collapse navbar-responsive-collapse">
         <form id="search" name="search" class="form-inline datetimepicker" action="[%c.uri_for(c.controller.action_for('search'))%]" method="POST">
           <input type="hidden" name="report_id" value="[% report.id %]">
