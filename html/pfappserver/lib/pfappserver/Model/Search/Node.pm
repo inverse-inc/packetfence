@@ -117,7 +117,7 @@ sub build_additional_search_args {
 sub set_params_defaults {
     my ($self, $params) = @_;
     $params->{per_page} //= 25;
-    $params->{per_num} //= 1;
+    $params->{page_num} //= 1;
     $params->{by} //= 'mac';
     $params->{searches} //= [];
     return $params;
