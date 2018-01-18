@@ -38,6 +38,12 @@ has 'person_fields', (is => 'rw', isa => 'ArrayRef[Str]');
 
 has 'node_fields', (is => 'rw', isa => 'ArrayRef[Str]');
 
+=head2 generate_sql_query
+
+Given a set of infos, generate the associated SQL query for the report
+
+=cut
+
 sub generate_sql_query {
     my ($self, %infos) = @_;
     my $logger = get_logger;
@@ -145,12 +151,24 @@ sub generate_sql_query {
     return ($sql, \@params);
 }
 
+=head2 ensure_default_infos
+
+Ensure the necessary base parameters are part of the query infos
+
+=cut
+
 sub ensure_default_infos {
     my ($self, $infos) = @_;
     $infos->{page} //= 1;
     $infos->{per_page} //= 25;
     $infos->{count_only} //= 0;
 }
+
+=head2 query
+
+Execute a query given a set of informations
+
+=cut
 
 sub query {
     my ($self, %infos) = @_;
@@ -192,6 +210,12 @@ sub page_count {
     my $pages = $items_count / $infos{per_page};
     return (($pages == int($pages)) ? $pages : int($pages + 1));
 }
+
+=head2 _db_data
+
+Execute an SQL query with the associated parameters
+
+=cut
 
 sub _db_data {
     my ($self, $sql, @params) = @_;
