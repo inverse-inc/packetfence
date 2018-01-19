@@ -305,6 +305,7 @@ Requires: samba-winbind-clients, samba-winbind
 Requires: collectd >= 5.6, collectd-apache, collectd-openldap, collectd-redis, collectd-mysql, collectd-disk
 Obsoletes: collectd-drbd
 Requires: nodejs >= 6.11.0
+Requires: libdrm >= 2.4.74
 
 # pki
 Requires: perl(Crypt::SMIME)
