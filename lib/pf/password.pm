@@ -534,7 +534,7 @@ sub consume_login {
 
     my $login_remaining = $user->{login_remaining};
     unless (defined ($login_remaining)) {
-        return $FALSE;
+        return $TRUE;
     }
 
     # if the remaining login amount is undef, this means that the user is allowed unlimited logins
