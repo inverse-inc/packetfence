@@ -28,6 +28,7 @@ our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
@@ -133,6 +134,20 @@ BEGIN {
     @PRIMARY_KEYS = qw(
         id
     );
+
+    @COLUMN_NAMES = qw(
+        radacct_log.id
+        radacct_log.acctsessionid
+        radacct_log.username
+        radacct_log.nasipaddress
+        radacct_log.acctstatustype
+        radacct_log.timestamp
+        radacct_log.acctinputoctets
+        radacct_log.acctoutputoctets
+        radacct_log.acctsessiontime
+        radacct_log.acctuniqueid
+    );
+
 }
 
 use Class::XSAccessor {
@@ -182,6 +197,16 @@ our $FIND_SQL = do {
     "SELECT * FROM `radacct_log` WHERE $where;";
 };
 
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
+
 =head2 _find_one_sql
 
 The precalculated sql to find a single row radacct_log
@@ -228,7 +253,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

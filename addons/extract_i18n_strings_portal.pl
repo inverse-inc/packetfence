@@ -155,6 +155,10 @@ sub parse_mc {
                 my $string = $2;
                 $string =~ s/\\'/'/g;
                 add_string($string, $module);
+            } elsif ($line =~ m/i18n(_format)?\(['"](.+?)["']/) {
+                my $string = $2;
+                $string =~ s/\\'/'/g;
+                add_string($string, $module);
             } elsif ($line =~ m/(title|message|label)\s+=>\s+['"]([^\$].+?[^'"\\])["']/) {
                 my $string = $2;
                 $string =~ s/\\'/'/g;
@@ -220,7 +224,7 @@ sub print_po {
 
     print <<EOT;
 # English translations for $package package.
-# Copyright (C) 2005-2017 Inverse inc.
+# Copyright (C) 2005-2018 Inverse inc.
 # This file is distributed under the same license as the $package package.
 #
 msgid ""
@@ -293,7 +297,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

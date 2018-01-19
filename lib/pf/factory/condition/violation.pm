@@ -15,7 +15,11 @@ Create the list of conditions for the filter engine based on the triggers of a v
 
 use strict;
 use warnings;
-use Module::Pluggable search_path => 'pf::condition', sub_name => '_modules' , require => 1;
+use Module::Pluggable
+  search_path => 'pf::condition',
+  sub_name    => '_modules',
+  inner       => 0,
+  require     => 1;
 use List::MoreUtils qw(any);
 use pf::constants;
 
@@ -37,6 +41,7 @@ our %TRIGGER_TYPE_TO_CONDITION_TYPE = (
     'mac'               => {type => 'regex',         key  => 'mac'},
     'mac_vendor'        => {type => 'equals',        key  => 'mac_vendor_id'},
     'nessus'            => {type => 'equals',        key  => 'last_nessus_id',          event => $TRUE},
+    'nessus6'           => {type => 'equals',        key  => 'last_nessus6_id',         event => $TRUE},
     'openvas'           => {type => 'equals',        key  => 'last_openvas_id',         event => $TRUE},
     'metadefender'      => {type => 'equals',        key  => 'last_metadefender_id',    event => $TRUE},
     'provisioner'       => {type => 'equals',        key  => 'last_provisioner_id',     event => $TRUE},
@@ -111,7 +116,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

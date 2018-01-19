@@ -65,9 +65,14 @@ BEGIN {
         report_statics_active
         report_unknownprints_all
         report_unknownprints_active
-        report_unknownuseragents_all
-        report_unknownuseragents_active
-
+        report_topauthenticationfailures_by_mac
+        report_topauthenticationfailures_by_ssid
+        report_topauthenticationfailures_by_username
+        report_topauthenticationsuccesses_by_mac
+        report_topauthenticationsuccesses_by_ssid
+        report_topauthenticationsuccesses_by_username
+        report_topauthenticationsuccesses_by_computername
+        
         translate_connection_type
     );
 }
@@ -164,22 +169,6 @@ sub report_db_prepare {
 
     $report_statements->{'report_openviolations_active_sql'} = get_db_handle()->prepare(
         qq [SELECT n.pid as owner, n.mac as mac, v.status as status, v.start_date as start_date, c.description as violation from (violation v, ip4log i) LEFT JOIN node n ON v.mac=n.mac LEFT JOIN class c on c.vid=v.vid WHERE v.status="open" and n.mac=i.mac and (i.end_time=0 or i.end_time > now()) order by n.pid ]);
-
-    $report_statements->{'report_unknownuseragents_all_sql'} = get_db_handle()->prepare(qq[
-        SELECT n.user_agent, nu.browser, nu.os, n.computername, device_type as description, n.dhcp_fingerprint
-        FROM node as n
-            JOIN node_useragent AS nu USING (mac)
-        WHERE (nu.browser IS NULL OR nu.os IS NULL) AND n.user_agent != ''
-    ]);
-
-    $report_statements->{'report_unknownuseragents_active_sql'} = get_db_handle()->prepare(qq[
-        SELECT n.user_agent, nu.browser, nu.os, n.computername, device_type as description, n.dhcp_fingerprint
-        FROM node as n
-            JOIN node_useragent AS nu USING (mac)
-            LEFT JOIN ip4log USING (mac)
-        WHERE (nu.browser IS NULL OR nu.os IS NULL) AND n.user_agent != ''
-            AND (ip4log.end_time=0 OR ip4log.end_time > now())
-    ]);
 
     $report_statements->{'report_connectiontype_sql'} = get_db_handle()->prepare(qq[
         SELECT connection_type, connection_type as connection_type_orig, COUNT(DISTINCT mac) AS connections,
@@ -377,6 +366,153 @@ sub report_db_prepare {
     $report_statements->{'report_topsponsor_sql'} = get_db_handle()->prepare(qq [
         SELECT email,count(*) as sponsor
         FROM email_activation limit 25;
+    ]);
+
+    $report_statements->{'report_topauthenticationfailures_by_mac_sql'} = get_db_handle()->prepare(qq[
+        SELECT
+            `mac`, 
+            COUNT(1) AS `count`, 
+            SUM(100) / `total` AS `percent`
+        FROM `radius_audit_log`
+        CROSS JOIN (
+                SELECT 
+                    COUNT(1) AS `total` 
+                FROM `radius_audit_log` 
+                WHERE `auth_status`='Reject'
+                    AND `created_at` BETWEEN ? AND ?
+            ) `x`
+        WHERE `auth_status`='Reject'
+            AND `created_at` BETWEEN ? AND ?
+            AND `mac` IS NOT NULL
+        GROUP BY 1
+        ORDER BY `percent` DESC
+        LIMIT 25;
+    ]);
+
+    $report_statements->{'report_topauthenticationfailures_by_ssid_sql'} = get_db_handle()->prepare(qq[
+        SELECT
+            `ssid`, 
+            COUNT(1) AS `count`, 
+            SUM(100) / `total` AS `percent`
+        FROM `radius_audit_log`
+        CROSS JOIN (
+                SELECT 
+                    COUNT(1) AS `total` 
+                FROM `radius_audit_log` 
+                WHERE `auth_status`='Reject'
+                    AND `created_at` BETWEEN ? AND ?
+            ) `x`
+        WHERE `auth_status`='Reject'
+            AND `created_at` BETWEEN ? AND ?
+            AND `ssid` IS NOT NULL
+        GROUP BY 1
+        ORDER BY `percent` DESC
+        LIMIT 25;
+    ]);
+
+    $report_statements->{'report_topauthenticationfailures_by_username_sql'} = get_db_handle()->prepare(qq[
+        SELECT
+            `user_name`, 
+            COUNT(1) AS `count`, 
+            SUM(100) / `total` AS `percent`
+        FROM `radius_audit_log`
+        CROSS JOIN (
+                SELECT 
+                    COUNT(1) AS `total` 
+                FROM `radius_audit_log` 
+                WHERE `auth_status`='Reject'
+                    AND `created_at` BETWEEN ? AND ?
+            ) `x`
+        WHERE `auth_status`='Reject'
+            AND `created_at` BETWEEN ? AND ?
+            AND `user_name` IS NOT NULL
+        GROUP BY 1
+        ORDER BY `percent` DESC
+        LIMIT 25;
+    ]);
+
+    $report_statements->{'report_topauthenticationsuccesses_by_mac_sql'} = get_db_handle()->prepare(qq[
+        SELECT
+            `mac`, 
+            COUNT(1) AS `count`, 
+            SUM(100) / `total` AS `percent`
+        FROM `radius_audit_log`
+        CROSS JOIN (
+                SELECT 
+                    COUNT(1) AS `total` 
+                FROM `radius_audit_log` 
+                WHERE `auth_status`='Accept'
+                    AND `created_at` BETWEEN ? AND ?
+            ) `x`
+        WHERE `auth_status`='Accept'
+            AND `created_at` BETWEEN ? AND ?
+            AND `mac` IS NOT NULL
+        GROUP BY 1
+        ORDER BY `percent` DESC
+        LIMIT 25;
+    ]);
+
+    $report_statements->{'report_topauthenticationsuccesses_by_ssid_sql'} = get_db_handle()->prepare(qq[
+        SELECT
+            `ssid`, 
+            COUNT(1) AS `count`, 
+            SUM(100) / `total` AS `percent`
+        FROM `radius_audit_log`
+        CROSS JOIN (
+                SELECT 
+                    COUNT(1) AS `total` 
+                FROM `radius_audit_log` 
+                WHERE `auth_status`='Accept'
+                    AND `created_at` BETWEEN ? AND ?
+            ) `x`
+        WHERE `auth_status`='Accept'
+            AND `created_at` BETWEEN ? AND ?
+            AND `ssid` IS NOT NULL
+        GROUP BY 1
+        ORDER BY `percent` DESC
+        LIMIT 25;
+    ]);
+
+    $report_statements->{'report_topauthenticationsuccesses_by_username_sql'} = get_db_handle()->prepare(qq[
+        SELECT
+            `user_name`, 
+            COUNT(1) AS `count`, 
+            SUM(100) / `total` AS `percent`
+        FROM `radius_audit_log`
+        CROSS JOIN (
+                SELECT 
+                    COUNT(1) AS `total` 
+                FROM `radius_audit_log` 
+                WHERE `auth_status`='Accept'
+                    AND `created_at` BETWEEN ? AND ?
+            ) `x`
+        WHERE `auth_status`='Accept'
+            AND `created_at` BETWEEN ? AND ?
+            AND `user_name` IS NOT NULL
+        GROUP BY 1
+        ORDER BY `percent` DESC
+        LIMIT 25;
+    ]);
+
+    $report_statements->{'report_topauthenticationsuccesses_by_computername_sql'} = get_db_handle()->prepare(qq[
+        SELECT
+            `computer_name`, 
+            COUNT(1) AS `count`, 
+            SUM(100) / `total` AS `percent`
+        FROM `radius_audit_log`
+        CROSS JOIN (
+                SELECT 
+                    COUNT(1) AS `total` 
+                FROM `radius_audit_log` 
+                WHERE `auth_status`='Accept'
+                    AND `created_at` BETWEEN ? AND ?
+            ) `x`
+        WHERE `auth_status`='Accept'
+            AND `created_at` BETWEEN ? AND ?
+            AND `computer_name` IS NOT NULL
+        GROUP BY 1
+        ORDER BY `percent` DESC
+        LIMIT 25;
     ]);
 
     $report_db_prepared = 1;
@@ -621,14 +757,6 @@ sub report_unknownprints_active {
         $datum->{'vendor'} = oui_to_vendor( $datum->{'mac'} );
     }
     return (@data);
-}
-
-sub report_unknownuseragents_all {
-    return db_data(REPORT, $report_statements, 'report_unknownuseragents_all_sql');
-}
-
-sub report_unknownuseragents_active {
-    return db_data(REPORT, $report_statements, 'report_unknownuseragents_active_sql');
 }
 
 sub report_connectiontype {
@@ -1009,6 +1137,216 @@ sub report_nodebandwidth_all {
 }
 
 
+=item _report_topauthenticationfailures_by_mac
+
+Reporting - Radius AAA Auth failures by mac
+
+Sub that supports a range from now til $range window.
+
+=cut
+
+sub report_topauthenticationfailures_by_mac {
+    my ($start, $end) = @_;
+
+    my @data = db_data(REPORT, $report_statements, 'report_topauthenticationfailures_by_mac_sql', $start, $end, $start, $end);
+    my $total = 0;
+    my @return_data;
+    foreach my $record (@data) {
+        $total += $record->{'count'};
+    }
+    foreach my $record (@data) {
+        if ( $record->{'count'} > 0 ) {
+            if ( $record->{'mac'} eq '' ) {
+                $record->{'mac'} = 'Unknown';
+            }
+            $record->{'percent'} = sprintf("%.1f", ( $record->{'count'} / $total ) * 100 );
+            push @return_data, $record;
+        }
+    }
+    push @return_data, { mac => "Total", percent => "100", count => $total, total => $total };
+    return (@return_data);    
+}
+
+=item _report_topauthenticationfailures_by_ssid
+
+Reporting - Radius AAA Auth failures by ssid
+
+Sub that supports a range from now til $range window.
+
+=cut
+
+sub report_topauthenticationfailures_by_ssid {
+    my ($start, $end) = @_;
+
+    my @data = db_data(REPORT, $report_statements, 'report_topauthenticationfailures_by_ssid_sql', $start, $end, $start, $end);
+    my $total = 0;
+    my @return_data;
+    foreach my $record (@data) {
+        $total += $record->{'count'};
+    }
+    foreach my $record (@data) {
+        if ( $record->{'count'} > 0 ) {
+            if ( $record->{'ssid'} eq '' ) {
+                $record->{'ssid'} = 'Unknown';
+            }
+            $record->{'percent'} = sprintf("%.1f", ( $record->{'count'} / $total ) * 100 );
+            push @return_data, $record;
+        }
+    }
+    push @return_data, { ssid => "Total", percent => "100", count => $total, total => $total };
+    return (@return_data);    
+}
+
+=item _report_topauthenticationfailures_by_username
+
+Reporting - Radius AAA Auth failures by username
+
+Sub that supports a range from now til $range window.
+
+=cut
+
+sub report_topauthenticationfailures_by_username {
+    my ($start, $end) = @_;
+
+    my @data = db_data(REPORT, $report_statements, 'report_topauthenticationfailures_by_username_sql', $start, $end, $start, $end);
+    my $total = 0;
+    my @return_data;
+    foreach my $record (@data) {
+        $total += $record->{'count'};
+    }
+    foreach my $record (@data) {
+        if ( $record->{'count'} > 0 ) {
+            if ( $record->{'user_name'} eq '' ) {
+                $record->{'user_name'} = 'Unknown';
+            }
+            $record->{'percent'} = sprintf("%.1f", ( $record->{'count'} / $total ) * 100 );
+            push @return_data, $record;
+        }
+    }
+    push @return_data, { user_name => "Total", percent => "100", count => $total, total => $total };
+    return (@return_data);    
+}
+
+=item _report_topauthenticationsuccesses_by_mac
+
+Reporting - Radius AAA Auth successes by mac
+
+Sub that supports a range from now til $range window.
+
+=cut
+
+sub report_topauthenticationsuccesses_by_mac {
+    my ($start, $end) = @_;
+
+    my @data = db_data(REPORT, $report_statements, 'report_topauthenticationsuccesses_by_mac_sql', $start, $end, $start, $end);
+    my $total = 0;
+    my @return_data;
+    foreach my $record (@data) {
+        $total += $record->{'count'};
+    }
+    foreach my $record (@data) {
+        if ( $record->{'count'} > 0 ) {
+            if ( $record->{'mac'} eq '' ) {
+                $record->{'mac'} = 'Unknown';
+            }
+            $record->{'percent'} = sprintf("%.1f", ( $record->{'count'} / $total ) * 100 );
+            push @return_data, $record;
+        }
+    }
+    push @return_data, { mac => "Total", percent => "100", count => $total, total => $total };
+    return (@return_data);    
+}
+
+=item _report_topauthenticationsuccesses_by_ssid
+
+Reporting - Radius AAA Auth successes by ssid
+
+Sub that supports a range from now til $range window.
+
+=cut
+
+sub report_topauthenticationsuccesses_by_ssid {
+    my ($start, $end) = @_;
+
+    my @data = db_data(REPORT, $report_statements, 'report_topauthenticationsuccesses_by_ssid_sql', $start, $end, $start, $end);
+    my $total = 0;
+    my @return_data;
+    foreach my $record (@data) {
+        $total += $record->{'count'};
+    }
+    foreach my $record (@data) {
+        if ( $record->{'count'} > 0 ) {
+            if ( $record->{'ssid'} eq '' ) {
+                $record->{'ssid'} = 'Unknown';
+            }
+            $record->{'percent'} = sprintf("%.1f", ( $record->{'count'} / $total ) * 100 );
+            push @return_data, $record;
+        }
+    }
+    push @return_data, { ssid => "Total", percent => "100", count => $total, total => $total };
+    return (@return_data);    
+}
+
+=item _report_topauthenticationsuccesses_by_username
+
+Reporting - Radius AAA Auth successes by username
+
+Sub that supports a range from now til $range window.
+
+=cut
+
+sub report_topauthenticationsuccesses_by_username {
+    my ($start, $end) = @_;
+
+    my @data = db_data(REPORT, $report_statements, 'report_topauthenticationsuccesses_by_username_sql', $start, $end, $start, $end);
+    my $total = 0;
+    my @return_data;
+    foreach my $record (@data) {
+        $total += $record->{'count'};
+    }
+    foreach my $record (@data) {
+        if ( $record->{'count'} > 0 ) {
+            if ( $record->{'user_name'} eq '' ) {
+                $record->{'user_name'} = 'Unknown';
+            }
+            $record->{'percent'} = sprintf("%.1f", ( $record->{'count'} / $total ) * 100 );
+            push @return_data, $record;
+        }
+    }
+    push @return_data, { user_name => "Total", percent => "100", count => $total, total => $total };
+    return (@return_data);    
+}
+
+=item _report_topauthenticationsuccesses_by_computername
+
+Reporting - Radius AAA Auth successes by computername
+
+Sub that supports a range from now til $range window.
+
+=cut
+
+sub report_topauthenticationsuccesses_by_computername {
+    my ($start, $end) = @_;
+
+    my @data = db_data(REPORT, $report_statements, 'report_topauthenticationsuccesses_by_computername_sql', $start, $end, $start, $end);
+    my $total = 0;
+    my @return_data;
+    foreach my $record (@data) {
+        $total += $record->{'count'};
+    }
+    foreach my $record (@data) {
+        if ( $record->{'count'} > 0 ) {
+            if ( $record->{'computer_name'} eq '' ) {
+                $record->{'computer_name'} = 'Unknown';
+            }
+            $record->{'percent'} = sprintf("%.1f", ( $record->{'count'} / $total ) * 100 );
+            push @return_data, $record;
+        }
+    }
+    push @return_data, { computer_name => "Total", percent => "100", count => $total, total => $total };
+    return (@return_data);    
+}
+
 =item translate_connection_type
 
 Translates connection_type database string into a human-understandable string
@@ -1065,7 +1403,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

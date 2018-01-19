@@ -3401,7 +3401,7 @@ get the IfIndex from a trap
 
 sub getIfIndexFromTrap {
     my ($self, $variables) = @_;
-    my @indexes = $self->findTrapVarWithBase($variables,".1.3.6.1.2.1.2.2.1.1.");
+    my @indexes = $self->findTrapVarWithBase($variables,".1.3.6.1.2.1.2.2.1.1");
     return undef unless @indexes;
     return undef unless $indexes[0][1] =~ /(INTEGER|Gauge32): (\d+)/;
     return $2;
@@ -3613,6 +3613,20 @@ sub remove_switch_from_cache {
     }
 }
 
+=item isMacInAddressTableAtIfIndex
+
+isMacInAddressTableAtIfIndex
+
+=cut
+
+sub isMacInAddressTableAtIfIndex {
+    my ($self) = @_;
+    my $logger = $self->logger;
+    $logger->warn("isMacInAddressTableAtIfIndex is not supported or implemented for this switch");
+
+    return 0;
+}
+
 =back
 
 =head1 AUTHOR
@@ -3621,7 +3635,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

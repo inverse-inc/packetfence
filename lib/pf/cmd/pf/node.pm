@@ -105,14 +105,18 @@ sub parse_view {
         $params{'where'}{'value'} = $4;
     }
     if($8) {
-        $params{orderby} = "order by $8";
+        my $orderby = $8;
         if($9) {
-            $params{orderby} .= " $9";
+            if (lc($9) eq 'desc') {
+                $orderby = "-$orderby";
+            }
         }
+        $params{orderby} = [$orderby];
     }
     if($10) {
         my $limit = "limit $11,$12";
-        $params{limit} = $limit;
+        $params{offset} = $11;
+        $params{limit} = $12;
     }
     $self->{params} = \%params;
     return 1;
@@ -356,7 +360,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

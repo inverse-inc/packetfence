@@ -139,6 +139,8 @@ Requires: ipset, sudo
 Requires: perl(File::Which), perl(NetAddr::IP)
 Requires: perl(Net::LDAP)
 Requires: perl(Net::IP)
+Requires: perl-libnet >= 3.10
+Requires: perl(Socket) >= 2.016
 Requires: perl(Digest::HMAC_MD5)
 # TODO: we should depend on perl modules not perl-libwww-perl package
 # find out what they are and specify them as perl(...::...) instead of perl-libwww-perl
@@ -181,7 +183,7 @@ Requires: perl(Net::Write)
 Requires: perl(Parse::RecDescent)
 # for nessus scan, this version add the NBE download (inverse patch)
 Requires: perl(Net::Nessus::XMLRPC) >= 0.40
-Requires: perl(Net::Nessus::REST) >= 0.2
+Requires: perl(Net::Nessus::REST) >= 0.7
 # Note: portability for non-x86 is questionnable for Readonly::XS
 Requires: perl(Readonly), perl(Readonly::XS)
 Requires: perl(Regexp::Common)
@@ -237,6 +239,7 @@ Requires: perl(Catalyst::Controller::HTML::FormFu)
 Requires: perl(Params::Validate) >= 0.97
 Requires: perl(Term::Size::Any)
 Requires: perl(SQL::Abstract::More) >= 1.28
+Requires: perl(SQL::Abstract::Plugin::InsertMulti) >= 0.04
 Requires(pre): perl-aliased => 0.30
 Requires(pre): perl-version
 # for Catalyst stand-alone server
@@ -271,6 +274,7 @@ Requires: perl(File::Touch)
 Requires: perl(POSIX::AtFork)
 Requires: perl(Hash::Merge)
 Requires: perl(IO::Socket::INET6)
+Requires: perl(IO::Socket::SSL) >= 2.049
 Requires: perl(IO::Interface)
 Requires: perl(Time::Period) >= 1.25
 Requires: perl(Time::Piece)
@@ -289,6 +293,8 @@ Requires: wmi, perl(Net::WMIClient)
 Requires: lasso-perl 
 # Captive Portal Dynamic Routing
 Requires: perl(Graph)
+#Timezone
+Requires: perl(DateTime::TimeZone)
 
 # for dashboard
 Requires: python-django, python-django-tagging, pyparsing
@@ -299,6 +305,7 @@ Requires: samba-winbind-clients, samba-winbind
 Requires: collectd >= 5.6, collectd-apache, collectd-openldap, collectd-redis, collectd-mysql, collectd-disk
 Obsoletes: collectd-drbd
 Requires: nodejs >= 6.11.0
+Requires: libdrm >= 2.4.74
 
 # pki
 Requires: perl(Crypt::SMIME)
@@ -317,7 +324,7 @@ Requires: perl(Net::UDP)
 # For managing the number of connections per device
 Requires: %{real_name}-config = %{version}
 Requires: %{real_name}-pfcmd-suid = %{version}
-Requires: haproxy >= 1.6, keepalived >= 1.2
+Requires: haproxy >= 1.6, keepalived >= 1.3.6
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
 Requires: fingerbank >= 3.1.1, fingerbank < 4.0.0
 Requires: perl(File::Tempdir)
@@ -856,6 +863,8 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd.pl
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd_vlan
 %attr(0755, pf, pf)     /usr/local/pf/bin/pftest
+%attr(0755, pf, pf)     /usr/local/pf/bin/pflogger-packetfence
+%attr(0755, pf, pf)     /usr/local/pf/bin/pflogger.pl
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/maintenance
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/management_update
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/sync
@@ -877,6 +886,9 @@ fi
 %config                 /usr/local/pf/conf/chi.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/portal_modules.conf
 %config                 /usr/local/pf/conf/portal_modules.conf.defaults
+%config(noreplace)      /usr/local/pf/conf/device_registration.conf
+%config                 /usr/local/pf/conf/device_registration.conf.defaults
+                        /usr/local/pf/conf/device_registration.conf.example
 %config                 /usr/local/pf/conf/dhcp_fingerprints.conf
 %config(noreplace)      /usr/local/pf/conf/dhcp_filters.conf
                         /usr/local/pf/conf/dhcp_filters.conf.example
@@ -886,6 +898,8 @@ fi
 %config                 /usr/local/pf/conf/documentation.conf
 %config(noreplace)      /usr/local/pf/conf/firewall_sso.conf
                         /usr/local/pf/conf/firewall_sso.conf.example
+%config(noreplace)      /usr/local/pf/conf/survey.conf
+%config                 /usr/local/pf/conf/survey.conf.example
 %config(noreplace)      /usr/local/pf/conf/redis_cache.conf
                         /usr/local/pf/conf/redis_cache.conf.example
 %config(noreplace)      /usr/local/pf/conf/redis_queue.conf
@@ -962,6 +976,8 @@ fi
                         /usr/local/pf/conf/radiusd/packetfence-cluster.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/proxy.conf.inc
                         /usr/local/pf/conf/radiusd/proxy.conf.inc.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/proxy.conf.loadbalancer
+                        /usr/local/pf/conf/radiusd/proxy.conf.loadbalancer.example
 %config(noreplace)	/usr/local/pf/conf/radiusd/eap.conf
                         /usr/local/pf/conf/radiusd/eap.conf.example
 %config(noreplace)	/usr/local/pf/conf/radiusd/radiusd.conf
@@ -990,6 +1006,8 @@ fi
                         /usr/local/pf/conf/radiusd/eduroam-cluster.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/eduroam.conf
                         /usr/local/pf/conf/radiusd/eduroam.conf.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/radiusd_loadbalancer.conf
+                        /usr/local/pf/conf/radiusd/radiusd_loadbalancer.conf.example
 %config(noreplace)      /usr/local/pf/conf/realm.conf
                         /usr/local/pf/conf/realm.conf.example
 %config                 /usr/local/pf/conf/realm.conf.defaults
@@ -1129,6 +1147,13 @@ fi
                         /usr/local/pf/html/captive-portal/content/ChilliLibrary.js
                         /usr/local/pf/html/captive-portal/content/shared_mdm_profile.mobileconfig
                         /usr/local/pf/html/captive-portal/content/packetfence-windows-agent.exe
+                        /usr/local/pf/html/captive-portal/content/billing/stripe.js
+                        /usr/local/pf/html/captive-portal/content/provisioner/mobileconfig.js
+                        /usr/local/pf/html/captive-portal/content/provisioner/sepm.js
+                        /usr/local/pf/html/captive-portal/content/release.js
+                        /usr/local/pf/html/captive-portal/content/scan.js
+                        /usr/local/pf/html/captive-portal/content/status.js
+                        /usr/local/pf/html/captive-portal/content/waiting.js
 %dir                    /usr/local/pf/html/captive-portal/content/images
                         /usr/local/pf/html/captive-portal/content/images/*
 %config(noreplace)      /usr/local/pf/html/common/scss/*.scss
@@ -1169,8 +1194,6 @@ fi
 %config(noreplace)      /usr/local/pf/html/pfappserver/pfappserver.conf
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Admin.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/AdminRoles.pm
-%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Authentication.pm
-%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Authentication/Source.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Firewall_SSO.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/FloatingDevice.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Networks.pm
@@ -1183,7 +1206,6 @@ fi
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/System.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Configuration.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Configurator.pm
-%config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/UserAgents.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Wrix.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/DB.pm
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Graph.pm
@@ -1310,6 +1332,9 @@ fi
 %exclude                /usr/local/pf/addons/pfconfig/pfconfig.init
 
 %changelog
+* Mon Sep 25 2017 Inverse <info@inverse.ca> - 7.3.0-1
+- New release 7.3.0
+
 * Tue Jul 11 2017 Inverse <info@inverse.ca> - 7.2.0-2
 - Fix a GID permissions issue with MariaDB
 

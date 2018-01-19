@@ -16,6 +16,7 @@ This modules extends pf::Switch::Cisco::Aironet
 use strict;
 use warnings;
 use Net::SNMP;
+use Try::Tiny;
 
 use pf::constants qw($TRUE);
 use pf::config qw(
@@ -145,7 +146,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

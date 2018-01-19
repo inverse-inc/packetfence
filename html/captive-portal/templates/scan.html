@@ -1,14 +1,25 @@
-<script type="text/javascript">
-var waitTime=30;
-var action = function() {
-  hidebar();
-  top.location.href="[% destination_url %]";
-}; 
+<script id="variables" type="text/json">
+{
+  "waitTime": [% timer %],
+  "destination_url": "[% destination_url %]"
+}
 </script>
+<script type="text/javascript" src="/content/scan.js"></script>
+<script type="text/javascript" src="/content/timerbar.js"></script>
 
-<div class="layout--center">
-  <p>asd[% i18n(txt_message) %]asd</p>
-  <script type="text/javascript" src="/content/timerbar.js"></script>
-  <noscript><p>[% i18n("If you have scripting turned off, you will not be automatically redirected. Please enable scripting or open a new browser window from time to time to see if your access was enabled.") %]</p></noscript>
+<div class="text-center">
+  <p>[% i18n(txt_message) %]</p>
 </div>
 
+<div class="layout layout--center layout--auto">
+  <div class="layout__item">
+    <div class="timerbar"></div>
+  </div>
+</div>
+
+<noscript>
+  <div class="media media--error u-p u-mb">
+    <div class="media__img">[% flashIcon(level='error') %]</div>
+    <p class="media__body">[% i18n("If you have scripting turned off, you will not be automatically redirected. Please enable scripting or open a new browser window from time to time to see if your access was enabled.") %]</p>
+  </div>
+</noscript>

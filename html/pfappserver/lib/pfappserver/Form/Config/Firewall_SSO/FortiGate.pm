@@ -61,7 +61,7 @@ has_field 'categories' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type password port categories networks cache_updates cache_timeout) ],
+   render_list => [ qw(id type password port categories networks cache_updates cache_timeout username_format default_realm) ],
   );
 
 =head2 options_categories
@@ -83,7 +83,7 @@ sub options_categories {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -104,5 +104,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

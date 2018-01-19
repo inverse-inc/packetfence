@@ -5,6 +5,8 @@
   </div>
 </div>
 [% form.field('connection_timeout').render | none %]
+[% form.field('write_timeout').render | none %]
+[% form.field('read_timeout').render | none %]
 [% form.field('basedn').render | none %]
 [% form.field('scope').render | none %]
 [% form.field('usernameattribute').render | none %]
@@ -21,4 +23,3 @@
     </div>
   </div>
 </div>
-[% form.field('stripped_user_name').render | none %]

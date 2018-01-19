@@ -92,6 +92,21 @@ sub cleanupAfterRead {
         $rule->{conditions} = [delete @$rule{@conditions_keys}];
         push @{$item->{"${class}_rules"}}, $rule;
     }
+    if ($item->{type} eq 'SMS') {
+        $self->expand_list($item, 'sms_carriers');
+    }
+    $self->expand_list($item, qw(realms));
+}
+
+sub cleanupBeforeCommit {
+    my ($self, $id, $item) = @_;
+    if ($item->{type} eq 'SMS') {
+        $self->flatten_list($item, 'sms_carriers');
+    }
+    if ($item->{type} eq 'Eduroam') {
+        $self->flatten_list($item, qw(local_realm reject_realm));
+    }
+    $self->flatten_list($item, qw(realms));
 }
 
 before rewriteConfig => sub {
@@ -100,11 +115,12 @@ before rewriteConfig => sub {
     $config->ReorderByGroup();
 };
 
-__PACKAGE__->meta->make_immutable;
+
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

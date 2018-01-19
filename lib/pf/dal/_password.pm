@@ -28,6 +28,7 @@ our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
@@ -135,6 +136,20 @@ BEGIN {
     @PRIMARY_KEYS = qw(
         pid
     );
+
+    @COLUMN_NAMES = qw(
+        password.pid
+        password.password
+        password.valid_from
+        password.expiration
+        password.access_duration
+        password.access_level
+        password.category
+        password.sponsor
+        password.unregdate
+        password.login_remaining
+    );
+
 }
 
 use Class::XSAccessor {
@@ -184,6 +199,16 @@ our $FIND_SQL = do {
     "SELECT * FROM `password` WHERE $where;";
 };
 
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
+
 =head2 _find_one_sql
 
 The precalculated sql to find a single row password
@@ -230,7 +255,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

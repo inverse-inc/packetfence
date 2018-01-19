@@ -11,7 +11,7 @@ pf::Authentication::Source::LDAPSource
 use pf::log;
 use pf::constants qw($TRUE $FALSE);
 use pf::constants::authentication::messages;
-use pf::Authentication::constants;
+use pf::Authentication::constants qw($DEFAULT_LDAP_READ_TIMEOUT $DEFAULT_LDAP_WRITE_TIMEOUT);
 use pf::Authentication::Condition;
 use pf::CHI;
 use pf::util;
@@ -21,12 +21,13 @@ use pf::LDAP;
 use List::Util;
 use Net::LDAP::Util qw(escape_filter_value);
 use pf::config qw(%Config);
-use List::MoreUtils qw(uniq);
+use List::MoreUtils qw(uniq any);
 use pf::StatsD::Timer;
 use pf::util::statsd qw(called);
 
 use Moose;
 extends 'pf::Authentication::Source';
+with qw(pf::Authentication::InternalRole);
 
 # available encryption
 use constant {
@@ -51,13 +52,14 @@ has '+type' => (default => 'LDAP');
 has 'host' => (isa => 'Maybe[Str]', is => 'rw', default => '127.0.0.1');
 has 'port' => (isa => 'Maybe[Int]', is => 'rw', default => 389);
 has 'connection_timeout' => ( isa     => 'Int', is => 'rw', default => 5 );
+has 'write_timeout' => (isa => 'Int', is => 'rw', default => $DEFAULT_LDAP_WRITE_TIMEOUT);
+has 'read_timeout' => (isa => 'Int', is => 'rw', default => $DEFAULT_LDAP_READ_TIMEOUT);
 has 'basedn' => (isa => 'Str', is => 'rw', required => 1);
 has 'binddn' => (isa => 'Maybe[Str]', is => 'rw');
 has 'password' => (isa => 'Maybe[Str]', is => 'rw');
 has 'encryption' => (isa => 'Str', is => 'rw', required => 1);
 has 'scope' => (isa => 'Str', is => 'rw', required => 1);
 has 'usernameattribute' => (isa => 'Str', is => 'rw', required => 1);
-has 'stripped_user_name' => (isa => 'Str', is => 'rw', default => 'yes');
 has '_cached_connection' => (is => 'rw');
 has 'cache_match' => ( isa => 'Bool', is => 'rw', default => 0 );
 has 'email_attribute' => (isa => 'Maybe[Str]', is => 'rw', default => 'mail');
@@ -83,8 +85,7 @@ sub available_attributes {
   my $self = shift;
 
   my $super_attributes = $self->SUPER::available_attributes;
-  my @attributes = @{$Config{advanced}->{ldap_attributes}};
-  my @ldap_attributes = map { { value => $_, type => $Conditions::LDAP_ATTRIBUTE } } @attributes;
+  my @ldap_attributes = $self->ldap_attributes;
 
   # We check if our username attribute is present, if not we add it.
   if (not grep {$_->{value} eq $self->{'usernameattribute'} } @ldap_attributes ) {
@@ -92,6 +93,17 @@ sub available_attributes {
   }
 
   return [@$super_attributes, sort { $a->{value} cmp $b->{value} } @ldap_attributes];
+}
+
+=head2 ldap_attributes
+
+get the ldap attributes
+
+=cut
+
+sub ldap_attributes {
+    my ($self) = @_;
+    return map { { value => $_, type => $Conditions::LDAP_ATTRIBUTE } } @{$Config{advanced}->{ldap_attributes}};
 }
 
 =head2 authenticate
@@ -193,6 +205,8 @@ sub _connect {
         $LDAPServer,
         port       => $LDAPServerPort,
         timeout    => $self->{'connection_timeout'},
+        write_timeout  => $self->{'write_timeout'},
+        read_timeout  => $self->{'read_timeout'},
         encryption => $self->{encryption},
         credentials => \@credentials,
     );
@@ -215,32 +229,6 @@ sub _connect {
 }
 
 
-=head2 match
-
-    Overrided to add caching to avoid a hit to the database
-
-=cut
-
-our @KEYS_FOR_MATCHING = qw(
-    SSID connection_type rule_class username
-);
-
-sub match {
-    my ($self, $params) = @_;
-    my $timer_stat_prefix = called() . "." .  $self->{'id'};
-    my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}"});
-    if($self->is_match_cacheable) {
-        my $result = $self->cache->compute_with_undef([$self->id, @{$params}{@KEYS_FOR_MATCHING}], sub {
-                $pf::StatsD::statsd->increment(called() . "." . $self->id. ".cache_miss.count" );
-                my $result =   $self->SUPER::match($params);
-                return $result;
-            });
-        return $result;
-    }
-    my $result = $self->SUPER::match($params);
-    return $result;
-}
-
 =head2 cache
 
     get the cache object
@@ -251,28 +239,81 @@ sub cache {
     return pf::CHI->new( namespace => 'ldap_auth');
 }
 
-=head2 is_match_cacheable
+=head2 match_rule
 
-Checks to see if the match can be cached
+match_rule
 
 =cut
 
-sub is_match_cacheable {
-    my ($self) = @_;
-    #First check to see caching is disabled to see if we can exit quickly
-    return 0 unless $self->cache_match;
-    #Check rules for timed based operations return false first one found
-    foreach my $rule (@{$self->{rules}}) {
-        foreach my $condition (@{$rule->{conditions}}) {
-            my $op = $condition->{operator};
-            return 0 if $op eq $Conditions::IS_BEFORE || $op eq $Conditions::IS_AFTER;
-        }
+sub match_rule {
+    my ($self, $rule, $params, $extra) = @_;
+    if ($self->is_rule_cacheable($rule)) {
+        return $self->cache->compute_with_undef($self->rule_cache_key, sub {
+            $pf::StatsD::statsd->increment("pf::Authentication::Source::LDAPSource::match_rule.$self->{id}.cache_miss.count" );
+            return $self->SUPER::match_rule($rule, $params, $extra);
+        });
     }
-    return $self->cache_match;
+    return $self->SUPER::match_rule($rule, $params, $extra);
+}
+
+our %NON_CACHEABLE_OPS = (
+   $Conditions::IS_BEFORE => 1, 
+   $Conditions::IS_AFTER => 1, 
+   $Conditions::IN_TIME_PERIOD => 1, 
+);
+
+
+=head2 is_rule_cacheable
+
+is_rule_cacheable
+
+=cut
+
+sub is_rule_cacheable {
+    my ($self, $rule) = @_;
+    if (!defined ($rule) && !$self->cache_match) {
+        return $FALSE;
+    }
+    return (any { exists $NON_CACHEABLE_OPS{$_->{operator} // ''}  } @{$rule->{'conditions'} // []}) ? $FALSE : $TRUE;
 }
 
 
+=head2 rule_cache_key
+
+rule_cache_key
+
+=cut
+
+sub rule_cache_key {
+    my ($self, $rule, $params, $extra) = @_;
+    my %temp = %{$params // {}};
+    delete @temp{qw(current_date current_time current_time_period)};
+    return [$self->{id}, $rule->{id}, \%temp, $extra];
+}
+
+
+
 =head2 match_in_subclass
+
+match_in_subclass
+
+=cut
+
+sub match_in_subclass {
+    my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
+    my $filter = $self->ldap_filter_for_conditions($own_conditions, $rule->match, $self->{'usernameattribute'}, $params);
+    my $id = $self->id;
+    if (! defined($filter)) {
+        $logger->error("[$id] Missing parameters to construct LDAP filter");
+        $pf::StatsD::statsd->increment(called() . "." . $id . ".error.count" );
+        return undef;
+    }
+    my $rule_id = $rule->id;
+    $logger->debug("[$id $rule_id] Searching for $filter, from $self->{'basedn'}, with scope $self->{'scope'}");
+    return $self->_match_in_subclass($filter, $params, $rule, $own_conditions, $matching_conditions);
+}
+
+=head2 _match_in_subclass
 
 C<$params> are the parameters gathered at authentication (username, SSID, connection type, etc).
 
@@ -284,8 +325,8 @@ Conditions that match are added to C<$matching_conditions>.
 
 =cut
 
-sub match_in_subclass {
-    my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
+sub _match_in_subclass {
+    my ($self, $filter, $params, $rule, $own_conditions, $matching_conditions) = @_;
     my $timer_stat_prefix = called() . "." .  $self->{'id'};
     my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}",  level => 6});
 
@@ -296,13 +337,6 @@ sub match_in_subclass {
     my ( $connection, $LDAPServer, $LDAPServerPort ) = @$cached_connection;
 
 
-    my $filter = $self->ldap_filter_for_conditions($own_conditions, $rule->match, $self->{'usernameattribute'}, $params);
-    if (! defined($filter)) {
-        $logger->error("[$self->{'id'}] Missing parameters to construct LDAP filter");
-        $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".error.count" );
-        return undef;
-    }
-    $logger->debug("[$self->{'id'} $rule->{'id'}] Searching for $filter, from $self->{'basedn'}, with scope $self->{'scope'}");
 
     my @attributes = map { $_->{'attribute'} } @{$own_conditions};
     my $result = do {
@@ -357,6 +391,7 @@ sub match_in_subclass {
             # - posixGroup         => memberUid (uid)
             my $dn_search = escape_filter_value($dn);
             $filter = "(|(member=${dn_search})(uniqueMember=${dn_search})(memberUid=${attribute}))";
+            $logger->debug("[$self->{'id'} $rule->{'id'}] Searching is_member filter $filter");
             $result = $connection->search
               (
                base => $value,
@@ -577,7 +612,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -598,7 +633,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;
 
 # vim: set shiftwidth=4:

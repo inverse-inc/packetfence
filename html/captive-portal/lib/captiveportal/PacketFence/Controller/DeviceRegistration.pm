@@ -2,7 +2,7 @@ package captiveportal::PacketFence::Controller::DeviceRegistration;;
 use Moose;
 use namespace::autoclean;
 use pf::Authentication::constants;
-use pf::config qw(%Config);
+use pf::config qw(%ConfigDeviceRegistration);
 use pf::constants;
 use pf::log;
 use pf::node;
@@ -30,8 +30,9 @@ Catalyst Controller.
 
 sub auto : Private {
     my ( $self, $c ) = @_;
-    if (isdisabled( $Config{'device_registration'}{'status'} ) )
-    {
+    if (defined( $c->profile->{'_device_registration'} ) ) {
+        $c->stash->{isDeviceRegEnable} = $TRUE;
+    } else {
         $self->showError($c,"Device registration module is not enabled" );
         $c->detach;
     }
@@ -103,7 +104,8 @@ sub landing : Local : Args(0) {
 sub registerNode : Private {
     my ( $self, $c, $pid, $mac, $type ) = @_;
     my $logger = $c->log;
-    if ( is_allowed($mac) && valid_mac($mac) ) {
+    my $device_reg_profile = $c->profile->{'_device_registration'};
+    if ( is_allowed($mac, $device_reg_profile) && valid_mac($mac) ) {
         my ($node) = node_view($mac);
         if( $node && $node->{status} ne $pf::node::STATUS_UNREGISTERED ) {
             $c->stash( status_msg_error => ["%s is already registered or pending to be registered. Please verify MAC address if correct contact your network administrator", $mac]);
@@ -116,16 +118,16 @@ sub registerNode : Private {
             $c->stash->{device_mac} = $mac;
             # Get role for device registration
             my $role =
-              $Config{'device_registration'}{'role'};
+              $ConfigDeviceRegistration{$device_reg_profile}{'category'};
             if ($role) {
                 $logger->debug("Device registration role is $role (from pf.conf)");
             } else {
                 # Use role of user
-                $role = pf::authentication::match( $source_id, $params , $Actions::SET_ROLE, undef, $c->session->{extra});
+                $role = pf::authentication::match( $source_id, $params , $Actions::SET_ROLE, undef, $c->user_session->{extra});
                 $logger->debug("Gaming devices role is $role (from username $pid)");
             }
 
-            my $unregdate = pf::authentication::match( $source_id, $params, $Actions::SET_UNREG_DATE, undef, $c->session->{extra});
+            my $unregdate = pf::authentication::match( $source_id, $params, $Actions::SET_UNREG_DATE, undef, $c->user_session->{extra});
             if ( defined $unregdate ) {
                 $logger->debug("Got unregdate $unregdate for username $pid");
                 $info{unregdate} = $unregdate;
@@ -210,18 +212,18 @@ Verify
 =cut 
 
 sub is_allowed {
-    my ($mac) = @_;
+    my ($mac, $device_reg_profile) = @_;
     $mac =~ s/O/0/i;
     my $logger = get_logger();
-    my @oses = @{$Config{'device_registration'}{'allowed_devices'}};
+    my $oses = $ConfigDeviceRegistration{$device_reg_profile}{'allowed_devices'};
 
     # If no oses are defined then it will allow every devices to be registered
-    return $TRUE if @oses == 0;
+    return $TRUE if @$oses == 0;
 
     # Verify if the device is existing in the table node and if it's device_type is allowed
     my $node = node_view($mac);
     my $device_type = $node->{device_type};
-    for my $id (@oses) {
+    for my $id (@$oses) {
         my $endpoint = fingerbank::Model::Endpoint->new(name => $device_type, version => undef, score => undef);
         if ( defined($device_type) && $endpoint->is_a_by_id($id)) {
             $logger->debug("The devices type ".$device_type." is authorized to be registered via the device-registration module");
@@ -240,16 +242,15 @@ sub is_allowed {
         my $device_name = $result->name;
         my $endpoint = fingerbank::Model::Endpoint->new(name => $device_name, version => undef, score => undef);
 
-        for my $id (@oses) {
+        for my $id (@$oses) {
             if ($endpoint->is_a_by_id($id)) {
                 $logger->debug("The devices type ".$device_name." is authorized to be registered via the device-registration module");
                 return $TRUE;
             }
         }
-    } else {
-        $logger->debug("Cannot find a matching device name for this device id ".$device_id." .");
-        return $FALSE;
     }
+    $logger->debug("Cannot find a matching device name for this device id ".$device_id." .");
+    return $FALSE;
 }
 
 =head2 logout
@@ -269,7 +270,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -290,6 +291,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

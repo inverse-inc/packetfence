@@ -29,7 +29,14 @@ use pf::file_paths qw(
     $log_dir
 );
 use pf::util;
+use pf::constants::config qw($DEFAULT_SMTP_PORT $DEFAULT_SMTP_PORT_SSL $DEFAULT_SMTP_PORT_TLS);
 use List::MoreUtils qw(uniq);
+
+our %ALERTING_PORTS = (
+    none => $DEFAULT_SMTP_PORT,
+    ssl => $DEFAULT_SMTP_PORT_SSL,
+    starttls => $DEFAULT_SMTP_PORT_TLS,
+);
 
 use base 'pfconfig::namespaces::config';
 
@@ -108,7 +115,7 @@ sub build_child {
         $Config{$group}{$item} = normalize_time( $Config{$group}{$item} ) if ( $Config{$group}{$item} );
     }
 
-    foreach my $val ("fencing.passthroughs", "fencing.isolation_passthroughs", "device_registration.allowed_devices") {
+    foreach my $val ("fencing.passthroughs", "fencing.isolation_passthroughs") {
         my ( $group, $item ) = split( /\./, $val );
         $Config{$group}{$item} = [ split( /\s*,\s*/, $Config{$group}{$item}  // '' ) ];
     }
@@ -133,8 +140,11 @@ sub build_child {
         $Config{omapi}{key_base64}=~ s/\R//g;   # getting rid of any carriage return
     }
 
-    return \%Config;
+    if (($Config{alerting}{smtp_port} // 0) == 0) {
+        $Config{alerting}{smtp_port} = $ALERTING_PORTS{$Config{alerting}{smtp_encryption}} // $DEFAULT_SMTP_PORT;
+    }
 
+    return \%Config;
 }
 
 =head1 AUTHOR
@@ -143,7 +153,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

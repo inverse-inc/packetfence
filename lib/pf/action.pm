@@ -26,8 +26,12 @@ use pf::node;
 use pf::person;
 use pf::util;
 use pf::violation_config;
+use pf::config qw(access_duration);
+
 use pf::provisioner;
 use pf::constants;
+use pf::dal::action;
+use pf::error qw(is_error is_success);
 
 use constant ACTION => 'action';
 
@@ -80,94 +84,86 @@ use pf::config qw(
 use pf::db;
 use pf::util;
 use pf::config::util;
-use pf::class qw(class_view class_view_actions);
+use pf::class qw(class_view);
 use pf::violation qw(violation_force_close);
 use pf::Connection::ProfileFactory;
 use pf::constants::scan qw($POST_SCAN_VID $PRE_SCAN_VID);
 use pf::file_paths qw($violation_log);
 
-# The next two variables and the _prepare sub are required for database handling magic (see pf::db)
-our $action_db_prepared = 0;
-# in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
-# the hash if required
-our $action_statements = {};
-
-sub action_db_prepare {
-    my $logger = get_logger();
-    $logger->debug("Preparing pf::action database queries");
-
-    $action_statements->{'action_add_sql'} = get_db_handle()->prepare(qq[ insert into action(vid,action) values(?,?) ]);
-
-    $action_statements->{'action_delete_sql'} = get_db_handle()->prepare(qq[ delete from action where vid=? and action=? ]);
-
-    $action_statements->{'action_delete_all_sql'} = get_db_handle()->prepare(qq[ delete from action where vid=? ]);
-
-    $action_statements->{'action_exist_sql'} = get_db_handle()->prepare(
-        qq[ select vid,action from action where vid=? and action=? ]);
-
-    $action_statements->{'action_view_sql'} = get_db_handle()->prepare(
-        qq[ select vid,action from action where vid=? and action=? ]);
-
-    $action_statements->{'action_view_all_sql'} = get_db_handle()->prepare(qq[ select vid,action from action where vid=? ]);
-
-    $action_db_prepared = 1;
-}
+our $logger = get_logger();
 
 sub action_exist {
     my ($vid, $action) = @_;
-    my $query = db_query_execute(ACTION, $action_statements, 'action_exist_sql', $vid, $action) || return (0);
-    my ($val) = $query->fetchrow_array();
-    $query->finish();
-
-    return ($val);
+    my ($status, $iter) = pf::dal::action->search(
+        -where => {
+            vid => $vid,
+            action => $action
+        }, 
+        -columns => [\1]
+    );
+    if (is_error($status)) {
+        return (0);
+    }
+    my $items = $iter->all(undef);
+    return (scalar @$items);
 }
 
 sub action_add {
     my ($vid, $action) = @_;
-    my $logger = get_logger();
-    if ( action_exist( $vid, $action ) ) {
-        $logger->warn("attempt to add existing action $action to class $vid");
-        return (2);
+    my ($status, $item) = pf::dal::action->find_or_create({vid => $vid, action => $action});
+    if (is_error($status)) {
+        return (0);
     }
-    db_query_execute(ACTION, $action_statements, 'action_add_sql', $vid, $action) || return (0);
-    $logger->debug("action $action added to class $vid");
-
-    return (1);
+    if ($status == $STATUS::CREATED) {
+        return (1);
+    }
+    return (2);
 }
 
 sub action_view {
     my ($vid, $action) = @_;
-
-    my $query = db_query_execute(ACTION, $action_statements, 'action_view_sql', $vid, $action) || return (0);
-    my $ref = $query->fetchrow_hashref();
-
-    # just get one row and finish
-    $query->finish();
-
-    return ($ref);
+    my ($status, $item) = pf::dal::action->find({vid => $vid, action => $action});
+    if (is_error($status)) {
+        return (0);
+    }
+    return ($item->to_hash());
 }
 
 sub action_view_all {
     my ($vid) = @_;
-
-    return db_data(ACTION, $action_statements, 'action_view_all_sql', $vid );
+    my ($status, $iter) = pf::dal::action->search(
+        -where => {
+            vid => $vid
+        }
+    );
+    if (is_error($status)) {
+        return;
+    }
+    my $items = $iter->all(undef);
+    return @$items;
 }
 
 sub action_delete {
     my ($vid, $action) = @_;
-    my $logger = get_logger();
-    db_query_execute(ACTION, $action_statements, 'action_delete_sql', $vid, $action) || return (0);
+    my $status = pf::dal::action->remove_by_id({vid => $vid, action => $action});
+    if (is_error($status)) {
+        return (0);
+    }
     $logger->debug("action $action deleted from class $vid");
-
     return (1);
 }
 
 sub action_delete_all {
     my ($vid) = @_;
-    my $logger = get_logger();
-    db_query_execute(ACTION, $action_statements, 'action_delete_all_sql', $vid) || return (0);
-    $logger->debug("all actions for class $vid deleted");
-
+    my ($status, $rows) = pf::dal::action->remove_items(
+        -where => {
+            vid => $vid
+        }
+    );
+    if (is_error($status)) {
+        return (undef);
+    }
+    $logger->debug("all actions ($rows) for class $vid deleted");
     return (1);
 }
 
@@ -212,7 +208,7 @@ sub action_execute {
     my ($mac, $vid, $notes) = @_;
     my $logger = get_logger();
     my $leave_open = 0;
-    my @actions = class_view_actions($vid);
+    my @actions = action_view_all($vid);
     # Sort the actions in reverse order in order to always finish with the autoreg action
     @actions = sort { $b->{action} cmp $a->{action} } @actions;
     foreach my $row (@actions) {
@@ -293,31 +289,30 @@ sub action_email_admin {
 sub action_email_user {
     my ($mac, $vid, $notes) = @_;
     my $node_info = node_attributes($mac);
-    my $person = person_view($node_info->{pid});
+    my $person    = person_view( $node_info->{pid} );
 
-    if(defined($person->{email}) && $person->{email}){
+    if (defined($person->{email}) && $person->{email}) {
         my %message;
-
         require pf::lookup::node;
         my $class_info  = class_view($vid);
         my $description = $class_info->{'description'};
 
-        my $additionnal_message = join('<br/>', split('\n',$pf::violation_config::Violation_Config{$vid}{user_mail_message}));
-
-        pf::util::send_email(
-            $Config{'alerting'}{'smtpserver'},
-            $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn, $person->{email},
+        my $additionnal_message = join('<br/>', split('\n', $pf::violation_config::Violation_Config{$vid}{user_mail_message}));
+        my $to = $person->{email};
+        pf::config::util::send_email(
+            'violation-triggered',
+            $to,
             "$description detection on $mac",
-            "violation-triggered",
-            description => $description,
-            hostname => $node_info->{computername},
-            os => $node_info->{device_type},
-            mac => $mac,
-            additionnal_message => $additionnal_message,
+            {
+                description         => $description,
+                hostname            => $node_info->{computername},
+                os                  => $node_info->{device_type},
+                mac                 => $mac,
+                additionnal_message => $additionnal_message,
+            }
         );
-
     }
-    else{
+    else {
         get_logger->warn("Cannot send violation email for $vid as node we don't have the e-mail address of $node_info->{pid}");
     }
 }
@@ -354,7 +349,7 @@ sub action_reevaluate_access {
 sub action_autoregister {
     my ($mac, $vid) = @_;
     my $logger = get_logger();
-
+    my $unregdate = access_duration($pf::violation_config::Violation_Config{$vid}{access_duration});
     my ( $status, $status_msg );
 
     if(pf::node::is_node_registered($mac)){
@@ -362,7 +357,7 @@ sub action_autoregister {
     }
     else {
         require pf::role::custom;
-        ( $status, $status_msg ) = pf::node::node_register($mac, "default");
+        ( $status, $status_msg ) = pf::node::node_register($mac, "default", "unregdate"=>$unregdate);
         if(!$status){
             $logger->error("auto-registration of node $mac failed");
             return;
@@ -375,8 +370,6 @@ sub action_autoregister {
 
 sub action_close {
    my ($mac, $vid) = @_;
-   my $logger = get_logger();
-
    #We need to fetch which violation id to close
    my $class = class_view($vid);
 
@@ -404,7 +397,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

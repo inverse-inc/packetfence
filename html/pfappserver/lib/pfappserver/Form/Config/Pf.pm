@@ -20,6 +20,12 @@ use pf::IniFiles;
 use pf::file_paths qw($pf_default_file);
 use pf::authentication;
 use pf::web::util;
+use List::MoreUtils qw(any);
+
+# For passthroughs validation
+use pf::util::dns;
+use pfconfig::namespaces::resource::passthroughs;
+use pfconfig::namespaces::resource::isolation_passthroughs;
 
 has 'section' => ( is => 'ro' );
 
@@ -141,6 +147,16 @@ sub field_list {
                 $field->{options} = \@options;
                 last;
             };
+            $type eq 'timezone' && do {
+                $field->{type} = 'Select';
+                $field->{element_class} = ['chzn-deselect'];
+                $field->{element_attr} = {'data-placeholder' => 'Select a timezone'};
+                my @timezones = DateTime::TimeZone->all_names();
+                my @matched_options = map { m/^.+\/.+$/g } @timezones;
+                my @options = ({ value => '', label => ''}, map { { value => $_, label => $_ } } @matched_options);
+                $field->{options} = \@options;
+                last;
+            };
             $type eq 'toggle' && do {
                 if ($doc_section->{options}->[0] eq 'enabled' ||
                     $doc_section->{options}->[0] eq 'yes') {
@@ -225,11 +241,75 @@ sub field_list {
                     });
             }
         }
+        if (my $validate_method = $self->validator_for_field($doc_section_name)) {
+            $field->{validate_method} = $validate_method;
+        }
         push(@$list, $name => $field);
     }
     return $list;
 }
 
+our %FIELD_VALIDATORS = (
+    "general.hostname" => sub { validate_fqdn_not_in_passthroughs(@_, [ "passthroughs", "isolation_passthroughs" ]) },
+    "general.domain" => sub { validate_fqdn_not_in_passthroughs(@_, [ "passthroughs", "isolation_passthroughs" ]) },
+    "fencing.passthroughs" => sub { validate_fqdn_not_in_passthroughs(@_, ["passthroughs"]) },
+    "fencing.isolation_passthroughs" => sub { validate_fqdn_not_in_passthroughs(@_, ["isolation_passthroughs"]) },
+);
+
+=head2 validator_for_field
+
+Get the validator for a field
+
+=cut
+
+sub validator_for_field {
+    my ($self, $field) = @_;
+
+    return $FIELD_VALIDATORS{$field};
+}
+
+=head2 validate_fqdn_field
+
+For an FQDN, this validates that its not part of the passthroughs
+
+=cut
+
+=head2 validate_passthroughs_field
+
+For a passthrough form field, this validates that the passthroughs it contains won't match the portal FQDN
+
+=cut
+
+sub validate_fqdn_not_in_passthroughs {
+    my (undef, $field, $modules) = @_; 
+
+    get_logger->debug("Validating field ".$field->name);
+
+    my $cs = pf::ConfigStore::Pf->new;
+    my $general = $cs->read("general");
+    my $fencing = $cs->read("fencing");
+
+    my $params = $field->form->params;
+    # Use the hostname + domain from the form if its there, otherwise, restore it from the ConfigStore
+    my $hostname = $params->{hostname} // $general->{hostname};
+    my $domain = $params->{domain} // $general->{domain};
+    my $fqdn = "$hostname.$domain";
+
+    get_logger->debug("Validating passthroughs using FQDN $fqdn");
+
+    for my $module (@$modules) {
+        my $passthroughs_txt = [ split(/\r?\n/, (defined($params->{$module}) ? $params->{$module} : $fencing->{$module})) ];
+
+        get_logger->debug("Validating FQDN against passthroughs: " . join(",", @$passthroughs_txt));
+
+        my $passthroughs = "pfconfig::namespaces::resource::$module"->_build($passthroughs_txt);
+        my ($res, undef) = pf::util::dns::_matches_passthrough($passthroughs, $fqdn);
+
+        if($res) {
+            $field->add_error("Passthroughs cannot contain the portal FQDN ($fqdn) or any wildcard for this domain");
+        }
+    }
+}
 
 =head2 get_sms_source_ids
 
@@ -256,7 +336,7 @@ sub get_sms_source_ids {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -277,5 +357,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

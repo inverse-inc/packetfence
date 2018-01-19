@@ -28,6 +28,7 @@ our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
@@ -268,6 +269,35 @@ BEGIN {
     @PRIMARY_KEYS = qw(
         radacctid
     );
+
+    @COLUMN_NAMES = qw(
+        radacct.radacctid
+        radacct.acctsessionid
+        radacct.acctuniqueid
+        radacct.username
+        radacct.groupname
+        radacct.realm
+        radacct.nasipaddress
+        radacct.nasportid
+        radacct.nasporttype
+        radacct.acctstarttime
+        radacct.acctupdatetime
+        radacct.acctstoptime
+        radacct.acctinterval
+        radacct.acctsessiontime
+        radacct.acctauthentic
+        radacct.connectinfo_start
+        radacct.connectinfo_stop
+        radacct.acctinputoctets
+        radacct.acctoutputoctets
+        radacct.calledstationid
+        radacct.callingstationid
+        radacct.acctterminatecause
+        radacct.servicetype
+        radacct.framedprotocol
+        radacct.framedipaddress
+    );
+
 }
 
 use Class::XSAccessor {
@@ -317,6 +347,16 @@ our $FIND_SQL = do {
     "SELECT * FROM `radacct` WHERE $where;";
 };
 
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
+
 =head2 _find_one_sql
 
 The precalculated sql to find a single row radacct
@@ -363,7 +403,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

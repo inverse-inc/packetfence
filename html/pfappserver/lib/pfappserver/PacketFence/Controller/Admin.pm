@@ -25,6 +25,8 @@ use pf::cluster;
 use pf::authentication;
 use pf::Authentication::constants qw($LOGIN_CHALLENGE);
 use pf::util;
+use pf::config qw(%Config);
+use DateTime;
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
@@ -134,6 +136,7 @@ sub login :Local :Args(0) {
             }
         };
         if ($@) {
+            $c->log->error($@);
             $c->response->status(HTTP_INTERNAL_SERVER_ERROR);
             $c->stash->{status_msg} = $c->loc("Unexpected error. See server-side logs for details.");
         }
@@ -313,7 +316,8 @@ sub nodes :Chained('object') :PathPart('nodes') :Args(0) :AdminRole('NODES_READ'
     map {
         local $_ = $_;
         my $id = $_->{Id};
-        {id => $id} 
+        my $description = $_->{description};
+        {id => $id, description => $description} 
         } @switches_filtered];
 
     $c->stash(
@@ -337,6 +341,10 @@ sub users :Chained('object') :PathPart('users') :Args(0) :AdminRoleAny('USERS_RE
         saved_searches => $saved_searches,
         saved_search_form => $c->form("SavedSearch")
     );
+
+    # Remove some CSP restrictions to accomodate Chosen (the select-on-steroid widget):
+    #  - Allows use of inline source elements (eg style attribute)
+    $c->stash->{csp_headers} = { style => "'unsafe-inline'" };
 }
 
 =head2 configuration
@@ -348,6 +356,53 @@ sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
 
     $c->stash->{subsections} = $c->forward('Controller::Configuration', 'all_subsections');
 
+    # Remove some CSP restrictions to accomodate ACE (the text editor used for portal profiles files):
+    #  - Allows loading resources via the data scheme (eg Base64 encoded images);
+    #  - Allows use of inline source elements (eg style attribute)
+    $c->stash->{csp_headers} = { img => 'data:', style => "'unsafe-inline'", script => 'blob:' };
+}
+
+=head2 time_offset
+
+Returns a json structure that represents the time offset of the server time
+
+    {
+      "time_offset" : {
+        "start" : {
+          "time" : "11:00",
+          "date" : "2017-09-01"
+        },
+        "end" : {
+          "time" : "12:00",
+          "date" : "2017-09-01"
+        }
+      }
+    }
+
+It expects a normalize_time timespec to calculate the server time
+
+=cut
+
+
+sub time_offset :Chained('object') :PathPart('time_offset') :Args(1) {
+    my ( $self, $c, $time_spec) = @_;
+    $c->stash->{current_view} = 'JSON';
+    my $seconds = normalize_time($time_spec) // 0;
+    my $end_date = DateTime->now(time_zone => $Config{general}{timezone});
+    my $start_date = $end_date->clone->subtract(seconds => $seconds);
+    $c->stash(
+        time_offset => {
+            start => {
+                time => $start_date->hms,
+                date => $start_date->ymd,
+            },
+            end => {
+                time => $end_date->hms,
+                date => $end_date->ymd,
+            },
+        },
+    );
+    return ;
 }
 
 =head2 help
@@ -382,7 +437,7 @@ sub fixpermissions :Chained('object') :PathPart('fixpermissions') :Args(0) {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -403,6 +458,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

@@ -21,7 +21,6 @@ use pf::log;
 use Readonly;
 use NetAddr::IP;
 
-#use pf::class qw(class_view_all class_trappable);
 use pf::config qw(
     %connection_type_to_str
     %Config
@@ -178,7 +177,7 @@ sub generate_mangle_rules {
 
     # mark all open violations
     # TODO performance: only those whose's last connection_type is inline?
-    my @macarray = violation_view_open_uniq();
+    my @macarray = pf::violation::violation_view_open_uniq();
     if ( $macarray[0] ) {
         foreach my $row (@macarray) {
             foreach my $network ( keys %ConfigNetworks ) {
@@ -587,7 +586,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

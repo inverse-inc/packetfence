@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2005-2017 Inverse inc.
+# Copyright (C) 2005-2018 Inverse inc.
 #
 # See the enclosed file COPYING for license information (GPL).
 # If you did not receive this file, see
@@ -29,7 +29,7 @@ VlanMap = Y
 RoleMap = N
 ExternalPortalEnforcement = N
 
-mode = testing
+mode = production
 macSearchesMaxNb = 30
 macSearchesSleepInterval = 2
 uplink = dynamic

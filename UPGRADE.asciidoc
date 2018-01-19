@@ -108,12 +108,60 @@ Once the additionnal steps below are completed, restart packetfence-config and p
 Don't forget to edit the `/usr/local/pf/conf/currently-at` file to match the newly updated version
 
   cat /usr/local/pf/conf/pf-release > /usr/local/pf/conf/currently-at
-  
+
 
 Upgrading from a version prior to X.Y.Z
 ---------------------------------------
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
+
+New LinkedIn domain list
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you use social login with LinkedIn OAuth2, you will need to adjust the list of domains that are passthroughs in the LinkedIn source.
+
+For all your LinkedIn sources, change the domains to:
+
+  www.linkedin.com,api.linkedin.com,*.licdn.comlatform.linkedin.com
+  
+Upgrading from a version prior to 7.3.0
+---------------------------------------
+
+Device Registration
+^^^^^^^^^^^^^^^^^^^
+
+You will need to remove anything related to [device_registration] in the conf/pf.conf file.
+
+Changes to `authentication.conf` and `domain.conf` regarding realms and source matching
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You have to run the following script to change the configuration:
+
+  addons/upgrade/to-7.3-authentication-conf.pl
+
+MariaDB database read-only mode
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+There was, in some cases, an issue where the database cluster was put in a read-only mode which then prevent it to comes back gracefully.
+
+A modification have been made to now use the wsrep_ready state of the DB as a read only indicator. Therefore, PacketFence will stop putting the DB in read only on quorum + primary loss of MariaDB and trust wsrep_ready instead
+
+Ensure you merge changes in the galera section of `conf/mariadb/mariadb.conf.tt.rpmnew` into `conf/mariadb/mariadb.conf.tt`
+
+
+Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
+
+
+Database schema update (All linux distributions)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Changes have been made to the database schema. You will need to update it accordingly.
+An SQL upgrade script has been provided to upgrade the database from the 7.1 schema to 7.2.
+
+To upgrade the database schema, run the following command:
+
+  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-7.2.0-7.3.0.sql
+
 
 
 Upgrading from a version prior to 7.2.0

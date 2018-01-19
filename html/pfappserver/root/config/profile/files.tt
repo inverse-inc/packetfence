@@ -1,6 +1,3 @@
-<style type="text/css">
-td a.btn { margin-left: 5px; }
-</style>
 [%- MACRO display_directory(entry,dirs) BLOCK -%]
     [% name = entry.name %]
     [% paths = name.split('/') %]
@@ -16,8 +13,9 @@ td a.btn { margin-left: 5px; }
             <a class="btn btn-small pull-right" data-toggle="modal" data-target="#newFileModal" href="[% c.uri_for(c.controller('Config::Profile').action_for('new_file'),[id], paths) %]" ><i class="icon-plus"></i> [% l('New') %]</a>
             [% uploader_id = "uploader_" _ dir_id %]
             <div id="[% uploader_id | html %]" class="pull-right"></div>
-            <script type="text/javascript">
-                    $('#[% uploader_id %]').fineUploader({
+            <script class="[% uploader_id | html %]" type="text/json">
+                    {
+                         id: '[% uploader_id | html %]',
                          request: {
                            endpoint: '[% c.uri_for(c.controller('Config::Profile').action_for('upload'),[id],paths) %]',
                            paramsInBody : true
@@ -40,9 +38,7 @@ td a.btn { margin-left: 5px; }
                            '<ul class="qq-upload-list pull-right"></ul>' +
                            '</div>',
                          multiple: false
-                    }).on('complete', function(id, fileName, responseJSON) {
-                         $(window).hashchange();
-                    });
+                    }
             </script>
             [%- END %]
           </td>

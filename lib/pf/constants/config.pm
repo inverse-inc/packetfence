@@ -49,6 +49,9 @@ our @EXPORT_OK = qw(
   $SELFREG_MODE_KICKBOX
   $SELFREG_MODE_BLACKHOLE
   %NET_INLINE_TYPES
+  $DEFAULT_SMTP_PORT
+  $DEFAULT_SMTP_PORT_SSL
+  $DEFAULT_SMTP_PORT_TLS
 );
 
 use Readonly;
@@ -93,6 +96,10 @@ Readonly our %NET_INLINE_TYPES =>  (
     $NET_TYPE_INLINE_L3 => undef,
 );
 
+Readonly our $DEFAULT_SMTP_PORT => 25;
+Readonly our $DEFAULT_SMTP_PORT_SSL => 465;
+Readonly our $DEFAULT_SMTP_PORT_TLS => 587;
+
 
 =head1 AUTHOR
 
@@ -100,7 +107,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

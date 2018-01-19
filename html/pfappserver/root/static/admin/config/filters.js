@@ -16,16 +16,21 @@ var FiltersView = function(options) {
   // Revert the modifications
   var revert = $.proxy(this.revert, this);
   options.parent.on('click', '#filtersRevert', revert);
+
+  var load = $.proxy(this.setupEditor, this);
+  options.parent.on('section.loaded', load);
 };
 
-FiltersView.prototype.setupEditor = function(){
-  this.editor = ace.edit("editor");
-  this.editor.setTheme("ace/theme/monokai");
-  this.editor.getSession().setMode("ace/mode/perl");
+FiltersView.prototype.setupEditor = function() {
+  if ($('#editor').length) {
+    this.editor = ace.edit("editor");
+    this.editor.setTheme("ace/theme/monokai");
+    this.editor.getSession().setMode("ace/mode/perl");
 
-  this.disableButtons();
-  
-  this.initialValue = this.editor.getValue();
+    this.disableButtons();
+
+    this.initialValue = this.editor.getValue();
+  }
 };
 
 FiltersView.prototype.revert = function(e){

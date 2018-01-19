@@ -28,6 +28,7 @@ our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
@@ -100,6 +101,16 @@ BEGIN {
         ip
         firstseen
     );
+
+    @COLUMN_NAMES = qw(
+        inline_accounting.outbytes
+        inline_accounting.inbytes
+        inline_accounting.ip
+        inline_accounting.firstseen
+        inline_accounting.lastmodified
+        inline_accounting.status
+    );
+
 }
 
 use Class::XSAccessor {
@@ -149,6 +160,16 @@ our $FIND_SQL = do {
     "SELECT * FROM `inline_accounting` WHERE $where;";
 };
 
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
+
 =head2 _find_one_sql
 
 The precalculated sql to find a single row inline_accounting
@@ -195,7 +216,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

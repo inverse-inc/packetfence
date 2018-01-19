@@ -50,6 +50,10 @@ var SwitchView = function(options) {
     var read = $.proxy(this.readSwitch, this);
     options.parent.on('click', '#switches [href$="/read"], #switches [href$="/clone"], .createSwitch', read);
 
+    // Close modal on import from csv
+    var import_csv = $.proxy(this.importSwitch, this);
+    options.parent.on('submit', 'form[name="modalSwitchImport"]', import_csv);
+
     // Save the modifications from the modal
     var update = $.proxy(this.updateSwitch, this);
     options.parent.on('submit', 'form[name="modalSwitch"]', update);
@@ -244,6 +248,23 @@ SwitchView.prototype.updateSwitch = function(e) {
             errorSibling: modal_body.children().first()
         });
     }
+};
+
+SwitchView.prototype.importSwitch = function(e) {
+    var that = this;
+    var form = $(e.target);
+    var iform = $("#iframe_form");
+    var btn = form.find('.btn-primary');
+    var modal = form.closest('.modal');
+    btn.button('loading');
+    iform.one('load', function(event) {
+            btn.button('reset');
+            var body = $(this).contents().find('body');
+            var text = body.find('textarea').val();
+            modal.modal('hide');
+            showPermanentSuccess($('#switches'), text);
+    });
+
 };
 
 SwitchView.prototype.addToGroup = function(e) {

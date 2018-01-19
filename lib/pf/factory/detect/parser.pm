@@ -16,7 +16,11 @@ Create a pfdetect parser by it's configuration ID
 
 use strict;
 use warnings;
-use Module::Pluggable search_path => 'pf::detect::parser', sub_name => 'modules' , require => 1;
+use Module::Pluggable
+  search_path => 'pf::detect::parser',
+  sub_name    => 'modules',
+  inner       => 0,
+  require     => 1;
 use List::MoreUtils qw(any);
 use pf::detect::parser;
 use pf::config qw(%ConfigDetect);
@@ -53,7 +57,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

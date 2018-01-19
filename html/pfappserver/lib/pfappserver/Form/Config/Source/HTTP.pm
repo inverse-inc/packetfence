@@ -13,7 +13,7 @@ Form definition to create or update a HTTP user source.
 use HTML::FormHandler::Moose;
 use pf::Authentication::Source::HTTPSource;
 extends 'pfappserver::Form::Config::Source';
-with 'pfappserver::Base::Form::Role::Help';
+with 'pfappserver::Base::Form::Role::Help', 'pfappserver::Base::Form::Role::InternalSource';
 
 # Form fields
 has_field 'host' =>
@@ -73,9 +73,10 @@ has_field 'authorization_url' =>
    tags => { after_element => \&help,
              help => 'Note : The URL is always prefixed by a slash (/)' },
   );
+
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -96,5 +97,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

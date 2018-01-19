@@ -45,6 +45,7 @@ use pf::CHI;
 use pf::metadefender();
 use pf::services();
 use pf::firewallsso();
+use pf::pfqueue::stats();
 
 use List::MoreUtils qw(uniq);
 use List::Util qw(pairmap);
@@ -65,6 +66,7 @@ use pf::util::dhcpv6();
 use pf::domain::ntlm_cache();
 
 use pf::constants::api;
+use DateTime::Format::MySQL;
 
 sub event_add : Public {
     my ($class, %postdata) = @_;
@@ -259,15 +261,17 @@ sub unreg_node_for_pid : Public:AllowedAsAction(pid, $pid) {
     my @require = qw(pid);
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
+    my $pid = $postdata{'pid'};
 
-    my @node_infos =  pf::node::node_view_reg_pid($postdata{'pid'});
-    $logger->info("Unregistering ".scalar(@node_infos)." node(s) for ".$postdata{'pid'});
+    my @node_infos = pf::node::node_view_reg_pid($pid);
+    my $count = scalar(@node_infos);
+    $logger->info("Unregistering $count node(s) for $pid");
 
     foreach my $node_info ( @node_infos ) {
         pf::node::node_deregister($node_info->{'mac'});
     }
 
-    return 1;
+    return $count;
 }
 
 sub synchronize_locationlog : Public {
@@ -350,7 +354,7 @@ ReAssignVlan_in_queue is use to localy use ReAssignVlan function in pfqueue to g
 
 sub ReAssignVlan_in_queue : Public {
     my ($class, %postdata )  = @_;
-    my $client = pf::api::queue->new(queue => 'general');
+    my $client = pf::api::queue->new(queue => 'priority');
     $client->notify( 'ReAssignVlan', %postdata );
 }
 
@@ -385,7 +389,7 @@ desAssociate is use to localy use desAssociate function in pfqueue to get rid of
 
 sub desAssociate_in_queue : Public {
     my ($class, %postdata )  = @_;
-    my $client = pf::api::queue->new(queue => 'general');
+    my $client = pf::api::queue->new(queue => 'priority');
     $client->notify( 'desAssociate', %postdata );
 }
 
@@ -1041,6 +1045,7 @@ sub dynamic_register_node : Public :AllowedAsAction(mac, $mac, username, $userna
         connection_type => $node_info->{'last_connection_type'},
         SSID => $node_info->{'last_ssid'},
         stripped_user_name => $stripped_user,
+        realm => $node_info->{'realm'},
     };
 
     my $source;
@@ -1346,7 +1351,7 @@ sub handle_accounting_metadata : Public {
         $client->notify("radius_update_locationlog", %RAD_REQUEST);
     }
 
-    if ($RAD_REQUEST{'Acct-Status-Type'} == $ACCOUNTING::STOP){
+    if ($RAD_REQUEST{'Acct-Status-Type'} != $ACCOUNTING::STOP){
         # Tracking IP address.
         if(pf::util::isenabled($pf::config::Config{advanced}{update_iplog_with_accounting})){
             $logger->info("Updating iplog from accounting request");
@@ -1356,16 +1361,47 @@ sub handle_accounting_metadata : Public {
             pf::log::get_logger->debug("Not handling iplog update because we're not configured to do so on accounting packets.");
         }
     }
-    if ($RAD_REQUEST{'Acct-Status-Type'} == $ACCOUNTING::STOP || $RAD_REQUEST{'Acct-Status-Type'} == $ACCOUNTING::INTERIM_UPDATE ) {
-        my $radius = new pf::radius::custom();
-        eval {
-            $return = $radius->accounting(\%RAD_REQUEST);
-        };
-        if ($@) {
-            $logger->error("radius accounting failed with error: $@");
-        }
-    }
+    $client->notify("firewallsso_accounting", %RAD_REQUEST);
+
     return $return;
+}
+
+=head2 firewallsso_accounting
+
+Update the firewall sso based on radius accounting
+
+=cut
+
+sub firewallsso_accounting : Public {
+    my ($class, %RAD_REQUEST) = @_;
+    my $logger = pf::log::get_logger();
+    if ($RAD_REQUEST{'Calling-Station-Id'} && $RAD_REQUEST{'Framed-IP-Address'} && pf::util::isenabled($pf::config::Config{advanced}{sso_on_accounting})) {
+        my $mac = pf::util::clean_mac($RAD_REQUEST{'Calling-Station-Id'});
+        my $node = pf::node::node_attributes($mac);
+        my $ip = $RAD_REQUEST{'Framed-IP-Address'};
+        my $firewallsso_method = "Stop";
+        my $timeout = '3600'; #Default to 1 hour
+        my $client = pf::client::getClient();
+
+        if ($node->{status} eq $pf::node::STATUS_REGISTERED) {
+            $firewallsso_method = "Update";
+            if ($node->{unregdate} ne '0000-00-00 00:00:00') {
+                my $time = DateTime::Format::MySQL->parse_datetime($node->{unregdate});
+                $time->set_time_zone("local");
+                my $now = DateTime->now(time_zone => "local");
+                $timeout = $time->epoch - $now->epoch;
+            }
+            my $oldip  = pf::ip4log::mac2ip($mac);
+            if ( $oldip && $oldip ne $ip ) {
+                $client->notify( 'firewallsso', (method => 'Stop', mac => $mac, ip => $oldip, timeout => undef) );
+            }
+        }
+
+        $firewallsso_method = ($RAD_REQUEST{'Acct-Status-Type'} == $ACCOUNTING::STOP) ? "Stop" : "Update";
+
+        $logger->warn("Firewall SSO Notify");
+        $client->notify( 'firewallsso', (method => $firewallsso_method, mac => $mac, ip => $ip, timeout => $timeout) );
+    }
 }
 
 =head2 services_status
@@ -1544,13 +1580,24 @@ sub cache_user_ntlm {
     return $result;
 }
 
+=head2 queue_stats
+
+queue_stats
+
+=cut
+
+sub queue_stats : Public {
+    my ($class) = @_;
+    return pf::pfqueue::stats->new->stats_data;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

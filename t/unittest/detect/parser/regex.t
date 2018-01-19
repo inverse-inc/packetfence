@@ -59,6 +59,7 @@ is_deeply(
     $matches,
     [
         {
+            'success' => 1,
             rule => $config->{rules}[1],
             actions => [['modify_node', ['1.2.3.4', '1.2.3.5']], ['violation_log', ['bob', 'bob']]],
         }
@@ -72,10 +73,12 @@ is_deeply(
     $matches,
     [
         {
+            'success' => 1,
             rule => $config->{rules}[0],
             actions => [['modify_node', ['1.2.3.4', '1.2.3.5', 'aa:bb:cc:dd:ee:ff']], ['violation_log', ['bob', 'bob']]],
         },
         {
+            'success' => 1,
             rule => $config->{rules}[1],
             actions => [['modify_node', ['1.2.3.4', '1.2.3.5']], ['violation_log', ['bob', 'bob']]],
         }
@@ -96,7 +99,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

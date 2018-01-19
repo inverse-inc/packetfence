@@ -37,6 +37,7 @@ has_field 'id' =>
    label => 'Name',
    required => 1,
    messages => { required => 'Please specify the name of the source entry' },
+   apply => [ pfappserver::Base::Form::id_validator('source name') ],
   );
 
 has_field 'type' => (
@@ -118,6 +119,11 @@ has_block local_account =>
     render_list => [],
   );
 
+has_block internal_sources =>
+  (
+    render_list => [],
+  );
+
 
 has_block action_templates => (
     attr => {
@@ -150,6 +156,8 @@ our %EXCLUDE = (
     local_account => 1,
     create_local_account => 1,
     local_account_logins => 1,
+    stripped_user_name => 1,
+    realms => 1,
     (map { ("${_}_rules"  => 1) } @Rules::CLASSES),
     (map { ("${_}_action" => 1) } keys %ACTION_FIELD_OPTIONS),
     (map { ("${_}_operator" => 1, "${_}_value" => 1) } @Conditions::TYPES),
@@ -261,8 +269,9 @@ build the label of rule
 
 sub build_rule_label {
     my ($field) = @_;
-    my $id = $field->field("id")->value // "New";
-    return "Rule - $id";
+    my $id = $field->field("id")->value  // "New";
+    my $desc = $field->field("description")->value  // "";
+    return "Rule - $id ( $desc )";
 }
 
 =head2 build_render_list_rules
@@ -374,6 +383,12 @@ sub getSourceArgs {
             }
         }
     }
+    for my $r (qw(realms)) {
+        $args->{$r} //= [];
+        if (ref($args->{$r}) ne "ARRAY" ) {
+            $args->{$r} = [$args->{$r}];
+        }
+    }
     return $args;
 }
 
@@ -419,7 +434,7 @@ sub validate {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -440,6 +455,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

@@ -14,7 +14,11 @@ pf::factory::condition::access_filter
 
 use strict;
 use warnings;
-use Module::Pluggable search_path => 'pf::condition', sub_name => '_modules', require => 1;
+use Module::Pluggable
+  search_path => 'pf::condition',
+  sub_name    => '_modules',
+  inner       => 0,
+  require     => 1;
 use pf::config::util qw(str_to_connection_type);
 use pf::constants::eap_type qw(%RADIUS_EAP_TYPE_2_VALUES);
 
@@ -104,7 +108,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

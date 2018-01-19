@@ -58,13 +58,13 @@ use pf::radius::constants;
 use List::Util qw(first);
 use pf::util::statsd qw(called);
 use pf::StatsD::Timer;
-use Hash::Merge qw (merge);
 use pf::accounting;
 use pf::cluster;
 use pf::api::queue;
 use pf::access_filter::radius;
 use pf::registration;
 use pf::access_filter::switch;
+use pf::role::pool;
 
 our $VERSION = 1.03;
 
@@ -123,6 +123,8 @@ sub authorize {
 
 
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
+
+    $user_name = normalize_username($user_name, $radius_request);
 
     if (!$mac) {
         return [$RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Mac is empty")];
@@ -275,16 +277,22 @@ sub authorize {
 
     # Fetch VLAN depending on node status
     my $role = $role_obj->fetchRoleForNode($args);
-    my $vlan = $switch->getVlanByName($role->{role}) if (isenabled($switch->{_VlanMap}));
-    $vlan = $role->{vlan} || $vlan || 0;
+    my $vlan;
     $args->{'node_info'}{'source'} = $role->{'source'} if (defined($role->{'source'}) && $role->{'source'} ne '');
     $args->{'node_info'}{'portal'} = $role->{'portal'} if (defined($role->{'portal'}) && $role->{'portal'} ne '');
     $info{source} = $args->{node_info}{source};
     $info{portal} = $args->{node_info}{portal};
-
-    $args->{'vlan'} = $vlan;
     $args->{'wasInline'} = $role->{wasInline};
     $args->{'user_role'} = $role->{role};
+
+    if (isenabled($switch->{_VlanMap})) {
+        $vlan = $switch->getVlanByName($role->{role}) if (isenabled($switch->{_VlanMap}));
+        $args->{'vlan'} = $vlan;
+        my $vlanpool = new pf::role::pool;
+        $vlan = $vlanpool->getVlanFromPool($args);
+    }
+    $vlan = $role->{vlan} || $vlan || 0;
+    $args->{'vlan'} = $vlan;
 
     #closes old locationlog entries and create a new one if required
     #TODO: Better deal with INLINE RADIUS
@@ -331,6 +339,27 @@ AUDIT:
     $args->{'time'} = time;
     push @$RAD_REPLY_REF, $self->_addRadiusAudit($args);
     return $RAD_REPLY_REF;
+}
+
+=item normalize_username
+
+normalize username
+
+=cut
+
+sub normalize_username {
+    my ($username, $radius_request) = @_;
+    if (isdisabled($Config{advanced}{normalize_radius_machine_auth_username})) {
+        return $username;
+    }
+    my $tls_username = $radius_request->{'TLS-Client-Cert-Common-Name'} // '';
+    if ($username eq $tls_username ) {
+       my $radius_username = $radius_request->{'User-Name'};
+       if ( "host/$tls_username" =~ /\Q$radius_username\E/i ) {
+            $username = $radius_username;
+       }
+    }
+    return $username;
 }
 
 =item accounting
@@ -872,7 +901,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

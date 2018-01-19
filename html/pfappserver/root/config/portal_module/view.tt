@@ -63,9 +63,6 @@
     </div>
     [% END %]
   [% END %]
-  <script>
-    initActionMatchInput()
-  </script>
 
   [% IF form.block('multi_source_definition') %]
   <div class="control-group">

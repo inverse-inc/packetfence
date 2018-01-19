@@ -30,6 +30,7 @@ use pf::constants::exit_code qw($EXIT_SUCCESS);
 use pf::config qw(
     %Config
     $management_network
+    $DISTRIB
 );
 use pf::util;
 
@@ -69,6 +70,11 @@ sub _run {
 
             db_config => $Config{database},
         );
+        if ($DISTRIB eq 'debian') {
+            $vars{'libgalera'} = '/usr/lib/galera/libgalera_smm.so';
+        } else {
+            $vars{'libgalera'} = '/usr/lib64/galera/libgalera_smm.so';
+        }
     }
 
     my $maria_conf = "$install_dir/var/conf/mariadb.conf";
@@ -96,7 +102,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

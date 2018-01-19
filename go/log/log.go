@@ -2,14 +2,15 @@ package log
 
 import (
 	"context"
-	"github.com/cevaris/ordered_map"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
-	"github.com/google/uuid"
-	log "github.com/inconshreveable/log15"
 	"log/syslog"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/cevaris/ordered_map"
+	"github.com/google/uuid"
+	log "github.com/inconshreveable/log15"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
 
 const RequestUuidKey = "request-uuid"
@@ -89,8 +90,15 @@ func LoggerAddHandler(ctx context.Context, f func(*log.Record) error) context.Co
 func initContextLogger(ctx context.Context) context.Context {
 	logger := newLoggerStruct()
 
-	syslogBackend, _ := log.SyslogHandler(syslog.LOG_INFO, ProcessName, log.LogfmtFormat())
-	logger.SetHandler(syslogBackend)
+	output := sharedutils.EnvOrDefault("LOG_OUTPUT", "syslog")
+	if output == "syslog" {
+		syslogBackend, err := log.SyslogHandler(syslog.LOG_INFO, ProcessName, log.LogfmtFormat())
+		sharedutils.CheckError(err)
+		logger.SetHandler(syslogBackend)
+	} else {
+		stdoutBackend := log.StreamHandler(os.Stdout, log.LogfmtFormat())
+		logger.SetHandler(stdoutBackend)
+	}
 
 	logger.processPid = strconv.Itoa(os.Getpid())
 

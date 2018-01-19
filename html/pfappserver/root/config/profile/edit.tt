@@ -92,7 +92,7 @@ paths = full_file_name.split('/')
         <input id="file-editor-show-lines" type="checkbox" /> [% l('Show line numbers') %]
       </label>
       <form id="file_editor_form" accept-charset="utf-8" method="POST" action="[% c.uri_for(c.controller('Config::Profile').action_for('save'),[id], paths ) %]" >
-        <textarea rows="1" cols="1" name="file_content" style="display:none" id="file_content">[%file_content | html%]</textarea>
+        <textarea rows="1" cols="1" name="file_content" class="hide" id="file_content">[%file_content | html%]</textarea>
         <div class="pull-right">
           <h5>[% l('Available Variables') %]</h5>
           <ul id="variable_list">
@@ -101,7 +101,7 @@ paths = full_file_name.split('/')
             [% END %]
           </ul>
         </div>
-        <div id="editor" style="height: 450px; position: relative;">[%file_content | html%]</div>
+        <div id="editor" class="code-editor">[%file_content | html%]</div>
     </div>
     <div class="form-actions">
       <a id="file-editor-save" href="#" class="btn btn-primary disabled editorToggle" data-toggle="modal" data-target="#saveFile"><i class="icon-save"></i> [% l('Save') %]</a>

@@ -25,9 +25,9 @@ use pfappserver::Form::User::Create::Single;
 use pfappserver::Form::User::Create::Multiple;
 use pfappserver::Form::User::Create::Import;
 use pf::admin_roles;
-use pf::sms_carrier qw(sms_carrier_custom_search);
 use pf::authentication qw(getAuthenticationSource);
 use pf::config qw(%Config);
+use pf::sms_carrier qw(sms_carrier_view_all);
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 with 'pfappserver::Role::Controller::BulkActions';
@@ -205,8 +205,11 @@ sub nodes :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
         $c->stash->{nodes} = $result;
     } else {
         $c->response->status($status);
-        $c->stash->{status_msg} = $result;
-        $c->stash->{current_view} = 'JSON';
+        $c->stash(
+            status_msg => $result,
+            current_view => 'JSON',
+            nodes => [],
+        )
     }
     return ;
 }
@@ -377,13 +380,7 @@ sub _add_sms_source {
     }
     $c->stash->{sms_source} = $sms_source;
     if ($sms_source->can("sms_carriers")) {
-        my $sqla = SQL::Abstract::More->new;
-        my ($sql, @bind) = $sqla->select(
-            -columns => [qw(id name)],
-            -from    => 'sms_carrier',
-            -where    => { id => $sms_source->sms_carriers },
-        );
-        $c->stash->{sms_carriers} = [sms_carrier_custom_search($sql, @bind)];
+        $c->stash->{sms_carriers} = sms_carrier_view_all($sms_source);
     }
     return 1;
 }
@@ -528,7 +525,7 @@ sub sms :Local :AdminRole('USERS_UPDATE') {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -549,6 +546,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

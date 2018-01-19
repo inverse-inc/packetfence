@@ -37,9 +37,9 @@
               <div class="controls">
                 <input id="api_key" class="text" type="text" value="[% fingerbank_api_key %]"[% IF fingerbank_api_key %] disabled[% END %]>
                 <a id="configure_fingerbank_api_key" href="/config/fingerbank/settings/onboard" class="btn btn-primary"[% IF fingerbank_api_key %] disabled[% END %]>[% l('Get Aboard!') %]</a>
-                <span class="control-group[% IF fingerbank_api_key %] success[% END %]" style="display:inline-block">
+                <div class="control-group[% IF fingerbank_api_key %] success[% END %]">
                 [% IF fingerbank_api_key %]<span class="help-inline">[% l('Success!') %]</span>[% END %]
-                </span>
+                </div>
               </div>
             </div>
 

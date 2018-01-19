@@ -28,6 +28,7 @@ our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
@@ -198,6 +199,27 @@ BEGIN {
     @PRIMARY_KEYS = qw(
         vid
     );
+
+    @COLUMN_NAMES = qw(
+        class.vid
+        class.description
+        class.auto_enable
+        class.max_enables
+        class.grace_period
+        class.window
+        class.vclose
+        class.priority
+        class.template
+        class.max_enable_url
+        class.redirect_url
+        class.button_text
+        class.enabled
+        class.vlan
+        class.target_category
+        class.delay_by
+        class.external_command
+    );
+
 }
 
 use Class::XSAccessor {
@@ -247,6 +269,16 @@ our $FIND_SQL = do {
     "SELECT * FROM `class` WHERE $where;";
 };
 
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
+
 =head2 _find_one_sql
 
 The precalculated sql to find a single row class
@@ -293,7 +325,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

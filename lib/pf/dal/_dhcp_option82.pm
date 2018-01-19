@@ -28,6 +28,7 @@ our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
@@ -124,6 +125,19 @@ BEGIN {
     @PRIMARY_KEYS = qw(
         mac
     );
+
+    @COLUMN_NAMES = qw(
+        dhcp_option82.mac
+        dhcp_option82.created_at
+        dhcp_option82.option82_switch
+        dhcp_option82.switch_id
+        dhcp_option82.port
+        dhcp_option82.vlan
+        dhcp_option82.circuit_id_string
+        dhcp_option82.module
+        dhcp_option82.host
+    );
+
 }
 
 use Class::XSAccessor {
@@ -173,6 +187,16 @@ our $FIND_SQL = do {
     "SELECT * FROM `dhcp_option82` WHERE $where;";
 };
 
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
+
 =head2 _find_one_sql
 
 The precalculated sql to find a single row dhcp_option82
@@ -219,7 +243,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

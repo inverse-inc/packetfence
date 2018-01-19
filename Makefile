@@ -1,3 +1,11 @@
+DOCBOOK_XSL := /usr/share/xml/docbook/stylesheet/docbook-xsl
+UNAME := $(shell uname -s)
+ifeq ($(UNAME),Darwin)
+	DOCBOOK_XSL := /opt/local/share/xsl/docbook-xsl
+else ifneq ("$(wildcard /etc/redhat-release)","")
+	DOCBOOK_XSL := /usr/share/sgml/docbook/xsl-stylesheets
+endif
+
 all:
 	@echo "Please chose which documentation to build:"
 	@echo ""
@@ -6,7 +14,23 @@ all:
 	@echo " 'PacketFence_Developers_Guide.pdf' will build the Develoeprs guide in PDF"
 	@echo " 'PacketFence_Network_Devices_Configuration_Guide.pdf' will build the Network Devices Configuration guide in PDF"
 
-pdf: $(patsubst %.asciidoc,%.pdf,$(notdir $(wildcard docs/PacketFence_*.asciidoc)))
+pdf: docs/docbook/xsl/titlepage-fo.xsl docs/docbook/xsl/import-fo.xsl $(patsubst %.asciidoc,%.pdf,$(notdir $(wildcard docs/PacketFence_*.asciidoc)))
+
+docs/docbook/xsl/titlepage-fo.xsl: docs/docbook/xsl/titlepage-fo.xml
+	xsltproc \
+		-o docs/docbook/xsl/titlepage-fo.xsl \
+		$(DOCBOOK_XSL)/template/titlepage.xsl \
+		docs/docbook/xsl/titlepage-fo.xml
+
+docs/docbook/xsl/import-fo.xsl:
+	@echo "<?xml version='1.0'?> \
+	<xsl:stylesheet   \
+	  xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" \
+	  xmlns:fo=\"http://www.w3.org/1999/XSL/Format\" \
+	  version=\"1.0\"> \
+	  <xsl:import href=\"${DOCBOOK_XSL}/fo/docbook.xsl\"/> \
+	</xsl:stylesheet>" \
+	> docs/docbook/xsl/import-fo.xsl
 
 %.pdf : docs/%.asciidoc
 	asciidoc \
@@ -17,7 +41,8 @@ pdf: $(patsubst %.asciidoc,%.pdf,$(notdir $(wildcard docs/PacketFence_*.asciidoc
 		$<
 	xsltproc \
 		-o $<.fo \
-		docs/docbook/xsl/packetfence-fo.xsl docs/docbook/$(notdir $<).docbook
+		docs/docbook/xsl/packetfence-fo.xsl \
+		docs/docbook/$(notdir $<).docbook
 	fop \
 		-c docs/fonts/fop-config.xml \
 		$<.fo \
@@ -78,9 +103,9 @@ bin/ntlm_auth_wrapper: src/ntlm_auth_wrap.c
 /etc/sudoers.d/packetfence.sudoers: packetfence.sudoers
 	cp packetfence.sudoers /etc/sudoers.d/packetfence.sudoers
 
-.PHONY:sudo
+.PHONY: sudo
 
-sudo:/etc/sudoers.d/packetfence.sudoers
+sudo: /etc/sudoers.d/packetfence.sudoers
 
 
 permissions:
@@ -129,3 +154,6 @@ pf-dal:
 	perl /usr/local/pf/addons/dev-helpers/bin/generator-data-access-layer.pl
 
 devel: configurations conf/ssl/server.crt conf/pf_omapi_key conf/local_secret bin/pfcmd raddb/certs/server.crt sudo translation mysql-schema raddb/sites-enabled fingerbank chown_pf permissions bin/ntlm_auth_wrapper html/pfappserver/root/static/doc
+
+test:
+	cd t && ./smoke.t

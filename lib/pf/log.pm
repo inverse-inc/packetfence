@@ -16,12 +16,20 @@ use strict;
 use warnings;
 use Log::Log4perl;
 use Log::Log4perl::Level;
+use Log::Log4perl::Layout::PatternLayout;
 use pf::file_paths qw($log_conf_dir $log_config_file);
 use pf::log::trapper;
 use File::Basename qw(basename);
 use Carp;
 
 Log::Log4perl->wrapper_register(__PACKAGE__);
+
+
+Log::Log4perl::Layout::PatternLayout::add_global_cspec('Z', sub {
+    my ($layout, $message, $category, $priority, $caller_level) = @_;
+    my $number = $Log::Log4perl::Level::SYSLOG{$priority};
+    return "<$number>";
+});
 
 sub import {
     my ($self,%args) = @_;
@@ -99,7 +107,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

@@ -10,10 +10,12 @@ Form definition to create or update a LDAP user source.
 
 =cut
 
-use pf::Authentication::Source::LDAPSource;
+BEGIN {
+    use pf::Authentication::Source::LDAPSource;
+}
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Source';
-with 'pfappserver::Base::Form::Role::Help';
+with 'pfappserver::Base::Form::Role::Help', 'pfappserver::Base::Form::Role::InternalSource';
 
 our $META = pf::Authentication::Source::LDAPSource->meta;
 
@@ -43,6 +45,30 @@ has_field 'connection_timeout' =>
         'placeholder' => $META->get_attribute('connection_timeout')->default
     },
     default => $META->get_attribute('connection_timeout')->default,
+    tags => { after_element => \&help,
+             help => 'LDAP connection Timeout' },
+  );
+has_field 'write_timeout' =>
+  (
+    type         => 'PosInteger',
+    label        => 'Request timeout',
+    element_attr => {
+        'placeholder' => $META->get_attribute('write_timeout')->default
+    },
+    default => $META->get_attribute('write_timeout')->default,
+    tags => { after_element => \&help,
+             help => 'LDAP request timeout' },
+  );
+has_field 'read_timeout' =>
+  (
+    type         => 'PosInteger',
+    label        => 'Response timeout',
+    element_attr => {
+        'placeholder' => $META->get_attribute('read_timeout')->default
+    },
+    default => $META->get_attribute('read_timeout')->default,
+    tags => { after_element => \&help,
+             help => 'LDAP response timeout' },
   );
 has_field 'encryption' =>
   (
@@ -107,18 +133,6 @@ has_field 'password' =>
    # Default value needed for creating dummy source
    default => '',
   );
-has_field 'stripped_user_name' =>
-  (
-   type            => 'Toggle',
-   checkbox_value  => 'yes',
-   unchecked_value => 'no',
-   default         => 'yes',
-   label           => 'Use stripped username ',
-   tags => { after_element => \&help,
-             help => 'Use stripped username returned by RADIUS to test the following rules.' },
-   default => $META->get_attribute('stripped_user_name')->default,
-  );
-
 has_field 'cache_match',
   (
    type => 'Toggle',
@@ -161,7 +175,7 @@ sub validate {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -182,5 +196,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

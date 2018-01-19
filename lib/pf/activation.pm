@@ -36,6 +36,7 @@ use Try::Tiny;
 use MIME::Lite;
 use Encode qw(encode);
 use pf::util;
+use pf::config::util qw();
 use pf::Connection::ProfileFactory;
 use pf::web::guest::constants;
 use pf::constants::Connection::Profile qw($DEFAULT_PROFILE);
@@ -95,94 +96,19 @@ use pf::config qw(
     $fqdn
 );
 use pf::file_paths qw($conf_dir $html_dir);
-use pf::db;
 use pf::util;
 use pf::web::constants;
 # TODO this dependency is unfortunate, ideally it wouldn't be in that direction
 use pf::log;
+use pf::dal::activation;
+use pf::error qw(is_error is_success);
 
-# The next two variables and the _prepare sub are required for database handling magic (see pf::db)
-our $activation_db_prepared = 0;
-# in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
-# the hash if required
-our $activation_statements = {};
 
 =head1 SUBROUTINES
 
 TODO: This list is incomplete
 
 =cut
-
-sub activation_db_prepare {
-    my $logger = get_logger();
-    $logger->debug("Preparing pf::activation database queries");
-
-    $activation_statements->{'activation_view_sql'} = get_db_handle()->prepare(qq[
-        SELECT code_id, pid, mac, contact_info, activation_code, expiration, status, type, portal, email_pattern as carrier_email_pattern, unregdate
-        FROM activation LEFT JOIN sms_carrier ON carrier_id=sms_carrier.id
-        WHERE code_id = ?
-    ]);
-
-    $activation_statements->{'activation_find_unverified_code_sql'} = get_db_handle()->prepare(qq[
-        SELECT code_id, pid, mac, contact_info, activation_code, expiration, status, type, portal, email_pattern as carrier_email_pattern, unregdate
-        FROM activation LEFT JOIN sms_carrier ON carrier_id=sms_carrier.id
-        WHERE type = ? AND activation_code = ? AND status = ? AND expiration >= NOW()
-    ]);
-
-    $activation_statements->{'activation_find_unverified_code_type_mac_sql'} = get_db_handle()->prepare(qq[
-        SELECT code_id, pid, mac, contact_info, activation_code, expiration, status, type, portal, email_pattern as carrier_email_pattern, unregdate
-        FROM activation LEFT JOIN sms_carrier ON carrier_id=sms_carrier.id
-        WHERE mac = ? AND type = ? AND activation_code = ? AND status = ? AND expiration >= NOW()
-    ]);
-
-    $activation_statements->{'activation_view_by_code_sql'} = get_db_handle()->prepare(qq[
-        SELECT code_id, pid, mac, contact_info, activation_code, expiration, status, type, portal, email_pattern as carrier_email_pattern, unregdate
-        FROM activation LEFT JOIN sms_carrier ON carrier_id=sms_carrier.id
-        WHERE type = ? AND activation_code = ?
-    ]);
-
-    $activation_statements->{'activation_view_by_code_mac_sql'} = get_db_handle()->prepare(qq[
-        SELECT code_id, pid, mac, contact_info, activation_code, expiration, status, type, portal, email_pattern as carrier_email_pattern, unregdate
-        FROM activation LEFT JOIN sms_carrier ON carrier_id=sms_carrier.id
-        WHERE type = ? AND activation_code = ? AND mac = ?
-    ]);
-
-    $activation_statements->{'activation_add_sql'} = get_db_handle()->prepare(qq[
-        INSERT INTO activation (pid, mac, contact_info, carrier_id, activation_code, expiration, status, type, portal)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ]);
-
-    $activation_statements->{'activation_modify_status_sql'} = get_db_handle()->prepare(
-        qq [ UPDATE activation SET status=? WHERE code_id = ? ]
-    );
-
-    $activation_statements->{'activation_delete_sql'} = get_db_handle()->prepare(
-        qq [ DELETE FROM activation WHERE code_id = ? ]
-    );
-
-    $activation_statements->{'activation_change_status_old_same_mac_pid_contact_info_sql'} = get_db_handle()->prepare(
-        qq [ UPDATE activation SET status = ? WHERE mac = ? AND pid = ? AND contact_info = ? AND status = ? ]
-    );
-
-    $activation_statements->{'activation_change_status_by_mac_type_sql'} = get_db_handle()->prepare(
-        qq [ UPDATE activation SET status = ? WHERE mac = ? AND type = ? AND status = ? ]
-    );
-
-    $activation_statements->{'activation_change_status_old_same_pid_contact_info_sql'} = get_db_handle()->prepare(
-        qq [ UPDATE activation SET status = ? WHERE mac IS NULL AND pid = ? AND contact_info = ? AND status = ? ]
-    );
-
-
-    $activation_statements->{'activation_has_entry_sql'} = get_db_handle()->prepare(
-        qq [ SELECT 1 FROM activation WHERE mac = ? AND expiration >= NOW() AND status = ? AND type = ? ]
-    );
-
-    $activation_statements->{'activation_set_unregdate_sql'} = get_db_handle()->prepare(
-        qq [ UPDATE activation set unregdate = ? where type = ? AND activation_code = ? ]
-    );
-
-    $activation_db_prepared = 1;
-}
 
 =head2 view
 
@@ -192,12 +118,11 @@ view a an pending activation record, returns an hashref
 
 sub view {
     my ($code_id) = @_;
-    my $query = db_query_execute(ACTIVATION, $activation_statements, 'activation_view_sql', $code_id);
-    my $ref = $query->fetchrow_hashref();
-
-    # just get one row and finish
-    $query->finish();
-    return ($ref);
+    my ($status, $item) = pf::dal::activation->find({code_id => $code_id});
+    if (is_error($status)) {
+        return undef;
+    }
+    return ($item->to_hash());
 }
 
 =head2 find_unverified_code
@@ -208,15 +133,22 @@ find an unused pending activation record by doing a LIKE in the code, returns an
 
 sub find_unverified_code {
     my ($type, $activation_code) = @_;
-    my $query = db_query_execute(ACTIVATION, $activation_statements,
-        'activation_find_unverified_code_sql',
-        $type, $activation_code, $UNVERIFIED
+    my ($status, $iter) = pf::dal::activation->search(
+        -where => {
+            type => $type,
+            activation_code => $activation_code,
+            status => $UNVERIFIED,
+            expiration => { ">=" => \['NOW()']}
+        },
     );
-    my $ref = $query->fetchrow_hashref();
-
-    # just get one row and finish
-    $query->finish();
-    return ($ref);
+    if (is_error($status)) {
+        return undef;
+    }
+    my $item = $iter->next;
+    if (!defined $item) {
+        return undef;
+    }
+    return ($item->to_hash);
 }
 
 =head2 view_by_code
@@ -227,13 +159,20 @@ view an pending  activation record by exact activation code (including hash form
 
 sub view_by_code {
     my ($type, $activation_code) = @_;
-    my $query = db_query_execute(ACTIVATION, $activation_statements,
-        'activation_view_by_code_sql', $type, $activation_code);
-    my $ref = $query->fetchrow_hashref();
-
-    # just get one row and finish
-    $query->finish();
-    return ($ref);
+    my ($status, $iter) = pf::dal::activation->search(
+        -where => {
+            type => $type,
+            activation_code => $activation_code,
+        },
+    );
+    if (is_error($status)) {
+        return undef;
+    }
+    my $item = $iter->next;
+    if (!defined $item) {
+        return undef;
+    }
+    return ($item->to_hash);
 }
 
 =head2 view_by_code_mac
@@ -244,12 +183,21 @@ view_by_code_mac
 
 sub view_by_code_mac {
     my ($type, $code, $mac) = @_;
-    my $query = db_query_execute(ACTIVATION, $activation_statements,
-        'activation_view_by_code_mac_sql',$type , $code, $mac);
-    my $ref = $query->fetchrow_hashref();
-    # just get one row and finish
-    $query->finish();
-    return ($ref);
+    my ($status, $iter) = pf::dal::activation->search(
+        -where => {
+            type => $type,
+            activation_code => $code,
+            mac => $mac,
+        },
+    );
+    if (is_error($status)) {
+        return undef;
+    }
+    my $item = $iter->next;
+    if (!defined $item) {
+        return undef;
+    }
+    return ($item->to_hash);
 }
 
 =head2 add
@@ -260,12 +208,8 @@ add an pending activation record to the database
 
 sub add {
     my (%data) = @_;
-
-    # TODO some validation required?
-
-    return(db_data(ACTIVATION, $activation_statements,
-            'activation_add_sql', $data{'pid'}, $data{'mac'}, $data{'contact_info'},$data{'carrier_id'}, $data{'activation_code'},
-            $data{'expiration'}, $data{'status'}, $data{'type'}, $data{'portal'}));
+    my $item = pf::dal::activation->new(\%data);
+    return (is_success($item->insert));
 }
 
 =head2 _delete
@@ -276,8 +220,11 @@ delete an pending activation record
 
 sub _delete {
     my ($code_id) = @_;
-
-    return(db_query_execute(ACTIVATION, $activation_statements, 'activation_delete_sql', $code_id));
+    my ($status, $rows) = pf::dal::activation->remove_by_id({code_id => $code_id});
+    if (is_error($status)) {
+        return undef;
+    }
+    return ($rows);
 }
 
 =head2 modify_status
@@ -288,9 +235,16 @@ update the status of a given pending activation record
 
 sub modify_status {
     my ($code_id, $new_status) = @_;
+    my ($status, $rows) = pf::dal::activation->update_items(
+        -set => {
+            status => $new_status,
+        },
+        -where => {
+            code_id => $code_id,
+        }
+    );
 
-    return(db_query_execute(ACTIVATION, $activation_statements,
-        'activation_modify_status_sql', $new_status, $code_id));
+    return $rows;
 }
 
 =head2 invalidate_codes
@@ -302,20 +256,20 @@ invalidate all unverified activation codes for a given mac and contact_info
 sub invalidate_codes {
     my ($mac, $pid, $contact_info) = @_;
     my $logger = get_logger();
+    my %args = (
+        -set => {
+            status => $INVALIDATED,
+        },
+        -where => {
+            status => $UNVERIFIED,
+            pid => $pid,
+            contact_info => $contact_info,
+            mac => $mac ? $mac : undef
+        }
+    );
+    my ($status, $rows) = pf::dal::activation->update_items(%args);
 
-    if ($mac) {
-        # Invalidate previous activation codes matching MAC, pid (user or sponsor email) and contact_info
-        db_query_execute(ACTIVATION, $activation_statements,
-                         'activation_change_status_old_same_mac_pid_contact_info_sql', $INVALIDATED, $mac, $pid, $contact_info, $UNVERIFIED
-                        ) || $logger->warn("problems trying to invalidate activation codes using mac $mac");
-    } else {
-        # Invalidate previous activation with no MAC address (pre-registration)
-        db_query_execute(ACTIVATION, $activation_statements,
-                         'activation_change_status_old_same_pid_contact_info_sql', $INVALIDATED, $pid, $contact_info, $UNVERIFIED
-                        ) || $logger->warn("problems trying to invalidate activation codes using pid $pid");
-    }
-
-    return;
+    return $rows;
 }
 
 =head2 invalidate_codes_for_mac
@@ -327,14 +281,20 @@ invalidate codes for mac
 sub invalidate_codes_for_mac {
     my ($mac, $type) = @_;
     my $logger = get_logger();
-    if ($mac) {
-        # Invalidate previous activation codes matching MAC, pid (user or sponsor email) and contact_info
-        db_query_execute(ACTIVATION, $activation_statements,
-                         'activation_change_status_by_mac_type_sql', $INVALIDATED, $mac, $type, $UNVERIFIED
-
-                        ) || $logger->warn("problems trying to invalidate activation codes using mac $mac");
+    unless ($mac) {
+        return undef;
     }
-    return ;
+    my ($status, $rows) = pf::dal::activation->update_items(
+        -set => {
+            status => $INVALIDATED
+        },
+        -where => {
+            type => $type,
+            mac => $mac,
+            status => $UNVERIFIED
+        }
+    );
+    return $rows;
 }
 
 =head2 create
@@ -356,6 +316,7 @@ sub create {
     my $timeout      = $args->{'timeout'};
     my $code_length  = $args->{'code_length'};
     my $no_unique    = $args->{'no_unique'};
+    my $source_id    = $args->{'source_id'};
 
     my $logger = get_logger();
 
@@ -377,6 +338,7 @@ sub create {
         'code_length' => $code_length,
         'no_unique' => $no_unique,
         'style'    => $args->{style},
+        'source_id' => $source_id,
     );
 
     # caculate activation code expiration
@@ -460,51 +422,15 @@ sub send_email {
         $info{'activation_uri'} = "https://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
             ."$WEB::URL_EMAIL_ACTIVATION_LINK/$type/$activation_code";
     }
-
     # Hash merge. Note that on key collisions the result of view_by_code() will win
     %info = (%info, %{view_by_code($type, $activation_code)});
-
-    my $import_succesfull = try { require MIME::Lite::TT; };
-    if (!$import_succesfull) {
-        $logger->error(
-            "Could not send email because I couldn't load a module. ".
-            "Are you sure you have MIME::Lite::TT installed?"
-        );
-        return $FALSE;
-    }
     
-    require pf::web;
-
     my %TmplOptions = (
         INCLUDE_PATH    => [ map { $_ . "/emails/" } @{$profile->{_template_paths}} ],
-        ENCODING        => 'utf8',
     );
-
-    my %vars = (%info, i18n => \&pf::web::i18n, i18n_format => \&pf::web::i18n_format);
 
     utf8::decode($info{'subject'});
-    my $msg = MIME::Lite::TT->new(
-        From        =>  $info{'from'},
-        To          =>  $info{'contact_info'},
-        Bcc         =>  $info{'bcc'},
-        Subject     =>  encode("MIME-Header", $info{'subject'}),
-        Template    =>  "emails-$template.html",
-        TmplOptions =>  \%TmplOptions,
-        TmplParams  =>  \%vars,
-        TmplUpgrade =>  1,
-    );
-    $msg->attr("Content-Type" => "text/html; charset=UTF-8;");
-
-    my $result = 0;
-    try {
-      $msg->send('smtp', $smtpserver, Timeout => 20);
-      $result = $msg->last_send_successful();
-      $logger->info("Email sent to ".$info{'contact_info'}." (".$info{'subject'}.")");
-    }
-    catch {
-      $logger->error("Can't send email to ".$info{'contact_info'}.": $!");
-    };
-
+    my $result = pf::config::util::send_email($template, $info{'contact_info'}, $info{'subject'}, \%info, \%TmplOptions);
     setlocale(POSIX::LC_MESSAGES, $user_locale);
     return $result;
 }
@@ -519,7 +445,8 @@ sub create_and_send_activation_code {
         pending => $pending_addr,
         type    => $type,
         portal  => $portal,
-        timeout => $info{'activation_timeout'}
+        timeout => $info{'activation_timeout'},
+        source_id => $info{source_id},
     );
 
     $info{portal} = $portal;
@@ -596,14 +523,23 @@ find_unverified_code_by_mac
 
 sub find_unverified_code_by_mac {
     my ($type, $activation_code, $mac) = @_;
-    my $query = db_query_execute(ACTIVATION, $activation_statements,
-        'activation_find_unverified_code_type_mac_sql',
-        $mac, $type, $activation_code, $UNVERIFIED
+    my ($status, $iter) = pf::dal::activation->search(
+        -where => {
+            mac => $mac,
+            type => $type,
+            status => $UNVERIFIED,
+            expiration => { ">=" => \['NOW()']},
+            activation_code => $activation_code,
+        },
     );
-    my $ref = $query->fetchrow_hashref();
-    # just get one row and finish
-    $query->finish();
-    return $ref;
+    if (is_error($status)) {
+        return undef;
+    }
+    my $item = $iter->next;
+    if (!defined $item) {
+        return undef;
+    }
+    return ($item->to_hash);
 }
 
 =head2 set_status_verified
@@ -637,10 +573,21 @@ sub set_status_verified_by_mac {
 
 sub activation_has_entry {
     my ($mac,$type) = @_;
-    my $query = db_query_execute(ACTIVATION, $activation_statements, 'activation_has_entry_sql', $mac, $UNVERIFIED, $type);
-    my $rows = $query->rows;
-    $query->finish;
-    return $rows;
+    my ($status, $iter) = pf::dal::activation->search(
+        -where => {
+            mac => $mac,
+            type => $type,
+            status => $UNVERIFIED,
+            expiration => { ">=" => \['NOW()']},
+        },
+        -columns => [\1],
+        -limit => 1,
+    );
+    if (is_error($status)) {
+        return undef;
+    }
+    my $items = $iter->all // [];
+    return scalar @$items;
 }
 
 =head2 sms_activation_create_send
@@ -664,6 +611,7 @@ sub sms_activation_create_send {
         code_length => $authentication_source->pin_code_length,
         no_unique   => 1,
         style       => 'digits',
+        source_id   => $authentication_source->id,
     );
 
     my $activation_code = create(\%args);
@@ -686,9 +634,16 @@ Set the unregdate that should be assigned to the node once the activation record
 sub set_unregdate {
     my ($type, $activation_code, $unregdate) = @_;
     get_logger->debug("Setting unregdate $unregdate for activation code $activation_code");
-
-    return(db_query_execute(ACTIVATION, $activation_statements,
-        'activation_set_unregdate_sql', $unregdate, $type, $activation_code));
+    my ($status, $rows) = pf::dal::activation->update_items(
+        -set => {
+            unregdate => $unregdate
+        },
+        -where => {
+            type => $type,
+            activation_code => $activation_code
+        }
+    );
+    return $rows;
 }
 
 # TODO: add an expire / cleanup sub
@@ -699,7 +654,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

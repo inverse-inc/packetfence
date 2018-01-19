@@ -28,6 +28,7 @@ our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
@@ -383,6 +384,48 @@ BEGIN {
     @PRIMARY_KEYS = qw(
         id
     );
+
+    @COLUMN_NAMES = qw(
+        radius_audit_log.id
+        radius_audit_log.created_at
+        radius_audit_log.mac
+        radius_audit_log.ip
+        radius_audit_log.computer_name
+        radius_audit_log.user_name
+        radius_audit_log.stripped_user_name
+        radius_audit_log.realm
+        radius_audit_log.event_type
+        radius_audit_log.switch_id
+        radius_audit_log.switch_mac
+        radius_audit_log.switch_ip_address
+        radius_audit_log.radius_source_ip_address
+        radius_audit_log.called_station_id
+        radius_audit_log.calling_station_id
+        radius_audit_log.nas_port_type
+        radius_audit_log.ssid
+        radius_audit_log.nas_port_id
+        radius_audit_log.ifindex
+        radius_audit_log.nas_port
+        radius_audit_log.connection_type
+        radius_audit_log.nas_ip_address
+        radius_audit_log.nas_identifier
+        radius_audit_log.auth_status
+        radius_audit_log.reason
+        radius_audit_log.auth_type
+        radius_audit_log.eap_type
+        radius_audit_log.role
+        radius_audit_log.node_status
+        radius_audit_log.profile
+        radius_audit_log.source
+        radius_audit_log.auto_reg
+        radius_audit_log.is_phone
+        radius_audit_log.pf_domain
+        radius_audit_log.uuid
+        radius_audit_log.radius_request
+        radius_audit_log.radius_reply
+        radius_audit_log.request_time
+    );
+
 }
 
 use Class::XSAccessor {
@@ -432,6 +475,16 @@ our $FIND_SQL = do {
     "SELECT * FROM `radius_audit_log` WHERE $where;";
 };
 
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
+
 =head2 _find_one_sql
 
 The precalculated sql to find a single row radius_audit_log
@@ -478,7 +531,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

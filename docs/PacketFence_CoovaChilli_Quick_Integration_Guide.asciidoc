@@ -24,7 +24,7 @@ The instructions are based on version {release_version} of the PacketFence Zero 
 
 Assumptions
 -----------
-* You have a CoovaChilli capable access point running OpenWRT, on which CoovaChilli is installed (CoovaChilli installation is not covered in this guide);
+* You have a CoovaChilli capable access point running LEDE/OpenWRT, on which CoovaChilli is installed (CoovaChilli installation is not covered in this guide);
 * You have a virtual "host" on which it is possible to load the latest PacketFence ZEN image;
 * Network interconnection between the virtual "host" running the latest PacketFence ZEN image, the CoovaChilli capable access point, and Internet is functional;
 * A PacketFence WebAuth enforcement setup will be deployed;
@@ -123,7 +123,7 @@ Now that we have a functional PacketFence installation, we will go ahead and sta
 
 This guide assume that CoovaChilli is installed on the access point. If it's not, we suggest you search relevant information on the Internet to install CoovaChilli as there are too many network equipment vendors that support CoovaChilli to accurately document this step here.
 
-The guide also assumes that you have an SSID configured on the access point.
+The guide also assumes that you have an SSID configured on the access point. Assumption is also made that the network interface / bridge is configured and assigned for the given SSID.
 
 You should also make sure to have a default route properly configured on the access point (so that it can access the Internet) and that DNS resolution is working.
 
@@ -131,67 +131,38 @@ Also note that changes on the OpenWRT access point are done using SSH shell acce
 
 Please note that any interface name reference might be different from one equipment vendor to an other.
 
-CoovaChilli requires some slight modifications to the way networking is working on the OpenWRT access point.
-
- * The LAN and WLAN interface are bridged
- * There is a DHCP server running on the LAN which can potentially cause major problems on production networks
-
-The following steps needs to be done:
-
- * Remove bridge between 'eth0' and 'wlan0' and assign device's IP to 'eth0'
- * Disable 'dnsmasq' service which act as DHCP and DNS servers
- * Configure 'chilli'
-
-Remove interfaces bridge
-++++++++++++++++++++++++
-Comment out the 'option type bridge' line from '/etc/config/network' and make sure IP information fits your setup.
-
-    config interface lan
-            option ifname   eth0
-    #       option type     bridge
-            option proto    static
-            option ipaddr   192.168.1.1
-            option netmask  255.255.255.0
-            option gateway  192.168.1.42
-            option dns      192.168.1.42
-
-Comment out the 'option network lan' line from '/etc/config/wireless/
-
-Disable DHCP/DNS server
-+++++++++++++++++++++++
-Execute the following to make sure 'dnsmasq' service is not started at boot
-
-    /etc/init.d/dnsmasq disable
-
 Configure chilli
 ++++++++++++++++
 chilli configuration might differ from one equipment vendor to an other one. Just make sure to follow these configuration guidelines and you should be all-set.
 
-* Copy the default chilli configuration
+* chilli configuration file can be found under
 
-    cp /etc/chilli/defaults /etc/chilli/config
+    /etc/config/chilli
 
 * Edit the following parameters to integrate with PacketFence
 
-    HS_LANIF        wlan0 (This is the WiFi interface)
-    HS_RADIUS       PacketFence management IP
-    HS_RADIUS2      PacketFence management IP
-    HS_RADSECRET    The RADIUS secret that will be used between chilli and PacketFence
-    HS_UAMHOMEPAGE  Comment that line from the config file and the defaults file to speedup login page
-    HS_UAMFORMAT    http://PACKETFENCE_MANAGEMENT_IP/CoovaChilli
-    HS_SSID         SSID name
-    HS_NASIP        Access-point IP address
-    HS_COAPORT      3799
+    option disabled 1       This should be commented out so that chilli is marked as enabled
+    option dns1             Set this to a working DNS server (this will be used by hotspot clients)
+    option dns2             Set this to a working DNS server (this will be used by hotspot clients)
+    option ipup             /etc/chilli/up.sh (Depending on the package, the script path might need to be adjusted)
+    option ipdown           /etc/chilli/down.sh (Depending on the package, the script path might need to be adjusted)
+    option radiusserver1    PacketFence management IP
+    option radiusserver2    PacketFence management IP
+    option radiussecret     The RADIUS secret that will be used between chilli and PacketFence
+    option radiusnasid      Access-point IP address
+    option dhcpif           The network interface / bridge assigned to the SSID (Hotspot clients network)
+    option uamserver        http://PACKETFENCE_MANAGEMENT_IP/CoovaChilli
+    option ssid             SSID name
+    option nasip            Access-point IP address
+    option coaport          3799
 
-    Take note of the HS_UAMLISTEN value, since this will be required in the PacketFence configuration step.
-
-A startup script may be required depending on the equipment vendor. Again, a quick documentation search on the Internet might be the best solution to find the best one
+A startup script might be required depending on the equipment vendor. Again, a quick documentation search on the Internet might be the best solution to find the best one
 
 Once set up, you might want to activate chilli at boot (by using the startup script) and finally, reboot the AP.
 
 Step 3: PacketFence configuration for CoovaChilli integration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Having a working PacketFence installation and a configured OpenWRT access point running CoovaChilli, the last step is PacketFence configuration for CoovaChilli integration.
+Having a working PacketFence installation and a configured LEDE / OpenWRT access point running CoovaChilli, the last step is PacketFence configuration for CoovaChilli integration.
 
 To do so, login to the PacketFence web administration interface if it is not already done.
 
@@ -206,7 +177,7 @@ On the bottom of the page, click the 'Add switch to group' button then select th
 * *IP*: Access-point IP address
 * *Type*: CoovaChilli
 * *Mode*: Production
-* *Controller IP Address*: The HS_UAMLISTEN value from previous step
+* *External Portal Enforcement*: Checked
 
 'RADIUS' tab
 [options="compact"]

@@ -79,6 +79,7 @@ sub code : Path : Args(2) {
             get_logger->info("Extending duration to $unregdate");
             node_modify($node_mac, unregdate => $unregdate);
             pf::activation::set_status_verified($GUEST_ACTIVATION, $code);
+            pf::auth_log::record_completed_guest($activation_record->{source_id}, $node_mac, $pf::auth_log::COMPLETED);
             $c->stash(
                 title => "Access granted",
                 template => "activation/email.html",
@@ -138,18 +139,13 @@ sub doSponsorRegistration : Private {
         'username'   => $pid,
         'user_email' => $email
     };
-
+    my $sponsor_source_id = $activation_record->{source_id};
     my $profile = $c->profile;
-    my $sponsor_type =
-      pf::Authentication::Source::SponsorEmailSource->getDefaultOfType;
-    my $source = $profile->getSourceByType($sponsor_type);
-
+    my $source = getAuthenticationSource($sponsor_source_id);
     if ($source) {
-
         # if we have a username in session it means user has already authenticated
         # so we go ahead and allow the guest in
         if ( !defined( $c->user_session->{"username"} ) ) {
-
             # User is not logged and didn't provide username or password: show login form
             if (!(  $request->param("username") && $request->param("password")
                 )
@@ -159,7 +155,6 @@ sub doSponsorRegistration : Private {
                 );
                 $c->detach('login');
             }
-
             # User provided username and password: authenticate
             $c->forward(Authenticate => 'authenticationLogin');
             $c->detach('login') if $c->has_errors;
@@ -217,7 +212,6 @@ sub doSponsorRegistration : Private {
         }
 
         pf::activation::set_status_verified($SPONSOR_ACTIVATION, $code);
-
         # send to a success page
         $c->stash(
             title => "Sponsor request accepted",
@@ -228,7 +222,7 @@ sub doSponsorRegistration : Private {
         $logger->warn( "No active sponsor source for profile "
               . $profile->getName
         );
-        $self->showError("No active sponsor source for this Connection Profile.");
+        $self->showError($c, "No active sponsor source for this Connection Profile.");
     }
 }
 
@@ -238,7 +232,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -259,7 +253,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;
 

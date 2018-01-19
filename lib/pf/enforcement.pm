@@ -152,7 +152,7 @@ sub _vlan_reevaluation {
             $cluster_deauth = 1;
         }
         else {
-            $client = pf::api::queue->new(queue => 'general');
+            $client = pf::api::queue->new(queue => 'priority');
             $cluster_deauth = 0;
         }
         my %data = (
@@ -279,7 +279,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

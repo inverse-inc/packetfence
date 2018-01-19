@@ -216,11 +216,3 @@
 
         </form>
       </div><!--modal-->
-
-<script>
-/* Ability to track submitted button (multihost feature) */
-$("form button[type=submit]").click(function() {
-    $("button[type=submit]", $(this).parents("form")).removeAttr("clicked");
-    $(this).attr("clicked", "true");
-});
-</script>

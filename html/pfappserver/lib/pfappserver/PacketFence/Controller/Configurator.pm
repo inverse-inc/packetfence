@@ -249,6 +249,10 @@ sub networks :Chained('object') :PathPart('networks') :Args(0) {
         $c->stash->{interfaces} = $interfaces_ref;
         $c->stash->{seen_networks} = $c->model('Interface')->map_interface_to_networks($c->stash->{interfaces});
     }
+
+    # Remove some CSP restrictions to accomodate Chosen (the select-on-steroid widget):
+    #  - Allows use of inline source elements (eg style attribute)
+    $c->stash->{csp_headers} = { style => "'unsafe-inline'" };
 }
 
 =head2 database
@@ -485,7 +489,7 @@ sub services :Chained('object') :PathPart('services') :Args(0) {
             $c->stash->{'admin_port'} = $c->model('PfConfigAdapter')->getWebAdminPort();
         }
 
-        my ($status, $services) = $c->model('Services')->status();
+        my ($status, $services) = $c->model('Services')->status(1);
         if ( is_success($status) ) {
             $c->log->info("successfully listed services");
             $c->stash($services);
@@ -504,7 +508,7 @@ sub services :Chained('object') :PathPart('services') :Args(0) {
             $c->model("Config::System")->restart_pfconfig();
             $c->detach(Service => 'pf_start');
         } else {
-            my ($HTTP_CODE, $services) = $c->model('Services')->status;
+            my ($HTTP_CODE, $services) = $c->model('Services')->status(1);
             if( all { $_->{status} ne '0' } @{ $services->{services} } ) {
                 $c->model('Configurator')->update_currently_at();
             }
@@ -519,7 +523,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -540,6 +544,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

@@ -211,10 +211,10 @@ The arguments that are used when releasing a device on the network
 sub _release_args {
     my ($self) = @_;
     return {
-        timer         => $Config{'fencing'}{'redirtimer'},
+        timer => $Config{'captive_portal'}{'network_redirect_delay'},
         destination_url  => $self->app->session->{destination_url},
-        initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_INITIAL_DELAY'},
-        retry_delay   => $CAPTIVE_PORTAL{'NET_DETECT_RETRY_DELAY'},
+        initial_delay => $Config{'captive_portal'}{'network_detection_initial_delay'},
+        retry_delay   => $Config{'captive_portal'}{'network_detection_retry_delay'},
         external_ip => $Config{'captive_portal'}{'network_detection_ip'},
         auto_redirect => $Config{'captive_portal'}{'network_detection'},
         image_path => $Config{'captive_portal'}{'image_path'},
@@ -314,6 +314,10 @@ sub done {
         return;
     }
     $self->parent->next();
+
+    if(my $redirect = $self->app->request->param("done_redirect_to")) {
+        $self->app->redirect($redirect);
+    }
 }
 
 =head2 next
@@ -370,7 +374,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -391,7 +395,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;
 

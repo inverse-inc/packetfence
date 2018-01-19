@@ -3,7 +3,7 @@
 --
 
 SET @MAJOR_VERSION = 7;
-SET @MINOR_VERSION = 2;
+SET @MINOR_VERSION = 3;
 SET @SUBMINOR_VERSION = 9;
 
 --
@@ -178,33 +178,6 @@ CREATE TABLE node (
   CONSTRAINT `0_57` FOREIGN KEY (`pid`) REFERENCES `person` (`pid`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `node_category_key` FOREIGN KEY (`category_id`) REFERENCES `node_category` (`category_id`)
 ) ENGINE=InnoDB;
-
---
--- Table structure for table `node_useragent`
---
-
-CREATE TABLE `node_useragent` (
-  mac varchar(17) NOT NULL,
-  os varchar(255) DEFAULT NULL,
-  browser varchar(255) DEFAULT NULL,
-  device enum('no','yes') NOT NULL DEFAULT 'no',
-  device_name varchar(255) DEFAULT NULL,
-  mobile enum('no','yes') NOT NULL DEFAULT 'no',
-  PRIMARY KEY (mac)
-) ENGINE=InnoDB;
-
---
--- Trigger to delete the node_useragent associated with a mac when deleting this mac from the node table
---
-
-DROP TRIGGER IF EXISTS node_useragent_delete_trigger;
-DELIMITER /
-CREATE TRIGGER node_useragent_delete_trigger AFTER DELETE ON node
-FOR EACH ROW
-BEGIN
-  DELETE FROM node_useragent WHERE mac = OLD.mac;
-END /
-DELIMITER ;
 
 --
 -- Table structure for table `action`
@@ -419,16 +392,6 @@ CREATE TABLE `userlog` (
   PRIMARY KEY (`mac`,`start_time`),
   KEY `pid` (`pid`),
   CONSTRAINT `userlog_ibfk_1` FOREIGN KEY (`mac`) REFERENCES `node` (`mac`) ON DELETE CASCADE
-) ENGINE=InnoDB;
-
-CREATE TABLE `ifoctetslog` (
-  `switch` varchar(17) NOT NULL default '',
-  `port` varchar(8) NOT NULL default '',
-  `read_time` datetime NOT NULL default '0000-00-00 00:00:00',
-  `mac` varchar(17) default NULL,
-  `ifInOctets` bigint(20) unsigned NOT NULL default '0',
-  `ifOutOctets` bigint(20) unsigned NOT NULL default '0',
-  PRIMARY KEY  (`switch`,`port`,`read_time`)
 ) ENGINE=InnoDB;
 
 --
@@ -1071,6 +1034,7 @@ CREATE TABLE activation (
   `status` varchar(60) default NULL,
   `type` varchar(60) NOT NULL,
   `portal` varchar(255) default NULL,
+  `source_id` varchar(255) default NULL,
   PRIMARY KEY (code_id),
   KEY `mac` (mac),
   KEY `identifier` (pid, mac),
@@ -1141,7 +1105,8 @@ CREATE TABLE radius_audit_log (
   KEY `created_at` (created_at),
   KEY `mac` (mac),
   KEY `ip` (ip),
-  KEY `user_name` (user_name)
+  KEY `user_name` (user_name),
+  KEY `auth_status` (auth_status, created_at)  
 ) ENGINE=InnoDB;
 
 --
@@ -1228,6 +1193,7 @@ CREATE TABLE auth_log (
   `attempted_at` datetime NOT NULL,
   `completed_at` datetime,
   `source` varchar(255) NOT NULL,
+  `profile` VARCHAR(255) DEFAULT NULL,
   PRIMARY KEY (id),
   KEY pid (pid),
   KEY  attempted_at (attempted_at)

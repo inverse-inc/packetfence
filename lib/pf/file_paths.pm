@@ -56,6 +56,7 @@ our (
     $ui_config_file, $floating_devices_file, $log_config_file,
     @stored_config_files, @log_files,
     $provisioning_config_file,
+    $device_registration_config_file,
     $admin_roles_config_file,
     $wrix_config_file,
     $firewall_sso_config_file,
@@ -70,6 +71,7 @@ our (
     $pfcmd_binary,
     $report_config_file, $report_default_config_file,
     $realm_config_file, $realm_default_config_file,
+    $survey_config_file,
     $cluster_config_file,
     $server_cert, $server_key, $server_pem,
     $radius_server_key, $radius_server_cert, $radius_ca_cert,
@@ -126,6 +128,7 @@ BEGIN {
         $ui_config_file $floating_devices_file $log_config_file
         @stored_config_files @log_files
         $provisioning_config_file
+        $device_registration_config_file
         $admin_roles_config_file
         $wrix_config_file
         @stored_config_files
@@ -141,6 +144,7 @@ BEGIN {
         $pfcmd_binary
         $report_config_file $report_default_config_file
         $realm_config_file $realm_default_config_file
+        $survey_config_file
         $cluster_config_file
         $server_cert $server_key $server_pem
         $radius_server_cert $radius_server_key $radius_ca_cert
@@ -206,6 +210,7 @@ $chi_config_file    = catfile($conf_dir, "chi.conf");
 $chi_defaults_config_file = catfile($conf_dir, "chi.conf.defaults");
 $log_config_file    = catfile($conf_dir, "log.conf");
 $provisioning_config_file = catfile($conf_dir, 'provisioning.conf');
+$device_registration_config_file = catfile($conf_dir,"device_registration.conf");
 $pki_provider_config_file  = catfile($conf_dir,"pki_provider.conf");
 
 $network_config_file    = catfile($conf_dir, "networks.conf");
@@ -236,6 +241,7 @@ $report_default_config_file = catfile($conf_dir,"report.conf.defaults");
 $pfqueue_default_config_file =  catfile($conf_dir,"pfqueue.conf.defaults");
 $realm_config_file = catfile($conf_dir,"realm.conf");
 $realm_default_config_file = catfile($conf_dir,"realm.conf.defaults");
+$survey_config_file = catfile($conf_dir,"survey.conf");
 $cluster_config_file = catfile($conf_dir,"cluster.conf");
 $server_key = catfile($conf_dir,"ssl/server.key");
 $server_cert = catfile($conf_dir,"ssl/server.crt");
@@ -291,6 +297,7 @@ $captiveportal_default_profile_templates_path = catdir ($captiveportal_profile_t
     $chi_config_file,$allowed_device_oui_file,$allowed_device_types_file,
     $chi_defaults_config_file,
     $ui_config_file,$provisioning_config_file,$oauth_ip_file,$log_config_file,
+    $device_registration_config_file,
     $admin_roles_config_file,$wrix_config_file,$apache_filters_config_file,
     $vlan_filters_config_file,$vlan_filters_config_default_file,$firewall_sso_config_file,$scan_config_file,
     $wmi_config_file,$pfdetect_config_file,$pfqueue_config_file,
@@ -318,7 +325,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

@@ -100,7 +100,7 @@ __PACKAGE__->config(
 
     'View::JSON' => {
        # TODO to discuss: always add to exposed stash or use a standard 'resultset' instead?
-       expose_stash    => [ qw(status status_msg error interfaces networks switches config services success items) ], # defaults to everything
+       expose_stash    => [ qw(status status_msg error interfaces networks switches config services success items time_offset) ], # defaults to everything
     },
 
     'View::HTML' => {
@@ -332,6 +332,27 @@ sub generate_doc_url {
     return pf::web::util::generate_doc_url($section, $guide);
 }
 
+=head2 csp_server_headers
+
+Return CSP (Content-Security-Policy) headers
+
+=cut
+
+sub csp_server_headers {
+    my ($c) = @_;
+
+    # Allow context-specific directive values (script-src, worker-src, img-src and style-src)
+    my $headers = $c->stash->{csp_headers} || {};
+    $c->response->header
+      ('Content-Security-Policy' =>
+       sprintf("default-src 'none'; script-src 'self'%s; connect-src 'self'; img-src 'self'%s; style-src 'self'%s; font-src 'self'; child-src 'self'; frame-src 'self'",
+               $headers->{script}? ' ' . $headers->{script} : '',
+               $headers->{img}   ? ' ' . $headers->{img}    : '',
+               $headers->{style} ? ' ' . $headers->{style}  : ''
+              )
+      );
+}
+
 # Logging
 __PACKAGE__->log(Log::Log4perl::Catalyst->new(INSTALL_DIR . '/conf/log.conf.d/httpd.admin.conf',watch_delay => 5 * 60));
 
@@ -363,7 +384,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

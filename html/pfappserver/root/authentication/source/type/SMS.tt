@@ -1,4 +1,0 @@
-[% form.field('sms_carriers').render | none %]
-[% form.field('pin_code_length').render | none %]
-[% form.field('create_local_account').render | none %]
-[% form.field('local_account_logins').render | none %]

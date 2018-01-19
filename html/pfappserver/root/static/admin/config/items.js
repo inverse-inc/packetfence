@@ -98,7 +98,7 @@ ItemView.prototype.readItem = function(e) {
     section.loader();
     section.fadeTo('fast', 0.5);
     modal.empty();
-    $('.chzn-drop').remove(); // fixes a chzn bug with optgroups
+    $('.chosen-drop').remove(); // fixes a chzn bug with optgroups
     this.items.get({
         url: $(target).attr('href'),
         always: function() {
@@ -111,6 +111,7 @@ ItemView.prototype.readItem = function(e) {
             modal.append(data);
             modal.find('.chzn-select').chosen({width: ''});
             modal.find('.chzn-deselect').chosen({allow_single_deselect: true, width: ''});
+            fixChosenClipping(modal.find('.chzn-select, .chzn-deselect'));
             modal.one('shown', function() {
                 modal.find(':input:visible').first().focus();
             });

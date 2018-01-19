@@ -51,17 +51,23 @@ sub do_sso {
 
     $logger->info("Sending a firewall SSO '$postdata{method}' request for MAC '$mac' and IP '$postdata{ip}'");
 
+    my $username = $node->{pid};
+    my ($stripped_username, $realm) = pf::util::strip_username($username);
+
     pf::api::jsonrestclient->new(
         proto   => "http",
         host    => "localhost",
         port    => $pf::constants::api::PFSSO_PORT,
     )->call("/pfsso/".lc($postdata{method}), {
-        ip          => $postdata{ip},
-        mac         => $mac,
+        ip                => $postdata{ip},
+        mac               => $mac,
         # All values must be string for pfsso
-        timeout     => $postdata{timeout}."",
-        role        => $node->{category},
-        username    => $node->{pid},
+        timeout           => $postdata{timeout}."",
+        role              => $node->{category},
+        username          => $username,
+        stripped_username => $stripped_username,
+        realm             => $realm,
+        status            => $node->{status},
     });
 
     return $TRUE;
@@ -76,7 +82,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

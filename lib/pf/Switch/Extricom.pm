@@ -168,18 +168,8 @@ sub connectWrite {
                     $sysLocation
                 ]
             );
-            if ( !defined($result) ) {
-                $logger->error( "error creating SNMP v"
-                        . $self->{_SNMPVersion}
-                        . " write connection to "
-                        . $self->{_id} . ": "
-                        . $self->{_sessionWrite}->error()
-                        . " it looks like you specified a read-only community instead of a read-write one"
-                );
-                $self->{_sessionWrite} = undef;
-                return 0;
-            }
        }
+       # We no longer check the $result here since it is always false even when the call succeeds.
     }
     return 1;
 }
@@ -252,7 +242,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

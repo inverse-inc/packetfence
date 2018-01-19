@@ -15,7 +15,7 @@ use warnings;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 20;
+use Test::More tests => 22;
 
 BEGIN {
     #include test libs
@@ -24,6 +24,7 @@ BEGIN {
     use setup_test_config;
     use_ok("pf::Connection::ProfileFactory");
     use_ok("pf::dal::node");
+    use_ok("pf::ip4log");
 }
 
 
@@ -98,13 +99,18 @@ $profile = pf::Connection::ProfileFactory->instantiate(pf::dal::node->new({ last
 
 is($profile->getName, "switches");
 
+# Test that missing last_ip parameter will be computed via a mac2ip
+pf::ip4log::open("192.168.2.1", "00:11:22:33:44:55", 5);
+$profile = pf::Connection::ProfileFactory->instantiate("00:11:22:33:44:55");
+is($profile->getName, "network");
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

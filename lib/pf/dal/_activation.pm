@@ -28,6 +28,7 @@ our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
@@ -42,6 +43,7 @@ BEGIN {
         status
         type
         portal
+        source_id
     );
 
     %DEFAULTS = (
@@ -55,6 +57,7 @@ BEGIN {
         status => undef,
         type => '',
         portal => undef,
+        source_id => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -68,6 +71,7 @@ BEGIN {
         status
         type
         portal
+        source_id
     );
 
     %FIELDS_META = (
@@ -137,11 +141,33 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        source_id => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
     );
 
     @PRIMARY_KEYS = qw(
         code_id
     );
+
+    @COLUMN_NAMES = qw(
+        activation.code_id
+        activation.pid
+        activation.mac
+        activation.contact_info
+        activation.carrier_id
+        activation.activation_code
+        activation.expiration
+        activation.unregdate
+        activation.status
+        activation.type
+        activation.portal
+        activation.source_id
+    );
+
 }
 
 use Class::XSAccessor {
@@ -191,6 +217,16 @@ our $FIND_SQL = do {
     "SELECT * FROM `activation` WHERE $where;";
 };
 
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
+
 =head2 _find_one_sql
 
 The precalculated sql to find a single row activation
@@ -237,7 +273,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,7 +1,6 @@
-
-<div class="media media--error u-p u-mb" style="display:none">
+<div class="media media--error u-p u-mb hide">
   <div class="media__img">[% flashIcon(level=error) %]</div>
-  <p class="media__body" id="addMessage"></p>
+  <p class="media__body" id="addMessage">We have detected that you aren't using the Safari browser. Please make sure you use Safari to complete this step.</p>
 </div>
   
 <div class="layout--center">
@@ -28,9 +27,4 @@
   </div>
 </div>
 
-<script>
-  if(!navigator.userAgent.match('Safari') && navigator.userAgent.match('Macintosh')) {
-    $('#addMessage').html('We have detected that you aren\'t using the Safari browser. Please make sure you use Safari to complete this step.');
-    $('#addMessage').closest('div.media').show();
-  }
-</script>
+<script type="text/javascript" src="/content/provisioner/mobileconfig.js"></script>

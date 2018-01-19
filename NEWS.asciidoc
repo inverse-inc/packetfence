@@ -11,22 +11,109 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
-Version X.Y.Z released on 2017-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Version X.Y.Z released on xxxx-xx-xx
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 New Features
 ++++++++++++
 
+* New database access layer (DAL) for upcoming multi-tenancy support
+* New portal module to keep the previous role if this role is in a list (PR #2490).
+* Added portal module for selecting a role for the device being registered on the portal (PR #2471).
+* Added support for Allied Telesis GS950 switches (PR #1866)
+* Added ability to update the firewall SSO on RADIUS accounting packet (PR #2662)
+* Added a way to define a VLAN by role as a VLAN pool using a VLAN range (PR #2675)
+
 Enhancements
 ++++++++++++
 
-* Display vlan in locationlog view
+* Added cloning capability in connection profiles (PR #2814) (#2809)
+* Read and write timeouts for LDAP connections can now be set (#2613) (PR #2614)
+* Keepalived can be configured to detect its peers via unicast instead of multicast (PR #2794)
+* Suggest violation identifier when adding a new violation (#2804) (PR #2807)
+* Create a priority queue
+* Move ReAssignVlan and desAssociate API calls to the priority queue
+* Added connection profile SSID filter suggestions based on all the previous SSIDs that have been seen in the locationlog (#2758) (PR #2771).
+* Added a description to the switches in the nodes side navigation (#2791) (PR #2795).
+* Improved configuration of the captive portal timer bar (via the captive_portal section of pf.conf) (#383) (PR #2762)
+* (AD Powershell scripts) Enforce use of TLS in the powershell scripts which is required with the last versions of PacketFence (PR #2788)
+* (AD Powershell scripts) Cycle through all the possible Active Directory usernames formats in PacketFence (PR #2788)
+* Removed old authentication code sources (#2610)
+* Added rule description in listing (#2619)
+* Improved documentation (PR #2774) (#2773)
+* Set a timeout for database queries for the admin to avoid long running queries slowing the system. (#2630) (PR #2659)
+* Documentation improvement about MySQL advanced parameters (#266)
+* Enhanced English i18n strings in admin CMS integration syslog parser violation actions. (PR #2759)
+* Improved the haproxy HTTP process monitoring
+* Improved cluster maintenance script to perform necessary system changes to have the node in maintenance
+
+Bug Fixes
++++++++++
+* Moved add and delete buttons to the left to avoid the being cutoff (#2678)
+* Fixed "Admin: Multiple 'Device Type' options in Nodes tab" (#2789) (PR #2793)
+* Configurator: when using a different database name, the fingerbank.conf MySQL section is not updated (#2665) (PR #2787) 
+* rlm_perl modules are now using syslog instead writing directly to the file (PR #2609)
+* Prevent a valid PID from being overwritten at the end of the portal registration if the new PID is default (#2825)
+* Auth log is not set to completed after email registration (#2648) (PR #2649)
+
+Version 7.3.0 released on 2017-09-25
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+* Added a RADIUS only mode to PacketFence.
+* Add a cluster wide view of pfqueue statistics (#2195) (PR #2573)
+* Added the possibility of importing switches from a CSV file. (PR #2480)
+
+Enhancements
+++++++++++++
+
+* The GUI will now display the VLAN in the locationlog view
+* The timezone is now a selectable item to prevent invalid input
+* Updated ACE text editor to version 1.2.8
+* Search forms for nodes and users can now be reset (PR #2555)
+* Configuration files can now be saved in readonly mode except violation, switches, role (#2464) (PR #2566)
+* Extended descriptions are now supported in the custom reports
+* Mail can now be sent using SSL and StartTLS (PR #2446)
+* Self signed certificate errors for nessus 6 can now be ignored (PR #2568)
+* Violations can now be triggered by nessus 6 scanner (PR #2568)
+* The device registration page now supports connection profiles like any other portal
+* The username sent in firewall SSO now supports a configurable format (PR #2499)
+* PacketFence will now monitor TLS certificates expiration and alert if they are expired (PR #2444)
+* LDAP source caching is now caching the rule match rather that the whole source match (PR #2560)
+* The admin GUI startup time has been decreased (#2545)
+* New and improved documentation for Debian clustering
+* Show DHCP Option82 data in the node view (#2396)
+* Custom reports columns representing a node or a user can now be configured to be clickable for details on the object in question (#PR 2508)
+* New Fortigate 50E 802.1x support
+* The computer authentication username can now be normalized when using EAP-TLS (PR #2414)
+* Added a task count jitter to reduce the chance that pfqueue workers exit at the same time
+* Experimental support for Content Security Policy (CSP) has been added, but is disabled by default (PR #2336)
+* A violation can now redirect to a URL specified in a template (PR #2400)
+* Changed the path of mariadb error log file (PR #2652)
 
 Bug Fixes
 +++++++++
 
-* Move the syslog parser from the section Compliance to Integration in the menu of the WebAdmin (#2467)
-
+* The syslog parser has moved from Compliance to Integration in the GUI (#2467)
+* pfsso now logs in packetfence.log (#2553) (PR #2557)
+* httpd.dispatcher now logs in httpd.dispatcher.log (PR #2557)
+* Fixed incorrect inline sub type detection
+* Fixed ipset update with the incorrect ip address 
+* Fixed missing confirm prompt when restarting all services via the admin interface (#2365) (PR #2571)
+* Fixed violation definition sync when removing a violation from the config
+* Fixed incorrect Connection-Type when using EAP-TTLS (#2582)
+* Fixed VOIP logic to reduce the chance of duplicate locationlog entries (#2527)
+* Fixed SNMP connection issues on Extricom controllers
+* Fixes segfaults when logging in the multithread environments (#2603)
+* reuseDot1x: Changed the way authentication sources are matched with realms regarding a security concern(#2536)
+* Trust the wsrep_ready flag of MariaDB Galera cluster for read only detection as putting the DB in read-only can result in occasional de-synchronization between members. (#2593) (PR #2594)
+* Run the configreload as the pf user when done through pfcmd (PR #2510)
+* Run the 6.0+ upgrade scripts as the pf user to prevent permissions issues after running them (PR #2509)
+* Fixed incorrect NULL realm use when authenticating to the admin GUI (#2529)
+* Enforced use of the system time instead of browser time when using preset time values (#2559)
+* Logging into the status page when reuse dot1x is enabled is no longer broken (#2542) (PR #2598)
 
 Version 7.2.0 released on 2017-07-10
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -72,6 +159,7 @@ Bug Fixes
 * Fixed leftover httpd processes when restarting (#2439)
 * Mariadb binary logs files are now properly rotated (#2440)
 * Fixed scss settings and colors being wiped on each upgrade (#2317)
+* pfdns: catch all the dns traffic in the registration network (#2381)
 
 Version 7.1.0 released on 2017-06-01
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1727,5 +1815,4 @@ Translations
 ++++++++++++
 
 * Translated all remediation pages to French
-* Updated Brazilian Portuguese (pt_BR) translation
-* Updated Spanish (es) translation
+* Updated Brazilian Portuguese (pt_BR)

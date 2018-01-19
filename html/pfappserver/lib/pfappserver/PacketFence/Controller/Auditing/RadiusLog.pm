@@ -189,8 +189,11 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('RADIUS_LOG_RE
         radius_fields => \@pf::radius_audit_log::RADIUS_FIELDS,
     });
     for my $field (@pf::radius_audit_log::RADIUS_FIELDS) {
-        $c->stash->{item}{$field} =~ s/=2C /"\n"/ge;
-        $c->stash->{item}{$field} =~ s/=([A-Z0-9]{2})/chr(hex($1))/ge;
+        my $value = $c->stash->{item}{$field};
+        next if !defined $value;
+        $value =~ s/=2C /"\n"/ge;
+        $value =~ s/=([A-Z0-9]{2})/chr(hex($1))/ge;
+        $c->stash->{item}{$field} = $value;
     }
 }
 
@@ -200,7 +203,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -221,6 +224,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

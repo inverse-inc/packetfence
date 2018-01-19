@@ -143,3 +143,10 @@ expires_in=24h
 #
 # Amount of time from the current time to expire an entry
 expires_in=24h
+
+[namespace switch.overlay]
+#
+# namespace accounting.storage
+#
+# The storage to use for the namespace
+storage=distributed

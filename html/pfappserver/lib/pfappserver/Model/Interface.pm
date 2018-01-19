@@ -79,6 +79,7 @@ sub create {
 
 sub delete {
     my ($self, $interface, $host) = @_;
+
     my $models = $self->{models};
     my $logger = get_logger();
 
@@ -121,12 +122,18 @@ sub delete {
 
     # Delete corresponding interface entry from pf.conf
     $models->{interface}->remove($interface);
-    $models->{interface}->commit();
+    ($status, $status_msg) = $models->{interface}->commit();
+    if(is_error($status)) {
+        return ($status, $status_msg);
+    }
 
     # Remove associated network entries
     @results = $self->_listInterfaces('all');
     if ($models->{network}->cleanupNetworks(\@results)) {
-        $models->{network}->commit();
+        ($status, $status_msg) = $models->{network}->commit();
+        if(is_error($status)) {
+            return ($status, $status_msg);
+        }
     }
 
     return ($STATUS::OK, ["Interface VLAN [_1] successfully deleted",$interface]);
@@ -402,7 +409,11 @@ sub update {
 
     # Set type
     $interface_ref->{network} = $new_network;
-    $self->setType($interface, $interface_ref);
+    ($status, $status_msg) = $self->setType($interface, $interface_ref);
+
+    if(is_error($status)) {
+        return ($status, $status_msg);
+    }
 
     return ($STATUS::OK, ["Interface [_1] successfully edited",$interface]);
 }
@@ -473,7 +484,7 @@ sub setType {
     my $models = $self->{models};
 
     my $type = $interface_ref->{type} || 'none';
-    my ($status, $network_ref);
+    my ($status, $network_ref, $status_msg);
 
     # we ignore interface type 'Other' (it basically means unsupported in configurator)
     return if ( $type =~ /^other$/i );
@@ -533,8 +544,16 @@ sub setType {
         }
     }
     $logger->debug("Committing changes to $interface interface");
-    $models->{network}->commit();
-    $models->{interface}->commit();
+    
+    ($status, $status_msg) = $models->{network}->commit();
+    if(is_error($status)) {
+        return ($status, $status_msg);
+    }
+
+    ($status, $status_msg) = $models->{interface}->commit();
+    if(is_error($status)) {
+        return ($status, $status_msg);
+    }
 }
 
 
@@ -851,7 +870,7 @@ sub map_interface_to_networks {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -872,6 +891,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

@@ -174,9 +174,10 @@ sub duration :Local :Args(2) {
 =cut
 
 sub switches :Local {
-    my ($self, $c) = @_;
+    my ($self, $c, $name) = @_;
 
-    $c->go('Controller::Config::Switch', 'index');
+    $c->stash->{tab} = $name;
+    $c->forward('_handle_tab_view');
 }
 
 =head2 floating_devices
@@ -196,7 +197,7 @@ sub floating_devices :Local {
 sub authentication :Local {
     my ($self, $c) = @_;
 
-    $c->go('Controller::Authentication', 'index');
+    $c->go('Controller::Config::Source', 'index');
 }
 
 =head2 users
@@ -413,6 +414,20 @@ sub all_subsections : Private {
             return \%map;
         }->(),
 
+        switches => sub {
+            tie my %map, 'Tie::IxHash', (
+                switch => {
+                    controller => 'Controller::Config::Switch',
+                    name => 'Switches',
+                },
+                switch_group => {
+                    controller => 'Controller::Config::SwitchGroup',
+                    name => 'Switch Groups',
+                },
+            );
+            return \%map;
+        }->(),
+
         main => sub {
             tie my %map, 'Tie::IxHash', (
                 general => {
@@ -542,7 +557,7 @@ sub all_subsections : Private {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -563,6 +578,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

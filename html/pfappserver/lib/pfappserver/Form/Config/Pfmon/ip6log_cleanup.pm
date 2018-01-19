@@ -30,7 +30,7 @@ has_field 'rotate' => (
     unchecked_value => 'disabled',
     default_method => \&default_field_method,
     tags => { after_element => \&help,
-             help => 'Enable or disable ip6log rotation (moving ip6log_history records to ip6log_archive)<br>If disabled, this task will delete from the iplog_history table rather than the iplog_archive using the iplog rotation window, interval, batch and timeout parameters.' },
+             help => 'Enable or disable ip6log rotation (moving ip6log_history records to ip6log_archive)<br>If disabled, this task will delete from the ip6log_history table rather than the ip6log_archive.' },
 );
 
 has_field 'rotate_batch' => (
@@ -87,7 +87,7 @@ has_block  definition =>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -108,6 +108,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

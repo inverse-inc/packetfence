@@ -239,6 +239,8 @@ sub apply_new_node_info {
     my ($self) = @_;
     get_logger->debug(sub { use Data::Dumper; "Applying new node_info to user ".Dumper($self->new_node_info)});
 
+    my $node_view = node_view($self->current_mac);
+
     # When device is pending, we take the role+unregdate from the computed node info. 
     # This way, if the role wasn't set during the portal process (like in provisioning agent re-install), then it will pick the role it had before
     if($self->node_info->{status} eq $pf::node::STATUS_PENDING) {
@@ -257,22 +259,28 @@ sub apply_new_node_info {
     $self->new_node_info->{category} = $self->node_info->{category};
     $self->new_node_info->{unregdate} = $self->node_info->{unregdate};
 
+    # We check if the username is the default PID. If it is and there is a non-default PID already on the node, we take it instead of the default PID
+    if($self->username eq $default_pid) {
+        get_logger->debug("Username is set to the default PID and there is already a PID set on the node (".$node_view->{pid}."). Keeping it instead of the default PID.");
+        $self->username($node_view->{pid});
+    }
+
     my ( $status, $status_msg );
     ( $status, $status_msg ) = pf::node::node_register($self->current_mac, $self->username, %{$self->new_node_info()});
     if ($status) {
         $self->app->flash->{notice} = "";
         my $notice = "";
         if($self->new_node_info->{category}) {
-            $notice .= sprintf("Role %s has been assigned to your device", $self->new_node_info->{category});
+            $notice .= $self->app->i18n_format("Role %s has been assigned to your device", $self->new_node_info->{category});
         }
         if($self->new_node_info->{unregdate}) {
-            $notice .= sprintf(" with unregistration date : %s,", $self->new_node_info->{unregdate});
+            $notice .= $self->app->i18n_format(" with unregistration date : %s,", $self->new_node_info->{unregdate});
         }
         if ($self->new_node_info->{time_balance}) {
-            $notice .= sprintf(" with time balance : %s,", $self->new_node_info->{time_balance});
+            $notice .= $self->app->i18n_format(" with time balance : %s,", $self->new_node_info->{time_balance});
         }
         if ($self->new_node_info->{bandwidth_balance}) {
-            $notice .= sprintf(" with bandwidth balance : %s,", $self->new_node_info->{bandwidth_balance});
+            $notice .= $self->app->i18n_format(" with bandwidth balance : %s,", $self->new_node_info->{bandwidth_balance});
         }
         $self->app->flash->{notice} = [ $notice ];
         return $TRUE;
@@ -335,7 +343,8 @@ sub show_preregistration_account {
         $self->render("account.html", {account => $account, title => "Account created"});
     }
     else {
-        $self->app->error("Cannot find any created account.");
+        get_logger->warn("No created account found. Continuing normal portal flow");
+        $self->SUPER::execute_child();
     }
 }
 
@@ -358,7 +367,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -379,7 +388,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;
 

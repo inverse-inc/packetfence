@@ -80,16 +80,20 @@ sub do_email_registration {
     $info{'telephone'} = $self->request_fields->{telephone};
     $info{'company'} = $self->request_fields->{company};
     $info{'subject'} = $self->app->i18n_format("%s: Email activation required", $Config{'general'}{'domain'});
+    $info{source_id} = $source->id;
     utf8::decode($info{'subject'});
 
     $self->session->{fields} = $self->request_fields;
     $self->app->session->{email} = $email;
     $self->username($pid);
 
-    pf::auth_log::record_guest_attempt($source->id, $self->current_mac, $pid);
+    pf::auth_log::record_guest_attempt($source->id, $self->current_mac, $pid, $self->app->profile->name);
+    #CUSTOM: remove me once the auth_log is properly closed on email activation
+    pf::auth_log::record_completed_guest($source->id, $self->current_mac, $pf::auth_log::COMPLETED, $self->app->profile->name);
+
     if($self->app->preregistration) {
         # Mark the registration as completed as the email doesn't have to be validated
-        pf::auth_log::record_completed_guest($source->id, $self->current_mac, $pf::auth_log::COMPLETED);
+        pf::auth_log::record_completed_guest($source->id, $self->current_mac, $pf::auth_log::COMPLETED, $self->app->profile->name);
         $self->done();
     }
     else {
@@ -159,7 +163,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -180,7 +184,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;
 

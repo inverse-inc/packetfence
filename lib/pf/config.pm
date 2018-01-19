@@ -137,8 +137,12 @@ our (
     %ConfigSwitchesList,
 #Reports
     %ConfigReport,
+#Surveys
+    %ConfigSurvey,
 #Roles
     %ConfigRoles,
+#device_Registration.conf
+    %ConfigDeviceRegistration,
 );
 
 BEGIN {
@@ -196,7 +200,9 @@ BEGIN {
         %ConfigSwitchesGroup
         %ConfigSwitchesList
         %ConfigReport
+        %ConfigSurvey
         %ConfigRoles
+        %ConfigDeviceRegistration
     );
 }
 
@@ -279,7 +285,11 @@ tie %ConfigSwitchesList, 'pfconfig::cached_hash', 'resource::switches_list';
 
 tie %ConfigReport, 'pfconfig::cached_hash', 'config::Report';
 
+tie %ConfigSurvey, 'pfconfig::cached_hash', 'config::Survey';
+
 tie %ConfigRoles, 'pfconfig::cached_hash', 'config::Roles';
+
+tie %ConfigDeviceRegistration, 'pfconfig::cached_hash', 'config::DeviceRegistration';
 
 $thread = 0;
 
@@ -914,6 +924,9 @@ sub configreload {
     require pf::nodecategory;
     pf::nodecategory::nodecategory_populate_from_config( \%pf::config::ConfigRoles );
 
+    require pf::Survey;
+    pf::Survey::reload_from_config( \%pf::config::ConfigSurvey );
+
     return ;
 }
 
@@ -927,7 +940,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

@@ -109,6 +109,7 @@ sub handler {
     if ($locationlog_entry) {
         $params->{connection_type} = $locationlog_entry->{'connection_type'};
         $params->{SSID} = $locationlog_entry->{'ssid'};
+        $params->{realm} = $locationlog_entry->{'realm'};
     }
     my $matched = pf::authentication::match2($source_id, $params, $extra);
     if ($matched) {
@@ -165,7 +166,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

@@ -49,6 +49,9 @@
   <IfModule !mod_systemd.c>
     LoadModule systemd_module     /usr/lib/apache2/modules/mod_systemd.so
   </IfModule>
+  <IfModule !mod_proxy_connect.c>
+   LoadModule proxy_connect_module /usr/lib/apache2/modules/mod_proxy_connect.so
+  </IfModule>
 </IfDefine>
 
 #RHEL specific
@@ -99,6 +102,9 @@
   </IfModule>
   <IfModule !mod_systemd.c>
     LoadModule systemd_module modules/mod_systemd.so
+  </IfModule>
+  <IfModule !mod_proxy_connect.c>
+   LoadModule proxy_connect_module modules/mod_proxy_connect.so
   </IfModule>
 </IfDefine>
 

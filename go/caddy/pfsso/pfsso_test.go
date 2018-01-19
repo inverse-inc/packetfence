@@ -3,12 +3,14 @@ package pfsso
 import (
 	"bytes"
 	"context"
-	"github.com/inverse-inc/packetfence/go/log"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
-	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/inverse-inc/packetfence/go/firewallsso"
+	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
+	"github.com/julienschmidt/httprouter"
 )
 
 var ctx = log.LoggerNewContext(context.Background())
@@ -195,4 +197,29 @@ func TestHandleStop(t *testing.T) {
 		t.Error("Wrong status code from handleStart")
 	}
 
+}
+
+// Run this with -test.race to see the potential race conditions
+func TestSpawnSso(t *testing.T) {
+	pfsso, err := buildPfssoHandler(ctx)
+
+	if err != nil {
+		t.Error("Can't build PfssoHandler", err)
+	}
+
+	// Test multiple firewalls SSO at the same time
+	info := map[string]string{
+		"ip":       "1.2.3.4",
+		"mac":      "00:11:22:33:44:55",
+		"username": "bobbey",
+		"role":     "default",
+	}
+	factory := firewallsso.NewFactory(ctx)
+	firewall, _ := factory.Instantiate(ctx, "testfw2")
+
+	for i := 0; i < 5; i++ {
+		pfsso.spawnSso(ctx, firewall, info, func(info map[string]string) (bool, error) {
+			return firewallsso.ExecuteStart(ctx, firewall, info, 3600)
+		})
+	}
 }

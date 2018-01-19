@@ -31,6 +31,7 @@ use Module::Pluggable
     'search_path' => [qw(pf::services::manager)],
     'sub_name'    => 'managers',
     'require'     => 1,
+    'inner'       => 0,
     'except' =>
     qr/^pf::services::manager::roles|^pf::services::manager::(pf|systemd|httpd|submanager|radiusd_child|redis)$/,
     ;
@@ -136,7 +137,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

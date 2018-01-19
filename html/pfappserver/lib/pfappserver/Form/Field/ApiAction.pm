@@ -38,6 +38,7 @@ has_field api_method => (
     widget_wrapper => 'None',
     options_method => \&options_api_method,
     element_class => ['input-medium'],
+    localize_labels => 1,
 );
 
 has_field api_parameters => (
@@ -81,7 +82,7 @@ Provide a list of api methods
 
 sub options_api_method {
     my ($self) = @_;
-    return {value => '', label => ''}, map {/^pf::api::(.*)$/;{value => $1, label => $1}} keys %pf::api::attributes::ALLOWED_ACTIONS;
+    return {value => '', label => '--- choose ---'}, map {/^pf::api::(.*)$/;{value => $1, label => $1}} keys %pf::api::attributes::ALLOWED_ACTIONS;
 
 }
 
@@ -93,7 +94,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

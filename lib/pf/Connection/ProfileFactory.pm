@@ -53,6 +53,8 @@ sub instantiate {
         $node_info = node_view($mac_or_node_obj) || {};
     }
 
+    $options->{last_ip} //= pf::ip4log::mac2ip($node_info->{mac});
+
     $node_info = {%$node_info, %$options};
 
     my $profile_name = $PROFILE_FILTER_ENGINE->match_first($node_info);
@@ -119,7 +121,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

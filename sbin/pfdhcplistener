@@ -311,7 +311,7 @@ sub process_pkt {
 
                 if ($is_inline_vlan) {
                     my $ip = new NetAddr::IP::Lite clean_ip($l3->{'src_ip'});
-                    if ($net_addr->contains($ip)) {
+                    if ($net_addr->contains($ip) || ($ip->addr eq '0.0.0.0')) {
                         $args{inline_sub_connection_type} = $NET_TYPE_INLINE_L2;
                     } else {
                         $args{inline_sub_connection_type} = $NET_TYPE_INLINE_L3;
@@ -601,7 +601,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

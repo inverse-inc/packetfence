@@ -20,7 +20,6 @@ use pf::constants qw($FALSE $TRUE);
 use pf::Authentication::constants;
 use pf::util;
 use pf::log;
-use HTTP::Status qw(is_success);
 use WWW::Curl::Easy;
 use JSON::MaybeXS;
 use List::Util qw(first);
@@ -116,7 +115,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

@@ -104,6 +104,7 @@ Readonly::Scalar our $EXT_URL_CISCO_CATALYST_2960   => '^/Cisco::Catalyst_2960';
 Readonly::Scalar our $EXT_URL_CISCO_WLC             => '^/Cisco::WLC';
 Readonly::Scalar our $EXT_URL_COOVACHILLI           => '^/CoovaChilli';
 Readonly::Scalar our $EXT_URL_MERAKI                => '^/Meraki::MR';
+Readonly::Scalar our $EXT_URL_MERAKI_V2             => '^/Meraki::MR_v2';
 Readonly::Scalar our $EXT_URL_RUCKUS                => '^/Ruckus';
 Readonly::Scalar our $EXT_URL_RUCKUS_SMARTZONE      => '^/RuckusSmartZone';
 Readonly::Scalar our $EXT_URL_XIRRUS                => '^/Xirrus';
@@ -256,7 +257,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

@@ -24,7 +24,7 @@ use warnings;
 
 use lib '/usr/local/pf/lib/';
 
-#use pf::config;
+use pf::log (service => 'rlm_perl');
 use pf::radius::constants;
 use pf::radius::soapclient;
 use pf::radius::rpc;
@@ -56,30 +56,28 @@ sub authorize {
     #&log_request_attributes;
 
     # We try to find the realm that's configured in PacketFence
-    my $realm;
+    my $realm_config;
     my $user_name = $RAD_REQUEST{'TLS-Client-Cert-Common-Name'} || $RAD_REQUEST{'User-Name'};
     if ($user_name =~ /^host\/([0-9a-zA-Z-]+)\.(.*)$/) {
-        $realm = $ConfigRealm{lc($2)};
-    } else {
-        $realm = $ConfigRealm{$RAD_REQUEST{"Realm"}};
+        $realm_config = $ConfigRealm{lc($2)};
+    } elsif (defined $RAD_REQUEST{"Realm"}) {
+        $realm_config = $ConfigRealm{$RAD_REQUEST{"Realm"}};
+    }
+
+    if ( (!defined($realm_config) || !defined($realm_config->{domain})) && defined($ConfigRealm{"default"}) ) {
+        $realm_config = $ConfigRealm{"default"};
     }
 
     #use Data::Dumper;
     #&radiusd::radlog($RADIUS::L_INFO, Dumper($realm));
 
-    if( defined($realm) && defined($realm->{domain}) ) {
+    if( defined($realm_config) && defined($realm_config->{domain}) ) {
         # We have found this realm in PacketFence. We use the domain associated with it for the authentication
-        $RAD_REQUEST{"PacketFence-Domain"} = $realm->{domain};
+        $RAD_REQUEST{"PacketFence-Domain"} = $realm_config->{domain};
     }
-    elsif ( defined($ConfigRealm{"default"}) ){
-        # We haven't found the realm that was detected in FreeRADIUS but there is a default realm in PacketFence.
-        # We use it's domain for authentication.
-        $RAD_REQUEST{"PacketFence-Domain"} = $ConfigRealm{"default"}->{domain};
-    }
+
     # If it doesn't go into any of the conditions above, then the behavior will be the same as before (non chrooted ntlm_auth)
-
     return $RADIUS::RLM_MODULE_UPDATED;
-
 }
 
 sub log_request_attributes {
@@ -202,7 +200,7 @@ L<http://wiki.freeradius.org/Rlm_perl>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

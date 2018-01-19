@@ -10,7 +10,6 @@ use pf::web;
 use pf::violation qw(violation_view_open);
 use pf::constants::violation qw($LOST_OR_STOLEN);
 use pf::password qw(view);
-use pf::config qw(%Config);
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -54,7 +53,7 @@ sub index : Path : Args(0) {
     if (view($pid)) {
         $c->stash->{hasLocalAccount} = $TRUE;
     }
-    if (isenabled( $Config{'device_registration'}{'status'} ) ) {
+    if (defined( $c->profile->{'_device_registration'} ) ) {
         $c->stash->{isDeviceRegEnable} = $TRUE;
     }
     $c->stash(
@@ -65,7 +64,7 @@ sub index : Path : Args(0) {
     );
 }
 
-sub is_lost_stolen : Path : Args(1) {
+sub is_lost_stolen {
     my ( $mac ) = @_;
    
     my @violations = violation_view_open($mac);
@@ -190,7 +189,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

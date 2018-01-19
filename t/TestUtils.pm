@@ -40,6 +40,10 @@ our @compile_tests = qw(
     pf.t pfappserver_libs.t captive-portal_libs.t template.t
 );
 
+our @slow_compile_tests = qw(
+    pf-slow.t pfappserver_libs-slow.t captive-portal_libs-slow.t template.t
+);
+
 our @dao_tests = qw(
     dao/data.t dao/graph.t dao/node.t dao/os.t dao/person.t dao/report.t
 );
@@ -59,7 +63,7 @@ our @quality_failing_tests = qw(
 our @unit_tests = qw(
     config.t enforcement.t floatingdevice.t hardware-snmp-objects.t import.t inline.t linux.t network-devices/cisco.t
     network-devices/roles.t network-devices/threecom.t network-devices/wireless.t nodecategory.t person.t pfsetvlan.t
-    Portal.t radius.t services.t SNMP.t SwitchFactory.t useragent.t util.t util-dhcp.t util-radius.t
+    Portal.t radius.t services.t SNMP.t SwitchFactory.t util.t util-dhcp.t util-radius.t
     role.t web.t
 );
 
@@ -70,6 +74,17 @@ our @unit_failing_tests = qw(
 our @config_store_test = qw(
     ConfigStore/Base.t ConfigStore/Group.t
 );
+
+=head2 get_compile_tests
+
+get_compile_tests
+
+=cut
+
+sub get_compile_tests {
+    my ($slow) = @_;
+    return $slow ? @slow_compile_tests : @compile_tests ;
+}
 
 =head2 use_test_db
 
@@ -258,7 +273,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

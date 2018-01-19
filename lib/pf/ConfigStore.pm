@@ -284,12 +284,14 @@ sub _update_section {
     while ( my ($param, $value) = each %$assignments ) {
         my $param_exists = $config->exists($section, $param);
         my $default_value = $config->val($default_section,$param) if ($use_default);
+        my $imported_value = $imported->val($section, $param) if $imported;
         if(defined $value ) { #If value is defined the update or add to section
             if ( $param_exists ) {
                 #If value is defined the update or add to section
                 #Only set the value if not equal to the default value otherwise delete it
-                if ( defined $default_value && $default_value eq $value) {
-                    $config->delval($section, $param, $value);
+                if ((defined $default_value && $default_value eq $value) &&
+                    (!defined $imported_value || $imported_value eq $value)) {
+                    $config->delval($section, $param);
                 } else {
                     $config->setval($section, $param, $value);
                 }
@@ -474,8 +476,12 @@ sub commit {
         }
     }
     else {
-        $error //= "Unable to commit changes to file please run pfcmd fixpermissions and try again";
+        $error //= "Unable to commit changes to file please run '/usr/local/pf/bin/pfcmd fixpermissions' and try again";
         $self->rollback();
+    }
+
+    if($error) {
+        get_logger->error($error);
     }
 
     return ($result, $error);
@@ -528,11 +534,11 @@ sub search {
 
 }
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

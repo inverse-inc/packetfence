@@ -12,7 +12,7 @@ Form definition to create or update a RADIUS user source.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Source';
-with 'pfappserver::Base::Form::Role::Help';
+with 'pfappserver::Base::Form::Role::Help', 'pfappserver::Base::Form::Role::InternalSource';
 
 # Form fields
 has_field 'host' =>
@@ -21,6 +21,8 @@ has_field 'host' =>
    label => 'Host',
    element_class => ['input-small'],
    element_attr => {'placeholder' => '127.0.0.1'},
+   default => '127.0.0.1',
+   required => 1,
   );
 has_field 'port' =>
   (
@@ -28,6 +30,8 @@ has_field 'port' =>
    label => 'Port',
    element_class => ['input-mini'],
    element_attr => {'placeholder' => '1812'},
+   default => 1812,
+   required => 1,
   );
 has_field 'secret' =>
   (
@@ -41,23 +45,15 @@ has_field 'timeout' =>
   (
    type => 'PosInteger',
    label => 'Timeout',
+   required => 1,
    element_class => ['input-mini'],
    element_attr => {'placeholder' => '1'},
-  );
-has_field 'stripped_user_name' =>
-  (
-   type            => 'Toggle',
-   checkbox_value  => 'yes',
-   unchecked_value => 'no',
-   default         => 'yes',
-   label           => 'Use stripped username ',
-   tags => { after_element => \&help,
-             help => 'Use stripped username returned by RADIUS to test the following rules.' },
+   default => 1,
   );
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -78,5 +74,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

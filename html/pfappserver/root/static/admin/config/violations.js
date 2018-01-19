@@ -8,9 +8,11 @@ $(function() { // DOM ready
         modal.empty();
         modal.append(data);
         modal.find('.switch').bootstrapSwitch();
-        modal.find('.chzn-select').chosen({width: ''});
+        modal.find('.chzn-select').chosen({inherit_select_classes: true, width: ''});
         modal.find('.chzn-deselect').chosen({allow_single_deselect: true, width: ''});
         modal.one('shown', function() {
+            var data = modal.find('.event_triggers').first()[0];
+            violationsView.event_triggers = JSON.parse(data.textContent || data.innerHTML);
             $('#actions').trigger('change');
         });
         $('.trigger option').each(function(elem){
@@ -154,7 +156,37 @@ $(function() { // DOM ready
         else
             command_group.fadeIn('fast');
 
+        // Show/hide the user_mail_message field if 'email_user' is add/remove
+        command_group = $('#access_duration').closest('.control-group');
+        if ($.inArray('autoreg', actions) < 0)
+            command_group.fadeOut('fast');
+        else
+            command_group.fadeIn('fast');
 
+    });
+
+    $('body').on('switch-change', '#violations .switch', function(event, value) {
+        event.preventDefault();
+        var t = $(event.target);
+        if (t.attr('processing')) {
+            return;
+        }
+        t.attr('processing','processing');
+        var href = t.attr('data-href');
+        var toggle = value.value ? 'yes' : 'no';
+        href = href.replace(/enabled$/, toggle);
+        $.ajax({
+            type: 'POST',
+            url: href,
+            data: ''
+        }).always(function() {
+            t.attr('processing', null);
+        }).done(function(data) {
+            showSuccess($('#section h2'), data.status_msg);
+        }).fail(function(jqXHR) {
+            var status_msg = getStatusMsg(jqXHR);
+            showError($('#section h2'), status_msg);
+        });
     });
 
 
@@ -219,7 +251,7 @@ $(function() { // DOM ready
         var jthis = $(event.target);
         jthis.closest('.control-group').remove();
         if(!$('#viewTriggers').find('select').length){
-          $('#noTrigger').show();
+          $('#noTrigger').removeClass('hide');
         }
         violationsView.recompute_triggers();
         return false;
@@ -233,7 +265,7 @@ $(function() { // DOM ready
           $('#editedTrigger').html(ViolationsView.add_combined_trigger_form());
           violationsView.previous_trigger_options = $('#editedTrigger .triggerButtons').html();
           $('#editedTrigger .triggerButtons').html('<a href="#backEditTrigger" class="pull-left btn btn-default"><i class="icon  icon-chevron-left"></i></a>');
-          $('#editedTrigger .chzn-select').chosen({width: ''});
+          $('#editedTrigger .chzn-select').chosen({inherit_select_classes: true, width: ''});
           $('#editTrigger').slideDown();
         });
         
@@ -262,7 +294,7 @@ $(function() { // DOM ready
         $('#editTrigger').slideUp(function(){
           var triggers = jthis.closest('.control-group');
           if(triggers.find("select option:selected").length){
-            $('#noTrigger').hide();
+            $('#noTrigger').addClass('hide');
             triggers.find('.triggerButtons').html(violationsView.previous_trigger_options);
             triggers.appendTo('#viewTriggers');
           }

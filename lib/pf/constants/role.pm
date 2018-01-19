@@ -30,6 +30,11 @@ our @EXPORT_OK = qw(
     $GUEST_ROLE
     $GAMING_ROLE
     $REJECT_ROLE
+    $USERNAMEHASH
+);
+
+our %EXPORT_TAGS = (
+    all => \@EXPORT_OK,
 );
 
 =head2 ROLES
@@ -63,13 +68,21 @@ Readonly::Hash our %STANDARD_ROLES => (
     $REJECT_ROLE  => 1,
 );
 
+=head2 POOL
+
+Constant used in the pool code
+
+=cut
+
+Readonly::Scalar our $USERNAMEHASH  => 'username_hash';
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

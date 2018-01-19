@@ -48,7 +48,7 @@ server pf.cluster {
                         Load-Balance-Key := "%{Calling-Station-Id}"
                         Proxy-To-Realm := "packetfence"
                 }
-                if(!NAS-IP-Address){
+                if(!NAS-IP-Address || NAS-IP-Address == "0.0.0.0"){
                         update request {
                                 NAS-IP-Address := "%{Packet-Src-IP-Address}"
                         }
@@ -62,7 +62,7 @@ server pf.cluster {
                 update control {
                         Proxy-To-Realm := "packetfence"
                 }
-                if(!NAS-IP-Address){
+                if(!NAS-IP-Address || NAS-IP-Address == "0.0.0.0"){
                         update request {
                                 NAS-IP-Address := "%{Packet-Src-IP-Address}"
                         }
@@ -87,7 +87,7 @@ server pfcli.cluster {
                         Load-Balance-Key := "%{NAS-IP-Address}"
                         Proxy-To-Realm := "packetfence-cli"
                 }
-                if(!NAS-IP-Address){
+                if(!NAS-IP-Address || NAS-IP-Address == "0.0.0.0"){
                         update request {
                                 NAS-IP-Address := "%{Packet-Src-IP-Address}"
                         }

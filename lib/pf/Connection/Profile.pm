@@ -139,7 +139,14 @@ sub findFirstTemplate {
 
 sub findViolationTemplate {
     my ($self, $template, $langs) = @_;
-    my @subTemplates  = ((map {"violations/${template}.${_}.html"} @$langs), "violations/$template.html");
+    my @new_langs;
+    for my $lang (@$langs) {
+        push @new_langs, $lang;
+        if ($lang =~ /^(..)_(..)/) {
+            push @new_langs, lc($1);
+        }
+    }
+    my @subTemplates  = ((map {"violations/${template}.${_}.html"} @new_langs), "violations/$template.html");
     return $self->findFirstTemplate(\@subTemplates);
 }
 
@@ -266,6 +273,11 @@ sub getSources {
 sub getProvisioners {
     my ($self) = @_;
     return $self->{'_provisioners'};
+}
+
+sub getDeviceRegistration {
+    my ($self) = @_;
+    return $self->{'_device_registration'};
 }
 
 =item getSourcesAsObjects
@@ -550,7 +562,7 @@ Return a list of authentication sources for the given connection profile filtere
 
 sub getFilteredAuthenticationSources {
     my ($self, $username, $realm) = @_;
-    return filter_authentication_sources([ $self->getInternalSources, $self->getExclusiveSources ], $username, $realm);
+    return @{filter_authentication_sources([ $self->getInternalSources, $self->getExclusiveSources ], $username, $realm) // []};
 }
 
 =item getRootModuleId
@@ -605,7 +617,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

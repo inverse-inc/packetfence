@@ -16,7 +16,7 @@ use strict;
 use warnings;
 use base qw(Exporter);
 
-our @EXPORT_OK = qw(@ADMIN_ACTIONS);
+our @EXPORT_OK = qw(@ADMIN_ACTIONS %ADMIN_NOT_IN_READONLY);
 
 our @ADMIN_ACTIONS = qw(
     ADMIN_ROLES_CREATE
@@ -77,8 +77,6 @@ our @ADMIN_ACTIONS = qw(
     SWITCHES_READ
     SWITCHES_UPDATE
 
-    USERAGENTS_READ
-
     USERS_READ
     USERS_READ_SPONSORED
     USERS_CREATE
@@ -108,8 +106,6 @@ our @ADMIN_ACTIONS = qw(
     VIOLATIONS_DELETE
     VIOLATIONS_READ
     VIOLATIONS_UPDATE
-
-    USERAGENTS_READ
 
     RADIUS_LOG_READ
 
@@ -166,7 +162,16 @@ our @ADMIN_ACTIONS = qw(
 
     PFMON_READ
     PFMON_UPDATE
+
+    DEVICE_REGISTRATION_CREATE
+    DEVICE_REGISTRATION_DELETE
+    DEVICE_REGISTRATION_READ
+    DEVICE_REGISTRATION_UPDATE
 );
+
+# Actions not allowed in readonly mode
+# Any actions that will update the database is not allowed
+our %ADMIN_NOT_IN_READONLY = map { $_ => 1} grep { !/_READ$/ && /^(NODES_|SWITCHES_|VIOLATIONS_|WRIX_|USERS_|USERS_ROLES_)/ && !/^USERS_SOURCES_/ && $_ ne 'USERS_READ_SPONSORED' } @ADMIN_ACTIONS ;
 
 =head1 AUTHOR
 
@@ -174,7 +179,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

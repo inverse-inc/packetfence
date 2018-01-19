@@ -82,7 +82,7 @@ In order to use the repository, create a file named `/etc/apt/sources.list.d/pac
 
 Once the repository is defined, you can install packetfence-pki using:
 
- # sudo apt-key adv --keyserver keys.gnupg.net --recv-key 0x810273C4
+ # sudo apt-key adv --keyserver keys.gnupg.net --recv-key 0xFE9E84327B18FF82B0378B6719CDA6A9810273C4
  # sudo apt-get update
  # sudo apt-get install packetfence-pki
 
@@ -95,7 +95,7 @@ In order to use the repository, create a file named `/etc/apt/sources.list.d/pac
 
 Once the repository is defined, you can install packetfence-pki using:
 
- # sudo apt-key adv --keyserver keys.gnupg.net --recv-key 0x810273C4
+ # sudo apt-key adv --keyserver keys.gnupg.net --recv-key 0xFE9E84327B18FF82B0378B6719CDA6A9810273C4
  # sudo apt-get update
  # sudo apt-get install packetfence-pki
 

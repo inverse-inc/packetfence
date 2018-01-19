@@ -15,7 +15,12 @@ pf::CHI
 use strict;
 use warnings;
 use base qw(CHI);
-use Module::Pluggable search_path => ['CHI::Driver', 'pf::Role::CHI'], sub_name => '_preload_chi_drivers', require => 1, except => qr/(^CHI::Driver::.*Test|FastMmap)/;
+use Module::Pluggable
+  search_path => [ 'CHI::Driver', 'pf::Role::CHI' ],
+  sub_name    => '_preload_chi_drivers',
+  require     => 1,
+  inner       => 0,
+  except      => qr/(^CHI::Driver::.*Test|FastMmap)/;
 use Clone();
 use pf::file_paths qw(
     $chi_defaults_config_file
@@ -246,7 +251,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

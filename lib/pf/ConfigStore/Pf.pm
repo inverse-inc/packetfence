@@ -59,7 +59,7 @@ sub cleanupAfterRead {
         my $type = $doc->{type} || "text";
         my $subtype = $doc->{subtype};
         # Value should always be defined for toggles (checkbox and select) and times (duration)
-        if ($type eq "toggle" || $type eq "time") {
+        if ($type eq "toggle" || $type eq "time" || $type eq "timezone" ) {
             $data->{$key} = $Default_Config{$section}{$key} unless ($data->{$key});
         } elsif ($type eq "date") {
             my $time = str2time($data->{$key} || $Default_Config{$section}{$key});
@@ -87,7 +87,7 @@ sub cleanupAfterRead {
                 # No custom value, use default value
                 $data->{$key} = [split( /\s*,\s*/, $defaults->{$key})];
             }
-        } elsif ( $type eq 'merged_list' ) {
+         } elsif ( $type eq 'merged_list' ) {
             my $value = $data->{$key};
             if ($value ne $defaults->{$key}) {
                 $data->{$key} = join("\n", split( /\s*,\s*/, $value));
@@ -135,11 +135,11 @@ sub commit {
     return ( $result, $error );
 }
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

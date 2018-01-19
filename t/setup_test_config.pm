@@ -28,12 +28,6 @@ BEGIN {
     }
 
     use pf::db;
-    # Setup database connection infos based on ENV variables if they are defined
-    $pf::db::DB_Config->{host} = $ENV{PF_TEST_DB_HOST} // $pf::db::DB_Config->{host};
-    $pf::db::DB_Config->{user} = $ENV{PF_TEST_DB_USER} // $pf::db::DB_Config->{user};
-    $pf::db::DB_Config->{pass} = $ENV{PF_TEST_DB_PASS} // $pf::db::DB_Config->{pass};
-    $pf::db::DB_Config->{db}   = $ENV{PF_TEST_DB_NAME} // $pf::db::DB_Config->{db};
-    $pf::db::DB_Config->{port} = $ENV{PF_TEST_DB_PORT} // $pf::db::DB_Config->{port};
 
     use pf::config qw(
         %Config
@@ -49,6 +43,22 @@ BEGIN {
         $management_network->tag('vip', $Config{$section_name}{vip});
     }
 
+    `rm -fr /tmp/chi/*`;
+}
+
+=head2 new_db_config
+
+Override the database configuration
+
+=cut
+
+sub new_db_config {
+    my ($config) = @_;
+    my %new_config = (%{$config //{}}, %{$pf::db::DB_Config});
+    if (tied $pf::db::DB_Config) {
+        untie $pf::db::DB_Config;
+    }
+    $pf::db::DB_Config = \%new_config;
 }
 
 =head1 AUTHOR
@@ -58,7 +68,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

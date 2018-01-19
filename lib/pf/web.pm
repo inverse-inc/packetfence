@@ -58,7 +58,6 @@ use pf::enforcement qw(reevaluate_access);
 use pf::ip4log;
 use pf::node qw(node_attributes node_modify node_register node_view is_max_reg_nodes_reached);
 use pf::person qw(person_nodes);
-use pf::useragent;
 use pf::util;
 use pf::violation qw(violation_count);
 use pf::web::constants;
@@ -185,10 +184,10 @@ sub generate_release_page {
     my ( $portalSession, $r ) = @_;
 
     $portalSession->stash({
-        timer => $Config{'fencing'}{'redirtimer'},
+        timer => $Config{'captive_portal'}{'network_redirect_delay'},
         destination_url => $portalSession->getDestinationUrl(),
-        initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_INITIAL_DELAY'},
-        retry_delay => $CAPTIVE_PORTAL{'NET_DETECT_RETRY_DELAY'},
+        initial_delay => $Config{'captive_portal'}{'network_detection_initial_delay'},
+        retry_delay => $Config{'captive_portal'}{'network_detection_retry_delay'},
         external_ip => $Config{'captive_portal'}{'network_detection_ip'},
         auto_redirect => $Config{'captive_portal'}{'network_detection'},
     });
@@ -276,7 +275,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

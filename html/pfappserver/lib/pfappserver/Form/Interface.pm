@@ -63,7 +63,7 @@ has_field 'dns' =>
   (
    type => 'IPAddresses',
    label => 'DNS',
-   wrapper_attr => { 'style' => 'display: none' },
+   wrapper_attr => { 'class' => 'hide' },
    tags => { after_element => \&help,
              help => 'The primary DNS server of your network.' },
   );
@@ -171,7 +171,7 @@ sub validate {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -192,5 +192,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

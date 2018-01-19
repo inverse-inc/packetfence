@@ -45,7 +45,6 @@ use pf::auth_log;
 use pf::node;
 use pf::db;
 use pf::services;
-use pf::traplog;
 use pf::util;
 use pf::services::util;
 use pf::violation qw(violation_maintenance);
@@ -276,6 +275,7 @@ creates a new child to run a task
 
 sub runtask {
     my ($task) = @_;
+    db_disconnect();
     my $pid = fork();
     if($pid) {
         $CHILDREN{$pid} = $task;
@@ -431,7 +431,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

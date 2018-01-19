@@ -28,6 +28,8 @@ use TestUtils;
 `/usr/local/pf/t/pfconfig-test-serial`;
 
 my $JOBS = $ENV{'PF_SMOKE_TEST_JOBS'} ||  6;
+my $SLOW_TESTS = $ENV{'PF_SMOKE_SLOW_TESTS'};
+our $db_setup_script = "/usr/local/pf/t/db/setup_test_db.pl";
 
 my $formatter   = is_interactive() ? TAP::Formatter::Console->new({jobs => $JOBS}) : TAP::Formatter::File->new();
 my $ser_harness = TAP::Harness->new( { formatter => $formatter, jobs => 1 } );
@@ -51,13 +53,20 @@ my @ser_tests = qw(
 # These tests just need to read pfconfig data so they can run in parallel
 #
 my @par_tests = (
-    @TestUtils::compile_tests,
     @TestUtils::unit_tests,
     TestUtils::get_all_unittests(),
     @TestUtils::cli_tests,
     @TestUtils::quality_tests,
     @TestUtils::config_store_test,
 );
+
+if ($SLOW_TESTS) {
+    unshift @ser_tests, TestUtils::get_compile_tests($SLOW_TESTS);
+} else {
+    unshift @par_tests, TestUtils::get_compile_tests($SLOW_TESTS);
+}
+
+create_test_db();
 
 my $aggregator = TAP::Parser::Aggregator->new;
 $aggregator->start();
@@ -81,6 +90,23 @@ die(sprintf(
     )
 ) if $num_bad;
 
+=head2 create_test_db
+
+Create a test database
+
+=cut
+
+sub create_test_db {
+    system($db_setup_script);
+    if ($?) {
+        die <<"EOS";
+$db_setup_script failed to setup the database
+Please create the test user
+mysql -uroot -p < /usr/local/pf/t/db/smoke_test.sql
+EOS
+    }
+}
+
 
 END {
     foreach my $test_service (qw(pfconfig-test pfconfig-test-serial)) {
@@ -97,7 +123,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

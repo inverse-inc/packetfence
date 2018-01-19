@@ -3,6 +3,7 @@
 /usr/local/pf/conf/apache_filters.conf
 /usr/local/pf/conf/authentication.conf
 /usr/local/pf/conf/profiles.conf
+/usr/local/pf/conf/device_registration.conf
 /usr/local/pf/conf/dhcp_fingerprints.conf
 /usr/local/pf/conf/dhcp_filters.conf
 /usr/local/pf/conf/dns_filters.conf
@@ -60,6 +61,8 @@
 /usr/local/pf/conf/radiusd/radiusd.conf
 /usr/local/pf/conf/radiusd/sql.conf
 /usr/local/pf/conf/radiusd/proxy.conf.inc
+/usr/local/pf/conf/radiusd/proxy.conf.loadbalancer
+/usr/local/pf/conf/radiusd/radiusd_loadbalancer.conf
 /usr/local/pf/conf/radiusd/packetfence
 /usr/local/pf/conf/radiusd/packetfence-tunnel
 /usr/local/pf/conf/radiusd/acct.conf
@@ -146,8 +149,6 @@
 /usr/local/pf/html/pfappserver/pfappserver.conf
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Admin.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/AdminRoles.pm
-/usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Authentication.pm
-/usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Authentication/Source.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Firewall_SSO.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/FloatingDevice.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Networks.pm
@@ -160,7 +161,6 @@
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/System.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Configuration.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Configurator.pm
-/usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/UserAgents.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Wrix.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/DB.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Graph.pm

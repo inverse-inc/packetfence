@@ -21,9 +21,11 @@ use namespace::autoclean;
 use POSIX;
 use pf::config qw(%Config);
 use pf::util;
+use pf::violation;
 
 use pfappserver::Form::Node;
 use pfappserver::Form::Node::Create::Import;
+
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 with 'pfappserver::Role::Controller::BulkActions';
@@ -201,7 +203,11 @@ sub create :Local : AdminRole('NODES_CREATE') {
                 $message = $form_import->field_errors;
             }
             else {
-                ($status, $message) = $c->model('Node')->importCSV($form_import->value, $c->user, \%allowed_roles);
+                my $filename = $form_import->value->{nodes_file}->tempname;
+                my $data = $form_import->value;
+                $data->{nodes_file_display_name} = $form_import->value->{nodes_file}->filename;
+
+                ($status, $message) = $c->model('Node')->importCSV($filename, $data, $c->user, \%allowed_roles);
                 if (is_success($status)) {
                     $message = $c->loc("[_1] nodes imported, [_2] skipped", $message->{count}, $message->{skipped});
                 }
@@ -271,7 +277,7 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('NODES_READ') 
         push @tabs, 'MSE';
     }
 
-    push @tabs, 'WMI';
+    push @tabs, 'WMI', 'Option82';
 
     ($status, $result) = $c->model('Node')->view($c->stash->{mac});
     if (is_success($status)) {
@@ -514,7 +520,10 @@ sub _triggerViolation {
 sub closeViolation :Path('close') :Args(1) :AdminRole('NODES_UPDATE') {
     my ($self, $c, $id) = @_;
     my ($status, $result) = $c->model('Node')->closeViolation($id);
-    $self->audit_current_action($c, status => $status, mac => $id);
+    my @violation = violation_view($id);
+    if (@violation) {
+        $self->audit_current_action($c, status => $status, mac => $violation[0]->{mac});
+    }
     $c->response->status($status);
     $c->stash->{status_msg} = $result;
     $c->stash->{current_view} = 'JSON';
@@ -527,7 +536,10 @@ sub closeViolation :Path('close') :Args(1) :AdminRole('NODES_UPDATE') {
 sub runViolation :Path('run') :Args(1) :AdminRole('NODES_UPDATE') {
     my ($self, $c, $id) = @_;
     my ($status, $result) = $c->model('Node')->runViolation($id);
-    $self->audit_current_action($c, status => $status, mac => $id);
+    my @violation = violation_view($id);
+    if (@violation) {
+        $self->audit_current_action($c, status => $status, mac => $violation[0]->{mac});
+    }
     $c->response->status($status);
     $c->stash->{status_msg} = $result;
     $c->stash->{current_view} = 'JSON';
@@ -641,7 +653,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -662,6 +674,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

@@ -39,7 +39,7 @@ sh maven-install.sh
 ----
 
 OS configuration
-++++++++++++++++
+^^^^^^^^^^^^^^^^
 
 You will now need to stop iptables and make sure it doesn't start on boot.
 

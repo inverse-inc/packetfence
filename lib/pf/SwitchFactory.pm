@@ -42,6 +42,7 @@ tie %SwitchTypesConfigured, 'pfconfig::cached_hash', 'resource::SwitchTypesConfi
 use Module::Pluggable
   search_path => [qw(pf::Switch)],
   'require' => 1,
+  inner       => 0,
   sub_name    => '_all_modules';
 
 use Module::Pluggable
@@ -285,7 +286,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

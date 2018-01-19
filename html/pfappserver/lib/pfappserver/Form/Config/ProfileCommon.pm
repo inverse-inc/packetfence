@@ -22,9 +22,11 @@ use pf::authentication;
 use pf::ConfigStore::Provisioning;
 use pf::ConfigStore::BillingTiers;
 use pf::ConfigStore::Scan;
+use pf::ConfigStore::DeviceRegistration;
 use pf::web::constants;
 use pf::constants::Connection::Profile;
 use pfappserver::Form::Field::Duration;
+use pfappserver::Base::Form;
 with 'pfappserver::Base::Form::Role::Help';
 
 =head1 BLOCKS
@@ -392,6 +394,19 @@ has_field 'scans.contains' =>
     widget_wrapper => 'DynamicTableRow',
   );
 
+=head2 device_registration
+
+The definition for Device registration Sources field
+
+=cut
+
+has_field 'device_registration' =>
+  (
+    type => 'Select',
+    options_method => \&options_device_registration,
+  );
+
+
 =head2 preregistration
 
 Controls whether or not this connection profile is used for preregistration
@@ -459,6 +474,17 @@ sub options_scan {
     return  map { { value => $_, label => $_ } } @{pf::ConfigStore::Scan->new->readAllIds};
 }
 
+=head2 options_device_registration
+
+Returns the list of device_registration profile to be displayed
+
+=cut
+
+sub options_device_registration {
+    return  map { { value => $_, label => $_ } } '',@{pf::ConfigStore::DeviceRegistration->new->readAllIds};
+}
+
+
 =head2 options_root_module
 
 Returns the list of root modules to be displayed
@@ -505,7 +531,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

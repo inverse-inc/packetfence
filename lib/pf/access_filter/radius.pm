@@ -65,7 +65,7 @@ sub handleAnswerInRule {
         $logger->info(evalParam($rule->{'log'},$args)) if defined($rule->{'log'});
         while (1) {
             if (defined($rule->{"answer$i"}) && $rule->{"answer$i"} ne '') {
-                my @answer = $rule->{"answer$i"} =~ /([0-9a-zA-Z_-]*)\s*=>\s*(.*)/;
+                my @answer = $rule->{"answer$i"} =~ /([.0-9a-zA-Z_-]*)\s*=>\s*(.*)/;
                 $args->{'session_id'} = setSession($args) if ($answer[1] =~ /\$session_id/);
                 evalAnswer(\@answer,$args,\$radius_reply);
             } else {
@@ -230,7 +230,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

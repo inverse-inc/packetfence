@@ -217,6 +217,7 @@ sub auth_source_params {
         mac => $self->current_mac,
         connection_type => $locationlog_entry->{'connection_type'},
         SSID => $locationlog_entry->{'ssid'},
+        realm => $locationlog_entry->{'realm'},
         %{$self->auth_source_params_child()},
     }
 }
@@ -317,7 +318,7 @@ sub update_person_from_fields {
     elsif (ref($self) eq 'captiveportal::DynamicRouting::Module::Authentication::Password') {
         $options{pid} //= $self->username;
     } else {
-        $options{pid} //= $self->request_fields->{$self->pid_field};
+        $options{pid} //= $self->request_fields->{$self->pid_field} // $self->username;
     }
 
     # not sure we should set the portal + source here...
@@ -330,7 +331,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -351,7 +352,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;
 

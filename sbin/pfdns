@@ -43,6 +43,7 @@ use pf::config qw(
     is_type_inline
 );
 use pf::util;
+use pf::db;
 use pf::services::util;
 use pf::CHI;
 use pf::ConfigStore::Interface;
@@ -166,6 +167,7 @@ sub start_workers {
 
 sub run_worker {
     my ($id) = @_;
+    db_disconnect();
     my $pid = fork();
     if($pid) {
         $CHILDREN{$pid} = $id;
@@ -231,7 +233,6 @@ sub response_handler {
         conn => $conn,
     };
 
-    my $filter = pf::access_filter::dns->new;
     foreach my $network (@routed_registration_nets_named) {
         if ($network->contains($ip)) {
             return regzone($qname, $qclass, $qtype, $peerhost, $query, $conn, 'registration', $args);
@@ -240,7 +241,7 @@ sub response_handler {
     foreach my $network (@routed_isolation_nets_named) {
         if ($network->contains($ip)) {
            # Should be different for isolation network.
-           my @reply = $filter->filter('isolation', $args);
+           my @reply = filtered_results('isolation', $args);
            return @reply if (scalar(@reply) > 1);
            return  isolzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
         }
@@ -338,8 +339,7 @@ sub regzone {
     }
 
     if ($filter_type) {
-        my $filter = pf::access_filter::dns->new;
-        my @reply = $filter->filter($filter_type, $args);
+        my @reply = filtered_results($filter_type, $args);
         return @reply if @reply > 1;
     }
 
@@ -372,7 +372,7 @@ sub regzone {
         my @ip_port_pairs;
         foreach my $key ( keys %domain_dns_servers ) {
             if ($qname =~ /(.*)_msdcs.$key/i) {
-                my $resolver = new Net::DNS::Resolver(nameservers => [$domain_dns_servers{$key}]);
+                my $resolver = new Net::DNS::Resolver(nameservers => $domain_dns_servers{$key});
                 my $reply = $resolver->search($qname, $qtype);
                 next if !defined($reply);
                 my @answers = $reply->answer;
@@ -619,11 +619,31 @@ while($RUNNING){
     pause unless @WORKERS;
 }
 
+=head2 filtered_results
+
+filtered_results
+
+=cut
+
+sub filtered_results {
+    my ($scope, @args) = @_;
+    my $filter = pf::access_filter::dns->new;
+    my $reply = $filter->filter($scope, @args);
+    if (!defined $reply) {
+        return undef;
+    }
+    my $rr = new Net::DNS::RR($reply->{answer});
+    my @ans;
+    push @ans, $rr;
+    return ($reply->{'rcode'},\@ans,[],[], {aa => 1});
+}
+
+
 cleanup();
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

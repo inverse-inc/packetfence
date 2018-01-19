@@ -55,8 +55,6 @@ my @methods = qw(
     report_statics_active
     report_unknownprints_all
     report_unknownprints_active
-    report_unknownuseragents_all
-    report_unknownuseragents_active
     report_connectiontype_all
     report_connectiontype_active
     report_connectiontypereg_all
@@ -81,7 +79,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

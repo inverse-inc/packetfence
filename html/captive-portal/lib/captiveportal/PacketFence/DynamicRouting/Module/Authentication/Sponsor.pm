@@ -68,7 +68,7 @@ We record the completed sponsorship in the auth_log
 
 before 'done' => sub {
     my ($self) = @_;
-    pf::auth_log::record_completed_guest($self->source->id, $self->current_mac, $pf::auth_log::COMPLETED);
+    pf::auth_log::record_completed_guest($self->source->id, $self->current_mac, $pf::auth_log::COMPLETED, $self->app->profile->name);
 };
 
 =head2 execute_child
@@ -179,8 +179,8 @@ sub do_sponsor_registration {
     }
 
     $info{'sponsor'} = $sponsor;
-
     $info{'subject'} = $self->app->i18n_format("%s: Guest access request", $Config{'general'}{'domain'});
+    $info{'source_id'} = $source->id;
 
     # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
     my ( $auth_return, $err, $activation_code ) =
@@ -194,7 +194,7 @@ sub do_sponsor_registration {
         %info,
       );
 
-    pf::auth_log::record_guest_attempt($source->id, $self->current_mac, $pid);
+    pf::auth_log::record_guest_attempt($source->id, $self->current_mac, $pid, $self->app->profile->name);
 
     $self->session->{activation_code} = $activation_code;
     $self->app->session->{email} = $email;
@@ -253,7 +253,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -274,7 +274,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;
 

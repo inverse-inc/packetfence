@@ -986,7 +986,7 @@ sub connection_profiles {
         billing_tiers|description|sources|redirecturl|always_use_redirecturl|
         allowed_devices|allow_android_devices|
         reuse_dot1x_credentials|provisioners|filter_match_style|sms_pin_retry_limit|
-        sms_request_limit|login_attempt_limit|block_interval|dot1x_recompute_role_from_portal|scan|root_module|preregistration|autoregister|access_registration_when_registered)/x;
+        sms_request_limit|login_attempt_limit|block_interval|dot1x_recompute_role_from_portal|scan|root_module|preregistration|autoregister|access_registration_when_registered|device_registration)/x;
     my $validator = pf::validation::profile_filters->new;
 
     foreach my $connection_profile ( keys %Profiles_Config ) {
@@ -1120,7 +1120,7 @@ sub valid_certs {
     my $haproxy_crt = "$install_dir/conf/ssl/server.pem";
 
     eval {
-        if(cert_has_expired($haproxy_crt)){
+        if(pf::util::cert_expires_in($haproxy_crt)){
             add_problem($WARN, "The certificate used by haproxy ($haproxy_crt) has expired.\nRegenerate a new self-signed certificate or update your current certificate.");
         }
     };
@@ -1141,7 +1141,7 @@ sub valid_certs {
     }
 
     eval {
-        if(cert_has_expired($httpd_crt)){
+        if(pf::util::cert_expires_in($httpd_crt)){
             add_problem($WARN, "The certificate used by Apache ($httpd_crt) has expired.\nRegenerate a new self-signed certificate or update your current certificate.");
         }
     };
@@ -1164,7 +1164,7 @@ sub valid_certs {
         }
 
         eval {
-            if(cert_has_expired($radius_crt)){
+            if(pf::util::cert_expires_in($radius_crt)){
                 add_problem($WARN, "The certificate used by FreeRADIUS ($radius_crt) has expired.\n" .
                          "Regenerate a new self-signed certificate or update your current certificate.");
             }
@@ -1301,20 +1301,6 @@ sub valid_fingerbank_device_id {
     }
 }
 
-=item cert_has_expired
-
-Will validate that a certificate has not expired
-
-=cut
-
-sub cert_has_expired {
-    my ($path) = @_;
-    return undef if !defined $path;
-    my $cert = Crypt::OpenSSL::X509->new_from_file($path);
-    my $expiration = str2time($cert->notAfter);
-    return time > $expiration;
-}
-
 =back
 
 =head1 AUTHOR
@@ -1323,7 +1309,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

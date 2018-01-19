@@ -13,7 +13,6 @@ use pf::util;
 use pf::Portal::Session;
 use pf::web;
 use pf::node;
-use pf::useragent;
 use pf::violation;
 use pf::class;
 use Cache::FileCache;
@@ -238,7 +237,7 @@ sub getLanguages :Private {
     # 1. Check if a language is specified in the URL
     if ( defined($c->request->param('lang')) ) {
         my $user_chosen_language = $c->request->param('lang');
-        $user_chosen_language =~ s/^(\w{2})(_\w{2})?/lc($1) . uc($2)/e;
+        $user_chosen_language =~ s/^(\w{2})(_\w{2})?/lc($1) . uc($2 \/\/ "")/e;
         if (grep(/^$user_chosen_language$/, @authorized_locales)) {
             $lang = $user_chosen_language;
             # Store the language in the session
@@ -325,7 +324,11 @@ Attempt to render a view, if needed.
 
 sub end : ActionClass('RenderView') {
     my ( $self, $c ) = @_;
-
+    
+    if (isenabled($Config{'advanced'}{'portal_csp_security_headers'})) {
+        $c->csp_server_headers();
+    }
+    
     # We save the user session
     $c->_save_user_session();
 
@@ -372,7 +375,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -393,6 +396,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

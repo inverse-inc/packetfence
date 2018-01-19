@@ -24,10 +24,10 @@ use pf::accounting qw(
     node_accounting_daily_time node_accounting_weekly_time node_accounting_monthly_time node_accounting_yearly_time
 );
 use pf::config;
+use pf::constants qw($ZERO_DATE);
 use pf::ip4log;
 use pf::locationlog;
 use pf::node;
-use pf::useragent qw(node_useragent_view);
 use pf::util;
 
 sub lookup_node {
@@ -46,7 +46,7 @@ sub lookup_node {
 
             $return .= "IP Address     : ".$node_ip4log_info->{'ip'}." (active)\n";
             $return .= "IP Info        : IP active since " . $node_ip4log_info->{'start_time'};
-            if ($node_ip4log_info->{'end_time'} ne '0000-00-00 00:00:00') {
+            if ($node_ip4log_info->{'end_time'} ne $ZERO_DATE) {
                 $return .= " and DHCP lease valid until ".$node_ip4log_info->{'end_time'};
             }
             $return .= "\n";
@@ -93,16 +93,20 @@ sub lookup_node {
         my $voip = $node_info->{'voip'};
         $return .= "VoIP           : $voip\n" if ($voip);
 
-        $return .= "\nNODE USER-AGENT INFORMATION\n";
-        $return .= "Raw User-Agent : " . $node_info->{'user_agent'} . "\n" if ( $node_info->{'user_agent'} );
-        my $node_useragent = node_useragent_view($mac);
-        if (defined($node_useragent->{'mac'})) {
-            $return .= "Browser        : " . $node_useragent->{'browser'} . "\n" if ( $node_useragent->{'browser'} );
-            $return .= "OS             : " . $node_useragent->{'os'} . "\n" if ( $node_useragent->{'os'} );
-            $return .= "Is a device?   : " . $node_useragent->{'device'} . "\n" if ( $node_useragent->{'device'} );
-            $return .= "Device name    : " . $node_useragent->{'device_name'} . "\n" 
-                if ( $node_useragent->{'device_name'} );
-            $return .= "Is a mobile?   : " . $node_useragent->{'mobile'} . "\n" if ( $node_useragent->{'mobile'} );
+        if($node_info->{device_type}) {
+            $return .= "\n";
+            $return .= "DEVICE PROFILING INFORMATION\n";
+            my $fingerbank_info = pf::node::fingerbank_info($mac, $node_info);
+            if($fingerbank_info) {
+                $return .= "Device: ".$fingerbank_info->{device_fq}."\n"; 
+                $return .= "Device version: ".$fingerbank_info->{version}."\n"; 
+                $return .= "Device profiling confidence level: ".$fingerbank_info->{score}."\n";
+                $return .= "\n";
+            }
+            else {
+                $return .= "Unable to find device profiling informations\n";
+                $return .= "\n";
+            }
         }
 
         $return .= "DHCP Info      : Last DHCP request at ".$node_info->{'last_dhcp'}."\n";
@@ -206,7 +210,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

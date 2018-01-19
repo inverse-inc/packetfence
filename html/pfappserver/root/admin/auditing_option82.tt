@@ -8,7 +8,7 @@
                     [% l('Switch Groups')%]
                 <i class="icon-chevron-up pull-right"></i></a>
                 <ul id="collapseOption82SwitchGroup" class="nav nav-list collapse">
-                  <li class="sidenav-subsection">
+                  <li class="sidenav-subsection[% UNLESS switch_groups.size %] sidenav-subsection--last[% END %]">
                     <a data-toggle="collapse" data-parent="#collapseOption82SwitchGroup" href="#collapseOption82SwitchGroupDefault" class="collapsed">Default<i class="icon-chevron-up pull-right"></i></a>
                   </li>
                   <li id="collapseOption82SwitchGroupDefault" class="collapse">
@@ -25,7 +25,7 @@
                     </ul>
                   </li>
                   [% FOREACH switch_group IN switch_groups %]
-                  <li class="sidenav-subsection">
+                  <li class="sidenav-subsection[% IF loop.last %] sidenav-subsection--last[% END %]">
                     <a data-toggle="collapse" data-parent="#collapseOption82SwitchGroup" href="#collapse_[% switch_group.id %]" class="collapsed">[% switch_group.id %]<i class="icon-chevron-up pull-right"></i></a>
                   </li>
                   <li id="collapse_[% switch_group.id %]" class="collapse">

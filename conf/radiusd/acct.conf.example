@@ -1,13 +1,20 @@
 
-pidfile = %%pid_file%%
+pidfile = [% pid_file %]
 
 $INCLUDE radiusd.conf
 
-%%listen%%
+[% FOREACH ip IN listen_ips %]
+listen {
+        ipaddr = [% ip %]
+        port = 0
+        type = acct
+        virtual_server = packetfence
+}
+[% END %]
 
 listen {
     type = control
-    socket = %%socket_file%%
+    socket = [% socket_file %]
     mode = rw
 }
 

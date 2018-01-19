@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -15,6 +16,12 @@ import (
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"layeh.com/radius"
 )
+
+var usernameFormatRegexps = map[string]*regexp.Regexp{
+	"stripped_username": regexp.MustCompile(`\$username`),
+	"realm":             regexp.MustCompile(`\$realm`),
+	"username":          regexp.MustCompile(`\$pf_username`),
+}
 
 // Basic interface that all FirewallSSO must implement
 type FirewallSSOInt interface {
@@ -29,8 +36,10 @@ type FirewallSSOInt interface {
 	MatchesNetwork(ctx context.Context, info map[string]string) bool
 	ShouldCacheUpdates(ctx context.Context) bool
 	GetCacheTimeout(ctx context.Context) int
+	FormatUsername(ctx context.Context, info map[string]string) string
 	GetLoadedAt() time.Time
 	SetLoadedAt(time.Time)
+	CheckStatus(ctx context.Context, info map[string]string) bool
 }
 
 // Basic struct for all firewalls
@@ -41,9 +50,11 @@ type FirewallSSO struct {
 	PfconfigHashNS string `val:"-"`
 	RoleBasedFirewallSSO
 	pfconfigdriver.TypedConfig
-	Networks     []*FirewallSSONetwork `json:"networks"`
-	CacheUpdates string                `json:"cache_updates"`
-	CacheTimeout string                `json:"cache_timeout"`
+	Networks       []*FirewallSSONetwork `json:"networks"`
+	CacheUpdates   string                `json:"cache_updates"`
+	CacheTimeout   string                `json:"cache_timeout"`
+	UsernameFormat string                `json:"username_format"`
+	DefaultRealm   string                `json:"default_realm"`
 }
 
 // Builds all networks, meant to be called after the data is loaded into the struct attributes
@@ -109,6 +120,33 @@ func (fw *FirewallSSO) InfoToTemplateCtx(ctx context.Context, info map[string]st
 	templateCtx["Timeout"] = strconv.Itoa(timeout)
 
 	return templateCtx
+}
+
+func (fw *FirewallSSO) FormatUsername(ctx context.Context, info map[string]string) string {
+	if fw.UsernameFormat == "" {
+		return info["username"]
+	}
+
+	username := fw.UsernameFormat
+
+	if info["realm"] == "" {
+		log.LoggerWContext(ctx).Debug("No realm for user, using default realm")
+		info["realm"] = fw.DefaultRealm
+	}
+
+	for key, re := range usernameFormatRegexps {
+		username = re.ReplaceAllString(username, info[key])
+	}
+
+	return username
+}
+
+func (fw *FirewallSSO) GetStatus(ctx context.Context, info map[string]string) bool {
+	if info["status"] == "reg" {
+		return true
+	} else {
+		return false
+	}
 }
 
 // Start method that will be called on every SSO called via ExecuteStart
@@ -201,26 +239,34 @@ func (fw *FirewallSSO) logger(ctx context.Context) log15.Logger {
 // Makes sure to call FirewallSSO.Start and to validate the network and role if necessary
 func ExecuteStart(ctx context.Context, fw FirewallSSOInt, info map[string]string, timeout int) (bool, error) {
 	ctx = log.AddToLogContext(ctx, "firewall-id", fw.GetFirewallSSO(ctx).PfconfigHashNS)
-	log.LoggerWContext(ctx).Info("Processing SSO Start")
 
-	if !fw.MatchesRole(ctx, info) {
-		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO for user device %s since it doesn't match the role", info["role"]))
+	if fw.GetStatus(ctx, info) {
+		log.LoggerWContext(ctx).Info("Processing SSO Start")
+		if !fw.MatchesRole(ctx, info) {
+			log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO for user device %s since it doesn't match the role", info["role"]))
+			return false, nil
+		}
+
+		if !fw.MatchesNetwork(ctx, info) {
+			log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO for IP %s since it doesn't match any configured network", info["ip"]))
+			return false, nil
+		}
+
+		// We change the username with the way it is expected given the format of this firewall
+		info["username"] = fw.FormatUsername(ctx, info)
+
+		parentResult, err := fw.GetFirewallSSO(ctx).Start(ctx, info, timeout)
+
+		if err != nil {
+			return false, err
+		}
+
+		childResult, err := fw.Start(ctx, info, timeout)
+		return parentResult && childResult, err
+	} else {
 		return false, nil
 	}
 
-	if !fw.MatchesNetwork(ctx, info) {
-		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO for IP %s since it doesn't match any configured network", info["ip"]))
-		return false, nil
-	}
-
-	parentResult, err := fw.GetFirewallSSO(ctx).Start(ctx, info, timeout)
-
-	if err != nil {
-		return false, err
-	}
-
-	childResult, err := fw.Start(ctx, info, timeout)
-	return parentResult && childResult, err
 }
 
 // Execute an SSO Stop request on the specified firewall
@@ -233,6 +279,9 @@ func ExecuteStop(ctx context.Context, fw FirewallSSOInt, info map[string]string)
 		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO for IP %s since it doesn't match any configured network", info["ip"]))
 		return false, nil
 	}
+
+	// We change the username with the way it is expected given the format of this firewall
+	info["username"] = fw.FormatUsername(ctx, info)
 
 	parentResult, err := fw.GetFirewallSSO(ctx).Stop(ctx, info)
 

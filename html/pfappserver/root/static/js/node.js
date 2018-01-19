@@ -45,7 +45,7 @@ var NodeView = function(options) {
 
     var read = $.proxy(this.readNode, this);
     var body = $('body');
-    options.parent.on('click', '#nodes [href*="node"][href$="/read"]', read);
+    options.parent.on('click', '[href*="node"][href$="/read"]', read);
 
     this.proxyClick(body, '.node [href*="node"][href$="/read"]', this.readNode);
 
@@ -59,7 +59,11 @@ var NodeView = function(options) {
 
     this.proxyFor(body, 'change', 'form[name="simpleNodeSearch"] [name$=".op"]', this.changeOpField);
 
+    this.proxyFor(body, 'click', '#simpleNodeSearchResetBtn', this.resetSimpleSearch);
+
     this.proxyFor(body, 'submit', 'form[name="advancedNodeSearch"]', this.submitSearch);
+
+    this.proxyFor(body, 'click', '#advancedNodeSearchResetBtn', this.resetAdvancedSearch);
 
     this.proxyFor(body, 'change', 'form[name="advancedNodeSearch"] [name$=".name"]', this.changeSearchField);
 
@@ -145,6 +149,11 @@ NodeView.prototype.readNode = function(e) {
         success: function(data) {
             $('body').append(data);
             var modal = $("#modalNode");
+            /* Ability to track submitted button (multihost feature) */
+            modal.find("form button[type=submit]").click(function() {
+                $(this, $(this).parents("form")).removeAttr("clicked");
+                $(this).attr("clicked", "true");
+            });
             modal.modal({ show: true });
         },
         errorSibling: section.find('h2').first()
@@ -726,3 +735,17 @@ NodeView.prototype.searchSwitch = function(query, process) {
         }
     });
 }
+
+NodeView.prototype.resetAdvancedSearch = function(e) {
+    var form = $('form[name="advancedNodeSearch"]');
+    form.find('#advancedSearchConditions').find('tbody').children(':not(.hidden)').find('[href="#delete"]').click();
+    form.find('#advancedSearchConditionsEmpty [href="#add"]').click();
+    form[0].reset();
+    form.submit();
+};
+
+NodeView.prototype.resetSimpleSearch = function(e) {
+    var form = $('#simpleNodeSearch');
+    form[0].reset();
+    form.submit();
+};

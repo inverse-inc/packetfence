@@ -53,9 +53,7 @@ use pf::config qw(
     is_type_inline
     @radius_ints
 );
-use pf::class qw(class_view_all class_trappable);
 use pf::file_paths qw($generated_conf_dir $conf_dir);
-use pf::node qw(nodes_registered_not_violators);
 use pf::util;
 use pf::violation qw(violation_view_open_uniq violation_count);
 use pf::authentication;
@@ -683,23 +681,27 @@ sub generate_interception_rules {
         if ($enforcement_type eq $IF_ENFORCEMENT_VLAN) {
             # send everything from vlan interfaces to the vlan chain
             $$nat_if_src_to_chain .= "-A PREROUTING --in-interface $dev --jump $FW_PREROUTING_INT_VLAN\n";
-            if (defined($Config{'fencing'}{'interception_proxy_port'}) && isenabled($Config{'fencing'}{'interception_proxy'})) {
-                foreach my $network ( keys %ConfigNetworks ) {
-                    next if (pf::config::is_network_type_inline($network));
-                    my %net = %{$ConfigNetworks{$network}};
-                    my $ip;
-                    if (defined($net{'next_hop'})) {
-                        $ip = new NetAddr::IP::Lite clean_ip($net{'next_hop'});
-                    } else {
-                        $ip = new NetAddr::IP::Lite clean_ip($net{'gateway'});
-                    }
-                    if ($net_addr->contains($ip)) {
+            foreach my $network ( keys %ConfigNetworks ) {
+                next if (pf::config::is_network_type_inline($network));
+                my %net = %{$ConfigNetworks{$network}};
+                my $ip;
+                if (defined($net{'next_hop'})) {
+                    $ip = new NetAddr::IP::Lite clean_ip($net{'next_hop'});
+                } else {
+                    $ip = new NetAddr::IP::Lite clean_ip($net{'gateway'});
+                }
+                if ($net_addr->contains($ip)) {
+                    my $destination = $Config{"interface $dev"}{'vip'} || $Config{"interface $dev"}{'ip'};
+                    if (defined($Config{'fencing'}{'interception_proxy_port'}) && isenabled($Config{'fencing'}{'interception_proxy'})) {
                         foreach my $intercept_port ( split( ',', $Config{'fencing'}{'interception_proxy_port'} ) ) {
-                            my $destination = $Config{"interface $dev"}{'vip'} || $Config{"interface $dev"}{'ip'};
                             my $rule = "--protocol tcp --destination-port $intercept_port -s $network/$ConfigNetworks{$network}{'netmask'}";
                             $$nat_prerouting_vlan .= "-A $FW_PREROUTING_INT_VLAN $rule --jump DNAT --to $destination\n";
                         }
                     }
+                    my $rule = "--protocol udp --destination-port 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
+                    $$nat_prerouting_vlan .= "-A $FW_PREROUTING_INT_VLAN $rule --jump DNAT --to $destination\n";
+                    $rule = "--protocol tcp --destination-port 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
+                    $$nat_prerouting_vlan .= "-A $FW_PREROUTING_INT_VLAN $rule --jump DNAT --to $destination\n";
                 }
             }
         }
@@ -783,7 +785,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

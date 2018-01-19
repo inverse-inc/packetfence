@@ -1,5 +1,5 @@
-<script>
-violationsView.event_triggers = JSON.parse("[% json_event_triggers | js %]")
+<script class="event_triggers" type="text/json">
+  [% json_event_triggers | none %]
 </script>
 
 [% UNLESS action_uri%]
@@ -32,6 +32,7 @@ violationsView.event_triggers = JSON.parse("[% json_event_triggers | js %]")
         [% form.field('target_category').render | none %]
         [% form.field('external_command').render | none %]
         [% form.field('user_mail_message').render | none %]
+        [% form.field('access_duration').render | none %]
         [% form.field('priority').render | none %]
         [% form.field('whitelisted_roles').render | none %]
       </div><!-- tab-pane -->
@@ -49,7 +50,7 @@ violationsView.event_triggers = JSON.parse("[% json_event_triggers | js %]")
           [% form.field('trigger').render | none %]
           </div>
 
-          <div id="noTrigger" class="unwell" [% IF splitted_triggers.size %]style="display:none"[% END %]>
+          <div id="noTrigger" class="unwell[% IF splitted_triggers.size %] hide[% END %]">
             <i class="icon icon-cog"></i><p>No trigger defined</p>
           </div>
 
@@ -64,7 +65,7 @@ violationsView.event_triggers = JSON.parse("[% json_event_triggers | js %]")
                   <i class="icon icon-remove"></i>
                 </a>
               </span>
-              <select multiple="multiple" class='chzn-select input-xxlarge trigger'>
+              <select multiple="multiple" class="chzn-select input-xxlarge trigger">
               [% FOREACH subtrigger IN trigger %]
                 [% subtrigger_index = loop.index %]
                 <option value="[% subtrigger %]" selected="selected">
@@ -77,7 +78,7 @@ violationsView.event_triggers = JSON.parse("[% json_event_triggers | js %]")
           [% END %]
         </div>
 
-        <div id="editTrigger" style="display:none">
+        <div id="editTrigger" class="hide">
           <div id="editedTrigger">
           </div>
           <div class="control-group">
@@ -101,7 +102,7 @@ violationsView.event_triggers = JSON.parse("[% json_event_triggers | js %]")
                     <option value="[% trigger %]">[% trigger_map.$category.$trigger %]</option>
                   [% END %]
                   </select>
-                  <button onclick="javascript:void(0)" class="btn add_trigger_part">[% l('Add') %]</button>
+                  <button type="button" class="btn add_trigger_part">[% l('Add') %]</button>
                 </div>
               </div>
             [% END %]
@@ -175,7 +176,7 @@ violationsView.event_triggers = JSON.parse("[% json_event_triggers | js %]")
                 </div>
               </div>
               <div class="controls">
-                <button onclick="javascript:void(0)" class="btn add_accounting_trigger">[% l('Add') %]</button>
+                <button type="button" class="btn add_accounting_trigger">[% l('Add') %]</button>
               </div>
             </div>
 

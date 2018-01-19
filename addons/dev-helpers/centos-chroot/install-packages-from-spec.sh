@@ -19,5 +19,6 @@ REPOQUERY="repoquery --queryformat=%{NAME} --disablerepo=* $PF_REPO $STD_REPOS -
 EL_VERSION=$(cat /etc/redhat-release | perl -p -e's/^.*(\d+)\..*$/$1/' )
 
 rpm -q -D"el$EL_VERSION 1" -D"builddoc 0" --requires  --specfile $SPEC | grep -v packetfence \
+    | grep -v 'fingerbank >' \
     | perl -pi -e's/ +$//' | sort -u \
     | xargs -d '\n' $YUM install

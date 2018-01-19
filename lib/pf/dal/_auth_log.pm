@@ -28,6 +28,7 @@ our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
@@ -39,6 +40,7 @@ BEGIN {
         attempted_at
         completed_at
         source
+        profile
     );
 
     %DEFAULTS = (
@@ -49,6 +51,7 @@ BEGIN {
         attempted_at => '',
         completed_at => undef,
         source => '',
+        profile => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -59,6 +62,7 @@ BEGIN {
         attempted_at
         completed_at
         source
+        profile
     );
 
     %FIELDS_META = (
@@ -110,11 +114,30 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
+        profile => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
     );
 
     @PRIMARY_KEYS = qw(
         id
     );
+
+    @COLUMN_NAMES = qw(
+        auth_log.id
+        auth_log.process_name
+        auth_log.mac
+        auth_log.pid
+        auth_log.status
+        auth_log.attempted_at
+        auth_log.completed_at
+        auth_log.source
+        auth_log.profile
+    );
+
 }
 
 use Class::XSAccessor {
@@ -164,6 +187,16 @@ our $FIND_SQL = do {
     "SELECT * FROM `auth_log` WHERE $where;";
 };
 
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
+
 =head2 _find_one_sql
 
 The precalculated sql to find a single row auth_log
@@ -210,7 +243,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

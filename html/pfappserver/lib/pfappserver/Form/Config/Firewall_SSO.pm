@@ -94,6 +94,23 @@ has_field 'networks' =>
              help => 'Comma delimited list of networks on which the SSO applies.<br/>Format : 192.168.0.0/24' },
   );
 
+has_field 'username_format' =>
+  (
+   type => 'Text',
+   label => 'Username format',
+   default => '$pf_username',
+   tags => { after_element => \&help,
+             help => 'Defines how to format the username that is sent to your firewall. $username represents the username and $realm represents the realm of your user if applicable. $pf_username represents the unstripped username as it is stored in the PacketFence database. If left empty, it will use the username as stored in PacketFence (value of $pf_username).' },
+  );
+
+has_field 'default_realm' =>
+  (
+   type => 'Text',
+   label => 'Default realm',
+   tags => { after_element => \&help,
+             help => 'The default realm to be used while formatting the username when no realm can be extracted from the username.' },
+  );
+
 =head2 Methods
 
 =cut
@@ -140,7 +157,7 @@ sub options_categories {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -161,5 +178,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

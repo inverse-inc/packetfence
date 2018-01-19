@@ -79,7 +79,7 @@ sub read {
             }
             if ($user->{unregdate}) {
                 # Formulate unregdate
-                $user->{unregdate} = '' if $user->{unregdate} eq '0000-00-00 00:00:00';
+                $user->{unregdate} = '' if $user->{unregdate} eq $ZERO_DATE;
                 $user->{unregdate} =~ s/ 00:00:00$//;
             }
             $self->_make_actions($user);
@@ -786,7 +786,7 @@ sub bulkDelete {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -807,6 +807,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;
