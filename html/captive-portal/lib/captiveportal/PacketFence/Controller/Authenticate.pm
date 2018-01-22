@@ -17,7 +17,7 @@ use HTML::Entities;
 use List::MoreUtils qw(any uniq all);
 use pf::config;
 use pf::auth_log;
-use pf::person qw(person_modify person_exist person_add);
+use pf::person;
 use Email::Valid;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
@@ -80,21 +80,22 @@ sub authenticationLogin : Private {
     $logger->debug("authentication attempt");
 
     if ($request->{'match'} eq "status/login") {
-        use pf::person;
         my $person_info = pf::person::person_view($request->param("username"));
-        my $source = pf::authentication::getAuthenticationSource($person_info->{source});
-        if (defined($source) && $source->{'class'} eq 'external') {
-            # Source is external, we have to use local source to authenticate
-            $c->stash( use_local_source => 1 );
+        if($person_info) {
+            my $source = pf::authentication::getAuthenticationSource($person_info->{source});
+            if (defined($source) && $source->{'class'} eq 'external') {
+                # Source is external, we have to use local source to authenticate
+                $c->stash( use_local_source => 1 );
+            }
+            my $portal = $person_info->{portal};
+            unless (defined $portal && length($portal) && exists $Profiles_Config{$portal}) {
+                $portal = $DEFAULT_PROFILE;
+            }
+            my $options = {
+                portal => $portal,
+            };
+            $profile = pf::Connection::ProfileFactory->instantiate( $mac, $options);
         }
-        my $portal = $person_info->{portal};
-        unless (defined $portal && length($portal) && exists $Profiles_Config{$portal}) {
-            $portal = $DEFAULT_PROFILE;
-        }
-        my $options = {
-            portal => $portal,
-        };
-        $profile = pf::Connection::ProfileFactory->instantiate( $mac, $options);
     }
     $c->stash( profile => $profile );
 
