@@ -135,8 +135,8 @@ is_deeply(
             'op' => 'like'
         }
     ),
-    { 'mac' => { '-like' => \[q{? ESCAPE '\'}, '%bob\\%bob%'] } },
-    "mac LIKE '%bob\\%bob%' ESCAPE '\\'"
+    { 'mac' => { '-like' => \[q{? ESCAPE '\\\\'}, '%bob\\%bob%'] } },
+    "mac LIKE '%bob\\%bob%' ESCAPE '\\\\'"
 );
 
 $params = {
