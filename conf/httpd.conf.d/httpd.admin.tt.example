@@ -251,7 +251,6 @@ ProxyHTMLLinks  script      src for
       ProxyPassReverse /portal_preview/ http://[% preview_ip %]/
       ProxyPassReverse /portal_preview/ https://[% server_name %]/
       ProxyPassReverse /portal_preview/ http://[% server_name %]/
-      ProxyPassReverse /portal_preview/ /
       #LogLevel debug
 
       <Location /portal_preview >
@@ -260,10 +259,10 @@ ProxyHTMLLinks  script      src for
           RewriteCond %{QUERY_STRING} .*PORTAL=(.*) [OR]
           RewriteCond %{HTTP_COOKIE} PF_PORTAL=([^;]+)
           RewriteRule ^(.*)$ - [E=X_PORTAL:%1]
+          Header edit Location ^/(.*) /portal_preview/$1
           RequestHeader unset Accept-Encoding
           RequestHeader append X-Forwarded-For-PacketFence "127.0.0.1"
 
-          ProxyPassReverse /
           # Debian 7 has an older version of mod_proxy_html
           <IfDefine debian>
             [% IF apache_version == "2.4" %]
