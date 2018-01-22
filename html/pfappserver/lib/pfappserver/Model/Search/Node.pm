@@ -346,9 +346,9 @@ sub find_like_format {
 
 sub escape_like {
     my ($value, $format) = @_;
-    my $escaped = $value =~ s/([%_])/\\$1/g;
+    my $escaped = $value =~ s/([%_\\])/\\$1/g;
     $value = sprintf($format, $value);
-    return $escaped ? \[q{? ESCAPE '\'}, $value] : $value;
+    return $escaped ? \[q{? ESCAPE '\\\\'}, $value] : $value;
 }
 
 sub make_limit_offset {
