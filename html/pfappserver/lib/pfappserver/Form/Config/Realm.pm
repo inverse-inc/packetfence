@@ -36,7 +36,7 @@ has_field 'options' =>
    label => 'Realm Options',
    required => 0,
    tags => { after_element => \&help,
-             help => 'You can add options in the realm definition' },
+             help => 'You can add FreeRADIUS options in the realm definition' },
   );
 
 has_field 'domain' =>
