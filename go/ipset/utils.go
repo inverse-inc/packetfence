@@ -18,6 +18,7 @@ var body io.Reader
 
 type pfIPSET struct {
 	Network map[*net.IPNet]string
+	ListALL []ipset.IPSet
 }
 
 // Detect the vip on each interfaces
@@ -130,19 +131,20 @@ func updateClusterPassthroughIsol(Ip string, Port string) {
 	}
 }
 
-func mac2ip(Mac string) []string {
-	var all []ipset.IPSet
-	all, _ = ipset.ListAll()
+func (IPSET *pfIPSET) mac2ip(Mac string, Set string) []string {
+	r := "((?:[0-9]{1,3}.){3}(?:[0-9]{1,3}))," + Mac
+	rgx := regexp.MustCompile(r)
 
 	var Ips []string
-	for _, v := range all {
-		for _, u := range v.Members {
-			r := "((?:[0-9]{1,3}.){3}(?:[0-9]{1,3}))," + Mac
-			rgx, _ := regexp.Compile(r)
-			if rgx.Match([]byte(u.Elem)) {
-				result := rgx.FindStringSubmatch(u.Elem)
-				fmt.Println(result[1])
-				Ips = append(Ips, result[1])
+	for _, v := range IPSET.ListALL {
+		if v.Name == Set {
+			for _, u := range v.Members {
+
+				if rgx.Match([]byte(u.Elem)) {
+					result := rgx.FindStringSubmatch(u.Elem)
+
+					Ips = append(Ips, result[1])
+				}
 			}
 		}
 	}
@@ -189,7 +191,8 @@ func readDBConfig() pfconfigdriver.PfconfigDatabase {
 }
 
 // initIPSet fetch the database to remove already assigned ip addresses
-func initIPSet() {
+func (IPSET *pfIPSET) initIPSet() {
+	IPSET.ListALL, _ = ipset.ListAll()
 	rows, err := database.Query("select distinct n.mac, i.ip, n.category_id from node as n left join locationlog as l on n.mac=l.mac left join ip4log as i on n.mac=i.mac where l.connection_type = \"inline\" and n.status=\"reg\" and n.mac=i.mac and i.end_time > NOW()")
 	if err != nil {
 		// Log here
@@ -212,12 +215,12 @@ func initIPSet() {
 		for k, v := range IPSET.Network {
 			if k.Contains(net.ParseIP(ipstr)) {
 				if v == "inlinel2" {
-					IPSEThandleLayer2(ipstr, mac, k.IP.String(), "Reg", catID)
-					IPSEThandleMarkIpL2(ipstr, k.IP.String(), catID)
+					IPSET.IPSEThandleLayer2(ipstr, mac, k.IP.String(), "Reg", catID)
+					IPSET.IPSEThandleMarkIpL2(ipstr, k.IP.String(), catID)
 				}
 				if v == "inlinel3" {
-					IPSEThandleLayer3(ipstr, k.IP.String(), "Reg", catID)
-					IPSEThandleMarkIpL3(ipstr, k.IP.String(), catID)
+					IPSET.IPSEThandleLayer3(ipstr, k.IP.String(), "Reg", catID)
+					IPSET.IPSEThandleMarkIpL3(ipstr, k.IP.String(), catID)
 				}
 				break
 			}
@@ -227,6 +230,7 @@ func initIPSet() {
 
 // detectType of each network
 func (IPSET *pfIPSET) detectType() error {
+	IPSET.ListALL, _ = ipset.ListAll()
 	var ctx = context.Background()
 	var NetIndex net.IPNet
 	IPSET.Network = make(map[*net.IPNet]string)
@@ -250,8 +254,13 @@ func (IPSET *pfIPSET) detectType() error {
 		eth, _ := net.InterfaceByName(v)
 		adresses, _ := eth.Addrs()
 		for _, adresse := range adresses {
+
 			var NetIP *net.IPNet
-			_, NetIP, _ = net.ParseCIDR(adresse.String())
+			var IP net.IP
+			IP, NetIP, _ = net.ParseCIDR(adresse.String())
+			if IP.To4() == nil {
+				continue
+			}
 			a, b := NetIP.Mask.Size()
 			if a == b {
 				continue

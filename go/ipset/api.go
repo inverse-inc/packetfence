@@ -74,7 +74,7 @@ func handleLayer2(res http.ResponseWriter, req *http.Request) {
 	Local := vars["local"]
 
 	// Update locally
-	IPSEThandleLayer2(IP, Mac, Network, Type, Catid)
+	IPSET.IPSEThandleLayer2(IP, Mac, Network, Type, Catid)
 
 	// Do we have to update the other members of the cluster
 	if Local == "0" {
@@ -93,25 +93,23 @@ func handleLayer2(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func IPSEThandleLayer2(IP string, Mac string, Network string, Type string, Catid string) {
-	var all []ipset.IPSet
-	all, _ = ipset.ListAll()
+func (IPSET *pfIPSET) IPSEThandleLayer2(IP string, Mac string, Network string, Type string, Catid string) {
 
-	for _, v := range all {
+	for _, v := range IPSET.ListALL {
 		// Delete all entries with the new ip address
 		r := ipset.Test(v.Name, IP)
 		if r == nil {
 			ipset.Del(v.Name, IP)
 			fmt.Println("Removed " + IP + " from " + v.Name)
 		}
-		// Delete all entries with old ip addresses
-		Ips := mac2ip(Mac)
+		// // Delete all entries with old ip addresses
+		Ips := IPSET.mac2ip(Mac, v.Name)
 		for _, i := range Ips {
-			r = ipset.Test(v.Name, i)
-			if r == nil {
-				ipset.Del(v.Name, i)
-				fmt.Println("Removed " + i + " from " + v.Name)
-			}
+			// r = ipset.Test(v.Name, i)
+			// if r == nil {
+			ipset.Del(v.Name, i)
+			fmt.Println("Removed " + i + " from " + v.Name)
+			// }
 		}
 	}
 	// Add to the new ipset session
@@ -132,7 +130,7 @@ func handleMarkIpL2(res http.ResponseWriter, req *http.Request) {
 	Local := vars["local"]
 
 	// Update locally
-	IPSEThandleMarkIpL2(IP, Network, Catid)
+	IPSET.IPSEThandleMarkIpL2(IP, Network, Catid)
 
 	// Do we have to update the other members of the cluster
 	if Local == "0" {
@@ -142,7 +140,7 @@ func handleMarkIpL2(res http.ResponseWriter, req *http.Request) {
 	res.WriteHeader(http.StatusOK)
 }
 
-func IPSEThandleMarkIpL2(IP string, Network string, Catid string) {
+func (IPSET *pfIPSET) IPSEThandleMarkIpL2(IP string, Network string, Catid string) {
 	ipset.Add("PF-iL2_ID"+Catid+"_"+Network, IP)
 }
 
@@ -154,7 +152,7 @@ func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
 	Local := vars["local"]
 
 	// Update locally
-	IPSEThandleMarkIpL3(IP, Network, Catid)
+	IPSET.IPSEThandleMarkIpL3(IP, Network, Catid)
 
 	// Do we have to update the other members of the cluster
 	if Local == "0" {
@@ -173,7 +171,7 @@ func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func IPSEThandleMarkIpL3(IP string, Network string, Catid string) {
+func (IPSET *pfIPSET) IPSEThandleMarkIpL3(IP string, Network string, Catid string) {
 	ipset.Add("PF-iL3_ID"+Catid+"_"+Network, IP)
 }
 
@@ -186,7 +184,7 @@ func handleLayer3(res http.ResponseWriter, req *http.Request) {
 	Local := vars["local"]
 
 	// Update locally
-	IPSEThandleLayer3(IP, Network, Type, Catid)
+	IPSET.IPSEThandleLayer3(IP, Network, Type, Catid)
 
 	// Do we have to update the other members of the cluster
 	if Local == "0" {
@@ -206,11 +204,10 @@ func handleLayer3(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func IPSEThandleLayer3(IP string, Network string, Type string, Catid string) {
-	var all []ipset.IPSet
-	all, _ = ipset.ListAll()
+func (IPSET *pfIPSET) IPSEThandleLayer3(IP string, Network string, Type string, Catid string) {
+
 	// Delete all entries with the new ip address
-	for _, v := range all {
+	for _, v := range IPSET.ListALL {
 		r := ipset.Test(v.Name, IP)
 		if r == nil {
 			ipset.Del(v.Name, IP)
@@ -227,24 +224,21 @@ func IPSEThandleLayer3(IP string, Network string, Type string, Catid string) {
 	}
 }
 
-func handleUnmarkMac(res http.ResponseWriter, req *http.Request) {
+func (IPSET *pfIPSET) handleUnmarkMac(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	Mac := vars["mac"]
 	Local := vars["local"]
 
-	Ips := mac2ip(Mac)
-	for _, i := range Ips {
-		var all []ipset.IPSet
-		all, _ = ipset.ListAll()
-
-		for _, v := range all {
-			r := ipset.Test(v.Name, i)
-			if r == nil {
-				ipset.Del(v.Name, i)
-				conn, _ := conntrack.New()
-				conn.DeleteConnectionBySrcIp(i)
-				fmt.Println("Removed " + i + " from " + v.Name)
-			}
+	for _, v := range IPSET.ListALL {
+		Ips := IPSET.mac2ip(Mac, v.Name)
+		for _, i := range Ips {
+			// r := ipset.Test(v.Name, i)
+			// if r == nil {
+			ipset.Del(v.Name, i)
+			conn, _ := conntrack.New()
+			conn.DeleteConnectionBySrcIp(i)
+			fmt.Println("Removed " + i + " from " + v.Name)
+			// }
 		}
 	}
 	// Do we have to update the other members of the cluster
@@ -264,15 +258,12 @@ func handleUnmarkMac(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func handleUnmarkIp(res http.ResponseWriter, req *http.Request) {
+func (IPSET *pfIPSET) handleUnmarkIp(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	IP := vars["ip"]
 	Local := vars["local"]
 
-	var all []ipset.IPSet
-	all, _ = ipset.ListAll()
-
-	for _, v := range all {
+	for _, v := range IPSET.ListALL {
 		r := ipset.Test(v.Name, IP)
 		if r == nil {
 			ipset.Del(v.Name, IP)

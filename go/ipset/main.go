@@ -22,12 +22,8 @@ var IPSET = &pfIPSET{}
 var database *sql.DB
 
 func main() {
-	webservices = readWebservicesConfig()
 
-	// // Read DB config
-	// configDatabase := readDBConfig()
-	// spew.Dump(configDatabase)
-	// connectDB(configDatabase, database)
+	webservices = readWebservicesConfig()
 
 	// Default http timeout
 	http.DefaultClient.Timeout = 10 * time.Second
@@ -43,17 +39,17 @@ func main() {
 	go func() {
 		// Read DB config
 		for {
-			initIPSet()
+			IPSET.initIPSet()
 			fmt.Println("Reload")
-			time.Sleep(60 * time.Second)
+			time.Sleep(300 * time.Second)
 		}
 	}()
 
 	router := mux.NewRouter()
 	router.HandleFunc("/ipsetmarklayer3/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{type:[a-zA-Z]+}/{catid:[0-9]+}/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{local:[0-1]}", handleLayer3).Methods("POST")
 	router.HandleFunc("/ipsetmarklayer2/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{type:[a-zA-Z]+}/{catid:[0-9]+}/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}/{local:[0-1]}", handleLayer2).Methods("POST")
-	router.HandleFunc("/ipsetunmarkmac/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}/{local:[0-1]}", handleUnmarkMac).Methods("POST")
-	router.HandleFunc("/ipsetunmarkip/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{local:[0-1]}", handleUnmarkIp).Methods("POST")
+	router.HandleFunc("/ipsetunmarkmac/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}/{local:[0-1]}", IPSET.handleUnmarkMac).Methods("POST")
+	router.HandleFunc("/ipsetunmarkip/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{local:[0-1]}", IPSET.handleUnmarkIp).Methods("POST")
 	router.HandleFunc("/ipsetmarkiplayer2/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{catid:[0-9]+}/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{local:[0-1]}", handleMarkIpL2).Methods("POST")
 	router.HandleFunc("/ipsetmarkiplayer3/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{catid:[0-9]+}/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{local:[0-1]}", handleMarkIpL3).Methods("POST")
 	router.HandleFunc("/ipsetpassthrough/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{port:(?:udp|tcp):[0-9]+}/{local:[0-1]}", handlePassthrough).Methods("POST")
