@@ -1,3 +1,74 @@
+NodesLocationlogList:
+  allOf:
+    - $ref: "#/components/schemas/Iterable" 
+    - type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/NodesLocationlog" 
+            
+NodesLocationlog:
+  type: object
+  properties:
+    connection_sub_type:
+        description: The connection sub-category type
+        type: string
+    connection_type:
+        description: The connection type
+        type: string
+    dot1x_username:
+        description: The 802.1X username supplied for authentication
+        type: string
+    end_time:
+        description: The session end date/time
+        type: string
+    id:
+        description: The unique numeric identifier of the locationlog
+        type: integer
+    ifDesc:
+        description: The description of the interface
+        type: string
+    mac: 
+        description: The client MAC
+        type: string
+    port:
+        description: The client numeric port number
+        type: integer
+    realm:
+        description: The client realm
+        type: string
+    role:
+        description: The client role
+        type: string
+    session_id:
+        description: The web-auth session ID if applicable
+        type: string
+    ssid:
+        description: The SSID of the client connection
+        type: string
+    start_time:
+        description: The session start date/time
+        type: string
+    stripped_user_name:
+        description: The username of the clients connection
+        type: string
+    switch:
+        description: The switch identifier
+        type: string
+    switch_ip:
+        description: The switch IPv4 address
+        type: string
+    switch_mac:
+        description: The switch MAC address
+        type: string
+    tenant_id:
+        description: The unique identifier of the client tenant
+        type: integer
+    vlan:
+        description: The numeric VLAN identifier
+        type: integer
+      
 NodesList:
   allOf:
     - $ref: "#/components/schemas/Iterable" 
