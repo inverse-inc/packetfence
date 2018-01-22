@@ -56,7 +56,7 @@ has_field 'portal_strip_username' =>
    type => 'Toggle',
    checkbox_value => "enabled",
    unchecked_value => "disabled",
-   label => 'Strip on the captive portal',
+   label => 'Strip on the portal',
    tags => { after_element => \&help,
              help => 'Should the usernames matching this realm be stripped when used on the captive portal' },
   );
@@ -66,7 +66,7 @@ has_field 'admin_strip_username' =>
    type => 'Toggle',
    checkbox_value => "enabled",
    unchecked_value => "disabled",
-   label => 'Strip on the administration interface',
+   label => 'Strip on the admin',
    tags => { after_element => \&help,
              help => 'Should the usernames matching this realm be stripped when used on the administration interface' },
   );

@@ -21,6 +21,10 @@ our $LOCAL = "LOCAL";
 
 our $NULL = "NULL";
 
+our $PORTAL_CONTEXT = "portal";
+
+our $ADMIN_CONTEXT = "admin";
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
