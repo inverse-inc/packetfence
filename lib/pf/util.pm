@@ -116,11 +116,11 @@ sub valid_date {
     my $logger = get_logger();
 
     # kludgy but short
-    if ( $date
+    if ( !defined $date || $date
         !~ /^\d{4}\-((0[1-9])|(1[0-2]))\-((0[1-9])|([12][0-9])|(3[0-1]))\s+(([01][0-9])|(2[0-3]))(:[0-5][0-9]){2}$/
         )
     {
-        $logger->warn("invalid date $date");
+        $logger->warn("invalid date " . ($date // "'undef'"));
         return (0);
     } else {
         return (1);

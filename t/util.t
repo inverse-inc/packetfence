@@ -8,7 +8,33 @@ BEGIN {
     use lib qw(/usr/local/pf/t);
     use setup_test_config;
 }
-use Test::More tests => 50;
+
+our @INVALID_DATES;
+
+BEGIN {
+    @INVALID_DATES = (
+        {
+            in  => undef,
+            msg => "undef date",
+        },
+        {
+            in  => "garbage",
+            msg => "Invalid date",
+        },
+        {
+            in  => "2017",
+            msg => "invalid date year only",
+        },
+        {
+            in  => "2017-02",
+            msg => "invalid date year month only",
+        },
+    );
+}
+
+
+
+use Test::More tests => 50 + scalar @INVALID_DATES;
 use Test::NoWarnings;
 
 BEGIN {
@@ -114,6 +140,11 @@ is(normalize_time("2M"), 2 * 30 * 24 * 60 * 60, "normalizing months");
 is(normalize_time("2Y"), 2 * 365 * 24 * 60 * 60, "normalizing years");
 
 
+{
+    for my $test (@INVALID_DATES) {
+        ok(!valid_date($test->{in}), $test->{msg});
+    }
+}
 
 # TODO add more tests, we should test:
 #  - all methods ;)
