@@ -2,13 +2,13 @@
 
 =head1 NAME
 
-Locationlog
+Nodes
 
 =cut
 
 =head1 DESCRIPTION
 
-unit test for Locationlog
+unit test for Nodes
 
 =cut
 

@@ -15,10 +15,10 @@ pf::UnifiedApi::Controller::Nodes
 use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
-use pf::dal::locationlog;
+use pf::dal::node;
 use pf::locationlog qw(locationlog_history_mac locationlog_view_open_mac);
 
-has dal => 'pf::dal::locationlog';
+has dal => 'pf::dal::node';
 has id_key => 'id';
 has resource_id => 'pid';
 
