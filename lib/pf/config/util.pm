@@ -617,9 +617,6 @@ sub strip_username_if_needed {
 
     my $param = $context . "_strip_username";
 
-    use Data::Dumper;
-    $logger->info(Dumper($param, $realm_config));
-
     if(isenabled($realm_config->{$param})) {
         $logger->debug("Stripping username is enabled in this context ($context). Will return a split username and realm.");
         return ($stripped, $realm);

@@ -134,12 +134,7 @@ sub authenticate {
         return;
     }
 
-    # If all sources use the stripped username, we strip it
-    # Otherwise, we leave it as is
-    my $use_stripped = all { isenabled($_->{stripped_user_name}) } @{$sources};
-    if($use_stripped){
-        $username = $stripped_username;
-    }
+    ($username, undef) = strip_username_if_needed($username, $pf::constants::realm::PORTAL_CONTEXT);
 
     if ($self->app->reached_retry_limit("login_retries", $self->app->profile->{'_login_attempt_limit'})) {
         $self->app->flash->{error} = $GUEST::ERRORS{$GUEST::ERROR_MAX_RETRIES};

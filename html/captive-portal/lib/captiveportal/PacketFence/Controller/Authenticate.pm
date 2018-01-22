@@ -108,7 +108,7 @@ sub authenticationLogin : Private {
 
     my $sources = $self->getSources($c, $username, $realm);
 
-    $username = strip_username_if_needed($username, $pf::constants::realm::PORTAL_CONTEXT);
+    ($username, undef) = strip_username_if_needed($username, $pf::constants::realm::PORTAL_CONTEXT);
 
     # validate login and password
     ( $return, $message, $source_id, $extra ) =
