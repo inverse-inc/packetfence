@@ -1,14 +1,14 @@
-package pf::UnifiedApi::Controller::Node;
+package pf::UnifiedApi::Controller::Nodes;
 
 =head1 NAME
 
-pf::UnifiedApi::Controller::Node -
+pf::UnifiedApi::Controller::Nodes -
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::UnifiedApi::Controller::Node
+pf::UnifiedApi::Controller::Nodes
 
 =cut
 
