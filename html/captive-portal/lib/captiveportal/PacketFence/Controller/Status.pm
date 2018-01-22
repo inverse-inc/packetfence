@@ -28,6 +28,7 @@ Catalyst Controller.
 sub auto :Private {
     my ( $self, $c ) = @_;
     $c->session->{release_bypass} = $TRUE;
+    $c->stash->{isDeviceRegEnable} = $c->forward(DeviceRegistration => "isDeviceRegEnabled");
     $c->forward('setupCurrentNodeInfo');
     return 1;
 }
@@ -52,9 +53,6 @@ sub index : Path : Args(0) {
     }
     if (view($pid)) {
         $c->stash->{hasLocalAccount} = $TRUE;
-    }
-    if (defined( $c->profile->{'_device_registration'} ) ) {
-        $c->stash->{isDeviceRegEnable} = $TRUE;
     }
     $c->stash(
         title => "Status - Network Access",

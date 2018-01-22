@@ -30,13 +30,27 @@ Catalyst Controller.
 
 sub auto : Private {
     my ( $self, $c ) = @_;
-    if (defined( $c->profile->{'_device_registration'} ) ) {
-        $c->stash->{isDeviceRegEnable} = $TRUE;
-    } else {
+    $c->stash->{isDeviceRegEnable} = $self->isDeviceRegEnabled($c);
+    unless($c->stash->{isDeviceRegEnable}) {
         $self->showError($c,"Device registration module is not enabled" );
         $c->detach;
     }
-    return 1;
+    return $TRUE;
+}
+
+=head2 isDeviceRegEnabled
+
+Checks whether or not a device registration policy is enabled on the current connection profile
+
+=cut
+
+sub isDeviceRegEnabled {
+    my ($self, $c) = @_;
+    if ($c->profile->{'_device_registration'}) {
+        return $TRUE
+    } else {
+        return $FALSE;
+    }
 }
 
 =head2 index
