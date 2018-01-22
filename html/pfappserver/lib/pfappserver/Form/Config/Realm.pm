@@ -51,6 +51,26 @@ has_field 'domain' =>
              help => 'The domain to use for the authentication in that realm' },
   );
 
+has_field 'portal_strip_username' =>
+  (
+   type => 'Toggle',
+   checkbox_value => "enabled",
+   unchecked_value => "disabled",
+   label => 'Strip on the captive portal',
+   tags => { after_element => \&help,
+             help => 'Should the usernames matching this realm be stripped when used on the captive portal' },
+  );
+
+has_field 'admin_strip_username' =>
+  (
+   type => 'Toggle',
+   checkbox_value => "enabled",
+   unchecked_value => "disabled",
+   label => 'Strip on the administration interface',
+   tags => { after_element => \&help,
+             help => 'Should the usernames matching this realm be stripped when used on the administration interface' },
+  );
+
 =head2 options_roles
 
 =cut
