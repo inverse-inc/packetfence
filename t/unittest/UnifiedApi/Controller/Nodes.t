@@ -57,7 +57,7 @@ use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
 
-$t->get_ok('/api/v1/node/00:01:02:03:04:05/locationlog' => json => { })
+$t->get_ok('/api/v1/nodes/00:01:02:03:04:05/locationlog' => json => { })
   ->json_is('/items/0/mac','00:01:02:03:04:05')
   ->json_is('/items/0/switch','0.0.0.1')
   ->json_is('/items/0/switch_ip','0.0.0.2')
@@ -78,7 +78,7 @@ $t->get_ok('/api/v1/node/00:01:02:03:04:05/locationlog' => json => { })
   ->json_is('/items/0/end_timestamp',str2time('0000-00-00 00:00:00'))
   ->status_is(200);
 
-$t->get_ok('/api/v1/node/00:01:02:03:04:05/latest_locationlog' => json => { })
+$t->get_ok('/api/v1/nodes/00:01:02:03:04:05/latest_locationlog' => json => { })
   ->json_is('/mac','00:01:02:03:04:05')
   ->json_is('/switch','0.0.0.1')
   ->json_is('/switch_ip','0.0.0.2')
