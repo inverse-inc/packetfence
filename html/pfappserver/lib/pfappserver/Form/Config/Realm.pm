@@ -51,6 +51,17 @@ has_field 'domain' =>
              help => 'The domain to use for the authentication in that realm' },
   );
 
+has_field 'radius_strip_username' =>
+  (
+   type => 'Toggle',
+   checkbox_value => "enabled",
+   unchecked_value => "disabled",
+   default => "enabled",
+   label => 'Strip in RADIUS authorization',
+   tags => { after_element => \&help,
+             help => 'Should the usernames matching this realm be stripped when used in the authorization phase of 802.1x. Note that this doesn\'t control the stripping in FreeRADIUS, use the options above for that.' },
+  );
+
 has_field 'portal_strip_username' =>
   (
    type => 'Toggle',
