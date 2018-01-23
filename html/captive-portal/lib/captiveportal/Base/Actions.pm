@@ -44,7 +44,7 @@ A wrapper around pf::authentication::match to add the portal context in the para
 
 sub authentication_match_wrapper {
     my (@all) = @_;
-    $all->[1]->{context} = $pf::constants::realm::PORTAL_CONTEXT,
+    $all[1]->{context} = $pf::constants::realm::PORTAL_CONTEXT,
     return pf::authentication::match(@all);
 }
 
