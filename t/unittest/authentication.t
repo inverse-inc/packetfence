@@ -14,7 +14,7 @@ autentication
 use strict;
 use warnings;
 
-use Test::More tests => 32;                      # last test to print
+use Test::More tests => 56;                      # last test to print
 
 use Test::NoWarnings;
 use diagnostics;
@@ -24,7 +24,9 @@ BEGIN {
     use setup_test_config;
 }
 
+use pf::constants;
 use pf::constants::realm;
+use pf::constants::authentication::messages;
 
 # pf core libs
 
@@ -272,6 +274,116 @@ is(
 );
 
 is($source_id_ref, 'htpasswd1', "Source id ref found");
+
+my @tests = (
+    # Stripped username in a non-stripping context to a stripped source
+    {
+        sources => [ pf::authentication::getAuthenticationSource("htpasswd-stripped") ],
+        params => {
+            username => 'lzammit',
+            password => "test",
+            context => $pf::constants::realm::ADMIN_CONTEXT,
+        },
+        expected_auth => [$TRUE, $AUTH_SUCCESS_MSG],
+        expected_match => {set_role => "default", set_unreg_date => "2038-01-01"},
+    },
+    # Non-stripped username in a non-stripping context to a stripped source
+    {
+        sources => [ pf::authentication::getAuthenticationSource("htpasswd-stripped") ],
+        params => {
+            username => 'lzammit@inverse.ca',
+            password => "test",
+            context => $pf::constants::realm::ADMIN_CONTEXT,
+        },
+        expected_auth => [$FALSE, $AUTH_FAIL_MSG],
+        expected_match => undef,
+    },
+    # Stripped username in a stripping context to a stripped source
+    {
+        sources => [ pf::authentication::getAuthenticationSource("htpasswd-stripped") ],
+        params => {
+            username => 'lzammit',
+            password => "test",
+            context => $pf::constants::realm::PORTAL_CONTEXT,
+        },
+        expected_auth => [$TRUE, $AUTH_SUCCESS_MSG],
+        expected_match => {set_role => "default", set_unreg_date => "2038-01-01"},
+    },
+    # Non-stripped username in a stripping context to a stripped source
+    {
+        sources => [ pf::authentication::getAuthenticationSource("htpasswd-stripped") ],
+        params => {
+            username => 'lzammit@inverse.ca',
+            password => "test",
+            context => $pf::constants::realm::PORTAL_CONTEXT,
+        },
+        expected_auth => [$TRUE, $AUTH_SUCCESS_MSG],
+        expected_match => {set_role => "default", set_unreg_date => "2038-01-01"},
+    },
+
+    # Stripped username in a non-stripping context to a non-stripped source
+    {
+        sources => [ pf::authentication::getAuthenticationSource("htpasswd-unstripped") ],
+        params => {
+            username => 'lzammit',
+            password => "test",
+            context => $pf::constants::realm::ADMIN_CONTEXT,
+        },
+        expected_auth => [$FALSE, $AUTH_FAIL_MSG],
+        expected_match => undef,
+    },
+    # Non-stripped username in a non-stripping context to a non-stripped source
+    {
+        sources => [ pf::authentication::getAuthenticationSource("htpasswd-unstripped") ],
+        params => {
+            username => 'lzammit@inverse.ca',
+            password => "test",
+            context => $pf::constants::realm::ADMIN_CONTEXT,
+        },
+        expected_auth => [$TRUE, $AUTH_SUCCESS_MSG],
+        expected_match => {set_role => "default", set_unreg_date => "2038-01-01"},
+    },
+    # Stripped username in a stripping context to a non-stripped source
+    {
+        sources => [ pf::authentication::getAuthenticationSource("htpasswd-unstripped") ],
+        params => {
+            username => 'lzammit',
+            password => "test",
+            context => $pf::constants::realm::PORTAL_CONTEXT,
+        },
+        expected_auth => [$FALSE, $AUTH_FAIL_MSG],
+        expected_match => undef,
+    },
+    # Non-stripped username in a stripping context to a non-stripped source
+    {
+        sources => [ pf::authentication::getAuthenticationSource("htpasswd-unstripped") ],
+        params => {
+            username => 'lzammit@inverse.ca',
+            password => "test",
+            context => $pf::constants::realm::PORTAL_CONTEXT,
+        },
+        expected_auth => [$FALSE, $AUTH_FAIL_MSG],
+        expected_match => undef,
+    },
+);
+
+my $i = 0;
+for my $test (@tests) {
+    $i++;
+
+    my @sources = exists($test->{sources}) ? @{$test->{sources}} : ();
+
+    use Data::Dumper;
+    my ($res, $msg) = pf::authentication::authenticate($test->{params}, @sources);
+    is($res, $test->{expected_auth}->[0], "Test $i authentication result is correct");
+    is($msg, $test->{expected_auth}->[1], "Test $i authentication message is correct");
+
+    my $result = pf::authentication::match2([@sources], $test->{params});
+
+    is_deeply($result->{values}, $test->{expected_match}, "Test $i authentication match2 result is correct")
+
+
+}
 
 =head1 AUTHOR
 

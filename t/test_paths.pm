@@ -46,6 +46,7 @@ BEGIN {
     $pf::file_paths::pfdetect_config_file = catfile($test_dir,'data/pfdetect.conf');
     $pf::file_paths::config_file = catfile($test_dir,'data/pf.conf');
     $pf::file_paths::pf_config_file = catfile($test_dir,'data/pf.conf');
+    $pf::file_paths::realm_config_file = catfile($test_dir,'data/realm.conf');
 
     $pfconfig::constants::CONFIG_FILE_PATH = catfile($test_paths::test_dir, 'data/pfconfig.conf');
     $pfconfig::constants::SOCKET_PATH = "/usr/local/pf/var/run/pfconfig-test.sock";
