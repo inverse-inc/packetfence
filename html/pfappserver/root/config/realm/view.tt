@@ -15,6 +15,7 @@
         [% form.field('source').render | none %]
         [% form.field('portal_strip_username').render | none %]
         [% form.field('admin_strip_username').render | none %]
+        [% form.field('radius_strip_username').render | none %]
   </div><!--modal-body-->
 
   <div class="modal-footer">
