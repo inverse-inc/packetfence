@@ -298,7 +298,7 @@ sub match {
     #TODO: evaluate if we want to die or have another behavior
     my $context = $params->{'context'} // die "No authentication context provided";
 
-    $params->{'username'} = strip_username_if_needed($params->{'username'}, $context);
+    ($params->{'username'}, undef) = strip_username_if_needed($params->{'username'}, $context);
     
     # Calling 'match' with empty/invalid rule class. Using default
     if ( (!defined($params->{'rule_class'})) || (!exists($Rules::CLASSES{$params->{'rule_class'}})) ) {
@@ -393,7 +393,7 @@ sub match2 {
     #TODO: evaluate if we want to die or have another behavior
     my $context = $params->{'context'} // die "No authentication context provided";
 
-    $params->{'username'} = strip_username_if_needed($params->{'username'}, $context);
+    ($params->{'username'}, undef) = strip_username_if_needed($params->{'username'}, $context);
     
     if (ref($source_id) eq 'ARRAY') {
         @sources = @{$source_id};

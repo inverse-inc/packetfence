@@ -623,7 +623,7 @@ sub strip_username_if_needed {
     }
     else {
         $logger->debug("Stripping username is disabled in this context ($context). Will return the username as is with the realm.");
-        return $username;
+        return ($username, undef);
     }
 }
 
