@@ -145,11 +145,11 @@ ok($source, "Got source id $source_id");
 BAIL_OUT("Cannot get $source_id") unless $source;
 
 for my $rule (@CACHEABLE_RULES) {
-    ok(!$source->is_rule_cacheable($rule), "Cache is disabled not rule can be cached : " . $rule->{id});
+    ok(!$source->is_rule_cacheable($rule), "Cache is disabled no rule can be cached : " . $rule->{id});
 }
 
 for my $rule (@NON_CACHEABLE_RULES) {
-    ok(!$source->is_rule_cacheable($rule), "Cache is disabled not rule can be cached : " . $rule->{id});
+    ok(!$source->is_rule_cacheable($rule), "Cache is disabled no rule can be cached : " . $rule->{id});
 }
 
 ok(!$source->is_rule_cacheable(undef), "undef is always uncacheable");
