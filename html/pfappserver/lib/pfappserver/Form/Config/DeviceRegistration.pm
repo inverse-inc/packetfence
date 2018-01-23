@@ -10,7 +10,10 @@ pfappserver::Form::Config::DeviceRegistration - Web form for the device registra
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
-with 'pfappserver::Base::Form::Role::Help';
+with qw (
+    pfappserver::Base::Form::Role::Help
+    pfappserver::Role::Form::RolesAttribute
+);
 
 has roles => ( is => 'rw' );
 
@@ -62,8 +65,11 @@ has_block definition =>
 
 sub options_roles {
     my $self = shift;
-    my @roles = map { $_->{name} => $_->{name} } @{$self->form->roles} if ($self->form->roles);
-    return ('' => '', @roles);
+    my $roles = $self->form->roles;
+    return [
+        { value => '', label => '' },
+        ( map { { value => $_->{name}, label => $_->{name} }} @{$roles // []})
+    ];
 }
 
 =head2 ACCEPT_CONTEXT
