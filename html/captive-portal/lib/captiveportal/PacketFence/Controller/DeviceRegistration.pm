@@ -11,6 +11,7 @@ use pf::error qw(is_success);
 use pf::web;
 use pf::enforcement qw(reevaluate_access);
 use fingerbank::DB_Factory;
+use pf::constants::realm;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -128,7 +129,7 @@ sub registerNode : Private {
             my $session = $c->user_session;
             my $source_id = $session->{source_id};
             my %info;
-            my $params = { username => $pid };
+            my $params = { username => $pid, 'context' => $pf::constants::realm::PORTAL_CONTEXT};
             $c->stash->{device_mac} = $mac;
             # Get role for device registration
             my $role =

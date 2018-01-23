@@ -26,6 +26,7 @@ use pf::Authentication::constants qw($LOGIN_SUCCESS $LOGIN_FAILURE $LOGIN_CHALLE
 use pf::web::guest;
 use pf::node qw(node_view);
 use pf::lookup::person;
+use pf::constants::realm;
 
 has '+pid_field' => (default => sub { "username" });
 
@@ -167,6 +168,7 @@ sub authenticate {
             stripped_user_name => $username,
             rule_class => 'authentication',
             realm => $node_info->{'realm'},
+            context => $pf::constants::realm::PORTAL_CONTEXT,
         };
         my $source_id;
         my $role = pf::authentication::match([@{$source}], $params, $Actions::SET_ROLE, \$source_id);

@@ -69,6 +69,7 @@ use pf::domain::ntlm_cache();
 use Hash::Merge qw (merge);
 
 use pf::constants::api;
+use pf::constants::realm;
 use DateTime::Format::MySQL;
 
 sub event_add : Public {
@@ -1049,6 +1050,7 @@ sub dynamic_register_node : Public :AllowedAsAction(mac, $mac, username, $userna
         SSID => $node_info->{'last_ssid'},
         stripped_user_name => $stripped_user,
         realm => $node_info->{'realm'},
+        context => $pf::constants::realm::RADIUS_CONTEXT,
     };
 
     my $source;

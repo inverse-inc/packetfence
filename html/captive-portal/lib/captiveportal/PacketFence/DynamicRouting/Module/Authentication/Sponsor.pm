@@ -23,6 +23,7 @@ use pf::activation;
 use pf::web::guest;
 use pf::auth_log;
 use pf::util qw(normalize_time);
+use pf::constants::realm;
 
 has '+source' => (isa => 'pf::Authentication::Source::SponsorEmailSource');
 
@@ -224,7 +225,8 @@ Validate the provided sponsor is allowed to do sponsoring
 
 sub _validate_sponsor {
     my ($self, $sponsor_email) = @_;
-    my $value = pf::authentication::match( pf::authentication::getInternalAuthenticationSources(), { email => $sponsor_email, 'rule_class' => $Rules::ADMIN }, $Actions::MARK_AS_SPONSOR );
+    # Putting no context to that authentication request as no stripping has to be done here since its an email
+    my $value = pf::authentication::match( pf::authentication::getInternalAuthenticationSources(), { email => $sponsor_email, 'rule_class' => $Rules::ADMIN , 'context' => $pf::constants::realm::NO_CONTEXT}, $Actions::MARK_AS_SPONSOR );
 
     if (!defined $value) {
         $self->app->flash->{error} = [ $GUEST::ERRORS{$GUEST::ERROR_SPONSOR_NOT_ALLOWED}, $sponsor_email ];

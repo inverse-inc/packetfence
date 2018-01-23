@@ -61,7 +61,7 @@ sub check_password {
               'context' => $pf::constants::realm::ADMIN_CONTEXT,
           }, $source);
       if ($result) {
-          my $value = pf::authentication::match($source_id, { username => $user, 'rule_class' => $Rules::ADMIN }, $Actions::SET_ACCESS_LEVEL, undef, $extra);
+          my $value = pf::authentication::match($source_id, { username => $user, 'rule_class' => $Rules::ADMIN , 'context' => $pf::constants::realm::ADMIN_CONTEXT}, $Actions::SET_ACCESS_LEVEL, undef, $extra);
           $self->_roles([split /\s*,\s*/,$value]) if defined $value;
           if ($result == $LOGIN_CHALLENGE ) {
                 $self->_challenge($message);

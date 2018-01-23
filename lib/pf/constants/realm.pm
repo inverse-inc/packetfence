@@ -21,6 +21,8 @@ our $LOCAL = "LOCAL";
 
 our $NULL = "NULL";
 
+our $NO_CONTEXT = "none";
+
 our $PORTAL_CONTEXT = "portal";
 
 our $ADMIN_CONTEXT = "admin";

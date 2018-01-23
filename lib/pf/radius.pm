@@ -810,7 +810,7 @@ sub switch_access {
             'context' => $pf::constants::realm::RADIUS_CONTEXT,
         }, @{pf::authentication::getInternalAuthenticationSources()} );
     if ( defined($return) && $return == $TRUE ) {
-        my $matched = pf::authentication::match2($source_id, { username => $radius_request->{'User-Name'}, 'rule_class' => $Rules::ADMIN }, $extra);
+        my $matched = pf::authentication::match2($source_id, { username => $radius_request->{'User-Name'}, 'rule_class' => $Rules::ADMIN, 'context' => $pf::constants::realm::RADIUS_CONTEXT }, $extra);
         my $value = $matched->{values}{$Actions::SET_ACCESS_LEVEL} if $matched;
         if ($value) {
             my @values = split(',', $value);
