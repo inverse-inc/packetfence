@@ -38,44 +38,50 @@ sub _run {
         @sources = @pf::authentication::authentication_sources;
     }
 
+    my @CONTEXTS_TO_TEST = (
+        $pf::constants::realm::ADMIN_CONTEXT,
+        $pf::constants::realm::PORTAL_CONTEXT,
+    );
 
     print "Testing authentication for \"$user\"\n\n";
     eval {
         foreach my $source (@sources) {
-            next if($source->type eq "SAML");
-            print "Authenticating against " . $source->id . "\n";
-            my ($result,$message) = $source->authenticate($user,$pass);
-            $message = '' unless defined $message;
-            if ($result == $LOGIN_SUCCESS) {
-                print color $GREEN_COLOR if $show_color;
-                print $indent,"Authentication SUCCEEDED against ",$source->id," ($message) \n";
-            }
-            elsif ($result == $LOGIN_CHALLENGE) {
-                print color $YELLOW_COLOR if $show_color;
-                print $indent,"Authentication CHALLENGE return for ",$source->id," (Challenge message $message->{message}) \n";
-            } else {
-                print color $RED_COLOR if $show_color;
-                print $indent,"Authentication FAILED against ",$source->id," ($message) \n";
-            }
-            print color 'reset' if $show_color;
-            my $matched;
-            foreach my $class ( @Rules::CLASSES ) {
-                if( $matched = pf::authentication::match2([$source], {username => $user, rule_class => $class})) {
+            foreach my $context (@CONTEXTS_TO_TEST) {
+                next if($source->type eq "SAML");
+                print "Authenticating against '" . $source->id . "' in context '$context'\n";
+                my ($result,$message) = pf::authentication::authenticate({username => $user, password => $pass, context => $context}, $source);
+                $message = '' unless defined $message;
+                if ($result == $LOGIN_SUCCESS) {
                     print color $GREEN_COLOR if $show_color;
-                    print $indent ,"Matched against ",$source->id," for '$class' rules\n";
-                    {
-                        local $indent = $indent x 2;
-                        foreach my $action (@{$matched->{actions}}) {
-                            print $indent ,$action->type," : ",$action->value,"\n";
-                        }
-                    }
+                    print $indent,"Authentication SUCCEEDED against ",$source->id," ($message)\n";
+                }
+                elsif ($result == $LOGIN_CHALLENGE) {
+                    print color $YELLOW_COLOR if $show_color;
+                    print $indent,"Authentication CHALLENGE return for ",$source->id," (Challenge message $message->{message})\n";
                 } else {
                     print color $RED_COLOR if $show_color;
-                    print $indent,"Did not match against ",$source->id," for '$class' rules\n";
+                    print $indent,"Authentication FAILED against ",$source->id," ($message)\n";
                 }
+                print color 'reset' if $show_color;
+                my $matched;
+                foreach my $class ( @Rules::CLASSES ) {
+                    if( $matched = pf::authentication::match2([$source], {username => $user, rule_class => $class, context => $context})) {
+                        print color $GREEN_COLOR if $show_color;
+                        print $indent ,"Matched against ",$source->id," for '$class' rules\n";
+                        {
+                            local $indent = $indent x 2;
+                            foreach my $action (@{$matched->{actions}}) {
+                                print $indent ,$action->type," : ",$action->value,"\n";
+                            }
+                        }
+                    } else {
+                        print color $RED_COLOR if $show_color;
+                        print $indent,"Did not match against ",$source->id," for '$class' rules\n";
+                    }
+                }
+                print color 'reset' if $show_color;
+                print "\n";
             }
-            print color 'reset' if $show_color;
-            print "\n";
         }
     };
     print color 'reset' if $show_color;
