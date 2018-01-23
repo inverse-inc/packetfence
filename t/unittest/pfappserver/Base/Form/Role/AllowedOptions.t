@@ -1,34 +1,53 @@
-package pfappserver::Base::Form::Role::AllowedOptions;
+#!/usr/bin/perl
 
 =head1 NAME
 
-pfappserver::Base::Form::Role::AllowedOptions -
+AllowedOptions
 
 =cut
 
 =head1 DESCRIPTION
 
-pfappserver::Base::Form::Role::AllowedOptions
+unit test for AllowedOptions
 
 =cut
 
-use namespace::autoclean;
-use HTML::FormHandler::Moose::Role;
+use strict;
+use warnings;
+#
+use lib '/usr/local/pf/lib';
+use lib '/usr/local/pf/html/pfappserver/lib';
 
-use pf::admin_roles;
+BEGIN {
+    #include test libs
+    use lib qw(/usr/local/pf/t);
 
-has user_roles => (is => 'rw', required => 1);
-
-=head2 _get_allowed_options
-
-Get the allowed options based of the
-
-=cut
-
-sub _get_allowed_options {
-    my ($self, $option) = @_;
-    return admin_allowed_options($self->user_roles, $option);
+    #Module for overriding configuration paths
+    use setup_test_config;
 }
+
+{
+
+    package test_form;
+    use HTML::FormHandler::Moose;
+    extends 'pfappserver::Base::Form';
+    with qw(pfappserver::Base::Form::Role::AllowedOptions);
+}
+
+use Test::More tests => 3;
+
+#This test will running last
+use Test::NoWarnings;
+
+my $form = test_form->new( user_roles => ['User Manager'] );
+
+ok( $form, "Form created" );
+
+is_deeply( 
+    [ $form->_get_allowed_options('allowed_access_levels') ],
+    [ 'User Manager', 'Node Manager', 'NONE' ],
+    "Check if _get_allowed_options return expected results"
+);
 
 =head1 AUTHOR
 
