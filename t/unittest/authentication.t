@@ -373,7 +373,6 @@ for my $test (@tests) {
 
     my @sources = exists($test->{sources}) ? @{$test->{sources}} : ();
 
-    use Data::Dumper;
     my ($res, $msg) = pf::authentication::authenticate($test->{params}, @sources);
     is($res, $test->{expected_auth}->[0], "Test $i authentication result is correct");
     is($msg, $test->{expected_auth}->[1], "Test $i authentication message is correct");
