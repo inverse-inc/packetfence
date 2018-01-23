@@ -17,6 +17,7 @@ use pf::log;
 
 use pf::constants;
 use pf::config;
+use pf::config::util;
 
 use pf::Authentication::constants;
 use pf::Authentication::Action;

@@ -611,9 +611,9 @@ sub strip_username_if_needed {
     my $logger = get_logger;
 
     my ($stripped, $realm) = strip_username($username);
-    $realm = lc($realm);
+    $realm = $realm ? lc($realm) : undef;
     
-    my $realm_config = $ConfigRealm{$realm} // $ConfigRealm{lc($pf::constants::realm::DEFAULT)};
+    my $realm_config = defined($realm) && exists($ConfigRealm{$realm}) ? $ConfigRealm{$realm} : $ConfigRealm{lc($pf::constants::realm::DEFAULT)};
 
     my $param = $context . "_strip_username";
 
