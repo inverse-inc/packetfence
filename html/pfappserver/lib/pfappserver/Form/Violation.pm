@@ -25,10 +25,6 @@ use pf::log;
 use pf::constants::violation qw($MAX_VID %NON_WHITELISTABLE_ROLES);
 use pf::class qw(class_next_vid);
 
-has '+field_name_space' => ( default => 'pfappserver::Form::Field' );
-has '+widget_name_space' => ( default => 'pfappserver::Form::Widget' );
-has '+language_handle' => ( builder => 'get_language_handle_from_ctx' );
-
 # Form select options
 has 'violations' => ( is => 'ro' );
 has 'triggers' => ( is => 'ro' );
