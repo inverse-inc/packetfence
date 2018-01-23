@@ -72,18 +72,6 @@ sub options_roles {
     ];
 }
 
-=head2 ACCEPT_CONTEXT
-
-To automatically add the context to the Form
-
-=cut
-
-sub ACCEPT_CONTEXT {
-    my ($self, $c, @args) = @_;
-    my ($status, $roles) = $c->model('Config::Roles')->listFromDB();
-    return $self->SUPER::ACCEPT_CONTEXT($c, roles => $roles, @args);
-}
-
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2018 Inverse inc.
@@ -108,4 +96,5 @@ USA.
 =cut
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+
 1;
