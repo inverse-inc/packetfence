@@ -13,12 +13,10 @@ extends 'pfappserver::Base::Form';
 with qw (
     pfappserver::Base::Form::Role::Help
     pfappserver::Role::Form::RolesAttribute
+    pfappserver::Role::Form::ViolationsAttribute
 );
 
 use pf::config qw(%ConfigPKI_Provider);
-
-has roles => ( is => 'rw' );
-has violations => ( is => 'rw');
 
 ## Definition
 has_field 'id' =>
@@ -116,18 +114,6 @@ sub options_violations {
     return [
         map { {value => $_->{id}, label => $_->{desc} } } @{$self->form->violations // []}
     ];
-}
-
-=head2 ACCEPT_CONTEXT
-
-To automatically add the context to the Form
-
-=cut
-
-sub ACCEPT_CONTEXT {
-    my ($self, $c, @args) = @_;
-    my (undef, $violations) = $c->model('Config::Violations')->readAll();
-    return $self->SUPER::ACCEPT_CONTEXT($c, violations => $violations, @args);
 }
 
 =head1 COPYRIGHT
