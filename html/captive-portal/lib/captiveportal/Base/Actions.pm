@@ -36,6 +36,12 @@ our %AUTHENTICATION_ACTIONS = (
     bandwidth_balance_from_source => sub { $_[0]->new_node_info->{bandwidth_balance} = pf::util::unpretty_bandwidth(authentication_match_wrapper($_[0]->source->id, $_[0]->auth_source_params, $Actions::SET_BANDWIDTH_BALANCE)); },
 );
 
+=head2 authentication_match_wrapper
+
+A wrapper around pf::authentication::match to add the portal context in the parameters
+
+=cut
+
 sub authentication_match_wrapper {
     my (@all) = @_;
     $all->[1]->{context} = $pf::constants::realm::PORTAL_CONTEXT,
