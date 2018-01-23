@@ -116,7 +116,33 @@ while(my ($realm, $realm_contexts) = each %realms_strip_context) {
     print "Realm $realm will be stripped in the following contexts: ".( @stripped ? join(",", @stripped) : "none" ).", and not stripped in the following: " . (@not_stripped ? join(",", @not_stripped) : "none") . "\n";
 }
 
-exit 0;
+print "Commit these changes to the configuration file? (y/n) ";
+my $confirm = <STDIN>;
+chomp $confirm;
+
+if($confirm ne "y") {
+    print "Exiting on user's input \n";
+    exit 1;
+}
+
+for my $section ( $inirealm->Sections() ) {
+    my $realm = lc($section);
+
+    #print "$realm \n";
+    
+    my $contexts = $realms_strip_context{$realm};
+
+    while(my ($context, $strip_enabled) = each(%$contexts)) {
+        my $param_name = $context . "_strip_username";
+        my $param_enabled = $strip_enabled ? "enabled" : "disabled";
+        #print "$param_name => $param_enabled \n";
+        $inirealm->newval($section, $param_name, $param_enabled);
+    }
+}
+
+for my $section ( $iniauth->Sections() ) {
+    $iniauth->delval($section, "stripped_user_name");
+}
 
 $inirealm->RewriteConfig();
 $iniauth->RewriteConfig();
