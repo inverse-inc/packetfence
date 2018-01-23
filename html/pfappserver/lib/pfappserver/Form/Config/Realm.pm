@@ -17,8 +17,9 @@ with 'pfappserver::Base::Form::Role::Help';
 use pf::config;
 use pf::authentication;
 use pf::util;
+use pf::ConfigStore::Domain;
 
-has domains => ( is => 'rw');
+has domains => ( is => 'rw', builder => '_build_domains');
 
 ## Definition
 has_field 'id' =>
@@ -95,18 +96,11 @@ sub options_domains {
     return @domains;
 }
 
-=head2 ACCEPT_CONTEXT
-
-To automatically add the context to the Form
-
-=cut
-
-sub ACCEPT_CONTEXT {
-    my ($self, $c, @args) = @_;
-    my (undef, $domains) = $c->model('Config::Domain')->readAll();
-    return $self->SUPER::ACCEPT_CONTEXT($c, domains => $domains, @args);
+sub _build_domains {
+    my ($self) = @_;
+    my $cs = pf::ConfigStore::Domain->new;
+    return $cs->readAll();
 }
-
 
 =over
 
@@ -136,4 +130,5 @@ USA.
 =cut
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+
 1;
