@@ -108,11 +108,14 @@ sub authenticationLogin : Private {
 
     my $sources = $self->getSources($c, $username, $realm);
 
-    ($username, undef) = strip_username_if_needed($username, $pf::constants::realm::PORTAL_CONTEXT);
-
     # validate login and password
     ( $return, $message, $source_id, $extra ) =
-      pf::authentication::authenticate( { 'username' => $username, 'password' => $password, 'rule_class' => $Rules::AUTH }, @{$sources} );
+      pf::authentication::authenticate( {
+              'username' => $username, 
+              'password' => $password, 
+              'rule_class' => $Rules::AUTH,
+              'context' => $pf::constants::realm::PORTAL_CONTEXT,
+          }, @{$sources} );
     if ( defined($return) && $return == 1 ) {
         pf::auth_log::record_auth($source_id, $portalSession->clientMac, $username, $pf::auth_log::COMPLETED, $profile->name);
         # save login into session

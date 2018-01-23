@@ -134,8 +134,6 @@ sub authenticate {
         return;
     }
 
-    ($username, undef) = strip_username_if_needed($username, $pf::constants::realm::PORTAL_CONTEXT);
-
     if ($self->app->reached_retry_limit("login_retries", $self->app->profile->{'_login_attempt_limit'})) {
         $self->app->flash->{error} = $GUEST::ERRORS{$GUEST::ERROR_MAX_RETRIES};
         $self->prompt_fields();
@@ -192,7 +190,12 @@ sub authenticate {
 
         # validate login and password
         my ( $return, $message, $source_id, $extra ) =
-          pf::authentication::authenticate( { 'username' => $username, 'password' => $password, 'rule_class' => $Rules::AUTH }, @{$sources} );
+          pf::authentication::authenticate( { 
+                  'username' => $username, 
+                  'password' => $password, 
+                  'rule_class' => $Rules::AUTH,
+                  'context' => $pf::constants::realm::PORTAL_CONTEXT,
+              }, @{$sources} );
         if (!defined $return || $return == $LOGIN_FAILURE) {
             pf::auth_log::record_auth(join(',',map { $_->id } @{$sources}), $self->current_mac, $username, $pf::auth_log::FAILED, $self->app->profile->name);
             $self->app->flash->{error} = $message;

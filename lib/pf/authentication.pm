@@ -221,6 +221,11 @@ sub authenticate {
     my $username = $params->{'username'};
     my $password = $params->{'password'};
 
+    #TODO: evaluate if we want to die or have another behavior
+    my $context = $params->{'context'} // die "No authentication context provided";
+    
+    ($username, undef) = strip_username_if_needed($username, $context);
+
     # If no source(s) provided, all 'internal' configured sources are used
     unless (@sources) {
         @sources = @{pf::authentication::getInternalAuthenticationSources()};
