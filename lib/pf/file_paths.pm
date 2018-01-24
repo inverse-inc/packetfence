@@ -99,6 +99,7 @@ our (
     $switch_filters_config_file,
     $stats_config_file,
     $traffic_shaping_config_file,
+    $pf_admin_i18n_dir,
 );
 
 BEGIN {
@@ -173,6 +174,7 @@ BEGIN {
         $switch_filters_config_file
         $stats_config_file
         $traffic_shaping_config_file
+        $pf_admin_i18n_dir
     );
 }
 
@@ -321,6 +323,8 @@ $cache_control_file = catfile($var_dir, "cache_control");
 $config_version_file = catfile($var_dir, "config_version");
 
 $maintenance_file = catfile($var_dir,"maintenance-mode");
+
+$pf_admin_i18n_dir = catfile($html_dir , 'pfappserver/lib/pfappserver/I18N');
 
 =head1 AUTHOR
 

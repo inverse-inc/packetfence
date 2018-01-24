@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 8;
+use Test::More tests => 10;
 use utf8;
 
 #This test will running last
@@ -39,12 +39,15 @@ is(pf::I18N::pfappserver->localize("This is not localized with args [_1]", ['bob
 
 is(pf::I18N::pfappserver->localize("work_phone"), "work phone", "Localize english");
 
-is_deeply(pf::I18N::pfappserver::languages_from_http_header('fr'), ['fr', 'i-default'], 'Extracting languages from header');
+is(pf::I18N::pfappserver->get_handle('en')->maketext("work_phone"), "work phone", "Default localization");
+
+is( pf::I18N::pfappserver->get_handle('es')->maketext("work_phone"), "work phone", "Default localization wrong lanaguage given");
 
 is(pf::I18N::pfappserver->get_handle('fr')->maketext("work_phone"), "Téléphone de bureau", "Localize french");
 
-is_deeply(pf::I18N::pfappserver->languages_list(), {en => 'English', fr => 'French'}, "The lanaguage list from the filesystem");
+is_deeply(pf::I18N::pfappserver->languages_from_http_header('fr'), ['fr', 'i-default'], 'Extracting languages from header');
 
+is_deeply(pf::I18N::pfappserver->languages_list(), {en => 'English', fr => 'French'}, "The lanaguage list from the filesystem");
 
 =head1 AUTHOR
 

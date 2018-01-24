@@ -15,28 +15,36 @@ pf::I18N::pfappserver
 use strict;
 use warnings;
 use utf8;
-use pf::file_paths qw($install_dir);
+use pf::file_paths qw($pf_admin_i18n_dir);
 
-our $PATH;
+use base 'Locale::Maketext';
 
-BEGIN {
-    $PATH = "$install_dir/html/pfappserver/lib/pfappserver/I18N/";
-}
+use Locale::Maketext::Lexicon {
+   'i-default' => [ 'Auto' ],
+   '*' => [
+        Gettext => "$pf_admin_i18n_dir/*.[pm]o",
+        Gettext => "$pf_admin_i18n_dir/*.local.[pm]o"
+    ],
+   _decode => 1,
+};
 
-use Locale::Maketext::Simple (
-    class => 'pf::I18N::pfappserver',
-    Subclass  => 'I18N',
-    Path => $PATH,
-    Export => '_loc', 
-    Decode => 1,
-);
+our %Lexicon;
+
+*Lexicon = \%pf::I18N::pfappserver::i_default::Lexicon;
+
+our $default_lh = __PACKAGE__->get_handle;
+
 use I18N::LangTags ();
 use I18N::LangTags::Detect;
 use I18N::LangTags::List;
 
+sub fallback_languages {
+    ('i-default')
+}
+
 sub get_handle {
-    my ($self, @args) = @_;
-    pf::I18N::pfappserver::I18N->get_handle(@args);;
+    my ($self, @lang) = @_;
+    return $self->SUPER::get_handle(@lang, $self->fallback_languages);
 }
 
 sub localize {
@@ -47,19 +55,23 @@ sub localize {
     return _loc($text);
 }
 
+sub _loc {
+    $default_lh->maketext(@_)
+}
+
 sub languages_from_http_header {
-    my ($header) = @_;
+    my ($self, $header) = @_;
     return [
         I18N::LangTags::implicate_supers(
             I18N::LangTags::Detect->http_accept_langs( $header )
         ),
-        'i-default'
+        $self->fallback_languages,
     ];
 }
 
 sub languages_list {
     my %languages_list;
-    if ( opendir my $langdir, $PATH ) {
+    if ( opendir my $langdir, $pf_admin_i18n_dir ) {
         foreach my $entry ( readdir $langdir ) {
             next unless $entry =~ m/\A (\w+)\.(?:pm|po|mo) \z/xms;
             my $langtag = $1;
@@ -73,7 +85,6 @@ sub languages_list {
     }
     return \%languages_list;
 }
-
 
 =head1 AUTHOR
 
