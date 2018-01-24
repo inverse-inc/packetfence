@@ -38,8 +38,9 @@ sub register_rest_routes {
     my $r = $routes->any($options->{path})->name($name_prefix);
     register_collection_routes($r, $options);
     if (keys %{$options->{resource_v2a}}) {
-        my $item_path = "/:$options->{id_key}";
-        register_resource_routes($r->under($item_path)->to("$options->{controller}#resource")->name("$name_prefix.resource"), $options);
+        my $id_key = $options->{id_key};
+        my $item_path = "/:$id_key";
+        register_resource_routes($r->under($item_path => [ $id_key => qr/[^\/]+/])->to("$options->{controller}#resource")->name("$name_prefix.resource"), $options);
     }
 }
 
