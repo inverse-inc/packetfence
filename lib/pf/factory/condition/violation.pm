@@ -50,6 +50,8 @@ our %TRIGGER_TYPE_TO_CONDITION_TYPE = (
     'useragent'         => {type => 'equals',        key  => 'user_agent_id'},
     'switch'            => {type => 'equals',        key  => 'last_switch'},
     'switch_group'      => {type => 'switch_group',  key  => 'last_switch'},
+    'nexpose_event_contains'     => {type => 'matches',       key  => 'last_nexpose_event',      event => $TRUE},
+    'nexpose_event_starts_with'  => {type => 'starts_with',   key  => 'last_nexpose_event',      event => $TRUE},
 );
 
 sub modules {

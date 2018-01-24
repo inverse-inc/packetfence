@@ -1,55 +1,25 @@
-package pf::condition::matches;
+package pfappserver::Form::Config::Pfdetect::nexpose;
 
 =head1 NAME
 
-pf::condition::matches
-
-=cut
+pfappserver::Form::Config::Pfdetect::nexpose - Web form for a pfdetect detector
 
 =head1 DESCRIPTION
 
-pf::condition::matches
+Form definition to create or update a pfdetect detector.
 
 =cut
 
-use strict;
-use warnings;
-use Moose;
-extends qw(pf::condition);
-use pf::constants;
+use HTML::FormHandler::Moose;
+extends 'pfappserver::Form::Config::Pfdetect';
 
-=head2 value
+=over
 
-The value to match against
-
-=cut
-
-has value => (
-    is => 'ro',
-    required => 1,
-    isa  => 'Str',
-);
-
-=head2 match
-
-Match if argument matches the value
-
-=cut
-
-sub match {
-    my ($self,$arg) = @_;
-    my $match = $self->value;
-    return 0 if(!defined($arg));
-    return $arg =~ /\Q$match\E/i;
-}
-
-=head1 AUTHOR
-
-Inverse inc. <info@inverse.ca>
+=back
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 
@@ -70,5 +40,5 @@ USA.
 
 =cut
 
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;
-

@@ -10485,6 +10485,10 @@ msgid "pf_domain"
 msgstr "Domain"
 
 # pf::factory::detect::parser (Detect Parsers)
+msgid "pfdetect_type_nexpose"
+msgstr "Nexpose"
+
+# pf::factory::detect::parser (Detect Parsers)
 msgid "pfdetect_type_dhcp"
 msgstr "DHCP"
 
