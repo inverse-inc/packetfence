@@ -3,6 +3,7 @@
 /usr/local/pf/conf/apache_filters.conf
 /usr/local/pf/conf/authentication.conf
 /usr/local/pf/conf/profiles.conf
+/usr/local/pf/conf/Corefile
 /usr/local/pf/conf/device_registration.conf
 /usr/local/pf/conf/dhcp_fingerprints.conf
 /usr/local/pf/conf/dhcp_filters.conf

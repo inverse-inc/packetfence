@@ -198,6 +198,7 @@ endif
 	dh_installinit --name=packetfence-carbon-relay
 	dh_installinit --name=packetfence-collectd
 	dh_installinit --name=packetfence-dhcpd
+	dh_installinit --name=packetfence-go_dns
 	dh_installinit --name=packetfence-haproxy
 	dh_installinit --name=packetfence-httpd.aaa
 	dh_installinit --name=packetfence-httpd.admin

@@ -1,0 +1,17 @@
+[Unit]
+Description=PacketFence GO DNS Server Daemon
+Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
+After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+Before=packetfence-httpd.portal.service
+
+[Service]
+StartLimitBurst=3
+StartLimitInterval=60
+Type=notify
+ExecStartPre=/usr/local/pf/bin/pfcmd service go_dns generateconfig
+ExecStart=/usr/local/pf/bin/go_dns -conf=/usr/local/pf/var/conf/Corefile 
+Restart=on-failure
+Slice=packetfence.slice
+
+[Install]
+WantedBy=packetfence.target
