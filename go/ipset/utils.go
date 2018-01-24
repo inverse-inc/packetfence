@@ -131,21 +131,17 @@ func updateClusterPassthroughIsol(Ip string, Port string) {
 	}
 }
 
-func (IPSET *pfIPSET) mac2ip(Mac string, Set string) []string {
+func (IPSET *pfIPSET) mac2ip(Mac string, Set ipset.IPSet) []string {
 	r := "((?:[0-9]{1,3}.){3}(?:[0-9]{1,3}))," + Mac
 	rgx := regexp.MustCompile(r)
 
 	var Ips []string
-	for _, v := range IPSET.ListALL {
-		if v.Name == Set {
-			for _, u := range v.Members {
+	for _, u := range Set.Members {
 
-				if rgx.Match([]byte(u.Elem)) {
-					result := rgx.FindStringSubmatch(u.Elem)
+		if rgx.Match([]byte(u.Elem)) {
+			result := rgx.FindStringSubmatch(u.Elem)
 
-					Ips = append(Ips, result[1])
-				}
-			}
+			Ips = append(Ips, result[1])
 		}
 	}
 	return Ips

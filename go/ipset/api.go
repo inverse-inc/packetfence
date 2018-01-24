@@ -103,7 +103,7 @@ func (IPSET *pfIPSET) IPSEThandleLayer2(IP string, Mac string, Network string, T
 			fmt.Println("Removed " + IP + " from " + v.Name)
 		}
 		// // Delete all entries with old ip addresses
-		Ips := IPSET.mac2ip(Mac, v.Name)
+		Ips := IPSET.mac2ip(Mac, v)
 		for _, i := range Ips {
 			// r = ipset.Test(v.Name, i)
 			// if r == nil {
@@ -230,7 +230,7 @@ func (IPSET *pfIPSET) handleUnmarkMac(res http.ResponseWriter, req *http.Request
 	Local := vars["local"]
 
 	for _, v := range IPSET.ListALL {
-		Ips := IPSET.mac2ip(Mac, v.Name)
+		Ips := IPSET.mac2ip(Mac, v)
 		for _, i := range Ips {
 			// r := ipset.Test(v.Name, i)
 			// if r == nil {
