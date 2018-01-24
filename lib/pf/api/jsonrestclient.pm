@@ -75,6 +75,16 @@ default 9090
 
 has port => (is => 'rw', default => sub {$Config{'webservices'}{'port'}} );
 
+=head2 method
+
+  the method to use to send the request (post/get)
+  default post
+
+=cut
+
+has method => (is => 'rw', default => sub {"post"} );
+
+
 use constant REQUEST => 0;
 use constant RESPONSE => 2;
 use constant NOTIFICATION => 2;
@@ -92,10 +102,13 @@ sub call {
     my ($self,$path,$args) = @_;
     my $response;
     my $curl = $self->curl($path);
-    my $request = $self->build_json_rest_payload($args);
+
+    if ($self->method eq 'post') {
+        my $request = $self->build_json_rest_payload($args);
+        $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
+        $curl->setopt(CURLOPT_POSTFIELDS, $request);
+    }
     my $response_body;
-    $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
-    $curl->setopt(CURLOPT_POSTFIELDS, $request);
     $curl->setopt(CURLOPT_WRITEDATA, \$response_body);
     $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0);
 
