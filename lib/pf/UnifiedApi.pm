@@ -157,6 +157,9 @@ our @API_V1_ROUTES = (
                 'admin_authentication' => { post => 'adminAuthentication' },
             },
         },      
+    {
+        controller => 'config-admin_roles',
+        path       => '/config/admin_roles'
     },
 );
 
