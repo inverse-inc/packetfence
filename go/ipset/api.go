@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/diegoguarnieri/go-conntrack/conntrack"
-	"github.com/fdurand/go-ipset"
+	"github.com/digineo/go-ipset"
 	"github.com/gorilla/mux"
 )
 
