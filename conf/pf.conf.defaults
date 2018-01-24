@@ -338,6 +338,15 @@ dhcpd=enabled
 #
 # Location of the dhcpd binary. Only necessary to change if you are not running the RPMed version.
 dhcpd_binary=/usr/sbin/dhcpd
+# services.go_ipset
+#
+# Should go_ipset be managed by PacketFence?
+go_ipset=enabled
+#
+# services.go_ipset_binary
+#
+# Location of the go_ipset binary.
+go_ipset_binary=/usr/local/pf/bin/go_ipset
 #
 # services.go_dhcpd
 #
