@@ -21,6 +21,12 @@
 			"revisionTime": "2016-10-29T20:57:26Z"
 		},
 		{
+			"checksumSHA1": "e+GyxNE5hA8Q6usX+penCPjeeJo=",
+			"path": "github.com/diegoguarnieri/go-conntrack/conntrack",
+			"revision": "9abb0707ff3199f9ab5a44b5a5ea588c41979476",
+			"revisionTime": "2016-12-08T18:04:11Z"
+		},
+		{
 			"checksumSHA1": "Mrmbqq23BIzwocC3m1wk479o35s=",
 			"path": "github.com/dsnet/compress",
 			"revision": "b9aab3c6a04eef14c56384b4ad065e7b73438862",
@@ -57,6 +63,12 @@
 			"revisionTime": "2017-01-10T07:11:07Z"
 		},
 		{
+			"checksumSHA1": "71AC/NWQAF6kQ6pKPwg4CqKnr4c=",
+			"path": "github.com/fdurand/go-ipset",
+			"revision": "1ca9a3170b97027181908a20927a2f4a0e7020c1",
+			"revisionTime": "2017-11-27T18:22:32Z"
+		},
+		{
 			"checksumSHA1": "VdXZPcDRHK1T7XjBu2KW8Mb8S6w=",
 			"path": "github.com/flynn/go-shlex",
 			"revision": "3f9db97f856818214da2e1057f8ad84803971cff",
@@ -69,10 +81,22 @@
 			"revisionTime": "2016-05-14T03:44:11Z"
 		},
 		{
+			"checksumSHA1": "gC4yFu+0Iqb71rzQZVbGSKqsK6U=",
+			"path": "github.com/goji/httpauth",
+			"revision": "2da839ab0f4df05a6db5eb277995589dadbd4fb9",
+			"revisionTime": "2016-06-01T13:53:02Z"
+		},
+		{
 			"checksumSHA1": "UP2wONSE346WHWwT20G1Xedd6ZI=",
 			"path": "github.com/google/uuid",
 			"revision": "064e2069ce9c359c118179501254f67d7d37ba24",
 			"revisionTime": "2016-11-28T19:12:14Z"
+		},
+		{
+			"checksumSHA1": "F5dR3/i70EhSIMZfeIV+H8/PtvM=",
+			"path": "github.com/gorilla/mux",
+			"revision": "392c28fe23e1c45ddba891b0320b3b5df220beea",
+			"revisionTime": "2017-01-18T13:43:44Z"
 		},
 		{
 			"checksumSHA1": "ZVzABul4nD/fzyYnbe+5bsJ4nBg=",
@@ -189,7 +213,7 @@
 			"revisionTime": "2017-02-10T11:35:44Z"
 		},
 		{
-			"checksumSHA1": "XUdlanAUfQt+UjszRgtMeziyiG8=",
+			"checksumSHA1": "6FEaIYf3puE0Y5cwOKyWWJD/WUk=",
 			"path": "github.com/lucas-clemente/quic-go/crypto",
 			"revision": "08191fc5d9a6eeedc1eede6601427b12b35c057b",
 			"revisionTime": "2017-02-10T11:35:44Z"
@@ -309,7 +333,7 @@
 			"revisionTime": "2016-09-18T04:11:01Z"
 		},
 		{
-			"checksumSHA1": "A7svgQnqqqSmzjTrZxNGhmdu0es=",
+			"checksumSHA1": "bd03a9yO9N5nVkVLD9m1vsWOXwA=",
 			"path": "github.com/ulikunitz/xz",
 			"revision": "76f94b7c69c6f84be96bcfc2443042b198689565",
 			"revisionTime": "2016-12-02T21:56:20Z"
@@ -399,7 +423,7 @@
 			"revisionTime": "2017-01-26T11:54:58Z"
 		},
 		{
-			"checksumSHA1": "kEO69MIsqWDxBOIs3ez1faofNSg=",
+			"checksumSHA1": "O6yCEoGr0NU7ZM60PmyzBG+OC9s=",
 			"path": "golang.org/x/net/publicsuffix",
 			"revision": "61557ac0112b576429a0df080e1c2cef5dfbb642",
 			"revisionTime": "2017-01-26T11:54:58Z"
@@ -417,13 +441,13 @@
 			"revisionTime": "2016-10-16T16:34:30Z"
 		},
 		{
-			"checksumSHA1": "VoN1N+QSzZGXJuTX2mVH7fAUXNM=",
+			"checksumSHA1": "REJSgeNasH6Uehc27Wmqo1F7P1M=",
 			"path": "golang.org/x/text/unicode/bidi",
 			"revision": "5a42fa2464759cbb7ee0af9de00b54d69f09a29c",
 			"revisionTime": "2016-10-16T16:34:30Z"
 		},
 		{
-			"checksumSHA1": "Aj3JSVO324FCjEAGm4ZwmC79bbo=",
+			"checksumSHA1": "aihk1EHGiDFDRDZuRf5CWqWpcYs=",
 			"path": "golang.org/x/text/unicode/norm",
 			"revision": "5a42fa2464759cbb7ee0af9de00b54d69f09a29c",
 			"revisionTime": "2016-10-16T16:34:30Z"

@@ -130,7 +130,7 @@ EOT
                     }
                     if ($members) {
                         if ($current_network->contains($ip)) {
-                            $dns = $members;
+                            $dns = $members if ( !pf::config::is_network_type_inline($network) );
                         $active = defined($net{next_hop}) ?
                                  NetAddr::IP::Lite->new($net{'next_hop'}, $cfg->{'mask'}) :
                                  NetAddr::IP::Lite->new($cfg->{'ip'}, $cfg->{'mask'});

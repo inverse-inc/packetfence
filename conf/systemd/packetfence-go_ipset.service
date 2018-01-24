@@ -1,0 +1,17 @@
+[Unit]
+Description=PacketFence Ipset Daemon
+Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
+After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+Before=packetfence-httpd.portal.service
+
+[Service]
+StartLimitBurst=3
+StartLimitInterval=60
+Type=notify
+WatchdogSec=30s
+ExecStart=/usr/local/pf/bin/go_ipset
+Restart=on-failure
+Slice=packetfence.slice
+
+[Install]
+WantedBy=packetfence.target
