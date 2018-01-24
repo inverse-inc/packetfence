@@ -14,9 +14,9 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/inverse-inc/packetfence/go/filter_client"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
 	"github.com/inverse-inc/packetfence/go/coredns/request"
+	"github.com/inverse-inc/packetfence/go/filter_client"
 	cache "github.com/patrickmn/go-cache"
 	//Import mysql driver
 	_ "github.com/go-sql-driver/mysql"
@@ -172,7 +172,7 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 
 	// Defer to the proxy middleware if the device is registered
 	if status == "reg" {
-		fmt.Println(srcIP + " : " + mac + " serve dns")
+		fmt.Println(srcIP + " : " + mac + " serve dns " + state.QName())
 		return pf.Next.ServeDNS(ctx, w, r)
 	}
 
@@ -197,7 +197,6 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 		}
 
 		if k.Contains(net.ParseIP(state.IP())) {
-
 			answer, found := pf.DNSFilter.Get(state.QName())
 			if found && answer != "null" {
 				fmt.Println("Get answer from the cache for " + state.QName())
