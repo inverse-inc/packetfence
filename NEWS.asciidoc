@@ -12,16 +12,16 @@ For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
 Version X.Y.Z released on xxxx-xx-xx
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 New Features
 ++++++++++++
 
 * New database access layer (DAL) for upcoming multi-tenancy support
-* New portal module to keep the previous role if this role is in a list (PR #2490).
-* Added portal module for selecting a role for the device being registered on the portal (PR #2471).
+* New portal module to permanently set roles (PR #2490)
+* Added portal module for selecting a role for the device being registered on the portal (PR #2471)
 * Added support for Allied Telesis GS950 switches (PR #1866)
-* Added ability to update the firewall SSO on RADIUS accounting packet (PR #2662)
+* Added ability to update the firewall SSO on RADIUS accounting packets (PR #2662)
 * Added a way to define a VLAN by role as a VLAN pool using a VLAN range (PR #2675)
 
 Enhancements
@@ -33,17 +33,17 @@ Enhancements
 * Suggest violation identifier when adding a new violation (#2804) (PR #2807)
 * Create a priority queue
 * Move ReAssignVlan and desAssociate API calls to the priority queue
-* Added connection profile SSID filter suggestions based on all the previous SSIDs that have been seen in the locationlog (#2758) (PR #2771).
-* Added a description to the switches in the nodes side navigation (#2791) (PR #2795).
+* Added connection profile SSID filter suggestions based on all the previous SSIDs that have been seen in the locationlog (#2758) (PR #2771)
+* Added a description to the switches in the nodes side navigation (#2791) (PR #2795)
 * Improved configuration of the captive portal timer bar (via the captive_portal section of pf.conf) (#383) (PR #2762)
 * (AD Powershell scripts) Enforce use of TLS in the powershell scripts which is required with the last versions of PacketFence (PR #2788)
 * (AD Powershell scripts) Cycle through all the possible Active Directory usernames formats in PacketFence (PR #2788)
 * Removed old authentication code sources (#2610)
 * Added rule description in listing (#2619)
 * Improved documentation (PR #2774) (#2773)
-* Set a timeout for database queries for the admin to avoid long running queries slowing the system. (#2630) (PR #2659)
+* Set a timeout for database queries for the admin to avoid long running queries slowing the system (#2630) (PR #2659)
 * Documentation improvement about MySQL advanced parameters (#266)
-* Enhanced English i18n strings in admin CMS integration syslog parser violation actions. (PR #2759)
+* Enhanced localization support in violation module (PR #2759)
 * Improved the haproxy HTTP process monitoring
 * Improved cluster maintenance script to perform necessary system changes to have the node in maintenance
 
@@ -55,7 +55,7 @@ Bug Fixes
 * rlm_perl modules are now using syslog instead writing directly to the file (PR #2609)
 * Prevent a valid PID from being overwritten at the end of the portal registration if the new PID is default (#2825)
 * Auth log is not set to completed after email registration (#2648) (PR #2649)
-* Fixes redirects when previewing profiles that use OAuth source (#2882) (PR #2908)
+* Fixed redirects when previewing profiles that use OAuth source (#2882) (PR #2908)
 
 Version 7.3.0 released on 2017-09-25
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
