@@ -69,6 +69,7 @@ func main() {
 	}
 	srv := &http.Server{
 		Addr:         ":22223",
+		IdleTimeout:  5 * time.Second,
 		Handler:      router,
 		TLSConfig:    cfg,
 		TLSNextProto: make(map[string]func(*http.Server, *tls.Conn, http.Handler), 0),
