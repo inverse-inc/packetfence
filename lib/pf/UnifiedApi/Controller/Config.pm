@@ -17,6 +17,7 @@ use warnings;
 use Mojo::Base qw(pf::UnifiedApi::Controller::RestRoute);
 
 has 'config_store_class';
+has 'form_class';
 
 sub list {
     my ($self) = @_;
@@ -27,6 +28,11 @@ sub list {
 sub config_store {
     my ($self) = @_;
     $self->config_store_class->new;
+}
+
+sub form {
+    my ($self) = @_;
+    $self->form_class->new;
 }
 
 sub resource {
@@ -57,43 +63,47 @@ sub item {
     return $self->cleanup_item($item);
 }
 
-=begin
-
-=cut
-
-=head2 default_values
-
-default_values
-
-=cut
-
-sub default_values {
-    {}
-}
-
 sub cleanup_item {
     my ($self, $item) = @_;
-    my %cleaned;
-    my $default_values = $self->default_values;
-    while (my ($k, $v) = each %{$default_values}) {
-        next if !exists $item->{$k};
-        $cleaned{$k} = !exists $item->{$k} ? $v : defined $item->{$k} ? $item->{$k} : $v;
-    }
-    return \%cleaned;
+    return $item;
 }
 
 sub create {
     my ($self) = @_;
-    my $item = $self->cleanup_item($self->req->json);
+    my ($error, $item) = $self->get_json;
+    if (defined $error) {
+        return $self->render_error(400, "Bad Request : $error");
+    }
+    $item = $self->validate_item($item);
+    if (!defined $item) {
+        return 0;
+    }
     my $cs = $self->config_store;
-    my $id = delete $item->{id};
+    my $id = $item->{id};
     if ($cs->hasId($id)) {
         return $self->render_error(409, "An attempt to add a duplicate entry was stopped. Entry already exists and should be modified instead of created");
     }
+    delete $item->{id};
     $cs->create($id, $item);
     $cs->commit;
     $self->res->headers->location($self->make_location_url($id));
     $self->render(status => 201, text => '');
+}
+
+sub validate_item {
+    my ($self, $item) = @_;
+    my $form = $self->form;
+    $form->process(posted => 1, params => $item);
+    if (!$form->has_errors) {
+        return $form->value;
+    }
+    my $field_errors = $form->field_errors;
+    my @errors;
+    while (my ($k,$v) = each %$field_errors) {
+        push @errors, {$k => $v};
+    }
+    $self->render_error(417, "Unable to validate", \@errors);
+    return undef;
 }
 
 sub make_location_url {
