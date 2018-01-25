@@ -15,7 +15,10 @@ unit test for AdminRoles
 use strict;
 use warnings;
 #
-use lib '/usr/local/pf/lib';
+use lib qw(
+    /usr/local/pf/lib
+    /usr/local/pf/html/pfappserver/lib
+);
 
 BEGIN {
     #include test libs
@@ -24,7 +27,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 3;
+use Test::More tests => 7;
 use Test::Mojo;
 
 #This test will running last
@@ -34,6 +37,11 @@ my $t = Test::Mojo->new('pf::UnifiedApi');
 $t->get_ok('/api/v1/config/admin_roles')
   ->status_is(200);
 
+$t->post_ok('/api/v1/config/admin_roles' => json => {})
+  ->status_is(417);
+
+$t->post_ok('/api/v1/config/admin_roles', {'Content-Type' => 'application/json'} => '{')
+  ->status_is(400);
 
 =head1 AUTHOR
 

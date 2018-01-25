@@ -16,8 +16,10 @@ use strict;
 use warnings;
 use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
 use pf::ConfigStore::AdminRoles;
+use pfappserver::Form::Config::AdminRoles;
 
 has 'config_store_class' => 'pf::ConfigStore::AdminRoles';
+has 'form_class' => 'pfappserver::Form::Config::AdminRoles';
 
 =head1 AUTHOR
 
