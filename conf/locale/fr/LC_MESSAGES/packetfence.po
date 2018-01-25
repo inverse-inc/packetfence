@@ -10,15 +10,15 @@
 # inverse <info@inverse.ca>, 2013-2014,2016
 # inverse <info@inverse.ca>, 2012-2013
 # Louis Munro <git@louismunro.com>, 2016
-# lzammit <lzammit@inverse.ca>, 2014,2016
+# lzammit <lzammit@inverse.ca>, 2014,2016,2018
 # obilodeau <obilodeau@inverse.ca>, 2011
 # piellick <prost.pierrick@gmail.com>, 2016
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-11-24 15:53+0000\n"
-"Last-Translator: oeufdure <fdurand@inverse.ca>\n"
+"PO-Revision-Date: 2018-01-24 14:39+0000\n"
+"Last-Translator: lzammit <lzammit@inverse.ca>\n"
 "Language-Team: French (http://www.transifex.com/inverse/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -101,8 +101,11 @@ msgid "Address"
 msgstr "Adresse"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
-msgid "After registering, you will be given temporary network access. In order to complete your registration, you will need to click on the link emailed to you."
-msgstr "Après l’enregistrement, vous obtiendrez un accès temporaire au réseau. Pour terminer votre enregistrement vous allez devoir clicker sur le lien que vous avez reçu par courriel."
+msgid ""
+"After registering, you will be given temporary network access. In order to "
+"complete your registration, you will need to click on the link emailed to "
+"you."
+msgstr "Après l'enregistrement, vous recevrez un accès réseau temporaire. Afin de compléter votre celui-ci, vous devrez cliquer sur le lien qui vous a été envoyé."
 
 # html/captive-portal/templates/provisioner/sepm.html
 msgid "Alternate installer"
