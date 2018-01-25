@@ -62,7 +62,9 @@ type iphdr struct {
 // instead, which operates over UDP.
 func NewRawClient(ifi *net.Interface) (*RawClient, error) {
 	// Open raw socket to send Wake-on-LAN magic packets
-	p, err := raw.ListenPacket(ifi, raw.ProtocolARP)
+	var cfg raw.Config
+
+	p, err := raw.ListenPacket(ifi, 0x0806, &cfg)
 	if err != nil {
 		return nil, err
 	}

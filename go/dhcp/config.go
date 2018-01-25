@@ -9,10 +9,10 @@ import (
 
 	"github.com/RoaringBitmap/roaring"
 
-	netadv "github.com/fdurand/go-netadv"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	dhcp "github.com/krolaw/dhcp4"
 	cache "github.com/patrickmn/go-cache"
+	netadv "github.com/simon/go-netadv"
 )
 
 type DHCPHandler struct {
