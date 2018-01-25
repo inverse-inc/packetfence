@@ -1,5 +1,5 @@
 --
--- PacketFence SQL schema upgrade from X.X.X to X.Y.Z
+-- PacketFence SQL schema upgrade from 7.3.0 to 7.4.0
 --
 
 
@@ -8,8 +8,8 @@
 --
 
 SET @MAJOR_VERSION = 7;
-SET @MINOR_VERSION = 3;
-SET @SUBMINOR_VERSION = 9;
+SET @MINOR_VERSION = 4;
+SET @SUBMINOR_VERSION = 0;
 
 SET @PREV_MAJOR_VERSION = 7;
 SET @PREV_MINOR_VERSION = 3;
@@ -57,17 +57,11 @@ ALTER TABLE auth_log ADD column profile VARCHAR(255) DEFAULT NULL;
 ALTER TABLE `activation`
   ADD COLUMN `source_id` varchar(255) default NULL;
 
-INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
-
-
-
-
-
-
 ---
---- https://github.com/inverse-inc/packetfence/pull/2785
+--- Add new indexes on the RADIUS audit log table for reporting
 --- 
 ALTER TABLE `radius_audit_log` ADD KEY (`auth_status`, `created_at`);
 
 
+INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
 
