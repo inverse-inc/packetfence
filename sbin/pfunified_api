@@ -14,7 +14,10 @@ pfunified_api
 
 use strict;
 use warnings;
-use lib qw(/usr/local/pf/lib);
+use lib qw(
+    /usr/local/pf/lib
+    /usr/local/pf/html/pfappserver/lib
+);
 use Mojolicious::Commands;
 
 # Start command line interface for application
