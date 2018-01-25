@@ -31,6 +31,8 @@ our %STATUS_TO_MSG = (
     422 => $ERROR_422_MSG,
 );
 
+use Mojo::JSON qw(decode_json);;
+
 sub log {
     my ($self) = @_;
     return $self->app->log;
@@ -64,6 +66,20 @@ sub parse_json {
         return (400, { message => $self->status_to_error_msg(400)});
     }
     return (200, $json);
+}
+
+sub get_json {
+    my ($self) = @_;
+    local $@;
+    my $error;
+    my $data = eval {
+        decode_json($self->tx->req->body);
+    };
+    if ($@) {
+        $error = $@->message;
+        $error =~ s/^(.*) at .*?$/$1/;
+    }
+    return ($error, $data);
 }
 
 =head1 AUTHOR
