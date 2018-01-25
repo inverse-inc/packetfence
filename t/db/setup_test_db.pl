@@ -43,7 +43,7 @@ sub check_config {
 
 sub apply_schema {
     my ($config) = @_;
-    system("mysql -h$config->{host} -P$config->{port} -u$config->{user} -p$config->{pass} $config->{db} < /usr/local/pf/db/pf-schema-X.Y.Z.sql");
+    system("mysql -h$config->{host} -P$config->{port} -u$config->{user} -p$config->{pass} $config->{db} < /usr/local/pf/db/pf-schema.sql");
     if ($?) {
         die "Unable to apply schema\n";
     }
