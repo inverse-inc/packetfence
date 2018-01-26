@@ -23,6 +23,7 @@ use pf::ConfigStore::Provisioning;
 use pf::ConfigStore::BillingTiers;
 use pf::ConfigStore::Scan;
 use pf::ConfigStore::DeviceRegistration;
+use pf::ConfigStore::PortalModule;
 use pf::web::constants;
 use pf::constants::Connection::Profile;
 use pfappserver::Form::Field::Duration;
