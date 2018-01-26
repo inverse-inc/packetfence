@@ -24,20 +24,28 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 7;
+use Test::More tests => 11;
 use Test::Mojo;
 
 #This test will running last
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
 
-$t->get_ok('/api/v1/config/connection_profiles')
+my $base_url = '/api/v1/config/connection_profiles';
+
+$t->get_ok($base_url)
   ->status_is(200)
   ->json_is('/items/0/id', 'default');
 
-$t->get_ok('/api/v1/config/connection_profiles/default')
+$t->get_ok("$base_url/default")
   ->status_is(200)
   ->json_is('/item/id', 'default');
+
+$t->post_ok($base_url => json => {})
+  ->status_is(417);
+
+$t->post_ok($base_url, {'Content-Type' => 'application/json'} => '{')
+  ->status_is(400);
 
 =head1 AUTHOR
 
@@ -67,4 +75,3 @@ USA.
 =cut
 
 1;
-

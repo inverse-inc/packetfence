@@ -16,8 +16,10 @@ use strict;
 use warnings;
 use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
 use pf::ConfigStore::Profile;
+use pfappserver::Form::Config::Profile;
 
 has 'config_store_class' => 'pf::ConfigStore::Profile';
+has 'form_class' => 'pfappserver::Form::Config::Profile';
 
 our %DEFAULT_VALUES = (
     "access_registration_when_registered" => "",
