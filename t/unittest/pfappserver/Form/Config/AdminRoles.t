@@ -16,7 +16,6 @@ use strict;
 use warnings;
 #
 use lib '/usr/local/pf/lib';
-use lib '/usr/local/pf/html/pfappserver/lib';
 
 BEGIN {
     #include test libs

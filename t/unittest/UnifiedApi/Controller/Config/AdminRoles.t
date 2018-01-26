@@ -17,7 +17,6 @@ use warnings;
 #
 use lib qw(
     /usr/local/pf/lib
-    /usr/local/pf/html/pfappserver/lib
 );
 
 BEGIN {

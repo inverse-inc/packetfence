@@ -37,7 +37,7 @@ our @cli_tests = qw(
 );
 
 our @compile_tests = qw(
-    pf.t pfappserver_libs.t captive-portal_libs.t template.t
+    pf.t template.t
 );
 
 our @slow_compile_tests = qw(
@@ -198,7 +198,7 @@ sub get_all_perl_modules {
             /^.*\.pm\z/s
             && $File::Find::name !~ /^.*addons\/legacy\/.*\.pm\z/s
             && push(@list, $File::Find::name);
-        }}, '/usr/local/pf/lib/pf', '/usr/local/pf/addons', '/usr/local/pf/html/pfappserver/lib'
+        }}, '/usr/local/pf/lib/pf', '/usr/local/pf/addons'
     );
 
     return @list;

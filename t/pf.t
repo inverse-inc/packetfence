@@ -36,7 +36,7 @@ BEGIN {
     our %exclude;
     @exclude{qw(pf::WebAPI pf::snmptrapd)} = ();
     our @files = grep { !/^pfconfig/ } grep { /\.pm$/  } _readDirRecursive('/usr/local/pf/lib');
-    our @libs = grep {!exists $exclude{$_}}
+    our @libs = sort grep {!exists $exclude{$_}}
         map {
             s/\.pm$//;
             s#/#::#g;

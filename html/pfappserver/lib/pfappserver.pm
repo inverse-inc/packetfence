@@ -37,7 +37,6 @@ use Try::Tiny;
 BEGIN {
     use constant INSTALL_DIR => '/usr/local/pf';
     use lib INSTALL_DIR . "/lib";
-    use lib INSTALL_DIR . "/html/captive-portal/lib";
     use lib qw(/usr/local/fingerbank/lib);
     use pf::log 'service' => 'httpd.admin', reinit => 1;
 }

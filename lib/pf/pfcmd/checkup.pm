@@ -70,7 +70,6 @@ use pf::factory::condition::profile;
 use pf::condition_parser qw(parse_condition_string);
 
 use lib $conf_dir;
-use lib $install_dir."/html/captive-portal/lib";
 
 BEGIN {
     use Exporter ();

@@ -14,7 +14,7 @@ can be localized.
 =cut
 
 use File::Find;
-use lib qw(/usr/local/pf/lib /usr/local/pf/html/pfappserver/lib);
+use lib qw(/usr/local/pf/lib);
 use pf::action;
 use pf::admin_roles;
 use pf::api;

@@ -148,7 +148,6 @@ AcceptMutex posixsem
 
 SetEnv PF_SKIP_MAKE_IMMUTABLE 1
 PerlSwitches -I[% install_dir %]/lib
-PerlSwitches -I[% install_dir %]/html/pfappserver/lib
 PerlLoadModule pfappserver
 PerlLoadModule pf::WebAPI::InitHandler::Admin
 PerlPostConfigHandler pf::WebAPI::InitHandler::Admin->post_config
