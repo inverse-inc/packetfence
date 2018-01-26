@@ -436,7 +436,7 @@ sub violation_add {
         mac          => $mac,
         vid          => $vid,
         start_date   => $data{start_date},
-        release_date => $data{status},
+        release_date => $data{release_date},
         status       => $data{status},
         ticket_ref   => $data{ticket_ref},
         notes        => $data{notes}
