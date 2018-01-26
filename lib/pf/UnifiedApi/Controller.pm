@@ -31,7 +31,8 @@ our %STATUS_TO_MSG = (
     422 => $ERROR_422_MSG,
 );
 
-use Mojo::JSON qw(decode_json);;
+use Mojo::JSON qw(decode_json);
+use pf::util;
 
 sub log {
     my ($self) = @_;
@@ -77,7 +78,8 @@ sub get_json {
     };
     if ($@) {
         $error = $@->message;
-        $error =~ s/^(.*) at .*?$/$1/;
+        $self->log->error($error);
+        $error = strip_filename_from_exceptions($error);
     }
     return ($error, $data);
 }
