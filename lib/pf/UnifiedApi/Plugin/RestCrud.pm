@@ -21,8 +21,6 @@ sub register {
     $routes->add_shortcut( rest_routes => \&register_rest_routes);
 }
 
-
-
 sub register_rest_routes {
     my ($routes, $config) = @_;
     my $options = munge_options($routes, $config);
@@ -72,6 +70,7 @@ sub munge_options {
         collection_v2a => get_collection_verb_to_actions($config),
         resource_v2a => get_resource_verb_to_actions($config),
         resource_verbs => $config->{resource_verbs} // [],
+        collection_additional_routes => $config->{collection_additional_routes} // [],
         parent => $config->{parent},
     };
 }
@@ -125,7 +124,11 @@ sub get_resource_verb_to_actions {
 
 sub register_collection_routes {
     my ($r, $options) = @_;
-    register_verb_and_actions($r, $options->{controller}, $options->{name_prefix}, $options->{collection_v2a});
+    my ($controller, $name_prefix) = @{$options}{qw(controller name_prefix)};
+    register_verb_and_actions($r, $controller, $name_prefix, $options->{collection_v2a});
+    for my $route (@{$options->{collection_additional_routes} }) {
+        $r->post("/$route")->to("$controller#$route")->name("$name_prefix.$route");
+    }
 }
 
 sub register_verb_and_actions {
