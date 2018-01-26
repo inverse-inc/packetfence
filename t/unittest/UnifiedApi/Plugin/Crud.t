@@ -26,7 +26,7 @@ BEGIN {
 use pf::UnifiedApi::Plugin::RestCrud;
 use Mojolicious;
 
-use Test::More tests => 31;
+use Test::More tests => 34;
 
 #This test will running last
 use Test::NoWarnings;
@@ -46,27 +46,39 @@ foreach my $name (qw(list create get remove update replace run walk)) {
     ok($routes->find("Users.$name"), "Route Users.$name created");
 }
 
-my $r = $routes->any("/api")->name("api");
+{
+    my $r = $routes->any("/api")->name("api");
 
-$r->rest_routes({controller => 'users', id_key => "user_id" , resource_verbs => [qw(run walk)]});
-foreach my $name (qw(list create get remove update replace run walk resource)) {
-    ok($r->find("api.Users.$name"), "Route api.Users.$name created");
+    $r->rest_routes({controller => 'users', id_key => "user_id" , resource_verbs => [qw(run walk)]});
+    foreach my $name (qw(list create get remove update replace run walk resource)) {
+        ok($r->find("api.Users.$name"), "Route api.Users.$name created");
+    }
 }
 
-$r = $routes->any("/hello")->name("hello");
-$r->rest_routes({controller => 'bob', id_key => "user_id", collection_v2a => { post => 'search', put => 'add' } });
-foreach my $name (qw(add search get remove update replace )) {
-    ok($r->find("hello.Bob.$name"), "Route hello.Bob.$name created");
+{
+    my $r = $routes->any("/hello")->name("hello");
+    $r->rest_routes({controller => 'bob', id_key => "user_id", collection_v2a => { post => 'search', put => 'add' } });
+    foreach my $name (qw(add search get remove update replace )) {
+        ok($r->find("hello.Bob.$name"), "Route hello.Bob.$name created");
+    }
+
+    $r->rest_routes({controller => 'jones', id_key => "user_id", resource_v2a => {} });
+    foreach my $name (qw( get remove update replace )) {
+        ok(!$r->find("hello.Jones.$name"), "Route hello.Jones.$name not created");
+    }
 }
 
-$r->rest_routes({controller => 'jones', id_key => "user_id", resource_v2a => {} });
-foreach my $name (qw( get remove update replace )) {
-    ok(!$r->find("hello.Jones.$name"), "Route hello.Jones.$name not created");
+{
+    my @additional_routes = qw(howard the duck);
+    $routes->rest_routes({controller => 'collection_verbs', collection_v2a => {}, collection_additional_routes => \@additional_routes, resource_v2a => {} });
+    foreach my $name (@additional_routes) {
+        ok($routes->find("CollectionVerbs.$name"), "Route CollectionVerbs.$name was created");
+    }
 }
 
 is_deeply(
     pf::UnifiedApi::Plugin::RestCrud::munge_options(
-        $r,
+        $routes,
         {},
     ),
     undef,
@@ -86,6 +98,7 @@ is_deeply(
         path => '/users',
         id_key => 'id',
         collection_v2a => {GET => 'list', 'POST' => 'create'},
+        collection_additional_routes => [],
         resource_v2a => {GET => 'get', 'DELETE' => 'remove', 'PATCH' => 'update', PUT => 'replace'},
         resource_verbs => [],
         parent => undef,
