@@ -134,6 +134,9 @@ sub _build_DHCP_networks {
         my $network_obj = NetAddr::IP->new($network,$ConfigNetworks{$network}{netmask});
         if(isenabled($net{dhcpd})){
             push @dhcp_networks, $network_obj;
+            if (defined($ConfigNetworks{$network}{reg_network})) {
+                push @dhcp_networks, NetAddr::IP->new(NetAddr::IP->new($ConfigNetworks{$network}{reg_network})->network());
+            }
         }
     }
 
