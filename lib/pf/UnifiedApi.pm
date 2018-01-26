@@ -71,7 +71,9 @@ our @API_V1_ROUTES = (
         controller => 'config-connection_profiles',
         id_key     => 'connection_profile_id',
         path       => '/config/connection_profiles'
-    }
+    },
+    { controller => 'violations', resource_v2a => {}, collection_v2a => { get => 'list' }, path => '/violations' },
+    { controller => 'violations', resource_v2a => {}, collection_v2a => { get => 'list_by_search' }, path => '/violations/:search' },
 );
 
 sub startup {
