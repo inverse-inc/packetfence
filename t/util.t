@@ -34,7 +34,7 @@ BEGIN {
 
 
 
-use Test::More tests => 50 + scalar @INVALID_DATES;
+use Test::More;
 use Test::NoWarnings;
 
 BEGIN {
@@ -42,6 +42,31 @@ BEGIN {
     use_ok('pf::config::util');
     use_ok('pf::util::apache');
 }
+
+our @STRIP_FILENAME_FROM_EXCEPTIONS_TESTS = (
+    {
+        in => undef,
+        out => undef,
+        msg => "Undef returns undef",
+    },
+    {
+        in => '',
+        out => '',
+        msg => "empty string"
+    },
+    {
+        in => 'Blah blah blah at -e line 1.',
+        out => 'Blah blah blah',
+        msg => "simple die string"
+    },
+    {
+        in => 'Blah at blah and at blah at -e line 1.',
+        out => 'Blah at blah and at blah',
+        msg => "With multiple at in exception string"
+    },
+);
+
+plan tests => 50 + scalar @STRIP_FILENAME_FROM_EXCEPTIONS_TESTS + scalar @INVALID_DATES;
 
 my @info = ("lzammit","turkeycorp");
 is_deeply(\@info, [strip_username('lzammit@turkeycorp')],
@@ -139,7 +164,6 @@ is(normalize_time("2W"), 2 * 7 * 24 * 60 * 60, "normalizing weeks");
 is(normalize_time("2M"), 2 * 30 * 24 * 60 * 60, "normalizing months");
 is(normalize_time("2Y"), 2 * 365 * 24 * 60 * 60, "normalizing years");
 
-
 {
     for my $test (@INVALID_DATES) {
         ok(!valid_date($test->{in}), $test->{msg});
@@ -148,6 +172,14 @@ is(normalize_time("2Y"), 2 * 365 * 24 * 60 * 60, "normalizing years");
 
 # TODO add more tests, we should test:
 #  - all methods ;)
+
+for my $test (@STRIP_FILENAME_FROM_EXCEPTIONS_TESTS) {
+    is (
+        strip_filename_from_exceptions($test->{in}),
+        $test->{out},
+        $test->{msg}
+    )
+}
 
 =head1 AUTHOR
 
