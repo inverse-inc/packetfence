@@ -31,7 +31,7 @@ sub config_store {
 }
 
 sub form {
-    my ($self) = @_;
+    my ($self, $item) = @_;
     $self->form_class->new;
 }
 
@@ -92,7 +92,7 @@ sub create {
 
 sub validate_item {
     my ($self, $item) = @_;
-    my $form = $self->form;
+    my $form = $self->form($item);
     $form->process(posted => 1, params => $item);
     if (!$form->has_errors) {
         return $form->value;
