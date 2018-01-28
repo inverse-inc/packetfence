@@ -989,6 +989,64 @@ paths:
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
       summary: Allows to update the whole password entry for a user
+  /violations:
+    get:
+      description: The list of MAC addresses with violations will be limited to 100 and a 
+        cursor will be returned for iterating on other open violations. Iteration is only 
+        needed if the nextCursor is not an empty value.
+      parameters:
+      - $ref: '#/components/parameters/cursor'
+      - *1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MacAddressList'
+          description: List of MAC addresses with open violations
+      summary: Returns a list of MAC addresses with open violations
+  /violations/{mac}:
+    get:
+      description: The list of violations will be limited to 100 and a cursor will be returned
+        for iterating on other violations. Iteration is only needed if the nextCursor is
+        not an empty value.
+      parameters:
+      - $ref: '#/components/parameters/cursor'
+      - description: The MAC address to fetch
+        in: path
+        name: mac
+        required: true
+        schema:
+          type: string
+      - *1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViolationList'
+          description: List of violations
+      summary: Returns a list of violations    
+  /violations/{violation_id}:
+    get:
+      description: The violation for a violation_id.
+      parameters:
+      - $ref: '#/components/parameters/cursor'
+      - description: The violation_id to fetch
+        in: path
+        name: violation_id
+        required: true
+        schema:
+          type: integer
+      - *1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViolationWithNotes'
+          description: Violation
+      summary: Returns a violation    
 security:
 - bearerAuth: []
 servers:
