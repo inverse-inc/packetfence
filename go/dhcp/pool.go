@@ -3,7 +3,6 @@ package main
 import (
 	_ "expvar"
 	"net"
-	_ "net/http/pprof"
 
 	dhcp "github.com/krolaw/dhcp4"
 )

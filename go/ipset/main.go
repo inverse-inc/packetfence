@@ -15,13 +15,33 @@ import (
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
+// Queue value
+var (
+	maxQueueSize = 1000
+	maxWorkers   = 10
+)
+
 var ctx = context.Background()
 var webservices pfconfigdriver.PfConfWebservices
 
 var IPSET = &pfIPSET{}
 var database *sql.DB
 
+var jobs chan job
+
 func main() {
+
+	// create job channel
+	jobs = make(chan job, maxQueueSize)
+
+	// create workers
+	for i := 1; i <= maxWorkers; i++ {
+		go func(i int) {
+			for j := range jobs {
+				doWork(i, j)
+			}
+		}(i)
+	}
 
 	webservices = readWebservicesConfig()
 

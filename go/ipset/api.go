@@ -22,7 +22,7 @@ func handlePassthrough(res http.ResponseWriter, req *http.Request) {
 	Port := vars["port"]
 	Local := vars["local"]
 
-	ipset.Add("pfsession_passthrough", IP+","+Port)
+	jobs <- job{"Add", "pfsession_passthrough", IP + "," + Port}
 	if Local == "0" {
 		updateClusterPassthrough(IP, Port)
 	}
@@ -46,7 +46,7 @@ func handleIsolationPassthrough(res http.ResponseWriter, req *http.Request) {
 	Port := vars["port"]
 	Local := vars["local"]
 
-	ipset.Add("pfsession_isol_passthrough", IP+","+Port)
+	jobs <- job{"Add", "pfsession_isol_passthrough", IP + "," + Port}
 	if Local == "0" {
 		updateClusterPassthroughIsol(IP, Port)
 	}
@@ -99,25 +99,22 @@ func (IPSET *pfIPSET) IPSEThandleLayer2(IP string, Mac string, Network string, T
 		// Delete all entries with the new ip address
 		r := ipset.Test(v.Name, IP)
 		if r == nil {
-			ipset.Del(v.Name, IP)
+			jobs <- job{"Del", v.Name, IP}
 			fmt.Println("Removed " + IP + " from " + v.Name)
 		}
-		// // Delete all entries with old ip addresses
+		// Delete all entries with old ip addresses
 		Ips := IPSET.mac2ip(Mac, v)
 		for _, i := range Ips {
-			// r = ipset.Test(v.Name, i)
-			// if r == nil {
-			ipset.Del(v.Name, i)
+			jobs <- job{"Del", v.Name, i}
 			fmt.Println("Removed " + i + " from " + v.Name)
-			// }
 		}
 	}
 	// Add to the new ipset session
-	ipset.Add("pfsession_"+Type+"_"+Network, IP+","+Mac)
+	jobs <- job{"Add", "pfsession_" + Type + "_" + Network, IP + "," + Mac}
 	fmt.Println("Added " + IP + " " + Mac + " to pfsession_" + Type + "_" + Network)
 	if Type == "Reg" {
 		// Add to the ip ipset session
-		ipset.Add("PF-iL2_ID"+Catid+"_"+Network, IP)
+		jobs <- job{"Add", "PF-iL2_ID" + Catid + "_" + Network, IP}
 		fmt.Println("Added " + IP + " to PF-iL2_ID" + Catid + "_" + Network)
 	}
 }
@@ -141,7 +138,7 @@ func handleMarkIpL2(res http.ResponseWriter, req *http.Request) {
 }
 
 func (IPSET *pfIPSET) IPSEThandleMarkIpL2(IP string, Network string, Catid string) {
-	ipset.Add("PF-iL2_ID"+Catid+"_"+Network, IP)
+	jobs <- job{"Add", "PF-iL2_ID" + Catid + "_" + Network, IP}
 }
 
 func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
@@ -172,7 +169,7 @@ func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
 }
 
 func (IPSET *pfIPSET) IPSEThandleMarkIpL3(IP string, Network string, Catid string) {
-	ipset.Add("PF-iL3_ID"+Catid+"_"+Network, IP)
+	jobs <- job{"Add", "PF-iL3_ID" + Catid + "_" + Network, IP}
 }
 
 func handleLayer3(res http.ResponseWriter, req *http.Request) {
@@ -210,16 +207,16 @@ func (IPSET *pfIPSET) IPSEThandleLayer3(IP string, Network string, Type string, 
 	for _, v := range IPSET.ListALL {
 		r := ipset.Test(v.Name, IP)
 		if r == nil {
-			ipset.Del(v.Name, IP)
+			jobs <- job{"Del", v.Name, IP}
 			fmt.Println("Removed " + IP + " from " + v.Name)
 		}
 	}
 	// Add to the new ipset session
-	ipset.Add("pfsession_"+Type+"_"+Network, IP)
+	jobs <- job{"Add", "pfsession_" + Type + "_" + Network, IP}
 	fmt.Println("Added " + IP + " to pfsession_" + Type + "_" + Network)
 	if Type == "Reg" {
 		// Add to the ip ipset session
-		ipset.Add("PF-iL3_ID"+Catid+"_"+Network, IP)
+		jobs <- job{"Add", "PF-iL3_ID" + Catid + "_" + Network, IP}
 		fmt.Println("Added " + IP + " to PF-iL3_ID" + Catid + "_" + Network)
 	}
 }
@@ -232,13 +229,10 @@ func (IPSET *pfIPSET) handleUnmarkMac(res http.ResponseWriter, req *http.Request
 	for _, v := range IPSET.ListALL {
 		Ips := IPSET.mac2ip(Mac, v)
 		for _, i := range Ips {
-			// r := ipset.Test(v.Name, i)
-			// if r == nil {
-			ipset.Del(v.Name, i)
+			jobs <- job{"Del", v.Name, i}
 			conn, _ := conntrack.New()
 			conn.DeleteConnectionBySrcIp(i)
 			fmt.Println("Removed " + i + " from " + v.Name)
-			// }
 		}
 	}
 	// Do we have to update the other members of the cluster
@@ -266,7 +260,7 @@ func (IPSET *pfIPSET) handleUnmarkIp(res http.ResponseWriter, req *http.Request)
 	for _, v := range IPSET.ListALL {
 		r := ipset.Test(v.Name, IP)
 		if r == nil {
-			ipset.Del(v.Name, IP)
+			jobs <- job{"Del", v.Name, IP}
 			conn, _ := conntrack.New()
 			conn.DeleteConnectionBySrcIp(IP)
 			fmt.Println("Removed " + IP + " from " + v.Name)
