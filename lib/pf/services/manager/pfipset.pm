@@ -1,13 +1,13 @@
-package pf::services::manager::go_ipset;
+package pf::services::manager::pfipset;
 =head1 NAME
 
-pf::services::manager::go_ipset
+pf::services::manager::pfipset
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::services::manager::go_ipset
+pf::services::manager::pfipset
 
 =cut
 
@@ -22,7 +22,7 @@ use pf::util;
 
 extends 'pf::services::manager';
 
-has '+name' => ( default => sub { 'go_ipset' } );
+has '+name' => ( default => sub { 'pfipset' } );
 
 sub isManaged {
     my ($self) = @_;
@@ -36,7 +36,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

@@ -328,35 +328,25 @@ thread_cache_size=25
 max_allowed_packet=16
 
 [services]
+# services.pfipset
 #
-# services.dhcpd
+# Should pfipset be managed by PacketFence?
+pfipset=enabled
 #
-# Should DHCPd be managed by PacketFence?
-dhcpd=enabled
+# services.pfipset_binary
 #
-# services.dhcpd_binary
+# Location of the pfipset binary.
+pfipset_binary=/usr/local/pf/bin/pfipset
 #
-# Location of the dhcpd binary. Only necessary to change if you are not running the RPMed version.
-dhcpd_binary=/usr/sbin/dhcpd
-# services.go_ipset
+# services.pfdhcp
 #
-# Should go_ipset be managed by PacketFence?
-go_ipset=enabled
+# Should pfdhcp be managed by PacketFence?
+pfdhcp=enabled
 #
-# services.go_ipset_binary
+# services.pfdhcp_binary
 #
-# Location of the go_ipset binary.
-go_ipset_binary=/usr/local/pf/bin/go_ipset
-#
-# services.go_dhcpd
-#
-# Should go_dhcpd be managed by PacketFence?
-go_dhcpd=disabled
-#
-# services.go_dhcpd_binary
-#
-# Location of the go_dhcpd binary.
-go_dhcpd_binary=/usr/local/pf/bin/go_dhcpd
+# Location of the pfdhcp binary.
+pfdhcp_binary=/usr/local/pf/bin/pfdhcp
 #
 # services.etcd
 #
@@ -377,11 +367,6 @@ haproxy=enabled
 #
 # Location of the haproxy binary. Only necessary to change if you are not running the RPMed version.
 haproxy_binary=/usr/sbin/haproxy-systemd-wrapper
-#
-# services.pfdns
-#
-# Should pfdns be managed by PacketFence?
-pfdns=enabled
 #
 # services.pffilter
 #
@@ -621,15 +606,15 @@ routes=enabled
 # location of the routes binary. only necessary to change if you are not running the rpmed version.
 routes_binary=/sbin/ip
 
-# services.go_dns
+# services.pfdns
 #
-# Should go_dns be managed by PacketFence?
-go_dns=disabled
+# Should pfdns be managed by PacketFence?
+pfdns=enabled
 #
-# services.go_dns_binary
+# services.pfdns_binary
 #
-# Location of the go_dns binary.
-go_dns_binary=/usr/local/pf/bin/go_dns
+# Location of the pfdns binary.
+pfdns_binary=/usr/local/pf/bin/pfdns
 
 [snmp_traps]
 #

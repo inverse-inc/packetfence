@@ -1,13 +1,13 @@
-package pf::services::manager::go_dhcpd;
+package pf::services::manager::pfdhcp;
 =head1 NAME
 
-pf::services::manager::go_dhcpd
+pf::services::manager::pfdhcp
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::services::manager::go_dhcpd
+pf::services::manager::pfdhcp
 
 =cut
 
@@ -22,11 +22,11 @@ use pf::util;
 
 extends 'pf::services::manager';
 
-has '+name' => ( default => sub { 'go_dhcpd' } );
+has '+name' => ( default => sub { 'pfdhcp' } );
 
 sub isManaged {
     my ($self) = @_;
-    return  isdisabled($Config{'services'}{'dhcpd'}) && $self->SUPER::isManaged();
+    return  $self->SUPER::isManaged();
 }
 
 =head1 AUTHOR
@@ -36,7 +36,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-20188888888e inc.
 
 =head1 LICENSE
 

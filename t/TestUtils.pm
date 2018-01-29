@@ -117,15 +117,15 @@ and return all the normal files under
 =cut
 
 my @excluded_binaries = qw(
-   /usr/local/pf/bin/go_dhcpd
-   /usr/local/pf/bin/go_ipset
+   /usr/local/pf/bin/pfdhcp
+   /usr/local/pf/bin/pfipset
    /usr/local/pf/bin/pfcmd
    /usr/local/pf/bin/pfhttpd
    /usr/local/pf/sbin/pfdns
    /usr/local/pf/bin/ntlm_auth_wrapper
    /usr/local/pf/bin/mysql_fingerbank_import.sh
    /usr/local/pf/addons/sourcefire/pfdetect.pl
-   /usr/local/pf/bin/go_dns
+   /usr/local/pf/bin/pfdns
 );
 my %exclusions = map { $_ => 1 } @excluded_binaries;
 

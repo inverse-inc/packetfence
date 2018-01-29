@@ -18,23 +18,23 @@ pfhttpd-race:
 	cd - && \
 	mv caddy/caddy/caddy/caddy pfhttpd-race
 
-go_dhcpd:
+pfdhcp:
 	cd dhcp && \
 	go build && \
 	cd - && \
-	mv dhcp/dhcp go_dhcpd
+	mv dhcp/dhcp pfdhcp
 
-go_ipset:
+pfipset:
 	cd ipset && \
 	go build && \
 	cd - && \
-	mv ipset/ipset go_ipset
+	mv ipset/ipset pfipset
 
-go_dns:
+pfdns:
 	cd coredns && \
 	go build && \
 	cd - && \
-	mv coredns/coredns go_dns
+	mv coredns/coredns pfdns
 
 .PHONY: clean-caddy-src
 
