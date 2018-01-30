@@ -105,6 +105,8 @@ our @API_V1_ROUTES = (
     { controller => 'reports', collection_v2a => { get => 'nodebandwidth_all' }, resource_v2a => {},  id_key => 'report_id', path => '/reports/nodebandwidth_all' },
     { controller => 'reports', collection_v2a => { get => 'topsponsor_all' }, resource_v2a => {},  id_key => 'report_id', path => '/reports/topsponsor_all' },
 
+    { controller => 'nodes', collection_v2a => { get => 'latest_locationlog_by_mac' }, resource_v2a => {}, path => '/nodes/:mac/latest_locationlog' },
+    { controller => 'nodes', collection_v2a => { get => 'locationlog_by_mac' }, resource_v2a => {}, path => '/nodes/:mac/locationlog' },
 );
 
 sub startup {
