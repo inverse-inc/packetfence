@@ -104,6 +104,15 @@ has_field 'domains' =>
    tags => { after_element => \&help,
              help => 'Comma separated list of domains that will be resolve with the correct IP addresses.' },
   );
+has_field 'hosted_domain' =>
+  (
+   type => 'Text',
+   label => 'Google domain',
+   required => 1,
+   element_class => ['input-xlarge'],
+   tags => { after_element => \&help,
+             help => 'Google hosted domain to restrict the login info to. Will only present accounts from this domain on Google\'s login screen' },
+  );
 
 =head1 COPYRIGHT
 

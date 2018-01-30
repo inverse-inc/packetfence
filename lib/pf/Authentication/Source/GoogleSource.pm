@@ -25,6 +25,7 @@ has 'scope' => (isa => 'Str', is => 'rw', default => 'https://www.googleapis.com
 has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://www.googleapis.com/oauth2/v2/userinfo');
 has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/callback');
 has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => '*.google.com,*.gstatic.com,googleapis.com,accounts.youtube.com,*.googleusercontent.com');
+has 'hosted_domain' => (isa => 'Str', is => 'rw');
 
 =head2 dynamic_routing_module
 
@@ -43,6 +44,21 @@ Lookup the person information from the authentication hash received during the O
 sub lookup_from_provider_info {
     my ( $self, $pid, $info ) = @_;
     person_modify( $pid, firstname => $info->{given_name}, lastname => $info->{family_name}, email => $info->{email}, gender => $info->{gender} );
+}
+
+
+=head2 additional_client_attributes
+
+Supply a google-apps domain filter (hd parameter). See below
+https://developers.google.com/identity/protocols/OpenIDConnect#hd-param
+
+=cut
+
+sub additional_client_attributes {
+    my ($self) = @_;
+    if ($self->hosted_domain ne ""){
+        return (hd => $self->hosted_domain);
+    }
 }
 
 =head1 AUTHOR

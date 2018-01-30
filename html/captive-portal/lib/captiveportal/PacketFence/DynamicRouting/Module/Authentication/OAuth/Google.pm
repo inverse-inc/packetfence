@@ -13,7 +13,61 @@ Google OAuth module
 use Moose;
 extends 'captiveportal::DynamicRouting::Module::Authentication::OAuth';
 
+use pf::log;
+use pf::auth_log;
+
 has '+source' => (isa => 'pf::Authentication::Source::GoogleSource');
+
+=head2 handle_callback
+
+Google override to handle the callback from the OAuth2 provider and fetch the protected resource
+
+=cut
+
+sub handle_callback {
+    my ($self) = @_;
+
+    my $token = $self->get_token();
+    return unless($token);
+
+    # request a JSON response
+    my $h = HTTP::Headers->new( 'x-li-format' => 'json' );
+    my $response = $token->get($self->source->{'protected_resource_url'}, $h ); 
+
+    if ($response->is_success) {
+        my $info = $self->_decode_response($response); 
+        my $pid = $self->_extract_username_from_response($info);
+        my $hd = $info->{hd};
+        my $hosted_domain = $self->source->hosted_domain;
+        # get_logger->info(sub { use Data::Dumper; "OAuth2  response : ".Dumper($info) });   
+        if ( defined $hosted_domain && $hosted_domain ne "" && (!defined $hd || $hosted_domain ne $hd)){
+            get_logger->info("OAuth2: google domain for user: ".$pid." did not match the allowed domain: ".$hosted_domain);
+            get_logger->debug(sub { use Data::Dumper; "OAuth2 failed response : ".Dumper($response) });
+            pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED);
+            $self->app->flash->{error} = "OAuth2: google domain did not match the allowed domain: ".$hosted_domain ;
+            $self->landing();
+            return;    
+        }
+        
+        $self->username($pid);
+
+        get_logger->info("OAuth2 successfull for username ".$self->username);
+        $self->source->lookup_from_provider_info($self->username, $info);
+        
+        pf::auth_log::record_completed_oauth($self->source->id, $self->current_mac, $pid, $pf::auth_log::COMPLETED);
+
+        $self->done();
+    }
+    else {
+        get_logger->info("OAuth2: failed to validate the token, redireting to login page.");
+        get_logger->debug(sub { use Data::Dumper; "OAuth2 failed response : ".Dumper($response) });
+        pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED);
+        $self->app->flash->{error} = "OAuth2 Error: Failed to validate the token, please retry";
+        $self->landing();
+        return;
+    }
+}
+
 
 =head1 AUTHOR
 
