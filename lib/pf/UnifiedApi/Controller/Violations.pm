@@ -19,7 +19,7 @@ use pf::violation;
 
 has dal => 'pf::dal::violation';
 has id_key => 'id';
-has resource_id => 'pid';
+has resource_id => 'id';
 
 
 sub list {
