@@ -1,0 +1,79 @@
+MacAddressList:
+  allOf:
+    - $ref: "#/components/schemas/Iterable"
+    - type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/MacAddress"
+
+MacAddress:
+  type: object
+  properties:
+    mac:
+      type: string
+      description: The MAC address.
+
+ViolationList:
+  allOf:
+    - $ref: "#/components/schemas/Iterable"
+    - type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Violation"
+
+Violation:
+  type: object
+  properties:
+    id:
+      type: integer
+      description: The unique violation identifier.
+    vid:
+      type: integer
+      description: The unique violation class identifier.
+    description:
+      type: string
+      description: The name of the violation class.
+    status:
+      type: string
+      description: The status of the violation.
+    start_date:
+      type: string
+      description: The date/time when the violation was opened.
+    release_date:
+      type: string
+      description: The date/time when the violation was closed.
+      
+ViolationWithNotes:
+  type: object
+  properties:
+    id:
+      type: integer
+      description: The unique violation identifier.
+    vid:
+      type: integer
+      description: The unique violation class identifier.
+    status:
+      type: string
+      description: The status of the violation.
+    start_date:
+      type: string
+      description: The date/time when the violation was opened.
+    release_date:
+      type: string
+      description: The date/time when the violation was closed.
+    computername:
+      type: string
+      description: The computer name of the node that triggered the violation.
+    mac:
+      type: string
+      description: The MAC address of the node that triggered the violation.
+    notes:
+      type: string
+      description: Additional note from the violation class.
+    ticket_ref:
+      type: string
+      description: The ticket reference of the violation.
