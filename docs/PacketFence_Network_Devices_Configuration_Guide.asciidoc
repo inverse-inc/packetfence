@@ -828,6 +828,8 @@ Port 1 configuration:
 Brocade
 ~~~~~~~
 
+NOTE: By default, all deconnections will be done using SNMP.
+
 ICX 6400 Series
 ^^^^^^^^^^^^^^^
 
