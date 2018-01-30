@@ -19,7 +19,7 @@
 # a space separated list of hosts to fping
 # we suggest to put names here and the IPs of these names in /etc/hosts
 
-hosts=""
+hosts="%%members%%"
 
 
 # The update frequency of the chart - the default is inherited from netdata

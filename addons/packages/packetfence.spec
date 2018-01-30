@@ -299,7 +299,7 @@ Requires: perl(DateTime::TimeZone)
 
 Requires: samba-winbind-clients, samba-winbind
 Requires: libdrm >= 2.4.74
-Requires: netdata
+Requires: netdata, fping
 
 # pki
 Requires: perl(Crypt::SMIME)
@@ -613,6 +613,7 @@ if ! /usr/bin/id pf &>/dev/null; then
 fi
 /usr/sbin/usermod -aG wbpriv,fingerbank,apache pf
 /usr/sbin/usermod -aG pf mysql 
+/usr/bin/usermod -aG pf netdata
 
 if [ ! `id -u` = "0" ];
 then
