@@ -105,7 +105,9 @@ our @SyslogInfo = (
         'conditions' => [
             '$syslogtag contains "packetfence"',
             '$programname == "pfqueue"',
-            '$programname == "pfhttpd"'
+            '$programname == "pfhttpd"',
+            '$programname == "pfipset"',
+            '$programname == "pfdhcp"',
         ]
     },
     {
@@ -176,7 +178,11 @@ our @SyslogInfo = (
     {
         'name'       => 'redis_queue.log',
         'conditions' => [ '$syslogtag contains "redis-queue"' ]
-    }
+    },
+    {
+        'name'      => 'mariadb_error.log',
+        'conditions' => [ '$syslogtag contains "mysqld"' ],
+    },
 );
 
 =head1 AUTHOR
