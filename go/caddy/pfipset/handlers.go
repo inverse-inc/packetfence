@@ -1,11 +1,13 @@
 package pfipset
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 
 	"github.com/diegoguarnieri/go-conntrack/conntrack"
+	ipset "github.com/digineo/go-ipset"
 	"github.com/gorilla/mux"
 )
 
@@ -16,14 +18,15 @@ type Info struct {
 }
 
 func handlePassthrough(res http.ResponseWriter, req *http.Request) {
+	IPSET := pfIPSETFromContext(req.Context())
 	vars := mux.Vars(req)
 	IP := vars["ip"]
 	Port := vars["port"]
 	Local := vars["local"]
 
-	jobs <- job{"Add", "pfsession_passthrough", IP + "," + Port}
+	IPSET.jobs <- job{"Add", "pfsession_passthrough", IP + "," + Port}
 	if Local == "0" {
-		updateClusterPassthrough(IP, Port)
+		updateClusterPassthrough(req.Context(), IP, Port)
 	}
 	var result = map[string][]*Info{
 		"result": {
@@ -40,14 +43,15 @@ func handlePassthrough(res http.ResponseWriter, req *http.Request) {
 }
 
 func handleIsolationPassthrough(res http.ResponseWriter, req *http.Request) {
+	IPSET := pfIPSETFromContext(req.Context())
 	vars := mux.Vars(req)
 	IP := vars["ip"]
 	Port := vars["port"]
 	Local := vars["local"]
 
-	jobs <- job{"Add", "pfsession_isol_passthrough", IP + "," + Port}
+	IPSET.jobs <- job{"Add", "pfsession_isol_passthrough", IP + "," + Port}
 	if Local == "0" {
-		updateClusterPassthroughIsol(IP, Port)
+		updateClusterPassthroughIsol(req.Context(), IP, Port)
 	}
 	var result = map[string][]*Info{
 		"result": {
@@ -64,6 +68,7 @@ func handleIsolationPassthrough(res http.ResponseWriter, req *http.Request) {
 }
 
 func handleLayer2(res http.ResponseWriter, req *http.Request) {
+	IPSET := pfIPSETFromContext(req.Context())
 	vars := mux.Vars(req)
 	IP := vars["ip"]
 	Mac := vars["mac"]
@@ -73,11 +78,11 @@ func handleLayer2(res http.ResponseWriter, req *http.Request) {
 	Local := vars["local"]
 
 	// Update locally
-	IPSET.IPSEThandleLayer2(IP, Mac, Network, Type, Catid)
+	IPSET.IPSEThandleLayer2(req.Context(), IP, Mac, Network, Type, Catid)
 
 	// Do we have to update the other members of the cluster
 	if Local == "0" {
-		updateClusterL2(IP, Mac, Network, Type, Catid)
+		updateClusterL2(req.Context(), IP, Mac, Network, Type, Catid)
 	}
 	var result = map[string][]*Info{
 		"result": {
@@ -92,33 +97,34 @@ func handleLayer2(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (IPSET *pfIPSET) IPSEThandleLayer2(IP string, Mac string, Network string, Type string, Catid string) {
+func (IPSET *pfIPSET) IPSEThandleLayer2(ctx context.Context, IP string, Mac string, Network string, Type string, Catid string) {
 
 	for _, v := range IPSET.ListALL {
 		// Delete all entries with the new ip address
 		r := ipset.Test(v.Name, IP)
 		if r == nil {
-			jobs <- job{"Del", v.Name, IP}
+			IPSET.jobs <- job{"Del", v.Name, IP}
 			fmt.Println("Removed " + IP + " from " + v.Name)
 		}
 		// Delete all entries with old ip addresses
-		Ips := IPSET.mac2ip(Mac, v)
+		Ips := IPSET.mac2ip(ctx, Mac, v)
 		for _, i := range Ips {
-			jobs <- job{"Del", v.Name, i}
+			IPSET.jobs <- job{"Del", v.Name, i}
 			fmt.Println("Removed " + i + " from " + v.Name)
 		}
 	}
 	// Add to the new ipset session
-	jobs <- job{"Add", "pfsession_" + Type + "_" + Network, IP + "," + Mac}
+	IPSET.jobs <- job{"Add", "pfsession_" + Type + "_" + Network, IP + "," + Mac}
 	fmt.Println("Added " + IP + " " + Mac + " to pfsession_" + Type + "_" + Network)
 	if Type == "Reg" {
 		// Add to the ip ipset session
-		jobs <- job{"Add", "PF-iL2_ID" + Catid + "_" + Network, IP}
+		IPSET.jobs <- job{"Add", "PF-iL2_ID" + Catid + "_" + Network, IP}
 		fmt.Println("Added " + IP + " to PF-iL2_ID" + Catid + "_" + Network)
 	}
 }
 
 func handleMarkIpL2(res http.ResponseWriter, req *http.Request) {
+	IPSET := pfIPSETFromContext(req.Context())
 	vars := mux.Vars(req)
 	IP := vars["ip"]
 	Network := vars["network"]
@@ -130,17 +136,18 @@ func handleMarkIpL2(res http.ResponseWriter, req *http.Request) {
 
 	// Do we have to update the other members of the cluster
 	if Local == "0" {
-		updateClusterMarkIpL3(IP, Network, Catid)
+		updateClusterMarkIpL3(req.Context(), IP, Network, Catid)
 	}
 	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	res.WriteHeader(http.StatusOK)
 }
 
 func (IPSET *pfIPSET) IPSEThandleMarkIpL2(IP string, Network string, Catid string) {
-	jobs <- job{"Add", "PF-iL2_ID" + Catid + "_" + Network, IP}
+	IPSET.jobs <- job{"Add", "PF-iL2_ID" + Catid + "_" + Network, IP}
 }
 
 func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
+	IPSET := pfIPSETFromContext(req.Context())
 	vars := mux.Vars(req)
 	IP := vars["ip"]
 	Network := vars["network"]
@@ -152,7 +159,7 @@ func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
 
 	// Do we have to update the other members of the cluster
 	if Local == "0" {
-		updateClusterMarkIpL3(IP, Network, Catid)
+		updateClusterMarkIpL3(req.Context(), IP, Network, Catid)
 	}
 	var result = map[string][]*Info{
 		"result": {
@@ -168,10 +175,11 @@ func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
 }
 
 func (IPSET *pfIPSET) IPSEThandleMarkIpL3(IP string, Network string, Catid string) {
-	jobs <- job{"Add", "PF-iL3_ID" + Catid + "_" + Network, IP}
+	IPSET.jobs <- job{"Add", "PF-iL3_ID" + Catid + "_" + Network, IP}
 }
 
 func handleLayer3(res http.ResponseWriter, req *http.Request) {
+	IPSET := pfIPSETFromContext(req.Context())
 	vars := mux.Vars(req)
 	IP := vars["ip"]
 	Network := vars["network"]
@@ -184,7 +192,7 @@ func handleLayer3(res http.ResponseWriter, req *http.Request) {
 
 	// Do we have to update the other members of the cluster
 	if Local == "0" {
-		updateClusterL3(IP, Network, Type, Catid)
+		updateClusterL3(req.Context(), IP, Network, Type, Catid)
 	}
 
 	var result = map[string][]*Info{
@@ -206,16 +214,16 @@ func (IPSET *pfIPSET) IPSEThandleLayer3(IP string, Network string, Type string, 
 	for _, v := range IPSET.ListALL {
 		r := ipset.Test(v.Name, IP)
 		if r == nil {
-			jobs <- job{"Del", v.Name, IP}
+			IPSET.jobs <- job{"Del", v.Name, IP}
 			fmt.Println("Removed " + IP + " from " + v.Name)
 		}
 	}
 	// Add to the new ipset session
-	jobs <- job{"Add", "pfsession_" + Type + "_" + Network, IP}
+	IPSET.jobs <- job{"Add", "pfsession_" + Type + "_" + Network, IP}
 	fmt.Println("Added " + IP + " to pfsession_" + Type + "_" + Network)
 	if Type == "Reg" {
 		// Add to the ip ipset session
-		jobs <- job{"Add", "PF-iL3_ID" + Catid + "_" + Network, IP}
+		IPSET.jobs <- job{"Add", "PF-iL3_ID" + Catid + "_" + Network, IP}
 		fmt.Println("Added " + IP + " to PF-iL3_ID" + Catid + "_" + Network)
 	}
 }
@@ -226,9 +234,9 @@ func (IPSET *pfIPSET) handleUnmarkMac(res http.ResponseWriter, req *http.Request
 	Local := vars["local"]
 
 	for _, v := range IPSET.ListALL {
-		Ips := IPSET.mac2ip(Mac, v)
+		Ips := IPSET.mac2ip(req.Context(), Mac, v)
 		for _, i := range Ips {
-			jobs <- job{"Del", v.Name, i}
+			IPSET.jobs <- job{"Del", v.Name, i}
 			conn, _ := conntrack.New()
 			conn.DeleteConnectionBySrcIp(i)
 			fmt.Println("Removed " + i + " from " + v.Name)
@@ -236,7 +244,7 @@ func (IPSET *pfIPSET) handleUnmarkMac(res http.ResponseWriter, req *http.Request
 	}
 	// Do we have to update the other members of the cluster
 	if Local == "0" {
-		updateClusterUnmarkMac(Mac)
+		updateClusterUnmarkMac(req.Context(), Mac)
 	}
 	var result = map[string][]*Info{
 		"result": {
@@ -259,7 +267,7 @@ func (IPSET *pfIPSET) handleUnmarkIp(res http.ResponseWriter, req *http.Request)
 	for _, v := range IPSET.ListALL {
 		r := ipset.Test(v.Name, IP)
 		if r == nil {
-			jobs <- job{"Del", v.Name, IP}
+			IPSET.jobs <- job{"Del", v.Name, IP}
 			conn, _ := conntrack.New()
 			conn.DeleteConnectionBySrcIp(IP)
 			fmt.Println("Removed " + IP + " from " + v.Name)
@@ -267,7 +275,7 @@ func (IPSET *pfIPSET) handleUnmarkIp(res http.ResponseWriter, req *http.Request)
 	}
 	// Do we have to update the other members of the cluster
 	if Local == "0" {
-		updateClusterUnmarkIp(IP)
+		updateClusterUnmarkIp(req.Context(), IP)
 	}
 	var result = map[string][]*Info{
 		"result": {

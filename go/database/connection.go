@@ -7,10 +7,10 @@ import (
 )
 
 func Connect(user, pass, host, port, dbname string) *sql.DB {
-	database, _ = sql.Open("mysql", user+":"+pass+"@tcp("+host+":"+port+")/"+dbname+"?parseTime=true")
-	database.SetMaxIdleConns(0)
-	database.SetMaxOpenConns(500)
-	return database
+	db, _ := sql.Open("mysql", user+":"+pass+"@tcp("+host+":"+port+")/"+dbname+"?parseTime=true")
+	db.SetMaxIdleConns(0)
+	db.SetMaxOpenConns(500)
+	return db
 }
 
 func ConnectFromConfig(config pfconfigdriver.PfconfigDatabase) *sql.DB {

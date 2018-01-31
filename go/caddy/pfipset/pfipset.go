@@ -13,7 +13,6 @@ import (
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"github.com/julienschmidt/httprouter"
 	"github.com/mholt/caddy"
 	"github.com/mholt/caddy/caddyhttp/httpserver"
 )
@@ -26,11 +25,9 @@ const (
 
 type PfipsetHandler struct {
 	Next     httpserver.Handler
-	router   *httprouter.Router
 	IPSET    *pfIPSET
 	database *sql.DB
 	router   *mux.Router
-	jobs     chan job
 }
 
 // Setup the pfipset middleware
@@ -54,18 +51,18 @@ func setup(c *caddy.Controller) error {
 	return nil
 }
 
-func buildPfipsetHandler() (PfipsetHandler, error) {
+func buildPfipsetHandler(ctx context.Context) (PfipsetHandler, error) {
 
 	pfipset := PfipsetHandler{}
 	pfipset.IPSET = &pfIPSET{}
 
 	// create job channel
-	pfipset.jobs = make(chan job, maxQueueSize)
+	pfipset.IPSET.jobs = make(chan job, maxQueueSize)
 
 	// create workers
 	for i := 1; i <= maxWorkers; i++ {
 		go func(i int) {
-			for j := range jobs {
+			for j := range pfipset.IPSET.jobs {
 				doWork(i, j)
 			}
 		}(i)
@@ -74,16 +71,17 @@ func buildPfipsetHandler() (PfipsetHandler, error) {
 	// Default http timeout
 	http.DefaultClient.Timeout = 10 * time.Second
 
-	IPSET.detectType()
+	pfipset.IPSET.detectType(ctx)
 
 	pfipset.database = database.ConnectFromConfig(pfconfigdriver.Config.PfConf.Database)
 
 	// Reload the set from the database each 5 minutes
 	// TODO: have this time configurable
 	go func() {
-		// Read DB config
+		// Create a new context just for this goroutine
+		ctx := context.WithValue(ctx, "dummy", "dummy")
 		for {
-			pfipset.IPSET.initIPSet()
+			pfipset.IPSET.initIPSet(ctx, pfipset.database)
 			fmt.Println("Reloading ipsets")
 			time.Sleep(300 * time.Second)
 		}
@@ -92,22 +90,26 @@ func buildPfipsetHandler() (PfipsetHandler, error) {
 	pfipset.router = mux.NewRouter()
 	pfipset.router.HandleFunc("/ipsetmarklayer3/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{type:[a-zA-Z]+}/{catid:[0-9]+}/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{local:[0-1]}", handleLayer3).Methods("POST")
 	pfipset.router.HandleFunc("/ipsetmarklayer2/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{type:[a-zA-Z]+}/{catid:[0-9]+}/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}/{local:[0-1]}", handleLayer2).Methods("POST")
-	pfipset.router.HandleFunc("/ipsetunmarkmac/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}/{local:[0-1]}", IPSET.handleUnmarkMac).Methods("POST")
-	pfipset.router.HandleFunc("/ipsetunmarkip/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{local:[0-1]}", IPSET.handleUnmarkIp).Methods("POST")
+	pfipset.router.HandleFunc("/ipsetunmarkmac/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}/{local:[0-1]}", pfipset.IPSET.handleUnmarkMac).Methods("POST")
+	pfipset.router.HandleFunc("/ipsetunmarkip/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{local:[0-1]}", pfipset.IPSET.handleUnmarkIp).Methods("POST")
 	pfipset.router.HandleFunc("/ipsetmarkiplayer2/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{catid:[0-9]+}/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{local:[0-1]}", handleMarkIpL2).Methods("POST")
 	pfipset.router.HandleFunc("/ipsetmarkiplayer3/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{catid:[0-9]+}/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{local:[0-1]}", handleMarkIpL3).Methods("POST")
 	pfipset.router.HandleFunc("/ipsetpassthrough/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{port:(?:udp|tcp):[0-9]+}/{local:[0-1]}", handlePassthrough).Methods("POST")
 	pfipset.router.HandleFunc("/ipsetpassthroughisolation/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{port:(?:udp|tcp):[0-9]+}/{local:[0-1]}", handleIsolationPassthrough).Methods("POST")
+
+	return pfipset, nil
 }
 
 func (h PfipsetHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 	ctx := r.Context()
+	ctx = h.IPSET.AddToContext(ctx)
+	r = r.WithContext(ctx)
 
 	defer panichandler.Http(ctx, w)
 
 	routeMatch := mux.RouteMatch{}
 	if h.router.Match(r, &routeMatch) {
-		routeMatch.Handler(w, r)
+		routeMatch.Handler.ServeHTTP(w, r)
 
 		// TODO change me and wrap actions into something that handles server errors
 		return 0, nil

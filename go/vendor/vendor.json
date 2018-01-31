@@ -396,7 +396,7 @@
 			"revisionTime": "2018-01-23T11:02:36Z"
 		},
 		{
-			"checksumSHA1": "KuWMHAidiXdMMwoBom4CE6yhrPM=",
+			"checksumSHA1": "9MFvItLQ+dk014PvARYw55Gp5DQ=",
 			"path": "github.com/lucas-clemente/quic-go/internal/crypto",
 			"revision": "db0a3d105e7af3bf8413ab90c43fcec8a7d96bfb",
 			"revisionTime": "2018-01-23T11:02:36Z"
@@ -672,7 +672,7 @@
 			"revisionTime": "2018-01-09T16:55:01Z"
 		},
 		{
-			"checksumSHA1": "rn/rsBt+A3lAM8tV7trf1CFGrEw=",
+			"checksumSHA1": "9j7Og3QFvdTk/vuZOwYG+ZpwY6o=",
 			"origin": "github.com/coreos/etcd/vendor/github.com/ugorji/go/codec",
 			"path": "github.com/ugorji/go/codec",
 			"revision": "0c692fb898c887d028837a1fee6db601de6dcee6",
@@ -812,7 +812,7 @@
 			"revisionTime": "2018-01-24T06:08:02Z"
 		},
 		{
-			"checksumSHA1": "3L3n7qKMO9X8E1ibA5mExKvwbmI=",
+			"checksumSHA1": "QUvByKIVmIy9c+8+O1XGyh9ynoY=",
 			"origin": "github.com/miekg/dns/vendor/golang.org/x/net/ipv6",
 			"path": "golang.org/x/net/ipv6",
 			"revision": "5364553f1ee9cddc7ac8b62dce148309c386695b",
