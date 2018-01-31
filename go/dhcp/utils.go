@@ -23,29 +23,6 @@ type NodeInfo struct {
 	Category string
 }
 
-// inc function use to increment an ip
-func inc(ip net.IP) {
-	for j := len(ip) - 1; j >= 0; j-- {
-		ip[j]++
-		if ip[j] > 0 {
-			break
-		}
-	}
-}
-
-// inc function use to decrement an ip
-func dec(ip net.IP) {
-	for j := len(ip) - 1; j >= 0; j-- {
-		ip[j]--
-		if ip[j] == 255 {
-			continue
-		}
-		if ip[j] > 0 {
-			break
-		}
-	}
-}
-
 // connectDB connect to the database
 func connectDB(configDatabase pfconfigdriver.PfconfigDatabase, db *sql.DB) {
 	database, _ = sql.Open("mysql", configDatabase.DBUser+":"+configDatabase.DBPassword+"@tcp("+configDatabase.DBHost+":"+configDatabase.DBPort+")/"+configDatabase.DBName+"?parseTime=true")

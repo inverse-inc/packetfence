@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"errors"
 	"fmt"
+	"net"
 	"os"
 	"strconv"
 	"strings"
@@ -132,4 +133,27 @@ func AllEquals(v ...interface{}) bool {
 		}
 	}
 	return true
+}
+
+// Inc function use to increment an ip
+func Inc(ip net.IP) {
+	for j := len(ip) - 1; j >= 0; j-- {
+		ip[j]++
+		if ip[j] > 0 {
+			break
+		}
+	}
+}
+
+// Dec function use to decrement an ip
+func Dec(ip net.IP) {
+	for j := len(ip) - 1; j >= 0; j-- {
+		ip[j]--
+		if ip[j] == 255 {
+			continue
+		}
+		if ip[j] > 0 {
+			break
+		}
+	}
 }

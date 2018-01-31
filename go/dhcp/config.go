@@ -10,6 +10,7 @@ import (
 	"github.com/RoaringBitmap/roaring"
 
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 	dhcp "github.com/krolaw/dhcp4"
 	cache "github.com/patrickmn/go-cache"
 	netadv "github.com/simon/go-netadv"
@@ -165,7 +166,7 @@ func (d *Interfaces) readConfig() {
 							DHCPNet.network.Mask = NetWork.Mask
 
 							// First ip available in the scope (packetfence ip)
-							inc(ip)
+							sharedutils.Inc(ip)
 
 							DHCPScope.ip = net.ParseIP(ip.String())
 
@@ -176,25 +177,25 @@ func (d *Interfaces) readConfig() {
 								seconds, _ = strconv.Atoi("30")
 								// Use the first ip define in networks.conf
 								if ConfNet.RegNetwork != "" {
-									inc(IP)
+									sharedutils.Inc(IP)
 									ip = append([]byte(nil), IP...)
 								} else {
 									ip = append([]byte(nil), net.ParseIP(ConfNet.DhcpStart)...)
 								}
 							} else {
 								seconds, _ = strconv.Atoi(ConfNet.DhcpDefaultLeaseTime)
-								inc(ip)
+								sharedutils.Inc(ip)
 							}
 							// First ip available for endpoint
 							DHCPScope.start = append([]byte(nil), ip...)
 							DHCPScope.leaseDuration = time.Duration(seconds) * time.Second
 							var ips net.IP
 
-							for ipe := net.IPv4(NetWork.IP[0], NetWork.IP[1], NetWork.IP[2], NetWork.IP[3]); NetWork.Contains(ipe); inc(ipe) {
+							for ipe := net.IPv4(NetWork.IP[0], NetWork.IP[1], NetWork.IP[2], NetWork.IP[3]); NetWork.Contains(ipe); sharedutils.Inc(ipe) {
 								ips = append([]byte(nil), ipe...)
 							}
 							// Decrement twice to have the last ip available for the scope
-							dec(ips)
+							sharedutils.Dec(ips)
 
 							DHCPScope.leaseRange = dhcp.IPRange(ip, ips)
 
