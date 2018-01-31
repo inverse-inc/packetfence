@@ -82,6 +82,7 @@ func main() {
 	DHCPConfig = newDHCPConfig()
 	DHCPConfig.readConfig()
 	webservices = readWebservicesConfig()
+
 	// Queue value
 	var (
 		maxQueueSize = 100
@@ -130,6 +131,7 @@ func main() {
 		}()
 	}
 
+	// Api
 	router := mux.NewRouter()
 	router.HandleFunc("/mac2ip/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", handleMac2Ip).Methods("GET")
 	router.HandleFunc("/ip2mac/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}", handleIP2Mac).Methods("GET")
@@ -143,7 +145,7 @@ func main() {
 	router.HandleFunc("/releaseip/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", handleReleaseIP).Methods("POST")
 
 	http.Handle("/", httpauth.SimpleBasicAuth(webservices.User, webservices.Pass)(router))
-	// Api
+
 	cfg := &tls.Config{
 		MinVersion:               tls.VersionTLS12,
 		CurvePreferences:         []tls.CurveID{tls.CurveP521, tls.CurveP384, tls.CurveP256},
@@ -163,6 +165,7 @@ func main() {
 		TLSNextProto: make(map[string]func(*http.Server, *tls.Conn, http.Handler), 0),
 	}
 
+	// Systemd
 	daemon.SdNotify(false, "READY=1")
 
 	go func() {
@@ -198,6 +201,7 @@ func (h *Interface) run(jobs chan job) {
 
 			Request := <-inchannel
 			stats := make(map[string]Stats)
+
 			// Send back stats
 			if Request.(ApiReq).Req == "stats" {
 				for _, v := range h.network {
@@ -251,6 +255,7 @@ func (h *Interface) run(jobs chan job) {
 				outchannel <- stats
 			}
 
+			// Debug
 			if Request.(ApiReq).Req == "debug" {
 				for _, v := range h.network {
 					if Request.(ApiReq).Role == v.dhcpHandler.role {
@@ -269,7 +274,7 @@ func (h *Interface) run(jobs chan job) {
 
 }
 
-// Unicast runner
+// Unicast ilistener
 func (h *Interface) runUnicast(jobs chan job, ip net.IP) {
 
 	ListenAndServeIfUnicast(h.Name, h, jobs, ip)
@@ -290,7 +295,6 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType) (answer A
 	for _, v := range h.network {
 
 		// Case of a l2 dhcp request
-		// Network is L2 and (relais IP is null or
 		if v.dhcpHandler.layer2 && (p.GIAddr().Equal(net.IPv4zero) || v.network.Contains(p.CIAddr())) {
 
 			// Ip per role ?
@@ -443,10 +447,6 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType) (answer A
 			return answer
 
 		case dhcp.Request:
-			// Some client will not send OptionServerIdentifier
-			// if server, ok := options[dhcp.OptionServerIdentifier]; ok && (!net.IP(server).Equal(h.Ipv4) && !net.IP(server).Equal(handler.ip)) {
-			// 	return answer // Message not for this dhcp server
-			// }
 
 			reqIP := net.IP(options[dhcp.OptionRequestedIPAddress])
 			if reqIP == nil {

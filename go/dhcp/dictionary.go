@@ -9,10 +9,6 @@ type TlvList struct {
 	Tlvlist map[int]TlvType
 }
 
-// type TlvId struct {
-// 	TlvType map[int]TlvType
-// }
-
 type TlvType struct {
 	Option string
 	Decode DataType

@@ -17,11 +17,6 @@ type serveIfConn struct {
 
 func (s *serveIfConn) ReadFrom(b []byte) (n int, addr net.Addr, err error) {
 	n, s.cm, addr, err = s.conn.ReadFrom(b)
-	// if s.cm != nil { // Filter all other interfaces
-	// 	n = 0 // Packets < 240 are filtered in Serve().
-	//
-	// }
-
 	return
 }
 
@@ -129,10 +124,6 @@ func UnicastOpen(bindAddr net.IP, port int, ifname string) (*ipv4.PacketConn, er
 		log.Fatal(err)
 	}
 
-	// if err = syscall.SetsockoptInt(s, syscall.SOL_SOCKET, syscall.SO_BROADCAST, 1); err != nil {
-	// 	log.Fatal(err)
-	// }
-	// syscall.SetsockoptInt(s, syscall.SOL_SOCKET, syscall.SO_REUSEPORT, 1)
 	if err = syscall.SetsockoptString(s, syscall.SOL_SOCKET, syscall.SO_BINDTODEVICE, ifname); err != nil {
 		log.Fatal(err)
 	}

@@ -17,7 +17,7 @@ import (
 // Node struct
 type Node struct {
 	Mac string `json:"MAC"`
-	Ip  string `json:"IP"`
+	IP  string `json:"IP"`
 }
 
 // Stats struct
@@ -56,7 +56,7 @@ func handleIP2Mac(res http.ResponseWriter, req *http.Request) {
 
 	if index, found := GlobalIpCache.Get(vars["ip"]); found {
 		var node = map[string]*Node{
-			"result": &Node{Mac: index.(string), Ip: vars["ip"]},
+			"result": &Node{Mac: index.(string), IP: vars["ip"]},
 		}
 
 		outgoingJSON, error := json.Marshal(node)
@@ -78,7 +78,7 @@ func handleMac2Ip(res http.ResponseWriter, req *http.Request) {
 
 	if index, found := GlobalMacCache.Get(vars["mac"]); found {
 		var node = map[string]*Node{
-			"result": &Node{Mac: vars["mac"], Ip: index.(string)},
+			"result": &Node{Mac: vars["mac"], IP: index.(string)},
 		}
 
 		outgoingJSON, error := json.Marshal(node)
@@ -161,10 +161,9 @@ func handleDebug(res http.ResponseWriter, req *http.Request) {
 
 		fmt.Fprint(res, string(outgoingJSON))
 		return
-	} else {
-		http.Error(res, "Not found", http.StatusInternalServerError)
-		return
 	}
+	http.Error(res, "Not found", http.StatusInternalServerError)
+	return
 }
 
 func handleReleaseIP(res http.ResponseWriter, req *http.Request) {
