@@ -9,12 +9,12 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
+	"github.com/inverse-inc/packetfence/go/caddy/caddy"
+	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
 	"github.com/inverse-inc/packetfence/go/database"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"github.com/mholt/caddy"
-	"github.com/mholt/caddy/caddyhttp/httpserver"
 )
 
 // Queue value
@@ -22,6 +22,14 @@ const (
 	maxQueueSize = 1000
 	maxWorkers   = 10
 )
+
+// Register the plugin in caddy
+func init() {
+	caddy.RegisterPlugin("pfipset", caddy.Plugin{
+		ServerType: "http",
+		Action:     setup,
+	})
+}
 
 type PfipsetHandler struct {
 	Next     httpserver.Handler
