@@ -1258,16 +1258,6 @@ CREATE TABLE `api_user` (
 ) ENGINE=InnoDB;
 
 --
--- Table structure for table `tenant_code`
---
-
-CREATE TABLE `tenant_code` (
-  `code` varchar(255) NOT NULL,
-  `switch_ip` varchar(15) NOT NULL,
-  PRIMARY KEY (`code`)
-) ENGINE=InnoDB;
-
---
 -- Updating to current version
 --
 
