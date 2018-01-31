@@ -42,12 +42,6 @@ our @API_V1_ROUTES = (
     { controller => 'api_users', id_key => "user_id",   path => "/api_users" },
     { controller => 'locationlog', id_key => "locationlog_id", path => "/locationlog" },
     {
-        controller     => 'tenants_onboarding',
-        path           => "/tenants_onboarding",
-        collection_v2a => { post => 'onboard' },
-        resource_v2a   => {}
-    },
-    {
         controller     => 'users_nodes',
         path           => "/nodes",
         collection_v2a => { get => 'list' },
