@@ -795,7 +795,7 @@ admin_csp_security_headers=enabled
 #
 # Enforce Content-Security-Policy (CSP) HTTP response header in the captive portal interface
 #
-portal_csp_security_headers=enabled
+portal_csp_security_headers=disabled
 #
 # advanced.sso_on_access_reevaluation
 #
