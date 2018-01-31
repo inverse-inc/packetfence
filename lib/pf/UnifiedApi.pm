@@ -71,8 +71,9 @@ our @API_V1_ROUTES = (
         id_key     => 'connection_profile_id',
         path       => '/config/connection_profiles'
     },
-    { controller => 'violations', resource_v2a => {}, collection_v2a => { get => 'list' }, path => '/violations' },
-    { controller => 'violations', resource_v2a => {}, collection_v2a => { get => 'list_by_search' }, path => '/violations/:search' },
+    { controller => 'violations', resource_v2a => {}, collection_v2a => { get => 'read_list', post => 'create' }, path => '/violations' },
+    { controller => 'violations', resource_v2a => {}, collection_v2a => { get => 'read_list_by_search' }, path => '/violations/:search' },
+    { controller => 'violations', resource_v2a => {}, collection_v2a => { get => 'read_row_by_id' }, path => '/violation/:id' },
 );
 
 sub startup {

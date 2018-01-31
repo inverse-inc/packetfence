@@ -19,32 +19,44 @@ use pf::violation;
 
 has dal => 'pf::dal::violation';
 has id_key => 'id';
-has resource_id => 'pid';
+has resource_id => 'id';
 
+sub create {
+    my ($self) = @_;
+    my $data = $self->parse_json;
+    if(pf::violation::violation_exist_open($data->{mac}, $data->{vid})) {
+        return $self->render(status => 409, json => { status => 409, message => $self->status_to_error_msg(409) });
+    }
+    my $response = pf::violation::violation_add($data->{mac}, $data->{vid}, (
+        status       => $data->{status},
+        start_date   => $data->{start_date},
+        release_date => $data->{release_date},
+        notes        => $data->{notes},
+        ticket_ref   => $data->{ticket_ref}
+    ));
+    $data->{id} = $response;
+    return $self->render(status => 201, json => { status => 201, data => $data, message => "violation created" }) if $data->{id};
+    return $self->render(status => 400, json => { status => 400, message => $self->status_to_error_msg(400) });
+}
 
-sub list {
+sub read_list {
     my ($self) = @_;
     my @violations = pf::violation::violation_view_open_uniq();
     return $self->render(json => { items => \@violations } ) if scalar @violations > 0 and defined($violations[0]);
     return $self->render(json => undef);
 }
 
-sub list_by_search {
+sub read_list_by_search {
     my ($self) = @_;
     my $search = $self->param('search');
-    return $self->_list_by_mac($search) if pf::util::valid_mac($search);
-    return $self->_list_by_id($search);
-}
-
-sub _list_by_mac {
-    my ($self, $mac) = @_;
-    my @violations = pf::violation::violation_view_desc($mac);
+    my @violations = pf::violation::violation_view_desc($search);
     return $self->render(json => { items => \@violations }) if scalar @violations > 0 and defined($violations[0]);
     return $self->render(json => undef);
 }
 
-sub _list_by_id {
-    my ($self, $id) = @_;
+sub read_row_by_id {
+    my ($self) = @_;
+    my $id = $self->param('id');
     my @violation = pf::violation::violation_view($id);
     return $self->render(json => $violation[0] ) if scalar @violation > 0 and defined($violation[0]);
     return $self->render(json => undef);

@@ -920,6 +920,25 @@ paths:
                 $ref: '#/components/schemas/MacAddressList'
           description: List of MAC addresses with open violations
       summary: Returns a list of MAC addresses with open violations
+    post:
+      parameters:
+      - *1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ViolationCreate'
+        required: true
+      responses:
+        '201':
+          $ref: '#/components/responses/Created'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Duplicate'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+      summary: Trigger a violation for a node
   /violations/{mac}:
     get:
       description: The list of violations will be limited to 100 and a cursor will be returned
@@ -939,10 +958,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ViolationList'
+                $ref: '#/components/schemas/ViolationsList'
           description: List of violations
-      summary: Returns a list of violations    
-  /violations/{violation_id}:
+      summary: Returns a list of violations   
+      
+  /violation/{violation_id}:
     get:
       description: The violation for a violation_id.
       parameters:
