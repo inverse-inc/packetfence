@@ -36,7 +36,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-20188888888e inc.
+Copyright (C) 2005-2018 inc.
 
 =head1 LICENSE
 

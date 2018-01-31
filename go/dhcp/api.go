@@ -167,20 +167,6 @@ func handleDebug(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-// func handleParking(res http.ResponseWriter, req *http.Request) {
-// 	vars := mux.Vars(req)
-// 	InterFaceName, NetWork := InterfaceScopeFromMac(vars["mac"])
-// 	if _, ok := ControlIn[InterFaceName]; ok {
-// 		Request := ApiReq{Req: "parking", NetInterface: InterFaceName, NetWork: NetWork, Mac: vars["mac"]}
-// 		ControlIn[InterFaceName] <- Request
-// 		stat := <-ControlOut[InterFaceName]
-// 		spew.Dump(stat)
-// 	}
-//
-// 	spew.Dump(InterFaceName)
-// 	spew.Dump(NetWork)
-// }
-
 func handleReleaseIP(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	_ = InterfaceScopeFromMac(vars["mac"])
@@ -252,10 +238,6 @@ func handleOverrideNetworkOptions(res http.ResponseWriter, req *http.Request) {
 	if err := json.NewEncoder(res).Encode(result); err != nil {
 		panic(err)
 	}
-}
-
-func handleHelp(res http.ResponseWriter, req *http.Request) {
-	fmt.Fprint(res, `Help`)
 }
 
 func handleRemoveOptions(res http.ResponseWriter, req *http.Request) {

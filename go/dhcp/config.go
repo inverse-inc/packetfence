@@ -24,7 +24,7 @@ type DHCPHandler struct {
 	leaseDuration time.Duration // Lease period
 	hwcache       *cache.Cache
 	xid           *cache.Cache
-	available     *roaring.Bitmap // RoaringBitmap to keep trak of available ip
+	available     *roaring.Bitmap // RoaringBitmap to keep track of available IP addresses
 	layer2        bool
 	role          string
 }
@@ -76,8 +76,12 @@ func (d *Interfaces) readConfig() {
 
 	for _, v := range interfaces.Element {
 
-		eth, _ := net.InterfaceByName(v)
-		// TO DO Check if the interface exist
+		eth, err := net.InterfaceByName(v)
+
+		if err != nil {
+			continue
+		}
+
 		var ethIf Interface
 
 		ethIf.intNet = eth
@@ -110,7 +114,7 @@ func (d *Interfaces) readConfig() {
 				pfconfigdriver.FetchDecodeSocket(ctx, &ConfNet)
 
 				if (NetIP.Contains(net.ParseIP(ConfNet.DhcpStart)) && NetIP.Contains(net.ParseIP(ConfNet.DhcpEnd))) || NetIP.Contains(net.ParseIP(ConfNet.NextHop)) {
-					// NetIP.Contains(net.ParseIP(ConfNet.Dns)) &&
+
 					// IP per role
 					if ConfNet.SplitNetwork == "enabled" {
 						var keyConfRoles pfconfigdriver.PfconfigKeys

@@ -127,7 +127,6 @@ func main() {
 	}
 
 	router := mux.NewRouter()
-	router.HandleFunc("/help/", handleHelp).Methods("GET")
 	router.HandleFunc("/mac2ip/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", handleMac2Ip).Methods("GET")
 	router.HandleFunc("/ip2mac/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}", handleIP2Mac).Methods("GET")
 	router.HandleFunc("/stats/{int:.*}", handleStats).Methods("GET")
