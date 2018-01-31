@@ -8,11 +8,11 @@
 --
 
 SET @MAJOR_VERSION = 7;
-SET @MINOR_VERSION = 3;
+SET @MINOR_VERSION = 4;
 SET @SUBMINOR_VERSION = 9;
 
 SET @PREV_MAJOR_VERSION = 7;
-SET @PREV_MINOR_VERSION = 3;
+SET @PREV_MINOR_VERSION = 4;
 SET @PREV_SUBMINOR_VERSION = 0;
 
 
@@ -47,27 +47,6 @@ END
 DELIMITER ;
 call ValidateVersion;
 
-DROP TABLE IF EXISTS `ifoctetslog`;
-
---
--- Add a profile column to the auth_log
---
-ALTER TABLE auth_log ADD column profile VARCHAR(255) DEFAULT NULL;
-
-ALTER TABLE `activation`
-  ADD COLUMN `source_id` varchar(255) default NULL;
 
 INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
-
-
-
-
-
-
----
---- https://github.com/inverse-inc/packetfence/pull/2785
---- 
-ALTER TABLE `radius_audit_log` ADD KEY (`auth_status`, `created_at`);
-
-
 

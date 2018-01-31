@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-11-24 15:31+0000\n"
+"PO-Revision-Date: 2018-01-24 14:22+0000\n"
 "Last-Translator: inverse <info@inverse.ca>\n"
 "Language-Team: Dutch (http://www.transifex.com/inverse/packetfence/language/nl/)\n"
 "MIME-Version: 1.0\n"
@@ -96,8 +96,11 @@ msgid "Address"
 msgstr "Adres"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
-msgid "After registering, you will be given temporary network access. In order to complete your registration, you will need to click on the link emailed to you."
-msgstr "Na registratie krijg je een tijdelijke netwerk toegang. Gelieve binnen deze periode uw registratie af te werken door de link aan te klikken die zojuist per email verstuurd werd."
+msgid ""
+"After registering, you will be given temporary network access. In order to "
+"complete your registration, you will need to click on the link emailed to "
+"you."
+msgstr ""
 
 # html/captive-portal/templates/provisioner/sepm.html
 msgid "Alternate installer"

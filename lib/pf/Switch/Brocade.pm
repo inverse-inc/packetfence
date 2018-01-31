@@ -199,7 +199,7 @@ sub wiredeauthTechniques {
     my ($self, $method, $connection_type) = @_;
     my $logger = $self->logger;
     if ($connection_type == $WIRED_802_1X) {
-        my $default = $SNMP::RADIUS;
+        my $default = $SNMP::SNMP;
         my %tech = (
             $SNMP::SNMP => 'dot1xPortReauthenticate',
             $SNMP::RADIUS => 'deauthenticateMacRadius',

@@ -115,7 +115,7 @@ range=
 #
 # When enabled, pfdns will resolve the real IP addresses of passthroughs and add them in the ipset session to give access
 # to trapped devices. Don´t forget to enable ip_forward on your server.
-passthrough=disabled
+passthrough=enabled
 #
 # fencing.passthroughs
 #
