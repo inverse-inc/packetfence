@@ -26,21 +26,20 @@ sub register {
 sub register_rest_routes {
     my ($routes, $config) = @_;
     my $options = munge_options($routes, $config);
-    unless (defined $options) {
-        return;
-    }
-
-    if ($options->{parent}) {
-        return register_child_routes($routes, $options);
+    if (!defined $options) {
+        return die "Route options is invalid";
     }
 
     my $name_prefix = $options->{name_prefix};
-    my $r = $routes->any($options->{path})->name($name_prefix);
-    register_collection_routes($r, $options);
-    if (keys %{$options->{resource_v2a}}) {
-        my $id_key = $options->{id_key};
-        my $item_path = "/:$id_key";
-        register_resource_routes($r->under($item_path => [ $id_key => qr/[^\/]+/])->to("$options->{controller}#resource")->name("$name_prefix.resource"), $options);
+    my $collection_options = $options->{collection};
+    if (defined $collection_options) {
+        my $r = $routes->any($collection_options->{path})->name($name_prefix);
+        register_collection_routes($r, $options, $collection_options);
+    }
+    my $resource_options = $options->{resource};
+    if (defined $resource_options) {
+        my $r = $routes->under($resource_options->{path} => [ $resource_options->{url_param_key} => qr/[^\/]+/])->to("$options->{controller}#resource")->name("$name_prefix.resource");
+        register_resource_routes($r, $options, $resource_options);
     }
 }
 
@@ -104,13 +103,6 @@ our %DEFAULT_RESOURCE_VERBS_TO_ACTIONS = (
     PUT    => 'replace'
 );
 
-sub get_collection_verb_to_actions {
-    my ($config) = @_;
-    return verb_to_actions(
-        $config->{collection_v2a} // {%DEFAULT_COLLECTION_VERBS_TO_ACTIONS}
-    );
-}
-
 sub verb_to_actions {
     my ($temp) = @_;
     my %filtered;
@@ -123,35 +115,43 @@ sub verb_to_actions {
     return \%v2a;
 }
 
-sub get_resource_verb_to_actions {
-    my ($config) = @_;
-    return verb_to_actions(
-        $config->{resource_v2a} // {%DEFAULT_RESOURCE_VERBS_TO_ACTIONS}
-    );
-}
-
 sub register_collection_routes {
-    my ($r, $options) = @_;
+    my ($r, $options, $collection_options) = @_;
     my ($controller, $name_prefix) = @{$options}{qw(controller name_prefix)};
-    register_verb_and_actions($r, $controller, $name_prefix, $options->{collection_v2a});
-    for my $route (@{$options->{collection_additional_routes} }) {
-        $r->post("/$route")->to("$controller#$route")->name("$name_prefix.$route");
-    }
+    register_http_methods($r, $controller, $name_prefix, $collection_options->{http_methods});
+    register_subroutes($r, $controller, $name_prefix, $collection_options->{subroutes});
 }
 
-sub register_verb_and_actions {
-    my ($r, $controller, $name_prefix, $verbs_to_action) = @_;
-    while (my ($v,$a) = each %$verbs_to_action) {
+sub register_http_methods {
+    my ($r, $controller, $name_prefix, $http_methods) = @_;
+    while (my ($v,$a) = each %$http_methods) {
         $r->any([$v])->to("$controller#$a")->name("$name_prefix.$a");
     }
 }
 
 sub register_resource_routes {
-    my ($r, $options) = @_;
+    my ($r, $options, $resource_options) = @_;
     my ($controller, $name_prefix) = @{$options}{qw(controller name_prefix)};
-    register_verb_and_actions($r, $controller, $name_prefix, $options->{resource_v2a});
-    for my $verb (@{$options->{resource_verbs} }) {
-        $r->post("/$verb")->to("$controller#$verb")->name("$name_prefix.$verb");
+    register_http_methods($r, $controller, $name_prefix, $resource_options->{http_methods});
+    register_subroutes($r, $controller, $name_prefix, $resource_options->{subroutes});
+    register_children($r, $options, $resource_options);
+}
+
+sub register_children {
+    my ($r, $options, $resource_options) = @_;
+    for my $child (@{$resource_options->{children} // []}) {
+        $r->rest_routes($child);
+    }
+}
+
+sub register_subroutes {
+    my ($r, $controller, $name_prefix, $subroutes) = @_;
+    while (my ($subroute_name, $http_methods) = each %{$subroutes}) {
+        if (!defined $http_methods || keys %{$http_methods} == 0 ) {
+            die "Cannot register sub route ${name_prefix}.$subroute_name invalid http methods defined";
+        }
+        my $subroute = $r->any("/$subroute_name");
+        register_http_methods($subroute, $controller, $name_prefix, $http_methods);
     }
 }
 
@@ -172,10 +172,11 @@ sub munge_options {
     if ($noun->is_singular) {
         die "$controller cannot be singular noun";
     }
-    %$options = (%$options, short_name => $short_name, noun => $noun, decamelized => $decamelized, base_url => $base_url);
+    my $name_prefix = $options->{name_prefix} // munge_name_prefix_option( $route, $options );
+    %$options = (%$options, short_name => $short_name, noun => $noun, decamelized => $decamelized, base_url => $base_url, name_prefix => $name_prefix);
     return {
         controller  => $controller,
-        name_prefix => munge_name_prefix_option( $route, $options ),
+        name_prefix => $name_prefix,
         resource    => munge_resource_options( $route, $options ),
         collection  => munge_collection_options( $route, $options ),
     };
@@ -184,7 +185,7 @@ sub munge_options {
 sub munge_name_prefix_option {
     my ($route, $options) = @_;
     my $name_prefix = $options->{controller};
-    my $parent_name = $route->name;
+    my $parent_name = $options->{parent_name} // $route->name;
     if ($parent_name) {
         $name_prefix = "$parent_name.$name_prefix";
     }
@@ -193,23 +194,15 @@ sub munge_name_prefix_option {
 
 sub munge_resource_options {
     my ($route, $options) = @_;
-    my $resource = exists $options->{resource} ? $options->{resource} : \%DEFAULT_RESOURCE_OPTIONS;
+    my $resource = munge_standard_options($options, 'resource', \%DEFAULT_RESOURCE_OPTIONS);
     if (!defined $resource) {
         return undef;
-    }
-    $resource  = clone($resource);
-    add_defaults($resource, \%DEFAULT_RESOURCE_OPTIONS);
-    my $http_methods = $resource->{http_methods};
-    if (!defined $http_methods || keys %$http_methods == 0 ) {
-        die "http_methods is empty for $options->{controller}";
     }
     my $singular = $options->{noun}->singular();
     my $url_param_key = "${singular}_id";
     $resource->{url_param_key} //= $url_param_key;
     $resource->{path} //= "$options->{base_url}/$singular/:$url_param_key";
-    $resource->{subroutes} = clean_subroutes($resource->{subroutes});
-    $resource->{http_methods} = cleanup_http_methods($resource->{http_methods});
-    $resource->{children} = munge_children_options( $route, $options );
+    $resource->{children} = munge_children_options( $route, $options, $resource );
     return $resource;
 }
 
@@ -243,24 +236,46 @@ sub add_defaults {
     }
 }
 
+sub munge_standard_options {
+    my ($options, $name, $defaults) = @_;
+    my $suboptions = exists $options->{$name} ?
+        $options->{$name} :
+        $defaults;
+    if (!defined $suboptions) {
+        return undef;
+    }
+    $suboptions = clone($suboptions);
+    add_defaults($suboptions, $defaults);
+    my $http_methods = $suboptions->{http_methods};
+    if (!defined $http_methods || keys %$http_methods == 0 ) {
+        die "$name.http_methods is empty for $options->{controller}";
+    }
+    $suboptions->{subroutes} = clean_subroutes($suboptions->{subroutes});
+    $suboptions->{http_methods} = cleanup_http_methods($suboptions->{http_methods});
+    return $suboptions;
+}
+
 sub munge_collection_options {
     my ($route, $options) = @_;
-    my $collection = exists $options->{collection} ? 
-        $options->{collection} : 
-        \%DEFAULT_COLLECTION_OPTIONS;
+    my $collection = munge_standard_options($options, 'collection', \%DEFAULT_COLLECTION_OPTIONS);
     if (!defined $collection) {
         return undef;
     }
-    $collection  = clone($collection);
     $collection->{path} //= "$options->{base_url}/$options->{short_name}";
-    $collection->{subroutes} = clean_subroutes($collection->{subroutes}); 
     return $collection;
 }
 
 sub munge_children_options {
-    my ($route, $options) = @_;
+    my ($route, $options, $resource) = @_;
+    my $parent_name = $options->{name_prefix};
     return [
-        map { local $_ = $_; my $o = $_; munge_options($route, clone($o))} @{$options->{children} // []}
+        map {
+            local $_ = $_;
+            my $o = $_;
+            $o = clone($o);
+            $o->{parent_name} = $parent_name;
+            munge_options($route, $o)
+        } @{$resource->{children} // []}
     ];
 }
 
