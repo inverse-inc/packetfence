@@ -67,7 +67,7 @@ func detectMembers(ctx context.Context) []net.IP {
 
 func updateClusterL2(ctx context.Context, Ip string, Mac string, Network string, Type string, Catid string) {
 	for _, member := range detectMembers(ctx) {
-		err := post(ctx, "https://"+member.String()+":22223/ipsetmarklayer2/"+Network+"/"+Type+"/"+Catid+"/"+Ip+"/"+Mac+"/1", body)
+		err := post(ctx, "https://"+member.String()+":22223/ipset/mark_layer2/"+Network+"/"+Type+"/"+Catid+"/"+Ip+"/"+Mac+"/1", body)
 		fmt.Println("Updated " + member.String())
 		if err != nil {
 			fmt.Println("Not able to contact " + member.String())
@@ -77,7 +77,7 @@ func updateClusterL2(ctx context.Context, Ip string, Mac string, Network string,
 
 func updateClusterL3(ctx context.Context, Ip string, Network string, Type string, Catid string) {
 	for _, member := range detectMembers(ctx) {
-		err := post(ctx, "https://"+member.String()+":22223/ipsetmarklayer3/"+Network+"/"+Type+"/"+Catid+"/"+Ip+"/1", body)
+		err := post(ctx, "https://"+member.String()+":22223/ipset/mark_layer3/"+Network+"/"+Type+"/"+Catid+"/"+Ip+"/1", body)
 		if err != nil {
 			fmt.Println("Not able to contact " + member.String())
 		}
@@ -86,7 +86,7 @@ func updateClusterL3(ctx context.Context, Ip string, Network string, Type string
 
 func updateClusterUnmarkMac(ctx context.Context, Mac string) {
 	for _, member := range detectMembers(ctx) {
-		err := post(ctx, "https://"+member.String()+":22223/ipsetunmarkmac/"+Mac+"/1", body)
+		err := post(ctx, "https://"+member.String()+":22223/ipset/unmark_mac/"+Mac+"/1", body)
 		if err != nil {
 			fmt.Println("Not able to contact " + member.String())
 		}
@@ -96,7 +96,7 @@ func updateClusterUnmarkMac(ctx context.Context, Mac string) {
 func updateClusterUnmarkIp(ctx context.Context, Ip string) {
 	for _, member := range detectMembers(ctx) {
 
-		err := post(ctx, "https://"+member.String()+":22223/ipsetunmarkip/"+Ip+"/1", body)
+		err := post(ctx, "https://"+member.String()+":22223/ipset/unmark_ip/"+Ip+"/1", body)
 		if err != nil {
 			fmt.Println("Not able to contact " + member.String())
 		}
@@ -105,7 +105,7 @@ func updateClusterUnmarkIp(ctx context.Context, Ip string) {
 
 func updateClusterMarkIpL3(ctx context.Context, Ip string, Network string, Catid string) {
 	for _, member := range detectMembers(ctx) {
-		err := post(ctx, "https://"+member.String()+":22223/ipsetmarkiplayer3/"+Network+"/"+Catid+"/"+Ip+"/1", body)
+		err := post(ctx, "https://"+member.String()+":22223/ipset/mark_ip_layer3/"+Network+"/"+Catid+"/"+Ip+"/1", body)
 		if err != nil {
 			fmt.Println("Not able to contact " + member.String())
 		}
@@ -113,7 +113,7 @@ func updateClusterMarkIpL3(ctx context.Context, Ip string, Network string, Catid
 }
 func updateClusterMarkIpL2(ctx context.Context, Ip string, Network string, Catid string) {
 	for _, member := range detectMembers(ctx) {
-		err := post(ctx, "https://"+member.String()+":22223/ipsetmarkiplayer2/"+Network+"/"+Catid+"/"+Ip+"/1", body)
+		err := post(ctx, "https://"+member.String()+":22223/ipset/mark_ip_layer2/"+Network+"/"+Catid+"/"+Ip+"/1", body)
 		if err != nil {
 			fmt.Println("Not able to contact " + member.String())
 		}
@@ -122,7 +122,7 @@ func updateClusterMarkIpL2(ctx context.Context, Ip string, Network string, Catid
 
 func updateClusterPassthrough(ctx context.Context, Ip string, Port string) {
 	for _, member := range detectMembers(ctx) {
-		err := post(ctx, "https://"+member.String()+":22223/ipsetpassthrough/"+Ip+"/"+Port+"/1", body)
+		err := post(ctx, "https://"+member.String()+":22223/ipset/passthrough/"+Ip+"/"+Port+"/1", body)
 		fmt.Println("Updated " + member.String())
 		if err != nil {
 			fmt.Println("Not able to contact " + member.String())
@@ -132,7 +132,7 @@ func updateClusterPassthrough(ctx context.Context, Ip string, Port string) {
 
 func updateClusterPassthroughIsol(ctx context.Context, Ip string, Port string) {
 	for _, member := range detectMembers(ctx) {
-		err := post(ctx, "https://"+member.String()+":22223/ipsetpassthroughisolation/"+Ip+"/"+Port+"/1", body)
+		err := post(ctx, "https://"+member.String()+":22223/ipset/passthrough_isolation/"+Ip+"/"+Port+"/1", body)
 		fmt.Println("Updated " + member.String())
 		if err != nil {
 			fmt.Println("Not able to contact " + member.String())
