@@ -1,8 +1,4 @@
-package main
-
-import (
-	"github.com/digineo/go-ipset"
-)
+package pfipset
 
 type job struct {
 	Method  string

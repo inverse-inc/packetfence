@@ -1,4 +1,4 @@
-package main
+package pfipset
 
 import (
 	"encoding/json"
@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/diegoguarnieri/go-conntrack/conntrack"
-	"github.com/digineo/go-ipset"
 	"github.com/gorilla/mux"
 )
 

@@ -157,6 +157,7 @@ type configStruct struct {
 		Fencing       PfConfFencing
 		CaptivePortal PfConfCaptivePortal
 		Webservices   PfConfWebservices
+		Database      PfConfigDatabase
 	}
 }
 

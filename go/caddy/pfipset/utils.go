@@ -1,9 +1,8 @@
-package main
+package pfipset
 
 import (
 	"context"
 	"crypto/tls"
-	"database/sql"
 	"fmt"
 	"io"
 	"net"
@@ -147,17 +146,6 @@ func (IPSET *pfIPSET) mac2ip(Mac string, Set ipset.IPSet) []string {
 	return Ips
 }
 
-// readWebservicesConfig read pfconfig webservices configuration
-func readWebservicesConfig() pfconfigdriver.PfConfWebservices {
-	var webservices pfconfigdriver.PfConfWebservices
-	webservices.PfconfigNS = "config::Pf"
-	webservices.PfconfigMethod = "hash_element"
-	webservices.PfconfigHashNS = "webservices"
-
-	pfconfigdriver.FetchDecodeSocket(ctx, &webservices)
-	return webservices
-}
-
 func post(url string, body io.Reader) error {
 	req, err := http.NewRequest("POST", url, body)
 	req.SetBasicAuth(webservices.User, webservices.Pass)
@@ -168,22 +156,6 @@ func post(url string, body io.Reader) error {
 	cli := &http.Client{Transport: tr}
 	_, err = cli.Do(req)
 	return err
-}
-
-// connectDB connect to the database
-func connectDB(configDatabase pfconfigdriver.PfconfigDatabase, db *sql.DB) {
-	database, _ = sql.Open("mysql", configDatabase.DBUser+":"+configDatabase.DBPassword+"@tcp("+configDatabase.DBHost+":"+configDatabase.DBPort+")/"+configDatabase.DBName+"?parseTime=true")
-}
-
-// readDBConfig read pfconfig database configuration
-func readDBConfig() pfconfigdriver.PfconfigDatabase {
-	var sections pfconfigdriver.PfconfigDatabase
-	sections.PfconfigNS = "config::Pf"
-	sections.PfconfigMethod = "hash_element"
-	sections.PfconfigHashNS = "database"
-
-	pfconfigdriver.FetchDecodeSocket(ctx, &sections)
-	return sections
 }
 
 // initIPSet fetch the database to remove already assigned ip addresses
