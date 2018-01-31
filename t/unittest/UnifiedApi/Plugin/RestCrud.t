@@ -27,7 +27,7 @@ use pf::UnifiedApi::Plugin::RestCrud;
 use Mojolicious;
 use Lingua::EN::Inflexion qw(noun);
 
-use Test::More tests => 42;
+use Test::More tests => 69;
 
 #This test will running last
 use Test::NoWarnings;
@@ -43,40 +43,87 @@ my $routes = $app->routes;
 $routes->rest_routes({controller => 'Users'});
 
 ok($routes->find("Users"), "The top level Route Users created");
-foreach my $name (qw(list create get remove update replace)) {
-    ok($routes->find("Users.$name"), "Route Users.$name created");
-}
 
-exit 0;
+routes_created($routes, "Users.", qw(list create get remove update replace resource));
 
 {
     my $r = $routes->any("/api")->name("api");
 
-    $r->rest_routes({controller => 'users', id_key => "user_id" , resource_verbs => [qw(run walk)]});
-    foreach my $name (qw(list create get remove update replace run walk resource)) {
-        ok($r->find("api.Users.$name"), "Route api.Users.$name created");
-    }
+    $r->rest_routes({controller => 'Users'});
+    routes_created($r, "api.Users.", qw(list create get remove update replace resource));
 }
 
 {
     my $r = $routes->any("/hello")->name("hello");
-    $r->rest_routes({controller => 'bobbies', id_key => "user_id", collection_v2a => { post => 'search', put => 'add' } });
-    foreach my $name (qw(add search get remove update replace )) {
-        ok($r->find("hello.Bob.$name"), "Route hello.Bob.$name created");
-    }
+    $r->rest_routes({
+        controller => 'Worlds',
+        collection => {
+            http_methods => {
+                post => 'search',
+                put => 'add',
+            }
+        },
+        resource => undef,
+    });
+    routes_created($r, "hello.Worlds.", qw(add search));
+    routes_not_created($r, "hello.Worlds.", qw(list create get remove update replace resource));
 
-    $r->rest_routes({controller => 'jones', id_key => "user_id", resource_v2a => {} });
-    foreach my $name (qw( get remove update replace )) {
-        ok(!$r->find("hello.Jones.$name"), "Route hello.Jones.$name not created");
-    }
+    $r->rest_routes({
+        controller => 'Universes',
+        collection => undef,
+        resource => {
+            http_methods => {
+                get => 'find',
+                put => 'change',
+                patch => 'modify',
+                delete => 'annihilate',
+            },
+            subroutes => {
+                take_me_to_your_leader => {
+                    get => 'find_leader',
+                },
+            },
+        },
+    });
+    routes_created($r, 'hello.Universes.', qw(find change modify annihilate find_leader));
+    routes_not_created($r, "hello.Universes.", qw(list create get remove update replace ));
+}
+
+
+{
+    $routes->rest_routes(
+        {
+            controller => 'Quackers',
+            resource => undef,
+            collection => {
+                subroutes => {
+                    tail_spin => {
+                        get => 'scrooge_mcduck',
+                    },
+                },
+            },
+        }
+    );
+    routes_created($routes, "Quackers.", qw(list create scrooge_mcduck));
+    routes_not_created($routes, "Quackers.", qw( get remove update replace resource));
 }
 
 {
-    my @additional_routes = qw(howard the duck);
-    $routes->rest_routes({controller => 'collection_verbs', collection_v2a => {}, collection_additional_routes => \@additional_routes, resource_v2a => {} });
-    foreach my $name (@additional_routes) {
-        ok($routes->find("CollectionVerbs.$name"), "Route CollectionVerbs.$name was created");
-    }
+    my $r = $routes->any("/api_child_test")->name("ApiChildTest");
+    $r->rest_routes(
+        {
+            controller => 'Users',
+            resource => {
+                children => [
+                    {
+                        controller => 'Nodes'
+                    },
+                ],
+            },
+        }
+    );
+    routes_created($routes, "ApiChildTest.Users.", qw(list create get remove update replace resource));
+    routes_created($routes, "ApiChildTest.Users.Nodes.", qw(list create get remove update replace resource));
 }
 
 is (
@@ -95,11 +142,17 @@ is (
     );
 }
 
-eval { 
+eval {
     pf::UnifiedApi::Plugin::RestCrud::munge_options($routes, {controller => 'User'});
 };
 
 ok ($@ && $@ =~ 'cannot be singular noun', "Enforce no singular noun for controllers");
+
+eval {
+    pf::UnifiedApi::Plugin::RestCrud::munge_options($routes, {});
+};
+
+ok ($@ , "Should die if an invalid config is given");
 
 is_deeply(
     pf::UnifiedApi::Plugin::RestCrud::munge_resource_options(
@@ -238,6 +291,112 @@ is_deeply (
     },
     "Expanded config"
 );
+
+is_deeply (
+    pf::UnifiedApi::Plugin::RestCrud::munge_options(
+        $routes,
+        {
+            controller => 'NoResources',
+            resource => undef,
+        }
+    ),
+    {
+        controller => 'NoResources',
+        name_prefix => 'NoResources',
+        resource => undef,
+        collection => {
+            subroutes => {},
+            http_methods => {
+                GET => 'list',
+                POST => 'create',
+            },
+            path => '/no_resources',
+        },
+    },
+    "Do not expand resource if it is undef",
+);
+
+is_deeply(
+    pf::UnifiedApi::Plugin::RestCrud::munge_options(
+        $routes,
+        {
+            controller => 'Users',
+            resource   => {
+                children => [
+                    {
+                        controller => 'Nodes',
+                    },
+                ],
+            },
+        }
+    ),
+    {
+        controller  => 'Users',
+        name_prefix => 'Users',
+        resource    => {
+            url_param_key => 'user_id',
+            subroutes     => {},
+            http_methods  => {
+                GET    => 'get',
+                PATCH  => 'update',
+                PUT    => 'replace',
+                DELETE => 'remove',
+            },
+            'path'   => '/user/:user_id',
+            children => [
+                {
+                    controller  => 'Nodes',
+                    name_prefix => 'Users.Nodes',
+                    resource    => {
+                        url_param_key => 'node_id',
+                        subroutes     => {},
+                        http_methods  => {
+                            GET    => 'get',
+                            PATCH  => 'update',
+                            PUT    => 'replace',
+                            DELETE => 'remove',
+                        },
+                        'path'   => '/node/:node_id',
+                        children => []
+                    },
+                    collection => {
+                        subroutes    => {},
+                        http_methods => {
+                            GET  => 'list',
+                            POST => 'create',
+                        },
+                        path => '/nodes',
+                    },
+                },
+            ]
+        },
+        collection => {
+            subroutes    => {},
+            http_methods => {
+                GET  => 'list',
+                POST => 'create',
+            },
+            path => '/users',
+        },
+    },
+    "Expanding child options"
+);
+
+sub routes_created {
+    my ($r, $prefix, @routes) = @_;
+    foreach my $name (@routes) {
+        my $route_name = $prefix . $name;
+        ok($r->find($route_name), "Route $route_name was created");
+    }
+}
+
+sub routes_not_created {
+    my ($r, $prefix, @routes) = @_;
+    foreach my $name (@routes) {
+        my $route_name = $prefix . $name;
+        ok(!$r->find($route_name), "Route $route_name was not created");
+    }
+}
 
 =head1 AUTHOR
 
