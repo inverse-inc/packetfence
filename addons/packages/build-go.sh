@@ -87,8 +87,6 @@ if build_mode; then
   mv pfhttpd $BINDST/
   make pfdhcp
   mv pfdhcp $BINDST/
-  make pfipset
-  mv pfipset $BINDST/
   make pfdns
   mv pfdns $BINDST/
 elif test_mode; then
