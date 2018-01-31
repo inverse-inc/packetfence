@@ -200,8 +200,8 @@ func (h *Interface) run(jobs chan job) {
 			// Send back stats
 			if Request.(ApiReq).Req == "stats" {
 				for _, v := range h.network {
-					var statistiques roaring.Statistics
-					statistiques = v.dhcpHandler.available.Stats()
+					var statistics roaring.Statistics
+					statistics = v.dhcpHandler.available.Stats()
 					var Options map[string]string
 					Options = make(map[string]string)
 					Options["OptionIPAddressLeaseTime"] = v.dhcpHandler.leaseDuration.String()
@@ -230,13 +230,13 @@ func (h *Interface) run(jobs chan job) {
 						Members[i] = result.String()
 					}
 
-					if Count == (v.dhcpHandler.leaseRange - (int(statistiques.RunContainerValues) + int(statistiques.ArrayContainerValues))) {
+					if Count == (v.dhcpHandler.leaseRange - (int(statistics.RunContainerValues) + int(statistics.ArrayContainerValues))) {
 						Status = "Normal"
 					} else {
-						Status = "Calculated available IP " + strconv.Itoa(v.dhcpHandler.leaseRange-Count) + " is different than what we have available in the pool " + strconv.Itoa(int(statistiques.RunContainerValues))
+						Status = "Calculated available IP " + strconv.Itoa(v.dhcpHandler.leaseRange-Count) + " is different than what we have available in the pool " + strconv.Itoa(int(statistics.RunContainerValues))
 					}
 
-					stats[v.network.String()] = Stats{EthernetName: Request.(ApiReq).NetInterface, Net: v.network.String(), Free: int(statistiques.RunContainerValues) + int(statistiques.ArrayContainerValues), Category: v.dhcpHandler.role, Options: Options, Members: Members, Status: Status}
+					stats[v.network.String()] = Stats{EthernetName: Request.(ApiReq).NetInterface, Net: v.network.String(), Free: int(statistics.RunContainerValues) + int(statistics.ArrayContainerValues), Category: v.dhcpHandler.role, Options: Options, Members: Members, Status: Status}
 				}
 				outchannel <- stats
 			}
