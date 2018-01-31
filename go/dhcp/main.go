@@ -22,6 +22,7 @@ import (
 	"github.com/goji/httpauth"
 	"github.com/gorilla/mux"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 	dhcp "github.com/krolaw/dhcp4"
 	"github.com/patrickmn/go-cache"
 )
@@ -377,7 +378,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType) (answer A
 				handler.hwcache.Set(p.CHAddr().String(), free, time.Duration(5)*time.Second)
 				handler.xid.Set(ByteToString(p.XId()), 0, time.Duration(5)*time.Second)
 				// Ping the ip address
-				pingreply := Ping(dhcp.IPAdd(handler.start, free).String(), 1)
+				pingreply := sharedutils.Ping(dhcp.IPAdd(handler.start, free).String(), 1)
 				if pingreply {
 					fmt.Println(p.CHAddr().String() + " Ip " + dhcp.IPAdd(handler.start, free).String() + " already in use, trying next")
 					// Added back in the pool since it's not the dhcp server who gave it
