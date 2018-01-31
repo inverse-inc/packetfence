@@ -20,7 +20,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/goji/httpauth"
 	"github.com/gorilla/mux"
-	"github.com/inverse-inc/packetfence/go/database"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
@@ -296,7 +295,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType) (answer A
 	// Detect the handler to use (config)
 	var NodeCache *cache.Cache
 	NodeCache = cache.New(3*time.Second, 5*time.Second)
-	var node database.NodeInfo
+	var node NodeInfo
 	for _, v := range h.network {
 
 		// Case of a l2 dhcp request
@@ -306,9 +305,9 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType) (answer A
 			if v.splittednet == true {
 
 				if x, found := NodeCache.Get(p.CHAddr().String()); found {
-					node = x.(database.NodeInfo)
+					node = x.(NodeInfo)
 				} else {
-					node = database.NodeInformation(ctx, MySQLdatabase, p.CHAddr())
+					node = NodeInformation(p.CHAddr(), ctx)
 					NodeCache.Set(p.CHAddr().String(), node, 3*time.Second)
 				}
 

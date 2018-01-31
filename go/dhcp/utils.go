@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"encoding/binary"
 	"math/rand"
@@ -12,6 +13,12 @@ import (
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
+
+type NodeInfo struct {
+	Mac      string
+	Status   string
+	Category string
+}
 
 // connectDB connect to the database
 func connectDB(configDatabase pfconfigdriver.PfconfigDatabase, db *sql.DB) {
@@ -130,6 +137,35 @@ func (d *Interfaces) detectVIP(interfaces pfconfigdriver.ListenInts) {
 			VIP[v] = false
 		}
 	}
+}
+
+func NodeInformation(target net.HardwareAddr, ctx context.Context) (r NodeInfo) {
+
+	rows, err := MySQLdatabase.Query("SELECT mac, status, IF(ISNULL(nc.name), '', nc.name) as category FROM node LEFT JOIN node_category as nc on node.category_id = nc.category_id WHERE mac = ?", target.String())
+	defer rows.Close()
+
+	if err != nil {
+		log.LoggerWContext(ctx).Crit(err.Error())
+	}
+
+	var (
+		Category string
+		Status   string
+		Mac      string
+	)
+	// Set default values
+	var Node = NodeInfo{Mac: target.String(), Status: "unreg", Category: "default"}
+
+	for rows.Next() {
+		err := rows.Scan(&Mac, &Status, &Category)
+		if err != nil {
+			log.LoggerWContext(ctx).Crit(err.Error())
+
+		}
+	}
+
+	Node = NodeInfo{Mac: Mac, Status: Status, Category: Category}
+	return Node
 }
 
 func ShuffleDNS(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
