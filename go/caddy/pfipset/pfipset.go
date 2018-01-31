@@ -3,7 +3,6 @@ package pfipset
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -90,7 +89,7 @@ func buildPfipsetHandler(ctx context.Context) (PfipsetHandler, error) {
 		ctx := context.WithValue(ctx, "dummy", "dummy")
 		for {
 			pfipset.IPSET.initIPSet(ctx, pfipset.database)
-			fmt.Println("Reloading ipsets")
+			log.LoggerWContext(ctx).Info("Reloading ipsets")
 			time.Sleep(300 * time.Second)
 		}
 	}()

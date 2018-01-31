@@ -4,13 +4,13 @@ import (
 	"context"
 	"crypto/tls"
 	"database/sql"
-	"fmt"
 	"io"
 	"net"
 	"net/http"
 	"regexp"
 
 	ipset "github.com/digineo/go-ipset"
+	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
@@ -65,76 +65,105 @@ func getClusterMembersIps(ctx context.Context) []net.IP {
 }
 
 func updateClusterL2(ctx context.Context, Ip string, Mac string, Network string, Type string, Catid string) {
+	logger := log.LoggerWContext(ctx)
+
 	for _, member := range getClusterMembersIps(ctx) {
 		err := post(ctx, "https://"+member.String()+":22223/ipset/mark_layer2/"+Network+"/"+Type+"/"+Catid+"/"+Ip+"/"+Mac+"/1", body)
-		fmt.Println("Updated " + member.String())
 		if err != nil {
-			fmt.Println("Not able to contact " + member.String())
+			logger.Error("Not able to contact " + member.String() + err.Error())
+		} else {
+			logger.Info("Updated " + member.String())
 		}
 	}
 }
 
 func updateClusterL3(ctx context.Context, Ip string, Network string, Type string, Catid string) {
+	logger := log.LoggerWContext(ctx)
+
 	for _, member := range getClusterMembersIps(ctx) {
 		err := post(ctx, "https://"+member.String()+":22223/ipset/mark_layer3/"+Network+"/"+Type+"/"+Catid+"/"+Ip+"/1", body)
 		if err != nil {
-			fmt.Println("Not able to contact " + member.String())
+			logger.Error("Not able to contact " + member.String() + err.Error())
+		} else {
+			logger.Info("Updated " + member.String())
 		}
 	}
 }
 
 func updateClusterUnmarkMac(ctx context.Context, Mac string) {
+	logger := log.LoggerWContext(ctx)
+
 	for _, member := range getClusterMembersIps(ctx) {
 		err := post(ctx, "https://"+member.String()+":22223/ipset/unmark_mac/"+Mac+"/1", body)
 		if err != nil {
-			fmt.Println("Not able to contact " + member.String())
+			logger.Error("Not able to contact " + member.String() + err.Error())
+		} else {
+			logger.Info("Updated " + member.String())
 		}
 	}
 }
 
 func updateClusterUnmarkIp(ctx context.Context, Ip string) {
+	logger := log.LoggerWContext(ctx)
+
 	for _, member := range getClusterMembersIps(ctx) {
 
 		err := post(ctx, "https://"+member.String()+":22223/ipset/unmark_ip/"+Ip+"/1", body)
 		if err != nil {
-			fmt.Println("Not able to contact " + member.String())
+			logger.Error("Not able to contact " + member.String() + err.Error())
+		} else {
+			logger.Info("Updated " + member.String())
 		}
 	}
 }
 
 func updateClusterMarkIpL3(ctx context.Context, Ip string, Network string, Catid string) {
+	logger := log.LoggerWContext(ctx)
+
 	for _, member := range getClusterMembersIps(ctx) {
 		err := post(ctx, "https://"+member.String()+":22223/ipset/mark_ip_layer3/"+Network+"/"+Catid+"/"+Ip+"/1", body)
 		if err != nil {
-			fmt.Println("Not able to contact " + member.String())
+			logger.Error("Not able to contact " + member.String() + err.Error())
+		} else {
+			logger.Info("Updated " + member.String())
 		}
 	}
 }
 func updateClusterMarkIpL2(ctx context.Context, Ip string, Network string, Catid string) {
+	logger := log.LoggerWContext(ctx)
+
 	for _, member := range getClusterMembersIps(ctx) {
 		err := post(ctx, "https://"+member.String()+":22223/ipset/mark_ip_layer2/"+Network+"/"+Catid+"/"+Ip+"/1", body)
 		if err != nil {
-			fmt.Println("Not able to contact " + member.String())
+			logger.Error("Not able to contact " + member.String() + err.Error())
+		} else {
+			logger.Info("Updated " + member.String())
 		}
 	}
 }
 
 func updateClusterPassthrough(ctx context.Context, Ip string, Port string) {
+	logger := log.LoggerWContext(ctx)
+
 	for _, member := range getClusterMembersIps(ctx) {
 		err := post(ctx, "https://"+member.String()+":22223/ipset/passthrough/"+Ip+"/"+Port+"/1", body)
-		fmt.Println("Updated " + member.String())
 		if err != nil {
-			fmt.Println("Not able to contact " + member.String())
+			logger.Error("Not able to contact " + member.String() + err.Error())
+		} else {
+			logger.Info("Updated " + member.String())
 		}
 	}
 }
 
 func updateClusterPassthroughIsol(ctx context.Context, Ip string, Port string) {
+	logger := log.LoggerWContext(ctx)
+
 	for _, member := range getClusterMembersIps(ctx) {
 		err := post(ctx, "https://"+member.String()+":22223/ipset/passthrough_isolation/"+Ip+"/"+Port+"/1", body)
-		fmt.Println("Updated " + member.String())
 		if err != nil {
-			fmt.Println("Not able to contact " + member.String())
+			logger.Error("Not able to contact " + member.String() + err.Error())
+		} else {
+			logger.Info("Updated " + member.String())
 		}
 	}
 }
@@ -169,11 +198,13 @@ func post(ctx context.Context, url string, body io.Reader) error {
 
 // initIPSet fetch the database to remove already assigned ip addresses
 func (IPSET *pfIPSET) initIPSet(ctx context.Context, db *sql.DB) {
+	logger := log.LoggerWContext(ctx)
+
 	IPSET.ListALL, _ = ipset.ListAll()
 	rows, err := db.Query("select distinct n.mac, i.ip, n.category_id from node as n left join locationlog as l on n.mac=l.mac left join ip4log as i on n.mac=i.mac where l.connection_type = \"inline\" and n.status=\"reg\" and n.mac=i.mac and i.end_time > NOW()")
 	if err != nil {
 		// Log here
-		fmt.Println(err)
+		logger.Error(err.Error())
 		return
 	}
 	defer rows.Close()
@@ -186,18 +217,18 @@ func (IPSET *pfIPSET) initIPSet(ctx context.Context, db *sql.DB) {
 		err := rows.Scan(&mac, &ipstr, &catID)
 		if err != nil {
 			// Log here
-			fmt.Println(err)
+			logger.Error(err.Error())
 			return
 		}
 		for k, v := range IPSET.Network {
 			if k.Contains(net.ParseIP(ipstr)) {
 				if v == "inlinel2" {
 					IPSET.IPSEThandleLayer2(ctx, ipstr, mac, k.IP.String(), "Reg", catID)
-					IPSET.IPSEThandleMarkIpL2(ipstr, k.IP.String(), catID)
+					IPSET.IPSEThandleMarkIpL2(ctx, ipstr, k.IP.String(), catID)
 				}
 				if v == "inlinel3" {
-					IPSET.IPSEThandleLayer3(ipstr, k.IP.String(), "Reg", catID)
-					IPSET.IPSEThandleMarkIpL3(ipstr, k.IP.String(), catID)
+					IPSET.IPSEThandleLayer3(ctx, ipstr, k.IP.String(), "Reg", catID)
+					IPSET.IPSEThandleMarkIpL3(ctx, ipstr, k.IP.String(), catID)
 				}
 				break
 			}

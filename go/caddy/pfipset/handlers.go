@@ -9,6 +9,7 @@ import (
 	"github.com/diegoguarnieri/go-conntrack/conntrack"
 	ipset "github.com/digineo/go-ipset"
 	"github.com/gorilla/mux"
+	"github.com/inverse-inc/packetfence/go/log"
 )
 
 type Info struct {
@@ -98,32 +99,35 @@ func handleLayer2(res http.ResponseWriter, req *http.Request) {
 }
 
 func (IPSET *pfIPSET) IPSEThandleLayer2(ctx context.Context, IP string, Mac string, Network string, Type string, Catid string) {
+	logger := log.LoggerWContext(ctx)
 
 	for _, v := range IPSET.ListALL {
 		// Delete all entries with the new ip address
 		r := ipset.Test(v.Name, IP)
 		if r == nil {
 			IPSET.jobs <- job{"Del", v.Name, IP}
-			fmt.Println("Removed " + IP + " from " + v.Name)
+			logger.Info("Removed " + IP + " from " + v.Name)
 		}
 		// Delete all entries with old ip addresses
 		Ips := IPSET.mac2ip(ctx, Mac, v)
 		for _, i := range Ips {
 			IPSET.jobs <- job{"Del", v.Name, i}
-			fmt.Println("Removed " + i + " from " + v.Name)
+			logger.Info("Removed " + i + " from " + v.Name)
 		}
 	}
 	// Add to the new ipset session
 	IPSET.jobs <- job{"Add", "pfsession_" + Type + "_" + Network, IP + "," + Mac}
-	fmt.Println("Added " + IP + " " + Mac + " to pfsession_" + Type + "_" + Network)
+	logger.Info("Added " + IP + " " + Mac + " to pfsession_" + Type + "_" + Network)
 	if Type == "Reg" {
 		// Add to the ip ipset session
 		IPSET.jobs <- job{"Add", "PF-iL2_ID" + Catid + "_" + Network, IP}
-		fmt.Println("Added " + IP + " to PF-iL2_ID" + Catid + "_" + Network)
+		logger.Info("Added " + IP + " to PF-iL2_ID" + Catid + "_" + Network)
 	}
 }
 
 func handleMarkIpL2(res http.ResponseWriter, req *http.Request) {
+	ctx := req.Context()
+
 	IPSET := pfIPSETFromContext(req.Context())
 	vars := mux.Vars(req)
 	IP := vars["ip"]
@@ -132,7 +136,7 @@ func handleMarkIpL2(res http.ResponseWriter, req *http.Request) {
 	Local := vars["local"]
 
 	// Update locally
-	IPSET.IPSEThandleMarkIpL2(IP, Network, Catid)
+	IPSET.IPSEThandleMarkIpL2(ctx, IP, Network, Catid)
 
 	// Do we have to update the other members of the cluster
 	if Local == "0" {
@@ -142,11 +146,13 @@ func handleMarkIpL2(res http.ResponseWriter, req *http.Request) {
 	res.WriteHeader(http.StatusOK)
 }
 
-func (IPSET *pfIPSET) IPSEThandleMarkIpL2(IP string, Network string, Catid string) {
+func (IPSET *pfIPSET) IPSEThandleMarkIpL2(ctx context.Context, IP string, Network string, Catid string) {
 	IPSET.jobs <- job{"Add", "PF-iL2_ID" + Catid + "_" + Network, IP}
 }
 
 func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
+	ctx := req.Context()
+
 	IPSET := pfIPSETFromContext(req.Context())
 	vars := mux.Vars(req)
 	IP := vars["ip"]
@@ -155,7 +161,7 @@ func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
 	Local := vars["local"]
 
 	// Update locally
-	IPSET.IPSEThandleMarkIpL3(IP, Network, Catid)
+	IPSET.IPSEThandleMarkIpL3(ctx, IP, Network, Catid)
 
 	// Do we have to update the other members of the cluster
 	if Local == "0" {
@@ -174,11 +180,13 @@ func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (IPSET *pfIPSET) IPSEThandleMarkIpL3(IP string, Network string, Catid string) {
+func (IPSET *pfIPSET) IPSEThandleMarkIpL3(ctx context.Context, IP string, Network string, Catid string) {
 	IPSET.jobs <- job{"Add", "PF-iL3_ID" + Catid + "_" + Network, IP}
 }
 
 func handleLayer3(res http.ResponseWriter, req *http.Request) {
+	ctx := req.Context()
+
 	IPSET := pfIPSETFromContext(req.Context())
 	vars := mux.Vars(req)
 	IP := vars["ip"]
@@ -188,7 +196,7 @@ func handleLayer3(res http.ResponseWriter, req *http.Request) {
 	Local := vars["local"]
 
 	// Update locally
-	IPSET.IPSEThandleLayer3(IP, Network, Type, Catid)
+	IPSET.IPSEThandleLayer3(ctx, IP, Network, Type, Catid)
 
 	// Do we have to update the other members of the cluster
 	if Local == "0" {
@@ -208,27 +216,31 @@ func handleLayer3(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (IPSET *pfIPSET) IPSEThandleLayer3(IP string, Network string, Type string, Catid string) {
+func (IPSET *pfIPSET) IPSEThandleLayer3(ctx context.Context, IP string, Network string, Type string, Catid string) {
+	logger := log.LoggerWContext(ctx)
 
 	// Delete all entries with the new ip address
 	for _, v := range IPSET.ListALL {
 		r := ipset.Test(v.Name, IP)
 		if r == nil {
 			IPSET.jobs <- job{"Del", v.Name, IP}
-			fmt.Println("Removed " + IP + " from " + v.Name)
+			logger.Info("Removed " + IP + " from " + v.Name)
 		}
 	}
 	// Add to the new ipset session
 	IPSET.jobs <- job{"Add", "pfsession_" + Type + "_" + Network, IP}
-	fmt.Println("Added " + IP + " to pfsession_" + Type + "_" + Network)
+	logger.Info("Added " + IP + " to pfsession_" + Type + "_" + Network)
 	if Type == "Reg" {
 		// Add to the ip ipset session
 		IPSET.jobs <- job{"Add", "PF-iL3_ID" + Catid + "_" + Network, IP}
-		fmt.Println("Added " + IP + " to PF-iL3_ID" + Catid + "_" + Network)
+		logger.Info("Added " + IP + " to PF-iL3_ID" + Catid + "_" + Network)
 	}
 }
 
 func (IPSET *pfIPSET) handleUnmarkMac(res http.ResponseWriter, req *http.Request) {
+	ctx := req.Context()
+	logger := log.LoggerWContext(ctx)
+
 	vars := mux.Vars(req)
 	Mac := vars["mac"]
 	Local := vars["local"]
@@ -239,7 +251,7 @@ func (IPSET *pfIPSET) handleUnmarkMac(res http.ResponseWriter, req *http.Request
 			IPSET.jobs <- job{"Del", v.Name, i}
 			conn, _ := conntrack.New()
 			conn.DeleteConnectionBySrcIp(i)
-			fmt.Println("Removed " + i + " from " + v.Name)
+			logger.Info(fmt.Sprintf("Removed %s from %s", i, v.Name))
 		}
 	}
 	// Do we have to update the other members of the cluster
@@ -260,6 +272,9 @@ func (IPSET *pfIPSET) handleUnmarkMac(res http.ResponseWriter, req *http.Request
 }
 
 func (IPSET *pfIPSET) handleUnmarkIp(res http.ResponseWriter, req *http.Request) {
+	ctx := req.Context()
+	logger := log.LoggerWContext(ctx)
+
 	vars := mux.Vars(req)
 	IP := vars["ip"]
 	Local := vars["local"]
@@ -270,7 +285,7 @@ func (IPSET *pfIPSET) handleUnmarkIp(res http.ResponseWriter, req *http.Request)
 			IPSET.jobs <- job{"Del", v.Name, IP}
 			conn, _ := conntrack.New()
 			conn.DeleteConnectionBySrcIp(IP)
-			fmt.Println("Removed " + IP + " from " + v.Name)
+			logger.Info(fmt.Sprintf("Removed %s from %s", IP, v.Name))
 		}
 	}
 	// Do we have to update the other members of the cluster
