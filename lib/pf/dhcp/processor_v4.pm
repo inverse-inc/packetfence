@@ -425,7 +425,7 @@ sub pf_is_dhcp {
 
 =head2 checkForParking
 
-Check if a device should be in parking and adjust the lease time through OMAPI
+Check if a device should be in parking and adjust the lease time through pfdhcp api call
 
 =cut
 

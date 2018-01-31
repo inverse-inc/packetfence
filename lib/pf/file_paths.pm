@@ -42,8 +42,6 @@ our (
     $dhcp_fingerprints_file, $dhcp_fingerprints_url,
     #oui.txt variables
     $oui_file, $oui_url,
-    #DHCP OMAPI key file
-    $pf_omapi_key_file,
     # Local secret file for RADIUS
     $local_secret_file,
     #profiles.conf variables
@@ -118,7 +116,6 @@ BEGIN {
         $floating_devices_config_file
         $dhcp_fingerprints_file $dhcp_fingerprints_url
         $oui_file $oui_url
-        $pf_omapi_key_file
         $local_secret_file
         $profiles_config_file $profiles_default_config_file
         $switches_config_file $switches_default_config_file
@@ -199,7 +196,6 @@ $pfcmd_binary = catfile( $bin_dir, "pfcmd" );
 
 $oui_file           = catfile($conf_dir, "oui.txt");
 $suricata_categories_file = catfile($conf_dir, "suricata_categories.txt");
-$pf_omapi_key_file  = catfile($conf_dir, "pf_omapi_key");
 $local_secret_file  = catfile($conf_dir, "local_secret");
 $pf_doc_file        = catfile($conf_dir, "documentation.conf");
 $oauth_ip_file      = catfile($conf_dir, "oauth2-ips.conf");

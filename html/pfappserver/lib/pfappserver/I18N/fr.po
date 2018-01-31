@@ -5022,14 +5022,6 @@ msgid "Number of trap parser threads pfsetvlan should start"
 msgstr "Nombre de processus parser que pfsetvlan devrait démarrer"
 
 # html/pfappserver/root/admin/configuration.tt
-msgid "OMAPI"
-msgstr "OMAPI"
-
-# html/pfappserver/root/configuration/network_conf.tt
-msgid "OMAPI:"
-msgstr "OMAPI:"
-
-# html/pfappserver/root/admin/configuration.tt
 msgid "OPSWAT Metadefender"
 msgstr "OPSWAT Metadefender"
 
@@ -8124,22 +8116,6 @@ msgid ""
 "multiple."
 msgstr "L’adresse(s) IP du(des) serveur(s) DNS pour ce domaine. Séparer par des virgules si entrées multiple."
 
-# conf/documentation.conf (omapi.key_base64)
-msgid "The OMAPI base64 key for signing messages"
-msgstr "La clé de base64 OMAPI pour signer des messages"
-
-# conf/documentation.conf (omapi.host)
-msgid "The OMAPI host"
-msgstr "L’hôte OMAPI"
-
-# conf/documentation.conf (omapi.key_name)
-msgid "The OMAPI key name for signing messages"
-msgstr "Le nom de la clé OMAPI pour les messages de signature"
-
-# conf/documentation.conf (omapi.port)
-msgid "The OMAPI port number"
-msgstr "Le numéro du port OMAPI"
-
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/MAC_Vendor.pm
 msgid ""
 "The OUI is the first six digits or letters of a MAC address. They must be "
@@ -8584,10 +8560,6 @@ msgstr "Le seuil (en secondes) après lequel un appareil sera mis en parking. Un
 msgid "The timeout in seconds for sending an email"
 msgstr "Le temps d'expiration en secondes pour envoyer un mail."
 
-# conf/documentation.conf (omapi.timeout)
-msgid "The timeout on the OMAPI socket"
-msgstr "Expiration sur le socket OMAPI"
-
 # html/pfappserver/lib/pfappserver/Form/Config/Source/Stripe.pm
 msgid ""
 "The type of payment the user will make. Charge is a one time fee, "
@@ -8790,12 +8762,6 @@ msgid ""
 "for example that moves around in the network. PacketFence will automatically"
 " reconfigure a switch port and a floating device is connected."
 msgstr "Ceci vous permet de créer des appareils itinérants dans PacketFence - par exemple, comme un commutateur qui se déplace sur le réseau. PacketFence re-configurera automatiquement un port de commutateur lorsqu’un appareil itinérant se connecte."
-
-# html/pfappserver/root/configuration/network_conf.tt
-msgid ""
-"This allows you to enable or not OMAPI-based IP address to MAC address "
-"lookups."
-msgstr "Ceci permet d’activer ou non la recherche d’IP adresses vers MAC basé sur OMAPI."
 
 # html/pfappserver/root/configuration/portal_config.tt
 msgid ""
@@ -9276,14 +9242,6 @@ msgid ""
 "Use CoA when available to deauthenticate the user. When disabled, RADIUS "
 "Disconnect will be used instead if it is available."
 msgstr "Utiliser le CoA quand celui-ci est disponible pour des enregistrer l’utilisateur. Si désactivé alors une requête RADIUS Disconnect sera utilisé si celle-ci est disponible."
-
-# conf/documentation.conf (omapi.mac2ip_lookup)
-msgid "Use OMAPI to query DHCPd for the IP address of a given MAC address"
-msgstr "Utilisez OMAPI pour interroger DHCPd pour l’adresse IP d’une adresse MAC donnée"
-
-# conf/documentation.conf (omapi.ip2mac_lookup)
-msgid "Use OMAPI to query DHCPd for the MAC address of a given IP address"
-msgstr "Utilisez OMAPI pour interroger DHCPd pour l’adresse MAC d’une adresse IP donnée"
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid ""
@@ -10591,8 +10549,6 @@ msgstr "dhcplistener"
 # conf/documentation.conf (network.force_listener_update_on_ack options)
 # conf/documentation.conf (network.hostname_change_detection options)
 # conf/documentation.conf (network.rogue_dhcp_detection options)
-# conf/documentation.conf (omapi.ip2mac_lookup options)
-# conf/documentation.conf (omapi.mac2ip_lookup options)
 # conf/documentation.conf (parking.place_in_dhcp_parking_group options)
 # conf/documentation.conf (parking.show_parking_portal options)
 # conf/documentation.conf (provisioning.autoconfig options)
@@ -10718,8 +10674,6 @@ msgstr "en_US"
 # conf/documentation.conf (network.force_listener_update_on_ack options)
 # conf/documentation.conf (network.hostname_change_detection options)
 # conf/documentation.conf (network.rogue_dhcp_detection options)
-# conf/documentation.conf (omapi.ip2mac_lookup options)
-# conf/documentation.conf (omapi.mac2ip_lookup options)
 # conf/documentation.conf (parking.place_in_dhcp_parking_group options)
 # conf/documentation.conf (parking.show_parking_portal options)
 # conf/documentation.conf (provisioning.autoconfig options)
@@ -11422,38 +11376,6 @@ msgstr "Notes"
 # conf/documentation.conf (advanced.hash_passwords options)
 msgid "ntlm"
 msgstr "ntlm"
-
-# conf/documentation.conf
-msgid "omapi"
-msgstr "OMAPI"
-
-# conf/documentation.conf
-msgid "omapi.host"
-msgstr "Hôte OMAPI"
-
-# conf/documentation.conf
-msgid "omapi.ip2mac_lookup"
-msgstr "Activer la recherche ip2mac utilisant OMAPI"
-
-# conf/documentation.conf
-msgid "omapi.key_base64"
-msgstr "Clé base64 OMAPI"
-
-# conf/documentation.conf
-msgid "omapi.key_name"
-msgstr "Nom de clé OMAPI"
-
-# conf/documentation.conf
-msgid "omapi.mac2ip_lookup"
-msgstr "Activer la recherche mac2ip d’OMAPI"
-
-# conf/documentation.conf
-msgid "omapi.port"
-msgstr "Port OMAPI"
-
-# conf/documentation.conf
-msgid "omapi.timeout"
-msgstr "Expiration de OMAPI"
 
 # pf::provisioner (Provisioners)
 msgid "opswat"

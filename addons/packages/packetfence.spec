@@ -681,11 +681,6 @@ echo "Restarting rsyslogd"
 cd /usr/local/pf
 make conf/ssl/server.pem
 
-# Create OMAPI key
-if [ ! -f /usr/local/pf/conf/pf_omapi_key ]; then
-    /usr/bin/openssl rand -base64 -out /usr/local/pf/conf/pf_omapi_key 32
-fi
-
 # Create server local RADIUS secret
 if [ ! -f /usr/local/pf/conf/local_secret ]; then
     date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/local_secret

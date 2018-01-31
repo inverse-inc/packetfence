@@ -276,36 +276,6 @@ Inline Access
 * connect a device with a DHCP IP in the Inline subnetwork
 * make sure the device are able to communicate with PacketFence on the Inline network card and cannot access the management network
 
-OMAPI
-~~~~~
-
-Configuring the DHCP OMAPI (optional)
-+++++++++++++++++++++++++++++++++++++
-
-In order to speed up the IP address lease lookup, you can configure the DHCP OMAPI so that queries for IP and MAC associations are made faster.
-
-First, execute the following command in an SSH session.
-
-----
-# dd if=/dev/urandom bs=16 count=1 2>/dev/null | openssl enc -e -base64
-----
-
-This should produce an output similar to this :
-
-----
-m4NMkOKc9IxfWk8cL2fP4g==
-----
-
-Now paste the output in the Administration interface under 'Configuration/OMAPI/OMAPI base64 key' and save.
-
-image::docs/images/omapi-config.png[scaledwidth="100%",alt="Network integration diagram"]
-
-Now restart the dhcpd service using the following command in an SSH session.
-
-----
-# /usr/local/pf/bin/pfcmd service dhcpd restart
-----
-
 Traffic shaping
 ~~~~~~~~~~~~~~~
 

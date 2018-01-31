@@ -40,7 +40,7 @@ has '+name' => ( default => sub { 'etcd' } );
 
 sub isManaged {
     my ($self) = @_;
-    return  isenabled($Config{'services'}{'go_dhcpd'}) && $self->SUPER::isManaged();
+    return  isenabled($Config{'services'}{'pfdhcp'}) && $self->SUPER::isManaged();
 }
 
 sub generateConfig {

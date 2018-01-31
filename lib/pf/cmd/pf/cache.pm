@@ -19,7 +19,6 @@ Namespaces:
   httpd.portal
   ldap_auth
   metadefender
-  omapi
   person_lookup
   pfdns
   provisioning

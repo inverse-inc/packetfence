@@ -16,8 +16,7 @@ to generate or validate some configuration files.
 Read the following configuration files: F<dhcpd_vlan.conf>,
 F<networks.conf>, F<violations.conf> and F<switches.conf>.
 
-Generate the following configuration files: F<dhcpd.conf>, F<named.conf>,
-F<httpd.conf>, F<snmptrapd.conf>.
+Generate the following configuration file: F<snmptrapd.conf>.
 
 =cut
 
