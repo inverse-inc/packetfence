@@ -221,7 +221,7 @@ sub manageStaticRoute {
                     $ip = NetAddr::IP::Lite->new(clean_ip($net{'next_hop'}));
                 }
                 if ($current_interface->contains($ip)) {
-                    if ( $net{'dhcpd'} eq 'enabled' ) {
+                    if ( isenabled($net{'dhcpd'}) ) {
                         if (isenabled($net{'split_network'})) {
                             my @categories = nodecategory_view_all();
                             my $count = @categories;

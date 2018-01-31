@@ -112,10 +112,9 @@ func handleStats(res http.ResponseWriter, req *http.Request) {
 
 		fmt.Fprint(res, string(outgoingJSON))
 		return
-	} else {
-		http.Error(res, "Not found", http.StatusInternalServerError)
-		return
 	}
+	http.Error(res, "Not found", http.StatusInternalServerError)
+	return
 }
 
 func handleInitiaLease(res http.ResponseWriter, req *http.Request) {
@@ -136,10 +135,9 @@ func handleInitiaLease(res http.ResponseWriter, req *http.Request) {
 
 		fmt.Fprint(res, string(outgoingJSON))
 		return
-	} else {
-		http.Error(res, "Not found", http.StatusInternalServerError)
-		return
 	}
+	http.Error(res, "Not found", http.StatusInternalServerError)
+	return
 }
 
 func handleDebug(res http.ResponseWriter, req *http.Request) {

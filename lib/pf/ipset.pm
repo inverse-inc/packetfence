@@ -42,6 +42,7 @@ use pf::violation qw(violation_view_open_uniq violation_count);
 use pf::ip4log;
 use pf::authentication;
 use pf::constants::parking qw($PARKING_IPSET_NAME);
+use pf::constant::node qw($STATUS_UNREGISTERED);
 
 Readonly my $FW_TABLE_FILTER => 'filter';
 Readonly my $FW_TABLE_MANGLE => 'mangle';
@@ -322,7 +323,7 @@ sub update_node {
     my $old_ip = new NetAddr::IP::Lite clean_ip($oldip);
     my $id = $view_mac->{'category_id'};
     my $open_violation_count = pf::violation::violation_count_reevaluate_access($srcmac);
-    my $mark = $IPTABLES_MARK_UNREG if ($view_mac->{'status'} eq 'unreg') // $IPTABLES_MARK_REG;
+    my $mark = $IPTABLES_MARK_UNREG if ($view_mac->{'status'} eq $STATUS_UNREGISTERED) // $IPTABLES_MARK_REG;
     if ($open_violation_count != 0) {
         $mark = $IPTABLES_MARK_ISOLATION;
     }

@@ -24,11 +24,6 @@ extends 'pf::services::manager';
 
 has '+name' => ( default => sub { 'pfdhcp' } );
 
-sub isManaged {
-    my ($self) = @_;
-    return  $self->SUPER::isManaged();
-}
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

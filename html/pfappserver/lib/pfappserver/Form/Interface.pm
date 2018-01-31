@@ -104,12 +104,16 @@ has_field 'split_network' => (
     unchecked_value => 0,
     default => 0,
     label => 'Split network by role',
+    tags => { after_element => \&help,
+             help => 'This will create a small network for each roles.' },
 );
 
 has_field 'reg_network' =>
   (
    type => 'Text',
    label => 'Registration IP Address CIDR format',
+   tags => { after_element => \&help,
+             help => 'When split network by role is enabled then this network will be used as the registration network (example: 192.168.0.1/24).' },
   );
 
 

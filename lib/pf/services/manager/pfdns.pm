@@ -38,11 +38,6 @@ has '+name' => ( default => sub { 'pfdns' } );
 
 tie our %domain_dns_servers, 'pfconfig::cached_hash', 'resource::domain_dns_servers';
 
-sub isManaged {
-    my ($self) = @_;
-    return  $self->SUPER::isManaged();
-}
-
 =head2 generateConfig
 
 Generate the configuration file
