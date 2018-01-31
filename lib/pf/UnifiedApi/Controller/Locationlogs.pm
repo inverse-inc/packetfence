@@ -1,14 +1,14 @@
-package pf::UnifiedApi::Controller::Locationlog;
+package pf::UnifiedApi::Controller::Locationlogs;
 
 =head1 NAME
 
-pf::UnifiedApi::Controller::Locationlog -
+pf::UnifiedApi::Controller::Locationlogs -
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::UnifiedApi::Controller::Locationlog
+pf::UnifiedApi::Controller::Locationlogs
 
 =cut
 
