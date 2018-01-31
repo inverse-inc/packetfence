@@ -101,6 +101,11 @@ our @API_V1_ROUTES = (
 
     { controller => 'nodes', collection_v2a => { get => 'latest_locationlog_by_mac' }, resource_v2a => {}, path => '/nodes/:mac/latest_locationlog' },
     { controller => 'nodes', collection_v2a => { get => 'locationlog_by_mac' }, resource_v2a => {}, path => '/nodes/:mac/locationlog' },
+    
+    { controller => 'ip4log', resource_v2a => {}, collection_v2a => { get => 'read_list' }, path => '/ip4logs' },
+    { controller => 'ip4log', resource_v2a => {}, collection_v2a => { get => 'read_row_by_search' }, path => '/ip4log/:search' },
+    { controller => 'ip4log', resource_v2a => {}, collection_v2a => { get => 'read_list_history_by_search' }, path => '/ip4logs/:search/history' },
+    { controller => 'ip4log', resource_v2a => {}, collection_v2a => { get => 'read_list_archive_by_search' }, path => '/ip4logs/:search/archive' },
 );
 
 sub startup {
