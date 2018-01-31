@@ -99,7 +99,7 @@ sub remove_parking_actions {
         port    => $pf::constants::api::GO_DHCP_PORT,
     )->call("/removeoptions/".$mac,{}
     );
-    TODO: use pfipset
+    #TODO: use pfipset
     pf_run("sudo ipset del $PARKING_IPSET_NAME $ip -exist 2>&1");
 }
 
