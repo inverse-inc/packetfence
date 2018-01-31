@@ -9,7 +9,7 @@ StartLimitBurst=3
 StartLimitInterval=60
 Type=notify
 WatchdogSec=30s
-ExecStart=/usr/local/pf/bin/pfipset
+ExecStart=/usr/local/pf/bin/pfhttpd -conf /usr/local/pf/conf/caddy-services/pfipset.conf -log-name=pfipset
 Restart=on-failure
 Slice=packetfence.slice
 
