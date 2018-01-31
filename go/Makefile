@@ -24,12 +24,6 @@ pfdhcp:
 	cd - && \
 	mv dhcp/dhcp pfdhcp
 
-pfipset:
-	cd ipset && \
-	go build && \
-	cd - && \
-	mv ipset/ipset pfipset
-
 pfdns:
 	cd coredns && \
 	go build && \
