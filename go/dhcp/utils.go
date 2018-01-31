@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/inverse-inc/packetfence/go/database"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
@@ -21,8 +22,7 @@ type NodeInfo struct {
 
 // connectDB connect to the database
 func connectDB(configDatabase pfconfigdriver.PfconfigDatabase, db *sql.DB) {
-	database, _ = sql.Open("mysql", configDatabase.DBUser+":"+configDatabase.DBPassword+"@tcp("+configDatabase.DBHost+":"+configDatabase.DBPort+")/"+configDatabase.DBName+"?parseTime=true")
-
+	MySQLdatabase = database.ConnectFromConfig(configDatabase)
 }
 
 // initiaLease fetch the database to remove already assigned ip addresses
@@ -33,7 +33,7 @@ func initiaLease(dhcpHandler *DHCPHandler) {
 	binary.BigEndian.PutUint32(a, endip)
 	ipend := net.IPv4(a[0], a[1], a[2], a[3])
 
-	rows, err := database.Query("select ip,mac,end_time,start_time from ip4log i where inet_aton(ip) between inet_aton(?) and inet_aton(?) and (end_time = 0 OR  end_time > NOW()) and end_time in (select MAX(end_time) from ip4log where mac = i.mac)  ORDER BY mac,end_time desc", dhcpHandler.start.String(), ipend.String())
+	rows, err := MySQLdatabase.Query("select ip,mac,end_time,start_time from ip4log i where inet_aton(ip) between inet_aton(?) and inet_aton(?) and (end_time = 0 OR  end_time > NOW()) and end_time in (select MAX(end_time) from ip4log where mac = i.mac)  ORDER BY mac,end_time desc", dhcpHandler.start.String(), ipend.String())
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -141,7 +141,7 @@ func (d *Interfaces) detectVIP(interfaces pfconfigdriver.ListenInts) {
 
 func NodeInformation(target net.HardwareAddr) (r NodeInfo) {
 
-	rows, err := database.Query("SELECT mac, status, IF(ISNULL(nc.name), '', nc.name) as category FROM node LEFT JOIN node_category as nc on node.category_id = nc.category_id WHERE mac = ?", target.String())
+	rows, err := MySQLdatabase.Query("SELECT mac, status, IF(ISNULL(nc.name), '', nc.name) as category FROM node LEFT JOIN node_category as nc on node.category_id = nc.category_id WHERE mac = ?", target.String())
 	defer rows.Close()
 
 	if err != nil {
