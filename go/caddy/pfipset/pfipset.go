@@ -117,7 +117,7 @@ func (h PfipsetHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, 
 
 	routeMatch := mux.RouteMatch{}
 	if h.router.Match(r, &routeMatch) {
-		routeMatch.Handler.ServeHTTP(w, r)
+		h.router.ServeHTTP(w, r)
 
 		// TODO change me and wrap actions into something that handles server errors
 		return 0, nil

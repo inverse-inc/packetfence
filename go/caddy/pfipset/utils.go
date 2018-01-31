@@ -142,6 +142,7 @@ func updateClusterPassthroughIsol(ctx context.Context, Ip string, Port string) {
 
 func (IPSET *pfIPSET) mac2ip(ctx context.Context, Mac string, Set ipset.IPSet) []string {
 	r := "((?:[0-9]{1,3}.){3}(?:[0-9]{1,3}))," + Mac
+
 	rgx := regexp.MustCompile(r)
 
 	var Ips []string
