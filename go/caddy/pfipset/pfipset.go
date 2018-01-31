@@ -96,14 +96,15 @@ func buildPfipsetHandler(ctx context.Context) (PfipsetHandler, error) {
 	}()
 
 	pfipset.router = mux.NewRouter()
-	pfipset.router.HandleFunc("/ipsetmarklayer3/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{type:[a-zA-Z]+}/{catid:[0-9]+}/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{local:[0-1]}", handleLayer3).Methods("POST")
-	pfipset.router.HandleFunc("/ipsetmarklayer2/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{type:[a-zA-Z]+}/{catid:[0-9]+}/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}/{local:[0-1]}", handleLayer2).Methods("POST")
-	pfipset.router.HandleFunc("/ipsetunmarkmac/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}/{local:[0-1]}", pfipset.IPSET.handleUnmarkMac).Methods("POST")
-	pfipset.router.HandleFunc("/ipsetunmarkip/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{local:[0-1]}", pfipset.IPSET.handleUnmarkIp).Methods("POST")
-	pfipset.router.HandleFunc("/ipsetmarkiplayer2/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{catid:[0-9]+}/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{local:[0-1]}", handleMarkIpL2).Methods("POST")
-	pfipset.router.HandleFunc("/ipsetmarkiplayer3/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{catid:[0-9]+}/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{local:[0-1]}", handleMarkIpL3).Methods("POST")
-	pfipset.router.HandleFunc("/ipsetpassthrough/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{port:(?:udp|tcp):[0-9]+}/{local:[0-1]}", handlePassthrough).Methods("POST")
-	pfipset.router.HandleFunc("/ipsetpassthroughisolation/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{port:(?:udp|tcp):[0-9]+}/{local:[0-1]}", handleIsolationPassthrough).Methods("POST")
+	api := pfipset.router.PathPrefix("/api/v1").Subrouter()
+	api.HandleFunc("/ipsetmarklayer3/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{type:[a-zA-Z]+}/{catid:[0-9]+}/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{local:[0-1]}", handleLayer3).Methods("POST")
+	api.HandleFunc("/ipsetmarklayer2/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{type:[a-zA-Z]+}/{catid:[0-9]+}/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}/{local:[0-1]}", handleLayer2).Methods("POST")
+	api.HandleFunc("/ipsetunmarkmac/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}/{local:[0-1]}", pfipset.IPSET.handleUnmarkMac).Methods("POST")
+	api.HandleFunc("/ipsetunmarkip/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{local:[0-1]}", pfipset.IPSET.handleUnmarkIp).Methods("POST")
+	api.HandleFunc("/ipsetmarkiplayer2/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{catid:[0-9]+}/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{local:[0-1]}", handleMarkIpL2).Methods("POST")
+	api.HandleFunc("/ipsetmarkiplayer3/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{catid:[0-9]+}/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{local:[0-1]}", handleMarkIpL3).Methods("POST")
+	api.HandleFunc("/ipsetpassthrough/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{port:(?:udp|tcp):[0-9]+}/{local:[0-1]}", handlePassthrough).Methods("POST")
+	api.HandleFunc("/ipsetpassthroughisolation/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{port:(?:udp|tcp):[0-9]+}/{local:[0-1]}", handleIsolationPassthrough).Methods("POST")
 
 	return pfipset, nil
 }
