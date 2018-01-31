@@ -25,7 +25,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 43;
+use Test::More tests => 40;
 use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
@@ -40,7 +40,6 @@ $t->get_ok('/api/v1/violations' => json => { })
 
 #insert bad data (expect 400)
 $t->post_ok('/api/v1/violations' => json => { })
-  ->json_has('/status')
   ->status_is(400);
 
 #setup data
@@ -62,7 +61,6 @@ $t->post_ok('/api/v1/violations' => json =>
         notes        => 'test notes',
         ticket_ref   => 'test ticket_ref'
   })
-  ->json_is('/status',201)
   ->json_has('/message')
   ->json_has('/data/id')
   ->json_like('/data/id' => qr/^\d+$/, 'is integer for JSON pointer "/id"')
@@ -81,12 +79,12 @@ $t->post_ok('/api/v1/violations' => json =>
         mac => $mac,
         vid => $vid
   })
-  ->json_has('/status')
   ->status_is(409);
 
 #run unittest, get list
 $t->get_ok('/api/v1/violations' => json => { })
   ->json_is('/items/0/mac',$mac)
+  ->json_is('/items/0/vid',$vid)
   ->status_is(200);
 
 #run unittest, list by $mac

@@ -35,16 +35,16 @@ sub create {
         ticket_ref   => $data->{ticket_ref}
     ));
     $data->{id} = $response;
-    return $self->render(status => 201, json => { status => 201, data => $data, message => "violation created" }) if $data->{id};
-    return $self->render(status => 400, json => { status => 400, message => $self->status_to_error_msg(400) });
+    return $self->render(status => 201, json => { data => $data, message => "violation created" }) if $data->{id};
+    return $self->render(status => 400, json => { message => $self->status_to_error_msg(400) });
 }
 
-sub read_list {
-    my ($self) = @_;
-    my @violations = pf::violation::violation_view_open_uniq();
-    return $self->render(json => { items => \@violations } ) if scalar @violations > 0 and defined($violations[0]);
-    return $self->render(json => { items => [] });
-}
+#sub read_list {
+#    my ($self) = @_;
+#    my @violations = pf::violation::violation_view_open_uniq();
+#    return $self->render(json => { items => \@violations } ) if scalar @violations > 0 and defined($violations[0]);
+#    return $self->render(json => { items => [] });
+#}
 
 sub read_list_by_search {
     my ($self) = @_;
@@ -59,7 +59,7 @@ sub read_row_by_id {
     my $id = $self->param('id');
     my @violation = pf::violation::violation_view($id);
     return $self->render(json => $violation[0] ) if scalar @violation > 0 and defined($violation[0]);
-    return $self->render(status => 404, json => { status => 404, message => $self->status_to_error_msg(404) });
+    return $self->render(status => 404, json => { message => $self->status_to_error_msg(404) });
 }
 
 =head1 AUTHOR
