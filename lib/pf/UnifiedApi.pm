@@ -37,70 +37,89 @@ Setting up routes
 =cut
 
 our @API_V1_ROUTES = (
-    { controller => 'users',     id_key => "user_id",   path => "/users" },
-    { controller => 'tenants',   id_key => "tenant_id", path => "/tenants" },
-    { controller => 'api_users', id_key => "user_id",   path => "/api_users" },
-    { controller => 'locationlog', id_key => "locationlog_id", path => "/locationlog" },
     {
-        controller     => 'users_nodes',
-        path           => "/nodes",
-        collection_v2a => { get => 'list' },
-        resource_v2a   => {},
-        parent         => 'Users.resource'
-    },
-    {
-        controller     => 'users_password',
-        path           => "/password",
-        parent         => 'Users.resource',
-        resource_v2a   => {},
-        collection_v2a => {
-            'get'    => 'get',
-            'delete' => 'remove',
-            'patch'  => 'update',
-            'put'    => 'replace',
-            'post'   => 'create'
+        controller => 'Users',
+        resource   => {
+            children => [
+                {
+                    controller => 'UsersNodes',
+                    resource   => {
+                        path => '/node/:node_id',
+                    },
+                    collection => {
+                        path => '/nodes',
+                    }
+                },
+                {
+                    controller => 'UsersPasswords',
+                    resource   => undef,
+                    collection => {
+                        path         => '/password',
+                        http_methods => {
+                            'get'    => 'get',
+                            'delete' => 'remove',
+                            'patch'  => 'update',
+                            'put'    => 'replace',
+                            'post'   => 'create'
+                        }
+                    },
+                }
+            ]
         },
     },
+    { controller => 'Nodes' },
+    { controller => 'Tenants' },
+    { controller => 'ApiUsers' },
+    { controller => 'Locationlogs' },
+    { controller => 'Config::ConnectionProfiles' },
     {
-        controller => 'config-connection_profiles',
-        id_key     => 'connection_profile_id',
-        path       => '/config/connection_profiles'
+        controller => 'Violations',
     },
-    { controller => 'violations', resource_v2a => {}, collection_v2a => { get => 'list' }, path => '/violations' },
-    { controller => 'violations', resource_v2a => {}, collection_v2a => { get => 'list_by_search' }, path => '/violations/:search' },
-    { controller => 'reports', collection_v2a => { get => 'os' }, resource_v2a => {},  id_key => 'report_id', path => '/reports/os' },
-    { controller => 'reports', collection_v2a => { get => 'os_active' }, resource_v2a => {},  id_key => 'report_id', path => '/reports/os_active' },
-    { controller => 'reports', collection_v2a => { get => 'os_all' }, resource_v2a => {},  id_key => 'report_id', path => '/reports/os_all' },
-    { controller => 'reports', collection_v2a => { get => 'osclass_all' }, resource_v2a => {},  id_key => 'report_id', path => '/reports/osclass_all' },
-    { controller => 'reports', collection_v2a => { get => 'osclass_active' }, resource_v2a => {},  id_key => 'report_id', path => '/reports/osclass_active' },
-    { controller => 'reports', collection_v2a => { get => 'inactive_all' }, resource_v2a => {},  id_key => 'report_id', path => '/reports/inactive_all' },
-    { controller => 'reports', collection_v2a => { get => 'active_all' }, resource_v2a => {},  id_key => 'report_id', path => '/reports/active_all' },
-    { controller => 'reports', collection_v2a => { get => 'unregistered_all' }, resource_v2a => {},  id_key => 'report_id', path => '/reports/unregistered_all' },
-    { controller => 'reports', collection_v2a => { get => 'unregistered_active' }, resource_v2a => {},  id_key => 'report_id', path => '/reports/unregistered_active' },
-    { controller => 'reports', collection_v2a => { get => 'registered_all' }, resource_v2a => {},  id_key => 'report_id', path => '/reports/registered_all' },
-    { controller => 'reports', collection_v2a => { get => 'registered_active' }, resource_v2a => {},  id_key => 'report_id', path => '/reports/registered_active' },
-    { controller => 'reports', collection_v2a => { get => 'unknownprints_all' }, resource_v2a => {},  id_key => 'report_id', path => '/reports/unknownprints_all' },
-    { controller => 'reports', collection_v2a => { get => 'unknownprints_active' }, resource_v2a => {},  id_key => 'report_id', path => '/reports/unknownprints_active' },
-    { controller => 'reports', collection_v2a => { get => 'statics_all' }, resource_v2a => {},  id_key => 'report_id', path => '/reports/statics_all' },
-    { controller => 'reports', collection_v2a => { get => 'statics_active' }, resource_v2a => {},  id_key => 'report_id', path => '/reports/statics_active' },
-    { controller => 'reports', collection_v2a => { get => 'openviolations_all' }, resource_v2a => {},  id_key => 'report_id', path => '/reports/openviolations_all' },
-    { controller => 'reports', collection_v2a => { get => 'openviolations_active' }, resource_v2a => {},  id_key => 'report_id', path => '/reports/openviolations_active' },
-    { controller => 'reports', collection_v2a => { get => 'connectiontype' }, resource_v2a => {},  id_key => 'report_id', path => '/reports/connectiontype' },
-    { controller => 'reports', collection_v2a => { get => 'connectiontype_all' }, resource_v2a => {},  id_key => 'report_id', path => '/reports/connectiontype_all' },
-    { controller => 'reports', collection_v2a => { get => 'connectiontype_active' }, resource_v2a => {},  id_key => 'report_id', path => '/reports/connectiontype_active' },
-    { controller => 'reports', collection_v2a => { get => 'connectiontypereg_all' }, resource_v2a => {},  id_key => 'report_id', path => '/reports/connectiontypereg_all' },
-    { controller => 'reports', collection_v2a => { get => 'connectiontypereg_active' }, resource_v2a => {},  id_key => 'report_id', path => '/reports/connectiontypereg_active' },
-    { controller => 'reports', collection_v2a => { get => 'ssid' }, resource_v2a => {},  id_key => 'report_id', path => '/reports/ssid' },
-    { controller => 'reports', collection_v2a => { get => 'ssid_all' }, resource_v2a => {},  id_key => 'report_id', path => '/reports/ssid_all' },
-    { controller => 'reports', collection_v2a => { get => 'ssid_active' }, resource_v2a => {},  id_key => 'report_id', path => '/reports/ssid_active' },
-    { controller => 'reports', collection_v2a => { get => 'osclassbandwidth' }, resource_v2a => {},  id_key => 'report_id', path => '/reports/osclassbandwidth' },
-    { controller => 'reports', collection_v2a => { get => 'osclassbandwidth_all' }, resource_v2a => {},  id_key => 'report_id', path => '/reports/osclassbandwidth_all' },
-    { controller => 'reports', collection_v2a => { get => 'nodebandwidth' }, resource_v2a => {},  id_key => 'report_id', path => '/reports/nodebandwidth' },
-    { controller => 'reports', collection_v2a => { get => 'nodebandwidth_all' }, resource_v2a => {},  id_key => 'report_id', path => '/reports/nodebandwidth_all' },
-    { controller => 'reports', collection_v2a => { get => 'topsponsor_all' }, resource_v2a => {},  id_key => 'report_id', path => '/reports/topsponsor_all' },
-
-    { controller => 'nodes', collection_v2a => { get => 'latest_locationlog_by_mac' }, resource_v2a => {}, path => '/nodes/:mac/latest_locationlog' },
-    { controller => 'nodes', collection_v2a => { get => 'locationlog_by_mac' }, resource_v2a => {}, path => '/nodes/:mac/locationlog' },
+    {
+        controller => 'Nodes',
+    },
+    {
+        controller  => 'Reports',
+        resource    => undef,
+        collection => {
+            http_methods => undef,
+            subroutes => {
+                map { $_ => { get => $_ } }
+                  qw (
+                  os
+                  os_active
+                  os_all
+                  osclass_all
+                  osclass_active
+                  inactive_all
+                  active_all
+                  unregistered_all
+                  unregistered_active
+                  registered_all
+                  registered_active
+                  unknownprints_all
+                  unknownprints_active
+                  statics_all
+                  statics_active
+                  openviolations_all
+                  openviolations_active
+                  connectiontype
+                  connectiontype_all
+                  connectiontype_active
+                  connectiontypereg_all
+                  connectiontypereg_active
+                  ssid
+                  ssid_all
+                  ssid_active
+                  osclassbandwidth
+                  osclassbandwidth_all
+                  nodebandwidth
+                  nodebandwidth_all
+                  topsponsor_all
+                  )
+            },
+        },
+    },
 );
 
 sub startup {
