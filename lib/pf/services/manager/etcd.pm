@@ -29,9 +29,10 @@ use pf::file_paths qw(
     $conf_dir
     $var_dir
 );
+
 use pf::log;
 
-use pf::util;
+use Template;
 
 extends 'pf::services::manager';
 
@@ -66,7 +67,8 @@ sub generateConfig {
         }
         $i++;
     }
-    parse_template( \%tags, "$conf_dir/etcd.conf.yml", "$generated_conf_dir/etcd.conf.yml" );
+    my $tt = Template->new(ABSOLUTE => 1);
+    $tt->process("$conf_dir/etcd.conf.yml", \%tags, "$generated_conf_dir/etcd.conf.yml") or die $tt->error();
 
 }
 

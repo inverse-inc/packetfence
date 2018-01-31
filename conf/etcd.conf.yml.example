@@ -1,10 +1,10 @@
 # This is the configuration file for the etcd server.
 
 # Human-readable name for this member.
-name: %%etcd_name%%
+name: [% etcd_name %]
 
 # Path to the data directory.
-data-dir: %%data_dir%%
+data-dir: [% data_dir %]
 
 # Path to the dedicated wal directory.
 wal-dir:
@@ -23,10 +23,10 @@ election-timeout: 1000
 quota-backend-bytes: 0
 
 # List of comma separated URLs to listen on for peer traffic.
-listen-peer-urls: %%listen_peer_urls%%
+listen-peer-urls: [% listen_peer_urls %]
 
 # List of comma separated URLs to listen on for client traffic.
-listen-client-urls: %%listen_client_urls%%
+listen-client-urls: [% listen_client_urls %]
 
 # Maximum number of snapshot files to retain (0 is unlimited).
 max-snapshots: 5
@@ -39,11 +39,11 @@ cors:
 
 # List of this member's peer URLs to advertise to the rest of the cluster.
 # The URLs needed to be a comma-separated list.
-initial-advertise-peer-urls: %%initial_advertise_peer_urls%%
+initial-advertise-peer-urls: [% initial_advertise_peer_urls %]
 
 # List of this member's client URLs to advertise to the public.
 # The URLs needed to be a comma-separated list.
-advertise-client-urls: %%advertise_client_urls%%
+advertise-client-urls: [% advertise_client_urls %]
 
 # Discovery URL used to bootstrap the cluster.
 discovery: 
@@ -58,10 +58,10 @@ discovery-proxy:
 discovery-srv: 
 
 # Initial cluster configuration for bootstrapping.
-initial-cluster: %%initial_cluster%%
+initial-cluster: [% initial_cluster %]
 
 # Initial cluster token for the etcd cluster during bootstrap.
-initial-cluster-token: %%initial_cluster_token%%
+initial-cluster-token: [% initial_cluster_token %]
 
 # Initial cluster state ('new' or 'existing').
 initial-cluster-state: 'new'

@@ -70,7 +70,7 @@ EOT
     proxy $cidr . $ConfigNetworks{$network}{'dns'}
 EOT
     }
-    $tt->process("$conf_dir/pfdns.conf", \%tags, "$generated_conf_dir/pfcnd.conf") or die $tt->error();
+    $tt->process("$conf_dir/pfdns.conf", \%tags, "$generated_conf_dir/pfdns.conf") or die $tt->error();
 }
 
 =head1 AUTHOR
