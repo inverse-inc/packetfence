@@ -27,7 +27,7 @@ use pf::UnifiedApi::Plugin::RestCrud;
 use Mojolicious;
 use Lingua::EN::Inflexion qw(noun);
 
-use Test::More tests => 69;
+use Test::More tests => 71;
 
 #This test will running last
 use Test::NoWarnings;
@@ -315,6 +315,54 @@ is_deeply (
     },
     "Do not expand resource if it is undef",
 );
+
+is_deeply (
+    pf::UnifiedApi::Plugin::RestCrud::munge_options(
+        $routes,
+        {
+            controller => 'Collections',
+            resource => undef,
+            collection => {
+                http_methods => undef,
+                subroutes => {
+                    r1 => {
+                        get => 'm1'
+                    },
+                },
+            },
+        }
+    ),
+    {
+        controller => 'Collections',
+        name_prefix => 'Collections',
+        resource => undef,
+        collection => {
+            subroutes => {
+                r1 => {
+                    GET => 'm1'
+                }
+            },
+            http_methods => undef,
+            path => '/collections',
+        },
+    },
+    "Do not expand collections httpd_methods if it is undef",
+);
+
+eval {
+    pf::UnifiedApi::Plugin::RestCrud::munge_options(
+        $routes,
+        {
+            controller => 'EnforceHttpMethods',
+            collection => undef,
+            resource => {
+                http_methods => undef,
+            }
+        }
+    );
+};
+
+ok($@, "http methods enforced for resources");
 
 is_deeply(
     pf::UnifiedApi::Plugin::RestCrud::munge_options(

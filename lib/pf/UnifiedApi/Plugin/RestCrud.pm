@@ -124,7 +124,7 @@ sub register_collection_routes {
 
 sub register_http_methods {
     my ($r, $controller, $name_prefix, $http_methods) = @_;
-    while (my ($v,$a) = each %$http_methods) {
+    while (my ($v,$a) = each %{$http_methods // {} }) {
         $r->any([$v])->to("$controller#$a")->name("$name_prefix.$a");
     }
 }
@@ -198,6 +198,9 @@ sub munge_resource_options {
     if (!defined $resource) {
         return undef;
     }
+    if (!defined $resource->{http_methods}) {
+        die "$options->{controller}.resources.http_methods is undefined";
+    }
     my $singular = $options->{noun}->singular();
     my $url_param_key = "${singular}_id";
     $resource->{url_param_key} //= $url_param_key;
@@ -217,6 +220,9 @@ sub clean_subroutes {
 
 sub cleanup_http_methods {
     my ($methods) = @_;
+    if (!defined $methods) {
+        return undef;
+    }
     my %temp;
     while (my ($k, $v) = each %$methods) {
         $k = uc($k);
@@ -247,7 +253,7 @@ sub munge_standard_options {
     $suboptions = clone($suboptions);
     add_defaults($suboptions, $defaults);
     my $http_methods = $suboptions->{http_methods};
-    if (!defined $http_methods || keys %$http_methods == 0 ) {
+    if (defined $http_methods && keys %$http_methods == 0 ) {
         die "$name.http_methods is empty for $options->{controller}";
     }
     $suboptions->{subroutes} = clean_subroutes($suboptions->{subroutes});
