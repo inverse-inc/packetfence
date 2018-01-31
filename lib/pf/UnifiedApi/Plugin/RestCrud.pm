@@ -17,6 +17,32 @@ use Lingua::EN::Inflexion qw(noun);
 use Mojo::Util qw(decamelize camelize);
 use Clone qw(clone);
 
+our %DEFAULT_RESOURCE_OPTIONS = (
+    subroutes     => {},
+    http_methods => {
+        GET    => 'get',
+        PATCH  => 'update',
+        PUT    => 'replace',
+        DELETE => 'remove',
+    },
+);
+
+our %DEFAULT_COLLECTION_OPTIONS = (
+    subroutes     => {},
+    http_methods => {
+        GET    => 'list',
+        POST   => 'create',
+    },
+);
+
+our %ALLOWED_METHODS = (
+    POST   => 1,
+    GET    => 1,
+    PATCH  => 1,
+    PUT    => 1,
+    DELETE => 1,
+);
+
 sub register {
     my ($self, $app, $config) = @_;
     my $routes = $app->routes;
@@ -52,67 +78,6 @@ sub register_child_routes {
     }
     my $r = $route->find($name_prefix);
     return $r->rest_routes( $options);
-}
-
-our %ALLOWED_VERBS = (
-    GET => 1,
-    POST => 1,
-    DELETE => 1,
-    PUT => 1,
-    PATCH => 1,
-    OPTIONS => 1,
-);
-
-our %DEFAULT_RESOURCE_OPTIONS = (
-    subroutes     => {},
-    http_methods => {
-        GET    => 'get',
-        PATCH  => 'update',
-        PUT    => 'replace',
-        DELETE => 'remove',
-    },
-);
-
-our %DEFAULT_COLLECTION_OPTIONS = (
-    subroutes     => {},
-    http_methods => {
-        GET    => 'list',
-        POST   => 'create',
-    },
-);
-
-
-our %ALLOWED_METHODS = (
-    POST   => 1,
-    GET    => 1,
-    PATCH  => 1,
-    PUT    => 1,
-    DELETE => 1,
-);
-
-
-our %DEFAULT_COLLECTION_VERBS_TO_ACTIONS = (
-    GET => 'list',
-    POST => 'create',
-);
-
-our %DEFAULT_RESOURCE_VERBS_TO_ACTIONS = (
-    GET    => 'get',
-    DELETE => 'remove',
-    PATCH  => 'update',
-    PUT    => 'replace'
-);
-
-sub verb_to_actions {
-    my ($temp) = @_;
-    my %filtered;
-    my %v2a;
-    while (my ($v, $a) = each %$temp) {
-        $v = uc($v);
-        next unless exists $ALLOWED_VERBS{$v};
-        $v2a{$v} = $a;
-    }
-    return \%v2a;
 }
 
 sub register_collection_routes {
