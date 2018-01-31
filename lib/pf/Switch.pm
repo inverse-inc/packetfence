@@ -3629,6 +3629,12 @@ sub isMacInAddressTableAtIfIndex {
     return 0;
 }
 
+=item setCurrentTenant
+
+Set the current tenant in the DAL based on the tenant ID configured in the switch
+
+=cut
+
 sub setCurrentTenant {
     my ($self) = @_;
     pf::dal->set_tenant($self->{_TenantId});
