@@ -195,6 +195,47 @@ components:
         message:
           type: string
       type: object
+    Ip4logWithTenantIdList:
+      allOf:
+      - $ref: '#/components/schemas/Iterable'
+      - properties:
+          items:
+            items:
+              $ref: '#/components/schemas/Ip4logWithTenantId'
+            type: array
+        type: object
+    Ip4logWithTenantId:
+      allOf:
+      - $ref: '#/components/schemas/Ip4log'
+      - properties:
+          tenant_id:
+            description: The unique numeric identifier of the node tenant.
+            type: string
+        type: object
+    Ip4logList:
+      allOf:
+      - $ref: '#/components/schemas/Iterable'
+      - properties:
+          items:
+            items:
+              $ref: '#/components/schemas/Ip4log'
+            type: array
+        type: object
+    Ip4log:
+      properties:
+        ip:
+          description: The ipv4 address of the node.
+          type: string
+        mac:
+          description: The MAC address of the node.
+          type: string
+        start_time:
+          description: The date/time the node was first seen.
+          type: string
+        end_time:
+          description: The date/time the node was last seen.
+          type: string
+      type: object    
     Iterable:
       properties:
         nextCursor:
@@ -679,6 +720,87 @@ paths:
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
       summary: Allows to update a whole connection profile
+  /ip4logs:
+    get:
+      description: The list of ip4logs will be limited to 100 and a cursor will be returned
+        for iterating on other ip4logs. Iteration is only needed if the nextCursor is
+        not an empty value.
+      parameters:
+      - $ref: '#/components/parameters/cursor'
+      - *1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ip4logWithTenantIdList'
+          description: List of ip4logs
+      summary: Returns a list of ip4logs
+  /ip4log/{mac}:
+    get:
+      parameters:
+      - description: The MAC address to fetch
+        in: path
+        name: mac
+        required: true
+        schema:
+          type: string
+      - *1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  item:
+                    $ref: '#/components/schemas/Ip4log'
+                type: object
+          description: A specific MAC address
+      summary: Returns a specific ip4log by its MAC address
+  /ip4logs/{mac}/history:
+    get:
+      description: The list of ip4logs will be limited to 100 and a cursor will be returned
+        for iterating on other ip4logs. Iteration is only needed if the nextCursor is
+        not an empty value.
+      parameters:
+      - $ref: '#/components/parameters/cursor'
+      - description: The MAC address to fetch
+        in: path
+        name: mac
+        required: true
+        schema:
+          type: string
+      - *1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ip4logList'
+          description: List of ip4logs
+      summary: Returns a list of ip4logs
+  /ip4logs/{mac}/archive:
+    get:
+      description: The list of ip4logs will be limited to 100 and a cursor will be returned
+        for iterating on other ip4logs. Iteration is only needed if the nextCursor is
+        not an empty value.
+      parameters:
+      - $ref: '#/components/parameters/cursor'
+      - description: The MAC address to fetch
+        in: path
+        name: mac
+        required: true
+        schema:
+          type: string
+      - *1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ip4logList'
+          description: List of ip4logs
+      summary: Returns a list of ip4logs
   /locationlog:
     get:
       description: The list of locationlog will be limited to 100 and a cursor will be returned

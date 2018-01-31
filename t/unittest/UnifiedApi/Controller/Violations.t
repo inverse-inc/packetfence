@@ -17,7 +17,6 @@ use warnings;
 use DateTime;
 use lib '/usr/local/pf/lib';
 use pf::dal::violation;
-use pf::violation;
 
 BEGIN {
     #include test libs
@@ -26,45 +25,69 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 24;
+use Test::More tests => 40;
 use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
 
-#truncate the violation table
+#pre-cleanup
 pf::dal::violation->remove_items();
 
-#run unittest
+#run unittest on empty dB
 $t->get_ok('/api/v1/violations' => json => { })
   ->json_is('/',undef)
   ->status_is(200);
 
-#setup
+#insert bad data (expect 400)
+$t->post_ok('/api/v1/violations' => json => { })
+  ->status_is(400);
+
+#setup data
 my $mac = '00:01:02:03:04:05';
 my $tenant_id = 1;
 my $vid = 1300000; #'Generic' Violation
-
-#clear node, violation will auto-insert
-#my $node_status = pf::node::node_delete($mac, $tenant_id);
-
-#insert known data (violation)
 my $dt_format = DateTime::Format::Strptime->new(pattern => '%Y-%m-%d %H:%M:%S');
 my $dt_start = DateTime->now(time_zone=>'local');
 my $dt_release = DateTime->now(time_zone=>'local')->add(seconds => 7200);
-my $violation_status = pf::violation::violation_add($mac, $vid, (
-    start_date   => $dt_format->format_datetime($dt_start),
-    release_date => $dt_format->format_datetime($dt_release),
-    status       => 'open',
-    notes        => 'test notes',
-    ticket_ref   => 'test ticket_ref',
-));
 
-#run unittest
+#insert good data (expect 201)
+$t->post_ok('/api/v1/violations' => json => 
+  {
+        mac          => $mac,
+        vid          => $vid,
+        start_date   => $dt_format->format_datetime($dt_start),
+        release_date => $dt_format->format_datetime($dt_release),
+        status       => 'open',
+        notes        => 'test notes',
+        ticket_ref   => 'test ticket_ref'
+  })
+  ->json_has('/message')
+  ->json_has('/data/id')
+  ->json_like('/data/id' => qr/^\d+$/, 'is integer for JSON pointer "/id"')
+  ->json_is('/data/mac',$mac)
+  ->json_is('/data/vid',$vid)
+  ->json_is('/data/start_date',$dt_format->format_datetime($dt_start))
+  ->json_is('/data/release_date',$dt_format->format_datetime($dt_release))
+  ->json_is('/data/status','open')
+  ->json_is('/data/notes','test notes')
+  ->json_is('/data/ticket_ref','test ticket_ref')
+  ->status_is(201);
+
+#insert good data, again (expect 409)
+$t->post_ok('/api/v1/violations' => json => 
+  {
+        mac => $mac,
+        vid => $vid
+  })
+  ->status_is(409);
+
+#run unittest, get list
 $t->get_ok('/api/v1/violations' => json => { })
   ->json_is('/items/0/mac',$mac)
+  ->json_is('/items/0/vid',$vid)
   ->status_is(200);
 
-#run unittest, use $mac
+#run unittest, list by $mac
 $t->get_ok('/api/v1/violations/'.$mac => json => { })
   ->json_is('/items/0/vid',$vid)
   ->json_is('/items/0/release_date',$dt_format->format_datetime($dt_release))
@@ -74,8 +97,8 @@ $t->get_ok('/api/v1/violations/'.$mac => json => { })
   ->status_is(200);
 my $id = $t->tx->res->json->{items}[0]->{id};
 
-#run unittest, use $id
-$t->get_ok('/api/v1/violations/'.$id => json => { })
+#run unittest, get by $id
+$t->get_ok('/api/v1/violation/'.$id => json => { })
   ->json_is('/vid',$vid)
   ->json_is('/status','open')
   ->json_is('/release_date',$dt_format->format_datetime($dt_release))
@@ -86,7 +109,10 @@ $t->get_ok('/api/v1/violations/'.$id => json => { })
   ->json_is('/mac',$mac)
   ->status_is(200);
 
-  
+#post-cleanup
+pf::dal::violation->remove_items();
+pf::node::node_delete($mac, $tenant_id);
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
