@@ -13,8 +13,6 @@ import (
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
-const hexDigit = "0123456789abcdef"
-
 type NodeInfo struct {
 	Mac      string
 	Status   string
@@ -37,7 +35,6 @@ func initiaLease(dhcpHandler *DHCPHandler) {
 
 	rows, err := database.Query("select ip,mac,end_time,start_time from ip4log i where inet_aton(ip) between inet_aton(?) and inet_aton(?) and (end_time = 0 OR  end_time > NOW()) and end_time in (select MAX(end_time) from ip4log where mac = i.mac)  ORDER BY mac,end_time desc", dhcpHandler.start.String(), ipend.String())
 	if err != nil {
-		// Log here
 		fmt.Println(err)
 		return
 	}
@@ -52,7 +49,6 @@ func initiaLease(dhcpHandler *DHCPHandler) {
 	for rows.Next() {
 		err := rows.Scan(&ipstr, &mac, &end_time, &start_time)
 		if err != nil {
-			// Log here
 			fmt.Println(err)
 			return
 		}
@@ -176,10 +172,6 @@ func ShuffleDNS(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
 	if ConfNet.ClusterIPs != "" {
 		return Shuffle(ConfNet.ClusterIPs)
 	}
-	// if ConfNet.SplitNetwork == "enabled" {
-	// 	return Shuffle(ConfNet.Dns)
-	// 	// return []byte(net.ParseIP(ConfNet.Dns).To4())
-	// }
 	if ConfNet.Dnsvip != "" {
 		return []byte(net.ParseIP(ConfNet.Dnsvip).To4())
 	} else {
@@ -241,21 +233,6 @@ func ShuffleIP(a []byte) (r []byte) {
 		_, a = a[0], a[4:]
 	}
 	return ShuffleNetIP(array)
-}
-
-func ByteToString(a []byte) string {
-	if len(a) == 0 {
-		return ""
-	}
-	buf := make([]byte, 0, len(a)*3-1)
-	for i, b := range a {
-		if i > 0 {
-			buf = append(buf, ':')
-		}
-		buf = append(buf, hexDigit[b>>4])
-		buf = append(buf, hexDigit[b&0xF])
-	}
-	return string(buf)
 }
 
 // readWebservicesConfig read pfconfig webservices configuration

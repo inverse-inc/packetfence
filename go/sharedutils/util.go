@@ -178,3 +178,20 @@ func ConvertToByte(b string) []byte {
 	}
 	return result
 }
+
+// ByteToString return a human readeable string of the byte
+func ByteToString(a []byte) string {
+	const hexDigit = "0123456789abcdef"
+	if len(a) == 0 {
+		return ""
+	}
+	buf := make([]byte, 0, len(a)*3-1)
+	for i, b := range a {
+		if i > 0 {
+			buf = append(buf, ':')
+		}
+		buf = append(buf, hexDigit[b>>4])
+		buf = append(buf, hexDigit[b&0xF])
+	}
+	return string(buf)
+}
