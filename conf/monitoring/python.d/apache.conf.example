@@ -74,14 +74,14 @@
 # AUTO-DETECTION JOBS
 # only one of them will run (they have the same name)
 
-localhost:
-  name : 'local'
-  url  : 'http://localhost/server-status?auto'
+httpd_aaa:
+  name : 'httpd.aaa'
+  url  : 'http://localhost:7070/apache_status/?auto'
 
-localipv4:
-  name : 'local'
-  url  : 'http://127.0.0.1/server-status?auto'
+httpd_webservices:
+  name : 'httpd.webservices'
+  url  : 'http://localhost:9090/apache_status/?auto'
 
-localipv6:
-  name : 'local'
-  url  : 'http://::1/server-status?auto'
+httpd_portal:
+  name : 'httpd.portal'
+  url  : 'https://%%management_ip%%:%%httpd_portal_modstatus_port%%/modstatus/?auto'

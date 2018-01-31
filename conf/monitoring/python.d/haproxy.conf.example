@@ -82,4 +82,10 @@
 # url : 'http://127.0.0.1:7000/haproxy_stats;csv;norefresh'
 
 #via_socket:
-# socket: '/var/run/haproxy/admin.sock'
+
+haproxy:
+ name : haproxy
+ url : 'http://%%active_active_ip%%:1025/stats;csv;norefresh'
+ user : 'admin'
+ pass : 'packetfence'
+

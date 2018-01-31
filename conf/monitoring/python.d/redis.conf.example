@@ -77,36 +77,14 @@
 # AUTO-DETECTION JOBS
 # only one of them will run (they have the same name)
 
-socket1:
-  name     : 'local'
-  socket   : '/tmp/redis.sock'
-  # pass     : ''
+redis_cache:
+  name : 'redis cache'
+  host : '127.0.0.1'
+  port : 6379
 
-socket2:
-  name     : 'local'
-  socket   : '/var/run/redis/redis.sock'
-  # pass     : ''
+redis_queue:
+  name : 'redis queue'
+  host : '127.0.0.1'
+  port : 6380
 
-socket3:
-  name     : 'local'
-  socket   : '/var/lib/redis/redis.sock'
-  # pass     : ''
-
-localhost:
-  name     : 'local'
-  host     : 'localhost'
-  port     : 6379
-  # pass     : ''
-
-localipv4:
-  name     : 'local'
-  host     : '127.0.0.1'
-  port     : 6379
-  # pass     : ''
-
-localipv6:
-  name     : 'local'
-  host     : '::1'
-  port     : 6379
-  # pass     : ''
 

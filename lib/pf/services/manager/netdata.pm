@@ -40,8 +40,21 @@ sub generateConfig {
     $tags{'members'} = '';
     if ($cluster_enabled) {
         my $int = $management_network->tag('int');
-        $tags{'members'} = join(" ", values %{pf::cluster::members_ips($int)});
+        $tags{'members'} = join(" ", grep( {$_ ne $management_network->tag('ip')} values %{pf::cluster::members_ips($int)}));
     }
+
+    $tags{'httpd_portal_modstatus_port'} = "$Config{'ports'}{'httpd_portal_modstatus'}";
+    $tags{'management_ip'}
+        = defined( $management_network->tag('vip') )
+        ? $management_network->tag('vip')
+        : $management_network->tag('ip');
+    $tags{'db_host'}       = "$Config{'database'}{'host'}";
+    $tags{'db_username'}   = "$Config{'database'}{'user'}";
+    $tags{'db_password'}   = "$Config{'database'}{'pass'}";
+    $tags{'db_database'}   = "$Config{'database'}{'db'}"
+
+    $tags{'active_active_ip'} = pf::cluster::management_cluster_ip() || $management_network->tag('vip') || $management_network->tag('ip');
+
     parse_template( \%tags, "$conf_dir/monitoring/netdata.conf", "$generated_conf_dir/monitoring/netdata.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/apps_groups.conf", "$generated_conf_dir/monitoring/apps_groups.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/charts.d.conf", "$generated_conf_dir/monitoring/charts.d.conf" );
@@ -118,44 +131,16 @@ sub generateConfig {
     parse_template( \%tags, "$conf_dir/monitoring/node.d/stiebeleltron.conf.md", "$generated_conf_dir/monitoring/node.d/stiebeleltron.conf.md" );
     parse_template( \%tags, "$conf_dir/monitoring/python.d.conf", "$generated_conf_dir/monitoring/python.d.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/python.d/apache.conf", "$generated_conf_dir/monitoring/python.d/apache.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/beanstalk.conf", "$generated_conf_dir/monitoring/python.d/beanstalk.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/bind_rndc.conf", "$generated_conf_dir/monitoring/python.d/bind_rndc.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/chrony.conf", "$generated_conf_dir/monitoring/python.d/chrony.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/couchdb.conf", "$generated_conf_dir/monitoring/python.d/couchdb.conf" );
+      parse_template( \%tags, "$conf_dir/monitoring/python.d/chrony.conf", "$generated_conf_dir/monitoring/python.d/chrony.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/python.d/cpufreq.conf", "$generated_conf_dir/monitoring/python.d/cpufreq.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/python.d/dns_query_time.conf", "$generated_conf_dir/monitoring/python.d/dns_query_time.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/dnsdist.conf", "$generated_conf_dir/monitoring/python.d/dnsdist.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/dovecot.conf", "$generated_conf_dir/monitoring/python.d/dovecot.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/elasticsearch.conf", "$generated_conf_dir/monitoring/python.d/elasticsearch.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/python.d/example.conf", "$generated_conf_dir/monitoring/python.d/example.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/exim.conf", "$generated_conf_dir/monitoring/python.d/exim.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/fail2ban.conf", "$generated_conf_dir/monitoring/python.d/fail2ban.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/python.d/freeradius.conf", "$generated_conf_dir/monitoring/python.d/freeradius.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/python.d/go_expvar.conf", "$generated_conf_dir/monitoring/python.d/go_expvar.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/python.d/haproxy.conf", "$generated_conf_dir/monitoring/python.d/haproxy.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/hddtemp.conf", "$generated_conf_dir/monitoring/python.d/hddtemp.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/ipfs.conf", "$generated_conf_dir/monitoring/python.d/ipfs.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/isc_dhcpd.conf", "$generated_conf_dir/monitoring/python.d/isc_dhcpd.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/mdstat.conf", "$generated_conf_dir/monitoring/python.d/mdstat.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/memcached.conf", "$generated_conf_dir/monitoring/python.d/memcached.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/mongodb.conf", "$generated_conf_dir/monitoring/python.d/mongodb.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/python.d/mysql.conf", "$generated_conf_dir/monitoring/python.d/mysql.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/nginx.conf", "$generated_conf_dir/monitoring/python.d/nginx.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/nsd.conf", "$generated_conf_dir/monitoring/python.d/nsd.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/ovpn_status_log.conf", "$generated_conf_dir/monitoring/python.d/ovpn_status_log.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/phpfpm.conf", "$generated_conf_dir/monitoring/python.d/phpfpm.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/python.d/postfix.conf", "$generated_conf_dir/monitoring/python.d/postfix.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/postgres.conf", "$generated_conf_dir/monitoring/python.d/postgres.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/powerdns.conf", "$generated_conf_dir/monitoring/python.d/powerdns.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/rabbitmq.conf", "$generated_conf_dir/monitoring/python.d/rabbitmq.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/python.d/redis.conf", "$generated_conf_dir/monitoring/python.d/redis.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/retroshare.conf", "$generated_conf_dir/monitoring/python.d/retroshare.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/samba.conf", "$generated_conf_dir/monitoring/python.d/samba.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/sensors.conf", "$generated_conf_dir/monitoring/python.d/sensors.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/smartd_log.conf", "$generated_conf_dir/monitoring/python.d/smartd_log.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/squid.conf", "$generated_conf_dir/monitoring/python.d/squid.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/tomcat.conf", "$generated_conf_dir/monitoring/python.d/tomcat.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/python.d/varnish.conf", "$generated_conf_dir/monitoring/python.d/varnish.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/python.d/web_log.conf", "$generated_conf_dir/monitoring/python.d/web_log.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/statsd.d/example.conf", "$generated_conf_dir/monitoring/statsd.d/example.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/stream.conf", "$generated_conf_dir/monitoring/stream.conf" );
