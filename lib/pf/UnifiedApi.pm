@@ -140,6 +140,12 @@ sub custom_startup_hook {
 
 }
 
+=head2 set_tenant_id
+
+Set the tenant ID to the one specified in the header, or reset it to the default one if there is none
+
+=cut
+
 sub set_tenant_id {
     my ($c) = @_;
     my $tenant_id = $c->req->headers->header('X-PacketFence-Tenant-Id');
