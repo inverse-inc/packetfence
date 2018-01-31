@@ -157,3 +157,24 @@ func Dec(ip net.IP) {
 		}
 	}
 }
+
+// ConvertToSting convert byte to string
+func ConvertToString(b []byte) string {
+	s := make([]string, len(b))
+	for i := range b {
+		s[i] = strconv.Itoa(int(b[i]))
+	}
+	return strings.Join(s, ",")
+}
+
+// ConvertToByte convert string to byte
+func ConvertToByte(b string) []byte {
+	s := strings.Split(b, ",")
+	var result []byte
+	for i := range s {
+		value, _ := strconv.Atoi(s[i])
+		result = append(result, byte(value))
+
+	}
+	return result
+}

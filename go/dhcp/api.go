@@ -7,10 +7,9 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
-	"strconv"
-	"strings"
 
 	"github.com/gorilla/mux"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 	dhcp "github.com/krolaw/dhcp4"
 )
 
@@ -196,7 +195,7 @@ func handleOverrideOptions(res http.ResponseWriter, req *http.Request) {
 	}
 
 	// Insert information in etcd
-	_ = etcdInsert(vars["mac"], converttostring(body))
+	_ = etcdInsert(vars["mac"], sharedutils.ConvertToString(body))
 
 	var result = map[string][]*Info{
 		"result": {
@@ -224,7 +223,7 @@ func handleOverrideNetworkOptions(res http.ResponseWriter, req *http.Request) {
 	}
 
 	// Insert information in etcd
-	_ = etcdInsert(vars["network"], converttostring(body))
+	_ = etcdInsert(vars["network"], sharedutils.ConvertToString(body))
 
 	var result = map[string][]*Info{
 		"result": {
@@ -289,29 +288,10 @@ func handleRemoveNetworkOptions(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func converttostring(b []byte) string {
-	s := make([]string, len(b))
-	for i := range b {
-		s[i] = strconv.Itoa(int(b[i]))
-	}
-	return strings.Join(s, ",")
-}
-
-func converttobyte(b string) []byte {
-	s := strings.Split(b, ",")
-	var result []byte
-	for i := range s {
-		value, _ := strconv.Atoi(s[i])
-		result = append(result, byte(value))
-
-	}
-	return result
-}
-
 func decodeOptions(b string) (map[dhcp.OptionCode][]byte, bool) {
 	var options []Options
 	_, value := etcdGet(b)
-	decodedValue := converttobyte(value)
+	decodedValue := sharedutils.ConvertToByte(value)
 	var dhcpOptions = make(map[dhcp.OptionCode][]byte)
 	if err := json.Unmarshal(decodedValue, &options); err != nil {
 		return dhcpOptions, false
