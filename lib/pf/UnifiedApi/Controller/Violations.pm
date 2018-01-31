@@ -18,11 +18,11 @@ use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
 use pf::violation;
 
 has dal => 'pf::dal::violation';
-has id_key => 'id';
+has id_key => 'violation_id';
 has resource_id => 'id';
 
 
-sub list {
+sub open_uniq {
     my ($self) = @_;
     my @violations = pf::violation::violation_view_open_uniq();
     return $self->render(json => { items => \@violations } ) if scalar @violations > 0 and defined($violations[0]);

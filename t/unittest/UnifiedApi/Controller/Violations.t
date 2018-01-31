@@ -26,7 +26,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 24;
+use Test::More tests => 16;
 use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
@@ -64,27 +64,18 @@ $t->get_ok('/api/v1/violations' => json => { })
   ->json_is('/items/0/mac',$mac)
   ->status_is(200);
 
-#run unittest, use $mac
-$t->get_ok('/api/v1/violations/'.$mac => json => { })
-  ->json_is('/items/0/vid',$vid)
-  ->json_is('/items/0/release_date',$dt_format->format_datetime($dt_release))
-  ->json_is('/items/0/start_date',$dt_format->format_datetime($dt_start))
-  ->json_is('/items/0/status','open')
-  ->json_is('/items/0/description','Generic')
-  ->status_is(200);
-my $id = $t->tx->res->json->{items}[0]->{id};
+my $id = $t->tx->res->json->{items}[0]{id};
 
 #run unittest, use $id
-$t->get_ok('/api/v1/violations/'.$id => json => { })
-  ->json_is('/vid',$vid)
-  ->json_is('/status','open')
-  ->json_is('/release_date',$dt_format->format_datetime($dt_release))
-  ->json_is('/ticket_ref','test ticket_ref')
-  ->json_is('/notes','test notes')
-  ->json_is('/id',$id)
-  ->json_is('/start_date',$dt_format->format_datetime($dt_start))
-  ->json_is('/mac',$mac)
-  ->status_is(200);
+$t->get_ok("/api/v1/violation/$id")
+  ->status_is(200)
+  ->json_is('/item/vid',$vid)
+  ->json_is('/item/status','open')
+  ->json_is('/item/release_date',$dt_format->format_datetime($dt_release))
+  ->json_is('/item/ticket_ref','test ticket_ref')
+  ->json_is('/item/notes','test notes')
+  ->json_is('/item/start_date',$dt_format->format_datetime($dt_start))
+  ->json_is('/item/mac',$mac);
 
   
 =head1 AUTHOR
