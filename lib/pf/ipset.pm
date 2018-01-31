@@ -42,7 +42,7 @@ use pf::violation qw(violation_view_open_uniq violation_count);
 use pf::ip4log;
 use pf::authentication;
 use pf::constants::parking qw($PARKING_IPSET_NAME);
-use pf::constant::node qw($STATUS_UNREGISTERED);
+use pf::constants::node qw($STATUS_UNREGISTERED);
 
 Readonly my $FW_TABLE_FILTER => 'filter';
 Readonly my $FW_TABLE_MANGLE => 'mangle';
