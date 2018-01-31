@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"math"
 	"net"
 	"strconv"
@@ -9,6 +8,7 @@ import (
 
 	"github.com/RoaringBitmap/roaring"
 
+	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 	dhcp "github.com/krolaw/dhcp4"
@@ -210,7 +210,7 @@ func (d *Interfaces) readConfig() {
 							hwcache := cache.New(time.Duration(seconds)*time.Second, 10*time.Second)
 
 							hwcache.OnEvicted(func(nic string, pool interface{}) {
-								fmt.Println(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Added back in the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
+								log.LoggerWContext(ctx).Info(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Added back in the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
 								DHCPScope.available.Add(uint32(pool.(int)))
 							})
 
@@ -266,7 +266,7 @@ func (d *Interfaces) readConfig() {
 						hwcache := cache.New(time.Duration(seconds)*time.Second, 10*time.Second)
 
 						hwcache.OnEvicted(func(nic string, pool interface{}) {
-							fmt.Println(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Added back in the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
+							log.LoggerWContext(ctx).Info(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Added back in the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
 							DHCPScope.available.Add(uint32(pool.(int)))
 						})
 

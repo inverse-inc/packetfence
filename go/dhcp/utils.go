@@ -3,14 +3,13 @@ package main
 import (
 	"database/sql"
 	"encoding/binary"
-	"fmt"
-	"log"
 	"math/rand"
 	"net"
 	"strings"
 	"time"
 
 	"github.com/inverse-inc/packetfence/go/database"
+	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
@@ -35,7 +34,7 @@ func initiaLease(dhcpHandler *DHCPHandler) {
 
 	rows, err := MySQLdatabase.Query("select ip,mac,end_time,start_time from ip4log i where inet_aton(ip) between inet_aton(?) and inet_aton(?) and (end_time = 0 OR  end_time > NOW()) and end_time in (select MAX(end_time) from ip4log where mac = i.mac)  ORDER BY mac,end_time desc", dhcpHandler.start.String(), ipend.String())
 	if err != nil {
-		fmt.Println(err)
+		log.LoggerWContext(ctx).Error(err.Error())
 		return
 	}
 	defer rows.Close()
@@ -49,7 +48,7 @@ func initiaLease(dhcpHandler *DHCPHandler) {
 	for rows.Next() {
 		err := rows.Scan(&ipstr, &mac, &end_time, &start_time)
 		if err != nil {
-			fmt.Println(err)
+			log.LoggerWContext(ctx).Error(err.Error())
 			return
 		}
 
@@ -86,7 +85,7 @@ func InterfaceScopeFromMac(MAC string) string {
 					if x, found := v.network[network].dhcpHandler.hwcache.Get(MAC); found {
 						v.network[network].dhcpHandler.hwcache.Replace(MAC, x.(int), 3*time.Second)
 						v.network[network].dhcpHandler.available.Add(uint32(x.(int)))
-						fmt.Println(MAC + " removed")
+						log.LoggerWContext(ctx).Info(MAC + " removed")
 					}
 				}
 			}
@@ -124,7 +123,7 @@ func (d *Interfaces) detectVIP(interfaces pfconfigdriver.ListenInts) {
 			if IP.Equal(VIPIp[v]) {
 				found = true
 				if VIP[v] == false {
-					fmt.Println(v + " got the VIP")
+					log.LoggerWContext(ctx).Info(v + " got the VIP")
 					if _, ok := ControlIn[v]; ok {
 						Request := ApiReq{Req: "initialease", NetInterface: v, NetWork: ""}
 						ControlIn[v] <- Request
@@ -145,7 +144,8 @@ func NodeInformation(target net.HardwareAddr) (r NodeInfo) {
 	defer rows.Close()
 
 	if err != nil {
-		log.Fatal(err)
+		log.LoggerWContext(ctx).Error(err.Error())
+		panic(err)
 	}
 
 	var (
@@ -159,7 +159,7 @@ func NodeInformation(target net.HardwareAddr) (r NodeInfo) {
 	for rows.Next() {
 		err := rows.Scan(&Mac, &Status, &Category)
 		if err != nil {
-			log.Print(err)
+			log.LoggerWContext(ctx).Error(err.Error())
 
 		}
 	}

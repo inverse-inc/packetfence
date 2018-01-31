@@ -4,7 +4,6 @@ import (
 	"crypto/tls"
 	"database/sql"
 	"encoding/binary"
-	"fmt"
 
 	"context"
 	_ "expvar"
@@ -21,6 +20,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/goji/httpauth"
 	"github.com/gorilla/mux"
+	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 	dhcp "github.com/krolaw/dhcp4"
@@ -48,6 +48,8 @@ var Capi *client.Config
 var webservices pfconfigdriver.PfConfWebservices
 
 func main() {
+	ctx = log.LoggerNewContext(ctx)
+
 	// Default http timeout
 	http.DefaultClient.Timeout = 10 * time.Second
 
@@ -264,7 +266,7 @@ func (h *Interface) run(jobs chan job) {
 						var statistiques roaring.Statistics
 						statistiques = v.dhcpHandler.available.Stats()
 						spew.Dump(v.dhcpHandler.available.Stats())
-						fmt.Println(v.dhcpHandler.available.String())
+						log.LoggerWContext(ctx).Info(v.dhcpHandler.available.String())
 						stats[v.network.String()] = Stats{EthernetName: Request.(ApiReq).NetInterface, Net: v.network.String(), Free: int(statistiques.RunContainerValues) + int(statistiques.ArrayContainerValues), Category: v.dhcpHandler.role, Status: "Debug finished"}
 					}
 				}
@@ -359,7 +361,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType) (answer A
 		switch msgType {
 
 		case dhcp.Discover:
-			fmt.Println(p.CHAddr().String() + " " + msgType.String() + " xID " + sharedutils.ByteToString(p.XId()))
+			log.LoggerWContext(ctx).Info(p.CHAddr().String() + " " + msgType.String() + " xID " + sharedutils.ByteToString(p.XId()))
 			var free int
 			i := handler.available.Iterator()
 
@@ -386,7 +388,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType) (answer A
 				// Ping the ip address
 				pingreply := sharedutils.Ping(dhcp.IPAdd(handler.start, free).String(), 1)
 				if pingreply {
-					fmt.Println(p.CHAddr().String() + " Ip " + dhcp.IPAdd(handler.start, free).String() + " already in use, trying next")
+					log.LoggerWContext(ctx).Info(p.CHAddr().String() + " Ip " + dhcp.IPAdd(handler.start, free).String() + " already in use, trying next")
 					// Added back in the pool since it's not the dhcp server who gave it
 					handler.hwcache.Delete(p.CHAddr().String())
 					goto retry
@@ -396,7 +398,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType) (answer A
 				handler.hwcache.Set(p.CHAddr().String(), free, time.Duration(5)*time.Second)
 				handler.xid.Replace(sharedutils.ByteToString(p.XId()), 1, time.Duration(5)*time.Second)
 			} else {
-				fmt.Println(p.CHAddr().String() + " Nak No space left in the pool ")
+				log.LoggerWContext(ctx).Info(p.CHAddr().String() + " Nak No space left in the pool ")
 				return answer
 			}
 
@@ -442,7 +444,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType) (answer A
 					GlobalOptions[key] = value
 				}
 			}
-			fmt.Println(p.CHAddr().String() + " Offer " + answer.IP.String() + " xID " + sharedutils.ByteToString(p.XId()))
+			log.LoggerWContext(ctx).Info(p.CHAddr().String() + " Offer " + answer.IP.String() + " xID " + sharedutils.ByteToString(p.XId()))
 			answer.D = dhcp.ReplyPacket(p, dhcp.Offer, handler.ip.To4(), answer.IP, leaseDuration,
 				GlobalOptions.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
 
@@ -455,7 +457,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType) (answer A
 				reqIP = net.IP(p.CIAddr())
 			}
 
-			fmt.Println(p.CHAddr().String() + " " + msgType.String() + " " + reqIP.String() + " xID " + sharedutils.ByteToString(p.XId()))
+			log.LoggerWContext(ctx).Info(p.CHAddr().String() + " " + msgType.String() + " " + reqIP.String() + " xID " + sharedutils.ByteToString(p.XId()))
 
 			answer.IP = reqIP
 			answer.Iface = h.intNet
@@ -475,7 +477,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType) (answer A
 							// So remove the ip from the cache
 						} else {
 							Reply = false
-							fmt.Println(p.CHAddr().String() + " Asked for an IP " + reqIP.String() + " that hasnt been assigned by Offer " + dhcp.IPAdd(handler.start, index.(int)).String() + " xID " + sharedutils.ByteToString(p.XId()))
+							log.LoggerWContext(ctx).Info(p.CHAddr().String() + " Asked for an IP " + reqIP.String() + " that hasnt been assigned by Offer " + dhcp.IPAdd(handler.start, index.(int)).String() + " xID " + sharedutils.ByteToString(p.XId()))
 							if index, found = handler.xid.Get(string(binary.BigEndian.Uint32(p.XId()))); found {
 								if index.(int) == 1 {
 									handler.hwcache.Delete(p.CHAddr().String())
@@ -533,18 +535,18 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType) (answer A
 					GlobalIpCache.Set(reqIP.String(), p.CHAddr().String(), leaseDuration+(time.Duration(15)*time.Second))
 					GlobalMacCache.Set(p.CHAddr().String(), reqIP.String(), leaseDuration+(time.Duration(15)*time.Second))
 					// Update the cache
-					fmt.Println(p.CHAddr().String() + " Ack " + reqIP.String() + " xID " + sharedutils.ByteToString(p.XId()))
+					log.LoggerWContext(ctx).Info(p.CHAddr().String() + " Ack " + reqIP.String() + " xID " + sharedutils.ByteToString(p.XId()))
 					handler.hwcache.Set(p.CHAddr().String(), Index, leaseDuration+(time.Duration(15)*time.Second))
 
 				} else {
-					fmt.Println(p.CHAddr().String() + " Nak xID " + sharedutils.ByteToString(p.XId()))
+					log.LoggerWContext(ctx).Info(p.CHAddr().String() + " Nak xID " + sharedutils.ByteToString(p.XId()))
 					answer.D = dhcp.ReplyPacket(p, dhcp.NAK, handler.ip.To4(), nil, 0, nil)
 				}
 				return answer
 			}
 
 		case dhcp.Release, dhcp.Decline:
-			fmt.Println(p.CHAddr().String() + " " + msgType.String() + " xID " + sharedutils.ByteToString(p.XId()))
+			log.LoggerWContext(ctx).Info(p.CHAddr().String() + " " + msgType.String() + " xID " + sharedutils.ByteToString(p.XId()))
 			if x, found := handler.hwcache.Get(p.CHAddr().String()); found {
 				handler.available.Add(uint32(x.(int)))
 				handler.hwcache.Delete(p.CHAddr().String())
@@ -553,7 +555,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType) (answer A
 		return answer
 	}
 	answer.Iface = h.intNet
-	fmt.Println(p.CHAddr().String() + " Nak " + sharedutils.ByteToString(p.XId()))
+	log.LoggerWContext(ctx).Info(p.CHAddr().String() + " Nak " + sharedutils.ByteToString(p.XId()))
 	answer.D = dhcp.ReplyPacket(p, dhcp.NAK, handler.ip.To4(), nil, 0, nil)
 	return answer
 }
