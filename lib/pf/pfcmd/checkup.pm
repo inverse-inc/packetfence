@@ -143,7 +143,6 @@ sub sanity_check {
     billing();
 
     database();
-    omapi();
     authentication();
     network();
     fingerbank();
@@ -312,18 +311,6 @@ sub fingerbank {
 }
 
 
-=item omapi
-
-Validation related to the OMAPI configuration
-
-=cut
-
-sub omapi {
-    if ( (pf::config::is_omapi_lookup_enabled) && ($Config{'omapi'}{'host'} eq "localhost") && (!pf::config::is_omapi_configured) ) {
-        add_problem( $WARN, "OMAPI lookup is locally enabled but missing required configuration parameters 'key_name' and/or 'key_base64'" );
-    }
-}
-
 sub authentication {
     authentication_unique_sources();
     authentication_rules_classes();
@@ -381,9 +368,9 @@ Configuration validation of the network portion of the config
 
 sub network {
 
-    # check that networks.conf is not empty when services.dhcpd
+    # check that networks.conf is not empty when services.pfdhcp
     # is enabled
-    if (isenabled($Config{'services'}{'dhcpd'}) && ((!-e $network_config_file ) || (-z $network_config_file ))){
+    if (isenabled($Config{'services'}{'pfdhcp'}) && ((!-e $network_config_file ) || (-z $network_config_file ))){
         add_problem( $WARN, "networks.conf is empty but services.dhcpd is enabled. Disable it to remove this warning." );
     }
 

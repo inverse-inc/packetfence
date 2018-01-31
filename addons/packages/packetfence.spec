@@ -56,7 +56,7 @@ Source: http://www.packetfence.org/downloads/PacketFence/src/%{real_name}-%{vers
 %global logfiles packetfence.log snmptrapd.log pfdetect pfmon
 %global logdir /usr/local/pf/logs
 
-BuildRequires: gettext, httpd
+BuildRequires: gettext, httpd, ipset-devel, pkgconfig
 BuildRequires: perl(Parse::RecDescent)
 # Required to build documentation
 # See docs/docbook/README.asciidoc for more info about installing requirements.
@@ -90,7 +90,6 @@ Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
 Requires: httpd, mod_ssl
 Requires: mod_perl, mod_proxy_html
 requires: libapreq2
-Requires: dhcp
 Requires: redis
 Requires: freeradius >= 3.0.15-4, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils, freeradius-redis, freeradius-rest, freeradius-radsniff >= 3.0.15-4
 Requires: make
@@ -168,8 +167,7 @@ Requires: perl(Net::Netmask)
 Requires: perl(Net::Pcap) >= 0.16
 # pfdhcplistener
 Requires: perl(NetPacket) >= 1.2.0
-# pfdns
-Requires: perl(Net::DNS), perl(Net::DNS::Nameserver), perl(Module::Metadata)
+Requires: perl(Module::Metadata)
 # systemd sd_notify support
 Requires: perl(Systemd::Daemon)
 # RADIUS CoA support
@@ -329,6 +327,9 @@ Requires: haproxy >= 1.6, keepalived >= 1.3.6
 Requires: fingerbank >= 3.1.1, fingerbank < 4.0.0
 Requires: perl(File::Tempdir)
 
+# etcd
+Requires: etcd >= 3.1
+
 %description -n %{real_name}
 
 PacketFence is an open source network access control (NAC) system. 
@@ -453,7 +454,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-carbon-relay.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-carbon-relay.service
 %{__install} -D -m0644 conf/systemd/packetfence-collectd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-collectd.service
 %{__install} -D -m0644 conf/systemd/packetfence-config.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-config.service
-%{__install} -D -m0644 conf/systemd/packetfence-dhcpd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-dhcpd.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfdns.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfdns.service
 %{__install} -D -m0644 conf/systemd/packetfence-haproxy.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-haproxy.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.aaa.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.aaa.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.admin.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.admin.service
@@ -490,6 +491,9 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-snmptrapd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-snmptrapd.service
 %{__install} -D -m0644 conf/systemd/packetfence-statsd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-statsd.service
 %{__install} -D -m0644 conf/systemd/packetfence-winbindd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-winbindd.service
+%{__install} -D -m0644 conf/systemd/packetfence-etcd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-etcd.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfdhcp.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfdhcp.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfipset.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfipset.service
 
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons/AD
@@ -506,7 +510,6 @@ done
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/redis_ntlm_cache
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/ssl_mutex
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/conf
-%{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/dhcpd
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/run
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/rrd 
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/session
@@ -677,11 +680,6 @@ echo "Restarting rsyslogd"
 #Make ssl certificate
 cd /usr/local/pf
 make conf/ssl/server.pem
-
-# Create OMAPI key
-if [ ! -f /usr/local/pf/conf/pf_omapi_key ]; then
-    /usr/bin/openssl rand -base64 -out /usr/local/pf/conf/pf_omapi_key 32
-fi
 
 # Create server local RADIUS secret
 if [ ! -f /usr/local/pf/conf/local_secret ]; then
@@ -860,6 +858,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/addons/watchdog/*.sh
 %dir                    /usr/local/pf/bin
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfhttpd
+%attr(0755, pf, pf)     /usr/local/pf/bin/pfdns
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd.pl
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd_vlan
 %attr(0755, pf, pf)     /usr/local/pf/bin/pftest
@@ -871,6 +870,8 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/pfupdate
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/maintenance
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/node
+%attr(0755, pf, pf)     /usr/local/pf/bin/pfdhcp
+%attr(0755, pf, pf)     /usr/local/pf/bin/pfipset
 %attr(0755, pf, pf)     /usr/local/pf/bin/mysql_fingerbank_import.sh
 %doc                    /usr/local/pf/ChangeLog
                         /usr/local/pf/conf/*.example
@@ -884,6 +885,7 @@ fi
                         /usr/local/pf/conf/caddy-services/*.conf.example
 %config(noreplace)      /usr/local/pf/conf/chi.conf
 %config                 /usr/local/pf/conf/chi.conf.defaults
+%config(noreplace)      /usr/local/pf/conf/Corefile
 %config(noreplace)      /usr/local/pf/conf/portal_modules.conf
 %config                 /usr/local/pf/conf/portal_modules.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/device_registration.conf
@@ -896,6 +898,8 @@ fi
                         /usr/local/pf/conf/dns_filters.conf.example
 %config                 /usr/local/pf/conf/dns_filters.conf.defaults
 %config                 /usr/local/pf/conf/documentation.conf
+%config(noreplace)      /usr/local/pf/conf/etcd.conf.yml
+                        /usr/local/pf/conf/etcd.conf.yml.example
 %config(noreplace)      /usr/local/pf/conf/firewall_sso.conf
                         /usr/local/pf/conf/firewall_sso.conf.example
 %config(noreplace)      /usr/local/pf/conf/survey.conf
@@ -1037,7 +1041,6 @@ fi
 %config(noreplace)      /usr/local/pf/conf/vlan_filters.conf
                         /usr/local/pf/conf/vlan_filters.conf.example
 %config                 /usr/local/pf/conf/vlan_filters.conf.defaults
-%config                 /usr/local/pf/conf/dhcpd.conf
 %config(noreplace)      /usr/local/pf/conf/haproxy.conf
                         /usr/local/pf/conf/haproxy.conf.example
 %dir                    /usr/local/pf/conf/httpd.conf.d
@@ -1264,7 +1267,6 @@ fi
 %doc                    /usr/local/pf/UPGRADE.old
 %dir                    /usr/local/pf/var
 %dir                    /usr/local/pf/var/conf
-%dir  %attr(0755,pf, pf)   /usr/local/pf/var/dhcpd
 %dir                    /usr/local/pf/raddb
                         /usr/local/pf/raddb/*
 %config                 /usr/local/pf/raddb/clients.conf

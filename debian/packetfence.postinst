@@ -50,11 +50,6 @@ case "$1" in
 
         chown pf:pf $PACKETFENCE
         find $PACKETFENCE '(' -type d -or -type f ')' -not -name pfcmd -print0 | xargs -0 chown pf:pf
-        if [ -e /etc/lsb-release ]; then
-            chown dhcpd:dhcpd $PACKETFENCE/var/dhcpd/dhcpd.leases
-        else
-            chown root:root $PACKETFENCE/var/dhcpd/dhcpd.leases
-        fi
 
         # link to latest SQL schema
         if [ -h "$PACKETFENCE/db/pf-schema.sql" ]; then
@@ -84,11 +79,6 @@ case "$1" in
         make conf/ssl/server.pem
 
 
-        # Create OMAPI key
-        if [ ! -f /usr/local/pf/conf/pf_omapi_key ]; then
-            /usr/bin/openssl rand -base64 -out /usr/local/pf/conf/pf_omapi_key 32
-        fi
-
         # Create server local RADIUS secret
         if [ ! -f /usr/local/pf/conf/local_secret ]; then
             date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/local_secret
@@ -116,7 +106,7 @@ case "$1" in
 
         # managing services
         set +e
-        for service in apache2 snmptrapfmt bind9 freeradius apparmor isc-dhcp-server collectd haproxy carbon-cache keepalived redis-server smbd samba winbind nmbd mysql; do
+        for service in apache2 snmptrapfmt snmpd bind9 freeradius apparmor collectd haproxy carbon-cache keepalived redis-server smbd samba winbind nmbd mysql; do
 
             if [ -e "/etc/init.d/"$service ] ; then
                 invoke-rc.d $service stop  > /dev/null 2>&1

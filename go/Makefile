@@ -18,6 +18,18 @@ pfhttpd-race:
 	cd - && \
 	mv caddy/caddy/caddy/caddy pfhttpd-race
 
+pfdhcp:
+	cd dhcp && \
+	go build && \
+	cd - && \
+	mv dhcp/dhcp pfdhcp
+
+pfdns:
+	cd coredns && \
+	go build && \
+	cd - && \
+	mv coredns/coredns pfdns
+
 .PHONY: clean-caddy-src
 
 clean-caddy-src:
@@ -35,3 +47,10 @@ test:
 	/usr/local/pf/t/pfconfig-test ;\
 	PFCONFIG_TESTING=y govendor test ./... ;\
 	pkill pfconfig-test
+
+.PHONY: clean-coredns-src
+
+clean-coredns-src:
+	find coredns/ -type f -exec sed -i.bak "s'github.com/mholt/caddy'github.com/inverse-inc/packetfence/go/caddy/caddy'g" {} \; ; find . -name '*.bak' -delete
+	find coredns/ -type f -exec sed -i.bak "s'github.com/coredns/coredns'github.com/inverse-inc/packetfence/go/coredns'g" {} \; ; find . -name '*.bak' -delete
+	find coredns/ -name '*_test.go' -delete

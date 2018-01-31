@@ -27,7 +27,7 @@ BEGIN { use lib qw(/usr/local/pf/t); }
 BEGIN { use setup_test_config; }
 BEGIN { use_ok('pf::services') }
 BEGIN { use_ok('pf::services::manager::httpd') }
-BEGIN { use_ok('pf::services::manager::dhcpd') }
+BEGIN { use_ok('pf::services::manager::pfdhcp') }
 BEGIN { use_ok('pf::services::manager::snmptrapd') }
 
 use pf::constants;

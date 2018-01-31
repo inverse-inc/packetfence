@@ -86,9 +86,6 @@ conf/ssl/server.crt: | conf/ssl/server.crt
 conf/ssl/server.key: | conf/ssl/server.key
 	openssl genrsa -out /usr/local/pf/conf/ssl/server.key 2048
 
-conf/pf_omapi_key:
-	/usr/bin/openssl rand -base64 -out /usr/local/pf/conf/pf_omapi_key 32
-
 conf/local_secret:
 	date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/local_secret
 
@@ -153,7 +150,7 @@ fingerbank:
 pf-dal:
 	perl /usr/local/pf/addons/dev-helpers/bin/generator-data-access-layer.pl
 
-devel: configurations conf/ssl/server.crt conf/pf_omapi_key conf/local_secret bin/pfcmd raddb/certs/server.crt sudo translation mysql-schema raddb/sites-enabled fingerbank chown_pf permissions bin/ntlm_auth_wrapper html/pfappserver/root/static/doc
+devel: configurations conf/ssl/server.crt conf/local_secret bin/pfcmd raddb/certs/server.crt sudo translation mysql-schema raddb/sites-enabled fingerbank chown_pf permissions bin/ntlm_auth_wrapper html/pfappserver/root/static/doc
 
 test:
 	cd t && ./smoke.t

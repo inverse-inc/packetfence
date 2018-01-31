@@ -328,16 +328,35 @@ thread_cache_size=25
 max_allowed_packet=16
 
 [services]
+# services.pfipset
 #
-# services.dhcpd
+# Should pfipset be managed by PacketFence?
+pfipset=enabled
 #
-# Should DHCPd be managed by PacketFence?
-dhcpd=enabled
+# services.pfipset_binary
 #
-# services.dhcpd_binary
+# Location of the pfipset binary.
+pfipset_binary=/usr/local/pf/bin/pfipset
 #
-# Location of the dhcpd binary. Only necessary to change if you are not running the RPMed version.
-dhcpd_binary=/usr/sbin/dhcpd
+# services.pfdhcp
+#
+# Should pfdhcp be managed by PacketFence?
+pfdhcp=enabled
+#
+# services.pfdhcp_binary
+#
+# Location of the pfdhcp binary.
+pfdhcp_binary=/usr/local/pf/bin/pfdhcp
+#
+# services.etcd
+#
+# Should etcd be managed by PacketFence?
+etcd=enabled
+#
+# services.etcd_binary
+#
+# Location of the etcd binary. Only necessary to change if you are not running the RPMed version.
+etcd_binary=/usr/bin/etcd
 #
 # services.haproxy
 #
@@ -348,11 +367,6 @@ haproxy=enabled
 #
 # Location of the haproxy binary. Only necessary to change if you are not running the RPMed version.
 haproxy_binary=/usr/sbin/haproxy-systemd-wrapper
-#
-# services.pfdns
-#
-# Should pfdns be managed by PacketFence?
-pfdns=enabled
 #
 # services.pffilter
 #
@@ -591,6 +605,16 @@ routes=enabled
 #
 # location of the routes binary. only necessary to change if you are not running the rpmed version.
 routes_binary=/sbin/ip
+
+# services.pfdns
+#
+# Should pfdns be managed by PacketFence?
+pfdns=enabled
+#
+# services.pfdns_binary
+#
+# Location of the pfdns binary.
+pfdns_binary=/usr/local/pf/bin/pfdns
 
 [snmp_traps]
 #
@@ -897,43 +921,6 @@ normalize_radius_machine_auth_username=disabled
 #
 # The algorithm used to calculate the VLAN in a VLAN pool.
 vlan_pool_technique = username_hash
-
-[omapi]
-#
-# omapi.ip2mac_lookup
-#
-# Use OMAPI to query DHCPd for the MAC address of a given IP address
-ip2mac_lookup=enabled
-#
-# omapi.mac2ip_lookup
-#
-# Use OMAPI to query DHCPd for the IP address of a given MAC address
-mac2ip_lookup=enabled
-#
-# omapi.key_name
-#
-# The OMAPI key name for signing messages
-key_name=pf_omapi_key
-#
-# omapi.key_base64
-#
-# The OMAPI base64 key for signing messages
-key_base64=
-#
-# omapi.port
-#
-# The OMAPI port number
-port=7911
-#
-# omapi.host
-#
-# The OMAPI host
-host=localhost
-#
-# omapi.timeout
-#
-# The timeout on the OMAPI socket
-timeout=0.5
 
 [provisioning]
 #

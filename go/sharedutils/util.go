@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"errors"
 	"fmt"
+	"net"
 	"os"
 	"strconv"
 	"strings"
@@ -132,4 +133,65 @@ func AllEquals(v ...interface{}) bool {
 		}
 	}
 	return true
+}
+
+// Inc function use to increment an ip
+func Inc(ip net.IP) {
+	for j := len(ip) - 1; j >= 0; j-- {
+		ip[j]++
+		if ip[j] > 0 {
+			break
+		}
+	}
+}
+
+// Dec function use to decrement an ip
+func Dec(ip net.IP) {
+	for j := len(ip) - 1; j >= 0; j-- {
+		ip[j]--
+		if ip[j] == 255 {
+			continue
+		}
+		if ip[j] > 0 {
+			break
+		}
+	}
+}
+
+// ConvertToSting convert byte to string
+func ConvertToString(b []byte) string {
+	s := make([]string, len(b))
+	for i := range b {
+		s[i] = strconv.Itoa(int(b[i]))
+	}
+	return strings.Join(s, ",")
+}
+
+// ConvertToByte convert string to byte
+func ConvertToByte(b string) []byte {
+	s := strings.Split(b, ",")
+	var result []byte
+	for i := range s {
+		value, _ := strconv.Atoi(s[i])
+		result = append(result, byte(value))
+
+	}
+	return result
+}
+
+// ByteToString return a human readeable string of the byte
+func ByteToString(a []byte) string {
+	const hexDigit = "0123456789abcdef"
+	if len(a) == 0 {
+		return ""
+	}
+	buf := make([]byte, 0, len(a)*3-1)
+	for i, b := range a {
+		if i > 0 {
+			buf = append(buf, ':')
+		}
+		buf = append(buf, hexDigit[b>>4])
+		buf = append(buf, hexDigit[b&0xF])
+	}
+	return string(buf)
 }

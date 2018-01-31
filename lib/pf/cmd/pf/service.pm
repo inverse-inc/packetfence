@@ -17,7 +17,6 @@ Services managed by PacketFence:
   carbon-cache     | carbon-cache daemon
   carbon-relay     | carbon-relay daemon
   collectd         | collectd daemon
-  dhcpd            | dhcpd daemon
   haproxy          | haproxy daemon
   httpd.aaa        | Apache AAA webservice
   httpd.admin      | Apache Web admin
@@ -34,8 +33,10 @@ Services managed by PacketFence:
   pf               | all services that should be running based on your config
   pfbandwidthd     | A pf service to monitor bandwidth usages
   pfdetect         | PF snort alert parser
+  pfdhcp           | dhcpd daemon
   pfdhcplistener   | PF DHCP monitoring daemon
   pfdns            | DNS daemon
+  pfipset          | IPSET daemon
   pffilter         | PF conditions filtering daemon
   pfmon            | PF monitoring daemon
   pfqueue          | PF queueing service
