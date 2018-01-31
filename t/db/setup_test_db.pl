@@ -27,6 +27,11 @@ my $config = check_config(pf::db::db_config());
 my $dbh = smoke_tester_db_connections($config);
 create_db($dbh, $config);
 apply_schema($config);
+{
+    require pf::config;
+    pf::config::configreload();
+}
+
 
 sub check_config {
     my ($config) = @_;
