@@ -74,7 +74,7 @@ func handleLayer2(res http.ResponseWriter, req *http.Request) {
 	Mac := vars["mac"]
 	Network := vars["network"]
 	Type := vars["type"]
-	Catid := vars["catid"]
+	Catid := vars["category_id"]
 	Local := vars["local"]
 
 	// Update locally
@@ -128,7 +128,7 @@ func handleMarkIpL2(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	IP := vars["ip"]
 	Network := vars["network"]
-	Catid := vars["catid"]
+	Catid := vars["category_id"]
 	Local := vars["local"]
 
 	// Update locally
@@ -151,7 +151,7 @@ func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	IP := vars["ip"]
 	Network := vars["network"]
-	Catid := vars["catid"]
+	Catid := vars["category_id"]
 	Local := vars["local"]
 
 	// Update locally
@@ -184,7 +184,7 @@ func handleLayer3(res http.ResponseWriter, req *http.Request) {
 	IP := vars["ip"]
 	Network := vars["network"]
 	Type := vars["type"]
-	Catid := vars["catid"]
+	Catid := vars["category_id"]
 	Local := vars["local"]
 
 	// Update locally

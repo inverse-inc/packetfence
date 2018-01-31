@@ -31,12 +31,11 @@ func (IPSET *pfIPSET) AddToContext(ctx context.Context) context.Context {
 }
 
 // Detect the vip on each interfaces
-func detectMembers(ctx context.Context) []net.IP {
+func getClusterMembersIps(ctx context.Context) []net.IP {
 
 	var keyConfCluster pfconfigdriver.PfconfigKeys
 	keyConfCluster.PfconfigNS = "resource::cluster_hosts_ip"
 
-	// keyConfCluster.PfconfigHashNS = "interface " + v
 	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfCluster)
 	var members []net.IP
 	for _, key := range keyConfCluster.Keys {
@@ -66,7 +65,7 @@ func detectMembers(ctx context.Context) []net.IP {
 }
 
 func updateClusterL2(ctx context.Context, Ip string, Mac string, Network string, Type string, Catid string) {
-	for _, member := range detectMembers(ctx) {
+	for _, member := range getClusterMembersIps(ctx) {
 		err := post(ctx, "https://"+member.String()+":22223/ipset/mark_layer2/"+Network+"/"+Type+"/"+Catid+"/"+Ip+"/"+Mac+"/1", body)
 		fmt.Println("Updated " + member.String())
 		if err != nil {
@@ -76,7 +75,7 @@ func updateClusterL2(ctx context.Context, Ip string, Mac string, Network string,
 }
 
 func updateClusterL3(ctx context.Context, Ip string, Network string, Type string, Catid string) {
-	for _, member := range detectMembers(ctx) {
+	for _, member := range getClusterMembersIps(ctx) {
 		err := post(ctx, "https://"+member.String()+":22223/ipset/mark_layer3/"+Network+"/"+Type+"/"+Catid+"/"+Ip+"/1", body)
 		if err != nil {
 			fmt.Println("Not able to contact " + member.String())
@@ -85,7 +84,7 @@ func updateClusterL3(ctx context.Context, Ip string, Network string, Type string
 }
 
 func updateClusterUnmarkMac(ctx context.Context, Mac string) {
-	for _, member := range detectMembers(ctx) {
+	for _, member := range getClusterMembersIps(ctx) {
 		err := post(ctx, "https://"+member.String()+":22223/ipset/unmark_mac/"+Mac+"/1", body)
 		if err != nil {
 			fmt.Println("Not able to contact " + member.String())
@@ -94,7 +93,7 @@ func updateClusterUnmarkMac(ctx context.Context, Mac string) {
 }
 
 func updateClusterUnmarkIp(ctx context.Context, Ip string) {
-	for _, member := range detectMembers(ctx) {
+	for _, member := range getClusterMembersIps(ctx) {
 
 		err := post(ctx, "https://"+member.String()+":22223/ipset/unmark_ip/"+Ip+"/1", body)
 		if err != nil {
@@ -104,7 +103,7 @@ func updateClusterUnmarkIp(ctx context.Context, Ip string) {
 }
 
 func updateClusterMarkIpL3(ctx context.Context, Ip string, Network string, Catid string) {
-	for _, member := range detectMembers(ctx) {
+	for _, member := range getClusterMembersIps(ctx) {
 		err := post(ctx, "https://"+member.String()+":22223/ipset/mark_ip_layer3/"+Network+"/"+Catid+"/"+Ip+"/1", body)
 		if err != nil {
 			fmt.Println("Not able to contact " + member.String())
@@ -112,7 +111,7 @@ func updateClusterMarkIpL3(ctx context.Context, Ip string, Network string, Catid
 	}
 }
 func updateClusterMarkIpL2(ctx context.Context, Ip string, Network string, Catid string) {
-	for _, member := range detectMembers(ctx) {
+	for _, member := range getClusterMembersIps(ctx) {
 		err := post(ctx, "https://"+member.String()+":22223/ipset/mark_ip_layer2/"+Network+"/"+Catid+"/"+Ip+"/1", body)
 		if err != nil {
 			fmt.Println("Not able to contact " + member.String())
@@ -121,7 +120,7 @@ func updateClusterMarkIpL2(ctx context.Context, Ip string, Network string, Catid
 }
 
 func updateClusterPassthrough(ctx context.Context, Ip string, Port string) {
-	for _, member := range detectMembers(ctx) {
+	for _, member := range getClusterMembersIps(ctx) {
 		err := post(ctx, "https://"+member.String()+":22223/ipset/passthrough/"+Ip+"/"+Port+"/1", body)
 		fmt.Println("Updated " + member.String())
 		if err != nil {
@@ -131,7 +130,7 @@ func updateClusterPassthrough(ctx context.Context, Ip string, Port string) {
 }
 
 func updateClusterPassthroughIsol(ctx context.Context, Ip string, Port string) {
-	for _, member := range detectMembers(ctx) {
+	for _, member := range getClusterMembersIps(ctx) {
 		err := post(ctx, "https://"+member.String()+":22223/ipset/passthrough_isolation/"+Ip+"/"+Port+"/1", body)
 		fmt.Println("Updated " + member.String())
 		if err != nil {
@@ -253,12 +252,6 @@ func (IPSET *pfIPSET) detectType(ctx context.Context) error {
 					Index := NetIndex
 					IPSET.Network[&Index] = ConfNet.Type
 				}
-				// if ConfNet.RegNetwork != "" {
-				// 	IP2, NetIP2, _ := net.ParseCIDR(ConfNet.RegNetwork)
-				// 	if NetIP.Contains(IP2) {
-				// 		IPSET.Network[NetIP2] = ConfNet.Type
-				// 	}
-				// }
 			}
 		}
 	}
