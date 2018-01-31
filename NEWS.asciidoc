@@ -16,7 +16,11 @@ Version X.Y.Z released on xxxx-xx-xx
 
 New Features
 ++++++++++++
-
+* Replace the ISC DHCP server with a new Golang based DHCP server (PR #2911)
+* Now supporting the Inline mode in active/active clusters (PR #2911)
+* Replaced pfdns with a new Golang based DNS server (PR #2911)
+* Allow an inline network to be split by the roles in PacketFence allowing to put specific devices in a distinct broadcast network (PR #2911)
+* DNS routing (PR #2911)
 
 Enhancements
 ++++++++++++
