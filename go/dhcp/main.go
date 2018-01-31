@@ -1,10 +1,10 @@
 package main
 
 import (
+	"crypto/tls"
 	"database/sql"
 	"encoding/binary"
 	"fmt"
-	"log"
 
 	"context"
 	_ "expvar"
@@ -19,6 +19,7 @@ import (
 	"github.com/coreos/go-systemd/daemon"
 	"github.com/davecgh/go-spew/spew"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/goji/httpauth"
 	"github.com/gorilla/mux"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	dhcp "github.com/krolaw/dhcp4"
@@ -41,6 +42,8 @@ var VIPIp map[string]net.IP
 var ctx = context.Background()
 
 var Capi *client.Config
+
+var webservices pfconfigdriver.PfConfWebservices
 
 func main() {
 	// Default http timeout
@@ -77,7 +80,7 @@ func main() {
 	// Read pfconfig
 	DHCPConfig = newDHCPConfig()
 	DHCPConfig.readConfig()
-
+	webservices = readWebservicesConfig()
 	// Queue value
 	var (
 		maxQueueSize = 100
@@ -130,19 +133,35 @@ func main() {
 	router.HandleFunc("/mac2ip/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", handleMac2Ip).Methods("GET")
 	router.HandleFunc("/ip2mac/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}", handleIP2Mac).Methods("GET")
 	router.HandleFunc("/stats/{int:.*}", handleStats).Methods("GET")
-	router.HandleFunc("/initialease/{int:.*}", handleInitiaLease).Methods("GET")
 	router.HandleFunc("/debug/{int:.*}/{role:(?:[^/]*)}", handleDebug).Methods("GET")
-	router.HandleFunc("/optionsnetwork/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{options:.*}", handleOverrideNetworkOptions).Methods("POST")
-	router.HandleFunc("/options/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}/{options:.*}", handleOverrideOptions).Methods("POST")
-	router.HandleFunc("/removeoptionsnetwork/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}", handleRemoveNetworkOptions).Methods("GET")
-	router.HandleFunc("/removeoptions/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", handleRemoveOptions).Methods("GET")
+	router.HandleFunc("/initialease/{int:.*}", handleInitiaLease).Methods("GET")
+	router.HandleFunc("/options/add/network/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{options:.*}", handleOverrideNetworkOptions).Methods("POST")
+	router.HandleFunc("/options/add/mac/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}/{options:.*}", handleOverrideOptions).Methods("POST")
+	router.HandleFunc("/options/del/network/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}", handleRemoveNetworkOptions).Methods("GET")
+	router.HandleFunc("/options/del/mac/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", handleRemoveOptions).Methods("GET")
 	router.HandleFunc("/releaseip/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}", handleReleaseIP).Methods("POST")
 
+	http.Handle("/", httpauth.SimpleBasicAuth(webservices.User, webservices.Pass)(router))
 	// Api
-	l, err := net.Listen("tcp", ":22222")
-	if err != nil {
-		log.Panicf("cannot listen: %s", err)
+	cfg := &tls.Config{
+		MinVersion:               tls.VersionTLS12,
+		CurvePreferences:         []tls.CurveID{tls.CurveP521, tls.CurveP384, tls.CurveP256},
+		PreferServerCipherSuites: true,
+		CipherSuites: []uint16{
+			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+			tls.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+			tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
+			tls.TLS_RSA_WITH_AES_256_CBC_SHA,
+		},
 	}
+	srv := &http.Server{
+		Addr:         ":22222",
+		IdleTimeout:  5 * time.Second,
+		Handler:      router,
+		TLSConfig:    cfg,
+		TLSNextProto: make(map[string]func(*http.Server, *tls.Conn, http.Handler), 0),
+	}
+
 	daemon.SdNotify(false, "READY=1")
 
 	go func() {
@@ -151,17 +170,23 @@ func main() {
 			return
 		}
 		for {
-			_, err := http.Get("http://127.0.0.1:22222")
+			req, err := http.NewRequest("GET", "https://127.0.0.1:22222", nil)
+			req.SetBasicAuth(webservices.User, webservices.Pass)
+			tr := &http.Transport{
+				TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+			}
+			cli := &http.Client{Transport: tr}
+			_, err = cli.Do(req)
 			if err == nil {
 				daemon.SdNotify(false, "WATCHDOG=1")
 			}
 			time.Sleep(interval / 3)
 		}
 	}()
-	http.Serve(l, router)
+	srv.ListenAndServeTLS("/usr/local/pf/conf/ssl/server.crt", "/usr/local/pf/conf/ssl/server.key")
 }
 
-// Broadcast runner
+// Broadcast Listener
 func (h *Interface) run(jobs chan job) {
 
 	// Communicate with the server that run on an interface
