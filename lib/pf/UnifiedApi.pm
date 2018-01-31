@@ -66,8 +66,6 @@ our @API_V1_ROUTES = (
         id_key     => 'connection_profile_id',
         path       => '/config/connection_profiles'
     },
-    { controller => 'violations', resource_v2a => {}, collection_v2a => { get => 'list' }, path => '/violations' },
-    { controller => 'violations', resource_v2a => {}, collection_v2a => { get => 'list_by_search' }, path => '/violations/:search' },
     { controller => 'reports', collection_v2a => { get => 'os' }, resource_v2a => {},  id_key => 'report_id', path => '/reports/os' },
     { controller => 'reports', collection_v2a => { get => 'os_active' }, resource_v2a => {},  id_key => 'report_id', path => '/reports/os_active' },
     { controller => 'reports', collection_v2a => { get => 'os_all' }, resource_v2a => {},  id_key => 'report_id', path => '/reports/os_all' },
@@ -101,6 +99,10 @@ our @API_V1_ROUTES = (
 
     { controller => 'nodes', collection_v2a => { get => 'latest_locationlog_by_mac' }, resource_v2a => {}, path => '/nodes/:mac/latest_locationlog' },
     { controller => 'nodes', collection_v2a => { get => 'locationlog_by_mac' }, resource_v2a => {}, path => '/nodes/:mac/locationlog' },
+
+    { controller => 'violations', resource_v2a => {}, collection_v2a => { get => 'read_list', post => 'create' }, path => '/violations' },
+    { controller => 'violations', resource_v2a => {}, collection_v2a => { get => 'read_list_by_search' }, path => '/violations/:search' },
+    { controller => 'violations', resource_v2a => {}, collection_v2a => { get => 'read_row_by_id' }, path => '/violation/:id' },
 );
 
 sub startup {
