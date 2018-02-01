@@ -38,14 +38,14 @@ use pf::tenant qw(
 
 my $t = Test::Mojo->new('pf::UnifiedApi::custom');
 
-$t->get_ok('/api/v1/users/admin')
+$t->get_ok('/api/v1/user/admin')
   ->status_is(200)
   ->json_is('/item/pid' => 'admin') ;
 
-$t->get_ok('/api/v1/users/NoSuchUser')
+$t->get_ok('/api/v1/user/NoSuchUser')
   ->status_is(404);
 
-$t->get_ok('/api/v1/users/admin')
+$t->get_ok('/api/v1/user/admin')
   ->status_is(200)
   ->json_is('/item/pid' => 'admin') ;
 
@@ -59,30 +59,30 @@ $t->post_ok('/api/v1/users' => {} => '{')
 
 my $notes = "notes for $test_pid";
 
-$t->put_ok("/api/v1/users/$test_pid" => json => { notes => "$notes" })
+$t->put_ok("/api/v1/user/$test_pid" => json => { notes => "$notes" })
   ->status_is(200);
 
-$t->get_ok("/api/v1/users/$test_pid")
+$t->get_ok("/api/v1/user/$test_pid")
   ->status_is(200)
   ->json_is('/item/pid' => $test_pid)
   ->json_is('/item/notes' => $notes);
 
-$t->patch_ok("/api/v1/users/$test_pid" => json => { notes => $notes })
+$t->patch_ok("/api/v1/user/$test_pid" => json => { notes => $notes })
   ->status_is(200);
 
-$t->delete_ok("/api/v1/users/$test_pid")
+$t->delete_ok("/api/v1/user/$test_pid")
   ->status_is(200);
 
-$t->delete_ok("/api/v1/users/$test_pid")
+$t->delete_ok("/api/v1/user/$test_pid")
   ->status_is(404);
 
 my $unused_tenant_id = get_unused_tenant_id();
 
-$t->get_ok('/api/v1/users/admin' => {'X-PacketFence-Tenant-Id' => $unused_tenant_id})
+$t->get_ok('/api/v1/user/admin' => {'X-PacketFence-Tenant-Id' => $unused_tenant_id})
   ->status_is(404)
   ->json_like('/message' => qr/\Q$unused_tenant_id\E/);
 
-$t->get_ok('/api/v1/users/admin' => {'X-PacketFence-Tenant-Id' => 1})
+$t->get_ok('/api/v1/user/admin' => {'X-PacketFence-Tenant-Id' => 1})
   ->status_is(200);
 
 my $tenant_name = "test_tenant_$$";
@@ -92,7 +92,7 @@ $t->post_ok('/api/v1/tenants' => json => { name => "default" })
 
 $t->post_ok('/api/v1/tenants' => json => { name => $tenant_name })
   ->status_is(201)
-  ->header_like('Location' => qr#^/api/v1/tenants/#);
+  ->header_like('Location' => qr#^/api/v1/tenant/#);
 
 my $location = $t->tx->res->headers->location;
 
@@ -105,7 +105,7 @@ my $tenant_id = $tenant->{id};
 
 my $headers = {'X-PacketFence-Tenant-Id' => $tenant_id};
 
-$t->get_ok('/api/v1/users/default' => $headers)
+$t->get_ok('/api/v1/user/default' => $headers)
   ->status_is(200)
   ->json_is('/item/tenant_id' => $tenant_id);
 
@@ -114,15 +114,15 @@ $notes = "notes $tenant_id";
 $t->post_ok('/api/v1/users' => $headers => json => { pid => $test_pid })
   ->status_is(201);
 
-$t->put_ok("/api/v1/users/$test_pid" => $headers => json => { notes => $notes })
+$t->put_ok("/api/v1/user/$test_pid" => $headers => json => { notes => $notes })
   ->status_is(200);
 
-$t->get_ok("/api/v1/users/$test_pid" => $headers)
+$t->get_ok("/api/v1/user/$test_pid" => $headers)
   ->status_is(200)
   ->json_is('/item/pid' => $test_pid)
   ->json_is('/item/notes' => $notes);
 
-$t->delete_ok("/api/v1/users/$test_pid" => $headers)
+$t->delete_ok("/api/v1/user/$test_pid" => $headers)
   ->status_is(200);
 
 sub get_unused_tenant_id {

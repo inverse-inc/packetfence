@@ -120,9 +120,9 @@ sub render_create {
 
 sub make_location_url {
     my ($self, $obj) = @_;
-    my $url = $self->url_for;
-    my $id = $obj->{$self->resource_id};
-    return "$url/$id";
+    my $parent_route = $self->match->endpoint->parent->name;
+    my $url = $self->url_for("$parent_route.get", {$self->id_key => $obj->{$self->resource_id}});
+    return "$url";
 }
 
 sub make_create_data {
