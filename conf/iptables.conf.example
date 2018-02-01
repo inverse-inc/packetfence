@@ -31,11 +31,8 @@
 -A input-management-if --protocol tcp --match tcp --dport %%httpd_collector_port%% --jump ACCEPT
 # haproxy stats (uncomment if activating the haproxy dashboard)
 #-A input-management-if --protocol tcp --match tcp --dport 1025 --jump ACCEPT
-# GRAPHITE-WEB
--A input-management-if --protocol tcp --match tcp --dport 9000 --jump ACCEPT
-# CARBON_CACHE
--A input-management-if --protocol tcp --match tcp --dport 2004 --jump ACCEPT
--A input-management-if --protocol tcp --match tcp --dport 7002 --jump ACCEPT
+# Netdata
+-A input-management-if --protocol tcp --match tcp --dport 19999 --jump ACCEPT
 
 # RADIUS
 -A input-management-if --protocol tcp --match tcp --dport 1812 --jump ACCEPT
