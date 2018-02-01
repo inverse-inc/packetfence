@@ -14,7 +14,6 @@ pf::services::manager::etcd
 use strict;
 use warnings;
 use Moo;
-use pf::cluster;
 use pf::config qw(
     %Config
     $management_network
@@ -31,6 +30,7 @@ use pf::file_paths qw(
 );
 
 use pf::log;
+use pf::util;
 
 use Template;
 
