@@ -333,11 +333,6 @@ max_allowed_packet=16
 # Should pfipset be managed by PacketFence?
 pfipset=enabled
 #
-# services.pfipset_binary
-#
-# Location of the pfipset binary.
-pfipset_binary=/usr/local/pf/bin/pfipset
-#
 # services.pfdhcp
 #
 # Should pfdhcp be managed by PacketFence?
