@@ -22,7 +22,7 @@ global
 	lua-load %%conf_dir%%/passthrough.lua
 
 listen stats
-  bind  %%active_active_ip%%:1025
+  bind  %%management_ip%%:1025
   mode http
   timeout connect 10s
   timeout client 1m

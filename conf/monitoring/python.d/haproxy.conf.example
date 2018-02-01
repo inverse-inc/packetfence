@@ -85,7 +85,7 @@
 
 haproxy:
  name : haproxy
- url : 'http://%%active_active_ip%%:1025/stats;csv;norefresh'
+ url : 'http://%%management_ip%%:1025/stats;csv;norefresh'
  user : 'admin'
  pass : 'packetfence'
 
