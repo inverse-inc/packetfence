@@ -23,6 +23,7 @@ BEGIN {
     #Module for overriding configuration paths
     use setup_test_config;
 }
+use Clone qw(clone);
 use pf::UnifiedApi::Plugin::RestCrud;
 use Mojolicious;
 use Lingua::EN::Inflexion qw(noun);
@@ -31,8 +32,6 @@ use Test::More tests => 71;
 
 #This test will running last
 use Test::NoWarnings;
-
-my $crud = pf::UnifiedApi::Plugin::RestCrud->new;
 
 my $app = Mojolicious->new;
 
@@ -178,11 +177,15 @@ is_deeply(
         url_param_key => 'user_id',
         subroutes     => {
             close_nodes => {
-                POST => 'close_nodes_',
+                POST => {
+                    action => 'close_nodes_',
+                }
             }
         },
         http_methods  => {
-            GET    => 'bob',
+            GET    => {
+                action => 'bob',
+            },
         },
         base_path => '/user',
         path => '/user/:user_id',
@@ -191,43 +194,49 @@ is_deeply(
     "Munging resource options"
 );
 
-is_deeply (
-   pf::UnifiedApi::Plugin::RestCrud::munge_resource_options($routes, { controller => 'Users', short_name => 'users', noun => noun('users'), base_url => '' }),
+is_deeply(
+    pf::UnifiedApi::Plugin::RestCrud::munge_resource_options(
+        $routes,
+        {
+            controller => 'Users',
+            short_name => 'users',
+            noun       => noun('users'),
+            base_url   => ''
+        }
+    ),
     {
         url_param_key => 'user_id',
         subroutes     => {},
-        http_methods       => {
-            GET    => 'get',
-            PATCH  => 'update',
-            PUT    => 'replace',
-            DELETE => 'remove',
-        },
+        http_methods  => default_resource_http_methods(),
         base_path => '/user',
-        path => '/user/:user_id',
-        children => [],
+        path      => '/user/:user_id',
+        children  => [],
     },
     "Munging resource options"
 );
 
-is_deeply (
-    pf::UnifiedApi::Plugin::RestCrud::munge_resource_options($routes, { controller => 'Config::ConnectionProfiles', short_name => 'connection_profiles', noun => noun('connection_profiles'), base_url => '/config' }),
+is_deeply(
+    pf::UnifiedApi::Plugin::RestCrud::munge_resource_options(
+        $routes,
+        {
+            controller => 'Config::ConnectionProfiles',
+            short_name => 'connection_profiles',
+            noun       => noun('connection_profiles'),
+            base_url   => '/config'
+        }
+    ),
     {
         url_param_key => 'connection_profile_id',
         subroutes     => {},
-        http_methods       => {
-            GET    => 'get',
-            PATCH  => 'update',
-            PUT    => 'replace',
-            DELETE => 'remove',
-        },
+        http_methods  => default_resource_http_methods(),
         base_path => '/config/connection_profile',
-        path => '/config/connection_profile/:connection_profile_id',
-        children => [],
+        path      => '/config/connection_profile/:connection_profile_id',
+        children  => [],
     },
     "Munging resource options with a sub path"
 );
 
-is_deeply (
+is_deeply(
     pf::UnifiedApi::Plugin::RestCrud::munge_options(
         $routes,
         {
@@ -235,28 +244,20 @@ is_deeply (
         }
     ),
     {
-        controller => 'Users',
+        controller  => 'Users',
         name_prefix => 'Users',
         parent_path => '',
-        resource => {
+        resource    => {
             url_param_key => 'user_id',
-            subroutes => { },
-            http_methods => {
-                GET  => 'get',
-                PATCH => 'update',
-                PUT => 'replace',
-                DELETE => 'remove',
-            },
-            path => '/user/:user_id',
+            subroutes     => {},
+            http_methods  => default_resource_http_methods(),
+            path      => '/user/:user_id',
             base_path => '/user',
-            children => []
+            children  => []
         },
         collection => {
-            subroutes => {},
-            http_methods => {
-                GET => 'list',
-                POST => 'create',
-            },
+            subroutes    => {},
+            http_methods => default_collection_http_methods('/user'),
             path => '/users',
         },
     },
@@ -277,22 +278,14 @@ is_deeply (
         resource => {
             url_param_key => 'connection_profile_id',
             subroutes => { },
-            http_methods => {
-                GET  => 'get',
-                PATCH => 'update',
-                PUT => 'replace',
-                DELETE => 'remove',
-            },
+            http_methods  => default_resource_http_methods(),
             path => '/config/connection_profile/:connection_profile_id',
             base_path => '/config/connection_profile',
             children => [],
         },
         collection => {
             subroutes => {},
-            http_methods => {
-                GET => 'list',
-                POST => 'create',
-            },
+            http_methods => default_collection_http_methods(),
             path => '/config/connection_profiles',
         },
     },
@@ -314,15 +307,13 @@ is_deeply (
         resource => undef,
         collection => {
             subroutes => {},
-            http_methods => {
-                GET => 'list',
-                POST => 'create',
-            },
+            http_methods => default_collection_http_methods(),
             path => '/no_resources',
         },
     },
     "Do not expand resource if it is undef",
 );
+
 
 is_deeply (
     pf::UnifiedApi::Plugin::RestCrud::munge_options(
@@ -348,7 +339,9 @@ is_deeply (
         collection => {
             subroutes => {
                 r1 => {
-                    GET => 'm1'
+                    GET => {
+                       action => 'm1',
+                    }
                 }
             },
             http_methods => undef,
@@ -394,12 +387,7 @@ is_deeply(
         resource    => {
             url_param_key => 'user_id',
             subroutes     => {},
-            http_methods  => {
-                GET    => 'get',
-                PATCH  => 'update',
-                PUT    => 'replace',
-                DELETE => 'remove',
-            },
+            http_methods  => default_resource_http_methods(),
             path   => '/user/:user_id',
             base_path   => '/user',
             children => [
@@ -410,22 +398,14 @@ is_deeply(
                     resource    => {
                         url_param_key => 'node_id',
                         subroutes     => {},
-                        http_methods  => {
-                            GET    => 'get',
-                            PATCH  => 'update',
-                            PUT    => 'replace',
-                            DELETE => 'remove',
-                        },
+                        http_methods  => default_resource_http_methods(),
                         path   => '/node/:node_id',
                         base_path => '/node',
                         children => []
                     },
                     collection => {
                         subroutes    => {},
-                        http_methods => {
-                            GET  => 'list',
-                            POST => 'create',
-                        },
+                        http_methods => default_collection_http_methods(),
                         path => '/nodes',
                     },
                 },
@@ -433,10 +413,7 @@ is_deeply(
         },
         collection => {
             subroutes    => {},
-            http_methods => {
-                GET  => 'list',
-                POST => 'create',
-            },
+            http_methods => default_collection_http_methods(),
             path => '/users',
         },
     },
@@ -458,6 +435,16 @@ sub routes_not_created {
         ok(!$r->find($route_name), "Route $route_name was not created");
     }
 }
+
+sub default_resource_http_methods {
+    return clone($pf::UnifiedApi::Plugin::RestCrud::DEFAULT_RESOURCE_OPTIONS{http_methods});
+}
+
+sub default_collection_http_methods {
+    my ($resource_base_url) = @_;
+    return clone($pf::UnifiedApi::Plugin::RestCrud::DEFAULT_COLLECTION_OPTIONS{http_methods});
+}
+
 
 =head1 AUTHOR
 

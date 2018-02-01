@@ -18,20 +18,32 @@ use Mojo::Util qw(decamelize camelize);
 use Clone qw(clone);
 
 our %DEFAULT_RESOURCE_OPTIONS = (
-    subroutes     => {},
+    subroutes    => {},
     http_methods => {
-        GET    => 'get',
-        PATCH  => 'update',
-        PUT    => 'replace',
-        DELETE => 'remove',
+        GET => {
+            action => 'get',
+        },
+        PATCH => {
+            action => 'update',
+        },
+        PUT => {
+            action => 'replace',
+        },
+        DELETE => {
+            action => 'remove',
+        }
     },
 );
 
 our %DEFAULT_COLLECTION_OPTIONS = (
-    subroutes     => {},
+    subroutes    => {},
     http_methods => {
-        GET    => 'list',
-        POST   => 'create',
+        GET => {
+            action => 'list',
+        },
+        POST => {
+            action => 'create',
+        }
     },
 );
 
@@ -89,8 +101,9 @@ sub register_collection_routes {
 
 sub register_http_methods {
     my ($r, $controller, $name_prefix, $http_methods) = @_;
-    while (my ($v,$a) = each %{$http_methods // {} }) {
-        $r->any([$v])->to("$controller#$a")->name("$name_prefix.$a");
+    while (my ($v, $d) = each %{$http_methods // {} }) {
+        my $a = delete $d->{action};
+        $r->any([$v])->to("$controller#$a" => $d)->name("$name_prefix.$a");
     }
 }
 
@@ -139,12 +152,22 @@ sub munge_options {
         die "$controller cannot be singular noun";
     }
     my $name_prefix = $options->{name_prefix} // munge_name_prefix_option( $route, $options );
-    %$options = (%$options, short_name => $short_name, noun => $noun, decamelized => $decamelized, base_url => $base_url, name_prefix => $name_prefix);
+    %$options = (
+        %$options,
+        short_name  => $short_name,
+        noun        => $noun,
+        decamelized => $decamelized,
+        base_url    => $base_url,
+        name_prefix => $name_prefix
+    );
+    my $resource = munge_resource_options( $route, $options );
+    $options->{resource} = $resource;
+
     return {
         controller  => $controller,
         name_prefix => $name_prefix,
         parent_path => munge_parent_path( $route, $options),
-        resource    => munge_resource_options( $route, $options ),
+        resource    => $resource,
         collection  => munge_collection_options( $route, $options ),
     };
 }
@@ -203,7 +226,7 @@ sub cleanup_http_methods {
     while (my ($k, $v) = each %$methods) {
         $k = uc($k);
         if (exists $ALLOWED_METHODS{$k}) {
-            $temp{$k} = $v;
+            $temp{$k} = ref($v) ? clone ($v) : {action => $v};
         }
     }
     return \%temp;
