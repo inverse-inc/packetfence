@@ -124,7 +124,6 @@ sub iptables_generate {
     $tags{'web_admin_port'} = $Config{'ports'}{'admin'};
     $tags{'webservices_port'} = $Config{'ports'}{'soap'};
     $tags{'aaa_port'} = $Config{'ports'}{'aaa'};
-    $tags{'status_port'} = $Config{'ports'}{'pf_status'};
     $tags{'httpd_portal_modstatus'} = $Config{'ports'}{'httpd_portal_modstatus'};
     $tags{'httpd_collector_port'} = $Config{'ports'}{'collector'};
     # FILTER
