@@ -184,7 +184,8 @@ is_deeply(
         http_methods  => {
             GET    => 'bob',
         },
-        'path' => '/user/:user_id',
+        base_path => '/user',
+        path => '/user/:user_id',
         children => [],
     },
     "Munging resource options"
@@ -201,7 +202,8 @@ is_deeply (
             PUT    => 'replace',
             DELETE => 'remove',
         },
-        'path' => '/user/:user_id',
+        base_path => '/user',
+        path => '/user/:user_id',
         children => [],
     },
     "Munging resource options"
@@ -218,7 +220,8 @@ is_deeply (
             PUT    => 'replace',
             DELETE => 'remove',
         },
-        'path' => '/config/connection_profile/:connection_profile_id',
+        base_path => '/config/connection_profile',
+        path => '/config/connection_profile/:connection_profile_id',
         children => [],
     },
     "Munging resource options with a sub path"
@@ -234,6 +237,7 @@ is_deeply (
     {
         controller => 'Users',
         name_prefix => 'Users',
+        parent_path => '',
         resource => {
             url_param_key => 'user_id',
             subroutes => { },
@@ -243,7 +247,8 @@ is_deeply (
                 PUT => 'replace',
                 DELETE => 'remove',
             },
-            'path' => '/user/:user_id',
+            path => '/user/:user_id',
+            base_path => '/user',
             children => []
         },
         collection => {
@@ -267,6 +272,7 @@ is_deeply (
     ),
     {
         controller => 'Config::ConnectionProfiles',
+        parent_path => '',
         name_prefix => 'Config::ConnectionProfiles',
         resource => {
             url_param_key => 'connection_profile_id',
@@ -278,6 +284,7 @@ is_deeply (
                 DELETE => 'remove',
             },
             path => '/config/connection_profile/:connection_profile_id',
+            base_path => '/config/connection_profile',
             children => [],
         },
         collection => {
@@ -303,6 +310,7 @@ is_deeply (
     {
         controller => 'NoResources',
         name_prefix => 'NoResources',
+        parent_path => '',
         resource => undef,
         collection => {
             subroutes => {},
@@ -335,6 +343,7 @@ is_deeply (
     {
         controller => 'Collections',
         name_prefix => 'Collections',
+        parent_path => '',
         resource => undef,
         collection => {
             subroutes => {
@@ -381,6 +390,7 @@ is_deeply(
     {
         controller  => 'Users',
         name_prefix => 'Users',
+        parent_path => '',
         resource    => {
             url_param_key => 'user_id',
             subroutes     => {},
@@ -390,11 +400,13 @@ is_deeply(
                 PUT    => 'replace',
                 DELETE => 'remove',
             },
-            'path'   => '/user/:user_id',
+            path   => '/user/:user_id',
+            base_path   => '/user',
             children => [
                 {
                     controller  => 'Nodes',
                     name_prefix => 'Users.Nodes',
+                    parent_path => '/user/:user_id',
                     resource    => {
                         url_param_key => 'node_id',
                         subroutes     => {},
@@ -404,7 +416,8 @@ is_deeply(
                             PUT    => 'replace',
                             DELETE => 'remove',
                         },
-                        'path'   => '/node/:node_id',
+                        path   => '/node/:node_id',
+                        base_path => '/node',
                         children => []
                     },
                     collection => {

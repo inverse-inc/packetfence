@@ -126,6 +126,7 @@ sub munge_options {
     if (!defined $controller || $controller eq '' ) {
         die "Controller not given";
     }
+    my $path_part = $route->pattern->unparsed || '';
     my $decamelized = decamelize($controller);
     my @paths = split(/-/,$decamelized);
     my $short_name = pop @paths;
@@ -142,9 +143,17 @@ sub munge_options {
     return {
         controller  => $controller,
         name_prefix => $name_prefix,
+        parent_path => munge_parent_path( $route, $options),
         resource    => munge_resource_options( $route, $options ),
         collection  => munge_collection_options( $route, $options ),
     };
+}
+
+sub munge_parent_path {
+    my ($route, $options) = @_;
+    my $path_part = $route->pattern->unparsed || '';
+    my $parent_path = $options->{parent_path} // '';
+    return "${parent_path}${path_part}";
 }
 
 sub munge_name_prefix_option {
@@ -169,7 +178,9 @@ sub munge_resource_options {
     my $singular = $options->{noun}->singular();
     my $url_param_key = "${singular}_id";
     $resource->{url_param_key} //= $url_param_key;
-    $resource->{path} //= "$options->{base_url}/$singular/:$url_param_key";
+    my $base_path = "$options->{base_url}/$singular";
+    $resource->{base_path} = $base_path;
+    $resource->{path} //= "$base_path/:$url_param_key";
     $resource->{children} = munge_children_options( $route, $options, $resource );
     return $resource;
 }
@@ -236,16 +247,22 @@ sub munge_collection_options {
     return $collection;
 }
 
+sub munge_child_options {
+    my ($route, $parent_options, $child_options, $resource) = @_;
+    my $parent_name = $parent_options->{name_prefix};
+    $child_options->{parent_name} = $parent_name;
+    $child_options->{parent_path} = $resource->{path};
+    return munge_options($route, $child_options);
+}
+
 sub munge_children_options {
     my ($route, $options, $resource) = @_;
-    my $parent_name = $options->{name_prefix};
     return [
         map {
             local $_ = $_;
             my $o = $_;
             $o = clone($o);
-            $o->{parent_name} = $parent_name;
-            munge_options($route, $o)
+            munge_child_options($route, $options, $o, $resource)
         } @{$resource->{children} // []}
     ];
 }
