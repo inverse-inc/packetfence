@@ -113,82 +113,21 @@
 
 
 # -------------------------------------------
-# nginx log on various distros
-
-# debian, arch
-nginx_log:
-  name: 'nginx'
-  path: '/var/log/nginx/access.log'
-
-# gentoo
-nginx_log2:
-  name: 'nginx'
-  path: '/var/log/nginx/localhost.access_log'
-
-
-# -------------------------------------------
 # apache log on various distros
 
-# debian
-apache_log:
-  name: 'apache'
-  path: '/var/log/apache2/access.log'
+portal_log:
+  name: 'apache portal log'
+  path: '/usr/local/pf/logs/httpd.portal.access'
 
-# gentoo
-apache_log2:
-  name: 'apache'
-  path: '/var/log/apache2/access_log'
+webservices_log:
+  name: 'apache webservices log'
+  path: '/usr/local/pf/logs/httpd.webservices.access'
 
-# arch
-apache_log3:
-  name: 'apache'
-  path: '/var/log/httpd/access_log'
+aaa_log:
+  name: 'apache aaa log'
+  path: '/usr/local/pf/logs/httpd.aaa.access'
 
-# debian
-apache_vhosts_log:
-  name: 'apache_vhosts'
-  path: '/var/log/apache2/other_vhosts_access.log'
+admin_log:
+  name: 'apache admin log'
+  path: '/usr/local/pf/logs/httpd.adminz.access'
 
-
-# -------------------------------------------
-# gunicorn log on various distros
-
-gunicorn_log:
-  name: 'gunicorn'
-  path: '/var/log/gunicorn/access.log'
-
-gunicorn_log2:
-  name: 'gunicorn'
-  path: '/var/log/gunicorn/gunicorn-access.log'
-
-# -------------------------------------------
-# Apache Cache
-apache_cache:
-  name: 'apache_cache'
-  type: 'apache_cache'
-  path: '/var/log/apache/cache.log'
-
-apache2_cache:
-  name: 'apache_cache'
-  type: 'apache_cache'
-  path: '/var/log/apache2/cache.log'
-
-httpd_cache:
-  name: 'apache_cache'
-  type: 'apache_cache'
-  path: '/var/log/httpd/cache.log'
-
-# -------------------------------------------
-# Squid
-
-# debian/ubuntu
-squid_log1:
-  name: 'squid'
-  type: 'squid'
-  path: '/var/log/squid3/access.log'
-
-#gentoo
-squid_log2:
-  name: 'squid'
-  type: 'squid'
-  path: '/var/log/squid/access.log'

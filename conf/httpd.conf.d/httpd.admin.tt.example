@@ -37,6 +37,9 @@
   <IfModule !mod_log_config.c>
     LoadModule log_config_module /usr/lib/apache2/modules/mod_log_config.so
   </IfModule>
+  <IfModule !mod_logio.c>
+    LoadModule logio_module /usr/lib/apache2/modules/mod_logio.so
+  </IfModule>
   <IfModule !mod_ssl.c>
     LoadModule ssl_module /usr/lib/apache2/modules/mod_ssl.so
   </IfModule>
@@ -93,6 +96,9 @@
   [% END %]
   <IfModule !mod_log_config.c>
     LoadModule log_config_module modules/mod_log_config.so
+  </IfModule>
+  <IfModule !mod_logio.c>
+    LoadModule logio_module modules/mod_logio.so
   </IfModule>
   <IfModule !mod_ssl.c>
     LoadModule ssl_module modules/mod_ssl.so
@@ -226,11 +232,9 @@ ProxyHTMLLinks  script      src for
 
 [% FOREACH vhost IN vhosts %]
   Listen [% vhost %]:[% ports.admin %]
-  Listen [% vhost %]:[% ports.pf_status %]
 
   [% IF apache_version == "2.2" %]
   NameVirtualHost [% vhost %]:[% ports.admin %]
-  NameVirtualHost [% vhost %]:[% ports.pf_status %]
   [% END %]
 
   <VirtualHost [% vhost %]:[% ports.admin %] >
@@ -302,16 +306,6 @@ ProxyHTMLLinks  script      src for
       <Location /static >
            SetHandler default-handler
       </Location>
-  </VirtualHost>
-
-  <VirtualHost [% vhost %]:[% ports.pf_status %] >
-      ServerName [% server_name %]
-      DocumentRoot  [% install_dir %]/html/pfappserver/lib
-      ErrorLog      "| /usr/bin/logger -thttpd_admin_err -plocal5.err" 
-      CustomLog     "| /usr/bin/logger -thttpd_admin_access -plocal5.info" combined
-      AllowEncodedSlashes on
-      PerlModule pf::clustermgmt
-      PerlTransHandler pf::clustermgmt
   </VirtualHost>
 
 [% END %]

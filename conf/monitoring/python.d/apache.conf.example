@@ -84,4 +84,4 @@ httpd_webservices:
 
 httpd_portal:
   name : 'httpd.portal'
-  url  : 'https://%%management_ip%%:%%httpd_portal_modstatus_port%%/modstatus/?auto'
+  url  : 'http://%%management_ip%%:%%httpd_portal_modstatus_port%%/modstatus/?auto'
