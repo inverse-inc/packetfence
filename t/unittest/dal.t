@@ -300,6 +300,7 @@ is_deeply(
 );
 
 {
+    pf::dal::node->remove_by_id({mac => $test_mac});
     my $node = pf::dal::node->new({mac => $test_mac});
     my $status = $node->create_or_update();
     is($status, $STATUS::CREATED, "Node created");
@@ -323,10 +324,21 @@ is_deeply(
     ($status, $node) = pf::dal::node->find({mac => $test_mac});
     is($node->tenant_id, $t_id, "Node saved with current tenant id");
     pf::dal::node->remove_by_id({mac => $test_mac});
-    pf::dal::tenant->remove_by_id({id => $t_id});
     pf::dal::person->remove_by_id({pid => 'default'});
+    pf::dal::tenant->remove_by_id({id => $t_id});
     pf::dal->reset_tenant();
 }
+
+{
+    pf::dal::node->remove_by_id({mac => $test_mac});
+    my $node = pf::dal::node->new({mac => $test_mac});
+    my $status = $node->create_or_update();
+    is($status, $STATUS::CREATED, "Node created");
+    $node = pf::dal::node->new({mac => $test_mac, status => 'reg'});
+    $status = $node->create_or_update();
+    is($status, $STATUS::OK, "Node updated");
+}
+
 
 {
     local $pf::dal::CURRENT_TENANT = 2;
@@ -339,15 +351,6 @@ is_deeply(
     is($node->{tenant_id}, $test_tenant_id, "Current tenant is not set use the one provided");
     $node = pf::dal::node->new({mac => $test_mac, tenant_id => $test_tenant_id });
     is($node->{tenant_id}, $pf::dal::CURRENT_TENANT, "Current tenant is set use even when one is provided");
-}
-
-{
-    my $node = pf::dal::node->new({mac => $test_mac});
-    my $status = $node->create_or_update();
-    is($status, $STATUS::CREATED, "Node created");
-    $node = pf::dal::node->new({mac => $test_mac, status => 'reg'});
-    $status = $node->create_or_update();
-    is($status, $STATUS::OK, "Node updated");
 }
 
 =head1 AUTHOR
