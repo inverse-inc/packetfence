@@ -60,7 +60,7 @@ List of supported Network Devices
 
 PacketFence supports a whole lot of different wireless and wired network equipment from various vendors running 
 different versions. Since we want to provide the most accurate information and avoid duplication of that same 
-information, please refer to our website https://packetfence.org/about/supported_switches_and_aps.html
+information, please refer to our website https://packetfence.org/about.html#/material
 
 You'll find on this page the enforcement modes supported by each and every single piece of equipment we tested and 
 worked with. 
@@ -4229,6 +4229,10 @@ Again in the Hive Manager, go to *Configuration -> SSIDs*, and create a new SSID
 
 In the guided configuration you now be able to select your new SSID, the Portal you want to use and the AAA server.
 
+// Anyfi Networks
+
+include::networkdevices/anyfi.asciidoc[]
+
 Anyfi
 ~~~~~
 
@@ -4886,7 +4890,7 @@ image::docs/images/cisco-wlc-interface-ssid.png[scaledwidth="100%",alt="SSID Int
 You are good to go!
 
 Wireless LAN Controller (WLC) Web Auth
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+++++++++++++++++++++++++++++++++++++++
 
 In this section, we cover the basic configuration of the WLC Web Auth for PacketFence using the web interface.
 The idea is to forward the device to the captive portal with an ACL if the device is in an unreg state and 
@@ -4935,7 +4939,7 @@ Role definition
 image::docs/images/WLC_PACKETFENCE2.png[scaledwidth="100%",alt="ACL"]
 
 Troubleshooting ignored RADIUS replies
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In the event the WLC ignores the RADIUS replies from PacketFence (you receive multiple requests but access is never granted), validate the following elements : 
 
