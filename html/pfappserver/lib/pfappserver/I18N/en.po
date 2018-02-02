@@ -11195,6 +11195,10 @@ msgstr "Collector host"
 msgid "collector.port"
 msgstr "Collector port"
 
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "collector.db_persistence_interval"
+msgstr "Database persistence interval"
+
 # pf::Authentication::Source::ADSource (available_attributes)
 msgid "userAccountControl"
 msgstr ""
