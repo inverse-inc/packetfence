@@ -84,6 +84,21 @@ has port => (is => 'rw', default => sub {$Config{'webservices'}{'port'}} );
 
 has method => (is => 'rw', default => sub {"post"} );
 
+=head2 connect_timeout_ms
+
+Curl connection timeout in milli seconds
+
+=cut
+
+has connect_timeout_ms => (is => 'rw', default => sub {0}) ;
+
+=head2 timeout_ms
+
+Curl transfer timeout in milli seconds
+
+=cut
+
+has timeout_ms => (is => 'rw', default => sub {0} ) ;
 
 use constant REQUEST => 0;
 use constant RESPONSE => 2;
@@ -105,7 +120,7 @@ sub call {
 
     if ($self->method eq 'post') {
         my $request = $self->build_json_rest_payload($args);
-        $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
+        $curl->setopt(CURLOPT_POSTFIELDSIZE, length($request));
         $curl->setopt(CURLOPT_POSTFIELDS, $request);
     }
     my $response_body;
@@ -144,7 +159,7 @@ sub call {
 =cut
 
 sub curl {
-    my ($self,$path) = @_;
+    my ($self, $path) = @_;
     my $url = $self->url($path);
     my $curl = WWW::Curl::Easy->new;
     $curl->setopt(CURLOPT_HEADER, 0);
@@ -152,6 +167,8 @@ sub curl {
     $curl->setopt(CURLOPT_NOSIGNAL, 1);
     $curl->setopt(CURLOPT_URL, $url);
     $curl->setopt(CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+    $curl->setopt(CURLOPT_CONNECTTIMEOUT_MS, $self->connect_timeout_ms // 0);
+    $curl->setopt(CURLOPT_TIMEOUT_MS, $self->timeout_ms // 0);
     if($self->proto eq 'https') {
         if($self->username && $self->password) {
             $curl->setopt(CURLOPT_USERNAME, $self->username);
