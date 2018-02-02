@@ -719,11 +719,17 @@ sub node_deregister {
         return (0);
     }
 
-    pf::api::jsonrestclient->new(
-        proto   => "https",
-        host    => "localhost",
-        port    => $pf::constants::api::GO_DHCP_PORT,
-    )->call("/api/v1/dhcp/releaseip/".$mac,{});
+    eval {
+        pf::api::jsonrestclient->new(
+            proto   => "https",
+            host    => "localhost",
+            port    => $pf::constants::api::GO_DHCP_PORT,
+        )->call("/api/v1/dhcp/releaseip/".$mac,{});
+    };
+
+    if ($@) {
+        $logger->error("releasing ip for $mac");
+    }
 
     return (1);
 }
