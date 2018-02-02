@@ -19,8 +19,8 @@ use pf::dal::node;
 use pf::locationlog qw(locationlog_history_mac locationlog_view_open_mac);
 
 has dal => 'pf::dal::node';
-has id_key => 'id';
-has resource_id => 'pid';
+has id_key => 'node_id';
+has resource_id => 'mac';
 
 sub latest_locationlog_by_mac {
     my ($self) = @_;
