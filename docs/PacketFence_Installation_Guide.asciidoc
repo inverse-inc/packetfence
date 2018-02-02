@@ -1,5 +1,5 @@
-Administration Guide
-====================
+Installation Guide
+==================
 :encoding: UTF-8
 :lang: en
 :doctype: book
@@ -2602,10 +2602,17 @@ You can use both methods at the same time but this will result in duplicate SSO 
 Barracuda
 ~~~~~~~~~
 
-include::networkdevices/barracuda.asciidoc[]
+include::firewall/barracuda.asciidoc[]
+
+Checkpoint
+~~~~~~~~~~
+
+include::firewall/checkpoint.asciidoc[]
 
 FortiGate
 ~~~~~~~~~
+
+include::firewall/fortigate.asciidoc[]
 
 iBoss
 ~~~~~
@@ -2613,8 +2620,12 @@ iBoss
 JSON-RPC
 ~~~~~~~~
 
+include::firewall/jsonrpc.asciidoc[]
+
 Palo Alto
 ~~~~~~~~~
+
+include::firewall/paloalto.asciidoc[]
 
 Perfoming Compliance Checks
 ---------------------------

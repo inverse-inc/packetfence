@@ -1,23 +1,5 @@
-Generic firewall (JSON-RPC) Quick Integration Guide
-===================================================
-:encoding: UTF-8
-:lang: en
-:doctype: book
-:toc: left
-
-include::includes/global-attributes.asciidoc[]
-
-About this Guide
-----------------
-This guide has been created in order to help sales engineers, product managers, or network specialists demonstrate the PacketFence capabilities on-site with an existing or potential customer.  It can also provide guidelines to setup a proof of concept for a potential PacketFence deployment using a firewall with a *JSON-RPC* interface.
-
-Assumptions
------------
-* You have a configured PacketFence environment with working test equipment;
-* You have a firewall with a compatible JSON-RPC interface (see below).
-
 JSON-RPC interface
-------------------
+^^^^^^^^^^^^^^^^^^
 The JSONRPC module shipped with PacketFence is meant as a generic firewall SSO module to be used with Linux or BSD firewalls that do not by default ship with a vendor-specific interface to do SSO with.
 
 A compatible server must implement the methods `Start` and `Stop`, both with the identical set of parameters provided below.
@@ -37,7 +19,7 @@ A compatible server must implement the methods `Start` and `Stop`, both with the
 A simple JSON-RPC server written in Python that is compatible with this specification and creates ipsets based on the SSO information provided by PacketFence can be found at https://github.com/tribut/ipset-rpcd.
 
 SSO Configuration in PacketFence
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Go to *'Configuration' -> 'Integration' -> 'Firewall SSO' -> 'Add Firewall' -> 'JSONRPC'*.
 

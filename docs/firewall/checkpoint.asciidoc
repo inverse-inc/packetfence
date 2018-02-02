@@ -1,26 +1,5 @@
-Checkpoint firewall Quick Integration Guide
-==========================================
-:encoding: UTF-8
-:lang: en
-:doctype: book
-:toc: left
-
-include::includes/global-attributes.asciidoc[]
-
-About this Guide
-----------------
-This guide has been created in order to help sales engineers, product managers, or network specialists demonstrate the PacketFence capabilities on-site with an existing or potential customer.  It can also provide guidelines to setup a proof of concept for a potential PacketFence deployment using the *Checkpoint firewall*.
-
-Assumptions
------------
-* You have a configured PacketFence environment with working test equipment;
-* You have a Checkpoint firewall.
-
-
-Quick installation
-------------------
-Step 1: Enabling Identity Awareness on the Security Gateway
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Enabling Identity Awareness on the Security Gateway
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 To enable Identity Awareness:
 
 1. Log in to 'SmartDashboard'.
@@ -36,15 +15,15 @@ The 'Integration With Active Directory' window opens.
 8. Enter the Active Directory credentials and click Connect to verify the credentials. (Important - For AD Query you must enter domain) administrator credentials.
 9. Click Finish.
 
-Step 2: Enabling RADIUS Accounting on a Security Gateway
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Enabling RADIUS Accounting on a Security Gateway
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 To enable RADIUS Accounting for a Security Gateway:
 1. In the 'SmartDashboard Network Objects tree', open the Security Gateway.
 2. On the 'General Properties' page, make sure that the Identity Awareness Blade is enabled.
 3. On the 'Identity Awareness' page, select RADIUS Accounting.
 
-Step 3: Configuring RADIUS Accounting
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Configuring RADIUS Accounting
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 image::docs/images/doc-checkpoint-accounting_settings.png[scaledwidth="50%",alt="Accouting settings"]
 
@@ -56,8 +35,8 @@ image::docs/images/doc-checkpoint-accounting_settings.png[scaledwidth="50%",alt=
 * *User Name*: User-Name (1) (Username put on the PacketFence Portal)
 * *Device Name*: Framed-IP-Address (8) (IP Address of the device in the production network)
 
-Step 4: RADIUS Client Access Permissions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RADIUS Client Access Permissions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Gateway interfaces must be authorized to accept connections from PacketFence RADIUS Accounting.
 
 To select gateway interfaces:
@@ -67,14 +46,14 @@ To select gateway interfaces:
 4. Click OK on both windows to submit the configuration.
 5. Select 'Policy' > 'Install' from the SmartDashboard menu.
 
-Step 5: LDAP Groups
-~~~~~~~~~~~~~~~~~~~
+LDAP Groups
+^^^^^^^^^^^
 Make sure that you have the correct LDAP Objects created on the Checkpoint.
 
 image::docs/images/doc-checkpoint-ldap_groups.png[scaledwidth="100%",alt="LDAP Groups"]
 
-Step 6: SSO Configuration in PacketFence
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+SSO Configuration in PacketFence
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Go to *'Configuration' -> 'Firewall SSO' -> 'Add Firewall' -> 'Checkpoint' *.
 
@@ -86,7 +65,7 @@ Go to *'Configuration' -> 'Firewall SSO' -> 'Add Firewall' -> 'Checkpoint' *.
 
 image::docs/images/doc-checkpoint-cfg_SSO_pf.png[scaledwidth="100%",alt="Configure the Checkpoint SSO in PacketFence"]
 
-Step 7: Verification
-~~~~~~~~~~~~~~~~~~~~
+Verification
+^^^^^^^^^^^^
 You can check the correct log in with the SmartView Tracker under *'Network & Endpoint Queries' -> 'Predefined' -> 'Identity Awareness Blade' -> 'Login Activity'*
 
