@@ -348,7 +348,7 @@ Check if the OS matches the configuration of the scanner
 
 sub matchOS {
     my ($self, $node_attributes) = @_;
-    my @oses = @{$self->oses || []};
+    my @oses = @{$self->{_oses} || []};
 
     #if no oses are defined then it will match all the oses
     return $TRUE if @oses == 0;
