@@ -582,6 +582,7 @@ fi
 #We standardize the way to use site-available/sites-enabled for the RADIUS server
 cd $RPM_BUILD_ROOT/usr/local/pf/raddb/sites-enabled
 ln -s ../sites-available/dynamic-clients dynamic-clients
+ln -s ../sites-available/status status
 
 # Fingerbank symlinks
 cd $RPM_BUILD_ROOT/usr/local/pf/lib

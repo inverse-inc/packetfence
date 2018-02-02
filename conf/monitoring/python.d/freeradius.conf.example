@@ -80,3 +80,34 @@
 #    ln -s ../sites-available/status status
 # and restart/reload your FREERADIUS server. 
 # ------------------------------------------------------------------------------------------------------------------
+
+
+radiusauth:
+  name: 'Freeradius Auth'
+  host: 'localhost'
+  port: '18121'
+  secret: 'adminsecret'
+
+radiusacct:
+  name: 'Freeradius Acct'
+  host: 'localhost'
+  port: '18122'
+  secret: 'adminsecret'
+  acct: yes
+  proxy_auth: yes
+  proxy_acct: yes
+
+radiusloadbalancer:
+  name: 'Freeradius LoadBalancer'
+  host: 'localhost'
+  port: '18123'
+  secret: 'adminsecret'
+  proxy_auth: yes
+  proxy_acct: yes
+
+radiuseduroam:
+  name: 'Freeradius Eduroam'
+  host: 'localhost'
+  port: '18124'
+  secret: 'adminsecret'
+  proxy_auth: yes
