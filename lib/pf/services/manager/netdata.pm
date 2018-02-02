@@ -113,7 +113,7 @@ sub generateConfig {
     parse_template( \%tags, "$conf_dir/monitoring/node.d/stiebeleltron.conf.md", "$generated_conf_dir/monitoring/node.d/stiebeleltron.conf.md" );
     parse_template( \%tags, "$conf_dir/monitoring/python.d.conf", "$generated_conf_dir/monitoring/python.d.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/python.d/apache.conf", "$generated_conf_dir/monitoring/python.d/apache.conf" );
-      parse_template( \%tags, "$conf_dir/monitoring/python.d/chrony.conf", "$generated_conf_dir/monitoring/python.d/chrony.conf" );
+    parse_template( \%tags, "$conf_dir/monitoring/python.d/chrony.conf", "$generated_conf_dir/monitoring/python.d/chrony.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/python.d/cpufreq.conf", "$generated_conf_dir/monitoring/python.d/cpufreq.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/python.d/dns_query_time.conf", "$generated_conf_dir/monitoring/python.d/dns_query_time.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/python.d/example.conf", "$generated_conf_dir/monitoring/python.d/example.conf" );

@@ -9,6 +9,7 @@
 	run as user = netdata
 	web files owner = root
 	web files group = netdata
+        config directory = /usr/local/pf/var/conf/monitoring
         # Netdata is not designed to be exposed to potentially hostile networks
         # See https://github.com/firehol/netdata/issues/164
-	bind to = %%management_ip%%
+	bind to = %%management_ip%%,127.0.0.1

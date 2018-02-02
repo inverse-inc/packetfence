@@ -246,6 +246,7 @@ ProxyHTMLLinks  script      src for
       SSLEngine on
       Include  [% var_dir %]/conf/ssl-certificates.conf
       SSLProxyEngine on
+      RewriteEngine on
       ProxyRequests off
       ProxyPreserveHost on
       ProxyVia off
@@ -256,6 +257,9 @@ ProxyHTMLLinks  script      src for
       ProxyPassReverse /portal_preview/ https://[% server_name %]/
       ProxyPassReverse /portal_preview/ http://[% server_name %]/
       #LogLevel debug
+
+      # proxy on port 19999
+      ProxyPassMatch "^/netdata/(.*)" "http://[% netdata_url %]/$1" connectiontimeout=5 timeout=30 keepalive=on
 
       <Location /portal_preview >
           SetEnv X_PORTAL default
@@ -288,14 +292,6 @@ ProxyHTMLLinks  script      src for
           ProxyHTMLURLMap / /portal_preview/
 
           Header add Set-Cookie "PF_PORTAL=%{X_PORTAL}e; Path=/portal_preview" env=X_PORTAL
-      </Location>
-
-      <Location /admin/metrics >
-          RequestHeader unset Accept-Encoding
-          RequestHeader append X-Forwarded-For-PacketFence "127.0.0.1"
-
-          ProxyPass  http://[% graphite_url %]/
-          ProxyPassReverse http://[% graphite_url %]/
       </Location>
 
       Alias /static [% install_dir %]/html/pfappserver/root/static

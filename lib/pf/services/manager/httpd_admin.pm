@@ -69,7 +69,7 @@ sub additionalVars {
     my ($self) = @_;
     return (
         preview_ip   => $self->portal_preview_ip,
-        netdata_url => "localhost:19999"
+        netdata_url => "127.0.0.1:19999"
     );
 }
 

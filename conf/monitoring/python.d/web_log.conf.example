@@ -129,5 +129,5 @@ aaa_log:
 
 admin_log:
   name: 'apache admin log'
-  path: '/usr/local/pf/logs/httpd.adminz.access'
+  path: '/usr/local/pf/logs/httpd.admin.access'
 
