@@ -1,30 +1,9 @@
-OPSWAT Quick Integration Guide
-==============================
-:encoding: UTF-8
-:lang: en
-:doctype: book
-:toc: left
-
-include::includes/global-attributes.asciidoc[]
-
-About this Guide
-----------------
-This guide has been created in order to help sales engineers, product managers, or network specialists demonstrate the PacketFence capabilities on-site with an existing or potential customer.  It can also provide guidelines to setup a proof of concept for a potential PacketFence deployment using OPSWAT Metadefender Endpoint to provide information about device compliance before and during network access.
-
-Assumptions
------------
-* You have a configured PacketFence environment with working test equipment;
-* You have, or will create, an OPSWAT Metadefender Endpoint account at https://www.opswat.com/products/metadefender/endpoint/management/.
-* You are aware of the licensing options available at https://www.metadefender.com/licensing
-
-Quick installation
-------------------
-Step 1: Configure OPSWAT Metadefender Endpoint
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Configure OPSWAT Metadefender Endpoint
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 You will first need to create an OPSWAT Metadefender Endpoint account at https://www.opswat.com/products/metadefender/endpoint/management/ and configure your account according to OPSWAT's documentation.
 
-Step 2: Developer account
-~~~~~~~~~~~~~~~~~~~~~~~~~
+Developer account
+^^^^^^^^^^^^^^^^^
 Now that you have basic functionality for your OPSWAT Metadefender Endpoint account, you will need to create a Metadefender Endpoint developer account so PacketFence can access the OPSWAT Metadefender Endpoint API. You can do this here https://gears.opswat.com/developers.
 
 Creating the application
@@ -33,8 +12,8 @@ Once this is done, click 'Register a new application'. The only thing important 
 
 Once you created the application, note the client key and client secret for usage below.
 
-Step 3: Gathering the install URL
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Gathering the install URL
+^^^^^^^^^^^^^^^^^^^^^^^^^
 From your OPSWAT Metadefender Endpoint console, click '+Devices' at the top. Then click on Enable 'Metadefender Endpoint client on another device'.
 
 Then click 'Download or send link for guest Metadefender Endpoint clients'
@@ -45,8 +24,8 @@ Then note the URL at the bottom of the screen.
 
 image::docs/images/opswat-add-guest-devices.png[scaledwidth="100%",alt="OPSWAT Add guest device"]
 
-Step 4: API access
-~~~~~~~~~~~~~~~~~~
+API access
+^^^^^^^^^^
 In order to configure OPSWAT Metadefender Endpoint in PacketFence you will need to generate an OAuth2 access and refresh token so PacketFence can access the OPSWAT Metadefender Endpoint API.
 
 Generate the authorization code
@@ -71,8 +50,9 @@ You should now be presented with a JSON response that contains the access and re
  "scope":"read","client_id":"1234567890"}
 ----
 
-Step 5: Configure PacketFence
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Configure PacketFence
+^^^^^^^^^^^^^^^^^^^^^
+
 Create a new provisioner
 ++++++++++++++++++++++++
 Login in the PacketFence administration interface, then go in the 'Configuration' tab, then in 'Provisioners'.
@@ -97,8 +77,8 @@ Click 'Add Provisioner' and select the new OPSWAT Metadefender Endpoint provisio
 
 image::docs/images/opswat-portal.png[scaledwidth="100%",alt="OPSWAT portal configuration"]
 
-Step 6: Add the necessary passthroughs
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Add the necessary passthroughs
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Next, still in the PacketFence administration console, go in 'Fencing' in the left menu, then scroll then to 'Passthroughs'.
 Check the 'Passthrough' box above the field and add the following domains to the passthrough list.
 
@@ -108,30 +88,30 @@ Check the 'Passthrough' box above the field and add the following domains to the
 
 image::docs/images/opswat-passthroughs.png[scaledwidth="100%",alt="OPSWAT passthroughs"]
 
-Step 7: Test
-~~~~~~~~~~~~
+Testing
+^^^^^^^
 You can now test that the installation of the OPSWAT Metadefender Endpoint client is mandatory after the device registration.
 Connect a device to your test network and register like you normally would.
 At the end of the registration process you will be presented a page asking you to install the OPSWAT Metadefender Endpoint client on your device.
 After you install the client click continue. If your access is enabled than this means the connectivity between PacketFence and OPSWAT Metadefender Endpoint is good.
 
 Compliance enforcement
-----------------------
+^^^^^^^^^^^^^^^^^^^^^^
 
 PacketFence polls the OPSWAT Metadefender Endpoint API in order to trigger violations on noncompliant devices.
 
 PacketFence uses the number of critical issues the device has to determine whether or not it needs to isolate it.
 
-Step 1: Configure OPSWAT Metadefender Endpoint
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Configure OPSWAT Metadefender Endpoint
+++++++++++++++++++++++++++++++++++++++
 First you need to configure what you consider as a critical issue in your OPSWAT Metadefender Endpoint console.
 
 You will do that through the 'Configure' menu. Then you'll see a column that allows you to flag what is considered as a critical issue.
 
 image::docs/images/opswat-critical-config.png[scaledwidth="100%",alt="OPSWAT critical issues"]
 
-Step 2: Configure PacketFence
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Configure PacketFence
++++++++++++++++++++++
 
 Now in order to enforce the compliance of the devices using the flagged critical issues above, you will need to configure the provisioner you created above to activate the enforcement.
 
@@ -147,8 +127,8 @@ image::docs/images/opswat-compliance-config.png[scaledwidth="100%",alt="OPSWAT c
 
 You can then hit 'Save' and now the device will get isolated whenever it's found as noncompliant.
 
-Step 3: Customize the template
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Customize the template
+++++++++++++++++++++++
 
 You can now customize the template the violation is using in the 'Connection Profile' section. Simply select your connection profile and then go in the 'Files' tab.
 

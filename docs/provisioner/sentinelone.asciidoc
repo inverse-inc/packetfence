@@ -1,26 +1,5 @@
-SentinelOne Quick Integration Guide
-===================================
-:encoding: UTF-8
-:lang: en
-:doctype: book
-:toc: left
-
-include::includes/global-attributes.asciidoc[]
-
-About this Guide
-----------------
-This guide has been created in order to help sales engineers, product managers, or network specialists demonstrate the PacketFence capabilities on-site with an existing or potential customer.  It can also provide guidelines to setup a proof of concept for a potential PacketFence deployment using SentinelOne to provide information about device compliance before and during network access.
-
-Assumptions
------------
-* You have a configured PacketFence environment with working test equipment;
-* You have a SentinelOne instance available (this example uses `packetfence.sentinelone.net`)
-
-Quick installation
-------------------
-
-Step 1: Download the agents
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Download the agents
+^^^^^^^^^^^^^^^^^^^
 
 You will first need to download the SentinelOne agents in order to host them on the PacketFence server.
 
@@ -30,15 +9,15 @@ image::docs/images/sentinelone-agent-download.png[scaledwidth="100%",alt="Sentin
 
 NOTE: All files in `/usr/local/pf/html/common/` are accessible to users that are on the captive portal. Make sure you put the agents file there or in another user-accessible location.
 
-Step 2: Create an API user
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+Create an API user
+^^^^^^^^^^^^^^^^^^
 
 PacketFence will need a user on your SentinelOne instance in order to access the SentinelOne API. To create it, go in 'Settings->Users' and create a new user. Make sure, you note the password you put here for configuration in PacketFence.
 
 image::docs/images/sentinelone-user.png[scaledwidth="100%",alt="SentinelOne user creation"]
 
-Step 3: Configure PacketFence
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Configure PacketFence
+^^^^^^^^^^^^^^^^^^^^^
 
 Create a new provisioner
 ++++++++++++++++++++++++
@@ -70,8 +49,8 @@ Once you have completed the configuration, you need to restart pfdns in order fo
 
   # /usr/local/pf/bin/pfcmd service pfdns restart
 
-Step 4: Test
-~~~~~~~~~~~~
+Testing
+^^^^^^^
 You can now test that the installation of the SentinelOne client is mandatory after the device registration.
 Connect a device to your test network and register like you normally would.
 At the end of the registration process you will be presented a page asking you to install the SentinelOne client on your device.

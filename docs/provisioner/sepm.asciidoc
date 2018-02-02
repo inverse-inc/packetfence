@@ -1,31 +1,9 @@
-Symantec Endpoint Protection Manager Quick Integration Guide
-============================================================
-:encoding: UTF-8
-:lang: en
-:doctype: book
-:toc: left
-
-include::includes/global-attributes.asciidoc[]
-
-About this Guide
-----------------
-This guide has been created in order to help sales engineers, product managers, or network specialists demonstrate the PacketFence capabilities on-site with an existing or potential customer.  It can also provide guidelines to setup a proof of concept for a potential PacketFence deployment using the Symantec Endpoint Protection Manager to provide information about device compliance before and during network access.
-
-For brevity and better visibility, the Symantec Endpoint Protection Manager will be referred as 'SEPM' in the rest of this document.
-
-Assumptions
------------
-* You have a configured PacketFence environment with working test equipment
-* You have a working Symantec Endpoint Protection Manager server
-
-Quick installation
-------------------
-Step 1: Configure the SEPM
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+Configure the SEPM
+^^^^^^^^^^^^^^^^^^
 Configure the necessary policies in your SEPM before the creation of the install package. This document does not cover the policy and group configuration. Please refer to Symantec's documentation for more information. This document will use the default policies and the default group for the package creation.
 
-Step 2: Create the install package
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Create the install package
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 Login in your SEPM console and then go in the 'Clients' tab on the left. Select the group your clients should belong and then click 'Add a client'.
 
 image::docs/images/sepm-add-client.png[scaledwidth="100%",alt="SEPM - Creating a package"]
@@ -46,8 +24,8 @@ On the next page, confirm the settings and click 'Next'.
 
 Once the package is created go in the directory where you created the package and navigate your way to the 32 bit package. Then using an SCP or any other method, upload this file to `/usr/local/pf/html/captive-portal/content/sep.exe` on your PacketFence server. Do the same thing for the 64 bit package by uploading it to `/usr/local/pf/html/captive-portal/content/sep64.exe`.
 
-Step 3: API access 
-~~~~~~~~~~~~~~~~~~
+API access 
+^^^^^^^^^^
 In order to configure the SEPM in PacketFence you will need to generate an OAuth2 access and refresh token so PacketFence can access the SEPM API.
 
 NOTE: The next steps use `192.168.1.100` as the SEPM address. Adapt the URLs to your own SEPM address.
@@ -89,8 +67,8 @@ You should now be presented with a JSON response that contains the access and re
  "refresh_token":"e03fd915-e9dd-45a6-a05a-e5a1c53c1ccd","expires_in":43199}
 ----
 
-Step 4: Configure PacketFence
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Configure PacketFence
+^^^^^^^^^^^^^^^^^^^^^
 Create a new provisioner
 ++++++++++++++++++++++++
 Login in the PacketFence administration interface, then go in the 'Configuration' tab, then in 'Provisioners'.
@@ -123,8 +101,8 @@ In order to enable the boarding passthrough for the device enrollment, you will 
 
 You can do this using the command line by doing `/usr/local/pf/bin/pfcmd service iptables restart` or in the administration interface under 'Status / Services'.
 
-Step 5: Test
-~~~~~~~~~~~~
+Testing
+^^^^^^^
 You can now test that the installation of the Symantec Endpoint Protection client is mandatory after the device registration.
 
 Connect a device to your test network and register like you normally would.

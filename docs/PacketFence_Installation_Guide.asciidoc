@@ -2859,6 +2859,72 @@ If you are using the Nessus scanning engine:
 [options="compact"]
 * You just have to change the host value by the Nessus server IP.
 
+Integrating Provisioning Agents
+-------------------------------
+
+PacketFence Apple, Android and Windows Wireless Provisioning
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Apple devices such as iPhones, iPads, iPods and Mac OS X (10.7+) support wireless profile importation using a special XML file format (mobileconfig). Android is also able to support this feature by importing the wireless profile with the Android PacketFence Agent. In fact, installing such file on your Apple device will automatically configure the wireless settings for a given SSID. This feature is often used when the SSID is hidden, and you want to ease the configuration steps on the mobile device (because it is often painful to configure manually). In PacketFence, we are going further, we generate the profile according to the administrator's preference and we pre-populate the file with the user's credentials (without the password). The user simply needs to install its generated file and he will be able to use the new SSID.
+
+The Windows agent will import and apply the provisioned profile so that the user only needs to enter his username and password.
+
+Configure the feature
+^^^^^^^^^^^^^^^^^^^^^
+NOTE: If EAP-TLS provisioning is desired, you have to configure a PKI before going any further. Two guides exists to assist you: 'PacketFence PKI Quick Install Guide', which covers PacketFence's implementation, or 'PacketFence MSPKI Quick Install Guide' which covers Microsoft's.
+
+First of all, you need to configure the SSID that your devices will use after they go through the authentication process.
+
+In the administration interface, go in 'Advanced Access Configuration -> Provisioners'. Then select 'android' / 'ios' / 'Windows' provisioner. Enter the SSID information and roles for which the provisioner applies. Repeat for all desired provisioners. Note that the default RADIUS certificate path is `/usr/local/pf/raddb/certs/server.crt`.
+
+After, you simply need to add the 'Android', 'iOS' and 'Windows' provisioners to your 'Connection Profile' configuration.
+
+Android specificities
++++++++++++++++++++++
+
+For Android provisioning support, you must activate and adjust the passthroughs. You might need to adapt them depending on your geolocality.
+NOTE: Please refer to the 'Passthroughs' section of this guide if needed.
+
+In the administation inferface, go in 'Network Configuration -> Fencing'. Activate 'Passthrough' and make sure the following passthrough are present:
+
+  *.ggpht.com,*.googleusercontent.com,android.clients.google.com,*.googleapis.com,*.android.clients.google.com,*.gvt1.com,*.l.google.com,play.google.com,*.gstatic.com
+
+Then run the following commands so that passthroughs become effective:  
+
+  /usr/local/pf/bin/pfcmd configreload hard
+  /usr/local/pf/bin/pfcmd service iptables restart
+  /usr/local/pf/bin/pfcmd service pfdns restart
+
+iOS specificities
++++++++++++++++++
+
+Mac OS X/iOS require the provisioning profile to be signed if you want to remove the `untrusted` warning when installing the profile. For more information, please refer to the PKI guides referred earlier in 'Configure the feature' above.
+
+Profile generation
+^^^^^^^^^^^^^^^^^^
+
+Upon registration, instead of showing the default release page, the user will be showing another version of the page saying that the wireless profile has been generated with a clickable link on it. To install the profile, Apple user owner simply need to click on that link, and follow the instructions on their device. Android user owner simply click to the link and will be forwarded to Google Play to install PacketFence agent. Simply launch the application and click to configure will create the secure SSID profile. It is that simple.
+
+MobileIron
+~~~~~~~~~~
+
+include::provisioner/mobileiron.asciidoc[]
+
+OPSWAT
+~~~~~~
+
+include::provisioner/opswat.asciidoc[]
+
+SentinelOne
+~~~~~~~~~~~
+
+include::provisioner/sentinelone.asciidoc[]
+
+Symantec SEPM
+~~~~~~~~~~~~~
+
+include::provisioner/sepm.asciidoc[]
+
 Best Practices
 --------------
 
@@ -3524,49 +3590,6 @@ In order to override a default parameter, define it and set it in `pf.conf`.
 `/usr/local/pf/conf/documentation.conf` holds the complete list of all available parameters.
 
 All these parameters are also accessible through the web-based administration interface under the Configuration tab. It is highly recommended that you use the web-based administration interface of PacketFence for any configuration changes.
-
-Apple, Android and Windows Wireless Provisioning
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Apple devices such as iPhones, iPads, iPods and Mac OS X (10.7+) support wireless profile importation using a special XML file format (mobileconfig). Android is also able to support this feature by importing the wireless profile with the Android PacketFence Agent. In fact, installing such file on your Apple device will automatically configure the wireless settings for a given SSID. This feature is often used when the SSID is hidden, and you want to ease the configuration steps on the mobile device (because it is often painful to configure manually). In PacketFence, we are going further, we generate the profile according to the administrator's preference and we pre-populate the file with the user's credentials (without the password). The user simply needs to install its generated file and he will be able to use the new SSID.
-
-The Windows agent will import and apply the provisioned profile so that the user only needs to enter his username and password.
-
-Configure the feature
-^^^^^^^^^^^^^^^^^^^^^
-NOTE: If EAP-TLS provisioning is desired, you have to configure a PKI before going any further. Two guides exists to assist you: 'PacketFence PKI Quick Install Guide', which covers PacketFence's implementation, or 'PacketFence MSPKI Quick Install Guide' which covers Microsoft's.
-
-First of all, you need to configure the SSID that your devices will use after they go through the authentication process.
-
-In the administration interface, go in 'Advanced Access Configuration -> Provisioners'. Then select 'android' / 'ios' / 'Windows' provisioner. Enter the SSID information and roles for which the provisioner applies. Repeat for all desired provisioners. Note that the default RADIUS certificate path is `/usr/local/pf/raddb/certs/server.crt`.
-
-After, you simply need to add the 'Android', 'iOS' and 'Windows' provisioners to your 'Connection Profile' configuration.
-
-Android specificities
-+++++++++++++++++++++
-
-For Android provisioning support, you must activate and adjust the passthroughs. You might need to adapt them depending on your geolocality.
-NOTE: Please refer to the 'Passthroughs' section of this guide if needed.
-
-In the administation inferface, go in 'Network Configuration -> Fencing'. Activate 'Passthrough' and make sure the following passthrough are present:
-
-  *.ggpht.com,*.googleusercontent.com,android.clients.google.com,*.googleapis.com,*.android.clients.google.com,*.gvt1.com,*.l.google.com,play.google.com,*.gstatic.com
-
-Then run the following commands so that passthroughs become effective:  
-
-  /usr/local/pf/bin/pfcmd configreload hard
-  /usr/local/pf/bin/pfcmd service iptables restart
-  /usr/local/pf/bin/pfcmd service pfdns restart
-
-iOS specificities
-+++++++++++++++++
-
-Mac OS X/iOS require the provisioning profile to be signed if you want to remove the `untrusted` warning when installing the profile. For more information, please refer to the PKI guides referred earlier in 'Configure the feature' above.
-
-Profile generation
-^^^^^^^^^^^^^^^^^^
-
-Upon registration, instead of showing the default release page, the user will be showing another version of the page saying that the wireless profile has been generated with a clickable link on it. To install the profile, Apple user owner simply need to click on that link, and follow the instructions on their device. Android user owner simply click to the link and will be forwarded to Google Play to install PacketFence agent. Simply launch the application and click to configure will create the secure SSID profile. It is that simple.
 
 Fingerbank Integration
 ~~~~~~~~~~~~~~~~~~~~~~
