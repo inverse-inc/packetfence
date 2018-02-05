@@ -63,7 +63,7 @@ PacketFence reuses many components in an infrastructure. Nonetheless, it will in
 
 In this guide, we assume that all those components are running on the same server (i.e., "localhost" or "127.0.0.1") that PacketFence will be installed on.
 
-Good understanding of those underlying component and GNU/Linux is required to install PacketFence. When installing PacketFence, all these components will be properly installed. Moreover, PacketFence will manage the services listed above. Make sure that all the other services are automatically started by your operating system.
+Good understanding of those underlying components and GNU/Linux is required to install PacketFence. When installing PacketFence, all these components will be properly installed. Moreover, PacketFence will manage the services listed above. Make sure that all the other services are automatically started by your operating system.
 
 Minimum Hardware Requirements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -223,15 +223,15 @@ Now that PacketFence is installed, it needs to be configured. The PacketFence we
 
 This section will guide through configuring PacketFence as a simple RADIUS server. PacketFence will provide 802.1X support through Microsoft Active Directory and a Cisco 2960 access switch will be configured to integrate with PacketFence. The 802.1X client will be a Microsoft Windows 7 computer, connected of course on the wired network in the Cisco 2960 access switch. The following architecture diagram shows the interconnection of all components for our example:
 
-image::docs/images/getting-started.png[scaledwidth="50%",alt="Getting Started"]
+image::docs/images/getting-started.png[scaledwidth="65%",alt="Getting Started"]
 
 Going through the configurator
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Fist open PacketFence's configurator - you can access it from https://@ip_of_packetfence:1443/configurator
+First open PacketFence's configurator - you can access it from https://@ip_of_packetfence:1443/configurator
 
- * Step 1 - Enforcement, choose "RADIUS enforcement" - this will make PacketFence act as simple RADIUS server.
- * Step 2 - Networks, make sure you define only one interface with the Management type. That network interface will be the for which the Cisco 2960 access switch will talk to. The management interface of PacketFence and the Cisco 2960 should normally be in the same network.
+ * Step 1 - Enforcement, choose 'RADIUS enforcement' - this will make PacketFence act as simple RADIUS server.
+ * Step 2 - Networks, make sure you define only one interface with the Management type. That network interface will be the one for which the Cisco 2960 access switch will talk to. The management interface of PacketFence and the Cisco 2960 should normally be in the same network.
  * Step 3 - Database Configuration - provide the required information to properly create the PacketFence database
  * Step 4 - PacketFence Configuration - provide your domain name, DHCP servers list and other required information
  * Step 5 - Administration - provide the PacketFence's admin username and password to be used
@@ -2269,7 +2269,7 @@ Example triggers
 
    Accounting::TOT200GB1W
 
-Grace period
+Grace Period
 ++++++++++++
 
 When using such violation feature, setting the grace period is really important.  You don't want to put it too low (ie. A user re-enable his network, and get caught after 1 bytes is transmitted!) or too high.  We recommend that you set the grace period to one interval window.
