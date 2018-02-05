@@ -17,6 +17,11 @@ use strict;
 use warnings;
 use Moo;
 use fingerbank::Config;
+use pf::file_paths qw(
+    $server_cert
+    $server_key
+);
+use pf::constants;
 
 extends 'pf::services::manager';
 
@@ -25,6 +30,16 @@ has '+name'     => ( default => sub { 'fingerbank-collector' } );
 sub isManaged {
     my ($self) = @_;
     return fingerbank::Config::is_api_key_configured() && $self->SUPER::isManaged();
+}
+
+sub generateConfig {
+    # Perform HTTPS setup
+
+    system("/usr/bin/systemctl set-environment COLLECTOR_HTTP_CERT=$server_cert");
+    system("/usr/bin/systemctl set-environment COLLECTOR_HTTP_KEY=$server_key");
+    system("/usr/local/fingerbank/collector/set-env-fingerbank-conf.pl")
+
+    return $TRUE;
 }
 
 =head1 AUTHOR
