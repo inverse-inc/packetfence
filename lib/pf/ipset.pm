@@ -308,7 +308,7 @@ sub call_ipsetd {
         $ipset_client->call("/api/v1/$url", $data);
     };
     if ($@) {
-        get_logger()->error("Error updating ipset $url");;
+        get_logger()->error("Error updating ipset $url : $@");;
     }
 }
 

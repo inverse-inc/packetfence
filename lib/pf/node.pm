@@ -728,7 +728,7 @@ sub node_deregister {
     };
 
     if ($@) {
-        $logger->error("releasing ip for $mac");
+        $logger->error("Error releasing ip for $mac : $@");
     }
 
     return (1);
