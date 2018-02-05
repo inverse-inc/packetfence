@@ -1,14 +1,14 @@
 [Unit]
-Description=PacketFence radsniff Service
-After=packetfence-collectdtostatsd.service
-Requires=packetfence-collectdtostatsd.service
+Description=PacketFence Collectd to Statsd daemon
 Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
 After=packetfence-base.target packetfence-config.service packetfence-iptables.service
 
 [Service]
 StartLimitBurst=3
 StartLimitInterval=10
-ExecStart=/usr/local/pf/sbin/radsniff-wrapper
+Type=notify
+ExecStartPre=/bin/rm -fr /usr/local/pf/var/run/collectd-unixsock
+ExecStart=/usr/local/pf/bin/collectdtostatsd
 Restart=on-failure
 Slice=packetfence.slice
 
