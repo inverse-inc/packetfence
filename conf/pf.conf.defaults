@@ -583,7 +583,7 @@ fingerbank-collector=enabled
 # services.fingerbank-collector_binary
 # 
 # Location of the fingerbank-collector binary. Only necessary to change if you are not running the pre-packaged version.
-fingerbank-collector_binary=/usr/local/fingerbank/fingerbank-collector
+fingerbank-collector_binary=/usr/local/fingerbank/collector/fingerbank-collector
 #
 # services.openssl_binary
 #
