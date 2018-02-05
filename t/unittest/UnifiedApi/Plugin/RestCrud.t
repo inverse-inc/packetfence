@@ -28,7 +28,7 @@ use pf::UnifiedApi::Plugin::RestCrud;
 use Mojolicious;
 use Lingua::EN::Inflexion qw(noun);
 
-use Test::More tests => 71;
+use Test::More tests => 72;
 
 #This test will running last
 use Test::NoWarnings;
@@ -146,6 +146,12 @@ eval {
 };
 
 ok ($@ && $@ =~ 'cannot be singular noun', "Enforce no singular noun for controllers");
+
+eval {
+    pf::UnifiedApi::Plugin::RestCrud::munge_options($routes, {controller => 'User', allow_singular => 1, collection => undef});
+};
+
+ok(!$@, "Allow singular");
 
 eval {
     pf::UnifiedApi::Plugin::RestCrud::munge_options($routes, {});

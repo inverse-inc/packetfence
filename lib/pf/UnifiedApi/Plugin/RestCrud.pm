@@ -135,10 +135,15 @@ sub register_subroutes {
 
 sub munge_options {
     my ($route, $options) = @_;
+    if (!ref($options)) {
+        $options = { controller => $options };
+    }
+
     my $controller = $options->{controller};
     if (!defined $controller || $controller eq '' ) {
         die "Controller not given";
     }
+
     my $controller_for_name = $options->{subcontroller} // $controller;
     my $decamelized = decamelize($controller_for_name);
     my @paths = split(/-/,$decamelized);
@@ -146,11 +151,13 @@ sub munge_options {
     if (@paths) {
         unshift @paths, '';
     }
+
     my $base_url = join ('/', @paths);
     my $noun = noun($short_name);
-    if ($noun->is_singular) {
+    if (!$options->{allow_singular} && $noun->is_singular) {
         die "$controller cannot be singular noun";
     }
+
     my $name_prefix = $options->{name_prefix} // munge_name_prefix_option( $route, $options );
     %$options = (
         %$options,
@@ -281,17 +288,14 @@ sub munge_child_options {
     if ($child_options->{controller} =~ /^\Q$parent_options->{controller}\E::(.*)/) {
         $child_options->{subcontroller} //= $1;
     }
-    return munge_options($route, $child_options);
+    return $child_options;
 }
 
 sub munge_children_options {
     my ($route, $options, $resource) = @_;
     return [
         map {
-            local $_ = $_;
-            my $o = $_;
-            $o = clone($o);
-            munge_child_options($route, $options, $o, $resource)
+            munge_child_options($route, $options, clone($_), $resource)
         } @{$resource->{children} // []}
     ];
 }

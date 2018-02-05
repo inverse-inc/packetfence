@@ -1,14 +1,14 @@
-package pf::UnifiedApi::Controller::UsersPassword;
+package pf::UnifiedApi::Controller::Users::Password;
 
 =head1 NAME
 
-pf::UnifiedApi::Controller::UsersPassword -
+pf::UnifiedApi::Controller::Users::Password -
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::UnifiedApi::Controller::UsersPassword
+pf::UnifiedApi::Controller::Users::Password
 
 =cut
 

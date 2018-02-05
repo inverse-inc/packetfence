@@ -43,18 +43,12 @@ our @API_V1_ROUTES = (
             children => [
                 {
                     controller => 'Users::Nodes',
-                    resource   => {
-                        path => '/node/:node_id',
-                    },
-                    collection => {
-                        path => '/nodes',
-                    }
                 },
                 {
-                    controller => 'UsersPasswords',
-                    resource   => undef,
-                    collection => {
-                        path         => '/password',
+                    controller => 'Users::Password',
+                    collection => undef,
+                    allow_singular => 1,
+                    resource => {
                         http_methods => {
                             'get'    => 'get',
                             'delete' => 'remove',
@@ -72,12 +66,7 @@ our @API_V1_ROUTES = (
     { controller => 'ApiUsers' },
     { controller => 'Locationlogs' },
     { controller => 'Config::ConnectionProfiles' },
-    {
-        controller => 'Violations',
-    },
-    {
-        controller => 'Nodes',
-    },
+    { controller => 'Violations', },
     {
         controller  => 'Reports',
         resource    => undef,
