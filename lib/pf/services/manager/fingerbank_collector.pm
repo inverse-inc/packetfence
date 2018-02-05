@@ -16,10 +16,16 @@ fingerbank-collector daemon manager module for PacketFence.
 use strict;
 use warnings;
 use Moo;
+use fingerbank::Config;
 
 extends 'pf::services::manager';
 
 has '+name'     => ( default => sub { 'fingerbank-collector' } );
+
+sub isManaged {
+    my ($self) = @_;
+    return fingerbank::Config::is_api_key_configured() && $self->SUPER::isManaged();
+}
 
 =head1 AUTHOR
 
