@@ -285,15 +285,14 @@ type PassthroughsIsolationConf struct {
 
 type AuthenticationSourceEduroam struct {
 	StructConfig
-	PfconfigMethod  string `val:"hash_element"`
-	PfconfigNS      string `val:"resource::authentication_sources_eduroam"`
-	PfconfigArray   string `val:"_"`
-	Unique          string `json:"unique"`
-	Id              string `json:"id"`
-	Description     string `json:"description"`
-	Radius_secret   string `json:"radius_secret"`
-	Server1_address string `json:"server1_address"`
-	Server2_address string `json:"server2_address"`
+	PfconfigMethod string `val:"hash_element"`
+	PfconfigNS     string `val:"resource::authentication_sources_eduroam"`
+	PfconfigArray  string `val:"_"`
+	PfconfigHashNS string `val:"-"`
+	Description    string `json:"description"`
+	RadiusSecret   string `json:"radius_secret"`
+	Server1Address string `json:"server1_address"`
+	Server2Address string `json:"server2_address"`
 }
 
 type AuthenticationSourceRadius struct {
@@ -301,8 +300,7 @@ type AuthenticationSourceRadius struct {
 	PfconfigMethod string `val:"hash_element"`
 	PfconfigNS     string `val:"resource::authentication_sources_radius"`
 	PfconfigArray  string `val:"_"`
-	Unique         string `json:"unique"`
-	Id             string `json:"id"`
+	PfconfigHashNS string `val:"-"`
 	Description    string `json:"description"`
 	Secret         string `json:"secret"`
 	Port           string `json:"port"`
@@ -313,20 +311,19 @@ type AuthenticationSourceRadius struct {
 type AuthenticationSourceLdap struct {
 	StructConfig
 	PfconfigMethod    string `val:"hash_element"`
-	PfconfigNS        string `val:"resource::authentication_sources_radius"`
+	PfconfigNS        string `val:"resource::authentication_sources_ldap"`
 	PfconfigArray     string `val:"_"`
-	Unique            string `json:"unique"`
-	Id                string `json:"id"`
+	PfconfigHashNS    string `val:"-"`
 	Description       string `json:"description"`
 	Password          string `json:"password"`
 	Port              string `json:"port"`
 	Host              string `json:"host"`
-	read_timeout      string `json:"read_timeout"`
-	write_timeout     string `json:"write_timeout"`
-	basedn            string `json:"basedn_timeout"`
-	scope             string `json:"scope"`
-	email_attribute   string `json:"email_attribute"`
-	usernameattribute string `json:"usernameattribute"`
-	binddn            string `json:"bindn"`
-	encryption        string `json:"encryption"`
+	ReadTimeout       string `json:"read_timeout"`
+	WriteTimeout      string `json:"write_timeout"`
+	BaseDN            string `json:"basedn"`
+	Scope             string `json:"scope"`
+	EmailAttribute    string `json:"email_attribute"`
+	UserNameAttribute string `json:"usernameattribute"`
+	BindDN            string `json:"binddn"`
+	Encryption        string `json:"encryption"`
 }
