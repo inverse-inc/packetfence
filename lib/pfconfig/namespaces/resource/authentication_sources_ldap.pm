@@ -25,9 +25,12 @@ sub init {
 
 sub build {
     my ($self) = @_;
-
-    my @ldap = grep {$_->{'type'} eq "AD" or $_->{'type'} eq "LDAP"} @{$self->{_authentication_config}->{authentication_sources}};
-    return \@ldap;
+    my %hash;
+    while ( my ($id, $data) = each %{$self->{_authentication_config}->{authentication_config_hash}}) {
+        next unless $data->{'type'} eq "AD" or $data->{'type'} eq "LDAP";
+        $hash{$id} = $data;
+    }
+    return \%hash;
 }
 
 

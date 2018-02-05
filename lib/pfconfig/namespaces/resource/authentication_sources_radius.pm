@@ -25,11 +25,13 @@ sub init {
 
 sub build {
     my ($self) = @_;
-
-    my @radius = grep {$_->{'type'} eq "RADIUS"} @{$self->{_authentication_config}->{authentication_sources}};
-    return \@radius;
+    my %hash;
+    while ( my ($id, $data) = each %{$self->{_authentication_config}->{authentication_config_hash}}) {
+        next unless $data->{'type'} eq "RADIUS";
+        $hash{$id} = $data;
+    }
+    return \%hash;
 }
-
 
 =head1 AUTHOR
 

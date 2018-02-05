@@ -25,11 +25,13 @@ sub init {
 
 sub build {
     my ($self) = @_;
-
-    my @eduroam = grep {$_->{'type'} eq "Eduroam"} @{$self->{_authentication_config}->{authentication_sources}};
-    return \@eduroam;
+    my %hash;
+    while ( my ($id, $data) = each %{$self->{_authentication_config}->{authentication_config_hash}}) {
+        next unless $data->{'type'} eq "Eduroam";
+        $hash{$id} = $data;
+    }
+    return \%hash;
 }
-
 
 =head1 AUTHOR
 
