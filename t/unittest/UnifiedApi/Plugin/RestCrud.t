@@ -372,11 +372,7 @@ is_deeply(
         {
             controller => 'Users',
             resource   => {
-                children => [
-                    {
-                        controller => 'Users::Nodes',
-                    },
-                ],
+                children => [ 'Users::Nodes' ],
             },
         }
     ),

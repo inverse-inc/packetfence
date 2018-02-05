@@ -18,12 +18,10 @@ use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
 use pf::person;
 
 has 'dal' => 'pf::dal::node';
-
-sub list {
-    my ($self) = @_;
-    my $user_id = $self->stash->{user_id};
-    $self->render(json => { items => [person_nodes($user_id)]});
-}
+has 'id_key' => 'node_id';
+has 'resource_id' => 'mac';
+has 'parent_id_keys' => sub { [qw(user_id)] };
+has 'parent_id_key_map' => sub { {user_id => 'pid'} };
 
 =head1 AUTHOR
 

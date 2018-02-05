@@ -24,21 +24,60 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 4;
+use Test::More tests => 18;
 use Test::Mojo;
 use pf::node;
+use List::MoreUtils qw(all);
 
 #This test will running last
 use Test::NoWarnings;
 
 my $t = Test::Mojo->new('pf::UnifiedApi');
+
+my $test_mac = sprintf(
+    "ff:ff:%02x:%02x:%02x:%02x",
+    unpack("C4", pack("N", $$))
+);
+
+my $test_user = "test_user_$$";
+
+$t->post_ok('/api/v1/users/' => json => {pid => $test_user})
+  ->status_is(201)
+  ->header_is('Location' => "/api/v1/user/$test_user");
+
+$t->post_ok("/api/v1/user/$test_user/nodes" => json => {mac => $test_mac})
+  ->status_is(201)
+  ->header_is('Location' => "/api/v1/user/$test_user/node/$test_mac");
+
+my $location = $t->tx->res->headers->location;
+
+$t->get_ok($location)
+  ->status_is(200);
+
+my $new_notes =  "Notes $test_mac updated";
+
+$t->patch_ok($location => json => { notes => $new_notes})
+  ->status_is(200);
+
+$t->get_ok($location)
+  ->status_is(200)
+  ->json_is('/item/notes' => $new_notes);
+
+$t->get_ok("/api/v1/user/$test_user/nodes")
+  ->status_is(200)
+  ->json_is('/items/0/pid' => $test_user) ;
+
 node_add("ff:ff:ff:ff:ff:fe");
 
-$t->get_ok('/api/v1/user/default/nodes')
-  ->status_is(200)
-  ->json_is('/items/0/pid' => 'default') ;
+for my $pid ('default', $test_user) {
 
-my $items = $t->tx->res->json->{items};
+    $t->get_ok("/api/v1/user/$pid/nodes")
+      ->status_is(200);
+
+    my $items = $t->tx->res->json->{items};
+
+    ok( (all {$_->{pid} eq $pid} @$items), "All nodes are owned by the '$pid' user");
+}
 
 =head1 AUTHOR
 
@@ -68,4 +107,3 @@ USA.
 =cut
 
 1;
-

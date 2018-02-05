@@ -22,6 +22,8 @@ use pf::log;
 has 'dal';
 has 'id_key';
 has 'resource_id' => 'id';
+has 'parent_id_keys' => sub { [] };
+has 'parent_id_key_map' => sub { {} };
 
 sub list {
     my ($self) = @_;
@@ -32,6 +34,7 @@ sub list {
         -limit => $limit,
         -offset => $cursor,
         -with_class => undef,
+        -where => $self->where_for_list,
     );
     my $items = $iter->all;
     my $prevCursor = $cursor - $number_of_results;
@@ -46,6 +49,11 @@ sub list {
         $results{prevCursor} = $prevCursor;
     }
     $self->render(json => \%results, status => $status);
+}
+
+sub where_for_list {
+    my ($self) = @_;
+    $self->parent_data;
 }
 
 sub list_cursor {
@@ -97,9 +105,9 @@ sub do_get {
 
 sub build_item_lookup {
     my ($self) = @_;
-    return {
-        $self->resource_id => $self->stash($self->id_key)
-    };
+    my $lookup = $self->parent_data;
+    $lookup->{$self->resource_id} = $self->stash($self->id_key);
+    return $lookup;
 }
 
 sub create {
@@ -127,7 +135,25 @@ sub make_location_url {
 
 sub make_create_data {
     my ($self) = @_;
-    return $self->parse_json;
+    my ($status, $json) = $self->parse_json;
+    if (is_error($status)) {
+        return ($status, $json);
+    }
+    my $parent_data = $self->parent_data;
+    @{$json}{keys %$parent_data} = values %$parent_data;
+    return ($status, $json);
+}
+
+sub parent_data {
+    my ($self) = @_;
+    my $map = $self->parent_id_key_map;
+    my %data;
+    my $captures = $self->stash->{'mojo.captures'};
+    for my $parent_id (@{$self->parent_id_keys // []}) {
+        $data{$map->{$parent_id}} = $captures->{$parent_id};
+    }
+
+    return \%data;
 }
 
 sub parse_json {
