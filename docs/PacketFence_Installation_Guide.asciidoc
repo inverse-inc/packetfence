@@ -828,6 +828,11 @@ include::enforcement/out-of-band.asciidoc[]
 Troubleshooting PacketFence
 ---------------------------
 
+RADIUS Audit Log
+~~~~~~~~~~~~~~~~
+
+TODO
+
 Log files
 ~~~~~~~~~
 
@@ -2229,6 +2234,46 @@ Sending Access-Request of id 74 to 127.0.0.1 port 18120
   NAS-Port = 12
 rad_recv: Access-Accept packet from host 127.0.0.1:18120, id=74, length=20
 ----
+
+RADIUS Accounting
+~~~~~~~~~~~~~~~~~
+
+RADIUS Accounting is usually used by ISPs to bill clients.  In PacketFence, we are able to use this information to determine if the node is still connected, how much time it has been connected, and how much bandwidth the user consumed.
+
+Violations
+^^^^^^^^^^
+
+Using PacketFence, it is possible to add violations to limit bandwidth abuse.  The format of the trigger is very simple:
+
+   Accounting::[DIRECTION][LIMIT][INTERVAL(optional)]
+
+Let's explain each chunk properly:
+
+[options="compact"]
+* `DIRECTION`: You can either set a limit to inbound(IN), outbound(OUT), or total(TOT) bandwidth
+* `LIMIT`: You can set a number of bytes(B), kilobytes(KB), megabytes(MB), gigabytes(GB), or petabytes(PB)
+* `INTERVAL`: This is actually the time window we will look for potential abuse.  You can set a number of days(D), weeks(W), months(M), or years(Y).
+
+Example triggers
+++++++++++++++++
+
+* Look for Incoming (Download) traffic with a 50GB/month
+
+   Accounting::IN50GB1M
+
+* Look for Outgoing (Upload) traffic with a 500MB/day
+
+   Accounting::OUT500MB1D
+
+* Look for Total (Download + Upload) traffic with a 200GB limit in the last week
+
+   Accounting::TOT200GB1W
+
+Grace period
+++++++++++++
+
+When using such violation feature, setting the grace period is really important.  You don't want to put it too low (ie. A user re-enable his network, and get caught after 1 bytes is transmitted!) or too high.  We recommend that you set the grace period to one interval window.
+
 
 Intrusion Detection System Integration
 --------------------------------------
@@ -4159,45 +4204,6 @@ Advanced
 
 In the `Advanced` tab you configure the destination VLAN of the device when it has the `Reevaluate access` action and its redirection URL when the user is released.
 
- 
-RADIUS Accounting
-~~~~~~~~~~~~~~~~~
-
-RADIUS Accounting is usually used by ISPs to bill clients.  In PacketFence, we are able to use this information to determine if the node is still connected, how much time it has been connected, and how much bandwidth the user consumed.
-
-Violations
-^^^^^^^^^^
-
-Using PacketFence, it is possible to add violations to limit bandwidth abuse.  The format of the trigger is very simple:
-
-   Accounting::[DIRECTION][LIMIT][INTERVAL(optional)]
-
-Let's explain each chunk properly:
-
-[options="compact"]
-* `DIRECTION`: You can either set a limit to inbound(IN), outbound(OUT), or total(TOT) bandwidth
-* `LIMIT`: You can set a number of bytes(B), kilobytes(KB), megabytes(MB), gigabytes(GB), or petabytes(PB)
-* `INTERVAL`: This is actually the time window we will look for potential abuse.  You can set a number of days(D), weeks(W), months(M), or years(Y).
-
-Example triggers
-++++++++++++++++
-
-* Look for Incoming (Download) traffic with a 50GB/month
-
-   Accounting::IN50GB1M
-
-* Look for Outgoing (Upload) traffic with a 500MB/day
-
-   Accounting::OUT500MB1D
-
-* Look for Total (Download + Upload) traffic with a 200GB limit in the last week
-
-   Accounting::TOT200GB1W
-
-Grace period
-++++++++++++
-
-When using such violation feature, setting the grace period is really important.  You don't want to put it too low (ie. A user re-enable his network, and get caught after 1 bytes is transmitted!) or too high.  We recommend that you set the grace period to one interval window.
 
 Guests Management
 ~~~~~~~~~~~~~~~~~
