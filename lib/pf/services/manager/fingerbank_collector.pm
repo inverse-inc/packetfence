@@ -37,7 +37,7 @@ sub generateConfig {
 
     system("/usr/bin/systemctl set-environment COLLECTOR_HTTP_CERT=$server_cert");
     system("/usr/bin/systemctl set-environment COLLECTOR_HTTP_KEY=$server_key");
-    system("/usr/local/fingerbank/collector/set-env-fingerbank-conf.pl")
+    system("/usr/local/fingerbank/collector/set-env-fingerbank-conf.pl");
 
     return $TRUE;
 }
