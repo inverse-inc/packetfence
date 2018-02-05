@@ -1872,7 +1872,7 @@ Prior configuring PacketFence, you must chose an appropriate enforcement mode to
 
 It is also possible to combine enforcement modes. For example, you could use the out-of-band mode on your wired switches, while using the inline mode on your old WiFi access points.
 
-The following sections will explain these enforcement modes. If you decide to use the inline mode, please refer to the PacketFence Inline Deployment Quick Guide using ZEN for a complete configuration example. If you decide to use the out-of-band mode, please refer to the PacketFence Out-of-Band Deployment Quick Guide using ZEN
+The following sections will explain these enforcement modes. It will also explain you how to properly configure PacketFence to use each enforcement mode.
 
 Technical Introduction to Inline Enforcement
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1880,7 +1880,7 @@ Technical Introduction to Inline Enforcement
 Introduction
 ^^^^^^^^^^^^
 
-Before the version 3.0 of PacketFence, it was not possible to support unmanageable devices such as entry-level consumer switches or access-points. Now, with the new inline mode, PacketFence can be use in-band for those devices. So in other words, PacketFence would become the gateway of that inline network, and NAT or route the traffic using IPTables/IPSet to the Internet (or to another section of the network). Let see how it works.
+In many other NAC solutions, it is not possible to support unmanageable devices such as entry-level consumer switches or access-points. Using PacketFence, with the new inline mode, it can be use in-band for those devices. So in other words, PacketFence would become the gateway of that inline network, and NAT or route the traffic using IPTables/IPSet to the Internet (or to another section of the network). Let see how it works.
 
 Device Configuration
 ^^^^^^^^^^^^^^^^^^^^
@@ -1949,8 +1949,8 @@ image::docs/images/radius_workflow.png[scaledwidth="100%",alt="WiFi RADIUS workf
 8. PacketFence server directs WLAN controller via RADIUS to put the device in an "authenticated role“, or in the "normal" VLAN
 
 
-Web Auth mode
-+++++++++++++
+Web Authentication Mode
++++++++++++++++++++++++
 
 Web authentication is a method on the switch that forwards HTTP traffic of the device to the captive portal.
 With this mode, your device will never change of VLAN ID but only the ACL associated to your device will change.
@@ -1981,12 +1981,12 @@ When a host connects to a switch port, the switch sends a linkUp trap to PacketF
 
 When a computer boots, the initialization of the NIC generates several link status changes. And every time the switch sends a linkUp and a linkDown trap to PacketFence. Since PacketFence has to act on each of these traps, this generates unfortunately some unnecessary load on pfsetvlan. In order to optimize the trap treatment, PacketFence stops every thread for a 'linkUp trap' when it receives a 'linkDown' trap on the same port. But using only linkUp/linkDown traps is not the most scalable option. For example in case of power failure, if hundreds of computers boot at the same time, PacketFence would receive a lot of traps almost instantly and this could result in network connection latency.
 
-MAC notification traps
-++++++++++++++++++++++
+MAC Notification Traps (deprecated)
++++++++++++++++++++++++++++++++++++
 
 If your switches support MAC notification traps (MAC learnt, MAC removed), we suggest that you activate them in addition to the linkUp/linkDown traps. This way, pfsetvlan does not need, after a linkUp trap, to query the switch continuously until the MAC has finally been learned. When it receives a linkUp trap for a port on which MAC notification traps are also enabled, it only needs to put the port in the MAC detection VLAN and can then free the thread. When the switch learns the MAC address of the device it sends a MAC learnt trap (containing the MAC address) to PacketFence.
 
-Port Security traps
+Port Security Traps
 +++++++++++++++++++
 
 In its most basic form, the Port Security feature remembers the MAC address connected to the switch port and allows only that MAC address to communicate on that port. If any other MAC address tries to communicate through the port, port security will not allow it and send a port-security trap.
@@ -2056,6 +2056,18 @@ After, you need to configure a routed network for this interface by clicking 'Ad
 NOTE: If you are not using a routed network, you need to use Inline enforcement as DNS enforcement can only be used for routed networks.
 
 Once this is done, you need to restart the dhcpd and pfdns services.
+
+Adding Inline Enforcement to Existing Installation
+--------------------------------------------------
+
+include::enforcement/inline.asciidoc[]
+
+
+Adding VLAN Enforcement to Existing Installation
+------------------------------------------------
+
+include::enforcement/out-of-band.asciidoc[]
+
 
 Advanced RADIUS Configuration
 -----------------------------
