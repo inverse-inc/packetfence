@@ -139,8 +139,8 @@ sub munge_options {
     if (!defined $controller || $controller eq '' ) {
         die "Controller not given";
     }
-    my $path_part = $route->pattern->unparsed || '';
-    my $decamelized = decamelize($controller);
+    my $controller_for_name = $options->{subcontroller} // $controller;
+    my $decamelized = decamelize($controller_for_name);
     my @paths = split(/-/,$decamelized);
     my $short_name = pop @paths;
     if (@paths) {
@@ -181,7 +181,7 @@ sub munge_parent_path {
 
 sub munge_name_prefix_option {
     my ($route, $options) = @_;
-    my $name_prefix = $options->{controller};
+    my $name_prefix = $options->{subcontroller} // $options->{controller};
     my $parent_name = $options->{parent_name} // $route->name;
     if ($parent_name) {
         $name_prefix = "$parent_name.$name_prefix";
@@ -273,8 +273,14 @@ sub munge_collection_options {
 sub munge_child_options {
     my ($route, $parent_options, $child_options, $resource) = @_;
     my $parent_name = $parent_options->{name_prefix};
+    if (!ref($child_options)) {
+        $child_options = { controller => $child_options };
+    }
     $child_options->{parent_name} = $parent_name;
     $child_options->{parent_path} = $resource->{path};
+    if ($child_options->{controller} =~ /^\Q$parent_options->{controller}\E::(.*)/) {
+        $child_options->{subcontroller} //= $1;
+    }
     return munge_options($route, $child_options);
 }
 

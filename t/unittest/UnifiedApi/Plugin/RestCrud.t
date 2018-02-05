@@ -374,7 +374,7 @@ is_deeply(
             resource   => {
                 children => [
                     {
-                        controller => 'Nodes',
+                        controller => 'Users::Nodes',
                     },
                 ],
             },
@@ -392,7 +392,7 @@ is_deeply(
             base_path   => '/user',
             children => [
                 {
-                    controller  => 'Nodes',
+                    controller  => 'Users::Nodes',
                     name_prefix => 'Users.Nodes',
                     parent_path => '/user/:user_id',
                     resource    => {
