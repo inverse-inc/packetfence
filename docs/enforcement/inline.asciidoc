@@ -48,7 +48,7 @@ The first step is to add a dedicated Network Interface Card (NIC) to your curren
     Management
     Inline layer 2
 
-Note that PacketFence will these services ont its inline interface:
+Note that PacketFence will these services on its inline interface:
 
 * PacketFence provides its own DHCP service. It will take care of IP address distribution in our Inline network. PacketFence will not provide DHCP services on the management network - this is the responsibility of your own infrastructure.
 * PacketFence provides its own DNS service. However for the Inline version, we need to provide the DNS of your infrastructure.

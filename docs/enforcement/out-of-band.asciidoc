@@ -1,62 +1,13 @@
-PacketFence Out-of-Band Deployment Quick Guide using ZEN
-========================================================
-:encoding: UTF-8
-:lang: en
-:doctype: book
-:toc: left
-
-////
-
-    This file is part of the PacketFence project.
-
-    See PacketFenceZEN_Installation_Guide-docinfo.xml for authors, copyright
-    and license information.
-
-////
-
-include::includes/global-attributes.asciidoc[]
-
-About this Guide
-----------------
-
-This guide will walk you through the installation and configuration of the PacketFence ZEN solution. It covers VLAN isolation setup.
-
-The instructions are based on version {release_version} of PacketFence.
-
-The latest version of this guide is available online at https://packetfence.org/documentation/
-
-
-Other sources of information
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-We suggest that you also have a look in the PacketFence Administration Guide, and in the PacketFence Network Devices Configuration Guide.  Both are available online at https://packetfence.org/documentation/
-
-
-Getting Started
----------------
-
-Virtual Machine
-~~~~~~~~~~~~~~
-
-This setup has been tested using VMWare ESXi 4.0 & 5.0 with 8GB RAM dedicated to the virtual machine. It might work using other virtualization products.  You need a 64-bit capable CPU on your host.*
-
-VLAN Enforcement
-~~~~~~~~~~~~~~~
+Introduction
+~~~~~~~~~~~~
 
 In order to build a VLAN isolation setup you need :
 
 * a supported switch (please consult the list of supported switch vendors and types in the _Network Devices Configuration Guide_ including information on uplinks
-* a regular, registration and isolation VLAN for visitors (VLAN numbers and subnets)
-* a switch port for the PacketFence (PacketFence) ZEN box which needs to be configured as a dot1q trunk (several VLANs on the port) with VLAN 1 as the native (untagged) VLAN.
-
-Assumptions
------------
+* a regular, registration and isolation VLAN (VLAN numbers and subnets)
+* a switch port for the PacketFence (PacketFence) server which needs to be configured as a dot1q trunk (several VLANs on the port) with VLAN 1 as the native (untagged) VLAN.
 
 Throughout this configuration example we use the following assumptions for our network infrastructure:
-
-
-Network Setup
-~~~~~~~~~~~~
 
 * VLAN 1 is the management VLAN
 * VLAN 2 is the registration VLAN (unregistered devices will be put in this VLAN)
@@ -74,74 +25,27 @@ Please refer to the following table for IP and Subnet information :
 |10       |Normal        |192.168.1.0/24   |192.168.1.1    |
 |==============================================================================
 
-
-DHCP/DNS
-~~~~~~~~ 
+Note that PacketFence will these services on its registration and isolation VLANs:
 
 * PacketFence provides its own DHCP services. It will take care of IP address distribution in VLANs 2 and 3. PacketFence will not provide DHCP services on VLAN 10 - this is the responsibility of your own infrastructure.
 * PacketFence provides its own DNS service. It will take care of naming resolution in VLANs 2 and 3. PacketFence will not provide DNS services on VLAN 10 - this is the responsibility of your own infrastructure.
 
-Installation
-------------
 
-Import the virtual machine
-~~~~~~~~~~~~~~~~~~~~~~~~~
+Adding the Registration and Isolation Interface
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PacketFence ZEN {release_version} comes in a pre-built virtual disk (OVA). If you are using an ESX-type hypervisor, you need to import the OVA using vSphere Client (or vCenter).  We are not supporting any Xen-based hypervisors yet.
+First of all, make sure the management interface of PacketFence is connected to a 'trunk' port. We will create two interface VLAN for registration and isolation using the management interface.
 
-
-Import to ESX
-^^^^^^^^^^^^^
-
-Make sure that there is only one virtual network card created, and also make sure that your vEthernet is connected to a virtual switch (vSwitch). You will need to create a “TRUNK” profile to allow all VLAN tags (usually VLAN all (4095)), and assign the profile to the PacketFence ZEN VM vEthernet.
-
-Virtual Machine passwords
--------------------------
-
-.Management (SSH/Console)
-* Login: root
-* Password: p@ck3tf3nc3
-
-.Captive Portal / 802.1X Registration User
-* Login: demouser
-* Password: demouser
-
-
-Configuration
--------------
-
-Configuring your PacketFence environment
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Before booting your VM, make sure the network cable coming from the TRUNK port for the demonstration PC is correctly connected in the switch and the PC and that the link is up.
-
-Once powered, open a browser and point it to the configuration URL as stated by the VM login prompt (ie. https://PF_IP:1443/configurator). The configuration process is a five steps process at the end of which, the VM will be a persistent working PacketFence environment.
-
-Step 1: Enforcement
-+++++++++++++++++++
-The first and most important step of the configuration process. This is where you'll choose the enforcement technique; either VLAN (out-of-band), INLINE (in-band) or both of them.
-
-The choice(s) made on this step will influence the next step where you'll need to configure the different networks.
-
-In this guide we will show you how to configure the VLAN (out-of-band) mode. If you want to configure the INLINE (in-band) mode please refer to link:docs/PacketFence_Inline_Deployment_Quick_Guide_ZEN.asciidoc[PacketFence Inline Deployment Quick Guide using ZEN]
-
-Step 2: Networks
-++++++++++++++++
-This step will ask you to statically configure your network interfaces (note that DHCP interfaces configuration is not supported yet).
-
-Depending on the choice(s) made on step 1, you'll have to configure the required types of interface. The web interface will list all currently installed network interfaces on the system. An IP and a netmask will be visible if the network interface is configured (either by DHCP or already manually configured). You can edit those ones, create/delete VLANs on physical interfaces and enable/disable an interface. Note that theses changes are effective on the moment you make them. Persistence will be written only for ENABLED interfaces.
-
-In all time, you'll need to set a Management interface.
-
-Required interface types for VLAN enforcement:
+The required interface types for VLAN enforcement are:
 
     Management
     Registration
     Isolation
 
-Note that you can only set ONE (1) management interface.
+Note that you can only set *one* (1) management interface.
 
-In our example, we will create two new VLANs on the wired interface (will be eth0 most of the time).
-To do so, click the Add VLAN button besides the wired interface for each of the needed VLAN:
+In our example, we will create two new VLANs on the wired interface (will be ens160 most of the time).
+To do so, click the 'Add VLAN' button besides the wired interface for each of the needed VLAN:
 
 Here's a sample configuration for both of them:
 
@@ -157,74 +61,21 @@ Isolation
     IP Address: 192.168.3.1
     Netmask: 255.255.255.0
 
-NOTE: Ignore the High-Availability options for now. If you are interested in a PacketFence cluster, please refer to the link:docs/PacketFence_Clustering_Guide.asciidoc[PacketFence Clustering Guide]
-
-Don't forget to also edit the physical interface with the correct management network information by clicking on the network interface name (eth0).
+NOTE: Ignore the High-Availability options for now. If you are interested in a PacketFence cluster, please refer to the clustering section of this document. Don't forget to also edit the physical interface with the correct management network information by clicking on the network interface name (ens160).
 
 According to our example, we'll associate the correct type the each interfaces.
 
-    eth0: Management
-    eth0 VLAN 2: Registration
-    eth0 VLAN 3: Isolation
+    ens160: Management
+    ens160 VLAN 2: Registration
+    ens160 VLAN 3: Isolation
 
-Make sure that those three (3) interfaces are in an Enabled state for the persistence to occur.
+Make sure that those three (3) interfaces are in an Enabled state for the persistence to occur. We also need to set the Default Gateway which will generally be the gateway of the management network.
 
-We also need to set the Default Gateway which will generally be the gateway of the management network.
-
-Once everything's set, click Continue to proceed with the next step.
-
-Step 3: Database Configuration
-++++++++++++++++++++++++++++++
-This step will configure the MySQL server needed by PacketFence. Database and schema will be created as well as the necessary user for operations. Root account will also be secured if necessary (set a password and disallow remote login).
-
-Start the MySQLd service if it is not started. Click the MySQL Start button at the top of the web page 'Warning! MySQL server does not seems to be running. You should start it to avoid any problems. Start MySQL'.
-
-Then you will need to create the root password for MySQL database. Click on the Test button and write a complex password (recommended) twice and save. When you are done creating the password, put the new root password and click on Test to validate it. You should see 'Success! Successfully connected to the database mysql with user root'
-
-Next section will create the database and load the correct schema on it. Simply leave the default database name and click Create databases and tables.
-
-The last section of this step is the PacketFence user account on the MySQL server. Simply leave the default pf username here and choose of a password. This one will automatically be set in the PacketFence configuration where you'll be able to retrieve it in any case. Once the password entered twice, click Create user.
-
-If you got a 'Success!' message for this all three sections, click Continue.
-
-Step 4: PacketFence Configuration
-+++++++++++++++++++++++++++++++++
-This step will configure the general options of your PacketFence installation. Theses are needed configurations that will most of the time fits customer specifications.
-
-Almost all of the required information here are self-explanatory. The only one that could be confusing is the DHCP Servers section. In this one, enter a comma-delimited list of all the DHCP Server on the customer network so when PacketFence will see DHCP traffic originating from these IPs, no rogue-dhcp alerts will be triggered. PacketFence will use the domain and the hostname to generate the url to redirect devices on the captive portal. If you have a http certificate use the same hostname and domain name to validate the SSL connection on the captive portal.
-
-In the last section, Local Database Passwords, you will have to chose the password encryption for local accounts (guest automatically generated and manually created account) 
-
-Click Continue once all the fields are completed.
-
-Step 5: Administration
-++++++++++++++++++++++
-This is the step where we create the administrative user to access the PacketFence Administration Web Interface.
-
-Simply provide the desired username and password, then click Modify the password.
-
-Step 6: Services - Confirmation
-+++++++++++++++++++++++++++++++
-The last but not the least. Here, we start the PacketFence server according to the configurations made in the previous steps. If everything goes as expected, you'll be prompted by a window inviting you to continue to the web administration interface.
-
-You'll be able to login to the PacketFence web administration interface with the credentials created in Step 4.
-
-Services status will help you monitor if everything goes as expected. If not, you'll see which service is in trouble and the log output will help you determine the problem that occurs.
-
-PacketFence configuration files
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-If you want to customize the configuration files, we suggest that you take a look into the PacketFence Administration Guide prior doing so.
-
-The main configuration files are :
-
-* `conf/pf.conf` : Configuration for the PacketFence services
-* `conf/networks.conf` : Definition of the registration and isolation networks to build DNS and DHCP configurations.  In our case, we included the registration and isolation networks.
-* `conf/switches.conf` : Definition of our VLANs and network devices
+Finally, from *Status->Services*, restart the `haproxy` `httpd.portal`, `dhcpd`, `iptables`, `pfdhcplistener`, `pfdns` services.
 
 
 Network Devices
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
 
 Please refer to the https://packetfence.org/documentation/[Network Devices Configuration Guide] in order to properly configure your devices.
 
@@ -342,24 +193,8 @@ Congratulations, you have everything setup and ready!  If your setup is properly
 * login the PacketFence administrative UI (https://management_IP:1443)
 * connects a client device on a mac-authentication switchport using demouser/demouser credentials, and show a registration.
 
-FreeRADIUS
-~~~~~~~~~
-
-PacketFence ZEN {release_version} comes with a pre-configured FreeRADIUS to do Wired and Wireless 802.1X with EAP as well as MAC Authentication.  We created a local user for the 802.1X authentication.
-
-The main configuration files are :
-
-* `/usr/local/pf/conf/radiusd.conf` : Template for the configuration for the RADIUS service
-* `/usr/local/pf/conf/eap.conf` : Template for the configuration for 802.1X using EAP
-* `/usr/local/pf/conf/sql.conf` : Template for the RADIUS accounting and RADIUS clients configuration in PacketFence.
-* `/usr/local/pf/raddb/users` : Definition of our local 802.1X user
-* `/usr/local/pf/raddb/sites-enabled/packetfence` : Definition of the default virtual to configure the modules used in the different phase of the AAA (authenticate-authorization-accounting)
-* `/usr/local/pf/raddb/sites-enabled/packetfence-tunnel` : Definition of a local virtual host mainly for tunnelled EAP processing.  This is an extension of the default virtual host.
-* `/usr/local/pf/raddb/packetfence.pm` : PacketFence's FreeRADIUS module. Talks with PacketFence server.
-
-
 VLAN Access
-~~~~~~~~~~
+~~~~~~~~~~~
 
 * make sure to configure the Registration, Isolation, and Normal VLANs on the switch
 * configure one switch port as a trunk port (dot1q) with access to all four VLANs. The native VLAN should be the management VLAN (1)
@@ -373,11 +208,8 @@ VLAN Access
 * make sure the device in VLAN 3 can communicate with PacketFence through (and only through) eth0.3
 * make sure the device in VLAN 3 can not communicate with any device in any other VLAN
 
-Test
-----
-
-Register a device in VLAN enforcement
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Testing the Out-of-Band Configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can now test the registration process. In order to do so:
 
@@ -400,10 +232,3 @@ Once a computer has been registered, make sure:
 
 * PacketFence puts the switch port into the regular VLAN (VLAN 10)
 * The computer has access to the network and the internet.
-
-
-include::includes/additional-info.asciidoc[]
-
-include::includes/commercial-support.asciidoc[]
-
-include::includes/license.asciidoc[]
