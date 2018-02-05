@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 18;
+use Test::More tests => 23;
 use Test::Mojo;
 use pf::node;
 use List::MoreUtils qw(all);
