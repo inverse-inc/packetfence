@@ -395,21 +395,9 @@ is_deeply(
             children => [
                 {
                     controller  => 'Users::Nodes',
-                    name_prefix => 'Users.Nodes',
+                    subcontroller => 'Nodes',
                     parent_path => '/user/:user_id',
-                    resource    => {
-                        url_param_key => 'node_id',
-                        subroutes     => {},
-                        http_methods  => default_resource_http_methods(),
-                        path   => '/node/:node_id',
-                        base_path => '/node',
-                        children => []
-                    },
-                    collection => {
-                        subroutes    => {},
-                        http_methods => default_collection_http_methods(),
-                        path => '/nodes',
-                    },
+                    parent_name => 'Users',
                 },
             ]
         },
