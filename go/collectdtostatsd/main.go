@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"regexp"
+	"strconv"
 	"strings"
 	"syscall"
 
@@ -106,7 +107,8 @@ func forward(c net.Conn) {
 						if val == "U" {
 							continue
 						}
-						Verb.Typename[k].Type[key].DataSource.Send(splitted[1]+"."+Verb.Typename[k].Type[key].Name, val)
+						f, _ := strconv.ParseFloat(val, 64)
+						Verb.Typename[k].Type[key].DataSource.Send(splitted[1]+"."+Verb.Typename[k].Type[key].Name, f)
 					}
 				}
 			}
