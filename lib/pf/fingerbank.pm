@@ -134,6 +134,7 @@ Currently done via a call to the Fingerbank collector
 
 sub endpoint_attributes {
     my ($mac) = @_;
+    my $timer = pf::StatsD::Timer->new({level => 7});
 
     $collector //= fingerbank::Collector->new_from_config;
     $collector_ua //= $collector->get_lwp_client();
@@ -164,6 +165,7 @@ Given a MAC address, the endpoint attributes (from the collector) and the Finger
 
 sub record_result {
     my ($mac, $attributes, $query_result) = @_;
+    my $timer = pf::StatsD::Timer->new({level => 7});
 
     my %attr_map = (
         most_accurate_user_agent => "user_agent",
@@ -188,6 +190,7 @@ Updates the endpoint data in the collector for a specific MAC address
 
 sub update_collector_endpoint_data {
     my ($mac, $data) = @_;
+    my $timer = pf::StatsD::Timer->new({level => 7});
 
     $collector //= fingerbank::Collector->new_from_config;
     $collector_ua //= $collector->get_lwp_client();
@@ -253,6 +256,7 @@ Also, looking at the top-level parent to determine the device class
 
 sub _parse_parents {
     my ( $args ) = @_;
+    my $timer = pf::StatsD::Timer->new({level => 7});
     my $logger = pf::log::get_logger;
 
     my $class;
@@ -287,8 +291,11 @@ Otherwise, the top level parent will be the device class
 
 sub find_device_class {
     my ($top_level_parent, $device_name) = @_;
+    my $timer = pf::StatsD::Timer->new({level => 7});
+
     my $logger = get_logger;
     my $result = cache()->compute("pf::fingerbank::find_device_class($top_level_parent,$device_name)", sub {
+        my $timer = pf::StatsD::Timer->new({level => 7, stat => "pf::fingerbank::find_device_class::cache-compute"});
         while (my ($k, $other_device_id) = each(%fingerbank::Constant::DEVICE_CLASS_IDS)) {
             $logger->debug("Checking if device $device_name is a $other_device_id");
             if(fingerbank::Model::Device->is_a($device_name, $other_device_id)) {
@@ -377,7 +384,10 @@ Also makes use of the cache
 
 sub device_name_to_device_id {
     my ($device_name) = @_;
+    my $timer = pf::StatsD::Timer->new({level => 7});
+
     my $id = cache()->compute_with_undef("device_name_to_device_id-$device_name", sub {
+        my $timer = pf::StatsD::Timer->new({level => 7, stat => "pf::fingerbank::device_name_to_device_id::cache-compute"});
         my ($status, $fbdevice) = fingerbank::Model::Device->find([{name => $device_name}]);
         if(is_success($status)) {
             return $fbdevice->id;
