@@ -1,19 +1,7 @@
-Microsoft PKI (MSPKI) Quick Installation Guide
-==============================================
-:encoding: UTF-8
-:lang: en
-:doctype: book
-:toc: left
-
-include::includes/global-attributes.asciidoc[]
-
-About this Guide
-----------------
-
-This guide has been created to give a quick start to configure the Microsoft PKI with PacketFence 5.4+. This guide does not include advanced troubleshooting of EAP-TLS connections. Refer to the relevant documentation of EAP-TLS, RADIUS and OpenSSL for advanced features.
+This section has been created to give a quick start to configure the Microsoft PKI with PacketFence. This guide does not include advanced troubleshooting of EAP-TLS connections. Refer to the relevant documentation of EAP-TLS, RADIUS and OpenSSL for advanced features.
 
 Assumptions
------------
+^^^^^^^^^^^
 
 * You have at least one server with PacketFence 5.4 or later.
 * The server already has a properly configured switch or access point with 802.1X support.
@@ -24,10 +12,10 @@ Assumptions
 * In this guide you will see a lot of use of <ServerDNSName>, most of the MSPKI services requires in their configuration to use the FQDN of the server and not his IP.
 
 Installation
-------------
+^^^^^^^^^^^^
 
-Step 1: Install Active Directory Certificate Service (ADCS)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Install Active Directory Certificate Service (ADCS)
++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 NOTE: This section will cover the configuration for Active Directory Certificate Services (ADCS) on Microsoft Windows 2008 R2 Enterprise. The installation of ADCS is not covered by this guide, refer to the Microsoft documentation about it for more information (http://social.technet.microsoft.com/wiki/contents/articles/9063.network-device-enrollment-service-ndes-in-active-directory-certificate-services-ad-cs.aspx).
 
@@ -42,14 +30,14 @@ Before you start the configuration, a hotfix is necessary due to a Microsoft iss
 Communication between the MSPKI and PacketFence will be using port 80.
 
 Configuring Network Device Enrollment Service (NDES)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 For the deployment of ADCS you will need to configure Network Device Enrollment Service (NDES). This subrole will allow us to exchange certificates with the MSPKI server via Simple Certificate Exchange Protocol (SCEP).
 
 Every configuration change has to be done by an account with administrative privileges.
 
 Challenge Password
-^^^^^^^^^^^^^^^^^^
+++++++++++++++++++
 
 Microsoft SCEP (MSCEP) includes by default a challenge password, which is unique and dynamically generated for each device which wants to enroll. In a BYOD deployment, this can be a barrier as a user cannot register a device by himself without the intervention of an administrator. Since we use NDES with PacketFence, our security to obtain a certificate would be the credentials necessary to access the enrollment system.
 
@@ -62,7 +50,7 @@ Navigate to `Computer->HKEY_LOCAL_MACHINE->SOFTWARE->Microsoft->Cryptography->MS
 Change the value of `EnforcePassword` to `0` (default is `1`).
 
 Extend URL length for the request
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++++++++++++++++++++++++++++++++++
 
 Best practices recommends to extend the URL length to avoid issue with longer request. 
 
@@ -71,8 +59,8 @@ To do so, enter the following command in the CLI on the NDES server:
  %systemroot%\system32\inetsrv\appcmd.exe set config /section:system.webServer/
  security/requestFiltering /requestLimits.maxQueryString:"16384" /commit:apphost
 
-Certificate template
-^^^^^^^^^^^^^^^^^^^^
+Certificate Template
+++++++++++++++++++++
 
 CAUTION: Remember that the validity of your CA can impact your whole certificate architecture.
 
@@ -109,14 +97,14 @@ The default value should be `IPSECIntermediateOffline`. Replace each value with 
 At this point, you need to reboot the NDES server to apply changes to the registry.
 
 IIS configuration
-^^^^^^^^^^^^^^^^^
++++++++++++++++++
 
 The use of SCEP with PacketFence also require a change in the IIS configuration.
 
 Navigate to `Server Manager->Web(IIS)`, expand `Default web site` then select `CertSrv->mscep`. Select `Authentication`, and double click `Anonymous Authentication`. Make sure that `Application pool identity` is selected.
 
 Online Certificate Status Protocol (OCSP)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++++++++++++++++++++++++++++++++++++++++++
 
 For the configuration of OCSP, the following changes are necessary.
 
@@ -137,8 +125,8 @@ If you do not have it, add it via the button `Add...`. In this menu type the `ht
 By default OCSP has a two days delay to refresh it's CRL information. Which means if you revoke a certificate on MSPKI, it will take two days before PacketFence detects the certificate is revoked. If this delay is too long for your needs, you can change it on the NDES server. To do so, navigate to `Server Manager->Roles->Active Directory Certificate Service` and right click `Enterprise PKI`, in the menu select `Options...`. The delay can be changed by modifying the value of `Set CRL status to Expiring when expiring in:` to your convenience.
 
 
-RADIUS Certificate generation
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RADIUS Certificate Generation
++++++++++++++++++++++++++++++
 
 Using the Microsoft PKI involves that all your certificates will be delivered by the root CA of the MSPKI.
 
@@ -175,11 +163,11 @@ Click `Download a CA certificate, certificate chain or CRL`, select your CA cert
 
 Copy those files to PacketFence.
 
-Step 2: Configuring PacketFence
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Configuring PacketFence
+^^^^^^^^^^^^^^^^^^^^^^^
 
-Certificate storage on PacketFence
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Certificate Storage on PacketFence
+++++++++++++++++++++++++++++++++++
  
 It is recommended to create a separate directory to separate EAP-TLS certificates from server certificates:
 
@@ -198,7 +186,7 @@ Ensure that the files are readable by the user `pf`:
  # chown pf:pf /usr/local/pf/conf/ssl/tls_certs/*
  
 RADIUS EAP-TLS and MSPKI
-^^^^^^^^^^^^^^^^^^^^^^^^
+++++++++++++++++++++++++
 
 In order to use the certificates generated by the MSPKI, edit the radius EAP configuration file.
 
@@ -227,8 +215,8 @@ Restart radiusd to regenerate the new configuration files and enable EAP-TLS usi
 
  # /usr/local/pf/bin/pfcmd service radiusd restart
 
-PacketFence PKI provider configuration
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PacketFence PKI Provider Configuration
+++++++++++++++++++++++++++++++++++++++
 
 Using the PKI requires configuring the PKI providers section in the PacketFence GUI under `Configuration->Users->PKI Providers`. The provider configuration defines how PacketFence connects to the MSPKI and what information will be sent.
 
@@ -250,8 +238,8 @@ The "Common name attribute" field defines how the certificate will be generated 
 If you select 'MAC address', a certificate will be generated using the MAC address as the identifier.
 If you select 'Username', a certificate will be generated using his login name on the authentication backend.
 
-Provisioners configuration
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+Provisioners Configuration
+++++++++++++++++++++++++++
 
 Provisioners allow devices to automatically configure themselves to connect to the proper SSID (if applicable), use the proper authentication method (e.g. EAP-TLS) and trust the CA certificate and any certificate signed by it.
 
@@ -298,15 +286,15 @@ zxcvbnmqwertyuiop78
 ----
 
 Connection Profiles Configuration
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++++++++++++++++++++++++++++++++++
 
 Provisioners have to be enabled on the Connection Profiles configuration in the PacketFence GUI.
 
 Under `Configuration->Main->Connection Profiles`, select each of the provisioners created above which should be active for the profile.
 If no connection profile is defined, configure the "default" profile to use the provisioners created.
 
-Passthroughs required for Android
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Passthroughs Required for Android
++++++++++++++++++++++++++++++++++
 
 Android devices require passthroughs to be created to allow them to fetch the configuration application from the Google Play Store.
 
@@ -320,11 +308,8 @@ passthroughs=*.ggpht.com,*.googleusercontent.com,android.clients.google.com,
   *.googleapis.com,*.android.clients.google.com,*.gvt1.com
 ----
 
-Appendix
---------
-
-Debugging MSPKI integration with PacketFence
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Debugging MSPKI Integration with PacketFence
+++++++++++++++++++++++++++++++++++++++++++++
 
 This is a way to do the procedure of enrollment manually, mainly for debugging purposes.
 
@@ -353,8 +338,8 @@ To verify your certificate against the OCSP you can use the following openssl co
 
  # openssl OCSP -issuer path/CA-Certificate -cert path/Certificate-to-verify -text -url http://<ServerDNSName>/OCSP
 
-Debugging Android passthroughs
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Debugging Android Passthroughs
+++++++++++++++++++++++++++++++
 
 If you need to add domains to passthroughs, we advise you to capture the traffic coming from the device which cannot access the Google Play Store. To do this you can use tcpdump for instance, collect the IP address of the device then run the following in PacketFence CLI:
 

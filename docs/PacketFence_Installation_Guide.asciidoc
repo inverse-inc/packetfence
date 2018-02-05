@@ -2925,6 +2925,19 @@ Symantec SEPM
 
 include::provisioner/sepm.asciidoc[]
 
+PKI Integration
+---------------
+
+Microsoft PKI
+~~~~~~~~~~~~~
+
+include::pki/microsoft.asciidoc[]
+
+PacketFence PKI
+~~~~~~~~~~~~~~~
+
+include::pki/packetfence.asciidoc[]
+
 Best Practices
 --------------
 
