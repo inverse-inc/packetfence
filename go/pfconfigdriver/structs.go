@@ -282,3 +282,51 @@ type PassthroughsIsolationConf struct {
 	Wildcard       map[string][]string
 	Normal         map[string][]string
 }
+
+type AuthenticationSourceEduroam struct {
+	StructConfig
+	PfconfigMethod  string `val:"hash_element"`
+	PfconfigNS      string `val:"resource::authentication_sources_eduroam"`
+	PfconfigArray   string `val:"_"`
+	Unique          string `json:"unique"`
+	Id              string `json:"id"`
+	Description     string `json:"description"`
+	Radius_secret   string `json:"radius_secret"`
+	Server1_address string `json:"server1_address"`
+	Server2_address string `json:"server2_address"`
+}
+
+type AuthenticationSourceRadius struct {
+	StructConfig
+	PfconfigMethod string `val:"hash_element"`
+	PfconfigNS     string `val:"resource::authentication_sources_radius"`
+	PfconfigArray  string `val:"_"`
+	Unique         string `json:"unique"`
+	Id             string `json:"id"`
+	Description    string `json:"description"`
+	Secret         string `json:"secret"`
+	Port           string `json:"port"`
+	Host           string `json:"host"`
+	Timeout        string `json:"timeout"`
+}
+
+type AuthenticationSourceLdap struct {
+	StructConfig
+	PfconfigMethod    string `val:"hash_element"`
+	PfconfigNS        string `val:"resource::authentication_sources_radius"`
+	PfconfigArray     string `val:"_"`
+	Unique            string `json:"unique"`
+	Id                string `json:"id"`
+	Description       string `json:"description"`
+	Password          string `json:"password"`
+	Port              string `json:"port"`
+	Host              string `json:"host"`
+	read_timeout      string `json:"read_timeout"`
+	write_timeout     string `json:"write_timeout"`
+	basedn            string `json:"basedn_timeout"`
+	scope             string `json:"scope"`
+	email_attribute   string `json:"email_attribute"`
+	usernameattribute string `json:"usernameattribute"`
+	binddn            string `json:"bindn"`
+	encryption        string `json:"encryption"`
+}
