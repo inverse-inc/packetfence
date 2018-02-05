@@ -1,27 +1,30 @@
-package pf::UnifiedApi::Controller::UsersNodes;
+package pf::UnifiedApi::Controller::Users::Nodes;
 
 =head1 NAME
 
-pf::UnifiedApi::Controller::UsersNodes -
+pf::UnifiedApi::Controller::Users::Nodes -
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::UnifiedApi::Controller::UsersNodes
+pf::UnifiedApi::Controller::Users::Nodes
 
 =cut
 
 use strict;
 use warnings;
-use Mojo::Base qw(pf::UnifiedApi::Controller);
+use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
 use pf::person;
+
+has 'dal' => 'pf::dal::node';
 
 sub list {
     my ($self) = @_;
     my $user_id = $self->stash->{user_id};
     $self->render(json => { items => [person_nodes($user_id)]});
 }
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -50,4 +53,3 @@ USA.
 =cut
 
 1;
-

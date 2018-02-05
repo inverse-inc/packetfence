@@ -42,7 +42,7 @@ our @API_V1_ROUTES = (
         resource   => {
             children => [
                 {
-                    controller => 'UsersNodes',
+                    controller => 'Users::Nodes',
                     resource   => {
                         path => '/node/:node_id',
                     },
@@ -139,7 +139,6 @@ sub setup_api_v1_routes {
         $api_v1_route->rest_routes($route);
     }
 
-    my $user_route = $api_v1_route->find('api.v1.Users.resource');
     $r->any(sub {
         my ($c) = @_;
         return $c->render(json => { message => "Unknown path", errors => [] }, status => 404);

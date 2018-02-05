@@ -34,7 +34,7 @@ use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
 node_add("ff:ff:ff:ff:ff:fe");
 
-$t->get_ok('/api/v1/user/default/nodes' => json => {  })
+$t->get_ok('/api/v1/user/default/nodes')
   ->status_is(200)
   ->json_is('/items/0/pid' => 'default') ;
 
