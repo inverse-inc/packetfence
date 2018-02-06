@@ -19,10 +19,45 @@ use Mojo::JSON qw(decode_json);
 use pf::error qw(is_error);
 use pf::log;
 
+=head1 ATTRIBUTES
+
+=cut
+
 has 'dal';
-has 'url_param_name'; # param_name
-has 'primary_key' => 'id'; # primary_key
+
+=head2 url_param_name
+
+The name of the url parameter to get the value of the resource identifier
+
+=cut
+
+has 'url_param_name';
+
+=head2 primary_key
+
+The name of the primary key in the data base
+
+=cut
+
+has 'primary_key' => 'id';
+
+=head2 parent_primary_key_map
+
+The map of the url parameters to the parent database field name.
+
+Example:
+
+    {
+        user_id => 'pid',
+    }
+
+=cut
+
 has 'parent_primary_key_map' => sub { {} };
+
+=head1 METHODS
+
+=cut
 
 sub list {
     my ($self) = @_;
