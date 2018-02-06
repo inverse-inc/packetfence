@@ -159,7 +159,7 @@ You can now test the registration process. In order to do so:
 On the computer:
 
 * open a web browser
-* try to connect to a HTTP site (Not HTTPS, eg. http://www.google.com)
+* try to connect to a HTTP site (Not HTTPS, eg. http://www.packetfence.org)
 * make sure that whatever site you want to connect to, you have only access to the registration page.
 
 Register the computer using using the Null authentication source.

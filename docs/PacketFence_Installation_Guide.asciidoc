@@ -104,7 +104,7 @@ The ZEN (Zero Effort NAC) edition of PacketFence allows you to rapidly get Packe
 Virtual Machine
 ^^^^^^^^^^^^^^^
 
-This setup has been tested using VMWare ESXi, Fusion and Workstation products with 8 GB of RAM dedicated to the virtual machine. It might work using other VMWare products.  To properly run the PacketFence virtual appliance, need a CPU that supports long mode. In other words, you need to have a 64-bit capable CPU on your host. PacketFence ZEN comes in a pre-built virtual disk (OVF). If you are using an ESX type hypervisor, you need to import the OVF using vSphere Client (or vCenter).
+This setup has been tested using VMWare ESXi, Fusion and Workstation products with 8 GB of RAM dedicated to the virtual machine. It might work using other VMWare products.  To properly run the PacketFence virtual appliance, you need a CPU that supports long mode. In other words, you need to have a 64-bit capable CPU on your host. PacketFence ZEN comes in a pre-built virtual disk (OVF). If you are using an ESX type hypervisor, you need to import the OVF using vSphere Client (or vCenter).
 
 The virtual appliance passwords are:
 
@@ -120,14 +120,12 @@ The virtual appliance passwords are:
 Import to ESX
 ^^^^^^^^^^^^^
 
-Make sure that there is only one virtual network card created, and also make sure that your vEthernet is connected to a virtual switch (vSwitch). You will need to create a “TRUNK” profile to allow all VLAN tags (usually VLAN 4095), and assign the profile to the PacketFence ZEN VM vEthernet.
+Make sure that there is only one virtual network card created, and also make sure that your vEthernet is connected to a virtual switch (vSwitch). That virtual network card will be used as the PacketFence management interface.
 
 Import to VMWare Player/Workstation for Linux
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Newer version of VMWare Player handles the VLAN trunking a lot better.  Having that said, we can use a single interface on the VM.  So, you need to ensure that your VM host is plugged into a physical trunk port with VLAN 1,2,3,5,10 and 200 as the allowed VLAN. These VLANs will be used later in configuration examples.
-
-IMPORTANT: Please refer to the Annex 1 if you have troubles using Workstation with only one trunked interface.  We tested most with VMWare Player for Linux. We cannot support VMWare Fusion anymore, there are some issues when we need to do routing through Mac OS X VLAN interfaces.
 
 
 Installing PacketFence on existing Linux
@@ -139,7 +137,7 @@ These repositories contain all required dependencies to install PacketFence. Thi
 
 [options="compact"]
 * easy installation
-* everything is packaged as RPM/deb (no more CPAN hassle)
+* everything is packaged as RPM and Debian packages
 * easy upgrade
 
 Install your supported distribution with minimal installation and no additional packages. Then:
@@ -221,21 +219,21 @@ Getting Started
 
 Now that PacketFence is installed, it needs to be configured. The PacketFence web-based configuration interface will automatically be started. 
 
-This section will guide through configuring PacketFence as a simple RADIUS server. PacketFence will provide 802.1X support through Microsoft Active Directory and a Cisco 2960 access switch will be configured to integrate with PacketFence. The 802.1X client will be a Microsoft Windows 7 computer, connected of course on the wired network in the Cisco 2960 access switch. The following architecture diagram shows the interconnection of all components for our example:
+This section will guide you through configuring PacketFence as a simple RADIUS server. PacketFence will provide 802.1X support through Microsoft Active Directory and a Cisco 2960 access switch will be configured to integrate with PacketFence. The 802.1X client will be a Microsoft Windows 7 computer, connected of course on the wired network in the Cisco 2960 access switch. The following architecture diagram shows the interconnection of all components for our example:
 
 image::docs/images/getting-started.png[scaledwidth="65%",alt="Getting Started"]
 
 Going Through the Configurator
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-First open PacketFence's configurator - you can access it from https://@ip_of_packetfence:1443/configurator
+First open PacketFence's configurator - you can access it from https://@ip_of_packetfence:1443/configurator . If you are unsure what IP address you have, run `ip a` in your Linux shell. Perform the following actions:
 
- * Step 1 - Enforcement, choose 'RADIUS enforcement' - this will make PacketFence act as simple RADIUS server.
- * Step 2 - Networks, make sure you define only one interface with the Management type. That network interface will be the one for which the Cisco 2960 access switch will talk to. The management interface of PacketFence and the Cisco 2960 should normally be in the same network.
+ * Step 1 - Enforcement, choose 'RADIUS enforcement' - this will make PacketFence act as simple RADIUS server
+ * Step 2 - Networks, make sure you define only one interface with the Management type. That network interface will be the one for which the Cisco 2960 access switch will talk to. The management interface of PacketFence and the Cisco 2960 should normally be in the same network. To set the interface to the Management type, click on the logical name to edit it
  * Step 3 - Database Configuration - provide the required information to properly create the PacketFence database
  * Step 4 - PacketFence Configuration - provide your domain name, DHCP servers list and other required information
  * Step 5 - Administration - provide the PacketFence's admin username and password to be used
- * Step 6 - Fingerbank - provide your Fingerbank API key. Fingerbank is used to accurately identify Internet of Things (IoT) devices, medical devices, industrial and robotics equipment and more on your network. It is recommended to have a key for your PacketFence deployment.
+ * Step 6 - Fingerbank - provide your Fingerbank API key. Fingerbank is used to accurately identify Internet of Things (IoT) devices, medical devices, industrial and robotics equipment and more on your network. It is recommended to have a key for your PacketFence deployment. Without a Fingerbank API key, device profiling will not be available in PacketFence
  * Step 7 - Configuration - start all services.
 
 Once all services are started, you will automatically be redirected to the PacketFence's web admin interface. It is located at https://@ip_of_packetfence:1443/admin
@@ -245,11 +243,13 @@ Open that link and log in using the username/password specified in Step 5.
 Connecting PacketFence to Microsoft Active Directory
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Next we join the PacketFence server to your existing Microsoft Active Directory domain controller. From PacketFence's web admin interface, go in 'Configuration->Policies and Access Control->Domains->Active Directory Domain' and click on the 'Add domain' button. Provide the required fields. You will need an Active Directory administrative username and password to join the PacketFence server to your domain. Once all the information has been provided, click on the 'Save and join" button'.
+Next we join the PacketFence server to your existing Microsoft Active Directory domain controller. From PacketFence's web admin interface, go in 'Configuration->Policies and Access Control->Domains->Active Directory Domain' and click on the 'Add domain' button. Provide the required fields. You will need an Active Directory administrative username and password (member of the domain admins) to join the PacketFence server to your domain. Once all the information has been provided, click on the 'Save and join" button'.
 
-Once the domain join succeeds, click on the 'Realms' tab. Click on the 'Default' realm and set the domain to the Active Directory domain you have just created. That will instruct PacketFence to use that newly created Active Directory for the default authentication realm.
+Once the domain join succeeds, click on the 'Realms' tab. Click on the 'Default' realm and set the domain to the Active Directory domain you have just created. That will instruct PacketFence to use that newly created Active Directory for the default authentication realm. Next, do the same thing for the NULL realm.
 
-Next we add the Microsoft Active Directory domain controller as an authentication source in PacketFence. To do so, from 'Configuration->Policies and Access Control->Authentication Sources', click on 'Add source->Internal->AD'. Specify all the required fields. Also add an 'Authentication Rules' with name 'catchall' with no condition and with the following actions:
+Next we add the Microsoft Active Directory domain controller as an authentication source in PacketFence. To do so, from 'Configuration->Policies and Access Control->Authentication Sources', click on 'Add source->Internal->AD'. Specify all the required fields. If you need help identifying fields relevant to your Active Directory environment, please use the Active Directory Explorer (AD Explorer) tool from your Active Directory server.
+
+Next, add an 'Authentication Rules' with name 'catchall' with no condition and with the following actions:
 
  * Role - default
  * Access duration - 5 days
@@ -281,8 +281,10 @@ The next step is to configure AAA so it will use your newly created PacketFence 
    aaa authorization network default group packetfence
    radius-server host PF_MANAGEMENT_IP auth-port 1812 acct-port 1813 timeout 2 key useStrongerSecret
    radius-server vsa send authentication
+   snmp-server community public RO
+   snmp-server community private RW
 
-Configure switchport for 802.1X
+Configure Switchport for 802.1X
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Once AAA is ready, we can configure some or all switchports to perform 802.1X. In our example, we will only configure port no. 10 to use 802.1X:
  
@@ -303,26 +305,37 @@ Once AAA is ready, we can configure some or all switchports to perform 802.1X. I
 
 Write the switch configuration to memory.
 
-Adding switch to PacketFence
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Adding the Switch to PacketFence
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 PacketFence must be aware of the equipnent it manages. From 'Configuration->Policies and Access Control->Network Devices->Switches', click on 'Add switch -> default'. Enter your switch IP address (172.21.2.3 in our example). As a switch type, select 'Cisco Catalyst 2960' and select 'Production' as the Mode. From the Roles tab, make sure 'Role by VLAN ID' is checked and that the VLAN ID associated to the default role is set to your normal VLAN currently in use on your network. In our example, it will be VLAN 20. That means that once a 802.1X authentication is allowed by PacketFence, access will be properly granted in the default role in VLAN 20.
 
 From the RADIUS tab, specify the 'Secret Passphrase' to use - in our example, it is 'useStrongerSecret'. It is very important to correctly set the RADIUS secret passphrase otherwise PacketFence will prevent the switch from communicating to itself.
 
+Finally, from the SNMP tab, provide the correct Community Read and Community Write values.
+
 Configuring the Connection Profile
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Next we need to configure the connection profile in PacketFence. That is required so that PacketFence knows how to handle a connection coming from the wired network or WiFi network. In our case, we will modify the default connection profile to use our Microsoft Active Directory authentication source and also to let PacketFence know to automatically register any devices that successfully authenticate using 802.1X on the default connection profile.
+Next we need to configure the connection profile in PacketFence. That is required so that PacketFence knows how to handle a connection coming from the wired network or WiFi network. In our case, we will create a new connection profile to use our Microsoft Active Directory authentication source and also to let PacketFence know to automatically register any devices that successfully authenticate using 802.1X on the default connection profile.
  
-From 'Configuration->Policies and Access Control->Connection Profiles', click on the 'default' profile. Make sure 'Automatically register devices' is checked and make sure your newly created Active Directory authentication source is selected in 'Sources'. Click on 'Save'.
+From 'Configuration->Policies and Access Control->Connection Profiles', click on on 'Add profile'. Specify the following information:
+
+[options="compact"]
+ * Profile Name: 8021x
+ * Automatically register devices: checked
+ * Filters: If any of the following conditions are met:
+  * Connection Type: Ethernet-EAP
+ * Sources: your newly created Active Directory authentication source
+
+Click on 'Save' to save all configuration changes.
 
 Configuring Microsoft Windows Supplicant
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To enable 802.1X on the wired adapter of the Microsoft Windows 7 endpoint, you first you need to enable the 'Wired AutoConfig' service. To do so, from the Microsoft Windows Services control panel, double-click on 'Wired AutoConfig'. Make sure 'Startup type:' is set to 'Automatic' and click on 'Start' to enable the service.
 
-Then, from Windows' Network Connection connection panel, ask for the properties of the LAN interface you will use for testing. From the authentication tab, make sure 'Enable IEEE 802.1X authentication' is checked. As the authentication method, make sure 'Microsoft: Protected EAP (PEAP)' is selected. Then, click on 'Settings' and make sure 'Validate server certiciate' is unchecked. As authentication method, make sure 'Secured password (EAP-MSCHAPv2)' is selected. Then, click on 'Configure ...' and make sure 'Automatically use my Windows logon name and password (and domain if any)' is unchecked.
+Then, from Windows' Network Connection connection panel, ask for the properties of the LAN interface you will use for testing. From the authentication tab, make sure 'Enable IEEE 802.1X authentication' is checked. As the authentication method, make sure 'Microsoft: Protected EAP (PEAP)' is selected. Then, click on 'Settings' and make sure 'Validate server certificate' is unchecked. As authentication method, make sure 'Secured password (EAP-MSCHAPv2)' is selected. Then, click on 'Configure ...' and make sure 'Automatically use my Windows logon name and password (and domain if any)' is unchecked.
 
 Save all changes.
 
@@ -335,15 +348,15 @@ Connect the Microsoft Windows 7 endpoint on port no. 10 fron the Cisco Catalyst 
 
 To see what's going on from PacketFence, click on the 'Auditing' tab from PacketFence's admin interface. You should see an entry for the MAC address of your Microsoft Windows 7 endpoint. Click on the '(+)' button to see the RADIUS exchanges. If the 802.1X authentication is successful, you should have 'Accept' as an 'Auth Status'.
 
-Enabling Captive Portal
------------------------
+Enabling the Captive Portal
+---------------------------
 
 In the previous section, we have succesfully configured 802.1X using PacketFence, Microsoft Active Directory and a Cisco Catalyst 2960 switch. While this demonstrates the fundamental role and capabilities of a NAC solution, most organizations are also looking at providing access to guests for example. One way of handling guests on a network is showing them a captive portal and let them register their own devices. This section will guide you in achieving this with PacketFence.
 
 There are two ways PacketFence can show its captive portal for unknown (or unregistered) devices:
 
  * it can use Web Authentication (or also known as hotspot-style authentication) - this works with numerous equipment vendors
- * it can use a registration VLAN, where PacketFence provides DHCP services and DNS black-holing services - this works with any equipment vendors
+ * it can use a registration VLAN, where PacketFence provides DHCP services and DNS black-holing services - this works with any equipment vendors that support RADIUS dynamic VLAN assignment
 
 For our example, we will use Web Authentication, as it is supported by the Cisco Catalyst 2960. For more information on various enforcement modes, please refer to the 'Supported Enforcement Modes' sections of this document.
 
@@ -373,8 +386,6 @@ Then, we must enable Web Authentication on switch port no. 10. Add the following
   ip device tracking
   ip http server
   ip http secure-server
-  snmp-server community public RO
-  snmp-server community private RW
 
 Then add the required access lists:
 
@@ -392,7 +403,7 @@ Next we have to let PacketFence know that Web Auth is to be used on the Cisco Ca
 [options="compact"]
  * in Role by VLAN ID, set the registration VLAN ID to 20 - this will ensure unregistered clients are initially put in VLAN 20 and avoid a VLAN change once they properly authenticate from the captive portal
  * make sure 'Role by Switch Role' is checked and set the registration role to 'registration' - this will ensure the registration access list created in the previous section is returned for unregisted users. This will limit their access to the PacketFence captive portal
- * make sure 'Role by Web Auth URL' is checked and set the 'registration' role to 'http://172.20.100.2/Cisco::Catalyst_2960'
+ * make sure 'Role by Web Auth URL' is checked and set the 'registration' URL to 'http://172.20.100.2/Cisco::Catalyst_2960'
 
 Click 'Save' to save all configuration changes.
 
@@ -411,7 +422,7 @@ You must then restart the following services from 'Status->Services':
 Configuring the Connection Profile
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-For Web Authentication, we will create a new connection profile in PacketFence. That means the default connection profile will be used for 802.1X while the new connection profile will be used for Web Authentication and will be used to display a captive portal with our 'Null' authentication source. From 'Configuratio->Policies and Access Control->Connection Profiles' click on 'Add Profile'. Specify the following information:
+For Web Authentication, we will create a new connection profile in PacketFence. That means the default connection profile will be used for 802.1X while the new connection profile will be used for Web Authentication and will be used to display a captive portal with our 'Null' authentication source. From 'Configuration->Policies and Access Control->Connection Profiles' click on 'Add Profile'. Specify the following information:
 
 [options="compact"]
  * Profile Name: guest
@@ -424,7 +435,7 @@ Click on 'Save' to save all configuration changes.
 Testing
 ~~~~~~~
 
-First make sure the Microsoft Windows 7 endpoint unplugged from the Cisco Catalyst 2960 switch. Then, make sure the endpoint is unregisted from PacketFence. To do this, from the 'Nodes' configuration module, locate its MAC address and click on it. From the node property window, change the 'Status' to unregistered.'
+First make sure the Microsoft Windows 7 endpoint unplugged from the Cisco Catalyst 2960 switch. Then, make sure the endpoint is unregisted from PacketFence. To do this, from the 'Nodes' configuration module, locate its MAC address and click on it. From the node property window, change the 'Status' to 'unregistered.'
 
 Next, we need to disable 802.1X from the network configuration card from the Microsoft Windows 7 endpoint. We want to simulate here an authentication by MAC address, so we have to disable 802.1X to do this. From Windows' Network Connection connection panel, ask for the properties of the LAN interface you will use for testing. From the authentication tab, make sure 'Enable IEEE 802.1X authentication' is unchecked. Save all changes.
 
@@ -433,7 +444,7 @@ Next, connect the endpoint in the Cisco Catalyst 2960 switch. After a few second
 Adding SMS Authentication for Guests
 ------------------------------------
 
-This section will show you how to enable SMS authentication on the captive portal so that guests use their cellular phone number to register their endpoints. PacketFence will send a SMS PIN code to the guest phone number. That code will be required to complete the registration process. The SMS code will be sent by PacketFence over email - using popular SMTP-to-SMS gateways.
+This section will show you how to enable SMS authentication on the captive portal so that guests use their cellular phone number to register their endpoints. PacketFence will send an SMS PIN code to the guest phone number. That code will be required to complete the registration process. The SMS code will be sent by PacketFence over email - using popular SMTP-to-SMS gateways.
 
 Some of the key concepts presented in this section are:
 
@@ -481,7 +492,7 @@ In the previous section, you configured two authentication sources: Microsoft Ac
 Alerting
 ~~~~~~~~
 
-PacketFence can send emails to adminstrators, users and guests. So it is important to properly configure the mail sending functionality of PacketFence. From 'Configuration->System Configuration->Alerting', set at least the following fields:
+PacketFence can send emails to administrators, users and guests. So it is important to properly configure the mail sending functionality of PacketFence. From 'Configuration->System Configuration->Alerting', set at least the following fields:
 
 [options="compact"]
  * Sender - the "From" address of emails being sent by PacketFence
@@ -490,10 +501,10 @@ PacketFence can send emails to adminstrators, users and guests. So it is importa
 If your SMTP server requires authentication or encryption to relay emails, you will have to properly configure the SMTP encryption, username and password parameters.
 
 
-Addging SMS Authentication Source
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Adding SMS Authentication Source
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Now that you understand what authentication sources and alerting are, we will add a SMS authentication source on our guest portal. We previously used the 'Null' source but we will add an other source. Portal profiles can provide multiple authentication sources.
+Now that you understand what authentication sources and alerting are, we will add an SMS authentication source on our guest portal. We previously used the 'Null' source but we will add an other source. Portal profiles can provide multiple authentication sources.
 
 From 'Configuration->Policies and Access Control->Authentication Sources', click 'Add source->External->SMS'. As 'Name' and 'Description', specify 'sms-source'. Then add an 'Authentication Rules' with name 'catchall' with no condition and with the following 'Actions':
 
@@ -509,7 +520,7 @@ Click on 'Save' to save the new authentication source.
 Configuring the Connection Profile
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Now let's add our new SMS-based authentication source to our guests captive portal. From 'Configuration->Policies and Access Control->Connection Profiles', click on the 'guest' profile that we previously created. In the 'Soures', cick on the '(+)' button and add the newly created SMS source, 'sms-source'. Save the changes by clicking on the 'Save' button.
+Now let's add our new SMS-based authentication source to our guests captive portal. From 'Configuration->Policies and Access Control->Connection Profiles', click on the 'guest' profile that we previously created. In the 'Sources', cick on the '(+)' button and add the newly created SMS source, 'sms-source'. Save the changes by clicking on the 'Save' button.
 
 NOTE: You can preview at any time the portal associated with connection profile by clicking on the 'Preview' button.
 
