@@ -68,7 +68,6 @@ our @API_V1_ROUTES = (
     { controller => 'Tenants' },
     { controller => 'ApiUsers' },
     { controller => 'Locationlogs' },
-    { controller => 'Config::ConnectionProfiles' },
     { 
         controller => 'Violations',
         collection => {
@@ -157,10 +156,10 @@ our @API_V1_ROUTES = (
                 'admin_authentication' => { post => 'adminAuthentication' },
             },
         },      
-    {
-        controller => 'config-admin_roles',
-        path       => '/config/admin_roles'
-    },
+    qw(
+        Config::AdminRoles
+        Config::ConnectionProfiles
+    ),
 );
 
 sub startup {
