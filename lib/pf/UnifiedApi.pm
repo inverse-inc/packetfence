@@ -43,6 +43,13 @@ our @API_V1_ROUTES = (
             children => [
                 {
                     controller => 'Users::Nodes',
+                    resource => {
+                        children => [
+                            {
+                                controller => 'Users::Nodes::Locationlogs',
+                            }
+                        ],
+                    }
                 },
                 {
                     controller => 'Users::Password',
