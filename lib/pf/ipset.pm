@@ -271,7 +271,7 @@ sub iptables_mark_node {
 
         if (defined $iplog) {
             my $node_info = pf::node::node_view($mac);
-            my $role_id = $node_info->{'category_id'};
+            my $role_id = $node_info->{'category_id'} // "0";
             my $ip = new NetAddr::IP::Lite clean_ip($iplog);
             if ($net_addr->contains($ip)) {
 
