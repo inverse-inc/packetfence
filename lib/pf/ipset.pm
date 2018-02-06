@@ -276,9 +276,9 @@ sub iptables_mark_node {
             if ($net_addr->contains($ip)) {
 
                 if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                    $ipset_client->call("/ipset/mark_layer3/".$network."/".$mark_type_to_str{$mark}."/".$role_id."/".$iplog."/0",{});
+                    $ipset_client->call("/api/v1/ipset/mark_layer3/".$network."/".$mark_type_to_str{$mark}."/".$role_id."/".$iplog."/0",{});
                 } else {
-                    $ipset_client->call("/ipset/mark_layer2/".$network."/".$mark_type_to_str{$mark}."/".$role_id."/".$iplog."/".$mac."/0",{});
+                    $ipset_client->call("/api/v1/ipset/mark_layer2/".$network."/".$mark_type_to_str{$mark}."/".$role_id."/".$iplog."/".$mac."/0",{});
                 }
             }
         } else {
@@ -293,7 +293,7 @@ sub iptables_unmark_node {
     my ( $self, $mac, $mark ) = @_;
     my $logger = get_logger();
 
-    $ipset_client->call("/ipset/unmark_mac/".$mac."/0",{});
+    $ipset_client->call("/api/v1/ipset/unmark_mac/".$mac."/0",{});
 
     return (1);
 }
@@ -335,14 +335,14 @@ sub update_node {
 
             #Delete from ipset session if the ip change
             if ($net_addr->contains($old_ip)) {
-                 $ipset_client->call("/ipset/unmark_ip/".$oldip."/0",{});
+                 $ipset_client->call("/api/v1/ipset/unmark_ip/".$oldip."/0",{});
             }
             #Add in ipset session if the ip change
             if ($net_addr->contains($src_ip)) {
                  if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                    $ipset_client->call("/ipset/mark_ip_layer3/".$network."/".$id."/".$src_ip."/0",{});
+                    $ipset_client->call("/api/v1/ipset/mark_ip_layer3/".$network."/".$id."/".$src_ip."/0",{});
                 } else {
-                    $ipset_client->call("/ipset/mark_ip_layer2/".$network."/".$id."/".$src_ip."/0",{});
+                    $ipset_client->call("/api/v1/ipset/mark_ip_layer2/".$network."/".$id."/".$src_ip."/0",{});
                 }
             }
 

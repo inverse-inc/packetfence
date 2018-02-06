@@ -108,7 +108,7 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 					case *dns.A:
 						for _, valeur := range v {
 							var body io.Reader
-							err := pf.post("https://127.0.0.1:22223/ipset/passthrough_isolation/"+ansb.A.String()+"/"+valeur+"/1", body)
+							err := pf.post("https://127.0.0.1:22223/api/v1/ipset/passthrough_isolation/"+ansb.A.String()+"/"+valeur+"/1", body)
 							if err != nil {
 								fmt.Println("Not able to contact localhost")
 							}
@@ -131,7 +131,7 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 				case *dns.A:
 					for _, valeur := range v {
 						var body io.Reader
-						err := pf.post("https://127.0.0.1:22223/ipset/passthrough/"+ansb.A.String()+"/"+valeur+"/1", body)
+						err := pf.post("https://127.0.0.1:22223/api/v1/ipset/passthrough/"+ansb.A.String()+"/"+valeur+"/1", body)
 						if err != nil {
 							fmt.Println("Not able to contact localhost")
 						}
@@ -152,7 +152,7 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 				case *dns.A:
 					for _, valeur := range v {
 						var body io.Reader
-						err := pf.post("https://127.0.0.1:22223/ipset/passthrough/"+ansb.A.String()+"/"+valeur+"/1", body)
+						err := pf.post("https://127.0.0.1:22223/api/v1/ipset/passthrough/"+ansb.A.String()+"/"+valeur+"/1", body)
 						if err != nil {
 							fmt.Println("Not able to contact localhost")
 						}

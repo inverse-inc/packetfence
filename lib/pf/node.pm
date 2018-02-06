@@ -714,7 +714,7 @@ sub node_deregister {
         proto   => "http",
         host    => "localhost",
         port    => $pf::constants::api::GO_DHCP_PORT,
-    )->call("/releaseip/".$mac,{});
+    )->call("/api/v1/pfdhcp/releaseip/".$mac,{});
 
     return (1);
 }
