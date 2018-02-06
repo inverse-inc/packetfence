@@ -20,7 +20,7 @@ use pf::person;
 has 'dal' => 'pf::dal::node';
 has 'id_key' => 'node_id';
 has 'resource_id' => 'mac';
-has 'parent_id_key_map' => sub { {user_id => 'pid'} };
+has 'parent_primary_key_map' => sub { {user_id => 'pid'} };
 
 =head1 AUTHOR
 

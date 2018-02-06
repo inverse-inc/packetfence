@@ -22,7 +22,7 @@ use pf::log;
 has 'dal';
 has 'id_key'; # param_name
 has 'resource_id' => 'id'; # primary_key
-has 'parent_id_key_map' => sub { {} }; # parent_primary_key_map
+has 'parent_primary_key_map' => sub { {} }; # parent_primary_key_map
 
 sub list {
     my ($self) = @_;
@@ -145,7 +145,7 @@ sub make_create_data {
 
 sub parent_data {
     my ($self) = @_;
-    my $map = $self->parent_id_key_map;
+    my $map = $self->parent_primary_key_map;
     my %data;
     my $captures = $self->stash->{'mojo.captures'};
     while (my ($param_name, $field_name) = each %$map) {
