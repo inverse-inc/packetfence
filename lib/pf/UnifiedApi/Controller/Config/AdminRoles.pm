@@ -20,6 +20,7 @@ use pfappserver::Form::Config::AdminRoles;
 
 has 'config_store_class' => 'pf::ConfigStore::AdminRoles';
 has 'form_class' => 'pfappserver::Form::Config::AdminRoles';
+has 'primary_key' => 'admin_role_id';
 
 =head1 AUTHOR
 
