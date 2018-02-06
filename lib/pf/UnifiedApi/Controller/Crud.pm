@@ -21,8 +21,8 @@ use pf::log;
 
 has 'dal';
 has 'id_key'; # param_name
-has 'resource_id' => 'id'; # primary_key
-has 'parent_primary_key_map' => sub { {} }; # parent_primary_key_map
+has 'primary_key' => 'id'; # primary_key
+has 'parent_primary_key_map' => sub { {} };
 
 sub list {
     my ($self) = @_;
@@ -105,7 +105,7 @@ sub do_get {
 sub build_item_lookup {
     my ($self) = @_;
     my $lookup = $self->parent_data;
-    $lookup->{$self->resource_id} = $self->stash($self->id_key);
+    $lookup->{$self->primary_key} = $self->stash($self->id_key);
     return $lookup;
 }
 
@@ -128,7 +128,7 @@ sub render_create {
 sub make_location_url {
     my ($self, $obj) = @_;
     my $parent_route = $self->match->endpoint->parent->name;
-    my $url = $self->url_for("$parent_route.get", {$self->id_key => $obj->{$self->resource_id}});
+    my $url = $self->url_for("$parent_route.get", {$self->id_key => $obj->{$self->primary_key}});
     return "$url";
 }
 

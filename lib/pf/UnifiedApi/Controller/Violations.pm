@@ -19,7 +19,7 @@ use pf::violation;
 
 has dal => 'pf::dal::violation';
 has id_key => 'violation_id';
-has resource_id => 'id';
+has primary_key => 'id';
 
 
 sub open_uniq {

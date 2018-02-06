@@ -20,7 +20,7 @@ use pf::error qw(is_error);
 
 has dal => 'pf::dal::api_user';
 has id_key => 'user_id';
-has resource_id => 'username';
+has primary_key => 'username';
 
 sub make_create_data {
     my ($self) = @_;

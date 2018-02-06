@@ -19,7 +19,7 @@ use pf::dal::locationlog;
 
 has dal => 'pf::dal::locationlog';
 has id_key => 'locationlog_id';
-has resource_id => 'id';
+has primary_key => 'id';
 
 =head1 AUTHOR
 

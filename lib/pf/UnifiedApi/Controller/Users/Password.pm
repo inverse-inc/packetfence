@@ -18,7 +18,7 @@ use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
 use pf::dal::password;
 has dal => 'pf::dal::password';
 has id_key => 'id';
-has resource_id => 'pid';
+has primary_key => 'pid';
 
 =head1 AUTHOR
 

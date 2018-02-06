@@ -32,7 +32,7 @@ sub config_store {
 
 sub resource {
     my ($self) = @_;
-    my $id = $self->resource_id;
+    my $id = $self->primary_key;
     my $cs = $self->config_store;
     if (!$cs->hasId($id)) {
         return $self->render_error(404, "Item ($id) not found");
@@ -40,7 +40,7 @@ sub resource {
     return 1;
 }
 
-sub resource_id {
+sub primary_key {
     my ($self) = @_;
     return $self->stash->{connection_profile_id};
 }
@@ -52,7 +52,7 @@ sub get {
 
 sub item {
     my ($self) = @_;
-    my $id = $self->resource_id;
+    my $id = $self->primary_key;
     my $cs = $self->config_store;
     my $item = $cs->read($id, 'id');
     return $self->cleanup_item($item);
@@ -118,7 +118,7 @@ sub make_location_url {
 
 sub remove {
     my ($self) = @_;
-    my $id = $self->resource_id;
+    my $id = $self->primary_key;
     my $cs = $self->config_store;
     $cs->remove($id, 'id');
     $cs->commit;
@@ -127,10 +127,10 @@ sub remove {
 
 sub update {
     my ($self) = @_;
-    my $id = $self->resource_id;
+    my $id = $self->primary_key;
     my $item = $self->cleanup_item($self->req->json);
     my $cs = $self->config_store;
-    $cs->update($self->resource_id, $self->cleanup_item($self->req->json));
+    $cs->update($self->primary_key, $self->cleanup_item($self->req->json));
     $cs->commit;
     $self->render(status => 200, json => { message => "$id updated"});
 }

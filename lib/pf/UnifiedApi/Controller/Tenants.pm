@@ -19,7 +19,7 @@ use pf::dal::tenant;
 
 has dal => 'pf::dal::tenant';
 has id_key => 'tenant_id';
-has resource_id => 'id';
+has primary_key => 'id';
 
 =head1 AUTHOR
 
