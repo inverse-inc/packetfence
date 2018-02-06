@@ -99,34 +99,35 @@ type TestSource struct {
 }
 
 type TypeSource interface {
-	Test(source interface{})
+	Test(source interface{}, ctx context.Context)
 }
 
 var RADIUS radiustype
 
 type radiustype struct{}
 
-func (s radiustype) Test(source interface{}) {
+func (s radiustype) Test(source interface{}, ctx context.Context) {
 	c, err := statsd.New()
 	if err != nil {
 		log.Print(err)
 	}
 	t := c.NewTiming()
-	packet := radius.New(radius.CodeAccessRequest, []byte(source.(*pfconfigdriver.AuthenticationSourceRadius).Secret))
+	packet := radius.New(radius.CodeAccessRequest, []byte(source.(pfconfigdriver.AuthenticationSourceRadius).Secret))
 	UserName_SetString(packet, "tim")
 	UserPassword_SetString(packet, "12345")
-	response, err := radius.Exchange(context.Background(), packet, source.(*pfconfigdriver.AuthenticationSourceRadius).Host+":"+source.(*pfconfigdriver.AuthenticationSourceRadius).Port)
+	client := radius.DefaultClient
+	response, err := client.Exchange(ctx, packet, source.(pfconfigdriver.AuthenticationSourceRadius).Host+":"+source.(pfconfigdriver.AuthenticationSourceRadius).Port)
 	if err != nil {
-		c.Count(source.(*pfconfigdriver.AuthenticationSourceRadius).PfconfigHashNS, -1)
+		c.Gauge(source.(pfconfigdriver.AuthenticationSourceRadius).PfconfigHashNS, 0)
 	} else {
-		c.Count(source.(*pfconfigdriver.AuthenticationSourceRadius).PfconfigHashNS, 1)
+		c.Gauge(source.(pfconfigdriver.AuthenticationSourceRadius).PfconfigHashNS, 1)
+		if response.Code == radius.CodeAccessAccept {
+			fmt.Println("Accepted")
+		} else {
+			fmt.Println("Denied")
+		}
 	}
-	if response.Code == radius.CodeAccessAccept {
-		fmt.Println("Accepted")
-	} else {
-		fmt.Println("Denied")
-	}
-	t.Send(source.(*pfconfigdriver.AuthenticationSourceRadius).PfconfigHashNS)
+	t.Send(source.(pfconfigdriver.AuthenticationSourceRadius).PfconfigHashNS)
 	defer c.Close()
 }
 
@@ -134,91 +135,93 @@ var LDAP ldaptype
 
 type ldaptype struct{}
 
-func (s ldaptype) Test(source interface{}) {
+func (s ldaptype) Test(source interface{}, ctx context.Context) {
 	c, err := statsd.New()
 	if err != nil {
 		log.Print(err)
 	}
+	defer c.Close()
 	t := c.NewTiming()
-	l, err := ldap.Dial("tcp", fmt.Sprintf("%s:%d", source.(*pfconfigdriver.AuthenticationSourceLdap).Host, source.(*pfconfigdriver.AuthenticationSourceLdap).Port))
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer l.Close()
+	l, err := ldap.Dial("tcp", fmt.Sprintf("%s:%s", source.(pfconfigdriver.AuthenticationSourceLdap).Host, source.(pfconfigdriver.AuthenticationSourceLdap).Port))
 
-	// Reconnect with TLS
-	if source.(*pfconfigdriver.AuthenticationSourceLdap).Encryption != "none" {
-		err = l.StartTLS(&tls.Config{InsecureSkipVerify: true})
+	if err != nil {
+		c.Gauge(source.(pfconfigdriver.AuthenticationSourceLdap).PfconfigHashNS, 0)
+		log.Print(err)
+	} else {
+		defer l.Close()
+		// Reconnect with TLS
+		if source.(pfconfigdriver.AuthenticationSourceLdap).Encryption != "none" {
+			err = l.StartTLS(&tls.Config{InsecureSkipVerify: true})
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+
+		// First bind with a read only user
+		timeout, err := strconv.Atoi(source.(pfconfigdriver.AuthenticationSourceLdap).ReadTimeout)
 		if err != nil {
 			log.Fatal(err)
 		}
-	}
 
-	// First bind with a read only user
-	timeout, err := strconv.Atoi(source.(*pfconfigdriver.AuthenticationSourceLdap).ReadTimeout)
-	if err != nil {
-		log.Fatal(err)
+		l.SetTimeout(time.Duration(timeout) * time.Second)
+		err = l.Bind(source.(pfconfigdriver.AuthenticationSourceLdap).BindDN, source.(pfconfigdriver.AuthenticationSourceLdap).Password)
+		if err != nil {
+			c.Gauge(source.(pfconfigdriver.AuthenticationSourceLdap).PfconfigHashNS, 0)
+		} else {
+			c.Gauge(source.(pfconfigdriver.AuthenticationSourceLdap).PfconfigHashNS, 1)
+		}
+		t.Send(source.(pfconfigdriver.AuthenticationSourceLdap).PfconfigHashNS)
 	}
-
-	l.SetTimeout(time.Duration(timeout) * time.Second)
-	err = l.Bind(source.(*pfconfigdriver.AuthenticationSourceLdap).BindDN, source.(*pfconfigdriver.AuthenticationSourceLdap).Password)
-	if err != nil {
-		c.Count(source.(*pfconfigdriver.AuthenticationSourceLdap).PfconfigHashNS, -1)
-	} else {
-		c.Count(source.(*pfconfigdriver.AuthenticationSourceLdap).PfconfigHashNS, 1)
-	}
-	t.Send(source.(*pfconfigdriver.AuthenticationSourceLdap).PfconfigHashNS)
-	defer c.Close()
 }
 
 var EDUROAM eduroamtype
 
 type eduroamtype struct{}
 
-func (s eduroamtype) Test(source interface{}) {
+func (s eduroamtype) Test(source interface{}, ctx context.Context) {
 	c, err := statsd.New()
 	if err != nil {
 		log.Print(err)
 	}
 
 	t := c.NewTiming()
-	packet := radius.New(radius.CodeAccessRequest, []byte(source.(*pfconfigdriver.AuthenticationSourceEduroam).RadiusSecret))
+	packet := radius.New(radius.CodeAccessRequest, []byte(source.(pfconfigdriver.AuthenticationSourceEduroam).RadiusSecret))
 	UserName_SetString(packet, "tim")
 	UserPassword_SetString(packet, "12345")
-	response, err := radius.Exchange(context.Background(), packet, source.(*pfconfigdriver.AuthenticationSourceEduroam).Server1Address+":1812")
+	client := radius.DefaultClient
+	response, err := client.Exchange(ctx, packet, source.(pfconfigdriver.AuthenticationSourceEduroam).Server1Address+":1812")
+
 	if err != nil {
-		c.Count(source.(*pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"1", -1)
+		c.Gauge(source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"1", 0)
 	} else {
-		c.Count(source.(*pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"1", 1)
+		c.Count(source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"1", 1)
+		if response.Code == radius.CodeAccessAccept {
+			fmt.Println("Accepted")
+		} else {
+			fmt.Println("Denied")
+		}
 	}
-	if response.Code == radius.CodeAccessAccept {
-		fmt.Println("Accepted")
-	} else {
-		fmt.Println("Denied")
-	}
-	t.Send(source.(*pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS + "1")
+	t.Send(source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS + "1")
 
 	t = c.NewTiming()
-	packet = radius.New(radius.CodeAccessRequest, []byte(source.(*pfconfigdriver.AuthenticationSourceEduroam).RadiusSecret))
+	packet = radius.New(radius.CodeAccessRequest, []byte(source.(pfconfigdriver.AuthenticationSourceEduroam).RadiusSecret))
 	UserName_SetString(packet, "tim")
 	UserPassword_SetString(packet, "12345")
-	response, err = radius.Exchange(context.Background(), packet, source.(*pfconfigdriver.AuthenticationSourceEduroam).Server2Address+":1812")
+	response, err = client.Exchange(ctx, packet, source.(pfconfigdriver.AuthenticationSourceEduroam).Server2Address+":1812")
 	if err != nil {
-		c.Count(source.(*pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"2", -1)
+		c.Gauge(source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"2", 0)
 	} else {
-		c.Count(source.(*pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"2", 1)
+		c.Gauge(source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"2", 1)
+		if response.Code == radius.CodeAccessAccept {
+			fmt.Println("Accepted")
+		} else {
+			fmt.Println("Denied")
+		}
 	}
-	if response.Code == radius.CodeAccessAccept {
-		fmt.Println("Accepted")
-	} else {
-		fmt.Println("Denied")
-	}
-	t.Send(source.(*pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS + "2")
+	t.Send(source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS + "2")
 
 	defer c.Close()
 }
-
-var ctx = context.Background()
 
 func forward(c net.Conn) {
 	for {
@@ -255,6 +258,11 @@ func forward(c net.Conn) {
 }
 
 func main() {
+
+	d := time.Now().Add(500 * time.Millisecond)
+	ctx, cancel := context.WithDeadline(context.Background(), d)
+	defer cancel()
+
 	log.Println("Starting Collectd to statsd server")
 	// Systemd
 	daemon.SdNotify(false, "READY=1")
@@ -286,7 +294,8 @@ func main() {
 				source.PfconfigHashNS = src
 				pfconfigdriver.FetchDecodeSocket(ctx, &source)
 				var Source = TestSource{LDAP}
-				Source.SourceType.Test(&source)
+				fmt.Println(src)
+				go Source.SourceType.Test(source, ctx)
 			}
 			time.Sleep(time.Second * 10)
 		}
@@ -302,9 +311,10 @@ func main() {
 				var source pfconfigdriver.AuthenticationSourceRadius
 				source.PfconfigNS = "resource::authentication_sources_radius"
 				source.PfconfigHashNS = src
+				fmt.Println(src)
 				pfconfigdriver.FetchDecodeSocket(ctx, &source)
 				var Source = TestSource{RADIUS}
-				Source.SourceType.Test(&source)
+				go Source.SourceType.Test(source, ctx)
 			}
 			time.Sleep(time.Second * 10)
 		}
@@ -313,7 +323,6 @@ func main() {
 	// Eduroam Sources
 	go func() {
 		for {
-
 			var sections pfconfigdriver.PfconfigKeys
 			sections.PfconfigNS = "resource::authentication_sources_eduroam"
 
@@ -322,9 +331,10 @@ func main() {
 				var source pfconfigdriver.AuthenticationSourceEduroam
 				source.PfconfigNS = "resource::authentication_sources_eduroam"
 				source.PfconfigHashNS = src
+				fmt.Println(src)
 				pfconfigdriver.FetchDecodeSocket(ctx, &source)
 				var Source = TestSource{EDUROAM}
-				Source.SourceType.Test(&source)
+				go Source.SourceType.Test(source, ctx)
 			}
 			time.Sleep(time.Second * 10)
 		}
