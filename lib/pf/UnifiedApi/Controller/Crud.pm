@@ -20,10 +20,9 @@ use pf::error qw(is_error);
 use pf::log;
 
 has 'dal';
-has 'id_key';
-has 'resource_id' => 'id';
-has 'parent_id_keys' => sub { [] };
-has 'parent_id_key_map' => sub { {} };
+has 'id_key'; # param_name
+has 'resource_id' => 'id'; # primary_key
+has 'parent_id_key_map' => sub { {} }; # parent_primary_key_map
 
 sub list {
     my ($self) = @_;
@@ -149,8 +148,8 @@ sub parent_data {
     my $map = $self->parent_id_key_map;
     my %data;
     my $captures = $self->stash->{'mojo.captures'};
-    for my $parent_id (@{$self->parent_id_keys // []}) {
-        $data{$map->{$parent_id}} = $captures->{$parent_id};
+    while (my ($param_name, $field_name) = each %$map) {
+        $data{$field_name} = $captures->{$param_name};
     }
 
     return \%data;
