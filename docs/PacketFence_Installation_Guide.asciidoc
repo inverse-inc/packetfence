@@ -225,7 +225,7 @@ This section will guide through configuring PacketFence as a simple RADIUS serve
 
 image::docs/images/getting-started.png[scaledwidth="65%",alt="Getting Started"]
 
-Going through the configurator
+Going Through the Configurator
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 First open PacketFence's configurator - you can access it from https://@ip_of_packetfence:1443/configurator
@@ -384,7 +384,7 @@ Then add the required access lists:
    permit tcp any any eq 443
 
 
-Adjust switch configuration in PacketFence
+Adjust Switch Configuration in PacketFence
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Next we have to let PacketFence know that Web Auth is to be used on the Cisco Catalyst 2960 switch. From 'Configuration->Policies and Access Control->Switches' and click on your switch's IP to open its configuration options. From the 'Definition' tab, make sure 'Use CoA' and 'External Portal Enforcement' are checked and set the 'CoA Port' to 3799. From the 'Roles' tab, make the following changes:

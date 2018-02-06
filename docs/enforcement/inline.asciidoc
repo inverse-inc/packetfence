@@ -241,10 +241,7 @@ From the computer:
 * try to connect to a HTTP site (Not HTTPS, eg. http://www.google.com)
 * make sure that whatever site you want to connect to, you have only access to the registration page.
 
-Register the computer using the following information:
-
-* user: demouser
-* password: demouser
+Register the computer using using the Null authentication source.
 
 Once a computer has been registered:
 
