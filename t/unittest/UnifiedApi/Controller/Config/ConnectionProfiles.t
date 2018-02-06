@@ -31,9 +31,11 @@ use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
 
-my $base_url = '/api/v1/config/connection_profiles';
+my $collection_base_url = '/api/v1/config/connection_profiles';
 
-$t->get_ok($base_url)
+my $base_url = '/api/v1/config/connection_profile';
+
+$t->get_ok($collection_base_url)
   ->status_is(200)
   ->json_is('/items/0/id', 'default');
 
@@ -41,10 +43,11 @@ $t->get_ok("$base_url/default")
   ->status_is(200)
   ->json_is('/item/id', 'default');
 
-$t->post_ok($base_url => json => {})
+
+$t->post_ok($collection_base_url => json => {})
   ->status_is(417);
 
-$t->post_ok($base_url, {'Content-Type' => 'application/json'} => '{')
+$t->post_ok($collection_base_url, {'Content-Type' => 'application/json'} => '{')
   ->status_is(400);
 
 =head1 AUTHOR

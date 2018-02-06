@@ -20,6 +20,7 @@ use pfappserver::Form::Config::Profile;
 
 has 'config_store_class' => 'pf::ConfigStore::Profile';
 has 'form_class' => 'pfappserver::Form::Config::Profile';
+has 'primary_key' => 'connection_profile_id';
 
 our %DEFAULT_VALUES = (
     "access_registration_when_registered" => "",
