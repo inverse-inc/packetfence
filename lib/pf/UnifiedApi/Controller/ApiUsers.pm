@@ -19,7 +19,7 @@ use pf::dal::api_user;
 use pf::error qw(is_error);
 
 has dal => 'pf::dal::api_user';
-has id_key => 'user_id';
+has url_param_name => 'user_id';
 has primary_key => 'username';
 
 sub make_create_data {

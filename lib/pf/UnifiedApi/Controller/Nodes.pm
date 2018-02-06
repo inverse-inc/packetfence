@@ -19,7 +19,7 @@ use pf::dal::node;
 use pf::locationlog qw(locationlog_history_mac locationlog_view_open_mac);
 
 has dal => 'pf::dal::node';
-has id_key => 'node_id';
+has url_param_name => 'node_id';
 has primary_key => 'mac';
 
 sub latest_locationlog_by_mac {

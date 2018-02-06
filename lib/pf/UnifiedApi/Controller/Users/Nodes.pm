@@ -18,7 +18,7 @@ use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
 use pf::person;
 
 has 'dal' => 'pf::dal::node';
-has 'id_key' => 'node_id';
+has 'url_param_name' => 'node_id';
 has 'primary_key' => 'mac';
 has 'parent_primary_key_map' => sub { {user_id => 'pid'} };
 

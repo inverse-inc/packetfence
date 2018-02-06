@@ -18,7 +18,7 @@ use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
 use pf::dal::locationlog;
 
 has 'dal' => 'pf::dal::locationlog';
-has 'id_key' => 'locationlog_id';
+has 'url_param_name' => 'locationlog_id';
 has 'primary_key' => 'id';
 has 'parent_primary_key_map' => sub { {node_id => 'mac'} };
 

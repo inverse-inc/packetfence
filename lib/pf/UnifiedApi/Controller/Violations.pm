@@ -18,7 +18,7 @@ use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
 use pf::violation;
 
 has dal => 'pf::dal::violation';
-has id_key => 'violation_id';
+has url_param_name => 'violation_id';
 has primary_key => 'id';
 
 

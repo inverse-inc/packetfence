@@ -18,7 +18,7 @@ use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
 use pf::dal::tenant;
 
 has dal => 'pf::dal::tenant';
-has id_key => 'tenant_id';
+has url_param_name => 'tenant_id';
 has primary_key => 'id';
 
 =head1 AUTHOR
