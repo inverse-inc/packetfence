@@ -50,6 +50,16 @@ has_field 'timeout' =>
    element_attr => {'placeholder' => '1'},
    default => 1,
   );
+has_field 'monitor',
+  (
+   type => 'Toggle',
+   label => 'Monitor',
+   checkbox_value => '1',
+   unchecked_value => '0',
+   tags => { after_element => \&help,
+             help => 'Do you want to monitor this source?' },
+   default => pf::Authentication::Source::RADIUSSource->meta->get_attribute('monitor')->default,
+);
 
 =head1 COPYRIGHT
 

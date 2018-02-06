@@ -155,6 +155,17 @@ has_field 'email_attribute' => (
     },
 );
 
+has_field 'monitor',
+  (
+   type => 'Toggle',
+   label => 'Monitor',
+   checkbox_value => '1',
+   unchecked_value => '0',
+   tags => { after_element => \&help,
+             help => 'Do you want to monitor this source?' },
+   default => $META->get_attribute('monitor')->default,
+);
+
 =head2 validate
 
 Make sure a password is specified when a bind DN is specified.

@@ -63,6 +63,7 @@ has 'usernameattribute' => (isa => 'Str', is => 'rw', required => 1);
 has '_cached_connection' => (is => 'rw');
 has 'cache_match' => ( isa => 'Bool', is => 'rw', default => 0 );
 has 'email_attribute' => (isa => 'Maybe[Str]', is => 'rw', default => 'mail');
+has 'monitor' => ( isa => 'Bool', is => 'rw', default => 1 );
 
 our $logger = get_logger();
 

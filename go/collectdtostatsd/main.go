@@ -293,9 +293,10 @@ func main() {
 				source.PfconfigNS = "resource::authentication_sources_ldap"
 				source.PfconfigHashNS = src
 				pfconfigdriver.FetchDecodeSocket(ctx, &source)
-				var Source = TestSource{LDAP}
-				fmt.Println(src)
-				go Source.SourceType.Test(source, ctx)
+				if source.Monitor == "1" {
+					var Source = TestSource{LDAP}
+					go Source.SourceType.Test(source, ctx)
+				}
 			}
 			time.Sleep(time.Second * 10)
 		}
@@ -311,10 +312,11 @@ func main() {
 				var source pfconfigdriver.AuthenticationSourceRadius
 				source.PfconfigNS = "resource::authentication_sources_radius"
 				source.PfconfigHashNS = src
-				fmt.Println(src)
 				pfconfigdriver.FetchDecodeSocket(ctx, &source)
-				var Source = TestSource{RADIUS}
-				go Source.SourceType.Test(source, ctx)
+				if source.Monitor == "1" {
+					var Source = TestSource{RADIUS}
+					go Source.SourceType.Test(source, ctx)
+				}
 			}
 			time.Sleep(time.Second * 10)
 		}
@@ -331,10 +333,11 @@ func main() {
 				var source pfconfigdriver.AuthenticationSourceEduroam
 				source.PfconfigNS = "resource::authentication_sources_eduroam"
 				source.PfconfigHashNS = src
-				fmt.Println(src)
 				pfconfigdriver.FetchDecodeSocket(ctx, &source)
-				var Source = TestSource{EDUROAM}
-				go Source.SourceType.Test(source, ctx)
+				if source.Monitor == "1" {
+					var Source = TestSource{EDUROAM}
+					go Source.SourceType.Test(source, ctx)
+				}
 			}
 			time.Sleep(time.Second * 10)
 		}
