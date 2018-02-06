@@ -4629,10 +4629,4 @@ From the PacketFence's web admin interface, you must configure an Admin Access r
 
 NOTE: Any user that has the 'ALL' administrative role will be able to login into your switches. If you want to provide all PacketFence administrative access to some users without allowing them to login into the switches, then apply the 'ALL_PF_ONLY' administrative role which will contains all the necessary PacketFence roles without the switch login.
 
-
-Trigger a violation when discovering a node
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-PacketFence is able to trigger a violation when a node is discovered on your network. It will send the trigger internal::node_discovered which is already part of violation 1300004. You can enable this violation with the default values and it will send a short report for every new device discovered by PacketFence. You can also execute any typical violation actions on during this process.
-
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:
