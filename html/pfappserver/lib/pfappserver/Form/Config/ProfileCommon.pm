@@ -317,7 +317,9 @@ has_field 'block_interval' =>
     type => 'Duration',
     label => 'Block Interval',
     #Use the inflate method from pfappserver::Form::Field::Duration
-    default => pfappserver::Form::Field::Duration->duration_inflate($pf::constants::Connection::Profile::BLOCK_INTERVAL_DEFAULT_VALUE),
+    default_method => sub {
+        pfappserver::Form::Field::Duration->duration_inflate($pf::constants::Connection::Profile::BLOCK_INTERVAL_DEFAULT_VALUE)
+    },
     tags => { after_element => \&help,
              help => 'The amount of time a user is blocked after reaching the defined limit for login, sms request and sms pin retry.' },
   );
