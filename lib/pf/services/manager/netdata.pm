@@ -26,11 +26,14 @@ use pf::cluster;
 use pf::config qw(
     $management_network
 );
+use pfconfig::cached_array;
 
 use Moo;
 extends 'pf::services::manager';
 
 has '+name' => (default => sub { 'netdata' } );
+
+tie our @authenticationsources, 'pfconfig::cached_array', "resource::authentication_sources";
 
 sub generateConfig {
     my ($self,$quick) = @_;
@@ -41,6 +44,18 @@ sub generateConfig {
     if ($cluster_enabled) {
         my $int = $management_network->tag('int');
         $tags{'members'} = join(" ", grep( {$_ ne $management_network->tag('ip')} values %{pf::cluster::members_ips($int)}));
+    }
+
+    my @monitor_sources = grep {$_->{'monitor'} eq '1'} @authenticationsources;
+
+    foreach my $source  (@monitor_sources) {
+        if ($source->{'host'}) {
+            $tags{'members'} .= " $source->{'host'}";
+        } elsif ($source->{'server1_address'}) {
+            $tags{'members'} .= " $source->{'server1_address'}";
+        } elsif ($source->{'server2_address'}) {
+            $tags{'members'} .= " $source->{'server2_address'}";
+        }
     }
 
     $tags{'httpd_portal_modstatus_port'} = "$Config{'ports'}{'httpd_portal_modstatus'}";
